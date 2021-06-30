@@ -659,15 +659,80 @@ namespace moris
                 // compute previous adjoint values
                 this->compute_my_previous_adjoint_values();
 
-                const Cell< enum MSI::Dof_Type > & tDofType1 = mEquationSet->get_requested_dof_types();
+                const Cell< enum MSI::Dof_Type > & tRequestedDofTypes = mEquationSet->get_requested_dof_types();
+            
+                // get master dof type list from set
+                Cell< Cell< MSI::Dof_Type > > & tMasterDofTypeList =
+                                mEquationSet->get_dof_type_list( mtk::Master_Slave::MASTER );
 
-                // get the pdof values for the ith dof type group
-                Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
+                Matrix< DDSMat > tIdentifierMat( ( uint )MSI::Dof_Type::END_ENUM,1,-1);
 
-                this->get_my_pdof_values( mPreviousAdjointPdofValues, tDofType1, tCoeff_Original, mtk::Master_Slave::MASTER );
+                uint tCounter = 0;
 
-                uint tNumRHS  =tCoeff_Original.size();
+                for( uint Ik = 0; Ik < tRequestedDofTypes.size(); Ik++ )
+                {
+                    // get the set index for the requested master dof type
+                    sint tDofIndex = mEquationSet->get_dof_index_for_type(
+                            tRequestedDofTypes( Ik ),
+                            mtk::Master_Slave::MASTER );
+
+                    // if the index was set (and is different from -1)
+                    if( tDofIndex != -1 )
+                    {
+                        tIdentifierMat( tDofIndex ) = 1;
+
+                        uint tEndRow   = mEquationSet->mResDofAssemblyMap( tDofIndex )( 1 );
+
+                        tCounter = std::max( tCounter, tEndRow +1  );
+                    }
+                }
+
                 Cell< Matrix< DDRMat > > tCoeff( tNumRHS );
+                for( uint Ik = 0; Ik < tNumRHS; Ik++ )
+                {
+                    tCoeff( Ik ).set_size( tCounter, 1, MORIS_REAL_MAX );
+                }
+
+
+                for( uint Ik = 0; Ik < tMasterDofTypeList.size(); Ik++ )
+                {
+                    // get the set index for the requested master dof type
+                    sint tDofIndex = mEquationSet->get_dof_index_for_type(
+                                tMasterDofTypeList( Ik )( 0 ),
+                                mtk::Master_Slave::MASTER );
+
+                    if( tIdentifierMat( tDofIndex ) == 1 ) 
+                    {
+                        // get the pdof values for the ith dof type group
+                        Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
+                    
+                        this->get_my_pdof_values( 
+                            mPreviousAdjointPdofValues,
+                            tMasterDofTypeList( Ik ),
+                            tCoeff_Original,
+                            mtk::Master_Slave::MASTER );
+
+                        // loop over the rhs
+                        for ( uint Ia = 0; Ia < tNumRHS; Ia++ )
+                        {
+
+                            uint tCols = tCoeff_Original( Ia ).size();
+                            uint tRows = tCoeff_Original( Ia )( 0 ).numel();
+
+                            uint tStartRow = mEquationSet->mResDofAssemblyMap( tDofIndex )( 0 );
+                            //uint tEndRow   = mEquationSet->mResDofAssemblyMap( tDofIndex )( 1 );
+
+                            for( uint Ib = 0; Ib < tCols; Ib++)
+                            {
+                                for( uint Ii = 0; Ii < tRows; Ii++)
+                                {
+                                    tCoeff( Ia )( tStartRow++ ) = tCoeff_Original( Ia )( Ib )( Ii );
+                                }
+                            }
+                        }
+
+                    }
+                }
 
                 // build transpose of Tmatrix
                 Matrix< DDRMat > tJacobianTrans = trans( mEquationSet->get_jacobian() );
@@ -675,23 +740,7 @@ namespace moris
                 // loop over the rhs
                 for ( uint Ik = 0; Ik < tNumRHS; Ik++ )
                 {
-                    // reshape tCoeffs into the order the cluster expects them
-                    this->reshape_pdof_values( tCoeff_Original( Ik ), tCoeff( Ik ) );
-
-                    Cell< Matrix< DDRMat > > tCoeff1(tNumRHS);
-
-                    tCoeff1( Ik ).set_size( tCoeff( Ik ).numel(),1, 0.0);
-                    //fixme get rid of for loop
-                    uint tCounter=0;
-                    for( uint Ia = 0; Ia<tCoeff( Ik ).n_cols(); Ia++)
-                    {
-                        for( uint Ii = 0; Ii<tCoeff ( Ik ).n_rows(); Ii++)
-                        {
-                            tCoeff1( Ik )(tCounter++) = tCoeff( Ik )(Ii,Ia);
-                        }
-                    }
-
-                    tElementalResidual( Ik ) = tJacobianTrans * tCoeff1( Ik );
+                    tElementalResidual( Ik ) = tJacobianTrans * tCoeff( Ik );
                 }
             }
 

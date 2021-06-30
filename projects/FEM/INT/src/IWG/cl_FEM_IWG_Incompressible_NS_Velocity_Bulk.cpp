@@ -25,6 +25,7 @@ namespace moris
             mPropertyMap[ "ReferenceTemp" ]    = static_cast< uint >( IWG_Property_Type::REF_TEMP );
             mPropertyMap[ "InvPermeability" ]  = static_cast< uint >( IWG_Property_Type::INV_PERMEABILITY );
             mPropertyMap[ "MassSource" ]       = static_cast< uint >( IWG_Property_Type::MASS_SOURCE );
+            mPropertyMap[ "Load" ]             = static_cast< uint >( IWG_Property_Type::BODY_LOAD );
             mPropertyMap[ "Homotopy" ]         = static_cast< uint >( IWG_Property_Type::HOMOTOPY );
 
             // set size for the constitutive model pointer cell
@@ -59,7 +60,7 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the gravity property
-            const std::shared_ptr< Property > & tGravityProp    =
+            const std::shared_ptr< Property > & tGravityProp =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::GRAVITY ) );
 
             // get the thermal expansion property
@@ -67,18 +68,18 @@ namespace moris
                     mMasterProp( static_cast< uint >( IWG_Property_Type::THERMAL_EXPANSION ) );
 
             // get the reference temperature property
-            const std::shared_ptr< Property > & tRefTempProp    =
+            const std::shared_ptr< Property > & tRefTempProp =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::REF_TEMP ) );
 
             // get the inverted permeability (porosity) property
-            const std::shared_ptr< Property > & tInvPermeabProp   =
+            const std::shared_ptr< Property > & tInvPermeabProp =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::INV_PERMEABILITY ) );
 
-            // get the mass source property
-            const std::shared_ptr< Property > & tMassSourceProp   =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::MASS_SOURCE ) );
+            // get the body load property
+            const std::shared_ptr< Property > & tLoadProp =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::BODY_LOAD ) );
 
-            const std::shared_ptr< Property > & tHomotopyProp     =
+            const std::shared_ptr< Property > & tHomotopyProp =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::HOMOTOPY ) );
 
             // get the incompressible fluid constitutive model
@@ -166,12 +167,11 @@ namespace moris
                         tVelocityFI->N_trans() * tInvPermeabProp->val()( 0 ) * tVelocityFI->val() );
             }
 
-            // if mass source (definition consistent with term in mass continuity equations)
-            if ( tMassSourceProp != nullptr )
+            // if body load
+            if ( tLoadProp != nullptr )
             {
-                // add term: rho * div(u) * u_i = mass source * u_i
-                tRes += aWStar * (
-                        tVelocityFI->N_trans() * tMassSourceProp->val()( 0 ) * tVelocityFI->val() );
+                tRes -= aWStar * (
+                        tVelocityFI->N_trans() * tLoadProp->val() );
             }
 
             // if homotopy approach
@@ -206,7 +206,7 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the gravity property
-            const std::shared_ptr< Property > & tGravityProp    =
+            const std::shared_ptr< Property > & tGravityProp =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::GRAVITY ) );
 
             // get the thermal expansion property
@@ -214,16 +214,16 @@ namespace moris
                     mMasterProp( static_cast< uint >( IWG_Property_Type::THERMAL_EXPANSION ) );
 
             // get the reference temperature property
-            const std::shared_ptr< Property > & tRefTempProp    =
+            const std::shared_ptr< Property > & tRefTempProp =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::REF_TEMP ) );
 
             // get the inverted permeability property
-            const std::shared_ptr< Property > & tInvPermeabProp   =
+            const std::shared_ptr< Property > & tInvPermeabProp =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::INV_PERMEABILITY ) );
 
-            // get the mass source property
-            const std::shared_ptr< Property > & tMassSourceProp   =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::MASS_SOURCE ) );
+            // get the body load property
+            const std::shared_ptr< Property > & tLoadProp =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::BODY_LOAD ) );
 
             const std::shared_ptr< Property > & tHomotopyProp    =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::HOMOTOPY ) );
@@ -316,13 +316,6 @@ namespace moris
                                 tVelocityFI->N_trans() * tInvPermeabProp->val()( 0 ) * tVelocityFI->N() );
                     }
 
-                    // if mass source term
-                    if ( tMassSourceProp != nullptr )
-                    {
-                        tJac += aWStar * (
-                                 tVelocityFI->N_trans() * tMassSourceProp->val()( 0 ) * tVelocityFI->N() );
-                    }
-
                     if( tHomotopyProp )
                     {
                         // compute the Jacobian
@@ -381,15 +374,14 @@ namespace moris
                     }
                 }
 
-                // if mass source depends on DoF type
-                if ( tMassSourceProp != nullptr )
+                // if body load term depends on DoF type
+                if ( tLoadProp != nullptr )
                 {
-                    if( tInvPermeabProp->check_dof_dependency( tDofType ) )
-                    {
-                        tJac += aWStar * (
-                                tVelocityFI->N_trans() * tVelocityFI->val() *
-                                tMassSourceProp->dPropdDOF( tDofType ) );
-                    }
+                    if( tLoadProp->check_dof_dependency( tDofType ) )
+                     {
+                       tJac -= aWStar * (
+                             tVelocityFI->N_trans() * tLoadProp->dPropdDOF( tDofType ) );
+                     }
                 }
 
                 // if gravity
@@ -527,6 +519,10 @@ namespace moris
             const std::shared_ptr< Property > & tMassSourceProp   =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::MASS_SOURCE ) );
 
+            // get the body load property
+            const std::shared_ptr< Property > & tLoadProp =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::BODY_LOAD ) );
+
             // get the incompressible fluid constitutive model
             const std::shared_ptr< Constitutive_Model > & tIncFluidCM =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
@@ -545,12 +541,16 @@ namespace moris
             // compute the residual strong form of continuity equation
             aRC = tVelocityFI->div();
 
+            // if body load
+            if ( tLoadProp != nullptr )
+            {
+                // add contribution of body load term to momentum residual
+                aRM -= tLoadProp->val();
+            }
+
             // if mass source
             if ( tMassSourceProp != nullptr )
             {
-                // add contribution of mass source term to momentum residual
-                aRM += tMassSourceProp->val()( 0 ) * tVelocityFI->val() ;
-
                 // add mass source to continuity residual
                 aRC -= tMassSourceProp->val()( 0 ) / tDensity;
             }
@@ -619,6 +619,10 @@ namespace moris
             const std::shared_ptr< Property > & tMassSourceProp   =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::MASS_SOURCE ) );
 
+            // get the body load property
+            const std::shared_ptr< Property > & tLoadProp =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::BODY_LOAD ) );
+
             // get the incompressible fluid constitutive model
             const std::shared_ptr< Constitutive_Model > & tIncFluidCM =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
@@ -680,22 +684,23 @@ namespace moris
                 }
             }
 
+            // if body load
+            if ( tLoadProp != nullptr )
+            {
+                // if DoF dependency of body load
+                if( tLoadProp->check_dof_dependency( aDofTypes ) )
+                {
+                    // add contribution to momentum Jacobian
+                    aJM -= tLoadProp->dPropdDOF( aDofTypes );
+                }
+            }
+
             // if mass source
             if ( tMassSourceProp != nullptr )
             {
-                // if derivative dof type is residual dof type
-                if( aDofTypes( 0 ) == mResidualDofType( 0 )( 0 ) )
-                {
-                    // add mass source contribution to Jacobian of momentum strong form
-                    aJM += tMassSourceProp->val()( 0 ) * tVelocityFI->N();
-                }
-
-                // if indirect DoF dependency of source term
+                // if DoF dependency of source term
                 if( tMassSourceProp->check_dof_dependency( aDofTypes ) )
                 {
-                    // add contribution to momentum Jacobian
-                    aJM += tVelocityFI->val() * tMassSourceProp->dPropdDOF( aDofTypes );
-
                     // add contribution to continuity Jacobian
                     aJC -= tMassSourceProp->dPropdDOF( aDofTypes ) / tDensity ;
                 }

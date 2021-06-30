@@ -38,10 +38,13 @@ namespace moris
                 // extract time derivative order
                 if ( tParamSize > 1 )
                 {
+                    MORIS_ERROR( mSpatialDerivativeOrder == 0,
+                            "IQI_Dof::initialize - Time gradient can only be computed if spatial gradient order is zero.\n");
+
                     MORIS_ERROR( mParameters( 1 ).numel() == 1,
                             "IQI_Dof::initialize - Time gradient definition requires exactly one coefficient.\n");
 
-                    mTimeDerivativeOrder = mParameters( 0 )( 0 );
+                    mTimeDerivativeOrder = mParameters( 1 )( 0 );
                 }
 
                 // set initialize flag to true

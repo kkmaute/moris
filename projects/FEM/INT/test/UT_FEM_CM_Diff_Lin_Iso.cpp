@@ -56,7 +56,7 @@ moris::Cell<bool> test_diffusion_constitutive_model(
     real tEpsilonRel = 2.0E-6;
 
     // initialize cell of checks
-    moris::Cell<bool> tChecks( 6, false );
+    moris::Cell<bool> tChecks( 7, false );
 
     // create the properties --------------------------------------------------------------------- //
     std::shared_ptr< fem::Property > tPropMasterConductivity = std::make_shared< fem::Property >();
@@ -219,6 +219,23 @@ moris::Cell<bool> test_diffusion_constitutive_model(
     Matrix< DDRMat > tTestStrain = tCMMasterDiffLinIso->testStrain();
     //print( tTestStrain, "tTestStrain");
 
+    // check Energy ------------------------------------------------------------------
+    //------------------------------------------------------------------------------
+
+    // evaluate the constitutive model flux derivative
+    Matrix< DDRMat > tdEnergydDOF = tCMMasterDiffLinIso->dEnergydDOF( { MSI::Dof_Type::TEMP } );
+    //print( tdFluxdDOF, "tdFluxdDOF");
+
+    // evaluate the constitutive model stress derivative by FD
+    Matrix< DDRMat > tdEnergydDOF_FD;
+    tCMMasterDiffLinIso->eval_dEnergydDOF_FD( { MSI::Dof_Type::TEMP }, tdEnergydDOF_FD, 1E-6 );
+
+    //check stress derivative
+    bool tCheckEnergy = fem::check( tdEnergydDOF, tdEnergydDOF_FD, tEpsilonRel );
+
+    // set bool in check list
+    tChecks( 2 ) = tCheckEnergy;
+
     // check EnergyDot ------------------------------------------------------------------
     //------------------------------------------------------------------------------
 
@@ -234,7 +251,7 @@ moris::Cell<bool> test_diffusion_constitutive_model(
     bool tCheckEnergyDot = fem::check( tdEnergyDotdDOF, tdEnergyDotdDOF_FD, tEpsilonRel );
 
     // set bool in check list
-    tChecks( 2 ) = tCheckEnergyDot;
+    tChecks( 3 ) = tCheckEnergyDot;
 
 //    // debug
 //    moris::print(tdEnergyDotdDOF, "tdEnergyDotdDOF");
@@ -255,7 +272,7 @@ moris::Cell<bool> test_diffusion_constitutive_model(
     bool tCheckGradH = fem::check( tdGradEnergydDOF, tdGradEnergydDOF_FD, tEpsilonRel );
 
     // set bool to check list
-    tChecks( 3 ) = tCheckGradH;
+    tChecks( 4 ) = tCheckGradH;
 
 //    // debug
 //    moris::print(tdGradEnergydDOF, "tdGradEnergydDOF");
@@ -276,7 +293,7 @@ moris::Cell<bool> test_diffusion_constitutive_model(
     bool tCheckGradEnergyDot = fem::check( tdGradEnergyDotdDOF, tdGradEnergyDotdDOF_FD, tEpsilonRel );
 
     // set bool in check list
-    tChecks( 4 ) = tCheckGradEnergyDot;
+    tChecks( 5 ) = tCheckGradEnergyDot;
 
 //    // debug
 //    moris::print(tdGradEnergyDotdDOF, "tdGradEnergyDotdDOF");
@@ -297,7 +314,7 @@ moris::Cell<bool> test_diffusion_constitutive_model(
     bool tCheckGradDivFlux = fem::check( tdGradDivFluxdDOF, tdGradDivFluxdDOF_FD, tEpsilonRel );
 
     // set bool to check list
-    tChecks(5) = tCheckGradDivFlux;
+    tChecks( 6 ) = tCheckGradDivFlux;
 
 //    // debug
 //    moris::print(tdGradDivFluxdDOF, "tdGradDivFluxdDOF");
@@ -358,14 +375,17 @@ TEST_CASE( "CM_Diff_Lin_Iso_QUAD4", "[moris],[fem],[CM_Diff_Lin_Iso_QUAD4]" )
             tParametricPoint);
 
     // checks
-    bool tCheckdStress     = tChecks(0);
-    bool tCheckdStrain     = tChecks(1);
-    bool tCheckEnergyDot        = tChecks(2);
-    bool tCheckGradH       = tChecks(3);
-    bool tCheckGradEnergyDot    = tChecks(4);
-    bool tCheckGradDivFlux = tChecks(5);
+    bool tCheckdStress       = tChecks(0);
+    bool tCheckdStrain       = tChecks(1);
+    bool tCheckEnergy        = tChecks(2);
+    bool tCheckEnergyDot     = tChecks(3);
+    bool tCheckGradH         = tChecks(4);
+    bool tCheckGradEnergyDot = tChecks(5);
+    bool tCheckGradDivFlux   = tChecks(6);
+
     REQUIRE( tCheckdStress );
     REQUIRE( tCheckdStrain );
+    REQUIRE( tCheckEnergy );
     REQUIRE( tCheckEnergyDot );
     REQUIRE( tCheckGradH );
     REQUIRE( tCheckGradEnergyDot );
@@ -431,20 +451,21 @@ TEST_CASE( "CM_Diff_Lin_Iso_HEX27", "[moris],[fem],[CM_Diff_Lin_Iso_HEX27]" )
             tSpatialDims);
 
     // checks
-    bool tCheckdStress     = tChecks(0);
-    bool tCheckdStrain     = tChecks(1);
-    bool tCheckEnergyDot        = tChecks(2);
-    bool tCheckGradH       = tChecks(3);
-    bool tCheckGradEnergyDot    = tChecks(4);
-    bool tCheckGradDivFlux = tChecks(5);
+    bool tCheckdStress       = tChecks(0);
+    bool tCheckdStrain       = tChecks(1);
+    bool tCheckEnergy        = tChecks(2);
+    bool tCheckEnergyDot     = tChecks(3);
+    bool tCheckGradH         = tChecks(4);
+    bool tCheckGradEnergyDot = tChecks(5);
+    bool tCheckGradDivFlux   = tChecks(6);
+
     REQUIRE( tCheckdStress );
     REQUIRE( tCheckdStrain );
+    REQUIRE( tCheckEnergy );
     REQUIRE( tCheckEnergyDot );
     REQUIRE( tCheckGradH );
     REQUIRE( tCheckGradEnergyDot );
     REQUIRE( tCheckGradDivFlux );
-
-
 }
 
 // ------------------------------------------------------------------------------------- //
@@ -513,14 +534,17 @@ TEST_CASE( "CM_Diff_Lin_Iso_QUAD16", "[moris],[fem],[CM_Diff_Lin_Iso_QUAD16]" )
             tParametricPoint);
 
     // checks
-    bool tCheckdStress     = tChecks(0);
-    bool tCheckdStrain     = tChecks(1);
-    bool tCheckEnergyDot        = tChecks(2);
-    bool tCheckGradH       = tChecks(3);
-    bool tCheckGradEnergyDot    = tChecks(4);
-    bool tCheckGradDivFlux = tChecks(5);
+    bool tCheckdStress       = tChecks(0);
+    bool tCheckdStrain       = tChecks(1);
+    bool tCheckEnergy        = tChecks(2);
+    bool tCheckEnergyDot     = tChecks(3);
+    bool tCheckGradH         = tChecks(4);
+    bool tCheckGradEnergyDot = tChecks(5);
+    bool tCheckGradDivFlux   = tChecks(6);
+
     REQUIRE( tCheckdStress );
     REQUIRE( tCheckdStrain );
+    REQUIRE( tCheckEnergy );
     REQUIRE( tCheckEnergyDot );
     REQUIRE( tCheckGradH );
     REQUIRE( tCheckGradEnergyDot );

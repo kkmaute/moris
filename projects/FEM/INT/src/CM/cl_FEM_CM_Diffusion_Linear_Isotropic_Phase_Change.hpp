@@ -111,6 +111,12 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * evaluates the constitutive model enthalpy
+                 */
+                void eval_Energy();
+
+                //------------------------------------------------------------------------------
+                /**
                  * evaluates the constitutive model change rate of enthalpy
                  */
                 void eval_EnergyDot();
@@ -126,6 +132,14 @@ namespace moris
                  * evaluates the constitutive model change rate of spatial gradient of enthalpy (needed for GGLS-stabilization)
                  */
                 void eval_gradEnergyDot();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the constitutive model enthalpy wrt to a dof type
+                 * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
+                 * dEnergydDOF ( 1 x numDerDof )
+                 */
+                void eval_dEnergydDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
                 //------------------------------------------------------------------------------
                 /**

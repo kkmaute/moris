@@ -111,7 +111,7 @@ namespace moris
             // show that wall distance is negative
             if( tPropWallDistance->val()( 0 ) < 0.0 )
             {
-                MORIS_LOG( "IWG_Spalart_Allmaras_Turbulence_Bulk::compute_residual - Negative or zero wall distance");
+                //MORIS_LOG( "IWG_Spalart_Allmaras_Turbulence_Bulk::compute_residual - Negative or zero wall distance");
             }
 
             // check for nan, infinity
@@ -269,7 +269,7 @@ namespace moris
             // show that wall distance is negative
             if( tPropWallDistance->val()( 0 ) < 0.0 )
             {
-                MORIS_LOG( "IWG_Spalart_Allmaras_Turbulence_Bulk::compute_residual - Negative or zero wall distance");
+                //MORIS_LOG( "IWG_Spalart_Allmaras_Turbulence_Bulk::compute_residual - Negative or zero wall distance");
             }
 
             // check for nan, infinity
