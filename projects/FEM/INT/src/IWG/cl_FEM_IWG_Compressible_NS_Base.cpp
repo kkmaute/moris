@@ -59,14 +59,8 @@ namespace moris
 
         void IWG_Compressible_NS_Base::assemble_residual( const Matrix< DDRMat > & aStdRes )
         {
-            // get number of space dimensions
-            uint tNumSpaceDims = this->num_space_dims();
-
-            // get total number of DoFs on Comp Flow Element
-            uint tNumTotalBases = ( tNumSpaceDims + 2 ) * this->num_bases();
-
             // check that the size of the passed in residual makes sense
-            MORIS_ASSERT( aStdRes.n_rows() == tNumTotalBases and aStdRes.n_cols() == 1,
+            MORIS_ASSERT( aStdRes.n_rows() == ( ( this->num_space_dims() + 2 ) * this->num_bases() ) and ( aStdRes.n_cols() == 1 ),
                     "IWG_Compressible_NS_Base::assemble_residual() - Size of residual vector passed in is incorrect." );
 
             // check residual dof types
@@ -97,14 +91,9 @@ namespace moris
 
         void IWG_Compressible_NS_Base::assemble_jacobian( const Matrix< DDRMat > & aStdJac )
         {
-            // get number of space dimensions
-            uint tNumSpaceDims = this->num_space_dims();
-
-            // get total number of DoFs on Comp Flow Element
-            uint tNumTotalBases = ( tNumSpaceDims + 2 ) * this->num_bases();
-
             // check that the size of the passed in residual makes sense
-            MORIS_ASSERT( aStdJac.n_rows() == tNumTotalBases and aStdJac.n_cols() == tNumTotalBases,
+            MORIS_ASSERT( ( aStdJac.n_rows() == ( this->num_space_dims() + 2 ) * this->num_bases() ) and 
+                    ( aStdJac.n_cols() == ( this->num_space_dims() + 2 ) * this->num_bases() ),
                     "IWG_Compressible_NS_Base::assemble_jacobian() - Size of Jacobian passed in is incorrect." );
 
             // check residual dof types
