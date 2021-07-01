@@ -67,6 +67,8 @@ namespace moris
             mTractionDofEval = true;
             mTestTractionEval = true;
             mTestTractionDofEval = true;
+
+            mUpwindOperatorEval = true;
         }
 
         //------------------------------------------------------------------------------
@@ -78,7 +80,7 @@ namespace moris
             this->check_field_interpolators();
 #endif
             // check residual dof types
-            MORIS_ASSERT( check_residual_dof_types( mResidualDofType  ), 
+            MORIS_ASSERT( check_residual_dof_types( mResidualDofType ), 
                     "IWG_Compressible_NS_Dirichlet_Nitsche::compute_residual() - Only pressure or density primitive variables supported for now."
                     " See error message above for specifics." );
 
@@ -122,19 +124,8 @@ namespace moris
             // Upwind Term
             if ( tPropUpwind != nullptr )
             {
-                // construct upwind pressure operator // FIXME: this needs to be done more neatly
-                // initialize operator
-                Matrix< DDRMat > tUpwindOperator( tNumSpaceDims + 2, tNumSpaceDims + 2, 0.0 );
-                
-                // place normal such that it gets multiplied with the pressure difference in the velocity residual
-                tUpwindOperator( { 1, tNumSpaceDims }, { 0, 0 } ) = mNormal.matrix_data();
-                
-                // for temperature residual place normal dotted against velocity such that it gets multiplied with the pressure difference
-                Matrix< DDRMat > tVelVec = this->Y()( { 1, tNumSpaceDims } );
-                tUpwindOperator( tNumSpaceDims + 1, 0 ) = dot( mNormal, tVelVec );
-
-                // add contribution
-                tRes -= tPropUpwind->val()( 0 ) * this->W_trans() * tUpwindOperator * this->jump();
+                // add contribution using the upwind operator
+                tRes -= tPropUpwind->val()( 0 ) * this->W_trans() * this->UpwindOperator() * this->jump();
             }
 
             // assemble into set residual
@@ -208,24 +199,9 @@ namespace moris
             // Upwind Term
             if ( tPropUpwind != nullptr )
             {
-                // construct upwind pressure operator // FIXME: this needs to be done more neatly
-                // initialize operator
-                Matrix< DDRMat > tUpwindOperator( tNumSpaceDims + 2, tNumSpaceDims + 2, 0.0 );
-                
-                // place normal such that it gets multiplied with the pressure difference in the velocity residual
-                tUpwindOperator( { 1, tNumSpaceDims }, { 0, 0 } ) = mNormal.matrix_data();
-                
-                // for temperature residual place normal dotted against velocity such that it gets multiplied with the pressure difference
-                Matrix< DDRMat > tVelVec = this->Y()( { 1, tNumSpaceDims } );
-                tUpwindOperator( tNumSpaceDims + 1, 0 ) = dot( mNormal, tVelVec );
-
-                // construct the dof derivative of the pressure upwind operator
-                // initialize operator
-                Matrix< DDRMat > tdUpwindOperatordY( tNumSpaceDims + 2, tNumSpaceDims + 2, 0.0 );
-                tdUpwindOperatordY( { tNumSpaceDims + 1, tNumSpaceDims + 1 }, { 1, tNumSpaceDims } ) = trans( mNormal );
-
                 // add contribution
-                tJac -= tPropUpwind->val()( 0 ) * this->W_trans() * ( tUpwindOperator * this->dJumpdDOF() + this->jump()( 0 ) * tdUpwindOperatordY * this->W() );
+                tJac -= tPropUpwind->val()( 0 ) * this->W_trans() * ( 
+                        this->UpwindOperator() * this->dJumpdDOF() + this->dUpwindOperatordY( this->jump() ) * this->W() );
             }
 
             // assemble jacobian into set jacobian
