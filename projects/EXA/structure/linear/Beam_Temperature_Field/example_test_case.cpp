@@ -57,9 +57,17 @@ void check_linear_results(moris::mtk::Exodus_IO_Helper & aExoIO,uint aNodeId)
     real tUy =  aExoIO.get_nodal_field_value( aNodeId, 3, 0 );
     REQUIRE( ( tUy - tReferenceUy ) <  tEpsilon_Deflection );
 
+    // check to see if the nodal value at the coordinate location matches
+    real tUy_coords = aExoIO.get_nodal_field_value_by_coords(tReferenceCoordinate, 3, 0);
+    REQUIRE( ( tUy_coords - tReferenceUy ) <  tEpsilon_Deflection );
+
     // check field temperature at this node
     real tTemperatureField = 1.0;
     REQUIRE(  aExoIO.get_nodal_field_value( aNodeId, 4, 0 ) - tTemperatureField < tEpsilon);
+
+    // check to see if the nodal value at the coordinate location matches
+    REQUIRE(  aExoIO.get_nodal_field_value_by_coords( tReferenceCoordinate, 4, 0 ) - tTemperatureField < tEpsilon);
+
 }
 
 //---------------------------------------------------------------

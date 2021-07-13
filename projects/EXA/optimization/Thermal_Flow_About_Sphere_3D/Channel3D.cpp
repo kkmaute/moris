@@ -1237,7 +1237,7 @@ namespace moris
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_bulk_type",              (uint) fem::Element_Type::SIDESET );
         tParameterList( tIQIIndex )( tIQICounter ).set( "master_phase_name",          "PhaseFluid" );
         tParameterList( tIQIIndex )( tIQICounter ).set( "neighbor_phases",            "PhaseVoidFront" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type",                    (uint) fem::IQI_Type::THERMAL_ENERGY );
+        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type",                    (uint) fem::IQI_Type::THERMAL_ENERGY_CONVECTIVE_FLUX );
         tParameterList( tIQIIndex )( tIQICounter ).set( "master_constitutive_models", "CMFluid,Fluid") ;
         tIQICounter++;
 
@@ -1245,7 +1245,7 @@ namespace moris
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name",                   "IQIOutletThermalEnergy");
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_bulk_type",              (uint) fem::Element_Type::SIDESET );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type",                   (uint) fem::IQI_Type::THERMAL_ENERGY );
+        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type",                   (uint) fem::IQI_Type::THERMAL_ENERGY_CONVECTIVE_FLUX );
         tParameterList( tIQIIndex )( tIQICounter ).set( "master_phase_name",          "PhaseFluid" );
         tParameterList( tIQIIndex )( tIQICounter ).set( "neighbor_phases",            "PhaseVoidBack" );
         tParameterList( tIQIIndex )( tIQICounter ).set( "master_constitutive_models", "CMFluid,Fluid") ;

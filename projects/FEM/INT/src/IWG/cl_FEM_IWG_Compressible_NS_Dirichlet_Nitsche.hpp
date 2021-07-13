@@ -43,6 +43,8 @@ namespace moris
                 bool mTestTractionEval = true;
                 bool mTestTractionDofEval = true;
 
+                bool mUpwindOperatorEval = true;
+
                 // storage for selection matrix spanning all dof types
                 Matrix< DDRMat > mSelectMat;
 
@@ -56,6 +58,10 @@ namespace moris
 
                 Matrix< DDRMat > mTestTraction;
                 Matrix< DDRMat > mTestTractionDOF;
+
+                // matrices containing the pressure upwind operator and its state variable derivative
+                Matrix< DDRMat > mUpwindOperator;
+                Matrix< DDRMat > mdUpwindOperatordY;
 
                 // FIXME: only designed for primitive variables right now
                 enum class IWG_Property_Type
@@ -173,7 +179,20 @@ namespace moris
                 /**
                  * evaluate and get the Dof-derivative of the Test Traction term d^2( K_ij * Y_,j * n_i )^T / dDof^2 * VR
                  */
-                const Matrix< DDRMat > & dTestTractiondDOF( const Matrix< DDRMat > aVL );             
+                const Matrix< DDRMat > & dTestTractiondDOF( const Matrix< DDRMat > aVL );   
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate and get the upwind operator
+                 */
+                const Matrix< DDRMat > & UpwindOperator(); 
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate and get the state-variable derivative of the upwind operator,
+                 * pre-multiplied from the right with a constant vector
+                 */
+                const Matrix< DDRMat > & dUpwindOperatordY( const Matrix< DDRMat > aVR );
 
                 //------------------------------------------------------------------------------
         };

@@ -23,6 +23,7 @@ namespace moris
             mPropertyMap[ "ReferenceTemp" ]    = static_cast< uint >( IWG_Property_Type::REF_TEMP );
             mPropertyMap[ "InvPermeability" ]  = static_cast< uint >( IWG_Property_Type::INV_PERMEABILITY );
             mPropertyMap[ "MassSource" ]       = static_cast< uint >( IWG_Property_Type::MASS_SOURCE );
+            mPropertyMap[ "Load" ]             = static_cast< uint >( IWG_Property_Type::BODY_LOAD );
             mPropertyMap[ "PressureSpring" ]   = static_cast< uint >( IWG_Property_Type::PRESSURE_SPRING );
 
             // set size for the constitutive model pointer cell
@@ -56,7 +57,7 @@ namespace moris
             Field_Interpolator * tPressureFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
             Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX ); //FIXME this need to be protected
 
-            // get the source property
+            // get the mass source property
             const std::shared_ptr< Property > & tMassSourceProp =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::MASS_SOURCE ) );
 
@@ -275,22 +276,22 @@ namespace moris
             Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX ); //FIXME
 
             // get the density and gravity properties
-            const std::shared_ptr< Property > & tGravityProp    =
+            const std::shared_ptr< Property > & tGravityProp =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::GRAVITY ) );
 
             const std::shared_ptr< Property > & tThermalExpProp =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::THERMAL_EXPANSION ) );
 
-            const std::shared_ptr< Property > & tRefTempProp    =
+            const std::shared_ptr< Property > & tRefTempProp =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::REF_TEMP ) );
 
             // get the inverted permeability (porosity) property
-            const std::shared_ptr< Property > & tInvPermeabProp   =
+            const std::shared_ptr< Property > & tInvPermeabProp =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::INV_PERMEABILITY ) );
 
-            // get the mass source property
-            const std::shared_ptr< Property > & tMassSourceProp   =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::MASS_SOURCE ) );
+            // get the body load property
+            const std::shared_ptr< Property > & tLoadProp =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::BODY_LOAD ) );
 
             // get the incompressible fluid constitutive model
             const std::shared_ptr< Constitutive_Model > & tIncFluidCM =
@@ -307,17 +308,17 @@ namespace moris
                     tDensity * trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->val() -
                     tIncFluidCM->divflux();
 
-            // if mass source
-            if ( tMassSourceProp != nullptr )
+            // if body load
+            if ( tLoadProp != nullptr )
             {
-                // add contribution of mass source term to momentum residual
-                aRM += tMassSourceProp->val()( 0 ) * tVelocityFI->val() ;
+                // add contribution of body load to momentum residual
+                aRM -= tLoadProp->val() ;
             }
 
             // if permeability
             if ( tInvPermeabProp != nullptr )
             {
-                // add brinkman term to residual strong form
+                // add Brinkman term to residual strong form
                 aRM += tInvPermeabProp->val()( 0 ) * tVelocityFI->val() ;
             }
 
@@ -358,22 +359,22 @@ namespace moris
                     tDerFI->get_number_of_space_time_coefficients(), 0.0 );
 
             // get the gravity properties
-            const std::shared_ptr< Property > & tGravityProp       =
+            const std::shared_ptr< Property > & tGravityProp =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::GRAVITY ) );
 
-            const std::shared_ptr< Property > & tThermalExpProp    =
+            const std::shared_ptr< Property > & tThermalExpProp =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::THERMAL_EXPANSION ) );
 
-            const std::shared_ptr< Property > & tRefTempProp       =
+            const std::shared_ptr< Property > & tRefTempProp =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::REF_TEMP ) );
 
             // get the inverted permeability (porosity) property
-            const std::shared_ptr< Property > & tInvPermeabProp   =
+            const std::shared_ptr< Property > & tInvPermeabProp =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::INV_PERMEABILITY ) );
 
-            // get the mass source property
-            const std::shared_ptr< Property > & tMassSourceProp   =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::MASS_SOURCE ) );
+            // get the body load property
+            const std::shared_ptr< Property > & tLoadProp =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::BODY_LOAD ) );
 
             // get the incompressible fluid constitutive model
             const std::shared_ptr< Constitutive_Model > & tIncFluidCM =
@@ -428,33 +429,26 @@ namespace moris
                 // if derivative dof type is residual dof type
                 if( aDofTypes( 0 ) == MSI::Dof_Type::VX )
                 {
-                    // add brinkman term to Jacobian strong form
+                    // add Brinkman term to Jacobian strong form
                     aJM += tInvPermeabProp->val()( 0 ) * tVelocityFI->N();
                 }
 
                 // if permeability depends on dof type
                 if( tInvPermeabProp->check_dof_dependency( aDofTypes ) )
                 {
-                    // add brinkman term to Jacobian strong form
+                    // add Brinkman term to Jacobian strong form
                     aJM += tVelocityFI->val() * tInvPermeabProp->dPropdDOF( aDofTypes );
                 }
             }
 
-            // if mass source
-            if ( tMassSourceProp != nullptr )
+            // if body load
+            if ( tLoadProp != nullptr )
             {
-                // if derivative dof type is residual dof type
-                if( aDofTypes( 0 ) == MSI::Dof_Type::VX )
-                {
-                    // add mass source contribution to Jacobian of momentum strong form
-                    aJM += tMassSourceProp->val()( 0 ) * tVelocityFI->N();
-                }
-
-                // if indirect DoF dependency of source term
-                if( tMassSourceProp->check_dof_dependency( aDofTypes ) )
+                // if indirect DoF dependency of body load
+                if( tLoadProp->check_dof_dependency( aDofTypes ) )
                 {
                     // add contribution to momentum Jacobian
-                    aJM += tVelocityFI->val() * tMassSourceProp->dPropdDOF( aDofTypes );
+                    aJM -= tLoadProp->dPropdDOF( aDofTypes );
                 }
             }
 

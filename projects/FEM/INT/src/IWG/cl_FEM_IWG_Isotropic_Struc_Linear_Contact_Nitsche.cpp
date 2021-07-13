@@ -19,7 +19,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         IWG_Isotropic_Struc_Linear_Contact_Nitsche::IWG_Isotropic_Struc_Linear_Contact_Nitsche( sint aBeta )
-                {
+        {
             // sign for symmetric/unsymmetric Nitsche
             mBeta = aBeta;
 
@@ -42,7 +42,7 @@ namespace moris
 
             // populate the stabilization map
             mStabilizationMap[ "NitscheInterface" ] = static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE );
-                }
+        }
 
         //------------------------------------------------------------------------------
 
@@ -92,26 +92,27 @@ namespace moris
             const real tMasterWeight = tSPNitsche->val()( 1 );
             const real tSlaveWeight  = tSPNitsche->val()( 2 );
 
+            // normal projection operator
+            const  Matrix< DDRMat > tNormalProjector  = mNormal * trans( mNormal );
+
+            // compute the jump
+            const  Matrix< DDRMat > tJump = tFIMaster->val() - tFISlave->val();
+
+            // compute projection of displacement jump onto normal
+            // const real tINormalJump = dot( tJump, mNormal );
+
             // evaluate average traction
             const Matrix< DDRMat > tTraction =
                     tMasterWeight * tCMMasterElasticity->traction( mNormal ) +
                     tSlaveWeight  * tCMSlaveElasticity->traction( mNormal );
 
-            // compute projection of traction onto normal
-            // const real tIfcPressure = dot( tTraction, mNormal );
+            // compute contact pressure
+            const real tIfcPressure = dot( tTraction, mNormal );
 
-            const  Matrix< DDRMat > tJump = tFIMaster->val() - tFISlave->val();
-
-            // check for contact pressure (tIfcPressure < 0 )
-            // if ( tIfcPressure <= 0.0 )
-            if ( dot(tJump,mNormal) >= 0.0 )
+            // check for penetration (tINormalJump > 0 )
+            // if ( tINormalJump >= 0.0 || tIfcPressure <= 0 )
+            if ( tIfcPressure <= 0 )
             {
-                // normal projection operator
-                const  Matrix< DDRMat > tNormalProjector  = mNormal * trans( mNormal );
-
-                // compute the jump
-                // const  Matrix< DDRMat > tJump = tFIMaster->val() - tFISlave->val();
-
                 // compute master residual
                 mSet->get_residual()( 0 )(
                         { tMasterResStartIndex, tMasterResStopIndex } ) += aWStar * (
@@ -181,28 +182,26 @@ namespace moris
             const real tSlaveWeight  = tSPNitsche->val()( 2 );
 
             // normal projection operator
-            const auto tNormalProjector  = mNormal * trans( mNormal );
+            const  Matrix< DDRMat > tNormalProjector  = mNormal * trans( mNormal );
+
+            // compute the jump
+            const  Matrix< DDRMat > tJump = tFIMaster->val() - tFISlave->val();
+
+            // compute projection of displacement jump onto normal
+            // const real tINormalJump = dot( tJump, mNormal );
 
             // evaluate average traction
             const Matrix< DDRMat > tTraction =
                     tMasterWeight * tCMMasterElasticity->traction( mNormal ) +
                     tSlaveWeight  * tCMSlaveElasticity->traction( mNormal );
 
-            // compute projection of traction onto normal
-            // real tIfcPressure = dot( tTraction, mNormal );
+            // compute contact pressure
+            const real tIfcPressure = dot( tTraction, mNormal );
 
-            const Matrix< DDRMat > tJump = tFIMaster->val() - tFISlave->val();
-
-            // check for contact pressure (tIfcPressure < 0 )
-            // if ( tIfcPressure <= 0.0 )
-            if ( dot( tJump, mNormal) >= 0.0 )
+            // check for penetration (tINormalJump > 0 )
+            // if ( tINormalJump >= 0.0 || tIfcPressure <= 0 )
+            if ( tIfcPressure <= 0 )
             {
-                // normal projection operator
-                const Matrix< DDRMat > tNormalProjector  = mNormal * trans( mNormal );
-
-                // compute the jump
-                // const Matrix< DDRMat > tJump = tFIMaster->val() - tFISlave->val();
-
                 // get number of master dof dependencies
                 const uint tMasterNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
 

@@ -117,6 +117,9 @@ namespace moris
                 Matrix< DDRMat > mdCdYVR; 
                 moris::Cell< Matrix< DDRMat > > mdCdY;
 
+                // matrix temporarily storing assembly indices
+                Matrix< DDSMat > mAssemblyIndices;
+
                 //------------------------------------------------------------------------------
 
             public:
@@ -225,6 +228,30 @@ namespace moris
 
             //private:
 
+                //------------------------------------------------------------------------------
+                /**
+                 * assemble the standardized element residual in into the set residual
+                 * @param[ in ]  aStdRes  standardized element residual
+                 */
+                void assemble_residual( const Matrix< DDRMat > & aStdRes );
+                
+                //------------------------------------------------------------------------------
+                /**
+                 * assemble the standardized element Jacobian in into the set Jacobian
+                 * @param[ in ]  aStdJac  standardized element Jacobian
+                 */
+                void assemble_jacobian( const Matrix< DDRMat > & aStdJac );   
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get the assembly indices associated with the various dof types for the 
+                 * standardized elemental residual and jacobian
+                 * @param[ in ]   aDofType  DoF-Type for which the assembly indices are requested
+                 * @param[ out ]  tIndices  Vector of two entries containing the start and end indices
+                 */
+                Matrix< DDSMat > & get_assembly_indices( const MSI::Dof_Type aDofType );
+
+                //------------------------------------------------------------------------------
                 //------------------------------------------------------------------------------
                 /**
                  * get number of spatial dimensions

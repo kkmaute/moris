@@ -49,6 +49,7 @@ namespace moris
             get_set_information();
             get_nodal_fields();
             get_global_variables();
+            get_characteristic_length();
         }
 
         // ---------------------------------------------------------------------------------------------
@@ -1098,6 +1099,82 @@ namespace moris
 
         // ---------------------------------------------------------------------------------------------
 
+        void
+        Exodus_IO_Helper::get_characteristic_length()
+        {
+            // get number of nodes
+            uint tNumNodes = this->get_number_of_nodes();
+
+            // init min and max coordinate locations;
+            real tXMin = mX(0);
+            real tXMax = mX(0);
+            real tYMin = mY(0);
+            real tYMax = mY(0);
+            real tZMin = 0.0;
+            real tZMax = 0.0;
+
+            if( mNumDim == 3 )
+            {
+                tZMin = mZ(0);
+                tZMax = mZ(0);
+            }
+
+
+            // looping through nodes to find min and max coordinate locations
+            for ( uint iNode = 1; iNode < tNumNodes; iNode++ )
+            {
+                // is this nodal location larger or smaller in all coordinate directions?
+                if( mX(iNode) < tXMin )
+                {
+                    tXMin = mX(iNode);
+                }
+
+                if( mX(iNode) > tXMax )
+                {
+                    tXMax = mX(iNode);
+                }
+
+                if( mY(iNode) < tYMin )
+                {
+                    tYMin = mY(iNode);
+                }
+
+                if( mY(iNode) > tYMax )
+                {
+                    tYMax = mY(iNode);
+                }
+
+                // is this a 3D problem?
+                if( mNumDim == 3)
+                {
+                    if( mZ(iNode) < tZMin )
+                    {
+                        tZMin = mZ(iNode);
+                    }
+
+                    if( mZ(iNode) > tZMax )
+                    {
+                        tZMax = mZ(iNode);
+                    }
+                }
+            }
+
+            // determining the characteristic length of the problem
+            if( mNumDim < 3 )
+            {
+                mCharLength = std::pow( std::pow( tXMax - tXMin, 2 )
+                                      + std::pow( tYMax - tYMin, 2 ), 0.5 );
+            }
+            else
+            {
+                mCharLength = std::pow( std::pow( tXMax - tXMin, 2 )
+                                      + std::pow( tYMax - tYMin, 2 )
+                                      + std::pow( tZMax - tZMin, 2 ), 0.5 );
+            }
+        }
+
+        // ---------------------------------------------------------------------------------------------
+
         std::string
         Exodus_IO_Helper::get_file_name(
                 const std::string & base,
@@ -1231,6 +1308,74 @@ namespace moris
             }
 
             return mFieldsNodalVars[aFieldIndex](tIndex);
+        }
+
+        // ---------------------------------------------------------------------------------------------
+
+        real
+        Exodus_IO_Helper::get_nodal_field_value_by_coords(
+                moris::Matrix<DDRMat> aCoords,
+                uint                  aFieldIndex,
+                uint                  aTimeStepIndex)
+        {
+            // are the coordinate incorrectly defined?
+            MORIS_ERROR( aCoords.numel() > 1 && aCoords.numel() < 4,
+                    "Exodus_IO_Helper::get_nodal_field_value_by_coords - incorrectly defined nodal coordinates.");
+
+            // find index of node given its nodeId
+            uint tNumNodes = this->get_number_of_nodes();
+
+            // initialize distance to some large number
+            real tDistance;
+            real tDistanceMin = 1e6;
+
+            // initialize node index
+            uint tMinNodeIndex = 0;
+
+            // looping through nodes to find the one with the smallest distance
+            for ( uint iNode = 0; iNode < tNumNodes; iNode++ )
+            {
+
+                // if problem is 2d or 3d
+                if ( mNumDim < 3 )
+                {
+                    tDistance = std::pow( std::pow( mX(iNode) - aCoords(0), 2 )
+                                        + std::pow( mY(iNode) - aCoords(1), 2 ), 0.5);
+                }
+                else
+                {
+                    tDistance = std::pow( std::pow( mX(iNode) - aCoords(0), 2 )
+                                        + std::pow( mY(iNode) - aCoords(1), 2 )
+                                        + std::pow( mZ(iNode) - aCoords(2), 2 ), 0.5);
+                }
+
+                // is this distance less than one the smallest distances?
+                if ( tDistance < tDistanceMin )
+                {
+                    // set the node index
+                    tMinNodeIndex = iNode;
+
+                    // storing the new minimum distance
+                    tDistanceMin = tDistance;
+                }
+            }
+
+            // the minimum distance must be less than the stipulated tolerance
+            MORIS_ERROR( tDistanceMin < mCharLength * 1.0e-6,
+                    "Exodus_IO_Helper::get_nodal_field_value_by_coords - stipulated location does not match any nodal location.");
+
+            // check that field exists
+            MORIS_ERROR( aFieldIndex < mFieldsNodalVars.size(), "Nodal field index out of bounds.");
+
+            // check if loaded time step is requested time step; if not load new time step
+            if ( aTimeStepIndex != (uint) mTimeStepIndex )
+            {
+                mTimeStepIndex = aTimeStepIndex;
+
+                this->reload_nodal_fields();
+            }
+
+            return mFieldsNodalVars[aFieldIndex](tMinNodeIndex);
         }
 
         // ---------------------------------------------------------------------------------------------

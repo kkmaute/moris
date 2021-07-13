@@ -26,8 +26,11 @@ namespace moris
                 moris::real                      aFDtolerance = -1.0 )
         {
             // check if FD tolerance is defined
+            // aFDtolerance is the absolute error do to finite differencing, 
+            // i.e. the absolute error that will accepted by the check, even if the relative error check fails
             if ( aFDtolerance < 0.0 )
             {
+                // if FD tolerance is not set by user, use epsilon as default
                 aFDtolerance = aEpsilon;
             }
 
@@ -35,7 +38,7 @@ namespace moris
             MORIS_ERROR(
                     ( aMatrixCheck.n_rows() == aMatrixRef.n_rows() ) &&
                     ( aMatrixCheck.n_cols() == aMatrixRef.n_cols() ),
-                    "check_fd - matrices to check do not share same dimensions - check: %i x %i ref: %i x %i.",
+                    "fem::check() - matrices to check do not share same dimensions - check: %i x %i ref: %i x %i.",
                     aMatrixCheck.n_rows(), aMatrixCheck.n_cols(),
                     aMatrixRef.n_rows()  , aMatrixRef.n_cols() );
 

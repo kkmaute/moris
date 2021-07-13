@@ -210,7 +210,8 @@ set(HEADERS
     IQI/cl_FEM_IQI_Turbulent_Kinematic_Viscosity.hpp
     IQI/cl_FEM_IQI_Total_Pressure.hpp
     IQI/cl_FEM_IQI_Mass_Flow.hpp
-    IQI/cl_FEM_IQI_Thermal_Energy.hpp  
+    IQI/cl_FEM_IQI_Thermal_Energy_Convective_Flux.hpp
+    IQI/cl_FEM_IQI_Thermal_Energy_Diffusive_Flux.hpp
     IQI/cl_FEM_IQI_Stabilization.hpp
     IQI/cl_FEM_IQI_Homogenized_Constitutive.hpp
     IQI/cl_FEM_IQI_Heat_Method_Penalty.hpp
@@ -401,7 +402,8 @@ set(LIB_SOURCES
     IQI/cl_FEM_IQI_Turbulent_Kinematic_Viscosity.cpp
     IQI/cl_FEM_IQI_Total_Pressure.cpp
     IQI/cl_FEM_IQI_Mass_Flow.cpp
-    IQI/cl_FEM_IQI_Thermal_Energy.cpp
+    IQI/cl_FEM_IQI_Thermal_Energy_Convective_Flux.cpp
+    IQI/cl_FEM_IQI_Thermal_Energy_Diffusive_Flux.cpp
     IQI/cl_FEM_IQI_Stabilization.cpp
     IQI/cl_FEM_IQI_Homogenized_Constitutive.cpp
     IQI/cl_FEM_IQI_Heat_Method_Penalty.cpp

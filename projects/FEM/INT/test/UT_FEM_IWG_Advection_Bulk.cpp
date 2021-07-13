@@ -89,6 +89,14 @@ TEST_CASE( "IWG_Advection_Bulk", "[IWG_Advection_Bulk]" )
     //    tPropConductivity->set_val_function( tTEMPFIValFunc );
     //    tPropConductivity->set_dof_derivative_functions( { tTEMPFIDerFunc } );
 
+    std::shared_ptr< fem::Property > tPropLoad = std::make_shared< fem::Property >();
+    tPropLoad->set_parameters( { {{ 1.5 }} } );
+    tPropLoad->set_val_function( tConstValFunc );
+
+    std::shared_ptr< fem::Property > tPropAdvectionSource = std::make_shared< fem::Property >();
+    tPropAdvectionSource->set_parameters( { {{ 2.0 * 1.5 }} } );
+    tPropAdvectionSource->set_val_function( tConstValFunc );
+
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
@@ -96,7 +104,7 @@ TEST_CASE( "IWG_Advection_Bulk", "[IWG_Advection_Bulk]" )
             tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
     tCMDiffusion->set_dof_type_list( { tTempDofTypes } );
     tCMDiffusion->set_property( tPropConductivity, "Conductivity" );
-    tCMDiffusion->set_property( tPropDensity, "Density" );
+    tCMDiffusion->set_property( tPropDensity,      "Density" );
     tCMDiffusion->set_property( tPropHeatCapacity, "HeatCapacity" );
     tCMDiffusion->set_local_properties();
 
@@ -106,7 +114,8 @@ TEST_CASE( "IWG_Advection_Bulk", "[IWG_Advection_Bulk]" )
     std::shared_ptr< fem::Stabilization_Parameter > tSPSUPG =
             tSPFactory.create_SP( fem::Stabilization_Type::SUPG_ADVECTION );
     tSPSUPG->set_dof_type_list( { tVelDofTypes } );
-    tSPSUPG->set_property( tPropConductivity, "Conductivity", mtk::Master_Slave::MASTER );
+    tSPSUPG->set_property( tPropConductivity,    "Conductivity", mtk::Master_Slave::MASTER );
+    tSPSUPG->set_property( tPropAdvectionSource, "Source",       mtk::Master_Slave::MASTER );
 
     // create a dummy fem cluster and set it to SP
     fem::Cluster * tCluster = new fem::Cluster();
@@ -120,6 +129,7 @@ TEST_CASE( "IWG_Advection_Bulk", "[IWG_Advection_Bulk]" )
     tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
     tIWG->set_constitutive_model( tCMDiffusion, "Diffusion" );
     tIWG->set_stabilization_parameter( tSPSUPG, "SUPG" );
+    tIWG->set_property(tPropLoad, "Load", mtk::Master_Slave::MASTER);
 
     // init set info
     //------------------------------------------------------------------------------
@@ -277,7 +287,7 @@ TEST_CASE( "IWG_Advection_Bulk", "[IWG_Advection_Bulk]" )
             tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofVel-1 } };
             tIWG->mSet->mResDofAssemblyMap( 1 ) = { { tNumDofVel, tNumDofVel + tNumDofTEMP - 1 } };
 
-            // set size and fill the set jacobian assembly map
+            // set size and fill the set Jacobian assembly map
             Matrix< DDSMat > tJacAssembly = {
                     { 0, tNumDofVel - 1 },
                     { tNumDofVel, tNumDofVel + tNumDofTEMP - 1 } };
