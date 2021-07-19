@@ -72,7 +72,11 @@ namespace moris
                 mIQITypeIndex = 0;
             }
 
-            mSet->get_QI()( tQIIndex ) += aWStar * this->evaluate_QI( mIQITypeIndex );
+            Matrix< DDRMat > tMat;
+
+            this->evaluate_QI( tMat );
+
+            mSet->get_QI()( tQIIndex ) += aWStar * tMat;
         }
 
         //------------------------------------------------------------------------------
@@ -82,20 +86,13 @@ namespace moris
             // initialize if needed
             this->initialize();
 
-            // check if dof index was set (for the case of vector field)
-            sint tQIIndex = 0;
-            if( mQuantityDofType.size() > 1 && mIQITypeIndex != -1 )
-            {
-                tQIIndex = mIQITypeIndex;
-            }
-
             // evaluate QI
-            aQI = { this->evaluate_QI( tQIIndex ) };
+            this->evaluate_QI( aQI );
         }
 
         //------------------------------------------------------------------------------
 
-        real IQI_Dof::evaluate_QI( sint aIQITypeIndex )
+        void IQI_Dof::evaluate_QI( Matrix< DDRMat > & aMat )
         {
             // get field interpolator for a given dof type
             Field_Interpolator * tFI =
@@ -106,19 +103,25 @@ namespace moris
             {
                 const Matrix<DDRMat> & tSpatialGradient = tFI->gradx( mSpatialDerivativeOrder );
 
-                return tSpatialGradient( mSpatialDerivativeDirection, aIQITypeIndex );
+                aMat = { tSpatialGradient( mSpatialDerivativeDirection, mIQITypeIndex ) };
             }
-
             // evaluate time derivative of dof
-            if ( mTimeDerivativeOrder > 0 )
+            else if ( mTimeDerivativeOrder > 0 )
             {
                 const Matrix<DDRMat> & tTemporalGradient = tFI->gradt( mTimeDerivativeOrder );
 
-                return tTemporalGradient( aIQITypeIndex );
+                aMat = { tTemporalGradient( mIQITypeIndex ) };
             }
-
-            // evaluate DOF value
-            return tFI->val()( aIQITypeIndex );
+            else if( mQuantityDofType.size() > 1 && mIQITypeIndex != -1 )
+            {
+                // evaluate DOF value
+                aMat = { tFI->val()( mIQITypeIndex ) };
+            }
+            // DO NOT DELETE THIS FUNCTIONALITY AGAIN
+            else
+            {
+                aMat = tFI->val();
+            }
         }
 
         //------------------------------------------------------------------------------
