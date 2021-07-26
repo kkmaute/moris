@@ -488,6 +488,13 @@ void Time_Solver::initialize_sol_vec()
             // get local global ids for this dof type
             moris::Matrix< IdMat > tAdofIds = mSolverInterface->get_my_local_global_map( tDofType );
 
+            // if one dof type is set to random all dof entries are set to random
+            if( tDofTypeAndValuePair( Ik )( 1 ) == "random" )
+            {
+                tFreeVector->random();
+                break;
+            }
+
             // get value from input
             moris::real tValue = std::stod( tDofTypeAndValuePair( Ik )( 1 ) );
 
