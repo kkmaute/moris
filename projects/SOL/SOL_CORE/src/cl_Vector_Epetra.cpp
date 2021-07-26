@@ -244,6 +244,14 @@ void Vector_Epetra::vec_put_scalar( const moris::real & aValue )
 
 //----------------------------------------------------------------------------------------------
 
+void Vector_Epetra::random()
+{
+    // set all entries to random values
+    mEpetraVector->Random();
+}
+
+//----------------------------------------------------------------------------------------------
+
 moris::sint Vector_Epetra::vec_local_length() const
 {
     // get local length

@@ -142,6 +142,12 @@ namespace moris
             virtual void vec_put_scalar( const moris::real & aValue ) = 0;
 
             /**
+             * Inserts random values into vactor.
+             *
+             */
+            virtual void random() = 0;
+
+            /**
              * Returns the local length of this vector.
              *
              * @return Local vector length.
