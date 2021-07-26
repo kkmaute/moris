@@ -227,8 +227,8 @@ void check_results(
     Cell<Matrix<DDRMat>> tReferenceConstraints;
 
     tReferenceConstraints.push_back( {
-        {-3.768956983866792e-06},
-        { 6.902428439637079e-02},
+        {-1.480313882963221e-05},
+        { 2.711031377936274e-01},
         { 1.063063017173417e+00},
         { 8.236955476415919e-02},
         { 1.390581184223731e+00},
@@ -237,8 +237,8 @@ void check_results(
         { 1.507119843596119e-01},
         { 1.522513931060486e-01} } );
     tReferenceConstraints.push_back( {
-        { 2.713219464337506e-04},
-        { 7.511230990048032e-02},
+        { 1.065657278063983e-03},
+        { 2.950147629771367e-01},
         { 1.029062111905515e+00},
         { 3.290817990699941e-02},
         { 1.390581184223731e+00},
@@ -247,8 +247,8 @@ void check_results(
         { 1.497432653234213e-01},
         { 1.522513931060489e-01} } );
     tReferenceConstraints.push_back( {
-        {-3.768956983866792e-06},
-        { 6.902428439637079e-02},
+        {-1.480313882963206e-05},
+        { 2.711031377936244e-01},
         { 1.063063017173417e+00},
         { 8.236955476415919e-02},
         { 1.390581184223731e+00},
@@ -257,8 +257,8 @@ void check_results(
         { 1.507119843596119e-01},
         { 1.522513931060486e-01} } );
     tReferenceConstraints.push_back( {
-        { 2.713219464337506e-04},
-        { 7.511230990048032e-02},
+        { 1.065657278064073e-03},
+        { 2.950147629771610e-01},
         { 1.029062111905515e+00},
         { 3.290817990699941e-02},
         { 1.390581184223731e+00},
@@ -276,7 +276,7 @@ void check_results(
                ( std::abs( tReferenceConstraints(aTestCaseIndex)(tConIndex) ) +tDeltaEps );
 
         MORIS_LOG_INFO("Check constraint %d:    reference %12.5e, actual %12.5e, percent  error %12.5e.",
-                tReferenceConstraints(aTestCaseIndex)(tConIndex),tConstraints(tConIndex),tRelConstraintDifference*100.0);
+                tConIndex,tReferenceConstraints(aTestCaseIndex)(tConIndex),tConstraints(tConIndex),tRelConstraintDifference*100.0);
 
         REQUIRE(  tRelConstraintDifference < 1.0e-4);
     }

@@ -33,4 +33,7 @@ TEST_CASE("Channel_2D_Compressible",
 
     // call to performance manager main interface
     int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
+
+    // check
+    REQUIRE( tRet ==  0 );
 }

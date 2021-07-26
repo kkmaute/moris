@@ -4,7 +4,7 @@
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 
 #include "fn_trans.hpp"
-#include "fn_norm.hpp"
+#include "fn_dot.hpp"
 #include "fn_eye.hpp"
 
 namespace moris
@@ -15,6 +15,12 @@ namespace moris
 
         IWG_Advection_Bulk::IWG_Advection_Bulk()
         {
+            // set size for the property pointer cell
+            mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+
+            // populate the property map
+            mPropertyMap[ "Load" ] = static_cast< uint >( IWG_Property_Type::BODY_LOAD );
+
             // set size for the constitutive model pointer cell
             mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
@@ -38,9 +44,9 @@ namespace moris
 #endif
 
             // get master index for residual dof type, indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
-            uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
+            const uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
+            const uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
+            const uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
             // get the residual dof (here temperature) field interpolator
             Field_Interpolator* tFITemp =
@@ -97,11 +103,11 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get the diffusion CM
-            std::shared_ptr< Constitutive_Model > & tCMDiffusion =
+            const std::shared_ptr< Constitutive_Model > & tCMDiffusion =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
 
             // get the SUPG stabilization parameter
-            std::shared_ptr< Stabilization_Parameter > & tSPSUPG =
+            const std::shared_ptr< Stabilization_Parameter > & tSPSUPG =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::SUPG ) );
 
             // compute the residual strong form
@@ -109,18 +115,18 @@ namespace moris
             this->compute_residual_strong_form( tRT );
 
             // get number of master dof dependencies
-            uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
+            const  uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
 
             // loop over master dof dependencies
             for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the treated dof type
-                Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                const Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
 
                 // get the index for dof type, indices for assembly
-                sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
-                uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
-                uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
+                const sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
+                const uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
+                const uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
 
                 // get sub-matrix
                 auto jac = mSet->get_jacobian()(
@@ -191,19 +197,30 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get the diffusion CM
-            std::shared_ptr< Constitutive_Model > & tCMDiffusion =
+            const std::shared_ptr< Constitutive_Model > & tCMDiffusion =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
+
+            // get body load property
+            const std::shared_ptr< Property > & tPropLoad =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::BODY_LOAD ) );
 
             aRT = tCMDiffusion->EnergyDot() +
                     tFIVelocity->val_trans() * tCMDiffusion->gradEnergy() -
                     tCMDiffusion->divflux();
+
+            // if body load exists
+            if ( tPropLoad != nullptr )
+            {
+                // add energy source term
+                aRT -= tPropLoad->val();
+            }
         }
 
         //------------------------------------------------------------------------------
 
         void IWG_Advection_Bulk::compute_jacobian_strong_form (
-                moris::Cell< MSI::Dof_Type > & aDofTypes,
-                Matrix< DDRMat >             & aJT )
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                Matrix< DDRMat >                   & aJT )
         {
             // get the res dof and the derivative dof FIs
             Field_Interpolator * tFIDer =
@@ -215,27 +232,42 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // initialize aJT
-            aJT.set_size( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
+            aJT.set_size( 1, tFIDer->get_number_of_space_time_coefficients());
 
             // get the diffusion CM
-            std::shared_ptr< Constitutive_Model > & tCMDiffusion =
+            const std::shared_ptr< Constitutive_Model > & tCMDiffusion =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
+
+            // get body load property
+            const std::shared_ptr< Property > & tPropLoad =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::BODY_LOAD ) );
 
             // if CM diffusion depends on dof type
             if( tCMDiffusion->check_dof_dependency( aDofTypes ) )
             {
                 // compute contribution to Jacobian strong form
-                aJT +=
-                        tCMDiffusion->dEnergyDotdDOF( aDofTypes ) +
+                aJT =   tCMDiffusion->dEnergyDotdDOF( aDofTypes ) +
                         tFIVelocity->val_trans() * tCMDiffusion->dGradEnergydDOF( aDofTypes ) -
                         tCMDiffusion->ddivfluxdu( aDofTypes );
+            }
+            else
+            {
+                aJT.fill(0.0);
             }
 
             // if derivative wrt to velocity dof type
             if( aDofTypes( 0 ) == MSI::Dof_Type::VX )
             {
-                aJT +=
-                        trans( tCMDiffusion->gradEnergy() ) * tFIVelocity->N() ;
+                aJT += trans( tCMDiffusion->gradEnergy() ) * tFIVelocity->N() ;
+            }
+
+            // if body load exists and depends on DOFs
+            if ( tPropLoad != nullptr )
+            {
+                if ( tPropLoad->check_dof_dependency( aDofTypes ) )
+                {
+                    aJT -= tPropLoad->dPropdDOF( aDofTypes );
+                }
             }
         }
 

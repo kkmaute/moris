@@ -342,7 +342,7 @@ namespace moris
     6 - IQIOutletMassFlow
     7 - IQIMaxTemp
     8 - IQISolidVolume
-     */
+*/
 
     Matrix< DDRMat > compute_objectives(
             Matrix< DDRMat > aADVs,
@@ -719,7 +719,6 @@ namespace moris
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
         tParameterList( tPropIndex )( tPropCounter ).set( "property_name",            "PropFluidConductivity" );
         tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",       tFluidConductivity) ;
-
         tPropCounter++;
 
         // create fluid pressure spring property
@@ -1199,18 +1198,18 @@ namespace moris
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_bulk_type",              (uint) fem::Element_Type::SIDESET );
         tParameterList( tIQIIndex )( tIQICounter ).set( "master_phase_name",          "PhaseFluid" );
         tParameterList( tIQIIndex )( tIQICounter ).set( "neighbor_phases",            "PhaseVoidFront" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type",                    (uint) fem::IQI_Type::THERMAL_ENERGY );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "master_constitutive_models", "CMFluid,Fluid") ;
+        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type",                    (uint) fem::IQI_Type::THERMAL_ENERGY_CONVECTIVE_FLUX );
+        tParameterList( tIQIIndex )( tIQICounter ).set( "master_constitutive_models", "CMFluidDiffusion,Diffusion") ;
         tIQICounter++;
 
         // fluid thermal energy on outlet
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name",                   "IQIOutletThermalEnergy");
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_bulk_type",              (uint) fem::Element_Type::SIDESET );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type",                   (uint) fem::IQI_Type::THERMAL_ENERGY );
+        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type",                   (uint) fem::IQI_Type::THERMAL_ENERGY_CONVECTIVE_FLUX );
         tParameterList( tIQIIndex )( tIQICounter ).set( "master_phase_name",          "PhaseFluid" );
         tParameterList( tIQIIndex )( tIQICounter ).set( "neighbor_phases",            "PhaseVoidBack" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "master_constitutive_models", "CMFluid,Fluid") ;
+        tParameterList( tIQIIndex )( tIQICounter ).set( "master_constitutive_models", "CMFluidDiffusion,Diffusion") ;
         tIQICounter++;
 
         // fluid total pressure on inlet

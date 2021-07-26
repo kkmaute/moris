@@ -37,6 +37,7 @@ namespace moris
                     REF_TEMP,
                     INV_PERMEABILITY,
                     MASS_SOURCE,
+                    BODY_LOAD,
                     HOMOTOPY,
                     MAX_ENUM
                 };

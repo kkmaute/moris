@@ -29,6 +29,13 @@ namespace moris
                 //------------------------------------------------------------------------------
             public:
 
+                // local property enums
+                enum class IWG_Property_Type
+                {
+                    BODY_LOAD,
+                    MAX_ENUM
+                };
+
                 // local constitutive enums
                 enum class IWG_Constitutive_Type
                 {
@@ -99,9 +106,8 @@ namespace moris
                  * @param[ in ] aJT       a matrix to fill with dRMdDof
                  */
                 void compute_jacobian_strong_form(
-                        moris::Cell< MSI::Dof_Type > & aDofTypes,
-                        Matrix< DDRMat >             & aJT );
-
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        Matrix< DDRMat >                   & aJT );
 
                 //------------------------------------------------------------------------------
         };

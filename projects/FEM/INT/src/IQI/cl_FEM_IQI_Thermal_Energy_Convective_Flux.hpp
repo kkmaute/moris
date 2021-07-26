@@ -1,12 +1,12 @@
 /*
- * cl_FEM_IQI_Dof.hpp
+ * cl_FEM_IQI_Thermal_Energy_Convective_Flux.hpp
  *
- *  Created on: Jan 23, 2020
+ *  Created on: Sept 27, 2020
  *      Author: noel
  */
 
-#ifndef PROJECTS_FEM_INT_SRC_CL_FEM_IQI_DOF_HPP_
-#define PROJECTS_FEM_INT_SRC_CL_FEM_IQI_DOF_HPP_
+#ifndef PROJECTS_FEM_INT_SRC_CL_FEM_IQI_THERMAL_ENERGY_CONVECTIVE_FLUX_HPP_
+#define PROJECTS_FEM_INT_SRC_CL_FEM_IQI_THERMAL_ENERGY_CONVECTIVE_FLUX_HPP_
 
 #include <map>
 
@@ -24,41 +24,32 @@ namespace moris
     {
         //------------------------------------------------------------------------------
 
-        class IQI_Dof : public IQI
+        class IQI_Thermal_Energy_Convective_Flux : public IQI
         {
-            private:
+                //------------------------------------------------------------------------------
 
-                //! initialization flag
-                bool mIsInitialized = false;
-
-                //! spatial and time derivative information
-                uint mSpatialDerivativeDirection = 0;
-                uint mSpatialDerivativeOrder     = 0;
-                uint mTimeDerivativeOrder        = 0;
+                enum class IQI_Constitutive_Type
+                {
+                        DIFFUSION,
+                        MAX_ENUM
+                };
 
             public:
-
                 //------------------------------------------------------------------------------
                 /*
                  * constructor
                  */
-                IQI_Dof();
+                IQI_Thermal_Energy_Convective_Flux();
 
                 //------------------------------------------------------------------------------
                 /**
                  * trivial destructor
                  */
-                ~IQI_Dof(){};
+                ~IQI_Thermal_Energy_Convective_Flux(){};
 
                 //------------------------------------------------------------------------------
 
             private:
-
-                //------------------------------------------------------------------------------
-                /**
-                 * initialize parameters
-                 */
-                void initialize( );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -76,22 +67,10 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * evaluate the quantity of interest
-                 * @param[ in ] Matrix
-                 *
-                 * @return void
-                 */
-                void evaluate_QI( Matrix< DDRMat > & aMat );
-
-                //------------------------------------------------------------------------------
-                /**
                  * compute the derivative of the quantity of interest wrt dof types
                  * @param[ in ] aWStar weight associated to the evaluation point
                  */
-                void compute_dQIdu( real aWStar )
-                {
-                    MORIS_ERROR( false, "IQI_Dof::compute_dQIdu - not implemented." );
-                }
+                void compute_dQIdu( real aWStar );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -101,14 +80,11 @@ namespace moris
                  */
                 void compute_dQIdu(
                         moris::Cell< MSI::Dof_Type > & aDofType,
-                        Matrix< DDRMat >             & adQIdu )
-                {
-                    MORIS_ERROR( false, "IQI_Dof::compute_dQIdu() - not implemented for a drag/lift coefficient IQI.");
-                }
+                        Matrix< DDRMat >             & adQIdu );
 
                 //------------------------------------------------------------------------------
         };
     }/* end namespace fem */
 } /* end namespace moris */
 
-#endif /* PROJECTS_FEM_INT_SRC_CL_FEM_IQI_DOF_HPP_ */
+#endif /* PROJECTS_FEM_INT_SRC_CL_FEM_IQI_THERMAL_ENERGY_CONVECTIVE_FLUX_HPP_ */

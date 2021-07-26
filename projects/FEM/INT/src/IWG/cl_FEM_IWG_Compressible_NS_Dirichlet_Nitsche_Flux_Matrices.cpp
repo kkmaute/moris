@@ -434,6 +434,53 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & IWG_Compressible_NS_Dirichlet_Nitsche::UpwindOperator()
+        {
+            // check if matrix has already been assembled
+            if( !mUpwindOperatorEval )
+            {
+                return mUpwindOperator;
+            }  
+            
+            // set the eval flag
+            mTestTractionEval = false; 
+
+            // get number of space dimensions
+            uint tNumSpaceDims = this->num_space_dims(); 
+
+            // initialize the operator
+            mUpwindOperator.set_size( tNumSpaceDims + 2, tNumSpaceDims + 2, 0.0 );
+
+            // place normal such that it gets multiplied with the pressure difference in the velocity residual
+            mUpwindOperator( { 1, tNumSpaceDims }, { 0, 0 } ) = mNormal.matrix_data();
+            
+            // for temperature residual place normal dotted against velocity such that it gets multiplied with the pressure difference
+            Matrix< DDRMat > tVelVec = this->Y()( { 1, tNumSpaceDims } );
+            mUpwindOperator( tNumSpaceDims + 1, 0 ) = dot( mNormal, tVelVec );
+
+            // return value
+            return mUpwindOperator;
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & IWG_Compressible_NS_Dirichlet_Nitsche::dUpwindOperatordY( const Matrix< DDRMat > aVR )
+        {
+            // get number of space dimensions
+            uint tNumSpaceDims = this->num_space_dims();
+
+            // initialize the operator
+            mdUpwindOperatordY.set_size( tNumSpaceDims + 2, tNumSpaceDims + 2, 0.0 );
+
+            // place normal such that it gets multiplied with the pressure difference in the velocity residual
+            mdUpwindOperatordY( { tNumSpaceDims + 1, tNumSpaceDims + 1 }, { 1, tNumSpaceDims } ) = aVR( 0 ) * trans( mNormal );
+
+            // return value
+            return mdUpwindOperatordY;
+        }
+
+        //------------------------------------------------------------------------------
         
     } /* namespace fem */
 } /* namespace moris */

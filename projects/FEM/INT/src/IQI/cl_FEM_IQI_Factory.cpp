@@ -26,10 +26,11 @@
 #include "cl_FEM_IQI_Turbulent_Kinematic_Viscosity.hpp"
 #include "cl_FEM_IQI_Total_Pressure.hpp"
 #include "cl_FEM_IQI_Mass_Flow.hpp"
-#include "cl_FEM_IQI_Thermal_Energy.hpp"
 #include "cl_FEM_IQI_Stabilization.hpp"
 #include "cl_FEM_IQI_Homogenized_Constitutive.hpp"
 #include "cl_FEM_IQI_Heat_Method_Penalty.hpp"
+#include "cl_FEM_IQI_Thermal_Energy_Convective_Flux.hpp"
+#include "cl_FEM_IQI_Thermal_Energy_Diffusive_Flux.hpp"
 
 namespace moris
 {
@@ -109,8 +110,11 @@ namespace moris
                 case IQI_Type::MASS_FLOW :
                     return std::make_shared< IQI_Mass_Flow >();
 
-                case IQI_Type::THERMAL_ENERGY :
-                    return std::make_shared< IQI_Thermal_Energy >();
+                case IQI_Type::THERMAL_ENERGY_CONVECTIVE_FLUX :
+                    return std::make_shared< IQI_Thermal_Energy_Convective_Flux >();
+
+                case IQI_Type::THERMAL_ENERGY_DIFFUSIVE_FLUX :
+                    return std::make_shared< IQI_Thermal_Energy_Diffusive_Flux >();
 
                 case IQI_Type::HOMOGENIZED_CONSTITUTIVE:
                     return std::make_shared< IQI_Homogenized_Constitutive >();
@@ -127,6 +131,4 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-
-
 

@@ -77,8 +77,8 @@ namespace moris
                 moris::Cell< moris::Cell< MSI::Dof_Type > > mRequestedSlaveGlobalDofTypes;
 
                 // master and slave field interpolator managers
-                Field_Interpolator_Manager * mMasterFIManager = nullptr;
-                Field_Interpolator_Manager * mSlaveFIManager  = nullptr;
+                Field_Interpolator_Manager * mMasterFIManager          = nullptr;
+                Field_Interpolator_Manager * mSlaveFIManager           = nullptr;
                 Field_Interpolator_Manager * mMasterPreviousFIManager  = nullptr;
 
                 // master and slave dv type lists

@@ -182,6 +182,8 @@ namespace moris
         {
             if ( !mIsEmptySet )    //FIXME this flag is a hack. find better solution
             {
+                //std::cout<<"MeshSetName: "<<mMeshSet->get_set_name()<<std::endl;
+
                 mIsStaggered = aIsStaggered;
 
                 this->create_residual_dof_assembly_map();
@@ -2127,6 +2129,9 @@ namespace moris
 
             if( mEquationModel->get_is_forward_analysis() )
             {
+                // create identifier list, marking which IWGs are active
+                Matrix< DDBMat > tActiveIWGs( mIWGs.size(), 1, false );
+
                 // loop over the requested dof types
                 for( MSI::Dof_Type tDofType : tRequestedDofTypes )
                 {
@@ -2144,10 +2149,13 @@ namespace moris
                         for ( uint iType = 0; iType < tNumResDofTypes; ++iType)
                         {
                             // if the IWG residual dof type is requested
-                            if( tResDofType( iType )( 0 ) == tDofType )
+                            if( ( tResDofType( iType )( 0 ) == tDofType ) and ( ! tActiveIWGs( iIWG ) ) )
                             {
-                                // add the IWg to the requested IWG list
+                                // add the IWG to the requested IWG list
                                 mRequestedIWGs.push_back( mIWGs( iIWG ) );
+
+                                // mark IWG as active
+                                tActiveIWGs( iIWG ) = true;
                             }
                         }
                     }
@@ -2155,6 +2163,9 @@ namespace moris
             }
             else
             {
+                // create identifier list, marking which IWGs are active
+                Matrix< DDBMat > tActiveIWGs( mIWGs.size(), 1, false );
+                
                 // loop over the requested dof types
                 for( MSI::Dof_Type tDofType : tRequestedDofTypes )
                 {
@@ -2172,7 +2183,7 @@ namespace moris
                         for ( uint iType = 0; iType < tNumResDofTypes; ++iType)
                         {
                             // if the IWG residual dof type is requested
-                            if( tResDofType( iType )( 0 ) == tDofType )
+                            if( ( tResDofType( iType )( 0 ) == tDofType ) and ( ! tActiveIWGs( iIWG ) ) )
                             {
                                 if( mEquationModel->get_is_adjoint_off_diagonal_time_contribution() )
                                 {
@@ -2184,9 +2195,12 @@ namespace moris
                                 }
                                 else
                                 {
-                                    // add the IWg to the requested IWG list
+                                    // add the IWG to the requested IWG list
                                     mRequestedIWGs.push_back( mIWGs( iIWG ) );
                                 }
+
+                                // mark IWG as active
+                                tActiveIWGs( iIWG ) = true;
                             }
                         }
                     }
