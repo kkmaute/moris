@@ -280,7 +280,7 @@ namespace moris
                     aStressVector( 5 ) = tCMStress( 2 );
                     break;
                 }
-                    // 2D plane strain
+                    // 2D plane strain and axisymmetric
                 case 4:
                 {
                     aStressVector( 0 ) = tCMStress( 0 );
