@@ -15,6 +15,44 @@ void tConstValFunc(
     aPropMatrix = aParameters( 0 );
 }
 
+//------------------------------------------------------------------------------
+
+void fill_data_rectangle_element(
+        moris::Matrix< moris::DDRMat > & tXHat,
+        moris::Matrix< moris::DDRMat > & ttHat )
+{
+    // set values obtained from 1D Matlab code
+    
+    // element dimensions in 1D
+    real tX1 = 0.0;
+    real tX2 = 3.1;
+    real tX3 = 0.5 * ( tX1 + tX2 );
+
+    // chose y-size
+    real tY1 = 0.0;
+    real tY2 = 0.7;
+    real tY3 = 0.5 * ( tY1 + tY2 );
+
+    tXHat = {
+            { tX1, tY1 }, 
+            { tX2, tY1 }, 
+            { tX2, tY2 }, 
+            { tX1, tY2 },
+            { tX3, tY1 }, 
+            { tX2, tY3 }, 
+            { tX3, tY2 }, 
+            { tX1, tY3 },
+            { tX3, tY3 } };
+
+    // time frame
+    real tt1 = 1.3;
+    real tt2 = 2.7;
+
+    ttHat = { { tt1 }, { tt2 } };
+}
+
+//------------------------------------------------------------------------------
+
 void fill_smooth_UHat(
         moris::Matrix< moris::DDRMat > & tUHat,
         moris::uint aSpaceDim,
@@ -162,6 +200,8 @@ void fill_smooth_UHat(
             break;
     }
 }
+
+//------------------------------------------------------------------------------
 
 void fill_smooth_PHat(
         moris::Matrix< moris::DDRMat > & tPHat,
@@ -312,6 +352,8 @@ void fill_smooth_PHat(
     tPHat = trans( tPHat );
 }
 
+//------------------------------------------------------------------------------
+
 void fill_smooth_TempHat(
         moris::Matrix< moris::DDRMat > & tTempHat,
         moris::uint aSpaceDim,
@@ -461,3 +503,4 @@ void fill_smooth_TempHat(
     tTempHat = trans( tTempHat );
 }
 
+//------------------------------------------------------------------------------

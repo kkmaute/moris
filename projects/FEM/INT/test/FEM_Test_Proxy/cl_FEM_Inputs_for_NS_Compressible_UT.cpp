@@ -110,6 +110,8 @@ void tValFunc_BodyForce_2D
     aPropMatrix = { { -3.5 }, { 2.7 } };
 }
 
+//------------------------------------------------------------------------------
+
 void fill_xhat(
         moris::Matrix< moris::DDRMat > & tXHat,
         moris::uint aSpaceDim,
@@ -281,6 +283,8 @@ void fill_xhat(
             break;
     }
 }
+
+//------------------------------------------------------------------------------
 
 void fill_UHat(
         moris::Matrix< moris::DDRMat > & tUHat,
@@ -595,6 +599,8 @@ void fill_UHat(
     }
 }
 
+//------------------------------------------------------------------------------
+
 void fill_RhoHat(
         moris::Matrix< moris::DDRMat > & tRhoHat,
         moris::uint aSpaceDim,
@@ -903,6 +909,8 @@ void fill_RhoHat(
     }
     tRhoHat = trans( tRhoHat );
 }
+
+//------------------------------------------------------------------------------
 
 void fill_TempHat(
         moris::Matrix< moris::DDRMat > & tTempHat,
@@ -1213,3 +1221,4 @@ void fill_TempHat(
     tTempHat = trans( tTempHat );
 }
 
+//------------------------------------------------------------------------------

@@ -23,30 +23,31 @@ void Func_Heat_Load_Distribution(
         moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
         moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    // decay factor defining Heat Loading
-    real tQfac = 200.0;         /* exponential decay factor for heat load distribution */
-
-    // get element size in x-direction
-    real tHx = 1.0;
+    // from Heated Channel Example
+    real tQfac = 200.0;          /* exponential decay factor for heat load distribution */
+    real tChannelLength = 100.0; /* channel lenght from example */
 
     // get x-coordinate
     real tX = aFIManager->get_IP_geometry_interpolator()->valx()( 0 );
 
+    // get element size in x-direction
+    real tHx = 1.0;
+
     // get element number in x-direction
-    real tElemNumber = 51.0; 
+    real tElemNumber = std::floor( tX / tHx ) + 1.0; 
 
     // get element left and right node positions
     real tLeftNodePos = ( tElemNumber - 1.0 ) * tHx;
     real tRightNodePos = tElemNumber * tHx;
 
     // compute heat loads at left and right nodes
-    real tQl = std::exp( -1.0 * tQfac * std::pow( 2.0 *  tLeftNodePos / 100.0 - 1.0, 2.0 ) );
-    real tQr = std::exp( -1.0 * tQfac * std::pow( 2.0 * tRightNodePos / 100.0 - 1.0, 2.0 ) );
+    real tQl = std::exp( -1.0 * tQfac * std::pow( 2.0 *  tLeftNodePos / tChannelLength - 1.0, 2.0 ) );
+    real tQr = std::exp( -1.0 * tQfac * std::pow( 2.0 * tRightNodePos / tChannelLength - 1.0, 2.0 ) );
 
     // compute linear interpolation
     real tAlpha = ( ( tX - tLeftNodePos ) / ( tRightNodePos - tLeftNodePos ) );
     real tQ = tQl + tAlpha * ( tQr - tQl );
-    //real tQ = std::exp( -1.0 * tQfac * std::pow( 2.0 * tX / 100.0 - 1.0, 2.0 ) );
+    //real tQ = std::exp( -1.0 * tQfac * std::pow( 2.0 * tX / tChannelLength - 1.0, 2.0 ) );
 
     // return value
     aPropMatrix = tQ * aParameters( 0 );
@@ -65,8 +66,10 @@ void fill_data(
     real tX1 = 5.000000e+01;
     real tX2 = 5.100000e+01;
     real tX3 = 0.5 * ( tX1 + tX2 );
-    real tt1 = 3.019260e-02;
-    real tt2 = 6.038520e-02;
+    // real tt1 = 3.019260e-02;
+    // real tt2 = 6.038520e-02;
+    real tt1 = 0.0;
+    real tt2 = 3.019260e-02;
 
     // chose y-size
     real tY1 = 0.000000e+00;
@@ -95,6 +98,18 @@ void fill_data(
             { +6.679592850378335e+04 },
             { +7.978749797591206e+04 },
             { +9.879333215766176e+04 } };
+            // { +7.8366834e+04 },
+            // { +7.8366834e+04 },
+            // { +7.8366834e+04 },
+            // { +7.8366834e+04 },
+            // { +7.8366834e+04 },
+            // { +7.8366834e+04 } };
+            // { +1.0e+00 },
+            // { +1.0e+00 },
+            // { +1.0e+00 },
+            // { +1.0e+00 },
+            // { +1.0e+00 },
+            // { +1.0e+00 } };
 
     // sort pressure DoFs into 2D element
     tPHat = fem::convert_DoF_vector_1D_to_2D_quadratic( tPhat1D );
@@ -107,6 +122,18 @@ void fill_data(
             { -2.219694454936193e-01 },
             { +9.713214928148250e-01 },
             { +3.404845514857839e-01 } };
+            // { +0.0e+00 },
+            // { +0.0e+00 },
+            // { +0.0e+00 },
+            // { +0.0e+00 },
+            // { +0.0e+00 },
+            // { +0.0e+00 } };
+            // { +1.0e+00 },
+            // { +1.0e+00 },
+            // { +1.0e+00 },
+            // { +1.0e+00 },
+            // { +1.0e+00 },
+            // { +1.0e+00 } };
 
     // sort velocity DoFs into 2D element
     tUHat.set_size( 18, 2, 0.0 );
@@ -120,6 +147,18 @@ void fill_data(
             { +7.564604507806324e+02 },
             { +2.962188934473666e+02 },
             { +3.763403645201755e+02 } };
+            // { +2.73e+02 },
+            // { +2.73e+02 },
+            // { +2.73e+02 },
+            // { +2.73e+02 },
+            // { +2.73e+02 },
+            // { +2.73e+02 } };
+            // { +1.0e+00 },
+            // { +1.0e+00 },
+            // { +1.0e+00 },
+            // { +1.0e+00 },
+            // { +1.0e+00 },
+            // { +1.0e+00 } };
 
     // sort temperature DoFs into 2D element
     tTHat = fem::convert_DoF_vector_1D_to_2D_quadratic( tThat1D );
