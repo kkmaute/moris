@@ -78,6 +78,7 @@ set(TEST_SOURCES
     
     UT_FEM_IWG_Compressible_NS_Bulk.cpp
     UT_FEM_IWG_Compressible_NS_Bulk_Analytical.cpp
+    UT_FEM_IWG_Compressible_NS_Bulk_Flux_Matrices.cpp
     UT_FEM_IWG_Compressible_NS_Boundary.cpp
     UT_FEM_IWG_Compressible_NS_Dirichlet_Nitsche.cpp
 
@@ -107,6 +108,7 @@ set(TEST_SOURCES
     FEM_Test_Proxy/cl_FEM_Inputs_for_NS_Compressible_UT.cpp
     FEM_Test_Proxy/cl_FEM_Inputs_for_NS_Compressible_1D.cpp
     FEM_Test_Proxy/cl_FEM_Fields_for_NS_Compressible_UT.cpp
+    FEM_Test_Proxy/cl_FEM_Flux_Matrix_Reference_Values.cpp
     FEM_Test_Proxy/cl_FEM_Inputs_for_Diffusion_UT.cpp
     FEM_Test_Proxy/cl_FEM_Inputs_for_Elasticity_UT.cpp
     FEM_Test_Proxy/fn_FEM_Convert_Dimensions.cpp
