@@ -94,11 +94,13 @@ namespace moris
             Matrix< DDRMat > tTempRes( tNumTotalBases, 1, 0.0 );
             auto tRes = tTempRes( { 0, tNumTotalBases - 1 }, { 0, 0 } );
 
-            // Boundary terms from Ibp
-            tRes -= this->W_trans() * this->select_matrix() * this->Traction();
+            // Boundary terms from Ibp (consistency term)
+            // FIXME: only penalty for now
+            // tRes -= this->W_trans() * this->select_matrix() * this->Traction();
 
             // adjoint term
-            tRes -= mBeta * this->TestTraction() * this->jump();
+            // FIXME: something is wrong with the adjoint term
+            // tRes -= mBeta * this->TestTraction() * this->jump();
 
             // get the Nitsche stabilization parameter - is a diagonal matrix, each diagonal entry corresponding to the respective Dof Type
             std::shared_ptr< Stabilization_Parameter > & tSPNitsche =
@@ -163,11 +165,13 @@ namespace moris
             auto tJac = tTempJac( { 0, tNumTotalBases - 1 }, { 0, tNumTotalBases - 1 } );
 
             // Boundary terms from Ibp
-            tJac -= this->W_trans() * this->select_matrix() * this->dTractiondDOF();
+            // FIXME: only penalty for now
+            // tJac -= this->W_trans() * this->select_matrix() * this->dTractiondDOF();
 
             // adjoint term
-            tJac -= mBeta * this->TestTraction() * this->dJumpdDOF();
-            tJac -= mBeta * this->dTestTractiondDOF( this->jump() );
+            // FIXME: something is wrong with the adjoint term
+            // tJac -= mBeta * this->TestTraction() * this->dJumpdDOF();
+            // tJac -= mBeta * this->dTestTractiondDOF( this->jump() );
 
             // get the Nitsche stabilization parameter - is a diagonal matrix, each diagonal entry corresponding to the respective Dof Type
             std::shared_ptr< Stabilization_Parameter > & tSPNitsche =
