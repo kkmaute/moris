@@ -56,12 +56,12 @@ namespace moris
 
     // Nitsche Penalty for Dirichlet BCs
     moris::real tNitscheGammaP    = 0.0;    /* Penalty for pressure Dirichlet BCs */
-    moris::real tNitscheGammaVX   = 100.0;  /* Penalty for x-vel Dirichlet BCs */
-    moris::real tNitscheGammaVY   = 100.0;  /* Penalty for y-vel Dirichlet BCs */
-    moris::real tNitscheGammaT    = 100.0;  /* Penalty for temperature Dirichlet BCs */
+    moris::real tNitscheGammaVX   = 10000000.0;  /* Penalty for x-vel Dirichlet BCs */
+    moris::real tNitscheGammaVY   = 10000000.0;  /* Penalty for y-vel Dirichlet BCs */
+    moris::real tNitscheGammaT    = 0.0;  /* Penalty for temperature Dirichlet BCs */
 
     // Time Continuity Weights
-    moris::real tTimePenalty = 1000.0;
+    moris::real tTimePenalty = 10.0;
 
     // related parameters
     moris::real tGamma = 1.0 + tGasConstant / tHeatCapacity;
@@ -84,18 +84,18 @@ namespace moris
     bool tHaveGLS = false;
 
     // BC configuration
-    bool tUseUpwindForPressureBC = true;
-    bool tHaveFixedEnds = false; // close off ends of channel, impose zero velocity
-    bool tHaveTopBottomBCs = false;
+    bool tUseUpwindForPressureBC = true; // fix pressure at ends of channel
+    bool tHaveFixedEnds = false;         // close off ends of channel, impose zero velocity
+    bool tHaveTopBottomBCs = true;      // impose zero velocity in normal direction on channel sides
 
-    // switch for time continuity  - for debugging
+    // switch for time continuity - for debugging
     bool tHaveTimeContinuity = true;
 
-    // switch for bulk contribution  - for debugging
+    // switch for bulk contribution - for debugging
     bool tHaveBulk = true;
 
     // write jacobian to file - for debugging
-    bool tWriteJacToMatlab = false;
+    bool tWriteJacToMatlab = true;
 
     // order DoFs in global system by host - for debugging
     bool tOrderAdofsByHost = false;
@@ -107,7 +107,7 @@ namespace moris
 
     // convert Nitsche penalty to string
     std::string sNitscheGammas = 
-            ios::stringify( tNitscheGammaP ) + ";" +
+            ios::stringify( tNitscheGammaP  ) + ";" +
             ios::stringify( tNitscheGammaVX ) + ";" +
             ios::stringify( tNitscheGammaVY ) + ";" +
             ios::stringify( tNitscheGammaT  );
@@ -135,14 +135,14 @@ namespace moris
             moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
             moris::fem::Field_Interpolator_Manager         * aFIManager )
     {
-        // get element size in x-direction
-        real tHx = tChannelLength / tNumXElems;
-
         // get x-coordinate
         real tX = aFIManager->get_IP_geometry_interpolator()->valx()( 0 );
 
+        // get element size in x-direction
+        real tHx = tChannelLength / tNumXElems;
+
         // get element number in x-direction
-        real tElemNumber = std::floor( tX / tHx ); 
+        real tElemNumber = std::floor( tX / tHx ) + 1.0; 
 
         // get element left and right node positions
         real tLeftNodePos = ( tElemNumber - 1.0 ) * tHx;
@@ -155,7 +155,7 @@ namespace moris
         // compute linear interpolation
         real tAlpha = ( ( tX - tLeftNodePos ) / ( tRightNodePos - tLeftNodePos ) );
         real tQ = tQl + tAlpha * ( tQr - tQl );
-        //real tQ = std::exp( -1.0 * tQfac * std::pow( 2.0 * tX / tChannelLength - 1.0, 2.0 ) );
+        // real tQ = std::exp( -1.0 * tQfac * std::pow( 2.0 * tX / tChannelLength - 1.0, 2.0 ) );
 
         // return value
         aPropMatrix = tQ * aParameters( 0 );
@@ -395,7 +395,7 @@ std::cout << "Time continuity weight: " << tTCWeight << " \n" << std::flush;
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
         tParameterList( tPropIndex )( tPropCounter ).set( "property_name",            "PropHeatLoad") ;
         tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      ios::stringify( tPeakHeatLoad ) );
-        tParameterList( tPropIndex )( tPropCounter ).set( "value_function",           "Func_Heat_Load_Distribution") ;
+        tParameterList( tPropIndex )( tPropCounter ).set( "value_function",           "Func_Heat_Load_Distribution") ; //Func_Heat_Load_Distribution
         tPropCounter++;
 
         // velocity for no-slip
@@ -450,7 +450,7 @@ std::cout << "Time continuity weight: " << tTCWeight << " \n" << std::flush;
         // create upwind weight factor
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
         tParameterList( tPropIndex )( tPropCounter ).set( "property_name",            "PropUpwind") ;
-        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      "1.0") ;
+        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      "3.774074960608205e-03") ; //3.774074960608205e-03
         tParameterList( tPropIndex )( tPropCounter ).set( "value_function",           "Func_Const") ;
         tPropCounter++;
 
@@ -606,7 +606,7 @@ std::cout << "Time continuity weight: " << tTCWeight << " \n" << std::flush;
             tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type",              (uint) fem::Element_Type::SIDESET );
             tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name",          "PhaseFluid" );
             tParameterList( tIWGIndex )( tIWGCounter ).set( "side_ordinals",              "1,3" );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   (uint) fem::IWG_Type::COMPRESSIBLE_NS_DIRICHLET_SYMMETRIC_NITSCHE );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   (uint) fem::IWG_Type::COMPRESSIBLE_NS_DIRICHLET_UNSYMMETRIC_NITSCHE );
             tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "P;VX,VY;TEMP" );
             tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropZeroU,PrescribedVelocity;"
                                                                                           "PropSelectY,SelectVelocity;"
@@ -776,6 +776,8 @@ std::cout << "Time continuity weight: " << tTCWeight << " \n" << std::flush;
         }
 
         tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
+        //tParameterlist( 0 )( 0 ).set( "Solver_Type" , "Amesos_Mumps" );
+        //tParameterlist( 0 )( 0 ).set( "Solver_Type" , "Amesos_Umfpack" );
 
         tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
 
@@ -796,6 +798,7 @@ std::cout << "Time continuity weight: " << tTCWeight << " \n" << std::flush;
         tParameterlist( 5 )( 0 ).set("TSA_DofTypes"           , "P;VX,VY;TEMP" );
         tParameterlist( 5 )( 0 ).set("TSA_Initialize_Sol_Vec" , "P," + ios::stringify( tInitialPressure ) + 
                                                                 ";VX,0.0;VY,0.0;TEMP," + ios::stringify( tInitialTemperature ) );
+        // tParameterlist( 5 )( 0 ).set("TSA_Initialize_Sol_Vec" , "P,1.0;VX,1.0;VY,0.0;TEMP,1.0" );
         tParameterlist( 5 )( 0 ).set("TSA_Output_Indices"     , "0" );
         tParameterlist( 5 )( 0 ).set("TSA_Output_Crteria"     , "Output_Criterion" );
         tParameterlist( 5 )( 0 ).set("TSA_time_level_per_type", "P,2;VX,2;VY,2;TEMP,2" );
@@ -803,7 +806,7 @@ std::cout << "Time continuity weight: " << tTCWeight << " \n" << std::flush;
         tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
         if ( tWriteJacToMatlab )
         {
-            tParameterlist( 6 )( 0 ).set( "SOL_save_operator_to_matlab", "Matlab_2e.dat" );
+            tParameterlist( 6 )( 0 ).set( "SOL_save_operator_to_matlab", "Jacobian.dat" );
         }
     }
 
