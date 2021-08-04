@@ -68,6 +68,8 @@ namespace moris
 
         void vec_put_scalar( const moris::real & aValue );
 
+        void random();
+
         moris::sint vec_local_length() const;
 
         moris::sint vec_global_length() const;

@@ -163,12 +163,12 @@ namespace moris
                         }
                         case Model_Type::PLANE_STRAIN :
                         {
-                            mStrain.set_size( 3, 1, 0.0 );
-                            mConst.set_size( 4, 3, 0.0 );
+                            mStrain.set_size( 4, 1, 0.0 );
+                            mConst.set_size( 4, 4, 0.0 );
 
                             // list number of normal stresses and strains
                             mNumNormalStress = 3;
-                            mNumNormalStrain = 2;
+                            mNumNormalStrain = 3;
 
                             switch( mTensorType )
                             {
@@ -367,6 +367,13 @@ namespace moris
                 mStrain( 3 ) = tDisplGradx( 1, 0 ) + tDisplGradx( 0, 1 );
             }
 
+            // plane strain
+            else if( mPlaneType == Model_Type::PLANE_STRAIN )
+            {
+                mStrain( 2 ) = 0.0;
+                mStrain( 3 ) = tDisplGradx( 1, 0 ) + tDisplGradx( 0, 1 );
+            }
+
             // 12 shear stress for plane stress or plane strain
             else
             {
@@ -505,7 +512,15 @@ namespace moris
                 mTestStrain( { 3, 3 }, { tNumBases, 2 * tNumBases - 1 } ) = tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } );
             }
 
-            // plane stress and plane strain
+            // plane strain (note: row index 2 will be all 0s)
+            else if ( mPlaneType == Model_Type::PLANE_STRAIN )
+            {
+                // [ dN/dX2   dN/dX1 ]
+                mTestStrain( { 3, 3 }, { 0, tNumBases - 1 } ) = tdnNdxn( { 1, 1 }, { 0, tNumBases - 1 } );
+                mTestStrain( { 3, 3 }, { tNumBases, 2 * tNumBases - 1 } ) = tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } );
+            }
+
+            // plane stress
             else
             {
                 // [ dN/dX2   dN/dX1 ]
@@ -983,11 +998,14 @@ namespace moris
 
             mConst( 0, 0 ) = tPre * ( 1.0 - aNu );
             mConst( 0, 1 ) = tPre * aNu;
+            mConst( 0, 2 ) = tPre * aNu;
             mConst( 1, 0 ) = tPre * aNu;
             mConst( 1, 1 ) = tPre * ( 1.0 - aNu );
+            mConst( 1, 2 ) = tPre * aNu;
             mConst( 2, 0 ) = tPre * aNu;
             mConst( 2, 1 ) = tPre * aNu;
-            mConst( 3, 2 ) = tPre * ( 1.0 - 2.0 * aNu ) / 2.0;
+            mConst( 2, 2 ) = tPre * ( 1.0 - aNu );
+            mConst( 3, 3 ) = tPre * ( 1.0 - 2.0 * aNu ) / 2.0;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -1000,11 +1018,14 @@ namespace moris
 
             mConst( 0, 0 ) = tPre * 4.0;
             mConst( 0, 1 ) = tPre;
+            mConst( 0, 2 ) = tPre;
             mConst( 1, 0 ) = tPre;
             mConst( 1, 1 ) = tPre * 4.0;
+            mConst( 1, 2 ) = tPre;
             mConst( 2, 0 ) = tPre;
             mConst( 2, 1 ) = tPre;
-            mConst( 3, 2 ) = tPre * 3.0 / 2.0;
+            mConst( 2, 2 ) = tPre * 4.0;
+            mConst( 3, 3 ) = tPre * 3.0 / 2.0;
         }
 
         //--------------------------------------------------------------------------------------------------------------

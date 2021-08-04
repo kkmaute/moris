@@ -152,6 +152,13 @@ void Vector_PETSc::vec_put_scalar( const moris::real & aValue )
 
 //-----------------------------------------------------------------------------
 
+void Vector_PETSc::random()
+{
+    MORIS_ERROR(false, "random(), not implemented for petsc");
+}
+
+//-----------------------------------------------------------------------------
+
 moris::sint Vector_PETSc::vec_local_length() const
 {
     moris::sint tVecLocSize = 0;

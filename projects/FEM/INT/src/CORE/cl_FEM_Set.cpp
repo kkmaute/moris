@@ -182,6 +182,8 @@ namespace moris
         {
             if ( !mIsEmptySet )    //FIXME this flag is a hack. find better solution
             {
+                //std::cout<<"MeshSetName: "<<mMeshSet->get_set_name()<<std::endl;
+
                 mIsStaggered = aIsStaggered;
 
                 this->create_residual_dof_assembly_map();

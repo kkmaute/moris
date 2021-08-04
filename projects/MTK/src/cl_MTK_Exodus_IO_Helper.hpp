@@ -33,6 +33,7 @@ namespace moris
                 int mNumNodeSets  = -1;
                 int mNumSideSets  = -1;
                 std::string mTitle;
+                real mCharLength;
 
                 // Coordinates
                 Matrix<DDRMat> mX;
@@ -193,6 +194,13 @@ namespace moris
                         ex_init_params & init_params);
 
                 /*
+                 * @brief gets the length scale of the problem posed
+                 *
+                 */
+                void
+                get_characteristic_length();
+
+                /*
                  * from seacas test rd_wt_mesh.c
                  *
                  */
@@ -324,6 +332,21 @@ namespace moris
                         uint aNodeId,
                         uint aFieldIndex,
                         uint aTimeStepIndex=0);
+
+                //------------------------------------------------------------------------------
+                /*
+                 * @brief returns nodal field value based on coordinate location
+                 *
+                 * @param[ in ] aNodeId        id of node
+                 * @param[ in ] aFieldInd      index of field
+                 * @param[ in ] aTimeStepIndex index of time step; default 0
+                 */
+
+                real
+                get_nodal_field_value_by_coords(
+                        moris::Matrix<DDRMat> aCoords,
+                        uint                  aFieldIndex,
+                        uint                  aTimeStepIndex=0);
 
                 //------------------------------------------------------------------------------
                 /*

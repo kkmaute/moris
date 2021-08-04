@@ -77,11 +77,11 @@ namespace moris
                 //------------------------------------------------------------------------------
                 /**
                  * evaluate the quantity of interest
-                 * @param[ in ] index of vector dof
+                 * @param[ in ] Matrix
                  *
-                 * @return quantity of interest
+                 * @return void
                  */
-                real evaluate_QI( sint aIQITypeIndex );
+                void evaluate_QI( Matrix< DDRMat > & aMat );
 
                 //------------------------------------------------------------------------------
                 /**
