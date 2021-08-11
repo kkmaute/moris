@@ -1316,7 +1316,8 @@ namespace moris
         Exodus_IO_Helper::get_nodal_field_value_by_coords(
                 moris::Matrix<DDRMat> aCoords,
                 uint                  aFieldIndex,
-                uint                  aTimeStepIndex)
+                uint                  aTimeStepIndex,
+                real                  aThreshold )
         {
             // are the coordinate incorrectly defined?
             MORIS_ERROR( aCoords.numel() > 1 && aCoords.numel() < 4,
@@ -1360,8 +1361,9 @@ namespace moris
                 }
             }
 
-            // the minimum distance must be less than the stipulated tolerance
-            MORIS_ERROR( tDistanceMin < mCharLength * 1.0e-6,
+            // the minimum distance must be less than the stipulated tolerance.
+            // aThreshold is defaulted to 1e-6 but can be stipulated
+            MORIS_ERROR( tDistanceMin < aThreshold * mCharLength,
                     "Exodus_IO_Helper::get_nodal_field_value_by_coords - stipulated location does not match any nodal location.");
 
             // check that field exists
