@@ -1193,6 +1193,19 @@ namespace moris
         const moris::Cell< moris::Cell< PDV_Type > > & Stabilization_Parameter::get_global_dv_type_list(
                 mtk::Master_Slave aIsMaster )
         {
+            if( mGlobalDvBuild )
+            {
+                // build the stabilization parameter global dof type list
+                this->build_global_dv_type_list();
+
+                // build the stabilization parameter global dof type map
+                this->build_global_dv_type_map();
+
+                // update build flag
+                mGlobalDvBuild = false;
+            }
+
+
             // switch on master/slave
             switch( aIsMaster )
             {

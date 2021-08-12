@@ -123,6 +123,7 @@ namespace moris
 
                 // bool for global dof type list and map
                 bool mGlobalDofBuild = true;
+                bool mGlobalDvBuild = true;
 
                 // flag for evaluation
                 bool mPPEval = true;
