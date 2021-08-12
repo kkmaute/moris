@@ -735,18 +735,22 @@ namespace moris
         tParameterList( tSPIndex ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_name",      std::string("SPGPTemp1") );
         tParameterList( tSPIndex )( tSPCounter ).set( "master_phase_name",       "Phase1" );
+        tParameterList( tSPIndex )( tSPCounter ).set( "slave_phase_name",       "Phase1" );
         tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type",      static_cast< uint >( fem::Stabilization_Type::GHOST_DISPL ) );
         tParameterList( tSPIndex )( tSPCounter ).set( "function_parameters",     std::string("0.01") );
         tParameterList( tSPIndex )( tSPCounter ).set( "master_properties",       std::string("PropConductivity1,Material") );
+        tParameterList( tSPIndex )( tSPCounter ).set( "slave_properties",       std::string("PropConductivity1,Material") );
         tSPCounter++;
 
         // bulk Ghost - 2 - Temperature
         tParameterList( tSPIndex ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_name",      std::string("SPGPTemp2") );
         tParameterList( tSPIndex )( tSPCounter ).set( "master_phase_name",       "Phase2" );
+        tParameterList( tSPIndex )( tSPCounter ).set( "slave_phase_name",       "Phase2" );
         tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type",      static_cast< uint >( fem::Stabilization_Type::GHOST_DISPL ) );
         tParameterList( tSPIndex )( tSPCounter ).set( "function_parameters",     std::string("0.01") );
         tParameterList( tSPIndex )( tSPCounter ).set( "master_properties",       std::string("PropConductivity2,Material") );
+        tParameterList( tSPIndex )( tSPCounter ).set( "slave_properties",       std::string("PropConductivity2,Material") );
         tSPCounter++;
 
         // ======= //
@@ -755,18 +759,22 @@ namespace moris
         tParameterList( tSPIndex ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_name",      std::string("SPGPStruct1") );
         tParameterList( tSPIndex )( tSPCounter ).set( "master_phase_name",       "Phase1" );
+        tParameterList( tSPIndex )( tSPCounter ).set( "slave_phase_name",       "Phase1" );
         tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type",      static_cast< uint >( fem::Stabilization_Type::GHOST_DISPL ) );
         tParameterList( tSPIndex )( tSPCounter ).set( "function_parameters",     std::string("0.01") );
         tParameterList( tSPIndex )( tSPCounter ).set( "master_properties",       std::string("PropYoungsModulus1,Material") );
+        tParameterList( tSPIndex )( tSPCounter ).set( "slave_properties",       std::string("PropYoungsModulus1,Material") );
         tSPCounter++;
 
         // bulk Ghost - 2 - Displacements
         tParameterList( tSPIndex ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_name",      std::string("SPGPStruct2") );
         tParameterList( tSPIndex )( tSPCounter ).set( "master_phase_name",       "Phase2" );
+        tParameterList( tSPIndex )( tSPCounter ).set( "slave_phase_name",       "Phase2" );
         tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type",      static_cast< uint >( fem::Stabilization_Type::GHOST_DISPL ) );
         tParameterList( tSPIndex )( tSPCounter ).set( "function_parameters",     std::string("0.01") );
         tParameterList( tSPIndex )( tSPCounter ).set( "master_properties",       std::string("PropYoungsModulus2,Material") );
+        tParameterList( tSPIndex )( tSPCounter ).set( "slave_properties",       std::string("PropYoungsModulus2,Material") );
         tSPCounter++;
 
         ////////////////////////////////////////////////////////////////////////////////

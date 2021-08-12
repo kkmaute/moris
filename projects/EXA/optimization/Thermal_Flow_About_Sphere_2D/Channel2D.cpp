@@ -920,18 +920,22 @@ namespace moris
         tParameterList( tSPIndex ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_name",      "SPGPFluidTemp" );
         tParameterList( tSPIndex )( tSPCounter ).set( "master_phase_name",       "PhaseFluid" );
+        tParameterList( tSPIndex )( tSPCounter ).set( "slave_phase_name",       "PhaseFluid" );
         tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type",      (uint) fem::Stabilization_Type::GHOST_DISPL );
         tParameterList( tSPIndex )( tSPCounter ).set( "function_parameters",     "0.05" );
         tParameterList( tSPIndex )( tSPCounter ).set( "master_properties",       "PropFluidConductivity,Material" );
+        tParameterList( tSPIndex )( tSPCounter ).set( "slave_properties",       "PropFluidConductivity,Material" );
         tSPCounter++;
 
         // create ghost penalty solid temperature
         tParameterList( tSPIndex ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_name",      "SPGPSolidTemp" );
         tParameterList( tSPIndex )( tSPCounter ).set( "master_phase_name",       "PhaseSolid" );
+        tParameterList( tSPIndex )( tSPCounter ).set( "slave_phase_name",       "PhaseSolid" );
         tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type",      (uint) fem::Stabilization_Type::GHOST_DISPL );
         tParameterList( tSPIndex )( tSPCounter ).set( "function_parameters",     "0.05" );
         tParameterList( tSPIndex )( tSPCounter ).set( "master_properties",       "PropSolidConductivity,Material" );
+        tParameterList( tSPIndex )( tSPCounter ).set( "slave_properties",       "PropSolidConductivity,Material" );
         tSPCounter++;
 
         //------------------------------------------------------------------------------

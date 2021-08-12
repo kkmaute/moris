@@ -901,6 +901,7 @@ namespace moris
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type",      static_cast< uint >( fem::Stabilization_Type::GHOST_DISPL ) );
         tParameterList( 2 )( tSPCounter ).set( "function_parameters",     std::string("0.005") );
         tParameterList( 2 )( tSPCounter ).set( "master_properties",       std::string("PropYoungs,Material") );
+        tParameterList( 2 )( tSPCounter ).set( "slave_properties",       std::string("PropYoungs,Material") );
         tSPCounter++;
 
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
@@ -908,6 +909,7 @@ namespace moris
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type",      static_cast< uint >( fem::Stabilization_Type::GHOST_DISPL ) );
         tParameterList( 2 )( tSPCounter ).set( "function_parameters",     std::string("0.005") );
         tParameterList( 2 )( tSPCounter ).set( "master_properties",       std::string("PropYoungs,Material") );
+        tParameterList( 2 )( tSPCounter ).set( "slave_properties",       std::string("PropYoungs,Material") );
         tSPCounter++;
 
                 // create parameter list for ghost stabilization parameter for theta and phi problems
@@ -916,6 +918,7 @@ namespace moris
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type",      static_cast< uint >( fem::Stabilization_Type::GHOST_DISPL ) );
         tParameterList( 2 )( tSPCounter ).set( "function_parameters",     "0.01") ;
         tParameterList( 2 )( tSPCounter ).set( "master_properties",       "PropConductivity,Material") ;
+        tParameterList( 2 )( tSPCounter ).set( "slave_properties",       "PropConductivity,Material") ;
         tSPCounter++;
 
         // create parameter list for DBC on interface for theta problem
