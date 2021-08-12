@@ -335,18 +335,22 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /*
-                 * @brief returns nodal field value based on coordinate location
+                 * @brief returns nodal field value based on coordinate location within an error threshold
+                 *        based on a characteristic length of the problem or a user defined error
                  *
-                 * @param[ in ] aNodeId        id of node
-                 * @param[ in ] aFieldInd      index of field
-                 * @param[ in ] aTimeStepIndex index of time step; default 0
+                 * @param[ in ] aCoords         approximate nodal coordinate
+                 * @param[ in ] aFieldInd       index of field
+                 * @param[ in ] aTimeStepIndex  index of time step; default 0
+                 * @param[ in ] aThresholdScale Error threshold scaling for nodal coordinate;
+                 *                              default is 1e-6
                  */
 
                 real
                 get_nodal_field_value_by_coords(
                         moris::Matrix<DDRMat> aCoords,
                         uint                  aFieldIndex,
-                        uint                  aTimeStepIndex=0);
+                        uint                  aTimeStepIndex=0,
+                        real                  aThreshold = 1.0e-6 );
 
                 //------------------------------------------------------------------------------
                 /*
