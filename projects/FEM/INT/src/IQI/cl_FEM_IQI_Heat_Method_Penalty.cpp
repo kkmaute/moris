@@ -71,8 +71,11 @@ namespace moris
             // initialize QI
             aQI.fill(0.0);
 
+            real tVal = std::exp(-2.0*mPhiGradient*tFI->val()(0)/mPhiBound);
+
             // Compute phi tilde
-            moris::real tPhiTilde = (2.0/(1.0+std::exp(-2.0*mPhiGradient*tFI->val()(0)/mPhiBound)) - 1.0) * mPhiBound;
+            moris::real tPhiTilde = (2.0/(1.0 + tVal) - 1.0) * mPhiBound;
+            Matrix< DDRMat > tPhiTildeDx = ( 4.0 * mPhiGradient * tVal ) / std::pow( 1.0 + tVal, 2 ) * tFI->gradx( 1 );
 
             // Compute alpha
             moris::real tAlpha = std::exp(-mPhiGamma * std::pow(tPhiTilde / mPhiBound,2));
@@ -86,7 +89,7 @@ namespace moris
                     mMasterProp( static_cast< uint >( IQI_Property_Type::L2_REFERENCE_VALUE ) );
 
             // compute difference between dof value and reference value
-            auto tL2error = tFI->val() - tPropL2Value->val();
+            auto tL2error = tPropL2Value->val() - tPhiTilde;
 
             // compute L2 error
             aQI += tWPhi * trans( tL2error ) * tL2error;
@@ -95,7 +98,7 @@ namespace moris
                     mMasterProp( static_cast< uint >( IQI_Property_Type::H1S_REFERENCE_VALUE ) );
 
             // compute difference between dof spatial gradient and reference value and flatten it
-            Matrix<DDRMat> tH1Serror = vectorize( tFI->gradx( 1 ) - tPropH1SValue->val() );
+            Matrix<DDRMat> tH1Serror = vectorize( tPropH1SValue->val() - tPhiTildeDx );
 
             // compute H1 semi-norm error
             aQI += tWDelPhi * trans( tH1Serror ) * tH1Serror;
