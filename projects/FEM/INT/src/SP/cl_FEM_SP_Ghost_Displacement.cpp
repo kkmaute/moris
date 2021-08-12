@@ -17,8 +17,11 @@ namespace moris
 
         SP_Ghost_Displacement::SP_Ghost_Displacement()
         {
+            mHasSlave = true;
+
             // set size for the property pointer cells
             mMasterProp.resize( static_cast< uint >( SP_Property_Type::MAX_ENUM ), nullptr );
+            mSlaveProp.resize( static_cast< uint >( SP_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
             mPropertyMap[ "Material" ] = static_cast< uint >( SP_Property_Type::MATERIAL );
