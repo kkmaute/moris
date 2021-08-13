@@ -208,6 +208,8 @@ namespace moris
                     // resize list of clustersfor this set
                     mClustersOnBlock  ( Ij ).resize( tNumClustersOnSet, nullptr );
 
+                    Matrix< DDSMat > tIdentifierMat( mVertexMapOnSet( Ij ).numel(), 1, -1);
+
                     // loop over clusters on set
                     for( uint Ik = 0; Ik < tNumClustersOnSet; Ik++ )
                     {
@@ -265,7 +267,7 @@ namespace moris
                         switch( aOutputData.mMeshType )
                         {
                             case ( vis::VIS_Mesh_Type::STANDARD ):
-    {                       {
+                            {
                                  moris::Cell<moris::mtk::Vertex *> tPrimVertices = tClustersOnSet( Ik )->get_primary_vertices_in_cluster();
 
                                  tVertices.resize(tPrimVertices.size());
@@ -274,7 +276,7 @@ namespace moris
                                  {
                                       tVertices( Ib ) = tPrimVertices( Ib );
                                  }
-    }                       }
+                            }
 
                             break;
 
@@ -294,7 +296,8 @@ namespace moris
 
                         moris::Cell< mtk::Vertex const * > tVisClusterVertices( tVertices.size() );
 
-                        Matrix< DDSMat > tIdentifierMat( mVertexMapOnSet( Ij ).numel(), 1, -1);
+                        // identifiere and pos map
+                        tIdentifierMat.fill( -1 );
 
                         uint tCounter = 0;
 
@@ -305,7 +308,7 @@ namespace moris
 
                             if( tIdentifierMat(tIndex) == -1)
                             {
-                                tIdentifierMat(tIndex) = 1;
+                                tIdentifierMat(tIndex) = tCounter;
 
                                 if( mVertexMapOnSet( Ij )( tIndex ) != -1 )
                                 {
@@ -329,12 +332,14 @@ namespace moris
                             // get old vertex index
                             moris_index tIndex = tAllVertices( Ii )->get_index();
 
-                            if( tIdentifierMat(tIndex) == 1)
+                            if( tIdentifierMat(tIndex) != -1)
                             {
+                                sint tPos = tIdentifierMat(tIndex);
                                 tIdentifierMat(tIndex) = -1;
+
                                 if( mVertexMapOnSet( Ij )( tIndex ) != -1 )
                                 {
-                                    tVisClusterVerticesLocalCoords.set_row( tCounter++, tClustersOnSet( Ik )->get_vertices_local_coordinates_wrt_interp_cell().get_row( Ii ) );
+                                    tVisClusterVerticesLocalCoords.set_row( tPos, tClustersOnSet( Ik )->get_vertices_local_coordinates_wrt_interp_cell().get_row( Ii ) );
                                 }
                             }
                         }
