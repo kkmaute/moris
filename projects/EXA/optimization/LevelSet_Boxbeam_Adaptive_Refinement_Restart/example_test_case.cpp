@@ -46,7 +46,7 @@ void check_results(
 
     // define reference values for dimension, number of nodes and number of elements
     Cell<uint> tReferenceNumDims  = { 2};
-    Cell<uint> tReferenceNumNodes = {13103};
+    Cell<uint> tReferenceNumNodes = {13156};
     Cell<uint> tReferenceNumElems = {10441};
 
     // check dimension, number of nodes and number of elements
@@ -116,7 +116,7 @@ TEST_CASE("Leveset Boxbeam Restart",
     uint tTestCaseIndex = 0;
 
     // perform check for Test Case 0
-    check_results("Levelset_Boxbeam_Restart.exo.e-s.0015",tTestCaseIndex);
+    check_results("Levelset_Boxbeam_Restart.exo.e-s.0014",tTestCaseIndex);
 }
 
 

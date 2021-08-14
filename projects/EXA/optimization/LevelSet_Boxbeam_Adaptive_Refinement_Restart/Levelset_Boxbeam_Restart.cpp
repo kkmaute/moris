@@ -522,7 +522,7 @@ namespace moris
         tParameterlist(2)(0).set("step_size", tMMAStepSize);
         tParameterlist(2)(0).set("penalty"  , tMMAPenalty );
         tParameterlist(2)(0).set("max_its"  , tMMAMaxIter );   // Maximum number of iterations
-        tParameterlist(2)(0).set("restart_index", 11);
+        tParameterlist(2)(0).set("restart_index", 10);
 
     }
 
