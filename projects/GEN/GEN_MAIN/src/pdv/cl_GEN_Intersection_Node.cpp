@@ -58,9 +58,9 @@ namespace moris
             real tFirstParentPhi = aInterfaceGeometry->get_field_value(aFirstParentNodeIndex, tFirstParentGlobalCoordinates);
             real tSecondParentPhi = aInterfaceGeometry->get_field_value(aSecondParentNodeIndex, tSecondParentGlobalCoordinates);
             real tParentLength = norm(mParentVector);
-            mFirstParentOnInterface = std::abs(tFirstParentPhi) < aIsocontourTolerance or
+            mFirstParentOnInterface = std::abs(tFirstParentPhi - aIsocontourThreshold) < aIntersectionTolerance or
                     0.5 * tParentLength * std::abs(1 + aLocalCoordinate) < aIntersectionTolerance;
-            mSecondParentOnInterface = std::abs(tSecondParentPhi) < aIsocontourTolerance or
+            mSecondParentOnInterface = std::abs(tSecondParentPhi -aIsocontourThreshold ) < aIntersectionTolerance or
                     0.5 * tParentLength * std::abs(1 - aLocalCoordinate) < aIntersectionTolerance;
 
             if (mFirstParentOnInterface or mSecondParentOnInterface)

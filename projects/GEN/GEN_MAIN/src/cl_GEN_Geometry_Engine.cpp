@@ -295,8 +295,8 @@ namespace moris
                     }
 
                     tIsIntersected = (tMax >= mIsocontourThreshold and tMin <= mIsocontourThreshold) or
-                            (std::abs(tMax) < mIsocontourTolerance) or
-                            (std::abs(tMin) < mIsocontourTolerance);
+                            (std::abs(tMax - mIsocontourThreshold) < mIsocontourTolerance) or
+                            (std::abs(tMin - mIsocontourThreshold) < mIsocontourTolerance);
 
                     break;
                 }
@@ -530,7 +530,7 @@ namespace moris
 
                     moris_index tGeomProxIndex = this->get_geometric_proximity_index(tVertGeomVal);
 
-                    if(std::abs(tVertGeomVal) < mIsocontourTolerance)
+                    if(std::abs(tVertGeomVal - mIsocontourThreshold) < mIsocontourTolerance)
                     {
 
                         tGeomProxIndex = 1;
@@ -1870,7 +1870,7 @@ namespace moris
                 {            
                     real tVertGeomVal = mGeometries(iGeometryIndex)->get_field_value(iV, tCoords);
 
-                    if(std::abs(tVertGeomVal) < mIsocontourTolerance)
+                    if(std::abs(tVertGeomVal - mIsocontourThreshold) < mIsocontourTolerance)
                     {
                         tVertGeomVal = 1;
                     }
