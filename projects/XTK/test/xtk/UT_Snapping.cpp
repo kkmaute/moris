@@ -68,9 +68,11 @@ TEST_CASE("Plane Aligned with Background 2d","[Snapping_2d]")
     real tYNormal = cos(-tPlaneAngle * M_PI / 180);
 
     tGENParams( 0 )( 0 ) = prm::create_gen_parameter_list();
-    tGENParams( 0 )( 0 ).set("isocontour_threshold", 1e-12);
+    tGENParams( 0 )( 0 ).set("isocontour_threshold", 1e-16);
     tGENParams( 0 )( 0 ).set("isocontour_tolerance", 1e-12);
     tGENParams( 0 )( 0 ).set("intersection_tolerance", 1e-12);
+    tGENParams( 0 )( 0 ).set("output_mesh_file", "GEN_Snapping.exo");
+
 
     // Geometry parameter lists
     moris::uint tGeoCounter = 0;
