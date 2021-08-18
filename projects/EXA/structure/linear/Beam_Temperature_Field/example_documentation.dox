@@ -1,0 +1,93 @@
+namespace moris {
+
+/** \page EXA_Structure_Linear_Beam_Temperature_Field Beam Temperature Field Problem.
+
+# Problem Description
+This example is a linear elastic problem that determines the deflection of a beam due to an imposed temperature field. This example tests the coefficient of thermal expansion on linear elastic problems. This example also highlights the use of:
+
+- STK body-fitted meshes
+- Imported nodal fields
+
+The other basic features of the example are summarized in the \ref beam_temp_example_features "Main Features of Example".
+
+<table>
+<caption id="beam_temp_example_features">Main Features of Example</caption>
+<tr><th>Feature</th>                        <th> Value</th>                     <th> Comment</th></tr>
+<tr><td>Dimensionalty</td>                  <td> 2D</td>                        <td> </td></tr>
+<tr><td>Mesh type</td>                      <td> body-fitted STK mesh</td>      <td> from file: <em>beam_geometry_quadratic.e</em></tr>
+<tr><td>Imported field</td>                 <td> nodal temperature field</td>   <td> from file: <em>beam_temperature_quadratic.e</em></tr>
+<tr><td>Material/Phases</td>                <td> one</td>                       <td> </td> </tr>
+<tr><td>Physics</td>                        <td> linear elastic</td>            <td> static </td></tr>
+<tr><td>Dirichlet boundary conditions</td>  <td> Nitsche</td>                   <td> </td></tr>
+<tr><td>Dirichlet boundary conditions</td>  <td> simple</td>                    <td> </td></tr>
+<tr><td>Neumann boundary conditions</td>    <td> node</td>                      <td> </td></tr>
+<tr><td>Interface conditions</td>           <td> none</td>                      <td> </td></tr>
+<tr><td>Discretization</td>                 <td> given in mesh, 2nd order </td> <td> </td> </tr>
+<tr><td>Refinement</td>                     <td> none</td>                      <td> along internal and external boundaries</td></tr>
+<tr><td>Parallel</td>                       <td> none</td>                      <td> </td></tr>
+</table>
+
+# Problem Setup
+The computational domain is defined using an imported exodus mesh located at <em>/moris/projects/EXA/structure/linear/Beam_Temperature_Field/beam_geometry_quadratic.e</em>; see the following figure.
+The beam dimensions in inches are \f$ (x, y) = (20 in, 1 in) \f$.
+A linearly changing temperature field is defined to be \f$ 0.0 \f$ at the bottom of the beam and \f$ 1.0 \f$ at the top. 
+Quadratic elements are used to better approximate the 2nd order problem.
+
+<div style="text-align: center; margin: 10px 0px 10px 0px"><img src="beam_temperature_field_domain.png" width="70%" />
+<p>Mesh domain and temperature field</p></div>
+
+Material properties used can be found in Table \ref beam_temp_example_material_properties "Material Properties" 
+
+<table>
+<caption id="beam_temp_example_material_properties">Material Properties</caption>
+<tr><th>Property</th>              <th> Value </th></tr>
+<tr><td>Young's modulus</td>       <td> \f$ 1.0 \f$</td></tr>
+<tr><td>Poison's ratio</td>        <td> \f$ 0.3 \f$</td></tr>
+<tr><td>CTE</td>                   <td> \f$ 0.01 \f$</td></tr>
+<tr><td>Reference temperature</td> <td> \f$ 0.0 \f$</td></tr>
+</table>
+
+# Reference Solution
+
+Consider a cantilever beam subjected to a linear temperature gradient \f$ \Delta T = T_{top} - T_{bottom}  \f$ over its thickness to produce a deflection as shown in the following figure.
+
+<div style="text-align: center; margin: 10px 0px 10px 0px"><img src="beam_deflection_reference.png" width="50%" />
+<p>Temperature deflection of a cantilever beam</p></div>
+
+The strain on the top and bottom, assuming small strain, is shown below.
+
+\f$ \epsilon_t = \frac{ T_t \alpha dx }{ dx } = T_t \alpha \f$
+
+\f$ \epsilon_b = \frac{ T_b \alpha dx }{ dx } = T_b \alpha \f$
+
+The curvature of the beam can then be calculated:
+
+\f$ \frac{ 1 }{ \rho } = \frac{ \epsilon_{mean} }{ d } = \frac{ \alpha (T_t - T_b) }{ d } \f$
+
+or
+
+\f$ \frac{ d^2 v }{ dx^2 } = \frac{ \alpha (T_t - T_b) }{ d } \f$
+
+Integrating this equation and applying the obvious boundary conditions gives:
+
+\f$ \frac{ dv }{ dx } = \frac{ \alpha (T_t - T_b) }{ d } x \f$
+
+\f$ v(x) = \frac{ \alpha (T_t - T_b) L }{ 2 d } x^2 \f$
+
+Plugging in L for x will give the deflection and slope at the end of the cantilever beam.
+
+This reference solution is analyzed in the following files:
+
+<em>/moris/projects/EXA/structure/linear/Beam_Temperature_Field/DeflectionDueToTemperature.m</em>
+
+<em>/moris/projects/EXA/structure/linear/Beam_Temperature_Field/BeamTemperatureField.cae</em>
+
+# Literature
+
+https://nptel.ac.in/content/storage2/courses/105101085/downloads/lec-26.pdf
+
+# Developer Notes
+
+None.
+*/
+}

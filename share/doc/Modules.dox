@@ -267,6 +267,8 @@ The examples are sorted by the implementation aspect they are supposed to valida
 /** @addtogroup EXA_OPTIMIZATION
     @ingroup EXA_Module */
     
+/** @addtogroup EXA_STRUCTURAL
+    @ingroup EXA_Module */    
     
 //------------------------------------------------------------------------------
 /** @defgroup XTKModule XFEM Tool Kit (XTK) Module
