@@ -627,6 +627,9 @@ namespace moris
 
             for( uint Ik = 0; Ik < tNumRHS; Ik++)
             {
+                MORIS_ASSERT( tElementalResidual( Ik ).numel(),
+                        "Equation_Object::get_staggered_equation_obj_residual(), elemental residual vector # %-5i has 0 entries", Ik);
+
                 aEqnObjRHS( Ik ) = tTMatrixTrans * tElementalResidual( Ik );
             }
         }
