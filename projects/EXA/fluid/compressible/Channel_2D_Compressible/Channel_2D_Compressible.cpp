@@ -35,8 +35,8 @@ namespace moris
 
     // mesh
     moris::uint tIpOrder = 2;    // polynomial order for interpolation
-    moris::uint tNumXElems = 30; // number of elements in x-direction
-    moris::uint tNumYElems = 50; // number of elements in y-direction
+    moris::uint tNumXElems = 50; // number of elements in x-direction
+    moris::uint tNumYElems = 60; // number of elements in y-direction
 
     // transient configuration
     bool tIsTransient = false;
@@ -59,16 +59,16 @@ namespace moris
     moris::real tInletVelocity     = 1.0;  /* Inlet velocity 10 m/s  () */
     moris::real tInletTemperature  = 300.0;  /* Inlet temperature 300 K  () */
     moris::real tOutletPressure    = 1.0e5;  /* Outlet pressure 1 bar() */
-    moris::real tInletPressure     = 1.0000001e5;  /* Inlet pressure 1+eps bar() */
+    moris::real tInletPressure     = 1.00001e5;  /* Inlet pressure 1+eps bar() */
 
     // Nitsche Penalty
-    moris::real tNitscheGamma   = 100.0;  /* Penalty for Dirichlet BC */
+    moris::real tNitscheGamma   = 1000.0;  /* Penalty for Dirichlet BC */
 
     //------------------------------------------------------------------------------
 
     // convert Nitsche penalty to string
     std::string sNitscheGammas = 
-            ios::stringify( tNitscheGamma ) + ";" +
+            ios::stringify( 0.0 ) + ";" +
             ios::stringify( tNitscheGamma ) + ";" +
             ios::stringify( tNitscheGamma ) + ";" +
             ios::stringify( tNitscheGamma );
@@ -638,16 +638,16 @@ std::cout << "Typical Reynolds-number: " << tRe << " \n" << std::flush;
         tParameterList( tIWGIndex )( tIWGCounter ).set( "side_ordinals",              "4" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   (uint) fem::IWG_Type::COMPRESSIBLE_NS_DIRICHLET_SYMMETRIC_NITSCHE );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "P;VX,VY;TEMP" );
-        // tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropInletU,PrescribedVelocity;"
-        //                                                                               "PropInletTemperature,PrescribedDof3;"
-        //                                                                               "PropUpwind,PressureUpwind;"
-        //                                                                               "PropViscosity,DynamicViscosity;"
-        //                                                                               "PropConductivity,ThermalConductivity" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropInletPressure,PrescribedDof1;" 
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropInletU,PrescribedVelocity;"
                                                                                       "PropInletTemperature,PrescribedDof3;"
                                                                                       "PropUpwind,PressureUpwind;"
                                                                                       "PropViscosity,DynamicViscosity;"
                                                                                       "PropConductivity,ThermalConductivity" );
+        // tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropInletPressure,PrescribedDof1;" 
+        //                                                                               "PropInletTemperature,PrescribedDof3;"
+        //                                                                               "PropUpwind,PressureUpwind;"
+        //                                                                               "PropViscosity,DynamicViscosity;"
+        //                                                                               "PropConductivity,ThermalConductivity" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "master_material_model",      "MMFluid,FluidMM" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,FluidCM" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters",   "NitscheSP,NitschePenaltyParameter" );
@@ -842,7 +842,7 @@ std::cout << "Typical Reynolds-number: " << tRe << " \n" << std::flush;
             tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
             tParameterlist( 5 )( 0 ).set("TSA_DofTypes",            "P;VX,VY;TEMP") ;
             tParameterlist( 5 )( 0 ).set("TSA_Initialize_Sol_Vec",  "P," + ios::stringify( tOutletPressure ) + 
-                                                                    ";VX,0.01;VY,0.0;TEMP," + ios::stringify( tInletTemperature ) );
+                                                                    ";VX,0.00;VY,0.0;TEMP," + ios::stringify( tInletTemperature ) );
             tParameterlist( 5 )( 0 ).set("TSA_Output_Indices",      "0") ;
             tParameterlist( 5 )( 0 ).set("TSA_Output_Crteria",      "Output_Criterion") ;
         }
