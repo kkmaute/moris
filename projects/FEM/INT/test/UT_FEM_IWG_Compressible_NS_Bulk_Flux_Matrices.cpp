@@ -45,7 +45,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Flux_Matrices",
         "[IWG_Compressible_NS_Bulk_Flux_Matrices]" )
 {
     // define an epsilon environment
-    real tEpsilon = 1.0E-12;
+    real tEpsilon = 1.0E-11;
 
     // define absolute tolerance accepted as numerical error
     real tAbsTol = 1.0E-14;
@@ -379,7 +379,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Flux_Matrices",
     // check flux matrices
 
     // state vars and derivs
-    std::cout << "Checking State Variable Vector and its Derivatives ... \n" << std::flush;
+    std::cout << "\nChecking State Variable Vector and its Derivatives ... \n" << std::flush;
     Matrix< DDRMat > tY     = tChildIWG->Y();
     Matrix< DDRMat > tY_ref = get_reference_Y();
     REQUIRE( fem::check( tY, tY_ref, tEpsilon, true, true, tAbsTol ) );
@@ -397,13 +397,13 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Flux_Matrices",
     REQUIRE( fem::check( tdYdy, tdYdy_ref, tEpsilon, true, true, tAbsTol ) );
     
     // Force term
-    std::cout << "Checking C-Operator ... \n" << std::flush;
+    std::cout << "\nChecking C-Operator ... \n" << std::flush;
     Matrix< DDRMat > tC     = tChildIWG->C();
     Matrix< DDRMat > tC_ref = get_reference_C();
     REQUIRE( fem::check( tC, tC_ref, tEpsilon, true, true, tAbsTol ) );
 
     // A - Flux Matrices
-    std::cout << "Checking A-Matrices ... \n" << std::flush;
+    std::cout << "\nChecking A-Matrices ... \n" << std::flush;
     Cell< Matrix< DDRMat > > tA     = { tChildIWG->A( 0 ), tChildIWG->A( 1 ), tChildIWG->A( 2 ) };
     Cell< Matrix< DDRMat > > tA_ref = get_reference_A();
     REQUIRE( fem::check( tA( 0 ), tA_ref( 0 ), tEpsilon, true, true, tAbsTol ) );
@@ -411,7 +411,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Flux_Matrices",
     REQUIRE( fem::check( tA( 2 ), tA_ref( 2 ), tEpsilon, true, true, tAbsTol ) );
 
     // K - Flux Matrices
-    std::cout << "Checking K-Matrices ... \n" << std::flush;
+    std::cout << "\nChecking K-Matrices ... \n" << std::flush;
     Cell< Matrix< DDRMat > > tK     = { tChildIWG->K( 0, 0 ), tChildIWG->K( 0, 1 ), tChildIWG->K( 1, 0 ), tChildIWG->K( 1, 1 ) };
     Cell< Matrix< DDRMat > > tK_ref = get_reference_K();
     REQUIRE( fem::check( tK( 0 ), tK_ref( 0 ), tEpsilon, true, true, tAbsTol ) );
@@ -419,39 +419,93 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Flux_Matrices",
     REQUIRE( fem::check( tK( 2 ), tK_ref( 2 ), tEpsilon, true, true, tAbsTol ) );
     REQUIRE( fem::check( tK( 3 ), tK_ref( 3 ), tEpsilon, true, true, tAbsTol ) );
 
+    // K - Flux Matrix derivatives
+    std::cout << "\nChecking Kij,i ... \n" << std::flush;
+    Cell< Matrix< DDRMat > > tKiji     = { tChildIWG->Kiji( 0 ), tChildIWG->Kiji( 1 ) };
+    Cell< Matrix< DDRMat > > tKiji_ref = get_reference_Kiji();
+    REQUIRE( fem::check( tKiji( 0 ), tKiji_ref( 0 ), tEpsilon, true, true, tAbsTol ) );
+    REQUIRE( fem::check( tKiji( 1 ), tKiji_ref( 1 ), tEpsilon, true, true, tAbsTol ) );
+    
     // For Stabilization
-    std::cout << "Checking LY (strong form of the residual) ... \n" << std::flush;
+    std::cout << "\nChecking LY (strong form of the residual) ... \n" << std::flush;
     Matrix< DDRMat > tLY     = tChildIWG->LY();
     Matrix< DDRMat > tLY_ref = get_reference_LY();
     REQUIRE( fem::check( tLY, tLY_ref, tEpsilon, true, true, tAbsTol ) );
 
-    std::cout << "Checking inv(A0) ... \n" << std::flush;
+    std::cout << "\nChecking GLS-Test-Function (L^T(W))^T ... \n" << std::flush;
+    Matrix< DDRMat > tGLSTestFunc     = tChildIWG->GLSTestFunc();
+    Matrix< DDRMat > tGLSTestFunc_ref = get_reference_GLSTestFunc();
+    REQUIRE( fem::check( tGLSTestFunc, tGLSTestFunc_ref, tEpsilon, true, true, tAbsTol ) );
+
+    std::cout << "\nChecking inv(A0) ... \n" << std::flush;
     Matrix< DDRMat > tA0inv     = tChildIWG->A0inv();
     Matrix< DDRMat > tA0inv_ref = get_reference_A0inv();
     REQUIRE( fem::check( tA0inv, tA0inv_ref, tEpsilon, true, true, tAbsTol ) );
 
-    std::cout << "Checking G ... \n" << std::flush;
+    std::cout << "\nChecking G ... \n" << std::flush;
     Matrix< DDRMat > tG     = tChildIWG->G();
     Matrix< DDRMat > tG_ref = get_reference_G();
     REQUIRE( fem::check( tG, tG_ref, tEpsilon, true, true, tAbsTol ) );
 
-    std::cout << "Checking M ... \n" << std::flush;
+    std::cout << "\nChecking M ... \n" << std::flush;
     Matrix< DDRMat > tM     = tChildIWG->M();
     Matrix< DDRMat > tM_ref = get_reference_M();
     REQUIRE( fem::check( tM, tM_ref, tEpsilon, true, true, tAbsTol ) );
 
-    // // initialize storage matrices
-    // Matrix<DDRMat> tW = tChildIWG->W();
-    // Cell< Matrix< DDRMat > > tdWdx = { tChildIWG->dWdt(), tChildIWG->dWdx( 0 ), tChildIWG->dWdx( 1 ) };
-    // Matrix< DDRMat > tC = tChildIWG->C();
+    std::cout << "\nChecking Tau ... \n" << std::flush;
+    Matrix< DDRMat > tTau     = tChildIWG->Tau();
+    Matrix< DDRMat > tTau_ref = get_reference_Tau();
+    REQUIRE( fem::check( tTau, tTau_ref, tEpsilon, true, true, tAbsTol ) );
 
-    // Matrix< DDRMat > tA0inv = tChildIWG->A0inv();
-    // Matrix< DDRMat > tM = tChildIWG->M();
-    // Matrix< DDRMat > tTau = tChildIWG->Tau();
-    // Matrix< DDRMat > tLW = tChildIWG->LW();
-    // Matrix< DDRMat > tGLSTestFunc = tChildIWG->GLSTestFunc();
-    // Cell< Matrix< DDRMat > > tdMdY = { tChildIWG->dMdY( 0 ), tChildIWG->dMdY( 1 ), tChildIWG->dMdY( 2 ), tChildIWG->dMdY( 3 ) };
-    // //Cell< Matrix< DDRMat > > tdTaudY = { tChildIWG->dTaudY( 0 ), tChildIWG->dTaudY( 1 ), tChildIWG->dTaudY( 2 ), tChildIWG->dTaudY( 3 ) };
+    std::cout << "\nChecking GLS-Residual ... \n" << std::flush;
+    Matrix< DDRMat > tGLS     = tGLSTestFunc * tTau * tLY;
+    Matrix< DDRMat > tGLS_ref = get_reference_ResGLS();
+    REQUIRE( fem::check( tGLS, tGLS_ref, tEpsilon, true, true, tAbsTol ) );
+
+    // std::cout << "\nChecking dM/dDof ... \n" << std::flush;
+    // Cell< Matrix< DDRMat > > tdMdDof( 4 );
+    // tdMinvdDof( 0 ) = 
+    //         tChildIWG->dMdY( 0 )( { 0, 3 }, { 0, 0 } ) * tChildIWG->W()( { 0, 0 }, { 0, 71 } ) +
+    //         tChildIWG->dMdY( 1 )( { 0, 3 }, { 0, 0 } ) * tChildIWG->W()( { 1, 1 }, { 0, 71 } ) +
+    //         tChildIWG->dMdY( 2 )( { 0, 3 }, { 0, 0 } ) * tChildIWG->W()( { 2, 2 }, { 0, 71 } ) +
+    //         tChildIWG->dMdY( 3 )( { 0, 3 }, { 0, 0 } ) * tChildIWG->W()( { 3, 3 }, { 0, 71 } );
+    // tdMinvdDof( 0 ) = 
+    //         tChildIWG->dMdY( 0 )( { 0, 3 }, { 1, 1 } ) * tChildIWG->W()( { 0, 0 }, { 0, 71 } ) +
+    //         tChildIWG->dMdY( 1 )( { 0, 3 }, { 1, 1 } ) * tChildIWG->W()( { 1, 1 }, { 0, 71 } ) +
+    //         tChildIWG->dMdY( 2 )( { 0, 3 }, { 1, 1 } ) * tChildIWG->W()( { 2, 2 }, { 0, 71 } ) +
+    //         tChildIWG->dMdY( 3 )( { 0, 3 }, { 1, 1 } ) * tChildIWG->W()( { 3, 3 }, { 0, 71 } );
+    // tdMinvdDof( 0 ) = 
+    //         tChildIWG->dMdY( 0 )( { 0, 3 }, { 2, 2 } ) * tChildIWG->W()( { 0, 0 }, { 0, 71 } ) +
+    //         tChildIWG->dMdY( 1 )( { 0, 3 }, { 2, 2 } ) * tChildIWG->W()( { 1, 1 }, { 0, 71 } ) +
+    //         tChildIWG->dMdY( 2 )( { 0, 3 }, { 2, 2 } ) * tChildIWG->W()( { 2, 2 }, { 0, 71 } ) +
+    //         tChildIWG->dMdY( 3 )( { 0, 3 }, { 2, 2 } ) * tChildIWG->W()( { 3, 3 }, { 0, 71 } );
+    // tdMinvdDof( 0 ) = 
+    //         tChildIWG->dMdY( 0 )( { 0, 3 }, { 3, 3 } ) * tChildIWG->W()( { 0, 0 }, { 0, 71 } ) +
+    //         tChildIWG->dMdY( 1 )( { 0, 3 }, { 3, 3 } ) * tChildIWG->W()( { 1, 1 }, { 0, 71 } ) +
+    //         tChildIWG->dMdY( 2 )( { 0, 3 }, { 3, 3 } ) * tChildIWG->W()( { 2, 2 }, { 0, 71 } ) +
+    //         tChildIWG->dMdY( 3 )( { 0, 3 }, { 3, 3 } ) * tChildIWG->W()( { 3, 3 }, { 0, 71 } );
+
+    // Cell< Matrix< DDRMat > > tdMinvdDof_ref = get_reference_dMinvdDof();
+    // REQUIRE( fem::check( tdMinvdDof( 0 ), tdMinvdDof_ref( 0 ), tEpsilon, true, true, tAbsTol ) );
+    // REQUIRE( fem::check( tdMinvdDof( 1 ), tdMinvdDof_ref( 1 ), tEpsilon, true, true, tAbsTol ) );
+    // REQUIRE( fem::check( tdMinvdDof( 2 ), tdMinvdDof_ref( 2 ), tEpsilon, true, true, tAbsTol ) );
+    // REQUIRE( fem::check( tdMinvdDof( 3 ), tdMinvdDof_ref( 3 ), tEpsilon, true, true, tAbsTol ) );
+
+    // std::cout << "\nChecking dTau/dDof ... \n" << std::flush;
+    // Matrix< DDRMat > tV0 = { { 1.0 }, { 0.0 }, { 0.0 }, { 0.0 } };
+    // Matrix< DDRMat > tV1 = { { 0.0 }, { 1.0 }, { 0.0 }, { 0.0 } };
+    // Matrix< DDRMat > tV2 = { { 0.0 }, { 0.0 }, { 1.0 }, { 0.0 } };
+    // Matrix< DDRMat > tV3 = { { 0.0 }, { 0.0 }, { 0.0 }, { 1.0 } };
+    // Cell< Matrix< DDRMat > > tdTaudDof( 4 );
+    // tdTaudDof( 0 ) = tChildIWG->dTaudY( tV0 ) * tChildIWG->W();
+    // tdTaudDof( 1 ) = tChildIWG->dTaudY( tV1 ) * tChildIWG->W();
+    // tdTaudDof( 2 ) = tChildIWG->dTaudY( tV2 ) * tChildIWG->W();
+    // tdTaudDof( 3 ) = tChildIWG->dTaudY( tV3 ) * tChildIWG->W();
+    // Cell< Matrix< DDRMat > > tdTaudDof_ref = get_reference_dTaudDof();
+    // REQUIRE( fem::check( tdTaudDof( 0 ), tdTaudDof_ref( 0 ), tEpsilon, true, true, tAbsTol ) );
+    // REQUIRE( fem::check( tdTaudDof( 1 ), tdTaudDof_ref( 1 ), tEpsilon, true, true, tAbsTol ) );
+    // REQUIRE( fem::check( tdTaudDof( 2 ), tdTaudDof_ref( 2 ), tEpsilon, true, true, tAbsTol ) );
+    // REQUIRE( fem::check( tdTaudDof( 3 ), tdTaudDof_ref( 3 ), tEpsilon, true, true, tAbsTol ) );
 
     //------------------------------------------------------------------------------
 
