@@ -96,11 +96,11 @@ namespace moris
 
             // Boundary terms from Ibp (consistency term)
             // FIXME: only penalty for now
-            // tRes -= this->W_trans() * this->select_matrix() * this->Traction();
+             tRes -= aWStar * this->W_trans() * this->select_matrix() * this->Traction();
 
             // adjoint term
             // FIXME: something is wrong with the adjoint term
-            // tRes -= mBeta * this->TestTraction() * this->jump();
+            tRes -= aWStar * mBeta * this->TestTraction() * this->jump();
 
             // get the Nitsche stabilization parameter - is a diagonal matrix, each diagonal entry corresponding to the respective Dof Type
             std::shared_ptr< Stabilization_Parameter > & tSPNitsche =
@@ -117,7 +117,7 @@ namespace moris
                 }
 
                 // add contribution
-                tRes += this->W_trans() * tDiagSP * this->jump();
+                tRes += aWStar * this->W_trans() * tDiagSP * this->jump();
             }
 
             // get the upwind property
@@ -127,7 +127,7 @@ namespace moris
             if ( tPropUpwind != nullptr )
             {
                 // add contribution using the upwind operator
-                tRes -= tPropUpwind->val()( 0 ) * this->W_trans() * this->UpwindOperator() * this->jump();
+                tRes -= aWStar * tPropUpwind->val()( 0 ) * this->W_trans() * this->UpwindOperator() * this->jump();
             }
 
             // assemble into set residual
@@ -166,12 +166,12 @@ namespace moris
 
             // Boundary terms from Ibp
             // FIXME: only penalty for now
-            // tJac -= this->W_trans() * this->select_matrix() * this->dTractiondDOF();
+             tJac -= aWStar * this->W_trans() * this->select_matrix() * this->dTractiondDOF();
 
             // adjoint term
             // FIXME: something is wrong with the adjoint term
-            // tJac -= mBeta * this->TestTraction() * this->dJumpdDOF();
-            // tJac -= mBeta * this->dTestTractiondDOF( this->jump() );
+            tJac -= aWStar * mBeta * this->TestTraction() * this->dJumpdDOF();
+            tJac -= aWStar * mBeta * this->dTestTractiondDOF( this->jump() );
 
             // get the Nitsche stabilization parameter - is a diagonal matrix, each diagonal entry corresponding to the respective Dof Type
             std::shared_ptr< Stabilization_Parameter > & tSPNitsche =
@@ -188,7 +188,7 @@ namespace moris
                 }
 
                 // add contribution
-                tJac += this->W_trans() * tDiagSP * this->dJumpdDOF();
+                tJac += aWStar * this->W_trans() * tDiagSP * this->dJumpdDOF();
 
                 // FIXME: assuming no dependency of the penalty paramter on the dof types
             }
@@ -204,7 +204,7 @@ namespace moris
             if ( tPropUpwind != nullptr )
             {
                 // add contribution
-                tJac -= tPropUpwind->val()( 0 ) * this->W_trans() * ( 
+                tJac -= aWStar * tPropUpwind->val()( 0 ) * this->W_trans() * ( 
                         this->UpwindOperator() * this->dJumpdDOF() + this->dUpwindOperatordY( this->jump() ) * this->W() );
             }
 
