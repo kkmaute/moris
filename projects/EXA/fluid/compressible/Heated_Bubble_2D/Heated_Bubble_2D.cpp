@@ -29,13 +29,13 @@ extern "C"
 namespace moris
 {
     // problem size
-    moris::real tChannelLength = 100.0; // in meters
-    moris::real tChannelHeight = 1.0;   // in meters
+    moris::real tChannelLength = 50.0; // in meters
+    moris::real tChannelHeight = 50.0;   // in meters
 
     // mesh
     moris::uint tIpOrder = 2;     // polynomial order for interpolation
-    moris::uint tNumXElems = 100; // number of elements in x-direction
-    moris::uint tNumYElems = 1;   // number of elements in y-direction
+    moris::uint tNumXElems = 50; // number of elements in x-direction
+    moris::uint tNumYElems = 50;   // number of elements in y-direction
 
     // Material Parameters
     moris::real tViscosity    = 1.716e-5; /* Dynamic Viscosity mu () */
@@ -56,8 +56,8 @@ namespace moris
 
     // Nitsche Penalty for Dirichlet BCs
     moris::real tNitscheGammaP    = 0.0;    /* Penalty for pressure Dirichlet BCs */
-    moris::real tNitscheGammaVX   = 100.0;  /* Penalty for x-vel Dirichlet BCs */
-    moris::real tNitscheGammaVY   = 100.0;  /* Penalty for y-vel Dirichlet BCs */
+    moris::real tNitscheGammaVX   = 10000000.0;  /* Penalty for x-vel Dirichlet BCs */
+    moris::real tNitscheGammaVY   = 10000000.0;  /* Penalty for y-vel Dirichlet BCs */
     moris::real tNitscheGammaT    = 0.0;  /* Penalty for temperature Dirichlet BCs */
 
     // Time Continuity Weights
@@ -70,23 +70,23 @@ namespace moris
     //------------------------------------------------------------------------------
 
     // transient configuration
-    int tNumTimeSteps = 10; // number of elements in time dimension
+    int tNumTimeSteps = 30; // number of elements in time dimension
     moris::real tTimeStepSize = 20.0 * tChannelLength / 100.0 / tCs / 2.0;
     moris::real tTimeFrame = (real) tNumTimeSteps * tTimeStepSize;  // resulting duration
     moris::real tTCWeight = tTimePenalty / tTimeStepSize;
 
     // Newton configuration
     moris::real tNewtonRelaxation = 1.0;
-    moris::real tNewtonTolerance = 1.0e-9;
+    moris::real tNewtonTolerance = 1.0e-7;
     int tMaxNewtonSteps = 10;
 
     // stabilization
-    bool tHaveGLS = false;
+    bool tHaveGLS = true;
 
     // BC configuration
     bool tUseUpwindForPressureBC = true; // fix pressure at ends of channel
     bool tHaveFixedEnds = false;         // close off ends of channel, impose zero velocity
-    bool tHaveTopBottomBCs = true;       // impose zero velocity in normal direction on channel sides
+    bool tHaveTopBottomBCs = false;      // impose zero velocity in normal direction on channel sides
 
     // switch for time continuity - for debugging
     bool tHaveTimeContinuity = true;
@@ -135,27 +135,15 @@ namespace moris
             moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
             moris::fem::Field_Interpolator_Manager         * aFIManager )
     {
-        // get x-coordinate
+        // get coordinates
         real tX = aFIManager->get_IP_geometry_interpolator()->valx()( 0 );
+        real tY = aFIManager->get_IP_geometry_interpolator()->valx()( 1 );
+        
+        // get radius
+        real tR = std::sqrt( tX * tX + tY * tY );
 
-        // // get element size in x-direction
-        // real tHx = tChannelLength / tNumXElems;
-
-        // // get element number in x-direction
-        // real tElemNumber = std::floor( tX / tHx ) + 1.0; 
-
-        // // get element left and right node positions
-        // real tLeftNodePos = ( tElemNumber - 1.0 ) * tHx;
-        // real tRightNodePos = tElemNumber * tHx;
-
-        // // compute heat loads at left and right nodes
-        // real tQl = std::exp( -1.0 * tQfac * std::pow( 2.0 *  tLeftNodePos / tChannelLength - 1.0, 2.0 ) );
-        // real tQr = std::exp( -1.0 * tQfac * std::pow( 2.0 * tRightNodePos / tChannelLength - 1.0, 2.0 ) );
-
-        // // compute linear interpolation
-        // real tAlpha = ( ( tX - tLeftNodePos ) / ( tRightNodePos - tLeftNodePos ) );
-        // real tQ = tQl + tAlpha * ( tQr - tQl );
-        real tQ = std::exp( -1.0 * tQfac * std::pow( 2.0 * tX / tChannelLength - 1.0, 2.0 ) );
+        // compute Heat Load
+        real tQ = std::exp( -1.0 * tQfac * std::pow( 2.0 * tR / tChannelLength, 2.0 ) );
 
         // return value
         aPropMatrix = tQ * aParameters( 0 );
@@ -272,9 +260,11 @@ std::cout << "Time continuity weight: " << tTCWeight << " \n" << std::flush;
 
         tParameterlist( 0 )( 0 ) = prm::create_hmr_parameter_list();
 
+std::string tOffSet = ios::stringify( tChannelLength / -2.0 ) + "," + ios::stringify( tChannelHeight / -2.0 );
+
         tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", ios::stringify( tNumXElems ) + "," + ios::stringify( tNumYElems ) );
         tParameterlist( 0 )( 0 ).set( "domain_dimensions",                ios::stringify( tChannelLength ) + "," + ios::stringify( tChannelHeight ) );
-        tParameterlist( 0 )( 0 ).set( "domain_offset",                    "0.0," + ios::stringify( tChannelHeight / -2.0 ) );
+        tParameterlist( 0 )( 0 ).set( "domain_offset",                    tOffSet );
         tParameterlist( 0 )( 0 ).set( "domain_sidesets",                  "1,2,3,4");
         tParameterlist( 0 )( 0 ).set( "lagrange_output_meshes",           "0");
 
@@ -450,7 +440,7 @@ std::cout << "Time continuity weight: " << tTCWeight << " \n" << std::flush;
         // create upwind weight factor
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
         tParameterList( tPropIndex )( tPropCounter ).set( "property_name",            "PropUpwind") ;
-        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      "1.0") ; //3.774074960608205e-03
+        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      "3.774074960608205e-03") ; //3.774074960608205e-03
         tParameterList( tPropIndex )( tPropCounter ).set( "value_function",           "Func_Const") ;
         tPropCounter++;
 
@@ -638,7 +628,7 @@ std::cout << "Time continuity weight: " << tTCWeight << " \n" << std::flush;
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name",                   "IWGNitscheOutlets" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type",              (uint) fem::Element_Type::SIDESET );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name",          "PhaseFluid" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "side_ordinals",              "2,4" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "side_ordinals",              "1,2,3,4" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   (uint) fem::IWG_Type::COMPRESSIBLE_NS_DIRICHLET_SYMMETRIC_NITSCHE );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "P;VX,VY;TEMP" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          tPropertyString );
@@ -830,7 +820,7 @@ std::cout << "Time continuity weight: " << tTCWeight << " \n" << std::flush;
         tParameterlist( 0 ).resize( 1 );
 
         tParameterlist( 0 )( 0 ) = prm::create_vis_parameter_list();
-        tParameterlist( 0 )( 0 ).set( "File_Name"     , std::pair< std::string, std::string >( "./", "Heated_Channel_2D.exo" ) );
+        tParameterlist( 0 )( 0 ).set( "File_Name"     , std::pair< std::string, std::string >( "./", "Heated_Bubble_2D.exo" ) );
         tParameterlist( 0 )( 0 ).set( "Mesh_Type"     , static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
         tParameterlist( 0 )( 0 ).set( "Set_Names"     , sFluid );
         tParameterlist( 0 )( 0 ).set( "Field_Names"   , "P,VX,VY,TEMP,Ma,Re,Q" );
