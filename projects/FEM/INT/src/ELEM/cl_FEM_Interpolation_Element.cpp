@@ -236,7 +236,7 @@ namespace moris
                 // get the pdv values for the ith dv type group
                 Cell< Matrix< DDRMat > > tCoeff_Original;
                 mSet->get_equation_model()->get_design_variable_interface()->get_ip_pdv_value(
-                        mSlaveInterpolationCell->get_vertex_inds(),
+                        mSlaveInterpolationCell->get_base_cell()->get_vertex_inds(),
                         tDvTypeGroup,
                         tCoeff_Original );
 
@@ -400,7 +400,7 @@ namespace moris
             {
                 // get slave vertices from cell
                 Matrix< IndexMat > tSlaveVerticesInds =
-                        mSlaveInterpolationCell->get_vertex_inds();
+                        mSlaveInterpolationCell->get_base_cell()->get_vertex_inds();
 
                 // loop over the dv types
                 for( uint Ik = 0; Ik < tRequestedDvTypes.size(); Ik++ )

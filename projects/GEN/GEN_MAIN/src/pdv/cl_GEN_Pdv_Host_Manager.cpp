@@ -137,6 +137,10 @@ namespace moris
                     // get node index of PDV host
                     uint tIdnx = aNodeIndices(tNodeIndex);
 
+                    MORIS_ASSERT( mIpPdvHosts.size() > tIdnx,
+                            "Pdv_Host_Manager::get_ip_pdv_value - %s",
+                            "IP PDV host does not exist at node with index. size to small %d\n",tIdnx);
+
                     // check that PDV host exists
                     MORIS_ASSERT( mIpPdvHosts(tIdnx),
                             "Pdv_Host_Manager::get_ip_pdv_value - %s",

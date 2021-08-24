@@ -295,8 +295,8 @@ namespace moris
                     }
 
                     tIsIntersected = (tMax >= mIsocontourThreshold and tMin <= mIsocontourThreshold) or
-                            (std::abs(tMax) < mIsocontourTolerance) or
-                            (std::abs(tMin) < mIsocontourTolerance);
+                            (std::abs(tMax - mIsocontourThreshold) < mIsocontourTolerance) or
+                            (std::abs(tMin - mIsocontourThreshold) < mIsocontourTolerance);
 
                     break;
                 }
@@ -530,7 +530,7 @@ namespace moris
 
                     moris_index tGeomProxIndex = this->get_geometric_proximity_index(tVertGeomVal);
 
-                    if(std::abs(tVertGeomVal) < mIsocontourTolerance)
+                    if(std::abs(tVertGeomVal - mIsocontourThreshold) < mIsocontourTolerance)
                     {
 
                         tGeomProxIndex = 1;
@@ -1645,7 +1645,7 @@ namespace moris
 
                         // Indices, IDs, and ownership of base cell nodes in cluster
                         // FIXME this is really bad and slow. especially when building the pdvs; should return const &
-                        mtk::Cell const * tBaseCell = tCluster->get_interpolation_cell().get_base_cell();
+                        mtk::Cell const * tBaseCell = tCluster->get_interpolation_cell( mtk::Master_Slave::MASTER ).get_base_cell();
 
                         Matrix<IndexMat> tNodeIndicesInCluster     = tBaseCell->get_vertex_inds();
                         Matrix<IndexMat> tNodeIdsInCluster         = tBaseCell->get_vertex_ids();
@@ -1679,6 +1679,48 @@ namespace moris
                                     tNodeCoordinatesInCluster.get_row(tNodeInCluster);
 
                             tCurrentNode++;
+                        }
+
+                        // this is a hack. the hole function is super slow and should be rewritten
+                        // hack was implemented intentionally to get something running. Redo completely when rewriting GEN
+                        if( tSet->get_set_type() == moris::SetType::DOUBLE_SIDED_SIDESET )
+                        {
+
+                            mtk::Cell const * tBaseCellSlave = tCluster->get_interpolation_cell( mtk::Master_Slave::SLAVE ).get_base_cell();
+
+                            Matrix<IndexMat> tNodeIndicesInCluster     = tBaseCellSlave->get_vertex_inds();
+                            Matrix<IndexMat> tNodeIdsInCluster         = tBaseCellSlave->get_vertex_ids();
+                            Matrix<IndexMat> tNodeOwnersInCluster      = tBaseCellSlave->get_vertex_owners();
+                            Matrix<DDRMat>   tNodeCoordinatesInCluster = tBaseCellSlave->get_vertex_coords();
+
+                            // number of base nodes in cluster
+                            tNumberOfBaseNodes = tNodeIndicesInCluster.length();
+
+                            // number of spatial dimension
+                            tNumSpatialDim = tNodeCoordinatesInCluster.n_cols();
+
+                            // check for consistency
+                            MORIS_ASSERT( tNodeIdsInCluster.length() == tNumberOfBaseNodes && tNodeOwnersInCluster.length() == tNumberOfBaseNodes,
+                                    "Geometry_Engine::create_interpolation_pdv_hosts - inconsistent cluster information.\n");
+
+                            // FIXME don't understand this resize. it's really slow
+                            tNodeIndicesPerSet(tMeshSetIndex)    .resize(tCurrentNode + tNumberOfBaseNodes, 1);
+                            tNodeIdsPerSet(tMeshSetIndex)        .resize(tCurrentNode + tNumberOfBaseNodes, 1);
+                            tNodeOwnersPerSet(tMeshSetIndex)     .resize(tCurrentNode + tNumberOfBaseNodes, 1);
+                            tNodeCoordinatesPerSet(tMeshSetIndex).resize(tCurrentNode + tNumberOfBaseNodes, tNumSpatialDim);
+
+                            // FIXME we have nodes up to 8 times in this list in 3d
+                            for (uint tNodeInCluster = 0; tNodeInCluster < tNumberOfBaseNodes; tNodeInCluster++)
+                            {
+                                tNodeIndicesPerSet(tMeshSetIndex)(tCurrentNode)      = tNodeIndicesInCluster(tNodeInCluster);
+                                tNodeIdsPerSet(tMeshSetIndex)(tCurrentNode)          = tNodeIdsInCluster(tNodeInCluster);
+                                tNodeOwnersPerSet(tMeshSetIndex)(tCurrentNode)       = tNodeOwnersInCluster(tNodeInCluster);
+
+                                tNodeCoordinatesPerSet(tMeshSetIndex).get_row(tCurrentNode) =
+                                        tNodeCoordinatesInCluster.get_row(tNodeInCluster);
+
+                                tCurrentNode++;
+                            }
                         }
                     }
                 }
@@ -1761,7 +1803,7 @@ namespace moris
                 for(uint iClust=0; iClust<tNumClusters; iClust++)
                 {
                     // get the IP cell from cluster
-                    mtk::Cell const & tIPCell = tClusterPointers(iClust)->get_interpolation_cell();
+                    mtk::Cell const & tIPCell = tClusterPointers(iClust)->get_interpolation_cell( mtk::Master_Slave::MASTER );
 
                     // get the vertices from IP cell
                     Cell< mtk::Vertex * > tVertices = tIPCell.get_base_cell()->get_vertex_pointers();
@@ -1777,6 +1819,33 @@ namespace moris
 
                         // ask pdv host manager to assign to vertex a pdv type and a property
                         mPDVHostManager.create_interpolation_pdv( uint(tVertIndex), aPdvType, aPropertyPointer );
+                    }
+                }
+
+                // this is kind of a hack. recommending rewriting it properly when rewriting GEN
+                if( tSetPointer->get_set_type() == moris::SetType::DOUBLE_SIDED_SIDESET )
+                {
+                    // loop over the clusters on mesh set
+                    for(uint iClust=0; iClust<tNumClusters; iClust++)
+                    {
+                        // get the IP cell from cluster
+                        mtk::Cell const & tIPCell = tClusterPointers(iClust)->get_interpolation_cell( mtk::Master_Slave::SLAVE );
+
+                        // get the vertices from IP cell
+                        Cell< mtk::Vertex * > tVertices = tIPCell.get_base_cell()->get_vertex_pointers();
+
+                        // get the number of vertices on IP cell
+                        uint tNumVerts = tVertices.size();
+
+                        // loop over vertices on IP cell
+                        for(uint iVert = 0; iVert < tNumVerts; iVert++)
+                        {
+                            // get the vertex index
+                            moris_index tVertIndex = tVertices(iVert)->get_index();
+
+                            // ask pdv host manager to assign to vertex a pdv type and a property
+                            mPDVHostManager.create_interpolation_pdv( uint(tVertIndex), aPdvType, aPropertyPointer );
+                        }
                     }
                 }
             }
@@ -1801,7 +1870,7 @@ namespace moris
                 {            
                     real tVertGeomVal = mGeometries(iGeometryIndex)->get_field_value(iV, tCoords);
 
-                    if(std::abs(tVertGeomVal) < mIsocontourTolerance)
+                    if(std::abs(tVertGeomVal - mIsocontourThreshold) < mIsocontourTolerance)
                     {
                         tVertGeomVal = 1;
                     }

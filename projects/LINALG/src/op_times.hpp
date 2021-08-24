@@ -41,7 +41,7 @@ operator*( Matrix< Matrix_Type_A > & aA,
 ->decltype( aA.matrix_data() * aB.matrix_data() )
 {
 
-    MORIS_ASSERT(aA.n_cols() == aB.n_rows(),"Dimension mismatch in matrix multiplication");
+    MORIS_ASSERT(aA.n_cols() == aB.n_rows(),"Dimension mismatch in matrix multiplication. %-5i vs %-5i" , aA.n_cols(), aB.n_rows());
     return  aA.matrix_data() * aB.matrix_data();
 }
 
@@ -61,7 +61,7 @@ operator*( const Matrix< Matrix_Type_A > & aA,
            const Matrix< Matrix_Type_B > & aB )
 ->decltype( aA.matrix_data() * aB.matrix_data() )
 {
-    MORIS_ASSERT(aA.n_cols() == aB.n_rows(),"Dimension mismatch in matrix multiplication");
+    MORIS_ASSERT(aA.n_cols() == aB.n_rows(),"Dimension mismatch in matrix multiplication. %-5i vs %-5i",aA.n_cols(), aB.n_rows());
     return  aA.matrix_data() * aB.matrix_data();
 }
 

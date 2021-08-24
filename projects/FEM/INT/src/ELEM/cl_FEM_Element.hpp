@@ -267,6 +267,9 @@ namespace moris
                     // compute dRdpGeo at evaluation point
                     if( mSet->get_geo_pdv_assembly_flag() )
                     {
+                        // when order material and geo call order is changed this flag has to be checked
+                        aReqIWG->reset_eval_flags();
+
                         aReqIWG->compute_dRdp_FD_geometry(
                                 aWStar,
                                 mSAFDPerturbation,
@@ -305,6 +308,9 @@ namespace moris
                     // compute dQIdpGeo at evaluation point
                     if( mSet->get_geo_pdv_assembly_flag() )
                     {
+                        // when order material and geo call order is changed this flag has to be checked
+                        aReqIQI->reset_eval_flags();
+
                         aReqIQI->compute_dQIdp_FD_geometry(
                                 aWStar,
                                 mSAFDPerturbation,

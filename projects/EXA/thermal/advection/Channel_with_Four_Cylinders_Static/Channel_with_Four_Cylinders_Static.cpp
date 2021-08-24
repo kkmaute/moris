@@ -409,10 +409,12 @@ extern "C"
                 tParameterList( tSPIndex ).push_back( prm::create_stabilization_parameter_parameter_list() );
                 tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_name",      "SPGPTemp") ;
                 tParameterList( tSPIndex )( tSPCounter ).set( "master_phase_name",       "PhaseFluid" );
+                tParameterList( tSPIndex )( tSPCounter ).set( "slave_phase_name",       "PhaseFluid" );
                 tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type",
                         static_cast< uint >( fem::Stabilization_Type::GHOST_DISPL ) );
                 tParameterList( tSPIndex )( tSPCounter ).set( "function_parameters",     "0.005") ;
                 tParameterList( tSPIndex )( tSPCounter ).set( "master_properties",       "PropConductivity,Material") ;
+                tParameterList( tSPIndex )( tSPCounter ).set( "slave_properties",       "PropConductivity,Material") ;
                 tSPCounter++;
             }
 
