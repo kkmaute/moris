@@ -8,8 +8,9 @@
 #include "fn_GEN_create_geometries.hpp"
 #include "fn_GEN_check_equal.hpp"
 #include "fn_GEN_create_simple_mesh.hpp"
-
+#include "cl_GEN_Mesh_Field_Geometry.hpp"
 #include "cl_MTK_Mesh_Factory.hpp"
+#include "cl_XTK_Quad_4_Topology.hpp"
 
 #include "fn_PRM_GEN_Parameters.hpp"
 
@@ -486,6 +487,229 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
+        TEST_CASE("Bilinear Intersections Nonzero threshold (user defined mesh and", "[gen], [pdv], [intersection], [bilinear intersection],[nonzero_bilinear_threshold]")
+        {
+            if (par_size() == 1)
+            {
+                // This tests a patholgoical case where the curved bi-linear interpolation results in an edge with the same signed parent nodes to have an intersection point
+                // My mesh is one element where the geometry is a user defined nodal field (best way to control everything in this problem). 
+                // The isocontour threshold is away from 0. If this test fails, it is probably because someone modified the logic in cl_GEN_Intersection_Node.cpp which determins
+                // if an entity is intersected.
+
+
+                // Generate mesh
+                uint aNumDim = 2;
+                Matrix< DDRMat >     aCoords(6,2);
+                aCoords(0,0) = 0.0,  aCoords(0,1)  = 0.0;
+                aCoords(1,0) = 0.25, aCoords(1,1)  = 0.0;
+                aCoords(2,0) = 0.25, aCoords(2,1)  = 0.25;
+                aCoords(3,0) = 0.0,  aCoords(3,1)  = 1.0;
+                aCoords(4,0) = 0.0,  aCoords(4,1)  = 0.0;
+                Matrix< IdMat >     aElemConn( 1, 4 );
+
+                // 0D to 3D connectivity (node to element)
+                aElemConn( 0, 0 ) = 1; aElemConn( 0, 1 ) = 2; aElemConn( 0, 2 ) = 3; aElemConn( 0, 3 ) = 4;
+
+                Matrix< IdMat >  aElemLocaltoGlobal = {{1}};
+
+                // Create MORIS mesh using MTK database
+                moris::mtk::MtkMeshData aMeshData;
+                aMeshData.CreateAllEdgesAndFaces = true;
+                aMeshData.SpatialDim = &aNumDim;
+                aMeshData.ElemConn(0)= &aElemConn;
+                aMeshData.NodeCoords = &aCoords;
+                aMeshData.LocaltoGlobalElemMap(0) = &aElemLocaltoGlobal;
+                moris::mtk::Scalar_Field_Info<DDRMat> tLSF;
+                std::string tLSFName = "lsf1";
+                tLSF.set_field_name(tLSFName);
+                tLSF.set_field_entity_rank(moris::EntityRank::NODE);
+
+                // Add to mesh input field container
+                moris::mtk::MtkFieldsInfo tFieldsInfo;
+                add_field_for_mesh_input(&tLSF,tFieldsInfo);
+                aMeshData.FieldsInfo = &tFieldsInfo;
+
+                moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, aMeshData );
+
+                moris::uint tNumNodes = tMeshData->get_num_entities(moris::EntityRank::NODE);
+                moris::Matrix<moris::DDRMat> tLevelsetVal(tNumNodes,1,-1.3);
+
+                moris_id tIndexOfNodeId1 = tMeshData->get_loc_entity_ind_from_entity_glb_id( 1, EntityRank::NODE);
+                moris_id tIndexOfNodeId2 = tMeshData->get_loc_entity_ind_from_entity_glb_id( 2, EntityRank::NODE);
+                moris_id tIndexOfNodeId3 = tMeshData->get_loc_entity_ind_from_entity_glb_id( 3, EntityRank::NODE);
+                moris_id tIndexOfNodeId4 = tMeshData->get_loc_entity_ind_from_entity_glb_id( 4, EntityRank::NODE);
+
+                tLevelsetVal(tIndexOfNodeId1) = 5.71398452074828e-01;
+                tLevelsetVal(tIndexOfNodeId2) = 5.06776630434012e-01;
+                tLevelsetVal(tIndexOfNodeId3) = 4.25145951405591e-01;
+                tLevelsetVal(tIndexOfNodeId4) = 5.00394812706282e-01;
+
+                tMeshData->add_mesh_field_real_scalar_data_loc_inds(tLSFName, moris::EntityRank::NODE, tLevelsetVal);
+
+                Cell<std::shared_ptr<ge::Geometry>> tGeometry(1);
+                tGeometry(0) = std::make_shared<moris::ge::Mesh_Field_Geometry>(tMeshData, tLSFName);
+                tGeometry(0)->set_intersection_interpolation("multilinear");
+
+
+                moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
+                tGeometryEngineParameters.mGeometries          = tGeometry;
+                tGeometryEngineParameters.mIsocontourThreshold = 0.5;
+                tGeometryEngineParameters.mIsocontourTolerance = 1e-13;
+                
+                moris::ge::Geometry_Engine tGeometryEngine(tMeshData, tGeometryEngineParameters);
+
+                // get the cell
+                moris::mtk::Cell & tCell = tMeshData->get_mtk_cell(0);
+
+                // verify that it says that the cell is intersected
+                bool tIsIntersected = tGeometryEngine.is_intersected( tCell.get_vertex_inds(), tCell.get_vertex_coords());
+
+                CHECK(tIsIntersected);
+
+                // add a node at the of the cell to the geometry engine (This is emulated XTK adding a node like this in regular subdivision)
+                xtk::Quad_4_Topology tQuad4Topo(tCell.get_vertex_inds());
+                moris::Cell<xtk::Topology*> tCellTopo = {&tQuad4Topo};
+                moris::Cell<Matrix<DDRMat>> tLocalCoords(1);
+                tLocalCoords(0) = {{+0.000000000000000e+00,  +0.000000000000000e+00}};
+                Cell<moris_index> tNewNodeIndices = {4};
+                tGeometryEngine.create_new_child_nodes( tNewNodeIndices, tCellTopo, tLocalCoords, aCoords);
+
+                Matrix<DDRMat> tVertexCoords  = tCell.get_vertex_coords();
+                Matrix<IndexMat> tVertexInds  = tCell.get_vertex_inds();
+                Matrix<DDUMat> tVertexIndsDDU = {{(uint)tVertexInds(0),(uint)tVertexInds(1),(uint)tVertexInds(2),(uint)tVertexInds(3)}};
+
+                Cell<Matrix<DDRMat>> tBGCellCoords(4);
+                tBGCellCoords(0) = tVertexCoords.get_row(0);
+                tBGCellCoords(1) = tVertexCoords.get_row(1);
+                tBGCellCoords(2) = tVertexCoords.get_row(2);
+                tBGCellCoords(3) = tVertexCoords.get_row(3);
+                
+                Matrix<DDRMat> tLocalCoordsMat = {{-1.000000000000000e+00,  -1.000000000000000e+00}, 
+                                                  {+1.000000000000000e+00,  -1.000000000000000e+00},
+                                                  {+1.000000000000000e+00,  +1.000000000000000e+00}, 
+                                                  {-1.000000000000000e+00,  +1.000000000000000e+00},
+                                                  {+0.000000000000000e+00,  +0.000000000000000e+00}};
+
+
+                // check that the cell is intersected
+                moris_index tNodeIndex1 = 0;
+                moris_index tNodeIndex2 = 1;
+                bool tIntersectionQueued = tGeometryEngine.queue_intersection( 
+                                tNodeIndex1, 
+                                tNodeIndex2,
+                                tLocalCoordsMat.get_row(tNodeIndex1),
+                                tLocalCoordsMat.get_row(tNodeIndex2),
+                                aCoords.get_row(tNodeIndex1),
+                                aCoords.get_row(tNodeIndex2),
+                                tVertexIndsDDU, 
+                                tBGCellCoords);
+
+                CHECK(!tIntersectionQueued);
+
+                // check that the cell is intersected
+                tNodeIndex1 = 1;
+                tNodeIndex2 = 2;
+                tIntersectionQueued = tGeometryEngine.queue_intersection( 
+                                tNodeIndex1, 
+                                tNodeIndex2,
+                                tLocalCoordsMat.get_row(tNodeIndex1),
+                                tLocalCoordsMat.get_row(tNodeIndex2),
+                                aCoords.get_row(tNodeIndex1),
+                                aCoords.get_row(tNodeIndex2),
+                                tVertexIndsDDU, 
+                                tBGCellCoords);
+
+                CHECK(tIntersectionQueued);
+
+                tNodeIndex1 = 2;
+                tNodeIndex2 = 3;
+                tIntersectionQueued = tGeometryEngine.queue_intersection( 
+                                tNodeIndex1, 
+                                tNodeIndex2,
+                                tLocalCoordsMat.get_row(tNodeIndex1),
+                                tLocalCoordsMat.get_row(tNodeIndex2),
+                                aCoords.get_row(tNodeIndex1),
+                                aCoords.get_row(tNodeIndex2),
+                                tVertexIndsDDU, 
+                                tBGCellCoords);
+                CHECK(tIntersectionQueued);
+
+                tNodeIndex1 = 0;
+                tNodeIndex2 = 3;
+                tIntersectionQueued = tGeometryEngine.queue_intersection( 
+                                tNodeIndex1, 
+                                tNodeIndex2,
+                                tLocalCoordsMat.get_row(tNodeIndex1),
+                                tLocalCoordsMat.get_row(tNodeIndex2),
+                                aCoords.get_row(tNodeIndex1),
+                                aCoords.get_row(tNodeIndex2),
+                                tVertexIndsDDU, 
+                                tBGCellCoords);
+                CHECK(!tIntersectionQueued);
+
+
+                // check that the cell is intersected 
+                tNodeIndex1 = 0;
+                tNodeIndex2 = 4;
+                tIntersectionQueued = tGeometryEngine.queue_intersection( 
+                                tNodeIndex1, 
+                                tNodeIndex2,
+                                tLocalCoordsMat.get_row(tNodeIndex1),
+                                tLocalCoordsMat.get_row(tNodeIndex2),
+                                aCoords.get_row(tNodeIndex1),
+                                aCoords.get_row(tNodeIndex2),
+                                tVertexIndsDDU, 
+                                tBGCellCoords);
+
+                CHECK(!tIntersectionQueued);
+
+                // check that the cell is intersected 
+                tNodeIndex1 = 1;
+                tNodeIndex2 = 4;
+                tIntersectionQueued = tGeometryEngine.queue_intersection( 
+                                tNodeIndex1, 
+                                tNodeIndex2,
+                                tLocalCoordsMat.get_row(tNodeIndex1),
+                                tLocalCoordsMat.get_row(tNodeIndex2),
+                                aCoords.get_row(tNodeIndex1),
+                                aCoords.get_row(tNodeIndex2),
+                                tVertexIndsDDU, 
+                                tBGCellCoords);
+
+                CHECK(!tIntersectionQueued);
+
+                // check that the cell is intersected 
+                tNodeIndex1 = 2;
+                tNodeIndex2 = 4;
+                tIntersectionQueued = tGeometryEngine.queue_intersection( 
+                                tNodeIndex1, 
+                                tNodeIndex2,
+                                tLocalCoordsMat.get_row(tNodeIndex1),
+                                tLocalCoordsMat.get_row(tNodeIndex2),
+                                aCoords.get_row(tNodeIndex1),
+                                aCoords.get_row(tNodeIndex2),
+                                tVertexIndsDDU, 
+                                tBGCellCoords);
+
+                CHECK(tIntersectionQueued);
+
+                // check that the cell is intersected 
+                tNodeIndex1 = 3;
+                tNodeIndex2 = 4;
+                tIntersectionQueued = tGeometryEngine.queue_intersection( 
+                                tNodeIndex1, 
+                                tNodeIndex2,
+                                tLocalCoordsMat.get_row(tNodeIndex1),
+                                tLocalCoordsMat.get_row(tNodeIndex2),
+                                aCoords.get_row(tNodeIndex1),
+                                aCoords.get_row(tNodeIndex2),
+                                tVertexIndsDDU, 
+                                tBGCellCoords);
+                CHECK(!tIntersectionQueued);
+
+         
+            }
+        }
 
         TEST_CASE("Bilinear Intersections", "[gen], [pdv], [intersection], [bilinear intersection]")
         {
