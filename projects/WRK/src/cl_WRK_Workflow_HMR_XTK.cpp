@@ -86,7 +86,7 @@ namespace moris
             {
                 // create MTK performer - will be used for HMR mesh
                 mPerformerManager->mRemeshingMiniPerformer( 0 ) =
-                        std::make_shared< wrk::Remeshing_Mini_Performer >( tMORISParameterList( 0 )( 0 ) );
+                        std::make_shared< wrk::Remeshing_Mini_Performer >( tMORISParameterList( 0 )( 0 ), mPerformerManager->mLibrary );
             }
 
         }
