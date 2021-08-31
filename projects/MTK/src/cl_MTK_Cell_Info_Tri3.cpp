@@ -310,6 +310,14 @@ namespace moris
             return tLengthDeriv;
         }
 
+        // ----------------------------------------------------------------------------------
+
+        moris::Matrix<moris::IndexMat>
+        Cell_Info_Tri3::get_geometric_node_to_facet_map(moris::uint aSideOrdinal) const
+        {
+            return this->get_node_to_edge_map(aSideOrdinal);
+        }
+
 
     } // namespace mtk
 } // namespace moris
