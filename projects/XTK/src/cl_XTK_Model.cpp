@@ -36,6 +36,10 @@
 #include "cl_Tracer.hpp"
 #include "fn_stringify_matrix.hpp"
 
+#include "cl_MTK_Intersection_Detect.hpp"
+#include "cl_MTK_Intersection_Detect_2D.hpp"
+#include "cl_MTK_Intersection_Mesh.hpp"
+
 using namespace moris;
 
 namespace xtk
@@ -367,11 +371,29 @@ namespace xtk
             //Periodic Boundary condition environment
             if( mParameterList.get< std::string >( "periodic_side_set_pair" ) != "" )
             {
-                //constrcut the object for periodic boundary condition
-                mtk::Periodic_Boundary_Condition_Helper tPBCHelper(mMTKOutputPerformer,0, mParameterList);
+                if(tEnrInterpMesh.get_spatial_dim() == 2 )
+                {
+                mtk::Intersection_Detect_2D tIsDetetc( mMTKOutputPerformer, 0, mParameterList, mGeometryEngine->get_num_bulk_phase()) ;
 
-                //perform periodic boundary condition
-                tPBCHelper.setup_periodic_boundary_conditions();
+                tIsDetetc.perform();
+                }
+                else
+                {
+                    mtk::Intersection_Detect tIsDetetc( mMTKOutputPerformer, 0, mParameterList, mGeometryEngine->get_num_bulk_phase()) ;
+
+                    tIsDetetc.perform();
+                    mtk::Intersection_Mesh* tIscMesh = new mtk::Intersection_Mesh(&tEnrIntegMesh,&tIsDetetc );
+
+                    moris::mtk::Writer_Exodus tWriter2(tIscMesh);
+                    tWriter2.write_mesh("", "VIS_ISC.exo", "", "temp.exo");
+                    tWriter2.close_file();
+
+                }
+                //constrcut the object for periodic boundary condition
+//                mtk::Periodic_Boundary_Condition_Helper tPBCHelper(mMTKOutputPerformer,0, mParameterList);
+//
+//                //perform periodic boundary condition
+//                tPBCHelper.setup_periodic_boundary_conditions();
             }
 
             // if( mParameterList.get<bool>("contact_sandbox") )
