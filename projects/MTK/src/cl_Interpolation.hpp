@@ -152,7 +152,4 @@ namespace moris
     }
 }
 
-
-
-
 #endif /* PROJECTS_MTK_SRC_CL_INTERPOLATION_HPP_ */
