@@ -132,7 +132,17 @@ namespace moris
                 /**
                  * virtual destructor
                  */
-                ~Double_Side_Set(){};
+                ~Double_Side_Set()
+                {
+                    if( mOwendbyPeriodicBCFlag )
+                    {
+                        for( auto tSetClusters : mSetClusters )
+                        {
+                            delete tSetClusters;
+                        }
+                        mSetClusters.clear();
+                    }
+                };
 
                 //------------------------------------------------------------------------------
 
