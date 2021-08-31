@@ -13,8 +13,6 @@
 #include "cl_MTK_Side_Cluster.hpp"
 #include "typedefs.hpp"
 #include "cl_Mesh_Enums.hpp"
-#include "fn_create_edges_from_element_to_node.hpp"
-#include "fn_generate_face_to_face.hpp"
 #include "fn_unique.hpp"
 #include<unordered_map>
 
@@ -22,9 +20,7 @@
 #include "fn_sum.hpp"
 #include "fn_inv.hpp"
 #include "fn_dot.hpp"
-#include "fn_sort_index.hpp"
 #include "fn_sort.hpp"
-#include "fn_arg.hpp"
 #include "fn_rank.hpp"
 #include "cl_MTK_Mesh.hpp"
 #include "op_equal_equal.hpp"

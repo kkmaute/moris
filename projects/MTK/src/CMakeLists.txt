@@ -198,7 +198,6 @@ cl_MTK_Periodic_Boundary_Condition_Helper.cpp
 cl_MTK_Double_Side_Cluster.cpp
 cl_MTK_Side_Cluster.cpp
 cl_MTK_Mesh_Pair.cpp
-cl_MTK_Debug_Ghost.cpp
 cl_MTK_Intersection_Detect.cpp
 cl_MTK_Cell_ISC.cpp
 cl_MTK_Side_Cluster_ISC_Impl.cpp
