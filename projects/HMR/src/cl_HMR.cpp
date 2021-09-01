@@ -1386,6 +1386,82 @@ namespace moris
 
         // ----------------------------------------------------------------------------
 
+        void HMR::user_defined_flagging(
+                Cell< hmr::Element * >   & aCells,
+                Cell< hmr::Element * >   & aCandidates,
+                const  Matrix< DDRMat >  & aVertexValues,
+                Refinement_Function        aRefinementFunction)
+        {
+
+            // get number of elements from input mesh
+            uint tNumberOfElements  = aCandidates.size();
+
+            // loop over all elements
+            for( uint e = 0; e < tNumberOfElements; ++e )
+            {
+
+                // TODO comment these lines in toa ctivate refinement buffer.
+                // TODO it should just work. However it is not validated yet.
+                //              // get max level on this mesh
+                //              uint tMaxLevelOnMesh = mDatabase->get_background_mesh()->get_max_level();
+                //
+                //              if( mParameters->get_refinement_buffer() > 0 )
+                //              {
+                //                  // get number of levels
+                //                  for( uint tLevel=0; tLevel<=tMaxLevelOnMesh; ++tLevel )
+                //                  {
+                //                      // create extra buffer
+                //                      mDatabase->create_extra_refinement_buffer_for_level( tLevel );
+                //                  }
+                //              }
+
+                // only consider element if level is below max specified level
+
+                Matrix< IndexMat > tElementsInds = aCandidates(e)->get_vertex_inds();
+
+                // loop over all nodes of an element
+                Matrix<DDRMat> tElementField(tElementsInds.numel(), 1 );
+                for( uint f = 0; f<tElementsInds.numel(); ++f )
+                {
+                    tElementField( f ) = aVertexValues( tElementsInds( f ) );
+                }
+
+                // check flag from user defined function
+                int tFlag = aRefinementFunction(
+                        aCandidates(e),
+                        tElementField);
+                //                // chop flag if element is at max defined level
+                //                if( tElement->get_level() > tMaxLevel )
+                //                {
+                //                    // an element above the max level can only be coarsened
+                //                    tFlag = -1;
+                //                }
+                //                else if( tElement->get_level() == tMaxLevel)
+                //                {
+                //                    // an element on the max level can only be kept or coarsened
+                //                    // but nor refined
+                //                    tFlag = std::min( tFlag, 0 );
+                //                }
+
+                // perform flagging test
+                if( tFlag == 1 )
+                {
+                    aCells.push_back(aCandidates(e));
+                }
+                else
+                {
+
+                }
+                //                else if ( tFlag == 0 )
+                //                {
+                //                    // flag the parent of this element
+                //                    mDatabase->flag_parent( e );
+                //                }
+            }
+        }
+
+        // ----------------------------------------------------------------------------
+
         void HMR::get_candidates_for_refinement(
                 Cell< hmr::Element* > & aCandidates,
                 const uint              aLagrangeMeshIndex)
@@ -1714,7 +1790,7 @@ namespace moris
                 const Matrix< DDRMat > & aFieldValues,
                 uint                     aPattern,
                 uint                     aOrder,
-                sint                     aFunctionIndex)
+                Refinement_Function      aRefFunction )
         {
             uint aElementCounter = 0;
 
@@ -1741,7 +1817,7 @@ namespace moris
                     tMesh );
 
             // call refinement manager and get intersected cells
-            if (aFunctionIndex < 0)
+            if ( !aRefFunction )
             {
                 this->find_cells_intersected_by_levelset(
                         tRefinementList,
@@ -1754,7 +1830,7 @@ namespace moris
                         tRefinementList,
                         tCandidates,
                         aFieldValues,
-                        uint(aFunctionIndex));
+                        aRefFunction );
             }
 
             // add length of list to counter

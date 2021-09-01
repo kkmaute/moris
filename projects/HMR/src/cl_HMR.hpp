@@ -416,7 +416,7 @@ namespace moris
                         const Matrix< DDRMat > & aFieldValues,
                         uint                     aPattern,
                         uint                     aOrder,
-                        sint                     aFunctionIndex);
+                        Refinement_Function      aRefFunction);
 
                 uint based_on_field_put_low_level_elements_on_queue(
                         const Matrix< DDRMat > & aFieldValues,
@@ -567,6 +567,12 @@ namespace moris
                     Cell< hmr::Element * >   & aCandidates,
                     const  Matrix< DDRMat >  & aVertexValues,
                     uint                       aFunctionIndex);
+
+            void user_defined_flagging(
+                    Cell< hmr::Element * >   & aCells,
+                    Cell< hmr::Element * >   & aCandidates,
+                    const  Matrix< DDRMat >  & aVertexValues,
+                    Refinement_Function        aRefinementFunction);
 
         }; /* HMR */
 

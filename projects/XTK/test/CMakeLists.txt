@@ -33,6 +33,7 @@ xtk/UT_XTK_Performance.cpp
     xtk/UT_XTK_Phase_Table_Scratch.cpp
     xtk/UT_XTK_Mesh_Cleanup.cpp
     xtk/UT_Snapping.cpp
+    xtk/UT_XTK_Intersection_Detect_HMR_XTK.cpp
 	)
 	
 if(BUILD_HMR)

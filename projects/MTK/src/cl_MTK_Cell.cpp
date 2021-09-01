@@ -376,5 +376,36 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+       moris::Matrix<moris::DDRMat>
+        Cell::get_cell_geometric_coords_on_side_ordinal(moris::moris_index aSideOrdinal) const
+        {
+            MORIS_ASSERT(mCellInfo != nullptr, "Cell info null ptr");
+
+            // Get all the vertices of the cell
+            moris::Cell< moris::mtk::Vertex* > tVertices = this->get_vertex_pointers();
+
+            // Get vertex ordinals on the facet
+            moris::Matrix<moris::IndexMat> tGeometricVertOrdsOnFacet = this->get_cell_info()->get_geometric_node_to_facet_map(aSideOrdinal);
+
+            // Allocate output coords (note we do not know the spatial dimension at this time)
+            moris::Matrix<moris::DDRMat> tVertexPhysCoords(0,0);
+
+            for(moris::uint i = 0; i < tGeometricVertOrdsOnFacet.numel(); i++)
+            {
+                moris::Matrix<moris::DDRMat> tVertexCoord = tVertices( tGeometricVertOrdsOnFacet( i ) )->get_coords();
+
+                if( i == 0 )
+                {
+                    MORIS_ASSERT( isrow(tVertexCoord),"Default implementation assumes row based coordinates");
+                    tVertexPhysCoords.resize( tGeometricVertOrdsOnFacet.numel(), tVertexCoord.numel() );
+                }
+
+                tVertexPhysCoords.get_row(i) = tVertexCoord.get_row(0);
+
+            }
+
+            return  tVertexPhysCoords;
+        }
+
     }
 }

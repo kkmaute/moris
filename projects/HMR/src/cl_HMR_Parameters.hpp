@@ -32,7 +32,7 @@ namespace moris
 
         // User-defined refinement function
         typedef sint  ( *Refinement_Function ) (
-                hmr::Element                   * aElement,
+                hmr::Element           * aElement,
                 const Matrix< DDRMat > & aElementLocalValues);
 
         // -----------------------------------------------------------------------------

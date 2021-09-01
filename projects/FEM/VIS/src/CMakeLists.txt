@@ -11,6 +11,7 @@ set(HEADERS
     cl_VIS_Vertex_Visualization.hpp
     cl_VIS_Cell_Cluster_Visualization.hpp
     cl_VIS_Factory.hpp
+    cl_VIS_Side_Cluster_Visualization.hpp
     )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -21,6 +22,7 @@ set(LIB_SOURCES
     cl_VIS_Output_Manager.cpp
     cl_VIS_Cell_Cluster_Visualization.cpp
     cl_VIS_Factory.cpp
+    cl_VIS_Side_Cluster_Visualization.cpp
  )
 
 # List library dependencies

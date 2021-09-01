@@ -43,6 +43,8 @@ namespace moris
         aParameterlist.insert( "field_names" , "" );
         aParameterlist.insert( "levels_of_refinement" , "" );
         aParameterlist.insert( "refinement_pattern" , "" );
+
+        aParameterlist.insert( "refinement_function_name" , "" );
     }
 
     //------------------------------------------------------------------------------
@@ -51,11 +53,19 @@ namespace moris
     {
         // Remeshing mode. Options are "ab_initio", "former"
         aParameterlist.insert( "mode" , "" );
+        aParameterlist.insert( "remeshing_refinement_pattern" , "" );
+        aParameterlist.insert( "refinement_function_name" , "" );
 
-        // modde "ab_initio"
+        // mode "ab_initio"
         aParameterlist.insert( "remeshing_field_names" , "" );
         aParameterlist.insert( "remeshing_levels_of_refinement" , "" );
         aParameterlist.insert( "remeshing_refinement_pattern" , "" );
+
+        // mode "based_on_previous"
+        aParameterlist.insert( "remeshing_maximum_refinement_level" , "" );
+        aParameterlist.insert( "remeshing_minimum_refinement_level" , "" );
+
+
 
         // modde "previous"
 
