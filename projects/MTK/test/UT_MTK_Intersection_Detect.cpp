@@ -80,7 +80,6 @@ namespace moris
 
                 //use "EdgeIntersect" method
                 tIsDetetc.EdgeIntersect( tFirstTriCoordsSame, tSecondTriCoordsSame, tIntersectedPoints, tIntersectVec);
-                print( tIntersectedPoints, "tIntersectedPointsSame");
 
                 moris::Matrix < DDRMat > tExpectedTriCoords = { { 1.0, 0.0, 1.0, 1.0, 0.0, 1.0 }, { 0.0, 0.0,0.0, 1.0,0.0, 1.0 } };
 
@@ -95,8 +94,6 @@ namespace moris
 
                 //use "EdgeIntersect" method
                 tIsDetetc.EdgeIntersect( tFirstTriCoords, tSecondTriCoords, tIntersectedPoints, tIntersectVec);
-
-                print( tIntersectedPoints, "tIntersectedPoints");
 
                 // Expected result
                 tExpectedTriCoords = { { 0.5, 0.5, 1.0, 1.0, 0.5, 0.25 }, { 0.0, 0.0, 0.5, 0.5, 0.5, 0.25 } };
@@ -114,15 +111,11 @@ namespace moris
                 // Test points of Tri 1 in Tri 2
                 tIsDetetc.PointsXInY( tFirstTriCoords , tSecondTriCoords, tPointsXInY);
 
-                print( tPointsXInY, "tPointsXInY");
-
                 // Check if the expected result is the same as the output
                 REQUIRE(  tPointsXInY.numel() == 0 );
 
                 // Test points of Tri 2 in Tri 1
                 tIsDetetc.PointsXInY(  tSecondTriCoords, tFirstTriCoords, tPointsYInX);
-
-                print( tPointsYInX, "tPointsYInX");
 
                 tExpectedTriCoords = { { 0.5, 1.0 }, { 0.0, 0.5 } };
 
@@ -134,8 +127,6 @@ namespace moris
 
                 // Apply the method
                 tIsDetetc.SortandRemove(tIntersectedPoints);
-
-                print( tIntersectedPoints, "tIntersectedPoints");
 
                 // Expected results
                 tExpectedTriCoords = { { 0.25, 0.5, 1.0, 0.5 }, { 0.25, 0.0, 0.5, 0.5 } };
@@ -210,12 +201,6 @@ namespace moris
                         tFisrtTriNodeIndex,
                         tSecondNodeIndex);
 
-                for( uint  i = 0 ; i < tIntersectionPoints.size(); i++ )
-                {
-                    std::cout<<"i is: "<<i<<std::endl;
-                    print(tIntersectionPoints(i), "tIntersectionPoints");
-                }
-
                 // Check if the expected result is the same as the output
                 moris::Matrix < DDRMat > tIntsersectionArea0 = { {-1.000000000000000e+00,  +1.000000000000000e+00,  +0.000000000000000e+00},
                         {-1.000000000000000e+00,  -1.000000000000000e+00,  +0.000000000000000e+00 } };
@@ -255,12 +240,6 @@ namespace moris
                         tSecondTriCoords,
                         tFisrtTriNodeIndex,
                         tSecondNodeIndex);
-
-                for( uint  i = 0 ; i < tIntersectionPoints.size(); i++ )
-                {
-                    std::cout<<"i is: "<<i<<std::endl;
-                    print(tIntersectionPoints(i), "tIntersectionPoints");
-                }
 
 
                 // Check if the expected result is the same as the output

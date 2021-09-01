@@ -39,7 +39,12 @@
 // implementations to test
 #include "cl_MTK_Mesh_Factory.hpp"
 
+#define protected public
+#define private public
 #include "cl_XTK_Model.hpp"
+#undef protected
+#undef private
+
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 
 #include "cl_HMR_Mesh_Interpolation.hpp"
@@ -57,7 +62,7 @@
 namespace xtk
 {
     TEST_CASE("XTK Intersect","[XTK],[XTK_Intersect_HMR_XTK]")
-                                                {
+                {
         if(par_size() ==1)
         {
             uint tLagrangeMeshIndex = 0;
@@ -120,18 +125,6 @@ namespace xtk
             tGeometryEngineParameters.mGeometries = tGeometry;
             moris::ge::Geometry_Engine tGeometryEngine(tInterpolationMesh, tGeometryEngineParameters);
 
-            xtk::Model tXTKModel2(tXTKParameters);
-            tXTKModel2.set_geometry_engine(&tGeometryEngine);
-
-            tXTKModel2.set_mtk_background_mesh(tInterpolationMesh);
-            //
-            //
-            //            tXTKModel2.perform();
-            //
-            //            //moris::mtk::Integration_Mesh& tIntegrationMesh = tXTKModel.get_enriched_integ_mesh(0);
-            //
-            //            //std::cout<<tIntegrationMesh<<std::endl;
-
             size_t tModelDimension = 3;
 
             Model tXTKModel(tModelDimension, tInterpolationMesh, &tGeometryEngine);
@@ -141,11 +134,10 @@ namespace xtk
             Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
             tXTKModel.decompose(tDecompositionMethods);
 
+
             tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
 
             tXTKModel.construct_face_oriented_ghost_penalization_cells();
-
-            moris::mtk::Integration_Mesh& tIntegrationMesh = tXTKModel.get_enriched_integ_mesh(0);
 
             // get meshes
             xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
@@ -155,133 +147,60 @@ namespace xtk
             std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();
             tMeshManager->register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
 
-            // output the mesh
-            moris::mtk::Writer_Exodus tWriter( tMeshManager->get_integration_mesh( 0 ) );
-            tWriter.write_mesh("", "test_mesh.exo", "", "temp.exo");
-            tWriter.close_file();
 
-            mtk::Intersection_Detect tIsDetetc( tMeshManager, 0, tXTKParameters, 2 ) ;
+            // Apply the intersection algorithm
+            tXTKModel.mIntersectionDetect = new moris::mtk::Intersection_Detect( tMeshManager, 0, tXTKParameters, 2 ) ;
+            tXTKModel.mIntersectionDetect->perform();
+            tXTKModel.mIntersectionDetect2D=nullptr;
 
-            tIsDetetc.perform();
-
-//            //write the ISC mesh
-//            mtk::Intersection_Mesh* tIscMesh = new mtk::Intersection_Mesh(&tEnrIntegMesh,&tIsDetetc );
-//
-//                                moris::mtk::Writer_Exodus tWriter2(tIscMesh);
-//                                tWriter2.write_mesh("", "VIS_ISC", "", "temp.exo");
-//                                tWriter2.close_file();
-            // output the mesh
-            moris::mtk::Writer_Exodus tWriter2( tMeshManager->get_integration_mesh( 0 ) );
-            tWriter2.write_mesh("", "test_mesh2.exo", "", "temp.exo");
-            tWriter2.close_file();
-
+            // Output the IG mesh
             moris::mtk::Integration_Mesh* tIntegrationMesh2 = tMeshManager->get_integration_mesh( 0 );
 
+            // Get the periodic set
             moris_index tPeriodicSetIndex = tIntegrationMesh2->get_set_index_by_name("P11");
+            moris::mtk::Set* tPeriodicSet = tIntegrationMesh2->get_set_by_index( tPeriodicSetIndex );
 
-            moris::mtk::Set * tPeriodicSet = tIntegrationMesh2->get_set_by_index( tPeriodicSetIndex );
-
-            uint tNumVertices = tPeriodicSet->get_num_vertices_on_set(true);
-            std::cout<<tNumVertices<<std::endl;
-
-            enum CellShape tIGCellShape =  tPeriodicSet->get_IG_cell_shape();
-            enum CellShape tIPCellShape =  tPeriodicSet->get_IP_cell_shape();
-            //enum CellTopology tCellTopology = tPeriodicSet->get_cell_topology();
-
-
-            //            uint tNumCells = tPeriodicSet->get_num_cells_on_set(true);
-            //            std::cout<<tNumCells<<std::endl;
-
-            std::cout<<tNumVertices<<std::endl;
+            // Get clusters on the set
             moris::Cell<moris::mtk::Cluster const *> tClusters = tPeriodicSet->get_clusters_on_set();
 
-            moris::real tVolume = tClusters(0)->compute_cluster_cell_measure(mtk::Primary_Void::PRIMARY , mtk::Master_Slave::MASTER) ;
-
-            moris::real tLength = tClusters(0)->compute_cluster_cell_side_measure(mtk::Primary_Void::PRIMARY , mtk::Master_Slave::MASTER) ;
-
-            moris::Matrix<moris::DDRMat> tMasterCoords =  tClusters(0)-> get_vertices_local_coordinates_wrt_interp_cell(mtk::Master_Slave::MASTER);
-
-            print(tMasterCoords,"tMasterCoords");
-
-            moris::Matrix<moris::DDRMat> tSlaveCoords =  tClusters(0)-> get_vertices_local_coordinates_wrt_interp_cell(mtk::Master_Slave::SLAVE);
-
-            print(tSlaveCoords,"tSlaveCoords");
-
-            //get the side ordinal that has PBC
-            Matrix< IndexMat > tSideOrdinal1 = tPeriodicSet->get_clusters_by_index( 0 )->get_cell_side_ordinals( mtk::Master_Slave::MASTER );
-
-            print(tSideOrdinal1,"tSideOrdinal1");
-            //get the vertices on the PBC master side
-            moris::Cell< moris::mtk::Vertex const* > tVertex1 = tPeriodicSet->get_clusters_by_index( 0 )
-                                                                                                         ->get_primary_cells_in_cluster( mtk::Master_Slave::MASTER )( 0 )->get_vertices_on_side_ordinal( tSideOrdinal1( 0, 0) );
-
-            //matrix to store IDs of master side set
-            Matrix<IdMat> tVertex1ID = Matrix<IdMat> ( 1, 3);
-
-            //fill in values of IDs
-            for(uint j = 0; j < tVertex1.size(); j++)
-            {
-                tVertex1ID( 0, j) = tVertex1( j )->get_id();
-                print(tVertex1( j )->get_coords(), "tVertex1( j )->get_coords()");
-            }
-
-            print(tVertex1ID,"tVertex1ID");
-            //get the side ordinal that has PBC
-            Matrix< IndexMat > tSideOrdinal2 = tPeriodicSet->get_clusters_by_index( 0 )->get_cell_side_ordinals(mtk::Master_Slave::SLAVE);
-
-            //get the vertices on the PBC master side
-            moris::Cell< moris::mtk::Vertex const* > tVertex2 = tPeriodicSet->get_clusters_by_index( 0 )
-                                                                                                                        ->get_primary_cells_in_cluster( mtk::Master_Slave::SLAVE )( 0 )->get_vertices_on_side_ordinal( tSideOrdinal2( 0, 0));
-
-            //matrix to store IDs of master side set
-            Matrix<IdMat> tVertex2ID = Matrix<IdMat> (1,3);
-
-            //fill in values of IDs
-            for(uint j=0; j<tVertex2.size(); j++ )
-            {
-                tVertex2ID(0,j)=tVertex2(j)->get_id();
-                print(tVertex2( j )->get_coords(), "tVertex2( j )->get_coords()");
-            }
-
-            print(tVertex2ID, "tVertex2ID");
-
-
+            // Cells to populate and check later
             moris::Cell<moris_id > tMorisIdCellDiff;
             moris::Cell<moris_index > tMorisIndexCellDiff;
+
             //loop over all double sided clusters
             for(uint i = 0 ; i < 12 ; i++)
             {
+                // master side measures
                 real tVolumeM = tClusters(i)->compute_cluster_cell_measure(mtk::Primary_Void::PRIMARY , mtk::Master_Slave::MASTER) ;
                 real tLengthM = tClusters(i)->compute_cluster_cell_side_measure(mtk::Primary_Void::PRIMARY , mtk::Master_Slave::MASTER);
 
+                //slave side measure
                 moris::real tVolumeS = tClusters(i)->compute_cluster_cell_measure(mtk::Primary_Void::PRIMARY , mtk::Master_Slave::SLAVE) ;
                 moris::real tLengthS = tClusters(i)->compute_cluster_cell_side_measure(mtk::Primary_Void::PRIMARY , mtk::Master_Slave::SLAVE);
 
-                std::cout<<"for MASTER cluster "<<i<<" the volume is: "<<tVolumeM<<", and length is: "<<tLengthM<<std::endl;
+                // Measures should be the same
+                REQUIRE( tVolumeM == tVolumeS );
+                REQUIRE( tLengthM == tLengthS );
 
-                std::cout<<"for SLAVE cluster "<<i<<" the volume is: "<<tVolumeS<<", and length is: "<<tLengthS<<std::endl;
                 //loop over the integration cells in each double sided cluster
                 for( uint k = 0; k < 4 ; k++ )
                 {
-                    tVertex1 = tPeriodicSet->get_clusters_by_index( i )->get_primary_cells_in_cluster( mtk::Master_Slave::MASTER )( k )->get_vertices_on_side_ordinal( 3 );
+                    // Get Vertices on the master and slave
+                    moris::Cell< moris::mtk::Vertex const * > tVertex1 = tPeriodicSet->get_clusters_by_index( i )->get_primary_cells_in_cluster( mtk::Master_Slave::MASTER )( k )->get_vertices_on_side_ordinal( 3 );
+                    moris::Cell< moris::mtk::Vertex const * > tVertex2 = tPeriodicSet->get_clusters_by_index( i )->get_primary_cells_in_cluster( mtk::Master_Slave::SLAVE )( k )->get_vertices_on_side_ordinal( 3 );
 
-                    tVertex2 = tPeriodicSet->get_clusters_by_index( i )->get_primary_cells_in_cluster( mtk::Master_Slave::SLAVE )( k )->get_vertices_on_side_ordinal( 3 );
-
+                    // Side ordinal  of the master and slave cell
                     Matrix< IndexMat > tSideOrdinal2 = tPeriodicSet->get_clusters_by_index( i )->get_cell_side_ordinals(mtk::Master_Slave::SLAVE);
-
                     Matrix< IndexMat > tSideOrdinal1 = tPeriodicSet->get_clusters_by_index( i )->get_cell_side_ordinals(mtk::Master_Slave::MASTER);
 
-                    print(tSideOrdinal2, "tSideOrdinal2");
-
-                    print(tSideOrdinal1, "tSideOrdinal1");
                     //matrix to store IDs of master side set
-                    tVertex1ID = Matrix<IdMat> ( 1, 3);
+                    Matrix<IdMat> tVertex1ID = Matrix<IdMat> ( 1, 3);
+                    Matrix<IdMat> tVertex2ID = Matrix<IdMat> ( 1, 3);
 
                     //fill in values of IDs
                     for(uint j = 0; j < tVertex1.size(); j++)
                     {
                         tVertex1ID( 0, j) = tVertex1( j )->get_id();
-                        print(tVertex1( j )->get_coords(), "tVertex1( j )->get_coords()");
                         tVertex2ID( 0, j) = tVertex2( j )->get_id();
                     }
 
@@ -291,36 +210,40 @@ namespace xtk
                         moris::mtk::Vertex const *
                         tMaster_Vertex = tClusters(i)->get_master_vertex_pair(tVertex1(j));
 
-                        std::cout<<tMaster_Vertex->get_id()<<std::endl;
-                        //REQUIRE( tMaster_Vertex->get_id() -  tVertex1(j) == 6 );
-                        moris_id tmp  = tMaster_Vertex->get_id() -  tVertex1(j)->get_id();
-                        tMorisIdCellDiff.push_back(tmp);
-                        print(tMaster_Vertex->get_coords(), "tMaster_Vertex");
+                        moris_id tIdDiff  = tMaster_Vertex->get_id() -  tVertex1(j)->get_id();
+                        tMorisIdCellDiff.push_back(tIdDiff);
 
-                        moris_index tt = tClusters(i)->get_slave_vertex_ord_on_facet(k,tVertex2(j));
-                        std::cout<<tt<<std::endl;
+                        moris_index tVertexOrd = tClusters(i)->get_slave_vertex_ord_on_facet(k,tVertex2(j));
+
                         if( j == 0 )
                         {
-                            tMorisIndexCellDiff.push_back(tt == 0 );
+                            tMorisIndexCellDiff.push_back(tVertexOrd == 0 );
                         }
                         else if (j ==1 )
                         {
-                            tMorisIndexCellDiff.push_back(tt == 1 );
+                            tMorisIndexCellDiff.push_back(tVertexOrd == 1 );
                         }
                         else
                         {
-                            tMorisIndexCellDiff.push_back( tt == 2 );
+                            tMorisIndexCellDiff.push_back( tVertexOrd == 2 );
                         }
                     }
 
                 }
             }
 
-            print(tMorisIdCellDiff);
-            print(tMorisIndexCellDiff);
+            for( uint i = 0 ; i < tMorisIndexCellDiff.size() ; i++ )
+            {
+                REQUIRE( tMorisIndexCellDiff(i) == 1) ;
+            }
+
+            for( uint i = 0 ; i < tMorisIdCellDiff.size() ; i++ )
+            {
+                REQUIRE( tMorisIdCellDiff(i) == 6) ;
+            }
 
         }
-                                                }
+                }
 
 }
 
