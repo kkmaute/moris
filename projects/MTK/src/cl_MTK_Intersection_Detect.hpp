@@ -69,6 +69,11 @@ namespace moris
 
                 // All the master side cells created in the intersection process
                 moris::Cell<moris::mtk::Cell const *>                         mMasterSideCells;
+                moris::Cell<moris::mtk::Cell const *>                         mSlaveSideCells;
+
+
+                moris::Cell<moris::mtk::Vertex const *>                         mMasterVertices;
+                moris::Cell<moris::mtk::Vertex const *>                         mSlaveVertices;
 
                 // A map from cell index to index of the cell containing all the mtk::cells ( mMasterSideCells );
                 std::unordered_map<moris_index, moris_index >                 mMasterCellIndextoCellMap;

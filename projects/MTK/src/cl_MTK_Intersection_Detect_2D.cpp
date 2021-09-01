@@ -63,18 +63,35 @@ namespace moris
 
         Intersection_Detect_2D::~Intersection_Detect_2D()
          {
-             for(auto p : mDoubleSidedClusters)
-             {
-                 delete p;
-             }
-             for(auto p : mMasterSidedClusters)
-             {
-                 delete p;
-             }
-             for(auto p : mSlaveSidedClusters)
-             {
-                 delete p;
-             }
+            //delete all the pointer data
+            for(auto p : mDoubleSidedClusters)
+            {
+                delete p;
+            }
+            for(auto p : mMasterSidedClusters)
+            {
+                delete p;
+            }
+            for(auto p : mSlaveSidedClusters)
+            {
+                delete p;
+            }
+            for(auto p : mMasterSideCells)
+            {
+                delete p;
+            }
+            for(auto p : mSlaveSideCells)
+            {
+                delete p;
+            }
+            for(auto p : mMasterVertices)
+            {
+                delete p;
+            }
+            for(auto p : mSlaveVertices)
+            {
+                delete p;
+            }
          }
 
         //---------------------------------------------------------------------
@@ -117,8 +134,6 @@ namespace moris
                 //find the offset matrix
                 moris::Matrix < DDRMat > tVecTransform( 2, 1, 1);
                 moris::Matrix< moris::DDRMat >  tOffsetMatrix = tVecTransform * tOffsetVector ;
-
-                print(tOffsetMatrix,"tOffsetMatrix");
 
                 //initialize all the clusters on each side
                 moris::Cell<mtk::Cluster const *> tSideClusters1;
@@ -175,8 +190,6 @@ namespace moris
                     //get the set on the first side
                     moris::mtk::Set* tSet = tIntegrationMesh->get_set_by_name( tSecondSideSetNames( i ) );
 
-                    print(tSet->get_set_colors(), "TseTColors");
-
                     // get clusters in the second set
                     moris::Cell< moris::mtk::Cluster const* > tSetClusters = tSet->get_clusters_on_set();
 
@@ -214,11 +227,7 @@ namespace moris
                         //coordinates to compare
                         Matrix<DDRMat> tInterpCoords1 = tInterpCell1.get_cell_geometric_coords_on_side_ordinal( std::stoi( mMeshSideSetPairs( tPairCount )( 0 ) ) - 1 );
 
-                        print(tInterpCoords1,"tInterpCoords1");
-
                         Matrix<DDRMat> tInterpCoords2 = tInterpCell2.get_cell_geometric_coords_on_side_ordinal( std::stoi( mMeshSideSetPairs( tPairCount )( 1 ) ) - 1 );
-
-                        print(tInterpCoords1,"tInterpCoords1");
 
                         //subtract the offset to compare the coords
                         tInterpCoords2 = tInterpCoords2 - tOffsetMatrix;
@@ -603,6 +612,14 @@ namespace moris
             //store side clusters
             mMasterSidedClusters.push_back( tMasterSideCluster );
             mSlaveSidedClusters.push_back( tSlaveSideCluster );
+
+            //store the vertices to prevent memory leak
+            mMasterVertices.append(tMasterVerticesConst);
+            mSlaveVertices.append( tSlaveVerticesConst);
+
+            // Append the integration cells
+            mMasterSideCells.append(tMasterIntegCells);
+            mSlaveSideCells.append(tSlaveIntegCells);
         }
 
 

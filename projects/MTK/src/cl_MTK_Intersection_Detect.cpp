@@ -64,6 +64,7 @@ namespace moris
 
         Intersection_Detect::~Intersection_Detect()
         {
+            //delete all the pointer data
             for(auto p : mDoubleSidedClusters)
             {
                 delete p;
@@ -77,6 +78,18 @@ namespace moris
                 delete p;
             }
             for(auto p : mMasterSideCells)
+            {
+                delete p;
+            }
+            for(auto p : mSlaveSideCells)
+            {
+                delete p;
+            }
+            for(auto p : mMasterVertices)
+            {
+                delete p;
+            }
+            for(auto p : mSlaveVertices)
             {
                 delete p;
             }
@@ -879,6 +892,10 @@ namespace moris
                 tSlaveVerticesConst.push_back( tSlaveVerticesCell( i ) );
             }
 
+            //store the vertices to prevent memory leak
+            mMasterVertices.append(tMasterVerticesConst);
+            mSlaveVertices.append(tSlaveVerticesConst);
+
             //create the master side cluster
             moris::mtk::Side_Cluster_ISC* tMasterSideCluster = new moris::mtk::Side_Cluster_ISC(false,
                     & aInterpCell1,
@@ -923,6 +940,7 @@ namespace moris
 
             // Append the integration cells
             mMasterSideCells.append(tMasterIntegCells);
+            mSlaveSideCells.append(tSlaveIntegCells);
 
             // Create the maps for cell
             for(uint Ii = 0 ; Ii < tMasterIntegCells.size() ; Ii++)

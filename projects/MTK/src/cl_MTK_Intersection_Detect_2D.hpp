@@ -36,6 +36,14 @@ namespace moris
                 moris::Cell<moris::mtk::Cluster const* >              mSlaveSidedClusters;
                 moris::Cell<moris::mtk::Cluster const* >              mMasterSidedClusters;
 
+                // All the master side cells created in the intersection process
+                moris::Cell<moris::mtk::Cell const *>                         mMasterSideCells;
+                moris::Cell<moris::mtk::Cell const *>                         mSlaveSideCells;
+
+                // All the vertices created in the intersection process
+                moris::Cell<moris::mtk::Vertex const *>                         mMasterVertices;
+                moris::Cell<moris::mtk::Vertex const *>                         mSlaveVertices;
+
                 // Index of double sided cluster ( relevant indices of each cluster )
                 // Each index shows a distinct interaction between master phases and salve phases
                 moris::Cell<moris::moris_index >                      mDoubleSidedClustersIndex;
