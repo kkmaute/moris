@@ -632,6 +632,9 @@ namespace moris
             // Time Frame
             tTimeAlgorithmParameterList.insert( "TSA_Time_Frame", 1.0 );
 
+            // flag to save solution vectors of various time steps to hdf5 file
+            tTimeAlgorithmParameterList.insert( "TSA_Save_Sol_Vecs_to_file" , "" );
+
             return tTimeAlgorithmParameterList;
         }
 
@@ -654,7 +657,9 @@ namespace moris
 
             tTimeParameterList.insert( "TSA_Output_Crteria" , "" );
 
-            tTimeParameterList.insert( "TSA_Initialize_Sol_Vec" , "" );
+            tTimeParameterList.insert( "TSA_Initialize_Sol_Vec" , "" ); // initial GUESS
+
+            tTimeParameterList.insert( "TSA_Initial_Sol_Vec" , "" ); // initial SOLUTION (i.e. initial condition / previous time step)
 
             tTimeParameterList.insert( "TSA_time_level_per_type" , "" );
 
