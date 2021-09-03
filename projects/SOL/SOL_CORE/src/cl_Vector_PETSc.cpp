@@ -294,3 +294,19 @@ moris::real* Vector_PETSc::get_values_pointer()
     MORIS_ERROR(false, "get_values_pointer() not implemented yet for a PETSc distributed vector.");
     return nullptr;
 }
+
+// ----------------------------------------------------------------------------
+
+void Vector_PETSc::save_vector_to_matlab_file( const char* aFilename )
+{
+    PetscViewer tViewer;
+
+    PetscViewerCreate( PETSC_COMM_WORLD, &tViewer );
+    PetscViewerSetType( tViewer, PETSCVIEWERASCII );
+    PetscViewerPushFormat( tViewer, PETSC_VIEWER_ASCII_MATLAB );
+    PetscViewerFileSetName( tViewer, aFilename );
+
+    VecView( mPetscVector, tViewer );
+
+    PetscViewerDestroy( &tViewer );
+}
