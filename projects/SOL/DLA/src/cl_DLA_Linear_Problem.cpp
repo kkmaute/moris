@@ -77,6 +77,24 @@ namespace moris
                 this->compute_residual_for_adjoint_solve();
             }
 
+            if( mSolverWarehouse )
+            {
+                if( !mSolverWarehouse->get_output_to_matlab_string().empty() )
+                {
+                    // Get the nonlinear system index
+                    uint tNonlinearSystemIndex = gLogger.get_iteration( "NonLinearSolver" , LOGGER_ARBITRARY_DESCRIPTOR, LOGGER_ARBITRARY_DESCRIPTOR );
+
+                    // construct string for file name
+                    std::string tResFileName = mSolverWarehouse->get_output_to_matlab_string() + 
+                            "." + std::to_string(tNonlinearSystemIndex) + ".res.dat";
+                            
+                    // save to file
+                    mPointVectorRHS->save_vector_to_matlab_file( tResFileName.c_str() );
+
+                    // log that output was successful
+                    MORIS_LOG_INFO( "Saved Residual to Matlab File: ", tResFileName.c_str() );
+                }
+            }
 
             real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
             MORIS_LOG_INFO( " Assembly of residual on processor %u took %5.3f seconds.", ( uint ) par_rank(), ( double ) tElapsedTime / 1000);
@@ -113,9 +131,17 @@ namespace moris
                 if( !mSolverWarehouse->get_output_to_matlab_string().empty() )
                 {
                     // Get the nonlinear system index
-                    uint tNonlinearSystemIndex = gLogger.get_iteration( "NonLinearSolver" , LOGGER_ARBITRARY_DESCRIPTOR, LOGGER_ARBITRARY_DESCRIPTOR);
+                    uint tNonlinearSystemIndex = gLogger.get_iteration( "NonLinearSolver" , LOGGER_ARBITRARY_DESCRIPTOR, LOGGER_ARBITRARY_DESCRIPTOR );
 
-                    mMat->save_matrix_to_matlab_file( (mSolverWarehouse->get_output_to_matlab_string() +"."+ std::to_string(tNonlinearSystemIndex)).c_str());
+                    // construct string for file name
+                    std::string tJacFileName = mSolverWarehouse->get_output_to_matlab_string() + 
+                            "." + std::to_string(tNonlinearSystemIndex) + ".jac.dat";
+
+                    // save to file
+                    mMat->save_matrix_to_matlab_file( tJacFileName.c_str() );
+
+                    // log that output was successful
+                    MORIS_LOG_INFO( "Saved Jacobian to Matlab File: ", tJacFileName.c_str() );
                 }
             }
 
@@ -148,7 +174,22 @@ namespace moris
             {
                 if( !mSolverWarehouse->get_output_to_matlab_string().empty() )
                 {
-                    mMat->save_matrix_to_matlab_file( mSolverWarehouse->get_output_to_matlab_string().c_str());
+                    // Get the nonlinear system index
+                    uint tNonlinearSystemIndex = gLogger.get_iteration( "NonLinearSolver" , LOGGER_ARBITRARY_DESCRIPTOR, LOGGER_ARBITRARY_DESCRIPTOR );
+
+                    // construct strings for file names
+                    std::string tJacFileName = mSolverWarehouse->get_output_to_matlab_string() + 
+                            "." + std::to_string(tNonlinearSystemIndex) + ".jac.dat";
+                    std::string tResFileName = mSolverWarehouse->get_output_to_matlab_string() + 
+                            "." + std::to_string(tNonlinearSystemIndex) + ".res.dat";
+
+                    // output to matlab .dat file
+                    mMat->save_matrix_to_matlab_file( tJacFileName.c_str() );
+                    mPointVectorRHS->save_vector_to_matlab_file( tResFileName.c_str() );
+
+                    // log that output was successful
+                    MORIS_LOG_INFO( "Saved Jacobian and Residual to Matlab File: ", tJacFileName.c_str(), " and ", tResFileName.c_str() );
+                
                 }
             }
 
