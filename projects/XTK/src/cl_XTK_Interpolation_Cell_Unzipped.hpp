@@ -113,7 +113,7 @@ protected:
     friend class Ghost_Stabilization;
     friend class Enriched_Interpolation_Mesh;
 
-private:
+protected:
     moris::mtk::Cell*                                  mBaseCell;
     moris::moris_index                                 mSubPhaseIndex;
     moris::moris_index                                 mBulkPhaseIndex;

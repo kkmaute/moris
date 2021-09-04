@@ -156,7 +156,7 @@ namespace moris
 
     std::string tTotalDomain = tBulkSets + "," + tVoidSets;
 
-    std::string tTotalDomainAGhost = tTotalDomain + "," + tInteriorGhost;
+    std::string tTotalDomainAGhost =tUseGhost? tTotalDomain + "," + tInteriorGhost : tTotalDomain;
 
     void Func_Neumann_U(
             moris::Matrix< moris::DDRMat >                 & aPropMatrix,
