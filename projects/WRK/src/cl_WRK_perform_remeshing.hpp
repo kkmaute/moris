@@ -29,6 +29,12 @@ namespace moris
                 moris::Cell< std::string > mRefinementsFieldNames_0;
                 Cell< Matrix< DDSMat > >   mRefinementsMode_0;
                 Cell< Matrix< DDSMat > >   mRefinementPatternMode_0;
+                std::string                mRefinementFunction;
+
+                moris::Cell< moris::Cell < std::string > > mRefinementsFieldNames_1;
+                Matrix< DDSMat >                           mMaxRefinementsMode_1;
+                Matrix< DDSMat >                           mMinRefinementsMode_1;
+                Matrix< DDSMat >                           mRefinementPatternMode_1;
         };
 
         class Remeshing_Mini_Performer

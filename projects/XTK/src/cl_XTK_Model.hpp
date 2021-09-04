@@ -57,6 +57,8 @@
 
 #include "cl_Param_List.hpp"
 
+#include "cl_MTK_Intersection_Detect.hpp"
+#include "cl_MTK_Intersection_Detect_2D.hpp"
 
 namespace xtk
 {
@@ -205,7 +207,7 @@ namespace xtk
 
             //--------------------------------------------------------------------------------
 
-            /*!
+            /*!Model
              * @brief Save model statistics to file
              */
             void
@@ -613,6 +615,12 @@ namespace xtk
 
             // category that the timing is in (i.e. decomp, enrich, ghost, overall)
             Cell<std::string> mTimingCategory;
+
+            // Intersection algorithm data members
+            // They contain added clusters,cells, vertices
+            moris::mtk::Intersection_Detect* mIntersectionDetect=nullptr;
+            moris::mtk::Intersection_Detect_2D* mIntersectionDetect2D=nullptr;
+
 
             // Private Functions
         private:

@@ -9,6 +9,12 @@ namespace moris
     {
         class HMR;
         class Mesh;
+        class Element;
+
+        // User-defined refinement function
+        //typedef sint  ( *Refinement_Function ) (
+        //        hmr::Element           * aElement,
+        //        const Matrix< DDRMat > & aElementLocalValues);
     }
     namespace mtk
     {
@@ -18,6 +24,8 @@ namespace moris
     namespace wrk
     {
         class Performer;
+
+
 
         struct Refinement_Parameters
         {
@@ -29,6 +37,10 @@ namespace moris
 
                 //! Refinement Pattern
                 Cell< Matrix< DDSMat > >    mRefinementPattern;
+
+                std::string                 mRefinementFunctionName;
+
+                hmr::Refinement_Function    mRefinementFunction = nullptr;
         };
 
         class Refinement_Mini_Performer

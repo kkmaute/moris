@@ -66,6 +66,8 @@ op_move.hpp
 op_not_equal.hpp
 op_plus.hpp
 op_times.hpp
+fn_rank.hpp
+fn_join_horiz.hpp
 )
     
 if(MORIS_USE_EIGEN)
@@ -172,7 +174,9 @@ Arma_Impl/op_minus_Arma.hpp
 Arma_Impl/op_not_equal_Arma.hpp
 Arma_Impl/op_plus_Arma.hpp
 Arma_Impl/op_times_Arma.hpp
-    )
+Arma_Impl/fn_rank_Arma.hpp
+Arma_Impl/fn_join_horiz_Arma.hpp
+  )
 endif()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

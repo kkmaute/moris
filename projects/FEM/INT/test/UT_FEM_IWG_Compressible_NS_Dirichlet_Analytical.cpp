@@ -25,8 +25,8 @@
 #include "cl_FEM_CM_Factory.hpp"
 #include "cl_FEM_SP_Factory.hpp"
 #include "cl_FEM_IWG_Factory.hpp"
-#include "FEM_Test_Proxy/cl_FEM_Fields_for_NS_Compressible_UT.cpp"
-#include "FEM_Test_Proxy/cl_FEM_Flux_Matrix_Reference_Values.cpp"
+#include "FEM_Test_Proxy/cl_FEM_Fields_for_NS_Compressible_UT_for_BD.cpp"
+#include "FEM_Test_Proxy/cl_FEM_Flux_Matrix_Reference_Values_Nitsche.cpp"
 
 #include "fn_trans.hpp"
 #include "fn_FEM_Check.hpp"
@@ -44,7 +44,7 @@ using namespace fem;
 TEST_CASE( "IWG_Compressible_NS_Dirichlet_Analytical",
         "[IWG_Compressible_NS_Dirichlet_Analytical]" )
 {
-    // define an epsilon environment
+    // define an epsilon environment (max allowed relative error)
     real tEpsilon = 1.0E-10;
 
     // define absolute tolerance accepted as numerical error
@@ -54,16 +54,16 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Analytical",
     real tUpwindFactor = 0.0;
 
     // penalty factors
-    real tPpenatly = 1.0;
-    real tUXpenatly = 1.0;
-    real tUYpenatly = 1.0;
-    real tTpenatly = 1.0;
+    real  tPpenatly =   0.0;
+    real tUXpenatly = 100.0;
+    real tUYpenatly = 100.0;
+    real  tTpenatly =   0.0;
 
     // prescribed values
-    real tPpresc = 151.2;
-    real tUXpresc =  0.0;
-    real tUYpresc =  0.0;
-    real tTpresc = 121.7;
+    real  tPpresc =   7.8366834e+04;
+    real tUXpresc =   0.0;
+    real tUYpresc =   0.0;
+    real  tTpresc = 273.0;
 
     // init geometry inputs
     //------------------------------------------------------------------------------
@@ -84,28 +84,29 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Analytical",
 
     // dynamic viscosity
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
-    tPropViscosity->set_parameters( { {{ 1.2 }} } );
+    real tMu = 1.716e-5;
+    tPropViscosity->set_parameters( { {{ tMu }} } );
     tPropViscosity->set_val_function( tConstValFunc );
 
     // isochoric heat capacity
     std::shared_ptr< fem::Property > tPropHeatCapacity = std::make_shared< fem::Property >();
-    tPropHeatCapacity->set_parameters( { {{ 5.7 }} } );
+    tPropHeatCapacity->set_parameters( { {{ 0.718e3 }} } );
     tPropHeatCapacity->set_val_function( tConstValFunc );
 
     // specific gas constant
     std::shared_ptr< fem::Property > tPropGasConstant = std::make_shared< fem::Property >();
-    tPropGasConstant->set_parameters( { {{ 2.4 }} } );
+    tPropGasConstant->set_parameters( { {{ 287.058 }} } );
     tPropGasConstant->set_val_function( tConstValFunc );
 
     // thermal conductivity
     std::shared_ptr< fem::Property > tPropConductivity = std::make_shared< fem::Property >();
-    tPropConductivity->set_parameters( { {{ 0.8 }} } );
+    tPropConductivity->set_parameters( { {{ 24.35e-3 }} } );
     tPropConductivity->set_val_function( tConstValFunc );
 
     // Body heat load
     std::shared_ptr< fem::Property > tPropHeatLoad = std::make_shared< fem::Property >();
-    tPropHeatLoad->set_parameters( { {{ 1.3 }} } );
-    tPropHeatLoad->set_val_function( tConstValFunc );
+    tPropHeatLoad->set_parameters( { {{ 1.0e+5 }} } );
+    tPropHeatLoad->set_val_function( Func_Heat_Load_Distribution );
 
     //------------------------------------------------------------------------------
     // prescribed values
@@ -120,6 +121,11 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Analytical",
     tPropPrescVel->set_parameters( { {{ tUXpresc },{ tUYpresc }} } );
     tPropPrescVel->set_val_function( tConstValFunc );
 
+    // velocity-select-matrix
+    std::shared_ptr< fem::Property > tPropVelSelect = std::make_shared< fem::Property >();
+    tPropVelSelect->set_parameters( { {{ 0.0, 0.0 },{ 0.0, 1.0 }} } );
+    tPropVelSelect->set_val_function( tConstValFunc );
+
     // prescribed temperature
     std::shared_ptr< fem::Property > tPropPrescTemp = std::make_shared< fem::Property >();
     tPropPrescTemp->set_parameters( { {{ tTpresc }} } );
@@ -129,6 +135,9 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Analytical",
     std::shared_ptr< fem::Property > tPropUpwind = std::make_shared< fem::Property >();
     tPropUpwind->set_parameters( { {{ tUpwindFactor }} } );
     tPropUpwind->set_val_function( tConstValFunc );
+
+    // empty property
+    std::shared_ptr< fem::Property > tPropEmpty = nullptr;
 
 
     // define material model and assign properties
@@ -157,6 +166,8 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Analytical",
             tSPFactory.create_SP( fem::Stabilization_Type::COMPRESSIBLE_DIRICHLET_NITSCHE );
     tSPNitsche->set_property( tPropViscosity, "DynamicViscosity", mtk::Master_Slave::MASTER );
     tSPNitsche->set_property( tPropConductivity, "ThermalConductivity", mtk::Master_Slave::MASTER );
+    Cell< Matrix< DDRMat > > tNitscheParams = { {{tPpenatly},{tUXpenatly/tMu},{tUYpenatly/tMu},{tTpenatly}} };
+    tSPNitsche->set_parameters( tNitscheParams );
 
 
     // create a dummy fem cluster and set it to SP
@@ -177,10 +188,11 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Analytical",
     tIWG->set_constitutive_model( tCMMasterFluid, "FluidCM" );
     tIWG->set_stabilization_parameter( tSPNitsche, "NitschePenaltyParameter" );
 
-    tIWG->set_property( tPropPrescPres, "PrescribedDof1" );
-    tIWG->set_property( tPropPrescVel,  "PrescribedVelocity" );
-    tIWG->set_property( tPropPrescTemp, "PrescribedDof3" );
-    tIWG->set_property( tPropUpwind,    "PressureUpwind" );
+    // tIWG->set_property( tPropPrescPres, "PrescribedDof1" );
+    // //tIWG->set_property( tPropPrescVel,  "PrescribedVelocity" );
+    // //tIWG->set_property( tPropPrescVel,  "tPropVelSelect" );
+    // //tIWG->set_property( tPropPrescTemp, "PrescribedDof3" );
+    // tIWG->set_property( tPropUpwind,    "PressureUpwind" );
 
     //------------------------------------------------------------------------------
     // set a fem set pointer
@@ -225,8 +237,11 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Analytical",
     tCMMasterFluid->set_space_dim( iSpaceDim );
     tSPNitsche->set_space_dim( iSpaceDim );
 
-    // create normal for Nitsche
-    Matrix< DDRMat > tNormal = {{3.0/5.0},{4.0/5.0}};
+    // // create normal for Nitsche
+    // Matrix< DDRMat > tNormal = {{3.0/5.0},{4.0/5.0}};
+
+    // create normal for Pressure
+    Matrix< DDRMat > tNormal = {{-1.0},{0.0}};
 
     // assign normal to IWG
     tIWG->set_normal( tNormal );
@@ -248,14 +263,14 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Analytical",
     Matrix< DDRMat >tMasterDOFHatTemp;
 
     // fill in data for element size
-    fill_data_rectangle_element( tXHat, tTHat );
+    fill_data_Nitsche_element( tXHat, tTHat );
 
     // fill DoF values
-    fill_smooth_PHat( tMasterDOFHatP, iSpaceDim, iInterpOrder );
-    tMasterDOFHatP = trans( tMasterDOFHatP );
-    fill_smooth_UHat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
-    fill_smooth_TempHat( tMasterDOFHatTemp, iSpaceDim, iInterpOrder );
-    tMasterDOFHatTemp = trans( tMasterDOFHatTemp ); 
+    fill_Nitsche_PHat( tMasterDOFHatP );
+    //tMasterDOFHatP = trans( tMasterDOFHatP );
+    fill_Nitsche_UHat( tMasterDOFHatVel );
+    fill_Nitsche_THat( tMasterDOFHatTemp );
+    //tMasterDOFHatTemp = trans( tMasterDOFHatTemp ); 
 
     //------------------------------------------------------------------------------
     // space and time geometry interpolators
@@ -390,22 +405,15 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Analytical",
     // set IWG field interpolator manager
     tCMMasterFluid->set_field_interpolator_manager( &tFIManager );
 
-    // reset IWG evaluation flags
-    tIWG->reset_eval_flags();
-
     // create evaluation point xi, tau
     Matrix< DDRMat > tParamPoint = {
-            {-0.67},
-            {+0.22},
-            {+0.87}};  
+            { -1.0 },
+            { +0.57735026918962 },
+            { +0.57735026918962 } };  
 
     // set integration point
     tCMMasterFluid->mSet->mMasterFIManager->set_space_time( tParamPoint );
     tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
-
-    // for debug
-    print( tIWG->mSet->mMasterFIManager->get_IP_geometry_interpolator()->valx(), "x-pos" );
-    print( tIWG->mSet->mMasterFIManager->get_IP_geometry_interpolator()->valt(), "t-pos" ); 
 
     // check evaluation of the residual for IWG
     //------------------------------------------------------------------------------
@@ -413,32 +421,122 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Analytical",
     tIWG->mSet->mResidual( 0 ).fill( 0.0 );      
     tIWG->mSet->mJacobian.fill( 0.0 );    
 
-    // compute residual & jacobian
-    tIWG->compute_residual( 1.0 );
-    tIWG->compute_jacobian( 1.0 );
-
     // get the child
-    fem::IWG_Compressible_NS_Dirichlet_Nitsche * tChildIWG = dynamic_cast< fem::IWG_Compressible_NS_Bulk * > ( tIWG.get() );
-
-    // init the jacobian for IWG
-    Matrix< DDRMat > tResidual = tIWG->mSet->get_residual()( 0 );
-    Matrix< DDRMat > tJacobian = tIWG->mSet->get_jacobian();
+    fem::IWG_Compressible_NS_Dirichlet_Nitsche * tChildIWG = dynamic_cast< fem::IWG_Compressible_NS_Dirichlet_Nitsche * > ( tIWG.get() );
 
     //------------------------------------------------------------------------------
-    // get reference solution
-    Matrix< DDRMat > tRefResidual = get_reference_ResVelNitsche() + get_reference_ResTmpNitsche() + tUpwindFactor * get_reference_ResUpwind();
-    Matrix< DDRMat > tRefJacobian = get_reference_JacVelNitsche() + get_reference_JacTmpNitsche() + tUpwindFactor * get_reference_JacUpwind();
+    // Test Upwind Term
+
+    // Set properties
+    tIWG->set_property( tPropPrescPres, "PrescribedDof1" );
+    tIWG->set_property( tPropUpwind,    "PressureUpwind" );
+    
+    // reset IWG
+    tIWG->reset_eval_flags();
+    tIWG->set_field_interpolator_manager( &tFIManager );
+
+    // Check Upwind Term
+    std::cout << "\nUpwind Term \n" << std::flush;
+    Matrix< DDRMat > tResUpwind = -1.0 * tChildIWG->W_trans() * tChildIWG->UpwindOperator() * tChildIWG->jump();
+    Matrix< DDRMat > tResUpwind_ref = get_reference_ResPrsUpwind();
+    REQUIRE( fem::check( tResUpwind, tResUpwind_ref, tEpsilon, true, true, tAbsTol ) );
 
     //------------------------------------------------------------------------------
-    // check residual against 2D analytical solution
-    bool tCheckResidual = fem::check( tResidual, tRefResidual, tEpsilon, true, true, tAbsTol );
-    std::cout << "Residual check passed? : " << tCheckResidual << " \n" << std::flush;
-    REQUIRE( tCheckResidual );
+    // set eval point on Nitsche boundary
 
-    // check Jacobian against 2D analytical solution
-    bool tCheckJacobian = fem::check( tJacobian, tRefJacobian, tEpsilon, true, true, tAbsTol );
-    std::cout << "Jacobian check passed? : " << tCheckJacobian << " \n" << std::flush;
-    REQUIRE( tCheckJacobian );
+    // set integration point
+    tParamPoint = {
+            { +0.57735026918962 },
+            { -1.0 },
+            { +0.57735026918962 } };  
+    tCMMasterFluid->mSet->mMasterFIManager->set_space_time( tParamPoint );
+    tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
+
+    // assign normal to IWG
+    tNormal = {{0.0},{-1.0}};
+    tIWG->set_normal( tNormal );
+
+    //------------------------------------------------------------------------------
+    // Test Penalty Term
+
+    // Set properties
+    tIWG->set_property( tPropEmpty,     "PrescribedDof1" );
+    tIWG->set_property( tPropPrescVel,  "PrescribedVelocity" );
+    tIWG->set_property( tPropVelSelect, "SelectVelocity" );
+    tIWG->set_property( tPropEmpty,     "PressureUpwind" );
+
+    // reset IWG
+    tIWG->reset_eval_flags();
+    tIWG->set_field_interpolator_manager( &tFIManager );
+
+    // Check Penalty Term
+    std::cout << "\nPenalty Term \n" << std::flush;
+    Matrix< DDRMat > tDiagSP = {
+            { 0.0,        0.0,        0.0, 0.0 },
+            { 0.0, tUXpenatly,        0.0, 0.0 },
+            { 0.0,        0.0, tUYpenatly, 0.0 },
+            { 0.0,        0.0,        0.0, 0.0 } };
+    Matrix< DDRMat > tResPen = tChildIWG->W_trans() * tDiagSP * tChildIWG->jump();
+    Matrix< DDRMat > tResPen_ref = get_reference_ResVelNitschePen();
+    REQUIRE( fem::check( tResPen, tResPen_ref, tEpsilon, true, true, tAbsTol ) );
+
+    //------------------------------------------------------------------------------
+    // Test Consistency Term
+
+    // Set properties
+    tIWG->set_property( tPropEmpty,     "PrescribedDof1" );
+    tIWG->set_property( tPropPrescVel,  "PrescribedVelocity" );
+    tIWG->set_property( tPropVelSelect, "SelectVelocity" );
+    tIWG->set_property( tPropEmpty,     "PressureUpwind" );
+
+    // reset IWG
+    tIWG->reset_eval_flags();
+    tIWG->set_field_interpolator_manager( &tFIManager );
+
+    // Consistency Term
+    std::cout << "\nConsistency Term \n" << std::flush;
+    Matrix< DDRMat > tResCon = -1.0 * tChildIWG->W_trans() * tChildIWG->select_matrix() * tChildIWG->Traction();
+    Matrix< DDRMat > tResCon_ref = get_reference_ResVelNitscheCon();
+    REQUIRE( fem::check( tResCon, tResCon_ref, tEpsilon, true, true, tAbsTol ) );
+
+    //------------------------------------------------------------------------------
+    // Test Adjoint Term
+
+    // Set properties
+    tIWG->set_property( tPropEmpty,     "PrescribedDof1" );
+    tIWG->set_property( tPropPrescVel,  "PrescribedVelocity" );
+    tIWG->set_property( tPropVelSelect, "SelectVelocity" );
+    tIWG->set_property( tPropEmpty,     "PressureUpwind" );
+
+    // reset IWG
+    tIWG->reset_eval_flags();
+    tIWG->set_field_interpolator_manager( &tFIManager );
+
+    // Adjoint Term
+    std::cout << "\nAdjoint Term \n" << std::flush;
+    Matrix< DDRMat > tResAdj = tChildIWG->TestTraction() * tChildIWG->jump();
+    Matrix< DDRMat > tResAdj_ref = get_reference_ResVelNitscheAdj();
+    REQUIRE( fem::check( tResAdj, tResAdj_ref, tEpsilon, true, true, tAbsTol ) );
+
+    //------------------------------------------------------------------------------
+    // Test Whole Nitsche Residual
+
+    // Set properties
+    tIWG->set_property( tPropEmpty,     "PrescribedDof1" );
+    tIWG->set_property( tPropPrescVel,  "PrescribedVelocity" );
+    tIWG->set_property( tPropVelSelect, "SelectVelocity" );
+    tIWG->set_property( tPropEmpty,     "PressureUpwind" );
+
+    // reset IWG
+    tIWG->reset_eval_flags();
+    tIWG->set_field_interpolator_manager( &tFIManager );
+
+    // Complete Residual
+    std::cout << "\nComplete Residual \n" << std::flush;
+    tIWG->compute_residual( 1.0 );
+    Matrix< DDRMat > tRes = tIWG->mSet->get_residual()( 0 );
+    Matrix< DDRMat > tRes_ref = get_reference_ResNitsche();
+    REQUIRE( fem::check( tRes, tRes_ref, tEpsilon, true, true, tAbsTol ) );
 
     //------------------------------------------------------------------------------
 

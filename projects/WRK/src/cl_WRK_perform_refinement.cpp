@@ -42,6 +42,8 @@ namespace moris
 
             mParameters.mRefinementPattern = tRefinementPattern;
 
+            mParameters.mRefinementFunctionName = aParameterlist.get< std::string >( "refinement_function_name" );
+
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -68,6 +70,11 @@ namespace moris
                     tFieldNames,
                     tRefinements,
                     tMaxRefinementPerLevel);
+
+            if( ( !mParameters.mRefinementFunctionName.empty() ) && mLibrary != nullptr )
+            {
+                mParameters.mRefinementFunction = mLibrary->load_function< moris::hmr::Refinement_Function >(mParameters.mRefinementFunctionName);
+            }
 
             for( uint Ik = 0; Ik< tPattern.size(); Ik++ )
             {
@@ -103,7 +110,7 @@ namespace moris
                                 tFieldValues,
                                 tActivationPattern,
                                 tOrder,
-                                -1);    //FieldValues, Patter,Order, function pointer index
+                                mParameters.mRefinementFunction );
                     }
                 }
 

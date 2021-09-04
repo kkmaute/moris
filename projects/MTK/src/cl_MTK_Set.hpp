@@ -71,6 +71,8 @@ namespace moris
 
             moris::SetType mSetType = moris::SetType::END_ENUM;
 
+            bool                          mOwendbyPeriodicBCFlag = false;
+
         public:
 
             //------------------------------------------------------------------------------
@@ -431,6 +433,18 @@ namespace moris
                         return mtk::Interpolation_Order::UNDEFINED;
                 }
             }
+
+            //-----------------------------------------------------------------------------
+
+            bool
+            give_ownership_periodic()
+            {
+                 mOwendbyPeriodicBCFlag = true;
+
+                return  mOwendbyPeriodicBCFlag;
+            }
+
+            //-----------------------------------------------------------------------------
 
         protected:
 

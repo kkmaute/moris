@@ -132,6 +132,16 @@ namespace moris
                     moris_index const      &aSideOrd,
                     uint                    aLocalVertexID,
                     uint                    aDirection ) const;
+            // ----------------------------------------------------------------------------------
+
+            /**
+             * Gets the geometric node to facet map
+             * For linear Tri elements it is the same as the node to facet map
+             * @param[ in ] aSideOrdinal Side ordinal of the cell
+             */
+            moris::Matrix<moris::IndexMat>
+            get_geometric_node_to_facet_map(moris::uint aSideOrdinal) const;
+
         };
 
     } // namespace mtk

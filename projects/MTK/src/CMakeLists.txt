@@ -77,6 +77,15 @@ cl_MTK_Vertex.hpp
 cl_MTK_Writer_Exodus.hpp
 cl_MTK_Reader_Exodus.hpp
 MTK_Tools.hpp
+cl_MTK_Intersection_Detect.hpp
+cl_MTK_Intersec_Mesh_Data.hpp
+cl_Interpolation.hpp
+cl_MTK_Vertex_ISC_Impl.hpp
+cl_Interpolation.hpp
+cl_MTK_Cell_ISC.hpp
+cl_MTK_Side_Cluster_ISC_Impl.hpp
+cl_MTK_Intersection_Detect_2D.hpp
+cl_MTK_Intersection_Mesh.hpp
 
 stk_impl/cl_MTK_Cell_STK.hpp
 stk_impl/cl_MTK_Integration_Mesh_STK.hpp
@@ -188,7 +197,13 @@ cl_MTK_Mesh_Manager.cpp
 cl_MTK_Periodic_Boundary_Condition_Helper.cpp
 cl_MTK_Double_Side_Cluster.cpp
 cl_MTK_Side_Cluster.cpp
-    cl_MTK_Mesh_Pair.cpp
+cl_MTK_Mesh_Pair.cpp
+cl_MTK_Intersection_Detect.cpp
+cl_MTK_Cell_ISC.cpp
+cl_MTK_Side_Cluster_ISC_Impl.cpp
+cl_MTK_Intersection_Detect_2D.cpp
+cl_MTK_Intersec_Mesh_Data.cpp
+cl_MTK_Intersection_Mesh.cpp
 
 IP/cl_MTK_Interpolation_Function_Factory.cpp
 IP/cl_MTK_Interpolation_Rule.cpp
