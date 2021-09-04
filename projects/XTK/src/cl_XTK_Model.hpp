@@ -111,10 +111,6 @@ namespace xtk
              */
             Model(moris::ParameterList const & aParameterList);
 
-            // Indicates the background mesh and the geometry are the same thing
-            //FIXME:still necessary?
-            bool mSameMesh;
-
             //--------------------------------------------------------------------------------
 
             ~Model();
@@ -182,44 +178,6 @@ namespace xtk
             void
             set_cleanup_cut_mesh_flag( bool aCleanupMesh );
 
-            //--------------------------------------------------------------------------------
-            /*!
-             * @return Timing data
-             */
-            Matrix<DDRMat>
-            get_timing_data() const;
-
-            //--------------------------------------------------------------------------------
-
-            /*!
-             * @return Timing data labels
-             */
-            Cell<std::string>
-            get_timing_labels() const;
-
-            //--------------------------------------------------------------------------------
-
-            /*!
-             * @brief Save timing data to hdf5 file
-             */
-            void
-            save_timing_to_hdf5( const std::string & aFilePath ) const;
-
-            //--------------------------------------------------------------------------------
-
-            /*!Model
-             * @brief Save model statistics to file
-             */
-            void
-            save_model_statistics_to_file( const std::string & aFilePath );
-
-            //--------------------------------------------------------------------------------
-
-            /*!
-             * @brief Cleanly print XTK timing data to the log
-             */
-            void
-            print_timing_data() const;
 
             //--------------------------------------------------------------------------------
             /*!
@@ -582,8 +540,6 @@ namespace xtk
             // cell map
             std::map< moris_id, moris_index> mCellGlbToLocalMap;
 
-            // The midside nodes are stored here currently but this may change
-            moris::Matrix< moris::IndexMat > mMidsideElementToNode;
 
             // element to element neighborhood
             moris::Cell<moris::Cell<moris::mtk::Cell*>> mElementToElement;
@@ -605,16 +561,6 @@ namespace xtk
             std::shared_ptr< mtk::Mesh_Manager > mMTKOutputPerformer = nullptr;
 
             bool mInitializeCalled = false;
-
-            // timing information
-            // the time
-            Cell<real>        mTimingData;
-
-            // the label of the time
-            Cell<std::string> mTimingLabels;
-
-            // category that the timing is in (i.e. decomp, enrich, ghost, overall)
-            Cell<std::string> mTimingCategory;
 
             // Intersection algorithm data members
             // They contain added clusters,cells, vertices
@@ -877,13 +823,6 @@ namespace xtk
                      Cell<uint>           const & aProcRanks,
                      Cell<Matrix<DDRMat>>       & aReceivedData);
 
-             //------------------------------------------------------------------------------
-
-             void
-             add_timing_data(
-                     real        const & aTime,
-                     std::string const & aLabel,
-                     std::string const & aCategory);
 
         private:
 
@@ -1088,14 +1027,6 @@ namespace xtk
 
               //------------------------------------------------------------------------------
 
-              /*!
-               * Links the vertex enrichment to the mtk implementation of the vertex
-               */
-              void
-              link_vertex_enrichment_to_vertex_interpolation();
-
-              //------------------------------------------------------------------------------
-
               //------------------------------------------------------------------------------
               // internal ghost functions
               //------------------------------------------------------------------------------
@@ -1180,18 +1111,6 @@ namespace xtk
                       moris::Matrix<moris::IndexMat> & aOutputtedNodeInds);
 
               //------------------------------------------------------------------------------
-
-              moris::Cell<std::string>
-              assign_geometry_data_names();
-
-              //------------------------------------------------------------------------------
-
-
-              moris::Cell < enum moris::EntityRank >
-              assign_geometry_data_field_ranks();
-
-              //------------------------------------------------------------------------------
-
               /*!
                * Sets up background node sets for mesh output. Propogates the node set from
                * the background mesh to the output mesh
@@ -1282,14 +1201,6 @@ namespace xtk
               output_node(
                       moris::moris_index     aNodeIndex,
                       Output_Options const & aOutputOptions);
-
-              //------------------------------------------------------------------------------
-
-              /*
-               * Prints the method of decomposition, type of background mesh,
-               */
-              void
-              print_decompsition_preamble(Cell<enum Subdivision_Method> aMethods);
 
               //------------------------------------------------------------------------------
 

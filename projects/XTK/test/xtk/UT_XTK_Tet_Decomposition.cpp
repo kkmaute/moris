@@ -216,7 +216,6 @@ TEST_CASE("Tet background mesh discrete cylinder","[TET_START_CYLINDER_DISCRETE]
     size_t tModelDimension = 3;
     Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::C_HIERARCHY_TET4};
     Model tXTKModel(tModelDimension,tLevelSetMesh.get_level_set_mesh(),tGeometryEngine);
-    tXTKModel.mSameMesh = true;
 
     // Do the cutting
     tXTKModel.decompose(tDecompositionMethods);

@@ -338,8 +338,6 @@ TEST_CASE("3 Subphase","[3_subphase_ff]")
         // Setup XTK Model ----------------------------------------------------------------
         size_t tModelDimension = 3;
         Model tXTKModel(tModelDimension,tMeshData,tGeometryEngine);
-        tXTKModel.mSameMesh = true;
-
 
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------

@@ -104,7 +104,6 @@ TEST_CASE("Enrichment Example 1","[ENRICH_1]")
         size_t tModelDimension = 3;
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
         Model tXTKModel(tModelDimension,tMeshData,&tGeometryEngine);
-        tXTKModel.mSameMesh = true;
         tXTKModel.mVerbose  =  false;
         /*
          * Decompose
@@ -231,7 +230,6 @@ TEST_CASE("8 Element 10 enrichment Levels","[ENRICH_10_EL_CLUSTER]")
         size_t tModelDimension = 3;
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
         Model tXTKModel(tModelDimension,tMeshData,&tGeometryEngine);
-        tXTKModel.mSameMesh = true;
         tXTKModel.mVerbose  = false;
 
         /*
