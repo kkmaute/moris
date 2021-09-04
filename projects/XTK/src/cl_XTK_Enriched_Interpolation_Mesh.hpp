@@ -271,7 +271,7 @@ protected:
 
     // enriched interpolation vertices
     moris::uint                         mNumVerts;
-    Cell<Interpolation_Vertex_Unzipped> mEnrichedInterpVerts;
+    Cell<Interpolation_Vertex_Unzipped*> mEnrichedInterpVerts;
 
     // enriched interpolation cells
     moris::uint                         mNumVertsPerInterpCell;
@@ -282,7 +282,7 @@ protected:
 
     // vertex enrichments or t-matrix
     // outer cell - mesh index (i.e. linear or quadratic b-spline enrichment)
-    // middle cell  - interpolation vertex index
+    // inner cell 
     Cell<Cell<Vertex_Enrichment *>> mInterpVertEnrichment;
 
     // vertex enrichment to parent vertex index (these are enriched interpolation vertex indices)
@@ -332,6 +332,13 @@ protected:
                            Vertex_Enrichment   & aVertexEnrichment,
                            bool                & aNewVertex);
     //------------------------------------------------------------------------------
+    void
+    merge_duplicate_interpolation_vertices();
+
+    void
+    collect_base_vertex_to_enriched_vertex_connectivity(moris::Cell<moris::Cell<Interpolation_Vertex_Unzipped * >> & aBaseVertexToEnrichedVertex);
+
+    //------------------------------------------------------------------------------
     /*
      * Get the pointer to the vertex enrichment provided the vertex enrichment index.
      */
@@ -339,6 +346,7 @@ protected:
     get_vertex_enrichment( moris_index const & aMeshIndex,
                            moris_index const & aVertexEnrichmentIndex);
     //------------------------------------------------------------------------------
+
     /*
      * Returns the vertex index corresponding to the vertex enrichment
      */

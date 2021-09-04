@@ -36,6 +36,9 @@
 #include "cl_Tracer.hpp"
 #include "fn_stringify_matrix.hpp"
 
+
+#include "cl_MTK_Intersection_Mesh.hpp"
+
 using namespace moris;
 
 namespace xtk
@@ -65,6 +68,17 @@ namespace xtk
         }
 
         mEnrichedIntegMesh.clear();
+
+        if( mIntersectionDetect != nullptr)
+        {
+            delete mIntersectionDetect;
+        }
+
+        if( mIntersectionDetect2D != nullptr)
+        {
+            delete mIntersectionDetect2D;
+        }
+
     }
 
     // ----------------------------------------------------------------------------------
@@ -175,8 +189,8 @@ namespace xtk
         Tracer tTracer( "XTK", "Overall", "Run" );
 
         mVerbose = mParameterList.get<bool>("verbose");
-        
-  
+
+
         if( !mInitializeCalled )
         {
             MORIS_ERROR( mMTKInputPerformer != nullptr ,"xtk::Model::perform(), mMTKInputPerformer not set!");
@@ -220,15 +234,15 @@ namespace xtk
         if(mParameterList.get<bool>("cleanup_cut_mesh"))
         {
             mCleanupMesh = true;
-            
+
             // cleanup the mesh
             Mesh_Cleanup tMeshCleanup(this,&mParameterList);
             tMeshCleanup.perform();
         }
 
-         // at this point the cut mesh and background mesh is not going to change anymore
-         this->finalize_mesh_data();
-        
+        // at this point the cut mesh and background mesh is not going to change anymore
+        this->finalize_mesh_data();
+
 
         if(mParameterList.get<bool>("enrich"))
         {
@@ -291,7 +305,7 @@ namespace xtk
 
             MORIS_ERROR(tUnionBlockCells.size() == tNewBlockNames.size(),"Dimension Mismatch in number of union operations for block");
             MORIS_ERROR(tUnionBlockCells.size() == tUnionBlockColors.n_rows(),"Dimension Mismatch in number of union operations for block");
-            
+
             for(moris::uint iUnion = 0; iUnion < tUnionBlockCells.size(); iUnion++)
             {
                 this->get_enriched_integ_mesh(0).create_union_block(tUnionBlockCells(iUnion),tNewBlockNames(iUnion)(0),tUnionBlockColors.get_row(iUnion));
@@ -315,7 +329,7 @@ namespace xtk
 
             MORIS_ERROR(tUnionSideSetCells.size() == tNewSideSetNames.size(),"Dimension Mismatch in number of union operations for side set");
             MORIS_ERROR(tUnionSideSetCells.size() == tUnionSideSetColors.n_rows(),"Dimension Mismatch in number of union operations for side set");
-            
+
             for(moris::uint iUnion = 0; iUnion < tUnionSideSetCells.size(); iUnion++)
             {
                 this->get_enriched_integ_mesh(0).create_union_side_set(tUnionSideSetCells(iUnion),tNewSideSetNames(iUnion)(0),tUnionSideSetColors.get_row(iUnion));
@@ -352,7 +366,7 @@ namespace xtk
         {
             this->construct_multigrid();
         }
-        
+
         if(mEnriched)
         {
             // get meshes
@@ -367,11 +381,34 @@ namespace xtk
             //Periodic Boundary condition environment
             if( mParameterList.get< std::string >( "periodic_side_set_pair" ) != "" )
             {
-                //constrcut the object for periodic boundary condition
-                mtk::Periodic_Boundary_Condition_Helper tPBCHelper(mMTKOutputPerformer,0, mParameterList);
+                if(tEnrInterpMesh.get_spatial_dim() == 2 )
+                {
+                    mIntersectionDetect2D = new mtk::Intersection_Detect_2D( mMTKOutputPerformer, 0, mParameterList, mGeometryEngine->get_num_bulk_phase()) ;
 
-                //perform periodic boundary condition
-                tPBCHelper.setup_periodic_boundary_conditions();
+                    mIntersectionDetect2D->perform();
+
+                    mIntersectionDetect = nullptr;
+
+                }
+                else
+                {
+                    mIntersectionDetect = new mtk::Intersection_Detect( mMTKOutputPerformer, 0, mParameterList, mGeometryEngine->get_num_bulk_phase()) ;
+
+                    mIntersectionDetect->perform();
+                    mtk::Intersection_Mesh* tIscMesh = new mtk::Intersection_Mesh(&tEnrIntegMesh,mIntersectionDetect );
+
+                    mIntersectionDetect2D = nullptr;
+
+                    moris::mtk::Writer_Exodus tWriter2(tIscMesh);
+                    tWriter2.write_mesh("", "VIS_ISC.exo", "", "temp.exo");
+                    tWriter2.close_file();
+
+                }
+                //constrcut the object for periodic boundary condition
+                //                mtk::Periodic_Boundary_Condition_Helper tPBCHelper(mMTKOutputPerformer,0, mParameterList);
+                //
+                //                //perform periodic boundary condition
+                //                tPBCHelper.setup_periodic_boundary_conditions();
             }
 
             // if( mParameterList.get<bool>("contact_sandbox") )
@@ -438,7 +475,7 @@ namespace xtk
                 Tracer tTracer( "XTK", "Overall", "Visualize" );
                 tEnrIntegMesh.write_mesh(&mParameterList);
             }
-            
+
             // print the memory usage of XTK
             if( mParameterList.get<bool>("print_memory") )
             {
@@ -570,7 +607,7 @@ namespace xtk
         // Process for a decomposition
         uint tNumDecompositions = aMethods.size();
         uint tNumGeometries     = mGeometryEngine->get_num_geometries();
-        
+
         // Tell the subdivision to assign node Ids if it is the only subdivision method (critical for outputting)
         // This is usually only going to happen in test cases
         // Note: the Conformal subdivision methods dependent on node ids for subdivision routine, the node Ids are set regardless of the below boolean
@@ -1107,7 +1144,7 @@ namespace xtk
                             }
                         }
                     }
-                
+
                     tChildMesh.mark_interface_faces_from_interface_coincident_faces();
 
                 } // XTK Mesh loop
@@ -1426,7 +1463,7 @@ namespace xtk
         MORIS_ASSERT(aFirstSubdivision, "NC_REGULAR_SUBDIVISION_QUAD4 needs to be the first subdivision routine for each geometry.");
         MORIS_ASSERT(mModelDimension == 2, "NC_REGULAR_SUBDIVISION_QUAD4 needs to be done on a 2D mesh.");
 
-        
+
         // Runs the first cut routine to get the new active child mesh indices and indicate which are new and need to be regularly subdivided and which ones don't
         moris::Matrix< moris::IndexMat > tNewPairBool;
         run_first_cut_routine(aGeomIndex, aActiveChildMeshIndices, tNewPairBool);
@@ -1701,7 +1738,7 @@ namespace xtk
     void
     Model::catch_all_unhandled_interfaces()
     {
-        
+
         MORIS_ERROR(this->check_for_all_cell_vertices_on_interface(),"All vertices of a cell on the interface");
 
         // MORIS_ERROR(this->check_for_degenerated_cells(),"Degenerated Cells Detected");
@@ -1752,11 +1789,11 @@ namespace xtk
                         for(moris::uint iV = 0; iV < tFacetToNode.n_cols(); iV++)
                         {
                             // if we aren't on the interface, then flip the flag and move onto the next facet in child mesh
-                           if(! mGeometryEngine->is_interface_vertex(tFacetToNode(iFacet,iV),(moris_index)iG) )
-                           {
-                               tIsInterfaceFacet = false;
-                               break;
-                           }
+                            if(! mGeometryEngine->is_interface_vertex(tFacetToNode(iFacet,iV),(moris_index)iG) )
+                            {
+                                tIsInterfaceFacet = false;
+                                break;
+                            }
                         }
 
                         // if this is an interface facet, we need to update the interface data
@@ -1785,7 +1822,7 @@ namespace xtk
             // Element to node
             moris::Matrix< moris::IndexMat > const & tElementToNode = tChildMesh.get_element_to_node();
 
-           // iterate through geometries, check and flag facets that are on the interface
+            // iterate through geometries, check and flag facets that are on the interface
             for(moris::uint iG = 0; iG < mGeometryEngine->get_num_geometries(); iG++)
             {
                 // iterate through cells
@@ -2080,7 +2117,7 @@ namespace xtk
             {
                 tNumUnsuccessful++;
             }
-         }
+        }
 
         if(tNumUnsuccessful > 0)
         {
@@ -2225,10 +2262,10 @@ namespace xtk
                             // aDecompData.tNewNodeId(tRequestIndex) = tNodeId;
                             // aDecompData.tNewNodeIndex(tRequestIndex) = tNodeIndex;
                             // tNodeIndex++;
-                            
+
                             // // set the new node id
                             // aDecompData.tNewNodeId(tRequestIndex) = tNodeId;
-                            
+
                             // aDecompData.mNumNewNodesWithIds++;
 
                             // mBackgroundMesh.update_first_available_index(tNodeIndex, EntityRank::NODE);
@@ -2245,7 +2282,7 @@ namespace xtk
 
         // handle the unhandled requests wiht current proc being the owner
         moris::moris_id tNodeId  = mBackgroundMesh.allocate_entity_ids(tUnhandledRequestIndices.size(), EntityRank::NODE);
-       
+
         for (moris::uint i = 0; i < tUnhandledRequestIndices.size(); i++)
         {
             moris_index tRequestIndex = tUnhandledRequestIndices(i);
@@ -2999,7 +3036,7 @@ namespace xtk
             {
                 tElementNodeIndices(tParentElementIndex, j) = tElementNodeIndicesTemp(j);
             }
-            
+
             // is the cell intersected
             bool tIsIntersected = mGeometryEngine->is_intersected(
                     tElementNodeIndicesTemp,
@@ -3257,7 +3294,7 @@ namespace xtk
         moris::mtk::Interpolation_Mesh & tBGMesh = this->get_background_mesh().get_mesh_data();
 
         uint tNumChildMeshes = this->get_cut_mesh().get_num_child_meshes();
-        
+
         // iterate through children meshes
         for(moris::uint iCM = 0; iCM < tNumChildMeshes; iCM++)
         {
@@ -3553,7 +3590,7 @@ namespace xtk
             mGlobalToLocalSubphaseMap[tSubphaseId] = i;
         }
     }
-    
+
     // ----------------------------------------------------------------------------------
     // Unzipping Child Mesh Source code
     // ----------------------------------------------------------------------------------
@@ -3855,7 +3892,7 @@ namespace xtk
             moris::Matrix<moris::IdMat> const & aInterfaceNodeIndices,
             moris::Matrix<moris::IdMat> const & aUnzippedNodeIndices,
             moris::Matrix<moris::IdMat> const & aUnzippedNodeIds)
-    {
+            {
         // Allocate cell to keep track of the node indices of each child mesh
         moris::uint tNumChildMeshes = mCutMesh.get_num_child_meshes();
 
@@ -3876,7 +3913,7 @@ namespace xtk
         }
 
         return tChildMeshInterfaceNodes;
-    }
+            }
 
     // ----------------------------------------------------------------------------------
 
@@ -3965,7 +4002,7 @@ namespace xtk
             Matrix<IndexMat> const & aMeshIndex)
     {
         Tracer tTracer( "XTK", "Enrichment");
-        
+
         if(!mMeshDataFinalized)
         {
             this->finalize_mesh_data();
@@ -3977,7 +4014,7 @@ namespace xtk
         mEnrichedInterpMesh.resize(aMeshIndex.numel()+1,nullptr);
 
         this->perform_basis_enrichment_internal(aBasisRank,aMeshIndex);
-           
+
 
         // Change the enrichment flag
         mEnriched = true;
@@ -4560,7 +4597,7 @@ namespace xtk
     Model::construct_cut_mesh_to_uncut_mesh_neighborhood(moris::Cell<moris::Cell<moris_index>> & aCutToUncutFace)
     {
         // estimate maximum number of elements on face
-         const uint tMaxElemOnFace = 100;
+        const uint tMaxElemOnFace = 100;
 
         // matrices used throughout routine
         moris::Matrix< moris::IdMat >    tChildElemsIdsOnFace(1,tMaxElemOnFace);
@@ -5396,7 +5433,7 @@ namespace xtk
         moris::mtk::Mesh & tMeshData = mBackgroundMesh.get_mesh_data();
 
         // estimate maximum number of elements on face
-         const uint tMaxElemOnFace = 100;
+        const uint tMaxElemOnFace = 100;
 
         // matrices used throughout routine
         moris::Matrix< moris::IndexMat > tElementsAttachedToFace(1,1);
@@ -5595,7 +5632,7 @@ namespace xtk
     Model::combine_interface_and_non_interface_blocks(
             Cell<moris::Matrix<moris::IdMat>> & aChildElementsByPhase,
             Cell<moris::Matrix<moris::IdMat>> & aNoChildElementsByPhase)
-    {
+            {
         moris::uint tNumPhase = aChildElementsByPhase.size();
 
         Cell<moris::Matrix<moris::IdMat>> tCombinedElementsByPhase(tNumPhase);
@@ -5612,7 +5649,7 @@ namespace xtk
         }
 
         return tCombinedElementsByPhase;
-    }
+            }
 
     //------------------------------------------------------------------------------
 

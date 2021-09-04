@@ -497,6 +497,7 @@ namespace xtk
             tNotOwnedIPVertIndsToProcs(tProcIndexInData->second).push_back(tXTKIpVert->get_index());
             tNotOwnedBGIPVertsIdsToProcs(tProcIndexInData->second).push_back(tXTKIpVert->get_base_vertex()->get_id());
 
+
             tNotOwnedIpCellIdToProcs(tProcIndexInData->second).push_back(tEnrIpCell->get_id());
             tNotOwnedIpCellBulkPhase(tProcIndexInData->second).push_back(tEnrIpCell->get_bulkphase_index());
         }
@@ -1182,7 +1183,7 @@ namespace xtk
 
         // owners of interpolation cells
         moris_index tFirstOwnerIndex  = tFirstCell.get_owner();
-        //        moris_index tSecondOwnerIndex = tSecondCell.get_owner();
+        // moris_index tSecondOwnerIndex = tSecondCell.get_owner();
 
         // proc rank
         moris_index tProcRank = par_rank();
@@ -1230,6 +1231,11 @@ namespace xtk
         {
             return false;
         }
+        
+        // if(tSecondOwnerIndex != tProcRank )
+        // {
+        //     return false;
+        // }
 
         // third set of checks passed - first subphase ID is larger than second one and it is owned by current proc
 

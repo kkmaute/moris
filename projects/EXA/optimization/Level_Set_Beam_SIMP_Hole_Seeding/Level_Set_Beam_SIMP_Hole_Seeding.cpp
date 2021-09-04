@@ -156,7 +156,7 @@ namespace moris
 
     std::string tTotalDomain = tBulkSets + "," + tVoidSets;
 
-    std::string tTotalDomainAGhost = tTotalDomain + "," + tInteriorGhost;
+    std::string tTotalDomainAGhost =tUseGhost? tTotalDomain + "," + tInteriorGhost : tTotalDomain;
 
     void Func_Neumann_U(
             moris::Matrix< moris::DDRMat >                 & aPropMatrix,
@@ -1031,8 +1031,8 @@ tParameterlist( 2 )( tParamCounter ).set("name", "Density_Field");
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGGhost") );
             tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "UX,UY" );
-            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "UX,UY" );
-            tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     "UX,UY" );
+            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "UX,UY;THETA;PHID" );
+            tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     "UX,UY;THETA;PHID" );
             //tParameterList( 3 )( tIWGCounter ).set( "master_dv_dependencies",     "LS1") ;
             //tParameterList( 3 )( tIWGCounter ).set( "slave_dv_dependencies",      "LS1") ;
             tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   std::string("SPGhost,GhostSP") );
