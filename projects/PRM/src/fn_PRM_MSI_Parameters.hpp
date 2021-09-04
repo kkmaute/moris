@@ -72,6 +72,8 @@ namespace moris
         // General MSI parameters
         mMSIParameterList.insert( "order_adofs_by_host", false );
 
+        mMSIParameterList.insert( "msi_checker", false );
+
         // Geometric multigrid parameters
         mMSIParameterList.insert( "multigrid"  , false );
         mMSIParameterList.insert( "level"      , 2 );
