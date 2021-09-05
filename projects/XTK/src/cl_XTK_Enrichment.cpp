@@ -220,6 +220,7 @@ namespace xtk
 
         // create the integration mesh
         this->construct_enriched_integration_mesh();
+        
     }
 
     //-------------------------------------------------------------------------------------
@@ -950,6 +951,7 @@ namespace xtk
     void
     Enrichment::construct_enriched_interpolation_mesh()
     {
+        Tracer tTracer( "XTK", "Enrich", "Construct Enriched Interpolation Mesh" );
         // initialize a new enriched interpolation mesh
         mXTKModelPtr->mEnrichedInterpMesh(0) = new Enriched_Interpolation_Mesh(mXTKModelPtr);
 
@@ -963,7 +965,13 @@ namespace xtk
         // allocate space for interpolation cells
         this->allocate_interpolation_cells();
 
+        // construct all cells with interpolation vertices being attached to a single cell
+        // this handles the case of multiple enrichments where the number of interpolation vertices vary
         this->construct_enriched_interpolation_vertices_and_cells();
+
+        // in most cases all the interpolation vertices are the same. We merge them back together with this call
+        // post-processing to construct_enriched_interpolation_vertices_and_cells in an effort to not add complexity to the function (already too)
+        mXTKModelPtr->mEnrichedInterpMesh(0)->merge_duplicate_interpolation_vertices();
 
 
         mXTKModelPtr->mEnrichedInterpMesh(0)->mCoeffToEnrichCoeffs.resize(mMeshIndices.max()+1);
@@ -1003,6 +1011,7 @@ namespace xtk
     void
     Enrichment::allocate_interpolation_cells()
     {
+        Tracer tTracer( "XTK", "Enrich", "Allocate Interpolation Cells" );
         // enriched interpolation mesh pointer
         Enriched_Interpolation_Mesh* tEnrInterpMesh = mXTKModelPtr->mEnrichedInterpMesh(0);
 
@@ -1161,12 +1170,12 @@ namespace xtk
 
                             // Create interpolation vertex
                             tEnrInterpMesh->mEnrichedInterpVerts(tVertexCount) =
-                                        Interpolation_Vertex_Unzipped(
+                                        new Interpolation_Vertex_Unzipped(
                                                 tVertices(iEV),
                                                 tVertId,
                                                 tVertexCount,
                                                 tVertices(iEV)->get_owner(),
-                                                mMeshIndices(0),
+                                                tMeshIndex,
                                                 tEnrInterpMesh->get_vertex_enrichment(tMeshIndex,tVertEnrichIndex),
                                                 tMaxMeshIndex);
 
@@ -1181,7 +1190,7 @@ namespace xtk
                             moris_index tVertexIndexInIp = tEnrInterpCellToVertex(tCellIndex-1,iEV);
 
                             // add the vertex interpolation
-                            tEnrInterpMesh->mEnrichedInterpVerts(tVertexIndexInIp).add_vertex_interpolation(
+                            tEnrInterpMesh->mEnrichedInterpVerts(tVertexIndexInIp)->add_vertex_interpolation(
                                         tMeshIndex,
                                         tEnrInterpMesh->get_vertex_enrichment(tMeshIndex,tVertEnrichIndex));
                         }
@@ -1251,8 +1260,6 @@ namespace xtk
                 // create a interpolation cell per subphase
                 for(moris::uint iSP = 0; iSP<tCM.get_num_subphase_bins(); iSP++)
                 {
-                    // std::cout<<"iSP = "<<iSP<<std::endl;
-                    // std::cout<<"tCM.get_num_subphase_bins() = "<<tCM.get_num_subphase_bins()<<std::endl;
                     // Subphase basis of the current subphase in child mesh
                     //            Cell<moris_index> const & tSubPhaseBasis = tCM.get_subphase_basis_indices((moris_index)iSP);
                     Cell<moris_index> const & tSubPhaseBasis = mEnrichmentData(tMeshIndex).mSubphaseBGBasisIndices(tSubphaseIndices(iSP));
@@ -1264,8 +1271,6 @@ namespace xtk
                     // Subphase basis enrichment level of the current subphase in child mesh
                     //            Cell<moris_index> const & tSubPhaseBasisEnrLev = tCM.get_subphase_basis_enrichment_levels((moris_index)iSP);
                     Cell<moris_index> const & tSubPhaseBasisEnrLev = mEnrichmentData(tMeshIndex).mSubphaseBGBasisEnrLev(tSubphaseIndices(iSP));
-
-                    // moris::print(tSubPhaseBasisEnrLev,"tSubPhaseBasisEnrLev");
 
                     // construct unzipped enriched vertices
                     for(uint iEV = 0; iEV < tNumVertices; iEV++)
@@ -1293,7 +1298,7 @@ namespace xtk
                         {
                                 // Create interpolation vertex
                                 tEnrInterpMesh->mEnrichedInterpVerts(tVertexCount) =
-                                        Interpolation_Vertex_Unzipped(
+                                        new Interpolation_Vertex_Unzipped(
                                                 tVertices(iEV),
                                                 tVertId,
                                                 tVertexCount,
@@ -1312,7 +1317,7 @@ namespace xtk
                             // first time around what was the vertex index
                             moris_index tVertexIndexInIp = tEnrInterpCellToVertex(tCellIndex-tCM.get_num_subphase_bins()+iSP,iEV);
 
-                            tEnrInterpMesh->mEnrichedInterpVerts(tVertexIndexInIp).add_vertex_interpolation(
+                            tEnrInterpMesh->mEnrichedInterpVerts(tVertexIndexInIp)->add_vertex_interpolation(
                                         tMeshIndex,
                                         tEnrInterpMesh->get_vertex_enrichment(tMeshIndex,tVertEnrichIndex));
                         }
@@ -1365,7 +1370,6 @@ namespace xtk
 
         tEnrInterpMesh->mEnrichedInterpVerts.resize(tVertexCount);
     }
-
     //-------------------------------------------------------------------------------------
 
     void

@@ -47,6 +47,13 @@ namespace xtk
         }
 
         mEnrichedInterpCells.clear();
+
+        for(auto it : mEnrichedInterpVerts)
+        {
+            delete it;
+        }
+
+        mEnrichedInterpVerts.clear();
     }
 
     // ----------------------------------------------------------------------------
@@ -137,7 +144,7 @@ namespace xtk
         Cell<mtk::Vertex const *> tVertices(tNumNodes);
         for(moris::uint i = 0; i < tNumNodes; i++)
         {
-            tVertices(i) = & mEnrichedInterpVerts(i);
+            tVertices(i) = mEnrichedInterpVerts(i);
         }
 
         return tVertices;
@@ -245,7 +252,7 @@ namespace xtk
         MORIS_ASSERT(aVertexIndex < (moris_index)mEnrichedInterpVerts.size(),
                 "Vertex index out of bounds");
 
-        return mEnrichedInterpVerts(aVertexIndex);
+        return *mEnrichedInterpVerts(aVertexIndex);
     }
 
     // ----------------------------------------------------------------------------
@@ -256,7 +263,7 @@ namespace xtk
         MORIS_ASSERT(aVertexIndex < (moris_index)mEnrichedInterpVerts.size(),
                 "Vertex index out of bounds");
 
-        return mEnrichedInterpVerts(aVertexIndex);
+        return *mEnrichedInterpVerts(aVertexIndex);
     }
 
     // ----------------------------------------------------------------------------
@@ -616,7 +623,7 @@ namespace xtk
         MORIS_ASSERT(aVertexIndex < (moris_index)mEnrichedInterpVerts.size(),
                 "Provided vertex index is out of bounds");
 
-        return &mEnrichedInterpVerts(aVertexIndex);
+        return mEnrichedInterpVerts(aVertexIndex);
     }
 
     // ----------------------------------------------------------------------------
@@ -672,6 +679,143 @@ namespace xtk
         mBaseInterpVertToVertEnrichmentIndex(tLocalMeshIndex)(tBaseVertIndex).push_back(tVertexEnrichmentIndex);
 
         return tVertexEnrichmentIndex;
+    }
+    // ----------------------------------------------------------------------------
+
+    void
+    Enriched_Interpolation_Mesh::merge_duplicate_interpolation_vertices()
+    {
+        MORIS_LOG_SPEC("Num Enriched Interpolation Vertices Pre Merge",mEnrichedInterpVerts.size());
+
+        // this is how many vertices I start with
+        moris_index tStartNumVerts = mEnrichedInterpVerts.size();
+
+        // collect the vertices 
+        moris::Cell<moris::Cell< Interpolation_Vertex_Unzipped * > > tBaseVertexToEnrichedVertex;
+        this->collect_base_vertex_to_enriched_vertex_connectivity(tBaseVertexToEnrichedVertex);
+
+        // new vertex index
+        Cell<moris_index> tNewIndex(mEnrichedInterpVerts.size(),MORIS_INDEX_MAX);
+        Cell<moris_index> tNodesToDelete;
+        tNodesToDelete.reserve(mEnrichedInterpVerts.size());
+
+        moris_index tNumBulkPhases = mXTKModel->get_geom_engine()->get_num_bulk_phase();
+        
+        // allocate gold vertex enrichment vector for each phase
+        moris::Cell<Vertex_Enrichment *> tGoldVertexEnrichments(tNumBulkPhases,nullptr);
+        moris::Cell<moris_index> tUsedBulkPhases;
+        tUsedBulkPhases.reserve(tNumBulkPhases);
+        
+        for(moris::uint iBV = 0; iBV < tBaseVertexToEnrichedVertex.size(); iBV++ )
+        {
+            // keep track of the first vertex that a given vertex wants to merge with
+            Cell<moris_index> tMergeWithVertex(tBaseVertexToEnrichedVertex(iBV).size(),MORIS_INDEX_MAX);
+
+            for(moris::uint iEV = 0; iEV < tBaseVertexToEnrichedVertex(iBV).size(); iEV++ )
+            {   
+                for(moris::uint iOtherEV = 0; iOtherEV < iEV+1; iOtherEV++ )
+                {   if(iEV != iOtherEV)
+                    {
+                        bool tMerge = true;
+                        for(moris::uint iMeshIndex = 0; iMeshIndex < mInterpVertEnrichment.size(); iMeshIndex++ )
+                        {
+                            Vertex_Enrichment * tMyVertexEnrichment    = tBaseVertexToEnrichedVertex(iBV)(iEV)->get_xtk_interpolation(iMeshIndex);
+                            Vertex_Enrichment * tOtherVertexEnrichment = tBaseVertexToEnrichedVertex(iBV)(iOtherEV)->get_xtk_interpolation(iMeshIndex);
+
+                            if(tMyVertexEnrichment != tOtherVertexEnrichment)
+                            {
+                                tMerge = false;
+                                break;
+                            }
+                        }
+
+                        if(tMerge)
+                        {
+                            if(iEV == 0)
+                            {
+                                tMergeWithVertex(iEV) = iEV;
+                            }
+                            else
+                            {
+                                tMergeWithVertex(iEV) = iOtherEV;
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // at this point, entries in tMergeWithVertex should be such that nodes merged to are MORIS_INDEX_MAX everyone else has their new vertex index.
+            // iterate through these and change the new vertex index list
+            for(moris::uint iMerge = 0; iMerge < tMergeWithVertex.size(); iMerge++)
+            {
+                moris_index tOldIndex = tBaseVertexToEnrichedVertex(iBV)(iMerge)->get_index();
+                if(tMergeWithVertex(iMerge) == MORIS_INDEX_MAX)
+                {
+                    MORIS_ASSERT(tNewIndex(tOldIndex)  == MORIS_INDEX_MAX,"OVERWRITTING A NEW NODE INDEX");
+                    tNewIndex(tOldIndex) = tOldIndex;
+                }
+                else
+                {
+                    MORIS_ASSERT(tNewIndex(tOldIndex)  == MORIS_INDEX_MAX,"OVERWRITTING A NEW NODE INDEX");
+                    tNewIndex(tOldIndex) = tBaseVertexToEnrichedVertex(iBV)(tMergeWithVertex(iMerge))->get_index();
+                    tNodesToDelete.push_back(tOldIndex);
+                }
+            }
+        }
+
+        // update cell to vertex connectivity (change the pointers)
+        for(moris::uint iCell = 0; iCell< mEnrichedInterpCells.size(); iCell++)
+        {
+            for(moris::uint iV = 0; iV < mEnrichedInterpCells(iCell)->mVertices.size(); iV++)
+            {
+                moris_index tNewVertexIndex = tNewIndex(mEnrichedInterpCells(iCell)->mVertices(iV)->get_index());
+                mEnrichedInterpCells(iCell)->mVertices(iV) = mEnrichedInterpVerts(tNewVertexIndex);
+            }
+        }
+
+        // delete the removed nodes
+        for(moris::uint iDelete = 0; iDelete < tNodesToDelete.size(); iDelete++)
+        {
+            delete mEnrichedInterpVerts(tNodesToDelete(iDelete));
+            mEnrichedInterpVerts(tNodesToDelete(iDelete)) = nullptr;
+        }
+
+        mEnrichedInterpVerts.data().erase(std::remove(std::begin(mEnrichedInterpVerts.data()), std::end(mEnrichedInterpVerts.data()), nullptr),std::end(mEnrichedInterpVerts.data()));
+
+        MORIS_ERROR(mEnrichedInterpVerts.size() == tStartNumVerts -tNodesToDelete.size(),"Something went wrong merging nodes." );
+
+        // reindex the vertices
+        for(moris::uint iV = 0; iV < mEnrichedInterpVerts.size(); iV++)
+        {
+            mEnrichedInterpVerts(iV)->mVertexIndex = (moris_index)iV;
+        }
+
+        for(moris::uint iCell = 0; iCell< mEnrichedInterpCells.size(); iCell++)
+        {
+            for(moris::uint iV = 0; iV < mEnrichedInterpCells(iCell)->mVertices.size(); iV++)
+            {
+                MORIS_ERROR(mEnrichedInterpCells(iCell)->mVertices(iV) != nullptr,"Nullptr in cell vertices");
+            }
+        }
+
+        MORIS_LOG_SPEC("Num Enriched Interpolation Vertices Post Merge",mEnrichedInterpVerts.size());
+    }
+
+    void
+    Enriched_Interpolation_Mesh::collect_base_vertex_to_enriched_vertex_connectivity(moris::Cell<moris::Cell<Interpolation_Vertex_Unzipped * >> & aBaseVertexToEnrichedVertex)
+    {
+        moris::mtk::Mesh & tBackgroundMeshData = mXTKModel->get_background_mesh().get_mesh_data();
+
+        // allocate space in the cell of cell
+        aBaseVertexToEnrichedVertex.resize(tBackgroundMeshData.get_num_nodes());
+
+        for(moris::uint iN = 0; iN < mEnrichedInterpVerts.size(); iN++)
+        {
+            moris_index tBaseVertIndex = mEnrichedInterpVerts(iN)->get_base_vertex()->get_index(); 
+            aBaseVertexToEnrichedVertex(tBaseVertIndex).push_back(mEnrichedInterpVerts(iN));
+        }
+        
     }
 
     // ----------------------------------------------------------------------------
@@ -908,7 +1052,7 @@ namespace xtk
     Interpolation_Vertex_Unzipped &
     Enriched_Interpolation_Mesh::get_xtk_interp_vertex(moris::uint aVertexIndex)
     {
-        return mEnrichedInterpVerts(aVertexIndex);
+        return *mEnrichedInterpVerts(aVertexIndex);
     }
 
     // ----------------------------------------------------------------------------
@@ -963,7 +1107,7 @@ namespace xtk
     Interpolation_Vertex_Unzipped const &
     Enriched_Interpolation_Mesh::get_xtk_interp_vertex(moris::uint aVertexIndex) const
     {
-        return mEnrichedInterpVerts(aVertexIndex);
+        return *mEnrichedInterpVerts(aVertexIndex);
     }
 
     // ----------------------------------------------------------------------------
@@ -1045,9 +1189,7 @@ namespace xtk
         tMM.mMemoryMapData["mMeshIndices"] = mMeshIndices.capacity();
         //FIXME: add mMeshIndexToLocMeshIndex
         tMM.mMemoryMapData["mNumVerts"] = sizeof(mNumVerts);
-        tMM.mMemoryMapData["mEnrichedInterpVerts"] = moris::internal_capacity(mEnrichedInterpVerts);
         tMM.mMemoryMapData["mNumVertsPerInterpCell"] = sizeof(mNumVertsPerInterpCell);
-        tMM.mMemoryMapData["mEnrichedInterpVerts"] = moris::internal_capacity(mEnrichedInterpVerts);
         tMM.mMemoryMapData["mBaseInterpVertToVertEnrichmentIndex"] = moris::internal_capacity_nested(mBaseInterpVertToVertEnrichmentIndex);
         tMM.mMemoryMapData["mInterpVertEnrichment"] = moris::internal_capacity_nested_ptr(mInterpVertEnrichment);
         tMM.mMemoryMapData["mVertexEnrichmentParentVertexIndex"] = moris::internal_capacity(mVertexEnrichmentParentVertexIndex);
@@ -1246,7 +1388,7 @@ namespace xtk
             if(!tVertexPointers(i)->has_interpolation(aMeshIndex))
             {
                 std::cout<<" Id = "<<tVertexPointers(i)->get_id()
-                                        <<" | back vertex id = "<<mEnrichedInterpVerts(tVertexPointers(i)->get_index()).get_id()
+                                        <<" | back vertex id = "<<mEnrichedInterpVerts(tVertexPointers(i)->get_index())->get_id()
                                         <<" | owner = "<<tVertexPointers(i)->get_owner()
                                         <<" | my rank = "<<par_rank()
                                         <<" | IP Cell Owner = "<<tEnrichedIpCell->get_owner()
@@ -1267,7 +1409,7 @@ namespace xtk
             if(tBasisIds.numel() == 0)
             {
                 std::cout<<"Vertex id = "<<tVertexPointers(i)->get_id()
-                                <<" | back vertex id = "<<mEnrichedInterpVerts(tVertexPointers(i)->get_index()).get_id()<<std::endl;
+                                <<" | back vertex id = "<<mEnrichedInterpVerts(tVertexPointers(i)->get_index())->get_id()<<std::endl;
                 MORIS_ASSERT(0,"Interpolation Vertex in cluster does not have at least 1 basis interpolating into it");
                 tDiagnosticFlag = false;
             }
@@ -1278,7 +1420,7 @@ namespace xtk
                 if(this->get_basis_bulk_phase(tBasisIndices(iB),aMeshIndex) != tBulkPhase)
                 {
                     std::cout<<"Vertex id = "<<tVertexPointers(i)->get_id()
-                                            <<" | back vertex id = "<<mEnrichedInterpVerts(tVertexPointers(i)->get_index()).get_id()
+                                            <<" | back vertex id = "<<mEnrichedInterpVerts(tVertexPointers(i)->get_index())->get_id()
                                             <<" | tBasisIds(iB) = "<<tBasisIds(iB)
                                             <<" | MeshBP"<<this->get_basis_bulk_phase(tBasisIndices(iB),aMeshIndex)
                                             <<" | tBulkPhase = "<<tBulkPhase<<std::endl;
@@ -1722,7 +1864,7 @@ namespace xtk
         // iterate through vertices that i own and assign a node id to them
         for(moris::uint i = 0; i < aOwnedIpVerts.size(); i ++)
         {
-            mEnrichedInterpVerts(aOwnedIpVerts(i)).set_vertex_id(aNodeId);
+            mEnrichedInterpVerts(aOwnedIpVerts(i))->set_vertex_id(aNodeId);
             aNodeId++;
         }
     }
@@ -1756,7 +1898,7 @@ namespace xtk
                 moris_index tVertexIndex = aNotOwnedIpVerts(iP)(iV);
                 moris_index tCellIndex   = aNotOwnedIpCells(iP)(iV);
 
-                aOutwardBaseVertexIds(iP)(iV) = mEnrichedInterpVerts(tVertexIndex).get_base_vertex()->get_id();
+                aOutwardBaseVertexIds(iP)(iV) = mEnrichedInterpVerts(tVertexIndex)->get_base_vertex()->get_id();
                 aOutwardIpCellIds(iP)(iV) = mEnrichedInterpCells(tCellIndex)->get_id();
             }
 
@@ -1851,7 +1993,7 @@ namespace xtk
             // iterate through received requests
             for(moris::uint j = 0; j < tNumReceivedReqs; j++)
             {
-                mEnrichedInterpVerts(aNotOwnedVertices(i)(j)).set_vertex_id(aReceivedVertexIds(i)(j));
+                mEnrichedInterpVerts(aNotOwnedVertices(i)(j))->set_vertex_id(aReceivedVertexIds(i)(j));
             }
         }
     }
@@ -1907,14 +2049,14 @@ namespace xtk
 
         for(moris::uint i =0; i <tNumNodes; i++)
         {
-            mLocalToGlobalMaps(0)(mEnrichedInterpVerts(i).get_index()) = mEnrichedInterpVerts(i).get_id();
+            mLocalToGlobalMaps(0)(mEnrichedInterpVerts(i)->get_index()) = mEnrichedInterpVerts(i)->get_id();
 
-            MORIS_ASSERT(mEnrichedInterpVerts(i).get_index() == (moris_index)i,"Index alignment issue in vertices");
+            MORIS_ASSERT(mEnrichedInterpVerts(i)->get_index() == (moris_index)i,"Index alignment issue in vertices");
 
-            MORIS_ASSERT(mGlobaltoLobalMaps(0).find(mEnrichedInterpVerts(i).get_id()) == mGlobaltoLobalMaps(0).end(),
+            MORIS_ASSERT(mGlobaltoLobalMaps(0).find(mEnrichedInterpVerts(i)->get_id()) == mGlobaltoLobalMaps(0).end(),
                     "Duplicate id in the vertex map detected");
 
-            mGlobaltoLobalMaps(0)[mEnrichedInterpVerts(i).get_id()] = mEnrichedInterpVerts(i).get_index();
+            mGlobaltoLobalMaps(0)[mEnrichedInterpVerts(i)->get_id()] = mEnrichedInterpVerts(i)->get_index();
         }
     }
 

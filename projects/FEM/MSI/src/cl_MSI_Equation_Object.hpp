@@ -196,6 +196,13 @@ namespace moris
                     moris::Cell< Pdof_Host * > & aPdofHostList );
 
             //------------------------------------------------------------------------------
+
+            const moris::Cell< moris::Cell< Pdof_Host * > > & get_pdof_hosts() const
+            {
+                return mMyPdofHosts;
+            }
+
+            //------------------------------------------------------------------------------
             /**
              * @brief create a list of pdof pointers related to this equation object
              * This function is tested by the test [Eqn_Obj_create_my_pdof_list]
