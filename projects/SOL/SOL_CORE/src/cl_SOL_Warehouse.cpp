@@ -262,6 +262,9 @@ void SOL_Warehouse::create_time_solver_algorithms()
             mTimeSolverAlgorithms( Ik )->
                     set_nonlinear_solver_for_adjoint_solve( mNonlinearSolvers( mParameterlist( 4 )( Ik ).get< moris::sint >( "TSA_nonlinear_solver_for_adjoint_solve" ) ) );
         }
+
+        // set output file names
+        mTimeSolverAlgorithms( Ik )->set_output_filename( mParameterlist( 4 )( Ik ).get< std::string >( "TSA_Save_Sol_Vecs_to_file" ) );
     }
 }
 

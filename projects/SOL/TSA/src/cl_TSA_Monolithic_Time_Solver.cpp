@@ -124,17 +124,14 @@ void Monolithic_Time_Solver::solve_monolytic_time_system( moris::Cell< sol::Dist
 // 
 //        //------------------------------------------------------------------------
 
-        // check if parameter list if output to file is requested
-        std::string tOutputFileName = mParameterListTimeSolver.get< std::string >( "TSA_Save_Sol_Vecs_to_file" );
-
         // if separate output of solution to file is requested 
-        if ( tOutputFileName.size() > 0 )
+        if ( mOutputSolVecFileName.size() > 0 )
         {
             // get iteration of time solver
             uint tTSAIter = gLogger.get_iteration( "TimeSolverAlgorithm", LOGGER_ARBITRARY_DESCRIPTOR, LOGGER_ARBITRARY_DESCRIPTOR);
 
             // construct string from output file name 
-            std::string tStrOutputFile = tOutputFileName + "." + ios::stringify( tTSAIter ) + ".hdf5";
+            std::string tStrOutputFile = mOutputSolVecFileName + "." + ios::stringify( tTSAIter ) + ".hdf5";
 
             // log/print that the initial guess is read from file
             MORIS_LOG_INFO( "Saving solution vector to file: ", tStrOutputFile );

@@ -65,6 +65,9 @@ namespace moris
 
                 sol::Dist_Map*  mFullMap = nullptr;
 
+                //! name for output file for solution vector if set by user 
+                std::string mOutputSolVecFileName = "";
+
                 //! Parameter list for this nonlinear solver
                 moris::ParameterList mParameterListTimeSolver;
 
@@ -159,6 +162,17 @@ namespace moris
                 void set_time_solver( Time_Solver * aTimeSolver )
                 {
                     mMyTimeSolver = aTimeSolver;
+                };
+
+                //-------------------------------------------------------------------------------
+                /**
+                 * @brief set file name for outputting solution vectors
+                 *
+                 * @param[in] aOutputSolVecFileName   Name for output files containing solution vector
+                 */
+                void set_output_filename( std::string aOutputSolVecFileName )
+                {
+                    mOutputSolVecFileName = aOutputSolVecFileName;
                 };
 
                 //-------------------------------------------------------------------------------
