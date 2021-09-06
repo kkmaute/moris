@@ -796,11 +796,11 @@ namespace xtk
                     aNewElementToChildMeshPairs(i).second);
         }
     }
+    
 
     void
     Background_Mesh::setup_downward_inheritance(Cut_Mesh & aCutMesh)
     {
-        std::cout<<"aCutMesh.get_num_child_meshes() = "<<aCutMesh.get_num_child_meshes()<<std::endl;
         // reset the downward inheritance 
         mElementDownwardInheritance = Downward_Inheritance<moris::moris_index, moris::moris_index>();
         

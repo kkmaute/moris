@@ -183,9 +183,7 @@ namespace xtk
         register_new_request(moris_index             aParentEntityIndex,
                              moris_index             aParentEntityOwner,
                              enum EntityRank         aParentEntityRank,
-                             Matrix<DDRMat>  const & aNewNodeCoord,
-                             Topology *              aParentTopology,
-                             Row_View_Real const &   aParamRelativeToParent
+                             Matrix<DDRMat>  const & aNewNodeCoord
                              )
         {
             MORIS_ASSERT(!mHasSecondaryIdentifier,"register_new_request w/o a secondary identifier should only be used when secondary identifiers are not necessary, this is because the maps in this data structure are slightly different between the two cases");
@@ -202,8 +200,6 @@ namespace xtk
             tNewNodeParentIndex.push_back(aParentEntityIndex);
             tNewNodeParentRank.push_back(aParentEntityRank);
             tNewNodeCoordinate.push_back(aNewNodeCoord);
-            tNewNodeParentTopology.push_back(aParentTopology);
-            tParamCoordRelativeToParent.push_back(aParamRelativeToParent);
 
             switch(aParentEntityRank)
             {
@@ -251,9 +247,7 @@ namespace xtk
                              moris_index             aSecondaryIdentifier,
                              moris_index             aParentEntityOwner,
                              enum EntityRank         aParentEntityRank,
-                             Matrix<DDRMat>  const & aNewNodeCoord,
-                             Topology *              aParentTopology,
-                             Row_View_Real const &   aParamRelativeToParent)
+                             Matrix<DDRMat>  const & aNewNodeCoord)
         {
             MORIS_ASSERT(mHasSecondaryIdentifier,"register_new_request with a secondary identifier should only be used when secondary identifiers are not necessary, this is because the maps in this data structure are slightly different between the two cases");
 
@@ -271,8 +265,6 @@ namespace xtk
             tNewNodeParentRank.push_back(aParentEntityRank);
             tSecondaryIdentifiers.push_back(aSecondaryIdentifier);
             tNewNodeCoordinate.push_back(aNewNodeCoord);
-            tNewNodeParentTopology.push_back(aParentTopology);
-            tParamCoordRelativeToParent.push_back(aParamRelativeToParent);
 
             // add information to the maps
             switch(aParentEntityRank)

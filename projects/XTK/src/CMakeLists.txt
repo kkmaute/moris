@@ -38,6 +38,9 @@ set(HEADERS
     cl_XTK_Enrichment.hpp
     cl_XTK_Entity.hpp
     cl_XTK_Enums.hpp
+    cl_XTK_Integration_Mesh_Generator.hpp
+    cl_XTK_Decomposition_Algorithm.hpp
+    cl_XTK_Cut_Integration_Mesh.hpp
     cl_XTK_External_Mesh_Data.hpp
     cl_XTK_Face_Registry.hpp
     cl_XTK_Ghost_Stabilization.hpp
@@ -120,7 +123,10 @@ cl_XTK_Vertex_Enrichment.cpp
 cl_XTK_Enriched_Integration_Mesh.cpp
 cl_XTK_Cell_Cluster.cpp
 cl_XTK_Side_Cluster.cpp
-cl_XTK_Interpolation_Cell.cpp)
+cl_XTK_Interpolation_Cell.cpp
+cl_XTK_Decomposition_Algorithm.cpp
+cl_XTK_Integration_Mesh_Generator.cpp
+cl_XTK_Regular_Subdivision_Interface.cpp)
 
 # List library dependencies
 set(LIB_DEPENDENCIES 

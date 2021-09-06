@@ -61,7 +61,8 @@
 #include "cl_MTK_Intersection_Detect_2D.hpp"
 
 namespace xtk
-{
+{   
+    class Integration_Mesh_Generator;
     class Enrichment;
     class Enrichment_Parameters;
     class Ghost_Stabilization;
@@ -83,6 +84,7 @@ namespace xtk
             bool mVerbose = false;
 
             // friend classes
+            friend class Integration_Mesh_Generator;
             friend class Enrichment;
             friend class Enriched_Interpolation_Mesh;
             friend class Enriched_Integration_Mesh;
@@ -187,16 +189,6 @@ namespace xtk
             get_memory_usage();
 
             //--------------------------------------------------------------------------------
-            //FIXME: REMOVE and related functions in child mesh
-            /*!
-             * Uses sub-phase information within a child mesh to construct one interpolation element for each sub-phase cluster
-             */
-            void
-            unzip_child_mesh();
-
-            // ----------------------------------------------------------------------------------
-
-            // FIXME: REMOVE
             /*!
              * Unzipps the interface (must be called after decompose but prior
              * to enrichment)
@@ -516,6 +508,7 @@ namespace xtk
 
             moris::ge::Geometry_Engine*        mGeometryEngine;
 
+            Integration_Mesh_Generator*        mIntegrationMeshGenerator;
             Enrichment*                        mEnrichment;
             Ghost_Stabilization*               mGhostStabilization;
             Cell<Enriched_Interpolation_Mesh*> mEnrichedInterpMesh;
@@ -963,11 +956,6 @@ namespace xtk
 
               //------------------------------------------------------------------------------
 
-              void
-              unzip_child_mesh_internal();
-
-              //------------------------------------------------------------------------------
-
               /**
                * Take the interface faces and create collapsed prisms
                */
@@ -1025,7 +1013,6 @@ namespace xtk
                       enum EntityRank   const & aBasisRank,
                       Matrix<IndexMat> const & aMeshIndex);
 
-              //------------------------------------------------------------------------------
 
               //------------------------------------------------------------------------------
               // internal ghost functions

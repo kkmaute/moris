@@ -9,6 +9,7 @@
 #include "assert.hpp"
 #include "cl_MTK_Vertex.hpp"
 #include "cl_TOL_Memory_Map.hpp"
+#include "cl_MTK_Mesh_Core.hpp"
 
 using namespace moris;
 namespace xtk
@@ -115,6 +116,91 @@ namespace xtk
         mElementFaceParentRanks = aElementFaceParentRanks.copy();
         mElementInterfaceSides  = aElementInferfaceSides.copy();
 
+        set_up_proc_local_to_cm_local_node_map();
+
+        // construct connectivity
+        moris::mtk::Cell_Info_Factory tConnFact;
+        mConnectivity = tConnFact.create_cell_info_sp(mElementTopology);
+    }
+
+    Child_Mesh::Child_Mesh(
+            moris_index        aChildMeshIndex,
+            moris::uint        aSpatialDimension,
+            moris::mtk::Cell*  aParentCell,
+            moris::mtk::Mesh*  aBackgroundMesh,
+            Cell<moris_index> const & aGeometryIndices)
+    : mElementTopology(CellTopology::TET4),
+      mConnectivity(nullptr),
+      mChildElementIds(0,0),
+      mChildElementInds(0,0),
+      mNodeIds(0,0),
+      mNodeParametricCoord(0,3),
+      mHasFaceConn(false),
+      mFaceToNode(0,0),
+      mNodeToFace(0,0),
+      mFaceToElement(0,0),
+      mElementToFace(0,0),
+      mFaceParentInds(0,0),
+      mFaceParentRanks(0,0),
+      mHasEdgeConn(false),
+      mEdgeToNode(0,0),
+      mNodeToEdge(0,0),
+      mEdgeToElement(0,0),
+      mElementToEdge(0,0),
+      mEdgeParentInds(0,0),
+      mEdgeParentRanks(0,0),
+      mHasElemToElem(false),
+      mElementToElement(0,0),
+      mHasCoincidentEdges(false),
+      mHasInterChildMeshInterface(false),
+      mHasPhaseInfo(false),
+      mElementPhaseIndices(0,0),
+      mElementBinIndex(0,0),
+      mBinBulkPhase(0),
+      mSubPhaseBinIndices(0),
+      mSubPhaseBins(0,moris::Matrix< moris::IndexMat >(0,0))
+    {
+        mChildMeshIndex = aChildMeshIndex;
+        // Check for row vector connectivity (if not it is transposed)
+        Matrix<IndexMat> tVertexIndices = aParentCell->get_vertex_inds();
+        row_vector_connectivity_check( tVertexIndices );
+
+        Matrix<IndexMat> tVertexIds = aParentCell->get_vertex_ids();
+        row_vector_connectivity_check( tVertexIndices );
+        
+        // get the number of cells
+        mtk::Cell_Info  const * tParentCellInfo = aParentCell->get_cell_info(); 
+
+
+        Matrix< IndexMat > tElementToEdge = aBackgroundMesh->get_entity_connected_to_entity_loc_inds(aParentCell->get_index(), moris::EntityRank::ELEMENT, moris::EntityRank::EDGE);
+        row_vector_connectivity_check( tElementToEdge  );
+
+        Matrix< IndexMat > tFacetoElemConnInd = aBackgroundMesh->get_entity_connected_to_entity_loc_inds(
+                        aParentCell->get_index(),
+                        moris::EntityRank::ELEMENT,
+                        moris::EntityRank::FACE);
+        row_vector_connectivity_check( tFacetoElemConnInd );
+
+        // copy all the information
+        mSpatialDimension       = aSpatialDimension;
+        mParentElementIndex     = aParentCell->get_index();
+        mNumElem                = 1;
+        mNodeInds               = tVertexIndices;
+        mNodeIds                = tVertexIds;
+        mNodeParentInds         = tVertexIndices;
+        mNodeParentRank         = moris::Matrix< moris::DDSTMat >(1,tVertexIndices.numel());
+        mElementToNode          = tVertexIndices;
+        mElementEdgeParentInds  = tElementToEdge;
+        mElementEdgeParentRanks = moris::Matrix< moris::DDSTMat >(1,tFacetoElemConnInd.numel(),1);
+        mElementFaceParentInds  = tFacetoElemConnInd;
+        mElementFaceParentRanks = moris::Matrix< moris::DDSTMat >(1,tFacetoElemConnInd.numel(),2);
+        mElementInterfaceSides  = moris::Matrix< moris::DDSTMat > (1,aGeometryIndices.size(),std::numeric_limits<moris::size_t>::max() );
+        
+        tParentCellInfo->get_loc_coords_of_cell(mNodeParametricCoord);
+        
+        mGeometryIndex = aGeometryIndices;
+
+        // add nodes to the
         set_up_proc_local_to_cm_local_node_map();
 
         // construct connectivity
@@ -664,6 +750,12 @@ namespace xtk
     Child_Mesh::get_parent_element_index() const
     {
         return mParentElementIndex;
+    }
+
+    moris::moris_index
+    Child_Mesh::get_child_mesh_index() const
+    {
+        return mChildMeshIndex;
     }
 
     // ---------------------------------------------------------------------------------

@@ -12,6 +12,7 @@
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Ghost_Stabilization.hpp"
+#include "cl_XTK_Integration_Mesh_Generator.hpp"
 #include "cl_XTK_Mesh_Cleanup.hpp"
 //#include "cl_XTK_Contact_Sandbox.hpp"
 #include "cl_XTK_Multigrid.hpp"
@@ -601,62 +602,13 @@ namespace xtk
     {
         Tracer tTracer( "XTK", "Decomposition", "Decompose" );
 
-        // Process for a decomposition
-        uint tNumDecompositions = aMethods.size();
-        uint tNumGeometries     = mGeometryEngine->get_num_geometries();
+        mIntegrationMeshGenerator = new Integration_Mesh_Generator(this,aMethods,{{}});
 
-        // Tell the subdivision to assign node Ids if it is the only subdivision method (critical for outputting)
-        // This is usually only going to happen in test cases
-        // Note: the Conformal subdivision methods dependent on node ids for subdivision routine, the node Ids are set regardless of the below boolean
-        bool tNonConformingMeshFlag = false;
+        bool tSuccess = mIntegrationMeshGenerator->perform();
 
-        if(aMethods.size() == 1)
-        {
-            tNonConformingMeshFlag = true;
-        }
+        delete mIntegrationMeshGenerator;
 
-        // outer cell - geometry index, inner cell active child mesh indices for each geometries
-        moris::Cell<moris::Matrix<moris::IndexMat>> tActiveChildMeshIndicesByGeom(tNumGeometries);
-
-        // Loop over each geometry and have an active child mesh indices list for each
-        for(moris::size_t iGeom = 0; iGeom<tNumGeometries; iGeom++)
-        {
-            bool tFirstSubdivisionFlag = true;
-            moris::Matrix< moris::IndexMat > tActiveChildMeshIndices(1,1,0);
-
-            for (moris::size_t iDecomp = 0; iDecomp < tNumDecompositions; iDecomp++)
-            {
-                // Perform subdivision
-                this->decompose_internal(aMethods(iDecomp), iGeom, tActiveChildMeshIndices, tFirstSubdivisionFlag, tNonConformingMeshFlag);
-
-                // Change the first subdivision flag as false
-                tFirstSubdivisionFlag = false;
-
-                if(iDecomp == 0)
-                {
-                    if(!this->all_child_meshes_on_same_level())
-                    {
-                        MORIS_LOG_INFO("Intersected cells are not on the same level. ");
-                        return false;
-                    }
-                }
-
-            }
-
-            // If it's not the last geometry tell the geometry engine we're moving on
-            if(iGeom!= tNumGeometries-1)
-            {
-                mGeometryEngine->advance_geometry_index();
-            }
-        }
-
-        // Tell the xtk mesh to set all necessary information to finalize decomposition allowing
-        // i.e set element ids, indices for children elements
-        this->finalize_decomp();
-
-        MORIS_LOG_SPEC("Num Intersected BG Cell",mCutMesh.get_num_child_meshes());
-
-        return true;
+        return tSuccess;
     }
 
     // ----------------------------------------------------------------------------------
@@ -855,9 +807,7 @@ namespace xtk
                                             tSecondaryId,
                                             tOwningProc,
                                             (enum EntityRank)tParentRank,
-                                            tGlobalCoord,
-                                            new Edge_Topology(tEdgeToNode.get_row(tEdgeInd)), /*this is deleted in the decomp data deconstructor*/
-                                            tLocalCoordRelativeToEdge.get_row(0));
+                                            tGlobalCoord);
 
                                     uint tNewNodeIndex = mBackgroundMesh.get_first_available_index(EntityRank::NODE);
                                     tDecompData.tNewNodeIndex(tDecompData.tNewNodeIndex.size() - 1) = tNewNodeIndex;
@@ -1118,9 +1068,7 @@ namespace xtk
                                             tSecondaryId,
                                             tOwningProc,
                                             (enum EntityRank)tParentRank,
-                                            tGlobalCoord,
-                                            new Edge_Topology(tEdgeToNode.get_row(tEdgeInd)), /*Note: this is deleted in the decomp data deconstructor*/
-                                            tLocalCoordRelativeToEdge.get_row(0));
+                                            tGlobalCoord);
 
                                     uint tNewNodeIndex = mBackgroundMesh.get_first_available_index(EntityRank::NODE);
                                     tDecompData.tNewNodeIndex(tDecompData.tNewNodeIndex.size() - 1) = tNewNodeIndex;
@@ -1367,9 +1315,7 @@ namespace xtk
                                 tFaceIndices(fi),
                                 tOwningProc,
                                 EntityRank::FACE,
-                                tNewNodeCoordinates,
-                                new Quad_4_Topology(tFaceNodes), /*Note: this is deleted in the decomp data deconstructor*/
-                                tParamCoordsRelativeToFace.get_row(fi));
+                                tNewNodeCoordinates);
 
                         // add to pending node pointers for child mesh
                         tDecompData.tCMNewNodeLoc(i)(fi) = tNewNodeIndexInSubdivision;
@@ -1437,9 +1383,7 @@ namespace xtk
                         tElemInd,
                         tOwningProc,
                         EntityRank::ELEMENT,
-                        tNewNodeCoordinates,
-                        new Hexahedron_8_Topology(tElementNodes), /*Note: this is deleted in the decomp data deconstructor*/
-                        tParamCoordsRelativeToElem.get_row(6));
+                        tNewNodeCoordinates);
 
                 // add child mesh new node location and parametric coordinate relative to element
                 tDecompData.tCMNewNodeLoc(i)(6) = tNewNodeIndexInSubdivision;
@@ -1569,9 +1513,7 @@ namespace xtk
                         tElemInd,
                         tOwningProc,
                         EntityRank::ELEMENT,
-                        tNewNodeCoordinates,
-                        new Quad_4_Topology(tElementNodes), /*Note: this is deleted in the decomp data deconstructor*/
-                        tParamCoordsRelativeToElem.get_row(0));
+                        tNewNodeCoordinates);
 
                 // add child mesh new node location and parametric coordinate relative to element
                 tDecompData.tCMNewNodeLoc(i)(0) = tNewNodeIndexInSubdivision;
@@ -3586,43 +3528,6 @@ namespace xtk
             moris_id tSubphaseId = this->get_subphase_id((moris_id)i);
             MORIS_ASSERT(mGlobalToLocalSubphaseMap.find(tSubphaseId) == mGlobalToLocalSubphaseMap.end(),"Subphase id already in map");
             mGlobalToLocalSubphaseMap[tSubphaseId] = i;
-        }
-    }
-
-    // ----------------------------------------------------------------------------------
-    // Unzipping Child Mesh Source code
-    // ----------------------------------------------------------------------------------
-
-    void
-    Model::unzip_child_mesh()
-    {
-        // start the clock
-        std::clock_t start = std::clock();
-
-        MORIS_ERROR(mDecomposed,"Prior to unzip_child_mesh, the decomposition process must be called");
-
-        // unzip the interface
-        unzip_child_mesh_internal();
-
-        mUnzipped = true;
-        if(moris::par_rank() == 0  && mVerbose)
-        {
-            std::cout<<"XTK: Child mesh unzipping completed in "<< (std::clock() - start) / (double)(CLOCKS_PER_SEC)<<" s."<<std::endl;
-        }
-    }
-
-    // ----------------------------------------------------------------------------------
-
-    void
-    Model::unzip_child_mesh_internal()
-    {
-        // get the number of children meshes
-        moris::size_t tNumChildMeshes =  mCutMesh.get_num_child_meshes();
-
-        for(moris::size_t i = 0; i<tNumChildMeshes; i++)
-        {
-            // Get child mesh index
-            //        Child_Mesh & tChildMesh = mCutMesh.get_child_mesh(i);
         }
     }
 

@@ -46,7 +46,7 @@ enum class Subdivision_Method
     NC_REGULAR_SUBDIVISION_QUAD4,
     C_HIERARCHY_TET4,             // Conformal and a hierarchy template will be used
     C_TRI3,             // Conformal tri 3 mesh  will be constructed
-    T_GENERATE_TET_MESH_FROM_HEX  // For test cases, intersects all elements provided
+    NO_METHOD
 };
 
 inline
@@ -58,7 +58,7 @@ const std::string get_enum_str(enum Subdivision_Method aSubdivisionEnum)
        case Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4: return "NC_REGULAR_SUBDIVISION_QUAD4";
        case Subdivision_Method::C_HIERARCHY_TET4: return "C_HIERARCHY_TET4";
        case Subdivision_Method::C_TRI3: return "C_TRI3";
-       case Subdivision_Method::T_GENERATE_TET_MESH_FROM_HEX: return "T_GENERATE_TET_MESH_FROM_HEX";
+       case Subdivision_Method::NO_METHOD: return "NO_METHOD";
        default: return "invalid subdivision method";
     }
 }

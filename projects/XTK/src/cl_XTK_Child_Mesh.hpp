@@ -49,6 +49,7 @@ namespace moris
 namespace mtk
 {
 class Vertex;
+class Mesh;
 }
 }
 
@@ -76,6 +77,12 @@ public:
                moris::Matrix< moris::IndexMat > & aElementFaceParentInds,
                moris::Matrix< moris::DDSTMat >  & aElementFaceParentRanks,
                moris::Matrix< moris::DDSTMat >  & aElementInferfaceSides );
+
+    Child_Mesh(moris_index               aChildMeshIndex,
+               moris::uint               aSpatialDimension,
+               moris::mtk::Cell*         aParentCell,
+               moris::mtk::Mesh*         aBackgroundMesh,
+               Cell<moris_index> const & aGeometryIndices );
 
     // ----------------------------------------------------------------------------------
  
@@ -324,6 +331,11 @@ public:
  
     moris::moris_index
     get_parent_element_index() const;
+    
+    // ----------------------------------------------------------------------------------
+
+    moris::moris_index
+    get_child_mesh_index() const;
 
     // ----------------------------------------------------------------------------------
  
@@ -898,6 +910,9 @@ public:
 
 
 private:
+    // child mesh index
+    moris::moris_index mChildMeshIndex;
+
     // Parent element index
     moris::moris_index mParentElementIndex;
 
@@ -1001,7 +1016,7 @@ private:
 private:
 
     // ----------------------------------------------------------------------------------
-     void
+    void
     generate_face_connectivity_and_ancestry(moris::Matrix< moris::IndexMat > const & aElementToNodeLocal);
 
     // ----------------------------------------------------------------------------------

@@ -111,7 +111,9 @@ namespace xtk
         convert_cut_mesh_to_tet10s();
 
         // ----------------------------------------------------------------------------------
-
+        void
+        set_child_mesh( moris_index aCMIndex, 
+                        Child_Mesh* aChildMesh);
         /**
          * @ brief Sets up template ancestry with parametric information
          * @param[in] aChildMeshIndex        - simple mesh index

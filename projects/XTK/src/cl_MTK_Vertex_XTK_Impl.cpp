@@ -23,7 +23,9 @@ namespace moris
                                xtk::Background_Mesh * aBackgroundMeshPtr)
             : mVertexId(aVertexId),
               mVertexIndex(aVertexIndex),
-              mBackgroundMeshPtr(aBackgroundMeshPtr){
+              mBackgroundMeshPtr(aBackgroundMeshPtr),
+              mCoordinates(0,0)
+              {
 
               }
 
@@ -32,9 +34,22 @@ namespace moris
         Vertex_XTK::Vertex_XTK(mtk::Vertex * aBackgroundMeshVertex)
             : mVertexId(aBackgroundMeshVertex->get_id()),
               mVertexIndex(aBackgroundMeshVertex->get_index()),
-              mBackgroundMeshVertex(aBackgroundMeshVertex)
+              mBackgroundMeshVertex(aBackgroundMeshVertex),
+              mCoordinates(0,0)
         {
         }
+
+        Vertex_XTK::Vertex_XTK(moris::moris_id           aVertexId,
+                   moris::moris_index        aVertexIndex,
+                   Matrix<DDRMat>    const & aCoordinates)
+        :mVertexId(aVertexId),
+        mVertexIndex(aVertexIndex),
+        mBackgroundMeshPtr(nullptr),
+        mCoordinates(aCoordinates)
+        {
+
+        }
+
 
         //------------------------------------------------------------------------------
 
@@ -62,6 +77,10 @@ namespace moris
             else if (mBackgroundMeshVertex != nullptr)
             {
                 return mBackgroundMeshVertex->get_coords();
+            }
+            else if(mCoordinates.numel()>0)
+            {
+                return mCoordinates;
             }
             else
             {

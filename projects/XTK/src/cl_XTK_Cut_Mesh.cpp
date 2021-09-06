@@ -118,6 +118,17 @@ namespace xtk
     }
     // ----------------------------------------------------------------------------------
     void
+    Cut_Mesh::set_child_mesh( moris_index aCMIndex, 
+                              Child_Mesh* aChildMesh)
+    {
+        MORIS_ASSERT(aCMIndex < (moris_index)mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
+        MORIS_ASSERT(mChildrenMeshes(aCMIndex) == nullptr,"Overwriting existing child mesh not allowed");
+
+        mChildrenMeshes(aCMIndex) = aChildMesh;
+    }
+
+    // ----------------------------------------------------------------------------------
+    void
     Cut_Mesh::initialize_new_mesh_from_parent_element(
             moris::size_t              aChildMeshIndex,
             enum TemplateType          aTemplate,
