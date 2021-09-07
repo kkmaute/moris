@@ -44,7 +44,7 @@ namespace xtk
     {
         moris::Cell<moris::Cell<moris::mtk::Vertex*>> mEdgeVertices;
         moris::Cell<moris::Cell<moris::mtk::Cell*>>   mEdgeToCell;
-        moris::Cell<moris::Cell<moris::mtk::Cell*>>   mEdgeToCellEdgeOrdinal;
+        moris::Cell<moris::Cell<moris::moris_index>>   mEdgeToCellEdgeOrdinal;
         moris::Cell<moris::Cell<moris_index>>         mCellToEdge;
     };
     
@@ -67,6 +67,9 @@ namespace xtk
         moris::Cell<moris::mtk::Vertex*> mIntegrationVertices;
         moris::Cell<std::shared_ptr<moris::mtk::Vertex>> mControlledIgVerts;
 
+        // vertex coords
+        moris::Cell<std::shared_ptr<Matrix<DDRMat>>> mVertexCoordinates;
+
         // all data is stored in the current mesh. pointers are in the child mesh
         // as well as accessor function
         moris::Cell<std::shared_ptr<Child_Mesh_Experimental>> mChildMeshes;
@@ -80,6 +83,8 @@ namespace xtk
         moris::Cell<std::shared_ptr<IG_Vertex_Group>>         mIntegrationVertexGroups;
         moris::Cell<moris::mtk::Cell*>                        mIntegrationCellGroupsParentCell;
         moris::Cell<std::shared_ptr<Edge_Based_Connectivity>> mIntegrationCellGroupsEdgeBasedConn;
+
+
 
         
         // bulk phase
@@ -129,17 +134,10 @@ namespace xtk
         Cut_Integration_Mesh(moris::mtk::Mesh* aBackgroundMesh);
         ~Cut_Integration_Mesh();
 
-        Matrix<DDRMat> get_all_vertex_coordinates_loc_inds()
+        moris::Cell<std::shared_ptr<Matrix<DDRMat>>>*
+        get_all_vertex_coordinates_loc_inds()
         {
-            Matrix<DDRMat> tVertexCoords(mIntegrationVertices.size(),mSpatialDimension);
-
-            for(moris::uint iV = 0 ; iV < mIntegrationVertices.size(); iV++)
-            {
-                tVertexCoords.set_row(iV,mIntegrationVertices(iV)->get_coords());
-            }
-
-            return tVertexCoords;
-
+            return &mVertexCoordinates;
         }
         
         std::shared_ptr<Child_Mesh_Experimental>
@@ -375,6 +373,7 @@ namespace xtk
         // vertex setup
         mIntegrationVertices.resize(tNumBackgroundVertices,nullptr);
         mIntegrationVertexIndexToId.resize(tNumBackgroundVertices, MORIS_INDEX_MAX);
+        mVertexCoordinates.resize(tNumBackgroundVertices,nullptr);
         for(moris::uint iV = 0; iV< tNumBackgroundVertices; iV++)
         {
             // get a vertex pointer into our data
@@ -385,6 +384,9 @@ namespace xtk
 
             // add the vertex to the local to global vertex map
             mIntegrationVertexIndexToId(mIntegrationVertices(iV)->get_index()) = mIntegrationVertices(iV)->get_id();
+
+            // store the coordinate
+            mVertexCoordinates(mIntegrationVertices(iV)->get_index()) = std::make_shared<moris::Matrix<DDRMat>>(mIntegrationVertices(iV)->get_coords());
 
             // verify that we are not doubling up vertices in the id map
             MORIS_ERROR(mIntegrationVertexIdToIndexMap.find(mIntegrationVertices(iV)->get_id()) == mIntegrationVertexIdToIndexMap.end(), "Provided Vertex Id is already in the integration vertex map: Vertex Id =%uon process %u", mIntegrationVertices(iV)->get_id(), par_rank());

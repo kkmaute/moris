@@ -18,7 +18,7 @@ namespace xtk
             aMeshGenerator->assign_node_requests_identifiers(*aDecompositionData, aCutIntegrationMesh, aBackgroundMesh, this->get_signature());
 
             // commit vertices to the mesh
-            aMeshGenerator->commit_new_ig_vertices_to_cut_mesh(aMeshGenerationData,aDecompositionData,aCutIntegrationMesh,aBackgroundMesh);
+            aMeshGenerator->commit_new_ig_vertices_to_cut_mesh(aMeshGenerationData,aDecompositionData,aCutIntegrationMesh,aBackgroundMesh,this);
 
             // generate_decomposed_mesh - perform the mesh generation
             this->perform_impl_generate_mesh(aMeshGenerationData,aDecompositionData,aCutIntegrationMesh,aBackgroundMesh,aMeshGenerator);

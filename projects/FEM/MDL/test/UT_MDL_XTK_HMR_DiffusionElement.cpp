@@ -243,7 +243,6 @@ namespace moris
             size_t tModelDimension = 3;
             Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
             xtk::Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
-            tXTKModel.mSameMesh = true;
             tXTKModel.mVerbose = false;
 
             // Do the cutting
@@ -501,7 +500,6 @@ namespace moris
             size_t tModelDimension = 3;
             Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
             xtk::Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
-            tXTKModel.mSameMesh = true;
             tXTKModel.mVerbose = false;
 
             // Do the cutting
@@ -794,7 +792,6 @@ namespace moris
             size_t tModelDimension = 3;
             Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
             xtk::Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
-            tXTKModel.mSameMesh = true;
             tXTKModel.mVerbose = false;
 
             // Do the cutting
@@ -1102,7 +1099,6 @@ namespace moris
             size_t tModelDimension = 3;
             Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
             xtk::Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
-            tXTKModel.mSameMesh = true;
             tXTKModel.mVerbose = false;
 
             // Do the cutting

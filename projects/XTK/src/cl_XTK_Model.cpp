@@ -1315,7 +1315,7 @@ namespace xtk
                                 tFaceIndices(fi),
                                 tOwningProc,
                                 EntityRank::FACE,
-                                tNewNodeCoordinates);
+                                tNewNodeCoordinates,nullptr,nullptr);
 
                         // add to pending node pointers for child mesh
                         tDecompData.tCMNewNodeLoc(i)(fi) = tNewNodeIndexInSubdivision;
@@ -1383,7 +1383,7 @@ namespace xtk
                         tElemInd,
                         tOwningProc,
                         EntityRank::ELEMENT,
-                        tNewNodeCoordinates);
+                        tNewNodeCoordinates,nullptr,nullptr);
 
                 // add child mesh new node location and parametric coordinate relative to element
                 tDecompData.tCMNewNodeLoc(i)(6) = tNewNodeIndexInSubdivision;
@@ -1513,7 +1513,7 @@ namespace xtk
                         tElemInd,
                         tOwningProc,
                         EntityRank::ELEMENT,
-                        tNewNodeCoordinates);
+                        tNewNodeCoordinates,nullptr,nullptr);
 
                 // add child mesh new node location and parametric coordinate relative to element
                 tDecompData.tCMNewNodeLoc(i)(0) = tNewNodeIndexInSubdivision;

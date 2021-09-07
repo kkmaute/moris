@@ -14,6 +14,7 @@
 #include "cl_XTK_Topology.hpp"
 #include "cl_Mesh_Enums.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
+#include "cl_MTK_Vertex.hpp"
 using namespace moris;
 
 namespace xtk
@@ -180,10 +181,12 @@ namespace xtk
         }
 
         moris_index
-        register_new_request(moris_index             aParentEntityIndex,
-                             moris_index             aParentEntityOwner,
-                             enum EntityRank         aParentEntityRank,
-                             Matrix<DDRMat>  const & aNewNodeCoord
+        register_new_request(moris_index                                aParentEntityIndex,
+                             moris_index                                aParentEntityOwner,
+                             enum EntityRank                            aParentEntityRank,
+                             Matrix<DDRMat>  const &                    aNewNodeCoord,
+                             moris::mtk::Cell*                          aNewVertexParentCell,
+                             std::shared_ptr<Matrix<DDRMat>>            aNewVertexLocalCooridnates
                              )
         {
             MORIS_ASSERT(!mHasSecondaryIdentifier,"register_new_request w/o a secondary identifier should only be used when secondary identifiers are not necessary, this is because the maps in this data structure are slightly different between the two cases");
@@ -200,6 +203,8 @@ namespace xtk
             tNewNodeParentIndex.push_back(aParentEntityIndex);
             tNewNodeParentRank.push_back(aParentEntityRank);
             tNewNodeCoordinate.push_back(aNewNodeCoord);
+            mNewNodeParentCells.push_back(aNewVertexParentCell);
+            mNewVertexLocalCoordWRTParentCell.push_back(aNewVertexLocalCooridnates);
 
             switch(aParentEntityRank)
             {
@@ -414,7 +419,15 @@ namespace xtk
         Cell<moris_index> tNewNodeHangingWRTProcRank;
 
         // New node parent topology
-        Cell<Topology*>             tNewNodeParentTopology;
+        Cell<Topology*> tNewNodeParentTopology;
+        
+        Cell<moris::mtk::Cell*> mNewNodeParentCells;
+        Cell<std::shared_ptr<Matrix<DDRMat>>> mNewVertexLocalCoordWRTParentCell;
+
+        // new node vertex dependencies
+        Cell<std::shared_ptr<Cell<moris::mtk::Vertex*>>> mNewVertexParentVertices;
+
+        Cell<std::shared_ptr<Matrix<DDRMat>>> mNewVertexBasisWeights;
 
         // Parent index of a new node
         Cell<moris_index>    tNewNodeParentIndex;

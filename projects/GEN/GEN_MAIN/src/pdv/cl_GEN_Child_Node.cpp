@@ -1,5 +1,8 @@
 #include "cl_GEN_Child_Node.hpp"
 #include "cl_GEN_Field.hpp"
+#include "cl_MTK_Cell.hpp"
+#include "cl_MTK_Vertex.hpp"
+#include "cl_MTK_Cell_Info.hpp"
 
 namespace moris
 {
@@ -22,6 +25,15 @@ namespace moris
 
             // Evaluate basis function
             aBasisFunction.evaluate_basis_function(aLocalCoordinatesInAncestor, mBasisValues);
+        }
+
+        Child_Node::Child_Node( moris::mtk::Cell* aCell,
+                                 Matrix<DDRMat> * aLocalCoordinates)
+        {
+            mParentCell = aCell;
+            mLocalCoordinates = *aLocalCoordinates;
+
+            aCell->get_cell_info()->eval_N(mLocalCoordinates, mBasisValues);
         }
 
         //--------------------------------------------------------------------------------------------------------------

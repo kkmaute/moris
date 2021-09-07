@@ -185,6 +185,15 @@ namespace moris
         return os;
     }
 
+    inline
+    bool 
+    comparePtrToVertexIdBased(
+        moris::mtk::Vertex* a, 
+        moris::mtk::Vertex* b) 
+    { 
+        return (a->get_id() < b->get_id()); 
+    }
+
 } /* namespace moris */
 //------------------------------------------------------------------------------
 #endif /* SRC_MESH_CL_MTK_VERTEX_HPP_ */

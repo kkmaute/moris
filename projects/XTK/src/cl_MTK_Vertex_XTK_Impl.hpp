@@ -39,9 +39,9 @@ namespace moris
                        moris::moris_index     aVertexIndex,
                        xtk::Background_Mesh * aBackgroundMeshPtr);
 
-            Vertex_XTK(moris::moris_id           aVertexId,
-                       moris::moris_index        aVertexIndex,
-                       Matrix<DDRMat>    const & aCoordinates);                       
+            Vertex_XTK(moris::moris_id        aVertexId,
+                       moris::moris_index     aVertexIndex,
+                       Matrix<DDRMat> const * aCoordinates);                       
             /*
              * Constructor for a background mesh vertex
              */
@@ -120,7 +120,7 @@ namespace moris
             // If this was a vertex in the background mesh (simply store the pointer)
             Vertex * mBackgroundMeshVertex = nullptr;
             
-            moris::Matrix<moris::DDRMat> mCoordinates;
+            moris::Matrix<moris::DDRMat> const* mCoordinates;
         };
 //------------------------------------------------------------------------------
     } /* namespace mtk */

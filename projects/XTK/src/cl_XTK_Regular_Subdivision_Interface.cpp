@@ -7,7 +7,12 @@
 
 namespace xtk
 {
-    
+    bool 
+    Regular_Subdivision_Interface::has_geometric_independent_vertices() const
+    {
+        return true;
+    }
+
     void 
     Regular_Subdivision_Interface::perform_impl_vertex_requests(
         Integration_Mesh_Generation_Data*  aMeshGenerationData,
@@ -25,7 +30,7 @@ namespace xtk
         tGeometricQuery.set_query_type(moris::ge::Query_Type::VALUE_AT_PARAMETRIC_LOCATION);
 
         // large coord matrix that I want to keep in scope for a long time avoid copying coordinate all the time.
-        tGeometricQuery.set_coordinates_matrix(&aMeshGenerationData->tVertexCoordinates);
+        tGeometricQuery.set_coordinates_matrix(aCutIntegrationMesh->get_all_vertex_coordinates_loc_inds());
 
         // allocate data in decomposition data 
         aDecompositionData->tCMNewNodeLoc        = Cell<Cell<moris_index>>(aMeshGenerationData->mIntersectedBackgroundCellIndexToChildMeshIndex.size(),this->get_num_new_nodes());
@@ -182,14 +187,11 @@ namespace xtk
                 // evaluate the shape functions at this point relative to the background cell
                 tParentCellInfo->eval_N(aRegularSubdivisionInterfaceData->mNewNodeXi(tNewNodeTemplateOrd),aRegularSubdivisionInterfaceData->mNXi);
 
+                std::shared_ptr<Matrix<DDRMat>> tNewNodeXi = std::make_shared<Matrix<DDRMat>>(aRegularSubdivisionInterfaceData->mNewNodeXi(tNewNodeTemplateOrd));
 
                 Matrix<DDRMat> tNewNodeCoordinates = aRegularSubdivisionInterfaceData->mNXi * tParentCell->get_vertex_coords();
 
-
-                moris_index tNewNodeIndexInSubdivision = aDecompositionData->register_new_request(tFaceIndices(tNewNodeFaceOrdinal),tOwner,EntityRank::FACE,tNewNodeCoordinates);
-
-
-
+                moris_index tNewNodeIndexInSubdivision = aDecompositionData->register_new_request(tFaceIndices(tNewNodeFaceOrdinal),tOwner,EntityRank::FACE,tNewNodeCoordinates,tParentCell,tNewNodeXi);
 
                 aDecompositionData->tCMNewNodeLoc(aChildMesh->get_child_mesh_index())(tNewNodeTemplateOrd)        = tNewNodeIndexInSubdivision;
                 aDecompositionData->tCMNewNodeParamCoord(aChildMesh->get_child_mesh_index())(tNewNodeTemplateOrd) = aRegularSubdivisionInterfaceData->mNewNodeXi(tNewNodeTemplateOrd);
@@ -210,9 +212,11 @@ namespace xtk
                 // evaluate the shape functions at this point relative to the background cell
                 tParentCellInfo->eval_N(aRegularSubdivisionInterfaceData->mNewNodeXi(tNewNodeTemplateOrd),aRegularSubdivisionInterfaceData->mNXi);
 
+                std::shared_ptr<Matrix<DDRMat>> tNewNodeXi = std::make_shared<Matrix<DDRMat>>(aRegularSubdivisionInterfaceData->mNewNodeXi(tNewNodeTemplateOrd));
+
                 Matrix<DDRMat> tNewNodeCoordinates = aRegularSubdivisionInterfaceData->mNXi * tParentCell->get_vertex_coords();
 
-                moris_index tNewNodeIndexInSubdivision = aDecompositionData->register_new_request(tParentCell->get_index(),tOwner,EntityRank::ELEMENT,tNewNodeCoordinates);
+                moris_index tNewNodeIndexInSubdivision = aDecompositionData->register_new_request(tParentCell->get_index(),tOwner,EntityRank::ELEMENT,tNewNodeCoordinates,tParentCell,tNewNodeXi);
 
                 aDecompositionData->tCMNewNodeLoc(aChildMesh->get_child_mesh_index())(tNewNodeTemplateOrd)        = tNewNodeIndexInSubdivision;
                 aDecompositionData->tCMNewNodeParamCoord(aChildMesh->get_child_mesh_index())(tNewNodeTemplateOrd) = aRegularSubdivisionInterfaceData->mNewNodeXi(tNewNodeTemplateOrd);

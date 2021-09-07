@@ -30,8 +30,10 @@ class Decomposition_Algorithm
 
     public:
     Decomposition_Algorithm(){}
+    virtual ~Decomposition_Algorithm(){}
     
     // set of 
+    virtual 
     void perform(Integration_Mesh_Generation_Data *  aMeshGenerationData,
                  Decomposition_Data*                 aDecompositionData,
                  Cut_Integration_Mesh*               aCutIntegrationMesh,
@@ -41,6 +43,8 @@ class Decomposition_Algorithm
     virtual enum Decomposition_Algorithm_Type get_algorithm_type() const = 0;
 
     virtual moris_index get_signature() const = 0;
+
+    virtual bool has_geometric_independent_vertices() const  = 0;
 
     virtual 
     void

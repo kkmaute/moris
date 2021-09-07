@@ -158,6 +158,8 @@ class Regular_Subdivision_Interface : public Decomposition_Algorithm
     Regular_Subdivision_Interface(){}
     ~Regular_Subdivision_Interface(){}
 
+    bool has_geometric_independent_vertices() const;
+
     void 
     perform_impl_vertex_requests(Integration_Mesh_Generation_Data*  aMeshGenerationData,
                                  Decomposition_Data*                 aDecompositionData,

@@ -14,7 +14,7 @@
 #include "cl_GEN_Phase_Table.hpp"
 #include "cl_GEN_Pdv_Host_Manager.hpp"
 #include "cl_GEN_Geometric_Proximity.hpp"
-
+#include "cl_GEN_Geometric_Query_Interface.hpp"
 // MTK
 #include "cl_MTK_Mesh_Core.hpp"
 #include "cl_MTK_Cluster.hpp"
@@ -186,6 +186,14 @@ namespace moris
                     const Matrix<IndexMat>& aNodeIndices,
                     const Matrix<DDRMat>  & aNodeCoordinates);
 
+            bool is_intersected(
+                const Matrix<IndexMat> & aNodeIndices,
+                moris::Cell<std::shared_ptr<moris::Matrix<moris::DDRMat>>> * aNodeCoordinates);
+
+            
+            bool geometric_query(Geometric_Query_Interface* aGeometricQuery);
+                    
+
             /**
              * Determines if the given edge is intersected, and queues an intersection node if it is. If an intersection
              * node has been queued, questions can be asked about the queued node:
@@ -264,6 +272,12 @@ namespace moris
                     const Cell<xtk::Topology*>& aParentTopo,
                     const Cell<Matrix<DDRMat>>& aParamCoordRelativeToParent,
                     const Matrix<DDRMat>&       aGlobalNodeCoord );
+
+            void create_new_child_nodes(
+                const Cell<moris_index>*               aNewNodeIndices,
+                Cell<moris::mtk::Cell*>*               aNewNodeParentCell,
+                Cell<std::shared_ptr<Matrix<DDRMat>>>* aParamCoordRelativeToParent,
+                Cell<Matrix<DDRMat>>*                  aNodeCoordinates );
 
             /**
              * Get the total number of phases in the phase table

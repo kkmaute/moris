@@ -10,6 +10,7 @@ set(TEST_SOURCES
 	ut_GEN_Intersection.cpp
 	cl_GEN_Geometry_Engine_Test.cpp
 	fn_GEN_create_simple_mesh.cpp
+    ut_GEN_STL_Geometry.cpp
     )
 
 set(GEN_INCLUDES

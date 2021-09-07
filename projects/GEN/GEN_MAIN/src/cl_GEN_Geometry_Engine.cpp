@@ -259,6 +259,22 @@ namespace moris
             return &mPDVHostManager;
         }
 
+        bool Geometry_Engine::geometric_query(Geometric_Query_Interface* aGeometricQuery)
+        {
+            if(aGeometricQuery->get_query_type() == Query_Type::INTERSECTION_NO_LOCATION)
+            {
+                mActiveGeometryIndex = aGeometricQuery->get_geomtric_index();
+                return is_intersected( aGeometricQuery->get_query_entity_to_vertex_connectivity(),
+                                       aGeometricQuery->get_query_indexed_coordinates());
+            }
+
+            else
+            {
+                MORIS_ERROR(0,"In progress");
+                return false;
+            }
+        }
+
         //--------------------------------------------------------------------------------------------------------------
 
         bool Geometry_Engine::is_intersected(
@@ -266,11 +282,11 @@ namespace moris
                 const Matrix<DDRMat>   & aNodeCoordinates)
         {
             // Check input
-            MORIS_ASSERT(aNodeIndices.length() == aNodeCoordinates.n_rows(),
-                    "Geometry engine must be provided the same number of node indices as node coordinates for "
-                    "determining if an element is intersected or not.");
-            MORIS_ASSERT(aNodeIndices.length() > 0,
-                    "Geometry engine must be provided at least 1 node to determine if an element is intersected or not.");
+            // MORIS_ASSERT(aNodeIndices.length() == aNodeCoordinates.n_rows(),
+            //         "Geometry engine must be provided the same number of node indices as node coordinates for "
+            //         "determining if an element is intersected or not.");
+            // MORIS_ASSERT(aNodeIndices.length() > 0,
+            //         "Geometry engine must be provided at least 1 node to determine if an element is intersected or not.");
 
             bool tIsIntersected = false;
 
@@ -280,7 +296,7 @@ namespace moris
                 {
                     // Initialize by evaluating the first node
                     real tMin = mGeometries(mActiveGeometryIndex)->
-                            get_field_value(aNodeIndices(0), aNodeCoordinates.get_row(0));
+                            get_field_value(aNodeIndices(0), aNodeCoordinates.get_row(aNodeIndices(0)));
                     real tMax = tMin;
 
                     // Evaluate the rest of the nodes
@@ -288,7 +304,7 @@ namespace moris
                     {
                         real tEval = mGeometries(mActiveGeometryIndex)->get_field_value(
                                 aNodeIndices(tNodeCount),
-                                aNodeCoordinates.get_row(tNodeCount));
+                                aNodeCoordinates.get_row(aNodeIndices(tNodeCount)));
 
                         tMin = std::min(tMin, tEval);
                         tMax = std::max(tMax, tEval);
@@ -303,14 +319,14 @@ namespace moris
                 case Intersection_Mode::COLORING:
                 {
                     real tFieldValue = mGeometries(mActiveGeometryIndex)->
-                            get_field_value(aNodeIndices(0), aNodeCoordinates.get_row(0));
+                            get_field_value(aNodeIndices(0), aNodeCoordinates.get_row(aNodeIndices( 0 )));
 
                     // Evaluate the rest of the nodes
                     for (uint Ik = 0; Ik < aNodeIndices.length(); Ik++)
                     {
                         real tEval = mGeometries(mActiveGeometryIndex)->get_field_value(
                                 aNodeIndices( Ik ),
-                                aNodeCoordinates.get_row( Ik ));
+                                aNodeCoordinates.get_row( aNodeIndices( Ik ) ));
 
                         if( tFieldValue != tEval )
                         {
@@ -330,6 +346,76 @@ namespace moris
             // Return result
             return tIsIntersected;
         }
+
+        bool Geometry_Engine::is_intersected(
+                const Matrix<IndexMat> & aNodeIndices,
+                moris::Cell<std::shared_ptr<moris::Matrix<moris::DDRMat>>> * aNodeCoordinates)
+        {
+            // Check input
+            // MORIS_ASSERT(aNodeIndices.length() == aNodeCoordinates.n_rows(),
+            //         "Geometry engine must be provided the same number of node indices as node coordinates for "
+            //         "determining if an element is intersected or not.");
+            // MORIS_ASSERT(aNodeIndices.length() > 0,
+            //         "Geometry engine must be provided at least 1 node to determine if an element is intersected or not.");
+
+            bool tIsIntersected = false;
+
+            switch (mIntersectionMode)
+            {
+                case Intersection_Mode::LEVEL_SET:
+                {
+                    // Initialize by evaluating the first node
+                    real tMin = mGeometries(mActiveGeometryIndex)->get_field_value(aNodeIndices(0), *(*aNodeCoordinates)(aNodeIndices(0)));
+                    real tMax = tMin;
+
+                    // Evaluate the rest of the nodes
+                    for (uint tNodeCount = 0; tNodeCount < aNodeIndices.length(); tNodeCount++)
+                    {
+                        real tEval = mGeometries(mActiveGeometryIndex)->get_field_value(
+                                aNodeIndices(tNodeCount),
+                                *(*aNodeCoordinates)(aNodeIndices(tNodeCount)));
+
+                        tMin = std::min(tMin, tEval);
+                        tMax = std::max(tMax, tEval);
+                    }
+
+                    tIsIntersected = (tMax >= mIsocontourThreshold and tMin <= mIsocontourThreshold) or
+                            (std::abs(tMax - mIsocontourThreshold) < mIsocontourTolerance) or
+                            (std::abs(tMin - mIsocontourThreshold) < mIsocontourTolerance);
+
+                    break;
+                }
+                case Intersection_Mode::COLORING:
+                {
+                    real tFieldValue = mGeometries(mActiveGeometryIndex)->
+                            get_field_value(aNodeIndices(0), *(*aNodeCoordinates)(aNodeIndices(0)));
+
+                    // Evaluate the rest of the nodes
+                    for (uint Ik = 0; Ik < aNodeIndices.length(); Ik++)
+                    {
+                        real tEval = mGeometries(mActiveGeometryIndex)->get_field_value(
+                                aNodeIndices( Ik ),
+                                *(*aNodeCoordinates)(aNodeIndices(Ik)));
+
+                        if( tFieldValue != tEval )
+                        {
+                            tIsIntersected = true;
+                            break;
+                        }
+                    }
+
+                    break;
+                }
+                default:
+                {
+                    MORIS_ERROR( false, "Geometry_Engine::is_intersected(), unknown intersection type." );
+                }
+            }
+
+            // Return result
+            return tIsIntersected;
+        }
+
 
         //--------------------------------------------------------------------------------------------------------------
 
@@ -494,6 +580,49 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
+
+        void Geometry_Engine::create_new_child_nodes(
+                const Cell<moris_index>*               aNewNodeIndices,
+                Cell<moris::mtk::Cell*>*               aNewNodeParentCell,
+                Cell<std::shared_ptr<Matrix<DDRMat>>>* aParamCoordRelativeToParent,
+                Cell<Matrix<DDRMat>>*                  aNodeCoordinates )
+        {
+            // resize proximities
+            mVertexGeometricProximity.resize(mVertexGeometricProximity.size() + aNewNodeIndices->size(), Geometric_Proximity(mGeometries.size()));
+            
+            // Loop over nodes
+            for (uint tNode = 0; tNode < aNewNodeIndices->size(); tNode++)
+            {
+                std::shared_ptr<Child_Node> tChildNode = std::make_shared<Child_Node>((*aNewNodeParentCell)(tNode),(*aParamCoordRelativeToParent)(tNode).get());
+                mVertexGeometricProximity((*aNewNodeIndices)(tNode)).mAssociatedVertexIndex = (*aNewNodeIndices)(tNode);
+
+                Matrix<DDRMat> const &  tCoord = (*aNodeCoordinates)(tNode);
+
+                // Assign to geometries
+                for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
+                {
+                    mGeometries(tGeometryIndex)->add_child_node((*aNewNodeIndices)(tNode), tChildNode);
+
+                    real tVertGeomVal = mGeometries(tGeometryIndex)->get_field_value((*aNewNodeIndices)(tNode), tCoord);
+
+                    moris_index tGeomProxIndex = this->get_geometric_proximity_index(tVertGeomVal);
+
+                    if(std::abs(tVertGeomVal - mIsocontourThreshold) < mIsocontourTolerance)
+                    {
+
+                        tGeomProxIndex = 1;
+                    }
+
+                    mVertexGeometricProximity((*aNewNodeIndices)(tNode)).set_geometric_proximity(tGeomProxIndex,tGeometryIndex);
+                }
+            }
+
+            // Set max node index
+            if (aNewNodeIndices->size() > 0)
+            {
+                mPDVHostManager.set_num_background_nodes((*aNewNodeIndices)(aNewNodeIndices->size() - 1) + 1);
+            }
+        }
 
         void Geometry_Engine::create_new_child_nodes(
                 const Cell<moris_index>&    aNewNodeIndices,

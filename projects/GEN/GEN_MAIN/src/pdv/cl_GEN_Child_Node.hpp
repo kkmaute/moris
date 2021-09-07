@@ -3,9 +3,14 @@
 
 #include "cl_Matrix.hpp"
 #include "cl_XTK_Basis_Function.hpp"
-
+#include "cl_Cell.hpp"
 namespace moris
 {
+    namespace mtk
+    {
+        class Cell;
+    }
+
     namespace ge
     {
         // Forward declaration of Field class
@@ -18,6 +23,10 @@ namespace moris
             Matrix<DDUMat>       mAncestorNodeIndices;
             Cell<Matrix<DDRMat>> mAncestorNodeCoordinates;
             Matrix<DDRMat>       mBasisValues;
+
+            moris::mtk::Cell* mParentCell;
+            Matrix<DDRMat>    mLocalCoordinates;
+            
 
         private:
             Matrix<DDRMat>       mLocalCoordinatesInAncestor;
@@ -38,6 +47,13 @@ namespace moris
                     Cell<Matrix<DDRMat>>       aAncestorNodeCoordinates,
                     const xtk::Basis_Function& aBasisFunction,
                     Matrix<DDRMat>             aLocalCoordinatesInAncestor);
+
+    
+            Child_Node( 
+                moris::mtk::Cell* aCell,
+                Matrix<DDRMat> * aLocalCoordinates);
+
+    
 
             /**
              * Get the field value on the child node based on values from its ancestors.
