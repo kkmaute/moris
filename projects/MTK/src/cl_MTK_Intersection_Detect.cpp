@@ -50,7 +50,7 @@ namespace moris
                         mNumBulkPhases(aNumBulkPhases),
                         mEntityLocaltoGlobalMap(4),
                         mNewNodeCoords(0)
-                        {
+        {
             //get the periodic mesh set names
             std::string tMeshSideSetNames = aParameterList.get< std::string >( "periodic_side_set_pair" );
 
@@ -59,8 +59,7 @@ namespace moris
 
             //Data to store Id's and Indices of the added Vertices and Cells
             mIntersectedMeshData.set_up_external_entity_data( mMeshManager->get_integration_mesh( mMeshIndex ) );
-
-                        }
+        }
 
         Intersection_Detect::~Intersection_Detect()
         {
@@ -213,7 +212,6 @@ namespace moris
 
                         //store the phase of cell
                         tLocalCellNumToColor2.push_back( tColor( 0 ) );
-
                     }
 
                     //append the clusters the list of the first side clusters
@@ -226,7 +224,6 @@ namespace moris
                     //loop over all the clusters on the second side
                     for( uint tClusterNum2 = 0 ; tClusterNum2 < tSideClusters2.size() ; tClusterNum2++ )
                     {
-
                         // Two interpolation cells matched
                         if( this->clusters_align( tSideClusters1( tClusterNum1 ), tSideClusters2( tClusterNum2 ), tPairCount, tOffsetMatrix  ) )
                         {
@@ -369,7 +366,6 @@ namespace moris
                                 moris_index tPhaseToPhaseIndex = tPhaseInteractionTable( tPhase1, tPhase2 );
 
                                 this->make_new_pairs( tParamCoordsCell1, tInterpCell1, tInterpCell2, tPairCount, tPhaseToPhaseIndex );
-
                             }
 
                             //where both cases are not trivial
@@ -426,9 +422,7 @@ namespace moris
 
                                     this->make_new_pairs( allIntersectionTriangles, tInterpCell1, tInterpCell2, tPairCount,  tPhaseToPhaseIndex);
                                 }
-
                             }
-
                         } /* end if when they are matched */
 
                     }/* iteration over the second (slave) side */
@@ -531,7 +525,6 @@ namespace moris
 
                     tNumIntersections++ ;
                 }
-
             }
         }
 
@@ -601,7 +594,6 @@ namespace moris
                         tSortedIntersectedPoints.get_column(i) = tSortedIntersectedPoints.get_column(j) ;
 
                         j++;
-
                     }
                     else
                     {
@@ -1565,10 +1557,10 @@ namespace moris
                     Matrix < DDRMat > NbTbbc( 2, 3 );
                     Matrix < DDRMat > NaTaac( 2, 3 );
 
-                    for ( uint i = 0 ; i < 3 ; i++ )
+                    for ( uint k = 0 ; k < 3 ; k++ )
                     {
-                        NbTbbc.get_column( i ) = aSecondTRICoords.get_column( Tbbc( i ) - 1 );
-                        NaTaac.get_column( i ) = aFirstTRICoords.get_column( Taac( i ) - 1 );
+                        NbTbbc.get_column( k ) = aSecondTRICoords.get_column( Tbbc( k ) - 1 );
+                        NaTaac.get_column( k ) = aFirstTRICoords.get_column( Taac( k ) - 1 );
                     }
 
                     moris::Matrix < moris::DDRMat  > tP;
@@ -1665,7 +1657,6 @@ namespace moris
 
                     this->Intersect( NbTbbc, NaTaac, tP, tnc ) ;
 
-
                     if ( tP.n_cols() != 0 )
                     {
                         // if intersection is more dimension than a line
@@ -1677,17 +1668,14 @@ namespace moris
                         Matrix < IdMat> Taac4to6 =  aFirstTRIConnect( {ac,ac}, {0, 2});
                         Matrix < DDUMat> tmp( 1, Taac4to6.n_cols() );
 
-
                         for (uint i = 0 ; i < Taac4to6.n_cols() ; i++ )
                         {
                             tmp(i) = ad( Taac4to6(i) - 1);
                         }
 
-
                         Matrix < DDUMat> comp( 1, tmp.n_cols() ,0.0 );
 
                         Matrix < DDNIMat> tn = find( tmp == comp ) ;
-
 
                         if ( tn.numel() != 0)
                         {
@@ -1705,7 +1693,6 @@ namespace moris
                                 al.push_back( t( i ) );
                             }
 
-
                             for ( uint i = 0; i < t.n_cols() ; i++ )
                             {
                                 ad( t( i ) - 1) = 1.0 ;
@@ -1721,7 +1708,6 @@ namespace moris
                         {
                             n( findnc( i )  ) = ac + 1 ;
                         }
-
                     }
                 }
 
@@ -1739,7 +1725,6 @@ namespace moris
                 Matrix < DDUMat> zerovec( 1, bdTbbc.n_cols() ,0.0 );
 
                 Matrix < DDNIMat > tmp = find( bdTbbc == zerovec );
-
 
                 if (tmp.numel() != 0 )
                 {
@@ -1800,7 +1785,6 @@ namespace moris
                             {
                                 bd( t( i ) - 1 ) = 1 ;
                             }
-
                         }
                     }
                 }
@@ -1809,7 +1793,6 @@ namespace moris
             //return the cell of intersected
             return allIntersectionTriangles;
         }
-
     }
 
 }
