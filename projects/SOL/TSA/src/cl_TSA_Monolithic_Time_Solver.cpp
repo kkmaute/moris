@@ -134,7 +134,7 @@ void Monolithic_Time_Solver::solve_monolytic_time_system( moris::Cell< sol::Dist
             std::string tStrOutputFile = mOutputSolVecFileName + "." + ios::stringify( tTSAIter ) + ".hdf5";
 
             // log/print that the initial guess is read from file
-            MORIS_LOG_INFO( "Saving solution vector to file: ", tStrOutputFile );
+            MORIS_LOG_INFO( "Saving solution vector to file: ", tStrOutputFile.c_str() );
 
             // FIXME: this option doesn't work in parallel, only for serial debugging purposes
             // MORIS_ERROR( par_size() == 1, "Monolithic_Time_Solver::solve_monolytic_time_system() - "
