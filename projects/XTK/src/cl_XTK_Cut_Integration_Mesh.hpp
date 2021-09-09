@@ -26,9 +26,9 @@ namespace xtk
     struct IG_Vertex_Group
     {
         IG_Vertex_Group(moris_index aNumVerticesInGroup):
-        mIgVertexGroup(aNumVerticesInGroup,nullptr)
+        mIgVertexGroup(0,nullptr)
         {
-
+            mIgVertexGroup.reserve(aNumVerticesInGroup);
         }
 
         std::size_t
@@ -37,16 +37,73 @@ namespace xtk
             return mIgVertexGroup.size();
         }
 
-        moris::Cell<moris::mtk::Vertex*> mIgVertexGroup;
+        void
+        reserve(std::size_t aReserveSize)
+        {
+            mIgVertexGroup.reserve(aReserveSize);
+            mIgVertexLocalCoords.reserve(aReserveSize);
+        }
+
+        void
+        add_vertex(
+            moris::mtk::Vertex* aVertex,
+            std::shared_ptr<Matrix<DDRMat>> aVertexLocalCoord)
+        {
+            moris_index tNewVertexOrdinal = (moris_index)mIgVertexGroup.size();
+
+            MORIS_ASSERT(mIgVertexIndexToVertexOrdinal.find(aVertex->get_index()) == mIgVertexIndexToVertexOrdinal.end(),"Duplicate vertex in group");
+            MORIS_ASSERT(mIgVertexGroup.size() == mIgVertexLocalCoords.size(),"Size issue");
+            mIgVertexGroup.push_back(aVertex);
+            mIgVertexLocalCoords.push_back(aVertexLocalCoord);
+            mIgVertexIndexToVertexOrdinal[aVertex->get_index()] = tNewVertexOrdinal;
+        }   
+
+        void
+        add_vertex_local_coord_pointers()
+        {}
+
+        moris::mtk::Vertex*
+        get_vertex(moris_index aGroupVertexOrdinal)
+        {
+            return mIgVertexGroup(aGroupVertexOrdinal);
+        }
+
+        moris_index 
+        get_vertex_group_ordinal(moris_index aVertex)
+        {
+            auto tIter = mIgVertexIndexToVertexOrdinal.find(aVertex);
+            MORIS_ERROR(tIter != mIgVertexIndexToVertexOrdinal.end(),"Provided vertex not in group");
+            return tIter->second;
+        }
+
+        std::shared_ptr<Matrix<DDRMat>>
+        get_vertex_local_coords(moris_index aVertex)
+        {
+            return mIgVertexLocalCoords(this->get_vertex_group_ordinal(aVertex));
+        }
+        
+        private:
+        moris::Cell<moris::mtk::Vertex*>             mIgVertexGroup;
+        std::unordered_map<moris_index,moris_index>  mIgVertexIndexToVertexOrdinal;
+        moris::Cell<std::shared_ptr<Matrix<DDRMat>>> mIgVertexLocalCoords;
+
     };
 
     struct Edge_Based_Connectivity
     {
         moris::Cell<moris::Cell<moris::mtk::Vertex*>> mEdgeVertices;
         moris::Cell<moris::Cell<moris::mtk::Cell*>>   mEdgeToCell;
-        moris::Cell<moris::Cell<moris::moris_index>>   mEdgeToCellEdgeOrdinal;
+        moris::Cell<moris::Cell<moris::moris_index>>  mEdgeToCellEdgeOrdinal;
         moris::Cell<moris::Cell<moris_index>>         mCellToEdge;
     };
+    
+    struct Edge_Based_Ancestry
+    {
+        moris::Cell<moris::moris_index> mEdgeParentEntityIndex;
+        moris::Cell<moris::moris_index> mEdgeParentEntityRank;
+        moris::Cell<moris::moris_index> mEdgeParentEntityOrdinalWrtBackgroundCell;
+    };
+
     
 
     class Child_Mesh_Experimental;
@@ -67,6 +124,10 @@ namespace xtk
         moris::Cell<moris::mtk::Vertex*> mIntegrationVertices;
         moris::Cell<std::shared_ptr<moris::mtk::Vertex>> mControlledIgVerts;
 
+        moris::Cell<moris::moris_index> mIgVertexParentEntityIndex;
+        moris::Cell<moris::moris_index> mIgVertexParentEntityRank;  
+        moris::Cell<moris::moris_index> mIgVertexConnectedCell;     // this is needed to deduce ancestry for an edge between two nodes.
+
         // vertex coords
         moris::Cell<std::shared_ptr<Matrix<DDRMat>>> mVertexCoordinates;
 
@@ -79,12 +140,11 @@ namespace xtk
 
         // group of all integration cells in a single parent cell
         // outer cell is the child mesh
-        moris::Cell<std::shared_ptr<IG_Cell_Group>>           mIntegrationCellGroups;
-        moris::Cell<std::shared_ptr<IG_Vertex_Group>>         mIntegrationVertexGroups;
-        moris::Cell<moris::mtk::Cell*>                        mIntegrationCellGroupsParentCell;
-        moris::Cell<std::shared_ptr<Edge_Based_Connectivity>> mIntegrationCellGroupsEdgeBasedConn;
+        moris::Cell<std::shared_ptr<IG_Cell_Group>>               mIntegrationCellGroups;
+        moris::Cell<std::shared_ptr<IG_Vertex_Group>>             mIntegrationVertexGroups;
+        moris::Cell<moris::mtk::Cell*>                            mIntegrationCellGroupsParentCell;
 
-
+        moris::Cell<moris::Cell<moris_index>> mIntegrationCellToCellGroupIndex;
 
         
         // bulk phase
@@ -147,10 +207,22 @@ namespace xtk
             return mChildMeshes(aChildMeshIndex);
         }
 
+        mtk::Cell const &
+        get_mtk_cell( moris_index aElementIndex ) const
+        {
+          return *mIntegrationCells(aElementIndex);
+        }
+
         moris::mtk::Vertex*
         get_mtk_vertex_pointer(moris_index aVertexIndex)
         {
             return mIntegrationVertices(aVertexIndex);
+        }
+
+        std::shared_ptr<IG_Vertex_Group>
+        get_vertex_group(moris_index aVertexGroupIndex)
+        {
+            return mIntegrationVertexGroups(aVertexGroupIndex);
         }
 
         void
@@ -174,14 +246,13 @@ namespace xtk
         void
         add_cell_to_integration_mesh(
             moris_index aCellIndex, 
-            moris_index aCMIndex )
+            moris_index aCellGroupIndex )
         {
-            MORIS_ERROR(aCMIndex   < (moris_index)mIntegrationCellGroups.size(),"Child Mesh Index out of bounds."); 
+            MORIS_ERROR(aCellGroupIndex   < (moris_index)mIntegrationCellGroups.size(),"Child Mesh Index out of bounds."); 
             MORIS_ERROR(aCellIndex < (moris_index)mIntegrationCells.size(),"Cell Index out of bounds."); 
-            mIntegrationCellGroups(aCMIndex)->mIgCellGroup.push_back(mIntegrationCells(aCellIndex));
+            mIntegrationCellGroups(aCellGroupIndex)->mIgCellGroup.push_back(mIntegrationCells(aCellIndex));
+            mIntegrationCellToCellGroupIndex(aCellIndex).push_back(aCellGroupIndex);
         }
-
-
 
 
         moris_id
@@ -252,6 +323,50 @@ namespace xtk
 
             return MORIS_INDEX_MAX;
         }
+
+        std::shared_ptr<IG_Cell_Group>
+        get_ig_cell_group(moris_index aGroupIndex)
+        {
+            return mIntegrationCellGroups(aGroupIndex);
+        }
+
+        moris::Cell<moris_index> const &
+        get_ig_cell_group_memberships(moris_index aIgCellIndex)
+        {
+            return mIntegrationCellToCellGroupIndex(aIgCellIndex);
+        }
+
+        moris::mtk::Cell*
+        get_ig_cell_group_parent_cell(moris_index aGroupIndex)
+        {
+            return mIntegrationCellGroupsParentCell(aGroupIndex);
+        }
+
+        uint
+        get_num_entities( 
+            enum EntityRank   aEntityRank, 
+            const moris_index aIndex ) const
+        {
+            switch(aEntityRank)
+            {
+                case EntityRank::NODE:
+                {
+                    return mIntegrationVertices.size();
+                    break;
+                }
+                case EntityRank::ELEMENT:
+                {
+                    return mIntegrationCells.size();
+                    break;
+                }
+                default:
+                {
+                    MORIS_ERROR(0,"Only support get num entities for nodes and elements currently");
+                }
+                return 0;
+            }
+        }
+
     private:
 
         void
@@ -362,22 +477,28 @@ namespace xtk
         // cell setup
         mIntegrationCells.resize( tNumBackgroundCells, nullptr);
         mIntegrationCellIndexToId.resize( tNumBackgroundCells, MORIS_INDEX_MAX);
+        mIntegrationCellToCellGroupIndex.resize(tNumBackgroundCells,0);
         for(moris::uint iCell = 0; iCell< tNumBackgroundCells; iCell++)
         {
             mIntegrationCells(iCell) = &mBackgroundMesh->get_mtk_cell((moris_index)iCell);
-
-            // decide about the ids of integration cells
-            
         }
         
         // vertex setup
         mIntegrationVertices.resize(tNumBackgroundVertices,nullptr);
         mIntegrationVertexIndexToId.resize(tNumBackgroundVertices, MORIS_INDEX_MAX);
         mVertexCoordinates.resize(tNumBackgroundVertices,nullptr);
+        mIgVertexParentEntityIndex.resize(tNumBackgroundVertices);
+        mIgVertexParentEntityRank.resize(tNumBackgroundVertices,0);
+
         for(moris::uint iV = 0; iV< tNumBackgroundVertices; iV++)
         {
             // get a vertex pointer into our data
             mIntegrationVertices(iV) = &mBackgroundMesh->get_mtk_vertex( (moris_index) iV );
+
+            std::cout<<"iV = "<<iV << " | mIntegrationVertices(iV) index ="<<mIntegrationVertices(iV)->get_index()<<std::endl;
+
+            // this vertex's parent is itself
+            mIgVertexParentEntityIndex(iV) = iV;
             
             // check the vertex index lines up correctly
             MORIS_ERROR(mIntegrationVertices(iV)->get_index() == (moris_index) iV,"Vertex index mismatch");
@@ -400,7 +521,7 @@ namespace xtk
         // max vertex and cell ids (to allocate new ones later)
         mGlobalMaxVertexId = mBackgroundMesh->get_max_entity_id(EntityRank::NODE)+1;
         mGlobalMaxCellId   = mBackgroundMesh->get_max_entity_id(EntityRank::ELEMENT)+1;
-
+    
         mFirstControlledCellIndex = mIntegrationCells.size();
         mFirstControlledVertexIndex = mIntegrationVertices.size();
 

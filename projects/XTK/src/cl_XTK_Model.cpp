@@ -602,7 +602,14 @@ namespace xtk
     {
         Tracer tTracer( "XTK", "Decomposition", "Decompose" );
 
-        mIntegrationMeshGenerator = new Integration_Mesh_Generator(this,aMethods,{{}});
+        moris::Matrix<moris::IndexMat> tActiveGeometries(1,mGeometryEngine->get_num_geometries());
+
+        for(moris::uint i = 0 ; i < mGeometryEngine->get_num_geometries(); i++)
+        {
+            tActiveGeometries(i) = (moris_index) i;
+        }
+
+        mIntegrationMeshGenerator = new Integration_Mesh_Generator(this,aMethods,tActiveGeometries);
 
         bool tSuccess = mIntegrationMeshGenerator->perform();
 

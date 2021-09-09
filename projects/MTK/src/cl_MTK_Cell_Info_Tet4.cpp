@@ -246,6 +246,113 @@ namespace moris
             return {{0, 3}, {1, 3}, {2, 3}, {0, 2}, {0, 1}, {1, 2}};
         }
 
+        moris_index
+        Cell_Info_Tet4::get_shared_vertex_ordinal_between_edges(
+            moris_index aEdgeOrdinal1,
+            moris_index aEdgeOrdinal2) const
+        {
+            switch (aEdgeOrdinal1)
+            {
+                case 0:
+                {
+                    switch (aEdgeOrdinal2)
+                    {
+
+                        case 1:  return 1;
+                        case 2:  return 0;
+                        case 3:  return 0;
+                        case 4:  return 1;
+                        default: 
+                        {
+                            // if the edges do not share a vertex return a MORIS_INDEX_MAX 
+                            return MORIS_INDEX_MAX;
+                        }
+                    } 
+                }
+                case 1:
+                {
+                    switch (aEdgeOrdinal2)
+                    {
+                        case 0:  return 1;
+                        case 2:  return 2;
+                        case 4:  return 1;
+                        case 5:  return 2;
+                        default: 
+                        {
+                            // if the edges do not share a vertex return a MORIS_INDEX_MAX 
+                            return MORIS_INDEX_MAX;
+                        }
+                    } 
+                } 
+                case 2:
+                {
+                    switch (aEdgeOrdinal2)
+                    {
+                        case 0:  return 0;
+                        case 1:  return 2;
+                        case 3:  return 0;
+                        case 5:  return 2;
+                        default: 
+                        {
+                            // if the edges do not share a vertex return a MORIS_INDEX_MAX 
+                            return MORIS_INDEX_MAX;
+                        }
+                    } 
+                }   
+                case 3:
+                {
+                    switch (aEdgeOrdinal2)
+                    {
+                        case 0:  return 0;
+                        case 2:  return 0;
+                        case 4:  return 3;
+                        case 5:  return 3;
+                        default: 
+                        {
+                            // if the edges do not share a vertex return a MORIS_INDEX_MAX 
+                            return MORIS_INDEX_MAX;
+                        }
+                    } 
+                } 
+                case 4:
+                {
+
+                    switch (aEdgeOrdinal2)
+                    {
+                        case 0:  return 1;
+                        case 1:  return 1;
+                        case 3:  return 3;
+                        case 5:  return 3;
+                        default: 
+                        {
+                            // if the edges do not share a vertex return a MORIS_INDEX_MAX 
+                            return MORIS_INDEX_MAX;
+                        }
+                    } 
+                }   
+                case 5:
+                {
+                    switch (aEdgeOrdinal2)
+                    {
+                        case 1:  return 2;
+                        case 2:  return 2;
+                        case 3:  return 3;
+                        case 4:  return 3;
+                        default: 
+                        {
+                            // if the edges do not share a vertex return a MORIS_INDEX_MAX 
+                            return MORIS_INDEX_MAX;
+                        }
+                    } 
+                }                                                                             
+                default:
+                {
+                    MORIS_ERROR(0,"Invalid aEdgeOrdinal1 for tet4"); 
+                    return MORIS_INDEX_MAX;
+                }
+            }
+            return 0;
+        }
         // ----------------------------------------------------------------------------------
 
         moris::real

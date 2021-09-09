@@ -50,6 +50,28 @@ namespace moris
             return Matrix<DDRMat>(0, 0);
         }
 
+        moris::Cell<moris_index>
+        Cell_Info::get_vertex_path_to_entity_rank_and_ordinal(
+                moris_index aVertexOrdinal, 
+                moris_index aOtherEntityOrdinal,
+                moris_index aOtherEntityRank) const
+        {
+            MORIS_ERROR(0, "get_vertex_to_entity_path_rank not implemented.");
+            return moris::Cell<moris_index>(0, 0);
+        }
+
+        // ---------------------------------------------------------------------------------
+        moris_index
+        Cell_Info::get_shared_vertex_ordinal_between_edges(
+            moris_index aEdgeOrdinal1,
+            moris_index aEdgeOrdinal2) const
+        {
+            MORIS_ERROR(0,"No default implementation.");
+            return MORIS_INDEX_MAX;
+        }
+
+
+
         // ---------------------------------------------------------------------------------
 
         void

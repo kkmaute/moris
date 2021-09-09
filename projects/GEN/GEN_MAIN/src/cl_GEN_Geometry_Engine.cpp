@@ -267,7 +267,33 @@ namespace moris
                 return is_intersected( aGeometricQuery->get_query_entity_to_vertex_connectivity(),
                                        aGeometricQuery->get_query_indexed_coordinates());
             }
+            else if(aGeometricQuery->get_query_type() == Query_Type::INTERSECTION_LOCATION)
+            {
+                // this preprocessing can be streamlined a lot
+                mActiveGeometryIndex = aGeometricQuery->get_geomtric_index();
+                Matrix<IndexMat> const & tEdgeToVertex = aGeometricQuery->get_query_entity_to_vertex_connectivity();
+                moris::Cell<std::shared_ptr<moris::Matrix<moris::DDRMat>>> * tQueryIndexedCoords = aGeometricQuery->get_query_indexed_coordinates();
+                Matrix<IndexMat> tParentEntityIndices = aGeometricQuery->get_query_parent_entity_connectivity();
 
+                // annoying copy until I rewrite the queue intersection
+                Cell<Matrix<DDRMat>> tParentEntityCoords(tParentEntityIndices.numel());
+                Matrix<DDUMat> tParentEntityIndiceUINT(tParentEntityIndices.numel());
+                tParentEntityCoords.reserve(tParentEntityIndices.numel()*3);
+                for(moris::uint i = 0 ; i < tParentEntityIndices.numel(); i++ )
+                {
+                    tParentEntityCoords(i) = *(*tQueryIndexedCoords)(tParentEntityIndices(i));
+                    tParentEntityIndiceUINT(i) = (uint) tParentEntityIndices(i);
+                }
+
+                return queue_intersection( tEdgeToVertex(0),
+                                           tEdgeToVertex(1),
+                                           aGeometricQuery->get_vertex_local_coord_wrt_parent_entity(tEdgeToVertex(0)),
+                                           aGeometricQuery->get_vertex_local_coord_wrt_parent_entity(tEdgeToVertex(1)),
+                                           *(*tQueryIndexedCoords)(tEdgeToVertex(0)),
+                                           *(*tQueryIndexedCoords)(tEdgeToVertex(1)),
+                                           tParentEntityIndiceUINT,
+                                           tParentEntityCoords);
+            }
             else
             {
                 MORIS_ERROR(0,"In progress");

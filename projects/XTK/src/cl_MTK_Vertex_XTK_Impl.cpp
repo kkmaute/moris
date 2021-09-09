@@ -39,15 +39,16 @@ namespace moris
         {
         }
 
-        Vertex_XTK::Vertex_XTK(moris::moris_id           aVertexId,
-                   moris::moris_index        aVertexIndex,
-                       Matrix<DDRMat> const * aCoordinates)
-        :mVertexId(aVertexId),
+        Vertex_XTK::Vertex_XTK(
+            moris::moris_id           aVertexId,
+            moris::moris_index        aVertexIndex,
+            std::shared_ptr<moris::Matrix<moris::DDRMat>> aCoordinates)
+        :
+        mVertexId(aVertexId),
         mVertexIndex(aVertexIndex),
         mBackgroundMeshPtr(nullptr),
         mCoordinates(aCoordinates)
         {
-
         }
 
 
@@ -68,8 +69,7 @@ namespace moris
         Matrix<DDRMat>
         Vertex_XTK::get_coords() const
         {
-            MORIS_ASSERT(mBackgroundMeshPtr != nullptr || mBackgroundMeshVertex != nullptr, "Background Mesh Pointer and Background Vertex pointer is null in XTK vertex");
-            MORIS_ASSERT(!(mBackgroundMeshPtr == nullptr && mBackgroundMeshVertex == nullptr), "Both pointers are not null");
+            MORIS_ASSERT(mBackgroundMeshPtr != nullptr || mBackgroundMeshVertex != nullptr || mCoordinates->numel()>0, "Background Mesh Pointer and Background Vertex pointer is null in XTK vertex");
             if (mBackgroundMeshPtr != nullptr)
             {
                 return mBackgroundMeshPtr->get_selected_node_coordinates_loc_inds({{mVertexIndex}});

@@ -23,15 +23,6 @@ namespace xtk
     {
         aDecompositionData->mHasSecondaryIdentifier = false;
 
-        // Initialize geometric query
-        Geometric_Query_XTK tGeometricQuery;
-
-        // say I am interested in a value at a parametric coordinate
-        tGeometricQuery.set_query_type(moris::ge::Query_Type::VALUE_AT_PARAMETRIC_LOCATION);
-
-        // large coord matrix that I want to keep in scope for a long time avoid copying coordinate all the time.
-        tGeometricQuery.set_coordinates_matrix(aCutIntegrationMesh->get_all_vertex_coordinates_loc_inds());
-
         // allocate data in decomposition data 
         aDecompositionData->tCMNewNodeLoc        = Cell<Cell<moris_index>>(aMeshGenerationData->mIntersectedBackgroundCellIndexToChildMeshIndex.size(),this->get_num_new_nodes());
         aDecompositionData->tCMNewNodeParamCoord = Cell<Cell<Matrix<DDRMat>>>(aMeshGenerationData->mIntersectedBackgroundCellIndexToChildMeshIndex.size(),
@@ -113,7 +104,7 @@ namespace xtk
                 {
                     moris_index tNewVertexCMOrdinal = tIgCellToVertexTemplate(iNewCell)(iV);
                     MORIS_ERROR(tNewVertexCMOrdinal < (moris::moris_index)tChildMesh->mIgVerts->size(),"Template ordinal out of bounds" );
-                    mNewCellToVertexConnectivity(tCurrentCellIndex)(iV) = tChildMesh->mIgVerts->mIgVertexGroup(tNewVertexCMOrdinal)->get_index();
+                    mNewCellToVertexConnectivity(tCurrentCellIndex)(iV) = tChildMesh->mIgVerts->get_vertex(tNewVertexCMOrdinal)->get_index();
                 }
 
                 tCurrentCellIndex++;
@@ -179,9 +170,9 @@ namespace xtk
             moris_index tRequestLoc = MORIS_INDEX_MAX;
             bool tRequestExists = aDecompositionData->request_exists(tFaceIndices(tNewNodeFaceOrdinal),EntityRank::FACE,tRequestLoc);
 
+            moris_index tNewNodeTemplateOrd = aRegularSubdivisionInterfaceData->mNewNodesOnFaces(iFace);
             if(!tRequestExists)
             {
-                moris_index tNewNodeTemplateOrd = aRegularSubdivisionInterfaceData->mNewNodesOnFaces(iFace);
                 moris_index tOwner = aBackgroundMesh->get_entity_owner(tFaceIndices(tNewNodeFaceOrdinal), EntityRank::FACE);
 
                 // evaluate the shape functions at this point relative to the background cell
@@ -193,7 +184,13 @@ namespace xtk
 
                 moris_index tNewNodeIndexInSubdivision = aDecompositionData->register_new_request(tFaceIndices(tNewNodeFaceOrdinal),tOwner,EntityRank::FACE,tNewNodeCoordinates,tParentCell,tNewNodeXi);
 
+                aDecompositionData->tCMNewNodeParamCoord(aChildMesh->get_child_mesh_index())(tNewNodeTemplateOrd) = aRegularSubdivisionInterfaceData->mNewNodeXi(tNewNodeTemplateOrd);
                 aDecompositionData->tCMNewNodeLoc(aChildMesh->get_child_mesh_index())(tNewNodeTemplateOrd)        = tNewNodeIndexInSubdivision;
+            }
+
+            else
+            {
+                aDecompositionData->tCMNewNodeLoc(aChildMesh->get_child_mesh_index())(tNewNodeTemplateOrd) = tRequestLoc;
                 aDecompositionData->tCMNewNodeParamCoord(aChildMesh->get_child_mesh_index())(tNewNodeTemplateOrd) = aRegularSubdivisionInterfaceData->mNewNodeXi(tNewNodeTemplateOrd);
             }
         }
@@ -204,9 +201,9 @@ namespace xtk
             moris_index tRequestLoc = MORIS_INDEX_MAX;
             bool tRequestExists = aDecompositionData->request_exists(tParentCell->get_index(),EntityRank::ELEMENT,tRequestLoc);
 
+            moris_index tNewNodeTemplateOrd = aRegularSubdivisionInterfaceData->mNewNodesOnCells(iCell);
             if(!tRequestExists)
             {
-                moris_index tNewNodeTemplateOrd = aRegularSubdivisionInterfaceData->mNewNodesOnCells(iCell);
                 moris_index tOwner = aBackgroundMesh->get_entity_owner(tParentCell->get_index(), EntityRank::ELEMENT);
 
                 // evaluate the shape functions at this point relative to the background cell
@@ -219,6 +216,12 @@ namespace xtk
                 moris_index tNewNodeIndexInSubdivision = aDecompositionData->register_new_request(tParentCell->get_index(),tOwner,EntityRank::ELEMENT,tNewNodeCoordinates,tParentCell,tNewNodeXi);
 
                 aDecompositionData->tCMNewNodeLoc(aChildMesh->get_child_mesh_index())(tNewNodeTemplateOrd)        = tNewNodeIndexInSubdivision;
+                aDecompositionData->tCMNewNodeParamCoord(aChildMesh->get_child_mesh_index())(tNewNodeTemplateOrd) = aRegularSubdivisionInterfaceData->mNewNodeXi(tNewNodeTemplateOrd);
+            }
+
+            else
+            {
+                aDecompositionData->tCMNewNodeLoc(aChildMesh->get_child_mesh_index())(tNewNodeTemplateOrd) = tRequestLoc;
                 aDecompositionData->tCMNewNodeParamCoord(aChildMesh->get_child_mesh_index())(tNewNodeTemplateOrd) = aRegularSubdivisionInterfaceData->mNewNodeXi(tNewNodeTemplateOrd);
             }
         }

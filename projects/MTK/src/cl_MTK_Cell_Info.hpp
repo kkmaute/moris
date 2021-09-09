@@ -215,6 +215,24 @@ namespace moris
             get_vertex_loc_coord(moris_index const &aVertexOrdinal) const;
 
             // ---------------------------------------------------------------------------------
+            
+            // if I draw a straight line from a vertex to another entity on the cell,
+            // what is the ordinal and rank of the minimum entity that can describe this path
+            virtual
+            moris::Cell<moris_index>
+            get_vertex_path_to_entity_rank_and_ordinal(
+                moris_index aVertexOrdinal, 
+                moris_index aOtherEntityOrdinal,
+                moris_index aOtherEntityRank) const;
+
+            
+            virtual
+            moris_index
+            get_shared_vertex_ordinal_between_edges(
+                moris_index aEdgeOrdinal1,
+                moris_index aEdgeOrdinal2 ) const;
+
+            // ---------------------------------------------------------------------------------
             /*!
              * @param[in] aSideOrdinal Side Ordinal
              * @param[out] Parametric coordinate of the vertices attached to the side ordinal

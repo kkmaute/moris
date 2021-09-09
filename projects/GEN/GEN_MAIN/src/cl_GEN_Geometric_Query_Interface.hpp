@@ -40,6 +40,8 @@ namespace moris
 
            virtual Matrix<IndexMat> get_query_parent_entity_connectivity() const = 0;
 
+           virtual Matrix<DDRMat>   get_query_parent_coordinates() const = 0;
+
            virtual moris_index get_query_parent_entity_id() const = 0;
 
            virtual moris_index max_query_entity_intersection() const = 0;

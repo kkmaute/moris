@@ -109,6 +109,11 @@ namespace moris
 
             // ----------------------------------------------------------------------------------
 
+            moris_index
+            get_shared_vertex_ordinal_between_edges(
+                moris_index aEdgeOrdinal1,
+                moris_index aEdgeOrdinal2 ) const;
+
             moris::real
             compute_cell_size_special(moris::mtk::Cell const *aCell) const;
 

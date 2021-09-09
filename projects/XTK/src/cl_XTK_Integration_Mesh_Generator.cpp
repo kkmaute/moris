@@ -1,6 +1,7 @@
 #include "cl_XTK_Integration_Mesh_Generator.hpp"
 
 #include "cl_XTK_Regular_Subdivision_Interface.hpp"
+#include "cl_XTK_Node_Hierarchy_Interface.hpp"
 #include "cl_XTK_Cell_No_CM.hpp"
 
 namespace xtk
@@ -13,12 +14,7 @@ namespace xtk
     mGeometryEngine(mXTKModel->get_geom_engine()),
     mActiveGeometries(aActiveGeometries)
     {
-        this->setup_subdivision_methods(aMethods);
 
-        if(mActiveGeometries.numel() == 0)
-        {
-            mAllActiveGeometries = true;
-        }
     }
 // ----------------------------------------------------------------------------------
 
@@ -58,15 +54,25 @@ namespace xtk
         delete tRegSubMethod;
 
         
-        
-        // the next decomposition_algorithm requires the ig edges that are intersected
-        // this->determine_intersected_ig_edges(tGenerationData,&tCutIntegrationMesh, tBackgroundMesh);
-
-        // // initialize the node hier method
-        // Decomposition_Algorithm* tNodeHierMethod = new Conformal_Edge_Based_Decomposition_Algorithm();
-        // tNodeHierMethod = tNodeHierMethod->perform();
+        tDecompositionData = Decomposition_Data();
+        Decomposition_Algorithm* tNodeHier = new Node_Hierarchy_Interface();
+        tNodeHier->perform(&tGenerationData, &tDecompositionData,&tCutIntegrationMesh, tBackgroundMesh, this);
+        delete tNodeHier;
 
         return true;
+    }
+
+    moris::Matrix<moris::IndexMat> const * 
+    Integration_Mesh_Generator::get_active_geometries()
+    {
+        return &mActiveGeometries;
+    }
+
+    
+    moris::ge::Geometry_Engine *
+    Integration_Mesh_Generator::get_geom_engine()
+    {
+        return mGeometryEngine;
     }
 
 // ----------------------------------------------------------------------------------
@@ -76,7 +82,7 @@ namespace xtk
         Cut_Integration_Mesh*              aCutIntegrationMesh,
         moris::mtk::Mesh*                  aBackgroundMesh )
         {
-            uint tNumGeometries = mAllActiveGeometries? mXTKModel->mGeometryEngine->get_num_geometries() : mActiveGeometries.numel();
+            uint tNumGeometries = mActiveGeometries.numel();
 
             uint tNumCells = aBackgroundMesh->get_num_elems();
             
@@ -94,16 +100,18 @@ namespace xtk
             // large coord matrix that I want to keep in scope for a long time avoid copying coordinate all the time.
             tGeometricQuery.set_coordinates_matrix(&aCutIntegrationMesh->mVertexCoordinates);
 
+            tGeometricQuery.set_query_entity_rank(EntityRank::ELEMENT);
+
             for(moris::uint iCell = 0; iCell < tNumCells; iCell++)
             {
                 // setup geometric query with this current cell information
                 tGeometricQuery.set_parent_cell(&aBackgroundMesh->get_mtk_cell((moris_index) iCell));
-                tGeometricQuery.set_query_parent_cell(&aBackgroundMesh->get_mtk_cell((moris_index) iCell));
+                tGeometricQuery.set_query_cell(&aBackgroundMesh->get_mtk_cell((moris_index) iCell));
 
                 for(moris::size_t iGeom = 0; iGeom<tNumGeometries; iGeom++)
                 {
                     // current index for this geometry
-                    moris_index tGeometryIndex = mAllActiveGeometries? iGeom : mActiveGeometries(iGeom);
+                    moris_index tGeometryIndex = mActiveGeometries(iGeom);
 
                     // tell the query which geometric index we are working on
                     tGeometricQuery.set_geometric_index(tGeometryIndex);
@@ -155,6 +163,7 @@ namespace xtk
 
         aCutIntegrationMesh->mControlledIgCells.resize(tNumStartingCellsControlled + tNumNewCells);
         aCutIntegrationMesh->mIntegrationCells.resize(tNumStartingTotalIgCells + tNumNewCells);
+        aCutIntegrationMesh->mIntegrationCellToCellGroupIndex.resize(tNumStartingTotalIgCells + tNumNewCells);
 
         // current index
         moris_index tCellIndex = tNumStartingTotalIgCells;
@@ -194,6 +203,60 @@ namespace xtk
         
     }
 
+    void
+    Integration_Mesh_Generator::extract_cells_from_cell_groups(
+        moris::Cell<std::shared_ptr<IG_Cell_Group>> const & aCellGroups,
+        moris::Cell<moris::mtk::Cell*> & aCellsInGroups)
+    {
+        // count the number of total cells
+        moris::uint tNumCells = 0;
+        for(moris::uint i = 0; i < aCellGroups.size(); i++)
+        {
+            tNumCells = tNumCells + aCellGroups(i)->mIgCellGroup.size();
+        }
+
+        // allocate output
+        aCellsInGroups = moris::Cell<moris::mtk::Cell*>();
+        aCellsInGroups.reserve(tNumCells);
+
+        for(moris::uint i = 0; i < aCellGroups.size(); i++)
+        {
+            aCellsInGroups.append(aCellGroups(i)->mIgCellGroup);
+        }
+    }
+    // ----------------------------------------------------------------------------------
+    moris_index
+    Integration_Mesh_Generator::edge_exists(
+        moris::Cell<moris::mtk::Vertex *> &aVerticesOnEdge,
+        std::unordered_map<moris_index, moris_index> &aLocaLVertexMap,
+        moris::Cell<moris::Cell<uint>> &aVertexToEdge,
+        moris::Cell<moris::Cell<moris::mtk::Vertex *>> &aFullEdgeVertices)
+    {
+        moris_index tEdgeIndex = MORIS_INDEX_MAX;
+
+        // get them in order based on id
+        std::sort(aVerticesOnEdge.data().begin(), aVerticesOnEdge.data().end(), moris::comparePtrToVertexIdBased);
+
+        // local vertex index
+        auto tIter = aLocaLVertexMap.find(aVerticesOnEdge(0)->get_index());
+        MORIS_ERROR(tIter != aLocaLVertexMap.end(), "Invalid vertex detected.");
+        moris_index tLocalVertexIndex = tIter->second;
+
+        // iterate through edges attached to the first vertex (depend on ascending order)
+        for (moris::uint iEdge = 0; iEdge < aVertexToEdge(tLocalVertexIndex).size(); iEdge++)
+        {
+            moris_index tEdgeIndex = aVertexToEdge(tLocalVertexIndex)(iEdge);
+
+            MORIS_ASSERT(aFullEdgeVertices(tEdgeIndex)(0)->get_index() == aVerticesOnEdge(0)->get_index(), "Numbering issues, edges should be in ascending order based on vertex id");
+
+            // check the second vertex on the edge
+            if (aFullEdgeVertices(tEdgeIndex)(1)->get_index() == aVerticesOnEdge(1)->get_index())
+            {
+                return tEdgeIndex;
+            }
+        }
+        return tEdgeIndex;
+    }
 // ----------------------------------------------------------------------------------
     void
     Integration_Mesh_Generator::create_edges_from_element_to_node( 
@@ -284,13 +347,165 @@ namespace xtk
                     }
 
                     aEdgeConnectivity->mCellToEdge(i).push_back(tEdgeIndex);
-                    aEdgeConnectivity->mEdgeToCell(i).push_back(aCells(i));
-                    aEdgeConnectivity->mEdgeToCellEdgeOrdinal(i).push_back(iEdge);
+                    aEdgeConnectivity->mEdgeToCell(tEdgeIndex).push_back(aCells(i));
+                    aEdgeConnectivity->mEdgeToCellEdgeOrdinal(tEdgeIndex).push_back(iEdge);
                }
             }
         }
     }
 // ----------------------------------------------------------------------------------
+    void
+    Integration_Mesh_Generator::deduce_edge_ancestry(
+        Cut_Integration_Mesh *                   aCutIntegrationMesh, 
+        moris::mtk::Mesh*                        aBackgroundMesh, 
+        std::shared_ptr<Edge_Based_Connectivity> aIgCellGroupEdgeConnectivity,
+        moris::Cell<moris::mtk::Cell*> const &   aParentCellForDeduction, 
+        std::shared_ptr<Edge_Based_Ancestry>     aIgEdgeAncestry)
+    {
+
+        // make sure we are starting clean
+        aIgEdgeAncestry->mEdgeParentEntityIndex.clear();
+        aIgEdgeAncestry->mEdgeParentEntityRank.clear();
+        aIgEdgeAncestry->mEdgeParentEntityOrdinalWrtBackgroundCell.clear();
+
+        // number of edges in the edge connectivity
+        moris::uint tNumEdges = aIgCellGroupEdgeConnectivity->mEdgeVertices.size();
+
+        MORIS_ERROR(aParentCellForDeduction.size() == tNumEdges,"One representative parent cell is needed for each edge, to ensure all edges parents can be deduced." );
+
+        // allocate the data in the edge ancestry
+        aIgEdgeAncestry->mEdgeParentEntityIndex.resize(tNumEdges);
+        aIgEdgeAncestry->mEdgeParentEntityRank.resize(tNumEdges);
+        aIgEdgeAncestry->mEdgeParentEntityOrdinalWrtBackgroundCell.resize(tNumEdges);
+
+        // iterate through edges in the edge connectivity
+        for(moris::uint iEdge = 0; iEdge < tNumEdges; iEdge++)
+        {
+            // vertices of the edge
+            moris::Cell<moris::mtk::Vertex*> const & tEdgeVertices = aIgCellGroupEdgeConnectivity->mEdgeVertices(iEdge);
+
+            // get the parent of these vertices from the mesh
+            moris::Cell<moris::moris_index> tEdgeVertexParentInds(tEdgeVertices.size());
+            moris::Cell<moris::moris_index> tEdgeVertexParentRanks(tEdgeVertices.size());
+
+            MORIS_ERROR(tEdgeVertices.size() == 2, "Edge should have two vertices");
+
+            for(moris::uint iV = 0; iV < tEdgeVertices.size(); iV++)
+            {
+                tEdgeVertexParentInds(iV)  = aCutIntegrationMesh->mIgVertexParentEntityIndex(tEdgeVertices(iV)->get_index());
+                tEdgeVertexParentRanks(iV) = aCutIntegrationMesh->mIgVertexParentEntityRank(tEdgeVertices(iV)->get_index());
+            }
+
+            // min and max parent ranks
+            auto tMinIter = std::min_element(tEdgeVertexParentRanks.data().begin(), tEdgeVertexParentRanks.data().end());
+            auto tMaxIter = std::max_element(tEdgeVertexParentRanks.data().begin(), tEdgeVertexParentRanks.data().end());
+
+            // max index
+            moris_index tMinIndex = std::distance(tEdgeVertexParentRanks.data().begin(),tMinIter);
+            moris_index tMaxIndex = std::distance(tEdgeVertexParentRanks.data().begin(),tMaxIter);
+
+            
+            // one of the vertices is on an edge that has a background vertex, then we need to figure out the parent using the cell ancestry.
+            if(*tMaxIter == 3)
+            {
+                // mark the entity parent as the deduction cell
+                aIgEdgeAncestry->mEdgeParentEntityIndex(iEdge)                    = aParentCellForDeduction(iEdge)->get_index();
+                aIgEdgeAncestry->mEdgeParentEntityRank(iEdge)                     = 3;
+                aIgEdgeAncestry->mEdgeParentEntityOrdinalWrtBackgroundCell(iEdge) = 0;
+
+            }
+            else if(*tMinIter > 0)
+            {
+                // we take the parent of the max entity rank index
+                // i.e. if I have an edge between a parent edge and a parent face. we are on the face
+                if(tMinIndex == tMaxIndex)
+                {   
+                    // this is the case where we could traverse from one edge to an edge on the opposite side of the background cell
+                    MORIS_ERROR(tEdgeVertexParentInds(0) == tEdgeVertexParentInds(1),"Case not handled where an edge goes between ask keenan what needs to be done here.");
+
+                    // break;
+                }
+                
+
+                // Matrix<IndexMat> tEntitiesConnectedToBaseCell = aBackgroundMesh->get_entity_connected_to_entity_loc_inds(
+                //     aParentCellForDeduction(iEdge)->get_index(),
+                //     EntityRank::ELEMENT,
+                //     moris::get_entity_rank_from_index(*tMaxIter));
+
+                // moris_index tSecondEntityOrdinal = MORIS_INDEX_MAX;
+                // for(moris::uint iEnt = 0; iEnt < tEntitiesConnectedToBaseCell.numel(); iEnt++)
+                // {
+                //     if(tEntitiesConnectedToBaseCell(iEnt) == tEdgeVertexParentInds(tMaxIndex) )
+                //     {
+                //         tSecondEntityOrdinal = iEnt;
+                //         break;
+                //     }
+                // }              
+                // std::cout<<"tSecondEntityOrdinal = "<<tSecondEntityOrdinal<<std::endl;      
+
+                MORIS_ERROR(0,"Case not handled yet talk to Keenan");
+            }
+            else
+            {
+                if(tMinIndex == tMaxIndex)
+                {
+                    MORIS_ERROR(*tMinIter == 0,"Same min max but not a double parent node edge");
+                    tMinIndex = 0;
+                    tMaxIndex = 1;
+                }
+
+                //minimum entity is always a vertex so i can ask the cell
+                moris_index tVertexOrdinal = aParentCellForDeduction(iEdge)->get_vertex_ordinal_wrt_cell(tEdgeVertices(tMinIndex)->get_index());
+
+                // not as convenient to get the edge/facet ordinal 
+                Matrix<IndexMat> tEntitiesConnectedToBaseCell = aBackgroundMesh->get_entity_connected_to_entity_loc_inds(
+                    aParentCellForDeduction(iEdge)->get_index(),
+                    EntityRank::ELEMENT,
+                    moris::get_entity_rank_from_index(*tMaxIter));
+
+                moris_index tSecondEntityOrdinal = MORIS_INDEX_MAX;
+                for(moris::uint iEnt = 0; iEnt < tEntitiesConnectedToBaseCell.numel(); iEnt++)
+                {
+                    if(tEntitiesConnectedToBaseCell(iEnt) == tEdgeVertexParentInds(tMaxIndex) )
+                    {
+                        tSecondEntityOrdinal = iEnt;
+                        break;
+                    }
+                }
+
+                moris::Cell<moris::moris_index> tParentOrdinalAndRank = aParentCellForDeduction(iEdge)->get_cell_info()->get_vertex_path_to_entity_rank_and_ordinal(tVertexOrdinal,tSecondEntityOrdinal,*tMaxIter);
+                
+                // need connectivity wrt the minimum path rank
+                tEntitiesConnectedToBaseCell = aBackgroundMesh->get_entity_connected_to_entity_loc_inds(
+                    aParentCellForDeduction(iEdge)->get_index(),
+                    EntityRank::ELEMENT,
+                    moris::get_entity_rank_from_index(tParentOrdinalAndRank(1)));
+
+                if(tSecondEntityOrdinal == MORIS_INDEX_MAX)
+                {
+                    std::cout<<"tSecondEntityOrdinal = "<<tSecondEntityOrdinal<<std::endl;
+                    moris::print(tEntitiesConnectedToBaseCell,"tEntitiesConnectedToBaseCell");
+
+                    moris::print(tEdgeVertexParentInds,"tEdgeVertexParentInds");
+                    moris::print(tEdgeVertexParentRanks,"tEdgeVertexParentRanks");
+                    moris::print(tEdgeVertices(0)->get_coords(),"Edge Vertex 0 coords");
+                    moris::print(tEdgeVertices(1)->get_coords(),"Edge Vertex 1 coords");
+                }
+
+                MORIS_ASSERT(tSecondEntityOrdinal != MORIS_INDEX_MAX,"Not found");
+
+                // mark the entity parent as the deduction cell
+                aIgEdgeAncestry->mEdgeParentEntityIndex(iEdge)                    = tEntitiesConnectedToBaseCell(tParentOrdinalAndRank(0));
+                aIgEdgeAncestry->mEdgeParentEntityRank(iEdge)                     = tParentOrdinalAndRank(1);
+                aIgEdgeAncestry->mEdgeParentEntityOrdinalWrtBackgroundCell(iEdge) = tSecondEntityOrdinal;
+            }
+
+
+            
+        }
+
+    }
+
     void
     Integration_Mesh_Generator::commit_new_ig_vertices_to_cut_mesh(
         Integration_Mesh_Generation_Data*  aMeshGenerationData,
@@ -299,6 +514,9 @@ namespace xtk
         moris::mtk::Mesh *                 aBackgroundMesh,
         Decomposition_Algorithm*           aDecompAlg)
     {
+        aDecompositionData->print_requests(*aBackgroundMesh);
+        aDecompositionData->print(*aBackgroundMesh);
+
         // current index
         moris_index tControlledVertexIndex = aCutIntegrationMesh->mControlledIgVerts.size();
 
@@ -306,8 +524,10 @@ namespace xtk
         moris::uint tNumNewIgVertices = aDecompositionData->tNewNodeIndex.size();
         aCutIntegrationMesh->mControlledIgVerts.resize(aCutIntegrationMesh->mControlledIgVerts.size() + tNumNewIgVertices);
         aCutIntegrationMesh->mIntegrationVertices.resize(aCutIntegrationMesh->mIntegrationVertices.size() + tNumNewIgVertices);
-        aCutIntegrationMesh->mVertexCoordinates.resize(aCutIntegrationMesh->mControlledIgVerts.size() + tNumNewIgVertices,nullptr);
-        
+        aCutIntegrationMesh->mVertexCoordinates.resize(aCutIntegrationMesh->mIntegrationVertices.size() + tNumNewIgVertices,nullptr);
+        aCutIntegrationMesh->mIgVertexParentEntityRank.resize(aCutIntegrationMesh->mIntegrationVertices.size() + tNumNewIgVertices,MORIS_INDEX_MAX);
+        aCutIntegrationMesh->mIgVertexParentEntityIndex.resize(aCutIntegrationMesh->mIntegrationVertices.size() + tNumNewIgVertices,MORIS_INDEX_MAX);
+
         // iterate and create new vertices
         for(moris::uint iV = 0; iV < aDecompositionData->tNewNodeId.size(); iV++ )
         {   
@@ -318,12 +538,16 @@ namespace xtk
             aCutIntegrationMesh->mControlledIgVerts(tControlledVertexIndex) = std::make_shared<moris::mtk::Vertex_XTK>( 
                 aDecompositionData->tNewNodeId(iV),
                 aDecompositionData->tNewNodeIndex(iV),
-                aCutIntegrationMesh->mVertexCoordinates(aDecompositionData->tNewNodeIndex(iV)).get());
+                aCutIntegrationMesh->mVertexCoordinates(aDecompositionData->tNewNodeIndex(iV)));
 
             // add vertex coordinates to the mesh data
-                
             aCutIntegrationMesh->mIntegrationVertices(aDecompositionData->tNewNodeIndex(iV)) = aCutIntegrationMesh->mControlledIgVerts(tControlledVertexIndex).get();
             tControlledVertexIndex++;
+
+            // add the ancestry information to the mesh
+            aCutIntegrationMesh->mIgVertexParentEntityRank(aDecompositionData->tNewNodeIndex(iV))  = (moris_index) aDecompositionData->tNewNodeParentRank(iV);
+            aCutIntegrationMesh->mIgVertexParentEntityIndex(aDecompositionData->tNewNodeIndex(iV)) = (moris_index) aDecompositionData->tNewNodeParentIndex(iV);
+
         }
         
 
@@ -333,18 +557,19 @@ namespace xtk
             MORIS_ERROR(aDecompositionData->tCMNewNodeLoc.size() == (moris::uint) aCutIntegrationMesh->mChildMeshes.size(),"Mismatch in child mesh sizes. All child meshes need to be present in the decomposition data");
 
             // add the vertices to child mesh groups
-            moris_index tStartIndex = (moris_index) aCutIntegrationMesh->mIntegrationVertexGroups(iCM)->mIgVertexGroup.size();
             moris_index tNumNewVertices = (moris_index) aDecompositionData->tCMNewNodeLoc(iCM).size();
 
             // resize the vertices in the group
-            aCutIntegrationMesh->mIntegrationVertexGroups(iCM)->mIgVertexGroup.resize(tNumNewVertices + tStartIndex,nullptr);
+            aCutIntegrationMesh->mIntegrationVertexGroups(iCM)->reserve(tNumNewVertices + aCutIntegrationMesh->mIntegrationVertexGroups(iCM)->size());
 
             for(moris::moris_index iCMVerts = 0; iCMVerts < tNumNewVertices; iCMVerts++)
             {
                 moris_index tNewNodeLocInDecomp = aDecompositionData->tCMNewNodeLoc(iCM)(iCMVerts);
                 moris_index tNewNodeIndex = aDecompositionData->tNewNodeIndex(tNewNodeLocInDecomp);
+                Matrix<DDRMat> tParamCoordWrtParentCell = aDecompositionData->tCMNewNodeParamCoord(iCM)(iCMVerts);
 
-                aCutIntegrationMesh->mIntegrationVertexGroups(iCM)->mIgVertexGroup(iCMVerts + tStartIndex) = aCutIntegrationMesh->mIntegrationVertices(tNewNodeIndex);
+                aCutIntegrationMesh->mIntegrationVertexGroups(iCM)->add_vertex( aCutIntegrationMesh->mIntegrationVertices(tNewNodeIndex), std::make_shared<Matrix<DDRMat>>(tParamCoordWrtParentCell) );
+
             }
         }
 
@@ -370,7 +595,29 @@ namespace xtk
         }
     }
 
-    
+    void
+    Integration_Mesh_Generator::collect_vertex_groups_for_background_cells(
+        Integration_Mesh_Generation_Data*              aMeshGenerationData,
+        Cut_Integration_Mesh*                          aCutIntegrationMesh,
+        moris::Cell<moris::mtk::Cell*>*                aBackgroundCells,
+        moris::Cell<std::shared_ptr<IG_Vertex_Group>>* aVertexGroups)
+    {
+        aVertexGroups->resize(aBackgroundCells->size());
+
+        // iterate through background cells
+        for(moris::uint i = 0; i < aBackgroundCells->size(); i++)
+        {
+            auto tCMIter = aMeshGenerationData->mIntersectedBackgroundCellIndexToChildMeshIndex.find((*aBackgroundCells)(i)->get_index());
+
+            MORIS_ASSERT(tCMIter != aMeshGenerationData->mIntersectedBackgroundCellIndexToChildMeshIndex.end(),"Must be a non-intersected background cell");
+
+            moris_index tCMIndex = tCMIter->second;
+
+            (*aVertexGroups)(i) = aCutIntegrationMesh->get_vertex_group(tCMIndex);
+        }
+
+    }
+
 
 // ----------------------------------------------------------------------------------
     bool
@@ -400,12 +647,16 @@ namespace xtk
 
             moris_index tNumGeometricVertices = 8;
             moris::Cell<moris::mtk::Vertex*> tParentCellVerts = tParentCell->get_vertex_pointers();
+            
+            Matrix<DDRMat> tParamCoords;
+            tParentCell->get_cell_info()->get_loc_coords_of_cell(tParamCoords);
+
             aCutIntegrationMesh->mIntegrationVertexGroups(tCMIndex) = std::make_shared<IG_Vertex_Group>(tNumGeometricVertices);
             aCutIntegrationMesh->mChildMeshes(tCMIndex)->mIgVerts = aCutIntegrationMesh->mIntegrationVertexGroups(tCMIndex);
             //FIXME: GET GEOMETRIC VERTICES FROM MTK CELL HARDCODED TO HEXFAMILY
             for(moris::moris_index i = 0 ; i < tNumGeometricVertices; i++)
             {
-                aCutIntegrationMesh->mIntegrationVertexGroups(tCMIndex)->mIgVertexGroup(i) = tParentCellVerts(i);
+                aCutIntegrationMesh->mIntegrationVertexGroups(tCMIndex)->add_vertex( tParentCellVerts(i),std::make_shared<Matrix<DDRMat>>(tParamCoords.get_row(i)) );
             }
             
         }

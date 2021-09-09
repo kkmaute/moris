@@ -129,6 +129,15 @@ enum EntityRank get_entity_rank_from_str(std::string const & aString)
         else if (aString.compare("INVALID"  ) == 0 || aString.compare("invalid"  ) == 0 ){ return EntityRank::INVALID  ;}
         else{ MORIS_ERROR(0,"Invliad entity rank string"); return EntityRank::INVALID; };
 }
+inline
+enum EntityRank get_entity_rank_from_index(moris_index aEntityRankIndex)
+{
+        if      (aEntityRankIndex == 0) { return EntityRank::NODE     ;}
+        else if (aEntityRankIndex == 1) { return EntityRank::EDGE     ;}
+        else if (aEntityRankIndex == 2) { return EntityRank::FACE     ;}
+        else if (aEntityRankIndex == 3) { return EntityRank::ELEMENT  ;}
+        else{ MORIS_ERROR(0,"Invalid index entity rank string"); return EntityRank::INVALID; };
+}
 }
 
 #endif /* MORIS_MESH_CL_MESH_ENUMS_HPP_ */

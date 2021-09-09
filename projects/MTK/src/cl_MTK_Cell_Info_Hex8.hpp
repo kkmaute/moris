@@ -108,7 +108,13 @@ namespace moris
 
             moris::uint
             get_adjacent_side_ordinal(moris::uint aSideOrdinal) const;
-
+            
+            // ----------------------------------------------------------------------------------
+            moris::Cell<moris_index>
+            get_vertex_path_to_entity_rank_and_ordinal(
+                moris_index aVertexOrdinal, 
+                moris_index aOtherEntityOrdinal,
+                moris_index aOtherEntityRank) const;
             // ----------------------------------------------------------------------------------
 
             Matrix<DDRMat>

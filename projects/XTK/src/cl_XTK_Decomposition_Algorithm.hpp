@@ -9,7 +9,7 @@ namespace xtk
 enum class Decomposition_Algorithm_Type
 {
     REGULAR_TEMPLATE_NONCONFORMING,
-    EDGE_BASED
+    NODE_HEIRARCHY
 };
 
 class Integration_Mesh_Generation_Data;

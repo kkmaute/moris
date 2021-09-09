@@ -126,7 +126,8 @@ cl_XTK_Side_Cluster.cpp
 cl_XTK_Interpolation_Cell.cpp
 cl_XTK_Decomposition_Algorithm.cpp
 cl_XTK_Integration_Mesh_Generator.cpp
-cl_XTK_Regular_Subdivision_Interface.cpp)
+cl_XTK_Regular_Subdivision_Interface.cpp
+cl_XTK_Node_Hierarchy_Interface.cpp)
 
 # List library dependencies
 set(LIB_DEPENDENCIES 

@@ -3636,11 +3636,12 @@ namespace xtk
                         moris::size_t tSuccess = 0;
                         for(moris::size_t i = 0; i < 2; i++)
                         {
+                            // if the edge h and
                             if(tNodesMH(0, i) == tNodesH(0, 0))
                             {
                                 tSortedNodes(0, 1) = tNodesH(0, 1);  // High nodes independent node
-                                tSortedNodes(0, 0) = tNodesMH(0, i);// Shared Node
-                                tSortedNodes(0, 2) = tNodesMH(0, j);// Mid highs ind node
+                                tSortedNodes(0, 0) = tNodesMH(0, i); // Shared Node
+                                tSortedNodes(0, 2) = tNodesMH(0, j); // Mid highs ind node
                                 tSuccess = 1;
                             }
 
