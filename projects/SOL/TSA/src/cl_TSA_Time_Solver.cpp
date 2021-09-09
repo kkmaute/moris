@@ -474,7 +474,7 @@ void Time_Solver::initialize_sol_vec()
         if ( tType == "hdf5" || tType == "h5" )
         {
             // log/print that the initial guess is read from file
-            MORIS_LOG_INFO( "Reading initial guess for solution vector from file: ", tStrInitialGuess );
+            MORIS_LOG_INFO( "Reading initial guess for solution vector from file: ", tStrInitialGuess.c_str() );
 
             // FIXME: this option doesn't work in parallel, only for serial debugging purposes
             MORIS_ERROR( par_size() == 1, "Time_Solver::initialize_sol_vec() - Restarting from hdf5 file only possible in serial." );
@@ -593,7 +593,7 @@ void Time_Solver::initialize_prev_sol_vec()
     if ( tStrInitSol.size() > 0 )
     {
         // log/print that the initial guess is read from file
-        MORIS_LOG_INFO( "Reading initial solution from file: ", tStrInitSol );
+        MORIS_LOG_INFO( "Reading initial solution from file: ", tStrInitSol.c_str() );
 
         // FIXME: this option doesn't work in parallel, only for serial debugging purposes
         MORIS_ERROR( par_size() == 1, "Time_Solver::initialize_sol_vec() - Restarting from hdf5 file only possible in serial." );
