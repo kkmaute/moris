@@ -19,6 +19,14 @@ namespace moris
 
         // ----------------------------------------------------------------------------
 
+        Intersection_Mesh::~Intersection_Mesh()
+        {
+            delete mBackGroundMesh;
+            delete mIntersectionDetect;
+        }
+
+        // ----------------------------------------------------------------------------
+
         moris::uint
         Intersection_Mesh::get_num_entities(enum EntityRank aEntityRank, const moris_index aIndex ) const
         {
@@ -235,7 +243,6 @@ namespace moris
                 //If the block set is empty return an empty matrix
                 else
                 {
-                    std::cout<<"non"<<std::endl;
                     return Matrix<IndexMat>(0,0);
                 }
             }
