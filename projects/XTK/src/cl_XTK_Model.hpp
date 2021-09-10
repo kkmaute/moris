@@ -618,7 +618,7 @@ namespace xtk
 
             // Intersection algorithm data members
             // They contain added clusters,cells, vertices
-            moris::mtk::Intersection_Detect* mIntersectionDetect=nullptr;
+            moris::mtk::Intersection_Detect*    mIntersectionDetect=nullptr;
             moris::mtk::Intersection_Detect_2D* mIntersectionDetect2D=nullptr;
 
 
