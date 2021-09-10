@@ -444,11 +444,11 @@ namespace moris
                 while( true )
                 {
                     sint tFirstDiscreteFieldIndex = 0;
-                    for(uint Ik = 0; Ik < aSourceFields.size(); Ik++ )
+                    for(uint Ikk = 0; Ikk < aSourceFields.size(); Ikk++ )
                     {
-                        if( aSourceFields( Ik )->get_field_is_discrete() )
+                        if( aSourceFields( Ikk )->get_field_is_discrete() )
                         {
-                            tFirstDiscreteFieldIndex = Ik;
+                            tFirstDiscreteFieldIndex = Ikk;
                             break;
                         }
                     }
