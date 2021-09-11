@@ -15,9 +15,11 @@ using namespace moris;
 Sparse_Matrix_EpetraFECrs::Sparse_Matrix_EpetraFECrs(
         Solver_Interface* aInput,
         sol::Dist_Map*    aMap,
-        bool aPointMap )
+        bool aPointMap,
+        bool aBuildGraph)
 : sol::Dist_Matrix( aMap ),
-  mMatBuildWithPointMap( aPointMap )
+  mMatBuildWithPointMap( aPointMap ),
+  mBuildGraph( aBuildGraph )
 {
     // Fixme implement get function for nonzero rows
     //BSpline_Mesh_Base::get_number_of_basis_connected_to_basis( const moris_index aIndex )
@@ -29,14 +31,30 @@ Sparse_Matrix_EpetraFECrs::Sparse_Matrix_EpetraFECrs(
     // build BC vector
     this->dirichlet_BC_vector( mDirichletBCVec, aInput->get_constrained_Ids() );
 
-    // create matrix class
-    if( aPointMap )
+
+    if( mBuildGraph )
     {
-        mEpetraMat = new Epetra_FECrsMatrix( Copy, *aMap->get_epetra_point_map(), nonzerosRow );
+        // create matrix class
+        if( aPointMap )
+        {
+            mEpetraGraph = new Epetra_FECrsGraph( Copy, *aMap->get_epetra_point_map(), nonzerosRow );
+        }
+        else
+        {
+            mEpetraGraph = new Epetra_FECrsGraph( Copy, *aMap->get_epetra_map(), nonzerosRow );
+        }
     }
     else
     {
-        mEpetraMat = new Epetra_FECrsMatrix( Copy, *aMap->get_epetra_map(), nonzerosRow );
+        // create matrix class
+        if( aPointMap )
+        {
+            mEpetraMat = new Epetra_FECrsMatrix( Copy, *aMap->get_epetra_point_map(), nonzerosRow );
+        }
+        else
+        {
+            mEpetraMat = new Epetra_FECrsMatrix( Copy, *aMap->get_epetra_map(), nonzerosRow );
+        }
     }
 }
 
@@ -58,7 +76,10 @@ Sparse_Matrix_EpetraFECrs::~Sparse_Matrix_EpetraFECrs()
 {
     delete( mEpetraMat);
     //delete( mEpetraMap);
-    //delete( mEpetraGraph);
+    if( mBuildGraph )
+    {
+        delete( mEpetraGraph);
+    }
 }
 
 // ----------------------------------------------------------------------------------------------------------------------
@@ -149,34 +170,48 @@ void Sparse_Matrix_EpetraFECrs::matrix_global_assembly()
 
 // ----------------------------------------------------------------------------------------------------------------------
 
+void Sparse_Matrix_EpetraFECrs::initial_matrix_global_assembly()
+{
+    if( mBuildGraph )
+    {
+        mEpetraGraph->GlobalAssemble();
+        mEpetraMat = new Epetra_FECrsMatrix( Copy, *mEpetraGraph );
+    }
+    else
+    {
+        // Assemble matrix
+        mEpetraMat->GlobalAssemble();
+    }
+}
+
+// ----------------------------------------------------------------------------------------------------------------------
+
 void Sparse_Matrix_EpetraFECrs::build_graph(
         const moris::uint             & aNumMyDof,
         const moris::Matrix< DDSMat > & aElementTopology )
 {
     // Build temporary matrix FIXME
-    moris::Matrix< DDSMat >TempElemDofs (aNumMyDof, 1);
-    TempElemDofs = aElementTopology;
+    //moris::Matrix< DDSMat >TempElemDofs (aNumMyDof, 1);
+    //TempElemDofs = aElementTopology;
 
-    // Build Zero matrix and matrix for element free dof id
-    moris::Matrix< DDRMat > tZeros (aNumMyDof*aNumMyDof, 1, 0.0);
     //moris::Matrix< DDSMat > tFreeDofIds (aNumMyDof, 1, -1.0);
 
     //loop over elemental dofs
-//    for (moris::uint Ij=0; Ij< aNumMyDof; Ij++)
-//    {
-//        if ( aElementTopology( Ij ) < 0)
-//        {
-//            TempElemDofs( Ij ) = -1;
-//        }
-//        else if ( aElementTopology( Ij ) > (sint)(mDirichletBCVec.numel()-1) )
-//        {
-//            TempElemDofs( Ij ) = -1;
-//        }
-//        else if ( mDirichletBCVec( aElementTopology( Ij ) ) == 1)          //FIXME
-//        {
-//            TempElemDofs( Ij ) = -1;
-//        }
-//    }
+    //    for (moris::uint Ij=0; Ij< aNumMyDof; Ij++)
+    //    {
+    //        if ( aElementTopology( Ij ) < 0)
+    //        {
+    //            TempElemDofs( Ij ) = -1;
+    //        }
+    //        else if ( aElementTopology( Ij ) > (sint)(mDirichletBCVec.numel()-1) )
+    //        {
+    //            TempElemDofs( Ij ) = -1;
+    //        }
+    //        else if ( mDirichletBCVec( aElementTopology( Ij ) ) == 1)          //FIXME
+    //        {
+    //            TempElemDofs( Ij ) = -1;
+    //        }
+    //    }
 
     if( mMatBuildWithPointMap )
     {
@@ -196,15 +231,35 @@ void Sparse_Matrix_EpetraFECrs::build_graph(
             tNumFreeDofs++;
         }
 
-        // Fill matrix with zeros to initialize
-        mEpetraMat->InsertGlobalValues(tNumFreeDofs, tFreeDofIds.data(), tZeros.data(), Epetra_FECrsMatrix::COLUMN_MAJOR);
+        if( mBuildGraph )
+        {
+            mEpetraGraph->InsertGlobalIndices( tNumFreeDofs, tFreeDofIds.data(), tNumFreeDofs, tFreeDofIds.data() );
+        }
+        else
+        {
+            // Build Zero matrix and matrix for element free dof id
+            moris::Matrix< DDRMat > tZeros (aNumMyDof*aNumMyDof, 1, 0.0);
+
+            // Fill matrix with zeros to initialize
+            mEpetraMat->InsertGlobalValues(tNumFreeDofs, tFreeDofIds.data(), tZeros.data(), Epetra_FECrsMatrix::COLUMN_MAJOR);
+        }
     }
     else
     {
         moris::uint tNumFreeDofs = aElementTopology.numel();
 
-        // Fill matrix with zeros to initialize
-        mEpetraMat->InsertGlobalValues(tNumFreeDofs, aElementTopology.data(), tZeros.data(), Epetra_FECrsMatrix::COLUMN_MAJOR);
+        if( mBuildGraph )
+        {
+            mEpetraGraph->InsertGlobalIndices( tNumFreeDofs, aElementTopology.data(), tNumFreeDofs, aElementTopology.data() );
+        }
+        else
+        {
+            // Build Zero matrix and matrix for element free dof id
+            moris::Matrix< DDRMat > tZeros (aNumMyDof*aNumMyDof, 1, 0.0);
+
+            // Fill matrix with zeros to initialize
+            mEpetraMat->InsertGlobalValues(tNumFreeDofs, aElementTopology.data(), tZeros.data(), Epetra_FECrsMatrix::COLUMN_MAJOR);
+        }
     }
 }
 
