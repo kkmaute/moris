@@ -34,7 +34,7 @@ Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface * aInput ) : mo
         mMapFree->build_dof_translator( aInput->get_my_local_global_overlapping_map(), false);
 
         // Build matrix
-        mMat = tMatFactory.create_matrix( aInput, mMapFree,true );
+        mMat = tMatFactory.create_matrix( aInput, mMapFree,true, true );
 
         uint tNumRHS = aInput->get_num_rhs();
 
