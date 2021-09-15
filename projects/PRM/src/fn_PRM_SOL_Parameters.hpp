@@ -529,6 +529,9 @@ namespace moris
             // Determines if linear solve should restart on fail
             tLinSolverParameterList.insert( "DLA_rebuild_lin_solver_on_fail" , false );
 
+            // output left hand side in linear solver, if specified by user
+            tLinSolverParameterList.insert( "DLA_LHS_output_filename" , "" );
+
             return tLinSolverParameterList;
         }
 
