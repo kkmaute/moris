@@ -920,6 +920,52 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > IWG_Compressible_NS_Base::get_elemental_index_vector()
+        {
+            // get total number of bases
+            real tTotNumBases = ( this->num_space_dims() + 2 ) * this->num_bases();
+
+            // initialize vector
+            Matrix< DDRMat > tIndexVec( tTotNumBases, 1, 0.0 );
+
+            // loop over entries and fill
+            for ( uint iRow = 0; iRow < tTotNumBases; iRow++ )
+            {
+                tIndexVec( iRow ) = (real) iRow;
+            }
+
+            // return index vector
+            return tIndexVec;
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > IWG_Compressible_NS_Base::get_elemental_index_matrix()
+        {
+            // get total number of bases
+            real tTotNumBases = ( this->num_space_dims() + 2 ) * this->num_bases();
+
+            // initialize vector
+            Matrix< DDRMat > tIndexMat( tTotNumBases, tTotNumBases, 0.0 );
+
+            // loop over entries and fill
+            for ( uint iRow = 0; iRow < tTotNumBases; iRow++ )
+            {
+                for ( uint iCol = 0; iCol < tTotNumBases; iCol++ )
+                {
+                    tIndexMat( iRow, iCol ) = (real) iRow * 1000.0 + (real) iCol;
+
+                    // for string to double conversion, use std::stod
+                }
+            }
+
+            // return index matrix
+            return tIndexMat;
+        }
+
+        //------------------------------------------------------------------------------
 
     } /* namespace fem */
 } /* namespace moris */
