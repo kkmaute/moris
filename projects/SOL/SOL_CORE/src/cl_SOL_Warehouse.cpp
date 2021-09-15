@@ -135,6 +135,9 @@ void SOL_Warehouse::create_linear_solvers()
         string_to_mat( mParameterlist( 1 )( Ik ).get< std::string >( "DLA_Linear_solver_algorithms" ),
                 tMat );
 
+        // set output for LHS
+        mLinearSolvers( Ik )->set_LHS_output_filename( mParameterlist( 1 )( Ik ).get< std::string >( "DLA_LHS_output_filename" )  );
+
         for( uint Ii = 0; Ii< tMat.numel(); Ii++ )
         {
             mLinearSolvers( Ik )->set_linear_algorithm( Ii, mLinearSolverAlgorithms( tMat( Ii ) )  );
