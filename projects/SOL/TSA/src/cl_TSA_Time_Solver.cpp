@@ -586,7 +586,7 @@ void Time_Solver::initialize_prev_sol_vec()
 
     //----------------------------------------------
     // get file name for initial guess from parameter list
-    std::string tStrInitSol = mParameterListTimeSolver.get< std::string >( "TSA_Initial_Sol_Vec" );
+    std::string tStrInitSol = mSolverWarehouse->get_TSA_initial_guess_input_filename();
 
     // check if user defined previous solution through file
     // FIXME: this is useless right now, as the time continuity IWG grabs the initial condition from the properties anyways

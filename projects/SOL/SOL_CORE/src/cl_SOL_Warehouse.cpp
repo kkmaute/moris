@@ -79,6 +79,8 @@ void SOL_Warehouse::initialize()
     mSaveFinalSolVecToFile =  mParameterlist( 6 )( 0 ).get< std::string >( "SOL_save_final_sol_vec_to_file" );
     mLoadSolVecFromFile    =  mParameterlist( 6 )( 0 ).get< std::string >( "SOL_load_sol_vec_from_file" );
 
+    mFilenameInitialGuess    =  mParameterlist( 6 )( 0 ).get< std::string >( "TSA_Initial_Sol_Vec" );
+
     mSaveFinalAdjointVecToFile =  mParameterlist( 6 )( 0 ).get< std::string >( "SOL_save_final_adjoint_vec_to_file" );
 
     if( mTPLType == moris::sol::MapType::Petsc)
@@ -264,7 +266,7 @@ void SOL_Warehouse::create_time_solver_algorithms()
         }
 
         // set output file names
-        mTimeSolverAlgorithms( Ik )->set_output_filename( mParameterlist( 4 )( Ik ).get< std::string >( "TSA_Save_Sol_Vecs_to_file" ) );
+        mTimeSolverAlgorithms( Ik )->set_output_filename( mParameterlist( 6 )( 0 ).get< std::string >( "TSA_Save_Sol_Vecs_to_file" ) );
     }
 }
 
