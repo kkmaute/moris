@@ -1,7 +1,6 @@
 #include "cl_WRK_Performer.hpp"
 #include "cl_HMR.hpp"
 #include "cl_HMR_Mesh.hpp"
-#include "cl_HMR_Database.hpp"
 #include "cl_WRK_perform_refinement.hpp"
 #include "HMR_Globals.hpp"
 
@@ -373,10 +372,6 @@ namespace moris
                     break;
                 }
             }
-            //aHMR->tHMRDatabase->get_background_mesh()->update_database();
-            aHMR->get_database()->update_bspline_meshes();
-            aHMR->get_database()->update_lagrange_meshes();
-
         }
 
         //--------------------------------------------------------------------------------------------------------------
