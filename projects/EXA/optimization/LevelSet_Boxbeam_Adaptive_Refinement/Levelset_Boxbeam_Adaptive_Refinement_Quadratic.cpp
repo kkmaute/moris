@@ -42,7 +42,7 @@ namespace moris
 
     bool tIs3D     = false;
     bool tIsOpt    = true;
-    bool tUseGhost = false;
+    bool tUseGhost = true;
 
     // wall thickness
     real tWallThickness = 0.05;
@@ -53,7 +53,7 @@ namespace moris
     std::string tOffSet            = tIs3D ? "0.0,0.0,0.0" : "0.0,0.0";
     std::string tSideSets          = tIs3D ? "1,2,3,4,5,6" : "1,2,3,4";
     
-    int tDispOrder           = 1;
+    int tDispOrder           = 2;
 
     // Hole Seeding parameters
     sint tNumHolesY = 3;
@@ -774,7 +774,7 @@ namespace moris
         tParameterlist( 2 )( 0 ).set("NLA_combined_res_jac_assembly", true );
         tParameterlist( 2 )( 0 ).set("NLA_rel_res_norm_drop",    1.00 );
         tParameterlist( 2 )( 0 ).set("NLA_relaxation_parameter", 1.00  );
-        tParameterlist( 2 )( 0 ).set("NLA_max_iter", 1 );
+        tParameterlist( 2 )( 0 ).set("NLA_max_iter", 2 );
 
         tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
         tParameterlist( 3 )( 0 ).set("NLA_DofTypes"      , tDofStrg);
