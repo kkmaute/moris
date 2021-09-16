@@ -2061,13 +2061,14 @@ namespace moris
                        // call refinement manager and get intersected cells
                        if ( !aRefFunction )
                        {
-                           this->find_cells_intersected_by_levelset(
+                           this->find_low_level_cells_intersected_by_levelset(
                                    tRefinementList,
                                    tCandidates,
                                    aFieldValues );
                        }
                        else
                        {
+                           MORIS_ERROR(false,"this has to be a low level element function");
                            this->user_defined_flagging(
                                    tRefinementList,
                                    tCandidates,
