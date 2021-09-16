@@ -32,13 +32,30 @@ and functions.
 /** @addtogroup WritingTests
     @ingroup DevGroup */
 
+/** @addtogroup TroubleshootingGroup Toubleshooting Errors
+    @ingroup DevGroup
+
+This page is meant to help debug certain errrors that can occur while using MORIS.
+This page will be organized based on the following categories.
+If the developer comes across errors or solutions that are not in these sections, they should add them.
+Please note that these solutions may not work for all instances of the errors being seen;
+they are only a solution to a specific problem.
+*/
+
+/** @addtogroup ErrorsAsserts
+@ingroup TroubleshootingGroup */
+
+/** @addtogroup SegFaults
+@ingroup TroubleshootingGroup */
+
+
 /** @addtogroup CMakeGroup CMake
-    @ingroup DevGroup 
-    
+@ingroup DevGroup 
+
 Below, you can find a wealth of information about CMake in moris. In each of these pages, you can find an easy to fill in template for each part of the code with a more detailed explanation underneath. @ref CMakeFunctions lists CMake functions used in the moris code and their options.
 
 @note @ref CMakeFunctions is a work in progress. Its page may be incomplete or not exist yet.
-    */
+*/
 
 /** @addtogroup AddingLibraries
     @ingroup CMakeGroup */
