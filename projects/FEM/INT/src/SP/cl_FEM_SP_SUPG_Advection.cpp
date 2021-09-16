@@ -7,6 +7,8 @@
 #include "fn_norm.hpp"
 #include "fn_dot.hpp"
 
+#include "fn_FEM_CM_Phase_State_Functions.hpp"
+
 namespace moris
 {
     namespace fem
@@ -20,9 +22,14 @@ namespace moris
             mMasterProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
 
             // populate the map
-            mPropertyMap[ "Conductivity" ] = static_cast< uint >( Property_Type::CONDUCTIVITY );
-            mPropertyMap[ "Source" ]       = static_cast< uint >( Property_Type::SOURCE );
-
+            mPropertyMap[ "Conductivity" ]        = static_cast< uint >( Property_Type::CONDUCTIVITY );
+            mPropertyMap[ "Density" ]             = static_cast< uint >( Property_Type::DENSITY );
+            mPropertyMap[ "HeatCapacity" ]        = static_cast< uint >( Property_Type::HEAT_CAPACITY );
+            mPropertyMap[ "LatentHeat" ]          = static_cast< uint >( Property_Type::LATENT_HEAT );
+            mPropertyMap[ "PCTemp" ]              = static_cast< uint >( Property_Type::PC_TEMP );
+            mPropertyMap[ "PhaseStateFunction" ]  = static_cast< uint >( Property_Type::PHASE_STATE_FUNCTION );
+            mPropertyMap[ "PhaseChangeConst" ]    = static_cast< uint >( Property_Type::PHASE_CHANGE_CONST );
+            mPropertyMap[ "Source" ]              = static_cast< uint >( Property_Type::SOURCE );
         }
 
         //------------------------------------------------------------------------------
@@ -54,6 +61,10 @@ namespace moris
                         {
                             mMasterDofVelocity = tDofType;
                         }
+                        else if( tDofString == "ScalarField" )
+                        {
+                            mMasterDofScalarField = tDofType;
+                        }
                         else
                         {
                             // error unknown dof string
@@ -64,17 +75,243 @@ namespace moris
                     }
                     break;
                 }
-
                 case mtk::Master_Slave::SLAVE :
                 {
                     // set dof type list
                     mSlaveDofTypes = aDofTypes;
                     break;
                 }
-
                 default:
                     MORIS_ERROR( false, "SP_SUPG_Advection::set_dof_type_list - unknown master slave type." );
             }
+        }
+
+        //------------------------------------------------------------------------------
+
+        real SP_SUPG_Advection::compute_effective_conductivity()
+        {
+            // get the conductivity property
+            const std::shared_ptr< Property > & tPropConductivity =
+                    mMasterProp( static_cast< uint >( Property_Type::CONDUCTIVITY ) );
+
+            // get the density property
+            const std::shared_ptr< Property > & tPropDensity =
+                    mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
+
+            // get the capacity property
+            const std::shared_ptr< Property > & tPropCapacity =
+                    mMasterProp( static_cast< uint >( Property_Type::HEAT_CAPACITY ) );
+
+            // get the latent heat property
+            const std::shared_ptr< Property > & tPropLatentHeat =
+                    mMasterProp( static_cast< uint >( Property_Type::LATENT_HEAT ) );
+
+            // check that conductivity is set
+            MORIS_ASSERT( tPropConductivity != nullptr,
+                    "SP_SUPG_Advection::compute_effective_conductivity - conductivity not defined\n");
+
+            // get contribution of density to effective conductivity
+            real tDensity = 1.0;
+            if ( tPropDensity != nullptr )
+            {
+                tDensity = tPropDensity->val()( 0 );
+            }
+
+            // get contribution of capacity to effective conductivity
+            real tCapacity = 1.0;
+            if ( tPropCapacity != nullptr )
+            {
+                tCapacity = tPropCapacity->val()( 0 );
+            }
+
+            // get contribution of latent to effective conductivity
+            real tLatentHeatContrib = 0.0;
+            if ( tPropLatentHeat != nullptr )
+            {
+                // get the phase change properties
+                const std::shared_ptr< Property > & tPropPCTemp =
+                        mMasterProp( static_cast< uint >( Property_Type::PC_TEMP ) );
+
+                const std::shared_ptr< Property > & tPropPhaseChangeFunction =
+                        mMasterProp( static_cast< uint >( Property_Type::PHASE_STATE_FUNCTION ) );
+
+                const std::shared_ptr< Property > & tPropPhaseChangeConstant =
+                        mMasterProp( static_cast< uint >( Property_Type::PHASE_CHANGE_CONST ) );
+
+                // check that all phase change properties are set
+                MORIS_ASSERT( tPropPCTemp != nullptr and tPropPhaseChangeFunction != nullptr and tPropPhaseChangeConstant!= nullptr ,
+                        "SP_SUPG_Advection::compute_effective_conductivity - some or all change properties are not defined\n");
+
+                // get the scalar field FI
+                Field_Interpolator * tFIScalarField =
+                        mMasterFIManager->get_field_interpolators_for_type( mMasterDofScalarField );
+
+                 // compute derivative of Phase State Function
+                 real tdfdT = eval_dFdTemp(
+                         tPropPCTemp->val()( 0 ),
+                         tPropPhaseChangeConstant->val()( 0 ),
+                         tPropPhaseChangeFunction->val()( 0 ),
+                         tFIScalarField );
+
+                // compute contribution of latent heat
+                 tLatentHeatContrib = tPropLatentHeat->val()( 0 ) * tdfdT;
+            }
+
+            // compute effective conductivity
+            return tPropConductivity->val()( 0 ) / (tDensity * tCapacity + tLatentHeatContrib);
+        }
+
+        //------------------------------------------------------------------------------
+
+        bool SP_SUPG_Advection::compute_derivative_of_effective_conductivity(
+                Matrix< DDRMat >                   & aEffectiveConductivitydu,
+                const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        {
+            // get the conductivity property
+            const std::shared_ptr< Property > & tPropConductivity =
+                    mMasterProp( static_cast< uint >( Property_Type::CONDUCTIVITY ) );
+
+            // get the density property
+            const std::shared_ptr< Property > & tPropDensity =
+                    mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
+
+            // get the capacity property
+            const std::shared_ptr< Property > & tPropCapacity =
+                    mMasterProp( static_cast< uint >( Property_Type::HEAT_CAPACITY ) );
+
+            // get the latent heat property
+            const std::shared_ptr< Property > & tPropLatentHeat =
+                    mMasterProp( static_cast< uint >( Property_Type::LATENT_HEAT ) );
+
+            // get conductivity
+            real tConductivity = tPropConductivity->val()( 0 );
+
+            // get contribution of density to effective conductivity
+            real tDensity = 1.0;
+            if ( tPropDensity != nullptr )
+            {
+                tDensity = tPropDensity->val()( 0 );
+            }
+
+            // get contribution of capacity to effective conductivity
+            real tCapacity = 1.0;
+            if ( tPropCapacity != nullptr )
+            {
+                tCapacity = tPropCapacity->val()( 0 );
+            }
+
+            // get contribution of latent to effective conductivity
+            real tLatentHeatContrib = 0.0;
+            if ( tPropLatentHeat != nullptr )
+            {
+                // get the phase change properties
+                const std::shared_ptr< Property > & tPropPCTemp =
+                        mMasterProp( static_cast< uint >( Property_Type::PC_TEMP ) );
+
+                const std::shared_ptr< Property > & tPropPhaseChangeFunction =
+                        mMasterProp( static_cast< uint >( Property_Type::PHASE_STATE_FUNCTION ) );
+
+                const std::shared_ptr< Property > & tPropPhaseChangeConstant =
+                        mMasterProp( static_cast< uint >( Property_Type::PHASE_CHANGE_CONST ) );
+
+                // get the temperature FI
+                Field_Interpolator * tFIScalarField =
+                        mMasterFIManager->get_field_interpolators_for_type( mMasterDofScalarField );
+
+                // compute derivative of Phase State Function
+                real tdfdT = eval_dFdTemp(
+                        tPropPCTemp->val()( 0 ),
+                        tPropPhaseChangeConstant->val()( 0 ),
+                        tPropPhaseChangeFunction->val()( 0 ),
+                        tFIScalarField );
+
+                // add contribution of latent heat
+                tLatentHeatContrib = tPropLatentHeat->val()( 0 ) * tdfdT;
+            }
+
+            // set flag for dependency to false
+            bool tIsDependent = false;
+
+            // consider dependency of conductivity on dof types
+            if( tPropConductivity->check_dof_dependency( aDofTypes ) )
+            {
+                aEffectiveConductivitydu = 1.0/(tDensity * tCapacity + tLatentHeatContrib) * tPropConductivity->dPropdDOF(aDofTypes);
+                tIsDependent = true;
+            }
+            else
+            {
+                aEffectiveConductivitydu.fill(0.0);
+            }
+
+            // consider dependency of density on dof types
+            if ( tPropDensity != nullptr )
+            {
+                if( tPropDensity->check_dof_dependency( aDofTypes ) )
+                {
+                    const real tFactor =  tConductivity * tCapacity / std::pow(tDensity * tDensity * tCapacity + tLatentHeatContrib, 2.0);
+
+                    aEffectiveConductivitydu -= tFactor * tPropDensity->dPropdDOF(aDofTypes);
+
+                    tIsDependent = true;
+                }
+            }
+
+            // consider dependency of density on dof types
+            if ( tPropCapacity != nullptr )
+            {
+                if( tPropCapacity->check_dof_dependency( aDofTypes ) )
+                {
+                    const real tFactor =  tConductivity * tDensity / std::pow(tDensity * tDensity * tCapacity + tLatentHeatContrib, 2.0);
+
+                    aEffectiveConductivitydu -= tFactor * tPropCapacity->dPropdDOF(aDofTypes);
+
+                    tIsDependent = true;
+                }
+            }
+
+            // consider dependency of latent heat contribution on dof types
+            if ( tPropLatentHeat != nullptr )
+            {
+                // get the phase change properties
+                const std::shared_ptr< Property > & tPropPCTemp =
+                        mMasterProp( static_cast< uint >( Property_Type::PC_TEMP ) );
+
+                const std::shared_ptr< Property > & tPropPhaseChangeFunction =
+                        mMasterProp( static_cast< uint >( Property_Type::PHASE_STATE_FUNCTION ) );
+
+                const std::shared_ptr< Property > & tPropPhaseChangeConstant =
+                        mMasterProp( static_cast< uint >( Property_Type::PHASE_CHANGE_CONST ) );
+
+                // consider dependency of phase state function on scalar field
+                if( aDofTypes( 0 ) == mMasterDofScalarField )
+                {
+                    // get the scalar field FI
+                    Field_Interpolator * tFIScalarField =
+                            mMasterFIManager->get_field_interpolators_for_type( mMasterDofScalarField );
+
+                    const moris::Matrix< DDRMat > dfdDof = eval_dFdTempdDOF(
+                            tPropPCTemp->val()( 0 ),
+                            tPropPhaseChangeConstant->val()( 0 ),
+                            tPropPhaseChangeFunction->val()( 0 ),
+                            tFIScalarField );
+
+                    const real tFactor =  tConductivity * tPropLatentHeat->val()( 0 ) / std::pow(tDensity * tDensity * tCapacity + tLatentHeatContrib, 2.0);
+
+                    aEffectiveConductivitydu -= tFactor * dfdDof;
+
+                    tIsDependent = true;
+                }
+
+                // if latent heat depends on the dof type
+                if ( tPropLatentHeat->check_dof_dependency( aDofTypes ) )
+                {
+                    MORIS_ERROR(false, "SP_SUPG_Advection::compute_derivative_of_effective_conductivity - %s\n",
+                            "Dof dependence of Latent heat not implemented.\n");
+                }
+            }
+
+            // return flag whether dof dependence exists
+            return tIsDependent;
         }
 
         //------------------------------------------------------------------------------
@@ -85,13 +322,12 @@ namespace moris
             Field_Interpolator * tVelocityFI =
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
 
-            // get the conductivity property
-            const std::shared_ptr< Property > & tPropConductivity =
-                    mMasterProp( static_cast< uint >( Property_Type::CONDUCTIVITY ) );
-
             // get the mass source
             const std::shared_ptr< Property > & tSourceProp =
                     mMasterProp( static_cast< uint >( Property_Type::SOURCE ) );
+
+            // compute effective conductivity
+            const real tEffectiveConductivity = this->compute_effective_conductivity();
 
             // compute and threshold the velocity norm (thresholding for consistency with derivatives)
             const real tNorm = std::max( norm( tVelocityFI->val() ), mEpsilon);
@@ -117,9 +353,9 @@ namespace moris
             const real tTau1 = 2.0 * tNorm / tHugn;
 
             // compute tau2
-            const real tTau2 = 4.0 * tPropConductivity->val()( 0 ) / std::pow( tHugn, 2.0 );
+            const real tTau2 = 4.0 * tEffectiveConductivity / std::pow( tHugn, 2.0 );
 
-            // compute time increment deltat
+            // compute time increment tDeltaT
             const real tDeltaT = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
 
             // compute tau3
@@ -163,13 +399,12 @@ namespace moris
             Field_Interpolator * tVelocityFI =
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
 
-            // get the conductivity property
-            const std::shared_ptr< Property > & tPropConductivity =
-                    mMasterProp( static_cast< uint >( Property_Type::CONDUCTIVITY ) );
-
-            // get the mass source
+            // get the source property
             const std::shared_ptr< Property > & tSourceProp =
                     mMasterProp( static_cast< uint >( Property_Type::SOURCE ) );
+
+            // compute effective conductivity
+            const real tEffectiveConductivity = this->compute_effective_conductivity();
 
             // compute and threshold the velocity norm (thresholding for consistency with derivatives)
             const real tNorm = std::max( norm( tVelocityFI->val() ), mEpsilon);
@@ -194,7 +429,7 @@ namespace moris
             const real tTau1 = 2.0 * tNorm / tHugn;
 
             // compute tau2
-            const real tTau2 = 4.0 * tPropConductivity->val()( 0 ) / std::pow( tHugn, 2.0 );
+            const real tTau2 = 4.0 * tEffectiveConductivity / std::pow( tHugn, 2.0 );
 
             // compute time increment deltat
             const real tDeltaT = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
@@ -254,7 +489,7 @@ namespace moris
                 tdTau1dDof = 2.0 * ( tHugn * tdNormdu - tdHugndu * tNorm ) / std::pow( tHugn, 2.0 );
 
                 // compute dtau2du
-                tdTau2dDof = - 8.0 * tPropConductivity->val()( 0 ) * tdHugndu / std::pow( tHugn, 3.0 );
+                tdTau2dDof = - 8.0 * tEffectiveConductivity * tdHugndu / std::pow( tHugn, 3.0 );
             }
             else
             {
@@ -262,11 +497,17 @@ namespace moris
                 tdTau2dDof.fill( 0.0 );
             }
 
-            // if conductivity property depends on dof type
-            if( tPropConductivity->check_dof_dependency( aDofTypes ) )
+            // consider derivative of effective conductivity on dof types
+            Matrix< DDRMat > tEffectiveConductivitydu( 1, tFIDer->get_number_of_space_time_coefficients() );
+
+            bool tIsDependent = this->compute_derivative_of_effective_conductivity(
+                    tEffectiveConductivitydu,
+                    aDofTypes );
+
+            // compute dtau2du
+            if ( tIsDependent )
             {
-                // compute dtau3du
-                tdTau2dDof += 4.0 * tPropConductivity->dPropdDOF( aDofTypes ) / std::pow( tHugn, 2.0 );
+                tdTau2dDof += 4.0 * tEffectiveConductivitydu / std::pow( tHugn, 2.0 );
             }
 
             // compute sum of square terms
