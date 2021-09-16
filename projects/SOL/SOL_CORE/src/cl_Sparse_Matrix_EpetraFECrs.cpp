@@ -76,7 +76,7 @@ Sparse_Matrix_EpetraFECrs::~Sparse_Matrix_EpetraFECrs()
 {
     delete( mEpetraMat);
     //delete( mEpetraMap);
-    if( mBuildGraph )
+    if( mBuildGraph && mEpetraGraph!= nullptr)
     {
         delete( mEpetraGraph);
     }
@@ -176,6 +176,8 @@ void Sparse_Matrix_EpetraFECrs::initial_matrix_global_assembly()
     {
         mEpetraGraph->GlobalAssemble();
         mEpetraMat = new Epetra_FECrsMatrix( Copy, *mEpetraGraph );
+        delete( mEpetraGraph);
+        mEpetraGraph = nullptr;
     }
     else
     {
