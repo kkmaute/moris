@@ -27,6 +27,14 @@ namespace moris
         class IQI_Max_Dof : public IQI
         {
 
+                /**
+                 * @brief IQI to compute integral over space and time of
+                 *
+                 * ( ( dof-value / mRefValue - mShift)^pm )^mExponent
+                 *
+                 * where the integrand can be considered if strictly positive or negative or both
+                 */
+
                 //------------------------------------------------------------------------------
 
             public:
@@ -49,10 +57,14 @@ namespace moris
                 //! initialization flag
                 bool mIsInitialized = false;
 
-                //! parameters: reference value, exponent, shift
+                //! parameters: reference value, exponent, shift, sign
                 real mRefValue;
                 real mExponent;
                 real mShift;
+                sint mSign;     /// flag to consider the integrand for
+                                /// only positive values (1) or
+                                /// only negative values (-1) or
+                                /// all values (0) (default)
 
                 //------------------------------------------------------------------------------
                 /**
