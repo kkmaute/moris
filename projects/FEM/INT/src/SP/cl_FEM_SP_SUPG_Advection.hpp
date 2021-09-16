@@ -37,12 +37,19 @@ namespace moris
                 //------------------------------------------------------------------------------
             private:
                 // default dof type
-                MSI::Dof_Type mMasterDofVelocity = MSI::Dof_Type::VX;
+                MSI::Dof_Type mMasterDofScalarField = MSI::Dof_Type::TEMP;
+                MSI::Dof_Type mMasterDofVelocity    = MSI::Dof_Type::VX;
 
                 // property type for the SP
                 enum class Property_Type
                 {
                     CONDUCTIVITY,
+                    HEAT_CAPACITY,
+                    DENSITY,
+                    LATENT_HEAT,
+                    PC_TEMP,
+                    PHASE_STATE_FUNCTION,
+                    PHASE_CHANGE_CONST,
                     SOURCE,
                     MAX_ENUM
                 };
@@ -53,6 +60,26 @@ namespace moris
                 /*
                  * Rem: mParameters - no parameters needed
                  */
+
+                //------------------------------------------------------------------------------
+                /*
+                 * function to compute effective conductivity
+                 */
+                real compute_effective_conductivity();
+
+                //------------------------------------------------------------------------------
+                /*
+                 * function to compute dof derivatives of effective conductivity
+                 *
+                 * @param[out] tEffectiveConductivitydu - matrix with dof derivatives; properly
+                 *             sized before function is called but not set to zero
+                 * @param[in]  aDofTypess - doftype with respect to which derivatives are computed
+                 *
+                 * @return     true if the effective conductivity depends on dof type
+                 */
+                bool compute_derivative_of_effective_conductivity(
+                        Matrix< DDRMat >                   & aEffectiveConductivitydu,
+                        const moris::Cell< MSI::Dof_Type > & aDofTypess );
 
             public:
 

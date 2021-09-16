@@ -1,0 +1,49 @@
+namespace moris{
+
+// Level 4 module
+
+/** @defgroup SegFaults Segmentation Faults
+
+This section is used to debug certain segmentation faults based on the location of the occurance.
+The following is a list of locations where a seg fault may occur with some solutions.
+
+- @ref SegFault_GEN001
+
+- @ref SegFault_Test001
+
+- @ref SegFault_Test002
+
+@subsection SegFault_GEN001 moris::ge::Scaled_Field::get_base_field_value(<optimized out>,aNodeIndex,aCoordinates)
+In file: <code>/moris/projects/GEN/GEN_MAIN/src/field/property/cl_GEN_Scaled_Field.cpp</code>
+
+At function: <code>moris::ge::Scaled_Field::get_base_field_value( <optimized out>, aNodeIndex, aCoordinates )</code>
+
+<b>Solution 1: Incorrect dependency name of level-set field.</b> If using a gen property,
+the "dependencies" name may not match any geometry (or Levelset field) names in the geometry parameters. 
+
+\anchor SegFault001
+\image html  SegFault_GEN_get_base_field_value.png "Figure: solution to get_base_field_value seg fault" width=600px
+
+@subsection SegFault_Test001 moris::ge::Scaled_Field::function_test
+In file: @p /moris/projects/GEN/GEN_MAIN/src/field/property/cl_GEN_Scaled_Field.cpp
+
+At function: <code>moris::ge::Scaled_Field::get_base_field_value( <optimized out>, aNodeIndex, aCoordinates)</code>
+
+<b>Solution 1: Incorrect dependency name of level-set field.</b> If using a gen property,
+the "dependencies" name may not match any geometry (or Levelset field) names in the geometry parameters. 
+
+<b>Solution 2: Incorrect dependency name of level-set field.</b> If using a gen property,
+the "dependencies" name may not match any geometry (or Levelset field) names in the geometry parameters.
+
+@subsection SegFault_Test002 moris::ge::Scaled_Field::function_test
+In file: @p /moris/projects/GEN/GEN_MAIN/src/field/property/cl_GEN_Scaled_Field.cpp
+
+At function: @p moris::ge::Scaled_Field::get_base_field_value(<optimized out>,aNodeIndex,aCoordinates)
+
+<b>Solution 1: Incorrect dependency name of level-set field.</b> If using a gen property,
+the "dependencies" name may not match any geometry (or Levelset field) names in the geometry parameters. 
+
+<b>Solution 2: Incorrect dependency name of level-set field.</b> If using a gen property,
+the "dependencies" name may not match any geometry (or Levelset field) names in the geometry parameters. 
+*/
+}
