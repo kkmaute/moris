@@ -158,7 +158,7 @@ namespace moris
             }
 
             // compute effective conductivity
-            return tPropConductivity->val()( 0 ) / (tDensity * tCapacity + tLatentHeatContrib);
+            return tPropConductivity->val()( 0 ) / (tDensity * ( tCapacity + tLatentHeatContrib) );
         }
 
         //------------------------------------------------------------------------------
@@ -235,7 +235,7 @@ namespace moris
             // consider dependency of conductivity on dof types
             if( tPropConductivity->check_dof_dependency( aDofTypes ) )
             {
-                aEffectiveConductivitydu = 1.0/(tDensity * tCapacity + tLatentHeatContrib) * tPropConductivity->dPropdDOF(aDofTypes);
+                aEffectiveConductivitydu = 1.0/(tDensity * (tCapacity + tLatentHeatContrib) ) * tPropConductivity->dPropdDOF(aDofTypes);
                 tIsDependent = true;
             }
             else
@@ -248,7 +248,8 @@ namespace moris
             {
                 if( tPropDensity->check_dof_dependency( aDofTypes ) )
                 {
-                    const real tFactor =  tConductivity * tCapacity / std::pow(tDensity * tDensity * tCapacity + tLatentHeatContrib, 2.0);
+                    const real tFactor =  tConductivity * (tCapacity + tLatentHeatContrib) /
+                            std::pow(tDensity * (tCapacity + tLatentHeatContrib), 2.0);
 
                     aEffectiveConductivitydu -= tFactor * tPropDensity->dPropdDOF(aDofTypes);
 
@@ -261,7 +262,8 @@ namespace moris
             {
                 if( tPropCapacity->check_dof_dependency( aDofTypes ) )
                 {
-                    const real tFactor =  tConductivity * tDensity / std::pow(tDensity * tDensity * tCapacity + tLatentHeatContrib, 2.0);
+                    const real tFactor =  tConductivity * tDensity /
+                            std::pow(tDensity * (tCapacity + tLatentHeatContrib), 2.0);
 
                     aEffectiveConductivitydu -= tFactor * tPropCapacity->dPropdDOF(aDofTypes);
 
@@ -295,18 +297,26 @@ namespace moris
                             tPropPhaseChangeFunction->val()( 0 ),
                             tFIScalarField );
 
-                    const real tFactor =  tConductivity * tPropLatentHeat->val()( 0 ) / std::pow(tDensity * tDensity * tCapacity + tLatentHeatContrib, 2.0);
+                    const real tFactor =  tConductivity * tDensity * tPropLatentHeat->val()( 0 ) /
+                            std::pow(tDensity * ( tCapacity + tLatentHeatContrib), 2.0);
 
                     aEffectiveConductivitydu -= tFactor * dfdDof;
 
                     tIsDependent = true;
                 }
 
+                // if density depends on dof type
+                if( tPropDensity->check_dof_dependency( aDofTypes ) )
+                {
+                    MORIS_ERROR(false, "SP_SUPG_Advection::compute_derivative_of_effective_conductivity - %s\n",
+                            "Dof dependence of density for phase change not implemented.\n");
+                }
+
                 // if latent heat depends on the dof type
                 if ( tPropLatentHeat->check_dof_dependency( aDofTypes ) )
                 {
                     MORIS_ERROR(false, "SP_SUPG_Advection::compute_derivative_of_effective_conductivity - %s\n",
-                            "Dof dependence of Latent heat not implemented.\n");
+                            "Dof dependence of latent heat not implemented.\n");
                 }
             }
 
