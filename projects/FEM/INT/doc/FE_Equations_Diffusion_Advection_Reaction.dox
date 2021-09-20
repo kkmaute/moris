@@ -23,8 +23,8 @@ where
 The enthalpy  terms and diffusive flux above are provided by the consitutive models \ref FE_CM_Diffusion:
 \f[
 \begin{eqnarray}
-\frac{\partial h}{\partial t} & = & \bigg( \rho c_p + L_h \frac{\partial f}{\partial T} \bigg) \frac{\partial T}{\partial t} \\
-\nabla h                 & = & \bigg( \rho c_p + L_h \frac{\partial f}{\partial T} \bigg) \nabla T \\
+\frac{\partial h}{\partial t} & = & \rho \bigg( c_p + L_h \frac{\partial f}{\partial T} \bigg) \frac{\partial T}{\partial t} \\
+\nabla h                 & = & \rho \bigg( c_p + L_h \frac{\partial f}{\partial T} \bigg) \nabla T \\
 \mathbf{q}_{div}         & = & \kappa \nabla T
 \end{eqnarray}
 \f]
@@ -68,7 +68,7 @@ where the element size \f$ h_e \f$ is
 
 and the effective conductivity \f$ \tilde{\kappa} \f$ is:
 
-\f[ \tilde{\kappa} = \frac{\kappa}{ \rho c_p + L_h \frac{\partial T}{\partial t} } \f].
+\f[ \tilde{\kappa} = \frac{\kappa}{ \rho \bigg( c_p + L_h \frac{\partial T}{\partial t} \bigg) } \f].
 
 \section Dirichlet_BC Dirichlet Boundary Conditions via Nitsche's Formulation
 Dirichlet boundary conditions are imposed weakly via Nitsche's formulation as:
