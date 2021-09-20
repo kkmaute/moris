@@ -31,7 +31,8 @@ namespace moris
             mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
 
             // populate the stabilization map
-            mStabilizationMap[ "SUPG" ] = static_cast< uint >( IWG_Stabilization_Type::SUPG );
+            mStabilizationMap[ "SUPG" ]   = static_cast< uint >( IWG_Stabilization_Type::SUPG );
+            mStabilizationMap[ "YZBeta" ] = static_cast< uint >( IWG_Stabilization_Type::YZBETA );
         }
 
         //------------------------------------------------------------------------------
@@ -65,15 +66,39 @@ namespace moris
             const std::shared_ptr< Stabilization_Parameter > & tSPSUPG =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::SUPG ) );
 
-            // compute the residual strong form
+            // get the YZBeta stabilization parameter
+            const std::shared_ptr< Stabilization_Parameter > & tSPYZBeta =
+                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::YZBETA ) );
+
+            // compute the residual strong form if either SUPG or YZBeta is used
             Matrix< DDRMat > tRT;
-            this->compute_residual_strong_form( tRT );
+            if ( tSPSUPG || tSPYZBeta )
+            {
+                this->compute_residual_strong_form( tRT );
+            }
 
             // compute the residual
             mSet->get_residual()( 0 )(
-                    { tMasterResStartIndex, tMasterResStopIndex } ) += aWStar * (
-                            tFITemp->N_trans() * tFIVelocity->val_trans() * tCMDiffusion->gradEnergy() +
-                            tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tRT( 0, 0 ) );
+                    { tMasterResStartIndex, tMasterResStopIndex } ) += aWStar *
+                    tFITemp->N_trans() * tFIVelocity->val_trans() * tCMDiffusion->gradEnergy();
+
+            // compute SUPG contribution to residual
+            if ( tSPSUPG )
+            {
+                mSet->get_residual()( 0 )(
+                        { tMasterResStartIndex, tMasterResStopIndex } ) += aWStar *
+                        tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tRT( 0, 0 );
+            }
+
+            // compute YZBeta contribution to residual
+            if ( tSPYZBeta )
+            {
+                Matrix< DDRMat > tDummy( tFITemp->dnNdxn( 1 ).n_rows(), 1, 1.0);
+
+                mSet->get_residual()( 0 )(
+                        { tMasterResStartIndex, tMasterResStopIndex } ) += aWStar *
+                        tSPYZBeta->val()( 0 ) * std::abs(tRT( 0, 0 )) * trans( tFITemp->dnNdxn( 1 ) ) * tCMDiffusion->gradEnergy();
+            }
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
@@ -110,9 +135,16 @@ namespace moris
             const std::shared_ptr< Stabilization_Parameter > & tSPSUPG =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::SUPG ) );
 
-            // compute the residual strong form
+            // get the YZBeta stabilization parameter
+            const std::shared_ptr< Stabilization_Parameter > & tSPYZBeta =
+                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::YZBETA ) );
+
+            // compute the residual strong form if either SUPG or YZBeta is used
             Matrix< DDRMat > tRT;
-            this->compute_residual_strong_form( tRT );
+            if ( tSPSUPG || tSPYZBeta )
+            {
+                this->compute_residual_strong_form( tRT );
+            }
 
             // get number of master dof dependencies
             const  uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
@@ -138,9 +170,15 @@ namespace moris
                 if( tDofType( 0 ) == MSI::Dof_Type::VX )
                 {
                     // add contribution to Jacobian
-                    jac += aWStar * (
-                            tFITemp->N_trans() * trans( tCMDiffusion->gradEnergy() ) * tFIVelocity->N() +
-                            tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->N() * tRT( 0, 0 ) );
+                    jac += aWStar *
+                            tFITemp->N_trans() * trans( tCMDiffusion->gradEnergy() ) * tFIVelocity->N();
+
+                    // consider SUPG term
+                    if ( tSPSUPG )
+                    {
+                        jac += aWStar *
+                                tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->N() * tRT( 0, 0 );
+                    }
                 }
 
                 // if diffusion CM depends on dof type
@@ -152,19 +190,51 @@ namespace moris
                 }
 
                 // compute the Jacobian strong form
+
                 Matrix< DDRMat > tJT;
-                this->compute_jacobian_strong_form( tDofType, tJT );
-
-                // compute the Jacobian contribution from strong form
-                jac += aWStar * (
-                        tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tJT );
-
-                // if SUPG stabilization parameter depends on dof type
-                if( tSPSUPG->check_dof_dependency( tDofType ) )
+                if ( tSPSUPG || tSPYZBeta )
                 {
-                    // add contribution to Jacobian
+                    this->compute_jacobian_strong_form( tDofType, tJT );
+                }
+
+                // compute the SUPG contribution
+                if ( tSPSUPG )
+                {
+                    // contribution due to the dof dependence of strong form
                     jac += aWStar * (
-                            trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tRT( 0, 0 ) * tSPSUPG->dSPdMasterDOF( tDofType ) );
+                            tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tJT );
+
+                    // if SUPG stabilization parameter depends on dof type
+                    if( tSPSUPG->check_dof_dependency( tDofType ) )
+                    {
+                        // add contribution to Jacobian
+                        jac += aWStar * (
+                                trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tRT( 0, 0 ) * tSPSUPG->dSPdMasterDOF( tDofType ) );
+                    }
+                }
+
+                // compute the YZBeta contribution
+                if ( tSPYZBeta )
+                {
+                    // contribution from strong form of residual
+                    const real tSign = tRT( 0, 0 ) < 0 ? -1.0 : 1.0;
+
+                    jac += tSign * aWStar * (
+                            tSPYZBeta->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tCMDiffusion->gradEnergy() * tJT );
+
+                    // contribution from spatial gradient of energy
+                    if( tCMDiffusion->check_dof_dependency( tDofType ) )
+                    {
+                        jac += aWStar * std::abs(tRT( 0, 0 )) * (
+                                tSPYZBeta->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tCMDiffusion->dGradEnergydDOF( tDofType ) );
+                    }
+
+                    // if YZBeta stabilization parameter depends on dof type
+                    if( tSPYZBeta->check_dof_dependency( tDofType ) )
+                    {
+                        jac += aWStar * std::abs(tRT( 0, 0 )) * (
+                                trans( tFITemp->dnNdxn( 1 ) ) * tCMDiffusion->gradEnergy() * tSPYZBeta->dSPdMasterDOF( tDofType ) );
+                    }
                 }
             }
 
