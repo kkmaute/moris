@@ -44,7 +44,7 @@ However, the base of the IQI exponent is altered based on the following algorith
 
 <P><U> Start <B><EM> Algorithm 1</EM></B></U></P>
 <OL><LI> &emsp; \f$ base = ( \frac {\hat{\phi}}{\phi_{ref}} - k_{shift} ) \f$ </LI>
-<LI> &emsp; User chooses \f$ sign \f$ </LI>
+<LI> &emsp; User chooses &ensp; \f$ sign \f$ </LI>
 <LI> &emsp; <B>If</B> &ensp; \f$ sign = -1 \f$ &ensp; <B>Then</B> </LI>
 <LI> &emsp; &emsp; <B>If</B> &ensp; \f$ base > 0.0 \f$ &ensp; <B>Then</B> </LI>
 <LI> &emsp; &emsp; &emsp; \f$ base \gets 0.0 \f$ </LI>
