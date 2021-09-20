@@ -245,21 +245,26 @@ FEM Module description.
 /** @addtogroup FE_Cluster
     @ingroup FE_Module */
     
-/** @addtogroup FE_Equations_Incompressible_Navier_Stokes
-    @ingroup FE_Module */
-    
-/** @addtogroup FE_Equations_Spalart_Allmaras_Turbulence
-    @ingroup FE_Module */
-    
-/** @addtogroup FE_Equations_Diffusion_Advection_Reaction
-    @ingroup FE_Module */
-    
 /** @addtogroup FE_Dirichlet_BCs
     @ingroup FE_Module */
-
-/** @addtogroup FE_Compressible_NS
-    @ingroup FE_Module */
     
+/** @addtogroup FE_Physics_Equations Equations for Physics Models
+    @ingroup FE_Module 
+    
+    The following sections describe some of the physics used in MORIS.*/
+
+/** @addtogroup FE_Equations_Incompressible_Navier_Stokes
+    @ingroup FE_Physics_Equations */
+    
+/** @addtogroup FE_Equations_Spalart_Allmaras_Turbulence
+    @ingroup FE_Physics_Equations */
+    
+/** @addtogroup FE_Equations_Diffusion_Advection_Reaction
+    @ingroup FE_Physics_Equations */
+    
+/** @addtogroup FE_Compressible_NS
+    @ingroup FE_Physics_Equations */
+
 //------------------------------------------------------------------------------
 /** @defgroup EXA_Module Examples and Benchmarks
 EXA is a library of example and benchmark problems used for the validatation of various implementation aspects, 

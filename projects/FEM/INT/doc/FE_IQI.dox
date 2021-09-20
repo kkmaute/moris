@@ -2,8 +2,64 @@ namespace moris {
 namespace fem {
 
 /** @defgroup FE_IQI Integrand of Quantity of Interest (IQI)
+The IQIs are used for domain integration as shown in the following equation.
 
-The integrand of a quantity of interest (IQI)...
+\f[ \int_{\Omega} (IQI) d \Omega\ \f]
+
+The following modules are some of the specific IQIs used in MORIS. Not all have been added to this point.
+*/
+
+/** @addtogroup FE_IQI_MAXDOF  Max DOF IQI
+@ingroup FE_IQI 
+
+The Max DOF IQI is an integration of the specific DOF of interest over the domain.
+This is used as a tool to impose design objectives or constraints on DOF quantities in the optimization process.
+
+-----------------------
+IQI Function Parameters
+-----------------------
+Example line of code for an input file:
+<P><CODE>"function_parameters", &emsp; "<param 0> / <param 1> / <param 2> / <param 3>"</CODE></P>
+<UL>
+<LI><CODE>param 0</CODE>: &ensp; reference quantity of interest, \f$ \hat{\phi} \f$ </LI>
+<LI><CODE>param 1</CODE>: &ensp; exponent value, \f$ n \f$ </LI>
+<LI><CODE>param 2</CODE>: &ensp; base in base, \f$ k_{shift} \f$ </LI>
+<LI><CODE>param 3</CODE>: &ensp; sign for algorithm (-1, +1, or 0), \f$ sign \f$ </LI>
+</UL>
+
+See the following section to understand the formulation of this IQI.
+
+---------------
+IQI Formulation
+---------------
+In general, this IQI returns the following result with a condition on the base of the exponent--see <B><EM>Algorithm 1:</EM></B>
+
+<P> \f$ IQI = ( \frac {\hat{\phi}}{\phi_{ref}} - k_{shift} )^n \f$ </P>
+<P> <B>Where:</B> &ensp; \f$ \hat{\phi} \f$ &ensp; is the DOF quantity of interest </P>
+<P> &emsp; &emsp; &emsp; &ensp; \f$ \phi_{ref} \f$ &ensp; is the <U> user defined</U> reference quantity of interest </P>
+<P> &emsp; &emsp; &emsp; &ensp; \f$ k_{shift} \f$ &ensp; is the <U> user defined</U> shift in exponent base </P>
+<P> &emsp; &emsp; &emsp; &ensp; \f$ n \f$ &ensp; is the <U> user defined</U> exponent </P>
+
+However, the base of the IQI exponent is altered based on the following algorithm.
+
+<P><U> Start <B><EM> Algorithm 1</EM></B></U></P>
+<OL><LI> &emsp; \f$ base = ( \frac {\hat{\phi}}{\phi_{ref}} - k_{shift} ) \f$ </LI>
+<LI> &emsp; User chooses \f$ sign \f$ </LI>
+<LI> &emsp; <B>If</B> &ensp; \f$ sign = -1 \f$ &ensp; <B>Then</B> </LI>
+<LI> &emsp; &emsp; <B>If</B> &ensp; \f$ base > 0.0 \f$ &ensp; <B>Then</B> </LI>
+<LI> &emsp; &emsp; &emsp; \f$ base \gets 0.0 \f$ </LI>
+<LI> &emsp; &emsp; <B>End If</B></LI>
+<LI> &emsp; <B>Else If</B> &ensp; \f$ sign = +1 \f$ </LI>
+<LI> &emsp; &emsp; <B>If</B> &ensp; \f$ base < 0.0 \f$ &ensp; <B>Then</B> </LI>
+<LI> &emsp; &emsp; &emsp; \f$ base \gets 0.0 \f$ </LI>
+<LI> &emsp; &emsp; <B>End If</B></LI>
+<LI> &emsp; <B>End If</B></LI>
+<LI> &emsp; <B>Return</B> \f$ IQI_{MaxDOF} = base^n \f$ </LI></OL>
+<P><U> End <B><EM> Algorithm 1</EM></B></U></P>
+
+<P><B>Where:</B> &ensp; \f$ sign \f$ &ensp; is the <U> user defined</U> option to use only positive \f$ ( sign = +1 ) \f$ or negative \f$ ( sign = -1 ) \f$ bases.
+If 0, use base as is.
+</P>
 
 */
 
