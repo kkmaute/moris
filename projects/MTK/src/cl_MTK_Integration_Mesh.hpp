@@ -314,6 +314,28 @@ namespace moris
                         const Matrix< IdMat > & tBSToIPMap,
                         const Matrix< IdMat > & tIPToIGMap);
 
+                // ----------------------------------------------------------------------------
+
+                /*!
+                 * Save nodal T-matrices for IG-mesh nodes to .hdf5 or .dat file
+                 */
+                void
+                save_IG_node_TMatrices_to_file();
+
+                void
+                create_TMatrix_maps(
+                        Matrix< IdMat > & tBSToIPMap,
+                        Matrix< IdMat > & tIPToIGMap);
+                        
+                void
+                build_TMatrix_maps(
+                        moris::Cell< Matrix< IdMat > > & tBSToIPIds,
+                        moris::Cell< Matrix< DDRMat > > & tBSToIPWeights,
+                        const Matrix< IdMat > & tBSToIPMap,
+                        const Matrix< IdMat > & tIPToIGMap);
+
+                // ----------------------------------------------------------------------------
+
             protected:
 
                 void collect_all_sets( bool aSetShape = true );

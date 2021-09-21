@@ -171,6 +171,7 @@ stk_impl/cl_MTK_Vertex_Interpolation_STK.cpp
 stk_impl/cl_MTK_Cell_Cluster_STK.cpp
 stk_impl/cl_MTK_Side_Cluster_STK.cpp
 cl_MTK_Integration_Mesh.cpp
+cl_MTK_Integration_Mesh_write_T_matrices.cpp
 cl_MTK_Block.cpp
 cl_MTK_Mesh_Checker.cpp
 cl_MTK_Exodus_IO_Helper.cpp
