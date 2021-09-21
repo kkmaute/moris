@@ -46,8 +46,8 @@ void check_results_serial(
 
     // define reference values for dimension, number of nodes and number of elements
     Cell<uint> tReferenceNumDims  = { 2,2};
-    Cell<uint> tReferenceNumNodes = {10452,13774};
-    Cell<uint> tReferenceNumElems = {8173,6991};
+    Cell<uint> tReferenceNumNodes = {10452,12401};
+    Cell<uint> tReferenceNumElems = {8173,6388};
 
     // check dimension, number of nodes and number of elements
     uint tNumDims  = tExoIO.get_number_of_dimensions();
@@ -102,23 +102,23 @@ void check_results_parallel(
 
     if( par_rank() == 0 )
     {
-        tReferenceNumNodes = {2745,3470};
-        tReferenceNumElems = {2035,1754};
+        tReferenceNumNodes = {2745,3185};
+        tReferenceNumElems = {2035,1590};
     }
     if( par_rank() == 1 )
     {
-        tReferenceNumNodes = {2729,3469};
-        tReferenceNumElems = {2038,1764};
+        tReferenceNumNodes = {2729,3206};
+        tReferenceNumElems = {2038,1604};
     }
     if( par_rank() == 2 )
     {
-        tReferenceNumNodes = {2557,3470};
-        tReferenceNumElems = {2058,1727};
+        tReferenceNumNodes = {2557,3059};
+        tReferenceNumElems = {2058,1598};
     }
     if( par_rank() == 3 )
     {
-        tReferenceNumNodes = {2586,3516};
-        tReferenceNumElems = {2046,1742};
+        tReferenceNumNodes = {2586,3108};
+        tReferenceNumElems = {2046,1596};
     }
 
     // check dimension, number of nodes and number of elements
@@ -126,7 +126,7 @@ void check_results_parallel(
     uint tNumNodes = tExoIO.get_number_of_nodes();
     uint tNumElems = tExoIO.get_number_of_elements();
 
-    std::cout<<"nodes: "<<tNumNodes<<" ele: "<<tNumElems<<" proc: "<<par_rank()<<std::endl;
+    //std::cout<<"nodes: "<<tNumNodes<<" ele: "<<tNumElems<<" proc: "<<par_rank()<<std::endl;
 
     MORIS_LOG_INFO("Check number of dimensions: reference %12d, actual %12d, percent  error %12.5e.",
             tReferenceNumDims(aTestCaseIndex),tNumDims,std::abs((tNumDims-tReferenceNumDims(aTestCaseIndex))/tReferenceNumDims(aTestCaseIndex)*100.0));
