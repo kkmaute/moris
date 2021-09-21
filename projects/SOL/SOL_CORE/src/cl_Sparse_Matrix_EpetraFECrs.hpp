@@ -27,7 +27,10 @@ class Sparse_Matrix_EpetraFECrs : public sol::Dist_Matrix
 private:
     moris::Matrix< DDUMat > mDirichletBCVec;
 
+    Epetra_FECrsGraph * mEpetraGraph = nullptr;
+
     const bool mMatBuildWithPointMap =  false;
+    const bool mBuildGraph =  false;
 
     void dirichlet_BC_vector(       moris::Matrix< DDUMat > & aDirichletBCVec,
                               const moris::Matrix< DDUMat > & aMyConstraintDofs );
@@ -38,7 +41,8 @@ public:
     Sparse_Matrix_EpetraFECrs(
             moris::Solver_Interface * aInput,
             sol::Dist_Map*            aMap,
-            bool aPointMap = false);
+            bool aPointMap = false,
+            bool aBuildGraph = false );
 
 	Sparse_Matrix_EpetraFECrs(
         const sol::Dist_Map*  aRowMap,
@@ -84,6 +88,8 @@ public:
 	{ MORIS_ERROR( false, "Sparse_Matrix_EpetraFECrs::get_matrix_values: not set yet with epetra"); };
 
     void matrix_global_assembly();
+
+    void initial_matrix_global_assembly();
 
     void build_graph( const moris::uint             & aNumMyDof,
                       const moris::Matrix< DDSMat > & aElementTopology );

@@ -127,8 +127,8 @@ namespace moris
                  * @param[in] aParameters  ref to container of user defined settings
                  */
                 HMR ( 
-                    ParameterList                       & aParameterList,
-                    std::shared_ptr<moris::Library_IO>    aLibrary = nullptr ) ;
+                        ParameterList                       & aParameterList,
+                        std::shared_ptr<moris::Library_IO>    aLibrary = nullptr ) ;
 
                 // -----------------------------------------------------------------------------
 
@@ -364,9 +364,9 @@ namespace moris
                  */
                 // std::shared_ptr< Database >
                 auto get_database() -> decltype ( mDatabase )
-                {
+                        {
                     return mDatabase;
-                 }
+                        }
 
                 // -----------------------------------------------------------------------------
 
@@ -407,6 +407,7 @@ namespace moris
                  */
                 uint flag_surface_elements_on_working_pattern( const std::shared_ptr<Field> aScalarField );
 
+                //FIXME this can be deleted the moment GEN is fixed
                 uint based_on_field_put_elements_on_queue(
                         const Matrix< DDRMat > & aFieldValues,
                         uint                     aLagrangeMeshIndex,
@@ -418,6 +419,12 @@ namespace moris
                         uint                     aOrder,
                         Refinement_Function      aRefFunction);
 
+                uint based_on_field_flag_elements_on_working_pattern(
+                        const Matrix< DDRMat > & aFieldValues,
+                        uint                     aPattern,
+                        uint                     aOrder,
+                        Refinement_Function      aRefFunction );
+
                 uint based_on_field_put_low_level_elements_on_queue(
                         const Matrix< DDRMat > & aFieldValues,
                         uint                     aLagrangeMeshIndex,
@@ -428,6 +435,12 @@ namespace moris
                         uint                     aPattern,
                         uint                     aOrder,
                         sint                     aFunctionIndex);
+
+                uint based_on_field_put_low_level_elements_on_queue(
+                        const Matrix< DDRMat > & aFieldValues,
+                        uint                     aPattern,
+                        uint                     aOrder,
+                        Refinement_Function      aRefFunction);
 
                 // -----------------------------------------------------------------------------
 
@@ -560,19 +573,19 @@ namespace moris
                     return mRestartedFromFile;
                 };
 
-        private:
+            private:
 
-            void user_defined_flagging(
-                    Cell< hmr::Element * >   & aCells,
-                    Cell< hmr::Element * >   & aCandidates,
-                    const  Matrix< DDRMat >  & aVertexValues,
-                    uint                       aFunctionIndex);
+                void user_defined_flagging(
+                        Cell< hmr::Element * >   & aCells,
+                        Cell< hmr::Element * >   & aCandidates,
+                        const  Matrix< DDRMat >  & aVertexValues,
+                        uint                       aFunctionIndex);
 
-            void user_defined_flagging(
-                    Cell< hmr::Element * >   & aCells,
-                    Cell< hmr::Element * >   & aCandidates,
-                    const  Matrix< DDRMat >  & aVertexValues,
-                    Refinement_Function        aRefinementFunction);
+                void user_defined_flagging(
+                        Cell< hmr::Element * >   & aCells,
+                        Cell< hmr::Element * >   & aCandidates,
+                        const  Matrix< DDRMat >  & aVertexValues,
+                        Refinement_Function        aRefinementFunction);
 
         }; /* HMR */
 

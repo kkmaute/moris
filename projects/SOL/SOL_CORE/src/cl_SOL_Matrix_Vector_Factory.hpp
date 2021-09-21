@@ -33,7 +33,8 @@ namespace moris
             Dist_Matrix *create_matrix(
                     Solver_Interface *aInput,
                     Dist_Map* aMap,
-                    bool aPointMap = false );
+                    bool aPointMap = false,
+                    bool aBuildGraph = false);
     
             Dist_Matrix *create_matrix(
                     Dist_Map* aRowMap,

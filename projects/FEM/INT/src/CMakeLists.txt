@@ -98,6 +98,7 @@ set(HEADERS
     SP/cl_FEM_SP_Time_Velocity_Ghost.hpp 
     SP/cl_FEM_SP_Convective_Ghost.hpp  
     SP/cl_FEM_SP_SUPG_Advection.hpp
+    SP/cl_FEM_SP_YZBeta_Advection.hpp
     SP/cl_FEM_SP_GGLS_Diffusion.hpp
     SP/cl_FEM_SP_Velocity_Dirichlet_Nitsche.hpp
     SP/cl_FEM_SP_Velocity_SlipBoundary_Nitsche.hpp
@@ -281,8 +282,9 @@ set(LIB_SOURCES
     SP/cl_FEM_SP_Nitsche_Interface.cpp
     SP/cl_FEM_SP_Reciprocal_Total_Volume.cpp
     SP/cl_FEM_SP_Convective_Ghost.cpp
-    SP/cl_FEM_SP_Time_Velocity_Ghost.cpp   
+    SP/cl_FEM_SP_Time_Velocity_Ghost.cpp
     SP/cl_FEM_SP_SUPG_Advection.cpp
+    SP/cl_FEM_SP_YZBeta_Advection.cpp
     SP/cl_FEM_SP_GGLS_Diffusion.cpp
     SP/cl_FEM_SP_Velocity_Dirichlet_Nitsche.cpp
     SP/cl_FEM_SP_Velocity_SlipBoundary_Nitsche.cpp

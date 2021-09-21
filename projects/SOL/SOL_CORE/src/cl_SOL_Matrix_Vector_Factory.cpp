@@ -30,7 +30,8 @@ namespace moris
         Dist_Matrix * sol::Matrix_Vector_Factory::create_matrix(
                 Solver_Interface * aInput,
                 Dist_Map         * aMap,
-                bool               aPointMap )
+                bool               aPointMap,
+                bool               aBuildGraph)
         {
             Dist_Matrix * tSparseMatrix = nullptr;
 
@@ -38,7 +39,7 @@ namespace moris
             {
                 case MapType::Epetra:
                 {
-                    tSparseMatrix = new Sparse_Matrix_EpetraFECrs( aInput, aMap, aPointMap );
+                    tSparseMatrix = new Sparse_Matrix_EpetraFECrs( aInput, aMap, aPointMap, aBuildGraph );
                     break;
                 }
                 case MapType::Petsc:

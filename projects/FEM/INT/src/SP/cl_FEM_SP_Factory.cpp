@@ -16,6 +16,7 @@
 #include "cl_FEM_SP_Compressible_Velocity_Dirichlet_Nitsche.hpp"
 #include "cl_FEM_SP_Compressible_Dirichlet_Nitsche.hpp"
 #include "cl_FEM_SP_SUPG_Advection.hpp"
+#include "cl_FEM_SP_YZBeta_Advection.hpp"
 #include "cl_FEM_SP_GGLS_Diffusion.hpp"
 #include "cl_FEM_SP_SUPG_Spalart_Allmaras_Turbulence.hpp"
 #include "cl_FEM_SP_Turbulence_Dirichlet_Nitsche.hpp"
@@ -83,6 +84,9 @@ namespace moris
 
                 case fem::Stabilization_Type::SUPG_ADVECTION :
                     return std::make_shared< SP_SUPG_Advection >();
+
+                case fem::Stabilization_Type::YZBETA_ADVECTION :
+                    return std::make_shared< SP_YZBeta_Advection >();
 
                 case fem::Stabilization_Type::SUPG_SPALART_ALLMARAS_TURBULENCE :
                     return std::make_shared< SP_SUPG_Spalart_Allmaras_Turbulence >();

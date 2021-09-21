@@ -247,7 +247,7 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Analytical",
     tIWG->set_normal( tNormal );
 
     // set interpolation order
-    uint iInterpOrder = 2;
+    // uint iInterpOrder = 2;
 
     // create an interpolation order
     mtk::Interpolation_Order tGIInterpolationOrder = mtk::Interpolation_Order::QUADRATIC;

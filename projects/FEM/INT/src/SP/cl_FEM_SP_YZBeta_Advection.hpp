@@ -1,12 +1,12 @@
 /*
- * cl_FEM_SP_SUPG_Advection.hpp
+ * cl_FEM_SP_YZBeta_Advection.hpp
  *
  *  Created on: Apr 14, 2020
  *  Author: noel
  */
 
-#ifndef SRC_FEM_CL_FEM_SP_SUPG_ADVECTION_HPP_
-#define SRC_FEM_CL_FEM_SP_SUPG_ADVECTION_HPP_
+#ifndef SRC_FEM_CL_FEM_SP_YZBeta_ADVECTION_HPP_
+#define SRC_FEM_CL_FEM_SP_YZBeta_ADVECTION_HPP_
 
 #include <map>
 //MRS/CON/src
@@ -27,30 +27,25 @@ namespace moris
     {
         //------------------------------------------------------------------------------
         /*
-         * Stabilization parameter for SUPG stabilization on diffusion-advection
-         * tau_T =
-         * from Tezduyar & Osawa (2000)
+         * Stabilization parameter for YZBeta discontinuity method
+         * from from Bazilevs et al. (2007) DOI: 10.1002/fld.1484
+         * see also: Tezduyar, Ramakrishnan and Sathe (2008) DOI: 10.1002/fld.174
+         *
+         * Note: contribution from strong form of residual is applied in IWG
          */
-        class SP_SUPG_Advection : public Stabilization_Parameter
+        class SP_YZBeta_Advection : public Stabilization_Parameter
         {
 
                 //------------------------------------------------------------------------------
             private:
                 // default dof type
                 MSI::Dof_Type mMasterDofScalarField = MSI::Dof_Type::TEMP;
-                MSI::Dof_Type mMasterDofVelocity    = MSI::Dof_Type::VX;
 
                 // property type for the SP
                 enum class Property_Type
                 {
-                    CONDUCTIVITY,
-                    HEAT_CAPACITY,
-                    DENSITY,
-                    LATENT_HEAT,
-                    PC_TEMP,
-                    PHASE_STATE_FUNCTION,
-                    PHASE_CHANGE_CONST,
-                    SOURCE,
+                    BETA_CONSTANT,
+                    REFERENCE_STATE,
                     MAX_ENUM
                 };
 
@@ -61,39 +56,19 @@ namespace moris
                  * Rem: mParameters - no parameters needed
                  */
 
-                //------------------------------------------------------------------------------
-                /*
-                 * function to compute effective conductivity
-                 */
-                real compute_effective_conductivity();
-
-                //------------------------------------------------------------------------------
-                /*
-                 * function to compute dof derivatives of effective conductivity
-                 *
-                 * @param[out] tEffectiveConductivitydu - matrix with dof derivatives; properly
-                 *             sized before function is called but not set to zero
-                 * @param[in]  aDofTypess - doftype with respect to which derivatives are computed
-                 *
-                 * @return     true if the effective conductivity depends on dof type
-                 */
-                bool compute_derivative_of_effective_conductivity(
-                        Matrix< DDRMat >                   & aEffectiveConductivitydu,
-                        const moris::Cell< MSI::Dof_Type > & aDofTypess );
-
             public:
 
                 //------------------------------------------------------------------------------
                 /*
                  * constructor
                  */
-                SP_SUPG_Advection();
+                SP_YZBeta_Advection();
 
                 //------------------------------------------------------------------------------
                 /**
                  * trivial destructor
                  */
-                ~SP_SUPG_Advection(){}
+                ~SP_YZBeta_Advection(){}
 
                 //------------------------------------------------------------------------------
                 /**
@@ -142,7 +117,7 @@ namespace moris
                  */
                 void eval_dSPdMasterDV( const moris::Cell< PDV_Type > & aDvTypes )
                 {
-                    MORIS_ERROR( false, "SP_SUPG_Advection::eval_dSPdMasterDV - not implemented." );
+                    MORIS_ERROR( false, "SP_YZBeta_Advection::eval_dSPdMasterDV - not implemented." );
                 }
 
                 //------------------------------------------------------------------------------

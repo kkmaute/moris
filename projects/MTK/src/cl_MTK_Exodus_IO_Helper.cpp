@@ -236,8 +236,7 @@ namespace moris
         void
         Exodus_IO_Helper::get_init_mesh_data()
         {
-            char *tTitleChar = new char[mTitle.length() + 1];
-            strcpy(tTitleChar, mTitle.c_str());
+            char *tTitleChar = new char[ std::max((int)mTitle.length(),(int)MAX_LINE_LENGTH) + 1];
 
             mErrFlag = ex_get_init(
                     mExoFileId,

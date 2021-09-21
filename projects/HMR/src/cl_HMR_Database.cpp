@@ -172,10 +172,10 @@ namespace moris
             uint tNumPattern = aElementPerPattern.size();
 
             Matrix< DDUMat > tPatternListUniqueMat( tNumPattern, 1 );
-            tPatternListUniqueMat( 0 ) = 5;
+            tPatternListUniqueMat( 0 ) = 4;
             if( tNumPattern == 2 )
             {
-                tPatternListUniqueMat( 1 ) = 6;
+                tPatternListUniqueMat( 1 ) = 5;
             }
 
             // get number of levels

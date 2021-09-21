@@ -31,14 +31,39 @@ and functions.
 
 /** @addtogroup WritingTests
     @ingroup DevGroup */
-
-/** @addtogroup CMakeGroup CMake
+    
+/** @addtogroup KnownIssues Known Issues in the Code
     @ingroup DevGroup 
     
+    - <B>Bulk advection with SUPG stabilization</B> – Inconsistent Jacobian: there is an error if the density or the capacity depends on the temperature; the issue is either in the bulk or the SUPG stabilization.
+*/
+
+/** @addtogroup TroubleshootingGroup Toubleshooting Errors
+    @ingroup DevGroup
+
+This page is meant to help debug certain errrors that can occur while using MORIS.
+This page will be organized based on the following categories.
+If the developer comes across errors or solutions that are not in these sections, they should add them.
+Please note that these solutions may not work for all instances of the errors being seen;
+they are only a solution to a specific problem.
+
+The user should first try running the problem in DBG or in OPT asserts turned on (have_debug).
+*/
+
+/** @addtogroup ErrorsAsserts
+@ingroup TroubleshootingGroup */
+
+/** @addtogroup SegFaults
+@ingroup TroubleshootingGroup */
+
+
+/** @addtogroup CMakeGroup CMake
+@ingroup DevGroup 
+
 Below, you can find a wealth of information about CMake in moris. In each of these pages, you can find an easy to fill in template for each part of the code with a more detailed explanation underneath. @ref CMakeFunctions lists CMake functions used in the moris code and their options.
 
 @note @ref CMakeFunctions is a work in progress. Its page may be incomplete or not exist yet.
-    */
+*/
 
 /** @addtogroup AddingLibraries
     @ingroup CMakeGroup */
@@ -228,21 +253,26 @@ FEM Module description.
 /** @addtogroup FE_Cluster
     @ingroup FE_Module */
     
-/** @addtogroup FE_Equations_Incompressible_Navier_Stokes
-    @ingroup FE_Module */
-    
-/** @addtogroup FE_Equations_Spalart_Allmaras_Turbulence
-    @ingroup FE_Module */
-    
-/** @addtogroup FE_Equations_Diffusion_Advection_Reaction
-    @ingroup FE_Module */
-    
 /** @addtogroup FE_Dirichlet_BCs
     @ingroup FE_Module */
-
-/** @addtogroup FE_Compressible_NS
-    @ingroup FE_Module */
     
+/** @addtogroup FE_Physics_Equations Equations for Physics Models
+    @ingroup FE_Module 
+    
+    The following sections describe some of the physics used in MORIS.*/
+
+/** @addtogroup FE_Equations_Incompressible_Navier_Stokes
+    @ingroup FE_Physics_Equations */
+    
+/** @addtogroup FE_Equations_Spalart_Allmaras_Turbulence
+    @ingroup FE_Physics_Equations */
+    
+/** @addtogroup FE_Equations_Diffusion_Advection_Reaction
+    @ingroup FE_Physics_Equations */
+    
+/** @addtogroup FE_Compressible_NS
+    @ingroup FE_Physics_Equations */
+
 //------------------------------------------------------------------------------
 /** @defgroup EXA_Module Examples and Benchmarks
 EXA is a library of example and benchmark problems used for the validatation of various implementation aspects, 
