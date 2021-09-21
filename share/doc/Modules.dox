@@ -31,6 +31,12 @@ and functions.
 
 /** @addtogroup WritingTests
     @ingroup DevGroup */
+    
+/** @addtogroup KnownIssues Known Issues in the Code
+    @ingroup DevGroup 
+    
+    - <B>Bulk advection with SUPG stabilization</B> – Inconsistent Jacobian: there is an error if the density or the capacity depends on the temperature; the issue is either in the bulk or the SUPG stabilization.
+*/
 
 /** @addtogroup TroubleshootingGroup Toubleshooting Errors
     @ingroup DevGroup
