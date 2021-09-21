@@ -588,14 +588,14 @@ namespace moris
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      std::string("SPGhost_Frame") );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type",      static_cast< uint >( fem::Stabilization_Type::GHOST_DISPL ) );
-        tParameterList( 2 )( tSPCounter ).set( "function_parameters",     std::string("0.005") );
+        tParameterList( 2 )( tSPCounter ).set( "function_parameters",     std::string("0.05") );
         tParameterList( 2 )( tSPCounter ).set( "master_properties",       std::string("PropYoungs,Material") );
         tSPCounter++;
 
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      std::string("SPGhost_Interior") );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type",      static_cast< uint >( fem::Stabilization_Type::GHOST_DISPL ) );
-        tParameterList( 2 )( tSPCounter ).set( "function_parameters",     std::string("0.005") );
+        tParameterList( 2 )( tSPCounter ).set( "function_parameters",     std::string("0.05") );
         tParameterList( 2 )( tSPCounter ).set( "master_properties",       std::string("PropYoungs,Material") );
         tSPCounter++;
 
