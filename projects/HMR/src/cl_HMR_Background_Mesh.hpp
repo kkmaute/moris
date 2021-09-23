@@ -600,8 +600,6 @@ namespace moris
                         {
                             MORIS_LOG_INFO("  decomposing mesh over %u procs", ( unsigned int ) par_size() ) ;
                         }
-                        MORIS_LOG_INFO("--------------------------------------------------------------------------------" ) ;
-                        MORIS_LOG_INFO( " " );
                     }
 
                     if ( gLogger.get_severity_level() < 1 )
@@ -666,6 +664,33 @@ namespace moris
                             MORIS_ERROR( false, "decompose_mesh(): Invalid processor decomposition method defined.");
                             break;
                         }
+                    }
+
+                    // reporting the proc dims to the logger
+                    if ( par_rank() == 0 )
+                    {
+                        // how many dimensions?
+                        switch( N )
+                        {
+                            case 2:
+                            {
+                                MORIS_LOG_INFO("  proc dimensions (x,y) are ( %i , %i )",
+                                        mProcDims(0), mProcDims(1) );
+                                break;
+                            }
+                            case 3:
+                            {
+                                MORIS_LOG_INFO("  proc dimensions (x,y,z) are ( %i , %i , %i )",
+                                        mProcDims(0), mProcDims(1), mProcDims(2) );
+                                break;
+                            }
+                            default:
+                            {
+                                MORIS_ERROR( false, "decompose_mesh(): Invalid number of spatial dimensions.");
+                            }
+                        }
+                        MORIS_LOG_INFO("--------------------------------------------------------------------------------" ) ;
+                        MORIS_LOG_INFO( " " );
                     }
 
                     create_proc_cart(
