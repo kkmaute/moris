@@ -600,6 +600,8 @@ namespace moris
                         {
                             MORIS_LOG_INFO("  decomposing mesh over %u procs", ( unsigned int ) par_size() ) ;
                         }
+                        MORIS_LOG_INFO("--------------------------------------------------------------------------------" ) ;
+                        MORIS_LOG_INFO( " " );
                     }
 
                     if ( gLogger.get_severity_level() < 1 )
@@ -666,6 +668,13 @@ namespace moris
                         }
                     }
 
+                    create_proc_cart(
+                            tDecompMethod,
+                            N,
+                            mProcDims,
+                            mMyProcCoords,
+                            mMyProcNeighbors );
+
                     // reporting the proc dims to the logger
                     if ( par_rank() == 0 )
                     {
@@ -692,13 +701,6 @@ namespace moris
                         MORIS_LOG_INFO("--------------------------------------------------------------------------------" ) ;
                         MORIS_LOG_INFO( " " );
                     }
-
-                    create_proc_cart(
-                            tDecompMethod,
-                            N,
-                            mProcDims,
-                            mMyProcCoords,
-                            mMyProcNeighbors );
 
                     // calculate number of elements per dimension
                     Matrix< DDLUMat > tNumberOfElementsPerDimensionOnProc( N, 1 );
