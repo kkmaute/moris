@@ -323,16 +323,34 @@ namespace moris
                 save_IG_node_TMatrices_to_file();
 
                 void
-                create_TMatrix_maps(
-                        Matrix< IdMat > & tBSToIPMap,
-                        Matrix< IdMat > & tIPToIGMap);
-                        
+                get_IG_to_IP_nodal_T_matrices( 
+                        moris::Cell< Matrix< IdMat  > > & aIGtoIPIds,
+                        moris::Cell< Matrix< DDRMat > > & aIGtoIPWeights,
+                        uint                             aSetIndex );
+
                 void
-                build_TMatrix_maps(
-                        moris::Cell< Matrix< IdMat > > & tBSToIPIds,
-                        moris::Cell< Matrix< DDRMat > > & tBSToIPWeights,
-                        const Matrix< IdMat > & tBSToIPMap,
-                        const Matrix< IdMat > & tIPToIGMap);
+                get_IP_to_BS_nodal_T_matrices( 
+                        moris::Cell< Matrix< IdMat  > > & aIPtoBSIds,
+                        moris::Cell< Matrix< DDRMat > > & aIPtoBSWeights,
+                        uint                             aSetIndex );
+
+                void
+                get_IG_to_BS_nodal_T_matrices( 
+                        moris::Cell< Matrix< IdMat  > > & aIGtoBSIds,
+                        moris::Cell< Matrix< DDRMat > > & aIGtoBSWeights,
+                        moris::Cell< Matrix< IdMat  > > & aIPtoBSIds,
+                        moris::Cell< Matrix< DDRMat > > & aIPtoBSWeights,
+                        moris::Cell< Matrix< IdMat  > > & aIGtoIPIds,
+                        moris::Cell< Matrix< DDRMat > > & aIGtoIPWeights );
+
+                uint get_max_IP_ID_on_set( uint aSetIndex );
+
+                void 
+                build_sparse_extraction_operator( 
+                        moris::Cell< Matrix< IdMat > > & aIGtoBSIds,
+                        moris::Cell< Matrix< DDRMat > > & aIGtoBSWeights,
+                        Matrix< DDUMat > & aSparseIndices,
+                        Matrix< DDRMat > & aWeights );
 
                 // ----------------------------------------------------------------------------
 
