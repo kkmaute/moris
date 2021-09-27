@@ -244,8 +244,13 @@ FEM Module description.
 /** @addtogroup FE_SP
     @ingroup FE_Module */
     
-/** @addtogroup FE_CM
-    @ingroup FE_Module */
+/** @addtogroup FE_CM Constitutive Models
+    @ingroup FE_Module 
+    
+    The following sections describe some of the Constitutive Models available in MORIS.*/
+    
+    /** @addtogroup FE_CM_Fluid
+        @ingroup FE_CM */
     
 /** @addtogroup FE_Property
     @ingroup FE_Module */
@@ -261,17 +266,17 @@ FEM Module description.
     
     The following sections describe some of the physics used in MORIS.*/
 
-/** @addtogroup FE_Equations_Incompressible_Navier_Stokes
-    @ingroup FE_Physics_Equations */
-    
-/** @addtogroup FE_Equations_Spalart_Allmaras_Turbulence
-    @ingroup FE_Physics_Equations */
-    
-/** @addtogroup FE_Equations_Diffusion_Advection_Reaction
-    @ingroup FE_Physics_Equations */
-    
-/** @addtogroup FE_Compressible_NS
-    @ingroup FE_Physics_Equations */
+    /** @addtogroup FE_Equations_Incompressible_Navier_Stokes
+        @ingroup FE_Physics_Equations */
+        
+    /** @addtogroup FE_Equations_Spalart_Allmaras_Turbulence
+        @ingroup FE_Physics_Equations */
+        
+    /** @addtogroup FE_Equations_Diffusion_Advection_Reaction
+        @ingroup FE_Physics_Equations */
+        
+    /** @addtogroup FE_Compressible_NS
+        @ingroup FE_Physics_Equations */
 
 //------------------------------------------------------------------------------
 /** @defgroup EXA_Module Examples and Benchmarks
