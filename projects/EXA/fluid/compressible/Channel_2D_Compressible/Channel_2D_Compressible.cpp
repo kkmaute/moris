@@ -20,7 +20,6 @@
 
 #include "AztecOO.h"
 
-
 #ifdef  __cplusplus
 extern "C"
 {
@@ -29,23 +28,43 @@ extern "C"
 namespace moris
 {
     // problem size
-    moris::real tChannelLength = 0.5; // in meters
+    moris::real tChannelLength = 1.0; // in meters
     moris::real tChannelHeight = 0.1;  // in meters
     bool tAllowSlip = false;
 
     // mesh
     moris::uint tIpOrder = 2;    // polynomial order for interpolation
-    moris::uint tNumXElems = 50; // number of elements in x-direction
-    moris::uint tNumYElems = 60; // number of elements in y-direction
+    moris::uint tNumXElems = 1; // number of elements in x-direction
+    moris::uint tNumYElems = 1; // number of elements in y-direction
 
-    // transient configuration
-    bool tIsTransient = false;
-    moris::real tTimeFrame = 1.5;  // duration in seconds
-    moris::real tRampUp = 0.334;     // fraction of time frame over which the BCs are ramped up
-    int tNumTimeSteps = 30;         // number of elements in time dimension
+    moris::real tElenX = tChannelLength/tNumXElems;
+    moris::real tElenY = tChannelHeight/tNumYElems;
+
+    // pseudo-transient - static problem run in transient
+    bool tIsPseudoTransient = false;
+    moris::real tPseudoTimeFrame = 1.0;
 
     // stabilization
     bool tHaveGLS = true;
+
+    // shape functions used
+    bool tUseLagrange = true;
+
+    // write jacobian to file - for debugging
+    bool tWriteJacAndResToMatlab = true;
+
+    // write solution vectors to file in TSA - for debugging
+    bool tWriteSolVecToHDF5 = true;
+
+    // write LHS to file in DLA - for debugging
+    bool tWriteLhsToHDF5 = true;
+
+    // turn contributions on/off - for debugging
+    bool tHaveBulk = false;
+    bool tHaveTopBottomVelNitsche = true;
+    bool tHavePressureInletBC = false;
+    bool tHavePressureOutletBC = false;
+    bool tHaveTemperatureInletBC = false;
 
     //------------------------------------------------------------------------------
 
@@ -59,10 +78,19 @@ namespace moris
     moris::real tInletVelocity     = 1.0;  /* Inlet velocity 10 m/s  () */
     moris::real tInletTemperature  = 300.0;  /* Inlet temperature 300 K  () */
     moris::real tOutletPressure    = 1.0e5;  /* Outlet pressure 1 bar() */
-    moris::real tInletPressure     = 1.00001e5;  /* Inlet pressure 1+eps bar() */
+
+    moris::real tPrsFac = 1.0e-4;
+    moris::real tInletPressure     = (1.0 + tPrsFac) * tOutletPressure;  /* Inlet pressure 1+eps bar() */
+
+    moris::real tInitialDensity  = tOutletPressure/tGasConstant/tInletTemperature;  
+    moris::real tInitialXVelocity = std::sqrt(tPrsFac*tOutletPressure/tInitialDensity);
+    moris::real tInitialYVelocity = 0.0;
 
     // Nitsche Penalty
-    moris::real tNitscheGamma   = 1000.0;  /* Penalty for Dirichlet BC */
+    moris::real tNitscheGamma = 1.0e2 * std::sqrt( tElenX*tElenX + tElenY*tElenY );  /* Penalty for Dirichlet BC */
+    
+    // scale Nitsche penalty factors with material
+    bool tAutoScaleNitschePenalty = true;
 
     //------------------------------------------------------------------------------
 
@@ -85,61 +113,6 @@ namespace moris
         aPropMatrix = aParameters( 0 );
     }
 
-    // Inlet velocity function
-    void Func_Inlet_U(
-            moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-            moris::fem::Field_Interpolator_Manager         * aFIManager )
-    {
-        // unpack parameters
-        real tRadiusChannel = tChannelHeight / 2.0; // radius 
-
-        // get position in space
-        real tY = aFIManager->get_IP_geometry_interpolator()->valx()( 1 );
-
-        // set size for aPropMatrix
-        aPropMatrix.set_size( 2, 1, 0.0 );
-
-        // create weigth from rampup
-        real tRampUpFactor = 1.0;
-        if ( tIsTransient )
-        {
-            real tTime = aFIManager->get_IP_geometry_interpolator()->valt()( 0 );
-            tRampUpFactor = tTime / ( tRampUp * tTimeFrame );
-            tRampUpFactor = std::min( tRampUpFactor, 1.0 );
-            if ( tRampUp <= 0.0 )
-                tRampUpFactor = 1.0;
-        }
-
-        // velocity along x direction
-        aPropMatrix( 0 ) = - 2.0 * tRampUpFactor * ( tY + tRadiusChannel ) *
-                ( tY - tRadiusChannel ) /
-                ( 2.0 * std::pow( tRadiusChannel, 2.0 ) );
-
-        // scale by prescribed inlet velocity
-        aPropMatrix( 0 ) = aParameters( 0 )( 0 ) * aPropMatrix( 0 );
-    }
-
-    // Inlet pressure function for transient
-    void Func_Transient_Inlet_P(
-            moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-            moris::fem::Field_Interpolator_Manager         * aFIManager )
-    {
-        // get time
-        real tTime = aFIManager->get_IP_geometry_interpolator()->valt()( 0 );
-
-        // ramp up fraciton
-        real tDeltaPressure = tInletPressure - tOutletPressure;
-        real tRampUpFactor = tTime / ( tRampUp * tTimeFrame );
-        tRampUpFactor = std::min( tRampUpFactor, 1.0 );
-        if ( tRampUp <= 0.0 )
-            tRampUpFactor = 1.0;
-
-        // return inlet pressure as function of time
-        aPropMatrix = { { tOutletPressure + tDeltaPressure * tRampUpFactor } };
-    }
-
     //------------------------------------------------------------------------------
 
     // initial pressure
@@ -157,7 +130,7 @@ namespace moris
             moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
             moris::fem::Field_Interpolator_Manager         * aFIManager )
     {
-        aPropMatrix = { { 1.0e-5 } , { 1.0e-5 } };
+        aPropMatrix = { { tInitialXVelocity } , { tInitialYVelocity } };
     }
 
     // initial pressure
@@ -242,17 +215,6 @@ namespace moris
 
     void HMRParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
     {
-
-// print estimate mach number
-real tKappa = ( tHeatCapacity + tGasConstant ) / tHeatCapacity;
-real tMa = tInletVelocity / std::sqrt( tKappa * tGasConstant * tInletTemperature );
-std::cout << "Typical Mach-number: " << tMa << " \n" << std::flush;
-
-// print estimate reynolds number
-real tRho = tOutletPressure / ( tGasConstant * tInletTemperature );
-real tRe = tRho * tInletVelocity * tChannelHeight / tViscosity;
-std::cout << "Typical Reynolds-number: " << tRe << " \n" << std::flush;
-
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
 
@@ -268,11 +230,15 @@ std::cout << "Typical Reynolds-number: " << tRe << " \n" << std::flush;
         tParameterlist( 0 )( 0 ).set( "lagrange_pattern", "0" );
         tParameterlist( 0 )( 0 ).set( "bspline_orders",   ios::stringify( tIpOrder ) );
         tParameterlist( 0 )( 0 ).set( "bspline_pattern",  "0" );
+        if ( tUseLagrange )
+        {
+            tParameterlist( 0 )( 0 ).set( "lagrange_to_bspline", "-1") ;
+        }
 
-        tParameterlist( 0 )( 0 ).set( "truncate_bsplines",  1 );
-        tParameterlist( 0 )( 0 ).set( "use_number_aura", 1);
-        tParameterlist( 0 )( 0 ).set( "use_multigrid",  0 );
-        tParameterlist( 0 )( 0 ).set( "severity_level", 0 );
+        tParameterlist( 0 )( 0 ).set( "truncate_bsplines", 1 );
+        tParameterlist( 0 )( 0 ).set( "use_number_aura",   1 );
+        tParameterlist( 0 )( 0 ).set( "use_multigrid",     0 );
+        tParameterlist( 0 )( 0 ).set( "severity_level",    0 );
     }
 
     //------------------------------------------------------------------------------
@@ -348,28 +314,28 @@ std::cout << "Typical Reynolds-number: " << tRe << " \n" << std::flush;
         // Dynamic Viscosity mu
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
         tParameterList( tPropIndex )( tPropCounter ).set( "property_name",            "PropViscosity") ;
-        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      ios::stringify(tViscosity) );
+        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      ios::stringify( tViscosity ) );
         tParameterList( tPropIndex )( tPropCounter ).set( "value_function",           "Func_Const") ;
         tPropCounter++;
 
         // Heat Capacity Cv
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
         tParameterList( tPropIndex )( tPropCounter ).set( "property_name",            "PropHeatCapacity") ;
-        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      ios::stringify(tHeatCapacity) );
+        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      ios::stringify( tHeatCapacity ) );
         tParameterList( tPropIndex )( tPropCounter ).set( "value_function",           "Func_Const") ;
         tPropCounter++;
 
         // Specific Gas Constant R
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
         tParameterList( tPropIndex )( tPropCounter ).set( "property_name",            "PropGasConstant") ;
-        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      ios::stringify(tGasConstant) );
+        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      ios::stringify( tGasConstant ) );
         tParameterList( tPropIndex )( tPropCounter ).set( "value_function",           "Func_Const") ;
         tPropCounter++;
 
         // Thermal Conductivity kappa
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
         tParameterList( tPropIndex )( tPropCounter ).set( "property_name",            "PropConductivity") ;
-        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      ios::stringify(tConductivity) );
+        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      ios::stringify( tConductivity ) );
         tParameterList( tPropIndex )( tPropCounter ).set( "value_function",           "Func_Const") ;
         tPropCounter++;
 
@@ -380,42 +346,25 @@ std::cout << "Typical Reynolds-number: " << tRe << " \n" << std::flush;
         tParameterList( tPropIndex )( tPropCounter ).set( "value_function",           "Func_Const") ;
         tPropCounter++;
 
-        // Inlet Velocity
-        tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
-        tParameterList( tPropIndex )( tPropCounter ).set( "property_name",            "PropInletU") ;
-        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      ios::stringify(tInletVelocity) + ";0.0" );
-        if ( tAllowSlip )
-            tParameterList( tPropIndex )( tPropCounter ).set( "value_function",           "Func_Const") ;
-        else
-            tParameterList( tPropIndex )( tPropCounter ).set( "value_function",           "Func_Inlet_U") ;
-        tPropCounter++;
-
         // Outlet pressure
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
         tParameterList( tPropIndex )( tPropCounter ).set( "property_name",            "PropOutletPressure") ;
-        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      std::to_string(tOutletPressure) );
+        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      ios::stringify( tOutletPressure ) );
         tParameterList( tPropIndex )( tPropCounter ).set( "value_function",           "Func_Const") ;
         tPropCounter++;
 
         // Inlet pressure
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
         tParameterList( tPropIndex )( tPropCounter ).set( "property_name",            "PropInletPressure") ;
-        if ( tIsTransient )
-        {
-            tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      "1.0" );
-            tParameterList( tPropIndex )( tPropCounter ).set( "value_function",           "Func_Transient_Inlet_P");
-        }
-        else
-        {
-            tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      std::to_string(tInletPressure) );
-            tParameterList( tPropIndex )( tPropCounter ).set( "value_function",           "Func_Const" );
-        }
+
+        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      ios::stringify( tInletPressure ) );
+        tParameterList( tPropIndex )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;
 
         // inlet temperature
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
         tParameterList( tPropIndex )( tPropCounter ).set( "property_name",            "PropInletTemperature" );
-        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      std::to_string(tInletTemperature) );
+        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      ios::stringify( tInletTemperature ) );
         tParameterList( tPropIndex )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;
 
@@ -430,8 +379,7 @@ std::cout << "Typical Reynolds-number: " << tRe << " \n" << std::flush;
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
         tParameterList( tPropIndex )( tPropCounter ).set( "property_name",            "PropInitialVelocity") ;
         tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      "1.0") ;
-        //tParameterList( tPropIndex )( tPropCounter ).set( "value_function",           "Func_Initial_Velocity") ;
-        tParameterList( tPropIndex )( tPropCounter ).set( "value_function",           "Func_Inlet_U") ;
+        tParameterList( tPropIndex )( tPropCounter ).set( "value_function",           "Func_Initial_Velocity") ;
         tPropCounter++;
 
         // Initial Temperature
@@ -460,19 +408,6 @@ std::cout << "Typical Reynolds-number: " << tRe << " \n" << std::flush;
         tParameterList( tPropIndex )( tPropCounter ).set( "property_name",            "PropUpwind") ;
         tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      "1.0") ;
         tParameterList( tPropIndex )( tPropCounter ).set( "value_function",           "Func_Const") ;
-        tPropCounter++;
-
-        // time continuity weights        
-        tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
-        tParameterList( tPropIndex )( tPropCounter ).set( "property_name",            "PropWeightCurrent" );
-        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      "100.0" );
-        tParameterList( tPropIndex )( tPropCounter ).set( "value_function",           "Func_Const" );
-        tPropCounter++;
-
-        tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
-        tParameterList( tPropIndex )( tPropCounter ).set( "property_name",            "PropWeightPrevious" );
-        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      "100.0" );
-        tParameterList( tPropIndex )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;
 
         // select matrix for y-direction
@@ -549,8 +484,16 @@ std::cout << "Typical Reynolds-number: " << tRe << " \n" << std::flush;
         tParameterList( tSPIndex )( tSPCounter ).set( "master_phase_name",       "PhaseFluid" );
         tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type",      (uint) fem::Stabilization_Type::COMPRESSIBLE_DIRICHLET_NITSCHE );
         tParameterList( tSPIndex )( tSPCounter ).set( "function_parameters",     sNitscheGammas );
-        tParameterList( tSPIndex )( tSPCounter ).set( "master_properties",  "PropViscosity,DynamicViscosity;"
-                                                                            "PropConductivity,ThermalConductivity" );
+        if ( tAutoScaleNitschePenalty )
+        {
+            tParameterList( tSPIndex )( tSPCounter ).set( "master_properties",  "PropViscosity,DynamicViscosity;"
+                                                                                "PropConductivity,ThermalConductivity" );
+        }
+        else
+        {
+            tParameterList( tSPIndex )( tSPCounter ).set( "master_properties",  "PropDummy,DynamicViscosity;"
+                                                                                "PropDummy,ThermalConductivity" );
+        }
         tSPCounter++;
 
         // create DUMMY SP for GLS
@@ -570,148 +513,108 @@ std::cout << "Typical Reynolds-number: " << tRe << " \n" << std::flush;
         uint tIWGCounter = 0;
 
         // bulk IWG
-        tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name",                   "IWGBulk" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name",          "PhaseFluid" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   (uint) fem::IWG_Type::COMPRESSIBLE_NS_BULK );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "P;VX,VY;TEMP" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropViscosity,DynamicViscosity;"
-                                                                                      "PropConductivity,ThermalConductivity" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_material_model",      "MMFluid,FluidMM" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,FluidCM" );
-        if ( tHaveGLS )
+        if( tHaveBulk )
         {
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters",   "DummySP,GLS" );
+            tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name",                   "IWGBulk" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name",          "PhaseFluid" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   (uint) fem::IWG_Type::COMPRESSIBLE_NS_BULK );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "P;VX,VY;TEMP" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropViscosity,DynamicViscosity;"
+                                                                                          "PropConductivity,ThermalConductivity" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_material_model",      "MMFluid,FluidMM" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,FluidCM" );
+            if ( tHaveGLS )
+            {
+                tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters",   "DummySP,GLS" );
+            }
+            tIWGCounter++;
         }
-        tIWGCounter++;
-
-        // Boundary IWG for top and bottom
-        // Boundary IWG inlet
-        // Boundary IWG outlet
-        // tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
-        // tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name",                   "IWGBoundaryOutlet" );
-        // tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type",              (uint) fem::Element_Type::SIDESET );
-        // tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name",          "PhaseFluid" );
-        // tParameterList( tIWGIndex )( tIWGCounter ).set( "side_ordinals",              "2" );
-        // tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   (uint) fem::IWG_Type::COMPRESSIBLE_NS_BOUNDARY );
-        // tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "P;VX,VY;TEMP" );
-        // tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropOutletPressure,Pressure;"
-        //                                                                               "PropViscosity,DynamicViscosity;" 
-        //                                                                               "PropConductivity,ThermalConductivity" );
-        // tParameterList( tIWGIndex )( tIWGCounter ).set( "master_material_model",      "MMFluid,FluidMM" );
-        // tParameterList( tIWGIndex )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,FluidCM" );
-        // tIWGCounter++;
 
         // Nitsche IWG for top and bottom
-        tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name",                   "IWGNitscheSides" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type",              (uint) fem::Element_Type::SIDESET );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name",          "PhaseFluid" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "side_ordinals",              "1,3" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   (uint) fem::IWG_Type::COMPRESSIBLE_NS_DIRICHLET_SYMMETRIC_NITSCHE );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "P;VX,VY;TEMP" );
-        if ( tAllowSlip )
+        if( tHaveTopBottomVelNitsche )
         {
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropZeroU,PrescribedVelocity;"
-                                                                                          "PropSelectY,SelectVelocity;"
-                                                                                          //"PropUpwind,PressureUpwind;"
-                                                                                          "PropViscosity,DynamicViscosity;"
-                                                                                          "PropConductivity,ThermalConductivity" );
+            tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name",                   "IWGNitscheSides" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type",              (uint) fem::Element_Type::SIDESET );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name",          "PhaseFluid" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "side_ordinals",              "1,3" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   (uint) fem::IWG_Type::COMPRESSIBLE_NS_DIRICHLET_SYMMETRIC_NITSCHE );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "P;VX,VY;TEMP" );
+            if ( tAllowSlip )
+            {
+                tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropZeroU,PrescribedVelocity;"
+                                                                                            "PropSelectY,SelectVelocity;"
+                                                                                            "PropViscosity,DynamicViscosity;"
+                                                                                            "PropConductivity,ThermalConductivity" );
+            }
+            else
+            {
+                tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropZeroU,PrescribedVelocity;"
+                                                                                            "PropViscosity,DynamicViscosity;"
+                                                                                            "PropConductivity,ThermalConductivity" );
+            }
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_material_model",      "MMFluid,FluidMM" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,FluidCM" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters",   "NitscheSP,NitschePenaltyParameter" );
+            tIWGCounter++;
         }
-        else
-        {
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropZeroU,PrescribedVelocity;"
-                                                                                          //"PropUpwind,PressureUpwind;"
-                                                                                          "PropViscosity,DynamicViscosity;"
-                                                                                          "PropConductivity,ThermalConductivity" );
-        }
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_material_model",      "MMFluid,FluidMM" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,FluidCM" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters",   "NitscheSP,NitschePenaltyParameter" );
-        tIWGCounter++;
 
-        // Nitsche IWG inlet
-        tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name",                   "IWGNitscheInlet" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type",              (uint) fem::Element_Type::SIDESET );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name",          "PhaseFluid" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "side_ordinals",              "4" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   (uint) fem::IWG_Type::COMPRESSIBLE_NS_DIRICHLET_SYMMETRIC_NITSCHE );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "P;VX,VY;TEMP" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropInletU,PrescribedVelocity;"
-                                                                                      "PropInletTemperature,PrescribedDof3;"
-                                                                                      "PropUpwind,PressureUpwind;"
-                                                                                      "PropViscosity,DynamicViscosity;"
-                                                                                      "PropConductivity,ThermalConductivity" );
-        // tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropInletPressure,PrescribedDof1;" 
-        //                                                                               "PropInletTemperature,PrescribedDof3;"
-        //                                                                               "PropUpwind,PressureUpwind;"
-        //                                                                               "PropViscosity,DynamicViscosity;"
-        //                                                                               "PropConductivity,ThermalConductivity" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_material_model",      "MMFluid,FluidMM" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,FluidCM" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters",   "NitscheSP,NitschePenaltyParameter" );
-        tIWGCounter++;
+        // Upwind pressure inlet IWG
+        if( tHavePressureInletBC )
+        {
+            tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name",                   "IWGNitscheInlet" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type",              (uint) fem::Element_Type::SIDESET );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name",          "PhaseFluid" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "side_ordinals",              "4" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   (uint) fem::IWG_Type::COMPRESSIBLE_NS_DIRICHLET_UNSYMMETRIC_NITSCHE );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "P;VX,VY;TEMP" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropInletPressure,PrescribedDof1;" 
+                                                                                          "PropViscosity,DynamicViscosity;"
+                                                                                          "PropConductivity,ThermalConductivity" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_material_model",      "MMFluid,FluidMM" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,FluidCM" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters",   "NitscheSP,NitschePenaltyParameter" );
+            tIWGCounter++;
+        }
+
+        // Temperature Nitsche inlet IWG
+        if( tHaveTemperatureInletBC )
+        {
+            tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name",                   "IWGNitscheInlet" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type",              (uint) fem::Element_Type::SIDESET );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name",          "PhaseFluid" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "side_ordinals",              "4" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   (uint) fem::IWG_Type::COMPRESSIBLE_NS_DIRICHLET_UNSYMMETRIC_NITSCHE );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "P;VX,VY;TEMP" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropInletTemperature,PrescribedDof3;"
+                                                                                          "PropViscosity,DynamicViscosity;"
+                                                                                          "PropConductivity,ThermalConductivity" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_material_model",      "MMFluid,FluidMM" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,FluidCM" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters",   "NitscheSP,NitschePenaltyParameter" );
+            tIWGCounter++;
+        }
 
         // Nitsche IWG outlet
-        tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name",                   "IWGNitscheOutlet" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type",              (uint) fem::Element_Type::SIDESET );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name",          "PhaseFluid" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "side_ordinals",              "2" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   (uint) fem::IWG_Type::COMPRESSIBLE_NS_DIRICHLET_SYMMETRIC_NITSCHE );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "P;VX,VY;TEMP" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropOutletPressure,PrescribedDof1;"
-                                                                                      "PropUpwind,PressureUpwind;"
-                                                                                      "PropViscosity,DynamicViscosity;"
-                                                                                      "PropConductivity,ThermalConductivity" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_material_model",      "MMFluid,FluidMM" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,FluidCM" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters",   "NitscheSP,NitschePenaltyParameter" );
-        tIWGCounter++;
-
-        if ( tIsTransient )
+        if( tHavePressureOutletBC )
         {
-            // Time continuity for Pressure
             tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name",                   "IWGTimeContinuityPressure" );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type",              ( uint ) fem::Element_Type::BULK );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name",                   "IWGNitscheOutlet" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type",              (uint) fem::Element_Type::SIDESET );
             tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name",          "PhaseFluid" );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   ( uint ) fem::IWG_Type::TIME_CONTINUITY_DOF );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "P" );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_dof_dependencies",    "P;VX,VY;TEMP" );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropWeightCurrent,WeightCurrent;"
-                                                                                          "PropWeightPrevious,WeightPrevious;"
-                                                                                          "PropInitialPressure,InitialCondition" );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "time_continuity",            true );
-            tIWGCounter++;
-
-            // Time continuity for Velocity
-            tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name",                   "IWGTimeContinuityVelocity" );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type",              ( uint ) fem::Element_Type::BULK );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name",          "PhaseFluid" );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   ( uint ) fem::IWG_Type::TIME_CONTINUITY_DOF );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "VX,VY" );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_dof_dependencies",    "P;VX,VY;TEMP" );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropWeightCurrent,WeightCurrent;"
-                                                                                          "PropWeightPrevious,WeightPrevious;"
-                                                                                          "PropInitialVelocity,InitialCondition" );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "time_continuity",            true );
-            tIWGCounter++;
-
-            // Time continuity for Temperature
-            tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name",                   "IWGTimeContinuityTemp" );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type",              ( uint ) fem::Element_Type::BULK );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name",          "PhaseFluid" );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   ( uint ) fem::IWG_Type::TIME_CONTINUITY_DOF );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "TEMP" );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_dof_dependencies",    "P;VX,VY;TEMP" );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropWeightCurrent,WeightCurrent;"
-                                                                                          "PropWeightPrevious,WeightPrevious;"
-                                                                                          "PropInitialTemperature,InitialCondition" );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "time_continuity",            true );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "side_ordinals",              "2" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   (uint) fem::IWG_Type::COMPRESSIBLE_NS_DIRICHLET_SYMMETRIC_NITSCHE );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "P;VX,VY;TEMP" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropOutletPressure,PrescribedDof1;"
+                                                                                          "PropUpwind,PressureUpwind;"
+                                                                                          "PropViscosity,DynamicViscosity;"
+                                                                                          "PropConductivity,ThermalConductivity" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_material_model",      "MMFluid,FluidMM" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,FluidCM" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters",   "NitscheSP,NitschePenaltyParameter" );
             tIWGCounter++;
         }
 
@@ -755,23 +658,6 @@ std::cout << "Typical Reynolds-number: " << tRe << " \n" << std::flush;
         tParameterList( tIQIIndex )( tIQICounter ).set( "dof_quantity",           "TEMP" );
         tIQICounter++;
 
-        // inlet velocity field
-        tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name",               "IQIinletVelX" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "master_phase_name",      "PhaseFluid" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type",               (uint) fem::IQI_Type::PROPERTY );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "master_properties",      "PropInletU,Property");
-        tParameterList( tIQIIndex )( tIQICounter ).set( "vectorial_field_index",  0 );
-        tIQICounter++;
-
-        tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name",               "IQIinletVelY" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "master_phase_name",      "PhaseFluid" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type",               (uint) fem::IQI_Type::PROPERTY );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "master_properties",      "PropInletU,Property");
-        tParameterList( tIQIIndex )( tIQICounter ).set( "vectorial_field_index",  1 );
-        tIQICounter++;
-
         // local Mach number
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name",               "IQIMachNumber" );
@@ -810,44 +696,48 @@ std::cout << "Typical Reynolds-number: " << tRe << " \n" << std::flush;
         tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
 
         tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
+        if ( tWriteLhsToHDF5 )
+        {
+            tParameterlist( 1 )( 0 ).set("DLA_LHS_output_filename", "LHS" );
+        }
 
         tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
         tParameterlist( 2 )( 0 ).set("NLA_rel_res_norm_drop",    2.0e-06 );
         tParameterlist( 2 )( 0 ).set("NLA_relaxation_parameter", 1.0 );
-        tParameterlist( 2 )( 0 ).set("NLA_max_iter",             20 );
+        tParameterlist( 2 )( 0 ).set("NLA_max_iter",             10 );
 
         tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
         tParameterlist( 3 )( 0 ).set("NLA_DofTypes", "P;VX,VY;TEMP") ;
 
-        // for transient case 
-        if ( tIsTransient )
-        {
-            tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
-            //tParameterlist( 4 )( 0 ).set("TSA_Nonlinear_solver", 2);       
-            tParameterlist( 4 )( 0 ).set("TSA_Num_Time_Steps", tNumTimeSteps );
-            tParameterlist( 4 )( 0 ).set("TSA_Time_Frame",     tTimeFrame );
+        tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
 
-            tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
-            tParameterlist( 5 )( 0 ).set("TSA_DofTypes"           , "P;VX,VY;TEMP" );
-            tParameterlist( 5 )( 0 ).set("TSA_Initialize_Sol_Vec" , "P," + ios::stringify( tOutletPressure ) + 
-                                                                    ";VX,0.00001;VY,0.00001;TEMP," + ios::stringify( tInletTemperature ) );
-            tParameterlist( 5 )( 0 ).set("TSA_Output_Indices"     , "0" );
-            tParameterlist( 5 )( 0 ).set("TSA_Output_Crteria"     , "Output_Criterion" );
-        }
-        // for static case
-        else
-        {
-            tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
+        tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
+        tParameterlist( 5 )( 0 ).set("TSA_DofTypes"           , "P;VX,VY;TEMP" );
+        tParameterlist( 5 )( 0 ).set("TSA_Output_Indices"     , "0" );
+        tParameterlist( 5 )( 0 ).set("TSA_Output_Crteria"     , "Output_Criterion" );
 
-            tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
-            tParameterlist( 5 )( 0 ).set("TSA_DofTypes",            "P;VX,VY;TEMP") ;
-            tParameterlist( 5 )( 0 ).set("TSA_Initialize_Sol_Vec",  "P," + ios::stringify( tOutletPressure ) + 
-                                                                    ";VX,0.00;VY,0.0;TEMP," + ios::stringify( tInletTemperature ) );
-            tParameterlist( 5 )( 0 ).set("TSA_Output_Indices",      "0") ;
-            tParameterlist( 5 )( 0 ).set("TSA_Output_Crteria",      "Output_Criterion") ;
+        // for pseudo-transient case, have a time step
+        if ( tIsPseudoTransient )
+        { 
+            tParameterlist( 4 )( 0 ).set("TSA_Num_Time_Steps", 1 );
+            tParameterlist( 4 )( 0 ).set("TSA_Time_Frame",     tPseudoTimeFrame );
         }
+
+        tParameterlist( 5 )( 0 ).set("TSA_Initialize_Sol_Vec",  "P," + ios::stringify( tOutletPressure ) + 
+                                                                ";VX," + ios::stringify( tInitialXVelocity ) + 
+                                                                ";VY," + ios::stringify( tInitialYVelocity ) + 
+                                                                ";TEMP," + ios::stringify( tInletTemperature ) );
+
 
         tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
+        if ( tWriteJacAndResToMatlab )
+        {
+            tParameterlist( 6 )( 0 ).set( "SOL_save_operator_to_matlab", "Channel_Compressible" );
+        }
+        if ( tWriteSolVecToHDF5 )
+        {
+            tParameterlist( 6 )( 0 ).set( "TSA_Save_Sol_Vecs_to_file", "SolVec" );
+        }
     }
 
     //------------------------------------------------------------------------------
