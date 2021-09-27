@@ -73,10 +73,51 @@ void check_linear_results(moris::mtk::Exodus_IO_Helper & aExoIO,uint aNodeId)
 //---------------------------------------------------------------
 
 extern "C"
+void check_linear_results_stress(moris::mtk::Exodus_IO_Helper & aExoIO,uint aNodeId)
+{
+    if (gPrintReferenceValues)
+    {
+        // coordinates of reference point
+        moris::print( aExoIO.get_nodal_coordinate( aNodeId ), "Coordinates of reference point");
+
+        std::cout<<"U1: "<<               aExoIO.get_nodal_field_value( aNodeId, 2, 0 ) << std::endl;
+        std::cout<<"U2: "<<               aExoIO.get_nodal_field_value( aNodeId, 3, 0 ) << std::endl;
+        std::cout<<"S_VM: "<<             aExoIO.get_nodal_field_value( aNodeId, 4, 0 ) << std::endl;
+        std::cout<<"S_11 (x): "<<         aExoIO.get_nodal_field_value( aNodeId, 5, 0 ) << std::endl;
+        std::cout<<"S_22 (radial): "<<    aExoIO.get_nodal_field_value( aNodeId, 6, 0 ) << std::endl;
+        std::cout<<"S_33 (azimuthal): "<< aExoIO.get_nodal_field_value( aNodeId, 7, 0 ) << std::endl;
+        return;
+    }
+
+    // define error threshold
+    real tEpsilon = 1.0e-5;
+
+    // define reference coordinates for node aNodeId
+    Matrix< DDRMat > tReferenceCoordinate = { {1.0},{1.0} };
+
+    // check nodal coordinates
+    real tRelDiffNorm = moris::norm( aExoIO.get_nodal_coordinate( aNodeId ) - tReferenceCoordinate )/ moris::norm(tReferenceCoordinate);
+    REQUIRE( tRelDiffNorm <  tEpsilon );
+
+    // check stresses.  Since this is a solid cylinder, the radial and azimuthal stress should be equal to the pressure (neumann traction)
+    // pressure = 1.0 so radial and theta stress should be -1.0
+    // https://en.wikipedia.org/wiki/Cylinder_stress
+    real tReference_S_x     = 0.0;
+    real tReference_S_rad   = -1.0;
+    real tReference_S_theta = -1.0;
+    REQUIRE(  aExoIO.get_nodal_field_value( aNodeId, 5, 0 ) - tReference_S_x     < tEpsilon);
+    REQUIRE(  aExoIO.get_nodal_field_value( aNodeId, 6, 0 ) - tReference_S_rad   < tEpsilon);
+    REQUIRE(  aExoIO.get_nodal_field_value( aNodeId, 7, 0 ) - tReference_S_theta < tEpsilon);
+}
+
+//---------------------------------------------------------------
+
+extern "C"
 void check_linear_results_serial()
 {
     // open and query exodus output file (set verbose to true to get basic mesh information)
     moris::mtk::Exodus_IO_Helper tExoIO("Axisymmetric_Problem.exo",0,false,false);
+    moris::mtk::Exodus_IO_Helper tExoIO_thermal("Axisymmetric_Problem_ConstantThermalField.exo",0,false,false);
 
     // check dimension, number of nodes and number of elements
     uint tNumDims  = tExoIO.get_number_of_dimensions();
@@ -100,6 +141,7 @@ void check_linear_results_serial()
     uint tNodeId = 7;
 
     check_linear_results(tExoIO,tNodeId);
+    check_linear_results_stress(tExoIO_thermal,tNodeId);
 }
 
 //---------------------------------------------------------------
@@ -118,11 +160,18 @@ TEST_CASE("Axisymmetric_Problem_Linear",
 
     char * argv[2] = {tString1,tString2};
 
+    char tString1_thermal[] = "";
+    char tString2_thermal[] = "./Axisymmetric_Problem_ConstantThermalField.so";
+
+    char * argv_thermal[2] = {tString1_thermal,tString2_thermal};
+
     // call to performance manager main interface
     int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
+    int tRet_thermal = fn_WRK_Workflow_Main_Interface( argc, argv_thermal );
 
     // catch test statements should follow
-    REQUIRE( tRet ==  0 );
+    REQUIRE( tRet         ==  0 );
+    REQUIRE( tRet_thermal ==  0 );
 
     // check results
     switch ( par_size() )

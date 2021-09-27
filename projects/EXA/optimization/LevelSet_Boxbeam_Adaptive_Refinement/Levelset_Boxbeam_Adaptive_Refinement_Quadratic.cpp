@@ -455,6 +455,7 @@ namespace moris
         tParameterlist( 0 )( 0 ).set("phase_table",moris::ios::stringify(tPhaseMap));
 
         tParameterlist( 0 )( 0 ).set("print_phase_table", true);
+        tParameterlist( 0 )( 0 ).set("intersection_tolerance", 1e-8);
 
        // init geometry counter
         uint tGeoCounter = 0;
@@ -588,14 +589,14 @@ namespace moris
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      std::string("SPGhost_Frame") );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type",      static_cast< uint >( fem::Stabilization_Type::GHOST_DISPL ) );
-        tParameterList( 2 )( tSPCounter ).set( "function_parameters",     std::string("0.05") );
+        tParameterList( 2 )( tSPCounter ).set( "function_parameters",     std::string("1.0") );
         tParameterList( 2 )( tSPCounter ).set( "master_properties",       std::string("PropYoungs,Material") );
         tSPCounter++;
 
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      std::string("SPGhost_Interior") );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type",      static_cast< uint >( fem::Stabilization_Type::GHOST_DISPL ) );
-        tParameterList( 2 )( tSPCounter ).set( "function_parameters",     std::string("0.05") );
+        tParameterList( 2 )( tSPCounter ).set( "function_parameters",     std::string("1.0") );
         tParameterList( 2 )( tSPCounter ).set( "master_properties",       std::string("PropYoungs,Material") );
         tSPCounter++;
 
