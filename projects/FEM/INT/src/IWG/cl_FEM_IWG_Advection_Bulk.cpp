@@ -93,8 +93,6 @@ namespace moris
             // compute YZBeta contribution to residual
             if ( tSPYZBeta )
             {
-                Matrix< DDRMat > tDummy( tFITemp->dnNdxn( 1 ).n_rows(), 1, 1.0);
-
                 mSet->get_residual()( 0 )(
                         { tMasterResStartIndex, tMasterResStopIndex } ) += aWStar *
                         tSPYZBeta->val()( 0 ) * std::abs(tRT( 0, 0 )) * trans( tFITemp->dnNdxn( 1 ) ) * tCMDiffusion->gradEnergy();
