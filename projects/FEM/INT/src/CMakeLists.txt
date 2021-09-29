@@ -203,7 +203,6 @@ set(HEADERS
     IQI/cl_FEM_IQI_L2_Error_Analytic.hpp
     IQI/cl_FEM_IQI_H1_Error_Analytic.hpp
     IQI/cl_FEM_IQI_H1_Error.hpp
-    IQI/cl_FEM_IQI_Heat_Method_Penalty.hpp
     IQI/cl_FEM_IQI_J_Integral.hpp
     IQI/cl_FEM_IQI_Volume_Fraction.hpp
     IQI/cl_FEM_IQI_2D_Drag_Lift_Coefficient.hpp
@@ -216,6 +215,7 @@ set(HEADERS
     IQI/cl_FEM_IQI_Stabilization.hpp
     IQI/cl_FEM_IQI_Homogenized_Constitutive.hpp
     IQI/cl_FEM_IQI_Heat_Method_Penalty.hpp
+    IQI/cl_FEM_IQI_Advection_Strong_Residual.hpp
      
     MEA/cl_FEM_Cluster_Measure.hpp
     )
@@ -395,7 +395,6 @@ set(LIB_SOURCES
     IQI/cl_FEM_IQI_L2_Error_Analytic.cpp
     IQI/cl_FEM_IQI_H1_Error_Analytic.cpp
     IQI/cl_FEM_IQI_H1_Error.cpp
-    IQI/cl_FEM_IQI_Heat_Method_Penalty.cpp
     IQI/cl_FEM_IQI_J_Integral.cpp
     IQI/cl_FEM_IQI_2D_Drag_Lift_Coefficient.cpp
     IQI/cl_FEM_IQI_Volume_Fraction.cpp
@@ -409,6 +408,7 @@ set(LIB_SOURCES
     IQI/cl_FEM_IQI_Stabilization.cpp
     IQI/cl_FEM_IQI_Homogenized_Constitutive.cpp
     IQI/cl_FEM_IQI_Heat_Method_Penalty.cpp
+    IQI/cl_FEM_IQI_Advection_Strong_Residual.cpp
     
     MEA/cl_FEM_Cluster_Measure.cpp
     

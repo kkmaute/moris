@@ -140,6 +140,8 @@ namespace moris
                 THERMAL_ENERGY_CONVECTIVE_FLUX,
                 THERMAL_ENERGY_DIFFUSIVE_FLUX,
 
+                ADVECTION_STRONG_RESIDUAL,
+
                 MAX_STRESS,
                 MAX_NORMAL_STRESS,
                 MAX_SHEAR_STRESS,

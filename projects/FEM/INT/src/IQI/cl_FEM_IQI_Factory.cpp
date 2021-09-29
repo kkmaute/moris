@@ -31,6 +31,7 @@
 #include "cl_FEM_IQI_Heat_Method_Penalty.hpp"
 #include "cl_FEM_IQI_Thermal_Energy_Convective_Flux.hpp"
 #include "cl_FEM_IQI_Thermal_Energy_Diffusive_Flux.hpp"
+#include "cl_FEM_IQI_Advection_Strong_Residual.hpp"
 
 namespace moris
 {
@@ -121,6 +122,9 @@ namespace moris
 
                 case IQI_Type::HEAT_METHOD_PENALTY:
                     return std::make_shared< IQI_Heat_Method_Penalty >();
+
+                case IQI_Type::ADVECTION_STRONG_RESIDUAL:
+                    return std::make_shared< IQI_Advection_Strong_Residual >();
 
                 default:
                     MORIS_ERROR( false, " IQI_Factory::create_IQI - No IQI type specified. " );
