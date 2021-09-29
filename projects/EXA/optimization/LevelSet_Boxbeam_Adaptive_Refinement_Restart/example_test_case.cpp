@@ -87,7 +87,7 @@ TEST_CASE("Leveset Boxbeam Create File",
     REQUIRE( tRet ==  0 );
 
     // set test case index
-    uint tTestCaseIndex = 1;
+    // uint tTestCaseIndex = 1;
 
     // perform check for Test Case 0
     //check_results("Levelset_Boxbeam_Adaptive_Refinement.exo.e-s.0015",tTestCaseIndex);
