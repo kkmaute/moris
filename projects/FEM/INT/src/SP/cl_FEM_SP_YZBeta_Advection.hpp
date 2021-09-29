@@ -49,6 +49,13 @@ namespace moris
                     MAX_ENUM
                 };
 
+                // local constitutive enums
+                enum class IWG_Constitutive_Type
+                {
+                    DIFFUSION,
+                    MAX_ENUM
+                };
+
                 // internal threshold
                 const real mEpsilon = 1e-18;
 

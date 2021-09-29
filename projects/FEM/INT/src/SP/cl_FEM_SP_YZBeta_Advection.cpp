@@ -24,6 +24,12 @@ namespace moris
             // populate the map
             mPropertyMap[ "Beta" ]                = static_cast< uint >( Property_Type::BETA_CONSTANT );
             mPropertyMap[ "ReferenceState" ]      = static_cast< uint >( Property_Type::REFERENCE_STATE );
+
+            // set size for the constitutive model pointer cell
+            mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+
+            // populate the constitutive map
+            mConstitutiveMap[ "Diffusion" ] = static_cast< uint >( IWG_Constitutive_Type::DIFFUSION );
         }
 
         //------------------------------------------------------------------------------
@@ -84,12 +90,19 @@ namespace moris
             Field_Interpolator * tScalarFI =
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofScalarField );
 
+            // get the diffusion CM
+            const std::shared_ptr< Constitutive_Model > & tCMDiffusion =
+                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
+
+            MORIS_ASSERT( tCMDiffusion != nullptr,
+                    "SP_YZBeta_Advection::eval_SP - constitutive model not defined\n");
+
             // get the beta property
             const std::shared_ptr< Property > & tPropBeta =
                     mMasterProp( static_cast< uint >( Property_Type::BETA_CONSTANT ) );
 
             MORIS_ASSERT( tPropBeta != nullptr,
-                    "SP_YZBeta_Advection::eval_SP - beta not defined\n");
+                    "SP_YZBeta_Advection::eval_SP - beta parameter not defined\n");
 
             const real tBeta = tPropBeta->val()(0);
 
@@ -103,12 +116,12 @@ namespace moris
             const real tYref = tPropYref->val()(0);
 
             // compute norm of spatial gradient of scalar field; apply threshold
-            const real tGradNorm = std::max( norm( tScalarFI->gradx(1) ), mEpsilon );
+            const real tGradNorm = std::max( norm( tCMDiffusion->gradEnergy() ), mEpsilon );
 
             // get unit vector in direction of spatial gradient of scalar field
-            Matrix< DDRMat > tJ = tScalarFI->gradx(1) / tGradNorm;
+            Matrix< DDRMat > tJ = tCMDiffusion->gradEnergy() / tGradNorm;
 
-            // compute hdc ( Eqn 14 in Bazilev (2007) )
+            // compute hdc ( Eqn 14 in Bazilevs (2007) )
             const uint tNumNodes = tScalarFI->dnNdxn( 1 ).n_cols();
 
             // auxiliary variables to compute denominator in Eqn. 14
@@ -122,7 +135,7 @@ namespace moris
             // threshold tHdcAux
             tHdcAux = std::max(tHdcAux, mEpsilon);
 
-            // compute hdc with Eqn (14) but ommit factor 2 as cancels out in Eqn 12
+            // compute hdc with Eqn (14) but omit factor 2 as cancels out in Eqn 12
             const real tHdcHalf = 1.0 / tHdcAux;
 
             // evaluate Eqn (12) without accounting for |Z|
@@ -151,6 +164,10 @@ namespace moris
             Field_Interpolator * tScalarFI =
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofScalarField );
 
+            // get the diffusion CM
+            const std::shared_ptr< Constitutive_Model > & tCMDiffusion =
+                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
+
             // get the beta property
             const std::shared_ptr< Property > & tPropBeta =
                     mMasterProp( static_cast< uint >( Property_Type::BETA_CONSTANT ) );
@@ -164,10 +181,10 @@ namespace moris
             const real tYref = tPropYref->val()(0);
 
             // compute norm of spatial gradient of scalar field; apply threshold
-            const real tGradNorm = std::max( norm( tScalarFI->gradx(1) ), mEpsilon );
+            const real tGradNorm = std::max( norm( tCMDiffusion->gradEnergy() ), mEpsilon );
 
             // get unit vector in direction of spatial gradient of scalar field
-            Matrix< DDRMat > tJ = tScalarFI->gradx(1) / tGradNorm;
+            Matrix< DDRMat > tJ = tCMDiffusion->gradEnergy() / tGradNorm;
 
             // compute hdc ( Eqn 14 in Bazilev (2007) )
             const uint tNumNodes = tScalarFI->dnNdxn( 1 ).n_cols();
@@ -187,17 +204,17 @@ namespace moris
             const real tHdcHalf = 1.0 / tHdcAux;
 
             // if dof type is scalar field
-            if( aDofTypes( 0 ) == mMasterDofScalarField )
+            if( tCMDiffusion->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative of hdc wrt scalar field dof
-                Matrix< DDRMat > tdGradNormdu( 1, tScalarFI->get_number_of_space_time_coefficients() );
-                Matrix< DDRMat > tdHdcAuxdu  ( 1, tScalarFI->get_number_of_space_time_coefficients(), 0.0 );
-                Matrix< DDRMat > tdHdcHalfdu ( 1, tScalarFI->get_number_of_space_time_coefficients() );
+                Matrix< DDRMat > tdGradNormdu( 1, tFIDer->get_number_of_space_time_coefficients() );
+                Matrix< DDRMat > tdHdcAuxdu  ( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
+                Matrix< DDRMat > tdHdcHalfdu ( 1, tFIDer->get_number_of_space_time_coefficients() );
 
                 // compute derivative of the scalar field gradient norm (compute only derivative if not thresholded)
                 if ( tGradNorm > mEpsilon )
                 {
-                    tdGradNormdu = trans( tScalarFI->gradx(1) ) * tScalarFI->dnNdxn( 1 ) / tGradNorm;
+                    tdGradNormdu = trans( tCMDiffusion->gradEnergy() ) * tCMDiffusion->dGradEnergydDOF( aDofTypes ) / tGradNorm;
                 }
                 else
                 {
@@ -205,8 +222,8 @@ namespace moris
                 }
 
                 // compute derivative of unit vector in direction of spatial gradient of scalar field
-                 Matrix< DDRMat > tdJdu = tScalarFI->dnNdxn( 1 ) / tGradNorm
-                         - tScalarFI->gradx(1) * tdGradNormdu / tGradNorm / tGradNorm;
+                 Matrix< DDRMat > tdJdu = tCMDiffusion->dGradEnergydDOF( aDofTypes ) / tGradNorm
+                         - tCMDiffusion->gradEnergy() * tdGradNormdu / tGradNorm / tGradNorm;
 
                 // compute derivative of the abs term (compute only derivative if not thresholded)
                 if ( tHdcAux > mEpsilon )

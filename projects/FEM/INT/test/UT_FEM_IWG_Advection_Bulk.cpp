@@ -859,6 +859,7 @@ TEST_CASE( "IWG_Advection_Bulk_YZBeta", "[IWG_Advection_Bulk_YZBeta]" )
     std::shared_ptr< fem::Stabilization_Parameter > tSPYZBeta =
             tSPFactory.create_SP( fem::Stabilization_Type::YZBETA_ADVECTION );
     tSPYZBeta->set_dof_type_list( { tTempDofTypes } );
+    tSPYZBeta->set_constitutive_model( tCMDiffusion, "Diffusion" );
     tSPYZBeta->set_property( tPropBeta,      "Beta",           mtk::Master_Slave::MASTER );
     tSPYZBeta->set_property( tPropRefState,  "ReferenceState", mtk::Master_Slave::MASTER );
 
