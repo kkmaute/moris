@@ -711,6 +711,9 @@ namespace moris
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
 
+            // initialize space - time volume
+            real tSpaceTimeVolume = 0.0;
+
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get the ith integration point in the IG param space
@@ -732,6 +735,9 @@ namespace moris
                 // compute integration point weight
                 real tWStar = mSet->get_integration_weights()( iGP ) * tDetJ;
 
+                // add contribution to space-time volume
+                tSpaceTimeVolume += tWStar;
+
                 // loop over IQI
                 for( uint iIQI = 0; iIQI < tNumLocalIQIs; iIQI++ )
                 {
@@ -750,11 +756,24 @@ namespace moris
                     Matrix< DDRMat > tQIElemental( 1, 1, 0.0 );
                     tReqIQI->compute_QI( tQIElemental );
 
-                    // assemble the nodal QI value on the set
+                    // assemble the QI value on the set
                     ( *mSet->mSetElementalValues )(
                             mSet->mCellAssemblyMap( aMeshIndex )( mMasterCell->get_index() ), tGlobalIndex ) +=
-                                    tWStar * tQIElemental( 0 ) / tNumIntegPoints;
+                                    tWStar * tQIElemental( 0 );
                 }
+            }
+
+            // loop over IQI and divide each elemental IQI by space-time volume
+            for( uint iIQI = 0; iIQI < tNumLocalIQIs; iIQI++ )
+            {
+                // get IQI global index
+                moris_index tGlobalIndex =
+                        mSet->get_requested_elemental_IQIs_global_indices_for_visualization()( iIQI );
+
+                // devide by space-time volume
+                ( *mSet->mSetElementalValues )(
+                        mSet->mCellAssemblyMap( aMeshIndex )( mMasterCell->get_index() ), tGlobalIndex ) /=
+                                tSpaceTimeVolume;
             }
         }
 
