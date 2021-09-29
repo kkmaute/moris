@@ -3784,6 +3784,57 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        moris::Cell< mtk::Cell * > Lagrange_Mesh_Base::get_elements_in_interpolation_cluster(
+                moris_index aElementIndex,
+                moris_index aDiscretizationMeshIndex )
+        {
+            // get B-Spline pattern of this mesh
+            auto tBSplinePattern = mBSplineMeshes( aDiscretizationMeshIndex )->get_activation_pattern();
+            // get Lagrange pattern of this mesh
+            auto tLagrangePattern = this->get_activation_pattern();
+
+            // select pattern
+            this->select_activation_pattern();
+
+            // get pointer to element
+            auto tLagrangeElement = this->get_element( aElementIndex );
+
+            // get pointer to background element
+            auto tBackgroundElement = tLagrangeElement->get_background_element();
+
+            while( ! tBackgroundElement->is_active( tBSplinePattern ) )
+            {
+                // jump to parent
+                tBackgroundElement = tBackgroundElement->get_parent();
+            }
+
+            // initialize counter
+            luint tCount = 0;
+
+            tBackgroundElement->get_number_of_active_descendants( tLagrangePattern, tCount );
+
+            moris::Cell< Background_Element_Base * > tActiveElements( tCount, nullptr );
+
+            // reset counter
+            tCount = 0;
+
+            tBackgroundElement->collect_active_descendants( tLagrangePattern, tActiveElements, tCount );
+
+            moris::Cell< mtk::Cell * > tLagrangeCells( tCount, nullptr );
+
+            for( uint Ik = 0; Ik < tCount; Ik ++ )
+            {
+                luint tMemoryIndex =tActiveElements( Ik )->get_memory_index();
+
+                tLagrangeCells( Ik ) = this->get_element_by_memory_index( tMemoryIndex );
+            }
+
+            return tLagrangeCells;
+
+        }
+
+        //------------------------------------------------------------------------------
+
         /*Matrix< IndexMat > &
         Lagrange_Mesh_Base::get_side_set_ids( const std::string & aLabel )
         {

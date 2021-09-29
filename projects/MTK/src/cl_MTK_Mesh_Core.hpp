@@ -82,6 +82,18 @@ namespace moris
 
             uint get_discretization_order( moris_index aDiscretizationIndex );
 
+            /**
+             * Returns lagrange elements inside the same B-Spline elements as the input lagragne element
+             *
+             * @param aElementIndex Lagrange element Index
+             * @param aDiscretizationMeshIndex dicretization mesh index
+             *
+             * @return Lagrange elements
+             */
+            moris::Cell< mtk::Cell * > get_elements_in_interpolation_cluster(
+                    moris_index aElementIndex,
+                    moris_index aDiscretizationMeshIndex );
+
             // FIXME This should be default, individual calls should be virtual
             /**
              * Gets the number of entities for a specified entity rank.

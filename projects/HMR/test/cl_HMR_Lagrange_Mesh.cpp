@@ -19,6 +19,8 @@
 
 #include "HDF5_Tools.hpp"
 
+#include "fn_PRM_HMR_Parameters.hpp"
+
 using namespace moris;
 using namespace hmr;
 
@@ -1188,7 +1190,7 @@ TEST_CASE("HMR_T_Matrix_2_refinements", "[moris],[mesh],[hmr],[hmr_t_matrix_2_re
             }
         }
 
-                //tHMR.save_to_exodus( tLagrangeMeshInex, "Mesh_lin.exo" );
+        //tHMR.save_to_exodus( tLagrangeMeshInex, "Mesh_lin.exo" );
         //
         //        tHMR.renumber_and_save_to_exodus( "Mesh_lin_renumber.exo" );
         //        tHMR.save_bsplines_to_vtk("Basis_renumber.vtk");
@@ -1406,5 +1408,82 @@ TEST_CASE("Lagrange_Mesh_4_proc_meshes","[moris],[hmr],[Lagrange_Mesh_4_proc_mes
         }
     }
 }
+
+TEST_CASE("Lagrange_Mesh_BSpline_Element_support","[moris],[hmr],[Elements in B-Spline element support],[lagrange_mesh]")
+{
+    if( par_rank() == 0)
+    {
+        ParameterList tParameterlist = prm::create_hmr_parameter_list();
+
+        tParameterlist.set( "number_of_elements_per_dimension", "2,2");
+        tParameterlist.set( "domain_dimensions",                "1,1"    );
+        tParameterlist.set( "domain_offset",                    "0,0");
+        tParameterlist.set( "domain_sidesets",                  "1,2,3,4");
+        tParameterlist.set( "lagrange_output_meshes",           "0");
+
+        tParameterlist.set( "lagrange_orders",  "1"   );
+        tParameterlist.set( "lagrange_pattern", "0" );
+
+        tParameterlist.set( "bspline_orders",   "1,1" );
+        tParameterlist.set( "bspline_pattern",  "0,1" );
+
+        tParameterlist.set( "initial_refinement",         "0" );
+        tParameterlist.set( "initial_refinement_pattern", "0" );
+
+        tParameterlist.set( "lagrange_to_bspline", "0,1");
+
+        tParameterlist.set( "truncate_bsplines",  1 );
+        tParameterlist.set( "refinement_buffer",  1 );
+        tParameterlist.set( "staircase_buffer",   1 );
+
+        tParameterlist.set( "use_number_aura", 1);
+
+        tParameterlist.set( "use_multigrid",  0 );
+        tParameterlist.set( "severity_level", 0 );
+
+        tParameterlist.set( "write_lagrange_output_mesh", "HMRLagrangeMesh.vtk" );
+
+        // create the HMR object by passing the settings to the constructor
+        moris::hmr::HMR tHMR( tParameterlist );
+
+        tHMR.perform_initial_refinement();
+
+        //-----------------------------------------
+
+        moris::hmr::Background_Mesh_Base* tBackgroundMesh = tHMR.get_database()->get_background_mesh();
+
+        // manually select output pattern
+        tHMR.get_database()->set_activation_pattern( 0 );
+
+        for( uint Ik = 0; Ik < 2; Ik ++ )
+        {
+            tHMR.get_database()->get_background_mesh()->get_element( 0 )->put_on_refinement_queue();
+
+            // refine mesh
+            tBackgroundMesh->perform_refinement( 0 );
+        }
+
+
+
+        tHMR.get_database()->update_bspline_meshes();
+        tHMR.get_database()->update_lagrange_meshes();
+
+        tHMR.finalize();
+
+        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( 0 );
+
+        moris::Cell< mtk::Cell * > tCells_1 = tMesh->get_elements_in_interpolation_cluster( 0, 0 );
+
+        moris::Cell< mtk::Cell * > tCells_2 = tMesh->get_elements_in_interpolation_cluster( 0, 1 );
+
+        std::cout<<" "<<tCells_1.size()<<"  "<<tCells_2.size()<<std::endl;
+    }
+
+
+
+
+}
+
+
 
 
