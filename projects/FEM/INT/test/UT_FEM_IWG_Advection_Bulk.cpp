@@ -839,7 +839,7 @@ TEST_CASE( "IWG_Advection_Bulk_YZBeta", "[IWG_Advection_Bulk_YZBeta]" )
     tPropBeta->set_val_function( tConstValFunc );
 
     std::shared_ptr< fem::Property > tPropRefState = std::make_shared< fem::Property >();
-    tPropRefState->set_parameters( { {{ 30.0 }} } );
+    tPropRefState->set_parameters( { {{ 1.0 }} } );
     tPropRefState->set_val_function( tConstValFunc );
 
     // define constitutive models
