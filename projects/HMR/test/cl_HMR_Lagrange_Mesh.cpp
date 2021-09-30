@@ -1464,8 +1464,6 @@ TEST_CASE("Lagrange_Mesh_BSpline_Element_support","[moris],[hmr],[Elements in B-
             tBackgroundMesh->perform_refinement( 0 );
         }
 
-
-
         tHMR.get_database()->update_bspline_meshes();
         tHMR.get_database()->update_lagrange_meshes();
 
