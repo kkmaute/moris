@@ -973,6 +973,34 @@ namespace moris
 
         //-----------------------------------------------------------------------------
 
+        void Mesh::get_elements_in_interpolation_cluster(
+                moris_index                  aElementIndex,
+                moris_index                  aDiscretizationMeshIndex,
+                moris::Cell< mtk::Cell * > & aCells)
+        {
+            mMesh->get_elements_in_interpolation_cluster(
+                    aElementIndex,
+                    aDiscretizationMeshIndex,
+                    aCells);
+        }
+
+        //-----------------------------------------------------------------------------
+
+        void Mesh::get_elements_in_interpolation_cluster_and_side_ordianl(
+                moris_index const            aElementIndex,
+                moris_index const            aDiscretizationMeshIndex,
+                moris_index const            aSideOrdinal,
+                moris::Cell< mtk::Cell * > & aCells)
+        {
+            mMesh->get_elements_in_interpolation_cluster_and_side_ordinal(
+                    aElementIndex,
+                    aDiscretizationMeshIndex,
+                    aSideOrdinal,
+                    aCells);
+        }
+
+        //-----------------------------------------------------------------------------
+
         Matrix< IndexMat > Mesh::get_elements_connected_to_element_and_face_ind_loc_inds( moris_index aElementIndex ) const
         {
             // collect memory indices of active neighbors

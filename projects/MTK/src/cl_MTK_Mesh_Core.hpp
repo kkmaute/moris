@@ -90,9 +90,27 @@ namespace moris
              *
              * @return Lagrange elements
              */
-            moris::Cell< mtk::Cell * > get_elements_in_interpolation_cluster(
+            virtual
+            void get_elements_in_interpolation_cluster(
                     moris_index aElementIndex,
-                    moris_index aDiscretizationMeshIndex );
+                    moris_index aDiscretizationMeshIndex,
+                    moris::Cell< mtk::Cell * > & tCells);
+
+            /**
+             * Returns lagrange elements inside the same B-Spline elements as the input lagragne element and side ordinal
+             *
+             * @param aElementIndex Lagrange element Index
+             * @param aDiscretizationMeshIndex dicretization mesh index
+             * @param aSideOrdinal Side Ordinal
+             *
+             * @return Lagrange elements
+             */
+            virtual
+            void get_elements_in_interpolation_cluster_and_side_ordianl(
+                    moris_index const            aElementIndex,
+                    moris_index const            aDiscretizationMeshIndex,
+                    moris_index const            aSideOrdinal,
+                    moris::Cell< mtk::Cell * > & aCells);
 
             // FIXME This should be default, individual calls should be virtual
             /**

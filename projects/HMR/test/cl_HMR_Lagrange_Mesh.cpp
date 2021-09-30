@@ -1474,9 +1474,12 @@ TEST_CASE("Lagrange_Mesh_BSpline_Element_support","[moris],[hmr],[Elements in B-
 
         tHMR.save_mesh_to_vtk( "Lagrange_Mesh_Support.vtk", 0 );
 
-        moris::Cell< mtk::Cell * > tCells_1 = tMesh->get_elements_in_interpolation_cluster( 6, 0 );
+        moris::Cell< mtk::Cell * > tCells_1;
+        moris::Cell< mtk::Cell * > tCells_2;
 
-        moris::Cell< mtk::Cell * > tCells_2 = tMesh->get_elements_in_interpolation_cluster( 6, 1 );
+        tMesh->get_elements_in_interpolation_cluster( 6, 0, tCells_1 );
+
+        tMesh->get_elements_in_interpolation_cluster( 6, 1, tCells_2 );
 
         REQUIRE( tCells_1.size()  == 1 );
         REQUIRE( tCells_2.size()  == 7 );

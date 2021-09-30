@@ -2277,8 +2277,9 @@ namespace moris
          * Collect background elements on side set.
          * Side set numbers see Exodus II : A Finite Element Data Model, p. 13
          */
-        void Background_Mesh_Base::collect_side_set_elements( const uint                              & aPattern,
-                const uint                              & aSideOrdinal,
+        void Background_Mesh_Base::collect_side_set_elements(
+                const uint                        & aPattern,
+                const uint                        & aSideOrdinal,
                 Cell< Background_Element_Base * > & aElements )
         {
             luint tElementCounter = 0;

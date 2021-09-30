@@ -1159,12 +1159,23 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        moris::Cell< mtk::Cell * > Mesh::get_elements_in_interpolation_cluster(
+        void Mesh::get_elements_in_interpolation_cluster(
                 moris_index aElementIndex,
-                moris_index aDiscretizationMeshIndex )
+                moris_index aDiscretizationMeshIndex,
+                moris::Cell< mtk::Cell * > & tCells )
         {
-            MORIS_ERROR( this->get_mesh_type() == MeshType::HMR,"get_elements_in_interpolation_cluster() only implemented for HMR meshes");
-            return mMesh->get_elements_in_interpolation_cluster( aElementIndex, aDiscretizationMeshIndex );
+            MORIS_ERROR(0,"get_elements_in_interpolation_cluster not implemented");
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Mesh::get_elements_in_interpolation_cluster_and_side_ordianl(
+                moris_index const            aElementIndex,
+                moris_index const            aDiscretizationMeshIndex,
+                moris_index const            aSideOrdinal,
+                moris::Cell< mtk::Cell * > & aCells)
+        {
+            MORIS_ERROR(0,"get_elements_in_interpolation_cluster_and_side_ordianl not implemented");
         }
 
 
