@@ -3914,27 +3914,27 @@ namespace moris
                 }
                 case( 2 ) :
                 {
-                    tBackgroundElement->get_number_of_active_descendants_on_side_2( tLagrangePattern, tCount );
+                    tBackgroundElement->collect_active_descendants_on_side_2( tLagrangePattern, tActiveElements, tCount );
                     break;
                 }
                 case( 3 ) :
                 {
-                    tBackgroundElement->get_number_of_active_descendants_on_side_3( tLagrangePattern, tCount );
+                    tBackgroundElement->collect_active_descendants_on_side_3( tLagrangePattern, tActiveElements, tCount );
                     break;
                 }
                 case( 4 ) :
                 {
-                    tBackgroundElement->get_number_of_active_descendants_on_side_4( tLagrangePattern, tCount );
+                    tBackgroundElement->collect_active_descendants_on_side_4( tLagrangePattern, tActiveElements, tCount );
                     break;
                 }
                 case( 5 ) :
                 {
-                    tBackgroundElement->get_number_of_active_descendants_on_side_5( tLagrangePattern, tCount );
+                    tBackgroundElement->collect_active_descendants_on_side_5( tLagrangePattern, tActiveElements, tCount );
                     break;
                 }
                 case( 6 ) :
                 {
-                    tBackgroundElement->get_number_of_active_descendants_on_side_6( tLagrangePattern, tCount );
+                    tBackgroundElement->collect_active_descendants_on_side_6( tLagrangePattern, tActiveElements, tCount );
                     break;
                 }
                 default :
