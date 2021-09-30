@@ -1472,16 +1472,28 @@ TEST_CASE("Lagrange_Mesh_BSpline_Element_support","[moris],[hmr],[Elements in B-
 
         std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( 0 );
 
-        moris::Cell< mtk::Cell * > tCells_1 = tMesh->get_elements_in_interpolation_cluster( 0, 0 );
+        tHMR.save_mesh_to_vtk( "Lagrange_Mesh_Support.vtk", 0 );
 
-        moris::Cell< mtk::Cell * > tCells_2 = tMesh->get_elements_in_interpolation_cluster( 0, 1 );
+        moris::Cell< mtk::Cell * > tCells_1 = tMesh->get_elements_in_interpolation_cluster( 6, 0 );
 
-        std::cout<<" "<<tCells_1.size()<<"  "<<tCells_2.size()<<std::endl;
+        moris::Cell< mtk::Cell * > tCells_2 = tMesh->get_elements_in_interpolation_cluster( 6, 1 );
+
+        REQUIRE( tCells_1.size()  == 1 );
+        REQUIRE( tCells_2.size()  == 7 );
+
+        moris::Cell< moris_index > tRef_1 = { 6 };
+        moris::Cell< moris_index > tRef_2 = { 0,1,2,3,4,5,6 };
+
+        for( uint Ik = 0; Ik < tCells_1.size(); Ik ++)
+        {
+            REQUIRE( tCells_1(Ik)->get_index()  == tRef_1(Ik) );
+        }
+
+        for( uint Ik = 0; Ik < tCells_2.size(); Ik ++)
+        {
+            REQUIRE( tCells_2(Ik)->get_index()  == tRef_2(Ik) );
+        }
     }
-
-
-
-
 }
 
 
