@@ -339,313 +339,81 @@ namespace xtk
 
         // Core Mesh Functions
         uint 
-        get_spatial_dim() const
-        {
-            return mSpatialDimension;
-        }
+        get_spatial_dim() const;
 
         MeshType 
-        get_mesh_type() const
-        {
-            return MeshType::XTK;
-        }
-
+        get_mesh_type() const;
         uint
         get_num_entities( 
             enum EntityRank   aEntityRank, 
             const moris_index aIndex ) const;
 
-        moris::uint get_num_sets() const
-        {
-            return 0;
-        }
+        moris::uint get_num_sets() const;
 
         Matrix< DDRMat >
-        get_node_coordinate( moris_index aNodeIndex ) const 
-        {
-            return (*mVertexCoordinates(aNodeIndex));
-        }
+        get_node_coordinate( moris_index aNodeIndex ) const;
 
         uint 
-        get_node_owner(moris_index aNodeIndex) const
-        {
-            return mIntegrationVertices(aNodeIndex)->get_owner();
-        }
+        get_node_owner(moris_index aNodeIndex) const;
 
         uint 
-        get_element_owner(moris_index aElementIndex) const 
-        {
-            return mIntegrationCells(aElementIndex)->get_owner();
-        }
+        get_element_owner(moris_index aElementIndex) const;
 
         Matrix< IdMat >
-        get_communication_table() const
-        {
-            return mCommunicationMap;
-        }
+        get_communication_table() const;
 
-        Matrix<IndexMat> get_element_indices_in_block_set(uint aSetIndex)
-        {
-            // get cells in set
-            std::shared_ptr<IG_Cell_Group> tCellsInBlock = mBlockSetCellGroup(aSetIndex);
-
-            Matrix<IndexMat> tCellIndices(1,tCellsInBlock->mIgCellGroup.size());
-
-            for(moris::uint iCell = 0; iCell < tCellsInBlock->mIgCellGroup.size(); iCell++)
-            {
-                tCellIndices(iCell) = tCellsInBlock->mIgCellGroup(iCell)->get_index();
-            }
-
-            return tCellIndices;
-        }
-
+        Matrix<IndexMat> get_element_indices_in_block_set(uint aSetIndex);
 
         enum CellTopology
-        get_blockset_topology(const std::string & aSetName)
-        {
-            // getindex
-            moris_index tBlockIndex = this->get_block_set_index(aSetName);
-
-            return mBlockCellTopo(tBlockIndex);
-        }
-
+        get_blockset_topology(const std::string & aSetName);
 
         enum CellShape
-        get_IG_blockset_shape(const std::string & aSetName)
-        {
-            return CellShape::INVALID;
-        }
-
+        get_IG_blockset_shape(const std::string & aSetName);
 
         enum CellShape
-        get_IP_blockset_shape(const std::string & aSetName)
-        {
-            return CellShape::INVALID;
-        }
+        get_IP_blockset_shape(const std::string & aSetName);
 
 
         moris_id
         get_glb_entity_id_from_entity_loc_index(
                     moris_index        aEntityIndex,
                     enum EntityRank    aEntityRank,
-                    const moris_index  aDiscretizationIndex = 0) const
-        {
-            MORIS_ERROR(aEntityRank == EntityRank::NODE || aEntityRank == EntityRank::ELEMENT,"Only supported for nodes and cells");
-            if(aEntityRank == EntityRank::NODE)
-            {
-                return mIntegrationVertices(aEntityIndex)->get_index();
-            }
-            else if(aEntityRank == EntityRank::ELEMENT)
-            {
-                return mIntegrationCells(aEntityIndex)->get_index();
-            }
-
-            else
-            {
-                return 0;
-            }
-        }
+                    const moris_index  aDiscretizationIndex = 0) const;
 
         moris_index
         get_loc_entity_ind_from_entity_glb_id(
                 moris_id        aEntityId,
-                enum EntityRank aEntityRank) const
-        {
-            // warning element map is set up after integration mesh has been constructed
-            MORIS_ERROR(aEntityRank == EntityRank::NODE || aEntityRank == EntityRank::ELEMENT,"Only a node map and element map is implemented in XTK");
-
-            if(aEntityRank == EntityRank::NODE)
-            {
-                auto tIter = mIntegrationVertexIdToIndexMap.find(aEntityId);
-
-                MORIS_ERROR(tIter!=mIntegrationVertexIdToIndexMap.end(),
-                    "Provided Entity Id is not in the map, Has the map been initialized?: aEntityId =%u EntityRank = %u on process %u",
-                    aEntityId, (uint)aEntityRank, par_rank());
-                return tIter->second;
-            }
-            else if(aEntityRank == EntityRank::ELEMENT)
-            {
-                auto tIter = mIntegrationCellIdToIndexMap.find(aEntityId);
-
-                MORIS_ERROR(tIter!=mIntegrationCellIdToIndexMap.end(),
-                    "Provided Entity Id is not in the map, Has the map been initialized?: aEntityId =%u EntityRank = %u on process %u",
-                    aEntityId, (uint)aEntityRank, par_rank());
-                return tIter->second;
-            }
-
-            else
-            {
-                return 0;
-            }
-
-        }
+                enum EntityRank aEntityRank) const;
 
         Matrix<IndexMat>
         get_entity_connected_to_entity_loc_inds(
                     moris_index        aEntityIndex,
                     enum EntityRank    aInputEntityRank,
                     enum EntityRank    aOutputEntityRank,
-                    const moris_index  aDiscretizationIndex = 0) const
-        {
-            MORIS_ERROR(aInputEntityRank == EntityRank::ELEMENT && aOutputEntityRank == EntityRank::NODE,
-                "Only support element to node connectivity");
-
-            return this->get_mtk_cell(aEntityIndex).get_vertex_inds();
-        }
-
+                    const moris_index  aDiscretizationIndex = 0) const;
 
         moris::Cell<std::string>
-        get_set_names(enum EntityRank aSetEntityRank) const
-        {
-            switch(aSetEntityRank)
-            {
-                case EntityRank::NODE:
-                {
-                    return {};
-                    break;
-                }
-                case EntityRank::EDGE:
-                {
-                    MORIS_ASSERT(this->get_facet_rank() == EntityRank::EDGE,"side sets are defined on edges in 2d");
-                    return mSideSetLabels;
-                    break;
-                }
-                case EntityRank::FACE:
-                {
-                    MORIS_ASSERT(this->get_facet_rank() == EntityRank::FACE,"side sets are defined on faces in 3d");
-                    return mSideSetLabels;
-                    break;
-                }
-                case EntityRank::ELEMENT:
-                {
-                    return mBlockSetNames;
-                    break;
-                }
-                default:
-                {
-                    MORIS_ERROR(0,"Currently only supporting block, node and side sets in XTK enriched integration meshes");
-                }
-                return moris::Cell<std::string>(0);
-                break;
-            }
-        }
+        get_set_names(enum EntityRank aSetEntityRank) const;
 
         moris_index
-        get_block_set_index(std::string aBlockSetLabel) const
-        {
-            auto tIter = mBlockSetLabelToOrd.find(aBlockSetLabel);
-
-            MORIS_ERROR(tIter != mBlockSetLabelToOrd.end(),"block set set label not found");
-
-            return tIter->second;
-        }
+        get_block_set_index(std::string aBlockSetLabel) const;
 
         Matrix< IndexMat >
-        get_block_entity_loc_inds( std::string     aSetName) const
-        {
-            // ge tindex
-            moris_index tBlockIndex = this->get_block_set_index(aSetName);
-
-            // get cells in set
-            std::shared_ptr<IG_Cell_Group> tCellsInBlock = mBlockSetCellGroup(tBlockIndex);
-
-            Matrix<IndexMat> tCellIndices(1,tCellsInBlock->mIgCellGroup.size());
-
-            for(moris::uint iCell = 0; iCell < tCellsInBlock->mIgCellGroup.size(); iCell++)
-            {
-                tCellIndices(iCell) = tCellsInBlock->mIgCellGroup(iCell)->get_index();
-            }
-
-            return tCellIndices;
-        }
+        get_block_entity_loc_inds( std::string     aSetName) const;
 
         moris_index
-        get_side_set_index(std::string aSideSetLabel) const
-        {
-            auto tIter = mSideSideSetLabelToOrd.find(aSideSetLabel);
-
-            MORIS_ERROR(tIter != mSideSideSetLabelToOrd.end(),"side side set label not found");
-
-            return tIter->second;
-        }
-
+        get_side_set_index(std::string aSideSetLabel) const;
         void
         get_sideset_elems_loc_inds_and_ords(
             const  std::string & aSetName,
             Matrix< IndexMat > & aElemIndices,
-            Matrix< IndexMat > & aSidesetOrdinals ) const
-        {
-            // get the index
-            moris_index tSideSetIndex = this->get_side_set_index(aSetName);
-
-            std::shared_ptr<IG_Cell_Side_Group> tCellSidesInSet = mSideSetCellSides(tSideSetIndex);
-
-            // iterate through side clusters and count number of sides in set
-            moris::uint tNumSides = tCellSidesInSet->mIgCells.size();
-
-            // size outputs
-            aElemIndices.resize(1,tNumSides);
-            aSidesetOrdinals.resize(1,tNumSides);
-
-            for(moris::uint iSide =0; iSide < tNumSides; iSide++)
-            {
-                aElemIndices(iSide) = tCellSidesInSet->mIgCells(iSide)->get_index();
-                aSidesetOrdinals(iSide) = tCellSidesInSet->mIgCellSideOrdinals(iSide);
-            }
-
-        }
+            Matrix< IndexMat > & aSidesetOrdinals ) const;
         
-
         Matrix< IndexMat >
         get_set_entity_loc_inds(
                     enum EntityRank aSetEntityRank,
-                    std::string     aSetName) const
-        {
-        switch(aSetEntityRank)
-        {
-            case EntityRank::NODE:
-            {
-                // // get the vertex set index
-                // auto tSetIndex = mVertexSetLabelToOrd.find(aSetName);
-
-                // moris::Cell<moris::mtk::Vertex*> tVerticesInSet = mVerticesInVertexSet(tSetIndex->second);
-                // Matrix<IndexMat> tVerticesInSetMat(1,tVerticesInSet.size());
-                // for(moris::uint i = 0; i < tVerticesInSet.size(); i++)
-                // {
-                //     tVerticesInSetMat(i) = tVerticesInSet(i)->get_index();
-                // }
-
-                return Matrix< IndexMat >(0,0);
-                break;
-            }
-            case EntityRank::EDGE:
-            {
-                // MORIS_ASSERT(this->get_facet_rank() == EntityRank::EDGE,"side sets are defined on edges in 2d");
-                return Matrix< IndexMat >(0,0);
-                break;
-            }
-            case EntityRank::FACE:
-            {
-                // MORIS_ASSERT(this->get_facet_rank() == EntityRank::FACE,"side sets are defined on faces in 3d");
-                return Matrix< IndexMat >(0,0);
-                break;
-            }
-            case EntityRank::ELEMENT:
-            {
-                return this->get_block_entity_loc_inds(aSetName);
-                return Matrix< IndexMat >(0,0);
-                break;
-            }
-            default:
-            {
-                MORIS_ERROR(0,"Currently only supporting block, node and side sets in XTK enriched integration meshes");
-                return Matrix< IndexMat >(0,0);
-                break;
-            }
-        }
-    }
+                    std::string     aSetName) const;
         
-
         moris::Cell<std::shared_ptr<Matrix<DDRMat>>>*
         get_all_vertex_coordinates_loc_inds();
 
@@ -767,13 +535,9 @@ namespace xtk
 
         bool
         parent_cell_has_children(moris_index aParentCellIndex);
+
         void
-        finalize_cut_mesh_construction()
-        {
-            this->deduce_ig_cell_group_ownership();
-            
-            this->assign_controlled_ig_cell_ids();
-        }
+        finalize_cut_mesh_construction();
 
         void
         deduce_ig_cell_group_ownership();
@@ -822,81 +586,15 @@ namespace xtk
         // SET STUFF
 
         Cell<moris_index>
-        register_side_set_names(moris::Cell<std::string> const & aSideSetNames)
-        {
-            uint tNumSetsToRegister = aSideSetNames.size();
-
-            // block set ords
-            Cell<moris_index> tSideSetOrds(tNumSetsToRegister);
-
-            // iterate and add sets
-            for(moris::uint i = 0; i < tNumSetsToRegister; i++)
-            {
-                tSideSetOrds(i) = mSideSetLabels.size();
-
-                mSideSetLabels.push_back(aSideSetNames(i));
-                mSideSetCellSides.push_back(nullptr);
-
-                MORIS_ASSERT(mSideSideSetLabelToOrd.find(aSideSetNames(i)) ==  mSideSideSetLabelToOrd.end(),
-                        "Duplicate side set in mesh");
-
-                mSideSideSetLabelToOrd[aSideSetNames(i)] = tSideSetOrds(i) ;
-            }
-            return tSideSetOrds;
-        }
+        register_side_set_names(moris::Cell<std::string> const & aSideSetNames);
 
         Cell<moris_index>
         register_block_set_names(moris::Cell<std::string> const & aBlockSetNames,
-                                 enum CellTopology aCellTopo)
-        {
-            uint tNumSetsToRegister = aBlockSetNames.size();
-
-            // block set ords
-            Cell<moris_index> tBlockOrds(tNumSetsToRegister);
-
-            // iterate and add sets
-            for(moris::uint i = 0; i < tNumSetsToRegister; i++)
-            {
-                tBlockOrds(i) = mBlockSetNames.size();
-
-                mBlockSetNames.push_back(aBlockSetNames(i));
-                mBlockSetCellGroup.push_back(nullptr);
-                mBlockCellTopo.push_back(aCellTopo);
-
-                MORIS_ASSERT(mBlockSetLabelToOrd.find(aBlockSetNames(i)) ==  mBlockSetLabelToOrd.end(),
-                        "Duplicate block set in mesh");
-
-                mBlockSetLabelToOrd[aBlockSetNames(i)] = tBlockOrds(i) ;
-            }
-
-            return tBlockOrds;
-        }
+                                 enum CellTopology aCellTopo);
 
         void
         write_mesh(std::string aOutputPath,
-                   std::string aOutputFile)
-        {
-            Tracer tTracer( "XTK", "Cut Integration Mesh", "Write mesh" );
-            // get path to output XTK files to
-            std::string tOutputPath = aOutputPath;
-            std::string tOutputFile = aOutputFile;
-            std::string tOutputBase = tOutputFile.substr(0,tOutputFile.find("."));
-            std::string tOutputExt  = tOutputFile.substr(tOutputFile.find("."),tOutputFile.length());
-
-            MORIS_ASSERT(tOutputExt == ".exo" || tOutputExt == ".e","Invalid file extension, needs to be .exo or .e");
-            
-            // Write mesh
-            moris::mtk::Writer_Exodus writer( this );
- 
-            writer.write_mesh(
-                "", tOutputPath + tOutputFile, 
-                "", tOutputPath + "xtk_temp2.exo" );
-
-            // Write the fields
-            writer.set_time(0.0);
-            writer.close_file();
-        }
-
+                   std::string aOutputFile);
 
 
 

@@ -483,23 +483,7 @@ private:
     create_interface_double_side_sets_and_clusters();
 
     //------------------------------------------------------------------------------
-    void
-    construct_internal_double_side_interface_in_mesh(Child_Mesh * aChildMesh);
-
-    //------------------------------------------------------------------------------
-
-    void
-    construct_double_side_interface_between_child_meshes(Coincident_Interface_Construction & aCoincInterfaceStruct);
-
-    //------------------------------------------------------------------------------
-
-    void
-    collect_facets_on_interface_between_child_meshes(Coincident_Interface_Construction & aCoincInterfaceStruct);
-
-
-    void
-    construct_interface_double_side_clusters_between_child_meshs(Coincident_Interface_Construction & aCoincInterfaceStruct);
-
+    
     void
     add_side_to_cluster(std::shared_ptr<xtk::Side_Cluster> aSideCluster,
                         moris_index                        aCellIndex,

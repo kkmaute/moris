@@ -4,6 +4,8 @@
 #include "cl_XTK_Model.hpp"
 #include "cl_GEN_Geometry_Engine.hpp"
 #include "cl_MTK_Vertex.hpp"
+#include "cl_Tracer.hpp"
+
 
 using namespace moris;
 namespace xtk
@@ -12,6 +14,9 @@ namespace xtk
     interpolated_coordinate_check(Cut_Integration_Mesh* aCutMesh)
     {
         moris::Cell<std::shared_ptr<Matrix<DDRMat>>>* tCoords = aCutMesh->get_all_vertex_coordinates_loc_inds();
+
+        // keep track of problem vertices
+        moris::Cell<moris_index> tProblemIgVertices(0);
 
         // Allocate a basis function weight matrix
         moris::Matrix< moris::DDRMat > tBasisWeights(1,8);
@@ -62,12 +67,16 @@ namespace xtk
 
                     if(norm(tInterpNodeCoord - *((*tCoords)(tNodeIndex))) > tTol)
                     {
-                        return false;
+                        tProblemIgVertices.push_back(iV);
                     }
                 }
             }
         }
-        return true;
+
+        // a problem vertex can appear multiple times if is an issue in more than one ig cell group
+        std::cout<<"Num Problem Vertices: "<<tProblemIgVertices.size()<<std::endl;
+
+        return tProblemIgVertices.size() == 0;
     }
 
     bool
@@ -85,6 +94,9 @@ namespace xtk
         // number of vertices
         moris::uint tNumVertices = tCutMesh->get_num_entities(EntityRank::NODE,0);
 
+        // keep track of problem vertices
+        moris::Cell<moris_index> tProblemIgVertices(0);
+
         // iterate through vertices in the integration mesh
         for(moris::uint iV = 0; iV < tNumVertices; iV++)
         {
@@ -95,16 +107,20 @@ namespace xtk
                 if(tGeomEngine->is_interface_vertex(tVertex->get_index(), iGeom))
                 {
                     moris::real tGeomVal = tGeomEngine->get_field_value(iGeom,tVertex->get_index(),tVertex->get_coords());
-                    if( std::abs(tGeomVal - aIsocontourThreshold(iGeom)) > aIsocontourTolerance(iGeom) )
+                    moris::real tDifference = std::abs(tGeomVal - aIsocontourThreshold(iGeom));
+                    if( tDifference > aIsocontourTolerance(iGeom) )
                     {
-                        return false;
+                        tProblemIgVertices.push_back(tVertex->get_index());
+                        std::cout<<"tDifference = "<<tDifference<<std::endl;
                     }
 
                 }
 
             }
         }
-        return true;
+
+        std::cout<<"Num Bad Interface Vertices: "<<tProblemIgVertices.size()<<std::endl;
+        return tProblemIgVertices.size() == 0;
         
     }
 }
