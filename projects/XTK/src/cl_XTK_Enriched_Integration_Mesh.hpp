@@ -29,7 +29,7 @@ class Ghost_Stabilization;
 class Enrichment;
 class Child_Mesh;
 class Coincident_Interface_Construction;
-
+class Cut_Integration_Mesh;
 
 class Enriched_Integration_Mesh : public mtk::Integration_Mesh
 {
@@ -354,10 +354,12 @@ public:
                                             std::string       const & aBlockSetName,
                                             enum CellTopology const & aCellTopo);
 
+
     friend class Enrichment;
     friend class Ghost_Stabilization;
 protected:
     Model* mModel;
+    Cut_Integration_Mesh* mCutIgMesh;
 
     //mesh index
     moris::moris_index mMeshIndexInModel;
@@ -573,18 +575,9 @@ private:
     create_interface_side_sets_and_clusters();
 
     //------------------------------------------------------------------------------
-    void
-    setup_interface_vertex_sets();
-
-    //------------------------------------------------------------------------------
 
     Cell<moris_index>
     declare_interface_vertex_sets();
-
-    //------------------------------------------------------------------------------
-
-    void
-    create_interface_vertex_sets(Cell<moris_index> const & aInterfaceVertexSetOrds);
 
     //------------------------------------------------------------------------------
 

@@ -130,30 +130,6 @@ namespace xtk
         moris::mtk::Cell* tParentCell = aChildMesh->get_parent_cell();
 
         moris::mtk::Cell_Info  const * tParentCellInfo = tParentCell->get_cell_info();
-
-        // iterate through nodes on edges
-        // moris::Matrix<moris::IndexMat> tEdgeIndices(0,0);
-        // for(moris::uint iEdge =0 ;iEdge < aRegularSubdivisionInterfaceData->mNewNodesOnEdges.numel(); iEdge++)
-        // {
-        //     if(iEdge == 0)
-        //     {
-        //         moris::Matrix<moris::IndexMat> tEdgeIndices = tBackgroundMeshData.get_entity_connected_to_entity_loc_inds(
-        //                 aChildMesh->get_parent_element_index(),
-        //                 moris::EntityRank::ELEMENT,
-        //                 moris::EntityRank::EDGE);
-        //     }
-
-        //     // moris_index tEdgeOwner = tMeshData.get_entity_owner(tRegSubInterfaceData->mNewNodesOnEdgesOrd(iEdge), EntityRank::EDGE);
-
-
-        //     // evaluate the shape functions at this point relative to the background cell
-        //     tParentCellInfo->eval_N(aRegularSubdivisionInterfaceData->mNewNodeXi(aRegularSubdivisionInterfaceData->mNewNodesOnEdgesOrd(iEdge)),aRegularSubdivisionInterfaceData->mNXi);
-
-        //     moris::print(aRegularSubdivisionInterfaceData->mNXi,"tRegSubInterfaceData->mNXi");
-
-        //     // Matrix<DDRMat> tNewNodeCoordinates = tParentCellInfo.get_
-        // }
-
         // iterate through nodes on faces and make requests
         moris::Matrix<moris::IndexMat> tFaceIndices(0,0);
         for(moris::uint iFace = 0 ;iFace < aRegularSubdivisionInterfaceData->mNewNodesOnFaces.numel(); iFace++)
@@ -225,6 +201,5 @@ namespace xtk
                 aDecompositionData->tCMNewNodeParamCoord(aChildMesh->get_child_mesh_index())(tNewNodeTemplateOrd) = aRegularSubdivisionInterfaceData->mNewNodeXi(tNewNodeTemplateOrd);
             }
         }
-                
     }
 }

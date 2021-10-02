@@ -126,11 +126,6 @@ class Node_Hierarchy_Interface : public Decomposition_Algorithm
     select_ig_cell_groups( 
         moris::Cell<std::shared_ptr<IG_Cell_Group>> & aIgCellGroups);
 
-    void
-    select_background_cell_for_edge(
-        std::shared_ptr<Edge_Based_Connectivity> aEdgeBasedConnectivity,
-        moris::Cell<moris::mtk::Cell*>&          aBackgroundCellForEdge);
-
     bool
     determine_intersected_edges_and_make_requests(
             std::shared_ptr<Edge_Based_Connectivity>       aEdgeConnectivity,

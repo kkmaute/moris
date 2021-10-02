@@ -8,14 +8,7 @@
 #ifndef SRC_XTK_CL_XTK_ENUMS_HPP_
 #define SRC_XTK_CL_XTK_ENUMS_HPP_
 
-
-// Enums in this header
-// 1.) TemplateType
-// 2.) Subdivision_Method
-// 3.) Topology_Type
-// 4.) Phase_Table_Structure
-// 5.) Enrichment_Method
-
+#include <string>
 enum class TemplateType
 {
     REGULAR_SUBDIVISION_HEX8, // Topology created using a regularized subdivision (for generate_templated_mesh)

@@ -46,7 +46,7 @@ flood_fill( moris::Matrix< moris::IndexMat > const & aElementToElement,
             moris::moris_index                       aDummyValue,
             moris::moris_index                     & aMaxValueAssigned,
             bool aIncludeAllElements = false)
-            {
+{
 
     // Active phase index
     moris::size_t tPhaseIndex  = 0;
@@ -261,7 +261,7 @@ flood_fill( moris::Matrix< moris::IndexMat > const & aElementToElement,
     aMaxValueAssigned = tCurrentSubphase - 1;
 
     return tElementSubphase;
-            }
+}
 
 }
 

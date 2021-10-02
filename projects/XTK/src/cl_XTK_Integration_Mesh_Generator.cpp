@@ -1,18 +1,26 @@
 #include "cl_XTK_Integration_Mesh_Generator.hpp"
+#include "cl_XTK_Decomposition_Algorithm_Factory.hpp"
+#include "cl_XTK_Decomposition_Algorithm.hpp"
 
-#include "cl_XTK_Regular_Subdivision_Interface.hpp"
-#include "cl_XTK_Node_Hierarchy_Interface.hpp"
+// #include "cl_XTK_Regular_Subdivision_Interface.hpp"
+// #include "cl_XTK_Node_Hierarchy_Interface.hpp"
 #include "cl_XTK_Cell_No_CM.hpp"
-
+using namespace moris;
 namespace xtk
 {   
+    Integration_Mesh_Generator::Integration_Mesh_Generator()
+    {
+
+    }
+
     Integration_Mesh_Generator::Integration_Mesh_Generator( 
         xtk::Model*                    aXTKModelPtr,
         Cell<enum Subdivision_Method>  aMethods,
         moris::Matrix<moris::IndexMat> aActiveGeometries):
     mXTKModel(aXTKModelPtr),
     mGeometryEngine(mXTKModel->get_geom_engine()),
-    mActiveGeometries(aActiveGeometries)
+    mActiveGeometries(aActiveGeometries),
+    mSubdivisionMethods(aMethods)
     {
 
     }
@@ -24,7 +32,7 @@ namespace xtk
     }
 // ----------------------------------------------------------------------------------
 
-    bool
+    std::shared_ptr<Cut_Integration_Mesh>
     Integration_Mesh_Generator::perform()
     {
         Tracer tTracer( "XTK", "Integration_Mesh_Generator", "perform" );
@@ -36,30 +44,92 @@ namespace xtk
         moris::mtk::Mesh* tBackgroundMesh = &mXTKModel->get_background_mesh().get_mesh_data();
 
         // the cut integration mesh
-        Cut_Integration_Mesh tCutIntegrationMesh(tBackgroundMesh);
+        std::shared_ptr<Cut_Integration_Mesh> tCutIntegrationMesh = std::make_shared< Cut_Integration_Mesh >(tBackgroundMesh, mXTKModel);
 
         // figure out which background cells are intersected and by which geometry they are intersected
-        this->determine_intersected_background_cells(tGenerationData,&tCutIntegrationMesh,tBackgroundMesh);
+        this->determine_intersected_background_cells(tGenerationData,tCutIntegrationMesh.get(),tBackgroundMesh);
 
         // Allocate all child meshes in one go, we link them to background cells in this step
-        this->allocate_child_meshes(tGenerationData,&tCutIntegrationMesh,tBackgroundMesh);
+        this->allocate_child_meshes(tGenerationData, tCutIntegrationMesh.get(),tBackgroundMesh);
 
-        // Work In progress, allocate the first Decomposition algorithm
-        // this decomposition algorithm depends only needs the child meshes to be linked with background cells
-        Decomposition_Algorithm* tRegSubMethod = new Regular_Subdivision_Interface();
+        // iterate through the subdivision methods
+        for( moris::uint iSubMethod = 0; iSubMethod < mSubdivisionMethods.size(); iSubMethod++ ) 
+        {
+            // create the subdivision routine with a factory
+            std::shared_ptr<Decomposition_Algorithm> tDecompAlg = create_decomposition_algorithm(mSubdivisionMethods(iSubMethod));
 
-        // allocate a data structure for the new nodes created during decomposition to be constructed
-        Decomposition_Data tDecompositionData;
-        tRegSubMethod->perform(&tGenerationData, &tDecompositionData,&tCutIntegrationMesh, tBackgroundMesh, this);
-        delete tRegSubMethod;
+            // perform the decomposition
+            Decomposition_Data tDecompositionData;
+            tDecompAlg->perform(&tGenerationData, &tDecompositionData,tCutIntegrationMesh.get(), tBackgroundMesh, this);
+        }
 
+
+        tCutIntegrationMesh->finalize_cut_mesh_construction();
+
+        // set the bulk phase of each cell
+        this->compute_ig_cell_bulk_phase(tCutIntegrationMesh.get());
+
+        // pick out the cell groups
+        moris::Cell<std::shared_ptr<IG_Cell_Group>> & tActiveIgCellGroups = tCutIntegrationMesh->get_all_cell_groups();
+
+        moris::Cell<moris::mtk::Cell*> tActiveIgCells;
+        extract_cells_from_cell_groups(tActiveIgCellGroups,tActiveIgCells);
+
+        // create facet connectivity in the mesh
+        std::shared_ptr<Facet_Based_Connectivity> tFaceConnectivity = std::make_shared<Facet_Based_Connectivity>();
+        this->create_facet_from_element_to_node(tActiveIgCells,tFaceConnectivity);
+        tCutIntegrationMesh->set_face_connectivity(tFaceConnectivity); 
+
+        // create facet ancestry
+        moris::Cell<moris::mtk::Cell*> tBGCellForFacet;
+        this->select_background_cell_for_facet(tFaceConnectivity,tCutIntegrationMesh.get(),tBGCellForFacet);
+
+        std::shared_ptr<Facet_Based_Ancestry> tFacetAncestry = std::make_shared<Facet_Based_Ancestry>();
+        this->deduce_facet_ancestry(tCutIntegrationMesh.get(),tBackgroundMesh,tFaceConnectivity,tBGCellForFacet,tFacetAncestry);
+
+        // compute the facets attached to a given bg facet. (useful to deduce side sets later and to construct the subphase neighborhood
+        // for the enrichment strategy)
+        moris::Cell<std::shared_ptr<moris::Cell<moris::moris_index>>> tBgFacetToChildFacet;
+        this->compute_bg_facet_to_child_facet_connectivity(tCutIntegrationMesh.get(),tBackgroundMesh,tFaceConnectivity,tFacetAncestry,tBgFacetToChildFacet);
+        tCutIntegrationMesh->set_background_facet_to_child_facet_connectivity(tBgFacetToChildFacet);
+
+        // create element to element connectivity
+        std::shared_ptr<Cell_Neighborhood_Connectivity> tNeighborhood = std::make_shared<Cell_Neighborhood_Connectivity>();
+        this->generate_cell_neighborhood(tActiveIgCells,tFaceConnectivity,tNeighborhood);
+
+        // figure out the interface facets
+        moris::Cell<moris_index> tInterfaces;
+        this->deduce_interfaces(tCutIntegrationMesh.get(),tFaceConnectivity,tInterfaces);
+        tCutIntegrationMesh->set_interface_facets(tInterfaces);
         
-        tDecompositionData = Decomposition_Data();
-        Decomposition_Algorithm* tNodeHier = new Node_Hierarchy_Interface();
-        tNodeHier->perform(&tGenerationData, &tDecompositionData,&tCutIntegrationMesh, tBackgroundMesh, this);
-        delete tNodeHier;
+        // determine which bulk phase these interfaces are between
+        // size: num_bulk_phase x num_bulk_phase
+        moris::Cell<moris::Cell<std::shared_ptr<IG_Cell_Side_Group>>> tInterfaceByBulkPhase;
+        this->construct_bulk_phase_to_bulk_phase_interface(tCutIntegrationMesh.get(),tInterfaces,tInterfaceByBulkPhase);
 
-        return true;
+        moris::Cell<moris::Cell<std::shared_ptr<IG_Cell_Double_Side_Group>>> tDoubleSidedInterface;
+        this->construct_bulk_phase_to_bulk_phase_dbl_side_interface(tCutIntegrationMesh.get(),tInterfaces,tDoubleSidedInterface);
+        tCutIntegrationMesh->set_bulk_phase_to_bulk_phase_dbl_side_interface(tDoubleSidedInterface);
+
+        // construct interface_sets
+        this->construct_interface_sets(tCutIntegrationMesh.get(),tInterfaceByBulkPhase);
+
+        // identify and construct the subphase groups
+        this->identify_and_construct_subphases(tCutIntegrationMesh.get(),tBackgroundMesh,tNeighborhood);
+
+        // construct subphase neighborhood
+        std::shared_ptr<Subphase_Neighborhood_Connectivity> tSubphaseNeighborhood = std::make_shared<Subphase_Neighborhood_Connectivity>();
+        this->construct_subphase_neighborhood(tCutIntegrationMesh.get(),tBackgroundMesh,tFaceConnectivity, &tBgFacetToChildFacet, tSubphaseNeighborhood);
+        tCutIntegrationMesh->set_subphase_neighborhood(tSubphaseNeighborhood);
+
+        // construct the bulk phase blocks
+        moris::Cell<std::shared_ptr<IG_Cell_Group>> tBulkPhaseCellGroups;
+        this->construct_bulk_phase_cell_groups(tCutIntegrationMesh.get(),tBulkPhaseCellGroups);
+        
+        // this->construct_bulk_phase_blocks(tCutIntegrationMesh.get(),tBulkPhaseCellGroups);
+        // tCutIntegrationMesh->write_mesh("./","xtk_cut_ig_mesh.exo");
+
+        return tCutIntegrationMesh;
     }
 
     moris::Matrix<moris::IndexMat> const * 
@@ -82,14 +152,15 @@ namespace xtk
         Cut_Integration_Mesh*              aCutIntegrationMesh,
         moris::mtk::Mesh*                  aBackgroundMesh )
         {
+            Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Determine intersected background cells" );
             uint tNumGeometries = mActiveGeometries.numel();
 
             uint tNumCells = aBackgroundMesh->get_num_elems();
             
             aMeshGenerationData.mIntersectedBackgroundCellIndex.resize(tNumGeometries);
-            aMeshGenerationData.mIntersectedBackgroundCellIndex.reserve(tNumGeometries*tNumCells);
+            aMeshGenerationData.mIntersectedBackgroundCellIndex.reserve(tNumCells);
             aMeshGenerationData.mBackgroundCellGeometryIndices.resize(tNumCells);
-            aMeshGenerationData.mBackgroundCellGeometryIndices.reserve(tNumGeometries*tNumCells);
+            aMeshGenerationData.mBackgroundCellGeometryIndices.reserve(tNumGeometries);
 
             // Initialize geometric query
             Geometric_Query_XTK tGeometricQuery;
@@ -150,6 +221,7 @@ namespace xtk
         moris::mtk::Mesh *                 aBackgroundMesh,
         Decomposition_Algorithm*           aDecompositionAlgorithm)
     {
+        Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Commit IG Cells To Mesh" );
         // iterate through cells that the decomposition constructed
         moris::uint tNumNewCells = aDecompositionAlgorithm->mNumNewCells;
 
@@ -163,19 +235,21 @@ namespace xtk
 
         aCutIntegrationMesh->mControlledIgCells.resize(tNumStartingCellsControlled + tNumNewCells);
         aCutIntegrationMesh->mIntegrationCells.resize(tNumStartingTotalIgCells + tNumNewCells);
-        aCutIntegrationMesh->mIntegrationCellToCellGroupIndex.resize(tNumStartingTotalIgCells + tNumNewCells);
-
+        aCutIntegrationMesh->mIntegrationCellToCellGroupIndex.resize(tNumStartingTotalIgCells + tNumNewCells,0);
+        aCutIntegrationMesh->mIntegrationCellBulkPhase.resize(tNumStartingTotalIgCells + tNumNewCells, MORIS_INDEX_MAX);
+        
         // current index
         moris_index tCellIndex = tNumStartingTotalIgCells;
 
         // iterate through new and add to the mesh
         for(moris::uint iCell = 0;  iCell < aDecompositionAlgorithm->mNewCellToVertexConnectivity.size(); iCell++ )
         {
-            // child mesh pointer
-            std::shared_ptr<Child_Mesh_Experimental> tCM = aCutIntegrationMesh->get_child_mesh(aDecompositionAlgorithm->mNewCellChildMeshIndex(iCell));
+            moris_index tCellGroupIndex = aDecompositionAlgorithm->mNewCellChildMeshIndex(iCell);
+
+            std::shared_ptr<IG_Cell_Group> tCellGroup = aCutIntegrationMesh->get_ig_cell_group(tCellGroupIndex);
 
             // parent cell owner
-            moris_index tOwner = tCM->get_parent_cell()->get_owner();
+            moris_index tOwner = aCutIntegrationMesh->get_ig_cell_group_parent_cell(tCellGroupIndex)->get_owner();
 
             // collect the vertex pointers for the cell
             moris::Cell<moris::mtk::Vertex*> tVertexPointers(aDecompositionAlgorithm->mNewCellToVertexConnectivity(iCell).size());
@@ -189,18 +263,26 @@ namespace xtk
             // cell index (if I replace one that is the index of this cell)
             moris_index tNewCellIndex = tReplaceExistingCell? aDecompositionAlgorithm->mNewCellCellIndexToReplace(iCell) : tCellIndex++;
 
+            std::shared_ptr<xtk::Cell_XTK_No_CM> tNewCell = nullptr;
+
+            // replace the cell, we should only replace cells that are in the same group
+            if(tReplaceExistingCell)
+            {
+                aCutIntegrationMesh->replace_controlled_ig_cell(tNewCellIndex,aCutIntegrationMesh->get_mtk_cell(tNewCellIndex).get_id(),aDecompositionAlgorithm->mNewCellCellInfo(iCell),tVertexPointers);
+            }
             // create the new cell no id
-            std::shared_ptr<moris::mtk::Cell> tNewCell = std::make_shared<xtk::Cell_XTK_No_CM>(
-                MORIS_ID_MAX,tNewCellIndex,tOwner,aDecompositionAlgorithm->mNewCellCellInfo(iCell),tVertexPointers);
+            else
+            {
+                tNewCell = std::make_shared<xtk::Cell_XTK_No_CM>(tNewCellIndex+1,tNewCellIndex,tOwner,aDecompositionAlgorithm->mNewCellCellInfo(iCell),tVertexPointers);
 
-            // add the cell to the mesh
-            aCutIntegrationMesh->set_integration_cell(tNewCellIndex,tNewCell,!tReplaceExistingCell);
+                // add the cell to the mesh
+                aCutIntegrationMesh->set_integration_cell(tNewCellIndex,tNewCell);
 
-            // add the cell to a child mesh
-            aCutIntegrationMesh->add_cell_to_integration_mesh(tNewCellIndex,tCM->mChildMeshIndex);
-            
-        }        
-        
+                // add the cell to a child mesh group only if we aren't
+                aCutIntegrationMesh->add_cell_to_integration_mesh(tNewCellIndex,tCellGroupIndex);
+            }
+        }      
+
     }
 
     void
@@ -208,6 +290,7 @@ namespace xtk
         moris::Cell<std::shared_ptr<IG_Cell_Group>> const & aCellGroups,
         moris::Cell<moris::mtk::Cell*> & aCellsInGroups)
     {
+        Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Extract cells from groups" );
         // count the number of total cells
         moris::uint tNumCells = 0;
         for(moris::uint i = 0; i < aCellGroups.size(); i++)
@@ -224,6 +307,1066 @@ namespace xtk
             aCellsInGroups.append(aCellGroups(i)->mIgCellGroup);
         }
     }
+    // ----------------------------------------------------------------------------------
+    void
+    Integration_Mesh_Generator::compute_ig_cell_bulk_phase(
+            Cut_Integration_Mesh *aCutIntegrationMesh)
+    {
+        for(moris::size_t iCell = 0; iCell< aCutIntegrationMesh->get_num_entities(EntityRank::ELEMENT,0); iCell++)
+        {
+            // if its not in a group, its probably just a background entity that is not intersected
+            // if(aCutIntegrationMesh->mIntegrationCellToCellGroupIndex(iCell).size()>0)
+            // {
+                moris_index tBulkPhaseIndex = this->deduce_ig_cell_bulk_phase_index(&aCutIntegrationMesh->get_mtk_cell(iCell));
+                aCutIntegrationMesh->mIntegrationCellBulkPhase(iCell) = tBulkPhaseIndex;
+            // }
+        }
+
+    }
+
+    moris_index
+    Integration_Mesh_Generator::get_max_index(moris::Cell<moris::mtk::Cell*> & aCells)
+    {
+        moris_index tMax = 0;
+
+        for(moris_index i =0; i < (moris_index)aCells.size(); i++)
+        {
+            if(aCells(i)->get_index() > tMax)
+            {
+                tMax = aCells(i)->get_index();
+            }
+        }
+
+        return tMax;
+    }
+    
+    moris_index
+    Integration_Mesh_Generator::deduce_ig_cell_bulk_phase_index(moris::mtk::Cell const * aCell)
+    {
+        // cell vertices
+        moris::Cell<moris::mtk::Vertex*> tVertices = aCell->get_vertex_pointers();
+       moris::size_t tNumGeom = mGeometryEngine->get_num_geometries();
+
+        // allocate phase on or off value (either 0 or 1)
+        Matrix<IndexMat> tPhaseVotes(1,2);
+        tPhaseVotes.fill(0);
+
+        uint tMaxRow = 0;
+        uint tMaxCol = 0;
+        moris::Matrix< moris::IndexMat > tNodalPhaseVals(1,tNumGeom,MORIS_INDEX_MAX);
+
+        for (moris::uint i = 0; i < tNumGeom; i++)
+        {
+            bool tFoundNonInterfaceNode = false;
+
+            for(moris::uint iV = 0; iV < tVertices.size(); iV++)
+            {
+                if(!mGeometryEngine->is_interface_vertex(tVertices(iV)->get_index(),i))
+                {
+                    moris_index tPhaseIndex   = mGeometryEngine->get_node_phase_index_wrt_a_geometry(tVertices(iV)->get_index(),i);
+                    tFoundNonInterfaceNode    = true;
+                    tPhaseVotes(tPhaseIndex)++;
+                }
+            }
+
+            // take the phase with the maximum number of votes
+            tPhaseVotes.max(tMaxRow,tMaxCol);
+            tNodalPhaseVals(0,i) = tMaxCol;
+            tPhaseVotes.fill(0);
+            MORIS_ERROR(tFoundNonInterfaceNode,"Did not find a non-interface node for this element");
+        }
+
+        return mGeometryEngine->get_elem_phase_index(tNodalPhaseVals);
+    }
+
+    void
+    Integration_Mesh_Generator::deduce_interfaces(
+        Cut_Integration_Mesh                     * aCutIntegrationMesh,
+        std::shared_ptr<Facet_Based_Connectivity>  aFacetConnectivity,
+        moris::Cell<moris_index>                 & aInterfaces)
+    {
+        Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Deduce Interface" );
+
+        // all cell groups at this point should be such that an integration cell does not appear twice
+        aInterfaces.clear();
+        aInterfaces.reserve(aFacetConnectivity->mFacetVertices.size());
+
+ 
+        for(moris::uint iFacet = 0; iFacet < aFacetConnectivity->mFacetVertices.size(); iFacet++)
+        {
+            for(moris::uint iG = 0; iG < mActiveGeometries.numel(); iG++)
+            {
+                moris_index tGeomIndex = mActiveGeometries(iG);
+                bool tIsInterfaceFacet = true;
+
+                for(moris::uint iV = 0; iV < aFacetConnectivity->mFacetVertices(iFacet).size(); iV++)
+                {
+                    moris::mtk::Vertex* tVertex = aFacetConnectivity->mFacetVertices(iFacet)(iV);
+                    if(!mGeometryEngine->is_interface_vertex(tVertex->get_index(), tGeomIndex))
+                    {
+                        tIsInterfaceFacet = false;
+                        break;
+                    }
+                }
+
+                if(tIsInterfaceFacet)
+                {
+                    aInterfaces.push_back(iFacet);
+                }
+            }
+        }
+
+    }
+
+    void
+    Integration_Mesh_Generator::identify_and_construct_subphases(
+            Cut_Integration_Mesh                     * aCutIntegrationMesh,
+            moris::mtk::Mesh                         * aBackgroundMesh,
+            std::shared_ptr<Cell_Neighborhood_Connectivity> aCutNeighborhood )
+    {
+        Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Identity subphases" );
+
+        // get the number of children meshes
+        moris::uint tNumChildMeshes =  aCutIntegrationMesh->get_num_ig_cell_groups();
+
+        moris::uint tNumIgCells      =  aCutIntegrationMesh->get_num_entities(EntityRank::ELEMENT,0);
+
+        moris::uint tTotalNumBgCells =  aBackgroundMesh->get_num_entities(EntityRank::ELEMENT,0);
+
+        // first subphase index (this is incremented by child meshes on call to set_elemental_subphase)
+        // proc local subphase index
+        moris::moris_index tSubPhaseIndex = tTotalNumBgCells;
+        
+        moris_index tMaxSubPhase = 0;
+
+        // subphase groupings
+        moris::uint tReserveSize = 2*tNumChildMeshes + tTotalNumBgCells;
+        aCutIntegrationMesh->mSubPhaseCellGroups.reserve(tReserveSize);
+        aCutIntegrationMesh->mSubPhaseCellGroups.resize(tTotalNumBgCells,nullptr);
+        aCutIntegrationMesh->mSubPhaseBulkPhase.reserve(tReserveSize);
+        aCutIntegrationMesh->mSubPhaseBulkPhase.resize(tTotalNumBgCells);
+        aCutIntegrationMesh->mSubPhaseParentCell.reserve(tReserveSize);
+        aCutIntegrationMesh->mSubPhaseParentCell.resize(tTotalNumBgCells);
+        aCutIntegrationMesh->mSubPhaseIds.reserve(tReserveSize);
+        aCutIntegrationMesh->mSubPhaseIds.resize(tTotalNumBgCells);
+        aCutIntegrationMesh->mParentCellToSubphase.resize(tTotalNumBgCells);
+        aCutIntegrationMesh->mParentCellHasChildren.resize(tTotalNumBgCells);
+            
+        aCutIntegrationMesh->mIntegrationCellToSubphaseIndex = moris::Cell<moris_index>(tNumIgCells,MORIS_INDEX_MAX);
+
+        moris::Cell<moris_index> tSubphaseIndices;
+        tSubphaseIndices.reserve(10);
+
+        // iterate over children meshes and perform local flood-fill
+        for(moris::size_t i = 0; i<aCutIntegrationMesh->get_num_ig_cell_groups(); i++)
+        {
+            std::shared_ptr<IG_Cell_Group> tIgCellGroup = aCutIntegrationMesh->get_ig_cell_group(i);
+
+            moris::mtk::Cell* tParentCell = aCutIntegrationMesh->get_ig_cell_group_parent_cell(i);
+
+            // flood fill this group using the bulk phases
+            moris::Matrix< moris::IndexMat > tLocalFloodFill = this->flood_fill_ig_cell_group(aCutIntegrationMesh,aCutNeighborhood,tIgCellGroup,tMaxSubPhase);
+
+            // put first subphase in spot of parent cell
+            aCutIntegrationMesh->mSubPhaseCellGroups(tParentCell->get_index()) = std::make_shared<IG_Cell_Group>();
+            aCutIntegrationMesh->mSubPhaseBulkPhase(tParentCell->get_index())  = MORIS_INDEX_MAX;
+            aCutIntegrationMesh->mSubPhaseParentCell(tParentCell->get_index()) = tParentCell;
+            aCutIntegrationMesh->mSubPhaseIds(tParentCell->get_index()) = tParentCell->get_id();
+            aCutIntegrationMesh->mParentCellToSubphase(tParentCell->get_index()).push_back(tParentCell->get_index());
+            aCutIntegrationMesh->mParentCellHasChildren(tParentCell->get_index()) = (moris_index)true;
+            tSubphaseIndices.push_back( tParentCell->get_index() );
+
+            // allocate the other subphases
+            for(moris::uint iSP = 1; iSP < (uint)tMaxSubPhase+1; iSP++)
+            {
+                aCutIntegrationMesh->mSubPhaseCellGroups.push_back( std::make_shared<IG_Cell_Group>() );
+                aCutIntegrationMesh->mSubPhaseBulkPhase.push_back( MORIS_INDEX_MAX );
+                aCutIntegrationMesh->mSubPhaseParentCell.push_back( tParentCell );
+                aCutIntegrationMesh->mSubPhaseIds.push_back(MORIS_INDEX_MAX);
+                aCutIntegrationMesh->mParentCellToSubphase(tParentCell->get_index()).push_back(tSubPhaseIndex);
+                tSubphaseIndices.push_back(tSubPhaseIndex++);
+            }
+
+            // iterate through the local flood fill results
+            for(moris::uint iFF = 0; iFF < tLocalFloodFill.numel(); iFF++)
+            {
+                moris_index tFFVal   = tLocalFloodFill(iFF);
+                moris_index tSPIndex = tSubphaseIndices(tFFVal);
+
+                // put the cell into the subphase group
+                aCutIntegrationMesh->mSubPhaseCellGroups(tSPIndex)->mIgCellGroup.push_back(tIgCellGroup->mIgCellGroup(iFF));
+
+                aCutIntegrationMesh->mIntegrationCellToSubphaseIndex(tIgCellGroup->mIgCellGroup(iFF)->get_index()) = tSPIndex;
+
+                // add bulk phase if I haven't yet
+                if(aCutIntegrationMesh->mSubPhaseBulkPhase(tSPIndex) == MORIS_INDEX_MAX)
+                {
+                    aCutIntegrationMesh->mSubPhaseBulkPhase(tSPIndex) = aCutIntegrationMesh->get_cell_bulk_phase(tIgCellGroup->mIgCellGroup(iFF)->get_index());
+                }
+                
+            }
+
+            aCutIntegrationMesh->set_child_mesh_subphase(i,tSubphaseIndices);
+
+            tSubphaseIndices.clear();
+        }
+
+        // iterate over background cells and make the subphase group contain only them
+        for(moris::size_t i = 0; i<aBackgroundMesh->get_num_elems(); i++)
+        {
+            if(aCutIntegrationMesh->mSubPhaseCellGroups(i) == nullptr)
+            {
+                moris::mtk::Cell* tCell = & aCutIntegrationMesh->get_mtk_cell((moris_index) i);
+                aCutIntegrationMesh->mSubPhaseCellGroups(i) = std::make_shared<IG_Cell_Group>(1);
+                aCutIntegrationMesh->mSubPhaseCellGroups(i)->mIgCellGroup(0) = tCell;
+
+                aCutIntegrationMesh->mSubPhaseBulkPhase(i)  = aCutIntegrationMesh->get_cell_bulk_phase(i);
+                aCutIntegrationMesh->mSubPhaseParentCell(i) = tCell;
+                aCutIntegrationMesh->mSubPhaseIds(i) = tCell->get_id();
+                aCutIntegrationMesh->mParentCellToSubphase(i).push_back(i);
+                aCutIntegrationMesh->mIntegrationCellToSubphaseIndex( i ) =  i;
+                aCutIntegrationMesh->mParentCellHasChildren(i) = (moris_index)false;
+
+            }
+        }
+
+
+        aCutIntegrationMesh->mSubPhaseCellGroups.shrink_to_fit();
+        aCutIntegrationMesh->mSubPhaseBulkPhase.shrink_to_fit();
+        aCutIntegrationMesh->mSubPhaseParentCell.shrink_to_fit();
+        aCutIntegrationMesh->mSubPhaseIds.shrink_to_fit();
+
+        aCutIntegrationMesh->mOwnedSubphaseGroupsInds.reserve(aCutIntegrationMesh->mSubPhaseCellGroups.size());
+        aCutIntegrationMesh->mNotOwnedSubphaseGroupsInds.reserve(aCutIntegrationMesh->mSubPhaseCellGroups.size());
+
+        moris_index tParRank = moris::par_rank();
+        // sort into ownership groups
+        for(moris::uint i = 0; i < aCutIntegrationMesh->mSubPhaseCellGroups.size(); i++)
+        {
+            aCutIntegrationMesh->mSubPhaseParentCell(i)->get_owner() == tParRank? 
+                aCutIntegrationMesh->mOwnedSubphaseGroupsInds.push_back((moris_index) i ): 
+                aCutIntegrationMesh->mNotOwnedSubphaseGroupsInds.push_back((moris_index) i );
+        }
+
+        aCutIntegrationMesh->mOwnedSubphaseGroupsInds.shrink_to_fit();
+        aCutIntegrationMesh->mNotOwnedSubphaseGroupsInds.shrink_to_fit();
+
+        this->assign_subphase_glob_ids( aCutIntegrationMesh, aBackgroundMesh);
+
+        
+    }
+
+    void
+    Integration_Mesh_Generator::construct_subphase_neighborhood(
+            Cut_Integration_Mesh                                          * aCutIntegrationMesh,
+            moris::mtk::Mesh                                              * aBackgroundMesh,
+            std::shared_ptr<Facet_Based_Connectivity>                       aFacetConnectivity,
+            moris::Cell<std::shared_ptr<moris::Cell<moris::moris_index>>> * aBgFacetToChildFacet,
+            std::shared_ptr<Subphase_Neighborhood_Connectivity>             aSubphaseNeighborhood )
+    {
+        Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Subphase Neighborhood" );
+        aSubphaseNeighborhood->mSubphaseToSubPhase.resize(aCutIntegrationMesh->get_num_subphases());
+        aSubphaseNeighborhood->mSubphaseToSubPhaseMySideOrds.resize(aCutIntegrationMesh->get_num_subphases());
+        aSubphaseNeighborhood->mSubphaseToSubPhaseNeighborSideOrds.resize(aCutIntegrationMesh->get_num_subphases());
+        aSubphaseNeighborhood->mTransitionNeighborCellLocation.resize(aCutIntegrationMesh->get_num_subphases());
+
+        // allocate the pointers in subphase neighborhood
+        for(moris::uint i =0 ;i < aCutIntegrationMesh->get_num_subphases();  i++)
+        {
+            aSubphaseNeighborhood->mSubphaseToSubPhase(i) = std::make_shared<moris::Cell<moris_index>>();
+            aSubphaseNeighborhood->mSubphaseToSubPhaseMySideOrds(i) = std::make_shared<moris::Cell<moris_index>>();
+            aSubphaseNeighborhood->mSubphaseToSubPhaseNeighborSideOrds(i) = std::make_shared<moris::Cell<moris_index>>();
+            aSubphaseNeighborhood->mTransitionNeighborCellLocation(i) = std::make_shared<moris::Cell<moris_index>>();
+
+            aSubphaseNeighborhood->mSubphaseToSubPhase(i)->reserve(4);
+            aSubphaseNeighborhood->mSubphaseToSubPhaseMySideOrds(i)->reserve(4);
+            aSubphaseNeighborhood->mSubphaseToSubPhaseNeighborSideOrds(i)->reserve(4);
+            aSubphaseNeighborhood->mTransitionNeighborCellLocation(i)->reserve(4);
+            
+        }
+
+        //iterate through background cells
+        moris::uint tBGCells = aBackgroundMesh->get_num_entities(EntityRank::ELEMENT);
+        for(moris::moris_index iC = 0; iC < (moris::moris_index)tBGCells; iC++)
+        {
+            mtk::Cell const * tCurrentCell = & aBackgroundMesh->get_mtk_cell(iC);
+
+            // get the cells attached to the facet
+            Matrix<IndexMat> tCellToCellSideIndex = aBackgroundMesh->get_elements_connected_to_element_and_face_ind_loc_inds(iC);
+            Matrix<IndexMat> tCellToCellSideOrd  = aBackgroundMesh->get_elements_connected_to_element_and_face_ord_loc_inds(iC);
+
+            Cell<mtk::Cell const *> tCells(tCellToCellSideOrd.numel());
+            aBackgroundMesh->get_mtk_cells(tCellToCellSideOrd.get_row(0),tCells);
+            
+            // iterate through neighbor
+            for(moris::uint iN = 0; iN < tCellToCellSideOrd.n_cols(); iN++)
+            {
+                // neighbor cell
+                mtk::Cell const * tOtherCell = & aBackgroundMesh->get_mtk_cell(tCellToCellSideIndex(0,iN));
+
+                // facet ordinal shared for current neighbors
+                moris_index tFacetIndex = tCellToCellSideIndex(1,iN);
+                moris_index tMyOrdinal  = tCellToCellSideOrd(1,iN);
+                moris_index tNeighborOrdinal = tCellToCellSideOrd(2,iN);
+                moris_index tTransitionCellLocation = tCellToCellSideOrd(3,iN);
+
+                // collect subphase related to my cell on this facet
+                Cell<moris::moris_index> tMyCellSubphaseIndices(0);
+                this->collect_subphases_attached_to_facet_on_cell( 
+                    aCutIntegrationMesh,
+                     tCurrentCell,
+                     tMyOrdinal,
+                     tFacetIndex, 
+                     aFacetConnectivity, 
+                     (*aBgFacetToChildFacet)(tFacetIndex), 
+                     tMyCellSubphaseIndices);
+
+                // collect subphase related to neighbor cell on this facet
+                Cell<moris::moris_index> tNeighborSubphaseIndices(0);
+                this->collect_subphases_attached_to_facet_on_cell( 
+                    aCutIntegrationMesh,
+                     tOtherCell,
+                     tNeighborOrdinal,
+                     tFacetIndex, 
+                     aFacetConnectivity, 
+                     (*aBgFacetToChildFacet)(tFacetIndex), 
+                     tNeighborSubphaseIndices);
+
+                // iterate over subphases and add to neighborhood
+                for(moris::uint i = 0; i < tMyCellSubphaseIndices.size(); i++)
+                {
+                    moris_index tMySubphaseIndex = tMyCellSubphaseIndices(i);
+                    moris_index tMyBulkIndex = aCutIntegrationMesh->get_subphase_bulk_phase(tMySubphaseIndex);
+
+                    for(moris::uint j = 0; j < tNeighborSubphaseIndices.size(); j++)
+                    {
+                        moris_index tNeighborSubphaseIndex = tNeighborSubphaseIndices(j);
+                        moris_index tNeighborBulkIndex = aCutIntegrationMesh->get_subphase_bulk_phase(tNeighborSubphaseIndex);
+
+                        if(tMyBulkIndex == tNeighborBulkIndex)
+                        {
+                            aSubphaseNeighborhood->mSubphaseToSubPhase(tMySubphaseIndex)->push_back(tNeighborSubphaseIndex);
+                            aSubphaseNeighborhood->mSubphaseToSubPhaseMySideOrds(tMySubphaseIndex)->push_back(tMyOrdinal);
+                            aSubphaseNeighborhood->mSubphaseToSubPhaseNeighborSideOrds(tMySubphaseIndex)->push_back(tNeighborOrdinal);
+                            aSubphaseNeighborhood->mTransitionNeighborCellLocation(tMySubphaseIndex)->push_back(tTransitionCellLocation);
+                        }
+                    }
+                }
+            }
+
+        }
+    }
+
+    void
+    Integration_Mesh_Generator::collect_subphases_attached_to_facet_on_cell(        
+        Cut_Integration_Mesh*                            aCutIntegrationMesh,    
+        moris::mtk::Cell const *                         aBGCell,
+        moris::moris_index                               aFacetOrdinal,
+        moris::moris_index                               aSharedFacetIndex,
+        std::shared_ptr<Facet_Based_Connectivity>        aFacetConnectivity,
+        std::shared_ptr<moris::Cell<moris::moris_index>> aBgFacetToChildrenFacets,
+        Cell<moris::moris_index> & aSubphaseIndices)
+    {
+        aSubphaseIndices.clear();
+
+        bool tParentHasChildren = aCutIntegrationMesh->parent_cell_has_children(aBGCell->get_index());
+        
+        if(tParentHasChildren)
+        {
+            MORIS_ASSERT(aBgFacetToChildrenFacets != nullptr,"Null ptr on facet that should have children facets");
+
+            // iterate through child facets attached to bg facet
+            for(moris::uint iChildFacet = 0; iChildFacet < aBgFacetToChildrenFacets->size(); iChildFacet++)
+            {
+                moris_index tChildCellFacetIndex = (*aBgFacetToChildrenFacets)(iChildFacet);
+
+                for(moris::uint iCell = 0; iCell < aFacetConnectivity->mFacetToCell(tChildCellFacetIndex).size(); iCell++)
+                {
+                    // iterate through cells on the child facet
+                    moris_index tSubphaseIndex   = aCutIntegrationMesh->get_ig_cell_subphase_index(aFacetConnectivity->mFacetToCell(tChildCellFacetIndex)(iCell)->get_index());
+                    moris_index tParentCellIndex = aCutIntegrationMesh->get_subphase_parent_cell(tSubphaseIndex)->get_index();
+                    if(tParentCellIndex == aBGCell->get_index())
+                    {
+                        aSubphaseIndices.push_back(tSubphaseIndex);
+                    }
+                }
+            }
+
+            // make it unique
+            unique( aSubphaseIndices );
+        }
+        else
+        {  
+            MORIS_ASSERT(aCutIntegrationMesh->get_parent_cell_subphases(aBGCell->get_index()).size() == 1,"one subphase needs to be present in this case");
+            aSubphaseIndices = {{aBGCell->get_index()}};
+        }
+
+    }
+
+    void
+    Integration_Mesh_Generator::collect_ig_cells_and_side_ords_on_bg_facet(  
+        Cut_Integration_Mesh *           aCutIntegrationMesh,      
+        moris::moris_index               aBackgroundFacetIndex,
+        moris::Cell<moris::mtk::Cell*> & aIgCell,
+        moris::Cell<moris_index>       & aIgCellSideOrds)
+    {
+        aIgCell.clear();
+        aIgCellSideOrds.clear();
+
+        moris::Cell<std::shared_ptr<moris::Cell<moris::moris_index>>> const & tBGFacetToChildFacet = aCutIntegrationMesh->get_background_facet_to_child_facet_connectivity();
+
+        
+        if(tBGFacetToChildFacet(aBackgroundFacetIndex) == nullptr)
+        {
+            return;
+        }
+
+        else
+        {
+            // facet connectivity
+            std::shared_ptr<Facet_Based_Connectivity> tFacetConn = aCutIntegrationMesh->get_face_connectivity();
+
+            moris::Cell<moris::moris_index> const & tBGFacetToIgFacet = *tBGFacetToChildFacet(aBackgroundFacetIndex);
+            
+            // iterate through child facets attached to bg facet
+            for(moris::uint iChildFacet = 0; iChildFacet < tBGFacetToIgFacet.size(); iChildFacet++)
+            {
+                moris_index tChildCellFacetIndex = tBGFacetToIgFacet(iChildFacet);
+
+                for(moris::uint iCell = 0; iCell < tFacetConn->mFacetToCell(tChildCellFacetIndex).size(); iCell++)
+                {
+                    aIgCell.push_back(tFacetConn->mFacetToCell(tChildCellFacetIndex)(iCell));
+                    aIgCellSideOrds.push_back(tFacetConn->mFacetToCellEdgeOrdinal(tChildCellFacetIndex)(iCell));
+                }
+            }
+        }
+
+    }
+
+    void
+    Integration_Mesh_Generator::assign_subphase_glob_ids(
+        Cut_Integration_Mesh * aCutIntegrationMesh,
+        moris::mtk::Mesh     * aBackgroundMesh)
+    {
+        // Get the number of subphases
+        moris_id tNumSubphases = (moris_id)aCutIntegrationMesh->get_num_subphases();
+
+        // Allocate global element ids starting at the maximum id in the background mesh (these need to be give to the children meshes)
+        moris::moris_id tSubphaseIdOffset = aCutIntegrationMesh->allocate_subphase_ids(tNumSubphases);
+        
+        // // set subphase ids in the children meshes which I own
+        moris::Cell<moris_index> & tOwnedSubphases = aCutIntegrationMesh->get_owned_subphase_indices();
+        for(moris::size_t i = 0; i<tOwnedSubphases.size(); i++)
+        {
+            moris_index tSubphaseIndex = tOwnedSubphases(i);
+            // moris::mtk::Cell* tParentCell = aCutIntegrationMesh->get_subphase_parent_cell(tSubphaseIndex);
+
+            // moris_id tCellId = tParentCell->get_id();
+
+            if(aCutIntegrationMesh->mSubPhaseIds(tSubphaseIndex) == MORIS_INDEX_MAX)
+            {
+                aCutIntegrationMesh->mSubPhaseIds(tSubphaseIndex) = tSubphaseIdOffset++;
+            }
+
+        }
+
+        // prepare outward requests
+        Cell<Cell<moris_id>>       tNotOwnedSubphasesToProcs;
+        Cell<moris::Matrix<IdMat>> tParentCellIds;
+        Cell<moris::Matrix<IdMat>> tChildCellIds;
+        Cell<moris::Matrix<IdMat>> tNumChildCellsInSubphase;
+        Cell<uint>                 tProcRanks;
+        std::unordered_map<moris_id,moris_id>  tProcRankToDataIndex;
+        this->prepare_subphase_identifier_requests(
+                aCutIntegrationMesh,
+                tNotOwnedSubphasesToProcs, 
+                tParentCellIds, 
+                tChildCellIds, 
+                tNumChildCellsInSubphase,
+                tProcRanks,
+                tProcRankToDataIndex);
+
+        // send requests
+        moris::uint tMPITag = 221;
+        mXTKModel->send_outward_requests(tMPITag, tProcRanks,tParentCellIds);
+        mXTKModel->send_outward_requests(tMPITag+1, tProcRanks, tChildCellIds);
+        mXTKModel->send_outward_requests(tMPITag+2, tProcRanks, tNumChildCellsInSubphase);
+
+        barrier();
+
+        // receive requests
+        moris::Cell<Matrix<IndexMat>> tReceivedParentCellIds;
+        moris::Cell<Matrix<IndexMat>> tFirstChildCellIds;
+        moris::Cell<Matrix<IndexMat>> tReceivedNumChildCellsInSubphase;
+        moris::Cell<uint> tProcsReceivedFrom1;
+        moris::Cell<uint> tProcsReceivedFrom2;
+        mXTKModel->inward_receive_requests(tMPITag, 1, tReceivedParentCellIds, tProcsReceivedFrom1);
+        mXTKModel->inward_receive_requests(tMPITag+1,1, tFirstChildCellIds, tProcsReceivedFrom2);
+        mXTKModel->inward_receive_requests(tMPITag+2,1, tReceivedNumChildCellsInSubphase, tProcsReceivedFrom2);
+        MORIS_ASSERT(tProcsReceivedFrom1.size() == tProcsReceivedFrom2.size(),"Size mismatch between procs received from child cell ids and number of child cells");
+
+        // prepare answers
+        Cell<Matrix<IndexMat>> tSubphaseIds;
+        this->prepare_subphase_id_answers(aCutIntegrationMesh,aBackgroundMesh,tReceivedParentCellIds,tFirstChildCellIds,tReceivedNumChildCellsInSubphase,tSubphaseIds);
+
+        // return information
+        mXTKModel->return_request_answers(tMPITag+2, tSubphaseIds, tProcsReceivedFrom1);
+
+        barrier();
+
+        // receive the answers
+        Cell<Matrix<IndexMat>> tReceivedSubphaseIds;
+        mXTKModel->inward_receive_request_answers(tMPITag+2,1,tProcRanks,tReceivedSubphaseIds);
+
+        // add child cell ids to not owned child meshes
+        this->handle_received_subphase_id_request_answers(aCutIntegrationMesh,tNotOwnedSubphasesToProcs,tReceivedSubphaseIds);
+
+        barrier();
+    }
+
+    void
+    Integration_Mesh_Generator::prepare_subphase_identifier_requests(
+        Cut_Integration_Mesh       * aCutIntegrationMesh,
+        Cell<Cell<moris_id>>       & aNotOwnedSubphasesToProcs,
+        Cell<moris::Matrix<IdMat>> & aParentCellIds,
+        Cell<moris::Matrix<IdMat>> & aChildCellIds,
+        Cell<moris::Matrix<IdMat>> & aNumChildCellsInSubphase,
+        Cell<uint>                 & aProcRanks,
+        std::unordered_map<moris_id,moris_id> & aProcRankToDataIndex)
+    {
+        // access the communication table
+        Matrix<IdMat> tCommTable = aCutIntegrationMesh->get_communication_table();
+
+        // resize proc ranks and setup map to comm table
+        aProcRanks.resize(tCommTable.numel());
+        for(moris::uint i = 0; i <tCommTable.numel(); i++)
+        {
+            aProcRankToDataIndex[tCommTable(i)] = i;
+            aProcRanks(i) = (tCommTable(i));
+            aNotOwnedSubphasesToProcs.push_back(Cell<moris_id>(0));
+        }
+
+        // ask owning processor about child element ids
+        moris::Cell<moris_index> & tNotOwnedSubphases = aCutIntegrationMesh->get_not_owned_subphase_indices();
+        // Cell<Child_Mesh*> const & tNotOwnedChildMeshes     = mCutMesh.get_not_owned_child_meshes();
+        // Cell<moris_id>    const & tNotOwnedChildMeshOwners = mCutMesh.get_not_owned_child_owners();
+
+        // not owned subphases
+        for(moris::size_t i = 0; i < tNotOwnedSubphases.size(); i++)
+        {
+            moris_index tOwnerProc = aCutIntegrationMesh->get_subphase_parent_cell(tNotOwnedSubphases(i))->get_owner();
+
+            moris_index tSubphaseId = aCutIntegrationMesh->get_subphase_id(tNotOwnedSubphases(i));
+
+            if(tSubphaseId != MORIS_INDEX_MAX)
+            {
+                moris_index tProcDataIndex = aProcRankToDataIndex[tOwnerProc];
+                aNotOwnedSubphasesToProcs(tProcDataIndex).push_back(tNotOwnedSubphases(i));
+            }
+
+
+
+        }
+
+        aParentCellIds.resize(aNotOwnedSubphasesToProcs.size());
+        aChildCellIds.resize(aNotOwnedSubphasesToProcs.size());
+        aNumChildCellsInSubphase.resize(aNotOwnedSubphasesToProcs.size());
+
+        // iterate through procs and child meshes shared with that processor
+        for(moris::size_t i = 0; i < aNotOwnedSubphasesToProcs.size(); i++)
+        {
+            // number of child meshes shared with this processor
+            moris::uint tNumSubphases = aNotOwnedSubphasesToProcs(i).size();
+
+            // allocate matrix
+            aParentCellIds(i).resize(1,tNumSubphases);
+            aChildCellIds(i).resize(1,tNumSubphases);
+            aNumChildCellsInSubphase(i).resize(1,tNumSubphases);
+
+            if(tNumSubphases == 0)
+            {
+                aParentCellIds(i).resize(1,1);
+                aChildCellIds(i).resize(1,1);
+                aNumChildCellsInSubphase(i).resize(1,1);
+                aParentCellIds(i)(0) = MORIS_INDEX_MAX;
+                aChildCellIds(i)(0) = MORIS_INDEX_MAX;
+                aNumChildCellsInSubphase(i)(0) = MORIS_INDEX_MAX;
+            }
+
+            for(moris::uint j = 0; j < tNumSubphases; j++)
+            {
+                // Child_Mesh* tCM = tNotOwnedChildMeshes(aNotOwnedSubphasesToProcs(i)(j));
+                moris_index tSubphaseIndex = aNotOwnedSubphasesToProcs(i)(j);
+
+                // get the subphase cell group
+                std::shared_ptr<IG_Cell_Group> tSubphase = aCutIntegrationMesh->get_subphase_ig_cells(tSubphaseIndex);
+
+                moris::mtk::Cell* tParentCell = aCutIntegrationMesh->get_subphase_parent_cell(tSubphaseIndex);
+
+                aParentCellIds(i)(j)           = tParentCell->get_id();
+                aChildCellIds(i)(j)            = tSubphase->mIgCellGroup(0)->get_id();
+                aNumChildCellsInSubphase(i)(j) = tSubphase->mIgCellGroup.size();
+            }
+        }
+    }
+
+    void
+    Integration_Mesh_Generator::prepare_subphase_id_answers(
+        Cut_Integration_Mesh*    aCutIntegrationMesh,
+        moris::mtk::Mesh*        aBackgroundMesh,
+        Cell<Matrix<IndexMat>> & aReceivedParentCellIds,
+        Cell<Matrix<IndexMat>> & aFirstChildCellIds,
+        Cell<Matrix<IndexMat>> & aReceivedNumChildCellsInSubphase,
+        Cell<Matrix<IndexMat>> & aSubphaseIds)
+    {
+        MORIS_ASSERT(aReceivedParentCellIds.size() == aFirstChildCellIds.size(),
+                "Mismatch in received parent cell ids and received parent cell number of children");
+
+        // allocate answer size
+        aSubphaseIds.resize(aReceivedParentCellIds.size());
+
+        // iterate through received data
+        for(moris::uint i = 0; i < aReceivedParentCellIds.size(); i++)
+        {
+            uint tNumReceivedReqs = aReceivedParentCellIds(i).n_cols();
+
+            aSubphaseIds(i).resize(1,tNumReceivedReqs);
+
+            if(aReceivedParentCellIds(i)(0,0) != MORIS_INDEX_MAX)
+            {
+                // iterate through received requests
+                for(moris::uint j = 0; j < tNumReceivedReqs; j++)
+                {
+                    // Child cell information
+                    moris_id tChildCellId = aFirstChildCellIds(i)(j);
+
+                    // subphase index on this processor
+                    moris_index tChildCellIndex = aCutIntegrationMesh->get_loc_entity_ind_from_entity_glb_id(tChildCellId,EntityRank::ELEMENT);
+
+                    // subphase index
+                    moris_index tSubphaseIndex = aCutIntegrationMesh->get_ig_cell_subphase_index(tChildCellIndex);
+
+                    moris_index tSubphaseId = aCutIntegrationMesh->get_subphase_id(tSubphaseIndex);
+
+                    MORIS_ERROR(aCutIntegrationMesh->get_subphase_parent_cell(tSubphaseIndex)->get_id() == aReceivedParentCellIds(i)(0,j),"Subphase parent cell id discrepency");
+                    MORIS_ERROR((moris_index)aCutIntegrationMesh->get_subphase_ig_cells(tSubphaseIndex)->mIgCellGroup.size() == aReceivedNumChildCellsInSubphase(i)(j),"Number of cells in subphase discrepency");
+
+                    MORIS_ERROR(tSubphaseId!= MORIS_ID_MAX,"Child cell id not found in child mesh");
+
+                    // place in return data
+                    aSubphaseIds(i)(j) = tSubphaseId;
+                }
+            }
+        }
+    }
+
+    void
+    Integration_Mesh_Generator::handle_received_subphase_id_request_answers(
+        Cut_Integration_Mesh*              aCutIntegrationMesh,
+        Cell<Cell<moris_index>>    const & aSubphaseIndices,
+        Cell<Matrix<IndexMat>>     const & aReceivedSubphaseIds)
+    {
+        // iterate through received data
+        for(moris::uint i = 0; i < aSubphaseIndices.size(); i++)
+        {
+            uint tNumReceivedReqs = aSubphaseIndices(i).size();
+
+            // iterate through received requests
+            for(moris::uint j = 0; j < tNumReceivedReqs; j++)
+            {
+                moris_index tSubphaseIndex = aSubphaseIndices(i)(j);
+                aCutIntegrationMesh->mSubPhaseIds(tSubphaseIndex) = aReceivedSubphaseIds(i)(j);
+            }
+        }
+    }
+    
+    moris::Matrix< moris::IndexMat >
+    Integration_Mesh_Generator::flood_fill_ig_cell_group(
+        Cut_Integration_Mesh                     * aCutIntegrationMesh,
+        std::shared_ptr<Cell_Neighborhood_Connectivity> aCutNeighborhood,
+        std::shared_ptr<IG_Cell_Group>             aIgCellGroup,
+        moris_index                              & aMaxValueAssigned)
+    {
+            
+        // Active phase index
+        moris::size_t tPhaseIndex  = 0;
+
+        // Number of elements in the flood fill
+        moris::size_t tNumElements = aIgCellGroup->mIgCellGroup.size();
+
+        // Number of Elements with Set Phases (This allows for early termination of code if every element has been set)
+        moris::size_t tNumPhasesSet = 0;
+
+        // Current Element Index
+        moris::moris_index tElementIndex = 0;
+
+        // Neighbor Element Phase
+        moris::size_t tNeighborPhase = 0;
+
+        // Neighbor Element local Index in the list aElementsToInclude
+        moris::moris_index tNeighborIndex = 0;
+        moris::moris_index tNeighborOrd   = 0;
+
+        // Current Subphase
+        moris::size_t tCurrentSubphase = 0;
+
+        // Track which elements have their phase set
+        moris::Matrix< moris::DDBMat > tPhaseSet(1,tNumElements,0);
+
+        // Initialize element sub-phases
+        moris::Matrix< moris::IndexMat > tElementSubphase(1,tNumElements,MORIS_INDEX_MAX);
+
+        // Initialize Active Front
+        moris::size_t tActiveFrontCount = 0;
+        moris::size_t tActiveFrontElement = 0;
+        moris::Matrix< moris::IndexMat > tActiveFront(1,10*tNumElements + 1,0);
+
+        // Map between the active element indexes provided and their corresponding iE (Only needed if all elements are not included)
+        // key   - Element Index
+        // value - flood fill local index
+        std::unordered_map<moris::moris_index,moris::moris_index> tElementToLocalIndex;
+
+        for(moris::size_t iE = 0; iE<tNumElements; iE++)
+        {
+            tElementToLocalIndex[aIgCellGroup->mIgCellGroup(iE)->get_index()] = iE;
+        }
+
+        // Loop over all elements
+        for(moris::size_t iE = 0; iE<tNumElements; iE ++)
+        {
+            tElementIndex = aIgCellGroup->mIgCellGroup(iE)->get_index();
+
+            // If this element phase has not been set
+            if(!tPhaseSet(0,iE))
+            {
+                // Phase Index of the element
+                tPhaseIndex = aCutIntegrationMesh->get_cell_bulk_phase(tElementIndex);
+
+                // Set the elements subphase value
+                tElementSubphase(0,iE) = tCurrentSubphase;
+
+                // Mark this element as set
+                tPhaseSet(0,iE) = 1;
+
+                // Update active front
+                // iterate through the cell index neighbors
+                for(moris::size_t iN = 0; iN<aCutNeighborhood->mNeighborCells(tElementIndex)->size(); iN++)
+                {
+                    tNeighborIndex = (*aCutNeighborhood->mNeighborCells(tElementIndex))(iN)->get_index();
+                    
+                    tNeighborPhase = aCutIntegrationMesh->get_cell_bulk_phase(tNeighborIndex);
+
+                    auto tIter = tElementToLocalIndex.find(tNeighborIndex);
+
+                    // if this isn't a neighbor in the current flood fill set move on
+                    if(tIter == tElementToLocalIndex.end())
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        tNeighborOrd = tIter->second;
+                    }
+
+                    // If this is an neighbor element to include in the subdomain, has not already
+                    // been set and its phase matches the current elements phase then
+                    // add it to the active front and increment the count
+                    if( tPhaseSet(0,tNeighborOrd)!=1 &&
+                        tNeighborPhase == tPhaseIndex)
+                    {
+                        tActiveFront(0,tActiveFrontCount) = tNeighborIndex;
+                        tActiveFrontCount++;
+                    }
+                }
+
+                // Iterate through active front until there are no more elements in the active front
+                // We start at the end of the front and work backwards
+                while(tActiveFrontCount!=0)
+                {
+                    // Current Element Index in the Active Front
+                    tActiveFrontElement = tActiveFront(0,tActiveFrontCount-1);
+                    
+                    // Get Neighbor index from map if we're not considering the full domain
+                    tNeighborOrd = tElementToLocalIndex[tActiveFrontElement];
+                    
+                    // Get the neighbors phase
+                    tNeighborPhase = aCutIntegrationMesh->get_cell_bulk_phase(tActiveFrontElement);
+
+                    // If the neighbor phase matches our phase, then we add it's neighbor to the active front
+                    // Unless it has already been set
+                    if(tNeighborPhase == tPhaseIndex &&
+                    tPhaseSet(0,tNeighborOrd)!=1)
+                    {
+                        // Set the neighbor elements subphase value
+                        tElementSubphase(0,tNeighborOrd) = tCurrentSubphase;
+
+                        // Mark element as set
+                        tPhaseSet(0,tNeighborOrd) = 1;
+
+                        // Increase the number of phases set
+                        tNumPhasesSet++;
+
+
+                        // Add the elements other neighbors to the active front
+                        bool tReplaced = false;
+                        for(moris::size_t i = 0; i<aCutNeighborhood->mNeighborCells(tActiveFrontElement)->size(); i++)
+                        {
+                            tElementIndex = (*aCutNeighborhood->mNeighborCells(tActiveFrontElement))(i)->get_index();
+
+                            auto tIter = tElementToLocalIndex.find(tElementIndex);
+
+                            // if this isn't a neighbor in the current flood fill set move on
+                            if(tIter == tElementToLocalIndex.end())
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                tNeighborOrd = tIter->second;
+                            }
+
+                            // If this element is active and its phase hasn't been set
+                            if( tPhaseSet(0,tNeighborOrd) != 1 )
+                            {
+                                // and the previous element hasn't been replaced, then replace it
+                                // don't add to active front count
+                                if(!tReplaced)
+                                {
+                                    tActiveFront(0,tActiveFrontCount-1) = tElementIndex;
+                                    tReplaced = true;
+                                }
+
+                                // Else add to end of active front and add to the count
+                                else
+                                {
+
+                                    MORIS_ASSERT(tActiveFrontCount<tActiveFront.numel()," Active front in flood fill not big enough");
+                                    tActiveFront(0,tActiveFrontCount) = tElementIndex;
+                                    tActiveFrontCount++;
+                                }
+                            }
+                        }
+                    }
+
+                    // Else if the phase doesn't match we remove that element from the active front
+                    else
+                    {
+                        tActiveFront(0,tActiveFrontCount-1) = MORIS_INDEX_MAX;
+                        tActiveFrontCount--;
+                    }
+                }
+
+                tCurrentSubphase++;
+            }
+        }
+
+        aMaxValueAssigned = tCurrentSubphase - 1;
+
+        return tElementSubphase;
+    }   
+    void
+    Integration_Mesh_Generator::construct_bulk_phase_to_bulk_phase_interface(
+        Cut_Integration_Mesh                                          * aCutIntegrationMesh,
+        moris::Cell<moris_index>                                      & aInterfaces,
+        moris::Cell<moris::Cell<std::shared_ptr<IG_Cell_Side_Group>>> & aInterfaceBulkPhaseToBulk)
+    {
+        Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Bulk phase to bulk phase interface" );
+        // number of bulk phases
+        moris::uint tNumBulkPhase = mGeometryEngine->get_num_bulk_phase();
+
+        // allocate the output 
+        aInterfaceBulkPhaseToBulk.resize(tNumBulkPhase,moris::Cell<std::shared_ptr<IG_Cell_Side_Group>>(tNumBulkPhase,nullptr));
+
+        std::shared_ptr<Facet_Based_Connectivity> tFaceConn = aCutIntegrationMesh->get_face_connectivity();
+
+        for(moris::uint iIF = 0; iIF< aInterfaces.size(); iIF++)
+        {
+            moris_index tFacetIndex = aInterfaces(iIF);
+
+            MORIS_ERROR(tFaceConn->mFacetToCell(tFacetIndex).size() == 2,"INTERFACE UNHANDLED, Handling the case where two cells are connected along an interface only");
+
+            moris_index tMyCellBulkPhase   = aCutIntegrationMesh->get_cell_bulk_phase( tFaceConn->mFacetToCell(tFacetIndex)(0)->get_index() );
+            moris_index tYourCellBulkPhase = aCutIntegrationMesh->get_cell_bulk_phase( tFaceConn->mFacetToCell(tFacetIndex)(1)->get_index() );
+
+            if(aInterfaceBulkPhaseToBulk(tMyCellBulkPhase)(tYourCellBulkPhase) == nullptr)
+            {
+                aInterfaceBulkPhaseToBulk(tMyCellBulkPhase)(tYourCellBulkPhase) = std::make_shared<IG_Cell_Side_Group>(aInterfaces.size());
+            }
+            if(aInterfaceBulkPhaseToBulk(tYourCellBulkPhase)(tMyCellBulkPhase) == nullptr)
+            {
+                aInterfaceBulkPhaseToBulk(tYourCellBulkPhase)(tMyCellBulkPhase) = std::make_shared<IG_Cell_Side_Group>(aInterfaces.size());
+            }
+            
+            aInterfaceBulkPhaseToBulk(tMyCellBulkPhase)(tYourCellBulkPhase)->mIgCells.push_back(tFaceConn->mFacetToCell(tFacetIndex)(0));
+            aInterfaceBulkPhaseToBulk(tMyCellBulkPhase)(tYourCellBulkPhase)->mIgCellSideOrdinals.push_back(tFaceConn->mFacetToCellEdgeOrdinal(tFacetIndex)(0));
+
+            aInterfaceBulkPhaseToBulk(tYourCellBulkPhase)(tMyCellBulkPhase)->mIgCells.push_back(tFaceConn->mFacetToCell(tFacetIndex)(1));
+            aInterfaceBulkPhaseToBulk(tYourCellBulkPhase)(tMyCellBulkPhase)->mIgCellSideOrdinals.push_back(tFaceConn->mFacetToCellEdgeOrdinal(tFacetIndex)(1));
+        }
+    }
+
+    void
+    Integration_Mesh_Generator::construct_bulk_phase_to_bulk_phase_dbl_side_interface(
+        Cut_Integration_Mesh                                                 * aCutIntegrationMesh,
+        moris::Cell<moris_index>                                             & aInterfaces,
+        moris::Cell<moris::Cell<std::shared_ptr<IG_Cell_Double_Side_Group>>> & aDblSideInterfaceBulkPhaseToBulk)
+    {
+        Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Bulk phase to bulk phase double sided interface" );
+
+        // number of bulk phases
+        moris::uint tNumBulkPhase = mGeometryEngine->get_num_bulk_phase();
+
+        // allocate the output 
+        aDblSideInterfaceBulkPhaseToBulk.resize(tNumBulkPhase,moris::Cell<std::shared_ptr<IG_Cell_Double_Side_Group>>(tNumBulkPhase,nullptr));
+
+
+        std::shared_ptr<Facet_Based_Connectivity> tFaceConn = aCutIntegrationMesh->get_face_connectivity();
+
+        for(moris::uint iIF = 0; iIF< aInterfaces.size(); iIF++)
+        {
+            moris_index tFacetIndex = aInterfaces(iIF);
+
+            MORIS_ERROR(tFaceConn->mFacetToCell(tFacetIndex).size() == 2,"INTERFACE UNHANDLED, Handling the case where two cells are connected along an interface only");
+
+            moris_index tMyCellBulkPhase   = aCutIntegrationMesh->get_cell_bulk_phase( tFaceConn->mFacetToCell(tFacetIndex)(0)->get_index() );
+            moris_index tYourCellBulkPhase = aCutIntegrationMesh->get_cell_bulk_phase( tFaceConn->mFacetToCell(tFacetIndex)(1)->get_index() );
+
+            if(aDblSideInterfaceBulkPhaseToBulk(tMyCellBulkPhase)(tYourCellBulkPhase) == nullptr)
+            {
+                aDblSideInterfaceBulkPhaseToBulk(tMyCellBulkPhase)(tYourCellBulkPhase) = std::make_shared<IG_Cell_Double_Side_Group>(1);
+            }
+            if(aDblSideInterfaceBulkPhaseToBulk(tYourCellBulkPhase)(tMyCellBulkPhase) == nullptr)
+            {
+                aDblSideInterfaceBulkPhaseToBulk(tYourCellBulkPhase)(tMyCellBulkPhase) = std::make_shared<IG_Cell_Double_Side_Group>(1);
+            }
+
+            aDblSideInterfaceBulkPhaseToBulk(tMyCellBulkPhase)(tYourCellBulkPhase)->mLeaderIgCells.push_back(tFaceConn->mFacetToCell(tFacetIndex)(0));
+            aDblSideInterfaceBulkPhaseToBulk(tMyCellBulkPhase)(tYourCellBulkPhase)->mLeaderIgCellSideOrdinals.push_back(tFaceConn->mFacetToCellEdgeOrdinal(tFacetIndex)(0));
+            aDblSideInterfaceBulkPhaseToBulk(tMyCellBulkPhase)(tYourCellBulkPhase)->mFollowerIgCells.push_back(tFaceConn->mFacetToCell(tFacetIndex)(1));
+            aDblSideInterfaceBulkPhaseToBulk(tMyCellBulkPhase)(tYourCellBulkPhase)->mFollowerIgCellSideOrdinals.push_back(tFaceConn->mFacetToCellEdgeOrdinal(tFacetIndex)(1));
+
+            aDblSideInterfaceBulkPhaseToBulk(tYourCellBulkPhase)(tMyCellBulkPhase)->mLeaderIgCells.push_back(tFaceConn->mFacetToCell(tFacetIndex)(1));
+            aDblSideInterfaceBulkPhaseToBulk(tYourCellBulkPhase)(tMyCellBulkPhase)->mLeaderIgCellSideOrdinals.push_back(tFaceConn->mFacetToCellEdgeOrdinal(tFacetIndex)(1));
+            aDblSideInterfaceBulkPhaseToBulk(tYourCellBulkPhase)(tMyCellBulkPhase)->mFollowerIgCells.push_back(tFaceConn->mFacetToCell(tFacetIndex)(0));
+            aDblSideInterfaceBulkPhaseToBulk(tYourCellBulkPhase)(tMyCellBulkPhase)->mFollowerIgCellSideOrdinals.push_back(tFaceConn->mFacetToCellEdgeOrdinal(tFacetIndex)(0));
+
+        }
+
+    }
+
+    std::string
+    Integration_Mesh_Generator::get_interface_side_set_name(
+            moris_index aGeomIndex,
+            moris_index aBulkPhaseIndex0,
+            moris_index aBulkPhaseIndex1)
+    {
+        MORIS_ASSERT(aGeomIndex< (moris_index)mGeometryEngine->get_num_geometries(),"Geometry index out of bounds");
+        MORIS_ASSERT(aBulkPhaseIndex0< (moris_index)mGeometryEngine->get_num_bulk_phase(),"Bulk phase index 0 out of bounds");
+        MORIS_ASSERT(aBulkPhaseIndex1< (moris_index)mGeometryEngine->get_num_bulk_phase(),"Bulk phase index 1 out of bounds");
+
+        return "iside_b0_" + std::to_string(aBulkPhaseIndex0) + "_b1_" + std::to_string(aBulkPhaseIndex1);
+    }
+
+    void
+    Integration_Mesh_Generator::construct_interface_sets(
+            Cut_Integration_Mesh                                          * aCutIntegrationMesh,
+            moris::Cell<moris::Cell<std::shared_ptr<IG_Cell_Side_Group>>> & aInterfaceBulkPhaseToBulk)
+    {
+        Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Construct interface sets" );
+        // determine the side set names
+        uint tNumBulkPhases = mGeometryEngine->get_num_bulk_phase();
+
+        Cell<std::string> tInterfaceSideNames;
+        tInterfaceSideNames.reserve(tNumBulkPhases*tNumBulkPhases);
+
+        Cell<std::shared_ptr<IG_Cell_Side_Group>> tCellSideGroups;
+        tCellSideGroups.reserve(tNumBulkPhases*tNumBulkPhases);
+
+        for(moris::moris_index iP0 = 0; iP0 <(moris_index) tNumBulkPhases; iP0++)
+        {
+            for(moris::moris_index iP1 = 0; iP1 < (moris_index)tNumBulkPhases; iP1++)
+            {
+                if(iP1 != iP0)
+                {
+                    std::string tInterfaceSideSetName = this->get_interface_side_set_name(0,iP0,iP1);
+
+                    tInterfaceSideNames.push_back(tInterfaceSideSetName);
+
+                    tCellSideGroups.push_back(aInterfaceBulkPhaseToBulk(iP0)(iP1));
+                }
+            }
+        }
+        
+        Cell<moris_index> tSideSetOrds = aCutIntegrationMesh->register_side_set_names(tInterfaceSideNames);
+
+        // iterate and add the side set groups to cut mehs
+        for(moris::uint iSet = 0; iSet < tSideSetOrds.size(); iSet++)
+        {
+            aCutIntegrationMesh->mSideSetCellSides(tSideSetOrds(iSet)) = tCellSideGroups(iSet);
+        }
+
+    }
+
+    void
+    Integration_Mesh_Generator::construct_bulk_phase_cell_groups(
+            Cut_Integration_Mesh                        * aCutIntegrationMesh,
+            moris::Cell<std::shared_ptr<IG_Cell_Group>> & aBulkPhaseCellGroups)
+    {
+        Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Construct bulk phase cell groups" );
+        uint tNumBulkPhases = mGeometryEngine->get_num_bulk_phase();
+
+        aBulkPhaseCellGroups.resize(tNumBulkPhases,nullptr);
+
+        for(moris::uint iCell = 0; iCell < aCutIntegrationMesh->get_num_entities(EntityRank::ELEMENT,0); iCell++)
+        {
+            // cell bulk phase
+            moris_index tBulkPhase = aCutIntegrationMesh->mIntegrationCellBulkPhase(iCell);
+
+            if(tBulkPhase != MORIS_INDEX_MAX)
+            {
+                if(aBulkPhaseCellGroups(tBulkPhase) == nullptr)
+                {
+                    aBulkPhaseCellGroups(tBulkPhase) = std::make_shared<IG_Cell_Group>(0);
+                }
+                aBulkPhaseCellGroups(tBulkPhase)->mIgCellGroup.push_back(&aCutIntegrationMesh->get_mtk_cell(iCell));
+            }
+        }
+    }
+
+    void
+    Integration_Mesh_Generator::construct_bulk_phase_blocks(
+            Cut_Integration_Mesh                        * aCutIntegrationMesh,
+            moris::Cell<std::shared_ptr<IG_Cell_Group>> & aBulkPhaseCellGroups)
+    {
+
+        Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Construct bulk phase blocks" );
+        std::string tBlockBaseName = "cutblock";
+
+        // determine the side set names
+        uint tNumBulkPhases = mGeometryEngine->get_num_bulk_phase();
+
+        MORIS_ERROR(aBulkPhaseCellGroups.size() == tNumBulkPhases,"Mismatch");
+
+        Cell<std::string> tBlockSetNames(tNumBulkPhases);
+
+        enum CellTopology tCellTopo = CellTopology::TET4;
+
+        // iterate through and construct the names of the blocks
+        for(moris::uint iBP = 0; iBP < tNumBulkPhases; iBP++)
+        {
+            tBlockSetNames(iBP) = tBlockBaseName + "_p_"+std::to_string(iBP);
+        }
+
+        Cell<moris_index> tBlockSetOrds = aCutIntegrationMesh->register_block_set_names(tBlockSetNames,tCellTopo);
+
+        // iterate and add the side set groups to cut mehs
+        for(moris::uint iSet = 0; iSet < tBlockSetOrds.size(); iSet++)
+        {
+            aCutIntegrationMesh->mBlockSetCellGroup(tBlockSetOrds(iSet)) = aBulkPhaseCellGroups(iSet);
+        }
+
+    }
+
     // ----------------------------------------------------------------------------------
     moris_index
     Integration_Mesh_Generator::edge_exists(
@@ -257,12 +1400,206 @@ namespace xtk
         }
         return tEdgeIndex;
     }
+
+    moris_index
+    Integration_Mesh_Generator::facet_exists(
+        moris::Cell<moris::mtk::Vertex *>              &aVerticesOnFacet,
+        std::unordered_map<moris_index, moris_index>   &aLocaLVertexMap,
+        moris::Cell<moris::Cell<uint>>                 &aVertexToFacet,
+        moris::Cell<moris::Cell<moris::mtk::Vertex *>> &aFullFacetVertices)
+    {
+        moris_index tFacetIndex = MORIS_INDEX_MAX;
+
+        // number of vertices per facet
+        // moris::uint tNumVerticesPerFacet = aVerticesOnFacet.size();
+
+        // get them in order based on id
+        std::sort(aVerticesOnFacet.data().begin(), aVerticesOnFacet.data().end(), moris::comparePtrToVertexIdBased);
+
+        // local vertex index
+        auto tIter = aLocaLVertexMap.find(aVerticesOnFacet(0)->get_index());
+        MORIS_ERROR(tIter != aLocaLVertexMap.end(), "Invalid vertex detected.");
+
+        moris_index tLocalVertexIndex = tIter->second;
+
+        // iterate through edges attached to the first vertex (depend on ascending order)
+        for (moris::uint iFacet = 0; iFacet < aVertexToFacet(tLocalVertexIndex).size(); iFacet++)
+        {
+            tFacetIndex = aVertexToFacet(tLocalVertexIndex)(iFacet);
+
+            MORIS_ASSERT(aFullFacetVertices(tFacetIndex)(0)->get_index() == aVerticesOnFacet(0)->get_index(), "Numbering issue");
+
+            // figure out if this is the same vertex
+            bool tFoundFacet = std::equal(aFullFacetVertices(tFacetIndex).begin(), aFullFacetVertices(tFacetIndex).end(), aVerticesOnFacet.begin());
+
+            // for(moris::uint iV =1; iV<tNumVerticesPerFacet; iV++)
+            // {
+            //     if(aFullFacetVertices(tFacetIndex)(iV)->get_index() != aVerticesOnFacet(iV)->get_index())
+            //     {
+            //         tFoundFacet = false;
+            //     }
+            // }
+
+            if(tFoundFacet)
+            {
+                return tFacetIndex;
+                break;
+            }
+
+        }
+        return MORIS_INDEX_MAX;
+    }
+    void
+    Integration_Mesh_Generator::create_facet_from_element_to_node( 
+        moris::Cell<moris::mtk::Cell*>          & aCells,
+        std::shared_ptr<Facet_Based_Connectivity> aFaceConnectivity)
+    {
+        Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Creating Facets" );
+        // assume homogenous cell type
+        if(aCells.size() > 0)
+        {
+            // cell information
+            moris::mtk::Cell_Info  const * tCellInfo = aCells(0)->get_cell_info();
+
+            // node to facet map
+            moris::Matrix< moris::IdMat > tElementToFacetMap = tCellInfo->get_node_to_facet_map();
+
+            // Maximum faces per node
+            // moris::uint tMaxFacePerNode   = 10;
+            moris::uint tNumFacesPerElem  = tCellInfo->get_num_facets();
+            moris::uint tNumElements      = aCells.size();
+            moris::uint tMaxNumFacets     = tNumElements*tNumFacesPerElem;
+            moris::uint tNumNodesPerFacet = tElementToFacetMap.n_cols();
+
+            // Allocate outputs
+            aFaceConnectivity->mCellToFacet.resize(aCells.size());
+            aFaceConnectivity->mFacetToCell.reserve(tMaxNumFacets);
+            aFaceConnectivity->mFacetToCellEdgeOrdinal.reserve(tMaxNumFacets);
+            aFaceConnectivity->mFacetVertices.reserve(tMaxNumFacets);
+
+            moris::uint tNumNodes = 0;
+            moris::Cell<moris::mtk::Vertex*> tVertices;
+            std::unordered_map<moris_index,moris_index> tVertexIndexToLocalIndexMap;
+            for(moris::uint i = 0; i < aCells.size(); i++)
+            {
+               moris::Cell<moris::mtk::Vertex*> tCellVerts = aCells(i)->get_vertex_pointers();
+
+               for(moris::uint iV = 0; iV < tCellVerts.size(); iV++)
+               {
+                   if(tVertexIndexToLocalIndexMap.find(tCellVerts(iV)->get_index()) == tVertexIndexToLocalIndexMap.end())
+                   {
+                       tVertexIndexToLocalIndexMap[tCellVerts(iV)->get_index()] = (moris_index) tNumNodes;
+                       tVertices.push_back(tCellVerts(iV));
+                       tNumNodes++;
+                   }
+               }
+            }
+
+            moris::Cell<moris::Cell<uint>> tVertexToFacetIndex(tNumNodes);
+            // tVertexToFacetIndex.reserve(tMaxNumFacets*tNumNodesPerFacet*tMaxFacePerNode);
+            moris::Cell<moris::mtk::Vertex*> tVerticesOnFacet(tNumNodesPerFacet,nullptr);
+
+            for(moris::uint i = 0; i < aCells.size(); i++)
+            {
+               moris::Cell<moris::mtk::Vertex*> tCellVerts = aCells(i)->get_vertex_pointers();
+
+               // iterate through edges
+               for(moris::uint iEdge = 0; iEdge < tElementToFacetMap.n_rows(); iEdge++)
+               {
+                    // get the vertices on the edge
+                    for(moris::uint iVOnE = 0; iVOnE < tElementToFacetMap.n_cols(); iVOnE++)
+                    {
+                        tVerticesOnFacet(iVOnE) = tCellVerts(tElementToFacetMap(iEdge,iVOnE));
+                    }
+
+                    // figure out if the edge exists and if so where
+                    moris_index tEdgeIndex = this->facet_exists(tVerticesOnFacet,tVertexIndexToLocalIndexMap,tVertexToFacetIndex,aFaceConnectivity->mFacetVertices);
+                    
+                    // add it new
+                    if(tEdgeIndex == MORIS_INDEX_MAX)
+                    {
+
+                        tEdgeIndex = aFaceConnectivity->mFacetVertices.size();
+                        aFaceConnectivity->mFacetVertices.push_back(tVerticesOnFacet);
+                        aFaceConnectivity->mFacetToCell.push_back(moris::Cell<moris::mtk::Cell*>());
+                        aFaceConnectivity->mFacetToCellEdgeOrdinal.push_back(moris::Cell<moris::moris_index>());
+
+                        // local vertex index
+                        auto tIter = tVertexIndexToLocalIndexMap.find(tVerticesOnFacet(0)->get_index());
+                        MORIS_ERROR(tIter != tVertexIndexToLocalIndexMap.end(),"Invalid vertex detected.");
+                        moris_index tLocalVertexIndex = tIter->second;
+
+                        tVertexToFacetIndex(tLocalVertexIndex).push_back(tEdgeIndex);
+                    }
+
+
+                    aFaceConnectivity->mCellToFacet(i).push_back(tEdgeIndex);
+                    aFaceConnectivity->mFacetToCell(tEdgeIndex).push_back(aCells(i));
+                    aFaceConnectivity->mFacetToCellEdgeOrdinal(tEdgeIndex).push_back(iEdge);
+               }
+            }
+        }
+    }
+
+    void
+    Integration_Mesh_Generator::generate_cell_neighborhood(
+        moris::Cell<moris::mtk::Cell*> &aCells,
+        std::shared_ptr<Facet_Based_Connectivity>  aFaceConnectivity,
+        std::shared_ptr<Cell_Neighborhood_Connectivity> aNeighborhood)
+    {   
+        Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Generate Neighborhood" );
+
+        // Initialize Sizes and Variables used in routine
+        moris_index tMaxIndex            = this->get_max_index(aCells);
+        moris_index tMaxNumElementToFace = 2;
+
+        // Initialize Element to Element with size number of elements x number of faces per element filled with a dummy value.
+        aNeighborhood->mNeighborCells.resize(tMaxIndex+1);
+        aNeighborhood->mMySideOrdinal.resize(tMaxIndex+1);
+        aNeighborhood->mNeighborSideOrdinal.resize(tMaxIndex+1);
+
+        for(moris::uint i = 0; i <  (moris::uint)tMaxIndex+1; i++)
+        {
+            aNeighborhood->mNeighborCells(i)       = std::make_shared<moris::Cell<moris::mtk::Cell*>>();
+            aNeighborhood->mMySideOrdinal(i)       = std::make_shared<moris::Cell<moris_index>>();
+            aNeighborhood->mNeighborSideOrdinal(i) = std::make_shared<moris::Cell<moris_index>>();
+
+            aNeighborhood->mNeighborCells(i)->reserve(tMaxNumElementToFace);
+            aNeighborhood->mMySideOrdinal(i)->reserve(tMaxNumElementToFace);
+            aNeighborhood->mNeighborSideOrdinal(i)->reserve(tMaxNumElementToFace);
+        }
+
+        // iterate through facet to cell connectivity. any cell that shares a facet is a neighbor
+        for(moris::uint iF = 0; iF < aFaceConnectivity->mFacetToCell.size(); iF++)
+        {
+            // iterate through cells attached to this facet (either just 1 or 2)
+            MORIS_ASSERT(aFaceConnectivity->mFacetToCell(iF).size() == 1 || aFaceConnectivity->mFacetToCell(iF).size() == 2, "Facet should either connect to no cell or one other cell");
+            
+            if(aFaceConnectivity->mFacetToCell(iF).size() == 2 )
+            {
+                moris_index tCellIndex0 = aFaceConnectivity->mFacetToCell(iF)(0)->get_index();
+                moris_index tCellIndex1 = aFaceConnectivity->mFacetToCell(iF)(1)->get_index();
+
+                aNeighborhood->mNeighborCells(tCellIndex0)->push_back(aFaceConnectivity->mFacetToCell(iF)(1));
+                aNeighborhood->mNeighborCells(tCellIndex1)->push_back(aFaceConnectivity->mFacetToCell(iF)(0));
+
+                aNeighborhood->mMySideOrdinal(tCellIndex0)->push_back(aFaceConnectivity->mFacetToCellEdgeOrdinal(iF)(0));
+                aNeighborhood->mMySideOrdinal(tCellIndex1)->push_back(aFaceConnectivity->mFacetToCellEdgeOrdinal(iF)(1));
+
+                aNeighborhood->mNeighborSideOrdinal(tCellIndex0)->push_back(aFaceConnectivity->mFacetToCellEdgeOrdinal(iF)(1));
+                aNeighborhood->mNeighborSideOrdinal(tCellIndex0)->push_back(aFaceConnectivity->mFacetToCellEdgeOrdinal(iF)(0));
+            }
+        }
+    }
+
 // ----------------------------------------------------------------------------------
     void
     Integration_Mesh_Generator::create_edges_from_element_to_node( 
         moris::Cell<moris::mtk::Cell*> aCells,
         std::shared_ptr<Edge_Based_Connectivity> aEdgeConnectivity)
     {        
+        Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Creating Edges" );
+
         // assume homogenous cell type
         if(aCells.size() > 0)
         {
@@ -353,6 +1690,189 @@ namespace xtk
             }
         }
     }
+
+    void
+    Integration_Mesh_Generator::deduce_facet_ancestry(
+        Cut_Integration_Mesh *                    aCutIntegrationMesh, 
+        moris::mtk::Mesh*                         aBackgroundMesh, 
+        std::shared_ptr<Facet_Based_Connectivity> aIgCellGroupFacetConnectivity,
+        moris::Cell<moris::mtk::Cell*> const &    aParentCellForDeduction, 
+        std::shared_ptr<Facet_Based_Ancestry>     aIgFacetAncestry)
+    {
+        Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Facet Ancestry" );
+        
+        // make sure we are starting clean
+        aIgFacetAncestry->mFacetParentEntityIndex.clear();
+        aIgFacetAncestry->mFacetParentEntityRank.clear();
+        aIgFacetAncestry->mFacetParentEntityOrdinalWrtBackgroundCell.clear();
+        
+        // number of edges in the edge connectivity
+        moris::uint tNumFacets = aIgCellGroupFacetConnectivity->mFacetVertices.size();
+
+        // allocate the data in the edge ancestry
+        aIgFacetAncestry->mFacetParentEntityIndex.resize(tNumFacets);
+        aIgFacetAncestry->mFacetParentEntityRank.resize(tNumFacets);
+        aIgFacetAncestry->mFacetParentEntityOrdinalWrtBackgroundCell.resize(tNumFacets);
+
+        Cell<std::shared_ptr<Matrix<IndexMat>>> tEntityConnectedToParent(4);
+        for(moris::uint iInit = 0 ; iInit < 4; iInit ++)
+        {
+            tEntityConnectedToParent(iInit) = std::make_shared<Matrix<IndexMat>>(0,0);
+        }
+        
+        Matrix<IndexMat> tActiveConnectivity(1,4,MORIS_INDEX_MAX);
+
+        moris::Cell<moris_index> tCandidateFacetOrds;
+
+        moris::Cell<moris::moris_index> tFacetVertexParentInds;
+        moris::Cell<moris::moris_index> tFacetVertexParentRanks;
+        moris::Cell<moris::moris_index> tFacetVertexParentOrds;
+
+
+        // iterate through edges in the edge connectivity
+        for(moris::uint iFacet = 0; iFacet < tNumFacets; iFacet++)
+        {
+
+            tCandidateFacetOrds.clear();
+            tActiveConnectivity.fill(MORIS_INDEX_MAX);
+
+            moris::mtk::Cell_Info const * tParentCellInfo = aParentCellForDeduction(iFacet)->get_cell_info();
+            
+            // vertices of the facet
+            moris::Cell<moris::mtk::Vertex*> const & tFacetVertices = aIgCellGroupFacetConnectivity->mFacetVertices(iFacet);
+
+            // get the parent of these vertices from the mesh
+            tFacetVertexParentInds.resize(tFacetVertices.size());
+            tFacetVertexParentRanks.resize(tFacetVertices.size());
+            tFacetVertexParentOrds.resize(tFacetVertices.size());
+
+            // all we need to figure out is if the facet is a subfacet or a interior to the cell in this case.
+
+            // iterate through vertices 
+            for(moris::uint iV = 0; iV < tFacetVertices.size(); iV++)
+            {
+                tFacetVertexParentInds(iV)  = aCutIntegrationMesh->mIgVertexParentEntityIndex(tFacetVertices(iV)->get_index());
+                tFacetVertexParentRanks(iV) = aCutIntegrationMesh->mIgVertexParentEntityRank(tFacetVertices(iV)->get_index());
+
+                // iterior background cell is the parent
+                if(tFacetVertexParentRanks(iV) == 3)
+                {
+                    // mark the entity parent as the deduction cell
+                    aIgFacetAncestry->mFacetParentEntityIndex(iFacet)                    = aParentCellForDeduction(iFacet)->get_index();
+                    aIgFacetAncestry->mFacetParentEntityRank(iFacet)                     = 3;
+                    aIgFacetAncestry->mFacetParentEntityOrdinalWrtBackgroundCell(iFacet) = 0;
+                    tCandidateFacetOrds.clear();
+                    break;
+                }
+
+                if(tActiveConnectivity(tFacetVertexParentRanks(iV)) == MORIS_INDEX_MAX)
+                {
+                    (*tEntityConnectedToParent(tFacetVertexParentRanks(iV) )) = 
+                        aBackgroundMesh->get_entity_connected_to_entity_loc_inds(
+                            aParentCellForDeduction(iFacet)->get_index(),
+                            EntityRank::ELEMENT,
+                            moris::get_entity_rank_from_index(tFacetVertexParentRanks(iV)));
+                }
+
+                // figure out the ordinal
+                for(moris::uint iE = 0; iE < tEntityConnectedToParent(tFacetVertexParentRanks(iV))->numel(); iE++)
+                {
+                    if(  (*tEntityConnectedToParent(tFacetVertexParentRanks(iV)))(iE) == tFacetVertexParentInds(iV)   )
+                    {
+                        tFacetVertexParentOrds(iV) = iE;
+                        break;
+                    }
+                }
+
+                // iterate through facets of cell
+                if(iV == 0)
+                {
+                    for(moris::uint iCellFacets = 0; iCellFacets < tParentCellInfo->get_num_facets(); iCellFacets++ )
+                    {
+                        if( tParentCellInfo->is_entity_connected_to_facet((moris_index)iCellFacets, tFacetVertexParentOrds(iV),tFacetVertexParentRanks(iV)) )
+                        {
+                            tCandidateFacetOrds.push_back(iCellFacets);
+                        }
+                    }
+                }
+                else
+                {
+                    for (auto i = tCandidateFacetOrds.data().rbegin(); i != tCandidateFacetOrds.data().rend(); ++i ) 
+                    {
+                        if( !tParentCellInfo->is_entity_connected_to_facet(*i, tFacetVertexParentOrds(iV),tFacetVertexParentRanks(iV)) )
+                        {
+                            *i = MORIS_INDEX_MAX;
+                        }
+
+                    } 
+                }
+
+                tCandidateFacetOrds.data().erase(std::remove(tCandidateFacetOrds.data().begin(), tCandidateFacetOrds.data().end(), MORIS_INDEX_MAX), tCandidateFacetOrds.data().end());
+
+            }
+
+            if(tCandidateFacetOrds.size() == 1 )
+            {
+                if(tActiveConnectivity((uint)aCutIntegrationMesh->get_facet_rank() ) == MORIS_INDEX_MAX)
+                {
+                    (*tEntityConnectedToParent((uint)aCutIntegrationMesh->get_facet_rank() )) = 
+                        aBackgroundMesh->get_entity_connected_to_entity_loc_inds(
+                            aParentCellForDeduction(iFacet)->get_index(),
+                            EntityRank::ELEMENT,
+                            aCutIntegrationMesh->get_facet_rank());
+                }
+                // mark the entity parent as the deduction cell
+                aIgFacetAncestry->mFacetParentEntityIndex(iFacet)                    = (*tEntityConnectedToParent((uint)aCutIntegrationMesh->get_facet_rank() ))(tCandidateFacetOrds(0));
+                aIgFacetAncestry->mFacetParentEntityRank(iFacet)                     = (moris_index)aCutIntegrationMesh->get_facet_rank() ;
+                aIgFacetAncestry->mFacetParentEntityOrdinalWrtBackgroundCell(iFacet) = tCandidateFacetOrds(0);
+            }
+            else
+            {
+                // mark the entity parent as the deduction cell
+                aIgFacetAncestry->mFacetParentEntityIndex(iFacet)                    = aParentCellForDeduction(iFacet)->get_index();
+                aIgFacetAncestry->mFacetParentEntityRank(iFacet)                     = 3;
+                aIgFacetAncestry->mFacetParentEntityOrdinalWrtBackgroundCell(iFacet) = 0;
+            }
+        }
+    }
+
+    void
+    Integration_Mesh_Generator::compute_bg_facet_to_child_facet_connectivity(
+        Cut_Integration_Mesh *                    aCutIntegrationMesh, 
+        moris::mtk::Mesh*                         aBackgroundMesh, 
+        std::shared_ptr<Facet_Based_Connectivity> aIgCellGroupFacetConnectivity,
+        std::shared_ptr<Facet_Based_Ancestry>     aIgFacetAncestry,
+        moris::Cell<std::shared_ptr<moris::Cell<moris::moris_index>>> & aBgFacetToIgFacet)
+    {
+        // number of facets in the bg mesh
+        moris_index tNumBgFacets = aBackgroundMesh->get_num_entities(aBackgroundMesh->get_facet_rank());
+
+        // resize the bg facet cell to the size of facets in the bg mesh
+        aBgFacetToIgFacet.resize(tNumBgFacets);
+
+        // std::cout<<"(moris_index)aCutIntegrationMesh->get_facet_rank() = "<<(moris_index)aCutIntegrationMesh->get_facet_rank()<<std::endl;
+
+        // iterate through facets in the Facet_Based_Connectivity
+        for(moris::uint iFacet = 0; iFacet < aIgCellGroupFacetConnectivity->mFacetVertices.size(); iFacet++)
+        {   
+            // std::cout<<"iFacet= "<<iFacet<<std::endl;
+            moris_index tParentRank = aIgFacetAncestry->mFacetParentEntityRank(iFacet);
+
+            if(tParentRank == (moris_index)aCutIntegrationMesh->get_facet_rank())
+            {
+                moris_index tParentIndex = aIgFacetAncestry->mFacetParentEntityIndex(iFacet);
+
+                if(aBgFacetToIgFacet(tParentIndex) == nullptr)
+                {
+                    aBgFacetToIgFacet(tParentIndex) = std::make_shared<moris::Cell<moris::moris_index>>();
+                }
+
+                // std::cout<<" tParentFacet = "<<tParentIndex<<" | Igfacet = "<<iFacet<<std::endl;
+                aBgFacetToIgFacet(tParentIndex)->push_back(iFacet);
+            }
+        }
+    }
+
 // ----------------------------------------------------------------------------------
     void
     Integration_Mesh_Generator::deduce_edge_ancestry(
@@ -362,7 +1882,7 @@ namespace xtk
         moris::Cell<moris::mtk::Cell*> const &   aParentCellForDeduction, 
         std::shared_ptr<Edge_Based_Ancestry>     aIgEdgeAncestry)
     {
-
+        Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Edge Ancestry" );
         // make sure we are starting clean
         aIgEdgeAncestry->mEdgeParentEntityIndex.clear();
         aIgEdgeAncestry->mEdgeParentEntityRank.clear();
@@ -378,6 +1898,9 @@ namespace xtk
         aIgEdgeAncestry->mEdgeParentEntityRank.resize(tNumEdges);
         aIgEdgeAncestry->mEdgeParentEntityOrdinalWrtBackgroundCell.resize(tNumEdges);
 
+
+        enum EntityRank tFacetRank = aCutIntegrationMesh->get_facet_rank();
+        
         // iterate through edges in the edge connectivity
         for(moris::uint iEdge = 0; iEdge < tNumEdges; iEdge++)
         {
@@ -405,7 +1928,12 @@ namespace xtk
             moris_index tMaxIndex = std::distance(tEdgeVertexParentRanks.data().begin(),tMaxIter);
 
             
-            // one of the vertices is on an edge that has a background vertex, then we need to figure out the parent using the cell ancestry.
+            // std::cout<<"\nVertex 0 = "<<tEdgeVertices(0)->get_id()
+            //       <<" | Vertex 1 = "<<tEdgeVertices(1)->get_id()
+            //       <<" | Min Rank = "<<*tMinIter
+            //       <<" | Max Rank = "<<*tMaxIter;
+
+            // one of the vertices is on interior
             if(*tMaxIter == 3)
             {
                 // mark the entity parent as the deduction cell
@@ -414,36 +1942,105 @@ namespace xtk
                 aIgEdgeAncestry->mEdgeParentEntityOrdinalWrtBackgroundCell(iEdge) = 0;
 
             }
+            else if(*tMaxIter == (moris_index)tFacetRank && *tMinIter== (moris_index)tFacetRank)
+            {
+                tMinIndex = 0;
+                tMaxIndex = 1;
+
+
+                if(tEdgeVertexParentInds(tMinIndex) == tEdgeVertexParentInds(tMaxIndex))
+                {
+
+                    // not as convenient to get the edge/facet ordinal 
+                    Matrix<IndexMat> tEntitiesConnectedToBaseCell = aBackgroundMesh->get_entity_connected_to_entity_loc_inds(
+                        aParentCellForDeduction(iEdge)->get_index(),
+                        EntityRank::ELEMENT,
+                        moris::get_entity_rank_from_index(*tMaxIter));
+
+                    moris_index tSecondEntityOrdinal = MORIS_INDEX_MAX;
+                    for(moris::uint iEnt = 0; iEnt < tEntitiesConnectedToBaseCell.numel(); iEnt++)
+                    {
+                        if(tEntitiesConnectedToBaseCell(iEnt) == tEdgeVertexParentInds(tMaxIndex) )
+                        {
+                            tSecondEntityOrdinal = iEnt;
+                            break;
+                        }
+                    }
+
+                    // mark the entity parent as the deduction cell
+                    aIgEdgeAncestry->mEdgeParentEntityIndex(iEdge)                    = tEdgeVertexParentInds(0);
+                    aIgEdgeAncestry->mEdgeParentEntityRank(iEdge)                     = (moris_index)tFacetRank;
+                    aIgEdgeAncestry->mEdgeParentEntityOrdinalWrtBackgroundCell(iEdge) = tSecondEntityOrdinal;
+                }
+
+                else
+                {
+                    // mark the entity parent as the deduction cell
+                    aIgEdgeAncestry->mEdgeParentEntityIndex(iEdge)                    = aParentCellForDeduction(iEdge)->get_index();
+                    aIgEdgeAncestry->mEdgeParentEntityRank(iEdge)                     = 3;
+                    aIgEdgeAncestry->mEdgeParentEntityOrdinalWrtBackgroundCell(iEdge) = 0;
+                }
+            }
             else if(*tMinIter > 0)
             {
-                // we take the parent of the max entity rank index
-                // i.e. if I have an edge between a parent edge and a parent face. we are on the face
                 if(tMinIndex == tMaxIndex)
-                {   
-                    // this is the case where we could traverse from one edge to an edge on the opposite side of the background cell
-                    MORIS_ERROR(tEdgeVertexParentInds(0) == tEdgeVertexParentInds(1),"Case not handled where an edge goes between ask keenan what needs to be done here.");
-
-                    // break;
+                {
+                    tMinIndex = 0;
+                    tMaxIndex = 1;
                 }
                 
 
-                // Matrix<IndexMat> tEntitiesConnectedToBaseCell = aBackgroundMesh->get_entity_connected_to_entity_loc_inds(
-                //     aParentCellForDeduction(iEdge)->get_index(),
-                //     EntityRank::ELEMENT,
-                //     moris::get_entity_rank_from_index(*tMaxIter));
+                // edge to edge or edge to facet
+                Matrix<IndexMat> tEntitiesConnectedToBaseCellMaxRank = aBackgroundMesh->get_entity_connected_to_entity_loc_inds(
+                aParentCellForDeduction(iEdge)->get_index(),
+                EntityRank::ELEMENT,
+                moris::get_entity_rank_from_index(*tMaxIter));
 
-                // moris_index tSecondEntityOrdinal = MORIS_INDEX_MAX;
-                // for(moris::uint iEnt = 0; iEnt < tEntitiesConnectedToBaseCell.numel(); iEnt++)
-                // {
-                //     if(tEntitiesConnectedToBaseCell(iEnt) == tEdgeVertexParentInds(tMaxIndex) )
-                //     {
-                //         tSecondEntityOrdinal = iEnt;
-                //         break;
-                //     }
-                // }              
-                // std::cout<<"tSecondEntityOrdinal = "<<tSecondEntityOrdinal<<std::endl;      
+                Matrix<IndexMat> tEntitiesConnectedToBaseCellMinRank = aBackgroundMesh->get_entity_connected_to_entity_loc_inds(
+                aParentCellForDeduction(iEdge)->get_index(),
+                EntityRank::ELEMENT,
+                moris::get_entity_rank_from_index(*tMinIter));
 
-                MORIS_ERROR(0,"Case not handled yet talk to Keenan");
+                moris_index tMaxRankOrd = MORIS_INDEX_MAX;
+                moris_index tMinRankOrd = MORIS_INDEX_MAX;
+
+                for(moris::uint iEnt = 0; iEnt < tEntitiesConnectedToBaseCellMaxRank.numel(); iEnt++)
+                {
+                    if(tEntitiesConnectedToBaseCellMaxRank(iEnt) == tEdgeVertexParentInds(tMaxIndex) )
+                    {
+                        tMaxRankOrd = iEnt;
+                        break;
+                    }
+                }
+
+                
+                for(moris::uint iEnt = 0; iEnt < tEntitiesConnectedToBaseCellMinRank.numel(); iEnt++)
+                {
+                    if(tEntitiesConnectedToBaseCellMinRank(iEnt) == tEdgeVertexParentInds(tMinIndex) )
+                    {
+                        tMinRankOrd = iEnt;
+                        break;
+                    }
+                }
+
+
+                MORIS_ASSERT(*tMinIter == 1,"Not an edge");
+                moris::Cell<moris::moris_index> tParentOrdinalAndRank = aParentCellForDeduction(iEdge)->get_cell_info()->get_edge_path_to_entity_rank_and_ordinal(tMinRankOrd,tMaxRankOrd,*tMaxIter);
+
+                // std::cout<< " | tMinRankOrd = "<<tMinRankOrd<<" | tMaxRankOrd = "<<tMaxRankOrd<<" Parent Ord = "<<tParentOrdinalAndRank(0)<<" | ParentRank = "<<tParentOrdinalAndRank(1)<<std::endl;
+                // need connectivity wrt the minimum path rank
+                Matrix<IndexMat> tParentEntityConnectivity = aBackgroundMesh->get_entity_connected_to_entity_loc_inds(
+                    aParentCellForDeduction(iEdge)->get_index(),
+                    EntityRank::ELEMENT,
+                    moris::get_entity_rank_from_index(tParentOrdinalAndRank(1)));
+
+                // moris::print(tParentEntityConnectivity,"tParentEntityConnectivity");
+
+                // mark the entity parent as the deduction cell
+                aIgEdgeAncestry->mEdgeParentEntityIndex(iEdge)                    = tParentEntityConnectivity(tParentOrdinalAndRank(0));
+                aIgEdgeAncestry->mEdgeParentEntityRank(iEdge)                     = tParentOrdinalAndRank(1);
+                aIgEdgeAncestry->mEdgeParentEntityOrdinalWrtBackgroundCell(iEdge) = tParentOrdinalAndRank(0);
+
             }
             else
             {
@@ -514,8 +2111,9 @@ namespace xtk
         moris::mtk::Mesh *                 aBackgroundMesh,
         Decomposition_Algorithm*           aDecompAlg)
     {
-        aDecompositionData->print_requests(*aBackgroundMesh);
-        aDecompositionData->print(*aBackgroundMesh);
+        Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Commit Ig Vertices to Cut Mesh" );
+        // aDecompositionData->print_requests(*aBackgroundMesh);
+        // aDecompositionData->print(*aBackgroundMesh);
 
         // current index
         moris_index tControlledVertexIndex = aCutIntegrationMesh->mControlledIgVerts.size();
@@ -524,10 +2122,10 @@ namespace xtk
         moris::uint tNumNewIgVertices = aDecompositionData->tNewNodeIndex.size();
         aCutIntegrationMesh->mControlledIgVerts.resize(aCutIntegrationMesh->mControlledIgVerts.size() + tNumNewIgVertices);
         aCutIntegrationMesh->mIntegrationVertices.resize(aCutIntegrationMesh->mIntegrationVertices.size() + tNumNewIgVertices);
-        aCutIntegrationMesh->mVertexCoordinates.resize(aCutIntegrationMesh->mIntegrationVertices.size() + tNumNewIgVertices,nullptr);
-        aCutIntegrationMesh->mIgVertexParentEntityRank.resize(aCutIntegrationMesh->mIntegrationVertices.size() + tNumNewIgVertices,MORIS_INDEX_MAX);
-        aCutIntegrationMesh->mIgVertexParentEntityIndex.resize(aCutIntegrationMesh->mIntegrationVertices.size() + tNumNewIgVertices,MORIS_INDEX_MAX);
-
+        aCutIntegrationMesh->mVertexCoordinates.resize(aCutIntegrationMesh->mIntegrationVertices.size(),nullptr);
+        aCutIntegrationMesh->mIgVertexParentEntityRank.resize(aCutIntegrationMesh->mIntegrationVertices.size(),MORIS_INDEX_MAX);
+        aCutIntegrationMesh->mIgVertexParentEntityIndex.resize(aCutIntegrationMesh->mIntegrationVertices.size(),MORIS_INDEX_MAX);
+    
         // iterate and create new vertices
         for(moris::uint iV = 0; iV < aDecompositionData->tNewNodeId.size(); iV++ )
         {   
@@ -544,10 +2142,15 @@ namespace xtk
             aCutIntegrationMesh->mIntegrationVertices(aDecompositionData->tNewNodeIndex(iV)) = aCutIntegrationMesh->mControlledIgVerts(tControlledVertexIndex).get();
             tControlledVertexIndex++;
 
+            // add to the map
+            MORIS_ASSERT(aCutIntegrationMesh->mIntegrationVertexIdToIndexMap.find(aDecompositionData->tNewNodeId(iV)) == aCutIntegrationMesh->mIntegrationVertexIdToIndexMap.end(),"Id already in the map");
+            aCutIntegrationMesh->mIntegrationVertexIdToIndexMap[aDecompositionData->tNewNodeId(iV)] = aDecompositionData->tNewNodeIndex(iV);
+
             // add the ancestry information to the mesh
             aCutIntegrationMesh->mIgVertexParentEntityRank(aDecompositionData->tNewNodeIndex(iV))  = (moris_index) aDecompositionData->tNewNodeParentRank(iV);
             aCutIntegrationMesh->mIgVertexParentEntityIndex(aDecompositionData->tNewNodeIndex(iV)) = (moris_index) aDecompositionData->tNewNodeParentIndex(iV);
-
+            
+            
         }
         
 
@@ -596,12 +2199,72 @@ namespace xtk
     }
 
     void
+    Integration_Mesh_Generator::select_background_cell_for_edge(
+        std::shared_ptr<Edge_Based_Connectivity> aEdgeBasedConnectivity,
+        Cut_Integration_Mesh*                    aCutIntegrationMesh,
+        moris::Cell<moris::mtk::Cell*>&          aBackgroundCellForEdge)
+    {
+        Tracer tTracer( "XTK", "Decomposition_Algorithm", "Select BG Cell for Edge" );
+        // number of edges
+        moris::uint tNumEdges = aEdgeBasedConnectivity->mEdgeVertices.size();
+
+        aBackgroundCellForEdge.resize(tNumEdges);
+
+        // iterate through edges
+        for(moris::uint iEdge = 0; iEdge < tNumEdges; iEdge++)
+        {
+            // get the first cell attached to the edge
+            MORIS_ERROR( aEdgeBasedConnectivity->mEdgeToCell(iEdge).size() > 0, "Edge not connected to any cells...");
+
+            // integration cell just grab the first
+            moris::mtk::Cell* tCell = aEdgeBasedConnectivity->mEdgeToCell(iEdge)(0);
+
+            // cell group membership
+            moris_index tCellGroupMembershipIndex = aCutIntegrationMesh->get_ig_cell_group_memberships(tCell->get_index())(0);        
+
+            aBackgroundCellForEdge(iEdge) = aCutIntegrationMesh->get_ig_cell_group_parent_cell(tCellGroupMembershipIndex);
+
+        }
+    }
+
+
+    void
+    Integration_Mesh_Generator::select_background_cell_for_facet(
+        std::shared_ptr<Facet_Based_Connectivity> aFacetBasedConnectivity,
+        Cut_Integration_Mesh*                     aCutIntegrationMesh,
+        moris::Cell<moris::mtk::Cell*>&           aBackgroundCellForEdge)
+    {
+        Tracer tTracer( "XTK", "Decomposition_Algorithm", "Select BG Cell for Facet" );
+        // number of edges
+        moris::uint tNumFacets = aFacetBasedConnectivity->mFacetVertices.size();
+
+        aBackgroundCellForEdge.resize(tNumFacets);
+
+        // iterate through edges
+        for(moris::uint iEdge = 0; iEdge < tNumFacets; iEdge++)
+        {
+            // get the first cell attached to the edge
+            MORIS_ERROR( aFacetBasedConnectivity->mFacetToCell(iEdge).size() > 0, "Facet not connected to any cells...");
+
+            // integration cell just grab the first
+            moris::mtk::Cell* tCell = aFacetBasedConnectivity->mFacetToCell(iEdge)(0);
+
+            // cell group membership
+            moris_index tCellGroupMembershipIndex = aCutIntegrationMesh->get_ig_cell_group_memberships(tCell->get_index())(0);        
+
+            aBackgroundCellForEdge(iEdge) = aCutIntegrationMesh->get_ig_cell_group_parent_cell(tCellGroupMembershipIndex);
+
+        }
+    }
+
+    void
     Integration_Mesh_Generator::collect_vertex_groups_for_background_cells(
         Integration_Mesh_Generation_Data*              aMeshGenerationData,
         Cut_Integration_Mesh*                          aCutIntegrationMesh,
         moris::Cell<moris::mtk::Cell*>*                aBackgroundCells,
         moris::Cell<std::shared_ptr<IG_Vertex_Group>>* aVertexGroups)
     {
+        Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Collect Vertex Groups for BG Cell" );
         aVertexGroups->resize(aBackgroundCells->size());
 
         // iterate through background cells
@@ -626,7 +2289,7 @@ namespace xtk
         Cut_Integration_Mesh*              aCutIntegrationMesh,
         moris::mtk::Mesh*                  aBackgroundMesh  )
     {
-        
+        Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Allocate child meshes" );
         aCutIntegrationMesh->mChildMeshes.resize(aMeshGenerationData.tNumChildMeshes);
         aCutIntegrationMesh->mIntegrationCellGroups.resize(aMeshGenerationData.tNumChildMeshes,nullptr);
         aCutIntegrationMesh->mIntegrationVertexGroups.resize(aMeshGenerationData.tNumChildMeshes,nullptr);
@@ -644,6 +2307,8 @@ namespace xtk
             aCutIntegrationMesh->mChildMeshes(tCMIndex)->mParentCell        = tParentCell;
             aCutIntegrationMesh->mChildMeshes(tCMIndex)->mChildMeshIndex    = tCMIndex;
 
+            MORIS_ASSERT(aCutIntegrationMesh->mParentCellCellGroupIndex(tParentCell->get_index()) == MORIS_INDEX_MAX,"Double group allocation for parent cell");
+            aCutIntegrationMesh->mParentCellCellGroupIndex(tParentCell->get_index()) = tCMIndex;
 
             moris_index tNumGeometricVertices = 8;
             moris::Cell<moris::mtk::Vertex*> tParentCellVerts = tParentCell->get_vertex_pointers();
@@ -701,6 +2366,7 @@ namespace xtk
             moris::mtk::Mesh*     aBackgroundMesh,
             moris::moris_index    aMPITag)
     {
+        Tracer tTracer( "XTK", "Decomposition_Algorithm", "Assign node ids" );
         moris_index tNodeIndex = aCutIntegrationMesh->get_first_available_index(EntityRank::NODE);
 
         for(moris::uint i = 0; i < aDecompData.tNewNodeIndex.size(); i++)
@@ -726,6 +2392,7 @@ namespace xtk
         std::unordered_map<moris_id,moris_id> tProcRankToDataIndex;
         this->sort_new_node_requests_by_owned_and_not_owned(
                 aDecompData,
+                aCutIntegrationMesh,
                 aBackgroundMesh,
                 tOwnedRequest,
                 tNotOwnedRequests,
@@ -778,6 +2445,7 @@ namespace xtk
    void
    Integration_Mesh_Generator::sort_new_node_requests_by_owned_and_not_owned(
             Decomposition_Data                    & tDecompData,
+            Cut_Integration_Mesh                  * aCutIntegrationMesh,
             moris::mtk::Mesh*                       aBackgroundMesh,
             Cell<uint>                            & aOwnedRequests,
             Cell<Cell<uint>>                      & aNotOwnedRequests,
@@ -785,8 +2453,8 @@ namespace xtk
             std::unordered_map<moris_id,moris_id> & aProcRankToIndexInData)
     {
         // access the communication
-        Matrix<IdMat> tCommTable = aBackgroundMesh->get_communication_table();
-
+        Matrix<IdMat> tCommTable = aCutIntegrationMesh->get_communication_table();
+        
         // number of new nodes
         moris::uint tNumNewNodes = tDecompData.tNewNodeParentIndex.size();
 

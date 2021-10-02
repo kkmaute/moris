@@ -99,18 +99,10 @@ namespace moris
              *
              * @return Number of sets
              */
-            virtual moris::uint get_num_sets() const; // FIXME pure virtual
+            virtual moris::uint get_num_sets() const; 
 
-            // FIXME remove access to set
-            /**
-             * Deprecated
-             */
             virtual moris::mtk::Set * get_set_by_index( moris::uint aSetIndex ) const;
 
-            // FIXME remove access to set
-            /**
-             * Deprecated
-             */
             virtual moris::mtk::Set * get_set_by_name( std::string aSetLabel ) const;
 
             // end of pure virtual functions in section 1
@@ -199,7 +191,11 @@ namespace moris
             // FIXME: Keenan - Explanation of output not clear; give precise information of return matrix
             virtual
             Matrix< IndexMat >
-            get_elements_connected_to_element_and_face_ind_loc_inds(moris_index aElementIndex) const = 0;
+            get_elements_connected_to_element_and_face_ind_loc_inds(moris_index aElementIndex) const
+            {
+                MORIS_ERROR(0,"No default implementation");
+                return Matrix< IndexMat >(0,0);
+            }
 
             // FIXME Remove access to vertex
             /**

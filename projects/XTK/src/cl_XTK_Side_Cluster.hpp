@@ -12,18 +12,13 @@
 #include <unordered_map>
 using namespace moris;
 
-namespace moris
-{
-    namespace mtk
-    {
-        class Cell_Cluster;
-    }
-}
 
 namespace xtk
 {
     class Interpolation_Cell_Unzipped;
     class Child_Mesh;
+    class Cell_Cluster;
+    class IG_Vertex_Group;
 
     class Side_Cluster : public mtk::Side_Cluster
     {
@@ -109,6 +104,9 @@ namespace xtk
                     const mtk::Primary_Void   aPrimaryOrVoid,
                     const mtk::Master_Slave   aIsMaster) const;
 
+            void
+            set_ig_vertex_group(std::shared_ptr<IG_Vertex_Group> aVertexGroup);                    
+
             //---------------------------------------------------------------------------------------
 
             // memory
@@ -132,22 +130,14 @@ namespace xtk
             moris::Cell<moris::mtk::Cell const *>       mIntegrationCells;
             moris::Matrix<moris::IndexMat>              mIntegrationCellSideOrdinals;
             moris::Cell<moris::mtk::Vertex const *>     mVerticesInCluster;
-            std::unordered_map<moris_index,moris_index> mVertexIdToLocalIndex;
+            std::shared_ptr<IG_Vertex_Group>            mVertexGroup;
             moris::Cell<moris::Matrix<moris::DDRMat>>   mVertexLocalCoords;
             moris::Matrix<moris::DDRMat>                mVertexLocalCoordsMat; /*FIXME: get rid of mVertexLocalCoords*/
-            moris::mtk::Cell_Cluster const *            mAssociatedCellCluster; /* Associated cell cluster (needed for volume computations in nitsche).*/
+            xtk::Cell_Cluster const *                   mAssociatedCellCluster; /* Associated cell cluster (needed for volume computations in nitsche).*/
 
             //---------------------------------------------------------------------------------------
-
-            void
-            finalize_setup();
-
+            
             //---------------------------------------------------------------------------------------
-
-            void
-            add_vertex_to_map(
-                    moris_id    aVertexId,
-                    moris_index aVertexLocalIndex);
 
             //---------------------------------------------------------------------------------------
     };

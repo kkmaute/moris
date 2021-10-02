@@ -27,6 +27,7 @@
 
 // XTKL: Tools includes
 #include "cl_XTK_Enums.hpp"
+#include "cl_XTK_Cut_Integration_Mesh.hpp"
 #include "cl_XTK_Cut_Mesh.hpp"
 #include "cl_XTK_Enrichment.hpp"
 #include "cl_XTK_Ghost_Stabilization.hpp"
@@ -85,9 +86,11 @@ namespace xtk
 
             // friend classes
             friend class Integration_Mesh_Generator;
+            friend class Cut_Integration_Mesh;
             friend class Enrichment;
             friend class Enriched_Interpolation_Mesh;
             friend class Enriched_Integration_Mesh;
+            friend class Cut_Integration_Mesh;
             friend class Ghost_Stabilization;
             friend class Multigrid;
 
@@ -231,6 +234,8 @@ namespace xtk
 
             // ----------------------------------------------------------------------------------
 
+            Cut_Integration_Mesh*
+            get_cut_integration_mesh();
             /*!
              * @return Basis enrichment
              */
@@ -508,11 +513,11 @@ namespace xtk
 
             moris::ge::Geometry_Engine*        mGeometryEngine;
 
-            Integration_Mesh_Generator*        mIntegrationMeshGenerator;
-            Enrichment*                        mEnrichment;
-            Ghost_Stabilization*               mGhostStabilization;
-            Cell<Enriched_Interpolation_Mesh*> mEnrichedInterpMesh;
-            Cell<Enriched_Integration_Mesh*>   mEnrichedIntegMesh;
+            std::shared_ptr<Cut_Integration_Mesh> mCutIntegrationMesh;
+            Enrichment*                           mEnrichment;
+            Ghost_Stabilization*                  mGhostStabilization;
+            Cell<Enriched_Interpolation_Mesh*>    mEnrichedInterpMesh;
+            Cell<Enriched_Integration_Mesh*>      mEnrichedIntegMesh;
 
             std::shared_ptr< xtk::Multigrid >  mMultigrid;
 

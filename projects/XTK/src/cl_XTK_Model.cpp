@@ -238,9 +238,6 @@ namespace xtk
             tMeshCleanup.perform();
         }
 
-        // at this point the cut mesh and background mesh is not going to change anymore
-        this->finalize_mesh_data();
-
 
         if(mParameterList.get<bool>("enrich"))
         {
@@ -609,13 +606,13 @@ namespace xtk
             tActiveGeometries(i) = (moris_index) i;
         }
 
-        mIntegrationMeshGenerator = new Integration_Mesh_Generator(this,aMethods,tActiveGeometries);
+        Integration_Mesh_Generator tIntegrationGenerator(this,aMethods,tActiveGeometries);
 
-        bool tSuccess = mIntegrationMeshGenerator->perform();
+        mCutIntegrationMesh = tIntegrationGenerator.perform();
+        
+        mDecomposed = true;
 
-        delete mIntegrationMeshGenerator;
-
-        return tSuccess;
+        return true;
     }
 
     // ----------------------------------------------------------------------------------
@@ -2440,37 +2437,6 @@ namespace xtk
         // identify local subphases in child mesh
         this->identify_local_subphase_clusters_in_child_meshes();
 
-        // constructs the subphase double side sets internal to a child mesh 
-        // I do this here because it also figures out if the child mesh has inter child mesh interfaces
-        // this flag is needed for the cleanup cut mesh call
-        // this->construct_internal_double_sides_between_subphases();
-
-        // // cleanup the mesh
-        // if(mCleanupMesh)
-        // {
-        //     std::cout<<"Mesh Cleanup"<<std::endl;
-        //     Mesh_Cleanup tMeshCleanup(this,&mParameterList);
-        //     tMeshCleanup.perform();
-        // }
-
-
-        // // identify local subphases in child mesh
-        // this->identify_local_subphase_clusters_in_child_meshes();
-
-        // // add child element to local to global map
-        // this->add_child_elements_to_local_to_global_map();
-
-        // // Associate nodes created during decomposition to their child meshes
-        // this->associate_nodes_created_during_decomp_to_child_meshes();
-
-        // // set the glb to loc map for all cells
-        // this->setup_cell_glb_to_local_map();
-
-        // // assign subphase ids
-        // this->assign_subphase_glob_ids();
-
-        // // setup global to local subphase map
-        // this->setup_glob_to_loc_subphase_map();
     }
 
     // ----------------------------------------------------------------------------------
@@ -3913,10 +3879,6 @@ namespace xtk
     {
         Tracer tTracer( "XTK", "Enrichment");
 
-        if(!mMeshDataFinalized)
-        {
-            this->finalize_mesh_data();
-        }
         MORIS_ERROR(mDecomposed,"Prior to computing basis enrichment, the decomposition process must be called");
 
         // allocate some new enriched interpolation and integration meshes
@@ -4008,6 +3970,14 @@ namespace xtk
     }
 
     // ----------------------------------------------------------------------------------
+    Cut_Integration_Mesh*
+    Model::get_cut_integration_mesh()
+    {
+        MORIS_ASSERT(mDecomposed,
+                "Cannot get cut integration mesh prior to the decomposition strategy ");
+
+        return mCutIntegrationMesh.get();
+    }
 
     Enrichment const &
     Model::get_basis_enrichment()
@@ -4385,7 +4355,7 @@ namespace xtk
         else
         {
             // get the cell subphase indices
-            aCellSubphaseBulkIndices = {{mBackgroundMesh.get_element_phase_index(aCellIndex)}};
+            aCellSubphaseBulkIndices = {{mCutIntegrationMesh->get_cell_bulk_phase(aCellIndex)}};
             aCellSubphaseIndices     = {{aCellIndex}};
         }
     }
@@ -4731,7 +4701,7 @@ namespace xtk
     {
         MORIS_ASSERT(mDecomposed,"Prior to using get_num_elements, the decomposition process must be finished");
 
-        return mBackgroundMesh.get_num_entities(EntityRank::ELEMENT);
+        return mCutIntegrationMesh->get_num_entities(EntityRank::ELEMENT,0);
     }
 
     //------------------------------------------------------------------------------
@@ -4757,6 +4727,7 @@ namespace xtk
     moris::Cell<moris::Cell<moris_index>>  const &
     Model::get_subphase_to_subphase()
     {
+        MORIS_ERROR(0,"Depracated.");
         return mSubphaseToSubPhase;
     }
 
@@ -4816,14 +4787,8 @@ namespace xtk
     moris_id
     Model::get_subphase_id(moris_id aSubphaseIndex)
     {
-        if(this->subphase_is_in_child_mesh(aSubphaseIndex))
-        {
-            return mCutMesh.get_subphase_id(aSubphaseIndex);
-        }
-        else
-        {
-            return mBackgroundMesh.get_glb_entity_id_from_entity_loc_index(aSubphaseIndex,EntityRank::ELEMENT);
-        }
+
+        return mCutIntegrationMesh->get_subphase_id(aSubphaseIndex);
     }
 
     // ----------------------------------------------------------------------------------
@@ -4831,11 +4796,7 @@ namespace xtk
     moris_index
     Model::get_subphase_index(moris_id aSubphaseId)
     {
-        auto tIter = mGlobalToLocalSubphaseMap.find(aSubphaseId);
-
-        MORIS_ASSERT(tIter != mGlobalToLocalSubphaseMap.end(),"Subphase id not in map");
-
-        return tIter->second;
+        return mCutIntegrationMesh->get_subphase_index(aSubphaseId);
     }
 
     //------------------------------------------------------------------------------

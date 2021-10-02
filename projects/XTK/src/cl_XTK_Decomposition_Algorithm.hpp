@@ -21,6 +21,7 @@ class Cut_Integration_Mesh;
 class Decomposition_Algorithm
 {
     public:
+    // number of cells less the number you are replace
     moris_index                                         mNumNewCells;
     moris::Cell<moris::Cell<moris::moris_index>>        mNewCellToVertexConnectivity;
     moris::Cell<moris::moris_index>                     mNewCellChildMeshIndex;

@@ -74,6 +74,12 @@ public:
         return mCellVertices;
     }
 
+    void
+    set_vertex_pointers(moris::Cell< mtk::Vertex* > & aVertexPointers)
+    {
+        mCellVertices = aVertexPointers;
+    }
+
     //------------------------------------------------------------------------------
 
     /**

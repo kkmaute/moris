@@ -76,6 +76,8 @@ set(HEADERS
     fn_write_element_ownership_as_field.hpp
     fn_generate_element_to_element_2D.hpp
     xtk_typedefs.hpp
+    cl_XTK_Decomposition_Algorithm_Factory.hpp
+    cl_XTK_Diagnostics.hpp
     )                                                                                                                                                                                                                                                                   
 
 
@@ -127,7 +129,10 @@ cl_XTK_Interpolation_Cell.cpp
 cl_XTK_Decomposition_Algorithm.cpp
 cl_XTK_Integration_Mesh_Generator.cpp
 cl_XTK_Regular_Subdivision_Interface.cpp
-cl_XTK_Node_Hierarchy_Interface.cpp)
+cl_XTK_Node_Hierarchy_Interface.cpp
+cl_XTK_Cut_Integration_Mesh.cpp
+cl_XTK_Decomposition_Algorithm_Factory.cpp
+cl_XTK_Diagnostics.cpp)
 
 # List library dependencies
 set(LIB_DEPENDENCIES 

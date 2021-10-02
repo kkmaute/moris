@@ -1,5 +1,6 @@
 #include "cl_XTK_Decomposition_Algorithm.hpp"
 #include "cl_XTK_Integration_Mesh_Generator.hpp"
+#include "cl_Tracer.hpp"
 
 namespace xtk
 {
@@ -12,6 +13,9 @@ namespace xtk
     moris::mtk::Mesh*                   aBackgroundMesh,
     Integration_Mesh_Generator*         aMeshGenerator)
     {
+        Tracer tTracer( "XTK", "Decomposition_Algorithm", "Generic" );
+
+
             this->perform_impl_vertex_requests(aMeshGenerationData,aDecompositionData,aCutIntegrationMesh,aBackgroundMesh,aMeshGenerator);
 
             // in parallel give all these nodes ids

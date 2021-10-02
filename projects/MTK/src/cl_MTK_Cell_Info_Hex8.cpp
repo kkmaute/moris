@@ -1210,6 +1210,1039 @@ namespace moris
 
         }
 
+        moris::Cell<moris_index>
+        Cell_Info_Hex8::get_edge_path_to_entity_rank_and_ordinal(
+                moris_index aEdgeOrdinal, 
+                moris_index aOtherEntityOrdinal,
+                moris_index aOtherEntityRank) const
+        {
+            switch (aEdgeOrdinal)
+            {
+                case 0:
+                {
+                    switch (aOtherEntityRank)
+                    {
+                        case 1:
+                        {
+                            switch (aOtherEntityOrdinal)
+                            {
+                                case 0:  return {0,1};
+                                case 1:  return {4,2};
+                                case 2:  return {4,2};
+                                case 3:  return {4,2};
+                                case 4:  return {0,2};
+                                case 5:  return {0,3};
+                                case 6:  return {0,3};
+                                case 7:  return {0,3};
+                                case 8:  return {0,2};
+                                case 9:  return {0,2};
+                                case 10: return {0,3};
+                                case 11: return {0,3};
+                                default: 
+                                {
+                                    MORIS_ERROR(0,"Invalid other edge ordinal for hex8"); 
+                                    return moris::Cell<moris_index>( 0 );
+                                }
+                            }
+                        } 
+
+                        // node to face paths
+                        case 2:
+                        {
+                            switch (aOtherEntityOrdinal)
+                            {
+                                case 0:  return {0,2};
+                                case 1:  return {0,3};
+                                case 2:  return {0,3};
+                                case 3:  return {0,3};
+                                case 4:  return {4,2};
+                                case 5:  return {0,3};
+                                default: 
+                                {
+                                    MORIS_ERROR(0,"Invalid other edge ordinal for hex8"); 
+                                    return moris::Cell<moris_index>( 0 );
+                                }
+                            }
+                        }
+                        default: 
+                        {
+                            MORIS_ERROR(0,"Invalid other entity rank for hex8"); 
+                            return moris::Cell<moris_index>( 0 );
+                        } 
+                    }
+                } 
+                case 1:
+                {
+                    switch (aOtherEntityRank)
+                    {
+                        case 1:
+                        {
+                            switch (aOtherEntityOrdinal)
+                            {
+                                case 0:  return {4,2};
+                                case 1:  return {1,1};
+                                case 2:  return {4,2};
+                                case 3:  return {4,2};
+                                case 4:  return {0,3};
+                                case 5:  return {1,2};
+                                case 6:  return {0,3};
+                                case 7:  return {0,3};
+                                case 8:  return {0,3};
+                                case 9:  return {1,2};
+                                case 10: return {1,2};
+                                case 11: return {0,3};
+                                default: 
+                                {
+                                    MORIS_ERROR(0,"Invalid other edge ordinal for hex8"); 
+                                    return moris::Cell<moris_index>( 0 );
+                                }
+                            }
+                        } 
+
+                        // edge to face paths
+                        case 2:
+                        {
+                            switch (aOtherEntityOrdinal)
+                            {
+                                case 0:  return {0,3};
+                                case 1:  return {1,2};
+                                case 2:  return {0,3};
+                                case 3:  return {0,3};
+                                case 4:  return {4,2};
+                                case 5:  return {0,3};
+                                default: 
+                                {
+                                    MORIS_ERROR(0,"Invalid other edge ordinal for hex8"); 
+                                    return moris::Cell<moris_index>( 0 );
+                                }
+                            }
+                        }
+                        default: 
+                        {
+                            MORIS_ERROR(0,"Invalid other entity rank for hex8"); 
+                            return moris::Cell<moris_index>( 0 );
+                        } 
+                    }
+                }
+                case 2:
+                {
+                    switch (aOtherEntityRank)
+                    {
+                        case 1:
+                        {
+                            switch (aOtherEntityOrdinal)
+                            {
+                                case 0:  return {4,2};
+                                case 1:  return {4,2};
+                                case 2:  return {2,1};
+                                case 3:  return {4,2};
+                                case 4:  return {0,3};
+                                case 5:  return {0,3};
+                                case 6:  return {2,2};
+                                case 7:  return {0,3};
+                                case 8:  return {0,3};
+                                case 9:  return {0,3};
+                                case 10: return {2,2};
+                                case 11: return {2,2};
+                                default: 
+                                {
+                                    MORIS_ERROR(0,"Invalid other edge ordinal for hex8"); 
+                                    return moris::Cell<moris_index>( 0 );
+                                }
+                            }
+                        } 
+
+                        // node to face paths
+                        case 2:
+                        {
+                            switch (aOtherEntityOrdinal)
+                            {
+                                case 0:  return {0,3};
+                                case 1:  return {0,3};
+                                case 2:  return {2,2};
+                                case 3:  return {0,3};
+                                case 4:  return {4,2};
+                                case 5:  return {0,3};
+                                default: 
+                                {
+                                    MORIS_ERROR(0,"Invalid other edge ordinal for hex8"); 
+                                    return moris::Cell<moris_index>( 0 );
+                                }
+                            }
+                        }
+                        default: 
+                        {
+                            MORIS_ERROR(0,"Invalid other entity rank for hex8"); 
+                            return moris::Cell<moris_index>( 0 );
+                        } 
+                    }
+                }
+                case 3:
+                {
+                    switch (aOtherEntityRank)
+                    {
+                        case 1:
+                        {
+                            switch (aOtherEntityOrdinal)
+                            {
+                                case 0:  return {4,2};
+                                case 1:  return {4,2};
+                                case 2:  return {4,2};
+                                case 3:  return {3,1};
+                                case 4:  return {0,3};
+                                case 5:  return {0,3};
+                                case 6:  return {0,3};
+                                case 7:  return {3,2};
+                                case 8:  return {3,2};
+                                case 9:  return {0,3};
+                                case 10: return {0,3};
+                                case 11: return {3,2};
+                                default: 
+                                {
+                                    MORIS_ERROR(0,"Invalid other edge ordinal for hex8"); 
+                                    return moris::Cell<moris_index>( 0 );
+                                }
+                            }
+                        } 
+
+                        // node to face paths
+                        case 2:
+                        {
+                            switch (aOtherEntityOrdinal)
+                            {
+                                case 0:  return {0,3};
+                                case 1:  return {0,3};
+                                case 2:  return {0,3};
+                                case 3:  return {3,2};
+                                case 4:  return {4,2};
+                                case 5:  return {0,3};
+                                default: 
+                                {
+                                    MORIS_ERROR(0,"Invalid other edge ordinal for hex8"); 
+                                    return moris::Cell<moris_index>( 0 );
+                                }
+                            }
+                        }
+                        default: 
+                        {
+                            MORIS_ERROR(0,"Invalid other entity rank for hex8"); 
+                            return moris::Cell<moris_index>( 0 );
+                        } 
+                    }
+                }
+                case 4:
+                {
+                    switch (aOtherEntityRank)
+                    {
+                        case 1:
+                        {
+                            switch (aOtherEntityOrdinal)
+                            {
+                                case 0:  return {0,2};
+                                case 1:  return {0,3};
+                                case 2:  return {0,3};
+                                case 3:  return {0,3};
+                                case 4:  return {4,1};
+                                case 5:  return {5,2};
+                                case 6:  return {5,2};
+                                case 7:  return {5,2};
+                                case 8:  return {0,2};
+                                case 9:  return {0,2};
+                                case 10: return {0,3};
+                                case 11: return {0,3};
+                                default: 
+                                {
+                                    MORIS_ERROR(0,"Invalid other edge ordinal for hex8"); 
+                                    return moris::Cell<moris_index>( 0 );
+                                }
+                            }
+                        } 
+
+                        // node to face paths
+                        case 2:
+                        {
+                            switch (aOtherEntityOrdinal)
+                            {
+                                case 0:  return {0,2};
+                                case 1:  return {0,3};
+                                case 2:  return {0,3};
+                                case 3:  return {0,3};
+                                case 4:  return {0,3};
+                                case 5:  return {5,2};
+                                default: 
+                                {
+                                    MORIS_ERROR(0,"Invalid other edge ordinal for hex8"); 
+                                    return moris::Cell<moris_index>( 0 );
+                                }
+                            }
+                        }
+                        default: 
+                        {
+                            MORIS_ERROR(0,"Invalid other entity rank for hex8"); 
+                            return moris::Cell<moris_index>( 0 );
+                        } 
+                    }
+                } 
+                case 5:
+                {
+                    switch (aOtherEntityRank)
+                    {
+                        case 1:
+                        {
+                            switch (aOtherEntityOrdinal)
+                            {
+                                case 0:  return {0,3};
+                                case 1:  return {1,2};
+                                case 2:  return {0,3};
+                                case 3:  return {0,3};
+                                case 4:  return {5,2};
+                                case 5:  return {1,5};
+                                case 6:  return {5,2};
+                                case 7:  return {5,2};
+                                case 8:  return {0,3};
+                                case 9:  return {1,2};
+                                case 10: return {1,2};
+                                case 11: return {0,3};
+                                default: 
+                                {
+                                    MORIS_ERROR(0,"Invalid other edge ordinal for hex8"); 
+                                    return moris::Cell<moris_index>( 0 );
+                                }
+                            }
+                        } 
+
+                        // node to face paths
+                        case 2:
+                        {
+                            switch (aOtherEntityOrdinal)
+                            {
+                                case 0:  return {0,3};
+                                case 1:  return {1,2};
+                                case 2:  return {0,3};
+                                case 3:  return {0,3};
+                                case 4:  return {0,3};
+                                case 5:  return {5,2};
+                                default: 
+                                {
+                                    MORIS_ERROR(0,"Invalid other edge ordinal for hex8"); 
+                                    return moris::Cell<moris_index>( 0 );
+                                }
+                            }
+                        }
+                        default: 
+                        {
+                            MORIS_ERROR(0,"Invalid other entity rank for hex8"); 
+                            return moris::Cell<moris_index>( 0 );
+                        } 
+                    }
+                }
+                case 6:
+                {
+                    switch (aOtherEntityRank)
+                    {
+                        case 1:
+                        {
+                            switch (aOtherEntityOrdinal)
+                            {
+                                case 0:  return {0,3};
+                                case 1:  return {0,3};
+                                case 2:  return {2,2};
+                                case 3:  return {0,3};
+                                case 4:  return {5,2};
+                                case 5:  return {5,2};
+                                case 6:  return {6,1};
+                                case 7:  return {5,2};
+                                case 8:  return {0,3};
+                                case 9:  return {0,3};
+                                case 10: return {2,2};
+                                case 11: return {2,2};
+                                default: 
+                                {
+                                    MORIS_ERROR(0,"Invalid other edge ordinal for hex8"); 
+                                    return moris::Cell<moris_index>( 0 );
+                                }
+                            }
+                        } 
+
+                        // node to face paths
+                        case 2:
+                        {
+                            switch (aOtherEntityOrdinal)
+                            {
+                                case 0:  return {0,3};
+                                case 1:  return {0,3};
+                                case 2:  return {2,2};
+                                case 3:  return {0,3};
+                                case 4:  return {0,3};
+                                case 5:  return {5,2};
+                                default: 
+                                {
+                                    MORIS_ERROR(0,"Invalid other edge ordinal for hex8"); 
+                                    return moris::Cell<moris_index>( 0 );
+                                }
+                            }
+                        }
+                        default: 
+                        {
+                            MORIS_ERROR(0,"Invalid other entity rank for hex8"); 
+                            return moris::Cell<moris_index>( 0 );
+                        } 
+                    }
+                } 
+                case 7:
+                {
+                    switch (aOtherEntityRank)
+                    {
+                        case 1:
+                        {
+                            switch (aOtherEntityOrdinal)
+                            {
+                                case 0:  return {0,3};
+                                case 1:  return {0,3};
+                                case 2:  return {0,3};
+                                case 3:  return {3,2};
+                                case 4:  return {5,2};
+                                case 5:  return {5,2};
+                                case 6:  return {5,2};
+                                case 7:  return {7,1};
+                                case 8:  return {3,2};
+                                case 9:  return {0,3};
+                                case 10: return {0,3};
+                                case 11: return {3,2};
+                                default: 
+                                {
+                                    MORIS_ERROR(0,"Invalid other edge ordinal for hex8"); 
+                                    return moris::Cell<moris_index>( 0 );
+                                }
+                            }
+                        } 
+
+                        // node to face paths
+                        case 2:
+                        {
+                            switch (aOtherEntityOrdinal)
+                            {
+                                case 0:  return {0,3};
+                                case 1:  return {0,3};
+                                case 2:  return {0,3};
+                                case 3:  return {3,2};
+                                case 4:  return {0,3};
+                                case 5:  return {5,2};
+                                default: 
+                                {
+                                    MORIS_ERROR(0,"Invalid other edge ordinal for hex8"); 
+                                    return moris::Cell<moris_index>( 0 );
+                                }
+                            }
+                        }
+                        default: 
+                        {
+                            MORIS_ERROR(0,"Invalid other entity rank for hex8"); 
+                            return moris::Cell<moris_index>( 0 );
+                        } 
+                    }
+                }
+                case 8:
+                {
+                    switch (aOtherEntityRank)
+                    {
+                        case 1:
+                        {
+                            switch (aOtherEntityOrdinal)
+                            {
+                                case 0:  return {0,2};
+                                case 1:  return {0,3};
+                                case 2:  return {0,3};
+                                case 3:  return {3,2};
+                                case 4:  return {0,2};
+                                case 5:  return {0,3};
+                                case 6:  return {0,3};
+                                case 7:  return {3,2};
+                                case 8:  return {8,1};
+                                case 9:  return {0,2};
+                                case 10: return {0,3};
+                                case 11: return {3,2};
+                                default: 
+                                {
+                                    MORIS_ERROR(0,"Invalid other edge ordinal for hex8"); 
+                                    return moris::Cell<moris_index>( 0 );
+                                }
+                            }
+                        } 
+
+                        // node to face paths
+                        case 2:
+                        {
+                            switch (aOtherEntityOrdinal)
+                            {
+                                case 0:  return {0,2};
+                                case 1:  return {0,3};
+                                case 2:  return {0,3};
+                                case 3:  return {3,2};
+                                case 4:  return {0,3};
+                                case 5:  return {0,3};
+                                default: 
+                                {
+                                    MORIS_ERROR(0,"Invalid other edge ordinal for hex8"); 
+                                    return moris::Cell<moris_index>( 0 );
+                                }
+                            }
+                        }
+                        default: 
+                        {
+                            MORIS_ERROR(0,"Invalid other entity rank for hex8"); 
+                            return moris::Cell<moris_index>( 0 );
+                        } 
+                    }
+                }
+                case 9:
+                {
+                    switch (aOtherEntityRank)
+                    {
+                        case 1:
+                        {
+                            switch (aOtherEntityOrdinal)
+                            {
+                                case 0:  return {0,2};
+                                case 1:  return {1,2};
+                                case 2:  return {0,3};
+                                case 3:  return {0,3};
+                                case 4:  return {0,2};
+                                case 5:  return {1,2};
+                                case 6:  return {0,3};
+                                case 7:  return {0,3};
+                                case 8:  return {0,2};
+                                case 9:  return {9,1};
+                                case 10: return {1,2};
+                                case 11: return {0,3};
+                                default: 
+                                {
+                                    MORIS_ERROR(0,"Invalid other edge ordinal for hex8"); 
+                                    return moris::Cell<moris_index>( 0 );
+                                }
+                            }
+                        } 
+
+                        // node to face paths
+                        case 2:
+                        {
+                            switch (aOtherEntityOrdinal)
+                            {
+                                case 0:  return {0,2};
+                                case 1:  return {1,2};
+                                case 2:  return {0,3};
+                                case 3:  return {0,3};
+                                case 4:  return {0,3};
+                                case 5:  return {0,3};
+                                default: 
+                                {
+                                    MORIS_ERROR(0,"Invalid other edge ordinal for hex8"); 
+                                    return moris::Cell<moris_index>( 0 );
+                                }
+                            }
+                        }
+                        default: 
+                        {
+                            MORIS_ERROR(0,"Invalid other entity rank for hex8"); 
+                            return moris::Cell<moris_index>( 0 );
+                        } 
+                    }
+                }     
+                case 10:
+                {
+                    switch (aOtherEntityRank)
+                    {
+                        case 1:
+                        {
+                            switch (aOtherEntityOrdinal)
+                            {
+                                case 0:  return {0,3};
+                                case 1:  return {1,2};
+                                case 2:  return {2,2};
+                                case 3:  return {0,3};
+                                case 4:  return {0,3};
+                                case 5:  return {1,2};
+                                case 6:  return {2,2};
+                                case 7:  return {0,3};
+                                case 8:  return {0,3};
+                                case 9:  return {1,2};
+                                case 10: return {10,1};
+                                case 11: return {2,2};
+                                default: 
+                                {
+                                    MORIS_ERROR(0,"Invalid other edge ordinal for hex8"); 
+                                    return moris::Cell<moris_index>( 0 );
+                                }
+                            }
+                        } 
+
+                        // node to face paths
+                        case 2:
+                        {
+                            switch (aOtherEntityOrdinal)
+                            {
+                                case 0:  return {0,3};
+                                case 1:  return {1,2};
+                                case 2:  return {2,2};
+                                case 3:  return {0,3};
+                                case 4:  return {0,3};
+                                case 5:  return {0,3};
+                                default: 
+                                {
+                                    MORIS_ERROR(0,"Invalid other edge ordinal for hex8"); 
+                                    return moris::Cell<moris_index>( 0 );
+                                }
+                            }
+                        }
+                        default: 
+                        {
+                            MORIS_ERROR(0,"Invalid other entity rank for hex8"); 
+                            return moris::Cell<moris_index>( 0 );
+                        } 
+                    }
+                }    
+                case 11:
+                {
+                    switch (aOtherEntityRank)
+                    {
+                        case 1:
+                        {
+                            switch (aOtherEntityOrdinal)
+                            {
+                                case 0:  return {0,3};
+                                case 1:  return {0,3};
+                                case 2:  return {2,2};
+                                case 3:  return {3,2};
+                                case 4:  return {0,3};
+                                case 5:  return {0,3};
+                                case 6:  return {2,2};
+                                case 7:  return {3,2};
+                                case 8:  return {3,2};
+                                case 9:  return {0,3};
+                                case 10: return {2,2};
+                                case 11: return {11,1};
+                                default: 
+                                {
+                                    MORIS_ERROR(0,"Invalid other edge ordinal for hex8"); 
+                                    return moris::Cell<moris_index>( 0 );
+                                }
+                            }
+                        } 
+
+                        // node to face paths
+                        case 2:
+                        {
+                            switch (aOtherEntityOrdinal)
+                            {
+                                case 0:  return {0,3};
+                                case 1:  return {0,3};
+                                case 2:  return {2,2};
+                                case 3:  return {3,2};
+                                case 4:  return {0,3};
+                                case 5:  return {0,3};
+                                default: 
+                                {
+                                    MORIS_ERROR(0,"Invalid other edge ordinal for hex8"); 
+                                    return moris::Cell<moris_index>( 0 );
+                                }
+                            }
+                        }
+                        default: 
+                        {
+                            MORIS_ERROR(0,"Invalid other entity rank for hex8"); 
+                            return moris::Cell<moris_index>( 0 );
+                        } 
+                    }
+                }                                   
+                default: 
+                {
+                    MORIS_ERROR(0,"Invalid vertex ordinal for hex8"); 
+                    return moris::Cell<moris_index>( 0 );
+                } 
+            }
+        }
+
+        bool 
+        Cell_Info_Hex8::is_entity_connected_to_facet( 
+                moris_index aFacetOrdinal,
+                moris_index aOtherEntityOrdinal,
+                moris_index aOtherEntityRank) const
+        {
+            switch (aFacetOrdinal)
+            {
+                case 0:
+                {
+                    switch (aOtherEntityRank)
+                    {
+                        case 0:
+                        {
+                            switch (aOtherEntityOrdinal)
+                            {
+                                case 0:  return true;
+                                case 1:  return true;
+                                case 2:  return false;
+                                case 3:  return false;
+                                case 4:  return true;
+                                case 5:  return true;
+                                case 6:  return false;
+                                case 7:  return false;                                                                
+                                default: 
+                                {
+                                    MORIS_ERROR(0,"Invalid other edge ordinal for hex8"); 
+                                    return false;
+                                }
+                            }
+                        }
+                        case 1:
+                        {
+                            switch (aOtherEntityOrdinal)
+                            {
+                                case 0:  return true;
+                                case 1:  return false;
+                                case 2:  return false;
+                                case 3:  return false;
+                                case 4:  return true;
+                                case 5:  return false;
+                                case 6:  return false;
+                                case 7:  return false;
+                                case 8:  return true;
+                                case 9:  return true;
+                                case 10: return false;
+                                case 11: return false;
+                                default: 
+                                {
+                                    MORIS_ERROR(0,"Invalid other edge ordinal for hex8"); 
+                                    return false;
+                                }
+                            }
+                        } 
+                        case 2:
+                        {
+                            switch (aOtherEntityOrdinal)
+                            {
+                                case 0:  return true;
+                                default: return false;
+                            }
+                        }
+                        default: 
+                        {
+                            MORIS_ERROR(0,"Invalid other entity rank for hex8"); 
+                            return false;
+                        } 
+                    }
+                }
+                case 1:
+                {
+                    switch (aOtherEntityRank)
+                    {
+                        case 0:
+                        {
+                            switch (aOtherEntityOrdinal)
+                            {
+                                case 0:  return false;
+                                case 1:  return true;
+                                case 2:  return true;
+                                case 3:  return false;
+                                case 4:  return false;
+                                case 5:  return true;
+                                case 6:  return true;
+                                case 7:  return false;                                                                
+                                default: 
+                                {
+                                    MORIS_ERROR(0,"Invalid other edge ordinal for hex8"); 
+                                    return false;
+                                }
+                            }
+                        }
+                        case 1:
+                        {
+                            switch (aOtherEntityOrdinal)
+                            {
+                                case 0:  return false;
+                                case 1:  return true;
+                                case 2:  return false;
+                                case 3:  return false;
+                                case 4:  return false;
+                                case 5:  return true;
+                                case 6:  return false;
+                                case 7:  return false;
+                                case 8:  return false;
+                                case 9:  return true;
+                                case 10: return true;
+                                case 11: return false;
+                                default: 
+                                {
+                                    MORIS_ERROR(0,"Invalid other edge ordinal for hex8"); 
+                                    return false;
+                                }
+                            }
+                        } 
+                        case 2:
+                        {
+                            switch (aOtherEntityOrdinal)
+                            {
+                                case 1:  return true;
+                                default: return false;
+                            }
+                        }
+                        default: 
+                        {
+                            MORIS_ERROR(0,"Invalid other entity rank for hex8"); 
+                            return false;
+                        } 
+                    }
+                }
+                case 2:
+                {
+                    switch (aOtherEntityRank)
+                    {
+                        case 0:
+                        {
+                            switch (aOtherEntityOrdinal)
+                            {
+                                case 0:  return false;
+                                case 1:  return false;
+                                case 2:  return true;
+                                case 3:  return true;
+                                case 4:  return false;
+                                case 5:  return false;
+                                case 6:  return true;
+                                case 7:  return true;                                                                
+                                default: 
+                                {
+                                    MORIS_ERROR(0,"Invalid other edge ordinal for hex8"); 
+                                    return false;
+                                }
+                            }
+                        }
+                        case 1:
+                        {
+                            switch (aOtherEntityOrdinal)
+                            {
+                                case 0:  return false;
+                                case 1:  return false;
+                                case 2:  return true;
+                                case 3:  return false;
+                                case 4:  return false;
+                                case 5:  return false;
+                                case 6:  return true;
+                                case 7:  return false;
+                                case 8:  return false;
+                                case 9:  return false;
+                                case 10: return true;
+                                case 11: return true;
+                                default: 
+                                {
+                                    MORIS_ERROR(0,"Invalid other edge ordinal for hex8"); 
+                                    return false;
+                                }
+                            }
+                        } 
+                        case 2:
+                        {
+                            switch (aOtherEntityOrdinal)
+                            {
+                                case 2:  return true;
+                                default: return false;
+                            }
+                        }
+                        default: 
+                        {
+                            MORIS_ERROR(0,"Invalid other entity rank for hex8"); 
+                            return false;
+                        } 
+                    }
+                }
+                case 3:
+                {
+                    switch (aOtherEntityRank)
+                    {
+                        case 0:
+                        {
+                            switch (aOtherEntityOrdinal)
+                            {
+                                case 0:  return true;
+                                case 1:  return false;
+                                case 2:  return false;
+                                case 3:  return true;
+                                case 4:  return true;
+                                case 5:  return false;
+                                case 6:  return false;
+                                case 7:  return true;                                                                
+                                default: 
+                                {
+                                    MORIS_ERROR(0,"Invalid other edge ordinal for hex8"); 
+                                    return false;
+                                }
+                            }
+                        }
+                        case 1:
+                        {
+                            switch (aOtherEntityOrdinal)
+                            {
+                                case 0:  return false;
+                                case 1:  return false;
+                                case 2:  return false;
+                                case 3:  return true;
+                                case 4:  return false;
+                                case 5:  return false;
+                                case 6:  return false;
+                                case 7:  return true;
+                                case 8:  return true;
+                                case 9:  return false;
+                                case 10: return false;
+                                case 11: return true;
+                                default: 
+                                {
+                                    MORIS_ERROR(0,"Invalid other edge ordinal for hex8"); 
+                                    return false;
+                                }
+                            }
+                        } 
+                        case 2:
+                        {
+                            switch (aOtherEntityOrdinal)
+                            {
+                                case 3:  return true;
+                                default: return false;
+                            }
+                        }
+                        default: 
+                        {
+                            MORIS_ERROR(0,"Invalid other entity rank for hex8"); 
+                            return false;
+                        } 
+                    }
+                }
+                case 4:
+                {
+                    switch (aOtherEntityRank)
+                    {
+                        case 0:
+                        {
+                            switch (aOtherEntityOrdinal)
+                            {
+                                case 0:  return true;
+                                case 1:  return true;
+                                case 2:  return true;
+                                case 3:  return true;
+                                case 4:  return false;
+                                case 5:  return false;
+                                case 6:  return false;
+                                case 7:  return false;                                                                
+                                default: 
+                                {
+                                    MORIS_ERROR(0,"Invalid other edge ordinal for hex8"); 
+                                    return false;
+                                }
+                            }
+                        }
+                        case 1:
+                        {
+                            switch (aOtherEntityOrdinal)
+                            {
+                                case 0:  return true;
+                                case 1:  return true;
+                                case 2:  return true;
+                                case 3:  return true;
+                                case 4:  return false;
+                                case 5:  return false;
+                                case 6:  return false;
+                                case 7:  return false;
+                                case 8:  return false;
+                                case 9:  return false;
+                                case 10: return false;
+                                case 11: return false;
+                                default: 
+                                {
+                                    MORIS_ERROR(0,"Invalid other edge ordinal for hex8"); 
+                                    return false;
+                                }
+                            }
+                        } 
+                        case 2:
+                        {
+                            switch (aOtherEntityOrdinal)
+                            {
+                                case 4:  return true;
+                                default: return false;
+                            }
+                        }
+                        default: 
+                        {
+                            MORIS_ERROR(0,"Invalid other entity rank for hex8"); 
+                            return false;
+                        } 
+                    }
+                }
+                case 5:
+                {
+                    switch (aOtherEntityRank)
+                    {
+                        case 0:
+                        {
+                            switch (aOtherEntityOrdinal)
+                            {
+                                case 0:  return false;
+                                case 1:  return false;
+                                case 2:  return false;
+                                case 3:  return false;
+                                case 4:  return true;
+                                case 5:  return true;
+                                case 6:  return true;
+                                case 7:  return true;                                                                
+                                default: 
+                                {
+                                    MORIS_ERROR(0,"Invalid other edge ordinal for hex8"); 
+                                    return false;
+                                }
+                            }
+                        }
+                        case 1:
+                        {
+                            switch (aOtherEntityOrdinal)
+                            {
+                                case 0:  return false;
+                                case 1:  return false;
+                                case 2:  return false;
+                                case 3:  return false;
+                                case 4:  return true;
+                                case 5:  return true;
+                                case 6:  return true;
+                                case 7:  return true;
+                                case 8:  return false;
+                                case 9:  return false;
+                                case 10: return false;
+                                case 11: return false;
+                                default: 
+                                {
+                                    MORIS_ERROR(0,"Invalid other edge ordinal for hex8"); 
+                                    return false;
+                                }
+                            }
+                        } 
+                        case 2:
+                        {
+                            switch (aOtherEntityOrdinal)
+                            {
+                                case 5:  return true;
+                                default: return false;
+                            }
+                        }
+                        default: 
+                        {
+                            MORIS_ERROR(0,"Invalid other entity rank for hex8"); 
+                            return false;
+                        } 
+                    }
+                }
+                default: 
+                {
+                    MORIS_ERROR(0,"Invalid facet ordinal for hex8"); 
+                    return false;
+                } 
+            }
+        }
         // ----------------------------------------------------------------------------------
 
         void

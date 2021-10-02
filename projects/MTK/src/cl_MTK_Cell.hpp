@@ -360,6 +360,25 @@ namespace moris
 
         };
 
+            // operators for printing
+        inline
+        std::ostream &
+        operator<<(std::ostream & os, const mtk::Cell & dt)
+        {
+            os<<"Cell Id: "<< dt.get_id() << " | Cell Index: "<<dt.get_index();
+
+            return os;
+        }
+
+        inline
+        std::ostream &
+        operator<<(std::ostream & os, mtk::Cell const * const & dt)
+        {
+            os<<"Cell Id: "<< dt->get_id() << " | Cell Index: "<<dt->get_index();
+
+            return os;
+        }
+
         //------------------------------------------------------------------------------
     } /* namespace mtk */
 } /* namespace moris */

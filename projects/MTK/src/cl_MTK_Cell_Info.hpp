@@ -225,6 +225,21 @@ namespace moris
                 moris_index aOtherEntityOrdinal,
                 moris_index aOtherEntityRank) const;
 
+            // edge to entity other entity ordinal should be higher rank (i.e. don't go edge to node (use get_vertex_path_to_entity_rank_and_ordinal for thats))
+            virtual
+            moris::Cell<moris_index>
+            get_edge_path_to_entity_rank_and_ordinal(
+                moris_index aEdgeOrdinal, 
+                moris_index aOtherEntityOrdinal,
+                moris_index aOtherEntityRank) const;
+
+            virtual
+            bool 
+            is_entity_connected_to_facet( 
+                moris_index aFacetOrdinal,
+                moris_index aOtherEntityOrdinal,
+                moris_index aOtherEntityRank) const;
+
             
             virtual
             moris_index

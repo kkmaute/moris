@@ -71,10 +71,10 @@ namespace xtk
     {
         public:
 
-            Enrichment_Data(xtk::Cut_Mesh* aCutMesh)
+            Enrichment_Data(moris_index aNumSubphases)
         :
-            mSubphaseBGBasisIndices(aCutMesh->get_num_subphases()),
-            mSubphaseBGBasisEnrLev(aCutMesh->get_num_subphases()){};
+            mSubphaseBGBasisIndices(aNumSubphases),
+            mSubphaseBGBasisEnrLev(aNumSubphases){};
 
             // Enrichment Data ordered by basis function indices
             // For each basis function, the element indices and elemental subphases
@@ -104,6 +104,8 @@ namespace xtk
     };
 
     class Model;
+    class Cut_Integration_Mesh;
+    class Integration_Mesh_Generator;
 
     class Enrichment
     {
@@ -207,7 +209,9 @@ namespace xtk
             moris::size_t mNumBulkPhases;
 
             // Pointers to necessary classes
-            Model*    mXTKModelPtr;
+            Model*                      mXTKModelPtr;
+            Cut_Integration_Mesh*       mCutIgMesh;
+            Integration_Mesh_Generator* mIgMeshTools;
             Cut_Mesh* mCutMeshPtr;
             Background_Mesh* mBackgroundMeshPtr;
             Enrichment_Parameters mParameters;

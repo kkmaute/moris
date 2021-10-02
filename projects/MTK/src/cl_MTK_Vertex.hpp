@@ -162,6 +162,11 @@ namespace moris
                     MORIS_ERROR( false,"Function not implemented in base vertex" );
                     return false;
                 }
+
+                bool operator==(const mtk::Vertex& aVertex) const 
+                { 
+                    return this->get_id() == aVertex.get_id(); 
+                }
         };
         //------------------------------------------------------------------------------
     } /* namespace mtk */
@@ -193,6 +198,7 @@ namespace moris
     { 
         return (a->get_id() < b->get_id()); 
     }
+
 
 } /* namespace moris */
 //------------------------------------------------------------------------------

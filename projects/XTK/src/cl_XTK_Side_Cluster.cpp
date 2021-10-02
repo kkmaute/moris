@@ -6,11 +6,14 @@
  */
 
 #include "cl_XTK_Side_Cluster.hpp"
-#include "cl_MTK_Cell_Cluster.hpp"
+#include "cl_XTK_Cut_Integration_Mesh.hpp"
+#include "cl_XTK_Cell_Cluster.hpp"
 #include "cl_XTK_Interpolation_Cell_Unzipped.hpp"
 #include "cl_XTK_Child_Mesh.hpp"
 #include "assert.hpp"
 #include "fn_TOL_Capacities.hpp"
+
+
 
 namespace xtk
 {
@@ -73,8 +76,7 @@ namespace xtk
     moris::Cell<moris::mtk::Vertex const *>
     Side_Cluster::get_vertices_in_cluster( const mtk::Master_Slave aIsMaster ) const
     {
-            return mVerticesInCluster;
-
+        return mVerticesInCluster;
     }
     
     //----------------------------------------------------------------
@@ -82,11 +84,11 @@ namespace xtk
     moris::Matrix<moris::DDRMat>
     Side_Cluster::get_vertices_local_coordinates_wrt_interp_cell( const mtk::Master_Slave aIsMaster )  const
     {
-        if(mChildMesh != nullptr)
+        if(!mTrivial)
         {
-            return mChildMesh->get_parametric_coordinates();
+            return mVertexLocalCoordsMat;
         }
-        else if(mTrivial)
+        else
         {
             // get the interpolation cell's connectivity information
             moris::mtk::Cell_Info const * tCellInfo = mInterpolationCell->get_cell_info();
@@ -102,10 +104,6 @@ namespace xtk
 
             return tXi;
         }
-        else
-        {
-            return mVertexLocalCoordsMat;
-        }
     }
     
     //----------------------------------------------------------------
@@ -115,11 +113,11 @@ namespace xtk
             moris::mtk::Vertex const * aVertex,
             const mtk::Master_Slave    aIsMaster ) const
     {
-        if(mChildMesh != nullptr)
+        if(!mTrivial)
         {
-            return mChildMesh->get_parametric_coordinates(aVertex->get_index());
+            return *mVertexGroup->get_vertex_local_coords(aVertex->get_index());
         }
-        else if(mTrivial)
+        else
         {
             // Cluster index is also the ordinal in trivial cluster
             moris_index tVertexOrdinal = mIntegrationCells(0)->get_vertex_ordinal_wrt_cell(aVertex->get_index());
@@ -133,10 +131,6 @@ namespace xtk
 
             return tXi;
         }
-        else
-        {
-            return mVertexLocalCoords(this->get_vertex_cluster_index(aVertex));
-        }
     }
     
     //----------------------------------------------------------------
@@ -145,21 +139,9 @@ namespace xtk
     Side_Cluster::get_vertex_cluster_index( moris::mtk::Vertex const * aVertex,
                                             const mtk::Master_Slave aIsMaster) const
     {
-
-        // if(mTrivial ||  mChildMesh == nullptr)
-        // {
-            auto tIter = mVertexIdToLocalIndex.find(aVertex->get_id());
-
-            MORIS_ERROR(tIter != mVertexIdToLocalIndex.end(),"Vertex not found in side cluster");
-
-            return tIter->second;
-        // }
-
-        // else
-        // {
-            // return mChildMesh->get_cm_local_node_index(aVertex->get_index());
-        // }
+        return mVertexGroup->get_vertex_group_ordinal(aVertex->get_index());
     }
+    
     
     //----------------------------------------------------------------
     
@@ -175,8 +157,7 @@ namespace xtk
         // iterate through vertices and see if the ids match
         for(moris::moris_index i = 0; i < (moris_index)tVerticesOnSide.size(); i++)
         {
-            MORIS_ERROR( mVertexIdToLocalIndex.find(aVertex->get_id()) != mVertexIdToLocalIndex.end(),"Vertex not found in side cluster");
-
+            
             if(tVerticesOnSide(i)->get_id() == aVertex->get_id())
             {
                 return i;
@@ -265,16 +246,23 @@ namespace xtk
         }
     }
 
-    //----------------------------------------------------------------
-
     void
-    Side_Cluster::print_vertex_map() const
+    Side_Cluster::set_ig_vertex_group(std::shared_ptr<IG_Vertex_Group> aVertexGroup)
     {
-        for(auto i :mVertexIdToLocalIndex)
+        mVertexGroup = aVertexGroup;
+
+        mVerticesInCluster.resize(mVertexGroup->size());
+        mVertexLocalCoordsMat.resize(mVertexGroup->size(),mVertexGroup->get_vertex_local_coords(aVertexGroup->get_vertex(0)->get_index())->n_cols());
+
+        for(moris::uint i = 0; i < mVertexGroup->size(); i++)
         {
-            std::cout<<"Vertex Id: "<<i.first<<" | Cluster Index: "<<i.second<< std::endl;
+            mVerticesInCluster(i) = mVertexGroup->get_vertex(i);
+            mVertexLocalCoordsMat.set_row(i, *mVertexGroup->get_vertex_local_coords(mVerticesInCluster(i)->get_index()));
         }
     }
+
+    //----------------------------------------------------------------
+
     
     //----------------------------------------------------------------
 
@@ -296,42 +284,9 @@ namespace xtk
         return tTotalSize;
     }
 
-    void
-    Side_Cluster::finalize_setup()
-    {
-        moris::Cell<moris::mtk::Vertex const *> tVerticesInCluster = this->get_vertices_in_cluster();
-
-
-        for(moris::uint i = 0; i <tVerticesInCluster.size(); i++)
-        {
-            this->add_vertex_to_map(tVerticesInCluster(i)->get_id(),i);
-        }
-
-        if( mChildMesh == nullptr && !mTrivial )
-        {
-            for(moris::uint i = 0; i <tVerticesInCluster.size(); i++)
-            {
-                if( i == 0)
-                {
-                    mVertexLocalCoordsMat.resize(tVerticesInCluster.size(),mVertexLocalCoords(i).n_cols());
-                }
-
-                mVertexLocalCoordsMat.get_row(i) = mVertexLocalCoords(i).matrix_data();
-            }
-        }
-
-    }
     
     //----------------------------------------------------------------
     
-    void
-    Side_Cluster::add_vertex_to_map(
-            moris_id    aVertexId,
-            moris_index aVertexLocalIndex)
-    {
-        MORIS_ERROR(mVertexIdToLocalIndex.find(aVertexId) == mVertexIdToLocalIndex.end(),"Trying to add vertex already found in side cluster");
-        mVertexIdToLocalIndex[aVertexId] = aVertexLocalIndex;
-    }
 
     //----------------------------------------------------------------
 }

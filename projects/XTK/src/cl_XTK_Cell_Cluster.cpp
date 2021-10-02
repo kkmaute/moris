@@ -8,6 +8,7 @@
 #include "cl_XTK_Cell_Cluster.hpp"
 #include "cl_XTK_Interpolation_Cell_Unzipped.hpp"
 #include "cl_XTK_Child_Mesh.hpp"
+#include "cl_XTK_Cut_Integration_Mesh.hpp"
 namespace xtk
 {
     //----------------------------------------------------------------
@@ -62,7 +63,7 @@ namespace xtk
     {
         if(!mTrivial)
         {
-            return mChildMesh->get_parametric_coordinates();
+            return mLocalCoords;
         }
         else
         {
@@ -85,8 +86,7 @@ namespace xtk
             const mtk::Master_Slave aIsMaster ) const
     {
         MORIS_ERROR(!mTrivial,"Accessing local coordinates on a trivial cell cluster is not allowed");
-
-        return mChildMesh->get_parametric_coordinates(aVertex->get_index());
+        return *mVertexGroup->get_vertex_local_coords(aVertex->get_index());
     }
     //----------------------------------------------------------------
     moris_index
@@ -100,7 +100,7 @@ namespace xtk
     {
         if(mTrivial)
         {
-            return this->get_vertices_local_coordinates_wrt_interp_cell();
+            return mLocalCoords;
         }
         else
         {
@@ -110,7 +110,7 @@ namespace xtk
             // get the integration cell of interest
             moris::mtk::Cell const * tIntegrationCell = this->get_primary_cells_in_cluster()(aPrimaryCellClusterIndex);
 
-             // get the vertex pointers on the side
+             // get the vertex pointers on the side - for the bulk this is all vertices on the integration cell
             moris::Cell<moris::mtk::Vertex *> tVerticesOnCell = tIntegrationCell->get_vertex_pointers();
 
             // allocate output (nnode x dim_xsi)
@@ -122,7 +122,8 @@ namespace xtk
                  tVertexParamCoords.get_row(i) = this->get_vertex_local_coordinate_wrt_interp_cell(tVerticesOnCell(i)).get_row(0);
             }
 
-             return tVertexParamCoords;
+
+            return tVertexParamCoords;
         }
     }
 
@@ -132,19 +133,12 @@ namespace xtk
     {
         return mInterpolationCell;
     }
-    //----------------------------------------------------------------
-    Child_Mesh const *
-    Cell_Cluster::get_xtk_child_mesh() const
-    {
-        MORIS_ASSERT(!this->is_trivial(),"Trivial xtk cell clusters do not have a child mesh.");
-
-        return mChildMesh;
-    }
 
     //----------------------------------------------------------------
 
     Matrix< IndexMat > Cell_Cluster::get_hanging_nodes(  ) const
     {
+        MORIS_ERROR(0,"FIXME");
         return mChildMesh->get_hanging_nodes(  );
     }
 
@@ -164,6 +158,65 @@ namespace xtk
     }
 
     //----------------------------------------------------------------
+
+    void
+    Cell_Cluster::set_primary_integration_cell_group(std::shared_ptr<IG_Cell_Group> aPrimaryIgCells)
+    {
+        mPrimaryIgCellGroup = aPrimaryIgCells;
+
+        mPrimaryIntegrationCells.resize(aPrimaryIgCells->mIgCellGroup.size());
+
+        for(moris::uint i = 0; i < aPrimaryIgCells->mIgCellGroup.size(); i++)
+        {
+            mPrimaryIntegrationCells(i) = aPrimaryIgCells->mIgCellGroup(i);
+        }
+    }
+
+    void
+    Cell_Cluster::set_void_integration_cell_groups(moris::Cell<std::shared_ptr<IG_Cell_Group>> & aVoidIgCells)
+    {
+        mVoidIgCellGroup = aVoidIgCells;
+
+        moris::uint tCount = 0;
+        for(moris::uint i = 0; i < aVoidIgCells.size(); i++)
+        {
+            tCount = tCount + aVoidIgCells(i)->mIgCellGroup.size();
+        }
+
+
+        mVoidIntegrationCells.resize(tCount);
+
+        tCount = 0;
+
+        for(moris::uint i = 0; i < aVoidIgCells.size(); i++)
+        {
+            for(moris::uint j = 0; j < aVoidIgCells(i)->mIgCellGroup.size(); j++)
+            {
+                mVoidIntegrationCells(tCount++) = aVoidIgCells(i)->mIgCellGroup(j);
+            }
+        }
+    }
+
+    void
+    Cell_Cluster::set_ig_vertex_group(std::shared_ptr<IG_Vertex_Group> aVertexGroup)
+    {
+        mVertexGroup = aVertexGroup;
+
+        mVerticesInCluster.resize(mVertexGroup->size());
+        mLocalCoords.resize(mVertexGroup->size(),mVertexGroup->get_vertex_local_coords(aVertexGroup->get_vertex(0)->get_index())->n_cols());
+
+        for(moris::uint i = 0; i < mVertexGroup->size(); i++)
+        {
+            mVerticesInCluster(i) = mVertexGroup->get_vertex(i);
+            mLocalCoords.set_row(i, *mVertexGroup->get_vertex_local_coords(mVerticesInCluster(i)->get_index()));
+        }
+    }
+
+    std::shared_ptr<IG_Vertex_Group>
+    Cell_Cluster::get_ig_vertex_group()
+    {
+        return mVertexGroup;
+    }
  
 }
 

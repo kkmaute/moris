@@ -56,9 +56,30 @@ namespace moris
                 moris_index aOtherEntityOrdinal,
                 moris_index aOtherEntityRank) const
         {
-            MORIS_ERROR(0, "get_vertex_to_entity_path_rank not implemented.");
+            MORIS_ERROR(0, "get_vertex_path_to_entity_rank_and_ordinal not implemented.");
             return moris::Cell<moris_index>(0, 0);
         }
+
+        moris::Cell<moris_index>
+        Cell_Info::get_edge_path_to_entity_rank_and_ordinal(
+                moris_index aVertexOrdinal, 
+                moris_index aOtherEntityOrdinal,
+                moris_index aOtherEntityRank) const
+        {
+            MORIS_ERROR(0, "get_edge_path_to_entity_rank_and_ordinal not implemented.");
+            return moris::Cell<moris_index>(0, 0);
+        }
+
+        bool 
+        Cell_Info::is_entity_connected_to_facet( 
+                moris_index aEntityOrdinal,
+                moris_index aOtherEntityOrdinal,
+                moris_index aOtherEntityRank) const
+        {
+            MORIS_ERROR(0, "get_edge_path_to_entity_rank_and_ordinal not implemented.");
+            return false;
+        }
+                
 
         // ---------------------------------------------------------------------------------
         moris_index
