@@ -11,6 +11,7 @@
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
 #include "cl_XTK_Vertex_Enrichment.hpp"
+#include "cl_XTK_Diagnostics.hpp"
 //#include "cl_Geom_Field.hpp"
 #include "typedefs.hpp"
 
@@ -158,31 +159,6 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
 
             hmr::Lagrange_Mesh_Base * tLMB = tInterpMesh->get_lagrange_mesh();
 
-            for(moris::uint  i = 0 ; i < tLMB->mFacets.size(); i++)
-            {
-                if(! (tLMB->mFacets(i) == nullptr) )
-                {
-                    hmr::Element * tMaster = tLMB->mFacets(i)->get_hmr_master();
-                    hmr::Element * tSlave  = tLMB->mFacets(i)->get_hmr_slave();
-
-                    if(! (tMaster == nullptr) && ! (tSlave == nullptr)  )
-                    {
-                        moris_id tMasterId = tMaster->get_index();
-                        moris_id tSlaveId  = tSlave->get_index();
-
-                        if(tMasterId != MORIS_INDEX_MAX)
-                        {
-                            tMasterId = tMasterId + 1;
-                        }
-
-                        if(tSlaveId != MORIS_INDEX_MAX)
-                        {
-                            tSlaveId = tSlaveId + 1;
-                        }
-                    }
-                }
-            }
-
             Cell< std::shared_ptr<ge::Geometry> > tGeometryVector(1);
             tGeometryVector(0) = std::make_shared<moris::ge::User_Defined_Geometry>(Matrix<DDRMat>(0, 0), &(LevelSetSphereCylinderGeometry));
 
@@ -200,65 +176,11 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
             // Do the cutting
             tXTKModel.decompose(tDecompositionMethods);
 
-            // Perform the enrichment
-            tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
+            CHECK(interpolated_coordinate_check(tCutMesh));
 
-            xtk::Enriched_Interpolation_Mesh & tEnrIpMesh  = tXTKModel.get_enriched_interp_mesh(0);
-
-            Matrix<IndexMat> const & tEnrCoeffs = tEnrIpMesh.get_enriched_coefficient_local_to_global_map(0);
-
-            // perform ghost stabilization
-            tXTKModel.construct_face_oriented_ghost_penalization_cells();
-
-
-            // get the enriched basis coeffs
-
-            // Check for double ids/indices
-            std::unordered_map<moris_index,moris_index> tBasisIdMap;
-            for(moris::uint i = 0 ; i < tEnrCoeffs.numel(); i++)
-            {
-                MORIS_ASSERT(tBasisIdMap.find(tEnrCoeffs(i)) == tBasisIdMap.end(),"Id already in the map");
-
-                tBasisIdMap[tEnrCoeffs(i)] = i;
-
-            }
-
-            moris::uint tNumVerts = tEnrIpMesh.get_num_entities(EntityRank::NODE,0);
-
-
-            Cell<moris_index> tOwnedIndices;
-            Cell<moris_index> tOwnedIds;
-
-            // iterate through vertices
-            for(moris::uint iV = 0; iV < tNumVerts; iV++)
-            {
-                // get the vertex
-                xtk::Interpolation_Vertex_Unzipped & tVertex = tEnrIpMesh.get_xtk_interp_vertex((moris_index)iV);
-                if(tVertex.get_base_vertex()->has_interpolation(1))
-                {
-                    xtk::Vertex_Enrichment* tInterp =  tVertex.get_xtk_interpolation(0);
-
-                    Matrix<IndexMat> tOwners  = tInterp->get_owners();
-                    Matrix<IndexMat> tIndices = tInterp->get_indices();
-                    Matrix<IndexMat> tIds     = tInterp->get_ids();
-                    // iterate through basis functions
-                    for(moris::uint  iB = 0; iB <tOwners.numel(); iB++)
-                    {
-                        if(tOwners(iB) == par_rank())
-                        {
-                            tOwnedIndices.push_back(tIndices(iB));
-                            tOwnedIds.push_back(tIds(iB));
-                        }
-                    }
-                }
-            }
-
-
-            unique(tOwnedIndices);
-            unique(tOwnedIds);
-
-            delete tInterpMesh;
-
+            moris::Matrix<moris::DDRMat> tIsoContourThreshold = {{0.0}};
+            moris::Matrix<moris::DDRMat> tIsoContourTolerance = {{1e-12}};
+            CHECK(verify_interface_vertices(&tXTKModel,tIsoContourThreshold,tIsoContourTolerance));
     }
 }
 }
