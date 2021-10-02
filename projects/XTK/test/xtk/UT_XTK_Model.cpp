@@ -12,13 +12,10 @@
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Enums.hpp"
 #include "cl_XTK_Cut_Mesh.hpp"
+#include "cl_XTK_Cut_Integration_Mesh.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
-#include "cl_XTK_Enrichment.hpp"
-#include "fn_write_element_ownership_as_field.hpp"
+#include "cl_XTK_Diagnostics.hpp"
 
-#include "cl_XTK_Hexahedron_8_Basis_Function.hpp"
-
-#include "cl_MTK_Visualization_STK.hpp"
 
 #include "cl_GEN_Sphere.hpp"
 #include "fn_GEN_Triangle_Geometry.hpp" // For surface normals
@@ -38,7 +35,6 @@
 
 namespace xtk
 {
-
 
     TEST_CASE("Regular Subdivision Method","[XTK] [REGULAR_SUBDIVISION_MODEL]")
     {
@@ -75,21 +71,20 @@ namespace xtk
             Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8};
             tXTKModel.decompose(tDecompositionMethods);
 
-            // Access the decomposed XTK Mesh
-            Cut_Mesh const & tCutMesh = tXTKModel.get_cut_mesh();
+            Cut_Integration_Mesh* tCutMesh  = tXTKModel.get_cut_integration_mesh();
 
             // Do some testing
-            size_t tNumNodesAfterDecompositionXTK = tCutMesh.get_num_entities(EntityRank::NODE);
-            size_t tNumElementsAfterDecompositionXTK = tCutMesh.get_num_entities(EntityRank::ELEMENT);
+            size_t tNumNodesAfterDecompositionXTK = tCutMesh->get_num_entities(EntityRank::NODE,0);
+            size_t tNumElementsAfterDecompositionXTK = tCutMesh->get_num_entities(EntityRank::ELEMENT,0);
 
             // 1 element was subdivided
             CHECK(tNumNodesAfterDecompositionXTK == 15);
-            CHECK(tNumElementsAfterDecompositionXTK == 24);
+            CHECK(tNumElementsAfterDecompositionXTK == 25); // 24 from template plus the original background cell 
 
-            moris::Matrix< moris::DDRMat > tNodeCoordinates = tXTKModel.get_background_mesh().get_all_node_coordinates_loc_inds();
+            moris::Cell<std::shared_ptr<Matrix<DDRMat>>>* tCoords = tCutMesh->get_all_vertex_coordinates_loc_inds();
 
             moris::Matrix< moris::DDRMat > tExpectedNodeCoordinates(
-                    {{0, 0, 0},
+                {{0, 0, 0},
                 {1, 0, 0},
                 {0, 1, 0},
                 {1, 1, 0},
@@ -104,73 +99,19 @@ namespace xtk
                 {0.5, 0.5, 0},
                 {0.5, 0.5, 1},
                 {0.5, 0.5, 0.5}});
-            CHECK(equal_to(tNodeCoordinates,tExpectedNodeCoordinates));
 
-            verify_child_mesh_ancestry(tXTKModel.get_background_mesh(),
-                    tCutMesh);
-
-            // Verify parametric coordinates reproduce the same results as tabulated in global node coordinates
-            // Basis function to use for hex8
-            Hexahedron_8_Basis_Function tHex8Basis;
-
-            // Allocate a basis function weight matrix
-            moris::Matrix< moris::DDRMat > tBasisWeights(1,8);
-
-            // tolerance for difference between coordinates
-            real tTol = 1e-12;
-
-            // Iterate over child meshes
-            for(size_t iCM = 0; iCM < tCutMesh.get_num_child_meshes(); iCM++)
+            CHECK(tCoords->size() == 15);
+            for( moris::uint iNode = 0; iNode < tCoords->size(); iNode++ ) 
             {
-                // Get reference to child mesh
-                Child_Mesh const & tChildMesh = tCutMesh.get_child_mesh(iCM);
-
-                // iterate over nodes
-                size_t tNumNodes = tChildMesh.get_num_entities(EntityRank::NODE);
-
-                // Get child node indices from the child mesh (note these aren't guaranteed to be monotonically increasing)
-                moris::Matrix<moris::IndexMat> const & tNodeIndicesOfCM = tChildMesh.get_node_indices();
-
-                // Parent element index
-                moris::moris_index tParentIndex = tChildMesh.get_parent_element_index();
-
-                // Nodes attached to parent element
-                moris::Matrix< moris::IndexMat > tNodesAttachedToParentElem =
-                        tMeshData->get_entity_connected_to_entity_loc_inds(
-                                tParentIndex,
-                                moris::EntityRank::ELEMENT,
-                                moris::EntityRank::NODE);
-
-                // Get the node coordinates
-                moris::Matrix< moris::DDRMat > tHex8NodeCoords =
-                        tXTKModel.get_background_mesh().get_selected_node_coordinates_loc_inds(tNodesAttachedToParentElem);
-
-                for(size_t i= 0; i<tNumNodes; i++)
-                {
-                    // Node index
-                    moris::moris_index tNodeIndex = tNodeIndicesOfCM(i);
-
-                    // Get the nodes parametric coordinate
-                    moris::Matrix<moris::DDRMat> tNodeParamCoord = tChildMesh.get_parametric_coordinates(tNodeIndex);
-
-                    // Get the basis function values at this point
-                    tHex8Basis.evaluate_basis_function(tNodeParamCoord,tBasisWeights);
-
-                    // Evaluate the nodes global coordinate from the basis weights
-                    moris::Matrix<moris::DDRMat> tInterpNodeCoord = tBasisWeights*tHex8NodeCoords;
-
-                    // Verify the interpolated coordinate is equal to the node coordinate row
-                    CHECK(norm(tInterpNodeCoord - tNodeCoordinates.get_row(tNodeIndex)) < tTol);
-                }
+                Matrix<DDRMat> tNodeCoords = *((*tCoords)(iNode));
+                Matrix<DDRMat> tGoldNodeCoordinates = tExpectedNodeCoordinates.get_row(iNode);
+                CHECK(equal_to(tNodeCoords,tGoldNodeCoordinates));
             }
 
-            moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh();
-
-            std::string tMeshOutputFile ="./xtk_exo/xtk_test_output_regular_subdivision.e";
-            tCutMeshData->create_output_mesh(tMeshOutputFile);
-            delete tMeshData;
-            delete tCutMeshData;
-        }
+            CHECK(interpolated_coordinate_check(tCutMesh));
+         
+         
+         }
     }
 
     TEST_CASE("Regular Subdivision and Nodal Hierarchy Subdivision","[XTK] [CONFORMAL_MODEL]")
@@ -209,228 +150,23 @@ namespace xtk
             tXTKModel.decompose(tDecompositionMethods);
 
             // Access the Cut Mesh-------------------------------------------------------------
-            Cut_Mesh const & tCutMesh = tXTKModel.get_cut_mesh();
+            Cut_Integration_Mesh* tCutMesh  = tXTKModel.get_cut_integration_mesh();
 
             // Do some testing
-            size_t tNumNodesAfterDecompositionSTK    = tXTKModel.get_background_mesh().get_num_entities(EntityRank::NODE);
-            size_t tNumElementsAfterDecompositionSTK = tXTKModel.get_background_mesh().get_num_entities(EntityRank::ELEMENT);
-            size_t tNumNodesAfterDecompositionXTK    = tCutMesh.get_num_entities(EntityRank::NODE);
-            size_t tNumElementsAfterDecompositionXTK = tCutMesh.get_num_entities(EntityRank::ELEMENT);
+            size_t tNumNodesAfterDecompositionXTK = tCutMesh->get_num_entities(EntityRank::NODE,0);
+            size_t tNumElementsAfterDecompositionXTK = tCutMesh->get_num_entities(EntityRank::ELEMENT,0);
 
             if(par_size() == 1)
-            {
-                CHECK(tNumNodesAfterDecompositionXTK == 22 );
-                CHECK(tNumElementsAfterDecompositionXTK == 42);
-
-                CHECK(tNumElementsAfterDecompositionSTK == 46);
-                // But it does add nodes because this is where the coordinates are stored
-                CHECK(tNumNodesAfterDecompositionSTK == 34);
+            {   
+                CHECK(tNumNodesAfterDecompositionXTK == 34 );
+                CHECK(tNumElementsAfterDecompositionXTK == 46);
             }
 
-            moris::Matrix< moris::DDRMat > tNodeCoordinates = tXTKModel.get_background_mesh().get_all_node_coordinates_loc_inds();
+            CHECK(interpolated_coordinate_check(tCutMesh));
 
-            // verify ancestry of child mesh
-            verify_child_mesh_ancestry(tXTKModel.get_background_mesh(),
-                    tCutMesh);
-
-            tXTKModel.perform_basis_enrichment(EntityRank::NODE);
-
-            // Verify parametric coordinates reproduce the same results as tabulated in global node coordinates
-
-            // Basis function to use for hex8
-            Hexahedron_8_Basis_Function tHex8Basis;
-
-            // Allocate a basis function weight matrix
-            moris::Matrix< moris::DDRMat > tBasisWeights(1,8);
-
-            // tolerance for difference between coordinates
-            real tTol = 1e-12;
-
-            // Iterate over child meshes
-            for(size_t iCM = 0; iCM < tCutMesh.get_num_child_meshes(); iCM++)
-            {
-                // Get reference to child mesh
-                Child_Mesh const & tChildMesh = tCutMesh.get_child_mesh(iCM);
-
-                // iterate over nodes
-                size_t tNumNodes = tChildMesh.get_num_entities(EntityRank::NODE);
-
-                // Get child node indices from the child mesh (note these aren't guaranteed to be monotonically increasing)
-                moris::Matrix<moris::IndexMat> const & tNodeIndicesOfCM = tChildMesh.get_node_indices();
-
-                // Parent element index
-                moris::moris_index tParentIndex = tChildMesh.get_parent_element_index();
-
-                // Nodes attached to parent element
-                moris::Matrix< moris::IndexMat > tNodesAttachedToParentElem =
-                        tMeshData->get_entity_connected_to_entity_loc_inds(tParentIndex,moris::EntityRank::ELEMENT,moris::EntityRank::NODE);
-
-                // Get the node coordinates
-                moris::Matrix< moris::DDRMat > tHex8NodeCoords =
-                        tXTKModel.get_background_mesh().get_selected_node_coordinates_loc_inds(tNodesAttachedToParentElem);
-
-                for(size_t i= 0; i<tNumNodes; i++)
-                {
-                    // Node index
-                    moris::moris_index tNodeIndex = tNodeIndicesOfCM(i);
-
-                    // Get the nodes parametric coordinate
-                    moris::Matrix<moris::DDRMat> tNodeParamCoord = tChildMesh.get_parametric_coordinates(tNodeIndex);
-
-                    // Get the basis function values at this point
-                    tHex8Basis.evaluate_basis_function(tNodeParamCoord,tBasisWeights);
-
-                    // Evaluate the nodes global coordinate from the basis weights
-                    moris::Matrix<moris::DDRMat> tInterpNodeCoord = tBasisWeights*tHex8NodeCoords;
-
-                    // Verify the interpolated coordinate is equal to the node coordinate row
-                    CHECK(norm(tInterpNodeCoord - tNodeCoordinates.get_row(tNodeIndex)) < tTol);
-                }
-
-            }
-
-            // verify the interface nodes have level set values sufficiently close to 0
-            // when interpolated to
-            moris::Matrix<moris::IndexMat> tInterfaceNodes = tXTKModel.get_background_mesh().get_interface_nodes_loc_inds(0);
-
-            // Iterate over interface nodes
-            for(size_t iIN = 0; iIN < tInterfaceNodes.numel(); iIN++)
-            {
-                // Get the child meshes these nodes belong to
-                moris::Matrix<moris::IndexMat> tCMIndices = tXTKModel.get_background_mesh().get_node_child_mesh_assocation(tInterfaceNodes(iIN));
-
-                // Iterate over child meshes this node belongs to
-                for(size_t iCM = 0; iCM<tCMIndices.numel(); iCM++)
-                {
-                    // Get reference to child mesh
-                    Child_Mesh const & tChildMesh = tCutMesh.get_child_mesh(tCMIndices(iCM));
-
-                    // Parent element index
-                    moris::moris_index tParentIndex = tChildMesh.get_parent_element_index();
-
-                    // Nodes attached to parent element
-                    moris::Matrix< moris::IndexMat > tNodesAttachedToParentElem =
-                            tMeshData->get_entity_connected_to_entity_loc_inds(tParentIndex,moris::EntityRank::ELEMENT,moris::EntityRank::NODE);
-
-                    if (par_size() == 1)
-                    {
-                        REQUIRE(tNodesAttachedToParentElem.length() == 8);
-                        CHECK(tNodesAttachedToParentElem(0) == 0);
-                        CHECK(tNodesAttachedToParentElem(1) == 1);
-                        CHECK(tNodesAttachedToParentElem(2) == 3);
-                        CHECK(tNodesAttachedToParentElem(3) == 2);
-                        CHECK(tNodesAttachedToParentElem(4) == 4);
-                        CHECK(tNodesAttachedToParentElem(5) == 5);
-                        CHECK(tNodesAttachedToParentElem(6) == 7);
-                        CHECK(tNodesAttachedToParentElem(7) == 6);
-                    }
-
-                }
-            }
-
-            delete tMeshData;
+            moris::Matrix<moris::DDRMat> tIsoContourThreshold = {{0.0}};
+            moris::Matrix<moris::DDRMat> tIsoContourTolerance = {{1e-12}};
+            CHECK(verify_interface_vertices(&tXTKModel,tIsoContourThreshold,tIsoContourTolerance));
         }
-    }
-
-    TEST_CASE("Propagate Mesh Sets","[SET_PROPOGATION]")
-    {
-        /*
-         * Loads an exodus file with a Block Set and Side Set already populated
-         * Performs regular subdivison method and then checks to see if the
-         * children XTK mesh entities have the same as their parents
-         */
-
-        /*
-         * Set up:
-         * Geometry,
-         * Geometry Engine,
-         * Mesh
-         */
-
-        real tRadius = 5.1111;
-        real tXCenter = 0.0;
-        real tYCenter = 0.0;
-        real tZCenter = 0.0;
-        Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
-        tGeometry(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
-
-        /*
-         * Load Mesh which has 3 block sets. These blocks are named:
-         *  - top_bread
-         *  - meat
-         *  - bottom_bread
-         *
-         * Side Sets will eventually be named
-         *  - top_crust
-         *  - bottom_crust
-         */
-        std::string tPrefix;
-        tPrefix = moris::get_base_moris_dir();
-        std::string tMeshFileName = tPrefix + "/projects/XTK/test/test_exodus_files/sandwich.e";
-        moris::Cell<std::string> tFieldNames;
-
-        // add parallel fields to the mesh
-        moris::mtk::Visualization_STK tVizTool;
-        moris::mtk::MtkFieldsInfo* tFieldsInfo = tVizTool.setup_parallel_cell_fields_for_declaration();
-
-        // Declare some supplementary fields
-        moris::mtk::MtkMeshData tMeshDataInput;
-        tMeshDataInput.FieldsInfo = tFieldsInfo;
-
-        // fill in the parallel fields
-        moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName,  &tMeshDataInput  );
-
-        moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
-        tGeometryEngineParameters.mGeometries = tGeometry;
-        moris::ge::Geometry_Engine tGeometryEngine(tMeshData, tGeometryEngineParameters);
-
-        tVizTool.populate_parallel_cell_fields_on_mesh(tMeshData);
-
-        std::string tBackgroundfile = "./xtk_exo/xtk_ut_set_propogation_bm.e";
-        tMeshData->create_output_mesh(tBackgroundfile);
-
-        /*
-         * Setup XTK Model and tell it how to cut
-         */
-        size_t tModelDimension = 3;
-        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
-
-        Model tXTKModel(tModelDimension,tMeshData,&tGeometryEngine);
-        tXTKModel.mVerbose  =  false;
-        /*
-         * Decompose
-         */
-        tXTKModel.decompose(tDecompositionMethods);
-
-        //    tXTKModel.unzip_interface();
-
-        moris::Matrix<moris::DDRMat> tNodeCoords = tXTKModel.get_background_mesh().get_all_node_coordinates_loc_inds();
-
-        tXTKModel.perform_basis_enrichment(EntityRank::NODE);
-
-        /*
-         * Get the output mesh and write to exodus file
-         */
-
-        Output_Options tOutputOptions;
-        tOutputOptions.mAddNodeSets = true;
-        tOutputOptions.mAddSideSets = true;
-
-        // Set the sensitivity field names
-        tOutputOptions.mPackageDxDpSparsely = true;
-
-        // Add field for enrichment
-        tOutputOptions.mIntElementExternalFieldNames = {"owner"};
-        tOutputOptions.mInternalUseFlag = true;
-
-        tOutputOptions.mAddParallelFields = true;
-
-        moris::mtk::Mesh* tOutputMeshData = tXTKModel.get_output_mesh(tOutputOptions);
-
-        std::string tMeshOutputFile = "./xtk_exo/xtk_ut_set_propogation.e";
-        tOutputMeshData->create_output_mesh(tMeshOutputFile);
-
-        delete tMeshData;
-        delete tOutputMeshData;
     }
 }
