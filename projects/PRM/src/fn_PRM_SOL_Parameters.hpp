@@ -567,8 +567,15 @@ namespace moris
             // Maximal number of linear solver restarts on fail
             tNonLinAlgorithmParameterList.insert( "NLA_max_lin_solver_restarts" , 0 );
 
-            // Maximal number of linear solver restarts on fail
+            // Relaxation strategy
+            tNonLinAlgorithmParameterList.insert( "NLA_relaxation_strategy" ,
+                    static_cast< uint >( sol::SolverRelaxationType::Constant ) );
+
+            // Relaxation parameter
             tNonLinAlgorithmParameterList.insert( "NLA_relaxation_parameter" , 1.0 );
+
+            // Relaxation parameter
+            tNonLinAlgorithmParameterList.insert( "NLA_relaxation_damping" , 0.5 );
 
             // Maximal number of linear solver restarts on fail
             tNonLinAlgorithmParameterList.insert( "NLA_hard_break" , false );
@@ -680,18 +687,18 @@ namespace moris
 
             switch( aSolverType )
             {
-                case ( sol::SolverType::AZTEC_IMPL ):
-                                                return create_linear_algorithm_parameter_list_aztec( );
-                break;
-                case ( sol::SolverType::AMESOS_IMPL ):
-                                                return create_linear_algorithm_parameter_list_amesos();
-                break;
-                case ( sol::SolverType::BELOS_IMPL ):
-                                                return create_linear_algorithm_parameter_list_belos();
-                break;
-                case ( sol::SolverType::PETSC ):
-                                                return create_linear_algorithm_parameter_list_petsc( );
-                break;
+                case sol::SolverType::AZTEC_IMPL:
+                    return create_linear_algorithm_parameter_list_aztec( );
+                    break;
+                case sol::SolverType::AMESOS_IMPL:
+                    return create_linear_algorithm_parameter_list_amesos();
+                    break;
+                case sol::SolverType::BELOS_IMPL:
+                    return create_linear_algorithm_parameter_list_belos();
+                    break;
+                case sol::SolverType::PETSC:
+                    return create_linear_algorithm_parameter_list_petsc( );
+                    break;
                 default:
                     MORIS_ERROR( false, "Parameter list for this solver not implemented yet" );
                     break;
