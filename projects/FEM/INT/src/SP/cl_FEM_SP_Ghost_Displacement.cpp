@@ -25,12 +25,6 @@ namespace moris
 
             // populate the property map
             mPropertyMap[ "Material" ] = static_cast< uint >( SP_Property_Type::MATERIAL );
-
-            // extract order of weak form of governing equations (default = 1)
-            if (mParameters.size() > 1)
-            {
-                mWeakFormOrder =  mParameters( 1 )( 0 );
-            }
         }
 
         //------------------------------------------------------------------------------
@@ -55,7 +49,7 @@ namespace moris
 
             // compute stabilization parameter value
             mPPVal = mParameters( 0 ) *
-                    std::pow( tElementSize, 2 * ( mOrder - mWeakFormOrder ) + 1 ) *
+                    std::pow( tElementSize, 2 * ( mOrder - (this->*mGetWeakFormOrder)() ) + 1 ) *
                     mMasterProp( static_cast< uint >( SP_Property_Type::MATERIAL ) )->val()( 0 );
         }
 
@@ -94,13 +88,47 @@ namespace moris
                 // compute derivative with indirect dependency through properties
                 mdPPdMasterDof( tDofIndex ) =
                         mParameters( 0 ) *
-                        std::pow( tElementSize, 2 * ( mOrder - mWeakFormOrder ) + 1 ) *
+                        std::pow( tElementSize, 2 * ( mOrder - (this->*mGetWeakFormOrder)() ) + 1 ) *
                         tPropMaterial->dPropdDOF( aDofTypes );
             }
             else
             {
                 mdPPdMasterDof( tDofIndex ).fill( 0.0 );
             }
+        }
+
+        //------------------------------------------------------------------------------
+
+        real SP_Ghost_Displacement::get_weak_form_order_init()
+        {
+
+            if ( mParameters.size() == 2 )
+            {
+                // if the second paramter has been set, use it
+                mWeakFormOrder =  mParameters( 1 )( 0 );
+            }
+            else if ( mParameters.size() == 1 )
+            {
+                // default is 1.  
+                mWeakFormOrder =  1;
+            }
+            else
+            {
+                MORIS_ERROR( false, 
+                        "SP_Ghost_Displacement::get_weak_form_order_init() - incorrect number of sp function_parameters");
+            }
+
+            // redirect the function pointer for all other points
+            mGetWeakFormOrder = &SP_Ghost_Displacement::get_weak_form_order;
+            
+            return mWeakFormOrder;
+        }
+
+        //------------------------------------------------------------------------------
+
+        real SP_Ghost_Displacement::get_weak_form_order()
+        {
+            return mWeakFormOrder;
         }
 
         //------------------------------------------------------------------------------
