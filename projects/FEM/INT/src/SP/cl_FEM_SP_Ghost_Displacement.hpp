@@ -59,11 +59,6 @@ namespace moris
                 // init function pointer to get the weak form order. Pointer used to avoid a conditional call for every iteration
                 real ( SP_Ghost_Displacement:: * mGetWeakFormOrder )() = &SP_Ghost_Displacement::get_weak_form_order_init;
 
-                // boolean to determine the weak form order of the governing equations
-                bool mWeakFormOrderFlag = true;
-
-                
-
             public:
 
                 //------------------------------------------------------------------------------
