@@ -15,7 +15,6 @@
 #include "cl_MTK_Mesh_Checker.hpp"
 #include "cl_MTK_Cell_Info_Factory.hpp"
 #include "cl_MTK_Enums.hpp"
-#include "fn_generate_shared_face_element_graph.hpp"
 
 namespace xtk
 {
@@ -1273,7 +1272,7 @@ namespace xtk
                 get_geometric_vertices_on_side_ordinal(tSlaveSideCluster->mIntegrationCellSideOrdinals(0));
 
         // finalize
-        tSlaveSideCluster->finalize_setup();
+        // tSlaveSideCluster->finalize_setup();
 
 
         return tSlaveSideCluster;
@@ -1330,8 +1329,6 @@ namespace xtk
 
             // add the local coordinates
             tMasterSideCluster->mVertexLocalCoords = tLocCoords;
-            // finalize
-            tMasterSideCluster->finalize_setup();
 
             // verify new cluster
             mtk::Mesh_Checker tCheck;
@@ -1357,7 +1354,7 @@ namespace xtk
             tMasterSideCluster->mVerticesInCluster = tMasterSideCluster->mIntegrationCells(0)->get_geometric_vertices_on_side_ordinal(tMasterSideCluster->mIntegrationCellSideOrdinals(0));
             
             // finalize
-            tMasterSideCluster->finalize_setup();
+            // tMasterSideCluster->finalize_setup();
         }
 
         return tMasterSideCluster;

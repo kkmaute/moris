@@ -160,8 +160,6 @@ namespace xtk
             // Do the cutting
             tXTKModel.decompose( tDecompositionMethods );
 
-            tXTKModel.unzip_interface();
-
             tXTKModel.perform_basis_enrichment();
 
             tXTKModel.perform_multilevel_enrichment_internal();

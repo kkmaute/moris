@@ -39,6 +39,7 @@ enum class Subdivision_Method
     NC_REGULAR_SUBDIVISION_QUAD4,
     C_HIERARCHY_TET4,             // Conformal and a hierarchy template will be used
     C_TRI3,             // Conformal tri 3 mesh  will be constructed
+    NC_OCTREE,
     NO_METHOD
 };
 

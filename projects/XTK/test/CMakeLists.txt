@@ -5,66 +5,51 @@
 
 set(TEST_SOURCES
 	main.cpp
-	xtk/UT_MTK_Mesh_XTK_Impl.cpp
-	xtk/UT_XTK_Child_Mesh_NH_Permutations.cpp
-	xtk/UT_XTK_Child_Mesh.cpp
-	xtk/UT_XTK_Cut_Mesh_Modification.cpp
-	xtk/UT_XTK_Cut_Mesh_RegSub.cpp
-	xtk/UT_XTK_Cut_Mesh.cpp
-	xtk/UT_XTK_Downward_Inheritance.cpp
-	xtk/UT_XTK_Enrichment.cpp
-	xtk/UT_XTK_Enrichment_2D.cpp
-	xtk/UT_XTK_Ghost_Stabilization.cpp
-	xtk/UT_XTK_Parameters.cpp
-xtk/UT_XTK_Performance.cpp
-	#xtk/cl_XTK_Multigrid.cpp
-	xtk/UT_XTK_Model.cpp
-	xtk/UT_XTK_Model_2D.cpp
-	xtk/UT_XTK_Child_Mesh_RegSub_2D.cpp
-	xtk/UT_XTK_Child_Mesh_Conform_2D.cpp
-	#xtk/UT_XTK_Model_Coincidence.cpp
-	#xtk/UT_XTK_Model_Recursion.cpp
-	#xtk/cl_XTK_Tetra4_Connectivity.cpp
-	xtk/UT_MTK_Cell_Cluster_XTK_Impl.cpp
-	#xtk/UT_XTK_Model_Unzip.cpp
-	xtk/UT_XTK_Model_Export.cpp
-	#xtk/UT_XTK_Model_Extract_Surf_Mesh.cpp
-	xtk/UT_XTK_Model_Mesh_Clusters.cpp
-    xtk/UT_XTK_Phase_Table_Scratch.cpp
-    xtk/UT_XTK_Mesh_Cleanup.cpp
+    #xtk/UT_fn_flood_fill.cpp
+    xtk/UT_MTK_Cell_Cluster_XTK_Impl.cpp
     xtk/UT_Snapping.cpp
+    xtk/UT_XTK_Child_Mesh_Conform_2D.cpp
+    xtk/UT_XTK_Child_Mesh_NH_Permutations.cpp
+    xtk/UT_XTK_Child_Mesh_RegSub_2D.cpp
+    xtk/UT_XTK_Cut_Mesh_Modification.cpp
+    xtk/UT_XTK_Cut_Mesh_RegSub.cpp
+    xtk/UT_XTK_Cut_Mesh.cpp
+    xtk/UT_XTK_Downward_Inheritance.cpp
+    xtk/UT_XTK_Enrichment_2D.cpp
+    xtk/UT_XTK_Enrichment.cpp
+    xtk/UT_XTK_Ghost_Stabilization.cpp
+    xtk/UT_XTK_HMR_2D.cpp
+    xtk/UT_XTK_HMR_Enrich_Inclusion.cpp
+    xtk/UT_XTK_HMR_Enrich.cpp
+    #xtk/UT_XTK_HMR_Multigrid.cpp
+    xtk/UT_XTK_HMR.cpp
     xtk/UT_XTK_Intersection_Detect_HMR_XTK.cpp
+    xtk/UT_XTK_Mesh_Cleanup.cpp
+    xtk/UT_XTK_Model_2D.cpp
+    xtk/UT_XTK_Model_Mesh_Clusters.cpp
+    xtk/UT_XTK_Model.cpp
+    #xtk/UT_XTK_Multigrid.cpp
+    xtk/UT_XTK_Parameters.cpp
+    xtk/UT_XTK_Octree_Refinement.cpp
 	)
-	
-if(BUILD_HMR)
-set(XTK_HMR_TEST_SOURCES
-	xtk/UT_XTK_HMR.cpp
-	xtk/UT_XTK_HMR_Multigrid.cpp
-	xtk/UT_XTK_HMR_2D.cpp
-	xtk/UT_XTK_HMR_Enrich.cpp)
-	
-	set(HMR_TEST_DEPENDENCIES
-	${HMR}-lib
-    )
-endif()
+
 
 # List additional includes
 include_directories(../src)
 include_directories(../include)
 
 
-set(XTK_INCLUDES                                                                                                                                                                                                                                                               
-    "assert"                                                                                                                                                                                                                                                                   
-    "containers"                                                                                                                                                                                                                                                               
+set(XTK_INCLUDES                                          
+    "assert"
+    "containers"
     "core"
-    "ios"                                                                                                                                                                                                                                                                      
-    "linalg"                                                                                                                                                                                                                                                                   
-    "mesh"                                                                                                                                                                                                                                                                     
-    "tools"                                                                                                                                                                                                                                                                    
-    "topology"                                                                                                                                                                                                                                                                 
-    "xtk"                                                                                                                                                                                                                                                                      
-    )                                                                                                                                                                                                                                                                          
-
+    "ios"
+    "linalg"
+    "mesh"
+    "tools"
+    "topology"
+    "xtk"
+    )
 # Include depedency directories                                                                                                                                                                                                                                                
 foreach(XTK_INCLUDE ${XTK_INCLUDES})  
     include_directories(${MORIS_PACKAGE_DIR}/XTK/src/${XTK_INCLUDE})                                                                                                                                                                                                           
@@ -107,7 +92,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 set(XTK_TEST ${XTK}-test)
 
 # Create executable
-add_executable(${XTK_TEST} ${TEST_SOURCES} ${XTK_HMR_TEST_SOURCES})
+add_executable(${XTK_TEST} ${TEST_SOURCES})
 target_link_libraries(${XTK_TEST} PRIVATE ${TEST_DEPENDENCIES} ${HMR_TEST_DEPENDENCIES})
 set_target_properties(${XTK_TEST} PROPERTIES OUTPUT_NAME ${XTK_TEST}${EXE_EXT})
 

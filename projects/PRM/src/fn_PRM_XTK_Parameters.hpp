@@ -22,34 +22,35 @@
 
 namespace moris
 {
-    namespace prm
-    {
+namespace prm
+{
 
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
     // creates a parameter list with default inputs
-    inline
-    ParameterList create_xtk_parameter_list()
+    inline ParameterList
+    create_xtk_parameter_list()
     {
         ParameterList tParameterList;
 
         // decomposition and decomposition related parameters
         tParameterList.insert( "decompose", true );
         tParameterList.insert( "decomposition_type", "conformal" );
+        tParameterList.insert( "octree_refinement_level", "-1" );
         tParameterList.insert( "triangulate_all", false );
-        
+
         // cleanup
         tParameterList.insert( "cleanup_cut_mesh", false );
 
         // enrichment and enrichment related parameters
         tParameterList.insert( "enrich", false );
-        tParameterList.insert( "basis_rank","node" );
-        tParameterList.insert( "enrich_mesh_indices","0");
+        tParameterList.insert( "basis_rank", "node" );
+        tParameterList.insert( "enrich_mesh_indices", "0" );
 
         // ghost stabilization and ghost related parameters
-        tParameterList.insert( "ghost_stab", false ); // Perform ghost stabilization
-        tParameterList.insert( "visualize_ghost" , false ); // writes the ghost blocks, on the XTK output mesh
-        
+        tParameterList.insert( "ghost_stab", false );// Perform ghost stabilization
+        tParameterList.insert( "visualize_ghost", false );// writes the ghost blocks, on the XTK output mesh
+
         // multigrid
         tParameterList.insert( "multigrid", false );
 
@@ -60,13 +61,16 @@ namespace moris
 
         // verbose - should be replaced by the severity level of the logger
         tParameterList.insert( "verbose", false );
+        tParameterList.insert( "diagnostics", false );
+        tParameterList.insert( "diagnostics_id", "" );
+        tParameterList.insert( "diagnostics_path", "" );
 
         // if to deactivate empty sets - used only if outputting ig mesh as well, set to true only for debugging
         tParameterList.insert( "deactivate_empty_sets", false );
 
         // deactivate all but selected
-        tParameterList.insert("deactivate_all_but_blocks","");
-        tParameterList.insert("deactivate_all_but_side_sets","");
+        tParameterList.insert( "deactivate_all_but_blocks", "" );
+        tParameterList.insert( "deactivate_all_but_side_sets", "" );
 
         // Write enrichement fields on mesh (only recommended on very small meshes)
         tParameterList.insert( "write_enrichment_fields", false );
@@ -94,25 +98,25 @@ namespace moris
         tParameterList.insert( "probe_bg_cells", "" );
 
         // union
-        tParameterList.insert("union_blocks","");
-        tParameterList.insert("union_block_names","");
-        tParameterList.insert("union_block_colors","");
+        tParameterList.insert( "union_blocks", "" );
+        tParameterList.insert( "union_block_names", "" );
+        tParameterList.insert( "union_block_colors", "" );
 
         // union
-        tParameterList.insert("union_side_sets","");
-        tParameterList.insert("union_side_set_names","");
-        tParameterList.insert("union_side_set_colors","");
+        tParameterList.insert( "union_side_sets", "" );
+        tParameterList.insert( "union_side_set_names", "" );
+        tParameterList.insert( "union_side_set_colors", "" );
 
         //Periodic environment sidesets
-        tParameterList.insert( "periodic_side_set_pair", "");
+        tParameterList.insert( "periodic_side_set_pair", "" );
 
-        tParameterList.insert( "identify_hanging_nodes", false);
+        tParameterList.insert( "identify_hanging_nodes", false );
 
         return tParameterList;
     }
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-    }/* end_namespace_prm */
-}/* end_namespace_moris */
+}// namespace prm
+}// namespace moris
 
 #endif /* PROJECTS_PRM_SRC_FN_PRM_MSI_PARAMETERS_HPP_ */

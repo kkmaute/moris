@@ -18,11 +18,13 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        Vertex_XTK::Vertex_XTK(moris::moris_id aVertexId,
-                               moris::moris_index aVertexIndex,
+        Vertex_XTK::Vertex_XTK(moris::moris_id        aVertexId,
+                               moris::moris_index     aVertexIndex,
+                               moris::moris_index     aOwner,
                                xtk::Background_Mesh * aBackgroundMeshPtr)
             : mVertexId(aVertexId),
               mVertexIndex(aVertexIndex),
+              mVertexOwner(aOwner),
               mBackgroundMeshPtr(aBackgroundMeshPtr),
               mCoordinates(nullptr)
               {
@@ -34,6 +36,7 @@ namespace moris
         Vertex_XTK::Vertex_XTK(mtk::Vertex * aBackgroundMeshVertex)
             : mVertexId(aBackgroundMeshVertex->get_id()),
               mVertexIndex(aBackgroundMeshVertex->get_index()),
+              mVertexOwner(aBackgroundMeshVertex->get_owner()),
               mBackgroundMeshVertex(aBackgroundMeshVertex),
               mCoordinates(nullptr)
         {
@@ -42,10 +45,12 @@ namespace moris
         Vertex_XTK::Vertex_XTK(
             moris::moris_id           aVertexId,
             moris::moris_index        aVertexIndex,
+            moris::moris_index        aOwner,
             std::shared_ptr<moris::Matrix<moris::DDRMat>> aCoordinates)
         :
         mVertexId(aVertexId),
         mVertexIndex(aVertexIndex),
+        mVertexOwner(aOwner),
         mBackgroundMeshPtr(nullptr),
         mCoordinates(aCoordinates)
         {
@@ -107,8 +112,7 @@ namespace moris
         moris_index
         Vertex_XTK::get_owner() const
         {
-            MORIS_ERROR(false, "Function not implemented in xtk vertex");
-            return 0;
+            return mVertexOwner;
         }
         //------------------------------------------------------------------------------
         Vertex_Interpolation *

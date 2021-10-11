@@ -132,7 +132,8 @@ cl_XTK_Regular_Subdivision_Interface.cpp
 cl_XTK_Node_Hierarchy_Interface.cpp
 cl_XTK_Cut_Integration_Mesh.cpp
 cl_XTK_Decomposition_Algorithm_Factory.cpp
-cl_XTK_Diagnostics.cpp)
+cl_XTK_Diagnostics.cpp
+cl_XTK_Octree_Interface.cpp)
 
 # List library dependencies
 set(LIB_DEPENDENCIES 

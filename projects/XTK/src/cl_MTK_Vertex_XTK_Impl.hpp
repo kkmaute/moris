@@ -37,10 +37,12 @@ namespace moris
 
             Vertex_XTK(moris::moris_id        aVertexId,
                        moris::moris_index     aVertexIndex,
+                       moris::moris_index     aOwner,
                        xtk::Background_Mesh * aBackgroundMeshPtr);
 
             Vertex_XTK(moris::moris_id        aVertexId,
                        moris::moris_index     aVertexIndex,
+                       moris::moris_index     aOwner,
                        std::shared_ptr<moris::Matrix<moris::DDRMat>> aCoordinates);                       
             /*
              * Constructor for a background mesh vertex
@@ -112,6 +114,7 @@ namespace moris
         private:
             moris::moris_id              mVertexId;
             moris::moris_index           mVertexIndex;
+            moris::moris_index           mVertexOwner;
             Vertex_Interpolation_XTK *   mVertexInterpolation = nullptr; // (basis weights and basis identity)
 
             // If this vertex is craeted by XTK we need a pointer to the background mesh

@@ -9,17 +9,19 @@
 
 #include "cl_XTK_Enums.hpp"
 #include <memory>
+#include "cl_Param_List.hpp"
 
 namespace xtk
 {
-    class Decomposition_Algorithm;
+class Decomposition_Algorithm;
 
-    // free function
-    std::shared_ptr<Decomposition_Algorithm>
-    create_decomposition_algorithm(enum Subdivision_Method aSubdivisionMethod);
 
-}
+std::shared_ptr<Decomposition_Algorithm>
+create_decomposition_algorithm(
+  enum Subdivision_Method aSubdivisionMethod,
+  moris::ParameterList&   aParameterList);
 
+}// namespace xtk
 
 
 #endif /* cl_XTK_Decomposition_Algorithm_Factory.hpp */

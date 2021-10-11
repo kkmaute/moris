@@ -6,48 +6,19 @@
  */
 
 #include "catch.hpp"
+#include <memory>
 
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
 #include "cl_XTK_Vertex_Enrichment.hpp"
 #include "cl_XTK_Diagnostics.hpp"
-//#include "cl_Geom_Field.hpp"
-#include "typedefs.hpp"
-
 #include "cl_MTK_Mesh_Manager.hpp"
-
-#include "cl_MTK_Vertex.hpp"    //MTK
-#include "cl_MTK_Cell.hpp"
-#include "cl_MTK_Enums.hpp"
-#include "cl_MTK_Mesh.hpp"
-#include "cl_MTK_Mesh_Checker.hpp"
-
-#include "cl_MTK_Mesh_Manager.hpp"
-#include "cl_MTK_Integration_Mesh_STK.hpp"
-#include "cl_MTK_Interpolation_Mesh.hpp"
-#include "cl_MTK_Integration_Mesh.hpp"
-#include "cl_MTK_Writer_Exodus.hpp"
-
-#include "cl_Matrix.hpp"        //LINALG
-#include "linalg_typedefs.hpp"
-#include "fn_equal_to.hpp" // ALG/src
-
-#include "cl_HMR_Mesh_Interpolation.hpp"
 #include "cl_HMR.hpp"
-#include "cl_HMR_Background_Mesh.hpp" //HMR/src
-#include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_Element.hpp" //HMR/src
-#include "cl_HMR_Factory.hpp" //HMR/src
-#include "cl_HMR_Field.hpp"
-#include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_Parameters.hpp" //HMR/src
 
+#include "fn_PRM_HMR_Parameters.hpp"
 #include "cl_GEN_User_Defined_Geometry.hpp"
 
-#include "fn_norm.hpp"
-
-#include <map>
 namespace moris
 {
 
@@ -55,7 +26,7 @@ namespace moris
 moris::real
 LevelSetSphereCylinder(const moris::Matrix< moris::DDRMat > & aPoint )
 {
-    moris::Matrix<moris::DDRMat> aCenter = {{0.0},{0.0},{0.0}};
+    moris::Matrix<moris::DDRMat> aCenter = {{0.01},{0.01},{0.01}};
     moris::Matrix<moris::DDRMat> aAxis   = {{0.0},{1.0},{0.0}};
     moris::real aRad = 0.77;
     moris::real aLength = 5;
@@ -100,87 +71,62 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
         for( moris::uint iOrder = 1; iOrder < 2; iOrder ++)
         {
 
-            std::string tFieldName = "Cylinder";
+            moris::Cell< moris::Cell< ParameterList > > tParameterlist;
+            tParameterlist.resize( 1 );
+            tParameterlist( 0 ).resize( 1 );
+            tParameterlist( 0 )( 0 ) = prm::create_hmr_parameter_list();
+            tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", "6,6,6" );
+            tParameterlist( 0 )( 0 ).set( "domain_dimensions",                "2.0,2.0,2.0" );
+            tParameterlist( 0 )( 0 ).set( "domain_offset",                    "-1.0,1.0,-2.0" );
+            tParameterlist( 0 )( 0 ).set( "domain_sidesets",                  "1,2,3,4,5,6");
+            tParameterlist( 0 )( 0 ).set( "lagrange_output_meshes",           "0");
+            tParameterlist( 0 )( 0 ).set( "lagrange_orders",  std::to_string(iOrder) );
+            tParameterlist( 0 )( 0 ).set( "lagrange_pattern", std::string( "0" )  );
+            tParameterlist( 0 )( 0 ).set( "bspline_orders",   std::to_string(iOrder) );
+            tParameterlist( 0 )( 0 ).set( "bspline_pattern",  std::string( "0" )  );
+            tParameterlist( 0 )( 0 ).set( "lagrange_to_bspline", "0" );
+            tParameterlist( 0 )( 0 ).set( "truncate_bsplines",  1 );
+            tParameterlist( 0 )( 0 ).set( "refinement_buffer",  1 );
+            tParameterlist( 0 )( 0 ).set( "staircase_buffer",   1 );
+            tParameterlist( 0 )( 0 ).set( "initial_refinement", "0" );
+            tParameterlist( 0 )( 0 ).set( "initial_refinement_pattern", "0" );
+            tParameterlist( 0 )( 0 ).set( "use_number_aura", 1);
+            tParameterlist( 0 )( 0 ).set( "use_multigrid",  0 );
+            tParameterlist( 0 )( 0 ).set( "severity_level", 0 );
 
-            moris::uint tLagrangeMeshIndex = 0;
+            std::shared_ptr<hmr::HMR> tHMR = std::make_shared<hmr::HMR>( tParameterlist( 0 )( 0 ) );
 
-            moris::hmr::Parameters tParameters;
+            // initialize a mesh manager
+            std::shared_ptr<mtk::Mesh_Manager> tMeshManager = std::make_shared<mtk::Mesh_Manager>();
+            
+            tMeshManager->set_performer(tHMR);
 
-            tParameters.set_number_of_elements_per_dimension( { {6}, {6}, {6} } );
-            tParameters.set_domain_dimensions({ {2}, {2}, {4} });
-            tParameters.set_domain_offset({ {-1.0}, {-1.0}, {-2.0} });
-            tParameters.set_side_sets({ {5}, {6} });
+            tHMR->set_performer(tMeshManager);
+            
+            tHMR->perform_initial_refinement();
+            tHMR->perform();
 
-
-            tParameters.set_bspline_truncation( true );
-
-            tParameters.set_lagrange_orders  ( { {iOrder} });
-            tParameters.set_lagrange_patterns( { {0} });
-
-            tParameters.set_bspline_orders   ( { {iOrder} } );
-            tParameters.set_bspline_patterns ( { {0} } );
-
-            tParameters.set_output_meshes( {{ {0} }} );
-            //        tParameters.set_lagrange_input_mesh( { { 0 } } );
-
-            tParameters.set_staircase_buffer( 1 );
-
-            tParameters.set_initial_refinement( { {0} } );
-            tParameters.set_initial_refinement_patterns( { {0} } );
-
-            tParameters.set_number_aura( true );
-
-            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
-            tLagrangeToBSplineMesh( 0 ) = { {0} };
-
-            tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
-
-            // create the HMR object by passing the settings to the constructor
-            moris::hmr::HMR tHMR( tParameters );
-
-            std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
-
-            // create field
-            std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
-
-            tField->evaluate_scalar_function( LevelSetSphereCylinder );
-
-            for( uint k=0; k<1; ++k )
-            {
-                tHMR.flag_surface_elements_on_working_pattern( tField );
-                tHMR.perform_refinement_based_on_working_pattern(0 );
-
-                tField->evaluate_scalar_function( LevelSetSphereCylinder );
-            }
-
-            tHMR.finalize();
-
-            hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
-
-            hmr::Lagrange_Mesh_Base * tLMB = tInterpMesh->get_lagrange_mesh();
 
             Cell< std::shared_ptr<ge::Geometry> > tGeometryVector(1);
             tGeometryVector(0) = std::make_shared<moris::ge::User_Defined_Geometry>(Matrix<DDRMat>(0, 0), &(LevelSetSphereCylinderGeometry));
 
             size_t tModelDimension = 3;
-
             moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
             tGeometryEngineParameters.mGeometries = tGeometryVector;
-            moris::ge::Geometry_Engine tGeometryEngine(tInterpMesh, tGeometryEngineParameters);
-            xtk::Model tXTKModel(tModelDimension,tInterpMesh,&tGeometryEngine);
+            moris::ge::Geometry_Engine tGeometryEngine(tMeshManager->get_interpolation_mesh(0), tGeometryEngineParameters);
+            xtk::Model tXTKModel(tModelDimension,tMeshManager->get_interpolation_mesh(0),&tGeometryEngine);
             tXTKModel.mVerbose  =  true;
 
-            // Tell the XTK model that it should decompose with a C_HIERARCHY_TET4, on the same mesh that the level set field is defined on.
-            Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8,Subdivision_Method::C_HIERARCHY_TET4};
+            Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
 
             // Do the cutting
             tXTKModel.decompose(tDecompositionMethods);
 
-            CHECK(interpolated_coordinate_check(tCutMesh));
+            CHECK(xtk::interpolated_coordinate_check(tXTKModel.get_cut_integration_mesh()));
 
             moris::Matrix<moris::DDRMat> tIsoContourThreshold = {{0.0}};
             moris::Matrix<moris::DDRMat> tIsoContourTolerance = {{1e-12}};
-            CHECK(verify_interface_vertices(&tXTKModel,tIsoContourThreshold,tIsoContourTolerance));
+            CHECK(xtk::verify_interface_vertices(&tXTKModel,tIsoContourThreshold,tIsoContourTolerance));
     }
 }
 }

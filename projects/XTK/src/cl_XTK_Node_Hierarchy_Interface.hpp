@@ -67,7 +67,7 @@ class Node_Hierarchy_Interface : public Decomposition_Algorithm
 
     
     public:
-    Node_Hierarchy_Interface(){}
+    Node_Hierarchy_Interface(ParameterList & aParameterList){}
     ~Node_Hierarchy_Interface(){}
 
     bool has_geometric_independent_vertices() const;

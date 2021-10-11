@@ -256,6 +256,7 @@ namespace xtk
             // create vertex
             mXtkMtkVertices(aNewNodeIndices(i)) = moris::mtk::Vertex_XTK( aNewNodeIds(i),
                     aNewNodeIndices(i),
+                    aNewNodeOwningProc(i),
                     this);
             // add to local to global map
             mEntityLocaltoGlobalMap(0)(aNewNodeIndices(i)) = aNewNodeIds(i);
@@ -312,6 +313,7 @@ namespace xtk
             mXtkMtkVertices(aNewNodeIndices(i)) = moris::mtk::Vertex_XTK(
                     aNewNodeIds(i),
                     aNewNodeIndices(i),
+                    MORIS_INDEX_MAX,
                     this);
 
             mEntityLocaltoGlobalMap(0)(aNewNodeIndices(i)) = aNewNodeIds(i);

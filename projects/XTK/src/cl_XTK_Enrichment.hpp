@@ -26,7 +26,6 @@
 #include "fn_prune_element_to_element.hpp"
 #include "fn_generate_element_to_element.hpp"
 #include "fn_local_child_mesh_flood_fill.hpp"
-#include "fn_generate_shared_face_element_graph.hpp"
 #include "fn_mesh_flood_fill.hpp"
 #include "fn_Pairing.hpp"
 #include "fn_equal_to.hpp"

@@ -148,8 +148,6 @@ TEST_CASE("2D XTK WITH HMR MULLTIGRID 11","[XTK_HMR_Multigrid]")
 
         tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
 
-//        tXTKModel.print_subphase_neighborhood();
-
         tXTKModel.construct_multigrid();
 
         // get meshes
