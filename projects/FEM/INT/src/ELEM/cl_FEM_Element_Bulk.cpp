@@ -19,8 +19,8 @@ namespace moris
                 Set                * aSet,
                 Cluster            * aCluster,
                 moris::moris_index   aCellIndexInCluster )
-                                        : Element( aCell, aSet, aCluster, aCellIndexInCluster )
-                                          {}
+        : Element( aCell, aSet, aCluster, aCellIndexInCluster )
+        {}
 
         //----------------------------------------------------------------------
 
@@ -775,6 +775,64 @@ namespace moris
                         mSet->mCellAssemblyMap( aMeshIndex )( mMasterCell->get_index() ), tGlobalIndex ) /=
                                 tSpaceTimeVolume;
             }
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Element_Bulk::compute_quantity_of_interest_elemental(
+                Matrix< DDRMat > & aValues,
+                uint               aIQIIndex )
+        {
+            // set physical and parametric space and time coefficients for IG element
+            this->init_ig_geometry_interpolator();
+
+            // loop over integration points
+            uint tNumIntegPoints = mSet->get_number_of_integration_points();
+
+            // initialize space - time volume
+            real tSpaceTimeVolume = 0.0;
+
+            for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
+            {
+                // get the ith integration point in the IG param space
+                const Matrix< DDRMat > & tLocalIntegPoint =
+                        mSet->get_integration_points().get_column( iGP );
+
+                // set evaluation point for interpolators (FIs and GIs)
+                mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tLocalIntegPoint );
+
+                // compute detJ of integration domain
+                real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                // skip if detJ smaller than threshold
+                if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+                {
+                    continue;
+                }
+
+                // compute integration point weight
+                real tWStar = mSet->get_integration_weights()( iGP ) * tDetJ;
+
+                // add contribution to space-time volume
+                tSpaceTimeVolume += tWStar;
+
+                // get requested IQI
+                const std::shared_ptr< IQI > & tReqIQI =
+                        mSet->get_requested_field_IQIs()( aIQIIndex );
+
+                // reset the requested IQI
+                tReqIQI->reset_eval_flags();
+
+                // compute quantity of interest at evaluation point
+                Matrix< DDRMat > tQIElemental( 1, 1, 0.0 );
+                tReqIQI->compute_QI( tQIElemental );
+
+                // assemble the QI value on the set
+                aValues( 0 ) += tWStar * tQIElemental( 0 );
+            }
+
+            // devide by space-time volume
+            aValues( 0 ) /= tSpaceTimeVolume;
         }
 
         //------------------------------------------------------------------------------
