@@ -1434,7 +1434,7 @@ TEST_CASE("HMR_L2_Test_Pattern8", "[moris],[mesh],[hmr],[hmr_L2_pattern8]")
         mtk::Field_Discrete tField_proxy( tMeshPair, 0 );
 
         tField_proxy.unlock_field();
-        tField_proxy.set_nodal_values( tField->get_node_values() );
+        tField_proxy.set_values( tField->get_node_values() );
 
         mtk::Mapper tMapper;
 

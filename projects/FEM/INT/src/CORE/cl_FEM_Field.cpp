@@ -23,7 +23,7 @@ namespace moris
             uint tNumberOfVertices = tInterpolationMesh->get_num_nodes();
 
             // set size of node values
-            mNodalValues.set_size( tNumberOfVertices, 0, MORIS_REAL_MIN );
+            mValues.set_size( tNumberOfVertices, 0, MORIS_REAL_MIN );
 
             mUpdateNodalValues = false;
         }
@@ -40,7 +40,7 @@ namespace moris
         {
             mFieldType = aType;
 
-            mNodalValues.set_size( mNodalValues.n_rows(), mFieldType.size(), MORIS_REAL_MIN );
+            mValues.set_size( mValues.n_rows(), mFieldType.size(), MORIS_REAL_MIN );
         }
 
         //-----------------------------------------------------------------------------
@@ -61,15 +61,15 @@ namespace moris
 
         //-----------------------------------------------------------------------------
 
-        void Field::get_nodal_values(
-                Matrix< IndexMat > const      & aNodeIndex,
-                Matrix< DDRMat >              & aNodalValues,
+        void Field::get_values(
+                Matrix< IndexMat > const      & aIndex,
+                Matrix< DDRMat >              & aValues,
                 Cell< mtk::Field_Type > const & aFieldTypes)
         {
             // FIXME translate field types into index. implement map
             uint tNumFields = mFieldType.size();
 
-            MORIS_ASSERT( tNumFields != 0, "Field::get_nodal_values(), No field types set for this field" );
+            MORIS_ASSERT( tNumFields != 0, "Field::get_values(), No field types set for this field" );
 
             //FIXME this can be saved as a member variable or done in a smarter way
             moris::Matrix< IndexMat > tFieldIndex( tNumFields, 1 );
@@ -78,9 +78,9 @@ namespace moris
                 tFieldIndex( Ik ) = Ik;
             }
 
-            this->get_nodal_value(
-                    aNodeIndex,
-                    aNodalValues,
+            this->get_value(
+                    aIndex,
+                    aValues,
                     tFieldIndex );
         }
 

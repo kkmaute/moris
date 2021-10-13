@@ -101,7 +101,7 @@ namespace moris
 
                         uint tOrder = tField->get_lagrange_order();
 
-                        const Matrix< DDRMat > & tFieldValues = tField->get_nodal_values();
+                        const Matrix< DDRMat > & tFieldValues = tField->get_values();
 
                         // Put elements on queue and set flag for refinement
                         aHMR->based_on_field_put_elements_on_queue(
@@ -149,7 +149,7 @@ namespace moris
 
                     uint tOrder = tField->get_lagrange_order();
 
-                    const Matrix< DDRMat > & tFieldValues = tField->get_nodal_values();
+                    const Matrix< DDRMat > & tFieldValues = tField->get_values();
 
                     // Put elements on queue and set flag for refinement
                     aHMR->based_on_field_flag_elements_on_working_pattern(
@@ -204,7 +204,7 @@ namespace moris
 
                     uint tOrder = tField->get_lagrange_order();
 
-                    const Matrix< DDRMat > & tFieldValues = tField->get_nodal_values();
+                    const Matrix< DDRMat > & tFieldValues = tField->get_values();
 
                     // Put elements on queue and set flag for refinement
                     tNumQueuedElements += aHMR->based_on_field_put_low_level_elements_on_queue(

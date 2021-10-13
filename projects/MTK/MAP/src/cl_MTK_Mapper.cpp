@@ -357,7 +357,7 @@ namespace moris
             eye( tNumberOfNodesPerElement, tNumberOfNodesPerElement, tEye );
 
             // get values of source field
-            const Matrix< DDRMat > & tSourceData = aFieldSource->get_nodal_values();
+            const Matrix< DDRMat > & tSourceData = aFieldSource->get_values();
 
             // get target data; note: the size of this vector is number of nodes times number of fields;
             // the number of nodes and number of basis differ as the number of basis includes the aura
@@ -434,7 +434,7 @@ namespace moris
 
             // copy target data onto target field
             aFieldTarget->unlock_field();
-            aFieldTarget->set_nodal_values( tTargetData );
+            aFieldTarget->set_values( tTargetData );
 
             delete( tTMatrix );
         }
@@ -465,7 +465,7 @@ namespace moris
             tTargetLagrangeMesh->unflag_all_basis();
 
             // source values
-            const Matrix< DDRMat > & tSourceValues = aFieldSource->get_nodal_values();
+            const Matrix< DDRMat > & tSourceValues = aFieldSource->get_values();
 
             // target values
             Matrix< DDRMat > tTargetValues( tTargetLagrangeMesh->get_number_of_nodes_on_proc(), 1 );
@@ -524,7 +524,7 @@ namespace moris
             }
 
             aFieldTarget->unlock_field();
-            aFieldTarget->set_nodal_values( tTargetValues );
+            aFieldTarget->set_values( tTargetValues );
         }
 
         //------------------------------------------------------------------------------
@@ -571,7 +571,7 @@ namespace moris
                 mHaveIwgAndModel = true;
             }
             // set weak bcs from field
-            mModel->set_weak_bcs( tDiscreteField->get_nodal_values() );
+            mModel->set_weak_bcs( tDiscreteField->get_values() );
 
             this->map_node_to_bspline( tDiscreteField );
         }
@@ -812,7 +812,7 @@ namespace moris
                 //tFieldUnion.save_field_to_exodus( "Field_after1.exo");
 
                 tFieldHigerOrder.unlock_field();
-                tFieldHigerOrder.set_nodal_values( tFieldUnion.get_nodal_values() );
+                tFieldHigerOrder.set_values( tFieldUnion.get_values() );
 
                 this->change_field_order( &tFieldHigerOrder, tDiscreteField );
 
@@ -858,7 +858,7 @@ namespace moris
             }
 
             tDiscreteField->unlock_field();
-            tDiscreteField->set_nodal_values( tNodalValues );
+            tDiscreteField->set_values( tNodalValues );
         }
 
         // FIXME do not delete for future use

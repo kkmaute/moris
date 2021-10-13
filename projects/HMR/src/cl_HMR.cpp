@@ -2365,7 +2365,7 @@ namespace moris
             tFieldUnion.unlock_field();
 
             // copy data onto field
-            tFieldUnion.set_nodal_values( tUnionFieldData );
+            tFieldUnion.set_values( tUnionFieldData );
 
             // create mapper
             mtk::Mapper tMapper;

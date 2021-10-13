@@ -548,7 +548,7 @@ namespace moris
                     else
                     {
                         aTargetFields( If )->unlock_field();
-                        //aTargetFields( If )->set_nodal_values( aSourceFields( If )->get_nodal_values() );
+                        //aTargetFields( If )->set_values( aSourceFields( If )->get_values() );
                         aTargetFields( If )->set_coefficients( aSourceFields( If )->get_coefficients() );
                         aTargetFields( If )->compute_nodal_values();
                     }
