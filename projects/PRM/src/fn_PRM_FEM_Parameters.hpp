@@ -62,6 +62,7 @@ namespace moris
             ParameterList tParameterList;
 
             tParameterList.insert( "field_name",             std::string( "undefined" ) );
+            tParameterList.insert( "field_entity_type",      std::string( "" ) );
             tParameterList.insert( "field_type",             std::string( "" ) );
             tParameterList.insert( "field_create_from_file", std::string( "" ) );
             tParameterList.insert( "IQI_Name",               std::string( "" ) );

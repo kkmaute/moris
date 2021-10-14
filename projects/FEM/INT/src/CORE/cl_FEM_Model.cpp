@@ -952,9 +952,16 @@ namespace moris
                 // get property name from parameter list
                 std::string tFieldName = tFieldParameter.get< std::string >( "field_name" );
 
+                moris::map< std::string, mtk::Field_Entity_Type > tFieldEntityTypeMap =
+                        mtk::get_field_entity_type_map();
+
+                enum mtk::Field_Entity_Type tFieldEntityType =
+                        tFieldEntityTypeMap.find( tFieldParameter.get< std::string >( "field_entity_type" ) );
+
                 // create a property pointer
                 std::shared_ptr< fem::Field> tField =  std::make_shared< fem::Field >(
-                        mMeshManager->get_mesh_pair( mMeshPairIndex ) );
+                        mMeshManager->get_mesh_pair( mMeshPairIndex ),
+                        tFieldEntityType );
 
                 // set a name for the property
                 tField->set_label( tFieldName );

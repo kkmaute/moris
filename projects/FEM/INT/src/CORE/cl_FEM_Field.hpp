@@ -52,6 +52,7 @@ namespace moris
                 //------------------------------------------------------------------------------
 
                 Field( mtk::Mesh_Pair aMeshPair,
+                       enum mtk::Field_Entity_Type tFieldEntityType = mtk::Field_Entity_Type::NODAL,
                        uint           aDiscretizationMeshIndex = 0 );
 
                 //------------------------------------------------------------------------------

@@ -154,6 +154,8 @@ namespace moris
                 UNDEFINED
         };
 
+        moris::map< std::string, Field_Entity_Type > get_field_entity_type_map();
+
         //------------------------------------------------------------------------------
     } /* namespace mtk */
 } /* namespace moris */
