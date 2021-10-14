@@ -830,9 +830,6 @@ namespace moris
                 // assemble the QI value on the set
                 aValues( 0 ) += tWStar * tQIElemental( 0 );
             }
-
-            // devide by space-time volume
-            aValues( 0 ) /= tSpaceTimeVolume;
         }
 
         //------------------------------------------------------------------------------
