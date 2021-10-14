@@ -480,7 +480,13 @@ namespace moris
             }
 
             mEquationModel->populate_fields();
+        }
 
+        //------------------------------------------------------------------------------
+
+        moris::Cell< std::shared_ptr< mtk::Field > > Model::get_fields()
+        {
+            return mEquationModel->get_fields();
         }
 
     } /* namespace mdl */

@@ -23,6 +23,11 @@ namespace moris
         class Dist_Map;
     }
     //------------------------------------------------------------------------------
+    namespace mtk
+    {
+        class Field;
+    }
+    //------------------------------------------------------------------------------
 
     namespace MSI
     {
@@ -563,6 +568,12 @@ namespace moris
                 MORIS_ERROR( false,
                         "Equation_Model::populate_fields - not implemented for base class." );
             }
+
+            //------------------------------------------------------------------------------
+            /**
+             * return fields
+             */
+            virtual moris::Cell< std::shared_ptr< mtk::Field > > get_fields() = 0;
 
             //------------------------------------------------------------------------------
         };

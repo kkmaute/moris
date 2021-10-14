@@ -26,6 +26,7 @@ namespace moris
     namespace mtk
     {
         class Mesh_Manager;
+        class Field;
     }
 
     namespace vis
@@ -79,7 +80,7 @@ namespace moris
                 std::shared_ptr< mtk::Mesh_Manager > mMeshManager = nullptr;
                 moris_index        mMeshPairIndex;
 
-                // pointer to equation model (->FEM model)
+                // pointer to equation model
                 std::shared_ptr< MSI::Equation_Model > mEquationModel = nullptr;
 
                 // by default, this value is set to the order of the
@@ -294,6 +295,12 @@ namespace moris
                         const real aTime,
                         const bool aCloseFile );
 
+                //------------------------------------------------------------------------------
+
+                /**
+                 * return fields
+                 */
+                Cell< std::shared_ptr< mtk::Field > > get_fields();
                 //------------------------------------------------------------------------------
         };
         //------------------------------------------------------------------------------

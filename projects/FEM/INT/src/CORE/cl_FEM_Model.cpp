@@ -3412,6 +3412,20 @@ namespace moris
             size_t tIndex = mFieldTypeMap( static_cast< sint >( tFieldType ) );
             return mFields( tIndex );
         }
+
+        //-------------------------------------------------------------------------------------------------
+
+        moris::Cell< std::shared_ptr< mtk::Field > > FEM_Model::get_fields()
+        {
+            moris::Cell< std::shared_ptr< mtk::Field > > tFields( mFields.size(), nullptr );
+
+            for( uint Ik = 0; Ik > mFields.size(); Ik++ )
+            {
+                tFields( Ik ) = mFields( Ik );
+            }
+
+            return tFields;
+        }
         //-------------------------------------------------------------------------------------------------
 
         void FEM_Model::populate_fields()
