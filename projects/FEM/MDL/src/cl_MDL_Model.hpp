@@ -300,7 +300,7 @@ namespace moris
                 /**
                  * return fields
                  */
-                Cell< std::shared_ptr< mtk::Field > > get_fields();
+                Cell< std::shared_ptr< mtk::Field > > get_mtk_fields();
                 //------------------------------------------------------------------------------
         };
         //------------------------------------------------------------------------------

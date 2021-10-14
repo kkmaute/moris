@@ -102,7 +102,8 @@ namespace moris
 
             mIter = 0;
 
-            moris::Cell< std::shared_ptr< mtk::Field > > tFields;
+            moris::Cell< std::shared_ptr< mtk::Field > > tFieldsIn;
+            moris::Cell< std::shared_ptr< mtk::Field > > tFieldsOut;
 
             if( tIsFirstOptSolve )
             {
@@ -138,11 +139,14 @@ namespace moris
             }
             else
             {
+                tFieldsIn.append( mPerformerManager->mGENPerformer( 0 )->get_mtk_fields() );
+                tFieldsIn.append( mPerformerManager->mMDLPerformer( 0 )->get_mtk_fields() );
+
                 mPerformerManager->mRemeshingMiniPerformer( 0 )->perform_remeshing(
-                        mPerformerManager->mGENPerformer( 0 )->get_mtk_fields(),
+                        tFieldsIn,
                         mPerformerManager->mHMRPerformer,
                         mPerformerManager->mMTKPerformer,
-                        tFields);
+                        tFieldsOut);
 
                 // Create new GE performer
                 std::string tGENString = "GENParameterList";
@@ -161,7 +165,7 @@ namespace moris
 
                 mPerformerManager->mGENPerformer( 0 )->distribute_advs(
                         mPerformerManager->mMTKPerformer( 0 )->get_mesh_pair(0),
-                        tFields );
+                        tFieldsOut );
 
                 // Get ADVs
                 aADVs        = mPerformerManager->mGENPerformer( 0 )->get_advs();

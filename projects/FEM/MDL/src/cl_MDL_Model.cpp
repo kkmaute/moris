@@ -484,7 +484,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        moris::Cell< std::shared_ptr< mtk::Field > > Model::get_fields()
+        moris::Cell< std::shared_ptr< mtk::Field > > Model::get_mtk_fields()
         {
             return mEquationModel->get_fields();
         }
