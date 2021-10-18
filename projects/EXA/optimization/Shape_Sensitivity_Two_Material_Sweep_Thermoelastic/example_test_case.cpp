@@ -77,7 +77,7 @@ void check_results(
     {
         for( uint Ii = 0; Ii < tAdjointValues.n_rows(); Ii++ )
         {
-        CHECK( tAdjointValues( Ii, Ik ) - tAdjointRefValues( Ii, Ik ) < 1e-10 );
+            CHECK( tAdjointValues( Ii, Ik ) - tAdjointRefValues( Ii, Ik ) < 1e-10 );
         }
     }
 
@@ -103,7 +103,7 @@ void check_results(
         load_matrix_from_hdf5_file( tFileID, "objective_gradients eval_1-1 epsilon_1-1 " + tFDTypes(tFDIndex), tObjectiveFD, tStatus);
         load_matrix_from_hdf5_file( tFileID, "constraint_gradients eval_1-1 epsilon_1-1 " + tFDTypes(tFDIndex), tConstraintsFD, tStatus);
 
-        REQUIRE(tObjectiveAnalytical.length() == tObjectiveFD.length());
+        REQUIRE(tObjectiveAnalytical.length()   == tObjectiveFD.length());
         REQUIRE(tConstraintsAnalytical.length() == tConstraintsFD.length());
 
         for (uint tADVIndex = 0; tADVIndex < tObjectiveAnalytical.length(); tADVIndex++)
@@ -122,7 +122,7 @@ void check_results(
                     tConstraintsAnalytical(tADVIndex),
                     100*std::abs((tConstraintsAnalytical(tADVIndex)-tConstraintsAnalytical(tADVIndex))/tConstraintsAnalytical(tADVIndex)));
 
-            //CHECK(tObjectiveAnalytical(tADVIndex) == Approx(tObjectiveFD(tADVIndex)));
+            CHECK(tObjectiveAnalytical(tADVIndex)   == Approx(tObjectiveFD(tADVIndex)));
             CHECK(tConstraintsAnalytical(tADVIndex) == Approx(tConstraintsFD(tADVIndex)));
         }
     }
