@@ -80,10 +80,6 @@ namespace moris
                 //  see Boris Polyak & Andrey Tremba (2019) DOI: 10.1080/10556788.2019.1669154, Algorithm 2, Page 15
                 case sol::SolverRelaxationType::InvResNormAdaptive:
                 {
-                    // define effective relaxation parameter
-                    // i.e. a relaxation value that would be applied to last accepted step
-                    real tRelaxEffective;
-
                     // initialize beta(k)
                     if ( mBetak < 0.0 )
                     {
@@ -116,9 +112,6 @@ namespace moris
                             // apply damping
                             mBetak *= mBetaDamping;
 
-                            // compute effective relaxation parameter with residual norm of last accepted step
-                            tRelaxEffective = std::min( 1.0, mBetak / mResk );
-
                             // suppress computing new search direction
                             tComputeSearchDirection = false;
                         }
@@ -143,12 +136,6 @@ namespace moris
                        // store current residual
                         mResk = aResNorm + MORIS_REAL_EPS;
 
-                        // compute effective relaxation parameter with current residual norm (updated above)
-                        tRelaxEffective = std::min( 1.0, mBetak / mResk );
-
-                        // store effective relaxation parameter
-                        mAlphak = tRelaxEffective;
-
                         // re-initialize relaxation history
                         mRelaxHist = 0.0;
 
@@ -159,15 +146,18 @@ namespace moris
                         mNumTrials=0;
                     }
 
+                    // compute and store effective relaxation parameter
+                    mAlphak = std::min( 1.0, mBetak / mResk );
+
                      // adjust relaxation value considering previous incremental updates
-                    aRelaxValue= tRelaxEffective - mRelaxHist;
+                    aRelaxValue= mAlphak - mRelaxHist;
 
                     // update incremental update history
                     mRelaxHist += aRelaxValue;
 
                     // log relaxation value
-                    MORIS_LOG_INFO("Relaxation (InvResNormAdaptive): %7.5e (incremental relaxation: %7.5e) - mResk = %7.5e   mBetak = %7.5e   mAlphak = %7.5e",
-                            tRelaxEffective, aRelaxValue,mResk,mBetak, mAlphak );
+                    MORIS_LOG_INFO("Relaxation (InvResNormAdaptive): %7.5e (incremental relaxation: %7.5e) - mResk = %7.5e   mBetak = %7.5e",
+                            mAlphak, aRelaxValue,mResk,mBetak );
 
                     break;
                 }
