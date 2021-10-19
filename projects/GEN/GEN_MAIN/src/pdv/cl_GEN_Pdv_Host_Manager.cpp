@@ -922,6 +922,7 @@ namespace moris
                 // receiving list
                 moris::Cell< Matrix< DDUMat > > tMatsToReceive;
 
+                // synchronize parallel process
                 // FIXME: should not be needed if done correctly
                 barrier();
 
@@ -945,25 +946,40 @@ namespace moris
                         uint tReqPdvHostId = tMatsToReceive(Ik)(Ii);
 
                         // Get index of PDV host on this processor
-                        auto tIter = mIPBaseVertexIdtoIndMap.find( tReqPdvHostId );
+                        auto tIter =  mIPBaseVertexIdtoIndMap.find( tReqPdvHostId);
 
+                        // Check that host id exists
+                        MORIS_ERROR( tIter != mIPBaseVertexIdtoIndMap.end(),
+                                "Pdv_Host_Manager::communicate_check_if_owned_pdv_exists - PDV host with ID %d does not exist on Proc %d.\n",
+                                tReqPdvHostId,par_rank());
+
+                        // Get local index of PDV host
                         moris::uint tLocalPdvInd = tIter->second;
 
                         // Check that PDV host exists
-                        MORIS_ASSERT( mIpPdvHosts( tLocalPdvInd ),
-                                "Pdv_Host_Manager::communicate_check_if_owned_pdv_exists - %s",
-                                "Pdv host does not exist on this processor.\n");
+                        MORIS_ERROR( mIpPdvHosts( tLocalPdvInd ),
+                                "Pdv_Host_Manager::communicate_check_if_owned_pdv_exists - PDV host with ID %d and local index %d does not exist on Proc %d.\n",
+                                tReqPdvHostId,tLocalPdvInd,par_rank());
 
                         // Check if PDF of given type exists
-                        if ( mIpPdvHosts( tLocalPdvInd )->get_pdv_exists( tPdvType )  )
+                        if ( ! mIpPdvHosts( tLocalPdvInd )->get_pdv_exists( tPdvType ) )
                         {
-                            MORIS_ERROR(false,
-                                    "Pdv_Host_Manager::communicate_check_if_owned_pdv_exists - %s",
-                                    "Implementation of adding on demand PDV host is missing.\n");
+                            MORIS_ERROR( false,
+                                    "Pdv_Host_Manager::communicate_check_if_owned_pdv_exists - PDV missing on Node with ID %d on Proc %d.",
+                                    tReqPdvHostId, par_rank() );
+                            //if ( par_rank() == 2 )
+                            //{
+                            //    std::cout << "Nodes with missing PDVs: " << tReqPdvHostId << " for type " << (sint) tPdvType << std::endl;
+                            //    mIpPdvHosts( tLocalPdvInd )->print_state();
+                            //}
+                            //mIpPdvHosts(tLocalPdvInd)->create_pdv(tPdvType, 0.0 );
                         }
                     }
                 }
             }
+
+            // synchronize parallel process
+            barrier();
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -1255,6 +1271,11 @@ namespace moris
                         MORIS_ASSERT( mIpPdvHosts(tLocalPdvInd),
                                 "Pdv_Host_Manager::communicate_shared_interpolation_pdv_ids() - %s",
                                 "Pdv host does not exist on this processor");
+
+                        // Check that PDV Id is valid
+                        MORIS_ASSERT( mIpPdvHosts(tLocalPdvInd)->get_pdv_id(tPdvType) > 0,
+                                "Pdv_Host_Manager::communicate_shared_interpolation_pdv_ids() - %s",
+                                "Local Pdv Id is invalid");
 
                         // Check that PDV host is indeed owned by this processor
                         MORIS_ASSERT( (mIpPdvHosts(tLocalPdvInd)->get_pdv_owning_processor()) == par_rank(),
@@ -1551,7 +1572,7 @@ namespace moris
 
             if ( !(par_size() <= 1) )
             {
-                //this->communicate_check_if_owned_pdv_exists();
+                this->communicate_check_if_owned_pdv_exists();
             }
 
             this->get_num_pdvs();

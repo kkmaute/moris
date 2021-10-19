@@ -30,17 +30,31 @@ namespace moris
                 uint tParamSize = mParameters.size();
 
                 // check for proper size of constant function parameters
-                MORIS_ERROR( tParamSize == 2 || tParamSize == 3,
-                        "IQI_Max_Dof::initialize - either 2 or 3 constant parameters need to be set." );
+                MORIS_ERROR( tParamSize >= 2 && tParamSize <= 4,
+                        "IQI_Max_Dof::initialize - either 2, 3 or 4 constant parameters need to be set." );
+
+                if( tParamSize > 2 )
+                {
+                    mShift = mParameters( 2 )( 0 );
+                }
 
                 mRefValue = mParameters( 0 )( 0 );
                 mExponent = mParameters( 1 )( 0 );
 
+                // shift parameter
                 mShift = 1.0;
 
                 if( tParamSize > 2 )
                 {
                     mShift = mParameters( 2 )( 0 );
+                }
+
+                // sign parameter
+                mSign = 0;
+
+                if( tParamSize > 3 )
+                {
+                    mSign = (sint) mParameters( 3 )( 0 );
                 }
 
                 // check mQuantityDofType is defined
@@ -74,7 +88,19 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
 
             // evaluate the QI
-            aQI = {{ std::pow( ( tFIMaxDof->val()( mIQITypeIndex ) / mRefValue ) - mShift, mExponent ) }};
+            real tArgument = tFIMaxDof->val()( mIQITypeIndex ) / mRefValue - mShift;
+
+            switch ( mSign )
+            {
+                case 1:
+                    tArgument = tArgument > 0 ? tArgument : 0.0;
+                    break;
+                case -1:
+                    tArgument = tArgument < 0 ? tArgument : 0.0;
+                    break;
+            }
+
+            aQI = {{ std::pow( tArgument, mExponent ) }};
 
             MORIS_ASSERT( isfinite( aQI ),
                     "IQI_Max_Dof::compute_QI - QI is nan, exiting!");
@@ -95,8 +121,20 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
 
             // evaluate the QI
+            real tArgument = tFIMaxDof->val()( mIQITypeIndex ) / mRefValue - mShift;
+
+            switch ( mSign )
+            {
+                case 1:
+                    tArgument = tArgument > 0 ? tArgument : 0.0;
+                    break;
+                case -1:
+                    tArgument = tArgument < 0 ? tArgument : 0.0;
+                    break;
+            }
+
             mSet->get_QI()( tQIIndex ) += aWStar * (
-                    std::pow( ( tFIMaxDof->val()( mIQITypeIndex ) / mRefValue ) - mShift, mExponent ) );
+                    std::pow( tArgument, mExponent ) );
 
             MORIS_ASSERT( isfinite( mSet->get_QI()( tQIIndex ) ),
                     "IQI_Max_Dof::compute_QI - QI is nan, exiting!");
@@ -138,7 +176,19 @@ namespace moris
                     tSelect( mIQITypeIndex, 0 ) = 1.0;
 
                     // compute dQIdDof
-                    real tdQI = std::pow( ( tFIMaxDof->val()( mIQITypeIndex ) / mRefValue ) - mShift, mExponent - 1.0 );
+                    real tArgument = tFIMaxDof->val()( mIQITypeIndex ) / mRefValue  - mShift;
+
+                    switch ( mSign )
+                    {
+                        case 1:
+                            tArgument = tArgument > 0 ? tArgument : 0.0;
+                            break;
+                        case -1:
+                            tArgument = tArgument < 0 ? tArgument : 0.0;
+                            break;
+                    }
+
+                    real tdQI = std::pow( tArgument, mExponent - 1.0 );
 
                     mSet->get_residual()( tQIIndex )(
                             { tMasterDepStartIndex, tMasterDepStopIndex },
@@ -168,7 +218,20 @@ namespace moris
                 tSelect( mIQITypeIndex, 0 ) = 1.0;
 
                 // compute dQIdDof
-                real tdQI = std::pow( ( tFIMaxDof->val()( mIQITypeIndex ) / mRefValue ) - mShift, mExponent - 1.0 );
+                real tArgument = tFIMaxDof->val()( mIQITypeIndex ) / mRefValue  - mShift;
+
+                switch ( mSign )
+                {
+                    case 1:
+                        tArgument = tArgument > 0 ? tArgument : 0.0;
+                        break;
+                    case -1:
+                        tArgument = tArgument < 0 ? tArgument : 0.0;
+                        break;
+                }
+
+                real tdQI = std::pow( tArgument, mExponent - 1.0 );
+
                 adQIdu = mExponent * tdQI * trans( tFIMaxDof->N() ) * tSelect / mRefValue;
             }
         }

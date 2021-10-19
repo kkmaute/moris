@@ -240,6 +240,13 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        uint Field::get_discretization_order() const
+        {
+            return mMeshPair.get_interpolation_mesh()->get_discretization_order( this->get_discretization_mesh_index() );
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         real Field::get_discretization_lower_bound()
         {
             return mParameters.mDiscretizationLowerBound;

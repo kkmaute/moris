@@ -37,7 +37,10 @@ namespace moris
                     mMasterCM( static_cast< uint >( IQI_Constitutive_Type::DIFFUSION ) );
 
             // evaluate the QI
-            aQI = dot(tCMDiffusion->flux(),mNormal);
+            // note: because diffusive flux is defined as "conductivity tensor * gradx(Temp)"
+            //       the numerical diffusive flux needs to be multiplied by (-1) to obtain
+            //       the physical flux
+            aQI = -1.0 * dot(tCMDiffusion->flux(),mNormal);
         }
 
         //------------------------------------------------------------------------------
@@ -52,7 +55,10 @@ namespace moris
                     mMasterCM( static_cast< uint >( IQI_Constitutive_Type::DIFFUSION ) );
 
             // evaluate the QI
-            mSet->get_QI()( tQIIndex ) += aWStar * dot(tCMDiffusion->flux(),mNormal);
+            // note: because diffusive flux is defined as "conductivity tensor * gradx(Temp)"
+             //       the numerical diffusive flux needs to be multiplied by (-1) to obtain
+             //       the physical flux
+            mSet->get_QI()( tQIIndex ) += -1.0 * aWStar * dot(tCMDiffusion->flux(),mNormal);
         }
 
         //------------------------------------------------------------------------------
@@ -86,7 +92,7 @@ namespace moris
                     // compute dQIdu
                     mSet->get_residual()( tQIIndex )(
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                     trans( tCMDiffusion->dFluxdDOF( tDofType ) ) * mNormal );
+                                    -1.0 * trans( tCMDiffusion->dFluxdDOF( tDofType ) ) * mNormal );
                 }
             }
         }
@@ -105,7 +111,7 @@ namespace moris
             if ( tCMDiffusion->check_dof_dependency( aDofType ) )
             {
                 // compute dQIdu
-                adQIdu += trans( tCMDiffusion->dFluxdDOF( aDofType ) ) * mNormal;
+                adQIdu += -1.0 * trans( tCMDiffusion->dFluxdDOF( aDofType ) ) * mNormal;
             }
         }
 

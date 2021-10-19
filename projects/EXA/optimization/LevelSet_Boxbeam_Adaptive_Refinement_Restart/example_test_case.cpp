@@ -46,8 +46,8 @@ void check_results(
 
     // define reference values for dimension, number of nodes and number of elements
     Cell<uint> tReferenceNumDims  = { 2};
-    Cell<uint> tReferenceNumNodes = {13156};
-    Cell<uint> tReferenceNumElems = {10478};
+    Cell<uint> tReferenceNumNodes = {13080};
+    Cell<uint> tReferenceNumElems = {10396};
 
     // check dimension, number of nodes and number of elements
     uint tNumDims  = tExoIO.get_number_of_dimensions();
@@ -87,7 +87,7 @@ TEST_CASE("Leveset Boxbeam Create File",
     REQUIRE( tRet ==  0 );
 
     // set test case index
-    uint tTestCaseIndex = 1;
+    // uint tTestCaseIndex = 1;
 
     // perform check for Test Case 0
     //check_results("Levelset_Boxbeam_Adaptive_Refinement.exo.e-s.0015",tTestCaseIndex);

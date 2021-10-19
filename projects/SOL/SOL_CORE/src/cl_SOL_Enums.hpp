@@ -26,6 +26,13 @@ namespace moris
             Epetra,   // Indicates the Vector/Matrix/Map type
             Petsc     // Indicates the Vector/Matrix/Map type
         };
+
+        enum class SolverRelaxationType
+        {
+            Constant,           // Constant relaxation parameter
+            InvResNorm,         // Relaxation parameter proportional to inverse of residual norm
+            InvResNormAdaptive  // Relaxation parameter proportional to inverse of residual norm with adaptation
+        };
     }
 }
 

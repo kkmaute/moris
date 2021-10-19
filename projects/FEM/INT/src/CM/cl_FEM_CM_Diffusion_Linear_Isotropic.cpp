@@ -85,6 +85,8 @@ namespace moris
         void CM_Diffusion_Linear_Isotropic::eval_flux()
         {
             // compute flux
+            // Note: this is a numerical flux and not a physical flux which is the negative
+            //       of the numerical flux
             mFlux = mPropConductivity->val()( 0 ) *
                     mFIManager->get_field_interpolators_for_type( mTempDof )->gradx( 1 );
 

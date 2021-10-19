@@ -69,6 +69,7 @@ namespace moris
             tParameterList.insert( "asymp_adaptc" , 1.2  );   // Expanding asymptote adaptation factor
             tParameterList.insert( "step_size"    , 0.01 );   // GCMMA step size
             tParameterList.insert( "penalty"      , 100.0);   // GCMMA constraint penalty
+            tParameterList.insert( "version"      , 1    );   // GCMMA version
 
             return tParameterList;
         }

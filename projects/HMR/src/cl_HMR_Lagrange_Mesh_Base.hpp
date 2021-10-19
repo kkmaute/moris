@@ -851,6 +851,27 @@ namespace moris
                     }
                 }
 
+                // -----------------------------------------------------------------------------
+
+                /**
+                 * collect Lagrange elements on an BSpline interpolation element
+                 */
+                void get_elements_in_interpolation_cluster(
+                        moris_index const aElementIndex,
+                        moris_index const aDiscretizationMeshIndex,
+                        moris::Cell< mtk::Cell * > & aCells);
+
+                // ----------------------------------------------------------------------------
+
+                /**
+                  * collect Lagrange elements on an BSpline interpolation element and side ordinal
+                  */
+                void get_elements_in_interpolation_cluster_and_side_ordinal(
+                        moris_index const            aElementIndex,
+                        moris_index const            aDiscretizationMeshIndex,
+                        moris_index const            aSideOrdinal,
+                        moris::Cell< mtk::Cell * > & aCells );
+
                 // ----------------------------------------------------------------------------
 
                 // Hack for femdoc. Only tested in serial and linear meshes.

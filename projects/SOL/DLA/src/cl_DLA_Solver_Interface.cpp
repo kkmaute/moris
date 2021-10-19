@@ -31,7 +31,7 @@ void Solver_Interface::build_graph( moris::sol::Dist_Matrix * aMat )
     }
 
     // global assembly to communicate entries
-    aMat->matrix_global_assembly();
+    aMat->initial_matrix_global_assembly();
 }
 
 //---------------------------------------------------------------------------------------------------------

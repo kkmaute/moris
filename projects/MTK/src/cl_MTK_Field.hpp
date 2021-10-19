@@ -59,7 +59,7 @@ namespace moris
                 sint mNumberOfCoefficients = -1;
 
                 //! Nodal field matrix: number of nodes x number of nodal fields
-                Matrix< DDRMat > mNodalValues;
+                Matrix< DDRMat > mValues;
 
                 //! Coefficients vector: number of coefficients x 1
                 Matrix< DDRMat > mCoefficients;
@@ -75,6 +75,9 @@ namespace moris
 
                 //! Lock flag
                 bool mFieldIsDiscrete = false;
+
+                enum Field_Entity_Type mFieldEntityType = Field_Entity_Type::UNDEFINED;
+
 
                 //------------------------------------------------------------------------------
             protected:
@@ -180,13 +183,23 @@ protected:
                  */
                 Field(
                         Mesh_Pair        aMeshPair,
-                        uint     const & aNumberOfFields = 1);
+                        uint     const & aNumberOfFields = 1,
+                        enum Field_Entity_Type aFieldEntityType = Field_Entity_Type::NODAL );
 
-                Field();
+                Field( enum Field_Entity_Type aFieldEntityType = Field_Entity_Type::NODAL);
 
                 //------------------------------------------------------------------------------
 
                 virtual ~Field();
+
+                //------------------------------------------------------------------------------
+
+                /**
+                 *  @brief returns the field entity type. can be NODAL or ELEMENTAL
+                 *
+                 * @return field entity type
+                 */
+                enum Field_Entity_Type get_field_entity_type();
 
                 //------------------------------------------------------------------------------
 
@@ -245,7 +258,7 @@ protected:
                  */
                 uint get_number_of_nodes() const
                 {
-                    return mNodalValues.n_rows();
+                    return mValues.n_rows();
                 }
 
                 //------------------------------------------------------------------------------
@@ -266,46 +279,46 @@ protected:
                 //------------------------------------------------------------------------------
 
                 /**
-                 * @brief returns all nodal values for current coefficients
+                 * @brief returns all values for current coefficients
                  *
-                 * @return matrix of nodal value
+                 * @return matrix of value
                  */
                 const
-                Matrix< DDRMat > & get_nodal_values();
+                Matrix< DDRMat > & get_values();
 
                 //------------------------------------------------------------------------------
 
                 /**
-                 * @brief returns value of a node; if nodal value is not updated all nodal values
+                 * @brief returns value of the field entity; if nodal and value is not updated all nodal values
                  *        will be computed first
                  *
                  *        Note: function will be removed soon as not consistent with child implementation
                  *
-                 * @param[in]  aNodeIndex - node index
+                 * @param[in]  aIndex - node index
                  * @param[in]  aFieldIndex - field index
                  *
                  * @return nodal value
                  */
-                moris::real get_nodal_value(
-                        const uint & aNodeIndex,
+                moris::real get_value(
+                        const uint & aIndex,
                         const uint & aFieldIndex = 0);
 
                 //------------------------------------------------------------------------------
 
                 /**
-                 * @brief returns value of nodes; if nodal value is not updated all nodal values
+                 * @brief returns value of entity; if nodal and value is not updated all nodal values
                  *        will be computed first
                  *
                  *        Note: function will be removed soon as not consistent with child implementation
                  *
-                 * @param[in]  aNodeIndices - vector of node indices
+                 * @param[in]  aIndices - vector of indices
                  * @param[in]  aFieldIndices - field indces
                  *
-                 * @param[out] aNodalValues - nodal values
+                 * @param[out] aValues - values
                  */
-                void get_nodal_value(
-                        Matrix< IndexMat > const & aNodeIndex,
-                        Matrix< DDRMat >         & aNodalValues,
+                void get_value(
+                        Matrix< IndexMat > const & aIndex,
+                        Matrix< DDRMat >         & aValues,
                         Matrix< IndexMat > const & aFieldIndex = 0);
 
                 //------------------------------------------------------------------------------
@@ -342,7 +355,7 @@ protected:
                  * @param[in]  aNodalField - matrix of size number of nodes x field dimension
                  *
                  */
-                void set_nodal_values( const Matrix< DDRMat > & aNodalValues );
+                void set_values( const Matrix< DDRMat > & aNodalValues );
 
                 //------------------------------------------------------------------------------
 

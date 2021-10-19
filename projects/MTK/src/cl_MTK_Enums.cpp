@@ -36,3 +36,15 @@
             tFieldTypeMap[""]          = moris::mtk::Field_Type::UNDEFINED;
             return tFieldTypeMap;
         }
+
+        moris::map< std::string, moris::mtk::Field_Entity_Type >
+        moris::mtk::get_field_entity_type_map()
+        {
+            moris::map< std::string, moris::mtk::Field_Entity_Type > tFieldEntityTypeMap;
+
+            tFieldEntityTypeMap["NODAL"]       = moris::mtk::Field_Entity_Type::NODAL;
+            tFieldEntityTypeMap["ELEMENTAL"]   = moris::mtk::Field_Entity_Type::ELEMENTAL;
+            tFieldEntityTypeMap[""]            = moris::mtk::Field_Entity_Type::UNDEFINED;
+            return tFieldEntityTypeMap;
+        }
+

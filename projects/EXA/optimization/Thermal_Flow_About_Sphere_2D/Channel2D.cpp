@@ -1004,7 +1004,7 @@ namespace moris
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type",              (uint) fem::Element_Type::DOUBLE_SIDESET );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name",          "PhaseFluid" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "slave_phase_name",           "PhaseSolid" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   (uint) fem::IWG_Type::SPATIALDIFF_INTERFACE_UNSYMMETRIC_NITSCHE  );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   (uint) fem::IWG_Type::SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE  );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "TEMP" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "master_constitutive_models", "CMFluidDiffusion,Diffusion" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "slave_constitutive_models",  "CMSolidDiffusion,Diffusion" );

@@ -35,6 +35,7 @@
 #include "cl_MTK_Side_Cluster_ISC_Impl.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
 #include "cl_MTK_Double_Side_Set.hpp"
+#include "cl_Tracer.hpp"
 
 namespace moris
 {
@@ -46,8 +47,8 @@ namespace moris
                 moris::moris_index                        aMeshIndex,
                 moris::ParameterList &                    aParameterList,
                 moris::uint                               aNumBulkPhases):mMeshManager(aMeshManager),
-                                                                          mMeshIndex(aMeshIndex),
-                                                                          mNumBulkPhases(aNumBulkPhases)
+                        mMeshIndex(aMeshIndex),
+                        mNumBulkPhases(aNumBulkPhases)
                         {
             //get the periodic mesh set names
             std::string tMeshSideSetNames = aParameterList.get<std::string>( "periodic_side_set_pair" );
@@ -62,7 +63,7 @@ namespace moris
         //---------------------------------------------------------------------
 
         Intersection_Detect_2D::~Intersection_Detect_2D()
-         {
+        {
             //delete all the pointer data
             for(auto p : mDoubleSidedClusters)
             {
@@ -92,7 +93,7 @@ namespace moris
             {
                 delete p;
             }
-         }
+        }
 
         //---------------------------------------------------------------------
 
@@ -113,6 +114,9 @@ namespace moris
             //loop over the pairs
             for( uint tPairCount = 0 ; tPairCount < mMeshSideSetPairs.size() ; tPairCount++ )
             {
+                //Keep track of time
+                Tracer tTracer("MTK", "No Type", "Searching For Pairs");
+
                 //find the rotation and inverse rotation
                 //rotation goes from 1d parametric to 2d parametric
                 //inverse other way around
@@ -142,12 +146,6 @@ namespace moris
                 //cells on the side set are locally indexed and they are assigned a phase to each one
                 moris::Cell< moris_index > tLocalCellNumToColor1 ;
 
-                //global cell id to local cell index map
-                std::unordered_map< moris::moris_id, moris::moris_index > tGlobaltoLocalmap1;
-
-                //populate the first side clusters
-                uint tLocalCellIndex = 0 ;
-
                 for (uint i = 0; i < tFirstSideSetNames.size() ; i++)
                 {
                     //get the set on the first side
@@ -159,31 +157,15 @@ namespace moris
                     // get clusters in the second set
                     moris::Cell< moris::mtk::Cluster const* > tSetClusters = tSet->get_clusters_on_set();
 
-                    //loop over clusters on the set and assign the first cell in the cluster a color(phase)
-                    for( uint j = 0 ; j < tSetClusters.size(); j++ )
-                    {
-                        //primary cells in cluster
-                        moris::Cell< moris::mtk::Cell const *> const & tPrimaryCellsinCluster = tSetClusters( j )->get_primary_cells_in_cluster();
+                    //Assign phases to cluster
+                    tLocalCellNumToColor1.resize( tLocalCellNumToColor1.size()+ tSetClusters.size(), tColor( 0 ) );
 
-                        //build the map of global id to local index for side cells
-                        tGlobaltoLocalmap1[ tPrimaryCellsinCluster( 0 )->get_id() ] = tLocalCellIndex;
-                        tLocalCellIndex++;
-
-                        //store the phase of cell
-                        tLocalCellNumToColor1.push_back( tColor( 0 ) );
-                    }
                     //append the clusters the list of the first side clusters
                     tSideClusters1.append( tSetClusters );
                 }
 
                 //cells on the side set are locally indexed and they are assigned a phase to each one
                 moris::Cell< moris_index > tLocalCellNumToColor2 ;
-
-                //global cell id to local cell index map
-                std::unordered_map< moris::moris_id, moris::moris_index > tGlobaltoLocalmap2;
-
-                //populate the first side clusters
-                tLocalCellIndex = 0 ;
 
                 for (uint i = 0; i < tSecondSideSetNames.size() ; i++)
                 {
@@ -196,21 +178,16 @@ namespace moris
                     //get color(phase) associated with the set
                     Matrix<IndexMat> tColor = tSet->get_set_colors();
 
-                    for( uint j = 0 ; j < tSetClusters.size(); j++ )
-                    {
-                        //primary cells in cluster
-                        moris::Cell< moris::mtk::Cell const *> const & tPrimaryCellsinCluster = tSetClusters( j )->get_primary_cells_in_cluster();
+                    //Assign phases to clusters
+                    tLocalCellNumToColor2.resize( tLocalCellNumToColor2.size()+ tSetClusters.size(), tColor( 0 ) );
 
-                        //build the map of global id to local index for side cells
-                        tGlobaltoLocalmap2[ tPrimaryCellsinCluster( 0 )->get_id() ] = tLocalCellIndex;
-                        tLocalCellIndex++;
-
-                        //store the phase of cell
-                        tLocalCellNumToColor2.push_back( tColor( 0 ) );
-                    }
                     //append the clusters the list of the first side clusters
                     tSideClusters2.append(tSetClusters);
                 }
+
+                // Ids of the cell clusters corresponding to each other
+                moris::Matrix< moris::DDBMat > tPairedClusterIndicesFlag;
+                tPairedClusterIndicesFlag.set_size( tSideClusters2.size(), mNumBulkPhases, 0 );
 
                 //loop over the clusters on the first side
                 for(uint tClusterNum1 = 0; tClusterNum1 < tSideClusters1.size() ;  tClusterNum1++ )
@@ -218,6 +195,11 @@ namespace moris
                     //loop over the clusters on the second side
                     for(uint tClusterNum2 = 0; tClusterNum2 < tSideClusters2.size() ;  tClusterNum2++)
                     {
+                        //check if the second side cluster has been visited and paired
+                        if( tPairedClusterIndicesFlag( tClusterNum2, tLocalCellNumToColor1 ( tClusterNum1 ) ) == 1 )
+                        {
+                            continue;
+                        }
                         //interpolation cell 1st side
                         moris::mtk::Cell const & tInterpCell1 = tSideClusters1( tClusterNum1 )->get_interpolation_cell();
 
@@ -263,18 +245,22 @@ namespace moris
                             //if the interpolation cells match
                             if( tMatched )
                             {
+
+                                //mark that second side cluster is paired so
+                                tPairedClusterIndicesFlag( tClusterNum2, tLocalCellNumToColor1 ( tClusterNum1 )) = 1;
+
                                 //the case where left and right clusters are trivial
                                 if ( tSideClusters1( tClusterNum1 )->is_trivial() and tSideClusters2( tClusterNum2 )->is_trivial() )
                                 {
-                                    //get the Integration cell cluster for the side cluster
-                                    moris::Cell<moris::mtk::Cell const *> const & tCells2 = tSideClusters2( tClusterNum2 )->get_primary_cells_in_cluster();
+                                    // Ids of the cell clusters corresponding to each other
+                                    moris::Matrix< moris::DDBMat > tCompMatrix;
+                                    tCompMatrix.set_size( 1, mNumBulkPhases, 1 );
 
-                                    //get the Integration cell cluster for the side cluster
-                                    moris::Cell<moris::mtk::Cell const *> const & tCells1 = tSideClusters1( tClusterNum1 )->get_primary_cells_in_cluster();
+                                    tPairedClusterIndicesFlag.get_row( tClusterNum2 ) = tCompMatrix.get_row( 0 );
 
                                     //obtain the phases of each side
-                                    moris_index tPhase2  = tLocalCellNumToColor2 ( tGlobaltoLocalmap2[ tCells2( 0 )->get_id() ] );
-                                    moris_index tPhase1  = tLocalCellNumToColor1 ( tGlobaltoLocalmap1[ tCells1( 0 )->get_id() ] );
+                                    moris_index tPhase2  = tLocalCellNumToColor2 ( tClusterNum2 );
+                                    moris_index tPhase1  = tLocalCellNumToColor1 ( tClusterNum1 );
 
                                     //phase interaction table value
                                     moris_index tPhaseToPhaseIndex = tPhaseInteractionTable( tPhase1, tPhase2 );
@@ -290,6 +276,13 @@ namespace moris
                                 //case where master side is trivial
                                 else if ( tSideClusters1( tClusterNum1 )->is_trivial() == true and tSideClusters2( tClusterNum2 )->is_trivial() == false )
                                 {
+
+                                    // Ids of the cell clusters corresponding to each other
+                                    moris::Matrix< moris::DDBMat > tCompMatrix;
+                                    tCompMatrix.set_size( 1, mNumBulkPhases, 1 );
+
+                                    tPairedClusterIndicesFlag.get_row( tClusterNum2 ) = tCompMatrix.get_row( 0 );
+
                                     //get the Integration cell cluster for the side cluster
                                     moris::Cell<moris::mtk::Cell const *> const & tCells2 = tSideClusters2( tClusterNum2 )->get_primary_cells_in_cluster();
 
@@ -329,12 +322,9 @@ namespace moris
                                         tParamCoordsCell2.push_back( tParamCoordsMatrix2 );
                                     }
 
-                                    //get the Integration cell cluster for the side cluster
-                                    moris::Cell<moris::mtk::Cell const *> const & tCells1 = tSideClusters1( tClusterNum1 )->get_primary_cells_in_cluster();
-
                                     //obtain the phases of each side
-                                    moris_index tPhase2  = tLocalCellNumToColor2 ( tGlobaltoLocalmap2[tCells2(0)->get_id()] );
-                                    moris_index tPhase1  = tLocalCellNumToColor1 ( tGlobaltoLocalmap1[tCells1(0)->get_id()] );
+                                    moris_index tPhase2  = tLocalCellNumToColor2 ( tClusterNum2 );
+                                    moris_index tPhase1  = tLocalCellNumToColor1 ( tClusterNum1 );
 
                                     //phase interaction table value
                                     moris_index tPhaseToPhaseIndex = tPhaseInteractionTable( tPhase1, tPhase2 );
@@ -384,12 +374,9 @@ namespace moris
                                         tParamCoordsCell1.push_back(tParamCoordsMatrix1);
                                     }
 
-                                    //get the Integration cell cluster for the side cluster
-                                    moris::Cell<moris::mtk::Cell const *> const & tCells2 = tSideClusters2( tClusterNum2 )->get_primary_cells_in_cluster();
-
                                     //obtain the phases of each side
-                                    moris_index tPhase2  = tLocalCellNumToColor2 ( tGlobaltoLocalmap2[tCells2(0)->get_id()] );
-                                    moris_index tPhase1  = tLocalCellNumToColor1 ( tGlobaltoLocalmap1[tCells1(0)->get_id()] );
+                                    moris_index tPhase2  = tLocalCellNumToColor2 ( tClusterNum2 );
+                                    moris_index tPhase1  = tLocalCellNumToColor1 ( tClusterNum1 );
 
                                     //phase interaction table value
                                     moris_index tPhaseToPhaseIndex = tPhaseInteractionTable( tPhase1, tPhase2 );
@@ -479,14 +466,18 @@ namespace moris
                                     moris::Matrix< moris::DDRMat > tOverLap(1,2);
 
                                     //check to see if 2 line segments overlap
-                                    if ( ( (tParamCoords1Sorted(1) - tParamCoords2Sorted(0) ) > 0 ) and ( (tParamCoords2Sorted(1) - tParamCoords1Sorted(0) ) > 0 ) )
+                                    if ( ( (tParamCoords1Sorted(1) - tParamCoords2Sorted(0) ) >= 0 ) and ( (tParamCoords2Sorted(1) - tParamCoords1Sorted(0) ) >= 0 ) )
                                     {
                                         //overlap 2 line segments
                                         tOverLap = { { std::max(tParamCoords1Sorted(0) , tParamCoords2Sorted(0) ), std::min(tParamCoords1Sorted(1) , tParamCoords2Sorted(1))} };
 
+                                        if( std::abs( tOverLap(0) - tOverLap(1) ) < MORIS_REAL_EPS )
+                                        {
+                                            continue;
+                                        }
                                         //obtain the phases of each side
-                                        moris_index tPhase2  = tLocalCellNumToColor2 ( tGlobaltoLocalmap2[tCells2(0)->get_id()] );
-                                        moris_index tPhase1  = tLocalCellNumToColor1 ( tGlobaltoLocalmap1[tCells1(0)->get_id()] );
+                                        moris_index tPhase2  = tLocalCellNumToColor2 ( tClusterNum2 );
+                                        moris_index tPhase1  = tLocalCellNumToColor1 ( tClusterNum1 );
 
                                         //phase interaction table value
                                         moris_index tPhaseToPhaseIndex = tPhaseInteractionTable( tPhase1, tPhase2 );
@@ -716,6 +707,8 @@ namespace moris
         //name the cluster set
         void Intersection_Detect_2D::constrcuct_add_dbl_sided_set ( moris::Matrix < IndexMat > tPhaseInteractionTable )
         {
+            Tracer tTracer("MTK", "Double Sided Set", "Construction of Double Sided Sets");
+
             //initialize all the double sided sets
             moris::Cell<moris::Cell<mtk::Cluster const*>> tDoubleSideSets( tPhaseInteractionTable.numel() );
 
@@ -780,12 +773,10 @@ namespace moris
             {
                 if( tSetNames(i).find(tPairFirstName) != std::string::npos )
                 {
-                    std::cout<<" i "<<i<<tSetNames(i)<<std::endl;
                     tFirstSideSetNames.push_back(tSetNames(i));
                 }
                 else if ( tSetNames(i).find(tPairSecondName) != std::string::npos )
                 {
-                    std::cout<<" i "<<i<<tSetNames(i)<<std::endl;
                     tSecondSideSetNames.push_back(tSetNames(i));
                 }
                 else

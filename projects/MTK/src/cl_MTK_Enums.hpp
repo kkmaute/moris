@@ -146,6 +146,17 @@ namespace moris
         moris::map< std::string, Field_Type > get_field_type_map();
 
         //------------------------------------------------------------------------------
+
+        enum class Field_Entity_Type
+        {
+                NODAL,
+                ELEMENTAL,
+                UNDEFINED
+        };
+
+        moris::map< std::string, Field_Entity_Type > get_field_entity_type_map();
+
+        //------------------------------------------------------------------------------
     } /* namespace mtk */
 } /* namespace moris */
 

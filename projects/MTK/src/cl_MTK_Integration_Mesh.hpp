@@ -314,6 +314,46 @@ namespace moris
                         const Matrix< IdMat > & tBSToIPMap,
                         const Matrix< IdMat > & tIPToIGMap);
 
+                // ----------------------------------------------------------------------------
+
+                /*!
+                 * Save nodal T-matrices for IG-mesh nodes to .hdf5 or .dat file
+                 */
+                void
+                save_IG_node_TMatrices_to_file();
+
+                void
+                get_IG_to_IP_nodal_T_matrices( 
+                        moris::Cell< Matrix< IdMat  > > & aIGtoIPIds,
+                        moris::Cell< Matrix< DDRMat > > & aIGtoIPWeights,
+                        uint                             aSetIndex );
+
+                void
+                get_IP_to_BS_nodal_T_matrices( 
+                        moris::Cell< Matrix< IdMat  > > & aIPtoBSIds,
+                        moris::Cell< Matrix< DDRMat > > & aIPtoBSWeights,
+                        uint                             aSetIndex );
+
+                void
+                get_IG_to_BS_nodal_T_matrices( 
+                        moris::Cell< Matrix< IdMat  > > & aIGtoBSIds,
+                        moris::Cell< Matrix< DDRMat > > & aIGtoBSWeights,
+                        moris::Cell< Matrix< IdMat  > > & aIPtoBSIds,
+                        moris::Cell< Matrix< DDRMat > > & aIPtoBSWeights,
+                        moris::Cell< Matrix< IdMat  > > & aIGtoIPIds,
+                        moris::Cell< Matrix< DDRMat > > & aIGtoIPWeights );
+
+                uint get_max_IP_ID_on_set( uint aSetIndex );
+
+                void 
+                build_sparse_extraction_operator( 
+                        moris::Cell< Matrix< IdMat > > & aIGtoBSIds,
+                        moris::Cell< Matrix< DDRMat > > & aIGtoBSWeights,
+                        Matrix< DDUMat > & aSparseIndices,
+                        Matrix< DDRMat > & aWeights );
+
+                // ----------------------------------------------------------------------------
+
             protected:
 
                 void collect_all_sets( bool aSetShape = true );

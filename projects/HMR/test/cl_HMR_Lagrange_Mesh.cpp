@@ -19,6 +19,8 @@
 
 #include "HDF5_Tools.hpp"
 
+#include "fn_PRM_HMR_Parameters.hpp"
+
 using namespace moris;
 using namespace hmr;
 
@@ -1188,7 +1190,7 @@ TEST_CASE("HMR_T_Matrix_2_refinements", "[moris],[mesh],[hmr],[hmr_t_matrix_2_re
             }
         }
 
-                //tHMR.save_to_exodus( tLagrangeMeshInex, "Mesh_lin.exo" );
+        //tHMR.save_to_exodus( tLagrangeMeshInex, "Mesh_lin.exo" );
         //
         //        tHMR.renumber_and_save_to_exodus( "Mesh_lin_renumber.exo" );
         //        tHMR.save_bsplines_to_vtk("Basis_renumber.vtk");
@@ -1406,5 +1408,196 @@ TEST_CASE("Lagrange_Mesh_4_proc_meshes","[moris],[hmr],[Lagrange_Mesh_4_proc_mes
         }
     }
 }
+
+TEST_CASE("Lagrange_Mesh_BSpline_Element_support","[moris],[hmr],[Elements in B-Spline element support],[lagrange_mesh]")
+{
+
+    if( par_size() == 1)
+    {
+        ParameterList tParameterlist_test = prm::create_hmr_parameter_list();
+
+        tParameterlist_test.set( "number_of_elements_per_dimension", "2,2");
+        tParameterlist_test.set( "domain_dimensions",                "1,1"    );
+        tParameterlist_test.set( "domain_offset",                    "0,0");
+        tParameterlist_test.set( "domain_sidesets",                  "1,2,3,4");
+        tParameterlist_test.set( "lagrange_output_meshes",           "0");
+
+        tParameterlist_test.set( "lagrange_orders",  "1"   );
+        tParameterlist_test.set( "lagrange_pattern", "0" );
+
+        tParameterlist_test.set( "bspline_orders",   "1,1" );
+        tParameterlist_test.set( "bspline_pattern",  "0,1" );
+
+        tParameterlist_test.set( "initial_refinement",         "0" );
+        tParameterlist_test.set( "initial_refinement_pattern", "0" );
+
+        tParameterlist_test.set( "lagrange_to_bspline", "0,1");
+
+        tParameterlist_test.set( "truncate_bsplines",  1 );
+        tParameterlist_test.set( "refinement_buffer",  1 );
+        tParameterlist_test.set( "staircase_buffer",   1 );
+
+        tParameterlist_test.set( "use_number_aura", 1);
+
+        tParameterlist_test.set( "use_multigrid",  0 );
+        //tParameterlist_test.set( "severity_level", 0 );
+
+        tParameterlist_test.set( "write_lagrange_output_mesh", "HMRLagrangeMesh.vtk" );
+
+
+
+        // create the HMR object by passing the settings to the constructor
+        moris::hmr::HMR tHMR( tParameterlist_test );
+
+        tHMR.perform_initial_refinement();
+
+        //-----------------------------------------
+
+        moris::hmr::Background_Mesh_Base* tBackgroundMesh_test = tHMR.get_database()->get_background_mesh();
+
+        // manually select output pattern
+        tHMR.get_database()->set_activation_pattern( 0 );
+
+        for( uint Ik = 0; Ik < 2; Ik ++ )
+        {
+            tHMR.get_database()->get_background_mesh()->get_element( 0 )->put_on_refinement_queue();
+
+            // refine mesh
+            tBackgroundMesh_test->perform_refinement( 0 );
+        }
+
+        tHMR.get_database()->update_bspline_meshes();
+        tHMR.get_database()->update_lagrange_meshes();
+
+        tHMR.finalize();
+
+        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( 0 );
+
+        tHMR.save_mesh_to_vtk( "Lagrange_Mesh_Support.vtk", 0 );
+
+        moris::Cell< mtk::Cell * > tCells_1;
+        moris::Cell< mtk::Cell * > tCells_2;
+
+        tMesh->get_elements_in_interpolation_cluster( 6, 0, tCells_1 );
+
+        tMesh->get_elements_in_interpolation_cluster( 6, 1, tCells_2 );
+
+        REQUIRE( tCells_1.size()  == 1 );
+        REQUIRE( tCells_2.size()  == 7 );
+
+        moris::Cell< moris_index > tRef_1 = { 6 };
+        moris::Cell< moris_index > tRef_2 = { 0,1,2,3,4,5,6 };
+
+        for( uint Ik = 0; Ik < tCells_1.size(); Ik ++)
+        {
+            REQUIRE( tCells_1(Ik)->get_index()  == tRef_1(Ik) );
+        }
+
+        for( uint Ik = 0; Ik < tCells_2.size(); Ik ++)
+        {
+            REQUIRE( tCells_2(Ik)->get_index()  == tRef_2(Ik) );
+        }
+    }
+}
+
+TEST_CASE("Lagrange_Mesh_BSpline_Element_and_side_ordinal","[moris],[hmr],[Elements in B-Spline element and side orinal],[lagrange_mesh]")
+{
+
+    if( par_size() == 1)
+    {
+        ParameterList tParameterlist_test = prm::create_hmr_parameter_list();
+
+        tParameterlist_test.set( "number_of_elements_per_dimension", "2,2");
+        tParameterlist_test.set( "domain_dimensions",                "1,1"    );
+        tParameterlist_test.set( "domain_offset",                    "0,0");
+        tParameterlist_test.set( "domain_sidesets",                  "1,2,3,4");
+        tParameterlist_test.set( "lagrange_output_meshes",           "0");
+
+        tParameterlist_test.set( "lagrange_orders",  "1"   );
+        tParameterlist_test.set( "lagrange_pattern", "0" );
+
+        tParameterlist_test.set( "bspline_orders",   "1,1" );
+        tParameterlist_test.set( "bspline_pattern",  "0,1" );
+
+        tParameterlist_test.set( "initial_refinement",         "0" );
+        tParameterlist_test.set( "initial_refinement_pattern", "0" );
+
+        tParameterlist_test.set( "lagrange_to_bspline", "0,1");
+
+        tParameterlist_test.set( "truncate_bsplines",  1 );
+        tParameterlist_test.set( "refinement_buffer",  1 );
+        tParameterlist_test.set( "staircase_buffer",   1 );
+
+        tParameterlist_test.set( "use_number_aura", 1);
+
+        tParameterlist_test.set( "use_multigrid",  0 );
+        //tParameterlist_test.set( "severity_level", 0 );
+
+        tParameterlist_test.set( "write_lagrange_output_mesh", "HMRLagrangeMesh.vtk" );
+
+
+
+        // create the HMR object by passing the settings to the constructor
+        moris::hmr::HMR tHMR( tParameterlist_test );
+
+        tHMR.perform_initial_refinement();
+
+        //-----------------------------------------
+
+        moris::hmr::Background_Mesh_Base* tBackgroundMesh_test = tHMR.get_database()->get_background_mesh();
+
+        // manually select output pattern
+        tHMR.get_database()->set_activation_pattern( 0 );
+
+        for( uint Ik = 0; Ik < 2; Ik ++ )
+        {
+            tHMR.get_database()->get_background_mesh()->get_element( 0 )->put_on_refinement_queue();
+
+            // refine mesh
+            tBackgroundMesh_test->perform_refinement( 0 );
+        }
+
+        tHMR.get_database()->update_bspline_meshes();
+        tHMR.get_database()->update_lagrange_meshes();
+
+        tHMR.finalize();
+
+        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( 0 );
+
+        tHMR.save_mesh_to_vtk( "Lagrange_Mesh_Support.vtk", 0 );
+
+        moris::Cell< mtk::Cell * > tCells_1;
+        moris::Cell< mtk::Cell * > tCells_2;
+        moris::Cell< mtk::Cell * > tCells_3;
+
+        tMesh->get_elements_in_interpolation_cluster_and_side_ordianl( 6, 0, 1, tCells_1 );
+
+        tMesh->get_elements_in_interpolation_cluster_and_side_ordianl( 6, 1, 1, tCells_2 );
+        tMesh->get_elements_in_interpolation_cluster_and_side_ordianl( 6, 1, 3, tCells_3 );
+
+        REQUIRE( tCells_1.size()  == 1 );
+        REQUIRE( tCells_2.size()  == 3 );
+        REQUIRE( tCells_3.size()  == 2 );
+
+        moris::Cell< moris_index > tRef_1 = { 6 };
+        moris::Cell< moris_index > tRef_2 = { 0,1,4 };
+        moris::Cell< moris_index > tRef_3 = { 6,5};
+
+        for( uint Ik = 0; Ik < tCells_1.size(); Ik ++)
+        {
+            REQUIRE( tCells_1(Ik)->get_index()  == tRef_1(Ik) );
+        }
+        for( uint Ik = 0; Ik < tCells_2.size(); Ik ++)
+        {
+            REQUIRE( tCells_2(Ik)->get_index()  == tRef_2(Ik) );
+        }
+        for( uint Ik = 0; Ik < tCells_3.size(); Ik ++)
+        {
+            REQUIRE( tCells_3(Ik)->get_index()  == tRef_3(Ik) );
+        }
+    }
+}
+
+
 
 

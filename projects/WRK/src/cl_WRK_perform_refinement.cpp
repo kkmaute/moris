@@ -1,6 +1,7 @@
 #include "cl_WRK_Performer.hpp"
 #include "cl_HMR.hpp"
 #include "cl_HMR_Mesh.hpp"
+#include "cl_HMR_Database.hpp"
 #include "cl_WRK_perform_refinement.hpp"
 #include "HMR_Globals.hpp"
 
@@ -22,25 +23,22 @@ namespace moris
             moris::Cell< std::string > tFieldNames;
             string_to_cell(
                     aParameterlist.get< std::string >( "field_names" ),
-                    tFieldNames );
+                    mParameters.mFieldNames );
 
-            mParameters.mFieldNames = tFieldNames;
-
-            // set refinement level
-            Cell< Matrix< DDSMat > > tRefinementLevel;
-            string_to_cell_mat(
-                    aParameterlist.get< std::string >( "levels_of_refinement" ),
-                    tRefinementLevel );
-
-            mParameters.mRefinementLevel = tRefinementLevel;
+            if( !aParameterlist.get< std::string >( "levels_of_refinement" ).empty() )
+            {
+                // set refinement level
+                Cell< Matrix< DDSMat > > tRefinementLevel;
+                string_to_cell_mat(
+                        aParameterlist.get< std::string >( "levels_of_refinement" ),
+                        mParameters.mRefinementLevel );
+            }
 
             // set refinementpattern
             Cell< Matrix< DDSMat > >  tRefinementPattern;
             string_to_cell_mat(
                     aParameterlist.get< std::string >( "refinement_pattern" ),
-                    tRefinementPattern );
-
-            mParameters.mRefinementPattern = tRefinementPattern;
+                    mParameters.mRefinementPattern );
 
             mParameters.mRefinementFunctionName = aParameterlist.get< std::string >( "refinement_function_name" );
 
@@ -103,7 +101,7 @@ namespace moris
 
                         uint tOrder = tField->get_lagrange_order();
 
-                        const Matrix< DDRMat > & tFieldValues = tField->get_nodal_values();
+                        const Matrix< DDRMat > & tFieldValues = tField->get_values();
 
                         // Put elements on queue and set flag for refinement
                         aHMR->based_on_field_put_elements_on_queue(
@@ -115,6 +113,53 @@ namespace moris
                 }
 
                 aHMR->perform_refinement( tActivationPattern );
+                aHMR->update_refinement_pattern( tActivationPattern );
+            }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Refinement_Mini_Performer::perform_refinement_based_on_working_pattern(
+                Cell< std::shared_ptr< mtk::Field > >  & aFields,
+                std::shared_ptr<hmr::HMR>                aHMR )
+        {
+            // create field name to index map
+            moris::map< std::string, moris_index >   tFieldNameToIndexMap;
+
+            for( uint Ik = 0; Ik < aFields.size(); Ik++ )
+            {
+                tFieldNameToIndexMap[ aFields( Ik )->get_label() ] = Ik;
+            }
+
+            if( ( !mParameters.mRefinementFunctionName.empty() ) && mLibrary != nullptr )
+            {
+                mParameters.mRefinementFunction = mLibrary->load_function< moris::hmr::Refinement_Function >(mParameters.mRefinementFunctionName);
+            }
+
+            MORIS_ERROR( mParameters.mRefinementFunction != nullptr, "Refinement function not set!");
+
+            for( uint Ik = 0; Ik< mParameters.mRefinementPattern( 0 ).numel(); Ik++ )
+            {
+                // get pattern
+                uint tActivationPattern = mParameters.mRefinementPattern( 0 )( Ik );
+
+                for( uint Ia = 0; Ia< mParameters.mFieldNames.size(); Ia++ )
+                {
+                    std::shared_ptr< mtk::Field > tField = aFields( tFieldNameToIndexMap.find( mParameters.mFieldNames( Ia ) ) );
+
+                    uint tOrder = tField->get_lagrange_order();
+
+                    const Matrix< DDRMat > & tFieldValues = tField->get_values();
+
+                    // Put elements on queue and set flag for refinement
+                    aHMR->based_on_field_flag_elements_on_working_pattern(
+                            tFieldValues,
+                            4, //tActivationPattern
+                            tOrder,
+                            mParameters.mRefinementFunction );
+                }
+
+                aHMR->perform_refinement_based_on_working_pattern( tActivationPattern );
                 aHMR->update_refinement_pattern( tActivationPattern );
             }
         }
@@ -159,19 +204,21 @@ namespace moris
 
                     uint tOrder = tField->get_lagrange_order();
 
-                    const Matrix< DDRMat > & tFieldValues = tField->get_nodal_values();
+                    const Matrix< DDRMat > & tFieldValues = tField->get_values();
 
                     // Put elements on queue and set flag for refinement
                     tNumQueuedElements += aHMR->based_on_field_put_low_level_elements_on_queue(
                             tFieldValues,
                             tActivationPattern,
                             tOrder,
-                            -1);
+                            mParameters.mRefinementFunction);
                 }
 
                 aHMR->perform_refinement( tActivationPattern );
                 aHMR->update_refinement_pattern( tActivationPattern );
             }
+
+            std::cout<<"tNumQueuedElements: "<<tNumQueuedElements <<std::endl;
 
             return tNumQueuedElements;
         }
@@ -326,6 +373,9 @@ namespace moris
                     break;
                 }
             }
+
+            aHMR->get_database()->update_bspline_meshes();
+            aHMR->get_database()->update_lagrange_meshes();
         }
 
         //--------------------------------------------------------------------------------------------------------------

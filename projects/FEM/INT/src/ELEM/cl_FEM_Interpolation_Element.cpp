@@ -268,7 +268,7 @@ namespace moris
                 Matrix< IndexMat > tIPCellIndices = mMasterInterpolationCell->get_vertex_inds();
 
                 Matrix< DDRMat > tCoeff;
-                mSet->get_fem_model()->get_field( tFieldTypeGroup( 0 ) )->get_nodal_values(
+                mSet->get_fem_model()->get_field( tFieldTypeGroup( 0 ) )->get_values(
                         tIPCellIndices,
                         tCoeff,
                         tFieldTypeGroup );
@@ -296,7 +296,7 @@ namespace moris
                 Matrix< IndexMat > tIPCellIndices = mSlaveInterpolationCell->get_vertex_inds();
 
                 Matrix< DDRMat > tCoeff;
-                mSet->get_fem_model()->get_field( tFieldTypeGroup( 0 ) )->get_nodal_values(
+                mSet->get_fem_model()->get_field( tFieldTypeGroup( 0 ) )->get_values(
                         tIPCellIndices,
                         tCoeff,
                         tFieldTypeGroup );
@@ -304,7 +304,7 @@ namespace moris
                 // FIXME implement reshape for vector fields
 
                 // set field interpolator coefficients
-                  mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->
+                mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->
                         set_coeff_for_type( tFieldTypeGroup( 0 ), tCoeff );
             }
 
@@ -1235,49 +1235,50 @@ namespace moris
             // set cluster for stabilization parameter
             mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
 
-            // if nodal field
-            //if( aFieldType == vis::Field_Type::NODAL )
-            if( true )
+            const moris::Cell< std::shared_ptr< IQI > > & tIQI =
+                    mSet->get_requested_field_IQIs();
+
+            // get number of active local IQIs
+            uint tNumIQIs = tIQI.size();
+
+            for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
             {
-//                // get the master vertices indices on the mesh cluster
-//                moris::Matrix< moris::IndexMat > tVertexIndices = mFemCluster( 0 )->
-//                        get_mesh_cluster()->
-//                        get_interpolation_cell().
-//                        get_vertex_inds();
+                moris_index tGlobalIndex =
+                        mSet->get_requested_field_IQIs_global_indices()( iIQI );
 
-                Matrix< IndexMat > tVertexIndices =
-                        mMasterInterpolationCell->get_vertex_inds();
-
-                // get the master vertices local coordinates on the interpolation element
-                Geometry_Interpolator * tIPGI =
-                        mSet->get_field_interpolator_manager()->get_IP_geometry_interpolator();
-
-                const Matrix< DDRMat >   tIGLocalCoords = tIPGI->get_space_param_coeff();
-
-                // get number of vertices on the treated mesh cluster
-                uint tNumNodes = tIGLocalCoords.n_rows();
-
-                // loop over the vertices on the treated mesh cluster
-                for( uint iVertex = 0; iVertex < tNumNodes; iVertex++ )
+                // if nodal field
+                if( aFields( tGlobalIndex )->get_field_entity_type() == mtk::Field_Entity_Type::NODAL )
                 {
-                    // get the ith vertex coordinates in the IP param space
-                    Matrix< DDRMat > tIntegPoint = tIGLocalCoords.get_row( iVertex );
-                    tIntegPoint.resize( 1, tIntegPoint.numel() + 1 );
-                    tIntegPoint( tIntegPoint.numel() - 1 ) = -1.0;
-                    tIntegPoint = trans( tIntegPoint );
+                    //                // get the master vertices indices on the mesh cluster
+                    //                moris::Matrix< moris::IndexMat > tVertexIndices = mFemCluster( 0 )->
+                    //                        get_mesh_cluster()->
+                    //                        get_interpolation_cell().
+                    //                        get_vertex_inds();
 
-                    // set vertex coordinates for field interpolator
-                    mSet->get_field_interpolator_manager()->set_space_time( tIntegPoint );
+                    Matrix< IndexMat > tVertexIndices =
+                            mMasterInterpolationCell->get_vertex_inds();
 
-                    const moris::Cell< std::shared_ptr< IQI > > & tIQI =
-                            mSet->get_requested_field_IQIs();
+                    // get the master vertices local coordinates on the interpolation element
+                    Geometry_Interpolator * tIPGI =
+                            mSet->get_field_interpolator_manager()->get_IP_geometry_interpolator();
 
-                    // get number of active local IQIs
-                    uint tNumIQIs = tIQI.size();
+                    const Matrix< DDRMat > tIGLocalCoords = tIPGI->get_space_param_coeff();
 
-                    // loop over IQI
-                    for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
+                    // get number of vertices on the treated mesh cluster
+                    uint tNumNodes = tIGLocalCoords.n_rows();
+
+                    // loop over the vertices on the treated mesh cluster
+                    for( uint iVertex = 0; iVertex < tNumNodes; iVertex++ )
                     {
+                        // get the ith vertex coordinates in the IP param space
+                        Matrix< DDRMat > tIntegPoint = tIGLocalCoords.get_row( iVertex );
+                        tIntegPoint.resize( 1, tIntegPoint.numel() + 1 );
+                        tIntegPoint( tIntegPoint.numel() - 1 ) = -1.0;
+                        tIntegPoint = trans( tIntegPoint );
+
+                        // set vertex coordinates for field interpolator
+                        mSet->get_field_interpolator_manager()->set_space_time( tIntegPoint );
+
                         // reset the requested IQI
                         tIQI( iIQI )->reset_eval_flags();
 
@@ -1285,17 +1286,26 @@ namespace moris
                         Matrix< DDRMat > tQINodal;
                         tIQI( iIQI )->compute_QI( tQINodal );
 
-                        moris_index tGlobalIndex =
-                                mSet->get_requested_field_IQIs_global_indices()( iIQI );
-
                         aFields( tGlobalIndex )->set_field_value( tVertexIndices( iVertex ), tQINodal );
                     }
                 }
-            }
-            else
-            {
-                // ask cluster to compute quantity of interest
-//                mFemCluster( aMeshIndex )->compute_quantity_of_interest( aMeshIndex, aFieldType );
+                else
+                {
+                    // get mtk interpolation element index
+                    moris_index tIndex = mMasterInterpolationCell->get_index();
+
+                    moris::Matrix< DDRMat > tValues( 1,1, 0.0);
+
+                    MORIS_ASSERT( aFields( tGlobalIndex )->get_value( tIndex, 0 ) == MORIS_REAL_MAX, "elemental field values previously set.");
+
+                    // ask cluster to compute quantity of interest
+                    mFemCluster( 0 )->compute_quantity_of_interest(
+                            tValues,
+                            aFields( tGlobalIndex )->get_field_entity_type(),
+                            iIQI );
+
+                    aFields( tGlobalIndex )->set_field_value( tIndex, tValues );
+                }
             }
         }
 

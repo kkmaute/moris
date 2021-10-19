@@ -47,8 +47,8 @@ namespace moris
         {
             private:
 
-                Matrix< DDUMat >                        mPdofTypeExist;         // Vector indicates if dof type exists. FIXME replace by bitset
-                moris::Cell< moris::Cell< Pdof* > >     mListOfPdofTimePerType; // List of all pdofs per time per dof type
+                Matrix< DDUMat >                        mPdofTypeExist;         // Vector indicates if dof type exists. FIXME make this a global matrix in dof manager and delete after costruction
+                moris::Cell< moris::Cell< Pdof* > >     mListOfPdofTimePerType; // List of all pdofs per time per dof type. outer cell is type, inner cell is time
 
                 Matrix< DDUMat >                        mUniqueAdofList;        // Unique adof list for this pdof host
                 moris::map < moris::uint, moris::uint > mUniqueAdofMap;         // FIXME member function to build this map is never called

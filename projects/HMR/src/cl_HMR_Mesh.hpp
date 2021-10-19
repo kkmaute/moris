@@ -302,6 +302,21 @@ namespace moris
                     moris::Matrix< IndexMat >       & aNodeIndices );
 
             //-------------------------------------------------------------------------------
+
+            void get_elements_in_interpolation_cluster(
+                    moris_index aElementIndex,
+                    moris_index aDiscretizationMeshIndex,
+                    moris::Cell< mtk::Cell * > & tCells);
+
+            //-------------------------------------------------------------------------------
+
+            void get_elements_in_interpolation_cluster_and_side_ordianl(
+                    moris_index const            aElementIndex,
+                    moris_index const            aDiscretizationMeshIndex,
+                    moris_index const            aSideOrdinal,
+                    moris::Cell< mtk::Cell * > & aCells);
+
+            //-------------------------------------------------------------------------------
             uint get_num_basis_functions(const uint aMeshIndex);
             //-------------------------------------------------------------------------------
 

@@ -30,6 +30,8 @@ namespace moris
 
         Equation_Model::~Equation_Model()
         {
+            delete mImplicitdQidp;
+            delete mExplicitdQidp;
             delete mdQIdpMap;
         }
 
@@ -126,6 +128,8 @@ namespace moris
         {
             // create map for dQIdpMap
             moris::sol::Matrix_Vector_Factory tMatFactory( sol::MapType::Epetra );
+
+            delete mdQIdpMap;
 
             mdQIdpMap = tMatFactory.create_map(
                     mDesignVariableInterface->get_my_local_global_map() );

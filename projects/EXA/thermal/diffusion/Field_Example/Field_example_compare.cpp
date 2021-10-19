@@ -365,6 +365,7 @@ namespace moris
 
         tParameterList( 6 ).push_back( prm::create_fem_field_parameter_list() );
         tParameterList( 6 )( tFieldCounter ).set( "field_name",                "FieldNodalTEMP") ;
+        tParameterList( 6 )( tFieldCounter ).set( "field_entity_type",         "NODAL" );
         tParameterList( 6 )( tFieldCounter ).set( "field_type",                "FIELD_1" );
         tParameterList( 6 )( tFieldCounter ).set( "field_create_from_file",    tFieldRefPath) ;
         //tParameterList( 6 )( tFieldCounter ).set( "IQI_Name",                  "IQIBulkTEMP") ;

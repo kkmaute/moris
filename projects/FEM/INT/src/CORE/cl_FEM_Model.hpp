@@ -630,9 +630,15 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * return field
+                 * return field by type
                  */
                 const std::shared_ptr< fem::Field > & get_field( mtk::Field_Type tFieldType );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * return fields
+                 */
+                moris::Cell< std::shared_ptr< mtk::Field > > get_fields();
 
                 //------------------------------------------------------------------------------
 

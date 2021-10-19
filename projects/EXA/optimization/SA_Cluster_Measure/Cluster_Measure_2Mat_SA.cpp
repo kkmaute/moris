@@ -653,7 +653,7 @@ namespace moris
         tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name",                   "IWGInterface01") ;
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type",              static_cast< uint >( fem::Element_Type::DOUBLE_SIDESET ) );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_INTERFACE_UNSYMMETRIC_NITSCHE ) );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE ) );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "TEMP");
         tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name",          "PhaseMaterial0" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "slave_phase_name",           "PhaseMaterial1" );

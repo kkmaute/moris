@@ -46,8 +46,8 @@ void check_results_serial(
 
     // define reference values for dimension, number of nodes and number of elements
     Cell<uint> tReferenceNumDims  = { 2,2};
-    Cell<uint> tReferenceNumNodes = {10477,13815};
-    Cell<uint> tReferenceNumElems = {8178,7166};
+    Cell<uint> tReferenceNumNodes = {10452,12401};
+    Cell<uint> tReferenceNumElems = {8173,6388};
 
     // check dimension, number of nodes and number of elements
     uint tNumDims  = tExoIO.get_number_of_dimensions();
@@ -102,29 +102,31 @@ void check_results_parallel(
 
     if( par_rank() == 0 )
     {
-        tReferenceNumNodes = {2739,3488};
-        tReferenceNumElems = {2039,1768};
+        tReferenceNumNodes = {2745,3185};
+        tReferenceNumElems = {2035,1590};
     }
     if( par_rank() == 1 )
     {
-        tReferenceNumNodes = {2738,3492};
-        tReferenceNumElems = {2041,1771};
+        tReferenceNumNodes = {2729,3206};
+        tReferenceNumElems = {2038,1604};
     }
     if( par_rank() == 2 )
     {
-        tReferenceNumNodes = {2560,3379};
-        tReferenceNumElems = {2050,1746};
+        tReferenceNumNodes = {2557,3059};
+        tReferenceNumElems = {2058,1598};
     }
     if( par_rank() == 3 )
     {
-        tReferenceNumNodes = {2574,3630};
-        tReferenceNumElems = {2047,1884};
+        tReferenceNumNodes = {2586,3108};
+        tReferenceNumElems = {2046,1596};
     }
 
     // check dimension, number of nodes and number of elements
     uint tNumDims  = tExoIO.get_number_of_dimensions();
     uint tNumNodes = tExoIO.get_number_of_nodes();
     uint tNumElems = tExoIO.get_number_of_elements();
+
+    //std::cout<<"nodes: "<<tNumNodes<<" ele: "<<tNumElems<<" proc: "<<par_rank()<<std::endl;
 
     MORIS_LOG_INFO("Check number of dimensions: reference %12d, actual %12d, percent  error %12.5e.",
             tReferenceNumDims(aTestCaseIndex),tNumDims,std::abs((tNumDims-tReferenceNumDims(aTestCaseIndex))/tReferenceNumDims(aTestCaseIndex)*100.0));

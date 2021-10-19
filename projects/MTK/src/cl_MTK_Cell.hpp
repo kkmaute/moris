@@ -338,6 +338,15 @@ namespace moris
 
                 //------------------------------------------------------------------------------
 
+                virtual const luint *
+                get_ijk( ) const
+                {
+                    MORIS_ASSERT( false, "get_ijk( ) not implemented for base class");
+                    return nullptr;
+                }
+
+                //------------------------------------------------------------------------------
+
                 /**
                  * returns the order of the element
                  */

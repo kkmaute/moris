@@ -78,6 +78,8 @@ void Nonlinear_Algorithm::set_nonlinear_solver_parameters()
 
 Nonlinear_Solver* Nonlinear_Algorithm::get_my_nonlin_solver()
 {
-    MORIS_ASSERT(mMyNonLinSolverManager != nullptr, "Nonlinear_Algorithm::get_my_nonlin_solver(): nonlinear solver manager not set");
+    MORIS_ASSERT(mMyNonLinSolverManager != nullptr,
+            "Nonlinear_Algorithm::get_my_nonlin_solver(): nonlinear solver manager not set");
+
     return mMyNonLinSolverManager;
 }

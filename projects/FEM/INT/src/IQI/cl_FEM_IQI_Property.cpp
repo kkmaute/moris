@@ -48,6 +48,10 @@ namespace moris
             std::shared_ptr< Property > & tProperty =
                     mMasterProp( static_cast< uint >( IQI_Property_Type::PROPERTY ) );
 
+            // check that pointer to property exists
+            MORIS_ASSERT( tProperty ,
+                    "IQI_Property::compute_QI - property does not exist.\n");
+
             // get index of property if defined; otherwise set to 0
             uint tTypeIndex = mIQITypeIndex != -1 ? mIQITypeIndex : 0;
 

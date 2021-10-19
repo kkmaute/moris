@@ -83,6 +83,9 @@ namespace moris
                 //! save final adjoint vector to file string
                 std::string                                             mSaveFinalAdjointVecToFile = std::string( "" );
 
+                //! load initial guess solution vector from file
+                std::string                                             mFilenameInitialGuess = std::string( "" );
+
                 //--------------------------------------------------------------------------------------------------------
 
                 void create_linear_solver_algorithms();
@@ -224,6 +227,13 @@ namespace moris
                 const std::string & get_load_sol_vec_from_file()
                 {
                     return mLoadSolVecFromFile;
+                }
+
+                //-------------------------------------------------------------------------------
+
+                const std::string &  get_TSA_initial_guess_input_filename()
+                {
+                    return mFilenameInitialGuess;
                 }
 
                 //--------------------------------------------------------------------------------------------------------

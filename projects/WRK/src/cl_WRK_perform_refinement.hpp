@@ -79,6 +79,12 @@ namespace moris
 
                 //--------------------------------------------------------------------------------------------------------------
 
+                void perform_refinement_based_on_working_pattern(
+                        Cell< std::shared_ptr< mtk::Field > >  & aFields,
+                        std::shared_ptr<hmr::HMR>                aHMR );
+
+                //--------------------------------------------------------------------------------------------------------------
+
                 /**
                  * This function reorganizes the input data. The input data is structured such that it allows for an intuitive use by the user.
                  * However, the structure provided by this function allows for more straight forward use in the refinement functin

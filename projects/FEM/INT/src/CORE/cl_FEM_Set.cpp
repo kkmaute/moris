@@ -251,6 +251,12 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        std::string Set::get_set_name()
+        {
+            return mMeshSet->get_set_name();
+        }
+        //------------------------------------------------------------------------------
+
         void Set::delete_pointers()
         {
             if( mMasterFIManager != nullptr )
