@@ -100,7 +100,6 @@ Integration_Mesh_Generator::perform()
     this->construct_bulk_phase_to_bulk_phase_interface( tCutIntegrationMesh.get(), tInterfaces, tInterfaceByBulkPhase );
 
     moris::Cell< moris::Cell< std::shared_ptr< IG_Cell_Double_Side_Group > > > tDoubleSidedInterface;
-    this->construct_bulk_phase_to_bulk_phase_dbl_side_interface( tCutIntegrationMesh.get(), tInterfaces, tDoubleSidedInterface );
     tCutIntegrationMesh->set_bulk_phase_to_bulk_phase_dbl_side_interface( tDoubleSidedInterface );
 
     // construct interface_sets
@@ -315,12 +314,8 @@ Integration_Mesh_Generator::compute_ig_cell_bulk_phase(
 {
     for ( moris::size_t iCell = 0; iCell < aCutIntegrationMesh->get_num_entities( EntityRank::ELEMENT, 0 ); iCell++ )
     {
-        // if its not in a group, its probably just a background entity that is not intersected
-        // if(aCutIntegrationMesh->mIntegrationCellToCellGroupIndex(iCell).size()>0)
-        // {
         moris_index tBulkPhaseIndex                             = this->deduce_ig_cell_bulk_phase_index( &aCutIntegrationMesh->get_mtk_cell( iCell ) );
         aCutIntegrationMesh->mIntegrationCellBulkPhase( iCell ) = tBulkPhaseIndex;
-        // }
     }
 }
 
@@ -373,7 +368,12 @@ Integration_Mesh_Generator::deduce_ig_cell_bulk_phase_index( moris::mtk::Cell co
         tPhaseVotes.max( tMaxRow, tMaxCol );
         tNodalPhaseVals( 0, i ) = tMaxCol;
         tPhaseVotes.fill( 0 );
-        MORIS_ERROR( tFoundNonInterfaceNode, "Did not find a non-interface node for this element" );
+        if ( !tFoundNonInterfaceNode )
+        {
+            return mGeometryEngine->get_num_phases();
+            std::cout << "WARNING Did not find a non-interface node for this element, set to dummy:  " << mGeometryEngine->get_num_phases() << std::endl;
+        }
+        // MORIS_ERROR( tFoundNonInterfaceNode, "Did not find a non-interface node for this element" );
     }
 
     return mGeometryEngine->get_elem_phase_index( tNodalPhaseVals );
@@ -1164,20 +1164,24 @@ Integration_Mesh_Generator::construct_bulk_phase_to_bulk_phase_interface(
             moris_index tMyCellBulkPhase   = aCutIntegrationMesh->get_cell_bulk_phase( tFaceConn->mFacetToCell( tFacetIndex )( 0 )->get_index() );
             moris_index tYourCellBulkPhase = aCutIntegrationMesh->get_cell_bulk_phase( tFaceConn->mFacetToCell( tFacetIndex )( 1 )->get_index() );
 
-            if ( aInterfaceBulkPhaseToBulk( tMyCellBulkPhase )( tYourCellBulkPhase ) == nullptr )
+            if ( tMyCellBulkPhase != (moris_index)tNumBulkPhase && tYourCellBulkPhase != (moris_index)tNumBulkPhase )
             {
-                aInterfaceBulkPhaseToBulk( tMyCellBulkPhase )( tYourCellBulkPhase ) = std::make_shared< IG_Cell_Side_Group >( aInterfaces.size() );
-            }
-            if ( aInterfaceBulkPhaseToBulk( tYourCellBulkPhase )( tMyCellBulkPhase ) == nullptr )
-            {
-                aInterfaceBulkPhaseToBulk( tYourCellBulkPhase )( tMyCellBulkPhase ) = std::make_shared< IG_Cell_Side_Group >( aInterfaces.size() );
-            }
 
-            aInterfaceBulkPhaseToBulk( tMyCellBulkPhase )( tYourCellBulkPhase )->mIgCells.push_back( tFaceConn->mFacetToCell( tFacetIndex )( 0 ) );
-            aInterfaceBulkPhaseToBulk( tMyCellBulkPhase )( tYourCellBulkPhase )->mIgCellSideOrdinals.push_back( tFaceConn->mFacetToCellEdgeOrdinal( tFacetIndex )( 0 ) );
+                if ( aInterfaceBulkPhaseToBulk( tMyCellBulkPhase )( tYourCellBulkPhase ) == nullptr )
+                {
+                    aInterfaceBulkPhaseToBulk( tMyCellBulkPhase )( tYourCellBulkPhase ) = std::make_shared< IG_Cell_Side_Group >( aInterfaces.size() );
+                }
+                if ( aInterfaceBulkPhaseToBulk( tYourCellBulkPhase )( tMyCellBulkPhase ) == nullptr )
+                {
+                    aInterfaceBulkPhaseToBulk( tYourCellBulkPhase )( tMyCellBulkPhase ) = std::make_shared< IG_Cell_Side_Group >( aInterfaces.size() );
+                }
 
-            aInterfaceBulkPhaseToBulk( tYourCellBulkPhase )( tMyCellBulkPhase )->mIgCells.push_back( tFaceConn->mFacetToCell( tFacetIndex )( 1 ) );
-            aInterfaceBulkPhaseToBulk( tYourCellBulkPhase )( tMyCellBulkPhase )->mIgCellSideOrdinals.push_back( tFaceConn->mFacetToCellEdgeOrdinal( tFacetIndex )( 1 ) );
+                aInterfaceBulkPhaseToBulk( tMyCellBulkPhase )( tYourCellBulkPhase )->mIgCells.push_back( tFaceConn->mFacetToCell( tFacetIndex )( 0 ) );
+                aInterfaceBulkPhaseToBulk( tMyCellBulkPhase )( tYourCellBulkPhase )->mIgCellSideOrdinals.push_back( tFaceConn->mFacetToCellEdgeOrdinal( tFacetIndex )( 0 ) );
+
+                aInterfaceBulkPhaseToBulk( tYourCellBulkPhase )( tMyCellBulkPhase )->mIgCells.push_back( tFaceConn->mFacetToCell( tFacetIndex )( 1 ) );
+                aInterfaceBulkPhaseToBulk( tYourCellBulkPhase )( tMyCellBulkPhase )->mIgCellSideOrdinals.push_back( tFaceConn->mFacetToCellEdgeOrdinal( tFacetIndex )( 1 ) );
+            }
         }
         else
         {
@@ -1297,7 +1301,7 @@ Integration_Mesh_Generator::construct_bulk_phase_cell_groups(
     moris::Cell< std::shared_ptr< IG_Cell_Group > >& aBulkPhaseCellGroups )
 {
     Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Construct bulk phase cell groups" );
-    uint   tNumBulkPhases = mGeometryEngine->get_num_bulk_phase();
+    uint   tNumBulkPhases = mGeometryEngine->get_num_bulk_phase() + 1;// 1 for the err block
 
     aBulkPhaseCellGroups.resize( tNumBulkPhases, nullptr );
 
@@ -1331,9 +1335,9 @@ Integration_Mesh_Generator::construct_bulk_phase_blocks(
     // determine the side set names
     uint tNumBulkPhases = mGeometryEngine->get_num_bulk_phase();
 
-    MORIS_ERROR( aBulkPhaseCellGroups.size() == tNumBulkPhases, "Mismatch" );
+    MORIS_ERROR( aBulkPhaseCellGroups.size() == tNumBulkPhases + 1, "We expect there to be a bulk phase cell group for each bulk phase and 1 for problematic cells" );
 
-    Cell< std::string > tBlockSetNames( tNumBulkPhases );
+    Cell< std::string > tBlockSetNames( tNumBulkPhases + 1 );
 
     std::cout << "WARNING: GENERAlIZE NEEDED FOR MULTIPLE TOPOS" << std::endl;
     enum CellTopology tCellTopo = CellTopology::TET4;
@@ -1344,7 +1348,12 @@ Integration_Mesh_Generator::construct_bulk_phase_blocks(
         tBlockSetNames( iBP ) = tBlockBaseName + "_p_" + std::to_string( iBP );
     }
 
-    Cell< moris_index > tBlockSetOrds = aCutIntegrationMesh->register_block_set_names( tBlockSetNames, tCellTopo );
+    tBlockSetNames( tNumBulkPhases ) = "err_block";
+
+    moris::print( tBlockSetNames, "tBlockSetNames" );
+
+    Cell< moris_index >
+        tBlockSetOrds = aCutIntegrationMesh->register_block_set_names( tBlockSetNames, tCellTopo );
 
     // iterate and add the side set groups to cut mehs
     for ( moris::uint iSet = 0; iSet < tBlockSetOrds.size(); iSet++ )

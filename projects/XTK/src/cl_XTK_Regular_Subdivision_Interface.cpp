@@ -292,12 +292,6 @@ Regular_Subdivision_Interface::make_new_vertex_requests_octree(
 
         moris::Matrix< moris::DDRMat > tNewCoordinate = tBasisWeights * tBGCellCoords;
 
-        // std::cout << "\nCell Index = " << std::setw( 3 ) << tCell->get_index() << " | "
-        //           << " Vertex Hash = " << std::setw( 12 ) << tGeneratedTemplate->mVertexHash( iV ) << " | "
-        //           << " Vertex PInd = " << std::setw( 12 ) << tVertexAncestry->get_vertex_parent_index( iV ) << " | "
-        //           << " Vertex PRnk = " << std::setw( 8 ) << get_enum_str( tVertexAncestry->get_vertex_parent_rank( iV ) )
-        //           << " | Coords:" << std::scientific << std::setw( 16 ) << tNewCoordinate( 0 ) << "," << std::scientific << std::setw( 16 ) << tNewCoordinate( 1 ) << "," << std::scientific << std::setw( 16 ) << tNewCoordinate( 2 );
-
 
         if ( tVertexAncestry->get_vertex_parent_rank( iV ) == EntityRank::ELEMENT )
         {
@@ -424,7 +418,7 @@ Regular_Subdivision_Interface::generate_new_node_parent_information_ijk_mesh(
             mGeneratedTemplate( aNumIgCells )->mParamCoords( tNewVertexOrdinal )                                = tLocalCoords / (moris::real)tVertices.size();
             mGeneratedTemplate( aNumIgCells )->mNewVertexAncestry.mVertexParentEntityIndex( tNewVertexOrdinal ) = 0;
             mGeneratedTemplate( aNumIgCells )->mNewVertexAncestry.mVertexParentEntityRank( tNewVertexOrdinal )  = EntityRank::ELEMENT;
-            mGeneratedTemplate( aNumIgCells )->mVertexHash( tNewVertexOrdinal )                                 = tNewVertexOrdinal;
+            mGeneratedTemplate( aNumIgCells )->mVertexHash( tNewVertexOrdinal )                                 = tNewVertexOrdinal;// no special hashing needed here
             tNewVertexOrdinal++;
 
             // iterate through template and construc the new template cells
@@ -438,7 +432,6 @@ Regular_Subdivision_Interface::generate_new_node_parent_information_ijk_mesh(
                     // node parent relative to the single ig cell
                     const moris_index     tParentEntityOrd  = aRegularSubdivisionInterfaceData->mVertexAncestry.get_vertex_parent_index( tBaseTemplateVertexIndex );
                     const enum EntityRank tParentEntityRank = aRegularSubdivisionInterfaceData->mVertexAncestry.get_vertex_parent_rank( tBaseTemplateVertexIndex );
-
 
                     if ( tParentEntityRank == EntityRank::NODE )
                     {

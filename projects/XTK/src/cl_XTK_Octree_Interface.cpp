@@ -5,6 +5,7 @@
 #include "cl_XTK_Cut_Integration_Mesh.hpp"
 #include "cl_MTK_Cell_Info_Factory.hpp"
 #include "cl_MTK_Cell_Info.hpp"
+#include "fn_norm.hpp"
 namespace xtk
 {
 Vertex_Ancestry
@@ -366,6 +367,7 @@ Octree_Interface::perform_impl_vertex_requests(
 
         // level of this cell
         moris_index tLevel = tCell.get_level();
+        std::cout << " mOctreeRefinementLevel = " << mOctreeRefinementLevel << " | tLevel = " << tLevel << std::endl;
 
         mDifference.push_back( mOctreeRefinementLevel - tLevel );
 
@@ -420,6 +422,10 @@ Octree_Interface::perform_impl_vertex_requests(
                             &tCell,
                             tVertexLocalCoords );
                     }
+                    else
+                    {
+                        MORIS_ASSERT( moris::norm( tNewCoordinate - mDecompData->tNewNodeCoordinate( tNewNodeIndexInSubdivision ) ) < 1e-12, "Vertex coordinate mismatch, could be a hashing collision, parent rank: ELEMENT , index: %i  hash: %i", tCell.get_index(), ( *tVertexHashes )( iV ) );
+                    }
                 }
 
                 else
@@ -439,6 +445,10 @@ Octree_Interface::perform_impl_vertex_requests(
                             tNewCoordinate,
                             &tCell,
                             tVertexLocalCoords );
+                    }
+                    else
+                    {
+                        MORIS_ASSERT( moris::norm( tNewCoordinate - mDecompData->tNewNodeCoordinate( tNewNodeIndexInSubdivision ) ) < 1e-12, "Vertex coordinate mismatch, could be a hashing collision, parent rank: %s, parent index:%i,  hash: %i", get_enum_str( tVertexAncestry->get_vertex_parent_rank( iV ) ), tCellConnectivity.get_entity_index( tVertexAncestry->get_vertex_parent_index( iV ), tVertexAncestry->get_vertex_parent_rank( iV ) ), ( *tVertexHashes )( iV ) );
                     }
                 }
                 aDecompositionData->tCMNewNodeParamCoord( it.second ).push_back( *tVertexLocalCoords );
@@ -482,9 +492,13 @@ Octree_Interface::perform_impl_generate_mesh(
     {
         std::shared_ptr< Child_Mesh_Experimental > tChildMesh = aCutIntegrationMesh->get_child_mesh( iCM );
 
-        std::shared_ptr< Octree_Template const > tTemplate = mOctreeTemplates( mDifference( iCM ) );
+        moris::uint tDiff = mOctreeRefinementLevel - tChildMesh->get_parent_cell()->get_level();
+
+        std::shared_ptr< Octree_Template const > tTemplate = mOctreeTemplates( tDiff );
 
         const moris::Matrix< IndexMat > *tCellTemplates = tTemplate->get_cells();
+
+        std::cout << "iCM = " << iCM << " | tChildMesh->get_parent_cell()->get_level() = " << tChildMesh->get_parent_cell()->get_level() << std::endl;
 
 
         for ( moris::uint iNewCell = 0; iNewCell < tCellTemplates->n_rows(); iNewCell++ )
@@ -497,8 +511,9 @@ Octree_Interface::perform_impl_generate_mesh(
                 moris_index tIgCellIJKIndex = ( *tCellTemplates )( iNewCell, iV );
 
 
+                // std::cout << " mDifference( iCM ) = " << mDifference( iCM ) << std::endl;
                 // index in child mesh vertex group
-                moris_index tNewVertexCMOrdinal = mIgVertexGroupIndexToIjkIndex( mDifference( iCM ) ).find( tIgCellIJKIndex )->second;
+                moris_index tNewVertexCMOrdinal = mIgVertexGroupIndexToIjkIndex( tDiff ).find( tIgCellIJKIndex )->second;
                 MORIS_ERROR( tNewVertexCMOrdinal < (moris::moris_index)tChildMesh->mIgVerts->size(), "Template ordinal out of bounds" );
                 mNewCellToVertexConnectivity( tCurrentCellIndex )( iV ) = tChildMesh->mIgVerts->get_vertex( tNewVertexCMOrdinal )->get_index();
             }
@@ -516,8 +531,11 @@ Octree_Interface::generate_octree_templates()
 
     moris::Cell< std::shared_ptr< Octree_Template const > > tTemplate( mOctreeRefinementLevel + 1, nullptr );
 
+    // highest level is used for vertex hashing in other templates
+    tTemplate( mOctreeRefinementLevel ) = std::make_shared< Octree_Template const >( mOctreeRefinementLevel );
+
     // iterate from low to high bounds
-    for ( moris_index iBounds = tOctreeBounds( 0 ); iBounds < mOctreeRefinementLevel + 1; iBounds++ )
+    for ( moris_index iBounds = 0; iBounds < mOctreeRefinementLevel; iBounds++ )
     {
         std::cout << "iBounds = " << iBounds << std::endl;
 

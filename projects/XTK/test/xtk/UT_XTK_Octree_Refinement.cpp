@@ -22,6 +22,7 @@
 #include "cl_XTK_Vertex_Enrichment.hpp"
 #include "fn_PRM_HMR_Parameters.hpp"
 #include "fn_PRM_XTK_Parameters.hpp"
+#include "fn_PRM_GEN_Parameters.hpp"
 #include "cl_GEN_User_Defined_Geometry.hpp"
 #include "fn_all_true.hpp"
 #include "op_minus.hpp"
@@ -48,6 +49,45 @@ OctreeSphereGeom( const Matrix< DDRMat >& aPoint, const Cell< real* >& aParamete
 
     return tVal;
 }
+
+moris::real
+OctreeSphereGeom2( const Matrix< DDRMat >& aPoint, const Cell< real* >& aParameters )
+{
+    const moris::real tCenterX = 0.5;
+    const moris::real tCenterY = 0.5;
+    const moris::real tCenterZ = 0.5;
+    const moris::real tRadius  = 0.5;
+
+    // distance from sphere center
+    moris::real tDx = aPoint( 0 ) - tCenterX;
+    moris::real tDy = aPoint( 1 ) - tCenterY;
+    moris::real tDz = aPoint( 2 ) - tCenterZ;
+
+    // Compute Signed-Distance field
+    moris::real tVal = tRadius - std::sqrt( tDx * tDx + tDy * tDy + tDz * tDz );
+
+    return tVal;
+}
+
+moris::real
+OctreeSphereGeom3( const Matrix< DDRMat >& aPoint, const Cell< real* >& aParameters )
+{
+    const moris::real tCenterX = 0.0;
+    const moris::real tCenterY = 0.0;
+    const moris::real tCenterZ = 0.0;
+    const moris::real tRadius  = 0.5;
+
+    // distance from sphere center
+    moris::real tDx = aPoint( 0 ) - tCenterX;
+    moris::real tDy = aPoint( 1 ) - tCenterY;
+    moris::real tDz = aPoint( 2 ) - tCenterZ;
+
+    // Compute Signed-Distance field
+    moris::real tVal = tRadius - std::sqrt( tDx * tDx + tDy * tDy + tDz * tDz );
+
+    return tVal;
+}
+
 
 TEST_CASE( "Octree Refinement One Level", "[XTK_OCTREE]" )
 {
@@ -95,7 +135,7 @@ TEST_CASE( "Octree Refinement One Level", "[XTK_OCTREE]" )
     tXTKModel.set_geometry_engine( &tGeometryEngine );
     tXTKModel.set_input_performer( tMeshManager );
     tXTKModel.mVerbose = true;
-    // tXTKModel.setup_diagnostics( true, "./xtk_diag", "oct_1" );
+    tXTKModel.setup_diagnostics( true, "./xtk_diag", "oct_1" );
     moris::mtk::Interpolation_Mesh* tMesh = tMeshManager->get_interpolation_mesh( 0 );
     tXTKModel.initialize( tMesh );
 
@@ -6353,6 +6393,68 @@ TEST_CASE( "Octree Refinement Two Levels With Reg Sub and NH", "[XTK_OCTREE_RS_N
     // octree refinement parameters
     moris::Cell< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_OCTREE, Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
     moris::Matrix< moris::IndexMat >       tActiveGeometries( 1, 1, 0 );
+
+    xtk::Integration_Mesh_Generator tIntegrationGenerator( &tXTKModel, tMethods, tActiveGeometries );
+
+    std::shared_ptr< xtk::Cut_Integration_Mesh > tCutMesh = tIntegrationGenerator.perform();
+    tXTKModel.set_cut_ig_mesh( tCutMesh );
+    CHECK( interpolated_coordinate_check( tCutMesh.get() ) );
+}
+TEST_CASE( "Octree Refinement Two Levels With Reg Sub and NH Two Sphere", "[XTK_OCTREE_RS_NH_3]" )
+{
+    size_t tModelDimension = 3;
+    // HMR
+    moris::ParameterList tHMRParameterlist = moris::prm::create_hmr_parameter_list();
+    tHMRParameterlist.set( "number_of_elements_per_dimension", "8, 8, 8" );
+    tHMRParameterlist.set( "domain_dimensions", "1.0,1.0,1.0" );
+    tHMRParameterlist.set( "domain_offset", "0.0,0.0,0.0" );
+    tHMRParameterlist.set( "domain_sidesets", "1,2,3,4,5,6" );
+    tHMRParameterlist.set( "lagrange_output_meshes", "0" );
+    tHMRParameterlist.set( "lagrange_orders", "1" );
+    tHMRParameterlist.set( "lagrange_pattern", std::string( "0" ) );
+    tHMRParameterlist.set( "bspline_orders", "1" );
+    tHMRParameterlist.set( "bspline_pattern", std::string( "0" ) );
+    tHMRParameterlist.set( "lagrange_to_bspline", "0" );
+    tHMRParameterlist.set( "truncate_bsplines", 1 );
+    tHMRParameterlist.set( "refinement_buffer", 1 );
+    tHMRParameterlist.set( "staircase_buffer", 1 );
+    tHMRParameterlist.set( "initial_refinement", "0" );
+    tHMRParameterlist.set( "initial_refinement_pattern", "0" );
+    tHMRParameterlist.set( "use_number_aura", 1 );
+    tHMRParameterlist.set( "use_multigrid", 0 );
+    tHMRParameterlist.set( "severity_level", 0 );
+    std::shared_ptr< moris::hmr::HMR >          tHMR         = std::make_shared< hmr::HMR >( tHMRParameterlist );
+    std::shared_ptr< moris::mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();
+    tMeshManager->set_performer( tHMR );
+    tHMR->set_performer( tMeshManager );
+    tHMR->perform_initial_refinement();
+    tHMR->perform();
+
+    // GEN
+    moris::ge::Geometry_Engine_Parameters                 tGeometryEngineParameters;
+    moris::Cell< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 3 );
+    tGeometryVector( 0 )                  = std::make_shared< moris::ge::User_Defined_Geometry >( moris::Matrix< moris::DDRMat >( 0, 0 ), &( xtk::OctreeSphereGeom ) );
+    tGeometryVector( 1 )                  = std::make_shared< moris::ge::User_Defined_Geometry >( moris::Matrix< moris::DDRMat >( 0, 0 ), &( xtk::OctreeSphereGeom2 ) );
+    tGeometryVector( 2 )                  = std::make_shared< moris::ge::User_Defined_Geometry >( moris::Matrix< moris::DDRMat >( 0, 0 ), &( xtk::OctreeSphereGeom3 ) );
+    tGeometryEngineParameters.mGeometries = tGeometryVector;
+    moris::ge::Geometry_Engine tGeometryEngine( tMeshManager->get_interpolation_mesh( 0 ), tGeometryEngineParameters );
+
+    // one octree refinement
+    moris::ParameterList tXTKParameterlist = moris::prm::create_xtk_parameter_list();
+    tXTKParameterlist.set( "octree_refinement_level", "1" );
+
+
+    xtk::Model tXTKModel( tXTKParameterlist );
+    tXTKModel.set_geometry_engine( &tGeometryEngine );
+    tXTKModel.set_input_performer( tMeshManager );
+    tXTKModel.mVerbose = true;
+    tXTKModel.setup_diagnostics( true, "./xtk_diag", "oct_rs_nh_3" );
+    moris::mtk::Interpolation_Mesh* tMesh = tMeshManager->get_interpolation_mesh( 0 );
+    tXTKModel.initialize( tMesh );
+
+    // octree refinement parameters
+    moris::Cell< enum Subdivision_Method > tMethods          = { Subdivision_Method::NC_OCTREE, Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
+    moris::Matrix< moris::IndexMat >       tActiveGeometries = { { 0, 1, 2 } };
 
     xtk::Integration_Mesh_Generator tIntegrationGenerator( &tXTKModel, tMethods, tActiveGeometries );
 

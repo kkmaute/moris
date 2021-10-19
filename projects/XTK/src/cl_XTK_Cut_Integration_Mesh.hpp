@@ -339,7 +339,7 @@ class Cut_Integration_Mesh : public moris::mtk::Mesh
     // integration cells
     moris_index                                           mFirstControlledCellIndex;
     moris::Cell< moris::mtk::Cell* >                      mIntegrationCells;
-    moris::Cell< std::shared_ptr< xtk::Cell_XTK_No_CM > > mControlledIgCells;
+    moris::Cell< std::shared_ptr< xtk::Cell_XTK_N o_CM > > mControlledIgCells;
 
     // quantities related to integration cells
     moris::Cell< moris::Cell< moris_index > > mIntegrationCellToCellGroupIndex;

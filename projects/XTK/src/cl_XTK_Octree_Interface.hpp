@@ -8,6 +8,9 @@
 #define SRC_cl_XTK_Octree_Interface
 
 #include "cl_XTK_Decomposition_Algorithm.hpp"
+#include <functional>
+#include <cmath>
+
 
 namespace xtk
 {
@@ -503,10 +506,18 @@ class Octree_Template
         {
             const IJK tIJK = mOctreeMeshGrid.get_vertex_ijk( iVertex );
 
+
+            moris_index tIInt = (moris_index)std::trunc( 10000 * mOctreeParamCoords( iVertex, 0 ) );
+            moris_index tJInt = (moris_index)std::trunc( 10000 * mOctreeParamCoords( iVertex, 1 ) );
+            moris_index tKInt = (moris_index)std::trunc( 10000 * mOctreeParamCoords( iVertex, 2 ) );
+
+            // std::cout << " mOctreeParamCoords( iVertex, 0 ) =  " << mOctreeParamCoords( iVertex, 0 ) << " | tIInt = " << tIInt << std::endl;
+
             // iternal vertex hash
             if ( tVertexAncestry->get_vertex_parent_rank( iVertex ) == EntityRank::ELEMENT )
             {
-                tVertexHashes( iVertex ) = 100 * tIJK.mI + 10000 * tIJK.mJ + 100000000 * tIJK.mK;
+                // tVertexHashes( iVertex ) = 100 * tIJK.mI + 10000 * tIJK.mJ + 100000000 * tIJK.mK;
+                tVertexHashes( iVertex ) = std::hash< int >{}( tIInt + 1000 * tJInt + 100000 * tKInt );
             }
             else if ( tVertexAncestry->get_vertex_parent_rank( iVertex ) == EntityRank::NODE )
             {
@@ -519,19 +530,23 @@ class Octree_Template
                 if ( tIJK.mI == mOctreeMeshGrid.min_vert_i() || tIJK.mI == mOctreeMeshGrid.max_vert_i() )
                 {
                     // create a hash using only the k and j components  and a fixed i signature - 1
-                    tVertexHashes( iVertex ) = 1 + 100 * tIJK.mJ + 1000000 * tIJK.mK;
+                    // tVertexHashes( iVertex ) = 1 + 100 * tIJK.mJ + 1000000 * tIJK.mK;
+
+                    tVertexHashes( iVertex ) = std::hash< int >{}( 1 + 10 * tJInt + 10000 * tKInt );
                 }
 
                 if ( tIJK.mJ == mOctreeMeshGrid.min_vert_j() || tIJK.mJ == mOctreeMeshGrid.max_vert_j() )
                 {
                     // create a hash using only the k and j components  and a fixed i signature - 1
-                    tVertexHashes( iVertex ) = 2 + 100 * tIJK.mI + 1000000 * tIJK.mK;
+                    // tVertexHashes( iVertex ) = 2 + 100 * tIJK.mI + 1000000 * tIJK.mK;
+                    tVertexHashes( iVertex ) = std::hash< int >{}( 2 + 10 * tIInt + 10000 * tKInt );
                 }
 
                 if ( tIJK.mK == mOctreeMeshGrid.min_vert_k() || tIJK.mK == mOctreeMeshGrid.max_vert_k() )
                 {
                     // create a hash using only the k and j components  and a fixed i signature - 1
-                    tVertexHashes( iVertex ) = 3 + 100 * tIJK.mI + 1000000 * tIJK.mJ;
+                    // tVertexHashes( iVertex ) = 3 + 100 * tIJK.mI + 1000000 * tIJK.mJ;
+                    tVertexHashes( iVertex ) = std::hash< int >{}( 3 + 10 * tIInt + 10000 * tJInt );
                 }
             }
             else if ( tVertexAncestry->get_vertex_parent_rank( iVertex ) == EntityRank::EDGE )
@@ -539,18 +554,21 @@ class Octree_Template
                 // hash edges at the are invariant to j k - edges 0, 2, 4 6
                 if ( ( tIJK.mJ == mOctreeMeshGrid.min_vert_j() || tIJK.mJ == mOctreeMeshGrid.max_vert_j() ) && ( tIJK.mK == mOctreeMeshGrid.min_vert_k() || tIJK.mK == mOctreeMeshGrid.max_vert_k() ) )
                 {
-                    tVertexHashes( iVertex ) = 4 + 100 * tIJK.mI;
+                    // tVertexHashes( iVertex ) = 4 + 100 * tIJK.mI;
+                    tVertexHashes( iVertex ) = std::hash< int >{}( 4 + 100 * tIInt );
                 }
 
                 // hash edges at the are invariant to i k - edges 1,3,5,7
                 if ( ( tIJK.mI == mOctreeMeshGrid.min_vert_i() || tIJK.mI == mOctreeMeshGrid.max_vert_i() ) && ( tIJK.mK == mOctreeMeshGrid.min_vert_k() || tIJK.mK == mOctreeMeshGrid.max_vert_k() ) )
                 {
-                    tVertexHashes( iVertex ) = 5 + 100 * tIJK.mJ;
+                    // tVertexHashes( iVertex ) = 5 + 100 * tIJK.mJ;
+                    tVertexHashes( iVertex ) = std::hash< int >{}( 5 + 100 * tJInt );
                 }
                 // hash edges at the are invariant to i j - edges 8 9 10 11
                 if ( ( tIJK.mI == mOctreeMeshGrid.min_vert_i() || tIJK.mI == mOctreeMeshGrid.max_vert_i() ) && ( tIJK.mJ == mOctreeMeshGrid.min_vert_j() || tIJK.mJ == mOctreeMeshGrid.max_vert_j() ) )
                 {
-                    tVertexHashes( iVertex ) = 6 + 100 * tIJK.mK;
+                    // tVertexHashes( iVertex ) = 6 + 100 * tIJK.mK;
+                    tVertexHashes( iVertex ) = std::hash< int >{}( 6 + 100 * tKInt );
                 }
             }
         }
