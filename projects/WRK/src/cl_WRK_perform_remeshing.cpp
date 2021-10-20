@@ -35,6 +35,7 @@ namespace moris
             moris::map< std::string, moris::uint > tModeMap;
             tModeMap["ab_initio"] = 0;
             tModeMap["based_on_previous"] = 1;
+            tModeMap["advanced"] = 2;
 
             MORIS_ERROR( tModeMap.key_exists( mParameters.mMode ),
                     "Remeshing_Mini_Performer::Remeshing_Mini_Performer(), Mode name does not exist" );
@@ -91,6 +92,29 @@ namespace moris
                         aParameterlist.get< std::string >( "remeshing_minimum_refinement_level" ),
                         mParameters.mMinRefinementsMode_1 );
             }
+
+            if( mParameters.mModeIndex == 2 )
+            {
+                string_to_cell(
+                        aParameterlist.get< std::string >( "remeshing_field_names" ),
+                        mParameters.mRefinementsFieldNames_0 );
+
+                // set refinement pattern
+                string_to_cell_mat(
+                        aParameterlist.get< std::string >( "remeshing_refinement_pattern" ),
+                        mParameters.mRefinementPatternMode_0 );
+
+                // set refinement pattern
+                string_to_cell_mat(
+                        aParameterlist.get< std::string >( "remeshing_copy_old_pattern_to_pattern" ),
+                        mParameters.mRefinemenCopytPatternToPattern_3 );
+
+                for( uint Ik = 0; Ik < mParameters.mRefinemenCopytPatternToPattern_3.size(); Ik ++ )
+                {
+                    MORIS_ERROR( mParameters.mRefinemenCopytPatternToPattern_3( Ik ).numel() == 2,
+                            "remeshing_copy_old_pattern_to_pattern: entries need to be in pairs of 2 separated by ; ");
+                }
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -119,125 +143,258 @@ namespace moris
             // get interpolation mesh from mesh pair
             moris::mtk::Mesh * tSourceMesh = tMeshPairIn.get_interpolation_mesh();
 
-            // check if interpolation mesh is an HMR mesh
-            MORIS_ERROR( tSourceMesh->get_mesh_type() == MeshType::HMR,
-                    "Mapper::map_input_field_to_output_field() Source mesh is not and HMR mesh" );
-
-            // get Lagrange and Discretization order
             uint tSourceLagrangeOrder     = aSourceFields( tFirstDiscreteFieldIndex )->get_lagrange_order();
             uint tDiscretizationOrder     = aSourceFields( tFirstDiscreteFieldIndex )->get_discretization_order();
             uint tDiscretizationMeshIndex = aSourceFields( tFirstDiscreteFieldIndex )->get_discretization_mesh_index();
 
-            // extract pattern from mesh on which this field id based on
-            // both Lagrange and discretization order if they are not the same
-            Matrix< DDLUMat > tElementCounterPerLevelAndPattern;
-            moris::Cell< Matrix< DDLUMat > > tElementPerPattern;
-
-            hmr::File tFile;
-            tFile.save_refinement_pattern(
-                    tSourceMesh->get_HMR_lagrange_mesh(),
-                    tDiscretizationMeshIndex,
-                    tElementCounterPerLevelAndPattern,
-                    tElementPerPattern );
-
-            // copy HMR parameters from old HMR performer
-            hmr::Parameters * tParameters = aHMRPerformers( 0 )->get_parameters();
-
-            // unset parameter owning flag. Input HMR does not own this parameteropject anymore
-            aHMRPerformers( 0 )->get_database()->unset_parameter_owning_flag();
-
-            //FIXME adjust parameters here. eg no initial refinement
-
-            // build new HMR performer with copied parameters
-            std::shared_ptr< hmr::HMR > tHMRPerformerNew = std::make_shared< hmr::HMR >( tParameters );
-
-            // refine pattern 4 and 5 with given pattern
-            tHMRPerformerNew->get_database()->load_refinement_pattern(
-                    tElementCounterPerLevelAndPattern,
-                    tElementPerPattern);
-
-            uint tNumPattern = tElementPerPattern.size();
-
-            hmr::Interpolation_Mesh_HMR * tOldInterpolationMesh = nullptr;
-
-            if( tNumPattern == 1 )
+            if( mParameters.mModeIndex != 2 )
             {
-                // create mesh based on pattern 5 and 6
-                tOldInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
+                // check if interpolation mesh is an HMR mesh
+                MORIS_ERROR( tSourceMesh->get_mesh_type() == MeshType::HMR,
+                        "Mapper::map_input_field_to_output_field() Source mesh is not and HMR mesh" );
+
+                // extract pattern from mesh on which this field id based on
+                // both Lagrange and discretization order if they are not the same
+                Matrix< DDLUMat > tElementCounterPerLevelAndPattern;
+                moris::Cell< Matrix< DDLUMat > > tElementPerPattern;
+
+                hmr::File tFile;
+                tFile.save_refinement_pattern(
+                        tSourceMesh->get_HMR_lagrange_mesh(),
+                        tDiscretizationMeshIndex,
+                        tElementCounterPerLevelAndPattern,
+                        tElementPerPattern );
+
+                uint tNumPattern = tElementPerPattern.size();
+
+                // copy HMR parameters from old HMR performer
+                hmr::Parameters * tParameters = aHMRPerformers( 0 )->get_parameters();
+
+                // unset parameter owning flag. Input HMR does not own this parameteropject anymore
+                aHMRPerformers( 0 )->get_database()->unset_parameter_owning_flag();
+
+                //FIXME adjust parameters here. eg no initial refinement
+
+                // build new HMR performer with copied parameters
+                std::shared_ptr< hmr::HMR > tHMRPerformerNew = std::make_shared< hmr::HMR >( tParameters );
+
+                Matrix< DDUMat > tPatternListUniqueMat( tNumPattern, 1 );
+                tPatternListUniqueMat( 0 ) = 4;
+                if( tNumPattern == 2 )
+                {
+                    tPatternListUniqueMat( 1 ) = 5;
+                }
+
+                // refine pattern 4 and 5 with given pattern
+                tHMRPerformerNew->get_database()->load_refinement_pattern(
+                        tElementCounterPerLevelAndPattern,
+                        tElementPerPattern,
+                        tPatternListUniqueMat);
+
+                hmr::Interpolation_Mesh_HMR * tOldInterpolationMesh = nullptr;
+
+                if( tNumPattern == 1 )
+                {
+                    // create mesh based on pattern 5 and 6
+                    tOldInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
+                            tHMRPerformerNew->get_database(),
+                            tSourceLagrangeOrder,
+                            4,
+                            tDiscretizationOrder,
+                            4); // order, Lagrange pattern, bspline pattern
+                }
+                else
+                {
+                    // create mesh based on pattern 5 and 6
+                    tOldInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
+                            tHMRPerformerNew->get_database(),
+                            tSourceLagrangeOrder,
+                            4,
+                            tDiscretizationOrder,
+                            5); // order, Lagrange pattern, bspline pattern
+                }
+
+                // Create  mesh pair
+                mtk::Mesh_Pair tMeshPairOld(tOldInterpolationMesh, nullptr, true);
+
+                // create list of fields
+                Cell< std::shared_ptr< mtk::Field > > tOldFields;
+
+                // transfer nodal values from old-HMR-Fields to new-HMR-fields.
+                // these fields are based on the same lagrange mesh
+                this->map_fields(
+                        aSourceFields,
+                        tOldFields,
+                        tMeshPairOld,
+                        0,
+                        false ); // discretization mesh index is zero because mesh has only on discretization ( tOldInterpolationMesh )
+
+                // use new-HMR-fields to perform refinement
+                this->perform_refinement( tHMRPerformerNew, tOldFields );
+
+                // overwrite old HMR performer with new HMR performer
+                aHMRPerformers( 0 ) = tHMRPerformerNew;
+
+                // create MTK performer - will be used for HMR mesh
+                aMTKPerformer( 0 ) =std::make_shared< mtk::Mesh_Manager >();
+
+                // Set performer to HMR
+                aHMRPerformers( 0 )->set_performer( aMTKPerformer( 0 ) );
+
+                // Set HMR performer to MTK performer
+                aMTKPerformer( 0 )->set_performer( aHMRPerformers( 0 ) );
+
+                //------------------------------------------------------------------------------
+
+                //FIXME //FIXME
+                uint tSourceBSplinePattern = tSourceMesh->get_HMR_lagrange_mesh() ->get_bspline_pattern( tDiscretizationMeshIndex );
+                //uint tPattern =0;
+
+                // create mesh for this pattern
+                hmr::Interpolation_Mesh_HMR * tInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
                         tHMRPerformerNew->get_database(),
                         tSourceLagrangeOrder,
-                        4,
+                        tSourceBSplinePattern,
                         tDiscretizationOrder,
-                        4); // order, Lagrange pattern, bspline pattern
+                        tSourceBSplinePattern);
+
+                mtk::Mesh_Pair tMeshPair(tInterpolationMesh, nullptr, true);
+
+                this->map_fields(
+                        tOldFields,
+                        aNewFields,
+                        tMeshPair,
+                        0,
+                        true ); //FIXME =  discretization meshindex
+
+                //------------------------------------------------------------------------------
+
+                // HMR finalize
+                aHMRPerformers( 0 )->perform();
             }
             else
             {
-                // create mesh based on pattern 5 and 6
+                // extract pattern from mesh on which this field id based on
+                // both Lagrange and discretization order if they are not the same
+                Matrix< DDLUMat > tElementCounterPerLevelAndPattern;
+                moris::Cell< Matrix< DDLUMat > > tElementPerPattern;
+
+                // get pattern to save
+                uint tNumPatternToSave = mParameters.mRefinemenCopytPatternToPattern_3.size();
+                moris::Matrix< DDUMat > tPatternToSave( tNumPatternToSave, 1 );
+                moris::Matrix< DDUMat > tLoadPatternTo( tNumPatternToSave, 1 );
+                moris::map< sint, sint >   tReferencePatternMap;
+                for( uint Ik =0; Ik < tNumPatternToSave; Ik++ )
+                {
+                    tPatternToSave( Ik ) = mParameters.mRefinemenCopytPatternToPattern_3( Ik )( 0 );
+                    tLoadPatternTo( Ik ) = mParameters.mRefinemenCopytPatternToPattern_3( Ik )( 1 );
+                    tReferencePatternMap[ mParameters.mRefinemenCopytPatternToPattern_3( Ik )( 0 ) ] =
+                            mParameters.mRefinemenCopytPatternToPattern_3( Ik )( 1 );
+                }
+
+                hmr::File tFile;
+                tFile.save_refinement_pattern(
+                        aHMRPerformers( 0 )->get_database()->get_background_mesh(),
+                        tPatternToSave,
+                        tElementCounterPerLevelAndPattern,
+                        tElementPerPattern);
+
+                // copy HMR parameters from old HMR performer
+                hmr::Parameters * tParameters = aHMRPerformers( 0 )->get_parameters();
+
+                // unset parameter owning flag. Input HMR does not own this parameteropject anymore
+                aHMRPerformers( 0 )->get_database()->unset_parameter_owning_flag();
+
+                // set initial refinement to 0
+                tParameters->set_initial_refinement( { { 0 } } );
+                tParameters->set_initial_refinement_patterns(  { { 0 } });
+
+                // build new HMR performer with copied parameters
+                std::shared_ptr< hmr::HMR > tHMRPerformerNew = std::make_shared< hmr::HMR >( tParameters );
+
+                // refine pattern
+                tHMRPerformerNew->get_database()->load_refinement_pattern(
+                        tElementCounterPerLevelAndPattern,
+                        tElementPerPattern,
+                        tLoadPatternTo);
+
+                hmr::Interpolation_Mesh_HMR * tOldInterpolationMesh = nullptr;
+
+                sint tLagPattern = tSourceMesh->get_HMR_lagrange_mesh()->get_activation_pattern();
+                sint tBSPattern = tSourceMesh->
+                        get_HMR_lagrange_mesh()->
+                        get_bspline_pattern( tDiscretizationMeshIndex );
+
+                sint tThisLagPattern = tReferencePatternMap.find( tLagPattern );
+                sint tThisBSPattern = tReferencePatternMap.find( tBSPattern );
+
+                // create mesh based on pattern
                 tOldInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
                         tHMRPerformerNew->get_database(),
                         tSourceLagrangeOrder,
-                        4,
+                        tThisLagPattern,
                         tDiscretizationOrder,
-                        5); // order, Lagrange pattern, bspline pattern
+                        tThisBSPattern); // order, Lagrange pattern, bspline pattern
+
+
+                // Create  mesh pair
+                mtk::Mesh_Pair tMeshPairOld(tOldInterpolationMesh, nullptr, true);
+
+                // create list of fields
+                Cell< std::shared_ptr< mtk::Field > > tOldFields;
+
+                // transfer nodal values from old-HMR-Fields to new-HMR-fields.
+                // these fields are based on the same lagrange mesh
+                this->map_fields(
+                        aSourceFields,
+                        tOldFields,
+                        tMeshPairOld,
+                        0,
+                        false );
+
+                // use new-HMR-fields to perform refinement
+                this->perform_refinement( tHMRPerformerNew, aSourceFields );
+
+                // overwrite old HMR performer with new HMR performer
+                aHMRPerformers( 0 ) = tHMRPerformerNew;
+
+                // create MTK performer - will be used for HMR mesh
+                aMTKPerformer( 0 ) =std::make_shared< mtk::Mesh_Manager >();
+
+                // Set performer to HMR
+                aHMRPerformers( 0 )->set_performer( aMTKPerformer( 0 ) );
+
+                // Set HMR performer to MTK performer
+                aMTKPerformer( 0 )->set_performer( aHMRPerformers( 0 ) );
+
+                //------------------------------------------------------------------------------
+
+                //FIXME //FIXME
+                uint tSourceBSplinePattern = tSourceMesh->get_HMR_lagrange_mesh() ->get_bspline_pattern( tDiscretizationMeshIndex );
+                //uint tPattern =0;
+
+                // create mesh for this pattern
+                hmr::Interpolation_Mesh_HMR * tInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
+                        tHMRPerformerNew->get_database(),
+                        tSourceLagrangeOrder,
+                        tSourceBSplinePattern,
+                        tDiscretizationOrder,
+                        tSourceBSplinePattern);
+
+                mtk::Mesh_Pair tMeshPair(tInterpolationMesh, nullptr, true);
+
+                this->map_fields(
+                        tOldFields,
+                        aNewFields,
+                        tMeshPair,
+                        0,
+                        true ); //FIXME =  discretization meshindex
+
+                //------------------------------------------------------------------------------
+
+                // HMR finalize
+                aHMRPerformers( 0 )->perform();
             }
-
-            // Create  mesh pair
-            mtk::Mesh_Pair tMeshPairOld(tOldInterpolationMesh, nullptr, true);
-
-            // create list of fields
-            Cell< std::shared_ptr< mtk::Field > > tOldFields;
-
-            // transfer nodal values from old-HMR-Fields to new-HMR-fields.
-            // these fields are based on the same lagrange mesh
-            this->map_fields(
-                    aSourceFields,
-                    tOldFields,
-                    tMeshPairOld,
-                    0,
-                    false ); // discretization mesh index is zero because mesh has only on discretization ( tOldInterpolationMesh )
-
-            // use new-HMR-fields to perform refinement
-            this->perform_refinement( tHMRPerformerNew, tOldFields );
-
-            // overwrite old HMR performer with new HMR performer
-            aHMRPerformers( 0 ) = tHMRPerformerNew;
-
-            // create MTK performer - will be used for HMR mesh
-            aMTKPerformer( 0 ) =std::make_shared< mtk::Mesh_Manager >();
-
-            // Set performer to HMR
-            aHMRPerformers( 0 )->set_performer( aMTKPerformer( 0 ) );
-
-            // Set HMR performer to MTK performer
-            aMTKPerformer( 0 )->set_performer( aHMRPerformers( 0 ) );
-
-            //------------------------------------------------------------------------------
-
-            //FIXME //FIXME
-            uint tSourceBSplinePattern = tSourceMesh->get_HMR_lagrange_mesh() ->get_bspline_pattern( tDiscretizationMeshIndex );
-            //uint tPattern =0;
-
-            // create mesh for this pattern
-            hmr::Interpolation_Mesh_HMR * tInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
-                    tHMRPerformerNew->get_database(),
-                    tSourceLagrangeOrder,
-                    tSourceBSplinePattern,
-                    tDiscretizationOrder,
-                    tSourceBSplinePattern);
-
-            mtk::Mesh_Pair tMeshPair(tInterpolationMesh, nullptr, true);
-
-            this->map_fields(
-                    tOldFields,
-                    aNewFields,
-                    tMeshPair,
-                    0,
-                    true ); //FIXME =  discretization meshindex
-
-            //------------------------------------------------------------------------------
-
-            // HMR finalize
-            aHMRPerformers( 0 )->perform();
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -258,6 +415,12 @@ namespace moris
                 case 1 :
                 {
                     this->perform_refinement_mode_1( aHMRPerformer, aSourceFields );
+
+                    break;
+                }
+                case 2 :
+                {
+                    this->perform_refinement_mode_2( aHMRPerformer, aSourceFields );
 
                     break;
                 }
@@ -437,84 +600,103 @@ namespace moris
                 tHMRDatabase->update_bspline_meshes();
                 tHMRDatabase->update_lagrange_meshes();
 
-
-
-            {
-                uint tCounter = 0;
-                while( true )
                 {
-                    sint tFirstDiscreteFieldIndex = 0;
-                    for(uint Ikk = 0; Ikk < aSourceFields.size(); Ikk++ )
+                    uint tCounter = 0;
+                    while( true )
                     {
-                        if( aSourceFields( Ikk )->get_field_is_discrete() )
+                        sint tFirstDiscreteFieldIndex = 0;
+                        for(uint Ikk = 0; Ikk < aSourceFields.size(); Ikk++ )
                         {
-                            tFirstDiscreteFieldIndex = Ikk;
+                            if( aSourceFields( Ikk )->get_field_is_discrete() )
+                            {
+                                tFirstDiscreteFieldIndex = Ikk;
+                                break;
+                            }
+                        }
+
+                        uint tLagrangeOrder = aSourceFields( tFirstDiscreteFieldIndex )->get_lagrange_order();
+                        uint tDiscretizationOrder = aSourceFields( tFirstDiscreteFieldIndex )->get_discretization_order();
+
+                        uint tPattern = mParameters.mRefinementPatternMode_1( Ik );
+
+                        // create mesh for this pattern
+                        hmr::Interpolation_Mesh_HMR * tInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
+                                tHMRDatabase,
+                                tLagrangeOrder,
+                                tPattern,
+                                tDiscretizationOrder,
+                                tPattern);
+
+                        mtk::Mesh_Pair tMeshPair(tInterpolationMesh, nullptr, true);
+
+                        Cell< std::shared_ptr< mtk::Field > > aTargetFields;
+
+                        this->map_fields(
+                                aSourceFields,
+                                aTargetFields,
+                                tMeshPair,
+                                tPattern,
+                                true ); //FIXME tPattern = DiscretizationMeshiondex
+
+                        // create refinement parameterlist
+                        moris::ParameterList tRefinementParameterlist;
+                        prm::create_refinement_parameterlist( tRefinementParameterlist );
+                        std::string tFieldNames = "";
+                        std::string tPatterns    = "";
+                        for ( uint Ii = 0; Ii < mParameters.mRefinementsFieldNames_1( Ik ).size(); Ii++ )
+                        {
+                            tFieldNames = tFieldNames + mParameters.mRefinementsFieldNames_1( Ik )( Ii ) + ",";
+                            tPatterns = tPatterns + ios::stringify( tPattern ) + ";";
+                        }
+                        tFieldNames.pop_back();
+                        tPatterns.pop_back();
+                        tRefinementParameterlist.set( "field_names" , tFieldNames );
+                        tRefinementParameterlist.set( "refinement_pattern" , tPatterns );
+                        tRefinementParameterlist.set( "levels_of_refinement" , "1" );
+                        tRefinementParameterlist.set( "refinement_function_name" , mParameters.mRefinementFunction );
+
+                        // create refinement mini performer and perform refinement
+                        wrk::Refinement_Mini_Performer tRefinementMiniPerformer( tRefinementParameterlist, mLibrary );
+                        uint tRefinedElements = tRefinementMiniPerformer.perform_refinement_low_level_elements( aTargetFields, aHMRPerformer );
+
+                        uint tSumRefEle =sum_all( tRefinedElements );
+
+                        if( tSumRefEle == 0)
+                        {
                             break;
                         }
+                        tHMRDatabase->get_background_mesh()->update_database();
+                        tHMRDatabase->update_bspline_meshes();
+                        tHMRDatabase->update_lagrange_meshes();
+
+                        tCounter++;
                     }
-
-                    uint tLagrangeOrder = aSourceFields( tFirstDiscreteFieldIndex )->get_lagrange_order();
-                    uint tDiscretizationOrder = aSourceFields( tFirstDiscreteFieldIndex )->get_discretization_order();
-
-                    uint tPattern = mParameters.mRefinementPatternMode_1( Ik );
-
-                    // create mesh for this pattern
-                    hmr::Interpolation_Mesh_HMR * tInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
-                            tHMRDatabase,
-                            tLagrangeOrder,
-                            tPattern,
-                            tDiscretizationOrder,
-                            tPattern);
-
-                    mtk::Mesh_Pair tMeshPair(tInterpolationMesh, nullptr, true);
-
-                    Cell< std::shared_ptr< mtk::Field > > aTargetFields;
-
-                    this->map_fields(
-                            aSourceFields,
-                            aTargetFields,
-                            tMeshPair,
-                            tPattern,
-                            true ); //FIXME tPattern = DiscretizationMeshiondex
-
-
-
-                    // create refinement parameterlist
-                    moris::ParameterList tRefinementParameterlist;
-                    prm::create_refinement_parameterlist( tRefinementParameterlist );
-                    std::string tFieldNames = "";
-                    std::string tPatterns    = "";
-                    for ( uint Ii = 0; Ii < mParameters.mRefinementsFieldNames_1( Ik ).size(); Ii++ )
-                    {
-                        tFieldNames = tFieldNames + mParameters.mRefinementsFieldNames_1( Ik )( Ii ) + ",";
-                        tPatterns = tPatterns + ios::stringify( tPattern ) + ";";
-                    }
-                    tFieldNames.pop_back();
-                    tPatterns.pop_back();
-                    tRefinementParameterlist.set( "field_names" , tFieldNames );
-                    tRefinementParameterlist.set( "refinement_pattern" , tPatterns );
-                    tRefinementParameterlist.set( "levels_of_refinement" , "1" );
-                    tRefinementParameterlist.set( "refinement_function_name" , mParameters.mRefinementFunction );
-
-                    // create refinement mini performer and perform refinement
-                    wrk::Refinement_Mini_Performer tRefinementMiniPerformer( tRefinementParameterlist, mLibrary );
-                    uint tRefinedElements = tRefinementMiniPerformer.perform_refinement_low_level_elements( aTargetFields, aHMRPerformer );
-
-                    uint tSumRefEle =sum_all( tRefinedElements );
-
-                    if( tSumRefEle == 0)
-                    {
-                        break;
-                    }
-                    tHMRDatabase->get_background_mesh()->update_database();
-                    tHMRDatabase->update_bspline_meshes();
-                    tHMRDatabase->update_lagrange_meshes();
-
-                    tCounter++;
                 }
             }
-            }
+        }
 
+        //--------------------------------------------------------------------------------------------------------------
+        void Remeshing_Mini_Performer::perform_refinement_mode_2(
+                std::shared_ptr< hmr::HMR >           aHMRPerformer,
+                Cell< std::shared_ptr< mtk::Field > > aSourceFields )
+        {
+            // perform initial uniform refinement
+            // should not do anything for this remeshing mode
+            //aHMRPerformer->perform_initial_refinement();
+
+            std::shared_ptr< hmr::Database > tHMRDatabase = aHMRPerformer->get_database();
+
+            // create refinement parameter list
+            moris::ParameterList tRefinementParameterlist;
+            this->create_refinement_input_list_2( tRefinementParameterlist );
+
+            // create refinement mini performer and perform refinement
+            wrk::Refinement_Mini_Performer tRefinementMiniPerformer( tRefinementParameterlist, mLibrary );
+            tRefinementMiniPerformer.perform_refinement_2( aSourceFields, aHMRPerformer );
+
+            tHMRDatabase->get_background_mesh()->update_database();
+            tHMRDatabase->update_bspline_meshes();
+            tHMRDatabase->update_lagrange_meshes();
 
         }
         //--------------------------------------------------------------------------------------------------------------
@@ -555,9 +737,16 @@ namespace moris
                 }
                 else
                 {
-                    aTargetFields( If ) = aSourceFields( If );
-                    aTargetFields( If )->unlock_field();
-                    aTargetFields( If )->set_mesh_pair( aMeshPair );
+                    if( aSourceFields( If )->get_field_entity_type() == mtk::Field_Entity_Type::NODAL )
+                    {
+                        aTargetFields( If ) = aSourceFields( If );
+                        aTargetFields( If )->unlock_field();
+                        aTargetFields( If )->set_mesh_pair( aMeshPair );
+                    }
+                    else
+                    {
+                        // do nothing
+                    }
                 }
             }
         }
@@ -652,7 +841,53 @@ namespace moris
             aRefinementParameterlist.set( "levels_of_refinement" , tRefinement );
             aRefinementParameterlist.set( "refinement_pattern" , tPattern );
             aRefinementParameterlist.set( "refinement_function_name" , mParameters.mRefinementFunction );
+        }
 
+        void Remeshing_Mini_Performer::create_refinement_input_list_2(
+                moris::ParameterList & aRefinementParameterlist )
+        {
+            std::string tFieldNames = "";
+            std::string tPattern    = "";
+
+            for ( uint Ik = 0; Ik < mParameters.mRefinementsFieldNames_0.size(); Ik++ )
+            {
+                tFieldNames = tFieldNames + mParameters.mRefinementsFieldNames_0( Ik ) + ",";
+
+                for( uint Ia = 0; Ia < mParameters.mRefinementPatternMode_0( Ik ).numel(); Ia++ )
+                {
+                    tPattern   = tPattern +  ios::stringify( mParameters.mRefinementPatternMode_0( Ik )( Ia ) ) + ",";
+                }
+
+                tPattern.pop_back();
+
+                tPattern = tPattern +  ";";
+            }
+
+            tFieldNames.pop_back();
+            tPattern.pop_back();
+
+            std::string tCopyPattern   = "";
+
+            for ( uint Ik = 0; Ik < mParameters.mRefinemenCopytPatternToPattern_3.size(); Ik++ )
+            {
+                for( uint Ia = 0; Ia < mParameters.mRefinemenCopytPatternToPattern_3( Ik ).numel(); Ia++ )
+                {
+                    tCopyPattern   = tCopyPattern +  ios::stringify( mParameters.mRefinemenCopytPatternToPattern_3( Ik )( Ia ) ) + ",";
+                }
+
+                tCopyPattern.pop_back();
+
+                tCopyPattern = tCopyPattern +  ";";
+            }
+
+            tCopyPattern.pop_back();
+
+
+            prm::create_refinement_parameterlist( aRefinementParameterlist );
+            aRefinementParameterlist.set( "field_names" , tFieldNames );
+            aRefinementParameterlist.set( "refinement_pattern" , tPattern );
+            aRefinementParameterlist.set( "remeshing_copy_old_pattern_to_pattern" , tCopyPattern );
+            aRefinementParameterlist.set( "refinement_function_name" , mParameters.mRefinementFunction );
         }
 
         //--------------------------------------------------------------------------------------------------------------
