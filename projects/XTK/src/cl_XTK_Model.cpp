@@ -4331,15 +4331,108 @@ namespace xtk
 
     void
     Model::construct_subphase_neighborhood()
+    // {
+    //     // get the interpolation mesh
+    //     moris::mtk::Interpolation_Mesh &tInterpMesh = mBackgroundMesh.get_mesh_data();
+
+    //     // allocate subphase to subphase connectivity
+    //     mSubphaseToSubPhase = moris::Cell<moris::Cell<moris::moris_index>>(mCutMesh.get_num_subphases());
+    //     mSubphaseToSubPhaseMySideOrds = moris::Cell<moris::Cell<moris::moris_index>>(mCutMesh.get_num_subphases());
+    //     mSubphaseToSubPhaseNeighborSideOrds = moris::Cell<moris::Cell<moris::moris_index>>(mCutMesh.get_num_subphases());
+    //     mTransitionNeighborCellLocation = moris::Cell<moris::Cell<moris::moris_index>>(mCutMesh.get_num_subphases());
+
+    //     // non unique temporary data
+    //     moris::Cell<moris::Cell<moris::moris_index>> tNonUniqueSubphaseToSubphase(mCutMesh.get_num_subphases());
+    //     moris::Cell<moris::Cell<moris::moris_index>> tNonUniqueSubphaseToSubPhaseMySideOrds(mCutMesh.get_num_subphases());
+    //     moris::Cell<moris::Cell<moris::moris_index>> tNonUniqueSubphaseToSubPhaseNeighborSideOrds(mCutMesh.get_num_subphases());
+    //     moris::Cell<moris::Cell<moris::moris_index>> tNonUniqueTransitionLocation(mCutMesh.get_num_subphases());
+
+    //     //iterate through facets
+    //     moris::uint tNumFacets = tInterpMesh.get_num_entities(EntityRank::ELEMENT);
+    //     for (moris::moris_index iC = 0; iC < (moris::moris_index)tNumFacets; iC++)
+    //     {
+    //         // current cell
+    //         mtk::Cell const *tCurrentCell = &tInterpMesh.get_mtk_cell(iC);
+
+    //         // get the cells attached to the facet
+    //         Matrix<IndexMat> tCellToCellSideIndex = tInterpMesh.get_elements_connected_to_element_and_face_ind_loc_inds(iC);
+    //         Matrix<IndexMat> tCellToCellSideOrd = tInterpMesh.get_elements_connected_to_element_and_face_ord_loc_inds(iC);
+
+    //         // get the neighboring cells
+    //         Cell<mtk::Cell const *> tCells(tCellToCellSideOrd.numel());
+    //         tInterpMesh.get_mtk_cells(tCellToCellSideOrd.get_row(0), tCells);
+
+    //         // iterate through neighbor
+    //         for (moris::uint iN = 0; iN < tCellToCellSideOrd.n_cols(); iN++)
+    //         {
+    //             // facet ordinal shared for current neighbors
+    //             moris_index tMyOrdinal = tCellToCellSideOrd(1, iN);
+    //             moris_index tNeighborOrdinal = tCellToCellSideOrd(2, iN);
+    //             moris_index tTransitionCellLocation = tCellToCellSideOrd(3, iN);
+
+    //             // neighbor cell
+    //             mtk::Cell const *tOtherCell = &tInterpMesh.get_mtk_cell(tCellToCellSideIndex(0, iN));
+
+    //             // get the subphase indices attached to the facet which is connected to the current cell
+    //             Cell<moris::moris_index> tMyCellSubphaseIndices(0);
+    //             Cell<moris::moris_index> tMyCellSubphaseBulkIndices(0);
+    //             Cell<moris::moris_index> tMyRepresentativeCellIndex(0);
+    //             Cell<moris::moris_index> tMyRepresentativeCellSideOrdinal(0);
+    //             this->collect_subphases_attached_to_facet_on_cell(tCurrentCell->get_index(), tMyOrdinal, tMyCellSubphaseIndices, tMyCellSubphaseBulkIndices,tMyRepresentativeCellIndex,tMyRepresentativeCellSideOrdinal);
+
+    //             // get the subphase indices attached to the facet which is connected to the other cell in the neighborhood
+    //             Cell<moris::moris_index> tNeighborSubphaseIndices(0);
+    //             Cell<moris::moris_index> tNeighborSubphaseBulkIndices(0);
+    //             Cell<moris::moris_index> tNeighborRepresentativeCellIndex(0);
+    //             Cell<moris::moris_index> tNeighborRepresentativeCellSideOrdinal(0);
+    //             this->collect_subphases_attached_to_facet_on_cell(tOtherCell->get_index(), tNeighborOrdinal, tNeighborSubphaseIndices, tNeighborSubphaseBulkIndices,tNeighborRepresentativeCellIndex,tNeighborRepresentativeCellSideOrdinal);
+
+    //             // iterate over subphases and add to neighborhood
+    //             for (moris::uint i = 0; i < tMyCellSubphaseIndices.size(); i++)
+    //             {
+    //                 moris_index tMyBulkIndex = tMyCellSubphaseBulkIndices(i);
+    //                 moris_index tMySubphaseIndex = tMyCellSubphaseIndices(i);
+
+    //                 for (moris::uint j = 0; j < tNeighborSubphaseIndices.size(); j++)
+    //                 {
+    //                     moris_index tNeighborBulkIndex = tNeighborSubphaseBulkIndices(j);
+    //                     moris_index tNeighborSubphaseIndex = tNeighborSubphaseIndices(j);
+
+    //                     if (tMyBulkIndex == tNeighborBulkIndex)
+    //                     {
+    //                         mSubphaseToSubPhase(tMySubphaseIndex).push_back(tNeighborSubphaseIndex);
+    //                         mSubphaseToSubPhaseMySideOrds(tMySubphaseIndex).push_back(tMyOrdinal);
+    //                         mSubphaseToSubPhaseNeighborSideOrds(tMySubphaseIndex).push_back(tNeighborOrdinal);
+    //                         mTransitionNeighborCellLocation(tMySubphaseIndex).push_back(tTransitionCellLocation);
+
+    //                         //                        tNonUniqueSubphaseToSubphase(tNeighborSubphaseIndex).push_back(tMySubphaseIndex);
+    //                         //                        tNonUniqueSubphaseToSubPhaseMySideOrds(tNeighborSubphaseIndex).push_back(tNeighborOrdinal);
+    //                         //                        tNonUniqueSubphaseToSubPhaseNeighborSideOrds(tNeighborSubphaseIndex).push_back(tMyOrdinal);
+    //                         //                        tNonUniqueTransitionLocation(tNeighborSubphaseIndex).push_back(MORIS_INDEX_MAX);
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+
+    //     std::cout<<"PRINTING SUBPHASE"<<std::endl;
+    //     this->print_subphase_neighborhood();
+    // }
     {
         // get the interpolation mesh
         moris::mtk::Interpolation_Mesh & tInterpMesh = mBackgroundMesh.get_mesh_data();
+
+        // construct element to subphase index
+        moris::Matrix<moris::IndexMat> tCellToSubphase = this->get_element_to_subphase();
 
         // allocate subphase to subphase connectivity
         mSubphaseToSubPhase                 = moris::Cell<moris::Cell<moris::moris_index>>(mCutMesh.get_num_subphases());
         mSubphaseToSubPhaseMySideOrds       = moris::Cell<moris::Cell<moris::moris_index>>(mCutMesh.get_num_subphases());
         mSubphaseToSubPhaseNeighborSideOrds = moris::Cell<moris::Cell<moris::moris_index>>(mCutMesh.get_num_subphases());
         mTransitionNeighborCellLocation     = moris::Cell<moris::Cell<moris::moris_index>>(mCutMesh.get_num_subphases());
+
+        // temporary map
+        moris::Cell<std::unordered_map<moris_index,moris_index>> tSubphaseToSubphaseTracker(mCutMesh.get_num_subphases());
 
         // non unique temporary data
         moris::Cell<moris::Cell<moris::moris_index>> tNonUniqueSubphaseToSubphase(mCutMesh.get_num_subphases());
@@ -4376,72 +4469,63 @@ namespace xtk
                 // get the subphase indices attached to the facet which is connected to the current cell
                 Cell<moris::moris_index> tMyCellSubphaseIndices(0);
                 Cell<moris::moris_index> tMyCellSubphaseBulkIndices(0);
-                this->collect_subphases_attached_to_facet_on_cell( tCurrentCell->get_index(), tMyOrdinal, tMyCellSubphaseIndices, tMyCellSubphaseBulkIndices);
+                Cell<moris::moris_index> tMyRepresentativeCellIndex(0);
+                Cell<moris::moris_index> tMyRepresentativeCellSideOrdinal(0);
+                this->collect_subphases_attached_to_facet_on_cell( tCurrentCell->get_index(), tMyOrdinal, tMyCellSubphaseIndices, tMyCellSubphaseBulkIndices,tMyRepresentativeCellIndex,tMyRepresentativeCellSideOrdinal);
 
-                // get the subphase indices attached to the facet which is connected to the other cell in the neighborhood
+                // // get the subphase indices attached to the facet which is connected to the other cell in the neighborhood
                 Cell<moris::moris_index> tNeighborSubphaseIndices(0);
                 Cell<moris::moris_index> tNeighborSubphaseBulkIndices(0);
-                this->collect_subphases_attached_to_facet_on_cell( tOtherCell->get_index(), tNeighborOrdinal, tNeighborSubphaseIndices, tNeighborSubphaseBulkIndices);
+                Cell<moris::moris_index> tNeighborRepresentativeCellId(0);
+                Cell<moris::moris_index> tNeighborRepresentativeCellSideOrdinal(0);
+                this->collect_subphases_attached_to_facet_on_cell( tOtherCell->get_index(), tNeighborOrdinal, tNeighborSubphaseIndices, tNeighborSubphaseBulkIndices,tNeighborRepresentativeCellId,tNeighborRepresentativeCellSideOrdinal);
+
+                std::unordered_map<moris_index,moris_index> tActiveNeighborSubphases;
+                for(moris::uint iM = 0; iM < tNeighborSubphaseIndices.size(); iM++ )
+                {
+                    tActiveNeighborSubphases[tNeighborSubphaseIndices(iM)] =1;
+                }
+
+                moris::Cell<moris::Cell<moris::mtk::Cell*>> const & tIGCellNeighborhood = this->get_element_to_element();
 
                 // iterate over subphases and add to neighborhood
                 for(moris::uint i = 0; i < tMyCellSubphaseIndices.size(); i++)
                 {
-                    moris_index tMyBulkIndex = tMyCellSubphaseBulkIndices(i);
+                    moris_index tMyBulkIndex     = tMyCellSubphaseBulkIndices(i);
                     moris_index tMySubphaseIndex = tMyCellSubphaseIndices(i);
 
-                    for(moris::uint j = 0; j < tNeighborSubphaseIndices.size(); j++)
+                    // iterate through my representative cell neighborhood
+                    moris_index tMyCellIndex = tMyRepresentativeCellIndex(i);
+
+                    // iterate through neighborhood
+                    for (moris::uint iNeighbor = 0; iNeighbor < tIGCellNeighborhood(tMyCellIndex).size(); iNeighbor++)
                     {
-                        moris_index tNeighborBulkIndex = tNeighborSubphaseBulkIndices(j);
-                        moris_index tNeighborSubphaseIndex = tNeighborSubphaseIndices(j);
+                        moris_index tNeighborIndex         = tIGCellNeighborhood(tMyCellIndex)(iNeighbor)->get_index();
+                        moris_index tNeighborSubphaseIndex = tCellToSubphase(tNeighborIndex);
+                        moris_index tNeighborBulkPhase     = mBackgroundMesh.get_element_phase_index(tNeighborIndex);
 
-                        if(tMyBulkIndex == tNeighborBulkIndex)
+                        if(tNeighborBulkPhase == tMyBulkIndex && tNeighborSubphaseIndex != tMySubphaseIndex)
                         {
-                            mSubphaseToSubPhase(tMySubphaseIndex).push_back(tNeighborSubphaseIndex);
-                            mSubphaseToSubPhaseMySideOrds(tMySubphaseIndex).push_back(tMyOrdinal);
-                            mSubphaseToSubPhaseNeighborSideOrds(tMySubphaseIndex).push_back(tNeighborOrdinal);
-                            mTransitionNeighborCellLocation(tMySubphaseIndex).push_back(tTransitionCellLocation);
-
-                            //                        tNonUniqueSubphaseToSubphase(tNeighborSubphaseIndex).push_back(tMySubphaseIndex);
-                            //                        tNonUniqueSubphaseToSubPhaseMySideOrds(tNeighborSubphaseIndex).push_back(tNeighborOrdinal);
-                            //                        tNonUniqueSubphaseToSubPhaseNeighborSideOrds(tNeighborSubphaseIndex).push_back(tMyOrdinal);
-                            //                        tNonUniqueTransitionLocation(tNeighborSubphaseIndex).push_back(MORIS_INDEX_MAX);
+                            if(tActiveNeighborSubphases.find(tNeighborSubphaseIndex) !=tActiveNeighborSubphases.end())
+                            {
+                                 if(tSubphaseToSubphaseTracker(tMySubphaseIndex).find(tNeighborSubphaseIndex) == tSubphaseToSubphaseTracker(tMySubphaseIndex).end() )
+                                {
+                                    mSubphaseToSubPhase(tMySubphaseIndex).push_back(tNeighborSubphaseIndex);
+                                    mSubphaseToSubPhaseMySideOrds(tMySubphaseIndex).push_back(tMyOrdinal);
+                                    mSubphaseToSubPhaseNeighborSideOrds(tMySubphaseIndex).push_back(tNeighborOrdinal);
+                                    mTransitionNeighborCellLocation(tMySubphaseIndex).push_back(tTransitionCellLocation);
+                                    tSubphaseToSubphaseTracker(tMySubphaseIndex)[tNeighborSubphaseIndex] = 1;
+                                }
+                            }
                         }
-                    }
-                }
 
+                    }
+                  }
             }
         }
 
-        //    // make unique (We do this this way because HMR only has neighbors from larger cells to lower cells so
-        //    // a criteria to check cell ids does not work)
-        //    for(moris::uint i = 0; i < mSubphaseToSubPhase.size(); i++)
-        //    {
-        //        Cell<moris::moris_index> tUniqueIndices = unique_index( tNonUniqueSubphaseToSubphase(i) );
-        //
-        //
-        //        std::cout<<" i = "<< i<<std::endl;
-        //
-        //        // resize member data
-        //        mSubphaseToSubPhase(i).resize(tUniqueIndices.size());
-        //        mSubphaseToSubPhaseMySideOrds(i).resize(tUniqueIndices.size());
-        //        mSubphaseToSubPhaseNeighborSideOrds(i).resize(tUniqueIndices.size());
-        //        mTransitionNeighborCellLocation(i).resize(tUniqueIndices.size());
-        //
-        //        moris::print(tNonUniqueTransitionLocation(i),"tNonUniqueTransitionLocation");
-        //        moris::print(tNonUniqueSubphaseToSubphase(i),"tNonUniqueSubphaseToSubphase");
-        //        moris::print(tUniqueIndices,"tUniqueIndices");
-        //        // commit unique entries to member data
-        //        for(moris::uint j = 0; j < tUniqueIndices.size(); j ++)
-        //        {
-        //            mSubphaseToSubPhase(i)(j) = tNonUniqueSubphaseToSubphase(i)(tUniqueIndices(j));
-        //            mSubphaseToSubPhaseMySideOrds(i)(j) = tNonUniqueSubphaseToSubPhaseMySideOrds(i)(tUniqueIndices(j));
-        //            mSubphaseToSubPhaseNeighborSideOrds(i)(j) = tNonUniqueSubphaseToSubPhaseNeighborSideOrds(i)(tUniqueIndices(j));
-        //            mTransitionNeighborCellLocation(i)(j) = tNonUniqueTransitionLocation(i)(tUniqueIndices(j));
-        //        }
-        //
-        //        moris::print(mTransitionNeighborCellLocation(i),"mTransitionNeighborCellLocation(i)");
-        //
-        //   }
+    // std::cout<<"PRINTING SUBPHASE"<<std::endl;
+    // this->print_subphase_neighborhood();
     }
 
     // ----------------------------------------------------------------------------------
@@ -4451,8 +4535,17 @@ namespace xtk
             moris::moris_index         aCellIndex,
             moris::moris_index         aFacetOrdinal,
             Cell<moris::moris_index> & aCellSubphaseIndices,
-            Cell<moris::moris_index> & aCellSubphaseBulkIndices)
+            Cell<moris::moris_index> & aCellSubphaseBulkIndices,
+            Cell<moris::moris_index> & aRepresentativeCellInd,
+            Cell<moris::moris_index> & aRepresentativeCellSideOrdinal)
     {
+        aRepresentativeCellInd.clear();
+        aRepresentativeCellSideOrdinal.clear();
+
+        Matrix<IndexMat> tCellFacets = mBackgroundMesh.get_mesh_data().get_entity_connected_to_entity_loc_inds(aCellIndex,EntityRank::ELEMENT, mBackgroundMesh.get_mesh_data().get_facet_rank());
+
+        moris_index tFacetIndex = tCellFacets(aFacetOrdinal);
+
         // set pointer to child mesh if it has children
         if(mBackgroundMesh.entity_has_children(aCellIndex, EntityRank::ELEMENT))
         {
@@ -4460,16 +4553,10 @@ namespace xtk
             moris::moris_index tCMIndex = mBackgroundMesh.child_mesh_index(aCellIndex,EntityRank::ELEMENT);
             Child_Mesh const * tCMCell = & mCutMesh.get_child_mesh(tCMIndex);
 
-            Matrix<IndexMat> tCellFacets =
-                    mBackgroundMesh.get_mesh_data().get_entity_connected_to_entity_loc_inds(
-                            aCellIndex,EntityRank::ELEMENT,
-                            mBackgroundMesh.get_mesh_data().get_facet_rank());
-
-            moris_index tFacetIndex = tCellFacets(aFacetOrdinal);
 
             // get subphases attached to facet
             Cell<moris::moris_index> tCellCMSubphaseIndices;
-            tCMCell->get_subphases_attached_to_facet(tFacetIndex, tCellCMSubphaseIndices);
+            tCMCell->get_subphases_attached_to_facet(tFacetIndex, tCellCMSubphaseIndices, aRepresentativeCellInd, aRepresentativeCellSideOrdinal);
 
             // reference to subphase indices and bulkphases of subphases
             Cell<moris::moris_index> const & tCMSubphaseBulkIndices = tCMCell->get_subphase_bin_bulk_phase();
@@ -4478,6 +4565,7 @@ namespace xtk
             // put the information in processor local indices with bulk phase
             aCellSubphaseIndices.resize(tCellCMSubphaseIndices.size());
             aCellSubphaseBulkIndices.resize(tCellCMSubphaseIndices.size());
+            
 
             for(moris::uint i = 0; i < tCellCMSubphaseIndices.size(); i++)
             {
@@ -4490,6 +4578,8 @@ namespace xtk
             // get the cell subphase indices
             aCellSubphaseBulkIndices = {{mBackgroundMesh.get_element_phase_index(aCellIndex)}};
             aCellSubphaseIndices     = {{aCellIndex}};
+            aRepresentativeCellInd    = {{aCellIndex}};
+            aRepresentativeCellSideOrdinal.push_back(tFacetIndex);
         }
     }
 

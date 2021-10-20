@@ -601,6 +601,9 @@ namespace moris
             for( auto tMesh : mBSplineMeshes )
             {
                 tMesh->calculate_basis_indices( mCommunicationTable );
+                #ifdef DEBUG
+                tMesh->calculate_basis_coordinates();
+                #endif
             }
 
             // reset active pattern

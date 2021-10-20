@@ -153,7 +153,7 @@ TEST_CASE("2 Element Enrichment 2D","[ENRICH_1E_2D]")
         tGoldCoeffToEnrCoeff(4) = {{14,15,16}};
         tGoldCoeffToEnrCoeff(5) = {{17,18,19}};
 
-        for(moris::uint i = 0; i < tEnrInterpMesh.get_num_background_coefficients(); i++)
+        for(moris::uint i = 0; i < tEnrInterpMesh.get_num_background_coefficients(0); i++)
         {
             Matrix<IndexMat> const & tEnrichedCoeffs = tEnrInterpMesh.get_enriched_coefficients_at_background_coefficient(0,(moris_index)i);
             CHECK(all_true(tEnrichedCoeffs == tGoldCoeffToEnrCoeff(i)));

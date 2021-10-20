@@ -113,7 +113,7 @@ public:
     get_background_coefficient_local_to_global_map() const;
     //------------------------------------------------------------------------------
     uint
-    get_num_background_coefficients() const;
+    get_num_background_coefficients(moris_index const & aMeshIndex) const;
 
     /*!
      * Returns the number of vertices per interpolation cell

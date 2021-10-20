@@ -599,9 +599,10 @@ namespace xtk
     // ----------------------------------------------------------------------------
 
     uint
-    Enriched_Interpolation_Mesh::get_num_background_coefficients() const
+    Enriched_Interpolation_Mesh::get_num_background_coefficients(moris_index const & aMeshIndex) const
     {
-        return mCoeffToEnrichCoeffs.size();
+        moris_index tLocalMeshIndex = this->get_local_mesh_index(aMeshIndex);
+        return mCoeffToEnrichCoeffs(tLocalMeshIndex).size();
     }
 
     // ----------------------------------------------------------------------------
