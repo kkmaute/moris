@@ -651,9 +651,9 @@ namespace moris
                  * @return uint   max level of mesh on local proc
                  */
                 auto get_max_level() const -> decltype( mMaxLevel )
-                        {
+                {
                     return mMaxLevel;
-                        }
+                }
 
                 //--------------------------------------------------------------------------------
 

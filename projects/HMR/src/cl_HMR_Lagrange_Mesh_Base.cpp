@@ -3795,7 +3795,7 @@ namespace moris
             auto tLagrangePattern = this->get_activation_pattern();
 
             // select pattern
-            this->select_activation_pattern();
+            //this->select_activation_pattern();
 
             // get pointer to element
             auto tLagrangeElement = this->get_element( aElementIndex );
@@ -3845,7 +3845,7 @@ namespace moris
             auto tLagrangePattern = this->get_activation_pattern();
 
             // select pattern
-            this->select_activation_pattern();
+            //this->select_activation_pattern();
 
             // get pointer to element
             auto tLagrangeElement = this->get_element( aElementIndex );
