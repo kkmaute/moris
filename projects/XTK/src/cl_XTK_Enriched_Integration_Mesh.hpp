@@ -179,7 +179,10 @@ public:
      * @return Cell of field names for basis support (1xNumBasisFunc)
      */
     moris::Cell<std::string>
-    create_basis_support_fields();
+    create_basis_support_fields(moris::Matrix<moris::DDRMat> const & aProbeSpheres);
+
+    void
+    create_subphase_fields();
 
     //------------------------------------------------------------------------------
 
@@ -221,6 +224,10 @@ public:
     //------------------------------------------------------------------------------
     // Additional Field Functions
     //------------------------------------------------------------------------------
+
+    moris::Cell<std::string>
+    get_field_names(enum moris::EntityRank aEntityRank);
+
     /*!
      * @brief Create a field
      * @param[in] aLabel Field label
