@@ -4,6 +4,8 @@
 #include "cl_HMR_Database.hpp"
 #include "cl_WRK_perform_refinement.hpp"
 #include "HMR_Globals.hpp"
+#include "cl_HMR_Background_Element_Base.hpp"
+#include <unordered_map>
 
 #include "cl_MTK_Field.hpp"
 
@@ -28,17 +30,23 @@ namespace moris
             if( !aParameterlist.get< std::string >( "levels_of_refinement" ).empty() )
             {
                 // set refinement level
-                Cell< Matrix< DDSMat > > tRefinementLevel;
                 string_to_cell_mat(
                         aParameterlist.get< std::string >( "levels_of_refinement" ),
                         mParameters.mRefinementLevel );
             }
 
             // set refinementpattern
-            Cell< Matrix< DDSMat > >  tRefinementPattern;
             string_to_cell_mat(
                     aParameterlist.get< std::string >( "refinement_pattern" ),
                     mParameters.mRefinementPattern );
+
+            if( !aParameterlist.get< std::string >( "remeshing_copy_old_pattern_to_pattern" ).empty() )
+            {
+                // set refinement pattern
+                string_to_cell_mat(
+                        aParameterlist.get< std::string >( "remeshing_copy_old_pattern_to_pattern" ),
+                        mParameters.mRefinemenCopytPatternToPattern );
+            }
 
             mParameters.mRefinementFunctionName = aParameterlist.get< std::string >( "refinement_function_name" );
 
@@ -113,6 +121,181 @@ namespace moris
                 }
 
                 aHMR->perform_refinement( tActivationPattern );
+                aHMR->update_refinement_pattern( tActivationPattern );
+            }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Refinement_Mini_Performer::perform_refinement_2(
+                Cell< std::shared_ptr< mtk::Field > >  & aFields,
+                std::shared_ptr<hmr::HMR>                aHMR )
+        {
+            // create field name to index map
+            moris::map< std::string, moris_index >   tFieldNameToIndexMap;
+
+            for( uint Ik = 0; Ik < aFields.size(); Ik++ )
+            {
+                tFieldNameToIndexMap[ aFields( Ik )->get_label() ] = Ik;
+            }
+
+            Cell< moris_index >                       tPattern;
+            moris::Cell< moris::Cell< std::string > > tFieldNames;
+            moris::Cell< moris::Cell< uint > >        tRefinements;
+            moris::Cell< sint >                       tMaxRefinementPerLevel;
+
+            this->prepare_input_for_refinement(
+                    tPattern,
+                    tFieldNames,
+                    tRefinements,
+                    tMaxRefinementPerLevel);
+
+            // get pattern to save
+            uint tNumPatternToSave = mParameters.mRefinemenCopytPatternToPattern.size();
+
+            moris::map< sint, sint >   tReferencePattern;
+            for( uint Ik =0; Ik < tNumPatternToSave; Ik++ )
+            {
+                tReferencePattern[ mParameters.mRefinemenCopytPatternToPattern( Ik )( 0 ) ] =
+                        mParameters.mRefinemenCopytPatternToPattern( Ik )( 1 );
+            }
+
+            //            if( ( !mParameters.mRefinementFunctionName.empty() ) && mLibrary != nullptr )
+            //            {
+            //FIXME delete
+            mParameters.mRefinementFunctionName_2.resize( tFieldNames.size() , "refinement_function");
+            mParameters.mRefinementFunction_2.resize( tFieldNames.size() , nullptr);
+
+            for( uint Ik = 0; Ik < mParameters.mFieldNames.size(); Ik ++ )
+            {
+                mParameters.mRefinementFunction_2( Ik ) =
+                        mLibrary->load_function< moris::hmr::Refinement_Function_2 >( mParameters.mRefinementFunctionName_2( Ik ) );
+            }
+            // }
+
+            uint tWorkingPattern = 7;//mParameters->get_working_pattern();
+
+            // create a map with ids
+            std::unordered_map< moris_index, luint > tMap;
+
+            moris::Cell< hmr::Background_Element_Base* > tBGElements;
+            aHMR->get_database()->get_background_mesh()->collect_all_elements( tBGElements );
+
+            for( uint Ib = 0; Ib< tBGElements.size(); Ib++ )
+            {
+                auto tHMRId_2 = tBGElements( Ib )->get_hmr_id();
+
+                tMap[ tHMRId_2 ] = Ib;
+            }
+
+            for( uint Ik = 0; Ik< tPattern.size(); Ik++ )
+            {
+                // get pattern
+                uint tActivationPattern = tPattern( Ik );
+
+                sint tThisRefernecePattern = tReferencePattern.find( tActivationPattern );
+
+                for( uint Ia = 0; Ia< tFieldNames( Ik ).size(); Ia++ )
+                {
+                    std::shared_ptr< mtk::Field > tField = aFields( tFieldNameToIndexMap.find( tFieldNames( Ik )( Ia ) ) );
+
+                    // get interpolation mesh from mesh pair
+                    moris::mtk::Mesh * tSourceMesh = tField->get_mesh_pair().get_interpolation_mesh();
+
+                    uint tNumElements = tSourceMesh->get_num_elems();
+
+                    moris::Cell< luint > tElementsToRefine;
+                    moris::Cell< luint > tElementsToHold;
+                    moris::Cell< luint > tElementsToCoarsen;
+
+                    tElementsToRefine .reserve( tNumElements );
+                    tElementsToHold   .reserve( tNumElements );
+                    tElementsToCoarsen.reserve( tNumElements );
+
+                    if( tField->get_field_entity_type() == mtk::Field_Entity_Type::NODAL )
+                    {
+                        for( uint Ii = 0; Ii < tSourceMesh->get_num_elems(); Ii++ )
+                        {
+                            mtk::Cell & tCell = tSourceMesh->get_mtk_cell( Ii );
+
+                            enum hmr::ElementalRefienmentIndicator tRefIndicator =
+                                    mParameters.mRefinementFunction_2( Ia )( &tCell, tField );
+
+                            hmr::Background_Element_Base* tBGElementOld =
+                                    reinterpret_cast< hmr::Element * >( tCell.get_base_cell() )->
+                                    get_background_element();
+
+                            luint tHMRId = tBGElementOld->get_hmr_id();
+
+                            auto tIter = tMap.find( tHMRId );
+
+                            moris_index tIndex = tIter->second;
+
+                            hmr::Background_Element_Base* tBGElementNew = tBGElements( tIndex );
+
+                            while( ! tBGElementNew->is_active( tThisRefernecePattern ) )
+                            {
+                                // jump to parent
+                                tBGElementNew = tBGElementNew->get_parent();
+                            }
+
+                            switch ( tRefIndicator )
+                            {
+                                case hmr::ElementalRefienmentIndicator::REFINE:
+                                {
+                                    tBGElementNew->
+                                    set_refined_flag( tWorkingPattern );
+                                    break;
+                                }
+                                case hmr::ElementalRefienmentIndicator::HOLD:
+                                {
+                                    if( tBGElementNew->get_level() > 0 )
+                                    {
+                                        tBGElementNew = tBGElementNew->get_parent();
+                                    }
+                                    tBGElementNew->set_refined_flag( tWorkingPattern );
+
+                                    break;
+                                }
+                                case hmr::ElementalRefienmentIndicator::COARSEN:
+                                {
+                                    if( tBGElementNew->get_level() > 0 )
+                                    {
+                                        tBGElementNew = tBGElementNew->get_parent();
+
+                                        if( tBGElementNew->get_level() > 0 )
+                                        {
+                                            tBGElementNew = tBGElementNew->get_parent();
+                                        }
+                                    }
+                                    tBGElementNew->set_refined_flag( tWorkingPattern );
+
+                                    break;
+                                }
+                                case hmr::ElementalRefienmentIndicator::DROP:
+                                {
+                                    // do nothing
+                                    break;
+                                }
+                                default:
+                                {
+                                    MORIS_ERROR( false,
+                                            "Refinement_Mini_Performer::perform_refinement_2 ");
+                                }
+                            }
+                        }
+                    }
+                    else if( tField->get_field_entity_type() == mtk::Field_Entity_Type::ELEMENTAL )
+                    {
+
+                    }
+                    else
+                    {
+                        MORIS_ERROR( false, "wrong field entity type" );
+                    }
+                }
+
+                aHMR->perform_refinement_based_on_working_pattern( tActivationPattern );
                 aHMR->update_refinement_pattern( tActivationPattern );
             }
         }
@@ -271,9 +454,11 @@ namespace moris
                         if( tPattern == mParameters.mRefinementPattern( Ii )( Ia ) )
                         {
                             aFieldsForRefinement( Ik ).push_back( mParameters.mFieldNames( Ii ) );
-                            aRefinements( Ik )        .push_back( mParameters.mRefinementLevel( Ii )( Ia ) );
-
-                            aMaxRefinementPerPattern( Ik ) = std::max( aMaxRefinementPerPattern( Ik ), mParameters.mRefinementLevel( Ii )( Ia ) );
+                            if( mParameters.mRefinementLevel.size() >0)
+                            {
+                                aRefinements( Ik )        .push_back( mParameters.mRefinementLevel( Ii )( Ia ) );
+                                aMaxRefinementPerPattern( Ik ) = std::max( aMaxRefinementPerPattern( Ik ), mParameters.mRefinementLevel( Ii )( Ia ) );
+                            }
                         }
                     }
                 }
