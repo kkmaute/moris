@@ -5004,6 +5004,18 @@ namespace xtk
         return tSubphase;
     }
 
+    moris::Matrix<moris::IndexMat>
+    Model::get_num_subphase_neighbors()
+    {
+        moris::Cell<moris::Cell<moris_index>>  const & tSubPhaseToSubphase = this->get_subphase_to_subphase();
+        moris::Matrix<moris::IndexMat> tSubphaseNumNeighbors( 1, tSubPhaseToSubphase.size());
+        for (size_t iSP = 0; iSP < tSubPhaseToSubphase.size(); iSP++)
+        {
+            tSubphaseNumNeighbors(iSP) = tSubPhaseToSubphase(iSP).size();
+        }
+        return tSubphaseNumNeighbors;
+    }
+
     //------------------------------------------------------------------------------
 
     moris_id

@@ -512,6 +512,9 @@ namespace xtk
             moris::Matrix<moris::IndexMat>
             get_element_to_subphase();
 
+            moris::Matrix<moris::IndexMat>
+            get_num_subphase_neighbors();
+
             //-----------------------------------------------------------------------------------
 
             moris_id
