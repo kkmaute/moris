@@ -106,6 +106,14 @@ namespace moris
                     Matrix< DDLUMat > & aElementCounterPerLevelAndPattern,
                     moris::Cell< Matrix< DDLUMat > > & aElementPerPattern );
 
+            //-------------------------------------------------------------------------------
+
+            void save_refinement_pattern(
+                    Background_Mesh_Base             * aBackgroundMesh,
+                    const moris::Matrix< DDUMat >    & tPatternToSave,
+                    Matrix< DDLUMat >                & aElementCounterPerLevelAndPattern,
+                    moris::Cell< Matrix< DDLUMat > > & aElementPerPattern);
+
 //-------------------------------------------------------------------------------
 
             /**

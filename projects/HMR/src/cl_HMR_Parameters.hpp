@@ -26,6 +26,11 @@
 
 namespace moris
 {
+    namespace mtk
+    {
+        class Cell;
+        class Field;
+    }
     namespace hmr
     {
         class Element;
@@ -34,6 +39,11 @@ namespace moris
         typedef sint  ( *Refinement_Function ) (
                 hmr::Element           * aElement,
                 const Matrix< DDRMat > & aElementLocalValues);
+
+        // User-defined refinement function
+        typedef hmr::ElementalRefienmentIndicator ( *Refinement_Function_2 ) (
+                mtk::Cell                     * aElement,
+                std::shared_ptr< mtk::Field >   aField);
 
         // -----------------------------------------------------------------------------
 

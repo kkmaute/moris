@@ -52,6 +52,15 @@ namespace moris
             END_ENUM
         };
 
+        enum class ElementalRefienmentIndicator
+        {
+            REFINE,
+            HOLD,
+            COARSEN,
+            DROP,
+            END_ENUM
+        };
+
 // -----------------------------------------------------------------------------
     } /* namespace hmr */
 } /* namespace moris */
