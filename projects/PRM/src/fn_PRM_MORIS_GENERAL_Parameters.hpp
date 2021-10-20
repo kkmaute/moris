@@ -45,6 +45,8 @@ namespace moris
         aParameterlist.insert( "refinement_pattern" , "" );
 
         aParameterlist.insert( "refinement_function_name" , "" );
+
+        aParameterlist.insert( "remeshing_copy_old_pattern_to_pattern" , "" );
     }
 
     //------------------------------------------------------------------------------
@@ -64,6 +66,10 @@ namespace moris
         // mode "based_on_previous"
         aParameterlist.insert( "remeshing_maximum_refinement_level" , "" );
         aParameterlist.insert( "remeshing_minimum_refinement_level" , "" );
+
+        aParameterlist.insert( "remeshing_copy_old_pattern_to_pattern" , "" );
+
+
 
 
 
