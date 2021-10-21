@@ -86,6 +86,7 @@ namespace moris
                 mtk::Field * aFieldSource,
                 mtk::Field * aFieldTarget )
         {
+            Tracer tTracer("MTK", "Mapper", "Map input field to output field");
             // cast output field to discrete field
             mtk::Field_Discrete * tDiscreteFieldTarget = dynamic_cast<mtk::Field_Discrete*> (aFieldTarget);
 
@@ -208,6 +209,8 @@ namespace moris
 
         void Mapper::map_input_field_to_output_field_2( mtk::Field * aFieldSource )
         {
+            Tracer tTracer("MTK", "Mapper", "Map input field to output field");
+
             // cast aFieldSource field to discrete field
             mtk::Field_Discrete * tDiscreteFieldSource = dynamic_cast<mtk::Field_Discrete*> (aFieldSource);
 
@@ -311,6 +314,7 @@ namespace moris
                 mtk::Field * aFieldSource,
                 mtk::Field * aFieldTarget )
         {
+            Tracer tTracer("MTK", "Mapper", "Interpolate Field");
             mtk::Mesh_Pair tMeshPairIn  = aFieldSource->get_mesh_pair();
             mtk::Mesh_Pair tMeshPairOut = aFieldTarget->get_mesh_pair();
 
@@ -445,6 +449,7 @@ namespace moris
                 mtk::Field * aFieldSource,
                 mtk::Field * aFieldTarget )
         {
+            Tracer tTracer("MTK", "Mapper", "Change field order");
             mtk::Mesh_Pair tMeshPairIn = aFieldSource->get_mesh_pair();
             mtk::Mesh_Pair tMeshPairOut = aFieldTarget->get_mesh_pair();
 

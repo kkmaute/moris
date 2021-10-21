@@ -167,10 +167,10 @@ namespace moris
             // copy database pointer
             mDatabase = aDatabase;
 
-            mDummyBSplineMeshes.resize( 3, nullptr );
+            mDummyBSplineMeshes.resize( 1, nullptr );
             moris::hmr::Factory tFactory;
 
-            for( uint Ik = 0; Ik<3; Ik++ )
+            for( uint Ik = 0; Ik<1; Ik++ )
             {
                 mDummyBSplineMeshes( Ik ) = tFactory.create_bspline_mesh(
                         mDatabase->get_parameters(),                 //FIXME only one mesh
@@ -194,7 +194,7 @@ namespace moris
             // activate output pattern
             mDatabase->get_background_mesh()->set_activation_pattern( mMesh->get_activation_pattern() );
 
-            mMesh->update_mesh();
+            //mMesh->update_mesh();
 
             mMesh->calculate_node_indices();
             mMesh->calculate_node_sharing();

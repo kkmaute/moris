@@ -40,11 +40,9 @@ namespace moris
 
                 Cell< Matrix< DDSMat > >    mRefinemenCopytPatternToPattern;
 
-                std::string                 mRefinementFunctionName;
-
                 hmr::Refinement_Function    mRefinementFunction = nullptr;
 
-                moris::Cell< std::string >                mRefinementFunctionName_2;
+                moris::Cell< std::string >                mRefinementFunctionName;
 
                 moris::Cell< hmr::Refinement_Function_2 > mRefinementFunction_2;
         };
