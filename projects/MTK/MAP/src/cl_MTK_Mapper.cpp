@@ -652,9 +652,13 @@ namespace moris
             // FIXME: solver should be received from solver warehouse
             uint tNumberOfCoefficients = aField->get_number_of_coefficients();
 
-            if ( tNumberOfCoefficients*par_size() < 100000 )
+            if ( tNumberOfCoefficients*par_size() < 10000 && par_size() < 25 )
             {
                 tParameterlist( 0 )(0) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
+                if ( par_size() > 0 )
+                {
+                    tParameterlist( 0 )( 0 ).set( "Solver_Type" , "Amesos_Mumps" );
+                }
             }
             else
             {
@@ -665,7 +669,7 @@ namespace moris
 
             tParameterlist( 1 )(0) = moris::prm::create_linear_solver_parameter_list();
             tParameterlist( 2 )(0) = moris::prm::create_nonlinear_algorithm_parameter_list();
-            tParameterlist( 2 )(0).set( "NLA_max_iter", 2 );
+            tParameterlist( 2 )(0).set( "NLA_max_iter", 1 );
 
             tParameterlist( 3 )(0) = moris::prm::create_nonlinear_solver_parameter_list();
             tParameterlist( 3 )(0).set("NLA_DofTypes"      , "L2" );
