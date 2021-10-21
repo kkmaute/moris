@@ -42,8 +42,6 @@ namespace moris
 
             mParameters.mModeIndex = tModeMap.find( mParameters.mMode );
 
-            mParameters.mRefinementFunction = aParameterlist.get< std::string >( "refinement_function_name" );
-
             if( mParameters.mModeIndex == 0 )
             {
                 string_to_cell(
@@ -59,6 +57,8 @@ namespace moris
                 string_to_cell_mat(
                         aParameterlist.get< std::string >( "remeshing_refinement_pattern" ),
                         mParameters.mRefinementPatternMode_0 );
+
+                mParameters.mRefinementFunction = aParameterlist.get< std::string >( "refinement_function_name" );
             }
             if( mParameters.mModeIndex == 1 )
             {
@@ -91,6 +91,8 @@ namespace moris
                 string_to_mat(
                         aParameterlist.get< std::string >( "remeshing_minimum_refinement_level" ),
                         mParameters.mMinRefinementsMode_1 );
+
+                mParameters.mRefinementFunction = aParameterlist.get< std::string >( "refinement_function_name" );
             }
 
             if( mParameters.mModeIndex == 2 )
@@ -98,6 +100,13 @@ namespace moris
                 string_to_cell(
                         aParameterlist.get< std::string >( "remeshing_field_names" ),
                         mParameters.mRefinementsFieldNames_0 );
+
+                string_to_cell(
+                        aParameterlist.get< std::string >( "refinement_function_name" ),
+                        mParameters.mRefinementFunctionForField );
+
+                MORIS_ERROR( mParameters.mRefinementsFieldNames_0.size() == mParameters.mRefinementFunctionForField.size(),
+                        "advanced mode needs the same number of refinement function names and fields");
 
                 // set refinement pattern
                 string_to_cell_mat(
@@ -572,7 +581,7 @@ namespace moris
         {
             // perform initial uniform refinement
             // should not do anything for this remeshing mode
-            //aHMRPerformer->perform_initial_refinement();
+            aHMRPerformer->perform_initial_refinement();
 
             std::shared_ptr< hmr::Database > tHMRDatabase = aHMRPerformer->get_database();
 
@@ -635,6 +644,8 @@ namespace moris
                     }
                     else
                     {
+//                        MORIS_ERROR( tSourceMesh->get_mesh_type() == MeshType::HMR,
+//                                "Mapper::map_input_field_to_output_field() Source mesh is not and HMR mesh" );
                         // do nothing
                     }
                 }
@@ -737,11 +748,13 @@ namespace moris
                 moris::ParameterList & aRefinementParameterlist )
         {
             std::string tFieldNames = "";
+            std::string tRefFunctionForFieldNames = "";
             std::string tPattern    = "";
 
             for ( uint Ik = 0; Ik < mParameters.mRefinementsFieldNames_0.size(); Ik++ )
             {
                 tFieldNames = tFieldNames + mParameters.mRefinementsFieldNames_0( Ik ) + ",";
+                tRefFunctionForFieldNames = tRefFunctionForFieldNames + mParameters.mRefinementFunctionForField( Ik ) + ",";
 
                 for( uint Ia = 0; Ia < mParameters.mRefinementPatternMode_0( Ik ).numel(); Ia++ )
                 {
@@ -754,6 +767,7 @@ namespace moris
             }
 
             tFieldNames.pop_back();
+            tRefFunctionForFieldNames.pop_back();
             tPattern.pop_back();
 
             std::string tCopyPattern   = "";
@@ -772,12 +786,11 @@ namespace moris
 
             tCopyPattern.pop_back();
 
-
             prm::create_refinement_parameterlist( aRefinementParameterlist );
             aRefinementParameterlist.set( "field_names" , tFieldNames );
+            aRefinementParameterlist.set( "refinement_function_name" , tRefFunctionForFieldNames );
             aRefinementParameterlist.set( "refinement_pattern" , tPattern );
             aRefinementParameterlist.set( "remeshing_copy_old_pattern_to_pattern" , tCopyPattern );
-            aRefinementParameterlist.set( "refinement_function_name" , mParameters.mRefinementFunction );
         }
 
         //--------------------------------------------------------------------------------------------------------------
