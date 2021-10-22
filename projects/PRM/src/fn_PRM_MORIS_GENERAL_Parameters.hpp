@@ -69,6 +69,11 @@ namespace moris
 
         aParameterlist.insert( "remeshing_copy_old_pattern_to_pattern" , "" );
 
+        // minimum refinement level per pattern and level
+        // input: pattern, level, iter, level, iter,level, iter, ... ; pattern, level, iter, level, iter,level, iter, ...
+        aParameterlist.insert( "minimum_refinement_level" , "" );
+
+
 
 
 
