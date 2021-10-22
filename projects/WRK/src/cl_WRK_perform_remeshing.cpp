@@ -113,6 +113,10 @@ namespace moris
                         aParameterlist.get< std::string >( "remeshing_refinement_pattern" ),
                         mParameters.mRefinementPatternMode_0 );
 
+                string_to_cell_mat(
+                        aParameterlist.get< std::string >( "minimum_refinement_level" ),
+                        mParameters.mMinimumRefinementLevel );
+
                 // set refinement pattern
                 string_to_cell_mat(
                         aParameterlist.get< std::string >( "remeshing_copy_old_pattern_to_pattern" ),
@@ -136,6 +140,11 @@ namespace moris
         {
             // find first discrete field. // assumption: all fields are based on the same interpolation mesh
             // If no discrete field is found use first with index 0 TODO
+            sint tOptIter =  gLogger.get_iteration(
+                    "OptimizationManager",
+                    LOGGER_ARBITRARY_DESCRIPTOR,
+                    LOGGER_ARBITRARY_DESCRIPTOR);
+
             sint tFirstDiscreteFieldIndex = 0;
             for(uint Ik = 0; Ik < aSourceFields.size(); Ik++ )
             {
@@ -210,9 +219,33 @@ namespace moris
                             mParameters.mRefinemenCopytPatternToPattern_3( Ik )( 1 );
                 }
 
-                // set initial refinement to 0
-                tParameters->set_initial_refinement( { { 0 } } );
-                tParameters->set_initial_refinement_patterns(  { { 0 } });
+
+                if( mParameters.mMinimumRefinementLevel.size() >0 )
+                {
+                    uint tNumMinRefPattern = mParameters.mMinimumRefinementLevel.size();
+
+                    Matrix< DDUMat > tMinRefinementPattern( tNumMinRefPattern, 1, 0 );
+                    Matrix< DDUMat > tMinRefinement       ( tNumMinRefPattern, 1, 0 );
+
+                    for( uint Ik = 0; Ik < tNumMinRefPattern; Ik ++)
+                    {
+                        tMinRefinementPattern( Ik ) = mParameters.mMinimumRefinementLevel( Ik )( 0 );
+
+                        for( uint Ia = 0; Ia < std::floor( ( ( real )mParameters.mMinimumRefinementLevel( Ik ).numel() ) / 2.0 ); Ia ++)
+                        {
+                            if( mParameters.mMinimumRefinementLevel( Ik )( Ia + 2 ) > tOptIter )
+                            {
+                                tMinRefinement( Ik ) = mParameters.mMinimumRefinementLevel( Ik )( Ia + 1 );
+
+                                break;
+                            }
+                        }
+                    }
+
+                    // set initial/minimum refinement
+                    tParameters->set_initial_refinement( tMinRefinement );
+                    tParameters->set_initial_refinement_patterns( tMinRefinementPattern );
+                }
             }
 
             hmr::File tFile;
