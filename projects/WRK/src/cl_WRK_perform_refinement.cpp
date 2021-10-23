@@ -7,6 +7,10 @@
 #include "cl_HMR_Background_Element_Base.hpp"
 #include <unordered_map>
 
+// Logging package
+#include "cl_Logger.hpp"
+#include "cl_Tracer.hpp"
+
 #include "cl_MTK_Field.hpp"
 
 #include "cl_Param_List.hpp"
@@ -59,6 +63,7 @@ namespace moris
                 Cell< std::shared_ptr< mtk::Field > >  & aFields,
                 std::shared_ptr<hmr::HMR>                aHMR )
         {
+            Tracer tTracer("WRK", "Refinement Mini Performer", "Perform refinement");
             // create field name to index map
             moris::map< std::string, moris_index >   tFieldNameToIndexMap;
 
@@ -132,6 +137,7 @@ namespace moris
                 Cell< std::shared_ptr< mtk::Field > >  & aFields,
                 std::shared_ptr<hmr::HMR>                aHMR )
         {
+            Tracer tTracer("WRK", "Refinement Mini Performer", "Perform advanced refinement");
             // create field name to index map
             moris::map< std::string, moris_index >   tFieldNameToIndexMap;
 
@@ -164,7 +170,7 @@ namespace moris
             MORIS_ERROR( mParameters.mRefinementFunctionName.size() > 0, "Refinement function names not set");
             MORIS_ERROR( mLibrary != nullptr, "mLibrary not set");
 
-            mParameters.mRefinementFunction_2.resize( tFieldNames.size() , nullptr);
+            mParameters.mRefinementFunction_2.resize( mParameters.mRefinementFunctionName.size() , nullptr);
 
             for( uint Ik = 0; Ik < mParameters.mRefinementFunctionName.size(); Ik ++ )
             {
@@ -204,22 +210,14 @@ namespace moris
 
                     uint tNumElements = tSourceMesh->get_num_elems();
 
-                    moris::Cell< luint > tElementsToRefine;
-                    moris::Cell< luint > tElementsToHold;
-                    moris::Cell< luint > tElementsToCoarsen;
-
-                    tElementsToRefine .reserve( tNumElements );
-                    tElementsToHold   .reserve( tNumElements );
-                    tElementsToCoarsen.reserve( tNumElements );
-
                     if( tField->get_field_entity_type() == mtk::Field_Entity_Type::NODAL )
                     {
-                        for( uint Ii = 0; Ii < tSourceMesh->get_num_elems(); Ii++ )
+                        for( uint Ii = 0; Ii < tNumElements; Ii++ )
                         {
                             mtk::Cell & tCell = tSourceMesh->get_mtk_cell( Ii );
 
                             enum hmr::ElementalRefienmentIndicator tRefIndicator =
-                                    mParameters.mRefinementFunction_2( Ia )( &tCell, tField );
+                                    mParameters.mRefinementFunction_2( Ia )( &tCell, tField, tActivationPattern );
 
                             hmr::Background_Element_Base* tBGElementOld =
                                     reinterpret_cast< hmr::Element * >( tCell.get_base_cell() )->
@@ -297,6 +295,10 @@ namespace moris
 
                 aHMR->perform_refinement_based_on_working_pattern( tActivationPattern );
                 aHMR->update_refinement_pattern( tActivationPattern );
+
+                aHMR->get_database()->get_background_mesh()->update_database();
+                aHMR->get_database()->update_bspline_meshes();
+                aHMR->get_database()->update_lagrange_meshes();
             }
         }
 
@@ -353,6 +355,7 @@ namespace moris
                 Cell< std::shared_ptr< mtk::Field > >  & aFields,
                 std::shared_ptr<hmr::HMR>                aHMR )
         {
+            Tracer tTracer("WRK", "Refinement Mini Performer", "Perform refinement of low level elements");
             uint tNumQueuedElements = 0;
 
             // create field name to index map
