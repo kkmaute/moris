@@ -48,8 +48,9 @@ namespace moris
                         mParameters.mRefinemenCopytPatternToPattern );
             }
 
-            mParameters.mRefinementFunctionName = aParameterlist.get< std::string >( "refinement_function_name" );
-
+            string_to_cell(
+                    aParameterlist.get< std::string >( "refinement_function_name" ),
+                    mParameters.mRefinementFunctionName );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -77,9 +78,9 @@ namespace moris
                     tRefinements,
                     tMaxRefinementPerLevel);
 
-            if( ( !mParameters.mRefinementFunctionName.empty() ) && mLibrary != nullptr )
+            if( ( mParameters.mRefinementFunctionName.size() > 0  ) && mLibrary != nullptr )
             {
-                mParameters.mRefinementFunction = mLibrary->load_function< moris::hmr::Refinement_Function >(mParameters.mRefinementFunctionName);
+                mParameters.mRefinementFunction = mLibrary->load_function< moris::hmr::Refinement_Function >(mParameters.mRefinementFunctionName( 0 ));
             }
 
             for( uint Ik = 0; Ik< tPattern.size(); Ik++ )
@@ -160,18 +161,17 @@ namespace moris
                         mParameters.mRefinemenCopytPatternToPattern( Ik )( 1 );
             }
 
-            //            if( ( !mParameters.mRefinementFunctionName.empty() ) && mLibrary != nullptr )
-            //            {
-            //FIXME delete
-            mParameters.mRefinementFunctionName_2.resize( tFieldNames.size() , "refinement_function");
+            MORIS_ERROR( mParameters.mRefinementFunctionName.size() > 0, "Refinement function names not set");
+            MORIS_ERROR( mLibrary != nullptr, "mLibrary not set");
+
             mParameters.mRefinementFunction_2.resize( tFieldNames.size() , nullptr);
 
-            for( uint Ik = 0; Ik < mParameters.mFieldNames.size(); Ik ++ )
+            for( uint Ik = 0; Ik < mParameters.mRefinementFunctionName.size(); Ik ++ )
             {
                 mParameters.mRefinementFunction_2( Ik ) =
-                        mLibrary->load_function< moris::hmr::Refinement_Function_2 >( mParameters.mRefinementFunctionName_2( Ik ) );
+                        mLibrary->load_function< moris::hmr::Refinement_Function_2 >( mParameters.mRefinementFunctionName( Ik ) );
             }
-            // }
+
 
             uint tWorkingPattern = 7;//mParameters->get_working_pattern();
 
@@ -314,9 +314,9 @@ namespace moris
                 tFieldNameToIndexMap[ aFields( Ik )->get_label() ] = Ik;
             }
 
-            if( ( !mParameters.mRefinementFunctionName.empty() ) && mLibrary != nullptr )
+            if( ( mParameters.mRefinementFunctionName.size() > 0 ) && mLibrary != nullptr )
             {
-                mParameters.mRefinementFunction = mLibrary->load_function< moris::hmr::Refinement_Function >(mParameters.mRefinementFunctionName);
+                mParameters.mRefinementFunction = mLibrary->load_function< moris::hmr::Refinement_Function >(mParameters.mRefinementFunctionName(0));
             }
 
             MORIS_ERROR( mParameters.mRefinementFunction != nullptr, "Refinement function not set!");

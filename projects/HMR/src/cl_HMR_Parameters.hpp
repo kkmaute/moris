@@ -987,9 +987,9 @@ namespace moris
             //-------------------------------------------------------------------------------
 
             moris::Matrix< DDUMat > get_initial_refinement() const
-               {
+            {
                 return mInitialRefinementLevel;
-               }
+            }
 
             //-------------------------------------------------------------------------------
 
@@ -1001,9 +1001,25 @@ namespace moris
             //-------------------------------------------------------------------------------
 
             moris::Matrix< DDUMat > get_initial_refinement_patterns() const
-               {
+            {
                 return mInitialRefinementPattern;
-               }
+            }
+
+            //-------------------------------------------------------------------------------
+
+            uint get_initial_refinement( uint tActivationPattern ) const
+            {
+                sint tInitialRefinement = 0;
+
+                for( uint Ik = 0; Ik < mInitialRefinementPattern.numel(); Ik ++)
+                {
+                    if( mInitialRefinementPattern( Ik ) == tActivationPattern )
+                    {
+                        tInitialRefinement = mInitialRefinementLevel( Ik );
+                    }
+                }
+                return tInitialRefinement;
+            }
 
             //-------------------------------------------------------------------------------
 

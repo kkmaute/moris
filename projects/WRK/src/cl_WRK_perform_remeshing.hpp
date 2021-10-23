@@ -38,6 +38,8 @@ namespace moris
 
                 Cell< Matrix< DDSMat > >                   mRefinementPatternMode_3;
                 Cell< Matrix< DDSMat > >                   mRefinemenCopytPatternToPattern_3;
+                Cell< Matrix< DDSMat > >                   mMinimumRefinementLevel;
+                Cell< std::string >                        mRefinementFunctionForField;
         };
 
         class Remeshing_Mini_Performer
