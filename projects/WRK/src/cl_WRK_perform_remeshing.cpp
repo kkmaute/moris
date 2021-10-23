@@ -15,6 +15,10 @@
 #include "cl_WRK_perform_refinement.hpp"
 #include "cl_Param_List.hpp"
 
+// Logging package
+#include "cl_Logger.hpp"
+#include "cl_Tracer.hpp"
+
 #include "fn_PRM_MORIS_GENERAL_Parameters.hpp"
 
 #include <memory>
@@ -138,6 +142,8 @@ namespace moris
                 moris::Cell< std::shared_ptr< mtk::Mesh_Manager > > & aMTKPerformer,
                 moris::Cell< std::shared_ptr< mtk::Field > >        & aNewFields )
         {
+            Tracer tTracer("WRK", "Remeshing Mini Performer", "Perform remeshing");
+
             // find first discrete field. // assumption: all fields are based on the same interpolation mesh
             // If no discrete field is found use first with index 0 TODO
             sint tOptIter =  gLogger.get_iteration(
@@ -278,17 +284,36 @@ namespace moris
             // Create  mesh pair
             mtk::Mesh_Pair tMeshPairOld(tOldInterpolationMesh, nullptr, true);
 
-            // transfer nodal values from old-HMR-Fields to new-HMR-fields.
-            // these fields are based on the same lagrange mesh
-            this->map_fields(
-                    aSourceFields,
-                    tOldFields,
-                    tMeshPairOld,
-                    0,
-                    false ); // discretization mesh index is zero because mesh has only on discretization ( tOldInterpolationMesh )
 
-            // use new-HMR-fields to perform refinement
-            this->perform_refinement( tHMRPerformerNew, tOldFields );
+
+            if( mParameters.mModeIndex != 2 )
+            {
+                // transfer nodal values from old-HMR-Fields to new-HMR-fields.
+                // these fields are based on the same lagrange mesh
+                this->map_fields(
+                        aSourceFields,
+                        tOldFields,
+                        tMeshPairOld,
+                        0,
+                        false ); // discretization mesh index is zero because mesh has only on discretization ( tOldInterpolationMesh )
+
+                // use new-HMR-fields to perform refinement
+                this->perform_refinement( tHMRPerformerNew, tOldFields );
+            }
+            else
+            {
+                // use new-HMR-fields to perform refinement
+                this->perform_refinement( tHMRPerformerNew, aSourceFields );
+
+                // transfer nodal values from old-HMR-Fields to new-HMR-fields.
+                // these fields are based on the same lagrange mesh
+                this->map_fields(
+                        aSourceFields,
+                        tOldFields,
+                        tMeshPairOld,
+                        0,
+                        false ); // discretization mesh index is zero because mesh has only on discretization ( tOldInterpolationMesh )
+            }
 
             // overwrite old HMR performer with new HMR performer
             aHMRPerformers( 0 ) = tHMRPerformerNew;
@@ -776,6 +801,8 @@ namespace moris
             aRefinementParameterlist.set( "refinement_pattern" , tPattern );
             aRefinementParameterlist.set( "refinement_function_name" , mParameters.mRefinementFunction );
         }
+
+        //--------------------------------------------------------------------------------------------------------------
 
         void Remeshing_Mini_Performer::create_refinement_input_list_2(
                 moris::ParameterList & aRefinementParameterlist )

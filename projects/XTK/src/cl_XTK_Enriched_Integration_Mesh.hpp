@@ -184,6 +184,13 @@ public:
     void
     create_subphase_fields();
 
+    void
+    create_cell_id_fields();
+
+    void
+    add_mesh_field_real_scalar_data_loc_inds(std::string      const & aFieldName,
+                                             enum EntityRank  const & aFieldEntityRank,
+                                             Matrix< DDRMat > const & aFieldData);
     //------------------------------------------------------------------------------
 
     /*!
