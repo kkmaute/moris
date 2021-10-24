@@ -73,8 +73,7 @@ namespace moris
         // input: pattern, level, iter, level, iter,level, iter, ... ; pattern, level, iter, level, iter,level, iter, ...
         aParameterlist.insert( "minimum_refinement_level" , "" );
 
-
-
+        aParameterlist.insert( "output_meshes" , false );
 
 
 

@@ -210,86 +210,73 @@ namespace moris
 
                     uint tNumElements = tSourceMesh->get_num_elems();
 
-                    if( tField->get_field_entity_type() == mtk::Field_Entity_Type::NODAL )
+                    for( uint Ii = 0; Ii < tNumElements; Ii++ )
                     {
-                        for( uint Ii = 0; Ii < tNumElements; Ii++ )
+                        mtk::Cell & tCell = tSourceMesh->get_mtk_cell( Ii );
+
+                        enum hmr::ElementalRefienmentIndicator tRefIndicator =
+                                mParameters.mRefinementFunction_2( Ia )( &tCell, tField, tActivationPattern );
+
+                        hmr::Background_Element_Base* tBGElementOld =
+                                reinterpret_cast< hmr::Element * >( tCell.get_base_cell() )->
+                                get_background_element();
+
+                        luint tHMRId = tBGElementOld->get_hmr_id();
+
+                        auto tIter = tMap.find( tHMRId );
+
+                        moris_index tIndex = tIter->second;
+
+                        hmr::Background_Element_Base* tBGElementNew = tBGElements( tIndex );
+
+                        while( ! tBGElementNew->is_active( tThisRefernecePattern ) )
                         {
-                            mtk::Cell & tCell = tSourceMesh->get_mtk_cell( Ii );
+                            // jump to parent
+                            tBGElementNew = tBGElementNew->get_parent();
+                        }
 
-                            enum hmr::ElementalRefienmentIndicator tRefIndicator =
-                                    mParameters.mRefinementFunction_2( Ia )( &tCell, tField, tActivationPattern );
-
-                            hmr::Background_Element_Base* tBGElementOld =
-                                    reinterpret_cast< hmr::Element * >( tCell.get_base_cell() )->
-                                    get_background_element();
-
-                            luint tHMRId = tBGElementOld->get_hmr_id();
-
-                            auto tIter = tMap.find( tHMRId );
-
-                            moris_index tIndex = tIter->second;
-
-                            hmr::Background_Element_Base* tBGElementNew = tBGElements( tIndex );
-
-                            while( ! tBGElementNew->is_active( tThisRefernecePattern ) )
+                        switch ( tRefIndicator )
+                        {
+                            case hmr::ElementalRefienmentIndicator::REFINE:
                             {
-                                // jump to parent
-                                tBGElementNew = tBGElementNew->get_parent();
+                                tBGElementNew->
+                                set_refined_flag( tWorkingPattern );
+                                break;
                             }
-
-                            switch ( tRefIndicator )
+                            case hmr::ElementalRefienmentIndicator::HOLD:
                             {
-                                case hmr::ElementalRefienmentIndicator::REFINE:
+                                if( tBGElementNew->get_level() > 0 )
                                 {
                                     tBGElementNew->
-                                    set_refined_flag( tWorkingPattern );
-                                    break;
+                                            get_parent()->
+                                            set_refined_flag( tWorkingPattern );
                                 }
-                                case hmr::ElementalRefienmentIndicator::HOLD:
-                                {
-                                    if( tBGElementNew->get_level() > 0 )
-                                    {
-                                        tBGElementNew = tBGElementNew->get_parent();
-                                    }
-                                    tBGElementNew->set_refined_flag( tWorkingPattern );
 
-                                    break;
-                                }
-                                case hmr::ElementalRefienmentIndicator::COARSEN:
+                                break;
+                            }
+                            case hmr::ElementalRefienmentIndicator::COARSEN:
+                            {
+                                if( tBGElementNew->get_level() > 1 )
                                 {
-                                    if( tBGElementNew->get_level() > 0 )
-                                    {
-                                        tBGElementNew = tBGElementNew->get_parent();
+                                    tBGElementNew->
+                                            get_parent()->
+                                            get_parent()->
+                                            set_refined_flag( tWorkingPattern );
+                                }
 
-                                        if( tBGElementNew->get_level() > 0 )
-                                        {
-                                            tBGElementNew = tBGElementNew->get_parent();
-                                        }
-                                    }
-                                    tBGElementNew->set_refined_flag( tWorkingPattern );
-
-                                    break;
-                                }
-                                case hmr::ElementalRefienmentIndicator::DROP:
-                                {
-                                    // do nothing
-                                    break;
-                                }
-                                default:
-                                {
-                                    MORIS_ERROR( false,
-                                            "Refinement_Mini_Performer::perform_refinement_2 ");
-                                }
+                                break;
+                            }
+                            case hmr::ElementalRefienmentIndicator::DROP:
+                            {
+                                // do nothing
+                                break;
+                            }
+                            default:
+                            {
+                                MORIS_ERROR( false,
+                                        "Refinement_Mini_Performer::perform_refinement_2 ");
                             }
                         }
-                    }
-                    else if( tField->get_field_entity_type() == mtk::Field_Entity_Type::ELEMENTAL )
-                    {
-
-                    }
-                    else
-                    {
-                        MORIS_ERROR( false, "wrong field entity type" );
                     }
                 }
 
