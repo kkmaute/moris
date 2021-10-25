@@ -45,7 +45,7 @@ namespace moris
     namespace mtk
     {
         TEST_CASE("MTK Intersection Polygon Clipping","[MTK],[MTK_Intersect_Polygon_Clipping]")
-                                                                    {
+                                                                            {
             if(par_size() ==1)
             {
                 //generate a cubic mesh
@@ -142,11 +142,12 @@ namespace moris
                 // Check if the expected result is the same as the output
                 REQUIRE(norm( tIntersectedPoints - tExpectedTriCoords ) < 0.00000001  );
 
+                std::cout<<"Hello World"<<std::endl;
 
                 delete tInterpMesh;
                 delete tIntegMesh;
             }
-                                                                    }
+                                                                            }
 
 
         TEST_CASE("MTK Intersection Intersection","[MTK],[MTK_Interface]")
@@ -175,86 +176,52 @@ namespace moris
 
                 //Test Interface Matrix
 
-                // Coordinates of the two meshes
-                moris::Matrix < DDRMat >  tFirstTriCoords = { {-1.0, 1.0, -1.0, 0.0, 1.0, 0.6115, 0.1089 } , { -1.0, -1.0 , 1.0, 0.0, 0.4301, 0.6115, 1.0}};
+                moris::Matrix < DDRMat > tFirstMesh1 = { { 1.0, -1.0, -1.0},{ -1.0, -1.0, 1.0} };
+                moris::Matrix < DDRMat > tFirstMesh2 = { { 1.0, -1.0, +1.0},{ -1.0, 1.0, 1.0} };
 
-                moris::Matrix < DDRMat >  tSecondTriCoords = { {-1.0, 1.0, -1.0, 0.0, 0.6115, 1.0 , 0.1089 } , {-1.0, -1.0 , 1.0, 0.0, 0.6115, 0.4301, 1.0}};
+                moris::Matrix < DDRMat > tSecondMesh1 = { { -1.0, +1.0, +1.0},{ -1.0, +1.0, -1.0} };
+                moris::Matrix < DDRMat > tSecondMesh2 = { { -1.0, -1.0, +1.0},{ -1.0, 1.0, 1.0} };
 
-                // Local indexing of the nodes Tri 1
-                moris::Matrix<moris::IdMat> tFisrtTriNodeIndex = { {1, 4, 2},
-                        {1, 3, 4},
-                        {2, 6, 5},
-                        {4, 6, 2},
-                        {4, 7, 6},
-                        {3, 7, 4} };
+                moris::Cell< moris::Matrix < DDRMat > >  tFirstMesh = { tFirstMesh1,  tFirstMesh2};
+                moris::Cell< moris::Matrix < DDRMat > >  tSecondMesh = { tSecondMesh1,  tSecondMesh2};
 
-                // Local indexing of the nodes Tri 2
-                moris::Matrix<moris::IdMat> tSecondNodeIndex = { {1, 2, 4},
-                        {1, 4, 3},
-                        {4, 6, 5},
-                        {2, 6, 4},
-                        {4, 5, 7},
-                        {3, 4, 7} };
+                Matrix<IndexMat> tFirstMeshIdentifier = { {0,1} };
+                Matrix<IndexMat> tSecondMeshIdentifier = { {0,1} };
 
-                moris::Cell< moris::Matrix < DDRMat > > tIntersectionPoints = tIsDetetc.elementwise_bruteforce_search(tFirstTriCoords,
-                        tSecondTriCoords,
-                        tFisrtTriNodeIndex,
-                        tSecondNodeIndex);
 
+                moris::Cell < moris::Matrix <DDRMat> >          tCutTriangles;
+                moris::Matrix< moris::IndexMat>                tCutTrianglesIdentifier;
+
+                tIsDetetc.elementwise_bruteforce_search(tFirstMesh,
+                        tFirstMeshIdentifier,
+                        tSecondMesh,
+                        tSecondMeshIdentifier,
+                        tCutTriangles,
+                        tCutTrianglesIdentifier);
+
+                for(uint i = 0 ; i < tCutTriangles.size(); i++ )
+                {
+                    print(tCutTriangles(i), "tCutTriangles");
+                }
                 // Check if the expected result is the same as the output
-                moris::Matrix < DDRMat > tIntsersectionArea0 = { {-1.000000000000000e+00,  +1.000000000000000e+00,  +0.000000000000000e+00},
-                        {-1.000000000000000e+00,  -1.000000000000000e+00,  +0.000000000000000e+00 } };
+                moris::Matrix < DDRMat > tIntsersectionArea00 = { {-1.0, 1.0 , 0.0}, {-1.0, -1.0 ,0.0 } };
 
-                moris::Matrix < DDRMat > tIntsersectionArea1 = { {-1.000000000000000e+00,  +0.000000000000000e+00,  -1.000000000000000e+00},
-                        {-1.000000000000000e+00,  +0.000000000000000e+00,  +1.000000000000000e+00} };
+                moris::Matrix < DDRMat > tIntsersectionArea01 = { {-1.0, -1.0 , 0.0}, {-1.0, +1.0 ,0.0 } };
 
-                moris::Matrix < DDRMat > tIntsersectionArea2 = { {+6.876218536345440e-01,  +1.000000000000000e+00,  +6.115000000000002e-01},
-                        {+2.957461592482173e-01,  +4.301000000000000e-01,  +6.115000000000000e-01} };
+                moris::Matrix < DDRMat > tIntsersectionArea10 = { {0.0 , 1.0 , 1.0}, {0.0, +1.0 ,-1.0 } };
 
-                moris::Matrix < DDRMat > tIntsersectionArea3 = { {+0.000000000000000e+00,  +6.876218536345440e-01,  +6.115000000000002e-01},
-                        {+0.000000000000000e+00,  +2.957461592482173e-01,  +6.115000000000000e-01} };
+                moris::Matrix < DDRMat > tIntsersectionArea11 = { {-1.0, +1.0 , 0.0}, {+1.0, +1.0 ,0.0 } };
 
-                REQUIRE( norm( tIntersectionPoints(0) - tIntsersectionArea0 ) < 0.00000001);
-                REQUIRE( norm( tIntersectionPoints(1) - tIntsersectionArea1 ) < 0.00000001);
-                REQUIRE( norm( tIntersectionPoints(2) - tIntsersectionArea2 ) < 0.00000001);
-                REQUIRE( norm( tIntersectionPoints(3) - tIntsersectionArea3 ) < 0.00000001);
+
+                REQUIRE( norm( tCutTriangles( 0 ) ) - norm( tIntsersectionArea00 ) < 0.00000001);
+                REQUIRE( norm( tCutTriangles( 1 ) ) - norm( tIntsersectionArea01 ) < 0.00000001);
+                REQUIRE( norm( tCutTriangles( 2 ) ) - norm( tIntsersectionArea10 ) < 0.00000001);
+                REQUIRE( norm( tCutTriangles( 3 ) ) - norm( tIntsersectionArea11 ) < 0.00000001);
 
 
                 //
 
-                tFirstTriCoords = { {1.0, 0.4300, 0.6115, 1.0 } , { 1.0, 1.0 , 0.6115, 0.108}};
 
-                tSecondTriCoords = { {-1.0, - 1.0, 1.0, 0.0, 0.4300, 1.0 , 0.6115 } , {-1.0, 1.0 , 1.0, 0.0, -1.0, -0.108, -0.6115}};
-
-                tFisrtTriNodeIndex = { {1, 2, 3},
-                        {1, 3, 4}};
-
-                tSecondNodeIndex = { {1, 2, 4},
-                        {2, 3, 4},
-                        {3, 6, 7},
-                        {4, 3, 7},
-                        {5, 1, 7},
-                        {1, 4, 7} };
-
-                tIntersectionPoints = tIsDetetc.elementwise_bruteforce_search(tFirstTriCoords,
-                        tSecondTriCoords,
-                        tFisrtTriNodeIndex,
-                        tSecondNodeIndex);
-
-
-                // Check if the expected result is the same as the output
-                tIntsersectionArea0 = { {+6.114999999999999e-01,  +1.000000000000000e+00,  +4.299999999999999e-01},
-                        {+6.114999999999999e-01,  +1.000000000000000e+00,  +1.000000000000000e+00 } };
-
-                tIntsersectionArea1 = { {+8.361503546099290e-01,  +1.000000000000000e+00,  +1.000000000000000e+00},
-                        {+3.203508274231677e-01,  +1.080000000000000e-01,  +1.000000000000000e+00} };
-
-                tIntsersectionArea2 = { {+6.115000000000000e-01,  +8.361503546099291e-01,  +1.000000000000000e+00},
-                        {+6.115000000000000e-01,  +3.203508274231680e-01,  +1.000000000000000e+00} };
-
-                REQUIRE( norm( tIntersectionPoints(0) - tIntsersectionArea0 ) < 0.00000001);
-                REQUIRE( norm( tIntersectionPoints(1) - tIntsersectionArea1 ) < 0.00000001);
-                REQUIRE( norm( tIntersectionPoints(2) - tIntsersectionArea2 ) < 0.00000001);
 
                 delete tInterpMesh;
                 delete tIntegMesh;
