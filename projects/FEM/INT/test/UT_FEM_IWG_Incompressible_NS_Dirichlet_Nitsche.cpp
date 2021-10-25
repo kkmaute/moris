@@ -389,6 +389,13 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Symmetric_Nitsche",
                         tJacobianFD,
                         true );
 
+                // check that jacobian is symmetric for symmetric version using upper diagonal block
+                uint tNumRowBlock = tJacobian.n_rows() / iSpaceDim;
+                Matrix< DDRMat > tBlock = tJacobian({ 0, tNumRowBlock-1 },{ 0, tNumRowBlock-1 });
+
+                real tRelError = norm( tBlock - trans( tBlock ) ) / norm ( tBlock );
+                REQUIRE( tRelError < 1e-12 );
+
                 // print for debug
                 if( !tCheckJacobian )
                 {

@@ -158,6 +158,8 @@ namespace moris
                 HOMOGENIZED_CONSTITUTIVE,
                 HEAT_METHOD_PENALTY,
 
+                ZIENKIEWICZ_ZHU_VON_MISES_STRESS,
+
                 END_IQI_TYPE
         };
 

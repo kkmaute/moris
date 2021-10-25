@@ -47,13 +47,13 @@ namespace moris
                     uint tNumberOfVertices = tInterpolationMesh->get_num_nodes();
 
                     // set size of node values
-                    mNodalValues.set_size( tNumberOfVertices, 1 );
+                    mValues.set_size( tNumberOfVertices, 1 );
 
                     // loop over all vertices
                     for( uint Ik = 0; Ik < tNumberOfVertices; ++Ik )
                     {
                         // evaluate function at vertex coordinates
-                        mNodalValues( Ik ) = aLambda( tInterpolationMesh->get_mtk_vertex( Ik ).get_coords() );
+                        mValues( Ik ) = aLambda( tInterpolationMesh->get_mtk_vertex( Ik ).get_coords() );
                     }
                 }
         };

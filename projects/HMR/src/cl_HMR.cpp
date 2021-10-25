@@ -752,13 +752,8 @@ namespace moris
                 const uint aPattern,
                 const bool aResetPattern )
         {
-            if ( aResetPattern )
-            {
-                mDatabase->get_background_mesh()->reset_pattern( aPattern );
-            }
-
             // refine database and remember flag
-            mDatabase->perform_refinement( aPattern, ! mPerformRefinementCalled );
+            mDatabase->perform_refinement( aPattern, aResetPattern );
 
             // remember that refinement has been called
             mPerformRefinementCalled = true;
@@ -1298,7 +1293,7 @@ namespace moris
                     }
 
                     // run the refiner
-                    this->perform_refinement_based_on_working_pattern( tPattern );
+                    this->perform_refinement( tPattern );
 
                     mDatabase->update_bspline_meshes( tPattern );
                     mDatabase->update_lagrange_meshes( tPattern );
@@ -2365,7 +2360,7 @@ namespace moris
             tFieldUnion.unlock_field();
 
             // copy data onto field
-            tFieldUnion.set_nodal_values( tUnionFieldData );
+            tFieldUnion.set_values( tUnionFieldData );
 
             // create mapper
             mtk::Mapper tMapper;

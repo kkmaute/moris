@@ -104,15 +104,15 @@ namespace moris
             mtk::Mesh * tIPmesh = mMeshPair.get_interpolation_mesh();
 
             // make sure that nodal value matrix is properly sized
-            mNodalValues.resize( tIPmesh->get_num_nodes(), mNumberOfFields );
+            mValues.resize( tIPmesh->get_num_nodes(), mNumberOfFields );
 
             // loop over all nodes
-            for (uint tNodeIndex=0;tNodeIndex<mNodalValues.n_rows();++tNodeIndex)
+            for (uint tNodeIndex=0;tNodeIndex<mValues.n_rows();++tNodeIndex)
             {
                 // loop over all fields
                 for (uint tFieldIndex=0;tFieldIndex<mNumberOfFields;++tFieldIndex)
                 {
-                    mNodalValues( tNodeIndex ,tFieldIndex ) = get_field_value_user_defined(
+                    mValues( tNodeIndex ,tFieldIndex ) = get_field_value_user_defined(
                             tIPmesh->get_node_coordinate( tNodeIndex ),
                             mFieldVariables);
                 }
