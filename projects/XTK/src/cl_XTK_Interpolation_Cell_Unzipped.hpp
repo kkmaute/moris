@@ -104,6 +104,14 @@ public:
     size_t
     capacity();
 
+    //------------------------------------------------------------------------------
+
+    virtual const luint *
+    get_ijk( ) const
+    {
+        return mBaseCell->get_ijk( );
+    }
+
 protected:
     moris::Cell< xtk::Interpolation_Vertex_Unzipped* > &
     get_xtk_interpolation_vertices();
