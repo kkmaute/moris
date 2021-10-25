@@ -27,6 +27,7 @@
 #include "op_less.hpp"
 #include "fn_find.hpp"
 #include "fn_join_horiz.hpp"
+#include "fn_trans.hpp"
 
 #include "cl_MTK_Cell_ISC.hpp"
 #include "cl_MTK_Vertex_ISC_Impl.hpp"
@@ -117,12 +118,9 @@ namespace moris
                 //Keep track of time
                 Tracer tTracer("MTK", "No Type", "Searching For Pairs");
 
-                //find the rotation and inverse rotation
-                //rotation goes from 1d parametric to 2d parametric
-                //inverse other way around
-                moris::Matrix<DDRMat >     tRotation;
-                moris::Matrix<DDRMat >     tInverseRotation;
-                this->rotation_matrix( tRotation, tInverseRotation, tPairCount );
+                // permutation pair indicates the indicial relation between 3D and surface coordinates
+                // namely depending on the x-y-z orientation , which indices must be picked
+                uint tPermutationOrder = this->permutation_order( tPairCount );
 
                 //obtain the integration mesh
                 moris::mtk::Integration_Mesh* tIntegrationMesh = mMeshManager->get_integration_mesh( mMeshIndex );
@@ -134,10 +132,6 @@ namespace moris
 
                 //find the offset of two surfaces
                 this->offset_vector( tOffsetVector, tFirstSideSetNames, tSecondSideSetNames, tPairCount );
-
-                //find the offset matrix
-                moris::Matrix < DDRMat > tVecTransform( 2, 1, 1);
-                moris::Matrix< moris::DDRMat >  tOffsetMatrix = tVecTransform * tOffsetVector ;
 
                 //initialize all the clusters on each side
                 moris::Cell<mtk::Cluster const *> tSideClusters1;
@@ -185,315 +179,311 @@ namespace moris
                     tSideClusters2.append(tSetClusters);
                 }
 
-                // Ids of the cell clusters corresponding to each other
-                moris::Matrix< moris::DDBMat > tPairedClusterIndicesFlag;
-                tPairedClusterIndicesFlag.set_size( tSideClusters2.size(), mNumBulkPhases, 0 );
+                //Initialize the background cell to side cluster map
+                std::unordered_map< moris::moris_index, moris::Cell<moris_index> > tBackgroundCellToSideClusterMap1;
+                std::unordered_map< moris::moris_index, moris::Cell<moris_index> > tBackgroundCellToSideClusterMap2;
 
-                //loop over the clusters on the first side
-                for(uint tClusterNum1 = 0; tClusterNum1 < tSideClusters1.size() ;  tClusterNum1++ )
+                //populate the map and identifier
+                this->generate_identifier( tSideClusters1, tPairCount, tBackgroundCellToSideClusterMap1) ;
+                this->generate_identifier( tSideClusters2, tPairCount, tBackgroundCellToSideClusterMap2) ;
+
+
+                //loop over the background cells in order to cut the matching pairs
+                for ( const auto & tIter : tBackgroundCellToSideClusterMap1)
                 {
-                    //loop over the clusters on the second side
-                    for(uint tClusterNum2 = 0; tClusterNum2 < tSideClusters2.size() ;  tClusterNum2++)
+
+                    //Find all the side clusters that lie in the left and right pair
+                    moris::Cell<moris_index> const & tSideClustersIndices1  =  tIter.second;
+                    moris::Cell<moris_index> const & tSideClustersIndices2  =  tBackgroundCellToSideClusterMap2[tIter.first];
+
+                    //Consider different cases to minmize the effort of polygon clipping
+                    //case 1 where both sides just have one cluster ( they can be trivial or non trivial)
+                    if ( tSideClustersIndices1.size() == 1 and tSideClustersIndices2.size() == 1 )
                     {
-                        //check if the second side cluster has been visited and paired
-                        if( tPairedClusterIndicesFlag( tClusterNum2, tLocalCellNumToColor1 ( tClusterNum1 ) ) == 1 )
+                        //parametric coordinates are predefined as the corners and center
+                        moris::Cell< Matrix<DDRMat> > tParamCoordsCell2 (1, Matrix<DDRMat>(1,2) );
+                        tParamCoordsCell2(0) = { { -1.0, +1.0 }};
+
+                        // extract the phase of each side cluster
+                        moris_index tPhase2  = tLocalCellNumToColor2 ( tSideClustersIndices2(0) );
+                        moris_index tPhase1  = tLocalCellNumToColor1 (tSideClustersIndices1(0) );
+
+                        //phase interaction table value
+                        moris_index tPhaseToPhaseIndex = tPhaseInteractionTable( tPhase1, tPhase2 );
+
+                        //create a dummy cell in order to specify that all of the cut cells need to be assigned
+                        moris::Cell<moris_index> tDummyCel= {0};
+
+                        // create the dbl sided cluster based on the cut cell and IP cell information
+                        this->create_dbl_sided_cluster(tParamCoordsCell2,tDummyCel,
+                                tSideClusters1(tSideClustersIndices1(0))->get_interpolation_cell(),
+                                tSideClusters2(tSideClustersIndices2(0))->get_interpolation_cell(),
+                                tPairCount,tPhaseToPhaseIndex);
+                    }
+
+                    //case 2 where left side has one cluster(trivial/non-trivial) and right has more than one
+                    else if ( tSideClustersIndices1.size() == 1 and tSideClustersIndices2.size() > 1 )
+                    {
+                        // iterate through the clusters on the right in order to create dbl sided cluster separately
+                        for( uint iCluster = 0 ; iCluster < tSideClustersIndices2.size() ; iCluster++ )
                         {
-                            continue;
-                        }
-                        //interpolation cell 1st side
-                        moris::mtk::Cell const & tInterpCell1 = tSideClusters1( tClusterNum1 )->get_interpolation_cell();
+                            // obtain numbder of surfaces present in each side cluster
+                            uint tPrimaryCellInClusterNum = tSideClusters2( tSideClustersIndices2(iCluster) )->get_num_primary_cells();
 
-                        //interpolation cell 2nd side
-                        moris::mtk::Cell const & tInterpCell2 = tSideClusters2( tClusterNum2 )->get_interpolation_cell();
+                            // Initialize the cell containing coordinates of the cut surfaces
+                            moris::Cell < moris::Matrix <DDRMat> > tParamCoordsCell (tPrimaryCellInClusterNum, moris::Matrix <DDRMat>(2,3) );
 
-                        //coordinates to compare
-                        Matrix<DDRMat> tInterpCoords1 = tInterpCell1.get_cell_geometric_coords_on_side_ordinal( std::stoi( mMeshSideSetPairs( tPairCount )( 0 ) ) - 1 );
-
-                        Matrix<DDRMat> tInterpCoords2 = tInterpCell2.get_cell_geometric_coords_on_side_ordinal( std::stoi( mMeshSideSetPairs( tPairCount )( 1 ) ) - 1 );
-
-                        //subtract the offset to compare the coords
-                        tInterpCoords2 = tInterpCoords2 - tOffsetMatrix;
-
-                        // matching interpolation cell criteria
-                        bool tMatched = false;
-
-                        //criteria for matching cells
-                        if( std::abs( norm( tInterpCoords2 ) - norm( tInterpCoords1 ) ) < 0.0000000001 )
-                        {
-                            uint s = 0 ;
-
-                            //check they actually have the same points
-                            for ( uint i = 0 ; i < 2 ; i++ )
+                            // Iterate through each surface to get the coordinates on the side ordinal
+                            for(uint iCell = 0 ; iCell <  tPrimaryCellInClusterNum ; iCell++ )
                             {
-                                for( uint j = 0 ; j < 2 ; j++)
+                                // get the coordinates on the side ordinal and transpose
+                                moris::Matrix <DDRMat>  t3DcoordMatrix = trans ( tSideClusters2( tSideClustersIndices2(iCluster) )->get_cell_local_coords_on_side_wrt_interp_cell(iCell) );
+
+                                //convert 3D coordinates to suraface coordinates
+                                moris::Matrix <DDRMat> tSurfaceCoordMatrix(1,2);
+                                tSurfaceCoordMatrix.get_row( 0 ) = t3DcoordMatrix.get_row( tPermutationOrder  );
+
+
+                                //sort the matrix if the order is not ascending
+                                if ( tSurfaceCoordMatrix (1) < tSurfaceCoordMatrix (0) )
                                 {
-                                    if ( norm(tInterpCoords2.get_row(i)  - tInterpCoords1.get_row(j) ) < 0.00000000001 )
-                                    {
-                                        s++;
-                                        break;
-                                    }
+                                    tSurfaceCoordMatrix = { {tSurfaceCoordMatrix (1),tSurfaceCoordMatrix (0) } };
                                 }
+
+                                //add the facet to the list of coordinates
+                                tParamCoordsCell( iCell ) =  tSurfaceCoordMatrix ;
                             }
 
-                            //if they match
-                            if( s == 2 )
-                            {
-                                tMatched = true;
+                            //create a dummy cell to indicate all the triangle elements will be processed to create dbl sided set
+                            moris::Cell<moris_index> tDummyCell(tPrimaryCellInClusterNum);
 
+                            //fill in the dummy cell with dummy values to include all the tri elements
+                            for( uint i = 0 ; i <tParamCoordsCell.size(); i++ )
+                            {
+                                tDummyCell(i) = i ;
                             }
 
-                            //if the interpolation cells match
-                            if( tMatched )
-                            {
-
-                                //mark that second side cluster is paired so
-                                tPairedClusterIndicesFlag( tClusterNum2, tLocalCellNumToColor1 ( tClusterNum1 )) = 1;
-
-                                //the case where left and right clusters are trivial
-                                if ( tSideClusters1( tClusterNum1 )->is_trivial() and tSideClusters2( tClusterNum2 )->is_trivial() )
-                                {
-                                    // Ids of the cell clusters corresponding to each other
-                                    moris::Matrix< moris::DDBMat > tCompMatrix;
-                                    tCompMatrix.set_size( 1, mNumBulkPhases, 1 );
-
-                                    tPairedClusterIndicesFlag.get_row( tClusterNum2 ) = tCompMatrix.get_row( 0 );
-
-                                    //obtain the phases of each side
-                                    moris_index tPhase2  = tLocalCellNumToColor2 ( tClusterNum2 );
-                                    moris_index tPhase1  = tLocalCellNumToColor1 ( tClusterNum1 );
-
-                                    //phase interaction table value
-                                    moris_index tPhaseToPhaseIndex = tPhaseInteractionTable( tPhase1, tPhase2 );
-
-                                    //parametric 1d coordinates of the intersection points
-                                    moris::Cell< Matrix<DDRMat> >tParamCoordsCell2 (1);
-                                    tParamCoordsCell2(0) = { {-1.0, 1.0 } };
-
-                                    //creates the pair of the single sided clusters
-                                    this->make_new_pairs( tParamCoordsCell2, tInterpCell1, tInterpCell2, tPairCount, tPhaseToPhaseIndex);
-                                }
-
-                                //case where master side is trivial
-                                else if ( tSideClusters1( tClusterNum1 )->is_trivial() == true and tSideClusters2( tClusterNum2 )->is_trivial() == false )
-                                {
-
-                                    // Ids of the cell clusters corresponding to each other
-                                    moris::Matrix< moris::DDBMat > tCompMatrix;
-                                    tCompMatrix.set_size( 1, mNumBulkPhases, 1 );
-
-                                    tPairedClusterIndicesFlag.get_row( tClusterNum2 ) = tCompMatrix.get_row( 0 );
-
-                                    //get the Integration cell cluster for the side cluster
-                                    moris::Cell<moris::mtk::Cell const *> const & tCells2 = tSideClusters2( tClusterNum2 )->get_primary_cells_in_cluster();
-
-                                    // get the side ordinals of the integration cells in the cluster
-                                    moris::Matrix<moris::IndexMat> tCellOrds2 = tSideClusters2( tClusterNum2 )->get_cell_side_ordinals();
-
-                                    //matrix to store the local coords
-                                    moris::Cell < moris::Matrix <DDRMat> > tParamCoordsCell2;
-
-                                    for( uint i = 0 ; i < tCells2.size() ; i++ )
-                                    {
-                                        //find vertices on the side
-                                        moris::Cell<moris::mtk::Vertex const *> tVertices = tCells2( i )->get_vertices_on_side_ordinal( tCellOrds2( i ) );
-
-                                        //parametric coordinates of each line
-                                        moris::Matrix <DDRMat> tParamCoordsMatrix2( 1, 2 );
-
-                                        for ( uint j = 0 ; j < tVertices.size() ; j++ )
-                                        {
-                                            //temporary matrix of 2d parametric coordinates
-                                            Matrix<DDRMat> tTmpCoordMatrix = tSideClusters2( tClusterNum2 )->get_vertex_local_coordinate_wrt_interp_cell( tVertices( j ) ).get_row( 0 );
-
-                                            //convert to desired form
-                                            tTmpCoordMatrix = tTmpCoordMatrix * tInverseRotation ;
-
-                                            //extract the ones needed
-                                            tParamCoordsMatrix2( 0, j ) = tTmpCoordMatrix( 1 );
-                                        }
-
-                                        //sort the matrix if the order is not ascending
-                                        if ( tParamCoordsMatrix2 (1) < tParamCoordsMatrix2 (0) )
-                                        {
-                                            tParamCoordsMatrix2 = { {tParamCoordsMatrix2 (1),tParamCoordsMatrix2 (0) } };
-                                        }
-
-                                        //store each triangle in the the cell
-                                        tParamCoordsCell2.push_back( tParamCoordsMatrix2 );
-                                    }
-
-                                    //obtain the phases of each side
-                                    moris_index tPhase2  = tLocalCellNumToColor2 ( tClusterNum2 );
-                                    moris_index tPhase1  = tLocalCellNumToColor1 ( tClusterNum1 );
-
-                                    //phase interaction table value
-                                    moris_index tPhaseToPhaseIndex = tPhaseInteractionTable( tPhase1, tPhase2 );
-
-                                    //creates the pair of the single sided clusters
-                                    this->make_new_pairs( tParamCoordsCell2, tInterpCell1, tInterpCell2, tPairCount, tPhaseToPhaseIndex );
-                                }
-
-                                //case where slave side is trivial
-                                else if ( tSideClusters1( tClusterNum1 )->is_trivial() == false and tSideClusters2( tClusterNum2 )->is_trivial() == true )
-                                {
-                                    //get the Integration cell cluster for the side cluster
-                                    moris::Cell<moris::mtk::Cell const *> const & tCells1 = tSideClusters1( tClusterNum1 )->get_primary_cells_in_cluster();
-
-                                    // get the side ordinals of the integration cells in the cluster
-                                    moris::Matrix<moris::IndexMat> tCellOrds1 = tSideClusters1( tClusterNum1 )->get_cell_side_ordinals();
-
-                                    //parametric coordinates of each line
-                                    moris::Cell< moris::Matrix <DDRMat> > tParamCoordsCell1;
-
-                                    for( uint i = 0 ; i < tCells1.size() ; i++ )
-                                    {
-                                        //find vertices on the side
-                                        moris::Cell<moris::mtk::Vertex const *> tVertices = tCells1(i)->get_vertices_on_side_ordinal( tCellOrds1(i) );
-
-                                        moris::Matrix <DDRMat> tParamCoordsMatrix1( 1, 2 );
-
-                                        for ( uint j = 0 ; j < tVertices.size() ; j++ )
-                                        {
-                                            //temporary matrix of 2d parametric coordinates
-                                            Matrix<DDRMat> tTmpCoordMatrix = tSideClusters1( tClusterNum1 )->get_vertex_local_coordinate_wrt_interp_cell( tVertices( j ) ).get_row( 0 );
-
-                                            //convert to desired form
-                                            tTmpCoordMatrix = tTmpCoordMatrix * tInverseRotation ;
-
-                                            //extract the ones needed
-                                            tParamCoordsMatrix1( 0, j ) = tTmpCoordMatrix(1);
-                                        }
-
-                                        //sort the matrix if the order is not ascending
-                                        if ( tParamCoordsMatrix1 (1) < tParamCoordsMatrix1 (0) )
-                                        {
-                                            tParamCoordsMatrix1 = { {tParamCoordsMatrix1 (1),tParamCoordsMatrix1 (0) } };
-                                        }
-
-                                        //store each triangle in the the cell
-                                        tParamCoordsCell1.push_back(tParamCoordsMatrix1);
-                                    }
-
-                                    //obtain the phases of each side
-                                    moris_index tPhase2  = tLocalCellNumToColor2 ( tClusterNum2 );
-                                    moris_index tPhase1  = tLocalCellNumToColor1 ( tClusterNum1 );
-
-                                    //phase interaction table value
-                                    moris_index tPhaseToPhaseIndex = tPhaseInteractionTable( tPhase1, tPhase2 );
-
-                                    //creates the pair of the single sided clusters
-                                    this->make_new_pairs( tParamCoordsCell1, tInterpCell1, tInterpCell2 ,tPairCount,tPhaseToPhaseIndex);
-
-                                }
-
-                                else
-                                {
-                                    //get the Integration cell cluster for the side cluster
-                                    moris::Cell<moris::mtk::Cell const *> const & tCells1 = tSideClusters1( tClusterNum1 )->get_primary_cells_in_cluster();
-
-                                    // get the side ordinals of the integration cells in the cluster
-                                    moris::Matrix<moris::IndexMat> tCellOrds1 = tSideClusters1( tClusterNum1 )->get_cell_side_ordinals();
-
-                                    //matrix to store the local coords
-                                    moris::Cell< moris::Matrix <DDRMat> > tParamCoordsCell1;
-
-                                    for( uint i = 0 ; i < tCells1.size() ; i++ )
-                                    {
-                                        //vertices on the side
-                                        moris::Cell<moris::mtk::Vertex const *> tVertices = tCells1(i)->get_geometric_vertices_on_side_ordinal( tCellOrds1(i) );
-
-                                        //parametric coords matrix of each line
-                                        moris::Matrix <DDRMat> tParamCoordsMatrix1( 1, 2 );
-
-                                        for ( uint j = 0 ; j < tVertices.size() ; j++ )
-                                        {
-                                            //temporary matrix of 2d parametric coordinates
-                                            Matrix<DDRMat> tTmpCoordMatrix = tSideClusters1( tClusterNum1 )->get_vertex_local_coordinate_wrt_interp_cell( tVertices( j ) ).get_row( 0 );
-
-                                            //convert to desired form
-                                            tTmpCoordMatrix = tTmpCoordMatrix * tInverseRotation ;
-
-                                            //extract the ones needed
-                                            tParamCoordsMatrix1( 0, j ) = tTmpCoordMatrix(1);
-                                        }
-
-                                        //store each triangle in the the cell
-                                        tParamCoordsCell1.push_back(tParamCoordsMatrix1);
-                                    }
-
-                                    //get the Integration cell cluster for the side cluster
-                                    moris::Cell<moris::mtk::Cell const *> const & tCells2 = tSideClusters2( tClusterNum2 )->get_primary_cells_in_cluster();
-
-                                    // get the side ordinals of the integration cells in the cluster
-                                    moris::Matrix<moris::IndexMat> tCellOrds2 = tSideClusters2( tClusterNum2 )->get_cell_side_ordinals();
-
-                                    //matrix to store the local coords
-                                    moris::Cell < moris::Matrix <DDRMat> > tParamCoordsCell2;
-
-                                    for( uint i = 0 ; i < tCells2.size() ; i++ )
-                                    {
-                                        //vertices on the side
-                                        moris::Cell<moris::mtk::Vertex const *> tVertices = tCells2(i)->get_geometric_vertices_on_side_ordinal( tCellOrds2(i) );
-
-                                        //parametric coords matrix of each line
-                                        moris::Matrix <DDRMat> tParamCoordsMatrix2(1,2);
-
-                                        for ( uint j = 0 ; j < tVertices.size() ; j++ )
-                                        {
-
-                                            Matrix<DDRMat> tTmpCoordMatrix = tSideClusters2( tClusterNum2 )->get_vertex_local_coordinate_wrt_interp_cell( tVertices( j ) ).get_row( 0 );
-
-                                            //convert to desired form
-                                            tTmpCoordMatrix = tTmpCoordMatrix * tInverseRotation ;
-
-                                            //extract the ones needed
-                                            tParamCoordsMatrix2( 0, j ) = tTmpCoordMatrix(1);
-                                        }
-
-                                        // //store each triangle in the the cell
-                                        tParamCoordsCell2.push_back( tParamCoordsMatrix2 );
-                                    }
-
-                                    //sort the parametric coordinates
-                                    moris::Matrix< moris::DDRMat > tParamCoords2Sorted;
-                                    moris::Matrix< moris::DDRMat > tParamCoords1Sorted;
-
-                                    // sort the parametric coords of each side
-                                    moris::sort( tParamCoordsCell2(0), tParamCoords2Sorted ,"ascend", 1 );
-                                    moris::sort( tParamCoordsCell1(0), tParamCoords1Sorted ,"ascend", 1 );
-
-                                    //define the overlap interval
-                                    moris::Matrix< moris::DDRMat > tOverLap(1,2);
-
-                                    //check to see if 2 line segments overlap
-                                    if ( ( (tParamCoords1Sorted(1) - tParamCoords2Sorted(0) ) >= 0 ) and ( (tParamCoords2Sorted(1) - tParamCoords1Sorted(0) ) >= 0 ) )
-                                    {
-                                        //overlap 2 line segments
-                                        tOverLap = { { std::max(tParamCoords1Sorted(0) , tParamCoords2Sorted(0) ), std::min(tParamCoords1Sorted(1) , tParamCoords2Sorted(1))} };
-
-                                        if( std::abs( tOverLap(0) - tOverLap(1) ) < MORIS_REAL_EPS )
-                                        {
-                                            continue;
-                                        }
-                                        //obtain the phases of each side
-                                        moris_index tPhase2  = tLocalCellNumToColor2 ( tClusterNum2 );
-                                        moris_index tPhase1  = tLocalCellNumToColor1 ( tClusterNum1 );
-
-                                        //phase interaction table value
-                                        moris_index tPhaseToPhaseIndex = tPhaseInteractionTable( tPhase1, tPhase2 );
-
-                                        //make the output in the desired form
-                                        moris::Cell< moris::Matrix< moris::DDRMat > > tOverLapCell(1);
-                                        tOverLapCell(0) = tOverLap;
-
-                                        //creates the pair of the single sided clusters
-                                        this->make_new_pairs(  tOverLapCell, tInterpCell1, tInterpCell2 ,tPairCount, tPhaseToPhaseIndex);
-                                    }
-                                }
-                            } /*end loop for matching IP cells */
+                            // get the phase information of the clusters
+                            moris_index tPhase2  = tLocalCellNumToColor2 ( tSideClustersIndices2(iCluster) );
+                            moris_index tPhase1  = tLocalCellNumToColor1 (tSideClustersIndices1(0) );
+
+                            //phase interaction table value
+                            moris_index tPhaseToPhaseIndex = tPhaseInteractionTable( tPhase1, tPhase2 );
+
+                            // create the dbl sided cluster
+                            this->create_dbl_sided_cluster(tParamCoordsCell, tDummyCell,
+                                    tSideClusters1(tSideClustersIndices1(0))->get_interpolation_cell(),
+                                    tSideClusters2(tSideClustersIndices2(iCluster))->get_interpolation_cell(),
+                                    tPairCount,tPhaseToPhaseIndex );
                         }
-                    } /*end loop for clusters on the 2nd side */
-                }/*end loop for clusters on the 1st side */
+                    }
+
+                    //case 3 where right side has one cluster(trivial/non-trivial) and left has more than one
+                    else if ( tSideClustersIndices1.size() > 1 and tSideClustersIndices2.size() == 1 )
+                    {
+                        // iterate through the clusters on the right in order to create dbl sided cluster separately
+                        for( uint iCluster = 0 ; iCluster < tSideClustersIndices1.size() ; iCluster++ )
+                        {
+                            // obtain numbder of surfaces present in each side cluster
+                            uint tPrimaryCellInClusterNum = tSideClusters1( tSideClustersIndices1(iCluster) )->get_num_primary_cells();
+
+                            // Initialize the cell containing coordinates of the cut surfaces
+                            moris::Cell < moris::Matrix <DDRMat> > tParamCoordsCell (tPrimaryCellInClusterNum, moris::Matrix <DDRMat>(2,3) );
+
+                            // Iterate through each surface to get the coordinates on the side ordinal
+                            for(uint iCell = 0 ; iCell <  tPrimaryCellInClusterNum ; iCell++ )
+                            {
+                                // get the coordinates on the side ordinal and transpose
+                                moris::Matrix <DDRMat>  t3DcoordMatrix = trans ( tSideClusters1( tSideClustersIndices1(iCluster) )->get_cell_local_coords_on_side_wrt_interp_cell(iCell) );
+
+                                //convert 3D coordinates to suraface coordinates
+                                moris::Matrix <DDRMat> tSurfaceCoordMatrix(1,2);
+                                tSurfaceCoordMatrix.get_row( 0 ) = t3DcoordMatrix.get_row( tPermutationOrder);
+
+                                //sort the matrix if the order is not ascending
+                                if ( tSurfaceCoordMatrix (1) < tSurfaceCoordMatrix (0) )
+                                {
+                                    tSurfaceCoordMatrix = { {tSurfaceCoordMatrix (1),tSurfaceCoordMatrix (0) } };
+                                }
+
+                                //add the surface trinagle to the list of coordinates
+                                tParamCoordsCell( iCell ) =  tSurfaceCoordMatrix ;
+                            }
+
+                            //create a dummy cell to indicate all the triangle elements will be processed to create dbl sided set
+                            moris::Cell<moris_index> tDummyCell(tPrimaryCellInClusterNum);
+
+                            //fill in the dummy cell with dummy values to include all the tri elements
+                            for( uint i = 0 ; i <tParamCoordsCell.size(); i++ )
+                            {
+                                tDummyCell(i) = i ;
+                            }
+
+                            // get the phase information of the each side cluster on the sides
+                            moris_index tPhase2  = tLocalCellNumToColor2 ( tSideClustersIndices2(0) );
+                            moris_index tPhase1  = tLocalCellNumToColor1 (tSideClustersIndices1(iCluster) );
+
+                            //phase interaction table value
+                            moris_index tPhaseToPhaseIndex = tPhaseInteractionTable( tPhase1, tPhase2 );
+
+                            // iterate through the clusters on the right in order to create dbl sided cluster separately
+                            this->create_dbl_sided_cluster(tParamCoordsCell, tDummyCell,
+                                    tSideClusters1(tSideClustersIndices1(iCluster))->get_interpolation_cell(),
+                                    tSideClusters2(tSideClustersIndices2(0))->get_interpolation_cell(),
+                                    tPairCount,tPhaseToPhaseIndex );
+                        }
+                    }
+
+                    //case 4 where both sides have more than one cluster within
+                    else
+                    {
+                        uint tIGCellNum = 0;
+                        //loop through the clusters to obtain number of IG surfaces of each cluster
+                        for(uint iCluster = 0 ; iCluster < tSideClustersIndices1.size(); iCluster++)
+                        {
+                            tIGCellNum  += tSideClusters1( tSideClustersIndices1( iCluster ) )->get_num_primary_cells();
+                        }
+
+                        // Initialize the cut cell surfaces
+                        moris::Cell < moris::Matrix <DDRMat> > tParamCoordsCell1 (tIGCellNum, moris::Matrix <DDRMat>(1,2) );
+
+                        // A local map determining that each IG cell/surfaces belongs to which local cluster
+                        moris::Matrix< moris::IndexMat> tIGCellToSideClusterMap1( tIGCellNum , 1 ) ;
+
+                        //iterative counter to assign the cut cell surfaces and IG cell to local cluster index map
+                        uint iCounter = 0;
+
+                        //loop through each cluster to assign coordinates of the surface
+                        for(uint iCluster = 0 ; iCluster < tSideClustersIndices1.size(); iCluster++)
+                        {
+                            // number of surfaces in each cluster
+                            uint tPrimaryCellInClusterNum = tSideClusters1( tSideClustersIndices1(iCluster) )->get_num_primary_cells();
+
+                            //loop through IG cells in the cluster to get their coordinates
+                            for(uint iCell = 0 ; iCell < tPrimaryCellInClusterNum ; iCell++ )
+                            {
+                                // get the coordinates on the side ordinal and transpose
+                                moris::Matrix <DDRMat>  t3DcoordMatrix = trans ( tSideClusters1( tSideClustersIndices1(iCluster) )->get_cell_local_coords_on_side_wrt_interp_cell(iCell) );
+
+                                //convert 3D coordinates to suraface coordinates
+                                moris::Matrix <DDRMat> tSurfaceCoordMatrix(1,2);
+                                tSurfaceCoordMatrix.get_row( 0 ) = t3DcoordMatrix.get_row( tPermutationOrder  );
+
+                                //sort the matrix if the order is not ascending
+                                if ( tSurfaceCoordMatrix (1) < tSurfaceCoordMatrix (0) )
+                                {
+                                    tSurfaceCoordMatrix = { {tSurfaceCoordMatrix (1),tSurfaceCoordMatrix (0) } };
+                                }
+
+                                //add the surface trinagle to the list of coordinates
+                                tParamCoordsCell1( iCounter ) = tSurfaceCoordMatrix;
+
+                                //add the local side cluster index of the IG cell which it belongs to
+                                tIGCellToSideClusterMap1( iCounter ) = iCluster;
+
+                                //increase the counter by 1
+                                iCounter++;
+                            }
+                        }
+
+                        //initialize total number of IG cells/surfaces on side 2
+                        tIGCellNum = 0 ;
+
+                        //loop through the clusters to obtain number of IG surfaces of each cluster
+                        for(uint iCluster = 0 ; iCluster < tSideClustersIndices2.size(); iCluster++)
+                        {
+                            tIGCellNum += tSideClusters2(tSideClustersIndices2(iCluster))->get_num_primary_cells();
+                        }
+
+                        // Initialize the cell of surfaces that will be intersected
+                        moris::Cell < moris::Matrix <DDRMat> > tParamCoordsCell2 (tIGCellNum, moris::Matrix <DDRMat>(1,2) );
+
+                        // A local map determining that each IG cell/surfaces belongs to which local cluster
+                        moris::Matrix< moris::IndexMat> tIGCellToSideClusterMap2( tIGCellNum, 1) ;
+
+                        //iterative counter to assign the cut cell surfaces and IG cell to local cluster index map
+                        iCounter = 0;
+
+                        //loop through each cluster to assign coordinates of the surface
+                        for(uint iCluster = 0 ; iCluster < tSideClustersIndices2.size(); iCluster++)
+                        {
+                            // number of surfaces in each cluster
+                            uint tPrimaryCellInClusterNum = tSideClusters2( tSideClustersIndices2(iCluster) )->get_num_primary_cells();
+
+                            //loop through IG cells in the cluster to get their coordinates
+                            for(uint iCell = 0 ; iCell < tPrimaryCellInClusterNum ; iCell++ )
+                            {
+                                // get the coordinates on the side ordinal and transpose
+                                moris::Matrix <DDRMat>  t3DcoordMatrix = trans ( tSideClusters2( tSideClustersIndices2(iCluster) )->get_cell_local_coords_on_side_wrt_interp_cell(iCell) );
+
+                                //convert 3D coordinates to suraface coordinates
+                                moris::Matrix <DDRMat> tSurfaceCoordMatrix(1,2);
+                                tSurfaceCoordMatrix.get_row( 0 ) = t3DcoordMatrix.get_row( tPermutationOrder );
+
+                                //sort the matrix if the order is not ascending
+                                if ( tSurfaceCoordMatrix (1) < tSurfaceCoordMatrix (0) )
+                                {
+                                    tSurfaceCoordMatrix = { {tSurfaceCoordMatrix (1),tSurfaceCoordMatrix (0) } };
+                                }
+
+                                //add the surface trinagle to the list of coordinates
+                                tParamCoordsCell2( iCounter ) = tSurfaceCoordMatrix;
+
+                                //add the local side cluster index of the IG cell which it belongs to
+                                tIGCellToSideClusterMap2( iCounter ) = iCluster;
+
+                                //increase the counter by 1
+                                iCounter++;
+                            }
+                        }
+
+                        //initialize the cut polygons and their respective indices that come from their parent element
+                        moris::Cell < moris::Matrix <DDRMat> > tCutPolygons;
+                        moris::Matrix< moris::IndexMat> tCutPolygonIdentifier;
+
+                        // Polygon clipping algorthim
+                        this->elementwise_bruteforce_search(
+                                tParamCoordsCell1,tIGCellToSideClusterMap1,
+                                tParamCoordsCell2,tIGCellToSideClusterMap2,
+                                tCutPolygons, tCutPolygonIdentifier);
+
+                        //a map from the identifier of each cut cell to all cut cells with the same identifier
+                        std::unordered_map< moris_index , moris::Cell< moris_index > > tCutCellIdentifierToCutCell;
+
+                        //populate the map
+                        this->group_cut_cells( tCutPolygonIdentifier, tCutCellIdentifierToCutCell );
+
+                        //unique multiplier to distingush between sub clusters
+                        uint tMultiplier = std::max(   tParamCoordsCell1.size(),   tParamCoordsCell2.size() );
+
+                        // iterate through grouped cut cell in order to create dbl sideded cluster with the correct
+                        //IP cell and phase information
+                        for( auto & iCutCellGroup : tCutCellIdentifierToCutCell)
+                        {
+                            // indices of the cut polygon that exist in the particular dbl sided cluster
+                            moris::Cell<moris_index> & tIndicesinCutCell  =  iCutCellGroup.second;
+
+                            //local index of the side cluster on the right
+                            uint j = (iCutCellGroup.first) % tMultiplier;
+
+                            //local index of the side cluster on the right
+                            uint i = std::floor (iCutCellGroup.first / tMultiplier) ;
+
+                            //phase information of the side clusters
+                            moris_index tPhase2  = tLocalCellNumToColor2 ( tSideClustersIndices2(j) );
+                            moris_index tPhase1  = tLocalCellNumToColor1 ( tSideClustersIndices1(i) );
+
+                            //phase interaction table value
+                            moris_index tPhaseToPhaseIndex = tPhaseInteractionTable( tPhase1, tPhase2 );
+
+                            //create the dbl sided cluster
+                            this->create_dbl_sided_cluster(tCutPolygons,  tIndicesinCutCell,
+                                    tSideClusters1( tSideClustersIndices1(i))->get_interpolation_cell(), tSideClusters2( tSideClustersIndices2(j))->get_interpolation_cell(),
+                                    tPairCount, tPhaseToPhaseIndex) ;
+                        }
+                        //Find the intersection of two surfaces along with the relative IP cells
+                    }
+                }
             }/*end loop foe the pairs */
 
             //construct the double sided set and add it to the mesh
@@ -504,7 +494,8 @@ namespace moris
         //------------------------------------------------------------------------
 
         void
-        Intersection_Detect_2D::make_new_pairs( moris::Cell< Matrix<DDRMat> > tP,
+        Intersection_Detect_2D::create_dbl_sided_cluster( moris::Cell< Matrix<DDRMat> > tP,
+                moris::Cell<moris_index> & aIndicesinCutCell,
                 moris::mtk::Cell const & aInterpCell1,
                 moris::mtk::Cell const & aInterpCell2,
                 uint aPairCount,
@@ -520,9 +511,9 @@ namespace moris
             Matrix< DDRMat > tUniqueIntersectedPoints;
 
             //populate the matrix
-            for (size_t i = 0 ; i < tP.size(); i++ )
+            for (size_t i = 0 ; i < aIndicesinCutCell.size(); i++ )
             {
-                tUniqueIntersectedPoints = join_horiz( tUniqueIntersectedPoints, tP( i ) );
+                tUniqueIntersectedPoints = join_horiz( tUniqueIntersectedPoints, tP( aIndicesinCutCell( i ) ) );
             }
 
             //create master and slave side vertices
@@ -1013,6 +1004,142 @@ namespace moris
                 aInverseRotation = { { 0,1 }, { 1, 0 } };
             }
         }
+
+        // ----------------------------------------------------------------------------
+
+        uint
+        Intersection_Detect_2D::permutation_order(uint const & aPairCount) const
+        {
+            uint tPermuationOrder;
+
+            if( mMeshSideSetPairs(aPairCount)(0) == "4")
+            {
+                tPermuationOrder = 1 ;
+            }
+            else if ( mMeshSideSetPairs(aPairCount)(0) == "1" )
+            {
+                tPermuationOrder = 0 ;
+            }
+            return tPermuationOrder;
+        }
+
+        // ----------------------------------------------------------------------------
+
+        void
+        Intersection_Detect_2D::generate_identifier( moris::Cell< mtk::Cluster const * > & aSideClusters,
+                uint &                                 aPairCount,
+                std::unordered_map< moris::moris_index, moris::Cell<moris_index> > & aBackgroundCellToSideClusterMap) const
+        {
+            //reserve memory for output matrix
+            uint tOutputSize = aSideClusters.size();
+
+            //moris::mtk::Integration_Mesh*  tIntegrationMesh  = mMeshManager->get_integration_mesh( mMeshIndex );
+
+            uint tIndex = this->permutation_order(aPairCount);
+
+            //loop over the clusters
+            for(uint iI = 0 ; iI < tOutputSize; iI++ )
+            {
+                //access the ijk postion
+                const luint * tIJK = aSideClusters(iI)->get_interpolation_cell().get_ijk();
+
+                //calculate the identifier
+                moris_index tIdentifier = tIJK[tIndex]  ;
+
+                //add the cluster index to the relevant bg cell
+                aBackgroundCellToSideClusterMap[tIdentifier].push_back(iI);
+            }
+
+        }
+
+        // ----------------------------------------------------------------------------
+
+        void
+        Intersection_Detect_2D::elementwise_bruteforce_search (
+                moris::Cell< Matrix<moris::DDRMat > > const & aParamCoordsCell1,
+                moris::Matrix<IndexMat > const & aIGCellToSideClusterMap1,
+                moris::Cell< Matrix<moris::DDRMat > > const  & aParamCoordsCell2,
+                moris::Matrix<IndexMat > const & aIGCellToSideClusterMap2,
+                moris::Cell< Matrix<moris::DDRMat > >  & aIntersectedAreas,
+                moris::Matrix < IndexMat > & aIntersectedAreasIdentifier) const
+        {
+            // multiplier used to assign an id to each cut surfaces based on the parent cells
+            uint tMultiplier = std::max(aParamCoordsCell1.size(), aParamCoordsCell2.size() );
+
+            // max size of the cut  polygons
+            uint tMaxSize = aParamCoordsCell1.size() * aParamCoordsCell2.size() ;
+
+            //reserve the space for max
+            aIntersectedAreas.reserve( tMaxSize );
+
+            //set the max size in order to avoid resizing at each step
+            aIntersectedAreasIdentifier.set_size( tMaxSize, 1 );
+
+            //counter to assign for cut polygon and their identifier
+            uint iCounter = 0 ;
+
+            // Loop over second mesh
+            for( uint iI = 0 ; iI < aParamCoordsCell1.size(); iI++ )
+            {
+                // Loop over the first mesh
+                for( uint iJ = 0 ; iJ < aParamCoordsCell2.size(); iJ++)
+                {
+                    // initialize matrix as it needs to be refilled
+                    moris::Matrix < moris::DDRMat  > tP;
+
+                    // find the intersection of 2 element triangulation
+                    this->Intersect( aParamCoordsCell1(iI), aParamCoordsCell2(iJ), tP ) ;
+
+                    // If it is a polygon add to the output
+                    if (tP.n_cols()>1)
+                    {
+                        //add the cut polygon to the cell and assign identifier to it
+                        aIntersectedAreas.push_back(tP);
+                        aIntersectedAreasIdentifier(iCounter) = aIGCellToSideClusterMap1(iI)*tMultiplier+ aIGCellToSideClusterMap2(iJ);
+
+                        //increase the counter by 1
+                        iCounter++;
+                    }
+                }
+            }
+
+            //resize the cell and matrix to the actual size
+            aIntersectedAreas.shrink_to_fit();
+            aIntersectedAreasIdentifier.resize(iCounter,1);
+        }
+
+        // ----------------------------------------------------------------------------
+
+        void
+        Intersection_Detect_2D::Intersect(
+                moris::Matrix < moris::DDRMat >  const &  aFirstLineCoords,
+                moris::Matrix < moris::DDRMat  > const &  aSecondLineCoords,
+                moris::Matrix < moris::DDRMat  > &        aIntersectedPoints) const
+        {
+            //check if two lines overlap
+            if ( ( (aFirstLineCoords(1) - aSecondLineCoords(0) ) > 0 ) and ( (aSecondLineCoords(1) - aFirstLineCoords(0) ) > 0 ) )
+            {
+                //overlap 2 line segments
+                aIntersectedPoints = { { std::max(aFirstLineCoords(0) , aSecondLineCoords(0) ), std::min(aFirstLineCoords(1) , aSecondLineCoords(1))} };
+            }
+        }
+
+        // ----------------------------------------------------------------------------
+
+          void
+          Intersection_Detect_2D::group_cut_cells(moris::Matrix< IndexMat> const & aCutTrianglesIdentifier,
+                  std::unordered_map< moris_index , moris::Cell< moris_index > > & aCutCellIdentifierToCutCellIndex ) const
+          {
+              //loop over all the cut cells
+              for(uint iI = 0 ; iI < aCutTrianglesIdentifier.n_rows() ; iI++ )
+              {
+                  aCutCellIdentifierToCutCellIndex[aCutTrianglesIdentifier(iI)].push_back(iI);
+              }
+          }
+
+          // ----------------------------------------------------------------------------
+
+
     } /* end namespace mtk */
 
 } /* end namespace moris */
