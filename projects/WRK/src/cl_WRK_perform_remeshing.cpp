@@ -682,8 +682,8 @@ namespace moris
             {
                 if( aSourceFields( If )->get_field_is_discrete() )
                 {
-                    // create field object for this mesh
-                    aTargetFields( If )= std::make_shared< mtk::Field_Discrete >( aMeshPair, aDiscretizationMeshIndex );
+                    // create field object for this mesh. this mesh only has one discretization. thus 0
+                    aTargetFields( If )= std::make_shared< mtk::Field_Discrete >( aMeshPair, 0 );
                     aTargetFields( If )->set_label( aSourceFields( If )->get_label() );
 
                     if( aMapFields )
