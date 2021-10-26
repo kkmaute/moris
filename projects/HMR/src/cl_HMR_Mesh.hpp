@@ -443,6 +443,10 @@ namespace moris
             //-------------------------------------------------------------------------------
 
             mtk::Cell const & get_mtk_cell( moris_index aElementIndex ) const;
+
+            //-------------------------------------------------------------------------------
+
+            mtk::Cell & get_writable_mtk_cell( moris_index aElementIndex );
             //-------------------------------------------------------------------------------
 
             moris::mtk::Facet*

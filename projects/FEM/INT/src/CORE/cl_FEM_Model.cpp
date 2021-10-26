@@ -3425,7 +3425,7 @@ namespace moris
         {
             moris::Cell< std::shared_ptr< mtk::Field > > tFields( mFields.size(), nullptr );
 
-            for( uint Ik = 0; Ik > mFields.size(); Ik++ )
+            for( uint Ik = 0; Ik < mFields.size(); Ik++ )
             {
                 tFields( Ik ) = mFields( Ik );
             }
@@ -3436,6 +3436,8 @@ namespace moris
 
         void FEM_Model::populate_fields()
         {
+            Tracer tTracer( "FEM", "FemModel", "Populate fields" );
+
             Cell< std::shared_ptr< fem::Field > > tFieldToPopulate;
             Cell< std::string >  tFieldIQINames;
             tFieldToPopulate.reserve(mFields.size());
