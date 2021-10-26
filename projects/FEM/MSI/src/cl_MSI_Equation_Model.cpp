@@ -98,10 +98,12 @@ namespace moris
                     mFemSets( tSetIndex )->free_matrix_memory();
                 }
             }
-            for(uint i = 0 ; i < mGlobalIQIVal.size() ; i++)
-            {
-            print(mGlobalIQIVal(i), std::to_string(i));
-            }
+
+//            //print statement
+//            for(uint i = 0 ; i < mGlobalIQIVal.size() ; i++)
+//            {
+//                print(mGlobalIQIVal(i), std::to_string(i));
+//            }
 
             // Normalization
             if (gLogger.mIteration == 0)
