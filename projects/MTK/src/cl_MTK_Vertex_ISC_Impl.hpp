@@ -67,6 +67,16 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * returns a moris::Matrix with node coordinates
+                 */
+                Matrix< DDRMat > const &
+                get_coords_by_ref() const
+                {
+                    return mVertexCoords;
+                }
+
+                //------------------------------------------------------------------------------
+                /**
                  * returns the domain wide id of this vertex
                  */
                 moris_id

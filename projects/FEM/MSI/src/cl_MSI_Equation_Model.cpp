@@ -56,22 +56,6 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Equation_Model::initialize_IQIs()
-        {
-            moris::uint tNumIQIs = this->get_requested_IQI_names().size();
-
-            mGlobalIQIVal.resize( tNumIQIs );
-
-            for( auto & tQI : mGlobalIQIVal )
-            {
-                // set size for the QI value
-                // FIXME assumed scalar
-                tQI.set_size( 1, 1, 0.0 );
-            }
-        }
-
-        //------------------------------------------------------------------------------
-
         void Equation_Model::compute_IQIs()
         {
             // get number of IQI on the model
@@ -107,12 +91,16 @@ namespace moris
                         for( moris::uint tIQIIndex = 0; tIQIIndex < tNumIQIsOnModel; tIQIIndex++ )
                         {
                             // assemble QI values into global vector
-                            mGlobalIQIVal( tIQIIndex )( 0 ) += mFemSets( tSetIndex )->get_QI()( tIQIIndex )( 0 );
+                            mGlobalIQIVal( tIQIIndex ) += mFemSets( tSetIndex )->get_QI()( tIQIIndex );
                         }
                     }
                     // free memory on treated equation set
                     mFemSets( tSetIndex )->free_matrix_memory();
                 }
+            }
+            for(uint i = 0 ; i < mGlobalIQIVal.size() ; i++)
+            {
+            print(mGlobalIQIVal(i), std::to_string(i));
             }
 
             // Normalization

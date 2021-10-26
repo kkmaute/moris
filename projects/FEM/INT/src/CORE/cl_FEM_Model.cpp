@@ -3067,11 +3067,17 @@ namespace moris
                 fem::IQI_Type tIQIType =
                         static_cast< fem::IQI_Type >( tIQIParameter.get< uint >( "IQI_type" ) );
 
+                // get the treated IQI bulk type
+                fem::Element_Type tIQIBulkType =
+                        static_cast< fem::Element_Type >( tIQIParameter.get< uint >( "IQI_bulk_type" ) );
+
                 // create an IQI pointer
                 mIQIs( iIQI ) = tIQIFactory.create_IQI( tIQIType );
 
                 // set name
                 mIQIs( iIQI )->set_name( tIQIName );
+
+                mIQIs( iIQI )->set_bulk_type( tIQIBulkType );
 
                 // fill IQI map
                 aIQIMap[ tIQIName ] = iIQI;
@@ -3462,6 +3468,58 @@ namespace moris
                 //mFields( Ik )->save_field_to_exodus( "FEM_Field.Exo" );
             }
         }
+
+        //-------------------------------------------------------------------------------------------------
+
+           void FEM_Model::create_IQI_map()
+           {
+               // erase the content of the map
+               mIQINameToIndexMap.clear();
+
+               uint tCounter = 0;
+
+               // loop over all IQIs and build a name to index map
+               for( const std::shared_ptr<IQI> & tIQI : mIQIs )
+               {
+                   std::string tIQIName = tIQI->get_name();
+
+                   mIQINameToIndexMap[ tIQIName ] = tCounter++;
+               }
+           }
+
+
+           //-------------------------------------------------------------------------------------------------
+
+           void FEM_Model::initialize_IQIs()
+           {
+               // create content of the map
+               this->create_IQI_map();
+
+               // number of requested IQIs for the model
+               moris::uint tNumIQIs = mRequestedIQINames.size();
+
+               //resize the Global IQI cell
+               mGlobalIQIVal.resize( tNumIQIs );
+
+               //set a counter
+               uint iIQICounter = 0 ;
+
+               for( auto & tQI : mGlobalIQIVal )
+               {
+                   // use the map to get the IQI index of requested IQI
+                   moris_index tIQIIndex = mIQINameToIndexMap[ mRequestedIQINames(iIQICounter) ] ;
+
+                   // get the matrix dimension of the IQI
+                   std::pair<uint, uint> tMatrixDim = mIQIs(tIQIIndex)->get_matrix_dim();
+
+                   // set size for the QI value and initialize the value with 0
+                   tQI.set_size( tMatrixDim.first, tMatrixDim.second, 0.0 );
+
+                   //increase the counter by 1
+                   iIQICounter++;
+               }
+
+           }
 
         //-------------------------------------------------------------------------------------------------
 

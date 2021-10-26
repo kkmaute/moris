@@ -398,21 +398,21 @@ namespace xtk
                         //initialize the time tracer
                         Tracer tTracer( "MTK", "Double Sided Set", " Periodic Boundary Condition ");
 
+                        //construct the intersection and perform the cutting
                         mIntersectionDetect = new mtk::Intersection_Detect( mMTKOutputPerformer, 0, mParameterList, mGeometryEngine->get_num_bulk_phase()) ;
-
                         mIntersectionDetect->perform();
                     }
 
                     {
-                        Tracer tTracer( "MTK", "Output Clusters", "Writing Mesh");
+                            Tracer tTracer( "MTK", "Output Clusters", "Writing Mesh");
 
-                        //Construct the intersection mesh
-                        mtk::Intersection_Mesh* tIscMesh = new mtk::Intersection_Mesh(&tEnrIntegMesh,mIntersectionDetect );
+                            //Construct the intersection mesh
+                            mtk::Intersection_Mesh* tIscMesh = new mtk::Intersection_Mesh(&tEnrIntegMesh,mIntersectionDetect );
 
-                        //Write the mesh
-                        moris::mtk::Writer_Exodus tWriter2(tIscMesh);
-                        tWriter2.write_mesh("", "VIS_ISC.exo", "", "temp.exo");
-                        tWriter2.close_file();
+                            //Write the mesh
+                            moris::mtk::Writer_Exodus tWriter2(tIscMesh);
+                            tWriter2.write_mesh("", "VIS_ISC.exo", "", "temp.exo");
+                            tWriter2.close_file();
                     }
 
 
