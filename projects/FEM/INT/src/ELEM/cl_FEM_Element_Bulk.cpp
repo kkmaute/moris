@@ -792,6 +792,8 @@ namespace moris
             // initialize space - time volume
             real tSpaceTimeVolume = 0.0;
 
+            Matrix< DDRMat > tValMat( 1, 1, 0.0 );
+
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
             {
                 // get the ith integration point in the IG param space
@@ -827,9 +829,12 @@ namespace moris
                 Matrix< DDRMat > tQIElemental( 1, 1, 0.0 );
                 tReqIQI->compute_QI( tQIElemental );
 
-                // assemble the QI value on the set
-                aValues( 0 ) += tWStar * tQIElemental( 0 );
+                tValMat( 0 ) += tWStar * tQIElemental( 0 );
+
             }
+
+            // assemble the QI value on the set
+            aValues( 0 ) += tValMat( 0 ) / tSpaceTimeVolume;
         }
 
         //------------------------------------------------------------------------------
