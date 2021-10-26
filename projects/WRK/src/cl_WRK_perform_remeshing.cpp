@@ -864,7 +864,7 @@ namespace moris
                     LOGGER_ARBITRARY_DESCRIPTOR,
                     LOGGER_ARBITRARY_DESCRIPTOR);
 
-            for( uint Ik =0; Ik > mParameters.mRefinemenCopytPatternToPattern_3.size(); Ik++ )
+            for( uint Ik =0; Ik < mParameters.mRefinemenCopytPatternToPattern_3.size(); Ik++ )
             {
                 uint tPattern = mParameters.mRefinemenCopytPatternToPattern_3( Ik )( 0 );
 
@@ -878,6 +878,8 @@ namespace moris
 
                 // set mesh
                 moris::mtk::Writer_Exodus tExodusWriter( tInterpolationMesh );
+
+                //fixme make path parallel
 
                 // set file names
                 tExodusWriter.write_mesh(

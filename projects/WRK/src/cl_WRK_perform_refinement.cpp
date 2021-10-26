@@ -76,12 +76,14 @@ namespace moris
             moris::Cell< moris::Cell< std::string > > tFieldNames;
             moris::Cell< moris::Cell< uint > >        tRefinements;
             moris::Cell< sint >                       tMaxRefinementPerLevel;
+            moris::Cell< moris::Cell< hmr::Refinement_Function_2 > >  tRefinementFunctions;
 
             this->prepare_input_for_refinement(
                     tPattern,
                     tFieldNames,
                     tRefinements,
-                    tMaxRefinementPerLevel);
+                    tMaxRefinementPerLevel,
+                    tRefinementFunctions );
 
             if( ( mParameters.mRefinementFunctionName.size() > 0  ) && mLibrary != nullptr )
             {
@@ -150,12 +152,14 @@ namespace moris
             moris::Cell< moris::Cell< std::string > > tFieldNames;
             moris::Cell< moris::Cell< uint > >        tRefinements;
             moris::Cell< sint >                       tMaxRefinementPerLevel;
+            moris::Cell< moris::Cell< hmr::Refinement_Function_2 > > tRefinementFunctions;
 
             this->prepare_input_for_refinement(
                     tPattern,
                     tFieldNames,
                     tRefinements,
-                    tMaxRefinementPerLevel);
+                    tMaxRefinementPerLevel,
+                    tRefinementFunctions );
 
             // get pattern to save
             uint tNumPatternToSave = mParameters.mRefinemenCopytPatternToPattern.size();
@@ -169,15 +173,6 @@ namespace moris
 
             MORIS_ERROR( mParameters.mRefinementFunctionName.size() > 0, "Refinement function names not set");
             MORIS_ERROR( mLibrary != nullptr, "mLibrary not set");
-
-            mParameters.mRefinementFunction_2.resize( mParameters.mRefinementFunctionName.size() , nullptr);
-
-            for( uint Ik = 0; Ik < mParameters.mRefinementFunctionName.size(); Ik ++ )
-            {
-                mParameters.mRefinementFunction_2( Ik ) =
-                        mLibrary->load_function< moris::hmr::Refinement_Function_2 >( mParameters.mRefinementFunctionName( Ik ) );
-            }
-
 
             uint tWorkingPattern = 7;//mParameters->get_working_pattern();
 
@@ -212,10 +207,10 @@ namespace moris
 
                     for( uint Ii = 0; Ii < tNumElements; Ii++ )
                     {
-                        mtk::Cell & tCell = tSourceMesh->get_mtk_cell( Ii );
+                        mtk::Cell & tCell = tSourceMesh->get_writable_mtk_cell( Ii );
 
                         enum hmr::ElementalRefienmentIndicator tRefIndicator =
-                                mParameters.mRefinementFunction_2( Ia )( &tCell, tField, tActivationPattern );
+                                tRefinementFunctions( Ik )( Ia )( &tCell, tField, tActivationPattern );
 
                         hmr::Background_Element_Base* tBGElementOld =
                                 reinterpret_cast< hmr::Element * >( tCell.get_base_cell() )->
@@ -357,12 +352,14 @@ namespace moris
             moris::Cell< moris::Cell< std::string > > tFieldNames;
             moris::Cell< moris::Cell< uint > >        tRefinements;
             moris::Cell< sint >                       tMaxRefinementPerLevel;
+            moris::Cell< moris::Cell< hmr::Refinement_Function_2 > > tRefinementFunctions;
 
             this->prepare_input_for_refinement(
                     tPattern,
                     tFieldNames,
                     tRefinements,
-                    tMaxRefinementPerLevel);
+                    tMaxRefinementPerLevel,
+                    tRefinementFunctions);
 
             for( uint Ik = 0; Ik< tPattern.size(); Ik++ )
             {
@@ -402,7 +399,8 @@ namespace moris
                 Cell< moris_index >                       & aPatternForRefinement,
                 moris::Cell< moris::Cell< std::string > > & aFieldsForRefinement,
                 moris::Cell< moris::Cell< uint > >        & aRefinements,
-                moris::Cell< sint >                       & aMaxRefinementPerPattern )
+                moris::Cell< sint >                       & aMaxRefinementPerPattern,
+                moris::Cell< moris::Cell< hmr::Refinement_Function_2 > > & aRefinementFunctions )
         {
 
             // produce unique list of pattern which will be refined
@@ -428,6 +426,7 @@ namespace moris
             // resize
             aFieldsForRefinement    .resize( tNumberOfRefinementPattern );
             aRefinements            .resize( tNumberOfRefinementPattern );
+            aRefinementFunctions    .resize( tNumberOfRefinementPattern );
             aMaxRefinementPerPattern.resize( tNumberOfRefinementPattern, 0 );
 
             // create list with field pointers and refinements per pattern
@@ -448,6 +447,11 @@ namespace moris
                             {
                                 aRefinements( Ik )        .push_back( mParameters.mRefinementLevel( Ii )( Ia ) );
                                 aMaxRefinementPerPattern( Ik ) = std::max( aMaxRefinementPerPattern( Ik ), mParameters.mRefinementLevel( Ii )( Ia ) );
+                            }
+                            if( mParameters.mRefinementFunctionName.size() >0)
+                            {
+                                aRefinementFunctions( Ik ).push_back(
+                                        mLibrary->load_function< moris::hmr::Refinement_Function_2 >( mParameters.mRefinementFunctionName( Ii  ) ) );
                             }
                         }
                     }

@@ -105,7 +105,8 @@ namespace moris
                         Cell< moris_index >                      & aPatternForRefinement,
                         moris::Cell<moris::Cell< std::string > > & aFieldsForRefinement,
                         moris::Cell< moris::Cell< uint > >       & aRefinements,
-                        moris::Cell< sint >                      & aMaxRefinementPerPattern );
+                        moris::Cell< sint >                      & aMaxRefinementPerPattern,
+                        moris::Cell< moris::Cell< hmr::Refinement_Function_2 > > & aRefinementFunctions);
 
                 //--------------------------------------------------------------------------------------------------------------
                 // FIXME stuff below this line will be deleted soon
