@@ -25,6 +25,8 @@ namespace moris
                 //! Mode index. Transleted based in mode name
                 uint        mModeIndex;
 
+                bool        mOutputMeshes = false;
+
                 //mode ab_initio
                 moris::Cell< std::string > mRefinementsFieldNames_0;
                 Cell< Matrix< DDSMat > >   mRefinementsMode_0;
@@ -120,8 +122,14 @@ namespace moris
                         moris::ParameterList & aRefinementParameterlist,
                         uint                   aPattern );
 
+                //------------------------------------------------------------------------------
+
                 void create_refinement_input_list_2(
                         moris::ParameterList & aRefinementParameterlist );
+
+                //------------------------------------------------------------------------------
+
+                void output_meshes( std::shared_ptr< hmr::HMR > aHMRPerformer );
 
                 //------------------------------------------------------------------------------
         };

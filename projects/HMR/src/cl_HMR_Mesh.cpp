@@ -1924,6 +1924,13 @@ namespace moris
 
         //-------------------------------------------------------------------------------
 
+        mtk::Cell & Mesh::get_writable_mtk_cell( moris_index aElementIndex )
+        {
+            return this->get_mtk_cell( aElementIndex );
+        }
+
+        //-------------------------------------------------------------------------------
+
         mtk::Cell const & Mesh::get_mtk_cell( moris_index aElementIndex ) const
         {
             if( mDatabase->get_parameters()->use_number_aura() and

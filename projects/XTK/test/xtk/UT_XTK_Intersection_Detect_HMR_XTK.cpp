@@ -239,7 +239,8 @@ namespace xtk
 
             for( uint i = 0 ; i < tMorisIdCellDiff.size() ; i++ )
             {
-                REQUIRE( tMorisIdCellDiff(i) == 6) ;
+
+                REQUIRE( tMorisIdCellDiff(i) == 11) ;
             }
 
         }

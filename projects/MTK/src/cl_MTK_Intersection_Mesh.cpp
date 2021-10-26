@@ -263,7 +263,9 @@ namespace moris
             //Check if the node is added in the intersection process
             if( mIntersectionDetect->mIntersectedMeshData.is_external_entity(aNodeIndex, EntityRank::NODE) )
             {
-                return mIntersectionDetect->mNewNodeCoords(mIntersectionDetect->mNodeIndexToCoordsMap[aNodeIndex]);
+                moris::size_t tNumBackgroundEntities = mBackGroundMesh->get_num_entities(EntityRank::NODE);
+
+                return mIntersectionDetect->mNewNodeCoords(aNodeIndex - tNumBackgroundEntities);
             }
             //If not an intersection node, refer it to background mesh
             else
@@ -280,8 +282,9 @@ namespace moris
                 const moris_index aMeshIndex ) const
         {
             if( mIntersectionDetect->mIntersectedMeshData.is_external_entity( aEntityIndex, aEntityRank) )
-            {
-                return mIntersectionDetect->mEntityLocaltoGlobalMap((uint)aEntityRank)(aEntityIndex);
+            {   
+                moris::size_t tNumBackgroundEntities = mBackGroundMesh->get_num_entities((moris::EntityRank)aEntityRank);
+                return mIntersectionDetect->mEntityLocaltoGlobalMap((uint)aEntityRank)(aEntityIndex-tNumBackgroundEntities);
             }
             else
             {
@@ -313,6 +316,10 @@ namespace moris
             {
                 // Get the corresponding cell from list of the cells
                 // based on the map from cell index to mtk::cell
+                 //moris::size_t tNumBackgroundEntities = mBackGroundMesh->get_num_entities(EntityRank::ELEMENT);
+
+                //moris::mtk::Cell const * tCell = mIntersectionDetect->mMasterSideCells(aElementIndex-tNumBackgroundEntities);
+
                 moris::mtk::Cell const * tCell = mIntersectionDetect->mMasterSideCells(mIntersectionDetect->mMasterCellIndextoCellMap[aElementIndex]);
 
                 // Get vertices' indices attached to that cell

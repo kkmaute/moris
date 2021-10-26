@@ -10,6 +10,8 @@
 #include "cl_MTK_Field.hpp"
 #include "cl_MTK_Field_Discrete.hpp"
 #include "cl_MTK_Mapper.hpp"
+#include "cl_MTK_Writer_Exodus.hpp"
+#include "cl_MTK_Reader_Exodus.hpp"
 
 #include "cl_WRK_perform_remeshing.hpp"
 #include "cl_WRK_perform_refinement.hpp"
@@ -35,6 +37,8 @@ namespace moris
         : mLibrary( aLibrary )
         {
             mParameters.mMode = aParameterlist.get< std::string >( "mode" );
+
+            mParameters.mOutputMeshes = aParameterlist.get< bool >( "output_meshes" );
 
             moris::map< std::string, moris::uint > tModeMap;
             tModeMap["ab_initio"] = 0;
@@ -352,6 +356,11 @@ namespace moris
 
             // HMR finalize
             aHMRPerformers( 0 )->perform();
+
+            if( mParameters.mOutputMeshes )
+            {
+                this->output_meshes( aHMRPerformers( 0 ) );
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -673,8 +682,8 @@ namespace moris
             {
                 if( aSourceFields( If )->get_field_is_discrete() )
                 {
-                    // create field object for this mesh
-                    aTargetFields( If )= std::make_shared< mtk::Field_Discrete >( aMeshPair, aDiscretizationMeshIndex );
+                    // create field object for this mesh. this mesh only has one discretization. thus 0
+                    aTargetFields( If )= std::make_shared< mtk::Field_Discrete >( aMeshPair, 0 );
                     aTargetFields( If )->set_label( aSourceFields( If )->get_label() );
 
                     if( aMapFields )
@@ -694,18 +703,10 @@ namespace moris
                 }
                 else
                 {
-                    if( aSourceFields( If )->get_field_entity_type() == mtk::Field_Entity_Type::NODAL )
-                    {
-                        aTargetFields( If ) = aSourceFields( If );
-                        aTargetFields( If )->unlock_field();
-                        aTargetFields( If )->set_mesh_pair( aMeshPair );
-                    }
-                    else
-                    {
-//                        MORIS_ERROR( tSourceMesh->get_mesh_type() == MeshType::HMR,
-//                                "Mapper::map_input_field_to_output_field() Source mesh is not and HMR mesh" );
-                        // do nothing
-                    }
+                    // FIXME perhaps not do that for fem::fields??
+                    aTargetFields( If ) = aSourceFields( If );
+                    aTargetFields( If )->unlock_field();
+                    aTargetFields( If )->set_mesh_pair( aMeshPair );
                 }
             }
         }
@@ -851,6 +852,47 @@ namespace moris
             aRefinementParameterlist.set( "refinement_function_name" , tRefFunctionForFieldNames );
             aRefinementParameterlist.set( "refinement_pattern" , tPattern );
             aRefinementParameterlist.set( "remeshing_copy_old_pattern_to_pattern" , tCopyPattern );
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Remeshing_Mini_Performer::output_meshes(
+                std::shared_ptr< hmr::HMR > aHMRPerformer )
+        {
+            sint tOptIter =  gLogger.get_iteration(
+                    "OptimizationManager",
+                    LOGGER_ARBITRARY_DESCRIPTOR,
+                    LOGGER_ARBITRARY_DESCRIPTOR);
+
+            for( uint Ik =0; Ik < mParameters.mRefinemenCopytPatternToPattern_3.size(); Ik++ )
+            {
+                uint tPattern = mParameters.mRefinemenCopytPatternToPattern_3( Ik )( 0 );
+
+                // create mesh for this pattern
+                hmr::Interpolation_Mesh_HMR * tInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
+                        aHMRPerformer->get_database(),
+                        1,
+                        tPattern,
+                        1,
+                        tPattern);
+
+                // set mesh
+                moris::mtk::Writer_Exodus tExodusWriter( tInterpolationMesh );
+
+                //fixme make path parallel
+
+                // set file names
+                tExodusWriter.write_mesh(
+                        "./",
+                        "Remeshing_Lagrange_Mesh_Pattern_"+ ios::stringify( tPattern ) +"_Iter_" + ios::stringify( tOptIter ) + ".exo",
+                        "./",
+                        "field_temp");
+
+                // finalize and write mesh
+                tExodusWriter.save_mesh( );
+
+                delete tInterpolationMesh;
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
