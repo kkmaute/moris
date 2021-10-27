@@ -27,22 +27,38 @@ namespace moris
         class IQI_Max_Dof : public IQI
         {
 
-                /**
-                 * @brief IQI to compute integral over space and time of
-                 *
-                 * ( ( dof-value / mRefValue - mShift)^pm )^mExponent
-                 *
-                 * where the integrand can be considered if strictly positive or negative or both
-                 */
+            /**
+             * @brief IQI to compute integral over space and time of
+             *
+             * ( ( dof-value / mRefValue - mShift)^pm )^mExponent
+             *
+             * where the integrand can be considered if strictly positive or negative or both
+             */
 
-                //------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
+
+            enum class IQI_Property_Type
+            {
+                WEIGHT,
+                MAX_ENUM
+            };
 
             public:
                 //------------------------------------------------------------------------------
                 /*
                  * constructor
                  */
-                IQI_Max_Dof();
+                IQI_Max_Dof()
+                {
+                    // set size for the property pointer cell
+                    mMasterProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
+    
+                    // populate the property map
+                    mPropertyMap[ "Weight" ] = static_cast< uint >( IQI_Property_Type::WEIGHT );
+
+                    // set FEM IQI type
+                    mFEMIQIType = fem::IQI_Type::MAX_DOF;
+                }
 
                 //------------------------------------------------------------------------------
                 /**
