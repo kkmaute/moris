@@ -213,7 +213,16 @@ namespace moris
                     {
                         mSet->get_residual()( tQIIndex )(
                             { tMasterDepStartIndex, tMasterDepStopIndex },{ 0, 0 } ) += 
-                            tPropWeight->val()(0,0) * aWStar * ( mExponent * tdQI * tFIMaxDof->N_trans() * tSelect / mRefValue );
+                            tPropWeight->val()(0) * aWStar * ( mExponent * tdQI * tFIMaxDof->N_trans() * tSelect / mRefValue );
+
+                        // check dof dependency on the property
+                        if ( tPropWeight->check_dof_dependency( tDofType ) )
+                        {
+                            mSet->get_residual()( tQIIndex )(
+                                { tMasterDepStartIndex, tMasterDepStopIndex },{ 0, 0 } ) += 
+                                tPropWeight->dPropdDOF( tDofType ) * aWStar * (std::pow( tArgument, mExponent ) );
+                        }
+
                     }
                     else
                     {
@@ -266,7 +275,13 @@ namespace moris
                 // check if the weight property has been stipulated
                 if ( tPropWeight != nullptr )
                 {
-                    adQIdu = tPropWeight->val()(0,0) * mExponent * tdQI * trans( tFIMaxDof->N() ) * tSelect / mRefValue;
+                    adQIdu = tPropWeight->val()(0) * mExponent * tdQI * trans( tFIMaxDof->N() ) * tSelect / mRefValue;
+
+                    // check dof dependency on the property
+                    if (tPropWeight->check_dof_dependency( aDofType ))
+                    {
+                        adQIdu +=  tPropWeight->dPropdDOF(aDofType) * (std::pow(tArgument, mExponent));
+                    }
                 }
                 else
                 {
