@@ -33,7 +33,7 @@ namespace moris
         {
             mFieldType = aType;
 
-            mValues.set_size( mValues.n_rows(), mFieldType.size(), MORIS_REAL_MAX );
+            mValues.set_size( mValues.n_rows(), mFieldType.size(), MORIS_REAL_MIN );
         }
 
         //-----------------------------------------------------------------------------

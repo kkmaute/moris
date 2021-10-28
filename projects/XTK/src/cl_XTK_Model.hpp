@@ -512,6 +512,9 @@ namespace xtk
             moris::Matrix<moris::IndexMat>
             get_element_to_subphase();
 
+            moris::Matrix<moris::IndexMat>
+            get_num_subphase_neighbors();
+
             //-----------------------------------------------------------------------------------
 
             moris_id
@@ -1302,10 +1305,12 @@ namespace xtk
 
               void
               collect_subphases_attached_to_facet_on_cell(
-                      moris::moris_index         aCellIndex,
-                      moris::moris_index         aFacetIndex,
-                      Cell<moris::moris_index> & aCellSubphaseIndices,
-                      Cell<moris::moris_index> & aCellSubphaseBulkIndices);
+                moris::moris_index         aCellIndex,
+                moris::moris_index         aFacetOrdinal,
+                Cell<moris::moris_index> & aCellSubphaseIndices,
+                Cell<moris::moris_index> & aCellSubphaseBulkIndices,
+                Cell<moris::moris_index> & aRepresentativeCellInd,
+                Cell<moris::moris_index> & aRepresentativeCellSideOrdinal);
                       
 
 

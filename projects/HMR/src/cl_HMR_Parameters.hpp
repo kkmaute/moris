@@ -26,6 +26,11 @@
 
 namespace moris
 {
+    namespace mtk
+    {
+        class Cell;
+        class Field;
+    }
     namespace hmr
     {
         class Element;
@@ -34,6 +39,12 @@ namespace moris
         typedef sint  ( *Refinement_Function ) (
                 hmr::Element           * aElement,
                 const Matrix< DDRMat > & aElementLocalValues);
+
+        // User-defined refinement function
+        typedef hmr::ElementalRefienmentIndicator ( *Refinement_Function_2 ) (
+                mtk::Cell                     * aElement,
+                std::shared_ptr< mtk::Field >   aField,
+                uint                            tActivationPattern);
 
         // -----------------------------------------------------------------------------
 
@@ -977,9 +988,9 @@ namespace moris
             //-------------------------------------------------------------------------------
 
             moris::Matrix< DDUMat > get_initial_refinement() const
-               {
+            {
                 return mInitialRefinementLevel;
-               }
+            }
 
             //-------------------------------------------------------------------------------
 
@@ -991,9 +1002,25 @@ namespace moris
             //-------------------------------------------------------------------------------
 
             moris::Matrix< DDUMat > get_initial_refinement_patterns() const
-               {
+            {
                 return mInitialRefinementPattern;
-               }
+            }
+
+            //-------------------------------------------------------------------------------
+
+            uint get_initial_refinement( uint tActivationPattern ) const
+            {
+                sint tInitialRefinement = 0;
+
+                for( uint Ik = 0; Ik < mInitialRefinementPattern.numel(); Ik ++)
+                {
+                    if( mInitialRefinementPattern( Ik ) == tActivationPattern )
+                    {
+                        tInitialRefinement = mInitialRefinementLevel( Ik );
+                    }
+                }
+                return tInitialRefinement;
+            }
 
             //-------------------------------------------------------------------------------
 

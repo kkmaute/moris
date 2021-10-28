@@ -153,6 +153,7 @@ namespace moris
                 SHEAR_STRESS,
                 VON_MISES_STRESS,
                 PRINCIPAL_STRESS,
+                STRESS_VECTOR,
 
                 HOMOGENIZED_CONSTITUTIVE,
                 HEAT_METHOD_PENALTY,
@@ -307,6 +308,7 @@ namespace moris
                 VON_MISES_STRESS,
                 PRINCIPAL_STRESS,
                 MAX_SHEAR_STRESS,
+                STRESS_VECTOR,
                 END_STRESS_TYPE
         };
 

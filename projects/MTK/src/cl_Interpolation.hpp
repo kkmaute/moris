@@ -146,6 +146,42 @@ namespace moris
                     }
                 }
 
+                /**
+                 * Linear interpolation based on a local coordinate (aLclCoords) based on interpolation vars (aInterpVars)
+                 * Requires 1 local coordinate
+                 *
+                 * @param[in] aInterpVars - Interpolation Vars (x,y,z are treated as independent interpolation variables
+                 * @param[in] aLocations  - Local coordinates to interpolate to (a point at the center of edge has {{0}} organized in row wise manner
+                 * @param[in] aInterpolationResult  - physical coordinates of the aLocations
+                 */
+                template<typename Matrix_View>
+                static void trilinear_interpolation_multivalue(const moris::Matrix< moris::DDRMat > & aInterpVars,
+                        Matrix_View & aLocations,
+                        moris::Matrix< moris::DDRMat > & aInterpolationResult)
+                {
+                    for( size_t iRow = 0 ; iRow < aInterpolationResult.n_rows(); iRow++)
+                    {
+                        moris::real xi  = aLocations(iRow, 0);
+                        moris::real eta = aLocations(iRow,1);
+                        moris::real mu  = aLocations(iRow,2);
+                        size_t tNumInt = aInterpVars.n_cols();
+
+                        for(size_t i = 0; i < tNumInt; i++)
+                        {
+                            auto tTmpVar = aInterpVars.get_column(i);
+
+                            aInterpolationResult(iRow, i) = (tTmpVar(0) * (1 - xi) * (1 - eta) * (1 - mu)
+                                    + tTmpVar(1) * (1 + xi) * (1 - eta) * (1 - mu)
+                                    + tTmpVar(2) * (1 + xi) * (1 + eta) * (1 - mu)
+                                    + tTmpVar(3) * (1 - xi) * (1 + eta) * (1 - mu)
+                                    + tTmpVar(4) * (1 - xi) * (1 - eta) * (1 + mu)
+                                    + tTmpVar(5) * (1 + xi) * (1 - eta) * (1 + mu)
+                                    + tTmpVar(6) * (1 + xi) * (1 + eta) * (1 + mu)
+                                    + tTmpVar(7) * (1 - xi) * (1 + eta) * (1 + mu))/ 8;
+                        }
+                    }
+                }
+
 
 
         };

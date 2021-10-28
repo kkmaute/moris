@@ -557,6 +557,78 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void File::save_refinement_pattern(
+                Background_Mesh_Base             * aBackgroundMesh,
+                const moris::Matrix< DDUMat >    & tPatternToSave,
+                Matrix< DDLUMat >                & aElementCounterPerLevelAndPattern,
+                moris::Cell< Matrix< DDLUMat > > & aElementPerPattern)
+        {
+            uint tMaxLevel = aBackgroundMesh->get_max_level();
+
+            uint tNumPattern = tPatternToSave.numel();
+
+            moris::Matrix< DDUMat > tPatterns(tNumPattern, 1 );
+
+            // element counter
+            aElementCounterPerLevelAndPattern.set_size( tMaxLevel+1, tNumPattern, 0 );
+
+            // collect all elements that are flagged for refinement
+            for( uint l = 0; l < tMaxLevel; ++l )
+            {
+                // cell which contains elements
+                Cell< Background_Element_Base* > tElements;
+
+                // collect elements from this level
+                aBackgroundMesh->collect_elements_on_level_within_proc_domain( l, tElements );
+
+                // loop over all elements
+                for( auto tElement : tElements )
+                {
+                    for( uint Ik = 0; Ik < tNumPattern; ++Ik )
+                    {
+                        // test if B-Spline Element is refined
+                        if( tElement->is_refined( tPatternToSave( Ik ) ) )
+                        {
+                            // increment counter
+                            ++aElementCounterPerLevelAndPattern ( l, Ik );
+                        }
+                    }
+                }
+            }
+
+            aElementPerPattern.resize( tNumPattern );
+            moris::Cell< luint > tElementPerPatternCount( tNumPattern, 0 );
+
+            for( uint Ik = 0; Ik < tNumPattern; ++Ik )
+            {
+                aElementPerPattern( Ik ).set_size( sum( aElementCounterPerLevelAndPattern.get_column( Ik ) ) , 1 );
+            }
+
+            for( uint l = 0; l < tMaxLevel; ++l )
+            {
+                // cell which contains elements
+                Cell< Background_Element_Base* > tElements;
+
+                // collect elements from this level
+                aBackgroundMesh->collect_elements_on_level_within_proc_domain( l, tElements );
+
+                // loop over all elements
+                for( Background_Element_Base * tElement : tElements )
+                {
+                    for( uint Ik = 0; Ik < tNumPattern; ++Ik )
+                    {
+                        // test if element is refined
+                        if( tElement->is_refined( tPatternToSave( Ik ) ) )
+                        {
+                            aElementPerPattern( Ik )( tElementPerPatternCount( Ik )++ ) = tElement->get_hmr_id();
+                        }
+                    }
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        void File::save_refinement_pattern(
                 Lagrange_Mesh_Base               * aLagrangeMesh,
                 const uint                         aDiscretizationMeshIndex,
                 Matrix< DDLUMat >                & aElementCounterPerLevelAndPattern,

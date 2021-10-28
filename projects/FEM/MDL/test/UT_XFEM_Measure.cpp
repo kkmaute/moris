@@ -82,6 +82,8 @@
 
 #include "fn_norm.hpp"
 
+#include"cl_FEM_Model.hpp"
+
 // define free function for properties
 void tPropValConstFunc_MDLFEMBench
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
@@ -368,6 +370,13 @@ TEST_CASE("MDL XFEM Measure","[MDL_XFEM_MEASURE]")
        mdl::Model * tModel = new mdl::Model( tMeshManager,
                                               0,
                                               tSetInfo );
+
+       // get the global IQI values in order to determine the corerct size
+       moris::Cell< moris::Matrix< DDRMat > > & tGlobalIQICell = tModel->get_fem_model()->get_IQI_values();
+
+       //Resize the global IQI properly
+       tGlobalIQICell.resize(1);
+       tGlobalIQICell(0).set_size(1,1);
 
        Solver_Interface *  tSolverInterface = tModel->get_solver_interface();
 

@@ -19,3 +19,5 @@ add_subdirectory(Thermal_Flow_About_Sphere_2D)
 add_subdirectory(Contact_Sensitivity_Test)
 add_subdirectory(One_Element_Mat_Geo_Pdv_sweep)
 add_subdirectory(Level_Set_Beam_SIMP_Hole_Seeding)
+add_subdirectory(Zienkiewicz_Zhu_Adaptive_Refinement)
+

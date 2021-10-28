@@ -36,7 +36,7 @@ void tGeoValFunction_UTIWGDIFFDIR
 using namespace moris;
 using namespace fem;
 
-TEST_CASE( "IWG_Diff_Dirichlet", "[moris],[fem],[IWG_Diff_Dirichlet]" )
+void UT_FEM_IWG_Diffusion_Dirichlet_Core ( enum fem::IWG_Type tIWGType )
 {
     // define an epsilon environment
     real tEpsilon = 1E-6;
@@ -110,7 +110,7 @@ TEST_CASE( "IWG_Diff_Dirichlet", "[moris],[fem],[IWG_Diff_Dirichlet]" )
     fem::IWG_Factory tIWGFactory;
 
     std::shared_ptr< fem::IWG > tIWG =
-            tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE );
+            tIWGFactory.create_IWG( tIWGType );
     tIWG->set_residual_dof_type( tTempDofTypes );
     tIWG->set_dof_type_list( { tTempDofTypes } );
     tIWG->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
@@ -332,6 +332,13 @@ TEST_CASE( "IWG_Diff_Dirichlet", "[moris],[fem],[IWG_Diff_Dirichlet]" )
                         tJacobianFD,
                         true );
 
+                // check that jacobian is symmetric for symmetric version
+                if ( tIWGType == fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE )
+                {
+                    real tRelError = norm( tJacobian - trans( tJacobian ) ) / norm ( tJacobian );
+                    REQUIRE( tRelError < 1e-12 );
+                }
+
                 // print for debug
                 if( !tCheckJacobian )
                 {
@@ -346,7 +353,17 @@ TEST_CASE( "IWG_Diff_Dirichlet", "[moris],[fem],[IWG_Diff_Dirichlet]" )
             tMasterFIs.clear();
         }
     }
-}/*END_TEST_CASE*/
+}
+
+TEST_CASE( "IWG_Diff_Dirichlet_Symmetric", "[moris],[fem],[IWG_Diff_Dirichlet_Symmetric]" )
+{
+    UT_FEM_IWG_Diffusion_Dirichlet_Core( fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE );
+}
+
+TEST_CASE( "IWG_Diff_Dirichlet_Unsymmetric", "[moris],[fem],[IWG_Diff_Dirichlet_Unsymmetric]" )
+{
+    UT_FEM_IWG_Diffusion_Dirichlet_Core( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
+}
 
 TEST_CASE( "IWG_Diff_Dirichlet_Geo_Prop", "[moris],[fem],[IWG_Diff_Dirichlet_Geo_Prop]" )
 {

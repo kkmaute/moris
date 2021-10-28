@@ -664,45 +664,95 @@ namespace xtk
     //------------------------------------------------------------------------------
 
     moris::Cell<std::string>
-    Enriched_Integration_Mesh::create_basis_support_fields()
+    Enriched_Integration_Mesh::create_basis_support_fields(moris::Matrix<moris::DDRMat> const & aProbeSpheres)
     {
+        
+        moris::Cell<std::string>    tFieldNames;
+
+        // DEBUG because basis coordinates is only defined on debug mode
+        #ifdef DEBUG
+        MORIS_ASSERT(aProbeSpheres.n_cols() == 4,"Probe sphere should be r, xc, yc, zc");
+        moris_index tNumSpheres = aProbeSpheres.n_rows();
+
+        // background mesh data
+        moris::mtk::Interpolation_Mesh & tMeshData = mModel->get_background_mesh().get_mesh_data();
+
         // get the enriched interpolation mesh
         Enriched_Interpolation_Mesh* tEnrInterpMesh  = mModel->mEnrichedInterpMesh(mMeshIndexInModel);
 
         // base string of field
-        std::string tBaseStr = "Weight";
+        std::string tBaseStr = "weights";
+
+        // determine which basis functions we are visualizing
+        moris::Cell<moris::Cell<moris_index>> tActiveBasis(tEnrInterpMesh->get_num_interpolation_types());
+        moris::Cell<std::unordered_map<moris_index,moris_index>> tEnrCoeffActiveIndexFieldIndex(tEnrInterpMesh->get_num_interpolation_types());
+
+        moris_index tFieldIndex = 0;
+
+        for(moris::uint iBT = 0; iBT < tEnrInterpMesh->mMeshIndices.numel(); iBT++)
+        {
+            moris_index tMeshIndex = iBT;
+
+            // iterate through background basis functions
+            for(moris::uint iBackBasisIndex = 0; iBackBasisIndex < tEnrInterpMesh->get_num_background_coefficients(tMeshIndex); iBackBasisIndex++)
+            {
+                // get the basis coordinate of the background basis function
+                Matrix< DDRMat > tBasisCoords = tMeshData.get_basis_coords(tMeshIndex, (moris_index)iBackBasisIndex);
+
+                // iterate through circles, see if the basis is active
+                for (moris_index iSp = 0; iSp < tNumSpheres; iSp++)
+                {   
+                    // FIXME: make the
+                    moris::real tLSVal = sqrt(pow(tBasisCoords(0) - aProbeSpheres(iSp,1), 2) + pow(tBasisCoords(1) - aProbeSpheres(iSp,2), 2) + pow(tBasisCoords(2) - aProbeSpheres(iSp,3), 2)) - aProbeSpheres(iSp,0);
+
+                    if(tLSVal < 0.0)
+                    {
+                        // iterate through enriched interpolation coeffs
+                        Matrix<IndexMat> const & tEnrCoeffs = tEnrInterpMesh->get_enriched_coefficients_at_background_coefficient(tMeshIndex, (moris_index)iBackBasisIndex);
+
+                        for (moris::uint iEnrBasisOrd = 0; iEnrBasisOrd < tEnrCoeffs.numel(); iEnrBasisOrd++)
+                        {
+                            const moris_index tEnrIndex = tEnrCoeffs(iEnrBasisOrd);
+
+                            tActiveBasis(tMeshIndex).push_back(tEnrIndex);
+                            tEnrCoeffActiveIndexFieldIndex(tMeshIndex)[tEnrIndex] = tFieldIndex;
+                            tFieldIndex++;
+                        }
+                    }
+                }
+            }
+
+        }
 
         // field names for output
         moris::Cell<std::string> tOutputFieldNames;
 
         // field information for internal use
-        moris::Cell<moris::Cell<std::string>> tFieldNames(tEnrInterpMesh->get_num_interpolation_types());
-        moris::Cell<moris::Cell<moris_index>> tFieldIndices(tEnrInterpMesh->get_num_interpolation_types());
-        moris::Cell<moris::Cell<Matrix<DDRMat>>> tFieldData(tEnrInterpMesh->get_num_interpolation_types());
+        tFieldNames.resize(tFieldIndex);
+        moris::Cell<moris_index>    tFieldIndices(tFieldIndex);
+        moris::Cell<Matrix<DDRMat>> tFieldData(tFieldIndex,Matrix<DDRMat>(1,this->get_num_nodes(),-10));
+
 
         // iterate through interpolation types and for each basis declare the field in mesh
         for(moris::uint iBT = 0; iBT < tEnrInterpMesh->get_num_interpolation_types(); iBT++)
         {
-            std::string tInterpTypeStr = "_mi_" + std::to_string(iBT);
 
-            tFieldNames(iBT).resize(tEnrInterpMesh->get_num_basis_functions());
-            tFieldIndices(iBT).resize(tEnrInterpMesh->get_num_basis_functions());
-            tFieldData(iBT).resize(tEnrInterpMesh->get_num_basis_functions(),Matrix<DDRMat>(this->get_num_entities(EntityRank::NODE),1));
+            moris_index tMeshIndex = iBT;
+            std::string tInterpTypeStr = "_mi_" + std::to_string(tMeshIndex);
 
             // iterate through basis functions
-            for(moris::uint iB = 0; iB < tEnrInterpMesh->get_num_basis_functions(); iB++)
+            for(moris::uint iB = 0; iB < tActiveBasis(tMeshIndex).size(); iB++)
             {
-                // initialize the data to -1
-                tFieldData(iBT)(iB).fill(-1);
+                MORIS_ASSERT(tEnrCoeffActiveIndexFieldIndex(tMeshIndex).find(tActiveBasis(tMeshIndex)(iB)) != tEnrCoeffActiveIndexFieldIndex(tMeshIndex).end(),"Not in map");
+                tFieldIndex = tEnrCoeffActiveIndexFieldIndex(tMeshIndex).find(tActiveBasis(tMeshIndex)(iB))->second;
 
-                tFieldNames(iBT)(iB) = tBaseStr + tInterpTypeStr + "_ind_" + std::to_string(iB);
-
-                tOutputFieldNames.push_back(tFieldNames(iBT)(iB));
+                tFieldNames(tFieldIndex) = tBaseStr + tInterpTypeStr + "_ind_" + std::to_string(tActiveBasis(tMeshIndex)(iB));
 
                 // declare the field in this mesh
-                tFieldIndices(iBT)(iB) = this->create_field(tFieldNames(iBT)(iB),EntityRank::NODE,0);
+                tFieldIndices(tFieldIndex) = this->create_field(tFieldNames(tFieldIndex),EntityRank::NODE,0);
             }
         }
+
 
         // populate field data
         for(moris::uint iCl = 0; iCl < this->mCellClusters.size(); iCl++)
@@ -728,12 +778,9 @@ namespace xtk
                     // get indices of coefficients
                     Matrix< IndexMat > tCoeffInds = tVertexIp->get_indices();
 
-                    // resize data
-                    tCoeffsIPIntoCluster(iBT).resize(tCoeffInds.numel());
-
                     for(moris::uint iC = 0; iC < tCoeffInds.numel(); iC++)
                     {
-                        tCoeffsIPIntoCluster(iBT)(iC) = tCoeffInds(iC);
+                        tCoeffsIPIntoCluster(iBT).push_back( tCoeffInds(iC) );
                     }
                 }
             }
@@ -754,7 +801,11 @@ namespace xtk
                     {
                         for(moris::uint iC = 0; iC < tCoeffsIPIntoCluster(iBT).size(); iC++)
                         {
-                            tFieldData(iBT)(tCoeffsIPIntoCluster(iBT)(iC))(tVertices(iV)->get_index()) = 1;
+                            auto tFieldIndIter = tEnrCoeffActiveIndexFieldIndex(iBT).find(tCoeffsIPIntoCluster(iBT)(iC));
+                            if(tFieldIndIter != tEnrCoeffActiveIndexFieldIndex(iBT).end())
+                            {
+                                tFieldData(tFieldIndIter->second)(tVertices(iV)->get_index()) = 1;
+                            }
                         }
                     }
                 }
@@ -763,17 +814,98 @@ namespace xtk
 
         // add field data to mesh
         // iterate through interpolation
-        for(moris::uint iBT = 0; iBT < tEnrInterpMesh->get_num_interpolation_types(); iBT++)
+        for(moris::uint iField = 0; iField < tFieldIndices.size(); iField++)
         {
-            // iterate through basis functions
-            for(moris::uint iB = 0; iB < tEnrInterpMesh->get_num_basis_functions(); iB++)
-            {
-                this->add_field_data(tFieldIndices(iBT)(iB),EntityRank::NODE,tFieldData(iBT)(iB));
-            }
+            this->add_field_data(tFieldIndices(iField),EntityRank::NODE,tFieldData(iField));
         }
 
-        return tOutputFieldNames;
+        #endif
+        
+        return tFieldNames;
     }
+
+    void
+    Enriched_Integration_Mesh::create_subphase_fields()
+    {
+        // Fields constructed here
+        moris::Cell<std::string> tCellFields = {"sp_index","sp_num_neigh"};
+
+        moris::Cell<moris::moris_index> tFieldIndices(tCellFields.size());
+
+        moris::Matrix<moris::DDRMat> tCellToSubphase(1,this->get_num_elems());
+
+        for(moris::uint i = 0; i <mSubphaseIndexToClusterIndex.numel(); i++)
+        {
+            // subphase index
+            moris_index tSubphaseClusterIndex = mSubphaseIndexToClusterIndex(i);
+
+            // Cell Cluster
+            std::shared_ptr<xtk::Cell_Cluster> tCluster = mCellClusters(tSubphaseClusterIndex);
+
+            // get the cells in cluster
+            moris::Cell<moris::mtk::Cell const *> const & tIgCellsInCluster = tCluster->get_primary_cells_in_cluster();
+
+            for(moris::uint iCell = 0; iCell< tIgCellsInCluster.size(); iCell++)
+            {
+                tCellToSubphase(tIgCellsInCluster(iCell)->get_index()) = std::floor((moris::real) i);
+            }
+
+        }
+
+
+        moris::Matrix<moris::IndexMat> tNumSubphaseNeighbors = mModel->get_num_subphase_neighbors();
+
+        moris::Matrix<moris::DDRMat> tNumSubphaseNeighborsReal(1,tCellToSubphase.numel(),-10.0);
+
+        for(moris::uint iF = 0; iF < tCellFields.size(); iF++)
+        {
+            tFieldIndices(iF) = this->create_field(tCellFields(iF),EntityRank::ELEMENT,0);
+        }
+
+        for(moris::uint iCast = 0; iCast < tCellToSubphase.numel(); iCast++)
+        {
+            moris_index tSubphaseIndex       = tCellToSubphase(iCast);
+            tNumSubphaseNeighborsReal(iCast) = std::floor((moris::real)tNumSubphaseNeighbors(tSubphaseIndex));
+        }
+
+
+        this->add_field_data(tFieldIndices(0),EntityRank::ELEMENT,tCellToSubphase);
+        this->add_field_data(tFieldIndices(1),EntityRank::ELEMENT,tNumSubphaseNeighborsReal);
+
+    }
+
+    void
+    Enriched_Integration_Mesh::add_mesh_field_real_scalar_data_loc_inds(
+        std::string      const & aFieldName,
+        enum EntityRank  const & aFieldEntityRank,
+        Matrix< DDRMat > const & aFieldData)
+    {
+
+        MORIS_ASSERT(aFieldEntityRank==EntityRank::ELEMENT,"Only tested for nodal and element scalar field");
+        
+        moris_index tFieldIndex = this->create_field(aFieldName,EntityRank::ELEMENT,0);
+
+        this->add_field_data(tFieldIndex,EntityRank::ELEMENT,aFieldData);
+    }
+
+    void
+    Enriched_Integration_Mesh::create_cell_id_fields()
+    {
+        // Fields constructed here
+        moris::Cell<std::string> tCellFields = {"cell_id"};
+
+        moris_index tFieldIndex = this->create_field(tCellFields(0),EntityRank::ELEMENT,0);
+
+        moris::Matrix<moris::DDRMat> tCellIdField(1,this->get_num_elems());
+
+        for(moris::uint iCell = 0; iCell < this->get_num_elems(); iCell++)
+        {
+            tCellIdField(iCell) = (moris::real) this->get_mtk_cell(iCell).get_id();
+        }
+
+        this->add_field_data(tFieldIndex,EntityRank::ELEMENT,tCellIdField);
+    }
+
 
     //------------------------------------------------------------------------------
 
@@ -816,18 +948,73 @@ namespace xtk
 
         if(aParamList->get<bool>("write_enrichment_fields"))
         {
-            // set up the nodal fields for basis support
-            moris::Cell<std::string> tNodeFields = this->create_basis_support_fields();
+            std::string tProbeSpheresStr = aParamList->get<std::string>("write_enrichment_fields_probe_spheres");
+            moris::Cell<std::string> tNodeFields;
 
-            writer.set_nodal_fields(tNodeFields);
 
-            for(moris::uint iF = 0; iF<tNodeFields.size(); iF++)
-            {    
-                moris::moris_index tFieldIndex = this->get_field_index(tNodeFields(iF),EntityRank::NODE);
-                
-                writer.write_nodal_field(tNodeFields(iF),this->get_field_data(tFieldIndex,EntityRank::NODE));
+            if(!tProbeSpheresStr.empty())
+            {   
+                Matrix<DDRMat> tProbeSpheres = string_to_mat<DDRMat>(tProbeSpheresStr);
+
+                // set up the nodal fields for basis support
+                this->create_basis_support_fields(tProbeSpheres);
             }
-        }          
+
+
+        
+            // Cell<std::string> tEnrichmentFieldNames =  mModel->get_basis_enrichment().get_cell_enrichment_field_names();
+            // tEnrichment.write_cell_enrichment_to_fields(tEnrichmentFieldNames, this);
+
+            // subphase neighbor field
+            this->create_subphase_fields();
+        }       
+
+        moris::Cell<std::string> tNodeFields = this->get_field_names(EntityRank::NODE);
+        writer.set_nodal_fields(tNodeFields);
+
+        for(moris::uint iF = 0; iF<tNodeFields.size(); iF++)
+        {    
+            moris::moris_index tFieldIndex = this->get_field_index(tNodeFields(iF),EntityRank::NODE);
+            writer.write_nodal_field(tNodeFields(iF),this->get_field_data(tFieldIndex,EntityRank::NODE));
+        }
+        
+        // create element id field
+        this->create_cell_id_fields();
+
+        // iterate through blocks
+        moris::Cell<std::string> tCellFields = this->get_field_names(EntityRank::ELEMENT);
+        
+        writer.set_elemental_fields(tCellFields);
+
+        moris::Cell<std::string> tBlockNames = this->get_set_names(EntityRank::ELEMENT);
+
+        for (moris::uint iField = 0; iField < tCellFields.size(); iField++)
+        {
+
+            moris::moris_index tFieldIndex = this->get_field_index(tCellFields(iField), EntityRank::ELEMENT);
+            Matrix<DDRMat> const &tFieldData = this->get_field_data(tFieldIndex, EntityRank::ELEMENT);
+
+            for (moris::uint iBlock = 0; iBlock < this->get_num_blocks(); iBlock++)
+            {
+                std::string tBlockName = tBlockNames(iBlock);
+                moris_index tBlockIndex = this->get_block_set_index(tBlockName);
+
+                Matrix<IndexMat> tCellIndices = this->get_element_indices_in_block_set(tBlockIndex);
+                
+                Matrix<DDRMat> tBlockFieldData(1, tCellIndices.numel(),-10.0);
+
+                for (moris::uint iCell = 0; iCell < tCellIndices.numel(); iCell++)
+                {
+                    tBlockFieldData(iCell) = tFieldData(tCellIndices(iCell));
+                }
+
+                if(tBlockFieldData.numel() > 0)
+                {
+                
+                    writer.write_elemental_field(tBlockName, tCellFields(iField), tBlockFieldData);
+                }
+            }
+        }
 
         // Write the fields
         writer.set_time(0.0);
@@ -1456,6 +1643,8 @@ namespace xtk
                     << " | Num Void: "                         << tCluster->get_num_void_cells()
                     <<std::endl;
 
+            
+            moris::print(tCluster->get_vertices_local_coordinates_wrt_interp_cell(),"Local Coords");
             if(aVerbosityLevel > 0)
             {
                 moris::Cell<moris::mtk::Cell const *> const & tPrimaryCells = tCluster->get_primary_cells_in_cluster();
@@ -1525,6 +1714,22 @@ namespace xtk
                     " | Side Set Ord: "     <<std::setw(9)<<iSS<<
                     " | Num Cell Clusters: "<<std::setw(9)<<this->mSideSets(iSS).size()<<
                     " | Bulk Phase: "<<std::setw(9)<<mSideSetColors(iSS)(0)<<std::endl;
+            if(aVerbosityLevel > 0)
+            {
+                for(moris::uint iCL = 0 ; iCL < this->mSideSets(iSS).size(); iCL++ )
+                {
+                    const std::shared_ptr<xtk::Side_Cluster> tCluster = this->mSideSets(iSS)(iCL);
+
+                    moris::Cell<moris::mtk::Cell const *> const & tPrimaryCells = tCluster->get_primary_cells_in_cluster();
+    
+                    for(moris::uint  i = 0 ; i < tCluster->get_num_primary_cells(); i++)
+                    {   
+                        std::cout<<"Integration Cell Id = "<<std::setw(9)<<tPrimaryCells(i)->get_id()<<std::endl;
+                        moris::print(tCluster->get_cell_local_coords_on_side_wrt_interp_cell(i),"Local Coords on Side");            
+                    }             
+                }
+            }
+                    
         }
     }
 
@@ -1685,6 +1890,21 @@ namespace xtk
         return "dbl_iside_p0_" + std::to_string(aBulkPhaseIndex0) + "_p1_" + std::to_string(aBulkPhaseIndex1);
     }
     //------------------------------------------------------------------------------
+    moris::Cell<std::string>
+    Enriched_Integration_Mesh::get_field_names(enum moris::EntityRank aEntityRank)
+    {
+        moris::Cell<std::string> tOutputFieldNames;
+
+        moris_index tRankFieldIndex = this->get_entity_rank_field_index(aEntityRank);
+        
+        for(auto const & iter: mFieldLabelToIndex(tRankFieldIndex))
+        {
+            tOutputFieldNames.push_back(iter.first);
+        }
+
+        return tOutputFieldNames;
+    }
+
     moris::moris_index
     Enriched_Integration_Mesh::create_field(
             std::string            aLabel,

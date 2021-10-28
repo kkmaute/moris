@@ -124,10 +124,10 @@ namespace moris
                     return std::make_shared< IWG_Diffusion_Radiation >();
 
                 case IWG_Type::SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE :
-                    return std::make_shared< IWG_Diffusion_Interface >( 1 );
+                    return std::make_shared< IWG_Diffusion_Interface >( -1 );
 
                 case IWG_Type::SPATIALDIFF_INTERFACE_UNSYMMETRIC_NITSCHE :
-                    return std::make_shared< IWG_Diffusion_Interface >( -1 );
+                    return std::make_shared< IWG_Diffusion_Interface >( 1 );
 
                 case IWG_Type::SPATIALDIFF_VW_GHOST :
                     return std::make_shared< IWG_Diffusion_Virtual_Work_Ghost >();

@@ -25,6 +25,8 @@ namespace moris
                 //! Mode index. Transleted based in mode name
                 uint        mModeIndex;
 
+                bool        mOutputMeshes = false;
+
                 //mode ab_initio
                 moris::Cell< std::string > mRefinementsFieldNames_0;
                 Cell< Matrix< DDSMat > >   mRefinementsMode_0;
@@ -35,6 +37,11 @@ namespace moris
                 Matrix< DDSMat >                           mMaxRefinementsMode_1;
                 Matrix< DDSMat >                           mMinRefinementsMode_1;
                 Matrix< DDSMat >                           mRefinementPatternMode_1;
+
+                Cell< Matrix< DDSMat > >                   mRefinementPatternMode_3;
+                Cell< Matrix< DDSMat > >                   mRefinemenCopytPatternToPattern_3;
+                Cell< Matrix< DDSMat > >                   mMinimumRefinementLevel;
+                Cell< std::string >                        mRefinementFunctionForField;
         };
 
         class Remeshing_Mini_Performer
@@ -88,6 +95,12 @@ namespace moris
 
                 //------------------------------------------------------------------------------
 
+                void perform_refinement_mode_2(
+                        std::shared_ptr< hmr::HMR >           aHMRPerformer,
+                        Cell< std::shared_ptr< mtk::Field > > aSourceFields );
+
+                //------------------------------------------------------------------------------
+
                 void map_fields(
                         Cell< std::shared_ptr< mtk::Field > > & aSourceFields,
                         Cell< std::shared_ptr< mtk::Field > > & aTargetFields,
@@ -108,6 +121,15 @@ namespace moris
                 void create_refinement_input_list(
                         moris::ParameterList & aRefinementParameterlist,
                         uint                   aPattern );
+
+                //------------------------------------------------------------------------------
+
+                void create_refinement_input_list_2(
+                        moris::ParameterList & aRefinementParameterlist );
+
+                //------------------------------------------------------------------------------
+
+                void output_meshes( std::shared_ptr< hmr::HMR > aHMRPerformer );
 
                 //------------------------------------------------------------------------------
         };

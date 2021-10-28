@@ -280,7 +280,9 @@ namespace moris
 
             tOutputField->unlock_field();
             tOutputField->set_values(tNodalValues);
-            tMapper.map_input_field_to_output_field_2(tOutputField);
+            //tMapper.map_input_field_to_output_field_2(tOutputField);
+            tMapper.perform_mapping(tOutputField, EntityRank::NODE, EntityRank::BSPLINE);
+
 
             // Get coefficients
             Matrix<DDRMat> tCoefficients = tOutputField->get_coefficients();

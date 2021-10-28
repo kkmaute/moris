@@ -289,6 +289,15 @@ protected:
                 //------------------------------------------------------------------------------
 
                 /**
+                 * @brief returns all maximal value
+                 *
+                 * @return maximal value
+                 */
+                moris::real get_max_value();
+
+                //------------------------------------------------------------------------------
+
+                /**
                  * @brief returns value of the field entity; if nodal and value is not updated all nodal values
                  *        will be computed first
                  *

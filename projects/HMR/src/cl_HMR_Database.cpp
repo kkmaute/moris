@@ -166,17 +166,11 @@ namespace moris
         // -----------------------------------------------------------------------------
 
         void Database::load_refinement_pattern(
-                Matrix< DDLUMat >                & aElementCounterPerLevelAndPattern,
-                moris::Cell< Matrix< DDLUMat > > & aElementPerPattern)
+                Matrix< DDLUMat >                      & aElementCounterPerLevelAndPattern,
+                moris::Cell< Matrix< DDLUMat > > & aElementPerPattern,
+                Matrix< DDUMat >                       & aPatternListUniqueMat )
         {
             uint tNumPattern = aElementPerPattern.size();
-
-            Matrix< DDUMat > tPatternListUniqueMat( tNumPattern, 1 );
-            tPatternListUniqueMat( 0 ) = 4;
-            if( tNumPattern == 2 )
-            {
-                tPatternListUniqueMat( 1 ) = 5;
-            }
 
             // get number of levels
             uint tNumberOfLevels = aElementCounterPerLevelAndPattern.n_rows();
@@ -187,7 +181,7 @@ namespace moris
                 luint tCount = 0;
 
                 // select B-Spline pattern
-                mBackgroundMesh->set_activation_pattern( tPatternListUniqueMat( Ik ) );
+                mBackgroundMesh->set_activation_pattern( aPatternListUniqueMat( Ik ) );
 
                 // loop over all levels
                 for( uint l=0; l<tNumberOfLevels; ++l )
@@ -215,7 +209,7 @@ namespace moris
                     }
 
                     // refine mesh
-                    mBackgroundMesh->perform_refinement( tPatternListUniqueMat( Ik ) );
+                    mBackgroundMesh->perform_refinement( aPatternListUniqueMat( Ik ) );
                 }
             }
 
@@ -601,6 +595,9 @@ namespace moris
             for( auto tMesh : mBSplineMeshes )
             {
                 tMesh->calculate_basis_indices( mCommunicationTable );
+                #ifdef DEBUG
+                tMesh->calculate_basis_coordinates();
+                #endif
             }
 
             // reset active pattern
@@ -918,11 +915,13 @@ namespace moris
             // get pointer to working pattern
             uint tWorkingPattern = mParameters->get_working_pattern();
 
-            // minimum refinement level. Is zero by default
-            //            uint tMinLevel = mParameters->get_initial_refinement();     FIXME add min refinement level
             uint tMinLevel = 0;
 
-            uint tMaxAllowLevel = mParameters->get_max_refinement_level();
+            if( not aResetPattern )
+            {
+                // minimum refinement level. Is zero by default
+                tMinLevel = mParameters->get_initial_refinement( aActivePattern );
+            }
 
             // this function resets the working pattern
             if ( aResetPattern )
@@ -948,14 +947,16 @@ namespace moris
                 // loop over all elements and flag them for refinement
                 for( Background_Element_Base* tElement : tElementList )
                 {
-                    // flag this element
-                    if(tElement->get_level() < tMaxAllowLevel)
+                    // test if element is marked on working pattern
+                    if ( !tElement->is_refined( aActivePattern ) )
                     {
                         tElement->put_on_refinement_queue();
-
-                        // update minimum level of element
-                        tElement->update_min_refimenent_level( tMinLevel );
                     }
+                }
+
+                if( mBackgroundMesh->collect_refinement_queue() )
+                {
+                    mBackgroundMesh->perform_refinement( aActivePattern );
                 }
             }
 
@@ -972,7 +973,7 @@ namespace moris
                 for( Background_Element_Base* tElement : tElementList )
                 {
                     // test if element is marked on working pattern
-                    if ( tElement->is_refined( tWorkingPattern ) && tElement->get_level() < tMaxAllowLevel)
+                    if ( tElement->is_refined( tWorkingPattern ) )
                     {
                         // flag this element
                         tElement->put_on_refinement_queue();

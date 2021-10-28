@@ -464,13 +464,17 @@ namespace moris
             moris::Cell<mtk::Cell const *> const & tSlaveIGCells = dt.get_slave_side_cluster().get_primary_cells_in_cluster( );
             moris::Matrix<moris::IndexMat>         tSlaveIGCellSideOrds = dt.get_slave_side_cluster().get_cell_side_ordinals();
 
-            os<<"   Cell Pairs: "<<std::endl;
+            os<<"       Cell Pairs: "<<std::endl;
 
             for(moris::uint  i = 0; i < tMasterIGCells.size(); i++)
             {
                 std::cout<<"  Master Cell ID/Ord: "<<std::setw(9)<<tMasterIGCells(i)->get_id()<<std::setw(9)<<tMasterIGCellSideOrds(i);
                 std::cout<<"  Slave Cell ID/Ord: "<<std::setw(9)<<tSlaveIGCells(i)->get_id()<<std::setw(9)<<tSlaveIGCellSideOrds(i)<<std::endl;
             }
+
+            moris::print(dt.get_vertices_local_coordinates_wrt_interp_cell(mtk::Master_Slave::MASTER),"Master Local Coords");
+            moris::print(dt.get_vertices_local_coordinates_wrt_interp_cell(mtk::Master_Slave::SLAVE),"Slave Local Coords");
+
             return os;
         }
 
