@@ -194,7 +194,20 @@ namespace moris
             // Stage 1: HMR refinement
 
             // Stage 2: XTK -----------------------------------------------------------------------------
-            this->create_xtk();
+            // Read parameter list from shared object
+            Parameter_Function tXTKParameterListFunc = mPerformerManager->mLibrary->load_function<Parameter_Function>( "XTKParameterList" );
+            moris::Cell< moris::Cell< ParameterList > > tXTKParameterList;
+            tXTKParameterListFunc( tXTKParameterList );
+
+            // Create XTK
+            std::shared_ptr< xtk::Model > tXTKPerformer = std::make_shared< xtk::Model >( tXTKParameterList( 0 )( 0 ) );
+
+            std::shared_ptr< mtk::Mesh_Manager > tMTKPerformer = std::make_shared< mtk::Mesh_Manager >();
+
+            // Set performers
+            tXTKPerformer->set_geometry_engine( mPerformerManager->mGENPerformer( 0 ).get() );
+            tXTKPerformer->set_input_performer( mPerformerManager->mMTKPerformer( 0 ) );
+            tXTKPerformer->set_output_performer( tMTKPerformer );
 
             // Compute level set data in GEN
             // FIXME: HMR stores mesh with aura on 0
@@ -213,7 +226,7 @@ namespace moris
 //             tMeshCheckerHMR.print_diagnostics();
 
             // XTK perform - decompose - enrich - ghost - multigrid
-            bool tFlag = mPerformerManager->mXTKPerformer( 0 )->perform();
+            bool tFlag = tXTKPerformer->perform();
 
             if( not tFlag )
             {
@@ -228,6 +241,11 @@ namespace moris
                 return tMat;
             }
 
+            // IMPORTANT!!! do not overwrite previous XTK  and MTK performer before we know if this XTK performer triggers a restart.
+            // otherwise the fem::field meshes are deleted and cannot be used anymore.
+            mPerformerManager->mXTKPerformer( 0 ) = tXTKPerformer;
+            mPerformerManager->mMTKPerformer( 1 ) = tMTKPerformer;
+
 //            mtk::Mesh_Checker tMeshCheckerXTK(
 //                    0,
 //                    mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair(0).get_interpolation_mesh(),
@@ -237,6 +255,8 @@ namespace moris
 
             //mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair(0).get_integration_mesh()->save_MPC_to_hdf5();
             //mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair(0).get_integration_mesh()->save_IG_node_TMatrices_to_file();
+
+            mPerformerManager->mMDLPerformer( 0 )->set_performer( mPerformerManager->mMTKPerformer( 1 ) );
 
             // Assign PDVs
             mPerformerManager->mGENPerformer( 0 )->create_pdvs( mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair(0) );
@@ -308,26 +328,6 @@ namespace moris
             }
 
             return tDCriteriaDAdv;
-        }
-
-        void Workflow_HMR_XTK::create_xtk()
-        {
-            // Read parameter list from shared object
-            Parameter_Function tXTKParameterListFunc = mPerformerManager->mLibrary->load_function<Parameter_Function>( "XTKParameterList" );
-            moris::Cell< moris::Cell< ParameterList > > tXTKParameterList;
-            tXTKParameterListFunc( tXTKParameterList );
-
-            // Create XTK
-            mPerformerManager->mXTKPerformer( 0 ) = std::make_shared< xtk::Model >( tXTKParameterList( 0 )( 0 ) );
-
-            // Reset output MTK performer
-            mPerformerManager->mMTKPerformer( 1 ) = std::make_shared< mtk::Mesh_Manager >();
-            mPerformerManager->mMDLPerformer( 0 )->set_performer( mPerformerManager->mMTKPerformer( 1 ) );
-
-            // Set performers
-            mPerformerManager->mXTKPerformer( 0 )->set_geometry_engine( mPerformerManager->mGENPerformer( 0 ).get() );
-            mPerformerManager->mXTKPerformer( 0 )->set_input_performer( mPerformerManager->mMTKPerformer( 0 ) );
-            mPerformerManager->mXTKPerformer( 0 )->set_output_performer( mPerformerManager->mMTKPerformer( 1 ) );
         }
 
         //--------------------------------------------------------------------------------------------------------------
