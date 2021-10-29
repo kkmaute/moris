@@ -38,9 +38,13 @@ namespace moris
                 //! Refinement Pattern
                 Cell< Matrix< DDSMat > >    mRefinementPattern;
 
-                std::string                 mRefinementFunctionName;
+                Cell< Matrix< DDSMat > >    mRefinemenCopytPatternToPattern;
 
                 hmr::Refinement_Function    mRefinementFunction = nullptr;
+
+                moris::Cell< std::string >                mRefinementFunctionName;
+
+                moris::Cell< hmr::Refinement_Function_2 > mRefinementFunction_2;
         };
 
         class Refinement_Mini_Performer
@@ -83,6 +87,10 @@ namespace moris
                         Cell< std::shared_ptr< mtk::Field > >  & aFields,
                         std::shared_ptr<hmr::HMR>                aHMR );
 
+                void perform_refinement_2(
+                        Cell< std::shared_ptr< mtk::Field > >  & aFields,
+                        std::shared_ptr<hmr::HMR>                aHMR );
+
                 //--------------------------------------------------------------------------------------------------------------
 
                 /**
@@ -97,7 +105,8 @@ namespace moris
                         Cell< moris_index >                      & aPatternForRefinement,
                         moris::Cell<moris::Cell< std::string > > & aFieldsForRefinement,
                         moris::Cell< moris::Cell< uint > >       & aRefinements,
-                        moris::Cell< sint >                      & aMaxRefinementPerPattern );
+                        moris::Cell< sint >                      & aMaxRefinementPerPattern,
+                        moris::Cell< moris::Cell< hmr::Refinement_Function_2 > > & aRefinementFunctions);
 
                 //--------------------------------------------------------------------------------------------------------------
                 // FIXME stuff below this line will be deleted soon

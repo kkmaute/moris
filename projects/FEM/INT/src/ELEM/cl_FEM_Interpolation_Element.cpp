@@ -1296,7 +1296,7 @@ namespace moris
 
                     moris::Matrix< DDRMat > tValues( 1,1, 0.0);
 
-                    MORIS_ASSERT( aFields( tGlobalIndex )->get_value( tIndex, 0 ) == MORIS_REAL_MAX, "elemental field values previously set.");
+                    MORIS_ASSERT( aFields( tGlobalIndex )->get_value( tIndex, 0 ) == MORIS_REAL_MIN, "elemental field values previously set.");
 
                     // ask cluster to compute quantity of interest
                     mFemCluster( 0 )->compute_quantity_of_interest(

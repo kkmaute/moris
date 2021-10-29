@@ -81,8 +81,9 @@ namespace moris
                  * @param[in] aPairCount number of the pair in the periodic side set pair
                  * @param[in] tPhaseToPhaseIndex a index showing interaction of master-side and slave-side phases
                  */
-                void make_new_pairs(
+                void create_dbl_sided_cluster(
                         moris::Cell< Matrix < DDRMat> > tP,
+                        moris::Cell<moris_index> & aIndicesinCutCell,
                         moris::mtk::Cell const & aRightInterpCell,
                         moris::mtk::Cell const & aLeftInterpCell,
                         uint aPairCount,
@@ -147,11 +148,11 @@ namespace moris
 
                 // ----------------------------------------------------------------------------
                 /**
-                  * construct vertices based on the given coordinates
-                  * @param[ in ] tUniqueIntersectedPoints Unique coordinates obtained from intersecting two side clusters
-                  * @param[ in ] aSlaveInterpCell Slave interpolation cell
-                  * @param[ in ] aPairCount Number of the pair in the periodic side set pair
-                  */
+                 * construct vertices based on the given coordinates
+                 * @param[ in ] tUniqueIntersectedPoints Unique coordinates obtained from intersecting two side clusters
+                 * @param[ in ] aSlaveInterpCell Slave interpolation cell
+                 * @param[ in ] aPairCount Number of the pair in the periodic side set pair
+                 */
                 moris::Cell< moris::mtk::Vertex *>
                 create_slave_vertices( Matrix < DDRMat> tUniqueIntersectedPoints,
                         moris::mtk::Cell const & aSlaveInterpCell,
@@ -173,6 +174,75 @@ namespace moris
                         uint aPairCount);
 
                 // ----------------------------------------------------------------------------
+                /**
+                 * @brief this function generates a unique identifier( a number) based on the ijk position of the background cell
+                 *  All the clusters that are contained in the background cell will have the same identifier
+                 * @param[ in ]  aSideClusters all the clusters on 1 side
+                 * @param[ in ]  aPairCount Number of the pair in the periodic side set pair
+                 * @param[ out ] aMap map relating the background cells to the side clusters
+                 */
+                void
+                generate_identifier( moris::Cell< mtk::Cluster const * > & aSideClusters,
+                        uint &                                  aPairCount,
+                        std::unordered_map< moris::moris_index, moris::Cell<moris_index> > & aMap) const ;
+
+                // ----------------------------------------------------------------------------
+                /*
+                 * @ the main function in the intersection algorithm which takes 2 surfaces and return
+                 * @ their intersection
+                 * @param[ in ]  aFirstTRICoords coordinates of first triangle
+                 * @param[ in ]  aSecondTRICoords coordinates of second triangle
+                 * @param[ in ]  aFirstTRINodeIndex Local indices of the first TRI mesh
+                 * @param[ in ]  aSecondTRINodeIndex Local indices of the second TRI mesh
+                 */
+
+                void
+                elementwise_bruteforce_search (
+                        moris::Cell < moris::Matrix <DDRMat> >  const &  tParamCoordsCell,
+                        moris::Matrix< moris::IndexMat>  const &         tIGCellToSideClusterMap,
+                        moris::Cell < moris::Matrix <DDRMat> >  const &  tParamCoordsCell2,
+                        moris::Matrix< moris::IndexMat>  const &         tIGCellToSideClusterMap2,
+                        moris::Cell < moris::Matrix <DDRMat> > &         tCutTriangles,
+                        moris::Matrix< moris::IndexMat> &                tCutTrianglesIdentifier) const;
+
+                // ----------------------------------------------------------------------------
+                /*
+                 * computes intersection of two line segments
+                 * @param[ in ]  aFirstTRICoords coordinates of first triangle
+                 * @param[ in ]  aSecondTRICoords coordinates of second triangle
+                 * @param[ out ] aIntersectedPoints intersection points and
+                 * @param[ out ] aIntersectVecintersection vector showing which neighbors of first
+                 *  are also intersecting the second triangle
+                 */
+                void
+                Intersect(
+                        moris::Matrix < moris::DDRMat >  const &  aFirstTRICoords,
+                        moris::Matrix < moris::DDRMat  > const &  aSecondTRICoords,
+                        moris::Matrix < moris::DDRMat  > &        aIntersectedPoints) const;
+
+                // ----------------------------------------------------------------------------
+
+                /**
+                 * This function returns a pair specifying which indices should be converted from 3d coordinates to 2d coordinates
+                 * In order to generate surfaces.
+                 * @param[ in ] aPairCount Number of the pair in the periodic side set pair
+                 * @param[ out ] indices which we should use
+                 */
+                void
+                group_cut_cells(moris::Matrix< IndexMat> const & aCutCellIndetiferMatrix,
+                        std::unordered_map< moris_index , moris::Cell< moris_index > > & aCutCellIdentifierToCutCellIndex) const;
+
+
+                // ----------------------------------------------------------------------------
+
+                /**
+                 * This function returns a pair specifying which indices should be converted from 3d coordinates to 2d coordinates
+                 * In order to generate surfaces.
+                 * @param[ in ] aPairCount Number of the pair in the periodic side set pair
+                 * @param[ out ] indices which we should use
+                 */
+                uint
+                permutation_order(uint const & aPairCount) const;
 
         };
     }

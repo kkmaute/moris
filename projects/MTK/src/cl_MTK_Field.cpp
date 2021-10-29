@@ -41,11 +41,11 @@ namespace moris
             if( mFieldEntityType == Field_Entity_Type::NODAL )
             {
                 // size matrix of nodal values
-                mValues.set_size( tIPmesh->get_num_nodes(), mNumberOfFields, MORIS_REAL_MAX);
+                mValues.set_size( tIPmesh->get_num_nodes(), mNumberOfFields, MORIS_REAL_MIN);
             }
             else if( mFieldEntityType == Field_Entity_Type::ELEMENTAL )
             {
-                mValues.set_size( tIPmesh->get_num_elems(), mNumberOfFields, MORIS_REAL_MAX);
+                mValues.set_size( tIPmesh->get_num_elems(), mNumberOfFields, MORIS_REAL_MIN);
             }
         }
 
@@ -119,6 +119,13 @@ namespace moris
 
             // lock mesh
             mFieldIsLocked = true;
+        }
+
+        //------------------------------------------------------------------------------
+
+        moris::real Field::get_max_value()
+        {
+            return mValues.max();
         }
 
         //------------------------------------------------------------------------------

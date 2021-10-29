@@ -372,1199 +372,1488 @@ Model::perform()
         {
             if ( tEnrInterpMesh.get_spatial_dim() == 2 )
             {
+                //initialize the time tracer
+                Tracer tTracer( "MTK", "Double Sided Set", " Periodic Boundary Condition " );
 
-                if ( tEnrInterpMesh.get_spatial_dim() == 2 )
+                //Construct intersection and perform
+                mIntersectionDetect2D = new mtk::Intersection_Detect_2D( mMTKOutputPerformer, 0, mParameterList, mGeometryEngine->get_num_bulk_phase() );
+                mIntersectionDetect2D->perform();
+            }
+            else
+            {
                 {
                     //initialize the time tracer
                     Tracer tTracer( "MTK", "Double Sided Set", " Periodic Boundary Condition " );
 
-                    //Construct intersection and perform
-                    mIntersectionDetect2D = new mtk::Intersection_Detect_2D( mMTKOutputPerformer, 0, mParameterList, mGeometryEngine->get_num_bulk_phase() );
-                    mIntersectionDetect2D->perform();
+
+                    mIntersectionDetect = new mtk::Intersection_Detect( mMTKOutputPerformer, 0, mParameterList, mGeometryEngine->get_num_bulk_phase() );
+                    mIntersectionDetect->perform();
                 }
-                else
+
                 {
-                    {
-                        //initialize the time tracer
-                        Tracer tTracer( "MTK", "Double Sided Set", " Periodic Boundary Condition " );
 
-                        mIntersectionDetect = new mtk::Intersection_Detect( mMTKOutputPerformer, 0, mParameterList, mGeometryEngine->get_num_bulk_phase() );
+                    Tracer tTracer( "MTK", "Output Clusters", "Writing Mesh" );
 
-                        mIntersectionDetect->perform();
-                    }
+                    //Construct the intersection mesh
+                    mtk::Intersection_Mesh* tIscMesh = new mtk::Intersection_Mesh( &tEnrIntegMesh, mIntersectionDetect );
 
-                    {
-                        Tracer tTracer( "MTK", "Output Clusters", "Writing Mesh" );
-
-                        //Construct the intersection mesh
-                        mtk::Intersection_Mesh* tIscMesh = new mtk::Intersection_Mesh( &tEnrIntegMesh, mIntersectionDetect );
-
-                        //Write the mesh
-                        moris::mtk::Writer_Exodus tWriter2( tIscMesh );
-                        tWriter2.write_mesh( "", "VIS_ISC.exo", "", "temp.exo" );
-                        tWriter2.close_file();
-                    }
-
-
+                    //Write the mesh
                     moris::mtk::Writer_Exodus tWriter2( tIscMesh );
                     tWriter2.write_mesh( "", "VIS_ISC.exo", "", "temp.exo" );
                     tWriter2.close_file();
                 }
-                //constrcut the object for periodic boundary condition
-                //                mtk::Periodic_Boundary_Condition_Helper tPBCHelper(mMTKOutputPerformer,0, mParameterList);
-                //
-                //                //perform periodic boundary condition
-                //                tPBCHelper.setup_periodic_boundary_conditions();
             }
-
-            // if( mParameterList.get<bool>("contact_sandbox") )
-            // {
-            //     std::string tInterfaceSideSetName1 = tEnrIntegMesh.get_interface_side_set_name(0, 0, 2);
-            //     std::string tInterfaceSideSetName2 = tEnrIntegMesh.get_interface_side_set_name(0, 1, 0);
-
-            //     xtk::Contact_Sandbox tSandbox(&tEnrIntegMesh,
-            //                                   tInterfaceSideSetName1,
-            //                                   tInterfaceSideSetName2,
-            //                                   mParameterList.get<real>("bb_epsilon"));
-
-            //     // generate vertex displacement fields
-            //     moris::real tInitialDisp = 0.0;
-            //     moris::real tPredictedDisplX = 0.03;
-            //     moris::real tPredictedDisplY = -0.03;
-            //     moris::real tPredictedDisplZ = -0.01;
-            //     Matrix<DDRMat> tCurrentDispl(tEnrIntegMesh.get_num_nodes(),this->get_spatial_dim(),tInitialDisp);
-            //     Matrix<DDRMat> tPredictedDispl = tCurrentDispl;
-
-            //     // get the vertices in bulk phase 1 and displace them through the current time step
-            //     moris::mtk::Set * tSetC = tEnrIntegMesh.get_set_by_name( "HMR_dummy_c_p1");
-            //     moris::mtk::Set * tSetN = tEnrIntegMesh.get_set_by_name( "HMR_dummy_n_p1");
-
-            //     moris::Matrix< DDSMat > tVertsInChildBlock   = tSetC->get_ig_vertices_inds_on_block( true );
-            //     moris::Matrix< DDSMat > tVertsInNoChildBlock = tSetN->get_ig_vertices_inds_on_block( true );
-
-            //     // iterate through child verts block
-            //     for(moris::uint i = 0; i < tVertsInChildBlock.numel(); i++)
-            //     {
-            //         moris_index tIndex = (moris_index)tVertsInChildBlock(i);
-            //         tPredictedDispl(tIndex,0) = tInitialDisp + tPredictedDisplX;
-            //         tPredictedDispl(tIndex,1) = tInitialDisp + tPredictedDisplY;
-            //         if(this->get_spatial_dim() == 3)
-            //         {
-            //             tPredictedDispl(tIndex,2) = tInitialDisp + tPredictedDisplZ;
-            //         }
-            //     }
-
-            //     // iterate through child verts block
-            //     for(moris::uint i = 0; i < tVertsInNoChildBlock.numel(); i++)
-            //     {
-            //         moris_index tIndex = (moris_index)tVertsInNoChildBlock(i);
-            //         tPredictedDispl(tIndex,0) = tInitialDisp + tPredictedDisplX;
-            //         tPredictedDispl(tIndex,1) = tInitialDisp + tPredictedDisplY;
-            //         if(this->get_spatial_dim() == 3)
-            //         {
-            //             tPredictedDispl(tIndex,2) = tInitialDisp + tPredictedDisplZ;
-            //         }
-            //     }
-
-
-            //     tSandbox.perform_global_contact_search(tCurrentDispl,tPredictedDispl);
-            // }
-
-            if ( mParameterList.get< bool >( "print_enriched_ig_mesh" ) )
-            {
-                tEnrIntegMesh.print();
-            }
-
-            if ( mParameterList.get< bool >( "exodus_output_XTK_ig_mesh" ) )
-            {
-                Tracer tTracer( "XTK", "Overall", "Visualize" );
-                tEnrIntegMesh.write_mesh( &mParameterList );
-            }
-
-            // print the memory usage of XTK
-            if ( mParameterList.get< bool >( "print_memory" ) )
-            {
-                moris::Memory_Map tXTKMM = this->get_memory_usage();
-                tXTKMM.par_print( "XTK Model" );
-            }
-
-            // print
-            MORIS_LOG_SPEC( "All_IG_verts", sum_all( tEnrIntegMesh.get_num_entities( EntityRank::NODE ) ) );
-            MORIS_LOG_SPEC( "All_IG_cells", sum_all( tEnrIntegMesh.get_num_entities( EntityRank::ELEMENT ) ) );
-            MORIS_LOG_SPEC( "All_IP_verts", sum_all( tEnrInterpMesh.get_num_entities( EntityRank::NODE ) ) );
-            MORIS_LOG_SPEC( "All_IP_cells", sum_all( tEnrInterpMesh.get_num_entities( EntityRank::ELEMENT ) ) );
-            MORIS_LOG_SPEC( "My_IG_verts", tEnrIntegMesh.get_num_entities( EntityRank::NODE ) );
-            MORIS_LOG_SPEC( "My_IG_cells", tEnrIntegMesh.get_num_entities( EntityRank::ELEMENT ) );
-            MORIS_LOG_SPEC( "My_IP_verts", tEnrInterpMesh.get_num_entities( EntityRank::NODE ) );
-            MORIS_LOG_SPEC( "My_IP_cells", tEnrInterpMesh.get_num_entities( EntityRank::ELEMENT ) );
         }
 
-        return true;
+        // if( mParameterList.get<bool>("contact_sandbox") )
+        // {
+        //     std::string tInterfaceSideSetName1 = tEnrIntegMesh.get_interface_side_set_name(0, 0, 2);
+        //     std::string tInterfaceSideSetName2 = tEnrIntegMesh.get_interface_side_set_name(0, 1, 0);
+
+        //     xtk::Contact_Sandbox tSandbox(&tEnrIntegMesh,
+        //                                   tInterfaceSideSetName1,
+        //                                   tInterfaceSideSetName2,
+        //                                   mParameterList.get<real>("bb_epsilon"));
+
+        //     // generate vertex displacement fields
+        //     moris::real tInitialDisp = 0.0;
+        //     moris::real tPredictedDisplX = 0.03;
+        //     moris::real tPredictedDisplY = -0.03;
+        //     moris::real tPredictedDisplZ = -0.01;
+        //     Matrix<DDRMat> tCurrentDispl(tEnrIntegMesh.get_num_nodes(),this->get_spatial_dim(),tInitialDisp);
+        //     Matrix<DDRMat> tPredictedDispl = tCurrentDispl;
+
+        //     // get the vertices in bulk phase 1 and displace them through the current time step
+        //     moris::mtk::Set * tSetC = tEnrIntegMesh.get_set_by_name( "HMR_dummy_c_p1");
+        //     moris::mtk::Set * tSetN = tEnrIntegMesh.get_set_by_name( "HMR_dummy_n_p1");
+
+        //     moris::Matrix< DDSMat > tVertsInChildBlock   = tSetC->get_ig_vertices_inds_on_block( true );
+        //     moris::Matrix< DDSMat > tVertsInNoChildBlock = tSetN->get_ig_vertices_inds_on_block( true );
+
+        //     // iterate through child verts block
+        //     for(moris::uint i = 0; i < tVertsInChildBlock.numel(); i++)
+        //     {
+        //         moris_index tIndex = (moris_index)tVertsInChildBlock(i);
+        //         tPredictedDispl(tIndex,0) = tInitialDisp + tPredictedDisplX;
+        //         tPredictedDispl(tIndex,1) = tInitialDisp + tPredictedDisplY;
+        //         if(this->get_spatial_dim() == 3)
+        //         {
+        //             tPredictedDispl(tIndex,2) = tInitialDisp + tPredictedDisplZ;
+        //         }
+        //     }
+
+        //     // iterate through child verts block
+        //     for(moris::uint i = 0; i < tVertsInNoChildBlock.numel(); i++)
+        //     {
+        //         moris_index tIndex = (moris_index)tVertsInNoChildBlock(i);
+        //         tPredictedDispl(tIndex,0) = tInitialDisp + tPredictedDisplX;
+        //         tPredictedDispl(tIndex,1) = tInitialDisp + tPredictedDisplY;
+        //         if(this->get_spatial_dim() == 3)
+        //         {
+        //             tPredictedDispl(tIndex,2) = tInitialDisp + tPredictedDisplZ;
+        //         }
+        //     }
+
+
+        //     tSandbox.perform_global_contact_search(tCurrentDispl,tPredictedDispl);
+        // }
+
+        if ( mParameterList.get< bool >( "print_enriched_ig_mesh" ) )
+        {
+            tEnrIntegMesh.print();
+        }
+
+        if ( mParameterList.get< bool >( "exodus_output_XTK_ig_mesh" ) )
+        {
+            Tracer tTracer( "XTK", "Overall", "Visualize" );
+            tEnrIntegMesh.write_mesh( &mParameterList );
+        }
+
+        // print the memory usage of XTK
+        if ( mParameterList.get< bool >( "print_memory" ) )
+        {
+            moris::Memory_Map tXTKMM = this->get_memory_usage();
+            tXTKMM.par_print( "XTK Model" );
+        }
+
+        // print
+        MORIS_LOG_SPEC( "All_IG_verts", sum_all( tEnrIntegMesh.get_num_entities( EntityRank::NODE ) ) );
+        MORIS_LOG_SPEC( "All_IG_cells", sum_all( tEnrIntegMesh.get_num_entities( EntityRank::ELEMENT ) ) );
+        MORIS_LOG_SPEC( "All_IP_verts", sum_all( tEnrInterpMesh.get_num_entities( EntityRank::NODE ) ) );
+        MORIS_LOG_SPEC( "All_IP_cells", sum_all( tEnrInterpMesh.get_num_entities( EntityRank::ELEMENT ) ) );
+        MORIS_LOG_SPEC( "My_IG_verts", tEnrIntegMesh.get_num_entities( EntityRank::NODE ) );
+        MORIS_LOG_SPEC( "My_IG_cells", tEnrIntegMesh.get_num_entities( EntityRank::ELEMENT ) );
+        MORIS_LOG_SPEC( "My_IP_verts", tEnrInterpMesh.get_num_entities( EntityRank::NODE ) );
+        MORIS_LOG_SPEC( "My_IP_cells", tEnrInterpMesh.get_num_entities( EntityRank::ELEMENT ) );
     }
 
-    // ----------------------------------------------------------------------------------
+    return true;
+}
 
-    bool
-    Model::has_parameter_list()
+// ----------------------------------------------------------------------------------
+
+bool
+Model::has_parameter_list()
+{
+    return mParameterList.get< bool >( "has_parameter_list" );
+}
+
+// ----------------------------------------------------------------------------------
+
+bool
+Model::valid_parameters()
+{
+    bool tDecompose = mParameterList.get< bool >( "decompose" );
+    bool tEnrich    = mParameterList.get< bool >( "enrich" );
+    bool tGhost     = mParameterList.get< bool >( "ghost_stab" );
+    bool tMultigrid = mParameterList.get< bool >( "multigrid" );
+
+    if ( tEnrich == true )
     {
-        return mParameterList.get< bool >( "has_parameter_list" );
+        MORIS_ERROR( tDecompose, "To perform basis enrichment, decomposition is also required." );
     }
 
-    // ----------------------------------------------------------------------------------
-
-    bool
-    Model::valid_parameters()
+    if ( tGhost == true )
     {
-        bool tDecompose = mParameterList.get< bool >( "decompose" );
-        bool tEnrich    = mParameterList.get< bool >( "enrich" );
-        bool tGhost     = mParameterList.get< bool >( "ghost_stab" );
-        bool tMultigrid = mParameterList.get< bool >( "multigrid" );
-
-        if ( tEnrich == true )
-        {
-            MORIS_ERROR( tDecompose, "To perform basis enrichment, decomposition is also required." );
-        }
-
-        if ( tGhost == true )
-        {
-            MORIS_ERROR( tDecompose && tEnrich, "To perform ghost stabilization, decomposition and enrichment are also required." );
-        }
-
-        if ( tMultigrid == true )
-        {
-            MORIS_ERROR( tDecompose && tEnrich, "To perform multigrid, decomposition and enrichment are also required." );
-        }
-
-        return true;
+        MORIS_ERROR( tDecompose && tEnrich, "To perform ghost stabilization, decomposition and enrichment are also required." );
     }
 
-    // ----------------------------------------------------------------------------------
-
-    Cell< enum Subdivision_Method >
-    Model::get_subdivision_methods()
+    if ( tMultigrid == true )
     {
-        MORIS_ASSERT( this->has_parameter_list(), "Perform can only be called on a parameter list based XTK" );
+        MORIS_ERROR( tDecompose && tEnrich, "To perform multigrid, decomposition and enrichment are also required." );
+    }
+
+    return true;
+}
+
+// ----------------------------------------------------------------------------------
+
+Cell< enum Subdivision_Method >
+Model::get_subdivision_methods()
+{
+    MORIS_ASSERT( this->has_parameter_list(), "Perform can only be called on a parameter list based XTK" );
 
 
-        moris::Cell< enum Subdivision_Method > tSubdivisionMethods;
+    moris::Cell< enum Subdivision_Method > tSubdivisionMethods;
 
-        moris::uint       tSpatialDimension = this->get_spatial_dim();
-        enum CellTopology tBGCellTopo       = mBackgroundMesh.get_parent_cell_topology();
-        std::string       tDecompStr        = mParameterList.get< std::string >( "decomposition_type" );
-        moris::lint       tOctreeRefLevel   = std::stoi( mParameterList.get< std::string >( "octree_refinement_level" ) );
+    moris::uint       tSpatialDimension = this->get_spatial_dim();
+    enum CellTopology tBGCellTopo       = mBackgroundMesh.get_parent_cell_topology();
+    std::string       tDecompStr        = mParameterList.get< std::string >( "decomposition_type" );
+    moris::lint       tOctreeRefLevel   = std::stoi( mParameterList.get< std::string >( "octree_refinement_level" ) );
 
-        if ( tDecompStr.compare( "octree_only" ) == 0 )
+    if ( tDecompStr.compare( "octree_only" ) == 0 )
+    {
+        return { Subdivision_Method::NC_OCTREE };
+    }
+
+    if ( tOctreeRefLevel > -1 )
+    {
+        tSubdivisionMethods.push_back( Subdivision_Method::NC_OCTREE );
+    }
+
+
+    // determine if we are going conformal or not
+    bool tConformal = true;
+    if ( tDecompStr.compare( "conformal" ) == 0 )
+    {
+        tConformal = true;
+    }
+    else if ( tDecompStr.compare( "nonconformal" ) == 0 )
+    {
+        tConformal = false;
+    }
+    else
+    {
+        MORIS_ERROR( 0, "Invalid decomposition_type provided. Recognized Options: Conformal and Nonconformal" );
+    }
+
+    if ( tSpatialDimension == 2 )
+    {
+        if ( tBGCellTopo == CellTopology::QUAD4 && tConformal )
         {
-            return { Subdivision_Method::NC_OCTREE };
+            moris::Cell< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
+            tSubdivisionMethods.append( tMethods );
         }
-
-        if ( tOctreeRefLevel > -1 )
+        else if ( tBGCellTopo == CellTopology::QUAD4 && !tConformal )
         {
-            tSubdivisionMethods.push_back( Subdivision_Method::NC_OCTREE );
+            moris::Cell< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4 };
+            tSubdivisionMethods.append( tMethods );
         }
-
-
-        // determine if we are going conformal or not
-        bool tConformal = true;
-        if ( tDecompStr.compare( "conformal" ) == 0 )
+    }
+    else if ( tSpatialDimension == 3 )
+    {
+        if ( tBGCellTopo == CellTopology::HEX8 && tConformal )
         {
-            tConformal = true;
+            moris::Cell< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
+            tSubdivisionMethods.append( tMethods );
         }
-        else if ( tDecompStr.compare( "nonconformal" ) == 0 )
+        else if ( tBGCellTopo == CellTopology::HEX8 && !tConformal )
         {
-            tConformal = false;
+            moris::Cell< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8 };
+            tSubdivisionMethods.append( tMethods );
+        }
+        else if ( tBGCellTopo == CellTopology::TET4 && tConformal )
+        {
+            moris::Cell< enum Subdivision_Method > tMethods = { Subdivision_Method::C_HIERARCHY_TET4 };
+            tSubdivisionMethods.append( tMethods );
+        }
+    }
+    else
+    {
+        MORIS_ASSERT( 0, "Invalid spatial dimension" );
+    }
+
+    return tSubdivisionMethods;
+}
+
+// ----------------------------------------------------------------------------------
+// Decomposition Source code
+// ----------------------------------------------------------------------------------
+
+bool
+Model::decompose( Cell< enum Subdivision_Method > aMethods )
+{
+    Tracer tTracer( "XTK", "Decomposition", "Decompose" );
+
+    moris::Matrix< moris::IndexMat > tActiveGeometries( 1, mGeometryEngine->get_num_geometries() );
+
+    for ( moris::uint i = 0; i < mGeometryEngine->get_num_geometries(); i++ )
+    {
+        tActiveGeometries( i ) = (moris_index)i;
+    }
+
+    Integration_Mesh_Generator tIntegrationGenerator( this, aMethods, tActiveGeometries );
+
+    mCutIntegrationMesh = tIntegrationGenerator.perform();
+
+    mDecomposed = true;
+
+    if ( mDiagnostics )
+    {
+        if ( interpolated_coordinate_check( mCutIntegrationMesh.get() ) )
+        {
+            MORIS_LOG_INFO( "Interpolated Coordinate Check: Pass" );
         }
         else
         {
-            MORIS_ERROR( 0, "Invalid decomposition_type provided. Recognized Options: Conformal and Nonconformal" );
+            MORIS_LOG_INFO( "Interpolated Coordinate Check: Fail" );
         }
+    }
 
-        if ( tSpatialDimension == 2 )
+    return true;
+}
+
+
+// ----------------------------------------------------------------------------------
+
+void
+Model::create_new_node_association_with_geometry( Decomposition_Data& tDecompData )
+{
+    // create geometry objects for each node
+    mGeometryEngine->create_new_child_nodes(
+        tDecompData.tNewNodeIndex,
+        tDecompData.tNewNodeParentTopology,
+        tDecompData.tParamCoordRelativeToParent,
+        mBackgroundMesh.get_all_node_coordinates_loc_inds() );
+}
+
+// ----------------------------------------------------------------------------------
+
+bool
+Model::verify_successful_node_assignment( Decomposition_Data& aDecompData )
+{
+    uint tNumUnsuccessful = 0;
+    for ( moris::uint i = 0; i < aDecompData.tNewNodeId.size(); i++ )
+    {
+        if ( aDecompData.tNewNodeId( i ) == MORIS_INDEX_MAX )
         {
-            if ( tBGCellTopo == CellTopology::QUAD4 && tConformal )
-            {
-                moris::Cell< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
-                tSubdivisionMethods.append( tMethods );
-            }
-            else if ( tBGCellTopo == CellTopology::QUAD4 && !tConformal )
-            {
-                moris::Cell< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4 };
-                tSubdivisionMethods.append( tMethods );
-            }
-        }
-        else if ( tSpatialDimension == 3 )
-        {
-            if ( tBGCellTopo == CellTopology::HEX8 && tConformal )
-            {
-                moris::Cell< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
-                tSubdivisionMethods.append( tMethods );
-            }
-            else if ( tBGCellTopo == CellTopology::HEX8 && !tConformal )
-            {
-                moris::Cell< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8 };
-                tSubdivisionMethods.append( tMethods );
-            }
-            else if ( tBGCellTopo == CellTopology::TET4 && tConformal )
-            {
-                moris::Cell< enum Subdivision_Method > tMethods = { Subdivision_Method::C_HIERARCHY_TET4 };
-                tSubdivisionMethods.append( tMethods );
-            }
-        }
-        else
-        {
-            MORIS_ASSERT( 0, "Invalid spatial dimension" );
-        }
-
-        return tSubdivisionMethods;
-    }
-
-    // ----------------------------------------------------------------------------------
-    // Decomposition Source code
-    // ----------------------------------------------------------------------------------
-
-    bool
-    Model::decompose( Cell< enum Subdivision_Method > aMethods )
-    {
-        Tracer tTracer( "XTK", "Decomposition", "Decompose" );
-
-        moris::Matrix< moris::IndexMat > tActiveGeometries( 1, mGeometryEngine->get_num_geometries() );
-
-        for ( moris::uint i = 0; i < mGeometryEngine->get_num_geometries(); i++ )
-        {
-            tActiveGeometries( i ) = (moris_index)i;
-        }
-
-        Integration_Mesh_Generator tIntegrationGenerator( this, aMethods, tActiveGeometries );
-
-        mCutIntegrationMesh = tIntegrationGenerator.perform();
-
-        mDecomposed = true;
-
-        if ( mDiagnostics )
-        {
-            if ( interpolated_coordinate_check( mCutIntegrationMesh.get() ) )
-            {
-                MORIS_LOG_INFO( "Interpolated Coordinate Check: Pass" );
-            }
-            else
-            {
-                MORIS_LOG_INFO( "Interpolated Coordinate Check: Fail" );
-            }
-        }
-
-        return true;
-    }
-
-
-    // ----------------------------------------------------------------------------------
-
-    void
-        Model::create_new_node_association_with_geometry( Decomposition_Data & tDecompData )
-    {
-        // create geometry objects for each node
-        mGeometryEngine->create_new_child_nodes(
-            tDecompData.tNewNodeIndex,
-            tDecompData.tNewNodeParentTopology,
-            tDecompData.tParamCoordRelativeToParent,
-            mBackgroundMesh.get_all_node_coordinates_loc_inds() );
-    }
-
-    // ----------------------------------------------------------------------------------
-
-    bool
-        Model::verify_successful_node_assignment( Decomposition_Data & aDecompData )
-    {
-        uint tNumUnsuccessful = 0;
-        for ( moris::uint i = 0; i < aDecompData.tNewNodeId.size(); i++ )
-        {
-            if ( aDecompData.tNewNodeId( i ) == MORIS_INDEX_MAX )
-            {
-                tNumUnsuccessful++;
-            }
-        }
-
-        if ( tNumUnsuccessful > 0 )
-        {
-            std::cout << "There were " << tNumUnsuccessful << " bad nodes of " << aDecompData.tNewNodeId.size() << " total nodes" << std::endl;
-            return false;
-        }
-
-        return true;
-    }
-
-    // ----------------------------------------------------------------------------------
-
-    void
-    Model::send_outward_requests(
-        moris_index const&          aMPITag,
-        Cell< uint > const&         aProcRanks,
-        Cell< Matrix< IndexMat > >& aOutwardRequests )
-    {
-        // Cell of requests
-        Cell< MPI_Request > tRequests( aProcRanks.size() );
-
-        // iterate through owned requests and send
-        for ( moris::uint i = 0; i < aProcRanks.size(); i++ )
-        {
-            tRequests( i ) = nonblocking_send(
-                aOutwardRequests( i ),
-                aOutwardRequests( i ).n_rows(),
-                aOutwardRequests( i ).n_cols(),
-                aProcRanks( i ),
-                aMPITag );
+            tNumUnsuccessful++;
         }
     }
 
-    // ----------------------------------------------------------------------------------
-
-    void
-    Model::inward_receive_requests(
-        moris_index const&          aMPITag,
-        moris::uint                 aNumRows,
-        Cell< Matrix< IndexMat > >& aReceivedData,
-        Cell< uint >&               aProcRanksReceivedFrom )
+    if ( tNumUnsuccessful > 0 )
     {
-        // ensure the sizes are correct.
-        aReceivedData.resize( 0 );
-        aProcRanksReceivedFrom.resize( 0 );
-
-        // access the communication table
-        Matrix< IdMat > tCommTable = mBackgroundMesh.get_communication_table();
-        moris::uint     tCount     = 0;
-        for ( moris::uint i = 0; i < tCommTable.numel(); i++ )
-        {
-            aReceivedData.push_back( Matrix< IndexMat >( 1, 1 ) );
-            aProcRanksReceivedFrom.push_back( tCommTable( i ) );
-            receive( aReceivedData( tCount ), aNumRows, tCommTable( i ), aMPITag );
-            tCount++;
-        }
-    }
-
-    // ----------------------------------------------------------------------------------
-
-    void
-    Model::inward_receive_request_answers(
-        moris_index const&          aMPITag,
-        moris::uint const&          aNumRows,
-        Cell< uint > const&         aProcRanks,
-        Cell< Matrix< IndexMat > >& aReceivedRequestAnswers )
-    {
-        MPI_Status tStatus;
-
-        for ( moris::uint i = 0; i < aProcRanks.size(); i++ )
-        {
-            bool tFlag = sent_message_exists( aProcRanks( i ), aMPITag, tStatus );
-            while ( tFlag == false )
-            {
-                tFlag = sent_message_exists( aProcRanks( i ), aMPITag, tStatus );
-            }
-
-            aReceivedRequestAnswers.push_back( Matrix< IndexMat >( 1, 1 ) );
-            receive( aReceivedRequestAnswers( i ), aNumRows, aProcRanks( i ), aMPITag );
-        }
-    }
-
-    // ----------------------------------------------------------------------------------
-
-    void
-    Model::handle_received_request_answers(
-        Decomposition_Data & aDecompData,
-        Cell< Matrix< IndexMat > > const& aRequests,
-        Cell< Matrix< IndexMat > > const& aRequestAnswers,
-        moris::moris_id&                  aNodeId )
-    {
-        Cell< moris_index > tUnhandledRequestIndices;
-
-        // iterate through received data
-        for ( moris::uint i = 0; i < aRequests.size(); i++ )
-        {
-            uint tNumReceivedReqs = aRequests( i ).n_cols();
-
-            // avoid the dummy message
-            if ( aRequests( i )( 0, 0 ) != MORIS_INDEX_MAX )
-            {
-                // iterate through received requests
-                for ( moris::uint j = 0; j < tNumReceivedReqs; j++ )
-                {
-                    moris_id        tParentId      = aRequests( i )( 0, j );
-                    enum EntityRank tParentRank    = (enum EntityRank)aRequests( i )( 1, j );
-                    moris_id        tSecondaryId   = aRequests( i )( 2, j );
-                    moris_index     tParentInd     = mBackgroundMesh.get_mesh_data().get_loc_entity_ind_from_entity_glb_id( tParentId, tParentRank );
-                    bool            tRequestExists = false;
-                    moris_index     tRequestIndex  = MORIS_INDEX_MAX;
-
-                    if ( aDecompData.mHasSecondaryIdentifier )
-                    {
-                        tRequestExists = aDecompData.request_exists( tParentInd, tSecondaryId, (EntityRank)tParentRank, tRequestIndex );
-                    }
-                    else
-                    {
-                        tRequestExists = aDecompData.request_exists( tParentInd, (EntityRank)tParentRank, tRequestIndex );
-                    }
-
-                    if ( tRequestExists && aRequestAnswers( i )( j ) )
-                    {
-                        moris_id tNodeId = aRequestAnswers( i )( j );
-
-                        // meaning the owning processor expected this and gave an answer
-                        if ( tNodeId < MORIS_ID_MAX && aDecompData.tNewNodeId( tRequestIndex ) == MORIS_INDEX_MAX )
-                        {
-                            // set the new node id
-                            aDecompData.tNewNodeId( tRequestIndex ) = tNodeId;
-
-                            aDecompData.mNumNewNodesWithIds++;
-                        }
-                        // The owner did not expect and did not return an answer
-                        else
-                        {
-                            // keep track of unhandled
-                            tUnhandledRequestIndices.push_back( tRequestIndex );
-                            // moris_index tNodeIndex = mBackgroundMesh.get_first_available_index(EntityRank::NODE);
-
-                            // aDecompData.tNewNodeOwner(tRequestIndex) = par_rank();
-
-                            // aDecompData.tNewNodeId(tRequestIndex) = tNodeId;
-                            // aDecompData.tNewNodeIndex(tRequestIndex) = tNodeIndex;
-                            // tNodeIndex++;
-
-                            // // set the new node id
-                            // aDecompData.tNewNodeId(tRequestIndex) = tNodeId;
-
-                            // aDecompData.mNumNewNodesWithIds++;
-
-                            // mBackgroundMesh.update_first_available_index(tNodeIndex, EntityRank::NODE);
-                        }
-                    }
-                    else
-                    {
-                        MORIS_ASSERT( 0, "Request does not exist." );
-                    }
-                }
-            }
-        }
-
-        // handle the unhandled requests wiht current proc being the owner
-        moris::moris_id tNodeId = mBackgroundMesh.allocate_entity_ids( tUnhandledRequestIndices.size(), EntityRank::NODE );
-
-        for ( moris::uint i = 0; i < tUnhandledRequestIndices.size(); i++ )
-        {
-            moris_index tRequestIndex                  = tUnhandledRequestIndices( i );
-            aDecompData.tNewNodeOwner( tRequestIndex ) = par_rank();
-            aDecompData.tNewNodeId( tRequestIndex )    = tNodeId;
-            tNodeId++;
-        }
-    }
-
-    // ----------------------------------------------------------------------------------
-
-    void
-    Model::send_outward_requests_reals(
-        moris_index const&        aMPITag,
-        Cell< uint > const&       aProcRanks,
-        Cell< Matrix< DDRMat > >& aOutwardRequests )
-    {
-        // iterate through owned requests and send
-        for ( moris::uint i = 0; i < aProcRanks.size(); i++ )
-        {
-            nonblocking_send(
-                aOutwardRequests( i ),
-                aOutwardRequests( i ).n_rows(),
-                aOutwardRequests( i ).n_cols(),
-                aProcRanks( i ),
-                aMPITag );
-        }
-    }
-
-    // ----------------------------------------------------------------------------------
-
-    void
-    Model::inward_receive_requests_reals(
-        moris_index const&        aMPITag,
-        moris::uint               aNumRows,
-        Cell< Matrix< DDRMat > >& aReceivedData,
-        Cell< uint >&             aProcRanksReceivedFrom )
-    {
-        moris::moris_index tParRank = par_rank();
-        moris::uint        tCount   = 0;
-        MPI_Status         tStatus;
-        for ( moris::uint i = 0; i < (moris::uint)par_size(); i++ )
-        {
-            if ( (moris_index)i != tParRank )
-            {
-                // if there is a sent message from a processor go receive it
-                if ( sent_message_exists( i, aMPITag, tStatus ) )
-                {
-                    aReceivedData.push_back( Matrix< DDRMat >( 1, 1 ) );
-
-                    aProcRanksReceivedFrom.push_back( i );
-
-                    receive( aReceivedData( tCount ), aNumRows, i, aMPITag );
-
-                    tCount++;
-                }
-            }
-        }
-    }
-
-    // ----------------------------------------------------------------------------------
-
-    void
-    Model::return_request_answers_reals(
-        moris_index const&              aMPITag,
-        Cell< Matrix< DDRMat > > const& aRequestAnswers,
-        Cell< uint > const&             aProcRanks )
-    {
-        // iterate through owned requests and send
-        for ( moris::uint i = 0; i < aProcRanks.size(); i++ )
-        {
-            nonblocking_send( aRequestAnswers( i ), aRequestAnswers( i ).n_rows(), aRequestAnswers( i ).n_cols(), aProcRanks( i ), aMPITag );
-        }
-    }
-
-    // ----------------------------------------------------------------------------------
-
-    void
-    Model::inward_receive_request_answers_reals(
-        moris_index const&        aMPITag,
-        moris::uint const&        aNumRows,
-        Cell< uint > const&       aProcRanks,
-        Cell< Matrix< DDRMat > >& aReceivedData )
-    {
-        for ( moris::uint i = 0; i < aProcRanks.size(); i++ )
-        {
-            aReceivedData.push_back( Matrix< DDRMat >( 1, 1 ) );
-
-            receive( aReceivedData( i ), aNumRows, aProcRanks( i ), aMPITag );
-        }
-    }
-
-    // ----------------------------------------------------------------------------------
-
-    void
-    Model::prepare_request_answers(
-        Decomposition_Data & aDecompData,
-        Cell< Matrix< IndexMat > > const& aReceiveData,
-        Cell< Matrix< IndexMat > >&       aRequestAnswers )
-    {
-        // allocate answer size
-        aRequestAnswers.resize( aReceiveData.size() );
-
-        // iterate through received data
-        for ( moris::uint i = 0; i < aReceiveData.size(); i++ )
-        {
-            uint tNumReceivedReqs = aReceiveData( i ).n_cols();
-
-            aRequestAnswers( i ).resize( 1, tNumReceivedReqs );
-
-            aRequestAnswers( i )( 0 ) = MORIS_INDEX_MAX;
-
-            // avoid the dummy message
-            if ( aReceiveData( i )( 0, 0 ) != MORIS_INDEX_MAX )
-            {
-                // iterate through received requests
-                for ( moris::uint j = 0; j < tNumReceivedReqs; j++ )
-                {
-                    moris_id        tParentId      = aReceiveData( i )( 0, j );
-                    enum EntityRank tParentRank    = (enum EntityRank)aReceiveData( i )( 1, j );
-                    moris_id        tSecondaryId   = aReceiveData( i )( 2, j );
-                    moris_index     tParentInd     = mBackgroundMesh.get_mesh_data().get_loc_entity_ind_from_entity_glb_id( tParentId, tParentRank );
-                    bool            tRequestExists = false;
-                    moris_index     tRequestIndex  = MORIS_INDEX_MAX;
-
-                    if ( aDecompData.mHasSecondaryIdentifier )
-                    {
-                        tRequestExists = aDecompData.request_exists(
-                            tParentInd,
-                            tSecondaryId,
-                            (EntityRank)tParentRank,
-                            tRequestIndex );
-                    }
-                    else
-                    {
-                        tRequestExists = aDecompData.request_exists(
-                            tParentInd,
-                            (EntityRank)tParentRank,
-                            tRequestIndex );
-                    }
-
-                    if ( tRequestExists )
-                    {
-                        moris_id tNodeId = aDecompData.tNewNodeId( tRequestIndex );
-
-                        aRequestAnswers( i )( j ) = tNodeId;
-
-                        if ( tNodeId == MORIS_ID_MAX )
-                        {
-                            std::cout << "tParentId = " << tParentId << " | Rank " << (uint)tParentRank << std::endl;
-                            //                    MORIS_ERROR(0,"Max node");
-                        }
-                    }
-                    else
-                    {
-                        aRequestAnswers( i )( j ) = MORIS_ID_MAX;
-                    }
-                }
-            }
-        }
-    }
-
-    // ----------------------------------------------------------------------------------
-
-    void
-    Model::return_request_answers(
-        moris_index const&                aMPITag,
-        Cell< Matrix< IndexMat > > const& aRequestAnswers,
-        Cell< uint > const&               aProcRanks )
-    {
-        // access the communication table
-        Matrix< IdMat > tCommTable = mBackgroundMesh.get_communication_table();
-
-        // iterate through owned requests and send
-        for ( moris::uint i = 0; i < tCommTable.numel(); i++ )
-        {
-            nonblocking_send( aRequestAnswers( i ), aRequestAnswers( i ).n_rows(), aRequestAnswers( i ).n_cols(), tCommTable( i ), aMPITag );
-        }
-    }
-
-    // ----------------------------------------------------------------------------------
-
-    moris::Cell< std::string >
-        Model::check_for_and_remove_internal_seacas_side_sets( moris::Cell< std::string > & aSideSetNames )
-    {
-        for ( std::vector< std::string >::iterator iSet = aSideSetNames.begin(); iSet != aSideSetNames.end(); ++iSet )
-        {
-            if ( iSet->compare( "surface_1_quad4" ) == 0 )
-            {
-                aSideSetNames.data().erase( iSet-- );
-            }
-
-            else if ( iSet->compare( "surface_2_quad4" ) == 0 )
-            {
-                aSideSetNames.data().erase( iSet-- );
-            }
-            else if ( iSet->compare( "surface_3_quad4" ) == 0 )
-            {
-                aSideSetNames.data().erase( iSet-- );
-            }
-            else if ( iSet->compare( "surface_4_quad4" ) == 0 )
-            {
-                aSideSetNames.data().erase( iSet-- );
-            }
-            else if ( iSet->compare( "surface_5_quad4" ) == 0 )
-            {
-                aSideSetNames.data().erase( iSet-- );
-            }
-            else if ( iSet->compare( "surface_6_quad4" ) == 0 )
-            {
-                aSideSetNames.data().erase( iSet-- );
-            }
-            else if ( iSet->compare( "surface_hex8_quad_1" ) == 0 )
-            {
-                aSideSetNames.data().erase( iSet-- );
-            }
-            else if ( iSet->compare( "surface_hex8_quad_2" ) == 0 )
-            {
-                aSideSetNames.data().erase( iSet-- );
-            }
-            else if ( iSet->compare( "surface_hex8_quad4_1" ) == 0 )
-            {
-                aSideSetNames.data().erase( iSet-- );
-            }
-            else if ( iSet->compare( "surface_hex8_quad4_2" ) == 0 )
-            {
-                aSideSetNames.data().erase( iSet-- );
-            }
-            else if ( iSet->compare( "surface_hex8_quad4_3" ) == 0 )
-            {
-                aSideSetNames.data().erase( iSet-- );
-            }
-            else if ( iSet->compare( "surface_hex8_quad4_4" ) == 0 )
-            {
-                aSideSetNames.data().erase( iSet-- );
-            }
-        }
-
-        return aSideSetNames;
-    }
-
-
-    // ----------------------------------------------------------------------------------
-    // Enrichment Source code
-    // ----------------------------------------------------------------------------------
-
-    void
-    Model::perform_basis_enrichment(
-        enum EntityRank const& aBasisRank,
-        moris_index const&     aMeshIndex )
-    {
-        Tracer tTracer( "XTK", "Enrichment", "Enrich" );
-
-        MORIS_ERROR( mDecomposed, "Prior to computing basis enrichment, the decomposition process must be called" );
-
-        // allocate some new enriched interpolation and integration meshes
-        mEnrichedIntegMesh.resize( aMeshIndex + 1, nullptr );
-        mEnrichedInterpMesh.resize( aMeshIndex + 1, nullptr );
-
-        this->perform_basis_enrichment_internal( aBasisRank, { { aMeshIndex } } );
-
-        // Change the enrichment flag
-        mEnriched = true;
-    }
-
-    // ----------------------------------------------------------------------------------
-
-    void
-    Model::perform_basis_enrichment(
-        enum EntityRank const&    aBasisRank,
-        Matrix< IndexMat > const& aMeshIndex )
-    {
-        Tracer tTracer( "XTK", "Enrichment" );
-
-        MORIS_ERROR( mDecomposed, "Prior to computing basis enrichment, the decomposition process must be called" );
-
-        // allocate some new enriched interpolation and integration meshes
-        mEnrichedIntegMesh.resize( aMeshIndex.numel() + 1, nullptr );
-        mEnrichedInterpMesh.resize( aMeshIndex.numel() + 1, nullptr );
-
-        this->perform_basis_enrichment_internal( aBasisRank, aMeshIndex );
-
-
-        // Change the enrichment flag
-        mEnriched = true;
-    }
-
-    void
-    Model::perform_hanging_node_identification()
-    {
-        Tracer tTracer( "XTK", "Identify hanging nodes" );
-
-        MORIS_ERROR( mDecomposed, "Mesh needs to be decomposed prior to identifying hanging nodes" );
-
-        MORIS_ERROR( mEnriched, "Mesh needs to be enriched prior to identifying hanging nodes" );
-
-        // get the interpolation mesh
-        moris::mtk::Interpolation_Mesh& tInterpMesh = mBackgroundMesh.get_mesh_data();
-
-        // iterate through child meshes
-        for ( moris::uint iCM = 0; iCM < mCutMesh.get_num_child_meshes(); iCM++ )
-        {
-            // active child mesh
-            Child_Mesh& tChildMesh = mCutMesh.get_child_mesh( iCM );
-
-            // get the neighbors
-            Matrix< IndexMat > tElementNeighors = tInterpMesh.get_elements_connected_to_element_and_face_ind_loc_inds( tChildMesh.get_parent_element_index() );
-
-            moris::Cell< moris_index > tTransitionFacets;
-
-            // iterate through neighbor
-            for ( moris::uint iN = 0; iN < tElementNeighors.n_cols(); iN++ )
-            {
-                moris_index tNeighborCellIndex = tElementNeighors( 0, iN );
-
-                moris_index tSharedFaceIndex = tElementNeighors( 1, iN );
-
-                if ( !mBackgroundMesh.entity_has_children( tNeighborCellIndex, EntityRank::ELEMENT ) )
-                {
-                    tTransitionFacets.push_back( tSharedFaceIndex );
-                }
-            }
-
-            tChildMesh.identify_hanging_nodes( tTransitionFacets );
-        }
-    }
-
-    void
-    Model::probe_bg_cell( Matrix< IndexMat > const& tBGCellIds )
-    {
-        Tracer tTracer( "XTK", "BG Cell Probe" );
-
-        for ( moris::uint i = 0; i < tBGCellIds.numel(); i++ )
-        {
-            Tracer tTracer( "XTK", "BG Cell Probe", "Cell Id " + std::to_string( tBGCellIds( i ) ) );
-
-            moris_index                 tIndex      = mBackgroundMesh.get_mesh_data().get_loc_entity_ind_from_entity_glb_id( tBGCellIds( i ), EntityRank::ELEMENT );
-            mtk::Cell&                  tCell       = mBackgroundMesh.get_mesh_data().get_mtk_cell( tIndex );
-            Matrix< IndexMat >          tVertexIds  = tCell.get_vertex_ids();
-            moris::Cell< mtk::Vertex* > tVertexPtrs = tCell.get_vertex_pointers();
-            Matrix< IndexMat >          tVertexOwner( 1, tVertexPtrs.size() );
-
-            MORIS_LOG_SPEC( "Cell Id", tBGCellIds( i ) );
-            MORIS_LOG_SPEC( "Cell Index", tIndex );
-            MORIS_LOG_SPEC( "Cell Owner", tCell.get_owner() );
-            MORIS_LOG_SPEC( "Vertex Ids", ios::stringify_log( tVertexIds ) );
-            MORIS_LOG_SPEC( "Vertex Owners", ios::stringify_log( tVertexOwner ) );
-
-            // collect geometric info
-            uint                     tNumGeom = mGeometryEngine->get_num_geometries();
-            Cell< Matrix< DDRMat > > tVertexGeomVals( tNumGeom, Matrix< DDRMat >( 1, tVertexPtrs.size() ) );
-            for ( moris::uint iG = 0; iG < tNumGeom; iG++ )
-            {
-                for ( moris::uint iV = 0; iV < tVertexPtrs.size(); iV++ )
-                {
-                    tVertexGeomVals( iG )( iV ) = mGeometryEngine->get_field_value( iG, (uint)tVertexPtrs( iV )->get_index(), tVertexPtrs( iV )->get_coords() );
-                }
-                MORIS_LOG_SPEC( "Geom Field " + std::to_string( iG ) + " Vals", ios::stringify_log( tVertexGeomVals( iG ) ) );
-            }
-        }
-    }
-
-    // ----------------------------------------------------------------------------------
-    Cut_Integration_Mesh*
-    Model::get_cut_integration_mesh()
-    {
-        MORIS_ASSERT( mDecomposed,
-            "Cannot get cut integration mesh prior to the decomposition strategy " );
-
-        return mCutIntegrationMesh.get();
-    }
-
-    Enrichment const&
-    Model::get_basis_enrichment()
-    {
-        MORIS_ASSERT( mEnriched,
-            "Cannot get basis enrichment from an XTK model which has not called perform_basis_enrichment " );
-
-        return *mEnrichment;
-    }
-
-    // ----------------------------------------------------------------------------------
-
-    Enriched_Interpolation_Mesh&
-    Model::get_enriched_interp_mesh( moris::moris_index aIndex )
-    {
-        MORIS_ASSERT( mEnriched,
-            "Cannot get enriched interpolation mesh from an XTK model which has not called perform_basis_enrichment " );
-
-        return *( mEnrichedInterpMesh( aIndex ) );
-    }
-
-    // ----------------------------------------------------------------------------------
-
-    Enriched_Integration_Mesh&
-    Model::get_enriched_integ_mesh( moris::moris_index aIndex )
-    {
-        MORIS_ASSERT( mEnriched,
-            "Cannot get enriched integration mesh from an XTK model which has not called perform_basis_enrichment " );
-
-        return *( mEnrichedIntegMesh( aIndex ) );
-    }
-
-    // ----------------------------------------------------------------------------------
-
-    void
-    Model::perform_basis_enrichment_internal(
-        enum EntityRank const&    aBasisRank,
-        Matrix< IndexMat > const& aMeshIndex )
-    {
-
-        // initialize enrichment (ptr because of circular dependency)
-        mEnrichment = new Enrichment(
-            Enrichment_Method::USE_INTERPOLATION_CELL_BASIS,
-            aBasisRank,
-            aMeshIndex,
-            mGeometryEngine->get_num_phases(),
-            this,
-            &mCutMesh,
-            &mBackgroundMesh );
-
-        // Set verbose flag to match XTK.
-        mEnrichment->mVerbose = mVerbose;
-
-        // perform the enrichment
-        mEnrichment->perform_enrichment();
-    }
-
-    // ----------------------------------------------------------------------------------
-
-    void
-    Model::construct_face_oriented_ghost_penalization_cells()
-    {
-        Tracer tTracer( "XTK", "GhostStabilization", "Stabilize" );
-
-        MORIS_ERROR( mDecomposed, "Mesh needs to be decomposed prior to calling ghost penalization" );
-
-        MORIS_ERROR( !mGhost, "Ghost penalization has already been called" );
-
-        mGhostStabilization = new Ghost_Stabilization( this );
-
-        mGhostStabilization->setup_ghost_stabilization();
-
-        mGhost = true;
-    }
-
-    // ----------------------------------------------------------------------------------
-
-    Ghost_Stabilization&
-    Model::get_ghost_stabilization( moris::moris_index aIndex )
-    {
-        MORIS_ERROR( mGhost, "Ghost has not been constructed on this model." );
-        return *mGhostStabilization;
-    }
-
-    // ----------------------------------------------------------------------------------
-
-    void
-    Model::construct_multigrid()
-    {
-        Tracer tTracer( "XTK", "Multigrid", "Run" );
-
-        mMultigrid = std::make_shared< xtk::Multigrid >( this );
-
-        mMultigrid->build_enriched_coeff_to_background_coeff_map();
-
-        mMultigrid->create_fine_to_coarse_relationship();
-
-        mMultigrid->create_coarse_to_fine_relationship();
-
-        mMultigrid->create_coarse_to_fine_weights();
-
-        std::string tName = "Enriched_bspline_1.exo";
-        mMultigrid->build_basis_exodus_information( tName );
-    }
-
-    // ----------------------------------------------------------------------------------
-
-    Cut_Mesh&
-    Model::get_cut_mesh()
-    {
-        return mCutMesh;
-    }
-
-    // ----------------------------------------------------------------------------------
-
-    Cut_Mesh const&
-    Model::get_cut_mesh() const
-    {
-        return mCutMesh;
-    }
-
-    // ----------------------------------------------------------------------------------
-
-    Background_Mesh&
-    Model::get_background_mesh()
-    {
-        return mBackgroundMesh;
-    }
-
-    // ----------------------------------------------------------------------------------
-
-    Background_Mesh const&
-    Model::get_background_mesh() const
-    {
-        return mBackgroundMesh;
-    }
-
-    // ----------------------------------------------------------------------------------
-
-    moris::ge::Geometry_Engine*
-    Model::get_geom_engine()
-    {
-        return mGeometryEngine;
-    }
-
-    // ----------------------------------------------------------------------------------
-    // Tet 10 conversion Source code
-    // ----------------------------------------------------------------------------------
-
-
-    bool
-    Model::subphase_is_in_child_mesh( moris_index aSubphaseIndex )
-    {
-        MORIS_ERROR( 0, "TOFIX" );
-        if ( aSubphaseIndex >= (moris_index)mBackgroundMesh.get_mesh_data().get_num_entities( EntityRank::ELEMENT ) )
-        {
-            return true;
-        }
-
-        else if ( mBackgroundMesh.entity_has_children( aSubphaseIndex, EntityRank::ELEMENT ) )
-        {
-            return true;
-        }
-
+        std::cout << "There were " << tNumUnsuccessful << " bad nodes of " << aDecompData.tNewNodeId.size() << " total nodes" << std::endl;
         return false;
     }
 
-    // ----------------------------------------------------------------------------------
+    return true;
+}
 
-    moris::ParameterList&
-    Model::get_parameter_list()
+// ----------------------------------------------------------------------------------
+
+void
+Model::send_outward_requests(
+    moris_index const&          aMPITag,
+    Cell< uint > const&         aProcRanks,
+    Cell< Matrix< IndexMat > >& aOutwardRequests )
+{
+    // Cell of requests
+    Cell< MPI_Request > tRequests( aProcRanks.size() );
+
+    // iterate through owned requests and send
+    for ( moris::uint i = 0; i < aProcRanks.size(); i++ )
     {
-        return mParameterList;
+        tRequests( i ) = nonblocking_send(
+            aOutwardRequests( i ),
+            aOutwardRequests( i ).n_rows(),
+            aOutwardRequests( i ).n_cols(),
+            aProcRanks( i ),
+            aMPITag );
     }
+}
 
-    //------------------------------------------------------------------------------
-    void
-    Model::setup_diagnostics(
-        bool               aDiagnostics,
-        std::string const& aDiagnosticPath,
-        std::string const& aDiagnosticLabel )
+// ----------------------------------------------------------------------------------
+
+void
+Model::inward_receive_requests(
+    moris_index const&          aMPITag,
+    moris::uint                 aNumRows,
+    Cell< Matrix< IndexMat > >& aReceivedData,
+    Cell< uint >&               aProcRanksReceivedFrom )
+{
+    // ensure the sizes are correct.
+    aReceivedData.resize( 0 );
+    aProcRanksReceivedFrom.resize( 0 );
+
+    // access the communication table
+    Matrix< IdMat > tCommTable = mBackgroundMesh.get_communication_table();
+    moris::uint     tCount     = 0;
+    for ( moris::uint i = 0; i < tCommTable.numel(); i++ )
     {
-        mDiagnostics = aDiagnostics;
+        aReceivedData.push_back( Matrix< IndexMat >( 1, 1 ) );
+        aProcRanksReceivedFrom.push_back( tCommTable( i ) );
+        receive( aReceivedData( tCount ), aNumRows, tCommTable( i ), aMPITag );
+        tCount++;
+    }
+}
 
-        if ( mDiagnostics )
+// ----------------------------------------------------------------------------------
+
+void
+Model::inward_receive_request_answers(
+    moris_index const&          aMPITag,
+    moris::uint const&          aNumRows,
+    Cell< uint > const&         aProcRanks,
+    Cell< Matrix< IndexMat > >& aReceivedRequestAnswers )
+{
+    MPI_Status tStatus;
+
+    for ( moris::uint i = 0; i < aProcRanks.size(); i++ )
+    {
+        bool tFlag = sent_message_exists( aProcRanks( i ), aMPITag, tStatus );
+        while ( tFlag == false )
         {
-            mDiagnosticPath = aDiagnosticPath;
-            mDiagnosticId   = aDiagnosticLabel;
+            tFlag = sent_message_exists( aProcRanks( i ), aMPITag, tStatus );
+        }
 
-            MORIS_ERROR( !mDiagnosticPath.empty(), "If diagnostics are turned on, a diagnostics path must be specified" );
-            if ( mDiagnosticId.empty() )
+        aReceivedRequestAnswers.push_back( Matrix< IndexMat >( 1, 1 ) );
+        receive( aReceivedRequestAnswers( i ), aNumRows, aProcRanks( i ), aMPITag );
+    }
+}
+
+// ----------------------------------------------------------------------------------
+
+void
+Model::handle_received_request_answers(
+    Decomposition_Data&               aDecompData,
+    Cell< Matrix< IndexMat > > const& aRequests,
+    Cell< Matrix< IndexMat > > const& aRequestAnswers,
+    moris::moris_id&                  aNodeId )
+{
+    Cell< moris_index > tUnhandledRequestIndices;
+
+    // iterate through received data
+    for ( moris::uint i = 0; i < aRequests.size(); i++ )
+    {
+        uint tNumReceivedReqs = aRequests( i ).n_cols();
+
+        // avoid the dummy message
+        if ( aRequests( i )( 0, 0 ) != MORIS_INDEX_MAX )
+        {
+            // iterate through received requests
+            for ( moris::uint j = 0; j < tNumReceivedReqs; j++ )
             {
-                mDiagnosticId = "no_spec";
+                moris_id        tParentId      = aRequests( i )( 0, j );
+                enum EntityRank tParentRank    = (enum EntityRank)aRequests( i )( 1, j );
+                moris_id        tSecondaryId   = aRequests( i )( 2, j );
+                moris_index     tParentInd     = mBackgroundMesh.get_mesh_data().get_loc_entity_ind_from_entity_glb_id( tParentId, tParentRank );
+                bool            tRequestExists = false;
+                moris_index     tRequestIndex  = MORIS_INDEX_MAX;
+
+                if ( aDecompData.mHasSecondaryIdentifier )
+                {
+                    tRequestExists = aDecompData.request_exists( tParentInd, tSecondaryId, (EntityRank)tParentRank, tRequestIndex );
+                }
+                else
+                {
+                    tRequestExists = aDecompData.request_exists( tParentInd, (EntityRank)tParentRank, tRequestIndex );
+                }
+
+                if ( tRequestExists && aRequestAnswers( i )( j ) )
+                {
+                    moris_id tNodeId = aRequestAnswers( i )( j );
+
+                    // meaning the owning processor expected this and gave an answer
+                    if ( tNodeId < MORIS_ID_MAX && aDecompData.tNewNodeId( tRequestIndex ) == MORIS_INDEX_MAX )
+                    {
+                        // set the new node id
+                        aDecompData.tNewNodeId( tRequestIndex ) = tNodeId;
+
+                        aDecompData.mNumNewNodesWithIds++;
+                    }
+                    // The owner did not expect and did not return an answer
+                    else
+                    {
+                        // keep track of unhandled
+                        tUnhandledRequestIndices.push_back( tRequestIndex );
+                        // moris_index tNodeIndex = mBackgroundMesh.get_first_available_index(EntityRank::NODE);
+
+                        // aDecompData.tNewNodeOwner(tRequestIndex) = par_rank();
+
+                        // aDecompData.tNewNodeId(tRequestIndex) = tNodeId;
+                        // aDecompData.tNewNodeIndex(tRequestIndex) = tNodeIndex;
+                        // tNodeIndex++;
+
+                        // // set the new node id
+                        // aDecompData.tNewNodeId(tRequestIndex) = tNodeId;
+
+                        // aDecompData.mNumNewNodesWithIds++;
+
+                        // mBackgroundMesh.update_first_available_index(tNodeIndex, EntityRank::NODE);
+                    }
+                }
+                else
+                {
+                    MORIS_ASSERT( 0, "Request does not exist." );
+                }
             }
         }
     }
-    std::string
-    Model::get_diagnostic_file_name( std::string const& aLabel ) const
+
+    // handle the unhandled requests wiht current proc being the owner
+    moris::moris_id tNodeId = mBackgroundMesh.allocate_entity_ids( tUnhandledRequestIndices.size(), EntityRank::NODE );
+
+    for ( moris::uint i = 0; i < tUnhandledRequestIndices.size(); i++ )
     {
-        MORIS_ASSERT( mDiagnostics, "Only callable with diagnostics on" );
-        return mDiagnosticPath + "/id_" + mDiagnosticId + "_ps_" + std::to_string( moris::par_size() ) + "_pr_" + std::to_string( moris::par_rank() ) + "_" + aLabel + ".diag";
+        moris_index tRequestIndex                  = tUnhandledRequestIndices( i );
+        aDecompData.tNewNodeOwner( tRequestIndex ) = par_rank();
+        aDecompData.tNewNodeId( tRequestIndex )    = tNodeId;
+        tNodeId++;
     }
-    //------------------------------------------------------------------------------
+}
 
-    moris::mtk::Integration_Mesh*
-    Model::get_output_mesh( Output_Options const& aOutputOptions )
+// ----------------------------------------------------------------------------------
 
+void
+Model::send_outward_requests_reals(
+    moris_index const&        aMPITag,
+    Cell< uint > const&       aProcRanks,
+    Cell< Matrix< DDRMat > >& aOutwardRequests )
+{
+    // iterate through owned requests and send
+    for ( moris::uint i = 0; i < aProcRanks.size(); i++ )
     {
-        MORIS_ERROR( 0, "Deprecated. (Removal in progress)" );
-
-        return nullptr;
+        nonblocking_send(
+            aOutwardRequests( i ),
+            aOutwardRequests( i ).n_rows(),
+            aOutwardRequests( i ).n_cols(),
+            aProcRanks( i ),
+            aMPITag );
     }
+}
 
-    //------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------
 
-    moris::uint
-    Model::get_spatial_dim() const
+void
+Model::inward_receive_requests_reals(
+    moris_index const&        aMPITag,
+    moris::uint               aNumRows,
+    Cell< Matrix< DDRMat > >& aReceivedData,
+    Cell< uint >&             aProcRanksReceivedFrom )
+{
+    moris::moris_index tParRank = par_rank();
+    moris::uint        tCount   = 0;
+    MPI_Status         tStatus;
+    for ( moris::uint i = 0; i < (moris::uint)par_size(); i++ )
     {
-        return mModelDimension;
-    }
-
-    //------------------------------------------------------------------------------
-
-
-    moris_index
-    Model::get_cell_xtk_index( moris_id aCellId )
-    {
-        auto tIter = mCellGlbToLocalMap.find( aCellId );
-        MORIS_ASSERT( tIter != mCellGlbToLocalMap.end(), "Id not in map" );
-        return tIter->second;
-    }
-
-    //------------------------------------------------------------------------------
-
-    moris::Cell< moris::Cell< moris_index > > const&
-    Model::get_subphase_to_subphase()
-    {
-        MORIS_ERROR( 0, "Deprecated." );
-        return mSubphaseToSubPhase;
-    }
-
-    //------------------------------------------------------------------------------
-
-    moris::Cell< moris::Cell< moris_index > > const&
-    Model::get_subphase_to_subphase_my_side_ords()
-    {
-        MORIS_ERROR( 0, "Deprecated." );
-        return mSubphaseToSubPhaseMySideOrds;
-    }
-
-    //------------------------------------------------------------------------------
-
-    moris::Cell< moris::Cell< moris_index > > const&
-    Model::get_subphase_to_subphase_transition_loc()
-    {
-        MORIS_ERROR( 0, "Deprecated." );
-        return mTransitionNeighborCellLocation;
-    }
-
-    //------------------------------------------------------------------------------
-
-    moris::Cell< moris::Cell< moris_index > > const&
-    Model::get_subphase_to_subphase_neighbor_side_ords()
-    {
-        MORIS_ERROR( 0, "Deprecated." );
-        return mSubphaseToSubPhaseNeighborSideOrds;
-    }
-
-    //------------------------------------------------------------------------------
-
-    std::shared_ptr< Multigrid >
-    Model::get_multigrid_ptr()
-    {
-        return mMultigrid;
-    }
-
-    //------------------------------------------------------------------------------
-
-    moris_id
-    Model::get_subphase_id( moris_id aSubphaseIndex )
-    {
-
-        return mCutIntegrationMesh->get_subphase_id( aSubphaseIndex );
-    }
-
-    // ----------------------------------------------------------------------------------
-
-    moris_index
-    Model::get_subphase_index( moris_id aSubphaseId )
-    {
-        return mCutIntegrationMesh->get_subphase_index( aSubphaseId );
-    }
-
-    //------------------------------------------------------------------------------
-
-    moris::Memory_Map
-    Model::get_memory_usage()
-    {
-        // memory map for model
-        moris::Memory_Map tXTKModelMM;
-
-        // member data that have memory maps
-        moris::Memory_Map tCutMeshMM;
-        moris::Memory_Map tBGMeshMM;
-        moris::Memory_Map tEnrichmentMM;
-        moris::Memory_Map tGhostMM;
-        moris::Memory_Map tIgMeshMM;
-        moris::Memory_Map tIpMeshMM;
-
-        if ( mDecomposed )
+        if ( (moris_index)i != tParRank )
         {
-            tCutMeshMM = mCutMesh.get_memory_usage();
-            tBGMeshMM  = mBackgroundMesh.get_memory_usage();
+            // if there is a sent message from a processor go receive it
+            if ( sent_message_exists( i, aMPITag, tStatus ) )
+            {
+                aReceivedData.push_back( Matrix< DDRMat >( 1, 1 ) );
+
+                aProcRanksReceivedFrom.push_back( i );
+
+                receive( aReceivedData( tCount ), aNumRows, i, aMPITag );
+
+                tCount++;
+            }
+        }
+    }
+}
+
+// ----------------------------------------------------------------------------------
+
+void
+Model::return_request_answers_reals(
+    moris_index const&              aMPITag,
+    Cell< Matrix< DDRMat > > const& aRequestAnswers,
+    Cell< uint > const&             aProcRanks )
+{
+    // iterate through owned requests and send
+    for ( moris::uint i = 0; i < aProcRanks.size(); i++ )
+    {
+        nonblocking_send( aRequestAnswers( i ), aRequestAnswers( i ).n_rows(), aRequestAnswers( i ).n_cols(), aProcRanks( i ), aMPITag );
+    }
+}
+
+// ----------------------------------------------------------------------------------
+
+void
+Model::inward_receive_request_answers_reals(
+    moris_index const&        aMPITag,
+    moris::uint const&        aNumRows,
+    Cell< uint > const&       aProcRanks,
+    Cell< Matrix< DDRMat > >& aReceivedData )
+{
+    for ( moris::uint i = 0; i < aProcRanks.size(); i++ )
+    {
+        aReceivedData.push_back( Matrix< DDRMat >( 1, 1 ) );
+
+        receive( aReceivedData( i ), aNumRows, aProcRanks( i ), aMPITag );
+    }
+}
+
+// ----------------------------------------------------------------------------------
+
+void
+Model::prepare_request_answers(
+    Decomposition_Data&               aDecompData,
+    Cell< Matrix< IndexMat > > const& aReceiveData,
+    Cell< Matrix< IndexMat > >&       aRequestAnswers )
+{
+    // allocate answer size
+    aRequestAnswers.resize( aReceiveData.size() );
+
+    // iterate through received data
+    for ( moris::uint i = 0; i < aReceiveData.size(); i++ )
+    {
+        uint tNumReceivedReqs = aReceiveData( i ).n_cols();
+
+        aRequestAnswers( i ).resize( 1, tNumReceivedReqs );
+
+        aRequestAnswers( i )( 0 ) = MORIS_INDEX_MAX;
+
+        // avoid the dummy message
+        if ( aReceiveData( i )( 0, 0 ) != MORIS_INDEX_MAX )
+        {
+            // iterate through received requests
+            for ( moris::uint j = 0; j < tNumReceivedReqs; j++ )
+            {
+                moris_id        tParentId      = aReceiveData( i )( 0, j );
+                enum EntityRank tParentRank    = (enum EntityRank)aReceiveData( i )( 1, j );
+                moris_id        tSecondaryId   = aReceiveData( i )( 2, j );
+                moris_index     tParentInd     = mBackgroundMesh.get_mesh_data().get_loc_entity_ind_from_entity_glb_id( tParentId, tParentRank );
+                bool            tRequestExists = false;
+                moris_index     tRequestIndex  = MORIS_INDEX_MAX;
+
+                if ( aDecompData.mHasSecondaryIdentifier )
+                {
+                    tRequestExists = aDecompData.request_exists(
+                        tParentInd,
+                        tSecondaryId,
+                        (EntityRank)tParentRank,
+                        tRequestIndex );
+                }
+                else
+                {
+                    tRequestExists = aDecompData.request_exists(
+                        tParentInd,
+                        (EntityRank)tParentRank,
+                        tRequestIndex );
+                }
+
+                if ( tRequestExists )
+                {
+                    moris_id tNodeId = aDecompData.tNewNodeId( tRequestIndex );
+
+                    aRequestAnswers( i )( j ) = tNodeId;
+
+                    if ( tNodeId == MORIS_ID_MAX )
+                    {
+                        std::cout << "tParentId = " << tParentId << " | Rank " << (uint)tParentRank << std::endl;
+                        //                    MORIS_ERROR(0,"Max node");
+                    }
+                }
+                else
+                {
+                    aRequestAnswers( i )( j ) = MORIS_ID_MAX;
+                }
+            }
+        }
+    }
+}
+
+// ----------------------------------------------------------------------------------
+
+moris::Cell< std::string >
+Model::check_for_and_remove_internal_seacas_side_sets( moris::Cell< std::string >& aSideSetNames )
+{
+    for ( std::vector< std::string >::iterator iSet = aSideSetNames.begin(); iSet != aSideSetNames.end(); ++iSet )
+    {
+        if ( iSet->compare( "surface_1_quad4" ) == 0 )
+        {
+            aSideSetNames.data().erase( iSet-- );
         }
 
-        if ( mEnriched )
+        else if ( iSet->compare( "surface_2_quad4" ) == 0 )
         {
-            tEnrichmentMM = mEnrichment->get_memory_usage();
-            tIgMeshMM     = this->get_enriched_integ_mesh().get_memory_usage();
-            tIpMeshMM     = this->get_enriched_interp_mesh().get_memory_usage();
+            aSideSetNames.data().erase( iSet-- );
         }
-
-        if ( mGhost )
+        else if ( iSet->compare( "surface_3_quad4" ) == 0 )
         {
-            tGhostMM = mGhostStabilization->get_memory_usage();
+            aSideSetNames.data().erase( iSet-- );
         }
-
-        // make the sum of the cut mesh memory map the cut mesh memory
-        tXTKModelMM.mMemoryMapData["Cut Mesh"]                            = tCutMeshMM.sum();
-        tXTKModelMM.mMemoryMapData["Enrichment"]                          = tEnrichmentMM.sum();
-        tXTKModelMM.mMemoryMapData["Enriched Ig Mesh"]                    = tIgMeshMM.sum();
-        tXTKModelMM.mMemoryMapData["Enriched Ip Mesh"]                    = tIpMeshMM.sum();
-        tXTKModelMM.mMemoryMapData["Ghost"]                               = tGhostMM.sum();
-        tXTKModelMM.mMemoryMapData["Background Mesh"]                     = tBGMeshMM.sum();
-        tXTKModelMM.mMemoryMapData["mElementToElement ptrs"]              = moris::internal_capacity( mElementToElement );
-        tXTKModelMM.mMemoryMapData["mElementToElement ptrs"]              = moris::internal_capacity( mElementToElement );
-        tXTKModelMM.mMemoryMapData["mSubphaseToSubPhase"]                 = moris::internal_capacity( mSubphaseToSubPhase );
-        tXTKModelMM.mMemoryMapData["mSubphaseToSubPhaseMySideOrds"]       = moris::internal_capacity( mSubphaseToSubPhaseMySideOrds );
-        tXTKModelMM.mMemoryMapData["mSubphaseToSubPhaseNeighborSideOrds"] = moris::internal_capacity( mSubphaseToSubPhaseNeighborSideOrds );
-
-        tIgMeshMM.par_print( "Ig Mesh" );
-        return tXTKModelMM;
+        else if ( iSet->compare( "surface_4_quad4" ) == 0 )
+        {
+            aSideSetNames.data().erase( iSet-- );
+        }
+        else if ( iSet->compare( "surface_5_quad4" ) == 0 )
+        {
+            aSideSetNames.data().erase( iSet-- );
+        }
+        else if ( iSet->compare( "surface_6_quad4" ) == 0 )
+        {
+            aSideSetNames.data().erase( iSet-- );
+        }
+        else if ( iSet->compare( "surface_hex8_quad_1" ) == 0 )
+        {
+            aSideSetNames.data().erase( iSet-- );
+        }
+        else if ( iSet->compare( "surface_hex8_quad_2" ) == 0 )
+        {
+            aSideSetNames.data().erase( iSet-- );
+        }
+        else if ( iSet->compare( "surface_hex8_quad4_1" ) == 0 )
+        {
+            aSideSetNames.data().erase( iSet-- );
+        }
+        else if ( iSet->compare( "surface_hex8_quad4_2" ) == 0 )
+        {
+            aSideSetNames.data().erase( iSet-- );
+        }
+        else if ( iSet->compare( "surface_hex8_quad4_3" ) == 0 )
+        {
+            aSideSetNames.data().erase( iSet-- );
+        }
+        else if ( iSet->compare( "surface_hex8_quad4_4" ) == 0 )
+        {
+            aSideSetNames.data().erase( iSet-- );
+        }
     }
 
-    //------------------------------------------------------------------------------
+    return aSideSetNames;
+}
 
-    //------------------------------------------------------------------------------
 
-    //------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------
+// Enrichment Source code
+// ----------------------------------------------------------------------------------
+
+void
+Model::perform_basis_enrichment(
+    enum EntityRank const& aBasisRank,
+    moris_index const&     aMeshIndex )
+{
+    Tracer tTracer( "XTK", "Enrichment", "Enrich" );
+
+    MORIS_ERROR( mDecomposed, "Prior to computing basis enrichment, the decomposition process must be called" );
+
+    // allocate some new enriched interpolation and integration meshes
+    mEnrichedIntegMesh.resize( aMeshIndex + 1, nullptr );
+    mEnrichedInterpMesh.resize( aMeshIndex + 1, nullptr );
+
+    this->perform_basis_enrichment_internal( aBasisRank, { { aMeshIndex } } );
+
+    // Change the enrichment flag
+    mEnriched = true;
+}
+
+void
+Model::probe_bg_cell( Matrix< IndexMat > const& tBGCellIds )
+{
+    Tracer tTracer( "XTK", "BG Cell Probe" );
+
+    for ( moris::uint i = 0; i < tBGCellIds.numel(); i++ )
+    {
+        Tracer tTracer( "XTK", "BG Cell Probe", "Cell Id " + std::to_string( tBGCellIds( i ) ) );
+
+        moris_index                 tIndex      = mBackgroundMesh.get_mesh_data().get_loc_entity_ind_from_entity_glb_id( tBGCellIds( i ), EntityRank::ELEMENT );
+        mtk::Cell&                  tCell       = mBackgroundMesh.get_mesh_data().get_mtk_cell( tIndex );
+        Matrix< IndexMat >          tVertexIds  = tCell.get_vertex_ids();
+        moris::Cell< mtk::Vertex* > tVertexPtrs = tCell.get_vertex_pointers();
+        Matrix< IndexMat >          tVertexOwner( 1, tVertexPtrs.size() );
+
+        MORIS_LOG_SPEC( "Cell Id", tBGCellIds( i ) );
+        MORIS_LOG_SPEC( "Cell Index", tIndex );
+        MORIS_LOG_SPEC( "Cell Owner", tCell.get_owner() );
+        MORIS_LOG_SPEC( "Vertex Ids", ios::stringify_log( tVertexIds ) );
+        MORIS_LOG_SPEC( "Vertex Owners", ios::stringify_log( tVertexOwner ) );
+
+        // collect geometric info
+        uint                     tNumGeom = mGeometryEngine->get_num_geometries();
+        Cell< Matrix< DDRMat > > tVertexGeomVals( tNumGeom, Matrix< DDRMat >( 1, tVertexPtrs.size() ) );
+        for ( moris::uint iG = 0; iG < tNumGeom; iG++ )
+        {
+            for ( moris::uint iV = 0; iV < tVertexPtrs.size(); iV++ )
+            {
+                tVertexGeomVals( iG )( iV ) = mGeometryEngine->get_field_value( iG, (uint)tVertexPtrs( iV )->get_index(), tVertexPtrs( iV )->get_coords() );
+            }
+            MORIS_LOG_SPEC( "Geom Field " + std::to_string( iG ) + " Vals", ios::stringify_log( tVertexGeomVals( iG ) ) );
+        }
+    }
+}
+
+// ----------------------------------------------------------------------------------
+Cut_Integration_Mesh*
+Model::get_cut_integration_mesh()
+{
+    MORIS_ASSERT( mDecomposed,
+        "Cannot get cut integration mesh prior to the decomposition strategy " );
+
+    return mCutIntegrationMesh.get();
+}
+
+Enrichment const&
+Model::get_basis_enrichment()
+{
+    MORIS_ASSERT( mEnriched,
+        "Cannot get basis enrichment from an XTK model which has not called perform_basis_enrichment " );
+
+    return *mEnrichment;
+}
+
+// ----------------------------------------------------------------------------------
+
+void
+Model::return_request_answers(
+    moris_index const&                aMPITag,
+    Cell< Matrix< IndexMat > > const& aRequestAnswers,
+    Cell< uint > const&               aProcRanks )
+{
+    // access the communication table
+    Matrix< IdMat > tCommTable = mBackgroundMesh.get_communication_table();
+
+    // iterate through owned requests and send
+    for ( moris::uint i = 0; i < tCommTable.numel(); i++ )
+    {
+        nonblocking_send( aRequestAnswers( i ), aRequestAnswers( i ).n_rows(), aRequestAnswers( i ).n_cols(), tCommTable( i ), aMPITag );
+    }
+}
+
+// ----------------------------------------------------------------------------------
+
+void
+Model::finalize_decomp()
+{
+    // // Change XTK model decomposition state flag
+    // mDecomposed = true;
+
+    // // Sort the children meshes into groups
+    // this->sort_children_meshes_into_groups();
+
+    // // assign child element indices ( seperated to facilitate mesh cleanup )
+    // this->assign_child_element_indices( true );
+
+    // // give each child cell its id (parallel consistent) and index (not parallel consistent)
+    // this->assign_child_element_ids();
+
+    // // creates mtk cells for all child elements (parent elements are assumed to have mtk cells in the mtk mesh)
+    // this->create_child_element_mtk_cells();
+
+    // // add vertices to child meshes
+    // this->add_vertices_to_child_meshes();
+
+    // // Compute the child element phase using the geometry engine
+    // // a case where the phase may not be set is when we only do a
+    // // non-conformal decomposition
+    // this->set_element_phases();
+
+    // // identify local subphases in child mesh
+    // this->identify_local_subphase_clusters_in_child_meshes();
+
+    // // constructs the subphase double side sets internal to a child mesh
+    // // I do this here because it also figures out if the child mesh has inter child mesh interfaces
+    // // this flag is needed for the cleanup cut mesh call
+    // // this->construct_internal_double_sides_between_subphases();
+
+    // // // cleanup the mesh
+    // // if(mCleanupMesh)
+    // // {
+    // //     std::cout<<"Mesh Cleanup"<<std::endl;
+    // //     Mesh_Cleanup tMeshCleanup(this,&mParameterList);
+    // //     tMeshCleanup.perform();
+    // // }
+
+
+    // // // identify local subphases in child mesh
+    // // this->identify_local_subphase_clusters_in_child_meshes();
+
+    // // // add child element to local to global map
+    // // this->add_child_elements_to_local_to_global_map();
+
+    // // // Associate nodes created during decomposition to their child meshes
+    // // this->associate_nodes_created_during_decomp_to_child_meshes();
+
+    // // // set the glb to loc map for all cells
+    // // this->setup_cell_glb_to_local_map();
+
+    // // // assign subphase ids
+    // // this->assign_subphase_glob_ids();
+
+    // // // setup global to local subphase map
+    // // this->setup_glob_to_loc_subphase_map();
+}
+
+// ----------------------------------------------------------------------------------
+
+void
+Model::finalize_mesh_data()
+{
+    // //
+    // mBackgroundMesh.setup_local_to_global_maps();
+
+    // //
+    // this->sort_children_meshes_into_groups();
+
+    // // set the element phases
+    // this->set_element_phases();
+
+    // // identify local subphases in child mesh
+    // this->identify_local_subphase_clusters_in_child_meshes();
+
+    // // Associate nodes created during decomposition to their child meshes
+    // this->associate_nodes_created_during_decomp_to_child_meshes();
+
+    // // constructs the subphase double side sets internal to a child mesh
+    // // I do this here because it also figures out if the child mesh has inter child mesh interfaces
+    // // this flag is needed for the cleanup cut mesh call
+    // this->construct_internal_double_sides_between_subphases();
+
+    // // set the glb to loc map for all cells
+    // this->setup_cell_glb_to_local_map();
+
+    // // assign subphase ids
+    // this->assign_subphase_glob_ids();
+
+    // // setup global to local subphase map
+    // this->setup_glob_to_loc_subphase_map();
+    // // this catches the missed interfaces due to coincidence
+    // this->catch_all_unhandled_interfaces();
+
+
+    // mMeshDataFinalized = true;
+}
+
+// ----------------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------------
+
+
+// ----------------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------------
+
+
+// ----------------------------------------------------------------------------------
+// Enrichment Source code
+// ----------------------------------------------------------------------------------
+
+
+// ----------------------------------------------------------------------------------
+
+void
+Model::perform_basis_enrichment(
+    enum EntityRank const&    aBasisRank,
+    Matrix< IndexMat > const& aMeshIndex )
+{
+    Tracer tTracer( "XTK", "Enrichment" );
+
+    if ( !mMeshDataFinalized )
+    {
+        this->finalize_mesh_data();
+    }
+    MORIS_ERROR( mDecomposed, "Prior to computing basis enrichment, the decomposition process must be called" );
+
+    // allocate some new enriched interpolation and integration meshes
+    mEnrichedIntegMesh.resize( aMeshIndex.numel() + 1, nullptr );
+    mEnrichedInterpMesh.resize( aMeshIndex.numel() + 1, nullptr );
+
+    this->perform_basis_enrichment_internal( aBasisRank, aMeshIndex );
+
+
+    // Change the enrichment flag
+    mEnriched = true;
+}
+
+void
+Model::perform_hanging_node_identification()
+{
+    Tracer tTracer( "XTK", "Identify hanging nodes" );
+
+    MORIS_ERROR( mDecomposed, "Mesh needs to be decomposed prior to identifying hanging nodes" );
+
+    MORIS_ERROR( mEnriched, "Mesh needs to be enriched prior to identifying hanging nodes" );
+
+    // get the interpolation mesh
+    moris::mtk::Interpolation_Mesh& tInterpMesh = mBackgroundMesh.get_mesh_data();
+
+    // iterate through child meshes
+    for ( moris::uint iCM = 0; iCM < mCutMesh.get_num_child_meshes(); iCM++ )
+    {
+        // active child mesh
+        Child_Mesh& tChildMesh = mCutMesh.get_child_mesh( iCM );
+
+        // get the neighbors
+        Matrix< IndexMat > tElementNeighors = tInterpMesh.get_elements_connected_to_element_and_face_ind_loc_inds( tChildMesh.get_parent_element_index() );
+
+        moris::Cell< moris_index > tTransitionFacets;
+
+        // iterate through neighbor
+        for ( moris::uint iN = 0; iN < tElementNeighors.n_cols(); iN++ )
+        {
+            moris_index tNeighborCellIndex = tElementNeighors( 0, iN );
+
+            moris_index tSharedFaceIndex = tElementNeighors( 1, iN );
+
+            if ( !mBackgroundMesh.entity_has_children( tNeighborCellIndex, EntityRank::ELEMENT ) )
+            {
+                tTransitionFacets.push_back( tSharedFaceIndex );
+            }
+        }
+
+        tChildMesh.identify_hanging_nodes( tTransitionFacets );
+    }
+}
+
+// ----------------------------------------------------------------------------------
+
+
+Enriched_Interpolation_Mesh&
+Model::get_enriched_interp_mesh( moris::moris_index aIndex )
+{
+    MORIS_ASSERT( mEnriched,
+        "Cannot get enriched interpolation mesh from an XTK model which has not called perform_basis_enrichment " );
+
+    return *( mEnrichedInterpMesh( aIndex ) );
+}
+
+// ----------------------------------------------------------------------------------
+
+Enriched_Integration_Mesh&
+Model::get_enriched_integ_mesh( moris::moris_index aIndex )
+{
+    MORIS_ASSERT( mEnriched,
+        "Cannot get enriched integration mesh from an XTK model which has not called perform_basis_enrichment " );
+
+    return *( mEnrichedIntegMesh( aIndex ) );
+}
+
+// ----------------------------------------------------------------------------------
+
+void
+Model::perform_basis_enrichment_internal(
+    enum EntityRank const&    aBasisRank,
+    Matrix< IndexMat > const& aMeshIndex )
+{
+
+    // initialize enrichment (ptr because of circular dependency)
+    mEnrichment = new Enrichment(
+        Enrichment_Method::USE_INTERPOLATION_CELL_BASIS,
+        aBasisRank,
+        aMeshIndex,
+        mGeometryEngine->get_num_phases(),
+        this,
+        &mCutMesh,
+        &mBackgroundMesh );
+
+    // Set verbose flag to match XTK.
+    mEnrichment->mVerbose = mVerbose;
+
+    // perform the enrichment
+    mEnrichment->perform_enrichment();
+}
+
+// ----------------------------------------------------------------------------------
+
+void
+Model::construct_face_oriented_ghost_penalization_cells()
+{
+    Tracer tTracer( "XTK", "GhostStabilization", "Stabilize" );
+
+    MORIS_ERROR( mDecomposed, "Mesh needs to be decomposed prior to calling ghost penalization" );
+
+    MORIS_ERROR( !mGhost, "Ghost penalization has already been called" );
+
+    mGhostStabilization = new Ghost_Stabilization( this );
+
+    mGhostStabilization->setup_ghost_stabilization();
+
+    mGhost = true;
+}
+
+// ----------------------------------------------------------------------------------
+
+Ghost_Stabilization&
+Model::get_ghost_stabilization( moris::moris_index aIndex )
+{
+    MORIS_ERROR( mGhost, "Ghost has not been constructed on this model." );
+    return *mGhostStabilization;
+}
+
+// ----------------------------------------------------------------------------------
+
+void
+Model::construct_multigrid()
+{
+    Tracer tTracer( "XTK", "Multigrid", "Run" );
+
+    mMultigrid = std::make_shared< xtk::Multigrid >( this );
+
+    mMultigrid->build_enriched_coeff_to_background_coeff_map();
+
+    mMultigrid->create_fine_to_coarse_relationship();
+
+    mMultigrid->create_coarse_to_fine_relationship();
+
+    mMultigrid->create_coarse_to_fine_weights();
+
+    std::string tName = "Enriched_bspline_1.exo";
+    mMultigrid->build_basis_exodus_information( tName );
+}
+
+// ----------------------------------------------------------------------------------
+
+Cut_Mesh&
+Model::get_cut_mesh()
+{
+    return mCutMesh;
+}
+
+// ----------------------------------------------------------------------------------
+
+Cut_Mesh const&
+Model::get_cut_mesh() const
+{
+    return mCutMesh;
+}
+
+// ----------------------------------------------------------------------------------
+
+Background_Mesh&
+Model::get_background_mesh()
+{
+    return mBackgroundMesh;
+}
+
+// ----------------------------------------------------------------------------------
+
+Background_Mesh const&
+Model::get_background_mesh() const
+{
+    return mBackgroundMesh;
+}
+
+// ----------------------------------------------------------------------------------
+
+moris::ge::Geometry_Engine*
+Model::get_geom_engine()
+{
+    return mGeometryEngine;
+}
+
+// ----------------------------------------------------------------------------------
+// Tet 10 conversion Source code
+// ----------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------------
+
+
+// ----------------------------------------------------------------------------------
+
+void
+Model::collect_subphases_attached_to_facet_on_cell(
+    moris::moris_index          aCellIndex,
+    moris::moris_index          aFacetOrdinal,
+    Cell< moris::moris_index >& aCellSubphaseIndices,
+    Cell< moris::moris_index >& aCellSubphaseBulkIndices,
+    Cell< moris::moris_index >& aRepresentativeCellInd,
+    Cell< moris::moris_index >& aRepresentativeCellSideOrdinal )
+{
+    aRepresentativeCellInd.clear();
+    aRepresentativeCellSideOrdinal.clear();
+
+    Matrix< IndexMat > tCellFacets = mBackgroundMesh.get_mesh_data().get_entity_connected_to_entity_loc_inds( aCellIndex, EntityRank::ELEMENT, mBackgroundMesh.get_mesh_data().get_facet_rank() );
+
+    moris_index tFacetIndex = tCellFacets( aFacetOrdinal );
+
+    // set pointer to child mesh if it has children
+    if ( mBackgroundMesh.entity_has_children( aCellIndex, EntityRank::ELEMENT ) )
+    {
+        // get the child mesh ptr
+        moris::moris_index tCMIndex = mBackgroundMesh.child_mesh_index( aCellIndex, EntityRank::ELEMENT );
+        Child_Mesh const*  tCMCell  = &mCutMesh.get_child_mesh( tCMIndex );
+
+
+        // get subphases attached to facet
+        Cell< moris::moris_index > tCellCMSubphaseIndices;
+        tCMCell->get_subphases_attached_to_facet( tFacetIndex, tCellCMSubphaseIndices, aRepresentativeCellInd, aRepresentativeCellSideOrdinal );
+
+        // reference to subphase indices and bulkphases of subphases
+        Cell< moris::moris_index > const& tCMSubphaseBulkIndices = tCMCell->get_subphase_bin_bulk_phase();
+        Cell< moris::moris_index > const& tCMSubphaseIndices     = tCMCell->get_subphase_indices();
+
+        // put the information in processor local indices with bulk phase
+        aCellSubphaseIndices.resize( tCellCMSubphaseIndices.size() );
+        aCellSubphaseBulkIndices.resize( tCellCMSubphaseIndices.size() );
+
+
+        for ( moris::uint i = 0; i < tCellCMSubphaseIndices.size(); i++ )
+        {
+            aCellSubphaseBulkIndices( i ) = tCMSubphaseBulkIndices( tCellCMSubphaseIndices( i ) );
+            aCellSubphaseIndices( i )     = tCMSubphaseIndices( tCellCMSubphaseIndices( i ) );
+        }
+    }
+    else
+    {
+        // get the cell subphase indices
+        aCellSubphaseBulkIndices = { { mBackgroundMesh.get_element_phase_index( aCellIndex ) } };
+        aCellSubphaseIndices     = { { aCellIndex } };
+        aRepresentativeCellInd   = { { aCellIndex } };
+        aRepresentativeCellSideOrdinal.push_back( tFacetIndex );
+    }
+}
+
+// ----------------------------------------------------------------------------------
+
+bool
+Model::subphase_is_in_child_mesh( moris_index aSubphaseIndex )
+{
+    if ( aSubphaseIndex >= (moris_index)mBackgroundMesh.get_mesh_data().get_num_entities( EntityRank::ELEMENT ) )
+    {
+        return true;
+    }
+
+    else if ( mBackgroundMesh.entity_has_children( aSubphaseIndex, EntityRank::ELEMENT ) )
+    {
+        return true;
+    }
+
+    return false;
+}
+
+// ----------------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------------
+
+void
+Model::print_cells()
+{
+}
+
+//------------------------------------------------------------------------------
+
+moris::Matrix< moris::IndexMat >
+Model::get_element_to_subphase()
+{
+
+    MORIS_ERROR( 0, "TODODODO" );
+    Matrix< IndexMat > tSubphase( 1, 1 );
+    return tSubphase;
+}
+
+moris::Matrix< moris::IndexMat >
+Model::get_num_subphase_neighbors()
+{
+    moris::Cell< moris::Cell< moris_index > > const& tSubPhaseToSubphase = this->get_subphase_to_subphase();
+    moris::Matrix< moris::IndexMat >                 tSubphaseNumNeighbors( 1, tSubPhaseToSubphase.size() );
+    for ( size_t iSP = 0; iSP < tSubPhaseToSubphase.size(); iSP++ )
+    {
+        tSubphaseNumNeighbors( iSP ) = tSubPhaseToSubphase( iSP ).size();
+    }
+    return tSubphaseNumNeighbors;
+}
+
+// ----------------------------------------------------------------------------------
+
+
+moris::mtk::Integration_Mesh*
+Model::construct_output_mesh( Output_Options const& aOutputOptions )
+{
+
+    MORIS_ERROR( 0, "Depracated" );
+    return nullptr;
+}
+
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+
+void
+Model::setup_interface_single_side_sets(
+    Output_Options const&                  aOutputOptions,
+    Cell< moris::Matrix< moris::IdMat > >& aCellIdsAndSideOrds,
+    Cell< std::string >&                   aInterfaceSetNames )
+{
+    std::string tSetNameBase = "iside_";
+
+    for ( moris_index iG = 0; iG < (moris_index)mGeometryEngine->get_num_geometries(); iG++ )
+    {
+        for ( moris_index iP0 = 0; iP0 < (moris_index)mGeometryEngine->get_num_bulk_phase(); iP0++ )
+        {
+            for ( moris_index iP1 = iP0 + 1; iP1 < (moris_index)mGeometryEngine->get_num_bulk_phase(); iP1++ )
+            {
+                if ( aOutputOptions.output_phase( iP0 ) && aOutputOptions.output_phase( iP1 ) )
+                {
+                    std::string tSetName = tSetNameBase + "g_" + std::to_string( iG ) + "_p0_" + std::to_string( iP0 ) + "_p1_" + std::to_string( iP1 );
+
+                    aInterfaceSetNames.push_back( tSetName );
+                    aCellIdsAndSideOrds.push_back( mCutMesh.pack_interface_sides( iG, iP0, iP1 ) );
+                }
+            }
+        }
+    }
+}
+
+//------------------------------------------------------------------------------
+// Tet 10 conversion Source code
+// ----------------------------------------------------------------------------------
+
+moris::ParameterList&
+Model::get_parameter_list()
+{
+    return mParameterList;
+}
+
+//------------------------------------------------------------------------------
+void
+Model::setup_diagnostics(
+    bool               aDiagnostics,
+    std::string const& aDiagnosticPath,
+    std::string const& aDiagnosticLabel )
+{
+    mDiagnostics = aDiagnostics;
+
+    if ( mDiagnostics )
+    {
+        mDiagnosticPath = aDiagnosticPath;
+        mDiagnosticId   = aDiagnosticLabel;
+
+        MORIS_ERROR( !mDiagnosticPath.empty(), "If diagnostics are turned on, a diagnostics path must be specified" );
+        if ( mDiagnosticId.empty() )
+        {
+            mDiagnosticId = "no_spec";
+        }
+    }
+}
+std::string
+Model::get_diagnostic_file_name( std::string const& aLabel ) const
+{
+    MORIS_ASSERT( mDiagnostics, "Only callable with diagnostics on" );
+    return mDiagnosticPath + "/id_" + mDiagnosticId + "_ps_" + std::to_string( moris::par_size() ) + "_pr_" + std::to_string( moris::par_rank() ) + "_" + aLabel + ".diag";
+}
+//------------------------------------------------------------------------------
+
+moris::mtk::Integration_Mesh*
+Model::get_output_mesh( Output_Options const& aOutputOptions )
+
+{
+    MORIS_ERROR( 0, "Deprecated. (Removal in progress)" );
+
+    return nullptr;
+}
+
+//------------------------------------------------------------------------------
+
+moris::uint
+Model::get_spatial_dim() const
+{
+    return mModelDimension;
+}
+
+//------------------------------------------------------------------------------
+
+
+moris_index
+Model::get_cell_xtk_index( moris_id aCellId )
+{
+    auto tIter = mCellGlbToLocalMap.find( aCellId );
+    MORIS_ASSERT( tIter != mCellGlbToLocalMap.end(), "Id not in map" );
+    return tIter->second;
+}
+
+//------------------------------------------------------------------------------
+
+moris::Cell< moris::Cell< moris_index > > const&
+Model::get_subphase_to_subphase()
+{
+    MORIS_ERROR( 0, "Deprecated." );
+    return mSubphaseToSubPhase;
+}
+
+//------------------------------------------------------------------------------
+
+moris::Cell< moris::Cell< moris_index > > const&
+Model::get_subphase_to_subphase_my_side_ords()
+{
+    MORIS_ERROR( 0, "Deprecated." );
+    return mSubphaseToSubPhaseMySideOrds;
+}
+
+//------------------------------------------------------------------------------
+
+moris::Cell< moris::Cell< moris_index > > const&
+Model::get_subphase_to_subphase_transition_loc()
+{
+    MORIS_ERROR( 0, "Deprecated." );
+    return mTransitionNeighborCellLocation;
+}
+
+//------------------------------------------------------------------------------
+
+moris::Cell< moris::Cell< moris_index > > const&
+Model::get_subphase_to_subphase_neighbor_side_ords()
+{
+    MORIS_ERROR( 0, "Deprecated." );
+    return mSubphaseToSubPhaseNeighborSideOrds;
+}
+
+//------------------------------------------------------------------------------
+
+std::shared_ptr< Multigrid >
+Model::get_multigrid_ptr()
+{
+    return mMultigrid;
+}
+
+//------------------------------------------------------------------------------
+
+moris_id
+Model::get_subphase_id( moris_id aSubphaseIndex )
+{
+
+    return mCutIntegrationMesh->get_subphase_id( aSubphaseIndex );
+}
+
+// ----------------------------------------------------------------------------------
+
+moris_index
+Model::get_subphase_index( moris_id aSubphaseId )
+{
+    return mCutIntegrationMesh->get_subphase_index( aSubphaseId );
+}
+
+//------------------------------------------------------------------------------
+
+moris::Memory_Map
+Model::get_memory_usage()
+{
+    // memory map for model
+    moris::Memory_Map tXTKModelMM;
+
+    // member data that have memory maps
+    moris::Memory_Map tCutMeshMM;
+    moris::Memory_Map tBGMeshMM;
+    moris::Memory_Map tEnrichmentMM;
+    moris::Memory_Map tGhostMM;
+    moris::Memory_Map tIgMeshMM;
+    moris::Memory_Map tIpMeshMM;
+
+    if ( mDecomposed )
+    {
+        tCutMeshMM = mCutMesh.get_memory_usage();
+        tBGMeshMM  = mBackgroundMesh.get_memory_usage();
+    }
+
+    if ( mEnriched )
+    {
+        tEnrichmentMM = mEnrichment->get_memory_usage();
+        tIgMeshMM     = this->get_enriched_integ_mesh().get_memory_usage();
+        tIpMeshMM     = this->get_enriched_interp_mesh().get_memory_usage();
+    }
+
+    if ( mGhost )
+    {
+        tGhostMM = mGhostStabilization->get_memory_usage();
+    }
+
+    // make the sum of the cut mesh memory map the cut mesh memory
+    tXTKModelMM.mMemoryMapData["Cut Mesh"]                            = tCutMeshMM.sum();
+    tXTKModelMM.mMemoryMapData["Enrichment"]                          = tEnrichmentMM.sum();
+    tXTKModelMM.mMemoryMapData["Enriched Ig Mesh"]                    = tIgMeshMM.sum();
+    tXTKModelMM.mMemoryMapData["Enriched Ip Mesh"]                    = tIpMeshMM.sum();
+    tXTKModelMM.mMemoryMapData["Ghost"]                               = tGhostMM.sum();
+    tXTKModelMM.mMemoryMapData["Background Mesh"]                     = tBGMeshMM.sum();
+    tXTKModelMM.mMemoryMapData["mElementToElement ptrs"]              = moris::internal_capacity( mElementToElement );
+    tXTKModelMM.mMemoryMapData["mElementToElement ptrs"]              = moris::internal_capacity( mElementToElement );
+    tXTKModelMM.mMemoryMapData["mSubphaseToSubPhase"]                 = moris::internal_capacity( mSubphaseToSubPhase );
+    tXTKModelMM.mMemoryMapData["mSubphaseToSubPhaseMySideOrds"]       = moris::internal_capacity( mSubphaseToSubPhaseMySideOrds );
+    tXTKModelMM.mMemoryMapData["mSubphaseToSubPhaseNeighborSideOrds"] = moris::internal_capacity( mSubphaseToSubPhaseNeighborSideOrds );
+
+    tIgMeshMM.par_print( "Ig Mesh" );
+    return tXTKModelMM;
+}
+
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
 
 }// namespace xtk

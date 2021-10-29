@@ -97,8 +97,6 @@ namespace moris
                 Matrix<DDRMat> compute_dcriteria_dadv();
                 
 
-                void
-                create_xtk();
             
         };
         //------------------------------------------------------------------------------

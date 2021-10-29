@@ -2054,8 +2054,13 @@ namespace xtk
     void
     Child_Mesh::get_subphases_attached_to_facet(
             moris_index         aFacetIndex,
-            Cell<moris_index> & aSubPhaseCMIndex) const
+            Cell<moris_index> & aSubPhaseCMIndex,
+            Cell<moris_index> & aRepresentativeChildCellInd,
+            Cell<moris_index> & aRepresentativeChildCellSideOrdinal) const
     {
+
+        aRepresentativeChildCellInd.clear();
+        aRepresentativeChildCellSideOrdinal.clear();
         // estimate maximum number of elements on face
          const uint tMaxElemOnFace = 100;
 
@@ -2076,17 +2081,22 @@ namespace xtk
 
         // get the subphases of cells
         moris::Matrix< moris::IndexMat > const & tElementSubphase = this->get_elemental_subphase_bin_membership();
+        moris::Matrix<moris::IndexMat> const & tElementInds = this->get_element_inds();
+
+        std::unordered_map<moris_index,moris_index> tUniqueMap;
 
         for(moris::uint i = 0; i < tNumberOfChildElemsOnFace; i++)
         {
-            // get the subphase membership of cell on facet
-            aSubPhaseCMIndex.push_back(tElementSubphase(tChildElemsCMIndOnFace(i)));
+            moris_index tSubphase = tElementSubphase(tChildElemsCMIndOnFace(i));
+            if(tUniqueMap.find(tSubphase) == tUniqueMap.end())
+            {
+                // get the subphase membership of cell on facet
+                aSubPhaseCMIndex.push_back(tSubphase);
+                aRepresentativeChildCellInd.push_back(tElementInds(tChildElemsCMIndOnFace(i)));
+                aRepresentativeChildCellSideOrdinal.push_back(tChildElemOnFaceOrdinal(i));
+                tUniqueMap[tSubphase] = 1; // value not important
+            }
         }
-
-        // make it unique
-        std::sort( aSubPhaseCMIndex.begin(), aSubPhaseCMIndex.end() );
-        auto last = std::unique( aSubPhaseCMIndex.begin(), aSubPhaseCMIndex.end() );
-        aSubPhaseCMIndex.data().erase( last, aSubPhaseCMIndex.end() );
     }
 
     // ---------------------------------------------------------------------------------

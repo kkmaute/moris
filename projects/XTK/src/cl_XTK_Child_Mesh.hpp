@@ -763,7 +763,9 @@ public:
  
     void
     get_subphases_attached_to_facet(moris_index aFacetIndex,
-                                    Cell<moris_index> & aSubPhaseCMIndex) const;
+                                    Cell<moris_index> & aSubPhaseCMIndex,
+                                    Cell<moris_index> & aRepresentativeChildCellInd,
+                                    Cell<moris_index> & aRepresentativeChildCellSideOrdinal) const;
 
     // ----------------------------------------------------------------------------------
  
