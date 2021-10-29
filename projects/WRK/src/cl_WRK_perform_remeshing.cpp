@@ -267,6 +267,7 @@ namespace moris
 
             // build new HMR performer with copied parameters
             tHMRPerformerNew = std::make_shared< hmr::HMR >( tParameters );
+            tHMRPerformerNew->get_database()->set_parameter_owning_flag();
 
             // refine pattern
             tHMRPerformerNew->get_database()->load_refinement_pattern(
