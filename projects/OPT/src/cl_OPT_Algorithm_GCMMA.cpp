@@ -21,7 +21,8 @@ OptAlgGCMMA::OptAlgGCMMA(ParameterList aParameterList)
   mAsympShrink(aParameterList.get< moris::real >( "asymp_adaptb" )),
   mAsympExpand(aParameterList.get< moris::real >( "asymp_adaptc" )),
   mStepSize(aParameterList.get< moris::real >( "step_size" )),
-  mPenalty(aParameterList.get< moris::real >( "penalty" ))
+  mPenalty(aParameterList.get< moris::real >( "penalty" )),
+  mIvers(aParameterList.get< moris::sint >( "version" ))
 {
     mRestartIndex         = aParameterList.get< moris::sint >( "restart_index" );
     mMaxIterationsInitial = aParameterList.get< moris::sint >( "max_its" );
@@ -102,9 +103,21 @@ void OptAlgGCMMA::gcmma_solve()
     // create an object of type MMAgc solver
     MMAgc mmaAlg(this, tAdv, tUpperBounds, tLowerBounds, mProblem->get_num_advs(), mProblem->get_num_constraints(),
             mMaxIterations, mMaxInnerIterations, mNormDrop, mAsympAdapt0, mAsympShrink, mAsympExpand,
-            mStepSize, mPenalty, NULL, mPrint);
+            mStepSize, mPenalty, NULL, mPrint, mIvers );
 
-    mResFlag = mmaAlg.solve(); // call the the gcmma solve
+    switch ( mIvers )
+    {
+        case 1:
+        {
+            mResFlag = mmaAlg.solve(); // call 2004 version gcmma solver
+            break;
+        }
+        case 2:
+        {
+            mResFlag = mmaAlg.solve07(); // call 2007 version gcmma solver
+            break;
+        }
+    }
 
     mmaAlg.cleanup(); // free the memory created by GCMMA
 }
