@@ -74,7 +74,8 @@ namespace moris
                 // Check for size
                 MORIS_ERROR(mSensitivities.n_cols() == mFieldVariables.size(),
                         "A user-defined geometry must have a sensitivity vector with a length equal to the total "
-                        "number of geometry variables (ADVs + constants).");
+                        "number of geometry variables (ADVs + constants). sensitivities: %i   geom variables: %i \n",
+                        mSensitivities.n_cols(), mFieldVariables.size());
 
                 // Check for values not nan/infinity
                 for (uint tSensitivityIndex = 0; tSensitivityIndex < mSensitivities.n_cols(); tSensitivityIndex++)
