@@ -198,10 +198,13 @@ namespace moris
 
                 for( uint Ia = 0; Ia< tFieldNames( Ik ).size(); Ia++ )
                 {
-                    std::shared_ptr< mtk::Field > tField = aFields( tFieldNameToIndexMap.find( tFieldNames( Ik )( Ia ) ) );
+                    std::string tFieldName = tFieldNames( Ik )( Ia );
+                    std::shared_ptr< mtk::Field > tField = aFields( tFieldNameToIndexMap.find( tFieldName ) );
 
                     // get interpolation mesh from mesh pair
                     moris::mtk::Mesh * tSourceMesh = tField->get_mesh_pair().get_interpolation_mesh();
+
+                    MORIS_ERROR( tSourceMesh != nullptr, " Source mesh of field %s is nullptr", tFieldName);
 
                     uint tNumElements = tSourceMesh->get_num_elems();
 
