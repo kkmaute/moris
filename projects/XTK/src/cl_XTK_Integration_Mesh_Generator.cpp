@@ -100,6 +100,7 @@ Integration_Mesh_Generator::perform()
     this->construct_bulk_phase_to_bulk_phase_interface( tCutIntegrationMesh.get(), tInterfaces, tInterfaceByBulkPhase );
 
     moris::Cell< moris::Cell< std::shared_ptr< IG_Cell_Double_Side_Group > > > tDoubleSidedInterface;
+    this->construct_bulk_phase_to_bulk_phase_dbl_side_interface( tCutIntegrationMesh.get(), tInterfaces, tDoubleSidedInterface );
     tCutIntegrationMesh->set_bulk_phase_to_bulk_phase_dbl_side_interface( tDoubleSidedInterface );
 
     // construct interface_sets
