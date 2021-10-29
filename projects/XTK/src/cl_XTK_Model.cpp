@@ -355,9 +355,9 @@ Model::perform()
 
     if ( mEnriched )
     {
-        // get meshes
         xtk::Enriched_Interpolation_Mesh &tEnrInterpMesh = this->get_enriched_interp_mesh();
         xtk::Enriched_Integration_Mesh &  tEnrIntegMesh  = this->get_enriched_integ_mesh();
+        // get meshes
 
         std::string tXTKMeshName = "XTKMesh";
 
@@ -398,92 +398,89 @@ Model::perform()
                 tWriter2.close_file();
             }
         }
+
+
+        // if( mParameterList.get<bool>("contact_sandbox") )
+        // {
+        //     std::string tInterfaceSideSetName1 = tEnrIntegMesh.get_interface_side_set_name(0, 0, 2);
+        //     std::string tInterfaceSideSetName2 = tEnrIntegMesh.get_interface_side_set_name(0, 1, 0);
+
+        //     xtk::Contact_Sandbox tSandbox(&tEnrIntegMesh,
+        //                                   tInterfaceSideSetName1,
+        //                                   tInterfaceSideSetName2,
+        //                                   mParameterList.get<real>("bb_epsilon"));
+
+        //     // generate vertex displacement fields
+        //     moris::real tInitialDisp = 0.0;
+        //     moris::real tPredictedDisplX = 0.03;
+        //     moris::real tPredictedDisplY = -0.03;
+        //     moris::real tPredictedDisplZ = -0.01;
+        //     Matrix<DDRMat> tCurrentDispl(tEnrIntegMesh.get_num_nodes(),this->get_spatial_dim(),tInitialDisp);
+        //     Matrix<DDRMat> tPredictedDispl = tCurrentDispl;
+
+        //     // get the vertices in bulk phase 1 and displace them through the current time step
+        //     moris::mtk::Set * tSetC = tEnrIntegMesh.get_set_by_name( "HMR_dummy_c_p1");
+        //     moris::mtk::Set * tSetN = tEnrIntegMesh.get_set_by_name( "HMR_dummy_n_p1");
+
+        //     moris::Matrix< DDSMat > tVertsInChildBlock   = tSetC->get_ig_vertices_inds_on_block( true );
+        //     moris::Matrix< DDSMat > tVertsInNoChildBlock = tSetN->get_ig_vertices_inds_on_block( true );
+
+        //     // iterate through child verts block
+        //     for(moris::uint i = 0; i < tVertsInChildBlock.numel(); i++)
+        //     {
+        //         moris_index tIndex = (moris_index)tVertsInChildBlock(i);
+        //         tPredictedDispl(tIndex,0) = tInitialDisp + tPredictedDisplX;
+        //         tPredictedDispl(tIndex,1) = tInitialDisp + tPredictedDisplY;
+        //         if(this->get_spatial_dim() == 3)
+        //         {
+        //             tPredictedDispl(tIndex,2) = tInitialDisp + tPredictedDisplZ;
+        //         }
+        //     }
+
+        //     // iterate through child verts block
+        //     for(moris::uint i = 0; i < tVertsInNoChildBlock.numel(); i++)
+        //     {
+        //         moris_index tIndex = (moris_index)tVertsInNoChildBlock(i);
+        //         tPredictedDispl(tIndex,0) = tInitialDisp + tPredictedDisplX;
+        //         tPredictedDispl(tIndex,1) = tInitialDisp + tPredictedDisplY;
+        //         if(this->get_spatial_dim() == 3)
+        //         {
+        //             tPredictedDispl(tIndex,2) = tInitialDisp + tPredictedDisplZ;
+        //         }
+        //     }
+
+        //     tSandbox.perform_global_contact_search(tCurrentDispl,tPredictedDispl);
+        // }
+
+        if ( mParameterList.get< bool >( "print_enriched_ig_mesh" ) )
+        {
+            tEnrIntegMesh.print();
+        }
+
+        if ( mParameterList.get< bool >( "exodus_output_XTK_ig_mesh" ) )
+        {
+            Tracer tTracer( "XTK", "Overall", "Visualize" );
+            tEnrIntegMesh.write_mesh( &mParameterList );
+        }
+        // print the memory usage of XTK
+        if ( mParameterList.get< bool >( "print_memory" ) )
+        {
+            moris::Memory_Map tXTKMM = this->get_memory_usage();
+            tXTKMM.par_print( "XTK Model" );
+        }
+        // print
+        MORIS_LOG_SPEC( "All_IG_verts", sum_all( tEnrIntegMesh.get_num_entities( EntityRank::NODE ) ) );
+        MORIS_LOG_SPEC( "All_IG_cells", sum_all( tEnrIntegMesh.get_num_entities( EntityRank::ELEMENT ) ) );
+        MORIS_LOG_SPEC( "All_IP_verts", sum_all( tEnrInterpMesh.get_num_entities( EntityRank::NODE ) ) );
+        MORIS_LOG_SPEC( "All_IP_cells", sum_all( tEnrInterpMesh.get_num_entities( EntityRank::ELEMENT ) ) );
+        MORIS_LOG_SPEC( "My_IG_verts", tEnrIntegMesh.get_num_entities( EntityRank::NODE ) );
+        MORIS_LOG_SPEC( "My_IG_cells", tEnrIntegMesh.get_num_entities( EntityRank::ELEMENT ) );
+        MORIS_LOG_SPEC( "My_IP_verts", tEnrInterpMesh.get_num_entities( EntityRank::NODE ) );
+        MORIS_LOG_SPEC( "My_IP_cells", tEnrInterpMesh.get_num_entities( EntityRank::ELEMENT ) );
     }
-
-
-    // if( mParameterList.get<bool>("contact_sandbox") )
-    // {
-    //     std::string tInterfaceSideSetName1 = tEnrIntegMesh.get_interface_side_set_name(0, 0, 2);
-    //     std::string tInterfaceSideSetName2 = tEnrIntegMesh.get_interface_side_set_name(0, 1, 0);
-
-    //     xtk::Contact_Sandbox tSandbox(&tEnrIntegMesh,
-    //                                   tInterfaceSideSetName1,
-    //                                   tInterfaceSideSetName2,
-    //                                   mParameterList.get<real>("bb_epsilon"));
-
-    //     // generate vertex displacement fields
-    //     moris::real tInitialDisp = 0.0;
-    //     moris::real tPredictedDisplX = 0.03;
-    //     moris::real tPredictedDisplY = -0.03;
-    //     moris::real tPredictedDisplZ = -0.01;
-    //     Matrix<DDRMat> tCurrentDispl(tEnrIntegMesh.get_num_nodes(),this->get_spatial_dim(),tInitialDisp);
-    //     Matrix<DDRMat> tPredictedDispl = tCurrentDispl;
-
-    //     // get the vertices in bulk phase 1 and displace them through the current time step
-    //     moris::mtk::Set * tSetC = tEnrIntegMesh.get_set_by_name( "HMR_dummy_c_p1");
-    //     moris::mtk::Set * tSetN = tEnrIntegMesh.get_set_by_name( "HMR_dummy_n_p1");
-
-    //     moris::Matrix< DDSMat > tVertsInChildBlock   = tSetC->get_ig_vertices_inds_on_block( true );
-    //     moris::Matrix< DDSMat > tVertsInNoChildBlock = tSetN->get_ig_vertices_inds_on_block( true );
-
-    //     // iterate through child verts block
-    //     for(moris::uint i = 0; i < tVertsInChildBlock.numel(); i++)
-    //     {
-    //         moris_index tIndex = (moris_index)tVertsInChildBlock(i);
-    //         tPredictedDispl(tIndex,0) = tInitialDisp + tPredictedDisplX;
-    //         tPredictedDispl(tIndex,1) = tInitialDisp + tPredictedDisplY;
-    //         if(this->get_spatial_dim() == 3)
-    //         {
-    //             tPredictedDispl(tIndex,2) = tInitialDisp + tPredictedDisplZ;
-    //         }
-    //     }
-
-    //     // iterate through child verts block
-    //     for(moris::uint i = 0; i < tVertsInNoChildBlock.numel(); i++)
-    //     {
-    //         moris_index tIndex = (moris_index)tVertsInNoChildBlock(i);
-    //         tPredictedDispl(tIndex,0) = tInitialDisp + tPredictedDisplX;
-    //         tPredictedDispl(tIndex,1) = tInitialDisp + tPredictedDisplY;
-    //         if(this->get_spatial_dim() == 3)
-    //         {
-    //             tPredictedDispl(tIndex,2) = tInitialDisp + tPredictedDisplZ;
-    //         }
-    //     }
-
-    //     tSandbox.perform_global_contact_search(tCurrentDispl,tPredictedDispl);
-    // }
-
-    if ( mParameterList.get< bool >( "print_enriched_ig_mesh" ) )
-    {
-        tEnrIntegMesh.print();
-    }
-
-    if ( mParameterList.get< bool >( "exodus_output_XTK_ig_mesh" ) )
-    {
-        Tracer tTracer( "XTK", "Overall", "Visualize" );
-        tEnrIntegMesh.write_mesh( &mParameterList );
-    }
-
-    // print the memory usage of XTK
-    if ( mParameterList.get< bool >( "print_memory" ) )
-    {
-        moris::Memory_Map tXTKMM = this->get_memory_usage();
-        tXTKMM.par_print( "XTK Model" );
-    }
-
-    // print
-    MORIS_LOG_SPEC( "All_IG_verts", sum_all( tEnrIntegMesh.get_num_entities( EntityRank::NODE ) ) );
-    MORIS_LOG_SPEC( "All_IG_cells", sum_all( tEnrIntegMesh.get_num_entities( EntityRank::ELEMENT ) ) );
-    MORIS_LOG_SPEC( "All_IP_verts", sum_all( tEnrInterpMesh.get_num_entities( EntityRank::NODE ) ) );
-    MORIS_LOG_SPEC( "All_IP_cells", sum_all( tEnrInterpMesh.get_num_entities( EntityRank::ELEMENT ) ) );
-    MORIS_LOG_SPEC( "My_IG_verts", tEnrIntegMesh.get_num_entities( EntityRank::NODE ) );
-    MORIS_LOG_SPEC( "My_IG_cells", tEnrIntegMesh.get_num_entities( EntityRank::ELEMENT ) );
-    MORIS_LOG_SPEC( "My_IP_verts", tEnrInterpMesh.get_num_entities( EntityRank::NODE ) );
-    MORIS_LOG_SPEC( "My_IP_cells", tEnrInterpMesh.get_num_entities( EntityRank::ELEMENT ) );
+    return true;
 }
 
-return true;
-}// namespace xtk
 
 // ----------------------------------------------------------------------------------
 
@@ -1468,6 +1465,18 @@ Model::get_multigrid_ptr()
     return mMultigrid;
 }
 
+//------------------------------------------------------------------------------
+moris::Matrix< moris::IndexMat >
+Model::get_num_subphase_neighbors()
+{
+    moris::Cell< moris::Cell< moris_index > > const &tSubPhaseToSubphase = this->get_subphase_to_subphase();
+    moris::Matrix< moris::IndexMat >                 tSubphaseNumNeighbors( 1, tSubPhaseToSubphase.size() );
+    for ( size_t iSP = 0; iSP < tSubPhaseToSubphase.size(); iSP++ )
+    {
+        tSubphaseNumNeighbors( iSP ) = tSubPhaseToSubphase( iSP ).size();
+    }
+    return tSubphaseNumNeighbors;
+}
 //------------------------------------------------------------------------------
 
 moris_id

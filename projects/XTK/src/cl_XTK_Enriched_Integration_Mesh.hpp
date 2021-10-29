@@ -183,10 +183,15 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
      */
 
     moris::Cell< std::string >
-    create_basis_support_fields();
+    create_basis_support_fields( moris::Matrix< moris::DDRMat > const &aProbeSpheres );
 
     void
-    create_subphase_fields();
+    create_bg_cell_id_field();
+
+    void create_subphase_fields();
+
+    void
+    write_subphase_neighborhood( std::string aFile );
 
     void
     create_cell_id_fields();
