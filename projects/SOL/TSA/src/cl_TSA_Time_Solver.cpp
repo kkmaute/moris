@@ -18,12 +18,11 @@
 #include "fn_Parsing_Tools.hpp"
 #include "fn_PRM_SOL_Parameters.hpp"
 
+#include "HDF5_Tools.hpp"
+
 #include "cl_Communication_Tools.hpp"
 #include "cl_Logger.hpp"
 #include "cl_Tracer.hpp"
-
-// Detailed Logging package
-//#include "cl_Tracer.hpp"
 
 using namespace moris;
 using namespace tsa;
@@ -455,80 +454,126 @@ void Time_Solver::initialize_sol_vec()
     // extract initialization string from parameter list
     moris::Cell< moris::Cell< std::string > > tDofTypeAndValuePair;
 
-    string_to_cell_of_cell( mParameterListTimeSolver.get< std::string >( "TSA_Initialize_Sol_Vec" ),
-            tDofTypeAndValuePair );
+    // get string for initial guess from parameter list
+    std::string tStrInitialGuess = mParameterListTimeSolver.get< std::string >( "TSA_Initialize_Sol_Vec" );
 
-    // get string to dof type map
-    map< std::string, enum MSI::Dof_Type > tDofTypeMap = MSI::get_msi_dof_type_map();
-
-    // initialize solution vector with zero
-    mFullVector( 1 )->vec_put_scalar( 0.0 );
-
-    if( tDofTypeAndValuePair.size() > 0 )
+    // use string to determine initial guess
+    // if parameter is not given, initialize with all zeros
+    if( tStrInitialGuess.size() == 0 )
     {
-        // create map object
-        sol::Matrix_Vector_Factory tMatFactory( mSolverWarehouse->get_tpl_type() );
+        mFullVector( 1 )->vec_put_scalar( 0.0 );
+    }
 
-        sol::Dist_Map*  tFeeMap = tMatFactory.create_map( mSolverInterface->get_my_local_global_map() );
+    // if user defines parameter
+    else 
+    {
+        // check if file name with type is specified
+        std::string tType = tStrInitialGuess.substr( tStrInitialGuess.find_last_of( "." ) + 1, tStrInitialGuess.length() );
 
-        uint tNumRHMS = mSolverInterface->get_num_rhs();
-
-        // full vector and previous full vector
-        sol::Dist_Vector * tFreeVector = tMatFactory.create_vector( mSolverInterface, tFeeMap, tNumRHMS );
-
-        // initialize solution vector
-        tFreeVector->vec_put_scalar( 0.0 );
-
-        // loop over input dof types
-        for( uint Ik = 0; Ik < tDofTypeAndValuePair.size(); Ik++ )
+        // if .hdf5 is defined as initial guess
+        if ( tType == "hdf5" || tType == "h5" )
         {
-            // First string is dof type
-            moris::Cell< enum MSI::Dof_Type > tDofType = { tDofTypeMap.find( tDofTypeAndValuePair( Ik )( 0 ) ) };
+            // log/print that the initial guess is read from file
+            MORIS_LOG_INFO( "Reading initial guess for solution vector from file: ", tStrInitialGuess.c_str() );
 
-            // get local global ids for this dof type
-            moris::Matrix< IdMat > tAdofIds = mSolverInterface->get_my_local_global_map( tDofType );
+            // FIXME: this option doesn't work in parallel, only for serial debugging purposes
+            MORIS_ERROR( par_size() == 1, "Time_Solver::initialize_sol_vec() - Restarting from hdf5 file only possible in serial." );
 
-            // if one dof type is set to random all dof entries are set to random
-            if( tDofTypeAndValuePair( Ik )( 1 ) == "random" )
+            // read HDF5 file to moris matrix
+            hid_t tFileID = open_hdf5_file( tStrInitialGuess );
+            herr_t tStatus = 0;
+            Matrix< DDRMat > tInitialGuess;
+            load_matrix_from_hdf5_file( tFileID, "SolVec", tInitialGuess, tStatus);
+
+            // get length of solution vector
+            uint tSolVecLength = tInitialGuess.length();
+
+            // initialize trivial map
+            Matrix< DDSMat > tPos( tSolVecLength, 1, 0 );
+
+            // create trivial map
+            for( uint Ik = 0; Ik < tSolVecLength; Ik++ )
             {
-                tFreeVector->random();
-                break;
+                tPos( Ik ) = Ik;
             }
 
-            // get value from input
-            moris::real tValue = std::stod( tDofTypeAndValuePair( Ik )( 1 ) );
-
-            // add value into Matrix
-            moris::Matrix< DDRMat > tValues( tAdofIds.numel(), 1, tValue );
-
-            if( tDofTypeAndValuePair( Ik ).size() == 2 )
-            {
-                // replace initial values in solution vector
-                tFreeVector->replace_global_values(
-                        tAdofIds,
-                        tValues );
-            }
-            else if( tDofTypeAndValuePair( Ik ).size() == 3 )
-            {
-                // get solution vector index
-                moris::sint tVectorIndex = std::stoi( tDofTypeAndValuePair( Ik )( 2 ) );
-
-                // replace initial values in solution vector
-                tFreeVector->replace_global_values(
-                        tAdofIds,
-                        tValues,
-                        ( uint ) tVectorIndex );
-            }
-            else
-            {
-                MORIS_ERROR( false, " Time_Solver::initialize_sol_vec(), TSA_Initialize_Sol_Vec input not correct" );
-            }
+            // populate solution vector
+            mFullVector( 1 )->replace_global_values( tPos, tInitialGuess );
         }
 
-        mFullVector( 1 )->import_local_to_global( *tFreeVector );
+        // else, assume matrix is specified and convert string to cell/matrix
+        else
+        {
+            // convert the user defined string to cell/matrix
+            string_to_cell_of_cell( tStrInitialGuess, tDofTypeAndValuePair );
 
-        delete( tFreeVector );
-        delete tFeeMap;
+            // create map object
+            sol::Matrix_Vector_Factory tMatFactory( mSolverWarehouse->get_tpl_type() );
+
+            sol::Dist_Map*  tFeeMap = tMatFactory.create_map( mSolverInterface->get_my_local_global_map() );
+
+            uint tNumRHMS = mSolverInterface->get_num_rhs();
+
+            // full vector and previous full vector
+            sol::Dist_Vector * tFreeVector = tMatFactory.create_vector( mSolverInterface, tFeeMap, tNumRHMS );
+
+            // initialize solution vector
+            tFreeVector->vec_put_scalar( 0.0 );
+
+            // get string to dof type map
+            map< std::string, enum MSI::Dof_Type > tDofTypeMap = MSI::get_msi_dof_type_map();
+
+            // loop over input dof types
+            for( uint Ik = 0; Ik < tDofTypeAndValuePair.size(); Ik++ )
+            {
+                // First string is dof type
+                moris::Cell< enum MSI::Dof_Type > tDofType = { tDofTypeMap.find( tDofTypeAndValuePair( Ik )( 0 ) ) };
+
+                // get local global ids for this dof type
+                moris::Matrix< IdMat > tAdofIds = mSolverInterface->get_my_local_global_map( tDofType );
+
+                // if one dof type is set to random all dof entries are set to random
+                if( tDofTypeAndValuePair( Ik )( 1 ) == "random" )
+                {
+                    tFreeVector->random();
+                    break;
+                }
+
+                // get value from input
+                moris::real tValue = std::stod( tDofTypeAndValuePair( Ik )( 1 ) );
+
+                // add value into Matrix
+                moris::Matrix< DDRMat > tValues( tAdofIds.numel(), 1, tValue );
+
+                if( tDofTypeAndValuePair( Ik ).size() == 2 )
+                {
+                    // replace initial values in solution vector
+                    tFreeVector->replace_global_values(
+                            tAdofIds,
+                            tValues );
+                }
+                else if( tDofTypeAndValuePair( Ik ).size() == 3 )
+                {
+                    // get solution vector index
+                    moris::sint tVectorIndex = std::stoi( tDofTypeAndValuePair( Ik )( 2 ) );
+
+                    // replace initial values in solution vector
+                    tFreeVector->replace_global_values(
+                            tAdofIds,
+                            tValues,
+                            ( uint ) tVectorIndex );
+                }
+                else
+                {
+                    MORIS_ERROR( false, " Time_Solver::initialize_sol_vec(), TSA_Initialize_Sol_Vec input not correct" );
+                }
+            }
+
+            mFullVector( 1 )->import_local_to_global( *tFreeVector );
+
+            delete( tFreeVector );
+            delete tFeeMap;
+        }
     }
 }
 
@@ -538,6 +583,42 @@ void Time_Solver::initialize_prev_sol_vec()
 {
     // initialize prev solution vector with zero( time level -1 )
     mFullVector( 0 )->vec_put_scalar( 0.0 );
+
+    //----------------------------------------------
+    // get file name for initial guess from parameter list
+    std::string tStrInitSol = mSolverWarehouse->get_TSA_initial_guess_input_filename();
+
+    // check if user defined previous solution through file
+    // FIXME: this is useless right now, as the time continuity IWG grabs the initial condition from the properties anyways
+    if ( tStrInitSol.size() > 0 )
+    {
+        // log/print that the initial guess is read from file
+        MORIS_LOG_INFO( "Reading initial solution from file: ", tStrInitSol.c_str() );
+
+        // FIXME: this option doesn't work in parallel, only for serial debugging purposes
+        MORIS_ERROR( par_size() == 1, "Time_Solver::initialize_sol_vec() - Restarting from hdf5 file only possible in serial." );
+
+        // read HDF5 file to moris matrix
+        hid_t tFileID = open_hdf5_file( tStrInitSol );
+        herr_t tStatus = 0;
+        Matrix< DDRMat > tInitSol;
+        load_matrix_from_hdf5_file( tFileID, "SolVec", tInitSol, tStatus);
+
+        // get length of solution vector
+        uint tSolVecLength = tInitSol.length();
+
+        // initialize trivial map
+        Matrix< DDSMat > tPos( tSolVecLength, 1, 0 );
+
+        // create trivial map
+        for( uint Ik = 0; Ik < tSolVecLength; Ik++ )
+        {
+            tPos( Ik ) = Ik;
+        }
+
+        // populate solution vector
+        mFullVector( 0 )->replace_global_values( tPos, tInitSol );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------------------------------

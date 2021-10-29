@@ -40,10 +40,10 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
     //------------------------------------------------------------------------------
 
     // define an epsilon environment
-    real tEpsilon = 1.0E-4;
+    real tEpsilon = 3.0E-6;
 
     // numerical error due to finite differencing
-    real tFDNumTol = 1.0e-8;
+    real tFDNumTol = 5.0e-9;
 
     // define a perturbation size
     real tPerturbation = 1.3E-2;

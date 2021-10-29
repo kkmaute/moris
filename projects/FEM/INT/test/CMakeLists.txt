@@ -44,8 +44,9 @@ set(TEST_SOURCES
     UT_FEM_CM_Struc_Linear_Isotropic_Axisymmetric.cpp
     
     UT_FEM_SP_Fluid.cpp
-    UT_FEM_IWG_Advection_Bulk.cpp  	
+    UT_FEM_SP_YZBeta_Advection.cpp
     
+    UT_FEM_IWG_Advection_Bulk.cpp
     UT_FEM_IWG_Diffusion_Bulk.cpp
     UT_FEM_IWG_Diffusion_Phase_Change_Bulk.cpp
     UT_FEM_IWG_GGLS_Diffusion_Phase_Change.cpp

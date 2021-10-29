@@ -371,9 +371,6 @@ namespace moris
             // skip if no elemental values exist
             if ( aFieldValues.numel() == 0 )
             {
-                MORIS_ASSERT( mNumUniqueExodusElements == 0,
-                        "Number of field values is zero but not number of elements.\n");
-
                 return;
             }
 

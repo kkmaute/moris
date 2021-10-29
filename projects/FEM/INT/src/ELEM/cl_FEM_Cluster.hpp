@@ -232,6 +232,19 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * compute the quantity of interest on cluster
+                 * @param[ in ] aValues field values
+                 * @param[ in ] aFieldType enum for computation/return type
+                 *                         ELEMENTAL
+                 * @param[ in ] aIQIIndex IQI index
+                 */
+                void compute_quantity_of_interest(
+                        Matrix< DDRMat >            & aValues,
+                        enum mtk::Field_Entity_Type   aFieldType,
+                        uint                          aIQIIndex );
+
+                //------------------------------------------------------------------------------
+                /**
                  * compute dRdp by analytical formulation
                  */
                 void compute_dRdp();

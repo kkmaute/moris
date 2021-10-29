@@ -50,6 +50,12 @@ namespace moris
             // save final adjoint vector to file
             tSolverWarehouseList.insert( "SOL_save_final_adjoint_vec_to_file", std::string( "" ) );
 
+            // initial SOLUTION (i.e. initial condition / previous time step)
+            tSolverWarehouseList.insert( "TSA_Initial_Sol_Vec" , "" );
+
+            // flag to save solution vectors of various time steps to hdf5 file
+            tSolverWarehouseList.insert( "TSA_Save_Sol_Vecs_to_file" , "" );
+
             return tSolverWarehouseList;
         }
 
@@ -523,6 +529,9 @@ namespace moris
             // Determines if linear solve should restart on fail
             tLinSolverParameterList.insert( "DLA_rebuild_lin_solver_on_fail" , false );
 
+            // output left hand side in linear solver, if specified by user
+            tLinSolverParameterList.insert( "DLA_LHS_output_filename" , "" );
+
             return tLinSolverParameterList;
         }
 
@@ -558,8 +567,15 @@ namespace moris
             // Maximal number of linear solver restarts on fail
             tNonLinAlgorithmParameterList.insert( "NLA_max_lin_solver_restarts" , 0 );
 
-            // Maximal number of linear solver restarts on fail
+            // Relaxation strategy
+            tNonLinAlgorithmParameterList.insert( "NLA_relaxation_strategy" ,
+                    static_cast< uint >( sol::SolverRelaxationType::Constant ) );
+
+            // Relaxation parameter
             tNonLinAlgorithmParameterList.insert( "NLA_relaxation_parameter" , 1.0 );
+
+            // Relaxation parameter
+            tNonLinAlgorithmParameterList.insert( "NLA_relaxation_damping" , 0.5 );
 
             // Maximal number of linear solver restarts on fail
             tNonLinAlgorithmParameterList.insert( "NLA_hard_break" , false );
@@ -654,7 +670,7 @@ namespace moris
 
             tTimeParameterList.insert( "TSA_Output_Crteria" , "" );
 
-            tTimeParameterList.insert( "TSA_Initialize_Sol_Vec" , "" );
+            tTimeParameterList.insert( "TSA_Initialize_Sol_Vec" , "" ); // initial GUESS
 
             tTimeParameterList.insert( "TSA_time_level_per_type" , "" );
 
@@ -671,18 +687,18 @@ namespace moris
 
             switch( aSolverType )
             {
-                case ( sol::SolverType::AZTEC_IMPL ):
-                                                return create_linear_algorithm_parameter_list_aztec( );
-                break;
-                case ( sol::SolverType::AMESOS_IMPL ):
-                                                return create_linear_algorithm_parameter_list_amesos();
-                break;
-                case ( sol::SolverType::BELOS_IMPL ):
-                                                return create_linear_algorithm_parameter_list_belos();
-                break;
-                case ( sol::SolverType::PETSC ):
-                                                return create_linear_algorithm_parameter_list_petsc( );
-                break;
+                case sol::SolverType::AZTEC_IMPL:
+                    return create_linear_algorithm_parameter_list_aztec( );
+                    break;
+                case sol::SolverType::AMESOS_IMPL:
+                    return create_linear_algorithm_parameter_list_amesos();
+                    break;
+                case sol::SolverType::BELOS_IMPL:
+                    return create_linear_algorithm_parameter_list_belos();
+                    break;
+                case sol::SolverType::PETSC:
+                    return create_linear_algorithm_parameter_list_petsc( );
+                    break;
                 default:
                     MORIS_ERROR( false, "Parameter list for this solver not implemented yet" );
                     break;

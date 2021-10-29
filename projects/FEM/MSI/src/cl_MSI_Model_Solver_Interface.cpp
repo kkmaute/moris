@@ -89,6 +89,11 @@ namespace moris
 
                 mMultigrid->multigrid_initialize();
             }
+
+            if( mMSIParameterList.get< bool >( "msi_checker" ) )
+            {
+                this->msi_checker();
+            }
         }
 
         //------------------------------------------------------------------------------
@@ -159,6 +164,73 @@ namespace moris
             {
                 MORIS_ERROR( false, "Model_Solver_Interface::get_adof_index_for_type(): Dof type does not exist. Check dof type enums");
                 return 0;
+            }
+        }
+
+        void Model_Solver_Interface::msi_checker()
+        {
+            this->pdof_host_checker();
+
+            // add more msi checks here!!!
+        }
+
+        void Model_Solver_Interface::pdof_host_checker()
+        {
+            for ( luint Ik = 0; Ik < mEquationBlocks.size(); ++Ik )
+            {
+                Cell< MSI::Equation_Object * > & tEquationObj = mEquationBlocks( Ik )->get_equation_object_list();
+
+                // variables used for number of system check.
+                uint tNumEquationSys = 0;
+                bool tNumEquationSysSet = false;
+
+                // variables used for pdof host check
+                Matrix< DDUMat > tNumPdofsOnPdofHosts;
+                uint tNumPotentialPdofs = 0;
+                bool tNumPdofsOnPdofHostsSet = false;
+
+                for ( luint Ij = 0; Ij < tEquationObj.size(); ++Ij )
+                {
+                    const moris::Cell< moris::Cell< Pdof_Host * > > & tPdofHosts = tEquationObj( Ij )->get_pdof_hosts();
+
+                    if( !tNumEquationSysSet )
+                    {
+                        tNumEquationSysSet = true;
+                        tNumEquationSys = tPdofHosts.size();
+                    }
+
+                    MORIS_ERROR( tPdofHosts.size() == tNumEquationSys,
+                            "Equation Objects on Set do not have the same number of systems. This might indicate that there are elements without vertices");
+
+                    for ( luint Ii = 0; Ii < tPdofHosts.size(); ++Ii )
+                    {
+                        for ( luint Ia = 0; Ia < tPdofHosts( Ii ).size(); ++Ia )
+                        {
+                            moris::Cell< moris::Cell< Pdof* > > & tPdofHostPdofList = tPdofHosts( Ii )( Ia )-> get_pdof_hosts_pdof_list();
+
+                            if( !tNumPdofsOnPdofHostsSet )
+                            {
+                                tNumPdofsOnPdofHostsSet = true;
+                                tNumPotentialPdofs = tPdofHostPdofList.size();
+                                tNumPdofsOnPdofHosts.set_size( tNumPotentialPdofs,1, 0 );
+
+                                for ( luint Ib = 0; Ib < tNumPotentialPdofs; ++Ib )
+                                {
+                                    tNumPdofsOnPdofHosts( Ib ) = tPdofHostPdofList( Ib ).size();
+                                }
+                            }
+
+                            MORIS_ERROR( tNumPotentialPdofs == tPdofHostPdofList.size(),
+                                    "Some Pdof hosts on set have different number of potential pdofs. Check global dof type list!");
+
+                            for ( luint Ib = 0; Ib < tPdofHostPdofList.size(); ++Ib )
+                            {
+                                MORIS_ERROR( tNumPdofsOnPdofHosts( Ib ) == tPdofHostPdofList( Ib ).size(),
+                                        "Some Pdof hosts on set do not share the same dofs. Check dof dependencies in input file. (Especially ghost in parallel)");
+                            }
+                        }
+                    }
+                }
             }
         }
     }

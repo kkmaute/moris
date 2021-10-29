@@ -293,34 +293,11 @@ TEST_CASE("2D XTK WITH HMR Multi-Mat","[XTK_HMR_MULTI_2D]")
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
-        tXTKModel.decompose(tDecompositionMethods);
+        bool tSuccess = tXTKModel.decompose(tDecompositionMethods);
 
-        tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
+        // expect a failure in the decomposition
+        CHECK_FALSE(tSuccess);
 
-        Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
-
-        // Declare the fields related to enrichment strategy in output options
-        Cell<std::string> tEnrichmentFieldNames = tEnrichment.get_cell_enrichment_field_names();
-
-        xtk::Output_Options tOutputOptions;
-        tOutputOptions.mAddNodeSets = false;
-        tOutputOptions.mAddSideSets = true;
-        tOutputOptions.mAddClusters = false;
-        tOutputOptions.mRealElementExternalFieldNames = tEnrichmentFieldNames;
-
-        // add solution field to integration mesh
-        std::string tIntegSolFieldName = "solution";
-        tOutputOptions.mRealNodeExternalFieldNames = {tIntegSolFieldName};
-
-        moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh(tOutputOptions);
-
-        tEnrichment.write_cell_enrichment_to_fields(tEnrichmentFieldNames,tCutMeshData);
-
-        std::string tMeshOutputFile ="./xtk_exo/xtk_hmr_2d_enr_trun_ig.e";
-        tCutMeshData->create_output_mesh(tMeshOutputFile);
-
-        delete tCutMeshData;
-        delete tInterpMesh;
     }
 }
 
@@ -403,35 +380,9 @@ TEST_CASE("2D XTK WITH HMR Multiple Order Enrichment","[XTK_HMR_ENR_2D_MO]")
 
         //Specify decomposition Method and Cut Mesh ---------------------------------------
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
-        tXTKModel.decompose(tDecompositionMethods);
+        bool tSuccess = tXTKModel.decompose(tDecompositionMethods);
 
-        // enrich using basis functions in b-spline mesh 0 and b-spline mesh 1
-        tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE, {{0,1}});
-
-        Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
-
-        // Declare the fields related to enrichment strategy in output options
-        Cell<std::string> tEnrichmentFieldNames = tEnrichment.get_cell_enrichment_field_names();
-
-        xtk::Output_Options tOutputOptions;
-        tOutputOptions.mAddNodeSets = false;
-        tOutputOptions.mAddSideSets = true;
-        tOutputOptions.mAddClusters = false;
-        tOutputOptions.mRealElementExternalFieldNames = tEnrichmentFieldNames;
-
-        // add solution field to integration mesh
-        std::string tIntegSolFieldName = "solution";
-        tOutputOptions.mRealNodeExternalFieldNames = {tIntegSolFieldName};
-
-        moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh(tOutputOptions);
-
-        tEnrichment.write_cell_enrichment_to_fields(tEnrichmentFieldNames,tCutMeshData);
-
-        std::string tMeshOutputFile ="./xtk_exo/xtk_hmr_2d_enr_trun_ig.e";
-        tCutMeshData->create_output_mesh(tMeshOutputFile);
-
-        delete tCutMeshData;
-        delete tInterpMesh;
+        CHECK_FALSE(tSuccess);
     }
 }
 

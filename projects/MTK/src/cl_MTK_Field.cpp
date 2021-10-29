@@ -28,23 +28,33 @@ namespace moris
     namespace mtk
     {
         Field::Field(
-                Mesh_Pair        aMeshPair,
-                uint     const & aNumberOfFields)
+                Mesh_Pair                aMeshPair,
+                uint             const & aNumberOfFields,
+                enum Field_Entity_Type   aFieldEntityType )
         : mMeshPair( aMeshPair ),
-          mNumberOfFields( aNumberOfFields )
+          mNumberOfFields( aNumberOfFields ),
+          mFieldEntityType( aFieldEntityType )
         {
             // get interpolation mesh
             mtk::Mesh * tIPmesh = mMeshPair.get_interpolation_mesh();
 
-            // size matrix of nodal values
-            mNodalValues.set_size( tIPmesh->get_num_nodes(), mNumberOfFields, MORIS_REAL_MAX);
+            if( mFieldEntityType == Field_Entity_Type::NODAL )
+            {
+                // size matrix of nodal values
+                mValues.set_size( tIPmesh->get_num_nodes(), mNumberOfFields, MORIS_REAL_MIN);
+            }
+            else if( mFieldEntityType == Field_Entity_Type::ELEMENTAL )
+            {
+                mValues.set_size( tIPmesh->get_num_elems(), mNumberOfFields, MORIS_REAL_MIN);
+            }
         }
 
         //------------------------------------------------------------------------------
 
-        Field::Field()
+        Field::Field( enum Field_Entity_Type aFieldEntityType )
         : mMeshPair(nullptr, nullptr)
-        , mNumberOfFields(1)
+        , mNumberOfFields(1),
+        mFieldEntityType( aFieldEntityType )
         {
         }
 
@@ -53,6 +63,13 @@ namespace moris
         Field::~Field()
         {
 
+        }
+
+        //------------------------------------------------------------------------------
+
+        enum Field_Entity_Type Field::get_field_entity_type()
+        {
+            return mFieldEntityType;
         }
 
         //------------------------------------------------------------------------------
@@ -106,8 +123,15 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        moris::real Field::get_max_value()
+        {
+            return mValues.max();
+        }
+
+        //------------------------------------------------------------------------------
+
         const
-        Matrix< DDRMat > & Field::get_nodal_values()
+        Matrix< DDRMat > & Field::get_values()
         {
             // check whether nodal values are updated; if not compute them first
             if ( this->nodal_values_need_update() )
@@ -120,13 +144,13 @@ namespace moris
             }
 
             // return nodal value vector
-            return mNodalValues;
+            return mValues;
         }
 
         //------------------------------------------------------------------------------
 
-        moris::real Field::get_nodal_value(
-                const uint & aNodeIndex,
+        moris::real Field::get_value(
+                const uint & aIndex,
                 const uint & aFieldIndex)
         {
             // check whether nodal values are updated; if not compute them first
@@ -138,14 +162,14 @@ namespace moris
                 mUpdateNodalValues=false;
             }
 
-            return mNodalValues( aNodeIndex, aFieldIndex );
+            return mValues( aIndex, aFieldIndex );
         }
 
         //------------------------------------------------------------------------------
 
-        void Field::get_nodal_value(
-                Matrix< IndexMat > const & aNodeIndex,
-                Matrix< DDRMat >         & aNodalValues,
+        void Field::get_value(
+                Matrix< IndexMat > const & aIndex,
+                Matrix< DDRMat >         & aValues,
                 Matrix< IndexMat > const & aFieldIndex )
         {
             // check whether nodal values are updated; if not compute them first
@@ -159,10 +183,10 @@ namespace moris
 
             // get number of fields and nodal values
             uint tNumFields  = aFieldIndex.numel();
-            uint tNumIndices = aNodeIndex.numel();
+            uint tNumIndices = aIndex.numel();
 
             // set size for requested values
-            aNodalValues.resize( tNumIndices, tNumFields );
+            aValues.resize( tNumIndices, tNumFields );
 
             // assemble requested values into matrix
             for( uint Ik = 0; Ik< tNumFields; Ik++ )
@@ -171,29 +195,29 @@ namespace moris
 
                 for( uint Ii = 0; Ii< tNumIndices; Ii++ )
                 {
-                    aNodalValues( Ii, Ik ) = mNodalValues( aNodeIndex( Ii ), tFieldIndex );
+                    aValues( Ii, Ik ) = mValues( aIndex( Ii ), tFieldIndex );
                 }
             }
         }
 
         //------------------------------------------------------------------------------
 
-        void Field::set_nodal_values( const Matrix< DDRMat > & aNodalValues )
+        void Field::set_values( const Matrix< DDRMat > & aValues )
         {
             //check whether field is unlocked
             this->error_if_locked();
 
             //check that input vector has proper size
             MORIS_ERROR(
-                    aNodalValues.n_rows() == mNodalValues.n_rows() &&
-                    aNodalValues.n_cols() == mNodalValues.n_cols(),
-                    "mtk::Field::set_nodal_value_vector - input nodal vector has incorrect size: %d vs %d vs %d.\n",
-                    aNodalValues.n_rows(),
-                    mNodalValues.n_rows(),
+                    aValues.n_rows() == mValues.n_rows() &&
+                    aValues.n_cols() == mValues.n_cols(),
+                    "mtk::Field::set_value_vector - input vector has incorrect size: %d vs %d vs %d.\n",
+                    aValues.n_rows(),
+                    mValues.n_rows(),
                     mMeshPair.get_interpolation_mesh()->get_num_nodes());
 
             // set nodal value vector using child implementation
-            this->set_nodal_value_vector( aNodalValues );
+            this->set_nodal_value_vector( aValues );
 
             // set update flag to false, i.e., nodal values should not be updated
             mUpdateNodalValues = false;
@@ -208,11 +232,11 @@ namespace moris
         {
             // FIXME - loop should not be needed if input vector has correct size
             //copy values
-            for (uint tNodeIndex = 0; tNodeIndex<mNodalValues.n_rows(); ++tNodeIndex)
+            for (uint tNodeIndex = 0; tNodeIndex<mValues.n_rows(); ++tNodeIndex)
             {
-                for (uint tFieldIndex = 0; tFieldIndex<mNodalValues.n_cols(); ++tFieldIndex)
+                for (uint tFieldIndex = 0; tFieldIndex<mValues.n_cols(); ++tFieldIndex)
                 {
-                    mNodalValues(tNodeIndex,tFieldIndex) = aNodalValues(tNodeIndex,tFieldIndex);
+                    mValues(tNodeIndex,tFieldIndex) = aNodalValues(tNodeIndex,tFieldIndex);
                 }
             }
         }
@@ -270,15 +294,22 @@ namespace moris
 
         bool Field::nodal_values_need_update()
         {
-            // get interpolation mesh
-            mtk::Mesh * tIPmesh = mMeshPair.get_interpolation_mesh();
-
-            // update is required if either update flag is set or number of nodes have changed
-            // FIXME: check on changing nodes should not be needed; if mesh is changed this
-            //        should be handled explicitly by setting a new mesh pair
-            if ( mUpdateNodalValues || tIPmesh->get_num_nodes() !=  mNodalValues.n_rows() )
+            if( mFieldEntityType == Field_Entity_Type::NODAL )
             {
-                return true;
+                // get interpolation mesh
+                mtk::Mesh * tIPmesh = mMeshPair.get_interpolation_mesh();
+
+                // update is required if either update flag is set or number of nodes have changed
+                // FIXME: check on changing nodes should not be needed; if mesh is changed this
+                //        should be handled explicitly by setting a new mesh pair
+                if ( mUpdateNodalValues || tIPmesh->get_num_nodes() !=  mValues.n_rows() )
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
             else
             {
@@ -378,7 +409,7 @@ namespace moris
 
             save_matrix_to_hdf5_file( tFileID,
                     this->get_label(),
-                    this->get_nodal_values(),
+                    this->get_values(),
                     tStatus );
 
             // close file
@@ -425,7 +456,7 @@ namespace moris
                     tStatus );
 
             this->unlock_field();
-            this->set_nodal_values( tMat );
+            this->set_values( tMat );
 
             tStatus = close_hdf5_file( tFile );
         }
@@ -437,7 +468,7 @@ namespace moris
             // make path parallel
             std::string tFilePath = parallelize_path( aFilePath );
 
-            save_matrix_to_binary_file( this->get_nodal_values(), tFilePath );
+            save_matrix_to_binary_file( this->get_values(), tFilePath );
         }
 
         //------------------------------------------------------------------------------
@@ -488,7 +519,7 @@ namespace moris
             {
                 tExodusWriter.write_nodal_field(
                         tNodalFieldNames( tIndex ),
-                        this->get_nodal_values().get_column(tIndex) );
+                        this->get_values().get_column(tIndex) );
             }
 
             // finalize and write mesh
@@ -513,7 +544,7 @@ namespace moris
             uint tNumNodes = tExoIO.get_number_of_nodes();
 
             // check that number of nodes match with the field nodes
-            MORIS_ERROR ( tNumNodes == mNodalValues.n_rows(),
+            MORIS_ERROR ( tNumNodes == mValues.n_rows(),
                     "Field::load_field_from_exodus - number of nodes in exodus file incorrect.\n");
 
             // allocate temporary memory to store nodal values
@@ -544,7 +575,7 @@ namespace moris
             }
 
             this->unlock_field();
-            this->set_nodal_values( tNodalValues );
+            this->set_values( tNodalValues );
         }
 
         //------------------------------------------------------------------------------

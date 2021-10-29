@@ -251,6 +251,12 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        std::string Set::get_set_name()
+        {
+            return mMeshSet->get_set_name();
+        }
+        //------------------------------------------------------------------------------
+
         void Set::delete_pointers()
         {
             if( mMasterFIManager != nullptr )
@@ -2488,11 +2494,21 @@ namespace moris
                 // set size for the list of QI values
                 mQI.resize( tNumQI );
 
+                //counter to iterate through the IQIs
+                uint iIQICounter = 0 ;
+
+                //loop over mQIs to set the size
                 for( auto & tQI : mQI )
                 {
-                    // set size for the QI value
-                    // FIXME assumed scalar
-                    tQI.set_size( 1, 1, 0.0 );
+                    // get number of rows and columns for the IQI from the equation model
+                    uint tRowNum = mEquationModel->get_IQI_values()(iIQICounter).n_rows();
+                    uint tColNum = mEquationModel->get_IQI_values()(iIQICounter).n_cols();
+
+                    //set the size of the IQI
+                    tQI.set_size( tRowNum , tColNum, 0.0 );
+
+                    //increase the counter
+                    iIQICounter++;
                 }
 
                 // set the QI initialization flag to true

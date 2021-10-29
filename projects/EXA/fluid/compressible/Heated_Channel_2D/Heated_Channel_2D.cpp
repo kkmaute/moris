@@ -61,7 +61,7 @@ namespace moris
     moris::real tNitscheGammaT    = 0.0;  /* Penalty for temperature Dirichlet BCs */
 
     // Time Continuity Weights
-    moris::real tTimePenalty = 10.0;
+    moris::real tTimePenalty = 0.1;
 
     // related parameters
     moris::real tGamma = 1.0 + tGasConstant / tHeatCapacity;
@@ -96,6 +96,12 @@ namespace moris
 
     // write jacobian to file - for debugging
     bool tWriteJacToMatlab = false;
+
+    // write solution vectors to file in TSA - for debugging
+    bool tWriteSolVecToHDF5 = false;
+
+    // write LHS to file in DLA - for debugging
+    bool tWriteLhsToHDF5 = false;
 
     // order DoFs in global system by host - for debugging
     bool tOrderAdofsByHost = false;
@@ -138,23 +144,7 @@ namespace moris
         // get x-coordinate
         real tX = aFIManager->get_IP_geometry_interpolator()->valx()( 0 );
 
-        // // get element size in x-direction
-        // real tHx = tChannelLength / tNumXElems;
-
-        // // get element number in x-direction
-        // real tElemNumber = std::floor( tX / tHx ) + 1.0; 
-
-        // // get element left and right node positions
-        // real tLeftNodePos = ( tElemNumber - 1.0 ) * tHx;
-        // real tRightNodePos = tElemNumber * tHx;
-
-        // // compute heat loads at left and right nodes
-        // real tQl = std::exp( -1.0 * tQfac * std::pow( 2.0 *  tLeftNodePos / tChannelLength - 1.0, 2.0 ) );
-        // real tQr = std::exp( -1.0 * tQfac * std::pow( 2.0 * tRightNodePos / tChannelLength - 1.0, 2.0 ) );
-
-        // // compute linear interpolation
-        // real tAlpha = ( ( tX - tLeftNodePos ) / ( tRightNodePos - tLeftNodePos ) );
-        // real tQ = tQl + tAlpha * ( tQr - tQl );
+        // compute heat load function
         real tQ = std::exp( -1.0 * tQfac * std::pow( 2.0 * tX / tChannelLength - 1.0, 2.0 ) );
 
         // return value
@@ -274,7 +264,7 @@ std::cout << "Time continuity weight: " << tTCWeight << " \n" << std::flush;
 
         tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", ios::stringify( tNumXElems ) + "," + ios::stringify( tNumYElems ) );
         tParameterlist( 0 )( 0 ).set( "domain_dimensions",                ios::stringify( tChannelLength ) + "," + ios::stringify( tChannelHeight ) );
-        tParameterlist( 0 )( 0 ).set( "domain_offset",                    "0.0," + ios::stringify( tChannelHeight / -2.0 ) );
+        tParameterlist( 0 )( 0 ).set( "domain_offset",                    "0.0,0.0" );
         tParameterlist( 0 )( 0 ).set( "domain_sidesets",                  "1,2,3,4");
         tParameterlist( 0 )( 0 ).set( "lagrange_output_meshes",           "0");
 
@@ -780,6 +770,10 @@ std::cout << "Time continuity weight: " << tTCWeight << " \n" << std::flush;
         //tParameterlist( 0 )( 0 ).set( "Solver_Type" , "Amesos_Umfpack" );
 
         tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
+        if ( tWriteLhsToHDF5 )
+        {
+            tParameterlist( 1 )( 0 ).set("DLA_LHS_output_filename", "LHS" );
+        }
 
         tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
         tParameterlist( 2 )( 0 ).set("NLA_rel_res_norm_drop",    tNewtonTolerance );
@@ -799,6 +793,7 @@ std::cout << "Time continuity weight: " << tTCWeight << " \n" << std::flush;
         tParameterlist( 5 )( 0 ).set("TSA_Initialize_Sol_Vec" , "P," + ios::stringify( tInitialPressure ) + 
                                                                 ";VX,0.0;VY,0.0;TEMP," + ios::stringify( tInitialTemperature ) );
         // tParameterlist( 5 )( 0 ).set("TSA_Initialize_Sol_Vec" , "P,1.0;VX,1.0;VY,0.0;TEMP,1.0" );
+        // tParameterlist( 5 )( 0 ).set("TSA_Initialize_Sol_Vec" , "InitSolVec.hdf5" );
         tParameterlist( 5 )( 0 ).set("TSA_Output_Indices"     , "0" );
         tParameterlist( 5 )( 0 ).set("TSA_Output_Crteria"     , "Output_Criterion" );
         tParameterlist( 5 )( 0 ).set("TSA_time_level_per_type", "P,2;VX,2;VY,2;TEMP,2" );
@@ -806,7 +801,11 @@ std::cout << "Time continuity weight: " << tTCWeight << " \n" << std::flush;
         tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
         if ( tWriteJacToMatlab )
         {
-            tParameterlist( 6 )( 0 ).set( "SOL_save_operator_to_matlab", "Jacobian.dat" );
+            tParameterlist( 6 )( 0 ).set( "SOL_save_operator_to_matlab", "Heated_Channel" );
+        }
+        if ( tWriteSolVecToHDF5 )
+        {
+            tParameterlist( 6 )( 0 ).set( "TSA_Save_Sol_Vecs_to_file", "SolVec" );
         }
     }
 

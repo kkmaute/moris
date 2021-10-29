@@ -54,7 +54,7 @@ namespace moris
 
     // general
     moris::real sL  = 6.0;     // total length
-    moris::real sL1 =  4.1;
+    moris::real sL1 = 4.1;
     moris::real sL2 = sL - sL1;
 
     /* ------------------------------------------------------------------------ */
@@ -100,7 +100,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
     // Solver config
 
-    moris::real tNLA_rel_res_norm_drop = 1.0e-08;
+    moris::real tNLA_rel_res_norm_drop = 1.0e-12;
     moris::real tNLA_relaxation_parameter = 1.0;
     int tNLA_max_iter = 2;
 
@@ -222,7 +222,7 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
         tParameterlist(2)(0).set("num_evaluations_per_adv", "1");
         tParameterlist(2)(0).set("finite_difference_type", "all");
         tParameterlist(2)(0).set("finite_difference_type", "all");
-        tParameterlist(2)(0).set("finite_difference_epsilons", "1e-8");
+        tParameterlist(2)(0).set("finite_difference_epsilons", "1e-6");
     }
 
     void HMRParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
@@ -609,7 +609,7 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
         //create IWG for Dirichlet boundary conditions
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWG2SurfaceTemp");
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE ) );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP");
         tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "UX,UY;TEMP");
         tParameterList( 3 )( tIWGCounter ).set( "master_properties",          "PropImposedTemperature,Dirichlet");
@@ -621,7 +621,7 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
         // Interface Dirichlet BC
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGInterface") ;
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_INTERFACE_UNSYMMETRIC_NITSCHE ) );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP") ;
         tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "UX,UY;TEMP") ;
         tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     "UX,UY;TEMP") ;
@@ -645,7 +645,6 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
                 "SPInterfaceNitscheDISP ,NitscheInterface")   ;
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "dbl_iside_p0_1_p1_0" );
         tIWGCounter++;
-
 
         if (tUseGhost)
         {
@@ -694,7 +693,6 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
             tIWGCounter++;
         }
 
-
         //------------------------------------------------------------------------------
         // init IQI counter
         uint tIQICounter = 0;
@@ -707,15 +705,6 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      0 );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tPhase1 );
         tIQICounter++;
-
-        // create parameter list for IQI 4
-        //tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
-        //tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkStrainEnergyT");
-        //tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::STRAIN_ENERGY ) );
-        //tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "TEMP");
-        //tParameterList( 4 )( tIQICounter ).set( "master_constitutive_models", "CMDiffusion1,Elast");
-        //tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tPhase1);
-        //tIQICounter++;
 
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkStrainEnergyDISP");
@@ -742,11 +731,13 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tPhase1 );
         tIQICounter++;
 
-
         //------------------------------------------------------------------------------
         // fill the computation part of the parameter list
         tParameterList( 5 ).resize( 1 );
         tParameterList( 5 )( 0 ) = prm::create_computation_parameter_list();
+        
+        tParameterList( 5 )( 0 ).set( "finite_difference_scheme",             (uint)( fem::FDScheme_Type::POINT_3_CENTRAL) );
+        tParameterList( 5 )( 0 ).set( "finite_difference_perturbation_size",  1.0e-4  );
     }
 
     void SOLParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )

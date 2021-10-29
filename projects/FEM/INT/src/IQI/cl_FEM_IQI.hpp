@@ -850,6 +850,17 @@ namespace moris
                     const real & aCoefficientToPerturb,
                     const uint & aSpatialDirection,
                     fem::FDScheme_Type & aUsedFDScheme );
+
+
+            //------------------------------------------------------------------------------
+              /**
+               * get the matrix dimension of the IQI in order to initialize the size of the mGloblaIQIVal
+               * returns 1*1 which is a scaler by default
+               */
+              virtual std::pair<uint,uint> get_matrix_dim()
+              {
+                  return std::make_pair(1,1);
+              }
         };
         //------------------------------------------------------------------------------
     } /* namespace fem */

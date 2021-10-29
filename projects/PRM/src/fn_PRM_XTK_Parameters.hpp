@@ -75,6 +75,10 @@ namespace prm
         // Write enrichement fields on mesh (only recommended on very small meshes)
         tParameterList.insert( "write_enrichment_fields", false );
 
+        // a sphere where I write enrichment fields locations (r,xc,yv,zc)
+        tParameterList.insert("write_enrichment_fields_probe_spheres", "");
+
+
         // path to folder for XTK output
         tParameterList.insert( "output_path", "./" );
         tParameterList.insert( "output_file", "xtk_temp.exo" );

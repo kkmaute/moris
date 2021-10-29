@@ -797,6 +797,9 @@ namespace moris
             // set physical and parametric space and time coefficients for IG element
             this->init_ig_geometry_interpolator( tSideOrd );
 
+            // initialize space - time volume
+            real tSpaceTimeVolume = 0.0;
+
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
             for( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
@@ -819,6 +822,9 @@ namespace moris
 
                 // compute integration point weight
                 real tWStar = mSet->get_integration_weights()( iGP ) * tDetJ;
+
+                // add contribution to space-time volume
+                tSpaceTimeVolume += tWStar;
 
                 // get the normal from mesh
                 Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tSideOrd );
@@ -847,8 +853,21 @@ namespace moris
                     // assemble computed QI on the set
                     ( *mSet->mSetElementalValues )(
                             mSet->mCellAssemblyMap( aMeshIndex )( mMasterCell->get_index() ), tGlobalIndex ) +=
-                                    tWStar * tQIElemental( 0 ) / tNumIntegPoints;
+                                    tWStar * tQIElemental( 0 );
                 }
+            }
+
+            // loop over IQI and divide each elemental IQI by space-time volume
+            for( uint iIQI = 0; iIQI < tNumLocalIQIs; iIQI++ )
+            {
+                // get IQI global index
+                moris_index tGlobalIndex =
+                        mSet->get_requested_elemental_IQIs_global_indices_for_visualization()( iIQI );
+
+                // devide by space-time volume
+                ( *mSet->mSetElementalValues )(
+                        mSet->mCellAssemblyMap( aMeshIndex )( mMasterCell->get_index() ), tGlobalIndex ) /=
+                                tSpaceTimeVolume;
             }
         }
 

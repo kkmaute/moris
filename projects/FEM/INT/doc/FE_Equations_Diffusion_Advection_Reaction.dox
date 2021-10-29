@@ -6,42 +6,69 @@ namespace fem {
 \f[
 \begin{array}{lll}
 \mathbf{R}_{T} & = & \displaystyle
-  \bigg( \theta,\ \rho c_p \frac{\partial T}{\partial t} \bigg)_{\Omega}
-+ \bigg( \theta,\ \rho c_p \mathbf{u} \cdot \nabla T \bigg)_{\Omega}
-- \bigg( \nabla \theta,\ \kappa\ \nabla T \bigg)_{\Omega}
+  \bigg( \theta,\ \frac{\partial h}{\partial t} \bigg)_{\Omega}
++ \bigg( \theta,\  \mathbf{u} \cdot \nabla h \bigg)_{\Omega}
++ \bigg( \nabla \theta,\  \mathbf{q}_{div} \bigg)_{\Omega}
 - \bigg( \theta,\ \mathbf{b}\bigg)_{\Omega}
-- \bigg( \theta,\ \mathbf{q}\bigg)_{\Gamma_N}  
+- \bigg( \theta,\ \mathbf{Q}\bigg)_{\Gamma_N}  
 \end{array}
 \f]
 where 
-- \f$ T \f$ is the temperature field,
+- \f$ h \f$ is the enthalpy,
 - \f$ \theta \f$ is the chosen test field,
+- \f$ \mathbf{q}_{div} \f$ is the diffusive flux,
+- \f$ \mathbf{b} \f$ is a heat load,
+- \f$ \mathbf{Q} \f$ is a heat flux imposed on the Neumann boundary \f$ \Gamma_N \f$.
+
+The enthalpy  terms and diffusive flux above are provided by the consitutive models \ref FE_CM_Diffusion:
+\f[
+\begin{eqnarray}
+\frac{\partial h}{\partial t} & = & \rho \bigg( c_p + L_h \frac{\partial f}{\partial T} \bigg) \frac{\partial T}{\partial t} \\
+\nabla h                 & = & \rho \bigg( c_p + L_h \frac{\partial f}{\partial T} \bigg) \nabla T \\
+\mathbf{q}_{div}         & = & \kappa \nabla T
+\end{eqnarray}
+\f]
+where
+- \f$ T \f$ is the temperature field,
 - \f$ \rho \f$ is the material density,
 - \f$ c_p \f$ is the material heat capacity,
-- \f$ \kappa \f$ is the material conductivity,
-- \f$ \mathbf{b} \f$ is a heat load,
-- \f$ \mathbf{q} \f$ is a heat flux imposed on the Neumann boundary \f$ \Gamma_N \f$.
+- \f$ L_h \f$ is the material latent heat (requires appropriate constitutive model),
+- \f$ f \f$ is the liquid volume fraction,
+- \f$ \kappa \f$ is the material conductivity.
+
+Note the sign in the difinition of the diffusive flux.
+
 
 \section SUPG_Stabilization SUPG Stabilization
 The governing equations are stabilized using SUPG:
  
 \f[
 \begin{array}{lll}
-\mathbf{R}_{T}^{SUPG} & = & \displaystyle
- \bigg( \frac{1}{\rho\ c_p} \mathbf{u} \nabla \theta,\ \tau_{T} r_T \bigg)_{\Omega}\\[15pt]
+\mathbf{R}_{T}^{SUPG} & = & \displaystyle \sum_{ele} {
+ \bigg( \mathbf{u} \nabla \theta,\ \tau_{T} \  r_T \bigg)_{\Omega_ele}}\\[15pt]
  
- r_T & = & \displaystyle \rho\ c_p\ \bigg( \frac{\partial T}{\partial t} + \mathbf{u}\ \nabla T \bigg) - \nabla \cdot ( \kappa \nabla T ) \\[15pt] 
+ r_T & = & \displaystyle  \frac{\partial h}{\partial t} + \mathbf{u}\ \nabla h  - \nabla \cdot \mathbf{q}_{div} \\[15pt] 
  
  \tau_T & = & \displaystyle \bigg( \frac{1}{\tau_1^2} + \frac{1}{\tau_2^2} + \frac{1}{\tau_3^2} \bigg)^{-1/2} 
 \end{array}
 \f]
 
 where 
-- \f$ h  =  2\ || \mathbf{u} ||\ \bigg( \sum_a l \mathbf{u} \nabla N_a l \bigg)^{-1}, \quad
- \tau_1  = \frac{h}{2\ || \mathbf{u} ||}, \quad
- \tau_2  = \Delta t / 2, \quad
- \tau_3  = \frac{h^2}{4 \kappa} \f$
- - ... are described in \ref FE_CM_Diffusion
+\f[ 
+\begin{array}{lll}
+ \tau_1  = \frac{h_e}{2\ \| \mathbf{u} \|} & \textrm{or} &  \tau_1^{-1}  = \frac{2\ \| \mathbf{u} \|}{h_e} \\
+ \tau_2  = \frac{\Delta t}{2}              & \textrm{or} &  \tau_2^{-1}  = \frac{2}{\Delta t}               \\
+ \tau_3  = \frac{h_e^2}{4 \tilde{\kappa}}  & \textrm{or} &  \tau_3^{-1}  = \frac{4 \tilde{\kappa}}{h_e^2}
+\end{array}
+\f]
+
+where the element size \f$ h_e \f$ is
+
+\f[  h_e =  2\ || \mathbf{u} ||\ \bigg( \sum_a l \mathbf{u} \nabla N_a l \bigg)^{-1} \f]
+
+and the effective conductivity \f$ \tilde{\kappa} \f$ is:
+
+\f[ \tilde{\kappa} = \frac{\kappa}{ \rho \bigg( c_p + L_h \frac{\partial T}{\partial t} \bigg) } \f].
 
 \section Dirichlet_BC Dirichlet Boundary Conditions via Nitsche's Formulation
 Dirichlet boundary conditions are imposed weakly via Nitsche's formulation as:

@@ -727,18 +727,42 @@ namespace moris
 
         tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
 
+        tParameterlist( 2 ).resize(2);
+
+        // for forward analysis
         tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
         tParameterlist( 2 )( 0 ).set("NLA_rel_res_norm_drop", tNLARelResNormDrop );
         tParameterlist( 2 )( 0 ).set("NLA_relaxation_parameter", tNLARelaxationParameter );
+        tParameterlist( 2 )( 0 ).set("NLA_relaxation_strategy",  static_cast< uint >( sol::SolverRelaxationType::InvResNormAdaptive ) );
+        tParameterlist( 2 )( 0 ).set("NLA_relaxation_parameter", 0.5 );
+        tParameterlist( 2 )( 0 ).set("NLA_relaxation_damping",   0.5 );
         tParameterlist( 2 )( 0 ).set("NLA_max_iter", tNLAMaxIter );
         tParameterlist( 2 )( 0 ).set("NLA_combined_res_jac_assembly", false );
 
+        // for adjoint analysis
+        tParameterlist( 2 )( 1 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
+        tParameterlist( 2 )( 1 ).set("NLA_rel_res_norm_drop", tNLARelResNormDrop );
+        tParameterlist( 2 )( 1 ).set("NLA_relaxation_parameter", 1.0 );
+        tParameterlist( 2 )( 1 ).set("NLA_max_iter", 1 );
+        tParameterlist( 2 )( 1 ).set("NLA_combined_res_jac_assembly", false );
+
+        tParameterlist( 3 ).resize(2);
+
+        // for forward analysis
         tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
         tParameterlist( 3 )( 0 ).set("NLA_DofTypes"      , "TEMP") ;
+        tParameterlist( 3 )( 0 ).set("NLA_Nonlinear_solver_algorithms", "0");
+
+        // for adjoint analysis
+        tParameterlist( 3 )( 1 ) = moris::prm::create_nonlinear_solver_parameter_list();
+        tParameterlist( 3 )( 1 ).set("NLA_DofTypes"      , "TEMP") ;
+        tParameterlist( 3 )( 1 ).set("NLA_Nonlinear_solver_algorithms", "1");
 
         tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
         tParameterlist( 4 )( 0 ).set("TSA_Num_Time_Steps",     tStep );
         tParameterlist( 4 )( 0 ).set("TSA_Time_Frame",         tTmax );
+        tParameterlist( 4 )( 0 ).set("TSA_Nonlinear_solver",                   0 );   // for forward analysis
+        tParameterlist( 4 )( 0 ).set("TSA_nonlinear_solver_for_adjoint_solve", 1 );   // for adjoint analysis
 
         tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
         tParameterlist( 5 )( 0 ).set("TSA_DofTypes",            "TEMP") ;

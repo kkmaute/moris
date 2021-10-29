@@ -181,6 +181,13 @@ namespace moris
             virtual void save_vector_to_matrix_market_file( const char* aFilename ) = 0;
 
             /**
+             * Saves this vector to a Matlab file.
+             *
+             * @param aFilename File name to save to
+             */
+            virtual void save_vector_to_matlab_file( const char* aFilename ) = 0;
+
+            /**
              * Saves this vector to an HDF5 file.
              *
              * @param aFilename File name to save to

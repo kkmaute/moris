@@ -39,7 +39,7 @@ namespace moris
             mtk::Mesh * tIPmesh = mMeshPair.get_interpolation_mesh();
 
             // get number of nodes
-            uint tNumberOfNodes = mNodalValues.n_rows();
+            uint tNumberOfNodes = mValues.n_rows();
 
             // check for correct number of nodes
             MORIS_ASSERT( tNumberOfNodes == tIPmesh->get_num_nodes(),
@@ -65,7 +65,7 @@ namespace moris
 
             // loop over all nodes to (a) determine which coefficients are used by field by building mesh coefficient index
             // to mesh coefficient id map and (b) determine number of used coefficients
-            for (uint tNodeIndex=0;tNodeIndex<mNodalValues.n_rows();++tNodeIndex)
+            for (uint tNodeIndex=0;tNodeIndex<mValues.n_rows();++tNodeIndex)
             {
                 // get node ID of current node
                 tSharedNodeIDs(tNodeIndex) = tIPmesh->get_glb_entity_id_from_entity_loc_index(
@@ -372,10 +372,10 @@ namespace moris
                     "Field_Discrete::compute_nodal_values - coefficient vector has not been initialized.\n");
 
             // make sure that nodal value matrix is properly sized
-            mNodalValues.resize( tIPmesh->get_num_nodes(), mNumberOfFields );
+            mValues.resize( tIPmesh->get_num_nodes(), mNumberOfFields );
 
             //loop over all nodes
-            for (uint tNodeIndex=0;tNodeIndex<mNodalValues.n_rows();++tNodeIndex)
+            for (uint tNodeIndex=0;tNodeIndex<mValues.n_rows();++tNodeIndex)
             {
                 // get node owner
                 sint tNodeOwner = tIPmesh->get_entity_owner(tNodeIndex, EntityRank::NODE );
@@ -423,7 +423,7 @@ namespace moris
             mSharedNodalValues->import_local_to_global(*mOwnedNodalValues);
 
             // copy shared and own nodal values onto local nodal field
-            for (uint tNodeIndex=0;tNodeIndex<mNodalValues.n_rows();++tNodeIndex)
+            for (uint tNodeIndex=0;tNodeIndex<mValues.n_rows();++tNodeIndex)
             {
                 // get node ID
                 sint tNodeID = tIPmesh->get_glb_entity_id_from_entity_loc_index(
@@ -436,7 +436,7 @@ namespace moris
                 // apply nodal value to all fields
                 for (uint tFieldIndex=0;tFieldIndex<mNumberOfFields;++tFieldIndex)
                 {
-                    mNodalValues(tNodeIndex,tFieldIndex)=tValue;
+                    mValues(tNodeIndex,tFieldIndex)=tValue;
                 }
             }
 

@@ -163,7 +163,7 @@ TEST_CASE("WRK L2 test","[WRK_L2_test]")
         tFields( 0 )->set_coefficients( {{0.8713}} );
         tFields( 0 )->save_field_to_exodus( "Remeshing_Field3.exo");
 
-        //print( tFields( 0 )->get_nodal_values(), "Val1");
+        //print( tFields( 0 )->get_values(), "Val1");
 
         tHMRDatabase->get_background_mesh()->update_database();
         tHMRDatabase->update_bspline_meshes();

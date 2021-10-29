@@ -1037,7 +1037,7 @@ namespace moris
             }
 
             // get dof type from constitutive models
-            for ( const std::shared_ptr< Constitutive_Model > & tCM : mMasterCM )
+            for ( const std::shared_ptr< Constitutive_Model > & tCM : mSlaveCM )
             {
                 if( tCM != nullptr )
                 {

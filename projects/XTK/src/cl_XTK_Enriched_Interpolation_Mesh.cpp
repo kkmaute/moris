@@ -611,14 +611,6 @@ Enriched_Interpolation_Mesh::get_background_coefficient_local_to_global_map() co
 // ----------------------------------------------------------------------------
 
 uint
-Enriched_Interpolation_Mesh::get_num_background_coefficients() const
-{
-    return mCoeffToEnrichCoeffs.size();
-}
-
-// ----------------------------------------------------------------------------
-
-uint
 Enriched_Interpolation_Mesh::get_num_verts_per_interp_cell()
 {
     MORIS_ASSERT( mNumVertsPerInterpCell != MORIS_UINT_MAX,
@@ -639,6 +631,12 @@ Enriched_Interpolation_Mesh::get_unzipped_vertex_pointer( moris_index aVertexInd
 }
 
 // ----------------------------------------------------------------------------
+uint
+Enriched_Interpolation_Mesh::get_num_background_coefficients( moris_index const& aMeshIndex ) const
+{
+    moris_index tLocalMeshIndex = this->get_local_mesh_index( aMeshIndex );
+    return mCoeffToEnrichCoeffs( tLocalMeshIndex ).size();
+}
 
 moris_index
 Enriched_Interpolation_Mesh::add_vertex_enrichment(

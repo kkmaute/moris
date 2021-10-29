@@ -108,7 +108,10 @@ namespace moris
                 moris::Cell< moris::sint > mFieldTypeMap;
 
                 //! requested IQI Names
-                moris::Cell< std::string > mRequestedIQINames;
+                moris::Cell< std::string >             mRequestedIQINames;
+
+                // A map for mIQIs
+                moris::map< std::string, moris_index > mIQINameToIndexMap;
 
                 // flag to skip GEN procedures
                 bool mFEMOnly = false;
@@ -401,6 +404,18 @@ namespace moris
                 }
 
                 //------------------------------------------------------------------------------
+                   /**
+                    * build a map for the mIQIs, fills in the mIQINameToIndexMap values
+                    */
+                   void create_IQI_map();
+
+                   //------------------------------------------------------------------------------
+                   /**
+                    * Initialize the IQI with the correct size
+                    */
+                   void initialize_IQIs();
+
+                //------------------------------------------------------------------------------
                 /**
                  * finalize the fem sets
                  */
@@ -630,9 +645,15 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * return field
+                 * return field by type
                  */
                 const std::shared_ptr< fem::Field > & get_field( mtk::Field_Type tFieldType );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * return fields
+                 */
+                moris::Cell< std::shared_ptr< mtk::Field > > get_fields();
 
                 //------------------------------------------------------------------------------
 

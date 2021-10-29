@@ -529,6 +529,12 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
+             * building an IQI name to set local index map
+             */
+            std::string get_set_name();
+
+            //------------------------------------------------------------------------------
+            /**
              * create local requested IQIs for sensitivity analysis
              */
             void create_requested_IQI_list();

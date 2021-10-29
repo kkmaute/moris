@@ -17,6 +17,7 @@
 #include "cl_Logger.hpp"
 #include "cl_Tracer.hpp"
 
+#include "HDF5_Tools.hpp"
 #include "cl_Ascii.hpp"
 
 
@@ -84,9 +85,7 @@ void Monolithic_Time_Solver::solve_monolytic_time_system( moris::Cell< sol::Dist
 
         mSolverInterface->compute_IQI();
 
-
 //        //------------------------------------------------------------------------
-//
 //
 //        // build Ascii reader
 //        moris::Ascii tAsciiReader( "./Matrix_aaaa", moris::FileMode::OPEN_RDONLY );
@@ -122,8 +121,34 @@ void Monolithic_Time_Solver::solve_monolytic_time_system( moris::Cell< sol::Dist
 //
 //            std::cout<<" replace value: "<<tMat( 0 )<<" with "<<tVal( 0 )<<std::endl;
 //        }
+// 
+//        //------------------------------------------------------------------------
 
-        //------------------------------------------------------------------------
+        // if separate output of solution to file is requested 
+        if ( mOutputSolVecFileName.size() > 0 )
+        {
+            // get iteration of time solver
+            uint tTSAIter = gLogger.get_iteration( "TimeSolverAlgorithm", LOGGER_ARBITRARY_DESCRIPTOR, LOGGER_ARBITRARY_DESCRIPTOR);
+
+            // construct string from output file name 
+            std::string tStrOutputFile = mOutputSolVecFileName + "." + ios::stringify( tTSAIter ) + ".hdf5";
+
+            // log/print that the initial guess is read from file
+            MORIS_LOG_INFO( "Saving solution vector to file: ", tStrOutputFile.c_str() );
+
+            // FIXME: this option doesn't work in parallel, only for serial debugging purposes
+            // MORIS_ERROR( par_size() == 1, "Monolithic_Time_Solver::solve_monolytic_time_system() - "
+            //         "Writing solutions to hdf5 file only possible in serial." );
+
+            // convert distributed vector to moris mat
+            Matrix< DDRMat > tSolVec;
+            aFullVector( tSolVecIndex )->extract_copy( tSolVec );
+
+            // read HDF5 file to moris matrix
+            hid_t tFileID = create_hdf5_file( tStrOutputFile );
+            herr_t tStatus = 0;
+            save_matrix_to_hdf5_file( tFileID, "SolVec", tSolVec, tStatus);
+        }
 
         // input second time slap value for output
         mMyTimeSolver->check_for_outputs( tTime( 1 ), tMaxTimeIterationReached );

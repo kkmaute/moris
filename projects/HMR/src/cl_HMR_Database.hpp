@@ -113,8 +113,9 @@ namespace moris
                 // -----------------------------------------------------------------------------
 
                 void load_refinement_pattern(
-                        Matrix< DDLUMat >                & aElementCounterPerLevelAndPattern,
-                        moris::Cell< Matrix< DDLUMat > > & aElementPerPattern);
+                        Matrix< DDLUMat >                      & aElementCounterPerLevelAndPattern,
+                        moris::Cell< Matrix< DDLUMat > > & aElementPerPattern,
+                        Matrix< DDUMat >                       & aPatternListUniqueMat);
 
                 // -----------------------------------------------------------------------------
 

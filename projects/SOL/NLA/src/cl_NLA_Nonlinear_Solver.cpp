@@ -221,6 +221,8 @@ moris::Cell< enum MSI::Dof_Type > Nonlinear_Solver::get_dof_type_union()
     return tUnionEnumList;
 }
 
+//-------------------------------------------------------------------------------------------------------
+
 moris::Cell< enum MSI::Dof_Type > Nonlinear_Solver::get_sec_dof_type_union()
 {
     moris::sint tCounter = 0;
@@ -260,6 +262,7 @@ moris::sint Nonlinear_Solver::get_sonlinear_solver_manager_index()
 {
     MORIS_ERROR( mNonlinearSolverManagerIndex != -1,
             "Nonlinear_Solver_Manager::get_sonlinear_solver_manager_index(): mNonlinearSolverManagerIndex = -1. Solver manager index not set." );
+
     return mNonlinearSolverManagerIndex;
 }
 

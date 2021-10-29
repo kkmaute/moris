@@ -230,7 +230,7 @@ namespace moris
                     tUnionField->set_id( tInputField->get_id() );
                 }
 
-                tFieldUnion(m)->set_nodal_values( tUnionField->get_node_values() );
+                tFieldUnion(m)->set_values( tUnionField->get_node_values() );
 
                 tMappers( m )->perform_mapping(
                         tFieldUnion(m),

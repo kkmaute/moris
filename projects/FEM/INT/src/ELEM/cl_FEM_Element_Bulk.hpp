@@ -116,6 +116,15 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * compute quantity of interest in a elemental way
+                 * @param[ in ] Values
+                 */
+                void compute_quantity_of_interest_elemental(
+                        Matrix< DDRMat > & tValues,
+                        uint               aIQIIndex );
+
+                //------------------------------------------------------------------------------
+                /**
                  * compute volume over the element
                  */
                 real compute_volume( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );

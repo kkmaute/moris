@@ -15,6 +15,11 @@
 #include "cl_DLA_Solver_Interface.hpp"
 #include "cl_SOL_Enums.hpp"
 
+#include "cl_Stopwatch.hpp" //CHR/src
+
+// detailed logging package
+#include "cl_Tracer.hpp"
+
 using namespace moris;
 using namespace dla;
 
@@ -34,7 +39,7 @@ Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface * aInput ) : mo
         mMapFree->build_dof_translator( aInput->get_my_local_global_overlapping_map(), false);
 
         // Build matrix
-        mMat = tMatFactory.create_matrix( aInput, mMapFree,true );
+        mMat = tMatFactory.create_matrix( aInput, mMapFree,true, true );
 
         uint tNumRHS = aInput->get_num_rhs();
 
@@ -47,7 +52,13 @@ Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface * aInput ) : mo
 
         mFullVectorLHS = tMatFactory.create_vector( aInput, mMap,  tNumRHS );
 
+        // start timer
+        tic tTimer;
+
         mSolverInterface->build_graph( mMat );
+
+        real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+        MORIS_LOG_INFO( "Building matrix graph on processor %u took %5.3f seconds.", ( uint ) par_rank(), ( double ) tElapsedTime / 1000);
     }
 
     else
@@ -97,7 +108,7 @@ Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface   * aInput,
         aFreeMap->build_dof_translator( aInput->get_my_local_global_overlapping_map(), false);
 
         // Build matrix
-        mMat = tMatFactory.create_matrix( aInput, aFreeMap, true );
+        mMat = tMatFactory.create_matrix( aInput, aFreeMap, true, true );
 
         uint tNumRHS = aInput->get_num_rhs();
 
@@ -110,7 +121,14 @@ Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface   * aInput,
 
         mFullVectorLHS = tMatFactory.create_vector( aInput, aFullMap, tNumRHS );
 
+        // start timer
+        tic tTimer;
+
         mSolverInterface->build_graph( mMat );
+
+        real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+        MORIS_LOG_INFO( "Building matrix graph on processor %u took %5.3f seconds.", ( uint ) par_rank(), ( double ) tElapsedTime / 1000);
+
 }
 
 //----------------------------------------------------------------------------------------

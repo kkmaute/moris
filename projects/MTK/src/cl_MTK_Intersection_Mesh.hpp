@@ -30,6 +30,12 @@ namespace moris
                         moris::mtk::Intersection_Detect* aIntersectionDetect );
 
                 // ----------------------------------------------------------------------------
+                /*
+                 * Default destructor
+                 */
+                ~Intersection_Mesh();
+
+                // ----------------------------------------------------------------------------
                 /**
                  * Returns the spatial dimension of the mesh
                  */

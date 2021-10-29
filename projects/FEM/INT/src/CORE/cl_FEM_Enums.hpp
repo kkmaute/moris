@@ -140,6 +140,8 @@ namespace moris
                 THERMAL_ENERGY_CONVECTIVE_FLUX,
                 THERMAL_ENERGY_DIFFUSIVE_FLUX,
 
+                ADVECTION_STRONG_RESIDUAL,
+
                 MAX_STRESS,
                 MAX_NORMAL_STRESS,
                 MAX_SHEAR_STRESS,
@@ -151,9 +153,12 @@ namespace moris
                 SHEAR_STRESS,
                 VON_MISES_STRESS,
                 PRINCIPAL_STRESS,
+                STRESS_VECTOR,
 
                 HOMOGENIZED_CONSTITUTIVE,
                 HEAT_METHOD_PENALTY,
+
+                ZIENKIEWICZ_ZHU_VON_MISES_STRESS,
 
                 END_IQI_TYPE
         };
@@ -237,6 +242,7 @@ namespace moris
             COMPRESSIBLE_DIRICHLET_NITSCHE,
             SUPG_ADVECTION,
             SUPG_SPALART_ALLMARAS_TURBULENCE,
+            YZBETA_ADVECTION,
             TURBULENCE_DIRICHLET_NITSCHE,
             SPALART_ALLMARAS_NITSCHE_INTERFACE,
             PENALTY_CONTACT,
@@ -302,6 +308,7 @@ namespace moris
                 VON_MISES_STRESS,
                 PRINCIPAL_STRESS,
                 MAX_SHEAR_STRESS,
+                STRESS_VECTOR,
                 END_STRESS_TYPE
         };
 
