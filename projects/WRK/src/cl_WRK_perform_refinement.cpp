@@ -204,7 +204,7 @@ namespace moris
                     // get interpolation mesh from mesh pair
                     moris::mtk::Mesh * tSourceMesh = tField->get_mesh_pair().get_interpolation_mesh();
 
-                    MORIS_ERROR( tSourceMesh != nullptr, " Source mesh of field %s is nullptr", tFieldName);
+                    MORIS_ERROR( tSourceMesh != nullptr, "Source mesh of field %s is nullptr", tFieldName.c_str() );
 
                     uint tNumElements = tSourceMesh->get_num_elems();
 
