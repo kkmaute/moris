@@ -34,8 +34,9 @@ IQI Formulation
 ---------------
 In general, this IQI returns the following result with a condition on the base of the exponent--see <B><EM>Algorithm 1:</EM></B>
 
-<P> \f$ IQI = ( \frac {\hat{\phi}}{\phi_{ref}} - k_{shift} )^n \f$ </P>
-<P> <B>Where:</B> &ensp; \f$ \hat{\phi} \f$ &ensp; is the DOF quantity of interest </P>
+<P> \f$ IQI = W_{property}( \frac {\hat{\phi}}{\phi_{ref}} - k_{shift} )^n \f$ </P>
+<P> <B>Where:</B> &ensp; \f$ W_{property} \f$ &ensp; is the property weight that can be used to vary weights based on the field interpolator. Default is \f$ W_{property}=1.0 \f$.</P>
+<P> &emsp; &emsp; &emsp; &ensp; \f$ \hat{\phi} \f$ &ensp; is the DOF quantity of interest </P>
 <P> &emsp; &emsp; &emsp; &ensp; \f$ \phi_{ref} \f$ &ensp; is the <U> user defined</U> reference quantity of interest </P>
 <P> &emsp; &emsp; &emsp; &ensp; \f$ k_{shift} \f$ &ensp; is the <U> user defined</U> shift in exponent base </P>
 <P> &emsp; &emsp; &emsp; &ensp; \f$ n \f$ &ensp; is the <U> user defined</U> exponent </P>
