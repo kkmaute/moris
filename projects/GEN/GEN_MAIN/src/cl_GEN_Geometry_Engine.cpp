@@ -1141,6 +1141,7 @@ namespace ge
         //------------------------------------//
         // Determine owned and shared ADV IDs //
         //------------------------------------//
+        clock_t tStart_Owned_Shared_ADVs = clock();
 
         // Set primitive IDs
         Matrix< DDSMat > tPrimitiveADVIds( mInitialPrimitiveADVs.length(), 1 );
@@ -1341,9 +1342,12 @@ namespace ge
         // Set owned ADV IDs
         mPDVHostManager.set_owned_adv_ids( tOwnedADVIds );
 
+        MORIS_LOG_INFO( "Time to collect owned and shared ADVs: %f sec", (moris::real)( clock() - tStart_Owned_Shared_ADVs ) / CLOCKS_PER_SEC );
+
         //----------------------------------------//
         // Create owned ADV vector                //
         //----------------------------------------//
+        clock_t tStart_Create_Owned_ADVs = clock();
 
         // Create factory for distributed ADV vector
         sol::Matrix_Vector_Factory tDistributedFactory;
@@ -1377,9 +1381,13 @@ namespace ge
             }
         }
 
+        MORIS_LOG_INFO( "Time to create owned ADVs: %f sec", (moris::real)( clock() - tStart_Create_Owned_ADVs ) / CLOCKS_PER_SEC );
+
         //----------------------------------------//
         // Convert to B-spline fields             //
         //----------------------------------------//
+
+        clock_t tStart_Convert_to_Bspline_Fields = clock();
 
         //FIXME this hole section is super hacky and limiting. has to be rewritten from scratch.
         moris::map< std::string, uint > tFieldNameToIndexMap;
@@ -1440,7 +1448,6 @@ namespace ge
                 mGeometries( tGeometryIndex )->unlock_field();
                 mGeometries( tGeometryIndex )->set_mesh_pair( aMeshPair );
             }
-
             else
             {
                 // Every Field needs a mesh. FIXME setting the mesh here is to late
@@ -1477,9 +1484,13 @@ namespace ge
         // Save new owned ADVs
         mOwnedADVs = tNewOwnedADVs;
 
+        MORIS_LOG_INFO( "Time to convert to Bspline fields: %f sec", (moris::real)( clock() - tStart_Convert_to_Bspline_Fields ) / CLOCKS_PER_SEC );
+
         //----------------------------------------//
         // Communicate all ADV IDs to processor 0 //
         //----------------------------------------//
+
+        clock_t tStart_Communicate_ADV_IDs = clock();
 
         // Sending mats
         Cell< Matrix< DDSMat > > tSendingIDs( 0 );
@@ -1519,7 +1530,11 @@ namespace ge
         communicate_mats( tCommunicationList, tSendingLowerBounds, tReceivingLowerBounds );
         communicate_mats( tCommunicationList, tSendingUpperBounds, tReceivingUpperBounds );
 
+        MORIS_LOG_INFO( "Time to communicate ADV IDs: %f sec", (moris::real)( clock() - tStart_Communicate_ADV_IDs ) / CLOCKS_PER_SEC );
+
         // Assemble full ADVs/bounds
+        clock_t tStart_ADV_Bounds = clock();
+
         if ( par_rank() == 0 )
         {
             // Start full IDs with owned IDs on processor 0
@@ -1554,10 +1569,15 @@ namespace ge
             mUpperBounds.set_size( 0, 0 );
         }
 
-        // Reset mesh information
-        this->reset_mesh_information( tMesh );
-    }
+        MORIS_LOG_INFO( "Time to assemble ADVs and bounds on Proc 0: %f sec", (moris::real)( clock() - tStart_ADV_Bounds ) / CLOCKS_PER_SEC );
 
+        // Reset mesh information
+        clock_t tStart_Reset_Mesh_Info = clock();
+
+        this->reset_mesh_information( tMesh );
+
+        MORIS_LOG_INFO( "Time to reset mesh information: %f sec", (moris::real)( clock() - tStart_Reset_Mesh_Info ) / CLOCKS_PER_SEC );
+    }
     //--------------------------------------------------------------------------------------------------------------
 
     void

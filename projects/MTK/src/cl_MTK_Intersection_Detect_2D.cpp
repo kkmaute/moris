@@ -1010,7 +1010,7 @@ namespace moris
         uint
         Intersection_Detect_2D::permutation_order(uint const & aPairCount) const
         {
-            uint tPermuationOrder;
+            uint tPermuationOrder = 0;
 
             if( mMeshSideSetPairs(aPairCount)(0) == "4")
             {
