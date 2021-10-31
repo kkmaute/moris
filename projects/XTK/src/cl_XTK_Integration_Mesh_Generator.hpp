@@ -24,16 +24,18 @@ namespace xtk
 struct Integration_Mesh_Generation_Data
 {
     // number of child meshes
-    moris_index tNumChildMeshes = 0;
+    moris_index mNumChildMeshes = 0;
+
     // outer cell geometry index (if the geometry is inactive the cell is empty)
     // inner cell active child mesh index by cut mesh index
     moris::Cell< moris::Cell< moris_index > > mIntersectedBackgroundCellIndex;
 
-    // this tells me which geometry indices are associated with each intersected background cell. (transpose of mIntersectedBackgroundCellIndex)
-    moris::Cell< moris::Cell< moris_index > > mBackgroundCellGeometryIndices;
+    // All intersected backgroun cells (uniques removed from the concatenated version of mIntersectedBackgroundCellIndex)
+    moris::Cell< moris_index > mAllIntersectedBgCellInds;
 
-    // this maps from the background cell index to the child mesh index
-    std::unordered_map< moris_index, moris_index > mIntersectedBackgroundCellIndexToChildMeshIndex;
+
+    // // this maps from the background cell index to the child mesh index
+    // std::unordered_map< moris_index, moris_index > mIntersectedBackgroundCellIndexToChildMeshIndex;
 };
 
 class Geometric_Query_XTK : public moris::ge::Geometric_Query_Interface
@@ -402,6 +404,7 @@ class Integration_Mesh_Generator
 
     void
     identify_and_construct_subphases(
+        Integration_Mesh_Generation_Data *                aMeshGenerationData,
         Cut_Integration_Mesh *                            aCutIntegrationMesh,
         moris::mtk::Mesh *                                aBackgroundMesh,
         std::shared_ptr< Cell_Neighborhood_Connectivity > aCutNeighborhood );

@@ -38,11 +38,12 @@ Integration_Mesh_Generator::perform()
     // the cut integration mesh
     std::shared_ptr< Cut_Integration_Mesh > tCutIntegrationMesh = std::make_shared< Cut_Integration_Mesh >( tBackgroundMesh, mXTKModel );
 
+    // Allocate a child mesh for each background cell
+    this->allocate_child_meshes( tGenerationData, tCutIntegrationMesh.get(), tBackgroundMesh );
+
     // figure out which background cells are intersected and by which geometry they are intersected
     this->determine_intersected_background_cells( tGenerationData, tCutIntegrationMesh.get(), tBackgroundMesh );
 
-    // Allocate all child meshes in one go, we link them to background cells in this step
-    this->allocate_child_meshes( tGenerationData, tCutIntegrationMesh.get(), tBackgroundMesh );
 
     // iterate through the subdivision methods
     for ( moris::uint iSubMethod = 0; iSubMethod < mSubdivisionMethods.size(); iSubMethod++ )
@@ -119,7 +120,7 @@ Integration_Mesh_Generator::perform()
     }
 
     // identify and construct the subphase groups
-    this->identify_and_construct_subphases( tCutIntegrationMesh.get(), tBackgroundMesh, tNeighborhood );
+    this->identify_and_construct_subphases( &tGenerationData, tCutIntegrationMesh.get(), tBackgroundMesh, tNeighborhood );
 
     // construct subphase neighborhood
     std::shared_ptr< Subphase_Neighborhood_Connectivity > tSubphaseNeighborhood = std::make_shared< Subphase_Neighborhood_Connectivity >();
@@ -163,8 +164,8 @@ Integration_Mesh_Generator::determine_intersected_background_cells(
 
     aMeshGenerationData.mIntersectedBackgroundCellIndex.resize( tNumGeometries );
     aMeshGenerationData.mIntersectedBackgroundCellIndex.reserve( tNumCells );
-    aMeshGenerationData.mBackgroundCellGeometryIndices.resize( tNumCells );
-    aMeshGenerationData.mBackgroundCellGeometryIndices.reserve( tNumGeometries );
+
+    aMeshGenerationData.mAllIntersectedBgCellInds.reserve( tNumCells );
 
     // Initialize geometric query
     Geometric_Query_XTK tGeometricQuery;
@@ -196,22 +197,17 @@ Integration_Mesh_Generator::determine_intersected_background_cells(
                 // add background cell to the list for iGEOM
                 aMeshGenerationData.mIntersectedBackgroundCellIndex( iGeom ).push_back( iCell );
 
-                // add the geometry to the background cell list
-                aMeshGenerationData.mBackgroundCellGeometryIndices( iCell ).push_back( iGeom );
+                aMeshGenerationData.mNumChildMeshes++;
 
-                // if this one is intersected for the first time give it a child mesh index
-                if ( aMeshGenerationData.mIntersectedBackgroundCellIndexToChildMeshIndex.find( iCell ) == aMeshGenerationData.mIntersectedBackgroundCellIndexToChildMeshIndex.end() )
-                {
-                    aMeshGenerationData.mIntersectedBackgroundCellIndexToChildMeshIndex[iCell] = aMeshGenerationData.tNumChildMeshes;
-                    aMeshGenerationData.tNumChildMeshes++;
-                }
+                aMeshGenerationData.mAllIntersectedBgCellInds.push_back( iCell );
             }
         }
     }
 
     // remove the excess space
     aMeshGenerationData.mIntersectedBackgroundCellIndex.shrink_to_fit();
-    aMeshGenerationData.mBackgroundCellGeometryIndices.shrink_to_fit();
+
+    unique( aMeshGenerationData.mAllIntersectedBgCellInds );
 
     return true;
 }
@@ -420,6 +416,7 @@ Integration_Mesh_Generator::deduce_interfaces(
 
 void
 Integration_Mesh_Generator::identify_and_construct_subphases(
+    Integration_Mesh_Generation_Data*                 aMeshGenerationData,
     Cut_Integration_Mesh*                             aCutIntegrationMesh,
     moris::mtk::Mesh*                                 aBackgroundMesh,
     std::shared_ptr< Cell_Neighborhood_Connectivity > aCutNeighborhood )
@@ -458,11 +455,13 @@ Integration_Mesh_Generator::identify_and_construct_subphases(
     tSubphaseIndices.reserve( 10 );
 
     // iterate over children meshes and perform local flood-fill
-    for ( moris::size_t i = 0; i < aCutIntegrationMesh->get_num_ig_cell_groups(); i++ )
+    for ( auto& iCell : aMeshGenerationData->mAllIntersectedBgCellInds )
     {
-        std::shared_ptr< IG_Cell_Group > tIgCellGroup = aCutIntegrationMesh->get_ig_cell_group( i );
+        std::shared_ptr< IG_Cell_Group > tIgCellGroup = aCutIntegrationMesh->get_ig_cell_group( iCell );
 
-        moris::mtk::Cell* tParentCell = aCutIntegrationMesh->get_ig_cell_group_parent_cell( i );
+        moris::mtk::Cell* tParentCell = aCutIntegrationMesh->get_ig_cell_group_parent_cell( iCell );
+
+        MORIS_ASSERT( tParentCell->get_index() == iCell, "Index mismatch parent index should allign wiht parent cell index" );
 
         // flood fill this group using the bulk phases
         moris::Matrix< moris::IndexMat > tLocalFloodFill = this->flood_fill_ig_cell_group( aCutIntegrationMesh, aCutNeighborhood, tIgCellGroup, tMaxSubPhase );
@@ -505,7 +504,7 @@ Integration_Mesh_Generator::identify_and_construct_subphases(
             }
         }
 
-        aCutIntegrationMesh->set_child_mesh_subphase( i, tSubphaseIndices );
+        aCutIntegrationMesh->set_child_mesh_subphase( iCell, tSubphaseIndices );
 
         tSubphaseIndices.clear();
     }
@@ -1351,10 +1350,7 @@ Integration_Mesh_Generator::construct_bulk_phase_blocks(
 
     tBlockSetNames( tNumBulkPhases ) = "err_block";
 
-    moris::print( tBlockSetNames, "tBlockSetNames" );
-
-    Cell< moris_index >
-        tBlockSetOrds = aCutIntegrationMesh->register_block_set_names( tBlockSetNames, tCellTopo );
+    Cell< moris_index > tBlockSetOrds = aCutIntegrationMesh->register_block_set_names( tBlockSetNames, tCellTopo );
 
     // iterate and add the side set groups to cut mehs
     for ( moris::uint iSet = 0; iSet < tBlockSetOrds.size(); iSet++ )
@@ -2145,23 +2141,23 @@ Integration_Mesh_Generator::commit_new_ig_vertices_to_cut_mesh(
 
 
     // iterate through child meshes and commit the vertices to their respective vertex groups
-    for ( moris::uint iCM = 0; iCM < (moris::uint)aMeshGenerationData->tNumChildMeshes; iCM++ )
+    for ( auto& iCell : aMeshGenerationData->mAllIntersectedBgCellInds )
     {
         MORIS_ERROR( aDecompositionData->tCMNewNodeLoc.size() == (moris::uint)aCutIntegrationMesh->mChildMeshes.size(), "Mismatch in child mesh sizes. All child meshes need to be present in the decomposition data" );
 
         // add the vertices to child mesh groups
-        moris_index tNumNewVertices = (moris_index)aDecompositionData->tCMNewNodeLoc( iCM ).size();
+        moris_index tNumNewVertices = (moris_index)aDecompositionData->tCMNewNodeLoc( iCell ).size();
 
         // resize the vertices in the group
-        aCutIntegrationMesh->mIntegrationVertexGroups( iCM )->reserve( tNumNewVertices + aCutIntegrationMesh->mIntegrationVertexGroups( iCM )->size() );
+        aCutIntegrationMesh->mIntegrationVertexGroups( iCell )->reserve( tNumNewVertices + aCutIntegrationMesh->mIntegrationVertexGroups( iCell )->size() );
 
         for ( moris::moris_index iCMVerts = 0; iCMVerts < tNumNewVertices; iCMVerts++ )
         {
-            moris_index      tNewNodeLocInDecomp      = aDecompositionData->tCMNewNodeLoc( iCM )( iCMVerts );
+            moris_index      tNewNodeLocInDecomp      = aDecompositionData->tCMNewNodeLoc( iCell )( iCMVerts );
             moris_index      tNewNodeIndex            = aDecompositionData->tNewNodeIndex( tNewNodeLocInDecomp );
-            Matrix< DDRMat > tParamCoordWrtParentCell = aDecompositionData->tCMNewNodeParamCoord( iCM )( iCMVerts );
+            Matrix< DDRMat > tParamCoordWrtParentCell = aDecompositionData->tCMNewNodeParamCoord( iCell )( iCMVerts );
 
-            aCutIntegrationMesh->mIntegrationVertexGroups( iCM )->add_vertex( aCutIntegrationMesh->mIntegrationVertices( tNewNodeIndex ), std::make_shared< Matrix< DDRMat > >( tParamCoordWrtParentCell ) );
+            aCutIntegrationMesh->mIntegrationVertexGroups( iCell )->add_vertex( aCutIntegrationMesh->mIntegrationVertices( tNewNodeIndex ), std::make_shared< Matrix< DDRMat > >( tParamCoordWrtParentCell ) );
         }
     }
 
@@ -2256,13 +2252,7 @@ Integration_Mesh_Generator::collect_vertex_groups_for_background_cells(
     // iterate through background cells
     for ( moris::uint i = 0; i < aBackgroundCells->size(); i++ )
     {
-        auto tCMIter = aMeshGenerationData->mIntersectedBackgroundCellIndexToChildMeshIndex.find( ( *aBackgroundCells )( i )->get_index() );
-
-        MORIS_ASSERT( tCMIter != aMeshGenerationData->mIntersectedBackgroundCellIndexToChildMeshIndex.end(), "Must be a non-intersected background cell" );
-
-        moris_index tCMIndex = tCMIter->second;
-
-        ( *aVertexGroups )( i ) = aCutIntegrationMesh->get_vertex_group( tCMIndex );
+        ( *aVertexGroups )( i ) = aCutIntegrationMesh->get_vertex_group( ( *aBackgroundCells )( i )->get_index() );
     }
 }
 
@@ -2275,16 +2265,18 @@ Integration_Mesh_Generator::allocate_child_meshes(
     moris::mtk::Mesh*                 aBackgroundMesh )
 {
     Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Allocate child meshes" );
-    aCutIntegrationMesh->mChildMeshes.resize( aMeshGenerationData.tNumChildMeshes );
-    aCutIntegrationMesh->mIntegrationCellGroups.resize( aMeshGenerationData.tNumChildMeshes, nullptr );
-    aCutIntegrationMesh->mIntegrationVertexGroups.resize( aMeshGenerationData.tNumChildMeshes, nullptr );
-    aCutIntegrationMesh->mIntegrationCellGroupsParentCell.resize( aMeshGenerationData.tNumChildMeshes, nullptr );
+
+    // allocate these data structures one per background cell
+    aCutIntegrationMesh->mChildMeshes.resize( aBackgroundMesh->get_num_elems() );
+    aCutIntegrationMesh->mIntegrationCellGroups.resize( aBackgroundMesh->get_num_elems(), nullptr );
+    aCutIntegrationMesh->mIntegrationVertexGroups.resize( aBackgroundMesh->get_num_elems(), nullptr );
+    aCutIntegrationMesh->mIntegrationCellGroupsParentCell.resize( aBackgroundMesh->get_num_elems(), nullptr );
 
     // create the child meshes
-    for ( auto& it : aMeshGenerationData.mIntersectedBackgroundCellIndexToChildMeshIndex )
+    for ( moris::uint iCell = 0; iCell < aBackgroundMesh->get_num_elems(); iCell++ )
     {
-        moris_index       tCMIndex                                        = it.second;
-        moris::mtk::Cell* tParentCell                                     = &aBackgroundMesh->get_mtk_cell( it.first );
+        moris_index       tCMIndex                                        = (moris_index)iCell;
+        moris::mtk::Cell* tParentCell                                     = &aBackgroundMesh->get_mtk_cell( iCell );
         aCutIntegrationMesh->mChildMeshes( tCMIndex )                     = std::make_shared< Child_Mesh_Experimental >();
         aCutIntegrationMesh->mIntegrationCellGroups( tCMIndex )           = std::make_shared< IG_Cell_Group >( 0 );
         aCutIntegrationMesh->mChildMeshes( tCMIndex )->mIgCells           = aCutIntegrationMesh->mIntegrationCellGroups( tCMIndex );
@@ -2292,7 +2284,6 @@ Integration_Mesh_Generator::allocate_child_meshes(
         aCutIntegrationMesh->mChildMeshes( tCMIndex )->mParentCell        = tParentCell;
         aCutIntegrationMesh->mChildMeshes( tCMIndex )->mChildMeshIndex    = tCMIndex;
 
-        MORIS_ASSERT( aCutIntegrationMesh->mParentCellCellGroupIndex( tParentCell->get_index() ) == MORIS_INDEX_MAX, "Double group allocation for parent cell" );
         aCutIntegrationMesh->mParentCellCellGroupIndex( tParentCell->get_index() ) = tCMIndex;
 
         moris_index                        tNumGeometricVertices = 8;

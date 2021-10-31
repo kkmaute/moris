@@ -32,11 +32,11 @@ Regular_Subdivision_Interface::perform_impl_vertex_requests(
 
     aDecompositionData->mHasSecondaryIdentifier = false;
 
+    moris_index tNumChildMeshes = mCutIntegrationMesh->get_num_ig_cell_groups();
+
     // allocate data in decomposition data
-    aDecompositionData->tCMNewNodeLoc        = Cell< Cell< moris_index > >( aMeshGenerationData->mIntersectedBackgroundCellIndexToChildMeshIndex.size(), this->get_num_new_nodes() );
-    aDecompositionData->tCMNewNodeParamCoord = Cell< Cell< Matrix< DDRMat > > >( aMeshGenerationData->mIntersectedBackgroundCellIndexToChildMeshIndex.size(),
-        Cell< Matrix< DDRMat > >( this->get_num_new_nodes(),
-            Matrix< DDRMat >( 1, this->get_parametric_dimension() ) ) );
+    aDecompositionData->tCMNewNodeLoc        = Cell< Cell< moris_index > >( tNumChildMeshes );
+    aDecompositionData->tCMNewNodeParamCoord = Cell< Cell< Matrix< DDRMat > > >( tNumChildMeshes, Cell< Matrix< DDRMat > >( this->get_num_new_nodes(), Matrix< DDRMat >( 1, this->get_parametric_dimension() ) ) );
 
     // allocate a data struct to pass into functions - stores the matrix but doesnt require the method to store data
     Regular_Subdivision_Interface_Data tRegSubInterfaceData;
@@ -55,9 +55,9 @@ Regular_Subdivision_Interface::perform_impl_vertex_requests(
     tRegSubInterfaceData.mNewNodeXi = this->get_new_vertex_parametric_coordinates_wrt_parent();
 
     // iterate through all intersected background cells and make vertex requests
-    for ( auto& it : aMeshGenerationData->mIntersectedBackgroundCellIndexToChildMeshIndex )
+    for ( auto& iCell : aMeshGenerationData->mAllIntersectedBgCellInds )
     {
-        std::shared_ptr< Child_Mesh_Experimental > tChildMesh = aCutIntegrationMesh->get_child_mesh( it.second );
+        std::shared_ptr< Child_Mesh_Experimental > tChildMesh = aCutIntegrationMesh->get_child_mesh( iCell );
 
         // make new vertex requests
         this->make_new_vertex_requests( tChildMesh.get(), aCutIntegrationMesh, this, &tRegSubInterfaceData, aBackgroundMesh, aDecompositionData );
@@ -85,7 +85,7 @@ Regular_Subdivision_Interface::perform_impl_generate_mesh(
     moris::uint tVerticesPerCell = tIgCellInfo->get_num_verts();
 
     // allocate data in the new ig cell data
-    mNewCellToVertexConnectivity = moris::Cell< moris::Cell< moris::moris_index > >( mNumTotalCells, tVerticesPerCell );
+    mNewCellToVertexConnectivity = moris::Cell< moris::Cell< moris::moris_index > >( mNumTotalCells );
     mNewCellChildMeshIndex       = moris::Cell< moris::moris_index >( mNumTotalCells );
     mNewCellCellIndexToReplace   = moris::Cell< moris::moris_index >( mNumTotalCells, MORIS_INDEX_MAX );
     mNewCellCellInfo             = moris::Cell< std::shared_ptr< moris::mtk::Cell_Info > >( mNumTotalCells, tIgCellInfo );
@@ -96,7 +96,7 @@ Regular_Subdivision_Interface::perform_impl_generate_mesh(
 
     // populate new cell data
     moris::moris_index tCurrentCellIndex = 0;
-    for ( moris::moris_index iCM = 0; iCM < aMeshGenerationData->tNumChildMeshes; iCM++ )
+    for ( auto& iCM : aMeshGenerationData->mAllIntersectedBgCellInds )
     {
         std::shared_ptr< Child_Mesh_Experimental > tChildMesh = aCutIntegrationMesh->get_child_mesh( iCM );
 
@@ -110,7 +110,7 @@ Regular_Subdivision_Interface::perform_impl_generate_mesh(
                 {
                     moris_index tNewVertexCMOrdinal = tIgCellToVertexTemplate( iNewCell )( iV );
                     MORIS_ERROR( tNewVertexCMOrdinal < (moris::moris_index)tChildMesh->mIgVerts->size(), "Template ordinal out of bounds" );
-                    mNewCellToVertexConnectivity( tCurrentCellIndex )( iV ) = tChildMesh->mIgVerts->get_vertex( tNewVertexCMOrdinal )->get_index();
+                    mNewCellToVertexConnectivity( tCurrentCellIndex ).push_back( tChildMesh->mIgVerts->get_vertex( tNewVertexCMOrdinal )->get_index() );
                 }
 
                 tCurrentCellIndex++;
@@ -207,12 +207,12 @@ Regular_Subdivision_Interface::make_new_vertex_requests_trivial(
             Matrix< DDRMat >                    tNewNodeCoordinates                                               = aRegularSubdivisionInterfaceData->mNXi * tParentCell->get_vertex_coords();
             moris_index                         tNewNodeIndexInSubdivision                                        = aDecompositionData->register_new_request( tCellConn.mCellFacesInds( tNewNodeFaceOrdinal ), tOwner, EntityRank::FACE, tNewNodeCoordinates, tParentCell, tNewNodeXi );
             aDecompositionData->tCMNewNodeParamCoord( aChildMesh->get_child_mesh_index() )( tNewNodeTemplateOrd ) = aRegularSubdivisionInterfaceData->mNewNodeXi( tNewNodeTemplateOrd );
-            aDecompositionData->tCMNewNodeLoc( aChildMesh->get_child_mesh_index() )( tNewNodeTemplateOrd )        = tNewNodeIndexInSubdivision;
+            aDecompositionData->tCMNewNodeLoc( aChildMesh->get_child_mesh_index() ).push_back( tNewNodeIndexInSubdivision );
         }
 
         else
         {
-            aDecompositionData->tCMNewNodeLoc( aChildMesh->get_child_mesh_index() )( tNewNodeTemplateOrd )        = tRequestLoc;
+            aDecompositionData->tCMNewNodeLoc( aChildMesh->get_child_mesh_index() ).push_back( tRequestLoc );
             aDecompositionData->tCMNewNodeParamCoord( aChildMesh->get_child_mesh_index() )( tNewNodeTemplateOrd ) = aRegularSubdivisionInterfaceData->mNewNodeXi( tNewNodeTemplateOrd );
         }
     }
@@ -237,13 +237,13 @@ Regular_Subdivision_Interface::make_new_vertex_requests_trivial(
 
             moris_index tNewNodeIndexInSubdivision = aDecompositionData->register_new_request( tParentCell->get_index(), tOwner, EntityRank::ELEMENT, tNewNodeCoordinates, tParentCell, tNewNodeXi );
 
-            aDecompositionData->tCMNewNodeLoc( aChildMesh->get_child_mesh_index() )( tNewNodeTemplateOrd )        = tNewNodeIndexInSubdivision;
+            aDecompositionData->tCMNewNodeLoc( aChildMesh->get_child_mesh_index() ).push_back( tNewNodeIndexInSubdivision );
             aDecompositionData->tCMNewNodeParamCoord( aChildMesh->get_child_mesh_index() )( tNewNodeTemplateOrd ) = aRegularSubdivisionInterfaceData->mNewNodeXi( tNewNodeTemplateOrd );
         }
 
         else
         {
-            aDecompositionData->tCMNewNodeLoc( aChildMesh->get_child_mesh_index() )( tNewNodeTemplateOrd )        = tRequestLoc;
+            aDecompositionData->tCMNewNodeLoc( aChildMesh->get_child_mesh_index() ).push_back( tRequestLoc );
             aDecompositionData->tCMNewNodeParamCoord( aChildMesh->get_child_mesh_index() )( tNewNodeTemplateOrd ) = aRegularSubdivisionInterfaceData->mNewNodeXi( tNewNodeTemplateOrd );
         }
     }

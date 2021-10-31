@@ -1006,7 +1006,6 @@ Enriched_Integration_Mesh::create_bg_cell_id_field()
 void
 Enriched_Integration_Mesh::create_subphase_fields()
 {
-    std::cout << "Writing Subphase" << std::endl;
     // this->compute_subphase_centroids( "sp_centroid.csv" );
 
     // this->write_bg_cell_to_subphase_index( "bg_cell_to_sp_index.csv" );

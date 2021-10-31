@@ -347,20 +347,22 @@ Octree_Interface::perform_impl_vertex_requests(
     aDecompositionData->tDecompId               = this->get_signature();
 
     // size the CM New Node Loc and param coord data
-    moris_index const tNumChildMeshes        = aMeshGenerationData->mIntersectedBackgroundCellIndexToChildMeshIndex.size();
+    moris_index const tNumChildMeshes        = aCutIntegrationMesh->get_num_ig_cell_groups();
     aDecompositionData->tCMNewNodeLoc        = Cell< Cell< moris_index > >( tNumChildMeshes );
     aDecompositionData->tCMNewNodeParamCoord = Cell< Cell< Matrix< DDRMat > > >( tNumChildMeshes );
 
     // initialize data
     moris::Matrix< moris::DDRMat > tBasisWeights( 1, 8 );
 
-    mDifference.reserve( aMeshGenerationData->mIntersectedBackgroundCellIndexToChildMeshIndex.size() );
+    mDifference.reserve( tNumChildMeshes );
+
 
     // iterate through cells
-    for ( auto &it : aMeshGenerationData->mIntersectedBackgroundCellIndexToChildMeshIndex )
+    for ( auto &iCell : aMeshGenerationData->mAllIntersectedBgCellInds )
     {
+        std::cout << "iCEll =" << iCell << std::endl;
         // background cell
-        moris::mtk::Cell &tCell = aBackgroundMesh->get_mtk_cell( it.first );
+        moris::mtk::Cell &tCell = aBackgroundMesh->get_mtk_cell( iCell );
 
         // background cell vertices
         moris::Matrix< moris::DDRMat > tBGCellCoords = tCell.get_vertex_coords();
@@ -451,8 +453,8 @@ Octree_Interface::perform_impl_vertex_requests(
                         MORIS_ASSERT( moris::norm( tNewCoordinate - mDecompData->tNewNodeCoordinate( tNewNodeIndexInSubdivision ) ) < 1e-12, "Vertex coordinate mismatch, could be a hashing collision, parent rank: %s, parent index:%i,  hash: %i", get_enum_str( tVertexAncestry->get_vertex_parent_rank( iV ) ), tCellConnectivity.get_entity_index( tVertexAncestry->get_vertex_parent_index( iV ), tVertexAncestry->get_vertex_parent_rank( iV ) ), ( *tVertexHashes )( iV ) );
                     }
                 }
-                aDecompositionData->tCMNewNodeParamCoord( it.second ).push_back( *tVertexLocalCoords );
-                aDecompositionData->tCMNewNodeLoc( it.second ).push_back( tNewNodeIndexInSubdivision );
+                aDecompositionData->tCMNewNodeParamCoord( iCell ).push_back( *tVertexLocalCoords );
+                aDecompositionData->tCMNewNodeLoc( iCell ).push_back( tNewNodeIndexInSubdivision );
             }
 
             // make a vertex request
@@ -488,7 +490,7 @@ Octree_Interface::perform_impl_generate_mesh(
 
     // populate new cell data
     moris::moris_index tCurrentCellIndex = 0;
-    for ( moris::moris_index iCM = 0; iCM < aMeshGenerationData->tNumChildMeshes; iCM++ )
+    for ( moris::moris_index iCM = 0; iCM < aMeshGenerationData->mNumChildMeshes; iCM++ )
     {
         std::shared_ptr< Child_Mesh_Experimental > tChildMesh = aCutIntegrationMesh->get_child_mesh( iCM );
 
