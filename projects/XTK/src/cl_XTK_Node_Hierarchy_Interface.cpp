@@ -119,6 +119,16 @@ Node_Hierarchy_Interface::perform(
             &tIntersectedEdgeIndices,
             &tIntersectedEdgeLocCoords );
 
+        //update underlying ids and owners of interpolation nodes in GE
+        for ( uint Ik = 0; Ik < aDecompositionData->tNewNodeIndex.size(); Ik++ )
+        {
+            moris_index tNodeIndex = aDecompositionData->tNewNodeIndex( Ik );
+            moris_id    tNodeId    = aDecompositionData->tNewNodeId( Ik );
+            moris_index tNodeOwner = aDecompositionData->tNewNodeOwner( Ik );
+
+            mGeometryEngine->update_queued_intersection( tNodeIndex, tNodeId, tNodeOwner );
+        }
+
         // commit vertices to the mesh
         aMeshGenerator->commit_new_ig_vertices_to_cut_mesh( aMeshGenerationData, aDecompositionData, aCutIntegrationMesh, aBackgroundMesh, this );
 
