@@ -160,6 +160,15 @@ struct Facet_Based_Connectivity
     moris::Cell< moris::Cell< moris::mtk::Cell* > >   mFacetToCell;
     moris::Cell< moris::Cell< moris::moris_index > >  mFacetToCellEdgeOrdinal;
     moris::Cell< moris::Cell< moris_index > >         mCellToFacet;
+    std::unordered_map< moris_index, moris_index >    mCellIndexToCellOrdinal;
+
+    moris_index
+    get_cell_ordinal( const moris_index& aCellIndex )
+    {
+        auto tIter = mCellIndexToCellOrdinal.find( aCellIndex );
+        MORIS_ASSERT( tIter != mCellIndexToCellOrdinal.end(), "Cell not in facet connectivity" );
+        return tIter->second;
+    }
 };
 
 struct Facet_Based_Ancestry

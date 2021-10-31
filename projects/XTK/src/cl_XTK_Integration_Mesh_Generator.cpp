@@ -68,6 +68,10 @@ Integration_Mesh_Generator::perform()
     moris::Cell< moris::mtk::Cell* > tActiveIgCells;
     extract_cells_from_cell_groups( tActiveIgCellGroups, tActiveIgCells );
 
+    std::cout << "tActiveIgCellGroups.size() = " << tActiveIgCellGroups.size() << std::endl;
+    std::cout << "tActiveIgCells.size() = " << tActiveIgCells.size() << std::endl;
+
+
     // create facet connectivity in the mesh
     std::shared_ptr< Facet_Based_Connectivity > tFaceConnectivity = std::make_shared< Facet_Based_Connectivity >();
     this->create_facet_from_element_to_node( tActiveIgCells, tFaceConnectivity );
@@ -577,6 +581,9 @@ Integration_Mesh_Generator::construct_subphase_neighborhood(
         aSubphaseNeighborhood->mTransitionNeighborCellLocation( i )->reserve( 4 );
     }
 
+
+    // I loop throuhg cells then side ordinals to capture the transition between adaptively refined meshes.
+    // alternatively you could try looping through aBgFacetToChildFacet and then handle the subphase neigborhood for the transition locations seperately
     //iterate through background cells
     moris::uint tBGCells = aBackgroundMesh->get_num_entities( EntityRank::ELEMENT );
     for ( moris::moris_index iC = 0; iC < (moris::moris_index)tBGCells; iC++ )
@@ -602,48 +609,92 @@ Integration_Mesh_Generator::construct_subphase_neighborhood(
             moris_index tNeighborOrdinal        = tCellToCellSideOrd( 2, iN );
             moris_index tTransitionCellLocation = tCellToCellSideOrd( 3, iN );
 
-            // collect subphase related to my cell on this facet
             Cell< moris::moris_index > tMyCellSubphaseIndices( 0 );
-            this->collect_subphases_attached_to_facet_on_cell(
-                aCutIntegrationMesh,
-                tCurrentCell,
-                tMyOrdinal,
-                tFacetIndex,
-                aFacetConnectivity,
-                ( *aBgFacetToChildFacet )( tFacetIndex ),
-                tMyCellSubphaseIndices );
-
-            // collect subphase related to neighbor cell on this facet
-            Cell< moris::moris_index > tNeighborSubphaseIndices( 0 );
-            this->collect_subphases_attached_to_facet_on_cell(
-                aCutIntegrationMesh,
-                tOtherCell,
-                tNeighborOrdinal,
-                tFacetIndex,
-                aFacetConnectivity,
-                ( *aBgFacetToChildFacet )( tFacetIndex ),
-                tNeighborSubphaseIndices );
+            Cell< moris::moris_index > tRepresentativeIgCells( 0 );
+            Cell< moris::moris_index > tRepresentativeIgCellsOrdinal( 0 );
+            this->collect_subphases_attached_to_facet_on_cell( aCutIntegrationMesh, tCurrentCell, tMyOrdinal, tFacetIndex, aFacetConnectivity, ( *aBgFacetToChildFacet )( tFacetIndex ), tMyCellSubphaseIndices, tRepresentativeIgCells, tRepresentativeIgCellsOrdinal );
 
             // iterate over subphases and add to neighborhood
             for ( moris::uint i = 0; i < tMyCellSubphaseIndices.size(); i++ )
             {
                 moris_index tMySubphaseIndex = tMyCellSubphaseIndices( i );
-                moris_index tMyBulkIndex     = aCutIntegrationMesh->get_subphase_bulk_phase( tMySubphaseIndex );
+                moris_index tMyIgCellIndex   = tRepresentativeIgCells( i );
+                moris_index tMyIgCellSideOrd = tRepresentativeIgCellsOrdinal( i );
 
-                for ( moris::uint j = 0; j < tNeighborSubphaseIndices.size(); j++ )
+                // handle the case where we transition between background cell and triangulated cells
+                if ( !aCutIntegrationMesh->parent_cell_has_children( tCurrentCell->get_index() ) || !aCutIntegrationMesh->parent_cell_has_children( tOtherCell->get_index() ) )
                 {
-                    moris_index tNeighborSubphaseIndex = tNeighborSubphaseIndices( j );
-                    moris_index tNeighborBulkIndex     = aCutIntegrationMesh->get_subphase_bulk_phase( tNeighborSubphaseIndex );
+                    Cell< moris::moris_index > tNeighborSubphaseIndices( 0 );
+                    Cell< moris::moris_index > tNeighborRepresentativeIgCells( 0 );
+                    Cell< moris::moris_index > tNeighborRepresentativeIgCellsOrdinal( 0 );
+                    this->collect_subphases_attached_to_facet_on_cell( aCutIntegrationMesh, tOtherCell, tNeighborOrdinal, tFacetIndex, aFacetConnectivity, ( *aBgFacetToChildFacet )( tFacetIndex ), tNeighborSubphaseIndices, tNeighborRepresentativeIgCells, tNeighborRepresentativeIgCellsOrdinal );
 
-                    if ( tMyBulkIndex == tNeighborBulkIndex )
+                    // iterate through neighbors
+                    for ( const auto& iNeighSp : tNeighborSubphaseIndices )
                     {
-                        aSubphaseNeighborhood->mSubphaseToSubPhase( tMySubphaseIndex )->push_back( tNeighborSubphaseIndex );
+                        aSubphaseNeighborhood->mSubphaseToSubPhase( tMySubphaseIndex )->push_back( iNeighSp );
                         aSubphaseNeighborhood->mSubphaseToSubPhaseMySideOrds( tMySubphaseIndex )->push_back( tMyOrdinal );
                         aSubphaseNeighborhood->mSubphaseToSubPhaseNeighborSideOrds( tMySubphaseIndex )->push_back( tNeighborOrdinal );
                         aSubphaseNeighborhood->mTransitionNeighborCellLocation( tMySubphaseIndex )->push_back( tTransitionCellLocation );
                     }
                 }
+
+                else
+                {
+                    // figure out the neighbor subphase index
+                    const moris_index& tMyIgCellOrdInFacetConn = aFacetConnectivity->get_cell_ordinal( tMyIgCellIndex );
+                    moris_index        tIgFacetIndex           = aFacetConnectivity->mCellToFacet( tMyIgCellOrdInFacetConn )( tMyIgCellSideOrd );
+                    moris_index        tNeighborSubphaseIndex  = MORIS_INDEX_MAX;
+                    // iterate through cells on facet and get the one that is not my cell
+                    for ( const auto& iCell : aFacetConnectivity->mFacetToCell( tIgFacetIndex ) )
+                    {
+                        if ( iCell->get_index() != tMyIgCellIndex )
+                        {
+                            tNeighborSubphaseIndex = aCutIntegrationMesh->get_ig_cell_subphase_index( iCell->get_index() );
+                        }
+                    }
+                    MORIS_ASSERT( aCutIntegrationMesh->get_subphase_bulk_phase( tNeighborSubphaseIndex ) == aCutIntegrationMesh->get_subphase_bulk_phase( tMySubphaseIndex ), "Subphase bulk phase mismatch" );
+                    aSubphaseNeighborhood->mSubphaseToSubPhase( tMySubphaseIndex )->push_back( tNeighborSubphaseIndex );
+                    aSubphaseNeighborhood->mSubphaseToSubPhaseMySideOrds( tMySubphaseIndex )->push_back( tMyOrdinal );
+                    aSubphaseNeighborhood->mSubphaseToSubPhaseNeighborSideOrds( tMySubphaseIndex )->push_back( tNeighborOrdinal );
+                    aSubphaseNeighborhood->mTransitionNeighborCellLocation( tMySubphaseIndex )->push_back( tTransitionCellLocation );
+                }
             }
+
+            // // // collect subphase related to neighbor cell on this facet
+            // // Cell< moris::moris_index > tNeighborSubphaseIndices( 0 );
+            // // this->collect_subphases_attached_to_facet_on_cell(
+            // //     aCutIntegrationMesh,
+            // //     tOtherCell,
+            // //     tNeighborOrdinal,
+            // //     tFacetIndex,
+            // //     aFacetConnectivity,
+            // //     ( *aBgFacetToChildFacet )( tFacetIndex ),
+            // //     tNeighborSubphaseIndices );
+
+            // // iterate over subphases and add to neighborhood
+            // for ( moris::uint i = 0; i < tMyCellSubphaseIndices.size(); i++ )
+            // {
+            //     // moris_index tMySubphaseIndex = tMyCellSubphaseIndices( i );
+            //     // moris_index tMyCellIndex     = tRepresentativeIgCells( i );
+            //     // moris_index tMyCellOrdinal   = tRepresentativeIgCellsOrdinal( i );
+
+            // moris_index tNeighborCell =
+            // moris_index tMyBulkIndex     = aCutIntegrationMesh->get_subphase_bulk_phase( tMySubphaseIndex );
+
+            // for ( moris::uint j = 0; j < tNeighborSubphaseIndices.size(); j++ )
+            // {
+            //     moris_index tNeighborSubphaseIndex = tNeighborSubphaseIndices( j );
+            //     moris_index tNeighborBulkIndex     = aCutIntegrationMesh->get_subphase_bulk_phase( tNeighborSubphaseIndex );
+
+            //     if ( tMyBulkIndex == tNeighborBulkIndex )
+            //     {
+            //         aSubphaseNeighborhood->mSubphaseToSubPhase( tMySubphaseIndex )->push_back( tNeighborSubphaseIndex );
+            //         aSubphaseNeighborhood->mSubphaseToSubPhaseMySideOrds( tMySubphaseIndex )->push_back( tMyOrdinal );
+            //         aSubphaseNeighborhood->mSubphaseToSubPhaseNeighborSideOrds( tMySubphaseIndex )->push_back( tNeighborOrdinal );
+            //         aSubphaseNeighborhood->mTransitionNeighborCellLocation( tMySubphaseIndex )->push_back( tTransitionCellLocation );
+            //     }
+            // }
         }
     }
 }
@@ -656,7 +707,9 @@ Integration_Mesh_Generator::collect_subphases_attached_to_facet_on_cell(
     moris::moris_index                                   aSharedFacetIndex,
     std::shared_ptr< Facet_Based_Connectivity >          aFacetConnectivity,
     std::shared_ptr< moris::Cell< moris::moris_index > > aBgFacetToChildrenFacets,
-    Cell< moris::moris_index >&                          aSubphaseIndices )
+    Cell< moris::moris_index >&                          aSubphaseIndices,
+    Cell< moris::moris_index >&                          aRepresentativeIgCells,
+    Cell< moris::moris_index >&                          aRepresentativeIgCellsOrdinal )
 {
     aSubphaseIndices.clear();
 
@@ -664,6 +717,7 @@ Integration_Mesh_Generator::collect_subphases_attached_to_facet_on_cell(
 
     if ( tParentHasChildren )
     {
+        std::unordered_map< moris_index, moris_index > tSubphaseMap;
         MORIS_ASSERT( aBgFacetToChildrenFacets != nullptr, "Null ptr on facet that should have children facets" );
 
         // iterate through child facets attached to bg facet
@@ -673,23 +727,28 @@ Integration_Mesh_Generator::collect_subphases_attached_to_facet_on_cell(
 
             for ( moris::uint iCell = 0; iCell < aFacetConnectivity->mFacetToCell( tChildCellFacetIndex ).size(); iCell++ )
             {
-                // iterate through cells on the child facet
-                moris_index tSubphaseIndex   = aCutIntegrationMesh->get_ig_cell_subphase_index( aFacetConnectivity->mFacetToCell( tChildCellFacetIndex )( iCell )->get_index() );
+                moris_index tCellIndex       = aFacetConnectivity->mFacetToCell( tChildCellFacetIndex )( iCell )->get_index();
+                moris_index tSubphaseIndex   = aCutIntegrationMesh->get_ig_cell_subphase_index( tCellIndex );
                 moris_index tParentCellIndex = aCutIntegrationMesh->get_subphase_parent_cell( tSubphaseIndex )->get_index();
                 if ( tParentCellIndex == aBGCell->get_index() )
                 {
-                    aSubphaseIndices.push_back( tSubphaseIndex );
+                    if ( tSubphaseMap.find( tSubphaseIndex ) == tSubphaseMap.end() )
+                    {
+                        aSubphaseIndices.push_back( tSubphaseIndex );
+                        aRepresentativeIgCells.push_back( tCellIndex );
+                        aRepresentativeIgCellsOrdinal.push_back( aFacetConnectivity->mFacetToCellEdgeOrdinal( tChildCellFacetIndex )( iCell ) );
+                        tSubphaseMap[tSubphaseIndex] = 1;
+                    }
                 }
             }
         }
-
-        // make it unique
-        unique( aSubphaseIndices );
     }
     else
     {
         MORIS_ASSERT( aCutIntegrationMesh->get_parent_cell_subphases( aBGCell->get_index() ).size() == 1, "one subphase needs to be present in this case" );
         aSubphaseIndices = { { aBGCell->get_index() } };
+        aRepresentativeIgCells.push_back( aBGCell->get_index() );
+        aRepresentativeIgCellsOrdinal.push_back( aFacetOrdinal );
     }
 }
 
@@ -1492,6 +1551,11 @@ Integration_Mesh_Generator::create_facet_from_element_to_node(
 
         for ( moris::uint i = 0; i < aCells.size(); i++ )
         {
+            MORIS_ERROR( aFaceConnectivity->mCellIndexToCellOrdinal.find( aCells( i )->get_index() ) == aFaceConnectivity->mCellIndexToCellOrdinal.end(), "Duplicate cell in aCells provided" );
+
+            aFaceConnectivity->mCellIndexToCellOrdinal[aCells( i )->get_index()] = i;
+
+
             moris::Cell< moris::mtk::Vertex* > tCellVerts = aCells( i )->get_vertex_pointers();
 
             // iterate through edges

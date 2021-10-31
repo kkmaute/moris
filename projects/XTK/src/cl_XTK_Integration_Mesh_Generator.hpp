@@ -418,6 +418,7 @@ class Integration_Mesh_Generator
         moris::Cell< std::shared_ptr< moris::Cell< moris::moris_index > > > *aBgFacetToChildFacet,
         std::shared_ptr< Subphase_Neighborhood_Connectivity >                aSubphaseNeighborhood );
 
+
     void
     collect_subphases_attached_to_facet_on_cell(
         Cut_Integration_Mesh *                               aCutIntegrationMesh,
@@ -426,7 +427,9 @@ class Integration_Mesh_Generator
         moris::moris_index                                   aSharedFacetIndex,
         std::shared_ptr< Facet_Based_Connectivity >          aFacetConnectivity,
         std::shared_ptr< moris::Cell< moris::moris_index > > aBgFacetToChildrenFacets,
-        Cell< moris::moris_index > &                         aSubphaseIndices );
+        Cell< moris::moris_index > &                         aSubphaseIndices,
+        Cell< moris::moris_index > &                         aRepresentativeIgCells,
+        Cell< moris::moris_index > &                         aRepresentativeIgCellsOrdinal );
 
     void
     collect_ig_cells_and_side_ords_on_bg_facet(
