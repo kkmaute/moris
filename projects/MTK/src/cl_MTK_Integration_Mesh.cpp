@@ -85,7 +85,7 @@ namespace moris
         }
 
         // ----------------------------------------------------------------------------
- 
+
         moris::Cell<moris::mtk::Set*> const &
         Integration_Mesh::get_block_sets_with_color(moris_index const & aColor)
         {
@@ -505,8 +505,8 @@ namespace moris
                                     }
                                 }
 
-//                                tMPCs.resize( tCount, 1 );
-//                                tNodeDOFs.resize( tCount,1 );
+                                //                                tMPCs.resize( tCount, 1 );
+                                //                                tNodeDOFs.resize( tCount,1 );
                             }
                             else
                             {
@@ -524,8 +524,8 @@ namespace moris
                                     tMPCs( tIGVertexIndex )( 0 ) = 1.0;
                                     tNodeDOFs( tIGVertexIndex )( 0 ) = tIGVertexId;
                                 }
-//                                tMPCs( tIGVertexIndex ).resize( 1, 1 );
-//                                tNodeDOFs( tIGVertexIndex ).resize( 1,1 );
+                                //                                tMPCs( tIGVertexIndex ).resize( 1, 1 );
+                                //                                tNodeDOFs( tIGVertexIndex ).resize( 1,1 );
                             }
                         }
                     }
@@ -550,10 +550,10 @@ namespace moris
                 }
             }
 
-//            // add order to path
-//            std::string tFilePath =    aFilePath.substr(0,aFilePath.find_last_of(".")) // base path
-//                                                                                                              + "_" + std::to_string( tMesh->get_order() ) // rank of this processor
-//            +  aFilePath.substr( aFilePath.find_last_of("."), aFilePath.length() );
+            //            // add order to path
+            //            std::string tFilePath =    aFilePath.substr(0,aFilePath.find_last_of(".")) // base path
+            //                                                                                                              + "_" + std::to_string( tMesh->get_order() ) // rank of this processor
+            //            +  aFilePath.substr( aFilePath.find_last_of("."), aFilePath.length() );
 
             std::string tFilePath = "MPC.hdf5";
 
@@ -721,6 +721,109 @@ namespace moris
         }
 
 
-    }
-}
+        // ----------------------------------------------------------------------------
+
+        moris::Cell< moris::mtk::Set * > const &
+        Integration_Mesh::get_list_of_sets( SetType aSetType ) const
+        {
+            //Determine the set type
+            switch ( aSetType )
+            {
+                //Bulk sets
+                case SetType::BULK :
+                {
+                    return mListofBlocks;
+                }
+
+                //Side Sets
+                case SetType::SIDESET :
+                {
+                    return mListofSideSets;
+                }
+
+                //Double Sided Sets
+                case SetType::DOUBLE_SIDED_SIDESET :
+                {
+                    return mListofDoubleSideSets;
+                }
+
+                //All sets
+                case SetType::END_ENUM :
+                {
+                    return mListOfAllSets;
+                }
+
+                //Incorrect Input
+                default :
+                {
+                    MORIS_ERROR(0,"Incorrect aSetType");
+                    moris::Cell< moris::mtk::Set * > * tDummyCell = new moris::Cell< moris::mtk::Set * > (0);
+                    return *tDummyCell;
+                }
+            }
+        }
+
+        // ----------------------------------------------------------------------------
+
+        moris::Cell<moris::Cell<moris::mtk::Set *>> const &
+        Integration_Mesh::get_list_of_set_to_color( SetType aSetType ) const
+        {
+            //Determine the set type
+            switch ( aSetType )
+            {
+                //Bulk sets
+                case SetType::BULK :
+                {
+                    return mBlockSetToColor;
+                }
+
+                //Side Sets
+                case SetType::SIDESET :
+                {
+                    return mSideSetToColor;
+                }
+
+                //Double Sided Sets
+                case SetType::DOUBLE_SIDED_SIDESET :
+                {
+                    return mDoubleSideSetToColor;
+                }
+
+                //All sets
+                case SetType::END_ENUM :
+                {
+                    return mAllSetToColor;
+                }
+
+                //Incorrect Input
+                default :
+                {
+                    MORIS_ERROR(0,"Incorrect aSetType");
+                    moris::Cell<moris::Cell<moris::mtk::Set *>> *tDummyCell = new moris::Cell<moris::Cell<moris::mtk::Set *>> (0);
+                    return *tDummyCell;
+                }
+            }
+
+        }
+
+        // ----------------------------------------------------------------------------
+
+        map< std::string, moris_index > const &
+        Integration_Mesh::get_set_name_to_index_map() const
+        {
+            return mSetNameToIndexMap;
+        }
+
+        // ----------------------------------------------------------------------------
+
+        moris_index const &
+        Integration_Mesh::get_max_color() const
+        {
+            return mMaxColor;
+        }
+
+        // ----------------------------------------------------------------------------
+
+    } /*end namespace mtk*/
+}/*end namespace moris*/
 
