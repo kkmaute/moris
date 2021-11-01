@@ -660,41 +660,6 @@ Integration_Mesh_Generator::construct_subphase_neighborhood(
                     aSubphaseNeighborhood->mTransitionNeighborCellLocation( tMySubphaseIndex )->push_back( tTransitionCellLocation );
                 }
             }
-
-            // // // collect subphase related to neighbor cell on this facet
-            // // Cell< moris::moris_index > tNeighborSubphaseIndices( 0 );
-            // // this->collect_subphases_attached_to_facet_on_cell(
-            // //     aCutIntegrationMesh,
-            // //     tOtherCell,
-            // //     tNeighborOrdinal,
-            // //     tFacetIndex,
-            // //     aFacetConnectivity,
-            // //     ( *aBgFacetToChildFacet )( tFacetIndex ),
-            // //     tNeighborSubphaseIndices );
-
-            // // iterate over subphases and add to neighborhood
-            // for ( moris::uint i = 0; i < tMyCellSubphaseIndices.size(); i++ )
-            // {
-            //     // moris_index tMySubphaseIndex = tMyCellSubphaseIndices( i );
-            //     // moris_index tMyCellIndex     = tRepresentativeIgCells( i );
-            //     // moris_index tMyCellOrdinal   = tRepresentativeIgCellsOrdinal( i );
-
-            // moris_index tNeighborCell =
-            // moris_index tMyBulkIndex     = aCutIntegrationMesh->get_subphase_bulk_phase( tMySubphaseIndex );
-
-            // for ( moris::uint j = 0; j < tNeighborSubphaseIndices.size(); j++ )
-            // {
-            //     moris_index tNeighborSubphaseIndex = tNeighborSubphaseIndices( j );
-            //     moris_index tNeighborBulkIndex     = aCutIntegrationMesh->get_subphase_bulk_phase( tNeighborSubphaseIndex );
-
-            //     if ( tMyBulkIndex == tNeighborBulkIndex )
-            //     {
-            //         aSubphaseNeighborhood->mSubphaseToSubPhase( tMySubphaseIndex )->push_back( tNeighborSubphaseIndex );
-            //         aSubphaseNeighborhood->mSubphaseToSubPhaseMySideOrds( tMySubphaseIndex )->push_back( tMyOrdinal );
-            //         aSubphaseNeighborhood->mSubphaseToSubPhaseNeighborSideOrds( tMySubphaseIndex )->push_back( tNeighborOrdinal );
-            //         aSubphaseNeighborhood->mTransitionNeighborCellLocation( tMySubphaseIndex )->push_back( tTransitionCellLocation );
-            //     }
-            // }
         }
     }
 }
