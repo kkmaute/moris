@@ -277,6 +277,9 @@ The following modules introduce the XTK and its core functionalities.
     
 /** @addtogroup XTKOverview
     @ingroup XTKModule */
+
+/** @addtogroup XTKDictionary
+    @ingroup XTKModule */
     
 /** @addtogroup XTKDecomp
     @ingroup XTKModule */

@@ -1,0 +1,73 @@
+namespace moris {
+
+/** @defgroup XTKDictionary Dictionary
+
+This is an unordered collection of XTK-documentation
+
+# Definition of Words
+
+## Entities
+
+### (MTK-) Cell
+Element
+
+### Vertex
+A point used to describe the geometry of a cell. Equivalent of a finite element node.
+
+### Geometric Vertex
+Corner Vertices of geometric elements.
+
+### Edge
+Continuous line in space starting and terminating on a geometric vertex that may be populated with (non-geometric) vertices along the way.
+
+### Facet
+Side of a cell. A facet is always one spatial dimension lower than the cell it sits on. 
+In 2D it is equivalent to an edge, in 3D it is equaivalent to a 2D cell (face).
+
+
+
+## Phase Concepts
+See XTKConcepts.
+### Bulk Phase
+### Sub Phase
+
+
+
+# Entity Hierarchy
+
+XTK uses the concept of an "Entity Hierarchy" to 
+
+<table>
+<caption id="Entity_Hierarchy">Hierarchy of XTK-Entities</caption>
+<tr><th> Entity </th>      <th> Rank </th>               <th> Comment </th></tr>
+<tr><td> Vertex </td>      <td> \f$ 0 \f$ </td>          <td> - </td></tr>
+<tr><td> Edge </td>        <td> \f$ 1 \f$ </td>          <td> not used in 2D, since equaivalent to facet </td></tr>
+<tr><td> Facet </td>       <td> \f$ d_s-1 \f$ </td>      <td> - </td></tr>
+<tr><td> Cell </td>        <td> \f$ d_s \f$ </td>        <td> - </td></tr>
+</table>
+
+
+
+# Child Mesh
+
+ @image html Child_Meshes.png "Figure 6: Local numbering scheme of elements to be cut." width=500px
+
+## Conceptually
+Conceptually, a Child_Mesh is a mesh or collection of elements that are created from one individual background cell. 
+This is the non-cut background cell for a trivial non-cut element, or the triangulated mesh resulting from the decomposition of a cut element.
+The union of all child meshes forms the Cut_Integration_Mesh (conceptually, not code-wise).
+Further, the Child_Mesh holds the information which elements belong to which (material- or sub-?) phases.
+
+## Algorithmically
+
+
+
+
+# Ancestry
+
+Dummy Text.
+
+ 
+*/
+
+}

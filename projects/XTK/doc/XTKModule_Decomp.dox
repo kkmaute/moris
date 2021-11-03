@@ -45,6 +45,16 @@ namespace moris {
  @image html XTKModule_heir_method_subdivide.png "Figure 5: Prism element subdivision."
  
  The result of this subdivision is five children subelements for intersection type 1 or eight children subelements for intersection type 2. Ancestry for these children elements is traced back to the parent element in the interpolation mesh.
+ 
+ @subsection Steps
+ -# determine intersected edges on cells and add nodes where edges are intersected (see Figure 7)
+ -# based on the number of intersected edges and their local ids, decide on cutting template
+ -# use node hierarchy template to create new vertices, edges, facets, and cells
+ -# commit new mesh information to Child_Mesh ( ! this needs to be described in detail elsewhere, same for regular subdivision ! )
+ 
+ @image html XTKModule_Decomp_TET_TRI_Local_Numbering.png "Figure 6: Local numbering scheme of elements to be cut." width=500px
+ @image html XTKModule_Decomp_TET_TRI_Global_Numbering.png "Figure 7: Global numbering scheme of elements being cut." width=500px
+
  */
  
  
