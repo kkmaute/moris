@@ -614,8 +614,8 @@ Node_Hierarchy_Interface::select_node_hier_2d_template(
                 tPermutationId,
                 ( *aNodesForTemplates )( iCell ) );
 
-            // std::cout<<"tPermutationId = "<<tPermutationId<<std::endl;
-            // moris::print(*(*aNodesForTemplates)(iCell),"(*aNodesForTemplates)(iCell)");
+            std::cout<<"tPermutationId = "<<tPermutationId<<std::endl;
+            moris::print(*(*aNodesForTemplates)(iCell),"(*aNodesForTemplates)(iCell)");
 
             // if we haven't used this template yet, load it up
             if ( tLoadedTemplates.find( tPermutationId ) == tLoadedTemplates.end() )
@@ -724,17 +724,17 @@ Node_Hierarchy_Interface::sort_nodes_2d(
             tIndices.data().end(), 
             [&]( std::size_t i1, std::size_t i2 ) 
             { 
-                return ( *aCellIndexIntersectedEdgeVertex )( i1 )->get_id() < ( *aCellIndexIntersectedEdgeVertex )( i2 )->get_id(); 
+                return ( *aCellIndexIntersectedEdgeOrdinals )( i1 )< ( *aCellIndexIntersectedEdgeOrdinals )( i2 ); 
             } );
 
     Cell< moris::mtk::Vertex* > tVertices = aIgCell->get_vertex_pointers();
 
 // debug
-std::cout << "-------------------------------------------------------------------------\n" << std::flush; 
-std::cout << "aCellIndexIntersectedEdgeOrdinals->size() = " << aCellIndexIntersectedEdgeOrdinals->size() << " \n" << std::flush;
-std::cout << "tIndices.size() = " << tIndices.size() << " \n" << std::flush;
-std::cout << "tVertices.size() = " << tVertices.size() << " \n" << std::flush;
-print( tVertices, "tVertices" );
+// std::cout << "-------------------------------------------------------------------------\n" << std::flush; 
+// std::cout << "aCellIndexIntersectedEdgeOrdinals->size() = " << aCellIndexIntersectedEdgeOrdinals->size() << " \n" << std::flush;
+// std::cout << "tIndices.size() = " << tIndices.size() << " \n" << std::flush;
+// std::cout << "tVertices.size() = " << tVertices.size() << " \n" << std::flush;
+// print( tVertices, "tVertices" );
 print( tIndices, "tIndices" );
 
     // intersection goes through two edges
@@ -752,11 +752,11 @@ print( tIndices, "tIndices" );
         ( *aSortedNodeInds )( 3 ) = ( *aCellIndexIntersectedEdgeVertex )( tIndices( 0 ) );
         ( *aSortedNodeInds )( 4 ) = ( *aCellIndexIntersectedEdgeVertex )( tIndices( 1 ) );
 
-print( *aCellIndexIntersectedEdgeVertex, "*aCellIndexIntersectedEdgeVertex" );
-print( *aCellIndexIntersectedEdgeOrdinals, "*aCellIndexIntersectedEdgeOrdinals" );
-print( *aSortedNodeInds , "*aSortedNodeInds" );
-std::cout << "Permutation-ID: " <<  aPermutation << " \n" << std::flush;
-std::cout << "-------------------------------------------------------------------------\n" << std::flush;  
+// print( *aCellIndexIntersectedEdgeVertex, "*aCellIndexIntersectedEdgeVertex" );
+// print( *aCellIndexIntersectedEdgeOrdinals, "*aCellIndexIntersectedEdgeOrdinals" );
+// print( *aSortedNodeInds , "*aSortedNodeInds" );
+// std::cout << "Permutation-ID: " <<  aPermutation << " \n" << std::flush;
+// std::cout << "-------------------------------------------------------------------------\n" << std::flush;  
     }
 
     // intersection goes through one of the vertices
