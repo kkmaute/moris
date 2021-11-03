@@ -553,7 +553,6 @@ namespace mtk
         }
     }
 
-
     moris::Cell< moris_index >
     Cell_Info_Hex8::get_vertex_path_to_entity_rank_and_ordinal(
         moris_index aVertexOrdinal,
