@@ -71,34 +71,34 @@ namespace moris
 
                 // ----------------------------------------------------------------------------
                 /*!
-                * @brief Get mesh set by name
-                * @param[in] aSetLabel Set label
-                */
+                 * @brief Get mesh set by name
+                 * @param[in] aSetLabel Set label
+                 */
                 moris::mtk::Set * 
                 get_set_by_name( std::string aSetLabel ) const;
 
                 // ----------------------------------------------------------------------------
                 /*!
-                * @brief Get set name by set index
-                * @param[in] aIndex Set index
-                */
+                 * @brief Get set name by set index
+                 * @param[in] aIndex Set index
+                 */
                 moris::mtk::Set * 
                 get_set_by_index( moris_index aIndex ) const;
 
                 // ----------------------------------------------------------------------------
                 /*!
-                * @brief Get set index by set name
-                * @param[in] aSetLabel Set label
-                * @return Set index
-                */
+                 * @brief Get set index by set name
+                 * @param[in] aSetLabel Set label
+                 * @return Set index
+                 */
                 moris_index 
                 get_set_index_by_name( std::string aSetLabel );
-                
+
                 // ----------------------------------------------------------------------------
                 /*!
-                * @brief Get block sets with color
-                * @param[in] aColor Set color
-                */
+                 * @brief Get block sets with color
+                 * @param[in] aColor Set color
+                 */
                 moris::Cell<moris::mtk::Set*> const &
                 get_block_sets_with_color(moris_index const & aColor);
 
@@ -115,37 +115,37 @@ namespace moris
 
                 // ----------------------------------------------------------------------------
                 /*!
-                * @brief Get side sets with color
-                * @param[in] aColor Set color
-                */
+                 * @brief Get side sets with color
+                 * @param[in] aColor Set color
+                 */
                 moris::Cell<moris::mtk::Set*> const &
                 get_side_sets_with_color(moris_index const & aColor);
 
                 // ----------------------------------------------------------------------------
                 /*!
-                * @brief Get double side sets with color
-                * @param[in] aColor Set color
-                */
+                 * @brief Get double side sets with color
+                 * @param[in] aColor Set color
+                 */
                 moris::Cell<moris::mtk::Set*> const &
                 get_double_side_sets_with_color(moris_index const & aColor);
 
                 // ----------------------------------------------------------------------------
                 /*!
-                * @brief Get all sets with color
-                * @param[in] aColor Set color
-                */
+                 * @brief Get all sets with color
+                 * @param[in] aColor Set color
+                 */
                 moris::Cell<moris::mtk::Set*> const &
                 get_all_sets_with_color(moris_index const & aColor);
 
                 // ----------------------------------------------------------------------------
                 /*!
-                * @brief Print sets by colors
-                */
+                 * @brief Print sets by colors
+                 */
                 void
                 print_sets_by_colors();
-                 
+
                 // ----------------------------------------------------------------------------
-                  
+
                 /*
                  * Get block set names
                  */
@@ -351,6 +351,41 @@ namespace moris
                         moris::Cell< Matrix< DDRMat > > & aIGtoBSWeights,
                         Matrix< DDUMat > & aSparseIndices,
                         Matrix< DDRMat > & aWeights );
+
+                // ----------------------------------------------------------------------------
+                /*!
+                 * Returns the list of sets based on the a set type specified
+                 * by default it return all sets
+                 *@param[ in ] aSetType indicates if it is a bulk,sideset,dblsideset,or all
+                 */
+                moris::Cell< moris::mtk::Set * > const &
+                get_list_of_sets( SetType aSetType = SetType::END_ENUM ) const;
+
+
+                // ----------------------------------------------------------------------------
+                /*!
+                 * Returns the list of sets to colors based on the a set type specified
+                 * by default it return all set to color list
+                 *@param[ in ] aSetType indicates if it is a bulk,sideset,dblsideset or all
+                 */
+                moris::Cell<moris::Cell<moris::mtk::Set *>> const &
+                get_list_of_set_to_color( SetType aSetType = SetType::END_ENUM ) const;
+
+
+                // ----------------------------------------------------------------------------
+                /*!
+                 * Returns set name to index map
+                 */
+                map< std::string, moris_index > const &
+                get_set_name_to_index_map() const ; 
+
+
+                // ----------------------------------------------------------------------------
+                /*!
+                 * Returns max color
+                 */
+                moris_index const &
+                get_max_color() const; 
 
                 // ----------------------------------------------------------------------------
 

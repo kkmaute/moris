@@ -222,8 +222,6 @@ namespace moris
 
             // Get coefficients
             Matrix<DDRMat> tNodalValues = tField->get_values();
-            this->unlock_field();
-            this->set_values(tNodalValues);
 
             // Clean up
             delete tField;
@@ -248,6 +246,20 @@ namespace moris
 
             // Import nodal values
             mSharedNodalValues->import_local_to_global(*mOwnedNodalValues);
+
+            tNodalValues.fill( 0.0 );
+
+            for (uint tNodeIndex = 0; tNodeIndex < tMesh->get_num_nodes(); tNodeIndex++)
+            {
+                sint tNodeID = tMesh->get_glb_entity_id_from_entity_loc_index(
+                        tNodeIndex,
+                        EntityRank::NODE );
+
+                tNodalValues( tNodeIndex ) = (*mSharedNodalValues)(tNodeID);
+            }
+
+            this->unlock_field();
+            this->set_values(tNodalValues);
         }
 
         //--------------------------------------------------------------------------------------------------------------
