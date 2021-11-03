@@ -34,12 +34,16 @@ enum class Subdivision_Method
     // Because Nonconformal check happens first, Conformal check happens second, Tests happen last
     // NC - specifies a nonconformal request
     // C  - specifies a conformal request
+    // P  - Postprocessing algorithm
     // T  - specifies a Test method
-    NC_REGULAR_SUBDIVISION_HEX8,  // Nonconformal and a regular subdivision template will be used
-    NC_REGULAR_SUBDIVISION_QUAD4,
-    C_HIERARCHY_TET4,             // Conformal and a hierarchy template will be used
-    C_TRI3,             // Conformal tri 3 mesh  will be constructed
+    NC_REGULAR_SUBDIVISION_QUAD4, // Nonconformal and a regular subdivision template will be used
+    NC_REGULAR_SUBDIVISION_HEX8, 
+    C_HIERARCHY_TRI3,             // Conformal and a hierarchy template will be used
+    C_HIERARCHY_TET4,
+    C_TRI3,                       // Conformal tri 3 mesh  will be constructed
     NC_OCTREE,
+    P_ELEVATE_ORDER_TRI3_TRI6,    // Elevate order (adding nodes) of TRI3 to TRI6 elements
+    P_ELEVATE_ORDER_TET4_TET10,   // Elevate order (adding nodes) of TET4 to TET10 elements
     NO_METHOD
 };
 
@@ -48,12 +52,16 @@ const std::string get_enum_str(enum Subdivision_Method aSubdivisionEnum)
 {
     switch (aSubdivisionEnum)
     {
-       case Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8: return "NC_REGULAR_SUBDIVISION_HEX8";
-       case Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4: return "NC_REGULAR_SUBDIVISION_QUAD4";
-       case Subdivision_Method::C_HIERARCHY_TET4: return "C_HIERARCHY_TET4";
-       case Subdivision_Method::C_TRI3: return "C_TRI3";
-       case Subdivision_Method::NO_METHOD: return "NO_METHOD";
-       default: return "invalid subdivision method";
+        case Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4: return "NC_REGULAR_SUBDIVISION_QUAD4";
+        case Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8: return "NC_REGULAR_SUBDIVISION_HEX8";
+        case Subdivision_Method::C_HIERARCHY_TRI3: return "C_HIERARCHY_TRI3";
+        case Subdivision_Method::C_HIERARCHY_TET4: return "C_HIERARCHY_TET4";
+        case Subdivision_Method::NC_OCTREE: return "NC_OCTREE";
+        case Subdivision_Method::C_TRI3: return "C_TRI3";
+        case Subdivision_Method::P_ELEVATE_ORDER_TRI3_TRI6: return "P_ELEVATE_ORDER_TRI3_TRI6";
+        case Subdivision_Method::P_ELEVATE_ORDER_TET4_TET10: return "P_ELEVATE_ORDER_TET4_TET10";
+        case Subdivision_Method::NO_METHOD: return "NO_METHOD";
+        default: return "invalid subdivision method";
     }
 }
 
@@ -61,11 +69,11 @@ enum class Topology_Type
 {
     EDGE, // Edge with 2 Node
     TRI_3,
+    TRI_6,
     QUAD_4,
     TET_4,
     TET_10,
     HEXA_8, // hexahedron with 8 nodes topology
-
 };
 
 #endif /* SRC_XTK_CL_XTK_ENUMS_HPP_ */

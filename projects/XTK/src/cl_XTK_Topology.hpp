@@ -22,6 +22,7 @@ namespace xtk
 {
     EDGE, // Edge with 2 Node
     TRI_3,
+    TRI_6,
     QUAD_4,
     TET_4,
     TET_10,

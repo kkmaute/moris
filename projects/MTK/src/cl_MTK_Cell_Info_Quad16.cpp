@@ -175,7 +175,8 @@ namespace moris
         moris::Matrix<moris::IndexMat>
         Cell_Info_Quad16::get_node_to_edge_map() const
         {
-            return { { 0, 1,  4,  5 },
+            return { 
+                { 0, 1,  4,  5 },
                 { 1, 2,  6,  7 },
                 { 2, 3,  8,  9 },
                 { 3, 0, 10, 11 } };
@@ -248,10 +249,10 @@ namespace moris
         {
             switch (aSideOrdinal)
             {
-                case(0):{ return {{1,0}}; break; }
-                case(1):{ return {{2,1}}; break; }
-                case(2):{ return {{3,2}}; break; }
-                case(3):{ return {{0,3}}; break; }
+                case(0):{ return {{ 1, 0 }}; break; }
+                case(1):{ return {{ 2, 1 }}; break; }
+                case(2):{ return {{ 3, 2 }}; break; }
+                case(3):{ return {{ 0, 3 }}; break; }
                 default:
                 {
                     MORIS_ERROR(0,"Invalid side ordinal specified");
@@ -288,22 +289,22 @@ namespace moris
         {
             switch (aVertexOrdinal)
             {
-                case  0:{ return {{-1.000000000000000e+00,  -1.000000000000000e+00}}; break;}
-                case  1:{ return {{+1.000000000000000e+00,  -1.000000000000000e+00}}; break;}
-                case  2:{ return {{+1.000000000000000e+00,  +1.000000000000000e+00}}; break;}
-                case  3:{ return {{-1.000000000000000e+00,  +1.000000000000000e+00}}; break;}
-                case  4:{ return {{-3.333333333333334e-01,  -1.000000000000000e+00}}; break;}
-                case  5:{ return {{+3.333333333333333e-01,  -1.000000000000000e+00}}; break;}
-                case  6:{ return {{+1.000000000000000e+00,  -3.333333333333334e-01}}; break;}
-                case  7:{ return {{+1.000000000000000e+00,  +3.333333333333333e-01}}; break;}
-                case  8:{ return {{+3.333333333333333e-01,  +1.000000000000000e+00}}; break;}
-                case  9:{ return {{-3.333333333333334e-01,  +1.000000000000000e+00}}; break;}
-                case 10:{ return {{-1.000000000000000e+00,  +3.333333333333333e-01}}; break;}
-                case 11:{ return {{-1.000000000000000e+00,  -3.333333333333334e-01}}; break;}
-                case 12:{ return {{-3.333333333333334e-01,  -3.333333333333334e-01}}; break;}
-                case 13:{ return {{+3.333333333333333e-01,  -3.333333333333334e-01}}; break;}
-                case 14:{ return {{+3.333333333333333e-01,  +3.333333333333333e-01}}; break;}
-                case 15:{ return {{-3.333333333333334e-01,  +3.333333333333333e-01}}; break;}
+                case  0:{ return {{ -1.000000000000000e+00,  -1.000000000000000e+00 }}; break;}
+                case  1:{ return {{ +1.000000000000000e+00,  -1.000000000000000e+00 }}; break;}
+                case  2:{ return {{ +1.000000000000000e+00,  +1.000000000000000e+00 }}; break;}
+                case  3:{ return {{ -1.000000000000000e+00,  +1.000000000000000e+00 }}; break;}
+                case  4:{ return {{ -3.333333333333334e-01,  -1.000000000000000e+00 }}; break;}
+                case  5:{ return {{ +3.333333333333333e-01,  -1.000000000000000e+00 }}; break;}
+                case  6:{ return {{ +1.000000000000000e+00,  -3.333333333333334e-01 }}; break;}
+                case  7:{ return {{ +1.000000000000000e+00,  +3.333333333333333e-01 }}; break;}
+                case  8:{ return {{ +3.333333333333333e-01,  +1.000000000000000e+00 }}; break;}
+                case  9:{ return {{ -3.333333333333334e-01,  +1.000000000000000e+00 }}; break;}
+                case 10:{ return {{ -1.000000000000000e+00,  +3.333333333333333e-01 }}; break;}
+                case 11:{ return {{ -1.000000000000000e+00,  -3.333333333333334e-01 }}; break;}
+                case 12:{ return {{ -3.333333333333334e-01,  -3.333333333333334e-01 }}; break;}
+                case 13:{ return {{ +3.333333333333333e-01,  -3.333333333333334e-01 }}; break;}
+                case 14:{ return {{ +3.333333333333333e-01,  +3.333333333333333e-01 }}; break;}
+                case 15:{ return {{ -3.333333333333334e-01,  +3.333333333333333e-01 }}; break;}
                 default:
                 {
                     MORIS_ERROR(0,"Invalid vertex ordinal specified");
