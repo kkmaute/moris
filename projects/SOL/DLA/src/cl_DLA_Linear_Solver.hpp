@@ -29,6 +29,8 @@ namespace dla
 
         moris::ParameterList mParameterListLinearSolver;
 
+        std::string mLhsOutputFileName;
+
     protected:
 
     public:
@@ -79,6 +81,18 @@ namespace dla
         //--------------------------------------------------------------------------------------------------
 
         void set_linear_solver_manager_parameters();
+
+        //--------------------------------------------------------------------------------------------------
+
+        void set_LHS_output_filename( std::string aLhsOutputFileName )
+        {
+            mLhsOutputFileName = aLhsOutputFileName;
+        }
+
+        const std::string & get_LHS_output_filename()
+        {
+            return mLhsOutputFileName;
+        }
 
         //--------------------------------------------------------------------------------------------------
 

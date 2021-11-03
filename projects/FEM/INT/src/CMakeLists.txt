@@ -98,6 +98,7 @@ set(HEADERS
     SP/cl_FEM_SP_Time_Velocity_Ghost.hpp 
     SP/cl_FEM_SP_Convective_Ghost.hpp  
     SP/cl_FEM_SP_SUPG_Advection.hpp
+    SP/cl_FEM_SP_YZBeta_Advection.hpp
     SP/cl_FEM_SP_GGLS_Diffusion.hpp
     SP/cl_FEM_SP_Velocity_Dirichlet_Nitsche.hpp
     SP/cl_FEM_SP_Velocity_SlipBoundary_Nitsche.hpp
@@ -202,7 +203,6 @@ set(HEADERS
     IQI/cl_FEM_IQI_L2_Error_Analytic.hpp
     IQI/cl_FEM_IQI_H1_Error_Analytic.hpp
     IQI/cl_FEM_IQI_H1_Error.hpp
-    IQI/cl_FEM_IQI_Heat_Method_Penalty.hpp
     IQI/cl_FEM_IQI_J_Integral.hpp
     IQI/cl_FEM_IQI_Volume_Fraction.hpp
     IQI/cl_FEM_IQI_2D_Drag_Lift_Coefficient.hpp
@@ -215,6 +215,8 @@ set(HEADERS
     IQI/cl_FEM_IQI_Stabilization.hpp
     IQI/cl_FEM_IQI_Homogenized_Constitutive.hpp
     IQI/cl_FEM_IQI_Heat_Method_Penalty.hpp
+    IQI/cl_FEM_IQI_Advection_Strong_Residual.hpp
+    IQI/cl_FEM_IQI_Zienkiewicz_Zhu.hpp
      
     MEA/cl_FEM_Cluster_Measure.hpp
     )
@@ -281,8 +283,9 @@ set(LIB_SOURCES
     SP/cl_FEM_SP_Nitsche_Interface.cpp
     SP/cl_FEM_SP_Reciprocal_Total_Volume.cpp
     SP/cl_FEM_SP_Convective_Ghost.cpp
-    SP/cl_FEM_SP_Time_Velocity_Ghost.cpp   
+    SP/cl_FEM_SP_Time_Velocity_Ghost.cpp
     SP/cl_FEM_SP_SUPG_Advection.cpp
+    SP/cl_FEM_SP_YZBeta_Advection.cpp
     SP/cl_FEM_SP_GGLS_Diffusion.cpp
     SP/cl_FEM_SP_Velocity_Dirichlet_Nitsche.cpp
     SP/cl_FEM_SP_Velocity_SlipBoundary_Nitsche.cpp
@@ -393,7 +396,6 @@ set(LIB_SOURCES
     IQI/cl_FEM_IQI_L2_Error_Analytic.cpp
     IQI/cl_FEM_IQI_H1_Error_Analytic.cpp
     IQI/cl_FEM_IQI_H1_Error.cpp
-    IQI/cl_FEM_IQI_Heat_Method_Penalty.cpp
     IQI/cl_FEM_IQI_J_Integral.cpp
     IQI/cl_FEM_IQI_2D_Drag_Lift_Coefficient.cpp
     IQI/cl_FEM_IQI_Volume_Fraction.cpp
@@ -407,6 +409,8 @@ set(LIB_SOURCES
     IQI/cl_FEM_IQI_Stabilization.cpp
     IQI/cl_FEM_IQI_Homogenized_Constitutive.cpp
     IQI/cl_FEM_IQI_Heat_Method_Penalty.cpp
+    IQI/cl_FEM_IQI_Advection_Strong_Residual.cpp
+    IQI/cl_FEM_IQI_Zienkiewicz_Zhu.cpp
     
     MEA/cl_FEM_Cluster_Measure.cpp
     

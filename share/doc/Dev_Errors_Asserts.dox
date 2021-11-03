@@ -1,0 +1,29 @@
+namespace moris{
+
+// Level 4 module
+
+/** @defgroup ErrorsAsserts Errors and Asserts
+
+This section is used to debug certain MORIS Errors and Asserts.
+The following is a list of all Errors and Asserts addressed.
+
+- @ref Error_FEM_Model001
+
+- @ref Error_test001
+
+@subsection Error_FEM_Model001 FEM_Model::create_stabilization_parameters - Unkown phase name:
+Error: <code>FEM_Model::create_stabilization_parameters - Unkown phase name:</code>
+
+<b>Solution 1: Missing slave phase name for ghost.</b>
+If using the Phase Name Style (TODO:add ref) for input files,
+this error can occur if there is no slave phase name stipulated in the GHOST_DISPL stabilization parameter
+or the GHOST_NORMAL_FIELD IWG, as shown below.
+
+\anchor ErrorAssert001
+\image html  FEM_Model_Unkown_Phase_Name_sol01.png "Figure: Missing phase name for ghost" width=800px
+
+@subsection Error_test001 FEM_Model::example_function - Failed at this function:
+Error: <code>Text::text</code>.
+
+*/
+}

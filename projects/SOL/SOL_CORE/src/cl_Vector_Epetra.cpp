@@ -351,6 +351,13 @@ void Vector_Epetra::save_vector_to_matrix_market_file( const char* aFilename )
 
 //----------------------------------------------------------------------------------------------
 
+void Vector_Epetra::save_vector_to_matlab_file( const char* aFilename )
+{
+    EpetraExt::MultiVectorToMatlabFile( aFilename, *mEpetraVector );
+}
+
+//----------------------------------------------------------------------------------------------
+
 void Vector_Epetra::save_vector_to_HDF5( const char* aFilename )
 {
     EpetraExt::HDF5 HDF5( mMap->get_epetra_map()->Comm() );

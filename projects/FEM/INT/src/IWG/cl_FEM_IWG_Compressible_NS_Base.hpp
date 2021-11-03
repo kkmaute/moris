@@ -389,8 +389,16 @@ namespace moris
                  * get the multiplication matrix for condensed tensors
                  * @param[ out ] mMultipMat multiplication matrix for condensed tensors
                  */
-                const Matrix< DDRMat > & MultipMat();       
-
+                const Matrix< DDRMat > & MultipMat(); 
+                
+                //------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
+                /**
+                 * get elemental residual and jacobian filled with location indices
+                 * --- for debugging
+                 */
+                const Matrix< DDRMat > get_elemental_index_vector();
+                const Matrix< DDRMat > get_elemental_index_matrix();
         };
         //------------------------------------------------------------------------------
     } /* namespace fem */

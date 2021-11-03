@@ -548,6 +548,31 @@ namespace fem
 
     //------------------------------------------------------------------------------
 
+    void
+    Cluster::compute_quantity_of_interest(
+        Matrix< DDRMat > &          aValues,
+        enum mtk::Field_Entity_Type aFieldType,
+        uint                        aIQIIndex )
+    {
+        // FIXME
+        // cannot do it here cause vis mesh
+        // reset cluster measures
+        //this->reset_cluster_measure();
+
+        // loop over the IG elements
+        for ( uint iElem = 0; iElem < mElements.size(); iElem++ )
+        {
+            // check whether to compute QI
+            if ( mComputeResidualAndIQI( iElem ) )
+            {
+                // compute the quantity of interest for the IG element
+                mElements( iElem )->compute_quantity_of_interest( aValues, aFieldType, aIQIIndex );
+            }
+        }
+    }
+
+    //------------------------------------------------------------------------------
+
     std::shared_ptr< Cluster_Measure > &
     Cluster::get_cluster_measure(
         fem::Measure_Type aMeasureType,
@@ -1099,12 +1124,6 @@ namespace fem
         {
             tRelativeVolume = 1.0 / tClusterVolume * tRelativeVolume;
 
-            std::cout.precision( 17 );
-
-            if ( std::abs( 1.0 - sum( tRelativeVolume ) ) > 10. * MORIS_REAL_EPS )
-            {
-                std::cout << std::fixed << "tRelativeVolume = " << sum( tRelativeVolume ) << " | tClusterVolume = " << tClusterVolume << " | min vol = " << tRelativeVolume.min() << std::endl;
-            }
             // check that summation of volumes has been done correctly
             MORIS_ASSERT( std::abs( 1.0 - sum( tRelativeVolume ) ) < 10. * MORIS_REAL_EPS,
                 "Cluster::compute_relative_volume - relative volumes do not sum up to one: %15.9e.\n",

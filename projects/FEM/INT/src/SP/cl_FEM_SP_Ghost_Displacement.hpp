@@ -41,7 +41,7 @@ namespace moris
                                 mtk::Master_Slave::MASTER );
                                 
                 // order of weak form of governing questions
-                real mWeakFormOrder = 1.0;
+                real mWeakFormOrder;
                 
                 // property type for the SP
                 enum class SP_Property_Type
@@ -49,6 +49,15 @@ namespace moris
                     MATERIAL,
                     MAX_ENUM
                 };
+
+                // function to determine and set the weak form order the first time
+                real get_weak_form_order_init();
+
+                // function to get the weak form order after being initialized
+                real get_weak_form_order();
+
+                // init function pointer to get the weak form order. Pointer used to avoid a conditional call for every iteration
+                real ( SP_Ghost_Displacement:: * mGetWeakFormOrder )() = &SP_Ghost_Displacement::get_weak_form_order_init;
 
             public:
 

@@ -265,7 +265,8 @@ namespace moris
 
             // Check PDV type
             MORIS_ASSERT( tPDVIndex != -1,
-                    "Tried to call Pdv_Host.create_pdv() using pdv value with a PDV type that doesn't exist on this host.");
+                    "Interpolation_Pdv_Host::get_pdv_exists - PDV type %d that doesn't exist on this host.",
+                    static_cast<sint>(aPDVType));
 
             // if PDV exists return true
             if( mPDVs(tPDVIndex) )
@@ -300,6 +301,41 @@ namespace moris
             }
 
             return Matrix<DDSMat>(0, 0);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Interpolation_Pdv_Host::print_state()
+        {
+             const Matrix< DDSMat > & tPDVTypeMap = mPdvHostManager->get_pdv_type_map();
+
+             std::cout << "--------------------------------------------------------------\n";
+             std::cout << " Interpolation_Pdv_Host: \n";
+             std::cout << " Current processor rank: " << par_rank()           << std::endl;
+             std::cout << " mNodeId:                " << mNodeId              << std::endl;
+             std::cout << " mNodeIndex:             " << mNodeIndex           << std::endl;
+             std::cout << " mNodeOwner:             " << mNodeOwner           << std::endl;
+             std::cout << " Number of PDV types:    " << tPDVTypeMap.n_rows() << std::endl;
+             std::cout << " Number of PDVs:         " << mPDVs.size()         << std::endl;
+
+             print (mCoordinates,"mCoordinates");
+
+             for ( uint i = 0; i<tPDVTypeMap.n_rows(); ++i)
+             {
+                 sint tIndex = tPDVTypeMap(i);
+
+                 if ( tIndex >= 0 )
+                 {
+                     if ( mPDVs(tIndex) )
+                     {
+                         std::cout << "PDV of type " << i << " - PDV - ID :" <<  mPDVs(tIndex)->get_id() << std::endl;
+                     }
+                     else
+                     {
+                         std::cout << "PDV of type " << i << " does not exist\n";
+                     }
+                 }
+             }
         }
 
         //--------------------------------------------------------------------------------------------------------------

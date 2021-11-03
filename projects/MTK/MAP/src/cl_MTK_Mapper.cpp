@@ -86,6 +86,7 @@ namespace moris
                 mtk::Field * aFieldSource,
                 mtk::Field * aFieldTarget )
         {
+            Tracer tTracer("MTK", "Mapper", "Map input field to output field");
             // cast output field to discrete field
             mtk::Field_Discrete * tDiscreteFieldTarget = dynamic_cast<mtk::Field_Discrete*> (aFieldTarget);
 
@@ -208,6 +209,8 @@ namespace moris
 
         void Mapper::map_input_field_to_output_field_2( mtk::Field * aFieldSource )
         {
+            Tracer tTracer("MTK", "Mapper", "Map input field to output field");
+
             // cast aFieldSource field to discrete field
             mtk::Field_Discrete * tDiscreteFieldSource = dynamic_cast<mtk::Field_Discrete*> (aFieldSource);
 
@@ -311,6 +314,7 @@ namespace moris
                 mtk::Field * aFieldSource,
                 mtk::Field * aFieldTarget )
         {
+            Tracer tTracer("MTK", "Mapper", "Interpolate Field");
             mtk::Mesh_Pair tMeshPairIn  = aFieldSource->get_mesh_pair();
             mtk::Mesh_Pair tMeshPairOut = aFieldTarget->get_mesh_pair();
 
@@ -357,7 +361,7 @@ namespace moris
             eye( tNumberOfNodesPerElement, tNumberOfNodesPerElement, tEye );
 
             // get values of source field
-            const Matrix< DDRMat > & tSourceData = aFieldSource->get_nodal_values();
+            const Matrix< DDRMat > & tSourceData = aFieldSource->get_values();
 
             // get target data; note: the size of this vector is number of nodes times number of fields;
             // the number of nodes and number of basis differ as the number of basis includes the aura
@@ -434,7 +438,7 @@ namespace moris
 
             // copy target data onto target field
             aFieldTarget->unlock_field();
-            aFieldTarget->set_nodal_values( tTargetData );
+            aFieldTarget->set_values( tTargetData );
 
             delete( tTMatrix );
         }
@@ -445,6 +449,7 @@ namespace moris
                 mtk::Field * aFieldSource,
                 mtk::Field * aFieldTarget )
         {
+            Tracer tTracer("MTK", "Mapper", "Change field order");
             mtk::Mesh_Pair tMeshPairIn = aFieldSource->get_mesh_pair();
             mtk::Mesh_Pair tMeshPairOut = aFieldTarget->get_mesh_pair();
 
@@ -465,7 +470,7 @@ namespace moris
             tTargetLagrangeMesh->unflag_all_basis();
 
             // source values
-            const Matrix< DDRMat > & tSourceValues = aFieldSource->get_nodal_values();
+            const Matrix< DDRMat > & tSourceValues = aFieldSource->get_values();
 
             // target values
             Matrix< DDRMat > tTargetValues( tTargetLagrangeMesh->get_number_of_nodes_on_proc(), 1 );
@@ -524,7 +529,7 @@ namespace moris
             }
 
             aFieldTarget->unlock_field();
-            aFieldTarget->set_nodal_values( tTargetValues );
+            aFieldTarget->set_values( tTargetValues );
         }
 
         //------------------------------------------------------------------------------
@@ -571,7 +576,7 @@ namespace moris
                 mHaveIwgAndModel = true;
             }
             // set weak bcs from field
-            mModel->set_weak_bcs( tDiscreteField->get_nodal_values() );
+            mModel->set_weak_bcs( tDiscreteField->get_values() );
 
             this->map_node_to_bspline( tDiscreteField );
         }
@@ -652,9 +657,13 @@ namespace moris
             // FIXME: solver should be received from solver warehouse
             uint tNumberOfCoefficients = aField->get_number_of_coefficients();
 
-            if ( tNumberOfCoefficients*par_size() < 100000 )
+            if ( tNumberOfCoefficients*par_size() < 10000 && par_size() < 25 )
             {
                 tParameterlist( 0 )(0) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
+                if ( par_size() > 0 )
+                {
+                    tParameterlist( 0 )( 0 ).set( "Solver_Type" , "Amesos_Mumps" );
+                }
             }
             else
             {
@@ -665,7 +674,7 @@ namespace moris
 
             tParameterlist( 1 )(0) = moris::prm::create_linear_solver_parameter_list();
             tParameterlist( 2 )(0) = moris::prm::create_nonlinear_algorithm_parameter_list();
-            tParameterlist( 2 )(0).set( "NLA_max_iter", 2 );
+            tParameterlist( 2 )(0).set( "NLA_max_iter", 1 );
 
             tParameterlist( 3 )(0) = moris::prm::create_nonlinear_solver_parameter_list();
             tParameterlist( 3 )(0).set("NLA_DofTypes"      , "L2" );
@@ -812,7 +821,7 @@ namespace moris
                 //tFieldUnion.save_field_to_exodus( "Field_after1.exo");
 
                 tFieldHigerOrder.unlock_field();
-                tFieldHigerOrder.set_nodal_values( tFieldUnion.get_nodal_values() );
+                tFieldHigerOrder.set_values( tFieldUnion.get_values() );
 
                 this->change_field_order( &tFieldHigerOrder, tDiscreteField );
 
@@ -858,7 +867,7 @@ namespace moris
             }
 
             tDiscreteField->unlock_field();
-            tDiscreteField->set_nodal_values( tNodalValues );
+            tDiscreteField->set_values( tNodalValues );
         }
 
         // FIXME do not delete for future use

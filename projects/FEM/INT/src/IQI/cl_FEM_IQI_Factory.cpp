@@ -31,6 +31,8 @@
 #include "cl_FEM_IQI_Heat_Method_Penalty.hpp"
 #include "cl_FEM_IQI_Thermal_Energy_Convective_Flux.hpp"
 #include "cl_FEM_IQI_Thermal_Energy_Diffusive_Flux.hpp"
+#include "cl_FEM_IQI_Advection_Strong_Residual.hpp"
+#include "cl_FEM_IQI_Zienkiewicz_Zhu.hpp"
 
 namespace moris
 {
@@ -70,6 +72,8 @@ namespace moris
                     return std::make_shared< IQI_Stress >( Stress_Type::VON_MISES_STRESS );
                 case IQI_Type::PRINCIPAL_STRESS :
                     return std::make_shared< IQI_Stress >( Stress_Type::PRINCIPAL_STRESS );
+                case IQI_Type::STRESS_VECTOR :
+                    return std::make_shared< IQI_Stress >( Stress_Type::STRESS_VECTOR );
 
                 case IQI_Type::MAX_NORMAL_STRESS :
                     return std::make_shared< IQI_Max_Stress >( Stress_Type::NORMAL_STRESS );
@@ -121,6 +125,12 @@ namespace moris
 
                 case IQI_Type::HEAT_METHOD_PENALTY:
                     return std::make_shared< IQI_Heat_Method_Penalty >();
+
+                case IQI_Type::ADVECTION_STRONG_RESIDUAL:
+                    return std::make_shared< IQI_Advection_Strong_Residual >();
+
+                case IQI_Type::ZIENKIEWICZ_ZHU_VON_MISES_STRESS:
+                    return std::make_shared< IQI_Zienkiewicz_Zhu >( Stress_Type::VON_MISES_STRESS );
 
                 default:
                     MORIS_ERROR( false, " IQI_Factory::create_IQI - No IQI type specified. " );

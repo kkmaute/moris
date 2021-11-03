@@ -66,7 +66,7 @@ IG_Vertex_Group::add_vertex(
 
     if ( mIgVertexIndexToVertexOrdinal.find( aVertex->get_index() ) != mIgVertexIndexToVertexOrdinal.end() )
     {
-        std::cout << "New vertex index = " << aVertex->get_index() << std::endl;
+        std::cout << "New vertex index = " << aVertex->get_index() << " | mIgVertexIndexToVertexOrdinal.find( aVertex->get_index() ) = " << mIgVertexIndexToVertexOrdinal.find( aVertex->get_index() )->first << std::endl;
         this->print();
     }
 
@@ -121,7 +121,7 @@ IG_Vertex_Group::print()
     {
         std::cout << std::setw( 8 ) << iV << " : ";
         std::cout << "Vertex Id: " << std::setw( 8 ) << mIgVertexGroup( iV )->get_id();
-        std::cout << " | Vertex Index: " << std::setw( 8 ) << mIgVertexGroup( iV )->get_id();
+        std::cout << " | Vertex Index: " << std::setw( 8 ) << mIgVertexGroup( iV )->get_index();
 
         Matrix< DDRMat > tVertexCoords = mIgVertexGroup( iV )->get_coords();
 
@@ -166,6 +166,8 @@ Cut_Integration_Mesh::Cut_Integration_Mesh(
 
         // add the vertex to id to index map
         mIntegrationCellIdToIndexMap[mIntegrationCells( iCell )->get_id()] = (moris_index)iCell;
+
+        mParentCellCellGroupIndex( iCell ) = iCell;
     }
 
     // vertex setup

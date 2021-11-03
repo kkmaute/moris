@@ -47,6 +47,7 @@ namespace moris
                 enum class IWG_Stabilization_Type
                 {
                     SUPG,
+                    YZBETA,
                     MAX_ENUM
                 };
 

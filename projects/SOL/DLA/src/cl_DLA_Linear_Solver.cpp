@@ -8,6 +8,8 @@
 
 #include "cl_Communication_Tools.hpp"
 
+#include "HDF5_Tools.hpp"
+
 #include "cl_Logger.hpp"
 #include "cl_Tracer.hpp"
 
@@ -105,13 +107,47 @@ void Linear_Solver::solver_linear_system(
         dla::Linear_Problem  * aLinearProblem,
         const moris::sint      aIter )
 {
-    Tracer tTracer( "LinearSolver", "LinearSolver", "Solve" );
+    Tracer tTracer( "LinearSolver", LOGGER_NON_SPECIFIC_ENTITY_TYPE, "Solve" );
 
     moris::sint tErrorStatus = 0;
     moris::sint tMaxNumLinRestarts  = mParameterListLinearSolver.get< moris::sint >( "DLA_max_lin_solver_restarts" );
     moris::sint tTryRestartOnFailIt = 1;
 
-    tErrorStatus = mLinearSolverList( 0 )->solve_linear_system( aLinearProblem, aIter );
+    // if printing of LHS requested through input file, initialize hdf5 files here 
+    // and save LHS before and after solve
+    if ( !this->get_LHS_output_filename().empty() )
+    {
+        // get current solution vector
+        Matrix< DDRMat > tLHS;
+        aLinearProblem->get_free_solver_LHS()->extract_copy( tLHS );
+
+        // generate .hdf5 file
+        std::string tHdf5FilePath = this->get_LHS_output_filename() + ".hdf5";
+        MORIS_LOG_INFO( "Save LHS to file: ", tHdf5FilePath.c_str() );
+        hid_t tFileID = create_hdf5_file( tHdf5FilePath );
+        herr_t tStatus = 0;
+
+        // write initial guess to hdf5
+        save_matrix_to_hdf5_file( tFileID, "init_guess", tLHS, tStatus );
+
+        // solve system
+        tErrorStatus = mLinearSolverList( 0 )->solve_linear_system( aLinearProblem, aIter );
+
+        // get update after solve
+        aLinearProblem->get_free_solver_LHS()->extract_copy( tLHS );
+
+        // solve update to hdf5
+        save_matrix_to_hdf5_file( tFileID, "update", tLHS, tStatus );
+
+        // close hdf5
+        close_hdf5_file( tFileID );
+    }
+    // otherwise, don't save file and simply solve system
+    else
+    {
+        // solve system
+        tErrorStatus = mLinearSolverList( 0 )->solve_linear_system( aLinearProblem, aIter );
+    }
 
     // Restart the linear solver using the current solution as an initial guess if the previous linear solve failed
     while ( tErrorStatus !=0 && tTryRestartOnFailIt <= tMaxNumLinRestarts && ( moris::sint )mLinearSolverList.size() <= tMaxNumLinRestarts )

@@ -79,6 +79,8 @@ void SOL_Warehouse::initialize()
     mSaveFinalSolVecToFile =  mParameterlist( 6 )( 0 ).get< std::string >( "SOL_save_final_sol_vec_to_file" );
     mLoadSolVecFromFile    =  mParameterlist( 6 )( 0 ).get< std::string >( "SOL_load_sol_vec_from_file" );
 
+    mFilenameInitialGuess    =  mParameterlist( 6 )( 0 ).get< std::string >( "TSA_Initial_Sol_Vec" );
+
     mSaveFinalAdjointVecToFile =  mParameterlist( 6 )( 0 ).get< std::string >( "SOL_save_final_adjoint_vec_to_file" );
 
     if( mTPLType == moris::sol::MapType::Petsc)
@@ -132,6 +134,9 @@ void SOL_Warehouse::create_linear_solvers()
         moris::Matrix< DDSMat > tMat;
         string_to_mat( mParameterlist( 1 )( Ik ).get< std::string >( "DLA_Linear_solver_algorithms" ),
                 tMat );
+
+        // set output for LHS
+        mLinearSolvers( Ik )->set_LHS_output_filename( mParameterlist( 1 )( Ik ).get< std::string >( "DLA_LHS_output_filename" )  );
 
         for( uint Ii = 0; Ii< tMat.numel(); Ii++ )
         {
@@ -262,6 +267,9 @@ void SOL_Warehouse::create_time_solver_algorithms()
             mTimeSolverAlgorithms( Ik )->
                     set_nonlinear_solver_for_adjoint_solve( mNonlinearSolvers( mParameterlist( 4 )( Ik ).get< moris::sint >( "TSA_nonlinear_solver_for_adjoint_solve" ) ) );
         }
+
+        // set output file names
+        mTimeSolverAlgorithms( Ik )->set_output_filename( mParameterlist( 6 )( 0 ).get< std::string >( "TSA_Save_Sol_Vecs_to_file" ) );
     }
 }
 

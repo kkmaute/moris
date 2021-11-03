@@ -34,12 +34,16 @@ namespace moris
         {
             private:
 
+                //! Field type. Identifier for a field interpolator. Similar to dof type or dv type
                 Cell< enum mtk::Field_Type > mFieldType;
 
+                //! Name of IQI which is used to populate field
                 std::string          mIQIName;
 
+                //! output file name and path
                 std::string          mOutputFilePath;
 
+                // ! bool indicating if field shall be populated with the help of an IQI
                 bool                 mPopulateFieldWithIQI = false;
 
 
@@ -48,6 +52,7 @@ namespace moris
                 //------------------------------------------------------------------------------
 
                 Field( mtk::Mesh_Pair aMeshPair,
+                       enum mtk::Field_Entity_Type tFieldEntityType = mtk::Field_Entity_Type::NODAL,
                        uint           aDiscretizationMeshIndex = 0 );
 
                 //------------------------------------------------------------------------------
@@ -87,9 +92,9 @@ namespace moris
 
                 //-----------------------------------------------------------------------------
 
-                void get_nodal_values(
-                        Matrix< IndexMat > const   & aNodeIndex,
-                        Matrix< DDRMat >              & aNodalValues,
+                void get_values(
+                        Matrix< IndexMat > const   & aIndex,
+                        Matrix< DDRMat >              & aValues,
                         Cell< mtk::Field_Type > const & aFieldTypes);
 
                 //-----------------------------------------------------------------------------
@@ -99,7 +104,7 @@ namespace moris
                         const moris_index tIndex,
                         const moris::Matrix< DDRMat > & aValue )
                 {
-                    mNodalValues.set_row( tIndex, aValue );
+                    mValues.set_row( tIndex, aValue );
                 }
 
                 //-----------------------------------------------------------------------------

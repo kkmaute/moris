@@ -21,7 +21,6 @@
 
 #include "cl_Tracer.hpp"
 
-
 using namespace moris;
 using namespace NLA;
 using namespace dla;
@@ -173,38 +172,41 @@ void Nonlinear_Problem::delete_pointers()
 
 //-----------------------------------------------------------------------------
 
-void Nonlinear_Problem::build_linearized_problem( const bool & aRebuildJacobian,
+void Nonlinear_Problem::build_linearized_problem(
+        const bool & aRebuildJacobian,
         const bool & aCombinedResJacAssebly,
-        const sint aNonLinearIt )
+        const sint   aNonLinearIt )
 {
     Tracer tTracer( "NonLinearProblem", "Build" );
 
-    // Set VectorFreeSol and LHS
-    mLinearProblem->set_free_solver_LHS( mFullVector );
-
-    //    this->print_sol_vec( aNonLinearIt );
-
     if( aCombinedResJacAssebly )
     {
+        // build residual and jacobian
         mLinearProblem->assemble_residual_and_jacobian();
     }
     else
     {
+        // build jacobian only if requested
         if( aRebuildJacobian )
         {
             mLinearProblem->assemble_jacobian();
         }
 
+        // build residual
         mLinearProblem->assemble_residual();
     }
 
+    // in case of sensitivity analysis and staggered solver: assemble contribution contributions of
+    // of secondary dof types to residual
     if( !mSolverInterface->get_is_forward_analysis() )
     {
         moris::Cell< enum MSI::Dof_Type >tSecDofTypes = mMyNonLinSolver->get_sec_dof_type_union();
 
+        // in case of secondary dof types
         if( tSecDofTypes.size() != 0)
         {
             moris::Cell< enum MSI::Dof_Type > tDofTypeUnion = mMyNonLinSolver->get_dof_type_union();
+
             mSolverInterface->set_requested_dof_types( tSecDofTypes );
             mSolverInterface->set_secondary_dof_types( tDofTypeUnion );
 
@@ -226,9 +228,6 @@ void Nonlinear_Problem::build_linearized_problem(
     Tracer tTracer( "NonLinearProblem", "Build" );
 
     this->restart_from_sol_vec( aRestart );
-
-    // Set VectorFreeSol and LHS
-    mLinearProblem->set_free_solver_LHS( mFullVector );
 
     if( aRebuildJacobian )
     {
@@ -291,8 +290,10 @@ void Nonlinear_Problem::restart_from_sol_vec( const sint aRestart )
 }
 
 //--------------------------------------------------------------------------------------------------
-void Nonlinear_Problem::set_time_value( const moris::real & aLambda,
-        moris::uint   aPos )
+
+void Nonlinear_Problem::set_time_value(
+        const moris::real & aLambda,
+        moris::uint         aPos )
 {
     mSolverInterface->set_time_value( aLambda, aPos );
 }

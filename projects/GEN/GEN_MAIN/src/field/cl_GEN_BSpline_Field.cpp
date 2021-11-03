@@ -221,9 +221,7 @@ namespace moris
             tMapper.perform_mapping(tField, EntityRank::BSPLINE, EntityRank::NODE);
 
             // Get coefficients
-            Matrix<DDRMat> tNodalValues = tField->get_nodal_values();
-            this->unlock_field();
-            this->set_nodal_values(tNodalValues);
+            Matrix<DDRMat> tNodalValues = tField->get_values();
 
             // Clean up
             delete tField;
@@ -248,6 +246,20 @@ namespace moris
 
             // Import nodal values
             mSharedNodalValues->import_local_to_global(*mOwnedNodalValues);
+
+            tNodalValues.fill( 0.0 );
+
+            for (uint tNodeIndex = 0; tNodeIndex < tMesh->get_num_nodes(); tNodeIndex++)
+            {
+                sint tNodeID = tMesh->get_glb_entity_id_from_entity_loc_index(
+                        tNodeIndex,
+                        EntityRank::NODE );
+
+                tNodalValues( tNodeIndex ) = (*mSharedNodalValues)(tNodeID);
+            }
+
+            this->unlock_field();
+            this->set_values(tNodalValues);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -279,8 +291,10 @@ namespace moris
             }
 
             tOutputField->unlock_field();
-            tOutputField->set_nodal_values(tNodalValues);
-            tMapper.map_input_field_to_output_field_2(tOutputField);
+            tOutputField->set_values(tNodalValues);
+            //tMapper.map_input_field_to_output_field_2(tOutputField);
+            tMapper.perform_mapping(tOutputField, EntityRank::NODE, EntityRank::BSPLINE);
+
 
             // Get coefficients
             Matrix<DDRMat> tCoefficients = tOutputField->get_coefficients();

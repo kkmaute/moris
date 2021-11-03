@@ -1157,6 +1157,29 @@ namespace moris
             return mMesh->get_bspline_order( aDiscretizationMeshIndex );
         }
 
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Mesh::get_elements_in_interpolation_cluster(
+                moris_index aElementIndex,
+                moris_index aDiscretizationMeshIndex,
+                moris::Cell< mtk::Cell * > & tCells )
+        {
+            MORIS_ERROR(0,"get_elements_in_interpolation_cluster not implemented");
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Mesh::get_elements_in_interpolation_cluster_and_side_ordianl(
+                moris_index const            aElementIndex,
+                moris_index const            aDiscretizationMeshIndex,
+                moris_index const            aSideOrdinal,
+                moris::Cell< mtk::Cell * > & aCells)
+        {
+            MORIS_ERROR(0,"get_elements_in_interpolation_cluster_and_side_ordianl not implemented");
+        }
+
+
+
 #ifdef DEBUG
 
         Matrix< DDRMat > Mesh::get_basis_coords(

@@ -123,6 +123,16 @@ Node_Hierarchy_Interface::perform(
             &tIntersectedEdgeIndices,
             &tIntersectedEdgeLocCoords );
 
+        //update underlying ids and owners of interpolation nodes in GE
+        for ( uint Ik = 0; Ik < aDecompositionData->tNewNodeIndex.size(); Ik++ )
+        {
+            moris_index tNodeIndex = aDecompositionData->tNewNodeIndex( Ik );
+            moris_id    tNodeId    = aDecompositionData->tNewNodeId( Ik );
+            moris_index tNodeOwner = aDecompositionData->tNewNodeOwner( Ik );
+
+            mGeometryEngine->update_queued_intersection( tNodeIndex, tNodeId, tNodeOwner );
+        }
+
         // commit vertices to the mesh
         aMeshGenerator->commit_new_ig_vertices_to_cut_mesh( aMeshGenerationData, aDecompositionData, aCutIntegrationMesh, aBackgroundMesh, this );
 
@@ -261,9 +271,9 @@ Node_Hierarchy_Interface::associate_new_vertices_with_cell_groups(
 {
     // trace this function
     Tracer tTracer( "XTK", "Decomposition_Algorithm", "Vertex Associations" );
-    
-    // number of child meshes to be decomposed using node hierarchy alg.
-    moris_index tNumChildMeshes = mMeshGenerationData->mIntersectedBackgroundCellIndexToChildMeshIndex.size();
+
+    // number of child meshes
+    moris_index tNumChildMeshes = mCutIntegrationMesh->get_num_ig_cell_groups();
 
     // estimate required space for the data in decomposition data
     mDecompositionData->tCMNewNodeLoc        = Cell< Cell< moris_index > >( tNumChildMeshes );
@@ -389,13 +399,7 @@ Node_Hierarchy_Interface::select_ig_cell_groups(
     {
         moris_index tCurrentBgCellIndex = tIntersectedBackground( iBGCell );
 
-        auto tIter = mMeshGenerationData->mIntersectedBackgroundCellIndexToChildMeshIndex.find( tCurrentBgCellIndex );
-
-        MORIS_ERROR( tIter != mMeshGenerationData->mIntersectedBackgroundCellIndexToChildMeshIndex.end(), "Issue with background cell data and allocated child mesh data" );
-
-        moris_index tCMIndex = tIter->second;
-
-        aIgCellGroups( iBGCell ) = mCutIntegrationMesh->get_ig_cell_group( tCMIndex );
+        aIgCellGroups( iBGCell ) = mCutIntegrationMesh->get_ig_cell_group( tCurrentBgCellIndex );
     }
 }
 

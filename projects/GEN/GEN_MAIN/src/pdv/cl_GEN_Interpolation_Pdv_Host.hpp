@@ -185,6 +185,11 @@ namespace moris
                 {
                     return mCoordinates;
                 }
+
+                /**
+                 * Print current state of PDV host
+                 */
+                void print_state();
         };
     }
 }

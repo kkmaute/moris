@@ -14,14 +14,6 @@ namespace moris
     {
         //------------------------------------------------------------------------------
 
-        IQI_Max_Dof::IQI_Max_Dof()
-        {
-            // set FEM IQI type
-            mFEMIQIType = fem::IQI_Type::MAX_DOF;
-        }
-
-        //------------------------------------------------------------------------------
-
         void IQI_Max_Dof::initialize()
         {
             if ( ! mIsInitialized )
@@ -30,17 +22,31 @@ namespace moris
                 uint tParamSize = mParameters.size();
 
                 // check for proper size of constant function parameters
-                MORIS_ERROR( tParamSize == 2 || tParamSize == 3,
-                        "IQI_Max_Dof::initialize - either 2 or 3 constant parameters need to be set." );
+                MORIS_ERROR( tParamSize >= 2 && tParamSize <= 4,
+                        "IQI_Max_Dof::initialize - either 2, 3 or 4 constant parameters need to be set." );
+
+                if( tParamSize > 2 )
+                {
+                    mShift = mParameters( 2 )( 0 );
+                }
 
                 mRefValue = mParameters( 0 )( 0 );
                 mExponent = mParameters( 1 )( 0 );
 
+                // shift parameter
                 mShift = 1.0;
 
                 if( tParamSize > 2 )
                 {
                     mShift = mParameters( 2 )( 0 );
+                }
+
+                // sign parameter
+                mSign = 0;
+
+                if( tParamSize > 3 )
+                {
+                    mSign = (sint) mParameters( 3 )( 0 );
                 }
 
                 // check mQuantityDofType is defined
@@ -74,7 +80,30 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
 
             // evaluate the QI
-            aQI = {{ std::pow( ( tFIMaxDof->val()( mIQITypeIndex ) / mRefValue ) - mShift, mExponent ) }};
+            real tArgument = tFIMaxDof->val()( mIQITypeIndex ) / mRefValue - mShift;
+
+            switch ( mSign )
+            {
+                case 1:
+                    tArgument = tArgument > 0 ? tArgument : 0.0;
+                    break;
+                case -1:
+                    tArgument = tArgument < 0 ? tArgument : 0.0;
+                    break;
+            }
+
+            const std::shared_ptr< Property > & tPropWeight =
+                    mMasterProp( static_cast< uint >( IQI_Property_Type::WEIGHT ) );
+
+            // check if the weight property has been stipulated
+            if ( tPropWeight != nullptr )
+            {
+                aQI = {{ tPropWeight->val() * std::pow( tArgument, mExponent ) }};
+            }
+            else
+            {
+                aQI = {{ std::pow( tArgument, mExponent ) }};
+            }
 
             MORIS_ASSERT( isfinite( aQI ),
                     "IQI_Max_Dof::compute_QI - QI is nan, exiting!");
@@ -95,8 +124,32 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
 
             // evaluate the QI
-            mSet->get_QI()( tQIIndex ) += aWStar * (
-                    std::pow( ( tFIMaxDof->val()( mIQITypeIndex ) / mRefValue ) - mShift, mExponent ) );
+            real tArgument = tFIMaxDof->val()( mIQITypeIndex ) / mRefValue - mShift;
+
+            switch ( mSign )
+            {
+                case 1:
+                    tArgument = tArgument > 0 ? tArgument : 0.0;
+                    break;
+                case -1:
+                    tArgument = tArgument < 0 ? tArgument : 0.0;
+                    break;
+            }
+
+            const std::shared_ptr< Property > & tPropWeight =
+            mMasterProp( static_cast< uint >( IQI_Property_Type::WEIGHT ) );
+
+            // check if the weight property has been stipulated
+            if ( tPropWeight != nullptr )
+            {
+                mSet->get_QI()( tQIIndex ) += tPropWeight->val() * aWStar * (
+                    std::pow( tArgument, mExponent ) );
+            }
+            else
+            {
+                mSet->get_QI()( tQIIndex ) += aWStar * (
+                    std::pow( tArgument, mExponent ) );
+            }
 
             MORIS_ASSERT( isfinite( mSet->get_QI()( tQIIndex ) ),
                     "IQI_Max_Dof::compute_QI - QI is nan, exiting!");
@@ -138,11 +191,45 @@ namespace moris
                     tSelect( mIQITypeIndex, 0 ) = 1.0;
 
                     // compute dQIdDof
-                    real tdQI = std::pow( ( tFIMaxDof->val()( mIQITypeIndex ) / mRefValue ) - mShift, mExponent - 1.0 );
+                    real tArgument = tFIMaxDof->val()( mIQITypeIndex ) / mRefValue  - mShift;
 
-                    mSet->get_residual()( tQIIndex )(
-                            { tMasterDepStartIndex, tMasterDepStopIndex },
-                            { 0, 0 } ) += aWStar * ( mExponent * tdQI * tFIMaxDof->N_trans() * tSelect / mRefValue );
+                    switch ( mSign )
+                    {
+                        case 1:
+                            tArgument = tArgument > 0 ? tArgument : 0.0;
+                            break;
+                        case -1:
+                            tArgument = tArgument < 0 ? tArgument : 0.0;
+                            break;
+                    }
+
+                    real tdQI = std::pow( tArgument, mExponent - 1.0 );
+
+                    const std::shared_ptr< Property > & tPropWeight =
+                    mMasterProp( static_cast< uint >( IQI_Property_Type::WEIGHT ) );
+
+                    // check if the weight property has been stipulated
+                    if ( tPropWeight != nullptr )
+                    {
+                        mSet->get_residual()( tQIIndex )(
+                            { tMasterDepStartIndex, tMasterDepStopIndex },{ 0, 0 } ) += 
+                            tPropWeight->val()(0) * aWStar * ( mExponent * tdQI * tFIMaxDof->N_trans() * tSelect / mRefValue );
+
+                        // check dof dependency on the property
+                        if ( tPropWeight->check_dof_dependency( tDofType ) )
+                        {
+                            mSet->get_residual()( tQIIndex )(
+                                { tMasterDepStartIndex, tMasterDepStopIndex },{ 0, 0 } ) += 
+                                tPropWeight->dPropdDOF( tDofType ) * aWStar * (std::pow( tArgument, mExponent ) );
+                        }
+
+                    }
+                    else
+                    {
+                        mSet->get_residual()( tQIIndex )(
+                            { tMasterDepStartIndex, tMasterDepStopIndex }, { 0, 0 } ) += 
+                            aWStar * ( mExponent * tdQI * tFIMaxDof->N_trans() * tSelect / mRefValue );
+                    }
                 }
             }
         }
@@ -168,8 +255,38 @@ namespace moris
                 tSelect( mIQITypeIndex, 0 ) = 1.0;
 
                 // compute dQIdDof
-                real tdQI = std::pow( ( tFIMaxDof->val()( mIQITypeIndex ) / mRefValue ) - mShift, mExponent - 1.0 );
-                adQIdu = mExponent * tdQI * trans( tFIMaxDof->N() ) * tSelect / mRefValue;
+                real tArgument = tFIMaxDof->val()( mIQITypeIndex ) / mRefValue  - mShift;
+
+                switch ( mSign )
+                {
+                    case 1:
+                        tArgument = tArgument > 0 ? tArgument : 0.0;
+                        break;
+                    case -1:
+                        tArgument = tArgument < 0 ? tArgument : 0.0;
+                        break;
+                }
+
+                real tdQI = std::pow( tArgument, mExponent - 1.0 );
+
+                const std::shared_ptr< Property > & tPropWeight =
+                    mMasterProp( static_cast< uint >( IQI_Property_Type::WEIGHT ) );
+
+                // check if the weight property has been stipulated
+                if ( tPropWeight != nullptr )
+                {
+                    adQIdu = tPropWeight->val()(0) * mExponent * tdQI * trans( tFIMaxDof->N() ) * tSelect / mRefValue;
+
+                    // check dof dependency on the property
+                    if (tPropWeight->check_dof_dependency( aDofType ))
+                    {
+                        adQIdu +=  tPropWeight->dPropdDOF(aDofType) * (std::pow(tArgument, mExponent));
+                    }
+                }
+                else
+                {
+                    adQIdu = mExponent * tdQI * trans( tFIMaxDof->N() ) * tSelect / mRefValue;
+                }
             }
         }
 

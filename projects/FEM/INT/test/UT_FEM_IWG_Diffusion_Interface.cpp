@@ -28,7 +28,7 @@
 using namespace moris;
 using namespace fem;
 
-TEST_CASE( "IWG_Diff_Interface", "[moris],[fem],[IWG_Diff_Interface]" )
+void UT_IWG_Diff_Interface_Core ( enum fem::IWG_Type tIWGType )
 {
     // define an epsilon environment
     real tEpsilon = 1E-6;
@@ -111,7 +111,7 @@ TEST_CASE( "IWG_Diff_Interface", "[moris],[fem],[IWG_Diff_Interface]" )
     fem::IWG_Factory tIWGFactory;
 
     std::shared_ptr< fem::IWG > tIWG =
-            tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE );
+            tIWGFactory.create_IWG( tIWGType );
     tIWG->set_residual_dof_type( tTempDofTypes );
     tIWG->set_dof_type_list( tTempDofTypes, mtk::Master_Slave::MASTER );
     tIWG->set_dof_type_list( tTempDofTypes, mtk::Master_Slave::SLAVE );
@@ -362,6 +362,13 @@ TEST_CASE( "IWG_Diff_Interface", "[moris],[fem],[IWG_Diff_Interface]" )
                         tJacobianFD,
                         true );
 
+                // check that jacobian is symmetric for symmetric version
+                if ( tIWGType == fem::IWG_Type::SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE )
+                {
+                    real tRelError = norm( tJacobian - trans( tJacobian ) ) / norm ( tJacobian );
+                    REQUIRE( tRelError < 1e-12 );
+                }
+
                 // print for debug
                 if( !tCheckJacobian )
                 {
@@ -377,4 +384,15 @@ TEST_CASE( "IWG_Diff_Interface", "[moris],[fem],[IWG_Diff_Interface]" )
             tSlaveFIs.clear();
         }
     }
-}/* END_TEST_CASE */
+}
+
+TEST_CASE( "IWG_Diff_Interface_Symmetric", "[moris],[fem],[IWG_Diff_Interface_Symmetric]" )
+{
+    UT_IWG_Diff_Interface_Core(  fem::IWG_Type::SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE );
+
+}
+
+TEST_CASE( "IWG_Diff_Interface_Unsymmetric", "[moris],[fem],[IWG_Diff_Interface_Unsymmetric]" )
+{
+    UT_IWG_Diff_Interface_Core( fem::IWG_Type::SPATIALDIFF_INTERFACE_UNSYMMETRIC_NITSCHE );
+}

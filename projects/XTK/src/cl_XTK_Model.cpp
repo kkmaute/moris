@@ -38,7 +38,6 @@
 #include "cl_Tracer.hpp"
 #include "fn_stringify_matrix.hpp"
 
-
 #include "cl_MTK_Intersection_Mesh.hpp"
 
 using namespace moris;
@@ -89,8 +88,8 @@ Model::~Model()
      */
 Model::Model(
     uint                            aModelDimension,
-    moris::mtk::Interpolation_Mesh* aMeshData,
-    moris::ge::Geometry_Engine*     aGeometryEngine,
+    moris::mtk::Interpolation_Mesh *aMeshData,
+    moris::ge::Geometry_Engine *    aGeometryEngine,
     bool                            aLinkGeometryOnConstruction ) :
     mModelDimension( aModelDimension ),
     mBackgroundMesh( aMeshData, aGeometryEngine ), mCutMesh( this, mModelDimension ), mGeometryEngine( aGeometryEngine ), mEnrichment( nullptr ), mGhostStabilization( nullptr ), mEnrichedInterpMesh( 0, nullptr ), mEnrichedIntegMesh( 0, nullptr ), mConvertedToTet10s( false )
@@ -105,7 +104,7 @@ Model::Model(
 
 // ----------------------------------------------------------------------------------
 
-Model::Model( moris::ParameterList const& aParameterList ) :
+Model::Model( moris::ParameterList const &aParameterList ) :
     mParameterList( aParameterList ), mModelDimension( UINT_MAX ), mEnrichment( nullptr ), mGhostStabilization( nullptr ), mEnrichedInterpMesh( 0, nullptr ), mEnrichedIntegMesh( 0, nullptr ), mConvertedToTet10s( false )
 {
     // flag this as a paramter list based run
@@ -120,7 +119,7 @@ Model::Model( moris::ParameterList const& aParameterList ) :
 // ----------------------------------------------------------------------------------
 
 void
-Model::set_geometry_engine( moris::ge::Geometry_Engine* aGeometryEngine )
+Model::set_geometry_engine( moris::ge::Geometry_Engine *aGeometryEngine )
 {
     mGeometryEngine = aGeometryEngine;
 }
@@ -128,7 +127,7 @@ Model::set_geometry_engine( moris::ge::Geometry_Engine* aGeometryEngine )
 // ----------------------------------------------------------------------------------
 
 void
-Model::set_mtk_background_mesh( moris::mtk::Interpolation_Mesh* aMesh )
+Model::set_mtk_background_mesh( moris::mtk::Interpolation_Mesh *aMesh )
 {
     this->initialize( aMesh );
 
@@ -161,14 +160,14 @@ Model::set_output_performer( std::shared_ptr< mtk::Mesh_Manager > aMTKPerformer 
 // ----------------------------------------------------------------------------------
 
 void
-Model::initialize( moris::mtk::Interpolation_Mesh* aMesh )
+Model::initialize( moris::mtk::Interpolation_Mesh *aMesh )
 {
     mModelDimension     = aMesh->get_spatial_dim();
     mCutMesh            = Cut_Mesh( this, mModelDimension );
     mEnrichment         = nullptr;
     mGhostStabilization = nullptr;
-    mEnrichedInterpMesh = Cell< Enriched_Interpolation_Mesh* >( 0, nullptr );
-    mEnrichedIntegMesh  = Cell< Enriched_Integration_Mesh* >( 0, nullptr );
+    mEnrichedInterpMesh = Cell< Enriched_Interpolation_Mesh * >( 0, nullptr );
+    mEnrichedIntegMesh  = Cell< Enriched_Integration_Mesh * >( 0, nullptr );
     mConvertedToTet10s  = false;
     mBackgroundMesh     = Background_Mesh( aMesh, mGeometryEngine );
     mBackgroundMesh.initialize_interface_node_flags(
@@ -190,7 +189,7 @@ Model::perform()
         MORIS_ERROR( mMTKInputPerformer != nullptr, "xtk::Model::perform(), mMTKInputPerformer not set!" );
 
         //FIXME hardcodes to mesh pair index 0
-        moris::mtk::Interpolation_Mesh* tMesh = mMTKInputPerformer->get_interpolation_mesh( 0 );
+        moris::mtk::Interpolation_Mesh *tMesh = mMTKInputPerformer->get_interpolation_mesh( 0 );
 
         this->initialize( tMesh );
     }
@@ -233,7 +232,6 @@ Model::perform()
         Mesh_Cleanup tMeshCleanup( this, &mParameterList );
         tMeshCleanup.perform();
     }
-
 
     if ( mParameterList.get< bool >( "enrich" ) )
     {
@@ -350,7 +348,6 @@ Model::perform()
         this->get_enriched_integ_mesh( 0 ).deactive_all_side_sets_but_selected( tSideSetsToKeepStr( 0 ) );
     }
 
-
     if ( mParameterList.get< bool >( "multigrid" ) )
     {
         this->construct_multigrid();
@@ -358,9 +355,9 @@ Model::perform()
 
     if ( mEnriched )
     {
+        xtk::Enriched_Interpolation_Mesh &tEnrInterpMesh = this->get_enriched_interp_mesh();
+        xtk::Enriched_Integration_Mesh &  tEnrIntegMesh  = this->get_enriched_integ_mesh();
         // get meshes
-        xtk::Enriched_Interpolation_Mesh& tEnrInterpMesh = this->get_enriched_interp_mesh();
-        xtk::Enriched_Integration_Mesh&   tEnrIntegMesh  = this->get_enriched_integ_mesh();
 
         std::string tXTKMeshName = "XTKMesh";
 
@@ -370,33 +367,38 @@ Model::perform()
         //Periodic Boundary condition environment
         if ( mParameterList.get< std::string >( "periodic_side_set_pair" ) != "" )
         {
-            if ( tEnrInterpMesh.get_spatial_dim() == 2 )
-            {
-                mIntersectionDetect2D = new mtk::Intersection_Detect_2D( mMTKOutputPerformer, 0, mParameterList, mGeometryEngine->get_num_bulk_phase() );
+            //initialize the time tracer
+            Tracer tTracer( "MTK", "Double Sided Set", " Periodic Boundary Condition " );
 
-                mIntersectionDetect2D->perform();
-
-                mIntersectionDetect = nullptr;
-            }
-            else
+            //Construct intersection and perform
+            mIntersectionDetect2D = new mtk::Intersection_Detect_2D( mMTKOutputPerformer, 0, mParameterList, mGeometryEngine->get_num_bulk_phase() );
+            mIntersectionDetect2D->perform();
+        }
+        else
+        {
             {
+                //initialize the time tracer
+                Tracer tTracer( "MTK", "Double Sided Set", " Periodic Boundary Condition " );
+
+
                 mIntersectionDetect = new mtk::Intersection_Detect( mMTKOutputPerformer, 0, mParameterList, mGeometryEngine->get_num_bulk_phase() );
-
                 mIntersectionDetect->perform();
-                mtk::Intersection_Mesh* tIscMesh = new mtk::Intersection_Mesh( &tEnrIntegMesh, mIntersectionDetect );
+            }
 
-                mIntersectionDetect2D = nullptr;
+            {
 
+                Tracer tTracer( "MTK", "Output Clusters", "Writing Mesh" );
+
+                //Construct the intersection mesh
+                mtk::Intersection_Mesh *tIscMesh = new mtk::Intersection_Mesh( &tEnrIntegMesh, mIntersectionDetect );
+
+                //Write the mesh
                 moris::mtk::Writer_Exodus tWriter2( tIscMesh );
                 tWriter2.write_mesh( "", "VIS_ISC.exo", "", "temp.exo" );
                 tWriter2.close_file();
             }
-            //constrcut the object for periodic boundary condition
-            //                mtk::Periodic_Boundary_Condition_Helper tPBCHelper(mMTKOutputPerformer,0, mParameterList);
-            //
-            //                //perform periodic boundary condition
-            //                tPBCHelper.setup_periodic_boundary_conditions();
         }
+
 
         // if( mParameterList.get<bool>("contact_sandbox") )
         // {
@@ -447,7 +449,6 @@ Model::perform()
         //         }
         //     }
 
-
         //     tSandbox.perform_global_contact_search(tCurrentDispl,tPredictedDispl);
         // }
 
@@ -461,14 +462,12 @@ Model::perform()
             Tracer tTracer( "XTK", "Overall", "Visualize" );
             tEnrIntegMesh.write_mesh( &mParameterList );
         }
-
         // print the memory usage of XTK
         if ( mParameterList.get< bool >( "print_memory" ) )
         {
             moris::Memory_Map tXTKMM = this->get_memory_usage();
             tXTKMM.par_print( "XTK Model" );
         }
-
         // print
         MORIS_LOG_SPEC( "All_IG_verts", sum_all( tEnrIntegMesh.get_num_entities( EntityRank::NODE ) ) );
         MORIS_LOG_SPEC( "All_IG_cells", sum_all( tEnrIntegMesh.get_num_entities( EntityRank::ELEMENT ) ) );
@@ -479,9 +478,9 @@ Model::perform()
         MORIS_LOG_SPEC( "My_IP_verts", tEnrInterpMesh.get_num_entities( EntityRank::NODE ) );
         MORIS_LOG_SPEC( "My_IP_cells", tEnrInterpMesh.get_num_entities( EntityRank::ELEMENT ) );
     }
-
     return true;
 }
+
 
 // ----------------------------------------------------------------------------------
 
@@ -526,7 +525,6 @@ Model::get_subdivision_methods()
 {
     MORIS_ASSERT( this->has_parameter_list(), "Perform can only be called on a parameter list based XTK" );
 
-
     moris::Cell< enum Subdivision_Method > tSubdivisionMethods;
 
     moris::uint       tSpatialDimension = this->get_spatial_dim();
@@ -543,7 +541,6 @@ Model::get_subdivision_methods()
     {
         tSubdivisionMethods.push_back( Subdivision_Method::NC_OCTREE );
     }
-
 
     // determine if we are going conformal or not
     bool tConformal = true;
@@ -636,11 +633,10 @@ Model::decompose( Cell< enum Subdivision_Method > aMethods )
     return true;
 }
 
-
 // ----------------------------------------------------------------------------------
 
 void
-Model::create_new_node_association_with_geometry( Decomposition_Data& tDecompData )
+Model::create_new_node_association_with_geometry( Decomposition_Data &tDecompData )
 {
     // create geometry objects for each node
     mGeometryEngine->create_new_child_nodes(
@@ -653,7 +649,7 @@ Model::create_new_node_association_with_geometry( Decomposition_Data& tDecompDat
 // ----------------------------------------------------------------------------------
 
 bool
-Model::verify_successful_node_assignment( Decomposition_Data& aDecompData )
+Model::verify_successful_node_assignment( Decomposition_Data &aDecompData )
 {
     uint tNumUnsuccessful = 0;
     for ( moris::uint i = 0; i < aDecompData.tNewNodeId.size(); i++ )
@@ -677,9 +673,9 @@ Model::verify_successful_node_assignment( Decomposition_Data& aDecompData )
 
 void
 Model::send_outward_requests(
-    moris_index const&          aMPITag,
-    Cell< uint > const&         aProcRanks,
-    Cell< Matrix< IndexMat > >& aOutwardRequests )
+    moris_index const &         aMPITag,
+    Cell< uint > const &        aProcRanks,
+    Cell< Matrix< IndexMat > > &aOutwardRequests )
 {
     // Cell of requests
     Cell< MPI_Request > tRequests( aProcRanks.size() );
@@ -700,10 +696,10 @@ Model::send_outward_requests(
 
 void
 Model::inward_receive_requests(
-    moris_index const&          aMPITag,
+    moris_index const &         aMPITag,
     moris::uint                 aNumRows,
-    Cell< Matrix< IndexMat > >& aReceivedData,
-    Cell< uint >&               aProcRanksReceivedFrom )
+    Cell< Matrix< IndexMat > > &aReceivedData,
+    Cell< uint > &              aProcRanksReceivedFrom )
 {
     // ensure the sizes are correct.
     aReceivedData.resize( 0 );
@@ -725,10 +721,10 @@ Model::inward_receive_requests(
 
 void
 Model::inward_receive_request_answers(
-    moris_index const&          aMPITag,
-    moris::uint const&          aNumRows,
-    Cell< uint > const&         aProcRanks,
-    Cell< Matrix< IndexMat > >& aReceivedRequestAnswers )
+    moris_index const &         aMPITag,
+    moris::uint const &         aNumRows,
+    Cell< uint > const &        aProcRanks,
+    Cell< Matrix< IndexMat > > &aReceivedRequestAnswers )
 {
     MPI_Status tStatus;
 
@@ -749,10 +745,10 @@ Model::inward_receive_request_answers(
 
 void
 Model::handle_received_request_answers(
-    Decomposition_Data&               aDecompData,
-    Cell< Matrix< IndexMat > > const& aRequests,
-    Cell< Matrix< IndexMat > > const& aRequestAnswers,
-    moris::moris_id&                  aNodeId )
+    Decomposition_Data &              aDecompData,
+    Cell< Matrix< IndexMat > > const &aRequests,
+    Cell< Matrix< IndexMat > > const &aRequestAnswers,
+    moris::moris_id &                 aNodeId )
 {
     Cell< moris_index > tUnhandledRequestIndices;
 
@@ -840,9 +836,9 @@ Model::handle_received_request_answers(
 
 void
 Model::send_outward_requests_reals(
-    moris_index const&        aMPITag,
-    Cell< uint > const&       aProcRanks,
-    Cell< Matrix< DDRMat > >& aOutwardRequests )
+    moris_index const &       aMPITag,
+    Cell< uint > const &      aProcRanks,
+    Cell< Matrix< DDRMat > > &aOutwardRequests )
 {
     // iterate through owned requests and send
     for ( moris::uint i = 0; i < aProcRanks.size(); i++ )
@@ -860,10 +856,10 @@ Model::send_outward_requests_reals(
 
 void
 Model::inward_receive_requests_reals(
-    moris_index const&        aMPITag,
+    moris_index const &       aMPITag,
     moris::uint               aNumRows,
-    Cell< Matrix< DDRMat > >& aReceivedData,
-    Cell< uint >&             aProcRanksReceivedFrom )
+    Cell< Matrix< DDRMat > > &aReceivedData,
+    Cell< uint > &            aProcRanksReceivedFrom )
 {
     moris::moris_index tParRank = par_rank();
     moris::uint        tCount   = 0;
@@ -891,9 +887,9 @@ Model::inward_receive_requests_reals(
 
 void
 Model::return_request_answers_reals(
-    moris_index const&              aMPITag,
-    Cell< Matrix< DDRMat > > const& aRequestAnswers,
-    Cell< uint > const&             aProcRanks )
+    moris_index const &             aMPITag,
+    Cell< Matrix< DDRMat > > const &aRequestAnswers,
+    Cell< uint > const &            aProcRanks )
 {
     // iterate through owned requests and send
     for ( moris::uint i = 0; i < aProcRanks.size(); i++ )
@@ -906,10 +902,10 @@ Model::return_request_answers_reals(
 
 void
 Model::inward_receive_request_answers_reals(
-    moris_index const&        aMPITag,
-    moris::uint const&        aNumRows,
-    Cell< uint > const&       aProcRanks,
-    Cell< Matrix< DDRMat > >& aReceivedData )
+    moris_index const &       aMPITag,
+    moris::uint const &       aNumRows,
+    Cell< uint > const &      aProcRanks,
+    Cell< Matrix< DDRMat > > &aReceivedData )
 {
     for ( moris::uint i = 0; i < aProcRanks.size(); i++ )
     {
@@ -923,9 +919,9 @@ Model::inward_receive_request_answers_reals(
 
 void
 Model::prepare_request_answers(
-    Decomposition_Data&               aDecompData,
-    Cell< Matrix< IndexMat > > const& aReceiveData,
-    Cell< Matrix< IndexMat > >&       aRequestAnswers )
+    Decomposition_Data &              aDecompData,
+    Cell< Matrix< IndexMat > > const &aReceiveData,
+    Cell< Matrix< IndexMat > > &      aRequestAnswers )
 {
     // allocate answer size
     aRequestAnswers.resize( aReceiveData.size() );
@@ -990,12 +986,11 @@ Model::prepare_request_answers(
 }
 
 // ----------------------------------------------------------------------------------
-
 void
 Model::return_request_answers(
-    moris_index const&                aMPITag,
-    Cell< Matrix< IndexMat > > const& aRequestAnswers,
-    Cell< uint > const&               aProcRanks )
+    moris_index const &               aMPITag,
+    Cell< Matrix< IndexMat > > const &aRequestAnswers,
+    Cell< uint > const &              aProcRanks )
 {
     // access the communication table
     Matrix< IdMat > tCommTable = mBackgroundMesh.get_communication_table();
@@ -1010,7 +1005,7 @@ Model::return_request_answers(
 // ----------------------------------------------------------------------------------
 
 moris::Cell< std::string >
-Model::check_for_and_remove_internal_seacas_side_sets( moris::Cell< std::string >& aSideSetNames )
+Model::check_for_and_remove_internal_seacas_side_sets( moris::Cell< std::string > &aSideSetNames )
 {
     for ( std::vector< std::string >::iterator iSet = aSideSetNames.begin(); iSet != aSideSetNames.end(); ++iSet )
     {
@@ -1068,15 +1063,14 @@ Model::check_for_and_remove_internal_seacas_side_sets( moris::Cell< std::string 
     return aSideSetNames;
 }
 
-
 // ----------------------------------------------------------------------------------
 // Enrichment Source code
 // ----------------------------------------------------------------------------------
 
 void
 Model::perform_basis_enrichment(
-    enum EntityRank const& aBasisRank,
-    moris_index const&     aMeshIndex )
+    enum EntityRank const &aBasisRank,
+    moris_index const &    aMeshIndex )
 {
     Tracer tTracer( "XTK", "Enrichment", "Enrich" );
 
@@ -1092,12 +1086,13 @@ Model::perform_basis_enrichment(
     mEnriched = true;
 }
 
+
 // ----------------------------------------------------------------------------------
 
 void
 Model::perform_basis_enrichment(
-    enum EntityRank const&    aBasisRank,
-    Matrix< IndexMat > const& aMeshIndex )
+    enum EntityRank const &   aBasisRank,
+    Matrix< IndexMat > const &aMeshIndex )
 {
     Tracer tTracer( "XTK", "Enrichment" );
 
@@ -1108,7 +1103,6 @@ Model::perform_basis_enrichment(
     mEnrichedInterpMesh.resize( aMeshIndex.numel() + 1, nullptr );
 
     this->perform_basis_enrichment_internal( aBasisRank, aMeshIndex );
-
 
     // Change the enrichment flag
     mEnriched = true;
@@ -1124,13 +1118,13 @@ Model::perform_hanging_node_identification()
     MORIS_ERROR( mEnriched, "Mesh needs to be enriched prior to identifying hanging nodes" );
 
     // get the interpolation mesh
-    moris::mtk::Interpolation_Mesh& tInterpMesh = mBackgroundMesh.get_mesh_data();
+    moris::mtk::Interpolation_Mesh &tInterpMesh = mBackgroundMesh.get_mesh_data();
 
     // iterate through child meshes
     for ( moris::uint iCM = 0; iCM < mCutMesh.get_num_child_meshes(); iCM++ )
     {
         // active child mesh
-        Child_Mesh& tChildMesh = mCutMesh.get_child_mesh( iCM );
+        Child_Mesh &tChildMesh = mCutMesh.get_child_mesh( iCM );
 
         // get the neighbors
         Matrix< IndexMat > tElementNeighors = tInterpMesh.get_elements_connected_to_element_and_face_ind_loc_inds( tChildMesh.get_parent_element_index() );
@@ -1154,8 +1148,9 @@ Model::perform_hanging_node_identification()
     }
 }
 
+
 void
-Model::probe_bg_cell( Matrix< IndexMat > const& tBGCellIds )
+Model::probe_bg_cell( Matrix< IndexMat > const &tBGCellIds )
 {
     Tracer tTracer( "XTK", "BG Cell Probe" );
 
@@ -1163,11 +1158,11 @@ Model::probe_bg_cell( Matrix< IndexMat > const& tBGCellIds )
     {
         Tracer tTracer( "XTK", "BG Cell Probe", "Cell Id " + std::to_string( tBGCellIds( i ) ) );
 
-        moris_index                 tIndex      = mBackgroundMesh.get_mesh_data().get_loc_entity_ind_from_entity_glb_id( tBGCellIds( i ), EntityRank::ELEMENT );
-        mtk::Cell&                  tCell       = mBackgroundMesh.get_mesh_data().get_mtk_cell( tIndex );
-        Matrix< IndexMat >          tVertexIds  = tCell.get_vertex_ids();
-        moris::Cell< mtk::Vertex* > tVertexPtrs = tCell.get_vertex_pointers();
-        Matrix< IndexMat >          tVertexOwner( 1, tVertexPtrs.size() );
+        moris_index                  tIndex      = mBackgroundMesh.get_mesh_data().get_loc_entity_ind_from_entity_glb_id( tBGCellIds( i ), EntityRank::ELEMENT );
+        mtk::Cell &                  tCell       = mBackgroundMesh.get_mesh_data().get_mtk_cell( tIndex );
+        Matrix< IndexMat >           tVertexIds  = tCell.get_vertex_ids();
+        moris::Cell< mtk::Vertex * > tVertexPtrs = tCell.get_vertex_pointers();
+        Matrix< IndexMat >           tVertexOwner( 1, tVertexPtrs.size() );
 
         MORIS_LOG_SPEC( "Cell Id", tBGCellIds( i ) );
         MORIS_LOG_SPEC( "Cell Index", tIndex );
@@ -1190,7 +1185,7 @@ Model::probe_bg_cell( Matrix< IndexMat > const& tBGCellIds )
 }
 
 // ----------------------------------------------------------------------------------
-Cut_Integration_Mesh*
+Cut_Integration_Mesh *
 Model::get_cut_integration_mesh()
 {
     MORIS_ASSERT( mDecomposed,
@@ -1199,7 +1194,7 @@ Model::get_cut_integration_mesh()
     return mCutIntegrationMesh.get();
 }
 
-Enrichment const&
+Enrichment const &
 Model::get_basis_enrichment()
 {
     MORIS_ASSERT( mEnriched,
@@ -1210,7 +1205,7 @@ Model::get_basis_enrichment()
 
 // ----------------------------------------------------------------------------------
 
-Enriched_Interpolation_Mesh&
+Enriched_Interpolation_Mesh &
 Model::get_enriched_interp_mesh( moris::moris_index aIndex )
 {
     MORIS_ASSERT( mEnriched,
@@ -1221,7 +1216,7 @@ Model::get_enriched_interp_mesh( moris::moris_index aIndex )
 
 // ----------------------------------------------------------------------------------
 
-Enriched_Integration_Mesh&
+Enriched_Integration_Mesh &
 Model::get_enriched_integ_mesh( moris::moris_index aIndex )
 {
     MORIS_ASSERT( mEnriched,
@@ -1234,8 +1229,8 @@ Model::get_enriched_integ_mesh( moris::moris_index aIndex )
 
 void
 Model::perform_basis_enrichment_internal(
-    enum EntityRank const&    aBasisRank,
-    Matrix< IndexMat > const& aMeshIndex )
+    enum EntityRank const &   aBasisRank,
+    Matrix< IndexMat > const &aMeshIndex )
 {
 
     // initialize enrichment (ptr because of circular dependency)
@@ -1275,7 +1270,7 @@ Model::construct_face_oriented_ghost_penalization_cells()
 
 // ----------------------------------------------------------------------------------
 
-Ghost_Stabilization&
+Ghost_Stabilization &
 Model::get_ghost_stabilization( moris::moris_index aIndex )
 {
     MORIS_ERROR( mGhost, "Ghost has not been constructed on this model." );
@@ -1305,7 +1300,7 @@ Model::construct_multigrid()
 
 // ----------------------------------------------------------------------------------
 
-Cut_Mesh&
+Cut_Mesh &
 Model::get_cut_mesh()
 {
     return mCutMesh;
@@ -1313,7 +1308,7 @@ Model::get_cut_mesh()
 
 // ----------------------------------------------------------------------------------
 
-Cut_Mesh const&
+Cut_Mesh const &
 Model::get_cut_mesh() const
 {
     return mCutMesh;
@@ -1321,7 +1316,8 @@ Model::get_cut_mesh() const
 
 // ----------------------------------------------------------------------------------
 
-Background_Mesh&
+
+Background_Mesh &
 Model::get_background_mesh()
 {
     return mBackgroundMesh;
@@ -1329,7 +1325,7 @@ Model::get_background_mesh()
 
 // ----------------------------------------------------------------------------------
 
-Background_Mesh const&
+Background_Mesh const &
 Model::get_background_mesh() const
 {
     return mBackgroundMesh;
@@ -1337,15 +1333,11 @@ Model::get_background_mesh() const
 
 // ----------------------------------------------------------------------------------
 
-moris::ge::Geometry_Engine*
+moris::ge::Geometry_Engine *
 Model::get_geom_engine()
 {
     return mGeometryEngine;
 }
-
-// ----------------------------------------------------------------------------------
-// Tet 10 conversion Source code
-// ----------------------------------------------------------------------------------
 
 
 bool
@@ -1367,7 +1359,7 @@ Model::subphase_is_in_child_mesh( moris_index aSubphaseIndex )
 
 // ----------------------------------------------------------------------------------
 
-moris::ParameterList&
+moris::ParameterList &
 Model::get_parameter_list()
 {
     return mParameterList;
@@ -1377,8 +1369,8 @@ Model::get_parameter_list()
 void
 Model::setup_diagnostics(
     bool               aDiagnostics,
-    std::string const& aDiagnosticPath,
-    std::string const& aDiagnosticLabel )
+    std::string const &aDiagnosticPath,
+    std::string const &aDiagnosticLabel )
 {
     mDiagnostics = aDiagnostics;
 
@@ -1395,15 +1387,15 @@ Model::setup_diagnostics(
     }
 }
 std::string
-Model::get_diagnostic_file_name( std::string const& aLabel ) const
+Model::get_diagnostic_file_name( std::string const &aLabel ) const
 {
     MORIS_ASSERT( mDiagnostics, "Only callable with diagnostics on" );
     return mDiagnosticPath + "/id_" + mDiagnosticId + "_ps_" + std::to_string( moris::par_size() ) + "_pr_" + std::to_string( moris::par_rank() ) + "_" + aLabel + ".diag";
 }
 //------------------------------------------------------------------------------
 
-moris::mtk::Integration_Mesh*
-Model::get_output_mesh( Output_Options const& aOutputOptions )
+moris::mtk::Integration_Mesh *
+Model::get_output_mesh( Output_Options const &aOutputOptions )
 
 {
     MORIS_ERROR( 0, "Deprecated. (Removal in progress)" );
@@ -1421,7 +1413,6 @@ Model::get_spatial_dim() const
 
 //------------------------------------------------------------------------------
 
-
 moris_index
 Model::get_cell_xtk_index( moris_id aCellId )
 {
@@ -1432,7 +1423,7 @@ Model::get_cell_xtk_index( moris_id aCellId )
 
 //------------------------------------------------------------------------------
 
-moris::Cell< moris::Cell< moris_index > > const&
+moris::Cell< moris::Cell< moris_index > > const &
 Model::get_subphase_to_subphase()
 {
     MORIS_ERROR( 0, "Deprecated." );
@@ -1441,7 +1432,7 @@ Model::get_subphase_to_subphase()
 
 //------------------------------------------------------------------------------
 
-moris::Cell< moris::Cell< moris_index > > const&
+moris::Cell< moris::Cell< moris_index > > const &
 Model::get_subphase_to_subphase_my_side_ords()
 {
     MORIS_ERROR( 0, "Deprecated." );
@@ -1450,7 +1441,7 @@ Model::get_subphase_to_subphase_my_side_ords()
 
 //------------------------------------------------------------------------------
 
-moris::Cell< moris::Cell< moris_index > > const&
+moris::Cell< moris::Cell< moris_index > > const &
 Model::get_subphase_to_subphase_transition_loc()
 {
     MORIS_ERROR( 0, "Deprecated." );
@@ -1459,7 +1450,7 @@ Model::get_subphase_to_subphase_transition_loc()
 
 //------------------------------------------------------------------------------
 
-moris::Cell< moris::Cell< moris_index > > const&
+moris::Cell< moris::Cell< moris_index > > const &
 Model::get_subphase_to_subphase_neighbor_side_ords()
 {
     MORIS_ERROR( 0, "Deprecated." );
@@ -1474,6 +1465,18 @@ Model::get_multigrid_ptr()
     return mMultigrid;
 }
 
+//------------------------------------------------------------------------------
+moris::Matrix< moris::IndexMat >
+Model::get_num_subphase_neighbors()
+{
+    moris::Cell< moris::Cell< moris_index > > const &tSubPhaseToSubphase = this->get_subphase_to_subphase();
+    moris::Matrix< moris::IndexMat >                 tSubphaseNumNeighbors( 1, tSubPhaseToSubphase.size() );
+    for ( size_t iSP = 0; iSP < tSubPhaseToSubphase.size(); iSP++ )
+    {
+        tSubphaseNumNeighbors( iSP ) = tSubPhaseToSubphase( iSP ).size();
+    }
+    return tSubphaseNumNeighbors;
+}
 //------------------------------------------------------------------------------
 
 moris_id

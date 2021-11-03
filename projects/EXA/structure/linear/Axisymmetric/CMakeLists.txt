@@ -1,5 +1,6 @@
 set(EXAMPLE_MAIN Main_Axisymmetric_Problem)
-set(EXAMPLE_FILE Axisymmetric_Problem)
+set(EXAMPLE_FILES Axisymmetric_Problem Axisymmetric_Problem_ConstantThermalField )
+set(EXAMPLE_PROCS 1)
 
 # List source files
 set(EXAMPLE_SOURCES
@@ -74,7 +75,7 @@ SET(SO_INCLUDES
     ${MORIS_PACKAGE_DIR}/COM/src 
     ${MORIS_PACKAGE_DIR}/MTK/src
     ${MORIS_PACKAGE_DIR}/HMR/src
-    ${MORIS_PACKAGE_DIR}/XTK/src  
+    ${MORIS_PACKAGE_DIR}/XTK/src    
     ${MORIS_PACKAGE_DIR}/PRM/src 
     ${MORIS_PACKAGE_DIR}/MRS/COR/src)
     
@@ -83,11 +84,16 @@ foreach(TPL ${SO_TPLS})
     list(APPEND SO_INCLUDES ${MORIS_${TPL}_INCLUDE_DIRS})
 endforeach()
 
-dynamic_link_input(${EXAMPLE_FILE} ${EXAMPLE_FILE} ${EXAMPLE_FILE}.cpp ${SO_INCLUDES})
+# create dynamically linked .so files
+foreach(EXAMPLE_FILE ${EXAMPLE_FILES})
+    dynamic_link_input(${EXAMPLE_FILE} ${EXAMPLE_FILE} ${EXAMPLE_FILE}.cpp ${SO_INCLUDES})
+endforeach()
 
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)
-	add_test(NAME ${EXAMPLE_FILE} 
-	COMMAND ${MORIS_EXECUTE_COMMAND} -n 1 ${VALGRIND} ${VALGRIND_OPTIONS_EXA} $<TARGET_FILE:${EXAMPLE_MAIN}>
-    WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+    foreach(PROCS ${EXAMPLE_PROCS})
+        add_test(NAME Axisymmetric_Problem-${PROCS}-procs
+        COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS_EXA} $<TARGET_FILE:${EXAMPLE_MAIN}>
+        WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+    endforeach()
 endif()

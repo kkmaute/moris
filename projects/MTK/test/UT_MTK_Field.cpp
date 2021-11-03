@@ -198,11 +198,11 @@ namespace moris
                         tMeshPair_Out);
 
                 // Get vector of nodal values and check for correct size
-                std::cout<<"Field_In size:  "<<tField_In->get_nodal_values().numel()<<std::endl;
-                std::cout<<"Field_Out size: "<<tField_Out->get_nodal_values().numel()<<std::endl;
+                std::cout<<"Field_In size:  "<<tField_In->get_values().numel()<<std::endl;
+                std::cout<<"Field_Out size: "<<tField_Out->get_values().numel()<<std::endl;
 
-                CHECK(equal_to( tField_In->get_nodal_values().numel(), 125));
-                CHECK(equal_to( tField_Out->get_nodal_values().numel(), 46));
+                CHECK(equal_to( tField_In->get_values().numel(), 125));
+                CHECK(equal_to( tField_Out->get_values().numel(), 46));
 
                 //                tHMR.save_to_exodus( 0, "./mtk_field_test.e" );
                 //                tHMR.save_to_exodus( 1, "./mtk_field_test_1.e" );
@@ -320,7 +320,7 @@ namespace moris
                         tMeshPair_Out);
 
                 // check that input field can return vector nodal values and has correct size
-                CHECK(equal_to( tField_In->get_nodal_values().numel(), 46));;
+                CHECK(equal_to( tField_In->get_values().numel(), 46));;
 
                 // Use mapper
                 mtk::Mapper tMapper;
@@ -331,7 +331,7 @@ namespace moris
                         EntityRank::BSPLINE,
                         EntityRank::NODE);
 
-                tFieldHMR->get_node_values() = tField_Out->get_nodal_values();
+                tFieldHMR->get_node_values() = tField_Out->get_values();
 
                 //tHMR.save_to_exodus( 0, "./mtk_field_test.e" );
 
@@ -344,12 +344,12 @@ namespace moris
                         tParam,
                         tMeshPair_Out);
 
-                CHECK(equal_to( tField_Out->get_nodal_values().numel(), 125));
-                CHECK(equal_to( tField_Ref->get_nodal_values().numel(), 125));
+                CHECK(equal_to( tField_Out->get_values().numel(), 125));
+                CHECK(equal_to( tField_Ref->get_values().numel(), 125));
 
-                for( uint Ik = 0; Ik < tField_Out->get_nodal_values().numel(); Ik++ )
+                for( uint Ik = 0; Ik < tField_Out->get_values().numel(); Ik++ )
                 {
-                    CHECK(equal_to( tField_Out->get_nodal_values()( Ik ), tField_Ref->get_nodal_values()( Ik )));
+                    CHECK(equal_to( tField_Out->get_values()( Ik ), tField_Ref->get_values()( Ik )));
                 }
 
                 delete tField_In;
@@ -464,7 +464,7 @@ namespace moris
                 mtk::Field_Discrete * tField_Out = new mtk::Field_Discrete(
                         tMeshPair_Out);
 
-                CHECK(equal_to( tField_In->get_nodal_values().numel(), 217));;
+                CHECK(equal_to( tField_In->get_values().numel(), 217));;
 
                 // Use mapper
                 mtk::Mapper tMapper;
@@ -495,14 +495,14 @@ namespace moris
 
                 tField_Exodus->load_field_from_exodus("./mtk_field_test_ref.e");
 
-                CHECK(equal_to( tField_Out->get_nodal_values().numel(), 133));
-                CHECK(equal_to( tField_Ref->get_nodal_values().numel(), 133));
+                CHECK(equal_to( tField_Out->get_values().numel(), 133));
+                CHECK(equal_to( tField_Ref->get_values().numel(), 133));
 
                 // compare mapped field against reference field (direct and loaded from exodus)
-                for( uint Ik = 0; Ik < tField_Out->get_nodal_values().numel(); Ik++ )
+                for( uint Ik = 0; Ik < tField_Out->get_values().numel(); Ik++ )
                 {
-                    CHECK(equal_to( tField_Out->get_nodal_values()( Ik ), tField_Ref->get_nodal_values()( Ik )));
-                    CHECK(equal_to( tField_Out->get_nodal_values()( Ik ), tField_Exodus->get_nodal_values()( Ik )));
+                    CHECK(equal_to( tField_Out->get_values()( Ik ), tField_Ref->get_values()( Ik )));
+                    CHECK(equal_to( tField_Out->get_values()( Ik ), tField_Exodus->get_values()( Ik )));
                 }
 
                 delete tField_In;
@@ -618,7 +618,7 @@ namespace moris
                 mtk::Field_Discrete * tField_Out = new mtk::Field_Discrete(
                         tMeshPair_Out);
 
-                CHECK(equal_to( tField_In->get_nodal_values().numel(), 63));;
+                CHECK(equal_to( tField_In->get_values().numel(), 63));;
 
                 // Use mapper
                 mtk::Mapper tMapper;
@@ -629,7 +629,7 @@ namespace moris
                         EntityRank::BSPLINE,
                         EntityRank::NODE);
 
-                tFieldHMR->get_node_values() = tField_Out->get_nodal_values();
+                tFieldHMR->get_node_values() = tField_Out->get_values();
 
                 tHMR.save_to_exodus( 0, "./mtk_field_test.e" );
 
@@ -642,11 +642,11 @@ namespace moris
                         tParam,
                         tMeshPair_Out);
 
-                CHECK(equal_to( tField_Out->get_nodal_values().numel(), 465));
+                CHECK(equal_to( tField_Out->get_values().numel(), 465));
 
-                for( uint Ik = 0; Ik < tField_Out->get_nodal_values().numel(); Ik++ )
+                for( uint Ik = 0; Ik < tField_Out->get_values().numel(); Ik++ )
                 {
-                    CHECK(equal_to( tField_Out->get_nodal_values()( Ik ), tField_Ref->get_nodal_values()( Ik )));
+                    CHECK(equal_to( tField_Out->get_values()( Ik ), tField_Ref->get_values()( Ik )));
                 }
 
                 delete tField_In;

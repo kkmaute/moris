@@ -26,6 +26,10 @@ namespace moris
                 ParameterList tProblemParameterList = moris::prm::create_opt_problem_parameter_list();
                 ParameterList tAlgorithmParameterList = moris::prm::create_gcmma_parameter_list();
 
+                tAlgorithmParameterList.set("version", 1);
+                tAlgorithmParameterList.set("norm_drop", 2.5e-5);
+                tAlgorithmParameterList.set("asymp_adaptc",1.1);
+
                 // Create interface
                 std::shared_ptr<Criteria_Interface> tInterface = std::make_shared<Interface_User_Defined>(
                         &initialize_rosenbrock,
@@ -53,8 +57,53 @@ namespace moris
                 // Check Solution
                 if (par_rank() == 0)
                 {
-                    REQUIRE(std::abs(tManager.get_objectives()(0)) < 2E-9); // check value of objective
-                    REQUIRE(norm(tManager.get_advs() - 1.0) < 2E-6); // check value of design variables
+                    REQUIRE(std::abs(tManager.get_objectives()(0)) < 2E-7); // check value of objective
+                    REQUIRE(norm(tManager.get_advs() - 1.0) < 1E-4);        // check value of design variables
+                }
+            }
+
+            // ---------------------------------------------------------------------------------------------------------
+
+            SECTION("GCMMA 07")
+            {
+                // Set up default parameter lists
+                ParameterList tProblemParameterList = moris::prm::create_opt_problem_parameter_list();
+                ParameterList tAlgorithmParameterList = moris::prm::create_gcmma_parameter_list();
+
+                tAlgorithmParameterList.set("version", 2);
+                tAlgorithmParameterList.set("norm_drop", 1e-6);
+                tAlgorithmParameterList.set("max_inner_its",3);
+                tAlgorithmParameterList.set("max_its",11);
+
+                // Create interface
+                std::shared_ptr<Criteria_Interface> tInterface = std::make_shared<Interface_User_Defined>(
+                        &initialize_rosenbrock,
+                        &get_criteria_rosenbrock,
+                        &get_dcriteria_dadv_rosenbrock);
+
+                // Create Problem
+                std::shared_ptr<Problem> tProblem = std::make_shared<Problem_User_Defined>(
+                        tProblemParameterList,
+                        tInterface,
+                        &get_constraint_types_rosenbrock,
+                        &compute_objectives_rosenbrock,
+                        &compute_constraints_rosenbrock,
+                        &compute_dobjective_dadv_rosenbrock,
+                        &compute_dobjective_dcriteria_rosenbrock,
+                        &compute_dconstraint_dadv_rosenbrock,
+                        &compute_dconstraint_dcriteria_rosenbrock);
+
+                // Create manager
+                moris::opt::Manager tManager({tAlgorithmParameterList}, tProblem);
+
+                // Solve optimization problem
+                tManager.perform();
+
+                // Check Solution
+                if (par_rank() == 0)
+                {
+                    REQUIRE(std::abs(tManager.get_objectives()(0)) < 2E-7); // check value of objective
+                    REQUIRE(norm(tManager.get_advs() - 1.0) < 1E-4); // check value of design variables
                 }
             }
 

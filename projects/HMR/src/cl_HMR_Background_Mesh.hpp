@@ -675,6 +675,33 @@ namespace moris
                             mMyProcCoords,
                             mMyProcNeighbors );
 
+                    // reporting the proc dims to the logger
+                    if ( par_rank() == 0 )
+                    {
+                        // how many dimensions?
+                        switch( N )
+                        {
+                            case 2:
+                            {
+                                MORIS_LOG_INFO("  proc dimensions (x,y) are ( %i , %i )",
+                                        mProcDims(0), mProcDims(1) );
+                                break;
+                            }
+                            case 3:
+                            {
+                                MORIS_LOG_INFO("  proc dimensions (x,y,z) are ( %i , %i , %i )",
+                                        mProcDims(0), mProcDims(1), mProcDims(2) );
+                                break;
+                            }
+                            default:
+                            {
+                                MORIS_ERROR( false, "decompose_mesh(): Invalid number of spatial dimensions.");
+                            }
+                        }
+                        MORIS_LOG_INFO("--------------------------------------------------------------------------------" ) ;
+                        MORIS_LOG_INFO( " " );
+                    }
+
                     // calculate number of elements per dimension
                     Matrix< DDLUMat > tNumberOfElementsPerDimensionOnProc( N, 1 );
 
@@ -821,6 +848,7 @@ namespace moris
                         // get number of dimensions from settings
                         uint tNumberOfDimensions = mParameters->get_number_of_dimensions();
 
+
                         Matrix< DDLUMat > tProcSplit( tNumberOfDimensions, 1 );
 
                         int tError = 0;
@@ -828,23 +856,35 @@ namespace moris
                         // loop over all dimensions and copy elements
                         for( uint k=0; k<tNumberOfDimensions; ++k )
                         {
-                            //do not consider pseudo 1D directions
-                            if (mProcDims( k ) != 1)
+                            // loop over all in this dimension
+                            for ( uint iProc = 0; iProc < mProcDims(k); iProc++ )
                             {
-                                tProcSplit( k ) = mMySubDomain.mNumberOfElementsPerDimension[ 0 ][ k ] - 2*mPaddingSize;
+                                // do not consider pseudo 1D directions or 2 Procs in 1 direction since aura overlap isn't an issue
+                                if (mProcDims(k) > 2)
+                                {
+                                    // determine how many elements are on this proc in this domain minus the padding elements in that direction
+                                    tProcSplit(k) = mMySubDomain.mNumberOfElementsPerDimension[iProc][k] - 2 * mPaddingSize;
 
-                                if( mParameters->use_number_aura() )
-                                {
-                                    if ( tProcSplit( k ) < (mPaddingSize * 2) + 1 )
+                                    // there should be at least on element left
+                                    MORIS_ERROR( tProcSplit(k) > 0,
+                                            "Processor %u does not have any non-padding/aura elements in direction %u. \n", iProc, k);
+
+                                    if (mParameters->use_number_aura())
                                     {
-                                        tError = (mPaddingSize * 2) + 1 - tProcSplit( k );
+                                        // the aura of next-adjacent procs cannot use the same node since they do not communicate
+                                        if (tProcSplit(k) < (mPaddingSize * 2) + 1)
+                                        {
+                                            tError = (mPaddingSize * 2) + 1 - tProcSplit(k);
+                                        }
                                     }
-                                }
-                                else
-                                {
-                                    if ( tProcSplit( k ) < mPaddingSize )
+
+                                    // if not using numbered aura, then the remainder just has to be larger than the padding/aura
+                                    else
                                     {
-                                        tError = mPaddingSize - tProcSplit( k );
+                                        if (tProcSplit(k) < mPaddingSize)
+                                        {
+                                            tError = mPaddingSize - tProcSplit(k);
+                                        }
                                     }
                                 }
                             }

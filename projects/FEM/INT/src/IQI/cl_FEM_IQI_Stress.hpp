@@ -86,9 +86,9 @@ namespace moris
                 //------------------------------------------------------------------------------
                 /**
                  * evaluate the Von-Mises stress using the stress vector provided by the constitutive model
-                 * @param[ out ] tStressValue the value of the Von-Mises stress
+                 * @param[ out ] aStressVector the value of the Von-Mises stress
                  */
-                real eval_Von_Mises_stress();
+                void eval_Von_Mises_stress(Matrix< DDRMat > & aStressVector);
 
                 //------------------------------------------------------------------------------
                 /**
@@ -97,7 +97,7 @@ namespace moris
                  *               i.e. 1,2,3 for the first, second and third principal stress, respectively
                  * @param[ out ] tStressValue the value of the requested principal stress
                  */
-                real eval_principal_stress( uint aPrincipalStressIndex );
+                void eval_principal_stress( uint aPrincipalStressIndex, Matrix< DDRMat > & aStressVector );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -106,7 +106,7 @@ namespace moris
                  *               i.e. 1,2,3 for the x-, y-, and z-normal stresses, respectively
                  * @param[ out ] tStressValue the value of the requested principal stress
                  */
-                real eval_normal_stress( uint aStressIndex );
+                void eval_normal_stress( uint aStressIndex, Matrix< DDRMat > & aStressVector);
 
                 //------------------------------------------------------------------------------
                 /**
@@ -116,7 +116,7 @@ namespace moris
                  *               in 2D the input is ignored, as there's only one shear stress
                  * @param[ out ] tStressValue the value of the requested principal stress
                  */
-                real eval_shear_stress( uint aStressIndex );
+                void eval_shear_stress( uint aStressIndex, Matrix< DDRMat > & aStressVector);
 
                 //------------------------------------------------------------------------------
                 /**
@@ -156,6 +156,11 @@ namespace moris
                 }
 
                 //------------------------------------------------------------------------------
+                /**
+                 * compute matrix dimension of the IQI
+                 * @param[ out ] space dimension of the IQI
+                 */
+                std::pair<uint,uint> get_matrix_dim();
 
         };
     }/* end namespace fem */

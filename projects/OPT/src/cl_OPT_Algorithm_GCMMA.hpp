@@ -22,6 +22,7 @@ private:
     moris::real mAsympExpand;         // expanding asymptote adaptation factor
     moris::real mStepSize;            // GCMMA step size
     moris::real mPenalty;             // GCMMA constraint penalty
+    moris::sint mIvers;               // GCMMA version
 
     /**
      * @brief External function call for computing objective and constraints, to

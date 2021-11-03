@@ -436,6 +436,31 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * compute quantity of interest
+                 * @param[ in ]
+                 * @param[ in ] aFieldType  an enum for computation/field type
+                 */
+                void compute_quantity_of_interest(
+                        Matrix< DDRMat >            & aValues,
+                        enum mtk::Field_Entity_Type   aFieldType,
+                        uint                          aIQIIndex )
+                {
+                    switch ( aFieldType )
+                    {
+                        case mtk::Field_Entity_Type::ELEMENTAL :
+                        {
+                            this->compute_quantity_of_interest_elemental( aValues, aIQIIndex );
+                            break;
+                        }
+                        default :
+                        {
+                            MORIS_ERROR( false, "Element::compute_quantity_of_interest - unknown field type." );
+                        }
+                    }
+                }
+
+                //------------------------------------------------------------------------------
+                /**
                  * compute quantity of interest in a global way
                  * @param[ in ] aMeshIndex  an index for the used IG mesh
                  */
@@ -460,6 +485,13 @@ namespace moris
                  * @param[ in ] aMeshIndex  an index for the used IG mesh
                  */
                 virtual void compute_quantity_of_interest_elemental( const uint aMeshIndex )
+                {
+                    MORIS_ERROR( false, "Element::compute_quantity_of_interest_elemental - Not implemented for base class." );
+                }
+
+                virtual void compute_quantity_of_interest_elemental(
+                        Matrix< DDRMat >            & aValues,
+                        uint                          aIQIIndex  )
                 {
                     MORIS_ERROR( false, "Element::compute_quantity_of_interest_elemental - Not implemented for base class." );
                 }
