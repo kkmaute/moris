@@ -113,10 +113,10 @@ struct IG_Vertex_Group
 
 struct Edge_Based_Connectivity
 {
-    moris::Cell< moris::Cell< moris::mtk::Vertex* > > mEdgeVertices;
-    moris::Cell< moris::Cell< moris::mtk::Cell* > >   mEdgeToCell;
-    moris::Cell< moris::Cell< moris::moris_index > >  mEdgeToCellEdgeOrdinal;
-    moris::Cell< moris::Cell< moris_index > >         mCellToEdge;
+    moris::Cell< moris::Cell< moris::mtk::Vertex* > > mEdgeVertices;          // input: edge || output: list of vertices on edge
+    moris::Cell< moris::Cell< moris::mtk::Cell* > >   mEdgeToCell;            // input: edge || output: list of cells attached to edge
+    moris::Cell< moris::Cell< moris::moris_index > >  mEdgeToCellEdgeOrdinal; // input: edge || output: ?
+    moris::Cell< moris::Cell< moris_index > >         mCellToEdge;            // input: cell || output: list of edge indices on cell
 };
 
 struct Edge_Based_Ancestry

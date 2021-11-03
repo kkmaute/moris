@@ -55,7 +55,6 @@ Integration_Mesh_Generator::perform()
         tDecompAlg->perform( &tGenerationData, &tDecompositionData, tCutIntegrationMesh.get(), tBackgroundMesh, this );
     }
 
-
     tCutIntegrationMesh->finalize_cut_mesh_construction();
 
     // set the bulk phase of each cell
@@ -141,11 +140,16 @@ Integration_Mesh_Generator::get_active_geometries()
     return &mActiveGeometries;
 }
 
-
 moris::ge::Geometry_Engine*
 Integration_Mesh_Generator::get_geom_engine()
 {
     return mGeometryEngine;
+}
+
+uint 
+Integration_Mesh_Generator::get_spatial_dim()
+{
+    return mXTKModel->get_spatial_dim();
 }
 
 // ----------------------------------------------------------------------------------
@@ -214,6 +218,7 @@ Integration_Mesh_Generator::determine_intersected_background_cells(
 
     return true;
 }
+
 // ----------------------------------------------------------------------------------
 
 void
@@ -225,6 +230,7 @@ Integration_Mesh_Generator::commit_new_ig_cells_to_cut_mesh(
     Decomposition_Algorithm*          aDecompositionAlgorithm )
 {
     Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Commit IG Cells To Mesh" );
+    
     // iterate through cells that the decomposition constructed
     moris::uint tNumNewCells = aDecompositionAlgorithm->mNumNewCells;
 
@@ -284,6 +290,8 @@ Integration_Mesh_Generator::commit_new_ig_cells_to_cut_mesh(
         }
     }
 }
+
+// ----------------------------------------------------------------------------------
 
 void
 Integration_Mesh_Generator::extract_cells_from_cell_groups(
@@ -1339,8 +1347,26 @@ Integration_Mesh_Generator::construct_bulk_phase_blocks(
 
     Cell< std::string > tBlockSetNames( tNumBulkPhases + 1 );
 
-    std::cout << "WARNING: GENERAlIZE NEEDED FOR MULTIPLE TOPOS" << std::endl;
-    enum CellTopology tCellTopo = CellTopology::TET4;
+// fixme: ...
+std::cout << "WARNING: GENERAlIZE NEEDED FOR MULTIPLE TOPOS" << std::endl;
+    
+    // initialize cell topology
+    enum CellTopology tCellTopo;
+    
+    // fixme: is there a more elegant way to decide on the cell topology?
+    // get number of spatial dimensions and decide on cell topology of integration elements
+    if ( aCutIntegrationMesh->get_spatial_dim() == 2 )
+    {
+        tCellTopo = CellTopology::TRI3;
+    }
+    else if ( aCutIntegrationMesh->get_spatial_dim() == 3 ) 
+    {
+        tCellTopo = CellTopology::TET4;
+    }
+    else
+    {
+        MORIS_ERROR( false, "Integration_Mesh_Generator::construct_bulk_phase_blocks() - spatial dimension not 2 or 3" );
+    }
 
     // iterate through and construct the names of the blocks
     for ( moris::uint iBP = 0; iBP < tNumBulkPhases; iBP++ )
@@ -1385,7 +1411,8 @@ Integration_Mesh_Generator::edge_exists(
     {
         moris_index tEdgeIndex = aVertexToEdge( tLocalVertexIndex )( iEdge );
 
-        MORIS_ASSERT( aFullEdgeVertices( tEdgeIndex )( 0 )->get_index() == aVerticesOnEdge( 0 )->get_index(), "Numbering issues, edges should be in ascending order based on vertex id" );
+        MORIS_ASSERT( aFullEdgeVertices( tEdgeIndex )( 0 )->get_index() == aVerticesOnEdge( 0 )->get_index(), 
+                "Numbering issues, edges should be in ascending order based on vertex id" );
 
         // check the second vertex on the edge
         if ( aFullEdgeVertices( tEdgeIndex )( 1 )->get_index() == aVerticesOnEdge( 1 )->get_index() )
@@ -1617,34 +1644,50 @@ Integration_Mesh_Generator::create_edges_from_element_to_node(
         // moris::uint tNumEdgeCreated    = 0;
         moris::uint tMaxNumEdges = tNumElements * tNumEdgePerElem;
 
+        // initialize counter for number of unique vertices/nodes
         moris::uint                                    tNumNodes = 0;
         moris::Cell< moris::mtk::Vertex* >             tVertices;
+
+        // initialize map, pairing global (?) index of vertex to new numbering going through unique nodes
         std::unordered_map< moris_index, moris_index > tVertexIndexToLocalIndexMap;
+
+        // loop over all cells/elements and vertices on them
         for ( moris::uint i = 0; i < aCells.size(); i++ )
         {
             moris::Cell< moris::mtk::Vertex* > tCellVerts = aCells( i )->get_vertex_pointers();
 
             for ( moris::uint iV = 0; iV < tCellVerts.size(); iV++ )
             {
+                
+                // check if vertex has already been given a new index
                 if ( tVertexIndexToLocalIndexMap.find( tCellVerts( iV )->get_index() ) == tVertexIndexToLocalIndexMap.end() )
                 {
+                    // give new unique vertex new index and increment counter of unique nodes
                     tVertexIndexToLocalIndexMap[tCellVerts( iV )->get_index()] = (moris_index)tNumNodes;
                     tVertices.push_back( tCellVerts( iV ) );
                     tNumNodes++;
                 }
             }
         }
+
         // Allocate outputs
-        aEdgeConnectivity->mCellToEdge.resize( aCells.size() );
-        aEdgeConnectivity->mEdgeToCell.reserve( tMaxNumEdges );
-        aEdgeConnectivity->mEdgeToCellEdgeOrdinal.reserve( tMaxNumEdges );
-        aEdgeConnectivity->mEdgeVertices.reserve( tMaxNumEdges * tNumNodesPerEdge );
+        aEdgeConnectivity->mCellToEdge.resize( aCells.size() );                         // what does this map do?
+        aEdgeConnectivity->mEdgeToCell.reserve( tMaxNumEdges );                         // what does this map do?
+        aEdgeConnectivity->mEdgeToCellEdgeOrdinal.reserve( tMaxNumEdges );              // what does this map do?
+        aEdgeConnectivity->mEdgeVertices.reserve( tMaxNumEdges * tNumNodesPerEdge );    // what does this map do?
+
+    // maps:
+    // moris::Cell< moris::Cell< moris::mtk::Vertex* > > mEdgeVertices;           // input: edge || output: list of vertices on edge
+    // moris::Cell< moris::Cell< moris::mtk::Cell* > >   mEdgeToCell;             // input: edge || output: list of cells attached to edge
+    // moris::Cell< moris::Cell< moris::moris_index > >  mEdgeToCellEdgeOrdinal;  // input: edge || output: ?
+    // moris::Cell< moris::Cell< moris_index > >         mCellToEdge;             // input: cell || output: list of edge indices on cell
 
         moris::Cell< moris::Cell< uint > > tVertexToEdgeIndex( tNumNodes );
         tVertexToEdgeIndex.reserve( tMaxNumEdges * tNumNodesPerEdge * tMaxEdgePerNode );
 
         moris::Cell< moris::mtk::Vertex* > tVerticesOnEdge( tNumNodesPerEdge, nullptr );
 
+        // loop over all cells and their edges
         for ( moris::uint i = 0; i < aCells.size(); i++ )
         {
             moris::Cell< moris::mtk::Vertex* > tCellVerts = aCells( i )->get_vertex_pointers();
@@ -1658,10 +1701,10 @@ Integration_Mesh_Generator::create_edges_from_element_to_node(
                     tVerticesOnEdge( iVOnE ) = tCellVerts( tElementEdgeToNodeMap( iEdge, iVOnE ) );
                 }
 
-                // figure out if the edge exists and if so where
+                // figure out if the edge exists and if so where (if it doesn't exist it returns MORIS_INDEX_MAX as an index )
                 moris_index tEdgeIndex = this->edge_exists( tVerticesOnEdge, tVertexIndexToLocalIndexMap, tVertexToEdgeIndex, aEdgeConnectivity->mEdgeVertices );
 
-                // add it new
+                // add it new if it doesn't exist already 
                 if ( tEdgeIndex == MORIS_INDEX_MAX )
                 {
                     tEdgeIndex = aEdgeConnectivity->mEdgeVertices.size();
@@ -1905,6 +1948,7 @@ Integration_Mesh_Generator::deduce_edge_ancestry(
 
         MORIS_ERROR( tEdgeVertices.size() == 2, "Edge should have two vertices" );
 
+        // loop over vertices
         for ( moris::uint iV = 0; iV < tEdgeVertices.size(); iV++ )
         {
             tEdgeVertexParentInds( iV )  = aCutIntegrationMesh->mIgVertexParentEntityIndex( tEdgeVertices( iV )->get_index() );
@@ -2016,7 +2060,8 @@ Integration_Mesh_Generator::deduce_edge_ancestry(
 
 
             MORIS_ASSERT( *tMinIter == 1, "Not an edge" );
-            moris::Cell< moris::moris_index > tParentOrdinalAndRank = aParentCellForDeduction( iEdge )->get_cell_info()->get_edge_path_to_entity_rank_and_ordinal( tMinRankOrd, tMaxRankOrd, *tMaxIter );
+            moris::Cell< moris::moris_index > tParentOrdinalAndRank = 
+                    aParentCellForDeduction( iEdge )->get_cell_info()->get_edge_path_to_entity_rank_and_ordinal( tMinRankOrd, tMaxRankOrd, *tMaxIter );
 
             // std::cout<< " | tMinRankOrd = "<<tMinRankOrd<<" | tMaxRankOrd = "<<tMaxRankOrd<<" Parent Ord = "<<tParentOrdinalAndRank(0)<<" | ParentRank = "<<tParentOrdinalAndRank(1)<<std::endl;
             // need connectivity wrt the minimum path rank
@@ -2042,7 +2087,8 @@ Integration_Mesh_Generator::deduce_edge_ancestry(
             }
 
             //minimum entity is always a vertex so i can ask the cell
-            moris_index tVertexOrdinal = aParentCellForDeduction( iEdge )->get_vertex_ordinal_wrt_cell( tEdgeVertices( tMinIndex )->get_index() );
+            moris_index tVertexOrdinal = 
+                    aParentCellForDeduction( iEdge )->get_vertex_ordinal_wrt_cell( tEdgeVertices( tMinIndex )->get_index() );
 
             // not as convenient to get the edge/facet ordinal
             Matrix< IndexMat > tEntitiesConnectedToBaseCell = aBackgroundMesh->get_entity_connected_to_entity_loc_inds(
@@ -2060,7 +2106,8 @@ Integration_Mesh_Generator::deduce_edge_ancestry(
                 }
             }
 
-            moris::Cell< moris::moris_index > tParentOrdinalAndRank = aParentCellForDeduction( iEdge )->get_cell_info()->get_vertex_path_to_entity_rank_and_ordinal( tVertexOrdinal, tSecondEntityOrdinal, *tMaxIter );
+            moris::Cell< moris::moris_index > tParentOrdinalAndRank = 
+                    aParentCellForDeduction( iEdge )->get_cell_info()->get_vertex_path_to_entity_rank_and_ordinal( tVertexOrdinal, tSecondEntityOrdinal, *tMaxIter );
 
             // need connectivity wrt the minimum path rank
             tEntitiesConnectedToBaseCell = aBackgroundMesh->get_entity_connected_to_entity_loc_inds(
@@ -2101,7 +2148,8 @@ Integration_Mesh_Generator::commit_new_ig_vertices_to_cut_mesh(
 
     if ( mXTKModel->mDiagnostics )
     {
-        std::string tRequestDiagFile = mXTKModel->get_diagnostic_file_name( std::string( "Requests_rid_" + std::to_string( aDecompositionData->tDecompId ) ) );
+        std::string tRequestDiagFile = 
+                mXTKModel->get_diagnostic_file_name( std::string( "Requests_rid_" + std::to_string( aDecompositionData->tDecompId ) ) );
         aDecompositionData->print( *aBackgroundMesh, tRequestDiagFile );
     }
 
@@ -2120,7 +2168,8 @@ Integration_Mesh_Generator::commit_new_ig_vertices_to_cut_mesh(
     for ( moris::uint iV = 0; iV < aDecompositionData->tNewNodeId.size(); iV++ )
     {
         // construct coordinate matrix
-        aCutIntegrationMesh->mVertexCoordinates( aDecompositionData->tNewNodeIndex( iV ) ) = std::make_shared< Matrix< DDRMat > >( aDecompositionData->tNewNodeCoordinate( iV ) );
+        aCutIntegrationMesh->mVertexCoordinates( aDecompositionData->tNewNodeIndex( iV ) ) = 
+                std::make_shared< Matrix< DDRMat > >( aDecompositionData->tNewNodeCoordinate( iV ) );
 
         // create a controlled vertex (meaning I need to manage memory of it)
         aCutIntegrationMesh->mControlledIgVerts( tControlledVertexIndex ) = std::make_shared< moris::mtk::Vertex_XTK >(
@@ -2130,29 +2179,35 @@ Integration_Mesh_Generator::commit_new_ig_vertices_to_cut_mesh(
             aCutIntegrationMesh->mVertexCoordinates( aDecompositionData->tNewNodeIndex( iV ) ) );
 
         // add vertex coordinates to the mesh data
-        aCutIntegrationMesh->mIntegrationVertices( aDecompositionData->tNewNodeIndex( iV ) ) = aCutIntegrationMesh->mControlledIgVerts( tControlledVertexIndex ).get();
+        aCutIntegrationMesh->mIntegrationVertices( aDecompositionData->tNewNodeIndex( iV ) ) = 
+                aCutIntegrationMesh->mControlledIgVerts( tControlledVertexIndex ).get();
         tControlledVertexIndex++;
 
         // add to the map
-        MORIS_ASSERT( aCutIntegrationMesh->mIntegrationVertexIdToIndexMap.find( aDecompositionData->tNewNodeId( iV ) ) == aCutIntegrationMesh->mIntegrationVertexIdToIndexMap.end(), "Id already in the map" );
+        MORIS_ASSERT( aCutIntegrationMesh->mIntegrationVertexIdToIndexMap.find( 
+                aDecompositionData->tNewNodeId( iV ) ) == aCutIntegrationMesh->mIntegrationVertexIdToIndexMap.end(), "Id already in the map" );
         aCutIntegrationMesh->mIntegrationVertexIdToIndexMap[aDecompositionData->tNewNodeId( iV )] = aDecompositionData->tNewNodeIndex( iV );
 
         // add the ancestry information to the mesh
-        aCutIntegrationMesh->mIgVertexParentEntityRank( aDecompositionData->tNewNodeIndex( iV ) )  = (moris_index)aDecompositionData->tNewNodeParentRank( iV );
-        aCutIntegrationMesh->mIgVertexParentEntityIndex( aDecompositionData->tNewNodeIndex( iV ) ) = (moris_index)aDecompositionData->tNewNodeParentIndex( iV );
+        aCutIntegrationMesh->mIgVertexParentEntityRank( aDecompositionData->tNewNodeIndex( iV ) )  = 
+                (moris_index)aDecompositionData->tNewNodeParentRank( iV );
+        aCutIntegrationMesh->mIgVertexParentEntityIndex( aDecompositionData->tNewNodeIndex( iV ) ) = 
+                (moris_index)aDecompositionData->tNewNodeParentIndex( iV );
     }
 
 
     // iterate through child meshes and commit the vertices to their respective vertex groups
     for ( moris::uint iCM = 0; iCM < (moris::uint)aMeshGenerationData->tNumChildMeshes; iCM++ )
     {
-        MORIS_ERROR( aDecompositionData->tCMNewNodeLoc.size() == (moris::uint)aCutIntegrationMesh->mChildMeshes.size(), "Mismatch in child mesh sizes. All child meshes need to be present in the decomposition data" );
+        MORIS_ERROR( aDecompositionData->tCMNewNodeLoc.size() == (moris::uint)aCutIntegrationMesh->mChildMeshes.size(), 
+                "Mismatch in child mesh sizes. All child meshes need to be present in the decomposition data" );
 
         // add the vertices to child mesh groups
         moris_index tNumNewVertices = (moris_index)aDecompositionData->tCMNewNodeLoc( iCM ).size();
 
         // resize the vertices in the group
-        aCutIntegrationMesh->mIntegrationVertexGroups( iCM )->reserve( tNumNewVertices + aCutIntegrationMesh->mIntegrationVertexGroups( iCM )->size() );
+        aCutIntegrationMesh->mIntegrationVertexGroups( iCM )->reserve( 
+                tNumNewVertices + aCutIntegrationMesh->mIntegrationVertexGroups( iCM )->size() );
 
         for ( moris::moris_index iCMVerts = 0; iCMVerts < tNumNewVertices; iCMVerts++ )
         {
@@ -2160,7 +2215,9 @@ Integration_Mesh_Generator::commit_new_ig_vertices_to_cut_mesh(
             moris_index      tNewNodeIndex            = aDecompositionData->tNewNodeIndex( tNewNodeLocInDecomp );
             Matrix< DDRMat > tParamCoordWrtParentCell = aDecompositionData->tCMNewNodeParamCoord( iCM )( iCMVerts );
 
-            aCutIntegrationMesh->mIntegrationVertexGroups( iCM )->add_vertex( aCutIntegrationMesh->mIntegrationVertices( tNewNodeIndex ), std::make_shared< Matrix< DDRMat > >( tParamCoordWrtParentCell ) );
+            aCutIntegrationMesh->mIntegrationVertexGroups( iCM )->add_vertex( 
+                    aCutIntegrationMesh->mIntegrationVertices( tNewNodeIndex ), 
+                    std::make_shared< Matrix< DDRMat > >( tParamCoordWrtParentCell ) );
         }
     }
 
@@ -2255,6 +2312,7 @@ Integration_Mesh_Generator::collect_vertex_groups_for_background_cells(
     // iterate through background cells
     for ( moris::uint i = 0; i < aBackgroundCells->size(); i++ )
     {
+        // find current background cell index in map pairing intersected BG cells and child meshes
         auto tCMIter = aMeshGenerationData->mIntersectedBackgroundCellIndexToChildMeshIndex.find( ( *aBackgroundCells )( i )->get_index() );
 
         MORIS_ASSERT( tCMIter != aMeshGenerationData->mIntersectedBackgroundCellIndexToChildMeshIndex.end(), "Must be a non-intersected background cell" );
@@ -2294,7 +2352,27 @@ Integration_Mesh_Generator::allocate_child_meshes(
         MORIS_ASSERT( aCutIntegrationMesh->mParentCellCellGroupIndex( tParentCell->get_index() ) == MORIS_INDEX_MAX, "Double group allocation for parent cell" );
         aCutIntegrationMesh->mParentCellCellGroupIndex( tParentCell->get_index() ) = tCMIndex;
 
-        moris_index                        tNumGeometricVertices = 8;
+// fixme: ...
+std::cout << "Integration_Mesh_Generator::allocate_child_meshes() - WARNING: GENERAlIZE NEEDED FOR MULTIPLE TOPOS" << std::endl;
+    
+        // initialize cell topology
+        moris_index tNumGeometricVertices;
+        
+        // fixme: is there a more elegant way to decide on the tNumGeometricVertices?
+        // get number of spatial dimensions and decide on cell topology of integration elements
+        if ( this->get_spatial_dim() == 2 )
+        {
+            tNumGeometricVertices = 4;
+        }
+        else if ( this->get_spatial_dim() == 3 ) 
+        {
+            tNumGeometricVertices = 8;
+        }
+        else
+        {
+            MORIS_ERROR( false, "Integration_Mesh_Generator::construct_bulk_phase_blocks() - spatial dimension not 2 or 3" );
+        }
+
         moris::Cell< moris::mtk::Vertex* > tParentCellVerts      = tParentCell->get_vertex_pointers();
 
         Matrix< DDRMat > tParamCoords;

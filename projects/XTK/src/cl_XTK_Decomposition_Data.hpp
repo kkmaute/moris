@@ -94,100 +94,102 @@ struct Decomposition_Data
         enum EntityRank         aParentEntityRank,
         moris_index&            aRequestLoc )
     {
-        MORIS_ASSERT( mHasSecondaryIdentifier, "request_exists with a secondary identifier argument should only be called when the decomposition does not need secondary identifiers" );
+        MORIS_ASSERT( mHasSecondaryIdentifier, 
+                "request_exists with a secondary identifier argument should only be called when the decomposition does not need secondary identifiers" );
         bool tRequestExists = false;
         aRequestLoc         = MORIS_INDEX_MAX;
 
         switch ( aParentEntityRank )
         {
-        case ( EntityRank::ELEMENT ):
-        {
-            auto tIter = tElementIndexToNodeLoc.find( aParentEntityIndex );
-
-            // if the iterator is not in the map then this is a request made on a parent element which has not had any requests in it yet.
-            if ( tIter == tElementIndexToNodeLoc.end() )
+            case EntityRank::ELEMENT:
             {
+                auto tIter = tElementIndexToNodeLoc.find( aParentEntityIndex );
+
+                // if the iterator is not in the map then this is a request made on a parent element which has not had any requests in it yet.
+                if ( tIter == tElementIndexToNodeLoc.end() )
+                {
+                    break;
+                }
+
+                // If the parent entity has requests on it, look if the secondary identifier shows up in the second map
+                else
+                {
+                    // location of parent entity cell with secondary map
+                    moris_index tParentEntityLoc = tIter->second;
+
+                    auto tSecondIter = mElementIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc ).find( aParentSecondaryIdentifier );
+                    if ( tSecondIter != mElementIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc ).end() )
+                    {
+                        aRequestLoc    = tSecondIter->second;
+                        tRequestExists = true;
+                    }
+                }
                 break;
             }
-
-            // If the parent entity has requests on it, look if the secondary identifier shows up in the second map
-            else
+            case ( EntityRank::FACE ):
             {
-                // location of parent entity cell with secondary map
-                moris_index tParentEntityLoc = tIter->second;
+                auto tIter = tFaceIndexToNodeLoc.find( aParentEntityIndex );
 
-                auto tSecondIter = mElementIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc ).find( aParentSecondaryIdentifier );
-                if ( tSecondIter != mElementIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc ).end() )
+                // if the iterator is not in the map then this is a request made on a parent face which has not had any requests in it yet.
+                if ( tIter == tFaceIndexToNodeLoc.end() )
                 {
-                    aRequestLoc    = tSecondIter->second;
-                    tRequestExists = true;
+                    break;
                 }
-            }
-            break;
-        }
-        case ( EntityRank::FACE ):
-        {
-            auto tIter = tFaceIndexToNodeLoc.find( aParentEntityIndex );
 
-            // if the iterator is not in the map then this is a request made on a parent face which has not had any requests in it yet.
-            if ( tIter == tFaceIndexToNodeLoc.end() )
-            {
+                // If the parent entity has requests on it, look if the secondary identifier shows up in the second map
+                else
+                {
+                    // location of parent entity in cell of secondary maps
+                    moris_index tParentEntityLoc = tIter->second;
+
+                    // iterator of the secondary identifier
+                    auto tSecondIter = mFaceIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc ).find( aParentSecondaryIdentifier );
+
+                    // if this secondary identifier does not show up then, it is a new request
+                    if ( tSecondIter != mFaceIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc ).end() )
+                    {
+                        tRequestExists = true;
+                        aRequestLoc    = tSecondIter->second;
+                    }
+                }
                 break;
             }
-
-            // If the parent entity has requests on it, look if the secondary identifier shows up in the second map
-            else
+            case ( EntityRank::EDGE ):
             {
-                // location of parent entity in cell of secondary maps
-                moris_index tParentEntityLoc = tIter->second;
+                auto tIter = mEdgeIndexToNodeLoc.find( aParentEntityIndex );
 
-                // iterator of the secondary identifier
-                auto tSecondIter = mFaceIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc ).find( aParentSecondaryIdentifier );
-
-                // if this secondary identifier does not show up then, it is a new request
-                if ( tSecondIter != mFaceIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc ).end() )
+                // if the iterator is not in the map then this is a request made on a parent face which has not had any requests in it yet.
+                if ( tIter == mEdgeIndexToNodeLoc.end() )
                 {
-                    tRequestExists = true;
-                    aRequestLoc    = tSecondIter->second;
+                    break;
                 }
-            }
-            break;
-        }
-        case ( EntityRank::EDGE ):
-        {
-            auto tIter = mEdgeIndexToNodeLoc.find( aParentEntityIndex );
 
-            // if the iterator is not in the map then this is a request made on a parent face which has not had any requests in it yet.
-            if ( tIter == mEdgeIndexToNodeLoc.end() )
-            {
+                // If the parent entity has requests on it, look if the secondary identifier shows up in the second map
+                else
+                {
+                    // location of parent entity in cell of secondary maps
+                    moris_index tParentEntityLoc = tIter->second;
+
+                    // iterator of the secondary identifier
+                    auto tSecondIter = mEdgeIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc ).find( aParentSecondaryIdentifier );
+
+                    // if this secondary identifier does not show up then, it is a new request
+                    if ( tSecondIter != mEdgeIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc ).end() )
+                    {
+                        tRequestExists = true;
+                        aRequestLoc    = tSecondIter->second;
+                    }
+                }
                 break;
             }
-
-            // If the parent entity has requests on it, look if the secondary identifier shows up in the second map
-            else
+            default:
             {
-                // location of parent entity in cell of secondary maps
-                moris_index tParentEntityLoc = tIter->second;
-
-                // iterator of the secondary identifier
-                auto tSecondIter = mEdgeIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc ).find( aParentSecondaryIdentifier );
-
-                // if this secondary identifier does not show up then, it is a new request
-                if ( tSecondIter != mEdgeIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc ).end() )
-                {
-                    tRequestExists = true;
-                    aRequestLoc    = tSecondIter->second;
-                }
+                MORIS_ERROR( 0, "Invalid parent entity rank. Nodes are not supported in this request method at this time" );
+                return false;
+                break;
             }
-            break;
-        }
-        default:
-        {
-            MORIS_ERROR( 0, "Invalid parent entity rank. Nodes are not supported in this request method at this time" );
-            return false;
-            break;
-        }
-        }
+        } // end: switch ( aParentEntityRank )
+
         return tRequestExists;
     }
 
@@ -485,8 +487,9 @@ struct Decomposition_Data
     bool mFirstSubdivision       = false;
 
     // Active child mesh to its nodes location in tNewNodeIndex
-    Cell< Cell< moris_index > >      tCMNewNodeLoc;
-    Cell< Cell< Matrix< DDRMat > > > tCMNewNodeParamCoord; /*Note this stores some duplicate parametric coordinates but is necessary for flexible use*/
+    Cell< Cell< moris_index > >      tCMNewNodeLoc;         // input: Cell group index || output: list of edge indices
+    Cell< Cell< Matrix< DDRMat > > > tCMNewNodeParamCoord;  // input: Cell group index || output: list of coordinates
+                                                            /* Note: this stores some duplicate parametric coordinates but is necessary for flexible use*/
 
     // New node indices
     Cell< moris_index > tNewNodeIndex;

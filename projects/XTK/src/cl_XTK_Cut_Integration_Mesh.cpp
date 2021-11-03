@@ -1697,10 +1697,25 @@ Cut_Integration_Mesh::create_base_cell_blocks()
     {
         moris::mtk::Cell const& tCell = mBackgroundMesh->get_mtk_cell( 0 );
 
-        MORIS_ERROR( tCell.get_geometry_type() == mtk::Geometry_Type::HEX && tCell.get_interpolation_order() == mtk::Interpolation_Order::LINEAR, " Need to abstract by adding get cell topo to cell info class" );
+        MORIS_ERROR( ( tCell.get_geometry_type() == mtk::Geometry_Type::HEX || tCell.get_geometry_type() == mtk::Geometry_Type::QUAD )
+                && tCell.get_interpolation_order() == mtk::Interpolation_Order::LINEAR, "Need to abstract by adding get cell topo to cell info class" );
 
-        enum CellTopology tCellTopo = CellTopology::HEX8;
+        // initialize Cell topology
+        enum CellTopology tCellTopo;
 
+        // get number of spatial dimensions and decide on cell topology
+        if ( this->get_spatial_dim() == 2 )
+        {
+            tCellTopo = CellTopology::QUAD4;
+        }
+        else if ( this->get_spatial_dim() == 3 ) 
+        {
+            tCellTopo = CellTopology::HEX8;
+        }
+        else
+        {
+            MORIS_ERROR( false, "Cut_Integration_Mesh::create_base_cell_blocks() - spatial dimension not 2 or 3" );
+        }
 
         Cell< moris_index > tBlockSetOrds = this->register_block_set_names( { tBlockName }, tCellTopo );
 

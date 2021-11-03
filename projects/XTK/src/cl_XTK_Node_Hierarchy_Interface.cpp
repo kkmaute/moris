@@ -15,7 +15,7 @@ namespace xtk
 enum Decomposition_Algorithm_Type
 Node_Hierarchy_Interface::get_algorithm_type() const
 {
-    return Decomposition_Algorithm_Type::NODE_HEIRARCHY;
+    return Decomposition_Algorithm_Type::NODE_HEIRARCHY; //NODE_HIERARCHY
 }
 moris_index
 Node_Hierarchy_Interface::get_signature() const
@@ -23,11 +23,15 @@ Node_Hierarchy_Interface::get_signature() const
     return 102;
 }
 
+// ----------------------------------------------------------------------------------
+
 bool
 Node_Hierarchy_Interface::has_geometric_independent_vertices() const
 {
     return false;
 }
+
+// ----------------------------------------------------------------------------------
 
 void
 Node_Hierarchy_Interface::perform(
@@ -85,11 +89,11 @@ Node_Hierarchy_Interface::perform(
         aMeshGenerator->create_edges_from_element_to_node( tIgCellsInGroups, tIgCellGroupEdgeConnectivity );
 
         // collect a representative background cell for each edges
-        moris::Cell< moris::mtk::Cell* > tBackgroundCellForEdge;
+        moris::Cell< moris::mtk::Cell* > tBackgroundCellForEdge; // input: edge index || output: BG cell it belongs to
         aMeshGenerator->select_background_cell_for_edge( tIgCellGroupEdgeConnectivity, aCutIntegrationMesh, tBackgroundCellForEdge );
 
         // collect the vertex group related to the representative background cell
-        moris::Cell< std::shared_ptr< IG_Vertex_Group > > tVertexGroups;
+        moris::Cell< std::shared_ptr< IG_Vertex_Group > > tVertexGroups; // input: BG cell index || output: IG vertex group
         aMeshGenerator->collect_vertex_groups_for_background_cells( aMeshGenerationData, aCutIntegrationMesh, &tBackgroundCellForEdge, &tVertexGroups );
 
         // deduce the edge parent entity index and rank
@@ -110,7 +114,7 @@ Node_Hierarchy_Interface::perform(
         // give all these nodes ids
         aMeshGenerator->assign_node_requests_identifiers( *aDecompositionData, aCutIntegrationMesh, aBackgroundMesh, this->get_signature() );
 
-        // create associatios between child meshes and the vertices we need this to commit the data to the integration mesh
+        // create associations between child meshes and the vertices we need this to commit the data to the integration mesh
         this->associate_new_vertices_with_cell_groups(
             tIgCellGroupEdgeConnectivity,
             tIgEdgeAncestry,
@@ -130,6 +134,8 @@ Node_Hierarchy_Interface::perform(
     }
 }
 
+// ----------------------------------------------------------------------------------
+
 bool
 Node_Hierarchy_Interface::determine_intersected_edges_and_make_requests(
     std::shared_ptr< Edge_Based_Connectivity >         aEdgeConnectivity,
@@ -141,20 +147,22 @@ Node_Hierarchy_Interface::determine_intersected_edges_and_make_requests(
 {
     Tracer tTracer( "XTK", "Decomposition_Algorithm", "Determine Intersected Edges" );
 
+    // get first unused index for nodes for numbering new nodes
     moris::moris_index tNewNodeIndex = mCutIntegrationMesh->get_first_available_index( EntityRank::NODE );
 
+    // initialize intersection information
     aIntersectedEdges.clear();
-    aEdgeLocalCoordinate.clear();
-
     aIntersectedEdges.reserve( aEdgeConnectivity->mEdgeVertices.size() );
+    aEdgeLocalCoordinate.clear();
     aEdgeLocalCoordinate.reserve( aEdgeConnectivity->mEdgeVertices.size() );
 
     // the query interface
     // Initialize geometric query
+    // (object which holds/collects all information needed to determine an intersection 
+    // (e.g. data of an edge and its relation to its Child Mesh and BG Cell))
     Geometric_Query_XTK tGeometricQuery;
 
     // setup the query data (fixed parts for this function)
-
     tGeometricQuery.set_query_type( moris::ge::Query_Type::INTERSECTION_LOCATION );
     tGeometricQuery.set_coordinates_matrix( mCutIntegrationMesh->get_all_vertex_coordinates_loc_inds() );
     tGeometricQuery.set_cut_integration_mesh( mCutIntegrationMesh );
@@ -169,39 +177,56 @@ Node_Hierarchy_Interface::determine_intersected_edges_and_make_requests(
     //iterate through the edges in aEdgeConnectivity ask the geometry engine if we are intersected
     for ( moris::uint iEdge = 0; iEdge < aEdgeConnectivity->mEdgeVertices.size(); iEdge++ )
     {
+        
+        // initialize matrix storing intersection point on edge in parametric coords of BG cell
         if ( iEdge == 0 )
         {
             tGeometricQuery.set_parametric_coordinate_size( ( *aBackgroundCellForEdge )( iEdge )->get_cell_info()->get_loc_coord_dim() );
         }
-        // update the current edge index
+
+        // update the current edge index treated
         tGeometricQuery.set_current_edge_index( iEdge );
 
-        // change out the parent cell
+        // update parent cell to BG cell of treated edge
         tGeometricQuery.set_parent_cell( ( *aBackgroundCellForEdge )( iEdge ) );
 
         // see if the edge is intersected using the geometry engine
         bool tIsIntersected = mGeometryEngine->geometric_query( &tGeometricQuery );
 
+        // for intersected edges, invoke intersection procedure
         if ( tIsIntersected )
         {
+            // check if both end vertices of edge are on the interface, if so, skip intersection procedure
             if ( !mGeometryEngine->queued_intersection_first_parent_on_interface() && !mGeometryEngine->queued_intersection_second_parent_on_interface() )
             {
-
+                // add index and intersection position to list of intersected edges
                 aIntersectedEdges.push_back( (moris_index)iEdge );
                 aEdgeLocalCoordinate.push_back( mGeometryEngine->get_queued_intersection_local_coordinate() );
 
-                moris_index tParentIndex               = aIgEdgeAncestry->mEdgeParentEntityIndex( iEdge );
-                moris_index tParentRank                = aIgEdgeAncestry->mEdgeParentEntityRank( iEdge );
-                moris_index tSecondaryId               = this->hash_edge( aEdgeConnectivity->mEdgeVertices( iEdge ) );
+                // get edge parent entity index and rank
+                moris_index tParentIndex = aIgEdgeAncestry->mEdgeParentEntityIndex( iEdge );
+                moris_index tParentRank  = aIgEdgeAncestry->mEdgeParentEntityRank( iEdge );
+                
+                // get unique edge id based on two end vertices of edge 
+                moris_index tSecondaryId = this->hash_edge( aEdgeConnectivity->mEdgeVertices( iEdge ) );
+                
+                // initialize variable holding possible new node index
                 moris_index tNewNodeIndexInSubdivision = MORIS_INDEX_MAX;
-                bool        tRequestExist              = mDecompositionData->request_exists( tParentIndex, tSecondaryId, (enum EntityRank)tParentRank, tNewNodeIndexInSubdivision );
 
+                // check if new node for current edge has already been requested ...
+                bool tRequestExist = mDecompositionData->request_exists( 
+                        tParentIndex, 
+                        tSecondaryId, 
+                        (enum EntityRank)tParentRank, 
+                        tNewNodeIndexInSubdivision );
+
+                // ... if not request it
                 if ( !tRequestExist )
                 {
+                    // find out which processor owns parent entity of currently treated edge
                     moris::moris_index tOwningProc = mBackgroundMesh->get_entity_owner( tParentIndex, (enum EntityRank)tParentRank );
 
-
-                    // Register new request
+                    // Register new node request
                     tNewNodeIndexInSubdivision = mDecompositionData->register_new_request(
                         tParentIndex,
                         tSecondaryId,
@@ -209,15 +234,21 @@ Node_Hierarchy_Interface::determine_intersected_edges_and_make_requests(
                         (enum EntityRank)tParentRank,
                         mGeometryEngine->get_queued_intersection_global_coordinates() );
 
+                    // create new node in GEN
                     mGeometryEngine->admit_queued_intersection( tNewNodeIndex );
+
+                    // count number of new nodes created
                     tNewNodeIndex++;
                 }
             }
         }
     }
 
+    // return success if finished
     return true;
 }
+
+// ----------------------------------------------------------------------------------
 
 bool
 Node_Hierarchy_Interface::associate_new_vertices_with_cell_groups(
@@ -228,20 +259,24 @@ Node_Hierarchy_Interface::associate_new_vertices_with_cell_groups(
     moris::Cell< moris_index >*                        aIntersectedEdges,
     moris::Cell< moris::real >*                        aEdgeLocalCoordinate )
 {
+    // trace this function
     Tracer tTracer( "XTK", "Decomposition_Algorithm", "Vertex Associations" );
-    // number of child meshes
+    
+    // number of child meshes to be decomposed using node hierarchy alg.
     moris_index tNumChildMeshes = mMeshGenerationData->mIntersectedBackgroundCellIndexToChildMeshIndex.size();
 
     // estimate required space for the data in decomposition data
     mDecompositionData->tCMNewNodeLoc        = Cell< Cell< moris_index > >( tNumChildMeshes );
     mDecompositionData->tCMNewNodeParamCoord = Cell< Cell< Matrix< DDRMat > > >( tNumChildMeshes );
 
+    // get dimensionality of parent coords in BG cell
     moris_index tDimParamCoords = 0;
     if ( aBackgroundCellForEdge->size() > 0 )
     {
         tDimParamCoords = ( *aBackgroundCellForEdge )( 0 )->get_cell_info()->get_loc_coord_dim();
     }
 
+    // list of node coords 
     moris::Matrix< moris::DDRMat > tEdgeNodeParamCoordinates( 2, tDimParamCoords );
 
     Cell< moris::uint > tCellGroups;
@@ -259,9 +294,11 @@ Node_Hierarchy_Interface::associate_new_vertices_with_cell_groups(
             // integration cell just grab the first
             moris::mtk::Cell* tCell = aEdgeConnectivity->mEdgeToCell( tEdgeIndex )( iCell );
 
+            // fill list of Cell groups the edge is related to
             tCellGroups.push_back( mCutIntegrationMesh->get_ig_cell_group_memberships( tCell->get_index() )( 0 ) );
         }
 
+        // remove duplicates from list
         moris::unique( tCellGroups );
 
         //iterate through the unique cell groups
@@ -280,17 +317,21 @@ Node_Hierarchy_Interface::associate_new_vertices_with_cell_groups(
             std::shared_ptr< Matrix< DDRMat > > tVertex0LocalCoords = tVertGroup->get_vertex_local_coords( aEdgeConnectivity->mEdgeVertices( tEdgeIndex )( 0 )->get_index() );
             std::shared_ptr< Matrix< DDRMat > > tVertex1LocalCoords = tVertGroup->get_vertex_local_coords( aEdgeConnectivity->mEdgeVertices( tEdgeIndex )( 1 )->get_index() );
 
+            // initialize variables to store coords of new vertex
             tEdgeNodeParamCoordinates.set_row( 0, *tVertex0LocalCoords );
             tEdgeNodeParamCoordinates.set_row( 1, *tVertex1LocalCoords );
 
+            // get parametric coords wrt BG element where new vertex sits
             moris::Matrix< moris::DDRMat > tParametricCoordsRelativeToParentElem =
                 Interpolation::linear_interpolation_location( tEdgeNodeParamCoordinates, { { ( *aEdgeLocalCoordinate )( iEdge ) } } );
 
+            // list of edges and locations to create new nodes on added to decomp. data
             mDecompositionData->tCMNewNodeLoc( tCellGroupMembershipIndex ).push_back( iEdge );
             mDecompositionData->tCMNewNodeParamCoord( tCellGroupMembershipIndex ).push_back( tParametricCoordsRelativeToParentElem );
         }
     }
 
+    // return success if function is done
     return true;
 }
 
@@ -358,19 +399,34 @@ Node_Hierarchy_Interface::select_ig_cell_groups(
     }
 }
 
+// ----------------------------------------------------------------------------------
+
 void
 Node_Hierarchy_Interface::create_node_hierarchy_integration_cells(
     std::shared_ptr< Edge_Based_Connectivity > aEdgeConnectivity,
     std::shared_ptr< Edge_Based_Ancestry >     aIgEdgeAncestry,
     moris::Cell< moris_index >*                aIntersectedEdges )
 {
+    // time/log function
     Tracer tTracer( "XTK", "Node_Hierarchy_Interface", "Create NH IG Cells" );
+    
     // starting with a clean slate here
     mNumNewCells = 0;
 
-    moris::Cell< std::shared_ptr< moris::Cell< moris_index > > >         tCellIndexIntersectedEdgeOrdinals( mCutIntegrationMesh->get_num_entities( EntityRank::ELEMENT, 0 ), nullptr );
-    moris::Cell< std::shared_ptr< moris::Cell< moris::mtk::Vertex* > > > tCellIndexIntersectedEdgeVertex( mCutIntegrationMesh->get_num_entities( EntityRank::ELEMENT, 0 ), nullptr );
-    this->determine_intersected_cell_information( aEdgeConnectivity, aIntersectedEdges, &tCellIndexIntersectedEdgeOrdinals, &tCellIndexIntersectedEdgeVertex );
+    // initialize map, input: IG Cell index || output: list of intersected edge ordinals (?)
+    moris::Cell< std::shared_ptr< moris::Cell< moris_index > > >         
+            tCellIndexIntersectedEdgeOrdinals( mCutIntegrationMesh->get_num_entities( EntityRank::ELEMENT, 0 ), nullptr );
+
+    // initialize map, input: IG Cell index || output: list of intersected vertex ordinals (?)
+    moris::Cell< std::shared_ptr< moris::Cell< moris::mtk::Vertex* > > > 
+            tCellIndexIntersectedEdgeVertex( mCutIntegrationMesh->get_num_entities( EntityRank::ELEMENT, 0 ), nullptr );
+
+    // fill necessary information in maps initialized above
+    this->determine_intersected_cell_information( 
+            aEdgeConnectivity, 
+            aIntersectedEdges, 
+            &tCellIndexIntersectedEdgeOrdinals, 
+            &tCellIndexIntersectedEdgeVertex );
 
     moris::Cell< std::shared_ptr< moris::Cell< moris::mtk::Vertex* > > > tNodesForTemplates( mCutIntegrationMesh->get_num_entities( EntityRank::ELEMENT, 0 ), nullptr );
     moris::Cell< std::shared_ptr< Node_Hierarchy_Template > >            tNHTemplate( mCutIntegrationMesh->get_num_entities( EntityRank::ELEMENT, 0 ), nullptr );
@@ -380,6 +436,8 @@ Node_Hierarchy_Interface::create_node_hierarchy_integration_cells(
     moris_index                              tNumNewCells  = 0;
     moris_index                              tNodesPerCell = 0;
     std::shared_ptr< moris::mtk::Cell_Info > tCellInfo     = nullptr;
+    
+    // Case: 3D mesh
     if ( mBackgroundMesh->get_spatial_dim() == 3 )
     {
         tNumNewCells = this->select_node_hier_3d_template(
@@ -394,16 +452,26 @@ Node_Hierarchy_Interface::create_node_hierarchy_integration_cells(
         tCellInfo = tFactory.create_cell_info_sp( CellTopology::TET4 );
     }
 
+    // Case: 2D mesh
     else if ( mBackgroundMesh->get_spatial_dim() == 2 )
     {
-        MORIS_ERROR( 0, "TODO" );
+        tNumNewCells = this->select_node_hier_2d_template(
+            &tCellIndexIntersectedEdgeOrdinals,
+            &tCellIndexIntersectedEdgeVertex,
+            &tNodesForTemplates,
+            &tNHTemplate );
+
+        // constant parameters for 2d case
+        tNodesPerCell = 3;
+        moris::mtk::Cell_Info_Factory tFactory;
+        tCellInfo = tFactory.create_cell_info_sp( CellTopology::TRI3 );
     }
 
+    // Error for other number of spatial dims
     else
     {
         MORIS_ERROR( 0, "Only implemented in 2d and 3d." );
     }
-
 
     // allocate the algorithm data
     mNewCellToVertexConnectivity = moris::Cell< moris::Cell< moris::moris_index > >( tNumNewCells, moris::Cell< moris::moris_index >( tNodesPerCell ) );
@@ -455,6 +523,8 @@ Node_Hierarchy_Interface::create_node_hierarchy_integration_cells(
     }
 }
 
+// ----------------------------------------------------------------------------------
+
 void
 Node_Hierarchy_Interface::determine_intersected_cell_information(
     std::shared_ptr< Edge_Based_Connectivity >                            aEdgeConnectivity,
@@ -468,11 +538,13 @@ Node_Hierarchy_Interface::determine_intersected_cell_information(
     // iterate through intersected edges and figure out which side ordinals of an ig cell is intersected
     for ( moris::uint iEdge = 0; iEdge < aIntersectedEdges->size(); iEdge++ )
     {
+        // get index of currently treated edge
         moris_index tEdgeIndex = ( *aIntersectedEdges )( iEdge );
 
-        // vertex on the edge
+        // new vertex on the edge
         moris::mtk::Vertex* tVertexOnEdge = mCutIntegrationMesh->get_mtk_vertex_pointer( mDecompositionData->tNewNodeIndex( iEdge ) );
 
+        // go through cells attached to current edge
         for ( moris::uint iCell = 0; iCell < aEdgeConnectivity->mEdgeToCell( tEdgeIndex ).size(); iCell++ )
         {
             // integration cell with this edge
@@ -494,6 +566,72 @@ Node_Hierarchy_Interface::determine_intersected_cell_information(
         }
     }
 }
+
+// ----------------------------------------------------------------------------------
+
+moris_index
+Node_Hierarchy_Interface::select_node_hier_2d_template(
+    moris::Cell< std::shared_ptr< moris::Cell< moris_index > > >*         aCellIndexIntersectedEdgeOrdinals,
+    moris::Cell< std::shared_ptr< moris::Cell< moris::mtk::Vertex* > > >* aCellIndexIntersectedEdgeVertex,
+    moris::Cell< std::shared_ptr< moris::Cell< moris::mtk::Vertex* > > >* aNodesForTemplates,
+    moris::Cell< std::shared_ptr< Node_Hierarchy_Template > >*            aNHTemplate )
+{
+    // tally up the total number of cells we are going to construct
+    moris_index tNumNewIgCells = 0;
+
+    mNumNewCells = 0;
+
+    std::unordered_map< moris_index, std::shared_ptr< Node_Hierarchy_Template > > tLoadedTemplates;
+    std::shared_ptr< Matrix< IdMat > >                                            tEdgeToVertexOrdinalMap = nullptr;
+
+    Node_Hierachy_Template_Library tLibrary;
+
+    // iterate through cells
+    for ( moris::uint iCell = 0; iCell < aCellIndexIntersectedEdgeOrdinals->size(); iCell++ )
+    {
+        if ( ( *aCellIndexIntersectedEdgeOrdinals )( iCell ) != nullptr )
+        {
+            moris::mtk::Cell const* tIgCell = &mCutIntegrationMesh->get_mtk_cell( iCell );
+
+            if ( tEdgeToVertexOrdinalMap == nullptr )
+            {
+                tEdgeToVertexOrdinalMap = std::make_shared< Matrix< IdMat > >( tIgCell->get_cell_info()->get_node_to_edge_map() );
+            }
+            moris_index tPermutationId = MORIS_INDEX_MAX;
+
+            ( *aNodesForTemplates )( iCell ) = std::make_shared< moris::Cell< moris::mtk::Vertex* > >();
+            ( *aNodesForTemplates )( iCell )->reserve( 5 ); 
+
+            this->sort_nodes_2d(
+                tIgCell,
+                tEdgeToVertexOrdinalMap.get(),
+                ( *aCellIndexIntersectedEdgeOrdinals )( iCell ),
+                ( *aCellIndexIntersectedEdgeVertex )( iCell ),
+                tPermutationId,
+                ( *aNodesForTemplates )( iCell ) );
+
+            // std::cout<<"tPermutationId = "<<tPermutationId<<std::endl;
+            // moris::print(*(*aNodesForTemplates)(iCell),"(*aNodesForTemplates)(iCell)");
+
+            // if we haven't used this template yet, load it up
+            if ( tLoadedTemplates.find( tPermutationId ) == tLoadedTemplates.end() )
+            {
+                std::shared_ptr< Node_Hierarchy_Template > tNewTemplate = std::make_shared< Node_Hierarchy_Template >();
+                tLibrary.load_template( 2, tPermutationId, tNewTemplate.get() );
+
+                tLoadedTemplates[tPermutationId] = tNewTemplate;
+            }
+            ( *aNHTemplate )( iCell ) = tLoadedTemplates[tPermutationId];
+
+
+            tNumNewIgCells = tNumNewIgCells + ( *aNHTemplate )( iCell )->mNumCells;
+            mNumNewCells   = mNumNewCells + ( *aNHTemplate )( iCell )->mNumCells - 1;
+        }
+    }
+    return tNumNewIgCells;
+}
+
+// ----------------------------------------------------------------------------------
 
 moris_index
 Node_Hierarchy_Interface::select_node_hier_3d_template(
@@ -528,7 +666,7 @@ Node_Hierarchy_Interface::select_node_hier_3d_template(
             ( *aNodesForTemplates )( iCell ) = std::make_shared< moris::Cell< moris::mtk::Vertex* > >();
             ( *aNodesForTemplates )( iCell )->reserve( 8 );
 
-            this->sort_nodes(
+            this->sort_nodes_3d(
                 tIgCell,
                 tEdgeToVertexOrdinalMap.get(),
                 ( *aCellIndexIntersectedEdgeOrdinals )( iCell ),
@@ -558,8 +696,83 @@ Node_Hierarchy_Interface::select_node_hier_3d_template(
     return tNumNewIgCells;
 }
 
+// ----------------------------------------------------------------------------------
+
 void
-Node_Hierarchy_Interface::sort_nodes(
+Node_Hierarchy_Interface::sort_nodes_2d(
+    moris::mtk::Cell const*                               aIgCell,
+    Matrix< IndexMat >*                                   aEdgeToVertexOrdinalMap,
+    std::shared_ptr< moris::Cell< moris_index > >         aCellIndexIntersectedEdgeOrdinals,
+    std::shared_ptr< moris::Cell< moris::mtk::Vertex* > > aCellIndexIntersectedEdgeVertex,
+    moris_index&                                          aPermutation,
+    std::shared_ptr< moris::Cell< moris::mtk::Vertex* > > aSortedNodeInds )
+{
+    // hier TRI3
+    MORIS_ERROR( mBackgroundMesh->get_spatial_dim() == 2, "Node_Hierarchy_Interface::sort_nodes_2d() - number of spatial dimensions is not 2." );
+
+    // initialize original index locations
+    moris::Cell< moris_index > tIndices( aCellIndexIntersectedEdgeOrdinals->size() );
+    std::iota( tIndices.data().begin(), tIndices.data().end(), 0 );
+
+    // get ascending order vertices
+    std::stable_sort( 
+            tIndices.data().begin(), 
+            tIndices.data().end(), 
+            [&]( std::size_t i1, std::size_t i2 ) 
+            { 
+                return ( *aCellIndexIntersectedEdgeVertex )( i1 )->get_id() < ( *aCellIndexIntersectedEdgeVertex )( i2 )->get_id(); 
+            } );
+
+    Cell< moris::mtk::Vertex* > tVertices = aIgCell->get_vertex_pointers();
+
+// debug
+std::cout << "-------------------------------------------------------------------------\n" << std::flush; 
+std::cout << "aCellIndexIntersectedEdgeOrdinals->size() = " << aCellIndexIntersectedEdgeOrdinals->size() << " \n" << std::flush;
+std::cout << "tIndices.size() = " << tIndices.size() << " \n" << std::flush;
+std::cout << "tVertices.size() = " << tVertices.size() << " \n" << std::flush;
+print( tVertices, "tVertices" );
+print( tIndices, "tIndices" );
+
+    // intersection goes through two edges
+    if ( aCellIndexIntersectedEdgeOrdinals->size() == 2 )
+    {
+        // get unique permutation id, identifiying which template to use
+        moris_index tLowVertexIdEdgeOrd  = ( *aCellIndexIntersectedEdgeOrdinals )( tIndices( 0 ) );
+        moris_index tHighVertexIdEdgeOrd = ( *aCellIndexIntersectedEdgeOrdinals )( tIndices( 1 ) );
+        aPermutation = tLowVertexIdEdgeOrd + tHighVertexIdEdgeOrd;
+
+        aSortedNodeInds->resize( 5 );
+        ( *aSortedNodeInds )( 0 ) = tVertices( 0 );
+        ( *aSortedNodeInds )( 1 ) = tVertices( 1 );
+        ( *aSortedNodeInds )( 2 ) = tVertices( 2 );
+        ( *aSortedNodeInds )( 3 ) = ( *aCellIndexIntersectedEdgeVertex )( tIndices( 0 ) );
+        ( *aSortedNodeInds )( 4 ) = ( *aCellIndexIntersectedEdgeVertex )( tIndices( 1 ) );
+
+print( *aCellIndexIntersectedEdgeVertex, "*aCellIndexIntersectedEdgeVertex" );
+print( *aCellIndexIntersectedEdgeOrdinals, "*aCellIndexIntersectedEdgeOrdinals" );
+print( *aSortedNodeInds , "*aSortedNodeInds" );
+std::cout << "Permutation-ID: " <<  aPermutation << " \n" << std::flush;
+std::cout << "-------------------------------------------------------------------------\n" << std::flush;  
+    }
+
+    // intersection goes through one of the vertices
+    else if ( aCellIndexIntersectedEdgeOrdinals->size() == 1 )
+    {
+        moris_index tVertexIdEdgeOrd  = ( *aCellIndexIntersectedEdgeOrdinals )( tIndices( 0 ) );
+        aPermutation = tVertexIdEdgeOrd + 10;
+
+        aSortedNodeInds->resize( 4 );
+        ( *aSortedNodeInds )( 0 ) = tVertices( 0 );
+        ( *aSortedNodeInds )( 1 ) = tVertices( 1 );
+        ( *aSortedNodeInds )( 2 ) = tVertices( 2 );
+        ( *aSortedNodeInds )( 3 ) = ( *aCellIndexIntersectedEdgeVertex )( tIndices( 0 ) );
+    }
+}
+
+// ----------------------------------------------------------------------------------
+
+void
+Node_Hierarchy_Interface::sort_nodes_3d(
     moris::mtk::Cell const*                               aIgCell,
     Matrix< IndexMat >*                                   aEdgeToVertexOrdinalMap,
     std::shared_ptr< moris::Cell< moris_index > >         aCellIndexIntersectedEdgeOrdinals,
@@ -568,8 +781,8 @@ Node_Hierarchy_Interface::sort_nodes(
     std::shared_ptr< moris::Cell< moris::mtk::Vertex* > > aSortedNodeInds )
 {
     // hier tet 4
-    if ( mBackgroundMesh->get_spatial_dim() == 3 )
-    {
+    MORIS_ERROR( mBackgroundMesh->get_spatial_dim() == 3, "Node_Hierarchy_Interface::sort_nodes_3d() - number of spatial dimensions is not 3." );
+    
         // initialize original index locations
         moris::Cell< moris_index > tIndices( aCellIndexIntersectedEdgeOrdinals->size() );
         std::iota( tIndices.data().begin(), tIndices.data().end(), 0 );
@@ -729,746 +942,7 @@ Node_Hierarchy_Interface::sort_nodes(
             ( *aSortedNodeInds )( 4 ) = ( *aCellIndexIntersectedEdgeVertex )( tIndices( 0 ) );
             aPermutation              = 10000 + ( *aCellIndexIntersectedEdgeOrdinals )( tIndices( 0 ) );
         }
-
-        else
-        {
-            MORIS_ERROR( 0, "Unhandled template 3d node hierarchy" );
         }
-    }
-}
+// ----------------------------------------------------------------------------------
 
-void
-Node_Hierachy_Template_Library::load_template(
-    moris_index              aSpatialDim,
-    moris_index              aTemplateId,
-    Node_Hierarchy_Template* aNodeHierTemplate )
-{
-    if ( aSpatialDim == 3 )
-    {
-
-        this->load_3d_template( aTemplateId, aNodeHierTemplate );
-    }
-}
-
-void
-Node_Hierachy_Template_Library::load_3d_template(
-    moris_index              aTemplateId,
-    Node_Hierarchy_Template* aNodeHierTemplate )
-{
-    aNodeHierTemplate->mCellTopology = CellTopology::TET4;
-    switch ( aTemplateId )
-    {
-    case ( 320 ):
-    {
-        // Permutation 320
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 4, 5, 6 }, { 4, 1, 5, 6 }, { 1, 2, 5, 6 }, { 1, 3, 2, 6 } } );
-        aNodeHierTemplate->mNumCells          = 4;
-        break;
-    }
-
-    case ( 32 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 4, 5, 6 }, { 4, 1, 5, 6 }, { 1, 2, 5, 6 }, { 1, 3, 2, 6 } } );
-        aNodeHierTemplate->mNumCells          = 4;
-        break;
-    }
-
-
-    case ( 203 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 4, 5, 6 }, { 4, 1, 5, 6 }, { 1, 2, 5, 6 }, { 1, 3, 2, 6 } } );
-        aNodeHierTemplate->mNumCells          = 4;
-        break;
-    }
-    case ( 251 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 4, 5, 6 }, { 4, 1, 5, 6 }, { 1, 2, 5, 6 }, { 1, 3, 2, 6 } } );
-        aNodeHierTemplate->mNumCells          = 4;
-        break;
-    }
-
-    case ( 512 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 4, 5, 6 }, { 4, 1, 5, 6 }, { 1, 2, 5, 6 }, { 1, 3, 2, 6 } } );
-        aNodeHierTemplate->mNumCells          = 4;
-        break;
-    }
-    case ( 125 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 4, 5, 6 }, { 4, 1, 5, 6 }, { 1, 2, 5, 6 }, { 1, 3, 2, 6 } } );
-        aNodeHierTemplate->mNumCells          = 4;
-        break;
-    }
-    case ( 140 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 4, 5, 6 }, { 4, 1, 5, 6 }, { 1, 2, 5, 6 }, { 1, 3, 2, 6 } } );
-        aNodeHierTemplate->mNumCells          = 4;
-        break;
-    }
-
-    case ( 401 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 4, 5, 6 }, { 4, 1, 5, 6 }, { 1, 2, 5, 6 }, { 1, 3, 2, 6 } } );
-        aNodeHierTemplate->mNumCells          = 4;
-        break;
-    }
-    case ( 14 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 4, 5, 6 }, { 4, 1, 5, 6 }, { 1, 2, 5, 6 }, { 1, 3, 2, 6 } } );
-        aNodeHierTemplate->mNumCells          = 4;
-        break;
-    }
-    case ( 453 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 4, 5, 6 }, { 4, 1, 5, 6 }, { 1, 2, 5, 6 }, { 1, 3, 2, 6 } } );
-        aNodeHierTemplate->mNumCells          = 4;
-        break;
-    }
-    case ( 534 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 4, 5, 6 }, { 4, 1, 5, 6 }, { 1, 2, 5, 6 }, { 1, 3, 2, 6 } } );
-        aNodeHierTemplate->mNumCells          = 4;
-        break;
-    }
-    case ( 345 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 4, 5, 6 }, { 4, 1, 5, 6 }, { 1, 2, 5, 6 }, { 1, 3, 2, 6 } } );
-        aNodeHierTemplate->mNumCells          = 4;
-        break;
-    }
-
-    case ( 230 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 4, 0, 5, 6 }, { 1, 4, 5, 6 }, { 2, 1, 5, 6 }, { 3, 1, 2, 6 } } );
-        aNodeHierTemplate->mNumCells          = 4;
-        break;
-    }
-    case ( 302 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 4, 0, 5, 6 }, { 1, 4, 5, 6 }, { 2, 1, 5, 6 }, { 3, 1, 2, 6 } } );
-        aNodeHierTemplate->mNumCells          = 4;
-        break;
-    }
-    case ( 23 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 4, 0, 5, 6 }, { 1, 4, 5, 6 }, { 2, 1, 5, 6 }, { 3, 1, 2, 6 } } );
-        aNodeHierTemplate->mNumCells          = 4;
-        break;
-    }
-    case ( 521 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 4, 0, 5, 6 }, { 1, 4, 5, 6 }, { 2, 1, 5, 6 }, { 3, 1, 2, 6 } } );
-        aNodeHierTemplate->mNumCells          = 4;
-        break;
-    }
-    case ( 152 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 4, 0, 5, 6 }, { 1, 4, 5, 6 }, { 2, 1, 5, 6 }, { 3, 1, 2, 6 } } );
-        aNodeHierTemplate->mNumCells          = 4;
-        break;
-    }
-    case ( 215 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 4, 0, 5, 6 }, { 1, 4, 5, 6 }, { 2, 1, 5, 6 }, { 3, 1, 2, 6 } } );
-        aNodeHierTemplate->mNumCells          = 4;
-        break;
-    }
-    case ( 410 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 4, 0, 5, 6 }, { 1, 4, 5, 6 }, { 2, 1, 5, 6 }, { 3, 1, 2, 6 } } );
-        aNodeHierTemplate->mNumCells          = 4;
-        break;
-    }
-    case ( 41 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 4, 0, 5, 6 }, { 1, 4, 5, 6 }, { 2, 1, 5, 6 }, { 3, 1, 2, 6 } } );
-        aNodeHierTemplate->mNumCells          = 4;
-        break;
-    }
-    case ( 104 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 4, 0, 5, 6 }, { 1, 4, 5, 6 }, { 2, 1, 5, 6 }, { 3, 1, 2, 6 } } );
-        aNodeHierTemplate->mNumCells          = 4;
-        break;
-    }
-    case ( 543 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 4, 0, 5, 6 }, { 1, 4, 5, 6 }, { 2, 1, 5, 6 }, { 3, 1, 2, 6 } } );
-        aNodeHierTemplate->mNumCells          = 4;
-        break;
-    }
-    case ( 354 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 4, 0, 5, 6 }, { 1, 4, 5, 6 }, { 2, 1, 5, 6 }, { 3, 1, 2, 6 } } );
-        aNodeHierTemplate->mNumCells          = 4;
-        break;
-    }
-    case ( 435 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 4, 0, 5, 6 }, { 1, 4, 5, 6 }, { 2, 1, 5, 6 }, { 3, 1, 2, 6 } } );
-        aNodeHierTemplate->mNumCells          = 4;
-        break;
-    }
-    case ( 5420 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 3, 7, 6 }, { 4, 3, 6, 7 }, { 4, 3, 7, 5 }, { 1, 2, 7, 5 }, { 2, 4, 7, 5 }, { 4, 2, 7, 6 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 5240 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 3, 7, 6 }, { 4, 3, 6, 7 }, { 4, 3, 7, 5 }, { 1, 2, 7, 5 }, { 2, 4, 7, 5 }, { 4, 2, 7, 6 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 425 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 3, 7, 6 }, { 4, 3, 6, 7 }, { 4, 3, 7, 5 }, { 1, 2, 7, 5 }, { 2, 4, 7, 5 }, { 4, 2, 7, 6 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 3501 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 3, 7, 6 }, { 4, 3, 6, 7 }, { 4, 3, 7, 5 }, { 1, 2, 7, 5 }, { 2, 4, 7, 5 }, { 4, 2, 7, 6 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 1503 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 3, 7, 6 }, { 4, 3, 6, 7 }, { 4, 3, 7, 5 }, { 1, 2, 7, 5 }, { 2, 4, 7, 5 }, { 4, 2, 7, 6 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 3051 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 3, 7, 6 }, { 4, 3, 6, 7 }, { 4, 3, 7, 5 }, { 1, 2, 7, 5 }, { 2, 4, 7, 5 }, { 4, 2, 7, 6 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 1053 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 3, 7, 6 }, { 4, 3, 6, 7 }, { 4, 3, 7, 5 }, { 1, 2, 7, 5 }, { 2, 4, 7, 5 }, { 4, 2, 7, 6 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 4312 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 3, 7, 6 }, { 4, 3, 6, 7 }, { 4, 3, 7, 5 }, { 1, 2, 7, 5 }, { 2, 4, 7, 5 }, { 4, 2, 7, 6 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 2314 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 3, 7, 6 }, { 4, 3, 6, 7 }, { 4, 3, 7, 5 }, { 1, 2, 7, 5 }, { 2, 4, 7, 5 }, { 4, 2, 7, 6 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 4132 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 3, 7, 6 }, { 4, 3, 6, 7 }, { 4, 3, 7, 5 }, { 1, 2, 7, 5 }, { 2, 4, 7, 5 }, { 4, 2, 7, 6 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 2134 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 3, 7, 6 }, { 4, 3, 6, 7 }, { 4, 3, 7, 5 }, { 1, 2, 7, 5 }, { 2, 4, 7, 5 }, { 4, 2, 7, 6 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 245 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 3, 7, 6 }, { 4, 3, 6, 7 }, { 4, 3, 7, 5 }, { 1, 2, 7, 5 }, { 2, 4, 7, 5 }, { 4, 2, 7, 6 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 4502 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 3, 0, 7, 6 }, { 3, 4, 6, 7 }, { 3, 4, 7, 5 }, { 2, 1, 7, 5 }, { 4, 2, 7, 5 }, { 2, 4, 7, 6 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 4052 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 3, 0, 7, 6 }, { 3, 4, 6, 7 }, { 3, 4, 7, 5 }, { 2, 1, 7, 5 }, { 4, 2, 7, 5 }, { 2, 4, 7, 6 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 1243 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 3, 0, 7, 6 }, { 3, 4, 6, 7 }, { 3, 4, 7, 5 }, { 2, 1, 7, 5 }, { 4, 2, 7, 5 }, { 2, 4, 7, 6 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 2504 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 3, 0, 7, 6 }, { 3, 4, 6, 7 }, { 3, 4, 7, 5 }, { 2, 1, 7, 5 }, { 4, 2, 7, 5 }, { 2, 4, 7, 6 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 2054 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 3, 0, 7, 6 }, { 3, 4, 6, 7 }, { 3, 4, 7, 5 }, { 2, 1, 7, 5 }, { 4, 2, 7, 5 }, { 2, 4, 7, 6 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 5310 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 3, 0, 7, 6 }, { 3, 4, 6, 7 }, { 3, 4, 7, 5 }, { 2, 1, 7, 5 }, { 4, 2, 7, 5 }, { 2, 4, 7, 6 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 5130 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 3, 0, 7, 6 }, { 3, 4, 6, 7 }, { 3, 4, 7, 5 }, { 2, 1, 7, 5 }, { 4, 2, 7, 5 }, { 2, 4, 7, 6 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 135 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 3, 0, 7, 6 }, { 3, 4, 6, 7 }, { 3, 4, 7, 5 }, { 2, 1, 7, 5 }, { 4, 2, 7, 5 }, { 2, 4, 7, 6 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 315 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 3, 0, 7, 6 }, { 3, 4, 6, 7 }, { 3, 4, 7, 5 }, { 2, 1, 7, 5 }, { 4, 2, 7, 5 }, { 2, 4, 7, 6 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 3421 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 3, 0, 7, 6 }, { 3, 4, 6, 7 }, { 3, 4, 7, 5 }, { 2, 1, 7, 5 }, { 4, 2, 7, 5 }, { 2, 4, 7, 6 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 3241 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 3, 0, 7, 6 }, { 3, 4, 6, 7 }, { 3, 4, 7, 5 }, { 2, 1, 7, 5 }, { 4, 2, 7, 5 }, { 2, 4, 7, 6 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 1423 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 3, 0, 7, 6 }, { 3, 4, 6, 7 }, { 3, 4, 7, 5 }, { 2, 1, 7, 5 }, { 4, 2, 7, 5 }, { 2, 4, 7, 6 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 4250 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 4, 0, 6, 7 }, { 0, 3, 6, 7 }, { 3, 5, 6, 7 }, { 5, 1, 6, 7 }, { 1, 2, 6, 7 }, { 2, 4, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 2450 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 4, 0, 6, 7 }, { 0, 3, 6, 7 }, { 3, 5, 6, 7 }, { 5, 1, 6, 7 }, { 1, 2, 6, 7 }, { 2, 4, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 4205 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 4, 0, 6, 7 }, { 0, 3, 6, 7 }, { 3, 5, 6, 7 }, { 5, 1, 6, 7 }, { 1, 2, 6, 7 }, { 2, 4, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 2405 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 4, 0, 6, 7 }, { 0, 3, 6, 7 }, { 3, 5, 6, 7 }, { 5, 1, 6, 7 }, { 1, 2, 6, 7 }, { 2, 4, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 5031 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 4, 0, 6, 7 }, { 0, 3, 6, 7 }, { 3, 5, 6, 7 }, { 5, 1, 6, 7 }, { 1, 2, 6, 7 }, { 2, 4, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 5013 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 4, 0, 6, 7 }, { 0, 3, 6, 7 }, { 3, 5, 6, 7 }, { 5, 1, 6, 7 }, { 1, 2, 6, 7 }, { 2, 4, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 531 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 4, 0, 6, 7 }, { 0, 3, 6, 7 }, { 3, 5, 6, 7 }, { 5, 1, 6, 7 }, { 1, 2, 6, 7 }, { 2, 4, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 513 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 4, 0, 6, 7 }, { 0, 3, 6, 7 }, { 3, 5, 6, 7 }, { 5, 1, 6, 7 }, { 1, 2, 6, 7 }, { 2, 4, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 3124 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 4, 0, 6, 7 }, { 0, 3, 6, 7 }, { 3, 5, 6, 7 }, { 5, 1, 6, 7 }, { 1, 2, 6, 7 }, { 2, 4, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 1342 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 4, 0, 6, 7 }, { 0, 3, 6, 7 }, { 3, 5, 6, 7 }, { 5, 1, 6, 7 }, { 1, 2, 6, 7 }, { 2, 4, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 1324 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 4, 0, 6, 7 }, { 0, 3, 6, 7 }, { 3, 5, 6, 7 }, { 5, 1, 6, 7 }, { 1, 2, 6, 7 }, { 2, 4, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 3142 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 4, 0, 6, 7 }, { 0, 3, 6, 7 }, { 3, 5, 6, 7 }, { 5, 1, 6, 7 }, { 1, 2, 6, 7 }, { 2, 4, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 5024 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 4, 6, 7 }, { 3, 0, 6, 7 }, { 5, 3, 6, 7 }, { 1, 5, 6, 7 }, { 2, 1, 6, 7 }, { 4, 2, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 524 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 4, 6, 7 }, { 3, 0, 6, 7 }, { 5, 3, 6, 7 }, { 1, 5, 6, 7 }, { 2, 1, 6, 7 }, { 4, 2, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 5042 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 4, 6, 7 }, { 3, 0, 6, 7 }, { 5, 3, 6, 7 }, { 1, 5, 6, 7 }, { 2, 1, 6, 7 }, { 4, 2, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 542 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 4, 6, 7 }, { 3, 0, 6, 7 }, { 5, 3, 6, 7 }, { 1, 5, 6, 7 }, { 2, 1, 6, 7 }, { 4, 2, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 3150 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 4, 6, 7 }, { 3, 0, 6, 7 }, { 5, 3, 6, 7 }, { 1, 5, 6, 7 }, { 2, 1, 6, 7 }, { 4, 2, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 1350 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 4, 6, 7 }, { 3, 0, 6, 7 }, { 5, 3, 6, 7 }, { 1, 5, 6, 7 }, { 2, 1, 6, 7 }, { 4, 2, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 3105 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 4, 6, 7 }, { 3, 0, 6, 7 }, { 5, 3, 6, 7 }, { 1, 5, 6, 7 }, { 2, 1, 6, 7 }, { 4, 2, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 1305 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 4, 6, 7 }, { 3, 0, 6, 7 }, { 5, 3, 6, 7 }, { 1, 5, 6, 7 }, { 2, 1, 6, 7 }, { 4, 2, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 4231 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 4, 6, 7 }, { 3, 0, 6, 7 }, { 5, 3, 6, 7 }, { 1, 5, 6, 7 }, { 2, 1, 6, 7 }, { 4, 2, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 2431 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 4, 6, 7 }, { 3, 0, 6, 7 }, { 5, 3, 6, 7 }, { 1, 5, 6, 7 }, { 2, 1, 6, 7 }, { 4, 2, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 4213 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 4, 6, 7 }, { 3, 0, 6, 7 }, { 5, 3, 6, 7 }, { 1, 5, 6, 7 }, { 2, 1, 6, 7 }, { 4, 2, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 2413 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 4, 6, 7 }, { 3, 0, 6, 7 }, { 5, 3, 6, 7 }, { 1, 5, 6, 7 }, { 2, 1, 6, 7 }, { 4, 2, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 4520 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 4, 0, 5, 7 }, { 0, 3, 5, 7 }, { 5, 3, 6, 7 }, { 1, 2, 6, 7 }, { 2, 4, 5, 7 }, { 2, 5, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 2540 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 4, 0, 5, 7 }, { 0, 3, 5, 7 }, { 5, 3, 6, 7 }, { 1, 2, 6, 7 }, { 2, 4, 5, 7 }, { 2, 5, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 4025 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 4, 0, 5, 7 }, { 0, 3, 5, 7 }, { 5, 3, 6, 7 }, { 1, 2, 6, 7 }, { 2, 4, 5, 7 }, { 2, 5, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 2045 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 4, 0, 5, 7 }, { 0, 3, 5, 7 }, { 5, 3, 6, 7 }, { 1, 2, 6, 7 }, { 2, 4, 5, 7 }, { 2, 5, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 5301 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 4, 0, 5, 7 }, { 0, 3, 5, 7 }, { 5, 3, 6, 7 }, { 1, 2, 6, 7 }, { 2, 4, 5, 7 }, { 2, 5, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 5103 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 4, 0, 5, 7 }, { 0, 3, 5, 7 }, { 5, 3, 6, 7 }, { 1, 2, 6, 7 }, { 2, 4, 5, 7 }, { 2, 5, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 351 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 4, 0, 5, 7 }, { 0, 3, 5, 7 }, { 5, 3, 6, 7 }, { 1, 2, 6, 7 }, { 2, 4, 5, 7 }, { 2, 5, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 153 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 4, 0, 5, 7 }, { 0, 3, 5, 7 }, { 5, 3, 6, 7 }, { 1, 2, 6, 7 }, { 2, 4, 5, 7 }, { 2, 5, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 3412 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 4, 0, 5, 7 }, { 0, 3, 5, 7 }, { 5, 3, 6, 7 }, { 1, 2, 6, 7 }, { 2, 4, 5, 7 }, { 2, 5, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 3214 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 4, 0, 5, 7 }, { 0, 3, 5, 7 }, { 5, 3, 6, 7 }, { 1, 2, 6, 7 }, { 2, 4, 5, 7 }, { 2, 5, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 1432 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 4, 0, 5, 7 }, { 0, 3, 5, 7 }, { 5, 3, 6, 7 }, { 1, 2, 6, 7 }, { 2, 4, 5, 7 }, { 2, 5, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 1234 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 4, 0, 5, 7 }, { 0, 3, 5, 7 }, { 5, 3, 6, 7 }, { 1, 2, 6, 7 }, { 2, 4, 5, 7 }, { 2, 5, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 5402 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 4, 5, 7 }, { 3, 0, 5, 7 }, { 3, 5, 6, 7 }, { 2, 1, 6, 7 }, { 4, 2, 5, 7 }, { 5, 2, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 452 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 4, 5, 7 }, { 3, 0, 5, 7 }, { 3, 5, 6, 7 }, { 2, 1, 6, 7 }, { 4, 2, 5, 7 }, { 5, 2, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 5204 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 4, 5, 7 }, { 3, 0, 5, 7 }, { 3, 5, 6, 7 }, { 2, 1, 6, 7 }, { 4, 2, 5, 7 }, { 5, 2, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 254 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 4, 5, 7 }, { 3, 0, 5, 7 }, { 3, 5, 6, 7 }, { 2, 1, 6, 7 }, { 4, 2, 5, 7 }, { 5, 2, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 3510 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 4, 5, 7 }, { 3, 0, 5, 7 }, { 3, 5, 6, 7 }, { 2, 1, 6, 7 }, { 4, 2, 5, 7 }, { 5, 2, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 1530 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 4, 5, 7 }, { 3, 0, 5, 7 }, { 3, 5, 6, 7 }, { 2, 1, 6, 7 }, { 4, 2, 5, 7 }, { 5, 2, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 3015 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 4, 5, 7 }, { 3, 0, 5, 7 }, { 3, 5, 6, 7 }, { 2, 1, 6, 7 }, { 4, 2, 5, 7 }, { 5, 2, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 1035 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 4, 5, 7 }, { 3, 0, 5, 7 }, { 3, 5, 6, 7 }, { 2, 1, 6, 7 }, { 4, 2, 5, 7 }, { 5, 2, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 4321 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 4, 5, 7 }, { 3, 0, 5, 7 }, { 3, 5, 6, 7 }, { 2, 1, 6, 7 }, { 4, 2, 5, 7 }, { 5, 2, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 2341 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 4, 5, 7 }, { 3, 0, 5, 7 }, { 3, 5, 6, 7 }, { 2, 1, 6, 7 }, { 4, 2, 5, 7 }, { 5, 2, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 4123 ):
-    {
-
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 4, 5, 7 }, { 3, 0, 5, 7 }, { 3, 5, 6, 7 }, { 2, 1, 6, 7 }, { 4, 2, 5, 7 }, { 5, 2, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 2143 ):
-    {
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 4, 5, 7 }, { 3, 0, 5, 7 }, { 3, 5, 6, 7 }, { 2, 1, 6, 7 }, { 4, 2, 5, 7 }, { 5, 2, 6, 7 } } );
-        aNodeHierTemplate->mNumCells          = 6;
-        break;
-    }
-    case ( 10000 ):
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 4, 2, 3 }, { 4, 1, 2, 3 } } );
-        aNodeHierTemplate->mNumCells          = 2;
-        break;
-    case ( 10001 ):
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 1, 4, 3 }, { 0, 4, 2, 3 } } );
-        aNodeHierTemplate->mNumCells          = 2;
-        break;
-    case ( 10002 ):
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 1, 4, 3 }, { 4, 1, 2, 3 } } );
-        aNodeHierTemplate->mNumCells          = 2;
-        break;
-    case ( 10003 ):
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 1, 2, 4 }, { 4, 1, 2, 3 } } );
-        aNodeHierTemplate->mNumCells          = 2;
-        break;
-    case ( 10004 ):
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 4, 2, 3 }, { 0, 1, 2, 4 } } );
-        aNodeHierTemplate->mNumCells          = 2;
-        break;
-    case ( 10005 ):
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 1, 4, 3 }, { 0, 1, 2, 4 } } );
-        aNodeHierTemplate->mNumCells          = 2;
-        break;
-
-
-    case ( 10250 ):
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 1, 4, 5 }, { 0, 4, 2, 5 }, { 0, 5, 2, 3 } } );
-        aNodeHierTemplate->mNumCells          = 3;
-        break;
-    case ( 10520 ):
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 1, 5, 4 }, { 0, 4, 5, 3 }, { 0, 5, 2, 3 } } );
-        aNodeHierTemplate->mNumCells          = 3;
-        break;
-    case ( 10260 ):
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 1, 4, 5 }, { 0, 1, 5, 3 }, { 0, 4, 2, 5 } } );
-        aNodeHierTemplate->mNumCells          = 3;
-        break;
-    case ( 10620 ):
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 1, 5, 3 }, { 0, 5, 4, 3 }, { 0, 5, 2, 4 } } );
-        aNodeHierTemplate->mNumCells          = 3;
-        break;
-    case ( 10560 ):
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 1, 5, 4 }, { 0, 1, 2, 5 }, { 0, 4, 5, 3 } } );
-        aNodeHierTemplate->mNumCells          = 3;
-        break;
-    case ( 10650 ):
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 1, 2, 5 }, { 0, 5, 2, 4 }, { 0, 5, 4, 3 } } );
-        aNodeHierTemplate->mNumCells          = 3;
-        break;
-    case ( 10640 ):
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 1, 2, 5 }, { 5, 1, 4, 3 }, { 1, 2, 5, 4 } } );
-        aNodeHierTemplate->mNumCells          = 3;
-        break;
-    case ( 10460 ):
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 1, 2, 5 }, { 0, 1, 5, 4 }, { 4, 1, 5, 3 } } );
-        aNodeHierTemplate->mNumCells          = 3;
-        break;
-    case ( 10230 ):
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 5, 4, 2, 3 }, { 1, 4, 5, 3 }, { 0, 1, 5, 3 } } );
-        aNodeHierTemplate->mNumCells          = 3;
-        break;
-    case ( 10320 ):
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 5, 2, 4, 3 }, { 0, 5, 4, 3 }, { 0, 1, 5, 3 } } );
-        aNodeHierTemplate->mNumCells          = 3;
-        break;
-    case ( 10130 ):
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 5, 1, 2, 3 }, { 5, 4, 1, 3 }, { 0, 4, 5, 3 } } );
-        aNodeHierTemplate->mNumCells          = 3;
-        break;
-    case ( 10310 ):
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 5, 1, 2, 3 }, { 4, 5, 2, 3 }, { 0, 5, 4, 3 } } );
-        aNodeHierTemplate->mNumCells          = 3;
-        break;
-    case ( 10120 ):
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 5, 2, 3 }, { 0, 4, 5, 3 }, { 4, 1, 5, 3 } } );
-        aNodeHierTemplate->mNumCells          = 3;
-        break;
-    case ( 10210 ):
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 5, 2, 3 }, { 5, 4, 2, 3 }, { 5, 1, 4, 3 } } );
-        aNodeHierTemplate->mNumCells          = 3;
-        break;
-    case ( 10140 ):
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 4, 2, 5 }, { 4, 1, 2, 5 }, { 5, 1, 2, 3 } } );
-        aNodeHierTemplate->mNumCells          = 3;
-        break;
-    case ( 10410 ):
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 5, 2, 4 }, { 4, 5, 2, 3 }, { 5, 1, 2, 3 } } );
-        aNodeHierTemplate->mNumCells          = 3;
-        break;
-    case ( 10150 ):
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 4, 2, 5 }, { 4, 1, 2, 5 }, { 0, 5, 2, 3 } } );
-        aNodeHierTemplate->mNumCells          = 3;
-        break;
-    case ( 10510 ):
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 5, 1, 2, 4 }, { 5, 4, 2, 3 }, { 0, 5, 2, 3 } } );
-        aNodeHierTemplate->mNumCells          = 3;
-        break;
-    case ( 10450 ):
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 5, 2, 4 }, { 0, 1, 2, 5 }, { 4, 5, 2, 3 } } );
-        aNodeHierTemplate->mNumCells          = 3;
-        break;
-    case ( 10540 ):
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 1, 2, 5 }, { 5, 1, 2, 4 }, { 5, 4, 2, 3 } } );
-        aNodeHierTemplate->mNumCells          = 3;
-        break;
-    case ( 10360 ):
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 1, 5, 3 }, { 0, 1, 4, 5 }, { 1, 2, 4, 5 } } );
-        aNodeHierTemplate->mNumCells          = 3;
-        break;
-    case ( 10630 ):
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 1, 5, 3 }, { 1, 4, 5, 3 }, { 1, 2, 5, 4 } } );
-        aNodeHierTemplate->mNumCells          = 3;
-        break;
-    case ( 10340 ):
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 1, 4, 5 }, { 4, 1, 2, 5 }, { 1, 2, 5, 3 } } );
-        aNodeHierTemplate->mNumCells          = 3;
-        break;
-    case ( 10430 ):
-        aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 1, 5, 4 }, { 4, 1, 5, 3 }, { 1, 2, 5, 3 } } );
-        aNodeHierTemplate->mNumCells          = 3;
-        break;
-    default:
-    {
-        std::cout << "WARNING INVALID TEMPLATE ID: " << aTemplateId << std::endl;
-        break;
-    }
-    }
-}
 }// namespace xtk

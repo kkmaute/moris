@@ -46,11 +46,15 @@ class Node_Hierachy_Template_Library
         Node_Hierarchy_Template * aNodeHierTemplate);
 
     void
-    load_3d_template(
+    load_2d_template(
         moris_index aTemplateId,
         Node_Hierarchy_Template * aNodeHierTemplate);
 
-
+    void
+    load_3d_template(
+        moris_index aTemplateId,
+        Node_Hierarchy_Template * aNodeHierTemplate);
+        
 };
 
 
@@ -135,6 +139,14 @@ class Node_Hierarchy_Interface : public Decomposition_Algorithm
             moris::Cell<moris_index>                      &aIntersectedEdges,
             moris::Cell<moris::real>                      &aEdgeLocalCoordinate  );
 
+    /**
+     * @brief Creates unique id for an edge based on the IDs of its two end vertices
+     * using the Cantor pairing function
+     * 
+     * @param aEdgeVertices list of mtk::vertices on edge
+     * @return moris_index unique id for edge
+     */
+    
     moris_index
     hash_edge(moris::Cell<moris::mtk::Vertex*> const & aEdgeVertices);
 
@@ -161,6 +173,13 @@ class Node_Hierarchy_Interface : public Decomposition_Algorithm
         moris::Cell<std::shared_ptr<moris::Cell<moris::mtk::Vertex*>>> *aCellIndexIntersectedEdgeVertex );
 
     moris_index
+    select_node_hier_2d_template(
+    moris::Cell<std::shared_ptr<moris::Cell<moris_index>>>         *aCellIndexIntersectedEdgeOrdinals,
+    moris::Cell<std::shared_ptr<moris::Cell<moris::mtk::Vertex*>>> *aCellIndexIntersectedEdgeVertex,
+    moris::Cell<std::shared_ptr<moris::Cell<moris::mtk::Vertex*>>> *aNodesForTemplates,
+    moris::Cell<std::shared_ptr<Node_Hierarchy_Template>>          *aNHTemplate );
+
+    moris_index
     select_node_hier_3d_template(
     moris::Cell<std::shared_ptr<moris::Cell<moris_index>>>         *aCellIndexIntersectedEdgeOrdinals,
     moris::Cell<std::shared_ptr<moris::Cell<moris::mtk::Vertex*>>> *aCellIndexIntersectedEdgeVertex,
@@ -168,7 +187,16 @@ class Node_Hierarchy_Interface : public Decomposition_Algorithm
     moris::Cell<std::shared_ptr<Node_Hierarchy_Template>>          *aNHTemplate );
 
     void
-    sort_nodes(
+    sort_nodes_2d(
+        moris::mtk::Cell const *                          aIgCell,
+        Matrix<IndexMat>                                 *aEdgeToVertexOrdinalMap,
+        std::shared_ptr<moris::Cell<moris_index>>         aCellIndexIntersectedEdgeOrdinals,
+        std::shared_ptr<moris::Cell<moris::mtk::Vertex*>> aCellIndexIntersectedEdgeVertex,
+        moris_index &                                     aPermutation,
+        std::shared_ptr<moris::Cell<moris::mtk::Vertex*>> aSortedNodeInds);  
+
+    void
+    sort_nodes_3d(
         moris::mtk::Cell const *                          aIgCell,
         Matrix<IndexMat>                                 *aEdgeToVertexOrdinalMap,
         std::shared_ptr<moris::Cell<moris_index>>         aCellIndexIntersectedEdgeOrdinals,

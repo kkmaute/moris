@@ -32,8 +32,206 @@ class Integration_Mesh_Generation_Data;
 class Decomposition_Data;
 class Cut_Integration_Mesh;
 
+// -------------------------------------------------------------------------
 
-class Regular_Subdivision_24_TETS
+// pure virtual base class for 2D and 3D Regular Subdivision Data
+class Regular_Subdivision_Template
+{
+  public:
+
+    Regular_Subdivision_Template() {}
+
+    virtual
+    ~Regular_Subdivision_Template() {}
+
+    virtual
+    moris_index
+    get_num_new_nodes() const = 0;
+
+    virtual
+    moris_index
+    get_total_ig_verts() const = 0;
+
+    virtual
+    moris_index
+    get_num_ig_cells() const = 0;
+
+    virtual
+    moris_index
+    get_num_verts_per_cell() const = 0;
+
+    virtual
+    Matrix< IndexMat >
+    get_new_node_on_parent_edge() const = 0;
+
+    virtual
+    Matrix< IndexMat >
+    get_new_node_on_parent_edge_edge_ordinal() const = 0;
+
+    virtual
+    Matrix< IndexMat >
+    get_new_node_on_parent_face() const = 0;
+
+    virtual
+    Matrix< IndexMat >
+    get_new_node_on_parent_face_face_ordinal() const = 0;
+
+    virtual
+    Matrix< IndexMat >
+    get_new_node_in_parent_cell() const = 0;
+
+    virtual
+    Matrix< IndexMat >
+    get_new_node_on_parent_cell_cell_ordinal() const = 0;
+
+    virtual
+    Vertex_Ancestry
+    get_vertex_ancestry() const = 0;
+
+    virtual
+    Cell< Matrix< DDRMat > >
+    get_new_vertex_parametric_coordinates_wrt_parent() const = 0;
+
+    virtual
+    Cell< Cell< moris_index > >
+    get_ig_cell_to_vertex_connectivity() const = 0;
+
+    virtual
+    moris_index
+    get_parametric_dimension() const = 0;
+
+    virtual
+    moris_index
+    get_signature() const = 0;
+
+    virtual
+    enum CellTopology
+    get_ig_cell_topology() const = 0;
+};
+
+// -------------------------------------------------------------------------
+
+// 3 ----- 2
+// | \   / |
+// |   4   |
+// | /   \ |
+// 0 ----- 1
+
+class Regular_Subdivision_4_TRIS : public Regular_Subdivision_Template
+{
+  public:
+    Regular_Subdivision_4_TRIS() {}
+
+    moris_index
+    get_num_new_nodes() const
+    {
+        return 1;
+    }
+
+    moris_index
+    get_total_ig_verts() const
+    {
+        return 5;
+    }
+
+    moris_index
+    get_num_ig_cells() const
+    {
+        return 4;
+    }
+
+    moris_index
+    get_num_verts_per_cell() const
+    {
+        return 3;
+    }
+
+    Matrix< IndexMat >
+    get_new_node_on_parent_edge() const
+    {
+        return { {} };
+    }
+
+    Matrix< IndexMat >
+    get_new_node_on_parent_edge_edge_ordinal() const
+    {
+        return { {} };
+    }
+
+    Matrix< IndexMat >
+    get_new_node_on_parent_face() const
+    {
+        return {{}};
+    }
+
+    Matrix< IndexMat >
+    get_new_node_on_parent_face_face_ordinal() const
+    {
+        return {{}};
+    }
+
+    Matrix< IndexMat >
+    get_new_node_in_parent_cell() const
+    {
+        return { { 0 } };
+    }
+
+    Matrix< IndexMat >
+    get_new_node_on_parent_cell_cell_ordinal() const
+    {
+        return { { 0 } };
+    }
+
+    Vertex_Ancestry
+    get_vertex_ancestry() const
+    {
+        return Vertex_Ancestry(
+            { 0, 1, 2, 3, 0 },
+            { EntityRank::NODE,
+              EntityRank::NODE,
+              EntityRank::NODE,
+              EntityRank::NODE,
+              EntityRank::ELEMENT } );
+    }
+
+    Cell< Matrix< DDRMat > >
+    get_new_vertex_parametric_coordinates_wrt_parent() const
+    {
+        return { { { 0.0, 0.0 } } };
+    }
+
+    Cell< Cell< moris_index > >
+    get_ig_cell_to_vertex_connectivity() const
+    {
+        return { 
+            { { 0, 1, 4 } },
+            { { 1, 2, 4 } },
+            { { 2, 3, 4 } },
+            { { 3, 0, 4 } } };
+    }
+
+    moris_index
+    get_parametric_dimension() const
+    {
+        return 2;
+    }
+
+    moris_index
+    get_signature() const
+    {
+        return 420;
+    }
+
+    enum CellTopology
+    get_ig_cell_topology() const
+    {
+        return CellTopology::TRI3;
+    }
+};
+
+// -------------------------------------------------------------------------
+
+class Regular_Subdivision_24_TETS : public Regular_Subdivision_Template
 {
   public:
     Regular_Subdivision_24_TETS() {}
@@ -180,6 +378,9 @@ class Regular_Subdivision_24_TETS
     }
 };
 
+// -------------------------------------------------------------------------
+// -------------------------------------------------------------------------
+
 class Generated_Regular_Subdivision_Template
 {
   public:
@@ -192,9 +393,9 @@ class Generated_Regular_Subdivision_Template
     Cell< moris_index >         mVertexHash;
 
   public:
-    Generated_Regular_Subdivision_Template()
-    {
-    }
+    Generated_Regular_Subdivision_Template() {}
+
+    ~Generated_Regular_Subdivision_Template() {}
 
     moris_index
     get_num_new_nodes() const
@@ -231,31 +432,15 @@ class Generated_Regular_Subdivision_Template
     {
         return mIgCellToVertOrd;
     }
-
-    moris_index
-    get_parametric_dimension() const
-    {
-        return 3;
-    }
-
-    moris_index
-    get_signature() const
-    {
-        return 10;
-    }
-
-    enum CellTopology
-    get_ig_cell_topology() const
-    {
-        return CellTopology::TET4;
-    }
 };
 
+// -------------------------------------------------------------------------
+// -------------------------------------------------------------------------
 
 class Regular_Subdivision_Interface : public Decomposition_Algorithm
 {
   private:
-    Regular_Subdivision_24_TETS                                              mRegularSubdivisionTemplate;
+    std::shared_ptr< Regular_Subdivision_Template >                          mRegularSubdivisionTemplate;
     moris::Cell< std::shared_ptr< Generated_Regular_Subdivision_Template > > mGeneratedTemplate;
 
     Integration_Mesh_Generation_Data* mMeshGenerationData;
@@ -267,7 +452,9 @@ class Regular_Subdivision_Interface : public Decomposition_Algorithm
 
 
   public:
-    Regular_Subdivision_Interface( ParameterList& aParameterList ) {}
+
+    Regular_Subdivision_Interface( ParameterList& aParameterList, enum CellTopology aCellTopology );
+
     ~Regular_Subdivision_Interface() {}
 
     bool has_geometric_independent_vertices() const;
@@ -297,79 +484,79 @@ class Regular_Subdivision_Interface : public Decomposition_Algorithm
     moris_index
     get_num_new_nodes() const
     {
-        return mRegularSubdivisionTemplate.get_num_new_nodes();
+        return mRegularSubdivisionTemplate->get_num_new_nodes();
     }
     moris_index
     get_total_ig_verts() const
     {
-        return mRegularSubdivisionTemplate.get_total_ig_verts();
+        return mRegularSubdivisionTemplate->get_total_ig_verts();
     }
     moris_index
     get_num_ig_cells() const
     {
-        return mRegularSubdivisionTemplate.get_num_ig_cells();
+        return mRegularSubdivisionTemplate->get_num_ig_cells();
     }
 
     Matrix< IndexMat >
     get_new_node_on_parent_edge() const
     {
-        return mRegularSubdivisionTemplate.get_new_node_on_parent_edge();
+        return mRegularSubdivisionTemplate->get_new_node_on_parent_edge();
     }
     Matrix< IndexMat >
     get_new_node_on_parent_edge_edge_ordinal() const
     {
-        return mRegularSubdivisionTemplate.get_new_node_on_parent_edge_edge_ordinal();
+        return mRegularSubdivisionTemplate->get_new_node_on_parent_edge_edge_ordinal();
     }
 
     Matrix< IndexMat >
     get_new_node_on_parent_face() const
     {
-        return mRegularSubdivisionTemplate.get_new_node_on_parent_face();
+        return mRegularSubdivisionTemplate->get_new_node_on_parent_face();
     }
     Matrix< IndexMat >
     get_new_node_on_parent_face_face_ordinal() const
     {
-        return mRegularSubdivisionTemplate.get_new_node_on_parent_face_face_ordinal();
+        return mRegularSubdivisionTemplate->get_new_node_on_parent_face_face_ordinal();
     }
 
     Matrix< IndexMat >
     get_new_node_in_parent_cell() const
     {
-        return mRegularSubdivisionTemplate.get_new_node_in_parent_cell();
+        return mRegularSubdivisionTemplate->get_new_node_in_parent_cell();
     }
     Matrix< IndexMat >
     get_new_node_on_parent_cell_cell_ordinal() const
     {
-        return mRegularSubdivisionTemplate.get_new_node_on_parent_cell_cell_ordinal();
+        return mRegularSubdivisionTemplate->get_new_node_on_parent_cell_cell_ordinal();
     };
 
     Cell< Matrix< DDRMat > >
     get_new_vertex_parametric_coordinates_wrt_parent() const
     {
-        return mRegularSubdivisionTemplate.get_new_vertex_parametric_coordinates_wrt_parent();
+        return mRegularSubdivisionTemplate->get_new_vertex_parametric_coordinates_wrt_parent();
     }
     Cell< Cell< moris_index > >
     get_ig_cell_to_vertex_connectivity() const
     {
-        return mRegularSubdivisionTemplate.get_ig_cell_to_vertex_connectivity();
+        return mRegularSubdivisionTemplate->get_ig_cell_to_vertex_connectivity();
     }
 
     moris_index
     get_parametric_dimension() const
     {
-        return mRegularSubdivisionTemplate.get_parametric_dimension();
+        return mRegularSubdivisionTemplate->get_parametric_dimension();
     }
 
     moris_index
     get_signature() const
     {
-        return mRegularSubdivisionTemplate.get_signature();
+        return mRegularSubdivisionTemplate->get_signature();
     }
 
     enum CellTopology
     get_ig_cell_topology() const
     {
-        return mRegularSubdivisionTemplate.get_ig_cell_topology();
+        return mRegularSubdivisionTemplate->get_ig_cell_topology();
     }
 
   private:

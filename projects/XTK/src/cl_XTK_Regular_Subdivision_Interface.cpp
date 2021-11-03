@@ -8,6 +8,23 @@
 
 namespace xtk
 {
+Regular_Subdivision_Interface::Regular_Subdivision_Interface( ParameterList& aParameterList, enum CellTopology aCellTopology )
+{
+    // get number of spatial dimensions and decide on subdivision template
+    if ( aCellTopology == CellTopology::QUAD4 )
+    {
+        mRegularSubdivisionTemplate = std::make_shared< Regular_Subdivision_4_TRIS >();
+    }
+    else if ( aCellTopology == CellTopology::HEX8 ) 
+    {
+        mRegularSubdivisionTemplate = std::make_shared< Regular_Subdivision_24_TETS >();
+    }
+    else
+    {
+        MORIS_ERROR( false, "Regular_Subdivision_Interface::Regular_Subdivision_Interface() - subdivision routine for BG element type unknown" );
+    }
+}
+
 bool
 Regular_Subdivision_Interface::has_geometric_independent_vertices() const
 {
@@ -22,12 +39,27 @@ Regular_Subdivision_Interface::perform_impl_vertex_requests(
     moris::mtk::Mesh*                 aBackgroundMesh,
     Integration_Mesh_Generator*       aMeshGenerator )
 {
-
+    // populate member data
     mMeshGenerationData           = aMeshGenerationData;
     mDecompositionData            = aDecompositionData;
     mCutIntegrationMesh           = aCutIntegrationMesh;
     mBackgroundMesh               = aBackgroundMesh;
     mGenerator                    = aMeshGenerator;
+
+    // get number of spatial dimensions and decide on subdivision template
+    if ( aMeshGenerator->get_spatial_dim() == 2 )
+    {
+        mRegularSubdivisionTemplate = std::make_shared< Regular_Subdivision_4_TRIS >();
+    }
+    else if ( aMeshGenerator->get_spatial_dim() == 3 ) 
+    {
+        mRegularSubdivisionTemplate = std::make_shared< Regular_Subdivision_24_TETS >();
+    }
+    else
+    {
+        MORIS_ERROR( false, "Regular_Subdivision_Interface() - spatial dimension not 2 or 3" );
+    }
+
     aDecompositionData->tDecompId = this->get_signature();
 
     aDecompositionData->mHasSecondaryIdentifier = false;
@@ -50,7 +82,7 @@ Regular_Subdivision_Interface::perform_impl_vertex_requests(
     tRegSubInterfaceData.mNewNodesOnEdgesOrd = this->get_new_node_on_parent_edge_edge_ordinal();
     tRegSubInterfaceData.mNewNodesOnFacesOrd = this->get_new_node_on_parent_face_face_ordinal();
     tRegSubInterfaceData.mNewNodesOnCellsOrd = this->get_new_node_on_parent_cell_cell_ordinal();
-    tRegSubInterfaceData.mVertexAncestry     = mRegularSubdivisionTemplate.get_vertex_ancestry();
+    tRegSubInterfaceData.mVertexAncestry     = mRegularSubdivisionTemplate->get_vertex_ancestry();
 
     tRegSubInterfaceData.mNewNodeXi = this->get_new_vertex_parametric_coordinates_wrt_parent();
 
@@ -165,7 +197,7 @@ Regular_Subdivision_Interface::make_new_vertex_requests(
     {
         this->make_new_vertex_requests_trivial( aChildMesh, aCutIntegrationMesh, aRegularSubdivisionInterface, aRegularSubdivisionInterfaceData, aBackgroundMesh, aDecompositionData );
 
-        mNumNewCells   = mNumNewCells + mRegularSubdivisionTemplate.get_num_ig_cells();
+        mNumNewCells   = mNumNewCells + mRegularSubdivisionTemplate->get_num_ig_cells();
         mNumTotalCells = mNumNewCells;
     }
     else
@@ -353,7 +385,7 @@ Regular_Subdivision_Interface::generate_new_node_parent_information_ijk_mesh(
         mGenerator->deduce_facet_ancestry( mCutIntegrationMesh, mBackgroundMesh, tFaceConnectivity, tBGCellForFacet, tFacetAncestry );
 
         Cell_Connectivity tCellConn                     = mCutIntegrationMesh->get_background_cell_connectivity( aChildMesh->get_parent_cell()->get_index() );
-        const moris::uint tNumNewCells                  = mRegularSubdivisionTemplate.get_num_ig_cells();
+        const moris::uint tNumNewCells                  = mRegularSubdivisionTemplate->get_num_ig_cells();
         mGeneratedTemplate( aNumIgCells )->mNumIgCells  = tNumNewCells * aNumIgCells;
         mGeneratedTemplate( aNumIgCells )->mNumNewNodes = tFaceConnectivity->mFacetVertices.size() + aNumIgCells;
 
@@ -364,7 +396,7 @@ Regular_Subdivision_Interface::generate_new_node_parent_information_ijk_mesh(
         mGeneratedTemplate( aNumIgCells )->mNewVertexAncestry.mVertexParentEntityIndex.resize( mGeneratedTemplate( aNumIgCells )->mNumNewNodes, MORIS_INDEX_MAX );
         mGeneratedTemplate( aNumIgCells )->mNewVertexAncestry.mVertexParentEntityRank.resize( mGeneratedTemplate( aNumIgCells )->mNumNewNodes );
         mGeneratedTemplate( aNumIgCells )->mVertexHash.resize( mGeneratedTemplate( aNumIgCells )->mNumNewNodes );
-        mGeneratedTemplate( aNumIgCells )->mIgCellToVertOrd.resize( mGeneratedTemplate( aNumIgCells )->mNumIgCells, moris::Cell< moris_index >( mRegularSubdivisionTemplate.get_num_verts_per_cell(), MORIS_INDEX_MAX ) );
+        mGeneratedTemplate( aNumIgCells )->mIgCellToVertOrd.resize( mGeneratedTemplate( aNumIgCells )->mNumIgCells, moris::Cell< moris_index >( mRegularSubdivisionTemplate->get_num_verts_per_cell(), MORIS_INDEX_MAX ) );
 
         moris_index tFirstNewFacetVertexOrdinal = tVertexGroup->size();
         moris_index tNewVertexOrdinal           = 0;
@@ -422,9 +454,9 @@ Regular_Subdivision_Interface::generate_new_node_parent_information_ijk_mesh(
             tNewVertexOrdinal++;
 
             // iterate through template and construc the new template cells
-            for ( moris::moris_index iTemplateCells = 0; iTemplateCells < this->mRegularSubdivisionTemplate.get_num_ig_cells(); iTemplateCells++ )
+            for ( moris::moris_index iTemplateCells = 0; iTemplateCells < this->mRegularSubdivisionTemplate->get_num_ig_cells(); iTemplateCells++ )
             {
-                for ( moris::moris_index iTemplateVert = 0; iTemplateVert < this->mRegularSubdivisionTemplate.get_num_verts_per_cell(); iTemplateVert++ )
+                for ( moris::moris_index iTemplateVert = 0; iTemplateVert < this->mRegularSubdivisionTemplate->get_num_verts_per_cell(); iTemplateVert++ )
                 {
                     // base template index
                     moris_index tBaseTemplateVertexIndex = tIgCellToVertexTemplate( iTemplateCells )( iTemplateVert );

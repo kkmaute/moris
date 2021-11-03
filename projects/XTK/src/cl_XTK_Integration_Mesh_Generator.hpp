@@ -249,6 +249,9 @@ class Integration_Mesh_Generator
     moris::ge::Geometry_Engine *
     get_geom_engine();
 
+    uint 
+    get_spatial_dim();
+
     bool
     determine_intersected_background_cells(
         Integration_Mesh_Generation_Data &aMeshGenerationData,
@@ -307,6 +310,10 @@ class Integration_Mesh_Generator
         moris::Cell< moris::mtk::Cell * > *                aBackgroundCells,
         moris::Cell< std::shared_ptr< IG_Vertex_Group > > *aVertexGroups );
 
+    /** 
+     * this function checks if first vertex in first map (first input) 
+     * exists in last two inputs and returns MORIS_MAX_INDEX if not
+     */
     moris_index
     edge_exists(
         moris::Cell< moris::mtk::Vertex * > &               aVerticesOnEdge,
