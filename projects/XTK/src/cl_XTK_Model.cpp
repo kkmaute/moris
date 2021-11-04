@@ -717,6 +717,7 @@ Model::inward_receive_requests(
     }
 }
 
+
 // ----------------------------------------------------------------------------------
 
 void
@@ -1391,6 +1392,12 @@ Model::get_diagnostic_file_name( std::string const &aLabel ) const
 {
     MORIS_ASSERT( mDiagnostics, "Only callable with diagnostics on" );
     return mDiagnosticPath + "/id_" + mDiagnosticId + "_ps_" + std::to_string( moris::par_size() ) + "_pr_" + std::to_string( moris::par_rank() ) + "_" + aLabel + ".diag";
+}
+
+bool
+Model::triangulate_all()
+{
+    return mTriangulateAll;
 }
 //------------------------------------------------------------------------------
 

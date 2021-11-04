@@ -209,6 +209,11 @@ Integration_Mesh_Generator::determine_intersected_background_cells(
 
                 aMeshGenerationData.mAllIntersectedBgCellInds.push_back( iCell );
             }
+            // add to the global list of intersected cells,
+            else if( mXTKModel->triangulate_all() )
+            {
+                aMeshGenerationData.mAllIntersectedBgCellInds.push_back( iCell );
+            }
         }
     }
 

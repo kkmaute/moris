@@ -430,6 +430,17 @@ class Model
     get_diagnostic_file_name( std::string const& aLabel ) const;
 
 
+    /**
+     * @brief Tells the integration mesh to either decompose all background cells or not
+     * 
+     * @return true - decomposition mesh will triangulate/tessalate all cells
+     * @return false 
+     */
+    bool
+    triangulate_all();
+
+
+
   protected:
     moris::ParameterList mParameterList;
 
@@ -805,11 +816,6 @@ class Model
         Cell< Matrix< DDRMat > >& aReceivedData );
 
     //------------------------------------------------------------------------------
-    void
-    finalize_decomp();
-
-    void
-    finalize_mesh_data();
 
 
   private:

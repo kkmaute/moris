@@ -614,9 +614,6 @@ Node_Hierarchy_Interface::select_node_hier_2d_template(
                 tPermutationId,
                 ( *aNodesForTemplates )( iCell ) );
 
-            std::cout<<"tPermutationId = "<<tPermutationId<<std::endl;
-            moris::print(*(*aNodesForTemplates)(iCell),"(*aNodesForTemplates)(iCell)");
-
             // if we haven't used this template yet, load it up
             if ( tLoadedTemplates.find( tPermutationId ) == tLoadedTemplates.end() )
             {
@@ -735,7 +732,6 @@ Node_Hierarchy_Interface::sort_nodes_2d(
 // std::cout << "tIndices.size() = " << tIndices.size() << " \n" << std::flush;
 // std::cout << "tVertices.size() = " << tVertices.size() << " \n" << std::flush;
 // print( tVertices, "tVertices" );
-print( tIndices, "tIndices" );
 
     // intersection goes through two edges
     if ( aCellIndexIntersectedEdgeOrdinals->size() == 2 )
