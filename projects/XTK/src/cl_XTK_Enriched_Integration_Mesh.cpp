@@ -2205,7 +2205,7 @@ Enriched_Integration_Mesh::setup_blockset_with_cell_clusters()
         moris::Cell< std::string > tPhaseNoChildBlockSetNames = this->split_set_name_by_bulk_phase( tChildNoChildSetNames( 1 ) );
 
         // topology enums
-        enum CellTopology tChildTopo  = mModel->get_cut_mesh().get_child_element_topology();
+        enum CellTopology tChildTopo  = mModel->get_cut_integration_mesh()->get_child_element_topology();
         enum CellTopology tParentTopo = mModel->get_background_mesh().get_parent_cell_topology();
 
         // add block set names to member data

@@ -451,7 +451,6 @@ class Cut_Integration_Mesh : public moris::mtk::Mesh
 
     moris::mtk::Mesh*                        mBackgroundMesh;
     Model*                                   mXTKModel;
-    std::shared_ptr< moris::mtk::Cell_Info > mChildCellInfo;
 
 
   public:
@@ -625,6 +624,9 @@ class Cut_Integration_Mesh : public moris::mtk::Mesh
     // ----------------------------------------------------------------------------------
     moris::mtk::Cell*
     get_ig_cell_group_parent_cell( moris_index aGroupIndex );
+    // ----------------------------------------------------------------------------------
+    enum CellTopology 
+    get_child_element_topology();
     void
     // ----------------------------------------------------------------------------------
     set_child_mesh_subphase(

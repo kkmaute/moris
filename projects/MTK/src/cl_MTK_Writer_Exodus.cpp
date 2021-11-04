@@ -830,6 +830,7 @@ namespace moris
 
                 // Get the CellTopology of this block
                 enum CellTopology tMorisBlockTopology = mMesh->get_blockset_topology(tBlockNames(tBlockIndex));
+
                 const char* tExodusBlockTopology      = this->get_exodus_block_topology(tMorisBlockTopology);
 
                 // Get the number of nodes/edges/faces/attributes per element
@@ -856,6 +857,8 @@ namespace moris
 
                     // Get the vertex indices of this element
                     Matrix<IndexMat> tNodeIndices = mMesh->get_nodes_connected_to_element_loc_inds(tElementIndex);
+
+                    MORIS_ASSERT(tNodeIndices.numel() ==(uint)tNumNodesPerElement,"Node number mismatch" );
 
                     // Build connectivity vector, add 1 since exodus uses 1-based indices
                     for (int tNodeNum = 0; tNodeNum < tNumNodesPerElement; tNodeNum++)

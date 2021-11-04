@@ -811,6 +811,22 @@ Cut_Integration_Mesh::get_ig_cell_group_parent_cell( moris_index aGroupIndex )
 
 // ----------------------------------------------------------------------------------
 
+enum CellTopology 
+Cut_Integration_Mesh::get_child_element_topology()
+{
+    if(this->get_spatial_dim() == 2)
+    {
+        return CellTopology::TRI3;
+    }
+    else
+    {
+        return CellTopology::TET4;
+    }
+}
+
+
+// ----------------------------------------------------------------------------------
+
 void
 Cut_Integration_Mesh::set_child_mesh_subphase(
     moris_index                 aCMIndex,
