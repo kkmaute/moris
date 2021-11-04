@@ -475,6 +475,358 @@ namespace moris
 
         // ----------------------------------------------------------------------------------
 
+        moris::Cell< moris_index >
+        Cell_Info_Quad4::get_edge_path_to_entity_rank_and_ordinal(
+            moris_index aEdgeOrdinal,
+            moris_index aOtherEntityOrdinal,
+            moris_index aOtherEntityRank ) const
+        {
+            switch ( aEdgeOrdinal )
+            {
+                // edge 0
+                case 0:
+                {
+                    switch ( aOtherEntityRank )
+                    {
+                        // other entity is Edge
+                        case 1:
+                        {
+                            switch ( aOtherEntityOrdinal )
+                            {
+                                case 0: return { 0, 1 };
+                                case 1: return { 0, 3 };
+                                case 2: return { 0, 3 };
+                                case 3: return { 0, 3 };
+                                
+                                default:
+                                {
+                                    MORIS_ERROR( 0, "Invalid other edge ordinal for QUAD4" );
+                                    return moris::Cell< moris_index >( 0 );
+                                }   
+                            }
+                        }
+
+                        default:
+                        {
+                            MORIS_ERROR( 0, "Invalid other entity rank for QUAD4 - edge has only path to edges" );
+                            return moris::Cell< moris_index >( 0 );
+                        }
+                    } // end: switch: aOtherEntityRank
+                } // end: case: edge ordinal 0
+                
+                // edge 1
+                case 1:
+                {
+                    switch ( aOtherEntityRank )
+                    {
+                        // other entity is Edge
+                        case 1:
+                        {
+                            switch ( aOtherEntityOrdinal )
+                            {
+                                case 0: return { 0, 3 };
+                                case 1: return { 0, 1 };
+                                case 2: return { 0, 3 };
+                                case 3: return { 0, 3 };
+                                
+                                default:
+                                {
+                                    MORIS_ERROR( 0, "Invalid other edge ordinal for QUAD4" );
+                                    return moris::Cell< moris_index >( 0 );
+                                }   
+                            }
+                        }
+
+                        default:
+                        {
+                            MORIS_ERROR( 0, "Invalid other entity rank for QUAD4 - edge only has path to edges" );
+                            return moris::Cell< moris_index >( 0 );
+                        }
+                    } // end: switch: aOtherEntityRank
+                } // end: case: edge ordinal 1
+
+                // edge 2
+                case 2:
+                {
+                    switch ( aOtherEntityRank )
+                    {
+                        // other entity is Edge
+                        case 1:
+                        {
+                            switch ( aOtherEntityOrdinal )
+                            {
+                                case 0: return { 0, 3 };
+                                case 1: return { 0, 3 };
+                                case 2: return { 0, 1 };
+                                case 3: return { 0, 3 };
+                                
+                                default:
+                                {
+                                    MORIS_ERROR( 0, "Invalid other edge ordinal for QUAD4" );
+                                    return moris::Cell< moris_index >( 0 );
+                                }   
+                            }
+                        }
+
+                        default:
+                        {
+                            MORIS_ERROR( 0, "Invalid other entity rank for QUAD4 - edge only has path to edges" );
+                            return moris::Cell< moris_index >( 0 );
+                        }
+                    } // end: switch: aOtherEntityRank
+                } // end: case: edge ordinal 2
+
+                // edge 3
+                case 3:
+                {
+                    switch ( aOtherEntityRank )
+                    {
+                        // other entity is Edge
+                        case 1:
+                        {
+                            switch ( aOtherEntityOrdinal )
+                            {
+                                case 0: return { 0, 3 };
+                                case 1: return { 0, 3 };
+                                case 2: return { 0, 3 };
+                                case 3: return { 0, 1 };
+                                
+                                default:
+                                {
+                                    MORIS_ERROR( 0, "Invalid other edge ordinal for QUAD4" );
+                                    return moris::Cell< moris_index >( 0 );
+                                }   
+                            }
+                        }
+
+                        default:
+                        {
+                            MORIS_ERROR( 0, "Invalid other entity rank for QUAD4 - edge only has path to edges" );
+                            return moris::Cell< moris_index >( 0 );
+                        }
+                    } // end: switch: aOtherEntityRank
+                } // end: case: edge ordinal 3
+
+                default:
+                {
+                    MORIS_ERROR( 0, "Invalid vertex ordinal for QUAD4" );
+                    return moris::Cell< moris_index >( 0 );
+                }
+            }
+        }
+
+        // ----------------------------------------------------------------------------------
+
+        bool
+        Cell_Info_Quad4::is_entity_connected_to_facet(
+            moris_index aFacetOrdinal,
+            moris_index aOtherEntityOrdinal,
+            moris_index aOtherEntityRank ) const
+        {
+            switch ( aFacetOrdinal )
+            {
+                // Edge Ordinal 0
+                case 0:
+                {
+                    switch ( aOtherEntityRank )
+                    {
+                        // Other Entity is Vertex
+                        case 0:
+                        {
+                            switch ( aOtherEntityOrdinal )
+                            {
+                                case 0: return true;
+                                case 1: return true;
+                                case 2: return false;
+                                case 3: return false;
+
+                                default:
+                                {
+                                    MORIS_ERROR( 0, "Invalid other vertex ordinal for Quad4" );
+                                    return false;
+                                }
+                            }
+                        }
+
+                        // Other Entity is Edge
+                        case 1:
+                        {
+                            switch ( aOtherEntityOrdinal )
+                            {
+                                case 0: return true;
+                                case 1: return false;
+                                case 2: return false;
+                                case 3: return false;
+                                default:
+                                {
+                                    MORIS_ERROR( 0, "Invalid other edge ordinal for QUAD4" );
+                                    return false;
+                                }
+                            }
+                        }
+
+                        default:
+                        {
+                            MORIS_ERROR( 0, "Invalid other entity rank for QUAD4 (must be 0-Vertex or 1-Edge" );
+                            return false;
+                        }
+                    } // end: switch: aOtherEntityRank
+                } // end: case: edge ordinal 0
+
+                // Edge Ordinal 1
+                case 1:
+                {
+                    switch ( aOtherEntityRank )
+                    {
+                        // Other Entity is Vertex
+                        case 0:
+                        {
+                            switch ( aOtherEntityOrdinal )
+                            {
+                                case 0: return false;
+                                case 1: return true;
+                                case 2: return true;
+                                case 3: return false;
+
+                                default:
+                                {
+                                    MORIS_ERROR( 0, "Invalid other vertex ordinal for Quad4" );
+                                    return false;
+                                }
+                            }
+                        }
+
+                        // Other Entity is Edge
+                        case 1:
+                        {
+                            switch ( aOtherEntityOrdinal )
+                            {
+                                case 0: return false;
+                                case 1: return true;
+                                case 2: return false;
+                                case 3: return false;
+                                default:
+                                {
+                                    MORIS_ERROR( 0, "Invalid other edge ordinal for QUAD4" );
+                                    return false;
+                                }
+                            }
+                        }
+
+                        default:
+                        {
+                            MORIS_ERROR( 0, "Invalid other entity rank for QUAD4 (must be 0-Vertex or 1-Edge" );
+                            return false;
+                        }
+                    } // end: switch: aOtherEntityRank
+                } // end: case: edge ordinal 1
+
+                // Edge Ordinal 2
+                case 2:
+                {
+                    switch ( aOtherEntityRank )
+                    {
+                        // Other Entity is Vertex
+                        case 0:
+                        {
+                            switch ( aOtherEntityOrdinal )
+                            {
+                                case 0: return false;
+                                case 1: return false;
+                                case 2: return true;
+                                case 3: return true;
+
+                                default:
+                                {
+                                    MORIS_ERROR( 0, "Invalid other vertex ordinal for Quad4" );
+                                    return false;
+                                }
+                            }
+                        }
+
+                        // Other Entity is Edge
+                        case 1:
+                        {
+                            switch ( aOtherEntityOrdinal )
+                            {
+                                case 0: return false;
+                                case 1: return false;
+                                case 2: return true;
+                                case 3: return false;
+                                default:
+                                {
+                                    MORIS_ERROR( 0, "Invalid other edge ordinal for QUAD4" );
+                                    return false;
+                                }
+                            }
+                        }
+
+                        default:
+                        {
+                            MORIS_ERROR( 0, "Invalid other entity rank for QUAD4 (must be 0-Vertex or 1-Edge" );
+                            return false;
+                        }
+                    } // end: switch: aOtherEntityRank
+                } // end: case: edge ordinal 2
+
+                // Edge Ordinal 3
+                case 3:
+                {
+                    switch ( aOtherEntityRank )
+                    {
+                        // Other Entity is Vertex
+                        case 0:
+                        {
+                            switch ( aOtherEntityOrdinal )
+                            {
+                                case 0: return true;
+                                case 1: return false;
+                                case 2: return false;
+                                case 3: return true;
+
+                                default:
+                                {
+                                    MORIS_ERROR( 0, "Invalid other vertex ordinal for Quad4" );
+                                    return false;
+                                }
+                            }
+                        }
+
+                        // Other Entity is Edge
+                        case 1:
+                        {
+                            switch ( aOtherEntityOrdinal )
+                            {
+                                case 0: return false;
+                                case 1: return false;
+                                case 2: return false;
+                                case 3: return true;
+                                default:
+                                {
+                                    MORIS_ERROR( 0, "Invalid other edge ordinal for QUAD4" );
+                                    return false;
+                                }
+                            }
+                        }
+
+                        default:
+                        {
+                            MORIS_ERROR( 0, "Invalid other entity rank for QUAD4 (must be 0-Vertex or 1-Edge" );
+                            return false;
+                        }
+                    } // end: switch: aOtherEntityRank
+                } // end: case: edge ordinal 3
+
+                default:
+                {
+                    MORIS_ERROR( 0, "Invalid facet ordinal for QUAD4" );
+                    return false;
+                }
+            }
+        }
+
+        // ----------------------------------------------------------------------------------
+
         Matrix<DDRMat>
         Cell_Info_Quad4::get_vertex_loc_coord(moris_index const & aVertexOrdinal) const
         {
