@@ -921,7 +921,8 @@ Cut_Integration_Mesh::parent_cell_has_children( moris_index aParentCellIndex )
 
 void
 Cut_Integration_Mesh::finalize_cut_mesh_construction()
-{
+{   
+    Tracer tTracer( "XTK", "Cut_Integration_Mesh", "finalize_cut_mesh_construction" );
     this->deduce_ig_cell_group_ownership();
 
     this->assign_controlled_ig_cell_ids();
@@ -1456,6 +1457,7 @@ Cut_Integration_Mesh::setup_comm_map()
 void
 Cut_Integration_Mesh::deduce_ig_cell_group_ownership()
 {
+    Tracer tTracer( "XTK", "Cut_Integration_Mesh", "deduce_ig_cell_group_ownership" );
     mOwnedIntegrationCellGroupsInds.reserve( mIntegrationCellGroupsParentCell.size() );
     mNotOwnedIntegrationCellGroups.reserve( mIntegrationCellGroupsParentCell.size() );
 
@@ -1481,7 +1483,7 @@ Cut_Integration_Mesh::deduce_ig_cell_group_ownership()
 void
 Cut_Integration_Mesh::assign_controlled_ig_cell_ids()
 {
-
+    Tracer tTracer( "XTK", "Cut_Integration_Mesh", "assign_controlled_ig_cell_ids" );
     // Set child element ids and indices
     moris::uint tNumControlledCellsInCutMesh = mControlledIgCells.size();
 
@@ -1644,7 +1646,7 @@ Cut_Integration_Mesh::prepare_child_cell_id_answers(
             for ( moris::uint j = 0; j < tNumReceivedReqs; j++ )
             {
                 // parent cell information
-                moris_id    tParentId        = aReceivedParentCellIds( i )( 0, j );
+                moris_id    tParentId        = aReceivedParentCellIds( i )( j );
                 moris_index tParentCellIndex = mBackgroundMesh->get_loc_entity_ind_from_entity_glb_id( tParentId, EntityRank::ELEMENT );
 
                 moris_index tCMIndex = mParentCellCellGroupIndex( tParentCellIndex );
@@ -1658,8 +1660,14 @@ Cut_Integration_Mesh::prepare_child_cell_id_answers(
                 MORIS_ASSERT( mIntegrationCellGroups( tCMIndex )->mIgCellGroup.size() == (uint)aReceivedParentCellNumChildren( i )( j ),
                     "Number of child cells in child meshes do not match number on other processor" );
 
-
-                aChildCellIdOffset( i )( j ) = mIntegrationCellGroups( tCMIndex )->mIgCellGroup( 0 )->get_id();
+                if(mIntegrationCellGroups( tCMIndex )->mIgCellGroup.size() > 0)
+                {
+                    aChildCellIdOffset( i )( j ) = mIntegrationCellGroups( tCMIndex )->mIgCellGroup( 0 )->get_id();
+                }
+                else
+                {
+                    aChildCellIdOffset( i )( j ) = MORIS_INDEX_MAX;
+                }
             }
         }
         else
