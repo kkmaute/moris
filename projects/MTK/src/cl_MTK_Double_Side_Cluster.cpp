@@ -31,10 +31,11 @@ namespace moris
         : mMasterSideCluster(aMasterSideCluster),
           mSlaveSideCluster(aSlaveSideCluster)
         {
-            if(!this->is_master_trivial())
-            {
-                MORIS_ASSERT(this->get_master_num_vertices_in_cluster() == this->get_slave_num_vertices_in_cluster(),"Number of vertices mismatch in double cluster");
-            }
+            // This check prohibits the construction of double side interfaces between child meshes therefore it is being removed.
+            // if(!this->is_master_trivial())
+            // {
+                // MORIS_ASSERT(this->get_master_num_vertices_in_cluster() == this->get_slave_num_vertices_in_cluster(),"Number of vertices mismatch in double cluster");
+            // }
 
             mMasterToSlaveVertexPairs.append(aLeftToRightVertexPair);
         }
