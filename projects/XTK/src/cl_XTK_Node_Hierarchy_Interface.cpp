@@ -15,7 +15,7 @@ namespace xtk
 enum Decomposition_Algorithm_Type
 Node_Hierarchy_Interface::get_algorithm_type() const
 {
-    return Decomposition_Algorithm_Type::NODE_HEIRARCHY; //NODE_HIERARCHY
+    return Decomposition_Algorithm_Type::NODE_HEIRARCHY;//NODE_HIERARCHY
 }
 moris_index
 Node_Hierarchy_Interface::get_signature() const
@@ -41,7 +41,7 @@ Node_Hierarchy_Interface::perform(
     moris::mtk::Mesh*                 aBackgroundMesh,
     Integration_Mesh_Generator*       aMeshGenerator )
 {
-    Tracer tTracer( "XTK", "Decomposition_Algorithm", "Node_Hierarchy_Interface" );
+    Tracer tTracer( "XTK", "Decomposition_Algorithm", "Node_Hierarchy_Interface", aMeshGenerator->verbosity_level(), 0 );
     // keep track of some useful classes (avoid passing to every function)
     mGeometryEngine     = aMeshGenerator->get_geom_engine();
     mMeshGenerationData = aMeshGenerationData;
@@ -50,17 +50,6 @@ Node_Hierarchy_Interface::perform(
     mBackgroundMesh     = aBackgroundMesh;
     mGenerator          = aMeshGenerator;
 
-    // moris::print(aBackgroundMesh->get_mtk_cell(0).get_vertex_coords(),"BG cell vertex coords");
-    // moris::print(aBackgroundMesh->get_mtk_cell(0).get_vertex_inds(),  "BG cell inds");
-
-    // // print the geometry data
-    // mCurrentGeomIndex = 0;
-    // for(moris::uint iV = 0; iV < aCutIntegrationMesh->get_num_entities(EntityRank::NODE,0); iV++)
-    // {
-    //     moris::mtk::Vertex* tVertex = aCutIntegrationMesh->get_mtk_vertex_pointer(iV);
-
-    //     std::cout<<"tVertex = "<<tVertex->get_index()<<" | Geom Val = "<< mGeometryEngine->get_field_value(mCurrentGeomIndex, (uint)tVertex->get_index(), tVertex->get_coords())<<std::endl;
-    // }
 
     // active geometries
     moris::Matrix< moris::IndexMat > const* tActiveGeometries = aMeshGenerator->get_active_geometries();
@@ -89,11 +78,11 @@ Node_Hierarchy_Interface::perform(
         aMeshGenerator->create_edges_from_element_to_node( tIgCellsInGroups, tIgCellGroupEdgeConnectivity );
 
         // collect a representative background cell for each edges
-        moris::Cell< moris::mtk::Cell* > tBackgroundCellForEdge; // input: edge index || output: BG cell it belongs to
+        moris::Cell< moris::mtk::Cell* > tBackgroundCellForEdge;// input: edge index || output: BG cell it belongs to
         aMeshGenerator->select_background_cell_for_edge( tIgCellGroupEdgeConnectivity, aCutIntegrationMesh, tBackgroundCellForEdge );
 
         // collect the vertex group related to the representative background cell
-        moris::Cell< std::shared_ptr< IG_Vertex_Group > > tVertexGroups; // input: BG cell index || output: IG vertex group
+        moris::Cell< std::shared_ptr< IG_Vertex_Group > > tVertexGroups;// input: BG cell index || output: IG vertex group
         aMeshGenerator->collect_vertex_groups_for_background_cells( aMeshGenerationData, aCutIntegrationMesh, &tBackgroundCellForEdge, &tVertexGroups );
 
         // deduce the edge parent entity index and rank
@@ -155,7 +144,7 @@ Node_Hierarchy_Interface::determine_intersected_edges_and_make_requests(
     moris::Cell< moris_index >&                        aIntersectedEdges,
     moris::Cell< moris::real >&                        aEdgeLocalCoordinate )
 {
-    Tracer tTracer( "XTK", "Decomposition_Algorithm", "Determine Intersected Edges" );
+    Tracer tTracer( "XTK", "Decomposition_Algorithm", "Determine Intersected Edges", mGenerator->verbosity_level(), 1 );
 
     // get first unused index for nodes for numbering new nodes
     moris::moris_index tNewNodeIndex = mCutIntegrationMesh->get_first_available_index( EntityRank::NODE );
@@ -168,7 +157,7 @@ Node_Hierarchy_Interface::determine_intersected_edges_and_make_requests(
 
     // the query interface
     // Initialize geometric query
-    // (object which holds/collects all information needed to determine an intersection 
+    // (object which holds/collects all information needed to determine an intersection
     // (e.g. data of an edge and its relation to its Child Mesh and BG Cell))
     Geometric_Query_XTK tGeometricQuery;
 
@@ -187,7 +176,7 @@ Node_Hierarchy_Interface::determine_intersected_edges_and_make_requests(
     //iterate through the edges in aEdgeConnectivity ask the geometry engine if we are intersected
     for ( moris::uint iEdge = 0; iEdge < aEdgeConnectivity->mEdgeVertices.size(); iEdge++ )
     {
-        
+
         // initialize matrix storing intersection point on edge in parametric coords of BG cell
         if ( iEdge == 0 )
         {
@@ -216,19 +205,19 @@ Node_Hierarchy_Interface::determine_intersected_edges_and_make_requests(
                 // get edge parent entity index and rank
                 moris_index tParentIndex = aIgEdgeAncestry->mEdgeParentEntityIndex( iEdge );
                 moris_index tParentRank  = aIgEdgeAncestry->mEdgeParentEntityRank( iEdge );
-                
-                // get unique edge id based on two end vertices of edge 
+
+                // get unique edge id based on two end vertices of edge
                 moris_index tSecondaryId = this->hash_edge( aEdgeConnectivity->mEdgeVertices( iEdge ) );
-                
+
                 // initialize variable holding possible new node index
                 moris_index tNewNodeIndexInSubdivision = MORIS_INDEX_MAX;
 
                 // check if new node for current edge has already been requested ...
-                bool tRequestExist = mDecompositionData->request_exists( 
-                        tParentIndex, 
-                        tSecondaryId, 
-                        (enum EntityRank)tParentRank, 
-                        tNewNodeIndexInSubdivision );
+                bool tRequestExist = mDecompositionData->request_exists(
+                    tParentIndex,
+                    tSecondaryId,
+                    (enum EntityRank)tParentRank,
+                    tNewNodeIndexInSubdivision );
 
                 // ... if not request it
                 if ( !tRequestExist )
@@ -270,7 +259,7 @@ Node_Hierarchy_Interface::associate_new_vertices_with_cell_groups(
     moris::Cell< moris::real >*                        aEdgeLocalCoordinate )
 {
     // trace this function
-    Tracer tTracer( "XTK", "Decomposition_Algorithm", "Vertex Associations" );
+    Tracer tTracer( "XTK", "Decomposition_Algorithm", "Vertex Associations", mGenerator->verbosity_level(), 1 );
 
     // number of child meshes
     moris_index tNumChildMeshes = mCutIntegrationMesh->get_num_ig_cell_groups();
@@ -286,7 +275,7 @@ Node_Hierarchy_Interface::associate_new_vertices_with_cell_groups(
         tDimParamCoords = ( *aBackgroundCellForEdge )( 0 )->get_cell_info()->get_loc_coord_dim();
     }
 
-    // list of node coords 
+    // list of node coords
     moris::Matrix< moris::DDRMat > tEdgeNodeParamCoordinates( 2, tDimParamCoords );
 
     Cell< moris::uint > tCellGroups;
@@ -384,7 +373,7 @@ void
 Node_Hierarchy_Interface::select_ig_cell_groups(
     moris::Cell< std::shared_ptr< IG_Cell_Group > >& aIgCellGroups )
 {
-    Tracer tTracer( "XTK", "Decomposition_Algorithm", "Select Ig Cell Groups" );
+    Tracer tTracer( "XTK", "Decomposition_Algorithm", "Select Ig Cell Groups", mGenerator->verbosity_level(), 1 );
     // intersected background cells for the current geometry
     moris::Cell< moris_index > const& tIntersectedBackground = mMeshGenerationData->mIntersectedBackgroundCellIndex( mCurrentGeomIndex );
 
@@ -412,25 +401,25 @@ Node_Hierarchy_Interface::create_node_hierarchy_integration_cells(
     moris::Cell< moris_index >*                aIntersectedEdges )
 {
     // time/log function
-    Tracer tTracer( "XTK", "Node_Hierarchy_Interface", "Create NH IG Cells" );
-    
+    Tracer tTracer( "XTK", "Node_Hierarchy_Interface", "Create NH IG Cells", mGenerator->verbosity_level(), 1 );
+
     // starting with a clean slate here
     mNumNewCells = 0;
 
     // initialize map, input: IG Cell index || output: list of intersected edge ordinals (?)
-    moris::Cell< std::shared_ptr< moris::Cell< moris_index > > >         
-            tCellIndexIntersectedEdgeOrdinals( mCutIntegrationMesh->get_num_entities( EntityRank::ELEMENT, 0 ), nullptr );
+    moris::Cell< std::shared_ptr< moris::Cell< moris_index > > >
+        tCellIndexIntersectedEdgeOrdinals( mCutIntegrationMesh->get_num_entities( EntityRank::ELEMENT, 0 ), nullptr );
 
     // initialize map, input: IG Cell index || output: list of intersected vertex ordinals (?)
-    moris::Cell< std::shared_ptr< moris::Cell< moris::mtk::Vertex* > > > 
-            tCellIndexIntersectedEdgeVertex( mCutIntegrationMesh->get_num_entities( EntityRank::ELEMENT, 0 ), nullptr );
+    moris::Cell< std::shared_ptr< moris::Cell< moris::mtk::Vertex* > > >
+        tCellIndexIntersectedEdgeVertex( mCutIntegrationMesh->get_num_entities( EntityRank::ELEMENT, 0 ), nullptr );
 
     // fill necessary information in maps initialized above
-    this->determine_intersected_cell_information( 
-            aEdgeConnectivity, 
-            aIntersectedEdges, 
-            &tCellIndexIntersectedEdgeOrdinals, 
-            &tCellIndexIntersectedEdgeVertex );
+    this->determine_intersected_cell_information(
+        aEdgeConnectivity,
+        aIntersectedEdges,
+        &tCellIndexIntersectedEdgeOrdinals,
+        &tCellIndexIntersectedEdgeVertex );
 
     moris::Cell< std::shared_ptr< moris::Cell< moris::mtk::Vertex* > > > tNodesForTemplates( mCutIntegrationMesh->get_num_entities( EntityRank::ELEMENT, 0 ), nullptr );
     moris::Cell< std::shared_ptr< Node_Hierarchy_Template > >            tNHTemplate( mCutIntegrationMesh->get_num_entities( EntityRank::ELEMENT, 0 ), nullptr );
@@ -440,7 +429,7 @@ Node_Hierarchy_Interface::create_node_hierarchy_integration_cells(
     moris_index                              tNumNewCells  = 0;
     moris_index                              tNodesPerCell = 0;
     std::shared_ptr< moris::mtk::Cell_Info > tCellInfo     = nullptr;
-    
+
     // Case: 3D mesh
     if ( mBackgroundMesh->get_spatial_dim() == 3 )
     {
@@ -604,7 +593,7 @@ Node_Hierarchy_Interface::select_node_hier_2d_template(
             moris_index tPermutationId = MORIS_INDEX_MAX;
 
             ( *aNodesForTemplates )( iCell ) = std::make_shared< moris::Cell< moris::mtk::Vertex* > >();
-            ( *aNodesForTemplates )( iCell )->reserve( 5 ); 
+            ( *aNodesForTemplates )( iCell )->reserve( 5 );
 
             this->sort_nodes_2d(
                 tIgCell,
@@ -716,22 +705,21 @@ Node_Hierarchy_Interface::sort_nodes_2d(
     std::iota( tIndices.data().begin(), tIndices.data().end(), 0 );
 
     // get ascending order vertices
-    std::stable_sort( 
-            tIndices.data().begin(), 
-            tIndices.data().end(), 
-            [&]( std::size_t i1, std::size_t i2 ) 
-            { 
-                return ( *aCellIndexIntersectedEdgeOrdinals )( i1 )< ( *aCellIndexIntersectedEdgeOrdinals )( i2 ); 
-            } );
+    std::stable_sort(
+        tIndices.data().begin(),
+        tIndices.data().end(),
+        [&]( std::size_t i1, std::size_t i2 ) {
+            return ( *aCellIndexIntersectedEdgeOrdinals )( i1 ) < ( *aCellIndexIntersectedEdgeOrdinals )( i2 );
+        } );
 
     Cell< moris::mtk::Vertex* > tVertices = aIgCell->get_vertex_pointers();
 
-// debug
-// std::cout << "-------------------------------------------------------------------------\n" << std::flush; 
-// std::cout << "aCellIndexIntersectedEdgeOrdinals->size() = " << aCellIndexIntersectedEdgeOrdinals->size() << " \n" << std::flush;
-// std::cout << "tIndices.size() = " << tIndices.size() << " \n" << std::flush;
-// std::cout << "tVertices.size() = " << tVertices.size() << " \n" << std::flush;
-// print( tVertices, "tVertices" );
+    // debug
+    // std::cout << "-------------------------------------------------------------------------\n" << std::flush;
+    // std::cout << "aCellIndexIntersectedEdgeOrdinals->size() = " << aCellIndexIntersectedEdgeOrdinals->size() << " \n" << std::flush;
+    // std::cout << "tIndices.size() = " << tIndices.size() << " \n" << std::flush;
+    // std::cout << "tVertices.size() = " << tVertices.size() << " \n" << std::flush;
+    // print( tVertices, "tVertices" );
 
     // intersection goes through two edges
     if ( aCellIndexIntersectedEdgeOrdinals->size() == 2 )
@@ -739,7 +727,7 @@ Node_Hierarchy_Interface::sort_nodes_2d(
         // get unique permutation id, identifiying which template to use
         moris_index tLowVertexIdEdgeOrd  = ( *aCellIndexIntersectedEdgeOrdinals )( tIndices( 0 ) );
         moris_index tHighVertexIdEdgeOrd = ( *aCellIndexIntersectedEdgeOrdinals )( tIndices( 1 ) );
-        aPermutation = tLowVertexIdEdgeOrd + tHighVertexIdEdgeOrd;
+        aPermutation                     = tLowVertexIdEdgeOrd + tHighVertexIdEdgeOrd;
 
         aSortedNodeInds->resize( 5 );
         ( *aSortedNodeInds )( 0 ) = tVertices( 0 );
@@ -748,18 +736,18 @@ Node_Hierarchy_Interface::sort_nodes_2d(
         ( *aSortedNodeInds )( 3 ) = ( *aCellIndexIntersectedEdgeVertex )( tIndices( 0 ) );
         ( *aSortedNodeInds )( 4 ) = ( *aCellIndexIntersectedEdgeVertex )( tIndices( 1 ) );
 
-// print( *aCellIndexIntersectedEdgeVertex, "*aCellIndexIntersectedEdgeVertex" );
-// print( *aCellIndexIntersectedEdgeOrdinals, "*aCellIndexIntersectedEdgeOrdinals" );
-// print( *aSortedNodeInds , "*aSortedNodeInds" );
-// std::cout << "Permutation-ID: " <<  aPermutation << " \n" << std::flush;
-// std::cout << "-------------------------------------------------------------------------\n" << std::flush;  
+        // print( *aCellIndexIntersectedEdgeVertex, "*aCellIndexIntersectedEdgeVertex" );
+        // print( *aCellIndexIntersectedEdgeOrdinals, "*aCellIndexIntersectedEdgeOrdinals" );
+        // print( *aSortedNodeInds , "*aSortedNodeInds" );
+        // std::cout << "Permutation-ID: " <<  aPermutation << " \n" << std::flush;
+        // std::cout << "-------------------------------------------------------------------------\n" << std::flush;
     }
 
     // intersection goes through one of the vertices
     else if ( aCellIndexIntersectedEdgeOrdinals->size() == 1 )
     {
-        moris_index tVertexIdEdgeOrd  = ( *aCellIndexIntersectedEdgeOrdinals )( tIndices( 0 ) );
-        aPermutation = tVertexIdEdgeOrd + 10;
+        moris_index tVertexIdEdgeOrd = ( *aCellIndexIntersectedEdgeOrdinals )( tIndices( 0 ) );
+        aPermutation                 = tVertexIdEdgeOrd + 10;
 
         aSortedNodeInds->resize( 4 );
         ( *aSortedNodeInds )( 0 ) = tVertices( 0 );
@@ -782,167 +770,167 @@ Node_Hierarchy_Interface::sort_nodes_3d(
 {
     // hier tet 4
     MORIS_ERROR( mBackgroundMesh->get_spatial_dim() == 3, "Node_Hierarchy_Interface::sort_nodes_3d() - number of spatial dimensions is not 3." );
-    
-        // initialize original index locations
-        moris::Cell< moris_index > tIndices( aCellIndexIntersectedEdgeOrdinals->size() );
-        std::iota( tIndices.data().begin(), tIndices.data().end(), 0 );
 
-        // get ascending order vertices
-        std::stable_sort( tIndices.data().begin(), tIndices.data().end(), [&]( std::size_t i1, std::size_t i2 ) { return ( *aCellIndexIntersectedEdgeVertex )( i1 )->get_id() < ( *aCellIndexIntersectedEdgeVertex )( i2 )->get_id(); } );
+    // initialize original index locations
+    moris::Cell< moris_index > tIndices( aCellIndexIntersectedEdgeOrdinals->size() );
+    std::iota( tIndices.data().begin(), tIndices.data().end(), 0 );
 
-
-        Cell< moris::mtk::Vertex* > tVertices = aIgCell->get_vertex_pointers();
+    // get ascending order vertices
+    std::stable_sort( tIndices.data().begin(), tIndices.data().end(), [&]( std::size_t i1, std::size_t i2 ) { return ( *aCellIndexIntersectedEdgeVertex )( i1 )->get_id() < ( *aCellIndexIntersectedEdgeVertex )( i2 )->get_id(); } );
 
 
-        if ( aCellIndexIntersectedEdgeOrdinals->size() == 3 )
+    Cell< moris::mtk::Vertex* > tVertices = aIgCell->get_vertex_pointers();
+
+
+    if ( aCellIndexIntersectedEdgeOrdinals->size() == 3 )
+    {
+        moris_index tLowIntersectVertexIdEdgeOrd  = ( *aCellIndexIntersectedEdgeOrdinals )( tIndices( 0 ) );
+        moris_index tMidIntersectVertexIdEdgeOrd  = ( *aCellIndexIntersectedEdgeOrdinals )( tIndices( 1 ) );
+        moris_index tHighIntersectVertexIdEdgeOrd = ( *aCellIndexIntersectedEdgeOrdinals )( tIndices( 2 ) );
+
+        // the node shared by the edge with the low vertex id and the mid vertex id
+        moris_index tN0Ordinal = aIgCell->get_cell_info()->get_shared_vertex_ordinal_between_edges( tLowIntersectVertexIdEdgeOrd, tMidIntersectVertexIdEdgeOrd );
+
+        // moris_index tN0 = tVertices(tN0NodeOrdinal)->get_index();
+
+        // the node on the other side of the edge with the low vertex id
+        moris_index tN1Ordinal = tN0Ordinal == ( *aEdgeToVertexOrdinalMap )( tLowIntersectVertexIdEdgeOrd, 0 ) ? ( *aEdgeToVertexOrdinalMap )( tLowIntersectVertexIdEdgeOrd, 1 ) : ( *aEdgeToVertexOrdinalMap )( tLowIntersectVertexIdEdgeOrd, 0 );
+
+        moris_index tN2Ordinal = tN0Ordinal == ( *aEdgeToVertexOrdinalMap )( tMidIntersectVertexIdEdgeOrd, 0 ) ? ( *aEdgeToVertexOrdinalMap )( tMidIntersectVertexIdEdgeOrd, 1 ) : ( *aEdgeToVertexOrdinalMap )( tMidIntersectVertexIdEdgeOrd, 0 );
+
+        moris_index tN3Ordinal = tN0Ordinal == ( *aEdgeToVertexOrdinalMap )( tHighIntersectVertexIdEdgeOrd, 0 ) ? ( *aEdgeToVertexOrdinalMap )( tHighIntersectVertexIdEdgeOrd, 1 ) : ( *aEdgeToVertexOrdinalMap )( tHighIntersectVertexIdEdgeOrd, 0 );
+
+        // Determine permutation
+        // Rule:  1   * edge ordinal containing the lowest node ID
+        //      + 10  * edge ordinal containing the middle node ID
+        //      + 100 * edge ordinal containing the highest node ID
+        aPermutation = tLowIntersectVertexIdEdgeOrd + 10 * tMidIntersectVertexIdEdgeOrd + 100 * tHighIntersectVertexIdEdgeOrd;
+
+        aSortedNodeInds->resize( 7 );
+        ( *aSortedNodeInds )( 0 ) = tVertices( tN0Ordinal );
+        ( *aSortedNodeInds )( 1 ) = tVertices( tN1Ordinal );
+        ( *aSortedNodeInds )( 2 ) = tVertices( tN2Ordinal );
+        ( *aSortedNodeInds )( 3 ) = tVertices( tN3Ordinal );
+        ( *aSortedNodeInds )( 4 ) = ( *aCellIndexIntersectedEdgeVertex )( tIndices( 0 ) );
+        ( *aSortedNodeInds )( 5 ) = ( *aCellIndexIntersectedEdgeVertex )( tIndices( 1 ) );
+        ( *aSortedNodeInds )( 6 ) = ( *aCellIndexIntersectedEdgeVertex )( tIndices( 2 ) );
+    }
+    else if ( aCellIndexIntersectedEdgeOrdinals->size() == 4 )
+    {
+        // figure out which interface nodes are away from each other in this case
+        moris_index tLowIntersectVertexIdEdgeOrd     = ( *aCellIndexIntersectedEdgeOrdinals )( tIndices( 0 ) );
+        moris_index tMidLowIntersectVertexIdEdgeOrd  = ( *aCellIndexIntersectedEdgeOrdinals )( tIndices( 1 ) );
+        moris_index tMidHighIntersectVertexIdEdgeOrd = ( *aCellIndexIntersectedEdgeOrdinals )( tIndices( 2 ) );
+        moris_index tHighIntersectVertexIdEdgeOrd    = ( *aCellIndexIntersectedEdgeOrdinals )( tIndices( 3 ) );
+
+        // std::cout<<"tLowIntersectVertexIdEdgeOrd = "<<tLowIntersectVertexIdEdgeOrd<<std::endl;
+        // std::cout<<"tMidLowIntersectVertexIdEdgeOrd = "<<tMidLowIntersectVertexIdEdgeOrd<<std::endl;
+        // std::cout<<"tMidHighIntersectVertexIdEdgeOrd = "<<tMidHighIntersectVertexIdEdgeOrd<<std::endl;
+        // std::cout<<"tHighIntersectVertexIdEdgeOrd = "<<tHighIntersectVertexIdEdgeOrd<<std::endl;
+
+        // Determine permutation
+        // Rule:  1    * edge ordinal containing the lowest node ID
+        //      + 10   * edge ordinal containing the middle lowest node ID
+        //      + 100  * edge ordinal containing the middle highest node ID
+        //      + 1000 * edge ordinal containing the highest node ID
+        aPermutation = tLowIntersectVertexIdEdgeOrd + 10 * tMidLowIntersectVertexIdEdgeOrd + 100 * tMidHighIntersectVertexIdEdgeOrd + 1000 * tHighIntersectVertexIdEdgeOrd;
+
+
+        // determine which intersection node ids are across from eachother (meaning they share only an edge through the starting integration cell)
+        moris_index tHLOppVertOrd   = aIgCell->get_cell_info()->get_shared_vertex_ordinal_between_edges( tLowIntersectVertexIdEdgeOrd, tHighIntersectVertexIdEdgeOrd );
+        moris_index tHMHOppVertOrd  = aIgCell->get_cell_info()->get_shared_vertex_ordinal_between_edges( tMidHighIntersectVertexIdEdgeOrd, tHighIntersectVertexIdEdgeOrd );
+        moris_index tHMLOppVertOrd  = aIgCell->get_cell_info()->get_shared_vertex_ordinal_between_edges( tMidLowIntersectVertexIdEdgeOrd, tHighIntersectVertexIdEdgeOrd );
+        moris_index tLMLOppVertOrd  = aIgCell->get_cell_info()->get_shared_vertex_ordinal_between_edges( tLowIntersectVertexIdEdgeOrd, tMidLowIntersectVertexIdEdgeOrd );
+        moris_index tLMHOppVertOrd  = aIgCell->get_cell_info()->get_shared_vertex_ordinal_between_edges( tLowIntersectVertexIdEdgeOrd, tMidHighIntersectVertexIdEdgeOrd );
+        moris_index tMLMHOppVertOrd = aIgCell->get_cell_info()->get_shared_vertex_ordinal_between_edges( tMidLowIntersectVertexIdEdgeOrd, tMidHighIntersectVertexIdEdgeOrd );
+
+        // std::cout<< "tHLOppVertOrd  = "<<tHLOppVertOrd <<std::endl;
+        // std::cout<< "tHMHOppVertOrd = "<<tHMHOppVertOrd<<std::endl;
+        // std::cout<< "tHMLOppVertOrd = "<<tHMLOppVertOrd<<std::endl;
+        // std::cout<< "tLMLOppVertOrd = "<<tLMLOppVertOrd<<std::endl;
+        // std::cout<< "tLMHOppVertOrd = "<<tLMHOppVertOrd<<std::endl;
+        // std::cout<< "tMLMHOppVertOrd= "<<tMLMHOppVertOrd<<std::endl;
+
+        moris_index tN0Ordinal = MORIS_INDEX_MAX;
+        moris_index tN1Ordinal = MORIS_INDEX_MAX;
+        moris_index tN2Ordinal = MORIS_INDEX_MAX;
+        moris_index tN3Ordinal = MORIS_INDEX_MAX;
+        if ( tHLOppVertOrd == MORIS_INDEX_MAX )
         {
-            moris_index tLowIntersectVertexIdEdgeOrd  = ( *aCellIndexIntersectedEdgeOrdinals )( tIndices( 0 ) );
-            moris_index tMidIntersectVertexIdEdgeOrd  = ( *aCellIndexIntersectedEdgeOrdinals )( tIndices( 1 ) );
-            moris_index tHighIntersectVertexIdEdgeOrd = ( *aCellIndexIntersectedEdgeOrdinals )( tIndices( 2 ) );
-
-            // the node shared by the edge with the low vertex id and the mid vertex id
-            moris_index tN0Ordinal = aIgCell->get_cell_info()->get_shared_vertex_ordinal_between_edges( tLowIntersectVertexIdEdgeOrd, tMidIntersectVertexIdEdgeOrd );
-
-            // moris_index tN0 = tVertices(tN0NodeOrdinal)->get_index();
-
-            // the node on the other side of the edge with the low vertex id
-            moris_index tN1Ordinal = tN0Ordinal == ( *aEdgeToVertexOrdinalMap )( tLowIntersectVertexIdEdgeOrd, 0 ) ? ( *aEdgeToVertexOrdinalMap )( tLowIntersectVertexIdEdgeOrd, 1 ) : ( *aEdgeToVertexOrdinalMap )( tLowIntersectVertexIdEdgeOrd, 0 );
-
-            moris_index tN2Ordinal = tN0Ordinal == ( *aEdgeToVertexOrdinalMap )( tMidIntersectVertexIdEdgeOrd, 0 ) ? ( *aEdgeToVertexOrdinalMap )( tMidIntersectVertexIdEdgeOrd, 1 ) : ( *aEdgeToVertexOrdinalMap )( tMidIntersectVertexIdEdgeOrd, 0 );
-
-            moris_index tN3Ordinal = tN0Ordinal == ( *aEdgeToVertexOrdinalMap )( tHighIntersectVertexIdEdgeOrd, 0 ) ? ( *aEdgeToVertexOrdinalMap )( tHighIntersectVertexIdEdgeOrd, 1 ) : ( *aEdgeToVertexOrdinalMap )( tHighIntersectVertexIdEdgeOrd, 0 );
-
-            // Determine permutation
-            // Rule:  1   * edge ordinal containing the lowest node ID
-            //      + 10  * edge ordinal containing the middle node ID
-            //      + 100 * edge ordinal containing the highest node ID
-            aPermutation = tLowIntersectVertexIdEdgeOrd + 10 * tMidIntersectVertexIdEdgeOrd + 100 * tHighIntersectVertexIdEdgeOrd;
-
-            aSortedNodeInds->resize( 7 );
-            ( *aSortedNodeInds )( 0 ) = tVertices( tN0Ordinal );
-            ( *aSortedNodeInds )( 1 ) = tVertices( tN1Ordinal );
-            ( *aSortedNodeInds )( 2 ) = tVertices( tN2Ordinal );
-            ( *aSortedNodeInds )( 3 ) = tVertices( tN3Ordinal );
-            ( *aSortedNodeInds )( 4 ) = ( *aCellIndexIntersectedEdgeVertex )( tIndices( 0 ) );
-            ( *aSortedNodeInds )( 5 ) = ( *aCellIndexIntersectedEdgeVertex )( tIndices( 1 ) );
-            ( *aSortedNodeInds )( 6 ) = ( *aCellIndexIntersectedEdgeVertex )( tIndices( 2 ) );
+            // orient it so that the first vertex is shared by the H and MH edges
+            // N0 - shared by the H and MH edges
+            // N1 - shared by the H and ML edges
+            // N2 - shared by the L and MH edges
+            // N3 - shared by the L and ML edges
+            // shared vertex ordinal between H and MH edge
+            tN0Ordinal = tHMHOppVertOrd;
+            tN1Ordinal = tHMLOppVertOrd;
+            tN2Ordinal = tLMHOppVertOrd;
+            tN3Ordinal = tLMLOppVertOrd;
         }
-        else if ( aCellIndexIntersectedEdgeOrdinals->size() == 4 )
+
+        else if ( tHMHOppVertOrd == MORIS_INDEX_MAX )
         {
-            // figure out which interface nodes are away from each other in this case
-            moris_index tLowIntersectVertexIdEdgeOrd     = ( *aCellIndexIntersectedEdgeOrdinals )( tIndices( 0 ) );
-            moris_index tMidLowIntersectVertexIdEdgeOrd  = ( *aCellIndexIntersectedEdgeOrdinals )( tIndices( 1 ) );
-            moris_index tMidHighIntersectVertexIdEdgeOrd = ( *aCellIndexIntersectedEdgeOrdinals )( tIndices( 2 ) );
-            moris_index tHighIntersectVertexIdEdgeOrd    = ( *aCellIndexIntersectedEdgeOrdinals )( tIndices( 3 ) );
-
-            // std::cout<<"tLowIntersectVertexIdEdgeOrd = "<<tLowIntersectVertexIdEdgeOrd<<std::endl;
-            // std::cout<<"tMidLowIntersectVertexIdEdgeOrd = "<<tMidLowIntersectVertexIdEdgeOrd<<std::endl;
-            // std::cout<<"tMidHighIntersectVertexIdEdgeOrd = "<<tMidHighIntersectVertexIdEdgeOrd<<std::endl;
-            // std::cout<<"tHighIntersectVertexIdEdgeOrd = "<<tHighIntersectVertexIdEdgeOrd<<std::endl;
-
-            // Determine permutation
-            // Rule:  1    * edge ordinal containing the lowest node ID
-            //      + 10   * edge ordinal containing the middle lowest node ID
-            //      + 100  * edge ordinal containing the middle highest node ID
-            //      + 1000 * edge ordinal containing the highest node ID
-            aPermutation = tLowIntersectVertexIdEdgeOrd + 10 * tMidLowIntersectVertexIdEdgeOrd + 100 * tMidHighIntersectVertexIdEdgeOrd + 1000 * tHighIntersectVertexIdEdgeOrd;
-
-
-            // determine which intersection node ids are across from eachother (meaning they share only an edge through the starting integration cell)
-            moris_index tHLOppVertOrd   = aIgCell->get_cell_info()->get_shared_vertex_ordinal_between_edges( tLowIntersectVertexIdEdgeOrd, tHighIntersectVertexIdEdgeOrd );
-            moris_index tHMHOppVertOrd  = aIgCell->get_cell_info()->get_shared_vertex_ordinal_between_edges( tMidHighIntersectVertexIdEdgeOrd, tHighIntersectVertexIdEdgeOrd );
-            moris_index tHMLOppVertOrd  = aIgCell->get_cell_info()->get_shared_vertex_ordinal_between_edges( tMidLowIntersectVertexIdEdgeOrd, tHighIntersectVertexIdEdgeOrd );
-            moris_index tLMLOppVertOrd  = aIgCell->get_cell_info()->get_shared_vertex_ordinal_between_edges( tLowIntersectVertexIdEdgeOrd, tMidLowIntersectVertexIdEdgeOrd );
-            moris_index tLMHOppVertOrd  = aIgCell->get_cell_info()->get_shared_vertex_ordinal_between_edges( tLowIntersectVertexIdEdgeOrd, tMidHighIntersectVertexIdEdgeOrd );
-            moris_index tMLMHOppVertOrd = aIgCell->get_cell_info()->get_shared_vertex_ordinal_between_edges( tMidLowIntersectVertexIdEdgeOrd, tMidHighIntersectVertexIdEdgeOrd );
-
-            // std::cout<< "tHLOppVertOrd  = "<<tHLOppVertOrd <<std::endl;
-            // std::cout<< "tHMHOppVertOrd = "<<tHMHOppVertOrd<<std::endl;
-            // std::cout<< "tHMLOppVertOrd = "<<tHMLOppVertOrd<<std::endl;
-            // std::cout<< "tLMLOppVertOrd = "<<tLMLOppVertOrd<<std::endl;
-            // std::cout<< "tLMHOppVertOrd = "<<tLMHOppVertOrd<<std::endl;
-            // std::cout<< "tMLMHOppVertOrd= "<<tMLMHOppVertOrd<<std::endl;
-
-            moris_index tN0Ordinal = MORIS_INDEX_MAX;
-            moris_index tN1Ordinal = MORIS_INDEX_MAX;
-            moris_index tN2Ordinal = MORIS_INDEX_MAX;
-            moris_index tN3Ordinal = MORIS_INDEX_MAX;
-            if ( tHLOppVertOrd == MORIS_INDEX_MAX )
-            {
-                // orient it so that the first vertex is shared by the H and MH edges
-                // N0 - shared by the H and MH edges
-                // N1 - shared by the H and ML edges
-                // N2 - shared by the L and MH edges
-                // N3 - shared by the L and ML edges
-                // shared vertex ordinal between H and MH edge
-                tN0Ordinal = tHMHOppVertOrd;
-                tN1Ordinal = tHMLOppVertOrd;
-                tN2Ordinal = tLMHOppVertOrd;
-                tN3Ordinal = tLMLOppVertOrd;
-            }
-
-            else if ( tHMHOppVertOrd == MORIS_INDEX_MAX )
-            {
-                // orient it so that the first vertex is shared by the H and MH edges
-                // N0 - shared by the L  and H edges
-                // N1 - shared by the ML and H edges
-                // N2 - shared by the L  and MH edges
-                // N3 - shared by the ML  and MH edges
-                // shared vertex ordinal between H and MH edge
-                tN0Ordinal = tHLOppVertOrd;
-                tN1Ordinal = tHMLOppVertOrd;
-                tN2Ordinal = tLMHOppVertOrd;
-                tN3Ordinal = tMLMHOppVertOrd;
-            }
-            else if ( tHMLOppVertOrd == MORIS_INDEX_MAX )
-            {
-                // orient it so that the first vertex is shared by the H and MH edges
-                // N0 - shared by the L  and H edges
-                // N1 - shared by the MH and H edges
-                // N2 - shared by the L  and ML edges
-                // N3 - shared by the ML  and MH edges
-                // shared vertex ordinal between H and MH edge
-                tN0Ordinal = tHLOppVertOrd;
-                tN1Ordinal = tHMHOppVertOrd;
-                tN2Ordinal = tLMLOppVertOrd;
-                tN3Ordinal = tMLMHOppVertOrd;
-            }
-
-            aSortedNodeInds->resize( 8 );
-            ( *aSortedNodeInds )( 0 ) = tVertices( tN0Ordinal );
-            ( *aSortedNodeInds )( 1 ) = tVertices( tN1Ordinal );
-            ( *aSortedNodeInds )( 2 ) = tVertices( tN2Ordinal );
-            ( *aSortedNodeInds )( 3 ) = tVertices( tN3Ordinal );
-            ( *aSortedNodeInds )( 4 ) = ( *aCellIndexIntersectedEdgeVertex )( tIndices( 0 ) );
-            ( *aSortedNodeInds )( 5 ) = ( *aCellIndexIntersectedEdgeVertex )( tIndices( 1 ) );
-            ( *aSortedNodeInds )( 6 ) = ( *aCellIndexIntersectedEdgeVertex )( tIndices( 2 ) );
-            ( *aSortedNodeInds )( 7 ) = ( *aCellIndexIntersectedEdgeVertex )( tIndices( 3 ) );
+            // orient it so that the first vertex is shared by the H and MH edges
+            // N0 - shared by the L  and H edges
+            // N1 - shared by the ML and H edges
+            // N2 - shared by the L  and MH edges
+            // N3 - shared by the ML  and MH edges
+            // shared vertex ordinal between H and MH edge
+            tN0Ordinal = tHLOppVertOrd;
+            tN1Ordinal = tHMLOppVertOrd;
+            tN2Ordinal = tLMHOppVertOrd;
+            tN3Ordinal = tMLMHOppVertOrd;
         }
-        else if ( aCellIndexIntersectedEdgeOrdinals->size() == 2 )
+        else if ( tHMLOppVertOrd == MORIS_INDEX_MAX )
         {
-            moris_index tLowVertexIdEdgeOrd  = ( *aCellIndexIntersectedEdgeOrdinals )( tIndices( 0 ) );
-            moris_index tHighVertexIdEdgeOrd = ( *aCellIndexIntersectedEdgeOrdinals )( tIndices( 1 ) );
+            // orient it so that the first vertex is shared by the H and MH edges
+            // N0 - shared by the L  and H edges
+            // N1 - shared by the MH and H edges
+            // N2 - shared by the L  and ML edges
+            // N3 - shared by the ML  and MH edges
+            // shared vertex ordinal between H and MH edge
+            tN0Ordinal = tHLOppVertOrd;
+            tN1Ordinal = tHMHOppVertOrd;
+            tN2Ordinal = tLMLOppVertOrd;
+            tN3Ordinal = tMLMHOppVertOrd;
+        }
 
-            aSortedNodeInds->resize( 6 );
-            ( *aSortedNodeInds )( 0 ) = tVertices( 0 );
-            ( *aSortedNodeInds )( 1 ) = tVertices( 1 );
-            ( *aSortedNodeInds )( 2 ) = tVertices( 2 );
-            ( *aSortedNodeInds )( 3 ) = tVertices( 3 );
-            ( *aSortedNodeInds )( 4 ) = ( *aCellIndexIntersectedEdgeVertex )( tIndices( 0 ) );
-            ( *aSortedNodeInds )( 5 ) = ( *aCellIndexIntersectedEdgeVertex )( tIndices( 1 ) );
-            aPermutation              = 10000 + 100 * ( tLowVertexIdEdgeOrd + 1 ) + 10 * ( tHighVertexIdEdgeOrd + 1 );
-        }
-        else if ( aCellIndexIntersectedEdgeOrdinals->size() == 1 )
-        {
-            aSortedNodeInds->resize( 5 );
-            ( *aSortedNodeInds )( 0 ) = tVertices( 0 );
-            ( *aSortedNodeInds )( 1 ) = tVertices( 1 );
-            ( *aSortedNodeInds )( 2 ) = tVertices( 2 );
-            ( *aSortedNodeInds )( 3 ) = tVertices( 3 );
-            ( *aSortedNodeInds )( 4 ) = ( *aCellIndexIntersectedEdgeVertex )( tIndices( 0 ) );
-            aPermutation              = 10000 + ( *aCellIndexIntersectedEdgeOrdinals )( tIndices( 0 ) );
-        }
-        }
+        aSortedNodeInds->resize( 8 );
+        ( *aSortedNodeInds )( 0 ) = tVertices( tN0Ordinal );
+        ( *aSortedNodeInds )( 1 ) = tVertices( tN1Ordinal );
+        ( *aSortedNodeInds )( 2 ) = tVertices( tN2Ordinal );
+        ( *aSortedNodeInds )( 3 ) = tVertices( tN3Ordinal );
+        ( *aSortedNodeInds )( 4 ) = ( *aCellIndexIntersectedEdgeVertex )( tIndices( 0 ) );
+        ( *aSortedNodeInds )( 5 ) = ( *aCellIndexIntersectedEdgeVertex )( tIndices( 1 ) );
+        ( *aSortedNodeInds )( 6 ) = ( *aCellIndexIntersectedEdgeVertex )( tIndices( 2 ) );
+        ( *aSortedNodeInds )( 7 ) = ( *aCellIndexIntersectedEdgeVertex )( tIndices( 3 ) );
+    }
+    else if ( aCellIndexIntersectedEdgeOrdinals->size() == 2 )
+    {
+        moris_index tLowVertexIdEdgeOrd  = ( *aCellIndexIntersectedEdgeOrdinals )( tIndices( 0 ) );
+        moris_index tHighVertexIdEdgeOrd = ( *aCellIndexIntersectedEdgeOrdinals )( tIndices( 1 ) );
+
+        aSortedNodeInds->resize( 6 );
+        ( *aSortedNodeInds )( 0 ) = tVertices( 0 );
+        ( *aSortedNodeInds )( 1 ) = tVertices( 1 );
+        ( *aSortedNodeInds )( 2 ) = tVertices( 2 );
+        ( *aSortedNodeInds )( 3 ) = tVertices( 3 );
+        ( *aSortedNodeInds )( 4 ) = ( *aCellIndexIntersectedEdgeVertex )( tIndices( 0 ) );
+        ( *aSortedNodeInds )( 5 ) = ( *aCellIndexIntersectedEdgeVertex )( tIndices( 1 ) );
+        aPermutation              = 10000 + 100 * ( tLowVertexIdEdgeOrd + 1 ) + 10 * ( tHighVertexIdEdgeOrd + 1 );
+    }
+    else if ( aCellIndexIntersectedEdgeOrdinals->size() == 1 )
+    {
+        aSortedNodeInds->resize( 5 );
+        ( *aSortedNodeInds )( 0 ) = tVertices( 0 );
+        ( *aSortedNodeInds )( 1 ) = tVertices( 1 );
+        ( *aSortedNodeInds )( 2 ) = tVertices( 2 );
+        ( *aSortedNodeInds )( 3 ) = tVertices( 3 );
+        ( *aSortedNodeInds )( 4 ) = ( *aCellIndexIntersectedEdgeVertex )( tIndices( 0 ) );
+        aPermutation              = 10000 + ( *aCellIndexIntersectedEdgeOrdinals )( tIndices( 0 ) );
+    }
+}
 // ----------------------------------------------------------------------------------
 
 }// namespace xtk

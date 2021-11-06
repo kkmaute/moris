@@ -31,7 +31,8 @@ Enriched_Integration_Mesh::Enriched_Integration_Mesh( Model *aXTKModel,
     mModel( aXTKModel ),
     mCutIgMesh( mModel->get_cut_integration_mesh() ), mMeshIndexInModel( aInterpIndex ), mCellClusters( 0, nullptr ), mFields( 0 ), mFieldLabelToIndex( 2 ), mCellInfo( nullptr )
 {
-    Tracer tTracer( "XTK", "Enriched Integration Mesh", "Construction" );
+    
+    Tracer tTracer( "XTK", "Enriched Integration Mesh", "Construction", mModel->mVerboseLevel, 0  );
     this->setup_cell_clusters();
     this->setup_blockset_with_cell_clusters();
     this->setup_side_set_clusters();
@@ -2097,7 +2098,7 @@ Enriched_Integration_Mesh::commit_block_set( moris_index const &aBlockSetIndex )
 void
 Enriched_Integration_Mesh::setup_cell_clusters()
 {
-    Tracer tTracer( "XTK", "Enriched Integration Mesh", "setup_cell_clusters" );
+    Tracer tTracer( "XTK", "Enriched Integration Mesh", "setup_cell_clusters" ,mModel->mVerboseLevel, 1  );
 
     Enriched_Interpolation_Mesh *tEnrInterpMesh = mModel->mEnrichedInterpMesh( mMeshIndexInModel );
 
@@ -2535,7 +2536,7 @@ Enriched_Integration_Mesh::get_dbl_side_set_index(
 void
 Enriched_Integration_Mesh::create_interface_double_side_sets_and_clusters()
 {
-    Tracer tTracer( "XTK", "Enriched Integration Mesh", "create_interface_double_side_sets_and_clusters" );
+    Tracer tTracer( "XTK", "Enriched Integration Mesh", "create_interface_double_side_sets_and_clusters" ,mModel->mVerboseLevel, 1  );
 
     // tool for generating double sided interface
     Integration_Mesh_Generator tIGMeshGen;

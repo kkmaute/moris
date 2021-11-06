@@ -546,6 +546,11 @@ class Integration_Mesh_Generator
         Cell< Matrix< IndexMat > > const &aRequests,
         Cell< Matrix< IndexMat > > const &aRequestAnswers,
         moris::moris_id &                 aNodeId );
+
+    
+    moris::uint
+    verbosity_level();
+
 };
 
 }// namespace xtk

@@ -13,7 +13,7 @@ Decomposition_Algorithm::perform(
     moris::mtk::Mesh*                 aBackgroundMesh,
     Integration_Mesh_Generator*       aMeshGenerator )
 {
-    Tracer tTracer( "XTK", "Decomposition_Algorithm", "Generic" );
+    Tracer tTracer( "XTK", "Decomposition_Algorithm", "Generic" ,aMeshGenerator->verbosity_level(), 0 );
 
 
     this->perform_impl_vertex_requests( aMeshGenerationData, aDecompositionData, aCutIntegrationMesh, aBackgroundMesh, aMeshGenerator );

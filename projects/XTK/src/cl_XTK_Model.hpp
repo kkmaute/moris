@@ -77,6 +77,7 @@ class Model
   public:
     // Public member functions/data
     bool mVerbose = false;
+    moris::uint mVerboseLevel = 0;
     // friend classes
     friend class Integration_Mesh_Generator;
     friend class Cut_Integration_Mesh;
@@ -429,8 +430,7 @@ class Model
     std::string
     get_diagnostic_file_name( std::string const& aLabel ) const;
 
-
-    /**
+      /**
      * @brief Tells the integration mesh to either decompose all background cells or not
      * 
      * @return true - decomposition mesh will triangulate/tessalate all cells

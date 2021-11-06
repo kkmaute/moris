@@ -27,7 +27,7 @@ Integration_Mesh_Generator::~Integration_Mesh_Generator()
 std::shared_ptr< Cut_Integration_Mesh >
 Integration_Mesh_Generator::perform()
 {
-    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "perform" );
+    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "perform" ,mXTKModel->mVerboseLevel, 0  );
 
     // data structure to pass things around
     Integration_Mesh_Generation_Data tGenerationData;
@@ -66,10 +66,6 @@ Integration_Mesh_Generator::perform()
 
     moris::Cell< moris::mtk::Cell* > tActiveIgCells;
     extract_cells_from_cell_groups( tActiveIgCellGroups, tActiveIgCells );
-
-    std::cout << "tActiveIgCellGroups.size() = " << tActiveIgCellGroups.size() << std::endl;
-    std::cout << "tActiveIgCells.size() = " << tActiveIgCells.size() << std::endl;
-
 
     // create facet connectivity in the mesh
     std::shared_ptr< Facet_Based_Connectivity > tFaceConnectivity = std::make_shared< Facet_Based_Connectivity >();
@@ -165,7 +161,7 @@ Integration_Mesh_Generator::determine_intersected_background_cells(
     Cut_Integration_Mesh*             aCutIntegrationMesh,
     moris::mtk::Mesh*                 aBackgroundMesh )
 {
-    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Determine intersected background cells" );
+    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Determine intersected background cells" ,mXTKModel->mVerboseLevel, 1  );
     uint   tNumGeometries = mActiveGeometries.numel();
 
     uint tNumCells = aBackgroundMesh->get_num_elems();
@@ -235,7 +231,7 @@ Integration_Mesh_Generator::commit_new_ig_cells_to_cut_mesh(
     moris::mtk::Mesh*                 aBackgroundMesh,
     Decomposition_Algorithm*          aDecompositionAlgorithm )
 {
-    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Commit IG Cells To Mesh" );
+    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Commit IG Cells To Mesh" ,mXTKModel->mVerboseLevel, 1  );
     
     // iterate through cells that the decomposition constructed
     moris::uint tNumNewCells = aDecompositionAlgorithm->mNumNewCells;
@@ -304,7 +300,7 @@ Integration_Mesh_Generator::extract_cells_from_cell_groups(
     moris::Cell< std::shared_ptr< IG_Cell_Group > > const& aCellGroups,
     moris::Cell< moris::mtk::Cell* >&                      aCellsInGroups )
 {
-    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Extract cells from groups" );
+    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Extract cells from groups" ,mXTKModel->mVerboseLevel, 1  );
     // count the number of total cells
     moris::uint tNumCells = 0;
     for ( moris::uint i = 0; i < aCellGroups.size(); i++ )
@@ -399,7 +395,7 @@ Integration_Mesh_Generator::deduce_interfaces(
     std::shared_ptr< Facet_Based_Connectivity > aFacetConnectivity,
     moris::Cell< moris_index >&                 aInterfaces )
 {
-    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Deduce Interface" );
+    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Deduce Interface" ,mXTKModel->mVerboseLevel, 1  );
 
     // all cell groups at this point should be such that an integration cell does not appear twice
     aInterfaces.clear();
@@ -438,7 +434,7 @@ Integration_Mesh_Generator::identify_and_construct_subphases(
     moris::mtk::Mesh*                                 aBackgroundMesh,
     std::shared_ptr< Cell_Neighborhood_Connectivity > aCutNeighborhood )
 {
-    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Identity subphases" );
+    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Identity subphases" ,mXTKModel->mVerboseLevel, 1  );
 
     // get the number of children meshes
     moris::uint tNumChildMeshes = aCutIntegrationMesh->get_num_ig_cell_groups();
@@ -574,7 +570,7 @@ Integration_Mesh_Generator::construct_subphase_neighborhood(
     moris::Cell< std::shared_ptr< moris::Cell< moris::moris_index > > >* aBgFacetToChildFacet,
     std::shared_ptr< Subphase_Neighborhood_Connectivity >                aSubphaseNeighborhood )
 {
-    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Subphase Neighborhood" );
+    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Subphase Neighborhood",mXTKModel->mVerboseLevel, 1  );
     aSubphaseNeighborhood->mSubphaseToSubPhase.resize( aCutIntegrationMesh->get_num_subphases() );
     aSubphaseNeighborhood->mSubphaseToSubPhaseMySideOrds.resize( aCutIntegrationMesh->get_num_subphases() );
     aSubphaseNeighborhood->mSubphaseToSubPhaseNeighborSideOrds.resize( aCutIntegrationMesh->get_num_subphases() );
@@ -1186,7 +1182,7 @@ Integration_Mesh_Generator::construct_bulk_phase_to_bulk_phase_interface(
     moris::Cell< moris_index >&                                          aInterfaces,
     moris::Cell< moris::Cell< std::shared_ptr< IG_Cell_Side_Group > > >& aInterfaceBulkPhaseToBulk )
 {
-    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Bulk phase to bulk phase interface" );
+    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Bulk phase to bulk phase interface" ,mXTKModel->mVerboseLevel, 1  );
     // number of bulk phases
     moris::uint tNumBulkPhase = mGeometryEngine->get_num_bulk_phase();
 
@@ -1237,7 +1233,7 @@ Integration_Mesh_Generator::construct_bulk_phase_to_bulk_phase_dbl_side_interfac
     moris::Cell< moris_index >&                                                 aInterfaces,
     moris::Cell< moris::Cell< std::shared_ptr< IG_Cell_Double_Side_Group > > >& aDblSideInterfaceBulkPhaseToBulk )
 {
-    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Bulk phase to bulk phase double sided interface" );
+    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Bulk phase to bulk phase double sided interface",mXTKModel->mVerboseLevel, 1  );
 
     // number of bulk phases
     moris::uint tNumBulkPhase = mGeometryEngine->get_num_bulk_phase();
@@ -1302,7 +1298,7 @@ Integration_Mesh_Generator::construct_interface_sets(
     Cut_Integration_Mesh*                                                aCutIntegrationMesh,
     moris::Cell< moris::Cell< std::shared_ptr< IG_Cell_Side_Group > > >& aInterfaceBulkPhaseToBulk )
 {
-    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Construct interface sets" );
+    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Construct interface sets" ,mXTKModel->mVerboseLevel, 1  );
     // determine the side set names
     uint tNumBulkPhases = mGeometryEngine->get_num_bulk_phase();
 
@@ -1341,7 +1337,7 @@ Integration_Mesh_Generator::construct_bulk_phase_cell_groups(
     Cut_Integration_Mesh*                            aCutIntegrationMesh,
     moris::Cell< std::shared_ptr< IG_Cell_Group > >& aBulkPhaseCellGroups )
 {
-    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Construct bulk phase cell groups" );
+    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Construct bulk phase cell groups" ,mXTKModel->mVerboseLevel, 1  );
     uint   tNumBulkPhases = mGeometryEngine->get_num_bulk_phase() + 1;// 1 for the err block
 
     aBulkPhaseCellGroups.resize( tNumBulkPhases, nullptr );
@@ -1370,7 +1366,7 @@ Integration_Mesh_Generator::construct_bulk_phase_blocks(
     moris::Cell< std::shared_ptr< IG_Cell_Group > >& aBulkPhaseCellGroups )
 {
 
-    Tracer      tTracer( "XTK", "Integration_Mesh_Generator", "Construct bulk phase blocks" );
+    Tracer      tTracer( "XTK", "Integration_Mesh_Generator", "Construct bulk phase blocks",mXTKModel->mVerboseLevel, 1  );
     std::string tBlockBaseName = "cutblock";
 
     // determine the side set names
@@ -1505,7 +1501,7 @@ Integration_Mesh_Generator::create_facet_from_element_to_node(
     moris::Cell< moris::mtk::Cell* >&           aCells,
     std::shared_ptr< Facet_Based_Connectivity > aFaceConnectivity )
 {
-    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Creating Facets" );
+    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Creating Facets",mXTKModel->mVerboseLevel, 1  );
     // assume homogenous cell type
     if ( aCells.size() > 0 )
     {
@@ -1603,8 +1599,7 @@ Integration_Mesh_Generator::generate_cell_neighborhood(
     std::shared_ptr< Facet_Based_Connectivity >       aFaceConnectivity,
     std::shared_ptr< Cell_Neighborhood_Connectivity > aNeighborhood )
 {
-    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Generate Neighborhood" );
-
+    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Generate Neighborhood" ,mXTKModel->mVerboseLevel, 1  );
     // Initialize Sizes and Variables used in routine
     moris_index tMaxIndex            = this->get_max_index( aCells );
     moris_index tMaxNumElementToFace = 2;
@@ -1654,7 +1649,7 @@ Integration_Mesh_Generator::create_edges_from_element_to_node(
     moris::Cell< moris::mtk::Cell* >           aCells,
     std::shared_ptr< Edge_Based_Connectivity > aEdgeConnectivity )
 {
-    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Creating Edges" );
+    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Creating Edges" ,mXTKModel->mVerboseLevel, 1  );
 
     // assume homogenous cell type
     if ( aCells.size() > 0 )
@@ -1771,7 +1766,7 @@ Integration_Mesh_Generator::deduce_facet_ancestry(
     moris::Cell< moris::mtk::Cell* > const&     aParentCellForDeduction,
     std::shared_ptr< Facet_Based_Ancestry >     aIgFacetAncestry )
 {
-    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Facet Ancestry" );
+    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Facet Ancestry" ,mXTKModel->mVerboseLevel, 1  );
 
     // make sure we are starting clean
     aIgFacetAncestry->mFacetParentEntityIndex.clear();
@@ -1952,7 +1947,7 @@ Integration_Mesh_Generator::deduce_edge_ancestry(
     moris::Cell< moris::mtk::Cell* > const&    aParentCellForDeduction,
     std::shared_ptr< Edge_Based_Ancestry >     aIgEdgeAncestry )
 {
-    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Edge Ancestry" );
+    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Edge Ancestry",mXTKModel->mVerboseLevel, 1  );
     // make sure we are starting clean
     aIgEdgeAncestry->mEdgeParentEntityIndex.clear();
     aIgEdgeAncestry->mEdgeParentEntityRank.clear();
@@ -2179,7 +2174,7 @@ Integration_Mesh_Generator::commit_new_ig_vertices_to_cut_mesh(
     moris::mtk::Mesh*                 aBackgroundMesh,
     Decomposition_Algorithm*          aDecompAlg )
 {
-    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Commit Ig Vertices to Cut Mesh" );
+    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Commit Ig Vertices to Cut Mesh",mXTKModel->mVerboseLevel, 1  );
 
     if ( mXTKModel->mDiagnostics )
     {
@@ -2280,7 +2275,7 @@ Integration_Mesh_Generator::select_background_cell_for_edge(
     Cut_Integration_Mesh*                      aCutIntegrationMesh,
     moris::Cell< moris::mtk::Cell* >&          aBackgroundCellForEdge )
 {
-    Tracer tTracer( "XTK", "Decomposition_Algorithm", "Select BG Cell for Edge" );
+    Tracer tTracer( "XTK", "Decomposition_Algorithm", "Select BG Cell for Edge" ,mXTKModel->mVerboseLevel, 1  );
     // number of edges
     moris::uint tNumEdges = aEdgeBasedConnectivity->mEdgeVertices.size();
 
@@ -2309,7 +2304,7 @@ Integration_Mesh_Generator::select_background_cell_for_facet(
     Cut_Integration_Mesh*                       aCutIntegrationMesh,
     moris::Cell< moris::mtk::Cell* >&           aBackgroundCellForEdge )
 {
-    Tracer tTracer( "XTK", "Decomposition_Algorithm", "Select BG Cell for Facet" );
+    Tracer tTracer( "XTK", "Decomposition_Algorithm", "Select BG Cell for Facet" ,mXTKModel->mVerboseLevel, 1  );
     // number of edges
     moris::uint tNumFacets = aFacetBasedConnectivity->mFacetVertices.size();
 
@@ -2338,7 +2333,7 @@ Integration_Mesh_Generator::collect_vertex_groups_for_background_cells(
     moris::Cell< moris::mtk::Cell* >*                  aBackgroundCells,
     moris::Cell< std::shared_ptr< IG_Vertex_Group > >* aVertexGroups )
 {
-    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Collect Vertex Groups for BG Cell" );
+    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Collect Vertex Groups for BG Cell" ,mXTKModel->mVerboseLevel, 1  );
     aVertexGroups->resize( aBackgroundCells->size() );
 
     // iterate through background cells
@@ -2356,7 +2351,7 @@ Integration_Mesh_Generator::allocate_child_meshes(
     Cut_Integration_Mesh*             aCutIntegrationMesh,
     moris::mtk::Mesh*                 aBackgroundMesh )
 {
-    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Allocate child meshes" );
+    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Allocate child meshes",mXTKModel->mVerboseLevel, 1  );
 
     // allocate these data structures one per background cell
     aCutIntegrationMesh->mChildMeshes.resize( aBackgroundMesh->get_num_elems() );
@@ -2425,7 +2420,7 @@ Integration_Mesh_Generator::assign_node_requests_identifiers(
     moris::mtk::Mesh*     aBackgroundMesh,
     moris::moris_index    aMPITag )
 {
-    Tracer      tTracer( "XTK", "Decomposition_Algorithm", "Assign node ids" );
+    Tracer      tTracer( "XTK", "Decomposition_Algorithm", "Assign node ids" ,mXTKModel->mVerboseLevel, 1  );
     moris_index tNodeIndex = aCutIntegrationMesh->get_first_available_index( EntityRank::NODE );
 
     for ( moris::uint i = 0; i < aDecompData.tNewNodeIndex.size(); i++ )
@@ -2772,6 +2767,11 @@ Integration_Mesh_Generator::handle_received_request_answers(
     }
 }
 // ----------------------------------------------------------------------------------
+moris::uint
+Integration_Mesh_Generator::verbosity_level()
+{
+    return mXTKModel->mVerboseLevel;
+}
 // ----------------------------------------------------------------------------------
 // ----------------------------------------------------------------------------------
 // ----------------------------------------------------------------------------------

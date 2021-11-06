@@ -811,10 +811,10 @@ Cut_Integration_Mesh::get_ig_cell_group_parent_cell( moris_index aGroupIndex )
 
 // ----------------------------------------------------------------------------------
 
-enum CellTopology 
+enum CellTopology
 Cut_Integration_Mesh::get_child_element_topology()
 {
-    if(this->get_spatial_dim() == 2)
+    if ( this->get_spatial_dim() == 2 )
     {
         return CellTopology::TRI3;
     }
@@ -921,8 +921,8 @@ Cut_Integration_Mesh::parent_cell_has_children( moris_index aParentCellIndex )
 
 void
 Cut_Integration_Mesh::finalize_cut_mesh_construction()
-{   
-    Tracer tTracer( "XTK", "Cut_Integration_Mesh", "finalize_cut_mesh_construction" );
+{
+    Tracer tTracer( "XTK", "Cut_Integration_Mesh", "finalize_cut_mesh_construction", mXTKModel->mVerboseLevel, 1 );
     this->deduce_ig_cell_group_ownership();
 
     this->assign_controlled_ig_cell_ids();
@@ -1112,7 +1112,7 @@ void
 Cut_Integration_Mesh::write_mesh( std::string aOutputPath,
     std::string                               aOutputFile )
 {
-    Tracer tTracer( "XTK", "Cut Integration Mesh", "Write mesh" );
+    Tracer tTracer( "XTK", "Cut Integration Mesh", "Write mesh", mXTKModel->mVerboseLevel, 0 );
     // get path to output XTK files to
     std::string tOutputPath = aOutputPath;
     std::string tOutputFile = aOutputFile;
@@ -1457,7 +1457,7 @@ Cut_Integration_Mesh::setup_comm_map()
 void
 Cut_Integration_Mesh::deduce_ig_cell_group_ownership()
 {
-    Tracer tTracer( "XTK", "Cut_Integration_Mesh", "deduce_ig_cell_group_ownership" );
+    Tracer tTracer( "XTK", "Cut_Integration_Mesh", "deduce_ig_cell_group_ownership", mXTKModel->mVerboseLevel, 1 );
     mOwnedIntegrationCellGroupsInds.reserve( mIntegrationCellGroupsParentCell.size() );
     mNotOwnedIntegrationCellGroups.reserve( mIntegrationCellGroupsParentCell.size() );
 
@@ -1483,7 +1483,7 @@ Cut_Integration_Mesh::deduce_ig_cell_group_ownership()
 void
 Cut_Integration_Mesh::assign_controlled_ig_cell_ids()
 {
-    Tracer tTracer( "XTK", "Cut_Integration_Mesh", "assign_controlled_ig_cell_ids" );
+    Tracer tTracer( "XTK", "Cut_Integration_Mesh", "assign_controlled_ig_cell_ids", mXTKModel->mVerboseLevel, 1 );
     // Set child element ids and indices
     moris::uint tNumControlledCellsInCutMesh = mControlledIgCells.size();
 
@@ -1660,7 +1660,7 @@ Cut_Integration_Mesh::prepare_child_cell_id_answers(
                 MORIS_ASSERT( mIntegrationCellGroups( tCMIndex )->mIgCellGroup.size() == (uint)aReceivedParentCellNumChildren( i )( j ),
                     "Number of child cells in child meshes do not match number on other processor" );
 
-                if(mIntegrationCellGroups( tCMIndex )->mIgCellGroup.size() > 0)
+                if ( mIntegrationCellGroups( tCMIndex )->mIgCellGroup.size() > 0 )
                 {
                     aChildCellIdOffset( i )( j ) = mIntegrationCellGroups( tCMIndex )->mIgCellGroup( 0 )->get_id();
                 }
@@ -1716,7 +1716,7 @@ void
 Cut_Integration_Mesh::create_base_cell_blocks()
 {
 
-    Tracer      tTracer( "XTK", "Integration_Mesh_Generator", "Construct bulk phase blocks" );
+    Tracer      tTracer( "XTK", "Integration_Mesh_Generator", "create_base_cell_blocks", mXTKModel->mVerboseLevel, 1 );
     std::string tBlockName = "bg_cells";
 
     if ( mBackgroundMesh->get_num_elems() > 0 )
@@ -1724,7 +1724,8 @@ Cut_Integration_Mesh::create_base_cell_blocks()
         moris::mtk::Cell const& tCell = mBackgroundMesh->get_mtk_cell( 0 );
 
         MORIS_ERROR( ( tCell.get_geometry_type() == mtk::Geometry_Type::HEX || tCell.get_geometry_type() == mtk::Geometry_Type::QUAD )
-                && tCell.get_interpolation_order() == mtk::Interpolation_Order::LINEAR, "Need to abstract by adding get cell topo to cell info class" );
+                         && tCell.get_interpolation_order() == mtk::Interpolation_Order::LINEAR,
+            "Need to abstract by adding get cell topo to cell info class" );
 
         // initialize Cell topology
         enum CellTopology tCellTopo;
@@ -1734,7 +1735,7 @@ Cut_Integration_Mesh::create_base_cell_blocks()
         {
             tCellTopo = CellTopology::QUAD4;
         }
-        else if ( this->get_spatial_dim() == 3 ) 
+        else if ( this->get_spatial_dim() == 3 )
         {
             tCellTopo = CellTopology::HEX8;
         }
