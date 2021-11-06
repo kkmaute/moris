@@ -236,7 +236,7 @@ Enrichment::setup_background_vertex_interpolations()
 {
 
     // access the background interpolation mesh
-    mtk::Interpolation_Mesh& tBGIPMesh = mXTKModelPtr->get_background_mesh().get_mesh_data();
+    mtk::Interpolation_Mesh& tBGIPMesh = mXTKModelPtr->get_background_mesh();
 
     // size the data in the enrichment data
     moris::uint tNumVertices = tBGIPMesh.get_num_nodes();
@@ -518,7 +518,7 @@ Enrichment::assign_enriched_coefficients_identifiers(
     moris_index tParRank = par_rank();
 
     // get the comm table
-    Matrix<IndexMat> tCommTable = mXTKModelPtr->get_background_mesh().get_communication_table();
+    Matrix<IndexMat> tCommTable = mXTKModelPtr->get_communication_table();
 
     // Procs CEll
     Cell<moris_index> tProcRanks(tCommTable.numel());
@@ -1364,7 +1364,7 @@ moris_index
 Enrichment::get_max_basis_id(moris_index const& aMeshIndex)
 {
     // Number of basis functions
-    moris::size_t tNumBasis = mXTKModelPtr->get_background_mesh().get_mesh_data().get_num_basis_functions(aMeshIndex);
+    moris::size_t tNumBasis = mXTKModelPtr->get_background_mesh().get_num_basis_functions(aMeshIndex);
 
     //maximum id
     moris_id tMaxId = 0;

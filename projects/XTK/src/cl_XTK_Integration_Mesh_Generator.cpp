@@ -33,10 +33,12 @@ Integration_Mesh_Generator::perform()
     Integration_Mesh_Generation_Data tGenerationData;
 
     // pointer to the background mesh
-    moris::mtk::Mesh* tBackgroundMesh = &mXTKModel->get_background_mesh().get_mesh_data();
+    moris::mtk::Mesh* tBackgroundMesh = &mXTKModel->get_background_mesh();
 
     // the cut integration mesh
     std::shared_ptr< Cut_Integration_Mesh > tCutIntegrationMesh = std::make_shared< Cut_Integration_Mesh >( tBackgroundMesh, mXTKModel );
+
+    mXTKModel->set_cut_ig_mesh(tCutIntegrationMesh);
 
     // Allocate a child mesh for each background cell
     this->allocate_child_meshes( tGenerationData, tCutIntegrationMesh.get(), tBackgroundMesh );
@@ -288,7 +290,7 @@ Integration_Mesh_Generator::commit_new_ig_cells_to_cut_mesh(
             aCutIntegrationMesh->set_integration_cell( tNewCellIndex, tNewCell );
 
             // add the cell to a child mesh group only if we aren't
-            aCutIntegrationMesh->add_cell_to_integration_mesh( tNewCellIndex, tCellGroupIndex );
+            aCutIntegrationMesh->add_cell_to_cell_group( tNewCellIndex, tCellGroupIndex );
         }
     }
 }

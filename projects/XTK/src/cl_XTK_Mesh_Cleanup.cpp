@@ -107,42 +107,43 @@ namespace xtk
     Mesh_Cleanup::cleanup_cut_mesh()
     {   
         Tracer tTracer( "XTK", "Mesh Cleanup", "Remove Inactive Child Mesh" );
-        moris::uint tNumCutMeshes = mModel->get_cut_mesh().get_num_child_meshes();
-        moris::Cell<moris::uint> tChildMeshesToKeep;
-        moris::Cell<moris::uint> tChildMeshesToDelete;
+        MORIS_ERROR(0,"NEEDS FIXING");
+        // moris::uint tNumCutMeshes = mModel->get_cut_mesh().get_num_child_meshes();
+        // moris::Cell<moris::uint> tChildMeshesToKeep;
+        // moris::Cell<moris::uint> tChildMeshesToDelete;
 
-        for(moris::uint iCM = 0; iCM < tNumCutMeshes; iCM++)
-        {
-            Child_Mesh & tCM = mModel->get_cut_mesh().get_child_mesh(iCM);
-            Cell<moris::moris_index> const & tSubphasebinBulkPhase = tCM.get_subphase_bin_bulk_phase();
+        // for(moris::uint iCM = 0; iCM < tNumCutMeshes; iCM++)
+        // {
+        //     Child_Mesh & tCM = mModel->get_cut_mesh().get_child_mesh(iCM);
+        //     Cell<moris::moris_index> const & tSubphasebinBulkPhase = tCM.get_subphase_bin_bulk_phase();
 
-           if(tSubphasebinBulkPhase.size() > 1 or tCM.has_inter_child_mesh_interfaces())
-           {
-                tChildMeshesToKeep.push_back(iCM);
-           }
-           else
-           {
-                tChildMeshesToDelete.push_back(iCM);
-           }
-        }
+        //    if(tSubphasebinBulkPhase.size() > 1 or tCM.has_inter_child_mesh_interfaces())
+        //    {
+        //         tChildMeshesToKeep.push_back(iCM);
+        //    }
+        //    else
+        //    {
+        //         tChildMeshesToDelete.push_back(iCM);
+        //    }
+        // }
 
-        moris::Cell<moris_index> tCellsToRemoveFromMesh;
-        mModel->get_cut_mesh().remove_all_child_meshes_but_selected(tChildMeshesToKeep,tChildMeshesToDelete, tCellsToRemoveFromMesh );
+        // moris::Cell<moris_index> tCellsToRemoveFromMesh;
+        // mModel->get_cut_mesh().remove_all_child_meshes_but_selected(tChildMeshesToKeep,tChildMeshesToDelete, tCellsToRemoveFromMesh );
 
-        // moris::print(tCellsToRemoveFromMesh,"tCellsToRemoveFromMesh");
-        moris::Cell<moris_index> tNewCellIndices;
-        mModel->get_background_mesh().remove_cells_from_mesh(tCellsToRemoveFromMesh,tNewCellIndices);
+        // // moris::print(tCellsToRemoveFromMesh,"tCellsToRemoveFromMesh");
+        // moris::Cell<moris_index> tNewCellIndices;
+        // mModel->get_background_mesh().remove_cells_from_mesh(tCellsToRemoveFromMesh,tNewCellIndices);
 
-        // reindex the child mesh
-        mModel->get_cut_mesh().reindex_cells(tNewCellIndices);
+        // // reindex the child mesh
+        // mModel->get_cut_mesh().reindex_cells(tNewCellIndices);
 
-        // moris::print(tNewCellIndices,"tNewCellIndices");
+        // // moris::print(tNewCellIndices,"tNewCellIndices");
 
-        mModel->get_background_mesh().setup_downward_inheritance(mModel->get_cut_mesh());
+        // mModel->get_background_mesh().setup_downward_inheritance(mModel->get_cut_mesh());
         
 
-        MORIS_LOG_SPEC("Num Child Meshes Removed",tChildMeshesToDelete.size());
-        MORIS_LOG_SPEC("Num Child Meshes Kept",tChildMeshesToKeep.size());
+        // MORIS_LOG_SPEC("Num Child Meshes Removed",tChildMeshesToDelete.size());
+        // MORIS_LOG_SPEC("Num Child Meshes Kept",tChildMeshesToKeep.size());
 
         
     }

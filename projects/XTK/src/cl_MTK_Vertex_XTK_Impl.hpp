@@ -11,11 +11,6 @@
 #include "cl_MTK_Vertex.hpp"
 #include "cl_MTK_Vertex_Interpolation_XTK_Impl.hpp"
 
-namespace xtk
-{
- class Background_Mesh;
-}
-
 //------------------------------------------------------------------------------
 namespace moris
 {

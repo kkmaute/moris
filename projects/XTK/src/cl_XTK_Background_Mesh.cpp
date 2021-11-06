@@ -1223,6 +1223,7 @@ namespace xtk
     Matrix<IdMat> const &
     Background_Mesh::get_communication_table() const
     {
+        MORIS_ERROR(0,"Depracated");
         return mCommunicationMap;
     }
 

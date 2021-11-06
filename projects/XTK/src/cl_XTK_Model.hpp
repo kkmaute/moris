@@ -291,14 +291,14 @@ class Model
     /**
    * @return Background mesh
    */
-    Background_Mesh&
+    moris::mtk::Interpolation_Mesh&
     get_background_mesh();
 
     // ----------------------------------------------------------------------------------
     /**
    * @return Constant background mesh
    */
-    Background_Mesh const&
+    moris::mtk::Interpolation_Mesh const&
     get_background_mesh() const;
 
     // ----------------------------------------------------------------------------------
@@ -439,13 +439,46 @@ class Model
     bool
     triangulate_all();
 
+    enum CellTopology
+    get_parent_cell_topology() const
+    {
+        mtk::Cell&                     tCell     = mBackgroundMesh->get_mtk_cell( 0 );
+        enum moris::mtk::Geometry_Type tGeomType = tCell.get_geometry_type();
+
+        enum CellTopology tTopo = CellTopology::INVALID;
+        if ( tGeomType == moris::mtk::Geometry_Type::HEX )
+        {
+            tTopo = CellTopology::HEX8;
+        }
+        else if ( tGeomType == moris::mtk::Geometry_Type::TET )
+        {
+            tTopo = CellTopology::TET4;
+        }
+        else if ( tGeomType == moris::mtk::Geometry_Type::QUAD )
+        {
+            tTopo = CellTopology::QUAD4;
+        }
+        else
+        {
+            MORIS_ERROR( 0, "Provided parent cell topology not implemented." );
+        }
+
+
+        return tTopo;
+    }
+
+    Matrix< IdMat >
+    get_communication_table() const
+    {
+        return mCutIntegrationMesh->get_communication_table();
+    }
 
 
   protected:
     moris::ParameterList mParameterList;
 
     uint                                    mModelDimension;
-    Background_Mesh                         mBackgroundMesh;
+    moris::mtk::Interpolation_Mesh*         mBackgroundMesh;
     Cut_Mesh                                mCutMesh;
     moris::ge::Geometry_Engine*             mGeometryEngine;
     std::shared_ptr< Cut_Integration_Mesh > mCutIntegrationMesh;
@@ -472,6 +505,9 @@ class Model
     bool        mDiagnostics    = false;
     std::string mDiagnosticPath = "";
     std::string mDiagnosticId   = "";
+
+    // communication table
+    moris::Matrix<IdMat> mCommunicationMap;
 
 
     // cell map

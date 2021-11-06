@@ -275,6 +275,20 @@ Cut_Integration_Mesh::get_communication_table() const
     return mCommunicationMap;
 }
 // ----------------------------------------------------------------------------------
+void
+Cut_Integration_Mesh::add_proc_to_comm_table(moris_index aProcRank)
+{
+    moris_index tIndex = mCommunicationMap.numel();
+
+    for(moris::uint i = 0 ; i < mCommunicationMap.numel(); i++)
+    {
+        MORIS_ERROR(mCommunicationMap(i) != aProcRank,"Processor rank already in communication table");
+    }
+
+    mCommunicationMap.resize(1,mCommunicationMap.numel()+1);
+    mCommunicationMap(tIndex) = aProcRank;
+}
+// ----------------------------------------------------------------------------------
 Matrix< IndexMat >
 Cut_Integration_Mesh::get_element_indices_in_block_set( uint aSetIndex )
 {
@@ -654,6 +668,18 @@ Cut_Integration_Mesh::set_integration_cell(
     mIntegrationCells( aCellIndex )               = mControlledIgCells( tIndexInControlledCells ).get();
 }
 
+void
+Cut_Integration_Mesh::add_integration_cell(
+    moris_index                            aCellIndex,
+    std::shared_ptr< xtk::Cell_XTK_No_CM > aNewCell )
+{
+    MORIS_ERROR( (moris::uint)aCellIndex >= mIntegrationCells.size(), "Index mismatch between adding cell and current data." );
+
+    mControlledIgCells.push_back( aNewCell );
+    mIntegrationCells.push_back(aNewCell.get());
+}
+
+
 // ----------------------------------------------------------------------------------
 
 moris_index
@@ -667,7 +693,7 @@ Cut_Integration_Mesh::get_integration_cell_controlled_index(
 
 // ----------------------------------------------------------------------------------
 void
-Cut_Integration_Mesh::add_cell_to_integration_mesh(
+Cut_Integration_Mesh::add_cell_to_cell_group(
     moris_index aCellIndex,
     moris_index aCellGroupIndex )
 {

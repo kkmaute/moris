@@ -92,14 +92,18 @@ Model::Model(
     moris::ge::Geometry_Engine *    aGeometryEngine,
     bool                            aLinkGeometryOnConstruction ) :
     mModelDimension( aModelDimension ),
-    mBackgroundMesh( aMeshData, aGeometryEngine ), mCutMesh( this, mModelDimension ), mGeometryEngine( aGeometryEngine ), mEnrichment( nullptr ), mGhostStabilization( nullptr ), mEnrichedInterpMesh( 0, nullptr ), mEnrichedIntegMesh( 0, nullptr ), mConvertedToTet10s( false )
+    mBackgroundMesh( aMeshData ),
+    mCutMesh( this, mModelDimension ),
+    mGeometryEngine( aGeometryEngine ),
+    mEnrichment( nullptr ),
+    mGhostStabilization( nullptr ),
+    mEnrichedInterpMesh( 0, nullptr ),
+    mEnrichedIntegMesh( 0, nullptr ),
+    mConvertedToTet10s( false )
 {
     // flag this as a non-parameter list based run
     mParameterList.insert( "has_parameter_list", false );
 
-    mBackgroundMesh.initialize_interface_node_flags(
-        mBackgroundMesh.get_num_entities( EntityRank::NODE ),
-        mGeometryEngine->get_num_geometries() );
 }
 
 // ----------------------------------------------------------------------------------
@@ -161,7 +165,8 @@ Model::set_output_performer( std::shared_ptr< mtk::Mesh_Manager > aMTKPerformer 
 
 void
 Model::initialize( moris::mtk::Interpolation_Mesh *aMesh )
-{
+{   
+    mBackgroundMesh     = aMesh;
     mModelDimension     = aMesh->get_spatial_dim();
     mCutMesh            = Cut_Mesh( this, mModelDimension );
     mEnrichment         = nullptr;
@@ -169,10 +174,6 @@ Model::initialize( moris::mtk::Interpolation_Mesh *aMesh )
     mEnrichedInterpMesh = Cell< Enriched_Interpolation_Mesh * >( 0, nullptr );
     mEnrichedIntegMesh  = Cell< Enriched_Integration_Mesh * >( 0, nullptr );
     mConvertedToTet10s  = false;
-    mBackgroundMesh     = Background_Mesh( aMesh, mGeometryEngine );
-    mBackgroundMesh.initialize_interface_node_flags(
-        mBackgroundMesh.get_num_entities( EntityRank::NODE ),
-        mGeometryEngine->get_num_geometries() );
 }
 
 // ----------------------------------------------------------------------------------
@@ -528,7 +529,7 @@ Model::get_subdivision_methods()
     moris::Cell< enum Subdivision_Method > tSubdivisionMethods;
 
     moris::uint       tSpatialDimension = this->get_spatial_dim();
-    enum CellTopology tBGCellTopo       = mBackgroundMesh.get_parent_cell_topology();
+    enum CellTopology tBGCellTopo       = this->get_parent_cell_topology();
     std::string       tDecompStr        = mParameterList.get< std::string >( "decomposition_type" );
     moris::lint       tOctreeRefLevel   = std::stoi( mParameterList.get< std::string >( "octree_refinement_level" ) );
 
@@ -638,12 +639,13 @@ Model::decompose( Cell< enum Subdivision_Method > aMethods )
 void
 Model::create_new_node_association_with_geometry( Decomposition_Data &tDecompData )
 {
-    // create geometry objects for each node
-    mGeometryEngine->create_new_child_nodes(
-        tDecompData.tNewNodeIndex,
-        tDecompData.tNewNodeParentTopology,
-        tDecompData.tParamCoordRelativeToParent,
-        mBackgroundMesh.get_all_node_coordinates_loc_inds() );
+//FIXME: REMOVE
+    // // create geometry objects for each node
+    // mGeometryEngine->create_new_child_nodes(
+    //     tDecompData.tNewNodeIndex,
+    //     tDecompData.tNewNodeParentTopology,
+    //     tDecompData.tParamCoordRelativeToParent,
+    //     mBackgroundMesh.get_all_node_coordinates_loc_inds() );
 }
 
 // ----------------------------------------------------------------------------------
@@ -706,7 +708,7 @@ Model::inward_receive_requests(
     aProcRanksReceivedFrom.resize( 0 );
 
     // access the communication table
-    Matrix< IdMat > tCommTable = mBackgroundMesh.get_communication_table();
+    Matrix< IdMat > tCommTable = mCutIntegrationMesh->get_communication_table();
     moris::uint     tCount     = 0;
     for ( moris::uint i = 0; i < tCommTable.numel(); i++ )
     {
@@ -767,7 +769,7 @@ Model::handle_received_request_answers(
                 moris_id        tParentId      = aRequests( i )( 0, j );
                 enum EntityRank tParentRank    = (enum EntityRank)aRequests( i )( 1, j );
                 moris_id        tSecondaryId   = aRequests( i )( 2, j );
-                moris_index     tParentInd     = mBackgroundMesh.get_mesh_data().get_loc_entity_ind_from_entity_glb_id( tParentId, tParentRank );
+                moris_index     tParentInd     = mBackgroundMesh->get_loc_entity_ind_from_entity_glb_id( tParentId, tParentRank );
                 bool            tRequestExists = false;
                 moris_index     tRequestIndex  = MORIS_INDEX_MAX;
 
@@ -822,7 +824,7 @@ Model::handle_received_request_answers(
     }
 
     // handle the unhandled requests wiht current proc being the owner
-    moris::moris_id tNodeId = mBackgroundMesh.allocate_entity_ids( tUnhandledRequestIndices.size(), EntityRank::NODE );
+    moris::moris_id tNodeId = mCutIntegrationMesh->allocate_entity_ids( tUnhandledRequestIndices.size(), EntityRank::NODE );
 
     for ( moris::uint i = 0; i < tUnhandledRequestIndices.size(); i++ )
     {
@@ -945,7 +947,7 @@ Model::prepare_request_answers(
                 moris_id        tParentId      = aReceiveData( i )( 0, j );
                 enum EntityRank tParentRank    = (enum EntityRank)aReceiveData( i )( 1, j );
                 moris_id        tSecondaryId   = aReceiveData( i )( 2, j );
-                moris_index     tParentInd     = mBackgroundMesh.get_mesh_data().get_loc_entity_ind_from_entity_glb_id( tParentId, tParentRank );
+                moris_index     tParentInd     = mBackgroundMesh->get_loc_entity_ind_from_entity_glb_id( tParentId, tParentRank );
                 bool            tRequestExists = false;
                 moris_index     tRequestIndex  = MORIS_INDEX_MAX;
 
@@ -994,7 +996,7 @@ Model::return_request_answers(
     Cell< uint > const &              aProcRanks )
 {
     // access the communication table
-    Matrix< IdMat > tCommTable = mBackgroundMesh.get_communication_table();
+    Matrix< IdMat > tCommTable = mCutIntegrationMesh->get_communication_table();
 
     // iterate through owned requests and send
     for ( moris::uint i = 0; i < tCommTable.numel(); i++ )
@@ -1113,40 +1115,37 @@ void
 Model::perform_hanging_node_identification()
 {
     Tracer tTracer( "XTK", "Identify hanging nodes" );
+    MORIS_ERROR(0,"NEEDS IMPLEMENTING");
+    // MORIS_ERROR( mDecomposed, "Mesh needs to be decomposed prior to identifying hanging nodes" );
 
-    MORIS_ERROR( mDecomposed, "Mesh needs to be decomposed prior to identifying hanging nodes" );
+    // MORIS_ERROR( mEnriched, "Mesh needs to be enriched prior to identifying hanging nodes" );
 
-    MORIS_ERROR( mEnriched, "Mesh needs to be enriched prior to identifying hanging nodes" );
+    // // iterate through child meshes
+    // for ( moris::uint iCM = 0; iCM < mCutMesh.get_num_child_meshes(); iCM++ )
+    // {
+    //     // active child mesh
+    //     Child_Mesh &tChildMesh = mCutMesh.get_child_mesh( iCM );
 
-    // get the interpolation mesh
-    moris::mtk::Interpolation_Mesh &tInterpMesh = mBackgroundMesh.get_mesh_data();
+    //     // get the neighbors
+    //     Matrix< IndexMat > tElementNeighors = mBackgroundMesh->get_elements_connected_to_element_and_face_ind_loc_inds( tChildMesh.get_parent_element_index() );
 
-    // iterate through child meshes
-    for ( moris::uint iCM = 0; iCM < mCutMesh.get_num_child_meshes(); iCM++ )
-    {
-        // active child mesh
-        Child_Mesh &tChildMesh = mCutMesh.get_child_mesh( iCM );
+    //     moris::Cell< moris_index > tTransitionFacets;
 
-        // get the neighbors
-        Matrix< IndexMat > tElementNeighors = tInterpMesh.get_elements_connected_to_element_and_face_ind_loc_inds( tChildMesh.get_parent_element_index() );
+    //     // iterate through neighbor
+    //     for ( moris::uint iN = 0; iN < tElementNeighors.n_cols(); iN++ )
+    //     {
+    //         moris_index tNeighborCellIndex = tElementNeighors( 0, iN );
 
-        moris::Cell< moris_index > tTransitionFacets;
+    //         moris_index tSharedFaceIndex = tElementNeighors( 1, iN );
 
-        // iterate through neighbor
-        for ( moris::uint iN = 0; iN < tElementNeighors.n_cols(); iN++ )
-        {
-            moris_index tNeighborCellIndex = tElementNeighors( 0, iN );
+    //         if ( !mBackgroundMesh.entity_has_children( tNeighborCellIndex, EntityRank::ELEMENT ) )
+    //         {
+    //             tTransitionFacets.push_back( tSharedFaceIndex );
+    //         }
+    //     }
 
-            moris_index tSharedFaceIndex = tElementNeighors( 1, iN );
-
-            if ( !mBackgroundMesh.entity_has_children( tNeighborCellIndex, EntityRank::ELEMENT ) )
-            {
-                tTransitionFacets.push_back( tSharedFaceIndex );
-            }
-        }
-
-        tChildMesh.identify_hanging_nodes( tTransitionFacets );
-    }
+    //     tChildMesh.identify_hanging_nodes( tTransitionFacets );
+    // }
 }
 
 
@@ -1159,8 +1158,8 @@ Model::probe_bg_cell( Matrix< IndexMat > const &tBGCellIds )
     {
         Tracer tTracer( "XTK", "BG Cell Probe", "Cell Id " + std::to_string( tBGCellIds( i ) ) );
 
-        moris_index                  tIndex      = mBackgroundMesh.get_mesh_data().get_loc_entity_ind_from_entity_glb_id( tBGCellIds( i ), EntityRank::ELEMENT );
-        mtk::Cell &                  tCell       = mBackgroundMesh.get_mesh_data().get_mtk_cell( tIndex );
+        moris_index                  tIndex      = mBackgroundMesh->get_loc_entity_ind_from_entity_glb_id( tBGCellIds( i ), EntityRank::ELEMENT );
+        mtk::Cell &                  tCell       = mBackgroundMesh->get_mtk_cell( tIndex );
         Matrix< IndexMat >           tVertexIds  = tCell.get_vertex_ids();
         moris::Cell< mtk::Vertex * > tVertexPtrs = tCell.get_vertex_pointers();
         Matrix< IndexMat >           tVertexOwner( 1, tVertexPtrs.size() );
@@ -1241,7 +1240,7 @@ Model::perform_basis_enrichment_internal(
         aMeshIndex,
         mGeometryEngine->get_num_phases(),
         this,
-        &mBackgroundMesh.get_mesh_data() );
+        mBackgroundMesh );
 
     // Set verbose flag to match XTK.
     mEnrichment->mVerbose = mVerbose;
@@ -1317,18 +1316,18 @@ Model::get_cut_mesh() const
 // ----------------------------------------------------------------------------------
 
 
-Background_Mesh &
+moris::mtk::Interpolation_Mesh &
 Model::get_background_mesh()
 {
-    return mBackgroundMesh;
+    return *mBackgroundMesh;
 }
 
 // ----------------------------------------------------------------------------------
 
-Background_Mesh const &
+moris::mtk::Interpolation_Mesh const &
 Model::get_background_mesh() const
 {
-    return mBackgroundMesh;
+    return *mBackgroundMesh;
 }
 
 // ----------------------------------------------------------------------------------
@@ -1343,17 +1342,7 @@ Model::get_geom_engine()
 bool
 Model::subphase_is_in_child_mesh( moris_index aSubphaseIndex )
 {
-    MORIS_ERROR( 0, "TOFIX" );
-    if ( aSubphaseIndex >= (moris_index)mBackgroundMesh.get_mesh_data().get_num_entities( EntityRank::ELEMENT ) )
-    {
-        return true;
-    }
-
-    else if ( mBackgroundMesh.entity_has_children( aSubphaseIndex, EntityRank::ELEMENT ) )
-    {
-        return true;
-    }
-
+    MORIS_ERROR( 0, "TOREMOVE" );
     return false;
 }
 
@@ -1519,7 +1508,6 @@ Model::get_memory_usage()
     if ( mDecomposed )
     {
         tCutMeshMM = mCutMesh.get_memory_usage();
-        tBGMeshMM  = mBackgroundMesh.get_memory_usage();
     }
 
     if ( mEnriched )

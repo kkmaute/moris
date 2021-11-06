@@ -593,7 +593,7 @@ Enriched_Interpolation_Mesh::get_enriched_coefficient_local_to_global_map( moris
 Matrix< IndexMat >
 Enriched_Interpolation_Mesh::get_background_coefficient_local_to_global_map() const
 {
-    moris::mtk::Mesh& tBackgroundMeshData = mXTKModel->get_background_mesh().get_mesh_data();
+    moris::mtk::Mesh& tBackgroundMeshData = mXTKModel->get_background_mesh();
 
     moris::uint tNumBackgroundCoeffs = tBackgroundMeshData.get_num_entities( mBasisRank );
 
@@ -816,7 +816,7 @@ Enriched_Interpolation_Mesh::merge_duplicate_interpolation_vertices()
 void
 Enriched_Interpolation_Mesh::collect_base_vertex_to_enriched_vertex_connectivity( moris::Cell< moris::Cell< Interpolation_Vertex_Unzipped* > >& aBaseVertexToEnrichedVertex )
 {
-    moris::mtk::Mesh& tBackgroundMeshData = mXTKModel->get_background_mesh().get_mesh_data();
+    moris::mtk::Mesh& tBackgroundMeshData = mXTKModel->get_background_mesh();
 
     // allocate space in the cell of cell
     aBaseVertexToEnrichedVertex.resize( tBackgroundMeshData.get_num_nodes() );
@@ -1070,7 +1070,7 @@ Enriched_Interpolation_Mesh::get_xtk_interp_vertex( moris::uint aVertexIndex )
 void
 Enriched_Interpolation_Mesh::add_proc_to_comm_table( moris_index aProcRank )
 {
-    mXTKModel->get_background_mesh().add_proc_to_comm_table( aProcRank );
+    mXTKModel->get_cut_integration_mesh()->add_proc_to_comm_table( aProcRank );
 }
 
 // ----------------------------------------------------------------------------
@@ -1735,10 +1735,7 @@ Enriched_Interpolation_Mesh::assign_ip_vertex_ids()
         tProcRanks,
         tProcRankToDataIndex );
 
-    moris::moris_id tVertexId =
-        mXTKModel->get_background_mesh().allocate_entity_ids(
-            tOwnedVertices.size(),
-            EntityRank::NODE );
+    moris::moris_id tVertexId = this->allocate_entity_ids(tOwnedVertices.size(), EntityRank::NODE );
 
     // Assign owned request identifiers
     this->assign_owned_ip_vertex_ids( tOwnedVertices, tVertexId );
@@ -2028,7 +2025,7 @@ Enriched_Interpolation_Mesh::setup_basis_ownership()
         // iterate through basis functions
         for ( moris::uint iB = 0; iB < mCoeffToEnrichCoeffs( tMeshIndex ).size(); iB++ )
         {
-            moris_index tOwner = mXTKModel->get_background_mesh().get_mesh_data().get_entity_owner( (moris_index)iB, mBasisRank, tMeshIndex );
+            moris_index tOwner = mXTKModel->get_background_mesh().get_entity_owner( (moris_index)iB, mBasisRank, tMeshIndex );
 
             for ( moris::uint iEB = 0; iEB < mCoeffToEnrichCoeffs( tMeshIndex )( iB ).numel(); iEB++ )
             {

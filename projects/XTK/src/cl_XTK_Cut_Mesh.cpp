@@ -147,7 +147,7 @@ namespace xtk
         moris::Matrix< moris::DDSTMat > tParentEdgeRanks(1,aParentEntities(1).numel());
 
         // This is needed for HMR because edges in 2-d have rank 2
-        if(mModel->get_background_mesh().get_mesh_data().get_mesh_type() == MeshType::HMR && mSpatialDim == 2)
+        if(mModel->get_background_mesh().get_mesh_type() == MeshType::HMR && mSpatialDim == 2)
         {
             tParentEdgeRanks.fill(2);
         }
@@ -181,7 +181,7 @@ namespace xtk
                 tParentFaceRanks,
                 tInterfaceSides);
 
-        if(mModel->get_background_mesh().get_mesh_data().get_mesh_type() == MeshType::HMR)
+        if(mModel->get_background_mesh().get_mesh_type() == MeshType::HMR)
         {
             mChildrenMeshes(aChildMeshIndex)->mark_as_hmr_child_mesh();
         }
