@@ -1208,6 +1208,8 @@ Cut_Integration_Mesh::print_cells(
 
     tStringStream << "Cell_Id,";
     if ( !aOmitIndex ) { tStringStream << "Cell_Ind,"; }
+    tStringStream << "Owner,";
+    tStringStream << "PRank,";
     tStringStream << "Phase,";
     tStringStream << "Measure,";
     for ( moris::uint iVH = 0; iVH < tMaxVertsToCell; iVH++ )
@@ -1228,6 +1230,8 @@ Cut_Integration_Mesh::print_cells(
 
         tStringStream << std::to_string( tCell.get_id() ) + ",";
         if ( !aOmitIndex ) { tStringStream << std::to_string( tCell.get_index() ) + ","; }
+        tStringStream <<  std::to_string(tCell.get_owner())<<",";
+        tStringStream <<  std::to_string(par_rank())<<",";
         tStringStream << std::to_string( this->get_cell_bulk_phase( i ) ) + ",";
         tStringStream << std::scientific << tCell.compute_cell_measure() << ",";
 

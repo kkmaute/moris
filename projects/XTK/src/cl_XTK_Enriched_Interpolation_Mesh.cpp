@@ -1240,29 +1240,97 @@ Enriched_Interpolation_Mesh::convert_enriched_basis_indices_to_ids(
 // ----------------------------------------------------------------------------
 
 void
-Enriched_Interpolation_Mesh::print() const
+Enriched_Interpolation_Mesh::write_diagnostics()
 {
+    std::string tCellDiagFile = mXTKModel->get_diagnostic_file_name( std::string( "Enr_IP_Cells" ) );
     std::cout << "\n-------------------------------------" << std::endl;
-    this->print_vertex_maps();
-    this->print_enriched_cell_maps();
-    this->print_enriched_cells();
-    this->print_basis_to_enriched_basis();
+    // this->print_vertex_maps();
+    // this->print_enriched_cell_maps();
+    this->print_enriched_cells(tCellDiagFile);
+    // this->print_basis_to_enriched_basis();
     std::cout << "\n-------------------------------------" << std::endl;
 }
 
 // ----------------------------------------------------------------------------
 
 void
-Enriched_Interpolation_Mesh::print_enriched_cells() const
+Enriched_Interpolation_Mesh::print_enriched_cells(std::string aFile)
 {
-    moris::uint tNumCells = this->get_num_entities( EntityRank::ELEMENT );
 
-    std::cout << "\nEnriched Interpolation Cells:" << std::endl;
+    Cell< Interpolation_Cell_Unzipped* > const& tEnrIPCells = this->get_enriched_interpolation_cells();
 
-    for ( moris::uint i = 0; i < tNumCells; i++ )
+    std::ostringstream tStringStream;
+    // max num verts to cells
+    uint tMaxVertsToCell = 0;
+    for ( moris::uint i = 0; i < this->get_num_entities( EntityRank::ELEMENT, 0 ); i++ )
     {
-        std::cout << "   " << *mEnrichedInterpCells( i );
+        Interpolation_Cell_Unzipped const * tCell = tEnrIPCells( i );
+        if ( tCell->get_number_of_vertices() > tMaxVertsToCell )
+        {
+            tMaxVertsToCell = tCell->get_number_of_vertices();
+        }
     }
+
+
+    tStringStream << "Cell_Id,";
+    tStringStream << "Cell_Ind,"; 
+    tStringStream << "Owner,";
+    tStringStream << "PRank,";
+    tStringStream << "Base_Cell_Id,";
+    tStringStream << "Bulk_Phase,";
+    tStringStream << "Sub_Phase_Id,";
+    tStringStream << "Measure,";
+    for ( moris::uint iVH = 0; iVH < tMaxVertsToCell; iVH++ )
+    {
+        tStringStream << "Vert_" + std::to_string( iVH );
+
+        if ( iVH != tMaxVertsToCell - 1 )
+        {
+            tStringStream << ",";
+        }
+    }
+    tStringStream << "\n";
+
+    for ( moris::uint i = 0; i < this->get_num_entities( EntityRank::ELEMENT, 0 ); i++ )
+    {
+        Interpolation_Cell_Unzipped const * tCell = tEnrIPCells( (moris_index)i );
+        moris::Cell< moris::mtk::Vertex* > tVertices = tCell->get_vertex_pointers();
+
+        tStringStream << tCell->get_id() << ",";
+        tStringStream << tCell->get_index() << ",";
+        tStringStream <<  std::to_string(tCell->get_owner())<<",";
+        tStringStream <<  std::to_string(par_rank())<<",";
+        tStringStream << tCell->get_base_cell()->get_id() << ",";
+        tStringStream << tCell->get_bulkphase_index() << ",";
+        tStringStream << mXTKModel->get_cut_integration_mesh()->get_subphase_id( (moris_index)tCell->get_subphase_index()) << ",";
+        tStringStream << std::scientific << tCell->compute_cell_measure() << ",";
+
+        for ( moris::uint j = 0; j < tMaxVertsToCell; j++ )
+        {
+            if ( j < tVertices.size() )
+            {
+                tStringStream << std::to_string( tVertices( j )->get_id() );
+            }
+            else
+            {
+                tStringStream << std::to_string( MORIS_INDEX_MAX );
+            }
+
+            if ( j != tMaxVertsToCell - 1 )
+            {
+                tStringStream << ",";
+            }
+        }
+        tStringStream << "\n";
+    }
+
+    if ( aFile.empty() == false )
+    {
+        std::ofstream tOutputFile( aFile );
+        tOutputFile << tStringStream.str() << std::endl;
+        tOutputFile.close();
+    }
+
 }
 
 // ----------------------------------------------------------------------------

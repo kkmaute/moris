@@ -27,7 +27,6 @@ class Side_Cluster;
 class Interpolation_Cell_Unzipped;
 class Ghost_Stabilization;
 class Enrichment;
-class Child_Mesh;
 class Cut_Integration_Mesh;
 
 class Enriched_Integration_Mesh : public mtk::Integration_Mesh
@@ -516,10 +515,6 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
     add_side_to_cluster( std::shared_ptr< xtk::Side_Cluster > aSideCluster,
         moris_index                                           aCellIndex,
         moris_index                                           aSideOrdinal );
-
-    void
-    setup_side_cluster_vertices( std::shared_ptr< xtk::Side_Cluster > aMasterSideCluster,
-        std::shared_ptr< xtk::Side_Cluster >                          aSlaveSideCluster );
 
     //------------------------------------------------------------------------------
 

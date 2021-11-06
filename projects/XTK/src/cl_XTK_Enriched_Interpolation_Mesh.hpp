@@ -239,8 +239,8 @@ class Enriched_Interpolation_Mesh : public mtk::Interpolation_Mesh
     get_memory_usage();
 
     // Print functions
-    void print() const;
-    void print_enriched_cells() const;
+    void write_diagnostics();
+    void print_enriched_cells(std::string aFile = "");
     void print_vertex_maps() const;
     void print_enriched_cell_maps() const;
     void print_basis_to_enriched_basis() const;

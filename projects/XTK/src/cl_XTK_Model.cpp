@@ -257,6 +257,7 @@ Model::perform()
                 }
             }
         }
+
     }
 
     if ( mParameterList.get< bool >( "identify_hanging_nodes" ) )
@@ -400,6 +401,8 @@ Model::perform()
             }
         }
 
+        
+
 
         // if( mParameterList.get<bool>("contact_sandbox") )
         // {
@@ -452,6 +455,11 @@ Model::perform()
 
         //     tSandbox.perform_global_contact_search(tCurrentDispl,tPredictedDispl);
         // }
+
+        if(mDiagnostics)
+        {
+            tEnrInterpMesh.write_diagnostics();
+        }
 
         if ( mParameterList.get< bool >( "print_enriched_ig_mesh" ) )
         {
@@ -1379,7 +1387,7 @@ std::string
 Model::get_diagnostic_file_name( std::string const &aLabel ) const
 {
     MORIS_ASSERT( mDiagnostics, "Only callable with diagnostics on" );
-    return mDiagnosticPath + "/id_" + mDiagnosticId + "_ps_" + std::to_string( moris::par_size() ) + "_pr_" + std::to_string( moris::par_rank() ) + "_" + aLabel + ".diag";
+    return mDiagnosticPath + "/id_" + mDiagnosticId + "_ps_" + std::to_string( moris::par_size() ) + "_pr_" + std::to_string( moris::par_rank() ) + "_" + aLabel + ".csv";
 }
 
 bool
