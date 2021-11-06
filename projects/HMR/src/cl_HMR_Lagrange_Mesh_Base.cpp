@@ -3726,6 +3726,8 @@ namespace moris
                 }
             }
 
+            this->delete_t_matrix_lagrange_mesh();
+            
             // stop timer
             real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
@@ -3780,6 +3782,18 @@ namespace moris
                     delete tTMatrix;
                 }
             }
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Lagrange_Mesh_Base::delete_t_matrix_lagrange_mesh()
+        {
+            for( auto tLagrangeMesh : mLagrangeMeshForTMatrix )
+            {
+                 delete tLagrangeMesh;
+            }
+
+            mLagrangeMeshForTMatrix.clear();
         }
 
         //------------------------------------------------------------------------------
