@@ -1320,6 +1320,7 @@ namespace moris
 
         void BSpline_Mesh_Base::calculate_basis_indices( const Matrix< IdMat > & aCommTable )
         {
+            tic tTimer;
             // get my rank
             moris_id tMyRank = par_rank();
 
@@ -1860,6 +1861,18 @@ namespace moris
                 // get parents for each basis
                 this->link_basis_to_parents();
             }
+            
+            // stop timer
+            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+
+            // print output
+            MORIS_LOG_INFO( " Calculate basis indiced for B-Spline mesh of order %u on pattern %u.",
+                    ( unsigned int ) mOrder,
+                    ( unsigned int ) mActivationPattern);
+
+            MORIS_LOG_INFO( "Calculation took %5.3f seconds.",
+                    ( double ) tElapsedTime / 1000 );
+            MORIS_LOG_INFO( " " );
 /*
 #if defined(DEBUG)
             // Test sanity #CHRISTIAN
