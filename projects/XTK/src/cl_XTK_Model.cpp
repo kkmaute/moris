@@ -1241,7 +1241,7 @@ Model::perform_basis_enrichment_internal(
         aMeshIndex,
         mGeometryEngine->get_num_phases(),
         this,
-        &mBackgroundMesh );
+        &mBackgroundMesh.get_mesh_data() );
 
     // Set verbose flag to match XTK.
     mEnrichment->mVerbose = mVerbose;
