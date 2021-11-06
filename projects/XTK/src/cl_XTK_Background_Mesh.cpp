@@ -24,11 +24,11 @@ namespace xtk
       mNodeIndexToChildMeshIndex(0,0)
 
     {
-        intialize_downward_inheritance();
-        mExternalMeshData.set_up_external_entity_data(mMeshData);
-        initialize_background_mesh_vertices();
-        setup_local_to_global_maps();
-        setup_comm_map();
+        // intialize_downward_inheritance();
+        // mExternalMeshData.set_up_external_entity_data(mMeshData);
+        // initialize_background_mesh_vertices();
+        // setup_local_to_global_maps();
+        // setup_comm_map();
     }
 
     // ----------------------------------------------------------------------------------
@@ -42,11 +42,11 @@ namespace xtk
       mXtkMtkVertices(0),
       mNodeIndexToChildMeshIndex(0,0)
     {
-        intialize_downward_inheritance();
-        mExternalMeshData.set_up_external_entity_data(mMeshData);
-        initialize_background_mesh_vertices();
-        setup_local_to_global_maps();
-        setup_comm_map();
+        // intialize_downward_inheritance();
+        // mExternalMeshData.set_up_external_entity_data(mMeshData);
+        // initialize_background_mesh_vertices();
+        // setup_local_to_global_maps();
+        // setup_comm_map();
     }
 
     // ----------------------------------------------------------------------------------
@@ -233,40 +233,7 @@ namespace xtk
             Cell<moris_index>                    const & aNewNodeOwningProc,
             Cell<moris::Matrix< moris::DDRMat >> const & aNewNodeCoordinates)
     {
-        // number of nodes prior to creating new ones
-        moris::uint tNumExistingNodes = get_num_entities(EntityRank::NODE);
 
-        // Batch create the new copied nodes in the mesh external data
-        mExternalMeshData.batch_create_new_nodes_external_data(
-                aNewNodeIds,
-                aNewNodeIndices,
-                aNewNodeOwningProc,
-                aNewNodeCoordinates);
-
-        moris::uint tNumNewNodes = aNewNodeIds.size();
-
-        // allocate space in the local to global node map
-        mEntityLocaltoGlobalMap(0).resize(tNumNewNodes + tNumExistingNodes);
-
-        // allocate space in vertices
-        mXtkMtkVertices.resize(tNumNewNodes+tNumExistingNodes);
-
-        for(moris::uint i = 0; i <tNumNewNodes; i++)
-        {
-            // create vertex
-            mXtkMtkVertices(aNewNodeIndices(i)) = moris::mtk::Vertex_XTK( aNewNodeIds(i),
-                    aNewNodeIndices(i),
-                    aNewNodeOwningProc(i),
-                    this);
-            // add to local to global map
-            mEntityLocaltoGlobalMap(0)(aNewNodeIndices(i)) = aNewNodeIds(i);
-
-            // add to map
-            MORIS_ASSERT(mVertexGlbToLocalMap.find(aNewNodeIds(i)) == mVertexGlbToLocalMap.end(),
-                    "Vertex already in map");
-
-            mVertexGlbToLocalMap[aNewNodeIds(i)] = aNewNodeIndices(i);
-        }
     }
 
     // ----------------------------------------------------------------------------------
@@ -277,51 +244,7 @@ namespace xtk
             moris::Matrix< moris::IndexMat > const & aNewNodeIds,
             moris::Matrix< moris::IndexMat > const & aNewNodeIndices)
     {
-        // number of nodes prior to creating new ones
-        moris::uint tNumExistingNodes = get_num_entities(EntityRank::NODE);
 
-        // Collect node coordinates of nodes being copied
-        moris::Matrix< moris::DDRMat > tNewNodeCoords =
-                this->get_selected_node_coordinates_loc_inds(aExistingNodeIndices);
-
-        // get owners of existing nodes
-        moris::Matrix<moris::IndexMat> tOwningProcs(aExistingNodeIndices.numel(),1);
-
-        for(moris::uint i = 0; i < aExistingNodeIndices.numel(); i++)
-        {
-            tOwningProcs(i) = this->get_vertex_owner(aExistingNodeIndices(i));
-        }
-
-        // Batch create the new copied nodes in the mesh external data
-        mExternalMeshData.batch_create_new_nodes_external_data(
-                aNewNodeIds,
-                aNewNodeIndices,
-                tOwningProcs,
-                tNewNodeCoords);
-
-        moris::uint tNumNewNodes = aNewNodeIds.numel();
-
-        // allocate space in the local to global node map
-        mEntityLocaltoGlobalMap(0).resize(tNumNewNodes + tNumExistingNodes);
-
-        // allocate space in vertices
-        mXtkMtkVertices.resize(tNumNewNodes+tNumExistingNodes);
-
-        for(moris::uint i = 0; i <tNumNewNodes; i++)
-        {
-            // create vertex
-            mXtkMtkVertices(aNewNodeIndices(i)) = moris::mtk::Vertex_XTK(
-                    aNewNodeIds(i),
-                    aNewNodeIndices(i),
-                    MORIS_INDEX_MAX,
-                    this);
-
-            mEntityLocaltoGlobalMap(0)(aNewNodeIndices(i)) = aNewNodeIds(i);
-
-            // add to map
-            MORIS_ASSERT(mVertexGlbToLocalMap.find(aNewNodeIds(i)) == mVertexGlbToLocalMap.end(),"Vertex already in map");
-            mVertexGlbToLocalMap[aNewNodeIds(i)] = aNewNodeIndices(i);
-        }
     }
 
     // ----------------------------------------------------------------------------------
@@ -1407,17 +1330,17 @@ namespace xtk
     void
     Background_Mesh::initialize_background_mesh_vertices()
     {
-        moris::uint tNumNodes = mMeshData->get_num_entities(EntityRank::NODE);
+        // moris::uint tNumNodes = mMeshData->get_num_entities(EntityRank::NODE);
 
-        for(moris::uint  i = 0; i <tNumNodes; i++)
-        {
-            moris::mtk::Vertex * tVertex = &mMeshData->get_mtk_vertex(i);
+        // for(moris::uint  i = 0; i <tNumNodes; i++)
+        // {
+        //     moris::mtk::Vertex * tVertex = &mMeshData->get_mtk_vertex(i);
 
-            MORIS_ASSERT(mVertexGlbToLocalMap.find(tVertex->get_id()) == mVertexGlbToLocalMap.end(),"Vertex already in map");
+        //     MORIS_ASSERT(mVertexGlbToLocalMap.find(tVertex->get_id()) == mVertexGlbToLocalMap.end(),"Vertex already in map");
 
-            mVertexGlbToLocalMap[tVertex->get_id()] = tVertex->get_index();
-            mXtkMtkVertices.push_back(tVertex);
-        }
+        //     mVertexGlbToLocalMap[tVertex->get_id()] = tVertex->get_index();
+        //     mXtkMtkVertices.push_back(tVertex);
+        // }
 
     }
 
