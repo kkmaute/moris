@@ -41,14 +41,12 @@ Enrichment::Enrichment(
     Matrix<IndexMat> const&       aInterpIndex,
     moris::moris_index const&     aNumBulkPhases,
     xtk::Model*                   aXTKModelPtr,
-    xtk::Cut_Mesh*                aCutMeshPtr,
     xtk::Background_Mesh*         aBackgroundMeshPtr)
     : mEnrichmentMethod(aMethod)
     , mBasisRank(aBasisRank)
     , mMeshIndices(aInterpIndex)
     , mNumBulkPhases(aNumBulkPhases)
     , mXTKModelPtr(aXTKModelPtr)
-    , mCutMeshPtr(aCutMeshPtr)
     , mBackgroundMeshPtr(aBackgroundMeshPtr)
     , mEnrichmentData(aInterpIndex.max() + 1, mXTKModelPtr->get_cut_integration_mesh()->get_num_subphases())
 {
@@ -61,10 +59,6 @@ Enrichment::Enrichment(
 void
 Enrichment::perform_enrichment()
 {
-    // Verify initialized properly
-    MORIS_ERROR(mCutMeshPtr != nullptr,
-        "mCutMesh nullptr detected, this is probably because the enrichment has not been initialized properly");
-
     MORIS_ERROR(mBackgroundMeshPtr != nullptr,
         "mBackgroundMesh nullptr detected, this is probably because the enrichment has not been initialized properly");
 

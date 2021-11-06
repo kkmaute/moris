@@ -1241,7 +1241,6 @@ Model::perform_basis_enrichment_internal(
         aMeshIndex,
         mGeometryEngine->get_num_phases(),
         this,
-        &mCutMesh,
         &mBackgroundMesh );
 
     // Set verbose flag to match XTK.

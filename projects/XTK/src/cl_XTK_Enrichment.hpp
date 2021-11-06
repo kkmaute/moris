@@ -118,7 +118,6 @@ namespace xtk
                     Matrix<IndexMat>                const & aInterpIndex,
                     moris::moris_index              const & aNumBulkPhases,
                     xtk::Model*                             aXTKModelPtr,
-                    xtk::Cut_Mesh*                          aCutMeshPtr,
                     xtk::Background_Mesh*                   aBackgroundMeshPtr);
 
             // ----------------------------------------------------------------------------------
@@ -211,7 +210,6 @@ namespace xtk
             Model*                      mXTKModelPtr;
             Cut_Integration_Mesh*       mCutIgMesh;
             Integration_Mesh_Generator* mIgMeshTools;
-            Cut_Mesh* mCutMeshPtr;
             Background_Mesh* mBackgroundMeshPtr;
             Enrichment_Parameters mParameters;
 

@@ -75,63 +75,6 @@ compute_non_intersected_parent_element_volume_by_phase(moris::moris_index       
     return tVolume;
 }
 
-/*
- * Given a global coordinate list (so we can just access rather than copy every time we encounter a node)
- * Compute the volume of all background element which are not intersected by the geometry
- *
- * @param[in] aCoords - Node coordinates ordere by index
- * @param[in] aModel  - An XTK Model
- */
-moris::real
-compute_child_element_volume_by_phase(moris::moris_index                                     aPhaseIndex,
-                                      moris::Matrix<moris::DDRMat> const &                     aNodeCoordinates,
-                                      Model const & aXTKModel)
-{
-    // Proc Rank
-    moris_index tParRank = par_rank();
-
-    // Get a reference to the XTK Mesh from the Model
-    Background_Mesh const & tXTKBMesh = aXTKModel.get_background_mesh();
-
-    // Get the underlying background mesh data
-    moris::mtk::Mesh const & tBMMeshData = tXTKBMesh.get_mesh_data();
-
-    // Get a reference to the XTK Mesh from the Model
-    Cut_Mesh const & tCutMesh = aXTKModel.get_cut_mesh();
-
-    moris::real tVolume = 0;
-    for(size_t i = 0; i < tCutMesh.get_num_child_meshes(); i++)
-    {
-        // Get reference to Child Mesh
-        Child_Mesh const & tChildMesh = tCutMesh.get_child_mesh(i);
-
-        // Get reference to nodes connected to elements
-        moris::Matrix<moris::IndexMat> const & tElementToNode = tChildMesh.get_element_to_node();
-
-        moris::Matrix< moris::IndexMat > const & tElementPhase = tChildMesh.get_element_phase_indices();
-
-        moris::size_t tNumElems = tChildMesh.get_num_entities(EntityRank::ELEMENT);
-
-        if(tBMMeshData.get_entity_owner(tChildMesh.get_parent_element_index(),moris::EntityRank::ELEMENT) == (uint) tParRank)
-        {
-        for(size_t j = 0; j <tNumElems; j++)
-        {
-
-            if(tElementPhase(j) == aPhaseIndex )
-            {
-                moris::Matrix< moris::IndexMat > tElementToNodeCM = tElementToNode.get_row(j);
-
-                tVolume += vol_tetrahedron(aNodeCoordinates, tElementToNodeCM);
-
-            }
-        }
-        }
-    }
-
-    return tVolume;
-}
-
-
 }
 
 
