@@ -8,6 +8,8 @@
 
 #include "cl_NLA_Nonlinear_Solver.hpp"
 #include "cl_NLA_Nonlinear_Solver_Factory.hpp"
+#include "cl_NLA_Nonlinear_Problem.hpp"
+#include "cl_NLA_Nonlinear_Algorithm.hpp"
 
 #include "cl_SOL_Warehouse.hpp"
 
