@@ -16,6 +16,8 @@
 #include "cl_DLA_Linear_System_Trilinos.hpp"
 #include "cl_DLA_Linear_System_PETSc.hpp"
 
+#include "cl_DLA_Linear_Solver_Algorithm.hpp"
+
 using namespace moris;
 using namespace dla;
 

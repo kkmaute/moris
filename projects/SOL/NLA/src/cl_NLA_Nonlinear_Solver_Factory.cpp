@@ -9,6 +9,7 @@
 
 #include "cl_NLA_Newton_Solver.hpp"
 #include "cl_NLA_NLBGS.hpp"
+#include "cl_NLA_Nonlinear_Algorithm.hpp"
 //#include "cl_NLA_Arc_Length.hpp"
 
 using namespace moris;

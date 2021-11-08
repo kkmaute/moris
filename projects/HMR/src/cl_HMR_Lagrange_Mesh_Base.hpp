@@ -894,6 +894,14 @@ namespace moris
                 void delete_t_matrices();
 
                 // -----------------------------------------------------------------------------
+
+                /**
+                 * deletes the Lagrange meshes for T-matrices
+                 */
+
+                void delete_t_matrix_lagrange_mesh();
+
+                // -----------------------------------------------------------------------------
                 /**
                  * returns a pointer to the child of an element if it exists
                  *

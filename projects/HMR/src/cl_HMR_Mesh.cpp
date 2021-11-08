@@ -1997,6 +1997,8 @@ namespace moris
 
         void Mesh::setup_glb_to_local_maps()
         {
+            tic tTimer;
+
             // Initialize global to local map
             mEntityGlobaltoLocalMap = moris::Cell<std::unordered_map<moris_id,moris_index>>( 4 + mMesh->get_number_of_bspline_meshes() );
 
@@ -2019,6 +2021,16 @@ namespace moris
                     setup_entity_global_to_local_map( EntityRank::NODE, tCounter );
                 }
             }
+
+            // stop timer
+            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+
+            MORIS_LOG_INFO( "Creation of local-to-global maps on Lagrange Mesh of order %u on pattern %u took %5.3f seconds.",
+                    mMesh->get_order(),
+                    mMesh->get_activation_pattern(),
+                    ( double ) tElapsedTime / 1000 );
+            MORIS_LOG_INFO( " " );
+
         }
 
         //-------------------------------------------------------------------------------
