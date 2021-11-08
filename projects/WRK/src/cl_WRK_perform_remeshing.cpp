@@ -865,35 +865,46 @@ namespace moris
                     LOGGER_ARBITRARY_DESCRIPTOR,
                     LOGGER_ARBITRARY_DESCRIPTOR);
 
+            uint tActivePattern = aHMRPerformer->get_database()->get_background_mesh()->get_activation_pattern();
+
             for( uint Ik =0; Ik < mParameters.mRefinemenCopytPatternToPattern_3.size(); Ik++ )
             {
                 uint tPattern = mParameters.mRefinemenCopytPatternToPattern_3( Ik )( 0 );
 
-                // create mesh for this pattern
-                hmr::Interpolation_Mesh_HMR * tInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
-                        aHMRPerformer->get_database(),
-                        1,
-                        tPattern,
-                        1,
-                        tPattern);
+                if( tPattern != 0 ) // FIXME thereis an issue when 0 has a numberd aura
+                {
+                    aHMRPerformer->get_database()->get_background_mesh()->set_activation_pattern( tPattern );
 
-                // set mesh
-                moris::mtk::Writer_Exodus tExodusWriter( tInterpolationMesh );
+                    // create mesh for this pattern
+                    hmr::Interpolation_Mesh_HMR * tInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
+                            aHMRPerformer->get_database(),
+                            1,
+                            tPattern,
+                            1,
+                            tPattern);
 
-                //fixme make path parallel
+                    // set mesh
+                    moris::mtk::Writer_Exodus tExodusWriter( tInterpolationMesh );
 
-                // set file names
-                tExodusWriter.write_mesh(
-                        "./",
-                        "Remeshing_Lagrange_Mesh_Pattern_"+ ios::stringify( tPattern ) +"_Iter_" + ios::stringify( tOptIter ) + ".exo",
-                        "./",
-                        "field_temp");
+                    //fixme make path parallel
 
-                // finalize and write mesh
-                tExodusWriter.save_mesh( );
+                    // set file names
+                    tExodusWriter.write_mesh(
+                            "./",
+                            "Remeshing_Lagrange_Mesh_Pattern_"+ ios::stringify( tPattern ) +"_Iter_" + ios::stringify( tOptIter ) + ".exo",
+                            "./",
+                            "field_temp");
 
-                delete tInterpolationMesh;
+                    // finalize and write mesh
+                    tExodusWriter.save_mesh( );
+
+                    tExodusWriter.close_file();
+
+                    delete tInterpolationMesh;
+                }
             }
+
+            aHMRPerformer->get_database()->get_background_mesh()->set_activation_pattern( tActivePattern );
         }
 
         //--------------------------------------------------------------------------------------------------------------
