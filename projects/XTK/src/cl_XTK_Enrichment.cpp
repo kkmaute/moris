@@ -116,6 +116,88 @@ Enrichment::get_memory_usage()
     return tMemoryMap;
 }
 
+void
+Enrichment::write_diagnostics()
+{
+    for (moris::size_t iBasisType = 0; iBasisType < mMeshIndices.numel(); iBasisType++)
+    {
+        // get the mesh index
+        moris_index tMeshIndex = mMeshIndices(iBasisType);
+
+        std::string tEnrBasisIdToSubphaseId = mXTKModelPtr->get_diagnostic_file_name( std::string( "Enr_Basis_To_Subphase_" + std::to_string(tMeshIndex)) );
+    
+        this->print_enriched_basis_to_subphase_id(tMeshIndex,tEnrBasisIdToSubphaseId);
+    }
+}
+//-------------------------------------------------------------------------------------
+
+void
+Enrichment::print_enriched_basis_to_subphase_id(
+    const moris_index& aMeshIndex,
+    std::string        aFileName )
+{
+    
+    Cell< moris::Matrix< moris::IndexMat > > const& tSubphasesInEnrBasis = mEnrichmentData( aMeshIndex ).mSubphaseIndsInEnrichedBasis;
+
+    std::ostringstream tStringStream;
+    tStringStream << "Enriched_Basis_Id,";
+    tStringStream << "Mesh_Index,";
+    tStringStream << "Owner,";
+    tStringStream << "PRank,";
+
+    // global max size of
+    moris_index tLocalMaxIGCellGroupSize = 0;
+    for ( moris::uint iEB = 0; iEB < tSubphasesInEnrBasis.size(); iEB++ )
+    {
+        if ( (moris_index) tSubphasesInEnrBasis( iEB ).numel() > tLocalMaxIGCellGroupSize )
+        {
+            tLocalMaxIGCellGroupSize = tSubphasesInEnrBasis( iEB ).numel();
+        }
+    }
+
+    moris_index tGlbMaxIgCellGroupSize = moris::max_all( tLocalMaxIGCellGroupSize );
+
+    for ( moris_index iCH = 0; iCH < tGlbMaxIgCellGroupSize; iCH++ )
+    {
+        tStringStream << "Subphase_ID" + std::to_string( iCH );
+
+        if ( iCH != tGlbMaxIgCellGroupSize - 1 )
+        {
+            tStringStream << ",";
+        }
+    }
+
+    tStringStream << "\n";
+
+
+    Matrix< IndexMat > const& tLocToGlbEnrBasisId = mXTKModelPtr->mEnrichedInterpMesh( 0 )->get_enriched_coefficient_local_to_global_map( aMeshIndex );
+
+    for ( moris::uint iEB = 0; iEB < tSubphasesInEnrBasis.size(); iEB++ )
+    {
+        tStringStream << std::to_string( tLocToGlbEnrBasisId( iEB ) ) << ",";
+        tStringStream << std::to_string( aMeshIndex ) << ",";
+        tStringStream << std::to_string( mXTKModelPtr->mEnrichedInterpMesh( 0 )->get_basis_owner( (moris_index)iEB, aMeshIndex ) ) << ",";
+        tStringStream << std::to_string( par_rank() ) << ",";
+        for ( size_t iSp = 0; iSp < tSubphasesInEnrBasis( iEB ).numel(); iSp++ )
+        {
+            tStringStream << std::to_string( mXTKModelPtr->get_cut_integration_mesh()->get_subphase_id( tSubphasesInEnrBasis( iEB )( iSp ) ) );
+
+            if ( iSp != tSubphasesInEnrBasis( iEB ).numel() - 1 )
+            {
+                tStringStream << ",";
+            }
+        }
+        tStringStream << "\n";
+    }
+
+    if ( aFileName.empty() == false )
+    {
+        std::ofstream tOutputFile( aFileName );
+        tOutputFile << tStringStream.str() << std::endl;
+        tOutputFile.close();
+    }
+}
+
 //-------------------------------------------------------------------------------------
 
 void
@@ -918,7 +1000,7 @@ Enrichment::construct_enriched_interpolation_mesh()
 
     // in most cases all the interpolation vertices are the same. We merge them back together with this call
     // post-processing to construct_enriched_interpolation_vertices_and_cells in an effort to not add complexity to the function (already too)
-    mXTKModelPtr->mEnrichedInterpMesh(0)->merge_duplicate_interpolation_vertices();
+    // mXTKModelPtr->mEnrichedInterpMesh(0)->merge_duplicate_interpolation_vertices();
 
 
     mXTKModelPtr->mEnrichedInterpMesh(0)->mCoeffToEnrichCoeffs.resize(mMeshIndices.max() + 1);
@@ -1033,7 +1115,6 @@ Enrichment::construct_enriched_interpolation_vertices_and_cells()
     {
         // information about this cell
         moris::mtk::Cell* tParentCell = mCutIgMesh->get_subphase_parent_cell(iSP);
-
 
         // owner
         moris_id tOwner = tParentCell->get_owner();

@@ -1093,6 +1093,8 @@ Model::perform_basis_enrichment(
 
     this->perform_basis_enrichment_internal( aBasisRank, { { aMeshIndex } } );
 
+    mEnrichment->write_diagnostics();
+
     // Change the enrichment flag
     mEnriched = true;
 }
@@ -1114,6 +1116,11 @@ Model::perform_basis_enrichment(
     mEnrichedInterpMesh.resize( aMeshIndex.numel() + 1, nullptr );
 
     this->perform_basis_enrichment_internal( aBasisRank, aMeshIndex );
+
+    if(mDiagnostics)
+    {
+        mEnrichment->write_diagnostics();
+    }
 
     // Change the enrichment flag
     mEnriched = true;

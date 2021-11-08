@@ -1362,16 +1362,9 @@ Cut_Integration_Mesh::print_groupings( std::string aFile )
         tStringStream << moris::par_rank() << ",";
         tStringStream << iGroup << ",";
 
-        for ( moris_index iGC = 0; iGC < tGlbMaxIgCellGroupSize; iGC++ )
+        for ( moris_index iGC = 0; iGC < (moris_index)mIntegrationCellGroups( iGroup )->mIgCellGroup.size(); iGC++ )
         {
-            if ( iGC >= (moris_index)mIntegrationCellGroups( iGroup )->mIgCellGroup.size() )
-            {
-                tStringStream << MORIS_INDEX_MAX;
-            }
-            else
-            {
-                tStringStream << mIntegrationCellGroups( iGroup )->mIgCellGroup( iGC )->get_id();
-            }
+            tStringStream << mIntegrationCellGroups( iGroup )->mIgCellGroup( iGC )->get_id();
 
             if ( iGC != tGlbMaxIgCellGroupSize - 1 )
             {

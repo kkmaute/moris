@@ -301,7 +301,7 @@ Enriched_Interpolation_Mesh::get_writable_mtk_cell( moris_index aElementIndex )
 Matrix< IdMat >
 Enriched_Interpolation_Mesh::get_communication_table() const
 {
-    return mXTKModel->get_background_mesh().get_communication_table();
+    return mXTKModel->get_cut_integration_mesh()->get_communication_table();
 }
 
 // ----------------------------------------------------------------------------
@@ -709,13 +709,6 @@ Enriched_Interpolation_Mesh::merge_duplicate_interpolation_vertices()
     Cell< moris_index > tNodesToDelete;
     tNodesToDelete.reserve( mEnrichedInterpVerts.size() );
 
-    moris_index tNumBulkPhases = mXTKModel->get_geom_engine()->get_num_bulk_phase();
-
-    // allocate gold vertex enrichment vector for each phase
-    moris::Cell< Vertex_Enrichment* > tGoldVertexEnrichments( tNumBulkPhases, nullptr );
-    moris::Cell< moris_index >        tUsedBulkPhases;
-    tUsedBulkPhases.reserve( tNumBulkPhases );
-
     for ( moris::uint iBV = 0; iBV < tBaseVertexToEnrichedVertex.size(); iBV++ )
     {
         // keep track of the first vertex that a given vertex wants to merge with
@@ -810,16 +803,17 @@ Enriched_Interpolation_Mesh::merge_duplicate_interpolation_vertices()
         }
     }
 
+    mNumVerts = mEnrichedInterpVerts.size();
+
     MORIS_LOG_SPEC( "Num Enriched Interpolation Vertices Post Merge", mEnrichedInterpVerts.size() );
 }
+
 
 void
 Enriched_Interpolation_Mesh::collect_base_vertex_to_enriched_vertex_connectivity( moris::Cell< moris::Cell< Interpolation_Vertex_Unzipped* > >& aBaseVertexToEnrichedVertex )
 {
-    moris::mtk::Mesh& tBackgroundMeshData = mXTKModel->get_background_mesh();
-
     // allocate space in the cell of cell
-    aBaseVertexToEnrichedVertex.resize( tBackgroundMeshData.get_num_nodes() );
+    aBaseVertexToEnrichedVertex.resize(  mXTKModel->get_background_mesh().get_num_nodes() );
 
     for ( moris::uint iN = 0; iN < mEnrichedInterpVerts.size(); iN++ )
     {
@@ -868,14 +862,6 @@ Enriched_Interpolation_Mesh::get_local_mesh_index( moris_index const& aMeshIndex
     MORIS_ASSERT( tIter != mMeshIndexToLocMeshIndex.end(), "Mesh index not in map" );
 
     return tIter->second;
-}
-
-// ----------------------------------------------------------------------------
-
-Cell< moris_index > const&
-Enriched_Interpolation_Mesh::get_not_owned_vertex_indices() const
-{
-    return mNotOwnedVerts;
 }
 
 // ----------------------------------------------------------------------------
@@ -989,6 +975,7 @@ moris_index
 Enriched_Interpolation_Mesh::get_basis_bulk_phase( moris_index const& aBasisIndex,
     moris_index const&                                                aMeshIndex ) const
 {
+    MORIS_ERROR(0,"TO REMOVE");
     moris_index tLocMesh = this->get_local_mesh_index( aMeshIndex );
 
     return mEnrichCoeffBulkPhase( tLocMesh )( aBasisIndex );
@@ -1242,12 +1229,33 @@ Enriched_Interpolation_Mesh::convert_enriched_basis_indices_to_ids(
 void
 Enriched_Interpolation_Mesh::write_diagnostics()
 {
+    moris::Cell< mtk::Vertex* > tVerticesToCommunicate;
+    for(auto & iVert: mEnrichedInterpVerts)
+    {
+        if(iVert->get_owner() != moris::par_rank() )
+        {
+            tVerticesToCommunicate.push_back(iVert);
+        }
+    }
+
+    this->communicate_select_vertex_interpolation(tVerticesToCommunicate);
+
     std::string tCellDiagFile   = mXTKModel->get_diagnostic_file_name( std::string( "Enr_IP_Cells" ) );
     std::string tVertexDiagFile = mXTKModel->get_diagnostic_file_name( std::string( "Enr_IP_Verts" ) );
     // this->print_vertex_maps();
     // this->print_enriched_cell_maps();
     this->print_enriched_cells( tCellDiagFile );
     this->print_enriched_verts( tVertexDiagFile );
+
+    for (moris::size_t iBasisType = 0; iBasisType < mMeshIndices.numel(); iBasisType++)
+    {
+        // get the mesh index
+        moris_index tMeshIndex = mMeshIndices(iBasisType);
+
+        std::string tEnrVertexInterpolationFile = mXTKModel->get_diagnostic_file_name( std::string( "Ip_Vertex_Interp" + std::to_string(tMeshIndex)) );
+    
+        this->print_enriched_verts_interpolation(tMeshIndex,tEnrVertexInterpolationFile);
+    }
     // this->print_basis_to_enriched_basis();
 }
 
@@ -1346,6 +1354,8 @@ Enriched_Interpolation_Mesh::print_enriched_verts( std::string aFile )
     tStringStream << "Vert Ind,";
     tStringStream << "Owner,";
     tStringStream << "Prank,";
+    tStringStream << "Bulk_Phase,";
+    tStringStream << "Subphase,";
 
     for ( moris::uint iVH = 0; iVH < this->get_spatial_dim(); iVH++ )
     {
@@ -1366,10 +1376,12 @@ Enriched_Interpolation_Mesh::print_enriched_verts( std::string aFile )
         tStringStream.precision( 16 );
 
         tStringStream << tVertex.get_id() << ",";
-        tStringStream << tVertex.get_base_vertex()->get_id()<<",";
+        tStringStream << tVertex.get_base_vertex()->get_id() << ",";
         tStringStream << tVertex.get_index() << ",";
         tStringStream << tVertex.get_owner() << ",";
         tStringStream << par_rank() << ",";
+        tStringStream << mVertexBulkPhase(i)<<",";
+        tStringStream << mVertexMaxSubphase(i)<<",";
 
         moris::Matrix< moris::DDRMat > tCoords = tVertex.get_coords();
 
@@ -1392,6 +1404,86 @@ Enriched_Interpolation_Mesh::print_enriched_verts( std::string aFile )
         tOutputFile << tStringStream.str() << std::endl;
         tOutputFile.close();
     }
+}
+
+void
+Enriched_Interpolation_Mesh::print_enriched_verts_interpolation(
+    const moris_index& aMeshIndex,
+    std::string        aFileName )
+{
+    std::ostringstream tStringStream;
+    tStringStream.precision( 16 );
+    tStringStream << "Vert_Id,";
+    tStringStream << "Num_Coeffs,";
+
+    // global max size of
+    moris_index tLocalTMatrixSize = 0;
+    for ( moris::uint iV = 0; iV < this->get_num_nodes(); iV++ )
+    {
+        mtk::Vertex_Interpolation* tVertexInterp = this->get_mtk_vertex((moris_index)iV).get_interpolation( aMeshIndex );
+        Matrix< IdMat > tBasisIds = tVertexInterp->get_ids();
+
+        if ( (moris_index) tBasisIds.numel() > tLocalTMatrixSize )
+        {
+            tLocalTMatrixSize = (moris_index)tBasisIds.numel();
+        }
+    }
+
+    moris_index tGlbMaxTMatrixSize = moris::max_all( tLocalTMatrixSize );
+
+    for ( moris_index iCH = 0; iCH < tGlbMaxTMatrixSize; iCH++ )
+    {
+        tStringStream << "Basis_ID" + std::to_string( iCH )<<",";
+        tStringStream << "Basis_Weight" + std::to_string( iCH );
+
+        if ( iCH != tGlbMaxTMatrixSize - 1 )
+        {
+            tStringStream << ",";
+        }
+    }
+
+    tStringStream << "\n";
+
+    for ( moris::uint iV = 0; iV < this->get_num_nodes(); iV++ )
+    {
+        tStringStream <<this->get_mtk_vertex( (moris_index)iV ).get_id() << ",";
+        mtk::Vertex_Interpolation* tVertexInterp = this->get_mtk_vertex( (moris_index)iV ).get_interpolation( aMeshIndex );
+        Matrix< IdMat >            tBasisIds     = tVertexInterp->get_ids();
+        const Matrix< DDRMat >*    tBasisWeights = tVertexInterp->get_weights();
+
+        tStringStream <<tBasisIds.numel() << ",";
+        MORIS_ASSERT(tBasisIds.numel() == tBasisWeights->numel(),"Size mismatch");
+
+        for(moris::uint iB = 0; iB < tBasisIds.numel(); iB++)
+        {
+            tStringStream<<std::to_string(tBasisIds(iB)) << ",";
+
+            tStringStream<<(*tBasisWeights)(iB);
+            if(iB != tBasisIds.numel() - 1)
+            {
+                tStringStream << ",";
+            }
+        }
+
+        // maybe a t-matrix isn't needed on this proc in this case we have no data in the vertex enrichment data
+        if(tBasisIds.numel() == 0)
+        {
+            tStringStream<<std::to_string(MORIS_INDEX_MAX) << ",";
+            tStringStream<<std::numeric_limits<moris::real>::quiet_NaN();
+        }
+
+
+        tStringStream<<"\n";
+       
+    }
+
+    if ( aFileName.empty() == false )
+    {
+        std::ofstream tOutputFile( aFileName );
+        tOutputFile << tStringStream.str() << std::endl;
+        tOutputFile.close();
+    }
+    
 }
 
 void
@@ -1579,7 +1671,6 @@ void
 Enriched_Interpolation_Mesh::finalize_setup()
 {
     this->setup_local_to_global_maps();
-    this->setup_not_owned_vertices();
     this->setup_vertex_to_bulk_phase();
     this->setup_basis_ownership();
     this->setup_basis_to_bulk_phase();
@@ -1680,8 +1771,9 @@ Enriched_Interpolation_Mesh::setup_vertex_to_bulk_phase()
 
     // size member data
     mVertexBulkPhase.resize( 1, tNumVertices );
-
-    mVertexBulkPhase.fill( MORIS_INDEX_MAX );
+    mVertexBulkPhase.fill(MORIS_INDEX_MAX);
+    mVertexMaxSubphase.resize( 1, tNumVertices );
+    mVertexMaxSubphase.fill(-1);
 
     Cell< Interpolation_Cell_Unzipped* > const& tEnrIpCells = this->get_enriched_interpolation_cells();
 
@@ -1693,6 +1785,9 @@ Enriched_Interpolation_Mesh::setup_vertex_to_bulk_phase()
     {
         moris::Cell< xtk::Interpolation_Vertex_Unzipped* > const& tVertices = tEnrIpCells( i )->get_xtk_interpolation_vertices();
 
+        moris_index const tSubphaseIndex = tEnrIpCells( i )->get_subphase_index();
+        moris_index const tSubphaseId = mXTKModel->get_cut_integration_mesh()->get_subphase_id(tSubphaseIndex);
+
         for ( moris::size_t iV = 0; iV < tVertices.size(); iV++ )
         {
             moris_index tVertexIndex = tVertices( iV )->get_index();
@@ -1700,6 +1795,11 @@ Enriched_Interpolation_Mesh::setup_vertex_to_bulk_phase()
             if ( mVertexBulkPhase( tVertexIndex ) == MORIS_INDEX_MAX )
             {
                 mVertexBulkPhase( tVertexIndex ) = tEnrIpCells( i )->get_bulkphase_index();
+            }
+
+            if(tSubphaseId > mVertexMaxSubphase(tVertexIndex))
+            {
+                mVertexMaxSubphase(tVertexIndex) = tSubphaseId;
             }
 
             else
@@ -1815,28 +1915,9 @@ Enriched_Interpolation_Mesh::setup_local_to_global_maps()
 
     this->setup_basis_maps();
 
-    //        this->assign_ip_vertex_ids();
+    this->assign_ip_vertex_ids();
 
     this->setup_vertex_maps();
-}
-
-// ----------------------------------------------------------------------------
-
-void
-Enriched_Interpolation_Mesh::setup_not_owned_vertices()
-{
-    // my proc rank
-    moris_index tMyProc = par_rank();
-
-    for ( moris::uint iV = 0; iV < this->get_num_entities( EntityRank::NODE ); iV++ )
-    {
-        moris::mtk::Vertex& tVert = this->get_mtk_vertex( (moris_index)iV );
-
-        if ( tVert.get_owner() == tMyProc )
-        {
-            mNotOwnedVerts.push_back( tVert.get_index() );
-        }
-    }
 }
 
 // ----------------------------------------------------------------------------
@@ -1854,7 +1935,7 @@ Enriched_Interpolation_Mesh::assign_ip_vertex_ids()
     Cell< uint >         tProcRanks;
 
     std::unordered_map< moris_id, moris_id > tProcRankToDataIndex;
-
+    std::cout<<" sort_ip_vertices_by_owned_and_not_owned"<<std::endl;
     this->sort_ip_vertices_by_owned_and_not_owned(
         tOwnedVertices,
         tNotOwnedVertices,
@@ -1862,15 +1943,19 @@ Enriched_Interpolation_Mesh::assign_ip_vertex_ids()
         tProcRanks,
         tProcRankToDataIndex );
 
-    moris::moris_id tVertexId = this->allocate_entity_ids( tOwnedVertices.size(), EntityRank::NODE );
+    std::cout<<" allocate_entity_ids"<<std::endl;
+    moris::moris_id tVertexId = this->allocate_entity_ids( tOwnedVertices.size(), EntityRank::NODE, true );
+    MORIS_LOG_SPEC("First IP Vertex Id ", tVertexId);
 
+
+std::cout<<" assign_owned_ip_vertex_ids"<<std::endl;
     // Assign owned request identifiers
     this->assign_owned_ip_vertex_ids( tOwnedVertices, tVertexId );
 
     // prepare node information request data
     Cell< Matrix< IndexMat > > tOutwardBaseVertexIds;
     Cell< Matrix< IndexMat > > tOutwardIpCellIds;
-
+std::cout<<" setup_outward_ip_vertex_requests"<<std::endl;
     this->setup_outward_ip_vertex_requests(
         tNotOwnedVertices,
         tNotOwnedIpCells,
@@ -1878,7 +1963,7 @@ Enriched_Interpolation_Mesh::assign_ip_vertex_ids()
         tProcRankToDataIndex,
         tOutwardBaseVertexIds,
         tOutwardIpCellIds );
-
+std::cout<<" send_outward_requests"<<std::endl;
     // send requests to owning processor
     mXTKModel->send_outward_requests( tTag, tProcRanks, tOutwardBaseVertexIds );
     mXTKModel->send_outward_requests( tTag + 1, tProcRanks, tOutwardIpCellIds );
@@ -1890,9 +1975,10 @@ Enriched_Interpolation_Mesh::assign_ip_vertex_ids()
     Cell< Matrix< IndexMat > > tReceivedBaseVertexIds;
     Cell< Matrix< IndexMat > > tReceivedIpCellIds;
 
+
     Cell< uint > tProcsReceivedFrom1;
     Cell< uint > tProcsReceivedFrom2;
-
+std::cout<<" inward_receive_requests"<<std::endl;
     mXTKModel->inward_receive_requests(
         tTag, 1, tReceivedBaseVertexIds, tProcsReceivedFrom1 );
 
@@ -1902,6 +1988,7 @@ Enriched_Interpolation_Mesh::assign_ip_vertex_ids()
     MORIS_ASSERT( tProcsReceivedFrom1.size() == tProcsReceivedFrom2.size(),
         "Size mismatch between procs received from child cell ids and number of child cells" );
 
+std::cout<<" prepare_ip_vertex_id_answers"<<std::endl;
     Cell< Matrix< IndexMat > > tVertexIdsAnswers;
     this->prepare_ip_vertex_id_answers( tReceivedBaseVertexIds, tReceivedIpCellIds, tVertexIdsAnswers );
 
@@ -1911,9 +1998,19 @@ Enriched_Interpolation_Mesh::assign_ip_vertex_ids()
     // receive the information
     barrier();
 
+std::cout<<" inward_receive_request_answers"<<std::endl;
     // receive the answers
     Cell< Matrix< IndexMat > > tReceivedVertexIds;
+
     mXTKModel->inward_receive_request_answers( tTag + 2, 1, tProcRanks, tReceivedVertexIds );
+std::cout<<" handle_received_ip_vertex_ids"<<std::endl;
+
+for(moris::uint iP = 0; iP < tReceivedVertexIds.size(); iP++)
+{
+
+    MORIS_LOG_SPEC("Min IP Vertex ID from " + std::to_string(tProcRanks(iP)), tReceivedVertexIds(iP).min());
+    MORIS_LOG_SPEC("Max IP Vertex ID from " + std::to_string(tProcRanks(iP)), tReceivedVertexIds(iP).max());
+}
 
     // add child cell ids to not owned child meshes
     this->handle_received_ip_vertex_ids( tNotOwnedVertices, tReceivedVertexIds );
@@ -2131,8 +2228,297 @@ Enriched_Interpolation_Mesh::handle_received_ip_vertex_ids(
         }
     }
 }
-
 // ----------------------------------------------------------------------------
+void
+Enriched_Interpolation_Mesh::communicate_select_vertex_interpolation(
+    moris::Cell< mtk::Vertex* > & aVerticesToCommunicate )
+{
+    Matrix< IndexMat >                             tCommTable = this->get_communication_table();
+    std::unordered_map< moris_index, moris_index > tCommMap;
+    Cell< uint > tProcs(tCommTable.numel());
+    for ( moris::uint i = 0; i < tCommTable.numel(); i++ )
+    {
+        tCommMap[tCommTable( i )] = i;
+        tProcs(i) = tCommTable(i);
+    }
+
+    Cell< moris::uint > tCounts( tCommTable.numel() );
+    for ( const auto& iVert : aVerticesToCommunicate )
+    {
+        MORIS_ASSERT( iVert->get_owner() != moris::par_rank(), "Requested communication of vertex that current proc owns" );
+        tCounts( tCommMap[iVert->get_owner()] )++;
+    }
+
+    // size the request data
+    Cell< Matrix< IndexMat > > tVertexIdsToProcs( tCommTable.numel() );
+    for ( moris::uint iProcs = 0; iProcs < tCommTable.numel(); iProcs++ )
+    {
+        tVertexIdsToProcs( iProcs ).resize( 1, tCounts( iProcs ) );
+        if ( tCounts( iProcs ) == 0 )
+        {
+            tVertexIdsToProcs( iProcs ).resize( 1, 1 );
+        }
+        tVertexIdsToProcs( iProcs ).fill( MORIS_INDEX_MAX );
+    }
+
+    Cell< moris::uint > tCurrentCounts( tCommTable.numel(), 0 );
+
+    // iterate through vertices
+    for ( const auto& iVert : aVerticesToCommunicate )
+    {
+        const moris_index tProcOrd              = tCommMap[iVert->get_owner()];
+        const moris::uint tCount                = tCurrentCounts( tProcOrd );
+        tVertexIdsToProcs( tProcOrd )( tCount ) = iVert->get_id();
+        tCurrentCounts( tProcOrd )++;
+    }
+
+    for ( moris::uint iMeshIndex = 0; iMeshIndex < mMeshIndices.numel(); iMeshIndex++ )
+    {
+        // current mesh index
+        moris_index tMeshIndex = mMeshIndices( iMeshIndex );
+
+        moris::uint tMPITag = 5001;
+
+        // send the ip vertex id
+        mXTKModel->send_outward_requests( tMPITag, tProcs, tVertexIdsToProcs );
+
+        Cell< Matrix< IndexMat > > tReceivedVertexIds;
+        Cell< uint >               tProcsReceivedFrom;
+        mXTKModel->inward_receive_requests( tMPITag, 1, tReceivedVertexIds, tProcsReceivedFrom );
+
+        // prepare the t-matrices for sending
+        Cell< Matrix< DDRMat > >   tTMatrixWeights;
+        Cell< Matrix< IndexMat > > tTMatrixIndices;
+        Cell< Matrix< IndexMat > > tTMatrixOwners;
+        Cell< Matrix< IndexMat > > tTMatrixOffsets;
+        this->prepare_t_matrix_request_answers(
+            tMeshIndex,
+            tReceivedVertexIds,
+            tTMatrixWeights,
+            tTMatrixIndices,
+            tTMatrixOwners,
+            tTMatrixOffsets );
+
+        // send information
+        mXTKModel->return_request_answers_reals( tMPITag + 3, tTMatrixWeights, tProcsReceivedFrom );
+        mXTKModel->return_request_answers( tMPITag + 4, tTMatrixIndices, tProcsReceivedFrom );
+        mXTKModel->return_request_answers( tMPITag + 5, tTMatrixOwners, tProcsReceivedFrom );
+        mXTKModel->return_request_answers( tMPITag + 6, tTMatrixOffsets, tProcsReceivedFrom );
+
+        // wait
+        barrier();
+
+        // receive
+        Cell< Matrix< DDRMat > >   tRequestedTMatrixWeights;
+        Cell< Matrix< IndexMat > > tRequestedTMatrixIndices;
+        Cell< Matrix< IndexMat > > tRequestedTMatrixOwners;
+        Cell< Matrix< IndexMat > > tRequestedTMatrixOffsets;
+
+        // receive the answers
+        mXTKModel->inward_receive_request_answers_reals( tMPITag + 3, 1, tProcs, tRequestedTMatrixWeights );
+        mXTKModel->inward_receive_request_answers( tMPITag + 4, 1, tProcs, tRequestedTMatrixIndices );
+        mXTKModel->inward_receive_request_answers( tMPITag + 5, 1, tProcs, tRequestedTMatrixOwners );
+        mXTKModel->inward_receive_request_answers( tMPITag + 6, 1, tProcs, tRequestedTMatrixOffsets );
+
+        barrier();
+
+        // commit it to my data
+        this->handle_received_interpolation_data( tMeshIndex, tVertexIdsToProcs,  tRequestedTMatrixWeights, tRequestedTMatrixIndices, tRequestedTMatrixOwners, tRequestedTMatrixOffsets );
+
+        //wait
+        barrier();
+    }
+
+}
+
+void
+Enriched_Interpolation_Mesh::prepare_t_matrix_request_answers(
+    moris_index const & aMeshIndex,
+    Cell< Matrix< IndexMat > > const& aRequestedEnrIPVertexIds,
+    Cell< Matrix< DDRMat > >&                   aTMatrixWeights,
+    Cell< Matrix< IndexMat > >&                 aTMatrixIndices,
+    Cell< Matrix< IndexMat > >&                 aBasisOwners,
+    Cell< Matrix< IndexMat > >&                 aTMatrixOffsets )
+{
+
+    // information about size of interpolation mats
+    Cell< uint > tSizes( aRequestedEnrIPVertexIds.size(), 0 );
+
+    //resize the input data
+    aTMatrixWeights.resize( aRequestedEnrIPVertexIds.size() );
+    aTMatrixIndices.resize( aRequestedEnrIPVertexIds.size() );
+    aBasisOwners.resize( aRequestedEnrIPVertexIds.size() );
+    aTMatrixOffsets.resize( aRequestedEnrIPVertexIds.size() );
+
+    // collect the vertex interpolations
+    Cell< Cell< Vertex_Enrichment* > > tVertexInterpolations( aRequestedEnrIPVertexIds.size() );
+
+    // collect size information throughout loop
+    Cell< moris_index > tDataSizes( aRequestedEnrIPVertexIds.size(), 0 );
+
+    // iterate through and figure out how big to make the weights and indices mats
+    // also collect vertex interpolations
+    for ( moris::uint iP = 0; iP < aRequestedEnrIPVertexIds.size(); iP++ )
+    {
+        // no information requested prepare a dummy response
+        if ( aRequestedEnrIPVertexIds( iP ).numel() == 1 and aRequestedEnrIPVertexIds( iP )( 0 ) == MORIS_INDEX_MAX )
+        {
+            aTMatrixWeights( iP ).resize( 1, 1 );
+            aTMatrixIndices( iP ).resize( 1, 1 );
+            aBasisOwners( iP ).resize( 1, 1 );
+
+            aTMatrixWeights( iP )( 0 ) = MORIS_REAL_MAX;
+            aTMatrixIndices( iP )( 0 ) = MORIS_INDEX_MAX;
+            aBasisOwners( iP )( 0 )    = MORIS_INDEX_MAX;
+            continue;
+        }
+
+        // size the tmatrix offset for each vertex requested (num verts +1)
+        aTMatrixOffsets( iP ).resize( 1, aRequestedEnrIPVertexIds( iP ).numel() + 1 );
+
+        // set the first one to 0
+        aTMatrixOffsets( iP )( 0 ) = 0;
+
+        // iterate through the vertices and get their interpolations and figure out
+        // how big it is
+        for ( moris::uint iV = 0; iV < aRequestedEnrIPVertexIds( iP ).numel(); iV++ )
+        {
+
+            moris_index tVertexIndex = this->get_loc_entity_ind_from_entity_glb_id(aRequestedEnrIPVertexIds( iP )(iV),EntityRank::NODE);
+
+            Interpolation_Vertex_Unzipped* tVertex = this->get_unzipped_vertex_pointer( tVertexIndex );
+
+            MORIS_ERROR(tVertex->get_id() == aRequestedEnrIPVertexIds( iP )(iV),"ID Mismatch");
+            MORIS_ERROR(tVertex->get_owner() == par_rank(),"Must be a vertex ownership issue.");
+
+            // get the vertex interpolation
+            Vertex_Enrichment* tVertexInterp = tVertex->get_xtk_interpolation( aMeshIndex );
+
+            MORIS_ASSERT( tVertexInterp->get_base_vertex_interpolation() != nullptr, "Owning proc has a nullptr for the vertex interpolation." );
+
+            tVertexInterpolations( iP ).push_back( tVertexInterp );
+
+            // number of basis functions interpolating into this vertex
+            moris_index tNumBasis = tVertexInterp->get_basis_indices().numel();
+
+            // offsets
+            aTMatrixOffsets( iP )( iV + 1 ) = aTMatrixOffsets( iP )( iV ) + tNumBasis;
+
+            // add to size
+            tDataSizes( iP ) = tDataSizes( iP ) + tNumBasis;
+        }
+    }
+
+    //  iterate through and size data
+    for ( moris::uint iP = 0; iP < aRequestedEnrIPVertexIds.size(); iP++ )
+    {
+        if ( aRequestedEnrIPVertexIds( iP ).numel() == 1 and aRequestedEnrIPVertexIds( iP )( 0 ) == MORIS_INDEX_MAX )
+        {
+            continue;
+        }
+
+        aTMatrixWeights( iP ).resize( 1, tDataSizes( iP ) );
+        aTMatrixIndices( iP ).resize( 1, tDataSizes( iP ) );
+        aBasisOwners( iP ).resize( 1, tDataSizes( iP ) );
+    }
+
+    // populate the data
+    for ( moris::uint iP = 0; iP < aRequestedEnrIPVertexIds.size(); iP++ )
+    {
+
+        if ( aRequestedEnrIPVertexIds( iP ).numel() == 1 and aRequestedEnrIPVertexIds( iP )( 0 ) == MORIS_INDEX_MAX )
+        {
+            aTMatrixOffsets( iP ).resize( 1, 1 );
+            aTMatrixOffsets( iP )( 0 ) = MORIS_INDEX_MAX;
+            continue;
+        }
+
+        moris::uint tCount = 0;
+
+        for ( moris::uint iV = 0; iV < tVertexInterpolations( iP ).size(); iV++ )
+        {
+            this->add_vertex_interpolation_to_communication_data(
+                tCount,
+                tVertexInterpolations( iP )( iV ),
+                aTMatrixWeights( iP ),
+                aTMatrixIndices( iP ),
+                aBasisOwners( iP ),
+                aTMatrixOffsets( iP ) );
+        }
+    }
+}
+
+void
+Enriched_Interpolation_Mesh::add_vertex_interpolation_to_communication_data(
+    moris::uint&        aCount,
+    Vertex_Enrichment*  aInterpolation,
+    Matrix< DDRMat >&   aTMatrixWeights,
+    Matrix< IndexMat >& aTMatrixIndices,
+    Matrix< IndexMat >& aTMatrixOwners,
+    Matrix< IndexMat >& aTMatrixOffsets )
+{
+    // access the basis indices and weights
+    moris::Matrix< moris::IndexMat > const& tBasisIndices = aInterpolation->get_basis_ids();
+    moris::Matrix< moris::DDRMat > const&   tBasisWeights = aInterpolation->get_basis_weights();
+    moris::Matrix< moris::IndexMat >        tBasisOwners  = aInterpolation->get_owners();
+
+    for ( moris::uint i = 0; i < tBasisIndices.numel(); i++ )
+    {
+        aTMatrixIndices( aCount ) = tBasisIndices( i );
+        aTMatrixWeights( aCount ) = tBasisWeights( i );
+
+        MORIS_ASSERT( tBasisOwners( i ) < par_size() || tBasisOwners( i ) > 0, "Bad ownership for basis function." );
+
+        aTMatrixOwners( aCount ) = tBasisOwners( i );
+        aCount++;
+    }
+}
+
+// ----------------------------------------------------------------------------------
+
+void
+Enriched_Interpolation_Mesh::extract_vertex_interpolation_from_communication_data(
+    moris::uint const&          aNumVerts,
+    Matrix< DDRMat > const&     aTMatrixWeights,
+    Matrix< IndexMat > const&   aTMatrixIndices,
+    Matrix< IndexMat > const&   aTMatrixOwners,
+    Matrix< IndexMat > const&   aTMatrixOffsets,
+    Cell< Matrix< DDRMat > >&   aExtractedTMatrixWeights,
+    Cell< Matrix< IndexMat > >& aExtractedTMatrixIndices,
+    Cell< Matrix< IndexMat > >& aExtractedBasisOwners )
+{
+
+    // size output data
+    aExtractedTMatrixWeights.resize( aNumVerts );
+    aExtractedTMatrixIndices.resize( aNumVerts );
+    aExtractedBasisOwners.resize( aNumVerts );
+
+    // current starting index
+    moris_index tStart = 0;
+
+    // extract the data into the cells
+    for ( moris::uint iV = 0; iV < aNumVerts; iV++ )
+    {
+        // number of basis interpolating into the vertex
+        moris::moris_index tNumBasis = aTMatrixOffsets( iV + 1 ) - tStart;
+
+        aExtractedTMatrixWeights( iV ).resize( tNumBasis, 1 );
+        aExtractedTMatrixIndices( iV ).resize( tNumBasis, 1 );
+        aExtractedBasisOwners( iV ).resize( 1, tNumBasis );
+
+        // itere and grab  data
+        for ( moris::moris_index iIp = 0; iIp < tNumBasis; iIp++ )
+        {
+            aExtractedTMatrixWeights( iV )( iIp ) = aTMatrixWeights( tStart + iIp );
+            aExtractedTMatrixIndices( iV )( iIp ) = aTMatrixIndices( tStart + iIp );
+            aExtractedBasisOwners( iV )( iIp )    = aTMatrixOwners( tStart + iIp );
+        }
+
+        tStart = aTMatrixOffsets( iV + 1 );
+    }
+}
+// ----------------------------------------------------------------------------
+
 
 void
 Enriched_Interpolation_Mesh::setup_basis_ownership()
@@ -2171,6 +2557,129 @@ Enriched_Interpolation_Mesh::setup_basis_ownership()
         }
     }
 }
+
+void
+Enriched_Interpolation_Mesh::handle_received_interpolation_data(
+    moris_index const&                aMeshIndex,
+    Cell< Matrix< IndexMat > > const& aVertexIdsToProc,
+    Cell< Matrix< DDRMat > >   const& aRequestedTMatrixWeights,
+    Cell< Matrix< IndexMat > > const& aRequestedTMatrixIndices,
+    Cell< Matrix< IndexMat > > const& aRequestedBasisOwners,
+    Cell< Matrix< IndexMat > > const& aRequestedTMatrixOffsets )
+{
+    // access the communication
+    Matrix< IdMat > tCommTable = this->get_communication_table();
+
+    std::unordered_map< moris_id, moris_id > tProcRankToIndexInData;
+
+    moris::uint tCount = tCommTable.numel();
+
+
+    // resize proc ranks and setup map to comm table
+    for ( moris::uint i = 0; i < tCommTable.numel(); i++ )
+    {
+        tProcRankToIndexInData[tCommTable( i )] = i;
+    }
+
+    // iterate through returned information
+    for ( moris::uint iP = 0; iP < aVertexIdsToProc.size(); iP++ )
+    {
+
+        MORIS_LOG_SPEC("aVertexIdsToProc(iP).numel() on " + std::to_string(par_rank()), aVertexIdsToProc(iP).numel());
+        if ( aVertexIdsToProc( iP ).numel() == 1 and aVertexIdsToProc( iP )( 0 ) == MORIS_INDEX_MAX )
+        {
+            // do nothing for this iP
+        }
+
+        // standard case
+        else
+        {
+
+            // extract the t-matrices and basis ids/owners for the proc ip
+            Cell< Matrix< DDRMat > >   tExtractedTMatrixWeights;
+            Cell< Matrix< IndexMat > > tExtractedTMatrixIds;
+            Cell< Matrix< IndexMat > > tExtractedTBasisOwners;
+
+            this->extract_vertex_interpolation_from_communication_data(
+                aVertexIdsToProc( iP ).numel(),
+                aRequestedTMatrixWeights( iP ),
+                aRequestedTMatrixIndices( iP ),
+                aRequestedBasisOwners( iP ),
+                aRequestedTMatrixOffsets( iP ),
+                tExtractedTMatrixWeights,
+                tExtractedTMatrixIds,
+                tExtractedTBasisOwners );
+
+            // verify consistent sizes
+            MORIS_ASSERT( aVertexIdsToProc( iP ).numel() == tExtractedTMatrixWeights.size(), "Size mismatch in t-matrix weights." );
+            MORIS_ASSERT( aVertexIdsToProc( iP ).numel() == tExtractedTMatrixIds.size(), "Size mismatch in t-matrix ids." );
+            MORIS_ASSERT( aVertexIdsToProc( iP ).numel() == tExtractedTBasisOwners.size(), "Size mismatch in basis owners." );
+
+            // iterate through vertices and set their interpolation weights and basis ids
+            for ( moris::uint iV = 0; iV < aVertexIdsToProc( iP ).numel(); iV++ )
+            {
+                // get the vertex
+                moris_index tVertexIndex = this->get_loc_entity_ind_from_entity_glb_id(aVertexIdsToProc( iP )( iV ),EntityRank::NODE);
+
+                Interpolation_Vertex_Unzipped& tVertex = this->get_xtk_interp_vertex( tVertexIndex );
+
+                // get the enriched vertex interpolation
+                Vertex_Enrichment* tVertexInterp = tVertex.get_xtk_interpolation( aMeshIndex );
+
+                // iterate through basis functions and find local indices
+                moris::Matrix< IndexMat > tBasisIndices( tExtractedTMatrixIds( iV ).n_rows(), tExtractedTMatrixIds( iV ).n_cols() );
+
+                for ( moris::uint iBs = 0; iBs < tExtractedTMatrixIds( iV ).numel(); iBs++ )
+                {
+                    // basis id
+                    moris_id tId = tExtractedTMatrixIds( iV )( iBs );
+
+                    // add this basis to the mesh if it doesnt exists on the current partition
+                    if ( !this->basis_exists_on_partition( aMeshIndex, tId ) )
+                    {
+                        MORIS_ASSERT( tExtractedTBasisOwners( iV )( iBs ) != par_rank(), "Owned basis should already exist on partition." );
+
+                        this->add_basis_function( aMeshIndex, tId, tExtractedTBasisOwners( iV )( iBs ), MORIS_INDEX_MAX );
+                    }
+
+                    tBasisIndices( iBs ) = this->get_enr_basis_index_from_enr_basis_id( aMeshIndex, tId );
+
+                    moris_id tBasisOwner = tExtractedTBasisOwners( iV )( iBs );
+
+                    MORIS_ASSERT( this->get_basis_owner( tBasisIndices( iBs ), aMeshIndex ) == tBasisOwner, "Ownership discrepency." );
+
+                    // if the basis has an owning proc that is not in the comm table, add it to the comm table
+                    if ( tProcRankToIndexInData.find( tBasisOwner ) == tProcRankToIndexInData.end() && tBasisOwner != par_rank() )
+                    {
+                        this->add_proc_to_comm_table( tBasisOwner );
+                        tProcRankToIndexInData[tBasisOwner] = tCount;
+                        tCount++;
+                    }
+                }
+
+                // iterate through basis in the base vertex interpolation
+                moris::uint tNumCoeffs = tExtractedTMatrixIds( iV ).numel();
+
+                // Setup the map in the basis function
+                std::unordered_map< moris::moris_index, moris::moris_index >& tVertEnrichMap = tVertexInterp->get_basis_map();
+
+                for ( moris::uint iB = 0; iB < tNumCoeffs; iB++ )
+                {
+                    moris::moris_index tBasisIndex = tBasisIndices( iB );
+
+                    tVertEnrichMap[tBasisIndex] = iB;
+                }
+
+                // get the basis indices from the basis ids
+                tVertexInterp->add_basis_information( tBasisIndices, tExtractedTMatrixIds( iV ) );
+                tVertexInterp->add_basis_weights( tBasisIndices, tExtractedTMatrixWeights( iV ) );
+                tVertexInterp->add_basis_owners( tBasisIndices, tExtractedTBasisOwners( iV ) );
+                tVertexInterp->add_base_vertex_interpolation( nullptr );// base vertex interpolation does not exists (other  proc)
+            }
+        }
+    }
+}
+
 
 // ----------------------------------------------------------------------------
 
@@ -2266,12 +2775,18 @@ Enriched_Interpolation_Mesh::setup_mesh_index_map()
 moris_id
 Enriched_Interpolation_Mesh::allocate_entity_ids(
     moris::size_t   aNumReqs,
-    enum EntityRank aEntityRank )
+    enum EntityRank aEntityRank,
+    bool            aStartFresh )
 {
     MORIS_ASSERT( aEntityRank == EntityRank::NODE || aEntityRank == EntityRank::ELEMENT,
         "Only Elements or Nodes have ids" );
 
-    moris_id tGlobalMax = this->get_max_entity_id( aEntityRank );
+    moris_id tGlobalMax = 1;
+    if(!aStartFresh)
+    {
+        this->get_max_entity_id( aEntityRank );
+    }
+        
 
     int tProcRank = par_rank();
     int tProcSize = par_size();

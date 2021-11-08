@@ -187,6 +187,15 @@ class Enrichment
 
     // ----------------------------------------------------------------------------------
 
+    void
+    write_diagnostics();
+
+    void
+    print_enriched_basis_to_subphase_id(
+        const moris_index & aMeshIndex,
+        std::string aFileName);
+
+
     typedef std::unordered_map< moris::moris_index, moris::moris_index > IndexMap;
     friend class Multigrid;
 

@@ -78,21 +78,14 @@ class Enriched_Interpolation_Mesh : public mtk::Interpolation_Mesh
     moris::Matrix< DDRMat > get_fine_basis_weights_of_basis( const moris_index aInterpolationIndex, const moris_index aBasisIndex );
 
     //------------------------------------------------------------------------------
-    // MTK Interpolation Mesh Impl
-    // see base class mtk::Interpolation_Mesh for function descriptions
-    //------------------------------------------------------------------------------
-    // PLACEHOLDER
-    //------------------------------------------------------------------------------
-    // end interpolation mesh functions
-    //------------------------------------------------------------------------------
-    //------------------------------------------------------------------------------
     // Accessor functions of XTK specific data structures
     //------------------------------------------------------------------------------
     /*!
      * Get the enriched interpolation coefficients associated with a background coefficient
      */
     Matrix< IndexMat > const&
-    get_enriched_coefficients_at_background_coefficient( moris_index const& aMeshIndex,
+    get_enriched_coefficients_at_background_coefficient( 
+        moris_index const& aMeshIndex,
         moris_index                                                         aBackgroundCoeffIndex ) const;
     //------------------------------------------------------------------------------
     /*!
@@ -114,7 +107,7 @@ class Enriched_Interpolation_Mesh : public mtk::Interpolation_Mesh
     get_background_coefficient_local_to_global_map() const;
     //------------------------------------------------------------------------------
     uint
-    get_num_background_coefficients(moris_index const & aMeshIndex) const;
+    get_num_background_coefficients( moris_index const& aMeshIndex ) const;
 
     /*!
      * Returns the number of vertices per interpolation cell
@@ -240,8 +233,9 @@ class Enriched_Interpolation_Mesh : public mtk::Interpolation_Mesh
 
     // Print functions
     void write_diagnostics();
-    void print_enriched_cells(std::string aFile );
-    void print_enriched_verts(std::string aFile );
+    void print_enriched_cells( std::string aFile );
+    void print_enriched_verts( std::string aFile );
+    void print_enriched_verts_interpolation(const moris_index & aMeshIndex, std::string aFileName);
     void print_vertex_maps() const;
     void print_enriched_cell_maps() const;
     void print_basis_to_enriched_basis() const;
@@ -251,9 +245,10 @@ class Enriched_Interpolation_Mesh : public mtk::Interpolation_Mesh
 
     // verification functions
     bool
-    verify_basis_interpolating_into_cluster( mtk::Cluster const& aCluster,
-        moris_index const&                                       aMeshIndex,
-        const mtk::Master_Slave                                  aIsMaster = mtk::Master_Slave::MASTER );
+    verify_basis_interpolating_into_cluster(
+        mtk::Cluster const&     aCluster,
+        moris_index const&      aMeshIndex,
+        const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
 
     // friend class
@@ -293,6 +288,7 @@ class Enriched_Interpolation_Mesh : public mtk::Interpolation_Mesh
 
     // Bulk phase of each interpolation vertex
     Matrix< IndexMat > mVertexBulkPhase;
+    Matrix< IndexMat > mVertexMaxSubphase;
 
 
     // basis coefficient to enriched basis coefficient
@@ -447,10 +443,61 @@ class Enriched_Interpolation_Mesh : public mtk::Interpolation_Mesh
         Cell< Cell< uint > > const&       aNotOwnedVertices,
         Cell< Matrix< IndexMat > > const& aReceivedVertexIds );
 
+    /**
+     * @brief This function communicates select vertex t-matrices
+     * 
+     * @param aVerticesToCommunicate 
+     */
+    void
+    communicate_select_vertex_interpolation(
+        moris::Cell< mtk::Vertex* >  & aVerticesToCommunicate);
+
+
+    void
+    prepare_t_matrix_request_answers(
+        moris_index const&                aMeshIndex,
+        Cell< Matrix< IndexMat > > const& aRequestedEnrIPVertexIds,
+        Cell< Matrix< DDRMat > >&         aTMatrixWeights,
+        Cell< Matrix< IndexMat > >&       aTMatrixIndices,
+        Cell< Matrix< IndexMat > >&       aBasisOwners,
+        Cell< Matrix< IndexMat > >&       aTMatrixOffsets );
+
+    void
+    add_vertex_interpolation_to_communication_data(
+        moris::uint&        aCount,
+        Vertex_Enrichment*  aInterpolation,
+        Matrix< DDRMat >&   aTMatrixWeights,
+        Matrix< IndexMat >& aTMatrixIndices,
+        Matrix< IndexMat >& aTMatrixOwners,
+        Matrix< IndexMat >& aTMatrixOffsets );
+
+    void
+    handle_received_interpolation_data(
+        moris_index const&                aMeshIndex,
+        Cell< Matrix< IndexMat > > const& aVertexIdsToProc,
+        Cell< Matrix< DDRMat > > const&   aRequestedTMatrixWeights,
+        Cell< Matrix< IndexMat > > const& aRequestedTMatrixIndices,
+        Cell< Matrix< IndexMat > > const& aRequestedBasisOwners,
+        Cell< Matrix< IndexMat > > const& aRequestedTMatrixOffsets );
+
+        void
+extract_vertex_interpolation_from_communication_data(
+    moris::uint const&          aNumVerts,
+    Matrix< DDRMat > const&     aTMatrixWeights,
+    Matrix< IndexMat > const&   aTMatrixIndices,
+    Matrix< IndexMat > const&   aTMatrixOwners,
+    Matrix< IndexMat > const&   aTMatrixOffsets,
+    Cell< Matrix< DDRMat > >&   aExtractedTMatrixWeights,
+    Cell< Matrix< IndexMat > >& aExtractedTMatrixIndices,
+    Cell< Matrix< IndexMat > >& aExtractedBasisOwners );
+
     //------------------------------------------------------------------------------
     // Parallel functions
     //------------------------------------------------------------------------------
-    moris_id allocate_entity_ids( moris::size_t aNumReqs, enum EntityRank aEntityRank );
+    moris_id allocate_entity_ids( 
+        moris::size_t aNumReqs, 
+        enum EntityRank aEntityRank,
+        bool            aStartFresh );
 };
 
 
