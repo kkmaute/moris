@@ -14,6 +14,7 @@
 
 #include "cl_DLA_Solver_Factory.hpp"
 #include "cl_NLA_Nonlinear_Solver_Factory.hpp"
+#include "cl_NLA_Nonlinear_Algorithm.hpp"
 #include "cl_TSA_Time_Solver_Factory.hpp"
 
 #include "cl_MSI_Dof_Type_Enums.hpp"

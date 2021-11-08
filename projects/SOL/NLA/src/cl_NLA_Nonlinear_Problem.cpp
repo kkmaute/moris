@@ -16,6 +16,7 @@
 #include "cl_DLA_Linear_Problem.hpp"
 #include "cl_SOL_Enums.hpp"
 #include "cl_SOL_Dist_Vector.hpp"
+#include "cl_SOL_Dist_Map.hpp"
 
 #include "cl_Communication_Tools.hpp"
 

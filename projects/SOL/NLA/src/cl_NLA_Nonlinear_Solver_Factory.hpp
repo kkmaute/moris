@@ -4,18 +4,21 @@
  *  Created on: Mar 28, 2018
  *      Author: schmidt
  */
-#include <memory>
-
-#include "cl_NLA_Nonlinear_Algorithm.hpp"
-
 #ifndef SRC_DISTLINALG_CL_NLA_NONLINEAR_SOLVER_FACTORY_HPP_
 #define SRC_DISTLINALG_CL_NLA_NONLINEAR_SOLVER_FACTORY_HPP_
+
+#include <memory>
+
+#include "cl_NLA_Nonlinear_Solver_Enums.hpp"
+
+#include "cl_Param_List.hpp"
 
 namespace moris
 {
 class Solver_Interface;
     namespace NLA
     {
+        class Nonlinear_Algorithm;
         class Nonlinear_Solver_Factory
         {
         private:

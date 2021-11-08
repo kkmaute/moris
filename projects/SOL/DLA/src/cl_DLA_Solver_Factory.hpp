@@ -9,18 +9,22 @@
 
 #include <memory>
 
-#include "cl_DLA_Linear_Solver_Algorithm.hpp"
+#include "cl_SOL_Enums.hpp"
 
-#include "cl_DLA_Linear_Solver_Aztec.hpp"
-#include "cl_DLA_Linear_Solver_Amesos.hpp"
-#include "cl_DLA_Linear_Solver_Amesos2.hpp"
-#include "cl_DLA_Linear_Solver_PETSc.hpp"
+#include "cl_Param_List.hpp"
 
 namespace moris
 {
     class Solver_Interface;
+
+    namespace sol
+    {
+        class SOL_Warehouse;
+        class Dist_Map;
+    }
     namespace dla
     {
+    class Linear_Solver_Algorithm;
     class Linear_Problem;
 
     class Solver_Factory

@@ -24,6 +24,7 @@
 
 #include "cl_SOL_Warehouse.hpp"
 #include "cl_NLA_Nonlinear_Solver.hpp"
+#include "cl_NLA_Nonlinear_Algorithm.hpp"
 #include "cl_NLA_Nonlinear_Solver_Factory.hpp"
 
 #include "cl_DLA_Solver_Factory.hpp"
