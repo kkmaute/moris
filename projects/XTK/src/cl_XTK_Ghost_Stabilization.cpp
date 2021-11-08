@@ -157,7 +157,7 @@ Ghost_Stabilization::construct_ip_ig_cells_for_ghost_side_clusters( Ghost_Setup_
     }
 
     // allocate new interpolation cell ids
-    moris_id tCurrentId = tEnrIpMesh.allocate_entity_ids( tNumNewInterpCellsOwned, EntityRank::ELEMENT );
+    moris_id tCurrentId = tEnrIpMesh.allocate_entity_ids( tNumNewInterpCellsOwned, EntityRank::ELEMENT,false );
 
     // assign new non trivial owned Interp cell Ids
     Cell< moris_id >                         tNewNonTrivialOwnedInterpCellsIds( tNumNewInterpCellsOwned );
