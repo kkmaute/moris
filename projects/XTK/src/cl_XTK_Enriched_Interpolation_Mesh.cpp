@@ -1229,16 +1229,6 @@ Enriched_Interpolation_Mesh::convert_enriched_basis_indices_to_ids(
 void
 Enriched_Interpolation_Mesh::write_diagnostics()
 {
-    moris::Cell< mtk::Vertex* > tVerticesToCommunicate;
-    for(auto & iVert: mEnrichedInterpVerts)
-    {
-        if(iVert->get_owner() != moris::par_rank() )
-        {
-            tVerticesToCommunicate.push_back(iVert);
-        }
-    }
-
-    this->communicate_select_vertex_interpolation(tVerticesToCommunicate);
 
     std::string tCellDiagFile   = mXTKModel->get_diagnostic_file_name( std::string( "Enr_IP_Cells" ) );
     std::string tVertexDiagFile = mXTKModel->get_diagnostic_file_name( std::string( "Enr_IP_Verts" ) );
@@ -1675,6 +1665,18 @@ Enriched_Interpolation_Mesh::finalize_setup()
     this->setup_basis_ownership();
     this->setup_basis_to_bulk_phase();
     MORIS_ERROR( this->verify_basis_support(), "Issue detected in basis support." );// TODO: change to assert once done debugging
+
+
+    moris::Cell< mtk::Vertex* > tVerticesToCommunicate;
+    for(auto & iVert: mEnrichedInterpVerts)
+    {
+        if(iVert->get_owner() != moris::par_rank() )
+        {
+            tVerticesToCommunicate.push_back(iVert);
+        }
+    }
+
+    this->communicate_select_vertex_interpolation(tVerticesToCommunicate);
 }
 
 // ----------------------------------------------------------------------------
@@ -1935,7 +1937,6 @@ Enriched_Interpolation_Mesh::assign_ip_vertex_ids()
     Cell< uint >         tProcRanks;
 
     std::unordered_map< moris_id, moris_id > tProcRankToDataIndex;
-    std::cout<<" sort_ip_vertices_by_owned_and_not_owned"<<std::endl;
     this->sort_ip_vertices_by_owned_and_not_owned(
         tOwnedVertices,
         tNotOwnedVertices,
@@ -1943,19 +1944,15 @@ Enriched_Interpolation_Mesh::assign_ip_vertex_ids()
         tProcRanks,
         tProcRankToDataIndex );
 
-    std::cout<<" allocate_entity_ids"<<std::endl;
     moris::moris_id tVertexId = this->allocate_entity_ids( tOwnedVertices.size(), EntityRank::NODE, true );
-    MORIS_LOG_SPEC("First IP Vertex Id ", tVertexId);
 
 
-std::cout<<" assign_owned_ip_vertex_ids"<<std::endl;
     // Assign owned request identifiers
     this->assign_owned_ip_vertex_ids( tOwnedVertices, tVertexId );
 
     // prepare node information request data
     Cell< Matrix< IndexMat > > tOutwardBaseVertexIds;
     Cell< Matrix< IndexMat > > tOutwardIpCellIds;
-std::cout<<" setup_outward_ip_vertex_requests"<<std::endl;
     this->setup_outward_ip_vertex_requests(
         tNotOwnedVertices,
         tNotOwnedIpCells,
@@ -1963,7 +1960,6 @@ std::cout<<" setup_outward_ip_vertex_requests"<<std::endl;
         tProcRankToDataIndex,
         tOutwardBaseVertexIds,
         tOutwardIpCellIds );
-std::cout<<" send_outward_requests"<<std::endl;
     // send requests to owning processor
     mXTKModel->send_outward_requests( tTag, tProcRanks, tOutwardBaseVertexIds );
     mXTKModel->send_outward_requests( tTag + 1, tProcRanks, tOutwardIpCellIds );
@@ -1978,7 +1974,6 @@ std::cout<<" send_outward_requests"<<std::endl;
 
     Cell< uint > tProcsReceivedFrom1;
     Cell< uint > tProcsReceivedFrom2;
-std::cout<<" inward_receive_requests"<<std::endl;
     mXTKModel->inward_receive_requests(
         tTag, 1, tReceivedBaseVertexIds, tProcsReceivedFrom1 );
 
@@ -1988,7 +1983,6 @@ std::cout<<" inward_receive_requests"<<std::endl;
     MORIS_ASSERT( tProcsReceivedFrom1.size() == tProcsReceivedFrom2.size(),
         "Size mismatch between procs received from child cell ids and number of child cells" );
 
-std::cout<<" prepare_ip_vertex_id_answers"<<std::endl;
     Cell< Matrix< IndexMat > > tVertexIdsAnswers;
     this->prepare_ip_vertex_id_answers( tReceivedBaseVertexIds, tReceivedIpCellIds, tVertexIdsAnswers );
 
