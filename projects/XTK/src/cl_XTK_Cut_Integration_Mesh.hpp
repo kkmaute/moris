@@ -403,6 +403,9 @@ class Cut_Integration_Mesh : public moris::mtk::Mesh
     // face connectivity
     std::shared_ptr< Facet_Based_Connectivity > mIgCellFaceConnectivity;
 
+    // face ancestry
+    std::shared_ptr< Facet_Based_Ancestry > mIgCellFaceAncestry;
+
     // interface facets - indexed based on mIgCellFaceConnectivity facet indices
     moris::Cell< moris_index > mInterfaceFacets;
 
@@ -687,8 +690,14 @@ class Cut_Integration_Mesh : public moris::mtk::Mesh
     void
     set_face_connectivity( std::shared_ptr< Facet_Based_Connectivity > aFaceConnectivity );
     // ----------------------------------------------------------------------------------
+    void
+    set_face_ancestry( std::shared_ptr< Facet_Based_Ancestry > aFaceAncestry );
+    // ----------------------------------------------------------------------------------
     std::shared_ptr< Facet_Based_Connectivity >
     get_face_connectivity();
+    // ----------------------------------------------------------------------------------
+    std::shared_ptr< Facet_Based_Ancestry >
+    get_face_ancestry();
     // ----------------------------------------------------------------------------------
     void
     set_interface_facets( moris::Cell< moris_index >& aInterfaces );
