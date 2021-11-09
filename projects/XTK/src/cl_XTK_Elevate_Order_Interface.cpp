@@ -445,7 +445,7 @@ Elevate_Order_Interface::create_higher_order_integration_cells(
     mNumNewCells = 0;
 
     // gather information needed for new cells from order elevation template
-    moris_index tNumIgCellsInMesh  = aIgCells->size();
+    uint tNumIgCellsInMesh  = aIgCells->size();
     moris_index tNodesPerCell = mElevateOrderTemplate->get_total_ig_verts();
     
     // create cell info for new cells
@@ -470,12 +470,12 @@ Elevate_Order_Interface::create_higher_order_integration_cells(
 
         // fixme: this is the key that's still missing
         // get list of vertices belonging to new cell, sorted in  
-        moris::Cell< moris::mtk::Vertex* >& tSortedVertices = *(tNodesForTemplates)( iCell );
+        // moris::Cell< moris::mtk::Vertex* >& tSortedVertices = *(tNodesForTemplates)( iCell );
 
         // iterate through vertices on new cell, get their indices, and construct the Cell-Vertex-Connectivity map
-        for ( moris::uint iVert = 0; iVert < mElevateOrderTemplate->get_total_ig_verts(); iVert++ )
+        for ( moris_index iVert = 0; iVert < mElevateOrderTemplate->get_total_ig_verts(); iVert++ )
         {
-            mNewCellToVertexConnectivity( iCell )( iVert ) = tSortedVertices( iVert )->get_index();
+            // mNewCellToVertexConnectivity( iCell )( iVert ) = tSortedVertices( iVert )->get_index();
         }
     }
 }
