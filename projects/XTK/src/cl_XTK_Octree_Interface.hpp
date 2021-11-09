@@ -104,25 +104,25 @@ class IJK_Mesh
     Vertex_Ancestry
     get_vertex_parent_entities() const;
 
-    const uint
+    uint
     num_vert_x() const
     {
         return mNumVertX;
     }
 
-    const uint
+    uint
     num_vert_y() const
     {
         return mNumVertY;
     }
 
-    const uint
+    uint
     num_vert_z() const
     {
         return mNumVertZ;
     }
 
-    const uint
+    uint
     num_verts() const
     {
         return mNumVertX * mNumVertY * mNumVertZ;
@@ -148,37 +148,37 @@ class IJK_Mesh
     }
 
 
-    moris::lint const
+    lint
     min_vert_i() const
     {
         return 0;
     }
 
-    moris::lint const
+    lint
     max_vert_i() const
     {
         return this->num_vert_x() - 1;
     }
 
-    moris::lint const
+    lint
     min_vert_j() const
     {
         return 0;
     }
 
-    moris::lint const
+    lint
     max_vert_j() const
     {
         return this->num_vert_y() - 1;
     }
 
-    moris::lint const
+    lint
     min_vert_k() const
     {
         return 0;
     }
 
-    moris::lint const
+    lint
     max_vert_k() const
     {
         return this->num_vert_z() - 1;
@@ -212,31 +212,31 @@ class IJK_Mesh
     }
 
 
-    const uint
+    uint
     num_cell_x() const
     {
         return mNumVertX - 1;
     }
 
-    const uint
+    uint
     num_cell_y() const
     {
         return mNumVertY - 1;
     }
 
-    const uint
+    uint
     num_cell_z() const
     {
         return mNumVertZ - 1;
     }
 
-    const uint
+    uint
     num_cells() const
     {
         return num_cell_x() * num_cell_y() * num_cell_z();
     }
 
-    const uint
+    uint
     num_verts_per_cell() const
     {
         return 8;
@@ -290,7 +290,7 @@ class IJK_Mesh
         return tCellToNode;
     }
 
-    const uint
+    uint
     num_faces() const
     {
         if ( this->num_cells() == 0 )
@@ -307,7 +307,7 @@ class IJK_Mesh
                + ( ( tNumCellsZ + 1 ) * tNumCellsX * tNumCellsY );
     }
 
-    const uint
+    uint
     num_faces_internal() const
     {
         if ( this->num_cells() == 0 )
