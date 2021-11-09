@@ -43,7 +43,9 @@ enum class Subdivision_Method
     C_TRI3,                       // Conformal tri 3 mesh  will be constructed
     NC_OCTREE,
     P_ELEVATE_ORDER_TRI3_TRI6,    // Elevate order (adding nodes) of TRI3 to TRI6 elements
+    P_ELEVATE_ORDER_TRI3_TRI10,   // Elevate order (adding nodes) of TRI3 to TRI10 elements
     P_ELEVATE_ORDER_TET4_TET10,   // Elevate order (adding nodes) of TET4 to TET10 elements
+    P_ELEVATE_ORDER_TET4_TET20,   // Elevate order (adding nodes) of TET4 to TET20 elements
     NO_METHOD
 };
 

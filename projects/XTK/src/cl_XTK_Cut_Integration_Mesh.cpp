@@ -998,17 +998,39 @@ Cut_Integration_Mesh::get_num_entities(
     }
 }
 
+// ----------------------------------------------------------------------------------
+
 std::shared_ptr< Facet_Based_Connectivity >
 Cut_Integration_Mesh::get_face_connectivity()
 {
     return mIgCellFaceConnectivity;
 }
+
 // ----------------------------------------------------------------------------------
+
 void
 Cut_Integration_Mesh::set_face_connectivity( std::shared_ptr< Facet_Based_Connectivity > aFaceConnectivity )
 {
     mIgCellFaceConnectivity = aFaceConnectivity;
 }
+
+// ----------------------------------------------------------------------------------
+
+std::shared_ptr< Facet_Based_Ancestry >
+Cut_Integration_Mesh::get_face_ancestry()
+{
+    return mIgCellFaceAncestry;
+}
+
+// ----------------------------------------------------------------------------------
+
+void
+Cut_Integration_Mesh::set_face_ancestry( std::shared_ptr< Facet_Based_Ancestry > aFaceAncestry )
+{
+    mIgCellFaceAncestry = aFaceAncestry;
+}
+
+// ----------------------------------------------------------------------------------
 
 void
 Cut_Integration_Mesh::set_interface_facets( moris::Cell< moris_index >& aInterfaces )

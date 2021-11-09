@@ -3,6 +3,7 @@
 #include "cl_XTK_Regular_Subdivision_Interface.hpp"
 #include "cl_XTK_Node_Hierarchy_Interface.hpp"
 #include "cl_XTK_Octree_Interface.hpp"
+#include "cl_XTK_Elevate_Order_Interface.hpp"
 
 // free function
 std::shared_ptr<xtk::Decomposition_Algorithm>
@@ -35,11 +36,19 @@ xtk::create_decomposition_algorithm(
     break;
 
 //   case Subdivision_Method::P_ELEVATE_ORDER_TRI3_TRI6:
-//     return std::make_shared<xtk::Elevate_Order_Interface>( aParameterList, CellTopology::TRI3  );
+//     return std::make_shared<xtk::Elevate_Order_Interface>( aParameterList, Subdivision_Method::P_ELEVATE_ORDER_TRI3_TRI6  );
+//     break;
+
+//  case Subdivision_Method::P_ELEVATE_ORDER_TRI3_TRI10:
+//     return std::make_shared<xtk::Elevate_Order_Interface>( aParameterList, Subdivision_Method::P_ELEVATE_ORDER_TRI3_TRI10  );
 //     break;
 
 //   case Subdivision_Method::P_ELEVATE_ORDER_TET4_TET10:
-//     return std::make_shared<xtk::Elevate_Order_Interface>( aParameterList, CellTopology::TET4  );
+//     return std::make_shared<xtk::Elevate_Order_Interface>( aParameterList, Subdivision_Method::P_ELEVATE_ORDER_TET4_TET10  );
+//     break;
+
+//   case Subdivision_Method::P_ELEVATE_ORDER_TET4_TET20:
+//     return std::make_shared<xtk::Elevate_Order_Interface>( aParameterList, Subdivision_Method::P_ELEVATE_ORDER_TET4_TET20  );
 //     break;
 
   default:

@@ -28,6 +28,8 @@ enum class CellTopology
 {
     LINE2,
     TRI3,
+    TRI6,
+    TRI10,
     QUAD4,
     QUAD9,
     QUAD16,

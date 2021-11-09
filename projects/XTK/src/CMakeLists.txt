@@ -40,6 +40,9 @@ set(HEADERS
     cl_XTK_Enums.hpp
     cl_XTK_Integration_Mesh_Generator.hpp
     cl_XTK_Decomposition_Algorithm.hpp
+    cl_XTK_Regular_Subdivision_Interface.hpp
+    cl_XTK_Node_Hierarchy_Interface.hpp
+    cl_XTK_Elevate_Order_Interface.hpp
     cl_XTK_Cut_Integration_Mesh.hpp
     cl_XTK_External_Mesh_Data.hpp
     cl_XTK_Face_Registry.hpp
@@ -131,6 +134,7 @@ cl_XTK_Integration_Mesh_Generator.cpp
 cl_XTK_Regular_Subdivision_Interface.cpp
 cl_XTK_Node_Hierarchy_Interface.cpp
 cl_XTK_Node_Hierarchy_Template_Library.cpp
+cl_XTK_Elevate_Order_Interface.cpp
 cl_XTK_Cut_Integration_Mesh.cpp
 cl_XTK_Decomposition_Algorithm_Factory.cpp
 cl_XTK_Diagnostics.cpp

@@ -8,10 +8,12 @@
 #include "cl_MTK_Cell_Info_Factory.hpp"
 #include "cl_MTK_Cell_Info.hpp"
 #include "cl_MTK_Cell_Info_Tri3.hpp"
+#include "cl_MTK_Cell_Info_Tri6.hpp"
 #include "cl_MTK_Cell_Info_Quad4.hpp"
 #include "cl_MTK_Cell_Info_Quad9.hpp"
 #include "cl_MTK_Cell_Info_Quad16.hpp"
 #include "cl_MTK_Cell_Info_Tet4.hpp"
+#include "cl_MTK_Cell_Info_Tet10.hpp"
 #include "cl_MTK_Cell_Info_Hex8.hpp"
 #include "cl_MTK_Cell_Info_Hex27.hpp"
 #include "cl_MTK_Cell_Info_Hex64.hpp"
@@ -28,13 +30,21 @@ Cell_Info_Factory::create_cell_info(enum CellTopology aCellTopo)
     switch(aCellTopo)
     {
         case( CellTopology::TRI3  ):{ tConn = new Cell_Info_Tri3();  break; }
+        // case( CellTopology::TRI6  ):{ tConn = new Cell_Info_Tri6();  break; }
+        //case( CellTopology::TRI10  ):{ tConn = new Cell_Info_Tri10();  break; }
+
         case( CellTopology::QUAD4 ):{ tConn = new Cell_Info_Quad4(); break; }
         case( CellTopology::QUAD9 ):{ tConn = new Cell_Info_Quad9(); break; }
+        case( CellTopology::QUAD16 ):{ tConn = new Cell_Info_Quad16(); break; }
+
         case( CellTopology::TET4  ):{ tConn = new Cell_Info_Tet4();  break; }
-        //            case( TET10 ):{}
+        // case( CellTopology::TET10 ):{ tConn = new Cell_Info_Tet10(); break; }
+        //case( CellTopology::TET20 ):{ tConn = new Cell_Info_Tet20(); break; }
+
         case( CellTopology::HEX8  ):{ tConn = new Cell_Info_Hex8();  break; }
         case( CellTopology::HEX27 ):{ tConn = new Cell_Info_Hex27(); break; }
         case( CellTopology::HEX64 ):{ tConn = new Cell_Info_Hex64(); break; }
+
         default:{ MORIS_ERROR(0,"Invalid cell topology specified for Cell_Info factory (this could be because the connecitivty class is not implemented or because aCellTopo is invalid"); break;}
     }
 
@@ -48,14 +58,21 @@ Cell_Info_Factory::create_cell_info_sp(enum CellTopology aCellTopo)
     switch(aCellTopo)
     {
         case( CellTopology::TRI3  ):{ tConn = std::make_shared< Cell_Info_Tri3 >(); break; }
+        // case( CellTopology::TRI6  ):{ tConn = std::make_shared< Cell_Info_Tri6 >(); break; }
+        //case( CellTopology::TRI10 ):{ tConn = std::make_shared< Cell_Info_Tri10 >(); break; }
+
         case( CellTopology::QUAD4 ):{ tConn = std::make_shared< Cell_Info_Quad4>(); break; }
         case( CellTopology::QUAD9 ):{ tConn = std::make_shared< Cell_Info_Quad9>(); break; }
-        case( CellTopology::QUAD16 ):{ tConn = std::make_shared< Cell_Info_Quad16>(); break; }
+        case( CellTopology::QUAD16):{ tConn = std::make_shared< Cell_Info_Quad16>();break; }
+
         case( CellTopology::TET4  ):{ tConn = std::make_shared< Cell_Info_Tet4 >(); break; }
-        //            case( TET10 ):{}
+        // case( CellTopology::TET10 ):{ tConn = std::make_shared< Cell_Info_Tet10>(); break; }
+        // case( CellTopology::TET20 ):{ tConn = std::make_shared< Cell_Info_Tet20>(); break; }
+
         case( CellTopology::HEX8  ):{ tConn = std::make_shared< Cell_Info_Hex8 >(); break; }
         case( CellTopology::HEX27 ):{ tConn = std::make_shared< Cell_Info_Hex27>(); break; }
         case( CellTopology::HEX64 ):{ tConn = std::make_shared< Cell_Info_Hex64>(); break; }
+
         default:{ MORIS_ERROR(0,"Invalid cell topology specified for Cell_Info factory (this could be because the connecitivty class is not implemented or because aCellTopo is invalid"); break;}
     }
 
@@ -76,6 +93,7 @@ Cell_Info_Factory::create_cell_info(enum Geometry_Type       aCellGeom,
                 case(Interpolation_Order::LINEAR):   { tConn = new Cell_Info_Hex8();  break; }
                 case(Interpolation_Order::QUADRATIC):{ tConn = new Cell_Info_Hex27(); break; }
                 case(Interpolation_Order::CUBIC):    { tConn = new Cell_Info_Hex64(); break; }
+
                 default:{ MORIS_ERROR(0,"Invalid hex interpolation order"); break; }
             }
 
@@ -88,7 +106,7 @@ Cell_Info_Factory::create_cell_info(enum Geometry_Type       aCellGeom,
                 case(Interpolation_Order::LINEAR):   {  tConn = new Cell_Info_Quad4(); break; }
                 case(Interpolation_Order::QUADRATIC):{  tConn = new Cell_Info_Quad9(); break; }
                 case(Interpolation_Order::CUBIC):    {  tConn = new Cell_Info_Quad16(); break; }
-                //            case(Interpolation_Order::CUBIC):{  break; }
+
                 default:{MORIS_ERROR(0,"Invalid quad interpolation order"); break; }
             }
             break;
@@ -98,8 +116,9 @@ Cell_Info_Factory::create_cell_info(enum Geometry_Type       aCellGeom,
             switch(aInterpOrder)
             {
                 case(Interpolation_Order::LINEAR):{  tConn = new Cell_Info_Tet4(); break; }
-                //            case(Interpolation_Order::QUADRATIC):{  break; }
-                //            case(Interpolation_Order::CUBIC):{  break; }
+                // case(Interpolation_Order::QUADRATIC):{  tConn = new Cell_Info_Tet10(); break; }
+                //case(Interpolation_Order::CUBIC):{  tConn = new Cell_Info_Tet20(); break; }
+
                 default:{ MORIS_ERROR(0,"Invalid tet interpolation order"); break; }
             }
             break;
@@ -109,8 +128,9 @@ Cell_Info_Factory::create_cell_info(enum Geometry_Type       aCellGeom,
             switch(aInterpOrder)
             {
                 case(Interpolation_Order::LINEAR):{  tConn = new Cell_Info_Tri3(); break; }
-                //            case(Interpolation_Order::QUADRATIC):{  break; }
-                //            case(Interpolation_Order::CUBIC):{  break; }
+                // case(Interpolation_Order::QUADRATIC):{  tConn = new Cell_Info_Tri6(); break; }
+                // case(Interpolation_Order::CUBIC):{  tConn = new Cell_Info_Tri10(); break; }
+
                 default:{ MORIS_ERROR(0,"Invalid tri interpolation order"); break; }
             }
             break;
@@ -136,6 +156,7 @@ Cell_Info_Factory::create_cell_info_sp(enum Geometry_Type       aCellGeom,
                 case(Interpolation_Order::LINEAR):   { tConn = std::make_shared< Cell_Info_Hex8>();  break; }
                 case(Interpolation_Order::QUADRATIC):{ tConn = std::make_shared< Cell_Info_Hex27>(); break; }
                 case(Interpolation_Order::CUBIC):    { tConn = std::make_shared< Cell_Info_Hex64>(); break; }
+
                 default:{ MORIS_ERROR(0,"Invalid hex interpolation order"); break; }
             }
 
@@ -148,7 +169,7 @@ Cell_Info_Factory::create_cell_info_sp(enum Geometry_Type       aCellGeom,
                 case(Interpolation_Order::LINEAR):   {  tConn = std::make_shared< Cell_Info_Quad4>(); break; }
                 case(Interpolation_Order::QUADRATIC):{  tConn = std::make_shared< Cell_Info_Quad9>(); break; }
                 case(Interpolation_Order::CUBIC):    {  tConn = std::make_shared< Cell_Info_Quad16>(); break; }
-                //            case(Interpolation_Order::CUBIC):{  break; }
+
                 default:{MORIS_ERROR(0,"Invalid quad interpolation order"); break; }
             }
             break;
@@ -158,8 +179,9 @@ Cell_Info_Factory::create_cell_info_sp(enum Geometry_Type       aCellGeom,
             switch(aInterpOrder)
             {
                 case(Interpolation_Order::LINEAR):{  tConn = std::make_shared< Cell_Info_Tet4 >(); break; }
-                //            case(Interpolation_Order::QUADRATIC):{  break; }
-                //            case(Interpolation_Order::CUBIC):{  break; }
+                // case(Interpolation_Order::QUADRATIC):{  tConn = std::make_shared< Cell_Info_Tet10 >(); break; }
+                //case(Interpolation_Order::CUBIC):{  tConn = std::make_shared< Cell_Info_Tet20 >(); break; }
+
                 default:{ MORIS_ERROR(0,"Invalid tet interpolation order"); break; }
             }
             break;
@@ -169,8 +191,9 @@ Cell_Info_Factory::create_cell_info_sp(enum Geometry_Type       aCellGeom,
             switch(aInterpOrder)
             {
                 case(Interpolation_Order::LINEAR):{  tConn = std::make_shared< Cell_Info_Tri3 >(); break; }
-                //            case(Interpolation_Order::QUADRATIC):{  break; }
-                //            case(Interpolation_Order::CUBIC):{  break; }
+                // case(Interpolation_Order::QUADRATIC):{  tConn = std::make_shared< Cell_Info_Tri6 >(); break; }
+                // case(Interpolation_Order::CUBIC):{  tConn = std::make_shared< Cell_Info_Tri10 >(); break; }
+
                 default:{ MORIS_ERROR(0,"Invalid tri interpolation order"); break; }
             }
             break;
