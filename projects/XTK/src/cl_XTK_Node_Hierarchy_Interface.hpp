@@ -122,8 +122,6 @@ class Node_Hierarchy_Interface : public Decomposition_Algorithm
     /**
      *  @brief Pick out the integration cell groups from the cut integration mesh
      * 
-     * @param aMeshGenerationData 
-     * @param aCutIntegrationMesh 
      * @param aIgCellGroups 
      */
     void

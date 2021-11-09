@@ -108,6 +108,7 @@ Integration_Mesh_Generator::perform()
     // construct interface_sets
     this->construct_interface_sets( tCutIntegrationMesh.get(), tInterfaceByBulkPhase );
 
+    // print diagonstic information if requested
     if ( mXTKModel->mDiagnostics )
     {
         std::string tCellDiagFile    = mXTKModel->get_diagnostic_file_name( std::string( "Cells" ) );
@@ -131,6 +132,10 @@ Integration_Mesh_Generator::perform()
     // construct the bulk phase blocks
     moris::Cell< std::shared_ptr< IG_Cell_Group > > tBulkPhaseCellGroups;
     this->construct_bulk_phase_cell_groups( tCutIntegrationMesh.get(), tBulkPhaseCellGroups );
+
+    // save facet ancestry to Cut integration mesh 
+    // todo: do only if order elevation is requested to save memory
+    // tCutIntegrationMesh->set_face_ancestry( tFacetAncestry );
 
     this->construct_bulk_phase_blocks( tCutIntegrationMesh.get(), tBulkPhaseCellGroups );
     tCutIntegrationMesh->write_mesh( "./", "xtk_cut_ig_mesh.exo" );
