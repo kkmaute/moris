@@ -10,7 +10,9 @@ enum class Decomposition_Algorithm_Type
 {
     REGULAR_TEMPLATE_NONCONFORMING,
     NODE_HEIRARCHY,
-    OCTREE
+    OCTREE,
+    ELEVATE_ORDER,
+    MAX_ENUM
 };
 
 class Integration_Mesh_Generation_Data;
