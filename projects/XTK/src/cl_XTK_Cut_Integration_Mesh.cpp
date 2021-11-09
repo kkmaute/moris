@@ -275,6 +275,20 @@ Cut_Integration_Mesh::get_communication_table() const
     return mCommunicationMap;
 }
 // ----------------------------------------------------------------------------------
+void
+Cut_Integration_Mesh::add_proc_to_comm_table(moris_index aProcRank)
+{
+    moris_index tIndex = mCommunicationMap.numel();
+
+    for(moris::uint i = 0 ; i < mCommunicationMap.numel(); i++)
+    {
+        MORIS_ERROR(mCommunicationMap(i) != aProcRank,"Processor rank already in communication table");
+    }
+
+    mCommunicationMap.resize(1,mCommunicationMap.numel()+1);
+    mCommunicationMap(tIndex) = aProcRank;
+}
+// ----------------------------------------------------------------------------------
 Matrix< IndexMat >
 Cut_Integration_Mesh::get_element_indices_in_block_set( uint aSetIndex )
 {
@@ -654,6 +668,18 @@ Cut_Integration_Mesh::set_integration_cell(
     mIntegrationCells( aCellIndex )               = mControlledIgCells( tIndexInControlledCells ).get();
 }
 
+void
+Cut_Integration_Mesh::add_integration_cell(
+    moris_index                            aCellIndex,
+    std::shared_ptr< xtk::Cell_XTK_No_CM > aNewCell )
+{
+    MORIS_ERROR( (moris::uint)aCellIndex >= mIntegrationCells.size(), "Index mismatch between adding cell and current data." );
+
+    mControlledIgCells.push_back( aNewCell );
+    mIntegrationCells.push_back(aNewCell.get());
+}
+
+
 // ----------------------------------------------------------------------------------
 
 moris_index
@@ -667,7 +693,7 @@ Cut_Integration_Mesh::get_integration_cell_controlled_index(
 
 // ----------------------------------------------------------------------------------
 void
-Cut_Integration_Mesh::add_cell_to_integration_mesh(
+Cut_Integration_Mesh::add_cell_to_cell_group(
     moris_index aCellIndex,
     moris_index aCellGroupIndex )
 {
@@ -811,10 +837,10 @@ Cut_Integration_Mesh::get_ig_cell_group_parent_cell( moris_index aGroupIndex )
 
 // ----------------------------------------------------------------------------------
 
-enum CellTopology 
+enum CellTopology
 Cut_Integration_Mesh::get_child_element_topology()
 {
-    if(this->get_spatial_dim() == 2)
+    if ( this->get_spatial_dim() == 2 )
     {
         return CellTopology::TRI3;
     }
@@ -922,6 +948,7 @@ Cut_Integration_Mesh::parent_cell_has_children( moris_index aParentCellIndex )
 void
 Cut_Integration_Mesh::finalize_cut_mesh_construction()
 {
+    Tracer tTracer( "XTK", "Cut_Integration_Mesh", "finalize_cut_mesh_construction", mXTKModel->mVerboseLevel, 1 );
     this->deduce_ig_cell_group_ownership();
 
     this->assign_controlled_ig_cell_ids();
@@ -1133,7 +1160,7 @@ void
 Cut_Integration_Mesh::write_mesh( std::string aOutputPath,
     std::string                               aOutputFile )
 {
-    Tracer tTracer( "XTK", "Cut Integration Mesh", "Write mesh" );
+    Tracer tTracer( "XTK", "Cut Integration Mesh", "Write mesh", mXTKModel->mVerboseLevel, 0 );
     // get path to output XTK files to
     std::string tOutputPath = aOutputPath;
     std::string tOutputFile = aOutputFile;
@@ -1203,6 +1230,8 @@ Cut_Integration_Mesh::print_cells(
 
     tStringStream << "Cell_Id,";
     if ( !aOmitIndex ) { tStringStream << "Cell_Ind,"; }
+    tStringStream << "Owner,";
+    tStringStream << "PRank,";
     tStringStream << "Phase,";
     tStringStream << "Measure,";
     for ( moris::uint iVH = 0; iVH < tMaxVertsToCell; iVH++ )
@@ -1223,6 +1252,8 @@ Cut_Integration_Mesh::print_cells(
 
         tStringStream << std::to_string( tCell.get_id() ) + ",";
         if ( !aOmitIndex ) { tStringStream << std::to_string( tCell.get_index() ) + ","; }
+        tStringStream <<  std::to_string(tCell.get_owner())<<",";
+        tStringStream <<  std::to_string(par_rank())<<",";
         tStringStream << std::to_string( this->get_cell_bulk_phase( i ) ) + ",";
         tStringStream << std::scientific << tCell.compute_cell_measure() << ",";
 
@@ -1353,16 +1384,9 @@ Cut_Integration_Mesh::print_groupings( std::string aFile )
         tStringStream << moris::par_rank() << ",";
         tStringStream << iGroup << ",";
 
-        for ( moris_index iGC = 0; iGC < tGlbMaxIgCellGroupSize; iGC++ )
+        for ( moris_index iGC = 0; iGC < (moris_index)mIntegrationCellGroups( iGroup )->mIgCellGroup.size(); iGC++ )
         {
-            if ( iGC >= (moris_index)mIntegrationCellGroups( iGroup )->mIgCellGroup.size() )
-            {
-                tStringStream << MORIS_INDEX_MAX;
-            }
-            else
-            {
-                tStringStream << mIntegrationCellGroups( iGroup )->mIgCellGroup( iGC )->get_id();
-            }
+            tStringStream << mIntegrationCellGroups( iGroup )->mIgCellGroup( iGC )->get_id();
 
             if ( iGC != tGlbMaxIgCellGroupSize - 1 )
             {
@@ -1478,6 +1502,7 @@ Cut_Integration_Mesh::setup_comm_map()
 void
 Cut_Integration_Mesh::deduce_ig_cell_group_ownership()
 {
+    Tracer tTracer( "XTK", "Cut_Integration_Mesh", "deduce_ig_cell_group_ownership", mXTKModel->mVerboseLevel, 1 );
     mOwnedIntegrationCellGroupsInds.reserve( mIntegrationCellGroupsParentCell.size() );
     mNotOwnedIntegrationCellGroups.reserve( mIntegrationCellGroupsParentCell.size() );
 
@@ -1503,7 +1528,7 @@ Cut_Integration_Mesh::deduce_ig_cell_group_ownership()
 void
 Cut_Integration_Mesh::assign_controlled_ig_cell_ids()
 {
-
+    Tracer tTracer( "XTK", "Cut_Integration_Mesh", "assign_controlled_ig_cell_ids", mXTKModel->mVerboseLevel, 1 );
     // Set child element ids and indices
     moris::uint tNumControlledCellsInCutMesh = mControlledIgCells.size();
 
@@ -1666,7 +1691,7 @@ Cut_Integration_Mesh::prepare_child_cell_id_answers(
             for ( moris::uint j = 0; j < tNumReceivedReqs; j++ )
             {
                 // parent cell information
-                moris_id    tParentId        = aReceivedParentCellIds( i )( 0, j );
+                moris_id    tParentId        = aReceivedParentCellIds( i )( j );
                 moris_index tParentCellIndex = mBackgroundMesh->get_loc_entity_ind_from_entity_glb_id( tParentId, EntityRank::ELEMENT );
 
                 moris_index tCMIndex = mParentCellCellGroupIndex( tParentCellIndex );
@@ -1680,8 +1705,14 @@ Cut_Integration_Mesh::prepare_child_cell_id_answers(
                 MORIS_ASSERT( mIntegrationCellGroups( tCMIndex )->mIgCellGroup.size() == (uint)aReceivedParentCellNumChildren( i )( j ),
                     "Number of child cells in child meshes do not match number on other processor" );
 
-
-                aChildCellIdOffset( i )( j ) = mIntegrationCellGroups( tCMIndex )->mIgCellGroup( 0 )->get_id();
+                if ( mIntegrationCellGroups( tCMIndex )->mIgCellGroup.size() > 0 )
+                {
+                    aChildCellIdOffset( i )( j ) = mIntegrationCellGroups( tCMIndex )->mIgCellGroup( 0 )->get_id();
+                }
+                else
+                {
+                    aChildCellIdOffset( i )( j ) = MORIS_INDEX_MAX;
+                }
             }
         }
         else
@@ -1730,7 +1761,7 @@ void
 Cut_Integration_Mesh::create_base_cell_blocks()
 {
 
-    Tracer      tTracer( "XTK", "Integration_Mesh_Generator", "Construct bulk phase blocks" );
+    Tracer      tTracer( "XTK", "Integration_Mesh_Generator", "create_base_cell_blocks", mXTKModel->mVerboseLevel, 1 );
     std::string tBlockName = "bg_cells";
 
     if ( mBackgroundMesh->get_num_elems() > 0 )
@@ -1738,7 +1769,8 @@ Cut_Integration_Mesh::create_base_cell_blocks()
         moris::mtk::Cell const& tCell = mBackgroundMesh->get_mtk_cell( 0 );
 
         MORIS_ERROR( ( tCell.get_geometry_type() == mtk::Geometry_Type::HEX || tCell.get_geometry_type() == mtk::Geometry_Type::QUAD )
-                && tCell.get_interpolation_order() == mtk::Interpolation_Order::LINEAR, "Need to abstract by adding get cell topo to cell info class" );
+                         && tCell.get_interpolation_order() == mtk::Interpolation_Order::LINEAR,
+            "Need to abstract by adding get cell topo to cell info class" );
 
         // initialize Cell topology
         enum CellTopology tCellTopo;
@@ -1748,7 +1780,7 @@ Cut_Integration_Mesh::create_base_cell_blocks()
         {
             tCellTopo = CellTopology::QUAD4;
         }
-        else if ( this->get_spatial_dim() == 3 ) 
+        else if ( this->get_spatial_dim() == 3 )
         {
             tCellTopo = CellTopology::HEX8;
         }

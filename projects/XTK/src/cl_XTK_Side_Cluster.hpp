@@ -16,7 +16,6 @@ using namespace moris;
 namespace xtk
 {
     class Interpolation_Cell_Unzipped;
-    class Child_Mesh;
     class Cell_Cluster;
     class IG_Vertex_Group;
 
@@ -126,7 +125,6 @@ namespace xtk
 
             bool                                        mTrivial;
             Interpolation_Cell_Unzipped const *         mInterpolationCell;
-            Child_Mesh const *                          mChildMesh;
             moris::Cell<moris::mtk::Cell const *>       mIntegrationCells;
             moris::Matrix<moris::IndexMat>              mIntegrationCellSideOrdinals;
             moris::Cell<moris::mtk::Vertex const *>     mVerticesInCluster;

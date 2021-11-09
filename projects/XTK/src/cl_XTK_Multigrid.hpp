@@ -94,7 +94,7 @@ public:
 
     uint get_max_level( const moris_index aInterpolationIndex )
     {
-        moris::mtk::Interpolation_Mesh & tInterpolationMesh = mXTKModelPtr->get_background_mesh().get_mesh_data();
+        moris::mtk::Interpolation_Mesh & tInterpolationMesh = mXTKModelPtr->get_background_mesh();
 
         return tInterpolationMesh.get_max_level( aInterpolationIndex );
     };

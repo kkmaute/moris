@@ -492,6 +492,9 @@ class Cut_Integration_Mesh : public moris::mtk::Mesh
     Matrix< IdMat >
     get_communication_table() const;
     // ----------------------------------------------------------------------------------
+    void
+    add_proc_to_comm_table(moris_index aProcRank);
+    // ----------------------------------------------------------------------------------
     Matrix< IndexMat > get_element_indices_in_block_set( uint aSetIndex );
     // ----------------------------------------------------------------------------------
     enum CellTopology
@@ -596,12 +599,17 @@ class Cut_Integration_Mesh : public moris::mtk::Mesh
         moris_index                            aCellIndex,
         std::shared_ptr< xtk::Cell_XTK_No_CM > aNewCell );
     // ----------------------------------------------------------------------------------
+    void
+    add_integration_cell(
+        moris_index                            aCellIndex,
+        std::shared_ptr< xtk::Cell_XTK_No_CM > aNewCell );
+    // ----------------------------------------------------------------------------------
     moris_index
     get_integration_cell_controlled_index(
         moris_index aCellIndex );
     // ----------------------------------------------------------------------------------
     void
-    add_cell_to_integration_mesh(
+    add_cell_to_cell_group(
         moris_index aCellIndex,
         moris_index aCellGroupIndex );
     // ----------------------------------------------------------------------------------
@@ -743,6 +751,7 @@ class Cut_Integration_Mesh : public moris::mtk::Mesh
 
     Cell_Connectivity
     get_background_cell_connectivity( moris_index aBGCellIndex ) const;
+    
 
     void
     print()

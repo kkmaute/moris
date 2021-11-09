@@ -4,7 +4,6 @@
 #include "cl_XTK_Model.hpp"
 #include "cl_GEN_Geometry_Engine.hpp"
 #include "cl_MTK_Vertex.hpp"
-#include "cl_Tracer.hpp"
 #include "fn_norm.hpp"
 
 

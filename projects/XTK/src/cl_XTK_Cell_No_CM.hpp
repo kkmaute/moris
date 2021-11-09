@@ -18,10 +18,6 @@
 
 using namespace moris;
 
-namespace xtk
-{
-class Background_Mesh;
-}
 
 //------------------------------------------------------------------------------
 namespace xtk

@@ -20,7 +20,6 @@ namespace xtk
     Side_Cluster::Side_Cluster():
                     mTrivial(true),
                     mInterpolationCell(nullptr),
-                    mChildMesh(nullptr),
                     mIntegrationCells(0,nullptr),
                     mIntegrationCellSideOrdinals(0,0),
                     mVerticesInCluster(0,nullptr),
@@ -273,7 +272,6 @@ namespace xtk
         size_t tTotalSize = 0;
         tTotalSize += sizeof(mTrivial);
         tTotalSize += sizeof(mInterpolationCell);
-        tTotalSize += sizeof(mChildMesh);
         tTotalSize += mIntegrationCells.capacity();
         tTotalSize += mIntegrationCellSideOrdinals.capacity();
 

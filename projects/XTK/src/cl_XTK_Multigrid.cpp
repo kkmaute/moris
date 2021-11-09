@@ -42,7 +42,7 @@ namespace xtk
         // set size of fine to coarse list
         mFineBasisToCoarseBasis.resize( mNumBasis );
 
-        moris::mtk::Interpolation_Mesh & tInterpolationMesh = mXTKModelPtr->get_background_mesh().get_mesh_data();
+        moris::mtk::Interpolation_Mesh & tInterpolationMesh = mXTKModelPtr->get_background_mesh();
 
         // get num bg basis
         uint tNumBGBasis = tInterpolationMesh.get_num_basis( 0 );
@@ -147,7 +147,7 @@ namespace xtk
 
     void Multigrid::create_coarse_to_fine_weights()
     {
-        moris::mtk::Interpolation_Mesh & tInterpolationMesh = mXTKModelPtr->get_background_mesh().get_mesh_data();
+        moris::mtk::Interpolation_Mesh & tInterpolationMesh = mXTKModelPtr->get_background_mesh();
 
         mCoarseBasisToFineBasisWeights.resize( mCoarseBasisToFineBasis.size() );
 
@@ -355,7 +355,7 @@ namespace xtk
 
     void Multigrid::build_basis_exodus_information(std::string aName)
     {
-        moris::mtk::Interpolation_Mesh & tInterpolationMesh = mXTKModelPtr->get_background_mesh().get_mesh_data();
+        moris::mtk::Interpolation_Mesh & tInterpolationMesh = mXTKModelPtr->get_background_mesh();
 
         // get num enriched basis
         uint tNumEnrichedBasis = mXTKModelPtr->mEnrichedInterpMesh( 0 )->get_max_num_coeffs_on_proc( 0 );

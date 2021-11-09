@@ -15,7 +15,7 @@
 #include "cl_MTK_Mesh_Checker.hpp"
 #include "cl_MTK_Cell_Info_Factory.hpp"
 #include "cl_MTK_Enums.hpp"
-
+#include "cl_XTK_Cut_Integration_Mesh.hpp"
 namespace xtk
 {
 Ghost_Stabilization::Ghost_Stabilization() :
@@ -157,7 +157,7 @@ Ghost_Stabilization::construct_ip_ig_cells_for_ghost_side_clusters( Ghost_Setup_
     }
 
     // allocate new interpolation cell ids
-    moris_id tCurrentId = tEnrIpMesh.allocate_entity_ids( tNumNewInterpCellsOwned, EntityRank::ELEMENT );
+    moris_id tCurrentId = tEnrIpMesh.allocate_entity_ids( tNumNewInterpCellsOwned, EntityRank::ELEMENT,false );
 
     // assign new non trivial owned Interp cell Ids
     Cell< moris_id >                         tNewNonTrivialOwnedInterpCellsIds( tNumNewInterpCellsOwned );
@@ -1315,7 +1315,7 @@ Ghost_Stabilization::create_master_side_cluster(
         tMasterSideCluster->mTrivial = false;
 
         // create new integration cell using the vertices on the slave facet and the adjacent vertices of the base interpolation cell
-        moris::mtk::Cell* tNewIgCell = this->create_non_trivial_master_ig_cell(
+        std::shared_ptr<xtk::Cell_XTK_No_CM> tNewIgCell = this->create_non_trivial_master_ig_cell(
             aGhostSetupData,
             aBulkIndex,
             aCellIndex,
@@ -1332,7 +1332,7 @@ Ghost_Stabilization::create_master_side_cluster(
             aGhostSetupData.mTransitionLocation( aBulkIndex )( aCellIndex ),
             tLocCoords );
         // add integration cell
-        tMasterSideCluster->mIntegrationCells.push_back( tNewIgCell );
+        tMasterSideCluster->mIntegrationCells.push_back( tNewIgCell.get() );
 
         // add side ordinal relative to the integration cell
         tMasterSideCluster->mIntegrationCellSideOrdinals = { { this->get_side_ordinals_for_non_trivial_master() } };
@@ -1349,7 +1349,7 @@ Ghost_Stabilization::create_master_side_cluster(
             "Invalid Side Cluster Created Check the local coordinates" );
 
         // place the new ig cell in the background mesh
-        mXTKModel->get_background_mesh().add_new_cell_to_mesh( tNewIgCell );
+        mXTKModel->get_cut_integration_mesh()->add_integration_cell( tNewIgCell->get_index(), tNewIgCell );
     }
     else
     {
@@ -1383,7 +1383,7 @@ Ghost_Stabilization::create_master_side_cluster(
 
 // ----------------------------------------------------------------------------------
 
-moris::mtk::Cell*
+std::shared_ptr<xtk::Cell_XTK_No_CM>
 Ghost_Stabilization::create_non_trivial_master_ig_cell(
     Ghost_Setup_Data& aGhostSetupData,
     uint const&       aBulkIndex,
@@ -1441,7 +1441,7 @@ Ghost_Stabilization::create_non_trivial_master_ig_cell(
     std::shared_ptr< moris::mtk::Cell_Info > tLinearCellInfo = tCellInfoFactory.create_cell_info_sp( tMasterIpCell->get_geometry_type(), mtk::Interpolation_Order::LINEAR );
 
     // create a new integration cell that does not have a child mesh association
-    moris::mtk::Cell* tIgCell = new Cell_XTK_No_CM(
+    std::shared_ptr< xtk::Cell_XTK_No_CM> tIgCell = std::make_shared< xtk::Cell_XTK_No_CM>(
         aCurrentId,
         aCurrentIndex,
         tMasterIpCell->get_owner(),
@@ -1535,7 +1535,7 @@ Ghost_Stabilization::create_linear_ig_cell( Ghost_Setup_Data& aGhostSetupData,
 
 
     // create a new integration cell that does not have a child mesh association
-    moris::mtk::Cell* tIgCell = new Cell_XTK_No_CM(
+    std::shared_ptr< xtk::Cell_XTK_No_CM> tIgCell = std::make_shared< xtk::Cell_XTK_No_CM>(
         aCurrentId,
         aCurrentIndex,
         aInterpCell->get_owner(),
@@ -1547,15 +1547,15 @@ Ghost_Stabilization::create_linear_ig_cell( Ghost_Setup_Data& aGhostSetupData,
     aGhostSetupData.mLinearIgCellIndex[aInterpCell->get_id()] = (moris_index)aGhostSetupData.mLinearIgCells.size();
 
     // add to data
-    aGhostSetupData.mLinearIgCells.push_back( tIgCell );
+    aGhostSetupData.mLinearIgCells.push_back( tIgCell.get() );
 
     // add to background mesh
-    mXTKModel->get_background_mesh().add_new_cell_to_mesh( tIgCell );
+    mXTKModel->get_cut_integration_mesh()->add_integration_cell(tIgCell->get_index(), tIgCell );
 
     aCurrentIndex++;
     aCurrentId++;
 
-    return tIgCell;
+    return tIgCell.get();
 }
 
 

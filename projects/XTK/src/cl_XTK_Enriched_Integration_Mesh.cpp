@@ -31,7 +31,8 @@ Enriched_Integration_Mesh::Enriched_Integration_Mesh( Model *aXTKModel,
     mModel( aXTKModel ),
     mCutIgMesh( mModel->get_cut_integration_mesh() ), mMeshIndexInModel( aInterpIndex ), mCellClusters( 0, nullptr ), mFields( 0 ), mFieldLabelToIndex( 2 ), mCellInfo( nullptr )
 {
-    Tracer tTracer( "XTK", "Enriched Integration Mesh", "Construction" );
+    
+    Tracer tTracer( "XTK", "Enriched Integration Mesh", "Construction", mModel->mVerboseLevel, 0  );
     this->setup_cell_clusters();
     this->setup_blockset_with_cell_clusters();
     this->setup_side_set_clusters();
@@ -713,7 +714,7 @@ Enriched_Integration_Mesh::create_basis_support_fields( moris::Matrix< moris::DD
     moris_index tNumSpheres = aProbeSpheres.n_rows();
 
     // background mesh data
-    moris::mtk::Interpolation_Mesh &tMeshData = mModel->get_background_mesh().get_mesh_data();
+    moris::mtk::Interpolation_Mesh &tMeshData = mModel->get_background_mesh();
 
     // get the enriched interpolation mesh
     Enriched_Interpolation_Mesh *tEnrInterpMesh = mModel->mEnrichedInterpMesh( mMeshIndexInModel );
@@ -2097,7 +2098,7 @@ Enriched_Integration_Mesh::commit_block_set( moris_index const &aBlockSetIndex )
 void
 Enriched_Integration_Mesh::setup_cell_clusters()
 {
-    Tracer tTracer( "XTK", "Enriched Integration Mesh", "setup_cell_clusters" );
+    Tracer tTracer( "XTK", "Enriched Integration Mesh", "setup_cell_clusters" ,mModel->mVerboseLevel, 1  );
 
     Enriched_Interpolation_Mesh *tEnrInterpMesh = mModel->mEnrichedInterpMesh( mMeshIndexInModel );
 
@@ -2183,7 +2184,7 @@ void
 Enriched_Integration_Mesh::setup_blockset_with_cell_clusters()
 {
     // get background mesh
-    Background_Mesh &tBackgroundMesh = mModel->get_background_mesh();
+    moris::mtk::Mesh &tBackgroundMesh = mModel->get_background_mesh();
 
     // enriched interpolation mesh
     Enriched_Interpolation_Mesh *tEnrInterpMesh = mModel->mEnrichedInterpMesh( mMeshIndexInModel );
@@ -2192,7 +2193,7 @@ Enriched_Integration_Mesh::setup_blockset_with_cell_clusters()
     moris_index tProcRank = par_rank();
 
     // get block sets (in background mesh data)
-    Cell< std::string > tBlockSetsNames = tBackgroundMesh.get_mesh_data().get_set_names( EntityRank::ELEMENT );
+    Cell< std::string > tBlockSetsNames = tBackgroundMesh.get_set_names( EntityRank::ELEMENT );
 
     // for each block set construct
     for ( moris::uint iBS = 0; iBS < tBlockSetsNames.size(); iBS++ )
@@ -2206,7 +2207,7 @@ Enriched_Integration_Mesh::setup_blockset_with_cell_clusters()
 
         // topology enums
         enum CellTopology tChildTopo  = mModel->get_cut_integration_mesh()->get_child_element_topology();
-        enum CellTopology tParentTopo = mModel->get_background_mesh().get_parent_cell_topology();
+        enum CellTopology tParentTopo = mModel->get_parent_cell_topology();
 
         // add block set names to member data
         Cell< moris_index > tChildBlockSetOrds   = this->register_block_set_names_with_cell_topo( tPhaseChildBlockSetNames, tChildTopo );
@@ -2220,7 +2221,7 @@ Enriched_Integration_Mesh::setup_blockset_with_cell_clusters()
         }
 
         // get the cells in this block
-        moris::Cell< moris::mtk::Cell const * > tCellsInBlock = tBackgroundMesh.get_mesh_data().get_block_set_cells( tBlockSetsNames( iBS ) );
+        moris::Cell< moris::mtk::Cell const * > tCellsInBlock = tBackgroundMesh.get_block_set_cells( tBlockSetsNames( iBS ) );
 
         // get the enriched interpolation cells in this block
         moris::Cell< xtk::Interpolation_Cell_Unzipped const * > tEnrichedCellsInBlock = tEnrInterpMesh->get_enriched_cells_from_base_cells( tCellsInBlock );
@@ -2267,15 +2268,15 @@ void
 Enriched_Integration_Mesh::setup_side_set_clusters()
 {
     // get data for easy access
-    Enriched_Interpolation_Mesh *tEnrInterpMesh  = mModel->mEnrichedInterpMesh( mMeshIndexInModel );
-    Background_Mesh &            tBackgroundMesh = mModel->mBackgroundMesh;
+    Enriched_Interpolation_Mesh *tEnrInterpMesh   = mModel->mEnrichedInterpMesh( mMeshIndexInModel );
+    moris::mtk::Mesh &            tBackgroundMesh = *mModel->mBackgroundMesh;
     Integration_Mesh_Generator   tIGMeshGen;
 
     // rank enum for facets
-    enum EntityRank tFacetRank = mModel->mBackgroundMesh.get_mesh_data().get_facet_rank();
+    enum EntityRank tFacetRank = mModel->mBackgroundMesh->get_facet_rank();
 
     // get side sets (in background mesh data)
-    Cell< std::string > tSideSetNames = tBackgroundMesh.get_mesh_data().get_set_names( tFacetRank );
+    Cell< std::string > tSideSetNames = tBackgroundMesh.get_set_names( tFacetRank );
 
     tSideSetNames = mModel->check_for_and_remove_internal_seacas_side_sets( tSideSetNames );
 
@@ -2310,7 +2311,7 @@ Enriched_Integration_Mesh::setup_side_set_clusters()
         moris::Cell< mtk::Cell const * > tCellsInSideSet;
         Matrix< IndexMat >               tCellOrdsInSideSet;
 
-        tBackgroundMesh.get_mesh_data().get_sideset_cells_and_ords(
+        tBackgroundMesh.get_sideset_cells_and_ords(
             tSideSetNames( iSS ),
             tCellsInSideSet,
             tCellOrdsInSideSet );
@@ -2320,7 +2321,7 @@ Enriched_Integration_Mesh::setup_side_set_clusters()
         {
             mtk::Cell const *tBaseCell  = tCellsInSideSet( iC );
             moris_index      tSideOrd   = tCellOrdsInSideSet( iC );
-            moris_index      tSideIndex = tBackgroundMesh.get_mesh_data().get_entity_connected_to_entity_loc_inds( tBaseCell->get_index(), EntityRank::ELEMENT, tBackgroundMesh.get_mesh_data().get_facet_rank() )( tSideOrd );
+            moris_index      tSideIndex = tBackgroundMesh.get_entity_connected_to_entity_loc_inds( tBaseCell->get_index(), EntityRank::ELEMENT, tBackgroundMesh.get_facet_rank() )( tSideOrd );
 
 
             // only place cluster's related to the background cells owned by current proc in sets
@@ -2418,9 +2419,6 @@ Enriched_Integration_Mesh::setup_side_set_clusters()
 
                     // get the set enriched interpolation cell
                     tSideCluster->mInterpolationCell = tEnrichedCellsOfBaseCell( 0 );
-
-                    // mark child mesh as nullptr
-                    tSideCluster->mChildMesh = nullptr;
 
                     // integration cell is the same as the interpolation cell in this case
                     tSideCluster->mIntegrationCells = { tSideCluster->mInterpolationCell->get_base_cell() };
@@ -2535,7 +2533,7 @@ Enriched_Integration_Mesh::get_dbl_side_set_index(
 void
 Enriched_Integration_Mesh::create_interface_double_side_sets_and_clusters()
 {
-    Tracer tTracer( "XTK", "Enriched Integration Mesh", "create_interface_double_side_sets_and_clusters" );
+    Tracer tTracer( "XTK", "Enriched Integration Mesh", "create_interface_double_side_sets_and_clusters" ,mModel->mVerboseLevel, 1  );
 
     // tool for generating double sided interface
     Integration_Mesh_Generator tIGMeshGen;
@@ -2709,56 +2707,6 @@ Enriched_Integration_Mesh::add_side_to_cluster(
     aSideCluster->mIntegrationCellSideOrdinals( tNumCurrentSides ) = aSideOrdinal;
 }
 
-//------------------------------------------------------------------------------
-void
-Enriched_Integration_Mesh::setup_side_cluster_vertices( std::shared_ptr< xtk::Side_Cluster > aMasterSideCluster,
-    std::shared_ptr< xtk::Side_Cluster >                                                     aSlaveSideCluster )
-{
-    moris::Cell< mtk::Cell const * > const &tMasterCellsInCluster = aMasterSideCluster->get_cells_in_side_cluster();
-    moris::Cell< mtk::Cell const * > const &tSlaveCellsInCluster  = aSlaveSideCluster->get_cells_in_side_cluster();
-
-    moris::Matrix< moris::IndexMat > tMasterSideOrds = aMasterSideCluster->get_cell_side_ordinals();
-    moris::Matrix< moris::IndexMat > tSlaveSideOrds  = aSlaveSideCluster->get_cell_side_ordinals();
-    MORIS_ASSERT( aMasterSideCluster->get_num_sides_in_cluster() == aSlaveSideCluster->get_num_sides_in_cluster(), "Number of sides in side cluster mismatch" );
-
-    // vector of vertices on side ordinals
-    moris::Cell< moris::mtk::Vertex const * > tMasterVerticesInCluster;
-    moris::Cell< moris::mtk::Vertex const * > tSlaveVerticesInCluster;
-
-    // map to ensure vertices are added only one time
-    std::unordered_map< moris_index, moris_index > tMasterUniqueVertexMap;
-    std::unordered_map< moris_index, moris_index > tSlaveUniqueVertexMap;
-
-
-    // add integration cells to cluster
-    for ( moris::uint iF = 0; iF < aMasterSideCluster->get_num_sides_in_cluster(); iF++ )
-    {
-        // iterate through vertices and keep track of the unique ones
-        moris::Cell< moris::mtk::Vertex const * > tMasterVerticesOnSide = tMasterCellsInCluster( iF )->get_vertices_on_side_ordinal( tMasterSideOrds( iF ) );
-        moris::Cell< moris::mtk::Vertex const * > tSlaveVerticesOnSide  = tSlaveCellsInCluster( iF )->get_vertices_on_side_ordinal( tSlaveSideOrds( iF ) );
-
-        for ( moris::uint iVoS = 0; iVoS < tMasterVerticesOnSide.size(); iVoS++ )
-        {
-            if ( tMasterUniqueVertexMap.find( tMasterVerticesOnSide( iVoS )->get_id() ) == tMasterUniqueVertexMap.end() )
-            {
-                tMasterUniqueVertexMap[tMasterVerticesOnSide( iVoS )->get_id()] = 1;
-
-                tMasterVerticesInCluster.push_back( tMasterVerticesOnSide( iVoS ) );
-            }
-
-            if ( tSlaveUniqueVertexMap.find( tSlaveVerticesOnSide( iVoS )->get_id() ) == tSlaveUniqueVertexMap.end() )
-            {
-                tSlaveUniqueVertexMap[tSlaveVerticesOnSide( iVoS )->get_id()] = 1;
-
-                tSlaveVerticesInCluster.push_back( tSlaveVerticesOnSide( iVoS ) );
-            }
-        }
-    }
-
-    // add the vertices to the cluster
-    aMasterSideCluster->mVerticesInCluster = tMasterVerticesInCluster;
-    aSlaveSideCluster->mVerticesInCluster  = tMasterVerticesInCluster;// intentionally using left here so ordering is consistent
-}
 //------------------------------------------------------------------------------
 
 moris::Cell< std::string >

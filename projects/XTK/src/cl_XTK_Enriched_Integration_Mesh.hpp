@@ -27,8 +27,6 @@ class Side_Cluster;
 class Interpolation_Cell_Unzipped;
 class Ghost_Stabilization;
 class Enrichment;
-class Child_Mesh;
-class Coincident_Interface_Construction;
 class Cut_Integration_Mesh;
 
 class Enriched_Integration_Mesh : public mtk::Integration_Mesh
@@ -518,10 +516,6 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
         moris_index                                           aCellIndex,
         moris_index                                           aSideOrdinal );
 
-    void
-    setup_side_cluster_vertices( std::shared_ptr< xtk::Side_Cluster > aMasterSideCluster,
-        std::shared_ptr< xtk::Side_Cluster >                          aSlaveSideCluster );
-
     //------------------------------------------------------------------------------
 
     moris::Cell< std::string >
@@ -625,32 +619,6 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
     bool
     field_exists( std::string  aLabel,
         enum moris::EntityRank aEntityRank );
-};
-
-struct Coincident_Interface_Construction
-{
-    Cell< uint >         mInterCMInterfaces;
-    Cell< Cell< uint > > mChildCellLocalIndex;
-    Cell< Cell< uint > > mChildCellInterfaceOrd;
-    Cell< Cell< uint > > mSubphaseIndex;
-
-    // data used keep track of where everything is in the above data
-    Cell< std::unordered_map< moris_index, moris_index > > mCellIndsLocation;// outer cell - geometry index
-    Cell< Cell< moris_index > >                            mCellIndices;// outer cell - geometry index, inner -  index relative to inner cell of mChildCellLocalIndex
-    Cell< Cell< moris_index > >                            mCellChildMeshIndex;// outer cell - geometry index, inner - index relative to mInterCMInterfaces
-
-    // Organized by subphase index
-    std::unordered_map< moris_index, moris_index > mSubphaseLocIndex;
-    Cell< Cell< Child_Mesh * > >                   mChildMesh;
-    Cell< Cell< moris_index > >                    mSubphaseCellsInds;
-    Cell< Cell< moris_index > >                    mSubphaseSideOrds;
-    Cell< Cell< Child_Mesh * > >                   mNeighborChildMesh;
-    Cell< Cell< moris_index > >                    mSubphaseNeighborCellInds;
-    Cell< Cell< moris_index > >                    mSubphaseNeighborSideOrds;
-    Cell< Cell< moris_index > >                    mSubphaseNeighborCellSubphaseInd;
-
-
-    // External boundary data
 };
 
 }// namespace xtk

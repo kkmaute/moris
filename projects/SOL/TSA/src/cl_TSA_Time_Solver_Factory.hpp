@@ -4,14 +4,15 @@
  *  Created on: Mar 28, 2018
  *      Author: schmidt
  */
+#ifndef SRC_DISTLINALG_CL_TSA_TIME_SOLVER_FACTORY_HPP_
+#define SRC_DISTLINALG_CL_TSA_TIME_SOLVER_FACTORY_HPP_
+
 #include <memory>
 
 #include "cl_TSA_Time_Solver_Enums.hpp"
 
 #include "cl_Param_List.hpp"
 
-#ifndef SRC_DISTLINALG_CL_TSA_TIME_SOLVER_FACTORY_HPP_
-#define SRC_DISTLINALG_CL_TSA_TIME_SOLVER_FACTORY_HPP_
 
 namespace moris
 {

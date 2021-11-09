@@ -73,6 +73,7 @@
 #include "cl_NLA_Nonlinear_Solver_Factory.hpp"
 #include "cl_NLA_Nonlinear_Solver.hpp"
 #include "cl_NLA_Nonlinear_Problem.hpp"
+#include "cl_NLA_Nonlinear_Algorithm.hpp"
 //SOL/TSA/src
 #include "cl_TSA_Time_Solver_Factory.hpp"
 #include "cl_TSA_Monolithic_Time_Solver.hpp"

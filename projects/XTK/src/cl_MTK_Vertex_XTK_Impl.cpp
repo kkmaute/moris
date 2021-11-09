@@ -16,31 +16,6 @@ namespace moris
 
         Vertex_XTK::Vertex_XTK(){}
 
-        //------------------------------------------------------------------------------
-
-        Vertex_XTK::Vertex_XTK(moris::moris_id        aVertexId,
-                               moris::moris_index     aVertexIndex,
-                               moris::moris_index     aOwner,
-                               xtk::Background_Mesh * aBackgroundMeshPtr)
-            : mVertexId(aVertexId),
-              mVertexIndex(aVertexIndex),
-              mVertexOwner(aOwner),
-              mBackgroundMeshPtr(aBackgroundMeshPtr),
-              mCoordinates(nullptr)
-              {
-
-              }
-
-        //------------------------------------------------------------------------------
-
-        Vertex_XTK::Vertex_XTK(mtk::Vertex * aBackgroundMeshVertex)
-            : mVertexId(aBackgroundMeshVertex->get_id()),
-              mVertexIndex(aBackgroundMeshVertex->get_index()),
-              mVertexOwner(aBackgroundMeshVertex->get_owner()),
-              mBackgroundMeshVertex(aBackgroundMeshVertex),
-              mCoordinates(nullptr)
-        {
-        }
 
         Vertex_XTK::Vertex_XTK(
             moris::moris_id           aVertexId,
@@ -51,7 +26,6 @@ namespace moris
         mVertexId(aVertexId),
         mVertexIndex(aVertexIndex),
         mVertexOwner(aOwner),
-        mBackgroundMeshPtr(nullptr),
         mCoordinates(aCoordinates)
         {
         }
@@ -74,24 +48,7 @@ namespace moris
         Matrix<DDRMat>
         Vertex_XTK::get_coords() const
         {
-            MORIS_ASSERT(mBackgroundMeshPtr != nullptr || mBackgroundMeshVertex != nullptr || mCoordinates->numel()>0, "Background Mesh Pointer and Background Vertex pointer is null in XTK vertex");
-            if (mBackgroundMeshPtr != nullptr)
-            {
-                return mBackgroundMeshPtr->get_selected_node_coordinates_loc_inds({{mVertexIndex}});
-            }
-            else if (mBackgroundMeshVertex != nullptr)
-            {
-                return mBackgroundMeshVertex->get_coords();
-            }
-            else if(mCoordinates->numel()>0)
-            {
-                return *mCoordinates;
-            }
-            else
-            {
-                MORIS_ERROR(0, "Invalid get_coord implementation");
-                return moris::Matrix<moris::DDRMat>(0, 0);
-            }
+            return *mCoordinates;
         }
         //------------------------------------------------------------------------------
         moris_id
@@ -144,8 +101,7 @@ namespace moris
             tTotal += sizeof(mVertexId);
             tTotal += sizeof(mVertexIndex);
             tTotal += sizeof(mVertexInterpolation);
-            tTotal += sizeof(mBackgroundMeshVertex);
-            tTotal += sizeof(mBackgroundMeshPtr);
+            tTotal += sizeof(mCoordinates);
             return tTotal;
         }
         //------------------------------------------------------------------------------

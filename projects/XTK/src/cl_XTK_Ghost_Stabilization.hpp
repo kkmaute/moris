@@ -25,6 +25,7 @@ namespace moris
 }
 namespace xtk
 {
+    class Cell_XTK_No_CM;
     /*
      * Data used while setting up the ghost stabilization (to not have to pass everything around in function inputs)
      */
@@ -258,7 +259,7 @@ namespace xtk
                     moris_index & aCurrentId);
 
             // ----------------------------------------------------------------------------------
-            moris::mtk::Cell*
+            std::shared_ptr<xtk::Cell_XTK_No_CM>
             create_non_trivial_master_ig_cell(
                     Ghost_Setup_Data &  aGhostSetupData,
                     uint const & aBulkIndex,

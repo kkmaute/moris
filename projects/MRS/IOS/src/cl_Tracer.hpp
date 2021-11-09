@@ -22,7 +22,7 @@ class Tracer
     private:
 
     // class has no member variables / is empty
-
+    bool mSignOut = true;
 
     //-------------------------------- PUBLIC ---------------------------------//
     public:
@@ -36,9 +36,18 @@ class Tracer
          */
         Tracer(std::string aEntityBase,
                std::string aEntityType,
-               std::string aEntityAction)
+               std::string aEntityAction,
+               moris::uint aThreshold = 0,
+               moris::uint aLevel = 0)
         {
-            gLogger.sign_in( aEntityBase, aEntityType, aEntityAction );
+            if(aLevel <= aThreshold)
+            {
+                gLogger.sign_in( aEntityBase, aEntityType, aEntityAction );
+            }
+            else
+            {
+                mSignOut = false;
+            }
         }
 
         /**
@@ -57,7 +66,7 @@ class Tracer
         // destructor: automatically perform sign out operation when tracer gets destructed
         ~Tracer()
         {
-            gLogger.sign_out();
+            if(mSignOut){gLogger.sign_out();}
         };
 
 

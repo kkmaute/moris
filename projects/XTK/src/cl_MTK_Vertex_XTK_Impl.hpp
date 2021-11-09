@@ -11,11 +11,6 @@
 #include "cl_MTK_Vertex.hpp"
 #include "cl_MTK_Vertex_Interpolation_XTK_Impl.hpp"
 
-namespace xtk
-{
- class Background_Mesh;
-}
-
 //------------------------------------------------------------------------------
 namespace moris
 {
@@ -34,20 +29,10 @@ namespace moris
              */
             Vertex_XTK();
 
-
-            Vertex_XTK(moris::moris_id        aVertexId,
-                       moris::moris_index     aVertexIndex,
-                       moris::moris_index     aOwner,
-                       xtk::Background_Mesh * aBackgroundMeshPtr);
-
             Vertex_XTK(moris::moris_id        aVertexId,
                        moris::moris_index     aVertexIndex,
                        moris::moris_index     aOwner,
                        std::shared_ptr<moris::Matrix<moris::DDRMat>> aCoordinates);                       
-            /*
-             * Constructor for a background mesh vertex
-             */
-            Vertex_XTK(mtk::Vertex* aBackgroundMeshVertex);
 //------------------------------------------------------------------------------
 
             /**
@@ -116,13 +101,6 @@ namespace moris
             moris::moris_index           mVertexIndex;
             moris::moris_index           mVertexOwner;
             Vertex_Interpolation_XTK *   mVertexInterpolation = nullptr; // (basis weights and basis identity)
-
-            // If this vertex is craeted by XTK we need a pointer to the background mesh
-            xtk::Background_Mesh * mBackgroundMeshPtr = nullptr; // To access coords... (set to null for assertion purposes)
-
-            // If this was a vertex in the background mesh (simply store the pointer)
-            Vertex * mBackgroundMeshVertex = nullptr;
-            
             std::shared_ptr<moris::Matrix<moris::DDRMat>> mCoordinates;
         };
 //------------------------------------------------------------------------------
