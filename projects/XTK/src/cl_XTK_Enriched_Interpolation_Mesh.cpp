@@ -1992,19 +1992,10 @@ Enriched_Interpolation_Mesh::assign_ip_vertex_ids()
     // receive the information
     barrier();
 
-std::cout<<" inward_receive_request_answers"<<std::endl;
     // receive the answers
     Cell< Matrix< IndexMat > > tReceivedVertexIds;
 
     mXTKModel->inward_receive_request_answers( tTag + 2, 1, tProcRanks, tReceivedVertexIds );
-std::cout<<" handle_received_ip_vertex_ids"<<std::endl;
-
-for(moris::uint iP = 0; iP < tReceivedVertexIds.size(); iP++)
-{
-
-    MORIS_LOG_SPEC("Min IP Vertex ID from " + std::to_string(tProcRanks(iP)), tReceivedVertexIds(iP).min());
-    MORIS_LOG_SPEC("Max IP Vertex ID from " + std::to_string(tProcRanks(iP)), tReceivedVertexIds(iP).max());
-}
 
     // add child cell ids to not owned child meshes
     this->handle_received_ip_vertex_ids( tNotOwnedVertices, tReceivedVertexIds );
