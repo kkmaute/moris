@@ -22,7 +22,7 @@ namespace xtk
  * Swaps value xp with value yp
  */
 template<typename Type>
-void swap(Type & xp,
+void swap_xtk(Type & xp,
           Type &yp)
 {
     Type temp = xp;
@@ -55,7 +55,7 @@ row_bubble_sort(moris::Matrix< Matrix_Type > & aMatrix)
             {
                 if (aMatrix(i,k) > aMatrix(i,k+1))
                 {
-                    swap(aMatrix(i,k), aMatrix(i,k+1)); // swap these values
+                    swap_xtk(aMatrix(i,k), aMatrix(i,k+1)); // swap these values
                     tSwapped = true;
                 }
             }
@@ -106,7 +106,7 @@ row_bubble_sort_indices(moris::Matrix< Matrix_Type > const & aMatrix,
             {
                 if (aMatrix(i, aOrder(i,k)) > aMatrix(i,aOrder(i,k+1)))
                 {
-                    swap(aOrder(i,k), aOrder(i,k+1)); // swap these values
+                    swap_xtk(aOrder(i,k), aOrder(i,k+1)); // swap these values
                     tSwapped = true;
                 }
             }
