@@ -170,7 +170,16 @@ namespace moris
         const Matrix<DDRMat>& BSpline_Field::get_dfield_dadvs(uint aNodeIndex)
         {
             mtk::Mesh* tMesh = mMeshPair.get_interpolation_mesh();
-            mSensitivities = trans(tMesh->get_t_matrix_of_node_loc_ind(aNodeIndex, this->get_discretization_mesh_index()));
+
+            moris::mtk::Vertex & tVertex = tMesh->get_mtk_vertex(aNodeIndex);
+            if(tVertex.has_interpolation(this->get_discretization_mesh_index()))
+            {
+                mSensitivities = trans(tMesh->get_t_matrix_of_node_loc_ind(aNodeIndex, this->get_discretization_mesh_index()));
+            }
+            else
+            {
+                mSensitivities = Matrix<DDRMat>(1,1,0);
+            }
             return mSensitivities;
         }
 
@@ -179,7 +188,15 @@ namespace moris
         Matrix<DDSMat> BSpline_Field::get_determining_adv_ids(uint aNodeIndex)
         {
             mtk::Mesh* tMesh = mMeshPair.get_interpolation_mesh();
-            return trans( tMesh->get_coefficient_IDs_of_node(aNodeIndex, this->get_discretization_mesh_index()) ) + mADVOffsetID;
+                       moris::mtk::Vertex & tVertex = tMesh->get_mtk_vertex(aNodeIndex);
+            if(tVertex.has_interpolation(this->get_discretization_mesh_index()))
+            {
+                return trans( tMesh->get_coefficient_IDs_of_node(aNodeIndex, this->get_discretization_mesh_index()) ) + mADVOffsetID;
+            }
+            else
+            {
+                return Matrix<DDSMat>(0,0);
+            }
         }
 
         void BSpline_Field::get_coefficient_vector()
