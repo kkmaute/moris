@@ -2614,8 +2614,20 @@ Integration_Mesh_Generator::setup_outward_requests(
             moris_index     tSecondaryId  = aDecompData.tSecondaryIdentifiers( tRequestIndex );
             enum EntityRank tParentRank   = aDecompData.tNewNodeParentRank( tRequestIndex );
 
-            aOutwardRequests( i )( 0, j ) = aBackgroundMesh->get_glb_entity_id_from_entity_loc_index( tParentIndex, tParentRank );
+            // swap out for hmr if needed (hmr calls edges in 2d faces)
+            if(aBackgroundMesh->get_mesh_type() == MeshType::HMR )
+            {
+                if(aBackgroundMesh->get_spatial_dim() == 2)
+                {
+                    if(tParentRank == EntityRank::EDGE)
+                    {
+                        tParentRank =  EntityRank::FACE;
+                    }
+                }
+            }
+
             aOutwardRequests( i )( 1, j ) = (moris_index)tParentRank;
+            aOutwardRequests( i )( 0, j ) = aBackgroundMesh->get_glb_entity_id_from_entity_loc_index( tParentIndex, tParentRank );
             aOutwardRequests( i )( 2, j ) = tSecondaryId;
         }
     }
@@ -2652,6 +2664,18 @@ Integration_Mesh_Generator::prepare_request_answers(
                 moris_index     tParentInd     = aBackgroundMesh->get_loc_entity_ind_from_entity_glb_id( tParentId, tParentRank );
                 bool            tRequestExists = false;
                 moris_index     tRequestIndex  = MORIS_INDEX_MAX;
+
+                // swap out for hmr if needed (hmr calls edges in 2d faces)
+                if(aBackgroundMesh->get_mesh_type() == MeshType::HMR )
+                {
+                    if(aBackgroundMesh->get_spatial_dim() == 2)
+                    {
+                        if(tParentRank == EntityRank::FACE)
+                        {
+                            tParentRank =  EntityRank::EDGE;
+                        }
+                    }
+                }
 
                 if ( aDecompData.mHasSecondaryIdentifier )
                 {
@@ -2717,6 +2741,20 @@ Integration_Mesh_Generator::handle_received_request_answers(
                 moris_index     tParentInd     = aBackgroundMesh->get_loc_entity_ind_from_entity_glb_id( tParentId, tParentRank );
                 bool            tRequestExists = false;
                 moris_index     tRequestIndex  = MORIS_INDEX_MAX;
+
+                
+                // swap out for hmr if needed (hmr calls edges in 2d faces)
+                if(aBackgroundMesh->get_mesh_type() == MeshType::HMR )
+                {
+                    if(aBackgroundMesh->get_spatial_dim() == 2)
+                    {
+                        if(tParentRank == EntityRank::FACE)
+                        {
+                            tParentRank =  EntityRank::EDGE;
+                        }
+                    }
+                }
+
 
                 if ( aDecompData.mHasSecondaryIdentifier )
                 {
