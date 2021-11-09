@@ -12,11 +12,17 @@
 #include <chrono>
 namespace xtk
 {
+    
+// ----------------------------------------------------------------------------------
+
 enum Decomposition_Algorithm_Type
 Node_Hierarchy_Interface::get_algorithm_type() const
 {
     return Decomposition_Algorithm_Type::NODE_HEIRARCHY; //NODE_HIERARCHY
 }
+
+// ----------------------------------------------------------------------------------
+
 moris_index
 Node_Hierarchy_Interface::get_signature() const
 {
