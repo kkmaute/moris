@@ -173,7 +173,7 @@ namespace moris
             aParameterlist.insert( "krylov: zero starting solution" ,  0 );
 
             // Reuse of preconditioner
-             aParameterlist.insert( "prec_reuse" ,  false );
+            aParameterlist.insert( "prec_reuse" ,  false );
         }
 
         //------------------------------------------------------------------------------
@@ -508,7 +508,6 @@ namespace moris
             // Schwarz preconditioner volume fraction threshold
             tLinAlgorithmParameterList.insert( "ASM_volume_fraction_threshold", 0.1 );
 
-
             return tLinAlgorithmParameterList;
         }
 
@@ -680,7 +679,8 @@ namespace moris
         //------------------------------------------------------------------------------
         inline
         // creates a parameter list with default inputs
-        ParameterList create_linear_algorithm_parameter_list( const enum moris::sol::SolverType aSolverType,
+        ParameterList create_linear_algorithm_parameter_list(
+                const enum moris::sol::SolverType aSolverType,
                 const uint                        aIndex = 0 )
         {
             ParameterList tParameterList;
