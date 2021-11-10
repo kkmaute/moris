@@ -1667,16 +1667,6 @@ Enriched_Interpolation_Mesh::finalize_setup()
     MORIS_ERROR( this->verify_basis_support(), "Issue detected in basis support." );// TODO: change to assert once done debugging
 
 
-    moris::Cell< mtk::Vertex* > tVerticesToCommunicate;
-    for(auto & iVert: mEnrichedInterpVerts)
-    {
-        if(iVert->get_owner() != moris::par_rank() )
-        {
-            tVerticesToCommunicate.push_back(iVert);
-        }
-    }
-
-    this->communicate_select_vertex_interpolation(tVerticesToCommunicate);
 }
 
 // ----------------------------------------------------------------------------
