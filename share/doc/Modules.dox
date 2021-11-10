@@ -344,29 +344,23 @@ The following modules introduce the XTK and its core functionalities.
 //------------------------------------------------------------------------------
 
 /** @defgroup GeomEng Geometry Engine Module
-	
+
 This module discusses the functionality of the geometry engine (GE). The GE serves as a query of information about the geometries and fields of interest;
 where a field can be defined by a level set, a density field, or some other design variable. When asked about a certain geometry or field, the GE will return the queried 
-information directly, or an object containing all the information will be returned.  
+information directly, or an object containing all the information will be returned. */
 
-        @addtogroup GE_overview
-        @ingroup GeomEng	
+/** @addtogroup GE_overview
+    @ingroup GeomEng */
 
-        @addtogroup GE_setup
-        @ingroup GeomEng
+/** @addtogroup GE_setup
+    @ingroup GeomEng */
 
-		@addtogroup GE_tutorials
-		@ingroup GeomEng  
-		
-		- GE_Geom_Tutorial_01.cpp
-		- GE_Geom_Tutorial_02.cpp
-		- GE_Geom_Tutorial_03.cpp
+/** @addtogroup GE_tutorials
+    @ingroup GeomEng */
 
-        @addtogroup GE_classes
-		@ingroup GeomEng	
+/** @addtogroup GE_classes
+    @ingroup GeomEng */
 
-
-*/
 
 //------------------------------------------------------------------------------ 
         
