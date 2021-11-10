@@ -976,6 +976,7 @@ EXAMPLE_RECURSIVE      = YES
 
 IMAGE_PATH             = @CMAKE_SOURCE_DIR@/projects \
                          @CMAKE_SOURCE_DIR@/snippets \
+                         @CMAKE_CURRENT_SOURCE_DIR@/figures \
                          @CMAKE_CURRENT_SOURCE_DIR@/figures/xtk \
                          @CMAKE_CURRENT_SOURCE_DIR@/figures/Troubleshooting
 

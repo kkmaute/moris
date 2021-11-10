@@ -135,7 +135,11 @@ it out and perform the following steps:
     mkdir build
     cd build
     cmake ..
+    ccmake .
     make
+
+See @ref ccmakeOptions for compiling options. Many users will choose to stipulate the type of build (debug or optimized) in the folder name.
+For example commonly used names are \c build_dbg and \c build_opt.
 
 It is strongly recommended to create a separate build directory for each compile configureation. Compile configurations differ by
 the BLAS and LAPACK libraries used, the optimization level, and which linear algebra package (i.e. Armadillo or Eigen) is used.
@@ -182,7 +186,17 @@ To clean and build MORIS via Eclipse,
 -# Right click on the project @p MORIS and click on  @b Properties.
 -# Go to the @bold{C/C++ Build} tab and set the @bold{Build directory} to path/to/MORIS.
 -# Under the @b Behavior tab set the @bold{clean target to distclean}.
-    
+
+@subsection ccmakeOptions ccmake Options
+The compile options can be stipulated with the \c ccmake \c . command. This command will take the into an interactive environment
+that allows them enable or disable different options. The following image shows an example for a debug compile configuration.
+
+\anchor GettingStarted001
+\image html ccmake_debug.png "Figure: example ccmake options for a debug build" width=600px
+
+A standard opt version usually sets the following options to \b OFF in the ccmake interactive window: 
+\c BUILD_EXA, \c MORIS_HAVE_DEBUG, \c MORIS_HAVE_SYMBOLIC, \c MORIS_USE_EXAMPLES, and \c MORIS_USE_TESTS.
+
 @section RunDoxy Running Doxygen
 Assuming you have doxygen installed on your local machine, move into the MORIS 
 main directory and run the doxygen command:
