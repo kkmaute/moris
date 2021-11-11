@@ -33,6 +33,5 @@ main(
     gMorisComm.finalize();
 
     return result;
-
 }
 
