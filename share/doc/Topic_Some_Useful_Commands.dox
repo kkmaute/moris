@@ -1,0 +1,53 @@
+namespace moris {
+
+/** @page SomeUsefulCommands Some Useful Commands
+
+The following is a table of some useful commands with their description and where they can be used.
+
+<table>
+<caption id="some_useful_commands">Some useful commands</caption>
+<tr>
+   <th> Command </th>
+   <th> Where to use </th>
+   <th> description </th>
+</tr>
+
+<tr>
+   <td><code> $MORISROOT/share/scripts/create_shared_object.sh . build_dbg <Input_File_Name> </code></td> 
+   <td> terminal </td>
+   <td> compiles input file into executable </td>
+</tr>
+
+<tr>
+   <td><code> $MORISROOT/build_dbg/projects/mains/moris ./<Input_File_Name>.so </code></td> 
+   <td> terminal </td>
+   <td> executes compiled code for input file </td>
+</tr>
+
+<tr>
+   <td><code> git clone ssh://titan.colorado.edu/home/git/codes/moris </code></td> 
+   <td> terminal </td>
+   <td> clones moris to the current directory </td>
+</tr>
+
+<tr>
+   <td><code> valgrind --trace-children=yes --leak-check=full --show-reachable=yes <executable> </code></td> 
+   <td> terminal </td>
+   <td> runs executable using valgrind with some appropriate settings </td>
+</tr>
+
+<tr>
+   <td><code> nohup <executable> & </code></td> 
+   <td> terminal </td>
+   <td> runs executable in the background even if terminal is closed </td>
+</tr>
+
+<tr>
+   <td><code> scp <username>@login.rc.colorado.edu:<path-to-file> <target-path> </code></td> 
+   <td> terminal </td>
+   <td> runs executable in the background even if terminal is closed </td>
+</tr>
+
+</table>
+*/
+}
