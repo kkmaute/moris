@@ -1,0 +1,22 @@
+namespace moris {
+
+/** @page UsingMoris Using MORIS
+
+This section gives instructions on how to use MORIS.
+
+@section UsingInputFiles Using Input files
+This section discusses how to setup and use input files when employing MORIS to solve problems.
+In general, the user is encouraged to find an example problem that is similar to theirs to use a baseline structure.
+
+@subsubsection SomeSettings Some settings to use
+This section discusses different settings that should be used when trying to create reasonable results
+
+-# The geometry mesh should not contain more nodes than the dof mesh in order to avoid ill-conditioning.
+-# The geometry mesh should usually be discretized using a quadratic mesh.
+-# A standard setup for the two meshes would be to have a linear DOF mesh that is refined twice with a quadratic levelset mesh that is refined once.
+
+@subsubsection ConvergenceTweaks Changes to improve results
+This section discusses different settings that should be used when trying to create reasonable results
+
+*/
+}
