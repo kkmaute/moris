@@ -8,7 +8,6 @@ This example tests the axisymmetric formulation for the constitutive model and I
 
 - Axisymmetric Formulation
 - STK body-fitted meshes
-- Nodal Field Temperature
 
 The other basic features of the example are summarized in the \ref beam_temp_example_features "Main Features of Example".
 
