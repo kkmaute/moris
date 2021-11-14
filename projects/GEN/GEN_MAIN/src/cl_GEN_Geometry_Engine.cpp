@@ -710,9 +710,6 @@ namespace moris
             // Tracer
             Tracer tTracer( "GEN", "Create PDVs" );
 
-            // start timer
-            tic tTimer;
-
             // Get meshes using first mesh on mesh manager: Lagrange mesh with numbered aura (default)
             mtk::Integration_Mesh* tIntegrationMesh     = aMeshPair.get_integration_mesh();
             mtk::Interpolation_Mesh* tInterpolationMesh = aMeshPair.get_interpolation_mesh();
