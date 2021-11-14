@@ -2,7 +2,7 @@ namespace moris {
 
 /** @page UsingMoris Using MORIS
 
-This section gives guidance on how to use MORIS input files to run optimization, .
+This section gives guidance on how to set up MORIS input files to run optimization problems.
 In general, the user is encouraged to find an example problem or features of an example problem
 that they can copy over to their problem. See the "Main Features of Example" tables from the different @ref EXA_Module.
 
@@ -110,17 +110,38 @@ The following image shows these different sensitivies within the hdf5 file.
 \anchor InputFileImageSweep
 \image html InputFile_Sweep.png "Figure: Sweep results viewed in HDFView" width=600px
 
-The sensitivies can be quickly compared using the matlab script located in the MORIS directory:
-
-/moris/share/scripts/matlab/CompareFDSweepHDF5.m
-
-This file can also be found on the 
+The sensitivies can be quickly compared using the matlab script located on the 
 <a href=https://drive.google.com/drive/folders/1f-YIplBCudbMelYJ-bjR3uncqvvDPi6Y?usp=sharing>MORIS Google Drive</a>.
+It can also be found on the MORIS github repository: \c /moris/share/scripts/matlab/CompareFDSweepHDF5.m
 
-The user simply needs to run this script at the same directory as the hdf5 file to produce plots that look like the following.
+The user simply needs to run this script at the same directory as the hdf5 file and change the input file
+name in the matlab script to produce plots that look like the following.
 
 \anchor InputFileImageSweepCompare
 \image html InputFile_ConstraintSweep.png "Figure: Constraint sensitivities compared against FD schemes" width=600px
+
+@section InputFileCompileRun Compiling and Running Input Files 
+In order to compile the input file into a shared object the user can run the following command from the directory location
+of the input file:
+
+    $MORISROOT/share/scripts/create_shared_object.sh . <build directory name> <input file name>
+
+The user can execute the shared object using the following command:
+
+    $MORISROOT/<build directory name>/projects/mains/moris ./<input file name>.so
+
+For example, with a build directory of \c build_opt and an input file of <code>test_file.cpp</code>, the commands will look like the following:
+
+    $MORISROOT/share/scripts/create_shared_object.sh . build_opt test_file
+    $MORISROOT/build_opt/projects/mains/moris ./test_file.so
+
+The user can also execute the above commands using the bash file located in the \c scripts folder of the github repository:
+
+    moris.sh <opt or dbg> np <input file name>
+
+For example, using the same directory and file name above: 
+
+    moris.sh opt np test_file
 
 */
 }
