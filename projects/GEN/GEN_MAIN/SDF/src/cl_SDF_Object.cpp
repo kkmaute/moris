@@ -32,6 +32,10 @@ namespace moris
             {
                 this->load_from_stl_file( aFilePath );
             }
+            else
+            {
+                MORIS_ERROR(false, "Object(), file type is not supported");
+            }
         }
 
 //-------------------------------------------------------------------------------
