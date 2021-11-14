@@ -290,9 +290,20 @@ As such, they should be run regularly and after major revisions to any module to
 How the examples should be created and used is explained in EXA_DEV_GUIDE.
 The examples are sorted by the implementation aspect they are supposed to validate (e.g. "Thermal" for testing the thermal diffusion model).
 
+@section FeaturesOfExamples Features of Examples
+
 The following table shows a list of features that can be found in these examples.
 
-TODO: table of feature with examples that can be referenced
+<table>
+<caption id="features_in_examples">Features Found in Different Examples</caption>
+<tr><th>Feature</th>                      <th> Examples </th></tr>
+<tr><td>Axisymmetric formulation</td>     <td> \ref EXA_Structure_Linear_Axisymmetric </td></tr>
+<tr><td>STK background mesh</td>          <td> \ref EXA_Structure_Linear_Axisymmetric \n
+                                               \ref EXA_Structure_Linear_Beam_Temperature_Field \n
+                                               \ref EXA_Structure_Linear_Plane_Strain </td></tr>
+<tr><td>Imported nodal field values</td>  <td> \ref EXA_Structure_Linear_Beam_Temperature_Field </td></tr>
+<tr><td>Plane strain formulation</td>     <td> \ref EXA_Structure_Linear_Plane_Strain </td></tr>
+</table>
 
 */
 
