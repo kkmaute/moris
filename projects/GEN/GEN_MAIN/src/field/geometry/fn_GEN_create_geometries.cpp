@@ -14,6 +14,7 @@
 #include "cl_GEN_Multigeometry.hpp"
 #include "cl_GEN_Swiss_Cheese_Slice.hpp"
 #include "cl_GEN_Mesh_Field_Geometry.hpp"
+#include "cl_GEN_Geometry_SDF.hpp"
 
 namespace moris
 {
@@ -247,6 +248,11 @@ namespace moris
             {
                 MORIS_ERROR(aMTKMesh != nullptr, "Mesh is a null ptr for nodal field geometry");
                 return std::make_shared<ge::Mesh_Field_Geometry>(aMTKMesh, tParameters.mName, EntityRank::NODE);
+            }
+            else if (tGeometryType == "sdf_field")
+            {
+                std::string tObjectPath = aGeometryParameterList.get<std::string>("sdf_object_path");
+                return std::make_shared<ge::Geometry_SDF >( tObjectPath, tParameters );
             }
             else if (tGeometryType == "user_defined")
             {
