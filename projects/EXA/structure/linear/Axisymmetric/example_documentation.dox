@@ -1,6 +1,6 @@
 namespace moris {
 
-/** \page EXA_Structure_Linear_Axisymmetric Axisymmetric Problem.
+/** \page EXA_Structure_Linear_Axisymmetric Axisymmetric Problem
 
 # Problem Description
 This example is a linear elastic problem that determines state of stress of cylinder under a radial pressure load.
