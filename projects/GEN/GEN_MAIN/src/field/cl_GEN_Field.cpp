@@ -268,6 +268,13 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        void Field::set_num_original_nodes( uint aNumOriginalNodes )
+        {
+            mNumOriginalNodes = aNumOriginalNodes;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         void Field::assign_adv_dependencies(
                 Matrix<DDUMat> aFieldVariableIndices,
                 Matrix<DDUMat> aADVIndices)

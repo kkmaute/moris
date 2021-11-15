@@ -2841,6 +2841,17 @@ namespace xtk
                                 // get the neighbor cell index and subphase membership
                                 moris_index tNeighborIndex         = tNeighborhood(tCellInd)(iN)->get_index();
                                 moris_index tNeighborSubphaseIndex = tElementToSubphase(tNeighborIndex);
+
+                                MORIS_ASSERT( (sint)tNeighborhoodNeighSideOrds.size() >tCellInd,
+                                        "index larger than cell size %i vs %i",
+                                        tNeighborhoodNeighSideOrds.size(),
+                                        tCellInd );
+
+                                MORIS_ASSERT( tNeighborhoodNeighSideOrds(tCellInd).size() > iN,
+                                                                        "index larger than cell size %i vs %i",
+                                                                        tNeighborhoodNeighSideOrds(tCellInd).size(),
+                                                                        iN );
+
                                 moris_index tNeighborSideOrd       = tNeighborhoodNeighSideOrds(tCellInd)(iN);
 
                                 // is the neighbor in the child mesh

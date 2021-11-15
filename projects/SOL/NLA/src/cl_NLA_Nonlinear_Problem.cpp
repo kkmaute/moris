@@ -56,6 +56,9 @@ Nonlinear_Problem::Nonlinear_Problem(
     // Build Matrix vector factory
     sol::Matrix_Vector_Factory tMatFactory( mMapType );
 
+    MORIS_LOG_SPEC("Total number of DOFs for non-linear system",
+            sum_all( aSolverInterface->get_my_local_global_map( tRequesedDofTypes ).numel() ) );
+
     // create map object FIXME ask linear problem for map
     mMap = tMatFactory.create_map( aSolverInterface->get_my_local_global_map( tRequesedDofTypes ) );
 

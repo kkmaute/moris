@@ -18,6 +18,8 @@ namespace moris
             Cell<real*>    mFieldVariables;
             Matrix<DDRMat> mSensitivities;
 
+            uint mNumOriginalNodes;
+
         private:
             Matrix<DDRMat>    mConstants;
             Field_Parameters  mParameters;
@@ -253,6 +255,8 @@ namespace moris
              * @return Mesh pair
              */
             virtual mtk::Mesh_Pair get_mesh_pair();
+
+            void set_num_original_nodes( uint aNumOriginalNodes );
 
         private:
 

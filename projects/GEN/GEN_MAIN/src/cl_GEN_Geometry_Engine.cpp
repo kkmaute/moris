@@ -28,6 +28,8 @@
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
 #include "cl_SOL_Dist_Map.hpp"
 
+#include "cl_Stopwatch.hpp" //CHR/src
+
 namespace moris
 {
     namespace ge
@@ -717,6 +719,8 @@ namespace moris
             Cell<PDV_Type> tPDVTypeGroup(1);
             Cell<Matrix<DDUMat>> tMeshSetIndicesPerProperty(mProperties.size());
 
+            tic tTimer;
+
             // Loop over properties to create PDVs
             for (uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++)
             {
@@ -748,6 +752,11 @@ namespace moris
                 }
             }
 
+            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+            MORIS_LOG_INFO( " Assign PDV type to mesh sets on processor %u took %5.3f seconds.", ( uint ) par_rank(), ( double ) tElapsedTime / 1000);
+
+            // start timer
+            tic tTimer2;
             // Get and save communication map from IP mesh
             Matrix< IdMat > tCommTable = tInterpolationMesh->get_communication_table();
             mPDVHostManager.set_communication_table( tCommTable );
@@ -762,17 +771,34 @@ namespace moris
                     tIPVertexGlobaToLocalMap,
                     tIGVertexGlobaToLocalMap);
 
+            tElapsedTime = tTimer2.toc<moris::chronos::milliseconds>().wall;
+            MORIS_LOG_INFO( " Get global-to-local-maps from mtk on processor %u took %5.3f seconds.", ( uint ) par_rank(), ( double ) tElapsedTime / 1000);
+
+            // start timer
+            tic tTimer3;
             // Create PDV hosts
             this->create_interpolation_pdv_hosts(
                     tInterpolationMesh,
                     tIntegrationMesh,
                     tPdvTypes);
 
+            tElapsedTime = tTimer3.toc<moris::chronos::milliseconds>().wall;
+            MORIS_LOG_INFO( " Create interpolation PDV hosts on processor %u took %5.3f seconds.", ( uint ) par_rank(), ( double ) tElapsedTime / 1000);
+
             // Set integration PDV types
             if (mShapeSensitivities)
             {
+                // start timer
+                tic tTimer4;
+
                 this->set_integration_pdv_types(tIntegrationMesh);
+
+                tElapsedTime = tTimer4.toc<moris::chronos::milliseconds>().wall;
+                MORIS_LOG_INFO( " Set integration PDV types on processor %u took %5.3f seconds.", ( uint ) par_rank(), ( double ) tElapsedTime / 1000);
             }
+
+            // start timer
+            tic tTimer5;
 
             // Loop over properties to assign PDVs
             for (uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++)
@@ -797,8 +823,16 @@ namespace moris
                 }
             }
 
+            tElapsedTime = tTimer5.toc<moris::chronos::milliseconds>().wall;
+            MORIS_LOG_INFO( " Assign property to pdv host on processor %u took %5.3f seconds.", ( uint ) par_rank(), ( double ) tElapsedTime / 1000);
+
+            // start timer
+            tic tTimer6;
             // Create PDV IDs
             mPDVHostManager.create_pdv_ids();
+
+            tElapsedTime = tTimer6.toc<moris::chronos::milliseconds>().wall;
+            MORIS_LOG_INFO( " Compute and comunicate PDV IDs on processor %u took %5.3f seconds.", ( uint ) par_rank(), ( double ) tElapsedTime / 1000);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -1178,6 +1212,7 @@ namespace moris
                     // Every Field needs a mesh. FIXME setting the mesh here is to late
                     mGeometries(tGeometryIndex)->unlock_field();
                     mGeometries(tGeometryIndex)->set_mesh_pair( aMeshPair );
+                    mGeometries(tGeometryIndex)->set_num_original_nodes(aMeshPair.get_interpolation_mesh()->get_num_nodes() );
                 }
             }
 
@@ -1315,9 +1350,6 @@ namespace moris
             mPDVHostManager.reset();
             mPDVHostManager.set_num_background_nodes(aMesh->get_num_nodes());
 
-            // Allocate proximity data
-            this->setup_initial_geometric_proximities(aMesh);
-
             // Reset info related to the mesh
             mActiveGeometryIndex = 0;
             for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
@@ -1328,6 +1360,9 @@ namespace moris
             {
                 mProperties(tPropertyIndex)->reset_nodal_data();
             }
+
+            // Allocate proximity data
+            this->setup_initial_geometric_proximities(aMesh);
         }
 
         //--------------------------------------------------------------------------------------------------------------
