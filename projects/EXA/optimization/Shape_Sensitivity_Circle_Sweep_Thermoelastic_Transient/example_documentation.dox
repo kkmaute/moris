@@ -1,18 +1,24 @@
 namespace moris {
 
-/** \page EXA_Shape_Sensitivity_Sweep Shape Sensitivity Circle Sweep
+/** \page EXA_OPTIMIZATION_SHAPE_SENS_CIRCLE_SWEEP_THERMOELASTIC_TRANSIENT Shape Sensitivity of a Transient Thermoelastic Circle Problem
 
 # Problem Description
 This example highlights the use of the following features:
 
 - Shape Optimization
 - Sensitivity Sweep
+- Staggered Solver
+- Transient Problem
 - TODO: Add features here
 
 # Problem Setup
-# Analytical Solution
+
+# Reference Solution
+
 # Literature
+
 # Developer Notes
+
 
 */
 

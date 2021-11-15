@@ -3,48 +3,48 @@ namespace ge {
 
 /** @defgroup GE_setup Setup and Use
     
-    First, a geometry representation (GR) must be created via the factory using one of the following options:
+First, a geometry representation (GR) must be created via the factory using one of the following options:
     
-    1) Option 1 - Discrete 
+1) <b> Option 1 - Discrete </b>
     
-        \f[   \phi_{nodal}^{i} = T_{nodal} \times BsplineCoeffs   \f]
+\f$   \phi_{nodal}^{i} = T_{nodal} \times BsplineCoeffs   \f$
        
-       The use of this option will require a target field to map to during initalization. 
+The use of this option will require a target field to map to during initalization. 
        
-    2) Option 2 - Discrete 
+2) <b> Option 2 - Discrete </b>
     
-        \f[   \phi_{nodal}^{i} = T_{radial filter} \times p   \f]
+\f$   \phi_{nodal}^{i} = T_{radial filter} \times p   \f$
         
-        Where p is a set of user-defined parameters.
+<p> &emsp; Where <b> p </b> is a set of user-defined parameters. </p>
         
-        The use of this option will require a target field to map to during initalization.
+The use of this option will require a target field to map to during initalization.
         
-    3) Option 3 - Analytic
+3) <b> Option 3 - Analytic </b>
     
-        \f[   \phi_{nodal}^{i} = f(p)   \f]
+\f$   \phi_{nodal}^{i} = f(p)   \f$
         
-        Where p is a set of user-defined parameters. 
+<p> &emsp; Where <b> p </b> is a set of user-defined parameters. </p>
         
-        The use of this option does not require a target field as the field is already fully defined. 
+The use of this option does not require a target field as the field is already fully defined. 
         
-    4) Option 4 - SDF
+4) <b> Option 4 - SDF </b>
     
-        \f[   \phi_{nodal}^{i} = SDF(p)   \f]
+\f$   \phi_{nodal}^{i} = SDF(p)   \f$
         
-        Where p is a set of user-defined parameters.
+<p> &emsp; Where <b> p </b> is a set of user-defined parameters. </p>
         
-        The use of this option does not require a target field as the field is already fully defined. 
-        
-    Once the GR is defined, the GE can be created. The GE takes in a GR along with its associated mesh and stores them in a list. 
+The use of this option does not require a target field as the field is already fully defined. 
     
-    Next, the GE must perform its initalization step. Depending on the type of the GR, the initalization may result in a projection onto the target field. Regardless, 
-    the initalization step sets up the container which holds all the relevant information (referred to as PDV_Type_Info objects) and registers it in a list whose index
-    corresponds to the index of the associated GR. 
-    
-    The target field may be defined in many ways. For example, it may be an analytically defined level set field or a collection of geometric primitives 
-    or a signed distance field. 
-    
-    Additionaly, the GE has the ability to evaluate a field given a set of paramaters. 
+Once the GR is defined, the GE can be created. The GE takes in a GR along with its associated mesh and stores them in a list. 
+
+Next, the GE must perform its initalization step. Depending on the type of the GR, the initalization may result in a projection onto the target field. Regardless, 
+the initalization step sets up the container which holds all the relevant information (referred to as PDV_Type_Info objects) and registers it in a list whose index
+corresponds to the index of the associated GR. 
+
+The target field may be defined in many ways. For example, it may be an analytically defined level set field or a collection of geometric primitives 
+or a signed distance field. 
+
+Additionaly, the GE has the ability to evaluate a field given a set of paramaters. 
 */
 }
 }

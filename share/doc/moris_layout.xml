@@ -6,9 +6,10 @@
     <!--    <tab type="user" url="http://www.google.com" title="Google"/> --> <!-- We can do external pages -->
     <tab type="user" url="@ref GettingStarted" title="Getting Started" /> <!-- allows us to put this first -->
     <tab type="pages" visible="no" title="" intro=""/> <!-- currently commented out. if put back in, Getting Stated pages appears in alpha-order with a link above -->
-    <tab type="user" url="@ref BuildingMoris" title="Building moris" /> <!-- allows us to put this first -->
-    <tab type="modules" visible="yes" title="Modules" intro=""/> <!-- turns on the modules -->
+    <tab type="user" url="@ref BuildingMoris" title="Building MORIS" /> <!-- allows us to put this first -->
+    <tab type="user" url="@ref UsingMoris" title="Using MORIS" /> <!-- allows us to put this first -->
     <tab type="user" url="@ref MiscTopics" title="General Topics" /> <!-- allows us to put this first -->
+    <tab type="modules" visible="yes" title="Modules" intro=""/> <!-- turns on the modules -->
     <tab type="namespaces" visible="no" title="">
       <tab type="namespacelist" visible="yes" title="" intro=""/>
       <tab type="namespacemembers" visible="no" title="" intro=""/>

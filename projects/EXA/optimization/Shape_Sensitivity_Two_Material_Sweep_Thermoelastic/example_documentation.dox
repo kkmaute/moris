@@ -1,18 +1,23 @@
 namespace moris {
 
-/** \page EXA_Shape_Sensitivity_Sweep Shape Sensitivity Circle Sweep
+/** \page EXA_OPTIMIZATION_SHAPE_SENS_TWO_MAT_SWEEP_THERMOELASTIC Shape Sensitivity of a Thermoelastic Two Material Problem
 
 # Problem Description
 This example highlights the use of the following features:
 
 - Shape Optimization
 - Sensitivity Sweep
+- Multi-phase Problem
 - TODO: Add features here
 
 # Problem Setup
-# Analytical Solution
+
+# Reference Solution
+
 # Literature
+
 # Developer Notes
+
 
 */
 

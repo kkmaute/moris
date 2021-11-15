@@ -1,17 +1,20 @@
 namespace moris {
 
-/** \page EXA_SIMP SIMP
+/** \page EXA_OPTIMIZATION_CONTACT_SENSITIVITY Contact Sensitivity Problem
 
 # Problem Description
 This example highlights the use of the following features:
 
-- SIMP Problem
-- TODO: Add features here
+- Structural Linear Contact
 
 # Problem Setup
-# Analytical Solution
+
+# Reference Solution
+
 # Literature
+
 # Developer Notes
+
 
 */
 
