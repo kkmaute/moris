@@ -14,6 +14,7 @@
 #include "fn_norm.hpp"
 
 #include "fn_stringify_matrix.hpp"
+#include "fn_unique.hpp"
 #include "fn_join_horiz.hpp"
 
 #include "HDF5_Tools.hpp"
@@ -318,12 +319,27 @@ namespace moris
                     }
                 } // end: loop over all IP Nodes
 
-                // fixme: just copy onto lists for now, works only for linear everything
-                aIGtoBSIds( iIgNode ) = tNodalIGtoBSIds;
-                aIGtoBSWeights( iIgNode ) = tNodalIGtoBSWeights;
+                
+                // get unique list of B-Spline IDs associated with each IG node
+                moris::unique( tNodalIGtoBSIds, aIGtoBSIds( iIgNode ) );
 
-                // todo: make list unique for the case of higher order....
-                 
+                // get number of unique IDs in list
+                uint tNumUniqueIDs = aIGtoBSIds( iIgNode ).numel();
+
+                // initialize list of weights associated with unique list of IDs
+                aIGtoIPWeights( iIgNode ).set_size( tNumUniqueIDs, 1, 0.0 );
+
+                // create list of weights associated with unique list of IDs
+                for ( uint iUnique = 0; iUnique < tNumUniqueIDs; iUnique++ )
+                {
+                    for ( uint jNonUnique = 0; jNonUnique < tNodalIGtoBSIds.numel(); jNonUnique++ )
+                    {
+                        if ( aIGtoBSIds( iIgNode )( iUnique ) == tNodalIGtoBSIds( jNonUnique ) )
+                        {
+                            aIGtoIPWeights( iIgNode )( iUnique ) = aIGtoIPWeights( iIgNode )( iUnique ) + tNodalIGtoBSWeights( jNonUnique );
+                        }
+                    }
+                }
             } // end: loop over all IG Nodes
         }
 
@@ -377,12 +393,24 @@ namespace moris
                 Matrix< DDUMat > & aSparseIndices,
                 Matrix< DDRMat > & aWeights )
         {
-            // initialize sparse matrix
-            aSparseIndices.set_size( 0, 0 );
-            aWeights.set_size( 0, 0 );
-
             // get number of IG nodes
             uint tNumIgNodes = aIGtoBSIds.size();
+
+            // initialize length of global sparse operator
+            uint tNumIdWeightPairs = 0;
+
+            // loop over all IG Nodes to figure out total number of weights
+            for ( uint iG = 0; iG < tNumIgNodes; iG++ )
+            {
+                tNumIdWeightPairs += aIGtoBSIds( iG ).numel();
+            }
+
+            // initialize sparse matrix
+            aSparseIndices.set_size( tNumIdWeightPairs, 2 );
+            aWeights.set_size( tNumIdWeightPairs, 1 );
+
+            // initialize index counter
+            uint tIndex = 0;
 
             // loop over all IG Nodes
             for ( uint iG = 0; iG < tNumIgNodes; iG++ )
@@ -396,16 +424,16 @@ namespace moris
                         // get 
                         uint tBspId = aIGtoBSIds( iG )( iBsp );
 
-                        // append indices and weights to list
-                        aSparseIndices = join_horiz( aSparseIndices, { { iG + 1 }, { tBspId } } );
-                        aWeights = join_horiz( aWeights, { { aIGtoBSWeights( iG )( iBsp ) } } );
+                        // write IG/BS indices and weights to list
+                        aSparseIndices( tIndex , 0 ) = iG + 1;
+                        aSparseIndices( tIndex , 1 ) = tBspId;
+                        aWeights( tIndex ) = aIGtoBSWeights( iG )( iBsp );
+
+                        // increment index
+                        tIndex++;
                     }
                 }
             } // end: loop over all IG nodes
-            
-            // flip orientation
-            aSparseIndices = trans( aSparseIndices );
-            aWeights = trans( aWeights );
         }
 
         // ----------------------------------------------------------------------------
