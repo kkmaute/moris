@@ -2,7 +2,24 @@ namespace moris {
 
 /** @page BuildingMoris Building MORIS
 
-@tableofcontents
+<b>Table of Contents</b>
+- @ref Checkout
+  - @ref CommandCheckout
+  - @ref GitCheck
+  - @ref GitCommandCheckout
+  - @ref EclipseCheckout
+- @ref BuildingDoxygen
+- @ref EnvironmentVariables
+  - @ref EnvVarList
+  - @ref RequiredEnvVars
+  - @ref OptionalEnvVars
+  - @ref AddEnvVars
+  - @ref OtherAcceptedEnvVars
+- @ref ConfiguringMoris
+  - @ref CMakeCurses
+  - @ref TerminalOptions
+  - @ref MorisBuild
+- @ref WindowsBuild
 
 Here you will find instructions about how to checkout MORIS from GitHub, compile the MORIS Doxygen, set necessary environment variables, and configure your MORIS build using CMake.
 

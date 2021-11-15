@@ -2,6 +2,14 @@ namespace moris {
 
 /** @page UsingMoris Using MORIS
 
+<b>Table of Contents</b>
+- @ref InputFileSteps
+- @ref InputFileHMRSettings
+- @ref InputFileSOLSettings
+- @ref ConvergenceTweaks
+- @ref InputFileSweep
+- @ref InputFileCompileRun
+
 This section gives guidance on how to set up MORIS input files to run optimization problems.
 In general, the user is encouraged to find an example problem or features of an example problem
 that they can copy over to their problem. See the "Main Features of Example" tables from the different @ref EXA_Module.

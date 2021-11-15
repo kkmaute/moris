@@ -2,7 +2,21 @@ namespace moris {
 
 /** @page GettingStarted Getting Started
 
-@tableofcontents
+<b>Table of Contents</b>
+- @ref GettingStartedInstallation
+  - @ref Checkout
+  - @ref EclipseCheckout
+  - @ref CommandCheckout
+  - @ref MTPLSCheckout
+  - @ref EnvVar
+  - @ref CompilingCode
+  - @ref ccmakeOptions
+- @ref RunDoxy
+  - @ref CleanDoxy
+  - @ref InstallDoxy
+- @ref Preferences
+  - @ref Importing
+  - @ref Exporting
 
 Instructions on how to checkout and compile the code, compiling the Doxygen 
 output and importing/exporting the group's Eclipse preferences are included 
