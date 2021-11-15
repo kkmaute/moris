@@ -731,7 +731,10 @@ class Elevate_Order_Interface : public Decomposition_Algorithm
         Decomposition_Data*               aDecompositionData,
         Cut_Integration_Mesh*             aCutIntegrationMesh,
         moris::mtk::Mesh*                 aBackgroundMesh,
-        Integration_Mesh_Generator*       aMeshGenerator );
+        Integration_Mesh_Generator*       aMeshGenerator )
+    {
+        MORIS_ERROR( false, "Elevate_Order_Interface::perform_impl_vertex_requests() - This virtual function is not implemented in this Child Class." );
+    }
 
     void
     perform_impl_generate_mesh(
@@ -739,7 +742,10 @@ class Elevate_Order_Interface : public Decomposition_Algorithm
         Decomposition_Data*               aDecompositionData,
         Cut_Integration_Mesh*             aCutIntegrationMesh,
         moris::mtk::Mesh*                 aBackgroundMesh,
-        Integration_Mesh_Generator*       aMeshGenerator );
+        Integration_Mesh_Generator*       aMeshGenerator )
+    {
+        MORIS_ERROR( false, "Elevate_Order_Interface::perform_impl_generate_mesh() - This virtual function is not implemented in this Child Class." );
+    }
 
     // -------------------------------------------------------------------------
 
