@@ -1,17 +1,20 @@
 namespace moris {
 
-/** \page EXA_SIMP SIMP
+/** \page EXA_OPTIMIZATION_SA_CUT_BAR_STATIC SA Cut Bar Static Problem
 
 # Problem Description
 This example highlights the use of the following features:
 
-- SIMP Problem
-- TODO: Add features here
+- Sensitivity Sweep
 
 # Problem Setup
-# Analytical Solution
+
+# Reference Solution
+
 # Literature
+
 # Developer Notes
+
 
 */
 

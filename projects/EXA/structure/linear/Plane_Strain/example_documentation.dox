@@ -4,7 +4,7 @@ namespace moris {
 
 # Problem Description
 This example is a linear elastic problem that determines state of stress of an element using a plane strain formulation.
-This example highlights the use of the following features that can be found in \ref FeaturesOfExamples:
+This example highlights the use of the following features:
 
 - Plane strain formulation
 - STK body-fitted meshes
