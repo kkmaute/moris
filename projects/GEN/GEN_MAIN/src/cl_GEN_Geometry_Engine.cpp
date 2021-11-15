@@ -1668,6 +1668,10 @@ namespace moris
             Cell<Matrix<DDSMat>> tNodeOwnersPerSet(tNumSets);
             Cell<Matrix<DDRMat>> tNodeCoordinatesPerSet(tNumSets);
 
+            Cell< uint > tCounter(tNumSets, 0);
+
+            uint tNumSpatialDim = 0;
+
             // Determine if we need to do the below loop
             bool tDoJankLoop = false;
             for (uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++)
@@ -1682,6 +1686,59 @@ namespace moris
             // List has redundant entries
             if (tDoJankLoop)
             {
+                // Loop through sets in integration mesh
+                for (uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++)
+                {
+                    mtk::Set* tSet = aIntegrationMesh->get_set_by_index(tMeshSetIndex);
+
+                    // Get number of clusters on set
+                    uint tNumberOfClusters = tSet->get_num_clusters_on_set();
+
+                    // Clusters per set
+                    for (uint tClusterIndex = 0; tClusterIndex < tNumberOfClusters; tClusterIndex++)
+                    {
+                        // get pointer to cluster
+                        const mtk::Cluster* tCluster = tSet->get_clusters_by_index(tClusterIndex);
+
+                        // Indices, IDs, and ownership of base cell nodes in cluster
+                        // FIXME this is really bad and slow. especially when building the pdvs; should return const &
+                        mtk::Cell const * tBaseCell = tCluster->get_interpolation_cell( mtk::Master_Slave::MASTER ).get_base_cell();
+
+                        Matrix<IndexMat> tNodeIndicesInCluster  = tBaseCell->get_vertex_inds();
+                        Matrix<DDRMat>   tNodeCoordinatesInCluster = tBaseCell->get_vertex_coords();
+
+                        // number of base nodes in cluster
+                        uint tNumberOfBaseNodes = tNodeIndicesInCluster.length();
+
+                        tCounter( tMeshSetIndex ) =  tCounter( tMeshSetIndex ) + tNumberOfBaseNodes;
+
+                        // number of spatial dimension
+                        tNumSpatialDim = tNodeCoordinatesInCluster.n_cols();
+
+                        // this is a hack. the hole function is super slow and should be rewritten
+                        // hack was implemented intentionally to get something running. Redo completely when rewriting GEN
+                        if( tSet->get_set_type() == moris::SetType::DOUBLE_SIDED_SIDESET )
+                        {
+                            mtk::Cell const * tBaseCellSlave = tCluster->get_interpolation_cell( mtk::Master_Slave::SLAVE ).get_base_cell();
+
+                            Matrix<IndexMat> tNodeIndicesInCluster  = tBaseCellSlave->get_vertex_inds();
+
+                            // number of base nodes in cluster
+                            tNumberOfBaseNodes = tNodeIndicesInCluster.length();
+
+                            tCounter( tMeshSetIndex ) =  tCounter( tMeshSetIndex ) + tNumberOfBaseNodes;
+                        }
+                    }
+                }
+
+                for (uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++)
+                {
+                    tNodeIndicesPerSet(tMeshSetIndex)    .resize( tCounter( tMeshSetIndex ), 1);
+                    tNodeIdsPerSet(tMeshSetIndex)        .resize( tCounter( tMeshSetIndex ), 1);
+                    tNodeOwnersPerSet(tMeshSetIndex)     .resize( tCounter( tMeshSetIndex ), 1);
+                    tNodeCoordinatesPerSet(tMeshSetIndex).resize( tCounter( tMeshSetIndex ), tNumSpatialDim);
+                }
+
                 // Loop through sets in integration mesh
                 for (uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++)
                 {
@@ -1709,18 +1766,9 @@ namespace moris
                         // number of base nodes in cluster
                         uint tNumberOfBaseNodes = tNodeIndicesInCluster.length();
 
-                        // number of spatial dimension
-                        uint tNumSpatialDim = tNodeCoordinatesInCluster.n_cols();
-
                         // check for consistency
                         MORIS_ASSERT( tNodeIdsInCluster.length() == tNumberOfBaseNodes && tNodeOwnersInCluster.length() == tNumberOfBaseNodes,
                                 "Geometry_Engine::create_interpolation_pdv_hosts - inconsistent cluster information.\n");
-
-                        // FIXME don't understand this resize. it's really slow
-                        tNodeIndicesPerSet(tMeshSetIndex)    .resize(tCurrentNode + tNumberOfBaseNodes, 1);
-                        tNodeIdsPerSet(tMeshSetIndex)        .resize(tCurrentNode + tNumberOfBaseNodes, 1);
-                        tNodeOwnersPerSet(tMeshSetIndex)     .resize(tCurrentNode + tNumberOfBaseNodes, 1);
-                        tNodeCoordinatesPerSet(tMeshSetIndex).resize(tCurrentNode + tNumberOfBaseNodes, tNumSpatialDim);
 
                         // FIXME we have nodes up to 8 times in this list in 3d
                         for (uint tNodeInCluster = 0; tNodeInCluster < tNumberOfBaseNodes; tNodeInCluster++)
@@ -1750,18 +1798,9 @@ namespace moris
                             // number of base nodes in cluster
                             tNumberOfBaseNodes = tNodeIndicesInCluster.length();
 
-                            // number of spatial dimension
-                            tNumSpatialDim = tNodeCoordinatesInCluster.n_cols();
-
                             // check for consistency
                             MORIS_ASSERT( tNodeIdsInCluster.length() == tNumberOfBaseNodes && tNodeOwnersInCluster.length() == tNumberOfBaseNodes,
                                     "Geometry_Engine::create_interpolation_pdv_hosts - inconsistent cluster information.\n");
-
-                            // FIXME don't understand this resize. it's really slow
-                            tNodeIndicesPerSet(tMeshSetIndex)    .resize(tCurrentNode + tNumberOfBaseNodes, 1);
-                            tNodeIdsPerSet(tMeshSetIndex)        .resize(tCurrentNode + tNumberOfBaseNodes, 1);
-                            tNodeOwnersPerSet(tMeshSetIndex)     .resize(tCurrentNode + tNumberOfBaseNodes, 1);
-                            tNodeCoordinatesPerSet(tMeshSetIndex).resize(tCurrentNode + tNumberOfBaseNodes, tNumSpatialDim);
 
                             // FIXME we have nodes up to 8 times in this list in 3d
                             for (uint tNodeInCluster = 0; tNodeInCluster < tNumberOfBaseNodes; tNodeInCluster++)
