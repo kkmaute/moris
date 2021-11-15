@@ -4,10 +4,16 @@ namespace moris {
 
 The following examples have been set up under this category:
 - Linear
-    - \ref EXA_Structure_Linear_Beam_Temperature_Field
     - \ref EXA_Structure_Linear_Axisymmetric
+    - \ref EXA_Structure_Linear_Beam_Temperature_Field
+    - \ref EXA_Structure_Linear_Homogenization_2D
     - \ref EXA_Structure_Linear_Plane_Strain
+    - \ref EXA_Structure_Linear_Thermoelastic_Varying_Order
+    - \ref EXA_Structure_Linear_Thick_Pressure_Vessel
+    - \ref EXA_Structure_Linear_Two_Bar_Truss
+    - \ref EXA_Structure_Linear_Zienkiewicz_Zhu_Elemental_Field
 - Thermoelastic
+    - \ref EXA_STRUCTURE_SINGLE_ELEMENT
 
 */
 
