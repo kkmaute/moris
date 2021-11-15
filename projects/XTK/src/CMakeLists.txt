@@ -43,6 +43,7 @@ set(HEADERS
     cl_XTK_Regular_Subdivision_Interface.hpp
     cl_XTK_Node_Hierarchy_Interface.hpp
     cl_XTK_Elevate_Order_Interface.hpp
+    cl_XTK_Octree_Interface.hpp
     cl_XTK_Cut_Integration_Mesh.hpp
     cl_XTK_External_Mesh_Data.hpp
     cl_XTK_Face_Registry.hpp
