@@ -327,7 +327,7 @@ namespace moris
                 uint tNumUniqueIDs = aIGtoBSIds( iIgNode ).numel();
 
                 // initialize list of weights associated with unique list of IDs
-                aIGtoIPWeights( iIgNode ).set_size( tNumUniqueIDs, 1, 0.0 );
+                aIGtoBSWeights( iIgNode ).set_size( tNumUniqueIDs, 1, 0.0 );
 
                 // create list of weights associated with unique list of IDs
                 for ( uint iUnique = 0; iUnique < tNumUniqueIDs; iUnique++ )
@@ -336,7 +336,7 @@ namespace moris
                     {
                         if ( aIGtoBSIds( iIgNode )( iUnique ) == tNodalIGtoBSIds( jNonUnique ) )
                         {
-                            aIGtoIPWeights( iIgNode )( iUnique ) = aIGtoIPWeights( iIgNode )( iUnique ) + tNodalIGtoBSWeights( jNonUnique );
+                            aIGtoBSWeights( iIgNode )( iUnique ) = aIGtoBSWeights( iIgNode )( iUnique ) + tNodalIGtoBSWeights( jNonUnique );
                         }
                     }
                 }
