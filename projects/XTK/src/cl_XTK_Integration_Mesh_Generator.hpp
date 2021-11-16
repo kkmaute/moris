@@ -254,6 +254,12 @@ class Integration_Mesh_Generator
     uint 
     get_spatial_dim();
 
+    uint 
+    get_ig_mesh_order();
+
+    enum Subdivision_Method
+    determine_order_elevation_template();
+
     bool
     determine_intersected_background_cells(
         Integration_Mesh_Generation_Data &aMeshGenerationData,

@@ -133,9 +133,23 @@ Integration_Mesh_Generator::perform()
     moris::Cell< std::shared_ptr< IG_Cell_Group > > tBulkPhaseCellGroups;
     this->construct_bulk_phase_cell_groups( tCutIntegrationMesh.get(), tBulkPhaseCellGroups );
 
-    // save facet ancestry to Cut integration mesh 
-    // todo: do only if order elevation is requested to save memory
-    // tCutIntegrationMesh->set_face_ancestry( tFacetAncestry );
+    // check if order elevation has been requested
+    if ( this->get_ig_mesh_order() > 1 )
+    {
+        // save facet ancestry to Cut integration mesh 
+        tCutIntegrationMesh->set_face_ancestry( tFacetAncestry );
+
+        // get the order elevation template
+        enum Subdivision_Method tOrderElevationMethod = this->determine_order_elevation_template();
+
+        // create the subdivision routine with a factory
+        std::shared_ptr< Decomposition_Algorithm > tElevateOrderAlg = 
+            create_decomposition_algorithm( tOrderElevationMethod, mXTKModel->get_parameter_list() );
+
+        // perform the decomposition
+        Decomposition_Data tDecompositionData;
+        tElevateOrderAlg->perform( &tGenerationData, &tDecompositionData, tCutIntegrationMesh.get(), tBackgroundMesh, this );
+    }
 
     this->construct_bulk_phase_blocks( tCutIntegrationMesh.get(), tBulkPhaseCellGroups );
     tCutIntegrationMesh->write_mesh( "./", "xtk_cut_ig_mesh.exo" );
@@ -159,6 +173,75 @@ uint
 Integration_Mesh_Generator::get_spatial_dim()
 {
     return mXTKModel->get_spatial_dim();
+}
+
+uint 
+Integration_Mesh_Generator::get_ig_mesh_order()
+{
+    return this->mXTKModel->ig_element_order();
+}
+
+enum Subdivision_Method
+Integration_Mesh_Generator::determine_order_elevation_template()
+{
+    if( this->get_spatial_dim() == 2 )
+    {
+        switch ( this->get_ig_mesh_order() )
+        {
+            case 2:
+            {
+                return Subdivision_Method::P_ELEVATE_ORDER_TRI3_TRI6;
+                break;
+            }
+
+            case 3:
+            {
+                MORIS_ERROR( false, "Integration_Mesh_Generator::determine_order_elevation_template() - elevate order to TRI10 not implemented yet" );
+                return Subdivision_Method::P_ELEVATE_ORDER_TRI3_TRI10;
+                break;
+            }
+            
+            default:
+            {
+                MORIS_ERROR( false, "Integration_Mesh_Generator::determine_order_elevation_template() - integration element order not suported. max is 3" );
+                return Subdivision_Method::NO_METHOD;
+                break;
+            }
+        }
+    }
+
+    else if( this->get_spatial_dim() == 3 )
+    {
+        switch ( this->get_ig_mesh_order() )
+        {
+            case 2:
+            {
+                MORIS_ERROR( false, "Integration_Mesh_Generator::determine_order_elevation_template() - elevate order to TET10 not implemented yet" );
+                return Subdivision_Method::P_ELEVATE_ORDER_TET4_TET10;
+                break;
+            }
+
+            case 3:
+            {
+                MORIS_ERROR( false, "Integration_Mesh_Generator::determine_order_elevation_template() - elevate order to TET20 not implemented yet" );
+                return Subdivision_Method::P_ELEVATE_ORDER_TET4_TET20;
+                break;
+            }
+            
+            default:
+            {
+                MORIS_ERROR( false, "Integration_Mesh_Generator::determine_order_elevation_template() - integration element order not suported. max is 3" );
+                return Subdivision_Method::NO_METHOD;
+                break;
+            }
+        }
+    }
+    
+    else
+    {
+        MORIS_ERROR( false, "Integration_Mesh_Generator::determine_order_elevation_template() - spatial dim must be 2 or 3." );
+        return Subdivision_Method::NO_METHOD;
+    }
 }
 
 // ----------------------------------------------------------------------------------
@@ -2811,12 +2894,15 @@ Integration_Mesh_Generator::handle_received_request_answers(
         }
     }
 }
+
 // ----------------------------------------------------------------------------------
+
 moris::uint
 Integration_Mesh_Generator::verbosity_level()
 {
     return mXTKModel->mVerboseLevel;
 }
+
 // ----------------------------------------------------------------------------------
 // ----------------------------------------------------------------------------------
 // ----------------------------------------------------------------------------------

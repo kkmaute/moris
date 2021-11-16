@@ -210,6 +210,8 @@ Model::perform()
     {
         mTriangulateAll = mParameterList.get< bool >( "triangulate_all" );
 
+        mIgElementOrder = mParameterList.get< uint >( "ig_element_order" );
+
         if ( mParameterList.get< bool >( "cleanup_cut_mesh" ) )
         {
             mCleanupMesh = true;
@@ -1402,6 +1404,13 @@ Model::triangulate_all()
 {
     return mTriangulateAll;
 }
+
+uint
+Model::ig_element_order()
+{
+    return mIgElementOrder;
+}
+
 //------------------------------------------------------------------------------
 
 moris::mtk::Integration_Mesh *

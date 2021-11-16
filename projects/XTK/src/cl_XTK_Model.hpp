@@ -439,6 +439,14 @@ class Model
     bool
     triangulate_all();
 
+    /**
+     * @brief Get the polynomial order of the TRI/TET elements 
+     * 
+     * @return uint - polynomial order of TRIs/TETs in the final integration mesh
+     */
+    uint
+    ig_element_order();
+
     enum CellTopology
     get_parent_cell_topology() const
     {
@@ -500,6 +508,9 @@ class Model
     // Flag to cleanup mesh at end of decomposition
     bool mTriangulateAll = false;// Triangulate all background cells
     bool mCleanupMesh    = false;// Cleanup the mesh
+
+    // polynomial order of IG elements, 1 is default, 2 or higher will invoke order elevation in decomposition
+    uint mIgElementOrder = 1;// Triangulate all background cells
 
     // diagnostic information
     bool        mDiagnostics    = false;
