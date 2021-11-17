@@ -138,7 +138,9 @@ namespace moris
             ParameterList tParameterList = create_geometry_parameter_list();
 
             tParameterList.set("type", "sdf_field");             // User-defined geometry
-            tParameterList.insert("sdf_object_path", "");       // voxel file
+            tParameterList.insert("sdf_object_path", "");        // obj file
+            tParameterList.insert("sdf_object_offset", "");
+            tParameterList.insert("sdf_shift", 0.0);
 
             return tParameterList;
         }
