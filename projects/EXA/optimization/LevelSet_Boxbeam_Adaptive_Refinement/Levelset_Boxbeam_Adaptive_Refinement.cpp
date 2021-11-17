@@ -154,7 +154,7 @@ namespace moris
         }
 
         // clean return value to return non-zero value
-        return tLSVal;
+        return tLSval;
     }
 
     //------------------------------------------------------------------------------

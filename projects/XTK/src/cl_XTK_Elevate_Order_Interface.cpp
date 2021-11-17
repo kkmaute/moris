@@ -110,8 +110,6 @@ Elevate_Order_Interface::perform(
     this->make_vertex_requests(
         tIgCellGroupEdgeConnectivity,
         tIgEdgeAncestry,
-        &tBackgroundCellForEdge,
-        &tVertexGroups,
         &tIgCellsInGroups,
         &tCellToLocalVertices );
 
@@ -123,7 +121,6 @@ Elevate_Order_Interface::perform(
         tIgCellGroupEdgeConnectivity,
         tIgEdgeAncestry,
         &tBackgroundCellForEdge,
-        &tVertexGroups,
         &tIgCellsInGroups );
 
     // commit vertices to the mesh
@@ -147,8 +144,6 @@ bool
 Elevate_Order_Interface::make_vertex_requests(
     std::shared_ptr< Edge_Based_Connectivity >         aEdgeConnectivity,
     std::shared_ptr< Edge_Based_Ancestry >             aIgEdgeAncestry,
-    moris::Cell< moris::mtk::Cell* >*                  aBackgroundCellForEdge,
-    moris::Cell< std::shared_ptr< IG_Vertex_Group > >* aVertexGroups,
     moris::Cell< moris::mtk::Cell* >*                  aIgCells,
     moris::Cell< moris::Cell< moris_index > >*         aCellToNewLocalVertexIndices )
 {
@@ -192,8 +187,9 @@ Elevate_Order_Interface::make_vertex_requests(
             MORIS_ERROR( mElevateOrderTemplate->num_new_vertices_per_entity( EntityRank::ELEMENT ) == 1, 
                     "Elevate_Order_Interface::make_vertex_requests() - currently only supports elements with one new vertex inside of each element." );
 
-            // get Cell parent index which is simply cell index itself
-            moris_index tParentIndex = (*aIgCells)( iCell )->get_index();
+            // get Cell parent (BG cell) index 
+            moris_index tCellGroupMembershipIndex = mCutIntegrationMesh->get_ig_cell_group_memberships( tCurrentCellIndex )( 0 );
+            moris_index tParentIndex = mCutIntegrationMesh->get_ig_cell_group_parent_cell( tCellGroupMembershipIndex )->get_index();
 
             // iterate through vertices to be created inside each 
             for ( uint iVert = 0; iVert < mElevateOrderTemplate->num_new_vertices_per_entity( EntityRank::ELEMENT ); iCell++ )
@@ -421,7 +417,6 @@ Elevate_Order_Interface::associate_new_vertices_with_cell_groups(
         std::shared_ptr<Edge_Based_Connectivity>       aEdgeConnectivity,
         std::shared_ptr<Edge_Based_Ancestry>           aIgEdgeAncestry,
         moris::Cell<moris::mtk::Cell*>                *aBackgroundCellForEdge,
-        moris::Cell<std::shared_ptr<IG_Vertex_Group>> *aVertexGroups,
         moris::Cell< moris::mtk::Cell* >              *aIgCells )
 {
     // trace this function

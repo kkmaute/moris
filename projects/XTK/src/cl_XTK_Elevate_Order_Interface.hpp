@@ -370,7 +370,7 @@ class TET4_to_TET10 : public Elevate_Order_Template
         }
         case EntityRank::ELEMENT:
         {
-            return true;
+            return false;
             break;
         }
         default:
@@ -528,16 +528,13 @@ class TET4_to_TET10 : public Elevate_Order_Template
         // check if input makes sense
         MORIS_ASSERT( aFirstLocalVertexIndex != aSecondLocalVertexIndex, 
                 "TET4_to_TET10::get_local_edge_index_based_on_vertex_indices() - Vertices must have different indices" );
-
-        // check if input makes sense
-        MORIS_ERROR( false,
-                "TET4_to_TET10::get_local_edge_index_based_on_vertex_indices() - Function not implemented yet" );
         
         // create LookUp
         Matrix< IndexMat > tLookUp = {
-            {  0,  1, -3 }, 
-            { -1,  0,  2 },
-            {  3, -2,  0 } };
+            {  0,  1, -3,  4 },
+            { -1,  0,  2, -5 },
+            {  3, -2,  0,  6 },
+            { -4,  5, -6,  0 } };
 
         // return edge index (1-Based) and direction as sign
         return tLookUp( aFirstLocalVertexIndex, aSecondLocalVertexIndex );
@@ -755,8 +752,6 @@ class Elevate_Order_Interface : public Decomposition_Algorithm
     make_vertex_requests(
         std::shared_ptr< Edge_Based_Connectivity >         aEdgeConnectivity,
         std::shared_ptr< Edge_Based_Ancestry >             aIgEdgeAncestry,
-        moris::Cell< moris::mtk::Cell* >*                  aBackgroundCellForEdge,
-        moris::Cell< std::shared_ptr< IG_Vertex_Group > >* aVertexGroups,
         moris::Cell< moris::mtk::Cell* >*                  aIgCells,
         moris::Cell< moris::Cell< moris_index > >*         aCellToNewLocalVertexIndices  );
 
@@ -765,7 +760,6 @@ class Elevate_Order_Interface : public Decomposition_Algorithm
         std::shared_ptr< Edge_Based_Connectivity >         aEdgeConnectivity,
         std::shared_ptr< Edge_Based_Ancestry >             aIgEdgeAncestry,
         moris::Cell< moris::mtk::Cell* >*                  aBackgroundCellForEdge,
-        moris::Cell< std::shared_ptr< IG_Vertex_Group > >* aVertexGroups,
         moris::Cell< moris::mtk::Cell* >*                  aIgCells );
 
     void

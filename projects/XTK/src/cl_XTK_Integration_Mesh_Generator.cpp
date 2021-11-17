@@ -217,7 +217,6 @@ Integration_Mesh_Generator::determine_order_elevation_template()
         {
             case 2:
             {
-                MORIS_ERROR( false, "Integration_Mesh_Generator::determine_order_elevation_template() - elevate order to TET10 not implemented yet" );
                 return Subdivision_Method::P_ELEVATE_ORDER_TET4_TET10;
                 break;
             }
