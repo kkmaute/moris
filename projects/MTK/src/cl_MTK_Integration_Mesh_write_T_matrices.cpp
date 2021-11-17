@@ -11,8 +11,9 @@
 #include "cl_MTK_Space_Interpolator.hpp"
 #include "cl_MTK_Integration_Rule.hpp"
 #include "cl_MTK_Cell_Info.cpp"
-#include "fn_norm.hpp"
+#include "cl_Tracer.hpp"
 
+#include "fn_norm.hpp"
 #include "fn_stringify_matrix.hpp"
 #include "fn_unique.hpp"
 #include "fn_join_horiz.hpp"
@@ -28,6 +29,9 @@ namespace moris
         void
         Integration_Mesh::save_IG_node_TMatrices_to_file()
         {
+            // trace this function
+            Tracer tTracer( "MTK", "Save Nodal T-Matrices to File" );
+
             // get total number of integration vertices on IG mesh
             uint tNumVertices = this->get_num_nodes();
             MORIS_LOG_SPEC( "Num of IG vertices to save T-matrices for", tNumVertices );
@@ -103,6 +107,9 @@ namespace moris
                 moris::Cell< Matrix< DDRMat > >  & aIGtoIPWeights,
                 uint                             aSetIndex )
         {
+            // trace this function
+            Tracer tTracer( "MTK", "Compute IG to IP T-Matrices" );
+
             // get number of IG vertices on mesh
             uint tNumVertices = this->get_num_nodes();
 
@@ -202,6 +209,9 @@ namespace moris
                 moris::Cell< Matrix< DDRMat > >  & aIPtoBSWeights,
                 uint                             aSetIndex )
         {
+            // trace this function
+            Tracer tTracer( "MTK", "Compute IP to B-Spline T-Matrices" );
+
             // get number of IP nodes on mesh
             uint tNumIpNodes = this->get_max_IP_ID_on_set( aSetIndex );
 
@@ -281,6 +291,9 @@ namespace moris
                         moris::Cell< Matrix< IdMat  > >  & aIGtoIPIds,
                         moris::Cell< Matrix< DDRMat > >  & aIGtoIPWeights )
         {
+            // trace this function
+            Tracer tTracer( "MTK", "Compute IG to IP T-Matrices" );
+
             // get number of IG vertices
             uint tNumIgNodes = aIGtoIPIds.size();
             MORIS_ERROR( tNumIgNodes == aIGtoIPWeights.size(), 
@@ -393,6 +406,9 @@ namespace moris
                 Matrix< DDUMat > & aSparseIndices,
                 Matrix< DDRMat > & aWeights )
         {
+            // trace this function
+            Tracer tTracer( "MTK", "Build Sparse Extraction Operator Matrix" );
+
             // get number of IG nodes
             uint tNumIgNodes = aIGtoBSIds.size();
 
