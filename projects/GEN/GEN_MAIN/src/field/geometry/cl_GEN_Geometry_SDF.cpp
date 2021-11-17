@@ -53,114 +53,119 @@ namespace moris
 
         void Geometry_SDF::evaluate_nodal_values()
         {
-            mtk::Mesh* tMesh = mMeshPair.get_interpolation_mesh();
-
-            sdf::SDF_Generator tSDFGenerator( mObjectPath, mObjectOffset, true );
-
-            tSDFGenerator.calculate_sdf( tMesh, mValues );
-
-            for( uint Ik = 0; Ik < mValues.numel(); Ik++ )
+            if(mUpdateNodalValues )
             {
-                mValues( Ik ) = mValues( Ik ) + mShift;
-            }
+                mtk::Mesh* tMesh = mMeshPair.get_interpolation_mesh();
 
-            //------------------------------------------------------
-            // communicate owned to shared values
-            uint tNumberOfNodes = mValues.n_rows();
+                sdf::SDF_Generator tSDFGenerator( mObjectPath, mObjectOffset, true );
 
-            uint tCount = 0;
-            //loop over all nodes and build owned map
-            for ( uint tNodeIndex=0; tNodeIndex< mValues.n_rows() ;++tNodeIndex )
-            {
-                // get node owner
-                sint tNodeOwner = tMesh->get_entity_owner( tNodeIndex, EntityRank::NODE );
+                tSDFGenerator.calculate_sdf( tMesh, mValues );
 
-                // process only owned nodes
-                if ( par_rank() == tNodeOwner )
+                for( uint Ik = 0; Ik < mValues.numel(); Ik++ )
                 {
-                    tCount++;
+                    mValues( Ik ) = mValues( Ik ) + mShift;
                 }
-            }
 
-            // set size nodal vectors
-            Matrix<DDSMat> tOwnedNodeIDs(tCount, 1);
-            Matrix<DDSMat> tSharedNodeIDs(tNumberOfNodes, 1);
+                //------------------------------------------------------
+                // communicate owned to shared values
+                uint tNumberOfNodes = mValues.n_rows();
 
-            tCount = 0;
-            //loop over all nodes and build owned map
-            for ( uint tNodeIndex=0; tNodeIndex< mValues.n_rows() ;++tNodeIndex )
-            {
-                // get node owner
-                sint tNodeOwner = tMesh->get_entity_owner( tNodeIndex, EntityRank::NODE );
-
-                // get node ID
-                sint tNodeID = tMesh->get_glb_entity_id_from_entity_loc_index(
-                        tNodeIndex,
-                        EntityRank::NODE );
-
-                tSharedNodeIDs( tNodeIndex ) = tNodeID;
-
-                // process only owned nodes
-                if ( par_rank() == tNodeOwner )
+                uint tCount = 0;
+                //loop over all nodes and build owned map
+                for ( uint tNodeIndex=0; tNodeIndex< mValues.n_rows() ;++tNodeIndex )
                 {
-                    tOwnedNodeIDs( tCount++ ) = tNodeID;
+                    // get node owner
+                    sint tNodeOwner = tMesh->get_entity_owner( tNodeIndex, EntityRank::NODE );
+
+                    // process only owned nodes
+                    if ( par_rank() == tNodeOwner )
+                    {
+                        tCount++;
+                    }
                 }
-            }
 
-            // create distributed vectors for node value computation
-            sol::Matrix_Vector_Factory tDistributedFactory;
+                // set size nodal vectors
+                Matrix<DDSMat> tOwnedNodeIDs(tCount, 1);
+                Matrix<DDSMat> tSharedNodeIDs(tNumberOfNodes, 1);
 
-            sol::Dist_Map* tOwnedNodeMap  = tDistributedFactory.create_map(tOwnedNodeIDs);
-            sol::Dist_Map* tSharedNodeMap = tDistributedFactory.create_map(tSharedNodeIDs);
+                tCount = 0;
+                //loop over all nodes and build owned map
+                for ( uint tNodeIndex=0; tNodeIndex< mValues.n_rows() ;++tNodeIndex )
+                {
+                    // get node owner
+                    sint tNodeOwner = tMesh->get_entity_owner( tNodeIndex, EntityRank::NODE );
 
-            sol::Dist_Vector* tOwnedNodalValues  = tDistributedFactory.create_vector(tOwnedNodeMap,  1, false, true);
-            sol::Dist_Vector* tSharedNodalValues = tDistributedFactory.create_vector(tSharedNodeMap, 1, false, true);
+                    // get node ID
+                    sint tNodeID = tMesh->get_glb_entity_id_from_entity_loc_index(
+                            tNodeIndex,
+                            EntityRank::NODE );
 
-            tOwnedNodalValues->vec_put_scalar(0.0);
-            tSharedNodalValues->vec_put_scalar(0.0);
+                    tSharedNodeIDs( tNodeIndex ) = tNodeID;
 
-            //loop over all nodes
-            for ( uint tNodeIndex=0; tNodeIndex< mValues.n_rows() ;++tNodeIndex )
-            {
-                // get node owner
-                sint tNodeOwner = tMesh->get_entity_owner( tNodeIndex, EntityRank::NODE );
+                    // process only owned nodes
+                    if ( par_rank() == tNodeOwner )
+                    {
+                        tOwnedNodeIDs( tCount++ ) = tNodeID;
+                    }
+                }
 
-                // process only owned nodes
-                if ( par_rank() == tNodeOwner )
+                // create distributed vectors for node value computation
+                sol::Matrix_Vector_Factory tDistributedFactory;
+
+                sol::Dist_Map* tOwnedNodeMap  = tDistributedFactory.create_map(tOwnedNodeIDs);
+                sol::Dist_Map* tSharedNodeMap = tDistributedFactory.create_map(tSharedNodeIDs);
+
+                sol::Dist_Vector* tOwnedNodalValues  = tDistributedFactory.create_vector(tOwnedNodeMap,  1, false, true);
+                sol::Dist_Vector* tSharedNodalValues = tDistributedFactory.create_vector(tSharedNodeMap, 1, false, true);
+
+                tOwnedNodalValues->vec_put_scalar(0.0);
+                tSharedNodalValues->vec_put_scalar(0.0);
+
+                //loop over all nodes
+                for ( uint tNodeIndex=0; tNodeIndex< mValues.n_rows() ;++tNodeIndex )
+                {
+                    // get node owner
+                    sint tNodeOwner = tMesh->get_entity_owner( tNodeIndex, EntityRank::NODE );
+
+                    // process only owned nodes
+                    if ( par_rank() == tNodeOwner )
+                    {
+                        // get node ID
+                        sint tNodeID = tMesh->get_glb_entity_id_from_entity_loc_index(
+                                tNodeIndex,
+                                EntityRank::NODE );
+
+                        // copy nodal value on distributed vector
+                        (*tOwnedNodalValues)(tNodeID) = mValues( tNodeIndex );
+                    }
+                }
+
+                // get values for shared and owned nodes
+                tSharedNodalValues->import_local_to_global(*tOwnedNodalValues);
+
+                // copy shared and own nodal values onto local nodal field
+                for (uint tNodeIndex=0;tNodeIndex<mValues.n_rows();++tNodeIndex)
                 {
                     // get node ID
                     sint tNodeID = tMesh->get_glb_entity_id_from_entity_loc_index(
                             tNodeIndex,
                             EntityRank::NODE );
 
-                    // copy nodal value on distributed vector
-                    (*tOwnedNodalValues)(tNodeID) = mValues( tNodeIndex );
+                    // extract nodal value
+                    real tValue = (*tSharedNodalValues)(tNodeID);
+
+                    // apply nodal value to all fields
+                    for (uint tFieldIndex=0;tFieldIndex<mNumberOfFields;++tFieldIndex)
+                    {
+                        mValues( tNodeIndex )=tValue;
+                    }
                 }
+
+                delete tOwnedNodalValues;
+                delete tSharedNodalValues;
+
+                mUpdateNodalValues = false;
             }
-
-            // get values for shared and owned nodes
-            tSharedNodalValues->import_local_to_global(*tOwnedNodalValues);
-
-            // copy shared and own nodal values onto local nodal field
-            for (uint tNodeIndex=0;tNodeIndex<mValues.n_rows();++tNodeIndex)
-            {
-                // get node ID
-                sint tNodeID = tMesh->get_glb_entity_id_from_entity_loc_index(
-                        tNodeIndex,
-                        EntityRank::NODE );
-
-                // extract nodal value
-                real tValue = (*tSharedNodalValues)(tNodeID);
-
-                // apply nodal value to all fields
-                for (uint tFieldIndex=0;tFieldIndex<mNumberOfFields;++tFieldIndex)
-                {
-                    mValues( tNodeIndex )=tValue;
-                }
-            }
-
-            delete tOwnedNodalValues;
-            delete tSharedNodalValues;
         }
 
         //--------------------------------------------------------------------------------------------------------------
