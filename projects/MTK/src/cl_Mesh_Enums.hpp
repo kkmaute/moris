@@ -53,6 +53,7 @@ enum class CellShape
     GENERAL,
     EMPTY,
     INVALID,
+    SIMPLEX,   // LINE, TRI, TET
     END_ENUM
 };
 

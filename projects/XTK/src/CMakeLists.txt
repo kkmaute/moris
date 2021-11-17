@@ -79,6 +79,7 @@ set(HEADERS
     fn_prune_element_to_element.hpp
     fn_write_element_ownership_as_field.hpp
     fn_generate_element_to_element_2D.hpp
+    fn_determine_cell_topology.hpp
     xtk_typedefs.hpp
     cl_XTK_Decomposition_Algorithm_Factory.hpp
     cl_XTK_Diagnostics.hpp

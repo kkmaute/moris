@@ -1,6 +1,7 @@
 #include "cl_XTK_Integration_Mesh_Generator.hpp"
 #include "cl_XTK_Decomposition_Algorithm_Factory.hpp"
 #include "cl_XTK_Decomposition_Algorithm.hpp"
+#include "fn_determine_cell_topology.hpp"
 
 using namespace moris;
 namespace xtk
@@ -1469,23 +1470,11 @@ Integration_Mesh_Generator::construct_bulk_phase_blocks(
 // fixme: ...
 std::cout << "WARNING: GENERAlIZE NEEDED FOR MULTIPLE TOPOS" << std::endl;
     
-    // initialize cell topology
-    enum CellTopology tCellTopo;
-    
-    // fixme: is there a more elegant way to decide on the cell topology?
-    // get number of spatial dimensions and decide on cell topology of integration elements
-    if ( aCutIntegrationMesh->get_spatial_dim() == 2 )
-    {
-        tCellTopo = CellTopology::TRI3;
-    }
-    else if ( aCutIntegrationMesh->get_spatial_dim() == 3 ) 
-    {
-        tCellTopo = CellTopology::TET4;
-    }
-    else
-    {
-        MORIS_ERROR( false, "Integration_Mesh_Generator::construct_bulk_phase_blocks() - spatial dimension not 2 or 3" );
-    }
+    // decide on cell topology of integration elements based on number of spatial dimensions
+    enum CellTopology tCellTopo = xtk::determine_cell_topology( 
+        aCutIntegrationMesh->get_spatial_dim(), 
+        aCutIntegrationMesh->mXTKModel->ig_element_order(), 
+        CellShape::SIMPLEX );
 
     // iterate through and construct the names of the blocks
     for ( moris::uint iBP = 0; iBP < tNumBulkPhases; iBP++ )
