@@ -159,16 +159,29 @@ Elevate_Order_Interface::make_vertex_requests(
 
     mDecompositionData->mHasSecondaryIdentifier = true;
 
+    // range of indices
+    uint tNumElemsInCIM = mCutIntegrationMesh->get_num_entities( EntityRank::ELEMENT, 0 );
+
     // initialize proc-global to element-local map of vertex indices for each cell/element
-    moris::Cell< std::map< moris_index, uint > > tVertIndicesOnCell( aIgCells->size() );
+    moris::Cell< std::map< moris_index, uint > > tVertIndicesOnCell( tNumElemsInCIM );
+
+    // initialize iCell-map
+    std::unordered_map< moris_index, uint > tCellToIndexMap;
 
     // iterate through the elements get local cell vertex information and, if requested, create vertices on it
     for ( moris::uint iCell = 0; iCell < aIgCells->size() ; iCell++ )
     {
+        // get index of current cell
+        moris_index tCurrentCellIndex = (*aIgCells)( iCell )->get_index();
+
+        // fill Cell to index map
+        tCellToIndexMap[ tCurrentCellIndex ] = iCell;
+
         // get list of vertex indices for current element / fill list
         for ( uint iVert = 0; iVert < mElevateOrderTemplate->get_num_spatial_dims() + 1; iVert++ )
         {
-            tVertIndicesOnCell( iCell )[ (*aIgCells)( iCell )->get_vertex_inds()( iVert ) ] = iVert;
+            // fill map
+            tVertIndicesOnCell( tCurrentCellIndex )[ (*aIgCells)( iCell )->get_vertex_inds()( iVert ) ] = iVert;
         }
 
         // check if new vertices on faces get created (if true, assume 3D)
@@ -298,18 +311,18 @@ Elevate_Order_Interface::make_vertex_requests(
 
                 } // end: loop over all new vertices on edge
 
+                // get index of edge vertices on proc
+                moris_index tFirstVertexIndex  = aEdgeConnectivity->mEdgeVertices( iEdge )( 0 )->get_index();
+                moris_index tSecondVertexIndex = aEdgeConnectivity->mEdgeVertices( iEdge )( 1 )->get_index();
+
                 // get number of cells attached to edge, to register new vertices to these cells
-                uint tNumCellsAttachedToEdge = aEdgeConnectivity->mCellToEdge( iEdge ).size();
-                
+                uint tNumCellsAttachedToEdge = aEdgeConnectivity->mEdgeToCell( iEdge ).size();
+
                 // go over cells attached to edge and register decomp data vertex indices for local vertices
                 for ( uint iCellAttachedToEdge = 0; iCellAttachedToEdge < tNumCellsAttachedToEdge; iCellAttachedToEdge++)
                 {
                     // get Cell's index on proc
-                    moris_index tCellIndex = aEdgeConnectivity->mCellToEdge( iEdge )( iCellAttachedToEdge );
-
-                    // get index of edge vertices on proc
-                    moris_index tFirstVertexIndex  = aEdgeConnectivity->mEdgeVertices( iEdge )( 0 )->get_index();
-                    moris_index tSecondVertexIndex = aEdgeConnectivity->mEdgeVertices( iEdge )( 1 )->get_index();
+                    moris_index tCellIndex = aEdgeConnectivity->mEdgeToCell( iEdge )( iCellAttachedToEdge )->get_index();
 
                     // get the element local indices of the edge start and end vertices
                     uint tFirstVertLocalIndex  = tVertIndicesOnCell( tCellIndex ).find( tFirstVertexIndex  )->second;
@@ -325,8 +338,11 @@ Elevate_Order_Interface::make_vertex_requests(
                         // get vertex' element local index
                         moris_index tLocalVertexIndex = mElevateOrderTemplate->get_local_vertex_index( EntityRank::EDGE, tSignedEdgeIndex, iVert );
 
+                        // get integration cell index
+                        uint iCell = tCellToIndexMap.find( tCellIndex )->second;
+
                         // store to decomp data index
-                        (*aCellToNewLocalVertexIndices)( tCellIndex )( tLocalVertexIndex ) = tNewEdgeVertexIndicesInDecompData( iVert );
+                        (*aCellToNewLocalVertexIndices)( iCell )( tLocalVertexIndex ) = tNewEdgeVertexIndicesInDecompData( iVert );
                     }
                 }
             } // end: check for new request
@@ -521,13 +537,12 @@ Elevate_Order_Interface::create_higher_order_integration_cells(
     for ( moris::uint iCell = 0; iCell < tNumIgCellsInMesh; iCell++ )
     {
         // new cell replaces current cell, hence it has the same index
-        mNewCellCellIndexToReplace( iCell ) = iCell;
+        mNewCellCellIndexToReplace( iCell ) = (*aIgCells)(iCell)->get_index();
         
         // get cell group membership of current cell and assign it to new cell
-        moris_index tCellGroupMembershipIndex = mCutIntegrationMesh->get_ig_cell_group_memberships( (moris_index)iCell )( 0 );
+        moris_index tCellGroupMembershipIndex = mCutIntegrationMesh->get_ig_cell_group_memberships( (*aIgCells)(iCell)->get_index() )( 0 );
         mNewCellChildMeshIndex( iCell ) = tCellGroupMembershipIndex;
 
-        // fixme: this is the key that's still missing
         // get list of vertices belonging to new cell, sorted in  
         moris::Cell< moris_index > tSortedVerticesForCell( mElevateOrderTemplate->get_total_ig_verts() );
 
