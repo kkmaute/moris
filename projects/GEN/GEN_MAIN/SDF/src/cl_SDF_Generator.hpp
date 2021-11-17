@@ -40,6 +40,10 @@ public:
             SDF_Generator( const std::string & aObjectPath,
                            const bool aVerboseFlag = true );
 
+            SDF_Generator( const std::string & aObjectPath,
+                           Matrix<DDRMat>   aObjectOffset,
+                           const bool aVerboseFlag = true );
+
 
 //-------------------------------------------------------------------------------
 

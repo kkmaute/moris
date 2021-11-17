@@ -19,8 +19,14 @@ namespace moris
     {
 //-------------------------------------------------------------------------------
 
-        Object::Object ( const std::string & aFilePath )
+        Object::Object ( const std::string & aFilePath,
+                         Matrix< DDRMat >    aOffsets)
         {
+            if( aOffsets.numel()>0)
+            {
+                mOffsets = aOffsets;
+            }
+
             // check the file extension
             auto tFileExt = aFilePath.substr(aFilePath.find_last_of(".")+1,aFilePath.length());
 
@@ -102,12 +108,12 @@ namespace moris
                     {
                         if( std::abs( tX[ i ] ) > mMeshHighPass )
                         {
-                            tNodeCoords( i ) = tX[ i ];
+                            tNodeCoords( i ) = tX[ i ] + mOffsets( i );
                         }
                         else
                         {
                             // use zero value
-                            tNodeCoords( i ) = 0.0;
+                            tNodeCoords( i ) = 0.0 + mOffsets( i ) ;
                         }
                     }
 
