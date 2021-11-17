@@ -251,8 +251,15 @@ namespace moris
             }
             else if (tGeometryType == "sdf_field")
             {
-                std::string tObjectPath = aGeometryParameterList.get<std::string>("sdf_object_path");
-                return std::make_shared<ge::Geometry_SDF >( tObjectPath, tParameters );
+                std::string tObjectPath      = aGeometryParameterList.get<std::string>("sdf_object_path");
+                Matrix<DDRMat> tObjectOffset = string_to_mat<DDRMat>(aGeometryParameterList.get<std::string>("sdf_object_offset"));
+                real tSDFShift               = aGeometryParameterList.get<real>("sdf_shift");
+
+                return std::make_shared<ge::Geometry_SDF >(
+                        tObjectPath,
+                        tObjectOffset,
+                        tSDFShift,
+                        tParameters );
             }
             else if (tGeometryType == "user_defined")
             {
