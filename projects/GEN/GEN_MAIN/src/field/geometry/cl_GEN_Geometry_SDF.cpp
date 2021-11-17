@@ -12,13 +12,23 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Geometry_SDF::Geometry_SDF( std::string tObjectPath,
+        Geometry_SDF::Geometry_SDF(
+                std::string               aObjectPath,
+                Matrix<DDRMat>            aObjectOffset,
+                real                      aSDFShift,
                 Geometry_Field_Parameters aParameters)
         : Field(Matrix<DDRMat>(1, 1, 0.0), aParameters)
         , Geometry(aParameters)
         , Field_Discrete_Integration()
         {
-            mObjectPath = tObjectPath;
+            mObjectPath = aObjectPath;
+
+            if( aObjectOffset.numel() == 3)
+            {
+                mObjectOffset = aObjectOffset;
+            }
+
+            mShift = aSDFShift;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -45,10 +55,14 @@ namespace moris
         {
             mtk::Mesh* tMesh = mMeshPair.get_interpolation_mesh();
 
-            sdf::SDF_Generator tSDFGenerator( mObjectPath, true );
+            sdf::SDF_Generator tSDFGenerator( mObjectPath, mObjectOffset, true );
 
             tSDFGenerator.calculate_sdf( tMesh, mValues );
 
+            for( uint Ik = 0; Ik < mValues.numel(); Ik++ )
+            {
+                mValues( Ik ) = mValues( Ik ) + mShift;
+            }
 
             //------------------------------------------------------
             // communicate owned to shared values

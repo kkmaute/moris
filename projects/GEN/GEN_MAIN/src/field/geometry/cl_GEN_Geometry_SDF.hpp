@@ -15,7 +15,9 @@ namespace moris
         {
 
             private:
-                std::string mObjectPath = "";
+                std::string      mObjectPath   = "";
+                Matrix<DDRMat>   mObjectOffset = {{ 0, 0, 0 }};
+                real   mShift   = 0;
 
                 Matrix<DDRMat> mDummyMat;
 
@@ -26,8 +28,10 @@ namespace moris
                  * @param aMesh Mesh with the level set fields
                  * @param aFieldNames Names of the fields
                  */
-                Geometry_SDF( std::string tObjectPath,
-                        Geometry_Field_Parameters aParameters = {});
+                Geometry_SDF( std::string    aObjectPath,
+                              Matrix<DDRMat> aObjectOffset,
+                              real           aSDFShift = 0,
+                              Geometry_Field_Parameters aParameters = {});
 
                 /**
                  * Given a node index, returns the field value.
