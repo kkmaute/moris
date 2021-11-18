@@ -18,11 +18,20 @@ namespace moris
 {
     namespace mtk
     {
-        //-----------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------------
+
         enum Geometry_Type
         Cell_Info_Hex64::get_cell_geometry() const
         {
             return Geometry_Type::HEX;
+        }
+
+        // ----------------------------------------------------------------------------------
+        
+        enum CellTopology
+        Cell_Info_Hex64::get_cell_topology() const
+        {
+            return CellTopology::HEX64;
         }
 
         // ----------------------------------------------------------------------------------
@@ -41,7 +50,7 @@ namespace moris
             return Integration_Order::HEX_5x5x5;
         }
 
-        //-----------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------------
 
         enum CellShape
         Cell_Info_Hex64::compute_cell_shape(moris::mtk::Cell const *aCell) const

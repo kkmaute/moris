@@ -22,10 +22,19 @@ namespace moris
     namespace mtk
     {
         // ----------------------------------------------------------------------------------
+
         enum Geometry_Type
         Cell_Info_Quad16::get_cell_geometry() const
         {
             return Geometry_Type::QUAD;
+        }
+
+        // ----------------------------------------------------------------------------------
+
+        enum CellTopology
+        Cell_Info_Quad16::get_cell_topology() const
+        {
+            return CellTopology::QUAD16;
         }
 
         // ----------------------------------------------------------------------------------
@@ -44,7 +53,7 @@ namespace moris
             return Integration_Order::QUAD_5x5;
         }
 
-        //-----------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------------
 
         enum CellShape
         Cell_Info_Quad16::compute_cell_shape(moris::mtk::Cell const *aCell) const

@@ -30,6 +30,14 @@ namespace moris
 
         // ----------------------------------------------------------------------------------
 
+        enum CellTopology
+        Cell_Info_Quad4::get_cell_topology() const
+        {
+            return CellTopology::QUAD4;
+        }
+
+        // ----------------------------------------------------------------------------------
+
         enum Interpolation_Order
         Cell_Info_Quad4::get_cell_interpolation_order() const
         {
@@ -44,7 +52,7 @@ namespace moris
             return Integration_Order::QUAD_2x2;
         }
 
-        //-----------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------------
 
         enum CellShape
         Cell_Info_Quad4::compute_cell_shape(moris::mtk::Cell const *aCell) const

@@ -28,6 +28,11 @@ namespace moris
 
             //-----------------------------------------------------------------------------
 
+            enum CellTopology
+            get_cell_topology() const;
+
+            //-----------------------------------------------------------------------------
+
             enum Interpolation_Order
             get_cell_interpolation_order() const;
 

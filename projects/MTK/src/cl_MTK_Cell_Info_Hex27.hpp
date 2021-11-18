@@ -24,8 +24,15 @@ class Cell;
 class Cell_Info_Hex27 : public mtk::Cell_Info
 {
 public:
+    // ---------------------------------------------------------------------------
+    
     enum Geometry_Type
     get_cell_geometry() const;
+
+    // ---------------------------------------------------------------------------
+
+    enum CellTopology
+    get_cell_topology() const;
 
     //-----------------------------------------------------------------------------
 
