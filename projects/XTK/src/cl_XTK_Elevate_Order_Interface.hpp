@@ -42,7 +42,7 @@ class Elevate_Order_Template
      * 
      * @return moris_index number of nodes to be added per element
      */
-    virtual moris_index
+    virtual uint
     get_num_new_nodes() const = 0;
 
     /**
@@ -50,7 +50,7 @@ class Elevate_Order_Template
      * 
      * @return moris_index total number of IG vertices on new elements
      */
-    virtual moris_index
+    virtual uint
     get_total_ig_verts() const = 0;
 
     /**
@@ -95,6 +95,28 @@ class Elevate_Order_Template
      */
     virtual uint
     get_num_spatial_dims() const = 0;
+
+    /**
+     * @brief Get local vertex index wrt to the cell based on where the vertex sits
+     * 
+     * @param aEntityRank entity rank where the vertex sits
+     * @param aSignedLocalEntityIndex 1-based index of the entity the vertex sits on with a sign to indicate directionality
+     * @param aVertexIndexOnEntity index position of the vertex on that entity
+     * @return moris_index element local vertex index
+     */
+    virtual moris_index
+    get_local_vertex_index( enum EntityRank aEntityRank, moris_index aSignedLocalEntityIndex, moris_index aVertexIndexOnEntity ) const = 0;
+
+    /**
+     * @brief Get the element local edge index and direction (sign) based on vertex indices attached to it
+     * @note The return value is 1-BASED!
+     * 
+     * @param aFirstLocalVertexIndex local index of the vertex where edge starts
+     * @param aSecondLocalVertexIndex local index of the vertex where edge ends
+     * @return moris_index 1-Based index of the edge. The sign indicates the direction.
+     */
+    virtual moris_index
+    get_local_edge_index_based_on_vertex_indices( moris_index aFirstLocalVertexIndex, moris_index aSecondLocalVertexIndex ) const = 0;
 };
 
 // -------------------------------------------------------------------------
@@ -104,13 +126,13 @@ class TRI3_to_TRI6 : public Elevate_Order_Template
   public:
     TRI3_to_TRI6() {}
 
-    moris_index
+    uint
     get_num_new_nodes() const
     {
         return 3;
     }
 
-    moris_index
+    uint
     get_total_ig_verts() const
     {
         return 6;
@@ -191,35 +213,35 @@ class TRI3_to_TRI6 : public Elevate_Order_Template
     {
         switch ( aEntityRank )
         {
-        case EntityRank::NODE:
-        {
-            MORIS_ERROR( false, "TRI3_to_TRI6::get_new_vertex_parametric_coords_wrt_entity() - No new vertices on vertices themselves. This shouldn't be requested." );
-            return Cell< Matrix< DDRMat > >( 0 );
-            break;
-        }
-        case EntityRank::EDGE:
-        {
-            return { { { 0.0 } } };
-            break;
-        }
-        case EntityRank::FACE:
-        {
-            MORIS_ERROR( false, "TRI3_to_TRI6::get_new_vertex_parametric_coords_wrt_entity() - No new vertices on faces. This shouldn't be requested." );
-            return Cell< Matrix< DDRMat > >( 0 );
-            break;
-        }
-        case EntityRank::ELEMENT:
-        {
-            MORIS_ERROR( false, "TRI3_to_TRI6::get_new_vertex_parametric_coords_wrt_entity() - No new vertices inside cell. This shouldn't be requested." );
-            return Cell< Matrix< DDRMat > >( 0 );
-            break;
-        }
-        default:
-        {
-            MORIS_ERROR( false, "TRI3_to_TRI6::get_new_vertex_parametric_coords_wrt_entity() - Unknown Entity Rank." );
-            return Cell< Matrix< DDRMat > >( 0 );
-            break;
-        }
+            case EntityRank::NODE:
+            {
+                MORIS_ERROR( false, "TRI3_to_TRI6::get_new_vertex_parametric_coords_wrt_entity() - No new vertices on vertices themselves. This shouldn't be requested." );
+                return Cell< Matrix< DDRMat > >( 0 );
+                break;
+            }
+            case EntityRank::EDGE:
+            {
+                return { { { 0.0 } } };
+                break;
+            }
+            case EntityRank::FACE:
+            {
+                MORIS_ERROR( false, "TRI3_to_TRI6::get_new_vertex_parametric_coords_wrt_entity() - No new vertices on faces. This shouldn't be requested." );
+                return Cell< Matrix< DDRMat > >( 0 );
+                break;
+            }
+            case EntityRank::ELEMENT:
+            {
+                MORIS_ERROR( false, "TRI3_to_TRI6::get_new_vertex_parametric_coords_wrt_entity() - No new vertices inside cell. This shouldn't be requested." );
+                return Cell< Matrix< DDRMat > >( 0 );
+                break;
+            }
+            default:
+            {
+                MORIS_ERROR( false, "TRI3_to_TRI6::get_new_vertex_parametric_coords_wrt_entity() - Unknown Entity Rank." );
+                return Cell< Matrix< DDRMat > >( 0 );
+                break;
+            }
         }
     }
 
@@ -234,6 +256,76 @@ class TRI3_to_TRI6 : public Elevate_Order_Template
     {
         return 2;
     }
+
+    moris_index
+    get_local_vertex_index( enum EntityRank aEntityRank, moris_index aSignedLocalEntityIndex, moris_index aVertexIndexOnEntity ) const 
+    {
+        switch ( aEntityRank )
+        {
+            case EntityRank::NODE:
+            {
+                MORIS_ERROR( false, "TRI3_to_TRI6::get_cell_local_vertex_index() - No new vertices on vertices themselves. This shouldn't be requested." );
+                return -1;
+                break;
+            }
+            case EntityRank::EDGE:
+            {
+                // check if requested vertex location makes sense
+                MORIS_ASSERT( aSignedLocalEntityIndex != 0, 
+                        "TRI3_to_TRI6::get_cell_local_vertex_index() - aSignedLocalEntityIndex is 1-based and must not be 0." );
+
+                MORIS_ASSERT( std::abs( aSignedLocalEntityIndex ) <= 3 && aVertexIndexOnEntity < 1, 
+                        "TRI3_to_TRI6::get_cell_local_vertex_index() - Index out of bounds. Only 3 edges with 1 new node per edge." );
+
+                // convert Signed 1-based index to unsigned 0-based index
+                uint tLocalEntityIndex = std::abs( aSignedLocalEntityIndex ) - 1;
+                
+                // create look-up table for local vertex position
+                Matrix< IndexMat > tLookUp = {
+                    { 3 }, 
+                    { 4 },
+                    { 5 } };
+                
+                return tLookUp( tLocalEntityIndex, aVertexIndexOnEntity );
+                break;
+            }
+            case EntityRank::FACE:
+            {
+                MORIS_ERROR( false, "TRI3_to_TRI6::get_cell_local_vertex_index() - No new vertices on faces. This shouldn't be requested." );
+                return -1;
+                break;
+            }
+            case EntityRank::ELEMENT:
+            {
+                MORIS_ERROR( false, "TRI3_to_TRI6::get_cell_local_vertex_index() - No new vertices inside cell. This shouldn't be requested." );
+                return -1;
+                break;
+            }
+            default:
+            {
+                MORIS_ERROR( false, "TRI3_to_TRI6::get_cell_local_vertex_index() - Unknown Entity Rank." );
+                return -1;
+                break;
+            }
+        }
+    }
+
+    moris_index
+    get_local_edge_index_based_on_vertex_indices( moris_index aFirstLocalVertexIndex, moris_index aSecondLocalVertexIndex ) const
+    {
+        // check if input makes sense
+        MORIS_ASSERT( aFirstLocalVertexIndex != aSecondLocalVertexIndex, 
+                "TRI3_to_TRI6::get_local_edge_index_based_on_vertex_indices() - Vertices must have different indices" );
+        
+        // create LookUp
+        Matrix< IndexMat > tLookUp = {
+            {  0,  1, -3 }, 
+            { -1,  0,  2 },
+            {  3, -2,  0 } };
+
+        // return edge index (1-Based) and direction as sign
+        return tLookUp( aFirstLocalVertexIndex, aSecondLocalVertexIndex );
+    }
 };
 
 // -------------------------------------------------------------------------
@@ -243,13 +335,13 @@ class TET4_to_TET10 : public Elevate_Order_Template
   public:
     TET4_to_TET10() {}
 
-    moris_index
+    uint
     get_num_new_nodes() const
     {
         return 6;
     }
 
-    moris_index
+    uint
     get_total_ig_verts() const
     {
         return 10;
@@ -278,7 +370,7 @@ class TET4_to_TET10 : public Elevate_Order_Template
         }
         case EntityRank::ELEMENT:
         {
-            return true;
+            return false;
             break;
         }
         default:
@@ -373,6 +465,81 @@ class TET4_to_TET10 : public Elevate_Order_Template
     {
         return 3;
     }
+
+    moris_index
+    get_local_vertex_index( enum EntityRank aEntityRank, moris_index aSignedLocalEntityIndex, moris_index aVertexIndexOnEntity ) const 
+    {
+        switch ( aEntityRank )
+        {
+            case EntityRank::NODE:
+            {
+                MORIS_ERROR( false, "TET4_to_TET10::get_cell_local_vertex_index() - No new vertices on vertices themselves. This shouldn't be requested." );
+                return -1;
+                break;
+            }
+            case EntityRank::EDGE:
+            {
+                // check if requested vertex location makes sense
+                MORIS_ASSERT( aSignedLocalEntityIndex != 0, 
+                        "TET4_to_TET10::get_cell_local_vertex_index() - aSignedLocalEntityIndex is 1-based and must not be 0." );
+                        
+                MORIS_ASSERT( std::abs( aSignedLocalEntityIndex ) <= 6 && aVertexIndexOnEntity < 1, 
+                        "TET4_to_TET10::get_cell_local_vertex_index() - Index out of bounds. Only 3 edges with 1 new node per edge." );
+
+                // convert Signed 1-based index to unsigned 0-based index
+                uint tLocalEntityIndex = std::abs( aSignedLocalEntityIndex ) - 1;
+                
+                // create look-up table for local vertex position
+                Matrix< IndexMat > tLookUp = {
+                    { 4 }, 
+                    { 5 },
+                    { 6 }, 
+                    { 7 },
+                    { 8 }, 
+                    { 9 } };
+                
+                return tLookUp( tLocalEntityIndex, aVertexIndexOnEntity );
+                break;
+            }
+            case EntityRank::FACE:
+            {
+                MORIS_ERROR( false, "TET4_to_TET10::get_cell_local_vertex_index() - No new vertices on faces. This shouldn't be requested." );
+                return -1;
+                break;
+            }
+            case EntityRank::ELEMENT:
+            {
+                MORIS_ERROR( false, "TET4_to_TET10::get_cell_local_vertex_index() - No new vertices inside cell. This shouldn't be requested." );
+                return -1;
+                break;
+            }
+            default:
+            {
+                MORIS_ERROR( false, "TET4_to_TET10::get_cell_local_vertex_index() - Unknown Entity Rank." );
+                return -1;
+                break;
+            }
+        }
+    }
+
+    moris_index
+    get_local_edge_index_based_on_vertex_indices( moris_index aFirstLocalVertexIndex, moris_index aSecondLocalVertexIndex ) const
+    {
+        // check if input makes sense
+        MORIS_ASSERT( aFirstLocalVertexIndex != aSecondLocalVertexIndex, 
+                "TET4_to_TET10::get_local_edge_index_based_on_vertex_indices() - Vertices must have different indices" );
+        
+        // create LookUp
+        Matrix< IndexMat > tLookUp = {
+            {  0,  1, -3,  4 },
+            { -1,  0,  2, -5 },
+            {  3, -2,  0,  6 },
+            { -4,  5, -6,  0 } };
+
+        // return edge index (1-Based) and direction as sign
+        return tLookUp( aFirstLocalVertexIndex, aSecondLocalVertexIndex );
+    }
+
 };
 
 // -------------------------------------------------------------------------
@@ -382,13 +549,13 @@ class TRI3_to_TRI10 : public Elevate_Order_Template
   public:
     TRI3_to_TRI10() {}
 
-    moris_index
+    uint
     get_num_new_nodes() const
     {
         return 7;
     }
 
-    moris_index
+    uint
     get_total_ig_verts() const
     {
         return 10;
@@ -561,7 +728,10 @@ class Elevate_Order_Interface : public Decomposition_Algorithm
         Decomposition_Data*               aDecompositionData,
         Cut_Integration_Mesh*             aCutIntegrationMesh,
         moris::mtk::Mesh*                 aBackgroundMesh,
-        Integration_Mesh_Generator*       aMeshGenerator );
+        Integration_Mesh_Generator*       aMeshGenerator )
+    {
+        MORIS_ERROR( false, "Elevate_Order_Interface::perform_impl_vertex_requests() - This virtual function is not implemented in this Child Class." );
+    }
 
     void
     perform_impl_generate_mesh(
@@ -569,32 +739,35 @@ class Elevate_Order_Interface : public Decomposition_Algorithm
         Decomposition_Data*               aDecompositionData,
         Cut_Integration_Mesh*             aCutIntegrationMesh,
         moris::mtk::Mesh*                 aBackgroundMesh,
-        Integration_Mesh_Generator*       aMeshGenerator );
+        Integration_Mesh_Generator*       aMeshGenerator )
+    {
+        MORIS_ERROR( false, "Elevate_Order_Interface::perform_impl_generate_mesh() - This virtual function is not implemented in this Child Class." );
+    }
 
     // -------------------------------------------------------------------------
 
   private:
+    
     bool
     make_vertex_requests(
         std::shared_ptr< Edge_Based_Connectivity >         aEdgeConnectivity,
         std::shared_ptr< Edge_Based_Ancestry >             aIgEdgeAncestry,
-        moris::Cell< moris::mtk::Cell* >*                  aBackgroundCellForEdge,
-        moris::Cell< std::shared_ptr< IG_Vertex_Group > >* aVertexGroups,
-        moris::Cell< moris::mtk::Cell* >*                  aIgCells );
+        moris::Cell< moris::mtk::Cell* >*                  aIgCells,
+        moris::Cell< moris::Cell< moris_index > >*         aCellToNewLocalVertexIndices  );
 
     bool
     associate_new_vertices_with_cell_groups(
         std::shared_ptr< Edge_Based_Connectivity >         aEdgeConnectivity,
         std::shared_ptr< Edge_Based_Ancestry >             aIgEdgeAncestry,
         moris::Cell< moris::mtk::Cell* >*                  aBackgroundCellForEdge,
-        moris::Cell< std::shared_ptr< IG_Vertex_Group > >* aVertexGroups,
         moris::Cell< moris::mtk::Cell* >*                  aIgCells );
 
     void
     create_higher_order_integration_cells(
         std::shared_ptr< Edge_Based_Connectivity > aEdgeConnectivity,
         std::shared_ptr< Edge_Based_Ancestry >     aIgEdgeAncestry,
-        moris::Cell< moris::mtk::Cell* >*          aIgCells );
+        moris::Cell< moris::mtk::Cell* >*          aIgCells,
+        moris::Cell< moris::Cell< moris_index > >* aCellToNewLocalVertexIndices  );
 
     // -------------------------------------------------------------------------
 

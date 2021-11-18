@@ -184,9 +184,9 @@ namespace moris
             switch (aSideOrdinal)
             {
                 case 0: { return {{0, 1}, {1, 3}}; break; }
-                case 0: { return {{1, 2}, {2, 3}}; break; }
-                case 0: { return {{0, 3}, {3, 2}}; break; }
-                case 0: { return {{0, 2}, {2, 1}}; break; }
+                case 1: { return {{1, 2}, {2, 3}}; break; }
+                case 2: { return {{0, 3}, {3, 2}}; break; }
+                case 3: { return {{0, 2}, {2, 1}}; break; }
 
                 default:
                 {

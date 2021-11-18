@@ -35,17 +35,17 @@ xtk::create_decomposition_algorithm(
     return std::make_shared<xtk::Octree_Interface>( aParameterList );
     break;
 
-//   case Subdivision_Method::P_ELEVATE_ORDER_TRI3_TRI6:
-//     return std::make_shared<xtk::Elevate_Order_Interface>( aParameterList, Subdivision_Method::P_ELEVATE_ORDER_TRI3_TRI6  );
-//     break;
+  case Subdivision_Method::P_ELEVATE_ORDER_TRI3_TRI6:
+    return std::make_shared<xtk::Elevate_Order_Interface>( aParameterList, Subdivision_Method::P_ELEVATE_ORDER_TRI3_TRI6  );
+    break;
 
 //  case Subdivision_Method::P_ELEVATE_ORDER_TRI3_TRI10:
 //     return std::make_shared<xtk::Elevate_Order_Interface>( aParameterList, Subdivision_Method::P_ELEVATE_ORDER_TRI3_TRI10  );
 //     break;
 
-//   case Subdivision_Method::P_ELEVATE_ORDER_TET4_TET10:
-//     return std::make_shared<xtk::Elevate_Order_Interface>( aParameterList, Subdivision_Method::P_ELEVATE_ORDER_TET4_TET10  );
-//     break;
+  case Subdivision_Method::P_ELEVATE_ORDER_TET4_TET10:
+    return std::make_shared<xtk::Elevate_Order_Interface>( aParameterList, Subdivision_Method::P_ELEVATE_ORDER_TET4_TET10  );
+    break;
 
 //   case Subdivision_Method::P_ELEVATE_ORDER_TET4_TET20:
 //     return std::make_shared<xtk::Elevate_Order_Interface>( aParameterList, Subdivision_Method::P_ELEVATE_ORDER_TET4_TET20  );

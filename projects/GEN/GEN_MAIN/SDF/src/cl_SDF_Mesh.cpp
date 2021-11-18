@@ -101,6 +101,17 @@ namespace moris
 
             }
 
+            for( uint i=0; i<3; ++i )
+            {
+                real tMin = mMinCoord( i );
+                real tMax = mMaxCoord( i );
+
+                real tMinGlobCoord = min_all( tMin );
+                real tMaxGlobCoord = max_all( tMax );
+
+                mMinCoord( i ) = tMinGlobCoord;
+                mMaxCoord( i ) = tMaxGlobCoord;
+            }
 
             // matrix that contains node IDs
             mNodeIDs.set_size( tNumberOfNodes, 1 );

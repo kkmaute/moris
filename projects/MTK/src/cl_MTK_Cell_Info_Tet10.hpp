@@ -104,6 +104,11 @@ namespace moris
 
             // ----------------------------------------------------------------------------------
 
+            moris::Matrix< moris::DDRMat >
+            get_vertex_loc_coord(moris_index const & aVertexOrdinal) const;
+
+            // ----------------------------------------------------------------------------------
+
             moris::Matrix<moris::IndexMat>
             get_edge_to_face_map() const;
 

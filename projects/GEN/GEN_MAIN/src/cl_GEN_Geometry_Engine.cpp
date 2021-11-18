@@ -28,6 +28,8 @@
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
 #include "cl_SOL_Dist_Map.hpp"
 
+#include "cl_Stopwatch.hpp"//CHR/src
+
 namespace moris
 {
 namespace ge
@@ -883,6 +885,8 @@ namespace ge
         Cell< PDV_Type >                 tPDVTypeGroup( 1 );
         Cell< Matrix< DDUMat > >         tMeshSetIndicesPerProperty( mProperties.size() );
 
+        tic tTimer;
+
         // Loop over properties to create PDVs
         for ( uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++ )
         {
@@ -914,6 +918,11 @@ namespace ge
             }
         }
 
+        real tElapsedTime = tTimer.toc< moris::chronos::milliseconds >().wall;
+        MORIS_LOG_INFO( " Assign PDV type to mesh sets on processor %u took %5.3f seconds.", (uint)par_rank(), (double)tElapsedTime / 1000 );
+
+        // start timer
+        tic tTimer2;
         // Get and save communication map from IP mesh
         Matrix< IdMat > tCommTable = tInterpolationMesh->get_communication_table();
         mPDVHostManager.set_communication_table( tCommTable );
@@ -928,17 +937,34 @@ namespace ge
             tIPVertexGlobaToLocalMap,
             tIGVertexGlobaToLocalMap );
 
+        tElapsedTime = tTimer2.toc< moris::chronos::milliseconds >().wall;
+        MORIS_LOG_INFO( " Get global-to-local-maps from mtk on processor %u took %5.3f seconds.", (uint)par_rank(), (double)tElapsedTime / 1000 );
+
+        // start timer
+        tic tTimer3;
         // Create PDV hosts
         this->create_interpolation_pdv_hosts(
             tInterpolationMesh,
             tIntegrationMesh,
             tPdvTypes );
 
+        tElapsedTime = tTimer3.toc< moris::chronos::milliseconds >().wall;
+        MORIS_LOG_INFO( " Create interpolation PDV hosts on processor %u took %5.3f seconds.", (uint)par_rank(), (double)tElapsedTime / 1000 );
+
         // Set integration PDV types
         if ( mShapeSensitivities )
         {
+            // start timer
+            tic tTimer4;
+
             this->set_integration_pdv_types( tIntegrationMesh );
+
+            tElapsedTime = tTimer4.toc< moris::chronos::milliseconds >().wall;
+            MORIS_LOG_INFO( " Set integration PDV types on processor %u took %5.3f seconds.", (uint)par_rank(), (double)tElapsedTime / 1000 );
         }
+
+        // start timer
+        tic tTimer5;
 
         // Loop over properties to assign PDVs
         for ( uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++ )
@@ -963,8 +989,16 @@ namespace ge
             }
         }
 
+        tElapsedTime = tTimer5.toc< moris::chronos::milliseconds >().wall;
+        MORIS_LOG_INFO( " Assign property to pdv host on processor %u took %5.3f seconds.", (uint)par_rank(), (double)tElapsedTime / 1000 );
+
+        // start timer
+        tic tTimer6;
         // Create PDV IDs
         mPDVHostManager.create_pdv_ids();
+
+        tElapsedTime = tTimer6.toc< moris::chronos::milliseconds >().wall;
+        MORIS_LOG_INFO( " Compute and comunicate PDV IDs on processor %u took %5.3f seconds.", (uint)par_rank(), (double)tElapsedTime / 1000 );
     }
 
     void
@@ -1052,6 +1086,7 @@ namespace ge
         }
     }
 
+
     void
     Geometry_Engine::setup_diagnostics(
         bool               aDiagnostics,
@@ -1122,464 +1157,469 @@ namespace ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    Geometry_Engine::distribute_advs(
-        mtk::Mesh_Pair                               aMeshPair,
-        moris::Cell< std::shared_ptr< mtk::Field > > aFields )
-    {
-        // Tracer
-        Tracer tTracer( "GEN", "Distribute ADVs" );
 
-        // Gather all fields
-        Cell< std::shared_ptr< Field > > tFields( mGeometries.size() + mProperties.size() );
-        std::copy( mGeometries.begin(), mGeometries.end(), tFields.begin() );
-        std::copy( mProperties.begin(), mProperties.end(), tFields.begin() + mGeometries.size() );
-
-        // Interpolation mesh
-        mtk::Interpolation_Mesh* tMesh = aMeshPair.get_interpolation_mesh();
-
-        //------------------------------------//
-        // Determine owned and shared ADV IDs //
-        //------------------------------------//
-        clock_t tStart_Owned_Shared_ADVs = clock();
-
-        // Set primitive IDs
-        Matrix< DDSMat > tPrimitiveADVIds( mInitialPrimitiveADVs.length(), 1 );
-        for ( uint tADVIndex = 0; tADVIndex < mInitialPrimitiveADVs.length(); tADVIndex++ )
+        void Geometry_Engine::distribute_advs(
+                mtk::Mesh_Pair aMeshPair,
+                moris::Cell<std::shared_ptr< mtk::Field > > aFields )
         {
-            tPrimitiveADVIds( tADVIndex ) = tADVIndex;
-        }
+            // Tracer
+            Tracer tTracer("GEN", "Distribute ADVs");
 
-        // Start with primitive IDs for owned IDs on processor 0
-        Matrix< DDSMat > tOwnedADVIds( 0, 0 );
-        if ( par_rank() == 0 )
-        {
-            tOwnedADVIds = tPrimitiveADVIds;
-        }
+            // Gather all fields
+            Cell<std::shared_ptr<Field>> tFields(mGeometries.size() + mProperties.size());
+            std::copy(mGeometries.begin(), mGeometries.end(), tFields.begin());
+            std::copy(mProperties.begin(), mProperties.end(), tFields.begin() + mGeometries.size());
 
-        // Owned and shared ADVs per field
-        Cell< Matrix< DDUMat > > tSharedCoefficientIndices( tFields.size() );
-        Cell< Matrix< DDSMat > > tSharedADVIds( tFields.size() );
-        Matrix< DDUMat >         tAllOffsetIDs( tFields.size(), 1 );
+            // Interpolation mesh
+            mtk::Interpolation_Mesh* tMesh = aMeshPair.get_interpolation_mesh();
 
-        // Get all node indices from the mesh (for now)
-        uint             tNumNodes = tMesh->get_num_nodes();
-        Matrix< DDUMat > tNodeIndices( tNumNodes, 1 );
-        for ( uint tNodeIndex = 0; tNodeIndex < tNumNodes; tNodeIndex++ )
-        {
-            tNodeIndices( tNodeIndex ) = tNodeIndex;
-        }
+            //------------------------------------//
+            // Determine owned and shared ADV IDs //
+            //------------------------------------//
+            clock_t tStart_Owned_Shared_ADVs = clock();
 
-        moris::Cell< uint > tNumCoeff( tFields.size() );
-        // Loop over all geometries to get number of new ADVs
-        sint tOffsetID = tPrimitiveADVIds.length();
-        for ( uint tFieldIndex = 0; tFieldIndex < tFields.size(); tFieldIndex++ )
-        {
-            // Determine if level set will be created
-            if ( tFields( tFieldIndex )->intended_discretization() )
+            // Set primitive IDs
+            Matrix<DDSMat> tPrimitiveADVIds(mInitialPrimitiveADVs.length(), 1);
+            for (uint tADVIndex = 0; tADVIndex < mInitialPrimitiveADVs.length(); tADVIndex++)
             {
-                // Get discretization mesh index
-                uint tDiscretizationMeshIndex = tFields( tFieldIndex )->get_discretization_mesh_index();
+                tPrimitiveADVIds(tADVIndex) = tADVIndex;
+            }
 
-                uint tMaxNumberOfCoefficients = tMesh->get_max_num_coeffs_on_proc( tDiscretizationMeshIndex );
+            // Start with primitive IDs for owned IDs on processor 0
+            Matrix<DDSMat> tOwnedADVIds(0, 0);
+            if (par_rank() == 0)
+            {
+                tOwnedADVIds = tPrimitiveADVIds;
+            }
 
-                Matrix< IdMat >    tAllCoefIds( tMaxNumberOfCoefficients, 1, gNoID );
-                Matrix< IndexMat > tAllCoefIndices( tMaxNumberOfCoefficients, 1, gNoIndex );
-                Matrix< IdMat >    tAllCoefOwners( tMaxNumberOfCoefficients, 1, gNoID );
+            // Owned and shared ADVs per field
+            Cell<Matrix<DDUMat>> tSharedCoefficientIndices(tFields.size());
+            Cell<Matrix<DDSMat>> tSharedADVIds(tFields.size());
+            Matrix<DDUMat> tAllOffsetIDs(tFields.size(), 1);
 
-                for ( uint tNodeIndex = 0; tNodeIndex < tNumNodes; tNodeIndex++ )
+            // Get all node indices from the mesh (for now)
+            uint tNumNodes = tMesh->get_num_nodes();
+            Matrix<DDUMat> tNodeIndices(tNumNodes, 1);
+            for (uint tNodeIndex = 0; tNodeIndex < tNumNodes; tNodeIndex++)
+            {
+                tNodeIndices(tNodeIndex) = tNodeIndex;
+            }
+
+            moris::Cell< uint > tNumCoeff(tFields.size());
+            // Loop over all geometries to get number of new ADVs
+            sint tOffsetID = tPrimitiveADVIds.length();
+            for (uint tFieldIndex = 0; tFieldIndex < tFields.size(); tFieldIndex++)
+            {
+                // Determine if level set will be created
+                if (tFields(tFieldIndex)->intended_discretization())
                 {
-                    // check whether node has an underlying discretization on this processor
-                    bool tNodeHasDiscretization = tMesh->get_mtk_vertex( tNodeIndex ).has_interpolation( tDiscretizationMeshIndex );
+                    // Get discretization mesh index
+                    uint tDiscretizationMeshIndex = tFields(tFieldIndex)->get_discretization_mesh_index();
 
-                    // process only nodes that have discretization
-                    if ( tNodeHasDiscretization )
+                    uint tMaxNumberOfCoefficients = tMesh->get_max_num_coeffs_on_proc(tDiscretizationMeshIndex);
+
+                    Matrix< IdMat > tAllCoefIds(tMaxNumberOfCoefficients,1,gNoID);
+                    Matrix< IndexMat > tAllCoefIndices(tMaxNumberOfCoefficients,1,gNoIndex);
+                    Matrix< IdMat > tAllCoefOwners(tMaxNumberOfCoefficients,1,gNoID);
+
+                    for (uint tNodeIndex = 0; tNodeIndex < tNumNodes; tNodeIndex++)
                     {
-                        // get indices and IDs from mtk mesh - FIXME: should return const &
-                        const Matrix< IndexMat > tCoefIndices = tMesh->get_coefficient_indices_of_node(
-                            tNodeIndex,
-                            tDiscretizationMeshIndex );
+                        // check whether node has an underlying discretization on this processor
+                        bool tNodeHasDiscretization = tMesh->
+                                get_mtk_vertex(tNodeIndex).has_interpolation(tDiscretizationMeshIndex);
 
-                        const Matrix< IdMat > tCoefIds = tMesh->get_coefficient_IDs_of_node(
-                            tNodeIndex,
-                            tDiscretizationMeshIndex );
-
-                        const Matrix< IdMat > tCoefOwners = tMesh->get_coefficient_owners_of_node(
-                            tNodeIndex,
-                            tDiscretizationMeshIndex );
-
-                        // check that number of indices and ids are the same
-                        MORIS_ASSERT( tCoefIds.numel() == tCoefIndices.numel(),
-                            "distribute_advs - numbers of coefficients and ids do not match.\n" );
-
-                        // get number of coefficients for current node
-                        uint tNumCoefOfNode = tCoefIds.numel();
-
-                        for ( uint tCoefIndex = 0; tCoefIndex < tNumCoefOfNode; ++tCoefIndex )
+                        // process only nodes that have discretization
+                        if ( tNodeHasDiscretization )
                         {
-                            // get coefficient index
-                            moris_index tCurrentIndex = tCoefIndices( tCoefIndex );
+                            // get indices and IDs from mtk mesh - FIXME: should return const &
+                            const Matrix< IndexMat > tCoefIndices = tMesh->get_coefficient_indices_of_node(
+                                    tNodeIndex,
+                                    tDiscretizationMeshIndex);
 
-                            // check whether mesh coefficient has already been set
-                            if ( tAllCoefIds( tCurrentIndex ) == -1 )
+                            const Matrix< IdMat > tCoefIds = tMesh->get_coefficient_IDs_of_node(
+                                    tNodeIndex,
+                                    tDiscretizationMeshIndex);
+
+                            const Matrix< IdMat > tCoefOwners = tMesh->get_coefficient_owners_of_node(
+                                    tNodeIndex,
+                                    tDiscretizationMeshIndex);
+
+                            // check that number of indices and ids are the same
+                            MORIS_ASSERT( tCoefIds.numel() == tCoefIndices.numel(),
+                                    "distribute_advs - numbers of coefficients and ids do not match.\n");
+
+                            // get number of coefficients for current node
+                            uint tNumCoefOfNode=tCoefIds.numel();
+
+                            for (uint tCoefIndex=0;tCoefIndex<tNumCoefOfNode;++tCoefIndex)
                             {
-                                // increase field coefficient count
-                                tNumCoeff( tFieldIndex )++;
+                                // get coefficient index
+                                moris_index tCurrentIndex = tCoefIndices(tCoefIndex);
 
-                                // populate mesh index to mesh coefficient id map
-                                tAllCoefIds( tCurrentIndex ) = tCoefIds( tCoefIndex );
+                                // check whether mesh coefficient has already been set
+                                if ( tAllCoefIds(tCurrentIndex) == -1 )
+                                {
+                                    // increase field coefficient count
+                                    tNumCoeff( tFieldIndex )++;
 
-                                tAllCoefOwners( tCurrentIndex ) = tCoefOwners( tCoefIndex );
-                            }
-                            else
-                            {
-                                // check for consistency
-                                MORIS_ASSERT( tAllCoefIds( tCurrentIndex ) == tCoefIds( tCoefIndex ),
-                                    "distribute_advs - inconsistent index and ids.\n" );
+                                    // populate mesh index to mesh coefficient id map
+                                    tAllCoefIds(tCurrentIndex) = tCoefIds(tCoefIndex);
+
+                                    tAllCoefOwners(tCurrentIndex) = tCoefOwners(tCoefIndex);
+                                }
+                                else
+                                {
+                                    // check for consistency
+                                    MORIS_ASSERT( tAllCoefIds(tCurrentIndex) == tCoefIds(tCoefIndex),
+                                            "distribute_advs - inconsistent index and ids.\n");
+                                }
                             }
                         }
                     }
-                }
 
-                if ( par_size() > 1 )
-                {
-                    this->communicate_missing_owned_coefficients(
-                        aMeshPair,
-                        tAllCoefIds,
-                        tAllCoefOwners,
-                        tNumCoeff,
-                        tFieldIndex,
-                        tDiscretizationMeshIndex );
-                }
-
-                uint tOwnedCounter  = 0;
-                uint tSharedCounter = 0;
-
-                for ( uint Ik = 0; Ik < tAllCoefIds.numel(); Ik++ )
-                {
-                    if ( tAllCoefIds( Ik ) != gNoID && tAllCoefOwners( Ik ) == par_rank() )
+                    if(par_size() > 1)
                     {
-                        tOwnedCounter++;
+                        this->communicate_missing_owned_coefficients(
+                                aMeshPair,
+                                tAllCoefIds,
+                                tAllCoefOwners,
+                                tNumCoeff,
+                                tFieldIndex,
+                                tDiscretizationMeshIndex);
                     }
-                    else if ( tAllCoefIds( Ik ) != gNoID )
+
+                    uint tOwnedCounter = 0;
+                    uint tSharedCounter = 0;
+
+                    for( uint Ik = 0; Ik< tAllCoefIds.numel(); Ik++ )
                     {
-                        tSharedCounter++;
+                        if( tAllCoefIds( Ik ) != gNoID && tAllCoefOwners( Ik ) == par_rank() )
+                        {
+                            tOwnedCounter++;
+                        }
+                        else if( tAllCoefIds( Ik ) != gNoID )
+                        {
+                            tSharedCounter++;
+                        }
                     }
-                }
 
-                Matrix< DDUMat > tOwnedCoefficients( tOwnedCounter, 1 );
-                Matrix< DDUMat > tSharedCoefficients( tSharedCounter, 1 );
+                    Matrix<DDUMat> tOwnedCoefficients(tOwnedCounter,1);
+                    Matrix<DDUMat> tSharedCoefficients( tSharedCounter,1);
 
-                tOwnedCounter  = 0;
-                tSharedCounter = 0;
+                    tOwnedCounter = 0;
+                    tSharedCounter = 0;
 
-                for ( uint Ik = 0; Ik < tAllCoefIds.numel(); Ik++ )
-                {
-                    if ( tAllCoefIds( Ik ) != gNoID && tAllCoefOwners( Ik ) == par_rank() )
+                    for( uint Ik = 0; Ik< tAllCoefIds.numel(); Ik++ )
                     {
-                        tOwnedCoefficients( tOwnedCounter++ ) = Ik;
+                        if( tAllCoefIds( Ik ) != gNoID && tAllCoefOwners( Ik ) == par_rank() )
+                        {
+                            tOwnedCoefficients(tOwnedCounter++) = Ik;
+                        }
+                        else if( tAllCoefIds( Ik ) != gNoID )
+                        {
+                            tSharedCoefficients( tSharedCounter++)= Ik;
+                        }
                     }
-                    else if ( tAllCoefIds( Ik ) != gNoID )
+
+                    //                    // Get owned coefficients
+                    //                    Matrix<DDUMat> tOwnedCoefficients = tMesh->get_owned_discretization_coefficient_indices(
+                    //                            tNodeIndices,
+                    //                            tDiscretizationMeshIndex);
+                    //
+                    //                    // Get shared coefficients
+                    //                    Matrix<DDUMat> tSharedCoefficients = tMesh->get_shared_discretization_coefficient_indices(
+                    //                            tNodeIndices,
+                    //                            tDiscretizationMeshIndex);
+
+                    // Sizes of ID vectors
+                    uint tNumOwnedADVs = tOwnedADVIds.length();
+                    uint tNumOwnedCoefficients = tOwnedCoefficients.numel();
+                    uint tNumSharedCoefficients = tSharedCoefficients.numel();
+
+                    // Resize ID lists and bounds
+                    tOwnedADVIds.resize(tNumOwnedADVs + tNumOwnedCoefficients, 1);
+                    mLowerBounds.resize(tNumOwnedADVs + tNumOwnedCoefficients, 1);
+                    mUpperBounds.resize(tNumOwnedADVs + tNumOwnedCoefficients, 1);
+                    tSharedADVIds(tFieldIndex).resize(tNumOwnedCoefficients + tNumSharedCoefficients, 1);
+                    tSharedCoefficientIndices(tFieldIndex) = tOwnedCoefficients;
+
+                    // Add owned coefficients to lists
+                    for (uint tOwnedCoefficient = 0; tOwnedCoefficient < tNumOwnedCoefficients; tOwnedCoefficient++)
                     {
-                        tSharedCoefficients( tSharedCounter++ ) = Ik;
+                        sint tADVId = tOffsetID + tMesh->get_glb_entity_id_from_entity_loc_index(
+                                tOwnedCoefficients(tOwnedCoefficient),
+                                EntityRank::BSPLINE,
+                                tDiscretizationMeshIndex);
+
+                        MORIS_ASSERT( tADVId-tOffsetID == tAllCoefIds( tOwnedCoefficients(tOwnedCoefficient) ),"check if this is a problem");
+
+                        tOwnedADVIds(tNumOwnedADVs + tOwnedCoefficient) = tADVId;
+                        mLowerBounds(tNumOwnedADVs + tOwnedCoefficient) = tFields(tFieldIndex)->get_discretization_lower_bound();
+                        mUpperBounds(tNumOwnedADVs + tOwnedCoefficient) = tFields(tFieldIndex)->get_discretization_upper_bound();;
+                        tSharedADVIds(tFieldIndex)(tOwnedCoefficient) = tADVId;
                     }
+
+                    // Add shared coefficients to field-specific list
+                    tSharedCoefficientIndices(tFieldIndex).resize(tNumOwnedCoefficients + tNumSharedCoefficients, 1);
+                    for (uint tSharedCoefficient = 0; tSharedCoefficient < tNumSharedCoefficients; tSharedCoefficient++)
+                    {
+                        sint tADVId = tOffsetID + tMesh->get_glb_entity_id_from_entity_loc_index(
+                                tSharedCoefficients(tSharedCoefficient),
+                                EntityRank::BSPLINE,
+                                tDiscretizationMeshIndex);
+
+                        MORIS_ASSERT( tADVId-tOffsetID == tAllCoefIds( tSharedCoefficients(tSharedCoefficient) ),"check if this is a problem");
+
+                        tSharedCoefficientIndices(tFieldIndex)(tNumOwnedCoefficients + tSharedCoefficient) = tSharedCoefficients(tSharedCoefficient);
+                        tSharedADVIds(tFieldIndex)(tNumOwnedCoefficients + tSharedCoefficient) = tADVId;
+                    }
+
+                    // Update offset based on maximum ID
+                    tAllOffsetIDs(tFieldIndex) = tOffsetID;
+                    tOffsetID += tMesh->get_max_entity_id(EntityRank::BSPLINE, tDiscretizationMeshIndex);
                 }
-
-                //                    // Get owned coefficients
-                //                    Matrix<DDUMat> tOwnedCoefficients = tMesh->get_owned_discretization_coefficient_indices(
-                //                            tNodeIndices,
-                //                            tDiscretizationMeshIndex);
-                //
-                //                    // Get shared coefficients
-                //                    Matrix<DDUMat> tSharedCoefficients = tMesh->get_shared_discretization_coefficient_indices(
-                //                            tNodeIndices,
-                //                            tDiscretizationMeshIndex);
-
-                // Sizes of ID vectors
-                uint tNumOwnedADVs          = tOwnedADVIds.length();
-                uint tNumOwnedCoefficients  = tOwnedCoefficients.numel();
-                uint tNumSharedCoefficients = tSharedCoefficients.numel();
-
-                // Resize ID lists and bounds
-                tOwnedADVIds.resize( tNumOwnedADVs + tNumOwnedCoefficients, 1 );
-                mLowerBounds.resize( tNumOwnedADVs + tNumOwnedCoefficients, 1 );
-                mUpperBounds.resize( tNumOwnedADVs + tNumOwnedCoefficients, 1 );
-                tSharedADVIds( tFieldIndex ).resize( tNumOwnedCoefficients + tNumSharedCoefficients, 1 );
-                tSharedCoefficientIndices( tFieldIndex ) = tOwnedCoefficients;
-
-                // Add owned coefficients to lists
-                for ( uint tOwnedCoefficient = 0; tOwnedCoefficient < tNumOwnedCoefficients; tOwnedCoefficient++ )
-                {
-                    sint tADVId = tOffsetID + tMesh->get_glb_entity_id_from_entity_loc_index( tOwnedCoefficients( tOwnedCoefficient ), EntityRank::BSPLINE, tDiscretizationMeshIndex );
-
-                    MORIS_ASSERT( tADVId - tOffsetID == tAllCoefIds( tOwnedCoefficients( tOwnedCoefficient ) ), "check if this is a problem" );
-
-                    tOwnedADVIds( tNumOwnedADVs + tOwnedCoefficient ) = tADVId;
-                    mLowerBounds( tNumOwnedADVs + tOwnedCoefficient ) = tFields( tFieldIndex )->get_discretization_lower_bound();
-                    mUpperBounds( tNumOwnedADVs + tOwnedCoefficient ) = tFields( tFieldIndex )->get_discretization_upper_bound();
-                    ;
-                    tSharedADVIds( tFieldIndex )( tOwnedCoefficient ) = tADVId;
-                }
-
-                // Add shared coefficients to field-specific list
-                tSharedCoefficientIndices( tFieldIndex ).resize( tNumOwnedCoefficients + tNumSharedCoefficients, 1 );
-                for ( uint tSharedCoefficient = 0; tSharedCoefficient < tNumSharedCoefficients; tSharedCoefficient++ )
-                {
-                    sint tADVId = tOffsetID + tMesh->get_glb_entity_id_from_entity_loc_index( tSharedCoefficients( tSharedCoefficient ), EntityRank::BSPLINE, tDiscretizationMeshIndex );
-
-                    MORIS_ASSERT( tADVId - tOffsetID == tAllCoefIds( tSharedCoefficients( tSharedCoefficient ) ), "check if this is a problem" );
-
-                    tSharedCoefficientIndices( tFieldIndex )( tNumOwnedCoefficients + tSharedCoefficient ) = tSharedCoefficients( tSharedCoefficient );
-                    tSharedADVIds( tFieldIndex )( tNumOwnedCoefficients + tSharedCoefficient )             = tADVId;
-                }
-
-                // Update offset based on maximum ID
-                tAllOffsetIDs( tFieldIndex ) = tOffsetID;
-                tOffsetID += tMesh->get_max_entity_id( EntityRank::BSPLINE, tDiscretizationMeshIndex );
             }
-        }
 
-        // Set owned ADV IDs
-        mPDVHostManager.set_owned_adv_ids( tOwnedADVIds );
+            // Set owned ADV IDs
+            mPDVHostManager.set_owned_adv_ids(tOwnedADVIds);
 
-        MORIS_LOG_INFO( "Time to collect owned and shared ADVs: %f sec", (moris::real)( clock() - tStart_Owned_Shared_ADVs ) / CLOCKS_PER_SEC );
+            MORIS_LOG_INFO("Time to collect owned and shared ADVs: %f sec",(moris::real) ( clock() - tStart_Owned_Shared_ADVs ) / CLOCKS_PER_SEC);
 
-        //----------------------------------------//
-        // Create owned ADV vector                //
-        //----------------------------------------//
-        clock_t tStart_Create_Owned_ADVs = clock();
+            //----------------------------------------//
+            // Create owned ADV vector                //
+            //----------------------------------------//
+            clock_t tStart_Create_Owned_ADVs = clock();
 
-        // Create factory for distributed ADV vector
-        sol::Matrix_Vector_Factory tDistributedFactory;
+            // Create factory for distributed ADV vector
+            sol::Matrix_Vector_Factory tDistributedFactory;
 
-        // Create map for distributed vectors
-        sol::Dist_Map* tOwnedADVMap     = tDistributedFactory.create_map( tOwnedADVIds );
-        sol::Dist_Map* tPrimitiveADVMap = tDistributedFactory.create_map( tPrimitiveADVIds );
+            // Create map for distributed vectors
+            sol::Dist_Map* tOwnedADVMap = tDistributedFactory.create_map(tOwnedADVIds);
+            sol::Dist_Map* tPrimitiveADVMap = tDistributedFactory.create_map(tPrimitiveADVIds);
 
-        // Create vectors
-        sol::Dist_Vector* tNewOwnedADVs = tDistributedFactory.create_vector( tOwnedADVMap, 1, false, true );
-        mPrimitiveADVs                  = tDistributedFactory.create_vector( tPrimitiveADVMap, 1, false, true );
+            // Create vectors
+            sol::Dist_Vector* tNewOwnedADVs = tDistributedFactory.create_vector(tOwnedADVMap, 1, false, true);
+            mPrimitiveADVs = tDistributedFactory.create_vector(tPrimitiveADVMap, 1, false, true);
 
-        // Assign primitive ADVs
-        if ( par_rank() == 0 )
-        {
-            tNewOwnedADVs->replace_global_values( tPrimitiveADVIds, mInitialPrimitiveADVs );
-        }
-
-        // Global assembly
-        tNewOwnedADVs->vector_global_assembly();
-
-        // Get primitive ADVs from owned vector
-        mPrimitiveADVs->import_local_to_global( *tNewOwnedADVs );
-
-        // Set field ADVs using distributed vector
-        if ( mInitialPrimitiveADVs.length() > 0 )
-        {
-            for ( uint tFieldIndex = 0; tFieldIndex < tFields.size(); tFieldIndex++ )
+            // Assign primitive ADVs
+            if (par_rank() == 0)
             {
-                tFields( tFieldIndex )->set_advs( mPrimitiveADVs );
+                tNewOwnedADVs->replace_global_values(tPrimitiveADVIds, mInitialPrimitiveADVs);
             }
-        }
 
-        MORIS_LOG_INFO( "Time to create owned ADVs: %f sec", (moris::real)( clock() - tStart_Create_Owned_ADVs ) / CLOCKS_PER_SEC );
+            // Global assembly
+            tNewOwnedADVs->vector_global_assembly();
 
-        //----------------------------------------//
-        // Convert to B-spline fields             //
-        //----------------------------------------//
+            // Get primitive ADVs from owned vector
+            mPrimitiveADVs->import_local_to_global(*tNewOwnedADVs);
 
-        clock_t tStart_Convert_to_Bspline_Fields = clock();
-
-        //FIXME this hole section is super hacky and limiting. has to be rewritten from scratch.
-        moris::map< std::string, uint > tFieldNameToIndexMap;
-        for ( uint Ik = 0; Ik < aFields.size(); Ik++ )
-        {
-            std::string tLabel           = aFields( Ik )->get_label();
-            tFieldNameToIndexMap[tLabel] = Ik;
-        }
-
-        // Loop to find B-spline geometries
-        for ( uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++ )
-        {
-            // Shape sensitivities logic
-            mShapeSensitivities = ( mShapeSensitivities or mGeometries( tGeometryIndex )->depends_on_advs() );
-
-            // Convert to B-spline field
-            if ( mGeometries( tGeometryIndex )->intended_discretization() )
+            // Set field ADVs using distributed vector
+            if (mInitialPrimitiveADVs.length() > 0)
             {
-                // Always have shape sensitivities if B-spline field
-                mShapeSensitivities = true;
-
-                std::string tGeoName = mGeometries( tGeometryIndex )->get_name();
-
-                if ( not tFieldNameToIndexMap.key_exists( tGeoName ) )
+                for (uint tFieldIndex = 0; tFieldIndex < tFields.size(); tFieldIndex++)
                 {
-                    // Create B-spline geometry FIXME Overwriting the given geometry is obviously wrong
-                    mGeometries( tGeometryIndex ) = std::make_shared< BSpline_Geometry >(
-                        tNewOwnedADVs,
-                        tSharedCoefficientIndices( tGeometryIndex ),
-                        tSharedADVIds( tGeometryIndex ),
-                        tAllOffsetIDs( tGeometryIndex ),
-                        aMeshPair,
-                        mGeometries( tGeometryIndex ) );
+                    tFields(tFieldIndex)->set_advs(mPrimitiveADVs);
+                }
+            }
+
+            MORIS_LOG_INFO("Time to create owned ADVs: %f sec",(moris::real) ( clock() - tStart_Create_Owned_ADVs ) / CLOCKS_PER_SEC);
+
+            //----------------------------------------//
+            // Convert to B-spline fields             //
+            //----------------------------------------//
+
+            clock_t tStart_Convert_to_Bspline_Fields = clock();
+
+            //FIXME this hole section is super hacky and limiting. has to be rewritten from scratch.
+            moris::map< std::string, uint > tFieldNameToIndexMap;
+            for( uint Ik =0; Ik<aFields.size(); Ik++ )
+            {
+                std::string tLabel = aFields( Ik )->get_label();
+                tFieldNameToIndexMap[ tLabel ] = Ik;
+            }
+
+            // Loop to find B-spline geometries
+            for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
+            {
+                // Shape sensitivities logic
+                mShapeSensitivities = (mShapeSensitivities or mGeometries(tGeometryIndex)->depends_on_advs());
+
+                // Convert to B-spline field
+                if (mGeometries(tGeometryIndex)->intended_discretization())
+                {
+                    // Always have shape sensitivities if B-spline field
+                    mShapeSensitivities = true;
+
+                    std::string tGeoName = mGeometries(tGeometryIndex)->get_name();
+
+                    if( not tFieldNameToIndexMap.key_exists(tGeoName) )
+                    {
+                        // Create B-spline geometry FIXME Overwriting the given geometry is obviously wrong
+                        mGeometries(tGeometryIndex) = std::make_shared<BSpline_Geometry>(
+                                tNewOwnedADVs,
+                                tSharedCoefficientIndices(tGeometryIndex),
+                                tSharedADVIds(tGeometryIndex),
+                                tAllOffsetIDs(tGeometryIndex),
+                                aMeshPair,
+                                mGeometries(tGeometryIndex));
+                    }
+                    else
+                    {
+                        uint tMTKFieldIndex = tFieldNameToIndexMap.find( tGeoName );
+
+                        // Create B-spline geometry
+                        mGeometries(tGeometryIndex) = std::make_shared<BSpline_Geometry>(
+                                tNewOwnedADVs,
+                                tSharedCoefficientIndices(tGeometryIndex),
+                                tSharedADVIds(tGeometryIndex),
+                                tAllOffsetIDs(tGeometryIndex),
+                                aMeshPair,
+                                mGeometries(tGeometryIndex),
+                                aFields(tMTKFieldIndex));
+                    }
+                }
+                // Store field values if needed. FIXME this is obviously wrong that GEN sets it's own mesh
+                else if (mGeometries(tGeometryIndex)->intended_storage())
+                {
+                    // Create stored geometry FIXME this stored geometry stuff is kind of hacky
+                    mGeometries(tGeometryIndex) = std::make_shared<Stored_Geometry>(
+                            tMesh,
+                            mGeometries(tGeometryIndex));
+
+                    mGeometries(tGeometryIndex)->unlock_field();
+                    mGeometries(tGeometryIndex)->set_mesh_pair( aMeshPair );
                 }
                 else
                 {
-                    uint tMTKFieldIndex = tFieldNameToIndexMap.find( tGeoName );
-
-                    // Create B-spline geometry
-                    mGeometries( tGeometryIndex ) = std::make_shared< BSpline_Geometry >(
-                        tNewOwnedADVs,
-                        tSharedCoefficientIndices( tGeometryIndex ),
-                        tSharedADVIds( tGeometryIndex ),
-                        tAllOffsetIDs( tGeometryIndex ),
-                        aMeshPair,
-                        mGeometries( tGeometryIndex ),
-                        aFields( tMTKFieldIndex ) );
+                    // Every Field needs a mesh. FIXME setting the mesh here is to late
+                    mGeometries(tGeometryIndex)->unlock_field();
+                    mGeometries(tGeometryIndex)->set_mesh_pair( aMeshPair );
+                    mGeometries(tGeometryIndex)->set_num_original_nodes(aMeshPair.get_interpolation_mesh()->get_num_nodes() );
                 }
             }
-            // Store field values if needed. FIXME this is obviously wrong that GEN sets it's own mesh
-            else if ( mGeometries( tGeometryIndex )->intended_storage() )
-            {
-                // Create stored geometry FIXME this stored geometry stuff is kind of hacky
-                mGeometries( tGeometryIndex ) = std::make_shared< Stored_Geometry >(
-                    tMesh,
-                    mGeometries( tGeometryIndex ) );
 
-                mGeometries( tGeometryIndex )->unlock_field();
-                mGeometries( tGeometryIndex )->set_mesh_pair( aMeshPair );
+            // Loop to find B-spline properties
+            for (uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++)
+            {
+                // Convert to B-spline field
+                if (mProperties(tPropertyIndex)->intended_discretization())
+                {
+                    // Create B-spline property
+                    mProperties(tPropertyIndex) = std::make_shared<BSpline_Property>(
+                            tNewOwnedADVs,
+                            tSharedCoefficientIndices(mGeometries.size() + tPropertyIndex),
+                            tSharedADVIds(mGeometries.size() + tPropertyIndex),
+                            tAllOffsetIDs(mGeometries.size() + tPropertyIndex),
+                            aMeshPair,
+                            mProperties(tPropertyIndex));
+                }
+            }
+
+            // Update dependencies
+            std::copy(mGeometries.begin(), mGeometries.end(), tFields.begin());
+            std::copy(mProperties.begin(), mProperties.end(), tFields.begin() + mGeometries.size());
+            for (uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++)
+            {
+                mProperties(tPropertyIndex)->update_dependencies(tFields);
+            }
+
+            // Save new owned ADVs
+            mOwnedADVs = tNewOwnedADVs;
+
+            MORIS_LOG_INFO("Time to convert to Bspline fields: %f sec",(moris::real) ( clock() - tStart_Convert_to_Bspline_Fields ) / CLOCKS_PER_SEC);
+
+            //----------------------------------------//
+            // Communicate all ADV IDs to processor 0 //
+            //----------------------------------------//
+
+            clock_t tStart_Communicate_ADV_IDs = clock();
+
+            // Sending mats
+            Cell<Matrix<DDSMat>> tSendingIDs(0);
+            Cell<Matrix<DDRMat>> tSendingLowerBounds(0);
+            Cell<Matrix<DDRMat>> tSendingUpperBounds(0);
+
+            // Receiving mats
+            Cell<Matrix<DDSMat>> tReceivingIDs(0);
+            Cell<Matrix<DDRMat>> tReceivingLowerBounds(0);
+            Cell<Matrix<DDRMat>> tReceivingUpperBounds(0);
+
+            // Set up communication list for communicating ADV IDs
+            Matrix<IdMat> tCommunicationList(1, 1, 0);
+            if (par_rank() == 0)
+            {
+                // Resize communication list and sending mats
+                tCommunicationList.resize(par_size() - 1, 1);
+                tSendingIDs.resize(par_size() - 1);
+                tSendingLowerBounds.resize(par_size() - 1);
+                tSendingUpperBounds.resize(par_size() - 1);
+
+                // Assign communication list
+                for (uint tProcessorIndex = 1; tProcessorIndex < (uint)par_size(); tProcessorIndex++)
+                {
+                    tCommunicationList(tProcessorIndex - 1) = tProcessorIndex;
+                }
             }
             else
             {
-                // Every Field needs a mesh. FIXME setting the mesh here is to late
-                mGeometries( tGeometryIndex )->unlock_field();
-                mGeometries( tGeometryIndex )->set_mesh_pair( aMeshPair );
+                tSendingIDs = {tOwnedADVIds};
+                tSendingLowerBounds = {mLowerBounds};
+                tSendingUpperBounds = {mUpperBounds};
             }
-        }
 
-        // Loop to find B-spline properties
-        for ( uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++ )
-        {
-            // Convert to B-spline field
-            if ( mProperties( tPropertyIndex )->intended_discretization() )
+            // Communicate mats
+            communicate_mats(tCommunicationList, tSendingIDs, tReceivingIDs);
+            communicate_mats(tCommunicationList, tSendingLowerBounds, tReceivingLowerBounds);
+            communicate_mats(tCommunicationList, tSendingUpperBounds, tReceivingUpperBounds);
+
+            MORIS_LOG_INFO("Time to communicate ADV IDs: %f sec",(moris::real) ( clock() - tStart_Communicate_ADV_IDs ) / CLOCKS_PER_SEC);
+
+            // Assemble full ADVs/bounds
+            clock_t tStart_ADV_Bounds = clock();
+
+            if (par_rank() == 0)
             {
-                // Create B-spline property
-                mProperties( tPropertyIndex ) = std::make_shared< BSpline_Property >(
-                    tNewOwnedADVs,
-                    tSharedCoefficientIndices( mGeometries.size() + tPropertyIndex ),
-                    tSharedADVIds( mGeometries.size() + tPropertyIndex ),
-                    tAllOffsetIDs( mGeometries.size() + tPropertyIndex ),
-                    aMeshPair,
-                    mProperties( tPropertyIndex ) );
-            }
-        }
+                // Start full IDs with owned IDs on processor 0
+                mFullADVIds = tOwnedADVIds;
 
-        // Update dependencies
-        std::copy( mGeometries.begin(), mGeometries.end(), tFields.begin() );
-        std::copy( mProperties.begin(), mProperties.end(), tFields.begin() + mGeometries.size() );
-        for ( uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++ )
-        {
-            mProperties( tPropertyIndex )->update_dependencies( tFields );
-        }
-
-        // Save new owned ADVs
-        mOwnedADVs = tNewOwnedADVs;
-
-        MORIS_LOG_INFO( "Time to convert to Bspline fields: %f sec", (moris::real)( clock() - tStart_Convert_to_Bspline_Fields ) / CLOCKS_PER_SEC );
-
-        //----------------------------------------//
-        // Communicate all ADV IDs to processor 0 //
-        //----------------------------------------//
-
-        clock_t tStart_Communicate_ADV_IDs = clock();
-
-        // Sending mats
-        Cell< Matrix< DDSMat > > tSendingIDs( 0 );
-        Cell< Matrix< DDRMat > > tSendingLowerBounds( 0 );
-        Cell< Matrix< DDRMat > > tSendingUpperBounds( 0 );
-
-        // Receiving mats
-        Cell< Matrix< DDSMat > > tReceivingIDs( 0 );
-        Cell< Matrix< DDRMat > > tReceivingLowerBounds( 0 );
-        Cell< Matrix< DDRMat > > tReceivingUpperBounds( 0 );
-
-        // Set up communication list for communicating ADV IDs
-        Matrix< IdMat > tCommunicationList( 1, 1, 0 );
-        if ( par_rank() == 0 )
-        {
-            // Resize communication list and sending mats
-            tCommunicationList.resize( par_size() - 1, 1 );
-            tSendingIDs.resize( par_size() - 1 );
-            tSendingLowerBounds.resize( par_size() - 1 );
-            tSendingUpperBounds.resize( par_size() - 1 );
-
-            // Assign communication list
-            for ( uint tProcessorIndex = 1; tProcessorIndex < (uint)par_size(); tProcessorIndex++ )
-            {
-                tCommunicationList( tProcessorIndex - 1 ) = tProcessorIndex;
-            }
-        }
-        else
-        {
-            tSendingIDs         = { tOwnedADVIds };
-            tSendingLowerBounds = { mLowerBounds };
-            tSendingUpperBounds = { mUpperBounds };
-        }
-
-        // Communicate mats
-        communicate_mats( tCommunicationList, tSendingIDs, tReceivingIDs );
-        communicate_mats( tCommunicationList, tSendingLowerBounds, tReceivingLowerBounds );
-        communicate_mats( tCommunicationList, tSendingUpperBounds, tReceivingUpperBounds );
-
-        MORIS_LOG_INFO( "Time to communicate ADV IDs: %f sec", (moris::real)( clock() - tStart_Communicate_ADV_IDs ) / CLOCKS_PER_SEC );
-
-        // Assemble full ADVs/bounds
-        clock_t tStart_ADV_Bounds = clock();
-
-        if ( par_rank() == 0 )
-        {
-            // Start full IDs with owned IDs on processor 0
-            mFullADVIds = tOwnedADVIds;
-
-            // Assemble additional IDs/bounds from other processors
-            for ( uint tProcessorIndex = 1; tProcessorIndex < (uint)par_size(); tProcessorIndex++ )
-            {
-                // Get number of received ADVs
-                uint tFullADVsFilled  = mFullADVIds.length();
-                uint tNumReceivedADVs = tReceivingIDs( tProcessorIndex - 1 ).length();
-
-                // Resize full ADV IDs and bounds
-                mFullADVIds.resize( tFullADVsFilled + tNumReceivedADVs, 1 );
-                mLowerBounds.resize( tFullADVsFilled + tNumReceivedADVs, 1 );
-                mUpperBounds.resize( tFullADVsFilled + tNumReceivedADVs, 1 );
-
-                // Assign received ADV IDs
-                for ( uint tADVIndex = 0; tADVIndex < tNumReceivedADVs; tADVIndex++ )
+                // Assemble additional IDs/bounds from other processors
+                for (uint tProcessorIndex = 1; tProcessorIndex < (uint)par_size(); tProcessorIndex++)
                 {
-                    mFullADVIds( tFullADVsFilled + tADVIndex ) = tReceivingIDs( tProcessorIndex - 1 )( tADVIndex );
-                    mLowerBounds( tFullADVsFilled + tADVIndex ) =
-                        tReceivingLowerBounds( tProcessorIndex - 1 )( tADVIndex );
-                    mUpperBounds( tFullADVsFilled + tADVIndex ) =
-                        tReceivingUpperBounds( tProcessorIndex - 1 )( tADVIndex );
+                    // Get number of received ADVs
+                    uint tFullADVsFilled = mFullADVIds.length();
+                    uint tNumReceivedADVs = tReceivingIDs(tProcessorIndex - 1).length();
+
+                    // Resize full ADV IDs and bounds
+                    mFullADVIds.resize(tFullADVsFilled + tNumReceivedADVs, 1);
+                    mLowerBounds.resize(tFullADVsFilled + tNumReceivedADVs, 1);
+                    mUpperBounds.resize(tFullADVsFilled + tNumReceivedADVs, 1);
+
+                    // Assign received ADV IDs
+                    for (uint tADVIndex = 0; tADVIndex < tNumReceivedADVs; tADVIndex++)
+                    {
+                        mFullADVIds(tFullADVsFilled + tADVIndex) = tReceivingIDs(tProcessorIndex - 1)(tADVIndex);
+                        mLowerBounds(tFullADVsFilled + tADVIndex) =
+                                tReceivingLowerBounds(tProcessorIndex - 1)(tADVIndex);
+                        mUpperBounds(tFullADVsFilled + tADVIndex) =
+                                tReceivingUpperBounds(tProcessorIndex - 1)(tADVIndex);
+                    }
                 }
             }
+            else
+            {
+                mLowerBounds.set_size(0, 0);
+                mUpperBounds.set_size(0, 0);
+            }
+
+            MORIS_LOG_INFO("Time to assemble ADVs and bounds on Proc 0: %f sec",(moris::real) ( clock() - tStart_ADV_Bounds ) / CLOCKS_PER_SEC);
+
+            // Reset mesh information
+            clock_t tStart_Reset_Mesh_Info = clock();
+
+            this->reset_mesh_information(tMesh);
+
+            MORIS_LOG_INFO("Time to reset mesh information: %f sec",(moris::real) ( clock() - tStart_Reset_Mesh_Info ) / CLOCKS_PER_SEC);
         }
-        else
-        {
-            mLowerBounds.set_size( 0, 0 );
-            mUpperBounds.set_size( 0, 0 );
-        }
-
-        MORIS_LOG_INFO( "Time to assemble ADVs and bounds on Proc 0: %f sec", (moris::real)( clock() - tStart_ADV_Bounds ) / CLOCKS_PER_SEC );
-
-        // Reset mesh information
-        clock_t tStart_Reset_Mesh_Info = clock();
-
-        this->reset_mesh_information( tMesh );
-
-        MORIS_LOG_INFO( "Time to reset mesh information: %f sec", (moris::real)( clock() - tStart_Reset_Mesh_Info ) / CLOCKS_PER_SEC );
-    }
-    //--------------------------------------------------------------------------------------------------------------
-
     void
     Geometry_Engine::reset_mesh_information( mtk::Interpolation_Mesh* aMesh )
     {
@@ -1589,9 +1629,6 @@ namespace ge
         // Reset PDV host manager
         mPDVHostManager.reset();
         mPDVHostManager.set_num_background_nodes( aMesh->get_num_nodes() );
-
-        // Allocate proximity data
-        this->setup_initial_geometric_proximities( aMesh );
 
         // Reset info related to the mesh
         mActiveGeometryIndex = 0;
@@ -1603,7 +1640,11 @@ namespace ge
         {
             mProperties( tPropertyIndex )->reset_nodal_data();
         }
+
+        // Allocate proximity data
+        this->setup_initial_geometric_proximities( aMesh );
     }
+
 
     //--------------------------------------------------------------------------------------------------------------
 
@@ -1892,7 +1933,6 @@ namespace ge
     //--------------------------------------------------------------------------------------------------------------
     // PRIVATE
     //--------------------------------------------------------------------------------------------------------------
-
     void
     Geometry_Engine::create_interpolation_pdv_hosts(
         mtk::Interpolation_Mesh*         aInterpolationMesh,
@@ -1906,6 +1946,10 @@ namespace ge
         Cell< Matrix< DDSMat > > tNodeIdsPerSet( tNumSets );
         Cell< Matrix< DDSMat > > tNodeOwnersPerSet( tNumSets );
         Cell< Matrix< DDRMat > > tNodeCoordinatesPerSet( tNumSets );
+
+        Cell< uint > tCounter( tNumSets, 0 );
+
+        uint tNumSpatialDim = 0;
 
         // Determine if we need to do the below loop
         bool tDoJankLoop = false;
@@ -1921,6 +1965,59 @@ namespace ge
         // List has redundant entries
         if ( tDoJankLoop )
         {
+            // Loop through sets in integration mesh
+            for ( uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++ )
+            {
+                mtk::Set* tSet = aIntegrationMesh->get_set_by_index( tMeshSetIndex );
+
+                // Get number of clusters on set
+                uint tNumberOfClusters = tSet->get_num_clusters_on_set();
+
+                // Clusters per set
+                for ( uint tClusterIndex = 0; tClusterIndex < tNumberOfClusters; tClusterIndex++ )
+                {
+                    // get pointer to cluster
+                    const mtk::Cluster* tCluster = tSet->get_clusters_by_index( tClusterIndex );
+
+                    // Indices, IDs, and ownership of base cell nodes in cluster
+                    // FIXME this is really bad and slow. especially when building the pdvs; should return const &
+                    mtk::Cell const* tBaseCell = tCluster->get_interpolation_cell( mtk::Master_Slave::MASTER ).get_base_cell();
+
+                    Matrix< IndexMat > tNodeIndicesInCluster     = tBaseCell->get_vertex_inds();
+                    Matrix< DDRMat >   tNodeCoordinatesInCluster = tBaseCell->get_vertex_coords();
+
+                    // number of base nodes in cluster
+                    uint tNumberOfBaseNodes = tNodeIndicesInCluster.length();
+
+                    tCounter( tMeshSetIndex ) = tCounter( tMeshSetIndex ) + tNumberOfBaseNodes;
+
+                    // number of spatial dimension
+                    tNumSpatialDim = tNodeCoordinatesInCluster.n_cols();
+
+                    // this is a hack. the hole function is super slow and should be rewritten
+                    // hack was implemented intentionally to get something running. Redo completely when rewriting GEN
+                    if ( tSet->get_set_type() == moris::SetType::DOUBLE_SIDED_SIDESET )
+                    {
+                        mtk::Cell const* tBaseCellSlave = tCluster->get_interpolation_cell( mtk::Master_Slave::SLAVE ).get_base_cell();
+
+                        Matrix< IndexMat > tNodeIndicesInCluster = tBaseCellSlave->get_vertex_inds();
+
+                        // number of base nodes in cluster
+                        tNumberOfBaseNodes = tNodeIndicesInCluster.length();
+
+                        tCounter( tMeshSetIndex ) = tCounter( tMeshSetIndex ) + tNumberOfBaseNodes;
+                    }
+                }
+            }
+
+            for ( uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++ )
+            {
+                tNodeIndicesPerSet( tMeshSetIndex ).resize( tCounter( tMeshSetIndex ), 1 );
+                tNodeIdsPerSet( tMeshSetIndex ).resize( tCounter( tMeshSetIndex ), 1 );
+                tNodeOwnersPerSet( tMeshSetIndex ).resize( tCounter( tMeshSetIndex ), 1 );
+                tNodeCoordinatesPerSet( tMeshSetIndex ).resize( tCounter( tMeshSetIndex ), tNumSpatialDim );
+            }
+
             // Loop through sets in integration mesh
             for ( uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++ )
             {
@@ -1948,18 +2045,9 @@ namespace ge
                     // number of base nodes in cluster
                     uint tNumberOfBaseNodes = tNodeIndicesInCluster.length();
 
-                    // number of spatial dimension
-                    uint tNumSpatialDim = tNodeCoordinatesInCluster.n_cols();
-
                     // check for consistency
                     MORIS_ASSERT( tNodeIdsInCluster.length() == tNumberOfBaseNodes && tNodeOwnersInCluster.length() == tNumberOfBaseNodes,
                         "Geometry_Engine::create_interpolation_pdv_hosts - inconsistent cluster information.\n" );
-
-                    // FIXME don't understand this resize. it's really slow
-                    tNodeIndicesPerSet( tMeshSetIndex ).resize( tCurrentNode + tNumberOfBaseNodes, 1 );
-                    tNodeIdsPerSet( tMeshSetIndex ).resize( tCurrentNode + tNumberOfBaseNodes, 1 );
-                    tNodeOwnersPerSet( tMeshSetIndex ).resize( tCurrentNode + tNumberOfBaseNodes, 1 );
-                    tNodeCoordinatesPerSet( tMeshSetIndex ).resize( tCurrentNode + tNumberOfBaseNodes, tNumSpatialDim );
 
                     // FIXME we have nodes up to 8 times in this list in 3d
                     for ( uint tNodeInCluster = 0; tNodeInCluster < tNumberOfBaseNodes; tNodeInCluster++ )
@@ -1989,18 +2077,9 @@ namespace ge
                         // number of base nodes in cluster
                         tNumberOfBaseNodes = tNodeIndicesInCluster.length();
 
-                        // number of spatial dimension
-                        tNumSpatialDim = tNodeCoordinatesInCluster.n_cols();
-
                         // check for consistency
                         MORIS_ASSERT( tNodeIdsInCluster.length() == tNumberOfBaseNodes && tNodeOwnersInCluster.length() == tNumberOfBaseNodes,
                             "Geometry_Engine::create_interpolation_pdv_hosts - inconsistent cluster information.\n" );
-
-                        // FIXME don't understand this resize. it's really slow
-                        tNodeIndicesPerSet( tMeshSetIndex ).resize( tCurrentNode + tNumberOfBaseNodes, 1 );
-                        tNodeIdsPerSet( tMeshSetIndex ).resize( tCurrentNode + tNumberOfBaseNodes, 1 );
-                        tNodeOwnersPerSet( tMeshSetIndex ).resize( tCurrentNode + tNumberOfBaseNodes, 1 );
-                        tNodeCoordinatesPerSet( tMeshSetIndex ).resize( tCurrentNode + tNumberOfBaseNodes, tNumSpatialDim );
 
                         // FIXME we have nodes up to 8 times in this list in 3d
                         for ( uint tNodeInCluster = 0; tNodeInCluster < tNumberOfBaseNodes; tNodeInCluster++ )
@@ -2029,7 +2108,6 @@ namespace ge
     }
 
     //--------------------------------------------------------------------------------------------------------------
-
     void
     Geometry_Engine::set_integration_pdv_types( mtk::Integration_Mesh* aIntegrationMesh )
     {
@@ -2073,8 +2151,6 @@ namespace ge
         mPDVHostManager.set_integration_pdv_types( tPdvTypes );
         mPDVHostManager.set_requested_integration_pdv_types( tCoordinatePdvs );
     }
-
-    //--------------------------------------------------------------------------------------------------------------
 
     void
     Geometry_Engine::assign_property_to_pdv_hosts(

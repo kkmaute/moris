@@ -210,6 +210,8 @@ Model::perform()
     {
         mTriangulateAll = mParameterList.get< bool >( "triangulate_all" );
 
+        mIgElementOrder = mParameterList.get< moris::uint >( "ig_element_order" );
+
         if ( mParameterList.get< bool >( "cleanup_cut_mesh" ) )
         {
             mCleanupMesh = true;
@@ -625,8 +627,11 @@ Model::decompose( Cell< enum Subdivision_Method > aMethods )
 
     mCutIntegrationMesh = tIntegrationGenerator.perform();
 
-    mDecomposed = true;
-
+    mDecomposed = mCutIntegrationMesh->mSameLevelChildMeshes;
+    if(!mDecomposed)
+    {
+        MORIS_LOG_INFO( "Decomposition Failed. Not all child meshes on the same level." );
+    }
     if ( mDiagnostics )
     {
         if ( interpolated_coordinate_check( mCutIntegrationMesh.get() ) )
@@ -639,7 +644,7 @@ Model::decompose( Cell< enum Subdivision_Method > aMethods )
         }
     }
 
-    return true;
+    return mDecomposed;
 }
 
 // ----------------------------------------------------------------------------------
@@ -1402,6 +1407,13 @@ Model::triangulate_all()
 {
     return mTriangulateAll;
 }
+
+uint
+Model::ig_element_order()
+{
+    return mIgElementOrder;
+}
+
 //------------------------------------------------------------------------------
 
 moris::mtk::Integration_Mesh *

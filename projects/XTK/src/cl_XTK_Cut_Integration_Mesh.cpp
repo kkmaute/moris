@@ -10,6 +10,7 @@
 #include "cl_Communication_Tools.hpp"
 #include "cl_MPI_Tools.hpp"
 #include "cl_XTK_Cell_No_CM.hpp"
+#include "fn_determine_cell_topology.hpp"
 using namespace moris;
 
 namespace xtk
@@ -840,14 +841,7 @@ Cut_Integration_Mesh::get_ig_cell_group_parent_cell( moris_index aGroupIndex )
 enum CellTopology
 Cut_Integration_Mesh::get_child_element_topology()
 {
-    if ( this->get_spatial_dim() == 2 )
-    {
-        return CellTopology::TRI3;
-    }
-    else
-    {
-        return CellTopology::TET4;
-    }
+    return xtk::determine_cell_topology( this->get_spatial_dim(), mXTKModel->ig_element_order(), CellShape::SIMPLEX );
 }
 
 
@@ -1772,22 +1766,8 @@ Cut_Integration_Mesh::create_base_cell_blocks()
                          && tCell.get_interpolation_order() == mtk::Interpolation_Order::LINEAR,
             "Need to abstract by adding get cell topo to cell info class" );
 
-        // initialize Cell topology
-        enum CellTopology tCellTopo;
-
-        // get number of spatial dimensions and decide on cell topology
-        if ( this->get_spatial_dim() == 2 )
-        {
-            tCellTopo = CellTopology::QUAD4;
-        }
-        else if ( this->get_spatial_dim() == 3 )
-        {
-            tCellTopo = CellTopology::HEX8;
-        }
-        else
-        {
-            MORIS_ERROR( false, "Cut_Integration_Mesh::create_base_cell_blocks() - spatial dimension not 2 or 3" );
-        }
+        // decide on cell topology based on number of spatial dimensions
+        enum CellTopology tCellTopo = xtk::determine_cell_topology( this->get_spatial_dim(), 1, CellShape::RECTANGULAR );
 
         Cell< moris_index > tBlockSetOrds = this->register_block_set_names( { tBlockName }, tCellTopo );
 

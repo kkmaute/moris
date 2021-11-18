@@ -998,9 +998,6 @@ Enrichment::construct_enriched_interpolation_mesh()
     // this handles the case of multiple enrichments where the number of interpolation vertices vary
     this->construct_enriched_interpolation_vertices_and_cells();
 
-    // in most cases all the interpolation vertices are the same. We merge them back together with this call
-    // post-processing to construct_enriched_interpolation_vertices_and_cells in an effort to not add complexity to the function (already too)
-    // mXTKModelPtr->mEnrichedInterpMesh(0)->merge_duplicate_interpolation_vertices();
 
 
     mXTKModelPtr->mEnrichedInterpMesh(0)->mCoeffToEnrichCoeffs.resize(mMeshIndices.max() + 1);
@@ -1020,8 +1017,37 @@ Enrichment::construct_enriched_interpolation_mesh()
             mEnrichmentData(tMeshIndex).mEnrichedBasisIndexToId;
     }
 
+    
     // tell the mesh to finish setting itself up
     mXTKModelPtr->mEnrichedInterpMesh(0)->finalize_setup();
+
+    // initialize local to global maps
+    mXTKModelPtr->mEnrichedInterpMesh(0)->mLocalToGlobalMaps = Cell< Matrix< IdMat > >( 4 );
+    mXTKModelPtr->mEnrichedInterpMesh(0)->mGlobaltoLobalMaps = Cell< std::unordered_map< moris_id, moris_index > >( 4 );
+    mXTKModelPtr->mEnrichedInterpMesh(0)->setup_cell_maps();
+    mXTKModelPtr->mEnrichedInterpMesh(0)->setup_basis_maps();
+    mXTKModelPtr->mEnrichedInterpMesh(0)->assign_ip_vertex_ids();
+    mXTKModelPtr->mEnrichedInterpMesh(0)->setup_vertex_maps();
+
+    moris::Cell< mtk::Vertex* > tVerticesToCommunicate;
+    for(auto & iVert: mXTKModelPtr->mEnrichedInterpMesh(0)->mEnrichedInterpVerts)
+    {
+        if(iVert->get_owner() != moris::par_rank() )
+        {
+            tVerticesToCommunicate.push_back(iVert);
+        }
+    }
+
+    mXTKModelPtr->mEnrichedInterpMesh(0)->communicate_select_vertex_interpolation(tVerticesToCommunicate);
+
+    // in most cases all the interpolation vertices are the same. We merge them back together with this call
+    // post-processing to construct_enriched_interpolation_vertices_and_cells in an effort to not add complexity to the function (already too)
+    mXTKModelPtr->mEnrichedInterpMesh(0)->merge_duplicate_interpolation_vertices();
+
+    // tell the mesh to finish setting itself up
+    // mXTKModelPtr->mEnrichedInterpMesh(0)->finalize_setup();
+    mXTKModelPtr->mEnrichedInterpMesh(0)->mGlobaltoLobalMaps(0).clear();
+    mXTKModelPtr->mEnrichedInterpMesh(0)->setup_vertex_maps();
 }
 
 //-------------------------------------------------------------------------------------

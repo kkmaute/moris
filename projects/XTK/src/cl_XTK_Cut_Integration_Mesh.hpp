@@ -341,9 +341,12 @@ class Cell_XTK_No_CM;
 class Cut_Integration_Mesh : public moris::mtk::Mesh
 {
     friend class Integration_Mesh_Generator;
+    friend class Model;
 
   protected:
     moris::uint mSpatialDimension;
+
+    bool mSameLevelChildMeshes = true;
 
     // integration cells
     moris_index                                           mFirstControlledCellIndex;

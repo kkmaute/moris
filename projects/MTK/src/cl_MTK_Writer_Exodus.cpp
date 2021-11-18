@@ -857,7 +857,7 @@ namespace moris
 
                     // Get the vertex indices of this element
                     Matrix<IndexMat> tNodeIndices = mMesh->get_nodes_connected_to_element_loc_inds(tElementIndex);
-
+                    
                     MORIS_ASSERT(tNodeIndices.numel() ==(uint)tNumNodesPerElement,"Node number mismatch" );
 
                     // Build connectivity vector, add 1 since exodus uses 1-based indices
@@ -961,6 +961,8 @@ namespace moris
             {
                 case CellTopology::TRI3:
                     return "TRI3";
+                case CellTopology::TRI6:
+                    return "TRI6";
                 case CellTopology::QUAD4:
                     return "QUAD4";
                 case CellTopology::QUAD9:
@@ -989,6 +991,8 @@ namespace moris
             {
                 case CellTopology::TRI3:
                     return 3;
+                case CellTopology::TRI6:
+                    return 6;
                 case CellTopology::QUAD4:
                     return 4;
                 case CellTopology::QUAD9:
