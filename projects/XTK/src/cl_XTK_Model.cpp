@@ -628,7 +628,7 @@ Model::decompose( Cell< enum Subdivision_Method > aMethods )
     mCutIntegrationMesh = tIntegrationGenerator.perform();
 
     mDecomposed = mCutIntegrationMesh->mSameLevelChildMeshes;
-    if(mDecomposed)
+    if(!mDecomposed)
     {
         MORIS_LOG_INFO( "Decomposition Failed. Not all child meshes on the same level." );
     }
