@@ -3,6 +3,9 @@
 #include "cl_Communication_Tools.hpp"
 #include "fn_trans.hpp"
 
+// detailed logging
+#include "cl_Tracer.hpp"
+
 namespace moris
 {
     namespace ge
@@ -593,6 +596,8 @@ namespace moris
 
         Matrix<DDRMat> Pdv_Host_Manager::compute_diqi_dadv(const Matrix<DDSMat>& aFullADVIds)
         {
+            Tracer tTracer( "GEN", "PDV Host Manager", "compute dQi/dadv" );
+
             // Check for ADV IDs
             MORIS_ERROR(mADVIdsSet,
                     "PDV Host Manager must have ADV IDs set before computing sensitivities.");
