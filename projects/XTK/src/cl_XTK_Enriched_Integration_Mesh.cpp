@@ -2541,8 +2541,90 @@ Enriched_Integration_Mesh::create_interface_double_side_sets_and_clusters()
     // access interpolation mesh
     Enriched_Interpolation_Mesh *tEnrInterpMesh = mModel->mEnrichedInterpMesh( mMeshIndexInModel );
 
-    // get the enriched interpolation cell
-    Cell< Interpolation_Cell_Unzipped * > &tEnrIpCells = tEnrInterpMesh->get_enriched_interpolation_cells();
+                    // if this is an interface facet
+                    if(tInterfaceOrdinal != std::numeric_limits<moris::size_t>::max() )
+                    {
+                        moris_index tFacetIndex = tCellFacetInds(iLC,tInterfaceOrdinal);
+                        if(tFacetParentRanks(tFacetIndex) == (size_t) tFacetRank)
+                        {   
+                            // cell index 
+                            moris_index tCellInd = tCellInds(iLC);
+
+                            // subphase index
+                            moris_index tSubphaseIndex = tElementToSubphase(tCellInd);
+                            
+                            moris_index tSubphaseOrdinal = MORIS_INDEX_MAX;
+                            
+                            // if we aren't already working on this subphase, we need to add it to the data struct
+                            if(aCoincInterfaceStruct.mSubphaseLocIndex.find(tSubphaseIndex) == aCoincInterfaceStruct.mSubphaseLocIndex.end())
+                            {
+                                aCoincInterfaceStruct.mSubphaseLocIndex[tSubphaseIndex] = aCoincInterfaceStruct.mSubphaseCellsInds.size();
+                                aCoincInterfaceStruct.mChildMesh.push_back(Cell<Child_Mesh *>(0));
+                                aCoincInterfaceStruct.mSubphaseCellsInds.push_back(Cell<moris_index>(0));
+                                aCoincInterfaceStruct.mSubphaseSideOrds.push_back(Cell<moris_index>(0));
+                                
+                                aCoincInterfaceStruct.mNeighborChildMesh.push_back(Cell<Child_Mesh *>(0));
+                                aCoincInterfaceStruct.mSubphaseNeighborCellInds.push_back(Cell<moris_index>(0));
+                                aCoincInterfaceStruct.mSubphaseNeighborSideOrds.push_back(Cell<moris_index>(0));
+                                aCoincInterfaceStruct.mSubphaseNeighborCellSubphaseInd.push_back(Cell<moris_index>(0));
+                            }               
+
+                            tSubphaseOrdinal = aCoincInterfaceStruct.mSubphaseLocIndex.find(tSubphaseIndex)->second;      
+
+                            // determine the neighbor cell by iterating through the neighborhood
+                            bool tFound = false;
+                            for(moris::uint iN = 0; iN < tNeighborhood(tCellInd).size(); iN++)
+                            {   
+                                // get the neighbor cell index and subphase membership
+                                moris_index tNeighborIndex         = tNeighborhood(tCellInd)(iN)->get_index();
+                                moris_index tNeighborSubphaseIndex = tElementToSubphase(tNeighborIndex);
+
+                                MORIS_ASSERT( (sint)tNeighborhoodNeighSideOrds.size() >tCellInd,
+                                        "index larger than cell size %i vs %i",
+                                        tNeighborhoodNeighSideOrds.size(),
+                                        tCellInd );
+
+                                MORIS_ASSERT( tNeighborhoodNeighSideOrds(tCellInd).size() > iN,
+                                                                        "index larger than cell size %i vs %i",
+                                                                        tNeighborhoodNeighSideOrds(tCellInd).size(),
+                                                                        iN );
+
+                                moris_index tNeighborSideOrd       = tNeighborhoodNeighSideOrds(tCellInd)(iN);
+
+                                // is the neighbor in the child mesh
+                                bool tSubphaseInChildMesh = mModel->subphase_is_in_child_mesh(tNeighborSubphaseIndex);
+
+                                
+                                // if it is in the child mesh is it a different child mesh
+                                if(tSubphaseInChildMesh)
+                                {
+                                    Child_Mesh * tNeighborChildMesh = &mModel->get_cut_mesh().get_child_mesh(tSubphaseToCM(tNeighborSubphaseIndex));
+
+                                    if(tChildMesh->get_parent_element_index() != tNeighborChildMesh->get_parent_element_index())
+                                    {
+                                        MORIS_ASSERT(mModel->get_element_to_element_my_side_ords()(tCellInd)(iN) == (moris_index)tInterfaceOrdinal,"Ordinal mismatch");
+
+                                        aCoincInterfaceStruct.mChildMesh(tSubphaseOrdinal).push_back(tChildMesh);
+                                        aCoincInterfaceStruct.mSubphaseCellsInds(tSubphaseOrdinal).push_back(tCellInds(iLC));
+                                        aCoincInterfaceStruct.mSubphaseSideOrds(tSubphaseOrdinal).push_back(tInterfaceOrdinal);
+
+                                        aCoincInterfaceStruct.mNeighborChildMesh(tSubphaseOrdinal).push_back(tNeighborChildMesh);
+                                        aCoincInterfaceStruct.mSubphaseNeighborCellInds(tSubphaseOrdinal).push_back(tNeighborIndex);
+                                        aCoincInterfaceStruct.mSubphaseNeighborSideOrds(tSubphaseOrdinal).push_back(tNeighborSideOrd);
+                                        aCoincInterfaceStruct.mSubphaseNeighborCellSubphaseInd(tSubphaseOrdinal).push_back(tNeighborSubphaseIndex);
+                                        tFound = true;
+
+                                        break;
+                                    }
+                                }
+                                // it is a unintersected background cell which means it is not eh same child mesh
+                                else
+                                {
+                                    MORIS_ERROR(0,"Unhandled");
+                                }
+  
+                            }
+                            
 
     moris::Cell< moris::Cell< std::shared_ptr< IG_Cell_Double_Side_Group > > > const &tDoubleSidedInterface = mCutIgMesh->get_bulk_phase_to_bulk_phase_dbl_side_interface();
 

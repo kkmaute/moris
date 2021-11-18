@@ -132,7 +132,25 @@ namespace prm
         return tParameterList;
     }
 
-    /**
+        /**
+         * Same as a geometry parameter list, but forces the user to specify the path to the sdf file
+         *
+         * @return sdf geometrie parameterlist
+         */
+        inline
+        ParameterList create_sdf_field_parameter_list()
+        {
+            ParameterList tParameterList = create_geometry_parameter_list();
+
+            tParameterList.set("type", "sdf_field");             // User-defined geometry
+            tParameterList.insert("sdf_object_path", "");        // obj file
+            tParameterList.insert("sdf_object_offset", "");
+            tParameterList.insert("sdf_shift", 0.0);
+
+            return tParameterList;
+        }
+
+        /**
          * Creates a parameter list that will be used to create a swiss cheese slice. The parameters here are different
          * than those of a typical geometry.
          *

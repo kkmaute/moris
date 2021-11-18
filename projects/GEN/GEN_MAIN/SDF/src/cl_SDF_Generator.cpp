@@ -21,6 +21,17 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
+        SDF_Generator::SDF_Generator(
+                const std::string & aObjectPath,
+                Matrix<DDRMat>   aObjectOffset,
+                const bool aVerboseFlag  ) :
+                    mObject( aObjectPath, aObjectOffset ),
+                    mVerboseFlag ( aVerboseFlag )
+        {
+        }
+
+//-------------------------------------------------------------------------------
+
         void
         SDF_Generator::raycast(
                 mtk::Mesh          * aMesh,
@@ -118,6 +129,8 @@ namespace moris
 
             // calculate SDF
             tCore.calculate_raycast_and_sdf( aSDF );
+
+            //tCore.save_to_vtk( "sdf_mesh.vtk");
         }
 //-------------------------------------------------------------------------------
 
