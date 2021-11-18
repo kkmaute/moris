@@ -22,9 +22,9 @@ Two possible ways of representing the geometry are discussed:
 
 The idea is as such: given some function \f$ \phi \f$ which defines the geometry, determine the value of some point \f$ x_i \f$ for which the sign is specified as :
 
-    \f[ - \qquad            x_i \in \Omega_1    \f]
-    \f[ + \qquad            x_i \in \Omega_2    \f]
-    \f[ 0 \qquad            x_i \in \Gamma      \f]
+\f[ - \qquad            x_i \in \Omega_1    \f]
+\f[ + \qquad            x_i \in \Omega_2    \f]
+\f[ 0 \qquad            x_i \in \Gamma      \f]
 
 The case for when \f$ x_i \f$ is zero can then be determined by using the canonical form of the function \f$ \phi \f$. There are two subsets of the F-rep; one being purely
 analytic and requiring no mesh and the other being a discetized form. The discretized form comes from a mesh where values of the function, now denoted as \f$ \hat{\phi} \f$, 
@@ -53,8 +53,8 @@ the intersection of the two functions \f$ \phi = 0 \f$ and that of the primitive
     
 2) Determine Intersection from CAD:
 
-    \f[ \underline{x_{\Gamma}}: \qquad      x_1^c + rcos(t)\\ \qquad x_2^c + rsin(t)    \f]   
-    
+\f[ \underline{x_{\Gamma}}: \qquad      x_1^c + rcos(t)\\ \qquad x_2^c + rsin(t)    \f]   
+
 From here, \f$ \underline{x_{\Gamma}} \f$ can be determined through a linear interpolation of points on the circle. It should
 be noted that having more points will help to better define the circle. For example, interpolate
 between two points which are on either sides of the primitive and determine the intersection with the
@@ -100,7 +100,7 @@ The problem setup is shown in Figure 5 and the solution method is outlined in Fi
 
 @image html ./images/example03.png "Figure 6: Analytic function and \f$ \L_2 \f$ projection."
 
-@image html ./images/example04.png "Figure 7: Post processing."
+@image html ./images/example04.png "Figure 7: Postprocessing."
 
 */
 }

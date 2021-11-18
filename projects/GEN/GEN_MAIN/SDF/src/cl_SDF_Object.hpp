@@ -26,11 +26,15 @@ namespace moris
             moris::Cell< Triangle_Vertex * >  mVertices;
             moris::Cell< Triangle * >         mTriangles;
 
+            Matrix< DDRMat > mOffsets;
+
 //-------------------------------------------------------------------------------
         public:
 //-------------------------------------------------------------------------------
 
-            Object ( const std::string & aFilePath );
+            Object ( const std::string & aFilePath,
+                     Matrix< DDRMat >    aOffsets = { {0 ,0 , 0} } );
+
 
 //-------------------------------------------------------------------------------
 

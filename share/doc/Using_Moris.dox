@@ -1,0 +1,155 @@
+namespace moris {
+
+/** @page UsingMoris Using MORIS
+
+<b>Table of Contents</b>
+- @ref InputFileSteps
+- @ref InputFileHMRSettings
+- @ref InputFileSOLSettings
+- @ref ConvergenceTweaks
+- @ref InputFileSweep
+- @ref InputFileCompileRun
+
+This section gives guidance on how to set up MORIS input files to run optimization problems.
+In general, the user is encouraged to find an example problem or features of an example problem
+that they can copy over to their problem. See the "Main Features of Example" tables from the different @ref EXA_Module.
+
+@section InputFileSteps Steps to Create an Input File
+-# Create an input file based on appropriate settings.
+Find examples that have desired features that can be copied over--see @ref EXA_Module.
+Use appropriate settings to avoid ill-conditioning and to improve convergence of the problem--see @ref InputFileSettings.
+
+-# Test the problem in forward analysis to make sure that the cuts, phase definition, and boundary conditions look appropriate.
+It is also a good idea to sanity check the overall qualitative shape of the solution to make sure that the DOFs look appropriate.
+
+-# Run the problem with 2-3 optimization iterations to ensure that there are no bugs in the sensitivity analysis.
+This can save time rather than finding these bugs when running a sweep.
+
+-# Run sweep to verify sensitivities against finite difference calculations--see @ref InputFileSweep.
+
+@section InputFileHMRSettings Appropriate HMR Settings
+- The geometry mesh should not contain more nodes than the dof mesh in order to avoid ill-conditioning.
+- The geometry mesh should usually be discretized using a quadratic mesh.
+
+The following block of code shows a reasonable set up with these settings in place where there are 2 meshes.
+The mesh used to solve for DOFs is a linear mesh that has 2 initial refinements.
+The mesh used to discretize the geometry is a quadratic mesh that is not refined.
+
+    void HMRParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
+    {
+        tParameterlist.resize( 1 );
+        tParameterlist( 0 ).resize( 1 );
+
+        tParameterlist( 0 )( 0 ) = prm::create_hmr_parameter_list();
+
+        tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", "40,40");
+        tParameterlist( 0 )( 0 ).set( "domain_dimensions",                "10.0,10.0");
+        tParameterlist( 0 )( 0 ).set( "domain_offset",                    "0.0,0.0");
+        tParameterlist( 0 )( 0 ).set( "domain_sidesets",                  "1,2,3,4");
+        tParameterlist( 0 )( 0 ).set( "lagrange_output_meshes",           "0"); 
+
+        tParameterlist( 0 )( 0 ).set( "lagrange_orders",  "1"); 
+        tParameterlist( 0 )( 0 ).set( "lagrange_pattern", "0");
+        
+        tParameterlist( 0 )( 0 ).set( "bspline_orders",   "1,2" );
+        tParameterlist( 0 )( 0 ).set( "bspline_pattern",  "0,1" );
+
+        tParameterlist( 0 )( 0 ).set( "lagrange_to_bspline", "0,1");
+
+        tParameterlist( 0 )( 0 ).set( "truncate_bsplines",  1 );
+        tParameterlist( 0 )( 0 ).set( "refinement_buffer",  1 );
+        tParameterlist( 0 )( 0 ).set( "staircase_buffer",   1 );
+        tParameterlist( 0 )( 0 ).set( "initial_refinement", "2,0" );
+        tParameterlist( 0 )( 0 ).set( "initial_refinement_pattern", "0,1" );
+        
+        tParameterlist( 0 )( 0 ).set( "use_number_aura", 1);
+
+        tParameterlist( 0 )( 0 ).set( "use_multigrid",  0 );
+        tParameterlist( 0 )( 0 ).set( "severity_level", 0 );
+
+        if ( tInterfaceRefinement > 0 )
+        {
+            tParameterlist( 0 )( 0 ).set( "use_refine_low_level_elements", true );
+        }
+        
+        tParameterlist( 0 )( 0 ).set( "use_advanced_T_matrix_scheme", 1 );
+
+        tParameterlist( 0 )( 0 ).set( "restart_refinement_pattern_file", tRestartRefFile );
+    }
+
+Some input file examples with appropriate settings can also be found on the 
+<a href=https://drive.google.com/drive/folders/12nxSHAEIFG7WRY7MR_6Lgp3j2esubkiP?usp=sharing>MORIS Google Drive</a>.
+
+@section InputFileSOLSettings Appropriate SOL Settings
+- A parallel run should use a parallel solver type. The default for Amesos is a serial solve.
+
+Some input file examples with appropriate settings can also be found on the 
+<a href=https://drive.google.com/drive/folders/12nxSHAEIFG7WRY7MR_6Lgp3j2esubkiP?usp=sharing>MORIS Google Drive</a>.
+
+@section ConvergenceTweaks Changes to Improve Optimization Solutions
+Outside of tweaks that are specific to the users problems, some changes can be made to improve convergence of optimization problem:
+- step size: increases or decreases how much the optimization steps in the direction of the sensitivies
+- penalty: increases or decreases the amount at which constraints are adhered to
+- norm drop: increases or decreases the convergence criteria from the prior step
+
+These settings for input files are shown in the following block of code.
+
+    tParameterlist(2)(0) = moris::prm::create_gcmma
+    tParameterlist(2)(0).set("step_size", 5.0  );
+    tParameterlist(2)(0).set("penalty"  , 0.01 );
+    tParameterlist(2)(0).set("max_its"  , 200  );
+    tParameterlist(2)(0).set("norm_drop", 1e-4 );
+
+@section InputFileSweep Running a Sweep and Comparing Results
+In order to create a sweep of the problem, the user has to create a sweep parameter list, as shown in the following block of code.
+
+    tParameterlist(2)(0) = moris::prm::create_sweep_parameter_list(
+    tParameterlist(2)(0).set("hdf5_path", "test.hdf5" );
+    tParameterlist(2)(0).set("num_evaluations_per_adv", "1");
+    tParameterlist(2)(0).set("finite_difference_type", "all");
+    tParameterlist(2)(0).set("finite_difference_epsilons", "1e-6");
+
+This will produce an hdf5 file with sensitivities at each of the ADVs in the problem.
+These sensitivies can be viewed with an hdf5 file viewer like HDFView.
+The user can compare the analytical sensitivies against the different finite difference calculations
+at each of the different ADVs.  This will need to be done for both the constaint and objective gradients.
+The following image shows these different sensitivies within the hdf5 file.
+
+\anchor InputFileImageSweep
+\image html InputFile_Sweep.png "Figure: Sweep results viewed in HDFView" width=600px
+
+The sensitivies can be quickly compared using the matlab script located on the 
+<a href=https://drive.google.com/drive/folders/1f-YIplBCudbMelYJ-bjR3uncqvvDPi6Y?usp=sharing>MORIS Google Drive</a>.
+It can also be found on the MORIS github repository: \c /moris/share/scripts/matlab/CompareFDSweepHDF5.m
+
+The user simply needs to run this script at the same directory as the hdf5 file and change the input file
+name in the matlab script to produce plots that look like the following.
+
+\anchor InputFileImageSweepCompare
+\image html InputFile_ConstraintSweep.png "Figure: Constraint sensitivities compared against FD schemes" width=600px
+
+@section InputFileCompileRun Compiling and Running Input Files 
+In order to compile the input file into a shared object the user can run the following command from the directory location
+of the input file:
+
+    $MORISROOT/share/scripts/create_shared_object.sh . <build directory name> <input file name>
+
+The user can execute the shared object using the following command:
+
+    $MORISROOT/<build directory name>/projects/mains/moris ./<input file name>.so
+
+For example, with a build directory of \c build_opt and an input file of <code>test_file.cpp</code>, the commands will look like the following:
+
+    $MORISROOT/share/scripts/create_shared_object.sh . build_opt test_file
+    $MORISROOT/build_opt/projects/mains/moris ./test_file.so
+
+The user can also execute the above commands using the bash file located in the \c scripts folder of the github repository:
+
+    moris.sh <opt or dbg> np <input file name>
+
+For example, using the same directory and file name above: 
+
+    moris.sh opt np test_file
+
+*/
+}

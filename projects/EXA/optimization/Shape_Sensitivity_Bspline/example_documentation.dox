@@ -3,6 +3,12 @@ namespace moris {
 /** \page EXA_Shape_Sensitivity_Bspline Shape Sensitivity Circle Sweep
 
 # Problem Description
+This example highlights the use of the following features:
+
+- Sensitivity Sweep
+- Shape Optimization
+- TODO: Add features here
+
 # Problem Setup
 # Analytical Solution
 # Literature

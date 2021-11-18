@@ -1,0 +1,21 @@
+namespace moris {
+
+/** \page EXA_OPTIMIZATION_LEVELSET_BOXBEAM Levelset Boxbeam Problem
+
+# Problem Description
+This example highlights the use of the following features:
+
+- TODO: Add features here
+
+# Problem Setup
+
+# Reference Solution
+
+# Literature
+
+# Developer Notes
+
+
+*/
+
+}

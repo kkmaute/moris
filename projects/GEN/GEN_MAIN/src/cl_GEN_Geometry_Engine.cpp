@@ -28,6 +28,8 @@
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
 #include "cl_SOL_Dist_Map.hpp"
 
+#include "cl_Stopwatch.hpp" //CHR/src
+
 namespace moris
 {
 namespace ge
@@ -899,8 +901,10 @@ namespace ge
             // number of mesh sets for current property
             uint tNumberOfSets = tMeshSetIndicesPerProperty( tPropertyIndex ).length();
 
-            // Set for each property index the list of mesh set indices
-            for ( uint tIndex = tNumSetIndices; tIndex < tNumberOfSets; tIndex++ )
+            tic tTimer;
+
+            // Loop over properties to create PDVs
+            for (uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++)
             {
                 tMeshSetIndicesPerProperty( tPropertyIndex )( tIndex ) = tIntegrationMesh->get_set_index_by_name( tMeshSetNames( tIndex - tNumSetIndices ) );
             }
@@ -934,11 +938,14 @@ namespace ge
             tIntegrationMesh,
             tPdvTypes );
 
-        // Set integration PDV types
-        if ( mShapeSensitivities )
-        {
-            this->set_integration_pdv_types( tIntegrationMesh );
-        }
+            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+            MORIS_LOG_INFO( " Assign PDV type to mesh sets on processor %u took %5.3f seconds.", ( uint ) par_rank(), ( double ) tElapsedTime / 1000);
+
+            // start timer
+            tic tTimer2;
+            // Get and save communication map from IP mesh
+            Matrix< IdMat > tCommTable = tInterpolationMesh->get_communication_table();
+            mPDVHostManager.set_communication_table( tCommTable );
 
         // Loop over properties to assign PDVs
         for ( uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++ )
@@ -951,9 +958,14 @@ namespace ge
 
                 mProperties( tPropertyIndex )->add_nodal_data( tInterpolationMesh );
 
-                this->assign_property_to_pdv_hosts(
-                    mProperties( tPropertyIndex ),
-                    tPDVTypeGroup( 0 ),
+            tElapsedTime = tTimer2.toc<moris::chronos::milliseconds>().wall;
+            MORIS_LOG_INFO( " Get global-to-local-maps from mtk on processor %u took %5.3f seconds.", ( uint ) par_rank(), ( double ) tElapsedTime / 1000);
+
+            // start timer
+            tic tTimer3;
+            // Create PDV hosts
+            this->create_interpolation_pdv_hosts(
+                    tInterpolationMesh,
                     tIntegrationMesh,
                     tMeshSetIndicesPerProperty( tPropertyIndex ) );
             }
@@ -963,38 +975,19 @@ namespace ge
             }
         }
 
-        // Create PDV IDs
-        mPDVHostManager.create_pdv_ids();
-    }
+            tElapsedTime = tTimer3.toc<moris::chronos::milliseconds>().wall;
+            MORIS_LOG_INFO( " Create interpolation PDV hosts on processor %u took %5.3f seconds.", ( uint ) par_rank(), ( double ) tElapsedTime / 1000);
 
-    void
-    Geometry_Engine::print_gen_vertices(
-        std::string aFile,
-        mtk::Mesh*  aMesh )
-    {
-        std::ostringstream tStringStream;
-        tStringStream.clear();
-        tStringStream.str( "" );
-
-        tStringStream << "Vert_Id,";
-        tStringStream << "Vert Ind,";
-        tStringStream << "Owner,";
-        tStringStream << "Prank,";
-        for ( moris::uint iHeader = 0; iHeader < aMesh->get_spatial_dim(); iHeader++ )
-        {
-            tStringStream << "Coords_" + std::to_string( iHeader ) << ",";
-        }
-
-        for ( moris::uint iHeader = 0; iHeader < this->get_num_geometries(); iHeader++ )
-        {
-            tStringStream << "gval_" + std::to_string( iHeader ) << ",";
-        }
-        for ( moris::uint iHeader = 0; iHeader < this->get_num_geometries(); iHeader++ )
-        {
-            tStringStream << "gprox_" + std::to_string( iHeader );
-            if ( iHeader != this->get_num_geometries() - 1 )
+            // Set integration PDV types
+            if (mShapeSensitivities)
             {
-                tStringStream << ",";
+                // start timer
+                tic tTimer4;
+
+                this->set_integration_pdv_types(tIntegrationMesh);
+
+                tElapsedTime = tTimer4.toc<moris::chronos::milliseconds>().wall;
+                MORIS_LOG_INFO( " Set integration PDV types on processor %u took %5.3f seconds.", ( uint ) par_rank(), ( double ) tElapsedTime / 1000);
             }
         }
         tStringStream << std::endl;
@@ -1008,7 +1001,11 @@ namespace ge
             tStringStream << par_rank() << ",";
             moris::Matrix< moris::DDRMat > tCoords = tVertex.get_coords();
 
-            for ( moris::uint iSp = 0; iSp < aMesh->get_spatial_dim(); iSp++ )
+            // start timer
+            tic tTimer5;
+
+            // Loop over properties to assign PDVs
+            for (uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++)
             {
                 tStringStream << std::scientific << tCoords( iSp ) << ",";
             }
@@ -1039,16 +1036,16 @@ namespace ge
                 if ( iGeom != this->get_num_geometries() - 1 )
                 {
 
-                    tStringStream << ",";
-                }
-            }
-            tStringStream << std::endl;
-        }
-        if ( aFile.empty() == false )
-        {
-            std::ofstream tOutputFile( aFile );
-            tOutputFile << tStringStream.str() << std::endl;
-            tOutputFile.close();
+            tElapsedTime = tTimer5.toc<moris::chronos::milliseconds>().wall;
+            MORIS_LOG_INFO( " Assign property to pdv host on processor %u took %5.3f seconds.", ( uint ) par_rank(), ( double ) tElapsedTime / 1000);
+
+            // start timer
+            tic tTimer6;
+            // Create PDV IDs
+            mPDVHostManager.create_pdv_ids();
+
+            tElapsedTime = tTimer6.toc<moris::chronos::milliseconds>().wall;
+            MORIS_LOG_INFO( " Compute and comunicate PDV IDs on processor %u took %5.3f seconds.", ( uint ) par_rank(), ( double ) tElapsedTime / 1000);
         }
     }
 
@@ -1424,17 +1421,10 @@ namespace ge
                 }
                 else
                 {
-                    uint tMTKFieldIndex = tFieldNameToIndexMap.find( tGeoName );
-
-                    // Create B-spline geometry
-                    mGeometries( tGeometryIndex ) = std::make_shared< BSpline_Geometry >(
-                        tNewOwnedADVs,
-                        tSharedCoefficientIndices( tGeometryIndex ),
-                        tSharedADVIds( tGeometryIndex ),
-                        tAllOffsetIDs( tGeometryIndex ),
-                        aMeshPair,
-                        mGeometries( tGeometryIndex ),
-                        aFields( tMTKFieldIndex ) );
+                    // Every Field needs a mesh. FIXME setting the mesh here is to late
+                    mGeometries(tGeometryIndex)->unlock_field();
+                    mGeometries(tGeometryIndex)->set_mesh_pair( aMeshPair );
+                    mGeometries(tGeometryIndex)->set_num_original_nodes(aMeshPair.get_interpolation_mesh()->get_num_nodes() );
                 }
             }
             // Store field values if needed. FIXME this is obviously wrong that GEN sets it's own mesh
@@ -1590,18 +1580,19 @@ namespace ge
         mPDVHostManager.reset();
         mPDVHostManager.set_num_background_nodes( aMesh->get_num_nodes() );
 
-        // Allocate proximity data
-        this->setup_initial_geometric_proximities( aMesh );
+            // Reset info related to the mesh
+            mActiveGeometryIndex = 0;
+            for (uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++)
+            {
+                mGeometries(tGeometryIndex)->reset_nodal_data();
+            }
+            for (uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++)
+            {
+                mProperties(tPropertyIndex)->reset_nodal_data();
+            }
 
-        // Reset info related to the mesh
-        mActiveGeometryIndex = 0;
-        for ( uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++ )
-        {
-            mGeometries( tGeometryIndex )->reset_nodal_data();
-        }
-        for ( uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++ )
-        {
-            mProperties( tPropertyIndex )->reset_nodal_data();
+            // Allocate proximity data
+            this->setup_initial_geometric_proximities(aMesh);
         }
     }
 
@@ -1907,11 +1898,13 @@ namespace ge
         Cell< Matrix< DDSMat > > tNodeOwnersPerSet( tNumSets );
         Cell< Matrix< DDRMat > > tNodeCoordinatesPerSet( tNumSets );
 
-        // Determine if we need to do the below loop
-        bool tDoJankLoop = false;
-        for ( uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++ )
-        {
-            if ( aPdvTypes( tMeshSetIndex ).size() > 0 )
+            Cell< uint > tCounter(tNumSets, 0);
+
+            uint tNumSpatialDim = 0;
+
+            // Determine if we need to do the below loop
+            bool tDoJankLoop = false;
+            for (uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++)
             {
                 tDoJankLoop = true;
             }
@@ -1933,12 +1926,61 @@ namespace ge
                 // Clusters per set
                 for ( uint tClusterIndex = 0; tClusterIndex < tNumberOfClusters; tClusterIndex++ )
                 {
-                    // get pointer to cluster
-                    const mtk::Cluster* tCluster = tSet->get_clusters_by_index( tClusterIndex );
+                    mtk::Set* tSet = aIntegrationMesh->get_set_by_index(tMeshSetIndex);
 
-                    // Indices, IDs, and ownership of base cell nodes in cluster
-                    // FIXME this is really bad and slow. especially when building the pdvs; should return const &
-                    mtk::Cell const* tBaseCell = tCluster->get_interpolation_cell( mtk::Master_Slave::MASTER ).get_base_cell();
+                    // Get number of clusters on set
+                    uint tNumberOfClusters = tSet->get_num_clusters_on_set();
+
+                    // Clusters per set
+                    for (uint tClusterIndex = 0; tClusterIndex < tNumberOfClusters; tClusterIndex++)
+                    {
+                        // get pointer to cluster
+                        const mtk::Cluster* tCluster = tSet->get_clusters_by_index(tClusterIndex);
+
+                        // Indices, IDs, and ownership of base cell nodes in cluster
+                        // FIXME this is really bad and slow. especially when building the pdvs; should return const &
+                        mtk::Cell const * tBaseCell = tCluster->get_interpolation_cell( mtk::Master_Slave::MASTER ).get_base_cell();
+
+                        Matrix<IndexMat> tNodeIndicesInCluster  = tBaseCell->get_vertex_inds();
+                        Matrix<DDRMat>   tNodeCoordinatesInCluster = tBaseCell->get_vertex_coords();
+
+                        // number of base nodes in cluster
+                        uint tNumberOfBaseNodes = tNodeIndicesInCluster.length();
+
+                        tCounter( tMeshSetIndex ) =  tCounter( tMeshSetIndex ) + tNumberOfBaseNodes;
+
+                        // number of spatial dimension
+                        tNumSpatialDim = tNodeCoordinatesInCluster.n_cols();
+
+                        // this is a hack. the hole function is super slow and should be rewritten
+                        // hack was implemented intentionally to get something running. Redo completely when rewriting GEN
+                        if( tSet->get_set_type() == moris::SetType::DOUBLE_SIDED_SIDESET )
+                        {
+                            mtk::Cell const * tBaseCellSlave = tCluster->get_interpolation_cell( mtk::Master_Slave::SLAVE ).get_base_cell();
+
+                            Matrix<IndexMat> tNodeIndicesInCluster  = tBaseCellSlave->get_vertex_inds();
+
+                            // number of base nodes in cluster
+                            tNumberOfBaseNodes = tNodeIndicesInCluster.length();
+
+                            tCounter( tMeshSetIndex ) =  tCounter( tMeshSetIndex ) + tNumberOfBaseNodes;
+                        }
+                    }
+                }
+
+                for (uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++)
+                {
+                    tNodeIndicesPerSet(tMeshSetIndex)    .resize( tCounter( tMeshSetIndex ), 1);
+                    tNodeIdsPerSet(tMeshSetIndex)        .resize( tCounter( tMeshSetIndex ), 1);
+                    tNodeOwnersPerSet(tMeshSetIndex)     .resize( tCounter( tMeshSetIndex ), 1);
+                    tNodeCoordinatesPerSet(tMeshSetIndex).resize( tCounter( tMeshSetIndex ), tNumSpatialDim);
+                }
+
+                // Loop through sets in integration mesh
+                for (uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++)
+                {
+                    uint tCurrentNode = 0;
+                    mtk::Set* tSet = aIntegrationMesh->get_set_by_index(tMeshSetIndex);
 
                     Matrix< IndexMat > tNodeIndicesInCluster     = tBaseCell->get_vertex_inds();
                     Matrix< IndexMat > tNodeIdsInCluster         = tBaseCell->get_vertex_ids();
@@ -1989,18 +2031,9 @@ namespace ge
                         // number of base nodes in cluster
                         tNumberOfBaseNodes = tNodeIndicesInCluster.length();
 
-                        // number of spatial dimension
-                        tNumSpatialDim = tNodeCoordinatesInCluster.n_cols();
-
                         // check for consistency
                         MORIS_ASSERT( tNodeIdsInCluster.length() == tNumberOfBaseNodes && tNodeOwnersInCluster.length() == tNumberOfBaseNodes,
                             "Geometry_Engine::create_interpolation_pdv_hosts - inconsistent cluster information.\n" );
-
-                        // FIXME don't understand this resize. it's really slow
-                        tNodeIndicesPerSet( tMeshSetIndex ).resize( tCurrentNode + tNumberOfBaseNodes, 1 );
-                        tNodeIdsPerSet( tMeshSetIndex ).resize( tCurrentNode + tNumberOfBaseNodes, 1 );
-                        tNodeOwnersPerSet( tMeshSetIndex ).resize( tCurrentNode + tNumberOfBaseNodes, 1 );
-                        tNodeCoordinatesPerSet( tMeshSetIndex ).resize( tCurrentNode + tNumberOfBaseNodes, tNumSpatialDim );
 
                         // FIXME we have nodes up to 8 times in this list in 3d
                         for ( uint tNodeInCluster = 0; tNodeInCluster < tNumberOfBaseNodes; tNodeInCluster++ )
@@ -2039,42 +2072,16 @@ namespace ge
         // Cell of IG PDV_Type types
         Cell< PDV_Type > tCoordinatePdvs( mNumSpatialDimensions );
 
-        switch ( mNumSpatialDimensions )
-        {
-        case 2:
-        {
-            tCoordinatePdvs( 0 ) = PDV_Type::X_COORDINATE;
-            tCoordinatePdvs( 1 ) = PDV_Type::Y_COORDINATE;
-            break;
-        }
-        case 3:
-        {
-            tCoordinatePdvs( 0 ) = PDV_Type::X_COORDINATE;
-            tCoordinatePdvs( 1 ) = PDV_Type::Y_COORDINATE;
-            tCoordinatePdvs( 2 ) = PDV_Type::Z_COORDINATE;
-            break;
-        }
-        default:
-        {
-            MORIS_ERROR( false, "Geometry Engine only works for 2D and 3D models." );
-        }
-        }
+                            // check for consistency
+                            MORIS_ASSERT( tNodeIdsInCluster.length() == tNumberOfBaseNodes && tNodeOwnersInCluster.length() == tNumberOfBaseNodes,
+                                    "Geometry_Engine::create_interpolation_pdv_hosts - inconsistent cluster information.\n");
 
-        // Loop through sets
-        Cell< Cell< Cell< PDV_Type > > > tPdvTypes( tNumSets );
-        for ( uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++ )
-        {
-            // PDV_Type types per set
-            tPdvTypes( tMeshSetIndex ).resize( 1 );
-            tPdvTypes( tMeshSetIndex )( 0 ) = tCoordinatePdvs;
-        }
-
-        // Set PDV types
-        mPDVHostManager.set_integration_pdv_types( tPdvTypes );
-        mPDVHostManager.set_requested_integration_pdv_types( tCoordinatePdvs );
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
+                            // FIXME we have nodes up to 8 times in this list in 3d
+                            for (uint tNodeInCluster = 0; tNodeInCluster < tNumberOfBaseNodes; tNodeInCluster++)
+                            {
+                                tNodeIndicesPerSet(tMeshSetIndex)(tCurrentNode)      = tNodeIndicesInCluster(tNodeInCluster);
+                                tNodeIdsPerSet(tMeshSetIndex)(tCurrentNode)          = tNodeIdsInCluster(tNodeInCluster);
+                                tNodeOwnersPerSet(tMeshSetIndex)(tCurrentNode)       = tNodeOwnersInCluster(tNodeInCluster);
 
     void
     Geometry_Engine::assign_property_to_pdv_hosts(

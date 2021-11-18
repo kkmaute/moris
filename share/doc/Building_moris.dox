@@ -1,16 +1,33 @@
 namespace moris {
 
-/** @page BuildingMoris Building moris
+/** @page BuildingMoris Building MORIS
 
-@tableofcontents
+<b>Table of Contents</b>
+- @ref Checkout
+  - @ref CommandCheckout
+  - @ref GitCheck
+  - @ref GitCommandCheckout
+  - @ref EclipseCheckout
+- @ref BuildingDoxygen
+- @ref EnvironmentVariables
+  - @ref EnvVarList
+  - @ref RequiredEnvVars
+  - @ref OptionalEnvVars
+  - @ref AddEnvVars
+  - @ref OtherAcceptedEnvVars
+- @ref ConfiguringMoris
+  - @ref CMakeCurses
+  - @ref TerminalOptions
+  - @ref MorisBuild
+- @ref WindowsBuild
 
-Here you will find instructions about how to checkout moris from GitHub, compile the MORIS Doxygen, set necessary environment variables, and configure your moris build using CMake.
+Here you will find instructions about how to checkout MORIS from GitHub, compile the MORIS Doxygen, set necessary environment variables, and configure your MORIS build using CMake.
 
-@section Checkout Checkout moris
-This section includes instructions about how to @ref CommandCheckout or @ref EclipseCheckout. If you have already checked out moris, you can skip to @ref BuildingDoxygen or @ref EnvironmentVariables.
+@section Checkout Checkout MORIS
+This section includes instructions about how to @ref CommandCheckout or @ref EclipseCheckout. If you have already checked out MORIS, you can skip to @ref BuildingDoxygen or @ref EnvironmentVariables.
 
 @subsection CommandCheckout Checkout Using the Terminal
-Checking out moris using the command line is relatively easy on a Unix-based machine (i.e. a Linux distribution or macOS). For Windows machines, refer to @ref WindowsBuild.
+Checking out MORIS using the command line is relatively easy on a Unix-based machine (i.e. a Linux distribution or macOS). For Windows machines, refer to @ref WindowsBuild.
 
 @subsubsection GitCheck Make Sure Git is Installed
 First, you have to make sure that you have Git installed on your machine. To check, try running the command:
@@ -24,7 +41,7 @@ If the following or something similar comes up
 then you will need to install Git. This requires root access and may need your administrator's (Kurt's) assistance.
 
 @subsubsection GitCommandCheckout Checkout with Git
-Move to the directory you would like to put the moris source code in. For example:
+Move to the directory you would like to put the MORIS source code in. For example:
 
     cd $HOME/codes
 
@@ -59,8 +76,8 @@ Click @b Next.
  
 -# The master branch is chosen by default. You may choose to clone another branch, however the master branch is recommended. Click @b Next.
  
--# Select the directory you would like to clone moris into using either method described below.
- -# In the Directory field, enter the absolute path to the directory you would like to clone moris into. For example:
+-# Select the directory you would like to clone MORIS into using either method described below.
+ -# In the Directory field, enter the absolute path to the directory you would like to clone MORIS into. For example:
  
         /home/your_user/codes/moris
  
@@ -76,9 +93,9 @@ provide your custom security information. After you have done so, click
 @b Ok.
 
 @section BuildingDoxygen Compiling Documentation
-moris uses Doxygen to house its documentation. With the Doxygen files compiled, you will be able to look in depth at each of the moris subpackages and the functions contained therein. Before proceeding, make sure that you have Doxygen and CMake installed on your computer.
+MORIS uses Doxygen to house its documentation. With the Doxygen files compiled, you will be able to look in depth at each of the MORIS subpackages and the functions contained therein. Before proceeding, make sure that you have Doxygen and CMake installed on your computer.
 
-The first step to compiling the documentation is to create a build directory. This is where you will run commands to turn the source files into libraries, executables, etc. before installing them. You can place this directory anywhere on your computer. For example, it could be a sibling to the moris source directory:
+The first step to compiling the documentation is to create a build directory. This is where you will run commands to turn the source files into libraries, executables, etc. before installing them. You can place this directory anywhere on your computer. For example, it could be a sibling to the MORIS source directory:
 
     cd $HOME/codes
     mkdir moris_build
@@ -87,7 +104,7 @@ Now, direct into your build directory
 
     cd moris_build
 
-From here, we will first build moris without any of its subpackages. For the following command, enter@type{ cmake } followed by the path to the moris source directory. This can be either an absolute or a relative path. Continuing our example,
+From here, we will first build MORIS without any of its subpackages. For the following command, enter@type{ cmake } followed by the path to the MORIS source directory. This can be either an absolute or a relative path. Continuing our example,
 
     cmake ../moris  
 
@@ -95,7 +112,7 @@ OR
 
     cmake $HOME/codes/moris
 
-Next, build the moris Doxygen.
+Next, build the MORIS Doxygen.
 
     make doxy
 
@@ -107,13 +124,13 @@ All of the documentation should now be built on your computer. To access it, dir
 And now you're on this page! Weird, right?
 
 @section EnvironmentVariables Environment Variables
-To run properly, moris needs a variety of environment variables set to the paths of certian third party libraries. You can find a list of third party libraries needed by each moris package on that package's documentation page. The full @ref EnvVarList and instructions on @ref AddEnvVars are below. 
+To run properly, MORIS needs a variety of environment variables set to the paths of certian third party libraries. You can find a list of third party libraries needed by each MORIS package on that package's documentation page. The full @ref EnvVarList and instructions on @ref AddEnvVars are below. 
 
-@subsection EnvVarList List of moris Environment Variables
-Many of these variables do not need to be set if they are located in a default location on your computer (such as@type{ usr/lib}). If your@type{ .*rc }file already contains a number of these environment variables using a different naming convention, check the @ref OtherAcceptedEnvVars to see if yours will work with moris.
+@subsection EnvVarList List of MORIS Environment Variables
+Many of these variables do not need to be set if they are located in a default location on your computer (such as@type{ usr/lib}). If your@type{ .*rc }file already contains a number of these environment variables using a different naming convention, check the @ref OtherAcceptedEnvVars to see if yours will work with MORIS.
 
 @subsubsection RequiredEnvVars Required Environment Variables
-These are all needed by at least one moris package.
+These are all needed by at least one MORIS package.
 
 @b _PETSc_
 
@@ -191,7 +208,7 @@ Path to the LAPACK directory containing the lib64 directory; MKL or ACML can be 
 
 
 @subsubsection OptionalEnvVars Optional Environment Variables
-These must be set for moris to use certain configuration options
+These must be set for MORIS to use certain configuration options
 
 @b _SNOPT_
 
@@ -242,7 +259,7 @@ When all necessary environment variables have been set, save the file and in you
     source .chsrc
 
 @subsection OtherAcceptedEnvVars Other Accepted Environment Variable Formats
-Though we advise using the naming convention used in the @ref EnvVarList, moris will also accept environment variables with the following name formats. Using SuperLU as an example:
+Though we advise using the naming convention used in the @ref EnvVarList, MORIS will also accept environment variables with the following name formats. Using SuperLU as an example:
 
     SUPERLUDIR
     SUPERLU_DIR
@@ -252,28 +269,28 @@ Though we advise using the naming convention used in the @ref EnvVarList, moris 
     SUPERLU_ROOT
     SuperLU_ROOT
 
-As you can see, moris accepts environment vairiables that put the entire package name in caps and those which capitalize letters according to the package's proper name (what you would see [searching for the package online][SuperLUSearch]). For packages whose proper names are in all caps (such as ACML), moris accepts the package name in all capital or all lower case letters.
+As you can see, MORIS accepts environment vairiables that put the entire package name in caps and those which capitalize letters according to the package's proper name (what you would see [searching for the package online][SuperLUSearch]). For packages whose proper names are in all caps (such as ACML), MORIS accepts the package name in all capital or all lower case letters.
 
     ACML_DIR
     acml_DIR
 
 [SuperLUSearch]: https://www.google.com/search?q=superlu_library
 
-@section ConfiguringMoris Configuring moris
-moris provides a number of configuration options for your build based on which packages you want to build and which external libraries you would like to use to build them. In the @ref BuildingDoxygen section, we already created a build directory for moris and ran CMake from that directory. In doing this, we have already configured moris to its default configuration with no packages selected. To start building packages and selecting other configuration options, you may either use the @ref CMakeCurses or @ref TerminalOptions.
+@section ConfiguringMoris Configuring MORIS
+MORIS provides a number of configuration options for your build based on which packages you want to build and which external libraries you would like to use to build them. In the @ref BuildingDoxygen section, we already created a build directory for MORIS and ran CMake from that directory. In doing this, we have already configured MORIS to its default configuration with no packages selected. To start building packages and selecting other configuration options, you may either use the @ref CMakeCurses or @ref TerminalOptions.
 
 @subsection CMakeCurses CMake Curses Interface
-The CMakeCurses interface is perhaps the most straightforward way to configure moris. First direct to your build directory (and make one if you haven't already). 
+The CMakeCurses interface is perhaps the most straightforward way to configure MORIS. First direct to your build directory (and make one if you haven't already). 
 
     cd $HOME/codes/moris-build
 
-Assuming your build directory is a sibling of the moris source directory, enter:
+Assuming your build directory is a sibling of the MORIS source directory, enter:
 
     ccmake ../moris
 
 This will open up the CMake Curses interface. From here, you can turn on and off packages and other options. To do so, use the arrow keys to get to the option you want to turn on or off and hit the @b Enter or @b Return key. You should notice below the option list a brief description of what the selected option does and below that, other hotkeys that you can use in the interface.
 
-Once you have selected your options, hit @b c to configure CMake with your options. Configuration messages will show up in the next few moments. If any of those messages are fatal errors (such as a third party library not found), you will need to fix them or toggle the appropriate options to bypass these errors before moving on. Hit @b e to exit the configuration message display and return to the option interface. When it appears near the other hotkeys, hit @b g to generate the moris Makefiles. Note that even without any errors, you may have to configure the options more than once before the generate option shows up.
+Once you have selected your options, hit @b c to configure CMake with your options. Configuration messages will show up in the next few moments. If any of those messages are fatal errors (such as a third party library not found), you will need to fix them or toggle the appropriate options to bypass these errors before moving on. Hit @b e to exit the configuration message display and return to the option interface. When it appears near the other hotkeys, hit @b g to generate the MORIS Makefiles. Note that even without any errors, you may have to configure the options more than once before the generate option shows up.
 
 When CMake is done generating Makefiles, the curses interface will close. Proceed to @ref MorisBuild. 
 
@@ -284,7 +301,7 @@ To set your configuration options using the command line, first direct to your b
 
     cd $HOME/codes/moris-build
 
-If you haven't done so already in the @ref BuildingDoxygen section, run@type{ cmake }followed by the path to the top-level moris directory. For a directory that is a sibling to moris, this would be:
+If you haven't done so already in the @ref BuildingDoxygen section, run@type{ cmake }followed by the path to the top-level MORIS directory. For a directory that is a sibling to MORIS, this would be:
 
     cmake ../moris
 
@@ -296,19 +313,19 @@ For example, a build of the STK package using MKL instead of ACML would use:
 
     cmake -D BUILD_STK=ON -D MORIS_USE_ACML=OFF -D MORIS_USE_MKL=ON .
 
-@subsection MorisBuild Building your moris Configuration
-Once you have configured the Makefiles, you can build your configuration of moris by typing:
+@subsection MorisBuild Building your MORIS Configuration
+Once you have configured the Makefiles, you can build your configuration of MORIS by typing:
 
     make
 
-Due to the large size of moris, this may take some time. To build the project faster, use:
+Due to the large size of MORIS, this may take some time. To build the project faster, use:
 
     make -jN
 
 where N is the number of processers you would like to use.
 
 @section WindowsBuild
-Windows is not fully supported at this time. Some features of moris may not function properly. If you do wish to try with windows, it is advised to @ref EclipseCheckout or download a Unix kernel and @ref CommandCheckout.
+Windows is not fully supported at this time. Some features of MORIS may not function properly. If you do wish to try with windows, it is advised to @ref EclipseCheckout or download a Unix kernel and @ref CommandCheckout.
 
 */
 }

@@ -50,6 +50,7 @@ set(HEADERS
 	field/geometry/cl_GEN_User_Defined_Geometry.hpp
 	field/geometry/cl_GEN_BSpline_Geometry.hpp
 	field/geometry/cl_GEN_Stored_Geometry.hpp
+	field/geometry/cl_GEN_Geometry_SDF.hpp
 	field/geometry/cl_GEN_Multigeometry.hpp
 	field/geometry/cl_GEN_Swiss_Cheese_Slice.hpp
 	field/geometry/fn_GEN_create_geometries.hpp
@@ -101,6 +102,7 @@ set(LIB_SOURCES
 	field/geometry/cl_GEN_User_Defined_Geometry.cpp
 	field/geometry/cl_GEN_BSpline_Geometry.cpp
 	field/geometry/cl_GEN_Stored_Geometry.cpp
+	field/geometry/cl_GEN_Geometry_SDF.cpp
 	field/geometry/cl_GEN_Multigeometry.cpp
 	field/geometry/cl_GEN_Swiss_Cheese_Slice.cpp
 	field/geometry/fn_GEN_create_geometries.cpp
