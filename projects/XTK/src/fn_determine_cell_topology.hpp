@@ -8,9 +8,13 @@
 #define SRC_fn_determine_cell_topology
 
 #include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
+#include "fn_MTK_Interpolation_Enum_Int_Conversion.hpp"
 
 namespace xtk
 {
+    //------------------------------------------------------------------------------
+
     enum CellTopology
     determine_cell_topology(
         uint aNumSpatialDims,
@@ -172,6 +176,20 @@ namespace xtk
             return CellTopology::INVALID;
         }
     }
+
+    //------------------------------------------------------------------------------
+
+    enum CellTopology
+    determine_cell_topology(
+        uint aNumSpatialDims,
+        enum mtk::Interpolation_Order aInterpolationOrder,
+        enum CellShape aCellShape )
+    {
+        // call the above function with the enum replaced by integer
+        return determine_cell_topology( aNumSpatialDims, mtk::ip_order_enum_to_uint( aInterpolationOrder ), aCellShape );
+    }
+
+    //------------------------------------------------------------------------------
 }
 
 #endif /* fn_determine_cell_topology.hpp */

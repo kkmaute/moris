@@ -1754,7 +1754,6 @@ Cut_Integration_Mesh::handle_received_child_cell_id_request_answers(
 void
 Cut_Integration_Mesh::create_base_cell_blocks()
 {
-
     Tracer      tTracer( "XTK", "Integration_Mesh_Generator", "create_base_cell_blocks", mXTKModel->mVerboseLevel, 1 );
     std::string tBlockName = "bg_cells";
 
@@ -1762,12 +1761,16 @@ Cut_Integration_Mesh::create_base_cell_blocks()
     {
         moris::mtk::Cell const& tCell = mBackgroundMesh->get_mtk_cell( 0 );
 
-        MORIS_ERROR( ( tCell.get_geometry_type() == mtk::Geometry_Type::HEX || tCell.get_geometry_type() == mtk::Geometry_Type::QUAD )
-                         && tCell.get_interpolation_order() == mtk::Interpolation_Order::LINEAR,
-            "Need to abstract by adding get cell topo to cell info class" );
-
         // decide on cell topology based on number of spatial dimensions
-        enum CellTopology tCellTopo = xtk::determine_cell_topology( this->get_spatial_dim(), 1, CellShape::RECTANGULAR );
+        enum CellTopology tCellTopo = xtk::determine_cell_topology( this->get_spatial_dim(), tCell.get_interpolation_order(), CellShape::RECTANGULAR );
+
+        // check
+        MORIS_ASSERT( tCellTopo == tCell.get_cell_info()->get_cell_topology(), 
+            "Cut_Integration_Mesh::create_base_cell_blocks() - topology of first cell on BG mesh different than expected" );
+
+        // MORIS_ERROR( ( tCell.get_geometry_type() == mtk::Geometry_Type::HEX || tCell.get_geometry_type() == mtk::Geometry_Type::QUAD )
+        //                  && tCell.get_interpolation_order() == mtk::Interpolation_Order::LINEAR,
+        //     "Need to abstract by adding get cell topo to cell info class" );
 
         Cell< moris_index > tBlockSetOrds = this->register_block_set_names( { tBlockName }, tCellTopo );
 
