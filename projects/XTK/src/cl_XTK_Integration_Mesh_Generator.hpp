@@ -251,14 +251,28 @@ class Integration_Mesh_Generator
     moris::ge::Geometry_Engine *
     get_geom_engine();
 
-    uint 
+    uint
     get_spatial_dim();
 
-    uint 
+    uint
     get_ig_mesh_order();
 
     enum Subdivision_Method
     determine_order_elevation_template();
+
+    /**
+     * @brief checks whether all intersected background cells are on the same level. The resultant bool is populated
+     * in the cut integration mesh mChildMeshSameLevel. ultimately This triggers a remeshing of HMR in the background mesh
+     * 
+     * @param aMeshGenerationData 
+     * @param aBackgroundMesh 
+     */
+
+    void
+    check_intersected_background_cell_levels(
+        Integration_Mesh_Generation_Data &aMeshGenerationData,
+        Cut_Integration_Mesh*             aCutIntegrationMesh,
+        moris::mtk::Mesh*                 aBackgroundMesh );
 
     bool
     determine_intersected_background_cells(
@@ -553,10 +567,9 @@ class Integration_Mesh_Generator
         Cell< Matrix< IndexMat > > const &aRequestAnswers,
         moris::moris_id &                 aNodeId );
 
-    
+
     moris::uint
     verbosity_level();
-
 };
 
 }// namespace xtk

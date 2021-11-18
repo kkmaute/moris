@@ -47,6 +47,13 @@ Integration_Mesh_Generator::perform()
     // figure out which background cells are intersected and by which geometry they are intersected
     this->determine_intersected_background_cells( tGenerationData, tCutIntegrationMesh.get(), tBackgroundMesh );
 
+    // verify levels of intersected background cells
+    this->check_intersected_background_cell_levels(tGenerationData,tCutIntegrationMesh.get(),tBackgroundMesh);
+
+    if(!tCutIntegrationMesh->mSameLevelChildMeshes)
+    {
+        return tCutIntegrationMesh;
+    }
 
     // iterate through the subdivision methods
     for ( moris::uint iSubMethod = 0; iSubMethod < mSubdivisionMethods.size(); iSubMethod++ )
@@ -245,6 +252,35 @@ Integration_Mesh_Generator::determine_order_elevation_template()
 }
 
 // ----------------------------------------------------------------------------------
+void
+Integration_Mesh_Generator::check_intersected_background_cell_levels(
+    Integration_Mesh_Generation_Data& aMeshGenerationData,
+    Cut_Integration_Mesh*             aCutIntegrationMesh,
+    moris::mtk::Mesh*                 aBackgroundMesh)
+{
+    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "check_intersected_background_cell_levels " ,mXTKModel->mVerboseLevel, 1  );
+
+    // handle the case where we have no intersections
+    if(aMeshGenerationData.mAllIntersectedBgCellInds.size() == 0)
+    {
+        aCutIntegrationMesh->mSameLevelChildMeshes = true;
+        return;
+    }
+
+    moris_index tReferenceLevel = aBackgroundMesh->get_mtk_cell(aMeshGenerationData.mAllIntersectedBgCellInds(0)).get_level();
+    for (size_t iBgCellIndex = 1; iBgCellIndex < aMeshGenerationData.mAllIntersectedBgCellInds.size(); iBgCellIndex++)
+    {
+        moris_index tLevel = aBackgroundMesh->get_mtk_cell(aMeshGenerationData.mAllIntersectedBgCellInds(iBgCellIndex)).get_level();
+        if(tReferenceLevel != tLevel)
+        {
+            aCutIntegrationMesh->mSameLevelChildMeshes = false;
+            return;
+        }
+    }
+
+    aCutIntegrationMesh->mSameLevelChildMeshes = true;
+}
+
 bool
 Integration_Mesh_Generator::determine_intersected_background_cells(
     Integration_Mesh_Generation_Data& aMeshGenerationData,
