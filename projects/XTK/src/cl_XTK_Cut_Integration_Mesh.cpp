@@ -60,7 +60,7 @@ IG_Vertex_Group::reserve( std::size_t aReserveSize )
 
 void
 IG_Vertex_Group::add_vertex(
-    moris::mtk::Vertex*                 aVertex,
+    moris::mtk::Vertex const *                 aVertex,
     std::shared_ptr< Matrix< DDRMat > > aVertexLocalCoord )
 {
     moris_index tNewVertexOrdinal = (moris_index)mIgVertexGroup.size();
@@ -83,7 +83,7 @@ IG_Vertex_Group::add_vertex_local_coord_pointers()
 {
 }
 
-moris::mtk::Vertex*
+moris::mtk::Vertex const *
 IG_Vertex_Group::get_vertex( moris_index aGroupVertexOrdinal )
 {
     return mIgVertexGroup( aGroupVertexOrdinal );
@@ -102,6 +102,13 @@ IG_Vertex_Group::get_vertex_local_coords( moris_index aVertex )
 {
     return mIgVertexLocalCoords( this->get_vertex_group_ordinal( aVertex ) );
 }
+
+bool
+IG_Vertex_Group::vertex_is_in_group(moris_index aVertex)
+{
+    return mIgVertexIndexToVertexOrdinal.find( aVertex ) != mIgVertexIndexToVertexOrdinal.end();
+}
+
 moris::uint
 IG_Vertex_Group::get_vertex_local_coords_dim() const
 {

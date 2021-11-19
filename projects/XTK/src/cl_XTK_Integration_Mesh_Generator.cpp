@@ -50,6 +50,8 @@ Integration_Mesh_Generator::perform()
     // verify levels of intersected background cells
     this->check_intersected_background_cell_levels(tGenerationData,tCutIntegrationMesh.get(),tBackgroundMesh);
 
+    // make mSameLevelChildMeshes flag global consistent
+
     if(!tCutIntegrationMesh->mSameLevelChildMeshes)
     {
         return tCutIntegrationMesh;
@@ -260,11 +262,12 @@ Integration_Mesh_Generator::check_intersected_background_cell_levels(
 {
     Tracer tTracer( "XTK", "Integration_Mesh_Generator", "check_intersected_background_cell_levels " ,mXTKModel->mVerboseLevel, 1  );
 
+    bool tFlag = true;
+
     // handle the case where we have no intersections
     if(aMeshGenerationData.mAllIntersectedBgCellInds.size() == 0)
     {
-        aCutIntegrationMesh->mSameLevelChildMeshes = true;
-        return;
+        tFlag = true;
     }
 
     moris_index tReferenceLevel = aBackgroundMesh->get_mtk_cell(aMeshGenerationData.mAllIntersectedBgCellInds(0)).get_level();
@@ -273,12 +276,11 @@ Integration_Mesh_Generator::check_intersected_background_cell_levels(
         moris_index tLevel = aBackgroundMesh->get_mtk_cell(aMeshGenerationData.mAllIntersectedBgCellInds(iBgCellIndex)).get_level();
         if(tReferenceLevel != tLevel)
         {
-            aCutIntegrationMesh->mSameLevelChildMeshes = false;
-            return;
+            tFlag = false;
         }
     }
 
-    aCutIntegrationMesh->mSameLevelChildMeshes = true;
+    aCutIntegrationMesh->mSameLevelChildMeshes = all_land(tFlag);
 }
 
 bool
