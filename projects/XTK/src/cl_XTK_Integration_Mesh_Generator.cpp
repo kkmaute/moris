@@ -73,7 +73,6 @@ Integration_Mesh_Generator::perform()
     // create facet connectivity in the mesh
     std::shared_ptr< Facet_Based_Connectivity > tFaceConnectivity = std::make_shared< Facet_Based_Connectivity >();
     this->create_facet_from_element_to_node( tActiveIgCells, tFaceConnectivity );
-    tCutIntegrationMesh->set_face_connectivity( tFaceConnectivity );
 
     // create facet ancestry
     moris::Cell< moris::mtk::Cell* > tBGCellForFacet;
@@ -2037,6 +2036,9 @@ Integration_Mesh_Generator::deduce_edge_ancestry(
     MORIS_ERROR( aParentCellForDeduction.size() == tNumEdges, "One representative parent cell is needed for each edge, to ensure all edges parents can be deduced." );
 
     // allocate the data in the edge ancestry
+
+std::cout << "Number of edges = " << tNumEdges << std::endl;
+
     aIgEdgeAncestry->mEdgeParentEntityIndex.resize( tNumEdges );
     aIgEdgeAncestry->mEdgeParentEntityRank.resize( tNumEdges );
     aIgEdgeAncestry->mEdgeParentEntityOrdinalWrtBackgroundCell.resize( tNumEdges );
@@ -2237,6 +2239,13 @@ Integration_Mesh_Generator::deduce_edge_ancestry(
             MORIS_ASSERT( tSecondEntityOrdinal != MORIS_INDEX_MAX, "Not found" );
 
             // mark the entity parent as the deduction cell
+
+std::cout << "Size of tEntitiesConnectedToBaseCell: " << 
+    tEntitiesConnectedToBaseCell.n_rows() << " x " << 
+    tEntitiesConnectedToBaseCell.n_cols() << std::endl;
+std::cout << "tParentOrdinalAndRank.size() = " << tParentOrdinalAndRank.size() << std::endl;
+std::cout << "aIgEdgeAncestry->mEdgeParentEntityIndex.size() = " << aIgEdgeAncestry->mEdgeParentEntityIndex.size() << std::endl;
+
             aIgEdgeAncestry->mEdgeParentEntityIndex( iEdge )                    = tEntitiesConnectedToBaseCell( tParentOrdinalAndRank( 0 ) );
             aIgEdgeAncestry->mEdgeParentEntityRank( iEdge )                     = tParentOrdinalAndRank( 1 );
             aIgEdgeAncestry->mEdgeParentEntityOrdinalWrtBackgroundCell( iEdge ) = tSecondEntityOrdinal;
