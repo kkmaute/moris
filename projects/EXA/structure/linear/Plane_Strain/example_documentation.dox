@@ -1,0 +1,50 @@
+namespace moris {
+
+/** \page EXA_Structure_Linear_Plane_Strain Plane Strain Problem.
+
+# Problem Description
+This example is a linear elastic problem that determines state of stress of an element using a plane strain formulation.
+This example highlights the use of the following features:
+
+- Plane strain formulation
+- STK body-fitted meshes
+
+The other basic features of the example are summarized in the \ref beam_temp_example_features "Main Features of Example".
+
+<table>
+<caption id="axisymmetric_example_features">Main Features of Example</caption>
+<tr><th>Feature</th>                        <th> Value</th>                     <th> Comment</th></tr>
+<tr><td>Dimensionalty</td>                  <td> 2D, Plane Strain</td>          <td> </td></tr>
+<tr><td>Mesh type</td>                      <td> body-fitted STK mesh</td>      <td> from file: <em>cylinder_geometry.e</em></tr>
+<tr><td>Material/Phases</td>                <td> one</td>                       <td> </td> </tr>
+<tr><td>Physics</td>                        <td> linear elastic</td>            <td> static </td></tr>
+<tr><td>Dirichlet boundary conditions</td>  <td> Nitsche</td>                   <td> left edge direction 1, bottome edge direction 2</td></tr>
+<tr><td>Neumann boundary conditions</td>    <td> Pressure ( 0.0, 1.0 ) </td>   <td> at top edge </td></tr>
+<tr><td>Discretization</td>                 <td> given in mesh, 1st order </td> <td> </td> </tr>
+</table>
+
+# Problem Setup
+This is a single plane strain element under uniaxial loading with 1-2 boundary condition 
+type to allow for unrestricted poisson effects in all directions.
+
+Material properties used can be found in Table \ref beam_temp_example_material_properties "Material Properties" 
+
+<table>
+<caption id="beam_temp_example_material_properties">Material Properties</caption>
+<tr><th>Property</th>              <th> Value </th></tr>
+<tr><td>Young's modulus</td>       <td> \f$ 1.0 \f$</td></tr>
+<tr><td>Poison's ratio</td>        <td> \f$ 0.3 \f$</td></tr>
+</table>
+
+# Reference Solution
+
+See Literature.
+
+# Literature
+
+https://pkel015.connect.amazon.auckland.ac.nz/SolidMechanicsBooks/Part_I/BookSM_Part_I/04_Strain/04_Strain_02_Plane_Strain.pdf
+
+# Developer Notes
+
+*/
+}

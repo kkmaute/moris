@@ -1,0 +1,22 @@
+namespace moris {
+
+/** \page EXA_OPTIMIZATION_MACH_LEADING_EDGE Mach Leading Edge Problem
+
+# Problem Description
+This example highlights the use of the following features:
+
+- Belos Solver
+- TODO: Add features here
+
+# Problem Setup
+
+# Reference Solution
+
+# Literature
+
+# Developer Notes
+
+
+*/
+
+}

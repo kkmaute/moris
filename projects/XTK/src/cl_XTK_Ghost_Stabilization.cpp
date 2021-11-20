@@ -15,7 +15,7 @@
 #include "cl_MTK_Mesh_Checker.hpp"
 #include "cl_MTK_Cell_Info_Factory.hpp"
 #include "cl_MTK_Enums.hpp"
-#include "cl_XTK_Cut_Integration_Mesh.hpp"
+#include "fn_norm.hpp"
 namespace xtk
 {
 Ghost_Stabilization::Ghost_Stabilization() :
@@ -59,6 +59,8 @@ Ghost_Stabilization::setup_ghost_stabilization()
 void
 Ghost_Stabilization::visualize_ghost_on_mesh( moris_index const& aBulkPhase )
 {
+    Tracer tTracer( "XTK", "Ghost", "visualize_ghost_on_mesh" );
+
     // get the enriched integration mesh
     Enriched_Integration_Mesh& tEnrIgMesh = mXTKModel->get_enriched_integ_mesh( 0 );
 
@@ -110,6 +112,7 @@ Ghost_Stabilization::get_memory_usage()
 void
 Ghost_Stabilization::construct_ip_ig_cells_for_ghost_side_clusters( Ghost_Setup_Data& aGhostSetupData )
 {
+    Tracer tTracer( "XTK", "Ghost", "construct_ip_ig_cells_for_ghost_side_clusters" );
     // access enriched integration mesh and enriched interp mesh
     Enriched_Integration_Mesh&   tEnrIgMesh = mXTKModel->get_enriched_integ_mesh( 0 );
     Enriched_Interpolation_Mesh& tEnrIpMesh = mXTKModel->get_enriched_interp_mesh( 0 );
@@ -231,6 +234,7 @@ Ghost_Stabilization::prepare_ip_cell_id_answers(
 void
 Ghost_Stabilization::identify_and_setup_aura_vertices_in_ghost( Ghost_Setup_Data& aGhostSetupData )
 {
+    Tracer tTracer( "XTK", "Ghost", "identify_and_setup_aura_vertices_in_ghost" );
     // access enriched ip mesh
     Enriched_Interpolation_Mesh& tEnrInterpMesh = mXTKModel->get_enriched_interp_mesh();
 
@@ -837,6 +841,7 @@ Ghost_Stabilization::get_enriched_interpolation_vertex(
 void
 Ghost_Stabilization::declare_ghost_double_side_sets_in_mesh( Ghost_Setup_Data& aGhostSetupData )
 {
+    Tracer tTracer( "XTK", "Ghost", "declare_ghost_double_side_sets_in_mesh" );
     uint tNumBulkPhases = mXTKModel->get_geom_engine()->get_num_bulk_phase();
 
     Cell< std::string > tGhostDoubleSideNames( tNumBulkPhases );
@@ -928,6 +933,7 @@ Ghost_Stabilization::extract_vertex_interpolation_from_communication_data(
 void
 Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh( Ghost_Setup_Data& aGhostSetupData )
 {
+    Tracer tTracer( "XTK", "Ghost", "construct_ghost_double_side_sets_in_mesh" );
     // enriched interpolation mesh
     Enriched_Interpolation_Mesh& tEnrInterpMesh = mXTKModel->get_enriched_interp_mesh();
     Enriched_Integration_Mesh&   tEnrIntegMesh  = mXTKModel->get_enriched_integ_mesh();
@@ -1273,7 +1279,8 @@ Ghost_Stabilization::create_slave_side_cluster(
     tSlaveSideCluster->mIntegrationCellSideOrdinals = { { aGhostSetupData.mSlaveSideIgCellSideOrds( aBulkIndex )( aCellIndex ) } };
 
     // add geometric vertices to the cluster
-    tSlaveSideCluster->mVerticesInCluster = tSlaveSideCluster->mIntegrationCells( 0 )->get_geometric_vertices_on_side_ordinal( tSlaveSideCluster->mIntegrationCellSideOrdinals( 0 ) );
+    // tSlaveSideCluster->mVerticesInCluster = tSlaveSideCluster->mIntegrationCells( 0 )->get_geometric_vertices_on_side_ordinal( tSlaveSideCluster->mIntegrationCellSideOrdinals( 0 ) );
+
 
     tSlaveSideCluster->mAssociatedCellCluster = &mXTKModel->get_enriched_integ_mesh().get_xtk_cell_cluster( *tSlaveSideCluster->mInterpolationCell );
 
@@ -1281,10 +1288,6 @@ Ghost_Stabilization::create_slave_side_cluster(
     std::shared_ptr< IG_Vertex_Group > tVertexGroup = tCutIGMesh->get_vertex_group( tCutIGMesh->get_parent_cell_group_index( tSlaveSideCluster->mInterpolationCell->get_base_cell()->get_index() ) );
 
     tSlaveSideCluster->set_ig_vertex_group( tVertexGroup );
-
-    // finalize
-    // tSlaveSideCluster->finalize_setup();
-
 
     return tSlaveSideCluster;
 }
@@ -1331,17 +1334,43 @@ Ghost_Stabilization::create_master_side_cluster(
             aGhostSetupData.mMasterSideIgCellSideOrds( aBulkIndex )( aCellIndex ),
             aGhostSetupData.mTransitionLocation( aBulkIndex )( aCellIndex ),
             tLocCoords );
+        
+        
+
         // add integration cell
         tMasterSideCluster->mIntegrationCells.push_back( tNewIgCell.get() );
 
         // add side ordinal relative to the integration cell
         tMasterSideCluster->mIntegrationCellSideOrdinals = { { this->get_side_ordinals_for_non_trivial_master() } };
 
-        // get the vertices on the side ordinal
-        tMasterSideCluster->mVerticesInCluster = aSlaveSideCluster->mVerticesInCluster;
+        // get the vertex group
+        std::shared_ptr< IG_Vertex_Group > tVertexGroup = tCutIGMesh->get_vertex_group( tCutIGMesh->get_parent_cell_group_index( tMasterSideCluster->mInterpolationCell->get_base_cell()->get_index() ) );
 
+        // Add the slave vertex to the vertex group
+        moris::Cell< moris::mtk::Vertex const* > tSlaveVertices = aSlaveSideCluster->mIntegrationCells(0)->get_geometric_vertices_on_side_ordinal(aSlaveSideCluster->mIntegrationCellSideOrdinals(0));
+        
+        // iterate through vertices
+        for(moris::uint iV = 0; iV < tSlaveVertices.size(); iV++)
+        {
+            if(!tVertexGroup->vertex_is_in_group(tSlaveVertices(iV)->get_index()))
+            {
+                tVertexGroup->add_vertex(tSlaveVertices(iV), std::make_shared<Matrix<DDRMat>>(tLocCoords(iV)));
+            }
+
+            MORIS_ASSERT(moris::norm((*tVertexGroup->get_vertex_local_coords(tSlaveVertices(iV)->get_index()) - tLocCoords(iV))) <1e-8,"Local coord issue" );
+        }
+
+        // set the vertex group
+        tMasterSideCluster->set_ig_vertex_group( tVertexGroup );
+
+        // // get the vertices on the side ordinal
+        // tMasterSideCluster->mVerticesInCluster = tSlaveVertices;
+        
         // add the local coordinates
         tMasterSideCluster->mVertexLocalCoords = tLocCoords;
+
+        // associated cell cluster
+        tMasterSideCluster->mAssociatedCellCluster = &mXTKModel->get_enriched_integ_mesh().get_xtk_cell_cluster( *tMasterSideCluster->mInterpolationCell );
 
         // verify new cluster
         mtk::Mesh_Checker tCheck;
@@ -1362,7 +1391,6 @@ Ghost_Stabilization::create_master_side_cluster(
         // add side ordinal relative to the integration cell
         tMasterSideCluster->mIntegrationCellSideOrdinals = { { aGhostSetupData.mMasterSideIgCellSideOrds( aBulkIndex )( aCellIndex ) } };
 
-
         // add the vertices on the side ordinal
         tMasterSideCluster->mVerticesInCluster = tMasterSideCluster->mIntegrationCells( 0 )->get_geometric_vertices_on_side_ordinal( tMasterSideCluster->mIntegrationCellSideOrdinals( 0 ) );
 
@@ -1374,8 +1402,6 @@ Ghost_Stabilization::create_master_side_cluster(
 
         tMasterSideCluster->set_ig_vertex_group( tVertexGroup );
 
-        // finalize
-        // tMasterSideCluster->finalize_setup();
     }
 
     return tMasterSideCluster;
@@ -1393,8 +1419,11 @@ Ghost_Stabilization::create_non_trivial_master_ig_cell(
     moris_index&      aCurrentIndex,
     moris_index&      aCurrentId )
 {
+    
+    MORIS_ASSERT(aSlaveSideCluster->get_cells_in_side_cluster().size() == 1,"Slave side cluster should have exactly one integration cell." );
+
     // get the vertices on the side for the slave side cluster
-    moris::Cell< moris::mtk::Vertex const* > tSlaveVertices = aSlaveSideCluster->get_vertices_in_cluster();
+    moris::Cell< moris::mtk::Vertex const* > tSlaveVertices = aSlaveSideCluster->mIntegrationCells(0)->get_geometric_vertices_on_side_ordinal(aSlaveSideCluster->mIntegrationCellSideOrdinals(0));
 
     // get the side master interpolation cell
     Interpolation_Cell_Unzipped const* tMasterIpCell = aMasterSideCluster->mInterpolationCell;

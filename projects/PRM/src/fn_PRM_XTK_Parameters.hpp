@@ -38,7 +38,7 @@ namespace prm
         tParameterList.insert( "decomposition_type", "conformal" );
         tParameterList.insert( "octree_refinement_level", "-1" );
         tParameterList.insert( "triangulate_all", false );
-        tParameterList.insert( "ig_element_order", 1 );
+        tParameterList.insert( "ig_element_order", moris::uint(1) );
 
         // cleanup
         tParameterList.insert( "cleanup_cut_mesh", false );

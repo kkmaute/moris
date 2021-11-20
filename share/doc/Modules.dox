@@ -289,6 +289,56 @@ As such, they should be run regularly and after major revisions to any module to
 
 How the examples should be created and used is explained in EXA_DEV_GUIDE.
 The examples are sorted by the implementation aspect they are supposed to validate (e.g. "Thermal" for testing the thermal diffusion model).
+
+@section FeaturesOfExamples Features of Examples
+
+The following table shows a list of features that can be found in these examples.
+
+<table>
+<caption id="features_in_examples">Main Features Found in Different Examples</caption>
+<tr><th>Feature</th>                          <th> Examples </th></tr>
+<tr><td>Axisymmetric formulation</td>         <td> \ref EXA_Structure_Linear_Axisymmetric </td></tr>
+<tr><td>STK background mesh</td>              <td> \ref EXA_Structure_Linear_Axisymmetric \n
+                                                   \ref EXA_Structure_Linear_Beam_Temperature_Field \n
+                                                   \ref EXA_Structure_Linear_Plane_Strain </td></tr>
+<tr><td>Imported nodal field values</td>      <td> \ref EXA_Structure_Linear_Beam_Temperature_Field </td></tr>
+<tr><td>Plane strain formulation</td>         <td> \ref EXA_Structure_Linear_Plane_Strain </td></tr>
+<tr><td>Homogenization</td>                   <td> \ref EXA_Structure_Linear_Homogenization_2D </td></tr>
+<tr><td>Belos Solver</td>                     <td> \ref EXA_Structure_Linear_Two_Bar_Truss \n
+                                                   \ref EXA_OPTIMIZATION_MACH_LEADING_EDGE \n
+                                                   \ref EXA_OPTIMIZATION_SA_CUT_PCBAR_TRANSIENT </td></tr>
+<tr><td>Imported Elemental Field</td>         <td> \ref EXA_Structure_Linear_Zienkiewicz_Zhu_Elemental_Field </td></tr>
+<tr><td>Zienkiewicz Zhu Field</td>            <td> \ref EXA_Structure_Linear_Zienkiewicz_Zhu_Elemental_Field </td></tr>
+<tr><td>Linear Contact</td>                   <td> \ref EXA_OPTIMIZATION_CONTACT_SENSITIVITY </td></tr>
+<tr><td>Heat Method Normalization</td>        <td> \ref EXA_OPTIMIZATION_HEAT_METHOD </td></tr>
+<tr><td>SIMP Hole Seeding</td>                <td> \ref EXA_OPTIMIZATION_SIMP_HOLE_SEEDING </td></tr>
+<tr><td>Adaptive Refinement</td>              <td> \ref EXA_OPTIMIZATION_LEVELSET_BOXBEAM_ADAPTIVE_REFINE \n 
+                                                   \ref EXA_OPTIMIZATION_LEVELSET_BOXBEAM_ADAPTIVE_REFINE_RESTART</td></tr>
+<tr><td>Adaptive Refinement with Restart</td> <td> \ref EXA_OPTIMIZATION_LEVELSET_BOXBEAM_ADAPTIVE_REFINE_RESTART </td></tr>
+<tr><td>Sensitivity Sweep</td>                <td> \ref EXA_OPTIMIZATION_SA_CUT_BAR_STATIC \n
+                                                   \ref EXA_OPTIMIZATION_SA_CUT_PCBAR_TRANSIENT \n
+                                                   \ref EXA_Shape_Sensitivity_Bspline \n
+                                                   \ref EXA_OPTIMIZATION_SHAPE_SENS_CIRCLE_SWEEP_THERMOELASTIC \n
+                                                   \ref EXA_OPTIMIZATION_SHAPE_SENS_CIRCLE_SWEEP_THERMOELASTIC_TRANSIENT \n
+                                                   \ref EXA_OPTIMIZATION_SHAPE_SENS_CIRCLE_SWEEP_TRANSIENT \n
+                                                   \ref EXA_Shape_Sensitivity_Sweep </td></tr>
+                                                   \ref EXA_OPTIMIZATION_SHAPE_SENS_TWO_MAT_SWEEP_THERMOELASTIC </td></tr>
+<tr><td>Shape Optimization</td>               <td> \ref EXA_Shape_Sensitivity_Bspline \n
+                                                   \ref EXA_OPTIMIZATION_SHAPE_SENS_CIRCLE_SWEEP_THERMOELASTIC \n
+                                                   \ref EXA_OPTIMIZATION_SHAPE_SENS_CIRCLE_SWEEP_THERMOELASTIC_TRANSIENT \n
+                                                   \ref EXA_OPTIMIZATION_SHAPE_SENS_CIRCLE_SWEEP_TRANSIENT \n
+                                                   \ref EXA_Shape_Sensitivity_Sweep \n
+                                                   \ref EXA_OPTIMIZATION_SHAPE_SENS_TWO_MAT_SWEEP_THERMOELASTIC </td></tr>
+<tr><td>Staggered Solver</td>                 <td> \ref EXA_OPTIMIZATION_SHAPE_SENS_CIRCLE_SWEEP_THERMOELASTIC \n
+                                                   \ref EXA_OPTIMIZATION_SHAPE_SENS_CIRCLE_SWEEP_THERMOELASTIC_TRANSIENT </td></tr>
+<tr><td>Transient Problem</td>                <td> \ref EXA_OPTIMIZATION_SHAPE_SENS_CIRCLE_SWEEP_THERMOELASTIC_TRANSIENT \n
+                                                   \ref EXA_OPTIMIZATION_SHAPE_SENS_CIRCLE_SWEEP_TRANSIENT </td></tr>
+<tr><td>Multi-phase Problem</td>              <td> \ref EXA_OPTIMIZATION_SHAPE_SENS_TWO_MAT_SWEEP_THERMOELASTIC </td></tr>
+<tr><td>SIMP Problem</td>                     <td> \ref EXA_SIMP </td></tr>
+<tr><td>Phase Name Input File Method</td>     <td> \ref EXA_OPTIMIZATION_THERMAL_FLOW_ABOUT_SPHERE_2D \n
+                                                   \ref EXA_OPTIMIZATION_THERMAL_FLOW_ABOUT_SPHERE_3D </td></tr>
+</table>
+
 */
 
 /** @addtogroup EXA_DEV_GUIDE
@@ -350,29 +400,23 @@ The following modules introduce the XTK and its core functionalities.
 //------------------------------------------------------------------------------
 
 /** @defgroup GeomEng Geometry Engine Module
-	
+
 This module discusses the functionality of the geometry engine (GE). The GE serves as a query of information about the geometries and fields of interest;
 where a field can be defined by a level set, a density field, or some other design variable. When asked about a certain geometry or field, the GE will return the queried 
-information directly, or an object containing all the information will be returned.  
+information directly, or an object containing all the information will be returned. */
 
-        @addtogroup GE_overview
-        @ingroup GeomEng	
+/** @addtogroup GE_overview
+    @ingroup GeomEng */
 
-        @addtogroup GE_setup
-        @ingroup GeomEng
+/** @addtogroup GE_setup
+    @ingroup GeomEng */
 
-		@addtogroup GE_tutorials
-		@ingroup GeomEng  
-		
-		- GE_Geom_Tutorial_01.cpp
-		- GE_Geom_Tutorial_02.cpp
-		- GE_Geom_Tutorial_03.cpp
+/** @addtogroup GE_tutorials
+    @ingroup GeomEng */
 
-        @addtogroup GE_classes
-		@ingroup GeomEng	
+/** @addtogroup GE_classes
+    @ingroup GeomEng */
 
-
-*/
 
 //------------------------------------------------------------------------------ 
         

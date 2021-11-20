@@ -9,8 +9,6 @@ namespace moris
     {
         class Field_Discrete_Integration : virtual public Field
         {
-        protected:
-            uint mNumOriginalNodes;
 
         private:
             Cell<std::shared_ptr<Child_Node>> mChildNodes;
@@ -23,6 +21,9 @@ namespace moris
              * @param aNumOriginalNodes Number of original nodes on the base integration mesh
              */
             Field_Discrete_Integration(uint aNumOriginalNodes);
+
+            Field_Discrete_Integration()
+            {};
 
             /**
              * Given a node index or coordinate, returns the field value.
