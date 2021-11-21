@@ -442,11 +442,6 @@ TEST_CASE("MDL Transient XFEM","[MDL_Transient_XFEM]")
     tOutputOptions.mAddSideSets = true;
     tOutputOptions.mAddClusters = false;
 
-    // output integration mesh
-    moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
-    std::string tOutputFile = "./mdl_exo/MDL_Transient_XFEM.exo";
-    tIntegMesh1->create_output_mesh(tOutputFile);
-
     // get meshes for FEM
     xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
     xtk::Enriched_Integration_Mesh   & tEnrIntegMesh  = tXTKModel.get_enriched_integ_mesh();
@@ -622,7 +617,6 @@ TEST_CASE("MDL Transient XFEM","[MDL_Transient_XFEM]")
     // clean up
     //------------------------------------------------------------------------------
     delete tInterpolationMesh;
-    delete tIntegMesh1;
     delete tModel;
 
 }/*END_TEST_CASE */

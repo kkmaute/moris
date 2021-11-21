@@ -578,13 +578,11 @@
 //
 //                // create output mesh
 //                std::string tOutputFile = "./int_ElemDiff_test.exo";
-//                tMeshForOutput->create_output_mesh( tOutputFile );
 //
 //                // 13) Clean up -----------------------------------------------------------------
 //                std::cout<<" Clean up "<<std::endl;
 //                //------------------------------------------------------------------------------
 //                delete tMesh;
-//                delete tMeshForOutput;
 //
 //                tNodes.clear();
 //                tIWGs.clear();

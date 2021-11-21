@@ -456,20 +456,10 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
 //
 //            tSTKIntegSol(i) = tIntegSol(tMyIndex);
 //        }
-//
-//        // crate field in integration mesh
-//        moris::moris_index tFieldIndex = tEnrIntegMesh.create_field("Solution",EntityRank::NODE);
-//        tEnrIntegMesh.add_field_data(tFieldIndex,EntityRank::NODE,tSTKIntegSol);
-//
-//        // add solution field to integration mesh
-//        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldName,EntityRank::NODE,tSTKIntegSol);
-//
-//        std::string tMeshOutputFile = "./mdl_exo/xtk_hmr_bar_plane_2_mat_integ_2d.e";
-//        tIntegMesh1->create_output_mesh(tMeshOutputFile);
+
 
         //    delete tInterpMesh1;
         delete tModel;
         delete tInterpMesh;
-//        delete tIntegMesh1;
     }
 }
