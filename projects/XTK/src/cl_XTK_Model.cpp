@@ -458,10 +458,6 @@ Model::perform()
         //     tSandbox.perform_global_contact_search(tCurrentDispl,tPredictedDispl);
         // }
 
-        if(mDiagnostics)
-        {
-            tEnrInterpMesh.write_diagnostics();
-        }
 
         if ( mParameterList.get< bool >( "print_enriched_ig_mesh" ) )
         {
@@ -1098,7 +1094,11 @@ Model::perform_basis_enrichment(
 
     this->perform_basis_enrichment_internal( aBasisRank, { { aMeshIndex } } );
 
-    mEnrichment->write_diagnostics();
+    if( this->mDiagnostics)
+    {
+        mEnrichment->write_diagnostics();
+    }
+
 
     // Change the enrichment flag
     mEnriched = true;

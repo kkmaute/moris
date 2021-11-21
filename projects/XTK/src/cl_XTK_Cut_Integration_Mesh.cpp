@@ -1158,8 +1158,9 @@ Cut_Integration_Mesh::register_block_set_names(
     return tBlockOrds;
 }
 void
-Cut_Integration_Mesh::write_mesh( std::string aOutputPath,
-    std::string                               aOutputFile )
+Cut_Integration_Mesh::write_mesh( 
+    std::string aOutputPath,
+    std::string aOutputFile )
 {
     Tracer tTracer( "XTK", "Cut Integration Mesh", "Write mesh", mXTKModel->mVerboseLevel, 0 );
     // get path to output XTK files to
@@ -1769,12 +1770,11 @@ Cut_Integration_Mesh::create_base_cell_blocks()
     {
         moris::mtk::Cell const& tCell = mBackgroundMesh->get_mtk_cell( 0 );
 
-        MORIS_ERROR( ( tCell.get_geometry_type() == mtk::Geometry_Type::HEX || tCell.get_geometry_type() == mtk::Geometry_Type::QUAD )
-                         && tCell.get_interpolation_order() == mtk::Interpolation_Order::LINEAR,
-            "Need to abstract by adding get cell topo to cell info class" );
+        // MORIS_ERROR(  tCell.get_geometry_type() == mtk::Geometry_Type::HEX || tCell.get_geometry_type() == mtk::Geometry_Type::QUAD ,
+        //     "Need to abstract by adding get cell topo to cell info class" );
 
         // decide on cell topology based on number of spatial dimensions
-        enum CellTopology tCellTopo = xtk::determine_cell_topology( this->get_spatial_dim(), 1, CellShape::RECTANGULAR );
+        enum CellTopology tCellTopo = tCell.get_cell_info()->get_cell_topology();
 
         Cell< moris_index > tBlockSetOrds = this->register_block_set_names( { tBlockName }, tCellTopo );
 

@@ -162,7 +162,6 @@ Integration_Mesh_Generator::perform()
     }
 
     this->construct_bulk_phase_blocks( tCutIntegrationMesh.get(), tBulkPhaseCellGroups );
-    tCutIntegrationMesh->write_mesh( "./", "xtk_cut_ig_mesh.exo" );
 
     return tCutIntegrationMesh;
 }
@@ -264,13 +263,12 @@ Integration_Mesh_Generator::check_intersected_background_cell_levels(
 
     bool tFlag = true;
 
-    // handle the case where we have no intersections
-    if(aMeshGenerationData.mAllIntersectedBgCellInds.size() == 0)
+    moris_index tReferenceLevel = 0;
+    if(aMeshGenerationData.mAllIntersectedBgCellInds.size() > 0)
     {
-        tFlag = true;
+        tReferenceLevel = aBackgroundMesh->get_mtk_cell(aMeshGenerationData.mAllIntersectedBgCellInds(0)).get_level();
     }
-
-    moris_index tReferenceLevel = aBackgroundMesh->get_mtk_cell(aMeshGenerationData.mAllIntersectedBgCellInds(0)).get_level();
+    
     for (size_t iBgCellIndex = 1; iBgCellIndex < aMeshGenerationData.mAllIntersectedBgCellInds.size(); iBgCellIndex++)
     {
         moris_index tLevel = aBackgroundMesh->get_mtk_cell(aMeshGenerationData.mAllIntersectedBgCellInds(iBgCellIndex)).get_level();

@@ -134,8 +134,6 @@ TEST_CASE("2D XTK WITH HMR","[XTK_HMR_2D]")
 
             tHMR.finalize();
 
-//            tHMR.save_to_exodus( 0, "./xtk_exo/xtk_hmr_2d_ip.e" );
-
             hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
 
@@ -155,25 +153,7 @@ TEST_CASE("2D XTK WITH HMR","[XTK_HMR_2D]")
 
             tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
 
-
             tXTKModel.construct_face_oriented_ghost_penalization_cells();
-
-
-            // output to exodus file ----------------------------------------------------------
-//            xtk::Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
-
-            // Declare the fields related to enrichment strategy in output options
-//            Cell<std::string> tEnrichmentFieldNames = tEnrichment.get_cell_enrichment_field_names();
-
-            // output solution and meshes
-
-            // Write mesh
-//            moris::mtk::Writer_Exodus writer(&tEnrIgMesh);
-//            writer.write_mesh("", "xtk_hmr_2d_ig.exo", "", "xtk_temp.exo");
-
-            // Write the fields
-//            writer.set_time(0.0);
-//            writer.close_file();
 
 
             delete tInterpMesh;

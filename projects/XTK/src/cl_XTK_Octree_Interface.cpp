@@ -360,7 +360,6 @@ Octree_Interface::perform_impl_vertex_requests(
     // iterate through cells
     for ( auto &iCell : aMeshGenerationData->mAllIntersectedBgCellInds )
     {
-        std::cout << "iCEll =" << iCell << std::endl;
         // background cell
         moris::mtk::Cell &tCell = aBackgroundMesh->get_mtk_cell( iCell );
 
@@ -369,7 +368,6 @@ Octree_Interface::perform_impl_vertex_requests(
 
         // level of this cell
         moris_index tLevel = tCell.get_level();
-        std::cout << " mOctreeRefinementLevel = " << mOctreeRefinementLevel << " | tLevel = " << tLevel << std::endl;
 
         mDifference.push_back( mOctreeRefinementLevel - tLevel );
 
