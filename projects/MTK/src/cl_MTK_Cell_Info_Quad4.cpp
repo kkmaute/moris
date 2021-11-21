@@ -46,6 +46,14 @@ namespace moris
 
         //-----------------------------------------------------------------------------
 
+        enum CellTopology
+        Cell_Info_Quad4::get_cell_topology() const
+        {
+            return CellTopology::QUAD4;
+        }
+
+        //-----------------------------------------------------------------------------
+
         enum CellShape
         Cell_Info_Quad4::compute_cell_shape(moris::mtk::Cell const *aCell) const
         {

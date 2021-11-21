@@ -43,6 +43,14 @@ namespace moris
 
         //-----------------------------------------------------------------------------
 
+        enum CellTopology
+        Cell_Info_Hex64::get_cell_topology() const
+        {
+            return CellTopology::HEX64;
+        }
+
+        //-----------------------------------------------------------------------------
+
         enum CellShape
         Cell_Info_Hex64::compute_cell_shape(moris::mtk::Cell const *aCell) const
         {

@@ -48,6 +48,14 @@ namespace moris
 
         //-----------------------------------------------------------------------------
 
+        enum CellTopology
+        Cell_Info_Quad9::get_cell_topology() const
+        {
+            return CellTopology::QUAD9;
+        }
+
+        //-----------------------------------------------------------------------------
+
         enum CellShape
         Cell_Info_Quad9::compute_cell_shape(moris::mtk::Cell const *aCell) const
         {
@@ -273,6 +281,36 @@ namespace moris
                     break;
                 }
             }
+        }
+
+        moris::Cell< moris_index >
+        Cell_Info_Quad9::get_vertex_path_to_entity_rank_and_ordinal(
+            moris_index aVertexOrdinal,
+            moris_index aOtherEntityOrdinal,
+            moris_index aOtherEntityRank ) const
+        {
+            Cell_Info_Quad4 tQuad4;
+            return tQuad4.get_vertex_path_to_entity_rank_and_ordinal( aVertexOrdinal, aOtherEntityOrdinal, aOtherEntityRank );
+        }
+
+        moris::Cell< moris_index >
+        Cell_Info_Quad9::get_edge_path_to_entity_rank_and_ordinal(
+            moris_index aEdgeOrdinal,
+            moris_index aOtherEntityOrdinal,
+            moris_index aOtherEntityRank ) const
+        {
+            Cell_Info_Quad4 tQuad4;
+            return tQuad4.get_edge_path_to_entity_rank_and_ordinal( aEdgeOrdinal, aOtherEntityOrdinal, aOtherEntityRank );
+        }
+
+        bool
+        Cell_Info_Quad9::is_entity_connected_to_facet(
+            moris_index aFacetOrdinal,
+            moris_index aOtherEntityOrdinal,
+            moris_index aOtherEntityRank ) const
+        {
+            Cell_Info_Quad4 tQuad4;
+            return tQuad4.is_entity_connected_to_facet( aFacetOrdinal, aOtherEntityOrdinal, aOtherEntityRank );
         }
 
         // ----------------------------------------------------------------------------------

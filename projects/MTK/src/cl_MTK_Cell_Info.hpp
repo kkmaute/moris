@@ -60,6 +60,11 @@ namespace moris
 
             // ---------------------------------------------------------------------------------
 
+            virtual enum CellTopology
+            get_cell_topology() const = 0;
+
+            // ---------------------------------------------------------------------------------
+
             /*
              * @return number of vertices attached to cell
              */

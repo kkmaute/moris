@@ -42,6 +42,14 @@ namespace mtk
 
     //-----------------------------------------------------------------------------
 
+    enum CellTopology
+    Cell_Info_Hex8::get_cell_topology() const
+    {
+        return CellTopology::HEX8;
+    }
+
+    //-----------------------------------------------------------------------------
+
     enum CellShape
     Cell_Info_Hex8::compute_cell_shape( moris::mtk::Cell const *aCell ) const
     {
