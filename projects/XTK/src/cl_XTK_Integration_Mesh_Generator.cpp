@@ -82,6 +82,7 @@ Integration_Mesh_Generator::perform()
     // create facet connectivity in the mesh
     std::shared_ptr< Facet_Based_Connectivity > tFaceConnectivity = std::make_shared< Facet_Based_Connectivity >();
     this->create_facet_from_element_to_node( tActiveIgCells, tFaceConnectivity );
+    tCutIntegrationMesh->set_face_connectivity( tFaceConnectivity );
 
     // create facet ancestry
     moris::Cell< moris::mtk::Cell* > tBGCellForFacet;
@@ -89,6 +90,7 @@ Integration_Mesh_Generator::perform()
 
     std::shared_ptr< Facet_Based_Ancestry > tFacetAncestry = std::make_shared< Facet_Based_Ancestry >();
     this->deduce_facet_ancestry( tCutIntegrationMesh.get(), tBackgroundMesh, tFaceConnectivity, tBGCellForFacet, tFacetAncestry );
+    tCutIntegrationMesh->set_face_ancestry( tFacetAncestry );
 
     // compute the facets attached to a given bg facet. (useful to deduce side sets later and to construct the subphase neighborhood
     // for the enrichment strategy)
@@ -145,9 +147,6 @@ Integration_Mesh_Generator::perform()
     // check if order elevation has been requested
     if ( this->get_ig_mesh_order() > 1 )
     {
-        // save facet ancestry to Cut integration mesh 
-        tCutIntegrationMesh->set_face_ancestry( tFacetAncestry );
-
         // get the order elevation template
         enum Subdivision_Method tOrderElevationMethod = this->determine_order_elevation_template();
 
@@ -1401,8 +1400,11 @@ Integration_Mesh_Generator::construct_bulk_phase_to_bulk_phase_dbl_side_interfac
     // allocate the output
     aDblSideInterfaceBulkPhaseToBulk.resize( tNumBulkPhase, moris::Cell< std::shared_ptr< IG_Cell_Double_Side_Group > >( tNumBulkPhase, nullptr ) );
 
-
     std::shared_ptr< Facet_Based_Connectivity > tFaceConn = aCutIntegrationMesh->get_face_connectivity();
+
+    // make sure a Facet Connectivity has been assigned to Cut integration mesh
+    MORIS_ERROR( tFaceConn != nullptr, 
+        "Integration_Mesh_Generator::construct_bulk_phase_to_bulk_phase_dbl_side_interface() - No Face Connectivity on Cut Integration Mesh." );
 
     for ( moris::uint iIF = 0; iIF < aInterfaces.size(); iIF++ )
     {
@@ -2107,13 +2109,9 @@ Integration_Mesh_Generator::deduce_edge_ancestry(
     MORIS_ERROR( aParentCellForDeduction.size() == tNumEdges, "One representative parent cell is needed for each edge, to ensure all edges parents can be deduced." );
 
     // allocate the data in the edge ancestry
-
-std::cout << "Number of edges = " << tNumEdges << std::endl;
-
     aIgEdgeAncestry->mEdgeParentEntityIndex.resize( tNumEdges );
     aIgEdgeAncestry->mEdgeParentEntityRank.resize( tNumEdges );
     aIgEdgeAncestry->mEdgeParentEntityOrdinalWrtBackgroundCell.resize( tNumEdges );
-
 
     enum EntityRank tFacetRank = aCutIntegrationMesh->get_facet_rank();
 
@@ -2310,13 +2308,6 @@ std::cout << "Number of edges = " << tNumEdges << std::endl;
             MORIS_ASSERT( tSecondEntityOrdinal != MORIS_INDEX_MAX, "Not found" );
 
             // mark the entity parent as the deduction cell
-
-std::cout << "Size of tEntitiesConnectedToBaseCell: " << 
-    tEntitiesConnectedToBaseCell.n_rows() << " x " << 
-    tEntitiesConnectedToBaseCell.n_cols() << std::endl;
-std::cout << "tParentOrdinalAndRank.size() = " << tParentOrdinalAndRank.size() << std::endl;
-std::cout << "aIgEdgeAncestry->mEdgeParentEntityIndex.size() = " << aIgEdgeAncestry->mEdgeParentEntityIndex.size() << std::endl;
-
             aIgEdgeAncestry->mEdgeParentEntityIndex( iEdge )                    = tEntitiesConnectedToBaseCell( tParentOrdinalAndRank( 0 ) );
             aIgEdgeAncestry->mEdgeParentEntityRank( iEdge )                     = tParentOrdinalAndRank( 1 );
             aIgEdgeAncestry->mEdgeParentEntityOrdinalWrtBackgroundCell( iEdge ) = tSecondEntityOrdinal;

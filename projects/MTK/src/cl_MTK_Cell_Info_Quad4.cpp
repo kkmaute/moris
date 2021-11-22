@@ -284,7 +284,7 @@ namespace moris
                                 }
                                 
                                 case 1: return { 0, 1 };
-                                case 2: return { 0, 3 }; // or: { 0, 3 } ?
+                                case 2: return { 0, 3 };
                                 case 3: return { 3, 1 };
 
                                 default:
@@ -301,8 +301,8 @@ namespace moris
                             switch ( aOtherEntityOrdinal )
                             {
                                 case  0: return { 0, 1 };
-                                case  1: return { 0, 3 }; // or: { 0, 3 } ?
-                                case  2: return { 0, 3 }; // or: { 0, 3 } ?
+                                case  1: return { 0, 3 };
+                                case  2: return { 0, 3 };
                                 case  3: return { 3, 1 };
                                 default:
                                 {
@@ -336,7 +336,7 @@ namespace moris
                                 
                                 case 0: return { 0, 1 };
                                 case 2: return { 1, 1 };
-                                case 3: return { 0, 3 }; // or: { 0, 3 } ?
+                                case 3: return { 0, 3 }; 
 
                                 default:
                                 {
@@ -353,8 +353,8 @@ namespace moris
                             {
                                 case  0: return { 0, 1 };
                                 case  1: return { 1, 1 };
-                                case  2: return { 0, 3 }; // or: { 0, 3 } ?
-                                case  3: return { 0, 3 }; // or: { 0, 3 } ?
+                                case  2: return { 0, 3 };
+                                case  3: return { 0, 3 };
                                 default:
                                 {
                                     MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
@@ -385,7 +385,7 @@ namespace moris
                                     return 0;
                                 }
                                 
-                                case 0: return { 0, 3 }; // or: { 0, 3 } ?
+                                case 0: return { 0, 3 };
                                 case 1: return { 1, 1 };
                                 case 3: return { 2, 1 };
 
@@ -402,10 +402,10 @@ namespace moris
                         {
                             switch ( aOtherEntityOrdinal )
                             {
-                                case  0: return { 0, 3 }; // or: { 0, 3 } ?
+                                case  0: return { 0, 3 };
                                 case  1: return { 1, 1 };
                                 case  2: return { 2, 1 };
-                                case  3: return { 0, 3 }; // or: { 0, 3 } ?
+                                case  3: return { 0, 3 };
                                 default:
                                 {
                                     MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
@@ -437,7 +437,7 @@ namespace moris
                                 }
                                 
                                 case 0: return { 3, 1 };
-                                case 1: return { 0, 3 }; // or: { 0, 3 } ?
+                                case 1: return { 0, 3 };
                                 case 2: return { 2, 1 };
 
                                 default:
@@ -453,8 +453,8 @@ namespace moris
                         {
                             switch ( aOtherEntityOrdinal )
                             {
-                                case  0: return { 0, 3 }; // or: { 0, 3 } ?
-                                case  1: return { 0, 3 }; // or: { 0, 3 } ?
+                                case  0: return { 0, 3 };
+                                case  1: return { 0, 3 };
                                 case  2: return { 2, 1 };
                                 case  3: return { 3, 1 };
                                 default:
