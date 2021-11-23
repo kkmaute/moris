@@ -139,6 +139,8 @@ Integration_Mesh_Generator::perform()
     this->construct_subphase_neighborhood( tCutIntegrationMesh.get(), tBackgroundMesh, tFaceConnectivity, &tBgFacetToChildFacet, tSubphaseNeighborhood );
     tCutIntegrationMesh->set_subphase_neighborhood( tSubphaseNeighborhood );
 
+    
+
     // construct the bulk phase blocks
     moris::Cell< std::shared_ptr< IG_Cell_Group > > tBulkPhaseCellGroups;
     this->construct_bulk_phase_cell_groups( tCutIntegrationMesh.get(), tBulkPhaseCellGroups );
@@ -2961,6 +2963,11 @@ Integration_Mesh_Generator::verbosity_level()
 }
 
 // ----------------------------------------------------------------------------------
+void
+Integration_Mesh_Generator::remove_subphases_from_cut_mesh(moris::Cell<moris_index> const & aSubphasesToRemove)
+{
+
+}
 // ----------------------------------------------------------------------------------
 // ----------------------------------------------------------------------------------
 // ----------------------------------------------------------------------------------
