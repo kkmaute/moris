@@ -584,6 +584,15 @@ Cut_Integration_Mesh::get_child_mesh( moris_index aChildMeshIndex )
     MORIS_ERROR( mChildMeshes.size() > (uint)aChildMeshIndex, "Child mesh index out of bounds" );
     return mChildMeshes( aChildMeshIndex );
 }
+// ----------------------------------------------------------------------------
+
+uint
+Cut_Integration_Mesh::get_num_child_meshes() const
+{
+    return mChildMeshes.size();
+}
+
+// ----------------------------------------------------------------------------
 mtk::Vertex&
 Cut_Integration_Mesh::get_mtk_vertex( moris_index aVertexIndex )
 {
