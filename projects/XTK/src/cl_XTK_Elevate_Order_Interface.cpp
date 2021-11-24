@@ -160,7 +160,7 @@ Elevate_Order_Interface::make_vertex_requests(
     // initialize proc-global to element-local map of vertex indices for each cell/element
     moris::Cell< std::map< moris_index, uint > > tVertIndicesOnCell( tNumElemsInCIM );
 
-    // initialize iCell-map
+    // initialize iCell-map, provides a relationship between the location of a cell in the provided list of cells and their indices
     std::unordered_map< moris_index, uint > tCellToIndexMap;
 
     // iterate through the elements get local cell vertex information and, if requested, create vertices on it

@@ -1771,7 +1771,6 @@ Cut_Integration_Mesh::handle_received_child_cell_id_request_answers(
 void
 Cut_Integration_Mesh::create_base_cell_blocks()
 {
-
     Tracer      tTracer( "XTK", "Integration_Mesh_Generator", "create_base_cell_blocks", mXTKModel->mVerboseLevel, 1 );
     std::string tBlockName = "bg_cells";
 

@@ -424,7 +424,8 @@ Octree_Interface::perform_impl_vertex_requests(
                     }
                     else
                     {
-                        MORIS_ASSERT( moris::norm( tNewCoordinate - mDecompData->tNewNodeCoordinate( tNewNodeIndexInSubdivision ) ) < 1e-12, "Vertex coordinate mismatch, could be a hashing collision, parent rank: ELEMENT , index: %i  hash: %i", tCell.get_index(), ( *tVertexHashes )( iV ) );
+                        MORIS_ASSERT( moris::norm( tNewCoordinate - mDecompData->tNewNodeCoordinate( tNewNodeIndexInSubdivision ) ) < 1e-12, 
+                             "Vertex coordinate mismatch, could be a hashing collision, parent rank: ELEMENT , index: %i  hash: %i", tCell.get_index(), ( *tVertexHashes )( iV ) );
                     }
                 }
 
@@ -448,7 +449,11 @@ Octree_Interface::perform_impl_vertex_requests(
                     }
                     else
                     {
-                        MORIS_ASSERT( moris::norm( tNewCoordinate - mDecompData->tNewNodeCoordinate( tNewNodeIndexInSubdivision ) ) < 1e-12, "Vertex coordinate mismatch, could be a hashing collision, parent rank: %s, parent index:%i,  hash: %i", get_enum_str( tVertexAncestry->get_vertex_parent_rank( iV ) ), tCellConnectivity.get_entity_index( tVertexAncestry->get_vertex_parent_index( iV ), tVertexAncestry->get_vertex_parent_rank( iV ) ), ( *tVertexHashes )( iV ) );
+                        MORIS_ASSERT( moris::norm( tNewCoordinate - mDecompData->tNewNodeCoordinate( tNewNodeIndexInSubdivision ) ) < 1e-12, 
+                            "Vertex coordinate mismatch, could be a hashing collision, parent rank: %s, parent index: %d, hash: %d",
+                            get_enum_str( tVertexAncestry->get_vertex_parent_rank( iV ) ).c_str(), 
+                            tCellConnectivity.get_entity_index( tVertexAncestry->get_vertex_parent_index( iV ), tVertexAncestry->get_vertex_parent_rank( iV ) ), 
+                            ( *tVertexHashes )( iV ) );
                     }
                 }
                 aDecompositionData->tCMNewNodeParamCoord( iCell ).push_back( *tVertexLocalCoords );

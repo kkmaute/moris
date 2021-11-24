@@ -370,6 +370,9 @@ The following modules introduce the XTK and its core functionalities.
 /** @addtogroup XTKDecomp
     @ingroup XTKModule */
 
+/** @addtogroup XTKElevateOrder
+    @ingroup XTKModule */
+
 /** @addtogroup XTKEnrich
     @ingroup XTKModule */
 

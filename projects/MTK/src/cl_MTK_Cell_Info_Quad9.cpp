@@ -32,6 +32,14 @@ namespace moris
 
         // ----------------------------------------------------------------------------------
 
+        enum CellTopology
+        Cell_Info_Quad9::get_cell_topology() const
+        {
+            return CellTopology::QUAD9;
+        }
+
+        // ----------------------------------------------------------------------------------
+
         enum Interpolation_Order
         Cell_Info_Quad9::get_cell_interpolation_order() const
         {
@@ -46,7 +54,7 @@ namespace moris
             return Integration_Order::QUAD_3x3;
         }
 
-        //-----------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------------
 
         enum CellTopology
         Cell_Info_Quad9::get_cell_topology() const
@@ -311,6 +319,286 @@ namespace moris
         {
             Cell_Info_Quad4 tQuad4;
             return tQuad4.is_entity_connected_to_facet( aFacetOrdinal, aOtherEntityOrdinal, aOtherEntityRank );
+        }
+
+        // ----------------------------------------------------------------------------------
+
+        moris::Cell< moris_index >
+        Cell_Info_Quad9::get_vertex_path_to_entity_rank_and_ordinal(
+            moris_index aVertexOrdinal,
+            moris_index aOtherEntityOrdinal,
+            moris_index aOtherEntityRank ) const
+        {
+
+            switch ( aOtherEntityRank )
+            {
+                // node to node paths
+                case 0:
+                {
+                    Matrix< IndexMat > tVertexToVertexRanks = {
+                        {-1, 1, 3, 1, 1, 3, 3, 1, 3 },
+                        { 1,-1, 1, 3, 1, 1, 3, 3, 3 },
+                        { 3, 1,-1, 1, 3, 1, 1, 3, 3 },
+                        { 1, 3, 1,-1, 3, 3, 1, 1, 3 },
+                        { 1, 1, 3, 3,-1, 3, 3, 3, 3 },
+                        { 3, 1, 1, 3, 3,-1, 3, 3, 3 },
+                        { 3, 3, 1, 1, 3, 3,-1, 3, 3 },
+                        { 1, 3, 3, 1, 3, 3, 3,-1, 3 },
+                        { 3, 3, 3, 3, 3, 3, 3, 3,-1 } };
+
+                    Matrix< IndexMat > tVertexToVertexIndices = {
+                        {-1, 0, 0, 3, 0, 0, 0, 3, 0 },
+                        { 0,-1, 1, 0, 0, 1, 0, 0, 0 },
+                        { 0, 1,-1, 2, 0, 1, 2, 0, 0 },
+                        { 3, 0, 2,-1, 0, 0, 2, 3, 0 },
+                        { 0, 0, 0, 0,-1, 0, 0, 0, 0 },
+                        { 0, 1, 1, 0, 0,-1, 0, 0, 0 },
+                        { 0, 0, 2, 2, 0, 0,-1, 0, 0 },
+                        { 3, 0, 0, 3, 0, 0, 0,-1, 0 },
+                        { 0, 0, 0, 0, 0, 0, 0, 0,-1 } };
+
+                    
+                    moris_index tPathRank = tVertexToVertexRanks( (uint) aVertexOrdinal, (uint) aOtherEntityOrdinal );
+                    moris_index tPathIndex = tVertexToVertexIndices( (uint) aVertexOrdinal, (uint) aOtherEntityOrdinal );
+
+                    MORIS_ASSERT( tPathRank != -1 && tPathIndex != -1, 
+                        "Cell_Info_Quad9::get_vertex_path_to_entity_rank_and_ordinal() - Vertex doesn't have path to itself." );
+
+                    return { tPathIndex, tPathRank };
+                    break;
+                }
+
+                // node to edge paths
+                case 1:
+                {
+                    Matrix< IndexMat > tVertexToEdgeRanks = {
+                        { 1, 3, 3, 1 },
+                        { 1, 1, 3, 3 },
+                        { 3, 1, 1, 3 },
+                        { 3, 3, 1, 1 },
+                        { 1, 3, 3, 3 },
+                        { 3, 1, 3, 3 },
+                        { 3, 3, 1, 3 },
+                        { 3, 3, 3, 1 },
+                        { 3, 3, 3, 3 } };
+
+                    Matrix< IndexMat > tVertexToEdgeIndices = {
+                        { 0, 0, 0, 3 },
+                        { 0, 1, 0, 0 },
+                        { 0, 1, 2, 0 },
+                        { 0, 0, 2, 3 },
+                        { 0, 0, 0, 0 },
+                        { 0, 1, 0, 0 },
+                        { 0, 0, 2, 0 },
+                        { 0, 0, 0, 3 },
+                        { 0, 0, 0, 0 } };
+
+                    moris_index tPathRank = tVertexToEdgeRanks( (uint) aVertexOrdinal, (uint) aOtherEntityOrdinal );
+                    moris_index tPathIndex = tVertexToEdgeIndices( (uint) aVertexOrdinal, (uint) aOtherEntityOrdinal );
+                    return { tPathIndex, tPathRank };
+                    break;
+                }
+
+                default:
+                {
+                    MORIS_ERROR( 0, "Invalid other entity rank for hex8" );
+                    return moris::Cell< moris_index >( 0 );
+                }
+            } // end: switch aOtherEntityRank
+        }
+
+        // ----------------------------------------------------------------------------------
+
+        moris::Cell< moris_index >
+        Cell_Info_Quad9::get_edge_path_to_entity_rank_and_ordinal(
+            moris_index aEdgeOrdinal,
+            moris_index aOtherEntityOrdinal,
+            moris_index aOtherEntityRank ) const
+        {
+            switch ( aEdgeOrdinal )
+            {
+                // edge 0
+                case 0:
+                {
+                    switch ( aOtherEntityRank )
+                    {
+                        // other entity is Edge
+                        case 1:
+                        {
+                            switch ( aOtherEntityOrdinal )
+                            {
+                                case 0: return { 0, 1 };
+                                case 1: return { 0, 3 };
+                                case 2: return { 0, 3 };
+                                case 3: return { 0, 3 };
+                                
+                                default:
+                                {
+                                    MORIS_ERROR( 0, "Invalid other edge ordinal for QUAD9" );
+                                    return moris::Cell< moris_index >( 0 );
+                                }   
+                            }
+                        }
+
+                        default:
+                        {
+                            MORIS_ERROR( 0, "Invalid other entity rank for QUAD9 - edge has only path to edges" );
+                            return moris::Cell< moris_index >( 0 );
+                        }
+                    } // end: switch: aOtherEntityRank
+                } // end: case: edge ordinal 0
+                
+                // edge 1
+                case 1:
+                {
+                    switch ( aOtherEntityRank )
+                    {
+                        // other entity is Edge
+                        case 1:
+                        {
+                            switch ( aOtherEntityOrdinal )
+                            {
+                                case 0: return { 0, 3 };
+                                case 1: return { 0, 1 };
+                                case 2: return { 0, 3 };
+                                case 3: return { 0, 3 };
+                                
+                                default:
+                                {
+                                    MORIS_ERROR( 0, "Invalid other edge ordinal for QUAD4" );
+                                    return moris::Cell< moris_index >( 0 );
+                                }   
+                            }
+                        }
+
+                        default:
+                        {
+                            MORIS_ERROR( 0, "Invalid other entity rank for QUAD9 - edge only has path to edges" );
+                            return moris::Cell< moris_index >( 0 );
+                        }
+                    } // end: switch: aOtherEntityRank
+                } // end: case: edge ordinal 1
+
+                // edge 2
+                case 2:
+                {
+                    switch ( aOtherEntityRank )
+                    {
+                        // other entity is Edge
+                        case 1:
+                        {
+                            switch ( aOtherEntityOrdinal )
+                            {
+                                case 0: return { 0, 3 };
+                                case 1: return { 0, 3 };
+                                case 2: return { 0, 1 };
+                                case 3: return { 0, 3 };
+                                
+                                default:
+                                {
+                                    MORIS_ERROR( 0, "Invalid other edge ordinal for QUAD4" );
+                                    return moris::Cell< moris_index >( 0 );
+                                }   
+                            }
+                        }
+
+                        default:
+                        {
+                            MORIS_ERROR( 0, "Invalid other entity rank for QUAD9 - edge only has path to edges" );
+                            return moris::Cell< moris_index >( 0 );
+                        }
+                    } // end: switch: aOtherEntityRank
+                } // end: case: edge ordinal 2
+
+                // edge 3
+                case 3:
+                {
+                    switch ( aOtherEntityRank )
+                    {
+                        // other entity is Edge
+                        case 1:
+                        {
+                            switch ( aOtherEntityOrdinal )
+                            {
+                                case 0: return { 0, 3 };
+                                case 1: return { 0, 3 };
+                                case 2: return { 0, 3 };
+                                case 3: return { 0, 1 };
+                                
+                                default:
+                                {
+                                    MORIS_ERROR( 0, "Invalid other edge ordinal for QUAD4" );
+                                    return moris::Cell< moris_index >( 0 );
+                                }   
+                            }
+                        }
+
+                        default:
+                        {
+                            MORIS_ERROR( 0, "Invalid other entity rank for QUAD4 - edge only has path to edges" );
+                            return moris::Cell< moris_index >( 0 );
+                        }
+                    } // end: switch: aOtherEntityRank
+                } // end: case: edge ordinal 3
+
+                default:
+                {
+                    MORIS_ERROR( 0, "Invalid vertex ordinal for QUAD4" );
+                    return moris::Cell< moris_index >( 0 );
+                }
+            }
+        }
+
+        // ----------------------------------------------------------------------------------
+
+        bool
+        Cell_Info_Quad9::is_entity_connected_to_facet(
+            moris_index aFacetOrdinal,
+            moris_index aOtherEntityOrdinal,
+            moris_index aOtherEntityRank ) const
+        {
+            switch ( aOtherEntityRank )
+            {
+                // Other Entity is Vertex
+                case 0:
+                {
+                    Matrix< IndexMat > tVertexToEdgeConnectivity = {
+                        { 1, 0, 0, 1 },
+                        { 1, 1, 0, 0 },
+                        { 0, 1, 1, 0 },
+                        { 0, 0, 1, 1 },
+                        { 1, 0, 0, 0 },
+                        { 0, 1, 0, 0 },
+                        { 0, 0, 1, 0 },
+                        { 0, 0, 0, 1 },
+                        { 0, 0, 0, 0 } };
+
+                    moris_index tEntityIsConnected = tVertexToEdgeConnectivity( (uint) aOtherEntityOrdinal, (uint) aFacetOrdinal );
+                    return (bool) tEntityIsConnected;
+                    break;
+                }
+
+                // Other Entity is Edge
+                case 1:
+                {
+                    Matrix< IndexMat > tEdgeToEdgeConnectivity = {
+                        { 1, 0, 0, 0 },
+                        { 0, 1, 0, 0 },
+                        { 0, 0, 1, 0 },
+                        { 0, 0, 0, 1 } };
+
+                    moris_index tEntityIsConnected = tEdgeToEdgeConnectivity( (uint) aOtherEntityOrdinal, (uint) aFacetOrdinal );
+                    return (bool) tEntityIsConnected;
+                    break;
+                }
+
+                default:
+                {
+                    MORIS_ERROR( 0, "Invalid other entity rank for QUAD4 (must be 0-Vertex or 1-Edge" );
+                    return false;
+                    break;
+                }
+            } // end: switch: aOtherEntityRank
         }
 
         // ----------------------------------------------------------------------------------
