@@ -106,7 +106,7 @@ namespace moris
              * @return Lagrange elements
              */
             virtual
-            void get_elements_in_interpolation_cluster_and_side_ordianl(
+            void get_elements_in_interpolation_cluster_and_side_ordinal(
                     moris_index const            aElementIndex,
                     moris_index const            aDiscretizationMeshIndex,
                     moris_index const            aSideOrdinal,
