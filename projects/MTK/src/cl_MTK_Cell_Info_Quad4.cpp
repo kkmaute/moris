@@ -52,14 +52,6 @@ namespace moris
             return Integration_Order::QUAD_2x2;
         }
 
-        // ----------------------------------------------------------------------------------
-
-        enum CellTopology
-        Cell_Info_Quad4::get_cell_topology() const
-        {
-            return CellTopology::QUAD4;
-        }
-
         //-----------------------------------------------------------------------------
 
         enum CellShape

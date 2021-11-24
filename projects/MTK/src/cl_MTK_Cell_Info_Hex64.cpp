@@ -50,14 +50,6 @@ namespace moris
             return Integration_Order::HEX_5x5x5;
         }
 
-        // ----------------------------------------------------------------------------------
-
-        enum CellTopology
-        Cell_Info_Hex64::get_cell_topology() const
-        {
-            return CellTopology::HEX64;
-        }
-
         //-----------------------------------------------------------------------------
 
         enum CellShape

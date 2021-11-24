@@ -43,11 +43,6 @@ namespace moris
 
             //-----------------------------------------------------------------------------
 
-            enum CellTopology
-            get_cell_topology() const;
-
-            //-----------------------------------------------------------------------------
-
             enum CellShape
             compute_cell_shape(moris::mtk::Cell const *aCell) const;
 

@@ -51,14 +51,6 @@ namespace moris
 
         //-----------------------------------------------------------------------------
 
-        enum CellTopology
-        Cell_Info_Tet4::get_cell_topology() const
-        {
-            return CellTopology::TET4;
-        }
-
-        //-----------------------------------------------------------------------------
-
         enum CellShape
         Cell_Info_Tet4::compute_cell_shape(moris::mtk::Cell const *aCell) const
         {

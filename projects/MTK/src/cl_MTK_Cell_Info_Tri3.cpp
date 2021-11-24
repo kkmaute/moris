@@ -54,14 +54,6 @@ namespace moris
 
         //-----------------------------------------------------------------------------
 
-        enum CellTopology
-        Cell_Info_Tri3::get_cell_topology() const
-        {
-            return CellTopology::TRI3;
-        }
-
-        //-----------------------------------------------------------------------------
-
         enum CellShape
         Cell_Info_Tri3::compute_cell_shape(moris::mtk::Cell const *aCell) const
         {

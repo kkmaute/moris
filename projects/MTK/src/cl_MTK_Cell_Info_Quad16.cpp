@@ -53,14 +53,6 @@ namespace moris
             return Integration_Order::QUAD_5x5;
         }
 
-        // ----------------------------------------------------------------------------------
-
-        enum CellTopology
-        Cell_Info_Quad16::get_cell_topology() const
-        {
-            return CellTopology::QUAD16;
-        }
-
         //-----------------------------------------------------------------------------
 
         enum CellShape

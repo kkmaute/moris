@@ -40,11 +40,6 @@ namespace moris
             enum Integration_Order
             get_cell_integration_order() const;
 
-            // ----------------------------------------------------------------------------------
-
-            enum CellTopology
-            get_cell_topology() const;
-
             //-----------------------------------------------------------------------------
 
             enum CellShape

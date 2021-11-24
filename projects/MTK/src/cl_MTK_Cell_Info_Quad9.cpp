@@ -54,14 +54,6 @@ namespace moris
             return Integration_Order::QUAD_3x3;
         }
 
-        // ----------------------------------------------------------------------------------
-
-        enum CellTopology
-        Cell_Info_Quad9::get_cell_topology() const
-        {
-            return CellTopology::QUAD9;
-        }
-
         //-----------------------------------------------------------------------------
 
         enum CellShape
@@ -291,36 +283,6 @@ namespace moris
             }
         }
 
-        moris::Cell< moris_index >
-        Cell_Info_Quad9::get_vertex_path_to_entity_rank_and_ordinal(
-            moris_index aVertexOrdinal,
-            moris_index aOtherEntityOrdinal,
-            moris_index aOtherEntityRank ) const
-        {
-            Cell_Info_Quad4 tQuad4;
-            return tQuad4.get_vertex_path_to_entity_rank_and_ordinal( aVertexOrdinal, aOtherEntityOrdinal, aOtherEntityRank );
-        }
-
-        moris::Cell< moris_index >
-        Cell_Info_Quad9::get_edge_path_to_entity_rank_and_ordinal(
-            moris_index aEdgeOrdinal,
-            moris_index aOtherEntityOrdinal,
-            moris_index aOtherEntityRank ) const
-        {
-            Cell_Info_Quad4 tQuad4;
-            return tQuad4.get_edge_path_to_entity_rank_and_ordinal( aEdgeOrdinal, aOtherEntityOrdinal, aOtherEntityRank );
-        }
-
-        bool
-        Cell_Info_Quad9::is_entity_connected_to_facet(
-            moris_index aFacetOrdinal,
-            moris_index aOtherEntityOrdinal,
-            moris_index aOtherEntityRank ) const
-        {
-            Cell_Info_Quad4 tQuad4;
-            return tQuad4.is_entity_connected_to_facet( aFacetOrdinal, aOtherEntityOrdinal, aOtherEntityRank );
-        }
-
         // ----------------------------------------------------------------------------------
 
         moris::Cell< moris_index >
@@ -335,7 +297,7 @@ namespace moris
                 // node to node paths
                 case 0:
                 {
-                    Matrix< IndexMat > tVertexToVertexRanks = {
+                    const Matrix< IndexMat > tVertexToVertexRanks = {
                         {-1, 1, 3, 1, 1, 3, 3, 1, 3 },
                         { 1,-1, 1, 3, 1, 1, 3, 3, 3 },
                         { 3, 1,-1, 1, 3, 1, 1, 3, 3 },
@@ -346,7 +308,7 @@ namespace moris
                         { 1, 3, 3, 1, 3, 3, 3,-1, 3 },
                         { 3, 3, 3, 3, 3, 3, 3, 3,-1 } };
 
-                    Matrix< IndexMat > tVertexToVertexIndices = {
+                    const Matrix< IndexMat > tVertexToVertexIndices = {
                         {-1, 0, 0, 3, 0, 0, 0, 3, 0 },
                         { 0,-1, 1, 0, 0, 1, 0, 0, 0 },
                         { 0, 1,-1, 2, 0, 1, 2, 0, 0 },
@@ -371,7 +333,7 @@ namespace moris
                 // node to edge paths
                 case 1:
                 {
-                    Matrix< IndexMat > tVertexToEdgeRanks = {
+                    const Matrix< IndexMat > tVertexToEdgeRanks = {
                         { 1, 3, 3, 1 },
                         { 1, 1, 3, 3 },
                         { 3, 1, 1, 3 },
@@ -382,7 +344,7 @@ namespace moris
                         { 3, 3, 3, 1 },
                         { 3, 3, 3, 3 } };
 
-                    Matrix< IndexMat > tVertexToEdgeIndices = {
+                    const Matrix< IndexMat > tVertexToEdgeIndices = {
                         { 0, 0, 0, 3 },
                         { 0, 1, 0, 0 },
                         { 0, 1, 2, 0 },
