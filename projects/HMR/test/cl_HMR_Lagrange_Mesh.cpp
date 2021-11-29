@@ -1570,10 +1570,10 @@ TEST_CASE("Lagrange_Mesh_BSpline_Element_and_side_ordinal","[moris],[hmr],[Eleme
         moris::Cell< mtk::Cell * > tCells_2;
         moris::Cell< mtk::Cell * > tCells_3;
 
-        tMesh->get_elements_in_interpolation_cluster_and_side_ordianl( 6, 0, 1, tCells_1 );
+        tMesh->get_elements_in_interpolation_cluster_and_side_ordinal( 6, 0, 1, tCells_1 );
 
-        tMesh->get_elements_in_interpolation_cluster_and_side_ordianl( 6, 1, 1, tCells_2 );
-        tMesh->get_elements_in_interpolation_cluster_and_side_ordianl( 6, 1, 3, tCells_3 );
+        tMesh->get_elements_in_interpolation_cluster_and_side_ordinal( 6, 1, 1, tCells_2 );
+        tMesh->get_elements_in_interpolation_cluster_and_side_ordinal( 6, 1, 3, tCells_3 );
 
         REQUIRE( tCells_1.size()  == 1 );
         REQUIRE( tCells_2.size()  == 3 );
