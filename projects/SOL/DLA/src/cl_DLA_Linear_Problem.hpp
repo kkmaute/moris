@@ -30,7 +30,6 @@ namespace moris
 
         protected:
             sol::Dist_Matrix   * mMat            = nullptr;
-            sol::Dist_Vector   * mVectorRHS      = nullptr;
             sol::Dist_Vector   * mFreeVectorLHS  = nullptr;
             sol::Dist_Vector   * mPointVectorRHS = nullptr;
             sol::Dist_Vector   * mPointVectorLHS = nullptr;
@@ -50,7 +49,6 @@ namespace moris
         public:
             Linear_Problem( Solver_Interface * aInput )
             : mMat(NULL),
-              mVectorRHS(NULL),
               mFreeVectorLHS(nullptr),
               mMap(NULL),
               mSolverInterface( aInput )
