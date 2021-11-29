@@ -135,7 +135,7 @@ namespace moris
 
                 // get the pdof values for the ith dof type group
                 Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
-                this->get_my_pdof_values( mPdofValues, tDofTypeGroup, tCoeff_Original );
+                this->get_my_pdof_values( mSet->mPdofValues, tDofTypeGroup, tCoeff_Original );
 
                 // reshape tCoeffs into the order the cluster expects them
                 Matrix< DDRMat > tCoeff;
@@ -149,7 +149,7 @@ namespace moris
                 {
                     // get the pdof values for the ith dof type group
                     Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
-                    this->get_my_pdof_values( mPreviousPdofValues, tDofTypeGroup, tCoeff_Original );
+                    this->get_my_pdof_values( mSet->mPreviousPdofValues, tDofTypeGroup, tCoeff_Original );
 
                     // reshape tCoeffs into the order the cluster expects them
                     Matrix< DDRMat > tCoeff;
@@ -176,7 +176,7 @@ namespace moris
 
                 // get the pdof values for the ith dof type group
                 Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
-                this->get_my_pdof_values( mPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Master_Slave::SLAVE );
+                this->get_my_pdof_values( mSet->mPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Master_Slave::SLAVE );
 
                 // reshape tCoeffs into the order the cluster expects them
                 Matrix< DDRMat > tCoeff;
@@ -763,7 +763,7 @@ namespace moris
             this->compute_my_adjoint_values();
 
             // get number of RHS
-            uint tNumRHS = mAdjointPdofValues.size();
+            uint tNumRHS = mSet->mAdjointPdofValues.size();
 
             // get number of pdof values
             uint tNumPdofValues = tdRdp( 0 ).n_rows();
@@ -797,7 +797,7 @@ namespace moris
                     // get the adjoint values for the ith dof type group
                     Cell< Cell< Matrix< DDRMat > > > tMasterAdjointOriginal;
                     this->get_my_pdof_values(
-                            mAdjointPdofValues,
+                            mSet->mAdjointPdofValues,
                             tMasterDofTypeGroup( Ia ),
                             tMasterAdjointOriginal,
                             mtk::Master_Slave::MASTER );
@@ -822,7 +822,7 @@ namespace moris
                     // get the adjoint values for the ith dof type group
                     Cell< Cell< Matrix< DDRMat > > > tSlaveAdjointOriginal;
                     this->get_my_pdof_values(
-                            mAdjointPdofValues,
+                            mSet->mAdjointPdofValues,
                             tSlaveDofTypeGroup( Ia ),
                             tSlaveAdjointOriginal,
                             mtk::Master_Slave::SLAVE );
@@ -950,7 +950,7 @@ namespace moris
             this->compute_my_adjoint_values();
 
             // get number of  RHS
-            uint tNumRHS = mAdjointPdofValues.size();
+            uint tNumRHS = mSet->mAdjointPdofValues.size();
 
             // get number of pdof values
             uint tNumPdofValues = tdRdp( 0 ).n_rows();
@@ -984,7 +984,7 @@ namespace moris
                     // get the adjoint values for the ith dof type group
                     Cell< Cell< Matrix< DDRMat > > > tMasterAdjointOriginal;
                     this->get_my_pdof_values(
-                            mAdjointPdofValues,
+                            mSet->mAdjointPdofValues,
                             tMasterDofTypeGroup( Ia ),
                             tMasterAdjointOriginal,
                             mtk::Master_Slave::MASTER );
@@ -1009,7 +1009,7 @@ namespace moris
                     // get the adjoint values for the ith dof type group
                     Cell< Cell< Matrix< DDRMat > > > tSlaveAdjointOriginal;
                     this->get_my_pdof_values(
-                            mAdjointPdofValues,
+                            mSet->mAdjointPdofValues,
                             tSlaveDofTypeGroup( Ia ),
                             tSlaveAdjointOriginal,
                             mtk::Master_Slave::SLAVE );
