@@ -475,6 +475,11 @@ Model::perform()
             moris::Memory_Map tXTKMM = this->get_memory_usage();
             tXTKMM.par_print( "XTK Model" );
         }
+
+        if( mParameterList.get<bool>("low_memory"))
+        {
+            
+        }
         // print
         MORIS_LOG_SPEC( "All_IG_verts", sum_all( tEnrIntegMesh.get_num_entities( EntityRank::NODE ) ) );
         MORIS_LOG_SPEC( "All_IG_cells", sum_all( tEnrIntegMesh.get_num_entities( EntityRank::ELEMENT ) ) );
@@ -534,10 +539,10 @@ Model::get_subdivision_methods()
 
     moris::Cell< enum Subdivision_Method > tSubdivisionMethods;
 
-    moris::uint       tSpatialDimension = this->get_spatial_dim();
-    enum CellTopology tBGCellTopo       = this->get_parent_cell_topology();
-    std::string       tDecompStr        = mParameterList.get< std::string >( "decomposition_type" );
-    moris::lint       tOctreeRefLevel   = std::stoi( mParameterList.get< std::string >( "octree_refinement_level" ) );
+    moris::uint             tSpatialDimension = this->get_spatial_dim();
+    enum mtk::Geometry_Type tBGCellTopo       = this->get_parent_cell_geometry();
+    std::string             tDecompStr        = mParameterList.get< std::string >( "decomposition_type" );
+    moris::lint             tOctreeRefLevel   = std::stoi( mParameterList.get< std::string >( "octree_refinement_level" ) );
 
     if ( tDecompStr.compare( "octree_only" ) == 0 )
     {
@@ -566,12 +571,12 @@ Model::get_subdivision_methods()
 
     if ( tSpatialDimension == 2 )
     {
-        if ( tBGCellTopo == CellTopology::QUAD4 && tConformal )
+        if ( tBGCellTopo == mtk::Geometry_Type::QUAD && tConformal )
         {
             moris::Cell< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
             tSubdivisionMethods.append( tMethods );
         }
-        else if ( tBGCellTopo == CellTopology::QUAD4 && !tConformal )
+        else if ( tBGCellTopo == mtk::Geometry_Type::QUAD && !tConformal )
         {
             moris::Cell< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4 };
             tSubdivisionMethods.append( tMethods );
@@ -579,17 +584,17 @@ Model::get_subdivision_methods()
     }
     else if ( tSpatialDimension == 3 )
     {
-        if ( tBGCellTopo == CellTopology::HEX8 && tConformal )
+        if ( tBGCellTopo == mtk::Geometry_Type::HEX && tConformal )
         {
             moris::Cell< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
             tSubdivisionMethods.append( tMethods );
         }
-        else if ( tBGCellTopo == CellTopology::HEX8 && !tConformal )
+        else if ( tBGCellTopo == mtk::Geometry_Type::HEX  && !tConformal )
         {
             moris::Cell< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8 };
             tSubdivisionMethods.append( tMethods );
         }
-        else if ( tBGCellTopo == CellTopology::TET4 && tConformal )
+        else if ( tBGCellTopo == mtk::Geometry_Type::HEX  && tConformal )
         {
             moris::Cell< enum Subdivision_Method > tMethods = { Subdivision_Method::C_HIERARCHY_TET4 };
             tSubdivisionMethods.append( tMethods );
