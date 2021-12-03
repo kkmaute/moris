@@ -184,6 +184,10 @@ namespace moris
                     LOGGER_ARBITRARY_DESCRIPTOR,
                     LOGGER_ARBITRARY_DESCRIPTOR);
 
+            tOptIter = tOptIter + mIter;
+
+            std::cout<<"tOptIter: "<<tOptIter<<" mReinitializeIterFirst: "<<mReinitializeIterFirst<<std::endl;
+
             if( mIter >= mReinitializeIterIntervall or (uint)tOptIter == mReinitializeIterFirst )
             {
                 mInitializeOptimizationRestart = true;
