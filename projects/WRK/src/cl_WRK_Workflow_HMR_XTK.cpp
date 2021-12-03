@@ -179,7 +179,12 @@ namespace moris
 
         Matrix<DDRMat> Workflow_HMR_XTK::perform(const Matrix<DDRMat> & aNewADVs)
         {
-            if( mIter >= mReinitializeIter )
+            sint tOptIter =  gLogger.get_iteration(
+                    "OptimizationManager",
+                    LOGGER_ARBITRARY_DESCRIPTOR,
+                    LOGGER_ARBITRARY_DESCRIPTOR);
+
+            if( mIter >= mReinitializeIterIntervall or (uint)tOptIter == mReinitializeIterFirst )
             {
                 mInitializeOptimizationRestart = true;
 
