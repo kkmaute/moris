@@ -247,6 +247,27 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
+        void Model::free_memory()
+        {
+            // delete SI
+            delete mSolverInterface;
+
+            // delete MSI
+            delete mModelSolverInterface;
+
+            // delete MSI
+            if( mOutputManager != nullptr && mOutputManagerOwned == true )
+            {
+                delete mOutputManager;
+
+                mOutputManagerOwned = false;
+            }
+
+            mEquationModel->free_memory();
+        }
+
+        //------------------------------------------------------------------------------
         void Model::set_performer( std::shared_ptr< mtk::Mesh_Manager > aMTKPerformer )
         {
             mMeshManager = aMTKPerformer;

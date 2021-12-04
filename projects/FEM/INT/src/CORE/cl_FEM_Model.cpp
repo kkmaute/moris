@@ -768,6 +768,13 @@ namespace moris
 
         FEM_Model::~FEM_Model()
         {
+            this->free_memory();
+        }
+
+        //------------------------------------------------------------------------------
+
+        void FEM_Model::free_memory()
+        {
             // delete fem nodes
             for( auto tIPNodes : mIPNodes )
             {

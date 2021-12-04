@@ -193,6 +193,10 @@ namespace moris
                 ~FEM_Model();
 
                 //------------------------------------------------------------------------------
+
+                void free_memory();
+
+                //------------------------------------------------------------------------------
                 /**
                  * initialize the FEM model from parameter lists
                  * @param[ in ] aLibrary       a file path for property functions

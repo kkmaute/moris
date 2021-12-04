@@ -186,8 +186,6 @@ namespace moris
 
             tOptIter = tOptIter + mIter;
 
-            std::cout<<"tOptIter: "<<tOptIter<<" mReinitializeIterFirst: "<<mReinitializeIterFirst<<std::endl;
-
             if( mIter >= mReinitializeIterIntervall or (uint)tOptIter == mReinitializeIterFirst )
             {
                 mInitializeOptimizationRestart = true;
@@ -335,6 +333,8 @@ namespace moris
 
                 MORIS_LOG_INFO ( "--------------------------------------------------------------------------------");
             }
+
+            mPerformerManager->mMDLPerformer( 0 )->free_memory();
 
             return tDCriteriaDAdv;
         }
