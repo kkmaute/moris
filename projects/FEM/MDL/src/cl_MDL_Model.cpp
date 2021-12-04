@@ -252,14 +252,17 @@ namespace moris
         {
             // delete SI
             delete mSolverInterface;
+			mSolverInterface = nullptr;
 
             // delete MSI
             delete mModelSolverInterface;
+			mModelSolverInterface = nullptr;
 
             // delete MSI
             if( mOutputManager != nullptr && mOutputManagerOwned == true )
             {
                 delete mOutputManager;
+				mOutputManager = nullptr;
 
                 mOutputManagerOwned = false;
             }
@@ -282,9 +285,18 @@ namespace moris
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 0: delete model and interface
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            delete mModelSolverInterface;
-            delete mSolverInterface;
-            delete mOutputManager;
+			if( mModelSolverInterface != nullptr)
+			{
+				delete mModelSolverInterface;
+			}
+			if( mSolverInterface != nullptr)
+			{
+				delete mSolverInterface;
+			}
+			if( mOutputManager != nullptr)
+			{
+				delete mOutputManager;
+			}
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 1: create the FEM model
