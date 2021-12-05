@@ -41,7 +41,6 @@ namespace moris
                 std::shared_ptr< Database > mDatabase;
 
                 //! flag telling if perform_refinement() has been called
-                bool mPerformRefinementCalled = false;
                 bool mUpdateRefinementCalled  = false;
 
                 bool mRestartedFromFile = false;
