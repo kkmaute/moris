@@ -1298,11 +1298,16 @@ namespace moris
 
                     MORIS_ASSERT( aFields( tGlobalIndex )->get_value( tIndex, 0 ) == MORIS_REAL_MIN, "elemental field values previously set.");
 
+                    real tSpaceTimeVolume = 0.0;
+
                     // ask cluster to compute quantity of interest
                     mFemCluster( 0 )->compute_quantity_of_interest(
                             tValues,
                             aFields( tGlobalIndex )->get_field_entity_type(),
-                            iIQI );
+                            iIQI,
+                            tSpaceTimeVolume );
+
+                    tValues( 0 ) = tValues( 0 ) / tSpaceTimeVolume;
 
                     aFields( tGlobalIndex )->set_field_value( tIndex, tValues );
                 }

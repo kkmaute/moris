@@ -534,7 +534,8 @@ namespace moris
         void Cluster::compute_quantity_of_interest(
                 Matrix< DDRMat >            & aValues,
                 enum mtk::Field_Entity_Type   aFieldType,
-                uint                          aIQIIndex )
+                uint                          aIQIIndex,
+                real                        & aSpaceTimeVolume)
         {
             // FIXME
             // cannot do it here cause vis mesh
@@ -548,7 +549,7 @@ namespace moris
                 if ( mComputeResidualAndIQI(iElem) )
                 {
                     // compute the quantity of interest for the IG element
-                    mElements( iElem )->compute_quantity_of_interest( aValues, aFieldType, aIQIIndex );
+                    mElements( iElem )->compute_quantity_of_interest( aValues, aFieldType, aIQIIndex, aSpaceTimeVolume );
                 }
             }
         }
