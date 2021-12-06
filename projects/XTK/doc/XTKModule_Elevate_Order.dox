@@ -45,7 +45,7 @@ the Elevate Order Algorithm (Elevate_Order_Interface::perform).
 
 @section Computing Necessary Information about new Vertices
 
-The information about the new vertices is computed within the Elevate_Order_Interface::make_vertex_requests call.
+The information about the new vertices is computed within the xtk::Elevate_Order_Interface::make_vertex_requests call.
 To understand the main steps and challenges to this problem, consider the following problem consisting of two connected linear
 TET4 elements which we want to elevate to cubic TET21 elements. 
 
