@@ -191,7 +191,8 @@ extern "C"
         enum hmr::ElementalRefienmentIndicator refinement_function(
                 mtk::Cell                   * aElement,
                 std::shared_ptr< mtk::Field > aField,
-                uint                          tActivationPattern )
+                uint                          tActivationPattern,
+                uint                        & aMaxLevel )
         {
             // current refinement level of element
             uint tLevel = aElement->get_level();
@@ -265,7 +266,8 @@ extern "C"
         enum hmr::ElementalRefienmentIndicator refinement_function_stress(
                 mtk::Cell                   * aElement,
                 std::shared_ptr< mtk::Field > aField,
-                uint                          tActivationPattern )
+                uint                          tActivationPattern,
+                uint                        & aMaxLevel )
         {
             // current refinement level of element
             uint tLevel = aElement->get_level();
