@@ -584,6 +584,15 @@ Cut_Integration_Mesh::get_child_mesh( moris_index aChildMeshIndex )
     MORIS_ERROR( mChildMeshes.size() > (uint)aChildMeshIndex, "Child mesh index out of bounds" );
     return mChildMeshes( aChildMeshIndex );
 }
+// ----------------------------------------------------------------------------
+
+uint
+Cut_Integration_Mesh::get_num_child_meshes() const
+{
+    return mChildMeshes.size();
+}
+
+// ----------------------------------------------------------------------------
 mtk::Vertex&
 Cut_Integration_Mesh::get_mtk_vertex( moris_index aVertexIndex )
 {
@@ -1158,8 +1167,9 @@ Cut_Integration_Mesh::register_block_set_names(
     return tBlockOrds;
 }
 void
-Cut_Integration_Mesh::write_mesh( std::string aOutputPath,
-    std::string                               aOutputFile )
+Cut_Integration_Mesh::write_mesh( 
+    std::string aOutputPath,
+    std::string aOutputFile )
 {
     Tracer tTracer( "XTK", "Cut Integration Mesh", "Write mesh", mXTKModel->mVerboseLevel, 0 );
     // get path to output XTK files to
@@ -1768,16 +1778,11 @@ Cut_Integration_Mesh::create_base_cell_blocks()
     {
         moris::mtk::Cell const& tCell = mBackgroundMesh->get_mtk_cell( 0 );
 
-        // decide on cell topology based on number of spatial dimensions
-        enum CellTopology tCellTopo = xtk::determine_cell_topology( this->get_spatial_dim(), tCell.get_interpolation_order(), CellShape::RECTANGULAR );
-
-        // check
-        MORIS_ASSERT( tCellTopo == tCell.get_cell_info()->get_cell_topology(), 
-            "Cut_Integration_Mesh::create_base_cell_blocks() - topology of first cell on BG mesh different than expected" );
-
-        // MORIS_ERROR( ( tCell.get_geometry_type() == mtk::Geometry_Type::HEX || tCell.get_geometry_type() == mtk::Geometry_Type::QUAD )
-        //                  && tCell.get_interpolation_order() == mtk::Interpolation_Order::LINEAR,
+        // MORIS_ERROR(  tCell.get_geometry_type() == mtk::Geometry_Type::HEX || tCell.get_geometry_type() == mtk::Geometry_Type::QUAD ,
         //     "Need to abstract by adding get cell topo to cell info class" );
+
+        // decide on cell topology based on number of spatial dimensions
+        enum CellTopology tCellTopo = tCell.get_cell_info()->get_cell_topology();
 
         Cell< moris_index > tBlockSetOrds = this->register_block_set_names( { tBlockName }, tCellTopo );
 

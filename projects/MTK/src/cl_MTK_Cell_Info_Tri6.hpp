@@ -40,7 +40,7 @@ namespace moris
             enum Integration_Order
             get_cell_integration_order() const;
 
-            // ----------------------------------------------------------------------------------
+            //-----------------------------------------------------------------------------
 
             enum CellShape
             compute_cell_shape(moris::mtk::Cell const *aCell) const;

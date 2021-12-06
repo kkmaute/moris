@@ -553,7 +553,7 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         moris::Cell< moris_index >
-        Cell_Info_Hex8::get_edge_path_to_entity_rank_and_ordinal(
+        Cell_Info_Hex27::get_edge_path_to_entity_rank_and_ordinal(
             moris_index aEdgeOrdinal,
             moris_index aOtherEntityOrdinal,
             moris_index aOtherEntityRank ) const
@@ -1423,7 +1423,7 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         bool
-        Cell_Info_Hex8::is_entity_connected_to_facet(
+        Cell_Info_Hex27::is_entity_connected_to_facet(
             moris_index aFacetOrdinal,
             moris_index aOtherEntityOrdinal,
             moris_index aOtherEntityRank ) const

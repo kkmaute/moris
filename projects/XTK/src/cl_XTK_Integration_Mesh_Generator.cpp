@@ -140,6 +140,8 @@ Integration_Mesh_Generator::perform()
     this->construct_subphase_neighborhood( tCutIntegrationMesh.get(), tBackgroundMesh, tFaceConnectivity, &tBgFacetToChildFacet, tSubphaseNeighborhood );
     tCutIntegrationMesh->set_subphase_neighborhood( tSubphaseNeighborhood );
 
+    
+
     // construct the bulk phase blocks
     moris::Cell< std::shared_ptr< IG_Cell_Group > > tBulkPhaseCellGroups;
     this->construct_bulk_phase_cell_groups( tCutIntegrationMesh.get(), tBulkPhaseCellGroups );
@@ -160,7 +162,6 @@ Integration_Mesh_Generator::perform()
     }
 
     this->construct_bulk_phase_blocks( tCutIntegrationMesh.get(), tBulkPhaseCellGroups );
-    tCutIntegrationMesh->write_mesh( "./", "xtk_cut_ig_mesh.exo" );
 
     return tCutIntegrationMesh;
 }
@@ -262,13 +263,12 @@ Integration_Mesh_Generator::check_intersected_background_cell_levels(
 
     bool tFlag = true;
 
-    // handle the case where we have no intersections
-    if(aMeshGenerationData.mAllIntersectedBgCellInds.size() == 0)
+    moris_index tReferenceLevel = 0;
+    if(aMeshGenerationData.mAllIntersectedBgCellInds.size() > 0)
     {
-        tFlag = true;
+        tReferenceLevel = aBackgroundMesh->get_mtk_cell(aMeshGenerationData.mAllIntersectedBgCellInds(0)).get_level();
     }
-
-    moris_index tReferenceLevel = aBackgroundMesh->get_mtk_cell(aMeshGenerationData.mAllIntersectedBgCellInds(0)).get_level();
+    
     for (size_t iBgCellIndex = 1; iBgCellIndex < aMeshGenerationData.mAllIntersectedBgCellInds.size(); iBgCellIndex++)
     {
         moris_index tLevel = aBackgroundMesh->get_mtk_cell(aMeshGenerationData.mAllIntersectedBgCellInds(iBgCellIndex)).get_level();
@@ -2963,6 +2963,11 @@ Integration_Mesh_Generator::verbosity_level()
 }
 
 // ----------------------------------------------------------------------------------
+void
+Integration_Mesh_Generator::remove_subphases_from_cut_mesh(moris::Cell<moris_index> const & aSubphasesToRemove)
+{
+
+}
 // ----------------------------------------------------------------------------------
 // ----------------------------------------------------------------------------------
 // ----------------------------------------------------------------------------------

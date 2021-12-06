@@ -451,28 +451,14 @@ class Model
     get_parent_cell_topology() const
     {
         mtk::Cell&                     tCell     = mBackgroundMesh->get_mtk_cell( 0 );
-        enum moris::mtk::Geometry_Type tGeomType = tCell.get_geometry_type();
+        return tCell.get_cell_info()->get_cell_topology();
+    }
 
-        enum CellTopology tTopo = CellTopology::INVALID;
-        if ( tGeomType == moris::mtk::Geometry_Type::HEX )
-        {
-            tTopo = CellTopology::HEX8;
-        }
-        else if ( tGeomType == moris::mtk::Geometry_Type::TET )
-        {
-            tTopo = CellTopology::TET4;
-        }
-        else if ( tGeomType == moris::mtk::Geometry_Type::QUAD )
-        {
-            tTopo = CellTopology::QUAD4;
-        }
-        else
-        {
-            MORIS_ERROR( 0, "Provided parent cell topology not implemented." );
-        }
-
-
-        return tTopo;
+    enum mtk::Geometry_Type
+    get_parent_cell_geometry() const
+    {
+        mtk::Cell&                     tCell     = mBackgroundMesh->get_mtk_cell( 0 );
+        return tCell.get_cell_info()->get_cell_geometry();
     }
 
     Matrix< IdMat >

@@ -128,6 +128,8 @@ Enrichment::write_diagnostics()
     
         this->print_enriched_basis_to_subphase_id(tMeshIndex,tEnrBasisIdToSubphaseId);
     }
+
+    mXTKModelPtr->mEnrichedInterpMesh(0)->write_diagnostics();
 }
 //-------------------------------------------------------------------------------------
 

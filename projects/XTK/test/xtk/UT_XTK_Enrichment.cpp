@@ -121,22 +121,8 @@ TEST_CASE( "Enrichment Example 1", "[ENRICH_1]" )
             tEnrichmentFieldNames = tEnrichment.get_cell_enrichment_field_names();
         }
 
-        // TODO: run some FEM Temperature problem perturbing an enrichment level and checking whether other disconnected subdomains are heated up.
-
-        // setup output mesh options with cell enrichment fields
-        Output_Options tOutputOptions;
-        tOutputOptions.mRealElementExternalFieldNames = tEnrichmentFieldNames;
-
-
-        moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh( tOutputOptions );
-
-        tEnrichment.write_cell_enrichment_to_fields( tEnrichmentFieldNames, tCutMeshData );
-
-        std::string tMeshOutputFile = "./xtk_exo/unit_enrichment_1.e";
-        tCutMeshData->create_output_mesh( tMeshOutputFile );
 
         delete tMeshData;
-        delete tCutMeshData;
     }
 }
 

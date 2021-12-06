@@ -52,7 +52,7 @@ namespace moris
             return Integration_Order::QUAD_2x2;
         }
 
-        // ----------------------------------------------------------------------------------
+        //-----------------------------------------------------------------------------
 
         enum CellShape
         Cell_Info_Quad4::compute_cell_shape(moris::mtk::Cell const *aCell) const

@@ -469,12 +469,7 @@ namespace moris
             Matrix<DDRMat> tFullSolution;
             Matrix<DDRMat> tGoldSolution;
             tTimeSolver->get_full_solution(tFullSolution);
-            //        print(tFullSolution,"tFullSolution");
 
-            //        std::string tMeshOutputFile = "./mdl_exo/xtk_hmr_thermoelastic_2D.e";
-            //
-            //        tIntegMesh1->create_output_mesh(tMeshOutputFile);
-            //
             std::string tMorisRoot = moris::get_base_moris_dir();
             std::string tHdf5FilePath = tMorisRoot + "/projects/FEM/MDL/test/data/Thermoelastic_test_2d.hdf5";
 
@@ -1485,47 +1480,6 @@ namespace moris
     //        std::cout<<" Solution Vector "<<std::endl;
     //        tNonlinearProblem->get_full_vector()->print();
     //
-    //        // output solution and meshes
-    //        xtk::Output_Options tOutputOptions;
-    //        tOutputOptions.mAddNodeSets = false;
-    //        tOutputOptions.mAddSideSets = false;
-    //        tOutputOptions.mAddClusters = false;
-    //
-    //        // add solution field to integration mesh
-    //        std::string tIntegSolFieldNameUX = "UX";
-    //        std::string tIntegSolFieldNameUY = "UY";
-    //        std::string tIntegSolFieldNameUZ = "UZ";
-    //        tOutputOptions.mRealNodeExternalFieldNames = {tIntegSolFieldNameUX, tIntegSolFieldNameUY, tIntegSolFieldNameUZ};
-    //
-    //        moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
-    //
-    //        // Write to Integration mesh for visualization
-    //        Matrix<DDRMat> tIntegSolUX = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::UX );
-    //        Matrix<DDRMat> tIntegSolUY = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::UY );
-    //        Matrix<DDRMat> tIntegSolUZ = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::UZ );
-    //
-    //        Matrix<DDRMat> tSTKIntegSolUX(tIntegMesh1->get_num_entities(EntityRank::NODE),1);
-    //        Matrix<DDRMat> tSTKIntegSolUY(tIntegMesh1->get_num_entities(EntityRank::NODE),1);
-    //        Matrix<DDRMat> tSTKIntegSolUZ(tIntegMesh1->get_num_entities(EntityRank::NODE),1);
-    //
-    //        for(moris::uint i = 0; i < tIntegMesh1->get_num_entities(EntityRank::NODE); i++)
-    //        {
-    //            moris::moris_id tID = tIntegMesh1->get_glb_entity_id_from_entity_loc_index(i,EntityRank::NODE);
-    //            tSTKIntegSolUX(i) = tIntegSolUX(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID,EntityRank::NODE));
-    //            tSTKIntegSolUY(i) = tIntegSolUY(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID,EntityRank::NODE));
-    //            tSTKIntegSolUZ(i) = tIntegSolUY(tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID,EntityRank::NODE));
-    //        }
-    //
-    //        // add solution field to integration mesh
-    //        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameUX,EntityRank::NODE,tSTKIntegSolUX);
-    //        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameUY,EntityRank::NODE,tSTKIntegSolUY);
-    //        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldNameUZ,EntityRank::NODE,tSTKIntegSolUZ);
-    //
-    //        std::string tMeshOutputFile = "./mdl_exo/hmr_xtk_linear_elastic_3D.e";
-    //
-    //        tIntegMesh1->create_output_mesh(tMeshOutputFile);
-    //
-    //        delete tIntegMesh1;
     //
     //        delete tModel;
     //    }

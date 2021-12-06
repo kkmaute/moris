@@ -246,17 +246,6 @@ namespace moris
             tXTKModel.decompose(tDecompositionMethods);
 
             tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
-            //        tXTKModel.construct_face_oriented_ghost_penalization_cells();
-
-            xtk::Output_Options tOutputOptions;
-            tOutputOptions.mAddNodeSets = false;
-            tOutputOptions.mAddSideSets = true;
-            tOutputOptions.mAddClusters = false;
-
-            // output integration mesh
-            moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
-            std::string tOutputFile = "./mdl_exo/MDL_FEM_Benchmark_Diffusion_1Mat.exo";
-            tIntegMesh1->create_output_mesh(tOutputFile);
 
             // get meshes for FEM
             xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
@@ -465,7 +454,6 @@ namespace moris
             // clean up
             //------------------------------------------------------------------------------
             delete tInterpolationMesh;
-            delete tIntegMesh1;
             delete tModel;
         }
     }
@@ -898,17 +886,6 @@ namespace moris
             tXTKModel.decompose( tDecompositionMethods );
 
             tXTKModel.perform_basis_enrichment( EntityRank::BSPLINE, 0 );
-            //        tXTKModel.construct_face_oriented_ghost_penalization_cells();
-
-            xtk::Output_Options tOutputOptions;
-            tOutputOptions.mAddNodeSets = false;
-            tOutputOptions.mAddSideSets = true;
-            tOutputOptions.mAddClusters = false;
-
-            // output integration mesh
-            moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh( tOutputOptions );
-            std::string tOutputFile = "./mdl_exo/FEM_Bench2_2Mat.exo";
-            tIntegMesh1->create_output_mesh( tOutputFile );
 
             // get meshes for FEM
             xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
@@ -1161,7 +1138,6 @@ namespace moris
 
             // clean up
             //------------------------------------------------------------------------------
-            delete tIntegMesh1;
             delete tModel;
             delete tInterpolationMesh;
         }
@@ -1259,16 +1235,6 @@ namespace moris
             tXTKModel.perform_basis_enrichment( EntityRank::BSPLINE, 0 );
             //        tXTKModel.construct_face_oriented_ghost_penalization_cells();
 
-            xtk::Output_Options tOutputOptions;
-            tOutputOptions.mAddNodeSets = false;
-            tOutputOptions.mAddSideSets = true;
-            tOutputOptions.mAddClusters = false;
-
-            // output integration mesh
-            moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh( tOutputOptions );
-            std::string tOutputFile = "./mdl_exo/FEM_Bench2_2Mat.exo";
-            tIntegMesh1->create_output_mesh( tOutputFile );
-
             // get meshes for FEM
             xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
             xtk::Enriched_Integration_Mesh   & tEnrIntegMesh  = tXTKModel.get_enriched_integ_mesh();
@@ -1520,7 +1486,6 @@ namespace moris
 
             // clean up
             //------------------------------------------------------------------------------
-            delete tIntegMesh1;
             delete tModel;
             delete tInterpolationMesh;
         }

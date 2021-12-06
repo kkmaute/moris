@@ -50,7 +50,7 @@ namespace moris
             return Integration_Order::HEX_5x5x5;
         }
 
-        // ----------------------------------------------------------------------------------
+        //-----------------------------------------------------------------------------
 
         enum CellShape
         Cell_Info_Hex64::compute_cell_shape(moris::mtk::Cell const *aCell) const

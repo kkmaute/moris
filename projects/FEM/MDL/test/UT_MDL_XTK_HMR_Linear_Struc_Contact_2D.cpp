@@ -311,10 +311,6 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
             writer.set_time(0.0);
             writer.close_file();
 
-//            moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh();
-//            tIntegMesh1->create_output_mesh(tEnrIgMeshFileName);
-//            delete tIntegMesh1;
-
         }
 
 
@@ -646,11 +642,7 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
 //        //
 //        //    print(tFullSol,"tFullSol");
 //
-//        std::string tMeshOutputFile = "./mdl_exo/stk_xtk_linear_struc_2D.e";
-//
-//        tIntegMesh1->create_output_mesh(tMeshOutputFile);
-//
-//        delete tIntegMesh1;
+
 
         delete tModel;
         delete tInterpolationMesh;

@@ -54,7 +54,7 @@ namespace moris
             return Integration_Order::QUAD_3x3;
         }
 
-        // ----------------------------------------------------------------------------------
+        //-----------------------------------------------------------------------------
 
         enum CellShape
         Cell_Info_Quad9::compute_cell_shape(moris::mtk::Cell const *aCell) const
@@ -297,7 +297,7 @@ namespace moris
                 // node to node paths
                 case 0:
                 {
-                    Matrix< IndexMat > tVertexToVertexRanks = {
+                    const Matrix< IndexMat > tVertexToVertexRanks = {
                         {-1, 1, 3, 1, 1, 3, 3, 1, 3 },
                         { 1,-1, 1, 3, 1, 1, 3, 3, 3 },
                         { 3, 1,-1, 1, 3, 1, 1, 3, 3 },
@@ -308,7 +308,7 @@ namespace moris
                         { 1, 3, 3, 1, 3, 3, 3,-1, 3 },
                         { 3, 3, 3, 3, 3, 3, 3, 3,-1 } };
 
-                    Matrix< IndexMat > tVertexToVertexIndices = {
+                    const Matrix< IndexMat > tVertexToVertexIndices = {
                         {-1, 0, 0, 3, 0, 0, 0, 3, 0 },
                         { 0,-1, 1, 0, 0, 1, 0, 0, 0 },
                         { 0, 1,-1, 2, 0, 1, 2, 0, 0 },
@@ -333,7 +333,7 @@ namespace moris
                 // node to edge paths
                 case 1:
                 {
-                    Matrix< IndexMat > tVertexToEdgeRanks = {
+                    const Matrix< IndexMat > tVertexToEdgeRanks = {
                         { 1, 3, 3, 1 },
                         { 1, 1, 3, 3 },
                         { 3, 1, 1, 3 },
@@ -344,7 +344,7 @@ namespace moris
                         { 3, 3, 3, 1 },
                         { 3, 3, 3, 3 } };
 
-                    Matrix< IndexMat > tVertexToEdgeIndices = {
+                    const Matrix< IndexMat > tVertexToEdgeIndices = {
                         { 0, 0, 0, 3 },
                         { 0, 1, 0, 0 },
                         { 0, 1, 2, 0 },

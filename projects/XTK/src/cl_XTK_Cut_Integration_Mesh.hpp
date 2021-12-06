@@ -566,6 +566,11 @@ class Cut_Integration_Mesh : public moris::mtk::Mesh
     get_child_mesh( moris_index aChildMeshIndex );
 
     // ----------------------------------------------------------------------------------
+
+    uint
+    get_num_child_meshes() const;
+
+    // ----------------------------------------------------------------------------------
     std::unordered_map< moris_id, moris_index >
     get_vertex_glb_id_to_loc_vertex_ind_map() const;
     // ----------------------------------------------------------------------------------
@@ -894,6 +899,19 @@ class Child_Mesh_Experimental
     {
         mSubphaseCellGroups = aSubphasesGroups;
     }
+
+    uint
+    get_num_subphase_cell_groups() const
+    {
+        return mSubphaseCellGroups.size();
+    }
+
+    std::shared_ptr< IG_Cell_Group >
+    get_subphase_cell_group(moris_index aLocalSpIndex)
+    {
+        return mSubphaseCellGroups(aLocalSpIndex);
+    }
+
 };
 
 }// namespace xtk

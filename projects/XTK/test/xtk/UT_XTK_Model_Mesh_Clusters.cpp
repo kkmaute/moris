@@ -50,19 +50,6 @@ TEST_CASE("Mesh Cluster Output","[XTK] [XTK_CLUSTER]")
             Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
             tXTKModel.decompose(tDecompositionMethods);
 
-            // output to exodus file ----------------------------------------------------------
-            Output_Options tOutputOptions;
-            tOutputOptions.mAddNodeSets = true;
-            tOutputOptions.mAddSideSets = false;
-            tOutputOptions.mAddClusters = true;
-            tOutputOptions.mAddParallelFields = true;
-
-            moris::mtk::Integration_Mesh* tCutMeshData = tXTKModel.get_output_mesh(tOutputOptions);
-
-            std::string tMeshOutputFile = "./xtk_exo/xtk_cluster_output.e";
-            tCutMeshData->create_output_mesh(tMeshOutputFile);
-
-            delete tCutMeshData;
             delete tMeshData;
         }
     }
