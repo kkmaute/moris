@@ -877,7 +877,7 @@ namespace moris
             {
                 uint tPattern = mParameters.mRefinemenCopytPatternToPattern_3( Ik )( 0 );
 
-                if( tPattern != 0 ) // special treatment of pattern 0
+                if( tPattern == 0 ) // special treatment of pattern 0
                 {
                     aHMRPerformer->get_database()->copy_pattern( 0, 7 );
 
