@@ -357,6 +357,10 @@ namespace moris
 
                     moris_index tPathRank = tVertexToEdgeRanks( (uint) aVertexOrdinal, (uint) aOtherEntityOrdinal );
                     moris_index tPathIndex = tVertexToEdgeIndices( (uint) aVertexOrdinal, (uint) aOtherEntityOrdinal );
+
+                    MORIS_ASSERT( tPathRank != -1 && tPathIndex != -1, 
+                        "Cell_Info_Hex27::get_vertex_path_to_entity_rank_and_ordinal() - Vertex doesn't have path to itself." );
+
                     return { tPathIndex, tPathRank };
                     break;
                 }

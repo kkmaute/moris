@@ -615,7 +615,7 @@ Elevate_Order_Interface::hash_face( moris::Cell< moris::mtk::Vertex* > const& aF
     moris_index tSecondPairVal = xtk::cantor_pairing(                          tFirstPairVal, aFaceVertices( tMaxIdIndex )->get_id() );
 
     // check for likely overflow
-    MORIS_ASSERT( tSecondPairVal > 3000000000, "Elevate_Order_Interface::hash_face() - function is likely to lead to an overflow." );
+    MORIS_ASSERT( tSecondPairVal > MORIS_INDEX_MAX / 10 , "Elevate_Order_Interface::hash_face() - function is likely to lead to an overflow." );
 
     // return unique id for face
     return tSecondPairVal;

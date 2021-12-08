@@ -222,13 +222,13 @@ Regular_Subdivision_Interface::make_new_vertex_requests_trivial(
     moris::mtk::Cell_Info const* tParentCellInfo = tParentCell->get_cell_info();
     Cell_Connectivity            tCellConn       = aCutIntegrationMesh->get_background_cell_connectivity( tParentCell->get_index() );
 
-    for ( moris::uint iFace = 0; iFace < aRegularSubdivisionInterfaceData->mNewNodesOnFaces.numel(); iFace++ )
+    for ( moris::uint iVertsOnFaces = 0; iVertsOnFaces < aRegularSubdivisionInterfaceData->mNewNodesOnFaces.numel(); iVertsOnFaces++ )
     {
-        moris_index tNewNodeFaceOrdinal = aRegularSubdivisionInterfaceData->mNewNodesOnFacesOrd( iFace );
+        moris_index tNewNodeFaceOrdinal = aRegularSubdivisionInterfaceData->mNewNodesOnFacesOrd( iVertsOnFaces );
         moris_index tRequestLoc         = MORIS_INDEX_MAX;
         bool        tRequestExists      = aDecompositionData->request_exists( tCellConn.mCellFacesInds( tNewNodeFaceOrdinal ), EntityRank::FACE, tRequestLoc );
 
-        moris_index tNewNodeTemplateOrd = aRegularSubdivisionInterfaceData->mNewNodesOnFaces( iFace );
+        moris_index tNewNodeTemplateOrd = aRegularSubdivisionInterfaceData->mNewNodesOnFaces( iVertsOnFaces );
         if ( !tRequestExists )
         {
             moris_index tOwner = aBackgroundMesh->get_entity_owner( tCellConn.mCellFacesInds( tNewNodeFaceOrdinal ), EntityRank::FACE );
@@ -250,12 +250,12 @@ Regular_Subdivision_Interface::make_new_vertex_requests_trivial(
     }
 
     moris::Matrix< moris::IndexMat > tElementIndices( 0, 0 );
-    for ( moris::uint iCell = 0; iCell < aRegularSubdivisionInterfaceData->mNewNodesOnCells.numel(); iCell++ )
+    for ( moris::uint iVertsInCell = 0; iVertsInCell < aRegularSubdivisionInterfaceData->mNewNodesOnCells.numel(); iVertsInCell++ )
     {
         moris_index tRequestLoc    = MORIS_INDEX_MAX;
         bool        tRequestExists = aDecompositionData->request_exists( tParentCell->get_index(), EntityRank::ELEMENT, tRequestLoc );
 
-        moris_index tNewNodeTemplateOrd = aRegularSubdivisionInterfaceData->mNewNodesOnCells( iCell );
+        moris_index tNewNodeTemplateOrd = aRegularSubdivisionInterfaceData->mNewNodesOnCells( iVertsInCell );
         if ( !tRequestExists )
         {
             moris_index tOwner = aBackgroundMesh->get_entity_owner( tParentCell->get_index(), EntityRank::ELEMENT );
