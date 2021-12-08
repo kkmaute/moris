@@ -11,8 +11,6 @@ namespace xtk
     mModel(aModel)
     {
         mMeshCleanupParameters.mDeactivateOneBPChildMeshes = aParamList->get<bool>("cleanup_cut_mesh");
-        // mMeshCleanupParameters.mMethod                     = aParamList->get<std::string>("method");
-        // mMeshCleanupParameters.mSnapTolerance              = aParamList->get<moris::real>("snap_tolerance");
         
     }
 
@@ -24,93 +22,32 @@ namespace xtk
         {
             this->cleanup_cut_mesh();
         }
-        // // get the mesh quality data
-        // Mesh_Quality_Data tMeshQualityData;
-        // this->compute_mesh_quality(tMeshQualityData);
     }
-
-    void
-    Mesh_Cleanup::compute_mesh_quality(Mesh_Quality_Data & aMeshQuality)
-    {
-        // compute volumes
-        this->compute_mesh_volumes(aMeshQuality.mVolumes);
-
-        std::cout<<"Minumum Volume: "<<aMeshQuality.mVolumes.min()<<std::endl;
-
-        this->compute_mesh_side_lengths(aMeshQuality.mEdgeLengths);
-
-    }
-
-    void
-    Mesh_Cleanup::compute_mesh_volumes(moris::Matrix<moris::DDRMat> & aVolumes)
-    {
-        // number of cells in background mesh
-        uint tNumCells = mModel->get_background_mesh().get_num_entities(EntityRank::ELEMENT);
-
-        // allocate volumes
-        aVolumes.resize( tNumCells , 1 );
-
-        // iterate through background cells and compute the volume
-        for(moris::uint i = 0; i<tNumCells; i++)
-        {
-            // cell
-            moris::mtk::Cell & tCell = mModel->get_background_mesh().get_mtk_cell((moris_index) i);
-            
-            // compute the volume
-            aVolumes(i) = tCell.compute_cell_measure();
-
-            if(aVolumes(i) < MORIS_REAL_MIN)
-            {
-                std::cout<<"Degenerated Cell Id:" <<tCell.get_id()<<std::endl;
-                moris::print(tCell.get_vertex_ids(),"Vertex Ids");
-            }
-        }
-    }
-
-    void 
-    Mesh_Cleanup::compute_mesh_side_lengths(moris::Cell<moris::Matrix<moris::DDRMat>> & aEdgeLengths)
-    {
-        // number of cells in background mesh
-        uint tNumCells = mModel->get_background_mesh().get_num_entities(EntityRank::ELEMENT);
-        
-        // allocate volumes
-        aEdgeLengths.resize( tNumCells );
-
-        // global minimum edge length
-        moris::real tMinEdgeLength = MORIS_REAL_MAX;
-
-        // iterate through background cells and compute the volume
-        for(moris::uint i = 0; i<tNumCells; i++)
-        {
-            // cell
-            moris::mtk::Cell & tCell = mModel->get_background_mesh().get_mtk_cell((moris_index) i);
-
-            // allocate lengths
-            aEdgeLengths(tCell.get_index()).resize(tCell.get_number_of_facets(),1);
-
-            //iterate through edges and compute the lengths
-            for(moris::uint iEdge = 0; iEdge < tCell.get_number_of_facets(); iEdge++)
-            {
-                aEdgeLengths(tCell.get_index())(iEdge) = tCell.compute_cell_side_measure(iEdge);
-
-                if(aEdgeLengths(tCell.get_index())(iEdge) < tMinEdgeLength)
-                {
-                    tMinEdgeLength = aEdgeLengths(tCell.get_index())(iEdge);
-                }
-            }
-        }
-        std::cout<<"Global Minimum Edge Length: "<<tMinEdgeLength<<std::endl;
-    }
-
 
     void
     Mesh_Cleanup::cleanup_cut_mesh()
     {   
         Tracer tTracer( "XTK", "Mesh Cleanup", "Remove Inactive Child Mesh" );
-        MORIS_ERROR(0,"NEEDS FIXING");
-        // moris::uint tNumCutMeshes = mModel->get_cut_mesh().get_num_child_meshes();
-        // moris::Cell<moris::uint> tChildMeshesToKeep;
-        // moris::Cell<moris::uint> tChildMeshesToDelete;
+
+        // Using a map here so that I can remove some from the removal process.
+        moris::Cell<moris_index> tChildMeshesToDelete;
+        std::unordered_map<moris_index,moris_index> tChildMeshesToDeleteMap;
+
+        // select candidate cell groups for deletion
+        this->select_candidate_child_meshes_for_cleanup(tChildMeshesToDeleteMap);
+
+        // remove the child meshes with interfaces from candidate list
+
+        // place the map keys in a vector
+        this->get_vector_of_child_meshes_for_removal(tChildMeshesToDeleteMap,tChildMeshesToDelete);
+
+        // remove subphases associated with child
+
+        // remove child meshes that have an interface between two bulk phases from the candidates
+
+        // tell the cut integration mesh to remove some of the child meshes
+
+        
 
         // for(moris::uint iCM = 0; iCM < tNumCutMeshes; iCM++)
         // {
@@ -137,15 +74,54 @@ namespace xtk
         // // reindex the child mesh
         // mModel->get_cut_mesh().reindex_cells(tNewCellIndices);
 
-        // // moris::print(tNewCellIndices,"tNewCellIndices");
-
-        // mModel->get_background_mesh().setup_downward_inheritance(mModel->get_cut_mesh());
+        MORIS_LOG_SPEC("Num Child Meshes Removed",tChildMeshesToDelete.size());
+        MORIS_LOG_SPEC("Num Child Meshes Kept", mModel->get_cut_integration_mesh()->get_num_child_meshes() - tChildMeshesToDelete.size());
         
-
-        // MORIS_LOG_SPEC("Num Child Meshes Removed",tChildMeshesToDelete.size());
-        // MORIS_LOG_SPEC("Num Child Meshes Kept",tChildMeshesToKeep.size());
-
-        
+        MORIS_ERROR(0,"Intentional Bail");
     }
 
+    void
+    Mesh_Cleanup::select_candidate_child_meshes_for_cleanup(
+        std::unordered_map<moris_index,moris_index> & aRemoveChildMeshes)
+    {
+        
+        // cut integration mesh
+        Cut_Integration_Mesh * tCutIgMesh = mModel->get_cut_integration_mesh();
+
+        std::cout<<"Num Child Meshes = "<<tCutIgMesh->get_num_child_meshes()<<std::endl;
+        std::cout<<"Num Background Cells = "<<mModel->get_background_mesh().get_num_elems()<<std::endl;
+        // iterate through ig cell groups
+        for(moris::uint iCM = 0; iCM < tCutIgMesh->get_num_child_meshes(); iCM++)
+        {
+            std::shared_ptr<Child_Mesh_Experimental> tChildMesh = tCutIgMesh->get_child_mesh(iCM);
+
+            // 1 here ignores the child meshes that are empty for non-intersecte background cells
+            if(tChildMesh->get_num_subphase_cell_groups() == 1 )
+            {
+                std::cout<<"(tChildMesh->get_num_subphase_cell_groups() = "<<tChildMesh->get_num_subphase_cell_groups()<<std::endl;
+                std::shared_ptr< IG_Cell_Group > tSubphaseIgCells = tChildMesh->get_subphase_cell_group(0);
+
+                std::cout<<"tSubphaseIgCells size = "<<tSubphaseIgCells->mIgCellGroup.size()<<std::endl;
+                aRemoveChildMeshes[iCM] = 1;
+            }
+        }
+    }
+    void
+    Mesh_Cleanup::get_vector_of_child_meshes_for_removal(
+        std::unordered_map< moris_index, moris_index > const& aChildMeshesToDeleteMap,
+        moris::Cell< moris_index >&                           aChildMeshesToDelete )
+    {
+        aChildMeshesToDelete.clear();
+        aChildMeshesToDelete.reserve( aChildMeshesToDeleteMap.size() );
+        for ( auto const& iIter : aChildMeshesToDeleteMap )
+        {
+            if ( iIter.second == 1 )
+            {
+                aChildMeshesToDelete.push_back( iIter.first );
+            }
+        }
+    }
+
+    // void
+    // Mesh_Cleanup::save_candidate_child_meshes
 }

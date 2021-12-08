@@ -8,6 +8,7 @@
 #ifndef SRC_XTK_CL_XTK_MESH_CLEANUP_HPP_
 #define SRC_XTK_CL_XTK_MESH_CLEANUP_HPP_
 
+#include <unordered_map>
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_Cell.hpp"
@@ -27,15 +28,8 @@ namespace xtk
     {
         public:
         bool        mDeactivateOneBPChildMeshes;
-        std::string mMethod;
-        moris::real mSnapTolerance;
     };
 
-    struct Mesh_Quality_Data
-    {
-        moris::Matrix<moris::DDRMat>              mVolumes;
-        moris::Cell<moris::Matrix<moris::DDRMat>> mEdgeLengths; // cell here because of various number of edges
-    };
 
     class Mesh_Cleanup
     {
@@ -46,18 +40,6 @@ namespace xtk
         void
         perform();
 
-
-        // metric computations
-        void
-        compute_mesh_quality(Mesh_Quality_Data & aMeshQuality);
-
-        void
-        compute_mesh_volumes(moris::Matrix<moris::DDRMat> & aVolumes);
-
-        void 
-        compute_mesh_side_lengths(moris::Cell<moris::Matrix<moris::DDRMat>> & aEdgeLengths);
-        
-
         
         private:
         Model*                  mModel;
@@ -65,6 +47,14 @@ namespace xtk
 
         void
         cleanup_cut_mesh();
+
+        void
+        select_candidate_child_meshes_for_cleanup(std::unordered_map<moris_index,moris_index>  & aRemoveChildMeshes);
+
+        void
+        get_vector_of_child_meshes_for_removal(
+            std::unordered_map<moris_index,moris_index> const & aChildMeshesToDeleteMap,
+            moris::Cell<moris_index> & aChildMeshesToDelete);
 
         void
         finalize_cleanup();

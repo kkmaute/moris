@@ -163,6 +163,8 @@ Integration_Mesh_Generator::perform()
 
     this->construct_bulk_phase_blocks( tCutIntegrationMesh.get(), tBulkPhaseCellGroups );
 
+    tCutIntegrationMesh->write_mesh("./","cut_ig_mesh.exo");
+
     return tCutIntegrationMesh;
 }
 
