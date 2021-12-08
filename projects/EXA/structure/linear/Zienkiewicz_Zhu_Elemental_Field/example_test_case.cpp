@@ -65,7 +65,7 @@ TEST_CASE("Zienkiewicz_Zhu_Elemental_Field",
 
         tStatus = close_hdf5_file( tFile );
 
-        MORIS_ERROR( tStatus == 0, "Field_Example: Status returned != 0, Error in reading values");
+        MORIS_ERROR( tStatus == 0, "zienkiewicz_zhu_elemental: Status returned != 0, Error in reading values");
 
         CHECK( tRefValues.numel() == tValues.numel() );
 
