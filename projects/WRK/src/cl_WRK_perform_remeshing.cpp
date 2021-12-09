@@ -354,14 +354,17 @@ namespace moris
                     true ); //FIXME =  discretization meshindex
 
             //------------------------------------------------------------------------------
+			
+			this->unite_all_pattern_for_lagrange( aHMRPerformers( 0 ) );
+
+		    if( mParameters.mOutputMeshes )
+            {
+                this->output_meshes( aHMRPerformers( 0 ) );
+            }		
+
 
             // HMR finalize
             aHMRPerformers( 0 )->perform();
-
-            if( mParameters.mOutputMeshes )
-            {
-                this->output_meshes( aHMRPerformers( 0 ) );
-            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -706,8 +709,12 @@ namespace moris
                 {
                     // FIXME perhaps not do that for fem::fields??
                     aTargetFields( If ) = aSourceFields( If );
-                    aTargetFields( If )->unlock_field();
-                    aTargetFields( If )->set_mesh_pair( aMeshPair );
+
+                    if( aSourceFields( If )->get_field_implementation() != mtk::Field_Implementation::FEM )
+                    {
+                        aTargetFields( If )->unlock_field();
+                        aTargetFields( If )->set_mesh_pair( aMeshPair );
+                    }
                 }
             }
         }
@@ -867,45 +874,89 @@ namespace moris
 
             uint tActivePattern = aHMRPerformer->get_database()->get_background_mesh()->get_activation_pattern();
 
+            hmr::Interpolation_Mesh_HMR * tInterpolationMesh = nullptr;
+
             for( uint Ik =0; Ik < mParameters.mRefinemenCopytPatternToPattern_3.size(); Ik++ )
             {
                 uint tPattern = mParameters.mRefinemenCopytPatternToPattern_3( Ik )( 0 );
 
-                if( tPattern != 0 ) // FIXME thereis an issue when 0 has a numberd aura
+                if( tPattern == 0 ) // special treatment of pattern 0
+                {
+                    aHMRPerformer->get_database()->copy_pattern( 0, 7 );
+
+                    aHMRPerformer->get_database()->get_background_mesh()->set_activation_pattern( 7 );
+
+                    // create mesh for this pattern
+                    tInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
+                            aHMRPerformer->get_database(),
+                            1,
+                            7,
+                            1,
+                            7);
+                }
+                else // FIXME thereis an issue when 0 has a numberd aura
                 {
                     aHMRPerformer->get_database()->get_background_mesh()->set_activation_pattern( tPattern );
 
                     // create mesh for this pattern
-                    hmr::Interpolation_Mesh_HMR * tInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
+                    tInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
                             aHMRPerformer->get_database(),
                             1,
                             tPattern,
                             1,
                             tPattern);
-
-                    // set mesh
-                    moris::mtk::Writer_Exodus tExodusWriter( tInterpolationMesh );
-
-                    //fixme make path parallel
-
-                    // set file names
-                    tExodusWriter.write_mesh(
-                            "./",
-                            "Remeshing_Lagrange_Mesh_Pattern_"+ ios::stringify( tPattern ) +"_Iter_" + ios::stringify( tOptIter ) + ".exo",
-                            "./",
-                            "field_temp");
-
-                    // finalize and write mesh
-                    tExodusWriter.save_mesh( );
-
-                    tExodusWriter.close_file();
-
-                    delete tInterpolationMesh;
                 }
+
+                // set mesh
+                moris::mtk::Writer_Exodus tExodusWriter( tInterpolationMesh );
+
+                // set file names
+                tExodusWriter.write_mesh(
+                        "./",
+                        "Remeshing_Lagrange_Mesh_Pattern_"+ ios::stringify( tPattern ) +"_Iter_" + ios::stringify( tOptIter ) + ".exo",
+                        "./",
+                        "field_temp");
+
+                // finalize and write mesh
+                tExodusWriter.save_mesh( );
+
+                tExodusWriter.close_file();
+
+                delete tInterpolationMesh;
             }
 
             aHMRPerformer->get_database()->get_background_mesh()->set_activation_pattern( tActivePattern );
         }
+		
+		//--------------------------------------------------------------------------------------------------------------
+				
+	    void Remeshing_Mini_Performer::unite_all_pattern_for_lagrange(
+                std::shared_ptr< hmr::HMR > aHMRPerformer )
+        {
+			uint tNumPattern = mParameters.mRefinemenCopytPatternToPattern_3.size();
+			
+			if( tNumPattern > 0)
+			{
+				uint tActivePattern = aHMRPerformer->get_database()->get_background_mesh()->get_activation_pattern();
+						
+				Cell< uint > tPatterns(tNumPattern);
+			
+				for( uint Ik = 0; Ik <tNumPattern; Ik++ )
+				{
+					uint tPattern = mParameters.mRefinemenCopytPatternToPattern_3( Ik )( 0 );
+				
+					tPatterns( Ik ) = tPattern;				
+				}
+						
+				aHMRPerformer->get_database()->get_background_mesh()->unite_patterns( tPatterns, 7 );
+			
+				aHMRPerformer->get_database()->get_background_mesh()->reset_pattern( 0 );
+
+				aHMRPerformer->get_database()->copy_pattern( 7, 0 );
+			
+				aHMRPerformer->get_database()->get_background_mesh()->set_activation_pattern( tActivePattern );
+			}			
+		}
 
         //--------------------------------------------------------------------------------------------------------------
 

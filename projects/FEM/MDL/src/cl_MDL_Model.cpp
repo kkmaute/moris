@@ -247,6 +247,30 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
+        void Model::free_memory()
+        {
+            // delete SI
+            delete mSolverInterface;
+			mSolverInterface = nullptr;
+
+            // delete MSI
+            delete mModelSolverInterface;
+			mModelSolverInterface = nullptr;
+
+            // delete MSI
+            if( mOutputManager != nullptr && mOutputManagerOwned == true )
+            {
+                delete mOutputManager;
+				mOutputManager = nullptr;
+
+                mOutputManagerOwned = false;
+            }
+
+            mEquationModel->free_memory();
+        }
+
+        //------------------------------------------------------------------------------
         void Model::set_performer( std::shared_ptr< mtk::Mesh_Manager > aMTKPerformer )
         {
             mMeshManager = aMTKPerformer;
@@ -261,9 +285,18 @@ namespace moris
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 0: delete model and interface
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            delete mModelSolverInterface;
-            delete mSolverInterface;
-            delete mOutputManager;
+			if( mModelSolverInterface != nullptr)
+			{
+				delete mModelSolverInterface;
+			}
+			if( mSolverInterface != nullptr)
+			{
+				delete mSolverInterface;
+			}
+			if( mOutputManager != nullptr)
+			{
+				delete mOutputManager;
+			}
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 1: create the FEM model

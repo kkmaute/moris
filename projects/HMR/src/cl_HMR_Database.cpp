@@ -166,9 +166,9 @@ namespace moris
         // -----------------------------------------------------------------------------
 
         void Database::load_refinement_pattern(
-                Matrix< DDLUMat >                      & aElementCounterPerLevelAndPattern,
+                Matrix< DDLUMat >                & aElementCounterPerLevelAndPattern,
                 moris::Cell< Matrix< DDLUMat > > & aElementPerPattern,
-                Matrix< DDUMat >                       & aPatternListUniqueMat )
+                Matrix< DDUMat >                 & aPatternListUniqueMat )
         {
             uint tNumPattern = aElementPerPattern.size();
 
@@ -179,6 +179,8 @@ namespace moris
             {
                 // reset counter
                 luint tCount = 0;
+
+                std::cout<< "coppy pattern "<<aPatternListUniqueMat( Ik )<<" level "<<tNumberOfLevels<<std::endl;
 
                 // select B-Spline pattern
                 mBackgroundMesh->set_activation_pattern( aPatternListUniqueMat( Ik ) );

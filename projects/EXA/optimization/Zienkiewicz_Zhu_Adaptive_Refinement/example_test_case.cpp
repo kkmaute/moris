@@ -46,8 +46,8 @@ void check_results_serial(
 
     // define reference values for dimension, number of nodes and number of elements
     Cell<uint> tReferenceNumDims  = { 2,2};
-    Cell<uint> tReferenceNumNodes = {2599,13815};
-    Cell<uint> tReferenceNumElems = {2394,7166};
+    Cell<uint> tReferenceNumNodes = {2475,13815};
+    Cell<uint> tReferenceNumElems = {2295,7166};
 
     // check dimension, number of nodes and number of elements
     uint tNumDims  = tExoIO.get_number_of_dimensions();

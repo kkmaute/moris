@@ -19,16 +19,6 @@ namespace moris
 {
     namespace MSI
     {
-        //------------------------------------------------------------------------------
-
-        Cell< Matrix< DDRMat > > & Equation_Object::get_pdof_values()
-        {
-            // compute pdof values
-            this->compute_my_pdof_values();
-
-            // return
-            return mPdofValues;
-        }
 
         //-------------------------------------------------------------------------------------------------
 
@@ -713,7 +703,7 @@ namespace moris
                         Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
                     
                         this->get_my_pdof_values( 
-                            mPreviousAdjointPdofValues,
+                                mEquationSet->mPreviousAdjointPdofValues,
                             tMasterDofTypeList( Ik ),
                             tCoeff_Original,
                             mtk::Master_Slave::MASTER );
@@ -872,7 +862,7 @@ namespace moris
                             // get the pdof values for the ith dof type group
                             Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
 
-                            this->get_my_pdof_values( mAdjointPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Master_Slave::MASTER );
+                            this->get_my_pdof_values( mEquationSet->mAdjointPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Master_Slave::MASTER );
 
                             uint tNumRHS  =tCoeff_Original.size();
                             Cell< Matrix< DDRMat > > tCoeff( tNumRHS );
@@ -925,7 +915,7 @@ namespace moris
                             // get the pdof values for the ith dof type group
                             Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
 
-                            this->get_my_pdof_values( mAdjointPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Master_Slave::SLAVE );
+                            this->get_my_pdof_values( mEquationSet->mAdjointPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Master_Slave::SLAVE );
 
                             uint tNumRHS  =tCoeff_Original.size();
                             Cell< Matrix< DDRMat > > tCoeff( tNumRHS );
@@ -989,7 +979,7 @@ namespace moris
                             // get the pdof values for the ith dof type group
                             Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
 
-                            this->get_my_pdof_values( mAdjointPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Master_Slave::MASTER );
+                            this->get_my_pdof_values( mEquationSet->mAdjointPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Master_Slave::MASTER );
 
                             uint tNumRHS  =tCoeff_Original.size();
                             Cell< Matrix< DDRMat > > tCoeff( tNumRHS );
@@ -1044,7 +1034,7 @@ namespace moris
                             // get the pdof values for the ith dof type group
                             Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
 
-                            this->get_my_pdof_values( mAdjointPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Master_Slave::SLAVE );
+                            this->get_my_pdof_values( mEquationSet->mAdjointPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Master_Slave::SLAVE );
 
                             uint tNumRHS  =tCoeff_Original.size();
                             Cell< Matrix< DDRMat > > tCoeff( tNumRHS );
@@ -1096,12 +1086,15 @@ namespace moris
             get_solution_vector()->
             extract_my_values( tTMatrix.n_cols(), mUniqueAdofList, 0, tMyValues );
 
-            mPdofValues.resize( tMyValues.size() );
+            if( mEquationSet->mPdofValues.size() != tMyValues.size() )
+            {
+                mEquationSet->mPdofValues.resize( tMyValues.size() );
+            }
 
             // multiply t_matrix with adof values to get pdof values
             for( uint Ik = 0; Ik < tMyValues.size(); Ik++ )
             {
-                mPdofValues( Ik ) = tTMatrix * tMyValues( Ik );
+                mEquationSet->mPdofValues( Ik ) = tTMatrix * tMyValues( Ik );
             }
 
             this->set_vector_entry_number_of_pdof();             // FIXME should not be in MSI. Should be in FEM
@@ -1123,12 +1116,15 @@ namespace moris
             ->get_previous_solution_vector()
             ->extract_my_values( tTMatrix.n_cols(), mUniqueAdofList, 0, tMyValues );
 
-            mPreviousPdofValues.resize( tMyValues.size() );
+            if( mEquationSet->mPreviousPdofValues.size() != tMyValues.size() )
+            {
+                mEquationSet->mPreviousPdofValues.resize( tMyValues.size() );
+            }
 
             // multiply t_matrix with adof values to get pdof values
             for( uint Ik = 0; Ik < tMyValues.size(); Ik++ )
             {
-                mPreviousPdofValues( Ik ) = tTMatrix * tMyValues( Ik );
+                mEquationSet->mPreviousPdofValues( Ik ) = tTMatrix * tMyValues( Ik );
             }
 
             // FIXME should not be in MSI. Should be in FEM
@@ -1151,12 +1147,15 @@ namespace moris
             ->get_adjoint_solution_vector()
             ->extract_my_values( tTMatrix.n_cols(), mUniqueAdofList, 0, tMyValues );
 
-            mAdjointPdofValues.resize( tMyValues.size() );
+            if( mEquationSet->mAdjointPdofValues.size() != tMyValues.size() )
+            {
+                mEquationSet->mAdjointPdofValues.resize( tMyValues.size() );
+            }
 
             // multiply t_matrix with adof values to get pdof values
             for( uint Ik = 0; Ik < tMyValues.size(); Ik++ )
             {
-                mAdjointPdofValues( Ik ) = tTMatrix * tMyValues( Ik );
+                mEquationSet->mAdjointPdofValues( Ik ) = tTMatrix * tMyValues( Ik );
             }
 
             // FIXME should not be in MSI. Should be in FEM
@@ -1179,12 +1178,15 @@ namespace moris
             get_previous_adjoint_solution_vector()->
             extract_my_values( tTMatrix.n_cols(), mUniqueAdofList, 0, tMyValues );
 
-            mPreviousAdjointPdofValues.resize( tMyValues.size() );
+            if( mEquationSet->mPreviousAdjointPdofValues.size() != tMyValues.size() )
+            {
+                mEquationSet->mPreviousAdjointPdofValues.resize( tMyValues.size() );
+            }
 
             // multiply t_matrix with adof values to get pdof values
             for( uint Ik = 0; Ik < tMyValues.size(); Ik++ )
             {
-                mPreviousAdjointPdofValues( Ik ) = tTMatrix * tMyValues( Ik );
+                mEquationSet->mPreviousAdjointPdofValues( Ik ) = tTMatrix * tMyValues( Ik );
             }
 
             this->set_vector_entry_number_of_pdof();             // FIXME should not be in MSI. Should be in FEM

@@ -79,7 +79,7 @@ namespace moris
                 Interpolation_Element(
                         const Element_Type                       aElementType,
                         const moris::Cell< const mtk::Cell * > & aInterpolationCell,
-                        moris::Cell< Node_Base* >              & aNodes,
+                        const moris::Cell< Node_Base* >              & aNodes,
                         Set                                    * aSet );
 
                 //------------------------------------------------------------------------------

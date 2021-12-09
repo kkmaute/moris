@@ -173,31 +173,6 @@ namespace moris
         delete tNode;
     }
 
-    TEST_CASE("Pdof_Host_Build_Map","[MSI],[Pdof_host_build_map]")
-    {
-        // Create Pdof Host
-        Pdof_Host tPdofHost;
-
-        // Hadcode values into the mUniqueAdofList for test purposes
-        tPdofHost.mUniqueAdofList.set_size( 6, 1 );
-        tPdofHost.mUniqueAdofList( 0, 0 ) = 1;
-        tPdofHost.mUniqueAdofList( 1, 0 ) = 5;
-        tPdofHost.mUniqueAdofList( 2, 0 ) = 10;
-        tPdofHost.mUniqueAdofList( 3, 0 ) = 15;
-        tPdofHost.mUniqueAdofList( 4, 0 ) = 16;
-        tPdofHost.mUniqueAdofList( 5, 0 ) = 19;
-
-        // Create map for adofs
-        tPdofHost.set_unique_adof_map();
-
-        // Check if map works
-        CHECK( equal_to( tPdofHost.mUniqueAdofMap[ 1 ],  0 ) );
-        CHECK( equal_to( tPdofHost.mUniqueAdofMap[ 5 ],  1 ) );
-        CHECK( equal_to( tPdofHost.mUniqueAdofMap[ 10 ], 2 ) );
-        CHECK( equal_to( tPdofHost.mUniqueAdofMap[ 15 ], 3 ) );
-        CHECK( equal_to( tPdofHost.mUniqueAdofMap[ 16 ], 4 ) );
-        CHECK( equal_to( tPdofHost.mUniqueAdofMap[ 19 ], 5 ) );
-    }
     }
 }
 
