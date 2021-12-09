@@ -47,15 +47,15 @@ namespace fem
 {
     // User-defined FEM function
     typedef void ( *FEM_Function )(
-        moris::Matrix< moris::DDRMat >&                aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
-        moris::fem::Field_Interpolator_Manager*        aFIManager );
+        moris::Matrix< moris::DDRMat >                &aPropMatrix,
+        moris::Cell< moris::Matrix< moris::DDRMat > > &aParameters,
+        moris::fem::Field_Interpolator_Manager        *aFIManager );
     //------------------------------------------------------------------------------
 
     FEM_Model::FEM_Model(
         std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
-        const moris_index&                   aMeshPairIndex,
-        moris::Cell< fem::Set_User_Info >&   aSetInfo ) :
+        const moris_index                   &aMeshPairIndex,
+        moris::Cell< fem::Set_User_Info >   &aSetInfo ) :
         mMeshManager( aMeshManager ),
         mMeshPairIndex( aMeshPairIndex )
     {
@@ -65,8 +65,8 @@ namespace fem
         // STEP 0: unpack mesh
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // get pointers to interpolation and integration meshes
-        mtk::Interpolation_Mesh* tIPMesh = nullptr;
-        mtk::Integration_Mesh*   tIGMesh = nullptr;
+        mtk::Interpolation_Mesh *tIPMesh = nullptr;
+        mtk::Integration_Mesh   *tIGMesh = nullptr;
 
         mMeshManager->get_mesh_pair( mMeshPairIndex, tIPMesh, tIGMesh );
 
@@ -88,9 +88,9 @@ namespace fem
 
     FEM_Model::FEM_Model(
         std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
-        const moris_index&                   aMeshPairIndex,
-        moris::Cell< fem::Set_User_Info >&   aSetInfo,
-        MSI::Design_Variable_Interface*      aDesignVariableInterface ) :
+        const moris_index                   &aMeshPairIndex,
+        moris::Cell< fem::Set_User_Info >   &aSetInfo,
+        MSI::Design_Variable_Interface      *aDesignVariableInterface ) :
         mMeshManager( aMeshManager ),
         mMeshPairIndex( aMeshPairIndex )
     {
@@ -109,8 +109,8 @@ namespace fem
         // STEP 0: unpack mesh
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // get pointers to interpolation and integration meshes
-        mtk::Interpolation_Mesh* tIPMesh = nullptr;
-        mtk::Integration_Mesh*   tIGMesh = nullptr;
+        mtk::Interpolation_Mesh *tIPMesh = nullptr;
+        mtk::Integration_Mesh   *tIGMesh = nullptr;
 
         mMeshManager->get_mesh_pair( mMeshPairIndex, tIPMesh, tIGMesh );
 
@@ -137,7 +137,7 @@ namespace fem
 
     FEM_Model::FEM_Model(
         std::shared_ptr< mtk::Mesh_Manager >        aMeshManager,
-        const moris_index&                          aMeshPairIndex,
+        const moris_index                          &aMeshPairIndex,
         moris::Cell< moris::Cell< ParameterList > > aParameterList,
         std::shared_ptr< Library_IO >               aLibrary ) :
         mMeshManager( aMeshManager ),
@@ -151,8 +151,8 @@ namespace fem
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         // get pointers to interpolation and integration meshes
-        mtk::Interpolation_Mesh* tIPMesh = nullptr;
-        mtk::Integration_Mesh*   tIGMesh = nullptr;
+        mtk::Interpolation_Mesh *tIPMesh = nullptr;
+        mtk::Integration_Mesh   *tIGMesh = nullptr;
         mMeshManager->get_mesh_pair( mMeshPairIndex, tIPMesh, tIGMesh );
 
         // set the space dimension
@@ -176,10 +176,10 @@ namespace fem
 
     FEM_Model::FEM_Model(
         std::shared_ptr< mtk::Mesh_Manager >        aMeshManager,
-        const moris_index&                          aMeshPairIndex,
+        const moris_index                          &aMeshPairIndex,
         moris::Cell< moris::Cell< ParameterList > > aParameterList,
         std::shared_ptr< Library_IO >               aLibrary,
-        MSI::Design_Variable_Interface*             aDesignVariableInterface ) :
+        MSI::Design_Variable_Interface             *aDesignVariableInterface ) :
         mMeshManager( aMeshManager ),
         mMeshPairIndex( aMeshPairIndex ),
         mParameterList( aParameterList )
@@ -200,8 +200,8 @@ namespace fem
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         // get pointers to interpolation and integration meshes
-        mtk::Interpolation_Mesh* tIPMesh = nullptr;
-        mtk::Integration_Mesh*   tIGMesh = nullptr;
+        mtk::Interpolation_Mesh *tIPMesh = nullptr;
+        mtk::Integration_Mesh   *tIGMesh = nullptr;
         mMeshManager->get_mesh_pair( mMeshPairIndex, tIPMesh, tIGMesh );
 
         // set the space dimension
@@ -229,7 +229,7 @@ namespace fem
     //------------------------------------------------------------------------------
 
     void
-    FEM_Model::create_interpolation_nodes( mtk::Interpolation_Mesh* aIPMesh )
+    FEM_Model::create_interpolation_nodes( mtk::Interpolation_Mesh *aIPMesh )
     {
         // ask mesh about number of IP nodes on proc
         luint tNumIPNodes = aIPMesh->get_num_nodes();
@@ -249,7 +249,7 @@ namespace fem
     //------------------------------------------------------------------------------
 
     void
-    FEM_Model::create_integration_nodes( mtk::Integration_Mesh* aIGMesh )
+    FEM_Model::create_integration_nodes( mtk::Integration_Mesh *aIGMesh )
     {
         // ask IG mesh about number of IG vertices on proc
         luint tNumIGNodes = aIGMesh->get_num_nodes();
@@ -345,9 +345,9 @@ namespace fem
 
     void
     FEM_Model::create_fem_sets(
-        mtk::Interpolation_Mesh*           aIPMesh,
-        mtk::Integration_Mesh*             aIGMesh,
-        moris::Cell< fem::Set_User_Info >& aSetInfo )
+        mtk::Interpolation_Mesh           *aIPMesh,
+        mtk::Integration_Mesh             *aIGMesh,
+        moris::Cell< fem::Set_User_Info > &aSetInfo )
     {
         // get the number of sets
         uint tNumFemSets = aSetInfo.size();
@@ -385,7 +385,7 @@ namespace fem
                 aSetInfo( iSet ).get_time_boundary() )] = iSet;
 
             // get the mesh set pointer
-            moris::mtk::Set* tMeshSet = aIGMesh->get_set_by_index( tMeshSetIndex );
+            moris::mtk::Set *tMeshSet = aIGMesh->get_set_by_index( tMeshSetIndex );
 
             // if non-empty mesh set
             if ( tMeshSet->get_num_clusters_on_set() != 0 )
@@ -419,8 +419,8 @@ namespace fem
 
     void
     FEM_Model::create_fem_sets(
-        mtk::Interpolation_Mesh* aIPMesh,
-        mtk::Integration_Mesh*   aIGMesh )
+        mtk::Interpolation_Mesh *aIPMesh,
+        mtk::Integration_Mesh   *aIGMesh )
     {
         // get number of fem sets
         uint tNumFemSets = mSetInfo.size();
@@ -450,7 +450,7 @@ namespace fem
                 mSetInfo( iSet ).get_time_boundary() )] = iSet;
 
             // get the mesh set pointer
-            moris::mtk::Set* tMeshSet = aIGMesh->get_set_by_index( tMeshSetIndex );
+            moris::mtk::Set *tMeshSet = aIGMesh->get_set_by_index( tMeshSetIndex );
 
             // if non-empty mesh set
             if ( tMeshSet->get_num_clusters_on_set() != 0 )
@@ -487,9 +487,9 @@ namespace fem
 
     void
     FEM_Model::get_integration_xyz_active_flags(
-        const Matrix< IndexMat >&      aNodeIndices,
-        const moris::Cell< PDV_Type >& aRequestedPdvTypes,
-        Matrix< DDSMat >&              aIsActiveDv )
+        const Matrix< IndexMat >      &aNodeIndices,
+        const moris::Cell< PDV_Type > &aRequestedPdvTypes,
+        Matrix< DDSMat >              &aIsActiveDv )
     {
         // Get the number of node indices requested
         uint tNumIndices = aNodeIndices.length();
@@ -518,9 +518,9 @@ namespace fem
 
     void
     FEM_Model::get_integration_xyz_pdv_ids(
-        const Matrix< IndexMat >&      aNodeIndices,
-        const moris::Cell< PDV_Type >& aRequestedPdvTypes,
-        Matrix< DDSMat >&              aXYZPdvIds )
+        const Matrix< IndexMat >      &aNodeIndices,
+        const moris::Cell< PDV_Type > &aRequestedPdvTypes,
+        Matrix< DDSMat >              &aXYZPdvIds )
     {
         // Get the number of node indices requested
         uint tNumIndices = aNodeIndices.length();
@@ -549,10 +549,10 @@ namespace fem
 
     void
     FEM_Model::get_integration_xyz_pdv_active_flags_and_ids(
-        const Matrix< IndexMat >&      aNodeIndices,
-        const moris::Cell< PDV_Type >& aRequestedPdvTypes,
-        Matrix< DDSMat >&              aIsActiveDv,
-        Matrix< DDSMat >&              aXYZPdvIds )
+        const Matrix< IndexMat >      &aNodeIndices,
+        const moris::Cell< PDV_Type > &aRequestedPdvTypes,
+        Matrix< DDSMat >              &aIsActiveDv,
+        Matrix< DDSMat >              &aXYZPdvIds )
     {
         // Get the number of node indices requested
         uint tNumIndices = aNodeIndices.length();
@@ -589,7 +589,7 @@ namespace fem
 
     void
     FEM_Model::reset_integration_xyz_pdv_assembly_indices(
-        const Matrix< IndexMat >& aNodeIndices )
+        const Matrix< IndexMat > &aNodeIndices )
     {
         // Get the number of node indices requested
         uint tNumIndices = aNodeIndices.length();
@@ -608,9 +608,9 @@ namespace fem
 
     void
     FEM_Model::get_integration_xyz_pdv_assembly_indices(
-        const Matrix< IndexMat >&      aNodeIndices,
-        const moris::Cell< PDV_Type >& aRequestedPdvTypes,
-        Matrix< DDSMat >&              aXYZPdvAssemblyIndices )
+        const Matrix< IndexMat >      &aNodeIndices,
+        const moris::Cell< PDV_Type > &aRequestedPdvTypes,
+        Matrix< DDSMat >              &aXYZPdvAssemblyIndices )
     {
         // Get the number of node indices requested
         uint tNumIndices = aNodeIndices.length();
@@ -629,7 +629,7 @@ namespace fem
 
             // get assembly index from nodes
             Matrix< DDSMat > tPdvAssemblyIndicesTemp;
-            this->get_local_xyz_pdv_assembly_indices( mIGNodes( tNodeIndex )->get_index(),  tPdvAssemblyIndicesTemp, aRequestedPdvTypes );
+            this->get_local_xyz_pdv_assembly_indices( mIGNodes( tNodeIndex )->get_index(), tPdvAssemblyIndicesTemp, aRequestedPdvTypes );
 
             aXYZPdvAssemblyIndices.get_row( tNode ) = tPdvAssemblyIndicesTemp.matrix_data();
         }
@@ -777,48 +777,53 @@ namespace fem
 
     //------------------------------------------------------------------------------
 
-      FEM_Model::~FEM_Model()
+    FEM_Model::~FEM_Model()
+    {
+        this->free_memory();
+    }
+    //------------------------------------------------------------------------------
+
+    void
+    FEM_Model::free_memory()
+    {
+        // delete fem nodes
+        for ( auto tIPNodes : mIPNodes )
         {
-            this->free_memory();
+            delete tIPNodes;
         }
- //------------------------------------------------------------------------------
+        mIPNodes.clear();
 
-        void FEM_Model::free_memory()
+        // delete fem nodes
+        for ( auto tIGNodes : mIGNodes )
         {
-            // delete fem nodes
-            for( auto tIPNodes : mIPNodes )
-            {
-                delete tIPNodes;
-            }
-            mIPNodes.clear();
-
-            // delete fem nodes
-            for( auto tIGNodes : mIGNodes )
-            {
-                delete tIGNodes;
-            }
-            mIGNodes.clear();
-
-            // delete the fem sets
-            for( auto tFemSet : mFemSets )
-            {
-                delete tFemSet;
-            }
-            mFemSets.clear();
-
-            // delete the fem cluster
-            mFemClusters.clear();
+            delete tIGNodes;
         }
+        mIGNodes.clear();
 
+        // delete the fem sets
+        for ( auto tFemSet : mFemSets )
+        {
+            delete tFemSet;
+        }
+        mFemSets.clear();
+
+        // delete the fem cluster
+        mFemClusters.clear();
+
+        // delete the matrices data
+        mIsActiveXYZ.set_size( 0, 0 );
+        mXYZPdvIds.set_size( 0, 0 );
+        mXYZLocalAssemblyIndices.set_size( 0, 0 );
+    }
 
     //------------------------------------------------------------------------------
 
     void
     FEM_Model::finalize_equation_sets(
-        MSI::Model_Solver_Interface* aModelSolverInterface )
+        MSI::Model_Solver_Interface *aModelSolverInterface )
     {
         // loop over the fem sets
-        for ( MSI::Equation_Set* tFemSet : mFemSets )
+        for ( MSI::Equation_Set *tFemSet : mFemSets )
         {
             // finalize the fem set
             tFemSet->finalize( aModelSolverInterface );
@@ -829,10 +834,10 @@ namespace fem
 
     void
     FEM_Model::create_properties(
-        std::map< std::string, uint >&              aPropertyMap,
-        moris::map< std::string, MSI::Dof_Type >&   aMSIDofTypeMap,
-        moris::map< std::string, PDV_Type >&        aDvTypeMap,
-        moris::map< std::string, mtk::Field_Type >& aFieldTypeMap,
+        std::map< std::string, uint >              &aPropertyMap,
+        moris::map< std::string, MSI::Dof_Type >   &aMSIDofTypeMap,
+        moris::map< std::string, PDV_Type >        &aDvTypeMap,
+        moris::map< std::string, mtk::Field_Type > &aFieldTypeMap,
         std::shared_ptr< Library_IO >               aLibrary )
     {
         // get the property parameter list
@@ -953,7 +958,7 @@ namespace fem
 
     void
     FEM_Model::create_fields(
-        std::map< std::string, uint >& aFieldMap )
+        std::map< std::string, uint > &aFieldMap )
     {
         // get the property parameter list
         moris::Cell< ParameterList > tFieldParameterList = mParameterList( 6 );
@@ -1035,9 +1040,9 @@ namespace fem
 
     void
     FEM_Model::create_material_models(
-        std::map< std::string, uint >&            aPropertyMap,
-        moris::map< std::string, MSI::Dof_Type >& aMSIDofTypeMap,
-        moris::map< std::string, PDV_Type >&      aDvTypeMap )
+        std::map< std::string, uint >            &aPropertyMap,
+        moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
+        moris::map< std::string, PDV_Type >      &aDvTypeMap )
     {
         // create a constitutive model factory
         MM_Factory tMMFactory;
@@ -1129,9 +1134,9 @@ namespace fem
 
     void
     FEM_Model::create_constitutive_models(
-        std::map< std::string, uint >&            aPropertyMap,
-        moris::map< std::string, MSI::Dof_Type >& aMSIDofTypeMap,
-        moris::map< std::string, PDV_Type >&      aDvTypeMap )
+        std::map< std::string, uint >            &aPropertyMap,
+        moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
+        moris::map< std::string, PDV_Type >      &aDvTypeMap )
     {
         // create a constitutive model factory
         CM_Factory tCMFactory;
@@ -1277,10 +1282,10 @@ namespace fem
 
     void
     FEM_Model::create_stabilization_parameters(
-        std::map< std::string, uint >&            aSPMap,
-        std::map< std::string, uint >&            aPropertyMap,
-        moris::map< std::string, MSI::Dof_Type >& aMSIDofTypeMap,
-        moris::map< std::string, PDV_Type >&      aDvTypeMap )
+        std::map< std::string, uint >            &aSPMap,
+        std::map< std::string, uint >            &aPropertyMap,
+        moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
+        moris::map< std::string, PDV_Type >      &aDvTypeMap )
     {
         // create a stabilization parameter factory
         SP_Factory tSPFactory;
@@ -1490,9 +1495,9 @@ namespace fem
 
     void
     FEM_Model::create_IWGs(
-        std::map< std::string, uint >&            aPropertyMap,
-        std::map< std::string, uint >&            aSPMap,
-        moris::map< std::string, MSI::Dof_Type >& aMSIDofTypeMap )
+        std::map< std::string, uint >            &aPropertyMap,
+        std::map< std::string, uint >            &aSPMap,
+        moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap )
     {
         // create an IWG factory
         IWG_Factory tIWGFactory;
@@ -1708,11 +1713,11 @@ namespace fem
             uint tPhaseIndex = mPhaseMap[tPhaseName];
 
             // get dof type list from master phase
-            const moris::Cell< moris::Cell< MSI::Dof_Type > >& tMasterDofTypes =
+            const moris::Cell< moris::Cell< MSI::Dof_Type > > &tMasterDofTypes =
                 mPhaseInfo( tPhaseIndex ).get_dof_type_list();
 
             // get dof type list from master phase
-            const moris::Cell< moris::Cell< PDV_Type > >& tMasterPdvTypes =
+            const moris::Cell< moris::Cell< PDV_Type > > &tMasterPdvTypes =
                 mPhaseInfo( tPhaseIndex ).get_dv_type_list();
 
             // set master dof dependencies
@@ -1736,11 +1741,11 @@ namespace fem
                 uint tSlavePhaseIndex = mPhaseMap[tSlavePhaseName];
 
                 // get dof type list from phase
-                const moris::Cell< moris::Cell< MSI::Dof_Type > >& tSlaveDofTypes =
+                const moris::Cell< moris::Cell< MSI::Dof_Type > > &tSlaveDofTypes =
                     mPhaseInfo( tSlavePhaseIndex ).get_dof_type_list();
 
                 // get pdv type list from phase
-                const moris::Cell< moris::Cell< PDV_Type > >& tSlavePdvTypes =
+                const moris::Cell< moris::Cell< PDV_Type > > &tSlavePdvTypes =
                     mPhaseInfo( tSlavePhaseIndex ).get_dv_type_list();
 
                 // set slave dof dependencies
@@ -1756,9 +1761,9 @@ namespace fem
 
     void
     FEM_Model::create_IQIs(
-        std::map< std::string, uint >&            aPropertyMap,
-        std::map< std::string, uint >&            aSPMap,
-        moris::map< std::string, MSI::Dof_Type >& aMSIDofTypeMap )
+        std::map< std::string, uint >            &aPropertyMap,
+        std::map< std::string, uint >            &aSPMap,
+        moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap )
     {
         // create an IQI factory
         IQI_Factory tIQIFactory;
@@ -1858,11 +1863,11 @@ namespace fem
                 uint tPhaseIndex = mPhaseMap[tPhaseName];
 
                 // get dof type list from phase
-                const moris::Cell< moris::Cell< MSI::Dof_Type > >& tDofTypes =
+                const moris::Cell< moris::Cell< MSI::Dof_Type > > &tDofTypes =
                     mPhaseInfo( tPhaseIndex ).get_dof_type_list();
 
                 // get dof type list from phase
-                const moris::Cell< moris::Cell< PDV_Type > >& tDvTypes =
+                const moris::Cell< moris::Cell< PDV_Type > > &tDvTypes =
                     mPhaseInfo( tPhaseIndex ).get_dv_type_list();
 
                 // set master dof dependencies
@@ -2267,7 +2272,7 @@ namespace fem
         std::string                 aSlavePhaseString,
         std::string                 aOrdinalString,
         bool                        aIsGhost,
-        moris::Cell< std::string >& aMeshSetNames )
+        moris::Cell< std::string > &aMeshSetNames )
     {
         // get the master phase mesh index
         moris::Matrix< moris::IndexMat > tMasterPhaseIndices =
@@ -2421,8 +2426,7 @@ namespace fem
         {
             // IQI index
             uint tIQIIndex = 0;
-            while ( tIQIIndex < mIQIs.size()
-                    and ( mIQIs( tIQIIndex )->get_name() not_eq mRequestedIQINames( tRequestedIQIIndex ) ) )
+            while ( tIQIIndex < mIQIs.size() and ( mIQIs( tIQIIndex )->get_name() not_eq mRequestedIQINames( tRequestedIQIIndex ) ) )
             {
                 tIQIIndex++;
             }
@@ -2469,10 +2473,10 @@ namespace fem
 
     void
     FEM_Model::create_material_models(
-        std::map< std::string, uint >&            aMMMap,
-        std::map< std::string, uint >&            aPropertyMap,
-        moris::map< std::string, MSI::Dof_Type >& aMSIDofTypeMap,
-        moris::map< std::string, PDV_Type >&      aDvTypeMap )
+        std::map< std::string, uint >            &aMMMap,
+        std::map< std::string, uint >            &aPropertyMap,
+        moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
+        moris::map< std::string, PDV_Type >      &aDvTypeMap )
     {
         // create a material model factory
         MM_Factory tMMFactory;
@@ -2552,11 +2556,11 @@ namespace fem
 
     void
     FEM_Model::create_constitutive_models(
-        std::map< std::string, uint >&            aCMMap,
-        std::map< std::string, uint >&            aPropertyMap,
-        std::map< std::string, uint >&            aMMMap,
-        moris::map< std::string, MSI::Dof_Type >& aMSIDofTypeMap,
-        moris::map< std::string, PDV_Type >&      aDvTypeMap )
+        std::map< std::string, uint >            &aCMMap,
+        std::map< std::string, uint >            &aPropertyMap,
+        std::map< std::string, uint >            &aMMMap,
+        moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
+        moris::map< std::string, PDV_Type >      &aDvTypeMap )
     {
         // create a constitutive model factory
         CM_Factory tCMFactory;
@@ -2684,11 +2688,11 @@ namespace fem
 
     void
     FEM_Model::create_stabilization_parameters(
-        std::map< std::string, uint >&            aSPMap,
-        std::map< std::string, uint >&            aPropertyMap,
-        std::map< std::string, uint >&            aCMMap,
-        moris::map< std::string, MSI::Dof_Type >& aMSIDofTypeMap,
-        moris::map< std::string, PDV_Type >&      aDvTypeMap )
+        std::map< std::string, uint >            &aSPMap,
+        std::map< std::string, uint >            &aPropertyMap,
+        std::map< std::string, uint >            &aCMMap,
+        moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
+        moris::map< std::string, PDV_Type >      &aDvTypeMap )
     {
         // create a stabilization parameter factory
         SP_Factory tSPFactory;
@@ -2829,15 +2833,15 @@ namespace fem
 
     void
     FEM_Model::create_IWGs(
-        std::map< std::string, uint >&              aIWGMap,
-        std::map< std::string, uint >&              aPropertyMap,
-        std::map< std::string, uint >&              aMMMap,
-        std::map< std::string, uint >&              aCMMap,
-        std::map< std::string, uint >&              aSPMap,
-        std::map< std::string, uint >&              aFieldMap,
-        moris::map< std::string, MSI::Dof_Type >&   aMSIDofTypeMap,
-        moris::map< std::string, PDV_Type >&        aDvTypeMap,
-        moris::map< std::string, mtk::Field_Type >& aFieldTypeMap )
+        std::map< std::string, uint >              &aIWGMap,
+        std::map< std::string, uint >              &aPropertyMap,
+        std::map< std::string, uint >              &aMMMap,
+        std::map< std::string, uint >              &aCMMap,
+        std::map< std::string, uint >              &aSPMap,
+        std::map< std::string, uint >              &aFieldMap,
+        moris::map< std::string, MSI::Dof_Type >   &aMSIDofTypeMap,
+        moris::map< std::string, PDV_Type >        &aDvTypeMap,
+        moris::map< std::string, mtk::Field_Type > &aFieldTypeMap )
     {
         // create an IWG factory
         IWG_Factory tIWGFactory;
@@ -3052,14 +3056,14 @@ namespace fem
 
     void
     FEM_Model::create_IQIs(
-        std::map< std::string, uint >&              aIQIMap,
-        std::map< std::string, uint >&              aPropertyMap,
-        std::map< std::string, uint >&              aCMMap,
-        std::map< std::string, uint >&              aSPMap,
-        std::map< std::string, uint >&              aFieldMap,
-        moris::map< std::string, MSI::Dof_Type >&   aMSIDofTypeMap,
-        moris::map< std::string, PDV_Type >&        aDvTypeMap,
-        moris::map< std::string, mtk::Field_Type >& aFieldTypeMap )
+        std::map< std::string, uint >              &aIQIMap,
+        std::map< std::string, uint >              &aPropertyMap,
+        std::map< std::string, uint >              &aCMMap,
+        std::map< std::string, uint >              &aSPMap,
+        std::map< std::string, uint >              &aFieldMap,
+        moris::map< std::string, MSI::Dof_Type >   &aMSIDofTypeMap,
+        moris::map< std::string, PDV_Type >        &aDvTypeMap,
+        moris::map< std::string, mtk::Field_Type > &aFieldTypeMap )
     {
         // create an IQI factory
         IQI_Factory tIQIFactory;
@@ -3437,7 +3441,7 @@ namespace fem
 
     //-------------------------------------------------------------------------------------------------
 
-    const std::shared_ptr< fem::Field >&
+    const std::shared_ptr< fem::Field > &
     FEM_Model::get_field( mtk::Field_Type tFieldType )
     {
         size_t tIndex = mFieldTypeMap( static_cast< sint >( tFieldType ) );
@@ -3507,14 +3511,13 @@ namespace fem
         uint tCounter = 0;
 
         // loop over all IQIs and build a name to index map
-        for ( const std::shared_ptr< IQI >& tIQI : mIQIs )
+        for ( const std::shared_ptr< IQI > &tIQI : mIQIs )
         {
             std::string tIQIName = tIQI->get_name();
 
             mIQINameToIndexMap[tIQIName] = tCounter++;
         }
     }
-
 
     //-------------------------------------------------------------------------------------------------
 
@@ -3533,7 +3536,7 @@ namespace fem
         // set a counter
         uint iIQICounter = 0;
 
-        for ( auto& tQI : mGlobalIQIVal )
+        for ( auto &tQI : mGlobalIQIVal )
         {
             // use the map to get the IQI index of requested IQI
             moris_index tIQIIndex = mIQINameToIndexMap[mRequestedIQINames( iIQICounter )];
@@ -3549,13 +3552,12 @@ namespace fem
         }
     }
 
-
     //------------------------------------------------------------------------------
 
     void
     FEM_Model::get_vertex_xyz_active_flags( moris_index aVertexIndex,
-        Matrix< DDSMat >&                               aIsActiveDv,
-        const moris::Cell< enum PDV_Type >&             aPdvTypes )
+        Matrix< DDSMat >                               &aIsActiveDv,
+        const moris::Cell< enum PDV_Type >             &aPdvTypes )
     {
         // get number of requested pdv types
         uint tNumPdvTypes = aPdvTypes.size();
@@ -3578,7 +3580,7 @@ namespace fem
 
     void
     FEM_Model::set_vertex_xyz_active_flags( moris_index aVertexIndex,
-            moris::Cell< Matrix< DDSMat > >& aIsActiveDv )
+        moris::Cell< Matrix< DDSMat > >                &aIsActiveDv )
     {
         // get num of pdv
         uint tNumXYZPdv = aIsActiveDv.size();
@@ -3594,7 +3596,7 @@ namespace fem
 
     void
     FEM_Model::set_vertex_xyz_pdv_ids( moris_index aVertexIndex,
-        moris::Cell< Matrix< DDSMat > >&           aXYZPvIds )
+        moris::Cell< Matrix< DDSMat > >           &aXYZPvIds )
     {
         // get num of pdv
         uint tNumXYZPdv = aXYZPvIds.size();
@@ -3610,8 +3612,8 @@ namespace fem
 
     void
     FEM_Model::get_vertex_xyz_pdv_ids( moris_index aVertexIndex,
-        Matrix< DDSMat >&                          aXYZPdvIds,
-        const moris::Cell< enum PDV_Type >&        aPdvTypes )
+        Matrix< DDSMat >                          &aXYZPdvIds,
+        const moris::Cell< enum PDV_Type >        &aPdvTypes )
     {
         // get number of requested pdv types
         uint tNumPdvTypes = aPdvTypes.size();
@@ -3634,8 +3636,8 @@ namespace fem
 
     void
     FEM_Model::get_local_xyz_pdv_assembly_indices( moris_index aVertexIndex,
-        Matrix< DDSMat >&                                      aXYZLocalAssemblyIndices,
-        const moris::Cell< enum PDV_Type >&                    aPdvTypes )
+        Matrix< DDSMat >                                      &aXYZLocalAssemblyIndices,
+        const moris::Cell< enum PDV_Type >                    &aPdvTypes )
     {
         // get number of requested pdv types
         uint tNumPdvTypes = aPdvTypes.size();
