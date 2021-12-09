@@ -45,7 +45,6 @@ namespace moris
         void Linear_Problem::assemble_residual_and_jacobian( sol::Dist_Vector * aFullSolutionVector )
         {
             // zero out RHS
-            mVectorRHS->vec_put_scalar( 0.0 );
             mPointVectorRHS->vec_put_scalar( 0.0 );
 
             // zero out matrix
@@ -61,7 +60,6 @@ namespace moris
             Tracer tTracer( "LinearProblem", "AssembleResidual" );
 
             // Zero out RHS
-            mVectorRHS->vec_put_scalar( 0.0 );
             mPointVectorRHS->vec_put_scalar( 0.0 );
 
             // start timer
@@ -98,9 +96,6 @@ namespace moris
 
             real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
             MORIS_LOG_INFO( " Assembly of residual on processor %u took %5.3f seconds.", ( uint ) par_rank(), ( double ) tElapsedTime / 1000);
-
-            //std::cout<<"first RHS"<<std::endl;
-            //mVectorRHS->print();
         }
 
         //----------------------------------------------------------------------------------------
@@ -108,8 +103,6 @@ namespace moris
         void Linear_Problem::assemble_staggered_residual_contribution()
         {
             mSolverInterface->assemble_staggerd_RHS_contribution( mPointVectorRHS );
-            //std::cout<<"second RHS"<<std::endl;
-            //mVectorRHS->print();
         }
 
         //----------------------------------------------------------------------------------------
@@ -154,7 +147,6 @@ namespace moris
         //----------------------------------------------------------------------------------------
         void Linear_Problem::assemble_residual_and_jacobian( )
         {
-            mVectorRHS->vec_put_scalar( 0.0 );
             mPointVectorRHS->vec_put_scalar( 0.0 );
             mMat->mat_put_scalar( 0.0 );
 
@@ -208,7 +200,7 @@ namespace moris
             // create vector for jacobian times sol vec
             sol::Dist_Vector * tMatTimesSolVec = tMatFactory.create_vector(
                     mSolverInterface,
-                    mVectorRHS->get_map(),
+                    mPointVectorLHS->get_map(),
                     mSolverInterface->get_num_rhs() );
 
             // multiply jacobian with previous solution vector
@@ -232,7 +224,7 @@ namespace moris
             // create vector for jacobian times sol vec
             sol::Dist_Vector * tResVec = tMatFactory.create_vector(
                     mSolverInterface,
-                    mVectorRHS->get_map(),
+                    mPointVectorLHS->get_map(),
                     tNumberOfRHS );
 
             // multiply jacobian with previous solution vector

@@ -154,6 +154,14 @@ namespace moris
                 UNDEFINED
         };
 
+        enum class Field_Implementation
+        {
+                MTK,
+                FEM,
+                GEN,
+                UNDEFINED
+        };
+
         moris::map< std::string, Field_Entity_Type > get_field_entity_type_map();
 
         //------------------------------------------------------------------------------

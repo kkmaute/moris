@@ -78,6 +78,7 @@ namespace moris
 
                 enum Field_Entity_Type mFieldEntityType = Field_Entity_Type::UNDEFINED;
 
+                enum Field_Implementation mFieldImplementation = Field_Implementation::MTK;
 
                 //------------------------------------------------------------------------------
             protected:
@@ -586,6 +587,11 @@ protected:
                 * @param[in]  aFilePath - name of hdf5 file
                  */
                 void save_field_to_exodus( const std::string & aFileName );
+
+                enum Field_Implementation get_field_implementation()
+                {
+                    return mFieldImplementation;
+                };
 
                 //------------------------------------------------------------------------------
         };

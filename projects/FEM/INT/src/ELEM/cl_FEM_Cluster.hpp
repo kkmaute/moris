@@ -241,7 +241,8 @@ namespace moris
                 void compute_quantity_of_interest(
                         Matrix< DDRMat >            & aValues,
                         enum mtk::Field_Entity_Type   aFieldType,
-                        uint                          aIQIIndex );
+                        uint                          aIQIIndex,
+                        real                        & aSpaceTimeVolume);
 
                 //------------------------------------------------------------------------------
                 /**

@@ -61,11 +61,6 @@ namespace dla
 //        {
 //            return mFreeVectorLHS;
 //        };
-//
-//        Dist_Vector * get_solver_RHS()
-//        {
-//            return mVectorRHS;
-//        };
 
 //        auto get_solver_input() const ->decltype( mInput )
 //        {

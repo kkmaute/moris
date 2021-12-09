@@ -247,41 +247,41 @@ namespace moris
 
         //-----------------------------------------------------------------------------------------------------------
 
-        void Pdof_Host::create_unique_adof_list()
-        {
-            //Get number of pdof Types in this pdof host
-            moris::uint tNumPdofTypes = mListOfPdofTimePerType.size();
-
-            moris::uint tAdofCounter = 0;
-            // Loop over all adofs of this pdof host to determine maximal number of adofs
-            for ( moris::uint Ii = 0; Ii < tNumPdofTypes; Ii++)
-            {
-                for ( moris::uint Ij = 0; Ij < mListOfPdofTimePerType( Ii ).size(); Ij++ )
-                {
-                    tAdofCounter = tAdofCounter + mListOfPdofTimePerType( Ii )( Ij )->mAdofIds.numel();
-                }
-            }
-
-            Matrix< DDUMat > tUniqueAdofList( tAdofCounter, 1 );
-
-            moris::uint tCounter = 0;
-
-            // Loop over all adofs of this pdof host and create a list of adof ids
-            for ( moris::uint Ii = 0; Ii < tNumPdofTypes; Ii++)
-            {
-                for ( moris::uint Ij = 0; Ij < mListOfPdofTimePerType( Ii ).size(); Ij++ )
-                {
-                    for ( moris::uint Ik = 0; Ik < mListOfPdofTimePerType( Ii )( Ij )->mAdofIds.numel(); Ik++)
-                    {
-                        tUniqueAdofList( tCounter, 0 ) = mListOfPdofTimePerType( Ii )( Ij )->mAdofIds( Ik, 0 );
-                        tCounter++;
-                    }
-                }
-            }
-
-            // make list unique
-            moris::unique( tUniqueAdofList, mUniqueAdofList );
-        }
+//        void Pdof_Host::create_unique_adof_list()
+//        {
+//            //Get number of pdof Types in this pdof host
+//            moris::uint tNumPdofTypes = mListOfPdofTimePerType.size();
+//
+//            moris::uint tAdofCounter = 0;
+//            // Loop over all adofs of this pdof host to determine maximal number of adofs
+//            for ( moris::uint Ii = 0; Ii < tNumPdofTypes; Ii++)
+//            {
+//                for ( moris::uint Ij = 0; Ij < mListOfPdofTimePerType( Ii ).size(); Ij++ )
+//                {
+//                    tAdofCounter = tAdofCounter + mListOfPdofTimePerType( Ii )( Ij )->mAdofIds.numel();
+//                }
+//            }
+//
+//            Matrix< DDUMat > tUniqueAdofList( tAdofCounter, 1 );
+//
+//            moris::uint tCounter = 0;
+//
+//            // Loop over all adofs of this pdof host and create a list of adof ids
+//            for ( moris::uint Ii = 0; Ii < tNumPdofTypes; Ii++)
+//            {
+//                for ( moris::uint Ij = 0; Ij < mListOfPdofTimePerType( Ii ).size(); Ij++ )
+//                {
+//                    for ( moris::uint Ik = 0; Ik < mListOfPdofTimePerType( Ii )( Ij )->mAdofIds.numel(); Ik++)
+//                    {
+//                        tUniqueAdofList( tCounter, 0 ) = mListOfPdofTimePerType( Ii )( Ij )->mAdofIds( Ik, 0 );
+//                        tCounter++;
+//                    }
+//                }
+//            }
+//
+//            // make list unique
+//            moris::unique( tUniqueAdofList, mUniqueAdofList );
+//        }
 
         //-----------------------------------------------------------------------------------------------------------
 

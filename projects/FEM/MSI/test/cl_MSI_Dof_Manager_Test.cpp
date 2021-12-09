@@ -365,16 +365,6 @@ namespace moris
             CHECK( equal_to( tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds( 0 ), 1 ) );
             CHECK( equal_to( tDofMgn.mPdofHostList( 1 )->mListOfPdofTimePerType( 0 )( 0 )->mAdofIds( 1 ), 0 ) );
 
-//            CHECK( equal_to( tDofMgn.mPdofHostList( 0 )->mUniqueAdofList.length(), 4 ) );
-//            CHECK( equal_to( tDofMgn.mPdofHostList( 1 )->mUniqueAdofList.length(), 2 ) );
-//
-//            CHECK( equal_to( tDofMgn.mPdofHostList( 0 )->mUniqueAdofList( 0, 0 ), 0 ) );
-//            CHECK( equal_to( tDofMgn.mPdofHostList( 0 )->mUniqueAdofList( 1, 0 ), 2 ) );
-//            CHECK( equal_to( tDofMgn.mPdofHostList( 0 )->mUniqueAdofList( 2, 0 ), 3 ) );
-//            CHECK( equal_to( tDofMgn.mPdofHostList( 0 )->mUniqueAdofList( 3, 0 ), 4 ) );
-//            CHECK( equal_to( tDofMgn.mPdofHostList( 1 )->mUniqueAdofList( 0, 0 ), 0 ) );
-//            CHECK( equal_to( tDofMgn.mPdofHostList( 1 )->mUniqueAdofList( 1, 0 ), 1 ) );
-
             delete Node1;
             delete Node2;
         }

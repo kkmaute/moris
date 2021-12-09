@@ -115,7 +115,6 @@ namespace moris
                         { tMasterResStartIndex, tMasterResStopIndex },
                         { tMasterDepStartIndex, tMasterDepStopIndex } );
 
-
                 // if dof type is residual dof type
                 if( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                 {
@@ -215,7 +214,6 @@ namespace moris
                 // 2D plane stress
                 case 3:
                 {
-
                     // compute contributions to von mises stress
                     real tNormalStressContribution =
                             std::pow( aStressTensor( 0 ) - aStressTensor( 1 ), 2.0 ) +
@@ -251,12 +249,42 @@ namespace moris
                 break;
 
 
-                // 2D plane strain
+                // 2D plane strain and axisymmetric
                 case 4:
                 {
-                    MORIS_ERROR( false,
-                            "IWG_Struc_Stress::plain strain VM not impelemented." );
+                    real tNormalStressContribution =
+                            std::pow( aStressTensor( 0 ) - aStressTensor( 1 ), 2.0 ) +
+                            std::pow( aStressTensor( 1 ) - aStressTensor( 2 ), 2.0 ) +
+                            std::pow( aStressTensor( 2 ) - aStressTensor( 0 ), 2.0 );
+                    real tShearStressContribution =
+                            std::pow( aStressTensor( 3 ), 2.0 );
+
+                    // compute Von-Mises stress value
+                    aStressVal =  std::sqrt( 0.5 * tNormalStressContribution + 3.0 * tShearStressContribution );
+
+                    if( aDStressTensor.numel() > 0)
+                    {
+                        aDStressVal.set_size( 1, tNumNodes, 0.0 );
+
+                        aDStressVal += aDStressTensor.get_row( 0 ) *            ( aStressTensor( 0 ) - aStressTensor( 1 ) );
+                        aDStressVal += aDStressTensor.get_row( 1 ) * ( -1.0 ) * ( aStressTensor( 0 ) - aStressTensor( 1 ) );
+                        aDStressVal += aDStressTensor.get_row( 1 ) *            ( aStressTensor( 1 ) - aStressTensor( 2 ) );
+                        aDStressVal += aDStressTensor.get_row( 2 ) * ( -1.0 ) * ( aStressTensor( 1 ) - aStressTensor( 2 ) );
+                        aDStressVal += aDStressTensor.get_row( 2 ) *            ( aStressTensor( 2 ) - aStressTensor( 0 ) );
+                        aDStressVal += aDStressTensor.get_row( 0 ) * ( -1.0 ) * ( aStressTensor( 2 ) - aStressTensor( 0 ) );
+                        aDStressVal += aDStressTensor.get_row( 3 ) *    6.0   * ( aStressTensor( 3 )                      );
+
+                        if ( std::abs(aStressVal) < 2*tEpsilon )
+                        {
+                            aDStressVal = aDStressVal *( 0.5 * 1/( 2 * tEpsilon + aStressVal ) );
+                        }
+                        else
+                        {
+                            aDStressVal = aDStressVal * ( 0.5 * 1/( aStressVal ) );
+                        }
+                    }
                 }
+
                 break;
 
                 // 3D

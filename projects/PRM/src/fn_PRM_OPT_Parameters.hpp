@@ -24,6 +24,7 @@ namespace moris
             tParameterList.insert("library", ""); // Path to a shared object file for user-defined functions
 
             tParameterList.insert("reinitialize_interface_iter", INT_MAX); // number of iterations until the interface will be reinitialized
+            tParameterList.insert("first_reinitialize_interface_iter", INT_MAX); // number of iterations until the interface will be reinitialized
 
             return tParameterList;
         }

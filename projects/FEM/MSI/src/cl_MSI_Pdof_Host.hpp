@@ -50,9 +50,6 @@ namespace moris
                 Matrix< DDUMat >                        mPdofTypeExist;         // Vector indicates if dof type exists. FIXME make this a global matrix in dof manager and delete after costruction
                 moris::Cell< moris::Cell< Pdof* > >     mListOfPdofTimePerType; // List of all pdofs per time per dof type. outer cell is type, inner cell is time
 
-                Matrix< DDUMat >                        mUniqueAdofList;        // Unique adof list for this pdof host
-                moris::map < moris::uint, moris::uint > mUniqueAdofMap;         // FIXME member function to build this map is never called
-
                 void create_adofs_based_on_Tmatrix(
                         const Matrix< DDUMat >               & aTimeLevelOffsets,
                         moris::Cell< moris::Cell< Adof * > > & aAdofListz,
@@ -168,20 +165,7 @@ namespace moris
 
                 //-------------------------------------------------------------------------------------------------
                 // FIXME member function not used
-                void create_unique_adof_list();
-
-                // FIXME member function not used
-                void set_unique_adof_map()
-                {
-                    //Get number of unique adofs of this equation object
-                    moris::uint tNumUniqueAdofs = mUniqueAdofList.numel();
-
-                    // Loop over all unique adofs of this equation object
-                    for ( moris::uint Ii = 0; Ii < tNumUniqueAdofs; Ii++ )
-                    {
-                        mUniqueAdofMap[ mUniqueAdofList( Ii, 0 ) ] = Ii;
-                    }
-                }
+                //void create_unique_adof_list();
 
                 //-------------------------------------------------------------------------------------------------
         };

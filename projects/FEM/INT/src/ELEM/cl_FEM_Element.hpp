@@ -443,13 +443,14 @@ namespace moris
                 void compute_quantity_of_interest(
                         Matrix< DDRMat >            & aValues,
                         enum mtk::Field_Entity_Type   aFieldType,
-                        uint                          aIQIIndex )
+                        uint                          aIQIIndex,
+                        real                        & aSpaceTimeVolume )
                 {
                     switch ( aFieldType )
                     {
                         case mtk::Field_Entity_Type::ELEMENTAL :
                         {
-                            this->compute_quantity_of_interest_elemental( aValues, aIQIIndex );
+                            this->compute_quantity_of_interest_elemental( aValues, aIQIIndex, aSpaceTimeVolume );
                             break;
                         }
                         default :
@@ -491,7 +492,8 @@ namespace moris
 
                 virtual void compute_quantity_of_interest_elemental(
                         Matrix< DDRMat >            & aValues,
-                        uint                          aIQIIndex  )
+                        uint                          aIQIIndex,
+                        real                        & aSpaceTimeVolume  )
                 {
                     MORIS_ERROR( false, "Element::compute_quantity_of_interest_elemental - Not implemented for base class." );
                 }

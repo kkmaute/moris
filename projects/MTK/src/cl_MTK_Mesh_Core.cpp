@@ -1169,13 +1169,13 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Mesh::get_elements_in_interpolation_cluster_and_side_ordianl(
+        void Mesh::get_elements_in_interpolation_cluster_and_side_ordinal(
                 moris_index const            aElementIndex,
                 moris_index const            aDiscretizationMeshIndex,
                 moris_index const            aSideOrdinal,
                 moris::Cell< mtk::Cell * > & aCells)
         {
-            MORIS_ERROR(0,"get_elements_in_interpolation_cluster_and_side_ordianl not implemented");
+            MORIS_ERROR(0,"get_elements_in_interpolation_cluster_and_side_ordinal not implemented");
         }
 
 
