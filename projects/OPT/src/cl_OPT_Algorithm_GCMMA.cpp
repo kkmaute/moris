@@ -151,7 +151,7 @@ void OptAlgGCMMA::printresult()
 
 void opt_alg_gcmma_func_wrap(
         OptAlgGCMMA* aOptAlgGCMMA,
-        int          aIter,
+        int&         aIter,
         double*      aAdv,
         double&      aObjval,
         double*      aConval )
