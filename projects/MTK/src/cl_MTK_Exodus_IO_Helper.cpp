@@ -1449,5 +1449,29 @@ namespace moris
 
             return tIndex;
         }
+
+        //------------------------------------------------------------------------------
+
+        uint
+        Exodus_IO_Helper::get_field_index_by_name( std::string aFileName )
+        {
+            if (mNumNodalVars > 0 )
+            {
+                for ( uint i=0;i<(uint)mNumNodalVars;++i)
+                {
+                    if (aFileName.compare( mNodeFieldNamePtrs[std::size_t(i)] ) == 0 )
+                    {
+                        return i;
+                    }
+                }
+            }
+
+            // check that field index was found
+            MORIS_ERROR( false,
+                    "Exodus_IO_Helper::get_field_index_by_name - field %s not found.",aFileName.c_str());
+
+            return 0;
+        }
+
     }
 }

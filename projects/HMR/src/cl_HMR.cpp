@@ -754,9 +754,6 @@ namespace moris
         {
             // refine database and remember flag
             mDatabase->perform_refinement( aPattern, aResetPattern );
-
-            // remember that refinement has been called
-            mPerformRefinementCalled = true;
         }
 
         // -----------------------------------------------------------------------------
@@ -778,9 +775,6 @@ namespace moris
 
             // refine database and remember flag
             mDatabase->get_background_mesh()->perform_refinement( aPattern );
-
-            // remember that refinement has been called
-            mPerformRefinementCalled = true;
         }
 
         // -----------------------------------------------------------------------------

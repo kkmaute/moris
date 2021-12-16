@@ -70,18 +70,6 @@ namespace moris
             //! weak BCs of element FIXME
             Matrix< DDRMat > mNodalWeakBCs;
 
-            //! actual pdof values. Cells are for different multi-vectors
-            moris::Cell< Matrix< DDRMat > > mPdofValues;
-
-            //! previous pdof values
-            moris::Cell< Matrix< DDRMat > > mPreviousPdofValues;
-
-            //! adjoint pdof values
-            moris::Cell< Matrix< DDRMat > > mAdjointPdofValues;
-
-            //! adjoint pdof values
-            moris::Cell< Matrix< DDRMat > > mPreviousAdjointPdofValues;
-
             moris::uint mEqnObjInd;
 
             Equation_Set * mEquationSet;
@@ -147,14 +135,6 @@ namespace moris
              * @param[ in ] mPreviousTime matrix with previous time values
              */
             Matrix< DDRMat > & get_previous_time();
-
-            //------------------------------------------------------------------------------
-            /**
-             * get pdof values on equation object
-             * @param[ in ] mPdofValues list of matrices with pdof values
-             *                          (one matrix for each dof type)
-             */
-            Cell< Matrix< DDRMat > > & get_pdof_values();
 
             //------------------------------------------------------------------------------
             /**

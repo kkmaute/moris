@@ -121,7 +121,8 @@ namespace moris
                  */
                 void compute_quantity_of_interest_elemental(
                         Matrix< DDRMat > & tValues,
-                        uint               aIQIIndex );
+                        uint               aIQIIndex,
+                        real             & aSpaceTimeVolume );
 
                 //------------------------------------------------------------------------------
                 /**

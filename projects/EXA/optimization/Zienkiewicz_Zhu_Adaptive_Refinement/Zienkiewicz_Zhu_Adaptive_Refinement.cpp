@@ -191,7 +191,8 @@ extern "C"
         enum hmr::ElementalRefienmentIndicator refinement_function(
                 mtk::Cell                   * aElement,
                 std::shared_ptr< mtk::Field > aField,
-                uint                          tActivationPattern )
+                uint                          tActivationPattern,
+                uint                        & aMaxLevel )
         {
             // current refinement level of element
             uint tLevel = aElement->get_level();
@@ -265,7 +266,8 @@ extern "C"
         enum hmr::ElementalRefienmentIndicator refinement_function_stress(
                 mtk::Cell                   * aElement,
                 std::shared_ptr< mtk::Field > aField,
-                uint                          tActivationPattern )
+                uint                          tActivationPattern,
+                uint                        & aMaxLevel )
         {
             // current refinement level of element
             uint tLevel = aElement->get_level();
@@ -1786,37 +1788,37 @@ extern "C"
             tParameterlist( 2 )( 0 ).set("NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ));
             tParameterlist( 2 )( 0 ).set("NLA_rel_res_norm_drop",    1.0e-7 );
             tParameterlist( 2 )( 0 ).set("NLA_relaxation_parameter", 1.0  );
-            tParameterlist( 2 )( 0 ).set("NLA_max_iter",             5 );
+            tParameterlist( 2 )( 0 ).set("NLA_max_iter",             1 );
 
             tParameterlist( 2 )( 1 ) = moris::prm::create_nonlinear_algorithm_parameter_list();                                            // nonlinear algorithm index 0
             tParameterlist( 2 )( 1 ).set("NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ));
             tParameterlist( 2 )( 1 ).set("NLA_rel_res_norm_drop",    1.0e-7 );
             tParameterlist( 2 )( 1 ).set("NLA_relaxation_parameter", 1.0  );
-            tParameterlist( 2 )( 1 ).set("NLA_max_iter",             5 );
+            tParameterlist( 2 )( 1 ).set("NLA_max_iter",             1 );
 
 
             tParameterlist( 2 )( 2 ) = moris::prm::create_nonlinear_algorithm_parameter_list();                                            // nonlinear algorithm index 1
             tParameterlist( 2 )( 2 ).set("NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NLBGS_SOLVER ));
             tParameterlist( 2 )( 2 ).set("NLA_rel_res_norm_drop",    1.0e-7 );
-            tParameterlist( 2 )( 2 ).set("NLA_max_iter",             5 );
+            tParameterlist( 2 )( 2 ).set("NLA_max_iter",             1 );
 
             tParameterlist( 2 )( 3 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
             tParameterlist( 2 )( 3 ).set("NLA_Solver_Implementation", static_cast< uint >(  moris::NLA::NonlinearSolverType::NEWTON_SOLVER ));
             tParameterlist( 2 )( 3 ).set("NLA_rel_res_norm_drop",    1.0e-7 );
             tParameterlist( 2 )( 3 ).set("NLA_relaxation_parameter", 1.0  );
-            tParameterlist( 2 )( 3 ).set("NLA_max_iter",             5 );
+            tParameterlist( 2 )( 3 ).set("NLA_max_iter",             1 );
 
             tParameterlist( 2 )( 4 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
             tParameterlist( 2 )( 4 ).set("NLA_Solver_Implementation", static_cast< uint >(  moris::NLA::NonlinearSolverType::NEWTON_SOLVER ));
             tParameterlist( 2 )( 4 ).set("NLA_rel_res_norm_drop",    1.0e-7 );
             tParameterlist( 2 )( 4 ).set("NLA_relaxation_parameter", 1.0  );
-            tParameterlist( 2 )( 4 ).set("NLA_max_iter",             5 );
+            tParameterlist( 2 )( 4 ).set("NLA_max_iter",             1 );
 
             tParameterlist( 2 )( 5 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
             tParameterlist( 2 )( 5 ).set("NLA_Solver_Implementation", static_cast< uint >(  moris::NLA::NonlinearSolverType::NEWTON_SOLVER ));
             tParameterlist( 2 )( 5 ).set("NLA_rel_res_norm_drop",    1.0e-7 );
             tParameterlist( 2 )( 5 ).set("NLA_relaxation_parameter", 1.0  );
-            tParameterlist( 2 )( 5 ).set("NLA_max_iter",             5 );
+            tParameterlist( 2 )( 5 ).set("NLA_max_iter",             1 );
 
             //------------------------------------------------------------------------------
 

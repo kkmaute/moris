@@ -174,7 +174,7 @@ namespace moris
             MORIS_ERROR( mParameters.mRefinementFunctionName.size() > 0, "Refinement function names not set");
             MORIS_ERROR( mLibrary != nullptr, "mLibrary not set");
 
-            uint tWorkingPattern = 7;//mParameters->get_working_pattern();
+            uint tWorkingPattern = aHMR->get_parameters()->get_working_pattern();//mParameters->get_working_pattern();
 
             // create a map with ids
             std::unordered_map< moris_index, luint > tMap;
@@ -191,6 +191,9 @@ namespace moris
 
             for( uint Ik = 0; Ik< tPattern.size(); Ik++ )
             {
+
+                aHMR->get_database()->get_background_mesh()->reset_pattern( tWorkingPattern );
+
                 // get pattern
                 uint tActivationPattern = tPattern( Ik );
 
@@ -212,8 +215,10 @@ namespace moris
                     {
                         mtk::Cell & tCell = tSourceMesh->get_writable_mtk_cell( Ii );
 
+                        uint tMaxLevel = MORIS_UINT_MAX;
+
                         enum hmr::ElementalRefienmentIndicator tRefIndicator =
-                                tRefinementFunctions( Ik )( Ia )( &tCell, tField, tActivationPattern );
+                                tRefinementFunctions( Ik )( Ia )( &tCell, tField, tActivationPattern, tMaxLevel );
 
                         hmr::Background_Element_Base* tBGElementOld =
                                 reinterpret_cast< hmr::Element * >( tCell.get_base_cell() )->
@@ -231,6 +236,12 @@ namespace moris
                         {
                             // jump to parent
                             tBGElementNew = tBGElementNew->get_parent();
+                        }
+
+                        // in the case that the BG level is equal the max level, hold this element
+                        if( tRefIndicator == hmr::ElementalRefienmentIndicator::REFINE && tBGElementNew->get_level() >= tMaxLevel )
+                        {
+                            tRefIndicator = hmr::ElementalRefienmentIndicator::HOLD;
                         }
 
                         switch ( tRefIndicator )

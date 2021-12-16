@@ -3,6 +3,9 @@
 #include "cl_Communication_Tools.hpp"
 #include "fn_trans.hpp"
 
+// detailed logging
+#include "cl_Tracer.hpp"
+
 namespace moris
 {
     namespace ge
@@ -593,6 +596,8 @@ namespace moris
 
         Matrix<DDRMat> Pdv_Host_Manager::compute_diqi_dadv(const Matrix<DDSMat>& aFullADVIds)
         {
+            Tracer tTracer( "GEN", "PDV Host Manager", "compute dQi/dadv" );
+
             // Check for ADV IDs
             MORIS_ERROR(mADVIdsSet,
                     "PDV Host Manager must have ADV IDs set before computing sensitivities.");
@@ -1062,6 +1067,8 @@ namespace moris
 
         moris_id Pdv_Host_Manager::set_owned_interpolation_pdv_ids( moris_id aOwnedIdCounter )
         {
+            moris_id tSaveOffset = aOwnedIdCounter;
+
             // Loop over all different pdv types for IP node pdvs
             for ( moris::uint Ij = 0; Ij < mPdvTypeList.size(); Ij++ )
             {
@@ -1087,6 +1094,10 @@ namespace moris
                 }
             }
 
+            moris_id tNumOwnedInterpolationIds = aOwnedIdCounter - tSaveOffset;
+
+            MORIS_LOG_INFO( "System has a total of %-5i interpolation pdvs.", sum_all(tNumOwnedInterpolationIds) );
+
             return aOwnedIdCounter;
         }
 
@@ -1094,6 +1105,8 @@ namespace moris
 
         moris_id Pdv_Host_Manager::set_owned_intersection_node_pdv_ids( moris_id aOwnedIdCounter )
         {
+            moris_id tSaveOffset = aOwnedIdCounter;
+
             // Loop over intersection node pdvs
             for ( moris::uint Ij = 0; Ij < mIntersectionNodes.size(); Ij++ )
             {
@@ -1109,6 +1122,10 @@ namespace moris
                     }
                 }
             }
+
+            moris_id tNumOwnedInterpolationIds = aOwnedIdCounter - tSaveOffset;
+
+            MORIS_LOG_INFO( "System has a total of %-5i intersection node pdvs.", sum_all(tNumOwnedInterpolationIds) );
 
             return aOwnedIdCounter;
         }

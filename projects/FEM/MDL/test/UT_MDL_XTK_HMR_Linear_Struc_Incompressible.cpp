@@ -472,7 +472,7 @@ TEST_CASE("2D XTK HMR Incompressible","[XTK_HMR_I_2D]")
         // Start solution comparison
         Matrix<DDRMat> tFullSolution;
         Matrix<DDRMat> tGoldSolution;
-        tNonlinearSolverMain.get_full_solution(tFullSolution);
+        tTimeSolver.get_full_solution(tFullSolution);
 
         std::string tMorisRoot = moris::get_base_moris_dir();
         std::string tHdf5FilePath = tMorisRoot + "/projects/FEM/MDL/test/data/incompressible_test_2d.hdf5";

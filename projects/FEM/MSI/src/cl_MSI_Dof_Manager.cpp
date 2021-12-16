@@ -25,10 +25,12 @@ namespace moris
             {
                 delete mPdofHostList( Ik );
             }
+			mPdofHostList.clear();
             for ( moris::uint Ik = 0; Ik < mAdofList.size(); Ik++ )
             {
                 delete mAdofList( Ik );
             }
+			mAdofList.clear();
         }
 
         //-----------------------------------------------------------------------------------------------------------
