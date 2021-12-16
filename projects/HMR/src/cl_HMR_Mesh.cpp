@@ -377,7 +377,7 @@ namespace moris
         Matrix<IndexMat> Mesh::get_element_indices_in_block_set(uint aSetIndex)
         {
             // Get number of elements
-            uint tNumElements = mMesh->get_number_of_elements();
+            uint tNumElements = this->get_num_elems();
 
             // Initialize element indices
             Matrix<IndexMat> tElementIndices(tNumElements, 1);
@@ -403,7 +403,7 @@ namespace moris
         Matrix<IdMat> Mesh::get_element_ids_in_block_set(uint aSetIndex)
         {
             // Get number of elements
-            uint tNumElements = mMesh->get_number_of_elements();
+            uint tNumElements = this->get_num_elems();
 
             // Initialize element IDs
             Matrix<IdMat> tElementIDs(tNumElements, 1);
@@ -413,7 +413,15 @@ namespace moris
             {
                 for (uint tElementIndex = 0; tElementIndex < tNumElements; tElementIndex++)
                 {
-                    tElementIDs(tElementIndex) = mMesh->get_element(tElementIndex)->get_hmr_id();
+                    if( mDatabase->get_parameters()->use_number_aura() and
+                            mDatabase->get_parameters()->is_output_mesh( mMesh->get_index() ) )
+                    {
+                        tElementIDs(tElementIndex) = mMesh->get_element_including_aura(tElementIndex)->get_hmr_id();
+                    }
+                    else
+                    {
+                        tElementIDs(tElementIndex) = mMesh->get_element(tElementIndex)->get_hmr_id();
+                    }
                 }
             }
             else // Should not be called for a set index other than 0, but just in case:
