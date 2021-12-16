@@ -267,7 +267,7 @@ Enrichment::perform_basis_cluster_enrichment()
             // Extract element enrichment levels from assigned sub-phase bin enrichment levels and store these as a member variable
             this->unzip_subphase_bin_enrichment_into_element_enrichment(
                 tMeshIndex,
-                i,
+                iBasis,
                 tParentElementsInSupport,
                 tSubphaseClusterIndicesInSupport( iBasis ),
                 tSubPhaseIndexToSupportIndex,
