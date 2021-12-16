@@ -401,6 +401,16 @@ namespace moris
                         Matrix<IdMat>  & aElementIds,
                         Matrix<IdMat>  & aElementSideOrds,
                         Matrix<IdMat>  & aSharedProcIds);
+
+                //------------------------------------------------------------------------------
+                /*
+                 * @brief returns index of field given its name
+                 *
+                 * param[ in ] aFieldName   Name of field
+                 *
+                 */
+                uint
+                get_field_index_by_name( std::string aFileName );
         };
     }
 }
