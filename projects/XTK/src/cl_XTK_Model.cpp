@@ -238,8 +238,10 @@ Model::perform()
 
     if ( mParameterList.get< bool >( "enrich" ) )
     {
+        // get rank of the interpolation basis (B-spline or Lagrange Element)
         enum EntityRank tBasisRank = get_entity_rank_from_str( mParameterList.get< std::string >( "basis_rank" ) );
-
+        
+        // get index of Lagrange mesh to be enriched from parameter list
         Matrix< IndexMat > tMeshIndexCell;
         moris::string_to_mat( mParameterList.get< std::string >( "enrich_mesh_indices" ), tMeshIndexCell );
 
@@ -1103,7 +1105,6 @@ Model::perform_basis_enrichment(
     {
         mEnrichment->write_diagnostics();
     }
-
 
     // Change the enrichment flag
     mEnriched = true;

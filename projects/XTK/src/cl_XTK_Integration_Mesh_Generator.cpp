@@ -178,17 +178,23 @@ Integration_Mesh_Generator::get_geom_engine()
     return mGeometryEngine;
 }
 
+// ----------------------------------------------------------------------------------
+
 uint 
 Integration_Mesh_Generator::get_spatial_dim()
 {
     return mXTKModel->get_spatial_dim();
 }
 
+// ----------------------------------------------------------------------------------
+
 uint 
 Integration_Mesh_Generator::get_ig_mesh_order()
 {
     return this->mXTKModel->ig_element_order();
 }
+
+// ----------------------------------------------------------------------------------
 
 enum Subdivision_Method
 Integration_Mesh_Generator::determine_order_elevation_template()
@@ -253,6 +259,7 @@ Integration_Mesh_Generator::determine_order_elevation_template()
 }
 
 // ----------------------------------------------------------------------------------
+
 void
 Integration_Mesh_Generator::check_intersected_background_cell_levels(
     Integration_Mesh_Generation_Data& aMeshGenerationData,
@@ -280,6 +287,8 @@ Integration_Mesh_Generator::check_intersected_background_cell_levels(
 
     aCutIntegrationMesh->mSameLevelChildMeshes = all_land(tFlag);
 }
+
+// ----------------------------------------------------------------------------------
 
 bool
 Integration_Mesh_Generator::determine_intersected_background_cells(
@@ -455,6 +464,8 @@ Integration_Mesh_Generator::compute_ig_cell_bulk_phase(
     }
 }
 
+// ----------------------------------------------------------------------------------
+
 moris_index
 Integration_Mesh_Generator::get_max_index( moris::Cell< moris::mtk::Cell* >& aCells )
 {
@@ -470,6 +481,8 @@ Integration_Mesh_Generator::get_max_index( moris::Cell< moris::mtk::Cell* >& aCe
 
     return tMax;
 }
+
+// ----------------------------------------------------------------------------------
 
 moris_index
 Integration_Mesh_Generator::deduce_ig_cell_bulk_phase_index( moris::mtk::Cell const* aCell )
@@ -515,6 +528,8 @@ Integration_Mesh_Generator::deduce_ig_cell_bulk_phase_index( moris::mtk::Cell co
     return mGeometryEngine->get_elem_phase_index( tNodalPhaseVals );
 }
 
+// ----------------------------------------------------------------------------------
+
 void
 Integration_Mesh_Generator::deduce_interfaces(
     Cut_Integration_Mesh*                       aCutIntegrationMesh,
@@ -552,6 +567,8 @@ Integration_Mesh_Generator::deduce_interfaces(
         }
     }
 }
+
+// ----------------------------------------------------------------------------------
 
 void
 Integration_Mesh_Generator::identify_and_construct_subphases(
@@ -688,6 +705,8 @@ Integration_Mesh_Generator::identify_and_construct_subphases(
     this->assign_subphase_glob_ids( aCutIntegrationMesh, aBackgroundMesh );
 }
 
+// ----------------------------------------------------------------------------------
+
 void
 Integration_Mesh_Generator::construct_subphase_neighborhood(
     Cut_Integration_Mesh*                                                aCutIntegrationMesh,
@@ -715,7 +734,6 @@ Integration_Mesh_Generator::construct_subphase_neighborhood(
         aSubphaseNeighborhood->mSubphaseToSubPhaseNeighborSideOrds( i )->reserve( 4 );
         aSubphaseNeighborhood->mTransitionNeighborCellLocation( i )->reserve( 4 );
     }
-
 
     // I loop throuhg cells then side ordinals to capture the transition between adaptively refined meshes.
     // alternatively you could try looping through aBgFacetToChildFacet and then handle the subphase neigborhood for the transition locations seperately
@@ -836,6 +854,8 @@ Integration_Mesh_Generator::construct_subphase_neighborhood(
     }
 }
 
+// ----------------------------------------------------------------------------------
+
 void
 Integration_Mesh_Generator::collect_subphases_attached_to_facet_on_cell(
     Cut_Integration_Mesh*                                aCutIntegrationMesh,
@@ -889,6 +909,8 @@ Integration_Mesh_Generator::collect_subphases_attached_to_facet_on_cell(
     }
 }
 
+// ----------------------------------------------------------------------------------
+
 void
 Integration_Mesh_Generator::collect_ig_cells_and_side_ords_on_bg_facet(
     Cut_Integration_Mesh*             aCutIntegrationMesh,
@@ -927,6 +949,8 @@ Integration_Mesh_Generator::collect_ig_cells_and_side_ords_on_bg_facet(
         }
     }
 }
+
+// ----------------------------------------------------------------------------------
 
 void
 Integration_Mesh_Generator::assign_subphase_glob_ids(
@@ -1008,6 +1032,8 @@ Integration_Mesh_Generator::assign_subphase_glob_ids(
     aCutIntegrationMesh->setup_glob_to_loc_subphase_map();
 }
 
+// ----------------------------------------------------------------------------------
+
 void
 Integration_Mesh_Generator::prepare_subphase_identifier_requests(
     Cut_Integration_Mesh*                     aCutIntegrationMesh,
@@ -1083,6 +1109,8 @@ Integration_Mesh_Generator::prepare_subphase_identifier_requests(
     }
 }
 
+// ----------------------------------------------------------------------------------
+
 void
 Integration_Mesh_Generator::prepare_subphase_id_answers(
     Cut_Integration_Mesh*       aCutIntegrationMesh,
@@ -1133,6 +1161,8 @@ Integration_Mesh_Generator::prepare_subphase_id_answers(
     }
 }
 
+// ----------------------------------------------------------------------------------
+
 void
 Integration_Mesh_Generator::handle_received_subphase_id_request_answers(
     Cut_Integration_Mesh*              aCutIntegrationMesh,
@@ -1152,6 +1182,8 @@ Integration_Mesh_Generator::handle_received_subphase_id_request_answers(
         }
     }
 }
+
+// ----------------------------------------------------------------------------------
 
 moris::Matrix< moris::IndexMat >
 Integration_Mesh_Generator::flood_fill_ig_cell_group(
@@ -1335,6 +1367,9 @@ Integration_Mesh_Generator::flood_fill_ig_cell_group(
 
     return tElementSubphase;
 }
+
+// ----------------------------------------------------------------------------------
+
 void
 Integration_Mesh_Generator::construct_bulk_phase_to_bulk_phase_interface(
     Cut_Integration_Mesh*                                                aCutIntegrationMesh,
@@ -1385,6 +1420,8 @@ Integration_Mesh_Generator::construct_bulk_phase_to_bulk_phase_interface(
         }
     }
 }
+
+// ----------------------------------------------------------------------------------
 
 void
 Integration_Mesh_Generator::construct_bulk_phase_to_bulk_phase_dbl_side_interface(
@@ -1442,6 +1479,8 @@ Integration_Mesh_Generator::construct_bulk_phase_to_bulk_phase_dbl_side_interfac
     }
 }
 
+// ----------------------------------------------------------------------------------
+
 std::string
 Integration_Mesh_Generator::get_interface_side_set_name(
     moris_index aGeomIndex,
@@ -1454,6 +1493,8 @@ Integration_Mesh_Generator::get_interface_side_set_name(
 
     return "iside_b0_" + std::to_string( aBulkPhaseIndex0 ) + "_b1_" + std::to_string( aBulkPhaseIndex1 );
 }
+
+// ----------------------------------------------------------------------------------
 
 void
 Integration_Mesh_Generator::construct_interface_sets(
@@ -1494,6 +1535,8 @@ Integration_Mesh_Generator::construct_interface_sets(
     }
 }
 
+// ----------------------------------------------------------------------------------
+
 void
 Integration_Mesh_Generator::construct_bulk_phase_cell_groups(
     Cut_Integration_Mesh*                            aCutIntegrationMesh,
@@ -1522,6 +1565,8 @@ Integration_Mesh_Generator::construct_bulk_phase_cell_groups(
     }
 }
 
+// ----------------------------------------------------------------------------------
+
 void
 Integration_Mesh_Generator::construct_bulk_phase_blocks(
     Cut_Integration_Mesh*                            aCutIntegrationMesh,
@@ -1539,7 +1584,7 @@ Integration_Mesh_Generator::construct_bulk_phase_blocks(
     Cell< std::string > tBlockSetNames( tNumBulkPhases + 1 );
 
 // fixme: ...
-std::cout << "WARNING: GENERAlIZE NEEDED FOR MULTIPLE TOPOS" << std::endl;
+std::cout << "WARNING: GENERALIZE NEEDED FOR MULTIPLE TOPOS" << std::endl;
     
     // decide on cell topology of integration elements based on number of spatial dimensions
     enum CellTopology tCellTopo = xtk::determine_cell_topology( 
@@ -1565,6 +1610,7 @@ std::cout << "WARNING: GENERAlIZE NEEDED FOR MULTIPLE TOPOS" << std::endl;
 }
 
 // ----------------------------------------------------------------------------------
+
 moris_index
 Integration_Mesh_Generator::edge_exists(
     moris::Cell< moris::mtk::Vertex* >&                aVerticesOnEdge,
@@ -1598,6 +1644,8 @@ Integration_Mesh_Generator::edge_exists(
     }
     return tEdgeIndex;
 }
+
+// ----------------------------------------------------------------------------------
 
 moris_index
 Integration_Mesh_Generator::facet_exists(
@@ -1646,6 +1694,9 @@ Integration_Mesh_Generator::facet_exists(
     }
     return MORIS_INDEX_MAX;
 }
+
+// ----------------------------------------------------------------------------------
+
 void
 Integration_Mesh_Generator::create_facet_from_element_to_node(
     moris::Cell< moris::mtk::Cell* >&           aCells,
@@ -1743,6 +1794,8 @@ Integration_Mesh_Generator::create_facet_from_element_to_node(
     }
 }
 
+// ----------------------------------------------------------------------------------
+
 void
 Integration_Mesh_Generator::generate_cell_neighborhood(
     moris::Cell< moris::mtk::Cell* >&                 aCells,
@@ -1794,6 +1847,7 @@ Integration_Mesh_Generator::generate_cell_neighborhood(
 }
 
 // ----------------------------------------------------------------------------------
+
 void
 Integration_Mesh_Generator::create_edges_from_element_to_node(
     moris::Cell< moris::mtk::Cell* >           aCells,
@@ -1907,6 +1961,8 @@ Integration_Mesh_Generator::create_edges_from_element_to_node(
         }
     }
 }
+
+// ----------------------------------------------------------------------------------
 
 void
 Integration_Mesh_Generator::deduce_facet_ancestry(
@@ -2051,6 +2107,8 @@ Integration_Mesh_Generator::deduce_facet_ancestry(
     }
 }
 
+// ----------------------------------------------------------------------------------
+
 void
 Integration_Mesh_Generator::compute_bg_facet_to_child_facet_connectivity(
     Cut_Integration_Mesh*                                                aCutIntegrationMesh,
@@ -2089,6 +2147,7 @@ Integration_Mesh_Generator::compute_bg_facet_to_child_facet_connectivity(
 }
 
 // ----------------------------------------------------------------------------------
+
 void
 Integration_Mesh_Generator::deduce_edge_ancestry(
     Cut_Integration_Mesh*                      aCutIntegrationMesh,
@@ -2315,6 +2374,8 @@ Integration_Mesh_Generator::deduce_edge_ancestry(
     }
 }
 
+// ----------------------------------------------------------------------------------
+
 void
 Integration_Mesh_Generator::commit_new_ig_vertices_to_cut_mesh(
     Integration_Mesh_Generation_Data* aMeshGenerationData,
@@ -2401,6 +2462,8 @@ Integration_Mesh_Generator::commit_new_ig_vertices_to_cut_mesh(
     this->link_new_vertices_to_geometry_engine( aDecompositionData, aDecompAlg );
 }
 
+// ----------------------------------------------------------------------------------
+
 void
 Integration_Mesh_Generator::link_new_vertices_to_geometry_engine(
     Decomposition_Data*      aDecompositionData,
@@ -2417,6 +2480,8 @@ Integration_Mesh_Generator::link_new_vertices_to_geometry_engine(
             &aDecompositionData->tNewNodeCoordinate );
     }
 }
+
+// ----------------------------------------------------------------------------------
 
 void
 Integration_Mesh_Generator::select_background_cell_for_edge(
@@ -2446,6 +2511,7 @@ Integration_Mesh_Generator::select_background_cell_for_edge(
     }
 }
 
+// ----------------------------------------------------------------------------------
 
 void
 Integration_Mesh_Generator::select_background_cell_for_facet(
@@ -2475,6 +2541,8 @@ Integration_Mesh_Generator::select_background_cell_for_facet(
     }
 }
 
+// ----------------------------------------------------------------------------------
+
 void
 Integration_Mesh_Generator::collect_vertex_groups_for_background_cells(
     Integration_Mesh_Generation_Data*                  aMeshGenerationData,
@@ -2492,8 +2560,8 @@ Integration_Mesh_Generator::collect_vertex_groups_for_background_cells(
     }
 }
 
-
 // ----------------------------------------------------------------------------------
+
 bool
 Integration_Mesh_Generator::allocate_child_meshes(
     Integration_Mesh_Generation_Data& aMeshGenerationData,
@@ -2644,7 +2712,9 @@ Integration_Mesh_Generator::assign_node_requests_identifiers(
 
     barrier();
 }
+
 // ----------------------------------------------------------------------------------
+
 void
 Integration_Mesh_Generator::sort_new_node_requests_by_owned_and_not_owned(
     Decomposition_Data&                       tDecompData,
@@ -2696,7 +2766,9 @@ Integration_Mesh_Generator::sort_new_node_requests_by_owned_and_not_owned(
         }
     }
 }
+
 // ----------------------------------------------------------------------------------
+
 void
 Integration_Mesh_Generator::assign_owned_request_id(
     Decomposition_Data& aDecompData,
@@ -2715,7 +2787,9 @@ Integration_Mesh_Generator::assign_owned_request_id(
         aDecompData.mNumNewNodesWithIds++;
     }
 }
+
 // ----------------------------------------------------------------------------------
+
 void
 Integration_Mesh_Generator::setup_outward_requests(
     Decomposition_Data const&                 aDecompData,
@@ -2779,7 +2853,9 @@ Integration_Mesh_Generator::setup_outward_requests(
         }
     }
 }
+
 // ----------------------------------------------------------------------------------
+
 void
 Integration_Mesh_Generator::prepare_request_answers(
     Decomposition_Data&               aDecompData,
@@ -2860,7 +2936,9 @@ Integration_Mesh_Generator::prepare_request_answers(
         }
     }
 }
+
 // ----------------------------------------------------------------------------------
+
 void
 Integration_Mesh_Generator::handle_received_request_answers(
     Decomposition_Data&               aDecompData,
@@ -2963,11 +3041,13 @@ Integration_Mesh_Generator::verbosity_level()
 }
 
 // ----------------------------------------------------------------------------------
+
 void
 Integration_Mesh_Generator::remove_subphases_from_cut_mesh(moris::Cell<moris_index> const & aSubphasesToRemove)
 {
 
 }
+
 // ----------------------------------------------------------------------------------
 // ----------------------------------------------------------------------------------
 // ----------------------------------------------------------------------------------
