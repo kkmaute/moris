@@ -326,7 +326,6 @@ namespace moris
             moris_index aOtherEntityOrdinal,
             moris_index aOtherEntityRank ) const
         {
-
             switch ( aOtherEntityRank )
             {
                 // node to node paths
@@ -474,7 +473,7 @@ namespace moris
                 // node to face paths
                 case 2:
                 {
-                    Matrix< IndexMat > tVertexToEdgeRanks = {
+                    Matrix< IndexMat > tVertexToFaceRanks = {
                         { +2, +3, +3, +2, +2, +3}, 
                         { +2, +2, +3, +3, +2, +3}, 
                         { +3, +2, +2, +3, +2, +3}, 
@@ -503,7 +502,7 @@ namespace moris
                         { +2, +3, +3, +3, +3, +3}, 
                         { +3, +3, +2, +3, +3, +3} };
 
-                    Matrix< IndexMat > tVertexToEdgeIndices = {
+                    Matrix< IndexMat > tVertexToFaceIndices = {
                         { +0, +0, +0, +3, +4, +0}, 
                         { +0, +1, +0, +0, +4, +0}, 
                         { +0, +1, +2, +0, +4, +0}, 
@@ -532,8 +531,8 @@ namespace moris
                         { +0, +0, +0, +0, +0, +0}, 
                         { +0, +0, +2, +0, +0, +0} };
 
-                    moris_index tPathRank = tVertexToEdgeRanks( (uint) aVertexOrdinal, (uint) aOtherEntityOrdinal );
-                    moris_index tPathIndex = tVertexToEdgeIndices( (uint) aVertexOrdinal, (uint) aOtherEntityOrdinal );
+                    moris_index tPathRank = tVertexToFaceRanks( (uint) aVertexOrdinal, (uint) aOtherEntityOrdinal );
+                    moris_index tPathIndex = tVertexToFaceIndices( (uint) aVertexOrdinal, (uint) aOtherEntityOrdinal );
 
                     MORIS_ASSERT( tPathRank != -1 && tPathIndex != -1, 
                         "Cell_Info_Hex27::get_vertex_path_to_entity_rank_and_ordinal() - Vertex doesn't have path to itself." );
