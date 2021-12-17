@@ -291,15 +291,125 @@ namespace moris
             }
         }
 
+        // ----------------------------------------------------------------------------------
+
         moris::Cell< moris_index >
         Cell_Info_Quad16::get_vertex_path_to_entity_rank_and_ordinal(
             moris_index aVertexOrdinal,
             moris_index aOtherEntityOrdinal,
             moris_index aOtherEntityRank ) const
         {
-            Cell_Info_Quad4 tQuad4;
-            return tQuad4.get_vertex_path_to_entity_rank_and_ordinal( aVertexOrdinal, aOtherEntityOrdinal, aOtherEntityRank );
+
+            switch ( aOtherEntityRank )
+            {
+                // node to node paths
+                case 0:
+                {
+                    const Matrix< IndexMat > tVertexToVertexRanks = {
+                        { -1, +1, +3, +1, +1, +1, +3, +3, +3, +3, +1, +1, +3, +3, +3, +3}, 
+                        { +1, -1, +1, +3, +1, +1, +1, +1, +3, +3, +3, +3, +3, +3, +3, +3}, 
+                        { +3, +1, -1, +1, +3, +3, +1, +1, +1, +1, +3, +3, +3, +3, +3, +3}, 
+                        { +1, +3, +1, -1, +3, +3, +3, +3, +1, +1, +1, +1, +3, +3, +3, +3}, 
+                        { +1, +1, +3, +3, -1, +1, +3, +3, +3, +3, +3, +3, +3, +3, +3, +3}, 
+                        { +1, +1, +3, +3, +1, -1, +3, +3, +3, +3, +3, +3, +3, +3, +3, +3}, 
+                        { +3, +1, +1, +3, +3, +3, -1, +1, +3, +3, +3, +3, +3, +3, +3, +3}, 
+                        { +3, +1, +1, +3, +3, +3, +1, -1, +3, +3, +3, +3, +3, +3, +3, +3}, 
+                        { +3, +3, +1, +1, +3, +3, +3, +3, -1, +1, +3, +3, +3, +3, +3, +3}, 
+                        { +3, +3, +1, +1, +3, +3, +3, +3, +1, -1, +3, +3, +3, +3, +3, +3}, 
+                        { +1, +3, +3, +1, +3, +3, +3, +3, +3, +3, -1, +1, +3, +3, +3, +3}, 
+                        { +1, +3, +3, +1, +3, +3, +3, +3, +3, +3, +1, -1, +3, +3, +3, +3}, 
+                        { +3, +3, +3, +3, +3, +3, +3, +3, +3, +3, +3, +3, -1, +3, +3, +3}, 
+                        { +3, +3, +3, +3, +3, +3, +3, +3, +3, +3, +3, +3, +3, -1, +3, +3}, 
+                        { +3, +3, +3, +3, +3, +3, +3, +3, +3, +3, +3, +3, +3, +3, -1, +3}, 
+                        { +3, +3, +3, +3, +3, +3, +3, +3, +3, +3, +3, +3, +3, +3, +3, -1} };
+
+                    const Matrix< IndexMat > tVertexToVertexIndices = {
+                        { -1, +0, +0, +3, +0, +0, +0, +0, +0, +0, +3, +3, +0, +0, +0, +0}, 
+                        { +0, -1, +1, +0, +0, +0, +1, +1, +0, +0, +0, +0, +0, +0, +0, +0}, 
+                        { +0, +1, -1, +2, +0, +0, +1, +1, +2, +2, +0, +0, +0, +0, +0, +0}, 
+                        { +3, +0, +2, -1, +0, +0, +0, +0, +2, +2, +3, +3, +0, +0, +0, +0}, 
+                        { +0, +0, +0, +0, -1, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0}, 
+                        { +0, +0, +0, +0, +0, -1, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0}, 
+                        { +0, +1, +1, +0, +0, +0, -1, +1, +0, +0, +0, +0, +0, +0, +0, +0}, 
+                        { +0, +1, +1, +0, +0, +0, +1, -1, +0, +0, +0, +0, +0, +0, +0, +0}, 
+                        { +0, +0, +2, +2, +0, +0, +0, +0, -1, +2, +0, +0, +0, +0, +0, +0}, 
+                        { +0, +0, +2, +2, +0, +0, +0, +0, +2, -1, +0, +0, +0, +0, +0, +0}, 
+                        { +3, +0, +0, +3, +0, +0, +0, +0, +0, +0, -1, +3, +0, +0, +0, +0}, 
+                        { +3, +0, +0, +3, +0, +0, +0, +0, +0, +0, +3, -1, +0, +0, +0, +0}, 
+                        { +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, -1, +0, +0, +0}, 
+                        { +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, -1, +0, +0}, 
+                        { +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, -1, +0}, 
+                        { +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, -1} };
+
+                    
+                    moris_index tPathRank = tVertexToVertexRanks( (uint) aVertexOrdinal, (uint) aOtherEntityOrdinal );
+                    moris_index tPathIndex = tVertexToVertexIndices( (uint) aVertexOrdinal, (uint) aOtherEntityOrdinal );
+
+                    MORIS_ASSERT( tPathRank != -1 && tPathIndex != -1, 
+                        "Cell_Info_Quad16::get_vertex_path_to_entity_rank_and_ordinal() - Vertex doesn't have path to itself." );
+
+                    return { tPathIndex, tPathRank };
+                    break;
+                }
+
+                // node to edge paths
+                case 1:
+                {
+                    const Matrix< IndexMat > tVertexToEdgeRanks = {
+                        { +1, +3, +3, +1}, 
+                        { +1, +1, +3, +3}, 
+                        { +3, +1, +1, +3}, 
+                        { +3, +3, +1, +1}, 
+                        { +1, +3, +3, +3}, 
+                        { +1, +3, +3, +3}, 
+                        { +3, +1, +3, +3}, 
+                        { +3, +1, +3, +3}, 
+                        { +3, +3, +1, +3}, 
+                        { +3, +3, +1, +3}, 
+                        { +3, +3, +3, +1}, 
+                        { +3, +3, +3, +1}, 
+                        { +3, +3, +3, +3}, 
+                        { +3, +3, +3, +3}, 
+                        { +3, +3, +3, +3}, 
+                        { +3, +3, +3, +3} };
+
+                    const Matrix< IndexMat > tVertexToEdgeIndices = {
+                        { +0, +0, +0, +3}, 
+                        { +0, +1, +0, +0}, 
+                        { +0, +1, +2, +0}, 
+                        { +0, +0, +2, +3}, 
+                        { +0, +0, +0, +0}, 
+                        { +0, +0, +0, +0}, 
+                        { +0, +1, +0, +0}, 
+                        { +0, +1, +0, +0}, 
+                        { +0, +0, +2, +0}, 
+                        { +0, +0, +2, +0}, 
+                        { +0, +0, +0, +3}, 
+                        { +0, +0, +0, +3}, 
+                        { +0, +0, +0, +0}, 
+                        { +0, +0, +0, +0}, 
+                        { +0, +0, +0, +0}, 
+                        { +0, +0, +0, +0} };
+
+                    moris_index tPathRank = tVertexToEdgeRanks( (uint) aVertexOrdinal, (uint) aOtherEntityOrdinal );
+                    moris_index tPathIndex = tVertexToEdgeIndices( (uint) aVertexOrdinal, (uint) aOtherEntityOrdinal );
+
+                    MORIS_ASSERT( tPathRank != -1 && tPathIndex != -1, 
+                        "Cell_Info_Quad16::get_vertex_path_to_entity_rank_and_ordinal() - Vertex doesn't have path to itself." );
+
+                    return { tPathIndex, tPathRank };
+                    break;
+                }
+
+                default:
+                {
+                    MORIS_ERROR( 0, "Invalid other entity rank for hex8" );
+                    return moris::Cell< moris_index >( 0 );
+                }
+            } // end: switch aOtherEntityRank
         }
+
+        // ----------------------------------------------------------------------------------
 
         moris::Cell< moris_index >
         Cell_Info_Quad16::get_edge_path_to_entity_rank_and_ordinal(
@@ -310,6 +420,8 @@ namespace moris
             Cell_Info_Quad4 tQuad4;
             return tQuad4.get_edge_path_to_entity_rank_and_ordinal( aEdgeOrdinal, aOtherEntityOrdinal, aOtherEntityRank );
         }
+
+        // ----------------------------------------------------------------------------------
 
         bool
         Cell_Info_Quad16::is_entity_connected_to_facet(

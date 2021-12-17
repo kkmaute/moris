@@ -291,7 +291,6 @@ namespace moris
             moris_index aOtherEntityOrdinal,
             moris_index aOtherEntityRank ) const
         {
-
             switch ( aOtherEntityRank )
             {
                 // node to node paths
@@ -359,7 +358,7 @@ namespace moris
                     moris_index tPathIndex = tVertexToEdgeIndices( (uint) aVertexOrdinal, (uint) aOtherEntityOrdinal );
 
                     MORIS_ASSERT( tPathRank != -1 && tPathIndex != -1, 
-                        "Cell_Info_Hex27::get_vertex_path_to_entity_rank_and_ordinal() - Vertex doesn't have path to itself." );
+                        "Cell_Info_Quad9::get_vertex_path_to_entity_rank_and_ordinal() - Vertex doesn't have path to itself." );
 
                     return { tPathIndex, tPathRank };
                     break;
@@ -560,7 +559,7 @@ namespace moris
 
                 default:
                 {
-                    MORIS_ERROR( 0, "Invalid other entity rank for QUAD4 (must be 0-Vertex or 1-Edge" );
+                    MORIS_ERROR( 0, "Cell_Info_Quad9::is_entity_connected_to_facet() - Invalid other entity rank for QUAD4 (must be 0-Vertex or 1-Edge" );
                     return false;
                     break;
                 }
