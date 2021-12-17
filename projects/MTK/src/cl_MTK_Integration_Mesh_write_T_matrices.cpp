@@ -161,41 +161,45 @@ namespace moris
                     // loop over the vertices on the treated mesh cluster
                     for( uint iIgVert = 0; iIgVert < tNumVerticesOnCluster; iIgVert++ )
                     {
-                        // set interpolation point in space to current vertex
-                        tSpaceInterpolator.set_space_time( trans( tLocalCoords.get_row( iIgVert ) ) );
-
-                        // evaluate vector of shape functions at current vertex and retrieve it
-                        const Matrix< DDRMat > & tN = tSpaceInterpolator.NXi();
-
-                        // get current vertex ID and index
-                        moris_id tIGVertexId = tIGVertices( iIgVert )->get_id();
-
-                        // get number of shape functions interpolating into current vertex
-                        uint tNumSFs = tN.n_cols();
-
-                        // initialize size of T-Matrix for current vertex
-                        aIGtoIPIds( tIGVertexId - 1 ).set_size( 1, tNumSFs, gNoID );
-                        aIGtoIPWeights( tIGVertexId - 1 ).set_size( 1, tNumSFs, -1.0 );
-
-                        // initialize counter
-                        uint tCount = 0;
-
-                        // loop over all T-Matrix entries
-                        for( uint iSF = 0; iSF < tNumSFs; iSF++ )
+                        // if vertex on cluster is only an IP vertex with no relationship to the IG mesh, ignore it
+                        if ( !this->is_pure_IP_vertex( tCellInfo, iIgVert ) )
                         {
-                            // ignore T-matrix entries which are zero close to machine precision
-                            if ( std::abs( tN( iSF ) ) > 10.0 * MORIS_REAL_EPS )
+                            // set interpolation point in space to current vertex
+                            tSpaceInterpolator.set_space_time( trans( tLocalCoords.get_row( iIgVert ) ) );
+
+                            // evaluate vector of shape functions at current vertex and retrieve it
+                            const Matrix< DDRMat > & tN = tSpaceInterpolator.NXi();
+
+                            // get current vertex ID and index
+                            moris_id tIGVertexId = tIGVertices( iIgVert )->get_id();
+
+                            // get number of shape functions interpolating into current vertex
+                            uint tNumSFs = tN.n_cols();
+
+                            // initialize size of T-Matrix for current vertex
+                            aIGtoIPIds( tIGVertexId - 1 ).set_size( 1, tNumSFs, gNoID );
+                            aIGtoIPWeights( tIGVertexId - 1 ).set_size( 1, tNumSFs, -1.0 );
+
+                            // initialize counter
+                            uint tCount = 0;
+
+                            // loop over all T-Matrix entries
+                            for( uint iSF = 0; iSF < tNumSFs; iSF++ )
                             {
-                                // copy pointer of dof and convert to mtk::Vertex
-                                aIGtoIPIds( tIGVertexId - 1 )( tCount ) = tIPVertices( iSF )->get_id();
+                                // ignore T-matrix entries which are zero close to machine precision
+                                if ( std::abs( tN( iSF ) ) > 10.0 * MORIS_REAL_EPS )
+                                {
+                                    // copy pointer of dof and convert to mtk::Vertex
+                                    aIGtoIPIds( tIGVertexId - 1 )( tCount ) = tIPVertices( iSF )->get_id();
 
-                                // copy entry of T-Matrix
-                                aIGtoIPWeights( tIGVertexId - 1 )( tCount ) = tN( iSF );
+                                    // copy entry of T-Matrix
+                                    aIGtoIPWeights( tIGVertexId - 1 )( tCount ) = tN( iSF );
 
-                                // increment counter
-                                tCount++;
+                                    // increment counter
+                                    tCount++;
+                                }
                             }
-                        }
+                        } // end: check if vertex is IG vertex
                     } // end: loop over vertices on cluster
                 } // end: loop over clusters
             } // end: if cluster is empty
@@ -450,6 +454,57 @@ namespace moris
                     }
                 }
             } // end: loop over all IG nodes
+        }
+
+        // ----------------------------------------------------------------------------
+
+        bool
+        Integration_Mesh::is_pure_IP_vertex(
+            Cell_Info const *aCellInfo,
+            const uint       aLocalVertIndex )
+        {
+            // get geometry type of IP cell
+            enum Geometry_Type tCellGeometryType = aCellInfo->get_cell_geometry();
+
+            // initialize number of corner vertices
+            uint tNumCornerVerts = 0;
+
+            // determine how many corner vertices the IP cell has
+            switch ( tCellGeometryType)
+            {
+                case Geometry_Type::QUAD :
+                {
+                    tNumCornerVerts = 4;
+                    break;
+                }
+
+                case Geometry_Type::HEX :
+                {
+                    tNumCornerVerts = 8;
+                    break;
+                }
+                
+                default:
+                {
+                    MORIS_ERROR( false, "Integration_Mesh::is_pure_IP_vertex() - IP cell can only be QUAD or HEX." );
+                    break;
+                }
+            }
+
+            // get total number of nodes
+            uint tTotNumVerts = aCellInfo->get_num_verts();
+
+            //
+            bool tIsPureIPVertex = false;
+
+            // see if vertex index is non-corner vertex
+            if ( aLocalVertIndex >= tNumCornerVerts && aLocalVertIndex < tTotNumVerts )
+            {
+                tIsPureIPVertex = true;
+            }
+            
+            // return result
+            return tIsPureIPVertex;
         }
 
         // ----------------------------------------------------------------------------
