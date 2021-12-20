@@ -97,7 +97,10 @@ namespace prm
         // write XTK exodus mesh
         tParameterList.insert( "exodus_output_XTK_ig_mesh", false );
 
-        // write intersection mesh
+        // write Cut_Integration_Mesh
+        tParameterList.insert( "output_cut_ig_mesh", false );
+
+        // write Intersection_Mesh
         tParameterList.insert( "output_intersection_mesh", false );
 
         // enriched integration mesh options

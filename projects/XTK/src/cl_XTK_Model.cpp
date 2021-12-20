@@ -84,8 +84,8 @@ Model::~Model()
 // ----------------------------------------------------------------------------------
 
 /*
-     * using the general geometry engine
-     */
+ * using the general geometry engine
+ */
 Model::Model(
     uint                            aModelDimension,
     moris::mtk::Interpolation_Mesh *aMeshData,
@@ -625,8 +625,10 @@ Model::decompose( Cell< enum Subdivision_Method > aMethods )
         tActiveGeometries( i ) = (moris_index)i;
     }
 
+    // initialize IMG object for performing decomposition
     Integration_Mesh_Generator tIntegrationGenerator( this, aMethods, tActiveGeometries );
-
+    
+    // perform decomposition
     mCutIntegrationMesh = tIntegrationGenerator.perform();
 
     mDecomposed = mCutIntegrationMesh->mSameLevelChildMeshes;

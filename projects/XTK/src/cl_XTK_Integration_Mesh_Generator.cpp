@@ -28,7 +28,7 @@ Integration_Mesh_Generator::~Integration_Mesh_Generator()
 std::shared_ptr< Cut_Integration_Mesh >
 Integration_Mesh_Generator::perform()
 {
-    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "perform" ,mXTKModel->mVerboseLevel, 0  );
+    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "perform", mXTKModel->mVerboseLevel, 0 );
 
     // data structure to pass things around
     Integration_Mesh_Generation_Data tGenerationData;
@@ -140,8 +140,6 @@ Integration_Mesh_Generator::perform()
     this->construct_subphase_neighborhood( tCutIntegrationMesh.get(), tBackgroundMesh, tFaceConnectivity, &tBgFacetToChildFacet, tSubphaseNeighborhood );
     tCutIntegrationMesh->set_subphase_neighborhood( tSubphaseNeighborhood );
 
-    
-
     // construct the bulk phase blocks
     moris::Cell< std::shared_ptr< IG_Cell_Group > > tBulkPhaseCellGroups;
     this->construct_bulk_phase_cell_groups( tCutIntegrationMesh.get(), tBulkPhaseCellGroups );
@@ -163,8 +161,12 @@ Integration_Mesh_Generator::perform()
 
     this->construct_bulk_phase_blocks( tCutIntegrationMesh.get(), tBulkPhaseCellGroups );
 
-    tCutIntegrationMesh->write_mesh("./","cut_ig_mesh.exo");
-
+    // output cut IG mesh for debugging
+    if ( mOutputCutIgMesh )
+    {
+        tCutIntegrationMesh->write_mesh("./","cut_ig_mesh.exo");
+    }
+    
     return tCutIntegrationMesh;
 }
 

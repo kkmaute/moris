@@ -234,6 +234,8 @@ class Integration_Mesh_Generator
     moris::Matrix< moris::IndexMat >       mActiveGeometries;
     moris::Cell< enum Subdivision_Method > mSubdivisionMethods;
 
+    bool mOutputCutIgMesh = true;
+
   public:
     Integration_Mesh_Generator();
     Integration_Mesh_Generator(
@@ -259,6 +261,18 @@ class Integration_Mesh_Generator
 
     enum Subdivision_Method
     determine_order_elevation_template();
+
+    void 
+    set_cut_IG_mesh_output( bool aOutputCutIgMesh )
+    {
+        mOutputCutIgMesh = aOutputCutIgMesh;
+    }
+
+    bool
+    get_cut_IG_mesh_output()
+    {
+        return mOutputCutIgMesh;
+    }
 
     /**
      * @brief checks whether all intersected background cells are on the same level. The resultant bool is populated
