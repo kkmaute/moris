@@ -326,19 +326,22 @@ namespace ge
         case Intersection_Mode::LEVEL_SET:
         {
             // Initialize by evaluating the first node
-            real tMin = mGeometries( mActiveGeometryIndex )->get_field_value( aNodeIndices( 0 ), aNodeCoordinates.get_row( aNodeIndices( 0 ) ) );
+            real tMin = mGeometries( mActiveGeometryIndex )->get_field_value( 0, aNodeCoordinates.get_row( 0 ) );
             real tMax = tMin;
 
             // Evaluate the rest of the nodes
-            for ( uint tNodeCount = 0; tNodeCount < aNodeIndices.length(); tNodeCount++ )
+            for ( uint tNodeCount = 1; tNodeCount < aNodeIndices.length(); tNodeCount++ )
             {
-                real tEval = mGeometries( mActiveGeometryIndex )->get_field_value( aNodeIndices( tNodeCount ), aNodeCoordinates.get_row( aNodeIndices( tNodeCount ) ) );
+                real tEval = mGeometries( mActiveGeometryIndex )->get_field_value( tNodeCount, aNodeCoordinates.get_row( tNodeCount ) );
 
                 tMin = std::min( tMin, tEval );
                 tMax = std::max( tMax, tEval );
             }
 
-            tIsIntersected = ( tMax >= mIsocontourThreshold and tMin <= mIsocontourThreshold ) or ( std::abs( tMax - mIsocontourThreshold ) < mIsocontourTolerance ) or ( std::abs( tMin - mIsocontourThreshold ) < mIsocontourTolerance );
+            bool tHasZeroLsvInbetween = ( tMax >= mIsocontourThreshold ) and ( tMin <= mIsocontourThreshold );
+            bool tHasCloseToZeroLsvFromAbove = ( std::abs( tMax - mIsocontourThreshold ) < mIsocontourTolerance );
+            bool tHasCloseToZeroLsvFromBelow = ( std::abs( tMin - mIsocontourThreshold ) < mIsocontourTolerance );
+            tIsIntersected = tHasZeroLsvInbetween or tHasCloseToZeroLsvFromAbove or tHasCloseToZeroLsvFromBelow;
 
             break;
         }
