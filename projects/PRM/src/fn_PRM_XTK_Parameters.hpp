@@ -80,6 +80,9 @@ namespace prm
         // a sphere where I write enrichment fields locations (r,xc,yv,zc)
         tParameterList.insert("write_enrichment_fields_probe_spheres", "");
 
+        // T-Matrix output if needed
+        tParameterList.insert( "T_matrix_output_file", "" );
+        tParameterList.insert( "MPC_output_file", "" );
 
         // path to folder for XTK output
         tParameterList.insert( "output_path", "./" );

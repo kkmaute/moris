@@ -27,7 +27,7 @@ namespace moris
         // ----------------------------------------------------------------------------
 
         void
-        Integration_Mesh::save_IG_node_TMatrices_to_file()
+        Integration_Mesh::save_IG_node_TMatrices_to_file( std::string aFileName )
         {
             // trace this function
             Tracer tTracer( "MTK", "Save Nodal T-Matrices to File" );
@@ -80,7 +80,7 @@ namespace moris
                 // write to file
 
                 // construct string from output file name 
-                std::string tStrOutputFile = "Extraction_Operator." + ios::stringify( iSet ) + ".hdf5";
+                std::string tStrOutputFile = aFileName + "." + ios::stringify( iSet ) + ".hdf5";
 
                 // log/print that the extraction operator is output to
                 MORIS_LOG_INFO( "Saving Extraction Operator for Set-# %i to file: %s", iSet, tStrOutputFile.c_str() );

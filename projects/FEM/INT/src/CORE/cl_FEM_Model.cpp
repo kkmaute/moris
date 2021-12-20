@@ -254,7 +254,7 @@ namespace fem
         // ask IG mesh about number of IG vertices on proc
         luint tNumIGNodes = aIGMesh->get_num_nodes();
 
-        std::cout << "tNumIGNodes: " << tNumIGNodes << std::endl;
+        // std::cout << "tNumIGNodes: " << tNumIGNodes << std::endl;
 
         // set size for list IG nodes
         mIGNodes.resize( tNumIGNodes, nullptr );

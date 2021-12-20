@@ -1514,12 +1514,28 @@ Model::get_subphase_id( moris_id aSubphaseIndex )
     return mCutIntegrationMesh->get_subphase_id( aSubphaseIndex );
 }
 
-// ----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 moris_index
 Model::get_subphase_index( moris_id aSubphaseId )
 {
     return mCutIntegrationMesh->get_subphase_index( aSubphaseId );
+}
+
+// -----------------------------------------------------------------------------
+
+std::string
+Model::get_T_matrix_output_file_name()
+{
+    // get value from parameterlist
+    return mParameterList.get< std::string >( "T_matrix_output_file" );
+}
+
+std::string
+Model::get_MPC_output_file_name()
+{
+    // get value from parameterlist
+    return mParameterList.get< std::string >( "MPC_output_file" );
 }
 
 //------------------------------------------------------------------------------
