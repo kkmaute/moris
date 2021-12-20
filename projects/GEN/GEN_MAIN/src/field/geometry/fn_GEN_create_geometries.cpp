@@ -249,6 +249,22 @@ namespace moris
                 MORIS_ERROR(aMTKMesh != nullptr, "Mesh is a null ptr for nodal field geometry");
                 return std::make_shared<ge::Mesh_Field_Geometry>(aMTKMesh, tParameters.mName, EntityRank::NODE);
             }
+            else if (tGeometryType == "nodal_field_from_file")
+            {
+                std::string tFileName      = aGeometryParameterList.get<std::string>("file_name");
+                std::string tFieldName     = aGeometryParameterList.get<std::string>("field_name");
+                std::string tFieldFormat   = aGeometryParameterList.get<std::string>("file_format");
+                real        tOffset        = aGeometryParameterList.get<real>("offset");
+
+                return std::make_shared<ge::Mesh_Field_Geometry>(
+                        aMTKMesh,
+                        tFileName,
+                        tFieldName,
+                        tFieldFormat,
+                        tOffset,
+                        EntityRank::NODE,
+                        tParameters);
+            }
             else if (tGeometryType == "sdf_field")
             {
                 std::string tObjectPath      = aGeometryParameterList.get<std::string>("sdf_object_path");
@@ -318,8 +334,8 @@ namespace moris
                 real tTargetYSpacing = aGeometryParameterList.get<real>("target_y_spacing");
 
                 MORIS_ERROR((tNumXHoles > 1 and tNumYHoles > 1) or (tTargetXSpacing and tTargetYSpacing),
-                            "In a swiss cheese parameter list, you must specify either a number of holes > 1 %s",
-                            "or a target spacing in each direction.\n");
+                        "In a swiss cheese parameter list, you must specify either a number of holes > 1 %s",
+                        "or a target spacing in each direction.\n");
 
                 if (tNumXHoles)
                 {
