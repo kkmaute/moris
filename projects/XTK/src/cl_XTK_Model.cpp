@@ -379,34 +379,17 @@ Model::perform()
             //Construct intersection and perform
             mIntersectionDetect2D = new mtk::Intersection_Detect_2D( mMTKOutputPerformer, 0, mParameterList, mGeometryEngine->get_num_bulk_phase() );
             mIntersectionDetect2D->perform();
+
+            Tracer tTracer( "MTK", "Output Clusters", "Writing Mesh" );
+
+            //Construct the intersection mesh
+            mtk::Intersection_Mesh *tIscMesh = new mtk::Intersection_Mesh( &tEnrIntegMesh, mIntersectionDetect );
+
+            //Write the mesh
+            moris::mtk::Writer_Exodus tWriter2( tIscMesh );
+            tWriter2.write_mesh( "", "VIS_ISC.exo", "", "temp.exo" );
+            tWriter2.close_file();
         }
-        else
-        {
-            {
-                //initialize the time tracer
-                Tracer tTracer( "MTK", "Double Sided Set", " Periodic Boundary Condition " );
-
-
-                mIntersectionDetect = new mtk::Intersection_Detect( mMTKOutputPerformer, 0, mParameterList, mGeometryEngine->get_num_bulk_phase() );
-                mIntersectionDetect->perform();
-            }
-
-            {
-
-                Tracer tTracer( "MTK", "Output Clusters", "Writing Mesh" );
-
-                //Construct the intersection mesh
-                mtk::Intersection_Mesh *tIscMesh = new mtk::Intersection_Mesh( &tEnrIntegMesh, mIntersectionDetect );
-
-                //Write the mesh
-                moris::mtk::Writer_Exodus tWriter2( tIscMesh );
-                tWriter2.write_mesh( "", "VIS_ISC.exo", "", "temp.exo" );
-                tWriter2.close_file();
-            }
-        }
-
-        
-
 
         // if( mParameterList.get<bool>("contact_sandbox") )
         // {
