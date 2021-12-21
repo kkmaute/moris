@@ -1586,9 +1586,6 @@ Integration_Mesh_Generator::construct_bulk_phase_blocks(
     MORIS_ERROR( aBulkPhaseCellGroups.size() == tNumBulkPhases + 1, "We expect there to be a bulk phase cell group for each bulk phase and 1 for problematic cells" );
 
     Cell< std::string > tBlockSetNames( tNumBulkPhases + 1 );
-
-// fixme: ...
-std::cout << "WARNING: GENERALIZE NEEDED FOR MULTIPLE TOPOS" << std::endl;
     
     // decide on cell topology of integration elements based on number of spatial dimensions
     enum CellTopology tCellTopo = xtk::determine_cell_topology( 
