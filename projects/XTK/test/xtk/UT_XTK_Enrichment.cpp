@@ -111,7 +111,6 @@ TEST_CASE( "Enrichment Example 1", "[ENRICH_1]" )
         // Perform the enrichment
         tXTKModel.perform_basis_enrichment( EntityRank::NODE );
 
-
         Enrichment const& tEnrichment = tXTKModel.get_basis_enrichment();
 
         // Declare the fields related to enrichment strategy in output options
@@ -174,7 +173,6 @@ TEST_CASE( "8 Element 10 enrichment Levels", "[ENRICH_10_EL_CLUSTER]" )
         moris_id tIndexOfNodeId25 = tMeshData->get_loc_entity_ind_from_entity_glb_id( 25, EntityRank::NODE );
         moris_id tIndexOfNodeId27 = tMeshData->get_loc_entity_ind_from_entity_glb_id( 27, EntityRank::NODE );
 
-
         // Bottom face
         tLevelsetVal( tIndexOfNodeId1 ) = 1.1;
         tLevelsetVal( tIndexOfNodeId3 ) = 1.1;
@@ -193,7 +191,6 @@ TEST_CASE( "8 Element 10 enrichment Levels", "[ENRICH_10_EL_CLUSTER]" )
         tLevelsetVal( tIndexOfNodeId23 ) = 1.1;
         tLevelsetVal( tIndexOfNodeId15 ) = 1.1;
         tLevelsetVal( tIndexOfNodeId13 ) = 1.1;
-
 
         tMeshData->add_mesh_field_real_scalar_data_loc_inds( tLSFName, moris::EntityRank::NODE, tLevelsetVal );
         tMeshData->mVerbose          = false;
@@ -237,7 +234,6 @@ TEST_CASE( "8 Element 10 enrichment Levels", "[ENRICH_10_EL_CLUSTER]" )
         tOutputOptions.mRealElementExternalFieldNames = tEnrichmentFieldNames;
 
         Enriched_Integration_Mesh&   tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
-        Enriched_Interpolation_Mesh& tEnrIpMesh    = tXTKModel.get_enriched_interp_mesh();
 
         tEnrIntegMesh.create_dbl_sided_interface_set( 1, 0 );
 
@@ -260,6 +256,7 @@ TEST_CASE( "8 Element 10 enrichment Levels", "[ENRICH_10_EL_CLUSTER]" )
             CHECK( std::abs( tGoldSurface - tSlaveSurfaceArea ) < 1e-8 );
         }
 
+        // Enriched_Interpolation_Mesh& tEnrIpMesh    = tXTKModel.get_enriched_interp_mesh();
         // std::cout < "Check Mesh" << std::endl;
         // mtk::Mesh_Checker tMeshChecker( 0, &tEnrIpMesh, &tEnrIntegMesh );
         // tMeshChecker.perform();

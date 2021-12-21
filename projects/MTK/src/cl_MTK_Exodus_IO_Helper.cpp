@@ -1211,22 +1211,22 @@ namespace moris
                     }
                     case 1:
                     {
-                        sprintf(tRankChar,".01%d",par_rank());
+                        sprintf(tRankChar,".%02d",par_rank());
                         break;
                     }
                     case 2:
                     {
-                        sprintf(tRankChar,".02%d",par_rank());
+                        sprintf(tRankChar,".%03d",par_rank());
                         break;
                     }
                     case 3:
                     {
-                        sprintf(tRankChar,".03%d",par_rank());
+                        sprintf(tRankChar,".%04d",par_rank());
                         break;
                     }
                     case 4:
                     {
-                        sprintf(tRankChar,".04%d",par_rank());
+                        sprintf(tRankChar,".%05d",par_rank());
                         break;
                     }
                     default:

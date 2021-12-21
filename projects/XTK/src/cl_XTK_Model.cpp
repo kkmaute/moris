@@ -404,9 +404,6 @@ Model::perform()
             }
         }
 
-        
-
-
         // if( mParameterList.get<bool>("contact_sandbox") )
         // {
         //     std::string tInterfaceSideSetName1 = tEnrIntegMesh.get_interface_side_set_name(0, 0, 2);

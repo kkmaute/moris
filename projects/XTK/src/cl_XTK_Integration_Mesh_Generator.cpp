@@ -1034,6 +1034,8 @@ Integration_Mesh_Generator::assign_subphase_glob_ids(
     this->handle_received_subphase_id_request_answers( aCutIntegrationMesh, tNotOwnedSubphasesToProcs, tReceivedSubphaseIds );
 
     aCutIntegrationMesh->setup_glob_to_loc_subphase_map();
+
+    barrier();
 }
 
 // ----------------------------------------------------------------------------------
