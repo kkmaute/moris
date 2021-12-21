@@ -1211,22 +1211,22 @@ namespace moris
                     }
                     case 1:
                     {
-                        sprintf(tRankChar,".01%d",par_rank());
+                        sprintf(tRankChar,".%02d",par_rank());
                         break;
                     }
                     case 2:
                     {
-                        sprintf(tRankChar,".02%d",par_rank());
+                        sprintf(tRankChar,".%03d",par_rank());
                         break;
                     }
                     case 3:
                     {
-                        sprintf(tRankChar,".03%d",par_rank());
+                        sprintf(tRankChar,".%04d",par_rank());
                         break;
                     }
                     case 4:
                     {
-                        sprintf(tRankChar,".04%d",par_rank());
+                        sprintf(tRankChar,".%05d",par_rank());
                         break;
                     }
                     default:
@@ -1449,5 +1449,29 @@ namespace moris
 
             return tIndex;
         }
+
+        //------------------------------------------------------------------------------
+
+        uint
+        Exodus_IO_Helper::get_field_index_by_name( std::string aFileName )
+        {
+            if (mNumNodalVars > 0 )
+            {
+                for ( uint i=0;i<(uint)mNumNodalVars;++i)
+                {
+                    if (aFileName.compare( mNodeFieldNamePtrs[std::size_t(i)] ) == 0 )
+                    {
+                        return i;
+                    }
+                }
+            }
+
+            // check that field index was found
+            MORIS_ERROR( false,
+                    "Exodus_IO_Helper::get_field_index_by_name - field %s not found.",aFileName.c_str());
+
+            return 0;
+        }
+
     }
 }

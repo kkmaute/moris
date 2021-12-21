@@ -124,9 +124,6 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
 
             CHECK(xtk::interpolated_coordinate_check(tXTKModel.get_cut_integration_mesh()));
 
-            moris::Matrix<moris::DDRMat> tIsoContourThreshold = {{0.0}};
-            moris::Matrix<moris::DDRMat> tIsoContourTolerance = {{1e-12}};
-            CHECK(xtk::verify_interface_vertices(&tXTKModel,tIsoContourThreshold,tIsoContourTolerance));
     }
 }
 }

@@ -570,6 +570,15 @@ class Integration_Mesh_Generator
 
     moris::uint
     verbosity_level();
+    
+    /**
+     * @brief Removes subphases and deletes contained ig cells
+     * 
+     * @param aSubphasesToRemove subphase indexes to delete
+     */
+
+    void
+    remove_subphases_from_cut_mesh(moris::Cell<moris_index> const & aSubphasesToRemove);
 };
 
 }// namespace xtk

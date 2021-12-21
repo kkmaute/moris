@@ -32,7 +32,6 @@ namespace moris
                 const moris::Cell< Node_Base* > & aIPNodes )
         : mFemModel( aFemModel ),
           mMeshSet( aMeshSet ),
-          mNodes( aIPNodes ),
           mIWGs( aSetInfo.get_IWGs() ),
           mIQIs( aSetInfo.get_IQIs() ),
           mTimeContinuity( aSetInfo.get_time_continuity() ),
@@ -62,10 +61,10 @@ namespace moris
             }
 
             // get mesh clusters on set
-            mMeshClusterList = mMeshSet->get_clusters_on_set();
+            moris::Cell< mtk::Cluster const* > tMeshClusterList = mMeshSet->get_clusters_on_set();
 
             // get number of mesh clusters on set
-            uint tNumMeshClusters = mMeshClusterList.size();
+            uint tNumMeshClusters = tMeshClusterList.size();
 
             // set size for the equation objects list
             mEquationObjList.resize( tNumMeshClusters, nullptr );
@@ -91,15 +90,15 @@ namespace moris
                     case fem::Element_Type::TIME_SIDESET:
                     case fem::Element_Type::TIME_BOUNDARY:
                     {
-                        tInterpolationCell.resize( 1, &mMeshClusterList( iCluster )->get_interpolation_cell() );
+                        tInterpolationCell.resize( 1, &tMeshClusterList( iCluster )->get_interpolation_cell() );
                         break;
                     }
                     // if double sideset
                     case fem::Element_Type::DOUBLE_SIDESET:
                     {                                         
                         tInterpolationCell.resize( 2 );
-                        tInterpolationCell( 0 ) = &mMeshClusterList( iCluster )->get_interpolation_cell( mtk::Master_Slave::MASTER );
-                        tInterpolationCell( 1 ) = &mMeshClusterList( iCluster )->get_interpolation_cell( mtk::Master_Slave::SLAVE );
+                        tInterpolationCell( 0 ) = &tMeshClusterList( iCluster )->get_interpolation_cell( mtk::Master_Slave::MASTER );
+                        tInterpolationCell( 1 ) = &tMeshClusterList( iCluster )->get_interpolation_cell( mtk::Master_Slave::SLAVE );
                         break;
                     }                                               
                     // if none of the above
@@ -113,13 +112,13 @@ namespace moris
                 mEquationObjList( iCluster ) = new fem::Interpolation_Element(
                         mElementType,
                         tInterpolationCell,
-                        mNodes,
+                        aIPNodes,
                         this );
 
                 // create a fem cluster
                 std::shared_ptr< fem::Cluster > tCluster = std::make_shared< fem::Cluster >(
                         mElementType,
-                        mMeshClusterList( iCluster ),
+                        tMeshClusterList( iCluster ),
                         this,
                         mEquationObjList( iCluster ) );
 

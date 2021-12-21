@@ -44,7 +44,6 @@ Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface * aInput ) : mo
         uint tNumRHS = aInput->get_num_rhs();
 
         // Build RHS/LHS vector
-        mVectorRHS = tMatFactory.create_vector( aInput, mMapFree, tNumRHS );
         mFreeVectorLHS = tMatFactory.create_vector( aInput, mMapFree, tNumRHS );
 
         mPointVectorRHS = tMatFactory.create_vector( aInput, mMapFree, tNumRHS, true );
@@ -113,7 +112,6 @@ Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface   * aInput,
         uint tNumRHS = aInput->get_num_rhs();
 
         // Build RHS/LHS vector
-        mVectorRHS      = tMatFactory.create_vector( aInput, aFreeMap, tNumRHS );
         mFreeVectorLHS  = tMatFactory.create_vector( aInput, aFreeMap, tNumRHS );
 
         mPointVectorRHS = tMatFactory.create_vector( aInput, aFreeMap, tNumRHS, true );
@@ -137,9 +135,6 @@ Linear_System_Trilinos::~Linear_System_Trilinos()
 {
     delete mMat;
     mMat=nullptr;
-
-    delete mVectorRHS;
-    mVectorRHS=nullptr;
 
     delete mFreeVectorLHS;
     mFreeVectorLHS=nullptr;

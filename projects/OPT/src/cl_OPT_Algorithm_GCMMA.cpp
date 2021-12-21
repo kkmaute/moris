@@ -151,7 +151,7 @@ void OptAlgGCMMA::printresult()
 
 void opt_alg_gcmma_func_wrap(
         OptAlgGCMMA* aOptAlgGCMMA,
-        int          aIter,
+        int&         aIter,
         double*      aAdv,
         double&      aObjval,
         double*      aConval )
@@ -170,6 +170,11 @@ void opt_alg_gcmma_func_wrap(
 
     // Update the pointer of constraints
     auto tConval = aOptAlgGCMMA->get_constraints().data();
+
+    if( aOptAlgGCMMA->mProblem->restart_optimization() )
+    {
+        aIter = -aIter;
+    }
 
     std::copy(tConval, tConval + aOptAlgGCMMA->mProblem->get_num_constraints(), aConval );
 }

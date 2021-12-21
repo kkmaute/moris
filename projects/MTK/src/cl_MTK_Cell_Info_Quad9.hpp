@@ -20,15 +20,22 @@ namespace moris
         class Cell_Info_Quad9 : public mtk::Cell_Info
         {
         public:
+            // ----------------------------------------------------------------------------------
+
             enum Geometry_Type
             get_cell_geometry() const;
+
+            // ----------------------------------------------------------------------------------
+
+            enum CellTopology
+            get_cell_topology() const;
 
             // ----------------------------------------------------------------------------------
 
             enum Interpolation_Order
             get_cell_interpolation_order() const;
 
-            //-----------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------------
 
             enum Integration_Order
             get_cell_integration_order() const;
@@ -112,6 +119,32 @@ namespace moris
 
             moris::uint
             get_adjacent_side_ordinal(moris::uint aSideOrdinal) const;
+
+            // ----------------------------------------------------------------------------------
+
+            moris::Cell<moris_index>
+            get_vertex_path_to_entity_rank_and_ordinal(
+                moris_index aVertexOrdinal, 
+                moris_index aOtherEntityOrdinal,
+                moris_index aOtherEntityRank) const;
+
+            // ----------------------------------------------------------------------------------
+
+            moris::Cell<moris_index>
+            get_edge_path_to_entity_rank_and_ordinal(
+                moris_index aEdgeOrdinal, 
+                moris_index aOtherEntityOrdinal,
+                moris_index aOtherEntityRank) const;
+
+            // ----------------------------------------------------------------------------------
+            
+            bool 
+            is_entity_connected_to_facet( 
+                moris_index aFacetOrdinal,
+                moris_index aOtherEntityOrdinal,
+                moris_index aOtherEntityRank) const;
+
+            // ----------------------------------------------------------------------------------
 
             // ----------------------------------------------------------------------------------
 

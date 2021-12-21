@@ -294,37 +294,6 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
         tXTKModel.decompose(tDecompositionMethods);
 
-//        //++++++++++++++++++++++++++++++++
-////        xtk::Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
-//
-//        // Declare the fields related to enrichment strategy in output options
-////        Cell<std::string> tEnrichmentFieldNames = tEnrichment.get_cell_enrichment_field_names();
-//        //++++++++++++++++++++++++++++++++
-//
-//               // output solution and meshes
-//                       xtk::Output_Options tOutputOptions1;
-//                       tOutputOptions1.mAddNodeSets = false;
-//                       tOutputOptions1.mAddSideSets = true;
-//                       tOutputOptions1.mAddClusters = false;
-//
-////                       tOutputOptions1.mRealElementExternalFieldNames = tEnrichmentFieldNames;
-//
-//                       //++++++++++++++++++++++++++++++++
-//                       // add solution field to integration mesh
-//                       std::string tIntegSolFieldName1 = "solution";
-//                       tOutputOptions1.mRealNodeExternalFieldNames = {tIntegSolFieldName1};
-//                       //++++++++++++++++++++++++++++++++
-//
-//                       moris::mtk::Integration_Mesh* tIntegMesh11 = tXTKModel.get_output_mesh(tOutputOptions1);
-//
-////                       ++++++++++++++++++++++++++++++++
-////                       tEnrichment.write_cell_enrichment_to_fields(tEnrichmentFieldNames,tIntegMesh11);
-////                       ++++++++++++++++++++++++++++++++
-//
-//
-//
-//                       std::string tMeshOutputFile1 = "./output_general_geomEng.e";
-//                       tIntegMesh11->create_output_mesh(tMeshOutputFile1);
        tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
 
        xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
@@ -564,46 +533,7 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
        tTimeSolver.solve();
        Matrix<DDRMat> tFullSol;
        tTimeSolver.get_full_solution(tFullSol);
-//       print(tFullSol,"tFullSol");
 
-//       // Declare the fields related to enrichment strategy in output options
-//       // output solution and meshes
-//       xtk::Output_Options tOutputOptions;
-//       tOutputOptions.mAddNodeSets = false;
-//       tOutputOptions.mAddSideSets = true;
-//       tOutputOptions.mAddClusters = false;
-//
-//       // add solution field to integration mesh
-//       std::string tIntegSolFieldName = "solution";
-//       tOutputOptions.mRealNodeExternalFieldNames = {tIntegSolFieldName};
-//
-//       moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
-//
-//       // Write to Integration mesh for visualization
-//       Matrix<DDRMat> tIntegSol = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::TEMP );
-//
-//       Matrix<DDRMat> tSTKIntegSol(tIntegMesh1->get_num_entities(EntityRank::NODE),1);
-//
-//       for(moris::uint i = 0; i < tIntegMesh1->get_num_entities(EntityRank::NODE); i++)
-//       {
-//           moris::moris_id tID = tIntegMesh1->get_glb_entity_id_from_entity_loc_index(i,EntityRank::NODE);
-//           moris::moris_index tMyIndex = tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID,EntityRank::NODE);
-//
-//           tSTKIntegSol(i) = tIntegSol(tMyIndex);
-//       }
-//
-//       // create field in integration mesh
-//       moris::moris_index tFieldIndex = tEnrIntegMesh.create_field("Solution",EntityRank::NODE);
-//       tEnrIntegMesh.add_field_data(tFieldIndex,EntityRank::NODE,tSTKIntegSol);
-//
-//       // add solution field to integration mesh
-//       tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldName,EntityRank::NODE,tSTKIntegSol);
-//
-//
-//       std::string tMeshOutputFile = "./mdl_exo/xtk_hmr_bar_plane_hole_3d_l" + std::to_string(1) + "_b"+std::to_string(0)+".e";
-//       tIntegMesh1->create_output_mesh(tMeshOutputFile);
-//
-//       delete tIntegMesh1;
 delete tInterpMesh;
 //    }
 }/* END_TEST_CASE */

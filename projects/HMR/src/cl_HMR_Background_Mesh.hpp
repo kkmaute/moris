@@ -848,7 +848,6 @@ namespace moris
                         // get number of dimensions from settings
                         uint tNumberOfDimensions = mParameters->get_number_of_dimensions();
 
-
                         Matrix< DDLUMat > tProcSplit( tNumberOfDimensions, 1 );
 
                         int tError = 0;
@@ -856,35 +855,31 @@ namespace moris
                         // loop over all dimensions and copy elements
                         for( uint k=0; k<tNumberOfDimensions; ++k )
                         {
-                            // loop over all in this dimension
-                            for ( uint iProc = 0; iProc < mProcDims(k); iProc++ )
+                            // do not consider pseudo 1D directions or 2 Procs in 1 direction since aura overlap isn't an issue
+                            if (mProcDims(k) > 2)
                             {
-                                // do not consider pseudo 1D directions or 2 Procs in 1 direction since aura overlap isn't an issue
-                                if (mProcDims(k) > 2)
+                                // determine how many elements are on this proc in this domain minus the padding elements in that direction
+                                tProcSplit(k) = mMySubDomain.mNumberOfElementsPerDimension[0][k] - 2 * mPaddingSize;
+
+                                // there should be at least on element left
+                                MORIS_ERROR( tProcSplit(k) > 0,
+                                        "Processor %u does not have any non-padding/aura elements in direction %u. \n", par_rank(), k);
+
+                                if (mParameters->use_number_aura())
                                 {
-                                    // determine how many elements are on this proc in this domain minus the padding elements in that direction
-                                    tProcSplit(k) = mMySubDomain.mNumberOfElementsPerDimension[iProc][k] - 2 * mPaddingSize;
-
-                                    // there should be at least on element left
-                                    MORIS_ERROR( tProcSplit(k) > 0,
-                                            "Processor %u does not have any non-padding/aura elements in direction %u. \n", iProc, k);
-
-                                    if (mParameters->use_number_aura())
+                                    // the aura of next-adjacent procs cannot use the same node since they do not communicate
+                                    if (tProcSplit(k) < (mPaddingSize * 2) + 1)
                                     {
-                                        // the aura of next-adjacent procs cannot use the same node since they do not communicate
-                                        if (tProcSplit(k) < (mPaddingSize * 2) + 1)
-                                        {
-                                            tError = (mPaddingSize * 2) + 1 - tProcSplit(k);
-                                        }
+                                        tError = (mPaddingSize * 2) + 1 - tProcSplit(k);
                                     }
+                                }
 
-                                    // if not using numbered aura, then the remainder just has to be larger than the padding/aura
-                                    else
+                                // if not using numbered aura, then the remainder just has to be larger than the padding/aura
+                                else
+                                {
+                                    if (tProcSplit(k) < mPaddingSize)
                                     {
-                                        if (tProcSplit(k) < mPaddingSize)
-                                        {
-                                            tError = mPaddingSize - tProcSplit(k);
-                                        }
+                                        tError = mPaddingSize - tProcSplit(k);
                                     }
                                 }
                             }

@@ -238,8 +238,10 @@ Model::perform()
 
     if ( mParameterList.get< bool >( "enrich" ) )
     {
+        // get rank of the interpolation basis (B-spline or Lagrange Element)
         enum EntityRank tBasisRank = get_entity_rank_from_str( mParameterList.get< std::string >( "basis_rank" ) );
-
+        
+        // get index of Lagrange mesh to be enriched from parameter list
         Matrix< IndexMat > tMeshIndexCell;
         moris::string_to_mat( mParameterList.get< std::string >( "enrich_mesh_indices" ), tMeshIndexCell );
 
@@ -377,34 +379,17 @@ Model::perform()
             //Construct intersection and perform
             mIntersectionDetect2D = new mtk::Intersection_Detect_2D( mMTKOutputPerformer, 0, mParameterList, mGeometryEngine->get_num_bulk_phase() );
             mIntersectionDetect2D->perform();
+
+            Tracer tTracer( "MTK", "Output Clusters", "Writing Mesh" );
+
+            //Construct the intersection mesh
+            mtk::Intersection_Mesh *tIscMesh = new mtk::Intersection_Mesh( &tEnrIntegMesh, mIntersectionDetect );
+
+            //Write the mesh
+            moris::mtk::Writer_Exodus tWriter2( tIscMesh );
+            tWriter2.write_mesh( "", "VIS_ISC.exo", "", "temp.exo" );
+            tWriter2.close_file();
         }
-        else
-        {
-            {
-                //initialize the time tracer
-                Tracer tTracer( "MTK", "Double Sided Set", " Periodic Boundary Condition " );
-
-
-                mIntersectionDetect = new mtk::Intersection_Detect( mMTKOutputPerformer, 0, mParameterList, mGeometryEngine->get_num_bulk_phase() );
-                mIntersectionDetect->perform();
-            }
-
-            {
-
-                Tracer tTracer( "MTK", "Output Clusters", "Writing Mesh" );
-
-                //Construct the intersection mesh
-                mtk::Intersection_Mesh *tIscMesh = new mtk::Intersection_Mesh( &tEnrIntegMesh, mIntersectionDetect );
-
-                //Write the mesh
-                moris::mtk::Writer_Exodus tWriter2( tIscMesh );
-                tWriter2.write_mesh( "", "VIS_ISC.exo", "", "temp.exo" );
-                tWriter2.close_file();
-            }
-        }
-
-        
-
 
         // if( mParameterList.get<bool>("contact_sandbox") )
         // {
@@ -458,10 +443,6 @@ Model::perform()
         //     tSandbox.perform_global_contact_search(tCurrentDispl,tPredictedDispl);
         // }
 
-        if(mDiagnostics)
-        {
-            tEnrInterpMesh.write_diagnostics();
-        }
 
         if ( mParameterList.get< bool >( "print_enriched_ig_mesh" ) )
         {
@@ -478,6 +459,11 @@ Model::perform()
         {
             moris::Memory_Map tXTKMM = this->get_memory_usage();
             tXTKMM.par_print( "XTK Model" );
+        }
+
+        if( mParameterList.get<bool>("low_memory"))
+        {
+            
         }
         // print
         MORIS_LOG_SPEC( "All_IG_verts", sum_all( tEnrIntegMesh.get_num_entities( EntityRank::NODE ) ) );
@@ -538,10 +524,10 @@ Model::get_subdivision_methods()
 
     moris::Cell< enum Subdivision_Method > tSubdivisionMethods;
 
-    moris::uint       tSpatialDimension = this->get_spatial_dim();
-    enum CellTopology tBGCellTopo       = this->get_parent_cell_topology();
-    std::string       tDecompStr        = mParameterList.get< std::string >( "decomposition_type" );
-    moris::lint       tOctreeRefLevel   = std::stoi( mParameterList.get< std::string >( "octree_refinement_level" ) );
+    moris::uint             tSpatialDimension = this->get_spatial_dim();
+    enum mtk::Geometry_Type tBGCellTopo       = this->get_parent_cell_geometry();
+    std::string             tDecompStr        = mParameterList.get< std::string >( "decomposition_type" );
+    moris::lint             tOctreeRefLevel   = std::stoi( mParameterList.get< std::string >( "octree_refinement_level" ) );
 
     if ( tDecompStr.compare( "octree_only" ) == 0 )
     {
@@ -570,12 +556,12 @@ Model::get_subdivision_methods()
 
     if ( tSpatialDimension == 2 )
     {
-        if ( tBGCellTopo == CellTopology::QUAD4 && tConformal )
+        if ( tBGCellTopo == mtk::Geometry_Type::QUAD && tConformal )
         {
             moris::Cell< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
             tSubdivisionMethods.append( tMethods );
         }
-        else if ( tBGCellTopo == CellTopology::QUAD4 && !tConformal )
+        else if ( tBGCellTopo == mtk::Geometry_Type::QUAD && !tConformal )
         {
             moris::Cell< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4 };
             tSubdivisionMethods.append( tMethods );
@@ -583,17 +569,17 @@ Model::get_subdivision_methods()
     }
     else if ( tSpatialDimension == 3 )
     {
-        if ( tBGCellTopo == CellTopology::HEX8 && tConformal )
+        if ( tBGCellTopo == mtk::Geometry_Type::HEX && tConformal )
         {
             moris::Cell< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
             tSubdivisionMethods.append( tMethods );
         }
-        else if ( tBGCellTopo == CellTopology::HEX8 && !tConformal )
+        else if ( tBGCellTopo == mtk::Geometry_Type::HEX  && !tConformal )
         {
             moris::Cell< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8 };
             tSubdivisionMethods.append( tMethods );
         }
-        else if ( tBGCellTopo == CellTopology::TET4 && tConformal )
+        else if ( tBGCellTopo == mtk::Geometry_Type::HEX  && tConformal )
         {
             moris::Cell< enum Subdivision_Method > tMethods = { Subdivision_Method::C_HIERARCHY_TET4 };
             tSubdivisionMethods.append( tMethods );
@@ -1098,7 +1084,10 @@ Model::perform_basis_enrichment(
 
     this->perform_basis_enrichment_internal( aBasisRank, { { aMeshIndex } } );
 
-    mEnrichment->write_diagnostics();
+    if( this->mDiagnostics)
+    {
+        mEnrichment->write_diagnostics();
+    }
 
     // Change the enrichment flag
     mEnriched = true;

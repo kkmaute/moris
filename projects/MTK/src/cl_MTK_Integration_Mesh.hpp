@@ -352,6 +352,11 @@ namespace moris
                         Matrix< DDUMat > & aSparseIndices,
                         Matrix< DDRMat > & aWeights );
 
+                bool
+                is_pure_IP_vertex(
+                    Cell_Info const *aCellInfo,
+                    const uint       aLocalVertIndex );
+
                 // ----------------------------------------------------------------------------
                 /*!
                  * Returns the list of sets based on the a set type specified

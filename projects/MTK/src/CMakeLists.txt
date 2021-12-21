@@ -124,6 +124,7 @@ IP/cl_MTK_Interpolation_Function_Lagrange_Tet20.hpp
 IP/cl_MTK_Interpolation_Function_Constant_Bar2.hpp
 IP/cl_MTK_Interpolation_Function_Constant_Point.hpp
 IP/cl_MTK_Space_Interpolator.hpp
+IP/fn_MTK_Interpolation_Enum_Int_Conversion.hpp
 
 IG/cl_MTK_Integration_Coeffs.hpp  
 IG/cl_MTK_Integration_Rule.hpp

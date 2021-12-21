@@ -52,7 +52,6 @@ Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
         mMat = tMatFactory.create_matrix( aInput, mMapFree );
 
         // Build RHS/LHS vector
-        mVectorRHS = tMatFactory.create_vector( aInput, mMapFree, 1 );
         mFreeVectorLHS = tMatFactory.create_vector( aInput, mMapFree, 1 );
 
         mPointVectorRHS = tMatFactory.create_vector( aInput, mMapFree, 1 );
@@ -93,7 +92,6 @@ Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
     mMat = tMatFactory.create_matrix( aInput, aFreeMap );
 
     // Build RHS/LHS vector
-    mVectorRHS = tMatFactory.create_vector( aInput, aFreeMap );
     mFreeVectorLHS = tMatFactory.create_vector( aInput, aFreeMap );
 
     mPointVectorRHS = tMatFactory.create_vector( aInput, aFreeMap, 1 );
@@ -110,9 +108,6 @@ Linear_System_PETSc::~Linear_System_PETSc()
 {
     delete mMat;
     mMat=nullptr;
-
-    delete mVectorRHS;
-    mVectorRHS=nullptr;
 
     delete mFreeVectorLHS;
     mFreeVectorLHS=nullptr;

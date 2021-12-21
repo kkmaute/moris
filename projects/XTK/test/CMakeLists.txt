@@ -29,7 +29,6 @@ set(TEST_SOURCES
     xtk/UT_XTK_Model_Mesh_Clusters.cpp
     xtk/UT_XTK_Model.cpp
     #xtk/UT_XTK_Multigrid.cpp
-    xtk/UT_XTK_Parameters.cpp
     xtk/UT_XTK_Octree_Refinement.cpp
 	)
 

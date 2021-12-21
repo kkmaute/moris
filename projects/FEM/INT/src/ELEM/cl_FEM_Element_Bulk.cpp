@@ -781,16 +781,14 @@ namespace moris
 
         void Element_Bulk::compute_quantity_of_interest_elemental(
                 Matrix< DDRMat > & aValues,
-                uint               aIQIIndex )
+                uint               aIQIIndex,
+                real             & aSpaceTimeVolume)
         {
             // set physical and parametric space and time coefficients for IG element
             this->init_ig_geometry_interpolator();
 
             // loop over integration points
             uint tNumIntegPoints = mSet->get_number_of_integration_points();
-
-            // initialize space - time volume
-            real tSpaceTimeVolume = 0.0;
 
             Matrix< DDRMat > tValMat( 1, 1, 0.0 );
 
@@ -816,7 +814,7 @@ namespace moris
                 real tWStar = mSet->get_integration_weights()( iGP ) * tDetJ;
 
                 // add contribution to space-time volume
-                tSpaceTimeVolume += tWStar;
+                aSpaceTimeVolume += tWStar;
 
                 // get requested IQI
                 const std::shared_ptr< IQI > & tReqIQI =
@@ -834,7 +832,7 @@ namespace moris
             }
 
             // assemble the QI value on the set
-            aValues( 0 ) += tValMat( 0 ) / tSpaceTimeVolume;
+            aValues( 0 ) += tValMat( 0 );
         }
 
         //------------------------------------------------------------------------------

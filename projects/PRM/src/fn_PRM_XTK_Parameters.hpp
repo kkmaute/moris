@@ -99,6 +99,7 @@ namespace prm
 
         // print memory usage
         tParameterList.insert( "print_memory", false );
+        tParameterList.insert( "low_memory",true);
 
         // probe a cell - Debug
         tParameterList.insert( "probe_bg_cells", "" );

@@ -137,6 +137,18 @@ namespace moris
 
             MSI::Equation_Model * mEquationModel = nullptr;
 
+            //! actual pdof values. Cells are for different multi-vectors
+            moris::Cell< Matrix< DDRMat > > mPdofValues;
+
+            //! previous pdof values
+            moris::Cell< Matrix< DDRMat > > mPreviousPdofValues;
+
+            //! adjoint pdof values
+            moris::Cell< Matrix< DDRMat > > mAdjointPdofValues;
+
+            //! adjoint pdof values
+            moris::Cell< Matrix< DDRMat > > mPreviousAdjointPdofValues;
+
             friend class MSI::Equation_Object;
             friend class Element_Bulk;
             friend class Element_Sideset;

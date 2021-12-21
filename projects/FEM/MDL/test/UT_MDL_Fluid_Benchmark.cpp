@@ -224,16 +224,6 @@ namespace moris
             tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
             tXTKModel.construct_face_oriented_ghost_penalization_cells();
 
-            xtk::Output_Options tOutputOptions;
-            tOutputOptions.mAddNodeSets = false;
-            tOutputOptions.mAddSideSets = true;
-            tOutputOptions.mAddClusters = false;
-
-            // output integration mesh
-            moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
-            std::string tOutputFile = "./mdl_exo/MDL_Fluid_Benchmark_Immersed_Inlet_Velocity.exo";
-            tIntegMesh1->create_output_mesh( tOutputFile );
-
             // get meshes for FEM
             xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
             xtk::Enriched_Integration_Mesh   & tEnrIntegMesh  = tXTKModel.get_enriched_integ_mesh();
@@ -497,7 +487,6 @@ namespace moris
             // clean up
             //------------------------------------------------------------------------------
             delete tInterpolationMesh;
-            delete tIntegMesh1;
             delete tModel;
         }
     }
@@ -598,10 +587,6 @@ namespace moris
             tOutputOptions.mAddSideSets = true;
             tOutputOptions.mAddClusters = false;
 
-            // output integration mesh
-            moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
-            std::string tOutputFile = "./mdl_exo/MDL_Fluid_Benchmark_Immersed_Inlet_Pressure.exo";
-            tIntegMesh1->create_output_mesh( tOutputFile );
 
             // get meshes for FEM
             xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
@@ -857,7 +842,6 @@ namespace moris
             // clean up
             //------------------------------------------------------------------------------
             delete tInterpolationMesh;
-            delete tIntegMesh1;
             delete tModel;
         }
     }
@@ -1023,10 +1007,6 @@ namespace moris
     //        tOutputOptions.mAddSideSets = true;
     //        tOutputOptions.mAddClusters = false;
     //
-    //        // output integration mesh
-    //        moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
-    //        std::string tOutputFile = "./mdl_exo/MDL_Fluid_Benchmark_Immersed_Inlet_Pressure_3D.exo";
-    //        tIntegMesh1->create_output_mesh( tOutputFile );
     //
     //        // get meshes for FEM
     //        xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
@@ -1297,7 +1277,6 @@ namespace moris
     //        // clean up
     //        //------------------------------------------------------------------------------
     //        delete tInterpolationMesh;
-    //        delete tIntegMesh1;
     //        delete tModel;
     //    }
     //}
@@ -2293,11 +2272,6 @@ namespace moris
             tOutputOptions.mAddSideSets = true;
             tOutputOptions.mAddClusters = false;
 
-            // output integration mesh
-            moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
-            std::string tOutputFile = "./mdl_exo/MDL_Fluid_Benchmark_Radial_Couette.exo";
-            tIntegMesh1->create_output_mesh(tOutputFile);
-
             // get meshes for FEM
             xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
             xtk::Enriched_Integration_Mesh   & tEnrIntegMesh  = tXTKModel.get_enriched_integ_mesh();
@@ -2558,7 +2532,6 @@ namespace moris
             // clean up
             //------------------------------------------------------------------------------
             delete tInterpolationMesh;
-            delete tIntegMesh1;
             delete tModel;
         }
     }

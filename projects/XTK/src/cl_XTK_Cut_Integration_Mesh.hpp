@@ -83,13 +83,13 @@ struct IG_Vertex_Group
 
     void
     add_vertex(
-        moris::mtk::Vertex*                 aVertex,
+        moris::mtk::Vertex const*                 aVertex,
         std::shared_ptr< Matrix< DDRMat > > aVertexLocalCoord );
 
     void
     add_vertex_local_coord_pointers();
 
-    moris::mtk::Vertex*
+    moris::mtk::Vertex const *
     get_vertex( moris_index aGroupVertexOrdinal );
 
     moris_index
@@ -101,12 +101,15 @@ struct IG_Vertex_Group
     moris::uint
     get_vertex_local_coords_dim() const;
 
+    bool
+    vertex_is_in_group(moris_index aVertex);
+
     void
     print();
 
 
   private:
-    moris::Cell< moris::mtk::Vertex* >                 mIgVertexGroup;
+    moris::Cell< moris::mtk::Vertex const * >          mIgVertexGroup;
     std::unordered_map< moris_index, moris_index >     mIgVertexIndexToVertexOrdinal;
     moris::Cell< std::shared_ptr< Matrix< DDRMat > > > mIgVertexLocalCoords;
 };
@@ -563,6 +566,11 @@ class Cut_Integration_Mesh : public moris::mtk::Mesh
     get_child_mesh( moris_index aChildMeshIndex );
 
     // ----------------------------------------------------------------------------------
+
+    uint
+    get_num_child_meshes() const;
+
+    // ----------------------------------------------------------------------------------
     std::unordered_map< moris_id, moris_index >
     get_vertex_glb_id_to_loc_vertex_ind_map() const;
     // ----------------------------------------------------------------------------------
@@ -891,6 +899,19 @@ class Child_Mesh_Experimental
     {
         mSubphaseCellGroups = aSubphasesGroups;
     }
+
+    uint
+    get_num_subphase_cell_groups() const
+    {
+        return mSubphaseCellGroups.size();
+    }
+
+    std::shared_ptr< IG_Cell_Group >
+    get_subphase_cell_group(moris_index aLocalSpIndex)
+    {
+        return mSubphaseCellGroups(aLocalSpIndex);
+    }
+
 };
 
 }// namespace xtk

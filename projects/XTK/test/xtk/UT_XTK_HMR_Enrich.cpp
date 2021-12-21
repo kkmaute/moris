@@ -175,14 +175,6 @@ TEST_CASE("2D XTK WITH HMR No truncation enrichment","[XTK_HMR_ENR_2D]")
         std::string tIntegSolFieldName = "solution";
         tOutputOptions.mRealNodeExternalFieldNames = {tIntegSolFieldName};
 
-        moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh(tOutputOptions);
-
-        tEnrichment.write_cell_enrichment_to_fields(tEnrichmentFieldNames,tCutMeshData);
-
-        std::string tMeshOutputFile ="./xtk_exo/xtk_hmr_2d_enr_trun_ig.e";
-        tCutMeshData->create_output_mesh(tMeshOutputFile);
-
-        delete tCutMeshData;
         delete tInterpMesh;
     }
 }

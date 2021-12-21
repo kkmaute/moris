@@ -44,7 +44,8 @@ namespace moris
         typedef hmr::ElementalRefienmentIndicator ( *Refinement_Function_2 ) (
                 mtk::Cell                     * aElement,
                 std::shared_ptr< mtk::Field >   aField,
-                uint                            tActivationPattern);
+                uint                            tActivationPattern,
+                uint                          & aMaxLevel );
 
         // -----------------------------------------------------------------------------
 

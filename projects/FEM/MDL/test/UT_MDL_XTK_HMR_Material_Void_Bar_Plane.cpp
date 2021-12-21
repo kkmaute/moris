@@ -374,48 +374,8 @@ TEST_CASE("XTK HMR Material Void Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_M
 //
 //        CHECK(norm(tFullSol - tGoldSolution)<1e-08);
 
-
-//        // Declare the fields related to enrichment strategy in output options
-        // output solution and meshes
-        // FIXME add with output if needed
-//        xtk::Output_Options tOutputOptions;
-//        tOutputOptions.mAddNodeSets = false;
-//        tOutputOptions.mAddSideSets = true;
-//        tOutputOptions.mAddClusters = false;
-//
-//        // add solution field to integration mesh
-//        std::string tIntegSolFieldName = "solution";
-//        tOutputOptions.mRealNodeExternalFieldNames = {tIntegSolFieldName};
-//
-//        moris::mtk::Integration_Mesh* tIntegMesh1 = tXTKModel.get_output_mesh(tOutputOptions);
-//
-//        // Write to Integration mesh for visualization
-//        Matrix<DDRMat> tIntegSol = tModel->get_solution_for_integration_mesh_output( MSI::Dof_Type::TEMP );
-//
-//
-//        Matrix<DDRMat> tSTKIntegSol(tIntegMesh1->get_num_entities(EntityRank::NODE),1);
-//
-//        for(moris::uint i = 0; i < tIntegMesh1->get_num_entities(EntityRank::NODE); i++)
-//        {
-//            moris::moris_id tID = tIntegMesh1->get_glb_entity_id_from_entity_loc_index(i,EntityRank::NODE);
-//            moris::moris_index tMyIndex = tEnrIntegMesh.get_loc_entity_ind_from_entity_glb_id(tID,EntityRank::NODE);
-//
-//            tSTKIntegSol(i) = tIntegSol(tMyIndex);
-//        }
-//
-//        // crate field in integration mesh
-//        moris::moris_index tFieldIndex = tEnrIntegMesh.create_field("Solution",EntityRank::NODE);
-//        tEnrIntegMesh.add_field_data(tFieldIndex,EntityRank::NODE,tSTKIntegSol);
-//
-//        // add solution field to integration mesh
-//        tIntegMesh1->add_mesh_field_real_scalar_data_loc_inds(tIntegSolFieldName,EntityRank::NODE,tSTKIntegSol);
-//
-//        std::string tMeshOutputFile = "./mdl_exo/xtk_hmr_bar_plane_mat_void_integ_2d.e";
-//        tIntegMesh1->create_output_mesh(tMeshOutputFile);
-
         //    delete tInterpMesh1;
         delete tModel;
         delete tInterpMesh;
-//        delete tIntegMesh1;
     }
 }

@@ -10,8 +10,11 @@ namespace moris
             std::string tProblemType = aProblemParameterList.get<std::string>("problem");
 
             sint tReinitializeInterfaceIter = aProblemParameterList.get<sint>("reinitialize_interface_iter");
+            sint tFirstReinitializeInterfaceIter = aProblemParameterList.get<sint>("first_reinitialize_interface_iter");
 
             aInterface->set_reinitialize_iter( tReinitializeInterfaceIter );
+
+            aInterface->set_first_reinitialize_iter( tFirstReinitializeInterfaceIter );
 
             if (!tProblemType.compare("user_defined"))
             {

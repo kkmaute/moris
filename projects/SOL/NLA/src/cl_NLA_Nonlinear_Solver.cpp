@@ -356,6 +356,8 @@ void Nonlinear_Solver::solve( sol::Dist_Vector * aFullVector )
     MORIS_LOG_SPEC("Nonlinear solver operates on DOF types: ", tDofTypeNames );
 
     mNonlinearSolverAlgorithmList( 0 )->solver_nonlinear_system( mNonlinearProblem );
+
+    this->free_memory();
 }
 
 //-------------------------------------------------------------------------------------------------------

@@ -60,7 +60,7 @@ IG_Vertex_Group::reserve( std::size_t aReserveSize )
 
 void
 IG_Vertex_Group::add_vertex(
-    moris::mtk::Vertex*                 aVertex,
+    moris::mtk::Vertex const *                 aVertex,
     std::shared_ptr< Matrix< DDRMat > > aVertexLocalCoord )
 {
     moris_index tNewVertexOrdinal = (moris_index)mIgVertexGroup.size();
@@ -83,7 +83,7 @@ IG_Vertex_Group::add_vertex_local_coord_pointers()
 {
 }
 
-moris::mtk::Vertex*
+moris::mtk::Vertex const *
 IG_Vertex_Group::get_vertex( moris_index aGroupVertexOrdinal )
 {
     return mIgVertexGroup( aGroupVertexOrdinal );
@@ -102,6 +102,13 @@ IG_Vertex_Group::get_vertex_local_coords( moris_index aVertex )
 {
     return mIgVertexLocalCoords( this->get_vertex_group_ordinal( aVertex ) );
 }
+
+bool
+IG_Vertex_Group::vertex_is_in_group(moris_index aVertex)
+{
+    return mIgVertexIndexToVertexOrdinal.find( aVertex ) != mIgVertexIndexToVertexOrdinal.end();
+}
+
 moris::uint
 IG_Vertex_Group::get_vertex_local_coords_dim() const
 {
@@ -577,6 +584,15 @@ Cut_Integration_Mesh::get_child_mesh( moris_index aChildMeshIndex )
     MORIS_ERROR( mChildMeshes.size() > (uint)aChildMeshIndex, "Child mesh index out of bounds" );
     return mChildMeshes( aChildMeshIndex );
 }
+// ----------------------------------------------------------------------------
+
+uint
+Cut_Integration_Mesh::get_num_child_meshes() const
+{
+    return mChildMeshes.size();
+}
+
+// ----------------------------------------------------------------------------
 mtk::Vertex&
 Cut_Integration_Mesh::get_mtk_vertex( moris_index aVertexIndex )
 {
@@ -1151,8 +1167,9 @@ Cut_Integration_Mesh::register_block_set_names(
     return tBlockOrds;
 }
 void
-Cut_Integration_Mesh::write_mesh( std::string aOutputPath,
-    std::string                               aOutputFile )
+Cut_Integration_Mesh::write_mesh( 
+    std::string aOutputPath,
+    std::string aOutputFile )
 {
     Tracer tTracer( "XTK", "Cut Integration Mesh", "Write mesh", mXTKModel->mVerboseLevel, 0 );
     // get path to output XTK files to
@@ -1400,14 +1417,17 @@ Cut_Integration_Mesh::print_groupings( std::string aFile )
 }
 
 // ----------------------------------------------------------------------------------
+
 void
 Cut_Integration_Mesh::setup_comm_map()
 {
     if ( par_size() > 1 )
     {
+        // Build list of processors with whom current processor shares nodes
         std::unordered_map< moris_id, moris_id > tCommunicationMap;
         Cell< moris_index >                      tCellOfProcs;
 
+        // Loop over all nodes in background mesh and get node's owner
         for ( moris::uint i = 0; i < mBackgroundMesh->get_num_entities( EntityRank::NODE ); i++ )
         {
             moris_index tOwner = mBackgroundMesh->get_entity_owner( (moris_index)i, EntityRank::NODE );
@@ -1418,12 +1438,16 @@ Cut_Integration_Mesh::setup_comm_map()
                 tCommunicationMap[tOwner] = 1;
             }
         }
+
+        // Initialize communication map
         mCommunicationMap.resize( 1, tCellOfProcs.size() );
+
         for ( moris::uint i = 0; i < tCellOfProcs.size(); i++ )
         {
             mCommunicationMap( i ) = tCellOfProcs( i );
         }
 
+        // Send communication maps to root processor (here 0)
         Cell< Matrix< IndexMat > > tGatheredMats;
         moris_index                tTag = 10009;
         if ( tCellOfProcs.size() == 0 )
@@ -1435,9 +1459,15 @@ Cut_Integration_Mesh::setup_comm_map()
         {
             all_gather_vector( mCommunicationMap, tGatheredMats, tTag, 0, 0 );
         }
+
+        // Initialize processor-to-processor communication table
+        Cell< Matrix< IndexMat > > tReturnMats( par_size() );
+
+        // Root processor (here 0) builds processor-to-processor communication table
         if ( par_rank() == 0 )
         {
             Cell< Cell< uint > > tProcToProc( par_size() );
+
             for ( moris::uint i = 0; i < tGatheredMats.size(); i++ )
             {
                 for ( moris::uint j = 0; j < tGatheredMats( i ).numel(); j++ )
@@ -1448,9 +1478,9 @@ Cut_Integration_Mesh::setup_comm_map()
                     }
                 }
             }
-            Cell< Matrix< IndexMat > > tReturnMats( tProcToProc.size() );
+
             // convert to a matrix
-            for ( moris::uint i = 0; i < tProcToProc.size(); i++ )
+            for ( moris::uint i = 0; i < (uint) par_size(); i++ )
             {
                 tReturnMats( i ).resize( 1, tProcToProc( i ).size() );
 
@@ -1463,24 +1493,36 @@ Cut_Integration_Mesh::setup_comm_map()
                     tReturnMats( i ) = Matrix< IndexMat >( 1, 1, MORIS_INDEX_MAX );
                 }
             }
-            // send them back
-            for ( moris::uint i = 0; i < tReturnMats.size(); i++ )
+
+            // send processor-to-processor communication table back individual processors
+            for ( moris::uint i = 0; i < (uint) par_size(); i++ )
             {
-                nonblocking_send( tReturnMats( i ), tReturnMats( i ).n_rows(), tReturnMats( i ).n_cols(), i, tTag );
+                nonblocking_send(
+                        tReturnMats( i ),
+                        tReturnMats( i ).n_rows(),
+                        tReturnMats( i ).n_cols(),
+                        i,
+                        tTag );
             }
         }
 
+        // receive processor-to-processor communication tables
         barrier();
         Matrix< IndexMat > tTempCommMap( 1, 1, 0 );
         receive( tTempCommMap, 1, 0, tTag );
 
+        // add new processors to existing communication table
         for ( moris::uint i = 0; i < tTempCommMap.numel(); i++ )
         {
+            // Skip processors that do not share nodes
             if ( tTempCommMap( i ) != MORIS_INDEX_MAX )
             {
-                if ( tCommunicationMap.find( tTempCommMap( i ) ) == tCommunicationMap.end() && tTempCommMap( i ) != par_rank() )
+                // Check if processor is already in communication table
+                if ( tCommunicationMap.find( tTempCommMap( i ) ) == tCommunicationMap.end()
+                        && tTempCommMap( i ) != par_rank() )
                 {
                     moris_index tIndex = mCommunicationMap.numel();
+
                     mCommunicationMap.resize( 1, mCommunicationMap.numel() + 1 );
 
                     tCommunicationMap[tTempCommMap( i )] = 1;
@@ -1493,10 +1535,12 @@ Cut_Integration_Mesh::setup_comm_map()
     }
 }
 
+// ----------------------------------------------------------------------------------
 void
 Cut_Integration_Mesh::deduce_ig_cell_group_ownership()
 {
     Tracer tTracer( "XTK", "Cut_Integration_Mesh", "deduce_ig_cell_group_ownership", mXTKModel->mVerboseLevel, 1 );
+
     mOwnedIntegrationCellGroupsInds.reserve( mIntegrationCellGroupsParentCell.size() );
     mNotOwnedIntegrationCellGroups.reserve( mIntegrationCellGroupsParentCell.size() );
 
@@ -1754,7 +1798,6 @@ Cut_Integration_Mesh::handle_received_child_cell_id_request_answers(
 void
 Cut_Integration_Mesh::create_base_cell_blocks()
 {
-
     Tracer      tTracer( "XTK", "Integration_Mesh_Generator", "create_base_cell_blocks", mXTKModel->mVerboseLevel, 1 );
     std::string tBlockName = "bg_cells";
 
@@ -1762,12 +1805,11 @@ Cut_Integration_Mesh::create_base_cell_blocks()
     {
         moris::mtk::Cell const& tCell = mBackgroundMesh->get_mtk_cell( 0 );
 
-        MORIS_ERROR( ( tCell.get_geometry_type() == mtk::Geometry_Type::HEX || tCell.get_geometry_type() == mtk::Geometry_Type::QUAD )
-                         && tCell.get_interpolation_order() == mtk::Interpolation_Order::LINEAR,
-            "Need to abstract by adding get cell topo to cell info class" );
+        // MORIS_ERROR(  tCell.get_geometry_type() == mtk::Geometry_Type::HEX || tCell.get_geometry_type() == mtk::Geometry_Type::QUAD ,
+        //     "Need to abstract by adding get cell topo to cell info class" );
 
         // decide on cell topology based on number of spatial dimensions
-        enum CellTopology tCellTopo = xtk::determine_cell_topology( this->get_spatial_dim(), 1, CellShape::RECTANGULAR );
+        enum CellTopology tCellTopo = tCell.get_cell_info()->get_cell_topology();
 
         Cell< moris_index > tBlockSetOrds = this->register_block_set_names( { tBlockName }, tCellTopo );
 

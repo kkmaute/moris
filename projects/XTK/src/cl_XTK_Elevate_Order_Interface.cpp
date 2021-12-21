@@ -160,7 +160,7 @@ Elevate_Order_Interface::make_vertex_requests(
     // initialize proc-global to element-local map of vertex indices for each cell/element
     moris::Cell< std::map< moris_index, uint > > tVertIndicesOnCell( tNumElemsInCIM );
 
-    // initialize iCell-map
+    // initialize iCell-map, provides a relationship between the location of a cell in the provided list of cells and their indices
     std::unordered_map< moris_index, uint > tCellToIndexMap;
 
     // iterate through the elements get local cell vertex information and, if requested, create vertices on it
@@ -615,7 +615,7 @@ Elevate_Order_Interface::hash_face( moris::Cell< moris::mtk::Vertex* > const& aF
     moris_index tSecondPairVal = xtk::cantor_pairing(                          tFirstPairVal, aFaceVertices( tMaxIdIndex )->get_id() );
 
     // check for likely overflow
-    MORIS_ASSERT( tSecondPairVal > 3000000000, "Elevate_Order_Interface::hash_face() - function is likely to lead to an overflow." );
+    MORIS_ASSERT( tSecondPairVal > MORIS_INDEX_MAX / 10 , "Elevate_Order_Interface::hash_face() - function is likely to lead to an overflow." );
 
     // return unique id for face
     return tSecondPairVal;

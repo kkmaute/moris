@@ -35,6 +35,13 @@ namespace moris
             get_cell_geometry() const = 0;
 
             // ---------------------------------------------------------------------------------
+            /*!
+             * @return Cell topology enum
+             */
+            virtual enum CellTopology
+            get_cell_topology() const = 0;
+
+            // ---------------------------------------------------------------------------------
 
             /*!
              * @return a cell interpolation order, i.e. linear,quadratic or cubic

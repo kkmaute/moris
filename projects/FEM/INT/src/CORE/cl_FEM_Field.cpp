@@ -19,6 +19,8 @@ namespace moris
         : mtk::Field( aMeshPair,1, aFieldEntityType )
         {
             mUpdateNodalValues = false;
+
+            mFieldImplementation = mtk::Field_Implementation::FEM;
         }
 
         //-----------------------------------------------------------------------------

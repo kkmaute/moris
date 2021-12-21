@@ -128,6 +128,8 @@ Enrichment::write_diagnostics()
     
         this->print_enriched_basis_to_subphase_id(tMeshIndex,tEnrBasisIdToSubphaseId);
     }
+
+    mXTKModelPtr->mEnrichedInterpMesh(0)->write_diagnostics();
 }
 //-------------------------------------------------------------------------------------
 
@@ -203,8 +205,7 @@ Enrichment::print_enriched_basis_to_subphase_id(
 void
 Enrichment::perform_basis_cluster_enrichment()
 {
-
-    MORIS_ASSERT(mBackgroundMeshPtr->get_num_elems() > 0, "0 cell interpolation mesh passed");
+    MORIS_ASSERT( mBackgroundMeshPtr->get_num_elems() > 0, "0 cell interpolation mesh passed" );
 
     // construct cell in xtk conformal model neighborhood connectivity
     this->construct_neighborhoods();
@@ -213,67 +214,65 @@ Enrichment::perform_basis_cluster_enrichment()
     this->setup_background_vertex_interpolations();
 
     // iterate through basis types (i.e. linear and quadratic)
-    for (moris::size_t iBasisType = 0; iBasisType < mMeshIndices.numel(); iBasisType++)
+    for ( moris::size_t iBasisType = 0; iBasisType < mMeshIndices.numel(); iBasisType++ )
     {
-
-
         // get the mesh index
-        moris_index tMeshIndex = mMeshIndices(iBasisType);
+        moris_index tMeshIndex = mMeshIndices( iBasisType );
 
-        Tracer tTracer("XTK", "Enrichment", "Mesh Index " + std::to_string(tMeshIndex));
+        Tracer tTracer( "XTK", "Enrichment", "Mesh Index " + std::to_string( tMeshIndex ) );
 
-        // Number of basis functions
-        moris::size_t tNumBasis = mBackgroundMeshPtr->get_num_basis_functions(tMeshIndex);
+        // Number of basis functions (= number of B-Splines on the A-mesh ?)
+        moris::size_t tNumBasis = mBackgroundMeshPtr->get_num_basis_functions( tMeshIndex );
 
         // allocate member variables
-        mEnrichmentData(tMeshIndex).mElementEnrichmentLevel = moris::Cell<moris::Matrix<moris::IndexMat>>(tNumBasis);
-        mEnrichmentData(tMeshIndex).mElementIndsInBasis     = moris::Cell<moris::Matrix<moris::IndexMat>>(tNumBasis);
+        mEnrichmentData( tMeshIndex ).mElementEnrichmentLevel = moris::Cell< moris::Matrix< moris::IndexMat > >( tNumBasis );
+        mEnrichmentData( tMeshIndex ).mElementIndsInBasis     = moris::Cell< moris::Matrix< moris::IndexMat > >( tNumBasis );
 
         // allocate data used after basis loop
-        moris::Cell<moris::Matrix<moris::IndexMat>> tSubPhaseBinEnrichment(tNumBasis);
-        moris::Cell<moris::Matrix<moris::IndexMat>> tSubphaseClusterIndicesInSupport(tNumBasis);
-        moris::Cell<moris_index>                    tMaxEnrichmentLevel(tNumBasis, 0);
+        moris::Cell< moris::Matrix< moris::IndexMat > > tSubPhaseBinEnrichment( tNumBasis );
+        moris::Cell< moris::Matrix< moris::IndexMat > > tSubphaseClusterIndicesInSupport( tNumBasis );
+        moris::Cell< moris_index >                      tMaxEnrichmentLevel( tNumBasis, 0 );
 
-        for (moris::size_t i = 0; i < tNumBasis; i++)
+        for ( moris::size_t iBasis = 0; iBasis < tNumBasis; iBasis++ )
         {
             // Get elements in support of basis (these are interpolation cells)
-            moris::Matrix<moris::IndexMat> tParentElementsInSupport;
+            moris::Matrix< moris::IndexMat > tParentElementsInSupport;
 
-            mBackgroundMeshPtr->get_elements_in_support_of_basis(tMeshIndex, i, tParentElementsInSupport);
+            mBackgroundMeshPtr->get_elements_in_support_of_basis( tMeshIndex, iBasis, tParentElementsInSupport );
 
             // get subphase clusters in support (separated by phase)
-            tSubphaseClusterIndicesInSupport(i) = this->get_subphase_clusters_in_support(tParentElementsInSupport);
+            tSubphaseClusterIndicesInSupport( iBasis ) = this->get_subphase_clusters_in_support( tParentElementsInSupport );
 
             // construct subphase in support map
             IndexMap tSubPhaseIndexToSupportIndex;
 
-            this->construct_subphase_in_support_map(tSubphaseClusterIndicesInSupport(i), tSubPhaseIndexToSupportIndex);
+            this->construct_subphase_in_support_map( tSubphaseClusterIndicesInSupport( iBasis ), tSubPhaseIndexToSupportIndex );
 
             // prune the subphase to remove subphases outside of basis support
-            moris::Matrix<moris::IndexMat> tPrunedSubphaseNeighborhood;
+            moris::Matrix< moris::IndexMat > tPrunedSubphaseNeighborhood;
 
             this->generate_pruned_subphase_graph_in_basis_support(
-                tSubphaseClusterIndicesInSupport(i),
+                tSubphaseClusterIndicesInSupport( iBasis ),
                 tSubPhaseIndexToSupportIndex,
-                tPrunedSubphaseNeighborhood);
+                tPrunedSubphaseNeighborhood );
 
             // Assign enrichment levels to subphases
             this->assign_subphase_bin_enrichment_levels_in_basis_support(
-                tSubphaseClusterIndicesInSupport(i),
+                tSubphaseClusterIndicesInSupport( iBasis ),
                 tSubPhaseIndexToSupportIndex,
                 tPrunedSubphaseNeighborhood,
-                tSubPhaseBinEnrichment(i),
-                tMaxEnrichmentLevel(i));
+                tSubPhaseBinEnrichment( iBasis ),
+                tMaxEnrichmentLevel( iBasis ) );
 
             // Extract element enrichment levels from assigned sub-phase bin enrichment levels and store these as a member variable
             this->unzip_subphase_bin_enrichment_into_element_enrichment(
                 tMeshIndex,
-                i,
+                iBasis,
                 tParentElementsInSupport,
-                tSubphaseClusterIndicesInSupport(i),
+                tSubphaseClusterIndicesInSupport( iBasis ),
                 tSubPhaseIndexToSupportIndex,
                 tPrunedSubphaseNeighborhood,
-                tSubPhaseBinEnrichment(i));
+                tSubPhaseBinEnrichment( iBasis ) );
         }
 
         // construct subphase to enriched index
@@ -281,15 +280,15 @@ Enrichment::perform_basis_cluster_enrichment()
             tMeshIndex,
             tSubPhaseBinEnrichment,
             tSubphaseClusterIndicesInSupport,
-            tMaxEnrichmentLevel);
+            tMaxEnrichmentLevel );
 
         // Assign enriched basis indices Only indices here because interpolation cells needs basis
         // indices and basis ids are created using the interpolation cell ids
         this->assign_enriched_coefficients_identifiers(
             tMeshIndex,
-            tMaxEnrichmentLevel);
+            tMaxEnrichmentLevel );
 
-        MORIS_LOG_SPEC("Num Enriched Basis", mEnrichmentData(tMeshIndex).mNumEnrichmentLevels);
+        MORIS_LOG_SPEC( "Num Enriched Basis", mEnrichmentData( tMeshIndex ).mNumEnrichmentLevels );
     }
 
     // create the enriched interpolation mesh
@@ -316,7 +315,6 @@ Enrichment::construct_neighborhoods()
 void
 Enrichment::setup_background_vertex_interpolations()
 {
-
     // access the background interpolation mesh
     mtk::Interpolation_Mesh& tBGIPMesh = mXTKModelPtr->get_background_mesh();
 
@@ -397,9 +395,9 @@ Enrichment::construct_subphase_in_support_map(
 
 void
 Enrichment::generate_pruned_subphase_graph_in_basis_support(
-    moris::Matrix<moris::IndexMat> const& aSubphasesInSupport,
-    IndexMap&                             aSubPhaseIndexToSupportIndex,
-    moris::Matrix<moris::IndexMat>&       aPrunedSubPhaseToSubphase)
+    moris::Matrix< moris::IndexMat > const& aSubphasesInSupport,
+    IndexMap&                               aSubPhaseIndexToSupportIndex,
+    moris::Matrix< moris::IndexMat >&       aPrunedSubPhaseToSubphase )
 {
     std::shared_ptr<Subphase_Neighborhood_Connectivity> tSubphaseNeighborhood = mCutIgMesh->get_subphase_neighborhood();
 
