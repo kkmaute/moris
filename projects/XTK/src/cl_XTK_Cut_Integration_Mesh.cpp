@@ -1417,14 +1417,17 @@ Cut_Integration_Mesh::print_groupings( std::string aFile )
 }
 
 // ----------------------------------------------------------------------------------
+
 void
 Cut_Integration_Mesh::setup_comm_map()
 {
     if ( par_size() > 1 )
     {
+        // Build list of processors with whom current processor shares nodes
         std::unordered_map< moris_id, moris_id > tCommunicationMap;
         Cell< moris_index >                      tCellOfProcs;
 
+        // Loop over all nodes in background mesh and get node's owner
         for ( moris::uint i = 0; i < mBackgroundMesh->get_num_entities( EntityRank::NODE ); i++ )
         {
             moris_index tOwner = mBackgroundMesh->get_entity_owner( (moris_index)i, EntityRank::NODE );
@@ -1435,12 +1438,16 @@ Cut_Integration_Mesh::setup_comm_map()
                 tCommunicationMap[tOwner] = 1;
             }
         }
+
+        // Initialize communication map
         mCommunicationMap.resize( 1, tCellOfProcs.size() );
+
         for ( moris::uint i = 0; i < tCellOfProcs.size(); i++ )
         {
             mCommunicationMap( i ) = tCellOfProcs( i );
         }
 
+        // Send communication maps to root processor (here 0)
         Cell< Matrix< IndexMat > > tGatheredMats;
         moris_index                tTag = 10009;
         if ( tCellOfProcs.size() == 0 )
@@ -1452,9 +1459,15 @@ Cut_Integration_Mesh::setup_comm_map()
         {
             all_gather_vector( mCommunicationMap, tGatheredMats, tTag, 0, 0 );
         }
+
+        // Initialize processor-to-processor communication table
+        Cell< Matrix< IndexMat > > tReturnMats( par_size() );
+
+        // Root processor (here 0) builds processor-to-processor communication table
         if ( par_rank() == 0 )
         {
             Cell< Cell< uint > > tProcToProc( par_size() );
+
             for ( moris::uint i = 0; i < tGatheredMats.size(); i++ )
             {
                 for ( moris::uint j = 0; j < tGatheredMats( i ).numel(); j++ )
@@ -1465,9 +1478,9 @@ Cut_Integration_Mesh::setup_comm_map()
                     }
                 }
             }
-            Cell< Matrix< IndexMat > > tReturnMats( tProcToProc.size() );
+
             // convert to a matrix
-            for ( moris::uint i = 0; i < tProcToProc.size(); i++ )
+            for ( moris::uint i = 0; i < (uint) par_size(); i++ )
             {
                 tReturnMats( i ).resize( 1, tProcToProc( i ).size() );
 
@@ -1480,24 +1493,36 @@ Cut_Integration_Mesh::setup_comm_map()
                     tReturnMats( i ) = Matrix< IndexMat >( 1, 1, MORIS_INDEX_MAX );
                 }
             }
-            // send them back
-            for ( moris::uint i = 0; i < tReturnMats.size(); i++ )
+
+            // send processor-to-processor communication table back individual processors
+            for ( moris::uint i = 0; i < (uint) par_size(); i++ )
             {
-                nonblocking_send( tReturnMats( i ), tReturnMats( i ).n_rows(), tReturnMats( i ).n_cols(), i, tTag );
+                nonblocking_send(
+                        tReturnMats( i ),
+                        tReturnMats( i ).n_rows(),
+                        tReturnMats( i ).n_cols(),
+                        i,
+                        tTag );
             }
         }
 
+        // receive processor-to-processor communication tables
         barrier();
         Matrix< IndexMat > tTempCommMap( 1, 1, 0 );
         receive( tTempCommMap, 1, 0, tTag );
 
+        // add new processors to existing communication table
         for ( moris::uint i = 0; i < tTempCommMap.numel(); i++ )
         {
+            // Skip processors that do not share nodes
             if ( tTempCommMap( i ) != MORIS_INDEX_MAX )
             {
-                if ( tCommunicationMap.find( tTempCommMap( i ) ) == tCommunicationMap.end() && tTempCommMap( i ) != par_rank() )
+                // Check if processor is already in communication table
+                if ( tCommunicationMap.find( tTempCommMap( i ) ) == tCommunicationMap.end()
+                        && tTempCommMap( i ) != par_rank() )
                 {
                     moris_index tIndex = mCommunicationMap.numel();
+
                     mCommunicationMap.resize( 1, mCommunicationMap.numel() + 1 );
 
                     tCommunicationMap[tTempCommMap( i )] = 1;
@@ -1510,10 +1535,12 @@ Cut_Integration_Mesh::setup_comm_map()
     }
 }
 
+// ----------------------------------------------------------------------------------
 void
 Cut_Integration_Mesh::deduce_ig_cell_group_ownership()
 {
     Tracer tTracer( "XTK", "Cut_Integration_Mesh", "deduce_ig_cell_group_ownership", mXTKModel->mVerboseLevel, 1 );
+
     mOwnedIntegrationCellGroupsInds.reserve( mIntegrationCellGroupsParentCell.size() );
     mNotOwnedIntegrationCellGroups.reserve( mIntegrationCellGroupsParentCell.size() );
 
