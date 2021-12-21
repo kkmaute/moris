@@ -781,7 +781,7 @@ namespace moris
     //------------------------------------------------------------------------------
 
     /*!
-     * Gathers matrix from procs, on root proc
+     * Gathers matrix from procs on root proc
      * Only aGatheredMats is populated on base proc
      */
     template <typename MatrixType>
