@@ -1989,6 +1989,8 @@ Enriched_Interpolation_Mesh::assign_ip_vertex_ids()
 
     // add child cell ids to not owned child meshes
     this->handle_received_ip_vertex_ids( tNotOwnedVertices, tReceivedVertexIds );
+
+    barrier();
 }
 
 // ----------------------------------------------------------------------------
