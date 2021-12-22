@@ -163,10 +163,12 @@ Integration_Mesh_Generator::perform()
 
     this->construct_bulk_phase_blocks( tCutIntegrationMesh.get(), tBulkPhaseCellGroups );
 
-    tCutIntegrationMesh->write_mesh("./","cut_ig_mesh.exo");
+    // tCutIntegrationMesh->write_mesh("./","cut_ig_mesh.exo");
 
     return tCutIntegrationMesh;
 }
+
+// ----------------------------------------------------------------------------------
 
 moris::Matrix< moris::IndexMat > const*
 Integration_Mesh_Generator::get_active_geometries()
@@ -1587,8 +1589,7 @@ Integration_Mesh_Generator::construct_bulk_phase_blocks(
 
     Cell< std::string > tBlockSetNames( tNumBulkPhases + 1 );
 
-// fixme: ...
-std::cout << "WARNING: GENERALIZE NEEDED FOR MULTIPLE TOPOS" << std::endl;
+    // fixme: std::cout << "WARNING: GENERALIZE NEEDED FOR MULTIPLE TOPOS" << std::endl;
     
     // decide on cell topology of integration elements based on number of spatial dimensions
     enum CellTopology tCellTopo = xtk::determine_cell_topology( 
@@ -2594,9 +2595,8 @@ Integration_Mesh_Generator::allocate_child_meshes(
 
         aCutIntegrationMesh->mParentCellCellGroupIndex( tParentCell->get_index() ) = tCMIndex;
 
-// fixme: ...
-// std::cout << "Integration_Mesh_Generator::allocate_child_meshes() - WARNING: GENERAlIZE NEEDED FOR MULTIPLE TOPOS" << std::endl;
-    
+        // fixme: std::cout << "Integration_Mesh_Generator::allocate_child_meshes() - WARNING: GENERAlIZE NEEDED FOR MULTIPLE TOPOS" << std::endl;
+
         // initialize cell topology
         moris_index tNumGeometricVertices;
         

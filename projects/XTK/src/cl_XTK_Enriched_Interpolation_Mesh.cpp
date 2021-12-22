@@ -2561,13 +2561,12 @@ Enriched_Interpolation_Mesh::handle_received_interpolation_data(
     // iterate through returned information
     for ( moris::uint iP = 0; iP < aVertexIdsToProc.size(); iP++ )
     {
+        //MORIS_LOG_SPEC("aVertexIdsToProc(iP).numel() on " + std::to_string(par_rank()), aVertexIdsToProc(iP).numel());
 
-        MORIS_LOG_SPEC("aVertexIdsToProc(iP).numel() on " + std::to_string(par_rank()), aVertexIdsToProc(iP).numel());
         if ( aVertexIdsToProc( iP ).numel() == 1 and aVertexIdsToProc( iP )( 0 ) == MORIS_INDEX_MAX )
         {
             // do nothing for this iP
         }
-
         // standard case
         else
         {
@@ -2656,7 +2655,6 @@ Enriched_Interpolation_Mesh::handle_received_interpolation_data(
         }
     }
 }
-
 
 // ----------------------------------------------------------------------------
 
