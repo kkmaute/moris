@@ -170,6 +170,8 @@ Integration_Mesh_Generator::perform()
     return tCutIntegrationMesh;
 }
 
+// ----------------------------------------------------------------------------------
+
 moris::Matrix< moris::IndexMat > const*
 Integration_Mesh_Generator::get_active_geometries()
 {
@@ -2593,9 +2595,8 @@ Integration_Mesh_Generator::allocate_child_meshes(
 
         aCutIntegrationMesh->mParentCellCellGroupIndex( tParentCell->get_index() ) = tCMIndex;
 
-// fixme: ...
-// std::cout << "Integration_Mesh_Generator::allocate_child_meshes() - WARNING: GENERAlIZE NEEDED FOR MULTIPLE TOPOS" << std::endl;
-    
+        // fixme: std::cout << "Integration_Mesh_Generator::allocate_child_meshes() - WARNING: GENERAlIZE NEEDED FOR MULTIPLE TOPOS" << std::endl;
+
         // initialize cell topology
         moris_index tNumGeometricVertices;
         
