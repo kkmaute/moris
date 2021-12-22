@@ -69,11 +69,10 @@ namespace moris
             for( uint k=0; k<tNumberOfElements; ++k )
             {
                 // get cell indices from mesh
-
                 mCells( k ) = new Cell(
                         k,
                         aMesh->get_glb_entity_id_from_entity_loc_index( k, EntityRank::ELEMENT),
-                        aMesh->get_nodes_connected_to_element_loc_inds( k ),
+                        aMesh->get_entity_connected_to_entity_loc_inds( k, EntityRank::ELEMENT, EntityRank::NODE ),
                         mVertices );
             }
 

@@ -140,8 +140,7 @@ namespace moris
                         voxelize( 0 );
                     }
                 }
-                std::cout << "Unsure nodes " << mData.mUnsureNodesCount << std::endl;
-
+                
                 if( mData.mUnsureNodesCount > 0 )
                 {
                     tRotation = true;
