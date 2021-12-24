@@ -19,7 +19,7 @@ using namespace moris;
 uint gInterpolationOrder = 1;
 
 // flag to print reference values
-bool gPrintReferenceValues = true;
+bool gPrintReferenceValues = false;
 
 //---------------------------------------------------------------
 
