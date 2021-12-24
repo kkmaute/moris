@@ -12,15 +12,6 @@ namespace moris
 {
     TEST_CASE("SDF Teapot", "[SDF_Teapot]")
     {
-
-// debug
-std::cout << "Waiting one minute to attach debugger ... " << std::endl;
-for ( uint i = 0; i < 12; i++)
-{
-    //sleep(5);
-}
-std::cout << "time over, continue." << std::endl;
-       
         ParameterList tParameterlist = prm::create_hmr_parameter_list();
         tParameterlist = prm::create_hmr_parameter_list();
 
