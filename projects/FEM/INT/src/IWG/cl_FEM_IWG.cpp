@@ -3370,12 +3370,19 @@ namespace moris
             uint tMasterResDofAssemblyStart = mSet->get_res_dof_assembly_map()( tMasterResDofIndex )( 0, 0 );
             uint tMasterResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tMasterResDofIndex )( 0, 1 );
 
-            // get the slave residual dof type index in the set
-            uint tSlaveResDofIndex = mSet->get_dof_index_for_type(
+            // get the slave residual dof type index in the set (if exists)
+            sint tSlaveResDofIndex = mSet->get_dof_index_for_type(
                     mResidualDofType( 0 )( 0 ),
                     mtk::Master_Slave::SLAVE );
-            uint tSlaveResDofAssemblyStart = mSet->get_res_dof_assembly_map()( tSlaveResDofIndex )( 0, 0 );
-            uint tSlaveResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tSlaveResDofIndex )( 0, 1 );
+
+            uint tSlaveResDofAssemblyStart = MORIS_UINT_MAX;
+            uint tSlaveResDofAssemblyStop  = MORIS_UINT_MAX;
+
+            if ( tSlaveResDofIndex != -1 )
+            {
+                 tSlaveResDofAssemblyStart = mSet->get_res_dof_assembly_map()( tSlaveResDofIndex )( 0, 0 );
+                 tSlaveResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tSlaveResDofIndex )( 0, 1 );
+            }
 
             // init perturbation
             real tDeltaH = 0.0;
@@ -3402,8 +3409,13 @@ namespace moris
             this->compute_residual( aWStar );
             Matrix< DDRMat > tMasterResidual =
                     mSet->get_residual()( 0 )( { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop }, { 0, 0 } );
-            Matrix< DDRMat > tSlaveResidual =
-                    mSet->get_residual()( 0 )( { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop }, { 0, 0 } );
+
+            Matrix< DDRMat > tSlaveResidual;
+            if ( tSlaveResDofIndex != -1 )
+            {
+                tSlaveResidual =
+                        mSet->get_residual()( 0 )( { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop }, { 0, 0 } );
+            }
 
             // get number of master GI bases and space dimensions
             uint tDerNumBases      = tMasterIGGI->get_number_of_space_bases();
@@ -3462,11 +3474,14 @@ namespace moris
                                             ( tFDScheme( 2 )( 0 ) * tDeltaH );
 
                             // add unperturbed slave residual contribution to dRdp
-                            mSet->get_drdpgeo()(
-                                    { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop },
-                                    { tPdvAssemblyIndex,          tPdvAssemblyIndex } ) +=
-                                            tFDScheme( 1 )( 0 ) * tSlaveResidual /
-                                            ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                            if ( tSlaveResDofIndex != -1 )
+                            {
+                                mSet->get_drdpgeo()(
+                                        { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop },
+                                        { tPdvAssemblyIndex,          tPdvAssemblyIndex } ) +=
+                                                tFDScheme( 1 )( 0 ) * tSlaveResidual /
+                                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                            }
 
                             // skip first point in FD
                             tStartPoint = 1;
@@ -3529,12 +3544,15 @@ namespace moris
                                             ( tFDScheme( 2 )( 0 ) * tDeltaH );
 
                             // evaluate dSlaveRdpGeo
-                            mSet->get_drdpgeo()(
-                                    { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop },
-                                    { tPdvAssemblyIndex,         tPdvAssemblyIndex } ) +=
-                                            tFDScheme( 1 )( iPoint ) *
-                                            mSet->get_residual()( 0 )( { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop }, { 0, 0 } ) /
-                                            ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                            if ( tSlaveResDofIndex != -1 )
+                            {
+                                mSet->get_drdpgeo()(
+                                        { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop },
+                                        { tPdvAssemblyIndex,         tPdvAssemblyIndex } ) +=
+                                                tFDScheme( 1 )( iPoint ) *
+                                                mSet->get_residual()( 0 )( { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop }, { 0, 0 } ) /
+                                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                            }
                         }
                     }
                 }
@@ -3958,21 +3976,34 @@ namespace moris
             uint tMasterResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tMasterResDofIndex )( 0, 1 );
 
             // get the slave residual dof type index in the set
-            uint tSlaveResDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::SLAVE );
-            uint tSlaveResDofAssemblyStart = mSet->get_res_dof_assembly_map()( tSlaveResDofIndex )( 0, 0 );
-            uint tSlaveResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tSlaveResDofIndex )( 0, 1 );
+            sint tSlaveResDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::SLAVE );
+            uint tSlaveResDofAssemblyStart = MORIS_UINT_MAX;
+            uint tSlaveResDofAssemblyStop  = MORIS_UINT_MAX;
+
+            // check that slave side has residual dof type
+            if ( tSlaveResDofIndex != -1 )
+            {
+                tSlaveResDofAssemblyStart = mSet->get_res_dof_assembly_map()( tSlaveResDofIndex )( 0, 0 );
+                tSlaveResDofAssemblyStop  = mSet->get_res_dof_assembly_map()( tSlaveResDofIndex )( 0, 1 );
+            }
 
             // reset, evaluate and store the residual for unperturbed case
             mSet->get_residual()( 0 ).fill( 0.0 );
+
             this->compute_residual( aWStar );
+
             Matrix< DDRMat > tMasterResidual =
                     mSet->get_residual()( 0 )(
                             { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop },
                             { 0, 0 } );
-            Matrix< DDRMat > tSlaveResidual =
-                    mSet->get_residual()( 0 )(
+
+            Matrix< DDRMat > tSlaveResidual;
+            if ( tSlaveResDofIndex != -1 )
+            {
+                tSlaveResidual = mSet->get_residual()( 0 )(
                             { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop },
                             { 0, 0 } );
+            }
 
             // init perturbation
             real tDeltaH = 0.0;
@@ -4032,11 +4063,14 @@ namespace moris
                                             ( tFDScheme( 2 )( 0 ) * tDeltaH );
 
                             // add unperturbed master residual contribution to dRdp
-                            mSet->get_drdpmat()(
-                                    { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop },
-                                    { tPdvIndex,                  tPdvIndex } ) +=
-                                            tFDScheme( 1 )( 0 ) * tSlaveResidual /
-                                            ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                            if ( tSlaveResDofIndex != -1 )
+                            {
+                                mSet->get_drdpmat()(
+                                        { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop },
+                                        { tPdvIndex,                  tPdvIndex } ) +=
+                                                tFDScheme( 1 )( 0 ) * tSlaveResidual /
+                                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                            }
 
                             // skip first point in FD
                             tStartPoint = 1;
@@ -4072,12 +4106,15 @@ namespace moris
                                             ( tFDScheme( 2 )( 0 ) * tDeltaH );
 
                             // assemble dRSlavedpMat
-                            mSet->get_drdpmat()(
-                                    { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop },
-                                    { tPdvIndex,                 tPdvIndex } ) +=
-                                            tFDScheme( 1 )( iPoint ) *
-                                            mSet->get_residual()( 0 )( { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop }, { 0, 0 } ) /
-                                            ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                            if ( tSlaveResDofIndex != -1 )
+                            {
+                                mSet->get_drdpmat()(
+                                        { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop },
+                                        { tPdvIndex,                 tPdvIndex } ) +=
+                                                tFDScheme( 1 )( iPoint ) *
+                                                mSet->get_residual()( 0 )( { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop }, { 0, 0 } ) /
+                                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                            }
                         }
                         // update coefficient counter
                         tCoeffCounter++;
@@ -4111,15 +4148,22 @@ namespace moris
 
                 // reset and evaluate the residual
                 mSet->get_residual()( 0 ).fill( 0.0 );
+
                 this->compute_residual( aWStar );
+
                 Matrix< DDRMat > tMasterResidual =
                         mSet->get_residual()( 0 )(
                                 { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop },
                                 { 0, 0 } );
-                Matrix< DDRMat > tSlaveResidual =
+
+                Matrix< DDRMat > tSlaveResidual;
+                if ( tSlaveResDofIndex != -1 )
+                {
+                    tSlaveResidual =
                         mSet->get_residual()( 0 )(
                                 { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop },
                                 { 0, 0 } );
+                }
 
                 // init coeff counter
                 uint tCoeffCounter = 0;
@@ -4157,11 +4201,14 @@ namespace moris
                                             ( tFDScheme( 2 )( 0 ) * tDeltaH );
 
                             // add unperturbed master residual contribution to dRdp
-                            mSet->get_drdpmat()(
-                                    { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop },
-                                    { tPdvIndex,                  tPdvIndex } ) +=
-                                            tFDScheme( 1 )( 0 ) * tSlaveResidual /
-                                            ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                            if ( tSlaveResDofIndex != -1 )
+                            {
+                                mSet->get_drdpmat()(
+                                        { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop },
+                                        { tPdvIndex,                  tPdvIndex } ) +=
+                                                tFDScheme( 1 )( 0 ) * tSlaveResidual /
+                                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                            }
 
                             // skip first point in FD
                             tStartPoint = 1;
@@ -4197,12 +4244,15 @@ namespace moris
                                             ( tFDScheme( 2 )( 0 ) * tDeltaH );
 
                             // assemble dRSlavedpMat
-                            mSet->get_drdpmat()(
-                                    { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop },
-                                    { tPdvIndex,                 tPdvIndex } ) +=
-                                            tFDScheme( 1 )( iPoint ) *
-                                            mSet->get_residual()( 0 )( { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop }, { 0, 0 } ) /
-                                            ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                            if ( tSlaveResDofIndex != -1 )
+                            {
+                                mSet->get_drdpmat()(
+                                        { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop },
+                                        { tPdvIndex,                 tPdvIndex } ) +=
+                                                tFDScheme( 1 )( iPoint ) *
+                                                mSet->get_residual()( 0 )( { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop }, { 0, 0 } ) /
+                                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                            }
                         }
                         // update coefficient counter
                         tCoeffCounter++;
