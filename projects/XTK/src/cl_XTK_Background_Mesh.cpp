@@ -1412,6 +1412,9 @@ namespace xtk
             {
                 all_gather_vector(mCommunicationMap,tGatheredMats,tTag,0,0);
             }
+        
+            Cell<Matrix<IndexMat>> tReturnMats(tProcToProc.size());
+
             if(par_rank() == 0)
             {
                 Cell<Cell<uint>> tProcToProc(par_size());
@@ -1425,7 +1428,7 @@ namespace xtk
                         }
                     }
                 }
-                Cell<Matrix<IndexMat>> tReturnMats(tProcToProc.size());
+
                 // convert to a matrix
                 for(moris::uint  i = 0; i < tProcToProc.size(); i++)
                 {
