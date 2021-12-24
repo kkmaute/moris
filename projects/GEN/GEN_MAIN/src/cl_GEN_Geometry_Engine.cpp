@@ -922,7 +922,7 @@ namespace ge
         }
 
         real tElapsedTime = tTimer.toc< moris::chronos::milliseconds >().wall;
-        MORIS_LOG_INFO( " Assign PDV type to mesh sets on processor %u took %5.3f seconds.", (uint)par_rank(), (double)tElapsedTime / 1000 );
+        MORIS_LOG_INFO( "Assign PDV type to mesh sets on processor %u took %5.3f seconds.", (uint)par_rank(), (double)tElapsedTime / 1000 );
 
         // start timer
         tic tTimer2;
@@ -941,7 +941,7 @@ namespace ge
             tIGVertexGlobaToLocalMap );
 
         tElapsedTime = tTimer2.toc< moris::chronos::milliseconds >().wall;
-        MORIS_LOG_INFO( " Get global-to-local-maps from mtk on processor %u took %5.3f seconds.", (uint)par_rank(), (double)tElapsedTime / 1000 );
+        MORIS_LOG_INFO( "Get global-to-local-maps from mtk on processor %u took %5.3f seconds.", (uint)par_rank(), (double)tElapsedTime / 1000 );
 
         // start timer
         tic tTimer3;
@@ -952,7 +952,7 @@ namespace ge
             tPdvTypes );
 
         tElapsedTime = tTimer3.toc< moris::chronos::milliseconds >().wall;
-        MORIS_LOG_INFO( " Create interpolation PDV hosts on processor %u took %5.3f seconds.", (uint)par_rank(), (double)tElapsedTime / 1000 );
+        MORIS_LOG_INFO( "Create interpolation PDV hosts on processor %u took %5.3f seconds.", (uint)par_rank(), (double)tElapsedTime / 1000 );
 
         // Set integration PDV types
         if ( mShapeSensitivities )
@@ -963,7 +963,7 @@ namespace ge
             this->set_integration_pdv_types( tIntegrationMesh );
 
             tElapsedTime = tTimer4.toc< moris::chronos::milliseconds >().wall;
-            MORIS_LOG_INFO( " Set integration PDV types on processor %u took %5.3f seconds.", (uint)par_rank(), (double)tElapsedTime / 1000 );
+            MORIS_LOG_INFO( "Set integration PDV types on processor %u took %5.3f seconds.", (uint)par_rank(), (double)tElapsedTime / 1000 );
         }
 
         // start timer
@@ -993,7 +993,7 @@ namespace ge
         }
 
         tElapsedTime = tTimer5.toc< moris::chronos::milliseconds >().wall;
-        MORIS_LOG_INFO( " Assign property to pdv host on processor %u took %5.3f seconds.", (uint)par_rank(), (double)tElapsedTime / 1000 );
+        MORIS_LOG_INFO( "Assign property to pdv host on processor %u took %5.3f seconds.", (uint)par_rank(), (double)tElapsedTime / 1000 );
 
         // start timer
         tic tTimer6;
@@ -1001,7 +1001,7 @@ namespace ge
         mPDVHostManager.create_pdv_ids();
 
         tElapsedTime = tTimer6.toc< moris::chronos::milliseconds >().wall;
-        MORIS_LOG_INFO( " Compute and comunicate PDV IDs on processor %u took %5.3f seconds.", (uint)par_rank(), (double)tElapsedTime / 1000 );
+        MORIS_LOG_INFO( "Compute and comunicate PDV IDs on processor %u took %5.3f seconds.", (uint)par_rank(), (double)tElapsedTime / 1000 );
     }
 
     void
