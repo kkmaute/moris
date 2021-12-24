@@ -119,7 +119,7 @@ class Enrichment
 
     // ----------------------------------------------------------------------------------
 
-    ~Enrichment()
+    ~Enrichment();
     // ----------------------------------------------------------------------------------
 
     bool mVerbose = false; /* Verbose output of enrichment information flag */
@@ -222,7 +222,8 @@ class Enrichment
     Cut_Integration_Mesh*       mCutIgMesh         = nullptr;
     Integration_Mesh_Generator* mIgMeshTools       = nullptr;
     moris::mtk::Mesh*           mBackgroundMeshPtr = nullptr;
-    Enrichment_Parameters       mParameters        = nullptr;
+    
+    Enrichment_Parameters       mParameters;
 
     // enrichment strategy data (outer cell - mesh index, inner cell - necessary data for enrichment of mesh index)
     Cell< Enrichment_Data > mEnrichmentData;
