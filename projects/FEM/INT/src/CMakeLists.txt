@@ -132,9 +132,9 @@ set(HEADERS
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Dirichlet.hpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Neumann.hpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Interface.hpp
+    IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Fluid_Interface.hpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Bulk.hpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Dirichlet.hpp
-    IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Interface.hpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Penalty.hpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Nitsche.hpp 
     IWG/cl_FEM_IWG_Struc_Stress.hpp
@@ -320,6 +320,7 @@ set(LIB_SOURCES
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Dirichlet.cpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Neumann.cpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Interface.cpp
+    IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Fluid_Interface.cpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost.cpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Bulk.cpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Dirichlet.cpp
