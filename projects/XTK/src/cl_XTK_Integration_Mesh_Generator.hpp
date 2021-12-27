@@ -234,7 +234,7 @@ class Integration_Mesh_Generator
     moris::Matrix< moris::IndexMat >       mActiveGeometries;
     moris::Cell< enum Subdivision_Method > mSubdivisionMethods;
 
-    bool mOutputCutIgMesh = true;
+    bool mOutputCutIgMesh = false;
 
   public:
     Integration_Mesh_Generator();
