@@ -180,8 +180,8 @@ namespace moris
                         }
 
                         // Check with solution
-                        CHECK(tGeometryEngine.is_intersected(tNodeIndices, tNodeCoordinates) ==
-                                tIsElementIntersected(tGeometryIndex)(tElementIndex));
+                        bool tIsIntersected = tGeometryEngine.is_intersected( tNodeIndices, tNodeCoordinates );
+                        CHECK( tIsIntersected == tIsElementIntersected( tGeometryIndex )( tElementIndex ) );
                     }
 
                     // Intersection on intersection

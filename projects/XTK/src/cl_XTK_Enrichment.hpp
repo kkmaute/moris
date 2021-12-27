@@ -119,7 +119,12 @@ class Enrichment
 
     // ----------------------------------------------------------------------------------
 
+    ~Enrichment();
+    // ----------------------------------------------------------------------------------
+
     bool mVerbose = false; /* Verbose output of enrichment information flag */
+
+    // ----------------------------------------------------------------------------------
 
     /**
      * Perform basis function enrichment
@@ -213,10 +218,11 @@ class Enrichment
     moris::size_t mNumBulkPhases;
 
     // Pointers to necessary classes
-    Model*                      mXTKModelPtr;
-    Cut_Integration_Mesh*       mCutIgMesh;
-    Integration_Mesh_Generator* mIgMeshTools;
-    moris::mtk::Mesh*           mBackgroundMeshPtr;
+    Model*                      mXTKModelPtr       = nullptr;
+    Cut_Integration_Mesh*       mCutIgMesh         = nullptr;
+    Integration_Mesh_Generator* mIgMeshTools       = nullptr;
+    moris::mtk::Mesh*           mBackgroundMeshPtr = nullptr;
+    
     Enrichment_Parameters       mParameters;
 
     // enrichment strategy data (outer cell - mesh index, inner cell - necessary data for enrichment of mesh index)

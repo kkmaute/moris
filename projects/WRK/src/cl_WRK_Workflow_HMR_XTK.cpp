@@ -260,8 +260,8 @@ namespace moris
 //            tMeshCheckerXTK.perform();
 //            tMeshCheckerXTK.print_diagnostics();
 
-            //mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair(0).get_integration_mesh()->save_MPC_to_hdf5();
-            //mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair(0).get_integration_mesh()->save_IG_node_TMatrices_to_file();
+            // output T-matrices and MPCs if requested
+            this->output_T_matrices( tMTKPerformer, tXTKPerformer );
 
             mPerformerManager->mMDLPerformer( 0 )->set_performer( mPerformerManager->mMTKPerformer( 1 ) );
 
@@ -340,5 +340,29 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
+
+        void 
+        Workflow_HMR_XTK::output_T_matrices(
+            const std::shared_ptr< mtk::Mesh_Manager > aMTKPerformer,
+            const std::shared_ptr< xtk::Model >        aXTKPerformer )
+        {
+            // Output T-matrices if requested
+            std::string tTmatrixFileName = aXTKPerformer->get_T_matrix_output_file_name();
+            if ( tTmatrixFileName != "" )
+            {
+                mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair(0).get_integration_mesh()->save_IG_node_TMatrices_to_file( tTmatrixFileName );
+                MORIS_ERROR( false, "Workflow_HMR_XTK - Output T-Matrices: Kill run here by intention, only T-Matrices requested" );
+            }
+
+            // Output MPCs if requested
+            std::string tMpcFileName = aXTKPerformer->get_MPC_output_file_name();
+            if ( tMpcFileName != "" )
+            {
+                mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair(0).get_integration_mesh()->save_MPC_to_hdf5( tMpcFileName );
+            }
+        }
+        
+        //--------------------------------------------------------------------------------------------------------------
+
     } /* namespace mdl */
 } /* namespace moris */

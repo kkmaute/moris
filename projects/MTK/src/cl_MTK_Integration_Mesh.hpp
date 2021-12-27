@@ -300,7 +300,7 @@ namespace moris
                  * Save MPC tp hdf5
                  */
                 void
-                save_MPC_to_hdf5();
+                save_MPC_to_hdf5( std::string aFileName );
 
                 void
                 create_MPC_maps(
@@ -320,7 +320,7 @@ namespace moris
                  * Save nodal T-matrices for IG-mesh nodes to .hdf5 or .dat file
                  */
                 void
-                save_IG_node_TMatrices_to_file();
+                save_IG_node_TMatrices_to_file( std::string tFileName );
 
                 void
                 get_IG_to_IP_nodal_T_matrices( 

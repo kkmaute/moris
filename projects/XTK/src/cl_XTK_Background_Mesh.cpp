@@ -1380,11 +1380,14 @@ namespace xtk
     void
     Background_Mesh::setup_comm_map()
     {
+        // communication map only needed for parallel run
         if(par_size() > 1)
         {
+            // initialize cell and maps for collecting processors to communicate with
             std::unordered_map<moris_id,moris_id> tCommunicationMap;
             Cell<moris_index> tCellOfProcs;
     
+            // collect processor that owns node which is shared with this processor
             for(moris::uint i = 0; i < mMeshData->get_num_entities(EntityRank::NODE); i++)
             {
                 moris_index tOwner = mMeshData->get_entity_owner((moris_index)i,EntityRank::NODE);
@@ -1395,16 +1398,24 @@ namespace xtk
                     tCommunicationMap[tOwner] = 1;
                 }
             }
+
+            // initialize communication map using current number of processors
+            // that own node in this processor
             mCommunicationMap.resize(1,tCellOfProcs.size());
+
+            // populate communication map
             for(moris::uint i = 0; i < tCellOfProcs.size(); i++)
             {
                 mCommunicationMap(i) = tCellOfProcs(i);
             }
 
+            // send communication map to processor zero
             Cell<Matrix<IndexMat>> tGatheredMats;
             moris_index tTag = 10009;
             if(tCellOfProcs.size() == 0)
             {
+                // if this processor does not communicate with any other, send
+                // 1x1 matrix with MORIS_INDEX_MAX
                 Matrix<IndexMat> tDummy(1,1,MORIS_INDEX_MAX);
                 all_gather_vector(tDummy,tGatheredMats,tTag,0,0);
             }
@@ -1412,58 +1423,85 @@ namespace xtk
             {
                 all_gather_vector(mCommunicationMap,tGatheredMats,tTag,0,0);
             }
+        
+            // initialize matrix to be returned from processor 0
+            Cell<Matrix<IndexMat>> tReturnMats(par_size());
+
+            // only processor 0 collects information from all processors and
+            // completes information which processor communicate with each other
             if(par_rank() == 0)
             {
+                // initialize cell that collects information from each processor
                 Cell<Cell<uint>> tProcToProc(par_size());
+
+                // loop over all matrices received from processors
                 for(moris::uint i = 0; i < tGatheredMats.size(); i++)
                 {
+                    // loop over communicating processors for each processor
                     for(moris::uint j = 0; j < tGatheredMats(i).numel(); j ++)
                     {
+                        // check for valid processor rank
                         if(tGatheredMats(i)(j) != MORIS_INDEX_MAX)
                         {
+                            // add rank of processor that has a shared node to
+                            // the list of the processor that owns the node
                             tProcToProc(tGatheredMats(i)(j)).push_back((moris_index)i);
                         }
                     }
                 }
-                Cell<Matrix<IndexMat>> tReturnMats(tProcToProc.size());
-                // convert to a matrix
-                for(moris::uint  i = 0; i < tProcToProc.size(); i++)
+
+                // convert cell-of-cell into cell-of-matrces by looping over
+                // all "owning node" processors"
+                for(moris::uint  i = 0; i < (uint) par_size(); i++)
                 {
+                    // initialize vector for each processor
                     tReturnMats(i).resize(1,tProcToProc(i).size());
 
+                    // copy information
                     for(moris::uint j = 0; j < tProcToProc(i).size(); j++)
                     {
                         tReturnMats(i)(j) = tProcToProc(i)(j);
                     }
+
+                    // if "owning node" processor is not communicating with
+                    // any other processor send 1x1 matrix with MORIS_INDEX_MAX
                     if(tProcToProc(i).size() == 0)
                     {
                         tReturnMats(i) = Matrix<IndexMat>(1,1,MORIS_INDEX_MAX);
                     }
                 }
-                // send them back
-                for(moris::uint i = 0; i < tReturnMats.size(); i++)
+
+                // send collected information back to processors
+                for(moris::uint i = 0; i < (uint) par_size(); i++)
                 {
                     nonblocking_send(tReturnMats(i),tReturnMats(i).n_rows(),tReturnMats(i).n_cols(),i,tTag);
                 }
             }
 
+            // wait for all processors to reach this point
             barrier();
+
+            // receive information from processor 0
             Matrix<IndexMat> tTempCommMap(1,1,0);
             receive(tTempCommMap,1,0,tTag);
 
+            // loop overall processors that share a node that this processor owns
             for(moris::uint i =0; i < tTempCommMap.numel(); i++)
             {
+                // skip processors that do not share a node with this processor
                 if(tTempCommMap(i) != MORIS_INDEX_MAX)
                 {
-                if(tCommunicationMap.find(tTempCommMap(i)) == tCommunicationMap.end() && tTempCommMap(i) != par_rank())
-                {
-                    moris_index tIndex = mCommunicationMap.numel();
-                    mCommunicationMap.resize(1,mCommunicationMap.numel()+1);
+                    // check if the processor is already in the communication map
+                    if(tCommunicationMap.find(tTempCommMap(i)) == tCommunicationMap.end() && tTempCommMap(i) != par_rank())
+                    {
+                        // add processor to communication map
+                        moris_index tIndex = mCommunicationMap.numel();
+                        mCommunicationMap.resize(1,mCommunicationMap.numel()+1);
 
-                    tCommunicationMap[tTempCommMap(i)] = 1;
+                        tCommunicationMap[tTempCommMap(i)] = 1;
 
-                    mCommunicationMap(tIndex) = tTempCommMap(i);
-                }
+                        mCommunicationMap(tIndex) = tTempCommMap(i);
+                    }
                 }
             }
 

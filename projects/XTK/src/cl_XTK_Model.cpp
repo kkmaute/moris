@@ -84,8 +84,8 @@ Model::~Model()
 // ----------------------------------------------------------------------------------
 
 /*
-     * using the general geometry engine
-     */
+ * using the general geometry engine
+ */
 Model::Model(
     uint                            aModelDimension,
     moris::mtk::Interpolation_Mesh *aMeshData,
@@ -370,25 +370,42 @@ Model::perform()
         // place the pair in mesh manager
         mMTKOutputPerformer->register_mesh_pair( &tEnrInterpMesh, &tEnrIntegMesh, false, tXTKMeshName );
 
-        //Periodic Boundary condition environment
+        // Periodic boundary condition environment
         if ( mParameterList.get< std::string >( "periodic_side_set_pair" ) != "" )
         {
-            //initialize the time tracer
-            Tracer tTracer( "MTK", "Double Sided Set", " Periodic Boundary Condition " );
+            if ( tEnrInterpMesh.get_spatial_dim() == 2 )
+            {
+                // initialize the time tracer
+                Tracer tTracer( "MTK", "Periodic BCs", "Compute Intersections 2D" );
 
-            //Construct intersection and perform
-            mIntersectionDetect2D = new mtk::Intersection_Detect_2D( mMTKOutputPerformer, 0, mParameterList, mGeometryEngine->get_num_bulk_phase() );
-            mIntersectionDetect2D->perform();
+                // Construct intersection and perform
+                mIntersectionDetect2D = new mtk::Intersection_Detect_2D( mMTKOutputPerformer, 0, mParameterList, mGeometryEngine->get_num_bulk_phase() );
+                mIntersectionDetect2D->perform();
+            }
 
-            Tracer tTracer( "MTK", "Output Clusters", "Writing Mesh" );
+            else
+            {
+                {
+                    // initialize the time tracer
+                    Tracer tTracer( "XTK", "Periodic BCs", "Compute Intersections 3D" );
 
-            //Construct the intersection mesh
-            mtk::Intersection_Mesh *tIscMesh = new mtk::Intersection_Mesh( &tEnrIntegMesh, mIntersectionDetect );
+                    mIntersectionDetect = new mtk::Intersection_Detect( mMTKOutputPerformer, 0, mParameterList, mGeometryEngine->get_num_bulk_phase() );
+                    mIntersectionDetect->perform();
+                }
 
-            //Write the mesh
-            moris::mtk::Writer_Exodus tWriter2( tIscMesh );
-            tWriter2.write_mesh( "", "VIS_ISC.exo", "", "temp.exo" );
-            tWriter2.close_file();
+                if ( mParameterList.get< bool >( "output_intersection_mesh" ) )
+                {
+                    Tracer tTracer( "XTK", "Periodic BCs", "Output Intersection Mesh" );
+
+                    // Construct the intersection mesh
+                    mtk::Intersection_Mesh *tIscMesh = new mtk::Intersection_Mesh( &tEnrIntegMesh, mIntersectionDetect );
+
+                    // Write the mesh
+                    moris::mtk::Writer_Exodus tWriter2( tIscMesh );
+                    tWriter2.write_mesh( "", "VIS_ISC.exo", "", "temp.exo" );
+                    tWriter2.close_file();
+                }
+            }
         }
 
         // if( mParameterList.get<bool>("contact_sandbox") )
@@ -609,8 +626,10 @@ Model::decompose( Cell< enum Subdivision_Method > aMethods )
         tActiveGeometries( i ) = (moris_index)i;
     }
 
+    // initialize IMG object for performing decomposition
     Integration_Mesh_Generator tIntegrationGenerator( this, aMethods, tActiveGeometries );
-
+    
+    // perform decomposition
     mCutIntegrationMesh = tIntegrationGenerator.perform();
 
     mDecomposed = mCutIntegrationMesh->mSameLevelChildMeshes;
@@ -1497,12 +1516,28 @@ Model::get_subphase_id( moris_id aSubphaseIndex )
     return mCutIntegrationMesh->get_subphase_id( aSubphaseIndex );
 }
 
-// ----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 moris_index
 Model::get_subphase_index( moris_id aSubphaseId )
 {
     return mCutIntegrationMesh->get_subphase_index( aSubphaseId );
+}
+
+// -----------------------------------------------------------------------------
+
+std::string
+Model::get_T_matrix_output_file_name()
+{
+    // get value from parameterlist
+    return mParameterList.get< std::string >( "T_matrix_output_file" );
+}
+
+std::string
+Model::get_MPC_output_file_name()
+{
+    // get value from parameterlist
+    return mParameterList.get< std::string >( "MPC_output_file" );
 }
 
 //------------------------------------------------------------------------------

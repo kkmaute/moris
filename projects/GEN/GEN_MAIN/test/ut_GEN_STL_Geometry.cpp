@@ -1,5 +1,7 @@
 #include "catch.hpp"
 #include "cl_SDF_Generator.hpp"
+#include "cl_MTK_Mesh_Manager.hpp"
+#include "cl_MTK_Interpolation_Mesh.hpp"
 #include "cl_HMR.hpp"
 #include "cl_HMR_Field.hpp"
 #include "cl_HMR_Mesh.hpp"
@@ -10,7 +12,6 @@ namespace moris
 {
     TEST_CASE("SDF Teapot", "[SDF_Teapot]")
     {
-       
         ParameterList tParameterlist = prm::create_hmr_parameter_list();
         tParameterlist = prm::create_hmr_parameter_list();
 
@@ -45,16 +46,23 @@ namespace moris
         // create SDF generator
         sdf::SDF_Generator tSdfGen( tObjectPath );
 
+        // create instance of HMR
+        std::shared_ptr<hmr::HMR> tHMR = std::make_shared<hmr::HMR>( tParameterlist );
 
-        hmr::HMR tHMR( tParameterlist );
+        // initialize a mesh manager
+        std::shared_ptr<mtk::Mesh_Manager> tMeshManager = std::make_shared<mtk::Mesh_Manager>();
 
-        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( 0 );
+        // perform HMR
+        tMeshManager->set_performer(tHMR);
+        tHMR->set_performer(tMeshManager);
+        tHMR->perform_initial_refinement();
+        tHMR->perform();
 
         for( uint k=0; k<2; ++k )
         {
             // matrices with surface element IDs
             Matrix< IndexMat > tSurfaceElements;
-            tSdfGen.raycast( tMesh, tSurfaceElements );
+            tSdfGen.raycast( tMeshManager->get_interpolation_mesh( 0 ), tSurfaceElements );
 
             // get number of surface elements
             uint tNumberOfSurfaceElements = tSurfaceElements.length();
@@ -63,27 +71,19 @@ namespace moris
             for( uint e=0; e<tNumberOfSurfaceElements; ++e )
             {
                 // manually flag element
-                tHMR.flag_element( tSurfaceElements( e ) );
+                // fixme: shouldn't this be: tHMR->flag_element( tSurfaceElements( e ) );
+                tHMR->flag_element( e );
             }
 
-            tHMR.perform_refinement_based_on_working_pattern( 0  );
+            tHMR->perform_refinement_based_on_working_pattern( 0  );
         }
 
-
-        // calculate T-Matrices etc
-        tHMR.finalize();
-
         // calculate SDF
-        auto tField = tMesh->create_field( "SDF",  0 );
+        auto tField = tHMR->create_field( "SDF", 0, 0 );
 
         //------------------------------------------------------------------------------
 
-        tSdfGen.calculate_sdf( tMesh, tField->get_node_values() );
-
-        tHMR.save_to_exodus(0, "SDF.exo",0.0 );
-
-
+        tSdfGen.calculate_sdf( tMeshManager->get_interpolation_mesh( 0 ), tField->get_node_values() );
     }
-
 
 }

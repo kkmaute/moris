@@ -383,7 +383,7 @@ namespace moris
         // ----------------------------------------------------------------------------
 
         void
-        Integration_Mesh::save_MPC_to_hdf5()
+        Integration_Mesh::save_MPC_to_hdf5( std::string aFileName )
         {
             // get number of integration vertices
             uint tNumVertices = this->get_num_nodes();
@@ -555,13 +555,11 @@ namespace moris
             //                                                                                                              + "_" + std::to_string( tMesh->get_order() ) // rank of this processor
             //            +  aFilePath.substr( aFilePath.find_last_of("."), aFilePath.length() );
 
-            std::string tFilePath = "MPC.hdf5";
-
             // make path parallel
-            tFilePath = parallelize_path( tFilePath );
+            aFileName = parallelize_path( aFileName );
 
             // Create a new file using default properties
-            hid_t tFileID = H5Fcreate( tFilePath.c_str(),
+            hid_t tFileID = H5Fcreate( aFileName.c_str(),
                     H5F_ACC_TRUNC,
                     H5P_DEFAULT,
                     H5P_DEFAULT);

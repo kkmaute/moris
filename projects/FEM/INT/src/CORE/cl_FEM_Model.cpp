@@ -254,8 +254,6 @@ namespace fem
         // ask IG mesh about number of IG vertices on proc
         luint tNumIGNodes = aIGMesh->get_num_nodes();
 
-        std::cout << "tNumIGNodes: " << tNumIGNodes << std::endl;
-
         // set size for list IG nodes
         mIGNodes.resize( tNumIGNodes, nullptr );
 
@@ -289,8 +287,6 @@ namespace fem
 
             if ( mFEMOnly == false )
             {
-                // std::cout<<"mFEMOnly: "<< tNumIGNodes<<std::endl;
-
                 // get IG node index
                 uint tVertexIndex = mIGNodes( iNode )->get_index();
 
@@ -1586,8 +1582,11 @@ namespace fem
                 // get phase index
                 uint tPhaseIndex = mPhaseMap[tPhaseName];
 
-                // get dof type list from phase
-                mPhaseInfo( tPhaseIndex ).add_dof_type_to_list( tResDofTypes );
+                // get dof type list from phase - ignore double-sided side sets
+                if ( tMasterSlave == false)
+                {
+                    mPhaseInfo( tPhaseIndex ).add_dof_type_to_list( tResDofTypes );
+                }
 
                 // set properties
                 moris::Cell< moris::Cell< std::string > > tPropertyNamesPair;

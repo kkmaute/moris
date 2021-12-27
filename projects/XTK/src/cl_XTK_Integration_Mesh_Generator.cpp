@@ -28,7 +28,7 @@ Integration_Mesh_Generator::~Integration_Mesh_Generator()
 std::shared_ptr< Cut_Integration_Mesh >
 Integration_Mesh_Generator::perform()
 {
-    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "perform" ,mXTKModel->mVerboseLevel, 0  );
+    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "perform", mXTKModel->mVerboseLevel, 0 );
 
     // data structure to pass things around
     Integration_Mesh_Generation_Data tGenerationData;
@@ -140,8 +140,6 @@ Integration_Mesh_Generator::perform()
     this->construct_subphase_neighborhood( tCutIntegrationMesh.get(), tBackgroundMesh, tFaceConnectivity, &tBgFacetToChildFacet, tSubphaseNeighborhood );
     tCutIntegrationMesh->set_subphase_neighborhood( tSubphaseNeighborhood );
 
-    
-
     // construct the bulk phase blocks
     moris::Cell< std::shared_ptr< IG_Cell_Group > > tBulkPhaseCellGroups;
     this->construct_bulk_phase_cell_groups( tCutIntegrationMesh.get(), tBulkPhaseCellGroups );
@@ -163,10 +161,16 @@ Integration_Mesh_Generator::perform()
 
     this->construct_bulk_phase_blocks( tCutIntegrationMesh.get(), tBulkPhaseCellGroups );
 
-    tCutIntegrationMesh->write_mesh("./","cut_ig_mesh.exo");
-
+    // output cut IG mesh for debugging
+    if ( mOutputCutIgMesh )
+    {
+        tCutIntegrationMesh->write_mesh("./","cut_ig_mesh.exo");
+    }
+    
     return tCutIntegrationMesh;
 }
+
+// ----------------------------------------------------------------------------------
 
 moris::Matrix< moris::IndexMat > const*
 Integration_Mesh_Generator::get_active_geometries()
@@ -1587,9 +1591,6 @@ Integration_Mesh_Generator::construct_bulk_phase_blocks(
     MORIS_ERROR( aBulkPhaseCellGroups.size() == tNumBulkPhases + 1, "We expect there to be a bulk phase cell group for each bulk phase and 1 for problematic cells" );
 
     Cell< std::string > tBlockSetNames( tNumBulkPhases + 1 );
-
-// fixme: ...
-std::cout << "WARNING: GENERALIZE NEEDED FOR MULTIPLE TOPOS" << std::endl;
     
     // decide on cell topology of integration elements based on number of spatial dimensions
     enum CellTopology tCellTopo = xtk::determine_cell_topology( 
@@ -2595,9 +2596,8 @@ Integration_Mesh_Generator::allocate_child_meshes(
 
         aCutIntegrationMesh->mParentCellCellGroupIndex( tParentCell->get_index() ) = tCMIndex;
 
-// fixme: ...
-// std::cout << "Integration_Mesh_Generator::allocate_child_meshes() - WARNING: GENERAlIZE NEEDED FOR MULTIPLE TOPOS" << std::endl;
-    
+        // fixme: std::cout << "Integration_Mesh_Generator::allocate_child_meshes() - WARNING: GENERAlIZE NEEDED FOR MULTIPLE TOPOS" << std::endl;
+
         // initialize cell topology
         moris_index tNumGeometricVertices;
         

@@ -32,7 +32,6 @@ void check_results(
         std::string aExoFileName,
         uint        aTestCaseIndex)
 {
-
     MORIS_LOG_INFO("");
     MORIS_LOG_INFO("Checking Results - Test Case %d on %i processor.",aTestCaseIndex,par_size());
     MORIS_LOG_INFO("");
@@ -41,7 +40,7 @@ void check_results(
     moris::mtk::Exodus_IO_Helper tExoIO(aExoFileName.c_str(),0,false,false);
 
     // define reference node IDs
-    Cell<uint> tReferenceNodeId  = {6001,2082,5334,4555};
+    Cell<uint> tReferenceNodeId  = {7805,2694,6977,4330};
 
     if (gPrintReferenceValues)
     {
@@ -80,7 +79,7 @@ void check_results(
 
     // define reference values for dimension, number of nodes and number of elements
     Cell<uint> tReferenceNumDims  = {3,3,3,3};
-    Cell<uint> tReferenceNumNodes = {19723,6676,19255,6156};
+    Cell<uint> tReferenceNumNodes = {18292,6217,17824,5716};
     Cell<uint> tReferenceNumElems = {40254,13396,39168,12288};
 
 
@@ -156,7 +155,8 @@ void check_results(
      MORIS_LOG_INFO("Check nodal displacements:  reference %12.5e, actual %12.5e, percent error %12.5e.",
              norm(tReferenceDisplacement(aTestCaseIndex)) ,norm(tActualDisplacement),tRelDispDifference*100.0);
 
-     REQUIRE(  tRelDispDifference < 1.0e-4);
+    // FIXME: the displacement check is still failing for the "Immeresed" case
+    REQUIRE(  tRelDispDifference < 1.0e-4);
 
     // check temperature at node aNodeId in first time step (temperature is 6th nodal field, first time step has index 0)
     Cell<real> tReferenceTemperature;
