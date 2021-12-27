@@ -20,8 +20,8 @@ namespace moris
             mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
-            mPropertyMap[ "Traction" ] = static_cast< uint >( IWG_Property_Type::TRACTION );
-            mPropertyMap[ "Pressure" ] = static_cast< uint >( IWG_Property_Type::PRESSURE );
+            mPropertyMap[ "Traction" ]  = static_cast< uint >( IWG_Property_Type::TRACTION );
+            mPropertyMap[ "Pressure" ]  = static_cast< uint >( IWG_Property_Type::PRESSURE );
             mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
         }
 
@@ -66,13 +66,13 @@ namespace moris
             if (tPropTraction != nullptr)
             {
                 tRes -= aWStar * (
-                        trans( tFI->N() ) * tPropTraction->val() );
+                        tFI->N_trans() * tPropTraction->val() );
             }
 
             if (tPropPressure != nullptr)
             {
                 tRes -= aWStar * (
-                                trans( tFI->N() ) * mNormal *  tPropPressure->val());
+                        tFI->N_trans() * mNormal *  tPropPressure->val());
             }
 
             // check for nan, infinity
@@ -134,7 +134,7 @@ namespace moris
                     {
                         // add contribution to Jacobian
                         tJac -= aWStar * (
-                                trans( tFI->N() ) * tPropTraction->dPropdDOF( tDofType ) );
+                                tFI->N_trans() * tPropTraction->dPropdDOF( tDofType ) );
                     }
                 }
 
@@ -145,7 +145,7 @@ namespace moris
                     {
                         // add contribution to Jacobian
                         tJac -= aWStar * (
-                                trans( tFI->N() ) * mNormal * tPropPressure->dPropdDOF( tDofType ) );
+                                tFI->N_trans() * mNormal * tPropPressure->dPropdDOF( tDofType ) );
                     }
                 }
             }

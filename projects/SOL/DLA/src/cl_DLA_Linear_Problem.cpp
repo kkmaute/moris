@@ -95,7 +95,7 @@ namespace moris
             }
 
             real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
-            MORIS_LOG_INFO( " Assembly of residual on processor %u took %5.3f seconds.", ( uint ) par_rank(), ( double ) tElapsedTime / 1000);
+            MORIS_LOG_INFO( "Assembly of residual on processor %u took %5.3f seconds.", ( uint ) par_rank(), ( double ) tElapsedTime / 1000);
         }
 
         //----------------------------------------------------------------------------------------
@@ -141,7 +141,7 @@ namespace moris
             // stop timer
             real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-            MORIS_LOG_INFO( " Assembly of Jacobian on processor %u took %5.3f seconds.", ( uint ) par_rank(), ( double ) tElapsedTime / 1000);
+            MORIS_LOG_INFO( "Assembly of Jacobian on processor %u took %5.3f seconds.", ( uint ) par_rank(), ( double ) tElapsedTime / 1000);
         }
 
         //----------------------------------------------------------------------------------------

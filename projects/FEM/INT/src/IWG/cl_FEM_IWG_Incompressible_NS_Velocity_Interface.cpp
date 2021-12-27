@@ -228,6 +228,7 @@ namespace moris
 
             // compute the jacobian for indirect dof dependencies through slave constitutive models
             uint tSlaveNumDofDependencies = mRequestedSlaveGlobalDofTypes.size();
+
             for( uint iDOF = 0; iDOF < tSlaveNumDofDependencies; iDOF++ )
             {
                 // get dof type
