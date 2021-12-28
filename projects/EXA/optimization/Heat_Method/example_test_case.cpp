@@ -88,8 +88,8 @@ void check_results(
 
     // define reference values for dimension, number of nodes and number of elements
     Cell<uint> tReferenceNumDims  = {  2,   3,   2,   3};
-    Cell<uint> tReferenceNumNodes = { 82, 414, 130, 896};
-    Cell<uint> tReferenceNumElems = { 60, 632,  60, 392};
+    Cell<uint> tReferenceNumNodes = { 82, 414, 130, 1088};
+    Cell<uint> tReferenceNumElems = { 60, 632,  60, 920};
 
     // check dimension, number of nodes and number of elements
     uint tNumDims  = tExoIO.get_number_of_dimensions();
@@ -151,10 +151,10 @@ void check_results(
 
     // check Theta at node aNodeId in first time step (Theta is 3rd nodal field, first time step has index 0)
     Cell<real> tReferenceTheta;
-    tReferenceTheta.push_back( 5.917299018173391e-01 );
-    tReferenceTheta.push_back( 7.194331939566802e-01 );
-    tReferenceTheta.push_back( 7.546884527350837e-01 );
-    tReferenceTheta.push_back( 8.907213245936323e-01 );
+    tReferenceTheta.push_back( 5.917299018173376e-01 );
+    tReferenceTheta.push_back( 7.194331939566655e-01 );
+    tReferenceTheta.push_back( 6.349840630136200e-01 );
+    tReferenceTheta.push_back( 7.508299324748982e-01 );
 
     real tActualTheta = tExoIO.get_nodal_field_value( tReferenceNodeId(aTestCaseIndex), 2, 0 );
 
@@ -167,10 +167,10 @@ void check_results(
 
     // check Phid at node aNodeId in first time step (Phid is 4th nodal field, first time step has index 0)
     Cell<real> tReferencePhid;
-    tReferencePhid.push_back( 3.872167974340177e-01 );
-    tReferencePhid.push_back( 3.587919624293681e-01 );
-    tReferencePhid.push_back( 1.970512578364834e-01 );
-    tReferencePhid.push_back( 1.324452669069744e-01 );
+    tReferencePhid.push_back( 3.872167974340174e-01 );
+    tReferencePhid.push_back( 3.587919624293675e-01 );
+    tReferencePhid.push_back( 2.740283249190941e-01 );
+    tReferencePhid.push_back( 2.459025775192394e-01 );
 
     real tActualPhid = tExoIO.get_nodal_field_value( tReferenceNodeId(aTestCaseIndex), 3, 0 );
 
@@ -183,10 +183,10 @@ void check_results(
 
     // check Pdsg at node aNodeId in first time step (Pdsg is 4th nodal field, first time step has index 0)
     Cell<real> tReferencePdsg;
-    tReferencePdsg.push_back( 4.710000000000001e-01 );
-    tReferencePdsg.push_back( 4.709999999999992e-01 );
-    tReferencePdsg.push_back( 2.862624741953035e-01 );
-    tReferencePdsg.push_back( 2.506857164624121e-01 );
+    tReferencePdsg.push_back( 4.710000000000003e-01 );
+    tReferencePdsg.push_back( 4.709999999999997e-01 );
+    tReferencePdsg.push_back( 2.862624741953033e-01 );
+    tReferencePdsg.push_back( 2.506857164624124e-01 );
 
     real tActualPdsg = tExoIO.get_nodal_field_value( tReferenceNodeId(aTestCaseIndex), 4, 0 );
 
