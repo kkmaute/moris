@@ -797,6 +797,7 @@ namespace moris
                     tExodusElementIds(tInd) = tProcOffset + tInd;
                 }
             }
+
             // position of exodus element in file (only last position stored)
             mExodusElementIndexOrderMap.set_size(mNumUniqueExodusElements, 1, MORIS_ID_MAX);
 
@@ -858,7 +859,8 @@ namespace moris
                     // Get the vertex indices of this element
                     Matrix<IndexMat> tNodeIndices = mMesh->get_nodes_connected_to_element_loc_inds(tElementIndex);
                     
-                    MORIS_ASSERT(tNodeIndices.numel() ==(uint)tNumNodesPerElement,"Node number mismatch" );
+                    MORIS_ASSERT(tNodeIndices.numel() >= (uint)tNumNodesPerElement,
+                            "Writer_Exodus::write_blocks - number of nodes per element too small for element type." );
 
                     // Build connectivity vector, add 1 since exodus uses 1-based indices
                     for (int tNodeNum = 0; tNodeNum < tNumNodesPerElement; tNodeNum++)
@@ -967,6 +969,8 @@ namespace moris
                     return "QUAD4";
                 case CellTopology::QUAD9:
                     return "QUAD9";
+                case CellTopology::QUAD16:
+                    return "QUAD4";         // use 4-node QUAD as paraview does not support 16-node QUAD
                 case CellTopology::TET4:
                     return "TET4";
                 case CellTopology::TET10:
@@ -974,7 +978,9 @@ namespace moris
                 case CellTopology::HEX8:
                     return "HEX8";
                 case CellTopology::HEX27:
-                    return "HEX27";
+                     return "HEX27";
+                case CellTopology::HEX64:
+                     return "HEX8";         // use 8-node HEX as paraview does not support 64-node HEX
                 case CellTopology::PRISM6:
                     return "PRISM6";
                 default:
@@ -997,6 +1003,8 @@ namespace moris
                     return 4;
                 case CellTopology::QUAD9:
                     return 9;
+                case CellTopology::QUAD16:
+                    return 4;               // use 4-node QUAD as paraview does not support 16-node QUAD
                 case CellTopology::TET4:
                     return 4;
                 case CellTopology::TET10:
@@ -1005,6 +1013,8 @@ namespace moris
                     return 8;
                 case CellTopology::HEX27:
                     return 27;
+                case CellTopology::HEX64:
+                    return 8;               // use 8-node HEX as paraview does not support 64-node HEX
                 case CellTopology::PRISM6:
                     return 6;
                 default:
