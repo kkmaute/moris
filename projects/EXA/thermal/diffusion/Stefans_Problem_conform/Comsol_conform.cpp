@@ -435,9 +435,11 @@ namespace moris
         tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
 
         tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
-        tParameterlist( 2 )( 0 ).set("NLA_rel_res_norm_drop", 5e-05 );
-        tParameterlist( 2 )( 0 ).set("NLA_relaxation_parameter", 0.9 );
-        tParameterlist( 2 )( 0 ).set("NLA_max_iter", 20 );
+        tParameterlist( 2 )( 0 ).set("NLA_rel_res_norm_drop",    1e-7 );
+        tParameterlist( 2 )( 0 ).set("NLA_relaxation_strategy",  static_cast< uint >( sol::SolverRelaxationType::InvResNormAdaptive ) );
+        tParameterlist( 2 )( 0 ).set("NLA_relaxation_parameter", 0.5 );
+        tParameterlist( 2 )( 0 ).set("NLA_relaxation_damping",   0.5 );
+        tParameterlist( 2 )( 0 ).set("NLA_max_iter",             40 );
 
         tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
         tParameterlist( 3 )( 0 ).set("NLA_DofTypes"      , "TEMP") ;
