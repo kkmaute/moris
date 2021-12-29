@@ -15,6 +15,9 @@ using namespace moris;
 
 //---------------------------------------------------------------
 
+// test case index
+uint gTestCaseIndex;
+
 // global variable for interpolation order
 uint gInterpolationOrder;
 
@@ -64,12 +67,12 @@ void check_linear_results(moris::mtk::Exodus_IO_Helper & aExoIO,uint aNodeId)
     REQUIRE( tRelTimeDifference <  1.0e-8 );
 
     // check temperature at node aNodeId in first time step (temperature is 3rd nodal field, first time step has index 0)
-    real tReferenceTemperature = 3.442923766954290e+02;
+    real tReferenceTemperature = 3.442925667877556e+02;
 
     real tRelTempDifference = std::abs( ( aExoIO.get_nodal_field_value( aNodeId, 2, 19 ) - tReferenceTemperature ) / tReferenceTemperature );
 
     //FIXME: difference between parallel and serial run requires loose tolerance
-    REQUIRE(  tRelTempDifference < 1.0e-4);
+    REQUIRE(  tRelTempDifference < 1.0e-5);
 }
 
 //---------------------------------------------------------------
@@ -99,10 +102,10 @@ void check_quadratic_results(moris::mtk::Exodus_IO_Helper & aExoIO,uint aNodeId)
     Matrix< DDRMat > tReferenceCoordinate = { {3.920e-03},{0.0} };
 
     // check nodal coordinates
-    // real tRelDiffNorm = moris::norm( aExoIO.get_nodal_coordinate( aNodeId ) - tReferenceCoordinate )/ moris::norm(tReferenceCoordinate);
+     real tRelDiffNorm = moris::norm( aExoIO.get_nodal_coordinate( aNodeId ) - tReferenceCoordinate )/ moris::norm(tReferenceCoordinate);
 
     //FIXME: fix global variable problem for quadratic
-    //REQUIRE( tRelDiffNorm <  1.0e-8 );
+    REQUIRE( tRelDiffNorm <  1.0e-8 );
 
     // check time value for time step index 0
     real tReferenceTime = 1.0e+02;
@@ -112,12 +115,12 @@ void check_quadratic_results(moris::mtk::Exodus_IO_Helper & aExoIO,uint aNodeId)
     REQUIRE( tRelTimeDifference <  1.0e-8 );
 
     // check temperature at node aNodeId in first time step (temperature is 3rd nodal field, first time step has index 0)
-    real tReferenceTemperature = 3.442923766954290e+02;
+    real tReferenceTemperature = 3.442923942621712e+02;
 
     real tRelTempDifference = std::abs( ( aExoIO.get_nodal_field_value( aNodeId, 2, 19 ) - tReferenceTemperature ) / tReferenceTemperature );
 
     //FIXME: difference between parallel and serial run requires loose tolerance
-    REQUIRE(  tRelTempDifference < 1.0e-4);
+    REQUIRE(  tRelTempDifference < 1.0e-5);
 }
 
 //---------------------------------------------------------------
@@ -126,7 +129,7 @@ extern "C"
 void check_linear_results_serial()
 {
     // open and query exodus output file (set verbose to true to get basic mesh information)
-    moris::mtk::Exodus_IO_Helper tExoIO("Fick_Problem.exo",0,false,false);
+    moris::mtk::Exodus_IO_Helper tExoIO("Fick_Problem_0.exo",0,false,false);
 
     // check dimension, number of nodes and number of elements
     uint tNumDims  = tExoIO.get_number_of_dimensions();
@@ -152,14 +155,13 @@ void check_linear_results_serial()
     check_linear_results(tExoIO,tNodeId);
 }
 
-
 //---------------------------------------------------------------
 
 extern "C"
 void check_quadratic_results_serial()
 {
     // open and query exodus output file (set verbose to true to get basic mesh information)
-    moris::mtk::Exodus_IO_Helper tExoIO("Fick_Problem.exo",0,false,false);
+    moris::mtk::Exodus_IO_Helper tExoIO("Fick_Problem_1.exo",0,false,false);
 
     // check dimension, number of nodes and number of elements
     uint tNumDims  = tExoIO.get_number_of_dimensions();
@@ -175,9 +177,8 @@ void check_quadratic_results_serial()
     else
     {
         REQUIRE( tNumDims  ==  2   );
-        //FIXME: fix global variable problem for quadratic
-        //REQUIRE( tNumNodes ==  1803 );
-        //REQUIRE( tNumElems ==  300 );
+        REQUIRE( tNumNodes ==  1803 );
+        REQUIRE( tNumElems ==  300 );
     }
 
     // check results
@@ -202,14 +203,17 @@ TEST_CASE("Fickian_Problem_Linear",
 
     char * argv[2] = {tString1,tString2};
 
+    // set test case index
+    gTestCaseIndex = 0;
+
+    // set interpolation order
+    gInterpolationOrder = 1;
+
     // call to performance manager main interface
     int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
 
     // catch test statements should follow
     REQUIRE( tRet ==  0 );
-
-    // set interpolation order
-    gInterpolationOrder = 1;
 
     // check results
     switch ( par_size() )
@@ -224,7 +228,6 @@ TEST_CASE("Fickian_Problem_Linear",
             MORIS_ERROR(false,"This 2D Example can only be run in serial.",par_size());
         }
     }
-
 }
 
 //---------------------------------------------------------------
@@ -240,14 +243,17 @@ TEST_CASE("Fickian_Problem_Quadratic",
 
     char * argv[2] = {tString1,tString2};
 
+    // set interpolation order
+    gInterpolationOrder = 2;
+
+    // set test case index
+    gTestCaseIndex = 1;
+
     // call to performance manager main interface
     int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
 
     // catch test statements should follow
     REQUIRE( tRet ==  0 );
-
-    // set interpolation order
-    gInterpolationOrder = 2;
 
     // check results
     switch ( par_size() )
@@ -262,5 +268,4 @@ TEST_CASE("Fickian_Problem_Quadratic",
             MORIS_ERROR(false,"This 2D Example can only be run in serial.",par_size());
         }
     }
-
 }
