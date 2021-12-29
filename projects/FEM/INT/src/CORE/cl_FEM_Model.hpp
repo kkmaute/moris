@@ -238,9 +238,16 @@ namespace moris
             inline void
             report_on_assembly()
             {
-                MORIS_LOG_SPEC("Number of Bulk Gauss Points", sum_all(mBulkGaussPoints));
-                MORIS_LOG_SPEC("Number of SideSet Gauss Points", sum_all(mSideSetsGaussPoints));
-                MORIS_LOG_SPEC("Number of DoubleSidedSideset Gauss Points", sum_all(mDoubleSidedSideSetsGaussPoints));
+                uint tTotalBulkGaussPoints                = sum_all(mBulkGaussPoints);
+                uint tTotalSideSetsGaussPoints            = sum_all(mSideSetsGaussPoints);
+                uint tTotalDoubleSidedSideSetsGaussPoints = sum_all(mDoubleSidedSideSetsGaussPoints);
+
+                if ( tTotalBulkGaussPoints + tTotalSideSetsGaussPoints + tTotalDoubleSidedSideSetsGaussPoints > 0 )
+                {
+                    MORIS_LOG_SPEC("Number of Bulk Gauss Points",               tTotalBulkGaussPoints);
+                    MORIS_LOG_SPEC("Number of SideSet Gauss Points",            tTotalSideSetsGaussPoints);
+                    MORIS_LOG_SPEC("Number of DoubleSidedSideset Gauss Points", tTotalDoubleSidedSideSetsGaussPoints);
+                }
             };
 
             //------------------------------------------------------------------------------

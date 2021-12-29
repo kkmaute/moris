@@ -180,7 +180,8 @@ namespace moris
                     mPointVectorRHS->save_vector_to_matlab_file( tResFileName.c_str() );
 
                     // log that output was successful
-                    MORIS_LOG_INFO( "Saved Jacobian and Residual to Matlab File: ", tJacFileName.c_str(), " and ", tResFileName.c_str() );
+                    MORIS_LOG_INFO( "Saved Jacobian and Residual to Matlab File: %s %s %s",
+                            tJacFileName.c_str(), " and ", tResFileName.c_str() );
                 
                 }
             }

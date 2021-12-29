@@ -15,6 +15,9 @@ using namespace moris;
 
 //---------------------------------------------------------------
 
+// global variable for test case index
+uint gTestCaseIndex = 0;
+
 // global variable for interpolation order
 uint gInterpolationOrder = 1;
 
@@ -64,12 +67,12 @@ void check_linear_results(moris::mtk::Exodus_IO_Helper & aExoIO,uint aNodeId)
     REQUIRE( tRelTimeDifference <  1.0e-8 );
 
     // check temperature at node aNodeId in first time step (temperature is 3rd nodal field, first time step has index 0)
-    real tReferenceTemperature = 3.237183629009187e+02;
+    real tReferenceTemperature = 3.232880455729247e+02;
 
     real tRelTempDifference = std::abs( ( aExoIO.get_nodal_field_value( aNodeId, 2, 9 ) - tReferenceTemperature ) / tReferenceTemperature );
 
     //FIXME: difference between parallel and serial run requires loose tolerance
-    REQUIRE(  tRelTempDifference < 1.0e-4);
+    REQUIRE(  tRelTempDifference < 1.0e-5);
 }
 
 //---------------------------------------------------------------
@@ -100,6 +103,7 @@ void check_quadratic_results(moris::mtk::Exodus_IO_Helper & aExoIO,uint aNodeId)
 
     // check nodal coordinates
     real tRelDiffNorm = moris::norm( aExoIO.get_nodal_coordinate( aNodeId ) - tReferenceCoordinate )/ moris::norm(tReferenceCoordinate);
+
     REQUIRE( tRelDiffNorm <  1.0e-8 );
 
     // check time value for time step index 0
@@ -110,10 +114,11 @@ void check_quadratic_results(moris::mtk::Exodus_IO_Helper & aExoIO,uint aNodeId)
     REQUIRE( tRelTimeDifference <  1.0e-8 );
 
     // check temperature at node aNodeId in first time step (temperature is 3rd nodal field, first time step has index 0)
-    real tReferenceTemperature = 3.233669081256222e+02;
-    real tRelTempDifference = std::abs( ( aExoIO.get_nodal_field_value( aNodeId, 2, 9 ) - tReferenceTemperature ) / tReferenceTemperature );
-    REQUIRE(  tRelTempDifference < 1.0e-4);
+    real tReferenceTemperature = 3.244062541071584e+02;
 
+    real tRelTempDifference = std::abs( ( aExoIO.get_nodal_field_value( aNodeId, 2, 9 ) - tReferenceTemperature ) / tReferenceTemperature );
+
+    REQUIRE(  tRelTempDifference < 1.0e-5);
 }
 
 //---------------------------------------------------------------
@@ -122,7 +127,7 @@ extern "C"
 void check_linear_results_serial()
 {
     // open and query exodus output file (set verbose to true to get basic mesh information)
-    moris::mtk::Exodus_IO_Helper tExoIO("Comsol_conform.exo",0,false,false);
+    moris::mtk::Exodus_IO_Helper tExoIO("Comsol_conform_0.exo",0,false,false);
 
     // check dimension, number of nodes and number of elements
     uint tNumDims  = tExoIO.get_number_of_dimensions();
@@ -148,14 +153,13 @@ void check_linear_results_serial()
     check_linear_results(tExoIO,tNodeId);
 }
 
-
 //---------------------------------------------------------------
 
 extern "C"
 void check_quadratic_results_serial()
 {
     // open and query exodus output file (set verbose to true to get basic mesh information)
-    moris::mtk::Exodus_IO_Helper tExoIO("Comsol_conform.exo",0,false,false);
+    moris::mtk::Exodus_IO_Helper tExoIO("Comsol_conform_1.exo",0,false,false);
 
     // check dimension, number of nodes and number of elements
     uint tNumDims  = tExoIO.get_number_of_dimensions();
@@ -187,9 +191,6 @@ void check_quadratic_results_serial()
 TEST_CASE("Comsol_conform_Linear",
         "[moris],[example],[thermal],[diffusion]")
 {
-    // set interpolation order
-    gInterpolationOrder = 1;
-
     // define command line call
     int argc = 2;
 
@@ -197,6 +198,12 @@ TEST_CASE("Comsol_conform_Linear",
     char tString2[] = "./Comsol_conform.so";
 
     char * argv[2] = {tString1,tString2};
+
+    // set test case index
+    gTestCaseIndex = 0;
+
+    // set interpolation order
+    gInterpolationOrder = 1;
 
     // call to performance manager main interface
     int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
@@ -217,7 +224,6 @@ TEST_CASE("Comsol_conform_Linear",
             MORIS_ERROR(false,"This 2D Example can only be run in serial.",par_size());
         }
     }
-
 }
 
 //---------------------------------------------------------------
@@ -225,9 +231,6 @@ TEST_CASE("Comsol_conform_Linear",
 TEST_CASE("Comsol_conform_Quadratic",
         "[moris],[example],[thermal],[diffusion]")
 {
-    // set interpolation order
-    gInterpolationOrder = 2;
-
     // define command line call
     int argc = 2;
 
@@ -235,6 +238,12 @@ TEST_CASE("Comsol_conform_Quadratic",
     char tString2[] = "./Comsol_conform.so";
 
     char * argv[2] = {tString1,tString2};
+
+    // set test case index
+    gTestCaseIndex = 1;
+
+    // set interpolation order
+    gInterpolationOrder = 2;
 
     // call to performance manager main interface
     int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
@@ -255,5 +264,4 @@ TEST_CASE("Comsol_conform_Quadratic",
             MORIS_ERROR(false,"This 2D Example can only be run in serial.",par_size());
         }
     }
-
 }

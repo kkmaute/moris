@@ -26,6 +26,7 @@ extern "C"
 {
 
 // global variables
+extern uint gTestCaseIndex;
 extern uint gInterpolationOrder;
 extern bool gPrintReferenceValues;
 
@@ -42,7 +43,6 @@ namespace moris
     moris::sint tStep = 20;
     moris::real tTmax = 2000.0;
     moris::real tDirichletRampUp = 3.0;
-
 
     // Constant function for properties
     void Func_Const(
@@ -102,10 +102,9 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "lagrange_output_meshes",           "0");
 
         if (gPrintReferenceValues == true)
+        {
             std::cout << "Interpolation Order: " << gInterpolationOrder << " \n" << std::flush;
-
-        // FIXME: Global variables seem to be not passed in correctly
-        gInterpolationOrder = 1;
+        }
 
         switch ( gInterpolationOrder )
         {
@@ -400,7 +399,8 @@ namespace moris
         tParameterlist( 0 ).resize( 1 );
 
         tParameterlist( 0 )( 0 ) = prm::create_vis_parameter_list();
-        tParameterlist( 0 )( 0 ).set( "File_Name"  , std::pair< std::string, std::string >( "./", "Fick_Problem.exo" ) );
+        tParameterlist( 0 )( 0 ).set( "File_Name"  , std::pair< std::string, std::string >(
+                "./", "Fick_Problem_" + std::to_string(gTestCaseIndex) + ".exo" ) );
         tParameterlist( 0 )( 0 ).set( "Mesh_Type"  , static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
         tParameterlist( 0 )( 0 ).set( "Set_Names"  ,  "HMR_dummy_n_p0" ) ;
         tParameterlist( 0 )( 0 ).set( "Field_Names",  "TEMP" ) ;

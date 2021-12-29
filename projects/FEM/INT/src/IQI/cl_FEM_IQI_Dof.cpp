@@ -98,6 +98,10 @@ namespace moris
             Field_Interpolator * tFI =
                     mMasterFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
 
+            // check that field interpolater exists
+            MORIS_ASSERT( tFI != nullptr,
+                    "IQI_Dof::evaluate_QI - field interpolator does not exist." );
+
             // evaluate spatial derivative of dof
             if ( mSpatialDerivativeOrder > 0 )
             {
@@ -105,6 +109,7 @@ namespace moris
 
                 aMat = { tSpatialGradient( mSpatialDerivativeDirection, mIQITypeIndex ) };
             }
+
             // evaluate time derivative of dof
             else if ( mTimeDerivativeOrder > 0 )
             {

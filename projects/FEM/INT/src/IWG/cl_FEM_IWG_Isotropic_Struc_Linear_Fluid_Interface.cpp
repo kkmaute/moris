@@ -48,7 +48,7 @@ namespace moris
 
             // get field interpolator for the residual dof type
             Field_Interpolator * tFIMaster =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ) );
 
             // get slave fluid constitutive model
             const std::shared_ptr< Constitutive_Model > & tCMSlaveFluid =
@@ -80,16 +80,13 @@ namespace moris
 #endif
 
             // get master index for residual dof type (here displacement), indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( MSI::Dof_Type::UX, mtk::Master_Slave::MASTER );
+            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
-            // get slave index for residual dof type (here fluid), indices for assembly
-            uint tSlaveDofIndex      = mSet->get_dof_index_for_type( MSI::Dof_Type::VX, mtk::Master_Slave::SLAVE );
-
             // get field interpolator for the residual dof type
             Field_Interpolator * tFIMaster =
-                    mMasterFIManager->get_field_interpolators_for_type(MSI::Dof_Type::UX );
+                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ) );
 
             // get slave fluid constitutive model
             const std::shared_ptr< Constitutive_Model > & tCMSlaveFluid =
@@ -112,8 +109,8 @@ namespace moris
 
                 // get the index for the dof type
                 const sint tDofDepIndex        = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::SLAVE );
-                const uint tSlaveDepStartIndex = mSet->get_jac_dof_assembly_map()( tSlaveDofIndex )( tDofDepIndex, 0 );
-                const uint tSlaveDepStopIndex  = mSet->get_jac_dof_assembly_map()( tSlaveDofIndex )( tDofDepIndex, 1 );
+                const sint tSlaveDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
+                const sint tSlaveDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
 
                 // if dependency on the dof type
                 if ( tCMSlaveFluid->check_dof_dependency( tDofType ) )
