@@ -73,10 +73,10 @@ void check_linear_results(moris::mtk::Exodus_IO_Helper & aExoIO,uint aNodeId)
     REQUIRE( tRelTimeDifference <  1.0e-8 );
 
     // check temperature at node aNodeId in first time step (temperature is 3rd nodal field, first time step has index 0)
-    real tReferenceVelX =  1.221234525166533e+00;
-    real tReferenceVelY = -3.638584413360180e-01;
-    real tReferencePres =  5.676528631115153e-01;
-    real tReferenceTemp = -8.025057568704884e-01;
+    real tReferenceVelX = 0.5 * ( 1.593502502960416e+00 + 1.593502502960416e+00);
+    real tReferenceVelY = 0.5 * (-3.831961099052318e-01 - 3.831961099052317e-01);
+    real tReferencePres = 0.5 * ( 1.358249884899363e+00 + 1.358249884899363e+00);
+    real tReferenceTemp = 0.5 * ( 1.371930816150207e+00 + 1.371930816150206e+00);
 
     real tRelDifference_VelX = std::abs( ( aExoIO.get_nodal_field_value( aNodeId, 2, 0 ) - tReferenceVelX ) / tReferenceVelX );
     real tRelDifference_VelY = std::abs( ( aExoIO.get_nodal_field_value( aNodeId, 3, 0 ) - tReferenceVelY ) / tReferenceVelY );
@@ -84,16 +84,16 @@ void check_linear_results(moris::mtk::Exodus_IO_Helper & aExoIO,uint aNodeId)
     real tRelDifference_Temp = std::abs( ( aExoIO.get_nodal_field_value( aNodeId, 5, 0 ) - tReferenceTemp ) / tReferenceTemp );
 
     //FIXME: difference between parallel and serial run requires loose tolerance
-    REQUIRE(  tRelDifference_VelX < 1.0e-2);
-    REQUIRE(  tRelDifference_VelY < 1.0e-2);
-    REQUIRE(  tRelDifference_Pres < 1.0e-2);
-    REQUIRE(  tRelDifference_Temp < 1.0e-0);
+    REQUIRE(  tRelDifference_VelX < 1.0e-5);
+    REQUIRE(  tRelDifference_VelY < 1.0e-5);
+    REQUIRE(  tRelDifference_Pres < 1.0e-5);
+    REQUIRE(  tRelDifference_Temp < 1.0e-5);
 
     // check IQIs of first time step (only 1 IQI is defined, first time step has index 0)
-    real tReferenceIQI_VelX =  6.701556884755125e-01;
-    real tReferenceIQI_VelY = -1.404947332583528e-02;
-    real tReferenceIQI_Pres =  3.225261607686859e-01;
-    real tReferenceIQI_Temp =  1.914316430063299e+01;
+    real tReferenceIQI_VelX = 0.5 * ( 9.015779490552553e-01 + 9.015779490552543e-01);
+    real tReferenceIQI_VelY = 0.5 * (-1.581790313964251e-02 - 1.581790313964262e-02);
+    real tReferenceIQI_Pres = 0.5 * ( 7.645059302522635e-01 + 7.645059302522605e-01);
+    real tReferenceIQI_Temp = 0.5 * ( 1.372894021696889e+01 + 1.372894021696856e+01);
 
     real tRelIQIDifference_VelX = std::abs( ( aExoIO.get_global_variable(0, 0 ) - tReferenceIQI_VelX ) / tReferenceIQI_VelX );
     real tRelIQIDifference_VelY = std::abs( ( aExoIO.get_global_variable(1, 0 ) - tReferenceIQI_VelY ) / tReferenceIQI_VelY );
@@ -101,10 +101,10 @@ void check_linear_results(moris::mtk::Exodus_IO_Helper & aExoIO,uint aNodeId)
     real tRelIQIDifference_Temp = std::abs( ( aExoIO.get_global_variable(3, 0 ) - tReferenceIQI_Temp ) / tReferenceIQI_Temp );
 
     //FIXME: difference between parallel and serial run requires loose tolerance
-    REQUIRE(  tRelIQIDifference_VelX < 1.0e-2);
-    REQUIRE(  tRelIQIDifference_VelY < 1.0e-2);
-    REQUIRE(  tRelIQIDifference_Pres < 1.0e-2);
-    REQUIRE(  tRelIQIDifference_Temp < 1.0e-2);
+    REQUIRE(  tRelIQIDifference_VelX < 1.0e-5);
+    REQUIRE(  tRelIQIDifference_VelY < 1.0e-5);
+    REQUIRE(  tRelIQIDifference_Pres < 1.0e-5);
+    REQUIRE(  tRelIQIDifference_Temp < 1.0e-5);
 }
 
 //---------------------------------------------------------------
@@ -132,7 +132,7 @@ void check_linear_results_serial()
     REQUIRE( tNumElems ==  15533 );
 
     // check results
-    uint tNodeId = 3187;
+    uint tNodeId = 3307;
 
     check_linear_results(tExoIO,tNodeId);
 }
@@ -145,12 +145,10 @@ void check_linear_results_parallel()
     // open and query exodus output file (set verbose to true to get basic mesh information)
     moris::mtk::Exodus_IO_Helper tExoIO("Channel_with_Four_Cylinders_Static.exo",0,false,false);
 
-
     // check dimension, number of nodes and number of elements
     uint tNumDims  = tExoIO.get_number_of_dimensions();
     uint tNumNodes = tExoIO.get_number_of_nodes();
     uint tNumElems = tExoIO.get_number_of_elements();
-
 
     if (gPrintReferenceValues)
     {
@@ -161,12 +159,12 @@ void check_linear_results_parallel()
     else
     {
         REQUIRE( tNumDims  ==  2    );
-        REQUIRE( tNumNodes ==  3025 );
-        REQUIRE( tNumElems ==  3002 );
+        REQUIRE( tNumNodes ==  3490 );
+        REQUIRE( tNumElems ==  3244 );
     }
 
     // check results at reference node (watch: node Id depends on processor)
-    uint tNodeId = 66;
+    uint tNodeId = 68;
 
     check_linear_results(tExoIO,tNodeId);
 }
