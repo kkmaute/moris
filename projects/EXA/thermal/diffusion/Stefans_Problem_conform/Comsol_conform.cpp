@@ -26,6 +26,7 @@ extern "C"
 {
 
 // global variables
+extern uint gTestCaseIndex;
 extern uint gInterpolationOrder;
 extern bool gPrintReferenceValues;
 
@@ -469,7 +470,8 @@ namespace moris
         tParameterlist( 0 ).resize( 1 );
 
         tParameterlist( 0 )( 0 ) = prm::create_vis_parameter_list();
-        tParameterlist( 0 )( 0 ).set( "File_Name"  , std::pair< std::string, std::string >( "./", "Comsol_conform.exo" ) );
+        tParameterlist( 0 )( 0 ).set( "File_Name"  , std::pair< std::string, std::string >(
+                "./", "Comsol_conform_" + std::to_string(gTestCaseIndex) + ".exo" ) );
         tParameterlist( 0 )( 0 ).set( "Mesh_Type"  , static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
         tParameterlist( 0 )( 0 ).set( "Set_Names"  , "HMR_dummy_n_p1" ) ;
         tParameterlist( 0 )( 0 ).set( "Field_Names", "TEMP,MAX_DOF,LATENT_HEAT_ABSORPTION" ) ;
