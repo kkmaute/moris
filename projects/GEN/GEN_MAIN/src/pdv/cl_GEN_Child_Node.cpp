@@ -3,6 +3,8 @@
 #include "cl_MTK_Cell.hpp"
 #include "cl_MTK_Vertex.hpp"
 #include "cl_MTK_Cell_Info.hpp"
+#include "cl_MTK_Cell_Info_Quad4.hpp"
+#include "cl_MTK_Cell_Info_Hex8.hpp"
 
 namespace moris
 {
@@ -32,23 +34,58 @@ namespace ge
     }
 
     Child_Node::Child_Node( moris::mtk::Cell* aCell,
-        Matrix< DDRMat >*                     aLocalCoordinates )
+        Matrix< DDRMat >*  aLocalCoordinates,
+        bool               aEvaluateAsLinear )
     {
         mParentCell       = aCell;
         mLocalCoordinates = *aLocalCoordinates;
 
-        Cell< moris::mtk::Vertex* > tVerts = mParentCell->get_vertex_pointers();
-
-        mAncestorNodeIndices.resize( 1, tVerts.size() );
-        mAncestorNodeCoordinates.resize( tVerts.size(), Matrix< DDRMat >( 1, 3 ) );
-
-        for ( moris::uint iCast = 0; iCast < tVerts.size(); iCast++ )
+        if(aEvaluateAsLinear)
         {
-            mAncestorNodeIndices( iCast )     = (moris::uint)tVerts( iCast )->get_index();
-            mAncestorNodeCoordinates( iCast ) = tVerts( iCast )->get_coords();
-        }
+            Cell< moris::mtk::Vertex* > tVerts = mParentCell->get_vertex_pointers();
+            
+            if(mParentCell->get_cell_info()->get_cell_geometry() == mtk::Geometry_Type::QUAD)
+            {
+                mAncestorNodeIndices.resize( 1, 4 );
+                mAncestorNodeCoordinates.resize( 4, Matrix< DDRMat >( 1, 2 ) );
 
-        aCell->get_cell_info()->eval_N( mLocalCoordinates, mBasisValues );
+                for ( moris::uint iCast = 0; iCast < 4; iCast++ )
+                {
+                    mAncestorNodeIndices( iCast )     = (moris::uint)tVerts( iCast )->get_index();
+                    mAncestorNodeCoordinates( iCast ) = tVerts( iCast )->get_coords();
+                }
+                mtk::Cell_Info_Quad4 tQuad4CellInfo;
+                tQuad4CellInfo.eval_N( mLocalCoordinates, mBasisValues );
+            }
+            if(mParentCell->get_cell_info()->get_cell_geometry() == mtk::Geometry_Type::HEX)
+            {
+                mAncestorNodeIndices.resize( 1, 8 );
+                mAncestorNodeCoordinates.resize( 8, Matrix< DDRMat >( 1, 3 ) );
+
+                for ( moris::uint iCast = 0; iCast < 8; iCast++ )
+                {
+                    mAncestorNodeIndices( iCast )     = (moris::uint)tVerts( iCast )->get_index();
+                    mAncestorNodeCoordinates( iCast ) = tVerts( iCast )->get_coords();
+                }
+                mtk::Cell_Info_Hex8 tLinearCellInfo;
+                tLinearCellInfo.eval_N( mLocalCoordinates, mBasisValues );
+            }
+        }
+        else
+        {
+            Cell< moris::mtk::Vertex* > tVerts = mParentCell->get_vertex_pointers();
+
+            mAncestorNodeIndices.resize( 1, tVerts.size() );
+            mAncestorNodeCoordinates.resize( tVerts.size(), Matrix< DDRMat >( 1, 3 ) );
+
+            for ( moris::uint iCast = 0; iCast < tVerts.size(); iCast++ )
+            {
+                mAncestorNodeIndices( iCast )     = (moris::uint)tVerts( iCast )->get_index();
+                mAncestorNodeCoordinates( iCast ) = tVerts( iCast )->get_coords();
+            }
+
+            aCell->get_cell_info()->eval_N( mLocalCoordinates, mBasisValues );
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------
