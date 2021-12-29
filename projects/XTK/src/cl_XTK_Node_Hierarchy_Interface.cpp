@@ -246,9 +246,22 @@ Node_Hierarchy_Interface::determine_intersected_edges_and_make_requests(
                     tNewNodeIndex++;
                 }
             }
-        }
+            else if ( mGeometryEngine->queued_intersection_first_parent_on_interface() && mGeometryEngine->queued_intersection_second_parent_on_interface())
+            {
+                MORIS_ERROR(0,"Edge with two nodes on geometric interface determined. XTK cannot handle this configuration");
+            }
+            else if(mGeometryEngine->queued_intersection_first_parent_on_interface())
+            {
+                moris_index tVertexIndex = aEdgeConnectivity->mEdgeVertices(iEdge)(0)->get_index();
+                mGeometryEngine->induce_as_interface_vertex_on_active_geometry(tVertexIndex);
+            }
+            else if(mGeometryEngine->queued_intersection_second_parent_on_interface())
+            {
+                moris_index tVertexIndex = aEdgeConnectivity->mEdgeVertices(iEdge)(1)->get_index();
+                mGeometryEngine->induce_as_interface_vertex_on_active_geometry(tVertexIndex);
+            }
     }
-
+    }
     // return success if finished
     return true;
 }
