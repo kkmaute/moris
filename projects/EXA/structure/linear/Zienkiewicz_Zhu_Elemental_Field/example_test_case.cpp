@@ -73,7 +73,7 @@ TEST_CASE("Zienkiewicz_Zhu_Elemental_Field",
         {
             for( uint Ii = 0; Ii < tRefValues.n_rows(); Ii++ )
             {
-            CHECK( tRefValues( Ii, Ik ) - tValues( Ii, Ik ) < 1e-10 );
+            CHECK( std::abs( tRefValues( Ii, Ik ) - tValues( Ii, Ik ) ) < 1e-9 );
             }
         }
     }
