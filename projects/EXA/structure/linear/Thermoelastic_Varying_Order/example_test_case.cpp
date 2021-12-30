@@ -67,21 +67,21 @@ void check_results(moris::mtk::Exodus_IO_Helper & aExoIO,uint aNodeId)
     REQUIRE( tRelTimeDifference <  1.0e-12 );
 
     // check nodal val
-    real tReferenceUX =  2.001541314672627e+00;
-    real tReferenceUY =  2.709129073489664e-12;
-    real tReferenceUZ =  -1.039742064858008e-12;
-    real tReferenceTemp = 3.000000000000864e+00;
+    real tReferenceUX   =  2.003084205519877e+00;
+    real tReferenceUY   = -4.907031775787233e-13;
+    real tReferenceUZ   =  1.806606057303358e-12;
+    real tReferenceTemp =  3.000000000000023e+00;
 
-    real tRelDifference_UX = std::abs( ( aExoIO.get_nodal_field_value( aNodeId, 2, 0 ) - tReferenceUX ) / tReferenceUX );
-    real tRelDifference_UY = std::abs( aExoIO.get_nodal_field_value( aNodeId, 3, 0 ) - tReferenceUY );
-    real tRelDifference_UZ = std::abs( aExoIO.get_nodal_field_value( aNodeId, 4, 0 ) - tReferenceUZ );
+    real tRelDifference_UX   = std::abs( ( aExoIO.get_nodal_field_value( aNodeId, 2, 0 ) - tReferenceUX ) / tReferenceUX );
+    real tRelDifference_UY   = std::abs(   aExoIO.get_nodal_field_value( aNodeId, 3, 0 ) - tReferenceUY );
+    real tRelDifference_UZ   = std::abs(   aExoIO.get_nodal_field_value( aNodeId, 4, 0 ) - tReferenceUZ );
     real tRelDifference_Temp = std::abs( ( aExoIO.get_nodal_field_value( aNodeId, 5, 0 ) - tReferenceTemp ) / tReferenceTemp );
 
     //FIXME: difference between parallel and serial run requires loose tolerance
-    REQUIRE(  tRelDifference_UX < 1.0e-5);
-    REQUIRE(  tRelDifference_UY < 1.0e-8);
-    REQUIRE(  tRelDifference_UZ < 1.0e-8);
-    REQUIRE(  tRelDifference_Temp < 1.0e-8);
+    REQUIRE(  tRelDifference_UX   < 1.0e-6);
+    REQUIRE(  tRelDifference_UY   < 1.0e-8);
+    REQUIRE(  tRelDifference_UZ   < 1.0e-8);
+    REQUIRE(  tRelDifference_Temp < 1.0e-6);
 }
 
 //---------------------------------------------------------------
@@ -108,9 +108,8 @@ void check_results_serial()
         REQUIRE( tNumNodes ==  390   );
         REQUIRE( tNumElems ==  332   );
 
-
     // check results
-    uint tNodeId = 203;
+    uint tNodeId = 232;
 
     check_results(tExoIO,tNodeId);
 }
@@ -156,5 +155,4 @@ TEST_CASE("Thermoelastic_Bar_Linear_Disp_Quadratic_Diff",
 }
 
 //---------------------------------------------------------------
-
 

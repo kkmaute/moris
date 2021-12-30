@@ -28,6 +28,13 @@ namespace moris
         {
                 //------------------------------------------------------------------------------
 
+                enum class IWG_Property_Type
+                {
+                        BEDDING,
+                        THICKNESS,
+                        MAX_ENUM
+                };
+
                 enum class IQI_Constitutive_Type
                 {
                         ELAST,

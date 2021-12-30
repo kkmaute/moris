@@ -52,13 +52,12 @@ namespace moris
     // Mesh Set Information
 
     std::string tDomain1         = "HMR_dummy_n_p0,HMR_dummy_c_p0";
-	std::string tDomain2         = "HMR_dummy_n_p1,HMR_dummy_c_p1";
-	std::string tDomain          = "HMR_dummy_n_p0,HMR_dummy_c_p0,HMR_dummy_n_p1,HMR_dummy_c_p1";
+    std::string tDomain2         = "HMR_dummy_n_p1,HMR_dummy_c_p1";
+    std::string tDomain          = "HMR_dummy_n_p0,HMR_dummy_c_p0,HMR_dummy_n_p1,HMR_dummy_c_p1";
 
     std::string tLeftSurf = "SideSet_4_n_p0";
-	
-	std::string tInterface = "dbl_iside_p0_0_p1_1";
 
+    std::string tInterface = "dbl_iside_p0_0_p1_1";
 
     /* ------------------------------------------------------------------------ */
     // HMR parameters
@@ -100,28 +99,28 @@ namespace moris
     {
         aPropMatrix = aParameters( 0 );
     }
-	
+
     /* ------------------------------------------------------------------------ */
-	
-	void Func_Body_Load( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-                         moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                         moris::fem::Field_Interpolator_Manager         * aFIManager )
+
+    void Func_Body_Load( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+            moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+            moris::fem::Field_Interpolator_Manager         * aFIManager )
     {
         moris::Matrix< DDRMat >tMat = { {1},{0},{0} };
-		
-		//moris::real tX = aFIManager->get_IG_geometry_interpolator()->valx()( 0 );    
+
+        //moris::real tX = aFIManager->get_IG_geometry_interpolator()->valx()( 0 );
         //moris::real tValue = 3.0*std::pow(tX, 2)-tX+3;    
         //aPropMatrix = aParameters( 0 )( 0 ) * tValue * tMat;
-		
-		aPropMatrix = 1.0* tMat;
+
+        aPropMatrix = 1.0* tMat;
     }
-	
-	/* ------------------------------------------------------------------------ */
-	void Func_Temp_Body_Load( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-                              moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-                              moris::fem::Field_Interpolator_Manager         * aFIManager )
+
+    /* ------------------------------------------------------------------------ */
+    void Func_Temp_Body_Load( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
+            moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
+            moris::fem::Field_Interpolator_Manager         * aFIManager )
     {		
-		aPropMatrix.set_size( 1, 1, 1.0 );
+        aPropMatrix.set_size( 1, 1, 1.0 );
     }
 
     /* ------------------------------------------------------------------------ */
