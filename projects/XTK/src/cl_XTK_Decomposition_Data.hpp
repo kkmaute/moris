@@ -429,51 +429,51 @@ struct Decomposition_Data
         moris::mtk::Mesh const& aBackgroundMesh,
         std::string             aFile = "" )
     {
-        std::stringstream oSS;
-        oSS << "Request_Index,";
-        oSS << "PRank,";
-        oSS << "Parent_Id,";
-        oSS << "Secondary_Id,";
-        oSS << "Parent_Rank,";
-        oSS << "New_Vert_Id,";
-        oSS << "New_Vert_Index,";
-        for ( size_t iSPH = 0; iSPH < aBackgroundMesh.get_spatial_dim(); iSPH++ )
-        {
-            oSS << "Coords_" << std::to_string( iSPH );
-            if ( iSPH != aBackgroundMesh.get_spatial_dim() - 1 )
-            {
-                oSS << ",";
-            }
-        }
+        // std::stringstream oSS;
+        // oSS << "Request_Index,";
+        // oSS << "PRank,";
+        // oSS << "Parent_Id,";
+        // oSS << "Secondary_Id,";
+        // oSS << "Parent_Rank,";
+        // oSS << "New_Vert_Id,";
+        // oSS << "New_Vert_Index,";
+        // for ( size_t iSPH = 0; iSPH < aBackgroundMesh.get_spatial_dim(); iSPH++ )
+        // {
+        //     oSS << "Coords_" << std::to_string( iSPH );
+        //     if ( iSPH != aBackgroundMesh.get_spatial_dim() - 1 )
+        //     {
+        //         oSS << ",";
+        //     }
+        // }
 
-        oSS << "\n";
+        // oSS << "\n";
 
-        for ( moris::uint i = 0; i < tNewNodeId.size(); i++ )
-        {
-            oSS << i << ",";
-            oSS << par_rank() << ",";
-            oSS << aBackgroundMesh.get_glb_entity_id_from_entity_loc_index( tNewNodeParentIndex( i ), tNewNodeParentRank( i ) ) << ",";
-            oSS << tSecondaryIdentifiers( i ) << ",";
-            oSS << get_enum_str( tNewNodeParentRank( i ) ) << ",";
-            oSS << tNewNodeId( i ) << ",";
-            oSS << tNewNodeIndex( i ) << ",";
+        // for ( moris::uint i = 0; i < tNewNodeId.size(); i++ )
+        // {
+        //     oSS << i << ",";
+        //     oSS << par_rank() << ",";
+        //     oSS << aBackgroundMesh.get_glb_entity_id_from_entity_loc_index( tNewNodeParentIndex( i ), tNewNodeParentRank( i ) ) << ",";
+        //     oSS << tSecondaryIdentifiers( i ) << ",";
+        //     oSS << get_enum_str( tNewNodeParentRank( i ) ) << ",";
+        //     oSS << tNewNodeId( i ) << ",";
+        //     oSS << tNewNodeIndex( i ) << ",";
 
-            for ( moris::uint j = 0; j < aBackgroundMesh.get_spatial_dim(); j++ )
-            {
-                oSS << std::scientific << tNewNodeCoordinate( i )( j );
-                if ( j != aBackgroundMesh.get_spatial_dim() - 1 )
-                {
-                    oSS << ",";
-                }
-            }
-            oSS << "\n";
-        }
-        if ( aFile.empty() == false )
-        {
-            std::ofstream tOutputFile( aFile );
-            tOutputFile << oSS.str() << std::endl;
-            tOutputFile.close();
-        }
+        //     for ( moris::uint j = 0; j < aBackgroundMesh.get_spatial_dim(); j++ )
+        //     {
+        //         oSS << std::scientific << tNewNodeCoordinate( i )( j );
+        //         if ( j != aBackgroundMesh.get_spatial_dim() - 1 )
+        //         {
+        //             oSS << ",";
+        //         }
+        //     }
+        //     oSS << "\n";
+        // }
+        // if ( aFile.empty() == false )
+        // {
+        //     std::ofstream tOutputFile( aFile );
+        //     tOutputFile << oSS.str() << std::endl;
+        //     tOutputFile.close();
+        // }
     }
 
     moris_index tDecompId = 0;

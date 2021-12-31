@@ -538,7 +538,7 @@ endif()
 # Check for C++11 or C++0x support.
 check_cxx_compiler_flag(-std=c++11 HAVE_STD_CPP11)
 if (HAVE_STD_CPP11)
-    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -std=c++11")
+    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -std=c++14")
 else()
     check_cxx_compiler_flag(-std=c++0x HAVE_STD_CPP0x)
     if (HAVE_STD_CPP0x)

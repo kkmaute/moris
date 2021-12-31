@@ -61,6 +61,9 @@ namespace ge
         real              mIsocontourTolerance;
         real              mIntersectionTolerance;
 
+        //
+        bool mEvaluateNewChildNodeAsLinear = false;
+
         // Spatial dimensions
         uint mNumSpatialDimensions;
 
@@ -440,6 +443,14 @@ namespace ge
 
         std::string
         get_diagnostic_file_name( std::string const& aLabel ) const;
+
+
+        /**
+         * 
+         */
+        void
+        induce_as_interface_vertex_on_active_geometry(moris_index aVertexIndex);
+
 
       private:
         void communicate_missing_owned_coefficients(

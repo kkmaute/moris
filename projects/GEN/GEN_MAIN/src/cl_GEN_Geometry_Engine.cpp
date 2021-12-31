@@ -49,9 +49,10 @@ namespace ge
         Tracer tTracer( "GEN", "Create geometry engine" );
 
         // Level set options
-        mIsocontourThreshold   = aParameterLists( 0 )( 0 ).get< real >( "isocontour_threshold" );
-        mIsocontourTolerance   = aParameterLists( 0 )( 0 ).get< real >( "isocontour_tolerance" );
-        mIntersectionTolerance = aParameterLists( 0 )( 0 ).get< real >( "intersection_tolerance" );
+        mIsocontourThreshold          = aParameterLists( 0 )( 0 ).get< real >( "isocontour_threshold" );
+        mIsocontourTolerance          = aParameterLists( 0 )( 0 ).get< real >( "isocontour_tolerance" );
+        mIntersectionTolerance        = aParameterLists( 0 )( 0 ).get< real >( "intersection_tolerance" );
+        mEvaluateNewChildNodeAsLinear = aParameterLists( 0 )( 0 ).get< bool >( "evaluate_new_pts_as_linear" );
 
         MORIS_ERROR( mIsocontourTolerance > 1e-14,
             "Geometry_Engine::Geometry_Engine - Isocontour tolerance should be larger than 1e-14" );
@@ -100,6 +101,17 @@ namespace ge
             mInitialPrimitiveADVs,
             mLibrary,
             aMesh );
+
+        // iterate through geometrys if any are multilinear, we turn the linear flag on
+        for(moris::uint iGeom = 0; iGeom < mGeometries.size(); iGeom++)
+        {
+            if(mGeometries(iGeom)->get_intersection_interpolation() ==  Intersection_Interpolation::MULTILINEAR)
+            {
+                MORIS_LOG_INFO("New Child Vertices will be evaluated as using linear background cells");
+                mEvaluateNewChildNodeAsLinear = true;
+            }
+        }
+
 
         MORIS_ERROR( mGeometries.size() <= MAX_GEOMETRIES,
             "Number of geometries exceeds MAX_GEOMETRIES, please change this in GEN_typedefs.hpp" );
@@ -488,7 +500,7 @@ namespace ge
                         mGeometries( mActiveGeometryIndex ),
                         mIsocontourThreshold,
                         mIsocontourTolerance,
-                        mIntersectionTolerance );
+                        mIntersectionTolerance );      
                 }
                 else
                 {
@@ -620,7 +632,7 @@ namespace ge
         // Loop over nodes
         for ( uint tNode = 0; tNode < aNewNodeIndices->size(); tNode++ )
         {
-            std::shared_ptr< Child_Node > tChildNode                                          = std::make_shared< Child_Node >( ( *aNewNodeParentCell )( tNode ), ( *aParamCoordRelativeToParent )( tNode ).get() );
+            std::shared_ptr< Child_Node > tChildNode                                          = std::make_shared< Child_Node >( ( *aNewNodeParentCell )( tNode ), ( *aParamCoordRelativeToParent )( tNode ).get(),this->mEvaluateNewChildNodeAsLinear );
             mVertexGeometricProximity( ( *aNewNodeIndices )( tNode ) ).mAssociatedVertexIndex = ( *aNewNodeIndices )( tNode );
 
             Matrix< DDRMat > const& tCoord = ( *aNodeCoordinates )( tNode );
@@ -1119,7 +1131,13 @@ namespace ge
     }
 
     //--------------------------------------------------------------------------------------------------------------
-
+    void
+    Geometry_Engine::induce_as_interface_vertex_on_active_geometry(moris_index aVertexIndex)
+    {
+        // to do this I change the geometric proximity to = for the given vertex
+        mVertexGeometricProximity( aVertexIndex ).set_geometric_proximity( 1, this->get_active_geometry_index() );
+    }
+    
     void
     Geometry_Engine::initialize_pdv_type_list()
     {

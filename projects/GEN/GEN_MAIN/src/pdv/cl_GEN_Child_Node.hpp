@@ -51,7 +51,8 @@ namespace moris
     
             Child_Node( 
                 moris::mtk::Cell* aCell,
-                Matrix<DDRMat> * aLocalCoordinates);
+                Matrix<DDRMat> * aLocalCoordinates,
+                bool             aEvaluateAsLinear);
 
     
 

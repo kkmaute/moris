@@ -1424,6 +1424,7 @@ Integration_Mesh_Generator::construct_bulk_phase_to_bulk_phase_interface(
         }
         else
         {
+            // This else case happens when an interface is coincident with the boundary of the domain
             std::cout << "Warning: interface case not handled " << std::endl;
         }
     }
