@@ -51,9 +51,9 @@ namespace moris
             real tLevelset = tScaling * (tConstant - 1.0);
 
             // Ensure that level set value is not approx. zero at evaluation point
-            if ( std::abs(tLevelset < tShift))
+            if ( std::abs(tLevelset) < tShift)
             {
-                tLevelset += tLevelset<0.0 ? -tShift : tShift;
+                tLevelset += tLevelset < 0.0 ? -tShift : tShift;
             }
 
             return tLevelset;
