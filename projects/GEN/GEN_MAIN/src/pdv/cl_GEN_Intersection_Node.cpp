@@ -44,32 +44,41 @@ namespace moris
 
             // Global coordinates of intersection and parents
             mGlobalCoordinates = mBasisValues(0) * aAncestorNodeCoordinates(0);
-            Matrix<DDRMat> tFirstParentGlobalCoordinates = tFirstParentBasisValues(0) * aAncestorNodeCoordinates(0);
+
+            Matrix<DDRMat> tFirstParentGlobalCoordinates  = tFirstParentBasisValues(0)  * aAncestorNodeCoordinates(0);
             Matrix<DDRMat> tSecondParentGlobalCoordinates = tSecondParentBasisValues(0) * aAncestorNodeCoordinates(0);
+
             for (uint tBasisIndex = 1; tBasisIndex < mBasisValues.length(); tBasisIndex++)
             {
                 mGlobalCoordinates += mBasisValues(tBasisIndex) * aAncestorNodeCoordinates(tBasisIndex);
-                tFirstParentGlobalCoordinates += tFirstParentBasisValues(tBasisIndex) * aAncestorNodeCoordinates(tBasisIndex);
+                tFirstParentGlobalCoordinates  += tFirstParentBasisValues(tBasisIndex)  * aAncestorNodeCoordinates(tBasisIndex);
                 tSecondParentGlobalCoordinates += tSecondParentBasisValues(tBasisIndex) * aAncestorNodeCoordinates(tBasisIndex);
             }
             mParentVector = trans(tSecondParentGlobalCoordinates - tFirstParentGlobalCoordinates);
 
             // Parents on interface
-            real tFirstParentPhi = aInterfaceGeometry->get_field_value(aFirstParentNodeIndex, tFirstParentGlobalCoordinates);
+            real tFirstParentPhi  = aInterfaceGeometry->get_field_value(aFirstParentNodeIndex,  tFirstParentGlobalCoordinates);
             real tSecondParentPhi = aInterfaceGeometry->get_field_value(aSecondParentNodeIndex, tSecondParentGlobalCoordinates);
             real tParentLength = norm(mParentVector);
 
-            real tFirstDiffFromThreshold  = tFirstParentPhi - aIsocontourThreshold;
+            real tFirstDiffFromThreshold  = tFirstParentPhi  - aIsocontourThreshold;
             real tSecondDiffFromThreshold = tSecondParentPhi - aIsocontourThreshold;
+
             mFirstParentOnInterface = std::abs(tFirstDiffFromThreshold) < aIntersectionTolerance or
                     0.5 * tParentLength * std::abs(1 + aLocalCoordinate) < aIntersectionTolerance;
+
             mSecondParentOnInterface = std::abs(tSecondDiffFromThreshold ) < aIntersectionTolerance or
                     0.5 * tParentLength * std::abs(1 - aLocalCoordinate) < aIntersectionTolerance;
 
+            // Determine if edge is intersected
             if (mFirstParentOnInterface or mSecondParentOnInterface)
             {
                 mIsIntersected = true;
             }
+            // FIXME: This check should be unnecessary as the local edge coordinate should be sufficient
+            // to determine whether edge is intersected; it is only "useful" if parent node's level set value
+            // is determined by method that is different from intersection nodes; for example level set value child node
+            // of child node is computed via analytic field and intersection node via bi-linear interpolation
             else if( tFirstDiffFromThreshold*tSecondDiffFromThreshold > 0 )
             {
                 mIsIntersected = false;
@@ -77,6 +86,13 @@ namespace moris
             else
             {
                 mIsIntersected = (std::abs(mLocalCoordinate) <= 1.0);
+
+                // check for consistency with parent values
+                // this check is currently useless but should be performed is inconsistency issue (see comment above) is resolved
+                MORIS_ASSERT ( mIsIntersected ?
+                        tFirstDiffFromThreshold * tSecondDiffFromThreshold < 0 : tFirstDiffFromThreshold * tSecondDiffFromThreshold > 0,
+                        "Intersection_Node::Intersection_Node - inconsistent parent level set values - p1 %e p2 %e loc %e.",
+                        tFirstDiffFromThreshold,tSecondDiffFromThreshold,mLocalCoordinate);
             }
         }
 
