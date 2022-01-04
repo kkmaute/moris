@@ -627,12 +627,18 @@ namespace ge
         Cell< Matrix< DDRMat > >*                    aNodeCoordinates )
     {
         // resize proximities
-        mVertexGeometricProximity.resize( mVertexGeometricProximity.size() + aNewNodeIndices->size(), Geometric_Proximity( mGeometries.size() ) );
+        mVertexGeometricProximity.resize(
+                mVertexGeometricProximity.size() + aNewNodeIndices->size(),
+                Geometric_Proximity( mGeometries.size() ) );
 
         // Loop over nodes
         for ( uint tNode = 0; tNode < aNewNodeIndices->size(); tNode++ )
         {
-            std::shared_ptr< Child_Node > tChildNode                                          = std::make_shared< Child_Node >( ( *aNewNodeParentCell )( tNode ), ( *aParamCoordRelativeToParent )( tNode ).get(),this->mEvaluateNewChildNodeAsLinear );
+            std::shared_ptr< Child_Node > tChildNode  = std::make_shared< Child_Node >(
+                    ( *aNewNodeParentCell )( tNode ),
+                    ( *aParamCoordRelativeToParent )( tNode ).get(),
+                    this->mEvaluateNewChildNodeAsLinear );
+
             mVertexGeometricProximity( ( *aNewNodeIndices )( tNode ) ).mAssociatedVertexIndex = ( *aNewNodeIndices )( tNode );
 
             Matrix< DDRMat > const& tCoord = ( *aNodeCoordinates )( tNode );
@@ -648,7 +654,6 @@ namespace ge
 
                 if ( std::abs( tVertGeomVal - mIsocontourThreshold ) < mIsocontourTolerance )
                 {
-
                     tGeomProxIndex = 1;
                 }
 
@@ -671,20 +676,27 @@ namespace ge
         const Matrix< DDRMat >&         aGlobalNodeCoord )
     {
         // resize proximities
-        mVertexGeometricProximity.resize( mVertexGeometricProximity.size() + aNewNodeIndices.size(), Geometric_Proximity( mGeometries.size() ) );
+        mVertexGeometricProximity.resize(
+                mVertexGeometricProximity.size() + aNewNodeIndices.size(),
+                Geometric_Proximity( mGeometries.size() ) );
 
         // Loop over nodes
         for ( uint tNode = 0; tNode < aNewNodeIndices.size(); tNode++ )
         {
             Matrix< DDUMat >         tParentNodeIndices( aParentTopo( tNode )->get_node_indices().length(), 1 );
             Cell< Matrix< DDRMat > > tParentNodeCoordinates( tParentNodeIndices.length() );
+
             for ( uint tParentNode = 0; tParentNode < tParentNodeIndices.length(); tParentNode++ )
             {
                 tParentNodeIndices( tParentNode )     = aParentTopo( tNode )->get_node_indices()( tParentNode );
                 tParentNodeCoordinates( tParentNode ) = aGlobalNodeCoord.get_row( tParentNodeIndices( tParentNode ) );
             }
+
             std::shared_ptr< Child_Node > tChildNode = std::make_shared< Child_Node >(
-                tParentNodeIndices, tParentNodeCoordinates, aParentTopo( tNode )->get_basis_function(), aParamCoordRelativeToParent( tNode ) );
+                tParentNodeIndices,
+                tParentNodeCoordinates,
+                aParentTopo( tNode )->get_basis_function(),
+                aParamCoordRelativeToParent( tNode ) );
 
             mVertexGeometricProximity( aNewNodeIndices( tNode ) ).mAssociatedVertexIndex = aNewNodeIndices( tNode );
 
@@ -701,7 +713,6 @@ namespace ge
 
                 if ( std::abs( tVertGeomVal - mIsocontourThreshold ) < mIsocontourTolerance )
                 {
-
                     tGeomProxIndex = 1;
                 }
 
