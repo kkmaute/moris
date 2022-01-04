@@ -98,6 +98,10 @@ namespace moris
         MORIS_ASSERT( max_all( tSizeofBuffer ) == tSizeofBuffer,
                 "scatter - cell size differs across processors.\n");
 
+        // check for correct size of cell to be scattered
+        MORIS_ASSERT( tProcRank == aRootProc ? aBuffer.size() == (uint)(tProcSize * tSizeofBuffer) : true,
+                "scatter - inconsistent size of sending and receiving cells.");
+
         MPI_Scatter(
                 aBuffer.data().data(),
                 tSizeofBuffer,
@@ -124,9 +128,13 @@ namespace moris
             int                                  aReceivingProc,
             int                                  aTag)
     {
+        // get number of entries in matrix
         int tNumToSend = aSendingMatrix.numel();
+
+        // initialize request
         MPI_Request tRequest;
 
+        // non-blocking send
         MPI_Isend(
                 aSendingMatrix.data(),
                 tNumToSend,
