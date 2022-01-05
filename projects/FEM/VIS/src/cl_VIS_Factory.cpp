@@ -15,9 +15,10 @@ namespace moris
 {
     namespace vis
     {
-
         mtk::Mesh * VIS_Factory::create_visualization_mesh( moris::vis::Output_Data & aOutputData )
         {
+            Tracer tTracer( "VisFactory", "VisMesh", "CreateVisMesh" );
+
             switch( aOutputData.mMeshType )
             {
                 case ( vis::VIS_Mesh_Type::STANDARD ):
@@ -59,6 +60,8 @@ namespace moris
 
         void VIS_Factory::create_visualization_vertices()
         {
+            Tracer tTracer( "VisFactory", "VisMesh", "CreateVertices" );
+
             // resize list of vertices on set
             mVerticesOnSet.resize( mNumRequestedSets );
             mVertexMapOnSet.resize( mNumRequestedSets );
@@ -114,6 +117,8 @@ namespace moris
 
         void VIS_Factory::create_visualization_cells()
         {
+            Tracer tTracer( "VisFactory", "VisMesh", "CreateCells" );
+
             // resize list of cells on set
             mCellsOnSet  .resize( mNumRequestedSets );
             mCellMapOnSet.resize( mNumRequestedSets );
@@ -180,6 +185,8 @@ namespace moris
 
         void VIS_Factory::create_visualization_clusters( moris::vis::Output_Data & aOutputData )
         {
+            Tracer tTracer( "VisFactory", "VisMesh", "CreateClusters" );
+
             // resize list of cells on set
             mClustersOnBlock.resize( mNumRequestedSets );
 
@@ -293,10 +300,9 @@ namespace moris
                                 break;
                         }
 
-
                         moris::Cell< mtk::Vertex const * > tVisClusterVertices( tVertices.size() );
 
-                        // identifiere and pos map
+                        // identifier and pos map
                         tIdentifierMat.fill( -1 );
 
                         uint tCounter = 0;
@@ -358,9 +364,13 @@ namespace moris
 
         void VIS_Factory::create_visualization_blocks()
         {
+            Tracer tTracer( "VisFactory", "VisMesh", "CreateBlocks" );
+
             mListofBlocks.resize( mNumRequestedSets );
+
             mtk::Interpolation_Mesh* tInterpolationMesh = nullptr;
             mtk::Integration_Mesh*   tIntegrationMesh   = nullptr;
+
             mMesh->get_mesh_pair( mMeshPairIndex, tInterpolationMesh, tIntegrationMesh );
 
             for( uint Ij = 0; Ij <mNumRequestedSets; Ij++ )
@@ -380,7 +390,5 @@ namespace moris
         }
 
         //-----------------------------------------------------------------------------------------------------------
-
-
     }
 }

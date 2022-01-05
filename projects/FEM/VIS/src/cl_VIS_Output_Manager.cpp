@@ -182,7 +182,7 @@ namespace moris
         {
             if( mVisMeshCreatedAndOpen( aVisMeshIndex ) == false )
             {
-                Tracer tTracer( "Output_Manager", "VisMesh", "CreateFile" );
+                Tracer tTracer( "Output_Manager", "VisMesh", "CreateAndWriteVisMesh" );
 
                 this->create_visualization_mesh( aVisMeshIndex, aMesh, aMeshPairIndex );
 
@@ -201,6 +201,8 @@ namespace moris
                 std::shared_ptr< mtk::Mesh_Manager > aMesh,
                 const uint                           aMeshPairIndex)
         {
+            Tracer tTracer( "Output_Manager", "VisMesh", "CreateVisMesh" );
+
             MORIS_ERROR( mOutputData( aVisMeshIndex ).mMeshIndex == ( sint )aVisMeshIndex,
                     "create_visualization_meshes(), Visualization mesh not set" );
 
@@ -226,6 +228,8 @@ namespace moris
                 const uint                             aVisMeshIndex,
                 std::shared_ptr< MSI::Equation_Model > aEquationModel )
         {
+            Tracer tTracer( "Output_Manager", "VisMesh", "CreateVisSets" );
+
             // get number of requested sets
             uint tNumRequestedSets = mOutputData( aVisMeshIndex ).mSetNames.size();
 
@@ -267,7 +271,7 @@ namespace moris
 
         void Output_Manager::write_mesh( const uint aVisMeshIndex )
         {
-            Tracer tTracer( "Output_Manager", "VisMesh", "WriteFile" );
+            Tracer tTracer( "Output_Manager", "VisMesh", "WriteVisMesh" );
 
             // specify file path
             std::string tMeshFilePath = mOutputData( aVisMeshIndex ).mMeshPath;
