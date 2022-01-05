@@ -100,8 +100,11 @@ namespace moris
         //! label of background mesh output file
         tParameterList.insert( "write_background_mesh", std::string("") );
 
-        //! label of lagrange mesh output file
+        //! label of lagrange mesh output file (VTK)
         tParameterList.insert( "write_lagrange_output_mesh", std::string("") );
+
+        //! label of lagrange mesh output file (Exodus)
+        tParameterList.insert( "write_lagrange_output_mesh_to_exodus", std::string("") );
 
         //! name of restart file
         tParameterList.insert( "restart_refinement_pattern_file", std::string("") );

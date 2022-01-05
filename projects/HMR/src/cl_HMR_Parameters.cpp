@@ -263,6 +263,8 @@ namespace moris
 
             this->set_write_output_lagrange_mesh( aParameterList.get< std::string >("write_lagrange_output_mesh") );
 
+            this->set_write_output_lagrange_mesh_to_exodus( aParameterList.get< std::string >("write_lagrange_output_mesh_to_exodus") );
+
             this->set_restart_refinement_pattern_file( aParameterList.get< std::string >("restart_refinement_pattern_file") );
 
             // get user-defined refinement functions

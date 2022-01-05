@@ -168,9 +168,9 @@ namespace moris
 
             std::string mWriteBackgroundMesh = "";
             std::string mWriteOutputLagrangeMesh = "";
+            std::string mWriteOutputLagrangeMeshToExodus ="";
 
             std::string mRestartfromRefinedPattern = "";
-
 
             //! maximum level for refinement. Default value is specified
             //! by global constant
@@ -1159,6 +1159,13 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
+            void set_write_output_lagrange_mesh_to_exodus( const std::string & aWriteOutputLagrangeMesh )
+            {
+                mWriteOutputLagrangeMeshToExodus = aWriteOutputLagrangeMesh;
+            }
+
+            //-------------------------------------------------------------------------------
+
             void set_restart_refinement_pattern_file( const std::string & aRestartfromRefinedPattern )
             {
                 mRestartfromRefinedPattern = aRestartfromRefinedPattern;
@@ -1176,6 +1183,13 @@ namespace moris
             const std::string & get_write_output_lagrange_mesh()
             {
                 return mWriteOutputLagrangeMesh;
+            }
+
+            //-------------------------------------------------------------------------------
+
+            const std::string & get_write_output_lagrange_mesh_to_exodus()
+            {
+                return mWriteOutputLagrangeMeshToExodus;
             }
 
             //-------------------------------------------------------------------------------
