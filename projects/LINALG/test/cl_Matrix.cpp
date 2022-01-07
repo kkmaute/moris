@@ -4,15 +4,13 @@
  *  Created on: Aug 27, 2018
  *      Author: doble
  */
-#define ARMA_ALLOW_FAKE_GCC
-#include <armadillo>
 
 #include <catch.hpp>
-#include "fn_equal_to.hpp"
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
+#include "fn_equal_to.hpp"
 #include "op_times.hpp"
 #include "fn_inv.hpp"
 #include "fn_norm.hpp"
@@ -22,7 +20,6 @@
 
 namespace moris
 {
-
     template <typename T1, typename T2>
     auto
     test(T1 const & aA,

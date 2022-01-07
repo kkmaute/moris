@@ -15,7 +15,6 @@ as follows:
 #define MORIS_PATH_FN_FUNCTION_NAME_HPP_
 
 // Third-party header files.
-#include <armadillo>
 #include <Eigen/Core>
 
 // MORIS library header files.
