@@ -161,7 +161,7 @@ namespace moris
         real tLSval = aCoordinates(0) - tInterfaceX;
 
         // clean return value to return non-zero value
-        return std::abs(tLSval) < 1e-8 ? 1e-8 : -tLSval;
+        return -tLSval;
     }
 
     //------------------------------------------------------------------------------
