@@ -9,22 +9,18 @@
 #define PROJECTS_LINALG_SRC_ARMA_IMPL_FN_DIAG_VEC_ARMA_HPP_
 
 #include "cl_Matrix.hpp"
-#define ARMA_ALLOW_FAKE_GCC
-#include <armadillo>
 
 namespace moris
 {
-template< typename ET>
-auto
-diag_vec(
-     ET & aA,
-     size_t     const & ak = 0 )
-->decltype(arma::diagvec( aA, ak ))
-{
-    return arma::diagvec( aA, ak );
+    template< typename ET>
+    auto
+    diag_vec(
+            ET & aA,
+            size_t     const & ak = 0 )
+    ->decltype(arma::diagvec( aA, ak ))
+    {
+        return arma::diagvec( aA, ak );
+    }
 }
-}
-
-
 
 #endif /* PROJECTS_LINALG_SRC_ARMA_IMPL_FN_DIAG_VEC_ARMA_HPP_ */

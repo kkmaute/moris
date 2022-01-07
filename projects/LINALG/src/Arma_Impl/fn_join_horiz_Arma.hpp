@@ -7,9 +7,8 @@
 
 #ifndef PROJECTS_LINALG_SRC_ARMA_IMPL_FN_JOIN_HORIZ_ARMA_HPP_
 #define PROJECTS_LINALG_SRC_ARMA_IMPL_FN_JOIN_HORIZ_ARMA_HPP_
-#define ARMA_ALLOW_FAKE_GCC
-#include <armadillo>
 
+#include "cl_Matrix.hpp"
 
 namespace moris
 {
@@ -19,15 +18,8 @@ namespace moris
                 const ET          & aB)
     -> decltype( arma::join_horiz( aA, aB ) )
     {
-
         return arma::join_horiz( aA, aB );
-
     }
-
-
 }
-
-
-
 
 #endif /* PROJECTS_LINALG_SRC_ARMA_IMPL_FN_JOIN_HORIZ_ARMA_HPP_ */

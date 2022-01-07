@@ -9,19 +9,17 @@
 #define PROJECTS_LINALG_SRC_ARMA_IMPL_FN_CHOL_U_ARMA_HPP_
 
 #include "cl_Matrix.hpp"
-#define ARMA_ALLOW_FAKE_GCC
-#include <armadillo>
 
 namespace moris
 {
     template< typename ET >
     auto
     chol_u(
-            const ET & aA,
+            const ET          & aA,
             const std::string & aString = "upper" )
-        -> decltype (  arma::chol( aA, aString.c_str() ) )
+    -> decltype (  arma::chol( aA, aString.c_str() ) )
     {
-       return arma::chol( aA, aString.c_str() );
+        return arma::chol( aA, aString.c_str() );
     }
 }
 

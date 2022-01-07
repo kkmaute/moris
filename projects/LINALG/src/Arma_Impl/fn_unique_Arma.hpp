@@ -8,10 +8,7 @@
 #ifndef PROJECTS_LINALG_SRC_ARMA_IMPL_FN_UNIQUE_ARMA_HPP_
 #define PROJECTS_LINALG_SRC_ARMA_IMPL_FN_UNIQUE_ARMA_HPP_
 
-
 #include "cl_Matrix.hpp"
-#define ARMA_ALLOW_FAKE_GCC
-#include <armadillo>
 
 namespace moris
 {
@@ -23,6 +20,5 @@ namespace moris
         aUniqueMatrix = unique( aMatrix );
     }
 }
-
 
 #endif /* PROJECTS_LINALG_SRC_ARMA_IMPL_FN_UNIQUE_ARMA_HPP_ */

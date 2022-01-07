@@ -9,9 +9,6 @@
 #define PROJECTS_LINALG_SRC_ARMA_IMPL_OP_ELEMWISE_MULT_ARMA_HPP_
 
 #include "cl_Matrix.hpp"
-#define ARMA_ALLOW_FAKE_GCC
-#include <armadillo>
-
 
 namespace moris
 {
@@ -59,7 +56,5 @@ namespace moris
 
 //--------------------------------------------------------------------------------
 }
-
-
 
 #endif /* PROJECTS_LINALG_SRC_ARMA_IMPL_OP_ELEMWISE_MULT_ARMA_HPP_ */
