@@ -695,7 +695,7 @@ Enriched_Interpolation_Mesh::add_vertex_enrichment(
 void
 Enriched_Interpolation_Mesh::merge_duplicate_interpolation_vertices()
 {
-    MORIS_LOG_SPEC( "Num Enriched Interpolation Vertices Pre Merge", mEnrichedInterpVerts.size() );
+    MORIS_LOG_SPEC( "Num Enriched Interpolation Vertices Pre Merge ", mEnrichedInterpVerts.size() );
 
     // this is how many vertices I start with
     moris_index tStartNumVerts = mEnrichedInterpVerts.size();
