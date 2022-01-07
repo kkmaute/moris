@@ -465,8 +465,9 @@ namespace moris
         }
         else
         {
-            return 4*( tMax*par_size() + tMin )  + 2;
+            return 4*( tMax*par_size() + tMin ) + 2;
         }
+
         return tMax*par_size() + tMin ;
     }
 
@@ -495,6 +496,7 @@ namespace moris
 
         MPI_Isend(cstrings.data(), cstrings.size(), MPI_CHAR, aBaseProc, aTag, moris::get_comm(), &tRequest);
 
+        // FIXME: should not be needed as base processor issues blocking probe and receive requests
         barrier();
 
         // on base rank go ahead and receive the data
@@ -503,19 +505,21 @@ namespace moris
             aGatheredCells.resize(par_size());
             for(int i = 0; i < par_size(); i++)
             {
+                // check and wait until message from processor "i" is ready
                 MPI_Status tStatus;
                 MPI_Probe(i, aTag, moris::get_comm(), &tStatus);
 
-                //    MORIS_ERROR(tExists,"Trying to receive a message that does not exists");
-
+                // get length of message
                 int tLength = 0;
                 MPI_Get_count(
                         &tStatus,
                         MPI_CHAR,
                         &tLength);
 
+                // allocate receiving buffer
                 char* tChars = new char[tLength];
 
+                // receive message
                 MPI_Recv(
                         tChars,
                         tLength,
@@ -525,6 +529,7 @@ namespace moris
                         moris::get_comm(),
                         &tStatus);
 
+                // store string
                 moris::uint tCellIndex = 0;
                 aGatheredCells(i).push_back("");
                 for (int  j = 0; j < tLength; j++)
@@ -544,6 +549,11 @@ namespace moris
             }
         }
 
+        // wait until send message has been received
+        MPI_Wait(&tRequest, MPI_STATUS_IGNORE);
+
+        // FIXME: should not be needed as this point can only be reached if all
+        //        send and receive request have been processed
         barrier();
     }
 

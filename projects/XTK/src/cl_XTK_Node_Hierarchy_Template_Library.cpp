@@ -814,7 +814,7 @@ Node_Hierachy_Template_Library::load_3d_template(
         break;
     default:
     {
-        std::cout << "Node_Hierachy_Template_Library::load_2d_template(): \n" << std::flush;
+        std::cout << "Node_Hierachy_Template_Library::load_3d_template(): \n" << std::flush;
         std::cout << "WARNING INVALID TEMPLATE ID: " << aTemplateId << std::endl;
         break;
     }

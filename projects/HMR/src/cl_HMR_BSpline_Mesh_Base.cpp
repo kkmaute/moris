@@ -1866,7 +1866,7 @@ namespace moris
             real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
             // print output
-            MORIS_LOG_INFO( " Calculate basis indiced for B-Spline mesh of order %u on pattern %u.",
+            MORIS_LOG_INFO( " Calculate basis indices for B-Spline mesh of order %u on pattern %u.",
                     ( unsigned int ) mOrder,
                     ( unsigned int ) mActivationPattern);
 

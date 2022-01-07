@@ -163,6 +163,9 @@ option(MORIS_USE_XTK "Have XTK Library" ON)
 option(MORIS_HAVE_SYMBOLIC
     "Use symbolic information in executable." OFF )
 
+option(MORIS_HAVE_SYMBOLIC_STRONG
+    "Use symbolic information in executable." OFF )
+
 option(MORIS_USE_ACML
     "Use the AMD ACML library as the linear algebra package." OFF )
 
@@ -432,9 +435,14 @@ endif()
 
 if (MORIS_HAVE_SYMBOLIC)
     set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Build type Debug" FORCE)
-    check_cxx_compiler_flag(-Og HAVE_DEBUG)
-    if (HAVE_DEBUG)
-        set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Og")
+    
+    if (MORIS_HAVE_SYMBOLIC_STRONG)
+        # add here option to ease debugging
+    else()
+        check_cxx_compiler_flag(-Og HAVE_DEBUG)
+        if (HAVE_DEBUG)
+            set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Og")
+         endif()
     endif()
 
     check_cxx_compiler_flag(-g3 HAVE_DEBUG_3)
@@ -471,6 +479,9 @@ if (MORIS_USE_CHECK_MEMORY)
     set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -DCHECK_MEMORY ")
 endif()
 
+if (MORIS_HAVE_PARALLEL)
+    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -DMORIS_HAVE_PARALLEL ")
+endif()
 
 # # Performace test flags
 # if (HAVE_PERF_MAT)
@@ -610,8 +621,8 @@ endif() #> clean this up eventually
 # XTK --------------------------------------------------------------------------
 # -------------------------------------------------------------------------   
 if (MORIS_USE_XTK)
-    list(APPEND MORIS_INCDIRS "$ENV{HOME}/codes/xtk/include") #> ask if this is separate from the files in MORIS/src/xtk
-    list(APPEND MORIS_INCDIRS "$ENV{HOME}/codes/xtk/src")
+#    list(APPEND MORIS_INCDIRS "$ENV{HOME}/codes/xtk/include") #> ask if this is separate from the files in MORIS/src/xtk#
+#    list(APPEND MORIS_INCDIRS "$ENV{HOME}/codes/xtk/src")
     list(APPEND MORIS_DEFINITIONS "-DUSE_XTK")
     list(APPEND MORIS_DEFINITIONS "-DXTK_USE_MORIS")
 endif()
@@ -885,9 +896,9 @@ if(MORIS_HAVE_PARALLEL_TESTS)
 endif()
 
 if (MORIS_USE_VALGRIND)
-    set(VALGRIND "valgrind")
+    set(VALGRIND valgrind)
     set(VALGRIND_OPTIONS "")
-    set(VALGRIND_OPTIONS_EXA "--leak-check=full --track-origins=yes")
+    set(VALGRIND_OPTIONS_EXA --leak-check=full --track-origins=yes)
 else()
     set(VALGRIND "")
     set(VALGRIND_OPTIONS "")

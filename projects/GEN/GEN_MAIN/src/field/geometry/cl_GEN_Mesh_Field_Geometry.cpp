@@ -44,6 +44,14 @@ namespace moris
             // initialize error flag
             bool tError=true;
 
+            // check for empty file name - use trivial field values
+            if ( aFileName.empty() )
+            {
+                mFieldData.set_size(1,1,mOffset);
+
+                return;
+            }
+
             // read data from exodus file
             if ( aFileFormat == "exodus" )
             {
@@ -97,7 +105,14 @@ namespace moris
         {
             if ( mUseOwnData )
             {
-                return mFieldData(aNodeIndex) + mOffset;
+                if ( aNodeIndex < mFieldData.numel() )
+                {
+                    return mFieldData(aNodeIndex) + mOffset;
+                }
+                else
+                {
+                    return mOffset;
+                }
             }
             else
             {

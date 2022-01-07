@@ -296,7 +296,7 @@ namespace moris
         }
 
         // clean return value to return non-zero value
-        return std::abs(tLSval) < 1e-8 ? 1e-8 : -tLSval;
+        return -tLSval;
     }
 
     //------------------------------------------------------------------------------
@@ -347,7 +347,7 @@ namespace moris
         }
 
         // clean return value to return non-zero value
-        return std::abs(tLSval) < 1e-8 ? 1e-8 : -tLSval;
+        return -tLSval;
     }
 
    //--------------------------------------------------------------------------------------------------------------

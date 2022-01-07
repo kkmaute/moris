@@ -41,6 +41,7 @@
 #include "cl_MTK_Mesh_Factory.hpp"
 #include "cl_MTK_Field.hpp"          //HMR/src
 #include "cl_MTK_Field_Discrete.hpp"          //HMR/src
+#include "cl_MTK_Writer_Exodus.hpp"
 
 #include "HDF5_Tools.hpp"
 #include "cl_HMR_Field.hpp"          //HMR/src
@@ -179,7 +180,15 @@ namespace moris
             // register HMR interpolation and integration meshes; this will be the first mesh pair stored in MTK mesh manager
             mMTKPerformer->register_mesh_pair( tInterpolationMesh, tIntegrationMesh, true, tMeshNames( 0 ) );
 
-            //this->save_coeffs_to_hdf5_file("TMatrixData.hdf5",0);
+            // save first mesh
+            if( not mParameters->get_write_output_lagrange_mesh_to_exodus().empty() )
+            {
+                std::string tFileName = mParameters->get_write_output_lagrange_mesh_to_exodus();
+
+                mtk::Writer_Exodus writer(tInterpolationMesh);
+                writer.write_mesh("", tFileName, "", "hmr_temp.exo");
+                writer.close_file();
+            }
 
             if( OutputMeshIndex.size() == 2 )
             {
@@ -198,6 +207,17 @@ namespace moris
 
                     // register HMR interpolation and integration meshes
                     mMTKPerformer->register_mesh_pair( tInterpolationMeshSecondary, tIntegrationMeshSecondary, true, tMeshNames( Ik+1 ) );
+
+                    // save additional meshes
+                    if( not mParameters->get_write_output_lagrange_mesh_to_exodus().empty() )
+                    {
+                        std::string tFileName = mParameters->get_write_output_lagrange_mesh_to_exodus() + "_Mesh_" + std::to_string(Ik);
+
+                        moris::mtk::Writer_Exodus writer(tInterpolationMeshSecondary);
+                        writer.write_mesh("", tFileName, "", "hmr_temp.exo");
+                        writer.close_file();
+                    }
+
                 }
             }
         }

@@ -65,7 +65,9 @@ namespace moris
             mPerformerManager->mMTKPerformer( 0 ) =std::make_shared< mtk::Mesh_Manager >();
 
             // Create GE performer
-            mPerformerManager->mGENPerformer( 0 ) = std::make_shared< ge::Geometry_Engine >( tGENParameterList, mPerformerManager->mLibrary );
+            mPerformerManager->mGENPerformer( 0 ) = std::make_shared< ge::Geometry_Engine >(
+                    tGENParameterList,
+                    mPerformerManager->mLibrary);
 
             // create MTK performer - will be used for XTK mesh
             mPerformerManager->mMTKPerformer( 1 ) = std::make_shared< mtk::Mesh_Manager >();

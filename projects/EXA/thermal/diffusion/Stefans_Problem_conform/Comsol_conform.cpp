@@ -99,7 +99,7 @@ namespace moris
         moris::real tLSval = aCoordinates(0) + 1.0  ;
 
         // clean return value to return non-zero value
-        return std::abs(tLSval) < 1.0e-8  ?  1.0e-8 : tLSval;
+        return tLSval;
     }
 
     void HMRParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
