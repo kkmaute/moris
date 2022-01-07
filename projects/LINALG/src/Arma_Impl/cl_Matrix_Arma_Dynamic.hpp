@@ -1,5 +1,5 @@
 /*
- * cl_Matrix_Arma_3x3.hpp
+ * class Matrix<arma::Mat<Type>>
  *
  *  Created on: Aug 24, 2018
  *      Author: doble
@@ -7,19 +7,29 @@
 
 #ifndef PROJECTS_LINALG_SRC_ARMA_IMPL_CL_MATRIX_ARMA_DYNAMIC_HPP_
 #define PROJECTS_LINALG_SRC_ARMA_IMPL_CL_MATRIX_ARMA_DYNAMIC_HPP_
+
+// IMPORTANT: to guarantee that the following definitions are used by armadillo,
+//            this file should be the only file where armadillo is included;
+//            armadillo configuration variables need to be defined before armadillo
+//            is included
 #define ARMA_ALLOW_FAKE_GCC
+#define ARMA_MAT_PREALLOC 3
+#define ARMA_USE_BLAS
+#define ARMA_USE_LAPACK
+#define ARMA_USE_CXX11
+#define ARMA_DONT_USE_WRAPPER
+
+// the following option is not activated as it currently leads to segfault ub in opt version
+//#ifdef MORIS_HAVE_MKL
+//#define ARMA_USE_MKL_ALLOC
+//#endif
+
 #include <armadillo>
 
 #include "typedefs.hpp"
 
-#include "cl_Matrix.hpp"
-#include "fn_iscol.hpp"
-#include "fn_isvector.hpp"
-
 namespace moris
 {
-
-
     template<typename Type>
     class Matrix<arma::Mat<Type>>
     {
@@ -265,13 +275,13 @@ namespace moris
                     size_t                          aRowIndex,
                     const Matrix<arma::Mat<Type>> & aVec)
             {
-                MORIS_ASSERT(isvector(aVec), "aVec needs to be a vector");
+                MORIS_ASSERT(aVec.matrix_data().is_vec(), "aVec needs to be a vector");
                 MORIS_ASSERT(aRowIndex < this->n_rows(), "Specified row index out of bounds");
                 MORIS_ASSERT(aVec.numel() == this->n_cols(),
                         "Dimension mismatch (argument matrix and member matrix do not have same number of columns)");
 
                 size_t tROW_INDEX = 0;
-                if(!iscol(aVec))
+                if(!aVec.matrix_data().is_colvec())
                 {
                     mMatrix.row(aRowIndex) = aVec.matrix_data().row(tROW_INDEX);
                 }
@@ -306,7 +316,6 @@ namespace moris
                 const size_t tCOLUMN_INDEX = 0;
                 aColumn.matrix_data().col(tCOLUMN_INDEX) = mMatrix.col(aColumnIndex);
             }
-
 
             auto
             get_column(size_t aColumnIndex) const
@@ -468,7 +477,7 @@ namespace moris
             Type &
             operator()( size_t const & aIndex )
             {
-                MORIS_ASSERT(isvector(*this),"Using vector () operator on non-vector");
+                MORIS_ASSERT(this->matrix_data().is_vec(),"Using vector () operator on non-vector");
                 MORIS_ASSERT(aIndex<this->numel(),"Vector index out of bounds");
                 return mMatrix( aIndex );
             }
@@ -482,7 +491,7 @@ namespace moris
             Type &
             operator()(const size_t & aIndex ) const
             {
-                MORIS_ASSERT(isvector(*this),"Using vector () operator on non-vector");
+                MORIS_ASSERT(this->matrix_data().is_vec(),"Using vector () operator on non-vector");
                 MORIS_ASSERT(aIndex<this->numel(),"Vector index out of bounds");
                 return mMatrix( aIndex );
             }

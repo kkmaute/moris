@@ -8,24 +8,17 @@
 #ifndef PROJECTS_LINALG_SRC_ARMA_IMPL_FN_COND_ARMA_HPP_
 #define PROJECTS_LINALG_SRC_ARMA_IMPL_FN_COND_ARMA_HPP_
 
-
 #include "cl_Matrix.hpp"
-#define ARMA_ALLOW_FAKE_GCC
-#include <armadillo>
-
 
 namespace moris
 {
-template< typename ET>
-auto
-cond(ET const & aA)
--> decltype( arma::cond( aA ) )
-{
-    return arma::cond( aA );
+    template< typename ET>
+    auto
+    cond(ET const & aA)
+    -> decltype( arma::cond( aA ) )
+    {
+        return arma::cond( aA );
+    }
 }
-
-}
-
-
 
 #endif /* PROJECTS_LINALG_SRC_ARMA_IMPL_FN_COND_ARMA_HPP_ */

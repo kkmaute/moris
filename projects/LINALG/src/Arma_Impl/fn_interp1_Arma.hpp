@@ -12,13 +12,9 @@
 #define PROJECTS_LINALG_SRC_ARMA_IMPL_FN_INTERP1_ARMA_HPP_
 
 #include "cl_Matrix.hpp"
-#define ARMA_ALLOW_FAKE_GCC
-#include <armadillo>
 
 namespace moris
 {
-
-
     template< typename ET >
     auto
     interp1(ET const &  aX,
@@ -41,6 +37,5 @@ namespace moris
         return arma::interp1( aX, aY, aXI.matrix_data(), aYI.matrix_data() );
     }
 }
-
 
 #endif /* PROJECTS_LINALG_SRC_ARMA_IMPL_FN_INTERP1_ARMA_HPP_ */

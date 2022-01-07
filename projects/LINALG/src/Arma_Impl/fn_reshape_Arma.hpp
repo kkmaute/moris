@@ -8,8 +8,6 @@
 #ifndef PROJECTS_LINALG_SRC_ARMA_IMPL_FN_RESHAPE_ARMA_HPP_
 #define PROJECTS_LINALG_SRC_ARMA_IMPL_FN_RESHAPE_ARMA_HPP_
 
-#define ARMA_ALLOW_FAKE_GCC
-#include <armadillo>
 #include "cl_Matrix.hpp"
 
 namespace moris

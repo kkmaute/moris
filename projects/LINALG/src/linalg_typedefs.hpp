@@ -52,9 +52,7 @@ namespace moris
     typedef Eigen::Matrix<real,        Eigen::Dynamic, Eigen::Dynamic>  SDRMat; // FIXME Sparse dynamic Real Mat
 
 #else
-#define ARMA_ALLOW_FAKE_GCC
-#include <armadillo>
-    typedef arma::uword             ncomp;     // native type of compare operators
+    typedef arma::uword              ncomp;     // native type of compare operators
     typedef arma::uword              nint;     // native type of compare operators
     typedef arma::Mat< real >        DDRMat;   // Dense dynamic Real Mat
     typedef arma::Mat<size_t>        DDSTMat;  // Dense dynamic size_t Mat

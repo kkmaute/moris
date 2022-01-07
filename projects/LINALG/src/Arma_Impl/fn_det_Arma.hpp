@@ -9,27 +9,24 @@
 #define PROJECTS_LINALG_SRC_ARMA_IMPL_FN_DET_ARMA_HPP_
 
 #include "cl_Matrix.hpp"
-#define ARMA_ALLOW_FAKE_GCC
-#include <armadillo>
 
 namespace moris
 {
-template<typename ET >
-auto
-det( const ET &  A)
-->decltype( arma::det( A ))
-{
-	return arma::det( A );
-}
+    template<typename ET >
+    auto
+    det( const ET &  A)
+    ->decltype( arma::det( A ))
+    {
+        return arma::det( A );
+    }
 
-template<typename ET >
-auto
-det( ET &  A)
-->decltype( arma::det( A ))
-{
-	return arma::det( A );
+    template<typename ET >
+    auto
+    det( ET &  A)
+    ->decltype( arma::det( A ))
+    {
+        return arma::det( A );
+    }
 }
-}
-
 
 #endif /* PROJECTS_LINALG_SRC_ARMA_IMPL_FN_DET_ARMA_HPP_ */

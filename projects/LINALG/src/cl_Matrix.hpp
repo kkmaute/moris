@@ -14,7 +14,6 @@
 
 namespace moris
 {
-
     /*
      * This is the Matrix class which all implementations specialize. All
      * functions in this headers throw errors because this is never used.
