@@ -19,7 +19,8 @@ using namespace moris;
 uint gInterpolationOrder = 1;
 
 // flag to print reference values
-bool gPrintReferenceValues = true;
+bool gPrintReferenceValues = false;
+
 //---------------------------------------------------------------
 
 int fn_WRK_Workflow_Main_Interface( int argc, char * argv[] );
@@ -106,11 +107,10 @@ void check_quadratic_results(moris::mtk::Exodus_IO_Helper & aExoIO,uint aNodeId)
     REQUIRE( tRelTimeDifference <  1.0e-8 );
 
     // check temperature at node aNodeId in first time step (temperature is 3rd nodal field, first time step has index 0)
-    real tReferenceTemperature = 3.288041558380193e+02;
+    real tReferenceTemperature = 3.287974558344104e+02;
 
     real tRelTempDifference = std::abs( ( aExoIO.get_nodal_field_value( aNodeId, 2, 14 ) - tReferenceTemperature ) / tReferenceTemperature );
     REQUIRE(  tRelTempDifference < 1.0e-4);
-
 }
 
 //---------------------------------------------------------------
@@ -132,17 +132,17 @@ void check_linear_results_serial()
         std::cout << "Number of nodes     : " << tNumNodes << std::endl;
         std::cout << "Number of elements  : " << tNumElems << std::endl;
     }
-
-    REQUIRE( tNumDims  ==  2   );
-    REQUIRE( tNumNodes ==  388 );
-    REQUIRE( tNumElems ==  237 );
-
+    else
+    {
+        REQUIRE( tNumDims  ==  2   );
+        REQUIRE( tNumNodes ==  386 );
+        REQUIRE( tNumElems ==  235 );
+    }
     // check results
     uint tNodeId = 26;
 
     check_linear_results(tExoIO,tNodeId);
 }
-
 
 //---------------------------------------------------------------
 
@@ -163,9 +163,12 @@ void check_quadratic_results_serial()
         std::cout << "Number of nodes     : " << tNumNodes << std::endl;
         std::cout << "Number of elements  : " << tNumElems << std::endl;
     }
+    else
+    {
         REQUIRE( tNumDims  ==  2   );
-        REQUIRE( tNumNodes ==  481 );
-        REQUIRE( tNumElems ==  237 );
+        REQUIRE( tNumNodes ==  479 );
+        REQUIRE( tNumElems ==  235 );
+    }
 
     // check results
     uint tNodeId = 53;

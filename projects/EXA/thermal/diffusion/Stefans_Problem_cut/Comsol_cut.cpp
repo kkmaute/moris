@@ -27,7 +27,6 @@ extern "C"
 
 // global variables
 extern uint gInterpolationOrder;
-extern bool gPrintReferenceValues;
 
 #endif
 //------------------------------------------------------------------------------
@@ -35,7 +34,6 @@ namespace moris
 {
 
     // Geometry Parameters
-    // moris::real tXlength = 0.28;
     moris::real tXlength = 0.028;
     moris::real tYlength = 0.0015;
     moris::real tXcenter = 0.5 * tXlength;
@@ -98,7 +96,7 @@ namespace moris
         moris::real tLSval = 0.5 * tYlength - aCoordinates(1) + tYcenter;
 
         // clean return value to return non-zero value
-        return std::abs(tLSval) < 1.0e-8  ?  1.0e-8 : tLSval;
+        return tLSval;
     }
 
     moris::real Bottom_Boundary(
@@ -108,7 +106,7 @@ namespace moris
         moris::real tLSval = 0.5 * tYlength + aCoordinates(1) - tYcenter;
 
         // clean return value to return non-zero value
-        return std::abs(tLSval) < 1.0e-8  ?  1.0e-8 : tLSval;
+        return tLSval;
     }
 
     moris::real Left_Boundary(
@@ -118,7 +116,7 @@ namespace moris
         moris::real tLSval = 0.5 * tXlength + aCoordinates(0) - tXcenter;
 
         // clean return value to return non-zero value
-        return std::abs(tLSval) < 1.0e-8  ?  1.0e-8 : tLSval;
+        return tLSval;
     }
 
     moris::real Right_Boundary(
@@ -128,7 +126,7 @@ namespace moris
         moris::real tLSval = 0.5 * tXlength - aCoordinates(0) + tXcenter;
 
         // clean return value to return non-zero value
-        return std::abs(tLSval) < 1.0e-8  ?  1.0e-8 : tLSval;
+        return tLSval;
     }
 
 
