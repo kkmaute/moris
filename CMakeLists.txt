@@ -164,7 +164,7 @@ option(MORIS_HAVE_SYMBOLIC
     "Use symbolic information in executable." OFF )
 
 option(MORIS_HAVE_SYMBOLIC_STRONG
-    "Use symbolic information in executable." OFF )
+    "Use symbolic information (strong) in executable." OFF )
 
 option(MORIS_USE_ACML
     "Use the AMD ACML library as the linear algebra package." OFF )
@@ -536,13 +536,18 @@ if (HAVE_PEDANTIC)
 endif()
 
 # Check for C++11 or C++0x support.
-check_cxx_compiler_flag(-std=c++11 HAVE_STD_CPP11)
-if (HAVE_STD_CPP11)
+check_cxx_compiler_flag(-std=c++14 HAVE_STD_CPP14)
+if (HAVE_STD_CPP14)
     set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -std=c++14")
 else()
-    check_cxx_compiler_flag(-std=c++0x HAVE_STD_CPP0x)
-    if (HAVE_STD_CPP0x)
-        set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -std=c++0x")
+    check_cxx_compiler_flag(-std=c++11 HAVE_STD_CPP11)
+    if (HAVE_STD_CPP11)
+        set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -std=c++14")
+    else()
+        check_cxx_compiler_flag(-std=c++0x HAVE_STD_CPP0x)
+        if (HAVE_STD_CPP0x)
+            set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -std=c++0x")
+        endif()
     endif()
 endif()
 
