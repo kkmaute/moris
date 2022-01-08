@@ -95,8 +95,8 @@ namespace moris
                     ( unsigned int )      mActivationPattern);
 
             MORIS_LOG_INFO( "Mesh has %lu  Elements and %lu basis in total.",
-            		sum_all( ( long unsigned int ) mNumberOfAllElementsOnProc ),
-            		sum_all( ( long unsigned int ) mNumberOfAllBasis ) );
+                    sum_all( ( long unsigned int ) mNumberOfAllElementsOnProc ),
+                    sum_all( ( long unsigned int ) mNumberOfAllBasis ) );
 
             MORIS_LOG_INFO( "Mesh uses %lu basis on proc.",
                     ( long unsigned int ) mNumberOfAllBasis );
