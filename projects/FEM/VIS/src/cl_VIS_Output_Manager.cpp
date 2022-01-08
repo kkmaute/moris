@@ -603,6 +603,7 @@ namespace moris
                         MORIS_ERROR( false, "Unknown field type.");
                 }
             }
+
             uint tNumGlobalIQIs    = tGlobalIQINames.size();
             uint tNumNodalIQIs     = tNodalIQINames.size();
             uint tNumElementalIQIs = tElementalIQINames.size();
