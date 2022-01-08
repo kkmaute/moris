@@ -516,11 +516,11 @@ namespace moris
         //--------------------------------------------------------------------------------
 
         auto Parameters::get_padding_size() const -> decltype ( mStaircaseBuffer )
-                {
+        {
             // returns the larger value of max polynomial and buffer size.
             // in the future, filter with will be regarded here
             return std::max( std::max( mStaircaseBuffer, mMaxPolynomial ), mRefinementBuffer );
-                }
+        }
 
         //--------------------------------------------------------------------------------
 

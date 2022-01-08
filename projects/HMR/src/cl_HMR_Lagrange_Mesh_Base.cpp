@@ -95,8 +95,8 @@ namespace moris
                     ( unsigned int ) mActivationPattern);
 
             MORIS_LOG_INFO( "Mesh has %lu active and refined elements and %lu nodes.",
-                    ( long unsigned int ) this->get_number_of_elements(),
-                    ( long unsigned int ) this->get_number_of_nodes_on_proc());
+                    sum_all( ( long unsigned int ) this->get_number_of_elements() ),
+					sum_all( ( long unsigned int ) this->get_number_of_nodes_on_proc() ) );
 
             MORIS_LOG_INFO( "Creation took %5.3f seconds.",
                     ( double ) tElapsedTime / 1000 );

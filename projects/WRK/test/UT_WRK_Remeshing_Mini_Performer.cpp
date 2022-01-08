@@ -109,13 +109,14 @@ TEST_CASE("WRK L2 test","[WRK_L2_test]")
         //---------------------------------------------------------------------------------------
         //                               Stage 1: HMR refinement
         //---------------------------------------------------------------------------------------
+        Cell< std::shared_ptr< hmr::HMR > > tHMRPerformers( 1, nullptr );
 
-        std::shared_ptr< hmr::HMR > tHMRPerformer = std::make_shared< hmr::HMR >( tParameters );
+        tHMRPerformers( 0 ) = std::make_shared< hmr::HMR >( tParameters );
 
         // uniform initial refinement
-        tHMRPerformer->perform_initial_refinement();
+        tHMRPerformers( 0 )->perform_initial_refinement();
 
-        std::shared_ptr< hmr::Database > tHMRDatabase = tHMRPerformer->get_database();
+        std::shared_ptr< hmr::Database > tHMRDatabase = tHMRPerformers( 0 )->get_database();
 
         hmr::Interpolation_Mesh_HMR * tInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
                 tHMRDatabase,
@@ -139,12 +140,12 @@ TEST_CASE("WRK L2 test","[WRK_L2_test]")
         tFields( 0 )->save_field_to_exodus( "Remeshing_Field1.exo");
 
         wrk::Refinement_Mini_Performer tRefinementPerformer( tRefinementParameters );
-        tRefinementPerformer.perform_refinement( tFields, tHMRPerformer );
+        tRefinementPerformer.perform_refinement( tFields, tHMRPerformers( 0 ) );
 
         //delete( tInterpolationMesh );
 
         std::shared_ptr< mtk::Mesh_Manager > tMTKPerformer_HMR = std::make_shared< mtk::Mesh_Manager >();
-        tHMRPerformer->set_performer( tMTKPerformer_HMR );
+        tHMRPerformers( 0 )->set_performer( tMTKPerformer_HMR );
 
         hmr::Interpolation_Mesh_HMR * tInterpolationMeshNew = new hmr::Interpolation_Mesh_HMR(
                 tHMRDatabase,
@@ -170,9 +171,8 @@ TEST_CASE("WRK L2 test","[WRK_L2_test]")
         tHMRDatabase->update_lagrange_meshes();
 
         // HMR finalize
-        tHMRPerformer->perform();
+        tHMRPerformers( 0 )->perform();
 
-        Cell< std::shared_ptr< hmr::HMR > > tHMRPerformers( 1, tHMRPerformer );
         Cell< std::shared_ptr< mtk::Mesh_Manager > > tMTKPerformers(1);
 
         wrk::Remeshing_Mini_Performer tRemeshingPerformer( tRemeshingParameters );
