@@ -557,6 +557,8 @@ namespace moris
                 const real                             aTime,
                 std::shared_ptr< MSI::Equation_Model > aEquationModel )
         {
+            Tracer tTracer( "Output_Manager", "VisMesh", "WriteFields" );
+
             // number of fields in vis mesh
             uint tNumFields = mOutputData( aVisMeshIndex ).mFieldNames.size();
 
@@ -570,6 +572,7 @@ namespace moris
             moris::Cell< std::string > tNodalFieldNames;
             moris::Cell< std::string > tElementalIQINames;
             moris::Cell< std::string > tElementalFieldNames;
+
             for( uint Ik = 0; Ik < tNumFields; Ik++ )
             {
                 // get the field type
