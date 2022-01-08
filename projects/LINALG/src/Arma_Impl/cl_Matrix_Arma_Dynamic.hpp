@@ -30,144 +30,202 @@
 
 namespace moris
 {
-    template<typename Type>
-    class Matrix<arma::Mat<Type>>
+    template< typename Type >
+    class Matrix< arma::Mat< Type > >
     {
         private:
-            arma::Mat<Type> mMatrix;
+            arma::Mat< Type > mMatrix;
 
 #ifdef CHECK_MEMORY
             uint mNumResizeCalls = 0;
 #endif
 
-            void fill_with_NANs()
+            // -----------------------------------------------------------------
+
+            void
+            fill_with_NANs()
             {
 #ifdef MATRIX_FILL
-                if (std::numeric_limits<Data_Type>::has_quiet_NaN)
+                if ( std::numeric_limits< Data_Type >::has_quiet_NaN )
                 {
-                    mMatrix.fill( std::numeric_limits<Data_Type>::quiet_NaN() );
+                    mMatrix.fill( std::numeric_limits< Data_Type >::quiet_NaN() );
                 }
                 else
                 {
-                    mMatrix.fill( std::numeric_limits<Data_Type>::max() );
+                    mMatrix.fill( std::numeric_limits< Data_Type >::max() );
                 }
 #endif
             }
 
+            // -----------------------------------------------------------------
+
         public:
 
-            typedef Type                      Data_Type;
+            typedef Type Data_Type;
 
             // Iterators
-            typedef typename arma::Mat<Type>::iterator       Mat_It;
-            typedef typename arma::Mat<Type>::const_iterator Const_Mat_It;
+            typedef typename arma::Mat< Type >::iterator       Mat_It;
+            typedef typename arma::Mat< Type >::const_iterator Const_Mat_It;
+
+            // -----------------------------------------------------------------
 
             Matrix()
             {
-
             };
+
+            // -----------------------------------------------------------------
 
             Matrix(
                     size_t const & aNumRows,
-                    size_t const & aNumCols)
-            : mMatrix(aNumRows,aNumCols)
+                    size_t const & aNumCols )
+            : mMatrix( aNumRows, aNumCols )
             {
-                MORIS_CHECK_MEMORY(sizeof(Type)*aNumRows*aNumCols < MORIS_MAX_MATRIX_SIZE,
-                        "Matrix::Matrix: Maximum allowable size exceeded: %f MB.\n",sizeof(Type)*aNumRows*aNumCols/1e6);
+                MORIS_CHECK_MEMORY( sizeof( Type ) * aNumRows * aNumCols < MORIS_MAX_MATRIX_SIZE,
+                        "Matrix::Matrix: Maximum allowable size exceeded: %f MB.\n",
+                        sizeof( Type ) * aNumRows * aNumCols / 1e6 );
 
                 this->fill_with_NANs();
             }
+
+            // -----------------------------------------------------------------
 
             Matrix(
-                    size_t const & aNumEl)
-            : mMatrix(aNumEl,1)
+                    size_t const & aNumEl )
+            : mMatrix( aNumEl, 1 )
             {
-                MORIS_CHECK_MEMORY(sizeof(Type)*aNumEl < MORIS_MAX_MATRIX_SIZE,
-                        "Matrix::Matrix: Maximum allowable size exceeded: %f MB.\n",sizeof(Type)*aNumEl/1e6);
+                MORIS_CHECK_MEMORY( sizeof( Type ) * aNumEl < MORIS_MAX_MATRIX_SIZE,
+                        "Matrix::Matrix: Maximum allowable size exceeded: %f MB.\n",
+                        sizeof( Type ) * aNumEl / 1e6 );
 
                 this->fill_with_NANs();
             }
 
+            // -----------------------------------------------------------------
+
             // template constructor
-            Matrix(arma::Mat<Type> const & X )
-            : mMatrix(X)
+            Matrix( arma::Mat< Type > const & X )
+            : mMatrix( X )
             {
             }
+
+            // -----------------------------------------------------------------
 
             // template constructor
             template< typename A >
-            Matrix(A const & X )
-            : mMatrix(X)
+            Matrix( A const & X )
+            : mMatrix( X )
             {
             }
+
+            // -----------------------------------------------------------------
 
             Matrix(
                     size_t const & aNumRows,
                     size_t const & aNumCols,
-                    Type   const & aFillVal)
+                    Type   const & aFillVal )
             : mMatrix( aNumRows, aNumCols )
             {
-                MORIS_CHECK_MEMORY(sizeof(Type)*aNumRows*aNumCols < MORIS_MAX_MATRIX_SIZE,
-                         "Matrix::Matrix: Maximum allowable size exceeded: %f MB.\n",sizeof(Type)*aNumRows*aNumCols/1e6);
+                MORIS_CHECK_MEMORY( sizeof( Type ) * aNumRows * aNumCols < MORIS_MAX_MATRIX_SIZE,
+                        "Matrix::Matrix: Maximum allowable size exceeded: %f MB.\n",
+                        sizeof( Type ) * aNumRows * aNumCols / 1e6 );
 
-                mMatrix.fill(aFillVal);
+                mMatrix.fill( aFillVal );
             }
+
+            // -----------------------------------------------------------------
 
             Matrix(
                     Type*  const & aArray,
                     size_t const & aNumRows,
-                    size_t const & aNumCols)
+                    size_t const & aNumCols )
             : mMatrix( aArray, aNumRows, aNumCols )
             {
-                MORIS_CHECK_MEMORY(sizeof(Type)*aNumRows*aNumCols < MORIS_MAX_MATRIX_SIZE,
-                         "Matrix::Matrix: Maximum allowable size exceeded: %f MB.\n",sizeof(Type)*aNumRows*aNumCols/1e6);
+                MORIS_CHECK_MEMORY( sizeof( Type ) * aNumRows * aNumCols < MORIS_MAX_MATRIX_SIZE,
+                        "Matrix::Matrix: Maximum allowable size exceeded: %f MB.\n",
+                        sizeof( Type ) * aNumRows * aNumCols / 1e6 );
             }
 
-            Matrix(std::initializer_list<std::initializer_list<Type> > const & aInitList)
-            : mMatrix(aInitList)
+            // -----------------------------------------------------------------
+
+            Matrix( std::initializer_list< std::initializer_list< Type > > const & aInitList )
+            : mMatrix( aInitList )
             {
             }
+
+            // -----------------------------------------------------------------
+
+            /**
+             * @brief Construct a new Matrix object using arma advanced constructor
+             *
+             * @param ptr_aux_mem pointer type
+             * @param aNumRows number of rows
+             * @param aNumCols number of columns
+             * @param copy_aux_mem copy the memory
+             * @param strict size change of the matrix
+             */
+
+            Matrix(
+                    Type*  const & ptr_aux_mem,
+                    size_t const & aNumRows,
+                    size_t const & aNumCols,
+                    bool   const & copy_aux_mem,
+                    bool   const & strict )
+            : mMatrix( ptr_aux_mem, aNumRows, aNumCols, copy_aux_mem, strict )
+            {
+                MORIS_CHECK_MEMORY( sizeof( Type ) * aNumRows * aNumCols < MORIS_MAX_MATRIX_SIZE,
+                        "Matrix::Matrix: Maximum allowable size exceeded: %f MB.\n",
+                        sizeof( Type ) * aNumRows * aNumCols / 1e6 );
+            }
+
+            // -----------------------------------------------------------------
 
             // Copy operations
-            Matrix<arma::Mat<Type>>
+            Matrix< arma::Mat< Type > >
             copy() const
             {
-                Matrix<arma::Mat<Type>> tMatCopy(this->n_rows(),this->n_cols());
+                Matrix< arma::Mat< Type > > tMatCopy( this->n_rows(), this->n_cols() );
                 tMatCopy.matrix_data() = mMatrix;
                 return tMatCopy;
             }
 
+            // -----------------------------------------------------------------
+
             void
             resize(
                     const size_t & aNumRows,
-                    const size_t & aNumCols)
+                    const size_t & aNumCols )
             {
                 // check that resize on large cells does not indicate overly conservative initial size allocation
                 MORIS_CHECK_MEMORY(
-                        sizeof(Type)*this->numel() > MORIS_MATRIX_RESIZE_CHECK_LIMIT * MORIS_MAX_MATRIX_SIZE ?
-                        aNumRows*aNumCols > MORIS_MATRIX_RESIZE_FRACTION_LIMIT * this->numel() : true,
-                        "Matrix::resize: resize to less than 1 percent of large matrix - reduce initial allocation.\n");
+                        sizeof( Type ) * this->numel() > MORIS_MATRIX_RESIZE_CHECK_LIMIT * MORIS_MAX_MATRIX_SIZE ?
+                                aNumRows * aNumCols > MORIS_MATRIX_RESIZE_FRACTION_LIMIT * this->numel() : true,
+                                "Matrix::resize: resize to less than 1 percent of large matrix - reduce initial allocation.\n" );
 
                 // check that number of resizes does not exceed limit
                 MORIS_CHECK_MEMORY( aNumRows * aNumCols != this->numel() ?
-                        mNumResizeCalls++ < MORIS_MATRIX_RESIZE_CALL_LIMIT :true,
-                        "Matrix::resize: number of resize calls exceeds limit.\n");
+                        mNumResizeCalls++ < MORIS_MATRIX_RESIZE_CALL_LIMIT : true,
+                        "Matrix::resize: number of resize calls exceeds limit.\n" );
 
-                mMatrix.resize(aNumRows, aNumCols);
+                mMatrix.resize( aNumRows, aNumCols );
             }
+
+            // -----------------------------------------------------------------
 
             void
             set_size(
                     const size_t & aNumRows,
-                    const size_t & aNumCols)
+                    const size_t & aNumCols )
             {
-                MORIS_CHECK_MEMORY(sizeof(Type)*aNumRows*aNumCols < MORIS_MAX_MATRIX_SIZE,
-                         "Matrix::Matrix: Maximum allowable size exceeded: %f MB.\n",sizeof(Type)*aNumRows*aNumCols/1e6);
+                MORIS_CHECK_MEMORY( sizeof( Type ) * aNumRows * aNumCols < MORIS_MAX_MATRIX_SIZE,
+                        "Matrix::Matrix: Maximum allowable size exceeded: %f MB.\n",
+                        sizeof( Type ) * aNumRows * aNumCols / 1e6 );
 
-                mMatrix.set_size(aNumRows, aNumCols);
+                mMatrix.set_size( aNumRows, aNumCols );
 
                 this->fill_with_NANs();
             }
+
+            // -----------------------------------------------------------------
 
             void
             set_size(
@@ -175,33 +233,42 @@ namespace moris
                     const size_t & aNumCols,
                     const Type   & aFillValue )
             {
-                MORIS_CHECK_MEMORY(sizeof(Type)*aNumRows*aNumCols < MORIS_MAX_MATRIX_SIZE,
-                         "Matrix::Matrix: Maximum allowable size exceeded: %f MB.\n",sizeof(Type)*aNumRows*aNumCols/1e6);
+                MORIS_CHECK_MEMORY( sizeof( Type ) * aNumRows * aNumCols < MORIS_MAX_MATRIX_SIZE,
+                        "Matrix::Matrix: Maximum allowable size exceeded: %f MB.\n",
+                        sizeof( Type ) * aNumRows * aNumCols / 1e6 );
 
                 mMatrix.set_size( aNumRows, aNumCols );
 
                 mMatrix.fill( aFillValue );
             }
 
+            // -----------------------------------------------------------------
+
             void
             reshape(
                     const size_t & aNumRows,
-                    const size_t & aNumCols)
+                    const size_t & aNumCols )
             {
-                mMatrix.reshape(aNumRows, aNumCols);
+                mMatrix.reshape( aNumRows, aNumCols );
             }
+
+            // -----------------------------------------------------------------
 
             void
             inplace_trans()
             {
-                arma::inplace_trans(mMatrix);
+                arma::inplace_trans( mMatrix );
             }
 
+            // -----------------------------------------------------------------
+
             void
-            fill(const Type & aFillValue)
+            fill( const Type & aFillValue )
             {
-                mMatrix.fill(aFillValue);
+                mMatrix.fill( aFillValue );
             }
+
+            // -----------------------------------------------------------------
 
             /**
              * Get the number of columns in a data set, similar to Matlab cols().
@@ -214,6 +281,8 @@ namespace moris
                 return mMatrix.n_cols;
             }
 
+            // -----------------------------------------------------------------
+
             /**
              * Get the number of rows in a data set, similar to Matlab rows().
              *
@@ -225,10 +294,12 @@ namespace moris
                 return mMatrix.n_rows;
             }
 
+            // -----------------------------------------------------------------
+
             size_t
-            size(size_t aDim)
+            size( size_t aDim )
             {
-                switch (aDim)
+                switch ( aDim )
                 {
                     case 0:
                     {
@@ -242,11 +313,15 @@ namespace moris
                     }
                     default:
                     {
-                        MORIS_ASSERT(false,"Invalid matrix dimension specified, 0-for n_rows, 1- for n_cols");
+                        MORIS_ASSERT( false,
+                                "Invalid matrix dimension specified, 0-for n_rows, 1- for n_cols" );
+
                         return 0;
                     }
                 }
             };
+
+            // -----------------------------------------------------------------
 
             /**
              * Returns the number of elements in the %matrix.
@@ -260,6 +335,8 @@ namespace moris
                 return mMatrix.n_elem;
             }
 
+            // -----------------------------------------------------------------
+
             /*!
              * Returns memory used by matrix
              *
@@ -268,98 +345,138 @@ namespace moris
             size_t
             capacity() const
             {
-                return this->numel() * sizeof(Data_Type);
+                return this->numel() * sizeof( Data_Type );
             }
 
-            void set_row(
-                    size_t                          aRowIndex,
-                    const Matrix<arma::Mat<Type>> & aVec)
+            // -----------------------------------------------------------------
+
+            void
+            set_row(
+                    size_t                              aRowIndex,
+                    const Matrix< arma::Mat< Type > > & aVec )
             {
                 MORIS_ASSERT(aVec.matrix_data().is_vec(), "aVec needs to be a vector");
-                MORIS_ASSERT(aRowIndex < this->n_rows(), "Specified row index out of bounds");
-                MORIS_ASSERT(aVec.numel() == this->n_cols(),
-                        "Dimension mismatch (argument matrix and member matrix do not have same number of columns)");
+
+                MORIS_ASSERT( aRowIndex < this->n_rows(), "Specified row index out of bounds" );
+
+                MORIS_ASSERT( aVec.numel() == this->n_cols(),
+                        "Dimension mismatch (argument matrix and member matrix do not have same number of columns)" );
 
                 size_t tROW_INDEX = 0;
                 if(!aVec.matrix_data().is_colvec())
                 {
-                    mMatrix.row(aRowIndex) = aVec.matrix_data().row(tROW_INDEX);
+                    mMatrix.row( aRowIndex ) = aVec.matrix_data().row( tROW_INDEX );
                 }
                 else
                 {
-                    mMatrix.row(aRowIndex) = arma::strans(aVec.matrix_data().col(tROW_INDEX));
+                    mMatrix.row( aRowIndex ) = arma::strans( aVec.matrix_data().col( tROW_INDEX ) );
                 }
             }
 
-            void set_column(
-                    size_t                          aColumnIndex,
-                    const Matrix<arma::Mat<Type>> & aColumn)
+            // -----------------------------------------------------------------
+
+            void
+            set_column(
+                    size_t                              aColumnIndex,
+                    const Matrix< arma::Mat< Type > > & aColumn )
             {
 
-                MORIS_ASSERT(aColumn.n_cols() == 1, "aColumn needs to be a column matrix");
-                MORIS_ASSERT(aColumnIndex < this->n_cols(), "Specified column index out of bounds");
-                MORIS_ASSERT(aColumn.n_rows() == this->n_rows(),
-                        "Dimension mismatch (argument matrix and member matrix do not have same number of rows)");
+                MORIS_ASSERT( aColumn.n_cols() == 1, "aColumn needs to be a column matrix" );
 
-                size_t tCOLUMN_INDEX = 0;
-                mMatrix.col(aColumnIndex) = aColumn.matrix_data().col(tCOLUMN_INDEX);
+                MORIS_ASSERT( aColumnIndex < this->n_cols(), "Specified column index out of bounds" );
+
+                MORIS_ASSERT( aColumn.n_rows() == this->n_rows(),
+                        "Dimension mismatch (argument matrix and member matrix do not have same number of rows)" );
+
+                size_t tCOLUMN_INDEX        = 0;
+                mMatrix.col( aColumnIndex ) = aColumn.matrix_data().col( tCOLUMN_INDEX );
             }
+
+            // -----------------------------------------------------------------
 
             void
             get_column(
-                    size_t                    aColumnIndex,
-                    Matrix<arma::Mat<Type>> & aColumn) const
+                    size_t                        aColumnIndex,
+                    Matrix< arma::Mat< Type > > & aColumn ) const
             {
-                MORIS_ASSERT(aColumn.n_cols() == 1,"aColumn needs to be a column matrix");
-                MORIS_ASSERT(aColumnIndex < this->n_cols(),"Specified column index out of bounds");
-                MORIS_ASSERT(aColumn.n_rows() == this->n_rows(),"Dimension mismatch (argument matrix and member matrix do not have same number of rows)");
-                const size_t tCOLUMN_INDEX = 0;
-                aColumn.matrix_data().col(tCOLUMN_INDEX) = mMatrix.col(aColumnIndex);
+                MORIS_ASSERT( aColumn.n_cols() == 1, "aColumn needs to be a column matrix" );
+
+                MORIS_ASSERT( aColumnIndex < this->n_cols(), "Specified column index out of bounds" );
+
+                MORIS_ASSERT( aColumn.n_rows() == this->n_rows(),
+                        "Dimension mismatch (argument matrix and member matrix do not have same number of rows)" );
+
+                const size_t tCOLUMN_INDEX                 = 0;
+                aColumn.matrix_data().col( tCOLUMN_INDEX ) = mMatrix.col( aColumnIndex );
             }
+
+            // -----------------------------------------------------------------
 
             auto
-            get_column(size_t aColumnIndex) const
-            ->decltype(mMatrix.col(aColumnIndex))
+            get_column( size_t aColumnIndex ) const
+            -> decltype( mMatrix.col( aColumnIndex ) )
             {
-                MORIS_ASSERT(aColumnIndex < this->n_cols(),"Specified column index out of bounds");
-                return mMatrix.col(aColumnIndex);
+                MORIS_ASSERT( aColumnIndex < this->n_cols(), "Specified column index out of bounds" );
+                return mMatrix.col( aColumnIndex );
             }
+
+            // -----------------------------------------------------------------
 
             auto
-            get_column(size_t aColumnIndex)
-            ->decltype(mMatrix.col(aColumnIndex))
+            get_column( size_t aColumnIndex )
+            -> decltype( mMatrix.col( aColumnIndex ) )
             {
-                MORIS_ASSERT(aColumnIndex < this->n_cols(),"Specified column index out of bounds");
-                return mMatrix.col(aColumnIndex);
+                MORIS_ASSERT( aColumnIndex < this->n_cols(),
+                        "Matrix::get_column - Specified column index out of bounds" );
+
+                return mMatrix.col( aColumnIndex );
             }
 
-            void get_row(
-                    size_t                    aRowIndex,
-                    Matrix<arma::Mat<Type>> & aRow) const
-            {
-                MORIS_ASSERT(aRow.n_rows() == 1,"aRow needs to be a row matrix");
-                MORIS_ASSERT(aRowIndex < this->n_rows(),"Specified row index out of bounds");
-                MORIS_ASSERT(aRow.n_cols() == this->n_cols(),"Dimension mismatch (argument matrix and member matrix do not have same number of columns)");
+            // -----------------------------------------------------------------
 
-                const size_t tROW_INDEX = 0;
-                aRow.mMatrix.row(tROW_INDEX) = mMatrix.row(aRowIndex);
+            void
+            get_row(
+                    size_t                        aRowIndex,
+                    Matrix< arma::Mat< Type > > & aRow ) const
+            {
+                MORIS_ASSERT( aRow.n_rows() == 1,
+                        "Matrix::get_row - aRow needs to be a row matrix." );
+
+                MORIS_ASSERT( aRowIndex < this->n_rows(),
+                        "Matrix::get_row - Specified row index out of bounds." );
+
+                MORIS_ASSERT( aRow.n_cols() == this->n_cols(),
+                        "Matrix::get_row - Dimension mismatch." );
+
+                const size_t tROW_INDEX        = 0;
+                aRow.mMatrix.row( tROW_INDEX ) = mMatrix.row( aRowIndex );
             }
+
+            // -----------------------------------------------------------------
 
             auto
-            get_row(size_t aRowIndex) const
-            ->decltype(mMatrix.row(aRowIndex))
+            get_row( size_t aRowIndex ) const
+            -> decltype( mMatrix.row( aRowIndex ) )
             {
-                MORIS_ASSERT(aRowIndex < this->n_rows(),"Specified row index out of bounds");
-                return mMatrix.row(aRowIndex);
+                MORIS_ASSERT( aRowIndex < this->n_rows(),
+                        "Matrix::get_row - Specified row index out of bounds." );
+
+                return mMatrix.row( aRowIndex );
             }
 
+            // -----------------------------------------------------------------
+
             auto
-            get_row(size_t aRowIndex)
-            ->decltype(mMatrix.row(aRowIndex))
+            get_row( size_t aRowIndex )
+            -> decltype( mMatrix.row( aRowIndex ) )
             {
-                MORIS_ASSERT(aRowIndex < this->n_rows(),"Specified row index out of bounds");
-                return mMatrix.row(aRowIndex);
+                MORIS_ASSERT( aRowIndex < this->n_rows(),
+                        "Matrix::get_row - Specified row index out of bounds." );
+
+                return mMatrix.row( aRowIndex );
             }
+
+            // -----------------------------------------------------------------
 
             const Type*
             data() const
@@ -367,71 +484,91 @@ namespace moris
                 return mMatrix.memptr();
             }
 
+            // -----------------------------------------------------------------
+
             Type*
             data()
             {
                 return mMatrix.memptr();
             }
 
+            // -----------------------------------------------------------------
+
             inline
-            arma::Mat<Type> &
+            arma::Mat<Type>  &
             matrix_data()
             {
                 return mMatrix;
             }
 
+            // -----------------------------------------------------------------
+
             inline
-            arma::Mat<Type> const &
+            arma::Mat<Type> const  &
             matrix_data() const
             {
                 return mMatrix;
             }
 
+            // -----------------------------------------------------------------
+
             Type
             max() const
             {
-                MORIS_ASSERT(this->n_rows() != 0 && this->n_cols() !=0,"Max called on empty matrix       ");
+                MORIS_ASSERT( this->n_rows() != 0  && this->n_cols() != 0,
+                        "Max called on empty matrix." );
+
                 return mMatrix.max();
             }
+
+            // -----------------------------------------------------------------
 
             Type
             min() const
             {
-                MORIS_ASSERT(this->n_rows() != 0 && this->n_cols() !=0,"Min called on empty matrix       ");
+                MORIS_ASSERT( this->n_rows() != 0  && this->n_cols() != 0,
+                        "Min called on empty matrix." );
+
                 return mMatrix.min();
             }
+
+            // -----------------------------------------------------------------
 
             Type
             max(
                     uint & aRowIndex,
-                    uint & aColIndex) const
+                    uint & aColIndex ) const
             {
                 arma::uword rowIndex;
                 arma::uword colIndex;
 
-                auto retValue =  this->mMatrix.max( rowIndex, colIndex );
+                auto retValue = this->mMatrix.max( rowIndex, colIndex );
 
                 aRowIndex = rowIndex;
                 aColIndex = colIndex;
 
                 return retValue;
             }
+
+            // -----------------------------------------------------------------
 
             Type
             min(
                     uint & aRowIndex,
-                    uint & aColIndex) const
+                    uint & aColIndex ) const
             {
                 arma::uword rowIndex;
                 arma::uword colIndex;
 
-                auto retValue =  this->mMatrix.min( rowIndex, colIndex );
+                auto retValue = this->mMatrix.min( rowIndex, colIndex );
 
                 aRowIndex = rowIndex;
                 aColIndex = colIndex;
 
                 return retValue;
             }
+
+            // -----------------------------------------------------------------
 
             /**
              * @brief Overloaded moris::Matrix_Base::operator()
@@ -440,16 +577,18 @@ namespace moris
              * @param[in] aColIndex Column index for which data should be accessed.
              */
             inline
-            Type &
+            Type  &
             operator()(
                     size_t const & aRowIndex,
                     size_t const & aColIndex )
             {
-                MORIS_ASSERT(aRowIndex<this->n_rows(),"Row index out of bounds");
-                MORIS_ASSERT(aColIndex<this->n_cols(),"Col index out of bounds");
+                MORIS_ASSERT( aRowIndex < this->n_rows(), "Row index out of bounds" );
+                MORIS_ASSERT( aColIndex < this->n_cols(), "Col index out of bounds" );
 
-                return mMatrix(aRowIndex,aColIndex);
+                return mMatrix( aRowIndex, aColIndex );
             }
+
+            // -----------------------------------------------------------------
 
             /**
              * @brief Overloaded moris::Matrix_Base::operator()
@@ -461,12 +600,15 @@ namespace moris
             Type &
             operator()(
                     const size_t & aRowIndex,
-                    const size_t & aColIndex) const
+                    const size_t & aColIndex ) const
             {
-                MORIS_ASSERT(aRowIndex<this->n_rows(),"Row index out of bounds");
-                MORIS_ASSERT(aColIndex<this->n_cols(),"Col index out of bounds");
-                return mMatrix(aRowIndex,aColIndex);
+                MORIS_ASSERT( aRowIndex < this->n_rows(), "Row index out of bounds" );
+                MORIS_ASSERT( aColIndex < this->n_cols(), "Col index out of bounds" );
+
+                return mMatrix( aRowIndex, aColIndex );
             }
+
+            // -----------------------------------------------------------------
 
             /**
              * @brief Overloaded moris::Matrix_Base::operator()
@@ -477,10 +619,15 @@ namespace moris
             Type &
             operator()( size_t const & aIndex )
             {
-                MORIS_ASSERT(this->matrix_data().is_vec(),"Using vector () operator on non-vector");
-                MORIS_ASSERT(aIndex<this->numel(),"Vector index out of bounds");
+                MORIS_ASSERT(this->matrix_data().is_vec(),
+                        "Using vector () operator on non-vector");
+                MORIS_ASSERT( aIndex < this->numel(),
+                        "Vector index out of bounds" );
+
                 return mMatrix( aIndex );
             }
+
+            // -----------------------------------------------------------------
 
             /**
              * @brief Overloaded moris::Matrix_Base::operator()
@@ -489,12 +636,17 @@ namespace moris
              */
             const
             Type &
-            operator()(const size_t & aIndex ) const
+            operator()( const size_t & aIndex ) const
             {
-                MORIS_ASSERT(this->matrix_data().is_vec(),"Using vector () operator on non-vector");
-                MORIS_ASSERT(aIndex<this->numel(),"Vector index out of bounds");
+                MORIS_ASSERT(this->matrix_data().is_vec(),
+                        "Using vector () operator on non-vector");
+                MORIS_ASSERT( aIndex < this->numel(),
+                        "Vector index out of bounds" );
+
                 return mMatrix( aIndex );
             }
+
+            // -----------------------------------------------------------------
 
             /*
              * Block operations
@@ -503,10 +655,12 @@ namespace moris
             operator()(
                     std::pair< moris::size_t, moris::size_t > const & aI,
                     std::pair< moris::size_t, moris::size_t > const & aJ )
-            ->decltype(mMatrix( arma::span( aI.first, aI.second ), arma::span( aJ.first, aJ.second ) ) )
+            -> decltype( mMatrix( arma::span( aI.first, aI.second ), arma::span( aJ.first, aJ.second ) ) )
             {
                 return mMatrix( arma::span( aI.first, aI.second ), arma::span( aJ.first, aJ.second ) );
             }
+
+            // -----------------------------------------------------------------
 
             /*
              * Block operations
@@ -515,10 +669,12 @@ namespace moris
             operator()(
                     std::pair< moris::size_t, moris::size_t > const & aI,
                     std::pair< moris::size_t, moris::size_t > const & aJ ) const
-            ->decltype(mMatrix( arma::span( aI.first, aI.second ), arma::span( aJ.first, aJ.second ) ) )
+            -> decltype( mMatrix( arma::span( aI.first, aI.second ), arma::span( aJ.first, aJ.second ) ) )
             {
                 return mMatrix( arma::span( aI.first, aI.second ), arma::span( aJ.first, aJ.second ) );
             }
+
+            // -----------------------------------------------------------------
 
             /*
              * Block operations for columns of matrices
@@ -526,11 +682,14 @@ namespace moris
 
             auto
             operator()(
-                    std::pair< moris::size_t, moris::size_t > const & aI, const moris::size_t  aColIndex = 0 )
-            ->decltype(mMatrix( arma::span( aI.first, aI.second ), aColIndex ) )
+                    std::pair< moris::size_t, moris::size_t > const & aI,
+                    const moris::size_t                               aColIndex = 0 )
+            -> decltype( mMatrix( arma::span( aI.first, aI.second ), aColIndex ) )
             {
                 return mMatrix( arma::span( aI.first, aI.second ), aColIndex );
             }
+
+            // -----------------------------------------------------------------
 
             /*
              * Block operations for vector-like matrices
@@ -538,8 +697,9 @@ namespace moris
 
             auto
             operator()(
-                    std::pair< moris::size_t, moris::size_t > const & aI, const moris::size_t  aColIndex = 0 ) const
-            ->decltype(mMatrix( arma::span( aI.first, aI.second ), aColIndex ) )
+                    std::pair< moris::size_t, moris::size_t > const & aI,
+                    const moris::size_t                              aColIndex = 0 ) const
+            -> decltype( mMatrix( arma::span( aI.first, aI.second ), aColIndex ) )
             {
                 return mMatrix( arma::span( aI.first, aI.second ), aColIndex );
             }
@@ -560,14 +720,14 @@ namespace moris
                 size_t n_cols = this->n_cols();
 
                 // catch special case of zero length
-                if( n_rows == 0 || n_cols == 0 )
+                if ( n_rows == 0 || n_cols == 0 )
                 {
                     return 0;
                 }
                 else
                 {
                     // assert that this is really a vector
-                    MORIS_ASSERT(  n_rows == 1 || n_cols == 1,
+                    MORIS_ASSERT( n_rows == 1 || n_cols == 1,
                             "Tried to get length of a matrix. Check dimensions." );
 
                     // return the smaller of both values
@@ -584,8 +744,8 @@ namespace moris
              */
 
             inline
-            Matrix<arma::Mat<Type>>&
-            operator=( const Matrix<arma::Mat<Type>> & aMatrix )
+            Matrix<arma::Mat<Type>> &
+            operator=( const Matrix< arma::Mat< Type > > & aMatrix )
             {
                 mMatrix = aMatrix.matrix_data();
                 return *this;
@@ -600,7 +760,7 @@ namespace moris
              */
 
             inline
-            Matrix<arma::Mat<Type>>&
+            Matrix<arma::Mat<Type>> &
             operator=( const Type & aData )
             {
                 mMatrix = aData;
@@ -615,10 +775,10 @@ namespace moris
              * @param[in] Expression.
              */
 
-            template <typename E>
+            template< typename E >
             inline
-            Matrix<arma::Mat<Type>>&
-            operator=( const E& aExpression )
+            Matrix<arma::Mat<Type>> &
+            operator=( const E & aExpression )
             {
                 mMatrix = aExpression;
                 return *this;
@@ -633,7 +793,7 @@ namespace moris
              */
 
             void
-            operator+=( const Matrix<arma::Mat<Type>> & aMatrix )
+            operator+=( const Matrix< arma::Mat< Type > > & aMatrix )
             {
                 mMatrix += aMatrix.matrix_data();
             }
@@ -660,9 +820,9 @@ namespace moris
              * @param[in] Expression.
              */
 
-            template <typename E>
+            template< typename E >
             void
-            operator+=( const E& aExpression )
+            operator+=( const E & aExpression )
             {
                 mMatrix += aExpression;
             }
@@ -676,7 +836,7 @@ namespace moris
              */
 
             void
-            operator-=( const Matrix<arma::Mat<Type>> & aMatrix )
+            operator-=( const Matrix< arma::Mat< Type > > & aMatrix )
             {
                 mMatrix -= aMatrix.matrix_data();
             }
@@ -703,9 +863,9 @@ namespace moris
              * @param[in] Expression.
              */
 
-            template <typename E>
+            template< typename E >
             void
-            operator-=( const E& aExpression )
+            operator-=( const E & aExpression )
             {
                 mMatrix -= aExpression;
             }
@@ -728,12 +888,46 @@ namespace moris
                 return mMatrix.begin();
             }
 
+            // -------------------------------------------------------------------------
+
             Mat_It
             end()
             {
                 return mMatrix.end();
             }
+
+            // -------------------------------------------------------------------------
+
+            Const_Mat_It
+            cbegin() const
+            {
+                return mMatrix.cbegin();
+            }
+
+            // -------------------------------------------------------------------------
+
+            Const_Mat_It
+            cend() const
+            {
+                return mMatrix.cend();
+            }
+
+            // -------------------------------------------------------------------------
+
+            const Type*
+            colptr( const size_t & aColumn ) const
+            {
+                return mMatrix.colptr( aColumn );
+            }
+
+            // -------------------------------------------------------------------------
+
+            Type*
+            colptr( const size_t & aColumn )
+            {
+                return mMatrix.colptr( aColumn );
+            }
     };
-}
+}// namespace moris
 
 #endif /* PROJECTS_LINALG_SRC_ARMA_IMPL_CL_MATRIX_ARMA_DYNAMIC_HPP_ */
