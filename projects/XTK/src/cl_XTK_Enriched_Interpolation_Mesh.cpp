@@ -140,8 +140,10 @@ Enriched_Interpolation_Mesh::get_elements_connected_to_element_and_face_ind_loc_
 Cell< mtk::Vertex const* >
 Enriched_Interpolation_Mesh::get_all_vertices() const
 {
-    moris::uint                tNumNodes = this->get_num_entities( EntityRank::NODE );
+    moris::uint tNumNodes = this->get_num_entities( EntityRank::NODE );
+
     Cell< mtk::Vertex const* > tVertices( tNumNodes );
+
     for ( moris::uint i = 0; i < tNumNodes; i++ )
     {
         tVertices( i ) = mEnrichedInterpVerts( i );
@@ -2551,7 +2553,6 @@ Enriched_Interpolation_Mesh::handle_received_interpolation_data(
 
     moris::uint tCount = tCommTable.numel();
 
-
     // resize proc ranks and setup map to comm table
     for ( moris::uint i = 0; i < tCommTable.numel(); i++ )
     {
@@ -2570,7 +2571,6 @@ Enriched_Interpolation_Mesh::handle_received_interpolation_data(
         // standard case
         else
         {
-
             // extract the t-matrices and basis ids/owners for the proc ip
             Cell< Matrix< DDRMat > >   tExtractedTMatrixWeights;
             Cell< Matrix< IndexMat > > tExtractedTMatrixIds;
@@ -2587,9 +2587,12 @@ Enriched_Interpolation_Mesh::handle_received_interpolation_data(
                 tExtractedTBasisOwners );
 
             // verify consistent sizes
-            MORIS_ASSERT( aVertexIdsToProc( iP ).numel() == tExtractedTMatrixWeights.size(), "Size mismatch in t-matrix weights." );
-            MORIS_ASSERT( aVertexIdsToProc( iP ).numel() == tExtractedTMatrixIds.size(), "Size mismatch in t-matrix ids." );
-            MORIS_ASSERT( aVertexIdsToProc( iP ).numel() == tExtractedTBasisOwners.size(), "Size mismatch in basis owners." );
+            MORIS_ASSERT( aVertexIdsToProc( iP ).numel() == tExtractedTMatrixWeights.size(),
+                    "Size mismatch in t-matrix weights." );
+            MORIS_ASSERT( aVertexIdsToProc( iP ).numel() == tExtractedTMatrixIds.size(),
+                    "Size mismatch in t-matrix ids." );
+            MORIS_ASSERT( aVertexIdsToProc( iP ).numel() == tExtractedTBasisOwners.size(),
+                    "Size mismatch in basis owners." );
 
             // iterate through vertices and set their interpolation weights and basis ids
             for ( moris::uint iV = 0; iV < aVertexIdsToProc( iP ).numel(); iV++ )
@@ -2622,7 +2625,7 @@ Enriched_Interpolation_Mesh::handle_received_interpolation_data(
 
                     moris_id tBasisOwner = tExtractedTBasisOwners( iV )( iBs );
 
-                    MORIS_ASSERT( this->get_basis_owner( tBasisIndices( iBs ), aMeshIndex ) == tBasisOwner, "Ownership discrepency." );
+                    MORIS_ASSERT( this->get_basis_owner( tBasisIndices( iBs ), aMeshIndex ) == tBasisOwner, "Ownership discrepancy." );
 
                     // if the basis has an owning proc that is not in the comm table, add it to the comm table
                     if ( tProcRankToIndexInData.find( tBasisOwner ) == tProcRankToIndexInData.end() && tBasisOwner != par_rank() )
