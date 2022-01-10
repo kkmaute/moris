@@ -30,7 +30,7 @@
     { \
         if (! (check)) \
         { \
-            moris::assert::moris_assert( __FILE__, __LINE__, __FUNCTION__, #check, __VA_ARGS__ ); \
+            moris::assert::moris_warning( __FILE__, __LINE__, __FUNCTION__, #check, __VA_ARGS__ ); \
         } \
     } while (false)
 #else
