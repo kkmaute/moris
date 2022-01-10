@@ -20,17 +20,15 @@ class Integration_Mesh_Generator;
 class Decomposition_Data;
 class Cut_Integration_Mesh;
 
-
 class Decomposition_Algorithm
 {
   public:
     // number of cells less the number you are replace
     moris_index                                             mNumNewCells = 0;
-    moris::Cell< moris::Cell< moris::moris_index > >        mNewCellToVertexConnectivity;
-    moris::Cell< moris::moris_index >                       mNewCellChildMeshIndex;
-    moris::Cell< moris::moris_index >                       mNewCellCellIndexToReplace;
-    moris::Cell< std::shared_ptr< moris::mtk::Cell_Info > > mNewCellCellInfo;
-
+    moris::Cell< moris::Cell< moris::moris_index > >        mNewCellToVertexConnectivity; // over allocated
+    moris::Cell< moris::moris_index >                       mNewCellChildMeshIndex;       // over allocated
+    moris::Cell< moris::moris_index >                       mNewCellCellIndexToReplace;   // over allocated
+    moris::Cell< std::shared_ptr< moris::mtk::Cell_Info > > mNewCellCellInfo;             // over allocated
 
   public:
     Decomposition_Algorithm() {}
@@ -68,6 +66,5 @@ class Decomposition_Algorithm
 };
 
 }// namespace xtk
-
 
 #endif

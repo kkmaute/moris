@@ -34,19 +34,19 @@ struct IG_Cell_Side_Group
 {
     IG_Cell_Side_Group( moris_index aEstimatedNumCells );
 
-    moris::Cell< moris::mtk::Cell* > mIgCells;
-    moris::Cell< moris_index >       mIgCellSideOrdinals;
+    moris::Cell< moris::mtk::Cell* > mIgCells;                  // over allocated
+    moris::Cell< moris_index >       mIgCellSideOrdinals;       // over allocated
 };
 
 struct IG_Cell_Double_Side_Group
 {
     IG_Cell_Double_Side_Group( moris_index aEstimatedNumCells );
 
-    moris::Cell< moris::mtk::Cell* > mLeaderIgCells;
-    moris::Cell< moris_index >       mLeaderIgCellSideOrdinals;
+    moris::Cell< moris::mtk::Cell* > mLeaderIgCells;               // over allocated
+    moris::Cell< moris_index >       mLeaderIgCellSideOrdinals;    // over allocated
 
-    moris::Cell< moris::mtk::Cell* > mFollowerIgCells;
-    moris::Cell< moris_index >       mFollowerIgCellSideOrdinals;
+    moris::Cell< moris::mtk::Cell* > mFollowerIgCells;             // over allocated
+    moris::Cell< moris_index >       mFollowerIgCellSideOrdinals;  // over allocated
 
     void
     print()
@@ -159,11 +159,11 @@ struct Vertex_Ancestry
 
 struct Facet_Based_Connectivity
 {
-    moris::Cell< moris::Cell< moris::mtk::Vertex* > > mFacetVertices;
-    moris::Cell< moris::Cell< moris::mtk::Cell* > >   mFacetToCell;
-    moris::Cell< moris::Cell< moris::moris_index > >  mFacetToCellEdgeOrdinal;
-    moris::Cell< moris::Cell< moris_index > >         mCellToFacet;
-    std::unordered_map< moris_index, moris_index >    mCellIndexToCellOrdinal;
+    moris::Cell< moris::Cell< moris::mtk::Vertex* > > mFacetVertices;            // over allocated
+    moris::Cell< moris::Cell< moris::mtk::Cell* > >   mFacetToCell;              // over allocated
+    moris::Cell< moris::Cell< moris::moris_index > >  mFacetToCellEdgeOrdinal;   // over allocated
+    moris::Cell< moris::Cell< moris_index > >         mCellToFacet;              // over allocated
+    std::unordered_map< moris_index, moris_index >    mCellIndexToCellOrdinal;   // over allocated
 
     moris_index
     get_cell_ordinal( const moris_index& aCellIndex )
@@ -321,7 +321,6 @@ struct Subphase_Neighborhood_Connectivity
             }
             std::cout << std::endl;
         }
-
 
         std::cout << "Transition Neighbor Locations" << std::endl;
         for ( moris::uint iC = 0; iC < mTransitionNeighborCellLocation.size(); iC++ )
