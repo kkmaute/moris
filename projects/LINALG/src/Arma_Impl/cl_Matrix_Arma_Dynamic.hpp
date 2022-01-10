@@ -203,7 +203,7 @@ namespace moris
 
                 // check that number of resizes does not exceed limit
                 MORIS_CHECK_MEMORY( aNumRows * aNumCols != this->numel() ?
-                        mNumResizeCalls++ < MORIS_MATRIX_RESIZE_CALL_LIMIT : true,
+                        mNumResizeCalls++ != MORIS_MATRIX_RESIZE_CALL_LIMIT : true,
                         "Matrix::resize: number of resize calls exceeds limit.\n" );
 
                 mMatrix.resize( aNumRows, aNumCols );
