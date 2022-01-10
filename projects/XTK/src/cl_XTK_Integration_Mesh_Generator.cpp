@@ -61,10 +61,12 @@ Integration_Mesh_Generator::perform()
     for ( moris::uint iSubMethod = 0; iSubMethod < mSubdivisionMethods.size(); iSubMethod++ )
     {
         // create the subdivision routine with a factory
-        std::shared_ptr< Decomposition_Algorithm > tDecompAlg = create_decomposition_algorithm( mSubdivisionMethods( iSubMethod ), mXTKModel->get_parameter_list() );
+        std::shared_ptr< Decomposition_Algorithm > tDecompAlg =
+                create_decomposition_algorithm( mSubdivisionMethods( iSubMethod ), mXTKModel->get_parameter_list() );
 
         // perform the decomposition
         Decomposition_Data tDecompositionData;
+
         tDecompAlg->perform( &tGenerationData, &tDecompositionData, tCutIntegrationMesh.get(), tBackgroundMesh, this );
     }
 
@@ -1631,7 +1633,9 @@ Integration_Mesh_Generator::edge_exists(
 
     // local vertex index
     auto tIter = aLocaLVertexMap.find( aVerticesOnEdge( 0 )->get_index() );
+
     MORIS_ERROR( tIter != aLocaLVertexMap.end(), "Invalid vertex detected." );
+
     moris_index tLocalVertexIndex = tIter->second;
 
     // iterate through edges attached to the first vertex (depend on ascending order)
@@ -1867,10 +1871,6 @@ Integration_Mesh_Generator::create_edges_from_element_to_node(
         // cell information
         moris::mtk::Cell_Info const* tCellInfo = aCells( 0 )->get_cell_info();
 
-        //hard-coded values
-        moris::uint tMaxEdgePerNode = 20;
-        // moris::uint tMaxEdgeToElement = 10;
-
         // Initialize
         moris::uint tNumEdgePerElem = tCellInfo->get_num_edges();
 
@@ -1878,9 +1878,15 @@ Integration_Mesh_Generator::create_edges_from_element_to_node(
         moris::Matrix< moris::IdMat > tElementEdgeToNodeMap = tCellInfo->get_node_to_edge_map();
 
         moris::uint tNumElements     = aCells.size();
+
         moris::uint tNumNodesPerEdge = 2;
-        MORIS_ERROR( tNumNodesPerEdge == 2, "Only works on two node edges at the moment" );
-        MORIS_ERROR( tNumNodesPerEdge == tElementEdgeToNodeMap.n_cols(), "Mismatch in number of nodes per edge (only operating on two node edges)" );
+
+        MORIS_ERROR( tNumNodesPerEdge == 2,
+                "Only works on two node edges at the moment" );
+
+        MORIS_ERROR( tNumNodesPerEdge == tElementEdgeToNodeMap.n_cols(),
+                "Mismatch in number of nodes per edge (only operating on two node edges)" );
+
         // moris::uint tNumEdgeCreated    = 0;
         moris::uint tMaxNumEdges = tNumElements * tNumEdgePerElem;
 
@@ -1911,19 +1917,16 @@ Integration_Mesh_Generator::create_edges_from_element_to_node(
         }
 
         // Allocate outputs
-        aEdgeConnectivity->mCellToEdge.resize( aCells.size() );                         // what does this map do?
-        aEdgeConnectivity->mEdgeToCell.reserve( tMaxNumEdges );                         // what does this map do?
-        aEdgeConnectivity->mEdgeToCellEdgeOrdinal.reserve( tMaxNumEdges );              // what does this map do?
-        aEdgeConnectivity->mEdgeVertices.reserve( tMaxNumEdges * tNumNodesPerEdge );    // what does this map do?
+        aEdgeConnectivity->mCellToEdge.resize( aCells.size() );
 
-    // maps:
-    // moris::Cell< moris::Cell< moris::mtk::Vertex* > > mEdgeVertices;           // input: edge || output: list of vertices on edge
-    // moris::Cell< moris::Cell< moris::mtk::Cell* > >   mEdgeToCell;             // input: edge || output: list of cells attached to edge
-    // moris::Cell< moris::Cell< moris::moris_index > >  mEdgeToCellEdgeOrdinal;  // input: edge || output: ?
-    // moris::Cell< moris::Cell< moris_index > >         mCellToEdge;             // input: cell || output: list of edge indices on cell
+        // Increment by which the following matrices is increased
+        uint tIncNumEdges = tMaxNumEdges / 25;
+
+        aEdgeConnectivity->mEdgeToCell.reserve( tIncNumEdges );
+        aEdgeConnectivity->mEdgeToCellEdgeOrdinal.reserve( tIncNumEdges );
+        aEdgeConnectivity->mEdgeVertices.reserve( tIncNumEdges * tNumNodesPerEdge );
 
         moris::Cell< moris::Cell< uint > > tVertexToEdgeIndex( tNumNodes );
-        tVertexToEdgeIndex.reserve( tMaxNumEdges * tNumNodesPerEdge * tMaxEdgePerNode );
 
         moris::Cell< moris::mtk::Vertex* > tVerticesOnEdge( tNumNodesPerEdge, nullptr );
 
@@ -1942,15 +1945,19 @@ Integration_Mesh_Generator::create_edges_from_element_to_node(
                 }
 
                 // figure out if the edge exists and if so where (if it doesn't exist it returns MORIS_INDEX_MAX as an index )
-                moris_index tEdgeIndex = this->edge_exists( tVerticesOnEdge, tVertexIndexToLocalIndexMap, tVertexToEdgeIndex, aEdgeConnectivity->mEdgeVertices );
+                moris_index tEdgeIndex = this->edge_exists(
+                        tVerticesOnEdge,
+                        tVertexIndexToLocalIndexMap,
+                        tVertexToEdgeIndex,
+                        aEdgeConnectivity->mEdgeVertices );
 
                 // add it new if it doesn't exist already 
                 if ( tEdgeIndex == MORIS_INDEX_MAX )
                 {
                     tEdgeIndex = aEdgeConnectivity->mEdgeVertices.size();
-                    aEdgeConnectivity->mEdgeVertices.push_back( tVerticesOnEdge );
-                    aEdgeConnectivity->mEdgeToCell.push_back( moris::Cell< moris::mtk::Cell* >() );
-                    aEdgeConnectivity->mEdgeToCellEdgeOrdinal.push_back( moris::Cell< moris::moris_index >() );
+                    aEdgeConnectivity->mEdgeVertices.push_back( tVerticesOnEdge, tIncNumEdges );
+                    aEdgeConnectivity->mEdgeToCell.push_back( moris::Cell< moris::mtk::Cell* >(), tIncNumEdges );
+                    aEdgeConnectivity->mEdgeToCellEdgeOrdinal.push_back( moris::Cell< moris::moris_index >(), tIncNumEdges );
 
                     // local vertex index
                     auto tIter = tVertexIndexToLocalIndexMap.find( tVerticesOnEdge( 0 )->get_index() );
