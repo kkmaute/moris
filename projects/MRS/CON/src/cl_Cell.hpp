@@ -25,6 +25,7 @@ namespace moris
 
 #ifdef CHECK_MEMORY
             uint mNumResizeCalls = 0;
+            uint mNumPushBack    = 0;
 #endif
 
         public:
@@ -81,9 +82,19 @@ namespace moris
             /**
              * moris::Cell destructor
              */
-
+#ifdef CHECK_MEMORY
+            ~Cell()
+            {
+                MORIS_CHECK_MEMORY(
+                        sizeof(T)*this->capacity() > MORIS_CELL_RESIZE_CHECK_LIMIT * MORIS_MAX_CELL_CAPACITY ?
+                                this->size() > MORIS_CELL_UTILIZATION_FRACTION_LIMIT * this->capacity() : true,
+                                "Cell::~Cell:: At destruction memory used is less than 75 percent of capacity of large matrix: size %d capacity %d\n",
+                                this->size(),this->capacity());
+            }
+#else
             ~Cell() = default; // 'default' tells the compiler to automatically
-            // delete the underlying Cell
+                               // delete the underlying Cell
+#endif
 
             //------------------------------------------------------------------
 
@@ -339,7 +350,6 @@ namespace moris
                 return mCell.capacity();
             }
 
-
             //------------------------------------------------------------------
 
             /**
@@ -352,10 +362,11 @@ namespace moris
                 MORIS_CHECK_MEMORY(
                         sizeof(T)*this->capacity() > MORIS_CELL_RESIZE_CHECK_LIMIT * MORIS_MAX_CELL_CAPACITY ?
                                 this->size() > MORIS_CELL_RESIZE_FRACTION_LIMIT * this->capacity() : true,
-                                "Cell::shrink_to_fit: Shrink to less than 1 percent of large matrix - reduce initial allocation\n");
+                                "Cell::shrink_to_fit: Shrink to less than 10 percent of capacity of large matrix: size %d capacity %d.\n",
+                                this->size(),this->capacity());
 
                 // check that number of resize + shrink_to_fit calls does not exceed limit
-                MORIS_CHECK_MEMORY( mNumResizeCalls++ < MORIS_CELL_RESIZE_CALL_LIMIT,
+                MORIS_CHECK_MEMORY( mNumResizeCalls++ != MORIS_CELL_RESIZE_CALL_LIMIT,
                         "Cell::shrink_to_fit: number of resize + shrink_to_fit calls exceeds limit.\n");
 
                 mCell.shrink_to_fit();
@@ -386,6 +397,10 @@ namespace moris
                     moris::size_t const & pos,
                     T             const & value)
             {
+                MORIS_CHECK_MEMORY( pos >= mCell.capacity() ?
+                        mNumResizeCalls++ != MORIS_CELL_RESIZE_CALL_LIMIT : true,
+                        "Cell::insert: number of resize calls exceeds limit.\n");
+
                 mCell.insert( mCell.begin() + pos, value );
             }
 
@@ -401,6 +416,10 @@ namespace moris
             append(
                     moris::Cell < T > const & aCell )
             {
+                MORIS_CHECK_MEMORY( mCell.size() + aCell.size() > mCell.capacity() ?
+                    mNumResizeCalls++ != MORIS_CELL_RESIZE_CALL_LIMIT : true,
+                    "Cell::append: number of resize calls exceeds limit.\n");
+
                 mCell.insert( mCell.end(), aCell.data().begin(), aCell.data().end() );
             }
 
@@ -450,6 +469,43 @@ namespace moris
             push_back(
                     T const & value )
             {
+                MORIS_CHECK_MEMORY( mCell.size() == mCell.capacity() ?
+                        mNumResizeCalls++ != MORIS_CELL_RESIZE_CALL_LIMIT : true,
+                        "Cell::push_back: number of resize calls exceeds limit.\n");
+
+                MORIS_CHECK_MEMORY( mNumPushBack++ != MORIS_CELL_PUSHBACK_CALL_LIMIT,
+                        "Cell::push_back: number of push_back calls exceeds limit.\n");
+
+                mCell.push_back( value );
+            }
+
+            //------------------------------------------------------------------
+
+            /**
+             * @brief Appends the given element value to the end of the container
+             *
+             * @param[in] value    The value of the element to append
+             * @param[in] tSizeInc The size by which the cell capacity is increased when not sufficient
+             *
+             */
+
+            void
+            push_back(
+                    T             const & value,
+                    moris::size_t const & tSizeInc)
+            {
+                MORIS_CHECK_MEMORY( mCell.size() == mCell.capacity() ?
+                        mNumResizeCalls++ != MORIS_CELL_RESIZE_CALL_LIMIT : true,
+                        "Cell::push_back: number of resize calls exceeds limit.\n");
+
+                MORIS_CHECK_MEMORY( mNumPushBack++ != MORIS_CELL_PUSHBACK_CALL_LIMIT,
+                        "Cell::push_back: number of push_back calls exceeds limit.\n");
+
+                if ( mCell.size() == mCell.capacity() )
+                {
+                    mCell.reserve( mCell.size() + tSizeInc );
+                }
+
                 mCell.push_back( value );
             }
 
@@ -486,11 +542,12 @@ namespace moris
                 MORIS_CHECK_MEMORY(
                         sizeof(T)*this->capacity() > MORIS_CELL_RESIZE_CHECK_LIMIT * MORIS_MAX_CELL_CAPACITY ?
                                 aCount > MORIS_CELL_RESIZE_FRACTION_LIMIT * this->capacity() : true,
-                                "Cell::resize: Resize to less than 1 percent of large matrix - reduce initial allocation");
+                                "Cell::resize: Resize to less than 10 percent of capacity of large matrix: size %d capacity %d\n",
+                                this->size(),this->capacity());
 
                 // check that number of resize + shrink_to_fit calls does not exceed limit
                 MORIS_CHECK_MEMORY( aCount != this->size() ?
-                        mNumResizeCalls++ < MORIS_CELL_RESIZE_CALL_LIMIT : true,
+                        mNumResizeCalls++ != MORIS_CELL_RESIZE_CALL_LIMIT : true,
                         "Cell::shrink_to_fit: number of resize + shrink_to_fit calls exceeds limit.\n");
 
                 mCell.resize( aCount, aValue );
