@@ -1076,7 +1076,6 @@ Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh( Ghost_Setup_Data&
         tCurrentId = tEnrIntegMesh.allocate_entity_ids( tEnrIntegMesh.get_num_entities( EntityRank::ELEMENT ), EntityRank::ELEMENT );
     }
 
-
     moris_id tCurrentIndex = tEnrIntegMesh.get_num_entities( EntityRank::ELEMENT );
 
     // determine total number of ghost faces across all processors
@@ -1087,6 +1086,10 @@ Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh( Ghost_Setup_Data&
         tLocalNumberOfGhostFacets( i ) = aGhostSetupData.mMasterSideIpCells( i ).size();
     }
     Matrix< DDUMat > tTotalNumberOfGhostFacets = sum_all_matrix( tLocalNumberOfGhostFacets );
+
+    // build list of double side set indices
+    moris::Cell< moris_index > tDoubleSideSetIndexList;
+    tDoubleSideSetIndexList.reserve( aGhostSetupData.mMasterSideIpCells.size() );
 
     // iterate through bulk phases
     for ( moris::uint i = 0; i < aGhostSetupData.mMasterSideIpCells.size(); i++ )
@@ -1135,13 +1138,15 @@ Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh( Ghost_Setup_Data&
             tEnrIntegMesh.mDoubleSideSets( aGhostSetupData.mDblSideSetIndexInMesh( i ) )( j ) = tDblSideCluster;
         }
 
-        tEnrIntegMesh.commit_double_side_set( aGhostSetupData.mDblSideSetIndexInMesh( i ) );
+        tDoubleSideSetIndexList.push_back( aGhostSetupData.mDblSideSetIndexInMesh( i ) );
 
         tEnrIntegMesh.set_double_side_set_colors(
             aGhostSetupData.mDblSideSetIndexInMesh( i ),
             { { (moris_index)i } },
             { { (moris_index)i } } );
     }
+
+    tEnrIntegMesh.commit_double_side_set( tDoubleSideSetIndexList );
 
     tEnrIntegMesh.collect_all_sets();
 }
