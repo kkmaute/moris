@@ -42,7 +42,6 @@ Enriched_Integration_Mesh::Enriched_Integration_Mesh( Model *aXTKModel,
     this->setup_color_to_set();
     this->collect_all_sets();
 
-
     if ( this->get_spatial_dim() == 2 )
     {
         mCellInfo = new moris::mtk::Cell_Info_Quad4();
@@ -405,7 +404,6 @@ Enriched_Integration_Mesh::get_sideset_elems_loc_inds_and_ords(
     // get the cell clusters
     moris::Cell< mtk::Cluster const * > tSideClusters = this->get_side_set_cluster( tSideSetIndex );
 
-
     // iterate through side clusters and count number of sides in set
     moris::uint tNumSides = 0;
     for ( auto iCluster : tSideClusters )
@@ -474,7 +472,6 @@ Enriched_Integration_Mesh::get_element_owner( moris_index aElementIndex ) const
 
 //------------------------------------------------------------------------------
 
-
 Matrix< IndexMat >
 Enriched_Integration_Mesh::get_block_entity_loc_inds( std::string aSetName ) const
 {
@@ -510,7 +507,6 @@ Enriched_Integration_Mesh::get_block_entity_loc_inds( std::string aSetName ) con
 
     return tCellIndices;
 }
-
 
 void
 Enriched_Integration_Mesh::create_dbl_sided_interface_set(
@@ -560,7 +556,6 @@ Enriched_Integration_Mesh::create_dbl_sided_interface_set(
     this->collect_all_sets();
 }
 
-
 //------------------------------------------------------------------------------
 
 void
@@ -596,6 +591,10 @@ Enriched_Integration_Mesh::deactivate_empty_side_sets()
     // current index
     moris_index tSetIndex = 0;
 
+    // build list of side set indices
+    moris::Cell< moris_index > tSideSetIndexList;
+    tSideSetIndexList.reserve( tOldSetClusters.size() );
+
     for ( moris::uint i = 0; i < tOldSetClusters.size(); i++ )
     {
         uint tMySize  = tOldSetClusters( i ).size();
@@ -608,10 +607,13 @@ Enriched_Integration_Mesh::deactivate_empty_side_sets()
 
             MORIS_ASSERT( mSideSideSetLabelToOrd.find( tOldSetNames( i ) ) == mSideSideSetLabelToOrd.end(), "Duplicate block set in mesh" );
             mSideSideSetLabelToOrd[tOldSetNames( i )] = tSetIndex;
-            this->commit_side_set( tSetIndex );
+            tSideSetIndexList.push_back(tSetIndex);
             tSetIndex++;
         }
     }
+
+    // set side set indices
+    this->commit_side_set( tSideSetIndexList );
 
     this->setup_color_to_set();
     this->collect_all_sets();
@@ -648,7 +650,6 @@ Enriched_Integration_Mesh::create_cell_id_fields()
 
     this->add_field_data( tFieldIndex, EntityRank::ELEMENT, tCellIdField );
 }
-
 
 //------------------------------------------------------------------------------
 
@@ -770,7 +771,6 @@ Enriched_Integration_Mesh::create_basis_support_fields( moris::Matrix< moris::DD
     moris::Cell< moris_index >      tFieldIndices( tFieldIndex );
     moris::Cell< Matrix< DDRMat > > tFieldData( tFieldIndex, Matrix< DDRMat >( 1, this->get_num_nodes(), -10 ) );
 
-
     // iterate through interpolation types and for each basis declare the field in mesh
     for ( moris::uint iBT = 0; iBT < tEnrInterpMesh->get_num_interpolation_types(); iBT++ )
     {
@@ -790,7 +790,6 @@ Enriched_Integration_Mesh::create_basis_support_fields( moris::Matrix< moris::DD
             tFieldIndices( tFieldIndex ) = this->create_field( tFieldNames( tFieldIndex ), EntityRank::NODE, 0 );
         }
     }
-
 
     // populate field data
     for ( moris::uint iCl = 0; iCl < this->mCellClusters.size(); iCl++ )
@@ -904,7 +903,6 @@ Enriched_Integration_Mesh::write_mesh( moris::ParameterList *aParamList )
         std::string                tProbeSpheresStr = aParamList->get< std::string >( "write_enrichment_fields_probe_spheres" );
         moris::Cell< std::string > tNodeFields;
 
-
         if ( !tProbeSpheresStr.empty() )
         {
             Matrix< DDRMat > tProbeSpheres = string_to_mat< DDRMat >( tProbeSpheresStr );
@@ -913,10 +911,8 @@ Enriched_Integration_Mesh::write_mesh( moris::ParameterList *aParamList )
             this->create_basis_support_fields( tProbeSpheres );
         }
 
-
         // Cell<std::string> tEnrichmentFieldNames =  mModel->get_basis_enrichment().get_cell_enrichment_field_names();
         // tEnrichment.write_cell_enrichment_to_fields(tEnrichmentFieldNames, this);
-
 
         // place an element field in the mesh
         this->create_bg_cell_id_field();
@@ -1016,7 +1012,6 @@ Enriched_Integration_Mesh::create_subphase_fields()
     // Fields constructed here
     moris::Cell< std::string > tCellFields = { "sp_index", "bulk_phase" };
 
-
     moris::Cell< moris::moris_index > tFieldIndices( tCellFields.size() );
 
     moris::Matrix< moris::DDRMat > tCellToSubphase( 1, this->get_num_elems() );
@@ -1045,7 +1040,6 @@ Enriched_Integration_Mesh::create_subphase_fields()
     {
         tFieldIndices( iF ) = this->create_field( tCellFields( iF ), EntityRank::ELEMENT, 0 );
     }
-
 
     this->add_field_data( tFieldIndices( 0 ), EntityRank::ELEMENT, tCellToSubphase );
     this->add_field_data( tFieldIndices( 1 ), EntityRank::ELEMENT, tCellToBulkPhase );
@@ -1128,14 +1122,17 @@ Enriched_Integration_Mesh::create_union_block( Cell< std::string > const &aBlock
 }
 //------------------------------------------------------------------------------
 void
-Enriched_Integration_Mesh::create_union_side_set( Cell< std::string > const &aSideSets,
-    std::string                                                              aNewSideSet,
-    Matrix< IndexMat > const &                                               aNewSideSetColor )
+Enriched_Integration_Mesh::create_union_side_set(
+        Cell< std::string > const & aSideSets,
+        std::string                 aNewSideSet,
+        Matrix< IndexMat >  const & aNewSideSetColor )
 {
     MORIS_ERROR( aSideSets.size() >= 2, "Union needs to happen between two side sets or more" );
 
-    moris::uint         tCount = 0;
+    moris::uint tCount = 0;
+
     Cell< moris_index > tSideSetIndices( aSideSets.size() );
+
     for ( moris::uint i = 0; i < aSideSets.size(); i++ )
     {
         tSideSetIndices( i ) = this->get_side_set_index( aSideSets( i ) );
@@ -1166,7 +1163,6 @@ Enriched_Integration_Mesh::deactive_all_blocks_but_selected( Cell< std::string >
     {
         tBlocksToKeepMap[aBlockSetsToKeep( i )] = 1;
     }
-
 
     std::unordered_map< std::string, moris_index >          tOldSetMap      = mBlockSetLabelToOrd;
     moris::Cell< std::string >                              tOldSetNames    = mBlockSetNames;
@@ -1210,11 +1206,11 @@ void
 Enriched_Integration_Mesh::deactive_all_side_sets_but_selected( Cell< std::string > const &aSideSetsToKeep )
 {
     std::unordered_map< std::string, moris_index > tSideSetsToKeepMap;
+
     for ( moris::uint i = 0; i < aSideSetsToKeep.size(); i++ )
     {
         tSideSetsToKeepMap[aSideSetsToKeep( i )] = 1;
     }
-
 
     // copy old data
     std::unordered_map< std::string, moris_index >                     tOldSetMap      = mSideSideSetLabelToOrd;
@@ -1232,6 +1228,10 @@ Enriched_Integration_Mesh::deactive_all_side_sets_but_selected( Cell< std::strin
     }
     mListofSideSets.clear();
 
+    // build list of side set indices
+     moris::Cell< moris_index > tSideSetIndexList;
+     tSideSetIndexList.reserve( tOldSetClusters.size() );
+
     // current index
     moris_index tSetIndex = 0;
 
@@ -1242,12 +1242,19 @@ Enriched_Integration_Mesh::deactive_all_side_sets_but_selected( Cell< std::strin
             mSideSetLabels.push_back( tOldSetNames( i ) );
             mSideSets.push_back( tOldSetClusters( i ) );
 
-            MORIS_ASSERT( mSideSideSetLabelToOrd.find( tOldSetNames( i ) ) == mSideSideSetLabelToOrd.end(), "Duplicate block set in mesh" );
+            MORIS_ASSERT( mSideSideSetLabelToOrd.find( tOldSetNames( i ) ) == mSideSideSetLabelToOrd.end(),
+                    "Duplicate block set in mesh" );
+
             mSideSideSetLabelToOrd[tOldSetNames( i )] = tSetIndex;
-            this->commit_side_set( tSetIndex );
+
+            tSideSetIndexList.push_back( tSetIndex );
+
             tSetIndex++;
         }
     }
+
+    // set side set indices
+    this->commit_side_set( tSideSetIndexList );
 }
 
 //------------------------------------------------------------------------------
@@ -1640,7 +1647,6 @@ Enriched_Integration_Mesh::get_field_names( enum moris::EntityRank aEntityRank )
 
     return tOutputFieldNames;
 }
-
 
 moris::moris_index
 Enriched_Integration_Mesh::create_field(
@@ -2043,7 +2049,6 @@ Enriched_Integration_Mesh::allocate_entity_ids(
     return tFirstId( 0 );
 }
 
-
 //------------------------------------------------------------------------------
 
 void
@@ -2064,6 +2069,28 @@ Enriched_Integration_Mesh::commit_double_side_set( moris_index const &aDoubleSid
 //------------------------------------------------------------------------------
 
 void
+Enriched_Integration_Mesh::commit_double_side_set( const moris::Cell< moris_index > & aSideSetIndexList )
+{
+    mListofDoubleSideSets.resize( mListofDoubleSideSets.size() + aSideSetIndexList.size(), nullptr );
+
+    for ( uint iI = 0; iI < aSideSetIndexList.size(); ++iI)
+    {
+        const moris_index tSideSetIndex = aSideSetIndexList( iI );
+
+        MORIS_ASSERT( (uint)tSideSetIndex < mListofDoubleSideSets.size(),
+                "Committing double side set failed. aDoubleSideSetIndex needs to be equivalent to the size of the list of double side sets" );
+
+        mListofDoubleSideSets( tSideSetIndex ) = new moris::mtk::Double_Side_Set(
+                mDoubleSideSetLabels( tSideSetIndex ),
+                this->get_double_side_set_cluster( tSideSetIndex ),
+                this->get_double_side_set_colors( tSideSetIndex ),
+                this->get_spatial_dim() );
+    }
+}
+
+//------------------------------------------------------------------------------
+
+void
 Enriched_Integration_Mesh::commit_side_set( moris_index const &aSideSetIndex )
 {
     MORIS_ASSERT( mListofSideSets.size() == (uint)aSideSetIndex,
@@ -2076,6 +2103,27 @@ Enriched_Integration_Mesh::commit_side_set( moris_index const &aSideSetIndex )
         this->get_side_set_cluster( aSideSetIndex ),
         this->get_side_set_colors( aSideSetIndex ),
         this->get_spatial_dim() );
+}
+//------------------------------------------------------------------------------
+
+void
+Enriched_Integration_Mesh::commit_side_set( const moris::Cell< moris_index > & aSideSetIndexList )
+{
+    mListofSideSets.resize( mListofSideSets.size() + aSideSetIndexList.size(), nullptr );
+
+    for ( uint iI = 0; iI < aSideSetIndexList.size(); ++iI)
+    {
+        const moris_index tSideSetIndex = aSideSetIndexList( iI );
+
+        MORIS_ASSERT( (uint)tSideSetIndex < mListofSideSets.size(),
+            "Committing side set failed. aSideSetIndex needs to be equivalent to the size of the list of single side sets" );
+
+        mListofSideSets( tSideSetIndex ) = new moris::mtk::Side_Set(
+                mSideSetLabels( tSideSetIndex ),
+                this->get_side_set_cluster( tSideSetIndex ),
+                this->get_side_set_colors( tSideSetIndex ),
+                this->get_spatial_dim() );
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -2148,7 +2196,6 @@ Enriched_Integration_Mesh::setup_cell_clusters()
 
             // vertex group
             std::shared_ptr< IG_Vertex_Group > tVertexGroupForCluster = mCutIgMesh->get_vertex_group( mCutIgMesh->get_parent_cell_group_index( tBaseInterpCell->get_index() ) );
-
 
             moris::Cell< std::shared_ptr< IG_Cell_Group > > tVoidSubphases;
             tVoidSubphases.reserve( tParentCellSubphases.size() - 1 );
@@ -2323,7 +2370,6 @@ Enriched_Integration_Mesh::setup_side_set_clusters()
             moris_index      tSideOrd   = tCellOrdsInSideSet( iC );
             moris_index      tSideIndex = tBackgroundMesh.get_entity_connected_to_entity_loc_inds( tBaseCell->get_index(), EntityRank::ELEMENT, tBackgroundMesh.get_facet_rank() )( tSideOrd );
 
-
             // only place cluster's related to the background cells owned by current proc in sets
             if ( tBaseCell->get_owner() == tParRank )
             {
@@ -2435,10 +2481,17 @@ Enriched_Integration_Mesh::setup_side_set_clusters()
         }
     }
 
+    // build list of side set indices
+    moris::Cell< moris_index > tSideSetIndexList;
+    tSideSetIndexList.reserve( mSideSets.size() - mListofSideSets.size() );
+
     for ( moris::uint Ik = mListofSideSets.size(); Ik < mSideSets.size(); Ik++ )
     {
-        this->commit_side_set( Ik );
+        tSideSetIndexList.push_back( Ik );
     }
+
+    // set side set indices
+    this->commit_side_set( tSideSetIndexList );
 }
 
 //------------------------------------------------------------------------------
@@ -2623,7 +2676,6 @@ Enriched_Integration_Mesh::create_interface_double_side_sets_and_clusters()
                             mDoubleSideSetsSlaveIndex( tDoubleSideSetIndex ).push_back( mDoubleSideSingleSideClusters.size() );
                             mDoubleSideSingleSideClusters.push_back( tSideClusters( tNewClusterIndex ) );
 
-
                             tSideClusters( tNewClusterIndex )->mInterpolationCell     = tEnrIpCells( tFollowerSubphaseIndex );
                             tSideClusters( tNewClusterIndex )->mTrivial               = false;
                             tSideClusters( tNewClusterIndex )->mAssociatedCellCluster = &this->get_xtk_cell_cluster( *tSideClusters( tNewClusterIndex )->mInterpolationCell );
@@ -2683,11 +2735,18 @@ Enriched_Integration_Mesh::create_interface_double_side_sets_and_clusters()
         tSideClusters( iSC )->mIntegrationCellSideOrdinals = tSideOrds;
     }
 
+    // build list of side set indices
+     moris::Cell< moris_index > tDoubleSideSetIndexList;
+     tDoubleSideSetIndexList.reserve( mDoubleSideSets.size() - mListofDoubleSideSets.size() );
+
     // construct double side set interfaces
     for ( moris::uint Ik = mListofDoubleSideSets.size(); Ik < mDoubleSideSets.size(); Ik++ )
     {
-        this->commit_double_side_set( Ik );
+        tDoubleSideSetIndexList.push_back( Ik );
     }
+
+    // set double side set indices
+    this->commit_double_side_set( tDoubleSideSetIndexList );
 }
 //------------------------------------------------------------------------------
 
@@ -2738,7 +2797,6 @@ Cell< moris_index >
 Enriched_Integration_Mesh::register_vertex_set_names( moris::Cell< std::string > const &aVertexSetNames )
 {
     uint tNumSetsToRegister = aVertexSetNames.size();
-
 
     // block set ords
     Cell< moris_index > tVertexSetOrds( tNumSetsToRegister );
@@ -2948,18 +3006,25 @@ Enriched_Integration_Mesh::create_interface_side_sets_and_clusters()
         }
     }
 
-    for ( moris::uint i = mListofSideSets.size(); i < mSideSets.size(); i++ )
+    // build list of side set indices
+    moris::Cell< moris_index > tSideSetIndexList;
+    tSideSetIndexList.reserve( mSideSets.size() - mListofSideSets.size() );
+
+    for ( moris::uint Ik = mListofSideSets.size(); Ik < mSideSets.size(); Ik++ )
     {
-        this->commit_side_set( i );
+        tSideSetIndexList.push_back( Ik );
     }
+
+    // set side set indices
+    this->commit_side_set( tSideSetIndexList );
 }
 
 //------------------------------------------------------------------------------
 
 void
 Enriched_Integration_Mesh::construct_color_to_set_relationship(
-    moris::Cell< moris::Matrix< IndexMat > > const &aSetColors,
-    moris::Cell< moris::Cell< moris_index > > &     aColorToSetIndex )
+    moris::Cell< moris::Matrix< IndexMat > > const & aSetColors,
+    moris::Cell< moris::Cell< moris_index > >      & aColorToSetIndex )
 {
     moris_index tMaxColor = 0;
     for ( moris::uint i = 0; i < aSetColors.size(); i++ )
@@ -3070,6 +3135,7 @@ Enriched_Integration_Mesh::field_exists(
     enum moris::EntityRank aEntityRank )
 {
     moris::moris_index tIndex = this->get_entity_rank_field_index( aEntityRank );
+
     return mFieldLabelToIndex( tIndex ).find( aLabel ) != mFieldLabelToIndex( tIndex ).end();
 }
 
@@ -3078,9 +3144,11 @@ Enriched_Integration_Mesh::field_exists(
 moris_index
 Enriched_Integration_Mesh::get_entity_rank_field_index( enum moris::EntityRank aEntityRank )
 {
-    MORIS_ERROR( aEntityRank == EntityRank::NODE || aEntityRank == EntityRank::ELEMENT, "Only node and cell fields are supported" );
+    MORIS_ERROR( aEntityRank == EntityRank::NODE || aEntityRank == EntityRank::ELEMENT,
+            "Only node and cell fields are supported" );
 
     moris_index tIndex = MORIS_INDEX_MAX;
+
     if ( aEntityRank == EntityRank::NODE )
     {
         tIndex = 0;
