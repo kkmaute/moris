@@ -344,11 +344,11 @@ namespace moris
                     // switch based on OutputFormat provided
                     if ((mDirectOutputFormat == 3) || (mDirectOutputFormat == 2))
                     {
-                        std::cout << print_empty_line(mGlobalClock.mIndentationLevel) << "_" << "WARNING: " << tString << " \n" << std::flush;
+                        std::cout << "Processor = " << logger_par_rank() << " : " << tString << "\n" << std::flush;
                     }
                     else
                     {
-                        std::cout << tString << "\n" << std::flush;
+                        std::cout << "Processor = " << logger_par_rank() << " : " << tString << "\n" << std::flush;
                     }
                 }
 
