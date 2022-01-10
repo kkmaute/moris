@@ -113,17 +113,22 @@ namespace ge
         mJoinedSensitivities = aField->get_dfield_dadvs(
             mAncestorNodeIndices( 0 ),
             mAncestorNodeCoordinates( 0 ) );
+
         mJoinedSensitivities = mJoinedSensitivities * mBasisValues( 0 );
 
         // Get sensitivity values from other ancestors
         for ( uint tAncestorNode = 1; tAncestorNode < mAncestorNodeIndices.length(); tAncestorNode++ )
         {
             // Get scaled sensitivities
-            const Matrix< DDRMat >& tAncestorSensitivities = mBasisValues( tAncestorNode ) * aField->get_dfield_dadvs( mAncestorNodeIndices( tAncestorNode ), mAncestorNodeCoordinates( tAncestorNode ) );
+            const Matrix< DDRMat >& tAncestorSensitivities = mBasisValues( tAncestorNode ) *
+                    aField->get_dfield_dadvs( mAncestorNodeIndices( tAncestorNode ), mAncestorNodeCoordinates( tAncestorNode ) );
 
             // Join sensitivities
             uint tJoinedSensitivityLength = mJoinedSensitivities.n_cols();
+
+            // FIXME: excessive resize
             mJoinedSensitivities.resize( 1, tJoinedSensitivityLength + tAncestorSensitivities.length() );
+
             for ( uint tAncestorSensitivity = 0; tAncestorSensitivity < tAncestorSensitivities.length(); tAncestorSensitivity++ )
             {
                 mJoinedSensitivities( tJoinedSensitivityLength + tAncestorSensitivity ) = tAncestorSensitivities( tAncestorSensitivity );
