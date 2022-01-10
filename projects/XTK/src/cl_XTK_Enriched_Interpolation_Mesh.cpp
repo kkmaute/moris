@@ -810,7 +810,6 @@ Enriched_Interpolation_Mesh::merge_duplicate_interpolation_vertices()
     MORIS_LOG_SPEC( "Num Enriched Interpolation Vertices Post Merge", mEnrichedInterpVerts.size() );
 }
 
-
 void
 Enriched_Interpolation_Mesh::collect_base_vertex_to_enriched_vertex_connectivity( moris::Cell< moris::Cell< Interpolation_Vertex_Unzipped* > >& aBaseVertexToEnrichedVertex )
 {
@@ -1271,7 +1270,6 @@ Enriched_Interpolation_Mesh::print_enriched_cells( std::string aFile )
         }
     }
 
-
     tStringStream << "Cell_Id,";
     tStringStream << "Cell_Ind,";
     tStringStream << "Owner,";
@@ -1358,7 +1356,6 @@ Enriched_Interpolation_Mesh::print_enriched_verts( std::string aFile )
             tStringStream << ",";
         }
     }
-
 
     tStringStream << std::endl;
 
@@ -1463,7 +1460,6 @@ Enriched_Interpolation_Mesh::print_enriched_verts_interpolation(
             tStringStream<<std::to_string(MORIS_INDEX_MAX) << ",";
             tStringStream<<std::numeric_limits<moris::real>::quiet_NaN();
         }
-
 
         tStringStream<<"\n";
        
@@ -1629,7 +1625,6 @@ Enriched_Interpolation_Mesh::verify_basis_interpolating_into_cluster( mtk::Clust
         Matrix< IndexMat > tBasisIndices = tVertexInterp->get_indices();
         Matrix< IndexMat > tBasisIds     = tVertexInterp->get_ids();
 
-
         if ( tBasisIds.numel() == 0 )
         {
             std::cout << "Vertex id = " << tVertexPointers( i )->get_id()
@@ -1667,7 +1662,6 @@ Enriched_Interpolation_Mesh::finalize_setup()
     this->setup_basis_ownership();
     this->setup_basis_to_bulk_phase();
     MORIS_ERROR( this->verify_basis_support(), "Issue detected in basis support." );// TODO: change to assert once done debugging
-
 
 }
 
@@ -1721,7 +1715,6 @@ Enriched_Interpolation_Mesh::setup_basis_to_bulk_phase()
             }
         }
 
-
         mEnrichCoeffBulkPhase( tMeshIndex ).resize( 1, tNumEnrBasis );
         mEnrichCoeffBulkPhase( tMeshIndex ).fill( MORIS_INDEX_MAX );
 
@@ -1734,7 +1727,6 @@ Enriched_Interpolation_Mesh::setup_basis_to_bulk_phase()
             for ( moris::moris_index iSP = 0; iSP < tNumSubphaseInSupport; iSP++ )
             {
                 Interpolation_Cell_Unzipped* tIpCell = tCellsInEnrSupports( i )( iSP );
-
 
                 moris_index tBulkPhase = tIpCell->get_bulkphase_index();
 
@@ -1872,7 +1864,6 @@ Enriched_Interpolation_Mesh::verify_basis_support()
             {
                 Interpolation_Cell_Unzipped* tIpCell = tCellsInEnrSupports( i )( iSP );
 
-
                 moris_index tBulkPhase = tIpCell->get_bulkphase_index();
 
                 MORIS_ASSERT( tBulkPhase != MORIS_INDEX_MAX, "Bulk phase index not set." );
@@ -1890,7 +1881,6 @@ Enriched_Interpolation_Mesh::verify_basis_support()
             }
         }
     }
-
 
     MORIS_ERROR( tSubphaseBulkPhasesInSupportDiag, "All bulk phases in support of enriched basis  function do not match" );
     return true;
@@ -1938,7 +1928,6 @@ Enriched_Interpolation_Mesh::assign_ip_vertex_ids()
 
     moris::moris_id tVertexId = this->allocate_entity_ids( tOwnedVertices.size(), EntityRank::NODE, true );
 
-
     // Assign owned request identifiers
     this->assign_owned_ip_vertex_ids( tOwnedVertices, tVertexId );
 
@@ -1952,6 +1941,7 @@ Enriched_Interpolation_Mesh::assign_ip_vertex_ids()
         tProcRankToDataIndex,
         tOutwardBaseVertexIds,
         tOutwardIpCellIds );
+
     // send requests to owning processor
     mXTKModel->send_outward_requests( tTag, tProcRanks, tOutwardBaseVertexIds );
     mXTKModel->send_outward_requests( tTag + 1, tProcRanks, tOutwardIpCellIds );
@@ -1962,7 +1952,6 @@ Enriched_Interpolation_Mesh::assign_ip_vertex_ids()
     // receive the requests
     Cell< Matrix< IndexMat > > tReceivedBaseVertexIds;
     Cell< Matrix< IndexMat > > tReceivedIpCellIds;
-
 
     Cell< uint > tProcsReceivedFrom1;
     Cell< uint > tProcsReceivedFrom2;
@@ -2005,7 +1994,6 @@ Enriched_Interpolation_Mesh::sort_ip_vertices_by_owned_and_not_owned(
     Cell< uint >&                             aProcRanks,
     std::unordered_map< moris_id, moris_id >& aProcRankToIndexInData )
 {
-
     // access the mesh data behind the background mesh
     // access the communication
     Matrix< IdMat > tCommTable = this->get_communication_table();
@@ -2015,10 +2003,13 @@ Enriched_Interpolation_Mesh::sort_ip_vertices_by_owned_and_not_owned(
 
     // resize proc ranks and setup map to comm table
     aProcRanks.resize( tCommTable.numel() );
+
     for ( moris::uint i = 0; i < tCommTable.numel(); i++ )
     {
         aProcRankToIndexInData[tCommTable( i )] = i;
-        aProcRanks( i )                         = ( tCommTable( i ) );
+
+        aProcRanks( i ) = ( tCommTable( i ) );
+
         aNotOwnedVertices.push_back( Cell< uint >( 0 ) );
         aNotOwnedIPCells.push_back( Cell< uint >( 0 ) );
     }
@@ -2031,6 +2022,9 @@ Enriched_Interpolation_Mesh::sort_ip_vertices_by_owned_and_not_owned(
 
     // Keep track of nodes which have ids
     Cell< uint > tNodeTracker( tNumVerts, 0 );
+
+    // Reserve memory for indices of owned vertices
+    aOwnedVertices.reserve(tNumVerts);
 
     // iterate through cells
     for ( moris::uint iC = 0; iC < tNumCells; iC++ )
@@ -2497,7 +2491,6 @@ Enriched_Interpolation_Mesh::extract_vertex_interpolation_from_communication_dat
     }
 }
 // ----------------------------------------------------------------------------
-
 
 void
 Enriched_Interpolation_Mesh::setup_basis_ownership()
