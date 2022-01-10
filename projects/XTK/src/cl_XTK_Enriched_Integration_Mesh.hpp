@@ -452,7 +452,17 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
     //------------------------------------------------------------------------------
 
     void
+    commit_double_side_set( const moris::Cell< moris_index > & aDoubleSideSetIndexList );
+
+    //------------------------------------------------------------------------------
+
+    void
     commit_side_set( moris_index const &aSideSetIndex );
+
+    //------------------------------------------------------------------------------
+
+    void
+    commit_side_set( const moris::Cell< moris_index > & aSideSetIndexList );
 
     //------------------------------------------------------------------------------
 
