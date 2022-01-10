@@ -39,7 +39,7 @@ namespace moris
                 moris::Cell< moris::Cell< mtk::Vertex * > >        mVerticesOnSet;
                 moris::Cell< moris::Cell< const mtk::Cluster * > > mClustersOnBlock;
 
-                const bool                                  mOnlyPrimary;
+                const bool mOnlyPrimary;
 
                 moris::Cell< moris::mtk::Set * > mListOfAllSets;
 
@@ -63,16 +63,28 @@ namespace moris
 
                     this->collect_all_sets();
 
-                    // All vertices/cells
-                    mAllCells = moris::Cell< mtk::Cell const * >( this->get_num_elems() );
-
                     uint tNumBlocks = this->get_num_blocks();
+
+                    // compute the total number of vertices
+                    uint tNumberOfVertices=0;
+
+                    for(uint Ik=0; Ik < tNumBlocks; Ik ++)
+                    {
+                        tNumberOfVertices +=mVerticesOnSet( Ik ).size();
+                    }
+
+                    // set size of arrays for vertices and cells
+                    mAllVertices.resize(tNumberOfVertices);
+                    mAllCells.resize( this->get_num_elems() );
+
+                    // copy vertices and cells
+                    uint tVert=0;
 
                     for(uint Ik=0; Ik < tNumBlocks; Ik ++)
                     {
                         for(uint Ii=0; Ii < mVerticesOnSet( Ik ).size(); Ii ++)
                         {
-                            mAllVertices.push_back(mVerticesOnSet( Ik )( Ii ));
+                            mAllVertices(tVert++) = mVerticesOnSet( Ik )( Ii );
                         }
 
                         for(uint Ii=0; Ii < mCellsOnSet( Ik ).size(); Ii ++)
