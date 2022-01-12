@@ -18,13 +18,14 @@ namespace xtk
                                    moris::moris_index              aElementOwner,
                                    std::shared_ptr<mtk::Cell_Info> aCellInfo,
                                    moris::Cell< mtk::Vertex* >     aVertices)
-                                   : Cell(aElementId,aElementIndex,aElementOwner, aCellInfo),
-                           mCellVertices(aVertices)
-                           {}
+    : Cell(aElementId,aElementIndex,aElementOwner, aCellInfo),
+      mCellVertices(aVertices)
+    {}
 
     // ----------------------------------------------------------------------------------
     // Cell get functions
     // ----------------------------------------------------------------------------------
+
     Matrix< DDRMat >
     Cell_XTK_No_CM::get_vertex_coords() const
     {
@@ -44,6 +45,4 @@ namespace xtk
         return tVertexCoords;
     }
 }
-
-
 

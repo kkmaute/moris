@@ -86,7 +86,7 @@ public:
     get_vertex_coords() const;
 
 private:
-    mtk::Cell_Info const *    mCellInfo;
+    mtk::Cell_Info const *    mCellInfo = nullptr;
     moris::Cell<mtk::Vertex*> mCellVertices;
 
     //------------------------------------------------------------------------------
