@@ -108,10 +108,10 @@ namespace moris
 
     // define maximum capacity (in bytes) of moris containers
 #define MORIS_MAX_CELL_CAPACITY                 1e8   // maximum allowable size of matrix in bytes
-#define MORIS_CELL_RESIZE_CHECK_LIMIT           0.01  // fraction of max allowable cell size that triggers check for reasonable resize
+#define MORIS_CELL_RESIZE_CHECK_LIMIT           0.1   // fraction of max allowable cell size that triggers check for reasonable resize
 #define MORIS_CELL_RESIZE_FRACTION_LIMIT        0.1   // lower limit on fraction of new over original cell size in check for reasonable resize
 #define MORIS_CELL_UTILIZATION_FRACTION_LIMIT   0.75  // lower limit on fraction of cell size vs cell capacity at cell destruction
-#define MORIS_CELL_IMPLICIT_RESIZE_CALL_LIMIT   5     // maximum allowable number of implicit resize calls as part of push_back
+#define MORIS_CELL_IMPLICIT_RESIZE_CALL_LIMIT   0     // maximum allowable number of implicit resize calls as part of push_back
 #define MORIS_CELL_RESIZE_CALL_LIMIT            500   // maximum allowable number of resize calls
 
 #define MORIS_MAX_MATRIX_SIZE               1e8   // maximum allowable size of dense matrix in bytes
