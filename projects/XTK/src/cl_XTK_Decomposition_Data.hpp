@@ -8,7 +8,6 @@
 #ifndef PROJECTS_XTK_SRC_XTK_CL_XTK_DECOMPOSITION_DATA_HPP_
 #define PROJECTS_XTK_SRC_XTK_CL_XTK_DECOMPOSITION_DATA_HPP_
 
-
 #include "cl_Matrix.hpp"
 #include "cl_Cell.hpp"
 #include "cl_XTK_Topology.hpp"
@@ -55,8 +54,8 @@ namespace xtk
                 aRequestLoc         = MORIS_INDEX_MAX;
                 switch ( aParentEntityRank )
                 {
-                    case ( EntityRank::ELEMENT ):
-            {
+                    case EntityRank::ELEMENT:
+                    {
                         auto tIter = tElementIndexToNodeLoc.find( aParentEntityIndex );
                         if ( tIter != tElementIndexToNodeLoc.end() )
                         {
@@ -64,9 +63,9 @@ namespace xtk
                             aRequestLoc    = tIter->second;
                         }
                         break;
-            }
-                    case ( EntityRank::FACE ):
-            {
+                    }
+                    case EntityRank::FACE:
+                    {
                         auto tIter = tFaceIndexToNodeLoc.find( aParentEntityIndex );
                         if ( tIter != tFaceIndexToNodeLoc.end() )
                         {
@@ -74,12 +73,12 @@ namespace xtk
                             aRequestLoc    = tIter->second;
                         }
                         break;
-            }
-                    case ( EntityRank::EDGE ):
-            {
+                    }
+                    case EntityRank::EDGE:
+                    {
 
                         break;
-            }
+                    }
                     default:
                     {
                         MORIS_ERROR( 0, "Invalid parent entity rank. Nodes are not supported in this request method at this time" );
@@ -87,7 +86,6 @@ namespace xtk
                         break;
                     }
                 }
-
 
                 return tRequestExists;
             }
@@ -133,8 +131,8 @@ namespace xtk
                         }
                         break;
                     }
-                    case ( EntityRank::FACE ):
-                {
+                    case EntityRank::FACE:
+                    {
                         auto tIter = tFaceIndexToNodeLoc.find( aParentEntityIndex );
 
                         // if the iterator is not in the map then this is a request made on a parent face which has not had any requests in it yet.
@@ -160,9 +158,9 @@ namespace xtk
                             }
                         }
                         break;
-                }
-                    case ( EntityRank::EDGE ):
-                {
+                    }
+                    case EntityRank::EDGE:
+                    {
                         auto tIter = mEdgeIndexToNodeLoc.find( aParentEntityIndex );
 
                         // if the iterator is not in the map then this is a request made on a parent face which has not had any requests in it yet.
@@ -188,7 +186,7 @@ namespace xtk
                             }
                         }
                         break;
-                }
+                    }
                     default:
                     {
                         MORIS_ERROR( 0, "Invalid parent entity rank. Nodes are not supported in this request method at this time" );
@@ -228,33 +226,33 @@ namespace xtk
 
                 switch ( aParentEntityRank )
                 {
-                    case ( EntityRank::ELEMENT ):
-            {
+                    case EntityRank::ELEMENT:
+                    {
                         // Check if this entity already exists in debug only
                         MORIS_ASSERT( tElementIndexToNodeLoc.find( aParentEntityIndex ) == tElementIndexToNodeLoc.end(), "New request being made which already exists" );
 
                         // add to map
                         tElementIndexToNodeLoc[aParentEntityIndex] = tRequestIndex;
                         break;
-            }
-                    case ( EntityRank::FACE ):
-            {
+                    }
+                    case EntityRank::FACE:
+                    {
                         // Check if this entity already exists in debug only
                         MORIS_ASSERT( tFaceIndexToNodeLoc.find( aParentEntityIndex ) == tFaceIndexToNodeLoc.end(), "New request being made which already exists" );
 
                         // add to map
                         tFaceIndexToNodeLoc[aParentEntityIndex] = tRequestIndex;
                         break;
-            }
-                    case ( EntityRank::EDGE ):
-            {
+                    }
+                    case EntityRank::EDGE:
+                    {
                         // Check if this entity already exists in debug only
                         MORIS_ASSERT( tEdgeIndexToNodeLoc.find( aParentEntityIndex ) == tEdgeIndexToNodeLoc.end(), "New request being made which already exists" );
 
                         // add to map
                         tEdgeIndexToNodeLoc[aParentEntityIndex] = tRequestIndex;
                         break;
-            }
+                    }
                     default:
                     {
                         MORIS_ERROR( 0, "Invalid parent entity rank. Nodes are not supported in this request method at this time" );
@@ -265,7 +263,6 @@ namespace xtk
 
                 return tRequestIndex;
             }
-
 
             moris_index
             register_new_request(
@@ -301,8 +298,8 @@ namespace xtk
                 // add information to the maps
                 switch ( aParentEntityRank )
                 {
-                    case ( EntityRank::ELEMENT ):
-            {
+                    case EntityRank::ELEMENT:
+                    {
                         auto tIter = tElementIndexToNodeLoc.find( aParentEntityIndex );
 
                         // if this parent entity has no requests made we need to setup some things
@@ -322,9 +319,9 @@ namespace xtk
                         // add to map
                         mElementIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc )[aSecondaryIdentifier] = tRequestIndex;
                         break;
-            }
-                    case ( EntityRank::FACE ):
-            {
+                    }
+                    case EntityRank::FACE:
+                    {
                         auto tIter = tFaceIndexToNodeLoc.find( aParentEntityIndex );
 
                         // if this parent entity has no requests made we need to setup some things
@@ -346,9 +343,9 @@ namespace xtk
                         // add to map
                         mFaceIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc )[aSecondaryIdentifier] = tRequestIndex;
                         break;
-            }
-                    case ( EntityRank::EDGE ):
-            {
+                    }
+                    case EntityRank::EDGE:
+                    {
 
                         auto tIter = mEdgeIndexToNodeLoc.find( aParentEntityIndex );
 
@@ -357,7 +354,6 @@ namespace xtk
                         {
                             // cell where this parent entity is going to
                             moris::moris_index tParentEntityLoc = mEdgeIndexToSecondaryIdAndNewNodeLoc.size();
-
 
                             mEdgeIndexToNodeLoc[aParentEntityIndex] = tParentEntityLoc;
 
@@ -372,7 +368,7 @@ namespace xtk
                         // add to map
                         mEdgeIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc )[aSecondaryIdentifier] = tRequestIndex;
                         break;
-            }
+                    }
                     default:
                     {
                         MORIS_ERROR( 0, "Invalid parent entity rank. Nodes are not supported in this request method at this time" );
@@ -404,7 +400,6 @@ namespace xtk
                 }
 
                 oSS << "\n";
-
 
                 for ( moris::uint i = 0; i < tNewNodeId.size(); i++ )
                 {
@@ -562,6 +557,5 @@ namespace xtk
             uint mNumNewNodesWithIds;
     };
 }// namespace xtk
-
 
 #endif /* PROJECTS_XTK_SRC_XTK_CL_XTK_DECOMPOSITION_DATA_HPP_ */
