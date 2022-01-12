@@ -221,8 +221,8 @@ namespace moris
                     for( uint Ik = 0; Ik < tNumClustersOnSet; Ik++ )
                     {
                         // get primary/void cells on old cluster
-                        moris::Cell< moris::mtk::Cell const * > tPrimaryCells = tClustersOnSet( Ik )->get_primary_cells_in_cluster();
-                        moris::Cell< moris::mtk::Cell const * > tVoidCells    = tClustersOnSet( Ik )->get_void_cells_in_cluster();
+                        const moris::Cell< moris::mtk::Cell const * > & tPrimaryCells = tClustersOnSet( Ik )->get_primary_cells_in_cluster();
+                        const moris::Cell< moris::mtk::Cell const * > & tVoidCells    = tClustersOnSet( Ik )->get_void_cells_in_cluster();
 
                         // resize primary/void cell list for vis cluster
                         moris::Cell< moris::mtk::Cell const * > tClusterPrimaryCells( tPrimaryCells.size(), nullptr );
