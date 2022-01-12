@@ -48,6 +48,7 @@ Node_Hierarchy_Interface::perform(
     Integration_Mesh_Generator*       aMeshGenerator )
 {
     Tracer tTracer( "XTK", "Decomposition_Algorithm", "Node_Hierarchy_Interface", aMeshGenerator->verbosity_level(), 0 );
+
     // keep track of some useful classes (avoid passing to every function)
     mGeometryEngine     = aMeshGenerator->get_geom_engine();
     mMeshGenerationData = aMeshGenerationData;
@@ -55,7 +56,6 @@ Node_Hierarchy_Interface::perform(
     mCutIntegrationMesh = aCutIntegrationMesh;
     mBackgroundMesh     = aBackgroundMesh;
     mGenerator          = aMeshGenerator;
-
 
     // active geometries
     moris::Matrix< moris::IndexMat > const* tActiveGeometries = aMeshGenerator->get_active_geometries();
@@ -98,6 +98,7 @@ Node_Hierarchy_Interface::perform(
         // figure out which edges are intersected
         moris::Cell< moris_index > tIntersectedEdgeIndices;
         moris::Cell< moris::real > tIntersectedEdgeLocCoords;
+
         this->determine_intersected_edges_and_make_requests(
             tIgCellGroupEdgeConnectivity,
             tIgEdgeAncestry,
@@ -137,6 +138,9 @@ Node_Hierarchy_Interface::perform(
         // commit the cells to the mesh
         aMeshGenerator->commit_new_ig_cells_to_cut_mesh( aMeshGenerationData, aDecompositionData, aCutIntegrationMesh, aBackgroundMesh, this );
     }
+
+    // trim data of CutIntegration mesh
+    aCutIntegrationMesh->trim_data();
 }
 
 // ----------------------------------------------------------------------------------
@@ -182,7 +186,6 @@ Node_Hierarchy_Interface::determine_intersected_edges_and_make_requests(
     //iterate through the edges in aEdgeConnectivity ask the geometry engine if we are intersected
     for ( moris::uint iEdge = 0; iEdge < aEdgeConnectivity->mEdgeVertices.size(); iEdge++ )
     {
-
         // initialize matrix storing intersection point on edge in parametric coords of BG cell
         if ( iEdge == 0 )
         {
@@ -220,10 +223,10 @@ Node_Hierarchy_Interface::determine_intersected_edges_and_make_requests(
 
                 // check if new node for current edge has already been requested ...
                 bool tRequestExist = mDecompositionData->request_exists(
-                    tParentIndex,
-                    tSecondaryId,
-                    (enum EntityRank)tParentRank,
-                    tNewNodeIndexInSubdivision );
+                        tParentIndex,
+                        tSecondaryId,
+                        (enum EntityRank)tParentRank,
+                        tNewNodeIndexInSubdivision );
 
                 // ... if not request it
                 if ( !tRequestExist )
@@ -233,11 +236,11 @@ Node_Hierarchy_Interface::determine_intersected_edges_and_make_requests(
 
                     // Register new node request
                     tNewNodeIndexInSubdivision = mDecompositionData->register_new_request(
-                        tParentIndex,
-                        tSecondaryId,
-                        tOwningProc,
-                        (enum EntityRank)tParentRank,
-                        mGeometryEngine->get_queued_intersection_global_coordinates() );
+                            tParentIndex,
+                            tSecondaryId,
+                            tOwningProc,
+                            (enum EntityRank)tParentRank,
+                            mGeometryEngine->get_queued_intersection_global_coordinates() );
 
                     // create new node in GEN
                     mGeometryEngine->admit_queued_intersection( tNewNodeIndex );
@@ -256,8 +259,9 @@ Node_Hierarchy_Interface::determine_intersected_edges_and_make_requests(
                 moris_index tVertexIndex = aEdgeConnectivity->mEdgeVertices(iEdge)(1)->get_index();
                 mGeometryEngine->induce_as_interface_vertex_on_active_geometry(tVertexIndex);
             }
+        }
     }
-    }
+
     // return success if finished
     return true;
 }
