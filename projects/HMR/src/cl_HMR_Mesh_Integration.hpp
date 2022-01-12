@@ -300,9 +300,13 @@ namespace moris
 
                     for(moris::uint i = 0; i<tBlockSetNames.size(); i++)
                     {
-                        moris::Matrix<moris::IndexMat> tCellsInSet = this->get_set_entity_loc_inds(this->get_cell_rank(),tBlockSetNames(i));
+                        moris::Matrix<moris::IndexMat> tCellsInSet =
+                                this->get_set_entity_loc_inds(this->get_cell_rank(),tBlockSetNames(i));
 
                         bool tSetHasCluster = false;
+
+                        // reserve memory
+                        mPrimaryBlockSetClusters(i).reserve( tCellsInSet.numel() );
 
                         // add the cells in set's primary cluster to member data (make unique later)
                         for(moris::uint j =0; j<tCellsInSet.numel(); j++)
@@ -336,6 +340,9 @@ namespace moris
                         mPrimaryBlockSetClusters.erase(tSetsToRemove(i-1));
                         mPrimaryBlockSetNames.erase(tSetsToRemove(i-1));
                     }
+
+                    // trim outer and inner cells
+                    shrink_to_fit_all( mPrimaryBlockSetClusters );
 
                     mListofBlocks.resize( mPrimaryBlockSetClusters.size(), nullptr );
 
@@ -384,6 +391,9 @@ namespace moris
                         moris::Matrix<moris::IndexMat>   tSideOrdsInSet( 0,0 );
                         this->get_sideset_cells_and_ords( aSideSetNames( i ), tCellsInSet, tSideOrdsInSet );
 
+                        // reserve memory for side set information
+                        mSideSets(i).reserve( tCellsInSet.size() );
+
                         // figure out which integration cells are in the side cluster input. these are assumed
                         // the only non-trivial ones, all others will be marked as trivial
                         // all trivial case
@@ -409,13 +419,6 @@ namespace moris
                                                         {{tSideOrdsInSet(iIGCell)}}, 
                                                         tCellsInSet(iIGCell)->get_vertices_on_side_ordinal(tSideOrdsInSet(iIGCell)),    
                                                         tXi));
-
-                            // mSideSets(i).push_back(
-                            //         Side_Cluster_HMR(
-                            //                 tInterpCell,
-                            //                 tCellsInSet( iIGCell ),
-                            //                 tCellsInSet( iIGCell )->get_vertices_on_side_ordinal( tSideOrdsInSet(iIGCell) ),
-                            //                 tSideOrdsInSet( iIGCell ) ) );
                         }
                     }
 
