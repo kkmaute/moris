@@ -26,6 +26,7 @@ namespace moris
 #ifdef CHECK_MEMORY
             uint mNumResizeCalls     = 0;
             uint mNumImplicitResizes = 0;
+            bool mPushBackMemWarn    = true;
 #endif
 
         public:
@@ -414,6 +415,12 @@ namespace moris
                         "Cell::insert: number of resize calls exceeds limit.\n");
 
                 mCell.insert( mCell.begin() + pos, value );
+
+                MORIS_CHECK_MEMORY(
+                        sizeof(T)*this->capacity() > MORIS_CELL_RESIZE_CHECK_LIMIT * MORIS_MAX_CELL_CAPACITY ?
+                                this->size() > MORIS_CELL_UTILIZATION_FRACTION_LIMIT * this->capacity() : true,
+                                "Cell::insert: After insert memory used is less than 75 percent of capacity of large matrix: size %d capacity %d\n",
+                                this->size(),this->capacity());
             }
 
             //------------------------------------------------------------------
@@ -433,6 +440,12 @@ namespace moris
                     "Cell::append: number of resize calls exceeds limit.\n");
 
                 mCell.insert( mCell.end(), aCell.data().begin(), aCell.data().end() );
+
+                MORIS_CHECK_MEMORY(
+                        sizeof(T)*this->capacity() > MORIS_CELL_RESIZE_CHECK_LIMIT * MORIS_MAX_CELL_CAPACITY ?
+                                this->size() > MORIS_CELL_UTILIZATION_FRACTION_LIMIT * this->capacity() : true,
+                                "Cell::append: After append memory used is less than 75 percent of capacity of large matrix: size %d capacity %d\n",
+                                this->size(),this->capacity());
             }
 
             //------------------------------------------------------------------
@@ -486,9 +499,21 @@ namespace moris
 
                 mCell.push_back( value );
 
-                MORIS_CHECK_MEMORY( mCell.capacity() != tOldCapacity ?
-                        mNumImplicitResizes++ != MORIS_CELL_IMPLICIT_RESIZE_CALL_LIMIT : true,
-                        "Cell::push_back: number of implicit resize calls exceeds limit.\n");
+                MORIS_CHECK_MEMORY( mCell.capacity() != tOldCapacity &&
+                        sizeof(T)*this->capacity() > MORIS_CELL_RESIZE_CHECK_LIMIT * MORIS_MAX_CELL_CAPACITY ?
+                                mNumImplicitResizes++ != MORIS_CELL_IMPLICIT_RESIZE_CALL_LIMIT : true,
+                                "Cell::push_back: number of implicit resize calls exceeds limit.\n");
+
+                if ( sizeof(T)*this->capacity() > MORIS_CELL_RESIZE_CHECK_LIMIT * MORIS_MAX_CELL_CAPACITY  &&
+                        this->size() < MORIS_CELL_UTILIZATION_FRACTION_LIMIT * this->capacity() &&  mPushBackMemWarn )
+                {
+                    MORIS_CHECK_MEMORY( false,
+                            "Cell::push_back: After push_back memory used is less than 75 percent of capacity of large matrix: size %d capacity %d\n",
+                            this->size(),this->capacity());
+
+                    // flag to false to avoid repeated issue of warning
+                    mPushBackMemWarn = false;
+                }
 #else
                 mCell.push_back( value );
 #endif
@@ -562,6 +587,12 @@ namespace moris
                         "Cell::shrink_to_fit: number of resize + shrink_to_fit calls exceeds limit.\n");
 
                 mCell.resize( aCount, aValue );
+
+                MORIS_CHECK_MEMORY(
+                        sizeof(T)*this->capacity() > MORIS_CELL_RESIZE_CHECK_LIMIT * MORIS_MAX_CELL_CAPACITY ?
+                                this->size() > MORIS_CELL_UTILIZATION_FRACTION_LIMIT * this->capacity() : true,
+                                "Cell::resize: After resize memory used is less than 75 percent of capacity of large matrix: size %d capacity %d\n",
+                                this->size(),this->capacity());
             }
 
             //------------------------------------------------------------------
