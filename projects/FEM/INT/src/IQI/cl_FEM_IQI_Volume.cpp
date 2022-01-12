@@ -14,6 +14,17 @@ namespace moris
     {
         //------------------------------------------------------------------------------
 
+        IQI_Volume::IQI_Volume()
+        {
+            // set size for the property pointer cell
+            mMasterProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
+
+            // populate the property map
+            mPropertyMap[ "Density" ] = static_cast< uint >( IQI_Property_Type::DENSITY );
+        }
+
+        //------------------------------------------------------------------------------
+
         void IQI_Volume::compute_QI( Matrix< DDRMat > & aQI )
         {
             // get density property
