@@ -18,7 +18,6 @@
 #include <iomanip>
 using namespace moris;
 
-
 namespace xtk
 {
 struct IG_Cell_Group
@@ -107,7 +106,6 @@ struct IG_Vertex_Group
     void
     print();
 
-
   private:
     moris::Cell< moris::mtk::Vertex const * >          mIgVertexGroup;
     std::unordered_map< moris_index, moris_index >     mIgVertexIndexToVertexOrdinal;
@@ -155,7 +153,6 @@ struct Vertex_Ancestry
         return mVertexParentEntityRank( aVertexIndex );
     }
 };
-
 
 struct Facet_Based_Connectivity
 {
@@ -336,7 +333,6 @@ struct Subphase_Neighborhood_Connectivity
     }
 };
 
-
 class Child_Mesh_Experimental;
 class Model;
 class Cell_XTK_No_CM;
@@ -460,98 +456,145 @@ class Cut_Integration_Mesh : public moris::mtk::Mesh
     moris::mtk::Mesh*                        mBackgroundMesh;
     Model*                                   mXTKModel;
 
-
   public:
+
     // ----------------------------------------------------------------------------------
+
     Cut_Integration_Mesh(
         moris::mtk::Mesh* aBackgroundMesh,
         Model*            aXTKModel );
+
     // ----------------------------------------------------------------------------------
 
     ~Cut_Integration_Mesh();
+
     // ----------------------------------------------------------------------------------
+
     // Core Mesh Functions
     uint
     get_spatial_dim() const;
+
     // ----------------------------------------------------------------------------------
+
     MeshType
     get_mesh_type() const;
+
     // ----------------------------------------------------------------------------------
+
     uint
     get_num_entities(
         enum EntityRank   aEntityRank,
         const moris_index aIndex ) const;
+
     // ----------------------------------------------------------------------------------
 
     moris::uint get_num_sets() const;
+
     // ----------------------------------------------------------------------------------
+
     Matrix< DDRMat >
     get_node_coordinate( moris_index aNodeIndex ) const;
+
     // ----------------------------------------------------------------------------------
+
     uint
     get_node_owner( moris_index aNodeIndex ) const;
+
     // ----------------------------------------------------------------------------------
+
     uint
     get_element_owner( moris_index aElementIndex ) const;
+
     // ----------------------------------------------------------------------------------
+
     Matrix< IdMat >
     get_communication_table() const;
+
     // ----------------------------------------------------------------------------------
+
     void
     add_proc_to_comm_table(moris_index aProcRank);
+
     // ----------------------------------------------------------------------------------
+
     Matrix< IndexMat > get_element_indices_in_block_set( uint aSetIndex );
+
     // ----------------------------------------------------------------------------------
+
     enum CellTopology
     get_blockset_topology( const std::string& aSetName );
+
     // ----------------------------------------------------------------------------------
+
     enum CellShape
     get_IG_blockset_shape( const std::string& aSetName );
+
     // ----------------------------------------------------------------------------------
+
     enum CellShape
     get_IP_blockset_shape( const std::string& aSetName );
+
     // ----------------------------------------------------------------------------------
+
     moris_id
     get_glb_entity_id_from_entity_loc_index(
         moris_index       aEntityIndex,
         enum EntityRank   aEntityRank,
         const moris_index aDiscretizationIndex = 0 ) const;
+
     // ----------------------------------------------------------------------------------
+
     moris_index
     get_loc_entity_ind_from_entity_glb_id(
         moris_id        aEntityId,
         enum EntityRank aEntityRank ) const;
+
     // ----------------------------------------------------------------------------------
+
     Matrix< IndexMat >
     get_entity_connected_to_entity_loc_inds(
         moris_index       aEntityIndex,
         enum EntityRank   aInputEntityRank,
         enum EntityRank   aOutputEntityRank,
         const moris_index aDiscretizationIndex = 0 ) const;
+
     // ----------------------------------------------------------------------------------
+
     moris::Cell< std::string >
     get_set_names( enum EntityRank aSetEntityRank ) const;
+
     // ----------------------------------------------------------------------------------
+
     moris_index
     get_block_set_index( std::string aBlockSetLabel ) const;
+
     // ----------------------------------------------------------------------------------
+
     Matrix< IndexMat >
     get_block_entity_loc_inds( std::string aSetName ) const;
+
     // ----------------------------------------------------------------------------------
+
     moris_index
     get_side_set_index( std::string aSideSetLabel ) const;
+
     // ----------------------------------------------------------------------------------
+
     void
     get_sideset_elems_loc_inds_and_ords(
         const std::string&  aSetName,
         Matrix< IndexMat >& aElemIndices,
         Matrix< IndexMat >& aSidesetOrdinals ) const;
+
     // ----------------------------------------------------------------------------------
+
     Matrix< IndexMat >
     get_set_entity_loc_inds(
         enum EntityRank aSetEntityRank,
         std::string     aSetName ) const;
+
     // ----------------------------------------------------------------------------------
+
     moris::Cell< std::shared_ptr< Matrix< DDRMat > > >*
     get_all_vertex_coordinates_loc_inds();
 
@@ -559,6 +602,7 @@ class Cut_Integration_Mesh : public moris::mtk::Mesh
 
     moris::Cell< std::shared_ptr< IG_Cell_Group > >&
     get_all_cell_groups();
+
     // ----------------------------------------------------------------------------------
 
     std::shared_ptr< Child_Mesh_Experimental >
@@ -570,198 +614,312 @@ class Cut_Integration_Mesh : public moris::mtk::Mesh
     get_num_child_meshes() const;
 
     // ----------------------------------------------------------------------------------
+
     std::unordered_map< moris_id, moris_index >
     get_vertex_glb_id_to_loc_vertex_ind_map() const;
+
     // ----------------------------------------------------------------------------------
+
     bool
     vertex_exists( moris_index tId ) const;
+
     // ----------------------------------------------------------------------------------
+
     mtk::Cell const&
     get_mtk_cell( moris_index aElementIndex ) const;
+
     // ----------------------------------------------------------------------------------
+
     mtk::Cell&
     get_mtk_cell( moris_index aElementIndex );
+
     // ----------------------------------------------------------------------------------
+
     mtk::Vertex&
     get_mtk_vertex( moris_index aVertexIndex );
+
     // ----------------------------------------------------------------------------------
+
     mtk::Vertex const&
     get_mtk_vertex( moris_index aVertexIndex ) const;
+
     // ----------------------------------------------------------------------------------
+
     moris::mtk::Vertex*
     get_mtk_vertex_pointer( moris_index aVertexIndex );
+
     // ----------------------------------------------------------------------------------
+
     std::shared_ptr< IG_Vertex_Group >
     get_vertex_group( moris_index aVertexGroupIndex );
+
     // ----------------------------------------------------------------------------------
+
     moris_index
     get_parent_cell_group_index( moris_index aParentCellIndex );
+
     // ----------------------------------------------------------------------------------
+
     void
     replace_controlled_ig_cell(
         moris_index                              aCellIndex,
         moris_id                                 aCellId,
         std::shared_ptr< moris::mtk::Cell_Info > aCellInfo,
         moris::Cell< moris::mtk::Vertex* >&      aVertexPointers );
+
     // ----------------------------------------------------------------------------------
+
     void
     set_integration_cell(
         moris_index                            aCellIndex,
         std::shared_ptr< xtk::Cell_XTK_No_CM > aNewCell );
+
     // ----------------------------------------------------------------------------------
+
     void
     add_integration_cell(
         moris_index                            aCellIndex,
         std::shared_ptr< xtk::Cell_XTK_No_CM > aNewCell );
+
     // ----------------------------------------------------------------------------------
+
     moris_index
     get_integration_cell_controlled_index(
         moris_index aCellIndex );
+
     // ----------------------------------------------------------------------------------
+
     void
     add_cell_to_cell_group(
         moris_index aCellIndex,
         moris_index aCellGroupIndex );
+
     // ----------------------------------------------------------------------------------
 
     moris_id
     allocate_entity_ids( moris::size_t aNumIdstoAllocate,
         enum EntityRank                aEntityRank );
+
     // ----------------------------------------------------------------------------------
+
     moris_id
     allocate_subphase_ids( moris::size_t aNumIdstoAllocate );
+
     // ----------------------------------------------------------------------------------
+
     moris::moris_index
     get_first_available_index( enum EntityRank aEntityRank ) const;
+
     // ----------------------------------------------------------------------------------
+
     moris::uint
     get_num_ig_cell_groups();
+
     // ----------------------------------------------------------------------------------
+
     std::shared_ptr< IG_Cell_Group >
     get_ig_cell_group( moris_index aGroupIndex );
+
     // ----------------------------------------------------------------------------------
+
     moris::Cell< moris_index > const&
     get_ig_cell_group_memberships( moris_index aIgCellIndex );
+
     // ----------------------------------------------------------------------------------
+
     moris::mtk::Cell*
     get_ig_cell_group_parent_cell( moris_index aGroupIndex );
+
     // ----------------------------------------------------------------------------------
+
     enum CellTopology 
     get_child_element_topology();
     void
+
     // ----------------------------------------------------------------------------------
+
     set_child_mesh_subphase(
         moris_index                 aCMIndex,
         moris::Cell< moris_index >& aSubphasesGroups );
+
     // ----------------------------------------------------------------------------------
+
     moris::uint
     get_num_subphases();
+
     // ----------------------------------------------------------------------------------
+
     moris::Cell< std::shared_ptr< Child_Mesh_Experimental > >&
     get_owned_child_meshes();
+
     // ----------------------------------------------------------------------------------
+
     moris::Cell< moris_index >&
     get_owned_subphase_indices();
+
     // ----------------------------------------------------------------------------------
+
     moris::Cell< moris_index >&
     get_not_owned_subphase_indices();
+
     // ----------------------------------------------------------------------------------
+
     moris::mtk::Cell*
     get_subphase_parent_cell( moris_index aSubPhaseIndex );
+
     // ----------------------------------------------------------------------------------
+
     std::shared_ptr< IG_Cell_Group >
     get_subphase_ig_cells( moris_index aSubPhaseIndex );
+
     // ----------------------------------------------------------------------------------
+
     moris_index
     get_subphase_id( moris_index aSubPhaseIndex );
+
     // ----------------------------------------------------------------------------------
+
     moris_index
     get_subphase_index( moris_id aSubphaseId );
+
     // ----------------------------------------------------------------------------------
+
     moris_index
     get_subphase_bulk_phase( moris_index aSubPhaseIndex );
+
     // ----------------------------------------------------------------------------------
+
     moris::Cell< moris_index > const&
     get_parent_cell_subphases( moris_index aParentCellIndex );
+
     // ----------------------------------------------------------------------------------
+
     moris_index
     get_ig_cell_subphase_index( moris_index aIgCellIndex );
+
     // ----------------------------------------------------------------------------------
+
     bool
     parent_cell_has_children( moris_index aParentCellIndex );
+
     // ----------------------------------------------------------------------------------
+
     moris_index
     get_vertex_parent_index( moris_index const& aVertexIndex );
+
     // ----------------------------------------------------------------------------------
+
     moris_index
     get_vertex_parent_rank( moris_index const& aVertexIndex );
+
     // ----------------------------------------------------------------------------------
+
     void
     finalize_cut_mesh_construction();
+
     // ----------------------------------------------------------------------------------
+
     void
     deduce_ig_cell_group_ownership();
+
     // ----------------------------------------------------------------------------------
+
     void
     assign_controlled_ig_cell_ids();
+
     // ----------------------------------------------------------------------------------
+
     void
     set_face_connectivity( std::shared_ptr< Facet_Based_Connectivity > aFaceConnectivity );
+
     // ----------------------------------------------------------------------------------
+
     void
     set_face_ancestry( std::shared_ptr< Facet_Based_Ancestry > aFaceAncestry );
+
     // ----------------------------------------------------------------------------------
+
     std::shared_ptr< Facet_Based_Connectivity >
     get_face_connectivity();
+
     // ----------------------------------------------------------------------------------
+
     std::shared_ptr< Facet_Based_Ancestry >
     get_face_ancestry();
+
     // ----------------------------------------------------------------------------------
+
     void
     set_interface_facets( moris::Cell< moris_index >& aInterfaces );
+
     // ----------------------------------------------------------------------------------
+
     moris::Cell< moris_index > const&
     get_interface_facets();
+
     // ----------------------------------------------------------------------------------
+
     void
     set_bulk_phase_to_bulk_phase_dbl_side_interface( moris::Cell< moris::Cell< std::shared_ptr< IG_Cell_Double_Side_Group > > >& aBptoBpDblSideInterfaces );
+
     // ----------------------------------------------------------------------------------
+
     moris::Cell< moris::Cell< std::shared_ptr< IG_Cell_Double_Side_Group > > > const&
     get_bulk_phase_to_bulk_phase_dbl_side_interface();
+
     // ----------------------------------------------------------------------------------
+
     void
     set_background_facet_to_child_facet_connectivity( moris::Cell< std::shared_ptr< moris::Cell< moris::moris_index > > > const& aBgtoChildFacet );
+
     // ----------------------------------------------------------------------------------
+
     moris::Cell< std::shared_ptr< moris::Cell< moris::moris_index > > > const&
     get_background_facet_to_child_facet_connectivity();
+
     // ----------------------------------------------------------------------------------
+
     void
     set_subphase_neighborhood( std::shared_ptr< Subphase_Neighborhood_Connectivity > aSubphaseNeighborhood );
+
     // ----------------------------------------------------------------------------------
+
     std::shared_ptr< Subphase_Neighborhood_Connectivity >
     get_subphase_neighborhood();
+
     // ----------------------------------------------------------------------------------
+
     void
     setup_glob_to_loc_subphase_map();
+
     // ----------------------------------------------------------------------------------
+
     moris_index
     get_cell_bulk_phase( moris_index aCellIndex );
+
     // ----------------------------------------------------------------------------------
+
     Cell< moris_index >
     register_side_set_names( moris::Cell< std::string > const& aSideSetNames );
+
     // ----------------------------------------------------------------------------------
+
     Cell< moris_index >
     register_block_set_names( moris::Cell< std::string > const& aBlockSetNames,
         enum CellTopology                                       aCellTopo );
+
     // ----------------------------------------------------------------------------------
+
     void
     write_mesh( std::string aOutputPath,
         std::string         aOutputFile );
+
     // ----------------------------------------------------------------------------------
 
     Cell_Connectivity
     get_background_cell_connectivity( moris_index aBGCellIndex ) const;
-    
+
+    // ----------------------------------------------------------------------------------
 
     void
     print()
@@ -772,14 +930,22 @@ class Cut_Integration_Mesh : public moris::mtk::Mesh
         this->print_groupings();
         this->print_vertex_ancestry();
     }
+
+    // ----------------------------------------------------------------------------------
+
     void
     print_cells(
         bool        aOmitIndex = false,
         std::string aFile      = "" );
+
+    // ----------------------------------------------------------------------------------
+
     void
     print_vertices(
         bool        aOmitIndex = false,
         std::string aFile      = "" );
+
+    // ----------------------------------------------------------------------------------
 
     void
     print_block_sets()
@@ -812,8 +978,12 @@ class Cut_Integration_Mesh : public moris::mtk::Mesh
         }
     }
 
+    // ----------------------------------------------------------------------------------
+
     void
     print_groupings( std::string aFile = "" );
+
+    // ----------------------------------------------------------------------------------
 
     void
     print_vertex_ancestry() const
@@ -825,13 +995,25 @@ class Cut_Integration_Mesh : public moris::mtk::Mesh
         // moris::Cell< moris::moris_index > mIgVertexParentEntityRank;
     }
 
-  private:
     // ----------------------------------------------------------------------------------
+
+    void
+    trim_data();
+
+    // ----------------------------------------------------------------------------------
+
+  private:
+
+    // ----------------------------------------------------------------------------------
+
     void
     create_base_cell_blocks();
+
     // ----------------------------------------------------------------------------------
+
     void
     setup_comm_map();
+
     // ----------------------------------------------------------------------------------
 
     void
@@ -841,20 +1023,25 @@ class Cut_Integration_Mesh : public moris::mtk::Mesh
         moris::Cell< moris::Matrix< IdMat > >&    aNumOwnedCellIdsOffsets,
         moris::Cell< uint >&                      aProcRanks,
         std::unordered_map< moris_id, moris_id >& aProcRankToDataIndex );
+
     // ----------------------------------------------------------------------------------
+
     void
     prepare_child_cell_id_answers(
         Cell< Matrix< IndexMat > >& aReceivedParentCellIds,
         Cell< Matrix< IndexMat > >& aReceivedParentCellNumChildren,
         Cell< Matrix< IndexMat > >& aChildCellIdOffset );
+
     // ----------------------------------------------------------------------------------
+
     void
     handle_received_child_cell_id_request_answers(
         Cell< Cell< moris_index > > const& aChildMeshesInInNotOwned,
         Cell< Matrix< IndexMat > > const&  aReceivedChildCellIdOffset );
-    // ----------------------------------------------------------------------------------
-};
 
+    // ----------------------------------------------------------------------------------
+
+};
 
 class Child_Mesh_Experimental
 {

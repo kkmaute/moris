@@ -715,8 +715,11 @@ namespace xtk
             moris_index aCellIndex,
             moris_index aCellGroupIndex )
     {
-        MORIS_ERROR( aCellGroupIndex < (moris_index)mIntegrationCellGroups.size(), "Child Mesh Index out of bounds." );
-        MORIS_ERROR( aCellIndex < (moris_index)mIntegrationCells.size(), "Cell Index out of bounds." );
+        MORIS_ERROR( aCellGroupIndex < (moris_index)mIntegrationCellGroups.size(),
+                "Child Mesh Index out of bounds." );
+        MORIS_ERROR( aCellIndex < (moris_index)mIntegrationCells.size(),
+                "Cell Index out of bounds." );
+
         mIntegrationCellGroups( aCellGroupIndex )->mIgCellGroup.push_back( mIntegrationCells( aCellIndex ) );
         mIntegrationCellToCellGroupIndex( aCellIndex ).push_back( aCellGroupIndex );
     }
@@ -957,6 +960,7 @@ namespace xtk
     Cut_Integration_Mesh::finalize_cut_mesh_construction()
     {
         Tracer tTracer( "XTK", "Cut_Integration_Mesh", "finalize_cut_mesh_construction", mXTKModel->mVerboseLevel, 1 );
+
         this->deduce_ig_cell_group_ownership();
 
         this->assign_controlled_ig_cell_ids();
@@ -1789,6 +1793,7 @@ namespace xtk
     }
 
     // ----------------------------------------------------------------------------------
+
     void
     Cut_Integration_Mesh::create_base_cell_blocks()
     {
@@ -1812,5 +1817,18 @@ namespace xtk
             this->mBlockSetCellGroup( tBlockSetOrds( 0 ) )->mIgCellGroup.append( mIntegrationCells );
         }
     }
+
+    // ----------------------------------------------------------------------------------
+
+    void
+    Cut_Integration_Mesh::trim_data()
+    {
+        // trim inner and outer cells
+        shrink_to_fit_all(mControlledIgCells );
+        shrink_to_fit_all(mIntegrationCells );
+        shrink_to_fit_all(mIntegrationCellToCellGroupIndex );
+        shrink_to_fit_all(mIntegrationCellBulkPhase );
+    }
+
     // ----------------------------------------------------------------------------------
 }// namespace xtk
