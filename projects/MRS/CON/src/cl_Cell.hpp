@@ -24,8 +24,8 @@ namespace moris
             std::vector< T > mCell;
 
 #ifdef CHECK_MEMORY
-            uint mNumResizeCalls = 0;
-            uint mNumPushBack    = 0;
+            uint mNumResizeCalls     = 0;
+            uint mNumImplicitResizes = 0;
 #endif
 
         public:
@@ -375,6 +375,18 @@ namespace moris
             //------------------------------------------------------------------
 
             /**
+             * @brief Requests the removal of unused capacity of outer and inner cells
+             */
+            void
+            shrink_to_fit_all()
+            {
+                // unless template specialization holds call shrink_to_fit on outer cell
+                shrink_to_fit();
+            }
+
+            //------------------------------------------------------------------
+
+            /**
              * Clears the contents of the Cell.
              */
             void
@@ -469,14 +481,17 @@ namespace moris
             push_back(
                     T const & value )
             {
-                MORIS_CHECK_MEMORY( mCell.size() == mCell.capacity() ?
-                        mNumResizeCalls++ != MORIS_CELL_RESIZE_CALL_LIMIT : true,
-                        "Cell::push_back: number of resize calls exceeds limit.\n");
-
-                MORIS_CHECK_MEMORY( mNumPushBack++ != MORIS_CELL_PUSHBACK_CALL_LIMIT,
-                        "Cell::push_back: number of push_back calls exceeds limit.\n");
+#ifdef CHECK_MEMORY
+                const moris::size_t tOldCapacity = mCell.capacity();
 
                 mCell.push_back( value );
+
+                MORIS_CHECK_MEMORY( mCell.capacity() != tOldCapacity ?
+                        mNumImplicitResizes++ != MORIS_CELL_IMPLICIT_RESIZE_CALL_LIMIT : true,
+                        "Cell::push_back: number of implicit resize calls exceeds limit.\n");
+#else
+                mCell.push_back( value );
+#endif
             }
 
             //------------------------------------------------------------------
@@ -494,15 +509,11 @@ namespace moris
                     T             const & value,
                     moris::size_t const & tSizeInc)
             {
-                MORIS_CHECK_MEMORY( mCell.size() == mCell.capacity() ?
-                        mNumResizeCalls++ != MORIS_CELL_RESIZE_CALL_LIMIT : true,
-                        "Cell::push_back: number of resize calls exceeds limit.\n");
-
-                MORIS_CHECK_MEMORY( mNumPushBack++ != MORIS_CELL_PUSHBACK_CALL_LIMIT,
-                        "Cell::push_back: number of push_back calls exceeds limit.\n");
-
                 if ( mCell.size() == mCell.capacity() )
                 {
+                    MORIS_CHECK_MEMORY( mNumResizeCalls++ != MORIS_CELL_RESIZE_CALL_LIMIT,
+                            "Cell::push_back: number of resize calls exceeds limit.\n");
+
                     mCell.reserve( mCell.size() + tSizeInc );
                 }
 
@@ -686,6 +697,29 @@ namespace moris
     moris::Cell<char>
     string_to_char(moris::Cell<std::string>& strings);
 
+    //------------------------------------------------------------------
+
+    template< typename T >
+    void
+    shrink_to_fit_all( moris::Cell<T> & aCell)
+    {
+        aCell.shrink_to_fit();
+    }
+
+    //------------------------------------------------------------------
+
+    template< typename T>
+    void shrink_to_fit_all( moris::Cell< moris::Cell<T> > & aCell)
+    {
+        // trim inner cells
+        for (uint iI=0; iI<aCell.size(); ++iI)
+        {
+            aCell(iI).shrink_to_fit_all();
+        }
+
+        // trim outer cell
+        aCell.shrink_to_fit();
+    }
 }
 
 #endif /* MORIS_CONTAINERS_CL_Cell_HPP_ */
