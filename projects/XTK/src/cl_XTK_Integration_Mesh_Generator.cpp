@@ -1712,8 +1712,10 @@ Integration_Mesh_Generator::create_facet_from_element_to_node(
     moris::Cell< moris::mtk::Cell* >&           aCells,
     std::shared_ptr< Facet_Based_Connectivity > aFaceConnectivity )
 {
-    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Creating Facets",mXTKModel->mVerboseLevel, 1  );
-    // assume homogenous cell type
+    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Creating Facets",mXTKModel->mVerboseLevel, 1 );
+
+    // Note: this function assumes that all cells are of same type, i.e. have the same cell info
+
     if ( aCells.size() > 0 )
     {
         // cell information
@@ -1722,51 +1724,73 @@ Integration_Mesh_Generator::create_facet_from_element_to_node(
         // node to facet map
         moris::Matrix< moris::IdMat > tElementToFacetMap = tCellInfo->get_node_to_facet_map();
 
-        // Maximum faces per node
-        // moris::uint tMaxFacePerNode   = 10;
-        moris::uint tNumFacesPerElem  = tCellInfo->get_num_facets();
-        moris::uint tNumElements      = aCells.size();
-        moris::uint tMaxNumFacets     = tNumElements * tNumFacesPerElem;
-        moris::uint tNumNodesPerFacet = tElementToFacetMap.n_cols();
-
-        // Allocate outputs
-        aFaceConnectivity->mCellToFacet.resize( aCells.size() );
-        aFaceConnectivity->mFacetToCell.reserve( tMaxNumFacets );
-        aFaceConnectivity->mFacetToCellEdgeOrdinal.reserve( tMaxNumFacets );
-        aFaceConnectivity->mFacetVertices.reserve( tMaxNumFacets );
-
+        // list of unique vertices
         moris::uint                                    tNumNodes = 0;
         moris::Cell< moris::mtk::Vertex* >             tVertices;
         std::unordered_map< moris_index, moris_index > tVertexIndexToLocalIndexMap;
+
+        // reserve memory for list of vertex points
+        tVertices.reserve( aCells.size() );
+
         for ( moris::uint i = 0; i < aCells.size(); i++ )
         {
             moris::Cell< moris::mtk::Vertex* > tCellVerts = aCells( i )->get_vertex_pointers();
 
             for ( moris::uint iV = 0; iV < tCellVerts.size(); iV++ )
             {
+                // check vertex has already been assigned local vertex index
                 if ( tVertexIndexToLocalIndexMap.find( tCellVerts( iV )->get_index() ) == tVertexIndexToLocalIndexMap.end() )
                 {
+                    // add local vertex index to map
                     tVertexIndexToLocalIndexMap[tCellVerts( iV )->get_index()] = (moris_index)tNumNodes;
+
+                    // store vertex pointer
                     tVertices.push_back( tCellVerts( iV ) );
+
+                    // increase node counter
                     tNumNodes++;
                 }
             }
         }
 
+        // Maximum faces per node
+        moris::uint tNumFacesPerElem  = tCellInfo->get_num_facets();
+        moris::uint tNumElements      = aCells.size();
+        moris::uint tMaxNumFacets     = tNumElements * tNumFacesPerElem;
+        moris::uint tNumNodesPerFacet = tElementToFacetMap.n_cols();
+
+        // set size for cell to facet map
+        aFaceConnectivity->mCellToFacet.resize( aCells.size() );
+
+        // Define by which the capacity of edge-based cells is increased
+         uint tIncNumFacets = tMaxNumFacets / 10;
+
+        // reserve memory for facet-based cells
+        aFaceConnectivity->mFacetToCell.reserve( tIncNumFacets );
+        aFaceConnectivity->mFacetToCellEdgeOrdinal.reserve( tIncNumFacets );
+        aFaceConnectivity->mFacetVertices.reserve( tIncNumFacets );
+
+        // define local list
         moris::Cell< moris::Cell< uint > > tVertexToFacetIndex( tNumNodes );
-        // tVertexToFacetIndex.reserve(tMaxNumFacets*tNumNodesPerFacet*tMaxFacePerNode);
         moris::Cell< moris::mtk::Vertex* > tVerticesOnFacet( tNumNodesPerFacet, nullptr );
 
+        // iterate through cells
         for ( moris::uint i = 0; i < aCells.size(); i++ )
         {
-            MORIS_ERROR( aFaceConnectivity->mCellIndexToCellOrdinal.find( aCells( i )->get_index() ) == aFaceConnectivity->mCellIndexToCellOrdinal.end(), "Duplicate cell in aCells provided" );
+            // check that cell exits only once
+            MORIS_ERROR( aFaceConnectivity->mCellIndexToCellOrdinal.find( aCells( i )->get_index() ) == aFaceConnectivity->mCellIndexToCellOrdinal.end(),
+                    "Duplicate cell in aCells provided" );
 
+            // set local cell index in map
             aFaceConnectivity->mCellIndexToCellOrdinal[aCells( i )->get_index()] = i;
 
-
+            // get list of vertex pointers of cell
             moris::Cell< moris::mtk::Vertex* > tCellVerts = aCells( i )->get_vertex_pointers();
 
-            // iterate through edges
+            // reserve memory for storing facets on cell
+            aFaceConnectivity->mCellToFacet( i ).reserve( tNumFacesPerElem );
+
+            // iterate through edges of cell
             for ( moris::uint iEdge = 0; iEdge < tElementToFacetMap.n_rows(); iEdge++ )
             {
                 // get the vertices on the edge
@@ -1776,31 +1800,52 @@ Integration_Mesh_Generator::create_facet_from_element_to_node(
                 }
 
                 // figure out if the edge exists and if so where
-                moris_index tEdgeIndex = this->facet_exists( tVerticesOnFacet, tVertexIndexToLocalIndexMap, tVertexToFacetIndex, aFaceConnectivity->mFacetVertices );
+                moris_index tFacetIndex = this->facet_exists(
+                        tVerticesOnFacet,
+                        tVertexIndexToLocalIndexMap,
+                        tVertexToFacetIndex,
+                        aFaceConnectivity->mFacetVertices );
 
-                // add it new
-                if ( tEdgeIndex == MORIS_INDEX_MAX )
+                // add new facet if it doesn't exist already
+                if ( tFacetIndex == MORIS_INDEX_MAX )
                 {
+                    // set edge index
+                    tFacetIndex = aFaceConnectivity->mFacetVertices.size();
 
-                    tEdgeIndex = aFaceConnectivity->mFacetVertices.size();
-                    aFaceConnectivity->mFacetVertices.push_back( tVerticesOnFacet );
-                    aFaceConnectivity->mFacetToCell.push_back( moris::Cell< moris::mtk::Cell* >() );
-                    aFaceConnectivity->mFacetToCellEdgeOrdinal.push_back( moris::Cell< moris::moris_index >() );
+                    // store pointers of vertices on facet
+                    aFaceConnectivity->mFacetVertices.push_back( tVerticesOnFacet, tIncNumFacets );
 
-                    // local vertex index
+                    // for current facet initialize list to store cells and cell ordinals
+                    aFaceConnectivity->mFacetToCell.push_back( moris::Cell< moris::mtk::Cell* >(), tIncNumFacets );
+                    aFaceConnectivity->mFacetToCellEdgeOrdinal.push_back( moris::Cell< moris::moris_index >(), tIncNumFacets );
+
+                    // reserve memory for list storing cells and their side ordinal connected to edge
+                    // guess of cell size: number of facets per element
+                    aFaceConnectivity->mFacetToCell.back().reserve( tNumFacesPerElem );
+                    aFaceConnectivity->mFacetToCellEdgeOrdinal.back().reserve( tNumFacesPerElem );
+
+                    // store facet index with vertex
                     auto tIter = tVertexIndexToLocalIndexMap.find( tVerticesOnFacet( 0 )->get_index() );
                     MORIS_ERROR( tIter != tVertexIndexToLocalIndexMap.end(), "Invalid vertex detected." );
                     moris_index tLocalVertexIndex = tIter->second;
 
-                    tVertexToFacetIndex( tLocalVertexIndex ).push_back( tEdgeIndex );
+                    tVertexToFacetIndex( tLocalVertexIndex ).push_back( tFacetIndex );
                 }
 
+                // store facet index on cell
+                aFaceConnectivity->mCellToFacet( i ).push_back( tFacetIndex );
 
-                aFaceConnectivity->mCellToFacet( i ).push_back( tEdgeIndex );
-                aFaceConnectivity->mFacetToCell( tEdgeIndex ).push_back( aCells( i ) );
-                aFaceConnectivity->mFacetToCellEdgeOrdinal( tEdgeIndex ).push_back( iEdge );
+                // store cell and cell ordinal with facet
+                // if needed increase cell capacity by increments of number of faces per element
+                aFaceConnectivity->mFacetToCell( tFacetIndex ).push_back( aCells( i ), tNumFacesPerElem );
+                aFaceConnectivity->mFacetToCellEdgeOrdinal( tFacetIndex ).push_back( iEdge, tNumFacesPerElem );
             }
         }
+
+        // trim inner and outer cells
+        shrink_to_fit_all(aFaceConnectivity->mFacetVertices);
+        shrink_to_fit_all(aFaceConnectivity->mFacetToCell);
+        shrink_to_fit_all(aFaceConnectivity->mFacetToCellEdgeOrdinal);
     }
 }
 
@@ -1865,21 +1910,24 @@ Integration_Mesh_Generator::create_edges_from_element_to_node(
 {
     Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Creating Edges" ,mXTKModel->mVerboseLevel, 1  );
 
-    // assume homogenous cell type
+    // Note: this function assumes that all cells are of same type, i.e. have the same cell info
+
     if ( aCells.size() > 0 )
     {
         // cell information
         moris::mtk::Cell_Info const* tCellInfo = aCells( 0 )->get_cell_info();
 
-        // Initialize
+        // number of edges per element
         moris::uint tNumEdgePerElem = tCellInfo->get_num_edges();
 
         // nodes to edge map
         moris::Matrix< moris::IdMat > tElementEdgeToNodeMap = tCellInfo->get_node_to_edge_map();
 
-        moris::uint tNumElements     = aCells.size();
+        // number of cells
+        const moris::uint tNumElements = aCells.size();
 
-        moris::uint tNumNodesPerEdge = 2;
+        // number of nodes per edge
+        const moris::uint tNumNodesPerEdge = 2;
 
         MORIS_ERROR( tNumNodesPerEdge == 2,
                 "Only works on two node edges at the moment" );
@@ -1887,12 +1935,12 @@ Integration_Mesh_Generator::create_edges_from_element_to_node(
         MORIS_ERROR( tNumNodesPerEdge == tElementEdgeToNodeMap.n_cols(),
                 "Mismatch in number of nodes per edge (only operating on two node edges)" );
 
-        // moris::uint tNumEdgeCreated    = 0;
-        moris::uint tMaxNumEdges = tNumElements * tNumEdgePerElem;
-
         // initialize counter for number of unique vertices/nodes
         moris::uint                                    tNumNodes = 0;
         moris::Cell< moris::mtk::Vertex* >             tVertices;
+
+        // reserve memory for cell of vertex pointers
+        tVertices.reserve( aCells.size() );
 
         // initialize map, pairing global (?) index of vertex to new numbering going through unique nodes
         std::unordered_map< moris_index, moris_index > tVertexIndexToLocalIndexMap;
@@ -1904,38 +1952,51 @@ Integration_Mesh_Generator::create_edges_from_element_to_node(
 
             for ( moris::uint iV = 0; iV < tCellVerts.size(); iV++ )
             {
-                
                 // check if vertex has already been given a new index
                 if ( tVertexIndexToLocalIndexMap.find( tCellVerts( iV )->get_index() ) == tVertexIndexToLocalIndexMap.end() )
                 {
-                    // give new unique vertex new index and increment counter of unique nodes
+                    // give new unique vertex new index
                     tVertexIndexToLocalIndexMap[tCellVerts( iV )->get_index()] = (moris_index)tNumNodes;
+
+                    // store vertex pointer
                     tVertices.push_back( tCellVerts( iV ) );
+
+                    // increment counter of unique nodes
                     tNumNodes++;
                 }
             }
         }
 
-        // Allocate outputs
+        // Set size for cell to edge map
         aEdgeConnectivity->mCellToEdge.resize( aCells.size() );
 
-        // Increment by which the following matrices is increased
-        uint tIncNumEdges = tMaxNumEdges / 25;
+        // Maximum number of edges
+        uint tMaxNumEdges = tNumElements * tNumEdgePerElem;
 
+        // Define by which the capacity of edge-based cells is increased
+        uint tIncNumEdges = tMaxNumEdges * tNumNodesPerEdge / 10;
+
+        // Reserve memory of edge-based cells
         aEdgeConnectivity->mEdgeToCell.reserve( tIncNumEdges );
         aEdgeConnectivity->mEdgeToCellEdgeOrdinal.reserve( tIncNumEdges );
-        aEdgeConnectivity->mEdgeVertices.reserve( tIncNumEdges * tNumNodesPerEdge );
+        aEdgeConnectivity->mEdgeVertices.reserve( tIncNumEdges );
 
+        // Set size of cell storing edges connected to node
         moris::Cell< moris::Cell< uint > > tVertexToEdgeIndex( tNumNodes );
 
+        // Set size of auxiliary cell with vertex pointers
         moris::Cell< moris::mtk::Vertex* > tVerticesOnEdge( tNumNodesPerEdge, nullptr );
 
         // loop over all cells and their edges
         for ( moris::uint i = 0; i < aCells.size(); i++ )
         {
+            // get pointers to vertices of cell
             moris::Cell< moris::mtk::Vertex* > tCellVerts = aCells( i )->get_vertex_pointers();
 
-            // iterate through edges
+            // reserve memory for storing edges on cell
+            aEdgeConnectivity->mCellToEdge( i ).reserve( tNumEdgePerElem );
+
+            // iterate through facets of cell
             for ( moris::uint iEdge = 0; iEdge < tElementEdgeToNodeMap.n_rows(); iEdge++ )
             {
                 // get the vertices on the edge
@@ -1951,27 +2012,49 @@ Integration_Mesh_Generator::create_edges_from_element_to_node(
                         tVertexToEdgeIndex,
                         aEdgeConnectivity->mEdgeVertices );
 
-                // add it new if it doesn't exist already 
+                // add new edge new if it doesn't exist already
                 if ( tEdgeIndex == MORIS_INDEX_MAX )
                 {
+                    // set edge index
                     tEdgeIndex = aEdgeConnectivity->mEdgeVertices.size();
-                    aEdgeConnectivity->mEdgeVertices.push_back( tVerticesOnEdge, tIncNumEdges );
-                    aEdgeConnectivity->mEdgeToCell.push_back( moris::Cell< moris::mtk::Cell* >(), tIncNumEdges );
-                    aEdgeConnectivity->mEdgeToCellEdgeOrdinal.push_back( moris::Cell< moris::moris_index >(), tIncNumEdges );
 
-                    // local vertex index
+                    // store pointers of vertices on edge
+                    aEdgeConnectivity->mEdgeVertices.push_back( tVerticesOnEdge, tIncNumEdges );
+
+                    // for current edge initialize list to store connected cell and side ordinal
+                    aEdgeConnectivity->mEdgeToCell.push_back( moris::Cell< moris::mtk::Cell* >( ), tIncNumEdges );
+                    aEdgeConnectivity->mEdgeToCellEdgeOrdinal.push_back( moris::Cell< moris::moris_index >( ), tIncNumEdges );
+
+                    // reserve memory for list storing cells and their side ordinal connected to edge
+                    // guess of cell size: number of edges per element
+                    aEdgeConnectivity->mEdgeToCell.back().reserve( tNumEdgePerElem );
+                    aEdgeConnectivity->mEdgeToCellEdgeOrdinal.back().reserve( tNumEdgePerElem );
+
+                    // store edge with vertex
                     auto tIter = tVertexIndexToLocalIndexMap.find( tVerticesOnEdge( 0 )->get_index() );
+
                     MORIS_ERROR( tIter != tVertexIndexToLocalIndexMap.end(), "Invalid vertex detected." );
+
                     moris_index tLocalVertexIndex = tIter->second;
 
-                    tVertexToEdgeIndex( tLocalVertexIndex ).push_back( tEdgeIndex );
+                    // store edge index for vertex; if needed increase cell capacity by increments of 10
+                    tVertexToEdgeIndex( tLocalVertexIndex ).push_back( tEdgeIndex, 10 );
                 }
 
+                // add edge index to cell
                 aEdgeConnectivity->mCellToEdge( i ).push_back( tEdgeIndex );
-                aEdgeConnectivity->mEdgeToCell( tEdgeIndex ).push_back( aCells( i ) );
-                aEdgeConnectivity->mEdgeToCellEdgeOrdinal( tEdgeIndex ).push_back( iEdge );
+
+                // add cell pointer and side ordinal to edge
+                // if needed increase cell capacity by increments of number of edges per element
+                aEdgeConnectivity->mEdgeToCell( tEdgeIndex ).push_back( aCells( i ), tNumEdgePerElem );
+                aEdgeConnectivity->mEdgeToCellEdgeOrdinal( tEdgeIndex ).push_back( iEdge, tNumEdgePerElem );
             }
         }
+
+        // trim outer and inner cells
+        shrink_to_fit_all( aEdgeConnectivity->mEdgeVertices );
+        shrink_to_fit_all( aEdgeConnectivity->mEdgeToCell );
+        shrink_to_fit_all( aEdgeConnectivity->mEdgeToCellEdgeOrdinal );
     }
 }
 
