@@ -310,7 +310,6 @@ Integration_Mesh_Generator::determine_intersected_background_cells(
     uint tNumCells = aBackgroundMesh->get_num_elems();
 
     aMeshGenerationData.mIntersectedBackgroundCellIndex.resize( tNumGeometries );
-    aMeshGenerationData.mIntersectedBackgroundCellIndex.reserve( tNumCells );
 
     aMeshGenerationData.mAllIntersectedBgCellInds.reserve( tNumCells );
 
@@ -325,12 +324,21 @@ Integration_Mesh_Generator::determine_intersected_background_cells(
 
     tGeometricQuery.set_query_entity_rank( EntityRank::ELEMENT );
 
+    // reserve memory for list of indices of intersected background cells
+    // size estimate: tNumCells / tNumGeometries
+    for ( moris::size_t iGeom = 0; iGeom < tNumGeometries; iGeom++ )
+    {
+        aMeshGenerationData.mIntersectedBackgroundCellIndex( iGeom ).reserve ( tNumCells / tNumGeometries );
+    }
+
+    // iterate through all cells
     for ( moris::uint iCell = 0; iCell < tNumCells; iCell++ )
     {
         // setup geometric query with this current cell information
         tGeometricQuery.set_parent_cell( &aBackgroundMesh->get_mtk_cell( (moris_index)iCell ) );
         tGeometricQuery.set_query_cell( &aBackgroundMesh->get_mtk_cell( (moris_index)iCell ) );
 
+        // iterate through all geometries for current cell
         for ( moris::size_t iGeom = 0; iGeom < tNumGeometries; iGeom++ )
         {
             // current index for this geometry
@@ -357,7 +365,7 @@ Integration_Mesh_Generator::determine_intersected_background_cells(
     }
 
     // remove the excess space
-    aMeshGenerationData.mIntersectedBackgroundCellIndex.shrink_to_fit();
+    shrink_to_fit_all( aMeshGenerationData.mIntersectedBackgroundCellIndex );
 
     unique( aMeshGenerationData.mAllIntersectedBgCellInds );
 
@@ -379,7 +387,10 @@ Integration_Mesh_Generator::commit_new_ig_cells_to_cut_mesh(
     // iterate through cells that the decomposition constructed
     moris::uint tNumNewCells = aDecompositionAlgorithm->mNumNewCells;
 
-    MORIS_ERROR( aDecompositionAlgorithm->mNewCellToVertexConnectivity.size() == aDecompositionAlgorithm->mNewCellChildMeshIndex.size() && aDecompositionAlgorithm->mNewCellChildMeshIndex.size() == aDecompositionAlgorithm->mNewCellCellIndexToReplace.size(), "Inconsistent size from decomposition algorithm" );
+    MORIS_ERROR(
+            aDecompositionAlgorithm->mNewCellToVertexConnectivity.size() == aDecompositionAlgorithm->mNewCellChildMeshIndex.size() &&
+            aDecompositionAlgorithm->mNewCellChildMeshIndex.size() == aDecompositionAlgorithm->mNewCellCellIndexToReplace.size(),
+            "Inconsistent size from decomposition algorithm" );
 
     // add space to the mesh
     moris::uint tNumStartingCellsControlled = aCutIntegrationMesh->mControlledIgCells.size();
@@ -405,6 +416,7 @@ Integration_Mesh_Generator::commit_new_ig_cells_to_cut_mesh(
 
         // collect the vertex pointers for the cell
         moris::Cell< moris::mtk::Vertex* > tVertexPointers( aDecompositionAlgorithm->mNewCellToVertexConnectivity( iCell ).size() );
+
         for ( moris::uint iV = 0; iV < aDecompositionAlgorithm->mNewCellToVertexConnectivity( iCell ).size(); iV++ )
         {
             tVertexPointers( iV ) = aCutIntegrationMesh->get_mtk_vertex_pointer( aDecompositionAlgorithm->mNewCellToVertexConnectivity( iCell )( iV ) );
@@ -420,12 +432,21 @@ Integration_Mesh_Generator::commit_new_ig_cells_to_cut_mesh(
         // replace the cell, we should only replace cells that are in the same group
         if ( tReplaceExistingCell )
         {
-            aCutIntegrationMesh->replace_controlled_ig_cell( tNewCellIndex, aCutIntegrationMesh->get_mtk_cell( tNewCellIndex ).get_id(), aDecompositionAlgorithm->mNewCellCellInfo( iCell ), tVertexPointers );
+            aCutIntegrationMesh->replace_controlled_ig_cell(
+                    tNewCellIndex,
+                    aCutIntegrationMesh->get_mtk_cell( tNewCellIndex ).get_id(),
+                    aDecompositionAlgorithm->mNewCellCellInfo( iCell ),
+                    tVertexPointers );
         }
         // create the new cell no id
         else
         {
-            tNewCell = std::make_shared< xtk::Cell_XTK_No_CM >( tNewCellIndex + 1, tNewCellIndex, tOwner, aDecompositionAlgorithm->mNewCellCellInfo( iCell ), tVertexPointers );
+            tNewCell = std::make_shared< xtk::Cell_XTK_No_CM >(
+                    tNewCellIndex + 1,
+                    tNewCellIndex,
+                    tOwner,
+                    aDecompositionAlgorithm->mNewCellCellInfo( iCell ),
+                    tVertexPointers );
 
             // add the cell to the mesh
             aCutIntegrationMesh->set_integration_cell( tNewCellIndex, tNewCell );
@@ -467,7 +488,8 @@ Integration_Mesh_Generator::compute_ig_cell_bulk_phase(
 {
     for ( moris::size_t iCell = 0; iCell < aCutIntegrationMesh->get_num_entities( EntityRank::ELEMENT, 0 ); iCell++ )
     {
-        moris_index tBulkPhaseIndex                             = this->deduce_ig_cell_bulk_phase_index( &aCutIntegrationMesh->get_mtk_cell( iCell ) );
+        moris_index tBulkPhaseIndex = this->deduce_ig_cell_bulk_phase_index( &aCutIntegrationMesh->get_mtk_cell( iCell ) );
+
         aCutIntegrationMesh->mIntegrationCellBulkPhase( iCell ) = tBulkPhaseIndex;
     }
 }
@@ -1858,6 +1880,7 @@ Integration_Mesh_Generator::generate_cell_neighborhood(
     std::shared_ptr< Cell_Neighborhood_Connectivity > aNeighborhood )
 {
     Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Generate Neighborhood" ,mXTKModel->mVerboseLevel, 1  );
+
     // Initialize Sizes and Variables used in routine
     moris_index tMaxIndex            = this->get_max_index( aCells );
     moris_index tMaxNumElementToFace = 2;
@@ -1882,7 +1905,8 @@ Integration_Mesh_Generator::generate_cell_neighborhood(
     for ( moris::uint iF = 0; iF < aFaceConnectivity->mFacetToCell.size(); iF++ )
     {
         // iterate through cells attached to this facet (either just 1 or 2)
-        MORIS_ASSERT( aFaceConnectivity->mFacetToCell( iF ).size() == 1 || aFaceConnectivity->mFacetToCell( iF ).size() == 2, "Facet should either connect to no cell or one other cell" );
+        MORIS_ASSERT( aFaceConnectivity->mFacetToCell( iF ).size() == 1 || aFaceConnectivity->mFacetToCell( iF ).size() == 2,
+                "Facet should either connect to no cell or one other cell" );
 
         if ( aFaceConnectivity->mFacetToCell( iF ).size() == 2 )
         {
@@ -2826,6 +2850,10 @@ Integration_Mesh_Generator::sort_new_node_requests_by_owned_and_not_owned(
     // number of new nodes
     moris::uint tNumNewNodes = tDecompData.tNewNodeParentIndex.size();
 
+    // reserve memory
+    aOwnedRequests.reserve( tNumNewNodes );
+    aNotOwnedRequests.reserve( tCommTable.numel() );
+
     // Par rank
     moris::moris_index tParRank = par_rank();
 
@@ -2835,7 +2863,10 @@ Integration_Mesh_Generator::sort_new_node_requests_by_owned_and_not_owned(
     {
         aProcRankToIndexInData[tCommTable( i )] = i;
         aProcRanks( i )                         = ( tCommTable( i ) );
+
+        // initialize and reserve memory for not-owned nodes
         aNotOwnedRequests.push_back( Cell< uint >( 0 ) );
+        aNotOwnedRequests.back().reserve( 2*tNumNewNodes / tCommTable.numel() );
     }
 
     // iterate through each node request and figure out the owner
@@ -2860,6 +2891,10 @@ Integration_Mesh_Generator::sort_new_node_requests_by_owned_and_not_owned(
             aNotOwnedRequests( tIndex ).push_back( i );
         }
     }
+
+    // trim cells
+    shrink_to_fit_all( aOwnedRequests );
+    shrink_to_fit_all( aNotOwnedRequests );
 }
 
 // ----------------------------------------------------------------------------------
