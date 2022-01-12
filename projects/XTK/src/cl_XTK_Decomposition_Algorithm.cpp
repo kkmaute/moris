@@ -15,7 +15,6 @@ Decomposition_Algorithm::perform(
 {
     Tracer tTracer( "XTK", "Decomposition_Algorithm", "Generic" ,aMeshGenerator->verbosity_level(), 0 );
 
-
     this->perform_impl_vertex_requests( aMeshGenerationData, aDecompositionData, aCutIntegrationMesh, aBackgroundMesh, aMeshGenerator );
 
     // in parallel give all these nodes ids
