@@ -120,7 +120,7 @@ namespace ge
         for ( uint tAncestorNode = 1; tAncestorNode < mAncestorNodeIndices.length(); tAncestorNode++ )
         {
             // Get scaled sensitivities
-            const Matrix< DDRMat >& tAncestorSensitivities = mBasisValues( tAncestorNode ) *
+            const Matrix< DDRMat > tAncestorSensitivities = mBasisValues( tAncestorNode ) *
                     aField->get_dfield_dadvs( mAncestorNodeIndices( tAncestorNode ), mAncestorNodeCoordinates( tAncestorNode ) );
 
             // Join sensitivities
