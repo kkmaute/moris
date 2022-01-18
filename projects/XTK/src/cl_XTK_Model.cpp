@@ -244,7 +244,10 @@ namespace xtk
             Matrix< IndexMat > tMeshIndexCell;
             moris::string_to_mat( mParameterList.get< std::string >( "enrich_mesh_indices" ), tMeshIndexCell );
 
-            this->perform_basis_enrichment( tBasisRank, tMeshIndexCell );
+            // get flag whether basis enrichments need to be sorted
+            bool tSortBasisEnrichmentLevels = mParameterList.get< bool >( "sort_basis_enrichment_levels" );
+
+            this->perform_basis_enrichment( tBasisRank, tMeshIndexCell, tSortBasisEnrichmentLevels );
 
             // if high to low double side sets need to be created
             if ( mParameterList.get< bool >( "high_to_low_dbl_side_sets" ) )
@@ -1087,7 +1090,8 @@ namespace xtk
     void
     Model::perform_basis_enrichment(
             enum EntityRank const &aBasisRank,
-            moris_index const &    aMeshIndex )
+            moris_index const &    aMeshIndex,
+            bool                   aSortBasisEnrichmentLevels)
     {
         Tracer tTracer( "XTK", "Enrichment", "Enrich" );
 
@@ -1097,7 +1101,7 @@ namespace xtk
         mEnrichedIntegMesh.resize( aMeshIndex + 1, nullptr );
         mEnrichedInterpMesh.resize( aMeshIndex + 1, nullptr );
 
-        this->perform_basis_enrichment_internal( aBasisRank, { { aMeshIndex } } );
+        this->perform_basis_enrichment_internal( aBasisRank, { { aMeshIndex } }, aSortBasisEnrichmentLevels );
 
         if( this->mDiagnostics)
         {
@@ -1113,7 +1117,8 @@ namespace xtk
     void
     Model::perform_basis_enrichment(
             enum EntityRank const &   aBasisRank,
-            Matrix< IndexMat > const &aMeshIndex )
+            Matrix< IndexMat > const &aMeshIndex,
+            bool                      aSortBasisEnrichmentLevels)
     {
         Tracer tTracer( "XTK", "Enrichment" );
 
@@ -1123,7 +1128,7 @@ namespace xtk
         mEnrichedIntegMesh.resize( aMeshIndex.numel() + 1, nullptr );
         mEnrichedInterpMesh.resize( aMeshIndex.numel() + 1, nullptr );
 
-        this->perform_basis_enrichment_internal( aBasisRank, aMeshIndex );
+        this->perform_basis_enrichment_internal( aBasisRank, aMeshIndex, aSortBasisEnrichmentLevels );
 
         if(mDiagnostics)
         {
@@ -1133,6 +1138,8 @@ namespace xtk
         // Change the enrichment flag
         mEnriched = true;
     }
+
+    // ----------------------------------------------------------------------------------
 
     void
     Model::perform_hanging_node_identification()
@@ -1252,7 +1259,8 @@ namespace xtk
     void
     Model::perform_basis_enrichment_internal(
             enum EntityRank const &   aBasisRank,
-            Matrix< IndexMat > const &aMeshIndex )
+            Matrix< IndexMat > const &aMeshIndex,
+            bool                      aSortBasisEnrichmentLevels )
     {
 
         // initialize enrichment (ptr because of circular dependency)
@@ -1262,7 +1270,8 @@ namespace xtk
                 aMeshIndex,
                 mGeometryEngine->get_num_phases(),
                 this,
-                mBackgroundMesh );
+                mBackgroundMesh,
+                aSortBasisEnrichmentLevels);
 
         // Set verbose flag to match XTK.
         mEnrichment->mVerbose = mVerbose;

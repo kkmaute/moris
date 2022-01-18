@@ -29,6 +29,9 @@
 #include "cl_XTK_Cut_Integration_Mesh.hpp"
 #include "cl_XTK_Integration_Mesh_Generator.hpp"
 
+#include "fn_norm.hpp"
+#include "fn_sort_index.hpp"
+
 #include "cl_Tracer.hpp"
 //#include "cl_HMR_Database.hpp"
 namespace xtk
@@ -41,7 +44,8 @@ Enrichment::Enrichment(
     Matrix<IndexMat> const&       aInterpIndex,
     moris::moris_index const&     aNumBulkPhases,
     xtk::Model*                   aXTKModelPtr,
-    moris::mtk::Mesh*         aBackgroundMeshPtr)
+    moris::mtk::Mesh*             aBackgroundMeshPtr,
+    bool                          aSortBasisEnrichmentLevels)
     : mEnrichmentMethod(aMethod)
     , mBasisRank(aBasisRank)
     , mMeshIndices(aInterpIndex)
@@ -49,6 +53,7 @@ Enrichment::Enrichment(
     , mXTKModelPtr(aXTKModelPtr)
     , mBackgroundMeshPtr(aBackgroundMeshPtr)
     , mEnrichmentData(aInterpIndex.max() + 1, mXTKModelPtr->get_cut_integration_mesh()->get_num_subphases())
+    , mSortBasisEnrichmentLevels(aSortBasisEnrichmentLevels)
 {
     mCutIgMesh   = mXTKModelPtr->get_cut_integration_mesh();
     mIgMeshTools = new Integration_Mesh_Generator();
@@ -123,6 +128,8 @@ Enrichment::get_memory_usage()
     return tMemoryMap;
 }
 
+//-------------------------------------------------------------------------------------
+
 void
 Enrichment::write_diagnostics()
 {
@@ -177,7 +184,6 @@ Enrichment::print_enriched_basis_to_subphase_id(
     }
 
     tStringStream << "\n";
-
 
     Matrix< IndexMat > const& tLocToGlbEnrBasisId = mXTKModelPtr->mEnrichedInterpMesh( 0 )->get_enriched_coefficient_local_to_global_map( aMeshIndex );
 
@@ -270,6 +276,15 @@ Enrichment::perform_basis_cluster_enrichment()
                 tPrunedSubphaseNeighborhood,
                 tSubPhaseBinEnrichment( iBasis ),
                 tMaxEnrichmentLevel( iBasis ) );
+
+            // Sort enrichment levels
+            if ( mSortBasisEnrichmentLevels )
+            {
+                this->sort_enrichment_levels_in_basis_support(
+                        tSubphaseClusterIndicesInSupport( iBasis ),
+                        tSubPhaseBinEnrichment( iBasis ),
+                        tMaxEnrichmentLevel( iBasis ));
+            }
 
             // Extract element enrichment levels from assigned sub-phase bin enrichment levels and store these as a member variable
             this->unzip_subphase_bin_enrichment_into_element_enrichment(
@@ -370,7 +385,6 @@ Enrichment::get_subphase_clusters_in_support(moris::Matrix<moris::IndexMat> cons
     Matrix<IndexMat> tSubPhaseClusters(1, tCount);
     tCount = 0;
 
-
     for (moris::size_t iE = 0; iE < aElementsInSupport.numel(); iE++)
     {
 
@@ -470,6 +484,109 @@ Enrichment::assign_subphase_bin_enrichment_levels_in_basis_support(
         MORIS_INDEX_MAX,
         aMaxEnrichmentLevel,
         true);
+}
+
+//-------------------------------------------------------------------------------------
+
+void
+Enrichment::sort_enrichment_levels_in_basis_support(
+        moris::Matrix<moris::IndexMat> const& aSubphasesInSupport,
+        moris::Matrix<moris::IndexMat>&       aSubPhaseBinEnrichmentVals,
+        moris_index const                     aMaxEnrichmentLevel)
+{
+    // number of enrichment levels
+    moris::uint tNumEnrichLevel = aMaxEnrichmentLevel + 1;
+
+    // if only one or less enrichment levels used; no need to sort them
+    if ( tNumEnrichLevel < 2 )
+    {
+        return;
+    }
+
+    // check that maximum enrichment level index is smaller than number of enrichment levels
+     MORIS_ASSERT( (uint)aSubPhaseBinEnrichmentVals.max() < tNumEnrichLevel,
+             "Enrichment::sort_enrichment_levels_in_basis_support - incorrect enrichment index.");
+
+    // allocate list of centroids and volume for each enrichment level
+    moris::Cell<moris::Matrix<DDRMat>> tCentroids(tNumEnrichLevel);
+    moris::Cell<moris::real>           tTotalVolumes(tNumEnrichLevel);
+
+    for (moris::size_t i = 0; i < aSubphasesInSupport.numel(); i++)
+    {
+        // get enrichment level
+        moris_index tEnrichLevel = aSubPhaseBinEnrichmentVals(i);
+
+        // get subphase index
+        moris_index tSubphaseIndex = aSubphasesInSupport(i);
+
+        // get cell group in subphase
+        std::shared_ptr<IG_Cell_Group> tSubphaseIgCells = mCutIgMesh->get_subphase_ig_cells(tSubphaseIndex);
+
+        // compute volume of first cell in IG cell group
+        moris::real tVolume = tSubphaseIgCells->mIgCellGroup(0)->compute_cell_measure();
+
+        // initialize or add volume weighted centroid of first cell in IG cell group
+        if ( tCentroids(tEnrichLevel).numel() == 0 )
+        {
+            tCentroids(tEnrichLevel)    = tVolume * tSubphaseIgCells->mIgCellGroup(0)->compute_cell_centroid();
+            tTotalVolumes(tEnrichLevel) = tVolume;
+        }
+        else
+        {
+            tCentroids(tEnrichLevel)    +=  tVolume * tSubphaseIgCells->mIgCellGroup(0)->compute_cell_centroid();
+            tTotalVolumes(tEnrichLevel) += tVolume;
+        }
+
+        // iterate through remaining IG cells
+        for (moris::uint iSPCell = 1; iSPCell < tSubphaseIgCells->mIgCellGroup.size(); iSPCell++)
+        {
+            tVolume = tSubphaseIgCells->mIgCellGroup(iSPCell)->compute_cell_measure();
+
+            tCentroids(tEnrichLevel)    += tVolume * tSubphaseIgCells->mIgCellGroup(iSPCell)->compute_cell_centroid();
+            tTotalVolumes(tEnrichLevel) += tVolume;
+        }
+    }
+
+    // compute distance from origin of centroids of cell groups with same enrichment level
+    moris::Matrix<DDRMat> tEnrichLevelDistance(tNumEnrichLevel,1);
+
+    for ( uint iL=0; iL<(uint)tNumEnrichLevel; ++iL)
+    {
+        MORIS_ERROR( tCentroids(iL).numel() > 0,
+                "Enrichment::sort_enrichment_levels - enrichment levels not consecutive.");
+
+        tEnrichLevelDistance(iL) = norm( tCentroids(iL) ) / ( tTotalVolumes(iL) + MORIS_REAL_EPS );
+    }
+
+    // get index of sorted order of IG cell group centroids
+    moris::Matrix<DDUMat> tSortingIndex = sort_index( tEnrichLevelDistance, "ascend" );
+
+    // build enrichment level old to new map
+    moris::Matrix<moris::IndexMat> tEnrichmentMap(tNumEnrichLevel,1);
+
+    for ( uint i=0; i<(uint)tNumEnrichLevel;++i)
+    {
+        tEnrichmentMap( tSortingIndex(i) ) = i;
+    }
+
+    // resort enrichment levels of subphases
+    moris::Matrix<moris::IndexMat> tSortedEnrichmentVals(1,aSubphasesInSupport.numel(),MORIS_SINT_MAX);
+
+    for ( uint i=0; i<aSubphasesInSupport.numel(); ++i)
+    {
+        // old enrichment level
+        moris_index tOldEnrichLevel = aSubPhaseBinEnrichmentVals(i);
+
+        // new enrichment level
+        tSortedEnrichmentVals(i) = tEnrichmentMap( tOldEnrichLevel );
+    }
+
+    // check that for proper new enrichment levels
+    MORIS_ERROR( tSortedEnrichmentVals.max() < MORIS_SINT_MAX,
+            "Enrichment::sort_enrichment_levels - error in sorted enrichment levels.");
+
+    // overwrite old enrichment levels
+    aSubPhaseBinEnrichmentVals = tSortedEnrichmentVals;
 }
 
 //-------------------------------------------------------------------------------------
@@ -702,7 +819,6 @@ Enrichment::assign_enriched_coefficients_identifiers(
         tSubphaseIdInSupport);
 }
 
-
 //-------------------------------------------------------------------------------------
 
 void
@@ -874,7 +990,6 @@ Enrichment::set_received_enriched_basis_ids(
                 moris_index tLocalBasisIndex = aBasisIndexToBasisOwner(i)(j);
                 moris_index tGlobaId         = aReceivedEnrichedIds(i)(j);
 
-
                 MORIS_ASSERT(mEnrichmentData(aEnrichmentDataIndex).mEnrichedBasisIndexToId(tLocalBasisIndex) == MORIS_INDEX_MAX,
                     "Id already set for this basis function");
 
@@ -910,7 +1025,6 @@ Enrichment::count_elements_in_support(moris::Matrix<moris::IndexMat> const& aPar
 }
 
 //-------------------------------------------------------------------------------------
-
 
 bool
 Enrichment::subphase_is_in_support(
@@ -1002,8 +1116,6 @@ Enrichment::construct_enriched_interpolation_mesh()
     // construct all cells with interpolation vertices being attached to a single cell
     // this handles the case of multiple enrichments where the number of interpolation vertices vary
     this->construct_enriched_interpolation_vertices_and_cells();
-
-
 
     mXTKModelPtr->mEnrichedInterpMesh(0)->mCoeffToEnrichCoeffs.resize(mMeshIndices.max() + 1);
     mXTKModelPtr->mEnrichedInterpMesh(0)->mEnrichCoeffLocToGlob.resize(mMeshIndices.max() + 1);
@@ -1467,7 +1579,6 @@ Enrichment::allocate_basis_ids(moris_index const& aMeshIndex,
     }
 
     moris::scatter(tProcFirstID, tFirstId);
-
 
     return tFirstId(0);
 }
