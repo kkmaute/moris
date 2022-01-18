@@ -24,9 +24,7 @@ namespace moris
                      mCellIndex(aCellIndex),
                      mCellOwner(aCellOwner)
         {
-
         }
-
 
         //------------------------------------------------------------------------------
         Cell_Info const *
@@ -45,6 +43,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void
         Cell::set_mtk_cell_info( std::shared_ptr<moris::mtk::Cell_Info> aCellInfo)
         {
@@ -111,7 +110,9 @@ namespace moris
         {
             return this->get_cell_info()->get_num_facets();
         }
+
         //------------------------------------------------------------------------------
+
         uint
         Cell::get_number_of_edges() const
         {
@@ -227,7 +228,6 @@ namespace moris
         moris::Matrix<moris::DDRMat>
         Cell::get_cell_physical_coords_on_side_ordinal(moris::moris_index aSideOrdinal) const
         {
-
             // FIXME: Add assert to check side ordinal
 
             // get the vertex pointers on the side
@@ -270,6 +270,8 @@ namespace moris
             }
             return  tVertexInd;
         }
+
+        //------------------------------------------------------------------------------
 
         moris_index
         Cell::get_vertex_ordinal_wrt_cell(moris_index const & aVertexIndex) const
@@ -320,7 +322,6 @@ namespace moris
             // Normalize
             Matrix<DDRMat> tUnitOutwardNormal = tOutwardNormal / moris::norm(tOutwardNormal);
 
-
             return tUnitOutwardNormal;
         }
 
@@ -351,18 +352,21 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         Interpolation_Order
         Cell::get_interpolation_order() const
         {
              return this->get_cell_info()->get_cell_interpolation_order();
         }
+
         //------------------------------------------------------------------------------
+
         mtk::Integration_Order
         Cell::get_integration_order() const
         {
             return this->get_cell_info()->get_cell_integration_order();
         }
-        //------------------------------------------------------------------------------
+
         //------------------------------------------------------------------------------
 
         moris::real
@@ -376,7 +380,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-       moris::Matrix<moris::DDRMat>
+        moris::Matrix<moris::DDRMat>
         Cell::get_cell_geometric_coords_on_side_ordinal(moris::moris_index aSideOrdinal) const
         {
             MORIS_ASSERT(mCellInfo != nullptr, "Cell info null ptr");
@@ -401,11 +405,30 @@ namespace moris
                 }
 
                 tVertexPhysCoords.get_row(i) = tVertexCoord.get_row(0);
-
             }
 
             return  tVertexPhysCoords;
         }
 
+       //------------------------------------------------------------------------------
+
+       moris::Matrix<moris::DDRMat>
+       Cell::compute_cell_centroid() const
+       {
+           // get all vertices of cell
+           moris::Cell< Vertex* > tVertices = this->get_vertex_pointers();
+
+           // get coordinate of first vertex
+           Matrix< DDRMat > tCentroid = tVertices(0)->get_coords();
+
+           // add coordinates of remaining vertices
+           for (uint iI=1; iI<tVertices.size(); ++iI)
+           {
+               tCentroid += tVertices(iI)->get_coords();
+           }
+
+           // compute and return coordinate average
+           return 1.0/tVertices.size() * tCentroid;
+       }
     }
 }

@@ -311,6 +311,14 @@ namespace moris
 
                 //------------------------------------------------------------------------------
 
+                /*
+                 * Cell centroid
+                 */
+                virtual moris::Matrix<moris::DDRMat>
+                compute_cell_centroid() const;
+
+                //------------------------------------------------------------------------------
+
                 /**
                  * returns the order of the element
                  */
@@ -326,6 +334,7 @@ namespace moris
                 get_integration_order() const;
 
                 //------------------------------------------------------------------------------
+
                 virtual moris::mtk::Cell const *
                 get_base_cell() const
                 {
