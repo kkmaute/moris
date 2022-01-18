@@ -29,8 +29,7 @@
 #include "cl_XTK_Cut_Integration_Mesh.hpp"
 #include "cl_XTK_Integration_Mesh_Generator.hpp"
 
-#include "fn_norm.hpp"
-#include "fn_sort_index.hpp"
+#include "fn_sort_points_by_coordinates.hpp"
 
 #include "cl_Tracer.hpp"
 //#include "cl_HMR_Database.hpp"
@@ -547,22 +546,21 @@ Enrichment::sort_enrichment_levels_in_basis_support(
         }
     }
 
-    // compute distance from origin of centroids of cell groups with same enrichment level
-    moris::Matrix<DDRMat> tEnrichLevelDistance(tNumEnrichLevel,1);
-
     for ( uint iL=0; iL<(uint)tNumEnrichLevel; ++iL)
     {
+        // check that centroid for current enrichment level has been computed
         MORIS_ERROR( tCentroids(iL).numel() > 0,
                 "Enrichment::sort_enrichment_levels - enrichment levels not consecutive.");
 
-        tEnrichLevelDistance(iL) = norm( tCentroids(iL) ) / ( tTotalVolumes(iL) + MORIS_REAL_EPS );
+        // compute centroid
+        tCentroids(iL) = 1.0/( tTotalVolumes(iL) + MORIS_REAL_EPS ) * tCentroids(iL);
     }
 
-    // get index of sorted order of IG cell group centroids
-    moris::Matrix<DDUMat> tSortingIndex = sort_index( tEnrichLevelDistance, "ascend" );
+    // sort centroids by cooridinates
+    moris::Cell<moris_index> tSortingIndex = sort_points_by_coordinates( tCentroids );
 
     // build enrichment level old to new map
-    moris::Matrix<moris::IndexMat> tEnrichmentMap(tNumEnrichLevel,1);
+    moris::Cell<moris_index> tEnrichmentMap(tNumEnrichLevel);
 
     for ( uint i=0; i<(uint)tNumEnrichLevel;++i)
     {
