@@ -202,23 +202,26 @@ namespace moris
              * specifically.
              *
              * @param[in]  aElementId - element id
-             * @return A 2 row matrix where the first row it the neighbor elements index and the
-             *             second row is the shared face ordinal corresponding to the neighbor
+             * @return Matrix< IndexMat > matrix containing connected elements and corresponding side ordinals
+             *         Format:  1st row are indices of other connected elements/cells
+             *                  2nd row are the side ordinal indices wrt. treated Bg cell
+             *                  3rd row are the side ordinal indices wrt. respective neighbor Bg cell
+             *                  4th row ? // TODO: need to understand this ~Nils
              */
             virtual
             Matrix< IndexMat >
             get_elements_connected_to_element_and_face_ord_loc_inds(moris_index aElementIndex) const;
-
+            
             /**
-             * Since the connectivity between entities of the same rank are considered
-             * invalid by STK standards, we need a separate function for element to element
-             * specifically
-             *
-             * @param[in]  aElementId - element id
-             * @return Element to element connectivity and face index shared
-             *                   (where elements are all by index)
+             * @brief Since the connectivity between entities of the same rank are considered
+             *        invalid by STK standards, we need a separate function for element to element
+             *        specifically
+             * 
+             * @param aElementIndex - index of Bg-cell for which connectivity is to be retrieved
+             * @return Matrix< IndexMat > matrix containing connected elements and corresponding facets
+             *         Format:  1st row are indices of other connected elements/cells
+             *                  2nd row are the indices of the Bg-cell's facets through which they are connected
              */
-            // FIXME: Keenan - Explanation of output not clear; give precise information of return matrix
             virtual
             Matrix< IndexMat >
             get_elements_connected_to_element_and_face_ind_loc_inds(moris_index aElementIndex) const

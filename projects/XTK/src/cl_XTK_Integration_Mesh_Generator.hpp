@@ -30,9 +30,8 @@ struct Integration_Mesh_Generation_Data
     // inner cell active child mesh index by cut mesh index
     moris::Cell< moris::Cell< moris_index > > mIntersectedBackgroundCellIndex;
 
-    // All intersected backgroun cells (uniques removed from the concatenated version of mIntersectedBackgroundCellIndex)
+    // All intersected background cells (uniques removed from the concatenated version of mIntersectedBackgroundCellIndex)
     moris::Cell< moris_index > mAllIntersectedBgCellInds;
-
 
     // // this maps from the background cell index to the child mesh index
     // std::unordered_map< moris_index, moris_index > mIntersectedBackgroundCellIndexToChildMeshIndex;
@@ -511,13 +510,21 @@ class Integration_Mesh_Generator
         Cell< Matrix< IndexMat > > const & aReceivedSubphaseIds );
 
 
+    /**
+     * @brief perform flood fill on IG cell group and assign a subphase index to every IG cell
+     * 
+     * @param aCutIntegrationMesh pointer to XTK Cut_Integration_Mesh
+     * @param aCutNeighborhood Cell_Neighborhood_Connectivity of proc local mesh
+     * @param aIgCellGroup pointer to IG_Cell_Group to perform flood fill on
+     * @param aMaxValueAssigned (return value) number of subphases assigned during floodfill (= max bg-cell local index of subphases assigned)
+     * @return moris::Matrix< moris::IndexMat > List (vector) of subphase indices. Index in list corresponds to IG cell group local index of IG cell
+     */
     moris::Matrix< moris::IndexMat >
     flood_fill_ig_cell_group(
         Cut_Integration_Mesh *                            aCutIntegrationMesh,
         std::shared_ptr< Cell_Neighborhood_Connectivity > aCutNeighborhood,
         std::shared_ptr< IG_Cell_Group >                  aIgCellGroup,
         moris_index &                                     aMaxValueAssigned );
-
 
     void
     extract_cells_from_cell_groups(

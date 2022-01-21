@@ -238,6 +238,7 @@ namespace xtk
         if ( mParameterList.get< bool >( "enrich" ) )
         {
             // get rank of the interpolation basis (B-spline or Lagrange Element)
+            // determines which basis functions to perform enrichment on 
             enum EntityRank tBasisRank = get_entity_rank_from_str( mParameterList.get< std::string >( "basis_rank" ) );
 
             // get index of Lagrange mesh to be enriched from parameter list
@@ -260,7 +261,6 @@ namespace xtk
                     }
                 }
             }
-
         }
 
         if ( mParameterList.get< bool >( "identify_hanging_nodes" ) )
