@@ -16,7 +16,7 @@
 #endif
 
 #ifdef MORIS_USE_ARMA
-#include "fn_sort_Arma.hpp"
+#include "Arma_Impl/fn_sort_Arma.hpp"
 #endif
 
 
@@ -48,7 +48,6 @@ namespace moris
     {
         sort( aA.matrix_data(), aSorted, aDirection, aDimension);
     }
-
 }
 
 #endif /* PROJECTS_LINALG_SRC_FN_SORT_HPP_ */

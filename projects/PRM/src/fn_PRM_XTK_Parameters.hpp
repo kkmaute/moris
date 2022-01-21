@@ -47,6 +47,7 @@ namespace prm
         tParameterList.insert( "enrich", false );
         tParameterList.insert( "basis_rank", "node" );
         tParameterList.insert( "enrich_mesh_indices", "0" );
+        tParameterList.insert( "sort_basis_enrichment_levels", false );
 
         // ghost stabilization and ghost related parameters
         tParameterList.insert( "ghost_stab", false );// Perform ghost stabilization

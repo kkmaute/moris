@@ -109,6 +109,8 @@ namespace moris
 
             std::shared_ptr< hmr::Database > tHMRDatabase = tSourceMesh->get_HMR_database();
 
+            uint tUnionDescritizationOrder = tDiscreteFieldTarget->get_discretization_order();
+
             // grab orders of meshes
             uint tSourceLagrangeOrder = tSourceMesh->get_order();
             uint tTargetLagrangeOrder = tTargetMesh->get_order();
@@ -116,11 +118,11 @@ namespace moris
             // get order of Union Mesh
             uint tLagrangeOrder = std::max( tSourceLagrangeOrder, tTargetLagrangeOrder );
 
+            tLagrangeOrder = std::max( tLagrangeOrder, tUnionDescritizationOrder );
+
             uint tSourcePattern = tSourceMesh->get_HMR_lagrange_mesh()->get_activation_pattern();
             uint tTargetPattern = tTargetMesh->get_HMR_lagrange_mesh()->get_activation_pattern();
             uint tUnionPattern  = tHMRDatabase->get_parameters()->get_union_pattern();
-
-            uint tUnionDescritizationOrder = tDiscreteFieldTarget->get_discretization_order();
 
             // create union pattern
             tHMRDatabase->create_union_pattern(
@@ -154,7 +156,7 @@ namespace moris
             mtk::Field_Discrete tFieldUnion( tMeshPairUnion, 0 );
 
             // map source Lagrange field to target Lagrange field
-            if( tSourceLagrangeOrder >= tTargetLagrangeOrder )
+            if( tSourceLagrangeOrder >= tLagrangeOrder )
             {
                 // interpolate field onto union mesh
                 this->interpolate_field(
