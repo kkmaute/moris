@@ -1144,16 +1144,16 @@ Enrichment::construct_enriched_interpolation_mesh()
     mXTKModelPtr->mEnrichedInterpMesh(0)->assign_ip_vertex_ids();
     mXTKModelPtr->mEnrichedInterpMesh(0)->setup_vertex_maps();
 
-    moris::Cell< mtk::Vertex* > tVerticesToCommunicate;
-    for(auto & iVert: mXTKModelPtr->mEnrichedInterpMesh(0)->mEnrichedInterpVerts)
-    {
-        if(iVert->get_owner() != moris::par_rank() )
-        {
-            tVerticesToCommunicate.push_back(iVert);
-        }
-    }
+    // moris::Cell< mtk::Vertex* > tVerticesToCommunicate;
+    // for(auto & iVert: mXTKModelPtr->mEnrichedInterpMesh(0)->mEnrichedInterpVerts)
+    // {
+    //     if(iVert->get_owner() != moris::par_rank() )
+    //     {
+    //         tVerticesToCommunicate.push_back(iVert);
+    //     }
+    // }
 
-    mXTKModelPtr->mEnrichedInterpMesh(0)->communicate_select_vertex_interpolation(tVerticesToCommunicate);
+    // mXTKModelPtr->mEnrichedInterpMesh(0)->communicate_select_vertex_interpolation(tVerticesToCommunicate);
 
     // in most cases all the interpolation vertices are the same. We merge them back together with this call
     // post-processing to construct_enriched_interpolation_vertices_and_cells in an effort to not add complexity to the function (already too)

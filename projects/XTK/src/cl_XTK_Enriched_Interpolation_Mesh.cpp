@@ -697,6 +697,7 @@ Enriched_Interpolation_Mesh::add_vertex_enrichment(
 void
 Enriched_Interpolation_Mesh::merge_duplicate_interpolation_vertices()
 {
+    Tracer tTracer( "XTK", "Enriched_Interpolation_Mesh", "merge_duplicate_interpolation_vertices", mXTKModel->mVerboseLevel, 0  );
     MORIS_LOG_SPEC( "Num Enriched Interpolation Vertices Pre Merge ", mEnrichedInterpVerts.size() );
 
     // this is how many vertices I start with
@@ -2206,6 +2207,7 @@ void
 Enriched_Interpolation_Mesh::communicate_select_vertex_interpolation(
     moris::Cell< mtk::Vertex* > & aVerticesToCommunicate )
 {
+    Tracer tTracer( "XTK", "Enriched_Interpolation_Mesh", "communicate_select_vertex_interpolation", mXTKModel->mVerboseLevel, 0  );
     Matrix< IndexMat >                             tCommTable = this->get_communication_table();
     std::unordered_map< moris_index, moris_index > tCommMap;
     Cell< uint > tProcs(tCommTable.numel());
