@@ -63,7 +63,7 @@ namespace prm
 
         // verbose - should be replaced by the severity level of the logger
         tParameterList.insert( "verbose", false );
-        tParameterList.insert( "verbose_level", 0 ); // 0 - basic outputs // 1- lots of outputs
+        tParameterList.insert( "verbose_level", moris::uint(0) ); // 0 - basic outputs // 1- lots of outputs
         tParameterList.insert( "diagnostics", false );
         tParameterList.insert( "diagnostics_id", "" );
         tParameterList.insert( "diagnostics_path", "" );

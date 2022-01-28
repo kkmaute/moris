@@ -182,7 +182,8 @@ namespace xtk
     {
         Tracer tTracer( "XTK", "Overall", "Run" );
 
-        mVerbose = mParameterList.get< bool >( "verbose" );
+        mVerbose      = mParameterList.get< bool >( "verbose" );
+        mVerboseLevel = mParameterList.get< moris::uint  >( "verbose_level" );
 
         if ( !mInitializeCalled )
         {
