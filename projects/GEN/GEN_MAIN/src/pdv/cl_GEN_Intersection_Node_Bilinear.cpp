@@ -68,6 +68,7 @@ namespace moris
                 // TODO
                 Matrix<DDRMat> tFirstBasisValues;
                 Matrix<DDRMat> tSecondBasisValues;
+
                 xtk::Quad_4_Basis_Function().evaluate_basis_function({{xi1, eta1}}, tFirstBasisValues);
                 xtk::Quad_4_Basis_Function().evaluate_basis_function({{xi2, eta2}}, tSecondBasisValues);
 
@@ -170,9 +171,9 @@ namespace moris
                     "Second parent of a bilinear intersection node must have 2 local coordinates (xi, eta).");
 
             // Local coordinates
-            xi1 = aFirstParentNodeLocalCoordinates(0);
+            xi1  = aFirstParentNodeLocalCoordinates(0);
             eta1 = aFirstParentNodeLocalCoordinates(1);
-            xi2 = aSecondParentNodeLocalCoordinates(0);
+            xi2  = aSecondParentNodeLocalCoordinates(0);
             eta2 = aSecondParentNodeLocalCoordinates(1);
 
             // Geometry field values
@@ -204,7 +205,7 @@ namespace moris
                 real tSecondParentPhi = tSecondBasisValues(0) * phi1 + tSecondBasisValues(1) * phi2 +
                         tSecondBasisValues(2) * phi3 + tSecondBasisValues(3) * phi4;
 
-                return (2 * iso - tFirstParentPhi - tSecondParentPhi) / (tSecondParentPhi - tFirstParentPhi);
+                return (2.0 * iso - tFirstParentPhi - tSecondParentPhi) / (tSecondParentPhi - tFirstParentPhi);
             }
             else // Bilinear
             {
