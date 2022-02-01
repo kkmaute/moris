@@ -64,7 +64,26 @@ Enrichment::Enrichment(
 
 Enrichment::~Enrichment()
 {
+    // delete the integration mesh generator
     delete mIgMeshTools;
+
+    // delete the objects holding B-spline information
+    this->delete_Bspline_infos();
+}
+
+//-------------------------------------------------------------------------------------
+
+void
+Enrichment::delete_Bspline_infos()
+{
+    // delete the objects themselves
+    for ( auto iBspMesh : mBsplineMeshInfos )
+    {
+        delete iBspMesh;
+    }
+
+    // delete memory for cell
+    mBsplineMeshInfos.clear();
 }
 
 //-------------------------------------------------------------------------------------
@@ -234,11 +253,14 @@ Enrichment::perform_basis_cluster_enrichment() // moris::Cell< Bspline_Mesh_Info
 
     // FIXME: for now, this information lives only here, needs to be initialized, or passed outside
     // initialize B-spline mesh infos for each Bsp-mesh
-    mBsplineMeshInfos.resize( tNumBspMeshes );
+    mBsplineMeshInfos.resize( tNumBspMeshes, nullptr );
 
     // iterate through basis types (i.e. linear and quadratic)
     for ( moris::size_t iBasisType = 0; iBasisType < tNumBspMeshes; iBasisType++ )
     {
+        // initialize B-spline mesh info objects
+        mBsplineMeshInfos( iBasisType ) = new Bspline_Mesh_Info();
+
         // get the mesh index
         moris_index tMeshIndex = mMeshIndices( iBasisType );
 
@@ -941,7 +963,6 @@ Enrichment::unzip_subphase_bin_enrichment_into_element_enrichment(
             // store IG element indices in basis support
             mEnrichmentData( aEnrichmentDataIndex ).mElementIndsInBasis( aBasisIndex )( tCount ) = tSubphaseIgCells->mIgCellGroup( iSPCell )->get_index();
 
-            // TODO: what is done here?
             mEnrichmentData( aEnrichmentDataIndex ).mElementEnrichmentLevel( aBasisIndex )( tCount ) = aSubPhaseBinEnrichmentVals( i );
             tCount++;
         }

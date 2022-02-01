@@ -48,7 +48,7 @@ namespace xtk
             mSubphaseIndicesInGroup = aSubphaseIndicesInGroup;
         }
 
-        ~Subphase_Group();
+        ~Subphase_Group(){}
 
         moris_index
         get_index() const
