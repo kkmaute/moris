@@ -21,6 +21,7 @@
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Child_Mesh.hpp"
 #include "cl_XTK_Cut_Mesh.hpp"
+#include "cl_XTK_Subphase_Group.hpp"
 #include "fn_mesh_flood_fill.hpp"
 #include "fn_prune_element_to_element.hpp"
 #include "fn_generate_element_to_element.hpp"
@@ -76,7 +77,7 @@ namespace xtk
                 mSubphaseBGBasisEnrLev( aNumSubphases ){};
 
             // Enrichment Data ordered by basis function indices
-            // For each basis function, the element indices and elemental subphases
+            // For each basis function, the element indices and elemental enrichment levels //?
             Cell< moris::Matrix< moris::IndexMat > > mElementEnrichmentLevel;
             Cell< moris::Matrix< moris::IndexMat > > mElementIndsInBasis;
 
@@ -84,12 +85,12 @@ namespace xtk
             Cell< moris::Matrix< moris::IndexMat > > mSubphaseIndsInEnrichedBasis;
 
             // Basis enrichment level indices
-            moris::Cell< moris::Matrix< moris::IndexMat > > mBasisEnrichmentIndices;
+            moris::Cell< moris::Matrix< moris::IndexMat > > mBasisEnrichmentIndices; //???
             moris::Matrix< moris::IndexMat >                mEnrichedBasisIndexToId;
 
             // Unintersected Parent Cell, BackBasis interpolating in them and corresponding enrichment level
             // outer cell corresponds to interp cell index
-            // inner cell corresponds to basis/enrlev in intepr cell
+            // inner cell corresponds to basis/enr-lev in interp cell
             moris::Cell< moris::Cell< moris_index > > mSubphaseBGBasisIndices;
             moris::Cell< moris::Cell< moris_index > > mSubphaseBGBasisEnrLev;
 
@@ -236,6 +237,9 @@ namespace xtk
             // flag whether to sort basis enrichment levels
             bool mSortBasisEnrichmentLevels;
 
+            // B-spline - Lagrange Mesh information
+            moris::Cell< Bspline_Mesh_Info * > mBsplineMeshInfos;
+
             // ----------------------------------------------------------------------------------
 
             /*
@@ -269,18 +273,44 @@ namespace xtk
 
             // ----------------------------------------------------------------------------------
 
+            Matrix< IndexMat >
+            get_subphase_clusters_in_bspline_cell( moris::Cell< mtk::Cell* > const& aCellsInGroup );
+
+            // ----------------------------------------------------------------------------------
+
             void
             construct_subphase_in_support_map(
                     moris::Matrix< moris::IndexMat > const& aSubphaseClusterIndicesInSupport,
                     IndexMap&                               aSubPhaseIndexToSupportIndex );
 
             // ----------------------------------------------------------------------------------
+            void
+            construct_subphase_in_bspline_cell_map(
+                    moris::Matrix< moris::IndexMat > const& aSubphaseIndicesInBsplineCell,
+                    IndexMap&                               aSubphaseIndexToBsplineCellIndex );
 
+            // ----------------------------------------------------------------------------------
+
+            /**
+             * @brief Construct full subphase neighbor graph in basis support and the corresponding shared faces
+             * 
+             * @param aSubphasesInSupport 
+             * @param aSubPhaseIndexToSupportIndex 
+             * @param aPrunedSubPhaseToSubphase 
+             */
             void
             generate_pruned_subphase_graph_in_basis_support(
                     moris::Matrix< moris::IndexMat > const& aSubphasesInSupport,
                     IndexMap&                               aSubPhaseIndexToSupportIndex,
                     moris::Matrix< moris::IndexMat >&       aPrunedSubPhaseToSubphase );
+
+            // ----------------------------------------------------------------------------------
+
+            void
+            generate_pruned_subphase_graph_in_bspline_cell(
+                    moris::Matrix< moris::IndexMat > const& aSubphasesInBsplineCell,
+                    IndexMap&                               aSubphaseIndicesToBspline,
+                    moris::Matrix< moris::IndexMat >&       aPrunedBsplineSubphaseToSubphase );
 
             // ----------------------------------------------------------------------------------
 
@@ -291,6 +321,35 @@ namespace xtk
                     moris::Matrix< moris::IndexMat > const& aPrunedSubPhaseToSubphase,
                     moris::Matrix< moris::IndexMat >&       aSubPhaseBinEnrichmentVals,
                     moris_index&                            aMaxEnrichmentLevel );
+
+            // ----------------------------------------------------------------------------------
+
+            void
+            create_subphase_groups(
+                    moris::Cell< mtk::Cell* >& aIpCellsInGroup,
+                    moris::size_t              aBsplineMeshIndex );
+
+            // ----------------------------------------------------------------------------------
+
+            /**
+             * @brief splits up the bin of subphases into lists of subphase indices with the same color
+             * 
+             * @param aSubphaseBin 
+             * @param aSubphaseIndicesInBsplineCell 
+             * @return moris::Cell< moris::Cell< moris_index > > 
+             */
+            moris::Cell< moris::Cell< moris_index > > 
+            split_flood_fill_bin( 
+                    moris::Matrix< moris::IndexMat > aSubphaseBin, 
+                    moris::Matrix< moris::IndexMat > aSubphaseIndicesInBsplineCell,
+                    uint                             aNumSPGs );
+
+            // ----------------------------------------------------------------------------------
+
+            moris::Cell< bool >
+            collect_subphase_group_ligament_side_ordinals( 
+                    moris::Cell< moris_index >& aSPsInGroup,
+                    IndexMap&                   aSubphaseIndicesToBspline );
 
             // ----------------------------------------------------------------------------------
 
