@@ -3,7 +3,7 @@ AlignAfterOpenBracket: DontAlign
 AlignConsecutiveAssignments: true
 AlignConsecutiveDeclarations: true
 AlignEscapedNewlines: Left
-AlignOperands: true
+AlignOperands: AlignAfterOperator
 AlignTrailingComments: false
 AllowAllParametersOfDeclarationOnNextLine: false
 AllowShortBlocksOnASingleLine: true
@@ -37,17 +37,18 @@ BraceWrapping:
 BreakAfterJavaFieldAnnotations: true
 BreakBeforeBinaryOperators: NonAssignment
 BreakBeforeBraces: Custom
+BreakBeforeConceptDeclarations: true
 BreakBeforeInheritanceComma: true
 BreakBeforeTernaryOperators: true
-BreakConstructorInitializers: AfterColon
+BreakConstructorInitializers: BeforeComma
 BreakConstructorInitializersBeforeComma: false
 BreakStringLiterals: true
 ColumnLimit: 0
 CommentPragmas: '^ IWYU pragma:'
 CompactNamespaces: false
 ConstructorInitializerAllOnOneLineOrOnePerLine: false
-ConstructorInitializerIndentWidth: 4
-ContinuationIndentWidth: 4
+ConstructorInitializerIndentWidth: 8
+ContinuationIndentWidth: 8
 Cpp11BracedListStyle: false
 DerivePointerAlignment: true
 DisableFormat: false
@@ -65,7 +66,7 @@ IncludeCategories:
 - Priority: 1
   Regex: .*
 IncludeIsMainRegex: (Test)?$
-IndentCaseLabels: false
+IndentCaseLabels: true
 IndentWidth: 4
 IndentWrappedFunctionNames: false
 JavaScriptQuotes: Leave
@@ -75,7 +76,7 @@ Language: Cpp
 MacroBlockBegin: ''
 MacroBlockEnd: ''
 MaxEmptyLinesToKeep: 2
-NamespaceIndentation: Inner
+NamespaceIndentation: All
 ObjCBlockIndentWidth: 7
 ObjCSpaceAfterProperty: true
 ObjCSpaceBeforeProtocolList: false
@@ -85,8 +86,11 @@ SortIncludes: false
 SortUsingDeclarations: false
 SpaceAfterCStyleCast: false
 SpaceAfterTemplateKeyword: false
+SpaceAroundPointerQualifiers: After
 SpaceBeforeAssignmentOperators: true
+SpaceBeforeCaseColon: false
 SpaceBeforeParens: ControlStatements
+SpaceBeforeRangeBasedForLoopColon: true
 SpaceInEmptyParentheses: false
 SpacesBeforeTrailingComments: 0
 SpacesInAngles: true
