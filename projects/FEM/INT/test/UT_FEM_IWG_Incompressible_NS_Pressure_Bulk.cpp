@@ -452,16 +452,15 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Bulk_With_Turbulence",
     //------------------------------------------------------------------------------
     // create the properties
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
-    tPropViscosity->set_parameters( { {{ 1.0 }} } );
     tPropViscosity->set_val_function( tConstValFunc );
-    tPropViscosity->set_space_der_function( tVISCOSITYFISpaceDerFunc );
+    tPropViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
     //tPropViscosity->set_dof_type_list( { tPDofTypes } );
     //tPropViscosity->set_val_function( tPFIValFunc );
     //tPropViscosity->set_dof_derivative_functions( { tPFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropKinViscosity = std::make_shared< fem::Property >();
     tPropKinViscosity->set_val_function( tConstValFunc );
-    tPropKinViscosity->set_space_der_function( tVISCOSITYFISpaceDerFunc );
+    tPropKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
     std::shared_ptr< fem::Property > tPropDensity = std::make_shared< fem::Property >();
     tPropDensity->set_parameters( { {{ 2.0 }} } );
@@ -595,6 +594,7 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Bulk_With_Turbulence",
 
                 // set viscosity property parameters
                 tPropKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
+                tPropViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
 
                 break;
             }
@@ -621,6 +621,7 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Bulk_With_Turbulence",
 
                 // set viscosity property parameters
                 tPropKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
+                tPropViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
 
                 break;
             }

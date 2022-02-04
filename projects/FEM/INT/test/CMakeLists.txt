@@ -36,6 +36,7 @@ set(TEST_SOURCES
     UT_FEM_CM.cpp
     UT_FEM_CM_Diff_Lin_Iso.cpp
     UT_FEM_CM_Diff_PC.cpp
+    UT_FEM_CM_Diff_Lin_Iso_Turbulence.cpp
     UT_FEM_CM_Fluid.cpp
     UT_FEM_CM_Compressible_Fluid_Ideal.cpp
     UT_FEM_CM_Compressible_Newtonian_Fluid.cpp
@@ -100,7 +101,10 @@ set(TEST_SOURCES
     UT_FEM_IWG_Spalart_Allmaras_Turbulence_Bulk.cpp
     UT_FEM_IWG_Spalart_Allmaras_Turbulence_Dirichlet.cpp
     UT_FEM_IWG_Spalart_Allmaras_Turbulence_Interface.cpp
+    
     UT_FEM_IQI_Strain_Energy.cpp
+    UT_FEM_IQI_Power_Dissipation.cpp
+  
     UT_FEM_Input.cpp
     UT_FEM_Geometry_Interpolator.cpp
     UT_FEM_Integration_Rule.cpp

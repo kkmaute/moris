@@ -81,7 +81,7 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Symmetric_Nitsche",
 
     std::shared_ptr< fem::Property > tPropMasterKinViscosity = std::make_shared< fem::Property >();
     tPropMasterKinViscosity->set_val_function( tConstValFunc );
-    tPropMasterKinViscosity->set_space_der_function( tVISCOSITYFISpaceDerFunc );
+    tPropMasterKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
     std::shared_ptr< fem::Property > tPropMasterDensity = std::make_shared< fem::Property >();
     tPropMasterDensity->set_parameters( { {{ 1.0 }} } );
@@ -100,7 +100,7 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Symmetric_Nitsche",
 
     std::shared_ptr< fem::Property > tPropSlaveKinViscosity = std::make_shared< fem::Property >();
     tPropSlaveKinViscosity->set_val_function( tConstValFunc );
-    tPropSlaveKinViscosity->set_space_der_function( tVISCOSITYFISpaceDerFunc );
+    tPropSlaveKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
     std::shared_ptr< fem::Property > tPropSlaveDensity = std::make_shared< fem::Property >();
     tPropSlaveDensity->set_parameters( { {{ 1.0 }} } );
@@ -535,7 +535,7 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Unsymmetric_Nitsche",
 
     std::shared_ptr< fem::Property > tPropMasterKinViscosity = std::make_shared< fem::Property >();
     tPropMasterKinViscosity->set_val_function( tConstValFunc );
-    tPropMasterKinViscosity->set_space_der_function( tVISCOSITYFISpaceDerFunc );
+    tPropMasterKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
     std::shared_ptr< fem::Property > tPropMasterDensity = std::make_shared< fem::Property >();
     tPropMasterDensity->set_parameters( { {{ 1.0 }} } );
@@ -554,7 +554,7 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Unsymmetric_Nitsche",
 
     std::shared_ptr< fem::Property > tPropSlaveKinViscosity = std::make_shared< fem::Property >();
     tPropSlaveKinViscosity->set_val_function( tConstValFunc );
-    tPropSlaveKinViscosity->set_space_der_function( tVISCOSITYFISpaceDerFunc );
+    tPropSlaveKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
     std::shared_ptr< fem::Property > tPropSlaveDensity = std::make_shared< fem::Property >();
     tPropSlaveDensity->set_parameters( { {{ 1.0 }} } );
@@ -985,7 +985,7 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Symmetric_Nitsche",
 
     std::shared_ptr< fem::Property > tPropMasterKinViscosity = std::make_shared< fem::Property >();
     tPropMasterKinViscosity->set_val_function( tConstValFunc );
-    tPropMasterKinViscosity->set_space_der_function( tVISCOSITYFISpaceDerFunc );
+    tPropMasterKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
     std::shared_ptr< fem::Property > tPropMasterDensity = std::make_shared< fem::Property >();
     tPropMasterDensity->set_parameters( { {{ 1.0 }} } );
@@ -1005,7 +1005,7 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Symmetric_Nitsche",
 
     std::shared_ptr< fem::Property > tPropSlaveKinViscosity = std::make_shared< fem::Property >();
     tPropSlaveKinViscosity->set_val_function( tConstValFunc );
-    tPropSlaveKinViscosity->set_space_der_function( tVISCOSITYFISpaceDerFunc );
+    tPropSlaveKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
     std::shared_ptr< fem::Property > tPropSlaveDensity = std::make_shared< fem::Property >();
     tPropSlaveDensity->set_parameters( { {{ 1.0 }} } );
@@ -1433,7 +1433,7 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Unsymmetric_Nitsche",
 
     std::shared_ptr< fem::Property > tPropMasterKinViscosity = std::make_shared< fem::Property >();
     tPropMasterKinViscosity->set_val_function( tConstValFunc );
-    tPropMasterKinViscosity->set_space_der_function( tVISCOSITYFISpaceDerFunc );
+    tPropMasterKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
     std::shared_ptr< fem::Property > tPropMasterDensity = std::make_shared< fem::Property >();
     tPropMasterDensity->set_parameters( { {{ 1.0 }} } );
@@ -1453,7 +1453,7 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Unsymmetric_Nitsche",
 
     std::shared_ptr< fem::Property > tPropSlaveKinViscosity = std::make_shared< fem::Property >();
     tPropSlaveKinViscosity->set_val_function( tConstValFunc );
-    tPropSlaveKinViscosity->set_space_der_function( tVISCOSITYFISpaceDerFunc );
+    tPropSlaveKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
     std::shared_ptr< fem::Property > tPropSlaveDensity = std::make_shared< fem::Property >();
     tPropSlaveDensity->set_parameters( { {{ 1.0 }} } );

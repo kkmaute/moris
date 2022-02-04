@@ -386,7 +386,7 @@ namespace moris
                 /**
                  * reset evaluation flags
                  */
-                void reset_eval_flags();
+                virtual void reset_eval_flags();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -570,7 +570,7 @@ namespace moris
                 /**
                  * create a global dof type list including constitutive and property dependencies
                  */
-                void build_global_dof_type_list();
+               virtual void build_global_dof_type_list();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -1377,6 +1377,24 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * evaluate the test traction derivative wrt to a dof type
+                 * @param[ in ] aDofTypes       a dof type wrt which the derivative is evaluated
+                 * @param[ in ] aTestDofTypes   a test dof type wrt which the test traction is evaluated
+                 * @param[ in ] adtestractiondu_FD a matrix to fill with derivative evaluation
+                 * @param[ in ] aPerturbation   a real to perturb for FD
+                 * @param[ in ] aNormal         a normal
+                 */
+                void eval_dtesttractiondu_FD(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        const moris::Cell< MSI::Dof_Type > & aTestDofTypes,
+                        Matrix< DDRMat >                   & adtesttractiondu_FD,
+                        real                                 aPerturbation,
+                        const Matrix< DDRMat >             & aNormal,
+                        fem::FDScheme_Type                   aFDSchemeType = fem::FDScheme_Type::POINT_5,
+                        enum CM_Function_Type                aCMFunctionType = CM_Function_Type::DEFAULT );
+
+                //------------------------------------------------------------------------------
+                /**
                  * evaluate the div flux derivative wrt to a dof type
                  * @param[ in ] aDofTypes     a dof type wrt which the derivative is evaluated
                  * @param[ in ] ddivfluxdu_FD a matrix to fill with derivative evaluation
@@ -1525,6 +1543,49 @@ namespace moris
                 {
                     MORIS_ERROR( false, " Constitutive_Model::get_e_prime - This function does nothing. " );
                     return 0;
+                }
+
+                //--------------------------------------------------------------------------------------------------------------
+                //FIXME to be removed
+                /**
+                 * get the the turbulent dynamic viscosity mu_t = rho * vtilde * tf1
+                 * @param[ in ]  aCMFunctionType  enum indicating which effective conductivity is called,
+                 *               if there are several
+                 * @param[ out ] mTurbDynVisc effective conductivity
+                 */
+                virtual const Matrix< DDRMat > & turbulent_dynamic_viscosity(
+                        enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT )
+                {
+                    MORIS_ERROR( false, " Constitutive_Model::turbulent_dynamic_viscosity - This function does nothing. " );
+                    return mFlux;
+                }
+
+                //--------------------------------------------------------------------------------------------------------------
+                /**
+                 * get the the effective dynamic viscosity mu_eff = mu + mu_t
+                 * @param[ in ]  aCMFunctionType  enum indicating which effective conductivity is called,
+                 *               if there are several
+                 * @param[ out ] mEffDynVisc effective conductivity
+                 */
+                virtual const Matrix< DDRMat > & effective_dynamic_viscosity(
+                        enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT )
+                {
+                    MORIS_ERROR( false, " Constitutive_Model::effective_dynamic_viscosity - This function does nothing. " );
+                    return mFlux;
+                }
+
+                //--------------------------------------------------------------------------------------------------------------
+                /**
+                 * get the the effective conductivity k_eff = k + k_t
+                 * @param[ in ]  aCMFunctionType  enum indicating which effective conductivity is called,
+                 *               if there are several
+                 * @param[ out ] mEffCond effective conductivity
+                 */
+                virtual const Matrix< DDRMat > & effective_conductivity(
+                        enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT )
+                {
+                    MORIS_ERROR( false, " Constitutive_Model::effective_conductivity - This function does nothing. " );
+                    return mFlux;
                 }
 
                 //------------------------------------------------------------------------------

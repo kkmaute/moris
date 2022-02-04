@@ -16,6 +16,7 @@
 #include "linalg_typedefs.hpp"
 //FEM/INT/src
 #include "cl_FEM_IWG.hpp"
+#include "fn_FEM_IWG_Spalart_Allmaras_Turbulence_Tools.hpp"
 
 namespace moris
 {
@@ -105,66 +106,6 @@ namespace moris
                 void compute_dRdp( real aWStar );
 
             private:
-                //------------------------------------------------------------------------------
-                /**
-                 * compute diffusion coefficient
-                 * Diff = kinViscosity + modViscosity
-                 * if modViscosity >= 0
-                 * Diff = kinViscosity + modViscosity * fn
-                 * if modViscosity <  0
-                 */
-                real compute_diffusion_coefficient(
-                        mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the derivative of the diffusion coefficient
-                 * @param[ in ] aDofTypes     a list of dof type wrt which
-                 *                            the derivative is requested
-                 * @param[ in ] addiffusiondu a matrix to fill with ddiffusiondu
-                 */
-                void compute_ddiffusiondu(
-                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                        Matrix< DDRMat >                   & addiffusiondu,
-                        mtk::Master_Slave                    aIsMaster = mtk::Master_Slave::MASTER );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute fn
-                 * fn = ( cn1 + chi³ ) / ( cn1 - chi³)
-                 */
-                real compute_fn( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the derivative of fn wrt to a dof type
-                 * @param[ in ] aDofTypes  a list of dof type wrt which
-                 *                         the derivative is requested
-                 * @param[ in ] adfndu     a matrix to fill with dfndu
-                 */
-                void compute_dfndu(
-                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                        Matrix< DDRMat >                   & adfndu,
-                        mtk::Master_Slave                    aIsMaster = mtk::Master_Slave::MASTER );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute chi = viscosityDof / viscosityPtop
-                 * @param[ out ] chi
-                 */
-                real compute_chi( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the derivative of chi wrt to a dof type
-                 * @param[ in ] aDofTypes  a list of dof type wrt which
-                 *                         the derivative is requested
-                 * @param[ in ] adchidu    a matrix to fill with dchidu
-                 */
-                void compute_dchidu(
-                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                        Matrix< DDRMat >                   & adchidu,
-                        mtk::Master_Slave                    aIsMaster = mtk::Master_Slave::MASTER );
 
                 //------------------------------------------------------------------------------
                 /**

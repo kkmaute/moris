@@ -80,8 +80,8 @@ namespace moris
                 // value function
                 PropertyFunc mValFunction = Property_Function_Constant;
 
-                // space derivative function
-                PropertyFunc mSpaceDerFunction = nullptr;
+                // space derivative functions
+                moris::Cell< PropertyFunc > mSpaceDerFunctions;
 
                 // dof and dv derivative functions
                 moris::Cell< PropertyFunc > mDofDerFunctions;
@@ -91,7 +91,7 @@ namespace moris
                 Matrix< DDRMat > mProp;
                 moris::Cell< Matrix< DDRMat > > mPropDofDer;
                 moris::Cell< Matrix< DDRMat > > mPropDvDer;
-                Matrix< DDRMat > mdPropdx;
+                moris::Cell< Matrix< DDRMat > > mdPropdx;
 
                 // property name
                 std::string mName;
@@ -100,15 +100,15 @@ namespace moris
 
                 // flag for evaluation
                 bool mPropEval    = true;
-                bool mdPropdxEval = true;
+                moris::Matrix< DDBMat > mdPropdxEval;
                 moris::Matrix< DDBMat > mPropDofDerEval;
                 moris::Matrix< DDBMat > mPropDvDerEval;
 
                 // flag for setting mValFunction, mSpaceDerFunction, mDofDerFunctions, mDvDerFunctions
-                bool mSetValFunction      = false;
-                bool mSetSpaceDerFunction = false;
-                bool mSetDofDerFunctions  = false;
-                bool mSetDvDerFunctions   = false;
+                bool mSetValFunction       = false;
+                moris::Matrix< DDBMat > mSetSpaceDerFunctions;
+                bool mSetDofDerFunctions   = false;
+                bool mSetDvDerFunctions    = false;
 
                 //------------------------------------------------------------------------------
             public :
@@ -117,7 +117,7 @@ namespace moris
                 /**
                  * constructor
                  */
-                Property(){}
+                Property();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -202,16 +202,10 @@ namespace moris
                 //------------------------------------------------------------------------------
                 /**
                  * set space derivative function
-                 * @param[ in ] aSpaceDerFunction function for dPropdx evaluation
+                 * @param[ in ] aSpaceDerFunctions cell of functions for dnPropdxn evaluation
                  */
-                void set_space_der_function( PropertyFunc aSpaceDerFunction )
-                {
-                    // set the value function
-                    mSpaceDerFunction = aSpaceDerFunction;
-
-                    // set setting flag
-                    mSetSpaceDerFunction = true;
-                }
+                void set_space_der_functions(
+                        const moris::Cell< PropertyFunc > & aSpaceDerFunctions );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -457,16 +451,26 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * check if the property depends on space
+                 * @param[ in ]  aOrder   order of derivative wrt x
+                 * @param[ out ] aBool    boolean, true if dependency on the space order
+                 */
+                bool check_space_dependency( const uint & aOrder );
+
+                //------------------------------------------------------------------------------
+                /**
                  * get property derivative wrt x
+                 * @param[ in ]  aOrder   order of derivative wrt x
                  * @param[ out ] mdPropdx matrix with derivative wrt x
                  */
-                const Matrix< DDRMat > & dPropdx();
+                const Matrix< DDRMat > & dnPropdxn( const uint & aOrder );
 
                 //------------------------------------------------------------------------------
                 /**
                  * evaluate property derivative wrt x
+                 * @param[ in ]  aOrder   order of derivative wrt x
                  */
-                void eval_dPropdx();
+                void eval_dnPropdxn( const uint & aOrder );
 
                 //------------------------------------------------------------------------------
                 /**

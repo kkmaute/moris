@@ -113,7 +113,7 @@ namespace moris
             real tModViscosity = tFIModViscosity->val()( 0 );
 
             // if viscosity is positive or zero
-            if( tModViscosity >= 0.0 )
+            if( tModViscosity > 0.0 )
             {
                 // compute ft2
                 real tFt2 = compute_ft2(
@@ -212,7 +212,7 @@ namespace moris
             real tModViscosity = tFIModViscosity->val()( 0 );
 
             // if viscosity is positive or zero
-            if( tModViscosity >= 0.0 )
+            if( tModViscosity > 0.0 )
             {
                 // compute ft2
                 real tFt2 = compute_ft2(
@@ -275,7 +275,7 @@ namespace moris
             real tModViscosity = tFIModViscosity->val()( 0 );
 
             // if viscosity is positive or zero
-            if( tModViscosity >= 0.0 )
+            if( tModViscosity > 0.0 )
             {
                 // compute ft2
                 real tFt2 = compute_ft2(
@@ -357,7 +357,7 @@ namespace moris
             tWallDistance = std::max( tWallDistance, mWallDistanceEpsilon );
 
             // if viscosity is positive or zero
-            if( tModViscosity >= 0.0 )
+            if( tModViscosity > 0.0 )
             {
                 // compute fw
                 real tFw = compute_fw(
@@ -423,7 +423,7 @@ namespace moris
             tWallDistance = std::max( tWallDistance, mWallDistanceEpsilon );
 
             // if viscosity is positive or zero
-            if( tModViscosity >= 0.0 )
+            if( tModViscosity > 0.0 )
             {
                 // compute fw
                 real tFw = compute_fw(
@@ -540,7 +540,7 @@ namespace moris
             tWallDistance = std::max( tWallDistance, mWallDistanceEpsilon );
 
             // if viscosity is positive or zero
-            if( tModViscosity >= 0.0 )
+            if( tModViscosity > 0.0 )
             {
                 // compute fw
                 real tFw = compute_fw(
@@ -606,7 +606,7 @@ namespace moris
             tWallDistance = std::max( tWallDistance, mWallDistanceEpsilon );
 
             // if viscosity is positive or zero
-            if( tModViscosity >= 0.0 )
+            if( tModViscosity > 0.0 )
             {
                 // compute fw
                 real tFw = compute_fw(
@@ -718,7 +718,7 @@ namespace moris
             real tKinViscosity = aPropKinViscosity->val()( 0 );
 
             // if viscosity is positive or zero
-            if( tModViscosity >= 0.0 )
+            if( tModViscosity > 0.0 )
             {
                 // compute diffusion term
                 tDiffusionTerm = ( tKinViscosity + tModViscosity ) / mSigma;
@@ -766,7 +766,7 @@ namespace moris
             real tModViscosity = tFIModViscosity->val()( 0 );
 
             // if viscosity is positive or zero
-            if( tModViscosity >= 0.0 )
+            if( tModViscosity > 0.0 )
             {
                 // fill with zeros
                 addiffusiondu.fill( 0.0 );
@@ -841,10 +841,16 @@ namespace moris
             real tModViscosity = tFIModViscosity->val()( 0 );
 
             // if viscosity is positive or zero
-            if( tModViscosity >= 0.0 )
+            if( tModViscosity > 0.0 )
             {
                 // compute diffusion term
-                addiffusiondx = ( aPropKinViscosity->dPropdx() + tFIModViscosity->gradx( 1 ) ) / mSigma;
+                addiffusiondx = tFIModViscosity->gradx( 1 ) / mSigma;
+
+                // if kinematic viscosity depends on space
+                if( aPropKinViscosity->check_space_dependency( 1 ) )
+                {
+                    addiffusiondx += aPropKinViscosity->dnPropdxn( 1 ) / mSigma;
+                }
             }
             // if viscosity is negative
             else
@@ -864,9 +870,15 @@ namespace moris
                         dfndx );
 
                 // compute diffusion term
-                addiffusiondx = ( aPropKinViscosity->dPropdx() +
+                addiffusiondx = (
                         tFIModViscosity->gradx( 1 ) * tFn +
                         tFIModViscosity->val( )( 0 ) * dfndx ) / mSigma;
+
+                // if kinematic viscosity depends on space
+                if( aPropKinViscosity->check_space_dependency( 1 ) )
+                {
+                    addiffusiondx += aPropKinViscosity->dnPropdxn( 1 ) / mSigma;
+                }
             }
         }
 
@@ -899,7 +911,7 @@ namespace moris
             real tModViscosity = tFIModViscosity->val()( 0 );
 
             // if viscosity is positive or zero
-            if( tModViscosity >= 0.0 )
+            if( tModViscosity > 0.0 )
             {
                 // fill with zeros
                 addiffusiondxdu.fill( 0.0 );
@@ -908,8 +920,14 @@ namespace moris
                 if( aDofTypes( 0 ) == aViscosityDofGroup( 0 ) )
                 {
                     // compute diffusion term
-                    //FIXME missing term aPropKinViscosity->dPropdxdu()
                     addiffusiondxdu += ( tFIModViscosity->dnNdxn( 1 ) ) / mSigma;
+
+//                    //FIXME missing term aPropKinViscosity->dPropdxdu()
+//                    // if kinematic viscosity depends on space
+//                    if( aPropKinViscosity->check_space_dependency( 1 ) )
+//                    {
+//                        addiffusiondxdu += aPropKinViscosity->dPropdxdu / mSigma;
+//                    }
                 }
             }
             // if viscosity is negative
@@ -948,9 +966,15 @@ namespace moris
                         tdfndxdu );
 
                 // compute diffusion term
-                //FIXME missing term aPropKinViscosity->dPropdxdu()
                 addiffusiondxdu = ( tFIModViscosity->gradx( 1 ) * tdfndu +
                         tFIModViscosity->val()( 0 ) * tdfndxdu ) / mSigma;
+
+                //FIXME missing term aPropKinViscosity->dPropdxdu()
+//                    // if kinematic viscosity depends on space
+//                    if( aPropKinViscosity->check_space_dependency( 1 ) )
+//                    {
+//                        addiffusiondxdu += aPropKinViscosity->dPropdxdu() / mSigma;
+//                    }
 
                 // if derivative dof type is viscosity
                 if( aDofTypes( 0 ) == aViscosityDofGroup( 0 ) )
@@ -1178,7 +1202,7 @@ namespace moris
         void compute_dchidu(
                 const moris::Cell< MSI::Dof_Type > & aViscosityDofGroup,
                 Field_Interpolator_Manager         * aMasterFIManager,
-                const std::shared_ptr< Property >        & aPropKinViscosity,
+                const std::shared_ptr< Property >  & aPropKinViscosity,
                 const moris::Cell< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & adchidu )
         {
@@ -1229,8 +1253,14 @@ namespace moris
                     aPropKinViscosity );
 
             // compute dchidx
-            adchidx = ( tFIViscosity->gradx( 1 ) - tChi * aPropKinViscosity->dPropdx() ) /
-                    aPropKinViscosity->val()( 0 );
+            adchidx = tFIViscosity->gradx( 1 ) / aPropKinViscosity->val()( 0 );
+
+            // if kinematic viscosity depends on space
+            if( aPropKinViscosity->check_space_dependency( 1 ) )
+            {
+                // add contribution of kinematic viscosity space derivative
+                adchidx -= tChi * aPropKinViscosity->dnPropdxn( 1 ) / aPropKinViscosity->val()( 0 );
+            }
         }
 
         //------------------------------------------------------------------------------
@@ -1238,7 +1268,7 @@ namespace moris
         void compute_dchidxdu(
                 const moris::Cell< MSI::Dof_Type > & aViscosityDofGroup,
                 Field_Interpolator_Manager         * aMasterFIManager,
-                const std::shared_ptr< Property >        & aPropKinViscosity,
+                const std::shared_ptr< Property >  & aPropKinViscosity,
                 const moris::Cell< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & adchidxdu )
         {
@@ -1251,16 +1281,25 @@ namespace moris
                     tDerFI->gradx( 1 ).n_rows(),
                     tDerFI->get_number_of_space_time_coefficients() );
 
-            // compute dchidu
-            Matrix< DDRMat > tdChidu;
-            compute_dchidu(
-                    aViscosityDofGroup,
-                    aMasterFIManager,
-                    aPropKinViscosity,
-                    aDofTypes,
-                    tdChidu );
+            // if kinematic viscosity depends on space
+            if( aPropKinViscosity->check_space_dependency( 1 ) )
+            {
+                // compute dchidu
+                Matrix< DDRMat > tdChidu;
+                compute_dchidu(
+                        aViscosityDofGroup,
+                        aMasterFIManager,
+                        aPropKinViscosity,
+                        aDofTypes,
+                        tdChidu );
 
-            adchidxdu = - aPropKinViscosity->dPropdx() * tdChidu / aPropKinViscosity->val()( 0 );
+                // add contribution of kinematic viscosity space derivative
+                adchidxdu = - 1.0 * aPropKinViscosity->dnPropdxn( 1 ) * tdChidu / aPropKinViscosity->val()( 0 );
+            }
+            else
+            {
+                adchidxdu.fill( 0.0 );
+            }
 
             // get the residual dof FI (here viscosity)
             Field_Interpolator * tFIViscosity =
@@ -1281,11 +1320,17 @@ namespace moris
                         aMasterFIManager,
                         aPropKinViscosity );
 
-                adchidxdu -=
-                        ( tFIViscosity->gradx( 1 ) - tChi * aPropKinViscosity->dPropdx() ) *
+                adchidxdu -= tFIViscosity->gradx( 1 ) *
                         aPropKinViscosity->dPropdDOF( aDofTypes ) / std::pow( aPropKinViscosity->val()( 0 ), 2 );
 
-                // FIXME missing - tChi * aPropKinViscosity->dPropdxdu() / aPropKinViscosity->val()
+                // if kinematic viscosity depends on space
+                if( aPropKinViscosity->check_space_dependency( 1 ) )
+                {
+                    adchidxdu += tChi * aPropKinViscosity->dnPropdxn( 1 ) *
+                            aPropKinViscosity->dPropdDOF( aDofTypes ) / std::pow( aPropKinViscosity->val()( 0 ), 2 );
+                    // FIXME dPropddxdu
+                    // - tChi * aPropKinViscosity->dPropdxdu() / aPropKinViscosity->val()
+                }
             }
         }
 

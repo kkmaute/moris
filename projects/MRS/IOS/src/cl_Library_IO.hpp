@@ -37,21 +37,26 @@ namespace moris
          *
          * @tparam Function_Type Function pointer type
          * @param aFunctionName Function name to look for in the file
+         * @param aThrowError parameter to check if the list exists
          * @return Function pointer
          */
         template <typename Function_Type>
-        Function_Type load_function(std::string aFunctionName)
+        Function_Type load_function(std::string aFunctionName, bool aThrowError = true)
         {
             Function_Type aUserFunction
                     = reinterpret_cast<Function_Type>
                     ( dlsym( mLibraryHandle, aFunctionName.c_str() ) );
 
-            // create error message
-            std::string tError =  "Could not find symbol " + aFunctionName
-                    + "  within file " + mPath;
+            //depending on the flag throw an error
+            if( aThrowError )
+            {
+                // create error message
+                std::string tError = "Could not find symbol " + aFunctionName
+                                     + "  within file " + mPath;
 
-            // make sure that loading succeeded
-            MORIS_ERROR( aUserFunction, tError.c_str() );
+                // make sure that loading succeeded
+                MORIS_ERROR( aUserFunction, tError.c_str() );
+            }
 
             // return function handle
             return aUserFunction;

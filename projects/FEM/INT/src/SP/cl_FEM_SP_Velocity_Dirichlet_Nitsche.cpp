@@ -23,6 +23,38 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        void SP_Velocity_Dirichlet_Nitsche::set_parameters( moris::Cell< Matrix< DDRMat > > aParameters )
+        {
+            // FIXME not necessary
+            // set mParameters
+            mParameters = aParameters;
+
+            // get number of parameters
+            uint tParamSize = aParameters.size();
+
+            // check for proper size of constant function parameters
+            MORIS_ERROR( tParamSize >= 1 && tParamSize < 3,
+                    "SP_Velocity_Dirichlet_Nitsche::set_parameters - either 1 or 2 constant parameters need to be set." );
+
+            // set alphaN
+            mAlphaN = aParameters( 0 )( 0 );
+
+            // set alpha N flag to true
+            mSetAlphaN = true;
+
+            // if time term
+            if( tParamSize > 1 )
+            {
+                // set alpha_time
+                mAlphaTime = aParameters( 1 )( 0 );
+
+                // set alpha_time flag to true
+                mSetAlphaTime = true;
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
         void SP_Velocity_Dirichlet_Nitsche::set_dof_type_list(
                 moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
                 moris::Cell< std::string >                  & aDofStrings,
@@ -121,14 +153,20 @@ namespace moris
                 }
             }
 
-            // compute deltaT
-            real tDeltaT = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
-
             // compute stabilization parameter value
-            mPPVal = mParameters( 0 ) * (
+            mPPVal = mAlphaN * (
                     tPropViscosity->val()( 0 ) / tElementSize +
-                    tPropDensity->val()( 0 ) * tInfinityNorm / 6.0 +
-                    tPropDensity->val()( 0 ) * tElementSize / ( 12.0 * mParameters( 1 )( 0 ) * tDeltaT ) );
+                    tPropDensity->val()( 0 ) * tInfinityNorm / 6.0 );
+
+            // if time step contribution
+            if( mSetAlphaTime )
+            {
+                // compute deltaT
+                real tDeltaT = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
+
+                // add time step contribution
+                mPPVal += mAlphaN * tPropDensity->val()( 0 ) * tElementSize / ( 12.0 * mAlphaTime * tDeltaT );
+            }
         }
 
         //------------------------------------------------------------------------------
@@ -189,7 +227,7 @@ namespace moris
 
                 // compute contribution from velocity
                 mdPPdMasterDof( tDofIndex ) =
-                        mParameters( 0 )( 0 ) * tPropDensity->val()( 0 ) * tdInfinityNormdu / 6.0;
+                        mAlphaN * tPropDensity->val()( 0 ) * tdInfinityNormdu / 6.0;
             }
             else
             {
@@ -201,19 +239,28 @@ namespace moris
             {
                 // compute contribution from viscosity
                 mdPPdMasterDof( tDofIndex ) +=
-                        mParameters( 0 )( 0 ) * tPropViscosity->dPropdDOF( aDofTypes ) / tElementSize;
+                        mAlphaN * tPropViscosity->dPropdDOF( aDofTypes ) / tElementSize;
             }
 
             // if density depends on dof type
             if( tPropDensity->check_dof_dependency( aDofTypes ) )
             {
-                // compute deltaT
-                real tDeltaT = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
-
                 // compute contribution from density
                 mdPPdMasterDof( tDofIndex ) +=
-                        mParameters( 0 )( 0 ) * tPropDensity->dPropdDOF( aDofTypes ) *
-                        ( tInfinityNorm / 6.0 + tElementSize / ( 12.0 * mParameters( 1 )( 0 ) * tDeltaT ) );
+                        mAlphaN * tPropDensity->dPropdDOF( aDofTypes ) *
+                        ( tInfinityNorm / 6.0 );
+
+                // if time step contribution
+                if( mSetAlphaTime )
+                {
+                    // compute deltaT
+                    real tDeltaT = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
+
+                    // add time step contribution
+                    mdPPdMasterDof( tDofIndex ) +=
+                            mAlphaN * tPropDensity->dPropdDOF( aDofTypes ) *
+                            ( tElementSize / ( 12.0 * mAlphaTime * tDeltaT ) );
+                }
             }
         }
 

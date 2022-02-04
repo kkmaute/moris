@@ -232,11 +232,7 @@ namespace moris
                  * set parameters
                  * @param[ in ] aParameters a list of parameters
                  */
-                void set_parameters( moris::Cell< Matrix< DDRMat > > aParameters )
-                {
-                    // set a cluster
-                    mParameters = aParameters;
-                }
+                virtual void set_parameters( moris::Cell< Matrix< DDRMat > > aParameters );
 
                 //------------------------------------------------------------------------------
                 /**

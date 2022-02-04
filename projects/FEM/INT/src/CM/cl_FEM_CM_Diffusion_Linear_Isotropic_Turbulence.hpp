@@ -1,47 +1,58 @@
-#ifndef SRC_FEM_CL_FEM_CM_FLUID_TURBULENCE_HPP_
-#define SRC_FEM_CL_FEM_CM_FLUID_TURBULENCE_HPP_
+/*
+ * cl_FEM_CM_Diffusion_Linear_Isotropic_Turbulence.hpp
+ *
+ *  Created on: Dec 28, 2021
+ *      Author: noel
+ */
 
+#ifndef SRC_FEM_CL_FEM_CM_DIFFUSION_LINEAR_ISOTROPIC_TURBULENCE_HPP_
+#define SRC_FEM_CL_FEM_CM_DIFFUSION_LINEAR_ISOTROPIC_TURBULENCE_HPP_
+
+#include <iostream>
 #include <map>
-//MRS/COR/src
-#include "typedefs.hpp"
-#include "cl_Cell.hpp"
-//LINALG/src
-#include "cl_Matrix.hpp"
-#include "linalg_typedefs.hpp"
-//FEM/INT/src
-#include "cl_FEM_Field_Interpolator.hpp"
-#include "cl_FEM_Constitutive_Model.hpp"
-#include "cl_FEM_CM_Fluid_Incompressible.hpp"
-#include "fn_FEM_IWG_Spalart_Allmaras_Turbulence_Tools.hpp"
+
+#include "typedefs.hpp"                     //MRS/COR/src
+#include "cl_Cell.hpp"                      //MRS/CON/src
+
+#include "cl_Matrix.hpp"                    //LINALG/src
+#include "linalg_typedefs.hpp"              //LINALG/src
+
+#include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
+#include "cl_FEM_Constitutive_Model.hpp"    //FEM/INT/src
+#include "cl_FEM_CM_Diffusion_Linear_Isotropic.hpp"
+#include "fn_FEM_IWG_Spalart_Allmaras_Turbulence_Tools.hpp"//FEM/INT/src
 
 namespace moris
 {
     namespace fem
     {
+        //------------------------------------------------------------------------------
 
-        //--------------------------------------------------------------------------------------------------------------
-        class CM_Fluid_Turbulence : public CM_Fluid_Incompressible
+        class CM_Diffusion_Linear_Isotropic_Turbulence : public CM_Diffusion_Linear_Isotropic
         {
+                //------------------------------------------------------------------------------
+            protected:
+                // default local properties
+                std::shared_ptr< Property > mPropKinViscosity = nullptr;
+                std::shared_ptr< Property > mPropPrandtlT     = nullptr;
 
-                //--------------------------------------------------------------------------------------------------------------
             private:
-
-                // default dof type
-                MSI::Dof_Type mDofVelocity  = MSI::Dof_Type::VX;
-                MSI::Dof_Type mDofPressure  = MSI::Dof_Type::P;
-                MSI::Dof_Type mDofViscosity = MSI::Dof_Type::VISCOSITY;
+                // Default dof type for CM
+                MSI::Dof_Type mTempDof       = MSI::Dof_Type::TEMP;
+                MSI::Dof_Type mDofViscosity  = MSI::Dof_Type::VISCOSITY;
+                MSI::Dof_Type mThetaDof      = MSI::Dof_Type::UNDEFINED;
 
                 // property type for CM
                 enum class CM_Property_Type
                 {
-                    DENSITY,   // fluid density
-                    VISCOSITY, // fluid dynamic viscosity
-                    KIN_VISCOSITY, // fluid kinematic viscosity
+                    CONDUCTIVITY,
+                    HEAT_CAPACITY,
+                    DENSITY,
+                    EIGEN_STRAIN,
+                    KIN_VISCOSITY,
+                    TURBULENT_PRANDTL,
                     MAX_ENUM
                 };
-
-                // Spalart Allmaras model constants
-                real mCv1 = 7.1;
 
                 // flags for turbulence dynamic viscosity related evaluation
                 bool mTurbDynViscEval = true;
@@ -56,36 +67,38 @@ namespace moris
                 moris::Cell< Cell< Matrix< DDRMat > > > mdTurbDynViscdxdu;
 
                 // flags for effective conductivity related evaluation
-                bool mEffDynViscEval = true;
-                moris::Matrix< DDBMat > mdEffDynViscduEval;
-                moris::Matrix< DDBMat > mdEffDynViscdxEval;
-                moris::Matrix< DDBMat > mdEffDynViscdxduEval;
+                bool mEffCondEval = true;
+                moris::Matrix< DDBMat > mdEffCondduEval;
+                moris::Matrix< DDBMat > mdEffConddxEval;
+                moris::Matrix< DDBMat > mdEffConddxduEval;
 
                 // storage for effective conductivity related evaluation
-                Matrix< DDRMat > mEffDynVisc;
-                moris::Cell< Matrix< DDRMat > > mdEffDynViscdu;
-                moris::Cell< Matrix< DDRMat > > mdEffDynViscdx;
-                moris::Cell< Cell< Matrix< DDRMat > > > mdEffDynViscdxdu;
+                Matrix< DDRMat > mEffCond;
+                moris::Cell< Matrix< DDRMat > > mdEffConddu;
+                moris::Cell< Matrix< DDRMat > > mdEffConddx;
+                moris::Cell< Cell< Matrix< DDRMat > > > mdEffConddxdu;
 
-            protected:
-
-                // default properties
-                std::shared_ptr< Property > mPropKinViscosity = nullptr;
-
-                //--------------------------------------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
             public:
-
-                //--------------------------------------------------------------------------------------------------------------
                 /*
-                 * constructor
+                 * trivial constructor
                  */
-                CM_Fluid_Turbulence();
+                CM_Diffusion_Linear_Isotropic_Turbulence();
 
-                //--------------------------------------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
                 /**
                  * trivial destructor
                  */
-                ~CM_Fluid_Turbulence(){};
+                ~CM_Diffusion_Linear_Isotropic_Turbulence(){};
+
+                //------------------------------------------------------------------------------
+                /*
+                 * @return constitutive_type
+                 */
+                Constitutive_Type get_constitutive_type() const
+                {
+                    return Constitutive_Type::DIFF_LIN_ISO_TURBULENCE;
+                }
 
                 //------------------------------------------------------------------------------
                 /*
@@ -102,18 +115,9 @@ namespace moris
                 void build_global_dof_type_list();
 
                 //------------------------------------------------------------------------------
-                /*
-                 * @return constitutive_type
-                 */
-                Constitutive_Type get_constitutive_type() const
-                {
-                    return Constitutive_Type::FLUID_TURBULENCE;
-                }
-
-                //------------------------------------------------------------------------------
                 /**
                  * set constitutive model dof types
-                 * @param[ in ] aDofTypes   a list of group of dof types
+                 * @param[ in ] aDofTypes a list of group of dof types
                  * @param[ in ] aDofStrings a list of strings to describe the dof types
                  */
                 void set_dof_type_list(
@@ -123,7 +127,7 @@ namespace moris
                 //------------------------------------------------------------------------------
                 /**
                  * set constitutive model dv types
-                 * @param[ in ] aDvTypes   a list of group of dv types
+                 * @param[ in ] aDvTypes a list of group of dv types
                  * @param[ in ] aDvStrings a list of strings to describe the dv types
                  */
                 void set_dv_type_list(
@@ -139,11 +143,19 @@ namespace moris
                  */
                 void set_local_properties();
 
-                //--------------------------------------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
                 /**
                  * evaluate the constitutive model flux
                  */
                 void eval_flux();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the flux derivative wrt to a dof type
+                 * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
+                 * dFluxdDOF ( mSpaceDim x numDerDof )
+                 */
+                void eval_dFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
@@ -151,153 +163,157 @@ namespace moris
                  */
                 void eval_divflux();
 
-                //--------------------------------------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
                 /**
                  * evaluate the derivative of the divergence of the flux wrt dof type
                  */
                 void eval_ddivfluxdu( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
-                //--------------------------------------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
                 /**
-                 * evaluate the derivative of the flux wrt space
-                 * @param[ in ] aOrder order of the derivative
-                 */
-                void eval_dfluxdx( uint aOrder );
-
-                //--------------------------------------------------------------------------------------------------------------
-                /**
-                 * evaluate the traction
+                 * evaluate the constitutive model traction
                  * @param[ in ] aNormal normal
+                 * traction ( 1 x 1 )
                  */
                 void eval_traction( const Matrix< DDRMat > & aNormal );
 
-                //--------------------------------------------------------------------------------------------------------------
-                /**
-                 * evaluate the test traction
-                 * @param[ in ] aNormal   normal
-                 */
-                void eval_testTraction(
-                        const Matrix< DDRMat >             & aNormal,
-                        const moris::Cell< MSI::Dof_Type > & aTestDofTypes );
-
-                //--------------------------------------------------------------------------------------------------------------
-                /**
-                 * evaluate the constitutive model flux derivative wrt to a dof type
-                 * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
-                 */
-                void eval_dFluxdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
-
-                //--------------------------------------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
                 /**
                  * evaluate the constitutive model traction derivative wrt to a dof type
                  * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
                  * @param[ in ] aNormal   normal
+                 * dTractiondDOF ( 1 x numDerDof )
                  */
                 void eval_dTractiondDOF(
                         const moris::Cell< MSI::Dof_Type > & aDofTypes,
                         const Matrix< DDRMat >             & aNormal );
 
-                //--------------------------------------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
+                /**
+                 * evaluate the constitutive model test traction
+                 * @param[ in ] aNormal normal
+                 * test traction ( numDof x 1 )
+                 */
+                void eval_testTraction(
+                        const Matrix< DDRMat >             & aNormal,
+                        const moris::Cell< MSI::Dof_Type > & aTestDofType );
+
+                //------------------------------------------------------------------------------
                 /**
                  * evaluate the constitutive model test traction derivative wrt to a dof type
                  * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
                  * @param[ in ] aNormal   normal
+                 * dTestTractiondDOF ( numDof x numDerDof )
+                 */
+                void eval_dTestTractiondDOF(
+                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                        const Matrix< DDRMat >             & aNormal,
+                        const moris::Cell< MSI::Dof_Type > & aTestDofTypes );
+
+                /**
+                 * evaluate the constitutive model test traction derivative wrt to a dof type
+                 * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
+                 * @param[ in ] aNormal   normal
+                 * dTestTractiondDOF ( numDof x numDerDof )
                  */
                 void eval_dTestTractiondDOF(
                         const moris::Cell< MSI::Dof_Type > & aDofTypes,
                         const Matrix< DDRMat >             & aNormal,
                         const Matrix< DDRMat >             & aJump,
                         const moris::Cell< MSI::Dof_Type > & aTestDofTypes );
-                //--------------------------------------------------------------------------------------------------------------
+
+                //------------------------------------------------------------------------------
                 /**
-                 * get the the turbulent dynamic viscosity mu_t = rho * vtilde * tf1
-                 * @param[ in ]  aCMFunctionType  enum indicating which effective conductivity is called,
-                 *               if there are several
-                 * @param[ out ] mTurbDynVisc effective conductivity
+                 * evaluate the constitutive model matrix
+                 * constitutive matrix ( mSpaceDim x mSpaceDim )
                  */
-                const Matrix< DDRMat > & turbulent_dynamic_viscosity(
-                        enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
+                void eval_const();
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
-                 * get the the effective dynamic viscosity mu_eff = mu + mu_t
-                 * @param[ in ]  aCMFunctionType  enum indicating which effective conductivity is called,
-                 *               if there are several
-                 * @param[ out ] mEffDynVisc effective conductivity
+                 * evaluate the derivative of the divergence of the strain wrt dof type
                  */
-                const Matrix< DDRMat > & effective_dynamic_viscosity(
-                        enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
+                void eval_dConstdDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
                 //--------------------------------------------------------------------------------------------------------------
+                /**
+                 * get the the effective conductivity k_eff = k + k_t
+                 * @param[ in ]  aCMFunctionType  enum indicating which effective conductivity is called,
+                 *               if there are several
+                 * @param[ out ] mEffCond effective conductivity
+                 */
+                const Matrix< DDRMat > & effective_conductivity(
+                        enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
+
+                //------------------------------------------------------------------------------
             private:
 
                 //------------------------------------------------------------------------------
                 /**
-                 * evaluate the effective dynamic viscosity mu_eff = mu + mu_t
+                 * evaluate the effective conductivity k_eff = k + k_t
                  */
-                void eval_effective_dynamic_viscosity();
+                void eval_effective_conductivity();
 
 //                /**
-//                 * get the the effective dynamic viscosity mu_eff = mu + mu_t
+//                 * get the the effective conductivity k_eff = k + k_t
 //                 * @param[ in ]  aCMFunctionType  enum indicating which effective conductivity is called,
 //                 *               if there are several
-//                 * @param[ out ] mEffDynVisc effective conductivity
+//                 * @param[ out ] mEffCond effective conductivity
 //                 */
-//                const Matrix< DDRMat > & effective_dynamic_viscosity(
+//                const Matrix< DDRMat > & effective_conductivity(
 //                        enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
                 //------------------------------------------------------------------------------
                 /**
-                 * evaluate the derivative of the effective dynamic viscosity wrt space
+                 * evaluate the derivative of the effective conductivity wrt space
                  * @param[ in ] aOrder order of the derivative
                  */
-                void eval_deffdynviscdx( uint aOrder );
+                void eval_deffconddx( uint aOrder );
 
                 /**
-                 * get the derivative of the effective dynamic viscosity wrt space
+                 * get the derivative of the effective conductivity wrt space
                  * @param[ in ] aOrder order of the derivative
-                 * @param[ in ] aCMFunctionType enum for specific type of which effective dynamic viscosity
-                 * @param[ out ] mdeffconddx derivative of the effective dynamic viscosity wrt space
+                 * @param[ in ] aCMFunctionType enum for specific type of which effective conductivity
+                 * @param[ out ] mdeffconddx derivative of the effective conductivity wrt space
                  */
-                const Matrix< DDRMat > & deffdynviscdx(
+                const Matrix< DDRMat > & deffconddx(
                         uint                  aOrder,
                         enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
                 //------------------------------------------------------------------------------
                 /**
-                 * evaluate the effective dynamic viscosity derivative wrt to dof type
+                 * evaluate the effective conductivity derivative wrt to dof type
                  * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
                  */
-                void eval_deffdynviscdu( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+                void eval_deffconddu( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
                 /**
-                 * get the derivative of the effective dynamic viscosity wrt dof type
+                 * get the derivative of the effective conductivity wrt dof type
                  * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
-                 * @param[ in ] aCMFunctionType enum for specific type of which effective dynamic viscosity
-                 * @param[ out ] mdeffconddu derivative of the effective dynamic viscosity wrt dof types
+                 * @param[ in ] aCMFunctionType enum for specific type of which effective conductivity
+                 * @param[ out ] mdeffconddu derivative of the effective conductivity wrt dof types
                  */
-                const Matrix< DDRMat > & deffdynviscdu(
+                const Matrix< DDRMat > & deffconddu(
                         const moris::Cell< MSI::Dof_Type > & aDofType,
                         enum CM_Function_Type                aCMFunctionType = CM_Function_Type::DEFAULT );
 
                 //------------------------------------------------------------------------------
                 /**
-                 * evaluate the effective dynamic viscosity derivative wrt to space and dof type
+                 * evaluate the effective conductivity derivative wrt to space and dof type
                  * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
                  * @param[ in ] aOrder order of the space derivative
                  */
-                void eval_deffdynviscdxdu(
-                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                        uint                                 aOrder);
+                void eval_deffconddxdu( const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                                        uint                                 aOrder);
 
                 /**
-                 * get the derivative of the effective dynamic viscosity wrt space and dof type
+                 * get the derivative of the effective conductivity wrt space and dof type
                  * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
                  * @param[ in ] aOrder order of the space derivative
-                 * @param[ in ] aCMFunctionType enum for specific type of which effective dynamic viscosity
-                 * @param[ out ] mdeffconddxdu derivative of the effective dynamic viscosity wrt dof types
+                 * @param[ in ] aCMFunctionType enum for specific type of which effective conductivity
+                 * @param[ out ] mdeffconddxdu derivative of the effective conductivity wrt dof types
                  */
-                const Matrix< DDRMat > & deffdynviscdxdu(
+                const Matrix< DDRMat > & deffconddxdu(
                         const moris::Cell< MSI::Dof_Type > & aDofType,
                         uint                                 aOrder,
                         enum CM_Function_Type                aCMFunctionType = CM_Function_Type::DEFAULT );
@@ -308,14 +324,14 @@ namespace moris
                  */
                 void eval_turbulent_dynamic_viscosity();
 
-//                /**
-//                 * get the the turbulent dynamic viscosity mu_t = rho * vtilde * tf1
-//                 * @param[ in ]  aCMFunctionType  enum indicating which effective conductivity is called,
-//                 *               if there are several
-//                 * @param[ out ] mTurbDynVisc effective conductivity
-//                 */
-//                const Matrix< DDRMat > & turbulent_dynamic_viscosity(
-//                        enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
+                /**
+                 * get the the turbulent dynamic viscosity mu_t = rho * vtilde * tf1
+                 * @param[ in ]  aCMFunctionType  enum indicating which effective conductivity is called,
+                 *               if there are several
+                 * @param[ out ] mTurbDynVisc effective conductivity
+                 */
+                const Matrix< DDRMat > & turbulent_dynamic_viscosity(
+                        enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -373,11 +389,10 @@ namespace moris
                         uint                                 aOrder,
                         enum CM_Function_Type                aCMFunctionType = CM_Function_Type::DEFAULT );
 
-                //--------------------------------------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
         };
-
-        //--------------------------------------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
 
-#endif /* SRC_FEM_CL_FEM_CM_FLUID_TURBULENCE_HPP_ */
+#endif /* SRC_FEM_CL_FEM_CM_DIFFUSION_LINEAR_ISOTROPIC_TURBULENCE_HPP_ */

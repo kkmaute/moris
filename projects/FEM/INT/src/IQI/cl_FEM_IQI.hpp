@@ -663,6 +663,7 @@ namespace moris
                     real               aEpsilon,
                     Matrix< DDRMat > & adQIdu,
                     Matrix< DDRMat > & adQIduFD,
+                    bool               aErrorPrint,
                     fem::FDScheme_Type aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL );
 
             //------------------------------------------------------------------------------

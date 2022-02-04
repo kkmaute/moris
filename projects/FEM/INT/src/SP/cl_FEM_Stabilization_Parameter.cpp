@@ -58,6 +58,14 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        void Stabilization_Parameter::set_parameters( moris::Cell< Matrix< DDRMat > > aParameters )
+        {
+            // set a cluster
+            mParameters = aParameters;
+        }
+
+        //------------------------------------------------------------------------------
+
         void Stabilization_Parameter::set_cluster( fem::Cluster * aCluster )
         {
             // set a cluster

@@ -78,7 +78,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Symmetric_Nitsche",
 
     std::shared_ptr< fem::Property > tPropKinViscosity = std::make_shared< fem::Property >();
     tPropKinViscosity->set_val_function( tConstValFunc );
-    tPropKinViscosity->set_space_der_function( tVISCOSITYFISpaceDerFunc );
+    tPropKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
     std::shared_ptr< fem::Property > tPropDensity = std::make_shared< fem::Property >();
     tPropDensity->set_parameters( { {{ 1.0 }} } );
@@ -460,7 +460,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Unsymmetric_Nitsche",
 
     std::shared_ptr< fem::Property > tPropKinViscosity = std::make_shared< fem::Property >();
     tPropKinViscosity->set_val_function( tConstValFunc );
-    tPropKinViscosity->set_space_der_function( tVISCOSITYFISpaceDerFunc );
+    tPropKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
     std::shared_ptr< fem::Property > tPropDensity = std::make_shared< fem::Property >();
     tPropDensity->set_parameters( { {{ 1.0 }} } );
@@ -837,7 +837,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Symmetric_Nitsche",
 
     std::shared_ptr< fem::Property > tPropKinViscosity = std::make_shared< fem::Property >();
     tPropKinViscosity->set_val_function( tConstValFunc );
-    tPropKinViscosity->set_space_der_function( tVISCOSITYFISpaceDerFunc );
+    tPropKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
     std::shared_ptr< fem::Property > tPropDensity = std::make_shared< fem::Property >();
     tPropDensity->set_parameters( { {{ 1.0 }} } );
@@ -1192,7 +1192,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Unsymmetric_Nitsche",
 
     std::shared_ptr< fem::Property > tPropKinViscosity = std::make_shared< fem::Property >();
     tPropKinViscosity->set_val_function( tConstValFunc );
-    tPropKinViscosity->set_space_der_function( tVISCOSITYFISpaceDerFunc );
+    tPropKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
     std::shared_ptr< fem::Property > tPropDensity = std::make_shared< fem::Property >();
     tPropDensity->set_parameters( { {{ 1.0 }} } );

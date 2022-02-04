@@ -63,7 +63,7 @@ TEST_CASE( "CM_Fluid", "[CM_Fluid]" )
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
     //tPropViscosity->set_parameters( { {{ 1.0 }}, {{ 0.0 },{0.0}} } );
     tPropViscosity->set_val_function( tConstValFunc );
-    tPropViscosity->set_space_der_function( tVISCOSITYFISpaceDerFunc );
+    tPropViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
     //tPropViscosity->set_dof_type_list( { tPDofTypes } );
     //tPropViscosity->set_val_function( tPFIValFunc );
     //tPropViscosity->set_dof_derivative_functions( { tPFIDerFunc } );
@@ -428,14 +428,14 @@ TEST_CASE( "CM_Laminar_With_Turbulence", "[CM_Laminar_With_Turbulence]" )
     // create the properties
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
     tPropViscosity->set_val_function( tConstValFunc );
-    tPropViscosity->set_space_der_function( tVISCOSITYFISpaceDerFunc );
+    tPropViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
     //tPropViscosity->set_dof_type_list( { tPDofTypes } );
     //tPropViscosity->set_val_function( tPFIValFunc );
     //tPropViscosity->set_dof_derivative_functions( { tPFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropKinViscosity = std::make_shared< fem::Property >();
     tPropKinViscosity->set_val_function( tConstValFunc );
-    tPropKinViscosity->set_space_der_function( tVISCOSITYFISpaceDerFunc );
+    tPropKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
     std::shared_ptr< fem::Property > tPropDensity = std::make_shared< fem::Property >();
     tPropDensity->set_parameters( { {{ 1.0 }} } );
@@ -786,7 +786,7 @@ TEST_CASE( "CM_Laminar_Turbulence_Only", "[CM_Laminar_Turbulence_Only]" )
     real tEpsilon = 1.0E-5;
 
     // define a perturbation relative size
-    real tPerturbation = 2.0E-4;
+    real tPerturbation = 1.0E-6;
 
     // init geometry inputs
     //------------------------------------------------------------------------------
@@ -821,14 +821,14 @@ TEST_CASE( "CM_Laminar_Turbulence_Only", "[CM_Laminar_Turbulence_Only]" )
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
     //tPropViscosity->set_parameters( { {{ 1.0 }} } );
     tPropViscosity->set_val_function( tConstValFunc );
-    tPropViscosity->set_space_der_function( tVISCOSITYFISpaceDerFunc );
+    tPropViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
     //tPropViscosity->set_dof_type_list( { tPDofTypes } );
     //tPropViscosity->set_val_function( tPFIValFunc );
     //tPropViscosity->set_dof_derivative_functions( { tPFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropKinViscosity = std::make_shared< fem::Property >();
     tPropKinViscosity->set_val_function( tConstValFunc );
-    tPropKinViscosity->set_space_der_function( tVISCOSITYFISpaceDerFunc );
+    tPropKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
     std::shared_ptr< fem::Property > tPropDensity = std::make_shared< fem::Property >();
     tPropDensity->set_parameters( { {{ 1.0 }} } );
@@ -1262,7 +1262,7 @@ TEST_CASE( "CM_Fluid_Turbulence", "[CM_Fluid_Turbulence]" )
     real tEpsilon = 1.0E-5;
 
     // define a perturbation relative size
-    real tPerturbation = 2.0E-4;
+    real tPerturbation = 1.0E-6;
 
     // init geometry inputs
     //------------------------------------------------------------------------------
@@ -1297,14 +1297,14 @@ TEST_CASE( "CM_Fluid_Turbulence", "[CM_Fluid_Turbulence]" )
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
     tPropViscosity->set_parameters( { {{ 1.0 }} } );
     tPropViscosity->set_val_function( tConstValFunc );
-    tPropViscosity->set_space_der_function( tVISCOSITYFISpaceDerFunc );
+    tPropViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
     //tPropViscosity->set_dof_type_list( { tPDofTypes } );
     //tPropViscosity->set_val_function( tPFIValFunc );
     //tPropViscosity->set_dof_derivative_functions( { tPFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropKinViscosity = std::make_shared< fem::Property >();
     tPropKinViscosity->set_val_function( tConstValFunc );
-    tPropKinViscosity->set_space_der_function( tVISCOSITYFISpaceDerFunc );
+    tPropKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
     std::shared_ptr< fem::Property > tPropDensity = std::make_shared< fem::Property >();
     tPropDensity->set_parameters( { {{ 1.0 }} } );

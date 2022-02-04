@@ -1814,6 +1814,7 @@ namespace moris
                 real              aEpsilon,
                 Matrix< DDRMat > & adQIdu,
                 Matrix< DDRMat > & adQIduFD,
+                bool               aErrorPrint,
                 fem::FDScheme_Type aFDSchemeType )
         {
             // get the column index to assemble in residual
@@ -1837,17 +1838,47 @@ namespace moris
             tCheckdQIdu = tCheckdQIdu && ( adQIdu.n_rows() == adQIduFD.n_rows());
             tCheckdQIdu = tCheckdQIdu && ( adQIdu.n_cols() == adQIduFD.n_cols());
 
+            // check that matrices to compare have same size
+            MORIS_ERROR(
+                    ( adQIdu.n_rows() == adQIduFD.n_rows() ) &&
+                    ( adQIdu.n_cols() == adQIduFD.n_cols() ),
+                    "IWG::check_dQIdu - matrices to check do not share same dimensions." );
+
+            // define a real for absolute difference
+            real tAbsolute = 0.0;
+
+            // define a real for relative difference
+            real tRelative = 0.0;
+
             // loop over the rows
             for ( uint iRow = 0; iRow < adQIdu.n_rows(); iRow++ )
             {
                 // loop over the columns
                 for( uint jCol = 0; jCol < adQIdu.n_cols(); jCol++ )
                 {
-                    // check each components
-                    tCheckdQIdu = tCheckdQIdu && ( adQIdu( iRow, jCol ) - adQIduFD( iRow, jCol ) < aEpsilon );
+                    // get absolute difference
+                    tAbsolute = std::abs( adQIduFD( iRow, jCol ) - adQIdu( iRow, jCol ) );
+
+                    // get relative difference
+                    tRelative = std::abs( ( adQIduFD( iRow, jCol ) - adQIdu( iRow, jCol ) ) / adQIduFD( iRow, jCol ) );
+
+                    // update check value
+                    tCheckdQIdu = tCheckdQIdu && ( ( tAbsolute < aEpsilon ) || ( tRelative < aEpsilon ) );
+
+                    // debug print
+                    if( ( ( tAbsolute < aEpsilon ) || ( tRelative < aEpsilon ) ) == false )
+                    {
+                        if( aErrorPrint )
+                        {
+                            std::cout<<"iRow "<<iRow<<" - jCol "<<jCol<<"\n"<<std::flush;
+                            std::cout<<"adQIdu( iRow, jCol )    "<<std::setprecision( 12 )<<adQIdu( iRow, jCol ) <<"\n"<<std::flush;
+                            std::cout<<"adQIduFD( iRow, jCol )  "<<std::setprecision( 12 )<<adQIduFD( iRow, jCol )<<"\n"<<std::flush;
+                            std::cout<<"Absolute difference "<<tAbsolute<<"\n"<<std::flush;
+                            std::cout<<"Relative difference "<<tRelative<<"\n"<<std::flush;
+                        }
+                    }
                 }
             }
-
             // return bool
             return tCheckdQIdu;
         }
