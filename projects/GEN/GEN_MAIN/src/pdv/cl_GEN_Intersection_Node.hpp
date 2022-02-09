@@ -9,33 +9,34 @@ namespace moris
     {
         class Geometry;
 
+        //------------------------------------------------------------------------------
+
         class Intersection_Node : public Child_Node
         {
+          protected:
+            real                      mLocalCoordinate;
+            bool                      mIsIntersected;
+            std::weak_ptr< Geometry > mInterfaceGeometry;
+            real                      mIsocontourThreshold;
+            Matrix< DDRMat >          mParentVector;
 
-        protected:
-            real mLocalCoordinate;
-            bool mIsIntersected;
-            std::weak_ptr<Geometry> mInterfaceGeometry;
-            real mIsocontourThreshold;
-            Matrix<DDRMat> mParentVector;
+            std::shared_ptr< Intersection_Node > mFirstParentNode;
+            std::shared_ptr< Intersection_Node > mSecondParentNode;
+            bool                                 mFirstParentOnInterface;
+            bool                                 mSecondParentOnInterface;
+            Matrix< DDRMat >                     mGlobalCoordinates;
 
-        private:
-            std::shared_ptr<Intersection_Node> mFirstParentNode;
-            std::shared_ptr<Intersection_Node> mSecondParentNode;
-            bool mFirstParentOnInterface;
-            bool mSecondParentOnInterface;
-            Matrix<DDRMat> mGlobalCoordinates;
-            Matrix<DDRMat> mCoordinateSensitivities;
-            Matrix<DDSMat> mCoordinateDeterminingADVIDs;
+          private:
+            Matrix< DDRMat > mCoordinateSensitivities;
+            Matrix< DDSMat > mCoordinateDeterminingADVIDs;
 
             moris_id mPDVStartingID;
-            bool mPDVStartingIDSet = false;
+            bool     mPDVStartingIDSet = false;
 
-            moris_id mNodeID = -1;
+            moris_id    mNodeID    = -1;
             moris_index mNodeOwner = -1;
 
-        public:
-
+          public:
             /**
              * Constructor
              *
@@ -53,22 +54,24 @@ namespace moris
              * @param aIsocontourThreshold Threshold for determining the intersection location of this node
              * @param aIsocontourTolerance Tolerance for determining interface parent nodes based on geometry value
              * @param aIntersectionTolerance Tolerance for determining interface parent nodes with intersection distance
+             * @param aDetermineIsIntersected Flag whether determination of intersection should be performed
              */
             Intersection_Node(
-                    real                               aLocalCoordinate,
-                    std::shared_ptr<Intersection_Node> aFirstParentNode,
-                    std::shared_ptr<Intersection_Node> aSecondParentNode,
-                    real                               aFirstParentNodeIndex,
-                    real                               aSecondParentNodeIndex,
-                    const Matrix<DDRMat>&              aFirstParentNodeLocalCoordinates,
-                    const Matrix<DDRMat>&              aSecondParentNodeLocalCoordinates,
-                    Matrix<DDUMat>                     aAncestorNodeIndices,
-                    Cell<Matrix<DDRMat>>               aAncestorNodeCoordinates,
-                    const xtk::Basis_Function&         aAncestorBasisFunction,
-                    std::shared_ptr<Geometry>          aInterfaceGeometry,
-                    real                               aIsocontourThreshold,
-                    real                               aIsocontourTolerance,
-                    real                               aIntersectionTolerance);
+                    real                                 aLocalCoordinate,
+                    std::shared_ptr< Intersection_Node > aFirstParentNode,
+                    std::shared_ptr< Intersection_Node > aSecondParentNode,
+                    real                                 aFirstParentNodeIndex,
+                    real                                 aSecondParentNodeIndex,
+                    const Matrix< DDRMat >&              aFirstParentNodeLocalCoordinates,
+                    const Matrix< DDRMat >&              aSecondParentNodeLocalCoordinates,
+                    Matrix< DDUMat >                     aAncestorNodeIndices,
+                    Cell< Matrix< DDRMat > >             aAncestorNodeCoordinates,
+                    const Element_Intersection_Type      aAncestorBasisFunction,
+                    std::shared_ptr< Geometry >          aInterfaceGeometry,
+                    real                                 aIsocontourThreshold,
+                    real                                 aIsocontourTolerance,
+                    real                                 aIntersectionTolerance,
+                    bool                                 aDetermineIsIntersected = true );
 
             /**
              * Gets the sensitivities of this node's global coordinates with respect to the ADVs which affect one of the
@@ -76,14 +79,14 @@ namespace moris
              *
              * @return Sensitivities
              */
-            Matrix<DDRMat> get_dcoordinate_dadv();
+            Matrix< DDRMat > get_dcoordinate_dadv();
 
             /**
              * Gets the IDs of ADVs which one of the ancestors of this intersection node depends on.
              *
              * @return ADV IDs
              */
-            Matrix<DDSMat> get_coordinate_determining_adv_ids();
+            Matrix< DDSMat > get_coordinate_determining_adv_ids();
 
             /**
              * Returns if the parent edge is intersected (if the local coordinate of the intersection lies between
@@ -119,7 +122,7 @@ namespace moris
              *
              * @return Global coordinates
              */
-            const Matrix<DDRMat>& get_global_coordinates();
+            const Matrix< DDRMat >& get_global_coordinates();
 
             /**
              * Get the value of a coordinate of this node
@@ -127,7 +130,7 @@ namespace moris
              * @param aCoordinateIndex index of the coordinate, obtained from casting the related PDV coordinate type
              * @return Coordinate value
              */
-            real get_coordinate_value(uint aCoordinateIndex);
+            real get_coordinate_value( uint aCoordinateIndex );
 
             /**
              * Gets the number of PDVs on this intersection node.
@@ -141,7 +144,7 @@ namespace moris
              *
              * @param aPDVStartingID The global index of the first PDV on the host
              */
-            void set_starting_pdv_id(moris_id aPDVStartingID);
+            void set_starting_pdv_id( moris_id aPDVStartingID );
 
             /**
              * Get the starting global index for the intersection coordinate PDVs
@@ -155,14 +158,14 @@ namespace moris
              *
              * @param aNodeID Node ID
              */
-            void set_id(moris_id aNodeID);
+            void set_id( moris_id aNodeID );
 
             /**
              * Set the owning processor for this node.
              *
              * @param aNodeOwner Owning processor
              */
-            void set_owner(moris_index aNodeOwner);
+            void set_owner( moris_index aNodeOwner );
 
             /**
              * Get the ID for this node.
@@ -178,8 +181,7 @@ namespace moris
              */
             moris_index get_owner();
 
-        private:
-
+          private:
             /**
              * Gets the sensitivity of this node's local coordinate within its parent edge with respect to the field
              * values on each of its ancestors.
@@ -187,7 +189,7 @@ namespace moris
              * @param aAncestorIndex Ancestor index
              * @return Local coordinate sensitivity
              */
-            virtual real get_dxi_dfield_from_ancestor(uint aAncestorIndex) = 0;
+            virtual real get_dxi_dfield_from_ancestor( uint aAncestorIndex ) = 0;
 
             /**
              * Gets the sensitivities of this node's local coordinate within its parent edge with respect to the global
@@ -195,7 +197,7 @@ namespace moris
              *
              * @return Local coordinate sensitivity
              */
-            virtual Matrix<DDRMat> get_dxi_dcoordinate_first_parent() = 0;
+            virtual Matrix< DDRMat > get_dxi_dcoordinate_first_parent() = 0;
 
             /**
              * Gets the sensitivities of this node's local coordinate within its parent edge with respect to the global
@@ -203,24 +205,23 @@ namespace moris
              *
              * @return Local coordinate sensitivity
              */
-            virtual Matrix<DDRMat> get_dxi_dcoordinate_second_parent() = 0;
+            virtual Matrix< DDRMat > get_dxi_dcoordinate_second_parent() = 0;
 
             /**
              * Function for appending to the coordinate sensitivities member variable, eliminating duplicate code
              *
              * @param aSensitivitiesToAdd Sensitivities to add
              */
-            void join_coordinate_sensitivities(const Matrix<DDRMat>& aSensitivitiesToAdd);
+            void join_coordinate_sensitivities( const Matrix< DDRMat >& aSensitivitiesToAdd );
 
             /**
              * Function for appending to the depending ADV IDs member variable, eliminating duplicate code
              *
              * @param aIDsToAdd IDs to add
              */
-            void join_adv_ids(const Matrix<DDSMat>& aIDsToAdd);
-
+            void join_adv_ids( const Matrix< DDSMat >& aIDsToAdd );
         };
-    }
-}
+    }    // namespace ge
+}    // namespace moris
 
-#endif //MORIS_CL_GEN_INTERSECTION_NODE_HPP
+#endif    // MORIS_CL_GEN_INTERSECTION_NODE_HPP

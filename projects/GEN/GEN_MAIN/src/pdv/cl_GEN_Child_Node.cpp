@@ -1,10 +1,14 @@
 #include "cl_GEN_Child_Node.hpp"
 #include "cl_GEN_Field.hpp"
-#include "cl_MTK_Cell.hpp"
-#include "cl_MTK_Vertex.hpp"
-#include "cl_MTK_Cell_Info.hpp"
-#include "cl_MTK_Cell_Info_Quad4.hpp"
-#include "cl_MTK_Cell_Info_Hex8.hpp"
+
+#include "cl_MTK_Cell.hpp"                              //MTK/src
+#include "cl_MTK_Vertex.hpp"                            //MTK/src
+#include "cl_MTK_Interpolation_Function_Base.hpp"       //MTK/src
+#include "cl_MTK_Interpolation_Function_Factory.hpp"    //MTK/src
+#include "cl_MTK_Enums.hpp"                             //MTK/src
+#include "cl_MTK_Cell_Info.hpp"                         //MTK/src
+#include "cl_MTK_Cell_Info_Quad4.hpp"                   //MTK/src
+#include "cl_MTK_Cell_Info_Hex8.hpp"                    //MTK/src
 
 namespace moris
 {
@@ -14,10 +18,10 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Child_Node::Child_Node(
-                Matrix< DDUMat >           aAncestorNodeIndices,
-                Cell< Matrix< DDRMat > >   aAncestorNodeCoordinates,
-                const xtk::Basis_Function& aBasisFunction,
-                Matrix< DDRMat >           aLocalCoordinatesInAncestor )
+                Matrix< DDUMat >          aAncestorNodeIndices,
+                Cell< Matrix< DDRMat > >  aAncestorNodeCoordinates,
+                Element_Intersection_Type aBasisFunction,
+                Matrix< DDRMat >          aLocalCoordinatesInAncestor )
                 : mAncestorNodeIndices( aAncestorNodeIndices )
                 , mAncestorNodeCoordinates( aAncestorNodeCoordinates )
         {
@@ -29,8 +33,52 @@ namespace moris
             MORIS_ASSERT( aAncestorNodeIndices.length() == aAncestorNodeCoordinates.size(),
                     "Number of ancestor node indices must be consistent with the number of sets of node coordinates" );
 
-            // Evaluate basis function
-            aBasisFunction.evaluate_basis_function( aLocalCoordinatesInAncestor, mBasisValues );
+            // construct interpolator and evaluate basis function
+            mtk::Interpolation_Function_Factory tFactory;
+
+            mtk::Interpolation_Function_Base* tInterpolation;
+
+            switch ( aBasisFunction )
+            {
+                case Element_Intersection_Type::Linear_1D:
+                {
+                    tInterpolation = tFactory.create_interpolation_function(
+                            mtk::Geometry_Type::LINE,
+                            mtk::Interpolation_Type::LAGRANGE,
+                            mtk::Interpolation_Order::LINEAR );
+
+                    tInterpolation->eval_N( aLocalCoordinatesInAncestor, mBasisValues );
+                    break;
+                }
+                case Element_Intersection_Type::Linear_2D:
+                {
+                    tInterpolation = tFactory.create_interpolation_function(
+                            mtk::Geometry_Type::QUAD,
+                            mtk::Interpolation_Type::LAGRANGE,
+                            mtk::Interpolation_Order::LINEAR );
+
+                    tInterpolation->eval_N( aLocalCoordinatesInAncestor, mBasisValues );
+                    break;
+                }
+                case Element_Intersection_Type::Linear_3D:
+                {
+                    tInterpolation = tFactory.create_interpolation_function(
+                            mtk::Geometry_Type::HEX,
+                            mtk::Interpolation_Type::LAGRANGE,
+                            mtk::Interpolation_Order::LINEAR );
+
+                    tInterpolation->eval_N( aLocalCoordinatesInAncestor, mBasisValues );
+                    break;
+                }
+                default:
+                {
+                    MORIS_ERROR( false,
+                            "Child_Node::Child_Node - Interpolation type not implemented." );
+                }
+            }
+
+            // delete interpolator
+            delete tInterpolation;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -42,6 +90,7 @@ namespace moris
             mParentCell       = aCell;
             mLocalCoordinates = *aLocalCoordinates;
 
+            // use specifically bi or tri-linear interpolation to compute level set value
             if ( aEvaluateAsLinear )
             {
                 Cell< moris::mtk::Vertex* > tVerts = mParentCell->get_vertex_pointers();
@@ -56,9 +105,11 @@ namespace moris
                         mAncestorNodeIndices( iCast )     = (moris::uint)tVerts( iCast )->get_index();
                         mAncestorNodeCoordinates( iCast ) = tVerts( iCast )->get_coords();
                     }
+
                     mtk::Cell_Info_Quad4 tQuad4CellInfo;
                     tQuad4CellInfo.eval_N( mLocalCoordinates, mBasisValues );
                 }
+
                 if ( mParentCell->get_cell_info()->get_cell_geometry() == mtk::Geometry_Type::HEX )
                 {
                     mAncestorNodeIndices.resize( 1, 8 );
@@ -69,6 +120,7 @@ namespace moris
                         mAncestorNodeIndices( iCast )     = (moris::uint)tVerts( iCast )->get_index();
                         mAncestorNodeCoordinates( iCast ) = tVerts( iCast )->get_coords();
                     }
+
                     mtk::Cell_Info_Hex8 tLinearCellInfo;
                     tLinearCellInfo.eval_N( mLocalCoordinates, mBasisValues );
                 }
@@ -125,10 +177,8 @@ namespace moris
             for ( uint tAncestorNode = 1; tAncestorNode < mAncestorNodeIndices.length(); tAncestorNode++ )
             {
                 // Get scaled sensitivities
-                const Matrix< DDRMat > tAncestorSensitivities = 
-                        mBasisValues( tAncestorNode ) * aField->get_dfield_dadvs( 
-                                mAncestorNodeIndices( tAncestorNode ), 
-                                mAncestorNodeCoordinates( tAncestorNode ) );
+                const Matrix< DDRMat > tAncestorSensitivities =
+                        mBasisValues( tAncestorNode ) * aField->get_dfield_dadvs( mAncestorNodeIndices( tAncestorNode ), mAncestorNodeCoordinates( tAncestorNode ) );
 
                 // Join sensitivities
                 uint tJoinedSensitivityLength = mJoinedSensitivities.n_cols();
@@ -162,12 +212,12 @@ namespace moris
                 Matrix< DDSMat > tAncestorDependingADVs = aField->get_determining_adv_ids(
                         mAncestorNodeIndices( tAncestorNode ),
                         mAncestorNodeCoordinates( tAncestorNode ) );
-                
+
                 // Join sensitivities
                 uint tJoinedADVLength = tJoinedDeterminingADVs.n_cols();
-                
+
                 tJoinedDeterminingADVs.resize( 1, tJoinedADVLength + tAncestorDependingADVs.length() );
-                
+
                 for ( uint tAncestorADV = 0; tAncestorADV < tAncestorDependingADVs.length(); tAncestorADV++ )
                 {
                     tJoinedDeterminingADVs( tJoinedADVLength + tAncestorADV ) = tAncestorDependingADVs( tAncestorADV );
