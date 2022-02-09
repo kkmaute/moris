@@ -28,7 +28,7 @@
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
 #include "cl_SOL_Dist_Map.hpp"
 
-#include "cl_Stopwatch.hpp"//CHR/src
+#include "cl_Stopwatch.hpp"    //CHR/src
 
 namespace moris
 {
@@ -494,27 +494,23 @@ namespace moris
                         }
                         case Intersection_Interpolation::MULTILINEAR:
                         {
-                            if ( mNumSpatialDimensions == 2 )
-                            {
-                                mQueuedIntersectionNode = std::make_shared< Intersection_Node_Bilinear >(
-                                        mPDVHostManager.get_intersection_node( aFirstNodeIndex ),
-                                        mPDVHostManager.get_intersection_node( aSecondNodeIndex ),
-                                        aFirstNodeIndex,
-                                        aSecondNodeIndex,
-                                        aFirstNodeLocalCoordinates,
-                                        aSecondNodeLocalCoordinates,
-                                        aBackgroundElementNodeIndices,
-                                        aBackgroundElementNodeCoordinates,
-                                        mGeometries( mActiveGeometryIndex ),
-                                        mIsocontourThreshold,
-                                        mIsocontourTolerance,
-                                        mIntersectionTolerance );
-                            }
-                            else
-                            {
-                                MORIS_ERROR( false, "Only bilinear intersections have been implemented." );
-                            }
+                            Element_Intersection_Type tInterpolationType =
+                                    mNumSpatialDimensions == 2 ? Element_Intersection_Type::Linear_2D : Element_Intersection_Type::Linear_3D;
 
+                            mQueuedIntersectionNode = std::make_shared< Intersection_Node_Bilinear >(
+                                    mPDVHostManager.get_intersection_node( aFirstNodeIndex ),
+                                    mPDVHostManager.get_intersection_node( aSecondNodeIndex ),
+                                    aFirstNodeIndex,
+                                    aSecondNodeIndex,
+                                    aFirstNodeLocalCoordinates,
+                                    aSecondNodeLocalCoordinates,
+                                    aBackgroundElementNodeIndices,
+                                    aBackgroundElementNodeCoordinates,
+                                    tInterpolationType,
+                                    mGeometries( mActiveGeometryIndex ),
+                                    mIsocontourThreshold,
+                                    mIsocontourTolerance,
+                                    mIntersectionTolerance );
                             break;
                         }
                         default:
@@ -680,10 +676,11 @@ namespace moris
 
         void
         Geometry_Engine::create_new_child_nodes(
-                const Cell< moris_index >&      aNewNodeIndices,
-                const Cell< xtk::Topology* >&   aParentTopo,
-                const Cell< Matrix< DDRMat > >& aParamCoordRelativeToParent,
-                const Matrix< DDRMat >&         aGlobalNodeCoord )
+                const Cell< moris_index >&               aNewNodeIndices,
+                const Cell< Element_Intersection_Type >& aParentIntersectionType,
+                const Cell< Matrix< IndexMat > >&        tVertexIndices,
+                const Cell< Matrix< DDRMat > >&          aParamCoordRelativeToParent,
+                const Matrix< DDRMat >&                  aGlobalNodeCoord )
         {
             // resize proximities
             mVertexGeometricProximity.resize(
@@ -693,19 +690,19 @@ namespace moris
             // Loop over nodes
             for ( uint tNode = 0; tNode < aNewNodeIndices.size(); tNode++ )
             {
-                Matrix< DDUMat >         tParentNodeIndices( aParentTopo( tNode )->get_node_indices().length(), 1 );
+                Matrix< DDUMat >         tParentNodeIndices( tVertexIndices( tNode ).numel(), 1 );
                 Cell< Matrix< DDRMat > > tParentNodeCoordinates( tParentNodeIndices.length() );
 
                 for ( uint tParentNode = 0; tParentNode < tParentNodeIndices.length(); tParentNode++ )
                 {
-                    tParentNodeIndices( tParentNode )     = aParentTopo( tNode )->get_node_indices()( tParentNode );
+                    tParentNodeIndices( tParentNode )     = tVertexIndices( tNode )( tParentNode );
                     tParentNodeCoordinates( tParentNode ) = aGlobalNodeCoord.get_row( tParentNodeIndices( tParentNode ) );
                 }
 
                 std::shared_ptr< Child_Node > tChildNode = std::make_shared< Child_Node >(
                         tParentNodeIndices,
                         tParentNodeCoordinates,
-                        aParentTopo( tNode )->get_basis_function(),
+                        aParentIntersectionType( tNode ),
                         aParamCoordRelativeToParent( tNode ) );
 
                 mVertexGeometricProximity( aNewNodeIndices( tNode ) ).mAssociatedVertexIndex = aNewNodeIndices( tNode );
@@ -951,7 +948,7 @@ namespace moris
                 {
                     uint tMeshSetIndex = tMeshSetIndicesPerProperty( tPropertyIndex )( tIndex );
 
-                    tPdvTypes( tMeshSetIndex ).push_back( tPDVTypeGroup );// why not use mProperties(tPropertyIndex)->get_pdv_type()
+                    tPdvTypes( tMeshSetIndex ).push_back( tPDVTypeGroup );    // why not use mProperties(tPropertyIndex)->get_pdv_type()
                 }
             }
 
@@ -2477,5 +2474,5 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-    }// namespace ge
-}// namespace moris
+    }    // namespace ge
+}    // namespace moris
