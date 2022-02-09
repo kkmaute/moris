@@ -1,28 +1,34 @@
 #include "cl_GEN_Intersection_Node_Bilinear.hpp"
 #include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Interpolation.hpp"
-#include "cl_XTK_Quad_4_Basis_Function.hpp"
+
+#include "cl_MTK_Interpolation_Function_Base.hpp"       //MTK/src
+#include "cl_MTK_Interpolation_Function_Factory.hpp"    //MTK/src
+#include "cl_MTK_Enums.hpp"                             //MTK/src
+
+#include "fn_dot.hpp"
+#include "fn_trans.hpp"
 
 namespace moris
 {
     namespace ge
     {
-
         //--------------------------------------------------------------------------------------------------------------
 
         Intersection_Node_Bilinear::Intersection_Node_Bilinear(
-                std::shared_ptr<Intersection_Node> aFirstParentNode,
-                std::shared_ptr<Intersection_Node> aSecondParentNode,
-                uint                               aFirstParentNodeIndex,
-                uint                               aSecondParentNodeIndex,
-                const Matrix<DDRMat>&              aFirstParentNodeLocalCoordinates,
-                const Matrix<DDRMat>&              aSecondParentNodeLocalCoordinates,
-                const Matrix<DDUMat>&              aAncestorNodeIndices,
-                const Cell<Matrix<DDRMat>>&        aAncestorNodeCoordinates,
-                std::shared_ptr<Geometry>          aInterfaceGeometry,
-                real                               aIsocontourThreshold,
-                real                               aIsocontourTolerance,
-                real                               aIntersectionTolerance)
+                std::shared_ptr< Intersection_Node > aFirstParentNode,
+                std::shared_ptr< Intersection_Node > aSecondParentNode,
+                uint                                 aFirstParentNodeIndex,
+                uint                                 aSecondParentNodeIndex,
+                const Matrix< DDRMat >&              aFirstParentNodeLocalCoordinates,
+                const Matrix< DDRMat >&              aSecondParentNodeLocalCoordinates,
+                const Matrix< DDUMat >&              aAncestorNodeIndices,
+                const Cell< Matrix< DDRMat > >&      aAncestorNodeCoordinates,
+                const Element_Intersection_Type      aInterpolationType,
+                std::shared_ptr< Geometry >          aInterfaceGeometry,
+                real                                 aIsocontourThreshold,
+                real                                 aIsocontourTolerance,
+                real                                 aIntersectionTolerance )
                 : Intersection_Node(
                         get_local_coordinate(
                                 aFirstParentNodeLocalCoordinates,
@@ -30,7 +36,7 @@ namespace moris
                                 aAncestorNodeIndices,
                                 aAncestorNodeCoordinates,
                                 aInterfaceGeometry,
-                                aIsocontourThreshold),
+                                aIsocontourThreshold ),
                         aFirstParentNode,
                         aSecondParentNode,
                         aFirstParentNodeIndex,
@@ -39,185 +45,459 @@ namespace moris
                         aSecondParentNodeLocalCoordinates,
                         aAncestorNodeIndices,
                         aAncestorNodeCoordinates,
-                        xtk::Quad_4_Basis_Function(),
+                        aInterpolationType,
                         aInterfaceGeometry,
                         aIsocontourThreshold,
                         aIsocontourTolerance,
-                        aIntersectionTolerance)
+                        aIntersectionTolerance,
+                        false )
         {
-        }
+            // initialize number of basis used by interpolation
+            uint tNumBases;
 
-        //--------------------------------------------------------------------------------------------------------------
+            // build interpolator
+            mtk::Interpolation_Function_Factory tFactory;
 
-        real Intersection_Node_Bilinear::get_dxi_dfield_from_ancestor(uint aAncestorIndex)
-        {
-            // Locked interface geometry
-            std::shared_ptr<Geometry> tLockedInterfaceGeometry = mInterfaceGeometry.lock();
+            mtk::Interpolation_Function_Base* tInterpolation;
 
-            // Geometry field values
-            real phi1 = tLockedInterfaceGeometry->get_field_value(mAncestorNodeIndices(0), mAncestorNodeCoordinates(0));
-            real phi2 = tLockedInterfaceGeometry->get_field_value(mAncestorNodeIndices(1), mAncestorNodeCoordinates(1));
-            real phi3 = tLockedInterfaceGeometry->get_field_value(mAncestorNodeIndices(2), mAncestorNodeCoordinates(2));
-            real phi4 = tLockedInterfaceGeometry->get_field_value(mAncestorNodeIndices(3), mAncestorNodeCoordinates(3));
-
-            // Isocontour threshold
-            real iso = mIsocontourThreshold;
-
-            if (mLinear)
+            // create interpolation function based on spatial dimension  of problem
+            switch ( aAncestorNodeCoordinates( 0 ).numel() )
             {
-                // TODO
-                Matrix<DDRMat> tFirstBasisValues;
-                Matrix<DDRMat> tSecondBasisValues;
+                case 2:
+                {
+                    tInterpolation = tFactory.create_interpolation_function(
+                            mtk::Geometry_Type::QUAD,
+                            mtk::Interpolation_Type::LAGRANGE,
+                            mtk::Interpolation_Order::LINEAR );
 
-                xtk::Quad_4_Basis_Function().evaluate_basis_function({{xi1, eta1}}, tFirstBasisValues);
-                xtk::Quad_4_Basis_Function().evaluate_basis_function({{xi2, eta2}}, tSecondBasisValues);
+                    tNumBases = 4;
+                    break;
+                }
+                case 3:
+                {
+                    tInterpolation = tFactory.create_interpolation_function(
+                            mtk::Geometry_Type::HEX,
+                            mtk::Interpolation_Type::LAGRANGE,
+                            mtk::Interpolation_Order::LINEAR );
 
-                real tFirstParentPhi = tFirstBasisValues(0) * phi1 + tFirstBasisValues(1) * phi2 +
-                        tFirstBasisValues(2) * phi3 + tFirstBasisValues(3) * phi4;
-                real tSecondParentPhi = tSecondBasisValues(0) * phi1 + tSecondBasisValues(1) * phi2 +
-                        tSecondBasisValues(2) * phi3 + tSecondBasisValues(3) * phi4;
+                    tNumBases = 8;
+                    break;
+                }
+                default:
+                {
+                    MORIS_ERROR( false,
+                            "Intersection_Node_Bilinear::Intersection_Node_Bilinear - Interpolation type not implemented." );
+                }
+            }
 
-                return 2 * (tFirstBasisValues(aAncestorIndex) * (iso - tSecondParentPhi)
-                          + tSecondBasisValues(aAncestorIndex) * (tFirstParentPhi - iso))
-                          / std::pow((tSecondParentPhi - tFirstParentPhi), 2);
+            // check that number of node indices and number of nodal coodinates of ancestor nodes are identical
+            MORIS_ASSERT( aAncestorNodeCoordinates.size() == aAncestorNodeIndices.numel(),
+                    "Intersection_Node_Bilinear::compute_intersection - inconsistent ancestor node information." );
+
+            // check that number of bases to be used less or equal number of ancestor nodes
+            MORIS_ASSERT( aAncestorNodeCoordinates.size() >= tNumBases,
+                    "Intersection_Node_Bilinear::compute_intersection - number of ancestor nodes insufficient." );
+
+            // allocate matrix for level set values at background cell nodes
+            Matrix< DDRMat > tPhiBCNodes( tNumBases, 1 );
+
+            // get level set values of corner nodes
+            for ( uint in = 0; in < tNumBases; ++in )
+            {
+                tPhiBCNodes( in ) = aInterfaceGeometry->get_field_value( aAncestorNodeIndices( in ), aAncestorNodeCoordinates( in ) );
+            }
+
+            // check that dimension of ancestor node coordinate equals dimension of parent node coordinates
+            MORIS_ASSERT( aFirstParentNodeLocalCoordinates.numel() == aAncestorNodeCoordinates( 0 ).numel(),
+                    "Intersection_Node_Bilinear::compute_intersection - inconsistent coordinate dimensions." );
+
+            // compute level set value at parent nodes
+            Matrix< DDRMat > tFirstParentBasis;
+            Matrix< DDRMat > tSecondParentBasis;
+
+            tInterpolation->eval_N( aFirstParentNodeLocalCoordinates, tFirstParentBasis );
+            tInterpolation->eval_N( aSecondParentNodeLocalCoordinates, tSecondParentBasis );
+
+            real tFirstParentPhi  = dot( tFirstParentBasis, tPhiBCNodes );
+            real tSecondParentPhi = dot( tSecondParentBasis, tPhiBCNodes );
+
+            real tFirstDiffFromThreshold  = tFirstParentPhi - aIsocontourThreshold;
+            real tSecondDiffFromThreshold = tSecondParentPhi - aIsocontourThreshold;
+
+            // Overwrite basis values of intersection nodes
+            Matrix< DDRMat > tCellCoordinate = 0.5 * ( 1.0 - mLocalCoordinate ) * aFirstParentNodeLocalCoordinates
+                                             + 0.5 * ( 1.0 + mLocalCoordinate ) * aSecondParentNodeLocalCoordinates;
+
+            tInterpolation->eval_N( tCellCoordinate, mBasisValues );
+
+            // Global coordinates of intersection and parents
+            mGlobalCoordinates = mBasisValues( 0 ) * aAncestorNodeCoordinates( 0 );
+
+            Matrix< DDRMat > tFirstParentGlobalCoordinates  = tFirstParentBasis( 0 ) * aAncestorNodeCoordinates( 0 );
+            Matrix< DDRMat > tSecondParentGlobalCoordinates = tSecondParentBasis( 0 ) * aAncestorNodeCoordinates( 0 );
+
+            for ( uint tBasisIndex = 1; tBasisIndex < mBasisValues.length(); tBasisIndex++ )
+            {
+                mGlobalCoordinates += mBasisValues( tBasisIndex ) * aAncestorNodeCoordinates( tBasisIndex );
+                tFirstParentGlobalCoordinates += tFirstParentBasis( tBasisIndex ) * aAncestorNodeCoordinates( tBasisIndex );
+                tSecondParentGlobalCoordinates += tSecondParentBasis( tBasisIndex ) * aAncestorNodeCoordinates( tBasisIndex );
+            }
+
+            mParentVector      = trans( tSecondParentGlobalCoordinates - tFirstParentGlobalCoordinates );
+            real tParentLength = norm( mParentVector );
+
+            mFirstParentOnInterface = std::abs( tFirstDiffFromThreshold ) < aIntersectionTolerance
+                                   or 0.5 * tParentLength * std::abs( 1 + mLocalCoordinate ) < aIntersectionTolerance;
+
+            mSecondParentOnInterface = std::abs( tSecondDiffFromThreshold ) < aIntersectionTolerance
+                                    or 0.5 * tParentLength * std::abs( 1 - mLocalCoordinate ) < aIntersectionTolerance;
+
+            // Determine if edge is intersected
+            if ( mFirstParentOnInterface or mSecondParentOnInterface )
+            {
+                mIsIntersected = true;
+            }
+            // FIXME: This check should be unnecessary as the local edge coordinate should be sufficient
+            // to determine whether edge is intersected; it is only "useful" if parent node's level set value
+            // is determined by method that is different from intersection nodes; for example level set value child node
+            // of child node is computed via analytic field and intersection node via bi-linear interpolation
+            else if ( tFirstDiffFromThreshold * tSecondDiffFromThreshold > 0 )
+            {
+                mIsIntersected = false;
+
+                // check for consistency of parent values and local coordinate
+                MORIS_ASSERT( std::abs( mLocalCoordinate ) > 1,
+                        "Intersection_Node_Bilinear::Intersection_Node_Bilinear - inconsistent parent level set values versus local coordinate - p1 %e p2 %e loc %e.",
+                        tFirstDiffFromThreshold,
+                        tSecondDiffFromThreshold,
+                        mLocalCoordinate );
             }
             else
             {
-                switch (aAncestorIndex)
+                mIsIntersected = ( std::abs( mLocalCoordinate ) <= 1.0 );
+
+                // check for consistency with parent values
+                // this check is currently useless but should be performed is inconsistency issue (see comment above) is resolved
+                MORIS_ASSERT( mIsIntersected ? tFirstDiffFromThreshold * tSecondDiffFromThreshold < 0 : tFirstDiffFromThreshold * tSecondDiffFromThreshold > 0,
+                        "Intersection_Node_Bilinear::Intersection_Node_Bilinear - inconsistent parent level set values - p1 %e p2 %e loc %e.",
+                        tFirstDiffFromThreshold,
+                        tSecondDiffFromThreshold,
+                        mLocalCoordinate );
+            }
+
+            // allocate matrix for coordinates of parent nodes nodes on edge in local background cell CS
+            mParentLocalCoordinates.set_size( aFirstParentNodeLocalCoordinates.numel(), 2 );
+
+            // get coordinates of parent nodes nodes on edge in local background cell CS
+            for ( uint iI = 0; iI < aFirstParentNodeLocalCoordinates.numel(); ++iI )
+            {
+                mParentLocalCoordinates( iI, 0 ) = aFirstParentNodeLocalCoordinates( iI );
+                mParentLocalCoordinates( iI, 1 ) = aSecondParentNodeLocalCoordinates( iI );
+            }
+
+            // delete interpolator
+            delete tInterpolation;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Intersection_Node_Bilinear::~Intersection_Node_Bilinear()
+        {
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        real
+        Intersection_Node_Bilinear::get_dxi_dfield_from_ancestor( uint aAncestorIndex )
+        {
+            return this->compute_intersection_derivative( aAncestorIndex );
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Matrix< DDRMat >
+        Intersection_Node_Bilinear::get_dxi_dcoordinate_first_parent()
+        {
+            MORIS_ERROR( false, "Intersections on intersections not implemented yet for bilinear case." );
+            return { {} };
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Matrix< DDRMat >
+        Intersection_Node_Bilinear::get_dxi_dcoordinate_second_parent()
+        {
+            MORIS_ERROR( false, "Intersections on intersections not implemented yet for bilinear case." );
+            return { {} };
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        real
+        Intersection_Node_Bilinear::get_local_coordinate(
+                const Matrix< DDRMat >&         aFirstParentNodeLocalCoordinates,
+                const Matrix< DDRMat >&         aSecondParentNodeLocalCoordinates,
+                const Matrix< DDUMat >&         aAncestorNodeIndices,
+                const Cell< Matrix< DDRMat > >& aAncestorNodeCoordinates,
+                std::shared_ptr< Geometry >     aInterfaceGeometry,
+                real                            aIsocontourThreshold )
+        {
+            // use Newton to compute intersection
+            return this->compute_intersection(
+                    aFirstParentNodeLocalCoordinates,
+                    aSecondParentNodeLocalCoordinates,
+                    aAncestorNodeIndices,
+                    aAncestorNodeCoordinates,
+                    aInterfaceGeometry,
+                    aIsocontourThreshold );
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        real
+        Intersection_Node_Bilinear::compute_intersection(
+                const Matrix< DDRMat >&         aFirstParentNodeLocalCoordinates,
+                const Matrix< DDRMat >&         aSecondParentNodeLocalCoordinates,
+                const Matrix< DDUMat >&         aAncestorNodeIndices,
+                const Cell< Matrix< DDRMat > >& aAncestorNodeCoordinates,
+                std::shared_ptr< Geometry >     aInterfaceGeometry,
+                real                            aIsocontourThreshold )
+        {
+            // number of nodes to be used for interpolation
+            uint tNumBases;
+
+            // build interpolator
+            mtk::Interpolation_Function_Factory tFactory;
+
+            mtk::Interpolation_Function_Base* tInterpolation;
+
+            // create interpolation function based on spatial dimension  of problem
+            switch ( aAncestorNodeCoordinates( 0 ).numel() )
+            {
+                case 2:
                 {
-                    case 0:
-                    {
-                        if (mBilinearCase1)
-                        {
-                            return (xi2 - eta1 - xi1 + eta2 + xi1*eta1 - xi2*eta2 + (2*xi1*xi1*phi1 - 2*xi1*xi1*phi2 + 2*eta1*eta1*phi1 - 2*xi1*xi1*phi3 + 2*eta1*eta1*phi2 + 2*xi1*xi1*phi4 - 2*eta1*eta1*phi3 - 2*eta1*eta1*phi4 + 2*xi2*xi2*phi1 - 2*xi2*xi2*phi2 + 2*eta2*eta2*phi1 - 2*xi2*xi2*phi3 + 2*eta2*eta2*phi2 + 2*xi2*xi2*phi4 - 2*eta2*eta2*phi3 - 2*eta2*eta2*phi4 - 4*xi1*eta2*eta2*phi1 - 4*eta1*xi2*xi2*phi1 - 4*xi1*xi1*eta2*phi1 - 4*eta1*eta1*xi2*phi1 + 4*eta1*xi2*xi2*phi2 + 4*xi1*xi1*eta2*phi2 + 4*xi1*eta2*eta2*phi4 + 4*eta1*eta1*xi2*phi4 + 2*xi1*xi1*eta2*eta2*phi1 + 2*eta1*eta1*xi2*xi2*phi1 - 2*xi1*xi1*eta2*eta2*phi2 - 2*eta1*eta1*xi2*xi2*phi2 + 2*xi1*xi1*eta2*eta2*phi3 + 2*eta1*eta1*xi2*xi2*phi3 - 2*xi1*xi1*eta2*eta2*phi4 - 2*eta1*eta1*xi2*xi2*phi4 + 16*iso*xi1*eta1 - 16*iso*xi1*eta2 - 16*iso*eta1*xi2 + 16*iso*xi2*eta2 - 4*xi1*eta1*phi1 - 12*xi1*eta1*phi3 - 4*xi1*xi2*phi1 + 4*xi1*xi2*phi2 + 4*xi1*eta2*phi1 + 4*eta1*xi2*phi1 + 4*xi1*xi2*phi3 - 4*eta1*eta2*phi1 - 4*xi1*xi2*phi4 + 12*xi1*eta2*phi3 + 12*eta1*xi2*phi3 - 4*eta1*eta2*phi2 + 4*eta1*eta2*phi3 + 4*eta1*eta2*phi4 - 4*xi2*eta2*phi1 - 12*xi2*eta2*phi3 + 4*xi1*eta1*xi2*phi1 - 4*xi1*eta1*xi2*phi2 + 4*xi1*eta1*eta2*phi1 - 4*xi1*eta1*eta2*phi4 + 4*xi1*xi2*eta2*phi1 - 4*xi1*xi2*eta2*phi2 + 4*eta1*xi2*eta2*phi1 - 4*eta1*xi2*eta2*phi4 - 4*xi1*eta1*xi2*eta2*phi1 + 4*xi1*eta1*xi2*eta2*phi2 - 4*xi1*eta1*xi2*eta2*phi3 + 4*xi1*eta1*xi2*eta2*phi4)/(2*sqrt(xi1*xi1*eta2*eta2*phi1*phi1 - 2*xi1*xi1*eta2*eta2*phi1*phi2 + 2*xi1*xi1*eta2*eta2*phi1*phi3 - 2*xi1*xi1*eta2*eta2*phi1*phi4 + xi1*xi1*eta2*eta2*phi2*phi2 - 2*xi1*xi1*eta2*eta2*phi2*phi3 + 2*xi1*xi1*eta2*eta2*phi2*phi4 + xi1*xi1*eta2*eta2*phi3*phi3 - 2*xi1*xi1*eta2*eta2*phi3*phi4 + xi1*xi1*eta2*eta2*phi4*phi4 - 2*xi1*xi1*eta2*phi1*phi1 + 4*xi1*xi1*eta2*phi1*phi2 - 2*xi1*xi1*eta2*phi2*phi2 + 2*xi1*xi1*eta2*phi3*phi3 - 4*xi1*xi1*eta2*phi3*phi4 + 2*xi1*xi1*eta2*phi4*phi4 + xi1*xi1*phi1*phi1 - 2*xi1*xi1*phi1*phi2 - 2*xi1*xi1*phi1*phi3 + 2*xi1*xi1*phi1*phi4 + xi1*xi1*phi2*phi2 + 2*xi1*xi1*phi2*phi3 - 2*xi1*xi1*phi2*phi4 + xi1*xi1*phi3*phi3 - 2*xi1*xi1*phi3*phi4 + xi1*xi1*phi4*phi4 - 2*xi1*eta1*xi2*eta2*phi1*phi1 + 4*xi1*eta1*xi2*eta2*phi1*phi2 - 4*xi1*eta1*xi2*eta2*phi1*phi3 + 4*xi1*eta1*xi2*eta2*phi1*phi4 - 2*xi1*eta1*xi2*eta2*phi2*phi2 + 4*xi1*eta1*xi2*eta2*phi2*phi3 - 4*xi1*eta1*xi2*eta2*phi2*phi4 - 2*xi1*eta1*xi2*eta2*phi3*phi3 + 4*xi1*eta1*xi2*eta2*phi3*phi4 - 2*xi1*eta1*xi2*eta2*phi4*phi4 + 2*xi1*eta1*xi2*phi1*phi1 - 4*xi1*eta1*xi2*phi1*phi2 + 2*xi1*eta1*xi2*phi2*phi2 - 2*xi1*eta1*xi2*phi3*phi3 + 4*xi1*eta1*xi2*phi3*phi4 - 2*xi1*eta1*xi2*phi4*phi4 + 2*xi1*eta1*eta2*phi1*phi1 - 4*xi1*eta1*eta2*phi1*phi4 - 2*xi1*eta1*eta2*phi2*phi2 + 4*xi1*eta1*eta2*phi2*phi3 - 2*xi1*eta1*eta2*phi3*phi3 + 2*xi1*eta1*eta2*phi4*phi4 - 2*xi1*eta1*phi1*phi1 - 12*xi1*eta1*phi1*phi3 + 16*iso*xi1*eta1*phi1 + 2*xi1*eta1*phi2*phi2 + 12*xi1*eta1*phi2*phi4 - 16*iso*xi1*eta1*phi2 - 2*xi1*eta1*phi3*phi3 + 16*iso*xi1*eta1*phi3 + 2*xi1*eta1*phi4*phi4 - 16*iso*xi1*eta1*phi4 + 2*xi1*xi2*eta2*phi1*phi1 - 4*xi1*xi2*eta2*phi1*phi2 + 2*xi1*xi2*eta2*phi2*phi2 - 2*xi1*xi2*eta2*phi3*phi3 + 4*xi1*xi2*eta2*phi3*phi4 - 2*xi1*xi2*eta2*phi4*phi4 - 2*xi1*xi2*phi1*phi1 + 4*xi1*xi2*phi1*phi2 + 4*xi1*xi2*phi1*phi3 - 4*xi1*xi2*phi1*phi4 - 2*xi1*xi2*phi2*phi2 - 4*xi1*xi2*phi2*phi3 + 4*xi1*xi2*phi2*phi4 - 2*xi1*xi2*phi3*phi3 + 4*xi1*xi2*phi3*phi4 - 2*xi1*xi2*phi4*phi4 - 2*xi1*eta2*eta2*phi1*phi1 + 4*xi1*eta2*eta2*phi1*phi4 + 2*xi1*eta2*eta2*phi2*phi2 - 4*xi1*eta2*eta2*phi2*phi3 + 2*xi1*eta2*eta2*phi3*phi3 - 2*xi1*eta2*eta2*phi4*phi4 + 2*xi1*eta2*phi1*phi1 + 12*xi1*eta2*phi1*phi3 - 16*iso*xi1*eta2*phi1 - 2*xi1*eta2*phi2*phi2 - 12*xi1*eta2*phi2*phi4 + 16*iso*xi1*eta2*phi2 + 2*xi1*eta2*phi3*phi3 - 16*iso*xi1*eta2*phi3 - 2*xi1*eta2*phi4*phi4 + 16*iso*xi1*eta2*phi4 + eta1*eta1*xi2*xi2*phi1*phi1 - 2*eta1*eta1*xi2*xi2*phi1*phi2 + 2*eta1*eta1*xi2*xi2*phi1*phi3 - 2*eta1*eta1*xi2*xi2*phi1*phi4 + eta1*eta1*xi2*xi2*phi2*phi2 - 2*eta1*eta1*xi2*xi2*phi2*phi3 + 2*eta1*eta1*xi2*xi2*phi2*phi4 + eta1*eta1*xi2*xi2*phi3*phi3 - 2*eta1*eta1*xi2*xi2*phi3*phi4 + eta1*eta1*xi2*xi2*phi4*phi4 - 2*eta1*eta1*xi2*phi1*phi1 + 4*eta1*eta1*xi2*phi1*phi4 + 2*eta1*eta1*xi2*phi2*phi2 - 4*eta1*eta1*xi2*phi2*phi3 + 2*eta1*eta1*xi2*phi3*phi3 - 2*eta1*eta1*xi2*phi4*phi4 + eta1*eta1*phi1*phi1 + 2*eta1*eta1*phi1*phi2 - 2*eta1*eta1*phi1*phi3 - 2*eta1*eta1*phi1*phi4 + eta1*eta1*phi2*phi2 - 2*eta1*eta1*phi2*phi3 - 2*eta1*eta1*phi2*phi4 + eta1*eta1*phi3*phi3 + 2*eta1*eta1*phi3*phi4 + eta1*eta1*phi4*phi4 - 2*eta1*xi2*xi2*phi1*phi1 + 4*eta1*xi2*xi2*phi1*phi2 - 2*eta1*xi2*xi2*phi2*phi2 + 2*eta1*xi2*xi2*phi3*phi3 - 4*eta1*xi2*xi2*phi3*phi4 + 2*eta1*xi2*xi2*phi4*phi4 + 2*eta1*xi2*eta2*phi1*phi1 - 4*eta1*xi2*eta2*phi1*phi4 - 2*eta1*xi2*eta2*phi2*phi2 + 4*eta1*xi2*eta2*phi2*phi3 - 2*eta1*xi2*eta2*phi3*phi3 + 2*eta1*xi2*eta2*phi4*phi4 + 2*eta1*xi2*phi1*phi1 + 12*eta1*xi2*phi1*phi3 - 16*iso*eta1*xi2*phi1 - 2*eta1*xi2*phi2*phi2 - 12*eta1*xi2*phi2*phi4 + 16*iso*eta1*xi2*phi2 + 2*eta1*xi2*phi3*phi3 - 16*iso*eta1*xi2*phi3 - 2*eta1*xi2*phi4*phi4 + 16*iso*eta1*xi2*phi4 - 2*eta1*eta2*phi1*phi1 - 4*eta1*eta2*phi1*phi2 + 4*eta1*eta2*phi1*phi3 + 4*eta1*eta2*phi1*phi4 - 2*eta1*eta2*phi2*phi2 + 4*eta1*eta2*phi2*phi3 + 4*eta1*eta2*phi2*phi4 - 2*eta1*eta2*phi3*phi3 - 4*eta1*eta2*phi3*phi4 - 2*eta1*eta2*phi4*phi4 + xi2*xi2*phi1*phi1 - 2*xi2*xi2*phi1*phi2 - 2*xi2*xi2*phi1*phi3 + 2*xi2*xi2*phi1*phi4 + xi2*xi2*phi2*phi2 + 2*xi2*xi2*phi2*phi3 - 2*xi2*xi2*phi2*phi4 + xi2*xi2*phi3*phi3 - 2*xi2*xi2*phi3*phi4 + xi2*xi2*phi4*phi4 - 2*xi2*eta2*phi1*phi1 - 12*xi2*eta2*phi1*phi3 + 16*iso*xi2*eta2*phi1 + 2*xi2*eta2*phi2*phi2 + 12*xi2*eta2*phi2*phi4 - 16*iso*xi2*eta2*phi2 - 2*xi2*eta2*phi3*phi3 + 16*iso*xi2*eta2*phi3 + 2*xi2*eta2*phi4*phi4 - 16*iso*xi2*eta2*phi4 + eta2*eta2*phi1*phi1 + 2*eta2*eta2*phi1*phi2 - 2*eta2*eta2*phi1*phi3 - 2*eta2*eta2*phi1*phi4 + eta2*eta2*phi2*phi2 - 2*eta2*eta2*phi2*phi3 - 2*eta2*eta2*phi2*phi4 + eta2*eta2*phi3*phi3 + 2*eta2*eta2*phi3*phi4 + eta2*eta2*phi4*phi4)))/((xi1 - xi2)*(eta1 - eta2)*(phi1 - phi2 + phi3 - phi4)) - (sqrt(xi1*xi1*eta2*eta2*phi1*phi1 - 2*xi1*xi1*eta2*eta2*phi1*phi2 + 2*xi1*xi1*eta2*eta2*phi1*phi3 - 2*xi1*xi1*eta2*eta2*phi1*phi4 + xi1*xi1*eta2*eta2*phi2*phi2 - 2*xi1*xi1*eta2*eta2*phi2*phi3 + 2*xi1*xi1*eta2*eta2*phi2*phi4 + xi1*xi1*eta2*eta2*phi3*phi3 - 2*xi1*xi1*eta2*eta2*phi3*phi4 + xi1*xi1*eta2*eta2*phi4*phi4 - 2*xi1*xi1*eta2*phi1*phi1 + 4*xi1*xi1*eta2*phi1*phi2 - 2*xi1*xi1*eta2*phi2*phi2 + 2*xi1*xi1*eta2*phi3*phi3 - 4*xi1*xi1*eta2*phi3*phi4 + 2*xi1*xi1*eta2*phi4*phi4 + xi1*xi1*phi1*phi1 - 2*xi1*xi1*phi1*phi2 - 2*xi1*xi1*phi1*phi3 + 2*xi1*xi1*phi1*phi4 + xi1*xi1*phi2*phi2 + 2*xi1*xi1*phi2*phi3 - 2*xi1*xi1*phi2*phi4 + xi1*xi1*phi3*phi3 - 2*xi1*xi1*phi3*phi4 + xi1*xi1*phi4*phi4 - 2*xi1*eta1*xi2*eta2*phi1*phi1 + 4*xi1*eta1*xi2*eta2*phi1*phi2 - 4*xi1*eta1*xi2*eta2*phi1*phi3 + 4*xi1*eta1*xi2*eta2*phi1*phi4 - 2*xi1*eta1*xi2*eta2*phi2*phi2 + 4*xi1*eta1*xi2*eta2*phi2*phi3 - 4*xi1*eta1*xi2*eta2*phi2*phi4 - 2*xi1*eta1*xi2*eta2*phi3*phi3 + 4*xi1*eta1*xi2*eta2*phi3*phi4 - 2*xi1*eta1*xi2*eta2*phi4*phi4 + 2*xi1*eta1*xi2*phi1*phi1 - 4*xi1*eta1*xi2*phi1*phi2 + 2*xi1*eta1*xi2*phi2*phi2 - 2*xi1*eta1*xi2*phi3*phi3 + 4*xi1*eta1*xi2*phi3*phi4 - 2*xi1*eta1*xi2*phi4*phi4 + 2*xi1*eta1*eta2*phi1*phi1 - 4*xi1*eta1*eta2*phi1*phi4 - 2*xi1*eta1*eta2*phi2*phi2 + 4*xi1*eta1*eta2*phi2*phi3 - 2*xi1*eta1*eta2*phi3*phi3 + 2*xi1*eta1*eta2*phi4*phi4 - 2*xi1*eta1*phi1*phi1 - 12*xi1*eta1*phi1*phi3 + 16*iso*xi1*eta1*phi1 + 2*xi1*eta1*phi2*phi2 + 12*xi1*eta1*phi2*phi4 - 16*iso*xi1*eta1*phi2 - 2*xi1*eta1*phi3*phi3 + 16*iso*xi1*eta1*phi3 + 2*xi1*eta1*phi4*phi4 - 16*iso*xi1*eta1*phi4 + 2*xi1*xi2*eta2*phi1*phi1 - 4*xi1*xi2*eta2*phi1*phi2 + 2*xi1*xi2*eta2*phi2*phi2 - 2*xi1*xi2*eta2*phi3*phi3 + 4*xi1*xi2*eta2*phi3*phi4 - 2*xi1*xi2*eta2*phi4*phi4 - 2*xi1*xi2*phi1*phi1 + 4*xi1*xi2*phi1*phi2 + 4*xi1*xi2*phi1*phi3 - 4*xi1*xi2*phi1*phi4 - 2*xi1*xi2*phi2*phi2 - 4*xi1*xi2*phi2*phi3 + 4*xi1*xi2*phi2*phi4 - 2*xi1*xi2*phi3*phi3 + 4*xi1*xi2*phi3*phi4 - 2*xi1*xi2*phi4*phi4 - 2*xi1*eta2*eta2*phi1*phi1 + 4*xi1*eta2*eta2*phi1*phi4 + 2*xi1*eta2*eta2*phi2*phi2 - 4*xi1*eta2*eta2*phi2*phi3 + 2*xi1*eta2*eta2*phi3*phi3 - 2*xi1*eta2*eta2*phi4*phi4 + 2*xi1*eta2*phi1*phi1 + 12*xi1*eta2*phi1*phi3 - 16*iso*xi1*eta2*phi1 - 2*xi1*eta2*phi2*phi2 - 12*xi1*eta2*phi2*phi4 + 16*iso*xi1*eta2*phi2 + 2*xi1*eta2*phi3*phi3 - 16*iso*xi1*eta2*phi3 - 2*xi1*eta2*phi4*phi4 + 16*iso*xi1*eta2*phi4 + eta1*eta1*xi2*xi2*phi1*phi1 - 2*eta1*eta1*xi2*xi2*phi1*phi2 + 2*eta1*eta1*xi2*xi2*phi1*phi3 - 2*eta1*eta1*xi2*xi2*phi1*phi4 + eta1*eta1*xi2*xi2*phi2*phi2 - 2*eta1*eta1*xi2*xi2*phi2*phi3 + 2*eta1*eta1*xi2*xi2*phi2*phi4 + eta1*eta1*xi2*xi2*phi3*phi3 - 2*eta1*eta1*xi2*xi2*phi3*phi4 + eta1*eta1*xi2*xi2*phi4*phi4 - 2*eta1*eta1*xi2*phi1*phi1 + 4*eta1*eta1*xi2*phi1*phi4 + 2*eta1*eta1*xi2*phi2*phi2 - 4*eta1*eta1*xi2*phi2*phi3 + 2*eta1*eta1*xi2*phi3*phi3 - 2*eta1*eta1*xi2*phi4*phi4 + eta1*eta1*phi1*phi1 + 2*eta1*eta1*phi1*phi2 - 2*eta1*eta1*phi1*phi3 - 2*eta1*eta1*phi1*phi4 + eta1*eta1*phi2*phi2 - 2*eta1*eta1*phi2*phi3 - 2*eta1*eta1*phi2*phi4 + eta1*eta1*phi3*phi3 + 2*eta1*eta1*phi3*phi4 + eta1*eta1*phi4*phi4 - 2*eta1*xi2*xi2*phi1*phi1 + 4*eta1*xi2*xi2*phi1*phi2 - 2*eta1*xi2*xi2*phi2*phi2 + 2*eta1*xi2*xi2*phi3*phi3 - 4*eta1*xi2*xi2*phi3*phi4 + 2*eta1*xi2*xi2*phi4*phi4 + 2*eta1*xi2*eta2*phi1*phi1 - 4*eta1*xi2*eta2*phi1*phi4 - 2*eta1*xi2*eta2*phi2*phi2 + 4*eta1*xi2*eta2*phi2*phi3 - 2*eta1*xi2*eta2*phi3*phi3 + 2*eta1*xi2*eta2*phi4*phi4 + 2*eta1*xi2*phi1*phi1 + 12*eta1*xi2*phi1*phi3 - 16*iso*eta1*xi2*phi1 - 2*eta1*xi2*phi2*phi2 - 12*eta1*xi2*phi2*phi4 + 16*iso*eta1*xi2*phi2 + 2*eta1*xi2*phi3*phi3 - 16*iso*eta1*xi2*phi3 - 2*eta1*xi2*phi4*phi4 + 16*iso*eta1*xi2*phi4 - 2*eta1*eta2*phi1*phi1 - 4*eta1*eta2*phi1*phi2 + 4*eta1*eta2*phi1*phi3 + 4*eta1*eta2*phi1*phi4 - 2*eta1*eta2*phi2*phi2 + 4*eta1*eta2*phi2*phi3 + 4*eta1*eta2*phi2*phi4 - 2*eta1*eta2*phi3*phi3 - 4*eta1*eta2*phi3*phi4 - 2*eta1*eta2*phi4*phi4 + xi2*xi2*phi1*phi1 - 2*xi2*xi2*phi1*phi2 - 2*xi2*xi2*phi1*phi3 + 2*xi2*xi2*phi1*phi4 + xi2*xi2*phi2*phi2 + 2*xi2*xi2*phi2*phi3 - 2*xi2*xi2*phi2*phi4 + xi2*xi2*phi3*phi3 - 2*xi2*xi2*phi3*phi4 + xi2*xi2*phi4*phi4 - 2*xi2*eta2*phi1*phi1 - 12*xi2*eta2*phi1*phi3 + 16*iso*xi2*eta2*phi1 + 2*xi2*eta2*phi2*phi2 + 12*xi2*eta2*phi2*phi4 - 16*iso*xi2*eta2*phi2 - 2*xi2*eta2*phi3*phi3 + 16*iso*xi2*eta2*phi3 + 2*xi2*eta2*phi4*phi4 - 16*iso*xi2*eta2*phi4 + eta2*eta2*phi1*phi1 + 2*eta2*eta2*phi1*phi2 - 2*eta2*eta2*phi1*phi3 - 2*eta2*eta2*phi1*phi4 + eta2*eta2*phi2*phi2 - 2*eta2*eta2*phi2*phi3 - 2*eta2*eta2*phi2*phi4 + eta2*eta2*phi3*phi3 + 2*eta2*eta2*phi3*phi4 + eta2*eta2*phi4*phi4) - xi1*phi1 + xi1*phi2 - eta1*phi1 + xi1*phi3 - eta1*phi2 - xi1*phi4 + eta1*phi3 + eta1*phi4 + xi2*phi1 - xi2*phi2 + eta2*phi1 - xi2*phi3 + eta2*phi2 + xi2*phi4 - eta2*phi3 - eta2*phi4 + xi1*eta1*phi1 - xi1*eta1*phi2 + xi1*eta1*phi3 - xi1*eta1*phi4 - xi2*eta2*phi1 + xi2*eta2*phi2 - xi2*eta2*phi3 + xi2*eta2*phi4)/((xi1 - xi2)*(eta1 - eta2)*std::pow(phi1 - phi2 + phi3 - phi4, 2));
-                        }
-                        else
-                        {
-                            return (sqrt(xi1*xi1*eta2*eta2*phi1*phi1 - 2*xi1*xi1*eta2*eta2*phi1*phi2 + 2*xi1*xi1*eta2*eta2*phi1*phi3 - 2*xi1*xi1*eta2*eta2*phi1*phi4 + xi1*xi1*eta2*eta2*phi2*phi2 - 2*xi1*xi1*eta2*eta2*phi2*phi3 + 2*xi1*xi1*eta2*eta2*phi2*phi4 + xi1*xi1*eta2*eta2*phi3*phi3 - 2*xi1*xi1*eta2*eta2*phi3*phi4 + xi1*xi1*eta2*eta2*phi4*phi4 - 2*xi1*xi1*eta2*phi1*phi1 + 4*xi1*xi1*eta2*phi1*phi2 - 2*xi1*xi1*eta2*phi2*phi2 + 2*xi1*xi1*eta2*phi3*phi3 - 4*xi1*xi1*eta2*phi3*phi4 + 2*xi1*xi1*eta2*phi4*phi4 + xi1*xi1*phi1*phi1 - 2*xi1*xi1*phi1*phi2 - 2*xi1*xi1*phi1*phi3 + 2*xi1*xi1*phi1*phi4 + xi1*xi1*phi2*phi2 + 2*xi1*xi1*phi2*phi3 - 2*xi1*xi1*phi2*phi4 + xi1*xi1*phi3*phi3 - 2*xi1*xi1*phi3*phi4 + xi1*xi1*phi4*phi4 - 2*xi1*eta1*xi2*eta2*phi1*phi1 + 4*xi1*eta1*xi2*eta2*phi1*phi2 - 4*xi1*eta1*xi2*eta2*phi1*phi3 + 4*xi1*eta1*xi2*eta2*phi1*phi4 - 2*xi1*eta1*xi2*eta2*phi2*phi2 + 4*xi1*eta1*xi2*eta2*phi2*phi3 - 4*xi1*eta1*xi2*eta2*phi2*phi4 - 2*xi1*eta1*xi2*eta2*phi3*phi3 + 4*xi1*eta1*xi2*eta2*phi3*phi4 - 2*xi1*eta1*xi2*eta2*phi4*phi4 + 2*xi1*eta1*xi2*phi1*phi1 - 4*xi1*eta1*xi2*phi1*phi2 + 2*xi1*eta1*xi2*phi2*phi2 - 2*xi1*eta1*xi2*phi3*phi3 + 4*xi1*eta1*xi2*phi3*phi4 - 2*xi1*eta1*xi2*phi4*phi4 + 2*xi1*eta1*eta2*phi1*phi1 - 4*xi1*eta1*eta2*phi1*phi4 - 2*xi1*eta1*eta2*phi2*phi2 + 4*xi1*eta1*eta2*phi2*phi3 - 2*xi1*eta1*eta2*phi3*phi3 + 2*xi1*eta1*eta2*phi4*phi4 - 2*xi1*eta1*phi1*phi1 - 12*xi1*eta1*phi1*phi3 + 16*iso*xi1*eta1*phi1 + 2*xi1*eta1*phi2*phi2 + 12*xi1*eta1*phi2*phi4 - 16*iso*xi1*eta1*phi2 - 2*xi1*eta1*phi3*phi3 + 16*iso*xi1*eta1*phi3 + 2*xi1*eta1*phi4*phi4 - 16*iso*xi1*eta1*phi4 + 2*xi1*xi2*eta2*phi1*phi1 - 4*xi1*xi2*eta2*phi1*phi2 + 2*xi1*xi2*eta2*phi2*phi2 - 2*xi1*xi2*eta2*phi3*phi3 + 4*xi1*xi2*eta2*phi3*phi4 - 2*xi1*xi2*eta2*phi4*phi4 - 2*xi1*xi2*phi1*phi1 + 4*xi1*xi2*phi1*phi2 + 4*xi1*xi2*phi1*phi3 - 4*xi1*xi2*phi1*phi4 - 2*xi1*xi2*phi2*phi2 - 4*xi1*xi2*phi2*phi3 + 4*xi1*xi2*phi2*phi4 - 2*xi1*xi2*phi3*phi3 + 4*xi1*xi2*phi3*phi4 - 2*xi1*xi2*phi4*phi4 - 2*xi1*eta2*eta2*phi1*phi1 + 4*xi1*eta2*eta2*phi1*phi4 + 2*xi1*eta2*eta2*phi2*phi2 - 4*xi1*eta2*eta2*phi2*phi3 + 2*xi1*eta2*eta2*phi3*phi3 - 2*xi1*eta2*eta2*phi4*phi4 + 2*xi1*eta2*phi1*phi1 + 12*xi1*eta2*phi1*phi3 - 16*iso*xi1*eta2*phi1 - 2*xi1*eta2*phi2*phi2 - 12*xi1*eta2*phi2*phi4 + 16*iso*xi1*eta2*phi2 + 2*xi1*eta2*phi3*phi3 - 16*iso*xi1*eta2*phi3 - 2*xi1*eta2*phi4*phi4 + 16*iso*xi1*eta2*phi4 + eta1*eta1*xi2*xi2*phi1*phi1 - 2*eta1*eta1*xi2*xi2*phi1*phi2 + 2*eta1*eta1*xi2*xi2*phi1*phi3 - 2*eta1*eta1*xi2*xi2*phi1*phi4 + eta1*eta1*xi2*xi2*phi2*phi2 - 2*eta1*eta1*xi2*xi2*phi2*phi3 + 2*eta1*eta1*xi2*xi2*phi2*phi4 + eta1*eta1*xi2*xi2*phi3*phi3 - 2*eta1*eta1*xi2*xi2*phi3*phi4 + eta1*eta1*xi2*xi2*phi4*phi4 - 2*eta1*eta1*xi2*phi1*phi1 + 4*eta1*eta1*xi2*phi1*phi4 + 2*eta1*eta1*xi2*phi2*phi2 - 4*eta1*eta1*xi2*phi2*phi3 + 2*eta1*eta1*xi2*phi3*phi3 - 2*eta1*eta1*xi2*phi4*phi4 + eta1*eta1*phi1*phi1 + 2*eta1*eta1*phi1*phi2 - 2*eta1*eta1*phi1*phi3 - 2*eta1*eta1*phi1*phi4 + eta1*eta1*phi2*phi2 - 2*eta1*eta1*phi2*phi3 - 2*eta1*eta1*phi2*phi4 + eta1*eta1*phi3*phi3 + 2*eta1*eta1*phi3*phi4 + eta1*eta1*phi4*phi4 - 2*eta1*xi2*xi2*phi1*phi1 + 4*eta1*xi2*xi2*phi1*phi2 - 2*eta1*xi2*xi2*phi2*phi2 + 2*eta1*xi2*xi2*phi3*phi3 - 4*eta1*xi2*xi2*phi3*phi4 + 2*eta1*xi2*xi2*phi4*phi4 + 2*eta1*xi2*eta2*phi1*phi1 - 4*eta1*xi2*eta2*phi1*phi4 - 2*eta1*xi2*eta2*phi2*phi2 + 4*eta1*xi2*eta2*phi2*phi3 - 2*eta1*xi2*eta2*phi3*phi3 + 2*eta1*xi2*eta2*phi4*phi4 + 2*eta1*xi2*phi1*phi1 + 12*eta1*xi2*phi1*phi3 - 16*iso*eta1*xi2*phi1 - 2*eta1*xi2*phi2*phi2 - 12*eta1*xi2*phi2*phi4 + 16*iso*eta1*xi2*phi2 + 2*eta1*xi2*phi3*phi3 - 16*iso*eta1*xi2*phi3 - 2*eta1*xi2*phi4*phi4 + 16*iso*eta1*xi2*phi4 - 2*eta1*eta2*phi1*phi1 - 4*eta1*eta2*phi1*phi2 + 4*eta1*eta2*phi1*phi3 + 4*eta1*eta2*phi1*phi4 - 2*eta1*eta2*phi2*phi2 + 4*eta1*eta2*phi2*phi3 + 4*eta1*eta2*phi2*phi4 - 2*eta1*eta2*phi3*phi3 - 4*eta1*eta2*phi3*phi4 - 2*eta1*eta2*phi4*phi4 + xi2*xi2*phi1*phi1 - 2*xi2*xi2*phi1*phi2 - 2*xi2*xi2*phi1*phi3 + 2*xi2*xi2*phi1*phi4 + xi2*xi2*phi2*phi2 + 2*xi2*xi2*phi2*phi3 - 2*xi2*xi2*phi2*phi4 + xi2*xi2*phi3*phi3 - 2*xi2*xi2*phi3*phi4 + xi2*xi2*phi4*phi4 - 2*xi2*eta2*phi1*phi1 - 12*xi2*eta2*phi1*phi3 + 16*iso*xi2*eta2*phi1 + 2*xi2*eta2*phi2*phi2 + 12*xi2*eta2*phi2*phi4 - 16*iso*xi2*eta2*phi2 - 2*xi2*eta2*phi3*phi3 + 16*iso*xi2*eta2*phi3 + 2*xi2*eta2*phi4*phi4 - 16*iso*xi2*eta2*phi4 + eta2*eta2*phi1*phi1 + 2*eta2*eta2*phi1*phi2 - 2*eta2*eta2*phi1*phi3 - 2*eta2*eta2*phi1*phi4 + eta2*eta2*phi2*phi2 - 2*eta2*eta2*phi2*phi3 - 2*eta2*eta2*phi2*phi4 + eta2*eta2*phi3*phi3 + 2*eta2*eta2*phi3*phi4 + eta2*eta2*phi4*phi4) + xi1*phi1 - xi1*phi2 + eta1*phi1 - xi1*phi3 + eta1*phi2 + xi1*phi4 - eta1*phi3 - eta1*phi4 - xi2*phi1 + xi2*phi2 - eta2*phi1 + xi2*phi3 - eta2*phi2 - xi2*phi4 + eta2*phi3 + eta2*phi4 - xi1*eta1*phi1 + xi1*eta1*phi2 - xi1*eta1*phi3 + xi1*eta1*phi4 + xi2*eta2*phi1 - xi2*eta2*phi2 + xi2*eta2*phi3 - xi2*eta2*phi4)/((xi1 - xi2)*(eta1 - eta2)*std::pow(phi1 - phi2 + phi3 - phi4, 2)) - (xi1 + eta1 - xi2 - eta2 - xi1*eta1 + xi2*eta2 + (2*xi1*xi1*phi1 - 2*xi1*xi1*phi2 + 2*eta1*eta1*phi1 - 2*xi1*xi1*phi3 + 2*eta1*eta1*phi2 + 2*xi1*xi1*phi4 - 2*eta1*eta1*phi3 - 2*eta1*eta1*phi4 + 2*xi2*xi2*phi1 - 2*xi2*xi2*phi2 + 2*eta2*eta2*phi1 - 2*xi2*xi2*phi3 + 2*eta2*eta2*phi2 + 2*xi2*xi2*phi4 - 2*eta2*eta2*phi3 - 2*eta2*eta2*phi4 - 4*xi1*eta2*eta2*phi1 - 4*eta1*xi2*xi2*phi1 - 4*xi1*xi1*eta2*phi1 - 4*eta1*eta1*xi2*phi1 + 4*eta1*xi2*xi2*phi2 + 4*xi1*xi1*eta2*phi2 + 4*xi1*eta2*eta2*phi4 + 4*eta1*eta1*xi2*phi4 + 2*xi1*xi1*eta2*eta2*phi1 + 2*eta1*eta1*xi2*xi2*phi1 - 2*xi1*xi1*eta2*eta2*phi2 - 2*eta1*eta1*xi2*xi2*phi2 + 2*xi1*xi1*eta2*eta2*phi3 + 2*eta1*eta1*xi2*xi2*phi3 - 2*xi1*xi1*eta2*eta2*phi4 - 2*eta1*eta1*xi2*xi2*phi4 + 16*iso*xi1*eta1 - 16*iso*xi1*eta2 - 16*iso*eta1*xi2 + 16*iso*xi2*eta2 - 4*xi1*eta1*phi1 - 12*xi1*eta1*phi3 - 4*xi1*xi2*phi1 + 4*xi1*xi2*phi2 + 4*xi1*eta2*phi1 + 4*eta1*xi2*phi1 + 4*xi1*xi2*phi3 - 4*eta1*eta2*phi1 - 4*xi1*xi2*phi4 + 12*xi1*eta2*phi3 + 12*eta1*xi2*phi3 - 4*eta1*eta2*phi2 + 4*eta1*eta2*phi3 + 4*eta1*eta2*phi4 - 4*xi2*eta2*phi1 - 12*xi2*eta2*phi3 + 4*xi1*eta1*xi2*phi1 - 4*xi1*eta1*xi2*phi2 + 4*xi1*eta1*eta2*phi1 - 4*xi1*eta1*eta2*phi4 + 4*xi1*xi2*eta2*phi1 - 4*xi1*xi2*eta2*phi2 + 4*eta1*xi2*eta2*phi1 - 4*eta1*xi2*eta2*phi4 - 4*xi1*eta1*xi2*eta2*phi1 + 4*xi1*eta1*xi2*eta2*phi2 - 4*xi1*eta1*xi2*eta2*phi3 + 4*xi1*eta1*xi2*eta2*phi4)/(2*sqrt(xi1*xi1*eta2*eta2*phi1*phi1 - 2*xi1*xi1*eta2*eta2*phi1*phi2 + 2*xi1*xi1*eta2*eta2*phi1*phi3 - 2*xi1*xi1*eta2*eta2*phi1*phi4 + xi1*xi1*eta2*eta2*phi2*phi2 - 2*xi1*xi1*eta2*eta2*phi2*phi3 + 2*xi1*xi1*eta2*eta2*phi2*phi4 + xi1*xi1*eta2*eta2*phi3*phi3 - 2*xi1*xi1*eta2*eta2*phi3*phi4 + xi1*xi1*eta2*eta2*phi4*phi4 - 2*xi1*xi1*eta2*phi1*phi1 + 4*xi1*xi1*eta2*phi1*phi2 - 2*xi1*xi1*eta2*phi2*phi2 + 2*xi1*xi1*eta2*phi3*phi3 - 4*xi1*xi1*eta2*phi3*phi4 + 2*xi1*xi1*eta2*phi4*phi4 + xi1*xi1*phi1*phi1 - 2*xi1*xi1*phi1*phi2 - 2*xi1*xi1*phi1*phi3 + 2*xi1*xi1*phi1*phi4 + xi1*xi1*phi2*phi2 + 2*xi1*xi1*phi2*phi3 - 2*xi1*xi1*phi2*phi4 + xi1*xi1*phi3*phi3 - 2*xi1*xi1*phi3*phi4 + xi1*xi1*phi4*phi4 - 2*xi1*eta1*xi2*eta2*phi1*phi1 + 4*xi1*eta1*xi2*eta2*phi1*phi2 - 4*xi1*eta1*xi2*eta2*phi1*phi3 + 4*xi1*eta1*xi2*eta2*phi1*phi4 - 2*xi1*eta1*xi2*eta2*phi2*phi2 + 4*xi1*eta1*xi2*eta2*phi2*phi3 - 4*xi1*eta1*xi2*eta2*phi2*phi4 - 2*xi1*eta1*xi2*eta2*phi3*phi3 + 4*xi1*eta1*xi2*eta2*phi3*phi4 - 2*xi1*eta1*xi2*eta2*phi4*phi4 + 2*xi1*eta1*xi2*phi1*phi1 - 4*xi1*eta1*xi2*phi1*phi2 + 2*xi1*eta1*xi2*phi2*phi2 - 2*xi1*eta1*xi2*phi3*phi3 + 4*xi1*eta1*xi2*phi3*phi4 - 2*xi1*eta1*xi2*phi4*phi4 + 2*xi1*eta1*eta2*phi1*phi1 - 4*xi1*eta1*eta2*phi1*phi4 - 2*xi1*eta1*eta2*phi2*phi2 + 4*xi1*eta1*eta2*phi2*phi3 - 2*xi1*eta1*eta2*phi3*phi3 + 2*xi1*eta1*eta2*phi4*phi4 - 2*xi1*eta1*phi1*phi1 - 12*xi1*eta1*phi1*phi3 + 16*iso*xi1*eta1*phi1 + 2*xi1*eta1*phi2*phi2 + 12*xi1*eta1*phi2*phi4 - 16*iso*xi1*eta1*phi2 - 2*xi1*eta1*phi3*phi3 + 16*iso*xi1*eta1*phi3 + 2*xi1*eta1*phi4*phi4 - 16*iso*xi1*eta1*phi4 + 2*xi1*xi2*eta2*phi1*phi1 - 4*xi1*xi2*eta2*phi1*phi2 + 2*xi1*xi2*eta2*phi2*phi2 - 2*xi1*xi2*eta2*phi3*phi3 + 4*xi1*xi2*eta2*phi3*phi4 - 2*xi1*xi2*eta2*phi4*phi4 - 2*xi1*xi2*phi1*phi1 + 4*xi1*xi2*phi1*phi2 + 4*xi1*xi2*phi1*phi3 - 4*xi1*xi2*phi1*phi4 - 2*xi1*xi2*phi2*phi2 - 4*xi1*xi2*phi2*phi3 + 4*xi1*xi2*phi2*phi4 - 2*xi1*xi2*phi3*phi3 + 4*xi1*xi2*phi3*phi4 - 2*xi1*xi2*phi4*phi4 - 2*xi1*eta2*eta2*phi1*phi1 + 4*xi1*eta2*eta2*phi1*phi4 + 2*xi1*eta2*eta2*phi2*phi2 - 4*xi1*eta2*eta2*phi2*phi3 + 2*xi1*eta2*eta2*phi3*phi3 - 2*xi1*eta2*eta2*phi4*phi4 + 2*xi1*eta2*phi1*phi1 + 12*xi1*eta2*phi1*phi3 - 16*iso*xi1*eta2*phi1 - 2*xi1*eta2*phi2*phi2 - 12*xi1*eta2*phi2*phi4 + 16*iso*xi1*eta2*phi2 + 2*xi1*eta2*phi3*phi3 - 16*iso*xi1*eta2*phi3 - 2*xi1*eta2*phi4*phi4 + 16*iso*xi1*eta2*phi4 + eta1*eta1*xi2*xi2*phi1*phi1 - 2*eta1*eta1*xi2*xi2*phi1*phi2 + 2*eta1*eta1*xi2*xi2*phi1*phi3 - 2*eta1*eta1*xi2*xi2*phi1*phi4 + eta1*eta1*xi2*xi2*phi2*phi2 - 2*eta1*eta1*xi2*xi2*phi2*phi3 + 2*eta1*eta1*xi2*xi2*phi2*phi4 + eta1*eta1*xi2*xi2*phi3*phi3 - 2*eta1*eta1*xi2*xi2*phi3*phi4 + eta1*eta1*xi2*xi2*phi4*phi4 - 2*eta1*eta1*xi2*phi1*phi1 + 4*eta1*eta1*xi2*phi1*phi4 + 2*eta1*eta1*xi2*phi2*phi2 - 4*eta1*eta1*xi2*phi2*phi3 + 2*eta1*eta1*xi2*phi3*phi3 - 2*eta1*eta1*xi2*phi4*phi4 + eta1*eta1*phi1*phi1 + 2*eta1*eta1*phi1*phi2 - 2*eta1*eta1*phi1*phi3 - 2*eta1*eta1*phi1*phi4 + eta1*eta1*phi2*phi2 - 2*eta1*eta1*phi2*phi3 - 2*eta1*eta1*phi2*phi4 + eta1*eta1*phi3*phi3 + 2*eta1*eta1*phi3*phi4 + eta1*eta1*phi4*phi4 - 2*eta1*xi2*xi2*phi1*phi1 + 4*eta1*xi2*xi2*phi1*phi2 - 2*eta1*xi2*xi2*phi2*phi2 + 2*eta1*xi2*xi2*phi3*phi3 - 4*eta1*xi2*xi2*phi3*phi4 + 2*eta1*xi2*xi2*phi4*phi4 + 2*eta1*xi2*eta2*phi1*phi1 - 4*eta1*xi2*eta2*phi1*phi4 - 2*eta1*xi2*eta2*phi2*phi2 + 4*eta1*xi2*eta2*phi2*phi3 - 2*eta1*xi2*eta2*phi3*phi3 + 2*eta1*xi2*eta2*phi4*phi4 + 2*eta1*xi2*phi1*phi1 + 12*eta1*xi2*phi1*phi3 - 16*iso*eta1*xi2*phi1 - 2*eta1*xi2*phi2*phi2 - 12*eta1*xi2*phi2*phi4 + 16*iso*eta1*xi2*phi2 + 2*eta1*xi2*phi3*phi3 - 16*iso*eta1*xi2*phi3 - 2*eta1*xi2*phi4*phi4 + 16*iso*eta1*xi2*phi4 - 2*eta1*eta2*phi1*phi1 - 4*eta1*eta2*phi1*phi2 + 4*eta1*eta2*phi1*phi3 + 4*eta1*eta2*phi1*phi4 - 2*eta1*eta2*phi2*phi2 + 4*eta1*eta2*phi2*phi3 + 4*eta1*eta2*phi2*phi4 - 2*eta1*eta2*phi3*phi3 - 4*eta1*eta2*phi3*phi4 - 2*eta1*eta2*phi4*phi4 + xi2*xi2*phi1*phi1 - 2*xi2*xi2*phi1*phi2 - 2*xi2*xi2*phi1*phi3 + 2*xi2*xi2*phi1*phi4 + xi2*xi2*phi2*phi2 + 2*xi2*xi2*phi2*phi3 - 2*xi2*xi2*phi2*phi4 + xi2*xi2*phi3*phi3 - 2*xi2*xi2*phi3*phi4 + xi2*xi2*phi4*phi4 - 2*xi2*eta2*phi1*phi1 - 12*xi2*eta2*phi1*phi3 + 16*iso*xi2*eta2*phi1 + 2*xi2*eta2*phi2*phi2 + 12*xi2*eta2*phi2*phi4 - 16*iso*xi2*eta2*phi2 - 2*xi2*eta2*phi3*phi3 + 16*iso*xi2*eta2*phi3 + 2*xi2*eta2*phi4*phi4 - 16*iso*xi2*eta2*phi4 + eta2*eta2*phi1*phi1 + 2*eta2*eta2*phi1*phi2 - 2*eta2*eta2*phi1*phi3 - 2*eta2*eta2*phi1*phi4 + eta2*eta2*phi2*phi2 - 2*eta2*eta2*phi2*phi3 - 2*eta2*eta2*phi2*phi4 + eta2*eta2*phi3*phi3 + 2*eta2*eta2*phi3*phi4 + eta2*eta2*phi4*phi4)))/((xi1 - xi2)*(eta1 - eta2)*(phi1 - phi2 + phi3 - phi4));
-                        }
-                    }
-                    case 1:
-                    {
-                        if (mBilinearCase1)
-                        {
-                            return (sqrt(xi1*xi1*eta2*eta2*phi1*phi1 - 2*xi1*xi1*eta2*eta2*phi1*phi2 + 2*xi1*xi1*eta2*eta2*phi1*phi3 - 2*xi1*xi1*eta2*eta2*phi1*phi4 + xi1*xi1*eta2*eta2*phi2*phi2 - 2*xi1*xi1*eta2*eta2*phi2*phi3 + 2*xi1*xi1*eta2*eta2*phi2*phi4 + xi1*xi1*eta2*eta2*phi3*phi3 - 2*xi1*xi1*eta2*eta2*phi3*phi4 + xi1*xi1*eta2*eta2*phi4*phi4 - 2*xi1*xi1*eta2*phi1*phi1 + 4*xi1*xi1*eta2*phi1*phi2 - 2*xi1*xi1*eta2*phi2*phi2 + 2*xi1*xi1*eta2*phi3*phi3 - 4*xi1*xi1*eta2*phi3*phi4 + 2*xi1*xi1*eta2*phi4*phi4 + xi1*xi1*phi1*phi1 - 2*xi1*xi1*phi1*phi2 - 2*xi1*xi1*phi1*phi3 + 2*xi1*xi1*phi1*phi4 + xi1*xi1*phi2*phi2 + 2*xi1*xi1*phi2*phi3 - 2*xi1*xi1*phi2*phi4 + xi1*xi1*phi3*phi3 - 2*xi1*xi1*phi3*phi4 + xi1*xi1*phi4*phi4 - 2*xi1*eta1*xi2*eta2*phi1*phi1 + 4*xi1*eta1*xi2*eta2*phi1*phi2 - 4*xi1*eta1*xi2*eta2*phi1*phi3 + 4*xi1*eta1*xi2*eta2*phi1*phi4 - 2*xi1*eta1*xi2*eta2*phi2*phi2 + 4*xi1*eta1*xi2*eta2*phi2*phi3 - 4*xi1*eta1*xi2*eta2*phi2*phi4 - 2*xi1*eta1*xi2*eta2*phi3*phi3 + 4*xi1*eta1*xi2*eta2*phi3*phi4 - 2*xi1*eta1*xi2*eta2*phi4*phi4 + 2*xi1*eta1*xi2*phi1*phi1 - 4*xi1*eta1*xi2*phi1*phi2 + 2*xi1*eta1*xi2*phi2*phi2 - 2*xi1*eta1*xi2*phi3*phi3 + 4*xi1*eta1*xi2*phi3*phi4 - 2*xi1*eta1*xi2*phi4*phi4 + 2*xi1*eta1*eta2*phi1*phi1 - 4*xi1*eta1*eta2*phi1*phi4 - 2*xi1*eta1*eta2*phi2*phi2 + 4*xi1*eta1*eta2*phi2*phi3 - 2*xi1*eta1*eta2*phi3*phi3 + 2*xi1*eta1*eta2*phi4*phi4 - 2*xi1*eta1*phi1*phi1 - 12*xi1*eta1*phi1*phi3 + 16*iso*xi1*eta1*phi1 + 2*xi1*eta1*phi2*phi2 + 12*xi1*eta1*phi2*phi4 - 16*iso*xi1*eta1*phi2 - 2*xi1*eta1*phi3*phi3 + 16*iso*xi1*eta1*phi3 + 2*xi1*eta1*phi4*phi4 - 16*iso*xi1*eta1*phi4 + 2*xi1*xi2*eta2*phi1*phi1 - 4*xi1*xi2*eta2*phi1*phi2 + 2*xi1*xi2*eta2*phi2*phi2 - 2*xi1*xi2*eta2*phi3*phi3 + 4*xi1*xi2*eta2*phi3*phi4 - 2*xi1*xi2*eta2*phi4*phi4 - 2*xi1*xi2*phi1*phi1 + 4*xi1*xi2*phi1*phi2 + 4*xi1*xi2*phi1*phi3 - 4*xi1*xi2*phi1*phi4 - 2*xi1*xi2*phi2*phi2 - 4*xi1*xi2*phi2*phi3 + 4*xi1*xi2*phi2*phi4 - 2*xi1*xi2*phi3*phi3 + 4*xi1*xi2*phi3*phi4 - 2*xi1*xi2*phi4*phi4 - 2*xi1*eta2*eta2*phi1*phi1 + 4*xi1*eta2*eta2*phi1*phi4 + 2*xi1*eta2*eta2*phi2*phi2 - 4*xi1*eta2*eta2*phi2*phi3 + 2*xi1*eta2*eta2*phi3*phi3 - 2*xi1*eta2*eta2*phi4*phi4 + 2*xi1*eta2*phi1*phi1 + 12*xi1*eta2*phi1*phi3 - 16*iso*xi1*eta2*phi1 - 2*xi1*eta2*phi2*phi2 - 12*xi1*eta2*phi2*phi4 + 16*iso*xi1*eta2*phi2 + 2*xi1*eta2*phi3*phi3 - 16*iso*xi1*eta2*phi3 - 2*xi1*eta2*phi4*phi4 + 16*iso*xi1*eta2*phi4 + eta1*eta1*xi2*xi2*phi1*phi1 - 2*eta1*eta1*xi2*xi2*phi1*phi2 + 2*eta1*eta1*xi2*xi2*phi1*phi3 - 2*eta1*eta1*xi2*xi2*phi1*phi4 + eta1*eta1*xi2*xi2*phi2*phi2 - 2*eta1*eta1*xi2*xi2*phi2*phi3 + 2*eta1*eta1*xi2*xi2*phi2*phi4 + eta1*eta1*xi2*xi2*phi3*phi3 - 2*eta1*eta1*xi2*xi2*phi3*phi4 + eta1*eta1*xi2*xi2*phi4*phi4 - 2*eta1*eta1*xi2*phi1*phi1 + 4*eta1*eta1*xi2*phi1*phi4 + 2*eta1*eta1*xi2*phi2*phi2 - 4*eta1*eta1*xi2*phi2*phi3 + 2*eta1*eta1*xi2*phi3*phi3 - 2*eta1*eta1*xi2*phi4*phi4 + eta1*eta1*phi1*phi1 + 2*eta1*eta1*phi1*phi2 - 2*eta1*eta1*phi1*phi3 - 2*eta1*eta1*phi1*phi4 + eta1*eta1*phi2*phi2 - 2*eta1*eta1*phi2*phi3 - 2*eta1*eta1*phi2*phi4 + eta1*eta1*phi3*phi3 + 2*eta1*eta1*phi3*phi4 + eta1*eta1*phi4*phi4 - 2*eta1*xi2*xi2*phi1*phi1 + 4*eta1*xi2*xi2*phi1*phi2 - 2*eta1*xi2*xi2*phi2*phi2 + 2*eta1*xi2*xi2*phi3*phi3 - 4*eta1*xi2*xi2*phi3*phi4 + 2*eta1*xi2*xi2*phi4*phi4 + 2*eta1*xi2*eta2*phi1*phi1 - 4*eta1*xi2*eta2*phi1*phi4 - 2*eta1*xi2*eta2*phi2*phi2 + 4*eta1*xi2*eta2*phi2*phi3 - 2*eta1*xi2*eta2*phi3*phi3 + 2*eta1*xi2*eta2*phi4*phi4 + 2*eta1*xi2*phi1*phi1 + 12*eta1*xi2*phi1*phi3 - 16*iso*eta1*xi2*phi1 - 2*eta1*xi2*phi2*phi2 - 12*eta1*xi2*phi2*phi4 + 16*iso*eta1*xi2*phi2 + 2*eta1*xi2*phi3*phi3 - 16*iso*eta1*xi2*phi3 - 2*eta1*xi2*phi4*phi4 + 16*iso*eta1*xi2*phi4 - 2*eta1*eta2*phi1*phi1 - 4*eta1*eta2*phi1*phi2 + 4*eta1*eta2*phi1*phi3 + 4*eta1*eta2*phi1*phi4 - 2*eta1*eta2*phi2*phi2 + 4*eta1*eta2*phi2*phi3 + 4*eta1*eta2*phi2*phi4 - 2*eta1*eta2*phi3*phi3 - 4*eta1*eta2*phi3*phi4 - 2*eta1*eta2*phi4*phi4 + xi2*xi2*phi1*phi1 - 2*xi2*xi2*phi1*phi2 - 2*xi2*xi2*phi1*phi3 + 2*xi2*xi2*phi1*phi4 + xi2*xi2*phi2*phi2 + 2*xi2*xi2*phi2*phi3 - 2*xi2*xi2*phi2*phi4 + xi2*xi2*phi3*phi3 - 2*xi2*xi2*phi3*phi4 + xi2*xi2*phi4*phi4 - 2*xi2*eta2*phi1*phi1 - 12*xi2*eta2*phi1*phi3 + 16*iso*xi2*eta2*phi1 + 2*xi2*eta2*phi2*phi2 + 12*xi2*eta2*phi2*phi4 - 16*iso*xi2*eta2*phi2 - 2*xi2*eta2*phi3*phi3 + 16*iso*xi2*eta2*phi3 + 2*xi2*eta2*phi4*phi4 - 16*iso*xi2*eta2*phi4 + eta2*eta2*phi1*phi1 + 2*eta2*eta2*phi1*phi2 - 2*eta2*eta2*phi1*phi3 - 2*eta2*eta2*phi1*phi4 + eta2*eta2*phi2*phi2 - 2*eta2*eta2*phi2*phi3 - 2*eta2*eta2*phi2*phi4 + eta2*eta2*phi3*phi3 + 2*eta2*eta2*phi3*phi4 + eta2*eta2*phi4*phi4) - xi1*phi1 + xi1*phi2 - eta1*phi1 + xi1*phi3 - eta1*phi2 - xi1*phi4 + eta1*phi3 + eta1*phi4 + xi2*phi1 - xi2*phi2 + eta2*phi1 - xi2*phi3 + eta2*phi2 + xi2*phi4 - eta2*phi3 - eta2*phi4 + xi1*eta1*phi1 - xi1*eta1*phi2 + xi1*eta1*phi3 - xi1*eta1*phi4 - xi2*eta2*phi1 + xi2*eta2*phi2 - xi2*eta2*phi3 + xi2*eta2*phi4)/((xi1 - xi2)*(eta1 - eta2)*std::pow(phi1 - phi2 + phi3 - phi4, 2)) - (eta1 - xi1 + xi2 - eta2 + xi1*eta1 - xi2*eta2 + (2*xi1*xi1*phi1 - 2*xi1*xi1*phi2 - 2*eta1*eta1*phi1 - 2*xi1*xi1*phi3 - 2*eta1*eta1*phi2 + 2*xi1*xi1*phi4 + 2*eta1*eta1*phi3 + 2*eta1*eta1*phi4 + 2*xi2*xi2*phi1 - 2*xi2*xi2*phi2 - 2*eta2*eta2*phi1 - 2*xi2*xi2*phi3 - 2*eta2*eta2*phi2 + 2*xi2*xi2*phi4 + 2*eta2*eta2*phi3 + 2*eta2*eta2*phi4 - 4*eta1*xi2*xi2*phi1 - 4*xi1*xi1*eta2*phi1 - 4*xi1*eta2*eta2*phi2 + 4*eta1*xi2*xi2*phi2 + 4*xi1*xi1*eta2*phi2 - 4*eta1*eta1*xi2*phi2 + 4*xi1*eta2*eta2*phi3 + 4*eta1*eta1*xi2*phi3 + 2*xi1*xi1*eta2*eta2*phi1 + 2*eta1*eta1*xi2*xi2*phi1 - 2*xi1*xi1*eta2*eta2*phi2 - 2*eta1*eta1*xi2*xi2*phi2 + 2*xi1*xi1*eta2*eta2*phi3 + 2*eta1*eta1*xi2*xi2*phi3 - 2*xi1*xi1*eta2*eta2*phi4 - 2*eta1*eta1*xi2*xi2*phi4 + 16*iso*xi1*eta1 - 16*iso*xi1*eta2 - 16*iso*eta1*xi2 + 16*iso*xi2*eta2 - 4*xi1*eta1*phi2 - 12*xi1*eta1*phi4 - 4*xi1*xi2*phi1 + 4*xi1*xi2*phi2 + 4*xi1*xi2*phi3 + 4*xi1*eta2*phi2 + 4*eta1*xi2*phi2 + 4*eta1*eta2*phi1 - 4*xi1*xi2*phi4 + 4*eta1*eta2*phi2 + 12*xi1*eta2*phi4 + 12*eta1*xi2*phi4 - 4*eta1*eta2*phi3 - 4*eta1*eta2*phi4 - 4*xi2*eta2*phi2 - 12*xi2*eta2*phi4 + 4*xi1*eta1*xi2*phi1 - 4*xi1*eta1*xi2*phi2 + 4*xi1*eta1*eta2*phi2 - 4*xi1*eta1*eta2*phi3 + 4*xi1*xi2*eta2*phi1 - 4*xi1*xi2*eta2*phi2 + 4*eta1*xi2*eta2*phi2 - 4*eta1*xi2*eta2*phi3 - 4*xi1*eta1*xi2*eta2*phi1 + 4*xi1*eta1*xi2*eta2*phi2 - 4*xi1*eta1*xi2*eta2*phi3 + 4*xi1*eta1*xi2*eta2*phi4)/(2*sqrt(xi1*xi1*eta2*eta2*phi1*phi1 - 2*xi1*xi1*eta2*eta2*phi1*phi2 + 2*xi1*xi1*eta2*eta2*phi1*phi3 - 2*xi1*xi1*eta2*eta2*phi1*phi4 + xi1*xi1*eta2*eta2*phi2*phi2 - 2*xi1*xi1*eta2*eta2*phi2*phi3 + 2*xi1*xi1*eta2*eta2*phi2*phi4 + xi1*xi1*eta2*eta2*phi3*phi3 - 2*xi1*xi1*eta2*eta2*phi3*phi4 + xi1*xi1*eta2*eta2*phi4*phi4 - 2*xi1*xi1*eta2*phi1*phi1 + 4*xi1*xi1*eta2*phi1*phi2 - 2*xi1*xi1*eta2*phi2*phi2 + 2*xi1*xi1*eta2*phi3*phi3 - 4*xi1*xi1*eta2*phi3*phi4 + 2*xi1*xi1*eta2*phi4*phi4 + xi1*xi1*phi1*phi1 - 2*xi1*xi1*phi1*phi2 - 2*xi1*xi1*phi1*phi3 + 2*xi1*xi1*phi1*phi4 + xi1*xi1*phi2*phi2 + 2*xi1*xi1*phi2*phi3 - 2*xi1*xi1*phi2*phi4 + xi1*xi1*phi3*phi3 - 2*xi1*xi1*phi3*phi4 + xi1*xi1*phi4*phi4 - 2*xi1*eta1*xi2*eta2*phi1*phi1 + 4*xi1*eta1*xi2*eta2*phi1*phi2 - 4*xi1*eta1*xi2*eta2*phi1*phi3 + 4*xi1*eta1*xi2*eta2*phi1*phi4 - 2*xi1*eta1*xi2*eta2*phi2*phi2 + 4*xi1*eta1*xi2*eta2*phi2*phi3 - 4*xi1*eta1*xi2*eta2*phi2*phi4 - 2*xi1*eta1*xi2*eta2*phi3*phi3 + 4*xi1*eta1*xi2*eta2*phi3*phi4 - 2*xi1*eta1*xi2*eta2*phi4*phi4 + 2*xi1*eta1*xi2*phi1*phi1 - 4*xi1*eta1*xi2*phi1*phi2 + 2*xi1*eta1*xi2*phi2*phi2 - 2*xi1*eta1*xi2*phi3*phi3 + 4*xi1*eta1*xi2*phi3*phi4 - 2*xi1*eta1*xi2*phi4*phi4 + 2*xi1*eta1*eta2*phi1*phi1 - 4*xi1*eta1*eta2*phi1*phi4 - 2*xi1*eta1*eta2*phi2*phi2 + 4*xi1*eta1*eta2*phi2*phi3 - 2*xi1*eta1*eta2*phi3*phi3 + 2*xi1*eta1*eta2*phi4*phi4 - 2*xi1*eta1*phi1*phi1 - 12*xi1*eta1*phi1*phi3 + 16*iso*xi1*eta1*phi1 + 2*xi1*eta1*phi2*phi2 + 12*xi1*eta1*phi2*phi4 - 16*iso*xi1*eta1*phi2 - 2*xi1*eta1*phi3*phi3 + 16*iso*xi1*eta1*phi3 + 2*xi1*eta1*phi4*phi4 - 16*iso*xi1*eta1*phi4 + 2*xi1*xi2*eta2*phi1*phi1 - 4*xi1*xi2*eta2*phi1*phi2 + 2*xi1*xi2*eta2*phi2*phi2 - 2*xi1*xi2*eta2*phi3*phi3 + 4*xi1*xi2*eta2*phi3*phi4 - 2*xi1*xi2*eta2*phi4*phi4 - 2*xi1*xi2*phi1*phi1 + 4*xi1*xi2*phi1*phi2 + 4*xi1*xi2*phi1*phi3 - 4*xi1*xi2*phi1*phi4 - 2*xi1*xi2*phi2*phi2 - 4*xi1*xi2*phi2*phi3 + 4*xi1*xi2*phi2*phi4 - 2*xi1*xi2*phi3*phi3 + 4*xi1*xi2*phi3*phi4 - 2*xi1*xi2*phi4*phi4 - 2*xi1*eta2*eta2*phi1*phi1 + 4*xi1*eta2*eta2*phi1*phi4 + 2*xi1*eta2*eta2*phi2*phi2 - 4*xi1*eta2*eta2*phi2*phi3 + 2*xi1*eta2*eta2*phi3*phi3 - 2*xi1*eta2*eta2*phi4*phi4 + 2*xi1*eta2*phi1*phi1 + 12*xi1*eta2*phi1*phi3 - 16*iso*xi1*eta2*phi1 - 2*xi1*eta2*phi2*phi2 - 12*xi1*eta2*phi2*phi4 + 16*iso*xi1*eta2*phi2 + 2*xi1*eta2*phi3*phi3 - 16*iso*xi1*eta2*phi3 - 2*xi1*eta2*phi4*phi4 + 16*iso*xi1*eta2*phi4 + eta1*eta1*xi2*xi2*phi1*phi1 - 2*eta1*eta1*xi2*xi2*phi1*phi2 + 2*eta1*eta1*xi2*xi2*phi1*phi3 - 2*eta1*eta1*xi2*xi2*phi1*phi4 + eta1*eta1*xi2*xi2*phi2*phi2 - 2*eta1*eta1*xi2*xi2*phi2*phi3 + 2*eta1*eta1*xi2*xi2*phi2*phi4 + eta1*eta1*xi2*xi2*phi3*phi3 - 2*eta1*eta1*xi2*xi2*phi3*phi4 + eta1*eta1*xi2*xi2*phi4*phi4 - 2*eta1*eta1*xi2*phi1*phi1 + 4*eta1*eta1*xi2*phi1*phi4 + 2*eta1*eta1*xi2*phi2*phi2 - 4*eta1*eta1*xi2*phi2*phi3 + 2*eta1*eta1*xi2*phi3*phi3 - 2*eta1*eta1*xi2*phi4*phi4 + eta1*eta1*phi1*phi1 + 2*eta1*eta1*phi1*phi2 - 2*eta1*eta1*phi1*phi3 - 2*eta1*eta1*phi1*phi4 + eta1*eta1*phi2*phi2 - 2*eta1*eta1*phi2*phi3 - 2*eta1*eta1*phi2*phi4 + eta1*eta1*phi3*phi3 + 2*eta1*eta1*phi3*phi4 + eta1*eta1*phi4*phi4 - 2*eta1*xi2*xi2*phi1*phi1 + 4*eta1*xi2*xi2*phi1*phi2 - 2*eta1*xi2*xi2*phi2*phi2 + 2*eta1*xi2*xi2*phi3*phi3 - 4*eta1*xi2*xi2*phi3*phi4 + 2*eta1*xi2*xi2*phi4*phi4 + 2*eta1*xi2*eta2*phi1*phi1 - 4*eta1*xi2*eta2*phi1*phi4 - 2*eta1*xi2*eta2*phi2*phi2 + 4*eta1*xi2*eta2*phi2*phi3 - 2*eta1*xi2*eta2*phi3*phi3 + 2*eta1*xi2*eta2*phi4*phi4 + 2*eta1*xi2*phi1*phi1 + 12*eta1*xi2*phi1*phi3 - 16*iso*eta1*xi2*phi1 - 2*eta1*xi2*phi2*phi2 - 12*eta1*xi2*phi2*phi4 + 16*iso*eta1*xi2*phi2 + 2*eta1*xi2*phi3*phi3 - 16*iso*eta1*xi2*phi3 - 2*eta1*xi2*phi4*phi4 + 16*iso*eta1*xi2*phi4 - 2*eta1*eta2*phi1*phi1 - 4*eta1*eta2*phi1*phi2 + 4*eta1*eta2*phi1*phi3 + 4*eta1*eta2*phi1*phi4 - 2*eta1*eta2*phi2*phi2 + 4*eta1*eta2*phi2*phi3 + 4*eta1*eta2*phi2*phi4 - 2*eta1*eta2*phi3*phi3 - 4*eta1*eta2*phi3*phi4 - 2*eta1*eta2*phi4*phi4 + xi2*xi2*phi1*phi1 - 2*xi2*xi2*phi1*phi2 - 2*xi2*xi2*phi1*phi3 + 2*xi2*xi2*phi1*phi4 + xi2*xi2*phi2*phi2 + 2*xi2*xi2*phi2*phi3 - 2*xi2*xi2*phi2*phi4 + xi2*xi2*phi3*phi3 - 2*xi2*xi2*phi3*phi4 + xi2*xi2*phi4*phi4 - 2*xi2*eta2*phi1*phi1 - 12*xi2*eta2*phi1*phi3 + 16*iso*xi2*eta2*phi1 + 2*xi2*eta2*phi2*phi2 + 12*xi2*eta2*phi2*phi4 - 16*iso*xi2*eta2*phi2 - 2*xi2*eta2*phi3*phi3 + 16*iso*xi2*eta2*phi3 + 2*xi2*eta2*phi4*phi4 - 16*iso*xi2*eta2*phi4 + eta2*eta2*phi1*phi1 + 2*eta2*eta2*phi1*phi2 - 2*eta2*eta2*phi1*phi3 - 2*eta2*eta2*phi1*phi4 + eta2*eta2*phi2*phi2 - 2*eta2*eta2*phi2*phi3 - 2*eta2*eta2*phi2*phi4 + eta2*eta2*phi3*phi3 + 2*eta2*eta2*phi3*phi4 + eta2*eta2*phi4*phi4)))/((xi1 - xi2)*(eta1 - eta2)*(phi1 - phi2 + phi3 - phi4));
-                        }
-                        else
-                        {
-                            return (xi1 - eta1 - xi2 + eta2 - xi1*eta1 + xi2*eta2 + (2*xi1*xi1*phi1 - 2*xi1*xi1*phi2 - 2*eta1*eta1*phi1 - 2*xi1*xi1*phi3 - 2*eta1*eta1*phi2 + 2*xi1*xi1*phi4 + 2*eta1*eta1*phi3 + 2*eta1*eta1*phi4 + 2*xi2*xi2*phi1 - 2*xi2*xi2*phi2 - 2*eta2*eta2*phi1 - 2*xi2*xi2*phi3 - 2*eta2*eta2*phi2 + 2*xi2*xi2*phi4 + 2*eta2*eta2*phi3 + 2*eta2*eta2*phi4 - 4*eta1*xi2*xi2*phi1 - 4*xi1*xi1*eta2*phi1 - 4*xi1*eta2*eta2*phi2 + 4*eta1*xi2*xi2*phi2 + 4*xi1*xi1*eta2*phi2 - 4*eta1*eta1*xi2*phi2 + 4*xi1*eta2*eta2*phi3 + 4*eta1*eta1*xi2*phi3 + 2*xi1*xi1*eta2*eta2*phi1 + 2*eta1*eta1*xi2*xi2*phi1 - 2*xi1*xi1*eta2*eta2*phi2 - 2*eta1*eta1*xi2*xi2*phi2 + 2*xi1*xi1*eta2*eta2*phi3 + 2*eta1*eta1*xi2*xi2*phi3 - 2*xi1*xi1*eta2*eta2*phi4 - 2*eta1*eta1*xi2*xi2*phi4 + 16*iso*xi1*eta1 - 16*iso*xi1*eta2 - 16*iso*eta1*xi2 + 16*iso*xi2*eta2 - 4*xi1*eta1*phi2 - 12*xi1*eta1*phi4 - 4*xi1*xi2*phi1 + 4*xi1*xi2*phi2 + 4*xi1*xi2*phi3 + 4*xi1*eta2*phi2 + 4*eta1*xi2*phi2 + 4*eta1*eta2*phi1 - 4*xi1*xi2*phi4 + 4*eta1*eta2*phi2 + 12*xi1*eta2*phi4 + 12*eta1*xi2*phi4 - 4*eta1*eta2*phi3 - 4*eta1*eta2*phi4 - 4*xi2*eta2*phi2 - 12*xi2*eta2*phi4 + 4*xi1*eta1*xi2*phi1 - 4*xi1*eta1*xi2*phi2 + 4*xi1*eta1*eta2*phi2 - 4*xi1*eta1*eta2*phi3 + 4*xi1*xi2*eta2*phi1 - 4*xi1*xi2*eta2*phi2 + 4*eta1*xi2*eta2*phi2 - 4*eta1*xi2*eta2*phi3 - 4*xi1*eta1*xi2*eta2*phi1 + 4*xi1*eta1*xi2*eta2*phi2 - 4*xi1*eta1*xi2*eta2*phi3 + 4*xi1*eta1*xi2*eta2*phi4)/(2*sqrt(xi1*xi1*eta2*eta2*phi1*phi1 - 2*xi1*xi1*eta2*eta2*phi1*phi2 + 2*xi1*xi1*eta2*eta2*phi1*phi3 - 2*xi1*xi1*eta2*eta2*phi1*phi4 + xi1*xi1*eta2*eta2*phi2*phi2 - 2*xi1*xi1*eta2*eta2*phi2*phi3 + 2*xi1*xi1*eta2*eta2*phi2*phi4 + xi1*xi1*eta2*eta2*phi3*phi3 - 2*xi1*xi1*eta2*eta2*phi3*phi4 + xi1*xi1*eta2*eta2*phi4*phi4 - 2*xi1*xi1*eta2*phi1*phi1 + 4*xi1*xi1*eta2*phi1*phi2 - 2*xi1*xi1*eta2*phi2*phi2 + 2*xi1*xi1*eta2*phi3*phi3 - 4*xi1*xi1*eta2*phi3*phi4 + 2*xi1*xi1*eta2*phi4*phi4 + xi1*xi1*phi1*phi1 - 2*xi1*xi1*phi1*phi2 - 2*xi1*xi1*phi1*phi3 + 2*xi1*xi1*phi1*phi4 + xi1*xi1*phi2*phi2 + 2*xi1*xi1*phi2*phi3 - 2*xi1*xi1*phi2*phi4 + xi1*xi1*phi3*phi3 - 2*xi1*xi1*phi3*phi4 + xi1*xi1*phi4*phi4 - 2*xi1*eta1*xi2*eta2*phi1*phi1 + 4*xi1*eta1*xi2*eta2*phi1*phi2 - 4*xi1*eta1*xi2*eta2*phi1*phi3 + 4*xi1*eta1*xi2*eta2*phi1*phi4 - 2*xi1*eta1*xi2*eta2*phi2*phi2 + 4*xi1*eta1*xi2*eta2*phi2*phi3 - 4*xi1*eta1*xi2*eta2*phi2*phi4 - 2*xi1*eta1*xi2*eta2*phi3*phi3 + 4*xi1*eta1*xi2*eta2*phi3*phi4 - 2*xi1*eta1*xi2*eta2*phi4*phi4 + 2*xi1*eta1*xi2*phi1*phi1 - 4*xi1*eta1*xi2*phi1*phi2 + 2*xi1*eta1*xi2*phi2*phi2 - 2*xi1*eta1*xi2*phi3*phi3 + 4*xi1*eta1*xi2*phi3*phi4 - 2*xi1*eta1*xi2*phi4*phi4 + 2*xi1*eta1*eta2*phi1*phi1 - 4*xi1*eta1*eta2*phi1*phi4 - 2*xi1*eta1*eta2*phi2*phi2 + 4*xi1*eta1*eta2*phi2*phi3 - 2*xi1*eta1*eta2*phi3*phi3 + 2*xi1*eta1*eta2*phi4*phi4 - 2*xi1*eta1*phi1*phi1 - 12*xi1*eta1*phi1*phi3 + 16*iso*xi1*eta1*phi1 + 2*xi1*eta1*phi2*phi2 + 12*xi1*eta1*phi2*phi4 - 16*iso*xi1*eta1*phi2 - 2*xi1*eta1*phi3*phi3 + 16*iso*xi1*eta1*phi3 + 2*xi1*eta1*phi4*phi4 - 16*iso*xi1*eta1*phi4 + 2*xi1*xi2*eta2*phi1*phi1 - 4*xi1*xi2*eta2*phi1*phi2 + 2*xi1*xi2*eta2*phi2*phi2 - 2*xi1*xi2*eta2*phi3*phi3 + 4*xi1*xi2*eta2*phi3*phi4 - 2*xi1*xi2*eta2*phi4*phi4 - 2*xi1*xi2*phi1*phi1 + 4*xi1*xi2*phi1*phi2 + 4*xi1*xi2*phi1*phi3 - 4*xi1*xi2*phi1*phi4 - 2*xi1*xi2*phi2*phi2 - 4*xi1*xi2*phi2*phi3 + 4*xi1*xi2*phi2*phi4 - 2*xi1*xi2*phi3*phi3 + 4*xi1*xi2*phi3*phi4 - 2*xi1*xi2*phi4*phi4 - 2*xi1*eta2*eta2*phi1*phi1 + 4*xi1*eta2*eta2*phi1*phi4 + 2*xi1*eta2*eta2*phi2*phi2 - 4*xi1*eta2*eta2*phi2*phi3 + 2*xi1*eta2*eta2*phi3*phi3 - 2*xi1*eta2*eta2*phi4*phi4 + 2*xi1*eta2*phi1*phi1 + 12*xi1*eta2*phi1*phi3 - 16*iso*xi1*eta2*phi1 - 2*xi1*eta2*phi2*phi2 - 12*xi1*eta2*phi2*phi4 + 16*iso*xi1*eta2*phi2 + 2*xi1*eta2*phi3*phi3 - 16*iso*xi1*eta2*phi3 - 2*xi1*eta2*phi4*phi4 + 16*iso*xi1*eta2*phi4 + eta1*eta1*xi2*xi2*phi1*phi1 - 2*eta1*eta1*xi2*xi2*phi1*phi2 + 2*eta1*eta1*xi2*xi2*phi1*phi3 - 2*eta1*eta1*xi2*xi2*phi1*phi4 + eta1*eta1*xi2*xi2*phi2*phi2 - 2*eta1*eta1*xi2*xi2*phi2*phi3 + 2*eta1*eta1*xi2*xi2*phi2*phi4 + eta1*eta1*xi2*xi2*phi3*phi3 - 2*eta1*eta1*xi2*xi2*phi3*phi4 + eta1*eta1*xi2*xi2*phi4*phi4 - 2*eta1*eta1*xi2*phi1*phi1 + 4*eta1*eta1*xi2*phi1*phi4 + 2*eta1*eta1*xi2*phi2*phi2 - 4*eta1*eta1*xi2*phi2*phi3 + 2*eta1*eta1*xi2*phi3*phi3 - 2*eta1*eta1*xi2*phi4*phi4 + eta1*eta1*phi1*phi1 + 2*eta1*eta1*phi1*phi2 - 2*eta1*eta1*phi1*phi3 - 2*eta1*eta1*phi1*phi4 + eta1*eta1*phi2*phi2 - 2*eta1*eta1*phi2*phi3 - 2*eta1*eta1*phi2*phi4 + eta1*eta1*phi3*phi3 + 2*eta1*eta1*phi3*phi4 + eta1*eta1*phi4*phi4 - 2*eta1*xi2*xi2*phi1*phi1 + 4*eta1*xi2*xi2*phi1*phi2 - 2*eta1*xi2*xi2*phi2*phi2 + 2*eta1*xi2*xi2*phi3*phi3 - 4*eta1*xi2*xi2*phi3*phi4 + 2*eta1*xi2*xi2*phi4*phi4 + 2*eta1*xi2*eta2*phi1*phi1 - 4*eta1*xi2*eta2*phi1*phi4 - 2*eta1*xi2*eta2*phi2*phi2 + 4*eta1*xi2*eta2*phi2*phi3 - 2*eta1*xi2*eta2*phi3*phi3 + 2*eta1*xi2*eta2*phi4*phi4 + 2*eta1*xi2*phi1*phi1 + 12*eta1*xi2*phi1*phi3 - 16*iso*eta1*xi2*phi1 - 2*eta1*xi2*phi2*phi2 - 12*eta1*xi2*phi2*phi4 + 16*iso*eta1*xi2*phi2 + 2*eta1*xi2*phi3*phi3 - 16*iso*eta1*xi2*phi3 - 2*eta1*xi2*phi4*phi4 + 16*iso*eta1*xi2*phi4 - 2*eta1*eta2*phi1*phi1 - 4*eta1*eta2*phi1*phi2 + 4*eta1*eta2*phi1*phi3 + 4*eta1*eta2*phi1*phi4 - 2*eta1*eta2*phi2*phi2 + 4*eta1*eta2*phi2*phi3 + 4*eta1*eta2*phi2*phi4 - 2*eta1*eta2*phi3*phi3 - 4*eta1*eta2*phi3*phi4 - 2*eta1*eta2*phi4*phi4 + xi2*xi2*phi1*phi1 - 2*xi2*xi2*phi1*phi2 - 2*xi2*xi2*phi1*phi3 + 2*xi2*xi2*phi1*phi4 + xi2*xi2*phi2*phi2 + 2*xi2*xi2*phi2*phi3 - 2*xi2*xi2*phi2*phi4 + xi2*xi2*phi3*phi3 - 2*xi2*xi2*phi3*phi4 + xi2*xi2*phi4*phi4 - 2*xi2*eta2*phi1*phi1 - 12*xi2*eta2*phi1*phi3 + 16*iso*xi2*eta2*phi1 + 2*xi2*eta2*phi2*phi2 + 12*xi2*eta2*phi2*phi4 - 16*iso*xi2*eta2*phi2 - 2*xi2*eta2*phi3*phi3 + 16*iso*xi2*eta2*phi3 + 2*xi2*eta2*phi4*phi4 - 16*iso*xi2*eta2*phi4 + eta2*eta2*phi1*phi1 + 2*eta2*eta2*phi1*phi2 - 2*eta2*eta2*phi1*phi3 - 2*eta2*eta2*phi1*phi4 + eta2*eta2*phi2*phi2 - 2*eta2*eta2*phi2*phi3 - 2*eta2*eta2*phi2*phi4 + eta2*eta2*phi3*phi3 + 2*eta2*eta2*phi3*phi4 + eta2*eta2*phi4*phi4)))/((xi1 - xi2)*(eta1 - eta2)*(phi1 - phi2 + phi3 - phi4)) - (sqrt(xi1*xi1*eta2*eta2*phi1*phi1 - 2*xi1*xi1*eta2*eta2*phi1*phi2 + 2*xi1*xi1*eta2*eta2*phi1*phi3 - 2*xi1*xi1*eta2*eta2*phi1*phi4 + xi1*xi1*eta2*eta2*phi2*phi2 - 2*xi1*xi1*eta2*eta2*phi2*phi3 + 2*xi1*xi1*eta2*eta2*phi2*phi4 + xi1*xi1*eta2*eta2*phi3*phi3 - 2*xi1*xi1*eta2*eta2*phi3*phi4 + xi1*xi1*eta2*eta2*phi4*phi4 - 2*xi1*xi1*eta2*phi1*phi1 + 4*xi1*xi1*eta2*phi1*phi2 - 2*xi1*xi1*eta2*phi2*phi2 + 2*xi1*xi1*eta2*phi3*phi3 - 4*xi1*xi1*eta2*phi3*phi4 + 2*xi1*xi1*eta2*phi4*phi4 + xi1*xi1*phi1*phi1 - 2*xi1*xi1*phi1*phi2 - 2*xi1*xi1*phi1*phi3 + 2*xi1*xi1*phi1*phi4 + xi1*xi1*phi2*phi2 + 2*xi1*xi1*phi2*phi3 - 2*xi1*xi1*phi2*phi4 + xi1*xi1*phi3*phi3 - 2*xi1*xi1*phi3*phi4 + xi1*xi1*phi4*phi4 - 2*xi1*eta1*xi2*eta2*phi1*phi1 + 4*xi1*eta1*xi2*eta2*phi1*phi2 - 4*xi1*eta1*xi2*eta2*phi1*phi3 + 4*xi1*eta1*xi2*eta2*phi1*phi4 - 2*xi1*eta1*xi2*eta2*phi2*phi2 + 4*xi1*eta1*xi2*eta2*phi2*phi3 - 4*xi1*eta1*xi2*eta2*phi2*phi4 - 2*xi1*eta1*xi2*eta2*phi3*phi3 + 4*xi1*eta1*xi2*eta2*phi3*phi4 - 2*xi1*eta1*xi2*eta2*phi4*phi4 + 2*xi1*eta1*xi2*phi1*phi1 - 4*xi1*eta1*xi2*phi1*phi2 + 2*xi1*eta1*xi2*phi2*phi2 - 2*xi1*eta1*xi2*phi3*phi3 + 4*xi1*eta1*xi2*phi3*phi4 - 2*xi1*eta1*xi2*phi4*phi4 + 2*xi1*eta1*eta2*phi1*phi1 - 4*xi1*eta1*eta2*phi1*phi4 - 2*xi1*eta1*eta2*phi2*phi2 + 4*xi1*eta1*eta2*phi2*phi3 - 2*xi1*eta1*eta2*phi3*phi3 + 2*xi1*eta1*eta2*phi4*phi4 - 2*xi1*eta1*phi1*phi1 - 12*xi1*eta1*phi1*phi3 + 16*iso*xi1*eta1*phi1 + 2*xi1*eta1*phi2*phi2 + 12*xi1*eta1*phi2*phi4 - 16*iso*xi1*eta1*phi2 - 2*xi1*eta1*phi3*phi3 + 16*iso*xi1*eta1*phi3 + 2*xi1*eta1*phi4*phi4 - 16*iso*xi1*eta1*phi4 + 2*xi1*xi2*eta2*phi1*phi1 - 4*xi1*xi2*eta2*phi1*phi2 + 2*xi1*xi2*eta2*phi2*phi2 - 2*xi1*xi2*eta2*phi3*phi3 + 4*xi1*xi2*eta2*phi3*phi4 - 2*xi1*xi2*eta2*phi4*phi4 - 2*xi1*xi2*phi1*phi1 + 4*xi1*xi2*phi1*phi2 + 4*xi1*xi2*phi1*phi3 - 4*xi1*xi2*phi1*phi4 - 2*xi1*xi2*phi2*phi2 - 4*xi1*xi2*phi2*phi3 + 4*xi1*xi2*phi2*phi4 - 2*xi1*xi2*phi3*phi3 + 4*xi1*xi2*phi3*phi4 - 2*xi1*xi2*phi4*phi4 - 2*xi1*eta2*eta2*phi1*phi1 + 4*xi1*eta2*eta2*phi1*phi4 + 2*xi1*eta2*eta2*phi2*phi2 - 4*xi1*eta2*eta2*phi2*phi3 + 2*xi1*eta2*eta2*phi3*phi3 - 2*xi1*eta2*eta2*phi4*phi4 + 2*xi1*eta2*phi1*phi1 + 12*xi1*eta2*phi1*phi3 - 16*iso*xi1*eta2*phi1 - 2*xi1*eta2*phi2*phi2 - 12*xi1*eta2*phi2*phi4 + 16*iso*xi1*eta2*phi2 + 2*xi1*eta2*phi3*phi3 - 16*iso*xi1*eta2*phi3 - 2*xi1*eta2*phi4*phi4 + 16*iso*xi1*eta2*phi4 + eta1*eta1*xi2*xi2*phi1*phi1 - 2*eta1*eta1*xi2*xi2*phi1*phi2 + 2*eta1*eta1*xi2*xi2*phi1*phi3 - 2*eta1*eta1*xi2*xi2*phi1*phi4 + eta1*eta1*xi2*xi2*phi2*phi2 - 2*eta1*eta1*xi2*xi2*phi2*phi3 + 2*eta1*eta1*xi2*xi2*phi2*phi4 + eta1*eta1*xi2*xi2*phi3*phi3 - 2*eta1*eta1*xi2*xi2*phi3*phi4 + eta1*eta1*xi2*xi2*phi4*phi4 - 2*eta1*eta1*xi2*phi1*phi1 + 4*eta1*eta1*xi2*phi1*phi4 + 2*eta1*eta1*xi2*phi2*phi2 - 4*eta1*eta1*xi2*phi2*phi3 + 2*eta1*eta1*xi2*phi3*phi3 - 2*eta1*eta1*xi2*phi4*phi4 + eta1*eta1*phi1*phi1 + 2*eta1*eta1*phi1*phi2 - 2*eta1*eta1*phi1*phi3 - 2*eta1*eta1*phi1*phi4 + eta1*eta1*phi2*phi2 - 2*eta1*eta1*phi2*phi3 - 2*eta1*eta1*phi2*phi4 + eta1*eta1*phi3*phi3 + 2*eta1*eta1*phi3*phi4 + eta1*eta1*phi4*phi4 - 2*eta1*xi2*xi2*phi1*phi1 + 4*eta1*xi2*xi2*phi1*phi2 - 2*eta1*xi2*xi2*phi2*phi2 + 2*eta1*xi2*xi2*phi3*phi3 - 4*eta1*xi2*xi2*phi3*phi4 + 2*eta1*xi2*xi2*phi4*phi4 + 2*eta1*xi2*eta2*phi1*phi1 - 4*eta1*xi2*eta2*phi1*phi4 - 2*eta1*xi2*eta2*phi2*phi2 + 4*eta1*xi2*eta2*phi2*phi3 - 2*eta1*xi2*eta2*phi3*phi3 + 2*eta1*xi2*eta2*phi4*phi4 + 2*eta1*xi2*phi1*phi1 + 12*eta1*xi2*phi1*phi3 - 16*iso*eta1*xi2*phi1 - 2*eta1*xi2*phi2*phi2 - 12*eta1*xi2*phi2*phi4 + 16*iso*eta1*xi2*phi2 + 2*eta1*xi2*phi3*phi3 - 16*iso*eta1*xi2*phi3 - 2*eta1*xi2*phi4*phi4 + 16*iso*eta1*xi2*phi4 - 2*eta1*eta2*phi1*phi1 - 4*eta1*eta2*phi1*phi2 + 4*eta1*eta2*phi1*phi3 + 4*eta1*eta2*phi1*phi4 - 2*eta1*eta2*phi2*phi2 + 4*eta1*eta2*phi2*phi3 + 4*eta1*eta2*phi2*phi4 - 2*eta1*eta2*phi3*phi3 - 4*eta1*eta2*phi3*phi4 - 2*eta1*eta2*phi4*phi4 + xi2*xi2*phi1*phi1 - 2*xi2*xi2*phi1*phi2 - 2*xi2*xi2*phi1*phi3 + 2*xi2*xi2*phi1*phi4 + xi2*xi2*phi2*phi2 + 2*xi2*xi2*phi2*phi3 - 2*xi2*xi2*phi2*phi4 + xi2*xi2*phi3*phi3 - 2*xi2*xi2*phi3*phi4 + xi2*xi2*phi4*phi4 - 2*xi2*eta2*phi1*phi1 - 12*xi2*eta2*phi1*phi3 + 16*iso*xi2*eta2*phi1 + 2*xi2*eta2*phi2*phi2 + 12*xi2*eta2*phi2*phi4 - 16*iso*xi2*eta2*phi2 - 2*xi2*eta2*phi3*phi3 + 16*iso*xi2*eta2*phi3 + 2*xi2*eta2*phi4*phi4 - 16*iso*xi2*eta2*phi4 + eta2*eta2*phi1*phi1 + 2*eta2*eta2*phi1*phi2 - 2*eta2*eta2*phi1*phi3 - 2*eta2*eta2*phi1*phi4 + eta2*eta2*phi2*phi2 - 2*eta2*eta2*phi2*phi3 - 2*eta2*eta2*phi2*phi4 + eta2*eta2*phi3*phi3 + 2*eta2*eta2*phi3*phi4 + eta2*eta2*phi4*phi4) + xi1*phi1 - xi1*phi2 + eta1*phi1 - xi1*phi3 + eta1*phi2 + xi1*phi4 - eta1*phi3 - eta1*phi4 - xi2*phi1 + xi2*phi2 - eta2*phi1 + xi2*phi3 - eta2*phi2 - xi2*phi4 + eta2*phi3 + eta2*phi4 - xi1*eta1*phi1 + xi1*eta1*phi2 - xi1*eta1*phi3 + xi1*eta1*phi4 + xi2*eta2*phi1 - xi2*eta2*phi2 + xi2*eta2*phi3 - xi2*eta2*phi4)/((xi1 - xi2)*(eta1 - eta2)*std::pow(phi1 - phi2 + phi3 - phi4, 2));
-                        }
-                    }
-                    case 2:
-                    {
-                        if (mBilinearCase1)
-                        {
-                            return - (sqrt(xi1*xi1*eta2*eta2*phi1*phi1 - 2*xi1*xi1*eta2*eta2*phi1*phi2 + 2*xi1*xi1*eta2*eta2*phi1*phi3 - 2*xi1*xi1*eta2*eta2*phi1*phi4 + xi1*xi1*eta2*eta2*phi2*phi2 - 2*xi1*xi1*eta2*eta2*phi2*phi3 + 2*xi1*xi1*eta2*eta2*phi2*phi4 + xi1*xi1*eta2*eta2*phi3*phi3 - 2*xi1*xi1*eta2*eta2*phi3*phi4 + xi1*xi1*eta2*eta2*phi4*phi4 - 2*xi1*xi1*eta2*phi1*phi1 + 4*xi1*xi1*eta2*phi1*phi2 - 2*xi1*xi1*eta2*phi2*phi2 + 2*xi1*xi1*eta2*phi3*phi3 - 4*xi1*xi1*eta2*phi3*phi4 + 2*xi1*xi1*eta2*phi4*phi4 + xi1*xi1*phi1*phi1 - 2*xi1*xi1*phi1*phi2 - 2*xi1*xi1*phi1*phi3 + 2*xi1*xi1*phi1*phi4 + xi1*xi1*phi2*phi2 + 2*xi1*xi1*phi2*phi3 - 2*xi1*xi1*phi2*phi4 + xi1*xi1*phi3*phi3 - 2*xi1*xi1*phi3*phi4 + xi1*xi1*phi4*phi4 - 2*xi1*eta1*xi2*eta2*phi1*phi1 + 4*xi1*eta1*xi2*eta2*phi1*phi2 - 4*xi1*eta1*xi2*eta2*phi1*phi3 + 4*xi1*eta1*xi2*eta2*phi1*phi4 - 2*xi1*eta1*xi2*eta2*phi2*phi2 + 4*xi1*eta1*xi2*eta2*phi2*phi3 - 4*xi1*eta1*xi2*eta2*phi2*phi4 - 2*xi1*eta1*xi2*eta2*phi3*phi3 + 4*xi1*eta1*xi2*eta2*phi3*phi4 - 2*xi1*eta1*xi2*eta2*phi4*phi4 + 2*xi1*eta1*xi2*phi1*phi1 - 4*xi1*eta1*xi2*phi1*phi2 + 2*xi1*eta1*xi2*phi2*phi2 - 2*xi1*eta1*xi2*phi3*phi3 + 4*xi1*eta1*xi2*phi3*phi4 - 2*xi1*eta1*xi2*phi4*phi4 + 2*xi1*eta1*eta2*phi1*phi1 - 4*xi1*eta1*eta2*phi1*phi4 - 2*xi1*eta1*eta2*phi2*phi2 + 4*xi1*eta1*eta2*phi2*phi3 - 2*xi1*eta1*eta2*phi3*phi3 + 2*xi1*eta1*eta2*phi4*phi4 - 2*xi1*eta1*phi1*phi1 - 12*xi1*eta1*phi1*phi3 + 16*iso*xi1*eta1*phi1 + 2*xi1*eta1*phi2*phi2 + 12*xi1*eta1*phi2*phi4 - 16*iso*xi1*eta1*phi2 - 2*xi1*eta1*phi3*phi3 + 16*iso*xi1*eta1*phi3 + 2*xi1*eta1*phi4*phi4 - 16*iso*xi1*eta1*phi4 + 2*xi1*xi2*eta2*phi1*phi1 - 4*xi1*xi2*eta2*phi1*phi2 + 2*xi1*xi2*eta2*phi2*phi2 - 2*xi1*xi2*eta2*phi3*phi3 + 4*xi1*xi2*eta2*phi3*phi4 - 2*xi1*xi2*eta2*phi4*phi4 - 2*xi1*xi2*phi1*phi1 + 4*xi1*xi2*phi1*phi2 + 4*xi1*xi2*phi1*phi3 - 4*xi1*xi2*phi1*phi4 - 2*xi1*xi2*phi2*phi2 - 4*xi1*xi2*phi2*phi3 + 4*xi1*xi2*phi2*phi4 - 2*xi1*xi2*phi3*phi3 + 4*xi1*xi2*phi3*phi4 - 2*xi1*xi2*phi4*phi4 - 2*xi1*eta2*eta2*phi1*phi1 + 4*xi1*eta2*eta2*phi1*phi4 + 2*xi1*eta2*eta2*phi2*phi2 - 4*xi1*eta2*eta2*phi2*phi3 + 2*xi1*eta2*eta2*phi3*phi3 - 2*xi1*eta2*eta2*phi4*phi4 + 2*xi1*eta2*phi1*phi1 + 12*xi1*eta2*phi1*phi3 - 16*iso*xi1*eta2*phi1 - 2*xi1*eta2*phi2*phi2 - 12*xi1*eta2*phi2*phi4 + 16*iso*xi1*eta2*phi2 + 2*xi1*eta2*phi3*phi3 - 16*iso*xi1*eta2*phi3 - 2*xi1*eta2*phi4*phi4 + 16*iso*xi1*eta2*phi4 + eta1*eta1*xi2*xi2*phi1*phi1 - 2*eta1*eta1*xi2*xi2*phi1*phi2 + 2*eta1*eta1*xi2*xi2*phi1*phi3 - 2*eta1*eta1*xi2*xi2*phi1*phi4 + eta1*eta1*xi2*xi2*phi2*phi2 - 2*eta1*eta1*xi2*xi2*phi2*phi3 + 2*eta1*eta1*xi2*xi2*phi2*phi4 + eta1*eta1*xi2*xi2*phi3*phi3 - 2*eta1*eta1*xi2*xi2*phi3*phi4 + eta1*eta1*xi2*xi2*phi4*phi4 - 2*eta1*eta1*xi2*phi1*phi1 + 4*eta1*eta1*xi2*phi1*phi4 + 2*eta1*eta1*xi2*phi2*phi2 - 4*eta1*eta1*xi2*phi2*phi3 + 2*eta1*eta1*xi2*phi3*phi3 - 2*eta1*eta1*xi2*phi4*phi4 + eta1*eta1*phi1*phi1 + 2*eta1*eta1*phi1*phi2 - 2*eta1*eta1*phi1*phi3 - 2*eta1*eta1*phi1*phi4 + eta1*eta1*phi2*phi2 - 2*eta1*eta1*phi2*phi3 - 2*eta1*eta1*phi2*phi4 + eta1*eta1*phi3*phi3 + 2*eta1*eta1*phi3*phi4 + eta1*eta1*phi4*phi4 - 2*eta1*xi2*xi2*phi1*phi1 + 4*eta1*xi2*xi2*phi1*phi2 - 2*eta1*xi2*xi2*phi2*phi2 + 2*eta1*xi2*xi2*phi3*phi3 - 4*eta1*xi2*xi2*phi3*phi4 + 2*eta1*xi2*xi2*phi4*phi4 + 2*eta1*xi2*eta2*phi1*phi1 - 4*eta1*xi2*eta2*phi1*phi4 - 2*eta1*xi2*eta2*phi2*phi2 + 4*eta1*xi2*eta2*phi2*phi3 - 2*eta1*xi2*eta2*phi3*phi3 + 2*eta1*xi2*eta2*phi4*phi4 + 2*eta1*xi2*phi1*phi1 + 12*eta1*xi2*phi1*phi3 - 16*iso*eta1*xi2*phi1 - 2*eta1*xi2*phi2*phi2 - 12*eta1*xi2*phi2*phi4 + 16*iso*eta1*xi2*phi2 + 2*eta1*xi2*phi3*phi3 - 16*iso*eta1*xi2*phi3 - 2*eta1*xi2*phi4*phi4 + 16*iso*eta1*xi2*phi4 - 2*eta1*eta2*phi1*phi1 - 4*eta1*eta2*phi1*phi2 + 4*eta1*eta2*phi1*phi3 + 4*eta1*eta2*phi1*phi4 - 2*eta1*eta2*phi2*phi2 + 4*eta1*eta2*phi2*phi3 + 4*eta1*eta2*phi2*phi4 - 2*eta1*eta2*phi3*phi3 - 4*eta1*eta2*phi3*phi4 - 2*eta1*eta2*phi4*phi4 + xi2*xi2*phi1*phi1 - 2*xi2*xi2*phi1*phi2 - 2*xi2*xi2*phi1*phi3 + 2*xi2*xi2*phi1*phi4 + xi2*xi2*phi2*phi2 + 2*xi2*xi2*phi2*phi3 - 2*xi2*xi2*phi2*phi4 + xi2*xi2*phi3*phi3 - 2*xi2*xi2*phi3*phi4 + xi2*xi2*phi4*phi4 - 2*xi2*eta2*phi1*phi1 - 12*xi2*eta2*phi1*phi3 + 16*iso*xi2*eta2*phi1 + 2*xi2*eta2*phi2*phi2 + 12*xi2*eta2*phi2*phi4 - 16*iso*xi2*eta2*phi2 - 2*xi2*eta2*phi3*phi3 + 16*iso*xi2*eta2*phi3 + 2*xi2*eta2*phi4*phi4 - 16*iso*xi2*eta2*phi4 + eta2*eta2*phi1*phi1 + 2*eta2*eta2*phi1*phi2 - 2*eta2*eta2*phi1*phi3 - 2*eta2*eta2*phi1*phi4 + eta2*eta2*phi2*phi2 - 2*eta2*eta2*phi2*phi3 - 2*eta2*eta2*phi2*phi4 + eta2*eta2*phi3*phi3 + 2*eta2*eta2*phi3*phi4 + eta2*eta2*phi4*phi4) - xi1*phi1 + xi1*phi2 - eta1*phi1 + xi1*phi3 - eta1*phi2 - xi1*phi4 + eta1*phi3 + eta1*phi4 + xi2*phi1 - xi2*phi2 + eta2*phi1 - xi2*phi3 + eta2*phi2 + xi2*phi4 - eta2*phi3 - eta2*phi4 + xi1*eta1*phi1 - xi1*eta1*phi2 + xi1*eta1*phi3 - xi1*eta1*phi4 - xi2*eta2*phi1 + xi2*eta2*phi2 - xi2*eta2*phi3 + xi2*eta2*phi4)/((xi1 - xi2)*(eta1 - eta2)*std::pow(phi1 - phi2 + phi3 - phi4, 2)) - (xi2 - eta1 - xi1 + eta2 - xi1*eta1 + xi2*eta2 + (2*xi1*xi1*phi1 - 2*xi1*xi1*phi2 + 2*eta1*eta1*phi1 - 2*xi1*xi1*phi3 + 2*eta1*eta1*phi2 + 2*xi1*xi1*phi4 - 2*eta1*eta1*phi3 - 2*eta1*eta1*phi4 + 2*xi2*xi2*phi1 - 2*xi2*xi2*phi2 + 2*eta2*eta2*phi1 - 2*xi2*xi2*phi3 + 2*eta2*eta2*phi2 + 2*xi2*xi2*phi4 - 2*eta2*eta2*phi3 - 2*eta2*eta2*phi4 + 4*xi1*eta2*eta2*phi2 + 4*eta1*eta1*xi2*phi2 - 4*xi1*eta2*eta2*phi3 - 4*eta1*xi2*xi2*phi3 - 4*xi1*xi1*eta2*phi3 - 4*eta1*eta1*xi2*phi3 + 4*eta1*xi2*xi2*phi4 + 4*xi1*xi1*eta2*phi4 - 2*xi1*xi1*eta2*eta2*phi1 - 2*eta1*eta1*xi2*xi2*phi1 + 2*xi1*xi1*eta2*eta2*phi2 + 2*eta1*eta1*xi2*xi2*phi2 - 2*xi1*xi1*eta2*eta2*phi3 - 2*eta1*eta1*xi2*xi2*phi3 + 2*xi1*xi1*eta2*eta2*phi4 + 2*eta1*eta1*xi2*xi2*phi4 - 16*iso*xi1*eta1 + 16*iso*xi1*eta2 + 16*iso*eta1*xi2 - 16*iso*xi2*eta2 + 12*xi1*eta1*phi1 + 4*xi1*eta1*phi3 - 4*xi1*xi2*phi1 + 4*xi1*xi2*phi2 - 12*xi1*eta2*phi1 - 12*eta1*xi2*phi1 + 4*xi1*xi2*phi3 - 4*eta1*eta2*phi1 - 4*xi1*xi2*phi4 - 4*xi1*eta2*phi3 - 4*eta1*xi2*phi3 - 4*eta1*eta2*phi2 + 4*eta1*eta2*phi3 + 4*eta1*eta2*phi4 + 12*xi2*eta2*phi1 + 4*xi2*eta2*phi3 + 4*xi1*eta1*xi2*phi3 - 4*xi1*eta1*eta2*phi2 - 4*xi1*eta1*xi2*phi4 + 4*xi1*eta1*eta2*phi3 + 4*xi1*xi2*eta2*phi3 - 4*eta1*xi2*eta2*phi2 - 4*xi1*xi2*eta2*phi4 + 4*eta1*xi2*eta2*phi3 + 4*xi1*eta1*xi2*eta2*phi1 - 4*xi1*eta1*xi2*eta2*phi2 + 4*xi1*eta1*xi2*eta2*phi3 - 4*xi1*eta1*xi2*eta2*phi4)/(2*sqrt(xi1*xi1*eta2*eta2*phi1*phi1 - 2*xi1*xi1*eta2*eta2*phi1*phi2 + 2*xi1*xi1*eta2*eta2*phi1*phi3 - 2*xi1*xi1*eta2*eta2*phi1*phi4 + xi1*xi1*eta2*eta2*phi2*phi2 - 2*xi1*xi1*eta2*eta2*phi2*phi3 + 2*xi1*xi1*eta2*eta2*phi2*phi4 + xi1*xi1*eta2*eta2*phi3*phi3 - 2*xi1*xi1*eta2*eta2*phi3*phi4 + xi1*xi1*eta2*eta2*phi4*phi4 - 2*xi1*xi1*eta2*phi1*phi1 + 4*xi1*xi1*eta2*phi1*phi2 - 2*xi1*xi1*eta2*phi2*phi2 + 2*xi1*xi1*eta2*phi3*phi3 - 4*xi1*xi1*eta2*phi3*phi4 + 2*xi1*xi1*eta2*phi4*phi4 + xi1*xi1*phi1*phi1 - 2*xi1*xi1*phi1*phi2 - 2*xi1*xi1*phi1*phi3 + 2*xi1*xi1*phi1*phi4 + xi1*xi1*phi2*phi2 + 2*xi1*xi1*phi2*phi3 - 2*xi1*xi1*phi2*phi4 + xi1*xi1*phi3*phi3 - 2*xi1*xi1*phi3*phi4 + xi1*xi1*phi4*phi4 - 2*xi1*eta1*xi2*eta2*phi1*phi1 + 4*xi1*eta1*xi2*eta2*phi1*phi2 - 4*xi1*eta1*xi2*eta2*phi1*phi3 + 4*xi1*eta1*xi2*eta2*phi1*phi4 - 2*xi1*eta1*xi2*eta2*phi2*phi2 + 4*xi1*eta1*xi2*eta2*phi2*phi3 - 4*xi1*eta1*xi2*eta2*phi2*phi4 - 2*xi1*eta1*xi2*eta2*phi3*phi3 + 4*xi1*eta1*xi2*eta2*phi3*phi4 - 2*xi1*eta1*xi2*eta2*phi4*phi4 + 2*xi1*eta1*xi2*phi1*phi1 - 4*xi1*eta1*xi2*phi1*phi2 + 2*xi1*eta1*xi2*phi2*phi2 - 2*xi1*eta1*xi2*phi3*phi3 + 4*xi1*eta1*xi2*phi3*phi4 - 2*xi1*eta1*xi2*phi4*phi4 + 2*xi1*eta1*eta2*phi1*phi1 - 4*xi1*eta1*eta2*phi1*phi4 - 2*xi1*eta1*eta2*phi2*phi2 + 4*xi1*eta1*eta2*phi2*phi3 - 2*xi1*eta1*eta2*phi3*phi3 + 2*xi1*eta1*eta2*phi4*phi4 - 2*xi1*eta1*phi1*phi1 - 12*xi1*eta1*phi1*phi3 + 16*iso*xi1*eta1*phi1 + 2*xi1*eta1*phi2*phi2 + 12*xi1*eta1*phi2*phi4 - 16*iso*xi1*eta1*phi2 - 2*xi1*eta1*phi3*phi3 + 16*iso*xi1*eta1*phi3 + 2*xi1*eta1*phi4*phi4 - 16*iso*xi1*eta1*phi4 + 2*xi1*xi2*eta2*phi1*phi1 - 4*xi1*xi2*eta2*phi1*phi2 + 2*xi1*xi2*eta2*phi2*phi2 - 2*xi1*xi2*eta2*phi3*phi3 + 4*xi1*xi2*eta2*phi3*phi4 - 2*xi1*xi2*eta2*phi4*phi4 - 2*xi1*xi2*phi1*phi1 + 4*xi1*xi2*phi1*phi2 + 4*xi1*xi2*phi1*phi3 - 4*xi1*xi2*phi1*phi4 - 2*xi1*xi2*phi2*phi2 - 4*xi1*xi2*phi2*phi3 + 4*xi1*xi2*phi2*phi4 - 2*xi1*xi2*phi3*phi3 + 4*xi1*xi2*phi3*phi4 - 2*xi1*xi2*phi4*phi4 - 2*xi1*eta2*eta2*phi1*phi1 + 4*xi1*eta2*eta2*phi1*phi4 + 2*xi1*eta2*eta2*phi2*phi2 - 4*xi1*eta2*eta2*phi2*phi3 + 2*xi1*eta2*eta2*phi3*phi3 - 2*xi1*eta2*eta2*phi4*phi4 + 2*xi1*eta2*phi1*phi1 + 12*xi1*eta2*phi1*phi3 - 16*iso*xi1*eta2*phi1 - 2*xi1*eta2*phi2*phi2 - 12*xi1*eta2*phi2*phi4 + 16*iso*xi1*eta2*phi2 + 2*xi1*eta2*phi3*phi3 - 16*iso*xi1*eta2*phi3 - 2*xi1*eta2*phi4*phi4 + 16*iso*xi1*eta2*phi4 + eta1*eta1*xi2*xi2*phi1*phi1 - 2*eta1*eta1*xi2*xi2*phi1*phi2 + 2*eta1*eta1*xi2*xi2*phi1*phi3 - 2*eta1*eta1*xi2*xi2*phi1*phi4 + eta1*eta1*xi2*xi2*phi2*phi2 - 2*eta1*eta1*xi2*xi2*phi2*phi3 + 2*eta1*eta1*xi2*xi2*phi2*phi4 + eta1*eta1*xi2*xi2*phi3*phi3 - 2*eta1*eta1*xi2*xi2*phi3*phi4 + eta1*eta1*xi2*xi2*phi4*phi4 - 2*eta1*eta1*xi2*phi1*phi1 + 4*eta1*eta1*xi2*phi1*phi4 + 2*eta1*eta1*xi2*phi2*phi2 - 4*eta1*eta1*xi2*phi2*phi3 + 2*eta1*eta1*xi2*phi3*phi3 - 2*eta1*eta1*xi2*phi4*phi4 + eta1*eta1*phi1*phi1 + 2*eta1*eta1*phi1*phi2 - 2*eta1*eta1*phi1*phi3 - 2*eta1*eta1*phi1*phi4 + eta1*eta1*phi2*phi2 - 2*eta1*eta1*phi2*phi3 - 2*eta1*eta1*phi2*phi4 + eta1*eta1*phi3*phi3 + 2*eta1*eta1*phi3*phi4 + eta1*eta1*phi4*phi4 - 2*eta1*xi2*xi2*phi1*phi1 + 4*eta1*xi2*xi2*phi1*phi2 - 2*eta1*xi2*xi2*phi2*phi2 + 2*eta1*xi2*xi2*phi3*phi3 - 4*eta1*xi2*xi2*phi3*phi4 + 2*eta1*xi2*xi2*phi4*phi4 + 2*eta1*xi2*eta2*phi1*phi1 - 4*eta1*xi2*eta2*phi1*phi4 - 2*eta1*xi2*eta2*phi2*phi2 + 4*eta1*xi2*eta2*phi2*phi3 - 2*eta1*xi2*eta2*phi3*phi3 + 2*eta1*xi2*eta2*phi4*phi4 + 2*eta1*xi2*phi1*phi1 + 12*eta1*xi2*phi1*phi3 - 16*iso*eta1*xi2*phi1 - 2*eta1*xi2*phi2*phi2 - 12*eta1*xi2*phi2*phi4 + 16*iso*eta1*xi2*phi2 + 2*eta1*xi2*phi3*phi3 - 16*iso*eta1*xi2*phi3 - 2*eta1*xi2*phi4*phi4 + 16*iso*eta1*xi2*phi4 - 2*eta1*eta2*phi1*phi1 - 4*eta1*eta2*phi1*phi2 + 4*eta1*eta2*phi1*phi3 + 4*eta1*eta2*phi1*phi4 - 2*eta1*eta2*phi2*phi2 + 4*eta1*eta2*phi2*phi3 + 4*eta1*eta2*phi2*phi4 - 2*eta1*eta2*phi3*phi3 - 4*eta1*eta2*phi3*phi4 - 2*eta1*eta2*phi4*phi4 + xi2*xi2*phi1*phi1 - 2*xi2*xi2*phi1*phi2 - 2*xi2*xi2*phi1*phi3 + 2*xi2*xi2*phi1*phi4 + xi2*xi2*phi2*phi2 + 2*xi2*xi2*phi2*phi3 - 2*xi2*xi2*phi2*phi4 + xi2*xi2*phi3*phi3 - 2*xi2*xi2*phi3*phi4 + xi2*xi2*phi4*phi4 - 2*xi2*eta2*phi1*phi1 - 12*xi2*eta2*phi1*phi3 + 16*iso*xi2*eta2*phi1 + 2*xi2*eta2*phi2*phi2 + 12*xi2*eta2*phi2*phi4 - 16*iso*xi2*eta2*phi2 - 2*xi2*eta2*phi3*phi3 + 16*iso*xi2*eta2*phi3 + 2*xi2*eta2*phi4*phi4 - 16*iso*xi2*eta2*phi4 + eta2*eta2*phi1*phi1 + 2*eta2*eta2*phi1*phi2 - 2*eta2*eta2*phi1*phi3 - 2*eta2*eta2*phi1*phi4 + eta2*eta2*phi2*phi2 - 2*eta2*eta2*phi2*phi3 - 2*eta2*eta2*phi2*phi4 + eta2*eta2*phi3*phi3 + 2*eta2*eta2*phi3*phi4 + eta2*eta2*phi4*phi4)))/((xi1 - xi2)*(eta1 - eta2)*(phi1 - phi2 + phi3 - phi4));
-                        }
-                        else
-                        {
-                            return (sqrt(xi1*xi1*eta2*eta2*phi1*phi1 - 2*xi1*xi1*eta2*eta2*phi1*phi2 + 2*xi1*xi1*eta2*eta2*phi1*phi3 - 2*xi1*xi1*eta2*eta2*phi1*phi4 + xi1*xi1*eta2*eta2*phi2*phi2 - 2*xi1*xi1*eta2*eta2*phi2*phi3 + 2*xi1*xi1*eta2*eta2*phi2*phi4 + xi1*xi1*eta2*eta2*phi3*phi3 - 2*xi1*xi1*eta2*eta2*phi3*phi4 + xi1*xi1*eta2*eta2*phi4*phi4 - 2*xi1*xi1*eta2*phi1*phi1 + 4*xi1*xi1*eta2*phi1*phi2 - 2*xi1*xi1*eta2*phi2*phi2 + 2*xi1*xi1*eta2*phi3*phi3 - 4*xi1*xi1*eta2*phi3*phi4 + 2*xi1*xi1*eta2*phi4*phi4 + xi1*xi1*phi1*phi1 - 2*xi1*xi1*phi1*phi2 - 2*xi1*xi1*phi1*phi3 + 2*xi1*xi1*phi1*phi4 + xi1*xi1*phi2*phi2 + 2*xi1*xi1*phi2*phi3 - 2*xi1*xi1*phi2*phi4 + xi1*xi1*phi3*phi3 - 2*xi1*xi1*phi3*phi4 + xi1*xi1*phi4*phi4 - 2*xi1*eta1*xi2*eta2*phi1*phi1 + 4*xi1*eta1*xi2*eta2*phi1*phi2 - 4*xi1*eta1*xi2*eta2*phi1*phi3 + 4*xi1*eta1*xi2*eta2*phi1*phi4 - 2*xi1*eta1*xi2*eta2*phi2*phi2 + 4*xi1*eta1*xi2*eta2*phi2*phi3 - 4*xi1*eta1*xi2*eta2*phi2*phi4 - 2*xi1*eta1*xi2*eta2*phi3*phi3 + 4*xi1*eta1*xi2*eta2*phi3*phi4 - 2*xi1*eta1*xi2*eta2*phi4*phi4 + 2*xi1*eta1*xi2*phi1*phi1 - 4*xi1*eta1*xi2*phi1*phi2 + 2*xi1*eta1*xi2*phi2*phi2 - 2*xi1*eta1*xi2*phi3*phi3 + 4*xi1*eta1*xi2*phi3*phi4 - 2*xi1*eta1*xi2*phi4*phi4 + 2*xi1*eta1*eta2*phi1*phi1 - 4*xi1*eta1*eta2*phi1*phi4 - 2*xi1*eta1*eta2*phi2*phi2 + 4*xi1*eta1*eta2*phi2*phi3 - 2*xi1*eta1*eta2*phi3*phi3 + 2*xi1*eta1*eta2*phi4*phi4 - 2*xi1*eta1*phi1*phi1 - 12*xi1*eta1*phi1*phi3 + 16*iso*xi1*eta1*phi1 + 2*xi1*eta1*phi2*phi2 + 12*xi1*eta1*phi2*phi4 - 16*iso*xi1*eta1*phi2 - 2*xi1*eta1*phi3*phi3 + 16*iso*xi1*eta1*phi3 + 2*xi1*eta1*phi4*phi4 - 16*iso*xi1*eta1*phi4 + 2*xi1*xi2*eta2*phi1*phi1 - 4*xi1*xi2*eta2*phi1*phi2 + 2*xi1*xi2*eta2*phi2*phi2 - 2*xi1*xi2*eta2*phi3*phi3 + 4*xi1*xi2*eta2*phi3*phi4 - 2*xi1*xi2*eta2*phi4*phi4 - 2*xi1*xi2*phi1*phi1 + 4*xi1*xi2*phi1*phi2 + 4*xi1*xi2*phi1*phi3 - 4*xi1*xi2*phi1*phi4 - 2*xi1*xi2*phi2*phi2 - 4*xi1*xi2*phi2*phi3 + 4*xi1*xi2*phi2*phi4 - 2*xi1*xi2*phi3*phi3 + 4*xi1*xi2*phi3*phi4 - 2*xi1*xi2*phi4*phi4 - 2*xi1*eta2*eta2*phi1*phi1 + 4*xi1*eta2*eta2*phi1*phi4 + 2*xi1*eta2*eta2*phi2*phi2 - 4*xi1*eta2*eta2*phi2*phi3 + 2*xi1*eta2*eta2*phi3*phi3 - 2*xi1*eta2*eta2*phi4*phi4 + 2*xi1*eta2*phi1*phi1 + 12*xi1*eta2*phi1*phi3 - 16*iso*xi1*eta2*phi1 - 2*xi1*eta2*phi2*phi2 - 12*xi1*eta2*phi2*phi4 + 16*iso*xi1*eta2*phi2 + 2*xi1*eta2*phi3*phi3 - 16*iso*xi1*eta2*phi3 - 2*xi1*eta2*phi4*phi4 + 16*iso*xi1*eta2*phi4 + eta1*eta1*xi2*xi2*phi1*phi1 - 2*eta1*eta1*xi2*xi2*phi1*phi2 + 2*eta1*eta1*xi2*xi2*phi1*phi3 - 2*eta1*eta1*xi2*xi2*phi1*phi4 + eta1*eta1*xi2*xi2*phi2*phi2 - 2*eta1*eta1*xi2*xi2*phi2*phi3 + 2*eta1*eta1*xi2*xi2*phi2*phi4 + eta1*eta1*xi2*xi2*phi3*phi3 - 2*eta1*eta1*xi2*xi2*phi3*phi4 + eta1*eta1*xi2*xi2*phi4*phi4 - 2*eta1*eta1*xi2*phi1*phi1 + 4*eta1*eta1*xi2*phi1*phi4 + 2*eta1*eta1*xi2*phi2*phi2 - 4*eta1*eta1*xi2*phi2*phi3 + 2*eta1*eta1*xi2*phi3*phi3 - 2*eta1*eta1*xi2*phi4*phi4 + eta1*eta1*phi1*phi1 + 2*eta1*eta1*phi1*phi2 - 2*eta1*eta1*phi1*phi3 - 2*eta1*eta1*phi1*phi4 + eta1*eta1*phi2*phi2 - 2*eta1*eta1*phi2*phi3 - 2*eta1*eta1*phi2*phi4 + eta1*eta1*phi3*phi3 + 2*eta1*eta1*phi3*phi4 + eta1*eta1*phi4*phi4 - 2*eta1*xi2*xi2*phi1*phi1 + 4*eta1*xi2*xi2*phi1*phi2 - 2*eta1*xi2*xi2*phi2*phi2 + 2*eta1*xi2*xi2*phi3*phi3 - 4*eta1*xi2*xi2*phi3*phi4 + 2*eta1*xi2*xi2*phi4*phi4 + 2*eta1*xi2*eta2*phi1*phi1 - 4*eta1*xi2*eta2*phi1*phi4 - 2*eta1*xi2*eta2*phi2*phi2 + 4*eta1*xi2*eta2*phi2*phi3 - 2*eta1*xi2*eta2*phi3*phi3 + 2*eta1*xi2*eta2*phi4*phi4 + 2*eta1*xi2*phi1*phi1 + 12*eta1*xi2*phi1*phi3 - 16*iso*eta1*xi2*phi1 - 2*eta1*xi2*phi2*phi2 - 12*eta1*xi2*phi2*phi4 + 16*iso*eta1*xi2*phi2 + 2*eta1*xi2*phi3*phi3 - 16*iso*eta1*xi2*phi3 - 2*eta1*xi2*phi4*phi4 + 16*iso*eta1*xi2*phi4 - 2*eta1*eta2*phi1*phi1 - 4*eta1*eta2*phi1*phi2 + 4*eta1*eta2*phi1*phi3 + 4*eta1*eta2*phi1*phi4 - 2*eta1*eta2*phi2*phi2 + 4*eta1*eta2*phi2*phi3 + 4*eta1*eta2*phi2*phi4 - 2*eta1*eta2*phi3*phi3 - 4*eta1*eta2*phi3*phi4 - 2*eta1*eta2*phi4*phi4 + xi2*xi2*phi1*phi1 - 2*xi2*xi2*phi1*phi2 - 2*xi2*xi2*phi1*phi3 + 2*xi2*xi2*phi1*phi4 + xi2*xi2*phi2*phi2 + 2*xi2*xi2*phi2*phi3 - 2*xi2*xi2*phi2*phi4 + xi2*xi2*phi3*phi3 - 2*xi2*xi2*phi3*phi4 + xi2*xi2*phi4*phi4 - 2*xi2*eta2*phi1*phi1 - 12*xi2*eta2*phi1*phi3 + 16*iso*xi2*eta2*phi1 + 2*xi2*eta2*phi2*phi2 + 12*xi2*eta2*phi2*phi4 - 16*iso*xi2*eta2*phi2 - 2*xi2*eta2*phi3*phi3 + 16*iso*xi2*eta2*phi3 + 2*xi2*eta2*phi4*phi4 - 16*iso*xi2*eta2*phi4 + eta2*eta2*phi1*phi1 + 2*eta2*eta2*phi1*phi2 - 2*eta2*eta2*phi1*phi3 - 2*eta2*eta2*phi1*phi4 + eta2*eta2*phi2*phi2 - 2*eta2*eta2*phi2*phi3 - 2*eta2*eta2*phi2*phi4 + eta2*eta2*phi3*phi3 + 2*eta2*eta2*phi3*phi4 + eta2*eta2*phi4*phi4) + xi1*phi1 - xi1*phi2 + eta1*phi1 - xi1*phi3 + eta1*phi2 + xi1*phi4 - eta1*phi3 - eta1*phi4 - xi2*phi1 + xi2*phi2 - eta2*phi1 + xi2*phi3 - eta2*phi2 - xi2*phi4 + eta2*phi3 + eta2*phi4 - xi1*eta1*phi1 + xi1*eta1*phi2 - xi1*eta1*phi3 + xi1*eta1*phi4 + xi2*eta2*phi1 - xi2*eta2*phi2 + xi2*eta2*phi3 - xi2*eta2*phi4)/((xi1 - xi2)*(eta1 - eta2)*std::pow(phi1 - phi2 + phi3 - phi4, 2)) + (xi1 + eta1 - xi2 - eta2 + xi1*eta1 - xi2*eta2 + (2*xi1*xi1*phi1 - 2*xi1*xi1*phi2 + 2*eta1*eta1*phi1 - 2*xi1*xi1*phi3 + 2*eta1*eta1*phi2 + 2*xi1*xi1*phi4 - 2*eta1*eta1*phi3 - 2*eta1*eta1*phi4 + 2*xi2*xi2*phi1 - 2*xi2*xi2*phi2 + 2*eta2*eta2*phi1 - 2*xi2*xi2*phi3 + 2*eta2*eta2*phi2 + 2*xi2*xi2*phi4 - 2*eta2*eta2*phi3 - 2*eta2*eta2*phi4 + 4*xi1*eta2*eta2*phi2 + 4*eta1*eta1*xi2*phi2 - 4*xi1*eta2*eta2*phi3 - 4*eta1*xi2*xi2*phi3 - 4*xi1*xi1*eta2*phi3 - 4*eta1*eta1*xi2*phi3 + 4*eta1*xi2*xi2*phi4 + 4*xi1*xi1*eta2*phi4 - 2*xi1*xi1*eta2*eta2*phi1 - 2*eta1*eta1*xi2*xi2*phi1 + 2*xi1*xi1*eta2*eta2*phi2 + 2*eta1*eta1*xi2*xi2*phi2 - 2*xi1*xi1*eta2*eta2*phi3 - 2*eta1*eta1*xi2*xi2*phi3 + 2*xi1*xi1*eta2*eta2*phi4 + 2*eta1*eta1*xi2*xi2*phi4 - 16*iso*xi1*eta1 + 16*iso*xi1*eta2 + 16*iso*eta1*xi2 - 16*iso*xi2*eta2 + 12*xi1*eta1*phi1 + 4*xi1*eta1*phi3 - 4*xi1*xi2*phi1 + 4*xi1*xi2*phi2 - 12*xi1*eta2*phi1 - 12*eta1*xi2*phi1 + 4*xi1*xi2*phi3 - 4*eta1*eta2*phi1 - 4*xi1*xi2*phi4 - 4*xi1*eta2*phi3 - 4*eta1*xi2*phi3 - 4*eta1*eta2*phi2 + 4*eta1*eta2*phi3 + 4*eta1*eta2*phi4 + 12*xi2*eta2*phi1 + 4*xi2*eta2*phi3 + 4*xi1*eta1*xi2*phi3 - 4*xi1*eta1*eta2*phi2 - 4*xi1*eta1*xi2*phi4 + 4*xi1*eta1*eta2*phi3 + 4*xi1*xi2*eta2*phi3 - 4*eta1*xi2*eta2*phi2 - 4*xi1*xi2*eta2*phi4 + 4*eta1*xi2*eta2*phi3 + 4*xi1*eta1*xi2*eta2*phi1 - 4*xi1*eta1*xi2*eta2*phi2 + 4*xi1*eta1*xi2*eta2*phi3 - 4*xi1*eta1*xi2*eta2*phi4)/(2*sqrt(xi1*xi1*eta2*eta2*phi1*phi1 - 2*xi1*xi1*eta2*eta2*phi1*phi2 + 2*xi1*xi1*eta2*eta2*phi1*phi3 - 2*xi1*xi1*eta2*eta2*phi1*phi4 + xi1*xi1*eta2*eta2*phi2*phi2 - 2*xi1*xi1*eta2*eta2*phi2*phi3 + 2*xi1*xi1*eta2*eta2*phi2*phi4 + xi1*xi1*eta2*eta2*phi3*phi3 - 2*xi1*xi1*eta2*eta2*phi3*phi4 + xi1*xi1*eta2*eta2*phi4*phi4 - 2*xi1*xi1*eta2*phi1*phi1 + 4*xi1*xi1*eta2*phi1*phi2 - 2*xi1*xi1*eta2*phi2*phi2 + 2*xi1*xi1*eta2*phi3*phi3 - 4*xi1*xi1*eta2*phi3*phi4 + 2*xi1*xi1*eta2*phi4*phi4 + xi1*xi1*phi1*phi1 - 2*xi1*xi1*phi1*phi2 - 2*xi1*xi1*phi1*phi3 + 2*xi1*xi1*phi1*phi4 + xi1*xi1*phi2*phi2 + 2*xi1*xi1*phi2*phi3 - 2*xi1*xi1*phi2*phi4 + xi1*xi1*phi3*phi3 - 2*xi1*xi1*phi3*phi4 + xi1*xi1*phi4*phi4 - 2*xi1*eta1*xi2*eta2*phi1*phi1 + 4*xi1*eta1*xi2*eta2*phi1*phi2 - 4*xi1*eta1*xi2*eta2*phi1*phi3 + 4*xi1*eta1*xi2*eta2*phi1*phi4 - 2*xi1*eta1*xi2*eta2*phi2*phi2 + 4*xi1*eta1*xi2*eta2*phi2*phi3 - 4*xi1*eta1*xi2*eta2*phi2*phi4 - 2*xi1*eta1*xi2*eta2*phi3*phi3 + 4*xi1*eta1*xi2*eta2*phi3*phi4 - 2*xi1*eta1*xi2*eta2*phi4*phi4 + 2*xi1*eta1*xi2*phi1*phi1 - 4*xi1*eta1*xi2*phi1*phi2 + 2*xi1*eta1*xi2*phi2*phi2 - 2*xi1*eta1*xi2*phi3*phi3 + 4*xi1*eta1*xi2*phi3*phi4 - 2*xi1*eta1*xi2*phi4*phi4 + 2*xi1*eta1*eta2*phi1*phi1 - 4*xi1*eta1*eta2*phi1*phi4 - 2*xi1*eta1*eta2*phi2*phi2 + 4*xi1*eta1*eta2*phi2*phi3 - 2*xi1*eta1*eta2*phi3*phi3 + 2*xi1*eta1*eta2*phi4*phi4 - 2*xi1*eta1*phi1*phi1 - 12*xi1*eta1*phi1*phi3 + 16*iso*xi1*eta1*phi1 + 2*xi1*eta1*phi2*phi2 + 12*xi1*eta1*phi2*phi4 - 16*iso*xi1*eta1*phi2 - 2*xi1*eta1*phi3*phi3 + 16*iso*xi1*eta1*phi3 + 2*xi1*eta1*phi4*phi4 - 16*iso*xi1*eta1*phi4 + 2*xi1*xi2*eta2*phi1*phi1 - 4*xi1*xi2*eta2*phi1*phi2 + 2*xi1*xi2*eta2*phi2*phi2 - 2*xi1*xi2*eta2*phi3*phi3 + 4*xi1*xi2*eta2*phi3*phi4 - 2*xi1*xi2*eta2*phi4*phi4 - 2*xi1*xi2*phi1*phi1 + 4*xi1*xi2*phi1*phi2 + 4*xi1*xi2*phi1*phi3 - 4*xi1*xi2*phi1*phi4 - 2*xi1*xi2*phi2*phi2 - 4*xi1*xi2*phi2*phi3 + 4*xi1*xi2*phi2*phi4 - 2*xi1*xi2*phi3*phi3 + 4*xi1*xi2*phi3*phi4 - 2*xi1*xi2*phi4*phi4 - 2*xi1*eta2*eta2*phi1*phi1 + 4*xi1*eta2*eta2*phi1*phi4 + 2*xi1*eta2*eta2*phi2*phi2 - 4*xi1*eta2*eta2*phi2*phi3 + 2*xi1*eta2*eta2*phi3*phi3 - 2*xi1*eta2*eta2*phi4*phi4 + 2*xi1*eta2*phi1*phi1 + 12*xi1*eta2*phi1*phi3 - 16*iso*xi1*eta2*phi1 - 2*xi1*eta2*phi2*phi2 - 12*xi1*eta2*phi2*phi4 + 16*iso*xi1*eta2*phi2 + 2*xi1*eta2*phi3*phi3 - 16*iso*xi1*eta2*phi3 - 2*xi1*eta2*phi4*phi4 + 16*iso*xi1*eta2*phi4 + eta1*eta1*xi2*xi2*phi1*phi1 - 2*eta1*eta1*xi2*xi2*phi1*phi2 + 2*eta1*eta1*xi2*xi2*phi1*phi3 - 2*eta1*eta1*xi2*xi2*phi1*phi4 + eta1*eta1*xi2*xi2*phi2*phi2 - 2*eta1*eta1*xi2*xi2*phi2*phi3 + 2*eta1*eta1*xi2*xi2*phi2*phi4 + eta1*eta1*xi2*xi2*phi3*phi3 - 2*eta1*eta1*xi2*xi2*phi3*phi4 + eta1*eta1*xi2*xi2*phi4*phi4 - 2*eta1*eta1*xi2*phi1*phi1 + 4*eta1*eta1*xi2*phi1*phi4 + 2*eta1*eta1*xi2*phi2*phi2 - 4*eta1*eta1*xi2*phi2*phi3 + 2*eta1*eta1*xi2*phi3*phi3 - 2*eta1*eta1*xi2*phi4*phi4 + eta1*eta1*phi1*phi1 + 2*eta1*eta1*phi1*phi2 - 2*eta1*eta1*phi1*phi3 - 2*eta1*eta1*phi1*phi4 + eta1*eta1*phi2*phi2 - 2*eta1*eta1*phi2*phi3 - 2*eta1*eta1*phi2*phi4 + eta1*eta1*phi3*phi3 + 2*eta1*eta1*phi3*phi4 + eta1*eta1*phi4*phi4 - 2*eta1*xi2*xi2*phi1*phi1 + 4*eta1*xi2*xi2*phi1*phi2 - 2*eta1*xi2*xi2*phi2*phi2 + 2*eta1*xi2*xi2*phi3*phi3 - 4*eta1*xi2*xi2*phi3*phi4 + 2*eta1*xi2*xi2*phi4*phi4 + 2*eta1*xi2*eta2*phi1*phi1 - 4*eta1*xi2*eta2*phi1*phi4 - 2*eta1*xi2*eta2*phi2*phi2 + 4*eta1*xi2*eta2*phi2*phi3 - 2*eta1*xi2*eta2*phi3*phi3 + 2*eta1*xi2*eta2*phi4*phi4 + 2*eta1*xi2*phi1*phi1 + 12*eta1*xi2*phi1*phi3 - 16*iso*eta1*xi2*phi1 - 2*eta1*xi2*phi2*phi2 - 12*eta1*xi2*phi2*phi4 + 16*iso*eta1*xi2*phi2 + 2*eta1*xi2*phi3*phi3 - 16*iso*eta1*xi2*phi3 - 2*eta1*xi2*phi4*phi4 + 16*iso*eta1*xi2*phi4 - 2*eta1*eta2*phi1*phi1 - 4*eta1*eta2*phi1*phi2 + 4*eta1*eta2*phi1*phi3 + 4*eta1*eta2*phi1*phi4 - 2*eta1*eta2*phi2*phi2 + 4*eta1*eta2*phi2*phi3 + 4*eta1*eta2*phi2*phi4 - 2*eta1*eta2*phi3*phi3 - 4*eta1*eta2*phi3*phi4 - 2*eta1*eta2*phi4*phi4 + xi2*xi2*phi1*phi1 - 2*xi2*xi2*phi1*phi2 - 2*xi2*xi2*phi1*phi3 + 2*xi2*xi2*phi1*phi4 + xi2*xi2*phi2*phi2 + 2*xi2*xi2*phi2*phi3 - 2*xi2*xi2*phi2*phi4 + xi2*xi2*phi3*phi3 - 2*xi2*xi2*phi3*phi4 + xi2*xi2*phi4*phi4 - 2*xi2*eta2*phi1*phi1 - 12*xi2*eta2*phi1*phi3 + 16*iso*xi2*eta2*phi1 + 2*xi2*eta2*phi2*phi2 + 12*xi2*eta2*phi2*phi4 - 16*iso*xi2*eta2*phi2 - 2*xi2*eta2*phi3*phi3 + 16*iso*xi2*eta2*phi3 + 2*xi2*eta2*phi4*phi4 - 16*iso*xi2*eta2*phi4 + eta2*eta2*phi1*phi1 + 2*eta2*eta2*phi1*phi2 - 2*eta2*eta2*phi1*phi3 - 2*eta2*eta2*phi1*phi4 + eta2*eta2*phi2*phi2 - 2*eta2*eta2*phi2*phi3 - 2*eta2*eta2*phi2*phi4 + eta2*eta2*phi3*phi3 + 2*eta2*eta2*phi3*phi4 + eta2*eta2*phi4*phi4)))/((xi1 - xi2)*(eta1 - eta2)*(phi1 - phi2 + phi3 - phi4));
-                        }
-                    }
-                    case 3:
-                    {
-                        if (mBilinearCase1)
-                        {
-                            return (sqrt(xi1*xi1*eta2*eta2*phi1*phi1 - 2*xi1*xi1*eta2*eta2*phi1*phi2 + 2*xi1*xi1*eta2*eta2*phi1*phi3 - 2*xi1*xi1*eta2*eta2*phi1*phi4 + xi1*xi1*eta2*eta2*phi2*phi2 - 2*xi1*xi1*eta2*eta2*phi2*phi3 + 2*xi1*xi1*eta2*eta2*phi2*phi4 + xi1*xi1*eta2*eta2*phi3*phi3 - 2*xi1*xi1*eta2*eta2*phi3*phi4 + xi1*xi1*eta2*eta2*phi4*phi4 - 2*xi1*xi1*eta2*phi1*phi1 + 4*xi1*xi1*eta2*phi1*phi2 - 2*xi1*xi1*eta2*phi2*phi2 + 2*xi1*xi1*eta2*phi3*phi3 - 4*xi1*xi1*eta2*phi3*phi4 + 2*xi1*xi1*eta2*phi4*phi4 + xi1*xi1*phi1*phi1 - 2*xi1*xi1*phi1*phi2 - 2*xi1*xi1*phi1*phi3 + 2*xi1*xi1*phi1*phi4 + xi1*xi1*phi2*phi2 + 2*xi1*xi1*phi2*phi3 - 2*xi1*xi1*phi2*phi4 + xi1*xi1*phi3*phi3 - 2*xi1*xi1*phi3*phi4 + xi1*xi1*phi4*phi4 - 2*xi1*eta1*xi2*eta2*phi1*phi1 + 4*xi1*eta1*xi2*eta2*phi1*phi2 - 4*xi1*eta1*xi2*eta2*phi1*phi3 + 4*xi1*eta1*xi2*eta2*phi1*phi4 - 2*xi1*eta1*xi2*eta2*phi2*phi2 + 4*xi1*eta1*xi2*eta2*phi2*phi3 - 4*xi1*eta1*xi2*eta2*phi2*phi4 - 2*xi1*eta1*xi2*eta2*phi3*phi3 + 4*xi1*eta1*xi2*eta2*phi3*phi4 - 2*xi1*eta1*xi2*eta2*phi4*phi4 + 2*xi1*eta1*xi2*phi1*phi1 - 4*xi1*eta1*xi2*phi1*phi2 + 2*xi1*eta1*xi2*phi2*phi2 - 2*xi1*eta1*xi2*phi3*phi3 + 4*xi1*eta1*xi2*phi3*phi4 - 2*xi1*eta1*xi2*phi4*phi4 + 2*xi1*eta1*eta2*phi1*phi1 - 4*xi1*eta1*eta2*phi1*phi4 - 2*xi1*eta1*eta2*phi2*phi2 + 4*xi1*eta1*eta2*phi2*phi3 - 2*xi1*eta1*eta2*phi3*phi3 + 2*xi1*eta1*eta2*phi4*phi4 - 2*xi1*eta1*phi1*phi1 - 12*xi1*eta1*phi1*phi3 + 16*iso*xi1*eta1*phi1 + 2*xi1*eta1*phi2*phi2 + 12*xi1*eta1*phi2*phi4 - 16*iso*xi1*eta1*phi2 - 2*xi1*eta1*phi3*phi3 + 16*iso*xi1*eta1*phi3 + 2*xi1*eta1*phi4*phi4 - 16*iso*xi1*eta1*phi4 + 2*xi1*xi2*eta2*phi1*phi1 - 4*xi1*xi2*eta2*phi1*phi2 + 2*xi1*xi2*eta2*phi2*phi2 - 2*xi1*xi2*eta2*phi3*phi3 + 4*xi1*xi2*eta2*phi3*phi4 - 2*xi1*xi2*eta2*phi4*phi4 - 2*xi1*xi2*phi1*phi1 + 4*xi1*xi2*phi1*phi2 + 4*xi1*xi2*phi1*phi3 - 4*xi1*xi2*phi1*phi4 - 2*xi1*xi2*phi2*phi2 - 4*xi1*xi2*phi2*phi3 + 4*xi1*xi2*phi2*phi4 - 2*xi1*xi2*phi3*phi3 + 4*xi1*xi2*phi3*phi4 - 2*xi1*xi2*phi4*phi4 - 2*xi1*eta2*eta2*phi1*phi1 + 4*xi1*eta2*eta2*phi1*phi4 + 2*xi1*eta2*eta2*phi2*phi2 - 4*xi1*eta2*eta2*phi2*phi3 + 2*xi1*eta2*eta2*phi3*phi3 - 2*xi1*eta2*eta2*phi4*phi4 + 2*xi1*eta2*phi1*phi1 + 12*xi1*eta2*phi1*phi3 - 16*iso*xi1*eta2*phi1 - 2*xi1*eta2*phi2*phi2 - 12*xi1*eta2*phi2*phi4 + 16*iso*xi1*eta2*phi2 + 2*xi1*eta2*phi3*phi3 - 16*iso*xi1*eta2*phi3 - 2*xi1*eta2*phi4*phi4 + 16*iso*xi1*eta2*phi4 + eta1*eta1*xi2*xi2*phi1*phi1 - 2*eta1*eta1*xi2*xi2*phi1*phi2 + 2*eta1*eta1*xi2*xi2*phi1*phi3 - 2*eta1*eta1*xi2*xi2*phi1*phi4 + eta1*eta1*xi2*xi2*phi2*phi2 - 2*eta1*eta1*xi2*xi2*phi2*phi3 + 2*eta1*eta1*xi2*xi2*phi2*phi4 + eta1*eta1*xi2*xi2*phi3*phi3 - 2*eta1*eta1*xi2*xi2*phi3*phi4 + eta1*eta1*xi2*xi2*phi4*phi4 - 2*eta1*eta1*xi2*phi1*phi1 + 4*eta1*eta1*xi2*phi1*phi4 + 2*eta1*eta1*xi2*phi2*phi2 - 4*eta1*eta1*xi2*phi2*phi3 + 2*eta1*eta1*xi2*phi3*phi3 - 2*eta1*eta1*xi2*phi4*phi4 + eta1*eta1*phi1*phi1 + 2*eta1*eta1*phi1*phi2 - 2*eta1*eta1*phi1*phi3 - 2*eta1*eta1*phi1*phi4 + eta1*eta1*phi2*phi2 - 2*eta1*eta1*phi2*phi3 - 2*eta1*eta1*phi2*phi4 + eta1*eta1*phi3*phi3 + 2*eta1*eta1*phi3*phi4 + eta1*eta1*phi4*phi4 - 2*eta1*xi2*xi2*phi1*phi1 + 4*eta1*xi2*xi2*phi1*phi2 - 2*eta1*xi2*xi2*phi2*phi2 + 2*eta1*xi2*xi2*phi3*phi3 - 4*eta1*xi2*xi2*phi3*phi4 + 2*eta1*xi2*xi2*phi4*phi4 + 2*eta1*xi2*eta2*phi1*phi1 - 4*eta1*xi2*eta2*phi1*phi4 - 2*eta1*xi2*eta2*phi2*phi2 + 4*eta1*xi2*eta2*phi2*phi3 - 2*eta1*xi2*eta2*phi3*phi3 + 2*eta1*xi2*eta2*phi4*phi4 + 2*eta1*xi2*phi1*phi1 + 12*eta1*xi2*phi1*phi3 - 16*iso*eta1*xi2*phi1 - 2*eta1*xi2*phi2*phi2 - 12*eta1*xi2*phi2*phi4 + 16*iso*eta1*xi2*phi2 + 2*eta1*xi2*phi3*phi3 - 16*iso*eta1*xi2*phi3 - 2*eta1*xi2*phi4*phi4 + 16*iso*eta1*xi2*phi4 - 2*eta1*eta2*phi1*phi1 - 4*eta1*eta2*phi1*phi2 + 4*eta1*eta2*phi1*phi3 + 4*eta1*eta2*phi1*phi4 - 2*eta1*eta2*phi2*phi2 + 4*eta1*eta2*phi2*phi3 + 4*eta1*eta2*phi2*phi4 - 2*eta1*eta2*phi3*phi3 - 4*eta1*eta2*phi3*phi4 - 2*eta1*eta2*phi4*phi4 + xi2*xi2*phi1*phi1 - 2*xi2*xi2*phi1*phi2 - 2*xi2*xi2*phi1*phi3 + 2*xi2*xi2*phi1*phi4 + xi2*xi2*phi2*phi2 + 2*xi2*xi2*phi2*phi3 - 2*xi2*xi2*phi2*phi4 + xi2*xi2*phi3*phi3 - 2*xi2*xi2*phi3*phi4 + xi2*xi2*phi4*phi4 - 2*xi2*eta2*phi1*phi1 - 12*xi2*eta2*phi1*phi3 + 16*iso*xi2*eta2*phi1 + 2*xi2*eta2*phi2*phi2 + 12*xi2*eta2*phi2*phi4 - 16*iso*xi2*eta2*phi2 - 2*xi2*eta2*phi3*phi3 + 16*iso*xi2*eta2*phi3 + 2*xi2*eta2*phi4*phi4 - 16*iso*xi2*eta2*phi4 + eta2*eta2*phi1*phi1 + 2*eta2*eta2*phi1*phi2 - 2*eta2*eta2*phi1*phi3 - 2*eta2*eta2*phi1*phi4 + eta2*eta2*phi2*phi2 - 2*eta2*eta2*phi2*phi3 - 2*eta2*eta2*phi2*phi4 + eta2*eta2*phi3*phi3 + 2*eta2*eta2*phi3*phi4 + eta2*eta2*phi4*phi4) - xi1*phi1 + xi1*phi2 - eta1*phi1 + xi1*phi3 - eta1*phi2 - xi1*phi4 + eta1*phi3 + eta1*phi4 + xi2*phi1 - xi2*phi2 + eta2*phi1 - xi2*phi3 + eta2*phi2 + xi2*phi4 - eta2*phi3 - eta2*phi4 + xi1*eta1*phi1 - xi1*eta1*phi2 + xi1*eta1*phi3 - xi1*eta1*phi4 - xi2*eta2*phi1 + xi2*eta2*phi2 - xi2*eta2*phi3 + xi2*eta2*phi4)/((xi1 - xi2)*(eta1 - eta2)*std::pow(phi1 - phi2 + phi3 - phi4, 2)) + (eta1 - xi1 + xi2 - eta2 - xi1*eta1 + xi2*eta2 + (2*xi1*xi1*phi1 - 2*xi1*xi1*phi2 - 2*eta1*eta1*phi1 - 2*xi1*xi1*phi3 - 2*eta1*eta1*phi2 + 2*xi1*xi1*phi4 + 2*eta1*eta1*phi3 + 2*eta1*eta1*phi4 + 2*xi2*xi2*phi1 - 2*xi2*xi2*phi2 - 2*eta2*eta2*phi1 - 2*xi2*xi2*phi3 - 2*eta2*eta2*phi2 + 2*xi2*xi2*phi4 + 2*eta2*eta2*phi3 + 2*eta2*eta2*phi4 + 4*xi1*eta2*eta2*phi1 + 4*eta1*eta1*xi2*phi1 - 4*eta1*xi2*xi2*phi3 - 4*xi1*xi1*eta2*phi3 - 4*xi1*eta2*eta2*phi4 + 4*eta1*xi2*xi2*phi4 + 4*xi1*xi1*eta2*phi4 - 4*eta1*eta1*xi2*phi4 - 2*xi1*xi1*eta2*eta2*phi1 - 2*eta1*eta1*xi2*xi2*phi1 + 2*xi1*xi1*eta2*eta2*phi2 + 2*eta1*eta1*xi2*xi2*phi2 - 2*xi1*xi1*eta2*eta2*phi3 - 2*eta1*eta1*xi2*xi2*phi3 + 2*xi1*xi1*eta2*eta2*phi4 + 2*eta1*eta1*xi2*xi2*phi4 - 16*iso*xi1*eta1 + 16*iso*xi1*eta2 + 16*iso*eta1*xi2 - 16*iso*xi2*eta2 + 12*xi1*eta1*phi2 + 4*xi1*eta1*phi4 - 4*xi1*xi2*phi1 + 4*xi1*xi2*phi2 + 4*xi1*xi2*phi3 - 12*xi1*eta2*phi2 - 12*eta1*xi2*phi2 + 4*eta1*eta2*phi1 - 4*xi1*xi2*phi4 + 4*eta1*eta2*phi2 - 4*xi1*eta2*phi4 - 4*eta1*xi2*phi4 - 4*eta1*eta2*phi3 - 4*eta1*eta2*phi4 + 12*xi2*eta2*phi2 + 4*xi2*eta2*phi4 - 4*xi1*eta1*eta2*phi1 + 4*xi1*eta1*xi2*phi3 - 4*xi1*eta1*xi2*phi4 + 4*xi1*eta1*eta2*phi4 - 4*eta1*xi2*eta2*phi1 + 4*xi1*xi2*eta2*phi3 - 4*xi1*xi2*eta2*phi4 + 4*eta1*xi2*eta2*phi4 + 4*xi1*eta1*xi2*eta2*phi1 - 4*xi1*eta1*xi2*eta2*phi2 + 4*xi1*eta1*xi2*eta2*phi3 - 4*xi1*eta1*xi2*eta2*phi4)/(2*sqrt(xi1*xi1*eta2*eta2*phi1*phi1 - 2*xi1*xi1*eta2*eta2*phi1*phi2 + 2*xi1*xi1*eta2*eta2*phi1*phi3 - 2*xi1*xi1*eta2*eta2*phi1*phi4 + xi1*xi1*eta2*eta2*phi2*phi2 - 2*xi1*xi1*eta2*eta2*phi2*phi3 + 2*xi1*xi1*eta2*eta2*phi2*phi4 + xi1*xi1*eta2*eta2*phi3*phi3 - 2*xi1*xi1*eta2*eta2*phi3*phi4 + xi1*xi1*eta2*eta2*phi4*phi4 - 2*xi1*xi1*eta2*phi1*phi1 + 4*xi1*xi1*eta2*phi1*phi2 - 2*xi1*xi1*eta2*phi2*phi2 + 2*xi1*xi1*eta2*phi3*phi3 - 4*xi1*xi1*eta2*phi3*phi4 + 2*xi1*xi1*eta2*phi4*phi4 + xi1*xi1*phi1*phi1 - 2*xi1*xi1*phi1*phi2 - 2*xi1*xi1*phi1*phi3 + 2*xi1*xi1*phi1*phi4 + xi1*xi1*phi2*phi2 + 2*xi1*xi1*phi2*phi3 - 2*xi1*xi1*phi2*phi4 + xi1*xi1*phi3*phi3 - 2*xi1*xi1*phi3*phi4 + xi1*xi1*phi4*phi4 - 2*xi1*eta1*xi2*eta2*phi1*phi1 + 4*xi1*eta1*xi2*eta2*phi1*phi2 - 4*xi1*eta1*xi2*eta2*phi1*phi3 + 4*xi1*eta1*xi2*eta2*phi1*phi4 - 2*xi1*eta1*xi2*eta2*phi2*phi2 + 4*xi1*eta1*xi2*eta2*phi2*phi3 - 4*xi1*eta1*xi2*eta2*phi2*phi4 - 2*xi1*eta1*xi2*eta2*phi3*phi3 + 4*xi1*eta1*xi2*eta2*phi3*phi4 - 2*xi1*eta1*xi2*eta2*phi4*phi4 + 2*xi1*eta1*xi2*phi1*phi1 - 4*xi1*eta1*xi2*phi1*phi2 + 2*xi1*eta1*xi2*phi2*phi2 - 2*xi1*eta1*xi2*phi3*phi3 + 4*xi1*eta1*xi2*phi3*phi4 - 2*xi1*eta1*xi2*phi4*phi4 + 2*xi1*eta1*eta2*phi1*phi1 - 4*xi1*eta1*eta2*phi1*phi4 - 2*xi1*eta1*eta2*phi2*phi2 + 4*xi1*eta1*eta2*phi2*phi3 - 2*xi1*eta1*eta2*phi3*phi3 + 2*xi1*eta1*eta2*phi4*phi4 - 2*xi1*eta1*phi1*phi1 - 12*xi1*eta1*phi1*phi3 + 16*iso*xi1*eta1*phi1 + 2*xi1*eta1*phi2*phi2 + 12*xi1*eta1*phi2*phi4 - 16*iso*xi1*eta1*phi2 - 2*xi1*eta1*phi3*phi3 + 16*iso*xi1*eta1*phi3 + 2*xi1*eta1*phi4*phi4 - 16*iso*xi1*eta1*phi4 + 2*xi1*xi2*eta2*phi1*phi1 - 4*xi1*xi2*eta2*phi1*phi2 + 2*xi1*xi2*eta2*phi2*phi2 - 2*xi1*xi2*eta2*phi3*phi3 + 4*xi1*xi2*eta2*phi3*phi4 - 2*xi1*xi2*eta2*phi4*phi4 - 2*xi1*xi2*phi1*phi1 + 4*xi1*xi2*phi1*phi2 + 4*xi1*xi2*phi1*phi3 - 4*xi1*xi2*phi1*phi4 - 2*xi1*xi2*phi2*phi2 - 4*xi1*xi2*phi2*phi3 + 4*xi1*xi2*phi2*phi4 - 2*xi1*xi2*phi3*phi3 + 4*xi1*xi2*phi3*phi4 - 2*xi1*xi2*phi4*phi4 - 2*xi1*eta2*eta2*phi1*phi1 + 4*xi1*eta2*eta2*phi1*phi4 + 2*xi1*eta2*eta2*phi2*phi2 - 4*xi1*eta2*eta2*phi2*phi3 + 2*xi1*eta2*eta2*phi3*phi3 - 2*xi1*eta2*eta2*phi4*phi4 + 2*xi1*eta2*phi1*phi1 + 12*xi1*eta2*phi1*phi3 - 16*iso*xi1*eta2*phi1 - 2*xi1*eta2*phi2*phi2 - 12*xi1*eta2*phi2*phi4 + 16*iso*xi1*eta2*phi2 + 2*xi1*eta2*phi3*phi3 - 16*iso*xi1*eta2*phi3 - 2*xi1*eta2*phi4*phi4 + 16*iso*xi1*eta2*phi4 + eta1*eta1*xi2*xi2*phi1*phi1 - 2*eta1*eta1*xi2*xi2*phi1*phi2 + 2*eta1*eta1*xi2*xi2*phi1*phi3 - 2*eta1*eta1*xi2*xi2*phi1*phi4 + eta1*eta1*xi2*xi2*phi2*phi2 - 2*eta1*eta1*xi2*xi2*phi2*phi3 + 2*eta1*eta1*xi2*xi2*phi2*phi4 + eta1*eta1*xi2*xi2*phi3*phi3 - 2*eta1*eta1*xi2*xi2*phi3*phi4 + eta1*eta1*xi2*xi2*phi4*phi4 - 2*eta1*eta1*xi2*phi1*phi1 + 4*eta1*eta1*xi2*phi1*phi4 + 2*eta1*eta1*xi2*phi2*phi2 - 4*eta1*eta1*xi2*phi2*phi3 + 2*eta1*eta1*xi2*phi3*phi3 - 2*eta1*eta1*xi2*phi4*phi4 + eta1*eta1*phi1*phi1 + 2*eta1*eta1*phi1*phi2 - 2*eta1*eta1*phi1*phi3 - 2*eta1*eta1*phi1*phi4 + eta1*eta1*phi2*phi2 - 2*eta1*eta1*phi2*phi3 - 2*eta1*eta1*phi2*phi4 + eta1*eta1*phi3*phi3 + 2*eta1*eta1*phi3*phi4 + eta1*eta1*phi4*phi4 - 2*eta1*xi2*xi2*phi1*phi1 + 4*eta1*xi2*xi2*phi1*phi2 - 2*eta1*xi2*xi2*phi2*phi2 + 2*eta1*xi2*xi2*phi3*phi3 - 4*eta1*xi2*xi2*phi3*phi4 + 2*eta1*xi2*xi2*phi4*phi4 + 2*eta1*xi2*eta2*phi1*phi1 - 4*eta1*xi2*eta2*phi1*phi4 - 2*eta1*xi2*eta2*phi2*phi2 + 4*eta1*xi2*eta2*phi2*phi3 - 2*eta1*xi2*eta2*phi3*phi3 + 2*eta1*xi2*eta2*phi4*phi4 + 2*eta1*xi2*phi1*phi1 + 12*eta1*xi2*phi1*phi3 - 16*iso*eta1*xi2*phi1 - 2*eta1*xi2*phi2*phi2 - 12*eta1*xi2*phi2*phi4 + 16*iso*eta1*xi2*phi2 + 2*eta1*xi2*phi3*phi3 - 16*iso*eta1*xi2*phi3 - 2*eta1*xi2*phi4*phi4 + 16*iso*eta1*xi2*phi4 - 2*eta1*eta2*phi1*phi1 - 4*eta1*eta2*phi1*phi2 + 4*eta1*eta2*phi1*phi3 + 4*eta1*eta2*phi1*phi4 - 2*eta1*eta2*phi2*phi2 + 4*eta1*eta2*phi2*phi3 + 4*eta1*eta2*phi2*phi4 - 2*eta1*eta2*phi3*phi3 - 4*eta1*eta2*phi3*phi4 - 2*eta1*eta2*phi4*phi4 + xi2*xi2*phi1*phi1 - 2*xi2*xi2*phi1*phi2 - 2*xi2*xi2*phi1*phi3 + 2*xi2*xi2*phi1*phi4 + xi2*xi2*phi2*phi2 + 2*xi2*xi2*phi2*phi3 - 2*xi2*xi2*phi2*phi4 + xi2*xi2*phi3*phi3 - 2*xi2*xi2*phi3*phi4 + xi2*xi2*phi4*phi4 - 2*xi2*eta2*phi1*phi1 - 12*xi2*eta2*phi1*phi3 + 16*iso*xi2*eta2*phi1 + 2*xi2*eta2*phi2*phi2 + 12*xi2*eta2*phi2*phi4 - 16*iso*xi2*eta2*phi2 - 2*xi2*eta2*phi3*phi3 + 16*iso*xi2*eta2*phi3 + 2*xi2*eta2*phi4*phi4 - 16*iso*xi2*eta2*phi4 + eta2*eta2*phi1*phi1 + 2*eta2*eta2*phi1*phi2 - 2*eta2*eta2*phi1*phi3 - 2*eta2*eta2*phi1*phi4 + eta2*eta2*phi2*phi2 - 2*eta2*eta2*phi2*phi3 - 2*eta2*eta2*phi2*phi4 + eta2*eta2*phi3*phi3 + 2*eta2*eta2*phi3*phi4 + eta2*eta2*phi4*phi4)))/((xi1 - xi2)*(eta1 - eta2)*(phi1 - phi2 + phi3 - phi4));
-                        }
-                        else
-                        {
-                            return - (sqrt(xi1*xi1*eta2*eta2*phi1*phi1 - 2*xi1*xi1*eta2*eta2*phi1*phi2 + 2*xi1*xi1*eta2*eta2*phi1*phi3 - 2*xi1*xi1*eta2*eta2*phi1*phi4 + xi1*xi1*eta2*eta2*phi2*phi2 - 2*xi1*xi1*eta2*eta2*phi2*phi3 + 2*xi1*xi1*eta2*eta2*phi2*phi4 + xi1*xi1*eta2*eta2*phi3*phi3 - 2*xi1*xi1*eta2*eta2*phi3*phi4 + xi1*xi1*eta2*eta2*phi4*phi4 - 2*xi1*xi1*eta2*phi1*phi1 + 4*xi1*xi1*eta2*phi1*phi2 - 2*xi1*xi1*eta2*phi2*phi2 + 2*xi1*xi1*eta2*phi3*phi3 - 4*xi1*xi1*eta2*phi3*phi4 + 2*xi1*xi1*eta2*phi4*phi4 + xi1*xi1*phi1*phi1 - 2*xi1*xi1*phi1*phi2 - 2*xi1*xi1*phi1*phi3 + 2*xi1*xi1*phi1*phi4 + xi1*xi1*phi2*phi2 + 2*xi1*xi1*phi2*phi3 - 2*xi1*xi1*phi2*phi4 + xi1*xi1*phi3*phi3 - 2*xi1*xi1*phi3*phi4 + xi1*xi1*phi4*phi4 - 2*xi1*eta1*xi2*eta2*phi1*phi1 + 4*xi1*eta1*xi2*eta2*phi1*phi2 - 4*xi1*eta1*xi2*eta2*phi1*phi3 + 4*xi1*eta1*xi2*eta2*phi1*phi4 - 2*xi1*eta1*xi2*eta2*phi2*phi2 + 4*xi1*eta1*xi2*eta2*phi2*phi3 - 4*xi1*eta1*xi2*eta2*phi2*phi4 - 2*xi1*eta1*xi2*eta2*phi3*phi3 + 4*xi1*eta1*xi2*eta2*phi3*phi4 - 2*xi1*eta1*xi2*eta2*phi4*phi4 + 2*xi1*eta1*xi2*phi1*phi1 - 4*xi1*eta1*xi2*phi1*phi2 + 2*xi1*eta1*xi2*phi2*phi2 - 2*xi1*eta1*xi2*phi3*phi3 + 4*xi1*eta1*xi2*phi3*phi4 - 2*xi1*eta1*xi2*phi4*phi4 + 2*xi1*eta1*eta2*phi1*phi1 - 4*xi1*eta1*eta2*phi1*phi4 - 2*xi1*eta1*eta2*phi2*phi2 + 4*xi1*eta1*eta2*phi2*phi3 - 2*xi1*eta1*eta2*phi3*phi3 + 2*xi1*eta1*eta2*phi4*phi4 - 2*xi1*eta1*phi1*phi1 - 12*xi1*eta1*phi1*phi3 + 16*iso*xi1*eta1*phi1 + 2*xi1*eta1*phi2*phi2 + 12*xi1*eta1*phi2*phi4 - 16*iso*xi1*eta1*phi2 - 2*xi1*eta1*phi3*phi3 + 16*iso*xi1*eta1*phi3 + 2*xi1*eta1*phi4*phi4 - 16*iso*xi1*eta1*phi4 + 2*xi1*xi2*eta2*phi1*phi1 - 4*xi1*xi2*eta2*phi1*phi2 + 2*xi1*xi2*eta2*phi2*phi2 - 2*xi1*xi2*eta2*phi3*phi3 + 4*xi1*xi2*eta2*phi3*phi4 - 2*xi1*xi2*eta2*phi4*phi4 - 2*xi1*xi2*phi1*phi1 + 4*xi1*xi2*phi1*phi2 + 4*xi1*xi2*phi1*phi3 - 4*xi1*xi2*phi1*phi4 - 2*xi1*xi2*phi2*phi2 - 4*xi1*xi2*phi2*phi3 + 4*xi1*xi2*phi2*phi4 - 2*xi1*xi2*phi3*phi3 + 4*xi1*xi2*phi3*phi4 - 2*xi1*xi2*phi4*phi4 - 2*xi1*eta2*eta2*phi1*phi1 + 4*xi1*eta2*eta2*phi1*phi4 + 2*xi1*eta2*eta2*phi2*phi2 - 4*xi1*eta2*eta2*phi2*phi3 + 2*xi1*eta2*eta2*phi3*phi3 - 2*xi1*eta2*eta2*phi4*phi4 + 2*xi1*eta2*phi1*phi1 + 12*xi1*eta2*phi1*phi3 - 16*iso*xi1*eta2*phi1 - 2*xi1*eta2*phi2*phi2 - 12*xi1*eta2*phi2*phi4 + 16*iso*xi1*eta2*phi2 + 2*xi1*eta2*phi3*phi3 - 16*iso*xi1*eta2*phi3 - 2*xi1*eta2*phi4*phi4 + 16*iso*xi1*eta2*phi4 + eta1*eta1*xi2*xi2*phi1*phi1 - 2*eta1*eta1*xi2*xi2*phi1*phi2 + 2*eta1*eta1*xi2*xi2*phi1*phi3 - 2*eta1*eta1*xi2*xi2*phi1*phi4 + eta1*eta1*xi2*xi2*phi2*phi2 - 2*eta1*eta1*xi2*xi2*phi2*phi3 + 2*eta1*eta1*xi2*xi2*phi2*phi4 + eta1*eta1*xi2*xi2*phi3*phi3 - 2*eta1*eta1*xi2*xi2*phi3*phi4 + eta1*eta1*xi2*xi2*phi4*phi4 - 2*eta1*eta1*xi2*phi1*phi1 + 4*eta1*eta1*xi2*phi1*phi4 + 2*eta1*eta1*xi2*phi2*phi2 - 4*eta1*eta1*xi2*phi2*phi3 + 2*eta1*eta1*xi2*phi3*phi3 - 2*eta1*eta1*xi2*phi4*phi4 + eta1*eta1*phi1*phi1 + 2*eta1*eta1*phi1*phi2 - 2*eta1*eta1*phi1*phi3 - 2*eta1*eta1*phi1*phi4 + eta1*eta1*phi2*phi2 - 2*eta1*eta1*phi2*phi3 - 2*eta1*eta1*phi2*phi4 + eta1*eta1*phi3*phi3 + 2*eta1*eta1*phi3*phi4 + eta1*eta1*phi4*phi4 - 2*eta1*xi2*xi2*phi1*phi1 + 4*eta1*xi2*xi2*phi1*phi2 - 2*eta1*xi2*xi2*phi2*phi2 + 2*eta1*xi2*xi2*phi3*phi3 - 4*eta1*xi2*xi2*phi3*phi4 + 2*eta1*xi2*xi2*phi4*phi4 + 2*eta1*xi2*eta2*phi1*phi1 - 4*eta1*xi2*eta2*phi1*phi4 - 2*eta1*xi2*eta2*phi2*phi2 + 4*eta1*xi2*eta2*phi2*phi3 - 2*eta1*xi2*eta2*phi3*phi3 + 2*eta1*xi2*eta2*phi4*phi4 + 2*eta1*xi2*phi1*phi1 + 12*eta1*xi2*phi1*phi3 - 16*iso*eta1*xi2*phi1 - 2*eta1*xi2*phi2*phi2 - 12*eta1*xi2*phi2*phi4 + 16*iso*eta1*xi2*phi2 + 2*eta1*xi2*phi3*phi3 - 16*iso*eta1*xi2*phi3 - 2*eta1*xi2*phi4*phi4 + 16*iso*eta1*xi2*phi4 - 2*eta1*eta2*phi1*phi1 - 4*eta1*eta2*phi1*phi2 + 4*eta1*eta2*phi1*phi3 + 4*eta1*eta2*phi1*phi4 - 2*eta1*eta2*phi2*phi2 + 4*eta1*eta2*phi2*phi3 + 4*eta1*eta2*phi2*phi4 - 2*eta1*eta2*phi3*phi3 - 4*eta1*eta2*phi3*phi4 - 2*eta1*eta2*phi4*phi4 + xi2*xi2*phi1*phi1 - 2*xi2*xi2*phi1*phi2 - 2*xi2*xi2*phi1*phi3 + 2*xi2*xi2*phi1*phi4 + xi2*xi2*phi2*phi2 + 2*xi2*xi2*phi2*phi3 - 2*xi2*xi2*phi2*phi4 + xi2*xi2*phi3*phi3 - 2*xi2*xi2*phi3*phi4 + xi2*xi2*phi4*phi4 - 2*xi2*eta2*phi1*phi1 - 12*xi2*eta2*phi1*phi3 + 16*iso*xi2*eta2*phi1 + 2*xi2*eta2*phi2*phi2 + 12*xi2*eta2*phi2*phi4 - 16*iso*xi2*eta2*phi2 - 2*xi2*eta2*phi3*phi3 + 16*iso*xi2*eta2*phi3 + 2*xi2*eta2*phi4*phi4 - 16*iso*xi2*eta2*phi4 + eta2*eta2*phi1*phi1 + 2*eta2*eta2*phi1*phi2 - 2*eta2*eta2*phi1*phi3 - 2*eta2*eta2*phi1*phi4 + eta2*eta2*phi2*phi2 - 2*eta2*eta2*phi2*phi3 - 2*eta2*eta2*phi2*phi4 + eta2*eta2*phi3*phi3 + 2*eta2*eta2*phi3*phi4 + eta2*eta2*phi4*phi4) + xi1*phi1 - xi1*phi2 + eta1*phi1 - xi1*phi3 + eta1*phi2 + xi1*phi4 - eta1*phi3 - eta1*phi4 - xi2*phi1 + xi2*phi2 - eta2*phi1 + xi2*phi3 - eta2*phi2 - xi2*phi4 + eta2*phi3 + eta2*phi4 - xi1*eta1*phi1 + xi1*eta1*phi2 - xi1*eta1*phi3 + xi1*eta1*phi4 + xi2*eta2*phi1 - xi2*eta2*phi2 + xi2*eta2*phi3 - xi2*eta2*phi4)/((xi1 - xi2)*(eta1 - eta2)*std::pow(phi1 - phi2 + phi3 - phi4, 2)) - (xi1 - eta1 - xi2 + eta2 + xi1*eta1 - xi2*eta2 + (2*xi1*xi1*phi1 - 2*xi1*xi1*phi2 - 2*eta1*eta1*phi1 - 2*xi1*xi1*phi3 - 2*eta1*eta1*phi2 + 2*xi1*xi1*phi4 + 2*eta1*eta1*phi3 + 2*eta1*eta1*phi4 + 2*xi2*xi2*phi1 - 2*xi2*xi2*phi2 - 2*eta2*eta2*phi1 - 2*xi2*xi2*phi3 - 2*eta2*eta2*phi2 + 2*xi2*xi2*phi4 + 2*eta2*eta2*phi3 + 2*eta2*eta2*phi4 + 4*xi1*eta2*eta2*phi1 + 4*eta1*eta1*xi2*phi1 - 4*eta1*xi2*xi2*phi3 - 4*xi1*xi1*eta2*phi3 - 4*xi1*eta2*eta2*phi4 + 4*eta1*xi2*xi2*phi4 + 4*xi1*xi1*eta2*phi4 - 4*eta1*eta1*xi2*phi4 - 2*xi1*xi1*eta2*eta2*phi1 - 2*eta1*eta1*xi2*xi2*phi1 + 2*xi1*xi1*eta2*eta2*phi2 + 2*eta1*eta1*xi2*xi2*phi2 - 2*xi1*xi1*eta2*eta2*phi3 - 2*eta1*eta1*xi2*xi2*phi3 + 2*xi1*xi1*eta2*eta2*phi4 + 2*eta1*eta1*xi2*xi2*phi4 - 16*iso*xi1*eta1 + 16*iso*xi1*eta2 + 16*iso*eta1*xi2 - 16*iso*xi2*eta2 + 12*xi1*eta1*phi2 + 4*xi1*eta1*phi4 - 4*xi1*xi2*phi1 + 4*xi1*xi2*phi2 + 4*xi1*xi2*phi3 - 12*xi1*eta2*phi2 - 12*eta1*xi2*phi2 + 4*eta1*eta2*phi1 - 4*xi1*xi2*phi4 + 4*eta1*eta2*phi2 - 4*xi1*eta2*phi4 - 4*eta1*xi2*phi4 - 4*eta1*eta2*phi3 - 4*eta1*eta2*phi4 + 12*xi2*eta2*phi2 + 4*xi2*eta2*phi4 - 4*xi1*eta1*eta2*phi1 + 4*xi1*eta1*xi2*phi3 - 4*xi1*eta1*xi2*phi4 + 4*xi1*eta1*eta2*phi4 - 4*eta1*xi2*eta2*phi1 + 4*xi1*xi2*eta2*phi3 - 4*xi1*xi2*eta2*phi4 + 4*eta1*xi2*eta2*phi4 + 4*xi1*eta1*xi2*eta2*phi1 - 4*xi1*eta1*xi2*eta2*phi2 + 4*xi1*eta1*xi2*eta2*phi3 - 4*xi1*eta1*xi2*eta2*phi4)/(2*sqrt(xi1*xi1*eta2*eta2*phi1*phi1 - 2*xi1*xi1*eta2*eta2*phi1*phi2 + 2*xi1*xi1*eta2*eta2*phi1*phi3 - 2*xi1*xi1*eta2*eta2*phi1*phi4 + xi1*xi1*eta2*eta2*phi2*phi2 - 2*xi1*xi1*eta2*eta2*phi2*phi3 + 2*xi1*xi1*eta2*eta2*phi2*phi4 + xi1*xi1*eta2*eta2*phi3*phi3 - 2*xi1*xi1*eta2*eta2*phi3*phi4 + xi1*xi1*eta2*eta2*phi4*phi4 - 2*xi1*xi1*eta2*phi1*phi1 + 4*xi1*xi1*eta2*phi1*phi2 - 2*xi1*xi1*eta2*phi2*phi2 + 2*xi1*xi1*eta2*phi3*phi3 - 4*xi1*xi1*eta2*phi3*phi4 + 2*xi1*xi1*eta2*phi4*phi4 + xi1*xi1*phi1*phi1 - 2*xi1*xi1*phi1*phi2 - 2*xi1*xi1*phi1*phi3 + 2*xi1*xi1*phi1*phi4 + xi1*xi1*phi2*phi2 + 2*xi1*xi1*phi2*phi3 - 2*xi1*xi1*phi2*phi4 + xi1*xi1*phi3*phi3 - 2*xi1*xi1*phi3*phi4 + xi1*xi1*phi4*phi4 - 2*xi1*eta1*xi2*eta2*phi1*phi1 + 4*xi1*eta1*xi2*eta2*phi1*phi2 - 4*xi1*eta1*xi2*eta2*phi1*phi3 + 4*xi1*eta1*xi2*eta2*phi1*phi4 - 2*xi1*eta1*xi2*eta2*phi2*phi2 + 4*xi1*eta1*xi2*eta2*phi2*phi3 - 4*xi1*eta1*xi2*eta2*phi2*phi4 - 2*xi1*eta1*xi2*eta2*phi3*phi3 + 4*xi1*eta1*xi2*eta2*phi3*phi4 - 2*xi1*eta1*xi2*eta2*phi4*phi4 + 2*xi1*eta1*xi2*phi1*phi1 - 4*xi1*eta1*xi2*phi1*phi2 + 2*xi1*eta1*xi2*phi2*phi2 - 2*xi1*eta1*xi2*phi3*phi3 + 4*xi1*eta1*xi2*phi3*phi4 - 2*xi1*eta1*xi2*phi4*phi4 + 2*xi1*eta1*eta2*phi1*phi1 - 4*xi1*eta1*eta2*phi1*phi4 - 2*xi1*eta1*eta2*phi2*phi2 + 4*xi1*eta1*eta2*phi2*phi3 - 2*xi1*eta1*eta2*phi3*phi3 + 2*xi1*eta1*eta2*phi4*phi4 - 2*xi1*eta1*phi1*phi1 - 12*xi1*eta1*phi1*phi3 + 16*iso*xi1*eta1*phi1 + 2*xi1*eta1*phi2*phi2 + 12*xi1*eta1*phi2*phi4 - 16*iso*xi1*eta1*phi2 - 2*xi1*eta1*phi3*phi3 + 16*iso*xi1*eta1*phi3 + 2*xi1*eta1*phi4*phi4 - 16*iso*xi1*eta1*phi4 + 2*xi1*xi2*eta2*phi1*phi1 - 4*xi1*xi2*eta2*phi1*phi2 + 2*xi1*xi2*eta2*phi2*phi2 - 2*xi1*xi2*eta2*phi3*phi3 + 4*xi1*xi2*eta2*phi3*phi4 - 2*xi1*xi2*eta2*phi4*phi4 - 2*xi1*xi2*phi1*phi1 + 4*xi1*xi2*phi1*phi2 + 4*xi1*xi2*phi1*phi3 - 4*xi1*xi2*phi1*phi4 - 2*xi1*xi2*phi2*phi2 - 4*xi1*xi2*phi2*phi3 + 4*xi1*xi2*phi2*phi4 - 2*xi1*xi2*phi3*phi3 + 4*xi1*xi2*phi3*phi4 - 2*xi1*xi2*phi4*phi4 - 2*xi1*eta2*eta2*phi1*phi1 + 4*xi1*eta2*eta2*phi1*phi4 + 2*xi1*eta2*eta2*phi2*phi2 - 4*xi1*eta2*eta2*phi2*phi3 + 2*xi1*eta2*eta2*phi3*phi3 - 2*xi1*eta2*eta2*phi4*phi4 + 2*xi1*eta2*phi1*phi1 + 12*xi1*eta2*phi1*phi3 - 16*iso*xi1*eta2*phi1 - 2*xi1*eta2*phi2*phi2 - 12*xi1*eta2*phi2*phi4 + 16*iso*xi1*eta2*phi2 + 2*xi1*eta2*phi3*phi3 - 16*iso*xi1*eta2*phi3 - 2*xi1*eta2*phi4*phi4 + 16*iso*xi1*eta2*phi4 + eta1*eta1*xi2*xi2*phi1*phi1 - 2*eta1*eta1*xi2*xi2*phi1*phi2 + 2*eta1*eta1*xi2*xi2*phi1*phi3 - 2*eta1*eta1*xi2*xi2*phi1*phi4 + eta1*eta1*xi2*xi2*phi2*phi2 - 2*eta1*eta1*xi2*xi2*phi2*phi3 + 2*eta1*eta1*xi2*xi2*phi2*phi4 + eta1*eta1*xi2*xi2*phi3*phi3 - 2*eta1*eta1*xi2*xi2*phi3*phi4 + eta1*eta1*xi2*xi2*phi4*phi4 - 2*eta1*eta1*xi2*phi1*phi1 + 4*eta1*eta1*xi2*phi1*phi4 + 2*eta1*eta1*xi2*phi2*phi2 - 4*eta1*eta1*xi2*phi2*phi3 + 2*eta1*eta1*xi2*phi3*phi3 - 2*eta1*eta1*xi2*phi4*phi4 + eta1*eta1*phi1*phi1 + 2*eta1*eta1*phi1*phi2 - 2*eta1*eta1*phi1*phi3 - 2*eta1*eta1*phi1*phi4 + eta1*eta1*phi2*phi2 - 2*eta1*eta1*phi2*phi3 - 2*eta1*eta1*phi2*phi4 + eta1*eta1*phi3*phi3 + 2*eta1*eta1*phi3*phi4 + eta1*eta1*phi4*phi4 - 2*eta1*xi2*xi2*phi1*phi1 + 4*eta1*xi2*xi2*phi1*phi2 - 2*eta1*xi2*xi2*phi2*phi2 + 2*eta1*xi2*xi2*phi3*phi3 - 4*eta1*xi2*xi2*phi3*phi4 + 2*eta1*xi2*xi2*phi4*phi4 + 2*eta1*xi2*eta2*phi1*phi1 - 4*eta1*xi2*eta2*phi1*phi4 - 2*eta1*xi2*eta2*phi2*phi2 + 4*eta1*xi2*eta2*phi2*phi3 - 2*eta1*xi2*eta2*phi3*phi3 + 2*eta1*xi2*eta2*phi4*phi4 + 2*eta1*xi2*phi1*phi1 + 12*eta1*xi2*phi1*phi3 - 16*iso*eta1*xi2*phi1 - 2*eta1*xi2*phi2*phi2 - 12*eta1*xi2*phi2*phi4 + 16*iso*eta1*xi2*phi2 + 2*eta1*xi2*phi3*phi3 - 16*iso*eta1*xi2*phi3 - 2*eta1*xi2*phi4*phi4 + 16*iso*eta1*xi2*phi4 - 2*eta1*eta2*phi1*phi1 - 4*eta1*eta2*phi1*phi2 + 4*eta1*eta2*phi1*phi3 + 4*eta1*eta2*phi1*phi4 - 2*eta1*eta2*phi2*phi2 + 4*eta1*eta2*phi2*phi3 + 4*eta1*eta2*phi2*phi4 - 2*eta1*eta2*phi3*phi3 - 4*eta1*eta2*phi3*phi4 - 2*eta1*eta2*phi4*phi4 + xi2*xi2*phi1*phi1 - 2*xi2*xi2*phi1*phi2 - 2*xi2*xi2*phi1*phi3 + 2*xi2*xi2*phi1*phi4 + xi2*xi2*phi2*phi2 + 2*xi2*xi2*phi2*phi3 - 2*xi2*xi2*phi2*phi4 + xi2*xi2*phi3*phi3 - 2*xi2*xi2*phi3*phi4 + xi2*xi2*phi4*phi4 - 2*xi2*eta2*phi1*phi1 - 12*xi2*eta2*phi1*phi3 + 16*iso*xi2*eta2*phi1 + 2*xi2*eta2*phi2*phi2 + 12*xi2*eta2*phi2*phi4 - 16*iso*xi2*eta2*phi2 - 2*xi2*eta2*phi3*phi3 + 16*iso*xi2*eta2*phi3 + 2*xi2*eta2*phi4*phi4 - 16*iso*xi2*eta2*phi4 + eta2*eta2*phi1*phi1 + 2*eta2*eta2*phi1*phi2 - 2*eta2*eta2*phi1*phi3 - 2*eta2*eta2*phi1*phi4 + eta2*eta2*phi2*phi2 - 2*eta2*eta2*phi2*phi3 - 2*eta2*eta2*phi2*phi4 + eta2*eta2*phi3*phi3 + 2*eta2*eta2*phi3*phi4 + eta2*eta2*phi4*phi4)))/((xi1 - xi2)*(eta1 - eta2)*(phi1 - phi2 + phi3 - phi4));
-                        }
-                    }
-                    default:
-                    {
-                        MORIS_ERROR(false, "A bilinear intersection node has only 4 ancestors");
-                        return 0.0;
-                    }
+                    tInterpolation = tFactory.create_interpolation_function(
+                            mtk::Geometry_Type::QUAD,
+                            mtk::Interpolation_Type::LAGRANGE,
+                            mtk::Interpolation_Order::LINEAR );
+
+                    tNumBases = 4;
+                    break;
+                }
+                case 3:
+                {
+                    tInterpolation = tFactory.create_interpolation_function(
+                            mtk::Geometry_Type::HEX,
+                            mtk::Interpolation_Type::LAGRANGE,
+                            mtk::Interpolation_Order::LINEAR );
+
+                    tNumBases = 8;
+                    break;
+                }
+                default:
+                {
+                    MORIS_ERROR( false,
+                            "Intersection_Node_Bilinear::compute_intersection - Interpolation type not implemented." );
                 }
             }
-        }
 
-        //--------------------------------------------------------------------------------------------------------------
+            // check that number of node indices and number of nodal coodinates of ancestor nodes are identical
+            MORIS_ASSERT( aAncestorNodeCoordinates.size() == aAncestorNodeIndices.numel(),
+                    "Intersection_Node_Bilinear::compute_intersection - inconsistent ancestor node information." );
 
-        Matrix<DDRMat> Intersection_Node_Bilinear::get_dxi_dcoordinate_first_parent()
-        {
-            MORIS_ERROR(false, "Intersections on intersections not implemented yet for bilinear case.");
-            return {{}};
-        }
+            // check that number of bases to be used less or equal number of ancestor nodes
+            MORIS_ASSERT( aAncestorNodeCoordinates.size() >= tNumBases,
+                    "Intersection_Node_Bilinear::compute_intersection - number of ancestor nodes insufficient." );
 
-        //--------------------------------------------------------------------------------------------------------------
+            // allocate matrix for level set values at background cell nodes
+            Matrix< DDRMat > tPhiBCNodes( tNumBases, 1 );
 
-        Matrix<DDRMat> Intersection_Node_Bilinear::get_dxi_dcoordinate_second_parent()
-        {
-            MORIS_ERROR(false, "Intersections on intersections not implemented yet for bilinear case.");
-            return {{}};
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        real Intersection_Node_Bilinear::get_local_coordinate(
-                const Matrix<DDRMat>&       aFirstParentNodeLocalCoordinates,
-                const Matrix<DDRMat>&       aSecondParentNodeLocalCoordinates,
-                const Matrix<DDUMat>&       aAncestorNodeIndices,
-                const Cell<Matrix<DDRMat>>& aAncestorNodeCoordinates,
-                std::shared_ptr<Geometry>   aInterfaceGeometry,
-                real                        aIsocontourThreshold)
-        {
-            // Checks
-            MORIS_ASSERT(aFirstParentNodeLocalCoordinates.length() == 2,
-                    "First parent of a bilinear intersection node must have 2 local coordinates (xi, eta).");
-            MORIS_ASSERT(aSecondParentNodeLocalCoordinates.length() == 2,
-                    "Second parent of a bilinear intersection node must have 2 local coordinates (xi, eta).");
-
-            // Local coordinates
-            xi1  = aFirstParentNodeLocalCoordinates(0);
-            eta1 = aFirstParentNodeLocalCoordinates(1);
-            xi2  = aSecondParentNodeLocalCoordinates(0);
-            eta2 = aSecondParentNodeLocalCoordinates(1);
-
-            // Geometry field values
-            real phi1 = aInterfaceGeometry->get_field_value(aAncestorNodeIndices(0), aAncestorNodeCoordinates(0));
-            real phi2 = aInterfaceGeometry->get_field_value(aAncestorNodeIndices(1), aAncestorNodeCoordinates(1));
-            real phi3 = aInterfaceGeometry->get_field_value(aAncestorNodeIndices(2), aAncestorNodeCoordinates(2));
-            real phi4 = aInterfaceGeometry->get_field_value(aAncestorNodeIndices(3), aAncestorNodeCoordinates(3));
-
-            // Isocontour threshold
-            real iso = aIsocontourThreshold;
-
-            // Check to see if intersection needs to just be linear (3 cases)
-            real tEpsilon = std::numeric_limits<real>::epsilon() * 10;
-            mLinear = std::abs(phi1 - phi2 + phi3 - phi4) < tEpsilon or
-                    std::abs(xi2 - xi1) < tEpsilon or
-                    std::abs(eta2 - eta1) < tEpsilon;
-
-            // Evaluate local coordinate in parent edge
-            if (mLinear)
+            // get level set values of corner nodes
+            for ( uint in = 0; in < tNumBases; ++in )
             {
-                // TODO
-                Matrix<DDRMat> tFirstBasisValues;
-                Matrix<DDRMat> tSecondBasisValues;
-                xtk::Quad_4_Basis_Function().evaluate_basis_function(aFirstParentNodeLocalCoordinates, tFirstBasisValues);
-                xtk::Quad_4_Basis_Function().evaluate_basis_function(aSecondParentNodeLocalCoordinates, tSecondBasisValues);
-
-                real tFirstParentPhi = tFirstBasisValues(0) * phi1 + tFirstBasisValues(1) * phi2 +
-                        tFirstBasisValues(2) * phi3 + tFirstBasisValues(3) * phi4;
-                real tSecondParentPhi = tSecondBasisValues(0) * phi1 + tSecondBasisValues(1) * phi2 +
-                        tSecondBasisValues(2) * phi3 + tSecondBasisValues(3) * phi4;
-
-                return (2.0 * iso - tFirstParentPhi - tSecondParentPhi) / (tSecondParentPhi - tFirstParentPhi);
+                tPhiBCNodes( in ) = aInterfaceGeometry->get_field_value( aAncestorNodeIndices( in ), aAncestorNodeCoordinates( in ) );
             }
-            else // Bilinear
+
+            // check that dimension of ancestor node coordinate equals dimension of parent node coordinates
+            MORIS_ASSERT( aFirstParentNodeLocalCoordinates.numel() == aAncestorNodeCoordinates( 0 ).numel(),
+                    "Intersection_Node_Bilinear::compute_intersection - inconsistent coordinate dimensions." );
+
+            // compute level set value at parent nodes
+            Matrix< DDRMat > tFirstParentBasis;
+            Matrix< DDRMat > tSecondParentBasis;
+
+            tInterpolation->eval_N( aFirstParentNodeLocalCoordinates, tFirstParentBasis );
+            tInterpolation->eval_N( aSecondParentNodeLocalCoordinates, tSecondParentBasis );
+
+            real tFirstParentPhi  = dot( tFirstParentBasis, tPhiBCNodes );
+            real tSecondParentPhi = dot( tSecondParentBasis, tPhiBCNodes );
+
+            // check that line is intersected
+            if ( ( tFirstParentPhi - aIsocontourThreshold ) * ( tSecondParentPhi - aIsocontourThreshold ) > 0 )
             {
-                real tValue1 = (sqrt(xi1 * xi1 * eta2 * eta2 * phi1 * phi1 - 2 * xi1 * xi1 * eta2 * eta2 * phi1 * phi2 + 2 * xi1 * xi1 * eta2 * eta2 * phi1 * phi3 - 2 * xi1 * xi1 * eta2 * eta2 * phi1 * phi4 + xi1 * xi1 * eta2 * eta2 * phi2 * phi2 - 2 * xi1 * xi1 * eta2 * eta2 * phi2 * phi3 + 2 * xi1 * xi1 * eta2 * eta2 * phi2 * phi4 + xi1 * xi1 * eta2 * eta2 * phi3 * phi3 - 2 * xi1 * xi1 * eta2 * eta2 * phi3 * phi4 + xi1 * xi1 * eta2 * eta2 * phi4 * phi4 - 2 * xi1 * xi1 * eta2 * phi1 * phi1 + 4 * xi1 * xi1 * eta2 * phi1 * phi2 - 2 * xi1 * xi1 * eta2 * phi2 * phi2 + 2 * xi1 * xi1 * eta2 * phi3 * phi3 - 4 * xi1 * xi1 * eta2 * phi3 * phi4 + 2 * xi1 * xi1 * eta2 * phi4 * phi4 + xi1 * xi1 * phi1 * phi1 - 2 * xi1 * xi1 * phi1 * phi2 - 2 * xi1 * xi1 * phi1 * phi3 + 2 * xi1 * xi1 * phi1 * phi4 + xi1 * xi1 * phi2 * phi2 + 2 * xi1 * xi1 * phi2 * phi3 - 2 * xi1 * xi1 * phi2 * phi4 + xi1 * xi1 * phi3 * phi3 - 2 * xi1 * xi1 * phi3 * phi4 + xi1 * xi1 * phi4 * phi4 - 2 * xi1 * eta1 * xi2 * eta2 * phi1 * phi1 + 4 * xi1 * eta1 * xi2 * eta2 * phi1 * phi2 - 4 * xi1 * eta1 * xi2 * eta2 * phi1 * phi3 + 4 * xi1 * eta1 * xi2 * eta2 * phi1 * phi4 - 2 * xi1 * eta1 * xi2 * eta2 * phi2 * phi2 + 4 * xi1 * eta1 * xi2 * eta2 * phi2 * phi3 - 4 * xi1 * eta1 * xi2 * eta2 * phi2 * phi4 - 2 * xi1 * eta1 * xi2 * eta2 * phi3 * phi3 + 4 * xi1 * eta1 * xi2 * eta2 * phi3 * phi4 - 2 * xi1 * eta1 * xi2 * eta2 * phi4 * phi4 + 2 * xi1 * eta1 * xi2 * phi1 * phi1 - 4 * xi1 * eta1 * xi2 * phi1 * phi2 + 2 * xi1 * eta1 * xi2 * phi2 * phi2 - 2 * xi1 * eta1 * xi2 * phi3 * phi3 + 4 * xi1 * eta1 * xi2 * phi3 * phi4 - 2 * xi1 * eta1 * xi2 * phi4 * phi4 + 2 * xi1 * eta1 * eta2 * phi1 * phi1 - 4 * xi1 * eta1 * eta2 * phi1 * phi4 - 2 * xi1 * eta1 * eta2 * phi2 * phi2 + 4 * xi1 * eta1 * eta2 * phi2 * phi3 - 2 * xi1 * eta1 * eta2 * phi3 * phi3 + 2 * xi1 * eta1 * eta2 * phi4 * phi4 - 2 * xi1 * eta1 * phi1 * phi1 - 12 * xi1 * eta1 * phi1 * phi3 + 16 * iso * xi1 * eta1 * phi1 + 2 * xi1 * eta1 * phi2 * phi2 + 12 * xi1 * eta1 * phi2 * phi4 - 16 * iso * xi1 * eta1 * phi2 - 2 * xi1 * eta1 * phi3 * phi3 + 16 * iso * xi1 * eta1 * phi3 + 2 * xi1 * eta1 * phi4 * phi4 - 16 * iso * xi1 * eta1 * phi4 + 2 * xi1 * xi2 * eta2 * phi1 * phi1 - 4 * xi1 * xi2 * eta2 * phi1 * phi2 + 2 * xi1 * xi2 * eta2 * phi2 * phi2 - 2 * xi1 * xi2 * eta2 * phi3 * phi3 + 4 * xi1 * xi2 * eta2 * phi3 * phi4 - 2 * xi1 * xi2 * eta2 * phi4 * phi4 - 2 * xi1 * xi2 * phi1 * phi1 + 4 * xi1 * xi2 * phi1 * phi2 + 4 * xi1 * xi2 * phi1 * phi3 - 4 * xi1 * xi2 * phi1 * phi4 - 2 * xi1 * xi2 * phi2 * phi2 - 4 * xi1 * xi2 * phi2 * phi3 + 4 * xi1 * xi2 * phi2 * phi4 - 2 * xi1 * xi2 * phi3 * phi3 + 4 * xi1 * xi2 * phi3 * phi4 - 2 * xi1 * xi2 * phi4 * phi4 - 2 * xi1 * eta2 * eta2 * phi1 * phi1 + 4 * xi1 * eta2 * eta2 * phi1 * phi4 + 2 * xi1 * eta2 * eta2 * phi2 * phi2 - 4 * xi1 * eta2 * eta2 * phi2 * phi3 + 2 * xi1 * eta2 * eta2 * phi3 * phi3 - 2 * xi1 * eta2 * eta2 * phi4 * phi4 + 2 * xi1 * eta2 * phi1 * phi1 + 12 * xi1 * eta2 * phi1 * phi3 - 16 * iso * xi1 * eta2 * phi1 - 2 * xi1 * eta2 * phi2 * phi2 - 12 * xi1 * eta2 * phi2 * phi4 + 16 * iso * xi1 * eta2 * phi2 + 2 * xi1 * eta2 * phi3 * phi3 - 16 * iso * xi1 * eta2 * phi3 - 2 * xi1 * eta2 * phi4 * phi4 + 16 * iso * xi1 * eta2 * phi4 + eta1 * eta1 * xi2 * xi2 * phi1 * phi1 - 2 * eta1 * eta1 * xi2 * xi2 * phi1 * phi2 + 2 * eta1 * eta1 * xi2 * xi2 * phi1 * phi3 - 2 * eta1 * eta1 * xi2 * xi2 * phi1 * phi4 + eta1 * eta1 * xi2 * xi2 * phi2 * phi2 - 2 * eta1 * eta1 * xi2 * xi2 * phi2 * phi3 + 2 * eta1 * eta1 * xi2 * xi2 * phi2 * phi4 + eta1 * eta1 * xi2 * xi2 * phi3 * phi3 - 2 * eta1 * eta1 * xi2 * xi2 * phi3 * phi4 + eta1 * eta1 * xi2 * xi2 * phi4 * phi4 - 2 * eta1 * eta1 * xi2 * phi1 * phi1 + 4 * eta1 * eta1 * xi2 * phi1 * phi4 + 2 * eta1 * eta1 * xi2 * phi2 * phi2 - 4 * eta1 * eta1 * xi2 * phi2 * phi3 + 2 * eta1 * eta1 * xi2 * phi3 * phi3 - 2 * eta1 * eta1 * xi2 * phi4 * phi4 + eta1 * eta1 * phi1 * phi1 + 2 * eta1 * eta1 * phi1 * phi2 - 2 * eta1 * eta1 * phi1 * phi3 - 2 * eta1 * eta1 * phi1 * phi4 + eta1 * eta1 * phi2 * phi2 - 2 * eta1 * eta1 * phi2 * phi3 - 2 * eta1 * eta1 * phi2 * phi4 + eta1 * eta1 * phi3 * phi3 + 2 * eta1 * eta1 * phi3 * phi4 + eta1 * eta1 * phi4 * phi4 - 2 * eta1 * xi2 * xi2 * phi1 * phi1 + 4 * eta1 * xi2 * xi2 * phi1 * phi2 - 2 * eta1 * xi2 * xi2 * phi2 * phi2 + 2 * eta1 * xi2 * xi2 * phi3 * phi3 - 4 * eta1 * xi2 * xi2 * phi3 * phi4 + 2 * eta1 * xi2 * xi2 * phi4 * phi4 + 2 * eta1 * xi2 * eta2 * phi1 * phi1 - 4 * eta1 * xi2 * eta2 * phi1 * phi4 - 2 * eta1 * xi2 * eta2 * phi2 * phi2 + 4 * eta1 * xi2 * eta2 * phi2 * phi3 - 2 * eta1 * xi2 * eta2 * phi3 * phi3 + 2 * eta1 * xi2 * eta2 * phi4 * phi4 + 2 * eta1 * xi2 * phi1 * phi1 + 12 * eta1 * xi2 * phi1 * phi3 - 16 * iso * eta1 * xi2 * phi1 - 2 * eta1 * xi2 * phi2 * phi2 - 12 * eta1 * xi2 * phi2 * phi4 + 16 * iso * eta1 * xi2 * phi2 + 2 * eta1 * xi2 * phi3 * phi3 - 16 * iso * eta1 * xi2 * phi3 - 2 * eta1 * xi2 * phi4 * phi4 + 16 * iso * eta1 * xi2 * phi4 - 2 * eta1 * eta2 * phi1 * phi1 - 4 * eta1 * eta2 * phi1 * phi2 + 4 * eta1 * eta2 * phi1 * phi3 + 4 * eta1 * eta2 * phi1 * phi4 - 2 * eta1 * eta2 * phi2 * phi2 + 4 * eta1 * eta2 * phi2 * phi3 + 4 * eta1 * eta2 * phi2 * phi4 - 2 * eta1 * eta2 * phi3 * phi3 - 4 * eta1 * eta2 * phi3 * phi4 - 2 * eta1 * eta2 * phi4 * phi4 + xi2 * xi2 * phi1 * phi1 - 2 * xi2 * xi2 * phi1 * phi2 - 2 * xi2 * xi2 * phi1 * phi3 + 2 * xi2 * xi2 * phi1 * phi4 + xi2 * xi2 * phi2 * phi2 + 2 * xi2 * xi2 * phi2 * phi3 - 2 * xi2 * xi2 * phi2 * phi4 + xi2 * xi2 * phi3 * phi3 - 2 * xi2 * xi2 * phi3 * phi4 + xi2 * xi2 * phi4 * phi4 - 2 * xi2 * eta2 * phi1 * phi1 - 12 * xi2 * eta2 * phi1 * phi3 + 16 * iso * xi2 * eta2 * phi1 + 2 * xi2 * eta2 * phi2 * phi2 + 12 * xi2 * eta2 * phi2 * phi4 - 16 * iso * xi2 * eta2 * phi2 - 2 * xi2 * eta2 * phi3 * phi3 + 16 * iso * xi2 * eta2 * phi3 + 2 * xi2 * eta2 * phi4 * phi4 - 16 * iso * xi2 * eta2 * phi4 + eta2 * eta2 * phi1 * phi1 + 2 * eta2 * eta2 * phi1 * phi2 - 2 * eta2 * eta2 * phi1 * phi3 - 2 * eta2 * eta2 * phi1 * phi4 + eta2 * eta2 * phi2 * phi2 - 2 * eta2 * eta2 * phi2 * phi3 - 2 * eta2 * eta2 * phi2 * phi4 + eta2 * eta2 * phi3 * phi3 + 2 * eta2 * eta2 * phi3 * phi4 + eta2 * eta2 * phi4 * phi4)- xi1 * phi1 + xi1 * phi2 - eta1 * phi1 + xi1 * phi3 - eta1 * phi2 - xi1 * phi4 + eta1 * phi3 + eta1 * phi4 + xi2 * phi1 - xi2 * phi2 + eta2 * phi1 - xi2 * phi3 + eta2 * phi2 + xi2 * phi4 - eta2 * phi3 - eta2 * phi4 + xi1 * eta1 * phi1 - xi1 * eta1 * phi2 + xi1 * eta1 * phi3 - xi1 * eta1 * phi4 - xi2 * eta2 * phi1 + xi2 * eta2 * phi2 - xi2 * eta2 * phi3 + xi2 * eta2 * phi4) / ((xi1 - xi2) * (eta1 - eta2) * (phi1 - phi2 + phi3 - phi4));
-                real tValue2 = -(sqrt(xi1 * xi1 * eta2 * eta2 * phi1 * phi1 - 2 * xi1 * xi1 * eta2 * eta2 * phi1 * phi2 + 2 * xi1 * xi1 * eta2 * eta2 * phi1 * phi3 - 2 * xi1 * xi1 * eta2 * eta2 * phi1 * phi4 + xi1 * xi1 * eta2 * eta2 * phi2 * phi2 - 2 * xi1 * xi1 * eta2 * eta2 * phi2 * phi3 + 2 * xi1 * xi1 * eta2 * eta2 * phi2 * phi4 + xi1 * xi1 * eta2 * eta2 * phi3 * phi3 - 2 * xi1 * xi1 * eta2 * eta2 * phi3 * phi4 + xi1 * xi1 * eta2 * eta2 * phi4 * phi4 - 2 * xi1 * xi1 * eta2 * phi1 * phi1 + 4 * xi1 * xi1 * eta2 * phi1 * phi2 - 2 * xi1 * xi1 * eta2 * phi2 * phi2 + 2 * xi1 * xi1 * eta2 * phi3 * phi3 - 4 * xi1 * xi1 * eta2 * phi3 * phi4 + 2 * xi1 * xi1 * eta2 * phi4 * phi4 + xi1 * xi1 * phi1 * phi1 - 2 * xi1 * xi1 * phi1 * phi2 - 2 * xi1 * xi1 * phi1 * phi3 + 2 * xi1 * xi1 * phi1 * phi4 + xi1 * xi1 * phi2 * phi2 + 2 * xi1 * xi1 * phi2 * phi3 - 2 * xi1 * xi1 * phi2 * phi4 + xi1 * xi1 * phi3 * phi3 - 2 * xi1 * xi1 * phi3 * phi4 + xi1 * xi1 * phi4 * phi4 - 2 * xi1 * eta1 * xi2 * eta2 * phi1 * phi1 + 4 * xi1 * eta1 * xi2 * eta2 * phi1 * phi2 - 4 * xi1 * eta1 * xi2 * eta2 * phi1 * phi3 + 4 * xi1 * eta1 * xi2 * eta2 * phi1 * phi4 - 2 * xi1 * eta1 * xi2 * eta2 * phi2 * phi2 + 4 * xi1 * eta1 * xi2 * eta2 * phi2 * phi3 - 4 * xi1 * eta1 * xi2 * eta2 * phi2 * phi4 - 2 * xi1 * eta1 * xi2 * eta2 * phi3 * phi3 + 4 * xi1 * eta1 * xi2 * eta2 * phi3 * phi4 - 2 * xi1 * eta1 * xi2 * eta2 * phi4 * phi4 + 2 * xi1 * eta1 * xi2 * phi1 * phi1 - 4 * xi1 * eta1 * xi2 * phi1 * phi2 + 2 * xi1 * eta1 * xi2 * phi2 * phi2 - 2 * xi1 * eta1 * xi2 * phi3 * phi3 + 4 * xi1 * eta1 * xi2 * phi3 * phi4 - 2 * xi1 * eta1 * xi2 * phi4 * phi4 + 2 * xi1 * eta1 * eta2 * phi1 * phi1 - 4 * xi1 * eta1 * eta2 * phi1 * phi4 - 2 * xi1 * eta1 * eta2 * phi2 * phi2 + 4 * xi1 * eta1 * eta2 * phi2 * phi3 - 2 * xi1 * eta1 * eta2 * phi3 * phi3 + 2 * xi1 * eta1 * eta2 * phi4 * phi4 - 2 * xi1 * eta1 * phi1 * phi1 - 12 * xi1 * eta1 * phi1 * phi3 + 16 * iso * xi1 * eta1 * phi1 + 2 * xi1 * eta1 * phi2 * phi2 + 12 * xi1 * eta1 * phi2 * phi4 - 16 * iso * xi1 * eta1 * phi2 - 2 * xi1 * eta1 * phi3 * phi3 + 16 * iso * xi1 * eta1 * phi3 + 2 * xi1 * eta1 * phi4 * phi4 - 16 * iso * xi1 * eta1 * phi4 + 2 * xi1 * xi2 * eta2 * phi1 * phi1 - 4 * xi1 * xi2 * eta2 * phi1 * phi2 + 2 * xi1 * xi2 * eta2 * phi2 * phi2 - 2 * xi1 * xi2 * eta2 * phi3 * phi3 + 4 * xi1 * xi2 * eta2 * phi3 * phi4 - 2 * xi1 * xi2 * eta2 * phi4 * phi4 - 2 * xi1 * xi2 * phi1 * phi1 + 4 * xi1 * xi2 * phi1 * phi2 + 4 * xi1 * xi2 * phi1 * phi3 - 4 * xi1 * xi2 * phi1 * phi4 - 2 * xi1 * xi2 * phi2 * phi2 - 4 * xi1 * xi2 * phi2 * phi3 + 4 * xi1 * xi2 * phi2 * phi4 - 2 * xi1 * xi2 * phi3 * phi3 + 4 * xi1 * xi2 * phi3 * phi4 - 2 * xi1 * xi2 * phi4 * phi4 - 2 * xi1 * eta2 * eta2 * phi1 * phi1 + 4 * xi1 * eta2 * eta2 * phi1 * phi4 + 2 * xi1 * eta2 * eta2 * phi2 * phi2 - 4 * xi1 * eta2 * eta2 * phi2 * phi3 + 2 * xi1 * eta2 * eta2 * phi3 * phi3 - 2 * xi1 * eta2 * eta2 * phi4 * phi4 + 2 * xi1 * eta2 * phi1 * phi1 + 12 * xi1 * eta2 * phi1 * phi3 - 16 * iso * xi1 * eta2 * phi1 - 2 * xi1 * eta2 * phi2 * phi2 - 12 * xi1 * eta2 * phi2 * phi4 + 16 * iso * xi1 * eta2 * phi2 + 2 * xi1 * eta2 * phi3 * phi3 - 16 * iso * xi1 * eta2 * phi3 - 2 * xi1 * eta2 * phi4 * phi4 + 16 * iso * xi1 * eta2 * phi4 + eta1 * eta1 * xi2 * xi2 * phi1 * phi1 - 2 * eta1 * eta1 * xi2 * xi2 * phi1 * phi2 + 2 * eta1 * eta1 * xi2 * xi2 * phi1 * phi3 - 2 * eta1 * eta1 * xi2 * xi2 * phi1 * phi4 + eta1 * eta1 * xi2 * xi2 * phi2 * phi2 - 2 * eta1 * eta1 * xi2 * xi2 * phi2 * phi3 + 2 * eta1 * eta1 * xi2 * xi2 * phi2 * phi4 + eta1 * eta1 * xi2 * xi2 * phi3 * phi3 - 2 * eta1 * eta1 * xi2 * xi2 * phi3 * phi4 + eta1 * eta1 * xi2 * xi2 * phi4 * phi4 - 2 * eta1 * eta1 * xi2 * phi1 * phi1 + 4 * eta1 * eta1 * xi2 * phi1 * phi4 + 2 * eta1 * eta1 * xi2 * phi2 * phi2 - 4 * eta1 * eta1 * xi2 * phi2 * phi3 + 2 * eta1 * eta1 * xi2 * phi3 * phi3 - 2 * eta1 * eta1 * xi2 * phi4 * phi4 + eta1 * eta1 * phi1 * phi1 + 2 * eta1 * eta1 * phi1 * phi2 - 2 * eta1 * eta1 * phi1 * phi3 - 2 * eta1 * eta1 * phi1 * phi4 + eta1 * eta1 * phi2 * phi2 - 2 * eta1 * eta1 * phi2 * phi3 - 2 * eta1 * eta1 * phi2 * phi4 + eta1 * eta1 * phi3 * phi3 + 2 * eta1 * eta1 * phi3 * phi4 + eta1 * eta1 * phi4 * phi4 - 2 * eta1 * xi2 * xi2 * phi1 * phi1 + 4 * eta1 * xi2 * xi2 * phi1 * phi2 - 2 * eta1 * xi2 * xi2 * phi2 * phi2 + 2 * eta1 * xi2 * xi2 * phi3 * phi3 - 4 * eta1 * xi2 * xi2 * phi3 * phi4 + 2 * eta1 * xi2 * xi2 * phi4 * phi4 + 2 * eta1 * xi2 * eta2 * phi1 * phi1 - 4 * eta1 * xi2 * eta2 * phi1 * phi4 - 2 * eta1 * xi2 * eta2 * phi2 * phi2 + 4 * eta1 * xi2 * eta2 * phi2 * phi3 - 2 * eta1 * xi2 * eta2 * phi3 * phi3 + 2 * eta1 * xi2 * eta2 * phi4 * phi4 + 2 * eta1 * xi2 * phi1 * phi1 + 12 * eta1 * xi2 * phi1 * phi3 - 16 * iso * eta1 * xi2 * phi1 - 2 * eta1 * xi2 * phi2 * phi2 - 12 * eta1 * xi2 * phi2 * phi4 + 16 * iso * eta1 * xi2 * phi2 + 2 * eta1 * xi2 * phi3 * phi3 - 16 * iso * eta1 * xi2 * phi3 - 2 * eta1 * xi2 * phi4 * phi4 + 16 * iso * eta1 * xi2 * phi4 - 2 * eta1 * eta2 * phi1 * phi1 - 4 * eta1 * eta2 * phi1 * phi2 + 4 * eta1 * eta2 * phi1 * phi3 + 4 * eta1 * eta2 * phi1 * phi4 - 2 * eta1 * eta2 * phi2 * phi2 + 4 * eta1 * eta2 * phi2 * phi3 + 4 * eta1 * eta2 * phi2 * phi4 - 2 * eta1 * eta2 * phi3 * phi3 - 4 * eta1 * eta2 * phi3 * phi4 - 2 * eta1 * eta2 * phi4 * phi4 + xi2 * xi2 * phi1 * phi1 - 2 * xi2 * xi2 * phi1 * phi2 - 2 * xi2 * xi2 * phi1 * phi3 + 2 * xi2 * xi2 * phi1 * phi4 + xi2 * xi2 * phi2 * phi2 + 2 * xi2 * xi2 * phi2 * phi3 - 2 * xi2 * xi2 * phi2 * phi4 + xi2 * xi2 * phi3 * phi3 - 2 * xi2 * xi2 * phi3 * phi4 + xi2 * xi2 * phi4 * phi4 - 2 * xi2 * eta2 * phi1 * phi1 - 12 * xi2 * eta2 * phi1 * phi3 + 16 * iso * xi2 * eta2 * phi1 + 2 * xi2 * eta2 * phi2 * phi2 + 12 * xi2 * eta2 * phi2 * phi4 - 16 * iso * xi2 * eta2 * phi2 - 2 * xi2 * eta2 * phi3 * phi3 + 16 * iso * xi2 * eta2 * phi3 + 2 * xi2 * eta2 * phi4 * phi4 - 16 * iso * xi2 * eta2 * phi4 + eta2 * eta2 * phi1 * phi1 + 2 * eta2 * eta2 * phi1 * phi2 - 2 * eta2 * eta2 * phi1 * phi3 - 2 * eta2 * eta2 * phi1 * phi4 + eta2 * eta2 * phi2 * phi2 - 2 * eta2 * eta2 * phi2 * phi3 - 2 * eta2 * eta2 * phi2 * phi4 + eta2 * eta2 * phi3 * phi3 + 2 * eta2 * eta2 * phi3 * phi4 + eta2 * eta2 * phi4 * phi4) + xi1 * phi1 - xi1 * phi2 + eta1 * phi1 - xi1 * phi3 + eta1 * phi2 + xi1 * phi4 - eta1 * phi3 - eta1 * phi4 - xi2 * phi1 + xi2 * phi2 - eta2 * phi1 + xi2 * phi3 - eta2 * phi2 - xi2 * phi4 + eta2 * phi3 + eta2 * phi4 - xi1 * eta1 * phi1 + xi1 * eta1 * phi2 - xi1 * eta1 * phi3 + xi1 * eta1 * phi4 + xi2 * eta2 * phi1 - xi2 * eta2 * phi2 + xi2 * eta2 * phi3 - xi2 * eta2 * phi4) / ((xi1 - xi2) * (eta1 - eta2) * (phi1 - phi2 + phi3 - phi4));
-                mBilinearCase1 = std::abs(tValue1) <= 1.0;
+                delete tInterpolation;
 
-                return (mBilinearCase1 ? tValue1 : tValue2);
+                return MORIS_REAL_MAX;
             }
+
+            // set Newton parameters
+            const uint tNewMaxIter = 20;
+            const real tNewRelax   = 1.0;
+            const real tNewRelEps  = 1e-8;
+            const real tNewAbsEps  = 1e-14;
+
+            // allocate matrices used within Newton loop
+            Matrix< DDRMat > tCellCoordinate( aFirstParentNodeLocalCoordinates.numel(), 1 );
+            Matrix< DDRMat > tBasis;
+            Matrix< DDRMat > tDBasisDxi;
+            Matrix< DDRMat > tJac;
+
+            // initialized reference residual
+            real tReferenceResidual;
+
+            // compute initial guess: location of intersection point along edge in edge CS
+            real tEdgeCoordinate = 0.0;
+
+            // perform
+            for ( uint iNew = 0; iNew < tNewMaxIter; ++iNew )
+            {
+                // compute local coordinate in background cell CS
+                tCellCoordinate = 0.5 * ( 1.0 - tEdgeCoordinate ) * aFirstParentNodeLocalCoordinates
+                                + 0.5 * ( 1.0 + tEdgeCoordinate ) * aSecondParentNodeLocalCoordinates;
+
+                // compute basis function
+                tInterpolation->eval_N( tCellCoordinate, tBasis );
+
+                // compute residual
+                real tResidual = dot( tBasis, tPhiBCNodes ) - aIsocontourThreshold;
+
+                // check convergence against absolute residual
+                if ( std::abs( tResidual ) < tNewAbsEps )
+                {
+                    delete tInterpolation;
+
+                    return tEdgeCoordinate;
+                }
+
+                // store reference residual
+                if ( iNew == 0 )
+                {
+                    tReferenceResidual = std::abs( tResidual );
+                }
+
+                // check convergence against relative residual
+                if ( std::abs( tResidual ) < tNewRelEps * tReferenceResidual )
+                {
+                    delete tInterpolation;
+
+                    return tEdgeCoordinate;
+                }
+
+                // compute Jacobian
+                tInterpolation->eval_dNdXi( tCellCoordinate, tDBasisDxi );
+
+                tJac = 0.5 * ( aSecondParentNodeLocalCoordinates - aFirstParentNodeLocalCoordinates ) * tDBasisDxi * tPhiBCNodes;
+
+                // compute increment
+                real tSolIncrement = tNewRelax * tResidual / ( tJac( 0 ) + MORIS_REAL_EPS );
+
+                // update solution
+                tEdgeCoordinate -= tSolIncrement;
+
+                // trim solution
+                tEdgeCoordinate = std::min( 1.0, std::max( tEdgeCoordinate, -1.0 ) );
+            }
+
+            MORIS_ERROR( false,
+                    "Intersection_Node_Bilinear::compute_intersection - Newton did not convergence." );
+
+            return MORIS_REAL_MAX;
         }
 
         //--------------------------------------------------------------------------------------------------------------
-    
-    }
-}
+
+        real
+        Intersection_Node_Bilinear::compute_intersection_derivative( uint aAncestorIndex )
+        {
+            // Locked interface geometry
+            std::shared_ptr< Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
+
+            // number of nodes to be used for interpolation
+            uint tNumBases;
+
+            // build interpolator
+            mtk::Interpolation_Function_Factory tFactory;
+
+            mtk::Interpolation_Function_Base* tInterpolation;
+
+            // create interpolation function based on spatial dimension  of problem
+            switch ( mAncestorNodeCoordinates( 0 ).numel() )
+            {
+                case 2:
+                {
+                    tInterpolation = tFactory.create_interpolation_function(
+                            mtk::Geometry_Type::QUAD,
+                            mtk::Interpolation_Type::LAGRANGE,
+                            mtk::Interpolation_Order::LINEAR );
+
+                    tNumBases = 4;
+                    break;
+                }
+                case 3:
+                {
+                    tInterpolation = tFactory.create_interpolation_function(
+                            mtk::Geometry_Type::HEX,
+                            mtk::Interpolation_Type::LAGRANGE,
+                            mtk::Interpolation_Order::LINEAR );
+
+                    tNumBases = 8;
+                    break;
+                }
+                default:
+                {
+                    MORIS_ERROR( false,
+                            "Intersection_Node_Bilinear::compute_intersection_derivative - Interpolation type not implemented." );
+                }
+            }
+
+            // allocate matrix for level set values at background cell nodes
+            Matrix< DDRMat > tPhiBCNodes( tNumBases, 1 );
+
+            // get level set values of corner nodes
+            for ( uint in = 0; in < tNumBases; ++in )
+            {
+                tPhiBCNodes( in ) = tLockedInterfaceGeometry->get_field_value( mAncestorNodeIndices( in ), mAncestorNodeCoordinates( in ) );
+            }
+
+            // compute level set value at parent nodes
+            Matrix< DDRMat > aFirstParentNodeLocalCoordinates  = mParentLocalCoordinates.get_column( 0 );
+            Matrix< DDRMat > aSecondParentNodeLocalCoordinates = mParentLocalCoordinates.get_column( 1 );
+
+            // compute local coordinate in background cell CS
+            Matrix< DDRMat > tCellCoordinate = 0.5 * ( 1.0 - mLocalCoordinate ) * aFirstParentNodeLocalCoordinates
+                                             + 0.5 * ( 1.0 + mLocalCoordinate ) * aSecondParentNodeLocalCoordinates;
+
+            // compute basis function
+            Matrix< DDRMat > tBasis;
+            tInterpolation->eval_N( tCellCoordinate, tBasis );
+
+            // compute derivative of residual
+            real tDResidualDPhi = tBasis( aAncestorIndex );
+
+            // compute Jacobian
+            Matrix< DDRMat > tDBasisDxi;
+            tInterpolation->eval_dNdXi( tCellCoordinate, tDBasisDxi );
+
+            Matrix< DDRMat > tJac = 0.5 * trans( aSecondParentNodeLocalCoordinates - aFirstParentNodeLocalCoordinates ) * tDBasisDxi * tPhiBCNodes;
+
+            // delete interpolator
+            delete tInterpolation;
+
+            // compute derivative of edge coordinate wrt. ancestor level set value
+            return -1.0 * tDResidualDPhi / ( tJac( 0 ) + MORIS_REAL_EPS );
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+    }    // namespace ge
+}    // namespace moris
