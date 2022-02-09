@@ -4,7 +4,7 @@ AlignConsecutiveAssignments: true
 AlignConsecutiveDeclarations: true
 AlignEscapedNewlines: Left
 AlignOperands: AlignAfterOperator
-AlignTrailingComments: false
+AlignTrailingComments: true
 AllowAllParametersOfDeclarationOnNextLine: false
 AllowShortBlocksOnASingleLine: true
 AllowShortCaseLabelsOnASingleLine: false
@@ -52,6 +52,7 @@ ContinuationIndentWidth: 8
 Cpp11BracedListStyle: false
 DerivePointerAlignment: true
 DisableFormat: false
+EmptyLineBeforeAccessModifier: Always
 ExperimentalAutoDetectBinPacking: true
 FixNamespaceComments: true
 ForEachMacros:
@@ -91,8 +92,8 @@ SpaceBeforeAssignmentOperators: true
 SpaceBeforeCaseColon: false
 SpaceBeforeParens: ControlStatements
 SpaceBeforeRangeBasedForLoopColon: true
+SpacesBeforeTrailingComments: 4
 SpaceInEmptyParentheses: false
-SpacesBeforeTrailingComments: 0
 SpacesInAngles: true
 SpacesInCStyleCastParentheses: false
 SpacesInContainerLiterals: true
