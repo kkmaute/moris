@@ -81,14 +81,23 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
     //tPropViscosity->set_val_function( tVISCOSITYFIValFunc );
     //tPropViscosity->set_dof_derivative_functions( { tVISCOSITYFIDerFunc } );
 
+    // define constitutive models
+    fem::CM_Factory tCMFactory;
+
+    std::shared_ptr< fem::Constitutive_Model > tCMMasterSATurbulence =
+            tCMFactory.create_CM( fem::Constitutive_Type::SPALART_ALLMARAS_TURBULENCE );
+    tCMMasterSATurbulence->set_dof_type_list( tDofTypes );
+    tCMMasterSATurbulence->set_property( tPropWallDistance, "WallDistance" );
+    tCMMasterSATurbulence->set_property( tPropViscosity, "KinViscosity" );
+    tCMMasterSATurbulence->set_local_properties();
+
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPSUPG =
             tSPFactory.create_SP( fem::Stabilization_Type::SUPG_SPALART_ALLMARAS_TURBULENCE );
     tSPSUPG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
-    tSPSUPG->set_property( tPropViscosity, "Viscosity", mtk::Master_Slave::MASTER );
-    tSPSUPG->set_property( tPropWallDistance, "WallDistance", mtk::Master_Slave::MASTER );
+    tSPSUPG->set_constitutive_model( tCMMasterSATurbulence, "SpalartAllmarasTurbulence" );
 
     // create a dummy fem cluster and set it to SP
     fem::Cluster * tCluster = new fem::Cluster();
@@ -101,8 +110,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
             tIWGFactory.create_IWG( fem::IWG_Type::SPALART_ALLMARAS_TURBULENCE_BULK );
     tIWG->set_residual_dof_type( tVisDofTypes );
     tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
-    tIWG->set_property( tPropWallDistance, "WallDistance" );
-    tIWG->set_property( tPropViscosity, "Viscosity" );
+    tIWG->set_constitutive_model( tCMMasterSATurbulence, "SpalartAllmarasTurbulence" );
     tIWG->set_stabilization_parameter( tSPSUPG, "SUPG" );
 
     // init set info
@@ -201,6 +209,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
         tGI.set_coeff( tXHat, tTHat );
 
         // set space dimension to CM, SP
+        tCMMasterSATurbulence->set_space_dim( iSpaceDim );
         tSPSUPG->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
@@ -411,14 +420,23 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Negative",
     //tPropViscosity->set_val_function( tVISCOSITYFIValFunc );
     //tPropViscosity->set_dof_derivative_functions( { tVISCOSITYFIDerFunc } );
 
+    // define constitutive models
+    fem::CM_Factory tCMFactory;
+
+    std::shared_ptr< fem::Constitutive_Model > tCMMasterSATurbulence =
+            tCMFactory.create_CM( fem::Constitutive_Type::SPALART_ALLMARAS_TURBULENCE );
+    tCMMasterSATurbulence->set_dof_type_list( tDofTypes );
+    tCMMasterSATurbulence->set_property( tPropWallDistance, "WallDistance" );
+    tCMMasterSATurbulence->set_property( tPropViscosity, "KinViscosity" );
+    tCMMasterSATurbulence->set_local_properties();
+
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPSUPG =
             tSPFactory.create_SP( fem::Stabilization_Type::SUPG_SPALART_ALLMARAS_TURBULENCE );
     tSPSUPG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
-    tSPSUPG->set_property( tPropViscosity, "Viscosity", mtk::Master_Slave::MASTER );
-    tSPSUPG->set_property( tPropWallDistance, "WallDistance", mtk::Master_Slave::MASTER );
+    tSPSUPG->set_constitutive_model( tCMMasterSATurbulence, "SpalartAllmarasTurbulence" );
 
     // create a dummy fem cluster and set it to SP
     fem::Cluster * tCluster = new fem::Cluster();
@@ -431,8 +449,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Negative",
             tIWGFactory.create_IWG( fem::IWG_Type::SPALART_ALLMARAS_TURBULENCE_BULK );
     tIWG->set_residual_dof_type( tVisDofTypes );
     tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
-    tIWG->set_property( tPropWallDistance, "WallDistance" );
-    tIWG->set_property( tPropViscosity, "Viscosity" );
+    tIWG->set_constitutive_model( tCMMasterSATurbulence, "SpalartAllmarasTurbulence" );
     tIWG->set_stabilization_parameter( tSPSUPG, "SUPG" );
 
     // init set info
@@ -531,6 +548,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Negative",
         tGI.set_coeff( tXHat, tTHat );
 
         // set space dimension to CM, SP
+        tCMMasterSATurbulence->set_space_dim( iSpaceDim );
         tSPSUPG->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order

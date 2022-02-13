@@ -16,8 +16,6 @@
 #include "linalg_typedefs.hpp"
 //FEM/INT/src
 #include "cl_FEM_IWG.hpp"
-#include "fn_FEM_FD_Scheme.hpp"
-#include "fn_FEM_IWG_Spalart_Allmaras_Turbulence_Tools.hpp"
 
 namespace moris
 {
@@ -38,9 +36,15 @@ namespace moris
                 enum class IWG_Property_Type
                 {
                         DIRICHLET,
-                        VISCOSITY,
                         SELECT,
                         UPWIND,
+                        MAX_ENUM
+                };
+
+                // local constitutive enums
+                enum class IWG_Constitutive_Type
+                {
+                        SPALART_ALLMARAS_TURBULENCE,
                         MAX_ENUM
                 };
 
@@ -98,56 +102,6 @@ namespace moris
                  * @param[ in ] aWStar weight associated to the evaluation point
                  */
                 void compute_dRdp( real aWStar );
-
-            private:
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the traction = ( v + vtilde ) * grad vtilde / mSigma
-                 * @param[ in ] aTraction a matrix to fill with traction
-                 */
-                void compute_traction( Matrix< DDRMat > & aTraction );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the derivative of the traction = ( v + vtilde ) * grad vtilde / mSigma
-                 * wrt dof type aDofTypes
-                 * @param[ in ] aDofTypes    group of dervative dof types
-                 * @param[ in ] adtractiondu a matrix to fill with dtractiondu
-                 */
-                void compute_dtractiondu(
-                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                        Matrix< DDRMat >                   & adtractiondu );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the test traction
-                 *  = delta ( ( v + vtilde ) * grad vtilde  / mSigma )
-                 * @param[ in ] aTestDofTypes group of test dof types
-                 * @param[ in ] aTestTraction a matrix to fill with test traction
-                 */
-                void compute_testtraction(
-                        const moris::Cell< MSI::Dof_Type > & aTestDofTypes,
-                        Matrix< DDRMat >                   & aTestTraction );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the derivative of the test traction
-                 * = delta ( ( v + vtilde ) * grad vtilde  / mSigma )
-                 * @param[ in ] aDofTypes        group of derivative dof types
-                 * @param[ in ] aTestDofTypes    group of test dof types
-                 * @param[ in ] adtesttractiondu a matrix to fill with test traction
-                 */
-                void compute_dtesttractiondu(
-                        const moris::Cell< MSI::Dof_Type> & aDofTypes,
-                        const moris::Cell< MSI::Dof_Type> & aTestDofTypes,
-                        Matrix< DDRMat >                  & adtesttractiondu );
-
-                void compute_dtesttractiondu_FD(
-                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                        const moris::Cell< MSI::Dof_Type > & aTestDofTypes,
-                        Matrix< DDRMat >                   & adtesttractiondu_FD,
-                        real                                 aPerturbation = 1e-6,
-                        fem::FDScheme_Type                   aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL );
 
         };
         //------------------------------------------------------------------------------

@@ -16,7 +16,6 @@
 #include "linalg_typedefs.hpp"
 //FEM/INT/src
 #include "cl_FEM_IWG.hpp"
-#include "fn_FEM_IWG_Spalart_Allmaras_Turbulence_Tools.hpp"
 
 namespace moris
 {
@@ -30,12 +29,11 @@ namespace moris
                 //------------------------------------------------------------------------------
             public:
 
-                // local property enums
-                enum class IWG_Property_Type
+                // local constitutive enums
+                enum class IWG_Constitutive_Type
                 {
-                    WALL_DISTANCE,
-                    VISCOSITY,
-                    MAX_ENUM
+                        SPALART_ALLMARAS_TURBULENCE,
+                        MAX_ENUM
                 };
 
                 // local stabilization enums
@@ -110,24 +108,6 @@ namespace moris
                 void compute_jacobian_strong_form(
                         const moris::Cell< MSI::Dof_Type > & aDofTypes,
                         Matrix< DDRMat >                   & aJ );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute Wij = 0.5 * ( dui/dxj - duj/dxi )
-                 * @param[ out ] Wij
-                 */
-                void compute_divflux( Matrix< DDRMat > & aDivFlux );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the derivative of Wij wrt to a dof type
-                 * @param[ in ] aDofTypes  a list of dof type wrt which
-                 *                         the derivative is requested
-                 * @param[ in ] adwijdu    a matrix to fill with dwijdu
-                 */
-                void compute_ddivfluxdu(
-                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                        Matrix< DDRMat >                   & adDivFluxdu );
 
                 //------------------------------------------------------------------------------
         };

@@ -34,9 +34,6 @@ using namespace fem;
 TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche",
         "[IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche]" )
 {
-    // disable test
-    return;
-
     // define an epsilon environment
     real tEpsilon = 1E-6;
 
@@ -75,11 +72,15 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche",
     //------------------------------------------------------------------------------
     // create the master properties
     std::shared_ptr< fem::Property > tPropMasterViscosity = std::make_shared< fem::Property >();
-    tPropMasterViscosity->set_parameters( { { { 1.0 } } } );
+    tPropMasterViscosity->set_parameters( { { { 2.0 } } } );
     tPropMasterViscosity->set_val_function( tConstValFunc );
     // tPropMasterViscosity->set_dof_type_list( { tVisDofTypes } );
     // tPropMasterViscosity->set_val_function( tVISCOSITYFIValFunc );
     // tPropMasterViscosity->set_dof_derivative_functions( { tVISCOSITYFIDerFunc } );
+
+    std::shared_ptr< fem::Property > tPropMasterWallDistance = std::make_shared< fem::Property >();
+    tPropMasterWallDistance->set_parameters( { {{ 1.0 }} } );
+    tPropMasterWallDistance->set_val_function( tConstValFunc );
 
     // create the slave properties
     std::shared_ptr< fem::Property > tPropSlaveViscosity = std::make_shared< fem::Property >();
@@ -89,16 +90,35 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche",
     // tPropSlaveViscosity->set_val_function( tVISCOSITYFIValFunc );
     // tPropSlaveViscosity->set_dof_derivative_functions( { tVISCOSITYFIDerFunc } );
 
+    std::shared_ptr< fem::Property > tPropSlaveWallDistance = std::make_shared< fem::Property >();
+    tPropSlaveWallDistance->set_parameters( { {{ 1.0 }} } );
+    tPropSlaveWallDistance->set_val_function( tConstValFunc );
+
+    // define constitutive models
+    fem::CM_Factory tCMFactory;
+
+    std::shared_ptr< fem::Constitutive_Model > tCMMasterSATurbulence =
+            tCMFactory.create_CM( fem::Constitutive_Type::SPALART_ALLMARAS_TURBULENCE );
+    tCMMasterSATurbulence->set_dof_type_list( tDofTypes );
+    tCMMasterSATurbulence->set_property( tPropMasterWallDistance, "WallDistance" );
+    tCMMasterSATurbulence->set_property( tPropMasterViscosity, "KinViscosity" );
+    tCMMasterSATurbulence->set_local_properties();
+
+    std::shared_ptr< fem::Constitutive_Model > tCMSlaveSATurbulence =
+            tCMFactory.create_CM( fem::Constitutive_Type::SPALART_ALLMARAS_TURBULENCE );
+    tCMSlaveSATurbulence->set_dof_type_list( tDofTypes );
+    tCMSlaveSATurbulence->set_property( tPropSlaveWallDistance, "WallDistance" );
+    tCMSlaveSATurbulence->set_property( tPropSlaveViscosity, "KinViscosity" );
+    tCMSlaveSATurbulence->set_local_properties();
+
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche =
             tSPFactory.create_SP( fem::Stabilization_Type::SPALART_ALLMARAS_NITSCHE_INTERFACE );
     tSPNitsche->set_parameters( { { { 1.0 } } } );
-    tSPNitsche->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
-    tSPNitsche->set_dof_type_list( tDofTypes, mtk::Master_Slave::SLAVE );
-    tSPNitsche->set_property( tPropMasterViscosity, "Material", mtk::Master_Slave::MASTER );
-    tSPNitsche->set_property( tPropSlaveViscosity, "Material", mtk::Master_Slave::SLAVE );
+    tSPNitsche->set_constitutive_model( tCMMasterSATurbulence, "SpalartAllmarasTurbulence", mtk::Master_Slave::MASTER );
+    tSPNitsche->set_constitutive_model( tCMSlaveSATurbulence, "SpalartAllmarasTurbulence", mtk::Master_Slave::SLAVE );
 
     // create a dummy fem cluster and set it to SP
     fem::Cluster* tCluster = new fem::Cluster();
@@ -112,11 +132,9 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche",
     tIWG->set_residual_dof_type( tVisDofTypes );
     tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
     tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::SLAVE );
-    tIWG->set_property( tPropMasterViscosity, "Viscosity", mtk::Master_Slave::MASTER );
-    tIWG->set_property( tPropSlaveViscosity, "Viscosity", mtk::Master_Slave::SLAVE );
+    tIWG->set_constitutive_model( tCMMasterSATurbulence, "SpalartAllmarasTurbulence", mtk::Master_Slave::MASTER );
+    tIWG->set_constitutive_model( tCMSlaveSATurbulence, "SpalartAllmarasTurbulence", mtk::Master_Slave::SLAVE );
     tIWG->set_stabilization_parameter( tSPNitsche, "NitscheInterface" );
-    //    tIWG->set_stabilization_parameter( tSPMasterWeight, "MasterWeightInterface" );
-    //    tIWG->set_stabilization_parameter( tSPSlaveWeight, "SlaveWeightInterface" );
 
     // init set info
     //------------------------------------------------------------------------------
@@ -207,6 +225,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche",
         tGI.set_coeff( tXHat, tTHat );
 
         // set space dimension to CM, SP
+        tCMMasterSATurbulence->set_space_dim( iSpaceDim );
+        tCMSlaveSATurbulence->set_space_dim( iSpaceDim );
         tSPNitsche->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
@@ -381,11 +401,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche",
 TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche_Negative",
         "[IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche_Negative]" )
 {
-    // disable test
-    return;
-
     // define an epsilon environment
-    real tEpsilon = 1E-6;
+    real tEpsilon = 1E-5;
 
     // define a perturbation relative size
     real tPerturbation = 1E-6;
@@ -422,11 +439,15 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche_Negative
     //------------------------------------------------------------------------------
     // create the master properties
     std::shared_ptr< fem::Property > tPropMasterViscosity = std::make_shared< fem::Property >();
-    tPropMasterViscosity->set_parameters( { { { 1.0 } } } );
+    tPropMasterViscosity->set_parameters( { { { 2.0 } } } );
     tPropMasterViscosity->set_val_function( tConstValFunc );
     // tPropMasterViscosity->set_dof_type_list( { tVisDofTypes } );
     // tPropMasterViscosity->set_val_function( tVISCOSITYFIValFunc );
     // tPropMasterViscosity->set_dof_derivative_functions( { tVISCOSITYFIDerFunc } );
+
+    std::shared_ptr< fem::Property > tPropMasterWallDistance = std::make_shared< fem::Property >();
+    tPropMasterWallDistance->set_parameters( { {{ 1.0 }} } );
+    tPropMasterWallDistance->set_val_function( tConstValFunc );
 
     // create the slave properties
     std::shared_ptr< fem::Property > tPropSlaveViscosity = std::make_shared< fem::Property >();
@@ -436,16 +457,35 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche_Negative
     // tPropSlaveViscosity->set_val_function( tVISCOSITYFIValFunc );
     // tPropSlaveViscosity->set_dof_derivative_functions( { tVISCOSITYFIDerFunc } );
 
+    std::shared_ptr< fem::Property > tPropSlaveWallDistance = std::make_shared< fem::Property >();
+    tPropSlaveWallDistance->set_parameters( { {{ 1.0 }} } );
+    tPropSlaveWallDistance->set_val_function( tConstValFunc );
+
+    // define constitutive models
+    fem::CM_Factory tCMFactory;
+
+    std::shared_ptr< fem::Constitutive_Model > tCMMasterSATurbulence =
+            tCMFactory.create_CM( fem::Constitutive_Type::SPALART_ALLMARAS_TURBULENCE );
+    tCMMasterSATurbulence->set_dof_type_list( tDofTypes );
+    tCMMasterSATurbulence->set_property( tPropMasterWallDistance, "WallDistance" );
+    tCMMasterSATurbulence->set_property( tPropMasterViscosity, "KinViscosity" );
+    tCMMasterSATurbulence->set_local_properties();
+
+    std::shared_ptr< fem::Constitutive_Model > tCMSlaveSATurbulence =
+            tCMFactory.create_CM( fem::Constitutive_Type::SPALART_ALLMARAS_TURBULENCE );
+    tCMSlaveSATurbulence->set_dof_type_list( tDofTypes );
+    tCMSlaveSATurbulence->set_property( tPropSlaveWallDistance, "WallDistance" );
+    tCMSlaveSATurbulence->set_property( tPropSlaveViscosity, "KinViscosity" );
+    tCMSlaveSATurbulence->set_local_properties();
+
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche =
             tSPFactory.create_SP( fem::Stabilization_Type::SPALART_ALLMARAS_NITSCHE_INTERFACE );
     tSPNitsche->set_parameters( { { { 1.0 } } } );
-    tSPNitsche->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
-    tSPNitsche->set_dof_type_list( tDofTypes, mtk::Master_Slave::SLAVE );
-    tSPNitsche->set_property( tPropMasterViscosity, "Material", mtk::Master_Slave::MASTER );
-    tSPNitsche->set_property( tPropSlaveViscosity, "Material", mtk::Master_Slave::SLAVE );
+    tSPNitsche->set_constitutive_model( tCMMasterSATurbulence, "SpalartAllmarasTurbulence", mtk::Master_Slave::MASTER );
+    tSPNitsche->set_constitutive_model( tCMSlaveSATurbulence, "SpalartAllmarasTurbulence", mtk::Master_Slave::SLAVE );
 
     // create a dummy fem cluster and set it to SP
     fem::Cluster* tCluster = new fem::Cluster();
@@ -459,8 +499,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche_Negative
     tIWG->set_residual_dof_type( tVisDofTypes );
     tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
     tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::SLAVE );
-    tIWG->set_property( tPropMasterViscosity, "Viscosity", mtk::Master_Slave::MASTER );
-    tIWG->set_property( tPropSlaveViscosity, "Viscosity", mtk::Master_Slave::SLAVE );
+    tIWG->set_constitutive_model( tCMMasterSATurbulence, "SpalartAllmarasTurbulence", mtk::Master_Slave::MASTER );
+    tIWG->set_constitutive_model( tCMSlaveSATurbulence, "SpalartAllmarasTurbulence", mtk::Master_Slave::SLAVE );
     tIWG->set_stabilization_parameter( tSPNitsche, "NitscheInterface" );
 
     // init set info
@@ -552,6 +592,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche_Negative
         tGI.set_coeff( tXHat, tTHat );
 
         // set space dimension to CM, SP
+        tCMMasterSATurbulence->set_space_dim( iSpaceDim );
+        tCMSlaveSATurbulence->set_space_dim( iSpaceDim );
         tSPNitsche->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
@@ -728,9 +770,6 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche_Negative
 TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Unsymmetric_Nitsche",
         "[IWG_Spalart_Allmaras_Turbulence_Interface_Unsymmetric_Nitsche]" )
 {
-    // disable test
-    return;
-
     // define an epsilon environment
     real tEpsilon = 1E-6;
 
@@ -769,11 +808,15 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Unsymmetric_Nitsche",
     //------------------------------------------------------------------------------
     // create the master properties
     std::shared_ptr< fem::Property > tPropMasterViscosity = std::make_shared< fem::Property >();
-    tPropMasterViscosity->set_parameters( { { { 1.0 } } } );
+    tPropMasterViscosity->set_parameters( { { { 2.0 } } } );
     tPropMasterViscosity->set_val_function( tConstValFunc );
     // tPropMasterViscosity->set_dof_type_list( { tVisDofTypes } );
     // tPropMasterViscosity->set_val_function( tVISCOSITYFIValFunc );
     // tPropMasterViscosity->set_dof_derivative_functions( { tVISCOSITYFIDerFunc } );
+
+    std::shared_ptr< fem::Property > tPropMasterWallDistance = std::make_shared< fem::Property >();
+    tPropMasterWallDistance->set_parameters( { {{ 1.0 }} } );
+    tPropMasterWallDistance->set_val_function( tConstValFunc );
 
     // create the slave properties
     std::shared_ptr< fem::Property > tPropSlaveViscosity = std::make_shared< fem::Property >();
@@ -783,16 +826,35 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Unsymmetric_Nitsche",
     // tPropSlaveViscosity->set_val_function( tVISCOSITYFIValFunc );
     // tPropSlaveViscosity->set_dof_derivative_functions( { tVISCOSITYFIDerFunc } );
 
+    std::shared_ptr< fem::Property > tPropSlaveWallDistance = std::make_shared< fem::Property >();
+    tPropSlaveWallDistance->set_parameters( { {{ 1.0 }} } );
+    tPropSlaveWallDistance->set_val_function( tConstValFunc );
+
+    // define constitutive models
+    fem::CM_Factory tCMFactory;
+
+    std::shared_ptr< fem::Constitutive_Model > tCMMasterSATurbulence =
+            tCMFactory.create_CM( fem::Constitutive_Type::SPALART_ALLMARAS_TURBULENCE );
+    tCMMasterSATurbulence->set_dof_type_list( tDofTypes );
+    tCMMasterSATurbulence->set_property( tPropMasterWallDistance, "WallDistance" );
+    tCMMasterSATurbulence->set_property( tPropMasterViscosity, "KinViscosity" );
+    tCMMasterSATurbulence->set_local_properties();
+
+    std::shared_ptr< fem::Constitutive_Model > tCMSlaveSATurbulence =
+            tCMFactory.create_CM( fem::Constitutive_Type::SPALART_ALLMARAS_TURBULENCE );
+    tCMSlaveSATurbulence->set_dof_type_list( tDofTypes );
+    tCMSlaveSATurbulence->set_property( tPropSlaveWallDistance, "WallDistance" );
+    tCMSlaveSATurbulence->set_property( tPropSlaveViscosity, "KinViscosity" );
+    tCMSlaveSATurbulence->set_local_properties();
+
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche =
             tSPFactory.create_SP( fem::Stabilization_Type::SPALART_ALLMARAS_NITSCHE_INTERFACE );
     tSPNitsche->set_parameters( { { { 1.0 } } } );
-    tSPNitsche->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
-    tSPNitsche->set_dof_type_list( tDofTypes, mtk::Master_Slave::SLAVE );
-    tSPNitsche->set_property( tPropMasterViscosity, "Material", mtk::Master_Slave::MASTER );
-    tSPNitsche->set_property( tPropSlaveViscosity, "Material", mtk::Master_Slave::SLAVE );
+    tSPNitsche->set_constitutive_model( tCMMasterSATurbulence, "SpalartAllmarasTurbulence", mtk::Master_Slave::MASTER );
+    tSPNitsche->set_constitutive_model( tCMSlaveSATurbulence, "SpalartAllmarasTurbulence", mtk::Master_Slave::SLAVE );
 
     // create a dummy fem cluster and set it to SP
     fem::Cluster* tCluster = new fem::Cluster();
@@ -806,8 +868,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Unsymmetric_Nitsche",
     tIWG->set_residual_dof_type( tVisDofTypes );
     tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
     tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::SLAVE );
-    tIWG->set_property( tPropMasterViscosity, "Viscosity", mtk::Master_Slave::MASTER );
-    tIWG->set_property( tPropSlaveViscosity, "Viscosity", mtk::Master_Slave::SLAVE );
+    tIWG->set_constitutive_model( tCMMasterSATurbulence, "SpalartAllmarasTurbulence", mtk::Master_Slave::MASTER );
+    tIWG->set_constitutive_model( tCMSlaveSATurbulence, "SpalartAllmarasTurbulence", mtk::Master_Slave::SLAVE );
     tIWG->set_stabilization_parameter( tSPNitsche, "NitscheInterface" );
 
     // init set info
@@ -1073,11 +1135,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Unsymmetric_Nitsche",
 TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Unsymmetric_Nitsche_Negative",
         "[IWG_Spalart_Allmaras_Turbulence_Interface_Unsymmetric_Nitsche_Negative]" )
 {
-    // disable test
-    return;
-
     // define an epsilon environment
-    real tEpsilon = 1E-6;
+    real tEpsilon = 5E-5;
 
     // define a perturbation relative size
     real tPerturbation = 1E-6;
@@ -1114,11 +1173,15 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Unsymmetric_Nitsche_Negati
     //------------------------------------------------------------------------------
     // create the master properties
     std::shared_ptr< fem::Property > tPropMasterViscosity = std::make_shared< fem::Property >();
-    tPropMasterViscosity->set_parameters( { { { 1.0 } } } );
+    tPropMasterViscosity->set_parameters( { { { 2.0 } } } );
     tPropMasterViscosity->set_val_function( tConstValFunc );
     // tPropMasterViscosity->set_dof_type_list( { tVisDofTypes } );
     // tPropMasterViscosity->set_val_function( tVISCOSITYFIValFunc );
     // tPropMasterViscosity->set_dof_derivative_functions( { tVISCOSITYFIDerFunc } );
+
+    std::shared_ptr< fem::Property > tPropMasterWallDistance = std::make_shared< fem::Property >();
+    tPropMasterWallDistance->set_parameters( { {{ 1.0 }} } );
+    tPropMasterWallDistance->set_val_function( tConstValFunc );
 
     // create the slave properties
     std::shared_ptr< fem::Property > tPropSlaveViscosity = std::make_shared< fem::Property >();
@@ -1128,16 +1191,35 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Unsymmetric_Nitsche_Negati
     // tPropSlaveViscosity->set_val_function( tVISCOSITYFIValFunc );
     // tPropSlaveViscosity->set_dof_derivative_functions( { tVISCOSITYFIDerFunc } );
 
+    std::shared_ptr< fem::Property > tPropSlaveWallDistance = std::make_shared< fem::Property >();
+    tPropSlaveWallDistance->set_parameters( { {{ 1.0 }} } );
+    tPropSlaveWallDistance->set_val_function( tConstValFunc );
+
+    // define constitutive models
+    fem::CM_Factory tCMFactory;
+
+    std::shared_ptr< fem::Constitutive_Model > tCMMasterSATurbulence =
+            tCMFactory.create_CM( fem::Constitutive_Type::SPALART_ALLMARAS_TURBULENCE );
+    tCMMasterSATurbulence->set_dof_type_list( tDofTypes );
+    tCMMasterSATurbulence->set_property( tPropMasterWallDistance, "WallDistance" );
+    tCMMasterSATurbulence->set_property( tPropMasterViscosity, "KinViscosity" );
+    tCMMasterSATurbulence->set_local_properties();
+
+    std::shared_ptr< fem::Constitutive_Model > tCMSlaveSATurbulence =
+            tCMFactory.create_CM( fem::Constitutive_Type::SPALART_ALLMARAS_TURBULENCE );
+    tCMSlaveSATurbulence->set_dof_type_list( tDofTypes );
+    tCMSlaveSATurbulence->set_property( tPropSlaveWallDistance, "WallDistance" );
+    tCMSlaveSATurbulence->set_property( tPropSlaveViscosity, "KinViscosity" );
+    tCMSlaveSATurbulence->set_local_properties();
+
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche =
             tSPFactory.create_SP( fem::Stabilization_Type::SPALART_ALLMARAS_NITSCHE_INTERFACE );
     tSPNitsche->set_parameters( { { { 1.0 } } } );
-    tSPNitsche->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
-    tSPNitsche->set_dof_type_list( tDofTypes, mtk::Master_Slave::SLAVE );
-    tSPNitsche->set_property( tPropMasterViscosity, "Material", mtk::Master_Slave::MASTER );
-    tSPNitsche->set_property( tPropSlaveViscosity, "Material", mtk::Master_Slave::SLAVE );
+    tSPNitsche->set_constitutive_model( tCMMasterSATurbulence, "SpalartAllmarasTurbulence", mtk::Master_Slave::MASTER );
+    tSPNitsche->set_constitutive_model( tCMSlaveSATurbulence, "SpalartAllmarasTurbulence", mtk::Master_Slave::SLAVE );
 
     // create a dummy fem cluster and set it to SP
     fem::Cluster* tCluster = new fem::Cluster();
@@ -1151,8 +1233,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Unsymmetric_Nitsche_Negati
     tIWG->set_residual_dof_type( tVisDofTypes );
     tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
     tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::SLAVE );
-    tIWG->set_property( tPropMasterViscosity, "Viscosity", mtk::Master_Slave::MASTER );
-    tIWG->set_property( tPropSlaveViscosity, "Viscosity", mtk::Master_Slave::SLAVE );
+    tIWG->set_constitutive_model( tCMMasterSATurbulence, "SpalartAllmarasTurbulence", mtk::Master_Slave::MASTER );
+    tIWG->set_constitutive_model( tCMSlaveSATurbulence, "SpalartAllmarasTurbulence", mtk::Master_Slave::SLAVE );
     tIWG->set_stabilization_parameter( tSPNitsche, "NitscheInterface" );
 
     // init set info
