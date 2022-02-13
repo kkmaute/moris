@@ -508,6 +508,14 @@ namespace moris
             get_geometric_proximity_index( moris::real const & aGeometricVal );
 
             /*
+             * Check whether the proximity index of a node is consistent with that of its parent
+             */
+            bool
+            check_queued_intersection_geometric_proximity_index(
+                    moris_index const & aProximIndex,
+                    moris_index const & aGeomIndex );
+
+            /*
              * Determine the intersection vertex proximity
              */
             moris_index

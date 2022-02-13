@@ -652,14 +652,10 @@ namespace moris
                 {
                     mGeometries( tGeometryIndex )->add_child_node( ( *aNewNodeIndices )( tNode ), tChildNode );
 
+                    // FIXME: need to get value from child element based on element interpolation
                     real tVertGeomVal = mGeometries( tGeometryIndex )->get_field_value( ( *aNewNodeIndices )( tNode ), tCoord );
 
                     moris_index tGeomProxIndex = this->get_geometric_proximity_index( tVertGeomVal );
-
-                    if ( std::abs( tVertGeomVal - mIsocontourThreshold ) < mIsocontourTolerance )
-                    {
-                        tGeomProxIndex = 1;
-                    }
 
                     mVertexGeometricProximity( ( *aNewNodeIndices )( tNode ) ).set_geometric_proximity( tGeomProxIndex, tGeometryIndex );
                 }
@@ -2306,14 +2302,12 @@ namespace moris
         moris_index
         Geometry_Engine::get_geometric_proximity_index( real const & aGeometricVal )
         {
-            moris_index tGeometricProxIndex = MORIS_INDEX_MAX;
+            // initialize index to 1, i.e. vertex is on interface
+            moris_index tGeometricProxIndex = 1;
+
             if ( aGeometricVal - mIsocontourThreshold < -mIsocontourTolerance )
             {
                 tGeometricProxIndex = 0;
-            }
-            else if ( std::abs( aGeometricVal - mIsocontourThreshold ) < mIsocontourTolerance )
-            {
-                tGeometricProxIndex = 1;
             }
             else if ( aGeometricVal - mIsocontourThreshold > mIsocontourTolerance )
             {
@@ -2325,60 +2319,114 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        moris_index
-        Geometry_Engine::get_queued_intersection_geometric_proximity_index( moris_index const & aGeomIndex )
+        bool
+        Geometry_Engine::check_queued_intersection_geometric_proximity_index(
+                moris_index const & aProximIndex,
+                moris_index const & aGeomIndex )
         {
             // parent vertex
-            moris_index tParentVertexIndex0 = mQueuedIntersectionNode->mAncestorNodeIndices( 0 );
-            moris_index tParentVertexIndex1 = mQueuedIntersectionNode->mAncestorNodeIndices( 1 );
+            moris_index tParentVertexIndex0 = mQueuedIntersectionNode->get_first_parent_node_index();
+            moris_index tParentVertexIndex1 = mQueuedIntersectionNode->get_second_parent_node_index();
 
             // parent vertex proximity wrt aGeomIndex
             moris_index tParentProx0 = mVertexGeometricProximity( tParentVertexIndex0 ).get_geometric_proximity( aGeomIndex );
             moris_index tParentProx1 = mVertexGeometricProximity( tParentVertexIndex1 ).get_geometric_proximity( aGeomIndex );
 
-            // 0 - G(x) < threshold
-            // 1 - G(x) == threshold
-            // 2 - G(x) > threshold
-            // verify we dont transition across interface
-            // MORIS_ERROR((tParentProx0 == 0 && tParentProx1 == 0) ||
-            //             (tParentProx0 == 0 && tParentProx1 == 1) ||
-            //             (tParentProx0 == 1 && tParentProx1 == 0) ||
-            //             (tParentProx0 == 1 && tParentProx1 == 1) ||
-            //             (tParentProx0 == 2 && tParentProx1 == 2) ||
-            //             (tParentProx0 == 2 && tParentProx1 == 1) ||
-            //             (tParentProx0 == 1 && tParentProx1 == 2),   "Invalid proximity data");
-            //
+            // 0 - G(x) < threshold:  left of interface
+            // 1 - G(x) == threshold: on interface
+            // 2 - G(x) > threshold:  right of interface
             // add them together
             moris_index tSum = tParentProx0 + tParentProx1;
 
             // proximity value
-            moris_index tProxIndex = MORIS_INDEX_MAX;
-            if ( tSum == 0 )
+            switch ( tSum )
             {
-                tProxIndex = 0;
+                case 0:    // both parents are left of interface -> child has to be left of interface
+                {
+                    return aProximIndex == 0;
+                    break;
+                }
+                case 1:    // one parent is left of, one parent is on interface -> child has to be left of interface
+                {
+                    return aProximIndex == 0;
+                    break;
+                }
+                case 2:    // one parent is left the other right of interface -> child position cannot be determined yet
+                {
+                    return true;
+                    break;
+                }
+                case 3:    // one parent is on interface the other is right of interface -> child has to be  right of interface
+                {
+                    return aProximIndex == 2;
+                    break;
+                }
+                case 4:    // both right of interface -> child has to be  right of interface
+                {
+                    return aProximIndex == 2;
+                    break;
+                }
+                default:
+                {
+                    MORIS_ASSERT( 0, "Proximity determination failed." );
+                    return false;
+                }
             }
-            else if ( tSum == 1 )
-            {
-                tProxIndex = 0;
-            }
-            else if ( tSum == 2 )
-            {
-                tProxIndex = 1;
-            }
-            else if ( tSum == 3 )
-            {
-                tProxIndex = 2;
-            }
-            else if ( tSum == 4 )
-            {
-                tProxIndex = 2;
-            }
-            else
-            {
-                MORIS_ASSERT( 0, "Proximity determination failed." );
-            }
+        }
 
-            return tProxIndex;
+        //--------------------------------------------------------------------------------------------------------------
+
+        moris_index
+        Geometry_Engine::get_queued_intersection_geometric_proximity_index( moris_index const & aGeomIndex )
+        {
+            // parent vertex
+            moris_index tParentVertexIndex0 = mQueuedIntersectionNode->get_first_parent_node_index();
+            moris_index tParentVertexIndex1 = mQueuedIntersectionNode->get_second_parent_node_index();
+
+            // parent vertex proximity wrt aGeomIndex
+            moris_index tParentProx0 = mVertexGeometricProximity( tParentVertexIndex0 ).get_geometric_proximity( aGeomIndex );
+            moris_index tParentProx1 = mVertexGeometricProximity( tParentVertexIndex1 ).get_geometric_proximity( aGeomIndex );
+
+            // 0 - G(x) < threshold:  left of interface
+            // 1 - G(x) == threshold: on interface
+            // 2 - G(x) > threshold:  right of interface
+            // add them together
+            moris_index tSum = tParentProx0 + tParentProx1;
+
+            // proximity value
+            switch ( tSum )
+            {
+                case 0:    // both parents are left of interface -> child is left of interface
+                {
+                    return 0;
+                    break;
+                }
+                case 1:    // one parent is left of, one parent is on interface -> child is left of interface
+                {
+                    return 0;
+                    break;
+                }
+                case 2:    // one parent is left the other right of interface -> child is on interface (correct?)
+                {
+                    return 1;
+                    break;
+                }
+                case 3:    // one parent is on interface the other is right of interface -> child is right of interface
+                {
+                    return 2;
+                    break;
+                }
+                case 4:    // both right of interface -> child is right of interface
+                {
+                    return 2;
+                    break;
+                }
+                default:
+                {
+                    MORIS_ASSERT( 0, "Proximity determination failed." );
+                    return MORIS_INDEX_MAX;
+                }
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -2398,6 +2446,7 @@ namespace moris
             for ( uint tGeometryIndex = 0; tGeometryIndex < this->get_active_geometry_index(); tGeometryIndex++ )
             {
                 moris_index tProxIndex = this->get_queued_intersection_geometric_proximity_index( tGeometryIndex );
+
                 mVertexGeometricProximity( aNodeIndex ).set_geometric_proximity( tProxIndex, tGeometryIndex );
             }
 
@@ -2409,10 +2458,17 @@ namespace moris
                 // iterate through following geometries (here we just compute the vertex value to determine proximity)
                 for ( uint tGeometryIndex = this->get_active_geometry_index() + 1; tGeometryIndex < mGeometries.size(); tGeometryIndex++ )
                 {
+                    // FIXME: need to use level set value of child node
                     real tVertGeomVal = mGeometries( tGeometryIndex )->get_field_value( aNodeIndex, mQueuedIntersectionNode->get_global_coordinates() );
 
+                    // compute proximity index
                     moris_index tGeomProxIndex = this->get_geometric_proximity_index( tVertGeomVal );
 
+                    // check that tVertGeomVal is consistent with parent nodes
+                    MORIS_ERROR( check_queued_intersection_geometric_proximity_index( tGeomProxIndex, tGeometryIndex ),
+                            "Geometry_Engine::admit_queued_intersection_geometric_proximity - inconsistent proximity value." );
+
+                    // save proximity index
                     mVertexGeometricProximity( aNodeIndex ).set_geometric_proximity( tGeomProxIndex, tGeometryIndex );
                 }
             }
