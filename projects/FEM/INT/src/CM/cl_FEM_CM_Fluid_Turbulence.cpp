@@ -29,10 +29,14 @@ namespace moris
             uint tOrder = 1;
 
             // init storage for evaluation
+            mdChidx.resize( tOrder );
+            mdFv1dx.resize( tOrder );
             mdTurbDynViscdx.resize( tOrder );
             mdEffDynViscdx.resize( tOrder );
 
             // init flag for evaluation
+            mdChidxEval.set_size( tOrder, 1, true );
+            mdFv1dxEval.set_size( tOrder, 1, true );
             mdTurbDynViscdxEval.set_size( tOrder, 1, true );
             mdEffDynViscdxEval.set_size( tOrder, 1, true );
         }
@@ -43,6 +47,18 @@ namespace moris
         {
             // call parent implementation
             Constitutive_Model::reset_eval_flags();
+
+            // reset child specific eval flags for chi
+            mChiEval = true;
+            mdChiduEval.fill( true );
+            mdChidxEval.fill( true );
+            mdChidxduEval.fill( true );
+
+            // reset child specific eval flags for fv1
+            mFv1Eval = true;
+            mdFv1duEval.fill( true );
+            mdFv1dxEval.fill( true );
+            mdFv1dxduEval.fill( true );
 
             // reset child specific eval flags for turbulence dynamic viscosity
             mTurbDynViscEval = true;
@@ -68,21 +84,32 @@ namespace moris
             uint tNumGlobalDofTypes = mGlobalDofTypes.size();
 
             // init child specific eval flags
+            mdChiduEval.set_size( tNumGlobalDofTypes, 1, true );
+            mdFv1duEval.set_size( tNumGlobalDofTypes, 1, true );
             mdTurbDynViscduEval.set_size( tNumGlobalDofTypes, 1, true );
             mdEffDynViscduEval.set_size( tNumGlobalDofTypes, 1, true );
 
             // FIXME for now only 1st order allowed
             uint tOrder = 1;
+            mdChidxduEval.set_size( tOrder, tNumGlobalDofTypes, true );
+            mdFv1dxduEval.set_size( tOrder, tNumGlobalDofTypes, true );
             mdEffDynViscdxduEval.set_size( tOrder, tNumGlobalDofTypes, true );
             mdTurbDynViscdxduEval.set_size( tOrder, tNumGlobalDofTypes, true );
 
             // init child specific storage
+            mdChidu.resize( tNumGlobalDofTypes );
+            mdFv1du.resize( tNumGlobalDofTypes );
             mdTurbDynViscdu.resize( tNumGlobalDofTypes );
             mdEffDynViscdu.resize( tNumGlobalDofTypes );
+
+            mdChidxdu.resize( tOrder );
+            mdFv1dxdu.resize( tOrder );
             mdEffDynViscdxdu.resize( tOrder );
             mdTurbDynViscdxdu.resize( tOrder );
             for( uint iOrder = 0; iOrder < tOrder; iOrder++ )
             {
+                mdChidxdu( iOrder ).resize( tNumGlobalDofTypes );
+                mdFv1dxdu( iOrder ).resize( tNumGlobalDofTypes );
                 mdEffDynViscdxdu( iOrder ).resize( tNumGlobalDofTypes );
                 mdTurbDynViscdxdu( iOrder ).resize( tNumGlobalDofTypes );
             }
@@ -442,7 +469,7 @@ namespace moris
                         1e-6,
                         aNormal,
                         aJump,
-                        fem::FDScheme_Type::POINT_1_FORWARD );
+                        fem::FDScheme_Type::POINT_3_CENTRAL );
             }
             else
             {
@@ -674,16 +701,10 @@ namespace moris
             real tModViscosity = tFIModViscosity->val()( 0 );
 
             // if modified viscosity is positive
-            if( tModViscosity > 0.0 )
+            if( tModViscosity >= 0.0 )
             {
-                // compute fv1
-                real tFv1 = compute_fv1(
-                        { mDofViscosity },
-                        mFIManager,
-                        mPropKinViscosity );
-
                 // compute turbulent viscosity
-                mTurbDynVisc = mPropDensity->val()( 0 ) * tModViscosity * tFv1;
+                mTurbDynVisc = mPropDensity->val()( 0 ) * tModViscosity * this->fv1();
             }
         }
 
@@ -735,33 +756,18 @@ namespace moris
             real tModViscosity = tFIModViscosity->val()( 0 );
 
             // if modified viscosity is positive
-            if( tModViscosity > 0.0 )
+            if( tModViscosity >= 0.0 )
             {
-                // compute fv1
-                real tFv1 = compute_fv1(
-                        { mDofViscosity },
-                        mFIManager,
-                        mPropKinViscosity );
-
-                // compute dfv1du
-                Matrix< DDRMat > tdfv1du;
-                compute_dfv1du(
-                        { mDofViscosity },
-                        mFIManager,
-                        mPropKinViscosity,
-                        aDofTypes,
-                        tdfv1du );
-
                 // add contribution from dfv1du
                 mdTurbDynViscdu( tDofIndex ) =
-                        mPropDensity->val()( 0 ) * tFIModViscosity->val() * tdfv1du;
+                        mPropDensity->val()( 0 ) * tFIModViscosity->val() * this->dfv1du( aDofTypes );
 
                 // if dof type is viscosity
                 if( aDofTypes( 0 ) == mDofViscosity )
                 {
                     // add contribution to dSPdu
                     mdTurbDynViscdu( tDofIndex ) +=
-                            mPropDensity->val()( 0 ) * tFv1 * tFIModViscosity->N();
+                            mPropDensity->val()( 0 ) * this->fv1() * tFIModViscosity->N();
                 }
 
                 // if density depends on dof
@@ -769,7 +775,7 @@ namespace moris
                 {
                     // add contribution from drhodu
                     mdTurbDynViscdu( tDofIndex ) +=
-                            tFIModViscosity->val() * tFv1 * mPropDensity->dPropdDOF( aDofTypes );
+                            tFIModViscosity->val() * this->fv1() * mPropDensity->dPropdDOF( aDofTypes );
                 }
             }
             else
@@ -823,32 +829,18 @@ namespace moris
             real tModViscosity = tFIModViscosity->val()( 0 );
 
             // if modified viscosity is positive
-            if( tModViscosity > 0.0 )
+            if( tModViscosity >= 0.0 )
             {
-                // compute fv1
-                real tFv1 = compute_fv1(
-                        { mDofViscosity },
-                        mFIManager,
-                        mPropKinViscosity );
-
-                // compute dfv1dx
-                Matrix< DDRMat > tdfv1dx;
-                compute_dfv1dx(
-                        { mDofViscosity },
-                        mFIManager,
-                        mPropKinViscosity,
-                        tdfv1dx );
-
                 // compute dTurbDynViscdx
                 mdTurbDynViscdx( aOrder - 1 ) =
-                        mPropDensity->val()( 0 ) * tFIModViscosity->gradx( 1 ) * tFv1 +
-                        mPropDensity->val()( 0 ) * tdfv1dx * tModViscosity;
+                        mPropDensity->val()( 0 ) * tFIModViscosity->gradx( 1 ) * this->fv1() +
+                        mPropDensity->val()( 0 ) * this->dfv1dx( 1 ) * tModViscosity;
 
                 // if density depends on space
                 if( mPropDensity->check_space_dependency( 1 ) )
                 {
                     // add contribution from density space derivative
-                    mdTurbDynViscdx( aOrder - 1 ) += tFv1 * tModViscosity * mPropDensity->dnPropdxn( 1 );
+                    mdTurbDynViscdx( aOrder - 1 ) += this->fv1() * tModViscosity * mPropDensity->dnPropdxn( 1 );
                 }
             }
             else
@@ -911,50 +903,19 @@ namespace moris
             real tModViscosity = tFIModViscosity->val()( 0 );
 
             // if modified viscosity is positive
-            if( tModViscosity > 0.0 )
+            if( tModViscosity >= 0.0 )
             {
-                // compute fv1
-                real tFv1 = compute_fv1(
-                        { mDofViscosity },
-                        mFIManager,
-                        mPropKinViscosity );
-
-                // compute dfv1dx
-                Matrix< DDRMat > tdfv1dx;
-                compute_dfv1dx(
-                        { mDofViscosity },
-                        mFIManager,
-                        mPropKinViscosity,
-                        tdfv1dx );
-
-                // compute dfv1du
-                Matrix< DDRMat > tdfv1du;
-                compute_dfv1du(
-                        { mDofViscosity },
-                        mFIManager,
-                        mPropKinViscosity,
-                        aDofTypes,
-                        tdfv1du );
-
-                // compute dfv1dxdu
-                Matrix< DDRMat > tdfv1dxdu;
-                compute_dfv1dxdu(
-                        { mDofViscosity },
-                        mFIManager,
-                        mPropKinViscosity,
-                        aDofTypes,
-                        tdfv1dxdu );
-
                 // add contribution from dfv1du
                 mdTurbDynViscdxdu( aOrder - 1 )( tDofIndex ) =
-                        mPropDensity->val()( 0 ) * tFIModViscosity->gradx( 1 ) * tdfv1du +
-                        mPropDensity->val()( 0 ) * tFIModViscosity->val()( 0 ) * tdfv1dxdu;
+                        mPropDensity->val()( 0 ) * tFIModViscosity->gradx( 1 ) * this->dfv1du( aDofTypes ) +
+                        mPropDensity->val()( 0 ) * tFIModViscosity->val()( 0 ) * this->dfv1dxdu( aDofTypes, 1 );
 
                 // if density depends on space
                 if( mPropDensity->check_space_dependency( 1 ) )
                 {
                     // add contribution from density space derivative
-                    mdTurbDynViscdxdu( aOrder - 1 )( tDofIndex ) += mPropDensity->dnPropdxn( 1 ) * tFIModViscosity->val()( 0 ) * tdfv1du;
+                    mdTurbDynViscdxdu( aOrder - 1 )( tDofIndex ) +=
+                            mPropDensity->dnPropdxn( 1 ) * tFIModViscosity->val()( 0 ) * this->dfv1du( aDofTypes );
                 }
 
                 // if dof type is viscosity
@@ -962,14 +923,15 @@ namespace moris
                 {
                     // add contribution to dviscositytdxdu
                     mdTurbDynViscdxdu( aOrder - 1 )( tDofIndex ) +=
-                            mPropDensity->val()( 0 ) * tFv1 * tFIModViscosity->dnNdxn( 1 ) +
-                            mPropDensity->val()( 0 ) * tdfv1dx * tFIModViscosity->N();
+                            mPropDensity->val()( 0 ) * this->fv1() * tFIModViscosity->dnNdxn( 1 ) +
+                            mPropDensity->val()( 0 ) * this->dfv1dx( 1 ) * tFIModViscosity->N();
 
                     // if density depends on space
                     if( mPropDensity->check_space_dependency( 1 ) )
                     {
                         // add contribution from density space derivative
-                        mdTurbDynViscdxdu( aOrder - 1 )( tDofIndex ) += tFv1 * mPropDensity->dnPropdxn( 1 ) * tFIModViscosity->N();
+                        mdTurbDynViscdxdu( aOrder - 1 )( tDofIndex ) +=
+                                this->fv1() * mPropDensity->dnPropdxn( 1 ) * tFIModViscosity->N();
                     }
                 }
 
@@ -977,8 +939,8 @@ namespace moris
                 if( mPropDensity->check_dof_dependency( aDofTypes ) )
                 {
                     mdTurbDynViscdxdu( aOrder - 1 )( tDofIndex ) +=
-                            tFIModViscosity->gradx( 1 ) * tFv1 * mPropDensity->dPropdDOF( aDofTypes ) +
-                            tdfv1dx * tFIModViscosity->val()( 0 ) * mPropDensity->dPropdDOF( aDofTypes );
+                            tFIModViscosity->gradx( 1 ) * this->fv1() * mPropDensity->dPropdDOF( aDofTypes ) +
+                            this->dfv1dx( 1 ) * tFIModViscosity->val()( 0 ) * mPropDensity->dPropdDOF( aDofTypes );
 
                     // if density depends on space
                     if( mPropDensity->check_space_dependency( 1 ) )
@@ -1023,6 +985,253 @@ namespace moris
             // return the derivative
             return mdTurbDynViscdxdu( aOrder - 1 )( tDofIndex );
         }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        const real CM_Fluid_Turbulence::chi(
+                enum CM_Function_Type aCMFunctionType )
+        {
+            // check CM function type, base class only supports "DEFAULT"
+            MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,
+                    "CM_Fluid_Turbulence::chi - Only DEFAULT CM function type known in base class." );
+
+            // if the diffusion coefficient was not evaluated
+            if( mChiEval )
+            {
+                // evaluate chi
+                mChi = compute_chi(
+                        { mDofViscosity },
+                        mFIManager,
+                        mPropKinViscosity );
+
+                // set bool for evaluation
+                mChiEval = false;
+            }
+            // return the diffusion coefficient
+            return mChi;
+        }
+
+        const Matrix< DDRMat > & CM_Fluid_Turbulence::dchidu(
+                const moris::Cell< MSI::Dof_Type > & aDofType,
+                enum CM_Function_Type                aCMFunctionType )
+        {
+            // check CM function type, base class only supports "DEFAULT"
+            MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,
+                    "CM_Fluid_Turbulence::dchidu - Only DEFAULT CM function type known in base class." );
+
+            // if aDofType is not an active dof type for the CM
+            MORIS_ERROR(
+                    this->check_dof_dependency( aDofType ),
+                    "CM_Fluid_Turbulence::dchidu - no dependency in this dof type." );
+
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
+
+            // if the derivative has not been evaluated yet
+            if( mdChiduEval( tDofIndex ) )
+            {
+                // evaluate the derivative
+                compute_dchidu(
+                        { mDofViscosity },
+                        mFIManager,
+                        mPropKinViscosity,
+                        aDofType,
+                        mdChidu( tDofIndex ) );
+
+                // set bool for evaluation
+                mdChiduEval( tDofIndex ) = false;
+            }
+
+            // return the derivative
+            return mdChidu( tDofIndex );
+        }
+
+        const Matrix< DDRMat > & CM_Fluid_Turbulence::dchidx(
+                uint                  aOrder,
+                enum CM_Function_Type aCMFunctionType )
+        {
+            // check CM function type, base class only supports "DEFAULT"
+            MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,
+                    "CM_Fluid_Turbulence::dchidx - Only DEFAULT CM function type known in base class." );
+
+            MORIS_ERROR( aOrder == 1,
+                    "CM_Fluid_Turbulence::dchidx - Works only for 1st order derivative for now." );
+
+            // if the derivative has not been evaluated yet
+            if( mdChidxEval( aOrder - 1 ) )
+            {
+                // evaluate the derivative
+                compute_dchidx(
+                        { mDofViscosity },
+                        mFIManager,
+                        mPropKinViscosity,
+                        mdChidx( aOrder - 1 ) );
+
+                // set bool for evaluation
+                mdChidxEval( aOrder - 1 ) = false;
+            }
+
+            // return the derivative
+            return mdChidx( aOrder - 1 );
+        }
+
+        const Matrix< DDRMat > & CM_Fluid_Turbulence::dchidxdu(
+                const moris::Cell< MSI::Dof_Type > & aDofType,
+                uint                                 aOrder,
+                enum CM_Function_Type                aCMFunctionType )
+        {
+            // check CM function type, base class only supports "DEFAULT"
+            MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,
+                    "CM_Fluid_Turbulence::dchidxdu - Only DEFAULT CM function type known in base class." );
+
+            MORIS_ERROR( aOrder == 1,
+                    "CM_Fluid_Turbulence::dchidxdu - Works only for 1st order derivative for now." );
+
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
+
+            // if the derivative has not been evaluated yet
+            if( mdChidxduEval( aOrder - 1, tDofIndex ) )
+            {
+                // evaluate the derivative
+                compute_dchidxdu(
+                        { mDofViscosity },
+                        mFIManager,
+                        mPropKinViscosity,
+                        aDofType,
+                        mdChidxdu( aOrder - 1 )( tDofIndex ) );
+
+                // set bool for evaluation
+                mdChidxduEval( aOrder - 1, tDofIndex ) = false;
+            }
+
+            // return the derivative
+            return mdChidxdu( aOrder - 1 )( tDofIndex );
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        const real CM_Fluid_Turbulence::fv1(
+                enum CM_Function_Type aCMFunctionType )
+        {
+            // check CM function type, base class only supports "DEFAULT"
+            MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,
+                    "CM_Fluid_Turbulence::fv1 - Only DEFAULT CM function type known in base class." );
+
+            // if not evaluated
+            if( mFv1Eval )
+            {
+                // evaluate
+                mFv1 = compute_fv1(
+                        { mDofViscosity },
+                        mFIManager,
+                        mPropKinViscosity );
+
+                // set bool for evaluation
+                mFv1Eval = false;
+            }
+            // return
+            return mFv1;
+        }
+
+        const Matrix< DDRMat > & CM_Fluid_Turbulence::dfv1du(
+                const moris::Cell< MSI::Dof_Type > & aDofType,
+                enum CM_Function_Type                aCMFunctionType )
+        {
+            // check CM function type, base class only supports "DEFAULT"
+            MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,
+                    "CM_Spalart_Allmaras_Turbulence::dfv1du - Only DEFAULT CM function type known in base class." );
+
+            // if aDofType is not an active dof type for the CM
+            MORIS_ERROR(
+                    this->check_dof_dependency( aDofType ),
+                    "CM_Spalart_Allmaras_Turbulence::dfv1du - no dependency in this dof type." );
+
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
+
+            // if the derivative has not been evaluated yet
+            if( mdFv1duEval( tDofIndex ) )
+            {
+                // evaluate the derivative
+                compute_dfv1du(
+                        { mDofViscosity },
+                        mFIManager,
+                        mPropKinViscosity,
+                        aDofType,
+                        mdFv1du( tDofIndex ) );
+
+                // set bool for evaluation
+                mdFv1duEval( tDofIndex ) = false;
+            }
+
+            // return the derivative
+            return mdFv1du( tDofIndex );
+        }
+
+        const Matrix< DDRMat > & CM_Fluid_Turbulence::dfv1dx(
+                uint                  aOrder,
+                enum CM_Function_Type aCMFunctionType )
+        {
+            // check CM function type, base class only supports "DEFAULT"
+            MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,
+                    "CM_Fluid_Turbulence::dfv1dx - Only DEFAULT CM function type known in base class." );
+
+            MORIS_ERROR( aOrder == 1,
+                    "CM_Fluid_Turbulence::dfv1dx - Works only for 1st order derivative for now." );
+
+            // if the derivative has not been evaluated yet
+            if( mdFv1dxEval( aOrder - 1 ) )
+            {
+                // evaluate the derivative
+                compute_dfv1dx(
+                        { mDofViscosity },
+                        mFIManager,
+                        mPropKinViscosity,
+                        mdFv1dx( aOrder - 1 ) );
+
+                // set bool for evaluation
+                mdFv1dxEval( aOrder - 1 ) = false;
+            }
+
+            // return the derivative
+            return mdFv1dx( aOrder - 1 );
+        }
+
+        const Matrix< DDRMat > & CM_Fluid_Turbulence::dfv1dxdu(
+                const moris::Cell< MSI::Dof_Type > & aDofType,
+                uint                                 aOrder,
+                enum CM_Function_Type                aCMFunctionType )
+        {
+            // check CM function type, base class only supports "DEFAULT"
+            MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,
+                    "CM_Fluid_Turbulence::dfv1dxdu - Only DEFAULT CM function type known in base class." );
+
+            MORIS_ERROR( aOrder == 1,
+                    "CM_Fluid_Turbulence::dfv1dxdu - Works only for 1st order derivative for now." );
+
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
+
+            // if the derivative has not been evaluated yet
+            if( mdFv1dxduEval( aOrder - 1, tDofIndex ) )
+            {
+                // evaluate the derivative
+                compute_dfv1dxdu(
+                        { mDofViscosity },
+                        mFIManager,
+                        mPropKinViscosity,
+                        aDofType,
+                        mdFv1dxdu( aOrder - 1 )( tDofIndex ) );
+
+                // set bool for evaluation
+                mdFv1dxduEval( aOrder - 1, tDofIndex ) = false;
+            }
+
+            // return the derivative
+            return mdFv1dxdu( aOrder - 1 )( tDofIndex );
+        }
+
 
         //--------------------------------------------------------------------------------------------------------------
 

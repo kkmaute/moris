@@ -24,7 +24,7 @@
 using namespace moris;
 using namespace fem;
 
-TEST_CASE( "CM_Diff_Lin_Iso_Trubulence", "[CM_Diff_Lin_Iso_Trubulence]" )
+TEST_CASE( "CM_Diff_Lin_Iso_Turbulence", "[CM_Diff_Lin_Iso_Turbulence]" )
 {
     // define an epsilon environment
     real tEpsilon = 1.0E-5;
