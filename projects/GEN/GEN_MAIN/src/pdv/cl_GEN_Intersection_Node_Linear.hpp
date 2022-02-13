@@ -12,8 +12,7 @@ namespace moris
         class Intersection_Node_Linear : public Intersection_Node
         {
 
-        public:
-
+          public:
             /**
              * Constructor
              *
@@ -29,16 +28,16 @@ namespace moris
              * @param aIntersectionTolerance Tolerance for determining interface parent nodes with intersection distance
              */
             Intersection_Node_Linear(
-                    std::shared_ptr<Intersection_Node> aFirstNode,
-                    std::shared_ptr<Intersection_Node> aSecondNode,
-                    uint                               aFirstNodeIndex,
-                    uint                               aSecondNodeIndex,
-                    const Matrix<DDRMat>&              aFirstNodeCoordinates,
-                    const Matrix<DDRMat>&              aSecondNodeCoordinates,
-                    std::shared_ptr<Geometry>          aInterfaceGeometry,
-                    real                               aIsocontourThreshold = 0.0,
-                    real                               aIsocontourTolerance = 0.0,
-                    real                               aIntersectionTolerance = 0.0);
+                    std::shared_ptr< Intersection_Node > aFirstNode,
+                    std::shared_ptr< Intersection_Node > aSecondNode,
+                    uint                                 aFirstNodeIndex,
+                    uint                                 aSecondNodeIndex,
+                    const Matrix< DDRMat >&              aFirstNodeCoordinates,
+                    const Matrix< DDRMat >&              aSecondNodeCoordinates,
+                    std::shared_ptr< Geometry >          aInterfaceGeometry,
+                    real                                 aIsocontourThreshold   = 0.0,
+                    real                                 aIsocontourTolerance   = 0.0,
+                    real                                 aIntersectionTolerance = 0.0 );
 
             /**
              * Given a node index or coordinates, returns a vector of the field derivatives with respect to the nodal
@@ -48,11 +47,10 @@ namespace moris
              * @param aSensitivities Sensitivities to be filled with d(field value)/d(coordinate_j)
              */
             void get_dfield_dcoordinates(
-                    Field*          aField,
-                    Matrix<DDRMat>& aSensitivities);
+                    Field*            aField,
+                    Matrix< DDRMat >& aSensitivities );
 
-        private:
-
+          private:
             /**
              * Gets the sensitivity of this node's local coordinate within its parent edge with respect to the field
              * values on each of its ancestors.
@@ -60,7 +58,7 @@ namespace moris
              * @param aAncestorIndex Ancestor index
              * @return Local coordinate sensitivity
              */
-            real get_dxi_dfield_from_ancestor(uint aAncestorIndex);
+            real get_dxi_dfield_from_ancestor( uint aAncestorIndex );
 
             /**
              * Gets the sensitivities of this node's local coordinate within its parent edge with respect to the global
@@ -68,7 +66,7 @@ namespace moris
              *
              * @return Local coordinate sensitivity
              */
-            Matrix<DDRMat> get_dxi_dcoordinate_first_parent();
+            Matrix< DDRMat > get_dxi_dcoordinate_first_parent();
 
             /**
              * Gets the sensitivities of this node's local coordinate within its parent edge with respect to the global
@@ -76,7 +74,7 @@ namespace moris
              *
              * @return Local coordinate sensitivity
              */
-            Matrix<DDRMat> get_dxi_dcoordinate_second_parent();
+            Matrix< DDRMat > get_dxi_dcoordinate_second_parent();
 
             /**
              * Interpolate and return the local coordinates of this intersection node. Used to clean up constructor.
@@ -90,15 +88,14 @@ namespace moris
              * @return Local coordinates
              */
             real get_local_coordinate(
-                    uint                      aFirstNodeIndex,
-                    uint                      aSecondNodeIndex,
-                    const Matrix<DDRMat>&     aFirstNodeCoordinates,
-                    const Matrix<DDRMat>&     aSecondNodeCoordinates,
-                    std::shared_ptr<Geometry> aInterfaceGeometry,
-                    real                      aIsocontourThreshold);
-
+                    uint                        aFirstNodeIndex,
+                    uint                        aSecondNodeIndex,
+                    const Matrix< DDRMat >&     aFirstNodeCoordinates,
+                    const Matrix< DDRMat >&     aSecondNodeCoordinates,
+                    std::shared_ptr< Geometry > aInterfaceGeometry,
+                    real                        aIsocontourThreshold );
         };
-    }
-}
+    }    // namespace ge
+}    // namespace moris
 
-#endif //MORIS_CL_GEN_INTERSECTION_NODE_LINEAR_HPP
+#endif    // MORIS_CL_GEN_INTERSECTION_NODE_LINEAR_HPP
