@@ -44,8 +44,9 @@ namespace moris
                     mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // evaluate the QI
-            aQI = //trans( tCMFluid->traction( mNormal ) ) * tFIVelocity->val() -
-                    - 0.5 * tPropDensity->val() * ( tFIVelocity->val_trans() * mNormal ) *
+            aQI = trans( tCMFluid->traction( mNormal ) ) * tFIVelocity->val() -
+                    0.5 * tPropDensity->val()( 0 ) *
+                    ( tFIVelocity->val_trans() * mNormal ) *
                     ( tFIVelocity->val_trans() * tFIVelocity->val() );
         }
 
@@ -56,24 +57,14 @@ namespace moris
             // get index for QI
             sint tQIIndex = mSet->get_QI_assembly_index( mName );
 
-            // get the fluid CM
-            const std::shared_ptr< Constitutive_Model > & tCMFluid =
-                    mMasterCM( static_cast< uint >( IQI_Constitutive_Type::FLUID ) );
+            // create matrix storage for IQI
+            Matrix<DDRMat> tQI( 1, 1 );
 
-            // get density from CM
-            const std::shared_ptr< Property > & tPropDensity =
-                    tCMFluid->get_property( "Density" );
-
-            // FIXME protect dof type
-            // get velocity field interpolator
-            Field_Interpolator * tFIVelocity =
-                    mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+            // compute QI
+            this->compute_QI( tQI );
 
             // evaluate the QI
-            mSet->get_QI()( tQIIndex ) += aWStar * (
-                    //trans( tCMFluid->traction( mNormal ) ) * tFIVelocity->val() -
-                    - 0.5 * tPropDensity->val() * ( tFIVelocity->val_trans() * mNormal ) *
-                    ( tFIVelocity->val_trans() * tFIVelocity->val() ) );
+            mSet->get_QI()( tQIIndex ) += aWStar * tQI( 0 );
         }
 
         //------------------------------------------------------------------------------
@@ -110,13 +101,14 @@ namespace moris
                 uint tMasterDepStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
                 uint tMasterDepStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
 
-//                // if fluid CM depends on dof type
-//                if ( tCMFluid->check_dof_dependency( tDofType ) )
-//                {
-//                    mSet->get_residual()( tQIIndex )(
-//                            { tMasterDepStartIndex, tMasterDepStopIndex },
-//                            { 0, 0 } ) += aWStar * ( trans( tCMFluid->dTractiondDOF( tDofType, mNormal ) ) * tFIVelocity->val() );
-//                }
+                // if fluid CM depends on dof type
+                if ( tCMFluid->check_dof_dependency( tDofType ) )
+                {
+                    mSet->get_residual()( tQIIndex )(
+                            { tMasterDepStartIndex, tMasterDepStopIndex },
+                            { 0, 0 } ) += aWStar * (
+                                    trans( tCMFluid->dTractiondDOF( tDofType, mNormal ) ) * tFIVelocity->val() );
+                }
 
                 // if dof type is velocity
                 // FIXME protect dof type
@@ -125,22 +117,26 @@ namespace moris
                     mSet->get_residual()( tQIIndex )(
                             { tMasterDepStartIndex, tMasterDepStopIndex },
                             { 0, 0 } ) += aWStar * (
-                                    //trans( tFIVelocity->N() ) * tCMFluid->traction( mNormal ) -
-                                    - 0.5 * tPropDensity->val()( 0 ) * ( tFIVelocity->N_trans() * mNormal ) *
-                                    ( tFIVelocity->val_trans() * tFIVelocity->val() )
-                                    - 1.0 * tPropDensity->val()( 0 ) * ( tFIVelocity->N_trans() * tFIVelocity->val() ) *
-                                    ( tFIVelocity->val_trans() * mNormal ) );
+                                    tFIVelocity->N_trans() * tCMFluid->traction( mNormal ) -
+                                    tPropDensity->val()( 0 ) *
+                                    ( tFIVelocity->N_trans() * tFIVelocity->val() ) *
+                                    ( tFIVelocity->val_trans() * mNormal ) -
+                                    0.5 * tPropDensity->val()( 0 ) *
+                                    ( tFIVelocity->N_trans() * mNormal ) *
+                                    ( tFIVelocity->val_trans() * tFIVelocity->val() ) );
                 }
 
-//                // if density depends on dof type
-//                if ( tPropDensity->check_dof_dependency( tDofType ) )
-//                {
-//                    // compute dQIdu
-//                    mSet->get_residual()( tQIIndex )(
-//                            { tMasterDepStartIndex, tMasterDepStopIndex },
-//                            { 0, 0 } ) -= aWStar * ( 0.5 * tFIVelocity->val_trans() * tFIVelocity->val() * tFIVelocity->val_trans() * mNormal *
-//                                    tPropDensity->dPropdDOF( tDofType ) );
-//                }
+                // if density depends on dof type
+                if ( tPropDensity->check_dof_dependency( tDofType ) )
+                {
+                    // compute dQIdu
+                    mSet->get_residual()( tQIIndex )(
+                            { tMasterDepStartIndex, tMasterDepStopIndex },
+                            { 0, 0 } ) -= aWStar * ( 0.5 *
+                                    ( tFIVelocity->val_trans() * mNormal ) *
+                                    ( tFIVelocity->val_trans() * tFIVelocity->val() ) *
+                                    tPropDensity->dPropdDOF( tDofType ) );
+                }
             }
         }
 
@@ -163,31 +159,34 @@ namespace moris
             Field_Interpolator * tFIVelocity =
                     mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
+            // if fluid CM depends on dof type
+            if ( tCMFluid->check_dof_dependency( aDofType ) )
+            {
+                adQIdu += trans( tCMFluid->dTractiondDOF( aDofType, mNormal ) ) * tFIVelocity->val();
+            }
+
             // if dof type is velocity
             // FIXME protect dof type
             if ( aDofType( 0 ) == MSI::Dof_Type::VX )
             {
-                adQIdu += //trans( tCMFluid->traction( mNormal ) ) * tFIVelocity->N() -
-                        - 0.5 * tPropDensity->val()( 0 ) * ( tFIVelocity->N_trans() * mNormal ) *
-                        ( tFIVelocity->val_trans() * tFIVelocity->val() )
-                        - tPropDensity->val()( 0 ) * ( tFIVelocity->N_trans() * tFIVelocity->val() ) *
-                        ( tFIVelocity->val_trans() * mNormal );
-                        //- 1.5 * tPropDensity->val()( 0 ) * tFIVelocity->N_trans() * tFIVelocity->val() * tFIVelocity->val_trans() * mNormal;
+                adQIdu += tFIVelocity->N_trans() * tCMFluid->traction( mNormal ) -
+                        tPropDensity->val()( 0 ) *
+                        ( tFIVelocity->N_trans() * tFIVelocity->val() ) *
+                        ( tFIVelocity->val_trans() * mNormal ) -
+                        0.5 * tPropDensity->val()( 0 ) *
+                        ( tFIVelocity->N_trans() * mNormal ) *
+                        ( tFIVelocity->val_trans() * tFIVelocity->val() ) ;
             }
 
-//            // if density depends on dof type
-//            if ( tPropDensity->check_dof_dependency( aDofType ) )
-//            {
-//                // compute dQIdu
-//                adQIdu -= 0.5 * tFIVelocity->val_trans() * tFIVelocity->val() * tFIVelocity->val_trans() * mNormal *
-//                        tPropDensity->dPropdDOF( aDofType );
-//            }
-//
-//            // if fluid CM depends on dof type
-//            if ( tCMFluid->check_dof_dependency( aDofType ) )
-//            {
-//                adQIdu +=  trans( tCMFluid->dTractiondDOF( aDofType, mNormal ) ) * tFIVelocity->val();
-//            }
+            // if density depends on dof type
+            if ( tPropDensity->check_dof_dependency( aDofType ) )
+            {
+                // compute dQIdu
+                adQIdu -= 0.5 *
+                        ( tFIVelocity->val_trans() * mNormal ) *
+                        ( tFIVelocity->val_trans() * tFIVelocity->val() ) *
+                        tPropDensity->dPropdDOF( aDofType ) ;
+            }
         }
 
         //------------------------------------------------------------------------------
