@@ -25,7 +25,7 @@ namespace moris
             uint mLoadStepCounter;
 
             /// maximum number of load steps
-            uint mMaxLoadSteps;
+            uint mNumLoadSteps;
 
             /// initial (constant) load factor
             real mInitialLoadFactor;
