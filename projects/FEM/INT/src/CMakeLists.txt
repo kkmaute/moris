@@ -84,6 +84,7 @@ set(HEADERS
 
     CM/cl_FEM_CM_Fluid_Incompressible.hpp
     CM/cl_FEM_CM_Fluid_Turbulence.hpp
+    CM/cl_FEM_CM_Spalart_Allmaras_Turbulence.hpp
 
     CM/cl_FEM_CM_Fluid_Compressible_Ideal.hpp
     CM/cl_FEM_CM_Fluid_Compressible_Van_der_Waals.hpp
@@ -273,6 +274,7 @@ set(LIB_SOURCES
 
     CM/cl_FEM_CM_Fluid_Incompressible.cpp
     CM/cl_FEM_CM_Fluid_Turbulence.cpp
+    CM/cl_FEM_CM_Spalart_Allmaras_Turbulence.cpp
 
     CM/cl_FEM_CM_Fluid_Compressible_Ideal.cpp
     CM/cl_FEM_CM_Fluid_Compressible_Ideal_Test_Tractions.cpp

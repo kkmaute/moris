@@ -8,6 +8,7 @@
 #include "cl_FEM_CM_Struc_Nonlinear_Isotropic.hpp"
 #include "cl_FEM_CM_Fluid_Incompressible.hpp"
 #include "cl_FEM_CM_Fluid_Turbulence.hpp"
+#include "cl_FEM_CM_Spalart_Allmaras_Turbulence.hpp"
 #include "cl_FEM_CM_Fluid_Compressible_Ideal.hpp"
 #include "cl_FEM_CM_Compressible_Newtonian_Fluid.hpp"
 #include "cl_FEM_CM_Fluid_Compressible_Van_der_Waals.hpp"
@@ -42,6 +43,9 @@ namespace moris
 
                 case Constitutive_Type::FLUID_TURBULENCE :
                     return std::make_shared< CM_Fluid_Turbulence >();
+
+                case Constitutive_Type::SPALART_ALLMARAS_TURBULENCE :
+                    return std::make_shared< CM_Spalart_Allmaras_Turbulence >();
 
                 case Constitutive_Type::FLUID_COMPRESSIBLE_IDEAL :
                     return std::make_shared< CM_Fluid_Compressible_Ideal >();
