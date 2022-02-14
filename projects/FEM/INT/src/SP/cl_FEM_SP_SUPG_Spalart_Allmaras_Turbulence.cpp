@@ -138,7 +138,7 @@ namespace moris
 
             // tau S
             real tTauS =
-                    tCMSATurbulence->production_coefficient()( 0 ) +
+                    tCMSATurbulence->production_coefficient()( 0 ) -
                     tCMSATurbulence->wall_destruction_coefficient()( 0 );
 
             // evaluate tau
@@ -202,7 +202,7 @@ namespace moris
 
             // tau S
             real tTauS =
-                    tCMSATurbulence->production_coefficient()( 0 ) +
+                    tCMSATurbulence->production_coefficient()( 0 ) -
                     tCMSATurbulence->wall_destruction_coefficient()( 0 );
 
             // evaluate tau
@@ -250,7 +250,7 @@ namespace moris
 
                     // compute tdtauSdu
                     mdPPdMasterDof( tDofIndex ) += tTauS * (
-                            tCMSATurbulence->dproductioncoeffdu( aDofTypes ) +
+                            tCMSATurbulence->dproductioncoeffdu( aDofTypes ) -
                             tCMSATurbulence->dwalldestructioncoeffdu( aDofTypes ) );
                 }
             }
