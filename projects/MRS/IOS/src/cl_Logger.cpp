@@ -69,7 +69,7 @@ namespace moris
         for ( int k = 0; k < argc; ++k )
         {
             // user requests output log file
-            if ( std::string( argv[k] ) == "--outputlog" || std::string( argv[k] ) == "-ol" )
+            if ( std::string( argv[ k ] ) == "--outputlog" || std::string( argv[ k ] ) == "-ol" )
             {
                 uint        tPadding            = 3;
                 std::string tParRankStr         = std::to_string( par_rank() );
@@ -78,22 +78,22 @@ namespace moris
                 std::string tParSizeStr         = std::to_string( par_size() );
                 std::string tBufferedParSizeStr = std::string( tPadding - tParSizeStr.length(), '0' ) + tParSizeStr;
 
-                mStream.open( std::string( argv[k + 1] ) + "." + tBufferedParSizeStr + "." + tBufferedParRankStr, std::ofstream::out );
+                mStream.open( std::string( argv[ k + 1 ] ) + "." + tBufferedParSizeStr + "." + tBufferedParRankStr, std::ofstream::out );
                 mWriteToAscii = true;
                 // std::cout << "\n Logger: writing to: " << std::string( argv[ k+1 ] ) << "\n";
             }
 
             // user sets severity level
-            if ( std::string( argv[k] ) == "--severity" || std::string( argv[k] ) == "-sl" )
+            if ( std::string( argv[ k ] ) == "--severity" || std::string( argv[ k ] ) == "-sl" )
             {
-                mSeverityLevel = std::stoi( std::string( argv[k + 1] ) );
+                mSeverityLevel = std::stoi( std::string( argv[ k + 1 ] ) );
                 // std::cout << "\n Logger: setting severity level to: " << std::stoi( std::string( argv[ k+1 ] ) ) << "\n";
             }
 
             // user sets format for output to console
-            if ( std::string( argv[k] ) == "--directoutput" || std::string( argv[k] ) == "-do" )
+            if ( std::string( argv[ k ] ) == "--directoutput" || std::string( argv[ k ] ) == "-do" )
             {
-                uint Integer = std::stoi( std::string( argv[k + 1] ) );
+                uint Integer = std::stoi( std::string( argv[ k + 1 ] ) );
                 if ( ( Integer == 1 ) || ( Integer == 2 ) || ( Integer == 3 ) )
                     mDirectOutputFormat = Integer;
                 else
@@ -173,7 +173,7 @@ namespace moris
     Logger::sign_out()
     {
         // stop timer
-        real tElapsedTime = ( (moris::real)std::clock() - mGlobalClock.mTimeStamps[mGlobalClock.mIndentationLevel] ) / CLOCKS_PER_SEC;
+        real tElapsedTime = ( (moris::real)std::clock() - mGlobalClock.mTimeStamps[ mGlobalClock.mIndentationLevel ] ) / CLOCKS_PER_SEC;
 
         // compute maximum and minimum time used by processors
         real tElapsedTimeMax = logger_max_all( tElapsedTime );
@@ -184,7 +184,7 @@ namespace moris
         real tElapsedWallTimeMin = 0.0;
         if ( PRINT_WALL_TIME )
         {
-            std::chrono::duration< double > tChronoElapsedWallTime = ( std::chrono::system_clock::now() - mGlobalClock.mWallTimeStamps[mGlobalClock.mIndentationLevel] );
+            std::chrono::duration< double > tChronoElapsedWallTime = ( std::chrono::system_clock::now() - mGlobalClock.mWallTimeStamps[ mGlobalClock.mIndentationLevel ] );
             real                            tElapsedWallTime       = tChronoElapsedWallTime.count();
             // std::cout << "Proc #" << logger_par_rank() << ": Wall clock time at sign out: " << tElapsedWallTime << " seconds. \n" << std::endl;
             tElapsedWallTimeMax = logger_max_all( tElapsedWallTime );
@@ -195,10 +195,10 @@ namespace moris
         if ( mWriteToAscii )
         {
             // print timing for previous iteration if previous iterations are present
-            if ( mGlobalClock.mCurrentIteration[mGlobalClock.mIndentationLevel] > 0 )
+            if ( mGlobalClock.mCurrentIteration[ mGlobalClock.mIndentationLevel ] > 0 )
             {
                 // compute iteration time on each proc
-                real tIndividualIterationTime = ( (moris::real)std::clock() - mGlobalClock.mIterationTimeStamps[mGlobalClock.mIndentationLevel] ) / CLOCKS_PER_SEC;
+                real tIndividualIterationTime = ( (moris::real)std::clock() - mGlobalClock.mIterationTimeStamps[ mGlobalClock.mIndentationLevel ] ) / CLOCKS_PER_SEC;
 
                 // log iteration time to file
                 this->log_to_file( "IterationTime", tIndividualIterationTime );
@@ -212,10 +212,10 @@ namespace moris
         if ( logger_par_rank() == mOutputRank )
         {
             // decide whether to use Entity Type or Base for descriptor when printing to screen
-            std::string tEntityDescriptor = mGlobalClock.mCurrentType[mGlobalClock.mIndentationLevel];
+            std::string tEntityDescriptor = mGlobalClock.mCurrentType[ mGlobalClock.mIndentationLevel ];
             if ( tEntityDescriptor == LOGGER_NON_SPECIFIC_ENTITY_TYPE )
             {
-                tEntityDescriptor = mGlobalClock.mCurrentEntity[mGlobalClock.mIndentationLevel];
+                tEntityDescriptor = mGlobalClock.mCurrentEntity[ mGlobalClock.mIndentationLevel ];
             }
 
             if ( mSeverityLevel < 1 )
@@ -224,10 +224,10 @@ namespace moris
                 if ( ( mDirectOutputFormat == 3 ) || ( mDirectOutputFormat == 2 ) )
                 {
                     // print timing for previous iteration if previous iterations are present
-                    if ( mGlobalClock.mCurrentIteration[mGlobalClock.mIndentationLevel] > 0 )
+                    if ( mGlobalClock.mCurrentIteration[ mGlobalClock.mIndentationLevel ] > 0 )
                     {
                         // stop timer
-                        real tIterationTime = ( (moris::real)std::clock() - mGlobalClock.mIterationTimeStamps[mGlobalClock.mIndentationLevel] ) / CLOCKS_PER_SEC;
+                        real tIterationTime = ( (moris::real)std::clock() - mGlobalClock.mIterationTimeStamps[ mGlobalClock.mIndentationLevel ] ) / CLOCKS_PER_SEC;
 
                         std::cout << print_empty_line( mGlobalClock.mIndentationLevel ) << "_" << tEntityDescriptor << " - "
                                   << "IterationTime: " << tIterationTime << " \n"
@@ -267,10 +267,10 @@ namespace moris
         if ( logger_par_rank() == mOutputRank )
         {
             // decide whether to use Entity Type or Base for descriptor when printing to screen
-            std::string tEntityDescriptor = mGlobalClock.mCurrentType[mGlobalClock.mIndentationLevel];
+            std::string tEntityDescriptor = mGlobalClock.mCurrentType[ mGlobalClock.mIndentationLevel ];
             if ( tEntityDescriptor == LOGGER_NON_SPECIFIC_ENTITY_TYPE )
             {
-                tEntityDescriptor = mGlobalClock.mCurrentEntity[mGlobalClock.mIndentationLevel];
+                tEntityDescriptor = mGlobalClock.mCurrentEntity[ mGlobalClock.mIndentationLevel ];
             }
 
             // print iteration to screen
@@ -278,10 +278,10 @@ namespace moris
             if ( ( mDirectOutputFormat == 3 ) || ( mDirectOutputFormat == 2 ) )
             {
                 // print timing for previous iteration if previous iterations are present
-                if ( mGlobalClock.mCurrentIteration[mGlobalClock.mIndentationLevel] > 0 )
+                if ( mGlobalClock.mCurrentIteration[ mGlobalClock.mIndentationLevel ] > 0 )
                 {
                     // stop timer
-                    real tIterationTime = ( (moris::real)std::clock() - mGlobalClock.mIterationTimeStamps[mGlobalClock.mIndentationLevel] ) / CLOCKS_PER_SEC;
+                    real tIterationTime = ( (moris::real)std::clock() - mGlobalClock.mIterationTimeStamps[ mGlobalClock.mIndentationLevel ] ) / CLOCKS_PER_SEC;
 
                     std::cout << print_empty_line( mGlobalClock.mIndentationLevel ) << "_" << tEntityDescriptor << " - "
                               << "IterationTime: " << tIterationTime << " \n"
@@ -292,13 +292,13 @@ namespace moris
                           << std::flush;
                 std::cout << print_empty_line( mGlobalClock.mIndentationLevel ) << "_" << tEntityDescriptor << " - "
                           << "Iteration"
-                          << ": " << ios::stringify( mGlobalClock.mCurrentIteration[mGlobalClock.mIndentationLevel] + 1 ) << " \n"
+                          << ": " << ios::stringify( mGlobalClock.mCurrentIteration[ mGlobalClock.mIndentationLevel ] + 1 ) << " \n"
                           << std::flush;
             }
             else
             {
                 std::cout << "Iteration"
-                          << ": " << tEntityDescriptor << " - " << ios::stringify( mGlobalClock.mCurrentIteration[mGlobalClock.mIndentationLevel] + 1 ) << " \n"
+                          << ": " << tEntityDescriptor << " - " << ios::stringify( mGlobalClock.mCurrentIteration[ mGlobalClock.mIndentationLevel ] + 1 ) << " \n"
                           << std::flush;
             }
 
@@ -306,11 +306,11 @@ namespace moris
             if ( mWriteToAscii )
             {
                 // print timing for previous iteration if previous iterations are present
-                if ( mGlobalClock.mCurrentIteration[mGlobalClock.mIndentationLevel] > 0 )
+                if ( mGlobalClock.mCurrentIteration[ mGlobalClock.mIndentationLevel ] > 0 )
                 {
                     // compute iteration time on each proc
                     real tIndividualIterationTime =
-                            ( (moris::real)std::clock() - mGlobalClock.mIterationTimeStamps[mGlobalClock.mIndentationLevel] ) / CLOCKS_PER_SEC;
+                            ( (moris::real)std::clock() - mGlobalClock.mIterationTimeStamps[ mGlobalClock.mIndentationLevel ] ) / CLOCKS_PER_SEC;
 
                     // log iteration time to file
                     this->log_to_file( "IterationTime", tIndividualIterationTime );
@@ -319,7 +319,7 @@ namespace moris
                 // formated output to log file
                 this->log_to_file(
                         "Iteration",
-                        mGlobalClock.mCurrentIteration[mGlobalClock.mIndentationLevel] + 1 );
+                        mGlobalClock.mCurrentIteration[ mGlobalClock.mIndentationLevel ] + 1 );
             }
         }
 
@@ -344,9 +344,9 @@ namespace moris
         {
             // check if Instance matches the instance searched for
             if (
-                    aEntityBase == mGlobalClock.mCurrentEntity[tIndentLevel]
-                    and ( aEntityType == mGlobalClock.mCurrentType[tIndentLevel] or aEntityType == LOGGER_ARBITRARY_DESCRIPTOR )
-                    and ( aEntityAction == mGlobalClock.mCurrentAction[tIndentLevel] or aEntityAction == LOGGER_ARBITRARY_DESCRIPTOR ) )
+                    aEntityBase == mGlobalClock.mCurrentEntity[ tIndentLevel ]
+                    and ( aEntityType == mGlobalClock.mCurrentType[ tIndentLevel ] or aEntityType == LOGGER_ARBITRARY_DESCRIPTOR )
+                    and ( aEntityAction == mGlobalClock.mCurrentAction[ tIndentLevel ] or aEntityAction == LOGGER_ARBITRARY_DESCRIPTOR ) )
             {
                 tInstanceFound = true;
             }
@@ -358,7 +358,7 @@ namespace moris
         // return iteration count if the instance was found
         if ( tInstanceFound )
         {
-            return mGlobalClock.mCurrentIteration[tIndentLevel - 1];
+            return mGlobalClock.mCurrentIteration[ tIndentLevel - 1 ];
         }
 
         return 0;
@@ -382,9 +382,9 @@ namespace moris
         {
             // check if Instance matches the instance searched for
             if (
-                    aEntityBase == mGlobalClock.mCurrentEntity[tIndentLevel]
-                    and ( aEntityType == mGlobalClock.mCurrentType[tIndentLevel] or aEntityType == LOGGER_ARBITRARY_DESCRIPTOR )
-                    and ( aEntityAction == mGlobalClock.mCurrentAction[tIndentLevel] or aEntityAction == LOGGER_ARBITRARY_DESCRIPTOR ) )
+                    aEntityBase == mGlobalClock.mCurrentEntity[ tIndentLevel ]
+                    and ( aEntityType == mGlobalClock.mCurrentType[ tIndentLevel ] or aEntityType == LOGGER_ARBITRARY_DESCRIPTOR )
+                    and ( aEntityAction == mGlobalClock.mCurrentAction[ tIndentLevel ] or aEntityAction == LOGGER_ARBITRARY_DESCRIPTOR ) )
             {
                 tInstanceFound = true;
             }
@@ -396,7 +396,7 @@ namespace moris
         // return iteration count if the instance was found
         if ( tInstanceFound )
         {
-            mGlobalClock.mCurrentIteration[tIndentLevel - 1] = aIter;
+            mGlobalClock.mCurrentIteration[ tIndentLevel - 1 ] = aIter;
         }
         // throw error if instance was not found
         else
@@ -424,9 +424,9 @@ namespace moris
         {
             // check if Instance matches the instance searched for
             if (
-                    aEntityBase == mGlobalClock.mCurrentEntity[tIndentLevel]
-                    and ( aEntityType == mGlobalClock.mCurrentType[tIndentLevel] or aEntityType == LOGGER_ARBITRARY_DESCRIPTOR )
-                    and ( aEntityAction == mGlobalClock.mCurrentAction[tIndentLevel] or aEntityAction == LOGGER_ARBITRARY_DESCRIPTOR ) )
+                    aEntityBase == mGlobalClock.mCurrentEntity[ tIndentLevel ]
+                    and ( aEntityType == mGlobalClock.mCurrentType[ tIndentLevel ] or aEntityType == LOGGER_ARBITRARY_DESCRIPTOR )
+                    and ( aEntityAction == mGlobalClock.mCurrentAction[ tIndentLevel ] or aEntityAction == LOGGER_ARBITRARY_DESCRIPTOR ) )
             {
                 tInstanceFound = true;
             }
@@ -439,9 +439,9 @@ namespace moris
         if ( tInstanceFound )
         {
             // check if particular data exists and return value
-            if ( mGlobalClock.mActionData[tIndentLevel - 1].find( aEntityDataKey ) != mGlobalClock.mActionData[tIndentLevel - 1].end() )
+            if ( mGlobalClock.mActionData[ tIndentLevel - 1 ].find( aEntityDataKey ) != mGlobalClock.mActionData[ tIndentLevel - 1 ].end() )
             {
-                return mGlobalClock.mActionData[tIndentLevel - 1][aEntityDataKey];
+                return mGlobalClock.mActionData[ tIndentLevel - 1 ][ aEntityDataKey ];
             }
 
             // throw error as instance was not found
@@ -449,11 +449,8 @@ namespace moris
             throw;
         }
 
-        // throw error as instance was not found
-        std::cout << "Logger::get_action_data - instance not found." << std::endl;
-        throw;
-
-        return 0;
+        // return large number if instance was not found
+        return MORIS_REAL_MAX;
     }
 
     //------------------------------------------------------------------------------
@@ -475,9 +472,9 @@ namespace moris
         {
             // check if Instance matches the instance searched for
             if (
-                    aEntityBase == mGlobalClock.mCurrentEntity[tIndentLevel]
-                    and ( aEntityType == mGlobalClock.mCurrentType[tIndentLevel] or aEntityType == LOGGER_ARBITRARY_DESCRIPTOR )
-                    and ( aEntityAction == mGlobalClock.mCurrentAction[tIndentLevel] or aEntityAction == LOGGER_ARBITRARY_DESCRIPTOR ) )
+                    aEntityBase == mGlobalClock.mCurrentEntity[ tIndentLevel ]
+                    and ( aEntityType == mGlobalClock.mCurrentType[ tIndentLevel ] or aEntityType == LOGGER_ARBITRARY_DESCRIPTOR )
+                    and ( aEntityAction == mGlobalClock.mCurrentAction[ tIndentLevel ] or aEntityAction == LOGGER_ARBITRARY_DESCRIPTOR ) )
             {
                 tInstanceFound = true;
             }
@@ -489,7 +486,7 @@ namespace moris
         // extract data if the instance was found
         if ( tInstanceFound )
         {
-            mGlobalClock.mActionData[tIndentLevel - 1][aEntityData] = aActionValue;
+            mGlobalClock.mActionData[ tIndentLevel - 1 ][ aEntityData ] = aActionValue;
         }
         else
         {
