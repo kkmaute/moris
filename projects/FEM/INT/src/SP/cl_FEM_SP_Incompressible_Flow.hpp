@@ -58,6 +58,15 @@ namespace moris
                  * see: STABILIZED FINITE ELEMENT METHODS FOR FLUID DYNAMICS USING A HIERARCHICAL BASIS
                  *      by Christian H. Whiting
                  */
+
+                // element inverse estimate parameter
+                real mCI = 0.0;
+                bool mSetCI = false;
+
+                // is time solve parameter
+                real mBetaTime = 1.0;
+                bool mSetBetaTime = false;
+
             public:
 
                 //------------------------------------------------------------------------------
@@ -71,6 +80,12 @@ namespace moris
                  * trivial destructor
                  */
                 ~SP_Incompressible_Flow(){};
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set parameters
+                 */
+                void set_parameters( moris::Cell< Matrix< DDRMat > > aParameters );
 
                 //------------------------------------------------------------------------------
                 /**

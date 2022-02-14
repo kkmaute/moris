@@ -58,8 +58,15 @@ namespace moris
                 const real mEpsilon = 1e-18;
 
                 /*
-                 * Rem: mParameters - no parameters needed
+                 * Rem: mParameters
+                 * betaTime - 0 if no time, 1 if time
                  */
+
+                // parameters
+                real mBetaTime = 1.0;
+
+                // set parameter bool
+                bool mSetBetaTime = false;
 
                 //------------------------------------------------------------------------------
                 /*
@@ -94,6 +101,12 @@ namespace moris
                  * trivial destructor
                  */
                 ~SP_SUPG_Advection(){}
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set parameters
+                 */
+                void set_parameters( moris::Cell< Matrix< DDRMat > > aParameters );
 
                 //------------------------------------------------------------------------------
                 /**

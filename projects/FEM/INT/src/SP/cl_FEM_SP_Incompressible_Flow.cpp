@@ -57,6 +57,38 @@ namespace moris
             }
         }
 
+        //--------------------------------------------------------------------------------------------------------------
+
+        void SP_Incompressible_Flow::set_parameters( moris::Cell< Matrix< DDRMat > > aParameters )
+        {
+            // FIXME not necessary
+            // set mParameters
+            mParameters = aParameters;
+
+            // get number of parameters
+            uint tParamSize = aParameters.size();
+
+            // check for proper size of constant function parameters
+            MORIS_ERROR( tParamSize >= 1 && tParamSize < 3,
+                    "SP_Incompressible_Flow::set_parameters - either 1 or 2 constant parameter need to be set." );
+
+            // set CI
+            mCI = mParameters( 0 )( 0 );
+
+            // set CI flag to true
+            mSetCI = true;
+
+            // if time
+            if( tParamSize > 1 )
+            {
+                // set betaTime
+                mBetaTime = aParameters( 1 )( 0 );
+
+                // set beta time flag to true
+                mSetBetaTime = true;
+            }
+        }
+
         //------------------------------------------------------------------------------
 
         void SP_Incompressible_Flow::set_dof_type_list(
@@ -144,12 +176,6 @@ namespace moris
                 tInvPermeab = tInvPermeabProp->val()( 0 );
             }
 
-            // get element inverse estimate
-            real tCI = mParameters( 0 )( 0 );
-
-            // get the time step
-            real tDeltaT = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
-
             // evaluate Gij = sum_k dxi_k/dx_i dxi_k/dx_j
             Matrix< DDRMat > tG;
             this->eval_G( tG );
@@ -165,10 +191,19 @@ namespace moris
             Matrix< DDRMat > tGijGij  = tFlatG * trans( tFlatG );
 
             real tPPVal =
-                    std::pow( 2.0 * tDensity / tDeltaT, 2.0 ) +
                     std::pow( tDensity, 2.0 ) * tvivjGij( 0 ) +
-                    tCI * std::pow( tViscosity, 2.0 ) * tGijGij( 0 ) +
+                    mCI * std::pow( tViscosity, 2.0 ) * tGijGij( 0 ) +
                     std::pow( tInvPermeab, 2.0 );
+
+            // if time solve
+            if( mBetaTime )
+            {
+                // get the time step
+                real tDeltaT = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
+
+                // add time contribution
+                tPPVal += std::pow( 2.0 * tDensity / tDeltaT, 2.0 );
+            }
 
             // threshold tPPVal
             tPPVal = std::max(tPPVal,mEpsilon);
@@ -220,12 +255,6 @@ namespace moris
                 tInvPermeab = tInvPermeabProp->val()( 0 );
             }
 
-            // get element inverse estimate
-            real tCI = mParameters( 0 )( 0 );
-
-            // get the time step
-            real tDeltaT = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
-
             // evaluate Gij = sum_d dxi_d/dx_i dxi_d/dx_j
             Matrix< DDRMat > tG;
             this->eval_G( tG );
@@ -241,10 +270,19 @@ namespace moris
             Matrix< DDRMat > tGijGij  = tFlatG * trans( tFlatG );
 
             real tPPVal =
-                    std::pow( 2.0 * tDensity / tDeltaT, 2.0 ) +
                     std::pow( tDensity, 2.0 ) * tvivjGij( 0 ) +
-                    tCI * std::pow( tViscosity, 2.0 ) * tGijGij( 0 ) +
+                    mCI * std::pow( tViscosity, 2.0 ) * tGijGij( 0 ) +
                     std::pow( tInvPermeab, 2.0 );
+
+            // if time solve
+            if( mBetaTime )
+            {
+                // get the time step
+                real tDeltaT = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
+
+                // add time contribution
+                tPPVal += std::pow( 2.0 * tDensity / tDeltaT, 2.0 );
+            }
 
             // compute derivatives if tPPVal is not thresholded
             if ( tPPVal > mEpsilon )
@@ -269,8 +307,21 @@ namespace moris
                 {
                     mdPPdMasterDof( tDofIndex ).get_row( 0 ) +=
                             tPreFactor *
-                            ( 8.0 * tDensity / tDeltaT / tDeltaT + 2.0 * tDensity * tvivjGij( 0 ) ) *
+                            ( 2.0 * tDensity * tvivjGij( 0 ) ) *
                             tDensityProp->dPropdDOF( aDofTypes );
+
+                    // if time solve
+                    if( mBetaTime )
+                    {
+                        // get the time step
+                        real tDeltaT = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
+
+                        // add time contribution
+                        mdPPdMasterDof( tDofIndex ).get_row( 0 ) +=
+                                tPreFactor *
+                                ( 8.0 * tDensity / tDeltaT / tDeltaT ) *
+                                tDensityProp->dPropdDOF( aDofTypes );
+                    }
                 }
 
                 // if viscosity
@@ -278,7 +329,7 @@ namespace moris
                 {
                     mdPPdMasterDof( tDofIndex ).get_row( 0 ) +=
                             tPreFactor *
-                            ( 2.0 * tCI * tViscosity * tGijGij * tViscosityProp->dPropdDOF( aDofTypes ) );
+                            ( 2.0 * mCI * tViscosity * tGijGij * tViscosityProp->dPropdDOF( aDofTypes ) );
                 }
 
                 // if permeability
