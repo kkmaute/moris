@@ -37,7 +37,7 @@ namespace moris
                 MSI::Dof_Type mMasterDofPressure = MSI::Dof_Type::P;
 
                 // internal threshold
-                const real mEpsilon = 1e-18;
+                const real mEpsilon = MORIS_REAL_EPS;
 
                 // property type for the SP
                 enum class Property_Type
