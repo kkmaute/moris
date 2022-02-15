@@ -300,7 +300,7 @@ namespace moris
                 /**
                  * reset evaluation flags
                  */
-                void reset_eval_flags();
+                virtual void reset_eval_flags();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -394,7 +394,7 @@ namespace moris
                 /**
                  * create a global dof type list including constitutive and property dependencies
                  */
-                void build_global_dof_type_list();
+                virtual void build_global_dof_type_list();
 
                 //------------------------------------------------------------------------------
                 /**
