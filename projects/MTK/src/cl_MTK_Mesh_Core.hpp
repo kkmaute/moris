@@ -71,6 +71,8 @@ namespace moris
              */
             virtual MeshType get_mesh_type() const = 0;
 
+            // ----------------------------------------------------------------------------
+
             /**
              * Returns the spatial dimension of this mesh.
              *
@@ -78,9 +80,58 @@ namespace moris
              */
             virtual uint get_spatial_dim() const = 0;
 
+            // ----------------------------------------------------------------------------
+
             uint get_order();
 
+            // ----------------------------------------------------------------------------
+
             uint get_discretization_order( moris_index aDiscretizationIndex );
+
+            // ----------------------------------------------------------------------------
+
+            virtual
+            luint get_num_active_bg_elements_on_discretization_mesh_index( moris_index const aDiscretizationMeshIndex );
+
+            // ----------------------------------------------------------------------------
+
+            virtual
+            void get_active_bg_element_indices_on_discretization_mesh_index( 
+                    moris_index const aDiscretizationMeshIndex, 
+                    Matrix< DDLUMat > & aElementIDs );
+
+            // -----------------------------------------------------------------------------
+
+            /**
+             * @brief Get the lagrange elements within one bspline element
+             * 
+             * @param aBspElementIndex index of the b-spline element
+             * @param aDiscretizationMeshIndex discretization mesh index
+             * @param aCells output: list of Lagrange elements as mtk::cells that sit inside the B-spline element
+             */
+            virtual
+            void get_elements_in_bspline_element(
+                    moris_index const aBspElementIndex,
+                    moris_index const aDiscretizationMeshIndex,
+                    moris::Cell< mtk::Cell * > & aCells );
+
+            // -----------------------------------------------------------------------------
+
+            /**
+             * @brief Get the lagrange elements in the bspline elements for the whole mesh
+             * 
+             * @param aDiscretizationMeshIndex discretization mesh index
+             * @param aCells list of lists of Lagrange elements (mtk::cells) inside each B-spline element
+             * @param aCellIndices list of lists of Lagrange elements (indices) inside each B-spline element
+             */
+            virtual
+            void get_lagrange_elements_in_bspline_elements(
+                    moris_index const aDiscretizationMeshIndex,
+                    moris::Cell< moris::Cell< mtk::Cell * > > & aCells,
+                    moris::Cell< moris::Cell< moris_index > > & aCellIndices,
+                    moris::Cell< moris_index > & aLagToBspCellIndices );
+
+            // ----------------------------------------------------------------------------
 
             /**
              * Returns lagrange elements inside the same B-Spline elements as the input lagragne element
@@ -95,6 +146,8 @@ namespace moris
                     moris_index aElementIndex,
                     moris_index aDiscretizationMeshIndex,
                     moris::Cell< mtk::Cell * > & tCells);
+
+            // ----------------------------------------------------------------------------
 
             /**
              * Returns lagrange elements inside the same B-Spline elements as the input lagragne element and side ordinal

@@ -303,6 +303,38 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
+            luint get_num_active_bg_elements_on_discretization_mesh_index( moris_index const aDiscretizationMeshIndex )
+            {
+                return mMesh->get_num_active_bg_elements_on_discretization_mesh_index( aDiscretizationMeshIndex );
+            }
+
+            // ----------------------------------------------------------------------------
+
+            void get_active_bg_element_indices_on_discretization_mesh_index( 
+                    moris_index const aDiscretizationMeshIndex, 
+                    Matrix< DDLUMat > & aElementIDs )
+            {
+                mMesh->get_active_bg_element_indices_on_discretization_mesh_index( aDiscretizationMeshIndex, aElementIDs );
+            }
+
+
+            // ----------------------------------------------------------------------------
+
+            void get_elements_in_bspline_element(
+                    moris_index const aBspElementIndex,
+                    moris_index const aDiscretizationMeshIndex,
+                    moris::Cell< mtk::Cell * > & aCells );
+
+            // ----------------------------------------------------------------------------
+
+            void get_lagrange_elements_in_bspline_elements(
+                    moris_index const aDiscretizationMeshIndex,
+                    moris::Cell< moris::Cell< mtk::Cell * > > & aCells,
+                    moris::Cell< moris::Cell< moris_index > > & aCellIndices,
+                    moris::Cell< moris_index > & aLagToBspCellIndices );
+
+            // ----------------------------------------------------------------------------
+
             void get_elements_in_interpolation_cluster(
                     moris_index aElementIndex,
                     moris_index aDiscretizationMeshIndex,

@@ -981,15 +981,43 @@ namespace moris
 
         //-----------------------------------------------------------------------------
 
+        void Mesh::get_elements_in_bspline_element(
+                moris_index const aBspElementIndex,
+                moris_index const aDiscretizationMeshIndex,
+                moris::Cell< mtk::Cell * > & aCells )
+        {
+            mMesh->get_elements_in_bspline_element(
+                aBspElementIndex,
+                aDiscretizationMeshIndex,
+                aCells );
+        }
+
+        //-----------------------------------------------------------------------------
+
+        void Mesh::get_lagrange_elements_in_bspline_elements(
+                moris_index const aDiscretizationMeshIndex,
+                moris::Cell< moris::Cell< mtk::Cell * > > & aCells,
+                moris::Cell< moris::Cell< moris_index > > & aCellIndices,
+                moris::Cell< moris_index > & aLagToBspCellIndices )
+        {
+            mMesh->get_lagrange_elements_in_bspline_elements(
+                aDiscretizationMeshIndex,
+                aCells,
+                aCellIndices,
+                aLagToBspCellIndices );
+        }
+
+        //-----------------------------------------------------------------------------
+
         void Mesh::get_elements_in_interpolation_cluster(
                 moris_index                  aElementIndex,
                 moris_index                  aDiscretizationMeshIndex,
-                moris::Cell< mtk::Cell * > & aCells)
+                moris::Cell< mtk::Cell * > & aCells )
         {
             mMesh->get_elements_in_interpolation_cluster(
-                    aElementIndex,
-                    aDiscretizationMeshIndex,
-                    aCells);
+                aElementIndex,
+                aDiscretizationMeshIndex,
+                aCells);
         }
 
         //-----------------------------------------------------------------------------

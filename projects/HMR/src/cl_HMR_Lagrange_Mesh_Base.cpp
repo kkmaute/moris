@@ -3798,6 +3798,112 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        void Lagrange_Mesh_Base::get_elements_in_bspline_element(
+                moris_index const aBspElementIndex,
+                moris_index const aDiscretizationMeshIndex,
+                moris::Cell< mtk::Cell * > & aCells )
+        {
+            // get pointer to b-spline and background elements
+            Element * tBsplineElement = mBSplineMeshes( aDiscretizationMeshIndex )->get_element( aBspElementIndex );
+            Background_Element_Base * tBackgroundElement  = tBsplineElement->get_background_element();
+
+            // check that current element is actually active on the current activation pattern
+            MORIS_ERROR( tBackgroundElement->is_active( mBSplineMeshes( aDiscretizationMeshIndex )->get_activation_pattern() ), 
+                "Lagrange_Mesh_Base::get_elements_in_bspline_element() - trying to get non-active B-Spline element." );
+
+            // get the number of active Lagrange elmements within active B-spline element
+            luint tNumActiveLagrangeElements = 0;
+            uint tLagrangePattern = this->get_activation_pattern();
+            tBackgroundElement->get_number_of_active_descendants( tLagrangePattern, tNumActiveLagrangeElements );
+
+            // collect the active Lagrange elements
+            tNumActiveLagrangeElements = 0;
+            moris::Cell< Background_Element_Base * > tActiveElements( tNumActiveLagrangeElements, nullptr );
+            tBackgroundElement->collect_active_descendants( tLagrangePattern, tActiveElements, tNumActiveLagrangeElements );
+
+            // initialize output cell with correct size
+            aCells.resize( tNumActiveLagrangeElements, nullptr );
+            
+            // 
+            for( uint iLagElem = 0; iLagElem < tNumActiveLagrangeElements; iLagElem ++ )
+            {
+                luint tMemoryIndex = tActiveElements( iLagElem )->get_memory_index();
+                aCells( iLagElem ) = this->get_element_by_memory_index( tMemoryIndex );
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Lagrange_Mesh_Base::get_lagrange_elements_in_bspline_elements(
+                moris_index const aDiscretizationMeshIndex,
+                moris::Cell< moris::Cell< mtk::Cell * > > & aCells,
+                moris::Cell< moris::Cell< moris_index > > & aCellIndices,
+                moris::Cell< moris_index > & aLagToBspCellIndices )
+        {
+            // get number of Lagrange elements on current mesh
+            luint tNumLagElems = this->get_background_mesh()->get_number_of_active_elements_on_proc();
+            aLagToBspCellIndices.resize( tNumLagElems, -1 );
+
+            // get number of B-spline elements on bg mesh
+            luint tNumBsplineElems = this->get_num_active_bg_elements_on_discretization_mesh_index( aDiscretizationMeshIndex );
+
+            // get indices of active B-spline elements on bg mesh
+            Matrix< DDLUMat > tElementIndices;
+            this->get_active_bg_element_indices_on_discretization_mesh_index( aDiscretizationMeshIndex, tElementIndices );
+
+            // check for debug
+            MORIS_ASSERT( tElementIndices.numel() == tNumBsplineElems, 
+                "Lagrange_Mesh_Base::get_lagrange_elements_in_bspline_elements() - number of Bsp-elems and size of Bsp-elem index list don't match." );
+
+            // initialize the output list sizes
+            aCells.resize( tNumBsplineElems );
+            aCellIndices.resize( tNumBsplineElems, -1 );
+
+            // for each B-spline element find and store the Lagrange elements within it
+            for ( luint iBspElem = 0; iBspElem < tNumBsplineElems; iBspElem++ )
+            {
+                // temporarily get the index of the B-spline element being treated
+                luint tBspElementIndex = tElementIndices( iBspElem );            
+
+                // get pointer to b-spline and background elements
+                Element * tBsplineElement = mBSplineMeshes( aDiscretizationMeshIndex )->get_element( tBspElementIndex );
+                Background_Element_Base * tBackgroundElement  = tBsplineElement->get_background_element();
+
+                // check that current element is actually active on the current activation pattern
+                MORIS_ASSERT( tBackgroundElement->is_active( mBSplineMeshes( aDiscretizationMeshIndex )->get_activation_pattern() ), 
+                    "Lagrange_Mesh_Base::get_elements_in_bspline_element() - trying to get non-active B-Spline element." );
+
+                // get the number of active Lagrange elmements within active B-spline element
+                luint tNumActiveLagrangeElements = 0;
+                uint tLagrangePattern = this->get_activation_pattern();
+                tBackgroundElement->get_number_of_active_descendants( tLagrangePattern, tNumActiveLagrangeElements );
+
+                // collect the active Lagrange elements
+                tNumActiveLagrangeElements = 0;
+                moris::Cell< Background_Element_Base * > tActiveElements( tNumActiveLagrangeElements, nullptr );
+                tBackgroundElement->collect_active_descendants( tLagrangePattern, tActiveElements, tNumActiveLagrangeElements );
+
+                // initialize output cell with correct size
+                aCells( iBspElem ).resize( tNumActiveLagrangeElements, nullptr );
+                aCellIndices( iBspElem ).resize( tNumActiveLagrangeElements, -1 );
+                
+                // get the Lagrange elements and their indices
+                for( uint iLagElem = 0; iLagElem < tNumActiveLagrangeElements; iLagElem ++ )
+                {
+                    // find Lagrange elments via memory index and store them in output lists
+                    luint tMemoryIndex = tActiveElements( iLagElem )->get_memory_index();
+                    aCells( iBspElem )( iLagElem ) = this->get_element_by_memory_index( tMemoryIndex );
+                    moris_index tLagElemIndex = aCells( iBspElem )( iLagElem )->get_index();
+                    aCellIndices( iBspElem )( iLagElem ) = tLagElemIndex;
+                    
+                    // store which B-spline element current Larange element belongs to
+                    aLagToBspCellIndices( (uint) tLagElemIndex ) = iBspElem;
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
         void Lagrange_Mesh_Base::get_elements_in_interpolation_cluster(
                 moris_index const aElementIndex,
                 moris_index const aDiscretizationMeshIndex,
@@ -3805,6 +3911,7 @@ namespace moris
         {
             // get B-Spline pattern of this mesh
             auto tBSplinePattern = mBSplineMeshes( aDiscretizationMeshIndex )->get_activation_pattern();
+
             // get Lagrange pattern of this mesh
             auto tLagrangePattern = this->get_activation_pattern();
 
@@ -3817,6 +3924,8 @@ namespace moris
             // get pointer to background element
             auto tBackgroundElement = tLagrangeElement->get_background_element();
 
+            // keep jumping to parent until we have the active element 
+            // Note: underlying assumption that the Lagrange element is at least as refined as the active bspline element
             while( ! tBackgroundElement->is_active( tBSplinePattern ) )
             {
                 // jump to parent
@@ -3839,7 +3948,7 @@ namespace moris
 
             for( uint Ik = 0; Ik < tCount; Ik ++ )
             {
-                luint tMemoryIndex =tActiveElements( Ik )->get_memory_index();
+                luint tMemoryIndex = tActiveElements( Ik )->get_memory_index();
 
                 aCells( Ik ) = this->get_element_by_memory_index( tMemoryIndex );
             }

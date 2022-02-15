@@ -710,6 +710,34 @@ namespace moris
 
                 // ----------------------------------------------------------------------------
 
+                /**
+                 * @brief Get the number of active background elements on b-spline mesh with a given mesh index
+                 * 
+                 * @param aDiscretizationMeshIndex b-spline background mesh index
+                 * @return luint number of active elements on that b-spline mesh
+                 */
+                luint get_num_active_bg_elements_on_discretization_mesh_index( moris_index const aDiscretizationMeshIndex )
+                {
+                    return mBSplineMeshes( aDiscretizationMeshIndex )->get_background_mesh()->get_number_of_active_elements_on_proc();
+                }
+
+                // ----------------------------------------------------------------------------
+
+                /**
+                 * @brief Get a list of indices of active background elements on b-spline mesh with a given mesh index
+                 * 
+                 * @param aDiscretizationMeshIndex b-spline background mesh index
+                 * @param aElementIDs Matrix< DDLUMat > to fill with list of active BG element indices
+                 */
+                void get_active_bg_element_indices_on_discretization_mesh_index( 
+                        moris_index const aDiscretizationMeshIndex, 
+                        Matrix< DDLUMat > & aElementIDs )
+                {
+                    mBSplineMeshes( aDiscretizationMeshIndex )->get_background_mesh()->get_active_elements_on_proc( aElementIDs );
+                }
+
+                // ----------------------------------------------------------------------------
+
                 void get_num_active_elements( Background_Element_Base * aBackgroundElement,
                         uint                    & aCounter )
                 {
@@ -850,6 +878,35 @@ namespace moris
                         return 0;
                     }
                 }
+
+                // -----------------------------------------------------------------------------
+
+                /**
+                 * @brief Get the lagrange elements within one bspline element
+                 * 
+                 * @param aBspElementIndex index of the b-spline element
+                 * @param aDiscretizationMeshIndex discretization mesh index
+                 * @param aCells output: list of Lagrange elements as mtk::cells that sit inside the B-spline element
+                 */
+                void get_elements_in_bspline_element(
+                        moris_index const aBspElementIndex,
+                        moris_index const aDiscretizationMeshIndex,
+                        moris::Cell< mtk::Cell * > & aCells );
+
+                // -----------------------------------------------------------------------------
+
+                /**
+                 * @brief Get the lagrange elements inside the bspline elements for the whole mesh
+                 * 
+                 * @param aDiscretizationMeshIndex discretization mesh index
+                 * @param aCells list of lists of Lagrange elements (mtk::cells) inside each B-spline element
+                 * @param aCellIndices list of lists of Lagrange elements (indices) inside each B-spline element
+                 */
+                void get_lagrange_elements_in_bspline_elements(
+                        moris_index const aDiscretizationMeshIndex,
+                        moris::Cell< moris::Cell< mtk::Cell * > > & aCells,
+                        moris::Cell< moris::Cell< moris_index > > & aCellIndices,
+                        moris::Cell< moris_index > & aLagToBspCellIndices );
 
                 // -----------------------------------------------------------------------------
 
