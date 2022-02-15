@@ -8,12 +8,6 @@ namespace moris
 {
     namespace fem
     {
-        // internal threshold for zero
-        const real mEpsilon = 1e-16;
-
-        // internal threshold for wall distance
-        const real mWallDistanceEpsilon = 1e-6;
-
         // Spalart Allmaras model constants
         real mCb1 = 0.1355;
         real mCb2 = 0.6220;
