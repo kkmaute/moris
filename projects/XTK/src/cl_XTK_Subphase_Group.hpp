@@ -64,6 +64,12 @@ namespace xtk
         }
 
         const moris::Cell< moris_index > &
+        get_SP_indices_in_group() const
+        {
+            return mSubphaseIndicesInGroup;
+        }
+
+        const moris::Cell< moris_index > &
         get_ligament_side_ordinals() const
         {
             MORIS_ASSERT( mLigamentSideOrdinalsSet, "Subphase_Group::get_ligament_side_ordinals() - Side ordinals have not been set yet." );
@@ -89,10 +95,13 @@ namespace xtk
 
         // store which Subphase groups sit in a given (B-spline) basis cells
         // input: index of (B-spline) basis cell || output: list of SPGs living in it (or their indices)
-        moris::Cell< moris::Cell< moris_index > > mSPGsIndicesInBsplineCells;
+        moris::Cell< moris::Cell< moris_index > > mSPGsIndicesInBsplineCells; // TODO: needed?
 
         // Subphase Groups
         moris::Cell< Subphase_Group * > mSubphaseGroups;
+
+        // SP to SPG map
+        moris::Cell< moris_index > mSpToSpgMap;
 
         // // store which bulk-phases are present in each basis (B-spline) cell
         // // moris::Cell< moris::Cell< moris_index > > mBulkPhasesInBsplineCells; // TODO: needed?
@@ -119,16 +128,43 @@ namespace xtk
 
         // ----------------------------------------------------------------------------------
 
+        /**
+         * @brief free unused memory
+         * 
+         */
+        void 
+        finalize()
+        {
+            mSubphaseGroups.shrink_to_fit();
+        }
+
+        // ----------------------------------------------------------------------------------
+
         moris_index
-        get_num_Bspline_cells()
+        get_num_Bspline_cells() const
         {
             return mMaxBsplineCellIndex + 1;
         }
 
-        moris_index
-        get_num_SPGs()
+        luint
+        get_num_SPGs() const
         {
-            return mMaxSpgIndex + 1;
+            return (luint) mMaxSpgIndex + 1;
+        }
+
+        // ----------------------------------------------------------------------------------
+
+        void
+        add_subphase_group_to_bspline_cell( 
+                moris::Cell< moris_index > & aSPsInGroup, 
+                luint                        aBsplineElementIndex )
+        {
+            // track SPG indices and get new one
+            mMaxSpgIndex++;
+
+            // create a new SPG and commit it to the B-spline mesh info
+            Subphase_Group * tNewSPG = new Subphase_Group( mMaxSpgIndex, aBsplineElementIndex, aSPsInGroup );
+            mSubphaseGroups.push_back( tNewSPG );
         }
 
         // ----------------------------------------------------------------------------------
@@ -144,7 +180,6 @@ namespace xtk
             mMaxSpgIndex++;
 
             // create and commit a new SPG to the B-spline mesh info
-            // FIXME: this is way of allocating SPGs is painfully expensive for big problems, needs to be made more efficient
             Subphase_Group * tNewSPG = new Subphase_Group( mMaxSpgIndex, mMaxBsplineCellIndex, aSPsInGroup );
             mSubphaseGroups.push_back( tNewSPG );
         }
@@ -233,6 +268,33 @@ namespace xtk
             // commit information to corresponding subphase group
             mSubphaseGroups( mMaxSpgIndex )->set_ligament_side_ordinals( tLigamentSideOrdinals );
         }
+
+        // ----------------------------------------------------------------------------------
+
+        void
+        create_SP_to_SPG_map( luint tTotNumSPs )
+        {
+            // initialize map with correct size
+            mSpToSpgMap.resize( tTotNumSPs, -1 );
+
+            // go over SPGs and get their SP indices, then list them in the map
+            for ( luint iSPG = 0; iSPG < mSubphaseGroups.size(); iSPG++ )
+            {
+                // get list of SP indices in SPG
+                const moris::Cell< moris_index > & tSpIndicesInGroup = mSubphaseGroups( iSPG )->get_SP_indices_in_group();
+
+                // get the SPG's index
+                const moris_index tSpgIndex = mSubphaseGroups( iSPG )->get_index();
+
+                // loop over the SPs and set their SPG indices in the map
+                for ( moris::size_t iSP = 0; iSP < tSpIndicesInGroup.size(); iSP++ )
+                {
+                    mSpToSpgMap( tSpIndicesInGroup( iSP ) ) = tSpgIndex;
+                }
+            }
+        }
+
+        // ----------------------------------------------------------------------------------
     };
 
     // ----------------------------------------------------------------------------------

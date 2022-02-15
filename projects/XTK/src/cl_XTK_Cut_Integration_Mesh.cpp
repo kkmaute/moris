@@ -235,51 +235,83 @@ namespace xtk
 
     Cut_Integration_Mesh::~Cut_Integration_Mesh()
     {
+        // delete the objects holding B-spline information
+        this->delete_Bspline_mesh_info();
+    }
+
+    //-------------------------------------------------------------------------------------
+
+    void
+    Cut_Integration_Mesh::delete_Bspline_mesh_info()
+    {
+        // delete the objects themselves
+        for ( auto iBspMesh : mBsplineMeshInfos )
+        {
+            delete iBspMesh;
+        }
+
+        // clear memory for cell
+        mBsplineMeshInfos.clear();
     }
 
     // ----------------------------------------------------------------------------------
+
     uint
     Cut_Integration_Mesh::get_spatial_dim() const
     {
         return mSpatialDimension;
     }
+
     // ----------------------------------------------------------------------------------
+
     MeshType
     Cut_Integration_Mesh::get_mesh_type() const
     {
         return MeshType::XTK;
     }
+
     // ----------------------------------------------------------------------------------
+
     moris::uint
     Cut_Integration_Mesh::get_num_sets() const
     {
         return 0;
     }
+
     // ----------------------------------------------------------------------------------
+
     Matrix< DDRMat >
     Cut_Integration_Mesh::get_node_coordinate( moris_index aNodeIndex ) const
     {
         return ( *mVertexCoordinates( aNodeIndex ) );
     }
+
     // ----------------------------------------------------------------------------------
+
     uint
     Cut_Integration_Mesh::get_node_owner( moris_index aNodeIndex ) const
     {
         return mIntegrationVertices( aNodeIndex )->get_owner();
     }
+
     // ----------------------------------------------------------------------------------
+
     uint
     Cut_Integration_Mesh::get_element_owner( moris_index aElementIndex ) const
     {
         return mIntegrationCells( aElementIndex )->get_owner();
     }
+    
     // ----------------------------------------------------------------------------------
+
     Matrix< IdMat >
     Cut_Integration_Mesh::get_communication_table() const
     {
         return mCommunicationMap;
     }
+
     // ----------------------------------------------------------------------------------
+
     void
     Cut_Integration_Mesh::add_proc_to_comm_table(moris_index aProcRank)
     {
@@ -293,7 +325,9 @@ namespace xtk
         mCommunicationMap.resize(1,mCommunicationMap.numel()+1);
         mCommunicationMap(tIndex) = aProcRank;
     }
+
     // ----------------------------------------------------------------------------------
+
     Matrix< IndexMat >
     Cut_Integration_Mesh::get_element_indices_in_block_set( uint aSetIndex )
     {
@@ -316,6 +350,7 @@ namespace xtk
     }
 
     // ----------------------------------------------------------------------------------
+
     enum CellTopology
     Cut_Integration_Mesh::get_blockset_topology( const std::string& aSetName )
     {
@@ -324,7 +359,9 @@ namespace xtk
 
         return mBlockCellTopo( tBlockIndex );
     }
+
     // ----------------------------------------------------------------------------------
+
     enum CellShape
     Cut_Integration_Mesh::get_IG_blockset_shape( const std::string& aSetName )
     {
@@ -332,12 +369,15 @@ namespace xtk
     }
 
     // ----------------------------------------------------------------------------------
+
     enum CellShape
     Cut_Integration_Mesh::get_IP_blockset_shape( const std::string& aSetName )
     {
         return CellShape::INVALID;
     }
+
     // ----------------------------------------------------------------------------------
+
     moris_id
     Cut_Integration_Mesh::get_glb_entity_id_from_entity_loc_index(
             moris_index       aEntityIndex,
@@ -1831,4 +1871,5 @@ namespace xtk
     }
 
     // ----------------------------------------------------------------------------------
+    
 }// namespace xtk

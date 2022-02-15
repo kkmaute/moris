@@ -313,35 +313,6 @@ Enrichment::perform_basis_cluster_enrichment() // moris::Cell< Bspline_Mesh_Info
                     tSubPhaseBinEnrichment( iBasis ),
                     tMaxEnrichmentLevel( iBasis ) );
 
-            // figure out B-spline cells in basis support and store Lagrange element - Bspline element relationship
-            // additionally create subphase groups (SPGs), including 
-            moris::size_t tNumLagCellsInSupport = tParentElementsInSupport.numel();
-            for ( moris::size_t iElemInSupport = 0; iElemInSupport < tNumLagCellsInSupport; iElemInSupport++ )
-            {
-                // initialize list of mtk::Cells that belong togeter with current element in a group
-                moris::Cell< mtk::Cell* > tCellsInGroup;
-
-                // get from HMR-mesh the Lagrange elements that belong togeter with current element in a group
-                mBackgroundMeshPtr->get_elements_in_interpolation_cluster(
-                        tParentElementsInSupport( iElemInSupport ),
-                        (moris_index)iBasisType,
-                        tCellsInGroup );
-
-                // admit B-spline Cell/Element to B-spline Mesh Info (function ignores already admitted Lagrange elements and returns false)
-                bool tIsNewInterpolationCluster = mBsplineMeshInfos( iBasisType )->admit_extraction_cell_group( tCellsInGroup );
-
-                // if the B-spline Cell/Element is new, construct SPGs on it
-                if ( tIsNewInterpolationCluster )
-                {
-                    // create subphase group from list of extraction elements in B-spline element
-                    this->create_subphase_groups( tCellsInGroup, iBasisType );
-                }
-
-                // TODO: perform flood fill on subphase to subphase
-                // TODO: collect ligament side ordinals 
-                // TODO: initialize / admit SPGs
-            }
-
             // Sort enrichment levels
             if ( mSortBasisEnrichmentLevels )
             {
@@ -474,47 +445,6 @@ Enrichment::get_subphase_clusters_in_support( moris::Matrix< moris::IndexMat > c
 
 //-------------------------------------------------------------------------------------
 
-Matrix< IndexMat >
-Enrichment::get_subphase_clusters_in_bspline_cell( moris::Cell< mtk::Cell* > const& aCellsInGroup )
-{
-
-    // count the number of subphase clusters in support
-    moris::uint tCount = 0;
-
-    // loop over Lagrange elements in bspline cell to count subphases
-    for ( moris::size_t iE = 0; iE < aCellsInGroup.size(); iE++ )
-    {
-        // get the subphase (indices) living in current element
-        moris::Cell< moris_index > const& tSubphaseIndices = mCutIgMesh->get_parent_cell_subphases( aCellsInGroup( iE )->get_index() );
-
-        // count number of subphases in support
-        tCount = tCount + tSubphaseIndices.size();
-    }
-
-    // initialize list of subphase indices in bspline cell
-    Matrix< IndexMat > tSubPhaseClusters( 1, tCount );
-    tCount = 0;
-
-    // loop over Lagrange elements in bspline cell to store subphase indices
-    for ( moris::size_t iE = 0; iE < aCellsInGroup.size(); iE++ )
-    {
-        // get the subphase (indices) living in current Lagrange element
-        moris::Cell< moris_index > const& tSubphaseIndices = mCutIgMesh->get_parent_cell_subphases( aCellsInGroup( iE )->get_index() );
-
-        // go over subphases in current element and ...
-        for ( moris::uint iSP = 0; iSP < tSubphaseIndices.size(); iSP++ )
-        {
-            // ... fill the list of subphase indices in basis support 
-            tSubPhaseClusters( tCount++ ) = tSubphaseIndices( iSP );
-        }
-    }
-
-    // return list of subphase indices in bspline cell
-    return tSubPhaseClusters;
-}
-
-//-------------------------------------------------------------------------------------
-
 void
 Enrichment::construct_subphase_in_support_map(
     moris::Matrix<moris::IndexMat> const& aSubphaseClusterIndicesInSupport,
@@ -523,20 +453,6 @@ Enrichment::construct_subphase_in_support_map(
     for (moris::moris_index i = 0; i < (moris::moris_index)aSubphaseClusterIndicesInSupport.numel(); i++)
     {
         aSubPhaseIndexToSupportIndex[aSubphaseClusterIndicesInSupport(i)] = i;
-    }
-}
-
-//-------------------------------------------------------------------------------------
-
-void
-Enrichment::construct_subphase_in_bspline_cell_map(
-        moris::Matrix< moris::IndexMat > const& aSubphaseIndicesInBsplineCell,
-        IndexMap&                               aSubphaseIndexToBsplineCellIndex )
-{
-    // loop over subphases (indices) in B-spline cell
-    for ( moris::moris_index i = 0; i < (moris::moris_index)aSubphaseIndicesInBsplineCell.numel(); i++ )
-    {
-        aSubphaseIndexToBsplineCellIndex[aSubphaseIndicesInBsplineCell( i )] = i;
     }
 }
 
@@ -587,50 +503,6 @@ Enrichment::generate_pruned_subphase_graph_in_basis_support(
 //-------------------------------------------------------------------------------------
 
 void
-Enrichment::generate_pruned_subphase_graph_in_bspline_cell(
-        moris::Matrix< moris::IndexMat > const& aSubphasesInBsplineCell,
-        IndexMap&                               aSubphaseIndicesToBspline,
-        moris::Matrix< moris::IndexMat >&       aPrunedBsplineSubphaseToSubphase )
-{
-    // get pointer to Subphase Neighborhood Connectivity of mesh
-    std::shared_ptr< Subphase_Neighborhood_Connectivity > tSubphaseNeighborhood = mCutIgMesh->get_subphase_neighborhood();
-
-    // initialize matrix storing pruned subphase connectivity
-    aPrunedBsplineSubphaseToSubphase.resize( aSubphasesInBsplineCell.numel(), 50 ); // FIXME: this allocation needs to be done smarter
-    aPrunedBsplineSubphaseToSubphase.fill( MORIS_INDEX_MAX );
-
-    // get subphase neighborhood information form Subphase_Neighborhood_Connectivity and store in variable for easy handling
-    moris::Cell< std::shared_ptr< moris::Cell< moris_index > > > const& tSubphasetoSubphase = tSubphaseNeighborhood->mSubphaseToSubPhase;
-
-    // go over subphases in B-spline Cell
-    for ( moris::size_t i = 0; i < aSubphasesInBsplineCell.numel(); i++ )
-    {
-        // get list of current subphase's neighbors
-        moris::Cell< moris_index > const& tSingleSubphaseNeighbors = *tSubphasetoSubphase( aSubphasesInBsplineCell( i ) );
-
-        // iterate through neighbors and check if neighbors and prune if not in B-spline cell
-        moris::uint tCount = 0;
-        for ( moris::size_t j = 0; j < tSingleSubphaseNeighbors.size(); j++ )
-        {
-            // get current neighbor subphase's index
-            moris_index tNeighborSubphaseIndex = tSingleSubphaseNeighbors( j );
-
-            // find subphase index in list of subphases inside B-spline cell, and ...
-            auto tNeighborIter = aSubphaseIndicesToBspline.find( tNeighborSubphaseIndex );
-
-            // ... only add neighboring subphase, if it is found
-            if ( tNeighborIter != aSubphaseIndicesToBspline.end() )
-            {
-                aPrunedBsplineSubphaseToSubphase( i, tCount ) = tNeighborIter->second;
-                tCount++;
-            }
-        }
-    }
-}
-
-//-------------------------------------------------------------------------------------
-
-void
 Enrichment::assign_subphase_bin_enrichment_levels_in_basis_support(
         moris::Matrix< moris::IndexMat > const& aSubphasesInSupport,
         IndexMap&                               aSubPhaseIndexToSupportIndex,
@@ -662,168 +534,6 @@ Enrichment::assign_subphase_bin_enrichment_levels_in_basis_support(
             MORIS_INDEX_MAX,
             aMaxEnrichmentLevel,
             true );
-}
-
-// ----------------------------------------------------------------------------------
-
-void
-Enrichment::create_subphase_groups(
-        moris::Cell< mtk::Cell* >& aIpCellsInGroup,
-        moris::size_t              aBsplineMeshIndex )
-{
-    // get the subphase indices within one B-spline element
-    moris::Matrix< moris::IndexMat > tSubphaseIndicesInBsplineCell =
-            this->get_subphase_clusters_in_bspline_cell( aIpCellsInGroup );
-
-    // construct subphase in B-spline cell map
-    IndexMap tSubphaseIndexToBsplineCell;
-    this->construct_subphase_in_bspline_cell_map( tSubphaseIndicesInBsplineCell, tSubphaseIndexToBsplineCell );
-
-    // further cut down the subphase neighborhood from support to B-spline cells
-    moris::Matrix< moris::IndexMat > tPrunedBsplineSubphaseToSubphase;
-    this->generate_pruned_subphase_graph_in_bspline_cell( 
-            tSubphaseIndicesInBsplineCell, 
-            tSubphaseIndexToBsplineCell, 
-            tPrunedBsplineSubphaseToSubphase );
-
-    // get the number of SPGs in extraction cell cluster by performing a flood fill
-    moris_index tMaxSpgInd = 0;
-    moris::Matrix< moris::IndexMat > tSubphaseBin;
-    this->assign_subphase_bin_enrichment_levels_in_basis_support(
-            tSubphaseIndicesInBsplineCell,
-            tSubphaseIndexToBsplineCell,
-            tPrunedBsplineSubphaseToSubphase,
-            tSubphaseBin,
-            tMaxSpgInd );
-
-    // increment to get actual number of Subphase groups (instead of just index)
-    uint tNumSPGs = (uint)tMaxSpgInd + 1;   
-
-    // split subphase bin up into SPGs
-    moris::Cell< moris::Cell< moris_index > > tSPGsInBin = this->split_flood_fill_bin( tSubphaseBin, tSubphaseIndicesInBsplineCell, tNumSPGs );
-
-    // debug
-    MORIS_ASSERT( tNumSPGs == tSPGsInBin.size(), "Enrichment::create_subphase_groups() - Something doesn't line up..." );
-
-    // for each disconnected set of subphases ...
-    for ( moris::size_t iSPG = 0; iSPG < tNumSPGs; iSPG++ )
-    {
-        // create SPGs and add to mesh
-        mBsplineMeshInfos( aBsplineMeshIndex )->add_subphase_group_to_last_admitted_bspline_cell( tSPGsInBin( iSPG ) );
-
-        // figure out the side ordinals of subphase connectivity to neighboring B-spline cells, and ...
-        moris::Cell< bool > tActiveLigamentSideOrdinals = 
-            this->collect_subphase_group_ligament_side_ordinals( tSPGsInBin( iSPG ), tSubphaseIndexToBsplineCell );
-
-        // ... add them to the last admitted SPG
-        mBsplineMeshInfos( aBsplineMeshIndex )->set_ligament_side_ordinals_of_last_admitted_subphase_group( tActiveLigamentSideOrdinals );
-    }    
-}
-
-//-------------------------------------------------------------------------------------
-
-moris::Cell< moris::Cell< moris_index > > 
-Enrichment::split_flood_fill_bin( 
-        moris::Matrix< moris::IndexMat > aSubphaseBin, 
-        moris::Matrix< moris::IndexMat > aSubphaseIndicesInBsplineCell,
-        uint                             aNumSPGs )
-{
-    // get number of subphass
-    moris::size_t tNumSubphases = aSubphaseIndicesInBsplineCell.length();
-    
-    // initialize array of counters tracking how many subphases are in each group
-    moris::Cell< uint > tSpCounters( aNumSPGs, 0 );
-
-    // loop over all subphases in bin and ...
-    for ( moris::size_t iSP = 0; iSP < tNumSubphases; iSP++ )
-    {
-        // ... increment counter for SPG current SP belongs to
-        uint tSpgIndex = aSubphaseBin( iSP );
-        tSpCounters( tSpgIndex ) += 1;
-    }
-
-    // initialize output Cell
-    moris::Cell< moris::Cell< moris_index > > tSPGsInBin( aNumSPGs );
-    for ( moris::size_t iSPG = 0; iSPG < aNumSPGs; iSPG++ )
-    {
-        tSPGsInBin( iSPG ) = moris::Cell< moris_index >( tSpCounters( iSPG ) );
-    }
-
-    // loop over all subphases in bin and ... // ... put their indices into groups
-    tSpCounters = moris::Cell< uint >( aNumSPGs, 0 );
-    for ( moris::size_t iSP = 0; iSP < tNumSubphases; iSP++ )
-    {
-        // ... put their indices into groups
-        uint tSpgIndex = aSubphaseBin( iSP );
-        uint tCurrentSpIndexInSPG = tSpCounters( tSpgIndex );
-        tSPGsInBin( tSpgIndex )( tCurrentSpIndexInSPG ) = aSubphaseIndicesInBsplineCell( iSP );
-
-        // increment counter for SPG current SP belongs to
-        tSpCounters( tSpgIndex ) += 1;
-    }
-
-    // return sorted bins of subphases
-    return tSPGsInBin;
-}
-
-//-------------------------------------------------------------------------------------
-
-moris::Cell< bool >
-Enrichment::collect_subphase_group_ligament_side_ordinals(
-        moris::Cell< moris_index >& aSPsInGroup,
-        IndexMap&                   aSubphaseIndicesToBspline )
-{
-    // initialize punchcard for which side ordinals are used
-    moris::Cell< bool > tUsedSideOrdinals;
-    if ( mXTKModelPtr->get_spatial_dim() == 2 )
-    {
-        tUsedSideOrdinals.resize( 4, false );
-    }
-    else if ( mXTKModelPtr->get_spatial_dim() == 3 )
-    {
-        tUsedSideOrdinals.resize( 6, false );
-    }
-    else
-    {
-        MORIS_ERROR( false, "Enrichment::collect_subphase_group_ligament_side_ordinals() - Number of spatial dims must be 2 or 3" );
-    }
-
-    // get pointer to Subphase Neighborhood Connectivity of mesh
-    std::shared_ptr< Subphase_Neighborhood_Connectivity > tSubphaseNeighborhood = mCutIgMesh->get_subphase_neighborhood();
-
-    // get subphase neighborhood information form Subphase_Neighborhood_Connectivity and store in variable for easy handling
-    moris::Cell< std::shared_ptr< moris::Cell< moris_index > > > const& tSubphasetoSubphase = tSubphaseNeighborhood->mSubphaseToSubPhase;
-    moris::Cell< std::shared_ptr< moris::Cell< moris_index > > > const& tSubphaseSideOrdinals = tSubphaseNeighborhood->mSubphaseToSubPhaseMySideOrds;
-
-    // go over subphases in subphase group
-    for ( moris::size_t iSP = 0; iSP < aSPsInGroup.size(); iSP++ )
-    {
-        moris_index tCurrentSubphaseIndex = aSPsInGroup( iSP );
-
-        // get list of current subphase's neighbors
-        moris::Cell< moris_index > const& tSingleSubphaseNeighbors = *tSubphasetoSubphase( tCurrentSubphaseIndex );
-        moris::Cell< moris_index > const& tSingleSubphaseNeighborSideOrdinals = *tSubphaseSideOrdinals( tCurrentSubphaseIndex );
-
-        // iterate through neighbors and check if neighbors outside of B-spline cell
-        for ( moris::size_t iNeighbor = 0; iNeighbor < tSingleSubphaseNeighbors.size(); iNeighbor++ )
-        {
-            // get current neighbor subphase's index
-            moris_index tNeighborSubphaseIndex = tSingleSubphaseNeighbors( iNeighbor );
-            moris_index tNeighborSubphaseSideOrdinals = tSingleSubphaseNeighborSideOrdinals( iNeighbor );
-
-            // find subphase index in list of subphases inside B-spline cell, and ...
-            auto tNeighborIter = aSubphaseIndicesToBspline.find( tNeighborSubphaseIndex );
-
-            // ... add ligament side ordinal, if neighbor SP is outside B-spline Cell
-            if ( tNeighborIter != aSubphaseIndicesToBspline.end() )
-            {
-                tUsedSideOrdinals( tNeighborSubphaseSideOrdinals ) = true;
-            }
-        }
-    }
-
-    // return punchcard of used side ordinals
-    return tUsedSideOrdinals;
 }
 
 //-------------------------------------------------------------------------------------
@@ -1728,6 +1438,7 @@ Enrichment::construct_enriched_interpolation_vertices_and_cells()
 
     tEnrInterpMesh->mEnrichedInterpVerts.resize(tVertexCount);
 }
+
 //-------------------------------------------------------------------------------------
 
 void

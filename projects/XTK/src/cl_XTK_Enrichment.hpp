@@ -21,7 +21,6 @@
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Child_Mesh.hpp"
 #include "cl_XTK_Cut_Mesh.hpp"
-#include "cl_XTK_Subphase_Group.hpp"
 #include "fn_mesh_flood_fill.hpp"
 #include "fn_prune_element_to_element.hpp"
 #include "fn_generate_element_to_element.hpp"
@@ -278,21 +277,10 @@ namespace xtk
 
             // ----------------------------------------------------------------------------------
 
-            Matrix< IndexMat >
-            get_subphase_clusters_in_bspline_cell( moris::Cell< mtk::Cell* > const& aCellsInGroup );
-
-            // ----------------------------------------------------------------------------------
-
             void
             construct_subphase_in_support_map(
                     moris::Matrix< moris::IndexMat > const& aSubphaseClusterIndicesInSupport,
                     IndexMap&                               aSubPhaseIndexToSupportIndex );
-
-            // ----------------------------------------------------------------------------------
-            void
-            construct_subphase_in_bspline_cell_map(
-                    moris::Matrix< moris::IndexMat > const& aSubphaseIndicesInBsplineCell,
-                    IndexMap&                               aSubphaseIndexToBsplineCellIndex );
 
             // ----------------------------------------------------------------------------------
 
@@ -312,49 +300,12 @@ namespace xtk
             // ----------------------------------------------------------------------------------
 
             void
-            generate_pruned_subphase_graph_in_bspline_cell(
-                    moris::Matrix< moris::IndexMat > const& aSubphasesInBsplineCell,
-                    IndexMap&                               aSubphaseIndicesToBspline,
-                    moris::Matrix< moris::IndexMat >&       aPrunedBsplineSubphaseToSubphase );
-
-            // ----------------------------------------------------------------------------------
-
-            void
             assign_subphase_bin_enrichment_levels_in_basis_support(
                     moris::Matrix< moris::IndexMat > const& aSubphasesInSupport,
                     IndexMap&                               aSubPhaseIndexToSupportIndex,
                     moris::Matrix< moris::IndexMat > const& aPrunedSubPhaseToSubphase,
                     moris::Matrix< moris::IndexMat >&       aSubPhaseBinEnrichmentVals,
                     moris_index&                            aMaxEnrichmentLevel );
-
-            // ----------------------------------------------------------------------------------
-
-            void
-            create_subphase_groups(
-                    moris::Cell< mtk::Cell* >& aIpCellsInGroup,
-                    moris::size_t              aBsplineMeshIndex );
-
-            // ----------------------------------------------------------------------------------
-
-            /**
-             * @brief splits up the bin of subphases into lists of subphase indices with the same color
-             * 
-             * @param aSubphaseBin 
-             * @param aSubphaseIndicesInBsplineCell 
-             * @return moris::Cell< moris::Cell< moris_index > > 
-             */
-            moris::Cell< moris::Cell< moris_index > > 
-            split_flood_fill_bin( 
-                    moris::Matrix< moris::IndexMat > aSubphaseBin, 
-                    moris::Matrix< moris::IndexMat > aSubphaseIndicesInBsplineCell,
-                    uint                             aNumSPGs );
-
-            // ----------------------------------------------------------------------------------
-
-            moris::Cell< bool >
-            collect_subphase_group_ligament_side_ordinals( 
-                    moris::Cell< moris_index >& aSPsInGroup,
-                    IndexMap&                   aSubphaseIndicesToBspline );
 
             // ----------------------------------------------------------------------------------
 
@@ -500,6 +451,8 @@ namespace xtk
              */
             moris_index
             get_max_basis_id( moris_index const& aMeshIndex );
+
+            // ----------------------------------------------------------------------------------            
     };
 }// namespace xtk
 #endif /* XTK_SRC_XTK_CL_XTK_ENRICHMENT_HPP_ */

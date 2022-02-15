@@ -10,12 +10,16 @@
 #include "cl_Mesh_Enums.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Vertex_XTK_Impl.hpp"
+
+#include "cl_XTK_Subphase_Group.hpp"
+
 #include "cl_Tracer.hpp"
 
 #include "cl_Communication_Tools.hpp"
 #include <stdio.h>
 #include <iostream>
 #include <iomanip>
+
 using namespace moris;
 
 namespace xtk
@@ -418,6 +422,7 @@ namespace xtk
             // communication map
             moris::Matrix< IdMat > mCommunicationMap;
 
+            // Integration - Lagrange Mesh relation
             // group of all integration cells in a single parent cell
             moris::Cell< std::shared_ptr< IG_Cell_Group > >   mIntegrationCellGroups;
             moris::Cell< std::shared_ptr< IG_Vertex_Group > > mIntegrationVertexGroups;
@@ -426,6 +431,9 @@ namespace xtk
 
             moris::Cell< moris_index > mOwnedIntegrationCellGroupsInds;
             moris::Cell< moris_index > mNotOwnedIntegrationCellGroups;
+
+            // Lagrange Mesh B-Spline Mesh relation
+            moris::Cell< Bspline_Mesh_Info * > mBsplineMeshInfos;
 
             // subphase groupings 
             moris::Cell< moris_index >                      mSubPhaseIds;           // input: sub-phase index || output: global sub-phase ID
@@ -439,7 +447,11 @@ namespace xtk
             moris::Cell< moris_index >                                mNotOwnedSubphaseGroupsInds;
             std::unordered_map< moris::moris_id, moris::moris_index > mGlobalToLocalSubphaseMap;
 
+            // subphase connectivity
             std::shared_ptr< Subphase_Neighborhood_Connectivity > mSubphaseNeighborhood;
+
+            // subphase-group connectivity
+            moris::Cell< std::shared_ptr< Subphase_Neighborhood_Connectivity > > mSubphaseGroupNeighborhood;
 
             // face connectivity
             std::shared_ptr< Facet_Based_Connectivity > mIgCellFaceConnectivity;
@@ -507,6 +519,10 @@ namespace xtk
             // ----------------------------------------------------------------------------------
 
             ~Cut_Integration_Mesh();
+
+            // ----------------------------------------------------------------------------------
+
+            void delete_Bspline_mesh_info();
 
             // ----------------------------------------------------------------------------------
 

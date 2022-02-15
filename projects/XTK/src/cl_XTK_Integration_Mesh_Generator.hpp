@@ -16,10 +16,13 @@
 #include "cl_XTK_Cut_Integration_Mesh.hpp"
 #include "cl_MTK_Cell_Info_Factory.hpp"
 #include "cl_XTK_Cell_No_CM.hpp"
+#include "cl_XTK_Subphase_Group.hpp"
 #include "cl_Tracer.hpp"
 
 namespace xtk
 {
+
+typedef std::unordered_map< moris::moris_index, moris::moris_index > IndexMap;
 
 struct Integration_Mesh_Generation_Data
 {
@@ -600,6 +603,147 @@ class Integration_Mesh_Generator
 
     void
     remove_subphases_from_cut_mesh(moris::Cell<moris_index> const & aSubphasesToRemove);
+
+    // ----------------------------------------------------------------------------------
+    // Functions for Constructing Subphase Groups and their neighborhood
+    // ----------------------------------------------------------------------------------
+
+    /**
+     * @brief check whether it is necessary to construct SPGs and their connectivity
+     */
+    bool
+    check_construct_subphase_groups();
+
+    /**
+     * @brief estabilish relationship to/ information about B-spline background mesh
+     * 
+     * @param aCutIntegrationMesh pointer to the cut integration mesh which carries the information
+     * @param aLagrangeMesh pointer to the Lagrange mesh for which the information needs to be estabilished
+     */
+    void
+    establish_bspline_mesh_info(
+            Cut_Integration_Mesh * aCutIntegrationMesh,
+            moris::mtk::Mesh *     aLagrangeMesh );
+
+    // ----------------------------------------------------------------------------------
+
+    /**
+     * @brief find groups of subphases that belong together and the side ordinals through which it is connected to neighboring SPGs
+     * 
+     * @param aCutIntegrationMesh pointer to cut integration mesh holding B-spline mesh info and SPGs
+     */
+    void
+    construct_subphase_groups(
+            Cut_Integration_Mesh * aCutIntegrationMesh );
+
+    // ----------------------------------------------------------------------------------
+    
+    /**
+     * @brief find the subphase indices within a given B-spline element on a given B-spline mesh
+     * 
+     * @param aCutIntegrationMesh pointer to cut integration mesh
+     * @param aDiscretizationMeshIndex index of the B-spline mesh to be treated
+     * @param aCurrentBspCellIndex index of the B-spline element
+     * @param aSubPhaseIndices output: list of subphase indices to be filled
+     */
+    void
+    get_subphase_indices_in_bspline_cell(
+            Cut_Integration_Mesh* aCutIntegrationMesh,
+            moris_index           aDiscretizationMeshIndex,
+            uint                  aCurrentBspCellIndex,
+            Matrix< IndexMat >&   aSubPhaseIndices  );
+
+    // ----------------------------------------------------------------------------------
+    
+    /**
+     * @brief convert list of subphase indides in B-spline to unordered searchable map
+     * 
+     * @param aSubphaseIndicesInBsplineCell list of the suphase indices inside the given B-spline element
+     * @param aSubphaseIndexToBsplineCellIndex output: unordered index to index map holding the suphase indices
+     */
+    void
+    construct_subphase_in_bspline_cell_map(
+            moris::Matrix< moris::IndexMat > const& aSubphaseIndicesInBsplineCell,
+            IndexMap&                               aSubphaseIndexToBsplineCellIndex );
+
+    // ----------------------------------------------------------------------------------
+    
+    /**
+     * @brief create SP to SP connectivity graph local to the B-spline element
+     * 
+     * @param aCutIntegrationMesh pointer to cut integration mesh
+     * @param aSubphasesInBsplineCell list of the suphase indices inside the given B-spline element
+     * @param aSubphaseIndicesToBspline searchable unordered index to index map holding the suphase indices
+     * @param aPrunedBsplineSubphaseToSubphase output: SP to SP connectivity graph local to the B-spline element
+     */
+    void
+    generate_pruned_subphase_graph_in_bspline_cell(
+            Cut_Integration_Mesh*                   aCutIntegrationMesh,
+            moris::Matrix< moris::IndexMat > const& aSubphasesInBsplineCell,
+            IndexMap&                               aSubphaseIndicesToBspline,
+            moris::Matrix< moris::IndexMat >&       aPrunedBsplineSubphaseToSubphase );
+
+    // ----------------------------------------------------------------------------------
+    
+    /**
+     * @brief perform flood fill on the SP to SP connectivity graph local to the B-spline element
+     * 
+     * @param aSubphasesInBspCell list of the suphase indices inside the given B-spline element
+     * @param aPrunedSubPhaseToSubphase SP to SP connectivity graph local to the B-spline element
+     * @param aSubPhaseBinEnrichmentVals list of indices of disconnected group of subphases assigned to each subphase
+     * @param aMaxEnrichmentLevel output: largest index of a disconnected group of subphases
+     */
+    void
+    find_subphase_bin_enrichment_levels_in_bspline_cell(
+            moris::Matrix< moris::IndexMat > const& aSubphasesInBspCell,
+            moris::Matrix< moris::IndexMat > const& aPrunedSubPhaseToSubphase,
+            moris::Matrix< moris::IndexMat >&       aSubPhaseBinEnrichmentVals,
+            moris_index&                            aMaxEnrichmentLevel );
+
+    // ----------------------------------------------------------------------------------
+    
+    /**
+     * @brief sort SPs into groups using flood fill indices
+     * 
+     * @param aSubphaseBin list of indices of disconnected group of subphases assigned to each subphase
+     * @param aSubphaseIndicesInBsplineCell list of the suphase indices inside the given B-spline element
+     * @param aNumSPGs number of subphase groups to be created
+     * @return moris::Cell< moris::Cell< moris_index > > groups of SP indices that are connected 
+     */
+    moris::Cell< moris::Cell< moris_index > > 
+    split_flood_fill_bin( 
+            moris::Matrix< moris::IndexMat >& aSubphaseBin, 
+            moris::Matrix< moris::IndexMat >& aSubphaseIndicesInBsplineCell,
+            uint                              aNumSPGs );
+
+    // ----------------------------------------------------------------------------------
+    
+    /**
+     * @brief find the side ordinals through which an SPG is connected to neighboring SPGs
+     * 
+     * @param aCutIntegrationMesh pointer to cut integration mesh
+     * @param aSPsInGroup list of SP indices in current SPG
+     * @param aSubphaseIndicesToBspline searchable unordered index to index map holding the suphase indices
+     * @return moris::Cell< bool > binary "punchcard" of the side ordinals having an SPG connection (in 2D length of 4, in 3D a length of 6)
+     */
+    moris::Cell< bool >
+    collect_subphase_group_ligament_side_ordinals(
+            Cut_Integration_Mesh*       aCutIntegrationMesh,
+            moris::Cell< moris_index >& aSPsInGroup,
+            IndexMap&                   aSubphaseIndicesToBspline );
+
+    // ----------------------------------------------------------------------------------
+
+    void
+    construct_subphase_group_neighborhood( Cut_Integration_Mesh* aCutIntegrationMesh );
+
+    // ----------------------------------------------------------------------------------
+
+
+    // ----------------------------------------------------------------------------------
+
+
+
 };
 
 }// namespace xtk
