@@ -23,6 +23,38 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        void SP_Pressure_Ghost::set_parameters( moris::Cell< Matrix< DDRMat > > aParameters )
+        {
+            // FIXME not necessary
+            // set mParameters
+            mParameters = aParameters;
+
+            // get number of parameters
+            uint tParamSize = aParameters.size();
+
+            // check for proper size of constant function parameters
+            MORIS_ERROR( tParamSize >= 1 && tParamSize < 3,
+                    "SP_Pressure_Ghost::set_parameters - either 1 or 2 constant parameters need to be set." );
+
+            // set alphaP
+            mAlphaP = aParameters( 0 )( 0 );
+
+            // set alpha P flag to true
+            mSetAlphaP = true;
+
+            // if time term
+            if( tParamSize > 1 )
+            {
+                // set theta
+                mTheta = aParameters( 1 )( 0 );
+
+                // set theta flag to true
+                mSetTheta = true;
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
         void SP_Pressure_Ghost::set_dof_type_list(
                 moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
                 moris::Cell< std::string >                  & aDofStrings,
@@ -114,17 +146,23 @@ namespace moris
                 }
             }
 
-            // compute deltaT
-            real tDeltaT = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
-
             // compute deltaP
             real tDeltaP =
                     tViscosityProp->val()( 0 ) / tElementSize +
-                    tDensityProp->val()( 0 ) * tInfinityNorm / 6.0 +
-                    tDensityProp->val()( 0 ) * tElementSize / ( 12.0 * mParameters( 1 )( 0 ) * tDeltaT );
+                    tDensityProp->val()( 0 ) * tInfinityNorm / 6.0;
+
+            // if time step contribution
+            if( mSetTheta )
+            {
+                // compute deltaT
+                real tDeltaT = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
+
+                // add time step contribution
+                tDeltaP += tDensityProp->val()( 0 ) * tElementSize / ( 12.0 * mTheta * tDeltaT );
+            }
 
             // compute stabilization parameter value
-            mPPVal = mParameters( 0 ) * std::pow( tElementSize, 2 * mOrder ) / tDeltaP;
+            mPPVal = mAlphaP * std::pow( tElementSize, 2 * mOrder ) / tDeltaP;
         }
 
         //------------------------------------------------------------------------------
@@ -172,14 +210,20 @@ namespace moris
                 }
             }
 
-            // compute deltaT
-            real tDeltaT = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
-
             // compute deltaP
             real tDeltaP = 
                     tViscosityProp->val()( 0 ) / tElementSize +
-                    tDensityProp->val()( 0 ) * tInfinityNorm / 6.0 +
-                    tDensityProp->val()( 0 ) * tElementSize / ( 12.0 * mParameters( 1 )( 0 ) * tDeltaT );
+                    tDensityProp->val()( 0 ) * tInfinityNorm / 6.0;
+
+            // if time step contribution
+            if( mSetTheta )
+            {
+                // compute deltaT
+                real tDeltaT = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
+
+                // add time step contribution
+                tDeltaP += tDensityProp->val()( 0 ) * tElementSize / ( 12.0 * mTheta * tDeltaT );
+            }
 
             // if dof type == velocity
             if( aDofTypes( 0 ) == mMasterDofVelocity )
@@ -193,7 +237,7 @@ namespace moris
 
                 // compute contribution from velocity
                 mdPPdMasterDof( tDofIndex ) =
-                        - mParameters( 0 )( 0 ) * std::pow( tElementSize, 2 * mOrder ) *
+                        - mAlphaP * std::pow( tElementSize, 2 * mOrder ) *
                         tDensityProp->val()( 0 ) * tdInfinityNormdu /
                         ( 6.0 * std::pow( tDeltaP, 2.0 ) );
             }
@@ -207,7 +251,7 @@ namespace moris
             {
                 // compute contribution from viscosity
                 mdPPdMasterDof( tDofIndex ) -=
-                        mParameters( 0 )( 0 ) * std::pow( tElementSize, 2 * mOrder ) *
+                        mAlphaP * std::pow( tElementSize, 2 * mOrder ) *
                         tViscosityProp->dPropdDOF( aDofTypes ) /
                         ( tElementSize * std::pow( tDeltaP, 2.0 ) );
             }
@@ -217,10 +261,24 @@ namespace moris
             {
                 // compute contribution from density
                 mdPPdMasterDof( tDofIndex ) -=
-                        mParameters( 0 )( 0 ) * std::pow( tElementSize, 2 * mOrder ) *
+                        mAlphaP * std::pow( tElementSize, 2 * mOrder ) *
                         tDensityProp->dPropdDOF( aDofTypes ) *
-                        ( tInfinityNorm / 6.0 + tElementSize / ( 12.0 * mParameters( 1 )( 0 ) * tDeltaT ) ) /
+                        ( tInfinityNorm / 6.0 ) /
                         std::pow( tDeltaP, 2.0 );
+
+                // if time step contribution
+                if( mSetTheta )
+                {
+                    // compute deltaT
+                    real tDeltaT = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
+
+                    // add time step contribution
+                    mdPPdMasterDof( tDofIndex ) -=
+                            mAlphaP * std::pow( tElementSize, 2 * mOrder ) *
+                            tDensityProp->dPropdDOF( aDofTypes ) *
+                            ( tElementSize / ( 12.0 * mTheta * tDeltaT ) ) /
+                            std::pow( tDeltaP, 2.0 );
+                }
             }
         }
 

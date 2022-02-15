@@ -940,13 +940,23 @@ namespace fem
             mProperties( iProp )->set_dv_derivative_functions( tDvDerFunctions );
 
             // set space derivative function for property
-            std::string  tSpaceDerFuncName = tPropParameter.get< std::string >( "space_derivative_function" );
-            FEM_Function tSpaceDerFunction = nullptr;
-            if ( tSpaceDerFuncName.size() > 1 )
+            moris::Cell< std::string > tSpaceDerFuncNames;
+            string_to_cell(
+                    tPropParameter.get< std::string >( "space_derivative_functions" ),
+                    tSpaceDerFuncNames );
+            uint tNumSpaceDerFuncs = tSpaceDerFuncNames.size();
+
+            moris::Cell< fem::PropertyFunc > tSpaceDerFunctions( tNumSpaceDerFuncs, nullptr );
+            for ( uint iFunc = 0; iFunc < tNumSpaceDerFuncs; iFunc++ )
             {
-                tSpaceDerFunction = aLibrary->load_function< FEM_Function >( tSpaceDerFuncName );
-                mProperties( iProp )->set_space_der_function( tSpaceDerFunction );
+                if ( tSpaceDerFuncNames( iFunc ).size() > 1 )
+                {
+                    FEM_Function tValFunction =
+                            aLibrary->load_function< FEM_Function >( tSpaceDerFuncNames( iFunc ) );
+                    tSpaceDerFunctions( iFunc ) = tValFunction;
+                }
             }
+            mProperties( iProp )->set_space_der_functions( tSpaceDerFunctions );
         }
     }
 

@@ -127,10 +127,6 @@ namespace xtk
             // ----------------------------------------------------------------------------------
 
             ~Enrichment();
-
-            // ----------------------------------------------------------------------------------
-
-            void delete_Bspline_infos();
             
             // ----------------------------------------------------------------------------------
 
@@ -240,9 +236,6 @@ namespace xtk
 
             // flag whether to sort basis enrichment levels
             bool mSortBasisEnrichmentLevels;
-
-            // B-spline - Lagrange Mesh information
-            moris::Cell< Bspline_Mesh_Info * > mBsplineMeshInfos;
 
             // ----------------------------------------------------------------------------------
 

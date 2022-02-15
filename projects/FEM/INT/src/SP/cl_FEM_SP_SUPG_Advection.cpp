@@ -34,6 +34,32 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        void SP_SUPG_Advection::set_parameters( moris::Cell< Matrix< DDRMat > > aParameters )
+        {
+            // FIXME not necessary
+            // set mParameters
+            mParameters = aParameters;
+
+            // get number of parameters
+            uint tParamSize = aParameters.size();
+
+            // check for proper size of constant function parameters
+            MORIS_ERROR( tParamSize <= 1,
+                    "SP_SUPG_Advection::set_parameters - either 1 or zero constant parameter need to be set." );
+
+            // if a parameter is specified
+            if( tParamSize > 0 )
+            {
+                // set betaTime
+                mBetaTime = aParameters( 0 )( 0 );
+
+                // set alpha P flag to true
+                mSetBetaTime = true;
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
         void SP_SUPG_Advection::set_dof_type_list(
                 moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
                 moris::Cell< std::string >                  & aDofStrings,
@@ -365,14 +391,21 @@ namespace moris
             // compute tau2
             const real tTau2 = 4.0 * tEffectiveConductivity / std::pow( tHugn, 2.0 );
 
-            // compute time increment tDeltaT
-            const real tDeltaT = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
-
-            // compute tau3
-            const real tTau3 = 2.0 / tDeltaT;
-
             // compute sum of square terms
-            real tSum = std::pow( tTau1, 2.0 ) + std::pow( tTau2, 2.0 ) + std::pow( tTau3, 2.0 );
+            real tSum = std::pow( tTau1, 2.0 ) + std::pow( tTau2, 2.0 );
+
+            // if time solve
+            if( mBetaTime )
+            {
+                // compute time increment tDeltaT
+                const real tDeltaT = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
+
+                // compute tau3
+                const real tTau3 = 2.0 / tDeltaT;
+
+                // add contribution from time term
+                tSum += std::pow( tTau3, 2.0 );
+            }
 
             // add contribution from source term
             if ( tSourceProp != nullptr )
@@ -441,87 +474,94 @@ namespace moris
             // compute tau2
             const real tTau2 = 4.0 * tEffectiveConductivity / std::pow( tHugn, 2.0 );
 
-            // compute time increment deltat
-            const real tDeltaT = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
-
-            // compute tau3
-            const real tTau3 = 2.0 / tDeltaT;
-
-            // if dof type is velocity
-            if( aDofTypes( 0 ) == mMasterDofVelocity )
-            {
-                // compute derivative of hugn wrt velocity dof
-                Matrix< DDRMat > tdHugndu( 1, tVelocityFI->get_number_of_space_time_coefficients() );
-                Matrix< DDRMat > tdNormdu( 1, tVelocityFI->get_number_of_space_time_coefficients() );
-                Matrix< DDRMat > tdAbsdu(  1, tVelocityFI->get_number_of_space_time_coefficients(), 0.0 );
-
-                // compute derivative of the velocity norm (compute only derivative if not thresholded)
-                if ( tNorm > mEpsilon )
-                {
-                    tdNormdu = trans( tVelocityFI->val() ) * tVelocityFI->N() / tNorm;
-                }
-                else
-                {
-                    tdNormdu.fill( 0.0 );
-                }
-
-                // compute derivative of the abs term (compute only derivative if not thresholded)
-                if ( tAbs > mEpsilon )
-                {
-                    uint tNumNodes = tVelocityFI->dnNdxn( 1 ).n_cols();
-
-                    for ( uint iNode = 0; iNode < tNumNodes; iNode++ )
-                    {
-                        const Matrix< DDRMat > tAdd =
-                                trans( tVelocityFI->val() ) * tVelocityFI->dnNdxn( 1 ).get_column( iNode );
-
-                        // handle case that tAdd( 0, 0 ) is smaller than threshold
-                        if ( std::abs( tAdd( 0, 0 ) ) > mEpsilon )
-                        {
-                            tdAbsdu +=
-                                    tAdd * trans( tVelocityFI->dnNdxn( 1 ).get_column( iNode ) ) *
-                                    tVelocityFI->N() / std::abs( tAdd( 0, 0 ) );
-                        }
-                    }
-                }
-
-                // compute derivative of hugn (compute only derivative if not thresholded)
-                if ( tHugn > mEpsilon )
-                {
-                    tdHugndu = 2.0 * ( tdNormdu * tAbs - tdAbsdu * tNorm ) / std::pow( tAbs, 2.0 );
-                }
-                else
-                {
-                    tdHugndu.fill( 0.0 );
-                }
-
-                // compute dtau1du
-                tdTau1dDof = 2.0 * ( tHugn * tdNormdu - tdHugndu * tNorm ) / std::pow( tHugn, 2.0 );
-
-                // compute dtau2du
-                tdTau2dDof = - 8.0 * tEffectiveConductivity * tdHugndu / std::pow( tHugn, 3.0 );
-            }
-            else
-            {
-                tdTau1dDof.fill( 0.0 );
-                tdTau2dDof.fill( 0.0 );
-            }
-
-            // consider derivative of effective conductivity on dof types
-            Matrix< DDRMat > tEffectiveConductivitydu( 1, tFIDer->get_number_of_space_time_coefficients() );
-
-            bool tIsDependent = this->compute_derivative_of_effective_conductivity(
-                    tEffectiveConductivitydu,
-                    aDofTypes );
-
-            // compute dtau2du
-            if ( tIsDependent )
-            {
-                tdTau2dDof += 4.0 * tEffectiveConductivitydu / std::pow( tHugn, 2.0 );
-            }
+//            // if dof type is velocity
+//            if( aDofTypes( 0 ) == mMasterDofVelocity )
+//            {
+//                // compute derivative of hugn wrt velocity dof
+//                Matrix< DDRMat > tdHugndu( 1, tVelocityFI->get_number_of_space_time_coefficients() );
+//                Matrix< DDRMat > tdNormdu( 1, tVelocityFI->get_number_of_space_time_coefficients() );
+//                Matrix< DDRMat > tdAbsdu(  1, tVelocityFI->get_number_of_space_time_coefficients(), 0.0 );
+//
+//                // compute derivative of the velocity norm (compute only derivative if not thresholded)
+//                if ( tNorm > mEpsilon )
+//                {
+//                    tdNormdu = trans( tVelocityFI->val() ) * tVelocityFI->N() / tNorm;
+//                }
+//                else
+//                {
+//                    tdNormdu.fill( 0.0 );
+//                }
+//
+//                // compute derivative of the abs term (compute only derivative if not thresholded)
+//                if ( tAbs > mEpsilon )
+//                {
+//                    uint tNumNodes = tVelocityFI->dnNdxn( 1 ).n_cols();
+//
+//                    for ( uint iNode = 0; iNode < tNumNodes; iNode++ )
+//                    {
+//                        const Matrix< DDRMat > tAdd =
+//                                trans( tVelocityFI->val() ) * tVelocityFI->dnNdxn( 1 ).get_column( iNode );
+//
+//                        // handle case that tAdd( 0, 0 ) is smaller than threshold
+//                        if ( std::abs( tAdd( 0, 0 ) ) > mEpsilon )
+//                        {
+//                            tdAbsdu +=
+//                                    tAdd * trans( tVelocityFI->dnNdxn( 1 ).get_column( iNode ) ) *
+//                                    tVelocityFI->N() / std::abs( tAdd( 0, 0 ) );
+//                        }
+//                    }
+//                }
+//
+//                // compute derivative of hugn (compute only derivative if not thresholded)
+//                if ( tHugn > mEpsilon )
+//                {
+//                    tdHugndu = 2.0 * ( tdNormdu * tAbs - tdAbsdu * tNorm ) / std::pow( tAbs, 2.0 );
+//                }
+//                else
+//                {
+//                    tdHugndu.fill( 0.0 );
+//                }
+//
+//                // compute dtau1du
+//                tdTau1dDof = 2.0 * ( tHugn * tdNormdu - tdHugndu * tNorm ) / std::pow( tHugn, 2.0 );
+//
+//                // compute dtau2du
+//                tdTau2dDof = - 8.0 * tEffectiveConductivity * tdHugndu / std::pow( tHugn, 3.0 );
+//            }
+//            else
+//            {
+//                tdTau1dDof.fill( 0.0 );
+//                tdTau2dDof.fill( 0.0 );
+//            }
+//
+//            // consider derivative of effective conductivity on dof types
+//            Matrix< DDRMat > tEffectiveConductivitydu( 1, tFIDer->get_number_of_space_time_coefficients() );
+//
+//            bool tIsDependent = this->compute_derivative_of_effective_conductivity(
+//                    tEffectiveConductivitydu,
+//                    aDofTypes );
+//
+//            // compute dtau2du
+//            if ( tIsDependent )
+//            {
+//                tdTau2dDof += 4.0 * tEffectiveConductivitydu / std::pow( tHugn, 2.0 );
+//            }
 
             // compute sum of square terms
-            real tSum = std::pow( tTau1, 2.0 ) + std::pow( tTau2, 2.0 ) + std::pow( tTau3, 2.0 );
+            real tSum = std::pow( tTau1, 2.0 ) + std::pow( tTau2, 2.0 );
+
+            // if time solve
+            if( mBetaTime )
+            {
+                // compute time increment tDeltaT
+                const real tDeltaT = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
+
+                // compute tau3
+                const real tTau3 = 2.0 / tDeltaT;
+
+                // add contribution from time term
+                tSum += std::pow( tTau3, 2.0 );
+            }
 
             // add contribution from source term
             if ( tSourceProp != nullptr )
@@ -532,6 +572,79 @@ namespace moris
             // compute dSPdu
             if ( tSum > mEpsilon )
             {
+                // if dof type is velocity
+                if( aDofTypes( 0 ) == mMasterDofVelocity )
+                {
+                    // compute derivative of hugn wrt velocity dof
+                    Matrix< DDRMat > tdHugndu( 1, tVelocityFI->get_number_of_space_time_coefficients() );
+                    Matrix< DDRMat > tdNormdu( 1, tVelocityFI->get_number_of_space_time_coefficients() );
+                    Matrix< DDRMat > tdAbsdu(  1, tVelocityFI->get_number_of_space_time_coefficients(), 0.0 );
+
+                    // compute derivative of the velocity norm (compute only derivative if not thresholded)
+                    if ( tNorm > mEpsilon )
+                    {
+                        tdNormdu = trans( tVelocityFI->val() ) * tVelocityFI->N() / tNorm;
+                    }
+                    else
+                    {
+                        tdNormdu.fill( 0.0 );
+                    }
+
+                    // compute derivative of the abs term (compute only derivative if not thresholded)
+                    if ( tAbs > mEpsilon )
+                    {
+                        uint tNumNodes = tVelocityFI->dnNdxn( 1 ).n_cols();
+
+                        for ( uint iNode = 0; iNode < tNumNodes; iNode++ )
+                        {
+                            const Matrix< DDRMat > tAdd =
+                                    trans( tVelocityFI->val() ) * tVelocityFI->dnNdxn( 1 ).get_column( iNode );
+
+                            // handle case that tAdd( 0, 0 ) is smaller than threshold
+                            if ( std::abs( tAdd( 0, 0 ) ) > mEpsilon )
+                            {
+                                tdAbsdu +=
+                                        tAdd * trans( tVelocityFI->dnNdxn( 1 ).get_column( iNode ) ) *
+                                        tVelocityFI->N() / std::abs( tAdd( 0, 0 ) );
+                            }
+                        }
+                    }
+
+                    // compute derivative of hugn (compute only derivative if not thresholded)
+                    if ( tHugn > mEpsilon )
+                    {
+                        tdHugndu = 2.0 * ( tdNormdu * tAbs - tdAbsdu * tNorm ) / std::pow( tAbs, 2.0 );
+                    }
+                    else
+                    {
+                        tdHugndu.fill( 0.0 );
+                    }
+
+                    // compute dtau1du
+                    tdTau1dDof = 2.0 * ( tHugn * tdNormdu - tdHugndu * tNorm ) / std::pow( tHugn, 2.0 );
+
+                    // compute dtau2du
+                    tdTau2dDof = - 8.0 * tEffectiveConductivity * tdHugndu / std::pow( tHugn, 3.0 );
+                }
+                else
+                {
+                    tdTau1dDof.fill( 0.0 );
+                    tdTau2dDof.fill( 0.0 );
+                }
+
+                // consider derivative of effective conductivity on dof types
+                Matrix< DDRMat > tEffectiveConductivitydu( 1, tFIDer->get_number_of_space_time_coefficients() );
+
+                bool tIsDependent = this->compute_derivative_of_effective_conductivity(
+                        tEffectiveConductivitydu,
+                        aDofTypes );
+
+                // compute dtau2du
+                if ( tIsDependent )
+                {
+                    tdTau2dDof += 4.0 * tEffectiveConductivitydu / std::pow( tHugn, 2.0 );
+                }
+
                 const real tPrefactor = - std::pow( tSum, -1.5 );
 
                 mdPPdMasterDof( tDofIndex ) = tPrefactor * ( tTau1 * tdTau1dDof + tTau2 * tdTau2dDof);

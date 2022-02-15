@@ -11,16 +11,12 @@ namespace moris
 
         class Intersection_Node_Bilinear : public Intersection_Node
         {
-        private:
-            real xi1;
-            real eta1;
-            real xi2;
-            real eta2;
-            bool mLinear;
-            bool mBilinearCase1;
+          private:
+            Matrix< DDRMat > mParentLocalCoordinates;
 
-        public:
+            Element_Intersection_Type mInterpolationType;
 
+          public:
             /**
              * Constructor
              *
@@ -34,34 +30,37 @@ namespace moris
              * the given ancestors
              * @param aAncestorNodeIndices Ancestor node indices
              * @param aAncestorNodeCoordinates Ancestor node coordinates
+             * @param aInterpolationType Type of interpolation: bi or tri-linear
              * @param aInterfaceGeometry Geometry that intersects the parent to create this child
              * @param aIsocontourThreshold Threshold for determining the intersection location of this node
              * @param aIsocontourTolerance Tolerance for determining interface parent nodes based on geometry value
              * @param aIntersectionTolerance Tolerance for determining interface parent nodes with intersection distance
              */
             Intersection_Node_Bilinear(
-                    std::shared_ptr<Intersection_Node> aFirstParentNode,
-                    std::shared_ptr<Intersection_Node> aSecondParentNode,
-                    uint                               aFirstParentNodeIndex,
-                    uint                               aSecondParentNodeIndex,
-                    const Matrix<DDRMat>&              aFirstParentNodeLocalCoordinates,
-                    const Matrix<DDRMat>&              aSecondParentNodeLocalCoordinates,
-                    const Matrix<DDUMat>&              aAncestorNodeIndices,
-                    const Cell<Matrix<DDRMat>>&        aAncestorNodeCoordinates,
-                    std::shared_ptr<Geometry>          aInterfaceGeometry,
-                    real                               aIsocontourThreshold = 0.0,
-                    real                               aIsocontourTolerance = 0.0,
-                    real                               aIntersectionTolerance = 0.0);
+                    std::shared_ptr< Intersection_Node > aFirstParentNode,
+                    std::shared_ptr< Intersection_Node > aSecondParentNode,
+                    uint                                 aFirstParentNodeIndex,
+                    uint                                 aSecondParentNodeIndex,
+                    const Matrix< DDRMat >&              aFirstParentNodeLocalCoordinates,
+                    const Matrix< DDRMat >&              aSecondParentNodeLocalCoordinates,
+                    const Matrix< DDUMat >&              aAncestorNodeIndices,
+                    const Cell< Matrix< DDRMat > >&      aAncestorNodeCoordinates,
+                    const Element_Intersection_Type      aInterpolationType,
+                    std::shared_ptr< Geometry >          aInterfaceGeometry,
+                    real                                 aIsocontourThreshold   = 0.0,
+                    real                                 aIsocontourTolerance   = 0.0,
+                    real                                 aIntersectionTolerance = 0.0 );
 
-        private:
+            virtual ~Intersection_Node_Bilinear();
 
+          private:
             /**
              * Gets the sensitivity of this node's local coordinate within its parent edge with respect to the field
              * values on each of its ancestors.
              *
              * @return Local coordinate sensitivity
              */
-            real get_dxi_dfield_from_ancestor(uint aAncestorIndex);
+            real get_dxi_dfield_from_ancestor( uint aAncestorIndex );
 
             /**
              * Gets the sensitivities of this node's local coordinate within its parent edge with respect to the global
@@ -69,7 +68,7 @@ namespace moris
              *
              * @return Local coordinate sensitivity
              */
-            Matrix<DDRMat> get_dxi_dcoordinate_first_parent();
+            Matrix< DDRMat > get_dxi_dcoordinate_first_parent();
 
             /**
              * Gets the sensitivities of this node's local coordinate within its parent edge with respect to the global
@@ -77,7 +76,7 @@ namespace moris
              *
              * @return Local coordinate sensitivity
              */
-            Matrix<DDRMat> get_dxi_dcoordinate_second_parent();
+            Matrix< DDRMat > get_dxi_dcoordinate_second_parent();
 
             /**
              * Interpolate and return the local coordinates of this intersection node. Used to clean up constructor.
@@ -93,15 +92,24 @@ namespace moris
              * @return Local coordinates
              */
             real get_local_coordinate(
-                    const Matrix<DDRMat>&       aFirstParentNodeLocalCoordinates,
-                    const Matrix<DDRMat>&       aSecondParentNodeLocalCoordinates,
-                    const Matrix<DDUMat>&       aAncestorNodeIndices,
-                    const Cell<Matrix<DDRMat>>& aAncestorNodeCoordinates,
-                    std::shared_ptr<Geometry>   aInterfaceGeometry,
-                    real                        aIsocontourThreshold);
+                    const Matrix< DDRMat >&         aFirstParentNodeLocalCoordinates,
+                    const Matrix< DDRMat >&         aSecondParentNodeLocalCoordinates,
+                    const Matrix< DDUMat >&         aAncestorNodeIndices,
+                    const Cell< Matrix< DDRMat > >& aAncestorNodeCoordinates,
+                    std::shared_ptr< Geometry >     aInterfaceGeometry,
+                    real                            aIsocontourThreshold );
 
+            real compute_intersection(
+                    const Matrix< DDRMat >&         aFirstParentNodeLocalCoordinates,
+                    const Matrix< DDRMat >&         aSecondParentNodeLocalCoordinates,
+                    const Matrix< DDUMat >&         aAncestorNodeIndices,
+                    const Cell< Matrix< DDRMat > >& aAncestorNodeCoordinates,
+                    std::shared_ptr< Geometry >     aInterfaceGeometry,
+                    real                            aIsocontourThreshold );
+
+            real compute_intersection_derivative( uint aAncestorIndex );
         };
-    }
-}
+    }    // namespace ge
+}    // namespace moris
 
-#endif //MORIS_CL_GEN_INTERSECTION_NODE_BILINEAR_HPP
+#endif    // MORIS_CL_GEN_INTERSECTION_NODE_BILINEAR_HPP

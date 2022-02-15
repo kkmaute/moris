@@ -3,10 +3,12 @@
 #include "cl_FEM_CM_Factory.hpp"
 #include "cl_FEM_CM_Diffusion_Linear_Isotropic.hpp"
 #include "cl_FEM_CM_Diffusion_Linear_Isotropic_Phase_Change.hpp"
+#include "cl_FEM_CM_Diffusion_Linear_Isotropic_Turbulence.hpp"
 #include "cl_FEM_CM_Struc_Linear_Isotropic.hpp"
 #include "cl_FEM_CM_Struc_Nonlinear_Isotropic.hpp"
 #include "cl_FEM_CM_Fluid_Incompressible.hpp"
 #include "cl_FEM_CM_Fluid_Turbulence.hpp"
+#include "cl_FEM_CM_Spalart_Allmaras_Turbulence.hpp"
 #include "cl_FEM_CM_Fluid_Compressible_Ideal.hpp"
 #include "cl_FEM_CM_Compressible_Newtonian_Fluid.hpp"
 #include "cl_FEM_CM_Fluid_Compressible_Van_der_Waals.hpp"
@@ -27,6 +29,9 @@ namespace moris
                 case Constitutive_Type::DIFF_LIN_ISO_PC :
                     return std::make_shared< CM_Diffusion_Linear_Isotropic_Phase_Change >();
 
+                case Constitutive_Type::DIFF_LIN_ISO_TURBULENCE :
+                    return std::make_shared< CM_Diffusion_Linear_Isotropic_Turbulence >();
+
                 case  Constitutive_Type::STRUC_LIN_ISO :
                     return std::make_shared< CM_Struc_Linear_Isotropic >();
 
@@ -38,6 +43,9 @@ namespace moris
 
                 case Constitutive_Type::FLUID_TURBULENCE :
                     return std::make_shared< CM_Fluid_Turbulence >();
+
+                case Constitutive_Type::SPALART_ALLMARAS_TURBULENCE :
+                    return std::make_shared< CM_Spalart_Allmaras_Turbulence >();
 
                 case Constitutive_Type::FLUID_COMPRESSIBLE_IDEAL :
                     return std::make_shared< CM_Fluid_Compressible_Ideal >();

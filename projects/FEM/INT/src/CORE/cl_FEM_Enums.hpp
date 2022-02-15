@@ -135,7 +135,10 @@ namespace moris
                 LIFT_COEFF,
                 DRAG_COEFF,
                 LATENT_HEAT_ABSORPTION,
-                TURBULENT_KINEMATIC_VISCOSITY,
+                TURBULENT_DYNAMIC_VISCOSITY,
+                EFFECTIVE_DYNAMIC_VISCOSITY,
+                EFFECTIVE_CONDUCTIVITY,
+                POWER_DISSIPATION,
                 TOTAL_PRESSURE,
                 MASS_FLOW,
                 THERMAL_ENERGY_CONVECTIVE_FLUX,
@@ -171,6 +174,7 @@ namespace moris
                 UNDEFINED,
                 DIFF_LIN_ISO,
                 DIFF_LIN_ISO_PC,
+                DIFF_LIN_ISO_TURBULENCE,
                 STRUC_LIN_ISO,
                 STRUC_LIN_ISO_PRESSURE,
                 STRUC_NONLIN_ISO,
@@ -179,6 +183,7 @@ namespace moris
                 FLUID_COMPRESSIBLE_IDEAL,
                 FLUID_COMPRESSIBLE_VDW,
                 FLUID_COMPRESSIBLE_NEWTONIAN,
+                SPALART_ALLMARAS_TURBULENCE,
                 END_CONSTITUTIVE_TYPE
         };
 

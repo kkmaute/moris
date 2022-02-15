@@ -21,522 +21,573 @@ namespace moris
 {
     class Logger
     {
-        public:
+      public:
+        // Output File
+        std::ofstream mStream;
 
-            // Output File
-            std::ofstream mStream;
+        /**
+         * @brief Flag to control output of logger information to file
+         */
+        bool mWriteToAscii = false;
 
-            /**
-             * @brief Flag to control output of logger information to file
-             */
-            bool mWriteToAscii = false;
+        /**
+         * @brief Variable to control with processor write logger information to screen
+         */
+        int mOutputRank = 0;
 
-            /**
-             * @brief Variable to control with processor write logger information to screen
-             */
-            int  mOutputRank = 0;
+        // decide which outputs get written
+        moris::sint mSeverityLevel = LOGGER_DEFAULT_SEVERITY_LEVEL;
 
-            // decide which outputs get written
-            moris::sint mSeverityLevel = LOGGER_DEFAULT_SEVERITY_LEVEL;
+        /**
+         * Output formating mode for console output:
+         * 1 - legacy mode, everything is written to screen as handed to log macros/functions
+         * 2 - output is written in a clean tree structure, general MORIS_LOG and MORIS_LOG_INFO is suppressed. Good for live tracing.
+         * 3 - all output is written in a tree structure, no filtering
+         */
+        uint mDirectOutputFormat = LOGGER_DEFAULT_DIRECT_OUTPUT;
 
-            /**
-             * Output formating mode for console output:
-             * 1 - legacy mode, everything is written to screen as handed to log macros/functions
-             * 2 - output is written in a clean tree structure, general MORIS_LOG and MORIS_LOG_INFO is suppressed. Good for live tracing.
-             * 3 - all output is written in a tree structure, no filtering
-             */
-            uint mDirectOutputFormat = LOGGER_DEFAULT_DIRECT_OUTPUT;
+        // Clock for tracing and timing
+        GlobalClock mGlobalClock;
 
-            // Clock for tracing and timing
-            GlobalClock  mGlobalClock;
+        uint mIteration = 0;    // FIXME this is absolutely a hack, it doesn't even store the iteration correctly :)
 
-            uint mIteration = 0; // FIXME this is absolutely a hack, it doesn't even store the iteration correctly :)
+        inline int
+        logger_par_rank()
+        {
+            int tProcRank;
+            MPI_Comm_rank( MPI_COMM_WORLD, &tProcRank );
+            return tProcRank;
+        }
 
-            inline
-            int logger_par_rank()
+        inline real
+        logger_max_all( real& aLocalInput )
+        {
+            real aGlobalMax;
+            MPI_Allreduce( &aLocalInput, &aGlobalMax, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD );
+            return aGlobalMax;
+        }
+
+        inline real
+        logger_min_all( real& aLocalInput )
+        {
+            real aGlobalMin;
+            MPI_Allreduce( &aLocalInput, &aGlobalMin, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD );
+            return aGlobalMin;
+        }
+
+      public:
+        Logger(){};
+
+        //------------------------------------------------------------------------------
+
+        ~Logger()
+        {
+            // report error if prematurely stopped
+            if ( mGlobalClock.mIndentationLevel != 0 )
             {
-                int tProcRank;
-                MPI_Comm_rank(MPI_COMM_WORLD, &tProcRank);
-                return tProcRank;
-            }
+                // set indentation level to zero
+                mGlobalClock.mIndentationLevel = 0;
 
-            inline
-            real logger_max_all( real & aLocalInput )
-            {   
-                real aGlobalMax;
-                MPI_Allreduce(&aLocalInput,&aGlobalMax,1,MPI_DOUBLE,MPI_MAX,MPI_COMM_WORLD);
-                return aGlobalMax;
-            }
+                // report error
+                std::cout << "Global clock & logger prematurely stopped.";
 
-            inline
-            real logger_min_all( real & aLocalInput )
-            {   
-                real aGlobalMin;
-                MPI_Allreduce(&aLocalInput,&aGlobalMin,1,MPI_DOUBLE,MPI_MIN,MPI_COMM_WORLD);
-                return aGlobalMin;
-            }
-
-        public:
-
-            Logger(){};
-
-            //------------------------------------------------------------------------------
-
-            ~Logger()
-            {
-                // report error if prematurely stopped
-                if (mGlobalClock.mIndentationLevel != 0)
+                if ( mWriteToAscii )
                 {
-                    // set indentation level to zero
-                    mGlobalClock.mIndentationLevel = 0;
-
-                    // report error
-                    std::cout << "Global clock & logger prematurely stopped.";
-
-                    if( mWriteToAscii )
-                    {
-                        // log current position in code
-                        this->log_to_file_error("Global clock & logger prematurely stopped.");
-                    }
-
-                }
-
-                // Stop Global Clock Timer
-                real tElapsedTime = ( (moris::real) std::clock() - mGlobalClock.mTimeStamps[mGlobalClock.mIndentationLevel] ) / CLOCKS_PER_SEC;
-
-                if( mWriteToAscii )
-                {
-                    // log runtime of clock
-                    this->log_to_file( "ElapsedTime" , tElapsedTime );
-
-                    //close file
-                    mStream.close();
-                }
-
-                // log end of Global Clock to console - only processor mOutputRank prints message
-                std::cout << "Global Clock Stopped. ElapsedTime = " << tElapsedTime << " \n" << std::flush;
-
-                if ( PRINT_WALL_TIME )
-                {
-                    std::chrono::duration<double> tChronoElapsedWallTime = ( std::chrono::system_clock::now() - mGlobalClock.mWallTimeStamps[mGlobalClock.mIndentationLevel] );
-                    real tElapsedWallTime = tChronoElapsedWallTime.count();
-                    std::cout << "Global Clock Stopped. ElapsedWallTime = " << tElapsedWallTime << " \n" << std::flush;                
-                }
-            };
-
-            //------------------------------------------------------------------------------
-
-            /**
-             * Initialize MORIS_LOGGER
-             *
-             * Severity Levels
-             * 1 ... all outputs
-             * 2 ... all outputs except info
-             * 3 ... all outputs except info and warning
-             *
-             * @include "IOS/src/cl_Logger/log.inc"
-             */
-
-            void initialize( const moris::sint aSeverityLevel )
-            {
-                mSeverityLevel = aSeverityLevel;
-
-                // log start of Global Clock to console - only processor mOutputRank prints message
-                if ( logger_par_rank() == mOutputRank )
-                {
-                    std::cout << "Global Clock Initialized ... \n" << std::flush;
-                }
-            };
-
-            //------------------------------------------------------------------------------
-
-            void initialize( int  & argc, char * argv[] );
-
-            //------------------------------------------------------------------------------
-
-            void initialize(
-                    const std::string aPath,
-                    const moris::sint aSverityLevel       = LOGGER_DEFAULT_SEVERITY_LEVEL,
-                    const moris::uint aDirectOutputFormat = LOGGER_DEFAULT_DIRECT_OUTPUT)
-            {
-                mDirectOutputFormat = aDirectOutputFormat;
-                mSeverityLevel      = aSverityLevel;
-
-                mStream.open( aPath + "." + std::to_string( logger_par_rank() ) ,std::ofstream::out);
-
-                mWriteToAscii = true;
-
-                // print header
-                this->print_header();
-
-                // log start of Global Clock to file
-                if( mWriteToAscii )
-                {
-                    // formated output to log file
-                    this->log_to_file( "SignIn" , 1.0 );
-                }
-
-                // log start of Global Clock to console - only processor mOutputRank prints message
-                if ( logger_par_rank() == mOutputRank )
-                {
-                    std::cout << "Global Clock Initialized ... \n" << std::flush;
-                }
-            };
-
-            //------------------------------------------------------------------------------
-
-            void set_severity_level( const moris::sint aSverityLevel )
-            {
-                mSeverityLevel = aSverityLevel;
-            };
-
-            //------------------------------------------------------------------------------
-
-            moris::sint get_severity_level()
-            {
-                return mSeverityLevel;
-            };
-
-            //------------------------------------------------------------------------------
-
-            void set_screen_output_rank( const moris::sint aOutputRank )
-            {
-                mOutputRank = aOutputRank;
-            };
-
-            //------------------------------------------------------------------------------
-
-            template< typename ... Args >
-            void log_section( const Args ... aArgs )
-            {
-                // MORIS_ASSERT(mStream.is_open(),"Logger error, the output file stream ofstream is not open);
-                std::string tString = print_log( aArgs ... );
-
-                // only processor mOutputRank prints message
-                if ( logger_par_rank() == mOutputRank )
-                {
-                    if (mDirectOutputFormat == 1)
-                    {
-                        char tTempString[1000];
-                        std::strcpy( tTempString, "===============================================================================\n" );
-                        std::strcat( tTempString, "\n" );
-                        std::strcat( tTempString, tString.c_str() );
-                        std::strcat( tTempString, "\n" );
-                        std::strcat( tTempString, "===============================================================================" );
-
-                        std::cout << tTempString << "\n";
-                    }
-                }
-
-                if( mWriteToAscii )
-                {
-                    this->log_to_file(tString);
+                    // log current position in code
+                    this->log_to_file_error( "Global clock & logger prematurely stopped." );
                 }
             }
 
-            //------------------------------------------------------------------------------
+            // Stop Global Clock Timer
+            real tElapsedTime = ( (moris::real)std::clock() - mGlobalClock.mTimeStamps[mGlobalClock.mIndentationLevel] ) / CLOCKS_PER_SEC;
 
-            template< typename ... Args >
-            void log( const Args ... aArgs )
+            if ( mWriteToAscii )
             {
-                std::string tString = print_log( aArgs ... );
+                // log runtime of clock
+                this->log_to_file( "ElapsedTime", tElapsedTime );
 
-                // only processor mOutputRank prints message
-                if (logger_par_rank() == mOutputRank )
-                {
-                    // switch based on OutputFormat provided
-                    if (mDirectOutputFormat == 3)
-                    {
-                        std::cout << print_empty_line(mGlobalClock.mIndentationLevel) << "_" << "Log: " << tString << " \n";
-                    }
-                    else if (mDirectOutputFormat == 1)
-                    {
-                        std::cout << tString << "\n";
-                    }
-                }
+                // close file
+                mStream.close();
+            }
 
-                if( mWriteToAscii )
+            // log end of Global Clock to console - only processor mOutputRank prints message
+            std::cout << "Global Clock Stopped. ElapsedTime = " << tElapsedTime << " \n"
+                      << std::flush;
+
+            if ( PRINT_WALL_TIME )
+            {
+                std::chrono::duration< double > tChronoElapsedWallTime = ( std::chrono::system_clock::now() - mGlobalClock.mWallTimeStamps[mGlobalClock.mIndentationLevel] );
+                real                            tElapsedWallTime       = tChronoElapsedWallTime.count();
+                std::cout << "Global Clock Stopped. ElapsedWallTime = " << tElapsedWallTime << " \n"
+                          << std::flush;
+            }
+        };
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * Initialize MORIS_LOGGER
+         *
+         * Severity Levels
+         * 1 ... all outputs
+         * 2 ... all outputs except info
+         * 3 ... all outputs except info and warning
+         *
+         * @include "IOS/src/cl_Logger/log.inc"
+         */
+
+        void
+        initialize( const moris::sint aSeverityLevel )
+        {
+            mSeverityLevel = aSeverityLevel;
+
+            // log start of Global Clock to console - only processor mOutputRank prints message
+            if ( logger_par_rank() == mOutputRank )
+            {
+                std::cout << "Global Clock Initialized ... \n"
+                          << std::flush;
+            }
+        };
+
+        //------------------------------------------------------------------------------
+
+        void initialize( int& argc, char* argv[] );
+
+        //------------------------------------------------------------------------------
+
+        void
+        initialize(
+                const std::string aPath,
+                const moris::sint aSverityLevel       = LOGGER_DEFAULT_SEVERITY_LEVEL,
+                const moris::uint aDirectOutputFormat = LOGGER_DEFAULT_DIRECT_OUTPUT )
+        {
+            mDirectOutputFormat = aDirectOutputFormat;
+            mSeverityLevel      = aSverityLevel;
+
+            mStream.open( aPath + "." + std::to_string( logger_par_rank() ), std::ofstream::out );
+
+            mWriteToAscii = true;
+
+            // print header
+            this->print_header();
+
+            // log start of Global Clock to file
+            if ( mWriteToAscii )
+            {
+                // formated output to log file
+                this->log_to_file( "SignIn", 1.0 );
+            }
+
+            // log start of Global Clock to console - only processor mOutputRank prints message
+            if ( logger_par_rank() == mOutputRank )
+            {
+                std::cout << "Global Clock Initialized ... \n"
+                          << std::flush;
+            }
+        };
+
+        //------------------------------------------------------------------------------
+
+        void
+        set_severity_level( const moris::sint aSverityLevel )
+        {
+            mSeverityLevel = aSverityLevel;
+        };
+
+        //------------------------------------------------------------------------------
+
+        moris::sint
+        get_severity_level()
+        {
+            return mSeverityLevel;
+        };
+
+        //------------------------------------------------------------------------------
+
+        void
+        set_screen_output_rank( const moris::sint aOutputRank )
+        {
+            mOutputRank = aOutputRank;
+        };
+
+        //------------------------------------------------------------------------------
+
+        template< typename... Args >
+        void
+        log_section( const Args... aArgs )
+        {
+            // MORIS_ASSERT(mStream.is_open(),"Logger error, the output file stream ofstream is not open);
+            std::string tString = print_log( aArgs... );
+
+            // only processor mOutputRank prints message
+            if ( logger_par_rank() == mOutputRank )
+            {
+                if ( mDirectOutputFormat == 1 )
                 {
-                    this->log_to_file(tString);
+                    char tTempString[1000];
+                    std::strcpy( tTempString, "===============================================================================\n" );
+                    std::strcat( tTempString, "\n" );
+                    std::strcat( tTempString, tString.c_str() );
+                    std::strcat( tTempString, "\n" );
+                    std::strcat( tTempString, "===============================================================================" );
+
+                    std::cout << tTempString << "\n";
                 }
             }
 
-            //------------------------------------------------------------------------------
-
-            template< typename ... Args >
-            void log_info( const Args ... aArgs )
+            if ( mWriteToAscii )
             {
-                std::string tString = print_log( aArgs ... );
-
-                // only processor mOutputRank prints message
-                if (logger_par_rank() == mOutputRank )
-                {
-                    // switch based on OutputFormat provided
-                    if (mDirectOutputFormat == 3)
-                    {
-                        // check if Entity Type has been specified, if not use entity base for printing
-                        if ( mGlobalClock.mCurrentType[ mGlobalClock.mIndentationLevel ] == LOGGER_NON_SPECIFIC_ENTITY_TYPE )
-                        {
-                            std::cout << print_empty_line(mGlobalClock.mIndentationLevel) << "_" <<
-                                    mGlobalClock.mCurrentEntity[ mGlobalClock.mIndentationLevel ] << " - " << tString << " \n" << std::flush;
-                        }
-                        else // if yes use use entity type for printing
-                        {
-                            std::cout << print_empty_line(mGlobalClock.mIndentationLevel) << "_" <<
-                                    mGlobalClock.mCurrentType[ mGlobalClock.mIndentationLevel ] << " - " << tString << " \n" << std::flush;
-                        }
-                    }
-                    else if (mDirectOutputFormat == 1)
-                    {
-                        std::cout << tString << "\n" << std::flush;
-                    }
-                }
-
-                // write to file if requested
-                if( mWriteToAscii )
-                {
-                    this->log_to_file_info(tString);
-                }
+                this->log_to_file( tString );
             }
+        }
 
-            //------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
-            template< typename ... Args >
-            void log_debug( const Args ... aArgs )
+        template< typename... Args >
+        void
+        log( const Args... aArgs )
+        {
+            std::string tString = print_log( aArgs... );
+
+            // only processor mOutputRank prints message
+            if ( logger_par_rank() == mOutputRank )
             {
-                // MORIS_ASSERT(mStream.is_open(),"Logger error, the output file stream ofstream is not open);
-
-                std::string tString = print_log( aArgs ... );
-
-                // only processor mOutputRank prints message
-                if (logger_par_rank() == mOutputRank )
-                {
-                    // switch based on OutputFormat provided
-                    if ((mDirectOutputFormat == 3) || (mDirectOutputFormat == 2))
-                    {
-                        std::cout << print_empty_line(mGlobalClock.mIndentationLevel) << "_" << "Debug: " << tString << " \n" << std::flush;
-                    }
-                    else
-                    {
-                        std::cout << tString << "\n" << std::flush;
-                    }
-                }
-
-                // write to file if requested
-                if( mWriteToAscii )
-                {
-                    this->log_to_file_debug(tString);
-                }
-            }
-
-            //------------------------------------------------------------------------------
-
-            template< typename ... Args >
-            void log_warning( const Args ... aArgs )
-            {
-                // MORIS_ASSERT(mStream.is_open(),"Logger error, the output file stream ofstream is not open);
-
-                std::string tString = print_log( aArgs ... );
-
-                // only processor mOutputRank prints message
-                if (logger_par_rank() == mOutputRank )
-                {
-                    // switch based on OutputFormat provided
-                    if ((mDirectOutputFormat == 3) || (mDirectOutputFormat == 2))
-                    {
-                        std::cout << "Processor = " << logger_par_rank() << " : " << tString << "\n" << std::flush;
-                    }
-                    else
-                    {
-                        std::cout << "Processor = " << logger_par_rank() << " : " << tString << "\n" << std::flush;
-                    }
-                }
-
-                // write to file if requested
-                if( mWriteToAscii )
-                {
-                    this->log_to_file_warning(tString);
-                }
-            }
-
-            //------------------------------------------------------------------------------
-
-            template< typename ... Args >
-            void log_error( const Args ... aArgs )
-            {
-                // MORIS_ASSERT(mStream.is_open(),"Logger error, the output file stream ofstream is not open);
-
-                std::string tString = print_log( aArgs ... );
-
                 // switch based on OutputFormat provided
-                if ((mDirectOutputFormat == 3) || (mDirectOutputFormat == 2))
+                if ( mDirectOutputFormat == 3 )
                 {
-                    std::cout << "Processor = " << logger_par_rank() << " : " << tString << "\n" << std::flush;
+                    std::cout << print_empty_line( mGlobalClock.mIndentationLevel ) << "_"
+                              << "Log: " << tString << " \n";
+                }
+                else if ( mDirectOutputFormat == 1 )
+                {
+                    std::cout << tString << "\n";
+                }
+            }
+
+            if ( mWriteToAscii )
+            {
+                this->log_to_file( tString );
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        template< typename... Args >
+        void
+        log_info( const Args... aArgs )
+        {
+            std::string tString = print_log( aArgs... );
+
+            // only processor mOutputRank prints message
+            if ( logger_par_rank() == mOutputRank )
+            {
+                // switch based on OutputFormat provided
+                if ( mDirectOutputFormat == 3 )
+                {
+                    // check if Entity Type has been specified, if not use entity base for printing
+                    if ( mGlobalClock.mCurrentType[mGlobalClock.mIndentationLevel] == LOGGER_NON_SPECIFIC_ENTITY_TYPE )
+                    {
+                        std::cout << print_empty_line( mGlobalClock.mIndentationLevel ) << "_" << mGlobalClock.mCurrentEntity[mGlobalClock.mIndentationLevel] << " - " << tString << " \n"
+                                  << std::flush;
+                    }
+                    else    // if yes use use entity type for printing
+                    {
+                        std::cout << print_empty_line( mGlobalClock.mIndentationLevel ) << "_" << mGlobalClock.mCurrentType[mGlobalClock.mIndentationLevel] << " - " << tString << " \n"
+                                  << std::flush;
+                    }
+                }
+                else if ( mDirectOutputFormat == 1 )
+                {
+                    std::cout << tString << "\n"
+                              << std::flush;
+                }
+            }
+
+            // write to file if requested
+            if ( mWriteToAscii )
+            {
+                this->log_to_file_info( tString );
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        template< typename... Args >
+        void
+        log_debug( const Args... aArgs )
+        {
+            // MORIS_ASSERT(mStream.is_open(),"Logger error, the output file stream ofstream is not open);
+
+            std::string tString = print_log( aArgs... );
+
+            // only processor mOutputRank prints message
+            if ( logger_par_rank() == mOutputRank )
+            {
+                // switch based on OutputFormat provided
+                if ( ( mDirectOutputFormat == 3 ) || ( mDirectOutputFormat == 2 ) )
+                {
+                    std::cout << print_empty_line( mGlobalClock.mIndentationLevel ) << "_"
+                              << "Debug: " << tString << " \n"
+                              << std::flush;
                 }
                 else
                 {
-                    std::cout << "Processor = " << logger_par_rank() << " : "  << tString << "\n" << std::flush;
+                    std::cout << tString << "\n"
+                              << std::flush;
                 }
+            }
 
-                // write to file if requested
-                if( mWriteToAscii )
+            // write to file if requested
+            if ( mWriteToAscii )
+            {
+                this->log_to_file_debug( tString );
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        template< typename... Args >
+        void
+        log_warning( const Args... aArgs )
+        {
+            // MORIS_ASSERT(mStream.is_open(),"Logger error, the output file stream ofstream is not open);
+
+            std::string tString = print_log( aArgs... );
+
+            // only processor mOutputRank prints message
+            if ( logger_par_rank() == mOutputRank )
+            {
+                // switch based on OutputFormat provided
+                if ( ( mDirectOutputFormat == 3 ) || ( mDirectOutputFormat == 2 ) )
                 {
-                    this->log_to_file_error(tString);
+                    std::cout << "Processor = " << logger_par_rank() << " : " << tString << "\n"
+                              << std::flush;
+                }
+                else
+                {
+                    std::cout << "Processor = " << logger_par_rank() << " : " << tString << "\n"
+                              << std::flush;
                 }
             }
 
-            // ---------------------------------------------------------------------------------------------- //
-            // FUNCTIONS ENABLING TRACING AND CLOCK LOGGING ------------------------------------------------- //
-            // ---------------------------------------------------------------------------------------------- //
-
-            // log with specified output type
-            template <class T>
-            void log_specific(
-                    std::string  aOutputSpecifier,
-                    T            aOutputValue)
+            // write to file if requested
+            if ( mWriteToAscii )
             {
-                    // only processor 0 prints message
-                    if (logger_par_rank() == mOutputRank )
-                    {
-                        // switch based on OutputFormat provided
-                        if ( (mDirectOutputFormat == 3) || (mDirectOutputFormat == 2) )
-                        {
-                            if ( mGlobalClock.mCurrentType[ mGlobalClock.mIndentationLevel ] == LOGGER_NON_SPECIFIC_ENTITY_TYPE )
-                            {
-                                std::cout << print_empty_line(mGlobalClock.mIndentationLevel) << "_"
-                                        << mGlobalClock.mCurrentEntity[ mGlobalClock.mIndentationLevel ] << " - "
-                                        << aOutputSpecifier << ": "
-                                        << ios::stringify(aOutputValue) << " \n" << std::flush;
-                            }
-                            else
-                            {
-                                std::cout << print_empty_line(mGlobalClock.mIndentationLevel) << "_"
-                                        << mGlobalClock.mCurrentType[ mGlobalClock.mIndentationLevel ] << " - "
-                                        << aOutputSpecifier << ": "
-                                        << ios::stringify(aOutputValue) << " \n" << std::flush;
-                            }
-                        }
-                        else
-                        {
-                            std::cout << aOutputSpecifier << ": " << ios::stringify(aOutputValue) << " \n" << std::flush;
-                        }
-                    }
-                    
-                    // write to file if requested
-                    if( mWriteToAscii )
-                    {
-                        this->log_to_file( aOutputSpecifier, aOutputValue );
-                    }
+                this->log_to_file_warning( tString );
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        template< typename... Args >
+        void
+        log_error( const Args... aArgs )
+        {
+            // MORIS_ASSERT(mStream.is_open(),"Logger error, the output file stream ofstream is not open);
+
+            std::string tString = print_log( aArgs... );
+
+            // switch based on OutputFormat provided
+            if ( ( mDirectOutputFormat == 3 ) || ( mDirectOutputFormat == 2 ) )
+            {
+                std::cout << "Processor = " << logger_par_rank() << " : " << tString << "\n"
+                          << std::flush;
+            }
+            else
+            {
+                std::cout << "Processor = " << logger_par_rank() << " : " << tString << "\n"
+                          << std::flush;
             }
 
-            //------------------------------------------------------------------------------
-
-            /**
-             * Sign in to the logger with an entity action.
-             *
-             * @param aEntityBase Entity base
-             * @param aEntityType Entity type
-             * @param aEntityAction Entity action
-             */
-            void sign_in(
-                    std::string aEntityBase,
-                    std::string aEntityType,
-                    std::string aEntityAction);
-
-            //------------------------------------------------------------------------------
-
-            // signing out
-            void sign_out();
-
-            //------------------------------------------------------------------------------
-
-            // increment iteration count of current instance
-            void iterate();
-
-            //------------------------------------------------------------------------------
-
-            // request/get the iteration of a logged instance
-            uint get_iteration(
-                    std::string aEntityBase,
-                    std::string aEntityType,
-                    std::string aEntityAction );
-
-            //------------------------------------------------------------------------------
-
-            // set the iteration of a logged instance
-            void set_iteration(
-                    std::string aEntityBase,
-                    std::string aEntityType,
-                    std::string aEntityAction,
-                    uint              aIter);
-
-            //------------------------------------------------------------------------------
-
-            // request/get the iteration of the optimization algorithm
-            uint get_opt_iteration();
-
-            //------------------------------------------------------------------------------
-
-            // request/get the iteration of the optimization algorithm
-            void set_opt_iteration( uint aIter );
-
-            //------------------------------------------------------------------------------
-
-            // write logged info to formated file
-            template <class T>
-            void log_to_file( std::string aOutputSpecifier, T aOutputValue )
+            // write to file if requested
+            if ( mWriteToAscii )
             {
-                    std::string tLine =
-                            ios::stringify(mGlobalClock.mIndentationLevel) + ";"
-                            + ios::stringify(mGlobalClock.mCurrentFunctionID[mGlobalClock.mIndentationLevel]) + ";"
-                            +   mGlobalClock.mCurrentEntity[mGlobalClock.mIndentationLevel] + ";"
-                            +   mGlobalClock.mCurrentType[mGlobalClock.mIndentationLevel] + ";"
-                            +   mGlobalClock.mCurrentAction[mGlobalClock.mIndentationLevel] + ";"
-                            +   aOutputSpecifier + ";"
-                            + ios::stringify( aOutputValue ) + "\n";
+                this->log_to_file_error( tString );
+            }
+        }
 
-                    mStream << tLine << std::flush;
+        // ---------------------------------------------------------------------------------------------- //
+        // FUNCTIONS ENABLING TRACING AND CLOCK LOGGING ------------------------------------------------- //
+        // ---------------------------------------------------------------------------------------------- //
+
+        // log with specified output type
+        template< class T >
+        void
+        log_specific(
+                std::string aOutputSpecifier,
+                T           aOutputValue )
+        {
+            // only processor 0 prints message
+            if ( logger_par_rank() == mOutputRank )
+            {
+                // switch based on OutputFormat provided
+                if ( ( mDirectOutputFormat == 3 ) || ( mDirectOutputFormat == 2 ) )
+                {
+                    if ( mGlobalClock.mCurrentType[mGlobalClock.mIndentationLevel] == LOGGER_NON_SPECIFIC_ENTITY_TYPE )
+                    {
+                        std::cout << print_empty_line( mGlobalClock.mIndentationLevel ) << "_"
+                                  << mGlobalClock.mCurrentEntity[mGlobalClock.mIndentationLevel] << " - "
+                                  << aOutputSpecifier << ": "
+                                  << ios::stringify( aOutputValue ) << " \n"
+                                  << std::flush;
+                    }
+                    else
+                    {
+                        std::cout << print_empty_line( mGlobalClock.mIndentationLevel ) << "_"
+                                  << mGlobalClock.mCurrentType[mGlobalClock.mIndentationLevel] << " - "
+                                  << aOutputSpecifier << ": "
+                                  << ios::stringify( aOutputValue ) << " \n"
+                                  << std::flush;
+                    }
+                }
+                else
+                {
+                    std::cout << aOutputSpecifier << ": " << ios::stringify( aOutputValue ) << " \n"
+                              << std::flush;
+                }
             }
 
-            //------------------------------------------------------------------------------
+            // write to file if requested
+            if ( mWriteToAscii )
+            {
+                this->log_to_file( aOutputSpecifier, aOutputValue );
+            }
+        }
 
-            template <class T1, class T2>
-            void log2_to_file(
-                    std::string aOutputSpecifier1, T1 aOutputValue1,
-                    std::string aOutputSpecifier2, T2 aOutputValue2);
+        //------------------------------------------------------------------------------
 
-            //------------------------------------------------------------------------------
+        /**
+         * Sign in to the logger with an entity action.
+         *
+         * @param aEntityBase Entity base
+         * @param aEntityType Entity type
+         * @param aEntityAction Entity action
+         */
+        void sign_in(
+                std::string aEntityBase,
+                std::string aEntityType,
+                std::string aEntityAction );
 
-            template <class T1, class T2, class T3>
-            void log3_to_file(
-                    std::string aOutputSpecifier1, T1 aOutputValue1,
-                    std::string aOutputSpecifier2, T2 aOutputValue2,
-                    std::string aOutputSpecifier3, T3 aOutputValue3);
+        //------------------------------------------------------------------------------
 
-            //------------------------------------------------------------------------------
+        // signing out
+        void sign_out();
 
-            // logging operation using Clock Info and string
-            void log_to_file(std::string aOutputString);
-            void log_to_file_info(std::string aOutputString);
-            void log_to_file_debug(std::string aOutputString);
-            void log_to_file_warning(std::string aOutputString);
-            void log_to_file_error(std::string aOutputString);
+        //------------------------------------------------------------------------------
 
-            // -----------------------------------------------------------------------------
-            // FORMATTING TOOLS FOR OUTPUT -------------------------------------------------
-            // -----------------------------------------------------------------------------
+        // increment iteration count of current instance
+        void iterate();
 
-            // print header
-            void print_header();
+        //------------------------------------------------------------------------------
 
-            //------------------------------------------------------------------------------
+        // request/get the iteration of a logged instance
+        uint get_iteration(
+                const std::string& aEntityBase,
+                const std::string& aEntityType,
+                const std::string& aEntityAction );
 
-            // print empty line
-            std::string print_empty_line(uint aIndentationLevel);
+        //------------------------------------------------------------------------------
 
-    }; // end class Logger
+        // set the iteration of a logged instance
+        void set_iteration(
+                const std::string& aEntityBase,
+                const std::string& aEntityType,
+                const std::string& aEntityAction,
+                const uint         aIter );
 
-} // end namespace moris
+        //------------------------------------------------------------------------------
+
+        // get data defined by key for a logged instance
+        real
+        get_action_data(
+                const std::string& aEntityBase,
+                const std::string& aEntityType,
+                const std::string& aEntityAction,
+                const std::string& aEntityData );
+
+        //------------------------------------------------------------------------------
+
+        void
+        set_action_data(
+                const std::string& aEntityBase,
+                const std::string& aEntityType,
+                const std::string& aEntityAction,
+                const std::string& aEntityData,
+                const real&        aActionValue );
+
+        //------------------------------------------------------------------------------
+
+        // request/get the iteration of the optimization algorithm
+        uint get_opt_iteration();
+
+        //------------------------------------------------------------------------------
+
+        // request/get the iteration of the optimization algorithm
+        void set_opt_iteration( uint aIter );
+
+        //------------------------------------------------------------------------------
+
+        // write logged info to formated file
+        template< class T >
+        void
+        log_to_file( std::string aOutputSpecifier, T aOutputValue )
+        {
+            std::string tLine =
+                    ios::stringify( mGlobalClock.mIndentationLevel ) + ";"
+                    + ios::stringify( mGlobalClock.mCurrentFunctionID[mGlobalClock.mIndentationLevel] ) + ";"
+                    + mGlobalClock.mCurrentEntity[mGlobalClock.mIndentationLevel] + ";"
+                    + mGlobalClock.mCurrentType[mGlobalClock.mIndentationLevel] + ";"
+                    + mGlobalClock.mCurrentAction[mGlobalClock.mIndentationLevel] + ";"
+                    + aOutputSpecifier + ";"
+                    + ios::stringify( aOutputValue ) + "\n";
+
+            mStream << tLine << std::flush;
+        }
+
+        //------------------------------------------------------------------------------
+
+        template< class T1, class T2 >
+        void log2_to_file(
+                std::string aOutputSpecifier1,
+                T1          aOutputValue1,
+                std::string aOutputSpecifier2,
+                T2          aOutputValue2 );
+
+        //------------------------------------------------------------------------------
+
+        template< class T1, class T2, class T3 >
+        void log3_to_file(
+                std::string aOutputSpecifier1,
+                T1          aOutputValue1,
+                std::string aOutputSpecifier2,
+                T2          aOutputValue2,
+                std::string aOutputSpecifier3,
+                T3          aOutputValue3 );
+
+        //------------------------------------------------------------------------------
+
+        // logging operation using Clock Info and string
+        void log_to_file( std::string aOutputString );
+        void log_to_file_info( std::string aOutputString );
+        void log_to_file_debug( std::string aOutputString );
+        void log_to_file_warning( std::string aOutputString );
+        void log_to_file_error( std::string aOutputString );
+
+        // -----------------------------------------------------------------------------
+        // FORMATTING TOOLS FOR OUTPUT -------------------------------------------------
+        // -----------------------------------------------------------------------------
+
+        // print header
+        void print_header();
+
+        //------------------------------------------------------------------------------
+
+        // print empty line
+        std::string print_empty_line( uint aIndentationLevel );
+
+    };    // end class Logger
+
+}    // end namespace moris
 
 // -----------------------------------------------------------------------------
 // ---------------------------------------- MACROS -----------------------------
@@ -549,11 +600,11 @@ extern moris::Logger gLogger;
  *
  * @include "IOS/src/cl_Logger/log.inc"
  */
-#define MORIS_SECTION( ... ) \
-        do \
-        { \
-            gLogger.log_section( __VA_ARGS__ ); \
-        } while (false)
+#define MORIS_SECTION( ... )                \
+    do                                      \
+    {                                       \
+        gLogger.log_section( __VA_ARGS__ ); \
+    } while ( false )
 
 // -----------------------------------------------------------------------------
 
@@ -562,14 +613,14 @@ extern moris::Logger gLogger;
  *
  * @include "IOS/src/cl_Logger/log.inc"
  */
-#define MORIS_LOG( ... ) \
-        do \
-        { \
-            if ( gLogger.get_severity_level() < 3 )\
-            {\
-                gLogger.log_info( __VA_ARGS__ ); \
-            }\
-        } while (false)
+#define MORIS_LOG( ... )                        \
+    do                                          \
+    {                                           \
+        if ( gLogger.get_severity_level() < 3 ) \
+        {                                       \
+            gLogger.log_info( __VA_ARGS__ );    \
+        }                                       \
+    } while ( false )
 
 // -----------------------------------------------------------------------------
 
@@ -578,14 +629,14 @@ extern moris::Logger gLogger;
  *
  * @include "IOS/src/cl_Logger/log.inc"
  */
-#define MORIS_LOG_INFO( ... ) \
-        do \
-        { \
-            if ( gLogger.get_severity_level() < 1 )\
-            {\
-                gLogger.log_info( __VA_ARGS__ ); \
-            }\
-        } while (false)
+#define MORIS_LOG_INFO( ... )                   \
+    do                                          \
+    {                                           \
+        if ( gLogger.get_severity_level() < 1 ) \
+        {                                       \
+            gLogger.log_info( __VA_ARGS__ );    \
+        }                                       \
+    } while ( false )
 
 // -----------------------------------------------------------------------------
 
@@ -594,14 +645,14 @@ extern moris::Logger gLogger;
  *
  * @include "IOS/src/cl_Logger/log.inc"
  */
-#define MORIS_LOG_SPEC( ... ) \
-        do \
-        { \
-            if ( gLogger.get_severity_level() < 1 )\
-            {\
-                gLogger.log_specific( __VA_ARGS__ ); \
-            }\
-        } while (false)
+#define MORIS_LOG_SPEC( ... )                    \
+    do                                           \
+    {                                            \
+        if ( gLogger.get_severity_level() < 1 )  \
+        {                                        \
+            gLogger.log_specific( __VA_ARGS__ ); \
+        }                                        \
+    } while ( false )
 
 // -----------------------------------------------------------------------------
 
@@ -610,11 +661,11 @@ extern moris::Logger gLogger;
  *
  * @include "IOS/src/cl_Logger/log.inc"
  */
-#define MORIS_LOG_ITERATION( ... ) \
-        do \
-        { \
-                gLogger.iterate( __VA_ARGS__ ); \
-        } while (false)
+#define MORIS_LOG_ITERATION( ... )      \
+    do                                  \
+    {                                   \
+        gLogger.iterate( __VA_ARGS__ ); \
+    } while ( false )
 
 // -----------------------------------------------------------------------------
 
@@ -623,12 +674,12 @@ extern moris::Logger gLogger;
  *
  * @include "IOS/src/cl_Logger/log_debug.inc"
  */
-#if defined(DEBUG)
-#define MORIS_LOG_DEBUG( ... ) \
-        do \
-        { \
-            gLogger.log_debug( __VA_ARGS__ ); \
-        } while (false)
+#if defined( DEBUG )
+#define MORIS_LOG_DEBUG( ... )            \
+    do                                    \
+    {                                     \
+        gLogger.log_debug( __VA_ARGS__ ); \
+    } while ( false )
 #else
 #define MORIS_LOG_DEBUG( ... )
 #endif
@@ -640,14 +691,14 @@ extern moris::Logger gLogger;
  *
  * @include "IOS/src/cl_Logger/log_warning.inc"
  */
-#define MORIS_LOG_WARNING( ... ) \
-        do \
-        { \
-            if ( gLogger.get_severity_level() < 2 ) \
-            {\
-                gLogger.log_warning( __VA_ARGS__ ); \
-            }\
-        } while (false)
+#define MORIS_LOG_WARNING( ... )                \
+    do                                          \
+    {                                           \
+        if ( gLogger.get_severity_level() < 2 ) \
+        {                                       \
+            gLogger.log_warning( __VA_ARGS__ ); \
+        }                                       \
+    } while ( false )
 
 // -----------------------------------------------------------------------------
 
@@ -656,13 +707,13 @@ extern moris::Logger gLogger;
  *
  * @include "IOS/src/cl_Logger/log_error.inc"
  */
-#define MORIS_LOG_ERROR( ... ) \
-        do \
-        { \
-            if ( gLogger.get_severity_level() < 2 ) \
-            {\
-                gLogger.log_error( __VA_ARGS__ ); \
-            }\
-        } while (false)
+#define MORIS_LOG_ERROR( ... )                  \
+    do                                          \
+    {                                           \
+        if ( gLogger.get_severity_level() < 2 ) \
+        {                                       \
+            gLogger.log_error( __VA_ARGS__ );   \
+        }                                       \
+    } while ( false )
 
-#endif	/* MORIS_IOS_CL_LOGGER_HPP_ */
+#endif /* MORIS_IOS_CL_LOGGER_HPP_ */

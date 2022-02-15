@@ -87,14 +87,28 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Symmetric",
     tPropUpwind->set_parameters( { {{ 1.0 }} } );
     tPropUpwind->set_val_function( tConstValFunc );
 
+    // create the properties
+    std::shared_ptr< fem::Property > tPropWallDistance = std::make_shared< fem::Property >();
+    tPropWallDistance->set_parameters( { {{ 1.0 }} } );
+    tPropWallDistance->set_val_function( tConstValFunc );
+
+    // define constitutive models
+    fem::CM_Factory tCMFactory;
+
+    std::shared_ptr< fem::Constitutive_Model > tCMMasterSATurbulence =
+            tCMFactory.create_CM( fem::Constitutive_Type::SPALART_ALLMARAS_TURBULENCE );
+    tCMMasterSATurbulence->set_dof_type_list( tDofTypes );
+    tCMMasterSATurbulence->set_property( tPropWallDistance, "WallDistance" );
+    tCMMasterSATurbulence->set_property( tPropViscosity, "KinViscosity" );
+    tCMMasterSATurbulence->set_local_properties();
+
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche =
             tSPFactory.create_SP( fem::Stabilization_Type::TURBULENCE_DIRICHLET_NITSCHE );
     tSPNitsche->set_parameters( { {{ 1.0 }} } );
-    tSPNitsche->set_dof_type_list( { tVisDofTypes }, mtk::Master_Slave::MASTER );
-    tSPNitsche->set_property( tPropViscosity, "Viscosity", mtk::Master_Slave::MASTER );
+    tSPNitsche->set_constitutive_model( tCMMasterSATurbulence, "SpalartAllmarasTurbulence" );
 
     // create a dummy fem cluster and set it to SP
     fem::Cluster * tCluster = new fem::Cluster();
@@ -107,9 +121,9 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Symmetric",
             tIWGFactory.create_IWG( fem::IWG_Type::SPALART_ALLMARAS_TURBULENCE_DIRICHLET_SYMMETRIC_NITSCHE );
     tIWG->set_residual_dof_type( tVisDofTypes );
     tIWG->set_dof_type_list( { tVisDofTypes }, mtk::Master_Slave::MASTER );
-    tIWG->set_property( tPropViscosity, "Viscosity" );
     tIWG->set_property( tPropDirichlet, "Dirichlet" );
     tIWG->set_property( tPropUpwind, "Upwind" );
+    tIWG->set_constitutive_model( tCMMasterSATurbulence, "SpalartAllmarasTurbulence" );
     tIWG->set_stabilization_parameter( tSPNitsche, "Nitsche" );
 
     // init set info
@@ -207,6 +221,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Symmetric",
         tGI.set_coeff( tXHat, tTHat );
 
         // set space dimension to CM, SP
+        tCMMasterSATurbulence->set_space_dim( iSpaceDim );
         tSPNitsche->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
@@ -422,14 +437,28 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric",
     tPropUpwind->set_parameters( { {{ 1.0 }} } );
     tPropUpwind->set_val_function( tConstValFunc );
 
+    // create the properties
+    std::shared_ptr< fem::Property > tPropWallDistance = std::make_shared< fem::Property >();
+    tPropWallDistance->set_parameters( { {{ 1.0 }} } );
+    tPropWallDistance->set_val_function( tConstValFunc );
+
+    // define constitutive models
+    fem::CM_Factory tCMFactory;
+
+    std::shared_ptr< fem::Constitutive_Model > tCMMasterSATurbulence =
+            tCMFactory.create_CM( fem::Constitutive_Type::SPALART_ALLMARAS_TURBULENCE );
+    tCMMasterSATurbulence->set_dof_type_list( tDofTypes );
+    tCMMasterSATurbulence->set_property( tPropWallDistance, "WallDistance" );
+    tCMMasterSATurbulence->set_property( tPropViscosity, "KinViscosity" );
+    tCMMasterSATurbulence->set_local_properties();
+
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche =
             tSPFactory.create_SP( fem::Stabilization_Type::TURBULENCE_DIRICHLET_NITSCHE );
     tSPNitsche->set_parameters( { {{ 1.0 }} } );
-    tSPNitsche->set_dof_type_list( { tVisDofTypes }, mtk::Master_Slave::MASTER );
-    tSPNitsche->set_property( tPropViscosity, "Viscosity", mtk::Master_Slave::MASTER );
+    tSPNitsche->set_constitutive_model( tCMMasterSATurbulence, "SpalartAllmarasTurbulence" );
 
     // create a dummy fem cluster and set it to SP
     fem::Cluster * tCluster = new fem::Cluster();
@@ -442,9 +471,9 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric",
             tIWGFactory.create_IWG( fem::IWG_Type::SPALART_ALLMARAS_TURBULENCE_DIRICHLET_UNSYMMETRIC_NITSCHE );
     tIWG->set_residual_dof_type( tVisDofTypes );
     tIWG->set_dof_type_list( { tVisDofTypes }, mtk::Master_Slave::MASTER );
-    tIWG->set_property( tPropViscosity, "Viscosity" );
     tIWG->set_property( tPropDirichlet, "Dirichlet" );
     tIWG->set_property( tPropUpwind, "Upwind" );
+    tIWG->set_constitutive_model( tCMMasterSATurbulence, "SpalartAllmarasTurbulence" );
     tIWG->set_stabilization_parameter( tSPNitsche, "Nitsche" );
 
     // init set info
@@ -542,6 +571,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric",
         tGI.set_coeff( tXHat, tTHat );
 
         // set space dimension to CM, SP
+        tCMMasterSATurbulence->set_space_dim( iSpaceDim );
         tSPNitsche->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
@@ -703,7 +733,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Symmetric_Negative",
         "[IWG_Spalart_Allmaras_Turbulence_Dirichlet_Symmetric_Negative]" )
 {
     // define an epsilon environment
-    real tEpsilon = 1E-6;
+    real tEpsilon = 1E-5;
 
     // define a perturbation relative size
     real tPerturbation = 1E-6;
@@ -757,14 +787,28 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Symmetric_Negative",
     tPropUpwind->set_parameters( { {{ 1.0 }} } );
     tPropUpwind->set_val_function( tConstValFunc );
 
+    // create the properties
+    std::shared_ptr< fem::Property > tPropWallDistance = std::make_shared< fem::Property >();
+    tPropWallDistance->set_parameters( { {{ 1.0 }} } );
+    tPropWallDistance->set_val_function( tConstValFunc );
+
+    // define constitutive models
+    fem::CM_Factory tCMFactory;
+
+    std::shared_ptr< fem::Constitutive_Model > tCMMasterSATurbulence =
+            tCMFactory.create_CM( fem::Constitutive_Type::SPALART_ALLMARAS_TURBULENCE );
+    tCMMasterSATurbulence->set_dof_type_list( tDofTypes );
+    tCMMasterSATurbulence->set_property( tPropWallDistance, "WallDistance" );
+    tCMMasterSATurbulence->set_property( tPropViscosity, "KinViscosity" );
+    tCMMasterSATurbulence->set_local_properties();
+
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche =
             tSPFactory.create_SP( fem::Stabilization_Type::TURBULENCE_DIRICHLET_NITSCHE );
     tSPNitsche->set_parameters( { {{ 1.0 }} } );
-    tSPNitsche->set_dof_type_list( { tVisDofTypes }, mtk::Master_Slave::MASTER );
-    tSPNitsche->set_property( tPropViscosity, "Viscosity", mtk::Master_Slave::MASTER );
+    tSPNitsche->set_constitutive_model( tCMMasterSATurbulence, "SpalartAllmarasTurbulence" );
 
     // create a dummy fem cluster and set it to SP
     fem::Cluster * tCluster = new fem::Cluster();
@@ -777,9 +821,9 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Symmetric_Negative",
             tIWGFactory.create_IWG( fem::IWG_Type::SPALART_ALLMARAS_TURBULENCE_DIRICHLET_SYMMETRIC_NITSCHE );
     tIWG->set_residual_dof_type( tVisDofTypes );
     tIWG->set_dof_type_list( { tVisDofTypes }, mtk::Master_Slave::MASTER );
-    tIWG->set_property( tPropViscosity, "Viscosity" );
     tIWG->set_property( tPropDirichlet, "Dirichlet" );
     tIWG->set_property( tPropUpwind, "Upwind" );
+    tIWG->set_constitutive_model( tCMMasterSATurbulence, "SpalartAllmarasTurbulence" );
     tIWG->set_stabilization_parameter( tSPNitsche, "Nitsche" );
 
     // init set info
@@ -877,6 +921,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Symmetric_Negative",
         tGI.set_coeff( tXHat, tTHat );
 
         // set space dimension to CM, SP
+        tCMMasterSATurbulence->set_space_dim( iSpaceDim );
         tSPNitsche->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
@@ -1039,7 +1084,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric_Negative",
         "[IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric_Negative]" )
 {
     // define an epsilon environment
-    real tEpsilon = 1E-6;
+    real tEpsilon = 1E-5;
 
     // define a perturbation relative size
     real tPerturbation = 1E-6;
@@ -1093,14 +1138,28 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric_Negative",
     tPropUpwind->set_parameters( { {{ 1.0 }} } );
     tPropUpwind->set_val_function( tConstValFunc );
 
+    // create the properties
+    std::shared_ptr< fem::Property > tPropWallDistance = std::make_shared< fem::Property >();
+    tPropWallDistance->set_parameters( { {{ 1.0 }} } );
+    tPropWallDistance->set_val_function( tConstValFunc );
+
+    // define constitutive models
+    fem::CM_Factory tCMFactory;
+
+    std::shared_ptr< fem::Constitutive_Model > tCMMasterSATurbulence =
+            tCMFactory.create_CM( fem::Constitutive_Type::SPALART_ALLMARAS_TURBULENCE );
+    tCMMasterSATurbulence->set_dof_type_list( tDofTypes );
+    tCMMasterSATurbulence->set_property( tPropWallDistance, "WallDistance" );
+    tCMMasterSATurbulence->set_property( tPropViscosity, "KinViscosity" );
+    tCMMasterSATurbulence->set_local_properties();
+
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche =
             tSPFactory.create_SP( fem::Stabilization_Type::TURBULENCE_DIRICHLET_NITSCHE );
     tSPNitsche->set_parameters( { {{ 1.0 }} } );
-    tSPNitsche->set_dof_type_list( { tVisDofTypes }, mtk::Master_Slave::MASTER );
-    tSPNitsche->set_property( tPropViscosity, "Viscosity", mtk::Master_Slave::MASTER );
+    tSPNitsche->set_constitutive_model( tCMMasterSATurbulence, "SpalartAllmarasTurbulence" );
 
     // create a dummy fem cluster and set it to SP
     fem::Cluster * tCluster = new fem::Cluster();
@@ -1113,9 +1172,9 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric_Negative",
             tIWGFactory.create_IWG( fem::IWG_Type::SPALART_ALLMARAS_TURBULENCE_DIRICHLET_UNSYMMETRIC_NITSCHE );
     tIWG->set_residual_dof_type( tVisDofTypes );
     tIWG->set_dof_type_list( { tVisDofTypes }, mtk::Master_Slave::MASTER );
-    tIWG->set_property( tPropViscosity, "Viscosity" );
     tIWG->set_property( tPropDirichlet, "Dirichlet" );
     tIWG->set_property( tPropUpwind, "Upwind" );
+    tIWG->set_constitutive_model( tCMMasterSATurbulence, "SpalartAllmarasTurbulence" );
     tIWG->set_stabilization_parameter( tSPNitsche, "Nitsche" );
 
     // init set info
@@ -1213,6 +1272,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric_Negative",
         tGI.set_coeff( tXHat, tTHat );
 
         // set space dimension to CM, SP
+        tCMMasterSATurbulence->set_space_dim( iSpaceDim );
         tSPNitsche->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order

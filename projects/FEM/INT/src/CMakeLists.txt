@@ -77,12 +77,14 @@ set(HEADERS
     CM/cl_FEM_CM_Diffusion_Linear_Isotropic.hpp
     CM/cl_FEM_CM_Diffusion_Linear_Isotropic_Phase_Change.hpp
     CM/fn_FEM_CM_Phase_State_Functions.hpp
+    CM/cl_FEM_CM_Diffusion_Linear_Isotropic_Turbulence.hpp
 
     CM/cl_FEM_CM_Struc_Nonlinear_Isotropic.hpp
     CM/cl_FEM_CM_Struc_Linear_Isotropic.hpp
 
     CM/cl_FEM_CM_Fluid_Incompressible.hpp
     CM/cl_FEM_CM_Fluid_Turbulence.hpp
+    CM/cl_FEM_CM_Spalart_Allmaras_Turbulence.hpp
 
     CM/cl_FEM_CM_Fluid_Compressible_Ideal.hpp
     CM/cl_FEM_CM_Fluid_Compressible_Van_der_Waals.hpp
@@ -207,7 +209,10 @@ set(HEADERS
     IQI/cl_FEM_IQI_Volume_Fraction.hpp
     IQI/cl_FEM_IQI_2D_Drag_Lift_Coefficient.hpp
     IQI/cl_FEM_IQI_Latent_Heat_Absorption.hpp
-    IQI/cl_FEM_IQI_Turbulent_Kinematic_Viscosity.hpp
+    IQI/cl_FEM_IQI_Turbulent_Dynamic_Viscosity.hpp
+    IQI/cl_FEM_IQI_Effective_Dynamic_Viscosity.hpp
+    IQI/cl_FEM_IQI_Effective_Conductivity.hpp
+    IQI/cl_FEM_IQI_Power_Dissipation.hpp
     IQI/cl_FEM_IQI_Total_Pressure.hpp
     IQI/cl_FEM_IQI_Mass_Flow.hpp
     IQI/cl_FEM_IQI_Thermal_Energy_Convective_Flux.hpp
@@ -262,12 +267,14 @@ set(LIB_SOURCES
 
     CM/cl_FEM_CM_Diffusion_Linear_Isotropic.cpp
     CM/cl_FEM_CM_Diffusion_Linear_Isotropic_Phase_Change.cpp
+    CM/cl_FEM_CM_Diffusion_Linear_Isotropic_Turbulence.cpp
 
     CM/cl_FEM_CM_Struc_Nonlinear_Isotropic.cpp
     CM/cl_FEM_CM_Struc_Linear_Isotropic.cpp
 
     CM/cl_FEM_CM_Fluid_Incompressible.cpp
     CM/cl_FEM_CM_Fluid_Turbulence.cpp
+    CM/cl_FEM_CM_Spalart_Allmaras_Turbulence.cpp
 
     CM/cl_FEM_CM_Fluid_Compressible_Ideal.cpp
     CM/cl_FEM_CM_Fluid_Compressible_Ideal_Test_Tractions.cpp
@@ -402,7 +409,10 @@ set(LIB_SOURCES
     IQI/cl_FEM_IQI_Volume_Fraction.cpp
     IQI/cl_FEM_IQI_2D_Drag_Lift_Coefficient.cpp
     IQI/cl_FEM_IQI_Latent_Heat_Absorption.cpp
-    IQI/cl_FEM_IQI_Turbulent_Kinematic_Viscosity.cpp
+    IQI/cl_FEM_IQI_Turbulent_Dynamic_Viscosity.cpp
+    IQI/cl_FEM_IQI_Effective_Dynamic_Viscosity.cpp
+    IQI/cl_FEM_IQI_Effective_Conductivity.cpp
+    IQI/cl_FEM_IQI_Power_Dissipation.cpp
     IQI/cl_FEM_IQI_Total_Pressure.cpp
     IQI/cl_FEM_IQI_Mass_Flow.cpp
     IQI/cl_FEM_IQI_Thermal_Energy_Convective_Flux.cpp

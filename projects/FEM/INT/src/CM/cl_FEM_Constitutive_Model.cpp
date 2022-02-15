@@ -1396,6 +1396,114 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        void Constitutive_Model::eval_dtesttractiondu_FD(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes,
+                const moris::Cell< MSI::Dof_Type > & aTestDofTypes,
+                Matrix< DDRMat >                   & adtesttractiondu_FD,
+                real                                 aPerturbation,
+                const Matrix< DDRMat >             & aNormal,
+                fem::FDScheme_Type                   aFDSchemeType,
+                enum CM_Function_Type                aCMFunctionType )
+        {
+            // get the FD scheme info
+            moris::Cell< moris::Cell< real > > tFDScheme;
+            fd_scheme( aFDSchemeType, tFDScheme );
+            uint tNumPoints = tFDScheme( 0 ).size();
+
+            // get the test dof index
+            uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
+
+            // get the derivative dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // get the field interpolator for type
+            Field_Interpolator* tFIDerivative =
+                    mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+            // get number of coefficients, fields and bases for the considered FI
+            uint tDerNumDof    = tFIDerivative->get_number_of_space_time_coefficients();
+            uint tDerNumBases  = tFIDerivative->get_number_of_space_time_bases();
+            uint tDerNumFields = tFIDerivative->get_number_of_fields();
+
+            // compute unperturbed test traction
+            Matrix< DDRMat > tUnperturbedTestTraction =
+                    this->testTraction( aNormal, aTestDofTypes, aCMFunctionType );
+            adtesttractiondu_FD.set_size(
+                    tUnperturbedTestTraction.n_rows(),
+                    tDerNumDof,
+                    0.0 );
+
+            // coefficients for dof type wrt which derivative is computed
+            Matrix< DDRMat > tCoeff = tFIDerivative->get_coeff();
+
+            // initialize dof counter
+            uint tDofCounter = 0;
+
+            // loop over coefficients columns
+            for( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
+            {
+                // loop over coefficients rows
+                for( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
+                {
+                    // compute the perturbation absolute value
+                    real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+
+                    // check that perturbation is not zero
+                    if( std::abs( tDeltaH ) < 1e-12 )
+                    {
+                        tDeltaH = aPerturbation;
+                    }
+
+                    // set starting point for FD
+                    uint tStartPoint = 0;
+
+                    // if backward or forward add unperturbed contribution
+                    if( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||
+                            ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                    {
+                        // add unperturbed test traction contribution to dtesttractiondu
+                        adtesttractiondu_FD.get_column( tDofCounter ) +=
+                                tFDScheme( 1 )( 0 ) * tUnperturbedTestTraction /
+                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                        // skip first point in FD
+                        tStartPoint = 1;
+                    }
+
+                    // loop over the points for FD
+                    for( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
+                    {
+                        // reset the perturbed coefficients
+                        Matrix< DDRMat > tCoeffPert = tCoeff;
+
+                        // perturb the coefficient
+                        tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
+
+                        // set the perturbed coefficients to FI
+                        tFIDerivative->set_coeff( tCoeffPert );
+
+                        // reset properties
+                        this->reset_eval_flags();
+
+                        // add unperturbed test traction contribution to dtesttractiondu
+                        adtesttractiondu_FD.get_column( tDofCounter ) +=
+                                tFDScheme( 1 )( iPoint ) *
+                                this->testTraction( aNormal, aTestDofTypes, aCMFunctionType ) /
+                                ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                    }
+                    // update dof counter
+                    tDofCounter++;
+                }
+            }
+            // reset the coefficients values
+            tFIDerivative->set_coeff( tCoeff );
+
+            // set value for storage
+            mdTestTractiondDof( tTestDofIndex )( tDofIndex ) = adtesttractiondu_FD;
+        }
+
+        //------------------------------------------------------------------------------
+
         void Constitutive_Model::eval_ddivfluxdu_FD(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & addivfluxdu_FD,

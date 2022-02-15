@@ -446,6 +446,36 @@ namespace moris
 
             //-----------------------------------------------------------------------------
 
+            size_t
+            capacity()
+            {
+                size_t tTotalSize = 0;
+
+                // name of the set
+                tTotalSize += sizeof( mSetName );
+                tTotalSize += sizeof( mIPGeometryType );
+                tTotalSize += sizeof( mIPSpaceInterpolationOrder );
+                tTotalSize += sizeof( mIGSpaceInterpolationOrder );
+                tTotalSize += sizeof( mIsTrivialMaster );
+                tTotalSize += sizeof( mIsTrivialSlave );
+                tTotalSize += sizeof( mMasterLock );
+                tTotalSize += sizeof( mSlaveLock );
+                tTotalSize += sizeof( mSetIndex );
+                tTotalSize += sizeof( mIGCellShape );
+                tTotalSize += sizeof( mCellTopology );
+                tTotalSize += sizeof( mIPCellShape );
+                tTotalSize += sizeof( mSpatialDim );
+                tTotalSize += sizeof( mSetColors ) + mSetColors.capacity();
+                tTotalSize += sizeof( mIGGeometryType );
+                tTotalSize += sizeof( mSetType );
+                tTotalSize += sizeof( mOwendbyPeriodicBCFlag );
+                tTotalSize += mSetClusters.capacity() * ( 1 + sizeof( void * ) );
+
+                return tTotalSize;
+            }
+
+            //-----------------------------------------------------------------------------
+
         protected:
 
             void communicate_ip_geometry_type()

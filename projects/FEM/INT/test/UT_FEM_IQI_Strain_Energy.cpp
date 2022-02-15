@@ -282,7 +282,8 @@ TEST_CASE("IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]")
                                              tPerturbation,
                                              tEpsilon,
                                              tdQIdu,
-                                             tdQIduFD );
+                                             tdQIduFD,
+                                             false );
     CHECK( tCheckdQIdu );
 
 } /*END_TEST_CASE*/

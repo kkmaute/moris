@@ -602,7 +602,7 @@ endif()
 option(MORIS_USE_MEMORY_DEBUG "Use memkind library for memory debugging)." OFF)
 
 if (MORIS_USE_MEMORY_DEBUG)
-    find_library(MORIS_LIB_MemKind NAMES memkind  HINTS /usr/lib64)
+    find_library(MORIS_LIB_MemKind NAMES libmemkind.so.0  HINTS /usr/lib64)
     if ( NOT MORIS_LIB_MemKind )
         message( FATAL_ERROR "memkind lib not found - do not use MORIS_USE_MEMORY_DEBUG}")
     endif()

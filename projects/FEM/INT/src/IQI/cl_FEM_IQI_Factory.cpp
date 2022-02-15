@@ -23,7 +23,10 @@
 #include "cl_FEM_IQI_H1_Error.hpp"
 #include "cl_FEM_IQI_Latent_Heat_Absorption.hpp"
 #include "cl_FEM_IQI_Max_Stress.hpp"
-#include "cl_FEM_IQI_Turbulent_Kinematic_Viscosity.hpp"
+#include "cl_FEM_IQI_Turbulent_Dynamic_Viscosity.hpp"
+#include "cl_FEM_IQI_Effective_Dynamic_Viscosity.hpp"
+#include "cl_FEM_IQI_Effective_Conductivity.hpp"
+#include "cl_FEM_IQI_Power_Dissipation.hpp"
 #include "cl_FEM_IQI_Total_Pressure.hpp"
 #include "cl_FEM_IQI_Mass_Flow.hpp"
 #include "cl_FEM_IQI_Stabilization.hpp"
@@ -102,8 +105,12 @@ namespace moris
                 case IQI_Type::LIFT_COEFF :
                     return std::make_shared< IQI_Drag_Lift_Coefficient >( -1 );
 
-                case IQI_Type::TURBULENT_KINEMATIC_VISCOSITY :
-                    return std::make_shared< IQI_Turbulent_Kinematic_Viscosity >();
+                case IQI_Type::TURBULENT_DYNAMIC_VISCOSITY :
+                    return std::make_shared< IQI_Turbulent_Dynamic_Viscosity >();
+                case IQI_Type::EFFECTIVE_DYNAMIC_VISCOSITY :
+                    return std::make_shared< IQI_Effective_Dynamic_Viscosity >();
+                case IQI_Type::EFFECTIVE_CONDUCTIVITY :
+                    return std::make_shared< IQI_Effective_Conductivity >();
 
                 case IQI_Type::LATENT_HEAT_ABSORPTION :
                     return std::make_shared< IQI_Latent_Heat_Absorption >();
@@ -116,12 +123,12 @@ namespace moris
 
                 case IQI_Type::THERMAL_ENERGY_CONVECTIVE_FLUX :
                     return std::make_shared< IQI_Thermal_Energy_Convective_Flux >();
-
                 case IQI_Type::THERMAL_ENERGY_DIFFUSIVE_FLUX :
                     return std::make_shared< IQI_Thermal_Energy_Diffusive_Flux >();
-
                 case IQI_Type::HOMOGENIZED_CONSTITUTIVE:
                     return std::make_shared< IQI_Homogenized_Constitutive >();
+                case IQI_Type::POWER_DISSIPATION:
+                    return std::make_shared< IQI_Power_Dissipation >();
 
                 case IQI_Type::HEAT_METHOD_PENALTY:
                     return std::make_shared< IQI_Heat_Method_Penalty >();

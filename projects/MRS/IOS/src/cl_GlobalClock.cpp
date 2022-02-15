@@ -20,37 +20,41 @@ namespace moris
     GlobalClock::GlobalClock()
     {
         // initialize list of function IDs
-        mCurrentFunctionID.resize( 1 , mMaxFunctionID );
+        mCurrentFunctionID.resize( 1, mMaxFunctionID );
 
         // initialize list of entities
-        mCurrentEntity.resize( 1 , "GlobalClock" );
+        mCurrentEntity.resize( 1, "GlobalClock" );
 
         // initialize list of entity types
-        mCurrentType.resize( 1 , LOGGER_NON_SPECIFIC_ENTITY_TYPE );
+        mCurrentType.resize( 1, LOGGER_NON_SPECIFIC_ENTITY_TYPE );
 
         // initialize list of Actions
-        mCurrentAction.resize( 1 , "Create" );
+        mCurrentAction.resize( 1, "Create" );
 
         // initialize list of Actions
-        mCurrentIteration.resize( 1 , 0 );
+        mCurrentIteration.resize( 1, 0 );
 
         // record starting time of iterations
-        mIterationTimeStamps.resize( 1 , (real) std::clock() );
+        mIterationTimeStamps.resize( 1, (real)std::clock() );
 
         // record starting time
-        mTimeStamps.resize( 1 , (real) std::clock() );
+        mTimeStamps.resize( 1, (real)std::clock() );
+
+        // record action data for new entry
+        mActionData.resize( 1, std::unordered_map< std::string, real >() );
 
         // record starting wall clock time
         if ( PRINT_WALL_TIME )
-            mWallTimeStamps.resize( 1 , std::chrono::system_clock::now() );
+            mWallTimeStamps.resize( 1, std::chrono::system_clock::now() );
     }
 
     // --------------------------------------------------------------------------------
 
-    void GlobalClock::sign_in(
+    void
+    GlobalClock::sign_in(
             std::string aEntityBase,
             std::string aEntityType,
-            std::string aEntityAction)
+            std::string aEntityAction )
     {
         // increment indentation level
         mIndentationLevel++;
@@ -74,18 +78,21 @@ namespace moris
         mCurrentIteration.push_back( 0 );
 
         // create time stamp for entity
-        mIterationTimeStamps.push_back( (real) std::clock() );
+        mIterationTimeStamps.push_back( (real)std::clock() );
 
         // create time stamp for new entity
-        mTimeStamps.push_back( (real) std::clock() );
+        mTimeStamps.push_back( (real)std::clock() );
+
+        // create map for action data for new entry
+        mActionData.push_back( std::unordered_map< std::string, real >() );
 
         // create wall clock time stamp for new entity
         if ( PRINT_WALL_TIME )
-            mWallTimeStamps.push_back( std::chrono::system_clock::now() );        
-        
+            mWallTimeStamps.push_back( std::chrono::system_clock::now() );
+
 #ifdef DEBUG
         // check that indentation level and array size match
-        if( mIndentationLevel != mCurrentFunctionID.size() - 1 )
+        if ( mIndentationLevel != mCurrentFunctionID.size() - 1 )
         {
             std::cout << "GlobalClock::sign_in - indentation level and array sizes do not match.\n";
             throw;
@@ -95,7 +102,8 @@ namespace moris
 
     // --------------------------------------------------------------------------------
 
-    void GlobalClock::sign_out()
+    void
+    GlobalClock::sign_out()
     {
         // remove time stamp from list of active entities
         mTimeStamps.pop_back();
@@ -118,6 +126,9 @@ namespace moris
         // remove iteration counter from list of actions
         mCurrentIteration.pop_back();
 
+        // remove map for action data for new entry
+        mActionData.pop_back();
+
         // decrement indentation level
         mIndentationLevel--;
 
@@ -127,7 +138,7 @@ namespace moris
 
 #ifdef DEBUG
         // check that indentation level and array size match
-        if( mIndentationLevel != mCurrentFunctionID.size() - 1 )
+        if ( mIndentationLevel != mCurrentFunctionID.size() - 1 )
         {
             std::cout << "GlobalClock::sign_in - indentation level and array sizes do not match.\n";
             throw;
@@ -137,15 +148,15 @@ namespace moris
 
     // --------------------------------------------------------------------------------
 
-    void GlobalClock::iterate()
+    void
+    GlobalClock::iterate()
     {
         // increment iteration counter of currently active action
-        mCurrentIteration[ mIndentationLevel ] ++;
+        mCurrentIteration[mIndentationLevel]++;
 
         // renew time stamp at beginning of an iteration
-        mIterationTimeStamps[ mIndentationLevel ] = (real) std::clock();
+        mIterationTimeStamps[mIndentationLevel] = (real)std::clock();
     }
 
     // --------------------------------------------------------------------------------
-} // namespace moris
-
+}    // namespace moris

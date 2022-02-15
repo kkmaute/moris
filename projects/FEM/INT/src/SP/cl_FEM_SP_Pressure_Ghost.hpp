@@ -61,10 +61,18 @@ namespace moris
                     MAX_ENUM
                 };
 
+                // parameters
+                real mAlphaP = 0.0;
+                real mTheta  = 0.0;
+
+                // set parameter bool
+                bool mSetAlphaP = false;
+                bool mSetTheta  = false;
+
             public:
                 /*
                  * Rem: mParameters( 0 ) - alpha_p
-                 *      mParamaters( 1 ) - theta
+                 *      mParameters( 1 ) - theta
                  */
 
                 //------------------------------------------------------------------------------
@@ -78,6 +86,10 @@ namespace moris
                  * trivial destructor
                  */
                 ~SP_Pressure_Ghost(){};
+
+                //------------------------------------------------------------------------------
+
+                void set_parameters( moris::Cell< Matrix< DDRMat > > aParameters );
 
                 //------------------------------------------------------------------------------
                 /**

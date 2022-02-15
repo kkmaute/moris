@@ -1603,7 +1603,6 @@ namespace moris
 
             // get master number of dof types
             uint tNumMasterDofType = mRequestedMasterGlobalDofTypes.size();
-            uint tNumSlaveDofType  = mRequestedSlaveGlobalDofTypes.size();
 
             // reset the QI
             mSet->get_QI()( tQIIndex ).fill( 0.0 );
@@ -1623,9 +1622,9 @@ namespace moris
                 // get the dof type
                 Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iFI );
 
-                // get the index for the dof type
-                sint tMasterDepDofIndex   = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
-                uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDepDofIndex )( tMasterDepDofIndex, 0 );
+                // get master index for residual dof type, indices for assembly
+                uint tMasterDofIndex      = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
+                uint tMasterDepStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
 
                 // get field interpolator for dependency dof type
                 Field_Interpolator * tFI =
@@ -1682,6 +1681,7 @@ namespace moris
 
                             // set the perturbed coefficients to FI
                             tFI->set_coeff( tCoeffPert );
+                            tFI->reset_eval_flags(); // not useful
 
                             // reset properties, CM and SP for IWG
                             this->reset_eval_flags();
@@ -1707,6 +1707,9 @@ namespace moris
                 // reset the coefficients values
                 tFI->set_coeff( tCoeff );
             }
+
+            // get slave number of dof types
+            uint tNumSlaveDofType  = mRequestedSlaveGlobalDofTypes.size();
 
             // loop over the slave dof types
             for( uint iFI = 0; iFI < tNumSlaveDofType; iFI++ )
@@ -1779,6 +1782,7 @@ namespace moris
 
                             // reset properties, CM and SP for IWG
                             this->reset_eval_flags();
+                            tFI->reset_eval_flags(); // not useful
 
                             // reset the QI
                             mSet->get_QI()( tQIIndex ).fill( 0.0 );
@@ -1814,6 +1818,7 @@ namespace moris
                 real              aEpsilon,
                 Matrix< DDRMat > & adQIdu,
                 Matrix< DDRMat > & adQIduFD,
+                bool               aErrorPrint,
                 fem::FDScheme_Type aFDSchemeType )
         {
             // get the column index to assemble in residual
@@ -1837,17 +1842,47 @@ namespace moris
             tCheckdQIdu = tCheckdQIdu && ( adQIdu.n_rows() == adQIduFD.n_rows());
             tCheckdQIdu = tCheckdQIdu && ( adQIdu.n_cols() == adQIduFD.n_cols());
 
+            // check that matrices to compare have same size
+            MORIS_ERROR(
+                    ( adQIdu.n_rows() == adQIduFD.n_rows() ) &&
+                    ( adQIdu.n_cols() == adQIduFD.n_cols() ),
+                    "IWG::check_dQIdu - matrices to check do not share same dimensions." );
+
+            // define a real for absolute difference
+            real tAbsolute = 0.0;
+
+            // define a real for relative difference
+            real tRelative = 0.0;
+
             // loop over the rows
             for ( uint iRow = 0; iRow < adQIdu.n_rows(); iRow++ )
             {
                 // loop over the columns
                 for( uint jCol = 0; jCol < adQIdu.n_cols(); jCol++ )
                 {
-                    // check each components
-                    tCheckdQIdu = tCheckdQIdu && ( adQIdu( iRow, jCol ) - adQIduFD( iRow, jCol ) < aEpsilon );
+                    // get absolute difference
+                    tAbsolute = std::abs( adQIduFD( iRow, jCol ) - adQIdu( iRow, jCol ) );
+
+                    // get relative difference
+                    tRelative = std::abs( ( adQIduFD( iRow, jCol ) - adQIdu( iRow, jCol ) ) / adQIduFD( iRow, jCol ) );
+
+                    // update check value
+                    tCheckdQIdu = tCheckdQIdu && ( ( tAbsolute < aEpsilon ) || ( tRelative < aEpsilon ) );
+
+                    // debug print
+                    if( ( ( tAbsolute < aEpsilon ) || ( tRelative < aEpsilon ) ) == false )
+                    {
+                        if( aErrorPrint )
+                        {
+                            std::cout<<"iRow "<<iRow<<" - jCol "<<jCol<<"\n"<<std::flush;
+                            std::cout<<"adQIdu( iRow, jCol )    "<<std::setprecision( 12 )<<adQIdu( iRow, jCol ) <<"\n"<<std::flush;
+                            std::cout<<"adQIduFD( iRow, jCol )  "<<std::setprecision( 12 )<<adQIduFD( iRow, jCol )<<"\n"<<std::flush;
+                            std::cout<<"Absolute difference "<<tAbsolute<<"\n"<<std::flush;
+                            std::cout<<"Relative difference "<<tRelative<<"\n"<<std::flush;
+                        }
+                    }
                 }
             }
-
             // return bool
             return tCheckdQIdu;
         }

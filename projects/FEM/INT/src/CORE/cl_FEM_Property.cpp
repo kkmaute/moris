@@ -6,6 +6,47 @@ namespace moris
 {
     namespace fem
     {
+        //------------------------------------------------------------------------------
+
+        Property::Property()
+        {
+            // FIXME for now only 1st order allowed
+            uint tOrder = 1;
+
+            // init storage for evaluation
+            mdPropdx.resize( tOrder );
+
+            // init flag for evaluation
+            mdPropdxEval.set_size( tOrder, 1, true );
+
+            // init flag for set
+            mSetSpaceDerFunctions.set_size( tOrder, 1, false );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Property::set_space_der_functions(
+                const moris::Cell< PropertyFunc > & aSpaceDerFunctions )
+        {
+            // get the max order of space derivatives
+            uint tMaxOrder = aSpaceDerFunctions.size();
+
+            // FIXME For now max order is 1
+            MORIS_ASSERT( tMaxOrder <= 1, "Property - set_space_der_functions(): Higher order property space derivatives not supported yet." );
+
+            // init size of space derivative storage
+            mSpaceDerFunctions.resize( tMaxOrder );
+
+            // loop over order and set function
+            for( uint iOrder = 0; iOrder < tMaxOrder; iOrder++ )
+            {
+                // set the value function
+                mSpaceDerFunctions( iOrder ) = aSpaceDerFunctions( iOrder );
+
+                // set setting flag
+                mSetSpaceDerFunctions( iOrder ) = true;
+            }
+        }
 
         //------------------------------------------------------------------------------
 
@@ -14,8 +55,8 @@ namespace moris
             // reset the property value
             mPropEval = true;
 
-            // reset the property derivative wrt x
-            mdPropdxEval = true;
+            // reset the property derivatives wrt x
+            mdPropdxEval.fill( true );
 
             // reset the property derivatives wrt dof type
             mPropDofDerEval.fill( true );
@@ -364,36 +405,47 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & Property::dPropdx()
+        bool Property::check_space_dependency( const uint & aOrder )
         {
-            // if the property was not evaluated
-            if( mdPropdxEval )
-            {
-                // evaluate the property
-                this->eval_dPropdx();
+            // throw error if property hasn't been initialized
+            MORIS_ASSERT( this != nullptr, "cl_FEM_Property - check_space_dependency(): Property is nullptr." );
 
-                // set bool for evaluation
-                mdPropdxEval = false;
-            }
-
-            // return the property value
-            return mdPropdx;
+            // return bool for set space derivative function
+            return mSetSpaceDerFunctions( aOrder - 1 );
         }
 
         //------------------------------------------------------------------------------
 
-        void Property::eval_dPropdx()
+        const Matrix< DDRMat > & Property::dnPropdxn( const uint & aOrder )
+        {
+            // if the property was not evaluated
+            if( mdPropdxEval( aOrder - 1 ) )
+            {
+                // evaluate the property
+                this->eval_dnPropdxn( aOrder );
+
+                // set bool for evaluation
+                mdPropdxEval( aOrder - 1 ) = false;
+            }
+
+            // return the property value
+            return mdPropdx( aOrder - 1 );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void Property::eval_dnPropdxn( const uint & aOrder )
         {
             // check that mSetSpaceDerFunc was assigned
-            MORIS_ASSERT( mSetSpaceDerFunction == true,
-                    "Property::eval_dPropdx - mSpaceDerFunction not assigned. " );
+            MORIS_ASSERT( mSetSpaceDerFunctions( aOrder - 1 ) == true,
+                    "Property::eval_dnPropdxn - mSpaceDerFunction not assigned for order. " );
 
             // check that mFIManager was assigned
             MORIS_ASSERT( mFIManager != nullptr,
-                    "Property::eval_dPropdx - mFIManager not assigned. " );
+                    "Property::eval_dnPropdxn - mFIManager not assigned. " );
 
-            // use mSpaceDerFunction to evaluate the property
-            mSpaceDerFunction( mdPropdx, mParameters, mFIManager );
+            // use mSpaceDerFunctions to evaluate the property
+            mSpaceDerFunctions( aOrder - 1 )( mdPropdx( aOrder - 1 ), mParameters, mFIManager );
         }
 
         //------------------------------------------------------------------------------

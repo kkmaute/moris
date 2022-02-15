@@ -65,6 +65,14 @@ namespace moris
                  *      mParameters( 1 )( 0 ) - alpha_time
                  */
 
+                // parameters
+                real mAlphaN    = 0.0;
+                real mAlphaTime = 0.0;
+
+                // set parameter bool
+                bool mSetAlphaN    = false;
+                bool mSetAlphaTime = false;
+
             public:
                 //------------------------------------------------------------------------------
                 /*
@@ -77,6 +85,13 @@ namespace moris
                  * trivial destructor
                  */
                 ~SP_Velocity_Dirichlet_Nitsche(){};
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set parameters
+                 * @param[ in ] aParameters a list of parameters
+                 */
+                void set_parameters( moris::Cell< Matrix< DDRMat > > aParameters );
 
                 //------------------------------------------------------------------------------
                 /**

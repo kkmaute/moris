@@ -89,17 +89,17 @@ namespace xtk
     Model::Model(
             uint                            aModelDimension,
             moris::mtk::Interpolation_Mesh *aMeshData,
-            moris::ge::Geometry_Engine *    aGeometryEngine,
-            bool                            aLinkGeometryOnConstruction ) :
-            mModelDimension( aModelDimension ),
-            mBackgroundMesh( aMeshData ),
-            mCutMesh( this, mModelDimension ),
-            mGeometryEngine( aGeometryEngine ),
-            mEnrichment( nullptr ),
-            mGhostStabilization( nullptr ),
-            mEnrichedInterpMesh( 0, nullptr ),
-            mEnrichedIntegMesh( 0, nullptr ),
-            mConvertedToTet10s( false )
+            moris::ge::Geometry_Engine     *aGeometryEngine,
+            bool                            aLinkGeometryOnConstruction )
+            : mModelDimension( aModelDimension )
+            , mBackgroundMesh( aMeshData )
+            , mCutMesh( this, mModelDimension )
+            , mGeometryEngine( aGeometryEngine )
+            , mEnrichment( nullptr )
+            , mGhostStabilization( nullptr )
+            , mEnrichedInterpMesh( 0, nullptr )
+            , mEnrichedIntegMesh( 0, nullptr )
+            , mConvertedToTet10s( false )
     {
         // flag this as a non-parameter list based run
         mParameterList.insert( "has_parameter_list", false );
@@ -107,8 +107,14 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    Model::Model( moris::ParameterList const &aParameterList ) :
-            mParameterList( aParameterList ), mModelDimension( UINT_MAX ), mEnrichment( nullptr ), mGhostStabilization( nullptr ), mEnrichedInterpMesh( 0, nullptr ), mEnrichedIntegMesh( 0, nullptr ), mConvertedToTet10s( false )
+    Model::Model( moris::ParameterList const &aParameterList )
+            : mParameterList( aParameterList )
+            , mModelDimension( UINT_MAX )
+            , mEnrichment( nullptr )
+            , mGhostStabilization( nullptr )
+            , mEnrichedInterpMesh( 0, nullptr )
+            , mEnrichedIntegMesh( 0, nullptr )
+            , mConvertedToTet10s( false )
     {
         // flag this as a paramter list based run
         mParameterList.insert( "has_parameter_list", true );
@@ -171,7 +177,7 @@ namespace xtk
         mEnrichment         = nullptr;
         mGhostStabilization = nullptr;
         mEnrichedInterpMesh = Cell< Enriched_Interpolation_Mesh * >( 0, nullptr );
-        mEnrichedIntegMesh  = Cell< Enriched_Integration_Mesh * >( 0, nullptr );
+        mEnrichedIntegMesh  = Cell< Enriched_Integration_Mesh  *>( 0, nullptr );
         mConvertedToTet10s  = false;
     }
 
@@ -182,13 +188,14 @@ namespace xtk
     {
         Tracer tTracer( "XTK", "Overall", "Run" );
 
-        mVerbose = mParameterList.get< bool >( "verbose" );
+        mVerbose      = mParameterList.get< bool >( "verbose" );
+        mVerboseLevel = mParameterList.get< moris::uint >( "verbose_level" );
 
         if ( !mInitializeCalled )
         {
             MORIS_ERROR( mMTKInputPerformer != nullptr, "xtk::Model::perform(), mMTKInputPerformer not set!" );
 
-            //FIXME hardcodes to mesh pair index 0
+            // FIXME hardcodes to mesh pair index 0
             moris::mtk::Interpolation_Mesh *tMesh = mMTKInputPerformer->get_interpolation_mesh( 0 );
 
             this->initialize( tMesh );
@@ -364,7 +371,7 @@ namespace xtk
         if ( mEnriched )
         {
             xtk::Enriched_Interpolation_Mesh &tEnrInterpMesh = this->get_enriched_interp_mesh();
-            xtk::Enriched_Integration_Mesh &  tEnrIntegMesh  = this->get_enriched_integ_mesh();
+            xtk::Enriched_Integration_Mesh   &tEnrIntegMesh  = this->get_enriched_integ_mesh();
             // get meshes
 
             std::string tXTKMeshName = "XTKMesh";
@@ -479,9 +486,8 @@ namespace xtk
                 tXTKMM.par_print( "XTK Model" );
             }
 
-            if( mParameterList.get<bool>("low_memory"))
+            if ( mParameterList.get< bool >( "low_memory" ) )
             {
-
             }
             // print
             MORIS_LOG_SPEC( "All_IG_verts", sum_all( tEnrIntegMesh.get_num_entities( EntityRank::NODE ) ) );
@@ -591,12 +597,12 @@ namespace xtk
                 moris::Cell< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
                 tSubdivisionMethods.append( tMethods );
             }
-            else if ( tBGCellTopo == mtk::Geometry_Type::HEX  && !tConformal )
+            else if ( tBGCellTopo == mtk::Geometry_Type::HEX && !tConformal )
             {
                 moris::Cell< enum Subdivision_Method > tMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8 };
                 tSubdivisionMethods.append( tMethods );
             }
-            else if ( tBGCellTopo == mtk::Geometry_Type::HEX  && tConformal )
+            else if ( tBGCellTopo == mtk::Geometry_Type::HEX && tConformal )
             {
                 moris::Cell< enum Subdivision_Method > tMethods = { Subdivision_Method::C_HIERARCHY_TET4 };
                 tSubdivisionMethods.append( tMethods );
@@ -633,7 +639,7 @@ namespace xtk
         mCutIntegrationMesh = tIntegrationGenerator.perform();
 
         mDecomposed = mCutIntegrationMesh->mSameLevelChildMeshes;
-        if(!mDecomposed)
+        if ( !mDecomposed )
         {
             MORIS_LOG_INFO( "Decomposition Failed. Not all child meshes on the same level." );
         }
@@ -657,13 +663,16 @@ namespace xtk
     void
     Model::create_new_node_association_with_geometry( Decomposition_Data &tDecompData )
     {
-        //FIXME: REMOVE
-        // // create geometry objects for each node
-        // mGeometryEngine->create_new_child_nodes(
-        //     tDecompData.tNewNodeIndex,
-        //     tDecompData.tNewNodeParentTopology,
-        //     tDecompData.tParamCoordRelativeToParent,
-        //     mBackgroundMesh.get_all_node_coordinates_loc_inds() );
+        MORIS_ERROR( false,
+                "Model::create_new_node_association_with_geometry - depreciated function." );
+
+        // FIXME: REMOVE
+        //  // create geometry objects for each node
+        //  mGeometryEngine->create_new_child_nodes(
+        //      tDecompData.tNewNodeIndex,
+        //      tDecompData.tNewNodeParentTopology,
+        //      tDecompData.tParamCoordRelativeToParent,
+        //      mBackgroundMesh.get_all_node_coordinates_loc_inds() );
     }
 
     // ----------------------------------------------------------------------------------
@@ -693,8 +702,8 @@ namespace xtk
 
     void
     Model::send_outward_requests(
-            moris_index const &         aMPITag,
-            Cell< uint > const &        aProcRanks,
+            moris_index const          &aMPITag,
+            Cell< uint > const         &aProcRanks,
             Cell< Matrix< IndexMat > > &aOutwardRequests )
     {
         // Cell of requests
@@ -716,10 +725,10 @@ namespace xtk
 
     void
     Model::inward_receive_requests(
-            moris_index const &         aMPITag,
+            moris_index const          &aMPITag,
             moris::uint                 aNumRows,
             Cell< Matrix< IndexMat > > &aReceivedData,
-            Cell< uint > &              aProcRanksReceivedFrom )
+            Cell< uint >               &aProcRanksReceivedFrom )
     {
         // ensure the sizes are correct.
         aReceivedData.resize( 0 );
@@ -741,9 +750,9 @@ namespace xtk
 
     void
     Model::inward_receive_request_answers(
-            moris_index const &         aMPITag,
-            moris::uint const &         aNumRows,
-            Cell< uint > const &        aProcRanks,
+            moris_index const          &aMPITag,
+            moris::uint const          &aNumRows,
+            Cell< uint > const         &aProcRanks,
             Cell< Matrix< IndexMat > > &aReceivedRequestAnswers )
     {
         MPI_Status tStatus;
@@ -765,10 +774,10 @@ namespace xtk
 
     void
     Model::handle_received_request_answers(
-            Decomposition_Data &              aDecompData,
+            Decomposition_Data               &aDecompData,
             Cell< Matrix< IndexMat > > const &aRequests,
             Cell< Matrix< IndexMat > > const &aRequestAnswers,
-            moris::moris_id &                 aNodeId )
+            moris::moris_id                  &aNodeId )
     {
         Cell< moris_index > tUnhandledRequestIndices;
 
@@ -856,8 +865,8 @@ namespace xtk
 
     void
     Model::send_outward_requests_reals(
-            moris_index const &       aMPITag,
-            Cell< uint > const &      aProcRanks,
+            moris_index const        &aMPITag,
+            Cell< uint > const       &aProcRanks,
             Cell< Matrix< DDRMat > > &aOutwardRequests )
     {
         // iterate through owned requests and send
@@ -876,10 +885,10 @@ namespace xtk
 
     void
     Model::inward_receive_requests_reals(
-            moris_index const &       aMPITag,
+            moris_index const        &aMPITag,
             moris::uint               aNumRows,
             Cell< Matrix< DDRMat > > &aReceivedData,
-            Cell< uint > &            aProcRanksReceivedFrom )
+            Cell< uint >             &aProcRanksReceivedFrom )
     {
         moris::moris_index tParRank = par_rank();
         moris::uint        tCount   = 0;
@@ -907,9 +916,9 @@ namespace xtk
 
     void
     Model::return_request_answers_reals(
-            moris_index const &             aMPITag,
+            moris_index const              &aMPITag,
             Cell< Matrix< DDRMat > > const &aRequestAnswers,
-            Cell< uint > const &            aProcRanks )
+            Cell< uint > const             &aProcRanks )
     {
         // iterate through owned requests and send
         for ( moris::uint i = 0; i < aProcRanks.size(); i++ )
@@ -922,9 +931,9 @@ namespace xtk
 
     void
     Model::inward_receive_request_answers_reals(
-            moris_index const &       aMPITag,
-            moris::uint const &       aNumRows,
-            Cell< uint > const &      aProcRanks,
+            moris_index const        &aMPITag,
+            moris::uint const        &aNumRows,
+            Cell< uint > const       &aProcRanks,
             Cell< Matrix< DDRMat > > &aReceivedData )
     {
         for ( moris::uint i = 0; i < aProcRanks.size(); i++ )
@@ -939,9 +948,9 @@ namespace xtk
 
     void
     Model::prepare_request_answers(
-            Decomposition_Data &              aDecompData,
+            Decomposition_Data               &aDecompData,
             Cell< Matrix< IndexMat > > const &aReceiveData,
-            Cell< Matrix< IndexMat > > &      aRequestAnswers )
+            Cell< Matrix< IndexMat > >       &aRequestAnswers )
     {
         // allocate answer size
         aRequestAnswers.resize( aReceiveData.size() );
@@ -1008,9 +1017,9 @@ namespace xtk
     // ----------------------------------------------------------------------------------
     void
     Model::return_request_answers(
-            moris_index const &               aMPITag,
+            moris_index const                &aMPITag,
             Cell< Matrix< IndexMat > > const &aRequestAnswers,
-            Cell< uint > const &              aProcRanks )
+            Cell< uint > const               &aProcRanks )
     {
         // access the communication table
         Matrix< IdMat > tCommTable = mCutIntegrationMesh->get_communication_table();
@@ -1090,8 +1099,8 @@ namespace xtk
     void
     Model::perform_basis_enrichment(
             enum EntityRank const &aBasisRank,
-            moris_index const &    aMeshIndex,
-            bool                   aSortBasisEnrichmentLevels)
+            moris_index const     &aMeshIndex,
+            bool                   aSortBasisEnrichmentLevels )
     {
         Tracer tTracer( "XTK", "Enrichment", "Enrich" );
 
@@ -1103,7 +1112,7 @@ namespace xtk
 
         this->perform_basis_enrichment_internal( aBasisRank, { { aMeshIndex } }, aSortBasisEnrichmentLevels );
 
-        if( this->mDiagnostics)
+        if ( this->mDiagnostics )
         {
             mEnrichment->write_diagnostics();
         }
@@ -1116,9 +1125,9 @@ namespace xtk
 
     void
     Model::perform_basis_enrichment(
-            enum EntityRank const &   aBasisRank,
+            enum EntityRank const    &aBasisRank,
             Matrix< IndexMat > const &aMeshIndex,
-            bool                      aSortBasisEnrichmentLevels)
+            bool                      aSortBasisEnrichmentLevels )
     {
         Tracer tTracer( "XTK", "Enrichment" );
 
@@ -1130,7 +1139,7 @@ namespace xtk
 
         this->perform_basis_enrichment_internal( aBasisRank, aMeshIndex, aSortBasisEnrichmentLevels );
 
-        if(mDiagnostics)
+        if ( mDiagnostics )
         {
             mEnrichment->write_diagnostics();
         }
@@ -1145,7 +1154,7 @@ namespace xtk
     Model::perform_hanging_node_identification()
     {
         Tracer tTracer( "XTK", "Identify hanging nodes" );
-        MORIS_ERROR(0,"NEEDS IMPLEMENTING");
+        MORIS_ERROR( 0, "NEEDS IMPLEMENTING" );
         // MORIS_ERROR( mDecomposed, "Mesh needs to be decomposed prior to identifying hanging nodes" );
 
         // MORIS_ERROR( mEnriched, "Mesh needs to be enriched prior to identifying hanging nodes" );
@@ -1188,7 +1197,7 @@ namespace xtk
             Tracer tTracer( "XTK", "BG Cell Probe", "Cell Id " + std::to_string( tBGCellIds( i ) ) );
 
             moris_index                  tIndex      = mBackgroundMesh->get_loc_entity_ind_from_entity_glb_id( tBGCellIds( i ), EntityRank::ELEMENT );
-            mtk::Cell &                  tCell       = mBackgroundMesh->get_mtk_cell( tIndex );
+            mtk::Cell                   &tCell       = mBackgroundMesh->get_mtk_cell( tIndex );
             Matrix< IndexMat >           tVertexIds  = tCell.get_vertex_ids();
             moris::Cell< mtk::Vertex * > tVertexPtrs = tCell.get_vertex_pointers();
             Matrix< IndexMat >           tVertexOwner( 1, tVertexPtrs.size() );
@@ -1258,7 +1267,7 @@ namespace xtk
 
     void
     Model::perform_basis_enrichment_internal(
-            enum EntityRank const &   aBasisRank,
+            enum EntityRank const    &aBasisRank,
             Matrix< IndexMat > const &aMeshIndex,
             bool                      aSortBasisEnrichmentLevels )
     {
@@ -1271,7 +1280,7 @@ namespace xtk
                 mGeometryEngine->get_num_phases(),
                 this,
                 mBackgroundMesh,
-                aSortBasisEnrichmentLevels);
+                aSortBasisEnrichmentLevels );
 
         // Set verbose flag to match XTK.
         mEnrichment->mVerbose = mVerbose;
@@ -1597,4 +1606,4 @@ namespace xtk
 
     //------------------------------------------------------------------------------
 
-}// namespace xtk
+}    // namespace xtk
