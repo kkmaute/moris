@@ -11,6 +11,7 @@
 #include "cl_FEM_CM_Fluid_Compressible_Ideal.hpp"
 #include "cl_FEM_CM_Compressible_Newtonian_Fluid.hpp"
 #include "cl_FEM_CM_Fluid_Compressible_Van_der_Waals.hpp"
+#include "cl_FEM_CM_Struc_Linear_MoriTanaka.hpp"
 
 namespace moris
 {
@@ -33,6 +34,9 @@ namespace moris
 
                 case  Constitutive_Type::STRUC_LIN_ISO :
                     return std::make_shared< CM_Struc_Linear_Isotropic >();
+
+                case Constitutive_Type::STRUC_LIN_MT:
+                    return std::make_shared< CM_Struc_Linear_MoriTanaka >();
 
                 case  Constitutive_Type::STRUC_NONLIN_ISO :
                     return std::make_shared< CM_Struc_Nonlinear_Isotropic >();

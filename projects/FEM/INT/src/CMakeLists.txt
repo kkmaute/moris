@@ -81,6 +81,8 @@ set(HEADERS
 
     CM/cl_FEM_CM_Struc_Nonlinear_Isotropic.hpp
     CM/cl_FEM_CM_Struc_Linear_Isotropic.hpp
+    CM/cl_FEM_CM_Struc_Linear_MoriTanaka.hpp
+    CM/cl_FEM_CM_Struc_Linear.hpp
 
     CM/cl_FEM_CM_Fluid_Incompressible.hpp
     CM/cl_FEM_CM_Fluid_Turbulence.hpp
@@ -270,6 +272,8 @@ set(LIB_SOURCES
 
     CM/cl_FEM_CM_Struc_Nonlinear_Isotropic.cpp
     CM/cl_FEM_CM_Struc_Linear_Isotropic.cpp
+     CM/cl_FEM_CM_Struc_Linear_MoriTanaka.cpp
+    CM/cl_FEM_CM_Struc_Linear.cpp
 
     CM/cl_FEM_CM_Fluid_Incompressible.cpp
     CM/cl_FEM_CM_Fluid_Turbulence.cpp
