@@ -1603,7 +1603,6 @@ namespace moris
 
             // get master number of dof types
             uint tNumMasterDofType = mRequestedMasterGlobalDofTypes.size();
-            uint tNumSlaveDofType  = mRequestedSlaveGlobalDofTypes.size();
 
             // reset the QI
             mSet->get_QI()( tQIIndex ).fill( 0.0 );
@@ -1623,9 +1622,9 @@ namespace moris
                 // get the dof type
                 Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iFI );
 
-                // get the index for the dof type
-                sint tMasterDepDofIndex   = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
-                uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDepDofIndex )( tMasterDepDofIndex, 0 );
+                // get master index for residual dof type, indices for assembly
+                uint tMasterDofIndex      = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
+                uint tMasterDepStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
 
                 // get field interpolator for dependency dof type
                 Field_Interpolator * tFI =
@@ -1682,6 +1681,7 @@ namespace moris
 
                             // set the perturbed coefficients to FI
                             tFI->set_coeff( tCoeffPert );
+                            tFI->reset_eval_flags(); // not useful
 
                             // reset properties, CM and SP for IWG
                             this->reset_eval_flags();
@@ -1707,6 +1707,9 @@ namespace moris
                 // reset the coefficients values
                 tFI->set_coeff( tCoeff );
             }
+
+            // get slave number of dof types
+            uint tNumSlaveDofType  = mRequestedSlaveGlobalDofTypes.size();
 
             // loop over the slave dof types
             for( uint iFI = 0; iFI < tNumSlaveDofType; iFI++ )
@@ -1779,6 +1782,7 @@ namespace moris
 
                             // reset properties, CM and SP for IWG
                             this->reset_eval_flags();
+                            tFI->reset_eval_flags(); // not useful
 
                             // reset the QI
                             mSet->get_QI()( tQIIndex ).fill( 0.0 );

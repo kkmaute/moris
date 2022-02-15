@@ -43,6 +43,30 @@ namespace moris
                 // Spalart Allmaras model constants
                 real mCv1 = 7.1;
 
+                // flags for chi related evaluation
+                bool mChiEval = true;
+                moris::Matrix< DDBMat > mdChiduEval;
+                moris::Matrix< DDBMat > mdChidxEval;
+                moris::Matrix< DDBMat > mdChidxduEval;
+
+                // storage for chi
+                moris::real mChi;
+                moris::Cell< Matrix< DDRMat > > mdChidu;
+                moris::Cell< Matrix< DDRMat > > mdChidx;
+                moris::Cell< Cell< Matrix< DDRMat > > > mdChidxdu;
+
+                // flags for fv1 related evaluation
+                bool mFv1Eval = true;
+                moris::Matrix< DDBMat > mdFv1duEval;
+                moris::Matrix< DDBMat > mdFv1dxEval;
+                moris::Matrix< DDBMat > mdFv1dxduEval;
+
+                // storage for fv1
+                moris::real mFv1;
+                moris::Cell< Matrix< DDRMat > > mdFv1du;
+                moris::Cell< Matrix< DDRMat > > mdFv1dx;
+                moris::Cell< Cell< Matrix< DDRMat > > > mdFv1dxdu;
+
                 // flags for turbulence dynamic viscosity related evaluation
                 bool mTurbDynViscEval = true;
                 moris::Matrix< DDBMat > mdTurbDynViscduEval;
@@ -373,7 +397,87 @@ namespace moris
                         uint                                 aOrder,
                         enum CM_Function_Type                aCMFunctionType = CM_Function_Type::DEFAULT );
 
-                //--------------------------------------------------------------------------------------------------------------
+                //------------------------------------------------------------------------------
+                /**
+                 * get chi = nu_tilde/nu
+                 * @param[ in ]  aCMFunctionType enum indicating which function if several
+                 * @param[ out ] mChi chi
+                 */
+                const real chi(
+                        enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
+
+                /**
+                 * get the derivative of chi wrt dof type
+                 * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+                 * @param[ in ] aCMFunctionType enum for specific type of which chi
+                 * @param[ out ] mdchidu derivative of the chi wrt dof types
+                 */
+                const Matrix< DDRMat > & dchidu(
+                        const moris::Cell< MSI::Dof_Type > & aDofType,
+                        enum CM_Function_Type                aCMFunctionType = CM_Function_Type::DEFAULT );
+
+                /**
+                 * get the derivative of chi wrt space
+                 * @param[ in ] aOrder order of the derivative
+                 * @param[ in ] aCMFunctionType enum for specific type of which chi
+                 * @param[ out ] mdchidx derivative of the chi wrt space
+                 */
+                const Matrix< DDRMat > & dchidx(
+                        uint                  aOrder,
+                        enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
+
+                /**
+                 * get the derivative of chi wrt space and dof type
+                 * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+                 * @param[ in ] aOrder order of the space derivative
+                 * @param[ in ] aCMFunctionType enum for specific type of which chi
+                 * @param[ out ] mdchidxdu derivative of the chi wrt dof types
+                 */
+                const Matrix< DDRMat > & dchidxdu(
+                        const moris::Cell< MSI::Dof_Type > & aDofType,
+                        uint                                 aOrder,
+                        enum CM_Function_Type                aCMFunctionType = CM_Function_Type::DEFAULT );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * get fv1 = chi^3 / ( chi^3 + cv1^3 )
+                 * @param[ in ]  aCMFunctionType enum for specific type of fv2
+                 * @param[ out ] mFv1 fv1
+                 */
+                const real fv1(
+                        enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
+
+                /**
+                 * get the derivative of fv1 wrt dof type
+                 * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+                 * @param[ in ] aCMFunctionType enum for specific type of fv1
+                 * @param[ out ] mdfv1du derivative of fv1 wrt dof types
+                 */
+                const Matrix< DDRMat > & dfv1du(
+                        const moris::Cell< MSI::Dof_Type > & aDofType,
+                        enum CM_Function_Type                aCMFunctionType = CM_Function_Type::DEFAULT );
+
+                /**
+                 * get the derivative of fv1 wrt space
+                 * @param[ in ] aOrder order of the derivative
+                 * @param[ in ] aCMFunctionType enum for specific type of which fv1
+                 * @param[ out ] mdfv1dx derivative of the fv1 wrt space
+                 */
+                const Matrix< DDRMat > & dfv1dx(
+                        uint                  aOrder,
+                        enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
+
+                /**
+                 * get the derivative of fv1 wrt space and dof type
+                 * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+                 * @param[ in ] aOrder order of the space derivative
+                 * @param[ in ] aCMFunctionType enum for specific type of which fv1
+                 * @param[ out ] mdfv1dxdu derivative of the fv1 wrt dof types
+                 */
+                const Matrix< DDRMat > & dfv1dxdu(
+                        const moris::Cell< MSI::Dof_Type > & aDofType,
+                        uint                                 aOrder,
+                        enum CM_Function_Type                aCMFunctionType = CM_Function_Type::DEFAULT );
         };
 
         //--------------------------------------------------------------------------------------------------------------

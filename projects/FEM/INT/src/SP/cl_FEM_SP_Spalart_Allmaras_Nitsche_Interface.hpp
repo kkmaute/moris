@@ -20,7 +20,6 @@
 #include "cl_FEM_Constitutive_Model.hpp"
 #include "cl_FEM_Stabilization_Parameter.hpp"
 #include "cl_FEM_Cluster.hpp"
-#include "fn_FEM_IWG_Spalart_Allmaras_Turbulence_Tools.hpp"
 
 namespace moris
 {
@@ -59,26 +58,11 @@ namespace moris
                                 mtk::Primary_Void::PRIMARY,
                                 mtk::Master_Slave::MASTER );
 
-                // Spalart Allmaras model constants
-                real mCb1 = 0.1355;
-                real mCb2 = 0.6220;
-                real mSigma = 2.0/3.0;
-                real mKappa = 0.41;
-                real mCw1 = mCb1 / std::pow( mKappa, 2.0 ) + ( 1.0 + mCb2 ) / mSigma;
-                real mCw2 = 0.3;
-                real mCw3 = 2.0;
-                real mCt3 = 1.2;
-                real mCt4 = 0.5;
-                real mCv1 = 7.1;
-                real mCv2 = 0.7;
-                real mCv3 = 0.9;
-                real mRLim = 10.0;
-                real mCn1 = 16.0;
-
-                enum class SP_Property_Type
+                // local constitutive enums
+                enum class IWG_Constitutive_Type
                 {
-                    MATERIAL,
-                    MAX_ENUM
+                        SPALART_ALLMARAS_TURBULENCE,
+                        MAX_ENUM
                 };
 
             public:
@@ -176,44 +160,6 @@ namespace moris
                     MORIS_ERROR( false, "SP_Nitsche_Interface::eval_dSPdSlaveDV: not implemented." );
                 }
                 //------------------------------------------------------------------------------
-
-            private:
-//                //------------------------------------------------------------------------------
-//
-//                real compute_diffusion_coefficient(
-//                        mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
-//
-//                //------------------------------------------------------------------------------
-//
-//                void compute_ddiffusiondu(
-//                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
-//                        Matrix< DDRMat >                   & addiffusiondu,
-//                        mtk::Master_Slave                    aIsMaster = mtk::Master_Slave::MASTER );
-//
-//                //------------------------------------------------------------------------------
-//
-//                real compute_fn(
-//                        mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
-//
-//                //------------------------------------------------------------------------------
-//
-//                void compute_dfndu(
-//                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
-//                        Matrix< DDRMat >                   & adfndu,
-//                        mtk::Master_Slave                    aIsMaster = mtk::Master_Slave::MASTER );
-//
-//                //------------------------------------------------------------------------------
-//
-//                real compute_chi(
-//                        mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
-//
-//                //------------------------------------------------------------------------------
-//
-//                void compute_dchidu(
-//                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
-//                        Matrix< DDRMat >                   & adchidu,
-//                        mtk::Master_Slave                    aIsMaster = mtk::Master_Slave::MASTER );
-
         };
         //------------------------------------------------------------------------------
     } /* namespace fem */

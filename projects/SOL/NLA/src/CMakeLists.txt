@@ -9,6 +9,7 @@ set(HEADERS
 	#cl_NLA_Arc_Length.hpp
     cl_NLA_Convergence.hpp
     cl_NLA_Solver_Relaxation.hpp
+    cl_NLA_Solver_Load_Control.hpp
 	cl_NLA_Newton_Solver.hpp
 	cl_NLA_NLBGS.hpp
 	cl_NLA_Nonlinear_Algorithm.hpp
@@ -31,6 +32,7 @@ set(LIB_SOURCES
     cl_NLA_Nonlinear_Problem.cpp
     cl_NLA_Convergence.cpp
     cl_NLA_Solver_Relaxation.cpp
+    cl_NLA_Solver_Load_Control.cpp
     cl_NLA_NLBGS.cpp )
 
 # List library dependencies

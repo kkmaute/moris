@@ -138,6 +138,7 @@ namespace moris
                     mAncestorNodeCoordinates( iCast ) = tVerts( iCast )->get_coords();
                 }
 
+                // FIXME: Potential issue here: level set value evaluation needs to be consistent with proximity calculation
                 aCell->get_cell_info()->eval_N( mLocalCoordinates, mBasisValues );
             }
         }

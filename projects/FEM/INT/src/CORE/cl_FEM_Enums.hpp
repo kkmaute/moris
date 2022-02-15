@@ -184,6 +184,7 @@ namespace moris
                 FLUID_COMPRESSIBLE_IDEAL,
                 FLUID_COMPRESSIBLE_VDW,
                 FLUID_COMPRESSIBLE_NEWTONIAN,
+                SPALART_ALLMARAS_TURBULENCE,
                 END_CONSTITUTIVE_TYPE
         };
 

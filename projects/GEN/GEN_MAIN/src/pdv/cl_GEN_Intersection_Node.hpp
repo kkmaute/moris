@@ -30,6 +30,9 @@ namespace moris
             Matrix< DDRMat > mCoordinateSensitivities;
             Matrix< DDSMat > mCoordinateDeterminingADVIDs;
 
+            moris_index mFirstParentNodeIndex;
+            moris_index mSecondParentNodeIndex;
+
             moris_id mPDVStartingID;
             bool     mPDVStartingIDSet = false;
 
@@ -60,8 +63,8 @@ namespace moris
                     real                                 aLocalCoordinate,
                     std::shared_ptr< Intersection_Node > aFirstParentNode,
                     std::shared_ptr< Intersection_Node > aSecondParentNode,
-                    real                                 aFirstParentNodeIndex,
-                    real                                 aSecondParentNodeIndex,
+                    moris_index                          aFirstParentNodeIndex,
+                    moris_index                          aSecondParentNodeIndex,
                     const Matrix< DDRMat >&              aFirstParentNodeLocalCoordinates,
                     const Matrix< DDRMat >&              aSecondParentNodeLocalCoordinates,
                     Matrix< DDUMat >                     aAncestorNodeIndices,
@@ -180,6 +183,19 @@ namespace moris
              * @return Owning processor
              */
             moris_index get_owner();
+
+
+            moris_index
+            get_first_parent_node_index()
+            {
+                return mFirstParentNodeIndex;
+            }
+
+            moris_index
+            get_second_parent_node_index()
+            {
+                return mSecondParentNodeIndex;
+            }
 
           private:
             /**

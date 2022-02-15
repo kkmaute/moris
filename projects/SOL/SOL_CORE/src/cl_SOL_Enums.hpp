@@ -13,27 +13,34 @@ namespace moris
     {
         enum class SolverType
         {
-            TRILINOSTEST,     //< Wrapper around Aztec Solver
-            AZTEC_IMPL,            //< Wrapper around Aztec Solver
-            AMESOS_IMPL,           //< Wrapper around Amesos Solver
-            AMESOS2_IMPL,          //< Wrapper around Amesos2 Solver
-            BELOS_IMPL,          //< Wrapper around Belos Solver
-            PETSC             //< Wrapper around Petsc Solver
+            TRILINOSTEST,    //< Wrapper around Aztec Solver
+            AZTEC_IMPL,      //< Wrapper around Aztec Solver
+            AMESOS_IMPL,     //< Wrapper around Amesos Solver
+            AMESOS2_IMPL,    //< Wrapper around Amesos2 Solver
+            BELOS_IMPL,      //< Wrapper around Belos Solver
+            PETSC            //< Wrapper around Petsc Solver
         };
 
         enum class MapType
         {
-            Epetra,   // Indicates the Vector/Matrix/Map type
-            Petsc     // Indicates the Vector/Matrix/Map type
+            Epetra,    // Indicates the Vector/Matrix/Map type
+            Petsc      // Indicates the Vector/Matrix/Map type
         };
 
         enum class SolverRelaxationType
         {
-            Constant,           // Constant relaxation parameter
-            InvResNorm,         // Relaxation parameter proportional to inverse of residual norm
-            InvResNormAdaptive  // Relaxation parameter proportional to inverse of residual norm with adaptation
+            Constant,             // Constant relaxation parameter
+            InvResNorm,           // Relaxation parameter proportional to inverse of residual norm
+            InvResNormAdaptive    // Relaxation parameter proportional to inverse of residual norm with adaptation
         };
-    }
-}
+
+        enum class SolverLoadControlType
+        {
+            Constant,       // Constant load control parameter
+            Exponential,    // Exponential growth
+            UserDefined      // User defined strategy
+        };
+    }    // namespace sol
+}    // namespace moris
 
 #endif /* SRC_DISTLINALG_CL_DLA_ENUMS_HPP_ */

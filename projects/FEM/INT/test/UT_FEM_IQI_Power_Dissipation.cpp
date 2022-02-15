@@ -39,7 +39,7 @@ TEST_CASE( "IQI_Power_Dissipation","[moris],[fem],[IQI_Power_Dissipation]" )
     real tEpsilon = 1E-5;
 
     // define a perturbation relative size
-    real tPerturbation = 1E-6;
+    real tPerturbation = 1E-4;
 
     // init geometry inputs
     //------------------------------------------------------------------------------
@@ -106,33 +106,6 @@ TEST_CASE( "IQI_Power_Dissipation","[moris],[fem],[IQI_Power_Dissipation]" )
     // set a fem set pointer
     MSI::Equation_Set * tSet = new fem::Set();
     static_cast<fem::Set*>(tSet)->set_set_type( fem::Element_Type::BULK );
-
-    // FEM parameter lists
-    Cell<Cell<ParameterList>> tParameterList;
-    tParameterList.resize( 8 );
-
-    tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
-    tParameterList( 4 )( 0 ).set( "IQI_name",                   "PowerDissipation");
-    tParameterList( 4 )( 0 ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::POWER_DISSIPATION ) );
-    tParameterList( 4 )( 0 ).set( "normalization",              "design" );
-
-    // create computation  parameter list
-    tParameterList( 5 ).resize( 1 );
-    tParameterList( 5 )( 0 ) = prm::create_computation_parameter_list();
-
-    // Create FEM model
-    FEM_Model tModel;
-    tModel.set_parameter_list(tParameterList);
-    tModel.set_requested_IQI_names({"PowerDissipation"});
-    tSet->set_equation_model(&tModel);
-
-    // Create IQI
-    tModel.initialize(nullptr);
-
-    // create a GEN/MSI interface
-    MSI::Design_Variable_Interface * tGENMSIInterface = new fem::FEM_Design_Variable_Interface_Proxy();
-    tModel.set_design_variable_interface( tGENMSIInterface );
-
     tIQI->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
@@ -166,9 +139,9 @@ TEST_CASE( "IQI_Power_Dissipation","[moris],[fem],[IQI_Power_Dissipation]" )
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::QUAD;
 
-               // set velocity dof types
-               tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } };
-               break;
+                // set velocity dof types
+                tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } };
+                break;
             }
             case 3 :
             {
@@ -252,10 +225,10 @@ TEST_CASE( "IQI_Power_Dissipation","[moris],[fem],[IQI_Power_Dissipation]" )
 
             //create a space time interpolation rule
             mtk::Interpolation_Rule tFIRule ( tGeometryType,
-                                         mtk::Interpolation_Type::LAGRANGE,
-                                         tInterpolationOrder,
-                                         mtk::Interpolation_Type::LAGRANGE,
-                                         mtk::Interpolation_Order::LINEAR );
+                    mtk::Interpolation_Type::LAGRANGE,
+                    tInterpolationOrder,
+                    mtk::Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Order::LINEAR );
 
             // fill coefficients for master FI
             Matrix< DDRMat > tMasterDOFHatVel;;
@@ -279,24 +252,17 @@ TEST_CASE( "IQI_Power_Dissipation","[moris],[fem],[IQI_Power_Dissipation]" )
             tIQI->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofVel-1 } };
             tIQI->mSet->mResDofAssemblyMap( 1 ) = { { tNumDofVel, tNumDofVel + tNumDofP - 1 } };
 
-            // set size and fill the set jacobian assembly map
-            Matrix< DDSMat > tJacAssembly = {
-                    { 0, tNumDofVel - 1 },
-                    { tNumDofVel, tNumDofVel + tNumDofP - 1 } };
-            tIQI->mSet->mJacDofAssemblyMap.resize( tDofTypes.size() );
-            tIQI->mSet->mJacDofAssemblyMap( 0 ) = tJacAssembly;
-            tIQI->mSet->mJacDofAssemblyMap( 1 ) = tJacAssembly;
-
             // set size and init the set residual and jacobian
             tIQI->mSet->mResidual.resize( 1 );
             tIQI->mSet->mResidual( 0 ).set_size(
                     tNumDofVel + tNumDofP,
                     1,
                     0.0 );
-            tIQI->mSet->mJacobian.set_size(
-                    tNumDofVel + tNumDofP,
-                    tNumDofVel + tNumDofP,
-                    0.0 );
+
+            // fill requested IQI map
+            moris::map< std::string, moris_index > tRequestedIQINamesAssemblyMap;
+            tRequestedIQINamesAssemblyMap[ "PowerDissipation" ] = 0;
+            tIQI->mSet->mRequestedIQINamesAssemblyMap=tRequestedIQINamesAssemblyMap;
 
             // set size and init the set mQI
             tIQI->mSet->mQI.resize( 1 );
@@ -307,11 +273,6 @@ TEST_CASE( "IQI_Power_Dissipation","[moris],[fem],[IQI_Power_Dissipation]" )
 
             // populate the requested master dof type
             tIQI->mRequestedMasterGlobalDofTypes = tDofTypes;
-
-            moris::Cell< moris::Cell< enum fem::IQI_Type > > tRequestedIQITypes( 1 );
-            tRequestedIQITypes( 0 ).resize( 1, fem::IQI_Type::POWER_DISSIPATION );
-
-            tSet->create_requested_IQI_type_map();
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
@@ -344,10 +305,17 @@ TEST_CASE( "IQI_Power_Dissipation","[moris],[fem],[IQI_Power_Dissipation]" )
 
                 // check evaluation of the quantity of interest
                 //------------------------------------------------------------------------------
-                // evaluate the quantity of interest
-                tModel.initialize_IQIs();
-//                tModel.compute_IQIs();
-//                CHECK(tModel.get_IQI_values()(0)(0) = 1.0);
+                // reset residual
+                tIQI->mSet->mQI( 0 ).fill( 0.0 );
+
+                // compute residual
+                tIQI->compute_QI( 1.0 );
+
+                // check evaluation of the quantity of interest derivative
+                //------------------------------------------------------------------------------
+
+                // reset jacobian
+                tIQI->mSet->mResidual( 0 ).fill( 0.0 );
 
                 Matrix< DDRMat > tdQIdu;
                 Matrix< DDRMat > tdQIduFD;
@@ -357,17 +325,15 @@ TEST_CASE( "IQI_Power_Dissipation","[moris],[fem],[IQI_Power_Dissipation]" )
                         tEpsilon,
                         tdQIdu,
                         tdQIduFD,
-                        false );
+                        true );
 
                 // print for debug
                 if( !tCheckdQIdu )
                 {
                     std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<" iGP "<<iGP<<std::endl;
-                    //print(tdQIdu,"tdQIdu");
-                    //print(tdQIduFD,"tdQIduFD");
                 }
 
-                //REQUIRE( tCheckdQIdu );
+                REQUIRE( tCheckdQIdu );
             }
 
             // clean up

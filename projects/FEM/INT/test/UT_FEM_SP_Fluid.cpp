@@ -84,6 +84,16 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
     tPropWallDistance->set_parameters( { {{ 1.0 }} } );
     tPropWallDistance->set_val_function( tConstValFunc );
 
+    // define constitutive models
+    fem::CM_Factory tCMFactory;
+
+    std::shared_ptr< fem::Constitutive_Model > tCMSATurbulence =
+            tCMFactory.create_CM( fem::Constitutive_Type::SPALART_ALLMARAS_TURBULENCE );
+    tCMSATurbulence->set_dof_type_list( tDofTypes );
+    tCMSATurbulence->set_property( tPropWallDistance, "WallDistance" );
+    tCMSATurbulence->set_property( tPropFluidViscosity, "KinViscosity" );
+    tCMSATurbulence->set_local_properties();
+
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
 
@@ -122,8 +132,8 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
     std::shared_ptr< fem::Stabilization_Parameter > tSPSUPGSA=
             tSPFactory.create_SP( fem::Stabilization_Type::SUPG_SPALART_ALLMARAS_TURBULENCE );
     tSPSUPGSA->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::VISCOSITY } }, mtk::Master_Slave::MASTER );
-    tSPSUPGSA->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
-    tSPSUPGSA->set_property( tPropWallDistance, "WallDistance", mtk::Master_Slave::MASTER );
+    tSPSUPGSA->set_constitutive_model( tCMSATurbulence, "SpalartAllmarasTurbulence" );
+
 
     // create a dummy fem cluster and set it to SP
     fem::Cluster * tCluster = new fem::Cluster();

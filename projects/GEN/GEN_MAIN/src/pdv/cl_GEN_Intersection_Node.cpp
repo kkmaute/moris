@@ -18,8 +18,8 @@ namespace moris
                 real                                 aLocalCoordinate,
                 std::shared_ptr< Intersection_Node > aFirstParentNode,
                 std::shared_ptr< Intersection_Node > aSecondParentNode,
-                real                                 aFirstParentNodeIndex,
-                real                                 aSecondParentNodeIndex,
+                moris_index                          aFirstParentNodeIndex,
+                moris_index                          aSecondParentNodeIndex,
                 const Matrix< DDRMat >&              aFirstParentNodeLocalCoordinates,
                 const Matrix< DDRMat >&              aSecondParentNodeLocalCoordinates,
                 Matrix< DDUMat >                     aAncestorNodeIndices,
@@ -41,6 +41,8 @@ namespace moris
                 , mIsocontourThreshold( aIsocontourThreshold )
                 , mFirstParentNode( aFirstParentNode )
                 , mSecondParentNode( aSecondParentNode )
+                , mFirstParentNodeIndex( aFirstParentNodeIndex )
+                , mSecondParentNodeIndex( aSecondParentNodeIndex )
         {
             // check whether intersection computation should be performed
             if ( !aDetermineIsIntersected )

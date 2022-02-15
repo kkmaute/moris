@@ -1548,7 +1548,7 @@ namespace moris
                 //--------------------------------------------------------------------------------------------------------------
                 //FIXME to be removed
                 /**
-                 * get the the turbulent dynamic viscosity mu_t = rho * vtilde * tf1
+                 * get the turbulent dynamic viscosity mu_t = rho * vtilde * tf1
                  * @param[ in ]  aCMFunctionType  enum indicating which effective conductivity is called,
                  *               if there are several
                  * @param[ out ] mTurbDynVisc effective conductivity
@@ -1560,9 +1560,8 @@ namespace moris
                     return mFlux;
                 }
 
-                //--------------------------------------------------------------------------------------------------------------
                 /**
-                 * get the the effective dynamic viscosity mu_eff = mu + mu_t
+                 * get the effective dynamic viscosity mu_eff = mu + mu_t
                  * @param[ in ]  aCMFunctionType  enum indicating which effective conductivity is called,
                  *               if there are several
                  * @param[ out ] mEffDynVisc effective conductivity
@@ -1576,7 +1575,7 @@ namespace moris
 
                 //--------------------------------------------------------------------------------------------------------------
                 /**
-                 * get the the effective conductivity k_eff = k + k_t
+                 * get the effective conductivity k_eff = k + k_t
                  * @param[ in ]  aCMFunctionType  enum indicating which effective conductivity is called,
                  *               if there are several
                  * @param[ out ] mEffCond effective conductivity
@@ -1588,6 +1587,138 @@ namespace moris
                     return mFlux;
                 }
 
+                //--------------------------------------------------------------------------------------------------------------
+                //FIXME to be removed
+                /**
+                 * get the the production coefficient
+                 * @param[ in ]  aCMFunctionType enum for specific production term if several
+                 * @param[ out ] mProductionTerm production term
+                 */
+                virtual const Matrix< DDRMat > & production_term(
+                         enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT )
+                {
+                    MORIS_ERROR( false, " Constitutive_Model::production_term - This function does nothing. " );
+                    return mFlux;
+                }
+
+                /**
+                 * get the derivative of the production term wrt dof type
+                 * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+                 * @param[ in ] aCMFunctionType enum for specific type of which production term
+                 * @param[ out ] mdProductionTermdu derivative of the production term wrt dof types
+                 */
+                virtual const Matrix< DDRMat > & dproductiontermdu(
+                        const moris::Cell< MSI::Dof_Type > & aDofType,
+                        enum CM_Function_Type                aCMFunctionType = CM_Function_Type::DEFAULT )
+                {
+                    MORIS_ERROR( false, " Constitutive_Model::dproductiontermdu - This function does nothing. " );
+                    return mFlux;
+                }
+
+                /**
+                 * get the the production coefficient
+                 * @param[ in ]  aCMFunctionType enum for specific production coefficient if several
+                 * @param[ out ] mProductionTerm production term
+                 */
+                virtual const Matrix< DDRMat > & production_coefficient(
+                        enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT )
+                {
+                    MORIS_ERROR( false, " Constitutive_Model::production_coefficient - This function does nothing. " );
+                    return mFlux;
+                }
+
+                /**
+                 * get the derivative of the production coefficient wrt dof type
+                 * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+                 * @param[ in ] aCMFunctionType enum for specific type of which production coefficient
+                 * @param[ out ] mdProductionCoeffdu derivative of the production coefficient wrt dof types
+                 */
+                virtual const Matrix< DDRMat > & dproductioncoeffdu(
+                        const moris::Cell< MSI::Dof_Type > & aDofType,
+                        enum CM_Function_Type                aCMFunctionType = CM_Function_Type::DEFAULT )
+                {
+                    MORIS_ERROR( false, " Constitutive_Model::dproductioncoeffdu - This function does nothing. " );
+                    return mFlux;
+                }
+
+                /**
+                 * get the the wall destruction term
+                 * @param[ in ]  aCMFunctionType enum for specific wall destruction term if several
+                 * @param[ out ] mWallDestructionTerm wall destruction term
+                 */
+                virtual const Matrix< DDRMat > & wall_destruction_term(
+                        enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT )
+                {
+                    MORIS_ERROR( false, " Constitutive_Model::wall_destruction_term - This function does nothing. " );
+                    return mFlux;
+                }
+
+                /**
+                 * get the derivative of the wall destruction term wrt dof type
+                 * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+                 * @param[ in ] aCMFunctionType enum for specific type of which wall destruction term
+                 * @param[ out ] mdwalldestructiontermdu derivative of the wall destruction term wrt dof types
+                 */
+                virtual const Matrix< DDRMat > & dwalldestructiontermdu(
+                        const moris::Cell< MSI::Dof_Type > & aDofType,
+                        enum CM_Function_Type                aCMFunctionType = CM_Function_Type::DEFAULT )
+                {
+                    MORIS_ERROR( false, " Constitutive_Model::dwalldestructiontermdu - This function does nothing. " );
+                    return mFlux;
+                }
+
+                /**
+                 * get the the wall destruction coefficient
+                 * @param[ in ]  aCMFunctionType enum for specific wall destruction coefficient if several
+                 * @param[ out ] mWallDestructionCoeff wall destruction coefficient
+                 */
+                virtual const Matrix< DDRMat > & wall_destruction_coefficient(
+                        enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT )
+                {
+                    MORIS_ERROR( false, " Constitutive_Model::wall_destruction_coefficient - This function does nothing. " );
+                    return mFlux;
+                }
+
+                /**
+                 * get the derivative of the wall destruction coefficient wrt dof type
+                 * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+                 * @param[ in ] aCMFunctionType enum for specific type of which wall destruction coefficient
+                 * @param[ out ] mdwalldestructioncoeffdu derivative of the wall destruction coefficient wrt dof types
+                 */
+                virtual const Matrix< DDRMat > & dwalldestructioncoeffdu(
+                        const moris::Cell< MSI::Dof_Type > & aDofType,
+                        enum CM_Function_Type                aCMFunctionType = CM_Function_Type::DEFAULT )
+                {
+                    MORIS_ERROR( false, " Constitutive_Model::dwalldestructioncoeffdu - This function does nothing. " );
+                    return mFlux;
+                }
+
+                /**
+                 * get the diffusion coefficient
+                 * @param[ in ]  aCMFunctionType enum for specific diffusion coefficient if several
+                 * @param[ out ] mDiffusionCoeff diffusion coefficient
+                 */
+                virtual const Matrix< DDRMat > & diffusion_coefficient(
+                        enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT )
+                {
+                    MORIS_ERROR( false, " Constitutive_Model::diffusion_coefficient - This function does nothing. " );
+                    return mFlux;
+                }
+
+
+                /**
+                 * get the derivative of the diffusion coefficient wrt dof type
+                 * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+                 * @param[ in ] aCMFunctionType enum for specific type of which diffusion
+                 * @param[ out ] mdproductioncoeffdu derivative of the diffusion wrt dof types
+                 */
+                virtual const Matrix< DDRMat > & ddiffusioncoeffdu(
+                        const moris::Cell< MSI::Dof_Type > & aDofType,
+                        enum CM_Function_Type                aCMFunctionType = CM_Function_Type::DEFAULT )
+                {
+                    MORIS_ERROR( false, " Constitutive_Model::ddiffusioncoeffdu - This function does nothing. " );
+                    return mFlux;
+                }
                 //------------------------------------------------------------------------------
         };
 
