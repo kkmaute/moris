@@ -33,13 +33,6 @@ namespace moris
                 //------------------------------------------------------------------------------
             private :
 
-                // default tuple for element size to define cluster measure
-                std::tuple<fem::Measure_Type,mtk::Primary_Void,mtk::Master_Slave > mElementSizeTuple =
-                        std::make_tuple(
-                                fem::Measure_Type::CELL_LENGTH_MEASURE,
-                                mtk::Primary_Void::PRIMARY,
-                                mtk::Master_Slave::MASTER );
-
                 // default dof type
                 MSI::Dof_Type mMasterDofViscosity = MSI::Dof_Type::VISCOSITY;
                 MSI::Dof_Type mMasterDofVelocity  = MSI::Dof_Type::VX;
@@ -49,7 +42,7 @@ namespace moris
                 real mSigma = 2.0/3.0;
 
                 // internal threshold
-                const real mEpsilon = 1e-18;
+                const real mEpsilon = MORIS_REAL_EPS;
 
                 // local constitutive enums
                 enum class IWG_Constitutive_Type
@@ -58,8 +51,16 @@ namespace moris
                         MAX_ENUM
                 };
 
+                // flag for evaluation
+                bool mLengthScaleEval = true;
+                moris::Matrix< DDBMat > mdLengthScaledMasterDofEval;
+
+                // storage
+                real mLengthScale;
+                moris::Cell< Matrix< DDRMat > > mdLengthScaledMasterDof;
+
                 /*
-                 * Rem: mParameters( 0 ) -
+                 * Rem: mParameters( 0 ) - No parameter used
                  */
 
             public:
@@ -84,6 +85,13 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * reset evaluation flags
+                 * child implementation
+                 */
+                void reset_eval_flags();
+
+                //------------------------------------------------------------------------------
+                /**
                  * set dof types
                  * @param[ in ] aDofTypes a cell of cell of dof types
                  * @param[ in ] aDofStrings list of strings describing the dof types
@@ -93,6 +101,13 @@ namespace moris
                         moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
                         moris::Cell< std::string >                  & aDofStrings,
                         mtk::Master_Slave                             aIsMaster = mtk::Master_Slave::MASTER );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * create a global dof type list including constitutive and property dependencies
+                 * child implementation
+                 */
+                void build_global_dof_type_list();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -108,16 +123,6 @@ namespace moris
                 {
                     Stabilization_Parameter::set_dv_type_list( aDvTypes, aIsMaster );
                 }
-
-                //------------------------------------------------------------------------------
-                /**
-                 * get cluster measure tuples
-                 * @param[ in ] aClusterMeasureTuples list of tuples describing the cluster measure types
-                 */
-                moris::Cell< std::tuple<
-                fem::Measure_Type,
-                mtk::Primary_Void,
-                mtk::Master_Slave > > get_cluster_measure_tuple_list();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -143,6 +148,34 @@ namespace moris
                 }
 
                 //------------------------------------------------------------------------------
+
+            private:
+
+                //------------------------------------------------------------------------------
+                /**
+                 * return the length scale
+                 * @param[ out ] mLengthScale length scale for SUPG
+                 */
+                real length_scale();
+
+                /**
+                 * evaluate the length scale parameter
+                 */
+                void eval_length_scale();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * return the length scale derivative wrt to a master dof type
+                 * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
+                 */
+                const Matrix< DDRMat > & dlengthscaledmasteru( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+
+                /**
+                 * evaluate the length scale derivative wrt to a master dof type
+                 * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
+                 */
+                void eval_dlengthscaledmasteru( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+
         };
         //------------------------------------------------------------------------------
     } /* namespace fem */
