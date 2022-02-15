@@ -614,16 +614,22 @@ class Integration_Mesh_Generator
     bool
     check_construct_subphase_groups();
 
+    // ----------------------------------------------------------------------------------
+
     /**
      * @brief estabilish relationship to/ information about B-spline background mesh
      * 
      * @param aCutIntegrationMesh pointer to the cut integration mesh which carries the information
      * @param aLagrangeMesh pointer to the Lagrange mesh for which the information needs to be estabilished
+     * @param aBsplineMeshInfo pointer to the B-spline mesh info to be used for construction
+     * @param aMeshIndex discretization mesh index
      */
     void
     establish_bspline_mesh_info(
-            Cut_Integration_Mesh * aCutIntegrationMesh,
-            moris::mtk::Mesh *     aLagrangeMesh );
+            Cut_Integration_Mesh* aCutIntegrationMesh,
+            moris::mtk::Mesh*     aLagrangeMesh,
+            Bspline_Mesh_Info*    aBsplineMeshInfo,
+            const moris_index     aMeshIndex );
 
     // ----------------------------------------------------------------------------------
 
@@ -631,10 +637,14 @@ class Integration_Mesh_Generator
      * @brief find groups of subphases that belong together and the side ordinals through which it is connected to neighboring SPGs
      * 
      * @param aCutIntegrationMesh pointer to cut integration mesh holding B-spline mesh info and SPGs
+     * @param aBsplineMeshInfo pointer to the B-spline mesh info to be used for construction
+     * @param aMeshIndex discretization mesh index
      */
     void
     construct_subphase_groups(
-            Cut_Integration_Mesh * aCutIntegrationMesh );
+            Cut_Integration_Mesh* aCutIntegrationMesh,
+            Bspline_Mesh_Info*    aBsplineMeshInfo,
+            const moris_index     aMeshIndex );
 
     // ----------------------------------------------------------------------------------
     
@@ -734,15 +744,24 @@ class Integration_Mesh_Generator
 
     // ----------------------------------------------------------------------------------
 
-    void
-    construct_subphase_group_neighborhood( Cut_Integration_Mesh* aCutIntegrationMesh );
+    /**
+     * @brief constructs the SPG Neighborhood Connectivity graph after the SPGs themselves have been constructed
+     * 
+     * @param aCutIntegrationMesh pointer to cut integration mesh
+     * @param aBsplineMeshInfo pointer to the B-spline mesh info to be used for construction
+     * @param aMeshIndex discretization mesh index
+     * @return const std::shared_ptr< Subphase_Neighborhood_Connectivity > pointer to the SPG Neighborhood Connectivity
+     */
+    const std::shared_ptr< Subphase_Neighborhood_Connectivity >
+    construct_subphase_group_neighborhood( 
+            Cut_Integration_Mesh* aCutIntegrationMesh,
+            Bspline_Mesh_Info*    aBsplineMeshInfo,
+            const moris_index     aMeshIndex );
 
     // ----------------------------------------------------------------------------------
 
 
     // ----------------------------------------------------------------------------------
-
-
 
 };
 

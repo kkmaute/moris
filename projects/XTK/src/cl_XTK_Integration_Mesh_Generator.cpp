@@ -169,15 +169,40 @@ Integration_Mesh_Generator::perform()
     // check if subphase-groups need to be constructed
     if( this->check_construct_subphase_groups() )
     {
-        // establish B-spline - Lagrange mesh relation
-        this->establish_bspline_mesh_info( tCutIntegrationMesh.get(), tCutIntegrationMesh.get() );
+        // get the discretization mesh indices
+        Matrix< IndexMat > tDiscretizationMeshIndices;
+        moris::string_to_mat( mXTKModel->mParameterList.get< std::string >( "enrich_mesh_indices" ), tDiscretizationMeshIndices );
 
-        // construct Subphase groups
-        this->construct_subphase_groups( tCutIntegrationMesh.get() );
+        // get number of B-spline discretization meshes
+        uint tNumBspMeshes = tDiscretizationMeshIndices.numel();
 
-        // construct Subphase Group Neighborhood
-        this->construct_subphase_group_neighborhood();
-    }
+        // reserve memory in cell of b-spline mesh infos with correct number of meshes
+        tCutIntegrationMesh->mBsplineMeshInfos.resize( tNumBspMeshes, nullptr );
+
+        // initialize the size of the SPG connectivities
+        tCutIntegrationMesh->mSubphaseGroupNeighborhood.resize( tNumBspMeshes );
+
+        // estabilish B-spline mesh information for every mesh index
+        for( moris::size_t iBspMesh = 0; iBspMesh < tNumBspMeshes; iBspMesh++ )
+        {
+            // get B-spline mesh index currently treated
+            moris_index tMeshIndex = tDiscretizationMeshIndices( iBspMesh );
+
+            // get the pointer to the Bspline_Mesh_Info currently treated
+            Bspline_Mesh_Info* tBsplineMeshInfo = tCutIntegrationMesh->mBsplineMeshInfos( iBspMesh );
+
+            // establish B-spline - Lagrange mesh relation
+            this->establish_bspline_mesh_info( tCutIntegrationMesh.get(), tBackgroundMesh, tBsplineMeshInfo, tMeshIndex );
+
+            // construct Subphase groups
+            this->construct_subphase_groups( tCutIntegrationMesh.get(), tBsplineMeshInfo, tMeshIndex );
+
+            // construct and set Subphase Group Neighborhood
+            const std::shared_ptr< Subphase_Neighborhood_Connectivity > tSpgNeighborhoodConnectivity = 
+                this->construct_subphase_group_neighborhood( tCutIntegrationMesh.get(), tBsplineMeshInfo, tMeshIndex );
+            tCutIntegrationMesh->mSubphaseGroupNeighborhood( iBspMesh ) = tSpgNeighborhoodConnectivity;
+        }
+    } // end: SPG construction
 
     // output cut IG mesh for debugging
     if ( mOutputCutIgMesh )
@@ -3355,125 +3380,92 @@ Integration_Mesh_Generator::check_construct_subphase_groups()
 void
 Integration_Mesh_Generator::establish_bspline_mesh_info(
         Cut_Integration_Mesh* aCutIntegrationMesh,
-        moris::mtk::Mesh*     aLagrangeMesh )
+        moris::mtk::Mesh*     aLagrangeMesh,
+        Bspline_Mesh_Info*    aBsplineMeshInfo,
+        const moris_index     aMeshIndex )
 {
-    // get the discretization mesh indices
-    Matrix< IndexMat > tDiscretizationMeshIndices;
-    moris::string_to_mat( mXTKModel->mParameterList.get< std::string >( "enrich_mesh_indices" ), tDiscretizationMeshIndices );
+    // log/trace the enrichment for specific B-spline mesh
+    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Establish B-spline mesh info for mesh index " + std::to_string( aMeshIndex ) );
 
-    // get number of B-spline discretization meshes
-    uint tNumBspMeshes = tDiscretizationMeshIndices.numel();
+    // initialize B-spline mesh info objects
+    // Note: this "new" has its "delete" in the destructor of the cut integration mesh
+    aBsplineMeshInfo = new Bspline_Mesh_Info();
 
-    // reserve memory in cell of b-spline mesh infos with correct number of meshes
-    aCutIntegrationMesh->mBsplineMeshInfos.resize( tNumBspMeshes, nullptr );
-
-    // estabilish B-spline mesh information for every mesh index
-    for( moris::size_t iBspMesh = 0; iBspMesh < tNumBspMeshes; iBspMesh++ )
-    {
-        // get B-spline mesh index currently treated
-        moris_index tMeshIndex = tDiscretizationMeshIndices( iBspMesh );
-
-        // log/trace the enrichment for specific B-spline mesh
-        Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Establish B-spline mesh info for mesh index " + std::to_string( tMeshIndex ) );
-
-        // initialize B-spline mesh info objects
-        // Note: this "new" has its "delete" in the destructor of the cut integration mesh
-        aCutIntegrationMesh->mBsplineMeshInfos( iBspMesh ) = new Bspline_Mesh_Info();
-
-        // get the pointer to the Bspline_Mesh_Info currently treated
-        Bspline_Mesh_Info * tBsplineMeshInfo = aCutIntegrationMesh->mBsplineMeshInfos( iBspMesh );
-
-        // get from HMR which Lagrange elements sit in which B-spline elements
-        aLagrangeMesh->get_lagrange_elements_in_bspline_elements( 
-            tMeshIndex, 
-            tBsplineMeshInfo->mExtractionCellsInBsplineCells,
-            tBsplineMeshInfo->mExtractionCellsIndicesInBsplineCells,
-            tBsplineMeshInfo->mExtractionCellToBsplineCell );
-    }
+    // get from HMR which Lagrange elements sit in which B-spline elements
+    aLagrangeMesh->get_lagrange_elements_in_bspline_elements( 
+        aMeshIndex, 
+        aBsplineMeshInfo->mExtractionCellsInBsplineCells,
+        aBsplineMeshInfo->mExtractionCellsIndicesInBsplineCells,
+        aBsplineMeshInfo->mExtractionCellToBsplineCell );
 }
 
 // ----------------------------------------------------------------------------------
 
 void
 Integration_Mesh_Generator::construct_subphase_groups(
-        Cut_Integration_Mesh* aCutIntegrationMesh )
+        Cut_Integration_Mesh* aCutIntegrationMesh,
+        Bspline_Mesh_Info*    aBsplineMeshInfo,
+        const moris_index     aMeshIndex )
 {
-    // get the discretization mesh indices
-    Matrix< IndexMat > tDiscretizationMeshIndices;
-    moris::string_to_mat( mXTKModel->mParameterList.get< std::string >( "enrich_mesh_indices" ), tDiscretizationMeshIndices );
+    // log/trace the enrichment for specific B-spline mesh
+    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Construct SPGs for mesh index " + std::to_string( aMeshIndex ) );
 
-    // get number of B-spline discretization meshes
-    uint tNumBspMeshes = tDiscretizationMeshIndices.numel();
+    // get the number of active B-spline elements
+    luint tNumBspElems = aBsplineMeshInfo->mExtractionCellsIndicesInBsplineCells.size();
 
-    // estabilish SPGs for every B-spline background mesh ...
-    for( moris::size_t iBspMesh = 0; iBspMesh < tNumBspMeshes; iBspMesh++ )
+    // reserve memory for list of SPGs in Bspline mesh info using estimated size
+    aBsplineMeshInfo->mSubphaseGroups.reserve( 4 * tNumBspElems );
+    
+    // estabilish SPGs on every B-spline element
+    for( luint iBspElem = 0; iBspElem < tNumBspElems; iBspElem++ )
     {
-        // get B-spline mesh index currently treated
-        moris_index tMeshIndex = tDiscretizationMeshIndices( iBspMesh );
+        // intialize and get list of subphase indices present on current B-spline element
+        Matrix< IndexMat > tSubphaseIndicesInBsplineCell;
+        this->get_subphase_indices_in_bspline_cell( aCutIntegrationMesh, aMeshIndex, iBspElem, tSubphaseIndicesInBsplineCell );
 
-        // log/trace the enrichment for specific B-spline mesh
-        Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Construct SPGs for mesh index " + std::to_string( tMeshIndex ) );
+        // fill searchable map with list of subphase indices obtained
+        IndexMap tSubphaseIndexToBsplineCell;
+        this->construct_subphase_in_bspline_cell_map( tSubphaseIndicesInBsplineCell, tSubphaseIndexToBsplineCell );
 
-        // get the pointer to the Bspline_Mesh_Info currently treated
-        Bspline_Mesh_Info * tBsplineMeshInfo = aCutIntegrationMesh->mBsplineMeshInfos( iBspMesh );
+        // cut down the subphase neighborhood to only the B-spline cells
+        moris::Matrix< moris::IndexMat > tPrunedSubphaseToSubphase;
+        this->generate_pruned_subphase_graph_in_bspline_cell( 
+                aCutIntegrationMesh,
+                tSubphaseIndicesInBsplineCell, 
+                tSubphaseIndexToBsplineCell, 
+                tPrunedSubphaseToSubphase );
 
-        // get the number of active B-spline elements
-        luint tNumBspElems = tBsplineMeshInfo->mExtractionCellsIndicesInBsplineCells.size();
+        // get the number of SPGs in extraction cell cluster by performing a flood fill
+        moris_index tMaxSpgInd = 0;
+        moris::Matrix< moris::IndexMat > tSubphaseBin;
+        this->find_subphase_bin_enrichment_levels_in_bspline_cell(
+                tSubphaseIndicesInBsplineCell,
+                tPrunedSubphaseToSubphase,
+                tSubphaseBin,
+                tMaxSpgInd );
 
-        // reserve memory for list of SPGs in Bspline mesh info using estimated size
-        tBsplineMeshInfo->mSubphaseGroups.reserve( 4 * tNumBspElems );
-        
-        // estabilish SPGs on every B-spline element
-        for( luint iBspElem = 0; iBspElem < tNumBspElems; iBspElem++ )
+        // increment to get actual number of Subphase groups (instead of just index)
+        uint tNumSPGs = (uint)tMaxSpgInd + 1;   
+
+        // split subphase bin up into SPGs
+        moris::Cell< moris::Cell< moris_index > > tSPGsInBin = this->split_flood_fill_bin( tSubphaseBin, tSubphaseIndicesInBsplineCell, tNumSPGs );
+
+        // debug
+        MORIS_ASSERT( tNumSPGs == tSPGsInBin.size(), "Integration_Mesh_Generator::create_subphase_groups() - Something doesn't line up..." );
+
+        // for each disconnected set of subphases ...
+        for ( moris::size_t iSPG = 0; iSPG < tNumSPGs; iSPG++ )
         {
-            // intialize and get list of subphase indices present on current B-spline element
-            Matrix< IndexMat > tSubphaseIndicesInBsplineCell;
-            this->get_subphase_indices_in_bspline_cell( aCutIntegrationMesh, tMeshIndex, iBspMesh, tSubphaseIndicesInBsplineCell );
+            // create SPGs and add to mesh
+            aBsplineMeshInfo->add_subphase_group_to_bspline_cell( tSPGsInBin( iSPG ), iBspElem );
 
-            // fill searchable map with list of subphase indices obtained
-            IndexMap tSubphaseIndexToBsplineCell;
-            this->construct_subphase_in_bspline_cell_map( tSubphaseIndicesInBsplineCell, tSubphaseIndexToBsplineCell );
+            // figure out the side ordinals of subphase connectivity to neighboring B-spline cells, and ...
+            moris::Cell< bool > tActiveLigamentSideOrdinals = 
+                this->collect_subphase_group_ligament_side_ordinals( aCutIntegrationMesh, tSPGsInBin( iSPG ), tSubphaseIndexToBsplineCell );
 
-            // cut down the subphase neighborhood to only the B-spline cells
-            moris::Matrix< moris::IndexMat > tPrunedSubphaseToSubphase;
-            this->generate_pruned_subphase_graph_in_bspline_cell( 
-                    aCutIntegrationMesh,
-                    tSubphaseIndicesInBsplineCell, 
-                    tSubphaseIndexToBsplineCell, 
-                    tPrunedSubphaseToSubphase );
-
-            // get the number of SPGs in extraction cell cluster by performing a flood fill
-            moris_index tMaxSpgInd = 0;
-            moris::Matrix< moris::IndexMat > tSubphaseBin;
-            this->find_subphase_bin_enrichment_levels_in_bspline_cell(
-                    tSubphaseIndicesInBsplineCell,
-                    tPrunedSubphaseToSubphase,
-                    tSubphaseBin,
-                    tMaxSpgInd );
-
-            // increment to get actual number of Subphase groups (instead of just index)
-            uint tNumSPGs = (uint)tMaxSpgInd + 1;   
-
-            // split subphase bin up into SPGs
-            moris::Cell< moris::Cell< moris_index > > tSPGsInBin = this->split_flood_fill_bin( tSubphaseBin, tSubphaseIndicesInBsplineCell, tNumSPGs );
-
-            // debug
-            MORIS_ASSERT( tNumSPGs == tSPGsInBin.size(), "Integration_Mesh_Generator::create_subphase_groups() - Something doesn't line up..." );
-
-            // for each disconnected set of subphases ...
-            for ( moris::size_t iSPG = 0; iSPG < tNumSPGs; iSPG++ )
-            {
-                // create SPGs and add to mesh
-                tBsplineMeshInfo->add_subphase_group_to_bspline_cell( tSPGsInBin( iSPG ), iBspElem );
-
-                // figure out the side ordinals of subphase connectivity to neighboring B-spline cells, and ...
-                moris::Cell< bool > tActiveLigamentSideOrdinals = 
-                    this->collect_subphase_group_ligament_side_ordinals( aCutIntegrationMesh, tSPGsInBin( iSPG ), tSubphaseIndexToBsplineCell );
-
-                // ... add them to the last admitted SPG
-                tBsplineMeshInfo->set_ligament_side_ordinals_of_last_admitted_subphase_group( tActiveLigamentSideOrdinals );
-            }  
-        }
+            // ... add them to the last admitted SPG
+            aBsplineMeshInfo->set_ligament_side_ordinals_of_last_admitted_subphase_group( tActiveLigamentSideOrdinals );
+        }  
     }
 }
 
@@ -3729,115 +3721,98 @@ Integration_Mesh_Generator::collect_subphase_group_ligament_side_ordinals(
 
 // ----------------------------------------------------------------------------------
 
-void
-Integration_Mesh_Generator::construct_subphase_group_neighborhood( Cut_Integration_Mesh* aCutIntegrationMesh )
+const std::shared_ptr< Subphase_Neighborhood_Connectivity > 
+Integration_Mesh_Generator::construct_subphase_group_neighborhood( 
+        Cut_Integration_Mesh* aCutIntegrationMesh,
+        Bspline_Mesh_Info *   aBsplineMeshInfo,
+        const moris_index     aMeshIndex )
 {
+    // log/trace the enrichment for specific B-spline mesh
+    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Construct SPG connectivity for mesh index " + std::to_string( aMeshIndex ) );
+
     // get the number of subphases on the mesh
     luint tNumSPs = aCutIntegrationMesh->get_num_subphases();
 
-    // get the discretization mesh indices
-    Matrix< IndexMat > tDiscretizationMeshIndices;
-    moris::string_to_mat( mXTKModel->mParameterList.get< std::string >( "enrich_mesh_indices" ), tDiscretizationMeshIndices );
+    // construct the SP to SPG map
+    aBsplineMeshInfo->create_SP_to_SPG_map( tNumSPs );
 
-    // get number of B-spline discretization meshes
-    uint tNumBspMeshes = tDiscretizationMeshIndices.numel();
+    // get the number of SPGs on current mesh index
+    luint tNumSPGs = aBsplineMeshInfo->get_num_SPGs();
 
-    // initialize the size of the SPG connectivities
-    aCutIntegrationMesh->mSubphaseGroupNeighborhood.resize( tNumBspMeshes );
+    // intialize SPG neighborhood
+    std::shared_ptr< Subphase_Neighborhood_Connectivity > tSpgNeighborhood = std::make_shared< Subphase_Neighborhood_Connectivity >();
 
-    // estabilish SPG neighborhood for every B-spline background mesh ...
-    for ( moris::size_t iBspMesh = 0; iBspMesh < tNumBspMeshes; iBspMesh++ )
+    // intialize size of SPG connectivity graph
+    tSpgNeighborhood->mSubphaseToSubPhase.resize( tNumSPGs );
+    tSpgNeighborhood->mSubphaseToSubPhaseMySideOrds.resize( tNumSPGs );
+    tSpgNeighborhood->mSubphaseToSubPhaseNeighborSideOrds.resize( tNumSPGs );
+    tSpgNeighborhood->mTransitionNeighborCellLocation.resize( tNumSPGs );
+
+    // get the subphase neighborhood connectivity
+    const std::shared_ptr< Subphase_Neighborhood_Connectivity > tSpNeighborhood = aCutIntegrationMesh->get_subphase_neighborhood();
+
+    // loop over subphase groups on current mesh index
+    for ( moris::size_t iSPG = 0; iSPG < tNumSPGs; iSPG++ )
     {
-        // get B-spline mesh index currently treated
-        moris_index tMeshIndex = tDiscretizationMeshIndices( iBspMesh );
+        // intialize sub-lists in SPG neighborhood ( for each SPG index there's a list )
+        tSpgNeighborhood->mSubphaseToSubPhase( iSPG )                 = std::make_shared< moris::Cell< moris_index > >();
+        tSpgNeighborhood->mSubphaseToSubPhaseMySideOrds( iSPG )       = std::make_shared< moris::Cell< moris_index > >();
+        tSpgNeighborhood->mSubphaseToSubPhaseNeighborSideOrds( iSPG ) = std::make_shared< moris::Cell< moris_index > >();
+        tSpgNeighborhood->mTransitionNeighborCellLocation( iSPG )     = std::make_shared< moris::Cell< moris_index > >();
 
-        // log/trace the enrichment for specific B-spline mesh
-        Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Construct SPG connectivity for mesh index " + std::to_string( tMeshIndex ) );
+        // reserve memory for sub-lists in SPG neighborhood according to estimate
+        tSpgNeighborhood->mSubphaseToSubPhase( iSPG )->reserve( 4 );
+        tSpgNeighborhood->mSubphaseToSubPhaseMySideOrds( iSPG )->reserve( 4 );
+        tSpgNeighborhood->mSubphaseToSubPhaseNeighborSideOrds( iSPG )->reserve( 4 );
+        tSpgNeighborhood->mTransitionNeighborCellLocation( iSPG )->reserve( 4 );
 
-        // get the pointer to the Bspline_Mesh_Info currently treated
-        Bspline_Mesh_Info* tBsplineMeshInfo = aCutIntegrationMesh->mBsplineMeshInfos( iBspMesh );
+        // get the SP indices on the current SPG
+        const moris::Cell< moris_index >& tSpIndicesInGroup = aBsplineMeshInfo->mSubphaseGroups( iSPG )->get_SP_indices_in_group();
 
-        // construct the SP to SPG map
-        tBsplineMeshInfo->create_SP_to_SPG_map( tNumSPs );
+        // get the SPG's index
+        const moris_index tSpgIndex = aBsplineMeshInfo->mSubphaseGroups( iSPG )->get_index();
 
-        // get the number of SPGs on current mesh index
-        luint tNumSPGs = tBsplineMeshInfo->get_num_SPGs();
-
-        // intialize SPG neighborhood
-        std::shared_ptr< Subphase_Neighborhood_Connectivity > tSpgNeighborhood = std::make_shared< Subphase_Neighborhood_Connectivity >();
-
-        // intialize size of SPG connectivity graph
-        tSpgNeighborhood->mSubphaseToSubPhase.resize( tNumSPGs );
-        tSpgNeighborhood->mSubphaseToSubPhaseMySideOrds.resize( tNumSPGs );
-        tSpgNeighborhood->mSubphaseToSubPhaseNeighborSideOrds.resize( tNumSPGs );
-        tSpgNeighborhood->mTransitionNeighborCellLocation.resize( tNumSPGs );
-
-        // get the subphase neighborhood connectivity
-        const std::shared_ptr< Subphase_Neighborhood_Connectivity > tSpNeighborhood = aCutIntegrationMesh->get_subphase_neighborhood();
-
-        // loop over subphase groups on current mesh index
-        for ( moris::size_t iSPG = 0; iSPG < tNumSPGs; iSPG++ )
+        // loop over the SPs in current SPG
+        for ( moris::size_t iSP = 0; iSP < tSpIndicesInGroup.size(); iSP++ )
         {
-            // intialize sub-lists in SPG neighborhood ( for each SPG index there's a list )
-            tSpgNeighborhood->mSubphaseToSubPhase( iSPG )                 = std::make_shared< moris::Cell< moris_index > >();
-            tSpgNeighborhood->mSubphaseToSubPhaseMySideOrds( iSPG )       = std::make_shared< moris::Cell< moris_index > >();
-            tSpgNeighborhood->mSubphaseToSubPhaseNeighborSideOrds( iSPG ) = std::make_shared< moris::Cell< moris_index > >();
-            tSpgNeighborhood->mTransitionNeighborCellLocation( iSPG )     = std::make_shared< moris::Cell< moris_index > >();
+            // get the neighbors of the current subphase
+            const std::shared_ptr< moris::Cell< moris_index > > tSpNeighborSPs = tSpNeighborhood->mSubphaseToSubPhase( iSP );
 
-            // reserve memory for sub-lists in SPG neighborhood according to estimate
-            tSpgNeighborhood->mSubphaseToSubPhase( iSPG )->reserve( 4 );
-            tSpgNeighborhood->mSubphaseToSubPhaseMySideOrds( iSPG )->reserve( 4 );
-            tSpgNeighborhood->mSubphaseToSubPhaseNeighborSideOrds( iSPG )->reserve( 4 );
-            tSpgNeighborhood->mTransitionNeighborCellLocation( iSPG )->reserve( 4 );
+            // get current SP's index
+            const uint tCurrentSpIndex = (uint)tSpIndicesInGroup( iSP );
 
-            // get the SP indices on the current SPG
-            const moris::Cell< moris_index >& tSpIndicesInGroup = tBsplineMeshInfo->mSubphaseGroups( iSPG )->get_SP_indices_in_group();
-
-            // get the SPG's index
-            const moris_index tSpgIndex = tBsplineMeshInfo->mSubphaseGroups( iSPG )->get_index();
-
-            // loop over the SPs in current SPG
-            for ( moris::size_t iSP = 0; iSP < tSpIndicesInGroup.size(); iSP++ )
+            // loop over the neighbors and check if they're in separate SPGs
+            for ( moris::size_t iSpNeighbor = 0; iSpNeighbor < tSpNeighborSPs->size(); iSpNeighbor++ )
             {
-                // get the neighbors of the current subphase
-                const std::shared_ptr< moris::Cell< moris_index > > tSpNeighborSPs = tSpNeighborhood->mSubphaseToSubPhase( iSP );
+                // get Neighbor SP's index
+                const moris_index tNeighborSpIndex = (*tSpNeighborSPs)( iSpNeighbor );
 
-                // get current SP's index
-                const uint tCurrentSpIndex = (uint)tSpIndicesInGroup( iSP );
+                // get current neighbor SP's SPG index
+                const moris_index tNeighborSpSpgIndex = aBsplineMeshInfo->mSpToSpgMap( tNeighborSpIndex );
 
-                // loop over the neighbors and check if they're in separate SPGs
-                for ( moris::size_t iSpNeighbor = 0; iSpNeighbor < tSpNeighborSPs->size(); iSpNeighbor++ )
+                // check whether the two SPs are in the same SPG; if not, estabilish connection in SPG connectivity
+                if ( tNeighborSpSpgIndex != tSpgIndex )
                 {
-                    // get Neighbor SP's index
-                    const moris_index tNeighborSpIndex = (*tSpNeighborSPs)( iSpNeighbor );
+                    // save neighbor SPG index in SPG neighborhood connectivity
+                    tSpgNeighborhood->mSubphaseToSubPhase( iSPG )->push_back( tNeighborSpSpgIndex );
 
-                    // get current neighbor SP's SPG index
-                    const moris_index tNeighborSpSpgIndex = tBsplineMeshInfo->mSpToSpgMap( tNeighborSpIndex );
+                    // get connectivity information for SPGs from SP neighborhood connectivity
+                    const moris_index tMySideOrdinal              = (*tSpNeighborhood->mSubphaseToSubPhaseMySideOrds( tCurrentSpIndex ))( iSpNeighbor );
+                    const moris_index tOtherSideOrdinal           = (*tSpNeighborhood->mSubphaseToSubPhaseNeighborSideOrds( tCurrentSpIndex ))( iSpNeighbor );
+                    const moris_index tTransitionNeighborLocation = (*tSpNeighborhood->mTransitionNeighborCellLocation( tCurrentSpIndex ))( iSpNeighbor );
 
-                    // check whether the two SPs are in the same SPG; if not, estabilish connection in SPG connectivity
-                    if ( tNeighborSpSpgIndex != tSpgIndex )
-                    {
-                        // save neighbor SPG index in SPG neighborhood connectivity
-                        tSpgNeighborhood->mSubphaseToSubPhase( iSPG )->push_back( tNeighborSpSpgIndex );
+                    // put connectivity information into SPG neighborhood connectivity
+                    tSpgNeighborhood->mSubphaseToSubPhaseMySideOrds( iSPG )->push_back( tMySideOrdinal );
+                    tSpgNeighborhood->mSubphaseToSubPhaseNeighborSideOrds( iSPG )->push_back( tOtherSideOrdinal );
+                    tSpgNeighborhood->mTransitionNeighborCellLocation( iSPG )->push_back( tTransitionNeighborLocation );
+                }
+            } // end: loop over neighbor SPs
+        } // end: loop over SPs in SPG
+    } // end: loop over SPGs
 
-                        // get connectivity information for SPGs from SP neighborhood connectivity
-                        const moris_index tMySideOrdinal              = (*tSpNeighborhood->mSubphaseToSubPhaseMySideOrds( tCurrentSpIndex ))( iSpNeighbor );
-                        const moris_index tOtherSideOrdinal           = (*tSpNeighborhood->mSubphaseToSubPhaseNeighborSideOrds( tCurrentSpIndex ))( iSpNeighbor );
-                        const moris_index tTransitionNeighborLocation = (*tSpNeighborhood->mTransitionNeighborCellLocation( tCurrentSpIndex ))( iSpNeighbor );
-
-                        // put connectivity information into SPG neighborhood connectivity
-                        tSpgNeighborhood->mSubphaseToSubPhaseMySideOrds( iSPG )->push_back( tMySideOrdinal );
-                        tSpgNeighborhood->mSubphaseToSubPhaseNeighborSideOrds( iSPG )->push_back( tOtherSideOrdinal );
-                        tSpgNeighborhood->mTransitionNeighborCellLocation( iSPG )->push_back( tTransitionNeighborLocation );
-                    }
-                } // end: loop over neighbor SPs
-            } // end: loop over SPs in SPG
-        } // end: loop over SPGs
-
-        // hand SPG neighborhood connectivity over to cut integration mesh
-        aCutIntegrationMesh->mSubphaseGroupNeighborhood( iBspMesh ) = tSpNeighborhood;
-
-    } // end: loop over discretization mesh indices
+    // hand SPG neighborhood connectivity over to cut integration mesh
+    // aCutIntegrationMesh->mSubphaseGroupNeighborhood( iBspMesh ) = tSpNeighborhood;
+    return tSpNeighborhood;
 }
 
 // ----------------------------------------------------------------------------------
