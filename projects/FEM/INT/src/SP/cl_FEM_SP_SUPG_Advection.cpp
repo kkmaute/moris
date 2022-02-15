@@ -114,6 +114,37 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        void SP_SUPG_Advection::build_global_dof_type_list()
+        {
+            // call parent implementation
+            Stabilization_Parameter::build_global_dof_type_list();
+
+            // get number of dof types
+            uint tNumMasterGlobalDofTypes = mMasterGlobalDofTypes.size();
+
+            // init child specific eval flags
+            mdLengthScaledMasterDofEval.set_size( tNumMasterGlobalDofTypes, 1, true );
+
+            // init child specific storage
+            mdLengthScaledMasterDof.resize( tNumMasterGlobalDofTypes );
+        }
+
+        //------------------------------------------------------------------------------
+        /**
+         * reset evaluation flags
+         */
+        void SP_SUPG_Advection::reset_eval_flags()
+        {
+            // call parent implementation
+            Stabilization_Parameter::reset_eval_flags();
+
+            // reset child specific eval flags for chi
+            mLengthScaleEval = true;
+            mdLengthScaledMasterDofEval.fill( true );
+        }
+
+        //------------------------------------------------------------------------------
+
         real SP_SUPG_Advection::compute_effective_conductivity()
         {
             // get the conductivity property
@@ -368,22 +399,8 @@ namespace moris
             // compute and threshold the velocity norm (thresholding for consistency with derivatives)
             const real tNorm = std::max( norm( tVelocityFI->val() ), mEpsilon);
 
-            // get the abs term
-            const uint tNumNodes = tVelocityFI->dnNdxn( 1 ).n_cols();
-            real tAbs = 0.0;
-
-            for ( uint iNode = 0; iNode < tNumNodes; iNode++ )
-            {
-                Matrix< DDRMat > tAdd =
-                        trans( tVelocityFI->val() ) * tVelocityFI->dnNdxn( 1 ).get_column( iNode );
-                tAbs += std::abs( tAdd( 0, 0 ) );
-            }
-
-            // threshold tAbs
-            tAbs = std::max(tAbs, mEpsilon);
-
             // compute and threshold hugn
-            const real tHugn = std::max( 2.0 * tNorm / tAbs, mEpsilon);
+            const real tHugn = this->length_scale();
 
             // compute tau1
             const real tTau1 = 2.0 * tNorm / tHugn;
@@ -452,100 +469,14 @@ namespace moris
             // compute and threshold the velocity norm (thresholding for consistency with derivatives)
             const real tNorm = std::max( norm( tVelocityFI->val() ), mEpsilon);
 
-            // compute the abs term
-            const uint tNumNodes = tVelocityFI->dnNdxn( 1 ).n_cols();
-            real tAbs = 0.0;
-
-            for ( uint iNode = 0; iNode < tNumNodes; iNode++ )
-            {
-                Matrix< DDRMat > tAdd = trans( tVelocityFI->val() ) * tVelocityFI->dnNdxn( 1 ).get_column( iNode );
-                tAbs += std::abs( tAdd( 0, 0 ) );
-            }
-
-            // threshold tAbs
-            tAbs = std::max(tAbs, mEpsilon);
-
             // compute and threshold hugn
-            const real tHugn = std::max( 2.0 * tNorm / tAbs, mEpsilon);
+            const real tHugn = this->length_scale();
 
             // compute tau1
             const real tTau1 = 2.0 * tNorm / tHugn;
 
             // compute tau2
             const real tTau2 = 4.0 * tEffectiveConductivity / std::pow( tHugn, 2.0 );
-
-//            // if dof type is velocity
-//            if( aDofTypes( 0 ) == mMasterDofVelocity )
-//            {
-//                // compute derivative of hugn wrt velocity dof
-//                Matrix< DDRMat > tdHugndu( 1, tVelocityFI->get_number_of_space_time_coefficients() );
-//                Matrix< DDRMat > tdNormdu( 1, tVelocityFI->get_number_of_space_time_coefficients() );
-//                Matrix< DDRMat > tdAbsdu(  1, tVelocityFI->get_number_of_space_time_coefficients(), 0.0 );
-//
-//                // compute derivative of the velocity norm (compute only derivative if not thresholded)
-//                if ( tNorm > mEpsilon )
-//                {
-//                    tdNormdu = trans( tVelocityFI->val() ) * tVelocityFI->N() / tNorm;
-//                }
-//                else
-//                {
-//                    tdNormdu.fill( 0.0 );
-//                }
-//
-//                // compute derivative of the abs term (compute only derivative if not thresholded)
-//                if ( tAbs > mEpsilon )
-//                {
-//                    uint tNumNodes = tVelocityFI->dnNdxn( 1 ).n_cols();
-//
-//                    for ( uint iNode = 0; iNode < tNumNodes; iNode++ )
-//                    {
-//                        const Matrix< DDRMat > tAdd =
-//                                trans( tVelocityFI->val() ) * tVelocityFI->dnNdxn( 1 ).get_column( iNode );
-//
-//                        // handle case that tAdd( 0, 0 ) is smaller than threshold
-//                        if ( std::abs( tAdd( 0, 0 ) ) > mEpsilon )
-//                        {
-//                            tdAbsdu +=
-//                                    tAdd * trans( tVelocityFI->dnNdxn( 1 ).get_column( iNode ) ) *
-//                                    tVelocityFI->N() / std::abs( tAdd( 0, 0 ) );
-//                        }
-//                    }
-//                }
-//
-//                // compute derivative of hugn (compute only derivative if not thresholded)
-//                if ( tHugn > mEpsilon )
-//                {
-//                    tdHugndu = 2.0 * ( tdNormdu * tAbs - tdAbsdu * tNorm ) / std::pow( tAbs, 2.0 );
-//                }
-//                else
-//                {
-//                    tdHugndu.fill( 0.0 );
-//                }
-//
-//                // compute dtau1du
-//                tdTau1dDof = 2.0 * ( tHugn * tdNormdu - tdHugndu * tNorm ) / std::pow( tHugn, 2.0 );
-//
-//                // compute dtau2du
-//                tdTau2dDof = - 8.0 * tEffectiveConductivity * tdHugndu / std::pow( tHugn, 3.0 );
-//            }
-//            else
-//            {
-//                tdTau1dDof.fill( 0.0 );
-//                tdTau2dDof.fill( 0.0 );
-//            }
-//
-//            // consider derivative of effective conductivity on dof types
-//            Matrix< DDRMat > tEffectiveConductivitydu( 1, tFIDer->get_number_of_space_time_coefficients() );
-//
-//            bool tIsDependent = this->compute_derivative_of_effective_conductivity(
-//                    tEffectiveConductivitydu,
-//                    aDofTypes );
-//
-//            // compute dtau2du
-//            if ( tIsDependent )
-//            {
-//                tdTau2dDof += 4.0 * tEffectiveConductivitydu / std::pow( tHugn, 2.0 );
-//            }
 
             // compute sum of square terms
             real tSum = std::pow( tTau1, 2.0 ) + std::pow( tTau2, 2.0 );
@@ -576,7 +507,6 @@ namespace moris
                 if( aDofTypes( 0 ) == mMasterDofVelocity )
                 {
                     // compute derivative of hugn wrt velocity dof
-                    Matrix< DDRMat > tdHugndu( 1, tVelocityFI->get_number_of_space_time_coefficients() );
                     Matrix< DDRMat > tdNormdu( 1, tVelocityFI->get_number_of_space_time_coefficients() );
                     Matrix< DDRMat > tdAbsdu(  1, tVelocityFI->get_number_of_space_time_coefficients(), 0.0 );
 
@@ -590,41 +520,11 @@ namespace moris
                         tdNormdu.fill( 0.0 );
                     }
 
-                    // compute derivative of the abs term (compute only derivative if not thresholded)
-                    if ( tAbs > mEpsilon )
-                    {
-                        uint tNumNodes = tVelocityFI->dnNdxn( 1 ).n_cols();
-
-                        for ( uint iNode = 0; iNode < tNumNodes; iNode++ )
-                        {
-                            const Matrix< DDRMat > tAdd =
-                                    trans( tVelocityFI->val() ) * tVelocityFI->dnNdxn( 1 ).get_column( iNode );
-
-                            // handle case that tAdd( 0, 0 ) is smaller than threshold
-                            if ( std::abs( tAdd( 0, 0 ) ) > mEpsilon )
-                            {
-                                tdAbsdu +=
-                                        tAdd * trans( tVelocityFI->dnNdxn( 1 ).get_column( iNode ) ) *
-                                        tVelocityFI->N() / std::abs( tAdd( 0, 0 ) );
-                            }
-                        }
-                    }
-
-                    // compute derivative of hugn (compute only derivative if not thresholded)
-                    if ( tHugn > mEpsilon )
-                    {
-                        tdHugndu = 2.0 * ( tdNormdu * tAbs - tdAbsdu * tNorm ) / std::pow( tAbs, 2.0 );
-                    }
-                    else
-                    {
-                        tdHugndu.fill( 0.0 );
-                    }
-
                     // compute dtau1du
-                    tdTau1dDof = 2.0 * ( tHugn * tdNormdu - tdHugndu * tNorm ) / std::pow( tHugn, 2.0 );
+                    tdTau1dDof = 2.0 * ( tHugn * tdNormdu - this->dlengthscaledmasteru( aDofTypes ) * tNorm ) / std::pow( tHugn, 2.0 );
 
                     // compute dtau2du
-                    tdTau2dDof = - 8.0 * tEffectiveConductivity * tdHugndu / std::pow( tHugn, 3.0 );
+                    tdTau2dDof = - 8.0 * tEffectiveConductivity * this->dlengthscaledmasteru( aDofTypes ) / std::pow( tHugn, 3.0 );
                 }
                 else
                 {
@@ -667,6 +567,153 @@ namespace moris
             MORIS_ASSERT( isfinite( mdPPdMasterDof( tDofIndex ) ),
                     "SP_SUPG_Advection::eval_dSPdMasterDOF - mdPPdMasterDof contains NAN or INF, exiting for tDofIndex = %d !\n",
                     tDofIndex);
+        }
+
+        //------------------------------------------------------------------------------
+
+        real SP_SUPG_Advection::length_scale()
+        {
+            // if the length scale parameter was not evaluated
+            if( mLengthScaleEval )
+            {
+                // evaluate the length scale parameter
+                this->eval_length_scale();
+
+                // set bool for evaluation
+                mLengthScaleEval = false;
+            }
+            // return the length scale parameter value
+            return mLengthScale;
+        }
+
+        void SP_SUPG_Advection::eval_length_scale()
+        {
+            // get the velocity FI
+            Field_Interpolator * tVelocityFI =
+                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
+
+            // compute and threshold the velocity norm (thresholding for consistency with derivatives)
+            const real tNorm = std::max( norm( tVelocityFI->val() ), mEpsilon );
+
+            // get the abs term
+            const uint tNumNodes = tVelocityFI->dnNdxn( 1 ).n_cols();
+            real tAbs = 0.0;
+            for ( uint iNode = 0; iNode < tNumNodes; iNode++ )
+            {
+                tAbs += std::abs( dot( tVelocityFI->val(), tVelocityFI->dnNdxn( 1 ).get_column( iNode ) ) );
+            }
+
+            // threshold tAbs
+            tAbs = std::max( tAbs, mEpsilon );
+
+            // compute and threshold hugn
+            mLengthScale =  std::max( 2.0 * tNorm / tAbs, mEpsilon );
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > & SP_SUPG_Advection::dlengthscaledmasteru(
+                const moris::Cell< MSI::Dof_Type > & aDofType )
+        {
+            // if aDofType is not an active dof type for the property
+            MORIS_ERROR(
+                    this->check_dof_dependency( aDofType, mtk::Master_Slave::MASTER ),
+                    "SP_SUPG_Advection::dlengthscaledmasteru - no dependency on this dof type." );
+
+            // get the dof index
+            uint tDofIndex = mMasterGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
+
+            // if the derivative has not been evaluated yet
+            if( mdLengthScaledMasterDofEval( tDofIndex ) )
+            {
+                // evaluate the derivative
+                this->eval_dlengthscaledmasteru( aDofType );
+
+                // set bool for evaluation
+                mdLengthScaledMasterDofEval( tDofIndex ) = false;
+            }
+
+            // return the derivative
+            return mdLengthScaledMasterDof( tDofIndex );
+        }
+
+        void SP_SUPG_Advection::eval_dlengthscaledmasteru(
+                const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        {
+            // get the dof type index
+            uint tDofIndex = mMasterGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // get the dof type FI
+            Field_Interpolator * tFIDer =
+                    mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+            // set matrix size
+            mdLengthScaledMasterDof( tDofIndex ).set_size( 1, tFIDer->get_number_of_space_time_coefficients() );
+
+            // get the length scale value
+            real tHugn = this->length_scale();
+
+            // compute derivative of hugn (compute only derivative if not thresholded)
+            if ( tHugn > mEpsilon )
+            {
+                // get the velocity FI
+                Field_Interpolator * tVelocityFI =
+                        mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
+
+                // compute and threshold the velocity norm (thresholding for consistency with derivatives)
+                const real tNorm = std::max( norm( tVelocityFI->val() ), mEpsilon );
+
+                // compute derivative of the modified velocity norm (compute only derivative if not thresholded)
+                Matrix< DDRMat > tdNormdu( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
+                if ( tNorm > mEpsilon )
+                {
+                    if( aDofTypes( 0 ) == mMasterDofVelocity )
+                    {
+                        tdNormdu += trans( tVelocityFI->val() ) * tVelocityFI->N() / tNorm;
+                    }
+                }
+
+                // get the abs term
+                const uint tNumNodes = tVelocityFI->dnNdxn( 1 ).n_cols();
+                real tAbs = 0.0;
+                for ( uint iNode = 0; iNode < tNumNodes; iNode++ )
+                {
+                    tAbs += std::abs( dot( tVelocityFI->val(),tVelocityFI->dnNdxn( 1 ).get_column( iNode ) ) );
+                }
+
+                // threshold tAbs
+                tAbs = std::max( tAbs, mEpsilon );
+
+                // compute derivative of the abs term (compute only derivative if not thresholded)
+                Matrix< DDRMat > tdAbsdu( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
+                if ( tAbs > mEpsilon )
+                {
+                    if( aDofTypes( 0 ) == mMasterDofVelocity )
+                    {
+                        uint tNumNodes = tVelocityFI->dnNdxn( 1 ).n_cols();
+                        for ( uint iNode = 0; iNode < tNumNodes; iNode++ )
+                        {
+                            real tAdd = dot( tVelocityFI->val(), tVelocityFI->dnNdxn( 1 ).get_column( iNode ) );
+
+                            // handle case that tAdd( 0, 0 ) is smaller than threshold
+                            if ( std::abs( tAdd ) > mEpsilon )
+                            {
+                                tdAbsdu +=
+                                        tAdd * trans( tVelocityFI->dnNdxn( 1 ).get_column( iNode ) ) *
+                                        tVelocityFI->N() / std::abs( tAdd );
+                            }
+                        }
+                    }
+                }
+
+                // compute the derivative of the length scale
+                mdLengthScaledMasterDof( tDofIndex ) =
+                        2.0 * ( tdNormdu * tAbs - tdAbsdu * tNorm ) / std::pow( tAbs, 2.0 );
+            }
+            else
+            {
+                mdLengthScaledMasterDof( tDofIndex ).fill( 0.0 );
+            }
         }
 
         //------------------------------------------------------------------------------

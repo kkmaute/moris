@@ -55,7 +55,15 @@ namespace moris
                 };
 
                 // internal threshold
-                const real mEpsilon = 1e-18;
+                const real mEpsilon = MORIS_REAL_EPS;
+
+                // flag for evaluation
+                bool mLengthScaleEval = true;
+                moris::Matrix< DDBMat > mdLengthScaledMasterDofEval;
+
+                // storage
+                real mLengthScale;
+                moris::Cell< Matrix< DDRMat > > mdLengthScaledMasterDof;
 
                 /*
                  * Rem: mParameters
@@ -110,6 +118,13 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * reset evaluation flags
+                 * child implementation
+                 */
+                void reset_eval_flags();
+
+                //------------------------------------------------------------------------------
+                /**
                  * set dof types
                  * @param[ in ] aDofTypes a cell of cell of dof types
                  * @param[ in ] aDofStrings list of strings describing the dof types
@@ -119,6 +134,13 @@ namespace moris
                         moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
                         moris::Cell< std::string >                  & aDofStrings,
                         mtk::Master_Slave                             aIsMaster = mtk::Master_Slave::MASTER );
+
+                //------------------------------------------------------------------------------
+                /**
+                 * create a global dof type list including constitutive and property dependencies
+                 * child implementation
+                 */
+                void build_global_dof_type_list();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -157,6 +179,32 @@ namespace moris
                 {
                     MORIS_ERROR( false, "SP_SUPG_Advection::eval_dSPdMasterDV - not implemented." );
                 }
+
+            private:
+                //------------------------------------------------------------------------------
+                /**
+                 * return the length scale
+                 * @param[ out ] mLengthScale length scale for SUPG
+                 */
+                real length_scale();
+
+                /**
+                 * evaluate the length scale parameter
+                 */
+                void eval_length_scale();
+
+                //------------------------------------------------------------------------------
+                /**
+                 * return the length scale derivative wrt to a master dof type
+                 * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
+                 */
+                const Matrix< DDRMat > & dlengthscaledmasteru( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+
+                /**
+                 * evaluate the length scale derivative wrt to a master dof type
+                 * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
+                 */
+                void eval_dlengthscaledmasteru( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
                 //------------------------------------------------------------------------------
         };
