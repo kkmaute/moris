@@ -74,6 +74,14 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        void
+        Cell::set_owner( const moris_id aOwner )
+        {
+            mCellOwner = aOwner;
+        }
+
+        //------------------------------------------------------------------------------
+
         moris_index
         Cell::get_index() const 
         {
@@ -101,7 +109,7 @@ namespace moris
         uint
         Cell::get_number_of_vertices() const
         {
-            return this->get_vertex_pointers().size();
+            return this->get_cell_info()->get_num_verts();
         }
         //------------------------------------------------------------------------------
 
