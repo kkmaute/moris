@@ -22,144 +22,148 @@ namespace moris
     {
         class Dist_Map;
         class Dist_Vector;
-    }
-class Solver_Interface;
-namespace tsa
-{
-    class Time_Solver_Algorithm;
-}
-namespace dla
-{
-    class Linear_Solver_Algorithm;
-    class Linear_Solver;
-}
-namespace NLA
-{
-    class Nonlinear_Solver;
-    class Nonlinear_Problem;
-    class Nonlinear_Algorithm
+    }    // namespace sol
+    class Solver_Interface;
+    namespace tsa
     {
-    private:
+        class Time_Solver_Algorithm;
+    }
+    namespace dla
+    {
+        class Linear_Solver_Algorithm;
+        class Linear_Solver;
+    }    // namespace dla
 
-    protected:
-        //! Pointer to my nonlinear solver manager
-        Nonlinear_Solver * mMyNonLinSolverManager = nullptr;
-
-        //! Pointer to the linear solver manager
-        dla::Linear_Solver * mLinSolverManager = nullptr;
-
-        //! Pointer to the linear solver manager for adjoint solve. Can be the same than mLinSolverManager
-        dla::Linear_Solver * mLinSolverManagerForAdjoint = nullptr;
-
-        //! pointer to the nonliner problem
-        Nonlinear_Problem * mNonlinearProblem = nullptr;
-
-        //! Parameterlist for this nonlinear solver
-        moris::ParameterList mParameterListNonlinearSolver;
-
-        bool mLinSolverOwned = false;
-
-        friend class Convergence;
-
-        //--------------------------------------------------------------------------------------------------
-
-        /**
-         * @brief Set the parameters in the nonlinear solver parameter list
-         */
-        void set_nonlinear_solver_parameters();
-
-        //--------------------------------------------------------------------------------------------------
-
-        /**
-         * @brief Member function which keeps track of used time for a particular purpose.
-         */
-        moris::real calculate_time_needed( const clock_t aTime );
-
-    public:
-        //--------------------------------------------------------------------------------------------------
-
-        /**
-         * @brief Constructor
-         */
-        Nonlinear_Algorithm()
+    namespace NLA
+    {
+        class Nonlinear_Solver;
+        class Nonlinear_Problem;
+        class Nonlinear_Algorithm
         {
-            // Set default parameters in parameter list for nonlinear solver
-            this->set_nonlinear_solver_parameters();
+          private:
+
+          protected:
+            //! Pointer to my nonlinear solver manager
+            Nonlinear_Solver* mMyNonLinSolverManager = nullptr;
+
+            //! Pointer to the linear solver manager
+            dla::Linear_Solver* mLinSolverManager = nullptr;
+
+            //! Pointer to the linear solver manager for adjoint solve. Can be the same than mLinSolverManager
+            dla::Linear_Solver* mLinSolverManagerForAdjoint = nullptr;
+
+            //! pointer to the nonliner problem
+            Nonlinear_Problem* mNonlinearProblem = nullptr;
+
+            //! Parameterlist for this nonlinear solver
+            moris::ParameterList mParameterListNonlinearSolver;
+
+            bool mLinSolverOwned = false;
+
+            friend class Convergence;
+
+            //--------------------------------------------------------------------------------------------------
+
+            /**
+             * @brief Set the parameters in the nonlinear solver parameter list
+             */
+            void set_nonlinear_solver_parameters();
+
+            //--------------------------------------------------------------------------------------------------
+
+            /**
+             * @brief Member function which keeps track of used time for a particular purpose.
+             */
+            moris::real calculate_time_needed( const clock_t aTime );
+
+          public:
+            //--------------------------------------------------------------------------------------------------
+
+            /**
+             * @brief Constructor
+             */
+            Nonlinear_Algorithm()
+            {
+                // Set default parameters in parameter list for nonlinear solver
+                this->set_nonlinear_solver_parameters();
+            };
+
+            //--------------------------------------------------------------------------------------------------
+
+            Nonlinear_Algorithm( const ParameterList aParameterlist )
+                    : mParameterListNonlinearSolver( aParameterlist ){};
+
+            //--------------------------------------------------------------------------------------------------
+
+            virtual ~Nonlinear_Algorithm(){};
+
+            //--------------------------------------------------------------------------------------------------
+
+            /**
+             * @brief Set the linear solver
+             *
+             * @param[in] aLinSolverManager Linear solver manager
+             */
+            void set_linear_solver( dla::Linear_Solver* aLinSolver );
+
+            //--------------------------------------------------------------------------------------------------
+
+            /**
+             * @brief Set the linear solver for adjoint solve
+             *
+             * @param[in] aLinSolverManager Linear solver manager
+             */
+            void set_linear_solver_for_adjoint_solve( dla::Linear_Solver* aLinSolver );
+
+            //--------------------------------------------------------------------------------------------------
+
+            /**
+             * @brief Call to solve the nonlinear system
+             *
+             * @param[in] aNonlinearProblem Nonlinear problem
+             */
+            virtual void solver_nonlinear_system( Nonlinear_Problem* aNonlinearProblem ) = 0;
+
+            //--------------------------------------------------------------------------------------------------
+
+            virtual void get_full_solution( moris::Matrix< DDRMat >& LHSValues ) = 0;
+
+            //--------------------------------------------------------------------------------------------------
+
+            virtual void extract_my_values(
+                    const moris::uint&                      aNumIndices,
+                    const moris::Matrix< DDSMat >&          aGlobalBlockRows,
+                    const moris::uint&                      aBlockRowOffsets,
+                    moris::Cell< moris::Matrix< DDRMat > >& LHSValues ) = 0;
+
+            //--------------------------------------------------------------------------------------------------
+
+            void set_nonlinear_solver_manager( Nonlinear_Solver* aNonlinSolverManager );
+
+            //--------------------------------------------------------------------------------------------------
+
+            ParameterListTypes&
+            set_param( char const * aKey )
+            {
+                return mParameterListNonlinearSolver( aKey );
+            }
+
+            //--------------------------------------------------------------------------------------------------
+
+            Nonlinear_Solver* get_my_nonlin_solver();
+
+            virtual void
+            set_my_time_solver_algorithm( std::shared_ptr< tsa::Time_Solver_Algorithm > aMyTimeSolverAlgorithm )
+            {
+                MORIS_ASSERT( false, "set_my_time_solver_algorithm(): function not implemented" );
+            }
+
+            virtual void
+            initialize_variables( Nonlinear_Problem* aNonlinearProblem )
+            {
+                MORIS_ASSERT( false, "initialize_variables(): this function is to be used for the arc length algorithm" );
+            }
         };
-
-//--------------------------------------------------------------------------------------------------
-
-        Nonlinear_Algorithm( const ParameterList aParameterlist ) : mParameterListNonlinearSolver( aParameterlist )
-        {    };
-
-        //--------------------------------------------------------------------------------------------------
-
-        virtual ~Nonlinear_Algorithm(){};
-
-        //--------------------------------------------------------------------------------------------------
-
-        /**
-         * @brief Set the linear solver
-         *
-         * @param[in] aLinSolverManager Linear solver manager
-         */
-        void set_linear_solver( dla::Linear_Solver * aLinSolver );
-
-        //--------------------------------------------------------------------------------------------------
-
-        /**
-         * @brief Set the linear solver for adjoint solve
-         *
-         * @param[in] aLinSolverManager Linear solver manager
-         */
-        void set_linear_solver_for_adjoint_solve( dla::Linear_Solver * aLinSolver );
-
-        //--------------------------------------------------------------------------------------------------
-
-        /**
-         * @brief Call to solve the nonlinear system
-         *
-         * @param[in] aNonlinearProblem Nonlinear problem
-         */
-        virtual void solver_nonlinear_system( Nonlinear_Problem * aNonlinearProblem ) = 0;
-
-        //--------------------------------------------------------------------------------------------------
-
-        virtual void get_full_solution( moris::Matrix< DDRMat > & LHSValues ) = 0;
-
-        //--------------------------------------------------------------------------------------------------
-
-        virtual void extract_my_values( const moris::uint                            & aNumIndices,
-                                        const moris::Matrix< DDSMat >                & aGlobalBlockRows,
-                                        const moris::uint                            & aBlockRowOffsets,
-                                              moris::Cell< moris::Matrix< DDRMat > > & LHSValues ) = 0;
-
-        //--------------------------------------------------------------------------------------------------
-
-        void set_nonlinear_solver_manager( Nonlinear_Solver* aNonlinSolverManager );
-
-        //--------------------------------------------------------------------------------------------------
-
-        ParameterListTypes & set_param( char const* aKey )
-        {
-            return mParameterListNonlinearSolver( aKey );
-        }
-
-        //--------------------------------------------------------------------------------------------------
-
-        Nonlinear_Solver* get_my_nonlin_solver();
-
-        virtual void set_my_time_solver_algorithm( std::shared_ptr< tsa::Time_Solver_Algorithm > aMyTimeSolverAlgorithm )
-        {
-            MORIS_ASSERT(false, "set_my_time_solver_algorithm(): function not implemented");
-        }
-
-        virtual void initialize_variables( Nonlinear_Problem *  aNonlinearProblem )
-        {
-            MORIS_ASSERT( false, "initialize_variables(): this function is to be used for the arc length algorithm" );
-        }
-
-    };
-}
-}
+    }    // namespace NLA
+}    // namespace moris
 #endif /* MORIS_DISTLINALG_CL_NLA_NONLINEAR_ALGORITHM_HPP_ */
