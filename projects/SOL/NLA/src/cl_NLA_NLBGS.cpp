@@ -131,7 +131,7 @@ NonLinBlockGaussSeidel::solver_nonlinear_system( Nonlinear_Problem* aNonlinearPr
                 tMaxNewTime,
                 tHartBreak );
 
-        if ( tIsConverged )
+        if ( tIsConverged and tLoadFactor >= 1.0 )
         {
             if ( tHartBreak )
             {
@@ -192,7 +192,4 @@ NonLinBlockGaussSeidel::compute_norms( const moris::sint aIter )
     }
 
     mMyNonLinSolverManager->get_residual_norm() = std::sqrt( tSqrtResNorm );
-
-    // log the residual norm
-    MORIS_LOG_SPEC( "ResidualNorm", mMyNonLinSolverManager->get_residual_norm() );
 }

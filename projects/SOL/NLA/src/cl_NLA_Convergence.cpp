@@ -120,7 +120,6 @@ namespace moris
 
             // log residual and solution norms
             MORIS_LOG_SPEC( "ResidualNorm", aResNorm );
-            MORIS_LOG_SPEC( "IterationTime", aSolvTime );
 
             // log relative drop of residual
             if ( aIt > 1 )
