@@ -83,6 +83,7 @@ set(TSA "TSA")
 set(VIS "VIS")
 set(WRK "WRK")
 set(XTK "XTK")
+set(MIG "MIG")
 
 # Common paths
 set(MORIS_DIR ${CMAKE_CURRENT_SOURCE_DIR})
@@ -287,6 +288,8 @@ option(BUILD_VIS "Build the visualization executable." OFF)
 option(BUILD_WRK "Build the workflow executable." OFF)
 
 option(BUILD_XTK "Build the XTK executable." OFF)
+
+option(BUILD_MIG "Build the MIG executable." ON)
 
 # -------------------------------------------------------------------------
 # Macros
@@ -535,18 +538,23 @@ if (HAVE_PEDANTIC)
     set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wno-error=maybe-uninitialized -Wno-unknown-pragmas" )
 endif()
 
-# Check for C++11 or C++0x support.
-check_cxx_compiler_flag(-std=c++14 HAVE_STD_CPP14)
-if (HAVE_STD_CPP14)
-    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -std=c++14")
+# Check for C++17 and lower version support.
+check_cxx_compiler_flag(-std=c++17 HAVE_STD_CPP17)
+if (HAVE_STD_CPP17)
+    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -std=c++17")
 else()
-    check_cxx_compiler_flag(-std=c++11 HAVE_STD_CPP11)
-    if (HAVE_STD_CPP11)
+    check_cxx_compiler_flag(-std=c++14 HAVE_STD_CPP14)
+    if (HAVE_STD_CPP14)
         set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -std=c++14")
     else()
-        check_cxx_compiler_flag(-std=c++0x HAVE_STD_CPP0x)
-        if (HAVE_STD_CPP0x)
-            set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -std=c++0x")
+        check_cxx_compiler_flag(-std=c++11 HAVE_STD_CPP11)
+        if (HAVE_STD_CPP11)
+            set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -std=c++11")
+        else()
+            check_cxx_compiler_flag(-std=c++0x HAVE_STD_CPP0x)
+            if (HAVE_STD_CPP0x)
+                set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -std=c++0x")
+            endif()
         endif()
     endif()
 endif()
@@ -880,6 +888,10 @@ endif()
 
 if(BUILD_XTK)
     include(${MORIS_DEPENDS_DIR}/XTK_Depends.cmake)
+endif()
+
+if(BUILD_MIG)
+    include(${MORIS_DEPENDS_DIR}/MIG_Depends.cmake)
 endif()
 
 ##### Include LINALG Implementation
