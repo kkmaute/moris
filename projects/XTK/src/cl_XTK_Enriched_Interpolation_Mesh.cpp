@@ -959,6 +959,14 @@ namespace xtk
 
     // ----------------------------------------------------------------------------
 
+    Matrix< IndexMat >
+    Enriched_Interpolation_Mesh::get_enriched_mesh_indices() const
+    {
+        return mMeshIndices;
+    }
+
+    // ----------------------------------------------------------------------------
+
     moris_index
     Enriched_Interpolation_Mesh::get_interpolation_index( moris_index const & aLocalInterpIndex ) const
     {

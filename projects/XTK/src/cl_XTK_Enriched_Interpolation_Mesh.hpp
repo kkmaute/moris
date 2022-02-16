@@ -205,6 +205,13 @@ namespace xtk
              */
             Matrix< IndexMat > convert_ids_to_indices( Matrix< IdMat > const& aIds,
                     enum EntityRank                                               aEntityRank ) const;
+
+            //------------------------------------------------------------------------------
+            /*
+             *Return the mesh indices that will be enriched
+             */
+            Matrix< IndexMat >
+            get_enriched_mesh_indices() const;
             //------------------------------------------------------------------------------
             /*!
              * convert enriched
