@@ -36,14 +36,6 @@ namespace moris
                  */
                 moris::Cell<moris::mtk::Vertex const *> mMasterToSlaveVertexPairs;
 
-
-                //Variables for trivial cases
-                moris::Cell<moris::mtk::Cell const *>   mDummCellCell;
-                moris::mtk::Cell*                       mDummyCell;
-                moris::Cell<moris::mtk::Vertex const *> mDummyVertexCell;
-                moris::Matrix<moris::DDRMat>            mDummyDDRMat;
-
-
             public:
                 // ----------------------------------------------------------------------------------
 
@@ -446,9 +438,28 @@ namespace moris
 
                 moris::uint
                 get_slave_num_vertices_in_cluster() const;
+                
+                //----------------------------------------------------------------
+                
+                /**
+                 * @brief Get the master vertex pairs cell
+                 * 
+                 * @return moris::Cell<moris::mtk::Vertex const *> const& a cell of the master side vertices
+                 */
+                 moris::Cell<moris::mtk::Vertex const *> const &
+                get_master_vertex_pairs() const;
 
+                //----------------------------------------------------------------
+                
+                /**
+                 * @brief memory usage of the double sided cluster
+                 * 
+                 * @return size_t 
+                 */
 
-
+                 size_t
+                 capacity();
+                 
         };
 
         inline
