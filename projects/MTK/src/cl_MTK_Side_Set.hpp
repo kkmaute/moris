@@ -212,6 +212,25 @@ namespace moris
                 }
 
                 //------------------------------------------------------------------------------
+
+                size_t
+                capacity()
+                {
+                    size_t tTotalSize = 0;
+
+                    // name of the set
+                    tTotalSize += sizeof( mNumVerticesOnSet );
+                    tTotalSize += sizeof( mNumCellsOnBlock );
+
+                    tTotalSize += sizeof( mVerticesOnSet ) + mVerticesOnSet.capacity();
+                    tTotalSize += sizeof( mCellsOnBlock ) + mCellsOnBlock.capacity();
+
+                    tTotalSize += Set::capacity();
+
+                    return tTotalSize;
+                }
+
+                //------------------------------------------------------------------------------
                 /**
                  * return a label that describes the block
                  */
