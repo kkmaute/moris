@@ -52,9 +52,6 @@
 
 #include "cl_Param_List.hpp"
 
-#include "cl_MTK_Intersection_Detect.hpp"
-#include "cl_MTK_Intersection_Detect_2D.hpp"
-
 namespace xtk
 {
     class Integration_Mesh_Generator;
@@ -538,11 +535,6 @@ namespace xtk
             std::shared_ptr< mtk::Mesh_Manager > mMTKOutputPerformer = nullptr;
 
             bool mInitializeCalled = false;
-
-            // Intersection algorithm data members
-            // They contain added clusters,cells, vertices
-            moris::mtk::Intersection_Detect*    mIntersectionDetect   = nullptr;
-            moris::mtk::Intersection_Detect_2D* mIntersectionDetect2D = nullptr;
 
             // Private Functions
         private:
