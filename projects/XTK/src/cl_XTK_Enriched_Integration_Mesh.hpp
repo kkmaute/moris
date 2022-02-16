@@ -77,7 +77,7 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
     // see base class mtk::Integration_Mesh for documentation
     //------------------------------------------------------------------------------
     mtk::Cell_Cluster const &           get_cell_cluster( mtk::Cell const &aInterpCell ) const;
-    Cell_Cluster const &                get_cell_cluster( moris_index aInterpCellIndex ) const;
+    mtk::Cell_Cluster const &           get_cell_cluster( moris_index aInterpCellIndex ) const;
     moris::Cell< std::string >          get_block_set_names() const;
     std::string                         get_block_set_label( moris_index aBlockSetOrdinal ) const;
     moris_index                         get_block_set_index( std::string aBlockSetLabel ) const;
@@ -342,6 +342,16 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
      */
     xtk::Cell_Cluster const &
     get_xtk_cell_cluster( mtk::Cell const &aInterpCell ) const;
+
+    //------------------------------------------------------------------------------
+    /*!
+     * @brief Get the XTK cell cluster implementation
+     * @param[in] aInterpCell Interpolation MTK cell
+     * @return XTK cell cluster
+     * NOTE: requires there is only one cell cluster associated with the interpolation cell
+     */
+    xtk::Cell_Cluster const &
+    get_xtk_cell_cluster( moris_index aInterpCellIndex ) const;
 
     //------------------------------------------------------------------------------
     // Printing

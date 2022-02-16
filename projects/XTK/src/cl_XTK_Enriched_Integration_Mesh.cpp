@@ -1453,7 +1453,16 @@ Enriched_Integration_Mesh::get_mtk_vertices_loc_inds( Matrix< IndexMat > const &
 xtk::Cell_Cluster const &
 Enriched_Integration_Mesh::get_xtk_cell_cluster( mtk::Cell const &aInterpCell ) const
 {
-    return get_cell_cluster( aInterpCell.get_index() );
+    return get_xtk_cell_cluster( aInterpCell.get_index() );
+}
+
+//------------------------------------------------------------------------------
+
+xtk::Cell_Cluster const &
+Enriched_Integration_Mesh::get_xtk_cell_cluster( moris_index aInterpCellIndex ) const
+{
+    MORIS_ASSERT( aInterpCellIndex < (moris_index)mCellClusters.size(), "Interpolation Cell index out of bounds" );
+    return *mCellClusters( aInterpCellIndex );
 }
 
 //------------------------------------------------------------------------------
@@ -1465,7 +1474,7 @@ Enriched_Integration_Mesh::get_cell_cluster( mtk::Cell const &aInterpCell ) cons
 }
 //------------------------------------------------------------------------------
 
-Cell_Cluster const &
+mtk::Cell_Cluster const &
 Enriched_Integration_Mesh::get_cell_cluster( moris_index aInterpCellIndex ) const
 {
     MORIS_ASSERT( aInterpCellIndex < (moris_index)mCellClusters.size(), "Interpolation Cell index out of bounds" );
@@ -2280,7 +2289,7 @@ Enriched_Integration_Mesh::setup_blockset_with_cell_clusters()
             moris_index tBulkPhaseIndex = tEnrichedCellsInBlock( iC )->get_bulkphase_index();
 
             // get cluster associated with enriched cell
-            xtk::Cell_Cluster const &tCluster = this->get_cell_cluster( tEnrichedCellsInBlock( iC )->get_index() );
+            xtk::Cell_Cluster const &tCluster = this->get_xtk_cell_cluster( tEnrichedCellsInBlock( iC )->get_index() );
 
             if ( tEnrichedCellsInBlock( iC )->get_owner() == tProcRank )
             {
