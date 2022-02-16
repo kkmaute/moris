@@ -59,6 +59,17 @@ namespace moris
                 Cell_Cluster const &
                 get_cell_cluster(Cell const & aInterpCell) const = 0;
 
+                // ----------------------------------------------------------------------------
+
+                /*
+                 * Get a cell cluster related to an interpolation
+                 * cell
+                 */
+
+                virtual
+                Cell_Cluster const &
+                get_cell_cluster(moris_index  aInterpCellIndex) const = 0;
+
                 //##############################################
                 // MTK Set Access
                 //##############################################
@@ -391,6 +402,15 @@ namespace moris
                  */
                 moris_index const &
                 get_max_color() const; 
+
+                // ----------------------------------------------------------------------------
+
+                /**
+                 * @brief deletes the ghost visualization sets including ghost block sets and side sets
+                 * 
+                 */
+                void
+                delete_visualization_sets(); 
 
                 // ----------------------------------------------------------------------------
 
