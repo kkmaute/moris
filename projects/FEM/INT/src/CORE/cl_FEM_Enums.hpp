@@ -145,6 +145,8 @@ namespace moris
                 THERMAL_ENERGY_DIFFUSIVE_FLUX,
 
                 ADVECTION_STRONG_RESIDUAL,
+                STRONG_RESIDUAL_SA,
+                STRONG_RESIDUAL_INCOMPRESSIBLE_NS,
 
                 MAX_STRESS,
                 MAX_NORMAL_STRESS,

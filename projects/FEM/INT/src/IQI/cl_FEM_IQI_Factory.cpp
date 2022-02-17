@@ -35,6 +35,8 @@
 #include "cl_FEM_IQI_Thermal_Energy_Convective_Flux.hpp"
 #include "cl_FEM_IQI_Thermal_Energy_Diffusive_Flux.hpp"
 #include "cl_FEM_IQI_Advection_Strong_Residual.hpp"
+#include "cl_FEM_IQI_Strong_Residual_SA.hpp"
+#include "cl_FEM_IQI_Strong_Residual_Incompressible_NS.hpp"
 #include "cl_FEM_IQI_Zienkiewicz_Zhu.hpp"
 
 namespace moris
@@ -135,6 +137,10 @@ namespace moris
 
                 case IQI_Type::ADVECTION_STRONG_RESIDUAL:
                     return std::make_shared< IQI_Advection_Strong_Residual >();
+                case IQI_Type::STRONG_RESIDUAL_SA:
+                    return std::make_shared< IQI_Strong_Residual_SA >();
+                case IQI_Type::STRONG_RESIDUAL_INCOMPRESSIBLE_NS:
+                    return std::make_shared< IQI_Strong_Residual_Incompressible_NS >();
 
                 case IQI_Type::ZIENKIEWICZ_ZHU_VON_MISES_STRESS:
                     return std::make_shared< IQI_Zienkiewicz_Zhu >( Stress_Type::VON_MISES_STRESS );

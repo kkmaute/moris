@@ -221,6 +221,8 @@ set(HEADERS
     IQI/cl_FEM_IQI_Homogenized_Constitutive.hpp
     IQI/cl_FEM_IQI_Heat_Method_Penalty.hpp
     IQI/cl_FEM_IQI_Advection_Strong_Residual.hpp
+    IQI/cl_FEM_IQI_Strong_Residual_SA.hpp
+    IQI/cl_FEM_IQI_Strong_Residual_Incompressible_NS.hpp
     IQI/cl_FEM_IQI_Zienkiewicz_Zhu.hpp
      
     MEA/cl_FEM_Cluster_Measure.hpp
@@ -421,7 +423,11 @@ set(LIB_SOURCES
     IQI/cl_FEM_IQI_Homogenized_Constitutive.cpp
     IQI/cl_FEM_IQI_Heat_Method_Penalty.cpp
     IQI/cl_FEM_IQI_Advection_Strong_Residual.cpp
+    IQI/cl_FEM_IQI_Strong_Residual_SA.cpp
+    IQI/cl_FEM_IQI_Strong_Residual_Incompressible_NS.cpp
     IQI/cl_FEM_IQI_Zienkiewicz_Zhu.cpp
+    IQI/cl_FEM_IQI_YPlus.cpp
+    IQI/cl_FEM_IQI_UPlus.cpp
     
     MEA/cl_FEM_Cluster_Measure.cpp
     
