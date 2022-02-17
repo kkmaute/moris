@@ -47,14 +47,14 @@ namespace moris
                     tFIVelocity->val() - mCb2 * tFIViscosity->gradx( 1 ) / mSigma;
 
             // compute strong form of residual
-            Matrix< DDRMat> tR = tFIViscosity->gradt( 1 ) +
+            Matrix< DDRMat > tR = tFIViscosity->gradt( 1 ) +
                     trans( tModVelocity ) * tFIViscosity->gradx( 1 ) -
                     tCMSATurbulence->production_term() +
                     tCMSATurbulence->wall_destruction_term() -
                     tCMSATurbulence->divflux();
 
             // evaluate the QI
-            aQI = tR(0,0);
+            aQI = tR;
         }
 
         //------------------------------------------------------------------------------
