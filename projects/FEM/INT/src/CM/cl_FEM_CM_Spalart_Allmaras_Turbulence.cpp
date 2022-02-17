@@ -38,29 +38,6 @@ namespace moris
             mdDiffusionCoeffdxEval.set_size( tOrder, 1, true );
         }
 
-        //--------------------------------------------------------------------------------------------------------------
-
-        void CM_Spalart_Allmaras_Turbulence::set_function_pointers()
-        {
-            switch ( mSpaceDim )
-            {
-                case 2 :
-                {
-                    m_flatten_normal    = &CM_Spalart_Allmaras_Turbulence::flatten_normal_2d;
-                    break;
-                }
-                case 3 :
-                {
-                    m_flatten_normal    = &CM_Spalart_Allmaras_Turbulence::flatten_normal_3d;
-                    break;
-                }
-                default :
-                {
-                    MORIS_ERROR( false, "CM_Spalart_Allmaras_Turbulence::set_function_pointers - only works for 2d and 3d." );
-                }
-            }
-        }
-
         //------------------------------------------------------------------------------
 
         void CM_Spalart_Allmaras_Turbulence::set_local_properties()
@@ -457,37 +434,6 @@ namespace moris
                         aNormal,
                         fem::FDScheme_Type::POINT_3_CENTRAL );
             }
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void CM_Spalart_Allmaras_Turbulence::flatten_normal_2d(
-                const Matrix< DDRMat > & aNormal,
-                Matrix< DDRMat >       & aFlatNormal )
-        {
-            aFlatNormal.set_size( 2, 3, 0.0 );
-            aFlatNormal( 0, 0 ) = aNormal( 0, 0 );
-            aFlatNormal( 0, 2 ) = aNormal( 1, 0 );
-            aFlatNormal( 1, 1 ) = aNormal( 1, 0 );
-            aFlatNormal( 1, 2 ) = aNormal( 0, 0 );
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void CM_Spalart_Allmaras_Turbulence::flatten_normal_3d(
-                const Matrix< DDRMat > & aNormal,
-                Matrix< DDRMat >       & aFlatNormal )
-        {
-            aFlatNormal.set_size( 3, 6, 0.0 );
-            aFlatNormal( 0, 0 ) = aNormal( 0, 0 );
-            aFlatNormal( 1, 1 ) = aNormal( 1, 0 );
-            aFlatNormal( 2, 2 ) = aNormal( 2, 0 );
-            aFlatNormal( 0, 4 ) = aNormal( 2, 0 );
-            aFlatNormal( 0, 5 ) = aNormal( 1, 0 );
-            aFlatNormal( 1, 3 ) = aNormal( 2, 0 );
-            aFlatNormal( 1, 5 ) = aNormal( 0, 0 );
-            aFlatNormal( 2, 3 ) = aNormal( 1, 0 );
-            aFlatNormal( 2, 4 ) = aNormal( 0, 0 );
         }
 
         //------------------------------------------------------------------------------

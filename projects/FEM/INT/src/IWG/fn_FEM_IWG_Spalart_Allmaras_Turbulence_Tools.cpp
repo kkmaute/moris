@@ -9,20 +9,9 @@ namespace moris
     namespace fem
     {
         // Spalart Allmaras model constants
-        real mCb1 = 0.1355;
-        real mCb2 = 0.6220;
-        real mSigma = 2.0/3.0;
-        real mKappa = 0.41;
-        real mCw1 = mCb1 / std::pow( mKappa, 2.0 ) + ( 1.0 + mCb2 ) / mSigma;
-        real mCw2 = 0.3;
-        real mCw3 = 2.0;
-        real mCt3 = 1.2;
-        real mCt4 = 0.5;
         real mCv1 = 7.1;
-        real mCv2 = 0.7;
-        real mCv3 = 0.9;
-        real mRLim = 10.0;
-        real mCn1 = 16.0;
+
+        real mEpsilon = MORIS_REAL_EPS;
 
         //------------------------------------------------------------------------------
 
@@ -308,73 +297,6 @@ namespace moris
                     2.0 * tChi * ( tCv13 - 2.0 * tChi3 ) * tdchidx * tdchidu +
                     tChi2 * ( tChi3 + tCv13 ) * tdchidxdu ) /
                             std::pow( tChi3 + tCv13, 3.0 );
-        }
-
-        //------------------------------------------------------------------------------
-
-        real compute_fv2(
-                const moris::Cell< MSI::Dof_Type > & aViscosityDofGroup,
-                Field_Interpolator_Manager         * aMasterFIManager,
-                const std::shared_ptr< Property >  & aPropKinViscosity )
-        {
-            // compute chi
-            real tChi = compute_chi(
-                    aViscosityDofGroup,
-                    aMasterFIManager,
-                    aPropKinViscosity );
-
-            // compute fv1
-            real tFv1 = compute_fv1(
-                    aViscosityDofGroup,
-                    aMasterFIManager,
-                    aPropKinViscosity );
-
-            // compute fv2
-            return 1.0 - tChi / ( 1 + tChi * tFv1 );
-        }
-
-        //------------------------------------------------------------------------------
-
-        void compute_dfv2du(
-                const moris::Cell< MSI::Dof_Type > & aViscosityDofGroup,
-                Field_Interpolator_Manager         * aMasterFIManager,
-                const std::shared_ptr< Property >  & aPropKinViscosity,
-                const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                Matrix< DDRMat >                   & adfv2du )
-        {
-            // compute chi
-            real tChi = compute_chi(
-                    aViscosityDofGroup,
-                    aMasterFIManager,
-                    aPropKinViscosity );
-
-            // compute dchidu
-            Matrix< DDRMat > tdchidu;
-            compute_dchidu(
-                    aViscosityDofGroup,
-                    aMasterFIManager,
-                    aPropKinViscosity,
-                    aDofTypes,
-                    tdchidu );
-
-            // compute fv1
-            real tFv1 = compute_fv1(
-                    aViscosityDofGroup,
-                    aMasterFIManager,
-                    aPropKinViscosity );
-
-            // compute dfv1du
-            Matrix< DDRMat > tdfv1du;
-            compute_dfv1du(
-                    aViscosityDofGroup,
-                    aMasterFIManager,
-                    aPropKinViscosity,
-                    aDofTypes,
-                    tdfv1du );
-
-            // compute adfv2du
-            adfv2du = ( std::pow( tChi, 2.0 ) * tdfv1du - tdchidu ) /
-                    ( std::pow( 1.0 + tChi * tFv1, 2.0 ) );
         }
 
     } /* namespace fem */

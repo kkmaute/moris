@@ -31,7 +31,7 @@ namespace moris
             private:
 
                 // internal threshold for zero
-                const real mEpsilon = 1e-16;
+                const real mEpsilon = MORIS_REAL_EPS;
 
                 // internal threshold for wall distance
                 const real mWallDistanceEpsilon = 1e-6;
@@ -63,11 +63,6 @@ namespace moris
                     WALL_DISTANCE,
                     MAX_ENUM
                 };
-
-                // function pointers
-                void ( CM_Spalart_Allmaras_Turbulence:: * m_flatten_normal )(
-                        const Matrix< DDRMat > & aNormal,
-                        Matrix< DDRMat >       & aFlatNormal ) = nullptr;
 
                 // flags for production coefficient related evaluation
                 bool mProductionCoeffEval = true;
@@ -203,14 +198,7 @@ namespace moris
                 void set_space_dim( uint aSpaceDim )
                 {
                     mSpaceDim = aSpaceDim;
-                    this->set_function_pointers();
                 }
-
-                //--------------------------------------------------------------------------------------------------------------
-                /**
-                 * set function pointers
-                 */
-                void set_function_pointers();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -289,24 +277,6 @@ namespace moris
                         const moris::Cell< MSI::Dof_Type > & aDofTypes,
                         const Matrix< DDRMat >             & aNormal,
                         const moris::Cell< MSI::Dof_Type > & aTestDofTypes );
-
-                //--------------------------------------------------------------------------------------------------------------
-                /**
-                 * flatten normal vector
-                 * @param[ in ] aNormal          a normal vector
-                 * @param[ in ] aFlattenedNormal a matrix for flattened normal to fill
-                 */
-                void flatten_normal( const Matrix< DDRMat > & aNormal,
-                        Matrix< DDRMat > & aFlatNormal )
-                {
-                    ( this->*m_flatten_normal )( aNormal, aFlatNormal );
-                }
-                void flatten_normal_2d(
-                        const Matrix< DDRMat > & aNormal,
-                        Matrix< DDRMat >       & aFlatNormal );
-                void flatten_normal_3d(
-                        const Matrix< DDRMat > & aNormal,
-                        Matrix< DDRMat >       & aFlatNormal );
 
                 /**
                  * get the the production coefficient
