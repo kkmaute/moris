@@ -98,18 +98,15 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * @brief Performs T-Matrix and MPC outputs (used for project work) if requested 
-                 * by user. 
-                 * 
+                 * @brief Performs T-Matrix and MPC outputs (used for project work) if requested
+                 * by user.
+                 *
                  * @param aMTKPerformer pointer to MTK Mesh_Manager
                  * @param aXTKPerformer pointer to XTK_Model
                  */
                 void output_T_matrices(
-                    const std::shared_ptr< mtk::Mesh_Manager > aMTKPerformer,
-                    const std::shared_ptr< xtk::Model >        aXTKPerformer );
-                
-
-            
+                        const std::shared_ptr< mtk::Mesh_Manager > aMTKPerformer,
+                        xtk::Model* const &                        aXTKPerformer );
         };
         //------------------------------------------------------------------------------
     } /* namespace mdl */

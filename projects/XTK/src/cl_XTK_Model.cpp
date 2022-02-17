@@ -32,13 +32,11 @@
 #include "cl_MTK_Cell_Info_Factory.hpp"
 #include "cl_MTK_Cell_Info.hpp"
 #include "cl_MTK_Writer_Exodus.hpp"
-#include "cl_MTK_Periodic_Boundary_Condition_Helper.hpp"
 #include "fn_Parsing_Tools.hpp"
 #include "cl_TOL_Memory_Map.hpp"
 #include "cl_Tracer.hpp"
 #include "fn_stringify_matrix.hpp"
 
-#include "cl_MTK_Intersection_Mesh.hpp"
 
 using namespace moris;
 
@@ -69,16 +67,6 @@ namespace xtk
         }
 
         mEnrichedIntegMesh.clear();
-
-        if ( mIntersectionDetect != nullptr )
-        {
-            delete mIntersectionDetect;
-        }
-
-        if ( mIntersectionDetect2D != nullptr )
-        {
-            delete mIntersectionDetect2D;
-        }
     }
 
     // ----------------------------------------------------------------------------------
@@ -377,44 +365,6 @@ namespace xtk
 
             // place the pair in mesh manager
             mMTKOutputPerformer->register_mesh_pair( &tEnrInterpMesh, &tEnrIntegMesh, false, tXTKMeshName );
-
-            // Periodic boundary condition environment
-            if ( mParameterList.get< std::string >( "periodic_side_set_pair" ) != "" )
-            {
-                if ( tEnrInterpMesh.get_spatial_dim() == 2 )
-                {
-                    // initialize the time tracer
-                    Tracer tTracer( "MTK", "Periodic BCs", "Compute Intersections 2D" );
-
-                    // Construct intersection and perform
-                    mIntersectionDetect2D = new mtk::Intersection_Detect_2D( mMTKOutputPerformer, 0, mParameterList, mGeometryEngine->get_num_bulk_phase() );
-                    mIntersectionDetect2D->perform();
-                }
-
-                else
-                {
-                    {
-                        // initialize the time tracer
-                        Tracer tTracer( "XTK", "Periodic BCs", "Compute Intersections 3D" );
-
-                        mIntersectionDetect = new mtk::Intersection_Detect( mMTKOutputPerformer, 0, mParameterList, mGeometryEngine->get_num_bulk_phase() );
-                        mIntersectionDetect->perform();
-                    }
-
-                    if ( mParameterList.get< bool >( "output_intersection_mesh" ) )
-                    {
-                        Tracer tTracer( "XTK", "Periodic BCs", "Output Intersection Mesh" );
-
-                        // Construct the intersection mesh
-                        mtk::Intersection_Mesh *tIscMesh = new mtk::Intersection_Mesh( &tEnrIntegMesh, mIntersectionDetect );
-
-                        // Write the mesh
-                        moris::mtk::Writer_Exodus tWriter2( tIscMesh );
-                        tWriter2.write_mesh( "", "VIS_ISC.exo", "", "temp.exo" );
-                        tWriter2.close_file();
-                    }
-                }
-            }
 
             // if( mParameterList.get<bool>("contact_sandbox") )
             // {

@@ -1204,5 +1204,201 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        /////////////////////////
+        // Accessor functions
+        /////////////////////////
+
+        moris_id
+        Mesh::get_entity_id( enum EntityRank aEntityRank, moris_index aEntityIndex ) const
+        {
+            MORIS_ERROR( 0, "get_entity_id not implemented" );
+            return 0;
+        }
+        //--------------------------------------------------------------------------------------------------------------
+
+        moris_id 
+        Mesh::get_entity_owner( enum EntityRank aEntityRank, moris_index aEntityIndex ) const
+        {
+            MORIS_ERROR( 0, "get_entity_owner not implemented" );
+             return 0;
+        }
+        //--------------------------------------------------------------------------------------------------------------
+
+        moris_id* 
+        Mesh::get_basis_ids( moris_index aVertexIndex, moris_index aOrder )
+        {
+            MORIS_ERROR( 0, "get_basis_ids not implemented" );
+            return nullptr;
+        }
+        //--------------------------------------------------------------------------------------------------------------
+
+        moris_index* 
+        Mesh::get_basis_indicies( moris_index aVertexIndex, moris_index aOrder )
+        {
+            MORIS_ERROR( 0, "get_basis_indicies not implemented" );
+            return nullptr;
+        }
+        //--------------------------------------------------------------------------------------------------------------
+
+        real* 
+        Mesh::get_basis_weights( moris_index aVertexIndex, moris_index aOrder )
+        {
+            MORIS_ERROR( 0, "get_basis_weights not implemented" );
+            return nullptr;
+        }
+        //--------------------------------------------------------------------------------------------------------------
+
+        moris_id* 
+        Mesh::get_basis_owners( moris_index aVertexIndex, moris_index aOrder ) 
+        {
+            MORIS_ERROR( 0, "get_basis_owners not implemented" );
+            return nullptr;
+        }
+        //--------------------------------------------------------------------------------------------------------------
+
+        moris_index 
+        Mesh::get_basis_length( moris_index aVertexIndex, moris_index aOrder )
+        {
+            MORIS_ERROR( 0, "get_basis_length not implemented" );
+            return 0;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        moris::real* 
+        Mesh::get_vertex_coords_ptr( moris_index aVertexIndex ) 
+        {
+            MORIS_ERROR( 0, "get_vertex_coords_ptr not implemented" );
+            return nullptr;
+        }
+        //--------------------------------------------------------------------------------------------------------------
+
+        Vertex**
+        Mesh::get_cell_vertices( moris_index aCellIndex )
+        {
+            MORIS_ERROR( 0, "get_cell_vertices not implemented" );
+            return nullptr;
+        }
+        //--------------------------------------------------------------------------------------------------------------
+
+        Vertex_Interpolation**
+        Mesh::get_vertex_interpolation( moris_index aVertexIndex )
+        {
+            MORIS_ERROR( 0, "get_vertex_interpolation not implemented" );
+            return nullptr;
+        }
+
+
+        mtk::Cell* 
+        Mesh::get_ip_cell_in_cluster( enum ClusterType aClusterType , moris_index aClusterIndex) const
+        {
+            MORIS_ERROR( 0, "get_vertex_interpolation not implemented" );
+            return nullptr;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        mtk::Cell* const*
+        Mesh::get_ig_cells_in_cluster( enum ClusterType aClusterType, enum mtk::Primary_Void aPrimaryOrVoid, moris_index aClusterIndex ) const
+        {
+            MORIS_ERROR( 0, "get_vertex_interpolation not implemented" );
+            return nullptr;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        uint
+        Mesh::get_num_cells_in_cluster( enum ClusterType aClusterType, enum mtk::Primary_Void aPrimaryOrVoid, moris_index aClusterIndex ) const
+        {
+            MORIS_ERROR( 0, "get_vertex_interpolation not implemented" );
+            return 0;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        moris_index* 
+        Mesh::get_side_ordinals_in_cluster( enum ClusterType aClusterType, moris_index aClusterIndex ) const
+        {
+            MORIS_ERROR( 0, "get_vertex_interpolation not implemented" );
+            return nullptr;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        bool 
+        Mesh::cluster_is_trivial( enum ClusterType aClusterType , moris_index aClusterIndex) const
+        {
+            MORIS_ERROR( 0, "get_vertex_interpolation not implemented" );
+            return true;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Vertex*const * 
+        Mesh::get_vertices_in_cluster( enum ClusterType aClusterType, moris_index aClusterIndex ) const
+        {
+            MORIS_ERROR( 0, "get_vertex_interpolation not implemented" );
+            return nullptr;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        uint 
+        Mesh::get_num_vertices_in_cluster( enum ClusterType aClusterType, moris_index aClusterIndex ) const
+        {
+            MORIS_ERROR( 0, "get_vertex_interpolation not implemented" );
+            return 0;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Matrix< DDRMat >*
+        Mesh::get_local_coord_matrix_ptr( enum ClusterType aClusterType, moris_index aClusterIndex ) const
+        {
+            MORIS_ERROR( 0, "get_vertex_interpolation not implemented" );
+            return nullptr;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        uint
+        Mesh::get_row_number_local_coords_matrix( enum ClusterType aClusterType , moris_index aClusterIndex) const
+        {
+            MORIS_ERROR( 0, "get_vertex_interpolation not implemented" );
+            return 0;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+        mtk::Cell_Cluster const * 
+        Mesh::get_associated_cell_cluster(moris_index aClusterIndex ) const
+        {
+            MORIS_ERROR( 0, "get_vertex_interpolation not implemented" );
+            return nullptr;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+        Matrix< IndexMat >
+        Mesh::get_enriched_mesh_indices() const
+        {
+            return { { 0 } };
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        bool
+        Mesh::is_secondary_cluster( moris_index aClusterIndex ) const
+        {
+            MORIS_ERROR( 0, "get_vertex_interpolation not implemented" );
+            return false;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        std::shared_ptr< mtk::Cell_Info >
+        Mesh::get_cell_info_sp( moris_index aEntityIndex ) const
+        {
+            MORIS_ERROR( 0, "get_vertex_interpolation not implemented" );
+            return nullptr;
+        }
     }
 }

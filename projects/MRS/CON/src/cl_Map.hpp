@@ -154,7 +154,7 @@ namespace moris
          * @include CON/src/cl_Map/cl_Map_clear.inc
          */
         moris::uint
-        size()
+        size() const
         {
             return mMap.size();
         }
@@ -224,6 +224,21 @@ namespace moris
                 std::cout << tVarName << "[" << p.first << "] = " << p.second << '\n';
             }
         }
+
+        //--------------------------------------------------------------------------------
+        
+        /**
+         * @brief returns the underlying std::map such that other std libraries can called
+         * 
+         * @return std::map< T1, T2 >&  underlying std::map
+         */
+        std::map< T1, T2 > &
+        data()
+        {
+            return mMap;
+        }
+
+        //--------------------------------------------------------------------------------
     };
 }
 

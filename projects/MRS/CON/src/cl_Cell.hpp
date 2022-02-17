@@ -233,7 +233,7 @@ namespace moris
              * @return Pointer to memory of the underlying array.
              */
 
-            T*
+            T const*
             memptr() const
             {
                 return mCell.data();
@@ -645,6 +645,43 @@ namespace moris
             {
                 return mCell.cend();
             }
+
+    //------------------------------------------------------------------
+
+    /**
+     * @brief insert function warpper for std::insert
+     *
+     * @tparam InputIterator
+     * @param pos posistion we want to insert the new enrties
+     * @param aFirst templated iterator/pointer begining of the inupt
+     * @param aLast  templated iterator/pointer end of the inupt
+     */
+    template< class InputIterator >
+    void
+    insert( moris::size_t const& pos, InputIterator aFirst, InputIterator aLast )
+    {
+        // We use the insert just to assemble data from smaller containers, this check is to prevent chaning the cell size
+        // Technically insert has the capability to resize the vector (it never rewrites data)
+        MORIS_ASSERT( this->size() == pos, "Cell is being reallocated such that it can take in the new data" );
+
+        // defer to call to the std::vecotr
+        mCell.insert( mCell.begin() + pos, aFirst, aLast );
+    }
+
+    //------------------------------------------------------------------
+
+    /*!
+     * @brief empalce back method warpper for std::emplace_back
+     *
+     * @param value r values being passed
+     */
+
+    template< typename... _Args >
+    void
+    emplace_back( _Args&&... __args )
+    {
+        mCell.emplace_back( std::forward< _Args >( __args )... );
+    }
     };
 
     //------------------------------------------------------------------

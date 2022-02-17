@@ -92,6 +92,18 @@ cl_MTK_Side_Cluster_ISC_Impl.hpp
 cl_MTK_Intersection_Detect_2D.hpp
 cl_MTK_Intersection_Mesh.hpp
 
+cl_MTK_Vertex_DataBase.hpp
+cl_MTK_Vertex_Interpolation_DataBase.hpp
+cl_MTK_Cell_DataBase.hpp
+cl_MTK_Cell_Cluster_DataBase.hpp
+cl_MTK_Side_Cluster_DataBase.hpp
+
+cl_MTK_Mesh_DataBase_IP.hpp
+cl_MTK_Interpolation_Mesh_Editor.hpp
+
+cl_MTK_Mesh_DataBase_IG.hpp
+cl_MTK_Integration_Mesh_Editor.hpp
+
 stk_impl/cl_MTK_Cell_STK.hpp
 stk_impl/cl_MTK_Integration_Mesh_STK.hpp
 stk_impl/cl_MTK_Interpolation_Mesh_STK.hpp
@@ -216,6 +228,18 @@ cl_MTK_Intersection_Detect_2D.cpp
 cl_MTK_Intersec_Mesh_Data.cpp
 cl_MTK_Intersection_Mesh.cpp
 
+cl_MTK_Vertex_DataBase.cpp
+cl_MTK_Vertex_Interpolation_DataBase.cpp
+cl_MTK_Cell_DataBase.cpp
+cl_MTK_Cell_Cluster_DataBase.cpp
+cl_MTK_Side_Cluster_DataBase.cpp
+
+cl_MTK_Mesh_DataBase_IP.cpp
+cl_MTK_Interpolation_Mesh_Editor.cpp
+
+cl_MTK_Mesh_DataBase_IG.cpp
+cl_MTK_Integration_Mesh_Editor.cpp
+
 IP/cl_MTK_Interpolation_Function_Factory.cpp
 IP/cl_MTK_Interpolation_Rule.cpp
 IP/cl_MTK_Space_Interpolator.cpp
@@ -229,6 +253,7 @@ set(LIB_DEPENDENCIES
 	${COM}-lib
 	${LINALG}-lib
 	${HMR}-lib
+    ${TOL}-lib
     )
 
 # Set the output path for library

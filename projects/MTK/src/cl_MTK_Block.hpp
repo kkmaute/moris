@@ -285,6 +285,30 @@ namespace moris
                 }
 
                 //------------------------------------------------------------------------------
+
+                size_t
+                capacity()
+                {
+                    //initialize the size
+                    size_t tTotalSize = 0;
+
+                    //sum up member data for th block
+                    tTotalSize += sizeof( mNumVerticesOnBlock );
+                    tTotalSize += sizeof( mNumCellsOnBlock );
+                    tTotalSize += sizeof( mOnlyPrimaryVertCheck );
+                    tTotalSize += sizeof( mOnlyPrimaryCellCheck );
+
+                    //this is approximate
+                    tTotalSize += sizeof( mVerticesOnBlock ) + mVerticesOnBlock.capacity();
+                    tTotalSize += sizeof( mCellsOnBlock ) + mCellsOnBlock.capacity();
+
+                    //add up the parent class capacity
+                    tTotalSize += Set::capacity();
+
+                    return tTotalSize;
+                }
+
+                //------------------------------------------------------------------------------
                 /**
                  * return a label that describes the block
                  */

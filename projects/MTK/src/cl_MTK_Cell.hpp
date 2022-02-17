@@ -39,7 +39,7 @@ namespace moris
 
         class Cell
         {
-            private: // protected so the derived classes can set
+             protected: // protected so the derived classes can set
 
                 std::shared_ptr<moris::mtk::Cell_Info>  mCellInfo;
 
@@ -73,13 +73,12 @@ namespace moris
                 virtual ~Cell(){};
 
                 //------------------------------------------------------------------------------
-
-                mtk::Cell_Info  const *
+                virtual mtk::Cell_Info  const *
                 get_cell_info() const;
 
                 //------------------------------------------------------------------------------
 
-                std::shared_ptr<mtk::Cell_Info>
+                virtual std::shared_ptr<mtk::Cell_Info>
                 get_cell_info_sp() const;
 
                 //------------------------------------------------------------------------------
@@ -104,6 +103,14 @@ namespace moris
                 virtual
                 void
                 set_id(moris_id aId);
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set the cell id
+                 */
+                virtual
+                void
+                set_owner(moris_id aOwner);
 
                 /**
                  * set the cell id

@@ -118,6 +118,57 @@ namespace moris
                     return nullptr;
                 }
 
+                //----------------------------------------------------------------
+
+                /**
+                 * @brief Get the master vertex pairs, used for double sided cluster
+                 * 
+                 * @return moris::Cell< moris::mtk::Vertex const *> const& cell of vertices on the master side
+                 */
+
+                virtual
+                moris::Cell< moris::mtk::Vertex const *> const &
+                get_master_vertex_pairs() const
+                {
+                    MORIS_ERROR(false, "get_master_vertex_pair(): not implemented for this cluster type");
+                    moris::Cell< moris::mtk::Vertex const * > * tDummyCell = new moris::Cell< moris::mtk::Vertex const * > (0);
+                    return * tDummyCell;
+                }
+
+                //----------------------------------------------------------------
+
+                /**
+                 * @brief Get the master side cluster of a double sided cluster
+                 * 
+                 * @return moris::mtk::Cluster const& master side cluster
+                 */
+
+                virtual 
+                moris::mtk::Cluster const &
+                get_master_side_cluster() const
+                {
+                    MORIS_ERROR( false, "get_master_side_cluster(): not implemented for this cluster type" );
+                    return *this;
+                }
+
+                //----------------------------------------------------------------
+
+                /**
+                 * @brief Get the slave side cluster of a double sided cluster
+                 * 
+                 * @return moris::mtk::Cluster const& slave side cluster
+                 */
+
+                virtual 
+                moris::mtk::Cluster const &
+                get_slave_side_cluster() const
+                {
+                    MORIS_ERROR( false, "get_slave_side_cluster(): not implemented for this cluster type" );
+                    return *this;
+                }
+
+                //----------------------------------------------------------------
+
                 virtual
                 moris_index
                 get_slave_vertex_ord_on_facet( moris_index  aCellClusterIndex,

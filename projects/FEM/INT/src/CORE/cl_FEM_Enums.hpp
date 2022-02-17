@@ -178,6 +178,7 @@ namespace moris
                 DIFF_LIN_ISO_PC,
                 DIFF_LIN_ISO_TURBULENCE,
                 STRUC_LIN_ISO,
+                STRUC_LIN_MT,
                 STRUC_LIN_ISO_PRESSURE,
                 STRUC_NONLIN_ISO,
                 FLUID_INCOMPRESSIBLE,

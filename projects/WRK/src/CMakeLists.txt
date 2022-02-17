@@ -16,6 +16,7 @@ set(HEADERS
     cl_WRK_Workflow_STK_FEM.hpp
     cl_WRK_perform_refinement.hpp
     cl_WRK_perform_remeshing.hpp
+    cl_WRK_DataBase_Performer.hpp
     )
  
 set(GEN_INCLUDES
@@ -45,6 +46,7 @@ set(LIB_SOURCES
     fn_WRK_Workflow_Main_Interface.cpp
     cl_WRK_perform_refinement.cpp
     cl_WRK_perform_remeshing.cpp
+    cl_WRK_DataBase_Performer.cpp
     )
 
 # List library dependencies
@@ -56,6 +58,7 @@ set(LIB_DEPENDENCIES
     ${GEN_MAIN}-lib
     ${MDL}-lib
     ${OPT}-lib
+    ${MIG}-lib
      )
 
 # Set the output path for library

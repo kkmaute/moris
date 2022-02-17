@@ -23,7 +23,7 @@ set(TEST_SOURCES
     xtk/UT_XTK_HMR_Enrich.cpp
     #xtk/UT_XTK_HMR_Multigrid.cpp
     xtk/UT_XTK_HMR.cpp
-    xtk/UT_XTK_Intersection_Detect_HMR_XTK.cpp
+    #xtk/UT_XTK_Intersection_Detect_HMR_XTK.cpp
     xtk/UT_XTK_Mesh_Cleanup.cpp
     xtk/UT_XTK_Model_2D.cpp
     xtk/UT_XTK_Model_Mesh_Clusters.cpp
