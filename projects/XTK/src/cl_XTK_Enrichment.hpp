@@ -77,21 +77,21 @@ namespace xtk
 
             // Enrichment Data ordered by basis function indices
             // For each basis function, the element indices and elemental enrichment levels //?
-            Cell< moris::Matrix< moris::IndexMat > > mElementEnrichmentLevel;
-            Cell< moris::Matrix< moris::IndexMat > > mElementIndsInBasis;
+            Cell< moris::Matrix< moris::IndexMat > > mElementIndsInBasis; // input: non-enriched BF index || output: list of IG cells within the basis support
+            Cell< moris::Matrix< moris::IndexMat > > mElementEnrichmentLevel; // input: non-enriched BF index || output: which enrichment level of current basis is active on the IG cell
 
             // For each enriched basis function, the subphase indices in support
-            Cell< moris::Matrix< moris::IndexMat > > mSubphaseIndsInEnrichedBasis;
+            Cell< moris::Matrix< moris::IndexMat > > mSubphaseIndsInEnrichedBasis; // input: enriched BF index || output: list of subphase indices in which enriched BF is active
 
             // Basis enrichment level indices
-            moris::Cell< moris::Matrix< moris::IndexMat > > mBasisEnrichmentIndices; //???
-            moris::Matrix< moris::IndexMat >                mEnrichedBasisIndexToId;
+            moris::Cell< moris::Matrix< moris::IndexMat > > mBasisEnrichmentIndices; // input1: non-enriched BF index, input2: enrichement level || output: enriched BF index
+            moris::Matrix< moris::IndexMat >                mEnrichedBasisIndexToId; // input: enriched BF index || output: global ID of that enriched BF 
 
             // Unintersected Parent Cell, BackBasis interpolating in them and corresponding enrichment level
             // outer cell corresponds to interp cell index
             // inner cell corresponds to basis/enr-lev in interp cell
-            moris::Cell< moris::Cell< moris_index > > mSubphaseBGBasisIndices;
-            moris::Cell< moris::Cell< moris_index > > mSubphaseBGBasisEnrLev;
+            moris::Cell< moris::Cell< moris_index > > mSubphaseBGBasisIndices; // input: subphase index || output: list of non-enriched BF indices active on given subphase
+            moris::Cell< moris::Cell< moris_index > > mSubphaseBGBasisEnrLev; // input: subphase index || output: list of enrichment levels for the respective BFs active on the given subphase
 
             // total number of basis enrichment levels (all basis functions)
             moris::uint mNumEnrichmentLevels;
@@ -239,26 +239,28 @@ namespace xtk
 
             // ----------------------------------------------------------------------------------
 
-            /*
-             * Performs enrichment on elements in support of full basis cluster. This enrichment includes all children elements of parents in
-             * the basis cluster and parent elements with no children
+            /**
+             * @brief Performs enrichment on elements in support of full basis cluster. This 
+             * enrichment includes all children elements of parents in the basis cluster and 
+             * parent elements with no children
              */
             void
             perform_basis_cluster_enrichment();
 
             // ----------------------------------------------------------------------------------
 
-            /*
-             * Constructs the subphase neighborhood in the XTK model
+            /**
+             * @brief Constructs the subphase neighborhood in the XTK model
              */
             void
             construct_neighborhoods();
 
             // ----------------------------------------------------------------------------------
 
-            /*
-             * Verifies vertex interpolation is present and communicates non-existing vertex interpolation.
-             * The vertex interpolation on the aura needs to be communicated if we are using HMR
+            /**
+             * @brief Verifies vertex interpolation is present and communicates non-existing 
+             * vertex interpolation. The vertex interpolation on the aura needs to be 
+             * communicated if we are using HMR
              */
             void
             setup_background_vertex_interpolations();
@@ -302,7 +304,7 @@ namespace xtk
 
             // ----------------------------------------------------------------------------------
 
-            /*
+            /**
              * @brief Sort enrichment levels by distance of centroid  of subphases with same
              *        enrichment level from origin
              */
@@ -315,6 +317,19 @@ namespace xtk
 
             // ----------------------------------------------------------------------------------
 
+            /**
+             * @brief go through all subphases in the support of a given basis funtion and save 
+             * the current basis function's index to them, and which enrichment level of this 
+             * given basis function is active on them. This data is stored in the Enrichment_Data
+             * 
+             * @param aEnrichmentDataIndex 
+             * @param aBasisIndex 
+             * @param aParentElementsInSupport 
+             * @param aSubphasesInSupport 
+             * @param aSubPhaseIndexToSupportIndex 
+             * @param aPrunedSubPhaseToSubphase 
+             * @param aSubPhaseBinEnrichmentVals 
+             */
             void
             unzip_subphase_bin_enrichment_into_element_enrichment(
                     moris_index const&                      aEnrichmentDataIndex,
@@ -327,6 +342,15 @@ namespace xtk
 
             // ----------------------------------------------------------------------------------
 
+            /**
+             * @brief counts number of enriched basis function indices and finds which subphases
+             * a given enriched BF index is active on. The data is stored in the Enrichment_Data
+             * 
+             * @param aEnrichmentDataIndex 
+             * @param aSubPhaseBinEnrichment 
+             * @param aSubphaseClusterIndicesInSupport 
+             * @param aMaxEnrichmentLevel 
+             */
             void
             construct_enriched_basis_to_subphase_connectivity(
                     moris_index const&                                     aEnrichmentDataIndex,
@@ -336,8 +360,8 @@ namespace xtk
 
             // ----------------------------------------------------------------------------------
 
-            /*!
-             * Assign the enrichment level local identifiers
+            /**
+             * @brief Assign the enrichment level local identifiers
              */
             void
             assign_enriched_coefficients_identifiers(
@@ -408,6 +432,17 @@ namespace xtk
 
             // ----------------------------------------------------------------------------------
 
+            /**
+             * @brief find out the enriched BF indices and IDs interpolating into the current vertex 
+             * and store it along side the weights and other remaining interpolation information in 
+             * the Vertex_Enrichment object
+             * 
+             * @param aEnrichmentDataIndex 
+             * @param aBaseVertexInterp 
+             * @param aSubPhaseBasisEnrLev 
+             * @param aMapBasisIndexToLocInSubPhase 
+             * @param aVertexEnrichment output: Vertex_Enrichment
+             */
             void
             construct_enriched_vertex_interpolation(
                     moris_index const&                        aEnrichmentDataIndex,
@@ -421,14 +456,24 @@ namespace xtk
             construct_subphase_basis_to_basis_map( Cell< moris_id > const& aSubPhaseBasisIndex );
 
             // ----------------------------------------------------------------------------------
-            // functions that collects the appropriate vertex interpolation for the enrichment strategy only
+
+            /**
+             * @brief function that collects the appropriate vertex interpolation for the enrichment strategy only
+             * 
+             * @param aParentCell 
+             * @param aMeshIndex 
+             * @return moris::Cell< mtk::Vertex_Interpolation* > 
+             */
             moris::Cell< mtk::Vertex_Interpolation* >
             get_vertex_interpolations(
                     moris::mtk::Cell& aParentCell,
                     const uint        aMeshIndex ) const;
 
             // ----------------------------------------------------------------------------------
-            /*!
+
+            /**
+             * @brief ???
+             * 
              *   @param[in] aMeshIndex Mesh index
              *   @param[in] aNumIdsToAllocate Number of basis ids needed
              *   @return Basis index offset
@@ -436,11 +481,14 @@ namespace xtk
             moris_index
             allocate_basis_ids( moris_index const& aMeshIndex,
                     moris_index const&                 aNumIdsToAllocate );
+
             // ----------------------------------------------------------------------------------
 
-            /*!
-             *   @param[in] aMeshIndex Mesh index
-             *   @return Maxmimum basis id on this proc
+            /**
+             * @brief ???
+             *   
+             * @param[in] aMeshIndex Mesh index
+             * @return Maxmimum basis id on this proc
              */
             moris_index
             get_max_basis_id( moris_index const& aMeshIndex );

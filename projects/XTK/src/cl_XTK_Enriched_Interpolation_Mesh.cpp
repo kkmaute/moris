@@ -652,6 +652,7 @@ namespace xtk
             Vertex_Enrichment&  aVertexEnrichment,
             bool&               aNewVertex )
     {
+        // get index of B-spline mesh index in local list of associated B-spline meshes
         moris_index tLocalMeshIndex = this->get_local_mesh_index( aMeshIndex );
 
         // vertex index of the base interpolation vertex
@@ -663,16 +664,19 @@ namespace xtk
         // not new until we make it to the end
         aNewVertex = false;
 
-        // if the vertex has interpolation then there is a potential that the t-matrices
+        // if the vertex has an interpolation then there is a potential that the t-matrices
         // are the same. If not we always construct a new interpolation vertex here
         if ( aBaseInterpVertex->has_interpolation( aMeshIndex ) )
         {
             // iterate through the enriched vertices related to the base vertex and see if any are equal
-            for ( moris::uint i = 0; i < tNumVertsEnrOnBaseVert; i++ )
+            for ( moris::uint iVertEnrLvl = 0; iVertEnrLvl < tNumVertsEnrOnBaseVert; iVertEnrLvl++ )
             {
                 // std::cout<<" i = "<<i<<" | Base basis ind = "<<<<std::endl;
-                moris_index tVertEnrIndex = mBaseInterpVertToVertEnrichmentIndex( tLocalMeshIndex )( tBaseVertIndex )( i );
+                
+                // get the index of the enriched vertex
+                moris_index tVertEnrIndex = mBaseInterpVertToVertEnrichmentIndex( tLocalMeshIndex )( tBaseVertIndex )( iVertEnrLvl );
 
+                // check if the Vertex-Enrichment (VE) passed into this fnct. is the same as the VE already associated with this particular enr. vertex
                 if ( aVertexEnrichment == *mInterpVertEnrichment( tLocalMeshIndex )( tVertEnrIndex ) )
                 {
                     return tVertEnrIndex;
@@ -684,17 +688,19 @@ namespace xtk
         // make a new one
         aNewVertex = true;
 
-        // index of the vertex enrichment
+        // index of the vertex enrichment (just check how many VEs there already are, next one up is the new index)
         moris_index tVertexEnrichmentIndex = mInterpVertEnrichment( tLocalMeshIndex ).size();
 
-        // add to member data
+        // add new VE to member data
         mInterpVertEnrichment( tLocalMeshIndex ).push_back( new Vertex_Enrichment( aVertexEnrichment ) );
 
         // add a dummy value to the parent vertex index of a vertex interpolation
         mVertexEnrichmentParentVertexIndex( tLocalMeshIndex ).push_back( tVertexEnrichmentIndex );
 
+        // update list of VEs living on current base vertex associated with the current DMI
         mBaseInterpVertToVertEnrichmentIndex( tLocalMeshIndex )( tBaseVertIndex ).push_back( tVertexEnrichmentIndex );
 
+        // return the index of the new VE
         return tVertexEnrichmentIndex;
     }
     // ----------------------------------------------------------------------------
@@ -2782,10 +2788,9 @@ namespace xtk
     void
     Enriched_Interpolation_Mesh::setup_mesh_index_map()
     {
-        for ( moris::uint i = 0; i < (uint)mMeshIndices.max() + 1; i++ )
+        for ( moris::uint iMeshIndex = 0; iMeshIndex < (uint)mMeshIndices.max() + 1; iMeshIndex++ )
         {
-
-            mMeshIndexToLocMeshIndex[i] = i;
+            mMeshIndexToLocMeshIndex[iMeshIndex] = iMeshIndex;
         }
     }
 

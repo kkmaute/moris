@@ -31,8 +31,9 @@ Enriched_Integration_Mesh::Enriched_Integration_Mesh( Model *aXTKModel,
     mModel( aXTKModel ),
     mCutIgMesh( mModel->get_cut_integration_mesh() ), mMeshIndexInModel( aInterpIndex ), mCellClusters( 0, nullptr ), mFields( 0 ), mFieldLabelToIndex( 2 ), mCellInfo( nullptr )
 {
-    
+    // log/trace this function
     Tracer tTracer( "XTK", "Enriched Integration Mesh", "Construction", mModel->mVerboseLevel, 0  );
+
     this->setup_cell_clusters();
     this->setup_blockset_with_cell_clusters();
     this->setup_side_set_clusters();
@@ -42,6 +43,7 @@ Enriched_Integration_Mesh::Enriched_Integration_Mesh( Model *aXTKModel,
     this->setup_color_to_set();
     this->collect_all_sets();
 
+    // get the Cell info for trivial integration clusters
     if ( this->get_spatial_dim() == 2 )
     {
         mCellInfo = new moris::mtk::Cell_Info_Quad4();
@@ -973,6 +975,8 @@ Enriched_Integration_Mesh::write_mesh( moris::ParameterList *aParamList )
     writer.close_file();
 }
 
+//------------------------------------------------------------------------------
+
 void
 Enriched_Integration_Mesh::create_bg_cell_id_field()
 {
@@ -999,6 +1003,8 @@ Enriched_Integration_Mesh::create_bg_cell_id_field()
 
     this->add_field_data( tFieldIndex, EntityRank::ELEMENT, tCellIdField );
 }
+
+//------------------------------------------------------------------------------
 
 void
 Enriched_Integration_Mesh::create_subphase_fields()
@@ -1045,6 +1051,8 @@ Enriched_Integration_Mesh::create_subphase_fields()
     this->add_field_data( tFieldIndices( 1 ), EntityRank::ELEMENT, tCellToBulkPhase );
 }
 
+//------------------------------------------------------------------------------
+
 void
 Enriched_Integration_Mesh::write_subphase_neighborhood( std::string aFile )
 {
@@ -1077,7 +1085,9 @@ Enriched_Integration_Mesh::write_subphase_neighborhood( std::string aFile )
         tOutputFile.close();
     }
 }
+
 //------------------------------------------------------------------------------
+
 void
 Enriched_Integration_Mesh::create_union_block( Cell< std::string > const &aBlocks,
     std::string                                                           aNewBlock,
@@ -1120,7 +1130,9 @@ Enriched_Integration_Mesh::create_union_block( Cell< std::string > const &aBlock
     this->setup_color_to_set();
     this->collect_all_sets( false );
 }
+
 //------------------------------------------------------------------------------
+
 void
 Enriched_Integration_Mesh::create_union_side_set(
         Cell< std::string > const & aSideSets,
@@ -1154,6 +1166,8 @@ Enriched_Integration_Mesh::create_union_side_set(
     this->setup_color_to_set();
     this->collect_all_sets( false );
 }
+
+//------------------------------------------------------------------------------
 
 void
 Enriched_Integration_Mesh::deactive_all_blocks_but_selected( Cell< std::string > const &aBlockSetsToKeep )
@@ -1202,6 +1216,9 @@ Enriched_Integration_Mesh::deactive_all_blocks_but_selected( Cell< std::string >
         }
     }
 }
+
+//------------------------------------------------------------------------------
+
 void
 Enriched_Integration_Mesh::deactive_all_side_sets_but_selected( Cell< std::string > const &aSideSetsToKeep )
 {
@@ -2009,6 +2026,7 @@ Enriched_Integration_Mesh::get_field_data(
 }
 
 //------------------------------------------------------------------------------
+
 moris_id
 Enriched_Integration_Mesh::allocate_entity_ids(
     moris::size_t   aNumReqs,
@@ -2900,7 +2918,9 @@ Enriched_Integration_Mesh::set_side_set_colors(
 
     mSideSetColors( aSideSetIndex ) = aSideSetColors;
 }
+
 //------------------------------------------------------------------------------
+
 Cell< moris_index >
 Enriched_Integration_Mesh::register_double_side_set_names( moris::Cell< std::string > const &aDblSideSetNames )
 {
@@ -2909,22 +2929,28 @@ Enriched_Integration_Mesh::register_double_side_set_names( moris::Cell< std::str
     // block set ords
     Cell< moris_index > tDblSideSetOrds( tNumSetsToRegister );
 
-    // iterate and add sets
-    for ( moris::uint i = 0; i < tNumSetsToRegister; i++ )
-    {
-        tDblSideSetOrds( i ) = mDoubleSideSets.size() + i;
+    // get number of allready existing double sided side sets (i.e. interface side sets)
+    uint tNumInterfaceSets = mDoubleSideSets.size();
 
-        mDoubleSideSetLabels.push_back( aDblSideSetNames( i ) );
-        MORIS_ASSERT( mDoubleSideSetLabelToOrd.find( aDblSideSetNames( i ) ) == mDoubleSideSetLabelToOrd.end(), "Duplicate double side set in mesh" );
-        mDoubleSideSetLabelToOrd[aDblSideSetNames( i )] = tDblSideSetOrds( i );
+    // iterate and add double side sets
+    for ( moris::uint iDSS = 0; iDSS < tNumSetsToRegister; iDSS++ )
+    {
+        // build map associating each ghost side set with a double side set index 
+        tDblSideSetOrds( iDSS ) = tNumInterfaceSets + iDSS;
+
+        mDoubleSideSetLabels.push_back( aDblSideSetNames( iDSS ) );
+        MORIS_ASSERT( mDoubleSideSetLabelToOrd.find( aDblSideSetNames( iDSS ) ) == mDoubleSideSetLabelToOrd.end(), "Duplicate double side set in mesh" );
+        mDoubleSideSetLabelToOrd[aDblSideSetNames( iDSS )] = tDblSideSetOrds( iDSS );
     }
 
+    // update dbl. side set info in enriched integration mesh
     mDoubleSideSets.resize( mDoubleSideSets.size() + tNumSetsToRegister );
     mDoubleSideSetsMasterIndex.resize( mDoubleSideSetsMasterIndex.size() + tNumSetsToRegister );
     mDoubleSideSetsSlaveIndex.resize( mDoubleSideSetsSlaveIndex.size() + tNumSetsToRegister );
     mMasterDoubleSideSetColor.resize( mMasterDoubleSideSetColor.size() + tNumSetsToRegister );
     mSlaveDoubleSideSetColor.resize( mSlaveDoubleSideSetColor.size() + tNumSetsToRegister );
 
+    // return list containing the dbl. side set indices for new ghost dbl. side sets
     return tDblSideSetOrds;
 }
 
