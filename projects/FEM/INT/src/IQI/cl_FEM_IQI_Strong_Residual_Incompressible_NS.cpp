@@ -51,6 +51,14 @@ namespace moris
                 mIQITypeIndex = 0;
             }
 
+            // check if IQI should be computed
+            if ( mIQITypeIndex < 0 )
+            {
+                aQI = MORIS_REAL_MAX;
+
+                return;
+            }
+
             // get the velocity and pressure FIs
             Field_Interpolator* tVelocityFI =
                     mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
@@ -86,48 +94,14 @@ namespace moris
             // get the density value
             real tDensity = tDensityProp->val()( 0 );
 
+            // get spatial dimension
+            uint tSpaceDim = tVelocityFI->get_space_dim();
+
+            // check for proper IQITypeIndex
+            MORIS_ASSERT( (uint)mIQITypeIndex <= tSpaceDim,
+                    "IQI_Strong_Residual_Incompressible_NS::compute_QI - incorrect vectorial index." );
+
             if ( mIQITypeIndex == 0 )
-            {
-                // compute the residual strong form of momentum equation
-                aQI = tDensity * trans( tVelocityFI->gradt( 1 ) )
-                    + tDensity * trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->val()
-                    - tIncFluidCM->divflux();
-
-                // if body load
-                if ( tLoadProp != nullptr )
-                {
-                    // add contribution of body load term to momentum residual
-                    aQI -= tLoadProp->val();
-                }
-
-                // if permeability
-                if ( tInvPermeabProp != nullptr )
-                {
-                    // add Brinkman term to residual strong form
-                    aQI += tInvPermeabProp->val()( 0 ) * tVelocityFI->val();
-                }
-
-                // if gravity
-                if ( tGravityProp != nullptr )
-                {
-                    // add gravity to residual strong form
-                    aQI += tDensity * tGravityProp->val();
-
-                    // if thermal expansion and reference temperature
-                    if ( tThermalExpProp != nullptr && tRefTempProp != nullptr )
-                    {
-                        // get the temperature field interpolator
-                        // FIXME protect FI
-                        Field_Interpolator* tTempFI =
-                                mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::TEMP );
-
-                        // add contribution to residual
-                        aQI -= tDensity * tGravityProp->val() * tThermalExpProp->val()
-                             * ( tTempFI->val() - tRefTempProp->val() );
-                    }
-                }
-            }
-            else if ( mIQITypeIndex == 1 )
             {
                 // compute the residual strong form of continuity equation
                 aQI = tVelocityFI->div();
@@ -141,7 +115,46 @@ namespace moris
             }
             else
             {
-                aQI = MORIS_REAL_MAX;
+                // compute the residual strong form of momentum equation
+                Matrix< DDRMat > tRes = tDensity * trans( tVelocityFI->gradt( 1 ) )
+                                      + tDensity * trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->val()
+                                      - tIncFluidCM->divflux();
+
+                // if body load
+                if ( tLoadProp != nullptr )
+                {
+                    // add contribution of body load term to momentum residual
+                    tRes -= tLoadProp->val();
+                }
+
+                // if permeability
+                if ( tInvPermeabProp != nullptr )
+                {
+                    // add Brinkman term to residual strong form
+                    tRes += tInvPermeabProp->val()( 0 ) * tVelocityFI->val();
+                }
+
+                // if gravity
+                if ( tGravityProp != nullptr )
+                {
+                    // add gravity to residual strong form
+                    tRes += tDensity * tGravityProp->val();
+
+                    // if thermal expansion and reference temperature
+                    if ( tThermalExpProp != nullptr && tRefTempProp != nullptr )
+                    {
+                        // get the temperature field interpolator
+                        // FIXME protect FI
+                        Field_Interpolator* tTempFI =
+                                mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::TEMP );
+
+                        // add contribution to residual
+                        tRes -= tDensity * tGravityProp->val() * tThermalExpProp->val()
+                              * ( tTempFI->val() - tRefTempProp->val() );
+                    }
+                }
+
+                aQI = tRes( mIQITypeIndex - 1 );
             }
         }
 
