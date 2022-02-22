@@ -31,10 +31,7 @@ namespace moris
             private:
 
                 // internal threshold for zero
-                const real mEpsilon = MORIS_REAL_EPS;
-
-                // internal threshold for wall distance
-                const real mWallDistanceEpsilon = 1e-6;
+                const real mEpsilon = 1e-10;
 
                 // Spalart-Allmaras model constants
                 real mCb1 = 0.1355;

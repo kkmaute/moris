@@ -11,7 +11,7 @@ namespace moris
         // Spalart Allmaras model constants
         real mCv1 = 7.1;
 
-        real mEpsilon = MORIS_REAL_EPS;
+        real mEpsilon = 1e-10;
 
         //------------------------------------------------------------------------------
 
@@ -181,8 +181,11 @@ namespace moris
             // compute chi³
             real tChi3 = std::pow( tChi, 3.0 );
 
+            // threshold deno (for consistency with derivative computation)
+            real tFv1Deno = std::max( tChi3 + std::pow( mCv1, 3.0 ), mEpsilon );
+
             // compute fv1
-            return tChi3 / ( tChi3 + std::pow( mCv1, 3.0 ) );
+            return tChi3 / tFv1Deno;
         }
 
         //------------------------------------------------------------------------------
@@ -209,9 +212,20 @@ namespace moris
                     aDofTypes,
                     tdchidu );
 
-            // compute adfv1du
-            adfv1du = 3.0 * std::pow( mCv1, 3.0 ) * std::pow( tChi, 2.0 ) * tdchidu /
-                    std::pow( std::pow( tChi, 3.0 ) + std::pow( mCv1, 3.0 ), 2.0 );
+            // threshold deno (for consistency with derivative computation)
+            real tFv1Deno = std::max( std::pow( tChi, 3.0 ) + std::pow( mCv1, 3.0 ), mEpsilon );
+            if( tFv1Deno > mEpsilon )
+            {
+                // threshold deno
+                real tFv1Deno2 = std::max( std::pow( tFv1Deno, 2.0 ), mEpsilon );
+
+                // compute adfv1du
+                adfv1du = 3.0 * std::pow( mCv1, 3.0 ) * std::pow( tChi, 2.0 ) * tdchidu / tFv1Deno2;
+            }
+            else
+            {
+                adfv1du = 3.0 * std::pow( tChi, 2.0 ) * tdchidu / tFv1Deno;
+            }
         }
 
         //------------------------------------------------------------------------------
@@ -236,10 +250,21 @@ namespace moris
                     aPropKinViscosity,
                     tdchidx );
 
-            // compute dfv1dx
-            adfv1dx =
-                    3.0 * mCv1 * std::pow( tChi, 2.0 ) * tdchidx /
-                    std::pow( std::pow( tChi, 3.0 ) + std::pow( mCv1, 3.0 ), 2.0 );
+            // threshold deno (for consistency with derivative computation)
+            real tFv1Deno = std::max( std::pow( tChi, 3.0 ) + std::pow( mCv1, 3.0 ), mEpsilon );
+            if( tFv1Deno > mEpsilon )
+            {
+                // threshold deno
+                real tFv1Deno2 = std::max( std::pow( tFv1Deno, 2.0 ), mEpsilon );
+
+                // compute dfv1dx
+                adfv1dx = 3.0 * mCv1 * std::pow( tChi, 2.0 ) * tdchidx / tFv1Deno2;
+            }
+            else
+            {
+                // compute dfv1dx
+                adfv1dx = 3.0 * std::pow( tChi, 2.0 ) * tdchidx / tFv1Deno;
+            }
         }
 
         //------------------------------------------------------------------------------
@@ -292,11 +317,23 @@ namespace moris
                     aDofTypes,
                     tdchidxdu );
 
-            // compute dfv1dxdu
-            adfv1dxdu = 3.0 * mCv1 * (
-                    2.0 * tChi * ( tCv13 - 2.0 * tChi3 ) * tdchidx * tdchidu +
-                    tChi2 * ( tChi3 + tCv13 ) * tdchidxdu ) /
-                            std::pow( tChi3 + tCv13, 3.0 );
+            // threshold deno (for consistency with derivative computation)
+            real tFv1Deno = std::max( tChi3 + tCv13, mEpsilon );
+            if( tFv1Deno > mEpsilon )
+            {
+                // threshold deno
+                real tFv1Deno3 = std::max( std::pow( tFv1Deno, 3.0 ), mEpsilon );
+
+                // compute dfv1dxdu
+                adfv1dxdu = 3.0 * mCv1 * (
+                        2.0 * tChi * ( tCv13 - 2.0 * tChi3 ) * tdchidx * tdchidu +
+                        tChi2 * ( tChi3 + tCv13 ) * tdchidxdu ) / tFv1Deno3;
+            }
+            else
+            {
+                // compute dfv1dxdu
+                adfv1dxdu = 3.0 * tChi * ( 2.0 * tdchidx * tdchidu + tChi * tdchidxdu ) / tFv1Deno;
+            }
         }
 
     } /* namespace fem */

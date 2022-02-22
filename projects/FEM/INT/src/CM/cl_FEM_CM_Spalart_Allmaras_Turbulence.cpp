@@ -136,18 +136,8 @@ namespace moris
             mdWallDestructionTermdu.resize( tNumGlobalDofTypes );
 
             mdDiffusionCoeffdu.resize( tNumGlobalDofTypes );
-            mdDiffusionCoeffdxdu.resize( tOrder );
-            for( uint iOrder = 0; iOrder < tOrder; iOrder++ )
-            {
-                mdDiffusionCoeffdxdu( iOrder ).resize( tNumGlobalDofTypes );
-            }
 
             mdChidu.resize( tNumGlobalDofTypes );
-            mdChidxdu.resize( tOrder );
-            for( uint iOrder = 0; iOrder < tOrder; iOrder++ )
-            {
-                mdChidxdu( iOrder ).resize( tNumGlobalDofTypes );
-            }
 
             mdFt2du.resize( tNumGlobalDofTypes );
 
@@ -164,12 +154,16 @@ namespace moris
             mdFwdu.resize( tNumGlobalDofTypes );
 
             mdFndu.resize( tNumGlobalDofTypes );
+
             mdFndxdu.resize( tOrder );
+            mdDiffusionCoeffdxdu.resize( tOrder );
+            mdChidxdu.resize( tOrder );
             for( uint iOrder = 0; iOrder < tOrder; iOrder++ )
             {
+                mdChidxdu( iOrder ).resize( tNumGlobalDofTypes );
+                mdDiffusionCoeffdxdu( iOrder ).resize( tNumGlobalDofTypes );
                 mdFndxdu( iOrder ).resize( tNumGlobalDofTypes );
             }
-
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -675,21 +669,19 @@ namespace moris
             real tWallDistance = mPropWallDistance->val()( 0 );
 
             // threshold wall distance
-            tWallDistance = std::max( tWallDistance, mWallDistanceEpsilon );
+            real tWallDistance2 = std::max( std::pow( tWallDistance, 2.0 ), mEpsilon );
 
             // if viscosity is positive or zero
             if( tModViscosity >= 0.0 )
             {
                 // compute wall destruction coefficient
-                mWallDestructionCoeff =
-                        {{ ( mCw1 * this->fw() - mCb1 * this->ft2() / std::pow( mKappa, 2.0 ) ) *
-                        tModViscosity / std::pow( tWallDistance, 2.0 ) }};
+                mWallDestructionCoeff = {{ ( mCw1 * this->fw() - mCb1 * this->ft2() / std::pow( mKappa, 2.0 ) ) * tModViscosity / tWallDistance2 }};
             }
             // if viscosity is negative
             else
             {
                 // compute wall destruction coefficient
-                mWallDestructionCoeff = {{ - mCw1 * tModViscosity / std::pow( tWallDistance, 2.0 ) }};
+                mWallDestructionCoeff = {{ - mCw1 * tModViscosity / tWallDistance2 }};
             }
         }
 
@@ -744,7 +736,7 @@ namespace moris
             real tWallDistance = mPropWallDistance->val()( 0 );
 
             // threshold wall distance
-            tWallDistance = std::max( tWallDistance, mWallDistanceEpsilon );
+            real tWallDistance2 = std::max( std::pow( tWallDistance, 2.0 ), mEpsilon );
 
             // if viscosity is positive or zero
             if( tModViscosity >= 0.0 )
@@ -752,7 +744,7 @@ namespace moris
                 // add contribution to dwalldestructiondu
                 mdWallDestructionCoeffdu( tDofIndex ) =
                         ( mCw1 * this->dfwdu( aDofTypes ) - mCb1 * this->dft2du( aDofTypes ) / std::pow( mKappa, 2.0 ) ) *
-                        tModViscosity / std::pow( tWallDistance, 2.0 );
+                        tModViscosity / tWallDistance2;
 
                 // if derivative dof type is viscosity
                 if( aDofTypes( 0 ) == mDofViscosity )
@@ -760,20 +752,21 @@ namespace moris
                     // add contribution to dwalldestructiondu
                     mdWallDestructionCoeffdu( tDofIndex ) +=
                             ( mCw1 * this->fw() - mCb1 * this->ft2() / std::pow( mKappa, 2.0 ) ) *
-                            tFIModViscosity->N() /
-                            std::pow( tWallDistance, 2.0 );
+                            tFIModViscosity->N() / tWallDistance2;
                 }
 
                 // if wall distance depends on derivative dof type
                 if( ( mPropWallDistance->check_dof_dependency( aDofTypes ) ) &&
-                        ( tWallDistance > mWallDistanceEpsilon ) )
+                        ( tWallDistance2 > mEpsilon ) )
                 {
+                    // threshold wall distance
+                    real tWallDistance3 = std::max( std::pow( tWallDistance, 3.0 ), mEpsilon );
+
                     // add contribution to dwalldestructiondu
                     mdWallDestructionCoeffdu( tDofIndex ) -=
                             2.0 * ( mCw1 * this->fw() - mCb1 * this->ft2() / std::pow( mKappa, 2.0 ) ) *
                             std::pow( tModViscosity, 2.0 ) *
-                            mPropWallDistance->dPropdDOF( aDofTypes ) /
-                            std::pow( tWallDistance, 3.0 );
+                            mPropWallDistance->dPropdDOF( aDofTypes ) / tWallDistance3;
                 }
             }
             // if viscosity is negative
@@ -784,8 +777,7 @@ namespace moris
                 {
                     // add contribution to dwalldestructiondu
                     mdWallDestructionCoeffdu( tDofIndex ) =
-                            - mCw1 * tFIModViscosity->N() /
-                            std::pow( tWallDistance, 2.0 );
+                            - mCw1 * tFIModViscosity->N() / tWallDistance2;
                 }
                 else
                 {
@@ -795,13 +787,16 @@ namespace moris
 
                 // if wall distance depends on derivative dof type
                 if( ( mPropWallDistance->check_dof_dependency( aDofTypes ) ) &&
-                        ( tWallDistance > mWallDistanceEpsilon ) )
+                        ( tWallDistance2 > mEpsilon ) )
                 {
+                    // threshold wall distance
+                    real tWallDistance3 = std::max( std::pow( tWallDistance, 3.0 ), mEpsilon );
+
                     // add contribution to dwalldestructiondu
                     mdWallDestructionCoeffdu( tDofIndex ) +=
                             2.0 * mCw1 * std::pow( tModViscosity, 2.0 ) *
                             mPropWallDistance->dPropdDOF( aDofTypes ) /
-                            std::pow( tWallDistance, 3.0 );
+                            tWallDistance3;
                 }
             }
         }
@@ -1799,8 +1794,11 @@ namespace moris
 
         void CM_Spalart_Allmaras_Turbulence::eval_fv2()
         {
+            // threshold deno
+            real tDeno = std::max( 1 + this->chi() * this->fv1(), mEpsilon );
+
             // compute fv2
-            mFv2 = 1.0 - this->chi() / ( 1 + this->chi() * this->fv1() );
+            mFv2 = 1.0 - this->chi() / tDeno;
         }
 
         const real CM_Spalart_Allmaras_Turbulence::fv2(
@@ -1841,10 +1839,22 @@ namespace moris
                     1,
                     tFIDer->get_number_of_space_time_coefficients() );
 
-            // compute adfv2du
-            mdFv2du( tDofIndex ) =
-                    ( std::pow( this->chi(), 2.0 ) * this->dfv1du( aDofTypes ) - this->dchidu( aDofTypes ) ) /
-                    ( std::pow( 1.0 + this->chi() * this->fv1(), 2.0 ) );
+            // threshold deno
+            real tDeno = std::max( 1 + this->chi() * this->fv1(), mEpsilon );
+            if( tDeno > mEpsilon )
+            {
+                // threshold deno
+                real tDeno2 = std::max( std::pow( tDeno, 2.0 ), mEpsilon );
+
+                // compute adfv2du
+                mdFv2du( tDofIndex ) =
+                        ( std::pow( this->chi(), 2.0 ) * this->dfv1du( aDofTypes ) - this->dchidu( aDofTypes ) ) / tDeno2 ;
+            }
+            else
+            {
+                // compute adfv2du
+                mdFv2du( tDofIndex ) = - this->dchidu( aDofTypes ) / tDeno;
+            }
         }
 
         const Matrix< DDRMat > & CM_Spalart_Allmaras_Turbulence::dfv2du(
@@ -1888,11 +1898,11 @@ namespace moris
             // get wall distance
             real tWallDistance = mPropWallDistance->val()( 0 );
 
-            // threshold wall distance
-            tWallDistance = std::max( tWallDistance, mWallDistanceEpsilon );
+            // threshold deno
+            real tDeno = std::max( std::pow( mKappa * tWallDistance, 2.0 ), mEpsilon );
 
             // compute sbar
-            mSBar = this->fv2() * tFIViscosity->val()( 0 ) / std::pow( mKappa * tWallDistance, 2.0 );
+            mSBar = this->fv2() * tFIViscosity->val()( 0 ) / tDeno;
         }
 
         const real CM_Spalart_Allmaras_Turbulence::sbar(
@@ -1938,30 +1948,30 @@ namespace moris
             // get the wall distance value
             real tWallDistance = mPropWallDistance->val()( 0 );
 
-            // threshold wall distance
-            tWallDistance = std::max( tWallDistance, mWallDistanceEpsilon );
+            // threshold deno
+            real tDeno = std::max( std::pow( mKappa * tWallDistance, 2.0 ), mEpsilon );
 
             // compute dsbardu
             mdSBardu( tDofIndex ) =
-                    tFIViscosity->val() * this->dfv2du( aDofTypes ) /
-                    std::pow( mKappa * tWallDistance, 2.0 );
+                    tFIViscosity->val() * this->dfv2du( aDofTypes ) / tDeno;
 
             // if derivative dof type is viscosity dof type
             if( aDofTypes( 0 ) == mDofViscosity )
             {
                 // add contribution
-                mdSBardu( tDofIndex ) += this->fv2() * tFIViscosity->N() /
-                        std::pow( mKappa * tWallDistance, 2.0 );
+                mdSBardu( tDofIndex ) += this->fv2() * tFIViscosity->N() / tDeno;
             }
 
             // if wall distance depends on derivative dof type
             if( ( mPropWallDistance->check_dof_dependency( aDofTypes ) ) &&
-                    ( tWallDistance > mWallDistanceEpsilon ) )
+                    ( tDeno > mEpsilon ) )
             {
+                // threshold deno
+                real tKappa2WallDistance3 = std::max( std::pow( mKappa, 2.0 ) * std::pow( tWallDistance, 3.0 ), mEpsilon );
+
                 // add contribution to dsbardu
                 mdSBardu( tDofIndex )  -=
-                        2.0 * this->fv2() * tFIViscosity->val()( 0 ) * mPropWallDistance->dPropdDOF( aDofTypes ) /
-                        ( std::pow( mKappa, 2.0 ) * std::pow( tWallDistance, 3.0 ) );
+                        2.0 * this->fv2() * tFIViscosity->val()( 0 ) * mPropWallDistance->dPropdDOF( aDofTypes ) / tKappa2WallDistance3;
             }
         }
 
@@ -1999,9 +2009,11 @@ namespace moris
 
         void CM_Spalart_Allmaras_Turbulence::eval_smod()
         {
+            // threshold deno
+            real tDeno = std::max( ( mCv3 - 2.0 * mCv2 ) * this->s() - this->sbar(), mEpsilon );
+
             // compute smod
-            mSMod = this->s() * ( std::pow( mCv2, 2 ) * this->s() + mCv3 * this->sbar() ) /
-                    ( ( mCv3 - 2.0 * mCv2 ) * this->s() - this->sbar() );
+            mSMod = this->s() * ( std::pow( mCv2, 2 ) * this->s() + mCv3 * this->sbar() ) / tDeno;
         }
 
         const real CM_Spalart_Allmaras_Turbulence::smod(
@@ -2043,14 +2055,27 @@ namespace moris
             // compute smod num
             real tSModNum = this->s() * ( std::pow( mCv2, 2 ) * this->s() + mCv3 * this->sbar() );
 
-            // compute smod deno
-            real tSModDeno = ( mCv3 - 2.0 * mCv2 ) * this->s() - this->sbar();
+            // compute smod deno and threshold deno
+            real tSModDeno = std::max( ( mCv3 - 2.0 * mCv2 ) * this->s() - this->sbar(), mEpsilon );
 
-            // compute dsmoddu
-            mdSModdu( tDofIndex ) = ( ( this->dsdu( aDofTypes ) * ( std::pow( mCv2, 2 ) * this->s() + mCv3 * this->sbar() ) +
-                    this->s() * ( std::pow( mCv2, 2 ) * this->dsdu( aDofTypes ) + mCv3 * this->dsbardu( aDofTypes ) ) ) * tSModDeno -
-                    tSModNum * ( ( mCv3 - 2.0 * mCv2 ) * this->dsdu( aDofTypes ) - this->dsbardu( aDofTypes ) ) ) /
-                    std::pow( tSModDeno, 2 );
+            if( tSModDeno > mEpsilon )
+            {
+                // threshold deno
+                real tSModDeno2 = std::max( std::pow( tSModDeno, 2 ), mEpsilon );
+
+                // compute dsmoddu
+                mdSModdu( tDofIndex ) = ( ( this->dsdu( aDofTypes ) * ( std::pow( mCv2, 2 ) * this->s() + mCv3 * this->sbar() ) +
+                        this->s() * ( std::pow( mCv2, 2 ) * this->dsdu( aDofTypes ) + mCv3 * this->dsbardu( aDofTypes ) ) ) * tSModDeno -
+                        tSModNum * ( ( mCv3 - 2.0 * mCv2 ) * this->dsdu( aDofTypes ) - this->dsbardu( aDofTypes ) ) ) /
+                        tSModDeno2;
+            }
+            else
+            {
+                // compute dsmoddu
+                mdSModdu( tDofIndex ) = ( this->dsdu( aDofTypes ) * ( std::pow( mCv2, 2 ) * this->s() + mCv3 * this->sbar() ) +
+                        this->s() * ( std::pow( mCv2, 2 ) * this->dsdu( aDofTypes ) + mCv3 * this->dsbardu( aDofTypes ) ) ) /
+                        tSModDeno;
+            }
         }
 
         const Matrix< DDRMat > & CM_Spalart_Allmaras_Turbulence::dsmoddu(
@@ -2195,11 +2220,11 @@ namespace moris
              // get the wall distance value
              real tWallDistance = mPropWallDistance->val()( 0 );
 
-             // threshold wall distance
-             tWallDistance = std::max( tWallDistance, mWallDistanceEpsilon );
+             // threshold deno
+             real tRDeno = std::max( this->stilde() * std::pow( mKappa * tWallDistance, 2.0 ), mEpsilon );
 
              // compute viscosity / ( stilde * kappa² * d² )
-             mR = tFIViscosity->val()( 0 ) / ( this->stilde() * std::pow( mKappa * tWallDistance, 2.0 ) );
+             mR = tFIViscosity->val()( 0 ) / tRDeno;
 
              // select minimum
              mR = std::min( mR, mRLim );
@@ -2251,28 +2276,38 @@ namespace moris
                  // get the wall distance value
                  real tWallDistance = mPropWallDistance->val()( 0 );
 
-                 // threshold wall distance
-                 tWallDistance = std::max( tWallDistance, mWallDistanceEpsilon );
-
-                 // add contribution from dStildedu
-                 mdRdu( tDofIndex ) = - tFIViscosity->val() * this->dstildedu( aDofTypes ) /
-                         std::pow( this->stilde() * mKappa * tWallDistance, 2.0 );
+                 // threshold deno
+                 real tRDeno = std::max( this->stilde() * std::pow( mKappa * tWallDistance, 2.0 ), mEpsilon );
 
                  // if dof type is viscosity
                  if( aDofTypes( 0 ) == mDofViscosity )
                  {
                      // add contribution from viscosity
-                     mdRdu( tDofIndex ) += this->stilde() * tFIDer->N() /
-                             std::pow(  this->stilde()  * mKappa * tWallDistance, 2.0 );
+                     mdRdu( tDofIndex ) =  tFIDer->N() / tRDeno;
+                 }
+                 else
+                 {
+                     mdRdu( tDofIndex ).fill( 0.0 );
                  }
 
-                 // if wall distance depends on derivative dof type
-                 if( ( mPropWallDistance->check_dof_dependency( aDofTypes ) ) &&
-                         ( tWallDistance > mWallDistanceEpsilon ) )
+                 // check deno
+                 if( tRDeno > mEpsilon )
                  {
-                     // add contribution from wall distance
-                     mdRdu( tDofIndex ) -= 2.0 * tFIViscosity->val()( 0 ) * mPropWallDistance->dPropdDOF( aDofTypes ) /
-                             ( this->stilde() * std::pow( mKappa, 2.0 ) * std::pow( tWallDistance, 3.0 ) );
+                     // threshold deno
+                     real tdRduDeno1 = std::max( std::pow( this->stilde() * mKappa * tWallDistance, 2.0 ), mEpsilon );
+
+                     // add contribution from dStildedu
+                     mdRdu( tDofIndex ) -= tFIViscosity->val() * this->dstildedu( aDofTypes ) / tdRduDeno1;
+
+                     // if wall distance depends on derivative dof type
+                     if( mPropWallDistance->check_dof_dependency( aDofTypes ) )
+                     {
+                         // threshold deno
+                         real tdRduDeno2 = std::max( this->stilde() * std::pow( mKappa, 2.0 ) * std::pow( tWallDistance, 3.0 ), mEpsilon );
+
+                         // add contribution from wall distance
+                         mdRdu( tDofIndex ) -= 2.0 * tFIViscosity->val()( 0 ) * mPropWallDistance->dPropdDOF( aDofTypes ) / tdRduDeno2;
+                     }
                  }
              }
              else
@@ -2393,9 +2428,11 @@ namespace moris
 
           void CM_Spalart_Allmaras_Turbulence::eval_fw()
           {
+              // threshold deno
+              real tFwDeno = std::max( std::pow( this->g(), 6.0 ) + std::pow( mCw3, 6.0 ), mEpsilon );
+
               // compute fw
-              mFw = ( 1.0 + std::pow( mCw3, 6.0 ) ) /
-                      ( std::pow( this->g(), 6.0 ) + std::pow( mCw3, 6.0 ) );
+              mFw = ( 1.0 + std::pow( mCw3, 6.0 ) ) / tFwDeno;
               mFw = this->g() * std::pow( mFw, 1.0 / 6.0 );
           }
 
@@ -2435,9 +2472,21 @@ namespace moris
               // set size dFwdu
               mdFwdu( tDofIndex ).set_size( 1, tFIDer->get_number_of_space_time_coefficients() );
 
-              // init dfwdu
-              mdFwdu( tDofIndex ) = ( this->fw() * std::pow( mCw3, 6.0 ) * this->dgdu( aDofTypes ) ) /
-                                 ( this->g() * ( std::pow( this->g(), 6.0 ) + std::pow( mCw3, 6.0 ) ) );
+              // threshold deno
+              real tFwDeno = std::max( std::pow( this->g(), 6.0 ) + std::pow( mCw3, 6.0 ), mEpsilon );
+              if( tFwDeno > mEpsilon )
+              {
+                  // threshold deno
+                  real tdFwduDeno = std::max( this->g() * tFwDeno, mEpsilon );
+
+                  // compute dfwdu
+                  mdFwdu( tDofIndex ) = ( this->fw() * std::pow( mCw3, 6.0 ) * this->dgdu( aDofTypes ) ) / tdFwduDeno;
+              }
+              else
+              {
+                  // compute dfwdu
+                  mdFwdu( tDofIndex ) =  this->dgdu( aDofTypes ) * std::pow( ( 1.0 + std::pow( mCw3, 6.0 ) ) / tFwDeno , 1/6 );
+              }
           }
 
           const Matrix< DDRMat > & CM_Spalart_Allmaras_Turbulence::dfwdu(
@@ -2474,10 +2523,11 @@ namespace moris
 
           void CM_Spalart_Allmaras_Turbulence::eval_fn()
           {
-              // compute fn
-              mFn =  ( mCn1 + std::pow( this->chi(), 3.0 ) ) /
-                      ( mCn1 - std::pow( this->chi(), 3.0 ) );
+              // threshold deno
+              real tFnDeno = std::max( ( mCn1 - std::pow( this->chi(), 3.0 ) ), mEpsilon );
 
+              // compute fn
+              mFn = ( mCn1 + std::pow( this->chi(), 3.0 ) ) / tFnDeno;
           }
 
           const real CM_Spalart_Allmaras_Turbulence::fn(
@@ -2516,16 +2566,23 @@ namespace moris
               // set size dFndu
               mdFndu( tDofIndex ).set_size( 1, tFIDer->get_number_of_space_time_coefficients() );
 
-              // compute chi²
-              real tChi2 = std::pow( this->chi(), 2 );
+              // threshold deno
+              real tFnDeno = std::max( ( mCn1 - std::pow( this->chi(), 3.0 ) ), mEpsilon );
+              if( tFnDeno > mEpsilon )
+              {
+                  // threshold deno
+                  real tdFnduDeno = std::max( std::pow( tFnDeno, 2.0 ), mEpsilon );
 
-              // compute chi³
-              real tChi3 = std::pow(  this->chi(), 3 );
-
-              // compute dfndu
-              mdFndu( tDofIndex ) =
-                      6.0 * mCn1 * tChi2 * this->dchidu( aDofTypes ) /
-                      std::pow( mCn1 - tChi3, 2.0 );
+                  // compute dfndu
+                  mdFndu( tDofIndex ) =
+                          6.0 * mCn1 * std::pow( this->chi(), 2 ) * this->dchidu( aDofTypes ) / tdFnduDeno;
+              }
+              else
+              {
+                  // compute dfndu
+                  mdFndu( tDofIndex ) =
+                          - 3.0 * mCn1 * std::pow( this->chi(), 2.0 ) * this->dchidu( aDofTypes ) / tFnDeno;
+              }
           }
 
           const Matrix< DDRMat > & CM_Spalart_Allmaras_Turbulence::dfndu(
@@ -2567,14 +2624,23 @@ namespace moris
               // set matrix size
               mdFndx( aOrder - 1 ).set_size( mSpaceDim, 1 );
 
-              // compute chi²
-              real tChi2 = std::pow( this->chi(), 2 );
+              // threshold deno
+              real tFnDeno = std::max( ( mCn1 - std::pow( this->chi(), 3.0 ) ), mEpsilon );
+              if( tFnDeno > mEpsilon )
+              {
+                  // threshold deno
+                  real tdFnduDeno = std::max( std::pow( tFnDeno, 2.0 ), mEpsilon );
 
-              // compute chi³
-              real tChi3 = std::pow(  this->chi(), 3 );
-
-              // compute dfndx
-              mdFndx( aOrder - 1 )  = 6.0 * mCn1 * tChi2 * this->dchidx( 1 ) / std::pow( mCn1 - tChi3, 2.0 );
+                  // compute dfndx
+                  mdFndx( aOrder - 1 )  =
+                          6.0 * mCn1 * std::pow( this->chi(), 2 ) * this->dchidx( 1 ) / tdFnduDeno;
+              }
+              else
+              {
+                  // compute dfndx
+                  mdFndx( aOrder - 1 )  =
+                          - 3.0 * mCn1 * std::pow( this->chi(), 2.0 ) * this->dchidx( 1 ) / tFnDeno;
+              }
           }
 
           const Matrix< DDRMat > & CM_Spalart_Allmaras_Turbulence::dfndx(
@@ -2621,16 +2687,24 @@ namespace moris
                       mSpaceDim,
                       tFIDer->get_number_of_space_time_coefficients() );
 
-              // compute chi²
-              real tChi2 = std::pow( this->chi(), 2 );
+              // threshold deno
+              real tFnDeno = std::max( ( mCn1 - std::pow( this->chi(), 3.0 ) ), mEpsilon );
+              if( tFnDeno > mEpsilon )
+              {
+                  // threshold deno
+                  real tdFndxduDeno = std::max( std::pow( tFnDeno, 3.0 ), mEpsilon );
 
-              // compute chi³
-              real tChi3 = std::pow(  this->chi(), 3 );
-
-              // compute dfndxdu
-              mdFndxdu( aOrder - 1 )( tDofIndex ) =
-                      6.0 * mCn1 * ( 2.0 * this->chi() * ( mCn1 + 2.0 * tChi3 ) * this->dchidx( 1 ) * this->dchidu( aDofTypes ) +
-                              ( mCn1 - tChi3 ) * tChi2 * this->dchidxdu( aDofTypes, 1 ) ) / std::pow( mCn1 - tChi3, 3.0 );
+                  // compute dfndxdu
+                  mdFndxdu( aOrder - 1 )( tDofIndex ) =
+                          6.0 * mCn1 * ( 2.0 * this->chi() * ( mCn1 + 2.0 * std::pow(  this->chi(), 3.0 ) ) * this->dchidx( 1 ) * this->dchidu( aDofTypes ) +
+                                  tFnDeno * std::pow( this->chi(), 2.0 ) * this->dchidxdu( aDofTypes, 1 ) ) / tdFndxduDeno;
+              }
+              else
+              {
+                  mdFndxdu( aOrder - 1 )( tDofIndex ) = - 3.0 * mCn1 *
+                          ( 2.0 * this->chi() * this->dchidx( 1 ) * this->dchidu( aDofTypes ) +
+                                  std::pow( this->chi(), 2.0 ) * this->dchidxdu( aDofTypes, 1 ) ) / tFnDeno;
+              }
           }
 
           const Matrix< DDRMat > & CM_Spalart_Allmaras_Turbulence::dfndxdu(
