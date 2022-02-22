@@ -94,11 +94,8 @@ namespace moris
             // get the density value
             real tDensity = tDensityProp->val()( 0 );
 
-            // get spatial dimension
-            uint tSpaceDim = tVelocityFI->get_space_dim();
-
-            // check for proper IQITypeIndex
-            MORIS_ASSERT( (uint)mIQITypeIndex <= tSpaceDim,
+            // check for proper value of IQITypeIndex
+            MORIS_ASSERT( (uint)mIQITypeIndex <= tVelocityFI->get_space_dim(),
                     "IQI_Strong_Residual_Incompressible_NS::compute_QI - incorrect vectorial index." );
 
             if ( mIQITypeIndex == 0 )
