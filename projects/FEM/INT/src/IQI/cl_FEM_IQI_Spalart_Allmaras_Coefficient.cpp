@@ -52,6 +52,18 @@ namespace moris
                     aQI = tCMSATurbulence->diffusion_coefficient();
                     break;
                 }
+                // production term
+                case 3:
+                {
+                    aQI = tCMSATurbulence->production_term();
+                    break;
+                }
+                // wall destruction term
+                case 4:
+                {
+                    aQI = tCMSATurbulence->wall_destruction_term();
+                    break;
+                }
                 // if none of the above
                 default:
                 {
