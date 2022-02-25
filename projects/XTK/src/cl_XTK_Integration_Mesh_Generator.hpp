@@ -745,6 +745,22 @@ class Integration_Mesh_Generator
     // ----------------------------------------------------------------------------------
 
     /**
+     * @brief collects the indices of the IG cells in all SPs given to the function and 
+     * compiles them in one linear list
+     * 
+     * @param aCutIntegrationMesh pointer to cut integration mesh (needed to access IG_cell_groups)
+     * @param aSPsInSPG list of SPs in the SPG
+     * @param aIgCellIndicesInSPG output/to fill: list of IG cell indices in SPG
+     */
+    void
+    collect_ig_cell_indices_in_SPG( 
+        Cut_Integration_Mesh*             aCutIntegrationMesh, 
+        moris::Cell< moris_index > const& aSPsInSPG, 
+        moris::Cell< moris_index >&       aIgCellIndicesInSPG );
+
+    // ----------------------------------------------------------------------------------
+
+    /**
      * @brief constructs the SPG Neighborhood Connectivity graph after the SPGs themselves have been constructed
      * 
      * @param aCutIntegrationMesh pointer to cut integration mesh

@@ -10,6 +10,7 @@
 namespace xtk
 {
 //------------------------------------------------------------------------------
+
 Interpolation_Cell_Unzipped::Interpolation_Cell_Unzipped(moris::mtk::Cell*         aBaseCell,
                                                          moris_index               aSubphaseIndex,
                                                          moris_index               aBulkPhaseIndex,
@@ -23,6 +24,21 @@ Interpolation_Cell_Unzipped::Interpolation_Cell_Unzipped(moris::mtk::Cell*      
                 mBulkPhaseIndex(aBulkPhaseIndex)
 {
 }
+
+// FIXME: just renaming everything for SPGs for later
+// Interpolation_Cell_Unzipped::Interpolation_Cell_Unzipped(moris::mtk::Cell*         aBaseCell,
+//                                                          moris_index               aSubphaseGroupIndex,
+//                                                          moris_index               aBulkPhaseIndex,
+//                                                          moris_id                  aEnrCellId,
+//                                                          moris_index               aEnrCellIndex,
+//                                                          moris_id                  aEnrCellOwner,
+//                                                          std::shared_ptr<moris::mtk::Cell_Info> aConnectivity ):
+//                 Interpolation_Cell(aEnrCellId,aEnrCellIndex,aEnrCellOwner,aConnectivity),
+//                 mBaseCell(aBaseCell),
+//                 mSubphaseGroupIndex(aSubphaseIndex),
+//                 mBulkPhaseIndex(aBulkPhaseIndex)
+// {
+// }
 
 //------------------------------------------------------------------------------
 
@@ -99,6 +115,15 @@ Interpolation_Cell_Unzipped::get_subphase_index() const
 
 //------------------------------------------------------------------------------
 
+// FIXME: add for SPGS
+// moris_index
+// Interpolation_Cell_Unzipped::get_subphase_group_index() const
+// {
+//     return mSubphaseGroupIndex;
+// }
+
+//------------------------------------------------------------------------------
+
 moris_index
 Interpolation_Cell_Unzipped::get_bulkphase_index() const
 {
@@ -127,6 +152,10 @@ Interpolation_Cell_Unzipped::capacity()
     tTotal += sizeof(mBaseCell);
     tTotal += sizeof(mSubPhaseIndex);
     tTotal += sizeof(mSubPhaseIndex);
+
+    // FIXME: add for SPGs
+    // tTotal += sizeof(mSubphaseGroupIndex);
+    // tTotal += sizeof(mSubphaseGroupIndex);
     tTotal += sizeof(mBulkPhaseIndex);
     tTotal += mVertices.capacity();
     return tTotal;

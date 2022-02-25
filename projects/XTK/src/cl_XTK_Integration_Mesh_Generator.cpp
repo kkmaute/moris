@@ -3352,17 +3352,13 @@ Integration_Mesh_Generator::check_construct_subphase_groups()
     // intialize output
     bool tConstructSPGs = false;
 
-    // only construct Subphase-Groups and their Neighborhood if Ghost has been requested
+    // only construct Subphase-Groups and their Neighborhood if SPG based enrichment has been requested
     // first check if XTK-Model has parameterlist (i.e. skip this in Unit tests that don't require it)
     if( mXTKModel->mParameterList.get< bool >( "has_parameter_list" ) )
     {
-        if( mXTKModel->mParameterList.get< bool >( "ghost_stab" )  )
+        if( mXTKModel->mParameterList.get< bool >( "use_SPG_based_enrichment" )  )
         {
-            // check that the enrichment is defined 
-            MORIS_ERROR( mXTKModel->mParameterList.get< bool >( "enrich" ), 
-                "Integration_Mesh_Generator::perform() - Requesting Ghost stabilization without requesting enrichment. This is not possible." );
-
-            // check that the enrichment is defined 
+            // check that the mesh indices for enrichment are defined 
             MORIS_ERROR( ! mXTKModel->mParameterList.get< std::string >( "enrich_mesh_indices" ).empty(), 
                 "Integration_Mesh_Generator::perform() - No B-spline mesh indices provided for enrichment. Unable to construct Subphase-groups." );
 
@@ -3448,20 +3444,29 @@ Integration_Mesh_Generator::construct_subphase_groups(
         uint tNumSPGs = (uint)tMaxSpgInd + 1;   
 
         // split subphase bin up into SPGs
-        moris::Cell< moris::Cell< moris_index > > tSPGsInBin = this->split_flood_fill_bin( tSubphaseBin, tSubphaseIndicesInBsplineCell, tNumSPGs );
+        moris::Cell< moris::Cell< moris_index > > tSPsInBin = this->split_flood_fill_bin( tSubphaseBin, tSubphaseIndicesInBsplineCell, tNumSPGs );
 
         // debug
-        MORIS_ASSERT( tNumSPGs == tSPGsInBin.size(), "Integration_Mesh_Generator::create_subphase_groups() - Something doesn't line up..." );
+        MORIS_ASSERT( tNumSPGs == tSPsInBin.size(), "Integration_Mesh_Generator::create_subphase_groups() - Something doesn't line up..." );
 
         // for each disconnected set of subphases ...
         for ( moris::size_t iSPG = 0; iSPG < tNumSPGs; iSPG++ )
         {
             // create SPGs and add to mesh
-            aBsplineMeshInfo->add_subphase_group_to_bspline_cell( tSPGsInBin( iSPG ), iBspElem );
+            aBsplineMeshInfo->add_subphase_group_to_bspline_cell( tSPsInBin( iSPG ), iBspElem );
+
+            // create a list of IG cells in the SPG
+            moris::Cell< moris_index > tIgCellIndicesInSPG;
+
+            // go through SPs and collect the IG cells in them in one list
+            this->collect_ig_cell_indices_in_SPG( aCutIntegrationMesh, tSPsInBin( iSPG ), tIgCellIndicesInSPG );
+
+            // set the list of IG cells to the b-spline mesh info
+            aBsplineMeshInfo->add_ig_cell_indices_to_last_admitted_subphase_group( tIgCellIndicesInSPG );
 
             // figure out the side ordinals of subphase connectivity to neighboring B-spline cells, and ...
             moris::Cell< bool > tActiveLigamentSideOrdinals = 
-                this->collect_subphase_group_ligament_side_ordinals( aCutIntegrationMesh, tSPGsInBin( iSPG ), tSubphaseIndexToBsplineCell );
+                this->collect_subphase_group_ligament_side_ordinals( aCutIntegrationMesh, tSPsInBin( iSPG ), tSubphaseIndexToBsplineCell );
 
             // ... add them to the last admitted SPG
             aBsplineMeshInfo->set_ligament_side_ordinals_of_last_admitted_subphase_group( tActiveLigamentSideOrdinals );
@@ -3659,6 +3664,46 @@ Integration_Mesh_Generator::split_flood_fill_bin(
 
 // ----------------------------------------------------------------------------------
 
+void
+Integration_Mesh_Generator::collect_ig_cell_indices_in_SPG( 
+    Cut_Integration_Mesh*             aCutIntegrationMesh, 
+    moris::Cell< moris_index > const& aSPsInSPG, 
+    moris::Cell< moris_index >&       aIgCellIndicesInSPG )
+{
+    // count up all IG cells within SPG
+    uint tIgCellCounter = 0;
+    
+    // for each SP get the number of Ig cells and add to total
+    for ( moris::size_t iSP = 0; iSP < aSPsInSPG.size(); iSP++)
+    {
+        moris_index tSpIndex = aSPsInSPG( iSP );
+        tIgCellCounter += aCutIntegrationMesh->get_subphase_ig_cells( tSpIndex )->mIgCellGroup.size();
+    }
+
+    // use number of IG cells to initialize list
+    aIgCellIndicesInSPG.resize( tIgCellCounter );
+
+    // reset counter
+    tIgCellCounter = 0;
+
+    // fill the list of IG cells in SPG by going over each of the individual subphases and their IG cells
+    for ( moris::size_t iSP = 0; iSP < aSPsInSPG.size(); iSP++)
+    {
+        // get the index of the current subphase
+        moris_index tSpIndex = aSPsInSPG( iSP );
+        
+        // get the group of IG cells associated with current subphase
+        const moris::Cell< moris::mtk::Cell* > * tIgCellGroup = &( aCutIntegrationMesh->get_subphase_ig_cells( tSpIndex )->mIgCellGroup );
+
+        // loop over IG cells in SP and add to list of IG cells in SPG
+        for ( moris::size_t iIgCell = 0; iIgCell < tIgCellGroup->size(); iIgCell++ )
+        {
+            aIgCellIndicesInSPG( tIgCellCounter ) = (*tIgCellGroup)( iIgCell )->get_index();
+        }   
+    }
+}
+
+// ----------------------------------------------------------------------------------
 
 moris::Cell< bool >
 Integration_Mesh_Generator::collect_subphase_group_ligament_side_ordinals(

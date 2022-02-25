@@ -805,6 +805,11 @@ namespace xtk
 
             // ----------------------------------------------------------------------------------
 
+            moris::uint
+            get_num_subphase_groups( moris_index aMeshListIndex );
+
+            // ----------------------------------------------------------------------------------
+
             moris::Cell< std::shared_ptr< Child_Mesh_Experimental > >&
             get_owned_child_meshes();
 
@@ -830,6 +835,13 @@ namespace xtk
 
             // ----------------------------------------------------------------------------------
 
+            const moris::Cell< moris_index > &
+            get_ig_cells_in_SPG( 
+                    moris_index aMeshIndexInList, 
+                    moris_index aSubphaseGroupIndex );
+
+            // ----------------------------------------------------------------------------------
+
             moris_index
             get_subphase_id( moris_index aSubPhaseIndex );
 
@@ -842,6 +854,13 @@ namespace xtk
 
             moris_index
             get_subphase_bulk_phase( moris_index aSubPhaseIndex );
+
+            // ----------------------------------------------------------------------------------
+
+            moris_index
+            get_subphase_group_bulk_phase(
+                    moris_index aSubPhaseGroupIndex,
+                    moris_index aMeshListIndex );
 
             // ----------------------------------------------------------------------------------
 
@@ -942,6 +961,15 @@ namespace xtk
 
             std::shared_ptr< Subphase_Neighborhood_Connectivity >
             get_subphase_neighborhood();
+
+            // ----------------------------------------------------------------------------------
+
+            std::shared_ptr< Subphase_Neighborhood_Connectivity >
+            get_subphase_group_neighborhood( moris_index aMeshIndex );
+
+            // ----------------------------------------------------------------------------------
+            moris::Cell< Bspline_Mesh_Info* > &
+            get_bspline_mesh_info();
 
             // ----------------------------------------------------------------------------------
 

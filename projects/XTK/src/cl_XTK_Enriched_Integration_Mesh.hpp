@@ -33,8 +33,10 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
 {
   public:
     //------------------------------------------------------------------------------
-    Enriched_Integration_Mesh( Model *aXTKModel,
-        moris::moris_index            aInterpIndex );
+    Enriched_Integration_Mesh( 
+        Model*             aXTKModel,
+        moris::moris_index aInterpIndex,
+        bool               aUseSpgBasedEnrichment = false );
     //------------------------------------------------------------------------------
     ~Enriched_Integration_Mesh();
     //------------------------------------------------------------------------------
@@ -434,7 +436,8 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
     moris::Cell< std::unordered_map< std::string, moris_index > > mFieldLabelToIndex;
 
     // Sub phase index to Cell Cluster Index (these only include the standard cluster i.e. non-ghost clusters.)
-    moris::Matrix< moris::IndexMat > mSubphaseIndexToClusterIndex;
+    moris::Matrix< moris::IndexMat > mSubphaseIndexToClusterIndex; // input: enr IP cell (= cluster) index || output: subphase index
+    moris::Matrix< moris::IndexMat > mClusterIndexToSubphaseGroupIndex; // input: enr IP cell (= cluster) index || output: subphase group index
 
     // a connectivity pointer used by all transition cells
     moris::mtk::Cell_Info *mCellInfo;
@@ -477,6 +480,9 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
 
     void
     setup_cell_clusters();
+
+    void
+    setup_cell_clusters_new();
 
     //------------------------------------------------------------------------------
 

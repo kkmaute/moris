@@ -46,7 +46,8 @@ namespace xtk
             moris::moris_index const &     aNumBulkPhases,
             xtk::Model*                    aXTKModelPtr,
             moris::mtk::Mesh*              aBackgroundMeshPtr,
-            bool                           aSortBasisEnrichmentLevels )
+            bool                           aSortBasisEnrichmentLevels,
+            bool                           aUseSpgBasedEnrichment )
             : mEnrichmentMethod( aMethod )
             , mBasisRank( aBasisRank )
             , mMeshIndices( aInterpIndex )
@@ -58,6 +59,20 @@ namespace xtk
     {
         mCutIgMesh   = mXTKModelPtr->get_cut_integration_mesh();
         mIgMeshTools = new Integration_Mesh_Generator();
+        mBsplineMeshInfos = mCutIgMesh->get_bspline_mesh_info();
+
+        // FIXME: this needs to go once the SPG based enrichment is validated
+        // reinitialize the enrichment data for SPGs if needed
+        if( aUseSpgBasedEnrichment )
+        {
+            // initialize the enrichment data for every discretization mesh index, as each mesh will result in a different number of SPGs
+            for ( uint iMeshIndex = 0; iMeshIndex < aInterpIndex.numel(); iMeshIndex++)
+            {
+                moris_index tMeshIndex = aInterpIndex( iMeshIndex );
+                uint tNumSPGs = aXTKModelPtr->get_cut_integration_mesh()->get_num_subphase_groups( iMeshIndex );
+                mEnrichmentData( tMeshIndex ).reinitialize_for_SPGs( tNumSPGs );
+            }
+        }
     }
 
     //-------------------------------------------------------------------------------------
@@ -77,6 +92,18 @@ namespace xtk
 
         // Perform enrichment over basis clusters
         perform_basis_cluster_enrichment();
+    }
+
+    //-------------------------------------------------------------------------------------
+
+    void
+    Enrichment::perform_enrichment_new()
+    {
+        MORIS_ERROR( mBackgroundMeshPtr != nullptr,
+                "mBackgroundMesh nullptr detected, this is probably because the enrichment has not been initialized properly" );
+
+        // Perform enrichment over basis clusters
+        perform_basis_cluster_enrichment_new();
     }
 
     //-------------------------------------------------------------------------------------
@@ -149,6 +176,28 @@ namespace xtk
 
     //-------------------------------------------------------------------------------------
 
+    moris_index
+    Enrichment::get_list_index_for_mesh_index( moris_index aMeshIndex )
+    {
+        // compute the mesh index to List index map if it has not been set yet
+        if( !mMeshIndexMapIsSet )
+        {
+            // loop over the mesh indices and fill the map
+            for ( uint iMeshListIndex = 0; iMeshListIndex < mMeshIndices.numel(); iMeshListIndex++)
+            {
+                mMeshIndexToListIndexMap[ mMeshIndices( iMeshListIndex ) ] = iMeshListIndex;
+            }
+        }
+
+        // find the mesh index in the map
+        auto tIter = mMeshIndexToListIndexMap.find( aMeshIndex );
+
+        // return its position in list
+        return tIter->second;
+    }
+
+    //-------------------------------------------------------------------------------------
+
     void
     Enrichment::print_enriched_basis_to_subphase_id(
             const moris_index& aMeshIndex,
@@ -217,10 +266,10 @@ namespace xtk
     //-------------------------------------------------------------------------------------
 
     void
-    Enrichment::perform_basis_cluster_enrichment() // moris::Cell< Bspline_Mesh_Info * > aBsplineMeshInfos )
+    Enrichment::perform_basis_cluster_enrichment()
     {
         // make sure mesh is not empty
-        MORIS_ASSERT( mBackgroundMeshPtr->get_num_elems() > 0, "Enrichment::perform_basis_cluster_enrichment() - 0 cell interpolation mesh passed" );
+        MORIS_ASSERT( mBackgroundMeshPtr->get_num_elems() > 0, "Enrichment::perform_basis_cluster_enrichment() - IP mesh without cells passed" );
 
         // construct cell in xtk conformal model neighborhood connectivity
         // todo: this does nothing right now, still needed?
@@ -229,75 +278,76 @@ namespace xtk
         // make sure we have access to all the vertex interpolation
         this->setup_background_vertex_interpolations();
 
-        // iterate through basis types (i.e. linear and quadratic)
-        for ( moris::size_t iBasisType = 0; iBasisType < mMeshIndices.numel(); iBasisType++ )
+        // iterate through B-spline meshes
+        for ( moris::size_t iMeshIndex = 0; iMeshIndex < mMeshIndices.numel(); iMeshIndex++ )
         {
             // get the mesh index
-            moris_index tMeshIndex = mMeshIndices( iBasisType );
+            moris_index tMeshIndex = mMeshIndices( iMeshIndex );
 
+            // log/trace enrichment for every discretization mesh index
             Tracer tTracer( "XTK", "Enrichment", "Mesh Index " + std::to_string( tMeshIndex ) );
 
             // Number of basis functions (= number of B-Splines on the A-mesh ?)
-            moris::size_t tNumBasis = mBackgroundMeshPtr->get_num_basis_functions( tMeshIndex );
+            moris::size_t tNumBasisFunctions = mBackgroundMeshPtr->get_num_basis_functions( tMeshIndex );
 
             // allocate member variables
-            mEnrichmentData( tMeshIndex ).mElementEnrichmentLevel = moris::Cell< moris::Matrix< moris::IndexMat > >( tNumBasis );
-            mEnrichmentData( tMeshIndex ).mElementIndsInBasis     = moris::Cell< moris::Matrix< moris::IndexMat > >( tNumBasis );
+            mEnrichmentData( tMeshIndex ).mElementEnrichmentLevel = moris::Cell< moris::Matrix< moris::IndexMat > >( tNumBasisFunctions );
+            mEnrichmentData( tMeshIndex ).mElementIndsInBasis     = moris::Cell< moris::Matrix< moris::IndexMat > >( tNumBasisFunctions );
 
             // allocate data used after basis loop
-            moris::Cell< moris::Matrix< moris::IndexMat > > tSubPhaseBinEnrichment( tNumBasis );
-            moris::Cell< moris::Matrix< moris::IndexMat > > tSubphaseClusterIndicesInSupport( tNumBasis );
-            moris::Cell< moris_index >                      tMaxEnrichmentLevel( tNumBasis, 0 );
+            moris::Cell< moris::Matrix< moris::IndexMat > > tSubPhaseBinEnrichment( tNumBasisFunctions );
+            moris::Cell< moris::Matrix< moris::IndexMat > > tSubphaseClusterIndicesInSupport( tNumBasisFunctions );
+            moris::Cell< moris_index >                      tMaxEnrichmentLevel( tNumBasisFunctions, 0 );
 
-            for ( moris::size_t iBasis = 0; iBasis < tNumBasis; iBasis++ )
+            for ( moris::size_t iBasisFunction = 0; iBasisFunction < tNumBasisFunctions; iBasisFunction++ )
             {
                 // Get elements in support of basis (these are interpolation cells)
                 moris::Matrix< moris::IndexMat > tParentElementsInSupport;
 
-                mBackgroundMeshPtr->get_elements_in_support_of_basis( tMeshIndex, iBasis, tParentElementsInSupport );
+                mBackgroundMeshPtr->get_elements_in_support_of_basis( tMeshIndex, iBasisFunction, tParentElementsInSupport );
 
                 // get subphase clusters in support (separated by phase)
-                tSubphaseClusterIndicesInSupport( iBasis ) = this->get_subphase_clusters_in_support( tParentElementsInSupport );
+                tSubphaseClusterIndicesInSupport( iBasisFunction ) = this->get_subphase_clusters_in_support( tParentElementsInSupport );
 
                 // construct subphase in support map
                 IndexMap tSubPhaseIndexToSupportIndex;
 
-                this->construct_subphase_in_support_map( tSubphaseClusterIndicesInSupport( iBasis ), tSubPhaseIndexToSupportIndex );
+                this->construct_subphase_in_support_map( tSubphaseClusterIndicesInSupport( iBasisFunction ), tSubPhaseIndexToSupportIndex );
 
                 // prune the subphase to remove subphases outside of basis support
                 moris::Matrix< moris::IndexMat > tPrunedSubphaseNeighborhood;
 
                 this->generate_pruned_subphase_graph_in_basis_support(
-                        tSubphaseClusterIndicesInSupport( iBasis ),
+                        tSubphaseClusterIndicesInSupport( iBasisFunction ),
                         tSubPhaseIndexToSupportIndex,
                         tPrunedSubphaseNeighborhood );
 
                 // Assign enrichment levels to subphases
                 this->assign_subphase_bin_enrichment_levels_in_basis_support(
-                        tSubphaseClusterIndicesInSupport( iBasis ),
+                        tSubphaseClusterIndicesInSupport( iBasisFunction ),
                         tSubPhaseIndexToSupportIndex,
                         tPrunedSubphaseNeighborhood,
-                        tSubPhaseBinEnrichment( iBasis ),
-                        tMaxEnrichmentLevel( iBasis ) );
+                        tSubPhaseBinEnrichment( iBasisFunction ),
+                        tMaxEnrichmentLevel( iBasisFunction ) );
 
                 // Sort enrichment levels
                 if ( mSortBasisEnrichmentLevels )
                 {
                     this->sort_enrichment_levels_in_basis_support(
-                            tSubphaseClusterIndicesInSupport( iBasis ),
-                            tSubPhaseBinEnrichment( iBasis ),
-                            tMaxEnrichmentLevel( iBasis ) );
+                            tSubphaseClusterIndicesInSupport( iBasisFunction ),
+                            tSubPhaseBinEnrichment( iBasisFunction ),
+                            tMaxEnrichmentLevel( iBasisFunction ) );
                 }
 
                 // Extract element enrichment levels from assigned sub-phase bin enrichment levels and store these as a member variable
                 this->unzip_subphase_bin_enrichment_into_element_enrichment(
                         tMeshIndex,
-                        iBasis,
+                        iBasisFunction,
                         tParentElementsInSupport,
-                        tSubphaseClusterIndicesInSupport( iBasis ),
+                        tSubphaseClusterIndicesInSupport( iBasisFunction ),
                         tSubPhaseIndexToSupportIndex,
                         tPrunedSubphaseNeighborhood,
-                        tSubPhaseBinEnrichment( iBasis ) );
+                        tSubPhaseBinEnrichment( iBasisFunction ) );
             }
 
             // construct subphase to enriched index
@@ -321,6 +371,114 @@ namespace xtk
 
         // create the integration mesh
         this->construct_enriched_integration_mesh();
+    }
+
+    //-------------------------------------------------------------------------------------
+
+    void
+    Enrichment::perform_basis_cluster_enrichment_new()
+    {
+        // make sure mesh is not empty
+        MORIS_ASSERT( mBackgroundMeshPtr->get_num_elems() > 0, "Enrichment::perform_basis_cluster_enrichment_new() - 0 cell interpolation mesh passed" );
+
+        // make sure we have access to all the vertex interpolation
+        this->setup_background_vertex_interpolations();
+
+        // iterate through basis types (i.e. linear and quadratic)
+        for ( moris::size_t iMeshIndex = 0; iMeshIndex < mMeshIndices.numel(); iMeshIndex++ )
+        {
+            // get the mesh index
+            moris_index tMeshIndex = mMeshIndices( iMeshIndex );
+
+            Tracer tTracer( "XTK", "Enrichment", "Mesh Index " + std::to_string( tMeshIndex ) );
+
+            // Number of basis functions (= number of B-Splines on the A-mesh ?)
+            moris::size_t tNumBasisFunctions = mBackgroundMeshPtr->get_num_basis_functions( tMeshIndex );
+
+            // allocate member variables
+            mEnrichmentData( tMeshIndex ).mElementEnrichmentLevel = moris::Cell< moris::Matrix< moris::IndexMat > >( tNumBasisFunctions );
+            mEnrichmentData( tMeshIndex ).mElementIndsInBasis     = moris::Cell< moris::Matrix< moris::IndexMat > >( tNumBasisFunctions );
+
+            // allocate data used after basis loop
+            moris::Cell< moris::Matrix< moris::IndexMat > > tSpgBinEnrichment( tNumBasisFunctions );
+            moris::Cell< moris::Matrix< moris::IndexMat > > tSpgIndicesInSupport( tNumBasisFunctions );
+            moris::Cell< moris_index >                      tMaxEnrichmentLevel( tNumBasisFunctions, 0 );
+
+            for ( moris::size_t iBasisFunction = 0; iBasisFunction < tNumBasisFunctions; iBasisFunction++ )
+            {
+                // Get elements in support of basis (these are interpolation cells)
+                moris::Matrix< moris::IndexMat > tParentElementsInSupport;
+
+                mBackgroundMeshPtr->get_elements_in_support_of_basis( tMeshIndex, iBasisFunction, tParentElementsInSupport );
+
+                // collect Subphase grounp indices in support
+                IndexMap tSpgIndexToSupportIndex;
+                this->get_subphase_groups_in_support( 
+                    iMeshIndex, 
+                    tParentElementsInSupport, 
+                    tSpgIndicesInSupport( iBasisFunction ),
+                    tSpgIndexToSupportIndex );
+
+                // prune the subphase to remove subphases outside of basis support
+                moris::Matrix< moris::IndexMat > tPrunedSubphaseNeighborhood;
+                moris::Matrix< moris::IndexMat > tPrunedSpgNeighborhood;
+                this->generate_pruned_subphase_group_graph_in_basis_support(
+                        iMeshIndex,
+                        tSpgIndicesInSupport( iBasisFunction ),
+                        tSpgIndexToSupportIndex,
+                        tPrunedSpgNeighborhood );
+
+                // Assign enrichment levels to subphases
+                this->assign_subphase_group_bin_enrichment_levels_in_basis_support(
+                        tSpgIndicesInSupport( iBasisFunction ),
+                        tPrunedSpgNeighborhood,
+                        tSpgBinEnrichment( iBasisFunction ),
+                        tMaxEnrichmentLevel( iBasisFunction ) );
+
+                // Sort enrichment levels
+                if ( mSortBasisEnrichmentLevels )
+                {
+                    MORIS_ERROR( false, "Enrichment::perform_basis_cluster_enrichment_new() - function: sort_enrichment_levels_in_basis_support() not supported yet with new SPG based enrichment" );
+// FIXME: this function doesn't work for SPGs
+                    this->sort_enrichment_levels_in_basis_support(
+                            tSpgIndicesInSupport( iBasisFunction ),
+                            tSpgBinEnrichment( iBasisFunction ),
+                            tMaxEnrichmentLevel( iBasisFunction ) );
+                }
+
+                // Extract element enrichment levels from assigned sub-phase bin enrichment levels and store these as a member variable
+                this->unzip_subphase_group_bin_enrichment_into_element_enrichment(
+                        tMeshIndex,
+                        iBasisFunction,
+                        tParentElementsInSupport,
+                        tSpgIndicesInSupport( iBasisFunction ),
+                        tSpgBinEnrichment( iBasisFunction ) );
+            }
+
+            // construct subphase to enriched index
+            this->construct_enriched_basis_to_subphase_connectivity(
+                    tMeshIndex,
+                    tSpgBinEnrichment,
+                    tSpgIndicesInSupport,
+                    tMaxEnrichmentLevel );
+
+// FIXME: move communication to SPGs once everything is parallel consistent
+            // Assign enriched basis indices Only indices here because interpolation cells needs basis
+            // indices and basis ids are created using the interpolation cell ids
+            this->assign_enriched_coefficients_identifiers(
+                    tMeshIndex,
+                    tMaxEnrichmentLevel );
+
+            MORIS_LOG_SPEC( "Num Enriched Basis", mEnrichmentData( tMeshIndex ).mNumEnrichmentLevels );
+        }
+
+// FIXME: enriched IP cells not parallel consistent yet
+        // create the enriched interpolation mesh
+        this->construct_enriched_interpolation_mesh_new();
+
+// TODO: ???
+        // create the integration mesh
+        this->construct_enriched_integration_mesh_new();
     }
 
     //-------------------------------------------------------------------------------------
@@ -374,7 +532,6 @@ namespace xtk
     Matrix< IndexMat >
     Enrichment::get_subphase_clusters_in_support( moris::Matrix< moris::IndexMat > const & aElementsInSupport )
     {
-
         // count the number of subphase cluster in support
         moris::uint tCount = 0;
 
@@ -400,6 +557,83 @@ namespace xtk
         }
 
         return tSubPhaseClusters;
+    }
+
+    //-------------------------------------------------------------------------------------
+
+    void
+    Enrichment::get_subphase_groups_in_support( 
+        moris_index                             aMeshIndexPosition, 
+        moris::Matrix< moris::IndexMat > const& aLagElementsInSupport,
+        moris::Matrix< moris::IndexMat >&       aSubphaseGroupIndicesInSupport,
+        IndexMap&                               aSubphaseGroupIndexToSupportIndex )
+    {
+        // initialize map between Lagrange an Bspline elements
+        IndexMap tBspElemIndexMap;
+
+        // intialize counter tracking the number of B-spline elements in support
+        uint tBspElemCounter = 0;
+
+        // go through Lag elements and find their corresponding B-Spline element
+        for ( moris::size_t iLagElem = 0; iLagElem < aLagElementsInSupport.numel(); iLagElem++ )
+        {
+            // temporarily store current Lagrange element's index
+            moris_index tLagElemIndex = aLagElementsInSupport( iLagElem );
+
+            // get the corresponding B-spline element index
+            moris_index tBsplineElemIndex = mBsplineMeshInfos( aMeshIndexPosition )->get_bspline_cell_index_for_extraction_cell( tLagElemIndex );
+
+            // look for 
+            auto tBsplineMapPosition = tBspElemIndexMap.find( tBsplineElemIndex );
+
+            // check if the B-spline element has already been found in basis support, if not ...
+            if ( tBsplineMapPosition != tBspElemIndexMap.end() )
+            {
+                // ... register the B-spline element in the map
+                tBspElemIndexMap[ tBsplineElemIndex ] = tBspElemCounter;
+
+                // increment the B-spline element counter
+                tBspElemCounter++;
+            }
+        }
+
+        // initialize counter for subphase groups
+        uint tSpgCounter = 0;
+
+        // for each B-spline element get the SPGs and count them
+        for( auto& iBspElem : tBspElemIndexMap )
+        {
+            // temporarily store current B-spline element's index
+            moris_index tBspElemIndex = iBspElem.first;
+
+            // get the SPGs associated with the current B-spline element
+            moris::Cell< moris_index > const& tSPGsInBsplineElem = 
+                mBsplineMeshInfos( aMeshIndexPosition )->get_SPG_indices_in_bspline_cell( tBspElemIndex );
+
+            // store all SPGs in map
+            for ( moris::size_t iSPG = 0; iSPG < tSPGsInBsplineElem.size(); iSPG++)
+            {
+                // save SPG index in map
+                aSubphaseGroupIndexToSupportIndex[ tSPGsInBsplineElem( iSPG ) ] = tSpgCounter;
+
+                // count SPGs in support
+                tSpgCounter++;
+            }           
+        }
+
+        // initialize linear list storing all SPGs in support with correct size
+        aSubphaseGroupIndicesInSupport.resize( 1, tSpgCounter );
+
+        // store all SPGs found in support in linear list
+        for( auto& iSPG : aSubphaseGroupIndexToSupportIndex )
+        {
+            // temporarily store current SPG's index
+            moris_index tSpgIndex = iSPG.first;
+            moris_index tLocalSpgIndex = iSPG.second;
+        
+            // save SPG index in list
+            aSubphaseGroupIndicesInSupport( tLocalSpgIndex ) = tSpgIndex;
+        }
     }
 
     //-------------------------------------------------------------------------------------
@@ -456,6 +690,47 @@ namespace xtk
     //-------------------------------------------------------------------------------------
 
     void
+    Enrichment::generate_pruned_subphase_group_graph_in_basis_support(
+            const moris_index                       aMeshIndex,
+            moris::Matrix< moris::IndexMat > const& aSubphaseGroupIndicesInSupport,
+            IndexMap&                               aSubphaseGroupIndexToSupportIndex,
+            moris::Matrix< moris::IndexMat >&       aPrunedSpgToSpg )
+    {
+        // get the global SPG connectivity graph 
+        std::shared_ptr< Subphase_Neighborhood_Connectivity > tSubphaseGroupNeighborhood = mCutIgMesh->get_subphase_group_neighborhood( aMeshIndex );
+
+        // Construct full SPG neighbor graph in support and the corresponding shared faces
+        aPrunedSpgToSpg.resize( aSubphaseGroupIndicesInSupport.numel(), 50 ); // FIXME: this allocation needs to done smarter
+        aPrunedSpgToSpg.fill( MORIS_INDEX_MAX );
+
+        // get subphase group neighborhood information
+        moris::Cell< std::shared_ptr< moris::Cell< moris_index > > > const & tSpgToSpg = tSubphaseGroupNeighborhood->mSubphaseToSubPhase;
+
+        for ( moris::size_t iSPG = 0; iSPG < aSubphaseGroupIndicesInSupport.numel(); iSPG++ )
+        {
+            // get temporariy list of Spg Neighbors 
+            moris::Cell< moris_index > const & tSubphaseGroupNeighbors = *tSpgToSpg( aSubphaseGroupIndicesInSupport( iSPG ) );
+
+            // iterate through and prune/remove subphases groups not in support
+            moris::uint tCount = 0;
+            for ( moris::size_t j = 0; j < tSubphaseGroupNeighbors.size(); j++ )
+            {
+                moris_index tNeighborSubphaseGroupIndex = tSubphaseGroupNeighbors( j );
+
+                auto tNeighborIter = aSubphaseGroupIndexToSupportIndex.find( tNeighborSubphaseGroupIndex );
+
+                if ( tNeighborIter != aSubphaseGroupIndexToSupportIndex.end() )
+                {
+                    aPrunedSpgToSpg( iSPG, tCount ) = tNeighborIter->second;
+                    tCount++;
+                }
+            }
+        }
+    }
+
+    //-------------------------------------------------------------------------------------
+
+    void
     Enrichment::assign_subphase_bin_enrichment_levels_in_basis_support(
             moris::Matrix< moris::IndexMat > const & aSubphasesInSupport,
             IndexMap&                                aSubPhaseIndexToSupportIndex,
@@ -480,6 +755,41 @@ namespace xtk
 
         aSubPhaseBinEnrichmentVals = flood_fill(
                 aPrunedSubPhaseToSubphase,
+                tDummyPhase,
+                tActiveBins,
+                tIncludedBins,
+                mNumBulkPhases,
+                MORIS_INDEX_MAX,
+                aMaxEnrichmentLevel,
+                true );
+    }
+
+    //-------------------------------------------------------------------------------------
+
+    void
+    Enrichment::assign_subphase_group_bin_enrichment_levels_in_basis_support(
+            moris::Matrix< moris::IndexMat > const & aSpgsInSupport,
+            moris::Matrix< moris::IndexMat > const & aPrunedSpgToSpg,
+            moris::Matrix< moris::IndexMat >&        aSpgBinEnrichmentVals,
+            moris_index&                             aMaxEnrichmentLevel )
+    {
+        // Variables needed for floodfill, consider removing these.
+        // Active bins to include in floodfill (We include all bins)
+        moris::Matrix< moris::IndexMat > tActiveBins( 1, aPrunedSpgToSpg.n_rows() );
+
+        for ( moris::size_t i = 0; i < aPrunedSpgToSpg.n_rows(); i++ )
+        {
+            ( tActiveBins )( 0, i ) = i;
+        }
+
+        // Mark all as included
+        moris::Matrix< moris::IndexMat > tIncludedBins( 1, aSpgsInSupport.numel(), 1 );
+
+        // Flood fill metric value (since all the subphases do not connect to dissimilar phases)
+        moris::Matrix< moris::IndexMat > tDummyPhase( 1, aSpgsInSupport.numel(), 1 );
+
+        aSpgBinEnrichmentVals = flood_fill(
+                aPrunedSpgToSpg,
                 tDummyPhase,
                 tActiveBins,
                 tIncludedBins,
@@ -612,24 +922,66 @@ namespace xtk
 
         // go through all subphases in support and save the curretn basis function's index to them, 
         // and which enrichment level of this basis function is active on them
-        for ( moris::size_t i = 0; i < aSubphasesInSupport.numel(); i++ )
+        for ( moris::size_t iSP = 0; iSP < aSubphasesInSupport.numel(); iSP++ )
         {
-            moris_index tSubphaseIndex = aSubphasesInSupport( i );
+            moris_index tSubphaseIndex = aSubphasesInSupport( iSP );
 
-            // iterate through cell sin the subphase
+            // iterate through cells in the subphase
             std::shared_ptr< IG_Cell_Group > tSubphaseIgCells = mCutIgMesh->get_subphase_ig_cells( tSubphaseIndex );
 
             // iterate through cells in subphase
-            for ( moris::uint iSPCell = 0; iSPCell < tSubphaseIgCells->mIgCellGroup.size(); iSPCell++ )
+            for ( moris::uint iIgCell = 0; iIgCell < tSubphaseIgCells->mIgCellGroup.size(); iIgCell++ )
             {
-                mEnrichmentData( aEnrichmentDataIndex ).mElementIndsInBasis( aBasisIndex )( tCount )     = tSubphaseIgCells->mIgCellGroup( iSPCell )->get_index();
-                mEnrichmentData( aEnrichmentDataIndex ).mElementEnrichmentLevel( aBasisIndex )( tCount ) = aSubPhaseBinEnrichmentVals( i );
+                mEnrichmentData( aEnrichmentDataIndex ).mElementIndsInBasis( aBasisIndex )( tCount )     = tSubphaseIgCells->mIgCellGroup( iIgCell )->get_index();
+                mEnrichmentData( aEnrichmentDataIndex ).mElementEnrichmentLevel( aBasisIndex )( tCount ) = aSubPhaseBinEnrichmentVals( iSP );
                 tCount++;
             }
 
             // add information to interp cells about which basis/enrichment level interpolates in it
             mEnrichmentData( aEnrichmentDataIndex ).mSubphaseBGBasisIndices( tSubphaseIndex ).push_back( aBasisIndex );
-            mEnrichmentData( aEnrichmentDataIndex ).mSubphaseBGBasisEnrLev( tSubphaseIndex ).push_back( aSubPhaseBinEnrichmentVals( i ) );
+            mEnrichmentData( aEnrichmentDataIndex ).mSubphaseBGBasisEnrLev( tSubphaseIndex ).push_back( aSubPhaseBinEnrichmentVals( iSP ) );
+        }
+    }
+
+    //-------------------------------------------------------------------------------------
+
+    void
+    Enrichment::unzip_subphase_group_bin_enrichment_into_element_enrichment(
+            moris_index const &                      aEnrichmentDataIndex,
+            moris_index const &                      aBasisIndex,
+            moris::Matrix< moris::IndexMat > const & aParentElementsInSupport,
+            moris::Matrix< moris::IndexMat > const & aSpgsInSupport,
+            moris::Matrix< moris::IndexMat >&        aSpgBinEnrichmentVals )
+    {
+        // resize member data
+        moris::size_t tNumAllElementsInSupport                                         = this->count_elements_in_support( aParentElementsInSupport );
+        mEnrichmentData( aEnrichmentDataIndex ).mElementIndsInBasis( aBasisIndex )     = moris::Matrix< moris::IndexMat >( 1, tNumAllElementsInSupport );
+        mEnrichmentData( aEnrichmentDataIndex ).mElementEnrichmentLevel( aBasisIndex ) = moris::Matrix< moris::IndexMat >( 1, tNumAllElementsInSupport );
+
+        // initialize counter tracking number of IG cells in support of basis function
+        moris::uint tIgCellCount = 0;
+
+        // go through all subphases in support and save the current basis function's index to them, 
+        // and which enrichment level of this basis function is active on them
+        for ( moris::size_t iSPG = 0; iSPG < aSpgsInSupport.numel(); iSPG++ )
+        {
+            // get the index of the SPG currently treated
+            moris_index tSpgIndex = aSpgsInSupport( iSPG );
+
+            // iterate through cells in the subphase
+            moris::Cell< moris_index > tIgCellsInSPG = mCutIgMesh->get_ig_cells_in_SPG( this->get_list_index_for_mesh_index( aEnrichmentDataIndex ), tSpgIndex );
+
+            // iterate through cells in subphase
+            for ( moris::uint iIgCell = 0; iIgCell < tIgCellsInSPG.size(); iIgCell++ )
+            {
+                mEnrichmentData( aEnrichmentDataIndex ).mElementIndsInBasis( aBasisIndex )( tIgCellCount )     = tIgCellsInSPG( iIgCell );
+                mEnrichmentData( aEnrichmentDataIndex ).mElementEnrichmentLevel( aBasisIndex )( tIgCellCount ) = aSpgBinEnrichmentVals( iSPG );
+                tIgCellCount++;
+            }
+
+            // add information to interp cells about which basis/enrichment level interpolates in it
+            mEnrichmentData( aEnrichmentDataIndex ).mSubphaseGroupBGBasisIndices( tSpgIndex ).push_back( aBasisIndex );
+            mEnrichmentData( aEnrichmentDataIndex ).mSubphaseGroupBGBasisEnrLev( tSpgIndex ).push_back( aSpgBinEnrichmentVals( iSPG ) );
         }
     }
 
@@ -642,6 +994,7 @@ namespace xtk
             moris::Cell< moris::Matrix< moris::IndexMat > > const & aSubphaseClusterIndicesInSupport,
             moris::Cell< moris_index > const &                      aMaxEnrichmentLevel )
     {
+        // intialize counter for total number of enriched BFs
         moris::moris_index tNumEnrichmentBasis = 0;
 
         // count up the number of enriched basis functions
@@ -705,6 +1058,77 @@ namespace xtk
     //-------------------------------------------------------------------------------------
 
     void
+    Enrichment::construct_enriched_basis_to_subphase_group_connectivity(
+            moris_index const &                                     aEnrichmentDataIndex,
+            moris::Cell< moris::Matrix< moris::IndexMat > > const & aSpgBinEnrichment,
+            moris::Cell< moris::Matrix< moris::IndexMat > > const & aSpgIndicesInSupport,
+            moris::Cell< moris_index > const &                      aMaxEnrichmentLevel )
+    {
+        // intialize counter for total number of enriched BFs
+        moris::moris_index tNumEnrichmentBasis = 0;
+
+        // count up the number of enriched basis functions
+        for ( moris::uint i = 0; i < aMaxEnrichmentLevel.size(); i++ )
+        {
+            tNumEnrichmentBasis += aMaxEnrichmentLevel( i ) + 1;
+        }
+
+        // size data
+        mEnrichmentData( aEnrichmentDataIndex ).mSubphaseGroupIndsInEnrichedBasis.resize( tNumEnrichmentBasis );
+
+        moris_index tBaseIndex = 0;
+
+        for ( moris::uint iEnrLvl = 0; iEnrLvl < aSpgBinEnrichment.size(); iEnrLvl++ )
+        {
+            // get the maximum enrichment level in this basis support
+            moris::moris_index tMaxEnrLev = aMaxEnrichmentLevel( iEnrLvl );
+
+            // counter
+            Cell< moris_index > tCounter( tMaxEnrLev + 1, 0 );
+
+            // allocate member data for these basis functions
+            for ( moris::moris_index iEnr = tBaseIndex; iEnr < tBaseIndex + tMaxEnrLev + 1; iEnr++ )
+            {
+                mEnrichmentData( aEnrichmentDataIndex ).mSubphaseGroupIndsInEnrichedBasis( iEnr ).resize( 1, aSpgIndicesInSupport( iEnrLvl ).numel() );
+            }
+
+            // iterate through SPGs in support and add them to appropriate location in mSubphaseGroupIndsInEnrichedBasis
+            for ( moris::uint iSPG = 0; iSPG < aSpgIndicesInSupport( iEnrLvl ).numel(); iSPG++ )
+            {
+                // get cluster enrichment level
+                moris_index tClusterEnrLev = aSpgBinEnrichment( iEnrLvl )( iSPG );
+
+                // add to the member data
+                mEnrichmentData( aEnrichmentDataIndex ).mSubphaseGroupIndsInEnrichedBasis( tBaseIndex + tClusterEnrLev )( tCounter( tClusterEnrLev ) ) =
+                        aSpgIndicesInSupport( iEnrLvl )( iSPG );
+
+                // increment count
+                tCounter( tClusterEnrLev )++;
+            }
+
+            // size out unused space
+            for ( moris::moris_index iEnr = 0; iEnr < tMaxEnrLev + 1; iEnr++ )
+            {
+                moris_index tIndex = tBaseIndex + iEnr;
+                mEnrichmentData( aEnrichmentDataIndex ).mSubphaseGroupIndsInEnrichedBasis( tIndex ).resize( 1, tCounter( iEnr ) );
+
+                // sort in ascending order (easier to find in MPI)
+                // if this sort is removed the function  subphase_is_in_support needs to be updated
+                // FIXME: does this function need to be updated for SPGs?
+                moris::sort( mEnrichmentData( aEnrichmentDataIndex ).mSubphaseGroupIndsInEnrichedBasis( tIndex ),
+                        mEnrichmentData( aEnrichmentDataIndex ).mSubphaseGroupIndsInEnrichedBasis( tIndex ),
+                        "ascend",
+                        1 );
+            }
+
+            // update starting index
+            tBaseIndex = tBaseIndex + tMaxEnrLev + 1;
+        }
+    }
+
+    //-------------------------------------------------------------------------------------
+
+    void
     Enrichment::assign_enriched_coefficients_identifiers(
             moris_index const &                aEnrichmentDataIndex,
             moris::Cell< moris_index > const & aMaxEnrichmentLevel )
@@ -748,8 +1172,10 @@ namespace xtk
         moris::moris_index tIndOffset     = 0;
         moris::moris_id    tBasisIdOffset = this->allocate_basis_ids( aEnrichmentDataIndex, mEnrichmentData( aEnrichmentDataIndex ).mNumEnrichmentLevels );
 
+// TODO: once the SPGs have IDs and parallel consistent, this here needs to be changed to use SPG IDs
         Cell< Cell< moris_index > > tBasisIdToBasisOwner( tCommTable.numel() );
         Cell< Cell< moris_index > > tSubphaseIdInSupport( tCommTable.numel() );
+        //Cell< Cell< moris_index > > tSubphaseGroupIdInSupport( tCommTable.numel() );
         Cell< Cell< moris_index > > tBasisIndexToBasisOwner( tCommTable.numel() );
 
         for ( moris::uint i = 0; i < mEnrichmentData( aEnrichmentDataIndex ).mBasisEnrichmentIndices.size(); i++ )
@@ -790,6 +1216,7 @@ namespace xtk
                     tBasisIdOffset++;
                 }
             }
+
             // if we don't own the basis setup the communication to get the basis
             else
             {
@@ -797,12 +1224,16 @@ namespace xtk
                 {
                     moris_index tEnrichedBasisIndex = tBasisEnrichmentInds( j );
 
+// TODO: once the SPGs have IDs and parallel consistent, this here needs to be changed to use SPGs
                     moris_index tFirstSubphaseInSupportIndex = mEnrichmentData( aEnrichmentDataIndex ).mSubphaseIndsInEnrichedBasis( tEnrichedBasisIndex )( 0 );
+                    //moris_index tFirstSpgInSupportIndex = mEnrichmentData( aEnrichmentDataIndex ).mSubphaseGroupIndsInEnrichedBasis( tEnrichedBasisIndex )( 0 );
 
                     moris_index tFirstSubphaseInSupportId = mXTKModelPtr->get_subphase_id( tFirstSubphaseInSupportIndex );
+                    //moris_index tFirstSubphaseGroupInSupportId = mXTKModelPtr->get_subphase_group_id( tFirstSpgInSupportIndex );
 
                     tBasisIdToBasisOwner( tProcDataIndex ).push_back( tBackBasisId );
                     tSubphaseIdInSupport( tProcDataIndex ).push_back( tFirstSubphaseInSupportId );
+                    // tSubphaseGroupIdInSupport( tProcDataIndex ).push_back( tFirstSubphaseGroupInSupportId );
                     tBasisIndexToBasisOwner( tProcDataIndex ).push_back( tEnrichedBasisIndex );
                 }
             }
@@ -811,20 +1242,19 @@ namespace xtk
         // send information about not owned enriched basis to owner processor
         Cell< moris::Matrix< moris::IndexMat > > tNotOwnedEnrichedBasisId;
 
-        communicate_basis_information_with_owner(
+        this->communicate_basis_information_with_owner(
                 aEnrichmentDataIndex,
                 tBasisIdToBasisOwner,
-                tSubphaseIdInSupport,
+                tSubphaseIdInSupport, // tSubphaseGroupIdInSupport,
                 tProcRanks,
                 tProcRankToIndexInData,
                 tNotOwnedEnrichedBasisId );
 
         // set the received information in my data
-        set_received_enriched_basis_ids(
+        this->set_received_enriched_basis_ids(
                 aEnrichmentDataIndex,
                 tNotOwnedEnrichedBasisId,
-                tBasisIndexToBasisOwner,
-                tSubphaseIdInSupport );
+                tBasisIndexToBasisOwner );
     }
 
     //-------------------------------------------------------------------------------------
@@ -983,8 +1413,7 @@ namespace xtk
     Enrichment::set_received_enriched_basis_ids(
             moris_index const &                              aEnrichmentDataIndex,
             Cell< moris::Matrix< moris::IndexMat > > const & aReceivedEnrichedIds,
-            Cell< Cell< moris_index > > const &              aBasisIndexToBasisOwner,
-            Cell< Cell< moris_index > > const &              aSubphaseIdInSupport )
+            Cell< Cell< moris_index > > const &              aBasisIndexToBasisOwner )
     {
         for ( moris::uint i = 0; i < aReceivedEnrichedIds.size(); i++ )
         {
@@ -1182,12 +1611,98 @@ namespace xtk
     //-------------------------------------------------------------------------------------
 
     void
+    Enrichment::construct_enriched_interpolation_mesh_new()
+    {
+        // log/trace this function
+        Tracer tTracer( "XTK", "Enrich", "Construct Enriched Interpolation Mesh" );
+
+        // initialize a new enriched interpolation mesh
+        mXTKModelPtr->mEnrichedInterpMesh( 0 ) = new Enriched_Interpolation_Mesh( mXTKModelPtr );
+
+        // set enriched basis rank
+        mXTKModelPtr->mEnrichedInterpMesh( 0 )->mBasisRank = mBasisRank;
+
+        // set mesh index
+        mXTKModelPtr->mEnrichedInterpMesh( 0 )->mMeshIndices = mMeshIndices;
+        mXTKModelPtr->mEnrichedInterpMesh( 0 )->setup_mesh_index_map();
+
+        // allocate memory for enriched interpolation cells
+        this->allocate_interpolation_cells_new();
+
+        // unzip all IP cells and vertices and construct the whole enr. IP mesh
+        /* Note: This constructs all unzipped (i.e. enriched) IP cells with unzipped interpolation vertices being attached to a single cell
+         * this also handles the case of multiple enrichments where the number of interpolation vertices vary */
+        this->construct_enriched_interpolation_vertices_and_cells_new();
+
+        mXTKModelPtr->mEnrichedInterpMesh( 0 )->mCoeffToEnrichCoeffs.resize( mMeshIndices.max() + 1 );
+        mXTKModelPtr->mEnrichedInterpMesh( 0 )->mEnrichCoeffLocToGlob.resize( mMeshIndices.max() + 1 );
+
+        // enriched to non-enriched coefficient mapping for all B-spline meshes
+        for ( moris::uint iMesh = 0; iMesh < mMeshIndices.numel(); iMesh++ )
+        {
+            // get the discretization mesh index (DMI)
+            moris_index tMeshIndex = mMeshIndices( iMesh );
+
+            // add the coeff to enriched coeffs to enriched interpolation mesh
+            mXTKModelPtr->mEnrichedInterpMesh( 0 )->mCoeffToEnrichCoeffs( tMeshIndex ) =
+                    mEnrichmentData( tMeshIndex ).mBasisEnrichmentIndices;
+
+            // add the local to global map
+            mXTKModelPtr->mEnrichedInterpMesh( 0 )->mEnrichCoeffLocToGlob( tMeshIndex ) =
+                    mEnrichmentData( tMeshIndex ).mEnrichedBasisIndexToId;
+        }
+
+        // tell the enriched IP mesh to finish setting itself up
+        mXTKModelPtr->mEnrichedInterpMesh( 0 )->finalize_setup();
+
+        // initialize local to global maps
+        mXTKModelPtr->mEnrichedInterpMesh( 0 )->mLocalToGlobalMaps = Cell< Matrix< IdMat > >( 4 );
+        mXTKModelPtr->mEnrichedInterpMesh( 0 )->mGlobaltoLobalMaps = Cell< std::unordered_map< moris_id, moris_index > >( 4 );
+        mXTKModelPtr->mEnrichedInterpMesh( 0 )->setup_cell_maps();
+        mXTKModelPtr->mEnrichedInterpMesh( 0 )->setup_basis_maps();
+        mXTKModelPtr->mEnrichedInterpMesh( 0 )->assign_ip_vertex_ids();
+        mXTKModelPtr->mEnrichedInterpMesh( 0 )->setup_vertex_maps();
+        // FIXME: aren't the above steps already done in the finalize_setup() call in Enriched_Interpolation_Mesh::setup_local_to_global_maps()?
+
+        // moris::Cell< mtk::Vertex* > tVerticesToCommunicate;
+        // for(auto & iVert: mXTKModelPtr->mEnrichedInterpMesh(0)->mEnrichedInterpVerts)
+        // {
+        //     if(iVert->get_owner() != moris::par_rank() )
+        //     {
+        //         tVerticesToCommunicate.push_back(iVert);
+        //     }
+        // }
+        // 
+        // mXTKModelPtr->mEnrichedInterpMesh(0)->communicate_select_vertex_interpolation(tVerticesToCommunicate);
+
+        // in most cases all the interpolation vertices are the same. We merge them back together with this call
+        // post-processing to construct_enriched_interpolation_vertices_and_cells in an effort to not add complexity to the function 
+        // (as that function is already too complex/loaded)
+        mXTKModelPtr->mEnrichedInterpMesh( 0 )->merge_duplicate_interpolation_vertices();
+
+        // reset global to local maps (delete & setup again) with deleted duplicate vertices
+        mXTKModelPtr->mEnrichedInterpMesh( 0 )->mGlobaltoLobalMaps( 0 ).clear();
+        mXTKModelPtr->mEnrichedInterpMesh( 0 )->setup_vertex_maps();
+    }
+
+    //-------------------------------------------------------------------------------------
+
+    void
     Enrichment::construct_enriched_integration_mesh()
     {
         MORIS_ASSERT( mXTKModelPtr->mEnrichedInterpMesh( 0 ) != nullptr,
                 "No enriched interpolation mesh to link enriched integration mesh to" );
 
         mXTKModelPtr->mEnrichedIntegMesh( 0 ) = new Enriched_Integration_Mesh( mXTKModelPtr, 0 );
+    }
+
+    //-------------------------------------------------------------------------------------
+
+    void
+    Enrichment::construct_enriched_integration_mesh_new()
+    {
+        // TODO: code up this function
+        this->construct_enriched_integration_mesh();
     }
 
     //-------------------------------------------------------------------------------------
@@ -1234,6 +1749,80 @@ namespace xtk
 
         // allocate base cell to enriched cell data
         tEnrInterpMesh->mBaseCelltoEnrichedCell.resize( mBackgroundMeshPtr->get_num_elems() );
+    }
+
+    //-------------------------------------------------------------------------------------
+
+    void
+    Enrichment::allocate_interpolation_cells_new()
+    {
+        // log trace this function
+        Tracer tTracer( "XTK", "Enrich", "Allocate Interpolation Cells" );
+
+        // get the enriched interpolation mesh pointer
+        Enriched_Interpolation_Mesh* tEnrInterpMesh = mXTKModelPtr->mEnrichedInterpMesh( 0 );
+
+        // set discretization mesh indices
+        tEnrInterpMesh->mMeshIndices = mMeshIndices;
+        
+        // initialize counter tracking the number of enriched IP cells that need to be created
+        uint tEnrIpCellCounter = 0;
+
+        // loop to obtain the number of max possible number of enr. IP cells
+        for ( moris::size_t iIpCell = 0; iIpCell < mBackgroundMeshPtr->get_num_elems(); iIpCell++)
+        {
+            tEnrIpCellCounter += this->maximum_number_of_unzippings_for_IP_cell( iIpCell );
+        }
+        
+        // there is one interpolation cell per subphase
+        tEnrInterpMesh->mEnrichedInterpCells.resize( tEnrIpCellCounter );
+
+        // assuming all interpolation cells are the same
+        // figure out how many vertices there are per interpolation cell
+        uint tNumVertsPerCell = 0;
+
+        if ( mBackgroundMeshPtr->get_num_elems() > 0 )
+        {
+            tNumVertsPerCell = mBackgroundMeshPtr->get_mtk_cell( 0 ).get_number_of_vertices();
+        }
+
+        tEnrInterpMesh->mNumVertsPerInterpCell = tNumVertsPerCell;
+
+        // allocate maximum number of enriched vertices
+        tEnrInterpMesh->mEnrichedInterpVerts.resize( tNumVertsPerCell * tEnrIpCellCounter );
+
+        // allocate the base vertices to vertex enrichment data
+        tEnrInterpMesh->mBaseInterpVertToVertEnrichmentIndex.resize( mMeshIndices.max() + 1, mBackgroundMeshPtr->get_num_nodes() );
+
+        // allocate space in the vertex enrichment index to parent vertex enrichment data
+        tEnrInterpMesh->mVertexEnrichmentParentVertexIndex.resize( mMeshIndices.max() + 1 );
+
+        tEnrInterpMesh->mInterpVertEnrichment.resize( mMeshIndices.max() + 1 );
+
+        // allocate base cell to enriched cell data
+        tEnrInterpMesh->mBaseCelltoEnrichedCell.resize( mBackgroundMeshPtr->get_num_elems() );
+    }
+
+    //-------------------------------------------------------------------------------------
+
+    uint
+    Enrichment::maximum_number_of_unzippings_for_IP_cell( moris_index aIpCellIndex )
+    {
+        // initialize counter for number of unzippings
+        uint tMaxNumUnzippings = 0;
+
+        // for each DMI get how often the IP cell needs to be unzipped
+        for ( moris::size_t iMeshIndex = 0; iMeshIndex < mMeshIndices.numel(); iMeshIndex++)
+        {
+            // get number of times IP cell would need to get unzipped for current mesh index
+            uint tNumUnzippingsOnMeshIndex = mBsplineMeshInfos( iMeshIndex )->get_num_SPGs_associated_with_extraction_cell( aIpCellIndex );
+            
+            // overwrite max if new number of unzippings is greater
+            tMaxNumUnzippings = std::max( tMaxNumUnzippings, tNumUnzippingsOnMeshIndex );
+        }
+        
+        // return max number of unzippings
+        return tMaxNumUnzippings;
     }
 
     //-------------------------------------------------------------------------------------
@@ -1388,6 +1977,202 @@ namespace xtk
                 }
             } // end: loop over the Bspline meshes / discretization mesh indices
         } // end: loop over subphases
+
+        // resize out aura cells
+        tEnrInterpCellToVertex.resize( tCellIndex, tEnrInterpMesh->mNumVertsPerInterpCell );
+        tEnrInterpMesh->mEnrichedInterpCells.resize( tCellIndex );
+
+        // with the cell to vertex data fully setup, add the vertex pointers to the cell
+        // for every (unzipped) IP cell get its unzipped vertices
+        for ( moris::uint iIpCell = 0; iIpCell < tEnrInterpCellToVertex.n_rows(); iIpCell++ )
+        {
+            // initialize list of unzipped vertices on cell
+            moris::Cell< Interpolation_Vertex_Unzipped* > tVertices( tEnrInterpCellToVertex.n_cols() );
+
+            // iterate through and get unzipped vertices on cell
+            for ( moris::uint iVertex = 0; iVertex < tEnrInterpCellToVertex.n_cols(); iVertex++ )
+            {
+                // store pointer to unzipped vertices in list
+                tVertices( iVertex ) = tEnrInterpMesh->get_unzipped_vertex_pointer( tEnrInterpCellToVertex( iIpCell, iVertex ) );
+            }
+
+            // set vertices in cell
+            tEnrInterpMesh->mEnrichedInterpCells( iIpCell )->set_vertices( tVertices );
+        }
+
+        // make sure list is only as big as it needs to be
+        // FIXME: shouldn't this be a shrink-to-fit?
+        tEnrInterpMesh->mEnrichedInterpVerts.resize( tVertexCount );
+    }
+
+    //-------------------------------------------------------------------------------------
+
+    void
+    Enrichment::construct_enriched_interpolation_vertices_and_cells_new()
+    {
+        // get the enriched interpolation mesh pointer, this one is constructed here
+        Enriched_Interpolation_Mesh* tEnrInterpMesh = mXTKModelPtr->mEnrichedInterpMesh( 0 );
+
+        // geometry and interpolation order, limited to a single interpolation order mesh
+        mtk::Cell const & tFirstCell = mBackgroundMeshPtr->get_mtk_cell( 0 );
+
+        // set the interpolation mesh cell info (i.e. let the enriched IP mesh know what element type it uses)
+        mtk::Cell_Info_Factory tFactory;
+        tEnrInterpMesh->mCellInfo = tFactory.create_cell_info_sp( tFirstCell.get_geometry_type(), tFirstCell.get_interpolation_order() );
+
+        // allocate indices and ids
+        moris_index tCellIndex = 0;
+
+        // maximum mesh index
+        moris_index tMaxMeshIndex = mMeshIndices.max();
+
+        // Enriched Interpolation Cell Index to Vertex Index map
+        Matrix< IndexMat > tEnrInterpCellToVertex( tEnrInterpMesh->get_num_elements(), tEnrInterpMesh->mNumVertsPerInterpCell );
+
+        // allocate vertex indices and ids
+        // NOTE: THESE ARE NOT PARALLEL IDS
+        moris_index tVertId      = 1;
+        uint        tVertexCount = 0;
+
+
+        // loop over the B-spline meshes (i.e. discretization mesh indices)
+        // this is done as the T-matrices at the enriched IP vertices need to be constructed wrt each B-spline mesh
+        for ( moris::uint iBspMesh = 0; iBspMesh < mMeshIndices.numel(); iBspMesh++ )
+        {
+            // Mesh Index
+            moris_index tMeshIndex = mMeshIndices( iBspMesh );
+
+            // iterate through all IP cells (iterator iIpCell is equal to IP cell's index)
+            for ( moris::uint iIpCell = 0; iIpCell < mBackgroundMeshPtr->get_num_elems(); iIpCell++ )
+            {    
+                // get the MTK cell 
+                mtk::Cell* tIpCell = &( mCutIgMesh->get_mtk_cell( (moris_index) iIpCell ) );
+
+                // ID of the owning processor ("Owner")
+                moris_id tOwner = tIpCell->get_owner();
+
+                // get the number of vertices per IP cell
+                uint tNumVertices = tIpCell->get_number_of_vertices();
+
+                // vertices of IP cell
+                moris::Cell< mtk::Vertex* > tVertices = tIpCell->get_vertex_pointers();
+
+                // get the T-matrix of the current IP node wrt the current B-spline mesh
+                moris::Cell< mtk::Vertex_Interpolation* > tVertexInterpolations = this->get_vertex_interpolations( *tIpCell, tMeshIndex );
+
+                // get the number of SPGs that are present in the associated B-spline element
+                uint tNumSpgsAssociatedWithIpCell = mBsplineMeshInfos( iBspMesh )->get_num_SPGs_associated_with_extraction_cell( iIpCell );
+
+                // iterate through subphase groups on the current IP cell and construct an enr. IP cell for each SPG
+                for ( moris::uint iSPG = 0; iSPG < tNumSpgsAssociatedWithIpCell; iSPG++ )
+                {
+                    // get the index of the current SPG
+                    moris_index tSpgIndex = mBsplineMeshInfos( iBspMesh )->get_SPG_indices_associated_with_extraction_cell( iIpCell )( iSPG );
+
+                    // get the bulk phase index
+                    moris_index tBulkPhase = mCutIgMesh->get_subphase_group_bulk_phase( tSpgIndex, iBspMesh );
+
+                    // get list of non-enriched basis indices interpolating into the current subphase
+                    Cell< moris_index > const & tBasisInSpg = mEnrichmentData( tMeshIndex ).mSubphaseGroupBGBasisIndices( tSpgIndex );
+
+                    // construct a map between non-enriched BF index and index relative to the subphase cluster
+                    std::unordered_map< moris_id, moris_id > tCellBasisMap = construct_subphase_basis_to_basis_map( tBasisInSpg );
+
+                    // get the enrichment levels of the BFs that are/need to be used for the interpolation in the current subphase
+                    Cell< moris_index > const & tEnrLevOfBasis = mEnrichmentData( tMeshIndex ).mSubphaseGroupBGBasisEnrLev( tSpgIndex );
+
+                    // get the T-matrix of the current IP node wrt the current B-spline mesh
+                    moris::Cell< mtk::Vertex_Interpolation* > tVertexInterpolations = this->get_vertex_interpolations( *tIpCell, tMeshIndex );
+
+                    // construct unzipped enriched vertices
+                    for ( uint iIpCellVertex = 0; iIpCellVertex < tNumVertices; iIpCellVertex++ )
+                    {
+                        // construct vertex enrichment
+                        Vertex_Enrichment tVertEnrichment;
+
+                        // find out the enriched BF indices and IDs interpolating into the current vertex 
+                        // and store it in the Vertex_Enrichment object
+                        this->construct_enriched_vertex_interpolation(
+                                tMeshIndex,
+                                tVertexInterpolations( iIpCellVertex ),
+                                tEnrLevOfBasis,
+                                tCellBasisMap,
+                                tVertEnrichment );
+
+                        // add vertex enrichment to enriched interpolation mesh
+                        bool tNewVertFlag = false;
+                        moris_index tVertEnrichIndex = tEnrInterpMesh->add_vertex_enrichment(
+                                tMeshIndex,
+                                tVertices( iIpCellVertex ),
+                                tVertEnrichment,
+                                tNewVertFlag );
+
+                        // create this vertex on the first go around
+                        // Note: the Interpolation_Vertex_Unzipped (IVU) carries a list of vertex enrichments, each VE corresponds to one mesh index
+                        // note though, that the IVU is still created for all subphase group associdated with every IP cell
+                        if ( iBspMesh == 0 )
+                        {
+                            // Create interpolation vertex with only the first Vertex enrichment
+                            tEnrInterpMesh->mEnrichedInterpVerts( tVertexCount ) =
+                                    new Interpolation_Vertex_Unzipped(
+                                            tVertices( iIpCellVertex ),
+                                            tVertId,
+                                            tVertexCount,
+                                            tVertices( iIpCellVertex )->get_owner(),
+                                            tMeshIndex,
+                                            tEnrInterpMesh->get_vertex_enrichment( tMeshIndex, tVertEnrichIndex ),
+                                            tMaxMeshIndex );
+
+                            // store enriched vertex's index for given parent cell index and element local node index 
+                            tEnrInterpCellToVertex( tCellIndex, iIpCellVertex ) = tVertexCount;
+                            
+                            // update vertex ID to use for nex unzipped vertex
+                            tVertId++;
+                            
+                            // track number of unzipped vertices that have been created
+                            tVertexCount++;
+                        }
+                        else
+                        {
+                            // the unzipped interpolation vertex' index
+                            moris_index tVertexIndexInIp = tEnrInterpCellToVertex( tCellIndex - 1, iIpCellVertex );
+
+                            // add the vertex interpolation for new mesh index
+                            tEnrInterpMesh->mEnrichedInterpVerts( tVertexIndexInIp )->add_vertex_interpolation( 
+                                tMeshIndex, tEnrInterpMesh->get_vertex_enrichment( tMeshIndex, tVertEnrichIndex ) );
+                        }
+                    } // end: loop over IP vertices
+
+                    // create the unzipped interpolation cell on first go
+                    /* Note: the Interpolation_Cell_Unzipped carries a list of Interpolation_Vertex_Unzipped (IVU) which themselves get updated for every DMI
+                        * Hence, the Interpolation_Cell_Unzipped can be left alone after initial creation.
+                        * Access to the right IVUs is given once they're all constructed (see code section with double for-loop just below) */
+                    if ( iBspMesh == 0 )
+                    {
+                        // FIXME: use a communicated proc global ID once everything is parallel consistent
+                        moris_index tCellID = tCellIndex;
+                        
+                        // create new enriched interpolation cell and put it in list associating it with the underlying parent IP cell
+                        tEnrInterpMesh->mEnrichedInterpCells( tCellIndex ) =
+                                new Interpolation_Cell_Unzipped(
+                                        tIpCell,
+                                        tSpgIndex,
+                                        tBulkPhase,
+                                        tCellID,
+                                        tCellIndex,
+                                        tOwner,
+                                        tEnrInterpMesh->mCellInfo );
+
+                        // add enriched interpolation cell to base cell to enriched cell data
+                        tEnrInterpMesh->mBaseCelltoEnrichedCell( tIpCell->get_index() ).push_back( 
+                            tEnrInterpMesh->mEnrichedInterpCells( tCellIndex ) );
+
+                        // increment the cell index/id
+                        tCellIndex++;
+                    }
+                } // end: loop over SPGs associated with IP cell
+            } // end: loop over IP cells on mesh
+        } // end: loop over DMIs
 
         // resize out aura cells
         tEnrInterpCellToVertex.resize( tCellIndex, tEnrInterpMesh->mNumVertsPerInterpCell );
