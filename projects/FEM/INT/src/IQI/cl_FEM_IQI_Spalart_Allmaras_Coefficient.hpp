@@ -28,6 +28,8 @@ namespace moris
          * 0 - production coefficient
          * 1 - wall destruction coefficient
          * 2 - diffusion coefficient
+         * 3 - production term
+         * 4 - wall destruction term
          */
         class IQI_Spalart_Allmaras_Coefficient : public IQI
         {
