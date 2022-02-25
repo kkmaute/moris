@@ -31,6 +31,10 @@ namespace xtk
         // List of subphases in group
         moris::Cell< moris_index > mSubphaseIndicesInGroup;
 
+        // List of ig cells in group
+        moris::Cell< moris_index > mIgCellIndicesInGroup;
+        bool mIgCellIndicesSet = false;
+
         // side ordinals of the basis (B-spline) cell through which the SPG is connected to neighboring SPGs
         moris::Cell< moris_index > mLigamentSideOrdinals;
         bool mLigamentSideOrdinalsSet = false;
@@ -58,15 +62,9 @@ namespace xtk
 
         void 
         set_ligament_side_ordinals( moris::Cell< moris_index > aLigamentSideOrdinals )
-        {
+        { 
             mLigamentSideOrdinals = aLigamentSideOrdinals;
             mLigamentSideOrdinalsSet = true;
-        }
-
-        const moris::Cell< moris_index > &
-        get_SP_indices_in_group() const
-        {
-            return mSubphaseIndicesInGroup;
         }
 
         const moris::Cell< moris_index > &
@@ -74,6 +72,27 @@ namespace xtk
         {
             MORIS_ASSERT( mLigamentSideOrdinalsSet, "Subphase_Group::get_ligament_side_ordinals() - Side ordinals have not been set yet." );
             return mLigamentSideOrdinals;
+        }
+
+        void 
+        set_ig_cell_indices( moris::Cell< moris_index > aIgCellIndicesInGroup )
+        {
+            MORIS_ASSERT( aIgCellIndicesInGroup.size() > 0, "Subphase_Group::set_ig_cell_indices() - passing empty list IG cells" );
+            mIgCellIndicesInGroup = aIgCellIndicesInGroup;
+            mIgCellIndicesSet = true;
+        }
+
+        const moris::Cell< moris_index > &
+        get_ig_cell_indices_in_group() const
+        {
+            MORIS_ASSERT( mIgCellIndicesSet, "Subphase_Group::get_ig_cell_indices_in_group() - IG cell indices have not been set yet." );
+            return mIgCellIndicesInGroup;
+        }
+
+        const moris::Cell< moris_index > &
+        get_SP_indices_in_group() const
+        {
+            return mSubphaseIndicesInGroup;
         }
     };
 
@@ -95,7 +114,7 @@ namespace xtk
 
         // store which Subphase groups sit in a given (B-spline) basis cells
         // input: index of (B-spline) basis cell || output: list of SPGs living in it (or their indices)
-        moris::Cell< moris::Cell< moris_index > > mSPGsIndicesInBsplineCells; // TODO: needed?
+        moris::Cell< moris::Cell< moris_index > > mSPGsIndicesInBsplineCells;
 
         // Subphase Groups
         moris::Cell< Subphase_Group * > mSubphaseGroups;
@@ -154,10 +173,52 @@ namespace xtk
 
         // ----------------------------------------------------------------------------------
 
+        moris_index 
+        get_bspline_cell_index_for_extraction_cell( moris_index aExtractionCellIndex )
+        {
+            return mExtractionCellToBsplineCell( aExtractionCellIndex );
+        }
+        
+        // ----------------------------------------------------------------------------------
+
+        moris::Cell< moris_index > const&
+        get_SPG_indices_in_bspline_cell( moris_index aBsplineCellIndex )
+        {
+            MORIS_ASSERT( (uint) aBsplineCellIndex < mExtractionCellsIndicesInBsplineCells.size(), 
+                "Bspline_Mesh_Info::get_SPG_indices_in_bspline_cell() - aBsplineCellIndex out of bounds" );
+            return mSPGsIndicesInBsplineCells( aBsplineCellIndex );
+        }
+
+        // ----------------------------------------------------------------------------------
+
+        uint
+        get_num_SPGs_associated_with_extraction_cell( moris_index aExtractionCellIndex )
+        {
+            // get the underlying B-spline cell's index
+            moris_index tBsplineCellIndex = mExtractionCellToBsplineCell( aExtractionCellIndex );
+
+            // get and return the number of SPGs in the B-spline cell
+            return mSPGsIndicesInBsplineCells( tBsplineCellIndex ).size();
+        }
+
+        // ----------------------------------------------------------------------------------
+
+        const moris::Cell< moris_index > &
+        get_SPG_indices_associated_with_extraction_cell( moris_index aExtractionCellIndex )
+        {
+            // get the underlying B-spline cell's index
+            moris_index tBsplineCellIndex = mExtractionCellToBsplineCell( aExtractionCellIndex );
+
+            // get and return the number of SPGs in the B-spline cell
+            return mSPGsIndicesInBsplineCells( tBsplineCellIndex );
+        }
+
+        // ----------------------------------------------------------------------------------
+
         void
         add_subphase_group_to_bspline_cell( 
-                moris::Cell< moris_index > & aSPsInGroup, 
-                luint                        aBsplineElementIndex )
+                moris::Cell< moris_index > aSPsInGroup,           // TODO: is it a problem to pass this Cell by reference?
+                luint                      aBsplineElementIndex )
         {
             // track SPG indices and get new one
             mMaxSpgIndex++;
@@ -165,6 +226,15 @@ namespace xtk
             // create a new SPG and commit it to the B-spline mesh info
             Subphase_Group * tNewSPG = new Subphase_Group( mMaxSpgIndex, aBsplineElementIndex, aSPsInGroup );
             mSubphaseGroups.push_back( tNewSPG );
+        }
+
+        // ----------------------------------------------------------------------------------
+
+        void
+        add_ig_cell_indices_to_last_admitted_subphase_group( moris::Cell< moris_index > aIgCellIndicesInGroup ) // TODO: is it a problem to pass this Cell by reference?
+        {
+            // add ig cells to last admitted SPG
+            mSubphaseGroups( mMaxSpgIndex )->set_ig_cell_indices( aIgCellIndicesInGroup );
         }
 
         // ----------------------------------------------------------------------------------

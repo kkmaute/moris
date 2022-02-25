@@ -255,7 +255,7 @@ namespace xtk
             // get flag whether basis enrichments need to be sorted
             bool tSortBasisEnrichmentLevels = mParameterList.get< bool >( "sort_basis_enrichment_levels" );
 
-            this->perform_basis_enrichment( tBasisRank, tMeshIndexCell, tSortBasisEnrichmentLevels );
+            this->perform_basis_enrichment( tBasisRank, tMeshIndexCell, tSortBasisEnrichmentLevels, mParameterList.get< bool >( "use_SPG_based_enrichment" ) );
 
             // if high to low double side sets need to be created
             if ( mParameterList.get< bool >( "high_to_low_dbl_side_sets" ) )
@@ -1100,17 +1100,25 @@ namespace xtk
     Model::perform_basis_enrichment(
             enum EntityRank const &aBasisRank,
             moris_index const     &aMeshIndex,
-            bool                   aSortBasisEnrichmentLevels )
+            bool                   aSortBasisEnrichmentLevels,
+            bool                   aUseSpgBasedEnrichment )
     {
+// debug
+std::cout << "===========================================================================" << std::endl;
+std::cout << "Model::perform_basis_enrichment_internal() - aUseSpgBasedEnrichment = " << aUseSpgBasedEnrichment << std::endl;
+std::cout << "===========================================================================" << std::endl;
+
+        // log/trace the whole enrichment process
         Tracer tTracer( "XTK", "Enrichment", "Enrich" );
 
-        MORIS_ERROR( mDecomposed, "Prior to computing basis enrichment, the decomposition process must be called" );
+        // check that the mesh has already been decomposed
+        MORIS_ERROR( mDecomposed, "Model::perform_basis_enrichment() - Prior to computing basis enrichment, the decomposition process must be called." );
 
         // allocate some new enriched interpolation and integration meshes
         mEnrichedIntegMesh.resize( aMeshIndex + 1, nullptr );
         mEnrichedInterpMesh.resize( aMeshIndex + 1, nullptr );
 
-        this->perform_basis_enrichment_internal( aBasisRank, { { aMeshIndex } }, aSortBasisEnrichmentLevels );
+        this->perform_basis_enrichment_internal( aBasisRank, { { aMeshIndex } }, aSortBasisEnrichmentLevels, aUseSpgBasedEnrichment );
 
         if ( this->mDiagnostics )
         {
@@ -1127,6 +1135,7 @@ namespace xtk
     Model::perform_basis_enrichment(
             enum EntityRank const    &aBasisRank,
             Matrix< IndexMat > const &aMeshIndex,
+            bool                      aUseSpgBasedEnrichment,
             bool                      aSortBasisEnrichmentLevels )
     {
         Tracer tTracer( "XTK", "Enrichment" );
@@ -1137,7 +1146,7 @@ namespace xtk
         mEnrichedIntegMesh.resize( aMeshIndex.numel() + 1, nullptr );
         mEnrichedInterpMesh.resize( aMeshIndex.numel() + 1, nullptr );
 
-        this->perform_basis_enrichment_internal( aBasisRank, aMeshIndex, aSortBasisEnrichmentLevels );
+        this->perform_basis_enrichment_internal( aBasisRank, aMeshIndex, aSortBasisEnrichmentLevels, aUseSpgBasedEnrichment );
 
         if ( mDiagnostics )
         {
@@ -1269,9 +1278,9 @@ namespace xtk
     Model::perform_basis_enrichment_internal(
             enum EntityRank const    &aBasisRank,
             Matrix< IndexMat > const &aMeshIndex,
-            bool                      aSortBasisEnrichmentLevels )
+            bool                      aSortBasisEnrichmentLevels,
+            bool                      aUseSpgBasedEnrichment )
     {
-
         // initialize enrichment (ptr because of circular dependency)
         mEnrichment = new Enrichment(
                 Enrichment_Method::USE_INTERPOLATION_CELL_BASIS,
@@ -1280,13 +1289,22 @@ namespace xtk
                 mGeometryEngine->get_num_phases(),
                 this,
                 mBackgroundMesh,
-                aSortBasisEnrichmentLevels );
+                aSortBasisEnrichmentLevels,
+                aUseSpgBasedEnrichment );
 
         // Set verbose flag to match XTK.
         mEnrichment->mVerbose = mVerbose;
 
         // perform the enrichment
-        mEnrichment->perform_enrichment();
+        if( aUseSpgBasedEnrichment )
+        {
+            // FIXME: this needs to go once the SPG based enrichment is validated
+            mEnrichment->perform_enrichment_new();
+        }
+        else
+        {
+            mEnrichment->perform_enrichment();
+        }
     }
 
     // ----------------------------------------------------------------------------------
