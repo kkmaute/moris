@@ -245,6 +245,16 @@ namespace xtk
             //------------------------------------------------------------------------------
 
             /**
+             * @brief Return the mesh indices that will be enriched
+             * 
+             * @return Matrix< IndexMat > 
+             */
+            Matrix< IndexMat >
+            get_enriched_mesh_indices() const;
+            
+            //------------------------------------------------------------------------------
+
+            /**
              * @brief convert enriched //?
              * 
              * @param aMeshIndex 

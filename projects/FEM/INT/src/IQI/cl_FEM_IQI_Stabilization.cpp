@@ -26,8 +26,18 @@ namespace moris
             const std::shared_ptr< Stabilization_Parameter > & tSP =
                     mStabilizationParam( static_cast< uint >( IQI_Stabilization_Type::STABILIZATION ) );
 
+            // check if index was set
+            if( mQuantityDofType.size() > 1 )
+            {
+                MORIS_ERROR( mIQITypeIndex != -1, "IQI_Stabilization::compute_QI - mIQITypeIndex not set." );
+            }
+            else
+            {
+                mIQITypeIndex = 0;
+            }
+
             // evaluate the QI
-            aQI = tSP->val();
+            aQI = {{ tSP->val()( mIQITypeIndex ) }};
         }
 
         //------------------------------------------------------------------------------
@@ -41,8 +51,18 @@ namespace moris
             const std::shared_ptr< Stabilization_Parameter > & tSP =
                     mStabilizationParam( static_cast< uint >( IQI_Stabilization_Type::STABILIZATION ) );
 
+            // check if index was set
+            if( mQuantityDofType.size() > 1 )
+            {
+                MORIS_ERROR( mIQITypeIndex != -1, "IQI_Stabilization::compute_QI - mIQITypeIndex not set." );
+            }
+            else
+            {
+                mIQITypeIndex = 0;
+            }
+
             // evaluate the QI
-            mSet->get_QI()( tQIIndex ) += aWStar * ( tSP->val() );
+            mSet->get_QI()( tQIIndex ) += {{ aWStar * tSP->val()( mIQITypeIndex ) }};
         }
 
         //------------------------------------------------------------------------------

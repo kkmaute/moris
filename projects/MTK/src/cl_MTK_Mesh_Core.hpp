@@ -26,6 +26,9 @@ namespace moris
     namespace mtk
     {
         class Set;
+        class Vertex;
+        class Vertex_Interpolation;
+
         class Mesh :  public std::enable_shared_from_this< Mesh >
         {
         protected:
@@ -1259,6 +1262,145 @@ namespace moris
                         const moris_index aInterpolationIndex,
                         const moris_index aBasisIndex );
 #endif
+
+
+                /////////////////////////
+                // Accessor functions for the data base entities
+                /////////////////////////
+
+                //--------------------------------------------------------------------------------------------------------------
+
+                virtual moris_id 
+                get_entity_id( enum EntityRank aEntityRank,
+                    moris_index                aEntityIndex ) const;
+
+                //--------------------------------------------------------------------------------------------------------------
+
+                virtual moris_id 
+                get_entity_owner( enum EntityRank aEntityRank,
+                    moris_index                   aEntityIndex ) const;
+
+                //--------------------------------------------------------------------------------------------------------------
+
+                virtual moris_id* 
+                get_basis_ids( moris_index aVertexIndex,
+                    moris_index            aOrder );
+
+                //--------------------------------------------------------------------------------------------------------------
+
+                virtual moris_index* 
+                get_basis_indicies( moris_index aVertexIndex,
+                    moris_index                 aOrder );
+
+                //--------------------------------------------------------------------------------------------------------------
+
+                virtual real* 
+                get_basis_weights( moris_index aVertexIndex,
+                    moris_index                aOrder ) ;
+
+                //--------------------------------------------------------------------------------------------------------------
+
+                virtual moris_id* 
+                get_basis_owners( moris_index aVertexIndex,
+                    moris_index               aOrder );
+
+                //--------------------------------------------------------------------------------------------------------------
+
+                virtual moris_index 
+                get_basis_length( moris_index aVertexIndex,
+                    moris_index               aOrder ) ;
+
+                //--------------------------------------------------------------------------------------------------------------
+
+                virtual moris::real* 
+                get_vertex_coords_ptr( moris_index aVertexIndex );
+
+                //--------------------------------------------------------------------------------------------------------------
+
+                virtual Vertex**
+                get_cell_vertices( moris_index aCellIndex );
+
+                //--------------------------------------------------------------------------------------------------------------
+
+                virtual Vertex_Interpolation**
+                get_vertex_interpolation( moris_index aVertexIndex );
+
+                //--------------------------------------------------------------------------------------------------------------
+
+                virtual mtk::Cell* 
+                get_ip_cell_in_cluster( enum ClusterType aClusterType,
+                    moris_index                          aClusterIndex ) const;
+
+                //--------------------------------------------------------------------------------------------------------------
+
+                virtual mtk::Cell* const*
+                get_ig_cells_in_cluster( enum ClusterType aClusterType,
+                    enum mtk::Primary_Void                aPrimaryOrVoid,
+                    moris_index                           aClusterIndex ) const;
+
+                //--------------------------------------------------------------------------------------------------------------
+
+                virtual uint 
+                get_num_cells_in_cluster( enum ClusterType aClusterType,
+                    enum mtk::Primary_Void                 aPrimaryOrVoid,
+                    moris_index                            aClusterIndex ) const;
+
+                //--------------------------------------------------------------------------------------------------------------
+
+                virtual moris_index* 
+                get_side_ordinals_in_cluster( enum ClusterType aClusterType,
+                    moris_index                                aClusterIndex ) const;
+
+                //--------------------------------------------------------------------------------------------------------------
+
+                virtual bool 
+                cluster_is_trivial( enum ClusterType aClusterType,
+                    moris_index                      aClusterIndex ) const;
+
+                //--------------------------------------------------------------------------------------------------------------
+
+                virtual Vertex* const*
+                get_vertices_in_cluster( enum ClusterType aClusterType,
+                    moris_index                           aClusterIndex ) const;
+
+                //--------------------------------------------------------------------------------------------------------------
+
+                virtual uint
+                get_num_vertices_in_cluster( enum ClusterType aClusterType,
+                    moris_index                               aClusterIndex ) const;
+
+                //--------------------------------------------------------------------------------------------------------------
+
+                virtual Matrix< DDRMat >*
+                get_local_coord_matrix_ptr( enum ClusterType aClusterType,
+                    moris_index                              aClusterIndex ) const;
+
+                //--------------------------------------------------------------------------------------------------------------
+
+                virtual uint
+                get_row_number_local_coords_matrix( enum ClusterType aClusterType,
+                    moris_index                                      aClusterIndex ) const;
+
+                //--------------------------------------------------------------------------------------------------------------
+
+                virtual mtk::Cell_Cluster const*
+                get_associated_cell_cluster( moris_index aClusterIndex ) const;
+
+                //--------------------------------------------------------------------------------------------------------------
+
+                virtual Matrix< IndexMat >
+                get_enriched_mesh_indices() const;
+
+                //--------------------------------------------------------------------------------------------------------------
+
+                virtual bool
+                is_secondary_cluster( moris_index aClusterIndex ) const;
+
+                //--------------------------------------------------------------------------------------------------------------
+
+
+                virtual std::shared_ptr< mtk::Cell_Info >
+                get_cell_info_sp( moris_index aEntityIndex ) const;
         };
     }
 }

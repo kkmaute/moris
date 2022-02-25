@@ -17,6 +17,7 @@
     #include "fn_PRM_GEN_Parameters.hpp"
     #include "fn_PRM_XTK_Parameters.hpp"
     #include "fn_PRM_OPT_Parameters.hpp"
+    #include "fn_PRM_MIG_Parameters.hpp"
     #include "cl_HMR_Element.hpp"
     #include "fn_equal_to.hpp"
 
@@ -213,9 +214,7 @@
             tParameterlist( 0 )( 0 ).set( "verbose",                   true );
             tParameterlist( 0 )( 0 ).set( "print_enriched_ig_mesh",    false );
             tParameterlist( 0 )( 0 ).set( "exodus_output_XTK_ig_mesh", true );
-            tParameterlist( 0 )( 0 ).set( "high_to_low_dbl_side_sets", true );
-            tParameterlist( 0 )( 0 ).set( "periodic_side_set_pair", tPeriodicSidePairs );
-            
+            tParameterlist( 0 )( 0 ).set( "high_to_low_dbl_side_sets", true );  
         }
 
         void GENParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
@@ -232,6 +231,19 @@
             // Geometry parameter lists
             tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
             tParameterlist( 1 )( tGeoCounter ).set( "field_function_name",       "Inclusion" );
+        }
+
+        void
+        MIGParameterList( moris::Cell< moris::Cell< ParameterList > >& tParameterlist )
+        {
+            tParameterlist.resize( 1 );
+            tParameterlist( 0 ).resize( 1 );
+
+            // Main GEN parameter list
+            tParameterlist( 0 )( 0 ) = prm::create_mig_parameter_list();
+
+            tParameterlist( 0 )( 0 ).set("periodic_side_set_pair", tPeriodicSidePairs); 
+
         }
 
         void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterList )
@@ -492,7 +504,6 @@
             tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPPeriodicNitscheP00,NitscheInterface");
             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "P00" );
             tIWGCounter++;
-
             //------------------------------------------------------------------------------
             // init IQI counter
 

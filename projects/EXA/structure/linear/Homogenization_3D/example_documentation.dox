@@ -1,0 +1,20 @@
+namespace moris {
+
+/** \page EXA_Structure_Linear_Homogenization_2D Homogenization in 2D Problem.
+
+# Problem Description
+This example highlights the use of the following features:
+
+- Homogenization
+
+# Problem Setup
+
+# Reference Solution
+
+# Literature
+
+# Developer Notes
+
+None.
+*/
+}

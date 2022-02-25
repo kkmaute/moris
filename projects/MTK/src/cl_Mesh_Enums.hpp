@@ -102,6 +102,30 @@ namespace moris
         END_ENUM    //
     };
 
+    //------------------------------------------------------------------------------
+
+    enum class ClusterType
+    {
+        CELL_CLUSTER ,           // Cell Cluster
+        SIDE_CLUSTER ,           // Side Cluster
+        DOUBLE_SIDED_CLUSTER ,   // DoubleSided Cluster
+        END_ENUM
+    };
+
+    //------------------------------------------------------------------------------
+inline
+const std::string get_cluster_type_str(enum ClusterType aClusterType)
+{
+    switch (aClusterType)
+    {
+
+        case ClusterType::CELL_CLUSTER     : return "CELL_CLUSTER"; break;
+        case ClusterType::SIDE_CLUSTER     : return "SIDE_CLUSTER"; break;
+        case ClusterType::DOUBLE_SIDED_CLUSTER     : return "DOUBLE_SIDED_CLUSTER"; break;
+        default: return "Unrecognized Enum provided to get_enum_str";
+    }
+}
+
 inline
 const std::string get_enum_str(enum EntityRank aCellTopoEnum)
 {

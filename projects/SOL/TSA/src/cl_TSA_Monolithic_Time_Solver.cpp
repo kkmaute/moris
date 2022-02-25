@@ -25,22 +25,23 @@ using namespace moris;
 using namespace tsa;
 //-------------------------------------------------------------------------------
 
-void Monolithic_Time_Solver::solve_monolytic_time_system( moris::Cell< sol::Dist_Vector * > & aFullVector )
+void
+Monolithic_Time_Solver::solve_monolytic_time_system( moris::Cell< sol::Dist_Vector* >& aFullVector )
 {
     // trace this solve
     Tracer tTracer( "TimeSolverAlgorithm", "Monolythic", "Solve" );
 
     this->finalize();
 
-    moris::real tTime_Scalar = 0.0;
-    sint tTimeSteps = mParameterListTimeSolver.get< moris::sint >( "TSA_Num_Time_Steps" );
-    moris::real tTimeFrame = mParameterListTimeSolver.get< moris::real >( "TSA_Time_Frame" );
+    moris::real tTime_Scalar    = 0.0;
+    sint        tTimeSteps      = mParameterListTimeSolver.get< moris::sint >( "TSA_Num_Time_Steps" );
+    moris::real tTimeFrame      = mParameterListTimeSolver.get< moris::real >( "TSA_Time_Frame" );
     moris::real tTimeIncrements = tTimeFrame / tTimeSteps;
 
     bool tMaxTimeIterationReached = false;
 
     // get list of time frames
-    moris::Cell< Matrix< DDRMat > > & tTimeFrames = mMyTimeSolver->get_time_frames();
+    moris::Cell< Matrix< DDRMat > >& tTimeFrames = mMyTimeSolver->get_time_frames();
 
     Matrix< DDRMat > tTimeInitial( 2, 1, 0.0 );
     tTimeFrames.push_back( tTimeInitial );
@@ -48,7 +49,7 @@ void Monolithic_Time_Solver::solve_monolytic_time_system( moris::Cell< sol::Dist
     for ( sint Ik = 0; Ik < tTimeSteps; Ik++ )
     {
         // get solvec and prev solvec indec
-        uint tSolVecIndex = Ik + 1;
+        uint tSolVecIndex     = Ik + 1;
         uint tPrevSolVecIndex = Ik;
 
         // initialize time for time slab
@@ -66,11 +67,12 @@ void Monolithic_Time_Solver::solve_monolytic_time_system( moris::Cell< sol::Dist
 
         // set time for previous time slab
         mSolverInterface->set_previous_time( tTimeFrames( tPrevSolVecIndex ) );
+
         // set time for current time slab
         mSolverInterface->set_time( tTimeFrames( tSolVecIndex ) );
 
         // log time slap
-        MORIS_LOG_SPEC( "Forward Solve Time Slab", Ik+1 );
+        MORIS_LOG_SPEC( "Forward Solve Time Slab", Ik + 1 );
         MORIS_LOG_SPEC( "Time Slap Start Time", tTimeFrames( tSolVecIndex )( 0, 0 ) );
         MORIS_LOG_SPEC( "Time Slap End Time", tTimeFrames( tSolVecIndex )( 1, 0 ) );
 
@@ -78,59 +80,59 @@ void Monolithic_Time_Solver::solve_monolytic_time_system( moris::Cell< sol::Dist
 
         mNonlinearSolver->solve( aFullVector( tSolVecIndex ) );
 
-        if( Ik == tTimeSteps-1 )
+        if ( Ik == tTimeSteps - 1 )
         {
             tMaxTimeIterationReached = true;
         }
 
         mSolverInterface->compute_IQI();
 
-//        //------------------------------------------------------------------------
-//
-//        // build Ascii reader
-//        moris::Ascii tAsciiReader( "./Matrix_aaaa", moris::FileMode::OPEN_RDONLY );
-//
-//        // get number of lines in asci file
-//        moris::uint tNumLines = tAsciiReader.length();
-//
-//        for( uint Ik = 1; Ik < tNumLines; Ik++ )
-//        {
-//            std::string tFileLine = tAsciiReader.line( Ik );
-//
-//            // reset position
-//            size_t tPos = 0;
-//
-//            Matrix< DDRMat > tVal( 1,1);
-//
-//            if( !tFileLine.empty()  )
-//            {
-//                // find string
-//                tPos = tFileLine.find( " " );
-//
-//                tFileLine =  tFileLine.substr( tPos+1, tFileLine.size() );
-//
-//                // copy value into output matrix
-//                if( !tFileLine.empty() )
-//                {
-//                    tVal( 0 ) = stod(  tFileLine.substr( 0, tFileLine.size() ) );
-//                }
-//            }
-//
-//            Matrix< DDSMat > tMat( 1,1,Ik-1);
-//            aFullVector( tSolVecIndex )->replace_global_values( tMat,tVal);
-//
-//            std::cout<<" replace value: "<<tMat( 0 )<<" with "<<tVal( 0 )<<std::endl;
-//        }
-// 
-//        //------------------------------------------------------------------------
+        //        //------------------------------------------------------------------------
+        //
+        //        // build Ascii reader
+        //        moris::Ascii tAsciiReader( "./Matrix_aaaa", moris::FileMode::OPEN_RDONLY );
+        //
+        //        // get number of lines in asci file
+        //        moris::uint tNumLines = tAsciiReader.length();
+        //
+        //        for( uint Ik = 1; Ik < tNumLines; Ik++ )
+        //        {
+        //            std::string tFileLine = tAsciiReader.line( Ik );
+        //
+        //            // reset position
+        //            size_t tPos = 0;
+        //
+        //            Matrix< DDRMat > tVal( 1,1);
+        //
+        //            if( !tFileLine.empty()  )
+        //            {
+        //                // find string
+        //                tPos = tFileLine.find( " " );
+        //
+        //                tFileLine =  tFileLine.substr( tPos+1, tFileLine.size() );
+        //
+        //                // copy value into output matrix
+        //                if( !tFileLine.empty() )
+        //                {
+        //                    tVal( 0 ) = stod(  tFileLine.substr( 0, tFileLine.size() ) );
+        //                }
+        //            }
+        //
+        //            Matrix< DDSMat > tMat( 1,1,Ik-1);
+        //            aFullVector( tSolVecIndex )->replace_global_values( tMat,tVal);
+        //
+        //            std::cout<<" replace value: "<<tMat( 0 )<<" with "<<tVal( 0 )<<std::endl;
+        //        }
+        //
+        //        //------------------------------------------------------------------------
 
-        // if separate output of solution to file is requested 
+        // if separate output of solution to file is requested
         if ( mOutputSolVecFileName.size() > 0 )
         {
             // get iteration of time solver
-            uint tTSAIter = gLogger.get_iteration( "TimeSolverAlgorithm", LOGGER_ARBITRARY_DESCRIPTOR, LOGGER_ARBITRARY_DESCRIPTOR);
+            uint tTSAIter = gLogger.get_iteration( "TimeSolverAlgorithm", LOGGER_ARBITRARY_DESCRIPTOR, LOGGER_ARBITRARY_DESCRIPTOR );
 
-            // construct string from output file name 
+            // construct string from output file name
             std::string tStrOutputFile = mOutputSolVecFileName + "." + ios::stringify( tTSAIter ) + ".hdf5";
 
             // log/print that the initial guess is read from file
@@ -145,9 +147,9 @@ void Monolithic_Time_Solver::solve_monolytic_time_system( moris::Cell< sol::Dist
             aFullVector( tSolVecIndex )->extract_copy( tSolVec );
 
             // read HDF5 file to moris matrix
-            hid_t tFileID = create_hdf5_file( tStrOutputFile );
+            hid_t  tFileID = create_hdf5_file( tStrOutputFile );
             herr_t tStatus = 0;
-            save_matrix_to_hdf5_file( tFileID, "SolVec", tSolVec, tStatus);
+            save_matrix_to_hdf5_file( tFileID, "SolVec", tSolVec, tStatus );
         }
 
         // input second time slap value for output
@@ -159,7 +161,8 @@ void Monolithic_Time_Solver::solve_monolytic_time_system( moris::Cell< sol::Dist
 
 //-------------------------------------------------------------------------------
 
-void Monolithic_Time_Solver::solve_implicit_DqDs( moris::Cell< sol::Dist_Vector * > & aFullAdjointVector )
+void
+Monolithic_Time_Solver::solve_implicit_DqDs( moris::Cell< sol::Dist_Vector* >& aFullAdjointVector )
 {
     // trace this solve
     Tracer tTracer( "TimeSolver", "Monolythic", "Solve" );
@@ -167,18 +170,18 @@ void Monolithic_Time_Solver::solve_implicit_DqDs( moris::Cell< sol::Dist_Vector 
     sint tTimeSteps = mParameterListTimeSolver.get< moris::sint >( "TSA_Num_Time_Steps" );
 
     // initialize time for time slab
-    moris::Cell< Matrix< DDRMat > > & tTimeFrames = mMyTimeSolver->get_time_frames();
+    moris::Cell< Matrix< DDRMat > >& tTimeFrames = mMyTimeSolver->get_time_frames();
 
-    sint tStopTimeStepIndex = 0; // Only consider last time step
+    sint tStopTimeStepIndex = 0;    // Only consider last time step
 
-    moris::Cell< sol::Dist_Vector * > & tSolVec = mMyTimeSolver->get_solution_vectors();
+    moris::Cell< sol::Dist_Vector* >& tSolVec = mMyTimeSolver->get_solution_vectors();
 
     // Loop over all time iterations backwards
     for ( sint Ik = tTimeSteps; Ik > tStopTimeStepIndex; --Ik )
     {
         // get solvec and prev solvec indec
-        uint tSolVecIndex = Ik;
-        uint tPrevSolVecIndex = Ik-1;
+        uint tSolVecIndex     = Ik;
+        uint tPrevSolVecIndex = Ik - 1;
 
         // log number of time steps
         MORIS_LOG_ITERATION();
@@ -208,15 +211,16 @@ void Monolithic_Time_Solver::solve_implicit_DqDs( moris::Cell< sol::Dist_Vector 
 
         mSolverInterface->postmultiply_implicit_dQds();
 
-        aFullAdjointVector( 1 )->vec_plus_vec( 1.0, *(aFullAdjointVector( 0 )), 0.0 );
+        aFullAdjointVector( 1 )->vec_plus_vec( 1.0, *( aFullAdjointVector( 0 ) ), 0.0 );
     }
 }
 
 //-------------------------------------------------------------------------------
 
-void Monolithic_Time_Solver::solve( moris::Cell< sol::Dist_Vector * > & aFullVector )
+void
+Monolithic_Time_Solver::solve( moris::Cell< sol::Dist_Vector* >& aFullVector )
 {
-    if( mMyTimeSolver->get_is_forward_analysis() )
+    if ( mMyTimeSolver->get_is_forward_analysis() )
     {
         this->solve_monolytic_time_system( aFullVector );
     }
@@ -228,7 +232,8 @@ void Monolithic_Time_Solver::solve( moris::Cell< sol::Dist_Vector * > & aFullVec
 
 //-------------------------------------------------------------------------------
 
-void Monolithic_Time_Solver::set_lambda_increment( moris::real aLambdaInc )
+void
+Monolithic_Time_Solver::set_lambda_increment( moris::real aLambdaInc )
 {
     mNonlinearSolver->get_my_nonlin_problem()->set_time_value( aLambdaInc );
     mLambdaInc = aLambdaInc;
@@ -236,7 +241,8 @@ void Monolithic_Time_Solver::set_lambda_increment( moris::real aLambdaInc )
 
 //-------------------------------------------------------------------------------
 
-moris::real Monolithic_Time_Solver::get_new_lambda()
+moris::real
+Monolithic_Time_Solver::get_new_lambda()
 {
     return mLambdaInc;
 }

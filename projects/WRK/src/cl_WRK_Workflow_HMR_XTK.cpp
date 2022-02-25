@@ -17,6 +17,9 @@
 
 #include "fn_norm.hpp"
 
+#include "cl_WRK_DataBase_Performer.hpp"
+#include "cl_MIG.hpp"
+
 namespace moris
 {
     namespace wrk
@@ -36,7 +39,7 @@ namespace moris
             // Performer set for this workflow
             mPerformerManager->mHMRPerformer.resize( 1 );
             mPerformerManager->mGENPerformer.resize( 1 );
-            mPerformerManager->mXTKPerformer.resize( 1 );
+            //mPerformerManager->mXTKPerformer.resize( 1 );
             mPerformerManager->mMTKPerformer.resize( 2 );
             mPerformerManager->mMDLPerformer.resize( 1 );
             mPerformerManager->mRemeshingMiniPerformer.resize( 1 );
@@ -209,7 +212,7 @@ namespace moris
             tXTKParameterListFunc( tXTKParameterList );
 
             // Create XTK
-            std::shared_ptr< xtk::Model > tXTKPerformer = std::make_shared< xtk::Model >( tXTKParameterList( 0 )( 0 ) );
+            xtk::Model* tXTKPerformer = new xtk::Model ( tXTKParameterList( 0 )( 0 ) );
 
             std::shared_ptr< mtk::Mesh_Manager > tMTKPerformer = std::make_shared< mtk::Mesh_Manager >();
 
@@ -247,13 +250,35 @@ namespace moris
 
                 moris::Matrix< DDRMat > tMat( mNumCriterias, 1, std::numeric_limits<real>::quiet_NaN());
 
+                //delete the xtk
+                delete tXTKPerformer;
+
                 return tMat;
             }
+            
+            // output T-matrices and MPCs if requested
+            this->output_T_matrices( tMTKPerformer, tXTKPerformer );
 
+            //constrcut the data base with the mtk performer from xtk
+            DataBase_Performer tDataBasePerformer = DataBase_Performer(tMTKPerformer);
+
+            //create the mtk performer that will hold the data base mesh pair and set it
+            std::shared_ptr< mtk::Mesh_Manager > tMTKDataBasePerformer = std::make_shared< mtk::Mesh_Manager >();
+             tDataBasePerformer.set_output_performer(tMTKDataBasePerformer);
+
+            //perform the mtk data base 
+             tDataBasePerformer.perform();
+
+            //delete the xtk
+            delete tXTKPerformer;
+
+            //set the mtk performer
+            mPerformerManager->mMTKPerformer( 1 ) = tMTKDataBasePerformer;
+            
             // IMPORTANT!!! do not overwrite previous XTK  and MTK performer before we know if this XTK performer triggers a restart.
             // otherwise the fem::field meshes are deleted and cannot be used anymore.
-            mPerformerManager->mXTKPerformer( 0 ) = tXTKPerformer;
-            mPerformerManager->mMTKPerformer( 1 ) = tMTKPerformer;
+            //mPerformerManager->mXTKPerformer( 0 ) = std::shared_ptr<xtk::Model> (tXTKPerformer);
+            //mPerformerManager->mMTKPerformer( 1 ) = tMTKPerformer;
 
 //            mtk::Mesh_Checker tMeshCheckerXTK(
 //                    0,
@@ -262,8 +287,23 @@ namespace moris
 //            tMeshCheckerXTK.perform();
 //            tMeshCheckerXTK.print_diagnostics();
 
-            // output T-matrices and MPCs if requested
-            this->output_T_matrices( tMTKPerformer, tXTKPerformer );
+            //mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair(0).get_integration_mesh()->save_MPC_to_hdf5();
+            //mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair(0).get_integration_mesh()->save_IG_node_TMatrices_to_file();
+
+
+            Parameter_Function tMIGParameterListFunc = mPerformerManager->mLibrary->load_function< Parameter_Function >( "MIGParameterList", false );
+            if ( tMIGParameterListFunc )
+            {
+                moris::Cell< moris::Cell< ParameterList > > tMIGParameterList;
+                tMIGParameterListFunc( tMIGParameterList );
+
+                  moris::mig::MIG tMIGPerformer = moris::mig::MIG(mPerformerManager->mMTKPerformer( 1 ), tMIGParameterList(0)(0),  mPerformerManager->mGENPerformer( 0 ).get() );
+
+                  tMIGPerformer.perform();
+            }
+
+            //free the memory and delete the unused data
+            tDataBasePerformer.free_memory();
 
             mPerformerManager->mMDLPerformer( 0 )->set_performer( mPerformerManager->mMTKPerformer( 1 ) );
 
@@ -346,7 +386,7 @@ namespace moris
         void 
         Workflow_HMR_XTK::output_T_matrices(
             const std::shared_ptr< mtk::Mesh_Manager > aMTKPerformer,
-            const std::shared_ptr< xtk::Model >        aXTKPerformer )
+            xtk::Model*  const &      aXTKPerformer ) 
         {
             // Output T-matrices if requested
             std::string tTmatrixFileName = aXTKPerformer->get_T_matrix_output_file_name();

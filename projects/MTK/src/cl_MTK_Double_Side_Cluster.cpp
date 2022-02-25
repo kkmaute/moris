@@ -5,6 +5,7 @@
  *      Author: kedo3694
  */
 #include "cl_MTK_Double_Side_Cluster.hpp"
+#include "fn_TOL_Capacities.hpp"
 
 //----------------------------------------------------------------------------------
 namespace moris
@@ -124,6 +125,14 @@ namespace moris
             return mMasterToSlaveVertexPairs(tMasterClusterIndex);
         }
 
+        //----------------------------------------------------------------------------------
+
+        moris::Cell<moris::mtk::Vertex const *> const &
+        Double_Side_Cluster::get_master_vertex_pairs() const
+        {
+             return mMasterToSlaveVertexPairs;
+        }
+
 
         //----------------------------------------------------------------------------------
 
@@ -166,7 +175,9 @@ namespace moris
             else
             {
                 MORIS_ERROR(false, "get_interpolation_cell(): can only be 0 and 1");
-                return *mDummyCell;
+                
+                //This function will be never be used
+                return this->get_master_side_cluster().get_interpolation_cell();
             }
         }
 
@@ -204,7 +215,10 @@ namespace moris
             else
             {
                 MORIS_ERROR(false, "get_primary_cells_in_cluster(): can only be MASTER and SLAVE");
-                return mDummCellCell;
+                
+                //create a dummy cell that never will be generated
+                moris::Cell< mtk::Cell const * > *tDummyCell = new moris::Cell< mtk::Cell const * >( 0 );
+                return *tDummyCell;
             }
         }
 
@@ -319,7 +333,8 @@ namespace moris
             else
             {
                 MORIS_ERROR(false, "get_vertices_in_cluster(): can only be MASTER and SLAVE");
-                return mDummyVertexCell;
+                
+                return moris::Cell<moris::mtk::Vertex const *>(0);
             }
         }
 
@@ -412,7 +427,8 @@ namespace moris
             else
             {
                 MORIS_ERROR(false, "get_vertices_local_coordinates_wrt_interp_cell(): can only be MASTER and SLAVE");
-                return mDummyDDRMat;
+                
+                return {{}};
             }
         }
 
@@ -649,6 +665,21 @@ namespace moris
         Double_Side_Cluster::get_slave_num_vertices_in_cluster() const
         {
             return this->get_slave_side_cluster().get_num_vertices_in_cluster();
+        }
+
+        //----------------------------------------------------------------------------------
+
+        size_t
+        Double_Side_Cluster::capacity()
+        {
+            size_t tCapacity = 0;
+
+            //sum up the member data size
+            tCapacity += sizeof( mMasterSideCluster );
+            tCapacity += sizeof( mSlaveSideCluster );
+            tCapacity += mMasterToSlaveVertexPairs.capacity() * ( ( sizeof( void * ) ) + 1 );
+
+            return tCapacity;
         }
     }
 }

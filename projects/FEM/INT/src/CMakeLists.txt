@@ -81,6 +81,8 @@ set(HEADERS
 
     CM/cl_FEM_CM_Struc_Nonlinear_Isotropic.hpp
     CM/cl_FEM_CM_Struc_Linear_Isotropic.hpp
+    CM/cl_FEM_CM_Struc_Linear_MoriTanaka.hpp
+    CM/cl_FEM_CM_Struc_Linear.hpp
 
     CM/cl_FEM_CM_Fluid_Incompressible.hpp
     CM/cl_FEM_CM_Fluid_Turbulence.hpp
@@ -221,6 +223,8 @@ set(HEADERS
     IQI/cl_FEM_IQI_Homogenized_Constitutive.hpp
     IQI/cl_FEM_IQI_Heat_Method_Penalty.hpp
     IQI/cl_FEM_IQI_Advection_Strong_Residual.hpp
+    IQI/cl_FEM_IQI_Strong_Residual_SA.hpp
+    IQI/cl_FEM_IQI_Strong_Residual_Incompressible_NS.hpp
     IQI/cl_FEM_IQI_Zienkiewicz_Zhu.hpp
      
     MEA/cl_FEM_Cluster_Measure.hpp
@@ -271,6 +275,8 @@ set(LIB_SOURCES
 
     CM/cl_FEM_CM_Struc_Nonlinear_Isotropic.cpp
     CM/cl_FEM_CM_Struc_Linear_Isotropic.cpp
+     CM/cl_FEM_CM_Struc_Linear_MoriTanaka.cpp
+    CM/cl_FEM_CM_Struc_Linear.cpp
 
     CM/cl_FEM_CM_Fluid_Incompressible.cpp
     CM/cl_FEM_CM_Fluid_Turbulence.cpp
@@ -421,6 +427,8 @@ set(LIB_SOURCES
     IQI/cl_FEM_IQI_Homogenized_Constitutive.cpp
     IQI/cl_FEM_IQI_Heat_Method_Penalty.cpp
     IQI/cl_FEM_IQI_Advection_Strong_Residual.cpp
+    IQI/cl_FEM_IQI_Strong_Residual_SA.cpp
+    IQI/cl_FEM_IQI_Strong_Residual_Incompressible_NS.cpp
     IQI/cl_FEM_IQI_Zienkiewicz_Zhu.cpp
     
     MEA/cl_FEM_Cluster_Measure.cpp

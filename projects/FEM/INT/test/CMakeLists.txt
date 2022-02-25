@@ -43,6 +43,7 @@ set(TEST_SOURCES
     UT_FEM_CM_Compressible_Fluid_VdW.cpp
     UT_FEM_CM_Struc_Linear_Isotropic.cpp
     UT_FEM_CM_Struc_Linear_Isotropic_Axisymmetric.cpp
+    UT_FEM_CM_Spalart_Allmaras_Turbulence.cpp
     
     UT_FEM_SP_Fluid.cpp
     UT_FEM_SP_YZBeta_Advection.cpp

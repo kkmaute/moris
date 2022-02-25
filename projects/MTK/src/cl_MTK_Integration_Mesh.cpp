@@ -235,6 +235,9 @@ namespace moris
             mListOfAllSets.clear();
             mSetNameToIndexMap.clear();
 
+            //resrve enough space 
+            mListOfAllSets.reserve( mListofBlocks.size() + mListofSideSets.size() + mListofDoubleSideSets.size() );
+
             uint tCounter = 0;
 
             // Append block sets to list of all sets
@@ -822,6 +825,20 @@ namespace moris
 
         // ----------------------------------------------------------------------------
 
+        void
+        Integration_Mesh::delete_visualization_sets()
+        {
+            // lambda function to determine if the set name has a ghost in it
+            auto tIsGhostVisualization = []( moris::mtk::Set * aSet)->bool { return std::strstr( aSet->get_set_name().c_str(), "ghost" ) ; };
+
+            //use erase remove idiom to remove sets that have the name as the ghost
+            //FIXME : a proper insert function needs to be implemented that we don't use data
+            mListofBlocks.data().erase(std::remove_if(mListofBlocks.begin(), mListofBlocks.end(), tIsGhostVisualization),mListofBlocks.end()) ;
+
+            mListofSideSets.data().erase(std::remove_if(mListofSideSets.begin(), mListofSideSets.end(), tIsGhostVisualization),mListofSideSets.end()) ;
+
+            mListOfAllSets.data().erase(std::remove_if(mListOfAllSets.begin(), mListOfAllSets.end(), tIsGhostVisualization),mListOfAllSets.end()) ;
+        }
     } /*end namespace mtk*/
 }/*end namespace moris*/
 

@@ -161,6 +161,19 @@ namespace moris
                 }
 
                 // ----------------------------------------------------------------------------
+                /**
+                 * Get nodes connected to an element
+                 * @param[ in ] aInterpCell An Interpolation cell
+                 */
+                Cell_Cluster const &
+                get_cell_cluster(moris_index aInterpCellIndex) const
+                {
+                    MORIS_ERROR( false, "Not Implemented for Intersection Mesh");
+                    mtk::Cell_Cluster*       tDummyCells = nullptr;
+                    return * tDummyCells;
+                }
+
+                // ----------------------------------------------------------------------------
 
                 /**
                  * Get block set names

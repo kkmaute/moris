@@ -145,6 +145,8 @@ namespace moris
                 THERMAL_ENERGY_DIFFUSIVE_FLUX,
 
                 ADVECTION_STRONG_RESIDUAL,
+                STRONG_RESIDUAL_SA,
+                STRONG_RESIDUAL_INCOMPRESSIBLE_NS,
 
                 MAX_STRESS,
                 MAX_NORMAL_STRESS,
@@ -176,6 +178,7 @@ namespace moris
                 DIFF_LIN_ISO_PC,
                 DIFF_LIN_ISO_TURBULENCE,
                 STRUC_LIN_ISO,
+                STRUC_LIN_MT,
                 STRUC_LIN_ISO_PRESSURE,
                 STRUC_NONLIN_ISO,
                 FLUID_INCOMPRESSIBLE,

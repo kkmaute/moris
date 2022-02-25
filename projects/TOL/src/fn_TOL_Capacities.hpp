@@ -74,6 +74,33 @@ namespace moris
         return tInternalCapacity + aCell.capacity();
     }
 
+    //------------------------------------------------------------------------------
+    
+    /**
+     * @brief compute the cpacity of moris::Cell<mori::Cell<DataTyp>>
+     * where DataType is a native data type that does not have a capacity
+     * 
+     * @tparam DataType 
+     * @param aCell 
+     * @return size_t 
+     */
+    template< typename DataType >
+    inline size_t
+    internal_capacity_nested_datatype( moris::Cell< moris::Cell< DataType > > &aCell )
+    {
+        size_t tInternalCapacity = 0;
+
+        for ( const auto &iInnerCells : aCell )
+        {
+            tInternalCapacity += iInnerCells.capacity() * ( sizeof( DataType ) + 1 );
+        }
+
+        // return the calculated internal memory usage,
+        // add the capacity ofthe vector itself
+        return tInternalCapacity + aCell.capacity();
+    }
+
+     //------------------------------------------------------------------------------
     template <typename Class_PTR_With_Capacity_FN>
     inline
     size_t

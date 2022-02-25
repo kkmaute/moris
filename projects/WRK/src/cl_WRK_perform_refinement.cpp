@@ -213,7 +213,7 @@ namespace moris
 
                     for( uint Ii = 0; Ii < tNumElements; Ii++ )
                     {
-                        mtk::Cell & tCell = tSourceMesh->get_writable_mtk_cell( Ii );
+                        mtk::Cell & tCell = tSourceMesh->get_mtk_cell( Ii );
 
                         uint tMaxLevel = MORIS_UINT_MAX;
 

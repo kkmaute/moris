@@ -114,10 +114,6 @@ Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProblem )
             tRebuildJacobian = mParameterListNonlinearSolver.get< bool >( "NLA_rebuild_jacobian" );
         }
 
-        // initialize reference and first residual in solver interface (used for homotopy methods and similar)
-        mMyNonLinSolverManager->get_solver_interface()->set_first_residual_norm( mMyNonLinSolverManager->get_ref_norm() );
-        mMyNonLinSolverManager->get_solver_interface()->set_residual_norm( mMyNonLinSolverManager->get_residual_norm() );
-
         // For sensitivity analysis only: set current solution to LHS of linear system as residual is defined by A x - b
         if ( !mMyNonLinSolverManager->get_solver_interface()->get_is_forward_analysis() )
         {
