@@ -214,6 +214,7 @@ set(HEADERS
     IQI/cl_FEM_IQI_Turbulent_Dynamic_Viscosity.hpp
     IQI/cl_FEM_IQI_Effective_Dynamic_Viscosity.hpp
     IQI/cl_FEM_IQI_Effective_Conductivity.hpp
+    IQI/cl_FEM_IQI_Spalart_Allmaras_Coefficient.hpp
     IQI/cl_FEM_IQI_Power_Dissipation.hpp
     IQI/cl_FEM_IQI_Total_Pressure.hpp
     IQI/cl_FEM_IQI_Mass_Flow.hpp
@@ -418,6 +419,7 @@ set(LIB_SOURCES
     IQI/cl_FEM_IQI_Turbulent_Dynamic_Viscosity.cpp
     IQI/cl_FEM_IQI_Effective_Dynamic_Viscosity.cpp
     IQI/cl_FEM_IQI_Effective_Conductivity.cpp
+    IQI/cl_FEM_IQI_Spalart_Allmaras_Coefficient.cpp
     IQI/cl_FEM_IQI_Power_Dissipation.cpp
     IQI/cl_FEM_IQI_Total_Pressure.cpp
     IQI/cl_FEM_IQI_Mass_Flow.cpp

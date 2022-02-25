@@ -138,6 +138,7 @@ namespace moris
                 TURBULENT_DYNAMIC_VISCOSITY,
                 EFFECTIVE_DYNAMIC_VISCOSITY,
                 EFFECTIVE_CONDUCTIVITY,
+                SPALART_ALLMARAS_COEFFICIENT,
                 POWER_DISSIPATION,
                 TOTAL_PRESSURE,
                 MASS_FLOW,
