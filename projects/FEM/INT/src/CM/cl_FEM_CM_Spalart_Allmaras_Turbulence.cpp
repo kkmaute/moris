@@ -7,6 +7,7 @@
 #include "fn_norm.hpp"
 #include "fn_dot.hpp"
 #include "fn_eye.hpp"
+#include "fn_clip_value.hpp"
 #include "op_minus.hpp"
 
 namespace moris
@@ -1839,8 +1840,7 @@ namespace moris
         CM_Spalart_Allmaras_Turbulence::eval_fv2()
         {
             // threshold deno
-            real tDeno = 1.0 + this->chi() * this->fv1();
-            tDeno      = std::abs( tDeno ) < mEpsilon ? mEpsilon : tDeno;
+            real tDeno = clip_value( 1.0 + this->chi() * this->fv1(), mEpsilon );
 
             // compute fv2
             mFv2 = 1.0 - this->chi() / tDeno;
@@ -1885,8 +1885,7 @@ namespace moris
             mdFv2du( tDofIndex ).set_size( 1, tFIDer->get_number_of_space_time_coefficients() );
 
             // threshold deno
-            real tDeno = 1.0 + this->chi() * this->fv1();
-            tDeno      = std::abs( tDeno ) < mEpsilon ? mEpsilon : tDeno;
+            real tDeno = clip_value( 1.0 + this->chi() * this->fv1(), mEpsilon );
 
             if ( std::abs( tDeno ) > mEpsilon )
             {
@@ -2065,8 +2064,7 @@ namespace moris
         CM_Spalart_Allmaras_Turbulence::eval_smod()
         {
             // threshold deno
-            real tDeno = ( mCv3 - 2.0 * mCv2 ) * this->s() - this->sbar();
-            tDeno      = std::abs( tDeno ) < mEpsilon ? mEpsilon : tDeno;
+            real tDeno = clip_value( ( mCv3 - 2.0 * mCv2 ) * this->s() - this->sbar(), mEpsilon );
 
             // compute smod
             mSMod = this->s() * ( std::pow( mCv2, 2 ) * this->s() + mCv3 * this->sbar() ) / tDeno;
@@ -2114,8 +2112,7 @@ namespace moris
             real tSModNum = this->s() * ( std::pow( mCv2, 2 ) * this->s() + mCv3 * this->sbar() );
 
             // compute smod deno and threshold deno
-            real tSModDeno = ( mCv3 - 2.0 * mCv2 ) * this->s() - this->sbar();
-            tSModDeno      = std::abs( tSModDeno ) < mEpsilon ? mEpsilon : tSModDeno;
+            real tSModDeno = clip_value( ( mCv3 - 2.0 * mCv2 ) * this->s() - this->sbar(), mEpsilon );
 
             if ( std::abs( tSModDeno ) > mEpsilon )
             {
@@ -2289,8 +2286,7 @@ namespace moris
             real tWallDistance = mPropWallDistance->val()( 0 );
 
             // threshold deno
-            real tRDeno = this->stilde() * std::pow( mKappa * tWallDistance, 2.0 );
-            tRDeno      = std::abs( tRDeno ) < mEpsilon ? mEpsilon : tRDeno;
+            real tRDeno = clip_value( this->stilde() * std::pow( mKappa * tWallDistance, 2.0 ), mEpsilon );
 
             // compute viscosity / ( stilde * kappa² * d² )
             mR = tFIViscosity->val()( 0 ) / tRDeno;
@@ -2348,8 +2344,7 @@ namespace moris
                 real tWallDistance = mPropWallDistance->val()( 0 );
 
                 // threshold deno
-                real tRDeno = this->stilde() * std::pow( mKappa * tWallDistance, 2.0 );
-                tRDeno      = std::abs( tRDeno ) < mEpsilon ? mEpsilon : tRDeno;
+                real tRDeno = clip_value( this->stilde() * std::pow( mKappa * tWallDistance, 2.0 ), mEpsilon );
 
                 // if dof type is viscosity
                 if ( aDofTypes( 0 ) == mDofViscosity )
@@ -2375,11 +2370,13 @@ namespace moris
                     if ( mPropWallDistance->check_dof_dependency( aDofTypes ) )
                     {
                         // threshold deno
-                        real tdRduDeno2 = this->stilde() * std::pow( mKappa, 2.0 ) * std::pow( tWallDistance, 3.0 );
-                        tdRduDeno2      = std::abs( tdRduDeno2 ) < mEpsilon ? mEpsilon : tdRduDeno2;
+                        real tdRduDeno2 = clip_value(
+                                this->stilde() * std::pow( mKappa, 2.0 ) * std::pow( tWallDistance, 3.0 ),
+                                mEpsilon );
 
                         // add contribution from wall distance
-                        mdRdu( tDofIndex ) -= 2.0 * tFIViscosity->val()( 0 ) * mPropWallDistance->dPropdDOF( aDofTypes ) / tdRduDeno2;
+                        mdRdu( tDofIndex ) -=
+                                2.0 * tFIViscosity->val()( 0 ) * mPropWallDistance->dPropdDOF( aDofTypes ) / tdRduDeno2;
                     }
                 }
             }
@@ -2565,8 +2562,7 @@ namespace moris
             if ( tFwDeno > mEpsilon )
             {
                 // threshold deno
-                real tdFwduDeno = this->g() * tFwDeno;
-                tdFwduDeno      = std::abs( tdFwduDeno ) < mEpsilon ? mEpsilon : tdFwduDeno;
+                real tdFwduDeno = clip_value( this->g() * tFwDeno, mEpsilon );
 
                 // compute dfwdu
                 mdFwdu( tDofIndex ) = ( this->fw() * std::pow( mCw3, 6.0 ) * this->dgdu( aDofTypes ) ) / tdFwduDeno;
@@ -2615,8 +2611,7 @@ namespace moris
         CM_Spalart_Allmaras_Turbulence::eval_fn()
         {
             // threshold deno
-            real tFnDeno = mCn1 - std::pow( this->chi(), 3.0 );
-            tFnDeno      = std::abs( tFnDeno ) < mEpsilon ? mEpsilon : tFnDeno;
+            real tFnDeno = clip_value( mCn1 - std::pow( this->chi(), 3.0 ), mEpsilon );
 
             // compute fn
             mFn = ( mCn1 + std::pow( this->chi(), 3.0 ) ) / tFnDeno;
@@ -2661,8 +2656,7 @@ namespace moris
             mdFndu( tDofIndex ).set_size( 1, tFIDer->get_number_of_space_time_coefficients() );
 
             // threshold deno
-            real tFnDeno = mCn1 - std::pow( this->chi(), 3.0 );
-            tFnDeno      = std::abs( tFnDeno ) < mEpsilon ? mEpsilon : tFnDeno;
+            real tFnDeno = clip_value( mCn1 - std::pow( this->chi(), 3.0 ), mEpsilon );
 
             if ( std::abs( tFnDeno ) > mEpsilon )
             {
@@ -2723,8 +2717,7 @@ namespace moris
             mdFndx( aOrder - 1 ).set_size( mSpaceDim, 1 );
 
             // threshold deno
-            real tFnDeno = mCn1 - std::pow( this->chi(), 3.0 );
-            tFnDeno      = std::abs( tFnDeno ) < mEpsilon ? mEpsilon : tFnDeno;
+            real tFnDeno = clip_value( mCn1 - std::pow( this->chi(), 3.0 ), mEpsilon );
 
             if ( std::abs( tFnDeno ) > mEpsilon )
             {
@@ -2788,14 +2781,12 @@ namespace moris
             mdFndxdu( aOrder - 1 )( tDofIndex ).set_size( mSpaceDim, tFIDer->get_number_of_space_time_coefficients() );
 
             // threshold deno
-            real tFnDeno = mCn1 - std::pow( this->chi(), 3.0 );
-            tFnDeno      = std::abs( tFnDeno ) < mEpsilon ? mEpsilon : tFnDeno;
+            real tFnDeno = clip_value( mCn1 - std::pow( this->chi(), 3.0 ), mEpsilon );
 
             if ( std::abs( tFnDeno ) > mEpsilon )
             {
                 // threshold deno
-                real tdFndxduDeno = std::pow( tFnDeno, 3.0 );
-                tdFndxduDeno      = std::abs( tdFndxduDeno ) < mEpsilon ? mEpsilon : tdFndxduDeno;
+                real tdFndxduDeno = clip_value( std::pow( tFnDeno, 3.0 ), mEpsilon );
 
                 // compute dfndxdu
                 mdFndxdu( aOrder - 1 )( tDofIndex ) =
