@@ -25,23 +25,62 @@
 
 namespace xtk
 {
-//------------------------------------------------------------------------------
-Enriched_Integration_Mesh::Enriched_Integration_Mesh( Model *aXTKModel,
-    moris::moris_index                                       aInterpIndex ) :
-    mModel( aXTKModel ),
-    mCutIgMesh( mModel->get_cut_integration_mesh() ), mMeshIndexInModel( aInterpIndex ), mCellClusters( 0, nullptr ), mFields( 0 ), mFieldLabelToIndex( 2 ), mCellInfo( nullptr )
-{
-    
-    Tracer tTracer( "XTK", "Enriched Integration Mesh", "Construction", mModel->mVerboseLevel, 0  );
-    this->setup_cell_clusters();
-    this->setup_blockset_with_cell_clusters();
-    this->setup_side_set_clusters();
-    this->setup_double_side_set_clusters();
-    this->setup_interface_side_sets();
-    // this->setup_interface_vertex_sets();
-    this->setup_color_to_set();
-    this->collect_all_sets();
 
+//------------------------------------------------------------------------------
+
+Enriched_Integration_Mesh::Enriched_Integration_Mesh( 
+        Model*             aXTKModel,
+        moris::moris_index aInterpIndex,
+        bool               aUseSpgBasedEnrichment )
+        : mModel( aXTKModel )
+        , mCutIgMesh( mModel->get_cut_integration_mesh() )
+        , mMeshIndexInModel( aInterpIndex )
+        , mCellClusters( 0, nullptr )
+        , mFields( 0 )
+        , mFieldLabelToIndex( 2 )
+        , mCellInfo( nullptr )
+{
+    // log/trace this function
+    Tracer tTracer( "XTK", "Enriched Integration Mesh", "Construction", mModel->mVerboseLevel, 0  );
+
+    if( aUseSpgBasedEnrichment )
+    {
+        MORIS_ASSERT( false, "Enriched_Integration_Mesh() - Initialization for SPG based enrichment not fully implemented yet." ); 
+
+        // TODO: this function needs significant changeing, more later ...
+        this->setup_cell_clusters_new();
+        
+        // TODO: need to figure out if blocksets can be commited without extra void cells ...
+        this->setup_blockset_with_cell_clusters();
+        
+        // TODO: ...
+        this->setup_side_set_clusters();
+        
+        // TODO: ...
+        this->setup_double_side_set_clusters();
+        
+        // TODO: ...
+        this->setup_interface_side_sets();
+        
+        // TODO: ...
+        this->setup_color_to_set();
+        
+        // TODO: ...
+        this->collect_all_sets();
+    }
+    else
+    {
+        this->setup_cell_clusters();
+        this->setup_blockset_with_cell_clusters();
+        this->setup_side_set_clusters();
+        this->setup_double_side_set_clusters();
+        this->setup_interface_side_sets();
+        // this->setup_interface_vertex_sets();
+        this->setup_color_to_set();
+        this->collect_all_sets();
+    }
+
+    // get the Cell info for trivial integration clusters
     if ( this->get_spatial_dim() == 2 )
     {
         mCellInfo = new moris::mtk::Cell_Info_Quad4();
@@ -973,19 +1012,24 @@ Enriched_Integration_Mesh::write_mesh( moris::ParameterList *aParamList )
     writer.close_file();
 }
 
+//------------------------------------------------------------------------------
+
 void
 Enriched_Integration_Mesh::create_bg_cell_id_field()
 {
     // Fields constructed here
     moris::Cell< std::string > tCellFields = { "bg_cell_id" };
 
+    // set field index
     moris_index tFieldIndex = this->create_field( tCellFields( 0 ), EntityRank::ELEMENT, 0 );
 
     moris::Matrix< moris::DDRMat > tCellIdField( 1, this->get_num_elems() );
-    for ( moris::uint i = 0; i < mSubphaseIndexToClusterIndex.numel(); i++ )
+
+    //
+    for ( moris::uint iEnrIpCell = 0; iEnrIpCell < mSubphaseIndexToClusterIndex.numel(); iEnrIpCell++ )
     {
-        // subphase index
-        moris_index tSubphaseClusterIndex = mSubphaseIndexToClusterIndex( i );
+        // get the subphase index
+        moris_index tSubphaseClusterIndex = mSubphaseIndexToClusterIndex( iEnrIpCell );
 
         // Cell Cluster
         moris_index                                    tBaseIpCellId     = mCellClusters( tSubphaseClusterIndex )->get_xtk_interpolation_cell()->get_base_cell()->get_id();
@@ -999,6 +1043,8 @@ Enriched_Integration_Mesh::create_bg_cell_id_field()
 
     this->add_field_data( tFieldIndex, EntityRank::ELEMENT, tCellIdField );
 }
+
+//------------------------------------------------------------------------------
 
 void
 Enriched_Integration_Mesh::create_subphase_fields()
@@ -1045,6 +1091,8 @@ Enriched_Integration_Mesh::create_subphase_fields()
     this->add_field_data( tFieldIndices( 1 ), EntityRank::ELEMENT, tCellToBulkPhase );
 }
 
+//------------------------------------------------------------------------------
+
 void
 Enriched_Integration_Mesh::write_subphase_neighborhood( std::string aFile )
 {
@@ -1077,7 +1125,9 @@ Enriched_Integration_Mesh::write_subphase_neighborhood( std::string aFile )
         tOutputFile.close();
     }
 }
+
 //------------------------------------------------------------------------------
+
 void
 Enriched_Integration_Mesh::create_union_block( Cell< std::string > const &aBlocks,
     std::string                                                           aNewBlock,
@@ -1120,7 +1170,9 @@ Enriched_Integration_Mesh::create_union_block( Cell< std::string > const &aBlock
     this->setup_color_to_set();
     this->collect_all_sets( false );
 }
+
 //------------------------------------------------------------------------------
+
 void
 Enriched_Integration_Mesh::create_union_side_set(
         Cell< std::string > const & aSideSets,
@@ -1154,6 +1206,8 @@ Enriched_Integration_Mesh::create_union_side_set(
     this->setup_color_to_set();
     this->collect_all_sets( false );
 }
+
+//------------------------------------------------------------------------------
 
 void
 Enriched_Integration_Mesh::deactive_all_blocks_but_selected( Cell< std::string > const &aBlockSetsToKeep )
@@ -1202,6 +1256,9 @@ Enriched_Integration_Mesh::deactive_all_blocks_but_selected( Cell< std::string >
         }
     }
 }
+
+//------------------------------------------------------------------------------
+
 void
 Enriched_Integration_Mesh::deactive_all_side_sets_but_selected( Cell< std::string > const &aSideSetsToKeep )
 {
@@ -2018,6 +2075,7 @@ Enriched_Integration_Mesh::get_field_data(
 }
 
 //------------------------------------------------------------------------------
+
 moris_id
 Enriched_Integration_Mesh::allocate_entity_ids(
     moris::size_t   aNumReqs,
@@ -2150,13 +2208,16 @@ Enriched_Integration_Mesh::commit_block_set( moris_index const &aBlockSetIndex )
         this->get_block_set_colors( aBlockSetIndex ),
         this->get_spatial_dim() );
 }
+
 //------------------------------------------------------------------------------
 
 void
 Enriched_Integration_Mesh::setup_cell_clusters()
 {
+    // trace/log this function
     Tracer tTracer( "XTK", "Enriched Integration Mesh", "setup_cell_clusters" ,mModel->mVerboseLevel, 1  );
 
+    // get pointer to enr. IP mesh
     Enriched_Interpolation_Mesh *tEnrInterpMesh = mModel->mEnrichedInterpMesh( mMeshIndexInModel );
 
     // Number of interpolation cells
@@ -2195,6 +2256,99 @@ Enriched_Integration_Mesh::setup_cell_clusters()
         // if it has children get a pointer to the child mesh
         if ( !mCellClusters( tInterpCellIndex )->mTrivial )
         {
+            // subphase index
+            moris_index tProcSubphaseIndex = mCellClusters( tInterpCellIndex )->mInterpolationCell->get_subphase_index();
+
+            std::shared_ptr< IG_Cell_Group > tSubphaseCells = mCutIgMesh->get_subphase_ig_cells( tProcSubphaseIndex );
+
+            // number of subphase associated with the same background cell
+            moris::Cell< moris_index > const &tParentCellSubphases = mCutIgMesh->get_parent_cell_subphases( tBaseInterpCell->get_index() );
+
+            // vertex group
+            std::shared_ptr< IG_Vertex_Group > tVertexGroupForCluster = mCutIgMesh->get_vertex_group( mCutIgMesh->get_parent_cell_group_index( tBaseInterpCell->get_index() ) );
+
+            moris::Cell< std::shared_ptr< IG_Cell_Group > > tVoidSubphases;
+            tVoidSubphases.reserve( tParentCellSubphases.size() - 1 );
+
+            // get the subphases in the void region
+            for ( moris::uint iVoid = 0; iVoid < tParentCellSubphases.size(); iVoid++ )
+            {
+                if ( tParentCellSubphases( iVoid ) != tProcSubphaseIndex )
+                {
+                    tVoidSubphases.push_back( mCutIgMesh->get_subphase_ig_cells( tParentCellSubphases( iVoid ) ) );
+                }
+            }
+
+            mCellClusters( tInterpCellIndex )->set_primary_integration_cell_group( tSubphaseCells );
+            mCellClusters( tInterpCellIndex )->set_void_integration_cell_groups( tVoidSubphases );
+            mCellClusters( tInterpCellIndex )->set_ig_vertex_group( tVertexGroupForCluster );
+        }
+
+        // trivial case, the base of the enriched interpolation cell becomes the primary cell
+        else
+        {
+            mCellClusters( tInterpCellIndex )->mPrimaryIntegrationCells.push_back( mCellClusters( tInterpCellIndex )->mInterpolationCell->get_base_cell() );
+            Matrix< IndexMat > tVertexIndices                     = mCellClusters( tInterpCellIndex )->mPrimaryIntegrationCells( 0 )->get_vertex_inds();
+            mCellClusters( tInterpCellIndex )->mVerticesInCluster = this->get_mtk_vertices_loc_inds( tVertexIndices );
+            tBaseInterpCell->get_cell_info()->get_loc_coords_of_cell( mCellClusters( tInterpCellIndex )->mLocalCoords );
+        }
+    }
+}
+
+//------------------------------------------------------------------------------
+
+void
+Enriched_Integration_Mesh::setup_cell_clusters_new()
+{
+    // trace/log this function
+    Tracer tTracer( "XTK", "Enriched Integration Mesh", "setup_cell_clusters" ,mModel->mVerboseLevel, 1  );
+
+    // get pointer to enr. IP mesh
+    Enriched_Interpolation_Mesh *tEnrInterpMesh = mModel->mEnrichedInterpMesh( mMeshIndexInModel );
+
+    // Number of interpolation cells
+    moris::uint tNumEnrInterpCells = tEnrInterpMesh->get_num_entities( EntityRank::ELEMENT );
+
+    // allocate cell cluster member data
+    mCellClusters.resize( tNumEnrInterpCells, nullptr );
+
+// TODO: since this map is only used in the visualization, leave it like this for now
+    // Allocate subphase index to cluster index
+    mSubphaseIndexToClusterIndex.resize( 1, tNumEnrInterpCells );
+    mClusterIndexToSubphaseGroupIndex.resize( 1, tNumEnrInterpCells );
+
+    // reference the enriched cells
+    Cell< Interpolation_Cell_Unzipped* > const& tEnrichedInterpCells = tEnrInterpMesh->get_enriched_interpolation_cells();
+
+    // iterate through interpolation cells to create cell clusters
+    for ( moris::uint iEnrIpCell = 0; iEnrIpCell < tNumEnrInterpCells; iEnrIpCell++ )
+    {
+        // index
+        moris_index tInterpCellIndex = tEnrichedInterpCells( iEnrIpCell )->get_index();
+
+        // create a new cell cluster
+        mCellClusters( tInterpCellIndex ) = std::make_shared< Cell_Cluster >();
+
+        // get the ith enriched interpolation cell
+        mCellClusters( tInterpCellIndex )->mInterpolationCell = tEnrichedInterpCells( iEnrIpCell );
+
+// TODO: since this map is only used in the visualization, leave it like this for now
+// TODO: what are the implications later on for grabbing void clusters
+        // ad subphase index to cluster index to subphase index data
+        mSubphaseIndexToClusterIndex( iEnrIpCell ) = mCellClusters( tInterpCellIndex )->get_xtk_interpolation_cell()->get_subphase_index();
+        mClusterIndexToSubphaseGroupIndex( iEnrIpCell ) = mCellClusters( tInterpCellIndex )->get_xtk_interpolation_cell()->get_subphase_index();
+
+        // base cell
+        moris::mtk::Cell const *tBaseInterpCell = mCellClusters( tInterpCellIndex )->mInterpolationCell->get_base_cell();
+
+        // ask background mesh if the base cell has children (the opposite answer to this question is the trivial flag)
+        mCellClusters( tInterpCellIndex )->mTrivial = !mCutIgMesh->parent_cell_has_children( tBaseInterpCell->get_index() );
+
+        // if it has children get a pointer to the child mesh
+        if ( !mCellClusters( tInterpCellIndex )->mTrivial )
+        {
+           
+// TODO:
             // subphase index
             moris_index tProcSubphaseIndex = mCellClusters( tInterpCellIndex )->mInterpolationCell->get_subphase_index();
 
@@ -2276,24 +2430,25 @@ Enriched_Integration_Mesh::setup_blockset_with_cell_clusters()
             this->set_block_set_colors( tNoChildBlockSetOrds( i ), { { i } } );
         }
 
-        // get the cells in this block
+// TODO: which implementation of get_set_entity_loc_inds() does this function go into?        
+        // get the IP cells in this block
         moris::Cell< moris::mtk::Cell const * > tCellsInBlock = tBackgroundMesh.get_block_set_cells( tBlockSetsNames( iBS ) );
 
-        // get the enriched interpolation cells in this block
+        // get the enriched IP cells in this block
         moris::Cell< xtk::Interpolation_Cell_Unzipped const * > tEnrichedCellsInBlock = tEnrInterpMesh->get_enriched_cells_from_base_cells( tCellsInBlock );
 
         // iterate through and add cluster associated with enriched cell to block set
-        for ( moris::uint iC = 0; iC < tEnrichedCellsInBlock.size(); iC++ )
+        for ( moris::uint iEnrIpCell = 0; iEnrIpCell < tEnrichedCellsInBlock.size(); iEnrIpCell++ )
         {
             // get the bulk phase
-            moris_index tBulkPhaseIndex = tEnrichedCellsInBlock( iC )->get_bulkphase_index();
+            moris_index tBulkPhaseIndex = tEnrichedCellsInBlock( iEnrIpCell )->get_bulkphase_index();
 
             // get cluster associated with enriched cell
-            xtk::Cell_Cluster const &tCluster = this->get_xtk_cell_cluster( tEnrichedCellsInBlock( iC )->get_index() );
+            xtk::Cell_Cluster const &tCluster = this->get_xtk_cell_cluster( tEnrichedCellsInBlock( iEnrIpCell )->get_index() );
 
-            if ( tEnrichedCellsInBlock( iC )->get_owner() == tProcRank )
+            if ( tEnrichedCellsInBlock( iEnrIpCell )->get_owner() == tProcRank )
             {
-                // set ord
+                // get the index for the current blockset (depends on bulk-phase index and cut or non-cut)
                 moris_index tSetOrd = MORIS_INDEX_MAX;
 
                 if ( tCluster.is_trivial() )
@@ -2324,8 +2479,8 @@ void
 Enriched_Integration_Mesh::setup_side_set_clusters()
 {
     // get data for easy access
-    Enriched_Interpolation_Mesh *tEnrInterpMesh   = mModel->mEnrichedInterpMesh( mMeshIndexInModel );
-    moris::mtk::Mesh &            tBackgroundMesh = *mModel->mBackgroundMesh;
+    Enriched_Interpolation_Mesh* tEnrInterpMesh   = mModel->mEnrichedInterpMesh( mMeshIndexInModel );
+    moris::mtk::Mesh&            tBackgroundMesh = *mModel->mBackgroundMesh;
     Integration_Mesh_Generator   tIGMeshGen;
 
     // rank enum for facets
@@ -2909,7 +3064,9 @@ Enriched_Integration_Mesh::set_side_set_colors(
 
     mSideSetColors( aSideSetIndex ) = aSideSetColors;
 }
+
 //------------------------------------------------------------------------------
+
 Cell< moris_index >
 Enriched_Integration_Mesh::register_double_side_set_names( moris::Cell< std::string > const &aDblSideSetNames )
 {
@@ -2918,22 +3075,28 @@ Enriched_Integration_Mesh::register_double_side_set_names( moris::Cell< std::str
     // block set ords
     Cell< moris_index > tDblSideSetOrds( tNumSetsToRegister );
 
-    // iterate and add sets
-    for ( moris::uint i = 0; i < tNumSetsToRegister; i++ )
-    {
-        tDblSideSetOrds( i ) = mDoubleSideSets.size() + i;
+    // get number of allready existing double sided side sets (i.e. interface side sets)
+    uint tNumInterfaceSets = mDoubleSideSets.size();
 
-        mDoubleSideSetLabels.push_back( aDblSideSetNames( i ) );
-        MORIS_ASSERT( mDoubleSideSetLabelToOrd.find( aDblSideSetNames( i ) ) == mDoubleSideSetLabelToOrd.end(), "Duplicate double side set in mesh" );
-        mDoubleSideSetLabelToOrd[aDblSideSetNames( i )] = tDblSideSetOrds( i );
+    // iterate and add double side sets
+    for ( moris::uint iDSS = 0; iDSS < tNumSetsToRegister; iDSS++ )
+    {
+        // build map associating each ghost side set with a double side set index 
+        tDblSideSetOrds( iDSS ) = tNumInterfaceSets + iDSS;
+
+        mDoubleSideSetLabels.push_back( aDblSideSetNames( iDSS ) );
+        MORIS_ASSERT( mDoubleSideSetLabelToOrd.find( aDblSideSetNames( iDSS ) ) == mDoubleSideSetLabelToOrd.end(), "Duplicate double side set in mesh" );
+        mDoubleSideSetLabelToOrd[aDblSideSetNames( iDSS )] = tDblSideSetOrds( iDSS );
     }
 
+    // update dbl. side set info in enriched integration mesh
     mDoubleSideSets.resize( mDoubleSideSets.size() + tNumSetsToRegister );
     mDoubleSideSetsMasterIndex.resize( mDoubleSideSetsMasterIndex.size() + tNumSetsToRegister );
     mDoubleSideSetsSlaveIndex.resize( mDoubleSideSetsSlaveIndex.size() + tNumSetsToRegister );
     mMasterDoubleSideSetColor.resize( mMasterDoubleSideSetColor.size() + tNumSetsToRegister );
     mSlaveDoubleSideSetColor.resize( mSlaveDoubleSideSetColor.size() + tNumSetsToRegister );
 
+    // return list containing the dbl. side set indices for new ghost dbl. side sets
     return tDblSideSetOrds;
 }
 

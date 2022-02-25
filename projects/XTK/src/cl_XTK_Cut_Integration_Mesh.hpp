@@ -10,16 +10,22 @@
 #include "cl_Mesh_Enums.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Vertex_XTK_Impl.hpp"
+
+#include "cl_XTK_Subphase_Group.hpp"
+
 #include "cl_Tracer.hpp"
 
 #include "cl_Communication_Tools.hpp"
 #include <stdio.h>
 #include <iostream>
 #include <iomanip>
+
 using namespace moris;
 
 namespace xtk
 {
+    // ----------------------------------------------------------------------------------
+
     struct IG_Cell_Group
     {
             IG_Cell_Group( moris_index aNumCellsInGroup );
@@ -70,6 +76,8 @@ namespace xtk
             }
     };
 
+    // ----------------------------------------------------------------------------------
+
     struct IG_Vertex_Group
     {
             IG_Vertex_Group( moris_index aNumVerticesInGroup );
@@ -111,6 +119,8 @@ namespace xtk
             std::unordered_map< moris_index, moris_index >     mIgVertexIndexToVertexOrdinal;
             moris::Cell< std::shared_ptr< Matrix< DDRMat > > > mIgVertexLocalCoords;
     };
+
+    // ----------------------------------------------------------------------------------
 
     struct Edge_Based_Connectivity
     {
@@ -154,12 +164,23 @@ namespace xtk
             }
     };
 
+    // ----------------------------------------------------------------------------------
+
     struct Facet_Based_Connectivity
     {
+            // in: index of facet || out: list of vertices (pointers) living on facet with the inputted index
             moris::Cell< moris::Cell< moris::mtk::Vertex* > > mFacetVertices;            // over allocated
+            
+            // in: index of facet || out: list of mtk::Cells (pointers) attached to facet with the inputted index
             moris::Cell< moris::Cell< moris::mtk::Cell* > >   mFacetToCell;              // over allocated
+
+            // in(1): index of facet; in(2): how many-eth mtk::Cell attached to facet || out: side ordinal (index) of this facet relative to this mtk::Cell
             moris::Cell< moris::Cell< moris::moris_index > >  mFacetToCellEdgeOrdinal;   // over allocated
+
+            // in: index of mtk::Cell on mesh || out: list of facet-indices attached to it (facet indices as defined within this Facet_Based_Connectivity-object)
             moris::Cell< moris::Cell< moris_index > >         mCellToFacet;              // over allocated
+            
+            // ?
             std::unordered_map< moris_index, moris_index >    mCellIndexToCellOrdinal;   // over allocated
 
             moris_index
@@ -178,10 +199,22 @@ namespace xtk
             moris::Cell< moris::moris_index > mFacetParentEntityOrdinalWrtBackgroundCell;
     };
 
+    // ----------------------------------------------------------------------------------
+
     struct Cell_Neighborhood_Connectivity
     {
-            moris::Cell< std::shared_ptr< moris::Cell< moris::mtk::Cell* > > > mNeighborCells;
+            // Cells of Cells (i.e. matrix-lists) for Cell-Connectivity information
+            // first index is mtk::Cell for which the neighborhood is to be defined
+            // second index is List of mtk::Cells connected to mtk::Cell with first index (connection through a facet)
+
+            // pointers to connected mtk::Cells
+            moris::Cell< std::shared_ptr< moris::Cell< moris::mtk::Cell* > > > mNeighborCells; 
+
+            // indices of side ordinals through which the mtk::Cell of first index connects to the mtk::Cells of second indices
             moris::Cell< std::shared_ptr< moris::Cell< moris_index > > >       mMySideOrdinal;
+
+            // fixme: this can be deleted, as it is not used ?!
+            // indices of side ordinals through which the mtk::Cells of second indices connects to the mtk::Cells of the first index
             moris::Cell< std::shared_ptr< moris::Cell< moris_index > > >       mNeighborSideOrdinal;
     };
 
@@ -272,66 +305,77 @@ namespace xtk
             const Matrix< IndexMat > mCellFacesInds;
     };
 
+    // ----------------------------------------------------------------------------------
+
     struct Subphase_Neighborhood_Connectivity
     {
-            moris::Cell< std::shared_ptr< moris::Cell< moris_index > > > mSubphaseToSubPhase;
-            moris::Cell< std::shared_ptr< moris::Cell< moris_index > > > mSubphaseToSubPhaseMySideOrds;
-            moris::Cell< std::shared_ptr< moris::Cell< moris_index > > > mSubphaseToSubPhaseNeighborSideOrds;
-            moris::Cell< std::shared_ptr< moris::Cell< moris_index > > > mTransitionNeighborCellLocation;
+        // input: sub-phase index || output: list of sub-phases connected to it
+        moris::Cell< std::shared_ptr< moris::Cell< moris_index > > > mSubphaseToSubPhase;        
 
-            void
-            print_subphase_neighborhood()
+        // input: sub-phase index || output: list of facet ordinals belonging to parent cell through which the sub-phases are connected
+        moris::Cell< std::shared_ptr< moris::Cell< moris_index > > > mSubphaseToSubPhaseMySideOrds;      
+        
+        // input: sub-phase index || output: list of facet ordinals belonging to parent cell of the neighboring sub-phase through which the sub-phases are connected
+        moris::Cell< std::shared_ptr< moris::Cell< moris_index > > > mSubphaseToSubPhaseNeighborSideOrds;
+        
+        // input: sub-phase index || output: // TODO: some info needed when having a refinement boundary
+        moris::Cell< std::shared_ptr< moris::Cell< moris_index > > > mTransitionNeighborCellLocation;    
+
+        void
+        print_subphase_neighborhood()
+        {
+
+            std::cout << "Subphases" << std::endl;
+            for ( moris::uint iC = 0; iC < mSubphaseToSubPhase.size(); iC++ )
             {
+                std::cout << std::setw( 6 ) << iC << " | ";
 
-                std::cout << "Subphases" << std::endl;
-                for ( moris::uint iC = 0; iC < mSubphaseToSubPhase.size(); iC++ )
+                for ( moris::uint iN = 0; iN < mSubphaseToSubPhase( iC )->size(); iN++ )
                 {
-                    std::cout << std::setw( 6 ) << iC << " | ";
-
-                    for ( moris::uint iN = 0; iN < mSubphaseToSubPhase( iC )->size(); iN++ )
-                    {
-                        std::cout << std::setw( 6 ) << (*mSubphaseToSubPhase( iC ))( iN );
-                    }
-                    std::cout << std::endl;
+                    std::cout << std::setw( 6 ) << (*mSubphaseToSubPhase( iC ))( iN );
                 }
-
-                std::cout << "Subphases My Side Ordinals" << std::endl;
-                for ( moris::uint iC = 0; iC < mSubphaseToSubPhaseMySideOrds.size(); iC++ )
-                {
-                    std::cout << std::setw( 6 ) << iC << " | ";
-
-                    for ( moris::uint iN = 0; iN < mSubphaseToSubPhaseMySideOrds( iC )->size(); iN++ )
-                    {
-                        std::cout << std::setw( 6 ) << (*mSubphaseToSubPhaseMySideOrds( iC ))( iN );
-                    }
-                    std::cout << std::endl;
-                }
-
-                std::cout << "Subphases Neighbor Side Ordinals" << std::endl;
-                for ( moris::uint iC = 0; iC < mSubphaseToSubPhaseNeighborSideOrds.size(); iC++ )
-                {
-                    std::cout << std::setw( 6 ) << iC << " | ";
-
-                    for ( moris::uint iN = 0; iN < mSubphaseToSubPhaseNeighborSideOrds( iC )->size(); iN++ )
-                    {
-                        std::cout << std::setw( 6 ) << (*mSubphaseToSubPhaseNeighborSideOrds( iC ))( iN );
-                    }
-                    std::cout << std::endl;
-                }
-
-                std::cout << "Transition Neighbor Locations" << std::endl;
-                for ( moris::uint iC = 0; iC < mTransitionNeighborCellLocation.size(); iC++ )
-                {
-                    std::cout << std::setw( 6 ) << iC << " | ";
-
-                    for ( moris::uint iN = 0; iN < mTransitionNeighborCellLocation( iC )->size(); iN++ )
-                    {
-                        std::cout << std::setw( 12 ) << (*mTransitionNeighborCellLocation( iC ))( iN );
-                    }
-                    std::cout << std::endl;
-                }
+                std::cout << std::endl;
             }
+
+            std::cout << "Subphases My Side Ordinals" << std::endl;
+            for ( moris::uint iC = 0; iC < mSubphaseToSubPhaseMySideOrds.size(); iC++ )
+            {
+                std::cout << std::setw( 6 ) << iC << " | ";
+
+                for ( moris::uint iN = 0; iN < mSubphaseToSubPhaseMySideOrds( iC )->size(); iN++ )
+                {
+                    std::cout << std::setw( 6 ) << (*mSubphaseToSubPhaseMySideOrds( iC ))( iN );
+                }
+                std::cout << std::endl;
+            }
+
+            std::cout << "Subphases Neighbor Side Ordinals" << std::endl;
+            for ( moris::uint iC = 0; iC < mSubphaseToSubPhaseNeighborSideOrds.size(); iC++ )
+            {
+                std::cout << std::setw( 6 ) << iC << " | ";
+
+                for ( moris::uint iN = 0; iN < mSubphaseToSubPhaseNeighborSideOrds( iC )->size(); iN++ )
+                {
+                    std::cout << std::setw( 6 ) << (*mSubphaseToSubPhaseNeighborSideOrds( iC ))( iN );
+                }
+                std::cout << std::endl;
+            }
+
+            std::cout << "Transition Neighbor Locations" << std::endl;
+            for ( moris::uint iC = 0; iC < mTransitionNeighborCellLocation.size(); iC++ )
+            {
+                std::cout << std::setw( 6 ) << iC << " | ";
+
+                for ( moris::uint iN = 0; iN < mTransitionNeighborCellLocation( iC )->size(); iN++ )
+                {
+                    std::cout << std::setw( 12 ) << (*mTransitionNeighborCellLocation( iC ))( iN );
+                }
+                std::cout << std::endl;
+            }
+        }
     };
+
+    // ----------------------------------------------------------------------------------
 
     class Child_Mesh_Experimental;
     class Model;
@@ -378,6 +422,7 @@ namespace xtk
             // communication map
             moris::Matrix< IdMat > mCommunicationMap;
 
+            // Integration - Lagrange Mesh relation
             // group of all integration cells in a single parent cell
             moris::Cell< std::shared_ptr< IG_Cell_Group > >   mIntegrationCellGroups;
             moris::Cell< std::shared_ptr< IG_Vertex_Group > > mIntegrationVertexGroups;
@@ -387,19 +432,26 @@ namespace xtk
             moris::Cell< moris_index > mOwnedIntegrationCellGroupsInds;
             moris::Cell< moris_index > mNotOwnedIntegrationCellGroups;
 
-            // subphase groupings
-            moris::Cell< moris_index >                      mSubPhaseIds;
-            moris::Cell< std::shared_ptr< IG_Cell_Group > > mSubPhaseCellGroups;
-            moris::Cell< moris::moris_index >               mSubPhaseBulkPhase;
-            moris::Cell< moris::mtk::Cell* >                mSubPhaseParentCell;
-            moris::Cell< moris::Cell< moris_index > >       mParentCellToSubphase;
-            moris::Cell< moris_index >                      mParentCellHasChildren;
+            // Lagrange Mesh B-Spline Mesh relation
+            moris::Cell< Bspline_Mesh_Info * > mBsplineMeshInfos;
+
+            // subphase groupings 
+            moris::Cell< moris_index >                      mSubPhaseIds;           // input: sub-phase index || output: global sub-phase ID
+            moris::Cell< std::shared_ptr< IG_Cell_Group > > mSubPhaseCellGroups;    // input: sub-phase index || output: pointer to IG-Cell group on which subphase lives
+            moris::Cell< moris::moris_index >               mSubPhaseBulkPhase;     // input: sub-phase index || output: index of bulk-phase (i.e. material phase)
+            moris::Cell< moris::mtk::Cell* >                mSubPhaseParentCell;    // input: sub-phase index || output: index of Bg-cell sub-phase lives on
+            moris::Cell< moris::Cell< moris_index > >       mParentCellToSubphase;  // input: Bg-cell index   || output: list of sub-phase indices present in Bg-cell
+            moris::Cell< moris_index >                      mParentCellHasChildren; // input: Bg-cell index   || output: bool, whether Bg-cell has Ig-cells living on it
 
             moris::Cell< moris_index >                                mOwnedSubphaseGroupsInds;
             moris::Cell< moris_index >                                mNotOwnedSubphaseGroupsInds;
             std::unordered_map< moris::moris_id, moris::moris_index > mGlobalToLocalSubphaseMap;
 
+            // subphase connectivity
             std::shared_ptr< Subphase_Neighborhood_Connectivity > mSubphaseNeighborhood;
+
+            // subphase-group connectivity
+            moris::Cell< std::shared_ptr< Subphase_Neighborhood_Connectivity > > mSubphaseGroupNeighborhood;
 
             // face connectivity
             std::shared_ptr< Facet_Based_Connectivity > mIgCellFaceConnectivity;
@@ -467,6 +519,10 @@ namespace xtk
             // ----------------------------------------------------------------------------------
 
             ~Cut_Integration_Mesh();
+
+            // ----------------------------------------------------------------------------------
+
+            void delete_Bspline_mesh_info();
 
             // ----------------------------------------------------------------------------------
 
@@ -749,6 +805,11 @@ namespace xtk
 
             // ----------------------------------------------------------------------------------
 
+            moris::uint
+            get_num_subphase_groups( moris_index aMeshListIndex );
+
+            // ----------------------------------------------------------------------------------
+
             moris::Cell< std::shared_ptr< Child_Mesh_Experimental > >&
             get_owned_child_meshes();
 
@@ -774,6 +835,13 @@ namespace xtk
 
             // ----------------------------------------------------------------------------------
 
+            const moris::Cell< moris_index > &
+            get_ig_cells_in_SPG( 
+                    moris_index aMeshIndexInList, 
+                    moris_index aSubphaseGroupIndex );
+
+            // ----------------------------------------------------------------------------------
+
             moris_index
             get_subphase_id( moris_index aSubPhaseIndex );
 
@@ -786,6 +854,13 @@ namespace xtk
 
             moris_index
             get_subphase_bulk_phase( moris_index aSubPhaseIndex );
+
+            // ----------------------------------------------------------------------------------
+
+            moris_index
+            get_subphase_group_bulk_phase(
+                    moris_index aSubPhaseGroupIndex,
+                    moris_index aMeshListIndex );
 
             // ----------------------------------------------------------------------------------
 
@@ -886,6 +961,15 @@ namespace xtk
 
             std::shared_ptr< Subphase_Neighborhood_Connectivity >
             get_subphase_neighborhood();
+
+            // ----------------------------------------------------------------------------------
+
+            std::shared_ptr< Subphase_Neighborhood_Connectivity >
+            get_subphase_group_neighborhood( moris_index aMeshIndex );
+
+            // ----------------------------------------------------------------------------------
+            moris::Cell< Bspline_Mesh_Info* > &
+            get_bspline_mesh_info();
 
             // ----------------------------------------------------------------------------------
 

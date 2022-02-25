@@ -74,6 +74,8 @@ namespace moris
              */
             virtual MeshType get_mesh_type() const = 0;
 
+            // ----------------------------------------------------------------------------
+
             /**
              * Returns the spatial dimension of this mesh.
              *
@@ -81,9 +83,58 @@ namespace moris
              */
             virtual uint get_spatial_dim() const = 0;
 
+            // ----------------------------------------------------------------------------
+
             uint get_order();
 
+            // ----------------------------------------------------------------------------
+
             uint get_discretization_order( moris_index aDiscretizationIndex );
+
+            // ----------------------------------------------------------------------------
+
+            virtual
+            luint get_num_active_bg_elements_on_discretization_mesh_index( moris_index const aDiscretizationMeshIndex );
+
+            // ----------------------------------------------------------------------------
+
+            virtual
+            void get_active_bg_element_indices_on_discretization_mesh_index( 
+                    moris_index const aDiscretizationMeshIndex, 
+                    Matrix< DDLUMat > & aElementIDs );
+
+            // -----------------------------------------------------------------------------
+
+            /**
+             * @brief Get the lagrange elements within one bspline element
+             * 
+             * @param aBspElementIndex index of the b-spline element
+             * @param aDiscretizationMeshIndex discretization mesh index
+             * @param aCells output: list of Lagrange elements as mtk::cells that sit inside the B-spline element
+             */
+            virtual
+            void get_elements_in_bspline_element(
+                    moris_index const aBspElementIndex,
+                    moris_index const aDiscretizationMeshIndex,
+                    moris::Cell< mtk::Cell * > & aCells );
+
+            // -----------------------------------------------------------------------------
+
+            /**
+             * @brief Get the lagrange elements in the bspline elements for the whole mesh
+             * 
+             * @param aDiscretizationMeshIndex discretization mesh index
+             * @param aCells list of lists of Lagrange elements (mtk::cells) inside each B-spline element
+             * @param aCellIndices list of lists of Lagrange elements (indices) inside each B-spline element
+             */
+            virtual
+            void get_lagrange_elements_in_bspline_elements(
+                    moris_index const aDiscretizationMeshIndex,
+                    moris::Cell< moris::Cell< mtk::Cell * > > & aCells,
+                    moris::Cell< moris::Cell< moris_index > > & aCellIndices,
+                    moris::Cell< moris_index > & aLagToBspCellIndices );
+
+            // ----------------------------------------------------------------------------
 
             /**
              * Returns lagrange elements inside the same B-Spline elements as the input lagragne element
@@ -98,6 +149,8 @@ namespace moris
                     moris_index aElementIndex,
                     moris_index aDiscretizationMeshIndex,
                     moris::Cell< mtk::Cell * > & tCells);
+
+            // ----------------------------------------------------------------------------
 
             /**
              * Returns lagrange elements inside the same B-Spline elements as the input lagragne element and side ordinal
@@ -205,23 +258,26 @@ namespace moris
              * specifically.
              *
              * @param[in]  aElementId - element id
-             * @return A 2 row matrix where the first row it the neighbor elements index and the
-             *             second row is the shared face ordinal corresponding to the neighbor
+             * @return Matrix< IndexMat > matrix containing connected elements and corresponding side ordinals
+             *         Format:  1st row are indices of other connected elements/cells
+             *                  2nd row are the side ordinal indices wrt. treated Bg cell
+             *                  3rd row are the side ordinal indices wrt. respective neighbor Bg cell
+             *                  4th row ? // TODO: need to understand this ~Nils
              */
             virtual
             Matrix< IndexMat >
             get_elements_connected_to_element_and_face_ord_loc_inds(moris_index aElementIndex) const;
-
+            
             /**
-             * Since the connectivity between entities of the same rank are considered
-             * invalid by STK standards, we need a separate function for element to element
-             * specifically
-             *
-             * @param[in]  aElementId - element id
-             * @return Element to element connectivity and face index shared
-             *                   (where elements are all by index)
+             * @brief Since the connectivity between entities of the same rank are considered
+             *        invalid by STK standards, we need a separate function for element to element
+             *        specifically
+             * 
+             * @param aElementIndex - index of Bg-cell for which connectivity is to be retrieved
+             * @return Matrix< IndexMat > matrix containing connected elements and corresponding facets
+             *         Format:  1st row are indices of other connected elements/cells
+             *                  2nd row are the indices of the Bg-cell's facets through which they are connected
              */
-            // FIXME: Keenan - Explanation of output not clear; give precise information of return matrix
             virtual
             Matrix< IndexMat >
             get_elements_connected_to_element_and_face_ind_loc_inds(moris_index aElementIndex) const

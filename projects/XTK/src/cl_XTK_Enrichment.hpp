@@ -71,33 +71,56 @@ namespace xtk
     class Enrichment_Data
     {
         public:
-            Enrichment_Data( moris_index aNumSubphases ) :
+            Enrichment_Data( 
+                    moris_index aNumSubphases ) :
                 mSubphaseBGBasisIndices( aNumSubphases ),
                 mSubphaseBGBasisEnrLev( aNumSubphases ){};
 
+            // FIXME: this needs to go once everything is moved over to SPG bases Enrichment
+            void
+            reinitialize_for_SPGs( moris_index aNumSPGs )
+            {
+                // resize maps to number of SPGs
+                mSubphaseGroupBGBasisIndices.resize( aNumSPGs );
+                mSubphaseGroupBGBasisEnrLev.resize ( aNumSPGs );
+
+                // set flag whether SP or SPG based enrichment is used
+                mUseSPGs = true;
+            } 
+
             // Enrichment Data ordered by basis function indices
-            // For each basis function, the element indices and elemental subphases
-            Cell< moris::Matrix< moris::IndexMat > > mElementEnrichmentLevel;
-            Cell< moris::Matrix< moris::IndexMat > > mElementIndsInBasis;
+            // For each basis function, the element indices and elemental enrichment levels //?
+            Cell< moris::Matrix< moris::IndexMat > > mElementIndsInBasis; // input: non-enriched BF index || output: list of IG cells within the basis support
+            Cell< moris::Matrix< moris::IndexMat > > mElementEnrichmentLevel; // input: non-enriched BF index || output: which enrichment level of current basis is active on the IG cell
 
             // For each enriched basis function, the subphase indices in support
-            Cell< moris::Matrix< moris::IndexMat > > mSubphaseIndsInEnrichedBasis;
+            Cell< moris::Matrix< moris::IndexMat > > mSubphaseIndsInEnrichedBasis; // input: enriched BF index || output: list of subphase indices in which enriched BF is active
+            
+            // FIXME: for SPG based enrichment, the above needs to go eventually
+            Cell< moris::Matrix< moris::IndexMat > > mSubphaseGroupIndsInEnrichedBasis; // input: enriched BF index || output: list of SPG indices in which enriched BF is active
 
             // Basis enrichment level indices
-            moris::Cell< moris::Matrix< moris::IndexMat > > mBasisEnrichmentIndices;
-            moris::Matrix< moris::IndexMat >                mEnrichedBasisIndexToId;
+            moris::Cell< moris::Matrix< moris::IndexMat > > mBasisEnrichmentIndices; // input1: non-enriched BF index, input2: enrichement level || output: enriched BF index
+            moris::Matrix< moris::IndexMat >                mEnrichedBasisIndexToId; // input: enriched BF index || output: global ID of that enriched BF 
 
             // Unintersected Parent Cell, BackBasis interpolating in them and corresponding enrichment level
             // outer cell corresponds to interp cell index
-            // inner cell corresponds to basis/enrlev in intepr cell
-            moris::Cell< moris::Cell< moris_index > > mSubphaseBGBasisIndices;
-            moris::Cell< moris::Cell< moris_index > > mSubphaseBGBasisEnrLev;
+            // inner cell corresponds to basis/enr-lev in interp cell
+            moris::Cell< moris::Cell< moris_index > > mSubphaseBGBasisIndices; // input: subphase index || output: list of non-enriched BF indices active on given subphase
+            moris::Cell< moris::Cell< moris_index > > mSubphaseBGBasisEnrLev; // input: subphase index || output: list of enrichment levels for the respective BFs active on the given subphase
+            
+            // FIXME: for SPG based enrichment, the above needs to go eventually
+            moris::Cell< moris::Cell< moris_index > > mSubphaseGroupBGBasisIndices; // input: SPG index || output: list of non-enriched BF indices active on given subphase group
+            moris::Cell< moris::Cell< moris_index > > mSubphaseGroupBGBasisEnrLev; // input: SPG index || output: list of enrichment levels for the respective BFs active on the given subphase group
 
             // total number of basis enrichment levels (all basis functions)
             moris::uint mNumEnrichmentLevels;
 
             // Vertex interpolations for this enrichment ordered by background vertex index
             Cell< mtk::Vertex_Interpolation* > mBGVertexInterpolations;
+
+            // flag whether SPG or SP based Enrichment is used
+            bool mUseSPGs = false;
 
             // Basis bulk measures
     };
@@ -122,11 +145,13 @@ namespace xtk
                     moris::moris_index const&     aNumBulkPhases,
                     xtk::Model*                   aXTKModelPtr,
                     moris::mtk::Mesh*             aBackgroundMeshPtr,
-                    bool                          aSortBasisEnrichmentLevels);
+                    bool                          aSortBasisEnrichmentLevels,
+                    bool                          aUseSpgBasedEnrichment = false );
 
             // ----------------------------------------------------------------------------------
 
             ~Enrichment();
+            
             // ----------------------------------------------------------------------------------
 
             bool mVerbose = false; /* Verbose output of enrichment information flag */
@@ -138,6 +163,9 @@ namespace xtk
              */
             void
             perform_enrichment();
+
+            void
+            perform_enrichment_new();
 
             // ----------------------------------------------------------------------------------
             // Accessing enrichment data
@@ -202,6 +230,8 @@ namespace xtk
             void
             write_diagnostics();
 
+            // ----------------------------------------------------------------------------------
+
             void
             print_enriched_basis_to_subphase_id(
                     const moris_index & aMeshIndex,
@@ -220,6 +250,8 @@ namespace xtk
 
             // index of interpolation
             Matrix< IndexMat > mMeshIndices; /* Mesh indices to perform enrichment on*/
+            IndexMap mMeshIndexToListIndexMap; /* map that contains the position of a given mesh index in the above list */
+            bool mMeshIndexMapIsSet = false; /* flag that marks whether the above index map has been computed or not */
 
             // number of bulk-phases possible in model
             moris::size_t mNumBulkPhases;
@@ -236,28 +268,54 @@ namespace xtk
             // flag whether to sort basis enrichment levels
             bool mSortBasisEnrichmentLevels;
 
+            // quick access to the Cut integration mesh's Bspline Mesh Infos (the Bspline to Lagrange mesh relationships)
+            moris::Cell< Bspline_Mesh_Info* > mBsplineMeshInfos;
+
             // ----------------------------------------------------------------------------------
 
-            /*
-             * Performs enrichment on elements in support of full basis cluster. This enrichment includes all children elements of parents in
-             * the basis cluster and parent elements with no children
+            /**
+             * @brief Get the position of a given mesh index in the list of mesh indices mMeshIndices
+             * 
+             * @param aMeshIndex mesh index
+             * @return moris_index position of the mesh index in the list of MeshIndices
+             */
+            moris_index
+            get_list_index_for_mesh_index( moris_index aMeshIndex );
+
+            // ----------------------------------------------------------------------------------
+
+            /**
+             * @brief Performs enrichment on elements in support of full basis cluster using the 
+             * previously construced Subphase Groups. This enrichment includes all children 
+             * elements of parents in the basis cluster, parent elements with no children  
+             */
+            void
+            perform_basis_cluster_enrichment_new();
+
+            // ----------------------------------------------------------------------------------
+
+            /**
+             * @brief Performs enrichment on elements in support of full basis cluster. This 
+             * enrichment includes all children elements of parents in the basis cluster and 
+             * parent elements with no children
              */
             void
             perform_basis_cluster_enrichment();
 
             // ----------------------------------------------------------------------------------
 
-            /*
-             * Constructs the subphase neighborhood in the XTK model
+            /**
+             * @brief Constructs the subphase neighborhood in the XTK model
              */
             void
             construct_neighborhoods();
 
             // ----------------------------------------------------------------------------------
 
-            /*
-             * Verifies vertex interpolation is present and communicates non-existing vertex interpolation.
-             * The vertex interpolation on the aura needs to be communicated if we are using HMR
+            /**
+             * @brief Verifies vertex interpolation is present and communicates non-existing 
+             * vertex interpolation. The vertex interpolation on the aura needs to be 
+             * communicated if we are using HMR
              */
             void
             setup_background_vertex_interpolations();
@@ -270,17 +328,49 @@ namespace xtk
             // ----------------------------------------------------------------------------------
 
             void
+            get_subphase_groups_in_support( 
+                moris_index                             aMeshIndexPosition, 
+                moris::Matrix< moris::IndexMat > const& aLagElementsInSupport,
+                moris::Matrix< moris::IndexMat >&       aSubphaseGroupIndicesInSupport,
+                IndexMap&                               aSubphaseGroupIndexToSupportIndex );
+
+            // ----------------------------------------------------------------------------------
+
+            void
             construct_subphase_in_support_map(
                     moris::Matrix< moris::IndexMat > const& aSubphaseClusterIndicesInSupport,
                     IndexMap&                               aSubPhaseIndexToSupportIndex );
 
             // ----------------------------------------------------------------------------------
 
+            /**
+             * @brief Construct full subphase neighbor graph in basis support and the corresponding shared faces
+             * 
+             * @param aSubphasesInSupport 
+             * @param aSubPhaseIndexToSupportIndex 
+             * @param aPrunedSubPhaseToSubphase 
+             */
             void
             generate_pruned_subphase_graph_in_basis_support(
                     moris::Matrix< moris::IndexMat > const& aSubphasesInSupport,
                     IndexMap&                               aSubPhaseIndexToSupportIndex,
                     moris::Matrix< moris::IndexMat >&       aPrunedSubPhaseToSubphase );
+
+            // ----------------------------------------------------------------------------------
+
+            /**
+             * @brief Construct subphase group neighbor graph in basis support and the corresponding shared faces
+             * 
+             * @param aSubphaseGroupIndicesInSupport 
+             * @param aSubphaseGroupIndexToSupportIndex 
+             * @param aPrunedSubphaseGroupToSubphase 
+             */
+            void
+            generate_pruned_subphase_group_graph_in_basis_support(
+                    const moris_index                       aMeshIndex,
+                    moris::Matrix< moris::IndexMat > const& aSubphaseGroupIndicesInSupport,
+                    IndexMap&                               aSubphaseGroupIndexToSupportIndex,
+                    moris::Matrix< moris::IndexMat >&       aPrunedSubphaseGroupToSubphase );
 
             // ----------------------------------------------------------------------------------
 
@@ -294,7 +384,16 @@ namespace xtk
 
             // ----------------------------------------------------------------------------------
 
-            /*
+            void
+            assign_subphase_group_bin_enrichment_levels_in_basis_support(
+                    moris::Matrix< moris::IndexMat > const & aSpgsInSupport,
+                    moris::Matrix< moris::IndexMat > const & aPrunedSpgToSpg,
+                    moris::Matrix< moris::IndexMat >&        aSpgBinEnrichmentVals,
+                    moris_index&                             aMaxEnrichmentLevel );
+
+            // ----------------------------------------------------------------------------------
+
+            /**
              * @brief Sort enrichment levels by distance of centroid  of subphases with same
              *        enrichment level from origin
              */
@@ -307,6 +406,19 @@ namespace xtk
 
             // ----------------------------------------------------------------------------------
 
+            /**
+             * @brief go through all subphases in the support of a given basis funtion and save 
+             * the current basis function's index to them, and which enrichment level of this 
+             * given basis function is active on them. This data is stored in the Enrichment_Data
+             * 
+             * @param aEnrichmentDataIndex 
+             * @param aBasisIndex 
+             * @param aParentElementsInSupport 
+             * @param aSubphasesInSupport 
+             * @param aSubPhaseIndexToSupportIndex 
+             * @param aPrunedSubPhaseToSubphase 
+             * @param aSubPhaseBinEnrichmentVals 
+             */
             void
             unzip_subphase_bin_enrichment_into_element_enrichment(
                     moris_index const&                      aEnrichmentDataIndex,
@@ -319,6 +431,36 @@ namespace xtk
 
             // ----------------------------------------------------------------------------------
 
+            /**
+             * @brief go through all SPGs in the support of a given basis funtion and save the 
+             * current BFs's index to them, and which enrichment level of this given BF is active 
+             * on them. This data is stored in the Enrichment_Data
+             * 
+             * @param aEnrichmentDataIndex 
+             * @param aBasisIndex 
+             * @param aParentElementsInSupport 
+             * @param aSpgsInSupport 
+             * @param aSpgBinEnrichmentVals 
+             */
+            void
+            unzip_subphase_group_bin_enrichment_into_element_enrichment(
+                    moris_index const &                      aEnrichmentDataIndex,
+                    moris_index const &                      aBasisIndex,
+                    moris::Matrix< moris::IndexMat > const & aParentElementsInSupport,
+                    moris::Matrix< moris::IndexMat > const & aSpgsInSupport,
+                    moris::Matrix< moris::IndexMat >&        aSpgBinEnrichmentVals );
+
+            // ----------------------------------------------------------------------------------
+
+            /**
+             * @brief counts number of enriched basis function indices and finds which subphases
+             * a given enriched BF index is active on. The data is stored in the Enrichment_Data
+             * 
+             * @param aEnrichmentDataIndex 
+             * @param aSubPhaseBinEnrichment 
+             * @param aSubphaseClusterIndicesInSupport 
+             * @param aMaxEnrichmentLevel 
+             */
             void
             construct_enriched_basis_to_subphase_connectivity(
                     moris_index const&                                     aEnrichmentDataIndex,
@@ -327,9 +469,26 @@ namespace xtk
                     moris::Cell< moris_index > const&                      aMaxEnrichmentLevel );
 
             // ----------------------------------------------------------------------------------
+            /**
+             * @brief counts number of enriched basis function indices and finds which SPGs a
+             * given enriched BF index is active on. The data is stored in the Enrichment_Data 
+             * 
+             * @param aEnrichmentDataIndex 
+             * @param aSpgBinEnrichment 
+             * @param aSpgIndicesInSupport 
+             * @param aMaxEnrichmentLevel 
+             */
+            void
+            construct_enriched_basis_to_subphase_group_connectivity(
+                    moris_index const &                                     aEnrichmentDataIndex,
+                    moris::Cell< moris::Matrix< moris::IndexMat > > const & aSpgBinEnrichment,
+                    moris::Cell< moris::Matrix< moris::IndexMat > > const & aSpgIndicesInSupport,
+                    moris::Cell< moris_index > const &                      aMaxEnrichmentLevel );
 
-            /*!
-             * Assign the enrichment level local identifiers
+            // ----------------------------------------------------------------------------------
+
+            /**
+             * @brief Assign the enrichment level local identifiers
              */
             void
             assign_enriched_coefficients_identifiers(
@@ -353,8 +512,7 @@ namespace xtk
             set_received_enriched_basis_ids(
                     moris_index const&                              aEnrichmentDataIndex,
                     Cell< moris::Matrix< moris::IndexMat > > const& aReceivedEnrichedIds,
-                    Cell< Cell< moris_index > > const&              aBasisIndexToBasisOwner,
-                    Cell< Cell< moris_index > > const&              aSubphaseIdInSupport );
+                    Cell< Cell< moris_index > > const&              aBasisIndexToBasisOwner );
 
             // ----------------------------------------------------------------------------------
 
@@ -380,26 +538,65 @@ namespace xtk
             // ----------------------------------------------------------------------------------
             // Setup enriched interpolation mesh
             // ----------------------------------------------------------------------------------
+
             void
             construct_enriched_interpolation_mesh();
+
+            void
+            construct_enriched_interpolation_mesh_new();
 
             // ----------------------------------------------------------------------------------
 
             void
             construct_enriched_integration_mesh();
 
+            void
+            construct_enriched_integration_mesh_new();
+
             // ----------------------------------------------------------------------------------
 
             void
             allocate_interpolation_cells();
+
+            void
+            allocate_interpolation_cells_new();
 
             // ----------------------------------------------------------------------------------
 
             void
             construct_enriched_interpolation_vertices_and_cells();
 
+            void
+            construct_enriched_interpolation_vertices_and_cells_new();
+
             // ----------------------------------------------------------------------------------
 
+            /**
+             * @brief compute the maximum number of times an IP cell may need to be unzipped 
+             * across all discretization mesh indices (DMIs). Recall that depending on the 
+             * configuration of the SPGs void clusters may need to be created for the Ghost. The 
+             * SPG layout depends on the DMI. Therefore the number of unzippings may also depend 
+             * on the DMI. This function returns the maximum for a given IP cell.
+             * 
+             * @param aIpCellIndex index of the IP cell
+             * @return uint maximum number of unzippings for that IP cell
+             */
+            uint
+            maximum_number_of_unzippings_for_IP_cell( moris_index aIpCellIndex );
+
+            // ----------------------------------------------------------------------------------
+
+            /**
+             * @brief find out the enriched BF indices and IDs interpolating into the current vertex 
+             * and store it along side the weights and other remaining interpolation information in 
+             * the Vertex_Enrichment object
+             * 
+             * @param aEnrichmentDataIndex 
+             * @param aBaseVertexInterp 
+             * @param aSubPhaseBasisEnrLev 
+             * @param aMapBasisIndexToLocInSubPhase 
+             * @param aVertexEnrichment output: Vertex_Enrichment
+             */
             void
             construct_enriched_vertex_interpolation(
                     moris_index const&                        aEnrichmentDataIndex,
@@ -413,14 +610,24 @@ namespace xtk
             construct_subphase_basis_to_basis_map( Cell< moris_id > const& aSubPhaseBasisIndex );
 
             // ----------------------------------------------------------------------------------
-            // functions that collects the appropriate vertex interpolation for the enrichment strategy only
+
+            /**
+             * @brief function that collects the appropriate vertex interpolation for the enrichment strategy only
+             * 
+             * @param aParentCell 
+             * @param aMeshIndex 
+             * @return moris::Cell< mtk::Vertex_Interpolation* > 
+             */
             moris::Cell< mtk::Vertex_Interpolation* >
             get_vertex_interpolations(
                     moris::mtk::Cell& aParentCell,
                     const uint        aMeshIndex ) const;
 
             // ----------------------------------------------------------------------------------
-            /*!
+
+            /**
+             * @brief ???
+             * 
              *   @param[in] aMeshIndex Mesh index
              *   @param[in] aNumIdsToAllocate Number of basis ids needed
              *   @return Basis index offset
@@ -428,14 +635,19 @@ namespace xtk
             moris_index
             allocate_basis_ids( moris_index const& aMeshIndex,
                     moris_index const&                 aNumIdsToAllocate );
+
             // ----------------------------------------------------------------------------------
 
-            /*!
-             *   @param[in] aMeshIndex Mesh index
-             *   @return Maxmimum basis id on this proc
+            /**
+             * @brief ???
+             *   
+             * @param[in] aMeshIndex Mesh index
+             * @return Maxmimum basis id on this proc
              */
             moris_index
             get_max_basis_id( moris_index const& aMeshIndex );
+
+            // ----------------------------------------------------------------------------------            
     };
 }// namespace xtk
 #endif /* XTK_SRC_XTK_CL_XTK_ENRICHMENT_HPP_ */

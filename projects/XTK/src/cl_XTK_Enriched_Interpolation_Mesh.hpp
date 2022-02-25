@@ -144,98 +144,145 @@ namespace xtk
              * get basis owner
              */
             moris_index
-            get_basis_owner( moris_index aBasisIndex,
-                    moris_index              aMeshIndex );
+            get_basis_owner( 
+                    moris_index aBasisIndex,
+                    moris_index aMeshIndex );
 
             /*!
              * get basis bulk phase
              */
             moris_index
-            get_basis_bulk_phase( moris_index const& aBasisIndex,
-                    moris_index const&                   aMeshIndex ) const;
+            get_basis_bulk_phase( 
+                    moris_index const& aBasisIndex,
+                    moris_index const& aMeshIndex ) const;
 
         public:
             Cell< Interpolation_Cell_Unzipped* >&
             get_enriched_interpolation_cells();
 
-            /*!
-             * Return the owned interpolation cells, shared cells sorted by owning proc, owning procs
+            //------------------------------------------------------------------------------
+
+            /**
+             * @brief Return the owned interpolation cells, shared cells sorted by owning proc, owning procs
+             * 
+             * @param aOwnedInterpCells 
+             * @param aNotOwnedInterpCells 
+             * @param aProcRanks 
              */
             void
-            get_owned_and_not_owned_enriched_interpolation_cells( Cell< Interpolation_Cell_Unzipped* >& aOwnedInterpCells,
-                    Cell< Cell< Interpolation_Cell_Unzipped* > >&                                           aNotOwnedInterpCells,
-                    Cell< uint >&                                                                           aProcRanks );
+            get_owned_and_not_owned_enriched_interpolation_cells( 
+                    Cell< Interpolation_Cell_Unzipped* >&         aOwnedInterpCells,
+                    Cell< Cell< Interpolation_Cell_Unzipped* > >& aNotOwnedInterpCells,
+                    Cell< uint >&                                 aProcRanks );
+
+            //------------------------------------------------------------------------------
 
             Interpolation_Vertex_Unzipped&
             get_xtk_interp_vertex( moris::uint aVertexIndex );
+
+            //------------------------------------------------------------------------------
 
             void
             add_proc_to_comm_table( moris_index aProcRank );
 
             //------------------------------------------------------------------------------
-            /*
-             * Provided pointers to base interpolation cells, return all the enriched interpolation cells attached to these
-             * cells
+
+            /**
+             * @brief Provided pointers to base interpolation cells, return all the enriched interpolation cells attached to these cells
+             * 
+             * @param aBaseCells 
+             * @return moris::Cell< Interpolation_Cell_Unzipped const* > 
              */
             moris::Cell< Interpolation_Cell_Unzipped const* >
             get_enriched_cells_from_base_cells( moris::Cell< moris::mtk::Cell const* > const& aBaseCells ) const;
+
             //------------------------------------------------------------------------------
+
             /*!
              *  Single cell version of above
              */
             moris::Cell< Interpolation_Cell_Unzipped const* >
             get_enriched_cells_from_base_cell( moris::mtk::Cell const* aBaseCells ) const;
+
             //------------------------------------------------------------------------------
+
             Interpolation_Vertex_Unzipped const&
             get_xtk_interp_vertex( moris::uint aVertexIndex ) const;
+
             //------------------------------------------------------------------------------
+
             moris_index
             get_enr_basis_index_from_enr_basis_id(
                     moris_index const& aMeshIndex,
                     moris_index const& aBasisId ) const;
-            //------------------------------------------------------------------------------
-            /*
-             * Convert a entity indices to entity ids
-             */
-            Matrix< IdMat > convert_indices_to_ids( Matrix< IndexMat > const& aIndices,
-                    enum EntityRank                                               aEntityRank ) const;
-            //------------------------------------------------------------------------------
-            /*
-             * Convert a entity ids to entity indices
-             */
-            Matrix< IndexMat > convert_ids_to_indices( Matrix< IdMat > const& aIds,
-                    enum EntityRank                                               aEntityRank ) const;
 
             //------------------------------------------------------------------------------
-            /*
-             *Return the mesh indices that will be enriched
+
+            /**
+             * @brief Convert a entity indices to entity ids
+             * 
+             * @param aIndices 
+             * @param aEntityRank 
+             * @return Matrix< IdMat > 
+             */
+            Matrix< IdMat > convert_indices_to_ids( 
+                    Matrix< IndexMat > const& aIndices,
+                    enum EntityRank           aEntityRank ) const;
+
+            //------------------------------------------------------------------------------
+
+            /**
+             * @brief Convert a entity ids to entity indices
+             * 
+             * @param aIds 
+             * @param aEntityRank 
+             * @return Matrix< IndexMat > 
+             */
+            Matrix< IndexMat > convert_ids_to_indices( 
+                    Matrix< IdMat > const& aIds,
+                    enum EntityRank        aEntityRank ) const;
+
+            //------------------------------------------------------------------------------
+
+            /**
+             * @brief Return the mesh indices that will be enriched
+             * 
+             * @return Matrix< IndexMat > 
              */
             Matrix< IndexMat >
             get_enriched_mesh_indices() const;
+            
             //------------------------------------------------------------------------------
-            /*!
-             * convert enriched
+
+            /**
+             * @brief convert enriched //?
+             * 
+             * @param aMeshIndex 
+             * @param aEnrichedIndices 
+             * @param aEnrichedIds 
              */
-            //------------------------------------------------------------------------------
             void
             convert_enriched_basis_indices_to_ids( moris_index const& aMeshIndex,
-                    Matrix< IndexMat > const&                             aEnrichedIndices,
-                    Matrix< IdMat >&                                      aEnrichedIds ) const;
+                    Matrix< IndexMat > const& aEnrichedIndices,
+                    Matrix< IdMat >&          aEnrichedIds ) const;
 
             void
             convert_enriched_basis_indices_to_ids( moris_index const& aMeshIndex,
-                    Cell< Matrix< IndexMat > > const&                     aEnrichedIndices,
-                    Cell< Matrix< IdMat > >&                              aEnrichedIds ) const;
+                    Cell< Matrix< IndexMat > > const& aEnrichedIndices,
+                    Cell< Matrix< IdMat > >&          aEnrichedIds ) const;
 
             //------------------------------------------------------------------------------
             // Memory Map
             //------------------------------------------------------------------------------
+
             /*!
              * @brief Memory map of the enriched integration mesh
              * @return Memory map
              */
             moris::Memory_Map
             get_memory_usage();
+
+            //------------------------------------------------------------------------------
 
             // Print functions
             void write_diagnostics();
@@ -324,64 +371,108 @@ namespace xtk
             Cell< moris_index > mNotOwnedBasis;
             Cell< moris_index > mOwnedBasis;
 
+            //------------------------------------------------------------------------------
             // functions used by enrichment for construction of the mesh
-            /*
-             * Add a vertex enrichment to the member data. returns the index of the vertex enrichment.
+            //------------------------------------------------------------------------------
+
+            /**
+             * @brief Add a vertex enrichment to the member data. returns the index of the vertex enrichment.
+             * 
+             * @param aMeshIndex 
+             * @param aBaseInterpVertex 
+             * @param aVertexEnrichment 
+             * @param aNewVertex 
+             * @return moris_index index of the vertex enrichment
              */
             moris_index
             add_vertex_enrichment( moris_index const& aMeshIndex,
                     mtk::Vertex*                          aBaseInterpVertex,
                     Vertex_Enrichment&                    aVertexEnrichment,
                     bool&                                 aNewVertex );
+
             //------------------------------------------------------------------------------
+
             void
             merge_duplicate_interpolation_vertices();
+
+            //------------------------------------------------------------------------------
 
             void
             collect_base_vertex_to_enriched_vertex_connectivity( moris::Cell< moris::Cell< Interpolation_Vertex_Unzipped* > >& aBaseVertexToEnrichedVertex );
 
             //------------------------------------------------------------------------------
-            /*
-             * Get the pointer to the vertex enrichment provided the vertex enrichment index.
+
+            /**
+             * @brief Get the pointer to the vertex enrichment provided the vertex enrichment index.
+             * 
+             * @param aMeshIndex 
+             * @param aVertexEnrichmentIndex 
+             * @return Vertex_Enrichment* 
              */
             Vertex_Enrichment*
             get_vertex_enrichment( moris_index const& aMeshIndex,
                     moris_index const&                    aVertexEnrichmentIndex );
+
             //------------------------------------------------------------------------------
 
-            /*
-             * Returns the vertex index corresponding to the vertex enrichment
+            /**
+             * @brief Returns the vertex index corresponding to the vertex enrichment
+             * 
+             * @param aMeshIndex 
+             * @param aVertexEnrichmentIndex 
+             * @return moris_index 
              */
             moris_index
             get_vertex_related_to_vertex_enrichment( moris_index const& aMeshIndex,
                     moris_index                                             aVertexEnrichmentIndex ) const;
 
             //------------------------------------------------------------------------------
-            /*
-             * Converts a mesh index from an external mesh into the local mesh index
+
+            /**
+             * @brief Converts a mesh index from an external mesh into the local mesh index
+             * 
+             * @param aMeshIndex 
+             * @return moris_index 
              */
             moris_index
             get_local_mesh_index( moris_index const& aMeshIndex ) const;
+
             //------------------------------------------------------------------------------
-            /*
-             *Returns a cell of not owned vertex indices. These vertices do not have vertex interpolations and
+
+            /**
+             * @brief Returns a cell of not owned vertex indices. These vertices do not have vertex interpolations and
              * need to be handled differently for ghost stabilization
+             * 
+             * @return Cell< moris_index > const& 
              */
             Cell< moris_index > const&
             get_not_owned_vertex_indices() const;
 
+
             //------------------------------------------------------------------------------
-            /*
-             * Checks whether a basis exists on a partition of the mesh
+
+            /**
+             * @brief Checks whether a basis exists on a partition of the mesh
+             * 
+             * @param aMeshIndex 
+             * @param aBasisId 
+             * @return true 
+             * @return false 
              */
             bool
             basis_exists_on_partition( moris_index const& aMeshIndex,
                     moris_index const&                        aBasisId );
+
             //------------------------------------------------------------------------------
 
-            /*
-             * Add a basis function to the mesh. this is used by ghost to add basis functions in the aura
-             * returns the index
+            /**
+             * @brief Add a basis function to the mesh. this is used by ghost to add basis functions in the aura returns the index
+             * 
+             * @param aMeshIndex 
+             * @param aBasisIdToAdd 
+             * @param aBasisOwner 
+             * @param aBasisBulkPhase 
+             * @return moris_index 
              */
             moris_index
             add_basis_function(

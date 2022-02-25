@@ -36,7 +36,7 @@ namespace moris
             //! number of children per basis
             const uint mNumberOfChildrenPerBasis;
 
-            //! max number of elements connected to bass
+            //! max number of elements connected to basis
             const uint mNumberOfElementsPerBasis;
 
             //! Cell containing all basis this proc knows about

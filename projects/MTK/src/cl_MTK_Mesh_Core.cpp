@@ -1159,12 +1159,50 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        luint Mesh::get_num_active_bg_elements_on_discretization_mesh_index( moris_index const aDiscretizationMeshIndex )
+        {
+            MORIS_ERROR( false, "Mesh::get_num_active_bg_elements_on_discretization_mesh_index() -  not implemented in mtk base class" );
+            return 0;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Mesh::get_active_bg_element_indices_on_discretization_mesh_index( 
+                moris_index const aDiscretizationMeshIndex, 
+                Matrix< DDLUMat > & aElementIDs )
+        {
+            MORIS_ERROR( false, "Mesh::get_active_bg_element_indices_on_discretization_mesh_index() -  not implemented in mtk base class" );
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Mesh::get_elements_in_bspline_element(
+                moris_index const aBspElementIndex,
+                moris_index const aDiscretizationMeshIndex,
+                moris::Cell< mtk::Cell * > & aCells )
+        {
+            MORIS_ERROR( false, "Mesh::get_elements_in_bspline_element() -  not implemented in mtk base class" );
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void Mesh::get_lagrange_elements_in_bspline_elements(
+                moris_index const aDiscretizationMeshIndex,
+                moris::Cell< moris::Cell< mtk::Cell * > > & aCells,
+                moris::Cell< moris::Cell< moris_index > > & aCellIndices,
+                moris::Cell< moris_index > & aLagToBspCellIndices )
+        {
+            MORIS_ERROR( false, "Mesh::get_lagrange_elements_in_bspline_elements() -  not implemented in mtk base class" );
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         void Mesh::get_elements_in_interpolation_cluster(
                 moris_index aElementIndex,
                 moris_index aDiscretizationMeshIndex,
                 moris::Cell< mtk::Cell * > & tCells )
         {
-            MORIS_ERROR(0,"get_elements_in_interpolation_cluster not implemented");
+            MORIS_ERROR( false, "Mesh::get_elements_in_interpolation_cluster() -  not implemented in mtk base class" );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -1175,7 +1213,7 @@ namespace moris
                 moris_index const            aSideOrdinal,
                 moris::Cell< mtk::Cell * > & aCells)
         {
-            MORIS_ERROR(0,"get_elements_in_interpolation_cluster_and_side_ordinal not implemented");
+            MORIS_ERROR( false, "Mesh::get_elements_in_interpolation_cluster_and_side_ordinal() -  not implemented in mtk base class" );
         }
 
 

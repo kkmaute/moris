@@ -26,6 +26,7 @@
 #include "cl_FEM_IQI_Turbulent_Dynamic_Viscosity.hpp"
 #include "cl_FEM_IQI_Effective_Dynamic_Viscosity.hpp"
 #include "cl_FEM_IQI_Effective_Conductivity.hpp"
+#include "cl_FEM_IQI_Spalart_Allmaras_Coefficient.hpp"
 #include "cl_FEM_IQI_Power_Dissipation.hpp"
 #include "cl_FEM_IQI_Total_Pressure.hpp"
 #include "cl_FEM_IQI_Mass_Flow.hpp"
@@ -113,6 +114,8 @@ namespace moris
                     return std::make_shared< IQI_Effective_Dynamic_Viscosity >();
                 case IQI_Type::EFFECTIVE_CONDUCTIVITY :
                     return std::make_shared< IQI_Effective_Conductivity >();
+                case IQI_Type::SPALART_ALLMARAS_COEFFICIENT :
+                    return std::make_shared< IQI_Spalart_Allmaras_Coefficient >();
 
                 case IQI_Type::LATENT_HEAT_ABSORPTION :
                     return std::make_shared< IQI_Latent_Heat_Absorption >();

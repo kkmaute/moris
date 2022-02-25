@@ -83,6 +83,7 @@ set(HEADERS
     xtk_typedefs.hpp
     cl_XTK_Decomposition_Algorithm_Factory.hpp
     cl_XTK_Diagnostics.hpp
+    cl_XTK_Subphase_Group.hpp
     )                                                                                                                                                                                                                                                                   
 
 

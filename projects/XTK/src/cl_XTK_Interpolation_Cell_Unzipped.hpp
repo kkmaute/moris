@@ -41,6 +41,15 @@ public:
                                 moris_id               aCellOwner,
                                 std::shared_ptr<moris::mtk::Cell_Info> aConnectivity);
 
+    // FIXME: SPG based initialization
+    // Interpolation_Cell_Unzipped(moris::mtk::Cell*      aBaseCell,
+    //                             moris_index            aSubphaseGroupIndex,
+    //                             moris_index            aBulkPhaseIndex,
+    //                             moris_id               aEnrCellId,
+    //                             moris_index            aEnrCellIndex,
+    //                             moris_id               aEnrCellOwner,
+    //                             std::shared_ptr<moris::mtk::Cell_Info> aConnectivity);
+
     //------------------------------------------------------------------------------
     // MTK Interpolation Cell Implementation
     // see base class for documentation
@@ -85,21 +94,32 @@ public:
     //------------------------------------------------------------------------------
     // Accessor functions of XTK specific data structures
     //------------------------------------------------------------------------------
+
     /*
      * Return the processor local sub phase index of this interpolation cell
      */
     moris_index
     get_subphase_index() const;
+
+    // FIXME: add for SPGs
+    // moris_index
+    // get_subphase_group_index() const;
+
     //------------------------------------------------------------------------------
+
     /*
      * Return the bulk phase index of the subphase
      */
     moris_index
     get_bulkphase_index() const;
+
     //------------------------------------------------------------------------------
+
     moris::Cell< xtk::Interpolation_Vertex_Unzipped* > const &
     get_xtk_interpolation_vertices() const;
+
     //------------------------------------------------------------------------------
+
     // memory
     size_t
     capacity();
@@ -124,10 +144,15 @@ protected:
 protected:
     moris::mtk::Cell*                                  mBaseCell;
     moris::moris_index                                 mSubPhaseIndex;
+    // FIXME: add for SPGs
+    //moris::moris_index                                 mSubphaseGroupIndex;
     moris::moris_index                                 mBulkPhaseIndex;
     moris::Cell< xtk::Interpolation_Vertex_Unzipped* > mVertices;
 };
 
+//------------------------------------------------------------------------------
+// free functions
+//------------------------------------------------------------------------------
 
 /*
  * Outputting of this data structure
@@ -154,6 +179,8 @@ operator<<(std::ostream & os, const xtk::Interpolation_Cell_Unzipped & dt)
     return os;
 }
 
+//------------------------------------------------------------------------------
+
 inline
 std::ostream &
 operator<<(std::ostream & os, xtk::Interpolation_Cell_Unzipped const * const & dt)
@@ -162,6 +189,8 @@ operator<<(std::ostream & os, xtk::Interpolation_Cell_Unzipped const * const & d
 
     return os;
 }
+
+//------------------------------------------------------------------------------
 
 
 }

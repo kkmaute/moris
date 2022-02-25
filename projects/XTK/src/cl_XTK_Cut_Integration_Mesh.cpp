@@ -235,51 +235,83 @@ namespace xtk
 
     Cut_Integration_Mesh::~Cut_Integration_Mesh()
     {
+        // delete the objects holding B-spline information
+        this->delete_Bspline_mesh_info();
+    }
+
+    //-------------------------------------------------------------------------------------
+
+    void
+    Cut_Integration_Mesh::delete_Bspline_mesh_info()
+    {
+        // delete the objects themselves
+        for ( auto iBspMesh : mBsplineMeshInfos )
+        {
+            delete iBspMesh;
+        }
+
+        // clear memory for cell
+        mBsplineMeshInfos.clear();
     }
 
     // ----------------------------------------------------------------------------------
+
     uint
     Cut_Integration_Mesh::get_spatial_dim() const
     {
         return mSpatialDimension;
     }
+
     // ----------------------------------------------------------------------------------
+
     MeshType
     Cut_Integration_Mesh::get_mesh_type() const
     {
         return MeshType::XTK;
     }
+
     // ----------------------------------------------------------------------------------
+
     moris::uint
     Cut_Integration_Mesh::get_num_sets() const
     {
         return 0;
     }
+
     // ----------------------------------------------------------------------------------
+
     Matrix< DDRMat >
     Cut_Integration_Mesh::get_node_coordinate( moris_index aNodeIndex ) const
     {
         return ( *mVertexCoordinates( aNodeIndex ) );
     }
+
     // ----------------------------------------------------------------------------------
+
     uint
     Cut_Integration_Mesh::get_node_owner( moris_index aNodeIndex ) const
     {
         return mIntegrationVertices( aNodeIndex )->get_owner();
     }
+
     // ----------------------------------------------------------------------------------
+
     uint
     Cut_Integration_Mesh::get_element_owner( moris_index aElementIndex ) const
     {
         return mIntegrationCells( aElementIndex )->get_owner();
     }
+    
     // ----------------------------------------------------------------------------------
+
     Matrix< IdMat >
     Cut_Integration_Mesh::get_communication_table() const
     {
         return mCommunicationMap;
     }
+
     // ----------------------------------------------------------------------------------
+
     void
     Cut_Integration_Mesh::add_proc_to_comm_table(moris_index aProcRank)
     {
@@ -293,7 +325,9 @@ namespace xtk
         mCommunicationMap.resize(1,mCommunicationMap.numel()+1);
         mCommunicationMap(tIndex) = aProcRank;
     }
+
     // ----------------------------------------------------------------------------------
+
     Matrix< IndexMat >
     Cut_Integration_Mesh::get_element_indices_in_block_set( uint aSetIndex )
     {
@@ -316,6 +350,7 @@ namespace xtk
     }
 
     // ----------------------------------------------------------------------------------
+
     enum CellTopology
     Cut_Integration_Mesh::get_blockset_topology( const std::string& aSetName )
     {
@@ -324,7 +359,9 @@ namespace xtk
 
         return mBlockCellTopo( tBlockIndex );
     }
+
     // ----------------------------------------------------------------------------------
+
     enum CellShape
     Cut_Integration_Mesh::get_IG_blockset_shape( const std::string& aSetName )
     {
@@ -332,12 +369,15 @@ namespace xtk
     }
 
     // ----------------------------------------------------------------------------------
+
     enum CellShape
     Cut_Integration_Mesh::get_IP_blockset_shape( const std::string& aSetName )
     {
         return CellShape::INVALID;
     }
+
     // ----------------------------------------------------------------------------------
+
     moris_id
     Cut_Integration_Mesh::get_glb_entity_id_from_entity_loc_index(
             moris_index       aEntityIndex,
@@ -884,6 +924,13 @@ namespace xtk
     {
         return mSubPhaseCellGroups.size();
     }
+
+    moris::uint
+    Cut_Integration_Mesh::get_num_subphase_groups( moris_index aMeshIndexInList )
+    {
+        return (uint)( mBsplineMeshInfos( aMeshIndexInList )->get_num_SPGs() );
+    }
+
     // ----------------------------------------------------------------------------------
 
     moris::Cell< std::shared_ptr< Child_Mesh_Experimental > >&
@@ -908,11 +955,15 @@ namespace xtk
         return mNotOwnedSubphaseGroupsInds;
     }
 
+    // ----------------------------------------------------------------------------------
+
     moris::mtk::Cell*
     Cut_Integration_Mesh::get_subphase_parent_cell( moris_index aSubPhaseIndex )
     {
         return mSubPhaseParentCell( aSubPhaseIndex );
     }
+
+    // ----------------------------------------------------------------------------------
 
     std::shared_ptr< IG_Cell_Group >
     Cut_Integration_Mesh::get_subphase_ig_cells( moris_index aSubPhaseIndex )
@@ -920,11 +971,23 @@ namespace xtk
         return mSubPhaseCellGroups( aSubPhaseIndex );
     }
 
+    // ----------------------------------------------------------------------------------
+
+    const moris::Cell< moris_index > &
+    Cut_Integration_Mesh::get_ig_cells_in_SPG( moris_index aMeshIndexInList, moris_index aSubphaseGroupIndex )
+    {
+        return mBsplineMeshInfos( aMeshIndexInList )->mSubphaseGroups( aSubphaseGroupIndex )->get_ig_cell_indices_in_group();
+    }
+
+    // ----------------------------------------------------------------------------------
+
     moris_index
     Cut_Integration_Mesh::get_subphase_id( moris_index aSubPhaseIndex )
     {
         return mSubPhaseIds( aSubPhaseIndex );
     }
+
+    // ----------------------------------------------------------------------------------
 
     moris_index
     Cut_Integration_Mesh::get_subphase_index( moris_id aSubphaseId )
@@ -939,22 +1002,45 @@ namespace xtk
         return tIter->second;
     }
 
+    // ----------------------------------------------------------------------------------
+
     moris_index
     Cut_Integration_Mesh::get_subphase_bulk_phase( moris_index aSubPhaseIndex )
     {
         return mSubPhaseBulkPhase( aSubPhaseIndex );
     }
+
+    // ----------------------------------------------------------------------------------
+
+    moris_index
+    Cut_Integration_Mesh::get_subphase_group_bulk_phase( 
+            moris_index aSubPhaseGroupIndex,
+            moris_index aMeshListIndex )
+    {
+        // get representative SP from SPG
+        moris_index tSubPhaseIndex = mBsplineMeshInfos( aMeshListIndex )->mSubphaseGroups( aSubPhaseGroupIndex )->get_SP_indices_in_group()( 0 );
+
+        // get and return Bulk phase index of SPG through SP
+        return mSubPhaseBulkPhase( tSubPhaseIndex );
+    }
+
+    // ----------------------------------------------------------------------------------
+
     moris_index
     Cut_Integration_Mesh::get_ig_cell_subphase_index( moris_index aIgCellIndex )
     {
         return mIntegrationCellToSubphaseIndex( aIgCellIndex );
     }
 
+    // ----------------------------------------------------------------------------------
+
     bool
     Cut_Integration_Mesh::parent_cell_has_children( moris_index aParentCellIndex )
     {
         return (bool)mParentCellHasChildren( aParentCellIndex );
     }
+
+    // ----------------------------------------------------------------------------------
 
     void
     Cut_Integration_Mesh::finalize_cut_mesh_construction()
@@ -966,18 +1052,24 @@ namespace xtk
         this->assign_controlled_ig_cell_ids();
     }
 
+    // ----------------------------------------------------------------------------------
+
     moris::Cell< moris_index > const&
     Cut_Integration_Mesh::get_parent_cell_subphases( moris_index aParentCellIndex )
     {
         return mParentCellToSubphase( aParentCellIndex );
     }
 
+    // ----------------------------------------------------------------------------------
+
     moris_index
     Cut_Integration_Mesh::get_vertex_parent_index( moris_index const& aVertexIndex )
     {
         return mIgVertexParentEntityIndex( aVertexIndex );
     }
+
     // ----------------------------------------------------------------------------------
+
     moris_index
     Cut_Integration_Mesh::get_vertex_parent_rank( moris_index const& aVertexIndex )
     {
@@ -985,6 +1077,7 @@ namespace xtk
     }
 
     // ----------------------------------------------------------------------------------
+
     uint
     Cut_Integration_Mesh::get_num_entities(
             enum EntityRank   aEntityRank,
@@ -1090,6 +1183,18 @@ namespace xtk
     Cut_Integration_Mesh::get_subphase_neighborhood()
     {
         return mSubphaseNeighborhood;
+    }
+
+    std::shared_ptr< Subphase_Neighborhood_Connectivity >
+    Cut_Integration_Mesh::get_subphase_group_neighborhood( moris_index aMeshIndex )
+    {
+        return mSubphaseGroupNeighborhood( aMeshIndex );
+    }
+
+    moris::Cell< Bspline_Mesh_Info* > &
+    Cut_Integration_Mesh::get_bspline_mesh_info()
+    {
+        return mBsplineMeshInfos;
     }
 
     void
@@ -1831,4 +1936,5 @@ namespace xtk
     }
 
     // ----------------------------------------------------------------------------------
+    
 }// namespace xtk

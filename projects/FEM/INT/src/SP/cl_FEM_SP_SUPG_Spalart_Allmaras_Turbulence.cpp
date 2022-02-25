@@ -153,8 +153,8 @@ namespace moris
 
             // tau S
             real tTauS =
-                    tCMSATurbulence->production_coefficient()( 0 ) -
-                    tCMSATurbulence->wall_destruction_coefficient()( 0 );
+                    tCMSATurbulence->wall_destruction_coefficient()( 0 )
+                    - tCMSATurbulence->production_coefficient()( 0 );
 
             // evaluate tau
             real tTau = std::pow( tTauA, 2 ) + std::pow( tTauK, 2 ) + std::pow( tTauS, 2 );
@@ -211,8 +211,8 @@ namespace moris
 
             // tau S
             real tTauS =
-                    tCMSATurbulence->production_coefficient()( 0 ) -
-                    tCMSATurbulence->wall_destruction_coefficient()( 0 );
+                    tCMSATurbulence->wall_destruction_coefficient()( 0 ) -
+                    tCMSATurbulence->production_coefficient()( 0 );
 
             // evaluate tau
             real tTau = std::max( std::pow( tTauA, 2 ) + std::pow( tTauK, 2 ) + std::pow( tTauS, 2 ), mEpsilon );
@@ -256,8 +256,8 @@ namespace moris
 
                     // compute tdtauSdu
                     mdPPdMasterDof( tDofIndex ) += tTauS * (
-                            tCMSATurbulence->dproductioncoeffdu( aDofTypes ) -
-                            tCMSATurbulence->dwalldestructioncoeffdu( aDofTypes ) );
+                            tCMSATurbulence->dwalldestructioncoeffdu( aDofTypes )
+                            - tCMSATurbulence->dproductioncoeffdu( aDofTypes ) );
                 }
 
                 // scale
