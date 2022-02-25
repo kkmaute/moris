@@ -15,13 +15,14 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        real compute_chi(
-                const moris::Cell< MSI::Dof_Type > & aViscosityDofGroup,
-                Field_Interpolator_Manager         * aMasterFIManager,
-                const std::shared_ptr< Property >  & aPropKinViscosity )
+        real
+        compute_chi(
+                const moris::Cell< MSI::Dof_Type >& aViscosityDofGroup,
+                Field_Interpolator_Manager*         aMasterFIManager,
+                const std::shared_ptr< Property >&  aPropKinViscosity )
         {
             // get the viscosity dof FI
-            Field_Interpolator * tFIViscosity =
+            Field_Interpolator* tFIViscosity =
                     aMasterFIManager->get_field_interpolators_for_type( aViscosityDofGroup( 0 ) );
 
             // compute chi
@@ -30,28 +31,29 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void compute_dchidu(
-                const moris::Cell< MSI::Dof_Type > & aViscosityDofGroup,
-                Field_Interpolator_Manager         * aMasterFIManager,
-                const std::shared_ptr< Property >  & aPropKinViscosity,
-                const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                Matrix< DDRMat >                   & adchidu )
+        void
+        compute_dchidu(
+                const moris::Cell< MSI::Dof_Type >& aViscosityDofGroup,
+                Field_Interpolator_Manager*         aMasterFIManager,
+                const std::shared_ptr< Property >&  aPropKinViscosity,
+                const moris::Cell< MSI::Dof_Type >& aDofTypes,
+                Matrix< DDRMat >&                   adchidu )
         {
             // get the derivative dof FIs
-            Field_Interpolator * tDerFI =
+            Field_Interpolator* tDerFI =
                     aMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // init adchidu
             adchidu.set_size( 1, tDerFI->get_number_of_space_time_coefficients(), 0.0 );
 
             // if derivative dof type is viscosity dof type
-            if( aDofTypes( 0 ) == aViscosityDofGroup( 0 ) )
+            if ( aDofTypes( 0 ) == aViscosityDofGroup( 0 ) )
             {
                 adchidu += tDerFI->N() / aPropKinViscosity->val()( 0 );
             }
 
             // if viscosity property depends on derivative dof type
-            if( aPropKinViscosity->check_dof_dependency( aDofTypes ) )
+            if ( aPropKinViscosity->check_dof_dependency( aDofTypes ) )
             {
                 // compute chi
                 real tChi = compute_chi(
@@ -60,21 +62,22 @@ namespace moris
                         aPropKinViscosity );
 
                 // add contribution to derivative
-                adchidu -= tChi * aPropKinViscosity->dPropdDOF( aDofTypes ) /
-                        aPropKinViscosity->val()( 0 );
+                adchidu -=
+                        tChi * aPropKinViscosity->dPropdDOF( aDofTypes ) / aPropKinViscosity->val()( 0 );
             }
         }
 
         //------------------------------------------------------------------------------
 
-        void compute_dchidx(
-                const moris::Cell< MSI::Dof_Type > & aViscosityDofGroup,
-                Field_Interpolator_Manager         * aMasterFIManager,
-                const std::shared_ptr< Property >  & aPropKinViscosity,
-                Matrix< DDRMat >                   & adchidx )
+        void
+        compute_dchidx(
+                const moris::Cell< MSI::Dof_Type >& aViscosityDofGroup,
+                Field_Interpolator_Manager*         aMasterFIManager,
+                const std::shared_ptr< Property >&  aPropKinViscosity,
+                Matrix< DDRMat >&                   adchidx )
         {
             // get the viscosity dof FI
-            Field_Interpolator * tFIViscosity =
+            Field_Interpolator* tFIViscosity =
                     aMasterFIManager->get_field_interpolators_for_type( aViscosityDofGroup( 0 ) );
 
             // compute chi
@@ -87,7 +90,7 @@ namespace moris
             adchidx = tFIViscosity->gradx( 1 ) / aPropKinViscosity->val()( 0 );
 
             // if kinematic viscosity depends on space
-            if( aPropKinViscosity->check_space_dependency( 1 ) )
+            if ( aPropKinViscosity->check_space_dependency( 1 ) )
             {
                 // add contribution of kinematic viscosity space derivative
                 adchidx -= tChi * aPropKinViscosity->dnPropdxn( 1 ) / aPropKinViscosity->val()( 0 );
@@ -96,15 +99,16 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void compute_dchidxdu(
-                const moris::Cell< MSI::Dof_Type > & aViscosityDofGroup,
-                Field_Interpolator_Manager         * aMasterFIManager,
-                const std::shared_ptr< Property >  & aPropKinViscosity,
-                const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                Matrix< DDRMat >                   & adchidxdu )
+        void
+        compute_dchidxdu(
+                const moris::Cell< MSI::Dof_Type >& aViscosityDofGroup,
+                Field_Interpolator_Manager*         aMasterFIManager,
+                const std::shared_ptr< Property >&  aPropKinViscosity,
+                const moris::Cell< MSI::Dof_Type >& aDofTypes,
+                Matrix< DDRMat >&                   adchidxdu )
         {
             // get the derivative dof FIs
-            Field_Interpolator * tDerFI =
+            Field_Interpolator* tDerFI =
                     aMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // init adchidxdu
@@ -113,7 +117,7 @@ namespace moris
                     tDerFI->get_number_of_space_time_coefficients() );
 
             // if kinematic viscosity depends on space
-            if( aPropKinViscosity->check_space_dependency( 1 ) )
+            if ( aPropKinViscosity->check_space_dependency( 1 ) )
             {
                 // compute dchidu
                 Matrix< DDRMat > tdChidu;
@@ -125,7 +129,7 @@ namespace moris
                         tdChidu );
 
                 // add contribution of kinematic viscosity space derivative
-                adchidxdu = - 1.0 * aPropKinViscosity->dnPropdxn( 1 ) * tdChidu / aPropKinViscosity->val()( 0 );
+                adchidxdu = -1.0 * aPropKinViscosity->dnPropdxn( 1 ) * tdChidu / aPropKinViscosity->val()( 0 );
             }
             else
             {
@@ -133,17 +137,17 @@ namespace moris
             }
 
             // get the residual dof FI (here viscosity)
-            Field_Interpolator * tFIViscosity =
+            Field_Interpolator* tFIViscosity =
                     aMasterFIManager->get_field_interpolators_for_type( aViscosityDofGroup( 0 ) );
 
             // if dof type is viscosity
-            if( aDofTypes( 0 ) == aViscosityDofGroup( 0 ) )
+            if ( aDofTypes( 0 ) == aViscosityDofGroup( 0 ) )
             {
                 adchidxdu += tDerFI->dnNdxn( 1 ) / aPropKinViscosity->val()( 0 );
             }
 
             // if viscosity property depends on dof type
-            if( aPropKinViscosity->check_dof_dependency( aDofTypes ) )
+            if ( aPropKinViscosity->check_dof_dependency( aDofTypes ) )
             {
                 // compute chi
                 real tChi = compute_chi(
@@ -151,14 +155,16 @@ namespace moris
                         aMasterFIManager,
                         aPropKinViscosity );
 
-                adchidxdu -= tFIViscosity->gradx( 1 ) *
-                        aPropKinViscosity->dPropdDOF( aDofTypes ) / std::pow( aPropKinViscosity->val()( 0 ), 2 );
+                adchidxdu -=
+                        tFIViscosity->gradx( 1 ) * aPropKinViscosity->dPropdDOF( aDofTypes )
+                        / std::pow( aPropKinViscosity->val()( 0 ), 2 );
 
                 // if kinematic viscosity depends on space
-                if( aPropKinViscosity->check_space_dependency( 1 ) )
+                if ( aPropKinViscosity->check_space_dependency( 1 ) )
                 {
-                    adchidxdu += tChi * aPropKinViscosity->dnPropdxn( 1 ) *
-                            aPropKinViscosity->dPropdDOF( aDofTypes ) / std::pow( aPropKinViscosity->val()( 0 ), 2 );
+                    adchidxdu +=
+                            tChi * aPropKinViscosity->dnPropdxn( 1 ) * aPropKinViscosity->dPropdDOF( aDofTypes )
+                            / std::pow( aPropKinViscosity->val()( 0 ), 2 );
                     // FIXME dPropddxdu
                     // - tChi * aPropKinViscosity->dPropdxdu() / aPropKinViscosity->val()
                 }
@@ -167,10 +173,11 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        real compute_fv1(
-                const moris::Cell< MSI::Dof_Type > & aViscosityDofGroup,
-                Field_Interpolator_Manager         * aMasterFIManager,
-                const std::shared_ptr< Property >  & aPropKinViscosity )
+        real
+        compute_fv1(
+                const moris::Cell< MSI::Dof_Type >& aViscosityDofGroup,
+                Field_Interpolator_Manager*         aMasterFIManager,
+                const std::shared_ptr< Property >&  aPropKinViscosity )
         {
             // compute chi, chi³
             real tChi = compute_chi(
@@ -182,7 +189,8 @@ namespace moris
             real tChi3 = std::pow( tChi, 3.0 );
 
             // threshold deno (for consistency with derivative computation)
-            real tFv1Deno = std::max( tChi3 + std::pow( mCv1, 3.0 ), mEpsilon );
+            real tFv1Deno = tChi3 + std::pow( mCv1, 3.0 );
+            tFv1Deno      = std::abs( tFv1Deno ) < mEpsilon ? mEpsilon : tFv1Deno;
 
             // compute fv1
             return tChi3 / tFv1Deno;
@@ -190,12 +198,13 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void compute_dfv1du(
-                const moris::Cell< MSI::Dof_Type > & aViscosityDofGroup,
-                Field_Interpolator_Manager         * aMasterFIManager,
-                const std::shared_ptr< Property >  & aPropKinViscosity,
-                const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                Matrix< DDRMat >                   & adfv1du )
+        void
+        compute_dfv1du(
+                const moris::Cell< MSI::Dof_Type >& aViscosityDofGroup,
+                Field_Interpolator_Manager*         aMasterFIManager,
+                const std::shared_ptr< Property >&  aPropKinViscosity,
+                const moris::Cell< MSI::Dof_Type >& aDofTypes,
+                Matrix< DDRMat >&                   adfv1du )
         {
             // compute chi
             real tChi = compute_chi(
@@ -213,8 +222,10 @@ namespace moris
                     tdchidu );
 
             // threshold deno (for consistency with derivative computation)
-            real tFv1Deno = std::max( std::pow( tChi, 3.0 ) + std::pow( mCv1, 3.0 ), mEpsilon );
-            if( tFv1Deno > mEpsilon )
+            real tFv1Deno = std::pow( tChi, 3.0 ) + std::pow( mCv1, 3.0 );
+            tFv1Deno      = std::abs( tFv1Deno ) < mEpsilon ? mEpsilon : tFv1Deno;
+
+            if ( std::abs( tFv1Deno ) > mEpsilon )
             {
                 // threshold deno
                 real tFv1Deno2 = std::max( std::pow( tFv1Deno, 2.0 ), mEpsilon );
@@ -230,11 +241,12 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void compute_dfv1dx(
-                const moris::Cell< MSI::Dof_Type > & aViscosityDofGroup,
-                Field_Interpolator_Manager         * aMasterFIManager,
-                const std::shared_ptr< Property >  & aPropKinViscosity,
-                Matrix< DDRMat >                   & adfv1dx )
+        void
+        compute_dfv1dx(
+                const moris::Cell< MSI::Dof_Type >& aViscosityDofGroup,
+                Field_Interpolator_Manager*         aMasterFIManager,
+                const std::shared_ptr< Property >&  aPropKinViscosity,
+                Matrix< DDRMat >&                   adfv1dx )
         {
             // compute chi
             real tChi = compute_chi(
@@ -251,8 +263,10 @@ namespace moris
                     tdchidx );
 
             // threshold deno (for consistency with derivative computation)
-            real tFv1Deno = std::max( std::pow( tChi, 3.0 ) + std::pow( mCv1, 3.0 ), mEpsilon );
-            if( tFv1Deno > mEpsilon )
+            real tFv1Deno = std::pow( tChi, 3.0 ) + std::pow( mCv1, 3.0 );
+            tFv1Deno      = std::abs( tFv1Deno ) < mEpsilon ? mEpsilon : tFv1Deno;
+
+            if ( std::abs( tFv1Deno ) > mEpsilon )
             {
                 // threshold deno
                 real tFv1Deno2 = std::max( std::pow( tFv1Deno, 2.0 ), mEpsilon );
@@ -269,12 +283,13 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void compute_dfv1dxdu(
-                const moris::Cell< MSI::Dof_Type > & aViscosityDofGroup,
-                Field_Interpolator_Manager         * aMasterFIManager,
-                const std::shared_ptr< Property >  & aPropKinViscosity,
-                const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                Matrix< DDRMat >                   & adfv1dxdu )
+        void
+        compute_dfv1dxdu(
+                const moris::Cell< MSI::Dof_Type >& aViscosityDofGroup,
+                Field_Interpolator_Manager*         aMasterFIManager,
+                const std::shared_ptr< Property >&  aPropKinViscosity,
+                const moris::Cell< MSI::Dof_Type >& aDofTypes,
+                Matrix< DDRMat >&                   adfv1dxdu )
         {
             // compute chi
             real tChi = compute_chi(
@@ -318,16 +333,17 @@ namespace moris
                     tdchidxdu );
 
             // threshold deno (for consistency with derivative computation)
-            real tFv1Deno = std::max( tChi3 + tCv13, mEpsilon );
-            if( tFv1Deno > mEpsilon )
+            real tFv1Deno = tChi3 + tCv13;
+            tFv1Deno      = std::abs( tFv1Deno ) < mEpsilon ? mEpsilon : tFv1Deno;
+
+            if ( std::abs( tFv1Deno ) > mEpsilon )
             {
                 // threshold deno
-                real tFv1Deno3 = std::max( std::pow( tFv1Deno, 3.0 ), mEpsilon );
+                real tFv1Deno3 = std::pow( tFv1Deno, 3.0 );
+                tFv1Deno3      = std::abs( tFv1Deno3 ) < mEpsilon ? mEpsilon : tFv1Deno3;
 
                 // compute dfv1dxdu
-                adfv1dxdu = 3.0 * mCv1 * (
-                        2.0 * tChi * ( tCv13 - 2.0 * tChi3 ) * tdchidx * tdchidu +
-                        tChi2 * ( tChi3 + tCv13 ) * tdchidxdu ) / tFv1Deno3;
+                adfv1dxdu = 3.0 * mCv1 * ( 2.0 * tChi * ( tCv13 - 2.0 * tChi3 ) * tdchidx * tdchidu + tChi2 * ( tChi3 + tCv13 ) * tdchidxdu ) / tFv1Deno3;
             }
             else
             {
@@ -338,4 +354,3 @@ namespace moris
 
     } /* namespace fem */
 } /* namespace moris */
-
