@@ -152,6 +152,7 @@ namespace moris
                                             * ( tCMSATurbulence->diffusion_coefficient()( 0 ) * tFIViscosity->dnNdxn( 1 )
                                                     + tModVelocityDer * tSPSUPG->val()( 0 ) * tR( 0 ) ) );
                 }
+                
                 // if velocity dof type
                 // FIXME protect dof type
                 else if ( tDofType( 0 ) == MSI::Dof_Type::VX )
