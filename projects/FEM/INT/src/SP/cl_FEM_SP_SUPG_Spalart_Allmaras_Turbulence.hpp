@@ -37,10 +37,6 @@ namespace moris
                 MSI::Dof_Type mMasterDofViscosity = MSI::Dof_Type::VISCOSITY;
                 MSI::Dof_Type mMasterDofVelocity  = MSI::Dof_Type::VX;
 
-                // Spalart-Allmaras model constants
-                real mCb2 = 0.6220;
-                real mSigma = 2.0/3.0;
-
                 // internal threshold
                 const real mEpsilon = MORIS_REAL_EPS;
 
@@ -60,8 +56,14 @@ namespace moris
                 moris::Cell< Matrix< DDRMat > > mdLengthScaledMasterDof;
 
                 /*
-                 * Rem: mParameters( 0 ) - No parameter used
+                 * Rem: mParameters( 0 ) -
+                 * 0 - exponent for (tauA^r + tauK^r + tauK^r)^(-1/r)
+                 * 1 - use reaction term 0.0 for no, 1.0 for yes
                  */
+
+                // parameters
+                real mExponent = 2.0;
+                real mHasReaction = 1.0;
 
             public:
 
@@ -76,6 +78,13 @@ namespace moris
                  * trivial destructor
                  */
                 ~SP_SUPG_Spalart_Allmaras_Turbulence(){};
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set parameters
+                 * @param[ in ] aParameters a list of parameters
+                 */
+                void set_parameters( moris::Cell< Matrix< DDRMat > > aParameters );
 
                 //------------------------------------------------------------------------------
                 /**

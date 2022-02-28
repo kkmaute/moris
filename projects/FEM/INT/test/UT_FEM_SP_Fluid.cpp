@@ -129,11 +129,11 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
     tSPPressureGhost->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
     tSPPressureGhost->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
 
-    std::shared_ptr< fem::Stabilization_Parameter > tSPSUPGSA=
+    std::shared_ptr< fem::Stabilization_Parameter > tSPSUPGSA =
             tSPFactory.create_SP( fem::Stabilization_Type::SUPG_SPALART_ALLMARAS_TURBULENCE );
     tSPSUPGSA->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::VISCOSITY } }, mtk::Master_Slave::MASTER );
     tSPSUPGSA->set_constitutive_model( tCMSATurbulence, "SpalartAllmarasTurbulence" );
-
+    tSPSUPGSA->set_parameters( { {{3.0}}, {{1.0}} } );
 
     // create a dummy fem cluster and set it to SP
     fem::Cluster * tCluster = new fem::Cluster();
@@ -178,6 +178,7 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
         tSPConvectiveGhost->set_space_dim( iSpaceDim );
         tSPPressureGhost->set_space_dim( iSpaceDim );
         tSPSUPGSA->set_space_dim( iSpaceDim );
+        tCMSATurbulence->set_space_dim( iSpaceDim );
 
         // create and set normal
         Matrix< DDRMat > tNormal( iSpaceDim, 1, 0.5 );
