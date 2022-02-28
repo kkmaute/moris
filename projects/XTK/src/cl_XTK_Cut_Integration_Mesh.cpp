@@ -928,7 +928,7 @@ namespace xtk
     moris::uint
     Cut_Integration_Mesh::get_num_subphase_groups( moris_index aMeshIndexInList )
     {
-        return (uint)( mBsplineMeshInfos( aMeshIndexInList )->get_num_SPGs() );
+        return mBsplineMeshInfos( aMeshIndexInList )->get_num_SPGs();
     }
 
     // ----------------------------------------------------------------------------------

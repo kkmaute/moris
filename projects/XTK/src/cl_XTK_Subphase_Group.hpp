@@ -165,10 +165,10 @@ namespace xtk
             return mMaxBsplineCellIndex + 1;
         }
 
-        luint
+        uint
         get_num_SPGs() const
         {
-            return (luint) mMaxSpgIndex + 1;
+            return (uint) mMaxSpgIndex + 1;
         }
 
         // ----------------------------------------------------------------------------------
@@ -218,7 +218,7 @@ namespace xtk
         void
         add_subphase_group_to_bspline_cell( 
                 moris::Cell< moris_index > aSPsInGroup,           // TODO: is it a problem to pass this Cell by reference?
-                luint                      aBsplineElementIndex )
+                moris_index                aBsplineElementIndex )
         {
             // track SPG indices and get new one
             mMaxSpgIndex++;

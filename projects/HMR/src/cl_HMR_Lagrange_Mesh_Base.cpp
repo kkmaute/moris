@@ -3840,9 +3840,19 @@ namespace moris
                 moris::Cell< moris::Cell< moris_index > > & aCellIndices,
                 moris::Cell< moris_index > & aLagToBspCellIndices )
         {
+            // get B-Spline pattern of this mesh
+            uint tBSplinePattern = mBSplineMeshes( aDiscretizationMeshIndex )->get_activation_pattern();
+
+            // get Lagrange pattern of this mesh
+            uint tLagrangePattern = this->get_activation_pattern();
+
             // get number of Lagrange elements on current mesh
             luint tNumLagElems = this->get_background_mesh()->get_number_of_active_elements_on_proc();
             aLagToBspCellIndices.resize( tNumLagElems, -1 );
+
+            // set the activation pattern to that of the B-spline mesh
+            MORIS_LOG_INFO( "Set activation pattern to B-spline mesh to retrieve B-spline information" );
+            mBackgroundMesh->set_activation_pattern( tBSplinePattern );
 
             // get number of B-spline elements on bg mesh
             luint tNumBsplineElems = this->get_num_active_bg_elements_on_discretization_mesh_index( aDiscretizationMeshIndex );
@@ -3857,16 +3867,13 @@ namespace moris
 
             // initialize the output list sizes
             aCells.resize( tNumBsplineElems );
-            aCellIndices.resize( tNumBsplineElems, -1 );
+            aCellIndices.resize( tNumBsplineElems );
 
             // for each B-spline element find and store the Lagrange elements within it
             for ( luint iBspElem = 0; iBspElem < tNumBsplineElems; iBspElem++ )
             {
-                // temporarily get the index of the B-spline element being treated
-                luint tBspElementIndex = tElementIndices( iBspElem );            
-
                 // get pointer to b-spline and background elements
-                Element * tBsplineElement = mBSplineMeshes( aDiscretizationMeshIndex )->get_element( tBspElementIndex );
+                Element * tBsplineElement = mBSplineMeshes( aDiscretizationMeshIndex )->get_element( iBspElem );
                 Background_Element_Base * tBackgroundElement  = tBsplineElement->get_background_element();
 
                 // check that current element is actually active on the current activation pattern
@@ -3875,13 +3882,14 @@ namespace moris
 
                 // get the number of active Lagrange elmements within active B-spline element
                 luint tNumActiveLagrangeElements = 0;
-                uint tLagrangePattern = this->get_activation_pattern();
                 tBackgroundElement->get_number_of_active_descendants( tLagrangePattern, tNumActiveLagrangeElements );
 
                 // collect the active Lagrange elements
-                tNumActiveLagrangeElements = 0;
+                luint tNumActiveLagrangeElementsCheck = 0;
                 moris::Cell< Background_Element_Base * > tActiveElements( tNumActiveLagrangeElements, nullptr );
-                tBackgroundElement->collect_active_descendants( tLagrangePattern, tActiveElements, tNumActiveLagrangeElements );
+                tBackgroundElement->collect_active_descendants( tLagrangePattern, tActiveElements, tNumActiveLagrangeElementsCheck );
+
+                MORIS_ASSERT( tNumActiveLagrangeElementsCheck == tNumActiveLagrangeElements, "Bla" );
 
                 // initialize output cell with correct size
                 aCells( iBspElem ).resize( tNumActiveLagrangeElements, nullptr );
@@ -3900,6 +3908,10 @@ namespace moris
                     aLagToBspCellIndices( (uint) tLagElemIndex ) = iBspElem;
                 }
             }
+
+            // set the activation pattern back to the pattern of the Lagrange mesh
+            MORIS_LOG_INFO( "Reset activation pattern back to Lagrange mesh" );
+            mBackgroundMesh->set_activation_pattern( tLagrangePattern );
         }
 
         //------------------------------------------------------------------------------
