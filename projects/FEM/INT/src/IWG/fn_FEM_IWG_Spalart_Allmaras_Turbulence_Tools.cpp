@@ -3,6 +3,7 @@
 #include "fn_trans.hpp"
 #include "fn_norm.hpp"
 #include "fn_eye.hpp"
+#include "fn_clip_value.hpp"
 
 namespace moris
 {
@@ -11,7 +12,8 @@ namespace moris
         // Spalart Allmaras model constants
         real mCv1 = 7.1;
 
-        real mEpsilon = 1e-10;
+        real mEpsilon = 1e-10;    // needs to be consistent with threshold set in
+                                  // cl_FEM_CM_Spalart_Allmaras_Turbulence.hpp
 
         //------------------------------------------------------------------------------
 
@@ -189,8 +191,7 @@ namespace moris
             real tChi3 = std::pow( tChi, 3.0 );
 
             // threshold deno (for consistency with derivative computation)
-            real tFv1Deno = tChi3 + std::pow( mCv1, 3.0 );
-            tFv1Deno      = std::abs( tFv1Deno ) < mEpsilon ? mEpsilon : tFv1Deno;
+            real tFv1Deno = clip_value( tChi3 + std::pow( mCv1, 3.0 ), mEpsilon );
 
             // compute fv1
             return tChi3 / tFv1Deno;
@@ -222,8 +223,7 @@ namespace moris
                     tdchidu );
 
             // threshold deno (for consistency with derivative computation)
-            real tFv1Deno = std::pow( tChi, 3.0 ) + std::pow( mCv1, 3.0 );
-            tFv1Deno      = std::abs( tFv1Deno ) < mEpsilon ? mEpsilon : tFv1Deno;
+            real tFv1Deno = clip_value( std::pow( tChi, 3.0 ) + std::pow( mCv1, 3.0 ), mEpsilon );
 
             if ( std::abs( tFv1Deno ) > mEpsilon )
             {
@@ -263,8 +263,7 @@ namespace moris
                     tdchidx );
 
             // threshold deno (for consistency with derivative computation)
-            real tFv1Deno = std::pow( tChi, 3.0 ) + std::pow( mCv1, 3.0 );
-            tFv1Deno      = std::abs( tFv1Deno ) < mEpsilon ? mEpsilon : tFv1Deno;
+            real tFv1Deno = clip_value( std::pow( tChi, 3.0 ) + std::pow( mCv1, 3.0 ), mEpsilon );
 
             if ( std::abs( tFv1Deno ) > mEpsilon )
             {
@@ -333,17 +332,16 @@ namespace moris
                     tdchidxdu );
 
             // threshold deno (for consistency with derivative computation)
-            real tFv1Deno = tChi3 + tCv13;
-            tFv1Deno      = std::abs( tFv1Deno ) < mEpsilon ? mEpsilon : tFv1Deno;
+            real tFv1Deno = clip_value( tChi3 + tCv13, mEpsilon );
 
             if ( std::abs( tFv1Deno ) > mEpsilon )
             {
                 // threshold deno
-                real tFv1Deno3 = std::pow( tFv1Deno, 3.0 );
-                tFv1Deno3      = std::abs( tFv1Deno3 ) < mEpsilon ? mEpsilon : tFv1Deno3;
+                real tFv1Deno3 = clip_value( std::pow( tFv1Deno, 3.0 ), mEpsilon );
 
                 // compute dfv1dxdu
-                adfv1dxdu = 3.0 * mCv1 * ( 2.0 * tChi * ( tCv13 - 2.0 * tChi3 ) * tdchidx * tdchidu + tChi2 * ( tChi3 + tCv13 ) * tdchidxdu ) / tFv1Deno3;
+                adfv1dxdu =
+                        3.0 * mCv1 * ( 2.0 * tChi * ( tCv13 - 2.0 * tChi3 ) * tdchidx * tdchidu + tChi2 * ( tChi3 + tCv13 ) * tdchidxdu ) / tFv1Deno3;
             }
             else
             {

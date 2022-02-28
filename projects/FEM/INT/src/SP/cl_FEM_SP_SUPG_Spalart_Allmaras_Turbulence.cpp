@@ -1,4 +1,4 @@
-//FEM/INT/src
+// FEM/INT/src
 #include "cl_FEM_SP_SUPG_Spalart_Allmaras_Turbulence.hpp"
 #include "cl_FEM_Cluster.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
@@ -22,26 +22,64 @@ namespace moris
             mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
-            mConstitutiveMap[ "SpalartAllmarasTurbulence" ] = static_cast< uint >( IWG_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE );
+            mConstitutiveMap[ "SpalartAllmarasTurbulence" ] =
+                    static_cast< uint >( IWG_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE );
         }
 
         //------------------------------------------------------------------------------
 
-        void SP_SUPG_Spalart_Allmaras_Turbulence::set_dof_type_list(
-                moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
-                moris::Cell< std::string >                  & aDofStrings,
-                mtk::Master_Slave                             aIsMaster )
+        void
+        SP_SUPG_Spalart_Allmaras_Turbulence::set_parameters(
+                moris::Cell< Matrix< DDRMat > > aParameters )
+        {
+            // FIXME not necessary
+            // set mParameters
+            mParameters = aParameters;
+
+            // get number of parameters
+            uint tParamSize = aParameters.size();
+
+            // check for proper size of constant function parameters
+            MORIS_ERROR( tParamSize <= 2,
+                    "SP_SUPG_Spalart_Allmaras_Turbulence::set_parameters - max 2 constant parameters can to be set." );
+
+            // if exponent specification
+            if( tParamSize > 0 )
+            {
+                // set exponent
+                mExponent = aParameters( 0 )( 0 );
+            }
+
+            // if including reaction term specification
+            if( tParamSize > 1 )
+            {
+                // error unknown dof string
+                MORIS_ERROR( aParameters( 1 )( 0 ) == 0.0 || aParameters( 1 )( 0 ) == 1.0,
+                        "SP_SUPG_Spalart_Allmaras_Turbulence::set_parameters - invalid mHasReaction parameter \n" );
+
+                // set exponent
+                mHasReaction = aParameters( 1 )( 0 );
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        void
+        SP_SUPG_Spalart_Allmaras_Turbulence::set_dof_type_list(
+                moris::Cell< moris::Cell< MSI::Dof_Type > >& aDofTypes,
+                moris::Cell< std::string >&                  aDofStrings,
+                mtk::Master_Slave                            aIsMaster )
         {
             // switch on master slave
             switch ( aIsMaster )
             {
-                case mtk::Master_Slave::MASTER :
+                case mtk::Master_Slave::MASTER:
                 {
                     // set dof type list
                     mMasterDofTypes = aDofTypes;
 
                     // loop on dof type
-                    for( uint iDof = 0; iDof < aDofTypes.size(); iDof++ )
+                    for ( uint iDof = 0; iDof < aDofTypes.size(); iDof++ )
                     {
                         // get dof string
                         std::string tDofString = aDofStrings( iDof );
@@ -50,40 +88,42 @@ namespace moris
                         MSI::Dof_Type tDofType = aDofTypes( iDof )( 0 );
 
                         // if velocity
-                        if( tDofString == "Velocity" )
+                        if ( tDofString == "Velocity" )
                         {
                             mMasterDofVelocity = tDofType;
                         }
-                        else if( tDofString == "Viscosity" )
+                        else if ( tDofString == "Viscosity" )
                         {
                             mMasterDofViscosity = tDofType;
                         }
                         else
                         {
                             // error unknown dof string
-                            MORIS_ERROR( false ,
+                            MORIS_ERROR( false,
                                     "SP_SUPG_Spalart_Allmaras_Turbulence::set_dof_type_list - Unknown aDofString : %s \n",
                                     tDofString.c_str() );
                         }
                     }
                     break;
                 }
-
-                case mtk::Master_Slave::SLAVE :
+                case mtk::Master_Slave::SLAVE:
                 {
                     // set dof type list
                     mSlaveDofTypes = aDofTypes;
                     break;
                 }
-
                 default:
-                    MORIS_ERROR( false, "SP_SUPG_Spalart_Allmaras_Turbulence::set_dof_type_list - unknown master slave type." );
+                {
+                    MORIS_ERROR( false,
+                            "SP_SUPG_Spalart_Allmaras_Turbulence::set_dof_type_list - unknown master slave type." );
+                }
             }
         }
 
         //------------------------------------------------------------------------------
 
-        void SP_SUPG_Spalart_Allmaras_Turbulence::build_global_dof_type_list()
+        void
+        SP_SUPG_Spalart_Allmaras_Turbulence::build_global_dof_type_list()
         {
             // call parent implementation
             Stabilization_Parameter::build_global_dof_type_list();
@@ -100,13 +140,17 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void SP_SUPG_Spalart_Allmaras_Turbulence::set_function_pointers(){}
+        void
+        SP_SUPG_Spalart_Allmaras_Turbulence::set_function_pointers()
+        {
+        }
 
         //------------------------------------------------------------------------------
         /**
          * reset evaluation flags
          */
-        void SP_SUPG_Spalart_Allmaras_Turbulence::reset_eval_flags()
+        void
+        SP_SUPG_Spalart_Allmaras_Turbulence::reset_eval_flags()
         {
             // call parent implementation
             Stabilization_Parameter::reset_eval_flags();
@@ -118,32 +162,24 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void SP_SUPG_Spalart_Allmaras_Turbulence::eval_SP()
+        void
+        SP_SUPG_Spalart_Allmaras_Turbulence::eval_SP()
         {
             // set size for SP values
             mPPVal.set_size( 1, 1 );
 
-            // get the velocity FI
-            Field_Interpolator * tViscosityFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofViscosity );
-
-            // get the velocity FI
-            Field_Interpolator * tVelocityFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
-
             // get the SA turbulence CM
-            const std::shared_ptr< Constitutive_Model > & tCMSATurbulence =
+            const std::shared_ptr< Constitutive_Model >& tCMSATurbulence =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE ) );
 
             // compute the length scale
             real tHugn = this->length_scale();
 
             // compute uTilde = u - cb2/sigma gradv
-            Matrix< DDRMat > tModVelocity =
-                    tVelocityFI->val() - mCb2 * tViscosityFI->gradx( 1 ) / mSigma;
+            Matrix< DDRMat > tModVelocity = tCMSATurbulence->modified_velocity();
 
             // compute norm( uTilde ) and threshold tNormA (for consistency with derivative computation)
-            real tNormA = std::max( norm( tModVelocity ), mEpsilon);
+            real tNormA = std::max( norm( tModVelocity ), mEpsilon );
 
             // tau A
             real tTauA = 2.0 * tNormA / tHugn;
@@ -151,57 +187,56 @@ namespace moris
             // tau K
             real tTauK = 4.0 * tCMSATurbulence->diffusion_coefficient()( 0 ) / std::pow( tHugn, 2.0 );
 
-            // tau S
-            real tTauS =
-                    tCMSATurbulence->wall_destruction_coefficient()( 0 )
-                    - tCMSATurbulence->production_coefficient()( 0 );
-
             // evaluate tau
-            real tTau = std::pow( tTauA, 2 ) + std::pow( tTauK, 2 ) + std::pow( tTauS, 2 );
+            real tTau = std::pow( tTauA, mExponent ) + std::pow( tTauK, mExponent );
+
+            // if use reaction term
+            if( mHasReaction )
+            {
+                // compute tau S
+                real tTauS =
+                        tCMSATurbulence->wall_destruction_coefficient()( 0 )
+                        - tCMSATurbulence->production_coefficient()( 0 );
+
+                // add contribution of reaction term
+                tTau += std::pow( tTauS, mExponent );
+            }
 
             // threshold tau
             tTau = std::max( tTau, mEpsilon );
 
             // set tau
-            mPPVal = {{ std::pow( tTau, -0.5 ) }};
+            mPPVal = { { std::pow( tTau, -1.0 / mExponent ) } };
         }
 
         //------------------------------------------------------------------------------
 
-        void SP_SUPG_Spalart_Allmaras_Turbulence::eval_dSPdMasterDOF(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        void
+        SP_SUPG_Spalart_Allmaras_Turbulence::eval_dSPdMasterDOF(
+                const moris::Cell< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type index
             uint tDofIndex = mMasterGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
 
             // get the dof type FI
-            Field_Interpolator * tFI =
+            Field_Interpolator* tFI =
                     mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // set matrix size
             mdPPdMasterDof( tDofIndex ).set_size( 1, tFI->get_number_of_space_time_coefficients() );
 
-            // get the velocity FI
-            Field_Interpolator * tViscosityFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofViscosity );
-
-            // get the velocity FI
-            Field_Interpolator * tVelocityFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
-
             // get the SA turbulence CM
-            const std::shared_ptr< Constitutive_Model > & tCMSATurbulence =
+            const std::shared_ptr< Constitutive_Model >& tCMSATurbulence =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE ) );
 
             // compute the length scale
             real tHugn = this->length_scale();
 
             // evaluate uTilde = u - 1/sigma cb2 gradv
-            Matrix< DDRMat > tModVelocity =
-                    tVelocityFI->val() - mCb2 * tViscosityFI->gradx( 1 ) / mSigma;
+            Matrix< DDRMat > tModVelocity = tCMSATurbulence->modified_velocity();
 
             // compute norm( uTilde ) and threshold tNormA (for consistency with derivative computation)
-            real tNormA = std::max( norm( tModVelocity ), mEpsilon);
+            real tNormA = std::max( norm( tModVelocity ), mEpsilon );
 
             // tau A
             real tTauA = 2.0 * tNormA / tHugn;
@@ -209,59 +244,59 @@ namespace moris
             // tau K
             real tTauK = 4.0 * tCMSATurbulence->diffusion_coefficient()( 0 ) / std::pow( tHugn, 2.0 );
 
-            // tau S
-            real tTauS =
-                    tCMSATurbulence->wall_destruction_coefficient()( 0 ) -
-                    tCMSATurbulence->production_coefficient()( 0 );
-
             // evaluate tau
-            real tTau = std::max( std::pow( tTauA, 2 ) + std::pow( tTauK, 2 ) + std::pow( tTauS, 2 ), mEpsilon );
+            real tTau = std::pow( tTauA, mExponent ) + std::pow( tTauK, mExponent );
+
+            // if use reaction term
+            real tTauS = 0;
+            if( mHasReaction )
+            {
+                // compute tau S
+                tTauS =
+                        tCMSATurbulence->wall_destruction_coefficient()( 0 )
+                        - tCMSATurbulence->production_coefficient()( 0 );
+
+                // add contribution of reaction term
+                tTau += std::pow( tTauS, mExponent );
+            }
+
+            // threshold tau
+            tTau = std::max( tTau, mEpsilon );
 
             // compute dSPdu
             if ( tTau > mEpsilon )
             {
                 // add contribution from the length scale derivative
-                mdPPdMasterDof( tDofIndex ) = - this->dlengthscaledmasteru( aDofTypes ) *
-                        ( tTauA * 2.0 * tNormA / std::pow( tHugn, 2.0 ) +
-                          tTauK * 8.0 * tCMSATurbulence->diffusion_coefficient()( 0 )  / std::pow( tHugn, 3.0 ) );
-
-                // if normA greater than threshold
-                if( tNormA > mEpsilon )
-                {
-                    // if dof type is velocity
-                    if( aDofTypes( 0 ) == mMasterDofVelocity )
-                    {
-                        // add contribution to mdPPdMasterDof
-                        mdPPdMasterDof( tDofIndex ) += tTauA * 2.0 *
-                                trans( tModVelocity ) * tVelocityFI->N() /
-                                ( tHugn * tNormA );
-                    }
-                    // if dof type is viscosity
-                    else if( aDofTypes( 0 ) == mMasterDofViscosity )
-                    {
-                        // add contribution to mdPPdMasterDof
-                        mdPPdMasterDof( tDofIndex ) -= tTauA * 2.0 *
-                                mCb2 * trans( tModVelocity ) * tViscosityFI->dnNdxn( 1 ) / mSigma /
-                                ( tHugn * tNormA );
-                    }
-                }
+                mdPPdMasterDof( tDofIndex ) = - this->dlengthscaledmasteru( aDofTypes )
+                                            * ( std::pow( tTauA, mExponent - 1.0 ) * 2.0 * tNormA / std::pow( tHugn, 2.0 )
+                                                    + std::pow( tTauK, mExponent - 1.0 ) * 8.0 * tCMSATurbulence->diffusion_coefficient()( 0 ) / std::pow( tHugn, 3.0 ) );
 
                 // if turbulence CM depends on dof type
-                if( tCMSATurbulence->check_dof_dependency( aDofTypes ) )
+                if ( tCMSATurbulence->check_dof_dependency( aDofTypes ) )
                 {
+                    // if normA greater than threshold
+                    if ( tNormA > mEpsilon )
+                    {
+                        // add contribution to mdPPdMasterDof from modified velocity
+                        mdPPdMasterDof( tDofIndex ) +=
+                                std::pow( tTauA, mExponent - 1.0 ) * 2.0 * trans( tModVelocity ) * tCMSATurbulence->dmodvelocitydu( aDofTypes ) / ( tHugn * tNormA );
+                    }
+
                     // compute tdtauKdu
                     mdPPdMasterDof( tDofIndex ) +=
-                            tTauK * 4.0 * tCMSATurbulence->ddiffusioncoeffdu( aDofTypes ) /
-                            std::pow( tHugn, 2.0 );
+                            std::pow( tTauK, mExponent - 1.0 ) * 4.0 * tCMSATurbulence->ddiffusioncoeffdu( aDofTypes ) / std::pow( tHugn, 2.0 );
 
-                    // compute tdtauSdu
-                    mdPPdMasterDof( tDofIndex ) += tTauS * (
-                            tCMSATurbulence->dwalldestructioncoeffdu( aDofTypes )
-                            - tCMSATurbulence->dproductioncoeffdu( aDofTypes ) );
+                    // if use reaction term
+                    if( mHasReaction )
+                    {
+                        // compute tdtauSdu
+                        mdPPdMasterDof( tDofIndex ) +=
+                                std::pow( tTauS, mExponent - 1.0 ) * ( tCMSATurbulence->dwalldestructioncoeffdu( aDofTypes ) - tCMSATurbulence->dproductioncoeffdu( aDofTypes ) );
+                    }
                 }
 
                 // scale
-                mdPPdMasterDof( tDofIndex ) = - std::pow( tTau, -1.5 ) * mdPPdMasterDof( tDofIndex );
+                mdPPdMasterDof( tDofIndex ) = - std::pow( tTau, - ( mExponent + 1.0 ) / mExponent ) * mdPPdMasterDof( tDofIndex );
             }
             else
             {
@@ -271,10 +306,11 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        real SP_SUPG_Spalart_Allmaras_Turbulence::length_scale()
+        real
+        SP_SUPG_Spalart_Allmaras_Turbulence::length_scale()
         {
             // if the length scale parameter was not evaluated
-            if( mLengthScaleEval )
+            if ( mLengthScaleEval )
             {
                 // evaluate the length scale parameter
                 this->eval_length_scale();
@@ -286,42 +322,41 @@ namespace moris
             return mLengthScale;
         }
 
-        void SP_SUPG_Spalart_Allmaras_Turbulence::eval_length_scale()
+        void
+        SP_SUPG_Spalart_Allmaras_Turbulence::eval_length_scale()
         {
-            // get the velocity FI
-            Field_Interpolator * tViscosityFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofViscosity );
-
-            // get the velocity FI
-            Field_Interpolator * tVelocityFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
-
-            // compute uTilde = u - cb2/sigma gradv
-            Matrix< DDRMat > tModVelocity =
-                    tVelocityFI->val() - mCb2 * tViscosityFI->gradx( 1 ) / mSigma;
+            // get the SA turbulence CM
+            const std::shared_ptr< Constitutive_Model >& tCMSATurbulence =
+                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE ) );
 
             // compute and threshold the velocity norm (thresholding for consistency with derivatives)
-            const real tNorm = std::max( norm( tModVelocity ), mEpsilon );
+            const real tNorm = std::max( norm( tCMSATurbulence->modified_velocity() ), mEpsilon );
+
+            // get the velocity type FI
+            Field_Interpolator* tVelocityFI =
+                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
 
             // get the abs term
             const uint tNumNodes = tVelocityFI->dnNdxn( 1 ).n_cols();
-            real tAbs = 0.0;
+            real       tAbs      = 0.0;
+
             for ( uint iNode = 0; iNode < tNumNodes; iNode++ )
             {
-                tAbs += std::abs( dot( tModVelocity,tVelocityFI->dnNdxn( 1 ).get_column( iNode ) ) );
+                tAbs += std::abs( dot( tCMSATurbulence->modified_velocity(), tVelocityFI->dnNdxn( 1 ).get_column( iNode ) ) );
             }
 
             // threshold tAbs
             tAbs = std::max( tAbs, mEpsilon );
 
             // compute and threshold hugn
-            mLengthScale =  std::max( 2.0 * tNorm / tAbs, mEpsilon );
+            mLengthScale = std::max( 2.0 * tNorm / tAbs, mEpsilon );
         }
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & SP_SUPG_Spalart_Allmaras_Turbulence::dlengthscaledmasteru(
-                const moris::Cell< MSI::Dof_Type > & aDofType )
+        const Matrix< DDRMat >&
+        SP_SUPG_Spalart_Allmaras_Turbulence::dlengthscaledmasteru(
+                const moris::Cell< MSI::Dof_Type >& aDofType )
         {
             // if aDofType is not an active dof type for the property
             MORIS_ERROR(
@@ -332,7 +367,7 @@ namespace moris
             uint tDofIndex = mMasterGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
 
             // if the derivative has not been evaluated yet
-            if( mdLengthScaledMasterDofEval( tDofIndex ) )
+            if ( mdLengthScaledMasterDofEval( tDofIndex ) )
             {
                 // evaluate the derivative
                 this->eval_dlengthscaledmasteru( aDofType );
@@ -345,14 +380,15 @@ namespace moris
             return mdLengthScaledMasterDof( tDofIndex );
         }
 
-        void SP_SUPG_Spalart_Allmaras_Turbulence::eval_dlengthscaledmasteru(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        void
+        SP_SUPG_Spalart_Allmaras_Turbulence::eval_dlengthscaledmasteru(
+                const moris::Cell< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type index
             uint tDofIndex = mMasterGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
 
             // get the dof type FI
-            Field_Interpolator * tFIDer =
+            Field_Interpolator* tFIDer =
                     mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // set matrix size
@@ -364,41 +400,30 @@ namespace moris
             // compute derivative of hugn (compute only derivative if not thresholded)
             if ( tHugn > mEpsilon )
             {
-                // get the velocity FI
-                Field_Interpolator * tViscosityFI =
-                        mMasterFIManager->get_field_interpolators_for_type( mMasterDofViscosity );
+                // get the SA turbulence CM
+                const std::shared_ptr< Constitutive_Model >& tCMSATurbulence =
+                        mMasterCM( static_cast< uint >( IWG_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE ) );
 
                 // get the velocity FI
-                Field_Interpolator * tVelocityFI =
+                Field_Interpolator* tVelocityFI =
                         mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
 
-                // compute uTilde = u - cb2/sigma gradv
-                Matrix< DDRMat > tModVelocity =
-                        tVelocityFI->val() - mCb2 * tViscosityFI->gradx( 1 ) / mSigma;
-
                 // compute and threshold the velocity norm (thresholding for consistency with derivatives)
-                const real tNorm = std::max( norm( tModVelocity ), mEpsilon );
+                const real tNorm = std::max( norm( tCMSATurbulence->modified_velocity() ), mEpsilon );
 
                 // compute derivative of the modified velocity norm (compute only derivative if not thresholded)
                 Matrix< DDRMat > tdNormdu( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
-                if ( tNorm > mEpsilon )
+                if ( tNorm > mEpsilon && tCMSATurbulence->check_dof_dependency( aDofTypes ) )
                 {
-                    if( aDofTypes( 0 ) == mMasterDofVelocity )
-                    {
-                        tdNormdu += trans( tModVelocity ) * tVelocityFI->N() / tNorm;
-                    }
-                    else if( aDofTypes( 0 ) == mMasterDofViscosity )
-                    {
-                        tdNormdu -= mCb2 * trans( tModVelocity ) * tViscosityFI->dnNdxn( 1 ) / tNorm / mSigma;
-                    }
+                    tdNormdu += trans( tCMSATurbulence->modified_velocity() ) * tCMSATurbulence->dmodvelocitydu( aDofTypes ) / tNorm;
                 }
 
                 // get the abs term
                 const uint tNumNodes = tVelocityFI->dnNdxn( 1 ).n_cols();
-                real tAbs = 0.0;
+                real       tAbs      = 0.0;
                 for ( uint iNode = 0; iNode < tNumNodes; iNode++ )
                 {
-                    tAbs += std::abs( dot( tModVelocity,tVelocityFI->dnNdxn( 1 ).get_column( iNode ) ) );
+                    tAbs += std::abs( dot( tCMSATurbulence->modified_velocity(), tVelocityFI->dnNdxn( 1 ).get_column( iNode ) ) );
                 }
 
                 // threshold tAbs
@@ -406,38 +431,18 @@ namespace moris
 
                 // compute derivative of the abs term (compute only derivative if not thresholded)
                 Matrix< DDRMat > tdAbsdu( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
-                if ( tAbs > mEpsilon )
+                if ( tAbs > mEpsilon && tCMSATurbulence->check_dof_dependency( aDofTypes ) )
                 {
-                    if( aDofTypes( 0 ) == mMasterDofVelocity )
+                    uint tNumNodes = tVelocityFI->dnNdxn( 1 ).n_cols();
+                    for ( uint iNode = 0; iNode < tNumNodes; iNode++ )
                     {
-                        uint tNumNodes = tVelocityFI->dnNdxn( 1 ).n_cols();
-                        for ( uint iNode = 0; iNode < tNumNodes; iNode++ )
-                        {
-                            real tAdd = dot( tModVelocity,tVelocityFI->dnNdxn( 1 ).get_column( iNode ) );
+                        real tAdd = dot( tCMSATurbulence->modified_velocity(), tVelocityFI->dnNdxn( 1 ).get_column( iNode ) );
 
-                            // handle case that tAdd( 0, 0 ) is smaller than threshold
-                            if ( std::abs( tAdd ) > mEpsilon )
-                            {
-                                tdAbsdu +=
-                                        tAdd * trans( tVelocityFI->dnNdxn( 1 ).get_column( iNode ) ) *
-                                        tVelocityFI->N() / std::abs( tAdd );
-                            }
-                        }
-                    }
-                    else if( aDofTypes( 0 ) == mMasterDofViscosity )
-                    {
-                        uint tNumNodes = tVelocityFI->dnNdxn( 1 ).n_cols();
-                        for ( uint iNode = 0; iNode < tNumNodes; iNode++ )
+                        // handle case that tAdd is smaller than threshold
+                        if ( std::abs( tAdd ) > mEpsilon )
                         {
-                            real tAdd = dot( tModVelocity,tVelocityFI->dnNdxn( 1 ).get_column( iNode ) );
-
-                            // handle case that tAdd is smaller than threshold
-                            if ( std::abs( tAdd ) > mEpsilon )
-                            {
-                                tdAbsdu -=
-                                        tAdd * trans( tVelocityFI->dnNdxn( 1 ).get_column( iNode ) ) *
-                                        mCb2 * tViscosityFI->dnNdxn( 1 ) / std::abs( tAdd ) / mSigma;
-                            }
+                            tdAbsdu += tAdd * trans( tVelocityFI->dnNdxn( 1 ).get_column( iNode ) )
+                            * tCMSATurbulence->dmodvelocitydu( aDofTypes ) / std::abs( tAdd );
                         }
                     }
                 }
@@ -455,4 +460,3 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-

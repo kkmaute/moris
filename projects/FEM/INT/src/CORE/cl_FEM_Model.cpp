@@ -1197,6 +1197,13 @@ namespace fem
             // set CM space dimension
             tCM->set_space_dim( mSpaceDim );
 
+            // set function parameters
+            moris::Cell< moris::Matrix< DDRMat > > tFuncParameters;
+            string_to_cell_mat_2(
+                    tCMParameter.get< std::string >( "function_parameters" ),
+                    tFuncParameters );
+            tCM->set_parameters( tFuncParameters );
+
             // set CM dof dependencies
             moris::Cell< moris::Cell< moris::MSI::Dof_Type > > tDofTypes;
             string_to_cell_of_cell(

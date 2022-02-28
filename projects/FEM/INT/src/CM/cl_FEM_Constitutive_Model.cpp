@@ -143,6 +143,14 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        void Constitutive_Model::set_parameters( moris::Cell< Matrix< DDRMat > > aParameters )
+        {
+            // set parameters
+            mParameters = aParameters;
+        }
+
+        //------------------------------------------------------------------------------
+
         void Constitutive_Model::set_property(
                 std::shared_ptr< fem::Property > aProperty,
                 std::string                      aPropertyString )
