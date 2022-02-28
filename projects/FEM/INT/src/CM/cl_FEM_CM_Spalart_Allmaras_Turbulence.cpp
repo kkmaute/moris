@@ -43,6 +43,56 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
+        CM_Spalart_Allmaras_Turbulence::set_parameters(
+                moris::Cell< Matrix< DDRMat > > aParameters )
+        {
+            // FIXME not necessary
+            // set mParameters
+            mParameters = aParameters;
+
+            // get number of parameters
+            uint tParamSize = aParameters.size();
+
+            // check for proper size of constant function parameters
+            MORIS_ERROR( tParamSize <= 2,
+                    "CM_Spalart_Allmaras_Turbulence::set_parameters - max 2 constant parameters can to be set." );
+
+            // if ct3 specification
+            if( tParamSize > 0 )
+            {
+                // if ct3 == 0.0
+                if( aParameters( 0 )( 0 ) == 0.0 )
+                {
+                    // set ct3
+                    mCt3 = 0.0;
+                }
+                else
+                {
+                    // invalid ct3 value
+                    MORIS_LOG_INFO( "CM_Spalart_Allmaras_Turbulence::invalid ct3 value, ct3 set to 1.2 \n" );
+                }
+            }
+
+            // if alpha specification
+            if( tParamSize > 1 )
+            {
+                // if ct3 == 0.0
+                if( aParameters( 1 )( 0 ) >= 1.0 )
+                {
+                    // set ct3
+                    mAlpha = aParameters( 1 )( 0 );
+                }
+                else
+                {
+                    // invalid ct3 value
+                    MORIS_LOG_INFO( "CM_Spalart_Allmaras_Turbulence::invalid alpha value, alpha set to 1.0 \n" );
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        void
         CM_Spalart_Allmaras_Turbulence::set_local_properties()
         {
             // set the viscosity property
@@ -110,6 +160,8 @@ namespace moris
 
             mdDiffusionCoeffduEval.set_size( tNumGlobalDofTypes, 1, true );
 
+            mdModVelocityduEval.set_size( tNumGlobalDofTypes, 1, true );
+
             mdChiduEval.set_size( tNumGlobalDofTypes, 1, true );
 
             mdFt2duEval.set_size( tNumGlobalDofTypes, 1, true );
@@ -141,6 +193,8 @@ namespace moris
             mdWallDestructionTermdu.resize( tNumGlobalDofTypes );
 
             mdDiffusionCoeffdu.resize( tNumGlobalDofTypes );
+
+            mdModVelocitydu.resize( tNumGlobalDofTypes );
 
             mdChidu.resize( tNumGlobalDofTypes );
 
@@ -194,6 +248,9 @@ namespace moris
             mdDiffusionCoeffduEval.fill( true );
             mdDiffusionCoeffdxEval.fill( true );
             mdDiffusionCoeffdxduEval.fill( true );
+
+            mModVelocityEval = true;
+            mdModVelocityduEval.fill( true );
 
             mChiEval = true;
             mdChiduEval.fill( true );
@@ -513,9 +570,13 @@ namespace moris
             if ( tModViscosity >= 0.0 )
             {
                 // compute dproductiondu
-                mdProductionCoeffdu( tDofIndex ) =
-                        -mCb1 * this->stilde() * this->dft2du( aDofTypes )
-                        + mCb1 * ( 1 - this->ft2() ) * this->dstildedu( aDofTypes );
+                mdProductionCoeffdu( tDofIndex ) = mCb1 * ( 1 - this->ft2() ) * this->dstildedu( aDofTypes );
+
+                // if contribution from ft2
+                if( mCt3 > 0.0 )
+                {
+                    mdProductionCoeffdu( tDofIndex ) -= mCb1 * this->stilde() * this->dft2du( aDofTypes );
+                }
             }
             // if viscosity is negative
             else
@@ -697,7 +758,7 @@ namespace moris
             else
             {
                 // compute wall destruction coefficient
-                mWallDestructionCoeff = { { -mCw1 * tModViscosity / tWallDistance2 } };
+                mWallDestructionCoeff = { { -mCw1 * mAlpha * tModViscosity / tWallDistance2 } };
             }
         }
 
@@ -758,15 +819,25 @@ namespace moris
             if ( tModViscosity >= 0.0 )
             {
                 // add contribution to dwalldestructiondu
-                mdWallDestructionCoeffdu( tDofIndex ) =
-                        ( mCw1 * this->dfwdu( aDofTypes ) - mCb1 * this->dft2du( aDofTypes ) / std::pow( mKappa, 2.0 ) ) * tModViscosity / tWallDistance2;
+                mdWallDestructionCoeffdu( tDofIndex ) = mCw1 * this->dfwdu( aDofTypes ) * tModViscosity / tWallDistance2;
+
+                // if contribution from ft2
+                if( mCt3 > 0.0 )
+                {
+                    mdWallDestructionCoeffdu( tDofIndex ) -= mCb1 * this->dft2du( aDofTypes ) * tModViscosity / std::pow( mKappa, 2.0 ) / tWallDistance2;
+                }
 
                 // if derivative dof type is viscosity
                 if ( aDofTypes( 0 ) == mDofViscosity )
                 {
                     // add contribution to dwalldestructiondu
-                    mdWallDestructionCoeffdu( tDofIndex ) +=
-                            ( mCw1 * this->fw() - mCb1 * this->ft2() / std::pow( mKappa, 2.0 ) ) * tFIModViscosity->N() / tWallDistance2;
+                    mdWallDestructionCoeffdu( tDofIndex ) += mCw1 * this->fw() * tFIModViscosity->N() / tWallDistance2;
+
+                    // if contribution from ft2
+                    if( mCt3 > 0.0 )
+                    {
+                        mdWallDestructionCoeffdu( tDofIndex ) -= mCb1 * this->ft2() * tFIModViscosity->N() / std::pow( mKappa, 2.0 ) / tWallDistance2;
+                    }
                 }
 
                 // if wall distance depends on derivative dof type
@@ -776,9 +847,14 @@ namespace moris
                     real tWallDistance3 = std::max( std::pow( tWallDistance, 3.0 ), mEpsilon );
 
                     // add contribution to dwalldestructiondu
-                    mdWallDestructionCoeffdu( tDofIndex ) -=
-                            2.0 * ( mCw1 * this->fw() - mCb1 * this->ft2() / std::pow( mKappa, 2.0 ) )
-                            * std::pow( tModViscosity, 2.0 ) * mPropWallDistance->dPropdDOF( aDofTypes ) / tWallDistance3;
+                    mdWallDestructionCoeffdu( tDofIndex ) -= 2.0 * mCw1 * this->fw() * std::pow( tModViscosity, 2.0 ) * mPropWallDistance->dPropdDOF( aDofTypes ) / tWallDistance3;
+
+                    // if contribution from ft2
+                    if( mCt3 > 0.0 )
+                    {
+                        mdWallDestructionCoeffdu( tDofIndex ) +=
+                                2.0 * ( mCb1 * this->ft2() / std::pow( mKappa, 2.0 ) ) * std::pow( tModViscosity, 2.0 ) * mPropWallDistance->dPropdDOF( aDofTypes ) / tWallDistance3;
+                    }
                 }
             }
             // if viscosity is negative
@@ -789,7 +865,7 @@ namespace moris
                 {
                     // add contribution to dwalldestructiondu
                     mdWallDestructionCoeffdu( tDofIndex ) =
-                            -mCw1 * tFIModViscosity->N() / tWallDistance2;
+                            -mCw1 * mAlpha * tFIModViscosity->N() / tWallDistance2;
                 }
                 else
                 {
@@ -805,7 +881,7 @@ namespace moris
 
                     // add contribution to dwalldestructiondu
                     mdWallDestructionCoeffdu( tDofIndex ) +=
-                            2.0 * mCw1 * std::pow( tModViscosity, 2.0 ) * mPropWallDistance->dPropdDOF( aDofTypes ) / tWallDistance3;
+                            2.0 * mCw1 * mAlpha * std::pow( tModViscosity, 2.0 ) * mPropWallDistance->dPropdDOF( aDofTypes ) / tWallDistance3;
                 }
             }
 
@@ -1281,6 +1357,126 @@ namespace moris
 
             // return the derivative
             return mdDiffusionCoeffdxdu( aOrder - 1 )( tDofIndex );
+        }
+
+
+        //------------------------------------------------------------------------------
+
+        void
+        CM_Spalart_Allmaras_Turbulence::eval_modified_velocity()
+        {
+            // get the viscosity FI
+            Field_Interpolator* tFIModViscosity =
+                    mFIManager->get_field_interpolators_for_type( mDofViscosity );
+
+            // get the velocity FI
+            Field_Interpolator* tFIVelocity =
+                    mFIManager->get_field_interpolators_for_type( mDofVelocity );
+
+            // compute modified velocity
+            mModVelocity = tFIVelocity->val() - mCb2 * tFIModViscosity->gradx( 1 ) / mSigma;
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat >&
+        CM_Spalart_Allmaras_Turbulence::modified_velocity(
+                enum CM_Function_Type aCMFunctionType )
+        {
+            // check CM function type, base class only supports "DEFAULT"
+            MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,
+                    "CM_Spalart_Allmaras_Turbulence::modified_velocity - Only DEFAULT CM function type known in base class." );
+
+            // if the modified velocity was not evaluated
+            if ( mModVelocityEval )
+            {
+                // evaluate the modified velocity
+                this->eval_modified_velocity();
+
+                // set bool for evaluation
+                mModVelocityEval = false;
+            }
+            // return the modified velocity value
+            return mModVelocity;
+        }
+
+        //------------------------------------------------------------------------------
+
+        void
+        CM_Spalart_Allmaras_Turbulence::eval_dmodvelocitydu(
+                const moris::Cell< MSI::Dof_Type >& aDofTypes )
+        {
+            // get the dof type as a uint
+            uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
+
+            // get the dof type index
+            uint tDofIndex = mGlobalDofTypeMap( tDofType );
+
+            // get derivative dof type FI
+            Field_Interpolator* tFIDer =
+                    mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+            // initialize the matrix for dEffConddu
+            mdModVelocitydu( tDofIndex ).set_size( mSpaceDim, tFIDer->get_number_of_space_time_coefficients() );
+
+            // get the velocity FI
+            Field_Interpolator* tFIVelocity =
+                    mFIManager->get_field_interpolators_for_type( mDofVelocity );
+
+            // get the viscosity FI
+            Field_Interpolator* tFIModViscosity =
+                    mFIManager->get_field_interpolators_for_type( mDofViscosity );
+
+            // if dof type is velocity
+            if ( aDofTypes( 0 ) == mDofVelocity )
+            {
+                // add contribution to mdPPdMasterDof
+                mdModVelocitydu( tDofIndex ) = tFIVelocity->N();
+            }
+            // if dof type is viscosity
+            else if ( aDofTypes( 0 ) == mDofViscosity )
+            {
+                // add contribution to mdPPdMasterDof
+                mdModVelocitydu( tDofIndex ) = - mCb2 * tFIModViscosity->dnNdxn( 1 ) / mSigma;
+            }
+            else
+            {
+                mdModVelocitydu( tDofIndex ).fill( 0.0 );
+            }
+
+            MORIS_ASSERT( isfinite( mdModVelocitydu( tDofIndex ) ),
+                    "CM_Spalart_Allmaras_Turbulence::eval_dmodvelocitydu - mdModVelocitydu contains NAN or INF, exiting!" );
+        }
+
+        const Matrix< DDRMat >&
+        CM_Spalart_Allmaras_Turbulence::dmodvelocitydu(
+                const moris::Cell< MSI::Dof_Type >& aDofType,
+                enum CM_Function_Type               aCMFunctionType )
+        {
+            // check CM function type, base class only supports "DEFAULT"
+            MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,
+                    "CM_Spalart_Allmaras_Turbulence::dmodvelocitydu - Only DEFAULT CM function type known in base class." );
+
+            // if aDofType is not an active dof type for the CM
+            MORIS_ERROR(
+                    this->check_dof_dependency( aDofType ),
+                    "CM_Spalart_Allmaras_Turbulence::dmodvelocitydu - no dependency in this dof type." );
+
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
+
+            // if the derivative has not been evaluated yet
+            if ( mdModVelocityduEval( tDofIndex ) )
+            {
+                // evaluate the derivative
+                this->eval_dmodvelocitydu( aDofType );
+
+                // set bool for evaluation
+                mdModVelocityduEval( tDofIndex ) = false;
+            }
+
+            // return the derivative
+            return mdModVelocitydu( tDofIndex );
         }
 
         //--------------------------------------------------------------------------------------------------------------

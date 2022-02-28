@@ -47,6 +47,7 @@ namespace moris
             real mCv3   = 0.9;
             real mRLim  = 10.0;
             real mCn1   = 16.0;
+            real mAlpha = 1.0;
 
             // default dof type
             MSI::Dof_Type mDofVelocity  = MSI::Dof_Type::VX;
@@ -75,6 +76,9 @@ namespace moris
             moris::Matrix< DDBMat > mdDiffusionCoeffduEval;
             moris::Matrix< DDBMat > mdDiffusionCoeffdxEval;
             moris::Matrix< DDBMat > mdDiffusionCoeffdxduEval;
+
+            bool                    mModVelocityEval = true;
+            moris::Matrix< DDBMat > mdModVelocityduEval;
 
             bool                    mChiEval = true;
             moris::Matrix< DDBMat > mdChiduEval;
@@ -126,6 +130,9 @@ namespace moris
             moris::Cell< Matrix< DDRMat > >         mdDiffusionCoeffdu;
             moris::Cell< Matrix< DDRMat > >         mdDiffusionCoeffdx;
             moris::Cell< Cell< Matrix< DDRMat > > > mdDiffusionCoeffdxdu;
+
+            Matrix< DDRMat >                mModVelocity;
+            moris::Cell< Matrix< DDRMat > > mdModVelocitydu;
 
             // storage for chi
             moris::real                             mChi;
@@ -200,6 +207,13 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
+             * set parameters
+             * @param[ in ] aParameters a list of parameters
+             */
+            void set_parameters( moris::Cell< Matrix< DDRMat > > aParameters );
+
+            //------------------------------------------------------------------------------
+            /**
              * set constitutive model dof types
              * @param[ in ] aDofTypes a list of group of dof types
              * @param[ in ] aDofStrings a list of strings to describe the dof types
@@ -212,7 +226,7 @@ namespace moris
             /**
              * create a global dof type list including constitutive and property dependencies
              */
-            virtual void build_global_dof_type_list();
+            void build_global_dof_type_list();
 
             //------------------------------------------------------------------------------
             /**
@@ -366,6 +380,24 @@ namespace moris
              * @param[ out ] mdproductioncoeffdu derivative of the diffusion wrt dof types
              */
             const Matrix< DDRMat >& ddiffusioncoeffdu(
+                    const moris::Cell< MSI::Dof_Type >& aDofType,
+                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
+
+            /**
+             * get the modified velocity u_tilde = u - ( cb2 / sigma ) * dnu_tilde/dx
+             * @param[ in ]  aCMFunctionType enum for modified velocity if several
+             * @param[ out ] mModVelocity modified velocity
+             */
+            const Matrix< DDRMat >& modified_velocity(
+                    enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
+
+            /**
+             * get the derivative of the modified velocity wrt dof type
+             * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+             * @param[ in ] aCMFunctionType enum for specific type of which diffusion
+             * @param[ out ] mdmodvelocitydu derivative of the modified velocity wrt dof types
+             */
+            const Matrix< DDRMat >& dmodvelocitydu(
                     const moris::Cell< MSI::Dof_Type >& aDofType,
                     enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
 
@@ -580,6 +612,19 @@ namespace moris
                     const moris::Cell< MSI::Dof_Type >& aDofType,
                     uint                                aOrder,
                     enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
+
+            //------------------------------------------------------------------------------
+            /**
+             * evaluate the modified velocity
+             */
+            void eval_modified_velocity();
+
+            //------------------------------------------------------------------------------
+            /**
+             * evaluate the modified velocity derivative wrt to dof type
+             * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
+             */
+            void eval_dmodvelocitydu( const moris::Cell< MSI::Dof_Type >& aDofTypes );
 
             //------------------------------------------------------------------------------
             /**

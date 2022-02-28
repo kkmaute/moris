@@ -48,6 +48,9 @@ namespace moris
                 // fem set pointer
                 Set * mSet = nullptr;
 
+                // list of parameters
+                moris::Cell< Matrix< DDRMat > > mParameters;
+
                 // dof type list
                 moris::Cell< moris::Cell< MSI::Dof_Type > > mDofTypes;
 
@@ -266,6 +269,14 @@ namespace moris
                     // need to define this for every CM
                     return Constitutive_Type::UNDEFINED;
                 }
+
+                //------------------------------------------------------------------------------
+                /**
+                 * set parameters
+                 * @param[ in ] aParameters a list of parameters
+                 */
+                virtual
+                void set_parameters( moris::Cell< Matrix< DDRMat > > aParameters );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -1717,6 +1728,32 @@ namespace moris
                         enum CM_Function_Type                aCMFunctionType = CM_Function_Type::DEFAULT )
                 {
                     MORIS_ERROR( false, " Constitutive_Model::ddiffusioncoeffdu - This function does nothing. " );
+                    return mFlux;
+                }
+
+                /**
+                 * get the modified velocity u_tilde = u - ( cb2 / sigma ) * dnu_tilde/dx
+                 * @param[ in ]  aCMFunctionType enum for modified velocity if several
+                 * @param[ out ] mModVelocity modified velocity
+                 */
+                virtual const Matrix< DDRMat >& modified_velocity(
+                        enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT )
+                {
+                    MORIS_ERROR( false, " Constitutive_Model::modified_velocity - This function does nothing. " );
+                    return mFlux;
+                }
+
+                /**
+                 * get the derivative of the modified velocity wrt dof type
+                 * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+                 * @param[ in ] aCMFunctionType enum for specific type of which diffusion
+                 * @param[ out ] mdmodvelocitydu derivative of the modified velocity wrt dof types
+                 */
+                virtual const Matrix< DDRMat >& dmodvelocitydu(
+                        const moris::Cell< MSI::Dof_Type >& aDofType,
+                        enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT )
+                {
+                    MORIS_ERROR( false, " Constitutive_Model::dmodvelocitydu - This function does nothing. " );
                     return mFlux;
                 }
                 //------------------------------------------------------------------------------
