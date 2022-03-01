@@ -239,12 +239,13 @@ namespace moris
 
                     // get list of all vertices on IP cell associated with current cluster
                     moris::Cell< Vertex *> tIPVertices = tInterpolationCell.get_vertex_pointers();
-
+                    
                     // go through all IP vertices, build BSp - Lag map
                     for( uint iIpVert = 0; iIpVert < tIPVertices.size(); iIpVert++)
                     {
+                        // FIXME: this check needs to go back in when we have a method for checking whether a vertex has an associated interpolation
                         // check if current IP vertex is empty
-                        MORIS_ASSERT( tIPVertices( iIpVert )->has_interpolation( 0 ), "IP Vertex does not have a B-spline interpolation 0.");
+                        // MORIS_ASSERT( tIPVertices( iIpVert )->has_interpolation( 0 ), "IP Vertex does not have a B-spline interpolation 0.");
 
                         // get IP vertex ID
                         uint tIP_ID = tIPVertices( iIpVert )->get_id();

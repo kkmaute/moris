@@ -3889,7 +3889,9 @@ namespace moris
                 moris::Cell< Background_Element_Base * > tActiveElements( tNumActiveLagrangeElements, nullptr );
                 tBackgroundElement->collect_active_descendants( tLagrangePattern, tActiveElements, tNumActiveLagrangeElementsCheck );
 
-                MORIS_ASSERT( tNumActiveLagrangeElementsCheck == tNumActiveLagrangeElements, "Bla" );
+                // sanity check that the number of descendants in list matches number reported
+                MORIS_ASSERT( tNumActiveLagrangeElementsCheck == tNumActiveLagrangeElements, 
+                    "Lagrange_Mesh_Base::get_lagrange_elements_in_bspline_elements() - Number of Active descendants doesn't match list of descendants." );
 
                 // initialize output cell with correct size
                 aCells( iBspElem ).resize( tNumActiveLagrangeElements, nullptr );

@@ -255,9 +255,6 @@ namespace moris
 
                 return tMat;
             }
-            
-            // output T-matrices and MPCs if requested
-            this->output_T_matrices( tMTKPerformer, tXTKPerformer );
 
             //constrcut the data base with the mtk performer from xtk
             DataBase_Performer tDataBasePerformer = DataBase_Performer(tMTKPerformer);
@@ -269,11 +266,14 @@ namespace moris
             //perform the mtk data base 
              tDataBasePerformer.perform();
 
-            //delete the xtk
-            delete tXTKPerformer;
-
             //set the mtk performer
             mPerformerManager->mMTKPerformer( 1 ) = tMTKDataBasePerformer;
+
+            // output T-matrices and MPCs if requested
+            this->output_T_matrices( tMTKPerformer, tXTKPerformer );
+
+            //delete the xtk-performer
+            delete tXTKPerformer;
             
             // IMPORTANT!!! do not overwrite previous XTK  and MTK performer before we know if this XTK performer triggers a restart.
             // otherwise the fem::field meshes are deleted and cannot be used anymore.

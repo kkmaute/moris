@@ -87,7 +87,8 @@ namespace moris::mtk
     bool
     Vertex_DataBase::has_interpolation( const uint aBSplineMeshIndex )
     {
-        MORIS_ERROR( 0, "has_interpolation no implemneted in the Vertex_DataBase class" );
+        // FIXME: new method needed for this function
+        MORIS_ERROR( 0, "Vertex_DataBase::has_interpolation() - no implemneted in the Vertex_DataBase class" );
         return false;
     }
 
