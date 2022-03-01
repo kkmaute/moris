@@ -115,9 +115,7 @@ namespace moris
                 case IQI_Type::EFFECTIVE_CONDUCTIVITY :
                     return std::make_shared< IQI_Effective_Conductivity >();
                 case IQI_Type::SPALART_ALLMARAS_COEFFICIENT :
-                    //return std::make_shared< IQI_Spalart_Allmaras_Coefficient >();
-                    MORIS_ERROR( false, "IQI_Factory::create_IQI() - SPALART_ALLMARAS_COEFFICIENT causes linking error, not included for now." );
-                    return nullptr;
+                    return std::make_shared< IQI_Spalart_Allmaras_Coefficient >();
 
                 case IQI_Type::LATENT_HEAT_ABSORPTION :
                     return std::make_shared< IQI_Latent_Heat_Absorption >();
