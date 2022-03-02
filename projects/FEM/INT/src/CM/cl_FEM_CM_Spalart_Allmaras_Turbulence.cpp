@@ -58,10 +58,10 @@ namespace moris
                     "CM_Spalart_Allmaras_Turbulence::set_parameters - max 2 constant parameters can to be set." );
 
             // if ct3 specification
-            if( tParamSize > 0 )
+            if ( tParamSize > 0 )
             {
                 // if ct3 == 0.0
-                if( aParameters( 0 )( 0 ) == 0.0 )
+                if ( aParameters( 0 )( 0 ) == 0.0 )
                 {
                     // set ct3
                     mCt3 = 0.0;
@@ -74,10 +74,10 @@ namespace moris
             }
 
             // if alpha specification
-            if( tParamSize > 1 )
+            if ( tParamSize > 1 )
             {
                 // if ct3 == 0.0
-                if( aParameters( 1 )( 0 ) >= 1.0 )
+                if ( aParameters( 1 )( 0 ) >= 1.0 )
                 {
                     // set ct3
                     mAlpha = aParameters( 1 )( 0 );
@@ -162,6 +162,8 @@ namespace moris
 
             mdModVelocityduEval.set_size( tNumGlobalDofTypes, 1, true );
 
+            mdModVelocityLinearizedduEval.set_size( tNumGlobalDofTypes, 1, true );
+
             mdChiduEval.set_size( tNumGlobalDofTypes, 1, true );
 
             mdFt2duEval.set_size( tNumGlobalDofTypes, 1, true );
@@ -195,6 +197,8 @@ namespace moris
             mdDiffusionCoeffdu.resize( tNumGlobalDofTypes );
 
             mdModVelocitydu.resize( tNumGlobalDofTypes );
+
+            mdModVelocityLinearizeddu.resize( tNumGlobalDofTypes );
 
             mdChidu.resize( tNumGlobalDofTypes );
 
@@ -251,6 +255,9 @@ namespace moris
 
             mModVelocityEval = true;
             mdModVelocityduEval.fill( true );
+
+            mModVelocityLinearizedEval = true;
+            mdModVelocityLinearizedduEval.fill( true );
 
             mChiEval = true;
             mdChiduEval.fill( true );
@@ -573,7 +580,7 @@ namespace moris
                 mdProductionCoeffdu( tDofIndex ) = mCb1 * ( 1 - this->ft2() ) * this->dstildedu( aDofTypes );
 
                 // if contribution from ft2
-                if( mCt3 > 0.0 )
+                if ( mCt3 > 0.0 )
                 {
                     mdProductionCoeffdu( tDofIndex ) -= mCb1 * this->stilde() * this->dft2du( aDofTypes );
                 }
@@ -822,7 +829,7 @@ namespace moris
                 mdWallDestructionCoeffdu( tDofIndex ) = mCw1 * this->dfwdu( aDofTypes ) * tModViscosity / tWallDistance2;
 
                 // if contribution from ft2
-                if( mCt3 > 0.0 )
+                if ( mCt3 > 0.0 )
                 {
                     mdWallDestructionCoeffdu( tDofIndex ) -= mCb1 * this->dft2du( aDofTypes ) * tModViscosity / std::pow( mKappa, 2.0 ) / tWallDistance2;
                 }
@@ -834,7 +841,7 @@ namespace moris
                     mdWallDestructionCoeffdu( tDofIndex ) += mCw1 * this->fw() * tFIModViscosity->N() / tWallDistance2;
 
                     // if contribution from ft2
-                    if( mCt3 > 0.0 )
+                    if ( mCt3 > 0.0 )
                     {
                         mdWallDestructionCoeffdu( tDofIndex ) -= mCb1 * this->ft2() * tFIModViscosity->N() / std::pow( mKappa, 2.0 ) / tWallDistance2;
                     }
@@ -850,7 +857,7 @@ namespace moris
                     mdWallDestructionCoeffdu( tDofIndex ) -= 2.0 * mCw1 * this->fw() * std::pow( tModViscosity, 2.0 ) * mPropWallDistance->dPropdDOF( aDofTypes ) / tWallDistance3;
 
                     // if contribution from ft2
-                    if( mCt3 > 0.0 )
+                    if ( mCt3 > 0.0 )
                     {
                         mdWallDestructionCoeffdu( tDofIndex ) +=
                                 2.0 * ( mCb1 * this->ft2() / std::pow( mKappa, 2.0 ) ) * std::pow( tModViscosity, 2.0 ) * mPropWallDistance->dPropdDOF( aDofTypes ) / tWallDistance3;
@@ -1437,7 +1444,7 @@ namespace moris
             else if ( aDofTypes( 0 ) == mDofViscosity )
             {
                 // add contribution to mdPPdMasterDof
-                mdModVelocitydu( tDofIndex ) = - mCb2 * tFIModViscosity->dnNdxn( 1 ) / mSigma;
+                mdModVelocitydu( tDofIndex ) = -mCb2 * tFIModViscosity->dnNdxn( 1 ) / mSigma;
             }
             else
             {
@@ -1477,6 +1484,125 @@ namespace moris
 
             // return the derivative
             return mdModVelocitydu( tDofIndex );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void
+        CM_Spalart_Allmaras_Turbulence::eval_modified_velocity_linearized()
+        {
+            // get the viscosity FI
+            Field_Interpolator* tFIModViscosity =
+                    mFIManager->get_field_interpolators_for_type( mDofViscosity );
+
+            // get the velocity FI
+            Field_Interpolator* tFIVelocity =
+                    mFIManager->get_field_interpolators_for_type( mDofVelocity );
+
+            // compute modified velocity
+            mModVelocityLinearized = tFIVelocity->val() - 2.0 * mCb2 * tFIModViscosity->gradx( 1 ) / mSigma;
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat >&
+        CM_Spalart_Allmaras_Turbulence::modified_velocity_linearized(
+                enum CM_Function_Type aCMFunctionType )
+        {
+            // check CM function type, base class only supports "DEFAULT"
+            MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,
+                    "CM_Spalart_Allmaras_Turbulence::modified_velocity_linearized - Only DEFAULT CM function type known in base class." );
+
+            // if the modified velocity was not evaluated
+            if ( mModVelocityLinearizedEval )
+            {
+                // evaluate the modified velocity
+                this->eval_modified_velocity_linearized();
+
+                // set bool for evaluation
+                mModVelocityLinearizedEval = false;
+            }
+            // return the modified velocity value
+            return mModVelocityLinearized;
+        }
+
+        //------------------------------------------------------------------------------
+
+        void
+        CM_Spalart_Allmaras_Turbulence::eval_dmodvelocitylinearizeddu(
+                const moris::Cell< MSI::Dof_Type >& aDofTypes )
+        {
+            // get the dof type as a uint
+            uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
+
+            // get the dof type index
+            uint tDofIndex = mGlobalDofTypeMap( tDofType );
+
+            // get derivative dof type FI
+            Field_Interpolator* tFIDer =
+                    mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+            // initialize the matrix for dEffConddu
+            mdModVelocityLinearizeddu( tDofIndex ).set_size( mSpaceDim, tFIDer->get_number_of_space_time_coefficients() );
+
+            // get the velocity FI
+            Field_Interpolator* tFIVelocity =
+                    mFIManager->get_field_interpolators_for_type( mDofVelocity );
+
+            // get the viscosity FI
+            Field_Interpolator* tFIModViscosity =
+                    mFIManager->get_field_interpolators_for_type( mDofViscosity );
+
+            // if dof type is velocity
+            if ( aDofTypes( 0 ) == mDofVelocity )
+            {
+                // add contribution to mdPPdMasterDof
+                mdModVelocityLinearizeddu( tDofIndex ) = tFIVelocity->N();
+            }
+            // if dof type is viscosity
+            else if ( aDofTypes( 0 ) == mDofViscosity )
+            {
+                // add contribution to mdPPdMasterDof
+                mdModVelocityLinearizeddu( tDofIndex ) = -2.0 * mCb2 * tFIModViscosity->dnNdxn( 1 ) / mSigma;
+            }
+            else
+            {
+                mdModVelocityLinearizeddu( tDofIndex ).fill( 0.0 );
+            }
+
+            MORIS_ASSERT( isfinite( mdModVelocitydu( tDofIndex ) ),
+                    "CM_Spalart_Allmaras_Turbulence::eval_dmodvelocitylinearizeddu - mdModVelocitydu contains NAN or INF, exiting!" );
+        }
+
+        const Matrix< DDRMat >&
+        CM_Spalart_Allmaras_Turbulence::dmodvelocitylinearizeddu(
+                const moris::Cell< MSI::Dof_Type >& aDofType,
+                enum CM_Function_Type               aCMFunctionType )
+        {
+            // check CM function type, base class only supports "DEFAULT"
+            MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,
+                    "CM_Spalart_Allmaras_Turbulence::dmodvelocitylinearizeddu - Only DEFAULT CM function type known in base class." );
+
+            // if aDofType is not an active dof type for the CM
+            MORIS_ERROR(
+                    this->check_dof_dependency( aDofType ),
+                    "CM_Spalart_Allmaras_Turbulence::dmodvelocitylinearizeddu - no dependency in this dof type." );
+
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
+
+            // if the derivative has not been evaluated yet
+            if ( mdModVelocityLinearizedduEval( tDofIndex ) )
+            {
+                // evaluate the derivative
+                this->eval_dmodvelocitylinearizeddu( aDofType );
+
+                // set bool for evaluation
+                mdModVelocityLinearizedduEval( tDofIndex ) = false;
+            }
+
+            // return the derivative
+            return mdModVelocityLinearizeddu( tDofIndex );
         }
 
         //--------------------------------------------------------------------------------------------------------------

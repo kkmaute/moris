@@ -80,6 +80,9 @@ namespace moris
             bool                    mModVelocityEval = true;
             moris::Matrix< DDBMat > mdModVelocityduEval;
 
+            bool                    mModVelocityLinearizedEval = true;
+            moris::Matrix< DDBMat > mdModVelocityLinearizedduEval;
+
             bool                    mChiEval = true;
             moris::Matrix< DDBMat > mdChiduEval;
             moris::Matrix< DDBMat > mdChidxEval;
@@ -133,6 +136,9 @@ namespace moris
 
             Matrix< DDRMat >                mModVelocity;
             moris::Cell< Matrix< DDRMat > > mdModVelocitydu;
+
+            Matrix< DDRMat >                mModVelocityLinearized;
+            moris::Cell< Matrix< DDRMat > > mdModVelocityLinearizeddu;
 
             // storage for chi
             moris::real                             mChi;
@@ -401,6 +407,24 @@ namespace moris
                     const moris::Cell< MSI::Dof_Type >& aDofType,
                     enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
 
+            /**
+             * get the linearized version of modified velocity u_tilde = u - ( cb2 / sigma ) * dnu_tilde/dx
+             * @param[ in ]  aCMFunctionType enum for modified velocity if several
+             * @param[ out ] mModVelocity modified velocity
+             */
+            const Matrix< DDRMat >& modified_velocity_linearized(
+                    enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
+
+            /**
+             * get the derivative of the linearized version of the modified velocity wrt dof type
+             * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+             * @param[ in ] aCMFunctionType enum for specific type of which diffusion
+             * @param[ out ] mdmodvelocitydu derivative of the modified velocity wrt dof types
+             */
+            const Matrix< DDRMat >& dmodvelocitylinearizeddu(
+                    const moris::Cell< MSI::Dof_Type >& aDofType,
+                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
+
             //--------------------------------------------------------------------------------------------------------------
 
           private:
@@ -625,6 +649,19 @@ namespace moris
              * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
              */
             void eval_dmodvelocitydu( const moris::Cell< MSI::Dof_Type >& aDofTypes );
+
+            //------------------------------------------------------------------------------
+            /**
+             * evaluate the modified velocity
+             */
+            void eval_modified_velocity_linearized();
+
+            //------------------------------------------------------------------------------
+            /**
+             * evaluate the modified velocity derivative wrt to dof type
+             * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
+             */
+            void eval_dmodvelocitylinearizeddu( const moris::Cell< MSI::Dof_Type >& aDofTypes );
 
             //------------------------------------------------------------------------------
             /**
