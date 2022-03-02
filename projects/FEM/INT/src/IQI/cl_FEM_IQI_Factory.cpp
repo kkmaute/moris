@@ -7,7 +7,7 @@
 
 #include <memory>
 #include "assert.hpp"
-//FEM/INT/src
+// FEM/INT/src
 #include "cl_FEM_IQI_Factory.hpp"
 #include "cl_FEM_IQI_Volume.hpp"
 #include "cl_FEM_IQI_Strain_Energy.hpp"
@@ -45,90 +45,91 @@ namespace moris
     namespace fem
     {
         //------------------------------------------------------------------------------
-        std::shared_ptr< IQI > IQI_Factory::create_IQI( IQI_Type aIQIType )
+        std::shared_ptr< IQI >
+        IQI_Factory::create_IQI( IQI_Type aIQIType )
         {
-            switch( aIQIType )
+            switch ( aIQIType )
             {
-                case IQI_Type::DOF :
+                case IQI_Type::DOF:
                     return std::make_shared< IQI_Dof >();
 
-                case IQI_Type::MAX_DOF :
+                case IQI_Type::MAX_DOF:
                     return std::make_shared< IQI_Max_Dof >();
 
-                case IQI_Type::PROPERTY :
+                case IQI_Type::PROPERTY:
                     return std::make_shared< IQI_Property >();
 
-                case IQI_Type::STABILIZATION :
-                	return std::make_shared< IQI_Stabilization >();
+                case IQI_Type::STABILIZATION:
+                    return std::make_shared< IQI_Stabilization >();
 
-                case IQI_Type::VOLUME :
+                case IQI_Type::VOLUME:
                     return std::make_shared< IQI_Volume >();
 
-                case IQI_Type::VOLUME_FRACTION :
+                case IQI_Type::VOLUME_FRACTION:
                     return std::make_shared< IQI_Volume_Fraction >();
 
-                case IQI_Type::STRAIN_ENERGY :
+                case IQI_Type::STRAIN_ENERGY:
                     return std::make_shared< IQI_Strain_Energy >();
 
-                case IQI_Type::NORMAL_STRESS :
+                case IQI_Type::NORMAL_STRESS:
                     return std::make_shared< IQI_Stress >( Stress_Type::NORMAL_STRESS );
-                case IQI_Type::SHEAR_STRESS :
+                case IQI_Type::SHEAR_STRESS:
                     return std::make_shared< IQI_Stress >( Stress_Type::SHEAR_STRESS );
-                case IQI_Type::VON_MISES_STRESS :
+                case IQI_Type::VON_MISES_STRESS:
                     return std::make_shared< IQI_Stress >( Stress_Type::VON_MISES_STRESS );
-                case IQI_Type::PRINCIPAL_STRESS :
+                case IQI_Type::PRINCIPAL_STRESS:
                     return std::make_shared< IQI_Stress >( Stress_Type::PRINCIPAL_STRESS );
-                case IQI_Type::STRESS_VECTOR :
+                case IQI_Type::STRESS_VECTOR:
                     return std::make_shared< IQI_Stress >( Stress_Type::STRESS_VECTOR );
 
-                case IQI_Type::MAX_NORMAL_STRESS :
+                case IQI_Type::MAX_NORMAL_STRESS:
                     return std::make_shared< IQI_Max_Stress >( Stress_Type::NORMAL_STRESS );
-                case IQI_Type::MAX_SHEAR_STRESS :
+                case IQI_Type::MAX_SHEAR_STRESS:
                     return std::make_shared< IQI_Max_Stress >( Stress_Type::SHEAR_STRESS );
-                case IQI_Type::MAX_VON_MISES_STRESS :
+                case IQI_Type::MAX_VON_MISES_STRESS:
                     return std::make_shared< IQI_Max_Stress >( Stress_Type::VON_MISES_STRESS );
-                case IQI_Type::MAX_PRINCIPAL_STRESS :
+                case IQI_Type::MAX_PRINCIPAL_STRESS:
                     return std::make_shared< IQI_Max_Stress >( Stress_Type::PRINCIPAL_STRESS );
 
-                case IQI_Type::L2_ERROR_ANALYTIC :
+                case IQI_Type::L2_ERROR_ANALYTIC:
                     return std::make_shared< IQI_L2_Error_Analytic >();
 
-                case IQI_Type::H1_ERROR_ANALYTIC :
+                case IQI_Type::H1_ERROR_ANALYTIC:
                     return std::make_shared< IQI_H1_Error_Analytic >();
 
-                case IQI_Type::H1_ERROR :
+                case IQI_Type::H1_ERROR:
                     return std::make_shared< IQI_H1_Error >();
 
-                case IQI_Type::J_INTEGRAL :
+                case IQI_Type::J_INTEGRAL:
                     return std::make_shared< IQI_J_Integral >();
 
-                case IQI_Type::DRAG_COEFF :
+                case IQI_Type::DRAG_COEFF:
                     return std::make_shared< IQI_Drag_Lift_Coefficient >( 1 );
 
-                case IQI_Type::LIFT_COEFF :
+                case IQI_Type::LIFT_COEFF:
                     return std::make_shared< IQI_Drag_Lift_Coefficient >( -1 );
 
-                case IQI_Type::TURBULENT_DYNAMIC_VISCOSITY :
+                case IQI_Type::TURBULENT_DYNAMIC_VISCOSITY:
                     return std::make_shared< IQI_Turbulent_Dynamic_Viscosity >();
-                case IQI_Type::EFFECTIVE_DYNAMIC_VISCOSITY :
+                case IQI_Type::EFFECTIVE_DYNAMIC_VISCOSITY:
                     return std::make_shared< IQI_Effective_Dynamic_Viscosity >();
-                case IQI_Type::EFFECTIVE_CONDUCTIVITY :
+                case IQI_Type::EFFECTIVE_CONDUCTIVITY:
                     return std::make_shared< IQI_Effective_Conductivity >();
-                case IQI_Type::SPALART_ALLMARAS_COEFFICIENT :
+                case IQI_Type::SPALART_ALLMARAS_COEFFICIENT:
                     return std::make_shared< IQI_Spalart_Allmaras_Coefficient >();
 
-                case IQI_Type::LATENT_HEAT_ABSORPTION :
+                case IQI_Type::LATENT_HEAT_ABSORPTION:
                     return std::make_shared< IQI_Latent_Heat_Absorption >();
 
-                case IQI_Type::TOTAL_PRESSURE :
+                case IQI_Type::TOTAL_PRESSURE:
                     return std::make_shared< IQI_Total_Pressure >();
 
-                case IQI_Type::MASS_FLOW :
+                case IQI_Type::MASS_FLOW:
                     return std::make_shared< IQI_Mass_Flow >();
 
-                case IQI_Type::THERMAL_ENERGY_CONVECTIVE_FLUX :
+                case IQI_Type::THERMAL_ENERGY_CONVECTIVE_FLUX:
                     return std::make_shared< IQI_Thermal_Energy_Convective_Flux >();
-                case IQI_Type::THERMAL_ENERGY_DIFFUSIVE_FLUX :
+                case IQI_Type::THERMAL_ENERGY_DIFFUSIVE_FLUX:
                     return std::make_shared< IQI_Thermal_Energy_Diffusive_Flux >();
                 case IQI_Type::HOMOGENIZED_CONSTITUTIVE:
                     return std::make_shared< IQI_Homogenized_Constitutive >();
@@ -157,4 +158,3 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-
