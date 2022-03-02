@@ -152,7 +152,7 @@ namespace moris
                                             * ( tCMSATurbulence->diffusion_coefficient()( 0 ) * tFIViscosity->dnNdxn( 1 )
                                                     + tModVelocityDer * tSPSUPG->val()( 0 ) * tR( 0 ) ) );
                 }
-                
+
                 // if velocity dof type
                 // FIXME protect dof type
                 else if ( tDofType( 0 ) == MSI::Dof_Type::VX )
@@ -244,6 +244,9 @@ namespace moris
             // compute strong form of residual
             aR = tFIViscosity->gradt( 1 ) + trans( tModVelocity ) * tFIViscosity->gradx( 1 ) - tCMSATurbulence->production_term()
                + tCMSATurbulence->wall_destruction_term() - tCMSATurbulence->divflux();
+
+            MORIS_ASSERT( isfinite( aR ),
+                    "IWG_Spalart_Allmaras_Turbulence_Bulk::compute_residual_strong_form - Residual contains NAN or INF, exiting!" );
         }
 
         //------------------------------------------------------------------------------
@@ -295,6 +298,9 @@ namespace moris
                     + tCMSATurbulence->dwalldestructiontermdu( aDofTypes )
                     - tCMSATurbulence->ddivfluxdu( aDofTypes );
             }
+
+            MORIS_ASSERT( isfinite( aJ ),
+                    "IWG_Spalart_Allmaras_Turbulence_Bulk::compute_jacobian_strong_form - Residual contains NAN or INF, exiting!" );
         }
 
         //------------------------------------------------------------------------------
