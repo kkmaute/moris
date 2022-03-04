@@ -1037,8 +1037,11 @@ namespace moris::mig
             this->generate_identifier( tSideClusters1, tPairCount, mBackgroundCellToSideClusterMap1( tPairCount ) );
             this->generate_identifier( tSideClusters2, tPairCount, mBackgroundCellToSideClusterMap2( tPairCount ) );
 
-            for ( const auto &[iIJK, iClusterIndices] : mBackgroundCellToSideClusterMap1( iCounter ) )
+            for ( const auto & tKeyValue : mBackgroundCellToSideClusterMap1( iCounter ) )
             {
+                auto iIJK = tKeyValue.first;
+                auto iClusterIndices = tKeyValue.second;
+
                 tNumDoubleSidedClusters += iClusterIndices.size() * mBackgroundCellToSideClusterMap2( iCounter )[iIJK].size();
             }
 
