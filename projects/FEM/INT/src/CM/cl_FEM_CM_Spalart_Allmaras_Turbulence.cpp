@@ -1607,7 +1607,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        const real
+        real
         CM_Spalart_Allmaras_Turbulence::chi(
                 enum CM_Function_Type aCMFunctionType )
         {
@@ -1741,7 +1741,7 @@ namespace moris
             mFt2 = mCt3 * std::exp( -mCt4 * std::pow( this->chi(), 2.0 ) );
         }
 
-        const real
+        real
         CM_Spalart_Allmaras_Turbulence::ft2(
                 enum CM_Function_Type aCMFunctionType )
         {
@@ -2013,7 +2013,7 @@ namespace moris
             mS = std::max( mS, mEpsilon );
         }
 
-        const real
+        real
         CM_Spalart_Allmaras_Turbulence::s(
                 enum CM_Function_Type aCMFunctionType )
         {
@@ -2096,7 +2096,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        const real
+        real
         CM_Spalart_Allmaras_Turbulence::fv1(
                 enum CM_Function_Type aCMFunctionType )
         {
@@ -2168,7 +2168,7 @@ namespace moris
             mFv2 = 1.0 - this->chi() / tDeno;
         }
 
-        const real
+        real
         CM_Spalart_Allmaras_Turbulence::fv2(
                 enum CM_Function_Type aCMFunctionType )
         {
@@ -2275,7 +2275,7 @@ namespace moris
             mSBar = this->fv2() * tFIViscosity->val()( 0 ) / tDeno;
         }
 
-        const real
+        real
         CM_Spalart_Allmaras_Turbulence::sbar(
                 enum CM_Function_Type aCMFunctionType )
         {
@@ -2392,7 +2392,7 @@ namespace moris
             mSMod = this->s() * ( std::pow( mCv2, 2 ) * this->s() + mCv3 * this->sbar() ) / tDeno;
         }
 
-        const real
+        real
         CM_Spalart_Allmaras_Turbulence::smod(
                 enum CM_Function_Type aCMFunctionType )
         {
@@ -2507,7 +2507,7 @@ namespace moris
             }
         }
 
-        const real
+        real
         CM_Spalart_Allmaras_Turbulence::stilde(
                 enum CM_Function_Type aCMFunctionType )
         {
@@ -2617,7 +2617,7 @@ namespace moris
             mR = std::min( mR, mRLim );
         }
 
-        const real
+        real
         CM_Spalart_Allmaras_Turbulence::r(
                 enum CM_Function_Type aCMFunctionType )
         {
@@ -2751,7 +2751,7 @@ namespace moris
             mG = this->r() + mCw2 * ( std::pow( this->r(), 6.0 ) - this->r() );
         }
 
-        const real
+        real
         CM_Spalart_Allmaras_Turbulence::g(
                 enum CM_Function_Type aCMFunctionType )
         {
@@ -2840,7 +2840,7 @@ namespace moris
             mFw = this->g() * std::pow( mFw, 1.0 / 6.0 );
         }
 
-        const real
+        real
         CM_Spalart_Allmaras_Turbulence::fw(
                 enum CM_Function_Type aCMFunctionType )
         {
@@ -2939,7 +2939,7 @@ namespace moris
             mFn = ( mCn1 + std::pow( this->chi(), 3.0 ) ) / tFnDeno;
         }
 
-        const real
+        real
         CM_Spalart_Allmaras_Turbulence::fn(
                 enum CM_Function_Type aCMFunctionType )
         {

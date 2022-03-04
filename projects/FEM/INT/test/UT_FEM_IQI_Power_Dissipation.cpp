@@ -221,7 +221,6 @@ TEST_CASE( "IQI_Power_Dissipation","[moris],[fem],[IQI_Power_Dissipation]" )
             // get number of dof per type
             int tNumDofVel  = tNumCoeff * iSpaceDim;
             int tNumDofP    = tNumCoeff;
-            int tNumDofTEMP = tNumCoeff;
 
             //create a space time interpolation rule
             mtk::Interpolation_Rule tFIRule ( tGeometryType,

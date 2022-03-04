@@ -669,7 +669,7 @@ namespace moris
              * @param[ in ]  aCMFunctionType enum indicating which function if several
              * @param[ out ] mChi chi
              */
-            const real chi(
+            real chi(
                     enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
             /**
@@ -715,7 +715,7 @@ namespace moris
              * @param[ in ]  aCMFunctionType enum indicating which function if several
              * @param[ out ] mFt2 ft2
              */
-            const real ft2(
+            real ft2(
                     enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
             /**
@@ -777,7 +777,7 @@ namespace moris
              *               if there are several
              * @param[ out ] mS S
              */
-            const real s(
+            real s(
                     enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
             /**
@@ -802,7 +802,7 @@ namespace moris
              * @param[ in ]  aCMFunctionType enum for specific type of fv2
              * @param[ out ] mFv1 fv1
              */
-            const real fv1(
+            real fv1(
                     enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
             /**
@@ -826,7 +826,7 @@ namespace moris
              * @param[ in ]  aCMFunctionType enum for specific type of fv2
              * @param[ out ] mFv2 fv2
              */
-            const real fv2(
+            real fv2(
                     enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
             /**
@@ -856,7 +856,7 @@ namespace moris
              * @param[ in ]  aCMFunctionType  enum indicating which S if several
              * @param[ out ] mSbar sbar
              */
-            const real sbar(
+            real sbar(
                     enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
             /**
@@ -886,7 +886,7 @@ namespace moris
              * @param[ in ]  aCMFunctionType enum for specific type of SMod
              * @param[ out ] mSMod SMod
              */
-            const real smod(
+            real smod(
                     enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
             /**
@@ -917,7 +917,7 @@ namespace moris
              * @param[ in ]  aCMFunctionType enum for specific type of SMod
              * @param[ out ] mSTilde STilde
              */
-            const real stilde(
+            real stilde(
                     enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
             /**
@@ -947,7 +947,7 @@ namespace moris
              * @param[ in ]  aCMFunctionType enum for specific type of SMod
              * @param[ out ] mR R
              */
-            const real r(
+            real r(
                     enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
             /**
@@ -977,7 +977,7 @@ namespace moris
              * @param[ in ]  aCMFunctionType enum for specific type of SMod
              * @param[ out ] mG g
              */
-            const real g(
+            real g(
                     enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
             /**
@@ -1007,7 +1007,7 @@ namespace moris
              * @param[ in ]  aCMFunctionType enum for specific type of SMod
              * @param[ out ] mFw fw
              */
-            const real fw(
+            real fw(
                     enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
             /**
@@ -1038,7 +1038,7 @@ namespace moris
              * @param[ in ]  aCMFunctionType enum for specific type of fn
              * @param[ out ] mFn fn
              */
-            const real fn(
+            real fn(
                     enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
             /**

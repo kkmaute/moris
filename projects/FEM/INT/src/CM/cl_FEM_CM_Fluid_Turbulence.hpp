@@ -403,7 +403,7 @@ namespace moris
                  * @param[ in ]  aCMFunctionType enum indicating which function if several
                  * @param[ out ] mChi chi
                  */
-                const real chi(
+                real chi(
                         enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
                 /**
@@ -444,7 +444,7 @@ namespace moris
                  * @param[ in ]  aCMFunctionType enum for specific type of fv2
                  * @param[ out ] mFv1 fv1
                  */
-                const real fv1(
+                real fv1(
                         enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
                 /**
