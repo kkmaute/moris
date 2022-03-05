@@ -113,7 +113,7 @@ namespace xtk
             moris::Cell< moris::Cell< moris_index > > mSubphaseGroupBGBasisIndices; // input: SPG index || output: list of non-enriched BF indices active on given subphase group
             moris::Cell< moris::Cell< moris_index > > mSubphaseGroupBGBasisEnrLev; // input: SPG index || output: list of enrichment levels for the respective BFs active on the given subphase group
 
-            // total number of basis enrichment levels (all basis functions)
+            // total number of basis enrichment levels (i.e. number of enriched Basis functions)
             moris::uint mNumEnrichmentLevels;
 
             // Vertex interpolations for this enrichment ordered by background vertex index
@@ -264,6 +264,12 @@ namespace xtk
 
             // enrichment strategy data (outer cell - mesh index, inner cell - necessary data for enrichment of mesh index)
             Cell< Enrichment_Data > mEnrichmentData;
+
+            // Number of enrichment levels on a given IP cell
+            moris::Cell< uint > mNumUnzippingsOnIpCell; // input: IP-cell index || output: number of enr. IP-cells and clusters to be created 
+
+            // indices of enriched IP cells as a function of the base IP cell and the local SPG index
+            moris::Cell< moris::Cell< moris_index > > mEnrIpCellIndices; // input: IP cell index, local SPG index || output: index of enr. IP cell
 
             // flag whether to sort basis enrichment levels
             bool mSortBasisEnrichmentLevels;
@@ -583,6 +589,16 @@ namespace xtk
              */
             uint
             maximum_number_of_unzippings_for_IP_cell( moris_index aIpCellIndex );
+
+            // ----------------------------------------------------------------------------------
+
+            /**
+             * @brief finds SPs within an IP element that are also within the same SPG
+             * 
+             * @param aMeshIndex index of the B-spline mesh to be treated
+             */
+            void
+            establish_IP_SPG_SP_relationship( const moris_index aMeshIndex );
 
             // ----------------------------------------------------------------------------------
 

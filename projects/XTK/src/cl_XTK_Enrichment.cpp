@@ -470,6 +470,10 @@ namespace xtk
                     tMaxEnrichmentLevel );
 
             MORIS_LOG_SPEC( "Num Enriched Basis", mEnrichmentData( tMeshIndex ).mNumEnrichmentLevels );
+
+            // find the SPs within one IP cell that are also within the same SPG 
+            // NOTE: this is needed for cluster construction later; also needs to be repeated for every Mesh index, hence it's here
+            this->establish_IP_SPG_SP_relationship( tMeshIndex );
         }
 
 // FIXME: enriched IP cells not parallel consistent yet
@@ -1768,10 +1772,33 @@ namespace xtk
         // initialize counter tracking the number of enriched IP cells that need to be created
         uint tEnrIpCellCounter = 0;
 
+        // get number of IP cells
+        uint tNumIpElems = mBackgroundMeshPtr->get_num_elems();
+
+        // initialize list storing number each IP cell needs to be unzipped
+        mNumUnzippingsOnIpCell.resize( tNumIpElems );
+        mEnrIpCellIndices.resize( tNumIpElems );
+
         // loop to obtain the number of max possible number of enr. IP cells
-        for ( moris::size_t iIpCell = 0; iIpCell < mBackgroundMeshPtr->get_num_elems(); iIpCell++)
+        for ( moris::size_t iIpCell = 0; iIpCell < tNumIpElems; iIpCell++)
         {
-            tEnrIpCellCounter += this->maximum_number_of_unzippings_for_IP_cell( iIpCell );
+            // get number of times this IP cell needs to be unzipped
+            uint tNumEnrLvlsOnIpCell = this->maximum_number_of_unzippings_for_IP_cell( iIpCell );
+
+            // store it in list
+            mNumUnzippingsOnIpCell( iIpCell ) = tNumEnrLvlsOnIpCell;
+
+            // correct size for list of enr. IP cell indices on current Ip cell
+            mEnrIpCellIndices( iIpCell ).resize( tNumEnrLvlsOnIpCell );
+
+            for ( moris::uint iEnrLvl = 0; iEnrLvl < tNumEnrLvlsOnIpCell; iEnrLvl++)
+            {
+                // fill map relating IP-cell index and local enr. lvl to the index of the resulting enr. IP cell
+                mEnrIpCellIndices( iIpCell )( iEnrLvl ) = (moris_index) tEnrIpCellCounter;
+
+                // count total number of enr. IP cells
+                tEnrIpCellCounter ++;
+            } 
         }
         
         // there is one interpolation cell per subphase
@@ -1826,6 +1853,87 @@ namespace xtk
     }
 
     //-------------------------------------------------------------------------------------
+
+    void
+    Enrichment::establish_IP_SPG_SP_relationship( const moris_index aMeshIndex )
+    {
+        // log/trace this function
+        Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Establish relationship between IP cells, SPGs and SPs for mesh index " + std::to_string( aMeshIndex ) );
+
+        // get the pointer to the current B-spline mesh info
+        Bspline_Mesh_Info* tBsplineMeshInfo = mBsplineMeshInfos( this->get_list_index_for_mesh_index( aMeshIndex ) );
+
+        // initialize IP-cell to SP map with correct size
+        tBsplineMeshInfo->mExtractionCellToSubPhase.resize( tBsplineMeshInfo->mExtractionCellToBsplineCell.size() );
+
+        // get the number of active B-spline elements
+        uint tNumBspElems = tBsplineMeshInfo->mExtractionCellsIndicesInBsplineCells.size();
+        
+        // sorting algorithm for every B-spline element
+        for( uint iBspElem = 0; iBspElem < tNumBspElems; iBspElem++ )
+        {
+            // initialize map of all SPs on BSp element
+            IndexMap tSpToIpElem;
+
+            // get number of IP cells in current B-spline element
+            uint tNumIpCellsInBsplineElement = tBsplineMeshInfo->mExtractionCellsIndicesInBsplineCells( iBspElem ).size();
+
+            // get the number of SPGs present on the current B-spline cell
+            uint tNumSPGs = tBsplineMeshInfo->mSPGsIndicesInBsplineCells( iBspElem ).size();
+
+            // for every IP cell in current B-spline element ...
+            for ( uint iIpCell = 0; iIpCell < tNumIpCellsInBsplineElement; iIpCell++)
+            {
+                // get current IP cell's index
+                moris_index tIpCellIndex = tBsplineMeshInfo->mExtractionCellsIndicesInBsplineCells( iBspElem )( iIpCell );
+
+                // initialize the map storing the subphases in it
+                tBsplineMeshInfo->mExtractionCellToSubPhase( tIpCellIndex ).resize( tNumSPGs );
+
+                // get the SPs on the current element
+                moris::Cell< moris_index > const & tSubphaseIndicesOnLagElem = mCutIgMesh->get_parent_cell_subphases( tIpCellIndex );
+
+                // populate the SP to IP-cell map
+                for ( uint iSpOnIpCell = 0; iSpOnIpCell < tSubphaseIndicesOnLagElem.size(); iSpOnIpCell++ )
+                {
+                    // add SP to the map
+                    tSpToIpElem[tSubphaseIndicesOnLagElem( iSpOnIpCell )] = tIpCellIndex;
+                }
+            }
+
+            // go through SPGs on B-spline cell
+            for ( uint iSPG = 0; iSPG < tNumSPGs; iSPG++ )
+            {
+                // get the index of the SPG
+                moris_index tSpgIndex = tBsplineMeshInfo->mSPGsIndicesInBsplineCells( iBspElem )( iSPG );
+
+                // get the list of SPs on the current SPG
+                const moris::Cell< moris_index > & tSPsInSPG = tBsplineMeshInfo->mSubphaseGroups( tSpgIndex )->get_SP_indices_in_group(); 
+
+                // loop over SPs on current SPG and find which element they correspond to
+                for ( uint iSpInSPG = 0; iSpInSPG < tSPsInSPG.size(); iSpInSPG++ )
+                {
+                    // get the SP's index
+                    moris_index tSpIndex = tSPsInSPG( iSpInSPG );
+
+                    // find the IP cell the SP lives in
+                    auto tIter = tSpToIpElem.find( tSpIndex );
+
+                    // check that the SP is actually found in one of the IP cells
+                    MORIS_ASSERT( tIter != tSpToIpElem.end(), 
+                        "Integration_Mesh_Generator::establish_IP_SPG_SP_relationship() - SP not found in any IP cell within B-spline element" );
+
+                    // get the index of the IP cell SP is found in
+                    moris_index tIpCellIndex = tIter->second;
+
+                    // add the IP-cell -- SPG -- SP relation ship to the corresponding map
+                    tBsplineMeshInfo->mExtractionCellToSubPhase( tIpCellIndex )( iSPG ).push_back( tSpIndex );
+                }
+            } // end: loop over all SPGs on B-spline element
+        } // end: loop over all B-spline elements
+    } // end: function
+
+    // ----------------------------------------------------------------------------------
 
     void
     Enrichment::construct_enriched_interpolation_vertices_and_cells()
@@ -2076,6 +2184,7 @@ namespace xtk
                     Cell< moris_index > const & tBasisInSpg = mEnrichmentData( tMeshIndex ).mSubphaseGroupBGBasisIndices( tSpgIndex );
 
                     // construct a map between non-enriched BF index and index relative to the subphase cluster
+                    // NOTE: the function is indifferent to whether it's operating on SPs or SPGS
                     std::unordered_map< moris_id, moris_id > tCellBasisMap = construct_subphase_basis_to_basis_map( tBasisInSpg );
 
                     // get the enrichment levels of the BFs that are/need to be used for the interpolation in the current subphase
@@ -2083,6 +2192,10 @@ namespace xtk
 
                     // get the T-matrix of the current IP node wrt the current B-spline mesh
                     moris::Cell< mtk::Vertex_Interpolation* > tVertexInterpolations = this->get_vertex_interpolations( *tIpCell, tMeshIndex );
+
+                    // sanity check that number of T-matrices matches number of nodes
+                    MORIS_ASSERT( tVertexInterpolations.size() == tNumVertices, 
+                        "Enrichment::construct_enriched_interpolation_vertices_and_cells_new() -  number of T-matrices on cell and number of Nodes don't match up." );
 
                     // construct unzipped enriched vertices
                     for ( uint iIpCellVertex = 0; iIpCellVertex < tNumVertices; iIpCellVertex++ )
@@ -2092,6 +2205,7 @@ namespace xtk
 
                         // find out the enriched BF indices and IDs interpolating into the current vertex 
                         // and store it in the Vertex_Enrichment object
+                        // NOTE: the function is indifferent to whether it's operating on SPs or SPGS
                         this->construct_enriched_vertex_interpolation(
                                 tMeshIndex,
                                 tVertexInterpolations( iIpCellVertex ),
@@ -2103,25 +2217,25 @@ namespace xtk
                         bool tNewVertFlag = false;
                         moris_index tVertEnrichIndex = tEnrInterpMesh->add_vertex_enrichment(
                                 tMeshIndex,
-                                tVertices( iIpCellVertex ),
+                                tVertices( iIpCellVertex ), // feed non-enriched Vertex 
                                 tVertEnrichment,
                                 tNewVertFlag );
 
                         // create this vertex on the first go around
                         // Note: the Interpolation_Vertex_Unzipped (IVU) carries a list of vertex enrichments, each VE corresponds to one mesh index
-                        // note though, that the IVU is still created for all subphase group associdated with every IP cell
+                        // note though, that the IVU is still created for all subphase groups associdated with every IP cell
                         if ( iBspMesh == 0 )
                         {
                             // Create interpolation vertex with only the first Vertex enrichment
                             tEnrInterpMesh->mEnrichedInterpVerts( tVertexCount ) =
                                     new Interpolation_Vertex_Unzipped(
-                                            tVertices( iIpCellVertex ),
-                                            tVertId,
-                                            tVertexCount,
-                                            tVertices( iIpCellVertex )->get_owner(),
-                                            tMeshIndex,
-                                            tEnrInterpMesh->get_vertex_enrichment( tMeshIndex, tVertEnrichIndex ),
-                                            tMaxMeshIndex );
+                                            tVertices( iIpCellVertex ),              // non-enriched IP vertices
+                                            tVertId,                                 // current IP vertex' ID  
+                                            tVertexCount,                            // index for enriched IP vertex
+                                            tVertices( iIpCellVertex )->get_owner(), // owning proc                // NOTE: the two inputs below are only for initialization, not final information
+                                            tMeshIndex,                                                            // current DMI
+                                            tEnrInterpMesh->get_vertex_enrichment( tMeshIndex, tVertEnrichIndex ), // T-matrix
+                                            tMaxMeshIndex );                         // maximum DMI 
 
                             // store enriched vertex's index for given parent cell index and element local node index 
                             tEnrInterpCellToVertex( tCellIndex, iIpCellVertex ) = tVertexCount;
@@ -2156,7 +2270,7 @@ namespace xtk
                         tEnrInterpMesh->mEnrichedInterpCells( tCellIndex ) =
                                 new Interpolation_Cell_Unzipped(
                                         tIpCell,
-                                        tSpgIndex,
+                                        tSpgIndex, // TODO: Does this need alternative initialization info?
                                         tBulkPhase,
                                         tCellID,
                                         tCellIndex,
@@ -2170,6 +2284,10 @@ namespace xtk
                         // increment the cell index/id
                         tCellIndex++;
                     }
+
+// TODO:
+
+
                 } // end: loop over SPGs associated with IP cell
             } // end: loop over IP cells on mesh
         } // end: loop over DMIs
