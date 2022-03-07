@@ -89,6 +89,13 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
+                 * set space dimension
+                 * @param[ in ] aSpaceDim a spatial dimension
+                 */
+                void set_space_dim( uint aSpaceDim );
+
+                //------------------------------------------------------------------------------
+                /**
                  * set function pointers for evaluation
                  */
                 void set_function_pointers();
