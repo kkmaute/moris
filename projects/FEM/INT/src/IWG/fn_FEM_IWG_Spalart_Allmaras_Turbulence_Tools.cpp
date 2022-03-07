@@ -10,10 +10,10 @@ namespace moris
     namespace fem
     {
         // Spalart Allmaras model constants
-        real mCv1 = 7.1;
+        const real mCv1 = 7.1;
 
-        real mEpsilon = 1e-10;    // needs to be consistent with threshold set in
-                                  // cl_FEM_CM_Spalart_Allmaras_Turbulence.hpp
+        const real mEpsilon = 1e-10;    // needs to be consistent with threshold set in
+                                        // cl_FEM_CM_Spalart_Allmaras_Turbulence.cpp
 
         //------------------------------------------------------------------------------
 
