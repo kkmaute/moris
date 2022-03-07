@@ -57,36 +57,34 @@ namespace moris
             MORIS_ERROR( tParamSize <= 2,
                     "CM_Spalart_Allmaras_Turbulence::set_parameters - max 2 constant parameters can to be set." );
 
-            // if ct3 specification
+            // flag turning on/off ft2
             if ( tParamSize > 0 )
             {
-                // if ct3 == 0.0
-                if ( aParameters( 0 )( 0 ) == 0.0 )
-                {
-                    // set ct3
-                    mCt3 = 0.0;
-                }
-                else
-                {
-                    // invalid ct3 value
-                    MORIS_LOG_INFO( "CM_Spalart_Allmaras_Turbulence::invalid ct3 value, ct3 set to 1.2 \n" );
-                }
+                // check for proper parameter type; here just a scalar
+                MORIS_ERROR( aParameters( 0 ).numel() == 1,
+                        "CM_Spalart_Allmaras_Turbulence::set_parameters - 1st parameter is not a scalar but a vector." );
+
+                // check for proper parameter value
+                MORIS_ERROR( aParameters( 0 )( 0 ) == 0.0 || aParameters( 0 )( 0 ) == 1.0,
+                        "CM_Spalart_Allmaras_Turbulence::set_parameters - invalid mUseFt2 parameter \n" );
+
+                // consider or not ft2 value
+                mUseFt2 = aParameters( 0 )( 0 ) > 0 ? true : false;
             }
 
             // if alpha specification
             if ( tParamSize > 1 )
             {
-                // if ct3 == 0.0
-                if ( aParameters( 1 )( 0 ) >= 1.0 )
-                {
-                    // set ct3
-                    mAlpha = aParameters( 1 )( 0 );
-                }
-                else
-                {
-                    // invalid ct3 value
-                    MORIS_LOG_INFO( "CM_Spalart_Allmaras_Turbulence::invalid alpha value, alpha set to 1.0 \n" );
-                }
+                // check for proper parameter type; here just a scalar
+                MORIS_ERROR( aParameters( 1 ).numel() == 1,
+                        "CM_Spalart_Allmaras_Turbulence::set_parameters - 2nd parameter is not a scalar but a vector." );
+
+                // check for proper parameter value
+                MORIS_ERROR( aParameters( 1 )( 0 ) >= 1.0,
+                        "CM_Spalart_Allmaras_Turbulence::set_parameters - invalid mUseFt2 parameter." );
+
+                // set alpha value
+                mAlpha = aParameters( 1 )( 0 );
             }
         }
 
@@ -577,10 +575,10 @@ namespace moris
             if ( tModViscosity >= 0.0 )
             {
                 // compute dproductiondu
-                mdProductionCoeffdu( tDofIndex ) = mCb1 * ( 1 - this->ft2() ) * this->dstildedu( aDofTypes );
+                mdProductionCoeffdu( tDofIndex ) = mCb1 * ( 1.0 - this->ft2() ) * this->dstildedu( aDofTypes );
 
                 // if contribution from ft2
-                if ( mCt3 > 0.0 )
+                if ( mUseFt2 )
                 {
                     mdProductionCoeffdu( tDofIndex ) -= mCb1 * this->stilde() * this->dft2du( aDofTypes );
                 }
@@ -829,7 +827,7 @@ namespace moris
                 mdWallDestructionCoeffdu( tDofIndex ) = mCw1 * this->dfwdu( aDofTypes ) * tModViscosity / tWallDistance2;
 
                 // if contribution from ft2
-                if ( mCt3 > 0.0 )
+                if ( mUseFt2 )
                 {
                     mdWallDestructionCoeffdu( tDofIndex ) -= mCb1 * this->dft2du( aDofTypes ) * tModViscosity / std::pow( mKappa, 2.0 ) / tWallDistance2;
                 }
@@ -841,7 +839,7 @@ namespace moris
                     mdWallDestructionCoeffdu( tDofIndex ) += mCw1 * this->fw() * tFIModViscosity->N() / tWallDistance2;
 
                     // if contribution from ft2
-                    if ( mCt3 > 0.0 )
+                    if ( mUseFt2 )
                     {
                         mdWallDestructionCoeffdu( tDofIndex ) -= mCb1 * this->ft2() * tFIModViscosity->N() / std::pow( mKappa, 2.0 ) / tWallDistance2;
                     }
@@ -857,7 +855,7 @@ namespace moris
                     mdWallDestructionCoeffdu( tDofIndex ) -= 2.0 * mCw1 * this->fw() * std::pow( tModViscosity, 2.0 ) * mPropWallDistance->dPropdDOF( aDofTypes ) / tWallDistance3;
 
                     // if contribution from ft2
-                    if ( mCt3 > 0.0 )
+                    if ( mUseFt2 )
                     {
                         mdWallDestructionCoeffdu( tDofIndex ) +=
                                 2.0 * ( mCb1 * this->ft2() / std::pow( mKappa, 2.0 ) ) * std::pow( tModViscosity, 2.0 ) * mPropWallDistance->dPropdDOF( aDofTypes ) / tWallDistance3;
@@ -1607,7 +1605,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        const real
+        real
         CM_Spalart_Allmaras_Turbulence::chi(
                 enum CM_Function_Type aCMFunctionType )
         {
@@ -1738,10 +1736,17 @@ namespace moris
         CM_Spalart_Allmaras_Turbulence::eval_ft2()
         {
             // compute ft2
-            mFt2 = mCt3 * std::exp( -mCt4 * std::pow( this->chi(), 2.0 ) );
+            if ( mUseFt2 )
+            {
+                mFt2 = mCt3 * std::exp( -mCt4 * std::pow( this->chi(), 2.0 ) );
+            }
+            else
+            {
+                mFt2 = 0.0;
+            }
         }
 
-        const real
+        real
         CM_Spalart_Allmaras_Turbulence::ft2(
                 enum CM_Function_Type aCMFunctionType )
         {
@@ -1766,6 +1771,10 @@ namespace moris
         CM_Spalart_Allmaras_Turbulence::eval_dft2du(
                 const moris::Cell< MSI::Dof_Type >& aDofTypes )
         {
+            // check that function is only called if ft2 is considered
+            MORIS_ERROR( mUseFt2,
+                    "CM_Spalart_Allmaras_Turbulence::eval_dft2du - function is called although mUseFt2 is false." );
+
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
 
@@ -1791,6 +1800,10 @@ namespace moris
                 const moris::Cell< MSI::Dof_Type >& aDofType,
                 enum CM_Function_Type               aCMFunctionType )
         {
+            // check that function is only called if ft2 is considered
+            MORIS_ERROR( mUseFt2,
+                    "CM_Spalart_Allmaras_Turbulence::dft2du - function is called although mUseFt2 is false." );
+
             // check CM function type, base class only supports "DEFAULT"
             MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,
                     "CM_Spalart_Allmaras_Turbulence::dft2du - Only DEFAULT CM function type known in base class." );
@@ -2013,7 +2026,7 @@ namespace moris
             mS = std::max( mS, mEpsilon );
         }
 
-        const real
+        real
         CM_Spalart_Allmaras_Turbulence::s(
                 enum CM_Function_Type aCMFunctionType )
         {
@@ -2096,7 +2109,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        const real
+        real
         CM_Spalart_Allmaras_Turbulence::fv1(
                 enum CM_Function_Type aCMFunctionType )
         {
@@ -2168,7 +2181,7 @@ namespace moris
             mFv2 = 1.0 - this->chi() / tDeno;
         }
 
-        const real
+        real
         CM_Spalart_Allmaras_Turbulence::fv2(
                 enum CM_Function_Type aCMFunctionType )
         {
@@ -2275,7 +2288,7 @@ namespace moris
             mSBar = this->fv2() * tFIViscosity->val()( 0 ) / tDeno;
         }
 
-        const real
+        real
         CM_Spalart_Allmaras_Turbulence::sbar(
                 enum CM_Function_Type aCMFunctionType )
         {
@@ -2392,7 +2405,7 @@ namespace moris
             mSMod = this->s() * ( std::pow( mCv2, 2 ) * this->s() + mCv3 * this->sbar() ) / tDeno;
         }
 
-        const real
+        real
         CM_Spalart_Allmaras_Turbulence::smod(
                 enum CM_Function_Type aCMFunctionType )
         {
@@ -2507,7 +2520,7 @@ namespace moris
             }
         }
 
-        const real
+        real
         CM_Spalart_Allmaras_Turbulence::stilde(
                 enum CM_Function_Type aCMFunctionType )
         {
@@ -2617,7 +2630,7 @@ namespace moris
             mR = std::min( mR, mRLim );
         }
 
-        const real
+        real
         CM_Spalart_Allmaras_Turbulence::r(
                 enum CM_Function_Type aCMFunctionType )
         {
@@ -2751,7 +2764,7 @@ namespace moris
             mG = this->r() + mCw2 * ( std::pow( this->r(), 6.0 ) - this->r() );
         }
 
-        const real
+        real
         CM_Spalart_Allmaras_Turbulence::g(
                 enum CM_Function_Type aCMFunctionType )
         {
@@ -2840,7 +2853,7 @@ namespace moris
             mFw = this->g() * std::pow( mFw, 1.0 / 6.0 );
         }
 
-        const real
+        real
         CM_Spalart_Allmaras_Turbulence::fw(
                 enum CM_Function_Type aCMFunctionType )
         {
@@ -2939,7 +2952,7 @@ namespace moris
             mFn = ( mCn1 + std::pow( this->chi(), 3.0 ) ) / tFnDeno;
         }
 
-        const real
+        real
         CM_Spalart_Allmaras_Turbulence::fn(
                 enum CM_Function_Type aCMFunctionType )
         {

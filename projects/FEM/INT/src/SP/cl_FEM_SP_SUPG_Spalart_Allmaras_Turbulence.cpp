@@ -46,6 +46,9 @@ namespace moris
             // if exponent specification
             if ( tParamSize > 0 )
             {
+                MORIS_ERROR( aParameters( 0 ).numel() == 1,
+                        "SP_SUPG_Spalart_Allmaras_Turbulence::set_parameters - 1st parameter is not a scalar but a vector." );
+
                 // set exponent
                 mExponent = aParameters( 0 )( 0 );
             }
@@ -53,11 +56,15 @@ namespace moris
             // if including reaction term specification
             if ( tParamSize > 1 )
             {
-                // error unknown dof string
+                // check for proper parameter type; here just a scalar
+                MORIS_ERROR( aParameters( 1 ).numel() == 1,
+                        "SP_SUPG_Spalart_Allmaras_Turbulence::set_parameters - 2nd parameter is not a scalar but a vector." );
+
+                // check for proper parameter value
                 MORIS_ERROR( aParameters( 1 )( 0 ) == 0.0 || aParameters( 1 )( 0 ) == 1.0,
                         "SP_SUPG_Spalart_Allmaras_Turbulence::set_parameters - invalid mHasReaction parameter \n" );
 
-                // set exponent
+                // consider or not reaction term
                 mHasReaction = aParameters( 1 )( 0 ) > 0 ? true : false;
             }
         }

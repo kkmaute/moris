@@ -1096,7 +1096,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        const real CM_Diffusion_Linear_Isotropic_Turbulence::chi(
+        real CM_Diffusion_Linear_Isotropic_Turbulence::chi(
                 enum CM_Function_Type aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -1219,7 +1219,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        const real CM_Diffusion_Linear_Isotropic_Turbulence::fv1(
+        real CM_Diffusion_Linear_Isotropic_Turbulence::fv1(
                 enum CM_Function_Type aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"

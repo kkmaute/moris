@@ -988,7 +988,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        const real CM_Fluid_Turbulence::chi(
+        real CM_Fluid_Turbulence::chi(
                 enum CM_Function_Type aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -1111,7 +1111,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        const real CM_Fluid_Turbulence::fv1(
+        real CM_Fluid_Turbulence::fv1(
                 enum CM_Function_Type aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"

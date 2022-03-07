@@ -30,7 +30,7 @@ TEST_CASE( "CM_Diff_Lin_Iso_Turbulence", "[CM_Diff_Lin_Iso_Turbulence]" )
     real tEpsilon = 1.0E-5;
 
     // define a perturbation relative size
-    real tPerturbation = 1.0E-6;
+    real tPerturbation = 5.0E-6;
 
     // init geometry inputs
     //------------------------------------------------------------------------------
