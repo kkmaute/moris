@@ -44,7 +44,6 @@ namespace moris
                 {
                     // compute production coefficient
                     aQI = tCMSATurbulencePtr->production_coefficient();
-
                     break;
                 }
                 // wall destruction coefficient
@@ -101,7 +100,38 @@ namespace moris
                     aQI = tCMSATurbulencePtr->ft2();
                     break;
                 }
-                // if none of the above
+                case 10:
+                {
+                    // compute norm of derivative of production coefficient
+                    aQI = norm( tCMSATurbulencePtr->dproductioncoeffdu( Cell< MSI::Dof_Type >( 1, MSI::Dof_Type::VISCOSITY ) ) );
+                    break;
+                }
+                // compute norm of derivative of wall destruction coefficient
+                case 11:
+                {
+                    aQI = norm( tCMSATurbulencePtr->dwalldestructioncoeffdu( Cell< MSI::Dof_Type >( 1, MSI::Dof_Type::VISCOSITY ) ) );
+                    break;
+                }
+                // compute norm of derivative of diffusion coefficient
+                case 12:
+                {
+                    aQI = norm( tCMSATurbulencePtr->ddiffusioncoeffdu( Cell< MSI::Dof_Type >( 1, MSI::Dof_Type::VISCOSITY ) ) );
+                    break;
+                }
+                // production term
+                case 13:
+                {
+                    aQI = norm( tCMSATurbulencePtr->dproductiontermdu( Cell< MSI::Dof_Type >( 1, MSI::Dof_Type::VISCOSITY ) ) );
+                    break;
+                }
+                // wall destruction term
+                case 14:
+                {
+                    aQI = norm( tCMSATurbulencePtr->dwalldestructiontermdu( Cell< MSI::Dof_Type >( 1, MSI::Dof_Type::VISCOSITY ) ) );
+                    break;
+                }
+
+                    // if none of the above
                 default:
                 {
                     MORIS_ERROR( false, "IQI_Spalart_Allmaras_Coefficient::compute_QI - wrong mIQITypeIndex type" );
