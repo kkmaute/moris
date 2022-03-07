@@ -1554,8 +1554,10 @@ Integration_Mesh_Generator::construct_bulk_phase_to_bulk_phase_interface(
     moris::Cell< moris_index >&                                          aInterfaces,
     moris::Cell< moris::Cell< std::shared_ptr< IG_Cell_Side_Group > > >& aInterfaceBulkPhaseToBulk )
 {
+    // log/ trace this function
     Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Bulk phase to bulk phase interface" ,mXTKModel->mVerboseLevel, 1  );
-    // number of bulk phases
+    
+    // get the total number of bulk phases
     moris::uint tNumBulkPhase = mGeometryEngine->get_num_bulk_phase();
 
     // allocate the output

@@ -484,10 +484,16 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
 
   private:
     //------------------------------------------------------------------------------
+    
     uint
     get_num_owned_cells() const;
+    
     //------------------------------------------------------------------------------
 
+    /**
+     * @brief Fill enriched integration mesh with Cell clusters, setting their active and void IG cells
+     * 
+     */
     void
     setup_cell_clusters();
 
@@ -496,11 +502,19 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
 
     //------------------------------------------------------------------------------
 
+    /**
+     * @brief Group clusters with the same active bulk-phase into "block-" sets
+     * 
+     */
     void
     setup_blockset_with_cell_clusters();
 
     //------------------------------------------------------------------------------
 
+    /**
+     * @brief Set the up side set clusters object
+     * 
+     */
     void
     setup_side_set_clusters();
 

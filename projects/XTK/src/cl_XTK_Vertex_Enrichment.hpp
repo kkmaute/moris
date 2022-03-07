@@ -24,6 +24,16 @@ namespace xtk
 {
 class Vertex_Enrichment : public mtk::Vertex_Interpolation
 {
+
+protected:
+    moris::moris_index               mNodeIndex;
+    moris::Matrix< moris::IndexMat > mBasisIndices;
+    moris::Matrix< moris::IndexMat > mBasisIds;
+    moris::Matrix< moris::IndexMat > mBasisOwners;
+    moris::Matrix< moris::DDRMat >   mBasisWeights;
+    mtk::Vertex_Interpolation *      mBaseVertexInterp;
+    std::unordered_map<moris::moris_index, moris::moris_index> mBasisMap; /*From basis to local index*/
+
 public:
 
     Vertex_Enrichment();
@@ -176,15 +186,6 @@ public:
 
     size_t
     capacity();
-
-protected:
-    moris::moris_index               mNodeIndex;
-    moris::Matrix< moris::IndexMat > mBasisIndices;
-    moris::Matrix< moris::IndexMat > mBasisIds;
-    moris::Matrix< moris::IndexMat > mBasisOwners;
-    moris::Matrix< moris::DDRMat >   mBasisWeights;
-    mtk::Vertex_Interpolation *      mBaseVertexInterp;
-    std::unordered_map<moris::moris_index, moris::moris_index> mBasisMap; /*From basis to local index*/
 
 };
 
