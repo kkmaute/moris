@@ -575,7 +575,7 @@ namespace moris
             if ( tModViscosity >= 0.0 )
             {
                 // compute dproductiondu
-                mdProductionCoeffdu( tDofIndex ) = mCb1 * ( 1 - this->ft2() ) * this->dstildedu( aDofTypes );
+                mdProductionCoeffdu( tDofIndex ) = mCb1 * ( 1.0 - this->ft2() ) * this->dstildedu( aDofTypes );
 
                 // if contribution from ft2
                 if ( mUseFt2 )

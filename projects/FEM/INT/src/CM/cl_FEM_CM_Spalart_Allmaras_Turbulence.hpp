@@ -181,6 +181,8 @@ namespace moris
             moris::Cell< Matrix< DDRMat > >         mdFndx;
             moris::Cell< Cell< Matrix< DDRMat > > > mdFndxdu;
 
+            friend class IQI_Spalart_Allmaras_Coefficient;
+
             //--------------------------------------------------------------------------------------------------------------
 
           public:
