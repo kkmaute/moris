@@ -174,6 +174,16 @@ namespace xtk
     bool
     Model::perform()
     {
+        bool tReturn = this->perform_decomposition();
+        this->perform_enrichment();
+        return tReturn;
+    }
+
+    // ----------------------------------------------------------------------------------
+
+    bool
+    Model::perform_decomposition()
+    {
         Tracer tTracer( "XTK", "Overall", "Run" );
 
         mVerbose      = mParameterList.get< bool >( "verbose" );
@@ -230,6 +240,14 @@ namespace xtk
             tMeshCleanup.perform();
         }
 
+        return true;
+    }
+
+    // ----------------------------------------------------------------------------------
+
+    void
+    Model::perform_enrichment()
+    {
         if ( mParameterList.get< bool >( "enrich" ) )
         {
             // get rank of the interpolation basis (B-spline or Lagrange Element)
@@ -449,7 +467,6 @@ namespace xtk
             MORIS_LOG_SPEC( "My_IP_verts", tEnrInterpMesh.get_num_entities( EntityRank::NODE ) );
             MORIS_LOG_SPEC( "My_IP_cells", tEnrInterpMesh.get_num_entities( EntityRank::ELEMENT ) );
         }
-        return true;
     }
 
     // ----------------------------------------------------------------------------------
