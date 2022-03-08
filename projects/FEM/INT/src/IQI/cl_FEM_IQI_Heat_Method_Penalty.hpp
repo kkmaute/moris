@@ -10,13 +10,13 @@
 
 #include <map>
 
-#include "typedefs.hpp"                     //MRS/COR/src
-#include "cl_Cell.hpp"                      //MRS/CON/src
+#include "typedefs.hpp"    //MRS/COR/src
+#include "cl_Cell.hpp"     //MRS/CON/src
 
-#include "cl_Matrix.hpp"                    //LINALG/src
-#include "linalg_typedefs.hpp"              //LINALG/src
+#include "cl_Matrix.hpp"          //LINALG/src
+#include "linalg_typedefs.hpp"    //LINALG/src
 
-#include "cl_FEM_IQI.hpp"                   //FEM/INT/src
+#include "cl_FEM_IQI.hpp"    //FEM/INT/src
 
 namespace moris
 {
@@ -26,97 +26,111 @@ namespace moris
 
         class IQI_Heat_Method_Penalty : public IQI
         {
-                //------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
 
-                // See https://arxiv.org/pdf/1909.10703.pdf
+            /* Heat Method Penalty
+             *
+             * See https://doi.org/10.1007/s00158-019-02480-8
+             *
+             * out options controlled by vectorial index:
+             *
+             * 0: heat penalty (default)
+             * 1: L2 contribution of heat penalty
+             * 2: H1 contribution of heat penalty
+             * 3: projected level set field
+             * 4: norm of spatial gradients of projected level set field
+             * 5: distance to interface measure
+             * 6: L2 weight
+             * 7: H1 weight
+             */
 
-            public:
-                //------------------------------------------------------------------------------
-                /*
-                 * constructor
-                 */
-                IQI_Heat_Method_Penalty();
+          public:
+            //------------------------------------------------------------------------------
+            /*
+             * constructor
+             */
+            IQI_Heat_Method_Penalty();
 
-                //------------------------------------------------------------------------------
-                /**
-                 * trivial destructor
-                 */
-                ~IQI_Heat_Method_Penalty(){};
+            //------------------------------------------------------------------------------
+            /**
+             * trivial destructor
+             */
+            ~IQI_Heat_Method_Penalty(){};
 
-                //------------------------------------------------------------------------------
-            private:
+            //------------------------------------------------------------------------------
 
-                enum class IQI_Property_Type
-                {
-                    L2_REFERENCE_VALUE,
-                    H1S_REFERENCE_VALUE,
-  
-                    MAX_ENUM
-                };
+          private:
+            enum class IQI_Property_Type
+            {
+                L2_REFERENCE_VALUE,
+                H1S_REFERENCE_VALUE,
 
-                //! initialization flag
-                bool mIsInitialized = false;
+                MAX_ENUM
+            };
 
-                //! weight of L2 contribution
-                real mL2Weight;
+            //! initialization flag
+            bool mIsInitialized = false;
 
-                //! weight of H1 semi-norm contribution
-                real mH1SWeight;
-                
+            //! weight of L2 contribution
+            real mL2Weight;
 
-                // Parameters from Markus,Coco paper
-                real mPhiBound;
-                real mPhiGamma;
-                real mPhiGradient;
-                real mWeightPhi1;
-                real mWeightPhi2;
-                real mWeightDelPhi1;
-                real mWeightDelPhi2;
+            //! weight of H1 semi-norm contribution
+            real mH1SWeight;
 
 
-                //! flag whether to skip computing dQIdu; skipping useful e.g. for level set regularization
-                bool mSkipComputeDQIDU = false;
+            // Parameters from Markus,Coco paper
+            real mPhiBound;
+            real mPhiGamma;
+            real mPhiGradient;
+            real mWeightPhi1;
+            real mWeightPhi2;
+            real mWeightDelPhi1;
+            real mWeightDelPhi2;
 
-                //------------------------------------------------------------------------------
-                /**
-                 * initialize parameters
-                 */
-                void initialize( );
 
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the quantity of interest
-                 * @param[ in ] aWStar weight associated to the evaluation point
-                 */
-                void compute_QI( real aWStar );
+            //! flag whether to skip computing dQIdu; skipping useful e.g. for level set regularization
+            bool mSkipComputeDQIDU = false;
 
-                //------------------------------------------------------------------------------
-                /**
-                 * Evaluate the quantity of interest and fill aQI with value
-                 * @param[ in ] aQI IQI value at evaluation point
-                 */
-                void compute_QI( Matrix< DDRMat > & aQI );
+            //------------------------------------------------------------------------------
+            /**
+             * initialize parameters
+             */
+            void initialize();
 
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the derivative of the quantity of interest wrt dof types
-                 * @param[ in ] aWStar weight associated to the evaluation point
-                 */
-                void compute_dQIdu( real aWStar );
+            //------------------------------------------------------------------------------
+            /**
+             * compute the quantity of interest
+             * @param[ in ] aWStar weight associated to the evaluation point
+             */
+            void compute_QI( real aWStar );
 
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the derivative of the quantity of interest wrt dof types
-                 * @param[ in ] aDofType group of dof types wrt which derivatives are evaluated
-                 * @param[ in ] adQIdu   derivative of quantity of interest matrix to fill
-                 */
-                void compute_dQIdu(
-                        moris::Cell< MSI::Dof_Type > & aDofType,
-                        Matrix< DDRMat >             & adQIdu );
+            //------------------------------------------------------------------------------
+            /**
+             * Evaluate the quantity of interest and fill aQI with value
+             * @param[ in ] aQI IQI value at evaluation point
+             */
+            void compute_QI( Matrix< DDRMat >& aQI );
 
-                //------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
+            /**
+             * compute the derivative of the quantity of interest wrt dof types
+             * @param[ in ] aWStar weight associated to the evaluation point
+             */
+            void compute_dQIdu( real aWStar );
+
+            //------------------------------------------------------------------------------
+            /**
+             * compute the derivative of the quantity of interest wrt dof types
+             * @param[ in ] aDofType group of dof types wrt which derivatives are evaluated
+             * @param[ in ] adQIdu   derivative of quantity of interest matrix to fill
+             */
+            void compute_dQIdu(
+                    moris::Cell< MSI::Dof_Type >& aDofType,
+                    Matrix< DDRMat >&             adQIdu );
+
+            //------------------------------------------------------------------------------
         };
-    }/* end namespace fem */
+    } /* end namespace fem */
 } /* end namespace moris */
 
 #endif /* PROJECTS_FEM_INT_SRC_CL_FEM_IQI_HEAT_METHOD_PENALTY__HPP_ */

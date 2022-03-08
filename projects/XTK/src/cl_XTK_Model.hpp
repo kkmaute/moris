@@ -162,6 +162,12 @@ namespace xtk
             bool
             perform();
 
+            bool
+            perform_decomposition();
+
+            void
+            perform_enrichment();
+
             //--------------------------------------------------------------------------------
             /**
              * Decomposes a mesh to conform to a geometric interface

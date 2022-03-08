@@ -126,7 +126,8 @@ namespace moris
                     mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh( 0 ));
 
             // XTK perform - decompose - enrich - ghost - multigrid
-            mPerformerManager->mXTKPerformer( 0 )->perform();
+            mPerformerManager->mXTKPerformer( 0 )->perform_decomposition();
+            mPerformerManager->mXTKPerformer( 0 )->perform_enrichment();
 
             // Assign PDVs
             mPerformerManager->mGENPerformer( 0 )->create_pdvs( mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair(0) );

@@ -240,7 +240,7 @@ namespace moris
             //             tMeshCheckerHMR.print_diagnostics();
 
             // XTK perform - decompose - enrich - ghost - multigrid
-            bool tFlag = tXTKPerformer->perform();
+            bool tFlag = tXTKPerformer->perform_decomposition();
 
             if ( not tFlag )
             {
@@ -257,6 +257,9 @@ namespace moris
 
                 return tMat;
             }
+
+            // XTK perform - enrich - ghost - multigrid
+            tXTKPerformer->perform_enrichment();
 
             // constrcut the data base with the mtk performer from xtk
             DataBase_Performer tDataBasePerformer = DataBase_Performer( tMTKPerformer );

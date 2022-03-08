@@ -113,7 +113,7 @@ namespace xtk
             moris::Cell< moris::Cell< moris_index > > mSubphaseGroupBGBasisIndices; // input: SPG index || output: list of non-enriched BF indices active on given subphase group
             moris::Cell< moris::Cell< moris_index > > mSubphaseGroupBGBasisEnrLev; // input: SPG index || output: list of enrichment levels for the respective BFs active on the given subphase group
 
-            // total number of basis enrichment levels (all basis functions)
+            // total number of basis enrichment levels (i.e. number of enriched Basis functions)
             moris::uint mNumEnrichmentLevels;
 
             // Vertex interpolations for this enrichment ordered by background vertex index
@@ -135,7 +135,54 @@ namespace xtk
 
     class Enrichment
     {
+        public: 
+            typedef std::unordered_map< moris::moris_index, moris::moris_index > IndexMap;
+            friend class Multigrid;
+
+        private:
+
+            // enrichment method
+            enum Enrichment_Method mEnrichmentMethod;
+
+            // basis rank
+            enum EntityRank mBasisRank; /*Entity rank of the basis functions*/
+
+            // index of interpolation
+            Matrix< IndexMat > mMeshIndices; /* Mesh indices to perform enrichment on*/
+            IndexMap mMeshIndexToListIndexMap; /* map that contains the position of a given mesh index in the above list */
+            bool mMeshIndexMapIsSet = false; /* flag that marks whether the above index map has been computed or not */
+
+            // number of bulk-phases possible in model
+            moris::size_t mNumBulkPhases;
+
+            // Pointers to necessary classes
+            Model*                      mXTKModelPtr       = nullptr;
+            Cut_Integration_Mesh*       mCutIgMesh         = nullptr;
+            Integration_Mesh_Generator* mIgMeshTools       = nullptr;
+            moris::mtk::Mesh*           mBackgroundMeshPtr = nullptr;
+
+            // enrichment strategy data (outer cell - mesh index, inner cell - necessary data for enrichment of mesh index)
+            Cell< Enrichment_Data > mEnrichmentData;
+
+            // Number of enrichment levels on a given IP cell
+            moris::Cell< uint > mNumUnzippingsOnIpCell; // input: IP-cell index || output: number of enr. IP-cells and clusters to be created
+            moris_index mNumEnrIpCells; 
+
+            // indices of enriched IP cells as a function of the base IP cell and the local SPG index
+            moris::Cell< moris::Cell< moris_index > > mEnrIpCellIndices; // input: IP cell index, local SPG index || output: index of enr. IP cell
+
+            // flag whether to sort basis enrichment levels
+            bool mSortBasisEnrichmentLevels;
+
+            // quick access to the Cut integration mesh's Bspline Mesh Infos (the Bspline to Lagrange mesh relationships)
+            moris::Cell< Bspline_Mesh_Info* > mBsplineMeshInfos;
+
+            // ----------------------------------------------------------------------------------
+
         public:
+
+            // ----------------------------------------------------------------------------------
+            
             Enrichment(){};
 
             Enrichment(
@@ -237,39 +284,9 @@ namespace xtk
                     const moris_index & aMeshIndex,
                     std::string aFileName);
 
-            typedef std::unordered_map< moris::moris_index, moris::moris_index > IndexMap;
-            friend class Multigrid;
+            // ----------------------------------------------------------------------------------
 
         private:
-
-            // enrichment method
-            enum Enrichment_Method mEnrichmentMethod;
-
-            // basis rank
-            enum EntityRank mBasisRank; /*Entity rank of the basis functions*/
-
-            // index of interpolation
-            Matrix< IndexMat > mMeshIndices; /* Mesh indices to perform enrichment on*/
-            IndexMap mMeshIndexToListIndexMap; /* map that contains the position of a given mesh index in the above list */
-            bool mMeshIndexMapIsSet = false; /* flag that marks whether the above index map has been computed or not */
-
-            // number of bulk-phases possible in model
-            moris::size_t mNumBulkPhases;
-
-            // Pointers to necessary classes
-            Model*                      mXTKModelPtr       = nullptr;
-            Cut_Integration_Mesh*       mCutIgMesh         = nullptr;
-            Integration_Mesh_Generator* mIgMeshTools       = nullptr;
-            moris::mtk::Mesh*           mBackgroundMeshPtr = nullptr;
-
-            // enrichment strategy data (outer cell - mesh index, inner cell - necessary data for enrichment of mesh index)
-            Cell< Enrichment_Data > mEnrichmentData;
-
-            // flag whether to sort basis enrichment levels
-            bool mSortBasisEnrichmentLevels;
-
-            // quick access to the Cut integration mesh's Bspline Mesh Infos (the Bspline to Lagrange mesh relationships)
-            moris::Cell< Bspline_Mesh_Info* > mBsplineMeshInfos;
 
             // ----------------------------------------------------------------------------------
 
@@ -583,6 +600,16 @@ namespace xtk
              */
             uint
             maximum_number_of_unzippings_for_IP_cell( moris_index aIpCellIndex );
+
+            // ----------------------------------------------------------------------------------
+
+            /**
+             * @brief finds SPs within an IP element that are also within the same SPG
+             * 
+             * @param aMeshIndex index of the B-spline mesh to be treated
+             */
+            void
+            establish_IP_SPG_SP_relationship( const moris_index aMeshIndex );
 
             // ----------------------------------------------------------------------------------
 

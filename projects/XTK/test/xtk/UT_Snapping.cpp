@@ -163,7 +163,8 @@ TEST_CASE("Plane Aligned with Background 2d","[Snapping_2d]")
     pGEN->output_fields(pBGMTK->get_interpolation_mesh( 0 ));
 
     // XTK perform - decompose - enrich - ghost - multigrid
-    pXTK->perform();
+    pXTK->perform_decomposition();
+    pXTK->perform_enrichment();
     }
 }
 

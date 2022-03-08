@@ -107,6 +107,9 @@ namespace xtk
         // store for all (Lagrange) extraction cells in which (B-spline) basis cell they live
         moris::Cell< moris_index > mExtractionCellToBsplineCell;
 
+        // input: extraction cell index, SPG index local to extraction cell || output: list of Subphases on IP cell associated with SPG
+        moris::Cell< moris::Cell< moris::Cell< moris_index > > > mExtractionCellToSubPhase;
+
         // store which (Lagrange) extraction cells sit in a given (B-spline) basis cell
         // input: index of (B-spline) basis cell || output: list of (Lagrange) extraction cells (or their indices)
         moris::Cell< moris::Cell< mtk::Cell* > >  mExtractionCellsInBsplineCells; // TODO: needed?
@@ -117,7 +120,7 @@ namespace xtk
         moris::Cell< moris::Cell< moris_index > > mSPGsIndicesInBsplineCells;
 
         // Subphase Groups
-        moris::Cell< Subphase_Group * > mSubphaseGroups;
+        moris::Cell< Subphase_Group* > mSubphaseGroups;
 
         // SP to SPG map
         moris::Cell< moris_index > mSpToSpgMap;
