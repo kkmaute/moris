@@ -228,34 +228,33 @@ namespace moris
                     tReferencePatternMap[ mParameters.mRefinemenCopytPatternToPattern_3( Ik )( 0 ) ] =
                             mParameters.mRefinemenCopytPatternToPattern_3( Ik )( 1 );
                 }
+            }
 
+            if( mParameters.mMinimumRefinementLevel.size() >0 )
+            {
+                uint tNumMinRefPattern = mParameters.mMinimumRefinementLevel.size();
 
-                if( mParameters.mMinimumRefinementLevel.size() >0 )
+                Matrix< DDUMat > tMinRefinementPattern( tNumMinRefPattern, 1, 0 );
+                Matrix< DDUMat > tMinRefinement       ( tNumMinRefPattern, 1, 0 );
+
+                for( uint Ik = 0; Ik < tNumMinRefPattern; Ik ++)
                 {
-                    uint tNumMinRefPattern = mParameters.mMinimumRefinementLevel.size();
+                    tMinRefinementPattern( Ik ) = mParameters.mMinimumRefinementLevel( Ik )( 0 );
 
-                    Matrix< DDUMat > tMinRefinementPattern( tNumMinRefPattern, 1, 0 );
-                    Matrix< DDUMat > tMinRefinement       ( tNumMinRefPattern, 1, 0 );
-
-                    for( uint Ik = 0; Ik < tNumMinRefPattern; Ik ++)
+                    for( uint Ia = 0; Ia < std::floor( ( ( real )mParameters.mMinimumRefinementLevel( Ik ).numel() ) / 2.0 ); Ia ++)
                     {
-                        tMinRefinementPattern( Ik ) = mParameters.mMinimumRefinementLevel( Ik )( 0 );
-
-                        for( uint Ia = 0; Ia < std::floor( ( ( real )mParameters.mMinimumRefinementLevel( Ik ).numel() ) / 2.0 ); Ia ++)
+                        if( mParameters.mMinimumRefinementLevel( Ik )( Ia + 2 ) > tOptIter )
                         {
-                            if( mParameters.mMinimumRefinementLevel( Ik )( Ia + 2 ) > tOptIter )
-                            {
-                                tMinRefinement( Ik ) = mParameters.mMinimumRefinementLevel( Ik )( Ia + 1 );
+                            tMinRefinement( Ik ) = mParameters.mMinimumRefinementLevel( Ik )( Ia + 1 );
 
-                                break;
-                            }
+                            break;
                         }
                     }
-
-                    // set initial/minimum refinement
-                    tParameters->set_initial_refinement( tMinRefinement );
-                    tParameters->set_initial_refinement_patterns( tMinRefinementPattern );
                 }
+
+                // set initial/minimum refinement
+                tParameters->set_initial_refinement( tMinRefinement );
+                tParameters->set_initial_refinement_patterns( tMinRefinementPattern );
             }
 
             hmr::File tFile;

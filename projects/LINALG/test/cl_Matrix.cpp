@@ -31,6 +31,67 @@ namespace moris
 
     TEST_CASE("MORIS Linear Algebra Matrix Tests","[MATRIX]")
     {
+            SECTION("Matrix Tests using default"){
+
+                 srand (time(0));
+
+                 // using cell and pushback
+                 real tsum_matrix     = 0;
+                 real tsum_expression = 0;
+
+                 std::clock_t tTimeStamp = std::clock();
+
+                 const uint tMaxNumRow = rand() % 400 + 10000;  // was: 100000
+
+                 uint sumCR = 0;
+
+                 for (uint iR=0;iR<tMaxNumRow;++iR)
+                 {
+                     moris::uint tNumCR = rand()%20;
+
+                     sumCR += tNumCR;
+
+                     const Matrix<DDRMat> tMat1(tNumCR,tNumCR,rand());
+                     const Matrix<DDRMat> tMat2(tNumCR,tNumCR,rand());
+
+                     Matrix<DDRMat> tMat3 = tMat1 - tMat2;
+
+                     for (uint iJ=0;iJ<1;++iJ)
+                     {
+                         tsum_matrix+=norm(tMat3*tMat1*tMat2*tMat3*(real)(iJ+1));
+                     }
+                 }
+
+                 real tTime = (moris::real) ( clock() - tTimeStamp ) / CLOCKS_PER_SEC;
+
+                 MORIS_LOG_INFO( "Standard ( %e ): %f seconds ( result: %e )\n.",
+                         (double)sumCR/(double)tMaxNumRow, ( double ) tTime, tsum_matrix);
+
+                 sumCR = 0;
+
+                 tTimeStamp = std::clock();
+
+                 for (uint iR=0;iR<tMaxNumRow;++iR)
+                 {
+                     moris::uint tNumCR = rand()%20;
+
+                     sumCR += tNumCR;
+
+                     const Matrix<DDRMat> tMat1(tNumCR,tNumCR,rand());
+                     const Matrix<DDRMat> tMat2(tNumCR,tNumCR,rand());
+
+                     for (uint iJ=0;iJ<1;++iJ)
+                     {
+                         tsum_expression+=norm((tMat1-tMat2)*tMat1*tMat2*(tMat1-tMat2)*(real)(iJ+1));
+                     }
+                 }
+
+                 tTime = (moris::real) ( clock() - tTimeStamp ) / CLOCKS_PER_SEC;
+
+                 MORIS_LOG_INFO( "Auto ( %e ): %f seconds ( result: %e )\n.",
+                         (double)sumCR/(double)tMaxNumRow, ( double ) tTime, tsum_expression);
+             }
+
         SECTION("Matrix Tests using default"){
 
             srand (time(0));

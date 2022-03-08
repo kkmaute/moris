@@ -1,7 +1,7 @@
 
-#include "cl_FEM_SP_Incompressible_Flow.hpp" //FEM/INT/src
-#include "cl_FEM_Cluster.hpp"              //FEM/INT/src
-#include "cl_FEM_Field_Interpolator_Manager.hpp"              //FEM/INT/src
+#include "cl_FEM_SP_Incompressible_Flow.hpp"        //FEM/INT/src
+#include "cl_FEM_Cluster.hpp"                       //FEM/INT/src
+#include "cl_FEM_Field_Interpolator_Manager.hpp"    //FEM/INT/src
 
 #include "fn_trans.hpp"
 #include "fn_norm.hpp"
@@ -31,27 +31,28 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void SP_Incompressible_Flow::set_function_pointers()
+        void
+        SP_Incompressible_Flow::set_function_pointers()
         {
             // switch on space dimensions
-            switch( mSpaceDim )
+            switch ( mSpaceDim )
             {
                 // if 2D
-                case 2 :
+                case 2:
                 {
                     mEvalGFunc = this->eval_G_2d;
                     break;
                 }
 
                 // if 3D
-                case 3 :
+                case 3:
                 {
                     mEvalGFunc = this->eval_G_3d;
                     break;
                 }
 
                 // default
-                default :
+                default:
                     MORIS_ERROR( false, "SP_Incompressible_Flow::set_function_pointers - only support 2 and 3D." );
                     break;
             }
@@ -59,9 +60,9 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void SP_Incompressible_Flow::set_parameters( moris::Cell< Matrix< DDRMat > > aParameters )
+        void
+        SP_Incompressible_Flow::set_parameters( moris::Cell< Matrix< DDRMat > > aParameters )
         {
-            // FIXME not necessary
             // set mParameters
             mParameters = aParameters;
 
@@ -72,40 +73,52 @@ namespace moris
             MORIS_ERROR( tParamSize >= 1 && tParamSize < 3,
                     "SP_Incompressible_Flow::set_parameters - either 1 or 2 constant parameter need to be set." );
 
+            // check for proper parameter type; here just a scalar
+            MORIS_ERROR( aParameters( 0 ).numel() == 1,
+                    "SP_Incompressible_Flow::set_parameters - 1st parameter is not a scalar but a vector." );
+
+            // check for proper parameter value
+            MORIS_ERROR( mParameters( 0 )( 0 ) > 0.0,
+                    "SP_Incompressible_Flow::set_parameters - CI parameter needs to be larger than zero." );
+
             // set CI
             mCI = mParameters( 0 )( 0 );
 
-            // set CI flag to true
-            mSetCI = true;
-
             // if time
-            if( tParamSize > 1 )
+            if ( tParamSize > 1 )
             {
-                // set betaTime
+                // check for proper parameter type; here just a scalar
+                MORIS_ERROR( aParameters( 1 ).numel() == 1,
+                        "SP_Incompressible_Flow::set_parameters - 2nd parameter is not a scalar but a vector." );
+
                 mBetaTime = aParameters( 1 )( 0 );
 
                 // set beta time flag to true
-                mSetBetaTime = true;
+                if ( std::abs( mBetaTime ) > MORIS_REAL_EPS )
+                {
+                    mSetBetaTime = true;
+                }
             }
         }
 
         //------------------------------------------------------------------------------
 
-        void SP_Incompressible_Flow::set_dof_type_list(
-                moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
-                moris::Cell< std::string >                  & aDofStrings,
-                mtk::Master_Slave                             aIsMaster )
+        void
+        SP_Incompressible_Flow::set_dof_type_list(
+                moris::Cell< moris::Cell< MSI::Dof_Type > >& aDofTypes,
+                moris::Cell< std::string >&                  aDofStrings,
+                mtk::Master_Slave                            aIsMaster )
         {
             // switch on master slave
             switch ( aIsMaster )
             {
-                case mtk::Master_Slave::MASTER :
+                case mtk::Master_Slave::MASTER:
                 {
                     // set dof type list
                     mMasterDofTypes = aDofTypes;
 
                     // loop on dof type
-                    for( uint iDof = 0; iDof < aDofTypes.size(); iDof++ )
+                    for ( uint iDof = 0; iDof < aDofTypes.size(); iDof++ )
                     {
                         // get dof string
                         std::string tDofString = aDofStrings( iDof );
@@ -114,18 +127,18 @@ namespace moris
                         MSI::Dof_Type tDofType = aDofTypes( iDof )( 0 );
 
                         // if velocity
-                        if( tDofString == "Velocity" )
+                        if ( tDofString == "Velocity" )
                         {
                             mMasterDofVelocity = tDofType;
                         }
-                        else if( tDofString == "Pressure" )
+                        else if ( tDofString == "Pressure" )
                         {
                             mMasterDofPressure = tDofType;
                         }
                         else
                         {
                             // error unknown dof string
-                            MORIS_ERROR( false ,
+                            MORIS_ERROR( false,
                                     "SP_Incompressible_Flow::set_dof_type_list - Unknown aDofString : %s \n",
                                     tDofString.c_str() );
                         }
@@ -133,7 +146,7 @@ namespace moris
                     break;
                 }
 
-                case mtk::Master_Slave::SLAVE :
+                case mtk::Master_Slave::SLAVE:
                 {
                     // set dof type list
                     mSlaveDofTypes = aDofTypes;
@@ -148,21 +161,22 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void SP_Incompressible_Flow::eval_SP()
+        void
+        SP_Incompressible_Flow::eval_SP()
         {
             // set size for SP values
-            mPPVal.set_size( 2, 1);
+            mPPVal.set_size( 2, 1 );
 
             // get the velocity and pressure FIs
-            Field_Interpolator * tVelocityFI =
+            Field_Interpolator* tVelocityFI =
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
 
             // get the density and viscosity properties
-            const std::shared_ptr< Property > & tDensityProp    =
+            const std::shared_ptr< Property >& tDensityProp =
                     mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
-            const std::shared_ptr< Property > & tViscosityProp  =
+            const std::shared_ptr< Property >& tViscosityProp =
                     mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
-            const std::shared_ptr< Property > & tInvPermeabProp =
+            const std::shared_ptr< Property >& tInvPermeabProp =
                     mMasterProp( static_cast< uint >( Property_Type::INV_PERMEABILITY ) );
 
             // get the density and viscosity value
@@ -171,7 +185,7 @@ namespace moris
 
             // get impermeability
             real tInvPermeab = 0.0;
-            if (tInvPermeabProp != nullptr)
+            if ( tInvPermeabProp != nullptr )
             {
                 tInvPermeab = tInvPermeabProp->val()( 0 );
             }
@@ -181,7 +195,7 @@ namespace moris
             this->eval_G( tG );
 
             // get flattened G to row vector
-            Matrix< DDRMat > tFlatG = trans ( vectorize( tG) );
+            Matrix< DDRMat > tFlatG = trans( vectorize( tG ) );
 
             // get trace of G
             real tTrG = sum( diag_vec( tG ) );
@@ -191,28 +205,26 @@ namespace moris
             Matrix< DDRMat > tGijGij  = tFlatG * trans( tFlatG );
 
             real tPPVal =
-                    std::pow( tDensity, 2.0 ) * tvivjGij( 0 ) +
-                    mCI * std::pow( tViscosity, 2.0 ) * tGijGij( 0 ) +
-                    std::pow( tInvPermeab, 2.0 );
+                    std::pow( tDensity, 2.0 ) * tvivjGij( 0 ) + mCI * std::pow( tViscosity, 2.0 ) * tGijGij( 0 ) + std::pow( tInvPermeab, 2.0 );
 
             // if time solve
-            if( mBetaTime )
+            if ( mSetBetaTime )
             {
                 // get the time step
-                real tDeltaT = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
+                real tDeltaT = mBetaTime * mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
 
                 // add time contribution
                 tPPVal += std::pow( 2.0 * tDensity / tDeltaT, 2.0 );
             }
 
             // threshold tPPVal
-            tPPVal = std::max(tPPVal,mEpsilon);
+            tPPVal = std::max( tPPVal, mEpsilon );
 
             // evaluate tauM
             real tTauM = std::pow( tPPVal, -0.5 );
 
             // threshold tauM
-            mPPVal( 0 ) = std::max(tTauM,mEpsilon);
+            mPPVal( 0 ) = std::max( tTauM, mEpsilon );
 
             // evaluate tauC = mPPVal( 1 )
             mPPVal( 1 ) = 1.0 / ( mPPVal( 0 ) * tTrG );
@@ -220,28 +232,29 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void SP_Incompressible_Flow::eval_dSPdMasterDOF(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        void
+        SP_Incompressible_Flow::eval_dSPdMasterDOF(
+                const moris::Cell< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type index
             uint tDofIndex = mMasterGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
 
             // get the dof type FI
-            Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+            Field_Interpolator* tFI = mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // set matrix size and initialize
             mdPPdMasterDof( tDofIndex ).set_size( 2, tFI->get_number_of_space_time_coefficients() );
 
             // get the velocity FI
-            Field_Interpolator * tVelocityFI =
+            Field_Interpolator* tVelocityFI =
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
 
             // get the density and viscosity properties
-            const std::shared_ptr< Property > & tDensityProp    =
+            const std::shared_ptr< Property >& tDensityProp =
                     mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
-            const std::shared_ptr< Property > & tViscosityProp  =
+            const std::shared_ptr< Property >& tViscosityProp =
                     mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
-            const std::shared_ptr< Property > & tInvPermeabProp =
+            const std::shared_ptr< Property >& tInvPermeabProp =
                     mMasterProp( static_cast< uint >( Property_Type::INV_PERMEABILITY ) );
 
             // get the density and viscosity value
@@ -250,7 +263,7 @@ namespace moris
 
             // get impermeability
             real tInvPermeab = 0.0;
-            if (tInvPermeabProp != nullptr)
+            if ( tInvPermeabProp != nullptr )
             {
                 tInvPermeab = tInvPermeabProp->val()( 0 );
             }
@@ -270,15 +283,13 @@ namespace moris
             Matrix< DDRMat > tGijGij  = tFlatG * trans( tFlatG );
 
             real tPPVal =
-                    std::pow( tDensity, 2.0 ) * tvivjGij( 0 ) +
-                    mCI * std::pow( tViscosity, 2.0 ) * tGijGij( 0 ) +
-                    std::pow( tInvPermeab, 2.0 );
+                    std::pow( tDensity, 2.0 ) * tvivjGij( 0 ) + mCI * std::pow( tViscosity, 2.0 ) * tGijGij( 0 ) + std::pow( tInvPermeab, 2.0 );
 
             // if time solve
-            if( mBetaTime )
+            if ( mSetBetaTime )
             {
                 // get the time step
-                real tDeltaT = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
+                real tDeltaT = mBetaTime * mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
 
                 // add time contribution
                 tPPVal += std::pow( 2.0 * tDensity / tDeltaT, 2.0 );
@@ -291,11 +302,10 @@ namespace moris
                 real tPreFactor = -0.5 * std::pow( tPPVal, -1.5 );
 
                 // if velocity
-                if( aDofTypes( 0 ) == mMasterDofVelocity )
+                if ( aDofTypes( 0 ) == mMasterDofVelocity )
                 {
                     mdPPdMasterDof( tDofIndex ).get_row( 0 ) =
-                            tPreFactor * std::pow( tDensity, 2.0 ) *
-                            ( 2.0 * trans( tFI->val() ) * tG * tFI->N() );
+                            tPreFactor * std::pow( tDensity, 2.0 ) * ( 2.0 * trans( tFI->val() ) * tG * tFI->N() );
                 }
                 else
                 {
@@ -303,43 +313,37 @@ namespace moris
                 }
 
                 // if density
-                if( tDensityProp->check_dof_dependency( aDofTypes ) )
+                if ( tDensityProp->check_dof_dependency( aDofTypes ) )
                 {
                     mdPPdMasterDof( tDofIndex ).get_row( 0 ) +=
-                            tPreFactor *
-                            ( 2.0 * tDensity * tvivjGij( 0 ) ) *
-                            tDensityProp->dPropdDOF( aDofTypes );
+                            tPreFactor * ( 2.0 * tDensity * tvivjGij( 0 ) ) * tDensityProp->dPropdDOF( aDofTypes );
 
                     // if time solve
-                    if( mBetaTime )
+                    if ( mSetBetaTime )
                     {
                         // get the time step
-                        real tDeltaT = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
+                        real tDeltaT = mBetaTime * mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
 
                         // add time contribution
                         mdPPdMasterDof( tDofIndex ).get_row( 0 ) +=
-                                tPreFactor *
-                                ( 8.0 * tDensity / tDeltaT / tDeltaT ) *
-                                tDensityProp->dPropdDOF( aDofTypes );
+                                tPreFactor * ( 8.0 * tDensity / tDeltaT / tDeltaT ) * tDensityProp->dPropdDOF( aDofTypes );
                     }
                 }
 
                 // if viscosity
-                if( tViscosityProp->check_dof_dependency( aDofTypes ) )
+                if ( tViscosityProp->check_dof_dependency( aDofTypes ) )
                 {
                     mdPPdMasterDof( tDofIndex ).get_row( 0 ) +=
-                            tPreFactor *
-                            ( 2.0 * mCI * tViscosity * tGijGij * tViscosityProp->dPropdDOF( aDofTypes ) );
+                            tPreFactor * ( 2.0 * mCI * tViscosity * tGijGij * tViscosityProp->dPropdDOF( aDofTypes ) );
                 }
 
                 // if permeability
-                if (tInvPermeabProp != nullptr)
+                if ( tInvPermeabProp != nullptr )
                 {
-                    if( tInvPermeabProp->check_dof_dependency( aDofTypes ) )
+                    if ( tInvPermeabProp->check_dof_dependency( aDofTypes ) )
                     {
                         mdPPdMasterDof( tDofIndex ).get_row( 0 ) +=
-                                tPreFactor *
-                                ( 2.0 * tInvPermeabProp->val()(0) * tInvPermeabProp->dPropdDOF( aDofTypes ) );
+                                tPreFactor * ( 2.0 * tInvPermeabProp->val()( 0 ) * tInvPermeabProp->dPropdDOF( aDofTypes ) );
                     }
                 }
 
@@ -350,8 +354,7 @@ namespace moris
                 if ( tTauM > mEpsilon )
                 {
                     mdPPdMasterDof( tDofIndex ).get_row( 1 ) =
-                        - mdPPdMasterDof( tDofIndex ).get_row( 0 ) /
-                        ( tTrG * std::pow( tTauM, 2.0 ) );
+                            -mdPPdMasterDof( tDofIndex ).get_row( 0 ) / ( tTrG * std::pow( tTauM, 2.0 ) );
                 }
             }
             else
@@ -362,10 +365,11 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void SP_Incompressible_Flow::eval_G( Matrix< DDRMat > & aG )
+        void
+        SP_Incompressible_Flow::eval_G( Matrix< DDRMat >& aG )
         {
             // get the space jacobian from IP geometry interpolator
-            const Matrix< DDRMat > & tInvSpaceJacobian =
+            const Matrix< DDRMat >& tInvSpaceJacobian =
                     mMasterFIManager->get_IP_geometry_interpolator()->inverse_space_jacobian();
 
             // FIXME should not be here
@@ -378,12 +382,13 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void SP_Incompressible_Flow::eval_G_2d(
-                Matrix< DDRMat >       & aG,
-                const Matrix< DDRMat > & aInvSpaceJacobian )
+        void
+        SP_Incompressible_Flow::eval_G_2d(
+                Matrix< DDRMat >&       aG,
+                const Matrix< DDRMat >& aInvSpaceJacobian )
         {
             // set size for aG
-            aG.set_size( 2, 2);
+            aG.set_size( 2, 2 );
 
             // fill aGij = sum_d dxi_d/dx_i dxi_d/dx_j
             aG( 0, 0 ) = std::pow( aInvSpaceJacobian( 0, 0 ), 2.0 ) + std::pow( aInvSpaceJacobian( 0, 1 ), 2.0 );
@@ -394,38 +399,38 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void SP_Incompressible_Flow::eval_G_3d(
-                Matrix< DDRMat >       & aG,
-                const Matrix< DDRMat > & aInvSpaceJacobian )
+        void
+        SP_Incompressible_Flow::eval_G_3d(
+                Matrix< DDRMat >&       aG,
+                const Matrix< DDRMat >& aInvSpaceJacobian )
         {
             // set size for aG
-            aG.set_size( 3, 3);
+            aG.set_size( 3, 3 );
 
             // fill aGij = sum_d dxi_d/dx_i dxi_d/dx_j
             aG( 0, 0 ) = std::pow( aInvSpaceJacobian( 0, 0 ), 2.0 )
-            + std::pow( aInvSpaceJacobian( 0, 1 ), 2.0 )
-            + std::pow( aInvSpaceJacobian( 0, 2 ), 2.0 );
+                       + std::pow( aInvSpaceJacobian( 0, 1 ), 2.0 )
+                       + std::pow( aInvSpaceJacobian( 0, 2 ), 2.0 );
             aG( 0, 1 ) = aInvSpaceJacobian( 0, 0 ) * aInvSpaceJacobian( 1, 0 )
-                               + aInvSpaceJacobian( 0, 1 ) * aInvSpaceJacobian( 1, 1 )
-                               + aInvSpaceJacobian( 0, 2 ) * aInvSpaceJacobian( 1, 2 );
+                       + aInvSpaceJacobian( 0, 1 ) * aInvSpaceJacobian( 1, 1 )
+                       + aInvSpaceJacobian( 0, 2 ) * aInvSpaceJacobian( 1, 2 );
             aG( 0, 2 ) = aInvSpaceJacobian( 0, 0 ) * aInvSpaceJacobian( 2, 0 )
-                               + aInvSpaceJacobian( 0, 1 ) * aInvSpaceJacobian( 2, 1 )
-                               + aInvSpaceJacobian( 0, 2 ) * aInvSpaceJacobian( 2, 2 );
+                       + aInvSpaceJacobian( 0, 1 ) * aInvSpaceJacobian( 2, 1 )
+                       + aInvSpaceJacobian( 0, 2 ) * aInvSpaceJacobian( 2, 2 );
             aG( 1, 0 ) = aG( 0, 1 );
             aG( 1, 1 ) = std::pow( aInvSpaceJacobian( 1, 0 ), 2.0 )
-            + std::pow( aInvSpaceJacobian( 1, 1 ), 2.0 )
-            + std::pow( aInvSpaceJacobian( 1, 2 ), 2.0 );
+                       + std::pow( aInvSpaceJacobian( 1, 1 ), 2.0 )
+                       + std::pow( aInvSpaceJacobian( 1, 2 ), 2.0 );
             aG( 1, 2 ) = aInvSpaceJacobian( 1, 0 ) * aInvSpaceJacobian( 2, 0 )
-                               + aInvSpaceJacobian( 1, 1 ) * aInvSpaceJacobian( 2, 1 )
-                               + aInvSpaceJacobian( 1, 2 ) * aInvSpaceJacobian( 2, 2 );
+                       + aInvSpaceJacobian( 1, 1 ) * aInvSpaceJacobian( 2, 1 )
+                       + aInvSpaceJacobian( 1, 2 ) * aInvSpaceJacobian( 2, 2 );
             aG( 2, 0 ) = aG( 0, 2 );
             aG( 2, 1 ) = aG( 1, 2 );
             aG( 2, 2 ) = std::pow( aInvSpaceJacobian( 2, 0 ), 2.0 )
-            + std::pow( aInvSpaceJacobian( 2, 1 ), 2.0 )
-            + std::pow( aInvSpaceJacobian( 2, 2 ), 2.0 );
+                       + std::pow( aInvSpaceJacobian( 2, 1 ), 2.0 )
+                       + std::pow( aInvSpaceJacobian( 2, 2 ), 2.0 );
         }
 
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-

@@ -99,8 +99,16 @@ NonLinBlockGaussSeidel::solver_nonlinear_system( Nonlinear_Problem* aNonlinearPr
                 // Set the nonlinear system index
                 gLogger.set_iteration( "NonLinearSolver", LOGGER_ARBITRARY_DESCRIPTOR, LOGGER_ARBITRARY_DESCRIPTOR, Ik );
 
-                mMyNonLinSolverManager->get_sub_nonlinear_solver( Ik )->solve( aNonlinearProblem->get_full_vector() );
-            }    // end loop over all non-linear sub-systems
+                // Get subsolver
+                Nonlinear_Solver* tSubSolver = mMyNonLinSolverManager->get_sub_nonlinear_solver( Ik );
+
+                MORIS_ERROR( tSubSolver != nullptr,
+                        "NonLinBlockGaussSeidel::solver_nonlinear_system - forward analysis: sub-solver %d not defined.",
+                        Ik );
+
+                // Solver sub-system
+                tSubSolver->solve( aNonlinearProblem->get_full_vector() );
+            }
         }
         else
         {
@@ -110,14 +118,21 @@ NonLinBlockGaussSeidel::solver_nonlinear_system( Nonlinear_Problem* aNonlinearPr
                 // Log/print which NL system is being solved
                 MORIS_LOG_SPEC( "Sensitivity Analysis Nonlinear System", Ik );
 
-                mMyNonLinSolverManager->get_sub_nonlinear_solver( Ik - 1 )->solve( aNonlinearProblem->get_full_vector() );
-            }    // end loop over all non-linear sub-systems
+                // Get subsolver
+                Nonlinear_Solver* tSubSolver = mMyNonLinSolverManager->get_sub_nonlinear_solver( Ik - 1 );
+
+                MORIS_ERROR( tSubSolver != nullptr,
+                        "NonLinBlockGaussSeidel::solver_nonlinear_system - sensitivty analysis: sub-solver %d not defined.",
+                        Ik - 1 );
+
+                tSubSolver->solve( aNonlinearProblem->get_full_vector() );
+            }
         }
 
         tMaxNewTime     = this->calculate_time_needed( tNewtonLoopStartTime );
         bool tHartBreak = false;
 
-        // compute residual norms using residual from subsolvers
+        // compute residual norms using residual from sub-solvers
         this->compute_norms( It );
 
         // check for convergence
@@ -131,12 +146,15 @@ NonLinBlockGaussSeidel::solver_nonlinear_system( Nonlinear_Problem* aNonlinearPr
                 tMaxNewTime,
                 tHartBreak );
 
+        // check if hard break is triggered
+        if ( tHartBreak )
+        {
+            break;
+        }
+
+        // exit if convergence criterion is met
         if ( tIsConverged and tLoadFactor >= 1.0 )
         {
-            if ( tHartBreak )
-            {
-                continue;
-            }
             break;
         }
 

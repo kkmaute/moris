@@ -35,139 +35,142 @@
 namespace xtk
 {
 
-class Model;
+    class Model;
 
-class Multigrid
-{
-private:
-
-    xtk::Model * mXTKModelPtr = nullptr;
-
-    moris_index mMeshIndex;
-
-    moris::Cell< moris_index > mEnrichedBasisToBackgroundBasis;
-
-    moris::Cell< moris::Matrix< DDSMat > > mFineBasisToCoarseBasis;
-    moris::Cell< moris::Matrix< DDSMat > > mCoarseBasisToFineBasis;
-    moris::Cell< moris::Matrix< DDRMat > > mCoarseBasisToFineBasisWeights;
-
-    moris::Matrix< DDRMat >                mEnrichedBasisLevel;
-
-    uint mNumBasis;
-
-public:
-    Multigrid(){};
-
-//------------------------------------------------------------------------------
-
-    Multigrid( xtk::Model * aModel );
-
-
-//------------------------------------------------------------------------------
-
-    ~Multigrid(){};
-
-//------------------------------------------------------------------------------
-
-    void create_fine_to_coarse_relationship();
-
-//------------------------------------------------------------------------------
-
-    void create_coarse_to_fine_relationship();
-
-//------------------------------------------------------------------------------
-
-    void create_coarse_to_fine_weights();
-
-//------------------------------------------------------------------------------
-
-    void build_enriched_coeff_to_background_coeff_map();
-
-//------------------------------------------------------------------------------
-
-    uint get_num_interpolations()
+    class Multigrid
     {
-        return 1;
-    };
+      private:
+        xtk::Model* mXTKModelPtr = nullptr;
 
-//-------------------------------------------------------------------------------
+        moris_index mMeshIndex;
 
-    uint get_max_level( const moris_index aInterpolationIndex )
-    {
-        moris::mtk::Interpolation_Mesh & tInterpolationMesh = mXTKModelPtr->get_background_mesh();
+        moris::Cell< moris_index > mEnrichedBasisToBackgroundBasis;
 
-        return tInterpolationMesh.get_max_level( aInterpolationIndex );
-    };
+        moris::Cell< moris::Matrix< DDSMat > > mFineBasisToCoarseBasis;
+        moris::Cell< moris::Matrix< DDSMat > > mCoarseBasisToFineBasis;
+        moris::Cell< moris::Matrix< DDRMat > > mCoarseBasisToFineBasisWeights;
 
-//-------------------------------------------------------------------------------
+        moris::Matrix< DDRMat > mEnrichedBasisLevel;
 
-    uint get_num_basis( const moris_index aInterpolationIndex )
-    {
-        return mNumBasis;
-    }
+        uint mNumBasis = MORIS_UINT_MAX;
 
-//-------------------------------------------------------------------------------
+      public:
+        Multigrid(){};
 
-    uint get_basis_level( const moris_index aInterpolationIndex,
-                          const moris_index aBasisIndex )
-    {
-        return mEnrichedBasisLevel( aBasisIndex );
-    }
+        //------------------------------------------------------------------------------
 
-//-------------------------------------------------------------------------------
+        Multigrid( xtk::Model* aModel );
 
-    uint get_num_coarse_basis_of_basis( const moris_index aInterpolationIndex,
-                                        const moris_index aBasisIndex )
-    {
-        return mFineBasisToCoarseBasis( aBasisIndex ).numel();
-    }
+        //------------------------------------------------------------------------------
 
-//-------------------------------------------------------------------------------
+        ~Multigrid(){};
 
-    uint get_coarse_basis_index_of_basis( const moris_index aInterpolationIndex,
-                                          const moris_index aBasisIndex,
-                                          const moris_index aCoarseParentIndexForBasis )
-    {
-        return mFineBasisToCoarseBasis( aBasisIndex )( aCoarseParentIndexForBasis );
-    }
+        //------------------------------------------------------------------------------
 
-//-------------------------------------------------------------------------------
+        void create_fine_to_coarse_relationship();
 
-    moris::Matrix< DDSMat > get_fine_basis_inds_of_basis( const moris_index aInterpolationIndex,
-                                                          const moris_index aBasisIndex )
-    {
-        return mCoarseBasisToFineBasis( aBasisIndex );
-    }
+        //------------------------------------------------------------------------------
 
-//-------------------------------------------------------------------------------
+        void create_coarse_to_fine_relationship();
 
-    moris::Matrix< DDRMat > get_fine_basis_weights_of_basis( const moris_index aInterpolationIndex,
-                                                             const moris_index aBasisIndex )
-    {
-        return mCoarseBasisToFineBasisWeights( aBasisIndex );
-    }
+        //------------------------------------------------------------------------------
 
-//-------------------------------------------------------------------------------
+        void create_coarse_to_fine_weights();
+
+        //------------------------------------------------------------------------------
+
+        void build_enriched_coeff_to_background_coeff_map();
+
+        //------------------------------------------------------------------------------
+
+        uint
+        get_num_interpolations()
+        {
+            return 1;
+        };
+
+        //-------------------------------------------------------------------------------
+
+        uint
+        get_max_level( const moris_index aInterpolationIndex )
+        {
+            moris::mtk::Interpolation_Mesh& tInterpolationMesh = mXTKModelPtr->get_background_mesh();
+
+            return tInterpolationMesh.get_max_level( aInterpolationIndex );
+        };
+
+        //-------------------------------------------------------------------------------
+
+        uint
+        get_num_basis( const moris_index aInterpolationIndex )
+        {
+            return mNumBasis;
+        }
+
+        //-------------------------------------------------------------------------------
+
+        uint
+        get_basis_level( const moris_index aInterpolationIndex,
+                const moris_index          aBasisIndex )
+        {
+            return mEnrichedBasisLevel( aBasisIndex );
+        }
+
+        //-------------------------------------------------------------------------------
+
+        uint
+        get_num_coarse_basis_of_basis( const moris_index aInterpolationIndex,
+                const moris_index                        aBasisIndex )
+        {
+            return mFineBasisToCoarseBasis( aBasisIndex ).numel();
+        }
+
+        //-------------------------------------------------------------------------------
+
+        uint
+        get_coarse_basis_index_of_basis( const moris_index aInterpolationIndex,
+                const moris_index                          aBasisIndex,
+                const moris_index                          aCoarseParentIndexForBasis )
+        {
+            return mFineBasisToCoarseBasis( aBasisIndex )( aCoarseParentIndexForBasis );
+        }
+
+        //-------------------------------------------------------------------------------
+
+        moris::Matrix< DDSMat >
+        get_fine_basis_inds_of_basis( const moris_index aInterpolationIndex,
+                const moris_index                       aBasisIndex )
+        {
+            return mCoarseBasisToFineBasis( aBasisIndex );
+        }
+
+        //-------------------------------------------------------------------------------
+
+        moris::Matrix< DDRMat >
+        get_fine_basis_weights_of_basis( const moris_index aInterpolationIndex,
+                const moris_index                          aBasisIndex )
+        {
+            return mCoarseBasisToFineBasisWeights( aBasisIndex );
+        }
+
+        //-------------------------------------------------------------------------------
 
 #ifdef DEBUG
-    void save_to_vtk( const std::string & aFilePath );
+        void save_to_vtk( const std::string& aFilePath );
 #endif
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
-    void build_basis_exodus_information(std::string aName);
+        void build_basis_exodus_information( std::string aName );
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
 #ifdef DEBUG
-private:
-    moris::Matrix< DDRMat > mEnrichedBasisCoords;
 
-    moris::Matrix< DDRMat >             mEnrichedBasisStatus;
+      private:
+        moris::Matrix< DDRMat > mEnrichedBasisCoords;
+
+        moris::Matrix< DDRMat > mEnrichedBasisStatus;
 #endif
-
-
-
-
-};
-}
+    };
+}    // namespace xtk
 #endif /* XTK_SRC_XTK_CL_XTK_MULTIGRID_HPP_ */

@@ -157,7 +157,8 @@ namespace moris
 
                 if ( tNonLinSolver->mParameterListNonlinearSolver.get< bool >( "NLA_hard_break" ) )
                 {
-                    aIt        = tNonLinSolver->mParameterListNonlinearSolver.get< moris::sint >( "NLA_max_iter" );
+                    aIt = tNonLinSolver->mParameterListNonlinearSolver.get< moris::sint >( "NLA_max_iter" );
+
                     aHartBreak = true;
                 }
             }

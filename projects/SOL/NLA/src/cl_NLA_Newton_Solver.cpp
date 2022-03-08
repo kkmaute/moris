@@ -158,13 +158,15 @@ Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProblem )
                 tMaxNewTime,
                 tHardBreak );
 
+        // check if hard break is triggered
+        if ( tHardBreak )
+        {
+            break;
+        }
+
         // exit if convergence criterion is met
         if ( tIsConverged and tLoadFactor >= 1.0 )
         {
-            if ( tHardBreak )
-            {
-                continue;
-            }
             break;
         }
 

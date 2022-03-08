@@ -28,36 +28,37 @@ namespace moris
         //------------------------------------------------------------------------------
 
         // Parameter function
-        typedef void ( *Parameter_Function ) ( moris::Cell< moris::Cell< moris::ParameterList > > & aParameterList );
+        typedef void ( *Parameter_Function )( moris::Cell< moris::Cell< moris::ParameterList > >& aParameterList );
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Workflow_HMR_XTK::Workflow_HMR_XTK( wrk::Performer_Manager * aPerformerManager )
-        : Workflow( aPerformerManager )
+        Workflow_HMR_XTK::Workflow_HMR_XTK( wrk::Performer_Manager* aPerformerManager )
+                : Workflow( aPerformerManager )
         {
-
             // Performer set for this workflow
             mPerformerManager->mHMRPerformer.resize( 1 );
             mPerformerManager->mGENPerformer.resize( 1 );
-            //mPerformerManager->mXTKPerformer.resize( 1 );
+            // mPerformerManager->mXTKPerformer.resize( 1 );
             mPerformerManager->mMTKPerformer.resize( 2 );
             mPerformerManager->mMDLPerformer.resize( 1 );
             mPerformerManager->mRemeshingMiniPerformer.resize( 1 );
 
             // load the HMR parameter list
-            std::string tHMRString = "HMRParameterList";
-            Parameter_Function tHMRParameterListFunc = mPerformerManager->mLibrary->load_function<Parameter_Function>( tHMRString );
+            std::string        tHMRString            = "HMRParameterList";
+            Parameter_Function tHMRParameterListFunc = mPerformerManager->mLibrary->load_function< Parameter_Function >( tHMRString );
+
             moris::Cell< moris::Cell< ParameterList > > tHMRParameterList;
             tHMRParameterListFunc( tHMRParameterList );
 
-            std::string tGENString = "GENParameterList";
-            Parameter_Function tGENParameterListFunc = mPerformerManager->mLibrary->load_function<Parameter_Function>( tGENString );
+            std::string        tGENString            = "GENParameterList";
+            Parameter_Function tGENParameterListFunc = mPerformerManager->mLibrary->load_function< Parameter_Function >( tGENString );
+
             moris::Cell< moris::Cell< ParameterList > > tGENParameterList;
             tGENParameterListFunc( tGENParameterList );
 
-            std::string tMORISString = "MORISGENERALParameterList";
-            Parameter_Function tMORISParameterListFunc =
-                    mPerformerManager->mLibrary->load_function<Parameter_Function>( tMORISString );
+            std::string        tMORISString            = "MORISGENERALParameterList";
+            Parameter_Function tMORISParameterListFunc = mPerformerManager->mLibrary->load_function< Parameter_Function >( tMORISString );
+
             moris::Cell< moris::Cell< ParameterList > > tMORISParameterList;
             tMORISParameterListFunc( tMORISParameterList );
 
@@ -65,12 +66,12 @@ namespace moris
             mPerformerManager->mHMRPerformer( 0 ) = std::make_shared< hmr::HMR >( tHMRParameterList( 0 )( 0 ), mPerformerManager->mLibrary );
 
             // create MTK performer - will be used for HMR mesh
-            mPerformerManager->mMTKPerformer( 0 ) =std::make_shared< mtk::Mesh_Manager >();
+            mPerformerManager->mMTKPerformer( 0 ) = std::make_shared< mtk::Mesh_Manager >();
 
             // Create GE performer
             mPerformerManager->mGENPerformer( 0 ) = std::make_shared< ge::Geometry_Engine >(
                     tGENParameterList,
-                    mPerformerManager->mLibrary);
+                    mPerformerManager->mLibrary );
 
             // create MTK performer - will be used for XTK mesh
             mPerformerManager->mMTKPerformer( 1 ) = std::make_shared< mtk::Mesh_Manager >();
@@ -87,21 +88,21 @@ namespace moris
             // Set performer to MDL
             mPerformerManager->mMDLPerformer( 0 )->set_performer( mPerformerManager->mMTKPerformer( 1 ) );
 
-            if( tMORISParameterList.size() > 0 )
+            if ( tMORISParameterList.size() > 0 )
             {
                 // create MTK performer - will be used for HMR mesh
                 mPerformerManager->mRemeshingMiniPerformer( 0 ) =
                         std::make_shared< wrk::Remeshing_Mini_Performer >( tMORISParameterList( 0 )( 0 ), mPerformerManager->mLibrary );
             }
-
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Workflow_HMR_XTK::initialize(
-                Matrix<DDRMat>& aADVs,
-                Matrix<DDRMat>& aLowerBounds,
-                Matrix<DDRMat>& aUpperBounds)
+        void
+        Workflow_HMR_XTK::initialize(
+                Matrix< DDRMat >& aADVs,
+                Matrix< DDRMat >& aLowerBounds,
+                Matrix< DDRMat >& aUpperBounds )
         {
             mInitializeOptimizationRestart = false;
 
@@ -110,18 +111,17 @@ namespace moris
             moris::Cell< std::shared_ptr< mtk::Field > > tFieldsIn;
             moris::Cell< std::shared_ptr< mtk::Field > > tFieldsOut;
 
-            if( tIsFirstOptSolve )
+            if ( tIsFirstOptSolve )
             {
                 // Stage 1: HMR refinement -------------------------------------------------------------------
 
                 // Trace HMR
                 Tracer tTracer( "HMR", "HMRmesh", "Create" );
 
-                //mPerformerManager->mHMRPerformer( 0 )->reset_HMR();
+                // mPerformerManager->mHMRPerformer( 0 )->reset_HMR();
 
-                if( not mPerformerManager->mHMRPerformer( 0 )->get_restarted_from_file() )
+                if ( not mPerformerManager->mHMRPerformer( 0 )->get_restarted_from_file() )
                 {
-
                     // uniform initial refinement
                     mPerformerManager->mHMRPerformer( 0 )->perform_initial_refinement();
 
@@ -129,12 +129,12 @@ namespace moris
                     Refinement_Mini_Performer tRefinementPerfomer;
 
                     // GEN interface performer
-                    std::shared_ptr<Performer> tGenPerformer =
-                            std::make_shared<wrk::Gen_Performer>(mPerformerManager->mGENPerformer( 0 ));
+                    std::shared_ptr< Performer > tGenPerformer =
+                            std::make_shared< wrk::Gen_Performer >( mPerformerManager->mGENPerformer( 0 ) );
 
-                    //mPerformerManager->mGENPerformer( 0 )->get_mtk_fields()( 0 )->save_field_to_exodus( "field.exo" );
+                    // mPerformerManager->mGENPerformer( 0 )->get_mtk_fields()( 0 )->save_field_to_exodus( "field.exo" );
 
-                    tRefinementPerfomer.perform_refinement_old(mPerformerManager->mHMRPerformer( 0 ), {tGenPerformer});
+                    tRefinementPerfomer.perform_refinement_old( mPerformerManager->mHMRPerformer( 0 ), { tGenPerformer } );
                 }
 
                 // HMR finalize
@@ -151,11 +151,12 @@ namespace moris
                         tFieldsIn,
                         mPerformerManager->mHMRPerformer,
                         mPerformerManager->mMTKPerformer,
-                        tFieldsOut);
+                        tFieldsOut );
 
                 // Create new GE performer
-                std::string tGENString = "GENParameterList";
-                Parameter_Function tGENParameterListFunc = mPerformerManager->mLibrary->load_function<Parameter_Function>( tGENString );
+                std::string        tGENString            = "GENParameterList";
+                Parameter_Function tGENParameterListFunc = mPerformerManager->mLibrary->load_function< Parameter_Function >( tGENString );
+
                 moris::Cell< moris::Cell< ParameterList > > tGENParameterList;
                 tGENParameterListFunc( tGENParameterList );
 
@@ -169,7 +170,7 @@ namespace moris
                 Tracer tTracer( "GEN", "Levelset", "InitializeADVs" );
 
                 mPerformerManager->mGENPerformer( 0 )->distribute_advs(
-                        mPerformerManager->mMTKPerformer( 0 )->get_mesh_pair(0),
+                        mPerformerManager->mMTKPerformer( 0 )->get_mesh_pair( 0 ),
                         tFieldsOut );
 
                 // Get ADVs
@@ -177,42 +178,43 @@ namespace moris
                 aLowerBounds = mPerformerManager->mGENPerformer( 0 )->get_lower_bounds();
                 aUpperBounds = mPerformerManager->mGENPerformer( 0 )->get_upper_bounds();
             }
-
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Workflow_HMR_XTK::perform(const Matrix<DDRMat> & aNewADVs)
+        Matrix< DDRMat >
+        Workflow_HMR_XTK::perform( const Matrix< DDRMat >& aNewADVs )
         {
-            sint tOptIter =  gLogger.get_iteration(
+            sint tOptIter = gLogger.get_iteration(
                     "OptimizationManager",
                     LOGGER_ARBITRARY_DESCRIPTOR,
-                    LOGGER_ARBITRARY_DESCRIPTOR);
+                    LOGGER_ARBITRARY_DESCRIPTOR );
 
             tOptIter = tOptIter + mIter;
 
-            if( mIter >= mReinitializeIterIntervall or (uint)tOptIter == mReinitializeIterFirst )
+            if ( mIter >= mReinitializeIterIntervall or ( uint ) tOptIter == mReinitializeIterFirst )
             {
                 mInitializeOptimizationRestart = true;
 
-                moris::Matrix< DDRMat > tMat( mNumCriterias, 1, std::numeric_limits<real>::quiet_NaN());
+                moris::Matrix< DDRMat > tMat( mNumCriterias, 1, std::numeric_limits< real >::quiet_NaN() );
 
                 return tMat;
             }
 
             // Set new advs in GE
-            mPerformerManager->mGENPerformer( 0 )->set_advs(aNewADVs);
+            mPerformerManager->mGENPerformer( 0 )->set_advs( aNewADVs );
 
             // Stage 1: HMR refinement
 
             // Stage 2: XTK -----------------------------------------------------------------------------
             // Read parameter list from shared object
-            Parameter_Function tXTKParameterListFunc = mPerformerManager->mLibrary->load_function<Parameter_Function>( "XTKParameterList" );
+            Parameter_Function tXTKParameterListFunc = mPerformerManager->mLibrary->load_function< Parameter_Function >( "XTKParameterList" );
+
             moris::Cell< moris::Cell< ParameterList > > tXTKParameterList;
             tXTKParameterListFunc( tXTKParameterList );
 
             // Create XTK
-            xtk::Model* tXTKPerformer = new xtk::Model ( tXTKParameterList( 0 )( 0 ) );
+            xtk::Model* tXTKPerformer = new xtk::Model( tXTKParameterList( 0 )( 0 ) );
 
             std::shared_ptr< mtk::Mesh_Manager > tMTKPerformer = std::make_shared< mtk::Mesh_Manager >();
 
@@ -224,33 +226,33 @@ namespace moris
             // Compute level set data in GEN
             // FIXME: HMR stores mesh with aura on 0
             mPerformerManager->mGENPerformer( 0 )->reset_mesh_information(
-                    mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh(0) );
+                    mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh( 0 ) );
 
             // Output GEN fields, if requested
             mPerformerManager->mGENPerformer( 0 )->output_fields(
-                    mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh( 0 ));
+                    mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh( 0 ) );
 
-//             mtk::Mesh_Checker tMeshCheckerHMR(
-//                     0,
-//                     mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh(0),
-//                     mPerformerManager->mMTKPerformer( 0 )->get_integration_mesh(0));
-//             tMeshCheckerHMR.perform();
-//             tMeshCheckerHMR.print_diagnostics();
+            //             mtk::Mesh_Checker tMeshCheckerHMR(
+            //                     0,
+            //                     mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh(0),
+            //                     mPerformerManager->mMTKPerformer( 0 )->get_integration_mesh(0));
+            //             tMeshCheckerHMR.perform();
+            //             tMeshCheckerHMR.print_diagnostics();
 
             // XTK perform - decompose - enrich - ghost - multigrid
             bool tFlag = tXTKPerformer->perform_decomposition();
 
-            if( not tFlag )
+            if ( not tFlag )
             {
                 mInitializeOptimizationRestart = true;
 
                 MORIS_ERROR( mNumCriterias != MORIS_UINT_MAX,
                         "Workflow_HMR_XTK::perform() problem with mNumCriterias. "
-                        "This can happen if the xtk interface interfaces different refinement level in the first optimization iteration");
+                        "This can happen if the xtk interface interfaces different refinement level in the first optimization iteration" );
 
-                moris::Matrix< DDRMat > tMat( mNumCriterias, 1, std::numeric_limits<real>::quiet_NaN());
+                moris::Matrix< DDRMat > tMat( mNumCriterias, 1, std::numeric_limits< real >::quiet_NaN() );
 
-                //delete the xtk
+                // delete the xtk
                 delete tXTKPerformer;
 
                 return tMat;
@@ -259,59 +261,64 @@ namespace moris
             // XTK perform - enrich - ghost - multigrid
             tXTKPerformer->perform_enrichment();
 
-            //constrcut the data base with the mtk performer from xtk
-            DataBase_Performer tDataBasePerformer = DataBase_Performer(tMTKPerformer);
+            // constrcut the data base with the mtk performer from xtk
+            DataBase_Performer tDataBasePerformer = DataBase_Performer( tMTKPerformer );
 
-            //create the mtk performer that will hold the data base mesh pair and set it
+            // create the mtk performer that will hold the data base mesh pair and set it
             std::shared_ptr< mtk::Mesh_Manager > tMTKDataBasePerformer = std::make_shared< mtk::Mesh_Manager >();
-             tDataBasePerformer.set_output_performer(tMTKDataBasePerformer);
+            tDataBasePerformer.set_output_performer( tMTKDataBasePerformer );
 
-            //perform the mtk data base 
-             tDataBasePerformer.perform();
+            // perform the mtk data base
+            tDataBasePerformer.perform();
 
-            //set the mtk performer
+            // set the mtk performer
             mPerformerManager->mMTKPerformer( 1 ) = tMTKDataBasePerformer;
 
             // output T-matrices and MPCs if requested
             this->output_T_matrices( tMTKPerformer, tXTKPerformer );
 
-            //delete the xtk-performer
+            // delete the xtk-performer
             delete tXTKPerformer;
-            
+
             // IMPORTANT!!! do not overwrite previous XTK  and MTK performer before we know if this XTK performer triggers a restart.
             // otherwise the fem::field meshes are deleted and cannot be used anymore.
-            //mPerformerManager->mXTKPerformer( 0 ) = std::shared_ptr<xtk::Model> (tXTKPerformer);
-            //mPerformerManager->mMTKPerformer( 1 ) = tMTKPerformer;
+            // mPerformerManager->mXTKPerformer( 0 ) = std::shared_ptr<xtk::Model> (tXTKPerformer);
+            // mPerformerManager->mMTKPerformer( 1 ) = tMTKPerformer;
 
-//            mtk::Mesh_Checker tMeshCheckerXTK(
-//                    0,
-//                    mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair(0).get_interpolation_mesh(),
-//                    mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair(0).get_integration_mesh());
-//            tMeshCheckerXTK.perform();
-//            tMeshCheckerXTK.print_diagnostics();
+            //            mtk::Mesh_Checker tMeshCheckerXTK(
+            //                    0,
+            //                    mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair(0).get_interpolation_mesh(),
+            //                    mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair(0).get_integration_mesh());
+            //            tMeshCheckerXTK.perform();
+            //            tMeshCheckerXTK.print_diagnostics();
 
-            //mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair(0).get_integration_mesh()->save_MPC_to_hdf5();
-            //mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair(0).get_integration_mesh()->save_IG_node_TMatrices_to_file();
+            // mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair(0).get_integration_mesh()->save_MPC_to_hdf5();
+            // mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair(0).get_integration_mesh()->save_IG_node_TMatrices_to_file();
 
 
-            Parameter_Function tMIGParameterListFunc = mPerformerManager->mLibrary->load_function< Parameter_Function >( "MIGParameterList", false );
+            Parameter_Function tMIGParameterListFunc =
+                    mPerformerManager->mLibrary->load_function< Parameter_Function >( "MIGParameterList", false );
+
             if ( tMIGParameterListFunc )
             {
                 moris::Cell< moris::Cell< ParameterList > > tMIGParameterList;
                 tMIGParameterListFunc( tMIGParameterList );
 
-                  moris::mig::MIG tMIGPerformer = moris::mig::MIG(mPerformerManager->mMTKPerformer( 1 ), tMIGParameterList(0)(0),  mPerformerManager->mGENPerformer( 0 ).get() );
+                moris::mig::MIG tMIGPerformer = moris::mig::MIG(
+                        mPerformerManager->mMTKPerformer( 1 ),
+                        tMIGParameterList( 0 )( 0 ),
+                        mPerformerManager->mGENPerformer( 0 ).get() );
 
-                  tMIGPerformer.perform();
+                tMIGPerformer.perform();
             }
 
-            //free the memory and delete the unused data
+            // free the memory and delete the unused data
             tDataBasePerformer.free_memory();
 
             mPerformerManager->mMDLPerformer( 0 )->set_performer( mPerformerManager->mMTKPerformer( 1 ) );
 
             // Assign PDVs
-            mPerformerManager->mGENPerformer( 0 )->create_pdvs( mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair(0) );
+            mPerformerManager->mGENPerformer( 0 )->create_pdvs( mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair( 0 ) );
 
             // Stage 3: MDL perform ---------------------------------------------------------------------
 
@@ -330,14 +337,14 @@ namespace moris
             mNumCriterias = tVal.size();
 
             // Communicate IQIs
-            for( uint iIQIIndex = 0; iIQIIndex < mNumCriterias; iIQIIndex++ )
+            for ( uint iIQIIndex = 0; iIQIIndex < mNumCriterias; iIQIIndex++ )
             {
                 tVal( iIQIIndex )( 0 ) = sum_all( tVal( iIQIIndex )( 0 ) );
             }
 
             moris::Matrix< DDRMat > tMat( mNumCriterias, 1, 0.0 );
 
-            for( uint Ik = 0; Ik < mNumCriterias; Ik ++ )
+            for ( uint Ik = 0; Ik < mNumCriterias; Ik++ )
             {
                 tMat( Ik ) = tVal( Ik )( 0 );
             }
@@ -349,34 +356,40 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Workflow_HMR_XTK::compute_dcriteria_dadv()
+        Matrix< DDRMat >
+        Workflow_HMR_XTK::compute_dcriteria_dadv()
         {
             mPerformerManager->mGENPerformer( 0 )->communicate_requested_IQIs();
 
             mPerformerManager->mMDLPerformer( 0 )->perform( 1 );
 
-            Matrix<DDRMat> tDCriteriaDAdv = mPerformerManager->mGENPerformer( 0 )->get_dcriteria_dadv();
+            Matrix< DDRMat > tDCriteriaDAdv = mPerformerManager->mGENPerformer( 0 )->get_dcriteria_dadv();
 
-            if (par_rank() == 0)
+            if ( par_rank() == 0 )
             {
-                MORIS_LOG_INFO ( "--------------------------------------------------------------------------------");
-                MORIS_LOG_INFO ( "Gradients of design criteria wrt ADVs:");
+                MORIS_LOG_INFO( "--------------------------------------------------------------------------------" );
+                MORIS_LOG_INFO( "Gradients of design criteria wrt ADVs:" );
 
-                for (uint i=0;i<tDCriteriaDAdv.n_rows();++i)
+                for ( uint i = 0; i < tDCriteriaDAdv.n_rows(); ++i )
                 {
-                    Matrix<DDRMat> tDIQIDAdv = tDCriteriaDAdv.get_row(i);
+                    Matrix< DDRMat > tDIQIDAdv = tDCriteriaDAdv.get_row( i );
 
-                    auto tItrMin = std::min_element(tDIQIDAdv.data(),tDIQIDAdv.data()+tDIQIDAdv.numel());
-                    auto tIndMin = std::distance(tDIQIDAdv.data(),tItrMin);
+                    auto tItrMin = std::min_element( tDIQIDAdv.data(), tDIQIDAdv.data() + tDIQIDAdv.numel() );
+                    auto tIndMin = std::distance( tDIQIDAdv.data(), tItrMin );
 
-                    auto tItrMax = std::max_element(tDIQIDAdv.data(),tDIQIDAdv.data()+tDIQIDAdv.numel());
-                    auto tIndMax = std::distance(tDIQIDAdv.data(),tItrMax);
+                    auto tItrMax = std::max_element( tDIQIDAdv.data(), tDIQIDAdv.data() + tDIQIDAdv.numel() );
+                    auto tIndMax = std::distance( tDIQIDAdv.data(), tItrMax );
 
-                    MORIS_LOG_INFO ( "Criteria(%i): norm = %e   min = %e  (index = %i)   max = %e  (index = %i)",
-                            i, norm(tDIQIDAdv),tDIQIDAdv.min(),tIndMin,tDIQIDAdv.max(),tIndMax);
+                    MORIS_LOG_INFO( "Criteria(%i): norm = %e   min = %e  (index = %i)   max = %e  (index = %i)",
+                            i,
+                            norm( tDIQIDAdv ),
+                            tDIQIDAdv.min(),
+                            tIndMin,
+                            tDIQIDAdv.max(),
+                            tIndMax );
                 }
 
-                MORIS_LOG_INFO ( "--------------------------------------------------------------------------------");
+                MORIS_LOG_INFO( "--------------------------------------------------------------------------------" );
             }
 
             mPerformerManager->mMDLPerformer( 0 )->free_memory();
@@ -386,28 +399,30 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void 
+        void
         Workflow_HMR_XTK::output_T_matrices(
-            const std::shared_ptr< mtk::Mesh_Manager > aMTKPerformer,
-            xtk::Model*  const &      aXTKPerformer ) 
+                const std::shared_ptr< mtk::Mesh_Manager > aMTKPerformer,
+                xtk::Model* const &                        aXTKPerformer )
         {
             // Output T-matrices if requested
             std::string tTmatrixFileName = aXTKPerformer->get_T_matrix_output_file_name();
             if ( tTmatrixFileName != "" )
             {
-                mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair(0).get_integration_mesh()->save_IG_node_TMatrices_to_file( tTmatrixFileName );
-                MORIS_ERROR( false, "Workflow_HMR_XTK - Output T-Matrices: Kill run here by intention, only T-Matrices requested" );
+                mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair( 0 ).get_integration_mesh()->save_IG_node_TMatrices_to_file( tTmatrixFileName );
+
+                MORIS_ERROR( false,
+                        "Workflow_HMR_XTK - Output T-Matrices: Kill run here by intention, only T-Matrices requested" );
             }
 
             // Output MPCs if requested
             std::string tMpcFileName = aXTKPerformer->get_MPC_output_file_name();
             if ( tMpcFileName != "" )
             {
-                mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair(0).get_integration_mesh()->save_MPC_to_hdf5( tMpcFileName );
+                mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair( 0 ).get_integration_mesh()->save_MPC_to_hdf5( tMpcFileName );
             }
         }
-        
+
         //--------------------------------------------------------------------------------------------------------------
 
-    } /* namespace mdl */
+    }    // namespace wrk
 } /* namespace moris */

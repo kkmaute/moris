@@ -33,21 +33,26 @@ namespace moris
             const real mEpsilon = 1e-10;
 
             // Spalart-Allmaras model constants
-            real mCb1   = 0.1355;
-            real mCb2   = 0.6220;
-            real mSigma = 2.0 / 3.0;
-            real mKappa = 0.41;
-            real mCw1   = mCb1 / std::pow( mKappa, 2.0 ) + ( 1.0 + mCb2 ) / mSigma;
-            real mCw2   = 0.3;
-            real mCw3   = 2.0;
-            real mCt3   = 1.2;
-            real mCt4   = 0.5;
-            real mCv1   = 7.1;
-            real mCv2   = 0.7;
-            real mCv3   = 0.9;
-            real mRLim  = 10.0;
-            real mCn1   = 16.0;
+            const real mCb1   = 0.1355;
+            const real mCb2   = 0.6220;
+            const real mSigma = 2.0 / 3.0;
+            const real mKappa = 0.41;
+            const real mCw1   = mCb1 / std::pow( mKappa, 2.0 ) + ( 1.0 + mCb2 ) / mSigma;
+            const real mCw2   = 0.3;
+            const real mCw3   = 2.0;
+            const real mCt3   = 1.2;
+            const real mCt4   = 0.5;
+            const real mCv1   = 7.1;
+            const real mCv2   = 0.7;
+            const real mCv3   = 0.9;
+            const real mRLim  = 10.0;
+            const real mCn1   = 16.0;
+
+            // correction to destruction term for negative viscosity
             real mAlpha = 1.0;
+
+            // flag to turn on/off ft2
+            bool mUseFt2 = true;
 
             // default dof type
             MSI::Dof_Type mDofVelocity  = MSI::Dof_Type::VX;
@@ -79,6 +84,9 @@ namespace moris
 
             bool                    mModVelocityEval = true;
             moris::Matrix< DDBMat > mdModVelocityduEval;
+
+            bool                    mModVelocityLinearizedEval = true;
+            moris::Matrix< DDBMat > mdModVelocityLinearizedduEval;
 
             bool                    mChiEval = true;
             moris::Matrix< DDBMat > mdChiduEval;
@@ -134,6 +142,9 @@ namespace moris
             Matrix< DDRMat >                mModVelocity;
             moris::Cell< Matrix< DDRMat > > mdModVelocitydu;
 
+            Matrix< DDRMat >                mModVelocityLinearized;
+            moris::Cell< Matrix< DDRMat > > mdModVelocityLinearizeddu;
+
             // storage for chi
             moris::real                             mChi;
             moris::Cell< Matrix< DDRMat > >         mdChidu;
@@ -169,6 +180,8 @@ namespace moris
             moris::Cell< Matrix< DDRMat > >         mdFndu;
             moris::Cell< Matrix< DDRMat > >         mdFndx;
             moris::Cell< Cell< Matrix< DDRMat > > > mdFndxdu;
+
+            friend class IQI_Spalart_Allmaras_Coefficient;
 
             //--------------------------------------------------------------------------------------------------------------
 
@@ -401,6 +414,24 @@ namespace moris
                     const moris::Cell< MSI::Dof_Type >& aDofType,
                     enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
 
+            /**
+             * get the linearized version of modified velocity u_tilde = u - ( cb2 / sigma ) * dnu_tilde/dx
+             * @param[ in ]  aCMFunctionType enum for modified velocity if several
+             * @param[ out ] mModVelocity modified velocity
+             */
+            const Matrix< DDRMat >& modified_velocity_linearized(
+                    enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
+
+            /**
+             * get the derivative of the linearized version of the modified velocity wrt dof type
+             * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+             * @param[ in ] aCMFunctionType enum for specific type of which diffusion
+             * @param[ out ] mdmodvelocitydu derivative of the modified velocity wrt dof types
+             */
+            const Matrix< DDRMat >& dmodvelocitylinearizeddu(
+                    const moris::Cell< MSI::Dof_Type >& aDofType,
+                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
+
             //--------------------------------------------------------------------------------------------------------------
 
           private:
@@ -628,11 +659,24 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
+             * evaluate the modified velocity
+             */
+            void eval_modified_velocity_linearized();
+
+            //------------------------------------------------------------------------------
+            /**
+             * evaluate the modified velocity derivative wrt to dof type
+             * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
+             */
+            void eval_dmodvelocitylinearizeddu( const moris::Cell< MSI::Dof_Type >& aDofTypes );
+
+            //------------------------------------------------------------------------------
+            /**
              * get chi = nu_tilde/nu
              * @param[ in ]  aCMFunctionType enum indicating which function if several
              * @param[ out ] mChi chi
              */
-            const real chi(
+            real chi(
                     enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
             /**
@@ -678,7 +722,7 @@ namespace moris
              * @param[ in ]  aCMFunctionType enum indicating which function if several
              * @param[ out ] mFt2 ft2
              */
-            const real ft2(
+            real ft2(
                     enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
             /**
@@ -740,7 +784,7 @@ namespace moris
              *               if there are several
              * @param[ out ] mS S
              */
-            const real s(
+            real s(
                     enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
             /**
@@ -765,7 +809,7 @@ namespace moris
              * @param[ in ]  aCMFunctionType enum for specific type of fv2
              * @param[ out ] mFv1 fv1
              */
-            const real fv1(
+            real fv1(
                     enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
             /**
@@ -789,7 +833,7 @@ namespace moris
              * @param[ in ]  aCMFunctionType enum for specific type of fv2
              * @param[ out ] mFv2 fv2
              */
-            const real fv2(
+            real fv2(
                     enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
             /**
@@ -819,7 +863,7 @@ namespace moris
              * @param[ in ]  aCMFunctionType  enum indicating which S if several
              * @param[ out ] mSbar sbar
              */
-            const real sbar(
+            real sbar(
                     enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
             /**
@@ -849,7 +893,7 @@ namespace moris
              * @param[ in ]  aCMFunctionType enum for specific type of SMod
              * @param[ out ] mSMod SMod
              */
-            const real smod(
+            real smod(
                     enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
             /**
@@ -880,7 +924,7 @@ namespace moris
              * @param[ in ]  aCMFunctionType enum for specific type of SMod
              * @param[ out ] mSTilde STilde
              */
-            const real stilde(
+            real stilde(
                     enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
             /**
@@ -910,7 +954,7 @@ namespace moris
              * @param[ in ]  aCMFunctionType enum for specific type of SMod
              * @param[ out ] mR R
              */
-            const real r(
+            real r(
                     enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
             /**
@@ -940,7 +984,7 @@ namespace moris
              * @param[ in ]  aCMFunctionType enum for specific type of SMod
              * @param[ out ] mG g
              */
-            const real g(
+            real g(
                     enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
             /**
@@ -970,7 +1014,7 @@ namespace moris
              * @param[ in ]  aCMFunctionType enum for specific type of SMod
              * @param[ out ] mFw fw
              */
-            const real fw(
+            real fw(
                     enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
             /**
@@ -1001,7 +1045,7 @@ namespace moris
              * @param[ in ]  aCMFunctionType enum for specific type of fn
              * @param[ out ] mFn fn
              */
-            const real fn(
+            real fn(
                     enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
             /**

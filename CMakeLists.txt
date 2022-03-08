@@ -1,3 +1,7 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE file in the project root for details.
+#
 # -------------------------------------------------------------------------
 # MORIS CMakeLists.txt ----------------------------------------------------
 # -------------------------------------------------------------------------

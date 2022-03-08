@@ -49,7 +49,9 @@ int fn_WRK_Workflow_Main_Interface( int argc, char * argv[] )
         return -1;
     }
 
-    std::string tInputArg = std::string(argv[ 1 ]);
+    // last input argument is assumed to be shared object file
+    // FIXME: shared object file name should be identified with together with other command line options
+    std::string tInputArg = std::string(argv[ argc - 1 ]);
     std::string tString = "Reading dynamically linked shared object " + tInputArg + ".";
     MORIS_LOG( tString.c_str() );
 
