@@ -327,49 +327,51 @@ namespace xtk
             Cell< Interpolation_Cell_Unzipped* > mEnrichedInterpCells;     // over allocated
 
             // for each outer cell (base interpolation vertex), indices of enriched vertices
-            Cell< Cell< Cell< moris_index > > > mBaseInterpVertToVertEnrichmentIndex;
+            Cell< Cell< Cell< moris_index > > > mBaseInterpVertToVertEnrichmentIndex; 
+            // input: Discretization mesh index (DMI), BG mesh vertex index || output: list of enriched vertex indices
 
             // vertex enrichments or t-matrix
             // outer cell - mesh index (i.e. linear or quadratic b-spline enrichment)
             // inner cell
-            Cell< Cell< Vertex_Enrichment* > > mInterpVertEnrichment;
+            Cell< Cell< Vertex_Enrichment* > > mInterpVertEnrichment; // input: DMI || output: list of T-Matrices ("Vertex Enrichments")
 
             // vertex enrichment to parent vertex index (these are enriched interpolation vertex indices)
-            Cell< Cell< moris_index > > mVertexEnrichmentParentVertexIndex;
+            Cell< Cell< moris_index > > mVertexEnrichmentParentVertexIndex; // input: DMI, Vertex Enrichment index || output: index parent node on BG mesh
 
             // Bulk phase of each interpolation vertex
-            Matrix< IndexMat > mVertexBulkPhase;
-            Matrix< IndexMat > mVertexMaxSubphase;
+            Matrix< IndexMat > mVertexBulkPhase; // input: index of unzipped vertex || output: bulk-phase index
+            Matrix< IndexMat > mVertexMaxSubphase; // input: index of unzipped vertex || output: maximum subphase ID on vertex // TODO: why do we need this?
 
             // basis coefficient to enriched basis coefficient
-            Cell< moris::Cell< moris::Matrix< moris::IndexMat > > > mCoeffToEnrichCoeffs;
+            Cell< moris::Cell< moris::Matrix< moris::IndexMat > > > mCoeffToEnrichCoeffs; 
+            // input: DMI, index of non-enriched BF coefficient || ouput: list of enriched BF indices associated with it
 
             // local to global enriched basis vector
-            Cell< moris::Matrix< moris::IdMat > >               mEnrichCoeffLocToGlob;
-            Cell< std::unordered_map< moris_id, moris_index > > mGlobaltoLocalBasisMaps;
+            Cell< moris::Matrix< moris::IdMat > >               mEnrichCoeffLocToGlob; // input: DMI, enriched BF index || output: global ID of that enriched BF 
+            Cell< std::unordered_map< moris_id, moris_index > > mGlobaltoLocalBasisMaps; // input: DMI || output: map ordered by global BF IDs with corresponding local BF index
 
             // basis ownership
-            Cell< moris::Matrix< moris::IdMat > > mEnrichCoeffOwnership;
+            Cell< moris::Matrix< moris::IdMat > > mEnrichCoeffOwnership; // input: DMI, enriched BF index || output:
 
             // basis bulk phase
-            Cell< moris::Matrix< moris::IdMat > > mEnrichCoeffBulkPhase;
+            Cell< moris::Matrix< moris::IdMat > > mEnrichCoeffBulkPhase; // input: DMI, enriched BF index || output: Proc ID owning enr. BF
 
             // Entity maps
-            Cell< Matrix< IdMat > >                             mLocalToGlobalMaps;
-            Cell< std::unordered_map< moris_id, moris_index > > mGlobaltoLobalMaps;
+            Cell< Matrix< IdMat > >                             mLocalToGlobalMaps; // TODO input: DMI || output:
+            Cell< std::unordered_map< moris_id, moris_index > > mGlobaltoLobalMaps; // TODO input: DMI || output:
 
             // base interpolation cells to their enriched interpolation cells
-            moris::Cell< moris::Cell< Interpolation_Cell_Unzipped* > > mBaseCelltoEnrichedCell;
+            moris::Cell< moris::Cell< Interpolation_Cell_Unzipped* > > mBaseCelltoEnrichedCell; // TODO input: DMI || output:
 
             // a connecitivty pointer that all the enriched interpolation cells use
             std::shared_ptr< moris::mtk::Cell_Info > mCellInfo;
 
             // Not owned vertex list
-            Cell< moris_index > mNotOwnedVerts;
+            Cell< moris_index > mNotOwnedVerts; // TODO input:  || output:
 
             // not owned basis functions
-            Cell< moris_index > mNotOwnedBasis;
-            Cell< moris_index > mOwnedBasis;
+            Cell< moris_index > mNotOwnedBasis; // TODO input:  || output:
+            Cell< moris_index > mOwnedBasis; // TODO input:  || output:
 
             //------------------------------------------------------------------------------
             // functions used by enrichment for construction of the mesh

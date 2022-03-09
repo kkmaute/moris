@@ -31,8 +31,18 @@ class Interpolation_Vertex_Unzipped;
 
 class Interpolation_Cell_Unzipped: public Interpolation_Cell
 {
+
+protected:
+    moris::mtk::Cell*                                  mBaseCell;
+    moris::moris_index                                 mSubPhaseIndex;
+    moris::moris_index                                 mLocalSpgIndex;
+    moris::moris_index                                 mBulkPhaseIndex;
+    moris::Cell< xtk::Interpolation_Vertex_Unzipped* > mVertices;
+
 public:
     Interpolation_Cell_Unzipped(){};
+    
+    // constructor for SPG based initialization
     Interpolation_Cell_Unzipped(moris::mtk::Cell*      aBaseCell,
                                 moris_index            aSubphaseIndex,
                                 moris_index            aBulkPhaseIndex,
@@ -41,14 +51,14 @@ public:
                                 moris_id               aCellOwner,
                                 std::shared_ptr<moris::mtk::Cell_Info> aConnectivity);
 
-    // FIXME: SPG based initialization
-    // Interpolation_Cell_Unzipped(moris::mtk::Cell*      aBaseCell,
-    //                             moris_index            aSubphaseGroupIndex,
-    //                             moris_index            aBulkPhaseIndex,
-    //                             moris_id               aEnrCellId,
-    //                             moris_index            aEnrCellIndex,
-    //                             moris_id               aEnrCellOwner,
-    //                             std::shared_ptr<moris::mtk::Cell_Info> aConnectivity);
+    // constructor for SPG based initialization
+    Interpolation_Cell_Unzipped(moris::mtk::Cell*      aBaseCell,
+                                moris_index            aLocalSpgIndex,
+                                moris_id               aEnrCellId,
+                                moris_index            aEnrCellIndex,
+                                moris_id               aEnrCellOwner,
+                                std::shared_ptr<moris::mtk::Cell_Info> aConnectivity,
+                                bool                   aIsSpgBasedConstruction ); // FIXME: this can go eventually, leave for now to distinquish constructors
 
     //------------------------------------------------------------------------------
     // MTK Interpolation Cell Implementation
@@ -101,9 +111,15 @@ public:
     moris_index
     get_subphase_index() const;
 
-    // FIXME: add for SPGs
-    // moris_index
-    // get_subphase_group_index() const;
+    //------------------------------------------------------------------------------
+
+    /**
+     * @brief Return the position of the enr. IP cell within the list of enr. IP cells on associated base IP cell
+     * 
+     * @return moris_index 
+     */
+    moris_index
+    get_local_SPG_index() const;
 
     //------------------------------------------------------------------------------
 
@@ -140,14 +156,6 @@ protected:
     friend class Enrichment;
     friend class Ghost_Stabilization;
     friend class Enriched_Interpolation_Mesh;
-
-protected:
-    moris::mtk::Cell*                                  mBaseCell;
-    moris::moris_index                                 mSubPhaseIndex;
-    // FIXME: add for SPGs
-    //moris::moris_index                                 mSubphaseGroupIndex;
-    moris::moris_index                                 mBulkPhaseIndex;
-    moris::Cell< xtk::Interpolation_Vertex_Unzipped* > mVertices;
 };
 
 //------------------------------------------------------------------------------

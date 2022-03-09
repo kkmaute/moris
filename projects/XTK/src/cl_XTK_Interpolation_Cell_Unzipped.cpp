@@ -9,36 +9,44 @@
 #include "cl_XTK_Interpolation_Cell_Unzipped.hpp"
 namespace xtk
 {
+
 //------------------------------------------------------------------------------
 
-Interpolation_Cell_Unzipped::Interpolation_Cell_Unzipped(moris::mtk::Cell*         aBaseCell,
-                                                         moris_index               aSubphaseIndex,
-                                                         moris_index               aBulkPhaseIndex,
-                                                         moris_id                  aCellId,
-                                                         moris_index               aCellIndex,
-                                                         moris_id                  aCellOwner,
-                                                         std::shared_ptr<moris::mtk::Cell_Info> aConnectivity):
-                Interpolation_Cell(aCellId,aCellIndex,aCellOwner,aConnectivity),
-                mBaseCell(aBaseCell),
-                mSubPhaseIndex(aSubphaseIndex),
-                mBulkPhaseIndex(aBulkPhaseIndex)
+Interpolation_Cell_Unzipped::Interpolation_Cell_Unzipped(
+        moris::mtk::Cell*                        aBaseCell,
+        moris_index                              aSubphaseIndex,
+        moris_index                              aBulkPhaseIndex,
+        moris_id                                 aCellId,
+        moris_index                              aCellIndex,
+        moris_id                                 aCellOwner,
+        std::shared_ptr< moris::mtk::Cell_Info > aConnectivity )
+        : Interpolation_Cell( aCellId, aCellIndex, aCellOwner, aConnectivity )
+        , mBaseCell( aBaseCell )
+        , mSubPhaseIndex( aSubphaseIndex )
+        , mLocalSpgIndex( -1 )
+        , mBulkPhaseIndex( aBulkPhaseIndex )
 {
 }
 
-// FIXME: just renaming everything for SPGs for later
-// Interpolation_Cell_Unzipped::Interpolation_Cell_Unzipped(moris::mtk::Cell*         aBaseCell,
-//                                                          moris_index               aSubphaseGroupIndex,
-//                                                          moris_index               aBulkPhaseIndex,
-//                                                          moris_id                  aEnrCellId,
-//                                                          moris_index               aEnrCellIndex,
-//                                                          moris_id                  aEnrCellOwner,
-//                                                          std::shared_ptr<moris::mtk::Cell_Info> aConnectivity ):
-//                 Interpolation_Cell(aEnrCellId,aEnrCellIndex,aEnrCellOwner,aConnectivity),
-//                 mBaseCell(aBaseCell),
-//                 mSubphaseGroupIndex(aSubphaseIndex),
-//                 mBulkPhaseIndex(aBulkPhaseIndex)
-// {
-// }
+//------------------------------------------------------------------------------
+
+Interpolation_Cell_Unzipped::Interpolation_Cell_Unzipped(
+        moris::mtk::Cell*                        aBaseCell,
+        moris_index                              aLocalSpgIndex,
+        moris_id                                 aEnrCellId,
+        moris_index                              aEnrCellIndex,
+        moris_id                                 aEnrCellOwner,
+        std::shared_ptr< moris::mtk::Cell_Info > aConnectivity,
+        bool                                     aIsSpgBasedConstruction )
+        : Interpolation_Cell( aEnrCellId, aEnrCellIndex, aEnrCellOwner, aConnectivity )
+        , mBaseCell( aBaseCell )
+        , mSubPhaseIndex( -1 )
+        , mLocalSpgIndex( aLocalSpgIndex )
+        , mBulkPhaseIndex( -1 )
+{
+    MORIS_ASSERT( aIsSpgBasedConstruction, 
+        "Interpolation_Cell_Unzipped::Interpolation_Cell_Unzipped() - second constructor can only be used with SPG-based enrichment" );
+}
 
 //------------------------------------------------------------------------------
 
@@ -110,23 +118,25 @@ Interpolation_Cell_Unzipped::get_base_cell()
 moris_index
 Interpolation_Cell_Unzipped::get_subphase_index() const
 {
+    MORIS_ASSERT( mSubPhaseIndex != -1, "Interpolation_Cell_Unzipped::get_subphase_index() - UIPV has been constructed using SPGs, no SP index available." );
     return mSubPhaseIndex;
 }
 
 //------------------------------------------------------------------------------
 
-// FIXME: add for SPGS
-// moris_index
-// Interpolation_Cell_Unzipped::get_subphase_group_index() const
-// {
-//     return mSubphaseGroupIndex;
-// }
+moris_index
+Interpolation_Cell_Unzipped::get_local_SPG_index() const
+{
+    MORIS_ASSERT( mLocalSpgIndex != -1, "Interpolation_Cell_Unzipped::get_local_SPG_index() - UIPV has been constructed using SPs, no SPG index available." );
+    return mLocalSpgIndex;
+}
 
 //------------------------------------------------------------------------------
 
 moris_index
 Interpolation_Cell_Unzipped::get_bulkphase_index() const
 {
+    MORIS_ASSERT( mBulkPhaseIndex != -1, "Interpolation_Cell_Unzipped::get_bulkphase_index() - UIPV has been constructed using SPGs, bulk-phase index not well-defined." );
     return mBulkPhaseIndex;
 }
 
