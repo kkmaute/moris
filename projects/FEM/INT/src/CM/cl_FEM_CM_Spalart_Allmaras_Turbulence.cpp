@@ -81,7 +81,7 @@ namespace moris
 
                 // check for proper parameter value
                 MORIS_ERROR( aParameters( 1 )( 0 ) >= 1.0,
-                        "CM_Spalart_Allmaras_Turbulence::set_parameters - invalid mUseFt2 parameter." );
+                        "CM_Spalart_Allmaras_Turbulence::set_parameters - invalid mAlpha parameter." );
 
                 // set alpha value
                 mAlpha = aParameters( 1 )( 0 );
