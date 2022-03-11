@@ -70,20 +70,91 @@ namespace xtk
 {
     class Model
     {
+        // friend classes
+        friend class Integration_Mesh_Generator;
+        friend class Cut_Integration_Mesh;
+        friend class Enrichment;
+        friend class Enriched_Interpolation_Mesh;
+        friend class Enriched_Integration_Mesh;
+        friend class Cut_Integration_Mesh;
+        friend class Ghost_Stabilization;
+        friend class Multigrid;
+
+        //--------------------------------------------------------------------------------
+
+      protected:
+
+        moris::ParameterList mParameterList;
+
+        uint                                    mModelDimension;
+        moris::mtk::Interpolation_Mesh*         mBackgroundMesh;
+        Cut_Mesh                                mCutMesh;
+        moris::ge::Geometry_Engine*             mGeometryEngine;
+        std::shared_ptr< Cut_Integration_Mesh > mCutIntegrationMesh;
+        Enrichment*                             mEnrichment;
+        Ghost_Stabilization*                    mGhostStabilization;
+        Cell< Enriched_Interpolation_Mesh* >    mEnrichedInterpMesh;
+        Cell< Enriched_Integration_Mesh* >      mEnrichedIntegMesh;
+        std::shared_ptr< xtk::Multigrid >       mMultigrid;
+
+        //--------------------------------------------------------------------------------
+
+      private:
+
+        // XTK Model State Flags
+        bool mDecomposed        = false;// Model has been decomposed
+        bool mConvertedToTet10s = false;// Model has been converted from tet4's to tet10s
+        bool mMeshDataFinalized = false;
+        bool mEnriched          = false;// Model has been enriched
+        bool mUnzipped          = false;// Model has been unzipped
+        bool mGhost             = false;// Model has setup ghost stabilization
+
+        // Flag to cleanup mesh at end of decomposition
+        bool mTriangulateAll = false;// Triangulate all background cells
+        bool mCleanupMesh    = false;// Cleanup the mesh
+
+        // polynomial order of IG elements, 1 is default, 2 or higher will invoke order elevation in decomposition
+        uint mIgElementOrder = 1;// Triangulate all background cells
+
+        // diagnostic information
+        bool        mDiagnostics    = false;
+        std::string mDiagnosticPath = "";
+        std::string mDiagnosticId   = "";
+
+        // communication table
+        moris::Matrix<IdMat> mCommunicationMap;
+
+        // cell map
+        std::map< moris_id, moris_index > mCellGlbToLocalMap;
+
+        // element to element neighborhood
+        moris::Cell< moris::Cell< moris::mtk::Cell* > > mElementToElement;
+        moris::Cell< moris::Cell< moris_index > >       mElementToElementSideOrds;
+        moris::Cell< moris::Cell< moris_index > >       mElementToElementNeighborSideOrds;
+        moris::Cell< moris::Cell< moris_index > >       mSubphaseToSubPhase;
+        moris::Cell< moris::Cell< moris_index > >       mSubphaseToSubPhaseMySideOrds;
+        moris::Cell< moris::Cell< moris_index > >       mSubphaseToSubPhaseNeighborSideOrds;
+
+        // in the case of a hierarchically refined mesh, there are transitions with hanging nodes
+        // this data flags the transition from a large facet to a smaller facet. (this is trivial
+        // for non hmr type meshes)
+        moris::Cell< moris::Cell< moris_index > > mTransitionNeighborCellLocation;
+
+        // local to global subphase map
+        std::unordered_map< moris::moris_id, moris::moris_index > mGlobalToLocalSubphaseMap;
+
+        std::shared_ptr< mtk::Mesh_Manager > mMTKInputPerformer  = nullptr;
+        std::shared_ptr< mtk::Mesh_Manager > mMTKOutputPerformer = nullptr;
+
+        bool mInitializeCalled = false;
+
+        //--------------------------------------------------------------------------------
+
         public:
+
             // Public member functions/data
             bool mVerbose = false;
             moris::uint mVerboseLevel = 0;
-
-            // friend classes
-            friend class Integration_Mesh_Generator;
-            friend class Cut_Integration_Mesh;
-            friend class Enrichment;
-            friend class Enriched_Interpolation_Mesh;
-            friend class Enriched_Integration_Mesh;
-            friend class Cut_Integration_Mesh;
-            friend class Ghost_Stabilization;
-            friend class Multigrid;
 
             //--------------------------------------------------------------------------------
             // Initialization
@@ -481,68 +552,6 @@ namespace xtk
             {
                 return mCutIntegrationMesh->get_communication_table();
             }
-
-        protected:
-            moris::ParameterList mParameterList;
-
-            uint                                    mModelDimension;
-            moris::mtk::Interpolation_Mesh*         mBackgroundMesh;
-            Cut_Mesh                                mCutMesh;
-            moris::ge::Geometry_Engine*             mGeometryEngine;
-            std::shared_ptr< Cut_Integration_Mesh > mCutIntegrationMesh;
-            Enrichment*                             mEnrichment;
-            Ghost_Stabilization*                    mGhostStabilization;
-            Cell< Enriched_Interpolation_Mesh* >    mEnrichedInterpMesh;
-            Cell< Enriched_Integration_Mesh* >      mEnrichedIntegMesh;
-            std::shared_ptr< xtk::Multigrid >       mMultigrid;
-
-        private:
-            // XTK Model State Flags
-            bool mDecomposed        = false;// Model has been decomposed
-            bool mConvertedToTet10s = false;// Model has been converted from tet4's to tet10s
-            bool mMeshDataFinalized = false;
-            bool mEnriched          = false;// Model has been enriched
-            bool mUnzipped          = false;// Model has been unzipped
-            bool mGhost             = false;// Model has setup ghost stabilization
-
-            // Flag to cleanup mesh at end of decomposition
-            bool mTriangulateAll = false;// Triangulate all background cells
-            bool mCleanupMesh    = false;// Cleanup the mesh
-
-            // polynomial order of IG elements, 1 is default, 2 or higher will invoke order elevation in decomposition
-            uint mIgElementOrder = 1;// Triangulate all background cells
-
-            // diagnostic information
-            bool        mDiagnostics    = false;
-            std::string mDiagnosticPath = "";
-            std::string mDiagnosticId   = "";
-
-            // communication table
-            moris::Matrix<IdMat> mCommunicationMap;
-
-            // cell map
-            std::map< moris_id, moris_index > mCellGlbToLocalMap;
-
-            // element to element neighborhood
-            moris::Cell< moris::Cell< moris::mtk::Cell* > > mElementToElement;
-            moris::Cell< moris::Cell< moris_index > >       mElementToElementSideOrds;
-            moris::Cell< moris::Cell< moris_index > >       mElementToElementNeighborSideOrds;
-            moris::Cell< moris::Cell< moris_index > >       mSubphaseToSubPhase;
-            moris::Cell< moris::Cell< moris_index > >       mSubphaseToSubPhaseMySideOrds;
-            moris::Cell< moris::Cell< moris_index > >       mSubphaseToSubPhaseNeighborSideOrds;
-
-            // in the case of a hierarchically refined mesh, there are transitions with hanging nodes
-            // this data flags the transition from a large facet to a smaller facet. (this is trivial
-            // for non hmr type meshes)
-            moris::Cell< moris::Cell< moris_index > > mTransitionNeighborCellLocation;
-
-            // local to global subphase map
-            std::unordered_map< moris::moris_id, moris::moris_index > mGlobalToLocalSubphaseMap;
-
-            std::shared_ptr< mtk::Mesh_Manager > mMTKInputPerformer  = nullptr;
-            std::shared_ptr< mtk::Mesh_Manager > mMTKOutputPerformer = nullptr;
-
-            bool mInitializeCalled = false;
 
             // Private Functions
         private:

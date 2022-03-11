@@ -795,8 +795,13 @@ Node_Hierarchy_Interface::sort_nodes_3d(
     std::iota( tIndices.data().begin(), tIndices.data().end(), 0 );
 
     // get ascending order vertices
-    std::stable_sort( tIndices.data().begin(), tIndices.data().end(), [&]( std::size_t i1, std::size_t i2 ) { return ( *aCellIndexIntersectedEdgeVertex )( i1 )->get_id() < ( *aCellIndexIntersectedEdgeVertex )( i2 )->get_id(); } );
-
+    std::stable_sort( 
+        tIndices.data().begin(), 
+        tIndices.data().end(), 
+        [&]( std::size_t i1, std::size_t i2 ) 
+        { 
+            return ( *aCellIndexIntersectedEdgeVertex )( i1 )->get_id() < ( *aCellIndexIntersectedEdgeVertex )( i2 )->get_id(); 
+        } );
 
     Cell< moris::mtk::Vertex* > tVertices = aIgCell->get_vertex_pointers();
 
