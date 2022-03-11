@@ -12,52 +12,82 @@
 namespace xtk
 {
     //----------------------------------------------------------------
-    Cell_Cluster::Cell_Cluster():
-            mTrivial(true),
-            mInterpolationCell(nullptr),
-            mChildMesh(nullptr),
-            mPrimaryIntegrationCells(0,nullptr),
-            mVoidIntegrationCells(0,nullptr),
-            mVerticesInCluster(0,nullptr)
+    
+    Cell_Cluster::Cell_Cluster()
+            : mTrivial( true )
+            , mFull( false )
+            , mVoid( false )
+            , mInvalid( false )
+            , mInterpolationCell( nullptr )
+            , mChildMesh( nullptr )
+            , mPrimaryIntegrationCells( 0, nullptr )
+            , mVoidIntegrationCells( 0, nullptr )
+            , mVerticesInCluster( 0, nullptr )
     {
-
     }
-    //----------------------------------------------------------------
-    Cell_Cluster::~Cell_Cluster()
-    {
 
-    }
     //----------------------------------------------------------------
+
+    Cell_Cluster::~Cell_Cluster(){}
+
+    //----------------------------------------------------------------
+
     bool
     Cell_Cluster::is_trivial( const mtk::Master_Slave aIsMaster ) const
     {
         return mTrivial;
     }
+
     //----------------------------------------------------------------
+
+    bool
+    Cell_Cluster::is_void() const
+    {
+        return mVoid;
+    }
+
+    //----------------------------------------------------------------
+
+    bool
+    Cell_Cluster::is_invalid() const
+    {
+        return mVoid;
+    }
+
+    //----------------------------------------------------------------
+
     moris::Cell<moris::mtk::Cell const *> const &
     Cell_Cluster::get_primary_cells_in_cluster( const mtk::Master_Slave aIsMaster ) const
     {
         return mPrimaryIntegrationCells;
     }
+
     //----------------------------------------------------------------
+
     moris::Cell<moris::mtk::Cell const *> const &
     Cell_Cluster::get_void_cells_in_cluster() const
     {
         return mVoidIntegrationCells;
     }
+
     //----------------------------------------------------------------
+
     moris::mtk::Cell const &
     Cell_Cluster::get_interpolation_cell( const mtk::Master_Slave aIsMaster ) const
     {
         return *mInterpolationCell;
     }
+
     //----------------------------------------------------------------
+
     moris::Cell<moris::mtk::Vertex const *>
     Cell_Cluster::get_vertices_in_cluster( const mtk::Master_Slave aIsMaster ) const
     {
             return mVerticesInCluster;
     }
+
     //----------------------------------------------------------------
+
     moris::Matrix<moris::DDRMat>
     Cell_Cluster::get_vertices_local_coordinates_wrt_interp_cell( const mtk::Master_Slave aIsMaster )  const
     {
@@ -78,9 +108,10 @@ namespace xtk
 
             return tXi;
         }
-
     }
+
     //----------------------------------------------------------------
+
     moris::Matrix<moris::DDRMat>
     Cell_Cluster::get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex,
             const mtk::Master_Slave aIsMaster ) const
@@ -88,7 +119,9 @@ namespace xtk
         MORIS_ERROR(!mTrivial,"Accessing local coordinates on a trivial cell cluster is not allowed");
         return *mVertexGroup->get_vertex_local_coords(aVertex->get_index());
     }
+
     //----------------------------------------------------------------
+
     moris_index
     Cell_Cluster::get_dim_of_param_coord( const mtk::Master_Slave aIsMaster) const
     {
@@ -160,9 +193,9 @@ namespace xtk
     //----------------------------------------------------------------
 
     void
-    Cell_Cluster::set_primary_integration_cell_group(std::shared_ptr<IG_Cell_Group> aPrimaryIgCells)
+    Cell_Cluster::set_primary_integration_cell_group( std::shared_ptr<IG_Cell_Group> aPrimaryIgCells )
     {
-        mPrimaryIgCellGroup = aPrimaryIgCells;
+        mPrimaryIgCellGroup = { aPrimaryIgCells };
 
         mPrimaryIntegrationCells.resize(aPrimaryIgCells->mIgCellGroup.size());
 
@@ -171,6 +204,40 @@ namespace xtk
             mPrimaryIntegrationCells(i) = aPrimaryIgCells->mIgCellGroup(i);
         }
     }
+
+    //----------------------------------------------------------------
+
+    void
+    Cell_Cluster::set_primary_integration_cell_groups( moris::Cell< std::shared_ptr< IG_Cell_Group > > aPrimaryIgCells )
+    {
+        // store IG cell groups with cell cluster
+        mPrimaryIgCellGroup = aPrimaryIgCells;
+
+        // count total number of IG cells in all groups passed into function
+        moris::uint tCount = 0;
+        for( moris::uint iCellGroup = 0; iCellGroup < aPrimaryIgCells.size(); iCellGroup++ )
+        {
+            tCount = tCount + aPrimaryIgCells( iCellGroup )->mIgCellGroup.size();
+        }
+
+        // initialize list of IG cells
+        mPrimaryIntegrationCells.resize( tCount );
+
+        // reset counter to track position in list
+        tCount = 0;
+
+        // store IG cells in list
+        for( moris::uint iCellGroup = 0; iCellGroup < aPrimaryIgCells.size(); iCellGroup++ )
+        {
+            for( moris::uint jCellInGroup = 0; jCellInGroup < aPrimaryIgCells( iCellGroup )->mIgCellGroup.size(); jCellInGroup++ )
+            {
+                mVoidIntegrationCells( tCount ) = aPrimaryIgCells( iCellGroup )->mIgCellGroup( jCellInGroup );
+                tCount++;
+            }
+        }
+    }
+
+    //----------------------------------------------------------------
 
     void
     Cell_Cluster::set_void_integration_cell_groups(moris::Cell<std::shared_ptr<IG_Cell_Group>> & aVoidIgCells)
@@ -197,6 +264,8 @@ namespace xtk
         }
     }
 
+    //----------------------------------------------------------------
+
     void
     Cell_Cluster::set_ig_vertex_group(std::shared_ptr<IG_Vertex_Group> aVertexGroup)
     {
@@ -217,6 +286,8 @@ namespace xtk
     {
         return mVertexGroup;
     }
+
+    //----------------------------------------------------------------
  
 }
 
