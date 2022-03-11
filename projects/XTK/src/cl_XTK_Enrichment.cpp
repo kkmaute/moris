@@ -31,8 +31,6 @@
 
 #include "fn_sort_points_by_coordinates.hpp"
 
-#include "cl_XTK_Subphase_Group.hpp"
-
 #include "cl_Tracer.hpp"
 
 namespace xtk
@@ -439,7 +437,7 @@ namespace xtk
                 if ( mSortBasisEnrichmentLevels )
                 {
                     MORIS_ERROR( false, "Enrichment::perform_basis_cluster_enrichment_new() - function: sort_enrichment_levels_in_basis_support() not supported yet with new SPG based enrichment" );
-// FIXME: this function doesn't work for SPGs
+                    // FIXME: this function doesn't work for SPGs yet
                     this->sort_enrichment_levels_in_basis_support(
                             tSpgIndicesInSupport( iBasisFunction ),
                             tSpgBinEnrichment( iBasisFunction ),
@@ -462,7 +460,7 @@ namespace xtk
                     tSpgIndicesInSupport,
                     tMaxEnrichmentLevel );
 
-// FIXME: move communication to SPGs once everything is parallel consistent
+            // FIXME: move communication to SPGs once everything is parallel consistent
             // Assign enriched basis indices Only indices here because interpolation cells needs basis
             // indices and basis ids are created using the interpolation cell ids
             this->assign_enriched_coefficients_identifiers(
@@ -476,13 +474,15 @@ namespace xtk
             this->establish_IP_SPG_SP_relationship( tMeshIndex );
         }
 
-// FIXME: enriched IP cells not parallel consistent yet
+        // FIXME: enriched IP cells not parallel consistent yet
         // create the enriched interpolation mesh
         this->construct_enriched_interpolation_mesh_new();
 
-// TODO: ???
-        // create the integration mesh
-        this->construct_enriched_integration_mesh_new();
+        // create the enriched integration meshes with the clusters for every B-spline mesh
+        for ( moris::uint iMeshIndexInList = 0; iMeshIndexInList < mMeshIndices.numel(); iMeshIndexInList++ )
+        {
+            this->construct_enriched_integration_mesh( (moris_index) iMeshIndexInList );
+        }
     }
 
     //-------------------------------------------------------------------------------------
@@ -1695,18 +1695,20 @@ namespace xtk
     Enrichment::construct_enriched_integration_mesh()
     {
         MORIS_ASSERT( mXTKModelPtr->mEnrichedInterpMesh( 0 ) != nullptr,
-                "No enriched interpolation mesh to link enriched integration mesh to" );
+                "Enrichment::construct_enriched_integration_mesh() - No enriched interpolation mesh to link enriched integration mesh to" );
 
-        mXTKModelPtr->mEnrichedIntegMesh( 0 ) = new Enriched_Integration_Mesh( mXTKModelPtr, 0 );
+        mXTKModelPtr->mEnrichedIntegMesh( 0 ) = new Enriched_Integration_Mesh( mXTKModelPtr );
     }
 
     //-------------------------------------------------------------------------------------
 
     void
-    Enrichment::construct_enriched_integration_mesh_new()
+    Enrichment::construct_enriched_integration_mesh( const moris_index aMeshIndexInList )
     {
-        // TODO: code up this function
-        this->construct_enriched_integration_mesh();
+        MORIS_ASSERT( mXTKModelPtr->mEnrichedInterpMesh( 0 ) != nullptr,
+                "Enrichment::construct_enriched_integration_mesh_new() - No enriched interpolation mesh to link enriched integration mesh to" );
+
+        mXTKModelPtr->mEnrichedIntegMesh( aMeshIndexInList ) = new Enriched_Integration_Mesh( mXTKModelPtr, aMeshIndexInList );
     }
 
     //-------------------------------------------------------------------------------------
@@ -1929,8 +1931,10 @@ namespace xtk
                     // get the index of the IP cell SP is found in
                     moris_index tIpCellIndex = tIter->second;
 
-                    // add the IP-cell -- SPG -- SP relation ship to the corresponding map
+                    // add the IP-cell -- SPG -- SP relationship to the corresponding map
                     tBsplineMeshInfo->mExtractionCellToSubPhase( tIpCellIndex )( iSPG ).push_back( tSpIndex );
+
+                    // TODO: is it better for efficiency to delete the map entry that is not needed anymore, to speed up subsequent find-calls?
                 }
             } // end: loop over all SPGs on B-spline element
         } // end: loop over all B-spline elements
@@ -2173,9 +2177,6 @@ namespace xtk
                 // get max number of enr IP cells associated with the current IP cell
                 uint tMaxNumUnzippings = mNumUnzippingsOnIpCell( iIpCell );
 
-// // iterate through subphase groups on the current IP cell and construct an enr. IP cell for each SPG
-// for ( moris::uint iSPG = 0; iSPG < tNumSpgsAssociatedWithIpCell; iSPG++ )
-
                 // iterate through the enriched IP cells that are to be constructed on the current base IP cell
                 for ( moris::uint iEnrIpCell = 0; iEnrIpCell < tMaxNumUnzippings; iEnrIpCell++ )
                 {
@@ -2205,8 +2206,6 @@ namespace xtk
                         // get the enrichment levels of the BFs that are/need to be used for the interpolation in the current subphase
                         Cell< moris_index > const & tEnrLevOfBasis = mEnrichmentData( tMeshIndex ).mSubphaseGroupBGBasisEnrLev( tSpgIndex );
 
-                        // TODO: get tCellIndex from previously constructed map
-
                         // construction of unzipped enriched IP vertices
                         // i.e. only construct T-matrices if underlying enriched IP cell is valid
                         for ( uint iIpCellVertex = 0; iIpCellVertex < tNumVertices; iIpCellVertex++ )
@@ -2218,7 +2217,7 @@ namespace xtk
                             // and store it in the Vertex_Enrichment object
                             // NOTE: the function is indifferent to whether it's operating on SPs or SPGS
 
-                            // TODO: this function needs modification                        
+                            // compute T-matrix (aka. Vertex Enrichment)                       
                             this->construct_enriched_vertex_interpolation(
                                     tMeshIndex,
                                     tVertexInterpolations( iIpCellVertex ),
