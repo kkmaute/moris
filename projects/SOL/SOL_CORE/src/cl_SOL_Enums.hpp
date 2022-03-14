@@ -38,7 +38,14 @@ namespace moris
         {
             Constant,       // Constant load control parameter
             Exponential,    // Exponential growth
-            UserDefined      // User defined strategy
+            UserDefined     // User defined strategy
+        };
+
+        enum class SolverPseudoTimeControlType
+        {
+            None,           // No pseudo time step control
+            Exponential,    // Exponential increase of pseudo time step
+            InvResNorm      // Pseudo time step proportional to inverse of residual norm
         };
     }    // namespace sol
 }    // namespace moris

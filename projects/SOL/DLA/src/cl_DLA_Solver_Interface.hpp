@@ -138,20 +138,41 @@ namespace moris
             MORIS_ERROR( false, "Solver_Interface::set_solution_vector_prev_time_step: not set." );
         };
 
+        virtual sol::Dist_Vector*
+        get_solution_vector_prev_time_step()
+        {
+            MORIS_ERROR( false, "Solver_Interface::get_solution_vector_prev_time_step: not set." );
+            return nullptr;
+        }
+
         virtual void
         set_time( const Matrix< DDRMat >& aTime )
         {
             MORIS_ERROR( false, "Solver_Interface::set_time: not set." );
         };
 
-        virtual void set_residual_norm( const real& aResNorm ){
-            // MORIS_ERROR( false, "Solver_Interface::set_residual_norm: not set.");
+        virtual Matrix< DDRMat >
+        get_time( )
+        {
+            MORIS_ERROR( false, "Solver_Interface::get_time: not set." );
+            return Matrix< DDRMat >( 0, 0 );
         };
 
         virtual void
         set_previous_time( const Matrix< DDRMat >& aTime )
         {
             MORIS_ERROR( false, "Solver_Interface::set_previous_time: not set." );
+        };
+
+        virtual Matrix< DDRMat >
+        get_previous_time( )
+        {
+            MORIS_ERROR( false, "Solver_Interface::get_previous_time: not set." );
+            return Matrix< DDRMat >( 0, 0 );
+        };
+
+        virtual void set_residual_norm( const real& aResNorm ){
+            // MORIS_ERROR( false, "Solver_Interface::set_residual_norm: not set.");
         };
 
         virtual void free_block_memory( const uint aBlockInd ) = 0;

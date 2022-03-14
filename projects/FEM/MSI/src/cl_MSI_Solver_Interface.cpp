@@ -89,6 +89,14 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        sol::Dist_Vector*
+        MSI_Solver_Interface::get_solution_vector_prev_time_step()
+        {
+            return mPrevSolutionVector;
+        }
+
+        //------------------------------------------------------------------------------
+
         void
         MSI_Solver_Interface::set_adjoint_solution_vector( sol::Dist_Vector* aSolutionVector )
         {
@@ -116,11 +124,27 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        Matrix< DDRMat >
+        MSI_Solver_Interface::get_time()
+        {
+            return mTime;
+        }
+
+        //------------------------------------------------------------------------------
+
         void
         MSI_Solver_Interface::set_previous_time( const Matrix< DDRMat >& aTime )
         {
             mPrevTime = aTime;
             mMSI->mEquationModel->set_previous_time( mPrevTime );
+        }
+
+        //------------------------------------------------------------------------------
+
+        Matrix< DDRMat >
+        MSI_Solver_Interface::get_previous_time()
+        {
+            return mPrevTime;
         }
 
         //------------------------------------------------------------------------------

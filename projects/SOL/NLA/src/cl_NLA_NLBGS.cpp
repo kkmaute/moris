@@ -11,6 +11,7 @@
 #include "cl_NLA_Convergence.hpp"
 #include "cl_NLA_Nonlinear_Solver.hpp"
 #include "cl_NLA_Solver_Load_Control.hpp"
+#include "cl_NLA_Solver_Pseudo_Time_Control.hpp"
 
 #include "cl_DLA_Linear_Solver_Algorithm.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
@@ -58,13 +59,23 @@ NonLinBlockGaussSeidel::solver_nonlinear_system( Nonlinear_Problem* aNonlinearPr
     moris::sint tMaxIts           = mParameterListNonlinearSolver.get< moris::sint >( "NLA_max_iter" );
     moris::uint tNonLinSysStartIt = 0;
     moris::uint tNumNonLinSystems = mMyNonLinSolverManager->get_dof_type_list().size();
-    bool        tIsConverged      = false;
 
     // set solver load control strategy
     Solver_Load_Control tLoadControlStrategy( mParameterListNonlinearSolver );
 
+    // set pseudo time control strategy
+    Solver_Pseudo_Time_Control tPseudoTimeControl(
+            mParameterListNonlinearSolver,
+            aNonlinearProblem->get_full_vector(),
+            mMyNonLinSolverManager->get_solver_interface(),
+            mMyNonLinSolverManager->get_solver_warehouse() );
+
     // initialize load control parameter
     real tLoadFactor = tLoadControlStrategy.get_initial_load_factor();
+
+    // initialize pseudo time step
+    real tPseudoTimeStep;
+    bool tTimeStepIsConverged = tPseudoTimeControl.get_initial_step_size( tPseudoTimeStep );
 
     // NLBGS loop
     for ( sint It = 1; It <= tMaxIts; ++It )
@@ -77,7 +88,17 @@ NonLinBlockGaussSeidel::solver_nonlinear_system( Nonlinear_Problem* aNonlinearPr
         // get_nonlinear_problem()
         clock_t tNewtonLoopStartTime = clock();
 
-        // print and store relative residual in logger
+        // print and store pseudo time step in logger
+        MORIS_LOG_SPEC( "PseudoTimeStep", tPseudoTimeStep );
+
+        gLogger.set_action_data(
+                "NonLinearAlgorithm",
+                "NLBGS",
+                "Solve",
+                "PseudoTimeStep",
+                tPseudoTimeStep );
+
+        // print and store load factor in logger
         MORIS_LOG_SPEC( "LoadFactor", tLoadFactor );
 
         gLogger.set_action_data(
@@ -138,7 +159,7 @@ NonLinBlockGaussSeidel::solver_nonlinear_system( Nonlinear_Problem* aNonlinearPr
         // check for convergence
         Convergence tConvergence;
 
-        tIsConverged = tConvergence.check_for_convergence(
+        bool tIsConverged = tConvergence.check_for_convergence(
                 this,
                 It,
                 mMyNonLinSolverManager->get_ref_norm(),
@@ -153,10 +174,17 @@ NonLinBlockGaussSeidel::solver_nonlinear_system( Nonlinear_Problem* aNonlinearPr
         }
 
         // exit if convergence criterion is met
-        if ( tIsConverged and tLoadFactor >= 1.0 )
+        if ( tIsConverged and tLoadFactor >= 1.0 and tTimeStepIsConverged )
         {
             break;
         }
+
+        // compute new time step size and check for convergence of time stepping
+        tTimeStepIsConverged = tPseudoTimeControl.compute_time_step_size(
+                mMyNonLinSolverManager->get_ref_norm(),
+                mMyNonLinSolverManager->get_residual_norm(),
+                aNonlinearProblem->get_full_vector(),
+                tPseudoTimeStep );
 
         // Determine load factor
         tLoadControlStrategy.eval(
