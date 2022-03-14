@@ -28,7 +28,6 @@ namespace moris
 {
     namespace prm
     {
-
         //------------------------------------------------------------------------------
         inline ParameterList
         create_solver_warehouse_parameterlist()
@@ -591,6 +590,25 @@ namespace moris
 
             // Exponent for exponential load factor growth strategy
             tNonLinAlgorithmParameterList.insert( "NLA_load_control_exponent", 1.0 );
+
+            // Pseudo time control strategy
+            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_control_strategy",
+                    static_cast< uint >( sol::SolverPseudoTimeControlType::None ) );
+
+            // Initial pseudo time step size
+            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_step", 1.0 );
+
+            // Initial pseudo time step size
+            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_exponent", 1.0 );
+
+            // Maximum number pseudo time step size
+            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_max_steps", 1 );
+
+            // Required relative residual norm for load factor to be increased
+            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_relres", 1.0 );
+
+            // Maximum pseudo time step size
+            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_max_step_size", MORIS_REAL_MAX );
 
             // Maximal number of linear solver restarts on fail
             tNonLinAlgorithmParameterList.insert( "NLA_hard_break", false );
