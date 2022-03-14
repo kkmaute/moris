@@ -16,6 +16,7 @@
 #include "cl_XTK_Field.hpp"
 #include <unordered_map>
 #include "cl_TOL_Memory_Map.hpp"
+#include "cl_XTK_Subphase_Group.hpp"
 
 using namespace moris;
 
@@ -31,12 +32,77 @@ class Cut_Integration_Mesh;
 
 class Enriched_Integration_Mesh : public mtk::Integration_Mesh
 {
+    //------------------------------------------------------------------------------
+
+  protected:
+
+    friend class Enrichment;
+    friend class Ghost_Stabilization;
+
+    Model*                   mModel;
+    Cut_Integration_Mesh*    mCutIgMesh;
+
+    //mesh index
+    moris::moris_index mMeshIndexInModel;
+
+    // Cell Clusters
+    moris::Cell< std::shared_ptr< xtk::Cell_Cluster > > mCellClusters;
+
+    // Vertex Set
+    std::unordered_map< std::string, moris_index >     mVertexSetLabelToOrd;
+    moris::Cell< std::string >                         mVertexSetNames;
+    moris::Cell< moris::Cell< moris::mtk::Vertex * > > mVerticesInVertexSet;
+    moris::Cell< moris::Matrix< IndexMat > >           mVertexSetColors;
+
+    // Block sets containing Cell Clusters
+    std::unordered_map< std::string, moris_index >          mBlockSetLabelToOrd;
+    moris::Cell< std::string >                              mBlockSetNames;
+    moris::Cell< enum CellTopology >                        mBlockSetTopology;
+    moris::Cell< moris::Cell< xtk::Cell_Cluster const * > > mPrimaryBlockSetClusters;
+    moris::Cell< moris::Matrix< IndexMat > >                mBlockSetColors; /*Bulk phases*/
+    moris::Cell< moris::Cell< moris_index > >               mColorsBlockSets; /*transpose of mBlockSetColors*/
+
+    // side sets
+    std::unordered_map< std::string, moris_index >                     mSideSideSetLabelToOrd;
+    moris::Cell< std::string >                                         mSideSetLabels;
+    moris::Cell< moris::Cell< std::shared_ptr< xtk::Side_Cluster > > > mSideSets;
+    moris::Cell< moris::Matrix< IndexMat > >                           mSideSetColors; /*Bulk phases of cells attached to side*/
+    moris::Cell< moris::Cell< moris_index > >                          mColorsSideSets; /*transpose of mSideSetColors*/
+
+    // double side sets
+    std::unordered_map< std::string, moris_index >           mDoubleSideSetLabelToOrd;
+    moris::Cell< std::string >                               mDoubleSideSetLabels;
+    moris::Cell< moris::Cell< mtk::Double_Side_Cluster * > > mDoubleSideSets;
+    moris::Cell< moris::Cell< moris_index > >                mDoubleSideSetsMasterIndex;
+    moris::Cell< moris::Cell< moris_index > >                mDoubleSideSetsSlaveIndex;
+    moris::Cell< mtk::Double_Side_Cluster * >                mDoubleSideClusters;
+    moris::Cell< std::shared_ptr< xtk::Side_Cluster > >      mDoubleSideSingleSideClusters; /*lefts and rights of the double side sets*/
+    moris::Matrix< moris::IndexMat >                         mBulkPhaseToDblSideIndex;
+    moris::Cell< moris::Matrix< IndexMat > >                 mMasterDoubleSideSetColor;
+    moris::Cell< moris::Matrix< IndexMat > >                 mSlaveDoubleSideSetColor;
+    moris::Cell< moris::Cell< moris_index > >                mColorMasterDoubleSideSet; /*transpose of mMasterDoubleSideSetColor*/
+    moris::Cell< moris::Cell< moris_index > >                mColorSlaveDoubleSideSet; /*transpose of mSlaveDoubleSideSetColor*/
+
+    // Fields
+    moris::Cell< xtk::Field >                                     mFields; /*Structure Node (0), Cell(1)*/
+    moris::Cell< std::unordered_map< std::string, moris_index > > mFieldLabelToIndex;
+
+    // Sub phase index to Cell Cluster Index (these only include the standard cluster i.e. non-ghost clusters.)
+    moris::Matrix< moris::IndexMat > mSubphaseIndexToClusterIndex; // input: enr IP cell (= cluster) index || output: subphase index
+    moris::Cell< moris::Cell< moris_index > > mClusterIndexToSubphaseIndices; // input: enr IP cell (= cluster) index || output: List of subphase indices in cluster
+
+    // a connectivity pointer used by all transition cells
+    moris::mtk::Cell_Info* mCellInfo;
+
+    //------------------------------------------------------------------------------
+
   public:
     //------------------------------------------------------------------------------
+    Enriched_Integration_Mesh( Model* aXTKModel );
+
     Enriched_Integration_Mesh( 
-        Model*             aXTKModel,
-        moris::moris_index aInterpIndex,
-        bool               aUseSpgBasedEnrichment = false );
+        Model*                    aXTKModel,
+        moris::moris_index        aInterpIndex );
     //------------------------------------------------------------------------------
     ~Enriched_Integration_Mesh();
     //------------------------------------------------------------------------------
@@ -393,64 +459,8 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
         moris_index const &      aSideSetIndex,
         std::string const &      aBlockSetName,
         enum CellTopology const &aCellTopo );
-    friend class Enrichment;
-    friend class Ghost_Stabilization;
 
   protected:
-    Model *               mModel;
-    Cut_Integration_Mesh *mCutIgMesh;
-
-    //mesh index
-    moris::moris_index mMeshIndexInModel;
-
-    // Cell Clusters
-    moris::Cell< std::shared_ptr< xtk::Cell_Cluster > > mCellClusters;
-
-    // Vertex Set
-    std::unordered_map< std::string, moris_index >     mVertexSetLabelToOrd;
-    moris::Cell< std::string >                         mVertexSetNames;
-    moris::Cell< moris::Cell< moris::mtk::Vertex * > > mVerticesInVertexSet;
-    moris::Cell< moris::Matrix< IndexMat > >           mVertexSetColors;
-
-    // Block sets containing Cell Clusters
-    std::unordered_map< std::string, moris_index >          mBlockSetLabelToOrd;
-    moris::Cell< std::string >                              mBlockSetNames;
-    moris::Cell< enum CellTopology >                        mBlockSetTopology;
-    moris::Cell< moris::Cell< xtk::Cell_Cluster const * > > mPrimaryBlockSetClusters;
-    moris::Cell< moris::Matrix< IndexMat > >                mBlockSetColors; /*Bulk phases*/
-    moris::Cell< moris::Cell< moris_index > >               mColorsBlockSets; /*transpose of mBlockSetColors*/
-
-    // side sets
-    std::unordered_map< std::string, moris_index >                     mSideSideSetLabelToOrd;
-    moris::Cell< std::string >                                         mSideSetLabels;
-    moris::Cell< moris::Cell< std::shared_ptr< xtk::Side_Cluster > > > mSideSets;
-    moris::Cell< moris::Matrix< IndexMat > >                           mSideSetColors; /*Bulk phases of cells attached to side*/
-    moris::Cell< moris::Cell< moris_index > >                          mColorsSideSets; /*transpose of mSideSetColors*/
-
-    // double side sets
-    std::unordered_map< std::string, moris_index >           mDoubleSideSetLabelToOrd;
-    moris::Cell< std::string >                               mDoubleSideSetLabels;
-    moris::Cell< moris::Cell< mtk::Double_Side_Cluster * > > mDoubleSideSets;
-    moris::Cell< moris::Cell< moris_index > >                mDoubleSideSetsMasterIndex;
-    moris::Cell< moris::Cell< moris_index > >                mDoubleSideSetsSlaveIndex;
-    moris::Cell< mtk::Double_Side_Cluster * >                mDoubleSideClusters;
-    moris::Cell< std::shared_ptr< xtk::Side_Cluster > >      mDoubleSideSingleSideClusters; /*lefts and rights of the double side sets*/
-    moris::Matrix< moris::IndexMat >                         mBulkPhaseToDblSideIndex;
-    moris::Cell< moris::Matrix< IndexMat > >                 mMasterDoubleSideSetColor;
-    moris::Cell< moris::Matrix< IndexMat > >                 mSlaveDoubleSideSetColor;
-    moris::Cell< moris::Cell< moris_index > >                mColorMasterDoubleSideSet; /*transpose of mMasterDoubleSideSetColor*/
-    moris::Cell< moris::Cell< moris_index > >                mColorSlaveDoubleSideSet; /*transpose of mSlaveDoubleSideSetColor*/
-
-    // Fields
-    moris::Cell< xtk::Field >                                     mFields; /*Structure Node (0), Cell(1)*/
-    moris::Cell< std::unordered_map< std::string, moris_index > > mFieldLabelToIndex;
-
-    // Sub phase index to Cell Cluster Index (these only include the standard cluster i.e. non-ghost clusters.)
-    moris::Matrix< moris::IndexMat > mSubphaseIndexToClusterIndex; // input: enr IP cell (= cluster) index || output: subphase index
-    moris::Matrix< moris::IndexMat > mClusterIndexToSubphaseGroupIndex; // input: enr IP cell (= cluster) index || output: subphase group index
-
-    // a connectivity pointer used by all transition cells
-    moris::mtk::Cell_Info *mCellInfo;
 
     //------------------------------------------------------------------------------
     // Parallel functions

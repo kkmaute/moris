@@ -29,7 +29,25 @@ namespace moris
                 // Characteristic functions
                 //##############################################
 
-                virtual bool is_trivial( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const = 0;
+                virtual
+                bool
+                is_trivial( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const = 0;
+
+                virtual
+                bool
+                is_void() const
+                {
+                    MORIS_ERROR( false, "Cluster::is_void() - not implemented in base class" );
+                    return false;
+                }
+
+                virtual
+                bool
+                is_invalid() const
+                {
+                    MORIS_ERROR( false, "Cluster::is_invalid() - not implemented in base class" );
+                    return false;
+                }
 
                 //##############################################
                 // Cell/Vertex Access

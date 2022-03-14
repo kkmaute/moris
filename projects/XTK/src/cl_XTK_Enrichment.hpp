@@ -40,6 +40,7 @@
 
 #include "cl_XTK_Vertex_Enrichment.hpp"
 #include "cl_MTK_Vertex_Interpolation.hpp"
+#include "cl_XTK_Subphase_Group.hpp"
 
 #include "cl_TOL_Memory_Map.hpp"
 /*
@@ -164,18 +165,18 @@ namespace xtk
             // enrichment strategy data (outer cell - mesh index, inner cell - necessary data for enrichment of mesh index)
             Cell< Enrichment_Data > mEnrichmentData;
 
+            // flag whether to sort basis enrichment levels
+            bool mSortBasisEnrichmentLevels;
+
+            // quick access to the Cut integration mesh's Bspline Mesh Infos (the Bspline to Lagrange mesh relationships)
+            moris::Cell< Bspline_Mesh_Info* > mBsplineMeshInfos;
+
             // Number of enrichment levels on a given IP cell
             moris::Cell< uint > mNumUnzippingsOnIpCell; // input: IP-cell index || output: number of enr. IP-cells and clusters to be created
             moris_index mNumEnrIpCells; 
 
             // indices of enriched IP cells as a function of the base IP cell and the local SPG index
             moris::Cell< moris::Cell< moris_index > > mEnrIpCellIndices; // input: IP cell index, local SPG index || output: index of enr. IP cell
-
-            // flag whether to sort basis enrichment levels
-            bool mSortBasisEnrichmentLevels;
-
-            // quick access to the Cut integration mesh's Bspline Mesh Infos (the Bspline to Lagrange mesh relationships)
-            moris::Cell< Bspline_Mesh_Info* > mBsplineMeshInfos;
 
             // ----------------------------------------------------------------------------------
 
@@ -283,6 +284,44 @@ namespace xtk
             print_enriched_basis_to_subphase_id(
                     const moris_index & aMeshIndex,
                     std::string aFileName);
+
+            // ----------------------------------------------------------------------------------
+
+            /**
+             * @brief Get the bspline mesh info for a given B-spline mesh
+             * 
+             * @param aMeshIndexInList position of the B-spline mesh in the list of discretization meshes
+             * @return Bspline_Mesh_Info const* 
+             */
+            Bspline_Mesh_Info const* 
+            get_bspline_mesh_info_for_list_index( moris_index aMeshIndexInList ) const
+            {
+                return mBsplineMeshInfos( aMeshIndexInList );
+            }
+
+            // ----------------------------------------------------------------------------------
+
+            uint
+            get_num_unzippings_of_base_ip_cell( moris_index aBaseIpCellIndex ) const
+            {
+                return mNumUnzippingsOnIpCell( aBaseIpCellIndex );
+            }
+
+            // ----------------------------------------------------------------------------------
+
+            uint
+            get_num_enr_ip_cells() const
+            {
+                return (uint) mNumEnrIpCells;
+            }
+
+            // ----------------------------------------------------------------------------------
+
+            moris::Cell< moris_index > const&
+            get_enr_ip_cell_indices_on_base_ip_cell( moris_index aBaseIpCellIndex ) const
+            {
+                return mEnrIpCellIndices( aBaseIpCellIndex );
+            }
 
             // ----------------------------------------------------------------------------------
 
@@ -568,7 +607,7 @@ namespace xtk
             construct_enriched_integration_mesh();
 
             void
-            construct_enriched_integration_mesh_new();
+            construct_enriched_integration_mesh( const moris_index aMeshIndexInList );
 
             // ----------------------------------------------------------------------------------
 

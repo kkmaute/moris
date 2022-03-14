@@ -121,7 +121,6 @@ Node_Hierachy_Template_Library::load_3d_template(
         break;
     }
 
-
     case ( 203 ):
     {
         aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 4, 5, 6 }, { 4, 1, 5, 6 }, { 1, 2, 5, 6 }, { 1, 3, 2, 6 } } );

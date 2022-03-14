@@ -177,7 +177,7 @@ namespace xtk
         // ----------------------------------------------------------------------------------
 
         moris_index 
-        get_bspline_cell_index_for_extraction_cell( moris_index aExtractionCellIndex )
+        get_bspline_cell_index_for_extraction_cell( moris_index aExtractionCellIndex ) const
         {
             return mExtractionCellToBsplineCell( aExtractionCellIndex );
         }
@@ -185,7 +185,7 @@ namespace xtk
         // ----------------------------------------------------------------------------------
 
         moris::Cell< moris_index > const&
-        get_SPG_indices_in_bspline_cell( moris_index aBsplineCellIndex )
+        get_SPG_indices_in_bspline_cell( moris_index aBsplineCellIndex ) const
         {
             MORIS_ASSERT( (uint) aBsplineCellIndex < mExtractionCellsIndicesInBsplineCells.size(), 
                 "Bspline_Mesh_Info::get_SPG_indices_in_bspline_cell() - aBsplineCellIndex out of bounds" );
@@ -195,7 +195,7 @@ namespace xtk
         // ----------------------------------------------------------------------------------
 
         uint
-        get_num_SPGs_associated_with_extraction_cell( moris_index aExtractionCellIndex )
+        get_num_SPGs_associated_with_extraction_cell( moris_index aExtractionCellIndex ) const 
         {
             // get the underlying B-spline cell's index
             moris_index tBsplineCellIndex = mExtractionCellToBsplineCell( aExtractionCellIndex );
@@ -207,7 +207,7 @@ namespace xtk
         // ----------------------------------------------------------------------------------
 
         const moris::Cell< moris_index > &
-        get_SPG_indices_associated_with_extraction_cell( moris_index aExtractionCellIndex )
+        get_SPG_indices_associated_with_extraction_cell( moris_index aExtractionCellIndex ) const
         {
             // get the underlying B-spline cell's index
             moris_index tBsplineCellIndex = mExtractionCellToBsplineCell( aExtractionCellIndex );

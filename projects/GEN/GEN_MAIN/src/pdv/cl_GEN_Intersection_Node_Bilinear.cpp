@@ -353,7 +353,7 @@ namespace moris
             Matrix< DDRMat > tJac;
 
             // initialized reference residual
-            real tReferenceResidual;
+            real tReferenceResidual = 0.0;
 
             // compute initial guess: location of intersection point along edge in edge CS
             real tEdgeCoordinate = 0.0;

@@ -376,8 +376,12 @@ namespace xtk
 
         if ( mEnriched )
         {
+            // get the enriched IP mesh
             xtk::Enriched_Interpolation_Mesh &tEnrInterpMesh = this->get_enriched_interp_mesh();
+
+            // FIXME: add loop for enr. IG meshes back in once validated
             xtk::Enriched_Integration_Mesh   &tEnrIntegMesh  = this->get_enriched_integ_mesh();
+            
             // get meshes
 
             std::string tXTKMeshName = "XTKMesh";
@@ -457,6 +461,7 @@ namespace xtk
             if ( mParameterList.get< bool >( "low_memory" ) )
             {
             }
+
             // print
             MORIS_LOG_SPEC( "All_IG_verts", sum_all( tEnrIntegMesh.get_num_entities( EntityRank::NODE ) ) );
             MORIS_LOG_SPEC( "All_IG_cells", sum_all( tEnrIntegMesh.get_num_entities( EntityRank::ELEMENT ) ) );
@@ -1070,11 +1075,6 @@ namespace xtk
             bool                   aSortBasisEnrichmentLevels,
             bool                   aUseSpgBasedEnrichment )
     {
-// debug
-std::cout << "===========================================================================" << std::endl;
-std::cout << "Model::perform_basis_enrichment_internal() - aUseSpgBasedEnrichment = " << aUseSpgBasedEnrichment << std::endl;
-std::cout << "===========================================================================" << std::endl;
-
         // log/trace the whole enrichment process
         Tracer tTracer( "XTK", "Enrichment", "Enrich" );
 
