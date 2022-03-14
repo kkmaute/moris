@@ -392,6 +392,19 @@ namespace xtk
                     Vertex_Enrichment&                    aVertexEnrichment,
                     bool&                                 aNewVertex );
 
+            /**
+             * @brief Add a null vertex enrichment to the member data. returns the index of the vertex enrichment.
+             * 
+             * @param aMeshIndex 
+             * @param aBaseInterpVertex 
+             * @param aNewVertex 
+             * @return moris_index index of the vertex enrichment
+             */
+            moris_index
+            add_empty_vertex_enrichment( moris_index const& aMeshIndex,
+                    mtk::Vertex*                          aBaseInterpVertex,
+                    bool&                                 aNewVertex );
+
             //------------------------------------------------------------------------------
 
             void
