@@ -1707,7 +1707,7 @@ namespace xtk
         MORIS_ASSERT( mXTKModelPtr->mEnrichedInterpMesh( 0 ) != nullptr,
                 "Enrichment::construct_enriched_integration_mesh_new() - No enriched interpolation mesh to link enriched integration mesh to" );
 
-        MORIS_ASSERT( mXTKModelPtr->mEnrichedIntegMesh.size() > (uint) aMeshIndexInList, 
+        MORIS_ASSERT( mXTKModelPtr->mEnrichedIntegMesh.size() > (uint) aMeshIndexInList,
                 "Enrichment::construct_enriched_integration_mesh_new() - Place for Enriched IG mesh doesn't exist in list of enriched IG meshes." );
 
         mXTKModelPtr->mEnrichedIntegMesh( aMeshIndexInList ) = new Enriched_Integration_Mesh( mXTKModelPtr, aMeshIndexInList );

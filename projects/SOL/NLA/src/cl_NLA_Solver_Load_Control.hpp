@@ -1,9 +1,7 @@
 /*
- * cl_NLA_Solver_Relaxation.hpp
- *
- *  Created on: Sep 21, 2018
- *      Author: schmidt
+ * cl_NLA_Solver_Load_Control.hpp
  */
+
 #ifndef SRC_FEM_CL_NLA_SOLVER_LOAD_CONTROL_HPP_
 #define SRC_FEM_CL_NLA_SOLVER_LOAD_CONTROL_HPP_
 
