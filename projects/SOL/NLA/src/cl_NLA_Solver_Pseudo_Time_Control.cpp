@@ -30,8 +30,8 @@ namespace moris
             mTimeStepStrategy = static_cast< sol::SolverPseudoTimeControlType >(
                     aParameterListNonlinearSolver.get< uint >( "NLA_pseudo_time_control_strategy" ) );
 
-            // get initial relaxation parameter
-            mInitialStepSize = aParameterListNonlinearSolver.get< real >( "NLA_pseudo_time_step" );
+            // get constant time step size
+            mConstantStepSize = aParameterListNonlinearSolver.get< real >( "NLA_pseudo_time_constant" );
 
             // skip setting remaining parameters if no pseudo time step control is used
             if ( mTimeStepStrategy == sol::SolverPseudoTimeControlType::None )
@@ -39,11 +39,11 @@ namespace moris
                 return;
             }
 
-            // get number of growth steps
-            mMaxTimeSteps = aParameterListNonlinearSolver.get< sint >( "NLA_pseudo_time_max_steps" );
-
-            // get required relative residual drop for triggering growth
+            // get maximum step size
             mMaxStepSize = aParameterListNonlinearSolver.get< real >( "NLA_pseudo_time_max_step_size" );
+
+            // get maximum number of time steps
+            mMaxNumTimeSteps = aParameterListNonlinearSolver.get< sint >( "NLA_pseudo_time_max_num_steps" );
 
             // get required relative residual drop for updating "previous" solution and time step
             mRelativeResidualDropThreshold = aParameterListNonlinearSolver.get< real >( "NLA_pseudo_time_relres" );
@@ -53,12 +53,38 @@ namespace moris
             {
                 case sol::SolverPseudoTimeControlType::Exponential:
                 {
-                    mExponent = aParameterListNonlinearSolver.get< real >( "NLA_pseudo_time_exponent" );
+                    // get pre-factor for time step index-based increase of time step
+                    mTimeStepIndexFactor = aParameterListNonlinearSolver.get< real >( "NLA_pseudo_time_step_index_factor" );
+
+                    // get exponent for time step index-based increase
+                    mTimeStepExponent = aParameterListNonlinearSolver.get< real >( "NLA_pseudo_time_step_index_exponent" );
+
                     break;
                 }
                 case sol::SolverPseudoTimeControlType::InvResNorm:
                 {
-                    MORIS_ERROR( false, "Solver_Pseudo_Time_Control::Solver_Pseudo_Time_Control - InvResNorm Strategy not implemented yet." );
+                    // get pre-factor for residual-based increase of time step
+                    mResidualFactor = aParameterListNonlinearSolver.get< real >( "NLA_pseudo_time_residual_factor" );
+
+                    // get exponent for residual-based increase
+                    mResidualExponent = aParameterListNonlinearSolver.get< real >( "NLA_pseudo_time_residual_exponent" );
+
+                    break;
+                }
+                case sol::SolverPseudoTimeControlType::Hybrid:
+                {
+                    // get pre-factor for time step index-based increase of time step
+                    mTimeStepIndexFactor = aParameterListNonlinearSolver.get< real >( "NLA_pseudo_time_step_index_factor" );
+
+                    // get exponent for time step index-based increase
+                    mTimeStepExponent = aParameterListNonlinearSolver.get< real >( "NLA_pseudo_time_step_index_exponent" );
+
+                    // get pre-factor for residual-based increase of time step
+                    mResidualFactor = aParameterListNonlinearSolver.get< real >( "NLA_pseudo_time_residual_factor" );
+
+                    // get exponent for residual-based increase
+                    mResidualExponent = aParameterListNonlinearSolver.get< real >( "NLA_pseudo_time_residual_exponent" );
+
                     break;
                 }
                 default:
@@ -132,7 +158,7 @@ namespace moris
         Solver_Pseudo_Time_Control::get_initial_step_size( real& aInitialStepSize )
         {
             // set initial time step
-            aInitialStepSize = mInitialStepSize;
+            aInitialStepSize = mConstantStepSize;
 
             // check if pseudo time stepping is used - if not return true,i.e. converged
             if ( mTimeStepStrategy == sol::SolverPseudoTimeControlType::None )
@@ -153,6 +179,9 @@ namespace moris
                 sol::Dist_Vector* aCurrentSolution,
                 real&             aTimeStep )
         {
+            // initialize flag whether to perform update of "previous" solution
+            bool tPerformUpdate = false;
+
             // compute relative residual
             real tRelResNorm = aResNorm / aRefNorm;
 
@@ -173,16 +202,48 @@ namespace moris
                         // increase time step counter
                         mTimeStepCounter++;
 
-                        aTimeStep = mInitialStepSize * std::pow( mTimeStepCounter, mExponent );
+                        // set update flag to true
+                        tPerformUpdate = true;
 
-                        // log load factor
-                        MORIS_LOG_INFO( "Updated pseudo time step (Exponential): %7.5e in time step %d", aTimeStep, mTimeStepCounter );
+                        // compute new time step
+                        aTimeStep = std::max( mConstantStepSize, mTimeStepIndexFactor * std::pow( mTimeStepCounter, mTimeStepExponent ) );
                     }
                     break;
                 }
                 case sol::SolverPseudoTimeControlType::InvResNorm:
                 {
-                    MORIS_ERROR( false, "Solver_Pseudo_Time_Control::eval - InvResNorm Strategy not implemented yet." );
+                    // compute new time step
+                    aTimeStep = mResidualFactor / std::pow( tRelResNorm, mResidualExponent );
+
+                    // update increase time step only if requirement on relative residual is satisfied
+                    if ( tRelResNorm < mRelativeResidualDropThreshold )
+                    {
+                        // increase time step counter
+                        mTimeStepCounter++;
+
+                        // set update flag to true
+                        tPerformUpdate = true;
+                    }
+                    break;
+                }
+                case sol::SolverPseudoTimeControlType::Hybrid:
+                {
+                    // compute new time step
+                    real tIndexBased = std::max( mConstantStepSize, mTimeStepIndexFactor * std::pow( mTimeStepCounter, mTimeStepExponent ) );
+
+                    real tResBased = mResidualFactor / std::pow( tRelResNorm, mResidualExponent );
+
+                    aTimeStep = std::max( tIndexBased, tResBased );
+
+                    // update increase time step only if requirement on relative residual is satisfied
+                    if ( tRelResNorm < mRelativeResidualDropThreshold )
+                    {
+                        // increase time step counter
+                        mTimeStepCounter++;
+
+                        // set update flag to true
+                        tPerformUpdate = true;
+                    }
                     break;
                 }
                 default:
@@ -191,20 +252,29 @@ namespace moris
                 }
             }
 
+            // initialize convergence flag
+            bool tIsConverged = false;
+
             // update "previous" solution only if requirement on relative residual is satisfied
-            if ( tRelResNorm < mRelativeResidualDropThreshold )
+            if ( tPerformUpdate )
             {
+                // log load factor
+                MORIS_LOG_INFO( "Updated pseudo time step (InvResNorm) - updated previous time step in time step %d", mTimeStepCounter );
+
                 // copy current solution onto "previous" solution
                 mPreviousSolution->vec_plus_vec( 1.0, *( aCurrentSolution ), 0.0 );
+
+                // check if time step size exceeds upper limit
+                if ( aTimeStep > mMaxStepSize )
+                {
+                    tIsConverged = true;
+                }
             }
 
-            // check if limits for number of time steps or time step size are exceeded
-            if ( aTimeStep > mMaxStepSize || mTimeStepCounter > mMaxTimeSteps )
-            {
-                return true;
-            }
+            // clip time step
+            aTimeStep = std::min( aTimeStep, mMaxStepSize );
 
-            return false;
+            return tIsConverged;
         }
     }    // namespace NLA
 }    // namespace moris
