@@ -28,10 +28,13 @@ namespace moris
             sol::SolverPseudoTimeControlType mTimeStepStrategy;
 
             /// time step counter
-            uint mTimeStepCounter = 0;
+            uint mTimeStepCounter = 1;
 
             /// Constant time step size
             real mConstantStepSize = 1.0;
+
+            /// Initial time step size used in very first time step
+            real mInitialStepSize = 1.0;
 
             /// pre-factor for time step index-based increase of time step
             real mTimeStepIndexFactor = 0.0;
@@ -45,8 +48,11 @@ namespace moris
             /// exponent for residual-based increase
             real mResidualExponent = 1.0;
 
-            /// maximum step size
-            real mMaxStepSize = MORIS_REAL_MAX;
+            /// Comsol parameter (laminar: 20, 2D turbulent: 25, 3D turbulent: 30)
+            real mComsolParameter = 20.0;
+
+            /// required pseudo time step size needed for convergence
+            real mRequiredStepSize = 1000.0;
 
             /// maximum number of time steps
             uint mMaxNumTimeSteps = 1;
