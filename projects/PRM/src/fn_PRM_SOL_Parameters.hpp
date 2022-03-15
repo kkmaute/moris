@@ -619,6 +619,9 @@ namespace moris
             // Maximum pseudo time step size
             tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_max_step_size", MORIS_REAL_MAX );
 
+            // Time offsets for outputting pseudo time steps; if offset is zero no output is written
+            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_offset", 0.0 );
+
             // Maximal number of linear solver restarts on fail
             tNonLinAlgorithmParameterList.insert( "NLA_hard_break", false );
 

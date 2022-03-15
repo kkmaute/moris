@@ -6,6 +6,8 @@
 
 #include "typedefs.hpp"
 
+#include "cl_Communication_Tools.hpp"
+
 #include "cl_DLA_Solver_Interface.hpp"
 #include "cl_SOL_Dist_Vector.hpp"
 #include "cl_SOL_Warehouse.hpp"
@@ -13,6 +15,8 @@
 
 #include "cl_Logger.hpp"
 #include "cl_Tracer.hpp"
+
+#include "fn_norm.hpp"
 
 namespace moris
 {
@@ -47,6 +51,9 @@ namespace moris
 
             // get required relative residual drop for updating "previous" solution and time step
             mRelativeResidualDropThreshold = aParameterListNonlinearSolver.get< real >( "NLA_pseudo_time_relres" );
+
+            // get time offsets for outputting pseudo time steps; if offset is zero no output is written
+            mTimeOffSet = aParameterListNonlinearSolver.get< real >( "NLA_pseudo_time_offset" );
 
             // strategy depending parameters
             switch ( mTimeStepStrategy )
@@ -252,6 +259,16 @@ namespace moris
                 }
             }
 
+            // output pseudo time step
+            if ( mTimeOffSet > 0.0 )
+            {
+                // increment pseudo time for output
+                mOutputTime += mTimeOffSet;
+
+                // write current solution to output 0
+                mSolverInterface->initiate_output( 0, mOutputTime, false );
+            }
+
             // initialize convergence flag
             bool tIsConverged = false;
 
@@ -260,6 +277,22 @@ namespace moris
             {
                 // log load factor
                 MORIS_LOG_INFO( "Updated pseudo time step (InvResNorm) - updated previous time step in time step %d", mTimeStepCounter );
+
+                // compute norms for previous and current solutions
+                // FIXME: should use vec_norm2 but this does not work in parallel
+                Matrix< DDRMat > tVector;
+                mPreviousSolution->extract_copy( tVector );
+                real tPreviousNorm = sum_all( norm( tVector ) );
+
+                aCurrentSolution->extract_copy( tVector );
+                real tCurrentNorm = sum_all( norm( tVector ) );
+
+                // compute change in full vector
+                mPreviousSolution->vec_plus_vec( -1.0, *( aCurrentSolution ), 1.0 );
+                mPreviousSolution->extract_copy( tVector );
+                real tDeltaNorm = sum_all( norm( tVector ) );
+
+                MORIS_LOG_INFO( "Solution norms: previous = %e  current %e  change %e", tPreviousNorm, tCurrentNorm, tDeltaNorm );
 
                 // copy current solution onto "previous" solution
                 mPreviousSolution->vec_plus_vec( 1.0, *( aCurrentSolution ), 0.0 );
