@@ -34,17 +34,14 @@ namespace moris
             mTimeStepStrategy = static_cast< sol::SolverPseudoTimeControlType >(
                     aParameterListNonlinearSolver.get< uint >( "NLA_pseudo_time_control_strategy" ) );
 
-            // get constant time step size
-            mConstantStepSize = aParameterListNonlinearSolver.get< real >( "NLA_pseudo_time_constant" );
-
             // skip setting remaining parameters if no pseudo time step control is used
             if ( mTimeStepStrategy == sol::SolverPseudoTimeControlType::None )
             {
                 return;
             }
 
-            // get maximum step size
-            mMaxStepSize = aParameterListNonlinearSolver.get< real >( "NLA_pseudo_time_max_step_size" );
+            // get required pseudo time step size needed for convergence
+            mRequiredStepSize = aParameterListNonlinearSolver.get< real >( "NLA_pseudo_time_required_step_size" );
 
             // get maximum number of time steps
             mMaxNumTimeSteps = aParameterListNonlinearSolver.get< sint >( "NLA_pseudo_time_max_num_steps" );
@@ -60,11 +57,17 @@ namespace moris
             {
                 case sol::SolverPseudoTimeControlType::Exponential:
                 {
+                    // get constant time step size
+                    mConstantStepSize = aParameterListNonlinearSolver.get< real >( "NLA_pseudo_time_constant" );
+
                     // get pre-factor for time step index-based increase of time step
                     mTimeStepIndexFactor = aParameterListNonlinearSolver.get< real >( "NLA_pseudo_time_step_index_factor" );
 
                     // get exponent for time step index-based increase
                     mTimeStepExponent = aParameterListNonlinearSolver.get< real >( "NLA_pseudo_time_step_index_exponent" );
+
+                    // set initial time step size
+                    mInitialStepSize = mConstantStepSize;
 
                     break;
                 }
@@ -76,10 +79,16 @@ namespace moris
                     // get exponent for residual-based increase
                     mResidualExponent = aParameterListNonlinearSolver.get< real >( "NLA_pseudo_time_residual_exponent" );
 
+                    // set initial time step size
+                    mInitialStepSize = 1.0;
+
                     break;
                 }
                 case sol::SolverPseudoTimeControlType::Hybrid:
                 {
+                    // get constant time step size
+                    mConstantStepSize = aParameterListNonlinearSolver.get< real >( "NLA_pseudo_time_constant" );
+
                     // get pre-factor for time step index-based increase of time step
                     mTimeStepIndexFactor = aParameterListNonlinearSolver.get< real >( "NLA_pseudo_time_step_index_factor" );
 
@@ -91,6 +100,19 @@ namespace moris
 
                     // get exponent for residual-based increase
                     mResidualExponent = aParameterListNonlinearSolver.get< real >( "NLA_pseudo_time_residual_exponent" );
+
+                    // set initial time step size
+                    mInitialStepSize = mConstantStepSize;
+
+                    break;
+                }
+                case sol::SolverPseudoTimeControlType::Comsol:
+                {
+                    // get constant time step size
+                    mComsolParameter = aParameterListNonlinearSolver.get< real >( "NLA_pseudo_time_comsol" );
+
+                    // set initial time step size
+                    mInitialStepSize = 1.0;
 
                     break;
                 }
@@ -165,7 +187,7 @@ namespace moris
         Solver_Pseudo_Time_Control::get_initial_step_size( real& aInitialStepSize )
         {
             // set initial time step
-            aInitialStepSize = mConstantStepSize;
+            aInitialStepSize = mInitialStepSize;
 
             // check if pseudo time stepping is used - if not return true,i.e. converged
             if ( mTimeStepStrategy == sol::SolverPseudoTimeControlType::None )
@@ -206,14 +228,14 @@ namespace moris
                     // update increase time step only if requirement on relative residual is satisfied
                     if ( tRelResNorm < mRelativeResidualDropThreshold )
                     {
-                        // increase time step counter
-                        mTimeStepCounter++;
-
                         // set update flag to true
                         tPerformUpdate = true;
 
                         // compute new time step
                         aTimeStep = std::max( mConstantStepSize, mTimeStepIndexFactor * std::pow( mTimeStepCounter, mTimeStepExponent ) );
+
+                        // increase time step counter
+                        mTimeStepCounter++;
                     }
                     break;
                 }
@@ -250,6 +272,32 @@ namespace moris
 
                         // set update flag to true
                         tPerformUpdate = true;
+                    }
+                    break;
+                }
+                case sol::SolverPseudoTimeControlType::Comsol:
+                {
+                    // update increase time step only if requirement on relative residual is satisfied
+                    if ( tRelResNorm < mRelativeResidualDropThreshold )
+                    {
+                        // set update flag to true
+                        tPerformUpdate = true;
+
+                        // compute new time step
+                        aTimeStep = std::pow( 1.3, std::min( (real)mTimeStepCounter, 9.0 ) );
+
+                        if ( mTimeStepCounter > mComsolParameter )
+                        {
+                            aTimeStep += 9.0 * std::pow( 1.3, std::min( mTimeStepCounter - mComsolParameter, 9.0 ) );
+                        }
+
+                        if ( mTimeStepCounter > 2.0 * mComsolParameter )
+                        {
+                            aTimeStep += 90.0 * std::pow( 1.3, std::min( mTimeStepCounter - 2.0 * mComsolParameter, 9.0 ) );
+                        }
+
+                        // increase time step counter
+                        mTimeStepCounter++;
                     }
                     break;
                 }
@@ -297,15 +345,12 @@ namespace moris
                 // copy current solution onto "previous" solution
                 mPreviousSolution->vec_plus_vec( 1.0, *( aCurrentSolution ), 0.0 );
 
-                // check if time step size exceeds upper limit
-                if ( aTimeStep > mMaxStepSize )
+                // check if time step size or number of time steps meets convergence criterion
+                if ( aTimeStep > mRequiredStepSize || mTimeStepCounter > mMaxNumTimeSteps )
                 {
                     tIsConverged = true;
                 }
             }
-
-            // clip time step
-            aTimeStep = std::min( aTimeStep, mMaxStepSize );
 
             return tIsConverged;
         }
