@@ -1136,7 +1136,6 @@ namespace xtk
                 {
                     mEnrichmentData( aEnrichmentDataIndex ).mBulkPhaseInEnrichedBasis( tBaseIndex + tClusterEnrLev ) = tBulkPhaseIndex;
                 }
-
 #ifdef DEBUG
                 else // if the bulk phase has already been set for this enr. BF  ...
                 {
