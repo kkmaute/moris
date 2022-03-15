@@ -54,6 +54,12 @@ namespace moris
             /// required relative residual drop to update "previous" solution and time step size
             real mRelativeResidualDropThreshold;
 
+            /// time offset for outputting pseudo time solutions
+            real mTimeOffSet = 0.0;
+
+            /// pseudo time for outputting pseudo time solutions
+            real mOutputTime = 0.0;
+
             // solver interface
             Solver_Interface* mSolverInterface = nullptr;
 
