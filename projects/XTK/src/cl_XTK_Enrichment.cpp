@@ -1656,7 +1656,7 @@ namespace xtk
         }
 
         // tell the enriched IP mesh to finish setting itself up
-        mXTKModelPtr->mEnrichedInterpMesh( 0 )->finalize_setup();
+        mXTKModelPtr->mEnrichedInterpMesh( 0 )->finalize_setup_new();
 
         // initialize local to global maps
         mXTKModelPtr->mEnrichedInterpMesh( 0 )->mLocalToGlobalMaps = Cell< Matrix< IdMat > >( 4 );

@@ -1757,6 +1757,22 @@ namespace xtk
     // ----------------------------------------------------------------------------
 
     void
+    Enriched_Interpolation_Mesh::finalize_setup_new()
+    {
+        this->setup_local_to_global_maps();
+
+        this->setup_basis_ownership();
+
+        // TODO: finish assignment of bulk phases to enr. BF indices
+        this->setup_basis_to_bulk_phase();
+
+        // TODO: this check needs to be re-written without the assumption one IP cell == one particular bulk phase
+        MORIS_ASSERT( this->verify_basis_support(), "Issue detected in basis support." );
+    }
+
+    // ----------------------------------------------------------------------------
+
+    void
     Enriched_Interpolation_Mesh::setup_basis_to_bulk_phase()
     {
         // size member data
@@ -1851,23 +1867,23 @@ namespace xtk
         Cell< Interpolation_Cell_Unzipped* > const & tEnrIpCells = this->get_enriched_interpolation_cells();
 
         // number of cells
-        moris_index tNumCells = this->get_num_entities( EntityRank::ELEMENT );
+        moris_index tNumEnrIpCells = this->get_num_entities( EntityRank::ELEMENT );
 
         // create the enriched interpolation basis to interpolation cell interpolation
-        for ( moris::moris_index i = 0; i < tNumCells; i++ )
+        for ( moris::moris_index iEnrIpCell = 0; iEnrIpCell < tNumEnrIpCells; iEnrIpCell++ )
         {
-            moris::Cell< xtk::Interpolation_Vertex_Unzipped* > const & tVertices = tEnrIpCells( i )->get_xtk_interpolation_vertices();
+            moris::Cell< xtk::Interpolation_Vertex_Unzipped* > const & tVertices = tEnrIpCells( iEnrIpCell )->get_xtk_interpolation_vertices();
 
-            moris_index const tSubphaseIndex = tEnrIpCells( i )->get_subphase_index();
+            moris_index const tSubphaseIndex = tEnrIpCells( iEnrIpCell )->get_subphase_index();
             moris_index const tSubphaseId    = mXTKModel->get_cut_integration_mesh()->get_subphase_id( tSubphaseIndex );
 
-            for ( moris::size_t iV = 0; iV < tVertices.size(); iV++ )
+            for ( moris::size_t iVertex = 0; iVertex < tVertices.size(); iVertex++ )
             {
-                moris_index tVertexIndex = tVertices( iV )->get_index();
+                moris_index tVertexIndex = tVertices( iVertex )->get_index();
 
                 if ( mVertexBulkPhase( tVertexIndex ) == MORIS_INDEX_MAX )
                 {
-                    mVertexBulkPhase( tVertexIndex ) = tEnrIpCells( i )->get_bulkphase_index();
+                    mVertexBulkPhase( tVertexIndex ) = tEnrIpCells( iEnrIpCell )->get_bulkphase_index();
                 }
 
                 if ( tSubphaseId > mVertexMaxSubphase( tVertexIndex ) )
@@ -1877,16 +1893,19 @@ namespace xtk
 
                 else
                 {
-                    if ( mVertexBulkPhase( tVertexIndex ) != tEnrIpCells( i )->get_bulkphase_index() )
+                    if ( mVertexBulkPhase( tVertexIndex ) != tEnrIpCells( iEnrIpCell )->get_bulkphase_index() )
                     {
 
-                        std::cout << " Vert Id = " << tVertices( iV )->get_id()
-                                  << " | Vert Owner = " << tVertices( iV )->get_owner()
+                        std::cout << " Vert Id = " << tVertices( iVertex )->get_id()
+                                  << " | Vert Owner = " << tVertices( iVertex )->get_owner()
                                   << " | mVertexBulkPhase(tVertexIndex) = " << mVertexBulkPhase( tVertexIndex )
-                                  << " | tEnrIpCells(i)->get_bulkphase_index() =" << tEnrIpCells( i )->get_bulkphase_index()
+                                  << " | tEnrIpCells(i)->get_bulkphase_index() =" << tEnrIpCells( iEnrIpCell )->get_bulkphase_index()
                                   << std::endl;
                     }
-                    MORIS_ASSERT( mVertexBulkPhase( tVertexIndex ) == tEnrIpCells( i )->get_bulkphase_index(), "Inconsistent vertex bulk phase" );
+
+                    // check that vertices on current Enr. IP cell have same Bulk phase as Enr. IP cell
+                    MORIS_ASSERT( mVertexBulkPhase( tVertexIndex ) == tEnrIpCells( iEnrIpCell )->get_bulkphase_index(), 
+                        "Enriched_Interpolation_Mesh::setup_vertex_to_bulk_phase() - Inconsistent vertex bulk phase" );
                 }
             }
         }

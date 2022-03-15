@@ -25,9 +25,83 @@ namespace xtk
     class Model;
     class Enriched_Interpolation_Mesh : public mtk::Interpolation_Mesh
     {
+        // friend classes
+        friend class Enrichment;
+        friend class Enriched_Integration_Mesh;
+        friend class Ghost_Stabilization;
+
+        protected:
+            // Model pointer
+            Model* mXTKModel;
+
+            // basis rank
+            enum EntityRank mBasisRank = EntityRank::INVALID;
+
+            // mesh index
+            Matrix< IndexMat >                             mMeshIndices;
+            std::unordered_map< moris_index, moris_index > mMeshIndexToLocMeshIndex;   // over allocated
+
+            // enriched interpolation vertices
+            moris::uint                            mNumVerts;
+            Cell< Interpolation_Vertex_Unzipped* > mEnrichedInterpVerts;    // over allocated
+
+            // enriched interpolation cells
+            moris::uint                          mNumVertsPerInterpCell;
+            Cell< Interpolation_Cell_Unzipped* > mEnrichedInterpCells;     // over allocated
+
+            // for each outer cell (base interpolation vertex), indices of enriched vertices
+            Cell< Cell< Cell< moris_index > > > mBaseInterpVertToVertEnrichmentIndex; 
+            // input: Discretization mesh index (DMI), BG mesh vertex index || output: list of enriched vertex indices
+
+            // vertex enrichments or t-matrix
+            // outer cell - mesh index (i.e. linear or quadratic b-spline enrichment)
+            // inner cell
+            Cell< Cell< Vertex_Enrichment* > > mInterpVertEnrichment; // input: DMI || output: list of T-Matrices ("Vertex Enrichments")
+
+            // vertex enrichment to parent vertex index (these are enriched interpolation vertex indices)
+            Cell< Cell< moris_index > > mVertexEnrichmentParentVertexIndex; // input: DMI, Vertex Enrichment index || output: index parent node on BG mesh
+
+            // Bulk phase of each interpolation vertex
+            Matrix< IndexMat > mVertexBulkPhase; // input: index of unzipped vertex || output: bulk-phase index
+            Matrix< IndexMat > mVertexMaxSubphase; // input: index of unzipped vertex || output: maximum subphase ID on vertex // TODO: why do we need this?
+
+            // basis coefficient to enriched basis coefficient
+            Cell< moris::Cell< moris::Matrix< moris::IndexMat > > > mCoeffToEnrichCoeffs; 
+            // input: DMI, index of non-enriched BF coefficient || ouput: list of enriched BF indices associated with it
+
+            // local to global enriched basis vector
+            Cell< moris::Matrix< moris::IdMat > >               mEnrichCoeffLocToGlob; // input: DMI, enriched BF index || output: global ID of that enriched BF 
+            Cell< std::unordered_map< moris_id, moris_index > > mGlobaltoLocalBasisMaps; // input: DMI || output: map ordered by global BF IDs with corresponding local BF index
+
+            // basis ownership
+            Cell< moris::Matrix< moris::IdMat > > mEnrichCoeffOwnership; // input: DMI, enriched BF index || output: ?
+
+            // basis bulk phase
+            Cell< moris::Matrix< moris::IdMat > > mEnrichCoeffBulkPhase; // input: local DMI, enriched BF index || output: bulk phase the BF interpolates into
+
+            // Entity maps
+            Cell< Matrix< IdMat > >                             mLocalToGlobalMaps; // TODO input: DMI || output:
+            Cell< std::unordered_map< moris_id, moris_index > > mGlobaltoLobalMaps; // TODO input: DMI || output:
+
+            // base interpolation cells to their enriched interpolation cells
+            moris::Cell< moris::Cell< Interpolation_Cell_Unzipped* > > mBaseCelltoEnrichedCell; // TODO input: DMI || output:
+
+            // a connecitivty pointer that all the enriched interpolation cells use
+            std::shared_ptr< moris::mtk::Cell_Info > mCellInfo;
+
+            // Not owned vertex list
+            Cell< moris_index > mNotOwnedVerts; // TODO input:  || output:
+
+            // not owned basis functions
+            Cell< moris_index > mNotOwnedBasis; // TODO input:  || output:
+            Cell< moris_index > mOwnedBasis; // TODO input:  || output:
+
         public:
+
             Enriched_Interpolation_Mesh( Model* aXTKModel );
+
             ~Enriched_Interpolation_Mesh();
+
             //------------------------------------------------------------------------------
             // MTK Mesh Core Impl (see base class mtk::Mesh for function descriptions)
             //------------------------------------------------------------------------------
@@ -86,41 +160,54 @@ namespace xtk
             Matrix< IndexMat > const&
             get_enriched_coefficients_at_background_coefficient(
                     moris_index const& aMeshIndex,
-                    moris_index                                                         aBackgroundCoeffIndex ) const;
+                    moris_index        aBackgroundCoeffIndex ) const;
             //------------------------------------------------------------------------------
+
             /*!
              * get the enriched coefficients at all the background mesh coefficients
              */
             Cell< Matrix< IndexMat > > const&
             get_enriched_coefficients_to_background_coefficients( moris_index const& aMeshIndex ) const;
+
             //------------------------------------------------------------------------------
+
             /*!
              * get the local enriched coefficient to global map
              */
             Matrix< IndexMat > const&
             get_enriched_coefficient_local_to_global_map( moris_index const& aMeshIndex ) const;
+
             //------------------------------------------------------------------------------
+
             /*!
              * Return the vector of background coefficient local to global
              */
             Matrix< IndexMat >
             get_background_coefficient_local_to_global_map() const;
+
             //------------------------------------------------------------------------------
+
             uint
             get_num_background_coefficients( moris_index const& aMeshIndex ) const;
 
+            //------------------------------------------------------------------------------
+            
             /*!
              * Returns the number of vertices per interpolation cell
              */
             uint
             get_num_verts_per_interp_cell();
+
             //------------------------------------------------------------------------------
+
             /*
              * Returns the interpolation vertex unzipped for provided vertex index
              */
             Interpolation_Vertex_Unzipped*
             get_unzipped_vertex_pointer( moris_index aVertexIndex );
+
             //------------------------------------------------------------------------------
+
             /*!
              * Return the enriched interpolation cells
              */
@@ -128,18 +215,23 @@ namespace xtk
             get_enriched_interpolation_cells() const;
 
             //------------------------------------------------------------------------------
+
             /*!
              * Get the number of interpolation (t-matrices) defined on this mesh
              */
             uint
             get_num_interpolation_types() const;
 
+            //------------------------------------------------------------------------------
+            
             /*
              * Get the interpolation index for a local index
              */
             moris_index
             get_interpolation_index( moris_index const& aLocalInterpIndex ) const;
 
+            //------------------------------------------------------------------------------
+            
             /*!
              * get basis owner
              */
@@ -148,6 +240,8 @@ namespace xtk
                     moris_index aBasisIndex,
                     moris_index aMeshIndex );
 
+            //------------------------------------------------------------------------------
+            
             /*!
              * get basis bulk phase
              */
@@ -302,76 +396,7 @@ namespace xtk
                     moris_index const&      aMeshIndex,
                     const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
-            // friend class
-            friend class Enrichment;
-            friend class Enriched_Integration_Mesh;
-            friend class Ghost_Stabilization;
-
         protected:
-            // Model pointer
-            Model* mXTKModel;
-
-            // basis rank
-            enum EntityRank mBasisRank = EntityRank::INVALID;
-
-            // mesh index
-            Matrix< IndexMat >                             mMeshIndices;
-            std::unordered_map< moris_index, moris_index > mMeshIndexToLocMeshIndex;   // over allocated
-
-            // enriched interpolation vertices
-            moris::uint                            mNumVerts;
-            Cell< Interpolation_Vertex_Unzipped* > mEnrichedInterpVerts;    // over allocated
-
-            // enriched interpolation cells
-            moris::uint                          mNumVertsPerInterpCell;
-            Cell< Interpolation_Cell_Unzipped* > mEnrichedInterpCells;     // over allocated
-
-            // for each outer cell (base interpolation vertex), indices of enriched vertices
-            Cell< Cell< Cell< moris_index > > > mBaseInterpVertToVertEnrichmentIndex; 
-            // input: Discretization mesh index (DMI), BG mesh vertex index || output: list of enriched vertex indices
-
-            // vertex enrichments or t-matrix
-            // outer cell - mesh index (i.e. linear or quadratic b-spline enrichment)
-            // inner cell
-            Cell< Cell< Vertex_Enrichment* > > mInterpVertEnrichment; // input: DMI || output: list of T-Matrices ("Vertex Enrichments")
-
-            // vertex enrichment to parent vertex index (these are enriched interpolation vertex indices)
-            Cell< Cell< moris_index > > mVertexEnrichmentParentVertexIndex; // input: DMI, Vertex Enrichment index || output: index parent node on BG mesh
-
-            // Bulk phase of each interpolation vertex
-            Matrix< IndexMat > mVertexBulkPhase; // input: index of unzipped vertex || output: bulk-phase index
-            Matrix< IndexMat > mVertexMaxSubphase; // input: index of unzipped vertex || output: maximum subphase ID on vertex // TODO: why do we need this?
-
-            // basis coefficient to enriched basis coefficient
-            Cell< moris::Cell< moris::Matrix< moris::IndexMat > > > mCoeffToEnrichCoeffs; 
-            // input: DMI, index of non-enriched BF coefficient || ouput: list of enriched BF indices associated with it
-
-            // local to global enriched basis vector
-            Cell< moris::Matrix< moris::IdMat > >               mEnrichCoeffLocToGlob; // input: DMI, enriched BF index || output: global ID of that enriched BF 
-            Cell< std::unordered_map< moris_id, moris_index > > mGlobaltoLocalBasisMaps; // input: DMI || output: map ordered by global BF IDs with corresponding local BF index
-
-            // basis ownership
-            Cell< moris::Matrix< moris::IdMat > > mEnrichCoeffOwnership; // input: DMI, enriched BF index || output:
-
-            // basis bulk phase
-            Cell< moris::Matrix< moris::IdMat > > mEnrichCoeffBulkPhase; // input: DMI, enriched BF index || output: Proc ID owning enr. BF
-
-            // Entity maps
-            Cell< Matrix< IdMat > >                             mLocalToGlobalMaps; // TODO input: DMI || output:
-            Cell< std::unordered_map< moris_id, moris_index > > mGlobaltoLobalMaps; // TODO input: DMI || output:
-
-            // base interpolation cells to their enriched interpolation cells
-            moris::Cell< moris::Cell< Interpolation_Cell_Unzipped* > > mBaseCelltoEnrichedCell; // TODO input: DMI || output:
-
-            // a connecitivty pointer that all the enriched interpolation cells use
-            std::shared_ptr< moris::mtk::Cell_Info > mCellInfo;
-
-            // Not owned vertex list
-            Cell< moris_index > mNotOwnedVerts; // TODO input:  || output:
-
-            // not owned basis functions
-            Cell< moris_index > mNotOwnedBasis; // TODO input:  || output:
-            Cell< moris_index > mOwnedBasis; // TODO input:  || output:
 
             //------------------------------------------------------------------------------
             // functions used by enrichment for construction of the mesh
@@ -463,7 +488,6 @@ namespace xtk
             Cell< moris_index > const&
             get_not_owned_vertex_indices() const;
 
-
             //------------------------------------------------------------------------------
 
             /**
@@ -496,11 +520,20 @@ namespace xtk
                     moris_index const& aBasisOwner,
                     moris_index const& aBasisBulkPhase );
 
+            //------------------------------------------------------------------------------
+
             void
             finalize_setup();
 
+            void
+            finalize_setup_new();
+
+            //------------------------------------------------------------------------------
+
             bool
             verify_basis_support();
+
+            //------------------------------------------------------------------------------
 
             // map setup
             void setup_local_to_global_maps();
@@ -512,12 +545,18 @@ namespace xtk
             void setup_basis_to_bulk_phase();
             void setup_mesh_index_map();
 
+            //------------------------------------------------------------------------------
+            
             // not owned vertex functions
             void setup_not_owned_vertices();
 
+            //------------------------------------------------------------------------------
+            
             void
             assign_ip_vertex_ids();
 
+            //------------------------------------------------------------------------------
+            
             void
             sort_ip_vertices_by_owned_and_not_owned(
                     Cell< uint >&                             aOwnedVertices,
@@ -526,11 +565,15 @@ namespace xtk
                     Cell< uint >&                             aProcRanks,
                     std::unordered_map< moris_id, moris_id >& aProcRankToIndexInData );
 
+            //------------------------------------------------------------------------------
+            
             void
             assign_owned_ip_vertex_ids(
                     Cell< uint > const& aOwnedIpVerts,
                     moris::moris_id&    aNodeId );
 
+            //------------------------------------------------------------------------------
+            
             void
             setup_outward_ip_vertex_requests(
                     Cell< Cell< uint > > const&               aNotOwnedIpVerts,
@@ -540,17 +583,23 @@ namespace xtk
                     Cell< Matrix< IndexMat > >&               aOutwardBaseVertexIds,
                     Cell< Matrix< IndexMat > >&               aOutwardIpCellIds );
 
+            //------------------------------------------------------------------------------
+            
             void
             prepare_ip_vertex_id_answers(
                     Cell< Matrix< IndexMat > >& aReceivedBaseVertexIds,
                     Cell< Matrix< IndexMat > >& aReceivedIpCellIds,
                     Cell< Matrix< IndexMat > >& aVertexIdAnswer );
 
+            //------------------------------------------------------------------------------
+            
             void
             handle_received_ip_vertex_ids(
                     Cell< Cell< uint > > const&       aNotOwnedVertices,
                     Cell< Matrix< IndexMat > > const& aReceivedVertexIds );
 
+            //------------------------------------------------------------------------------
+            
             /**
              * @brief This function communicates select vertex t-matrices
              *
@@ -560,6 +609,8 @@ namespace xtk
             communicate_select_vertex_interpolation(
                     moris::Cell< mtk::Vertex* >  & aVerticesToCommunicate);
 
+            //------------------------------------------------------------------------------
+            
             void
             prepare_t_matrix_request_answers(
                     moris_index const&                aMeshIndex,
@@ -569,6 +620,8 @@ namespace xtk
                     Cell< Matrix< IndexMat > >&       aBasisOwners,
                     Cell< Matrix< IndexMat > >&       aTMatrixOffsets );
 
+            //------------------------------------------------------------------------------
+            
             void
             add_vertex_interpolation_to_communication_data(
                     moris::uint&        aCount,
@@ -578,6 +631,8 @@ namespace xtk
                     Matrix< IndexMat >& aTMatrixOwners,
                     Matrix< IndexMat >& aTMatrixOffsets );
 
+            //------------------------------------------------------------------------------
+            
             void
             handle_received_interpolation_data(
                     moris_index const&                aMeshIndex,
@@ -586,6 +641,8 @@ namespace xtk
                     Cell< Matrix< IndexMat > > const& aRequestedTMatrixIndices,
                     Cell< Matrix< IndexMat > > const& aRequestedBasisOwners,
                     Cell< Matrix< IndexMat > > const& aRequestedTMatrixOffsets );
+
+            //------------------------------------------------------------------------------
 
             void
             extract_vertex_interpolation_from_communication_data(
