@@ -3875,7 +3875,7 @@ Integration_Mesh_Generator::construct_subphase_group_neighborhood(
 
     // hand SPG neighborhood connectivity over to cut integration mesh
     // aCutIntegrationMesh->mSubphaseGroupNeighborhood( iBspMesh ) = tSpNeighborhood;
-    return tSpNeighborhood;
+    return tSpgNeighborhood;
 }
 
 // ----------------------------------------------------------------------------------
