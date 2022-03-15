@@ -44,8 +44,9 @@ namespace moris
         enum class SolverPseudoTimeControlType
         {
             None,           // No pseudo time step control
-            Exponential,    // Exponential increase of pseudo time step
-            InvResNorm      // Pseudo time step proportional to inverse of residual norm
+            Exponential,    // Time step index based strategy
+            InvResNorm,     // Residual based strategy
+            Hybrid          // Combined time step index and residual based strategy
         };
     }    // namespace sol
 }    // namespace moris

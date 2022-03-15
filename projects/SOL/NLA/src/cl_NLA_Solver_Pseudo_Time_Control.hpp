@@ -30,17 +30,26 @@ namespace moris
             /// time step counter
             uint mTimeStepCounter = 0;
 
-            /// initial (constant) time step
-            real mInitialStepSize = 1.0;
+            /// Constant time step size
+            real mConstantStepSize = 1.0;
 
-            /// maximum number of time steps
-            uint mMaxTimeSteps = 1;
+            /// pre-factor for time step index-based increase of time step
+            real mTimeStepIndexFactor = 0.0;
+
+            /// exponent for time step index-based increase
+            real mTimeStepExponent = 1.0;
+
+            /// pre-factor for residual-based increase of time step
+            real mResidualFactor = 0.0;
+
+            /// exponent for residual-based increase
+            real mResidualExponent = 1.0;
 
             /// maximum step size
             real mMaxStepSize = MORIS_REAL_MAX;
 
-            /// parameters for exponential strategy
-            real mExponent = 0.0;
+            /// maximum number of time steps
+            uint mMaxNumTimeSteps = 1;
 
             /// required relative residual drop to update "previous" solution and time step size
             real mRelativeResidualDropThreshold;
