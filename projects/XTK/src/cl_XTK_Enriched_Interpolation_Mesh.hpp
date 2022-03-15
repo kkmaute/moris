@@ -77,7 +77,7 @@ namespace xtk
             Cell< moris::Matrix< moris::IdMat > > mEnrichCoeffOwnership; // input: DMI, enriched BF index || output: ?
 
             // basis bulk phase
-            Cell< moris::Matrix< moris::IdMat > > mEnrichCoeffBulkPhase; // input: local DMI, enriched BF index || output: bulk phase the BF interpolates into
+            Cell< moris::Matrix< moris::IdMat > > mEnrichCoeffBulkPhase; // input: DMI, enriched BF index || output: bulk phase the BF interpolates into
 
             // Entity maps
             Cell< Matrix< IdMat > >                             mLocalToGlobalMaps; // TODO input: DMI || output:
@@ -345,7 +345,20 @@ namespace xtk
              */
             Matrix< IndexMat >
             get_enriched_mesh_indices() const;
+
+            //------------------------------------------------------------------------------
             
+            /**
+             * @brief Set the enriched basis to bulkphase map from the outside
+             * 
+             * @param aMeshListIndex 
+             * @param aBulkPhaseInEnrichedBasis 
+             */
+            void
+            set_enriched_basis_to_bulkphase_map(
+                    const moris_index aMeshIndex,
+                    Matrix< IdMat >   aBulkPhaseInEnrichedBasis );
+                
             //------------------------------------------------------------------------------
 
             /**

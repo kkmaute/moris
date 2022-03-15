@@ -453,7 +453,7 @@ namespace xtk
             }
 
             // construct subphase to enriched index
-            this->construct_enriched_basis_to_subphase_connectivity(
+            this->construct_enriched_basis_to_subphase_group_connectivity(
                     tMeshIndex,
                     tSpgBinEnrichment,
                     tSpgIndicesInSupport,
@@ -476,6 +476,15 @@ namespace xtk
         // FIXME: enriched IP cells not parallel consistent yet
         // create the enriched interpolation mesh
         this->construct_enriched_interpolation_mesh_new();
+
+        // FIXME: the IdMat below should eventually be created and passed as a shared-ptr to avoid the copy operation
+        // pass Enr. BF to Bulkphase map to enriched IP mesh
+        for ( moris::uint iMeshIndex = 0; iMeshIndex < mMeshIndices.numel(); iMeshIndex++ )
+        {
+            moris_index tMeshIndex = mMeshIndices( iMeshIndex );
+            Matrix< IdMat > tBulkPhaseInEnrichedBasis = mEnrichmentData( tMeshIndex ).mBulkPhaseInEnrichedBasis;
+            mXTKModelPtr->mEnrichedInterpMesh( 0 )->set_enriched_basis_to_bulkphase_map( tMeshIndex, tBulkPhaseInEnrichedBasis );
+        }
 
         // create the enriched integration meshes with the clusters for every B-spline mesh
         for ( moris::uint iMeshIndexInList = 0; iMeshIndexInList < mMeshIndices.numel(); iMeshIndexInList++ )
@@ -1076,38 +1085,69 @@ namespace xtk
             tNumEnrichmentBasis += aMaxEnrichmentLevel( i ) + 1;
         }
 
+        // get the position of the DMI in the list of B-spline meshes
+        moris_index tMeshListIndex = this->get_list_index_for_mesh_index( aEnrichmentDataIndex );
+
         // size data
         mEnrichmentData( aEnrichmentDataIndex ).mSubphaseGroupIndsInEnrichedBasis.resize( tNumEnrichmentBasis );
+        mEnrichmentData( aEnrichmentDataIndex ).mBulkPhaseInEnrichedBasis.set_size( 1, tNumEnrichmentBasis, gNoID );
 
         moris_index tBaseIndex = 0;
 
-        for ( moris::uint iEnrLvl = 0; iEnrLvl < aSpgBinEnrichment.size(); iEnrLvl++ )
+        for ( moris::uint iBaseBF = 0; iBaseBF < aSpgBinEnrichment.size(); iBaseBF++ )
         {
             // get the maximum enrichment level in this basis support
-            moris::moris_index tMaxEnrLev = aMaxEnrichmentLevel( iEnrLvl );
+            moris::moris_index tMaxEnrLev = aMaxEnrichmentLevel( iBaseBF );
 
             // counter
             Cell< moris_index > tCounter( tMaxEnrLev + 1, 0 );
 
+            // get the number of SPGs in the support of the enr. BF
+            uint tNumSpgIndicesInSupport = aSpgIndicesInSupport( iBaseBF ).numel();
+
             // allocate member data for these basis functions
             for ( moris::moris_index iEnr = tBaseIndex; iEnr < tBaseIndex + tMaxEnrLev + 1; iEnr++ )
             {
-                mEnrichmentData( aEnrichmentDataIndex ).mSubphaseGroupIndsInEnrichedBasis( iEnr ).resize( 1, aSpgIndicesInSupport( iEnrLvl ).numel() );
+                mEnrichmentData( aEnrichmentDataIndex ).mSubphaseGroupIndsInEnrichedBasis( iEnr ).resize( 1, tNumSpgIndicesInSupport );
             }
 
             // iterate through SPGs in support and add them to appropriate location in mSubphaseGroupIndsInEnrichedBasis
-            for ( moris::uint iSPG = 0; iSPG < aSpgIndicesInSupport( iEnrLvl ).numel(); iSPG++ )
+            for ( moris::uint iSPG = 0; iSPG < tNumSpgIndicesInSupport; iSPG++ )
             {
                 // get cluster enrichment level
-                moris_index tClusterEnrLev = aSpgBinEnrichment( iEnrLvl )( iSPG );
+                moris_index tClusterEnrLev = aSpgBinEnrichment( iBaseBF )( iSPG );
+
+                // get the current SPGs index
+                moris_index tSpgIndex = aSpgIndicesInSupport( iBaseBF )( iSPG );
 
                 // add to the member data
-                mEnrichmentData( aEnrichmentDataIndex ).mSubphaseGroupIndsInEnrichedBasis( tBaseIndex + tClusterEnrLev )( tCounter( tClusterEnrLev ) ) =
-                        aSpgIndicesInSupport( iEnrLvl )( iSPG );
+                mEnrichmentData( aEnrichmentDataIndex ).mSubphaseGroupIndsInEnrichedBasis( tBaseIndex + tClusterEnrLev )( tCounter( tClusterEnrLev ) ) = tSpgIndex;
 
                 // increment count
                 tCounter( tClusterEnrLev )++;
-            }
+
+                // FIXME: this is written in an expensive way for debugging, make sleeker once confirmed everything works
+                // find the bulk-phase index corresponding to the SPG and put it in map
+                moris_index tPrevSetBpIndex = mEnrichmentData( aEnrichmentDataIndex ).mBulkPhaseInEnrichedBasis( tBaseIndex + tClusterEnrLev );
+                moris_index tBulkPhaseIndex = mXTKModelPtr->mCutIntegrationMesh->get_subphase_group_bulk_phase( tSpgIndex, tMeshListIndex );
+                
+                // check if the bulk phase has not already been set for this enr. BF
+                if( tPrevSetBpIndex == -1 )
+                {
+                    mEnrichmentData( aEnrichmentDataIndex ).mBulkPhaseInEnrichedBasis( tBaseIndex + tClusterEnrLev ) = tBulkPhaseIndex;
+                }
+
+#ifdef DEBUG
+                else // if the bulk phase has already been set for this enr. BF  ...
+                {
+                    // ... check if the newly found one is still the same as the one previously found
+                    MORIS_ASSERT( 
+                        tPrevSetBpIndex == tBulkPhaseIndex, 
+                        "Enrichment::construct_enriched_basis_to_subphase_group_connectivity() - "
+                        "SPGs of different Bulkphases assiociated with the same enriched BF. Something is wrong" );
+                }
+#endif
+            } // end: loop over all SPGs in support of current Base BF
 
             // size out unused space
             for ( moris::moris_index iEnr = 0; iEnr < tMaxEnrLev + 1; iEnr++ )
@@ -1117,7 +1157,6 @@ namespace xtk
 
                 // sort in ascending order (easier to find in MPI)
                 // if this sort is removed the function  subphase_is_in_support needs to be updated
-                // FIXME: does this function need to be updated for SPGs?
                 moris::sort( mEnrichmentData( aEnrichmentDataIndex ).mSubphaseGroupIndsInEnrichedBasis( tIndex ),
                         mEnrichmentData( aEnrichmentDataIndex ).mSubphaseGroupIndsInEnrichedBasis( tIndex ),
                         "ascend",

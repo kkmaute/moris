@@ -1197,6 +1197,17 @@ namespace xtk
 
     // ----------------------------------------------------------------------------
 
+    void
+    Enriched_Interpolation_Mesh::set_enriched_basis_to_bulkphase_map(
+            const moris_index aMeshIndex,
+            Matrix< IdMat >   aBulkPhaseInEnrichedBasis )
+    {
+        // set the enr. BF index to bulk-phase index map
+        mEnrichCoeffBulkPhase( aMeshIndex ) = aBulkPhaseInEnrichedBasis;
+    }
+
+    // ----------------------------------------------------------------------------
+
     Matrix< IdMat >
     Enriched_Interpolation_Mesh::convert_indices_to_ids(
             Matrix< IndexMat > const & aIndices,
@@ -1761,13 +1772,16 @@ namespace xtk
     {
         this->setup_local_to_global_maps();
 
+        //this->setup_vertex_to_bulk_phase(); // the information setup in this function are not used for now
+
         this->setup_basis_ownership();
 
-        // TODO: finish assignment of bulk phases to enr. BF indices
-        this->setup_basis_to_bulk_phase();
+        // note: this information is feed to the enr. IP mesh from the outside, as it is already constructed in the enrichment data
+        // this->setup_basis_to_bulk_phase(); // not needed anymore
+        mEnrichCoeffBulkPhase.resize( mMeshIndices.max() + 1 );
 
         // TODO: this check needs to be re-written without the assumption one IP cell == one particular bulk phase
-        MORIS_ASSERT( this->verify_basis_support(), "Issue detected in basis support." );
+        // MORIS_ASSERT( this->verify_basis_support(), "Issue detected in basis support." );
     }
 
     // ----------------------------------------------------------------------------
@@ -1800,7 +1814,8 @@ namespace xtk
             // create the enriched interpolation basis to interpolation cell interpolation
             for ( moris_index i = 0; i < tNumCells; i++ )
             {
-                moris::Cell< xtk::Interpolation_Vertex_Unzipped* > const & tVertices = tEnrIpCells( i )->get_xtk_interpolation_vertices();
+                moris::Cell< xtk::Interpolation_Vertex_Unzipped* > const & tVertices = 
+                    tEnrIpCells( i )->get_xtk_interpolation_vertices();
 
                 for ( moris::size_t iV = 0; iV < tVertices.size(); iV++ )
                 {
@@ -1843,8 +1858,10 @@ namespace xtk
 
                     if ( tBulkPhase != mEnrichCoeffBulkPhase( tMeshIndex )( i ) )
                     {
-                        std::cout << "tExpectedBulkPhase=  " << mEnrichCoeffBulkPhase( tMeshIndex )( iSP ) << " | tBulkPhase = " << tBulkPhase << std::endl;
-                        MORIS_ERROR( 0, "Subphase in enriched basis function support not consistent bulkphase" );
+                        std::cout << "tExpectedBulkPhase=  " << mEnrichCoeffBulkPhase( tMeshIndex )( iSP ) << 
+                            " | tBulkPhase = " << tBulkPhase << std::endl;
+                        MORIS_ERROR( false, 
+                            "Subphase in enriched basis function support not consistent bulkphase" );
                     }
                 }
             }
@@ -1988,7 +2005,11 @@ namespace xtk
             }
         }
 
-        MORIS_ERROR( tSubphaseBulkPhasesInSupportDiag, "All bulk phases in support of enriched basis  function do not match" );
+        // print error message if check fails
+        MORIS_ERROR( tSubphaseBulkPhasesInSupportDiag, 
+            "Enriched_Interpolation_Mesh::verify_basis_support() - Not all bulk phases in support of enriched basis  function do not match" );
+        
+        // return true if check does not fail before
         return true;
     }
 
