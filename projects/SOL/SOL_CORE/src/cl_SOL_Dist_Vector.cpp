@@ -10,8 +10,8 @@ namespace moris
         Dist_Vector::Dist_Vector(
                 Dist_Map* aMapClass,
                 bool      aManageMap )
-        : mMap( aMapClass ),
-          mManageMap(aManageMap)
+                : mMap( aMapClass )
+                , mManageMap( aManageMap )
         {
         }
 
@@ -19,7 +19,7 @@ namespace moris
 
         Dist_Vector::~Dist_Vector()
         {
-            if (mManageMap)
+            if ( mManageMap )
             {
                 delete mMap;
             }
@@ -27,11 +27,12 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        sol::Dist_Map* Dist_Vector::Dist_Vector::get_map()
+        sol::Dist_Map*
+        Dist_Vector::Dist_Vector::get_map()
         {
             return mMap;
         }
 
         //--------------------------------------------------------------------------------------------------------------
-    }
-}
+    }    // namespace sol
+}    // namespace moris
