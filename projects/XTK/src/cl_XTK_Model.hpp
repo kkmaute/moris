@@ -272,9 +272,9 @@ namespace xtk
             void
             perform_basis_enrichment(
                     enum EntityRank const& aBasisRank,
-                    moris_index const&     aMeshIndex = 0,
-                    bool                   aUseSpgBasedEnrichment = false,
-                    bool                   aSortBasisEnrichmentLevels = false );
+                    moris_index const&     aBsplineMeshIndex = 0,
+                    bool                   aSortBasisEnrichmentLevels = false,
+                    bool                   aUseSpgBasedEnrichment = false );
 
             // ----------------------------------------------------------------------------------
 
@@ -288,7 +288,7 @@ namespace xtk
             void
             perform_basis_enrichment(
                     enum EntityRank const&    aBasisRank,
-                    Matrix< IndexMat > const& aMeshIndex,
+                    Matrix< IndexMat > const& aBsplineMeshIndices,
                     bool                      aSortBasisEnrichmentLevels = false,
                     bool                      aUseSpgBasedEnrichment = false );
 
@@ -869,7 +869,7 @@ namespace xtk
 
             void perform_basis_enrichment_internal(
                     enum EntityRank const&    aBasisRank,
-                    Matrix< IndexMat > const& aMeshIndex,
+                    Matrix< IndexMat > const& aBsplineMeshIndices,
                     bool                      aSortBasisEnrichmentLevels,
                     bool                      aUseSpgBasedEnrichment = false );
     };

@@ -254,14 +254,18 @@ namespace xtk
             // determines which basis functions to perform enrichment on 
             enum EntityRank tBasisRank = get_entity_rank_from_str( mParameterList.get< std::string >( "basis_rank" ) );
 
-            // get index of Lagrange mesh to be enriched from parameter list
-            Matrix< IndexMat > tMeshIndexCell;
-            moris::string_to_mat( mParameterList.get< std::string >( "enrich_mesh_indices" ), tMeshIndexCell );
+            // get index of B-spline meshes to be enriched from parameter list
+            Matrix< IndexMat > tBsplineMeshIndices;
+            moris::string_to_mat( mParameterList.get< std::string >( "enrich_mesh_indices" ), tBsplineMeshIndices );
 
             // get flag whether basis enrichments need to be sorted
             bool tSortBasisEnrichmentLevels = mParameterList.get< bool >( "sort_basis_enrichment_levels" );
 
-            this->perform_basis_enrichment( tBasisRank, tMeshIndexCell, tSortBasisEnrichmentLevels, mParameterList.get< bool >( "use_SPG_based_enrichment" ) );
+            // get flag whether enrichment should be performed based on SPGs
+            bool tUseSpgBasedEnrichment = mParameterList.get< bool >( "use_SPG_based_enrichment" );
+
+            // perform the enrichment
+            this->perform_basis_enrichment( tBasisRank, tBsplineMeshIndices, tSortBasisEnrichmentLevels, tUseSpgBasedEnrichment );
 
             // if high to low double side sets need to be created
             if ( mParameterList.get< bool >( "high_to_low_dbl_side_sets" ) )
@@ -1070,8 +1074,8 @@ namespace xtk
 
     void
     Model::perform_basis_enrichment(
-            enum EntityRank const &aBasisRank,
-            moris_index const     &aMeshIndex,
+            enum EntityRank const& aBasisRank,
+            moris_index const&     tBsplineMeshIndex,
             bool                   aSortBasisEnrichmentLevels,
             bool                   aUseSpgBasedEnrichment )
     {
@@ -1082,10 +1086,10 @@ namespace xtk
         MORIS_ERROR( mDecomposed, "Model::perform_basis_enrichment() - Prior to computing basis enrichment, the decomposition process must be called." );
 
         // allocate some new enriched interpolation and integration meshes
-        mEnrichedIntegMesh.resize( aMeshIndex + 1, nullptr );
-        mEnrichedInterpMesh.resize( aMeshIndex + 1, nullptr );
+        mEnrichedIntegMesh.resize( tBsplineMeshIndex + 1, nullptr );
+        mEnrichedInterpMesh.resize( tBsplineMeshIndex + 1, nullptr );
 
-        this->perform_basis_enrichment_internal( aBasisRank, { { aMeshIndex } }, aSortBasisEnrichmentLevels, aUseSpgBasedEnrichment );
+        this->perform_basis_enrichment_internal( aBasisRank, { { tBsplineMeshIndex } }, aSortBasisEnrichmentLevels, aUseSpgBasedEnrichment );
 
         if ( this->mDiagnostics )
         {
@@ -1100,20 +1104,20 @@ namespace xtk
 
     void
     Model::perform_basis_enrichment(
-            enum EntityRank const    &aBasisRank,
-            Matrix< IndexMat > const &aMeshIndex,
-            bool                      aUseSpgBasedEnrichment,
-            bool                      aSortBasisEnrichmentLevels )
+            enum EntityRank const&    aBasisRank,
+            Matrix< IndexMat > const& aBsplineMeshIndices,
+            bool                      aSortBasisEnrichmentLevels,
+            bool                      aUseSpgBasedEnrichment )
     {
         Tracer tTracer( "XTK", "Enrichment" );
 
         MORIS_ERROR( mDecomposed, "Prior to computing basis enrichment, the decomposition process must be called" );
 
         // allocate some new enriched interpolation and integration meshes
-        mEnrichedIntegMesh.resize( aMeshIndex.numel() + 1, nullptr );
-        mEnrichedInterpMesh.resize( aMeshIndex.numel() + 1, nullptr );
+        mEnrichedIntegMesh.resize( aBsplineMeshIndices.numel() + 1, nullptr );
+        mEnrichedInterpMesh.resize( aBsplineMeshIndices.numel() + 1, nullptr );
 
-        this->perform_basis_enrichment_internal( aBasisRank, aMeshIndex, aSortBasisEnrichmentLevels, aUseSpgBasedEnrichment );
+        this->perform_basis_enrichment_internal( aBasisRank, aBsplineMeshIndices, aSortBasisEnrichmentLevels, aUseSpgBasedEnrichment );
 
         if ( mDiagnostics )
         {
@@ -1243,8 +1247,8 @@ namespace xtk
 
     void
     Model::perform_basis_enrichment_internal(
-            enum EntityRank const    &aBasisRank,
-            Matrix< IndexMat > const &aMeshIndex,
+            enum EntityRank const&    aBasisRank,
+            Matrix< IndexMat > const& aBsplineMeshIndices,
             bool                      aSortBasisEnrichmentLevels,
             bool                      aUseSpgBasedEnrichment )
     {
@@ -1252,7 +1256,7 @@ namespace xtk
         mEnrichment = new Enrichment(
                 Enrichment_Method::USE_INTERPOLATION_CELL_BASIS,
                 aBasisRank,
-                aMeshIndex,
+                aBsplineMeshIndices,
                 mGeometryEngine->get_num_phases(),
                 this,
                 mBackgroundMesh,

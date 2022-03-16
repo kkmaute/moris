@@ -134,7 +134,6 @@ namespace moris
                 return mLinearProblem;
             };
 
-
             //--------------------------------------------------------------------------------------------------
             sol::Dist_Vector* get_full_vector();
 

@@ -143,7 +143,7 @@ NonLinBlockGaussSeidel::solver_nonlinear_system( Nonlinear_Problem* aNonlinearPr
                 Nonlinear_Solver* tSubSolver = mMyNonLinSolverManager->get_sub_nonlinear_solver( Ik - 1 );
 
                 MORIS_ERROR( tSubSolver != nullptr,
-                        "NonLinBlockGaussSeidel::solver_nonlinear_system - sensitivty analysis: sub-solver %d not defined.",
+                        "NonLinBlockGaussSeidel::solver_nonlinear_system - sensitivity analysis: sub-solver %d not defined.",
                         Ik - 1 );
 
                 tSubSolver->solve( aNonlinearProblem->get_full_vector() );

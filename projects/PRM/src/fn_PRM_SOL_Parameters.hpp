@@ -595,20 +595,35 @@ namespace moris
             tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_control_strategy",
                     static_cast< uint >( sol::SolverPseudoTimeControlType::None ) );
 
-            // Initial pseudo time step size
-            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_step", 1.0 );
+            // Constant time step size
+            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_constant", 0.0 );
 
-            // Initial pseudo time step size
-            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_exponent", 1.0 );
+            // Pre-factor for time step index-based increase of time step
+            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_step_index_factor", 0.0 );
 
-            // Maximum number pseudo time step size
-            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_max_steps", 1 );
+            // Exponent for time step index-based increase
+            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_step_index_exponent", 1.0 );
+
+            // Pre-factor for residual-based increase of time step
+            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_residual_factor", 0.0 );
+
+            // Exponent for time step index-based increase
+            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_residual_exponent", 1.0 );
+
+            // Comsol parameter (laminar: 20, 2D turbulent: 25, 3D turbulent: 30)
+            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_comsol", 20.0 );
+
+            // Maximum number of pseudo time step size
+            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_max_num_steps", 1 );
 
             // Required relative residual norm for load factor to be increased
             tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_relres", 1.0 );
 
-            // Maximum pseudo time step size
-            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_max_step_size", MORIS_REAL_MAX );
+            // Required pseudo time step size needed for convergence
+            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_required_step_size", MORIS_REAL_MAX );
+
+            // Time offsets for outputting pseudo time steps; if offset is zero no output is written
+            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_offset", 0.0 );
 
             // Maximal number of linear solver restarts on fail
             tNonLinAlgorithmParameterList.insert( "NLA_hard_break", false );

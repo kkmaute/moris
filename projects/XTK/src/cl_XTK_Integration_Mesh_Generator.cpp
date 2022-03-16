@@ -3412,6 +3412,9 @@ Integration_Mesh_Generator::construct_subphase_groups(
 
     // reserve memory for list of SPGs in Bspline mesh info using estimated size
     aBsplineMeshInfo->mSubphaseGroups.reserve( 4 * tNumBspElems );
+
+    // initialize SPG in B-spline element map with correct size
+    aBsplineMeshInfo->mSpgIndicesInBsplineCells.resize( tNumBspElems );
     
     // estabilish SPGs on every B-spline element
     for( uint iBspElem = 0; iBspElem < tNumBspElems; iBspElem++ )
@@ -3442,13 +3445,16 @@ Integration_Mesh_Generator::construct_subphase_groups(
                 tMaxSpgInd );
 
         // increment to get actual number of Subphase groups (instead of just index)
-        uint tNumSPGs = (uint)tMaxSpgInd + 1;   
+        uint tNumSPGs = (uint)tMaxSpgInd + 1; 
 
         // split subphase bin up into SPGs
         moris::Cell< moris::Cell< moris_index > > tSPsInBin = this->split_flood_fill_bin( tSubphaseBin, tSubphaseIndicesInBsplineCell, tNumSPGs );
 
         // debug
         MORIS_ASSERT( tNumSPGs == tSPsInBin.size(), "Integration_Mesh_Generator::create_subphase_groups() - Something doesn't line up..." );
+
+        // initialize memory for the list of SPGs on the current B-spline element with correct size
+        aBsplineMeshInfo->mSpgIndicesInBsplineCells( iBspElem ).reserve( tNumSPGs );  
 
         // for each disconnected set of subphases ...
         for ( moris::size_t iSPG = 0; iSPG < tNumSPGs; iSPG++ )
@@ -3819,8 +3825,11 @@ Integration_Mesh_Generator::construct_subphase_group_neighborhood(
         // get the SPG's index
         const moris_index tSpgIndex = aBsplineMeshInfo->mSubphaseGroups( iSPG )->get_index();
 
+        // initialize map storing which neighbor SPGs have already been found to avoid duplicate ligaments
+        std::unordered_set< moris_index > tNeighborSPGsFound;
+
         // loop over the SPs in current SPG
-        for ( moris::size_t iSP = 0; iSP < tSpIndicesInGroup.size(); iSP++ )
+        for( moris::size_t iSP = 0; iSP < tSpIndicesInGroup.size(); iSP++ )
         {
             // get current SP's index
             const uint tCurrentSpIndex = (uint)tSpIndicesInGroup( iSP );
@@ -3829,7 +3838,7 @@ Integration_Mesh_Generator::construct_subphase_group_neighborhood(
             const std::shared_ptr< moris::Cell< moris_index > > tSpNeighborSPs = tSpNeighborhood->mSubphaseToSubPhase( tCurrentSpIndex );
 
             // loop over the neighbors and check if they're in separate SPGs
-            for ( moris::size_t iSpNeighbor = 0; iSpNeighbor < tSpNeighborSPs->size(); iSpNeighbor++ )
+            for( moris::size_t iSpNeighbor = 0; iSpNeighbor < tSpNeighborSPs->size(); iSpNeighbor++ )
             {
                 // get Neighbor SP's index
                 const moris_index tNeighborSpIndex = (*tSpNeighborSPs)( iSpNeighbor );
@@ -3838,20 +3847,27 @@ Integration_Mesh_Generator::construct_subphase_group_neighborhood(
                 const moris_index tNeighborSpSpgIndex = aBsplineMeshInfo->mSpToSpgMap( tNeighborSpIndex );
 
                 // check whether the two SPs are in the same SPG; if not, estabilish connection in SPG connectivity
-                if ( tNeighborSpSpgIndex != tSpgIndex )
+                if( tNeighborSpSpgIndex != tSpgIndex )
                 {
-                    // save neighbor SPG index in SPG neighborhood connectivity
-                    tSpgNeighborhood->mSubphaseToSubPhase( iSPG )->push_back( tNeighborSpSpgIndex );
+                    // check whether the connection to the neighboring SPG has already been found
+                    if( tNeighborSPGsFound.find( tNeighborSpSpgIndex ) == tNeighborSPGsFound.end() )
+                    {
+                        // register that the neighbor SPG has been found
+                        tNeighborSPGsFound.insert( tNeighborSpSpgIndex );
 
-                    // get connectivity information for SPGs from SP neighborhood connectivity
-                    const moris_index tMySideOrdinal              = (*tSpNeighborhood->mSubphaseToSubPhaseMySideOrds( tCurrentSpIndex ))( iSpNeighbor );
-                    const moris_index tOtherSideOrdinal           = (*tSpNeighborhood->mSubphaseToSubPhaseNeighborSideOrds( tCurrentSpIndex ))( iSpNeighbor );
-                    const moris_index tTransitionNeighborLocation = (*tSpNeighborhood->mTransitionNeighborCellLocation( tCurrentSpIndex ))( iSpNeighbor );
+                        // save neighbor SPG index in SPG neighborhood connectivity
+                        tSpgNeighborhood->mSubphaseToSubPhase( iSPG )->push_back( tNeighborSpSpgIndex );
 
-                    // put connectivity information into SPG neighborhood connectivity
-                    tSpgNeighborhood->mSubphaseToSubPhaseMySideOrds( iSPG )->push_back( tMySideOrdinal );
-                    tSpgNeighborhood->mSubphaseToSubPhaseNeighborSideOrds( iSPG )->push_back( tOtherSideOrdinal );
-                    tSpgNeighborhood->mTransitionNeighborCellLocation( iSPG )->push_back( tTransitionNeighborLocation );
+                        // get connectivity information for SPGs from SP neighborhood connectivity
+                        const moris_index tMySideOrdinal              = (*tSpNeighborhood->mSubphaseToSubPhaseMySideOrds( tCurrentSpIndex ))( iSpNeighbor );
+                        const moris_index tOtherSideOrdinal           = (*tSpNeighborhood->mSubphaseToSubPhaseNeighborSideOrds( tCurrentSpIndex ))( iSpNeighbor );
+                        const moris_index tTransitionNeighborLocation = (*tSpNeighborhood->mTransitionNeighborCellLocation( tCurrentSpIndex ))( iSpNeighbor );
+
+                        // put connectivity information into SPG neighborhood connectivity
+                        tSpgNeighborhood->mSubphaseToSubPhaseMySideOrds( iSPG )->push_back( tMySideOrdinal );
+                        tSpgNeighborhood->mSubphaseToSubPhaseNeighborSideOrds( iSPG )->push_back( tOtherSideOrdinal );
+                        tSpgNeighborhood->mTransitionNeighborCellLocation( iSPG )->push_back( tTransitionNeighborLocation );
+                    }
                 }
             } // end: loop over neighbor SPs
         } // end: loop over SPs in SPG
@@ -3859,7 +3875,7 @@ Integration_Mesh_Generator::construct_subphase_group_neighborhood(
 
     // hand SPG neighborhood connectivity over to cut integration mesh
     // aCutIntegrationMesh->mSubphaseGroupNeighborhood( iBspMesh ) = tSpNeighborhood;
-    return tSpNeighborhood;
+    return tSpgNeighborhood;
 }
 
 // ----------------------------------------------------------------------------------

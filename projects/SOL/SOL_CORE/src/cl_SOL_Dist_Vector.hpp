@@ -40,14 +40,13 @@ namespace moris
 
         class Dist_Vector
         {
-        protected:
+          protected:
             Epetra_Import* mImporter = nullptr;
-            Dist_Map* mMap;
-            bool mManageMap;
+            Dist_Map*      mMap;
+            bool           mManageMap;
             moris::sint    mNumVectors = 1;
 
-        public:
-
+          public:
             /**
              * Constructor
              *
@@ -65,7 +64,7 @@ namespace moris
              *
              * @return Map
              */
-            sol::Dist_Map*  get_map();
+            sol::Dist_Map* get_map();
 
             /**
              * Gets a value in the distributed vector based on a given ID.
@@ -78,15 +77,19 @@ namespace moris
             /**
              * Returns the number of vectors.
              */
-            moris::sint get_num_vectors(){return mNumVectors;};
+            moris::sint
+            get_num_vectors()
+            {
+                return mNumVectors;
+            };
 
             /**
              * Replace global vector entries.
              */
             virtual void replace_global_values(
-                    const moris::Matrix< DDSMat > & aGlobalIds,
-                    const moris::Matrix< DDRMat > & aValues,
-                    const uint                    & aVectorIndex = 0 ) = 0;
+                    const moris::Matrix< DDSMat >& aGlobalIds,
+                    const moris::Matrix< DDRMat >& aValues,
+                    const uint&                    aVectorIndex = 0 ) = 0;
 
             /**
              * Add global valued to the distributed vector.
@@ -97,9 +100,9 @@ namespace moris
              *
              */
             virtual void sum_into_global_values(
-                    const moris::Matrix< DDSMat > & aGlobalIds,
-                    const moris::Matrix< DDRMat > & aValues,
-                    const uint                    & aVectorIndex = 0 ) = 0;
+                    const moris::Matrix< DDSMat >& aGlobalIds,
+                    const moris::Matrix< DDRMat >& aValues,
+                    const uint&                    aVectorIndex = 0 ) = 0;
 
             /**
              * Gather any overlapping/shared data into the non-overlapping partitioning defined by the Map.
@@ -111,7 +114,7 @@ namespace moris
              *
              * @param[in] aSourceVec    Dist_Vector.
              */
-            virtual void import_local_to_global( Dist_Vector & aSourceVec) = 0;
+            virtual void import_local_to_global( Dist_Vector& aSourceVec ) = 0;
 
             /**
              * Adds the scaled entries of the argument vector to the scaled entries of this vector.
@@ -121,9 +124,9 @@ namespace moris
              * @param[in] aScaleThis    Scaling value for this vector.
              */
             virtual void vec_plus_vec(
-                    const moris::real & aScaleA,
-                    Dist_Vector & aVecA,
-                    const moris::real & aScaleThis ) = 0;
+                    const moris::real& aScaleA,
+                    Dist_Vector&       aVecA,
+                    const moris::real& aScaleThis ) = 0;
 
             /**
              * Scales this vector.
@@ -131,15 +134,15 @@ namespace moris
              * @param[in] aScaleThis    Scaling value for this vector.
              */
             virtual void scale_vector(
-                    const moris::real & aValue,
-                    const moris::uint & aVecIndex=0 ) = 0;
+                    const moris::real& aValue,
+                    const moris::uint& aVecIndex = 0 ) = 0;
 
             /**
              * Inserts the argument value into all entries of this vector.
              *
              * @param[in] aValue    value to insert.
              */
-            virtual void vec_put_scalar( const moris::real & aValue ) = 0;
+            virtual void vec_put_scalar( const moris::real& aValue ) = 0;
 
             /**
              * Inserts random values into vactor.
@@ -206,7 +209,7 @@ namespace moris
              *
              * @param LHSValues Matrix to extract into
              */
-            virtual void extract_copy( moris::Matrix< DDRMat > & LHSValues ) = 0;
+            virtual void extract_copy( moris::Matrix< DDRMat >& LHSValues ) = 0;
 
             /**
              * Extracts owned values in this vector into a DDRMat.
@@ -217,10 +220,10 @@ namespace moris
              * @param LHSValues Matrix to extract into
              */
             virtual void extract_my_values(
-                    const moris::uint             & aNumIndices,
-                    const moris::Matrix< DDSMat > & aGlobalBlockRows,
-                    const moris::uint             & aBlockRowOffsets,
-                    moris::Cell< moris::Matrix< DDRMat > > & LHSValues ) = 0;
+                    const moris::uint&                      aNumIndices,
+                    const moris::Matrix< DDSMat >&          aGlobalBlockRows,
+                    const moris::uint&                      aBlockRowOffsets,
+                    moris::Cell< moris::Matrix< DDRMat > >& LHSValues ) = 0;
 
             /**
              * Gets a pointer to the real values stored in this vector.
@@ -229,6 +232,6 @@ namespace moris
              */
             virtual moris::real* get_values_pointer() = 0;
         };
-    }
-}
+    }    // namespace sol
+}    // namespace moris
 #endif /* SRC_DISTLINALG_CL_VECTOR_HPP_ */

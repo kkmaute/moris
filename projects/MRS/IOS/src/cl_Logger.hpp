@@ -99,7 +99,7 @@ namespace moris
             }
 
             // Stop Global Clock Timer
-            real tElapsedTime = ( (moris::real)std::clock() - mGlobalClock.mTimeStamps[mGlobalClock.mIndentationLevel] ) / CLOCKS_PER_SEC;
+            real tElapsedTime = ( (moris::real)std::clock() - mGlobalClock.mTimeStamps[ mGlobalClock.mIndentationLevel ] ) / CLOCKS_PER_SEC;
 
             if ( mWriteToAscii )
             {
@@ -116,7 +116,7 @@ namespace moris
 
             if ( PRINT_WALL_TIME )
             {
-                std::chrono::duration< double > tChronoElapsedWallTime = ( std::chrono::system_clock::now() - mGlobalClock.mWallTimeStamps[mGlobalClock.mIndentationLevel] );
+                std::chrono::duration< double > tChronoElapsedWallTime = ( std::chrono::system_clock::now() - mGlobalClock.mWallTimeStamps[ mGlobalClock.mIndentationLevel ] );
                 real                            tElapsedWallTime       = tChronoElapsedWallTime.count();
                 std::cout << "Global Clock Stopped. ElapsedWallTime = " << tElapsedWallTime << " \n"
                           << std::flush;
@@ -224,7 +224,7 @@ namespace moris
             {
                 if ( mDirectOutputFormat == 1 )
                 {
-                    char tTempString[1000];
+                    char tTempString[ 1000 ];
                     std::strcpy( tTempString, "===============================================================================\n" );
                     std::strcat( tTempString, "\n" );
                     std::strcat( tTempString, tString.c_str() );
@@ -285,14 +285,14 @@ namespace moris
                 if ( mDirectOutputFormat == 3 )
                 {
                     // check if Entity Type has been specified, if not use entity base for printing
-                    if ( mGlobalClock.mCurrentType[mGlobalClock.mIndentationLevel] == LOGGER_NON_SPECIFIC_ENTITY_TYPE )
+                    if ( mGlobalClock.mCurrentType[ mGlobalClock.mIndentationLevel ] == LOGGER_NON_SPECIFIC_ENTITY_TYPE )
                     {
-                        std::cout << print_empty_line( mGlobalClock.mIndentationLevel ) << "_" << mGlobalClock.mCurrentEntity[mGlobalClock.mIndentationLevel] << " - " << tString << " \n"
+                        std::cout << print_empty_line( mGlobalClock.mIndentationLevel ) << "_" << mGlobalClock.mCurrentEntity[ mGlobalClock.mIndentationLevel ] << " - " << tString << " \n"
                                   << std::flush;
                     }
                     else    // if yes use use entity type for printing
                     {
-                        std::cout << print_empty_line( mGlobalClock.mIndentationLevel ) << "_" << mGlobalClock.mCurrentType[mGlobalClock.mIndentationLevel] << " - " << tString << " \n"
+                        std::cout << print_empty_line( mGlobalClock.mIndentationLevel ) << "_" << mGlobalClock.mCurrentType[ mGlobalClock.mIndentationLevel ] << " - " << tString << " \n"
                                   << std::flush;
                     }
                 }
@@ -423,10 +423,10 @@ namespace moris
                 // switch based on OutputFormat provided
                 if ( ( mDirectOutputFormat == 3 ) || ( mDirectOutputFormat == 2 ) )
                 {
-                    if ( mGlobalClock.mCurrentType[mGlobalClock.mIndentationLevel] == LOGGER_NON_SPECIFIC_ENTITY_TYPE )
+                    if ( mGlobalClock.mCurrentType[ mGlobalClock.mIndentationLevel ] == LOGGER_NON_SPECIFIC_ENTITY_TYPE )
                     {
                         std::cout << print_empty_line( mGlobalClock.mIndentationLevel ) << "_"
-                                  << mGlobalClock.mCurrentEntity[mGlobalClock.mIndentationLevel] << " - "
+                                  << mGlobalClock.mCurrentEntity[ mGlobalClock.mIndentationLevel ] << " - "
                                   << aOutputSpecifier << ": "
                                   << ios::stringify( aOutputValue ) << " \n"
                                   << std::flush;
@@ -434,7 +434,7 @@ namespace moris
                     else
                     {
                         std::cout << print_empty_line( mGlobalClock.mIndentationLevel ) << "_"
-                                  << mGlobalClock.mCurrentType[mGlobalClock.mIndentationLevel] << " - "
+                                  << mGlobalClock.mCurrentType[ mGlobalClock.mIndentationLevel ] << " - "
                                   << aOutputSpecifier << ": "
                                   << ios::stringify( aOutputValue ) << " \n"
                                   << std::flush;
@@ -472,6 +472,14 @@ namespace moris
 
         // signing out
         void sign_out();
+
+        //------------------------------------------------------------------------------
+
+        // checks whether an instance exits
+        bool exists(
+                const std::string& aEntityBase,
+                const std::string& aEntityType,
+                const std::string& aEntityAction );
 
         //------------------------------------------------------------------------------
 
@@ -534,10 +542,10 @@ namespace moris
         {
             std::string tLine =
                     ios::stringify( mGlobalClock.mIndentationLevel ) + ";"
-                    + ios::stringify( mGlobalClock.mCurrentFunctionID[mGlobalClock.mIndentationLevel] ) + ";"
-                    + mGlobalClock.mCurrentEntity[mGlobalClock.mIndentationLevel] + ";"
-                    + mGlobalClock.mCurrentType[mGlobalClock.mIndentationLevel] + ";"
-                    + mGlobalClock.mCurrentAction[mGlobalClock.mIndentationLevel] + ";"
+                    + ios::stringify( mGlobalClock.mCurrentFunctionID[ mGlobalClock.mIndentationLevel ] ) + ";"
+                    + mGlobalClock.mCurrentEntity[ mGlobalClock.mIndentationLevel ] + ";"
+                    + mGlobalClock.mCurrentType[ mGlobalClock.mIndentationLevel ] + ";"
+                    + mGlobalClock.mCurrentAction[ mGlobalClock.mIndentationLevel ] + ";"
                     + aOutputSpecifier + ";"
                     + ios::stringify( aOutputValue ) + "\n";
 
