@@ -34,7 +34,7 @@ namespace moris
             real mConstantStepSize = 1.0;
 
             /// Initial time step size used in very first time step
-            real mInitialStepSize = 1.0;
+            real mInitialStepSize = MORIS_REAL_MAX;
 
             /// pre-factor for time step index-based increase of time step
             real mTimeStepIndexFactor = 0.0;
