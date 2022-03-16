@@ -79,7 +79,7 @@ Enriched_Integration_Mesh::Enriched_Integration_Mesh(
     // log/trace this function
     Tracer tTracer( "XTK", "Enriched Integration Mesh", "SPG Based Construction", mModel->mVerboseLevel, 0  );
 
-    MORIS_ERROR( false, "Enriched_Integration_Mesh() - Initialization for SPG based enrichment not fully implemented yet." ); 
+    // MORIS_ERROR( false, "Enriched_Integration_Mesh() - Initialization for SPG based enrichment not fully implemented yet." ); 
 
     // TODO: this function needs significant changeing, more later ...
     this->setup_cell_clusters_new();
@@ -2419,17 +2419,17 @@ Enriched_Integration_Mesh::setup_cell_clusters_new()
                 // Cluster is trivial (integration domain is single quadrilateral cell which is either void or full)
                 if( mCellClusters( tEnrIpCellIndex )->mTrivial )
                 {
-                    // get the indices of the vertices associated with the IP cell
-                    Matrix< IndexMat > tVertexIndices = mCellClusters( tEnrIpCellIndex )->mPrimaryIntegrationCells( 0 )->get_vertex_inds();
-
-                    // find the mtk::cells with the indices and store them in the cluster
-                    mCellClusters( tEnrIpCellIndex )->mVerticesInCluster = this->get_mtk_vertices_loc_inds( tVertexIndices );
-
                     // get the base cell 
                     moris::mtk::Cell const* tBaseCell = mCellClusters( tEnrIpCellIndex )->mInterpolationCell->get_base_cell();
                     
                     // get the parametric coordinates of the vertices and store them in the cluster
                     tBaseCell->get_cell_info()->get_loc_coords_of_cell( mCellClusters( tEnrIpCellIndex )->mLocalCoords );
+
+                    // get the indices of the vertices associated with the IP cell
+                    Matrix< IndexMat > tVertexIndices = tBaseCell->get_vertex_inds();
+
+                    // find the mtk::cells with the indices and store them in the cluster
+                    mCellClusters( tEnrIpCellIndex )->mVerticesInCluster = this->get_mtk_vertices_loc_inds( tVertexIndices );
 
                     // store base cell as primary or void integration cell on cluster
                     if( mCellClusters( tEnrIpCellIndex )->mVoid ) // cluster is void
@@ -2567,7 +2567,6 @@ Enriched_Integration_Mesh::setup_blockset_with_cell_clusters()
             this->set_block_set_colors( tNoChildBlockSetOrds( i ), { { i } } );
         }
 
-// TODO: which implementation of get_set_entity_loc_inds() does this function go into?        
         // get the IP cells in this block
         moris::Cell< moris::mtk::Cell const * > tCellsInBlock = tBackgroundMesh.get_block_set_cells( tBlockSetsNames( iBS ) );
 
