@@ -455,6 +455,37 @@ namespace moris
 
     //------------------------------------------------------------------------------
 
+    // checks whether an instance exists
+    bool
+    Logger::exists(
+            const std::string& aEntityBase,
+            const std::string& aEntityType,
+            const std::string& aEntityAction )
+    {
+        // initialize
+        uint tIndentLevel   = 0;
+        bool tInstanceFound = false;
+
+        // go through global clock stack from bottom and look for requested instance
+        while ( tIndentLevel <= mGlobalClock.mIndentationLevel && tInstanceFound == false )
+        {
+            // check if Instance matches the instance searched for
+            if (
+                    aEntityBase == mGlobalClock.mCurrentEntity[ tIndentLevel ]
+                    and ( aEntityType == mGlobalClock.mCurrentType[ tIndentLevel ] or aEntityType == LOGGER_ARBITRARY_DESCRIPTOR )
+                    and ( aEntityAction == mGlobalClock.mCurrentAction[ tIndentLevel ] or aEntityAction == LOGGER_ARBITRARY_DESCRIPTOR ) )
+            {
+                tInstanceFound = true;
+            }
+
+            // increment cursor
+            tIndentLevel++;
+        }
+        return tInstanceFound;
+    }
+
+    //------------------------------------------------------------------------------
+
     void
     Logger::set_action_data(
             const std::string& aEntityBase,
