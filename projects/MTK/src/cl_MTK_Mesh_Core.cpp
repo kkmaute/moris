@@ -1260,8 +1260,17 @@ namespace moris
             MORIS_ERROR( 0, "get_entity_owner not implemented" );
              return 0;
         }
+
         //--------------------------------------------------------------------------------------------------------------
 
+        uint
+        Mesh::get_local_mesh_index( const uint aBsplineMeshIndex )
+        {
+            MORIS_ERROR( 0, "get_entity_owner not implemented" );
+            return 0;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------    
         moris_id* 
         Mesh::get_basis_ids( moris_index aVertexIndex, moris_index aOrder )
         {
