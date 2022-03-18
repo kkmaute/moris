@@ -34,7 +34,7 @@ namespace moris
             real mConstantStepSize = 1.0;
 
             /// Initial time step size used in very first time step
-            real mInitialStepSize = MORIS_REAL_MAX;
+            real mInitialStepSize = 1e18;
 
             /// pre-factor for time step index-based increase of time step
             real mTimeStepIndexFactor = 0.0;
@@ -49,7 +49,10 @@ namespace moris
             real mResidualExponent = 1.0;
 
             /// Comsol parameter (laminar: 20, 2D turbulent: 25, 3D turbulent: 30)
-            real mComsolParameter = 20.0;
+            real mComsolParameter_1 = 20.0;
+
+            /// Comsol parameter (laminar: 40, 2D turbulent: 50, 3D turbulent: 60)
+            real mComsolParameter_2 = 40.0;
 
             /// required pseudo time step size needed for convergence
             real mRequiredStepSize = 1000.0;
@@ -59,6 +62,10 @@ namespace moris
 
             /// required relative residual drop to update "previous" solution and time step size
             real mRelativeResidualDropThreshold;
+
+            // time step size used once maximum number of step has been reached
+            // for negative values, time step size defined by strategy is used
+            real mSteadyStateStepSize = -1.0;
 
             /// time offset for outputting pseudo time solutions
             real mTimeOffSet = 0.0;
