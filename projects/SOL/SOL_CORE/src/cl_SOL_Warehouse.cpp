@@ -246,14 +246,14 @@ SOL_Warehouse::create_nonlinear_solvers()
             mNonlinearSolvers( Ik )->set_secondary_dof_type_list( tCellOfCellsSecDofTypes( Ii ) );
         }
 
-        // get and set sub-nonlinear solvers for staggered methods
+        // get and set nonlinear sub-solvers for staggered methods
         moris::Matrix< DDSMat > tNonlinearSubSolvers;
         string_to_mat( mParameterlist( 3 )( Ik ).get< std::string >( "NLA_Sub_Nonlinear_Solver" ),
                 tNonlinearSubSolvers );
 
         for ( uint Ii = 0; Ii < tNonlinearSubSolvers.numel(); Ii++ )
         {
-            MORIS_ERROR( tNonlinearSubSolvers( Ii ) < (sint)Ik,
+            MORIS_ERROR( tNonlinearSubSolvers( Ii ) <= (sint)Ik,
                     "Nonlinear sub-solvers need to be defined before they can be used as sub-solvers in staggered methods." );
 
             mNonlinearSolvers( Ik )->set_sub_nonlinear_solver( mNonlinearSolvers( tNonlinearSubSolvers( Ii ) ) );
