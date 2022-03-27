@@ -334,7 +334,7 @@ namespace moris
             if ( tPerformUpdate )
             {
                 // log load factor
-                MORIS_LOG_INFO( "Updated pseudo time step (InvResNorm) - updated previous time step in time step %d", mTimeStepCounter );
+                MORIS_LOG_INFO( "Updated pseudo time step - updated previous time step in time step %d", mTimeStepCounter );
 
                 // compute norms for previous and current solutions
                 // FIXME: should use vec_norm2 but this does not work in parallel
