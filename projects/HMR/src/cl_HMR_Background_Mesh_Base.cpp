@@ -30,9 +30,6 @@ namespace moris
                 mNumberOfChildrenPerElement( pow( 2, aParameters->get_number_of_dimensions() ) ),
                 mMyRank( par_rank() )
         {
-            barrier();
-            MORIS_LOG_INFO(" Background_Mesh_Base - proc %d", par_rank() ) ;
-
             // make sure that settings are OK
             aParameters->check_sanity();
 
@@ -56,9 +53,6 @@ namespace moris
 
             // set number of neighbors per element
             mNumberOfNeighborsPerElement = std::pow( 3, mNumberOfDimensions ) - 1;
-
-            barrier();
-            MORIS_LOG_INFO(" Done with Background_Mesh_Base - proc %d", par_rank() ) ;
         }
 
         //-------------------------------------------------------------------------------
