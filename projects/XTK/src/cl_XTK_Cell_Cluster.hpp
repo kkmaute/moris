@@ -36,7 +36,7 @@ namespace xtk
         bool                                            mVoid;
         bool                                            mInvalid;
         Interpolation_Cell_Unzipped const*              mInterpolationCell;
-        Child_Mesh const*                               mChildMesh;
+        Child_Mesh const*                               mChildMesh;  // FIXME: this doesn't seem to be used, should be removed
         moris::Cell< moris::mtk::Cell const* >          mPrimaryIntegrationCells;
         moris::Cell< moris::mtk::Cell const* >          mVoidIntegrationCells;
         moris::Cell< moris::mtk::Vertex const* >        mVerticesInCluster;

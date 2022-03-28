@@ -63,6 +63,7 @@ namespace fem
 
         // pointer to the corresponding mesh set
         moris::mtk::Set* mMeshSet = nullptr;
+        
         // interpolation mesh geometry type
         mtk::Geometry_Type mIPGeometryType = mtk::Geometry_Type::UNDEFINED;
 
