@@ -30,29 +30,29 @@ namespace moris
     {
         class Cell;
         class Field;
-    }
+    }    // namespace mtk
     namespace hmr
     {
         class Element;
 
         // User-defined refinement function
-        typedef sint  ( *Refinement_Function ) (
-                hmr::Element           * aElement,
-                const Matrix< DDRMat > & aElementLocalValues);
+        typedef sint ( *Refinement_Function )(
+                hmr::Element*           aElement,
+                const Matrix< DDRMat >& aElementLocalValues );
 
         // User-defined refinement function
-        typedef hmr::ElementalRefienmentIndicator ( *Refinement_Function_2 ) (
-                mtk::Cell                     * aElement,
-                std::shared_ptr< mtk::Field >   aField,
-                uint                            tActivationPattern,
-                uint                          & aMaxLevel );
+        typedef hmr::ElementalRefienmentIndicator ( *Refinement_Function_2 )(
+                mtk::Cell*                    aElement,
+                std::shared_ptr< mtk::Field > aField,
+                uint                          tActivationPattern,
+                uint&                         aMaxLevel );
 
         // -----------------------------------------------------------------------------
 
         // fixme: to be deleted soon
         // creates a parameter list with default inputs
-        void load_hmr_parameter_list_from_xml( const std::string   & aFilePath,
-                ParameterList & aParameterList );
+        void load_hmr_parameter_list_from_xml( const std::string& aFilePath,
+                ParameterList&                                    aParameterList );
 
         //--------------------------------------------------------------------------------
 
@@ -65,44 +65,44 @@ namespace moris
             uint mProcDecompMethod = 1;
 
             //! Processor layout if mProcDecompMethod is 0 (user defined here). Product MUST = # of processors used. Can be 1, 2, or 3 dimensions.
-            Matrix< DDUMat >  mProcessorDimensions= { { 2 }, { 2 } };
+            Matrix< DDUMat > mProcessorDimensions = { { 2 }, { 2 } };
 
             //! number of elements per direction in overall mesh, without aura
             //! 2D or 3D is determined by length of this vector
-            Matrix< DDLUMat > mNumberOfElementsPerDimension  = { { 2 }, { 2 } };
+            Matrix< DDLUMat > mNumberOfElementsPerDimension = { { 2 }, { 2 } };
 
             //! width, height and depth of domain (without aura)
-            Matrix< DDRMat >  mDomainDimensions;
+            Matrix< DDRMat > mDomainDimensions;
 
             //! coordinate of first visible node
-            Matrix< DDRMat >  mDomainOffset;
+            Matrix< DDRMat > mDomainOffset;
 
             // --- Begin changable parameters.
             //     Make sure to add them to copy_selected_parameters()
 
             //! size of staircase buffer
-            luint        mRefinementBuffer             = 1;
-            luint        mStaircaseBuffer              = 1;
+            luint mRefinementBuffer = 1;
+            luint mStaircaseBuffer  = 1;
 
             //! max polynomial to be supported
-            luint        mMaxPolynomial           = 1;
+            luint mMaxPolynomial = 1;
 
             //! scale factor for gmsh output
-            real         mGmshScale = 1;
+            real mGmshScale = 1;
 
             //! flag telling if truncation is used
-            bool         mBSplineTruncationFlag = true;
+            bool mBSplineTruncationFlag = true;
 
             // --- End changable parameters.
 
             //! tells if critical features of the settings object are locked
-            bool         mParametersAreLocked = false;
+            bool mParametersAreLocked = false;
 
             //! mesh orders, by default, a linear mesh is generated
-            Matrix< DDUMat >  mLagrangeOrders = { { 1 } };
+            Matrix< DDUMat > mLagrangeOrders = { { 1 } };
 
             //! mesh orders, by default, a linear mesh is generated
-            Matrix< DDUMat >  mBSplineOrders = { { 1 } };
+            Matrix< DDUMat > mBSplineOrders = { { 1 } };
 
             //! defines which Lagrange mesh is associated with which refinement pattern
             Matrix< DDUMat > mLagrangePatterns = { { 0 } };
@@ -118,12 +118,12 @@ namespace moris
             //           Matrix< DDUMat> mBSplineOutputMap;
 
             //! default input pattern     //FIXME delete these
-            const      uint mBSplineInputPattern = 0;
-            const      uint mLagrangeInputPattern = 1;
+            const uint mBSplineInputPattern  = 0;
+            const uint mLagrangeInputPattern = 1;
 
             //! default output pattern
-            const      uint mBSplineOutputPattern = 2;
-            const      uint mLagrangeOutputPattern = 3;
+            const uint mBSplineOutputPattern  = 2;
+            const uint mLagrangeOutputPattern = 3;
 
             //! default union pattern
             uint mUnionPattern = gNumberOfPatterns - 1;
@@ -138,20 +138,20 @@ namespace moris
             //! position 0: first order,
             //! position 1: second order,
             //! position 2: third order
-            Matrix< DDUMat >     mUnionMeshes;
+            Matrix< DDUMat > mUnionMeshes;
 
             //! Lagrange Meshes that are used for the output meshes
-            Cell< Matrix< DDUMat > >    mOutputMeshes = { { { 0 } } };
-            Cell< std::string >    mOutputMesheNames = { { { "" } } };
+            Cell< Matrix< DDUMat > > mOutputMeshes     = { { { 0 } } };
+            Cell< std::string >      mOutputMesheNames = { { { "" } } };
 
             moris::map< std::string, moris_index > mOutputNameToIndexMap;
 
-            Matrix< DDUMat >     mLagrangeInputMeshes = { { } };
+            Matrix< DDUMat > mLagrangeInputMeshes = { {} };
 
-            Matrix< DDUMat >     mBSplineInputMeshes = { { } };
+            Matrix< DDUMat > mBSplineInputMeshes = { {} };
 
-            Matrix< DDUMat > mInitialRefinementLevel = { { } };
-            Matrix< DDUMat > mInitialRefinementPattern = { { } };
+            Matrix< DDUMat > mInitialRefinementLevel   = { {} };
+            Matrix< DDUMat > mInitialRefinementPattern = { {} };
 
 
             uint mAdditionalLagrangeRefinementLevel = 0;
@@ -166,9 +166,11 @@ namespace moris
 
             bool mAdvancedTMatrices = false;
 
-            std::string mWriteBackgroundMesh = "";
-            std::string mWriteOutputLagrangeMesh = "";
-            std::string mWriteOutputLagrangeMeshToExodus ="";
+            std::string mWriteBackgroundMesh             = "";
+            std::string mWriteOutputLagrangeMesh         = "";
+            std::string mWriteOutputLagrangeMeshToExodus = "";
+
+            bool mWriteRefinementPatternFileFlag = false;
 
             std::string mRestartfromRefinedPattern = "";
 
@@ -182,11 +184,12 @@ namespace moris
             //! Renumber Lagrange Nodes
             bool mRenumberLagrangeNodes = false;
 
-           // HMR user defined refinement function
-           Cell<Refinement_Function> mRefinementFunctions;
+            // HMR user defined refinement function
+            Cell< Refinement_Function > mRefinementFunctions;
 
             //--------------------------------------------------------------------------------
-        public:
+
+          public:
             //--------------------------------------------------------------------------------
 
             /**
@@ -194,10 +197,11 @@ namespace moris
              *
              * @return uint
              */
-            auto get_processor_decomp_method() const
-            -> decltype ( mProcDecompMethod )
+            auto
+            get_processor_decomp_method() const
+                    -> decltype( mProcDecompMethod )
             {
-                return mProcDecompMethod ;
+                return mProcDecompMethod;
             }
 
             //--------------------------------------------------------------------------------
@@ -209,7 +213,7 @@ namespace moris
              *
              * @return void
              */
-            void set_processor_decomp_method( const uint & aProcDecompMethod );
+            void set_processor_decomp_method( const uint& aProcDecompMethod );
 
             //--------------------------------------------------------------------------------
 
@@ -218,10 +222,11 @@ namespace moris
              *
              * @return uint
              */
-            auto get_processor_dimensions() const
-            -> decltype ( mProcessorDimensions )
+            auto
+            get_processor_dimensions() const
+                    -> decltype( mProcessorDimensions )
             {
-                return mProcessorDimensions ;
+                return mProcessorDimensions;
             }
 
             //--------------------------------------------------------------------------------
@@ -233,7 +238,7 @@ namespace moris
              *
              * @return void
              */
-            void set_processor_dimensions( const Matrix< DDUMat > & aProcessorDimensions );
+            void set_processor_dimensions( const Matrix< DDUMat >& aProcessorDimensions );
 
             //--------------------------------------------------------------------------------
 
@@ -247,8 +252,8 @@ namespace moris
             /*
              * parameter list constructor
              */
-            Parameters( ParameterList & aParameterList,
-                    std::shared_ptr<moris::Library_IO> aLibrary );
+            Parameters( ParameterList&                   aParameterList,
+                    std::shared_ptr< moris::Library_IO > aLibrary );
 
             //--------------------------------------------------------------------------------
 
@@ -272,16 +277,18 @@ namespace moris
              * @param[in] aSwitch    true or false
              * @return void
              */
-            void set_severity_level( const sint aSwitch )
+            void
+            set_severity_level( const sint aSwitch )
             {
                 gLogger.set_severity_level( aSwitch );
             }
 
             //--------------------------------------------------------------------------------
 
-            sint get_severity_level() const
+            sint
+            get_severity_level() const
             {
-                return gLogger.get_severity_level( );
+                return gLogger.get_severity_level();
             };
 
             //--------------------------------------------------------------------------------
@@ -293,7 +300,8 @@ namespace moris
              *
              * @return void
              */
-            void set_refinement_buffer( const luint & aBufferSize )
+            void
+            set_refinement_buffer( const luint& aBufferSize )
             {
                 mRefinementBuffer = aBufferSize;
             }
@@ -307,17 +315,19 @@ namespace moris
              *
              * @return void
              */
-            void set_staircase_buffer( const luint & aBufferSize )
+            void
+            set_staircase_buffer( const luint& aBufferSize )
             {
                 mStaircaseBuffer = aBufferSize;
             }
 
             //--------------------------------------------------------------------------------
 
-            auto get_staircase_buffer() const
-            -> decltype( mStaircaseBuffer )
+            auto
+            get_staircase_buffer() const
+                    -> decltype( mStaircaseBuffer )
             {
-                if( mBSplineTruncationFlag )
+                if ( mBSplineTruncationFlag )
                 {
                     return std::max( std::max( mStaircaseBuffer, mMaxPolynomial ), mRefinementBuffer );
                 }
@@ -334,8 +344,9 @@ namespace moris
              *
              * @return luint
              */
-            auto get_refinement_buffer() const
-            -> decltype( mRefinementBuffer )
+            auto
+            get_refinement_buffer() const
+                    -> decltype( mRefinementBuffer )
             {
                 return mRefinementBuffer;
             }
@@ -344,22 +355,23 @@ namespace moris
             /**
              * sets the mesh orders according to given matrix
              */
-            void set_lagrange_orders( const Matrix< DDUMat > & aMeshOrders );
+            void set_lagrange_orders( const Matrix< DDUMat >& aMeshOrders );
 
             //--------------------------------------------------------------------------------
 
             /**
              * sets the mesh orders according to given matrix
              */
-            void set_bspline_orders( const Matrix< DDUMat > & aMeshOrders );
+            void set_bspline_orders( const Matrix< DDUMat >& aMeshOrders );
 
             //--------------------------------------------------------------------------------
 
             /**
              * returns a matrix with mesh orders
              */
-            auto get_lagrange_orders() const
-            -> decltype( mLagrangeOrders )
+            auto
+            get_lagrange_orders() const
+                    -> decltype( mLagrangeOrders )
             {
                 return mLagrangeOrders;
             }
@@ -369,8 +381,9 @@ namespace moris
             /**
              * returns a matrix with mesh orders
              */
-            auto get_bspline_orders() const
-            -> decltype( mBSplineOrders )
+            auto
+            get_bspline_orders() const
+                    -> decltype( mBSplineOrders )
             {
                 return mBSplineOrders;
             }
@@ -383,15 +396,16 @@ namespace moris
              * @param[ in ] aPattern patterns set by set_mesh_orders the Lagrange meshes refer to.
              *
              */
-            void set_lagrange_patterns( const Matrix< DDUMat > & aPatterns );
+            void set_lagrange_patterns( const Matrix< DDUMat >& aPatterns );
 
             //-------------------------------------------------------------------------------
 
             /**
              * returns a moris::Mat containing the patterns the meshes are linked to
              */
-            auto get_lagrange_patterns() const
-            -> decltype ( mLagrangePatterns )
+            auto
+            get_lagrange_patterns() const
+                    -> decltype( mLagrangePatterns )
             {
                 return mLagrangePatterns;
             }
@@ -401,8 +415,9 @@ namespace moris
             /**
              * returns an entry of mLagrangeOrders
              */
-            auto get_lagrange_order( const uint & aIndex ) const
-            -> decltype( mLagrangeOrders( aIndex ) )
+            auto
+            get_lagrange_order( const uint& aIndex ) const
+                    -> decltype( mLagrangeOrders( aIndex ) )
             {
                 return mLagrangeOrders( aIndex );
             }
@@ -412,8 +427,9 @@ namespace moris
             /**
              * returns an entry of mLagrangePatterns
              */
-            auto get_lagrange_pattern( const uint & aIndex ) const
-            -> decltype( mLagrangePatterns( aIndex ) )
+            auto
+            get_lagrange_pattern( const uint& aIndex ) const
+                    -> decltype( mLagrangePatterns( aIndex ) )
             {
                 return mLagrangePatterns( aIndex );
             }
@@ -425,15 +441,16 @@ namespace moris
              *
              * @param[ in ] aPattern patterns set by set_mesh_orders the B-Spline meshes refer to.
              */
-            void set_bspline_patterns( const Matrix< DDUMat > & aPatterns );
+            void set_bspline_patterns( const Matrix< DDUMat >& aPatterns );
 
             //-------------------------------------------------------------------------------
 
             /**
              * returns a moris::Mat containing the patterns the meshes are linked to
              */
-            auto get_bspline_patterns() const
-            -> decltype ( mBSplinePatterns )
+            auto
+            get_bspline_patterns() const
+                    -> decltype( mBSplinePatterns )
             {
                 return mBSplinePatterns;
             }
@@ -443,8 +460,9 @@ namespace moris
             /**
              * returns an entry of mBSplinePatterns
              */
-            auto get_bspline_pattern( const uint & aIndex ) const
-            -> decltype( mBSplinePatterns( aIndex ) )
+            auto
+            get_bspline_pattern( const uint& aIndex ) const
+                    -> decltype( mBSplinePatterns( aIndex ) )
             {
                 return mBSplinePatterns( aIndex );
             }
@@ -454,8 +472,9 @@ namespace moris
             /**
              * returns an entry of mBSplineOrders
              */
-            auto get_bspline_order( const uint & aIndex ) const
-            -> decltype( mBSplineOrders( aIndex ) )
+            auto
+            get_bspline_order( const uint& aIndex ) const
+                    -> decltype( mBSplineOrders( aIndex ) )
             {
                 return mBSplineOrders( aIndex );
             }
@@ -465,22 +484,25 @@ namespace moris
             /**
              * returns an entry of mBSplineOrders
              */
-            void set_lagrange_to_bspline_mesh( const Cell< Matrix< DDSMat > > aLagrangeToBSplineMesh )
+            void
+            set_lagrange_to_bspline_mesh( const Cell< Matrix< DDSMat > > aLagrangeToBSplineMesh )
             {
                 mLagrangeToBSplineMesh = aLagrangeToBSplineMesh;
             }
 
-            Matrix< DDSMat > get_lagrange_to_bspline_mesh( const uint & aLagrangeMeshIndex ) const
-               {
+            Matrix< DDSMat >
+            get_lagrange_to_bspline_mesh( const uint& aLagrangeMeshIndex ) const
+            {
                 return mLagrangeToBSplineMesh( aLagrangeMeshIndex );
-               }
+            }
 
             //--------------------------------------------------------------------------------
 
             /**
              * returns the number of B-Spline meshes
              */
-            uint get_number_of_bspline_meshes() const
+            uint
+            get_number_of_bspline_meshes() const
             {
                 return mBSplineOrders.length();
             }
@@ -490,7 +512,8 @@ namespace moris
             /**
              * returns the number of Lagrange meshes
              */
-            uint get_number_of_lagrange_meshes() const
+            uint
+            get_number_of_lagrange_meshes() const
             {
                 return mLagrangeOrders.length();
             }
@@ -499,9 +522,10 @@ namespace moris
             /**
              * returns the index of the defined Lagrange union mesh for a specified order
              */
-            uint get_union_mesh( const uint & aOrder ) const
+            uint
+            get_union_mesh( const uint& aOrder ) const
             {
-                return mUnionMeshes( aOrder-1 );
+                return mUnionMeshes( aOrder - 1 );
             }
 
             //--------------------------------------------------------------------------------
@@ -509,7 +533,8 @@ namespace moris
             /**
              * returns the index of the defined Lagrange output mesh for a specified order
              */
-            const Cell< Matrix< DDUMat > > & get_output_mesh() const
+            const Cell< Matrix< DDUMat > >&
+            get_output_mesh() const
             {
                 return mOutputMeshes;
             }
@@ -519,10 +544,11 @@ namespace moris
             /**
              * set which lagrange meshes are used for an output
              */
-            void set_output_meshes( const Cell< Matrix< DDUMat > > & aOutputMeshes )
+            void
+            set_output_meshes( const Cell< Matrix< DDUMat > >& aOutputMeshes )
             {
                 // test if calling this function is allowed
-                this->error_if_locked("set_output_meshes");
+                this->error_if_locked( "set_output_meshes" );
 
                 mOutputMeshes = aOutputMeshes;
             };
@@ -532,10 +558,11 @@ namespace moris
             /**
              * set output mesh names
              */
-            void set_output_mesh_names( const Cell< std::string > & aOutputMesheNames )
+            void
+            set_output_mesh_names( const Cell< std::string >& aOutputMesheNames )
             {
                 // test if calling this function is allowed
-                this->error_if_locked("set_output_meshes_names");
+                this->error_if_locked( "set_output_meshes_names" );
 
                 mOutputMesheNames = aOutputMesheNames;
             }
@@ -545,7 +572,8 @@ namespace moris
             /**
              * returns the index of the defined Lagrange output mesh names for a specified order
              */
-            const Cell< std::string > & get_output_mesh_names() const
+            const Cell< std::string >&
+            get_output_mesh_names() const
             {
                 return mOutputMesheNames;
             }
@@ -555,10 +583,11 @@ namespace moris
             /**
              * returns mesh index for name
              */
-            moris_index get_mesh_index_by_name( const std::string & aName ) const
+            moris_index
+            get_mesh_index_by_name( const std::string& aName ) const
             {
                 MORIS_ERROR( mOutputNameToIndexMap.key_exists( aName ),
-                        "Parameters::get_mesh_index_by_name() Mesh name does not exist");
+                        "Parameters::get_mesh_index_by_name() Mesh name does not exist" );
 
                 return mOutputNameToIndexMap.find( aName );
             }
@@ -568,7 +597,8 @@ namespace moris
             /**
              * returns true if mesh name exists
              */
-            bool get_mesh_name_exists( const std::string & aName ) const
+            bool
+            get_mesh_name_exists( const std::string& aName ) const
             {
                 return mOutputNameToIndexMap.key_exists( aName );
             }
@@ -585,7 +615,8 @@ namespace moris
             /**
              * returns lagrange input mesh index
              */
-            const Matrix< DDUMat > & get_lagrange_input_mesh() const
+            const Matrix< DDUMat >&
+            get_lagrange_input_mesh() const
             {
                 return mLagrangeInputMeshes;
             };
@@ -595,10 +626,11 @@ namespace moris
             /**
              * set lagrange input mesh index
              */
-            void set_lagrange_input_mesh( const Matrix< DDUMat > & aLagrangeInputMeshes )
+            void
+            set_lagrange_input_mesh( const Matrix< DDUMat >& aLagrangeInputMeshes )
             {
                 // test if calling this function is allowed
-                this->error_if_locked("set_output_meshes");
+                this->error_if_locked( "set_output_meshes" );
 
                 mLagrangeInputMeshes = aLagrangeInputMeshes;
             };
@@ -608,20 +640,22 @@ namespace moris
             /**
              * returns lagrange input mesh index
              */
-            const Matrix< DDUMat > & get_bspline_input_mesh() const
-               {
+            const Matrix< DDUMat >&
+            get_bspline_input_mesh() const
+            {
                 return mBSplineInputMeshes;
-               }
+            }
 
             //--------------------------------------------------------------------------------
 
             /**
              * set lagrange input mesh index
              */
-            void set_bspline_input_mesh( const Matrix< DDUMat > & aBSplineInputMeshes )
+            void
+            set_bspline_input_mesh( const Matrix< DDUMat >& aBSplineInputMeshes )
             {
                 // test if calling this function is allowed
-                this->error_if_locked("set_output_meshes");
+                this->error_if_locked( "set_output_meshes" );
 
                 mBSplineInputMeshes = aBSplineInputMeshes;
             };
@@ -636,8 +670,8 @@ namespace moris
              *
              * @return void
              */
-            //void
-            //set_max_polynomial( const luint & aMaxPolynomial ) ;
+            // void
+            // set_max_polynomial( const luint & aMaxPolynomial ) ;
 
             //--------------------------------------------------------------------------------
 
@@ -648,7 +682,7 @@ namespace moris
              * @return luint number of padding elements defining aura width
              */
             auto get_padding_size() const
-            -> decltype ( mStaircaseBuffer ) ;
+                    -> decltype( mStaircaseBuffer );
 
             //--------------------------------------------------------------------------------
 
@@ -657,10 +691,11 @@ namespace moris
              *
              * @return Matrix< DDLUMat >
              */
-            auto get_number_of_elements_per_dimension() const
-            -> decltype ( mNumberOfElementsPerDimension )
+            auto
+            get_number_of_elements_per_dimension() const
+                    -> decltype( mNumberOfElementsPerDimension )
             {
-                return mNumberOfElementsPerDimension ;
+                return mNumberOfElementsPerDimension;
             }
 
             //--------------------------------------------------------------------------------
@@ -672,7 +707,7 @@ namespace moris
              *
              * @return void
              */
-            void set_number_of_elements_per_dimension( const Matrix< DDLUMat > & aNumberOfElementsPerDimension );
+            void set_number_of_elements_per_dimension( const Matrix< DDLUMat >& aNumberOfElementsPerDimension );
 
             //--------------------------------------------------------------------------------
 
@@ -684,8 +719,8 @@ namespace moris
              * @param[in] aElementsY
              * @return void
              */
-            void set_number_of_elements_per_dimension( const luint & aElementsX,
-                    const luint & aElementsY );
+            void set_number_of_elements_per_dimension( const luint& aElementsX,
+                    const luint&                                    aElementsY );
 
             //--------------------------------------------------------------------------------
 
@@ -698,9 +733,9 @@ namespace moris
              * @param[in] aElementsZ
              * @return void
              */
-            void set_number_of_elements_per_dimension( const luint & aElementsX,
-                    const luint & aElementsY,
-                    const luint & aElementsZ );
+            void set_number_of_elements_per_dimension( const luint& aElementsX,
+                    const luint&                                    aElementsY,
+                    const luint&                                    aElementsZ );
 
             //-------------------------------------------------------------------------------
 
@@ -709,7 +744,8 @@ namespace moris
              *
              * return luint
              */
-            luint get_number_of_dimensions() const
+            luint
+            get_number_of_dimensions() const
             {
                 return mNumberOfElementsPerDimension.length();
             }
@@ -723,7 +759,7 @@ namespace moris
              *
              * @return void
              */
-            void set_domain_dimensions( const Matrix< DDRMat > & aDomainDimensions );
+            void set_domain_dimensions( const Matrix< DDRMat >& aDomainDimensions );
 
             //-------------------------------------------------------------------------------
 
@@ -734,8 +770,8 @@ namespace moris
              * @param[in] real dimension in Y-Direction
              * @return void
              */
-            void set_domain_dimensions( const real & aDomainDimensionsX,
-                    const real & aDomainDimensionsY );
+            void set_domain_dimensions( const real& aDomainDimensionsX,
+                    const real&                     aDomainDimensionsY );
 
             //-------------------------------------------------------------------------------
 
@@ -747,9 +783,9 @@ namespace moris
              * @param[in] real dimension in Z-Direction
              * @return void
              */
-            void set_domain_dimensions( const real & aDomainDimensionsX,
-                    const real & aDomainDimensionsY,
-                    const real & aDomainDimensionsZ);
+            void set_domain_dimensions( const real& aDomainDimensionsX,
+                    const real&                     aDomainDimensionsY,
+                    const real&                     aDomainDimensionsZ );
 
             //-------------------------------------------------------------------------------
 
@@ -769,7 +805,7 @@ namespace moris
              *
              * @return void
              */
-            void set_domain_offset( const Matrix< DDRMat > & aDomainOffset );
+            void set_domain_offset( const Matrix< DDRMat >& aDomainOffset );
 
             //-------------------------------------------------------------------------------
 
@@ -781,8 +817,8 @@ namespace moris
              *
              * @return void
              */
-            void set_domain_offset( const real & aDomainOffsetX,
-                    const real & aDomainOffsetY );
+            void set_domain_offset( const real& aDomainOffsetX,
+                    const real&                 aDomainOffsetY );
 
             //-------------------------------------------------------------------------------
 
@@ -795,9 +831,9 @@ namespace moris
              *
              * @return void
              */
-            void set_domain_offset( const real & aDomainOffsetX,
-                    const real & aDomainOffsetY,
-                    const real & aDomainOffsetZ );
+            void set_domain_offset( const real& aDomainOffsetX,
+                    const real&                 aDomainOffsetY,
+                    const real&                 aDomainOffsetZ );
 
             //-------------------------------------------------------------------------------
             /**
@@ -805,8 +841,9 @@ namespace moris
              *
              * return Matrix< DDRMat >
              */
-            auto get_domain_offset() const
-            -> decltype( mDomainOffset )
+            auto
+            get_domain_offset() const
+                    -> decltype( mDomainOffset )
             {
                 return mDomainOffset;
             }
@@ -823,45 +860,49 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
-            auto get_max_polynomial() const
-            -> decltype ( mMaxPolynomial )
+            auto
+            get_max_polynomial() const
+                    -> decltype( mMaxPolynomial )
             {
                 return mMaxPolynomial;
             }
 
             //-------------------------------------------------------------------------------
 
-            //void
-            //set_demo_knot_parameter( const real & aParam )
+            // void
+            // set_demo_knot_parameter( const real & aParam )
             //{
-            //    mDemoKnotParameter = aParam;
-            //}
+            //     mDemoKnotParameter = aParam;
+            // }
 
             //-------------------------------------------------------------------------------
 
-            //auto
-            //get_demo_knot_parameter() const -> decltype ( mDemoKnotParameter )
+            // auto
+            // get_demo_knot_parameter() const -> decltype ( mDemoKnotParameter )
             //{
-            //    return mDemoKnotParameter;
-            //}
+            //     return mDemoKnotParameter;
+            // }
 
             //-------------------------------------------------------------------------------
 
-            void set_gmsh_scale( const real& aScaleFactor )
+            void
+            set_gmsh_scale( const real& aScaleFactor )
             {
                 mGmshScale = aScaleFactor;
             }
 
             //-------------------------------------------------------------------------------
-            auto get_gmsh_scale() const
-            -> decltype( mGmshScale )
+            auto
+            get_gmsh_scale() const
+                    -> decltype( mGmshScale )
             {
-                return  mGmshScale;
+                return mGmshScale;
             }
 
             //-------------------------------------------------------------------------------
 
-            void set_bspline_truncation( const bool aSwitch )
+            void
+            set_bspline_truncation( const bool aSwitch )
             {
                 mBSplineTruncationFlag = aSwitch;
             }
@@ -872,7 +913,8 @@ namespace moris
             /**
              * returns the flag that tells if the truncation flag is set
              */
-            bool truncate_bsplines() const
+            bool
+            truncate_bsplines() const
             {
                 return mBSplineTruncationFlag;
             }
@@ -889,7 +931,8 @@ namespace moris
             /**
              * returns the default pattern for input meshes
              */
-            uint get_bspline_input_pattern() const
+            uint
+            get_bspline_input_pattern() const
             {
                 return mBSplineInputPattern;
             }
@@ -899,7 +942,8 @@ namespace moris
             /**
              * returns the default pattern for input meshes
              */
-            uint get_lagrange_input_pattern() const
+            uint
+            get_lagrange_input_pattern() const
             {
                 return mLagrangeInputPattern;
             }
@@ -909,7 +953,8 @@ namespace moris
             /**
              * returns the default pattern for output meshes
              */
-            uint get_bspline_output_pattern() const
+            uint
+            get_bspline_output_pattern() const
             {
                 return mBSplineOutputPattern;
             }
@@ -917,7 +962,8 @@ namespace moris
             /**
              * returns the default pattern for output meshes
              */
-            uint get_lagrange_output_pattern() const
+            uint
+            get_lagrange_output_pattern() const
             {
                 return mLagrangeOutputPattern;
             }
@@ -927,7 +973,8 @@ namespace moris
             /**
              * returns the default pattern for union meshes
              */
-            void set_union_pattern( const uint aUsedUnionPattern)
+            void
+            set_union_pattern( const uint aUsedUnionPattern )
             {
                 mUnionPattern = aUsedUnionPattern;
             }
@@ -937,7 +984,8 @@ namespace moris
             /**
              * returns the default pattern for union meshes
              */
-            uint get_union_pattern() const
+            uint
+            get_union_pattern() const
             {
                 return mUnionPattern;
             }
@@ -947,12 +995,14 @@ namespace moris
             /**
              * returns the working pattern
              */
-            uint get_working_pattern() const
+            uint
+            get_working_pattern() const
             {
                 return mWorkingPattern;
             }
 
-            void set_working_pattern( const uint aWorkingPattern )
+            void
+            set_working_pattern( const uint aWorkingPattern )
             {
                 mWorkingPattern = aWorkingPattern;
             }
@@ -962,7 +1012,7 @@ namespace moris
              * Copy selected parameters from other parameter object
              * Note that not all parameters can be copied
              */
-            void copy_selected_parameters( const Parameters & aParameters );
+            void copy_selected_parameters( const Parameters& aParameters );
 
             //-------------------------------------------------------------------------------
 
@@ -970,7 +1020,7 @@ namespace moris
              * Copy selected parameters from other parameter list
              * Note that not all parameters can be copied
              */
-            void copy_selected_parameters( ParameterList & aParameterList );
+            void copy_selected_parameters( ParameterList& aParameterList );
 
             //-------------------------------------------------------------------------------
 
@@ -981,41 +1031,46 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
-            void set_initial_refinement( const moris::Matrix< DDUMat > & aLevel )
+            void
+            set_initial_refinement( const moris::Matrix< DDUMat >& aLevel )
             {
                 mInitialRefinementLevel = aLevel;
             }
 
             //-------------------------------------------------------------------------------
 
-            moris::Matrix< DDUMat > get_initial_refinement() const
+            moris::Matrix< DDUMat >
+            get_initial_refinement() const
             {
                 return mInitialRefinementLevel;
             }
 
             //-------------------------------------------------------------------------------
 
-            void set_initial_refinement_patterns( const moris::Matrix< DDUMat > & aPatterns )
+            void
+            set_initial_refinement_patterns( const moris::Matrix< DDUMat >& aPatterns )
             {
                 mInitialRefinementPattern = aPatterns;
             }
 
             //-------------------------------------------------------------------------------
 
-            moris::Matrix< DDUMat > get_initial_refinement_patterns() const
+            moris::Matrix< DDUMat >
+            get_initial_refinement_patterns() const
             {
                 return mInitialRefinementPattern;
             }
 
             //-------------------------------------------------------------------------------
 
-            uint get_initial_refinement( uint tActivationPattern ) const
+            uint
+            get_initial_refinement( uint tActivationPattern ) const
             {
                 sint tInitialRefinement = 0;
 
-                for( uint Ik = 0; Ik < mInitialRefinementPattern.numel(); Ik ++)
+                for ( uint Ik = 0; Ik < mInitialRefinementPattern.numel(); Ik++ )
                 {
-                    if( mInitialRefinementPattern( Ik ) == tActivationPattern )
+                    if ( mInitialRefinementPattern( Ik ) == tActivationPattern )
                     {
                         tInitialRefinement = mInitialRefinementLevel( Ik );
                     }
@@ -1025,14 +1080,16 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
-            void set_additional_lagrange_refinement( const uint & aLevel )
+            void
+            set_additional_lagrange_refinement( const uint& aLevel )
             {
                 mAdditionalLagrangeRefinementLevel = aLevel;
             }
 
             //-------------------------------------------------------------------------------
 
-            uint get_additional_lagrange_refinement() const
+            uint
+            get_additional_lagrange_refinement() const
             {
                 return mAdditionalLagrangeRefinementLevel;
             }
@@ -1067,14 +1124,16 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
-            const Matrix< DDUMat > & get_side_sets() const
-               {
+            const Matrix< DDUMat >&
+            get_side_sets() const
+            {
                 return mSideSets;
-               }
+            }
 
             //-------------------------------------------------------------------------------
 
-            void set_side_sets( const Matrix< DDUMat > & aSideSets )
+            void
+            set_side_sets( const Matrix< DDUMat >& aSideSets )
             {
                 mSideSets = aSideSets;
             }
@@ -1088,42 +1147,48 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
-            bool use_multigrid() const
+            bool
+            use_multigrid() const
             {
                 return mUseMultigrid;
             }
 
             //-------------------------------------------------------------------------------
 
-            bool use_number_aura() const
+            bool
+            use_number_aura() const
             {
                 return mNumberAura;
             }
 
             //-------------------------------------------------------------------------------
 
-            bool use_refinement_for_low_level_elements() const
+            bool
+            use_refinement_for_low_level_elements() const
             {
                 return mRefinementForLowLevelElements;
             }
 
             //-------------------------------------------------------------------------------
 
-            bool use_advanced_t_matrices() const
+            bool
+            use_advanced_t_matrices() const
             {
                 return mAdvancedTMatrices;
             }
 
             //-------------------------------------------------------------------------------
 
-            void set_multigrid( const bool aSwitch )
+            void
+            set_multigrid( const bool aSwitch )
             {
                 mUseMultigrid = aSwitch;
             }
 
             //-------------------------------------------------------------------------------
 
-            void set_number_aura( const bool aSwitch )
+            void
+            set_number_aura( const bool aSwitch )
             {
                 mNumberAura = aSwitch;
             }
@@ -1131,111 +1196,143 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
-            void set_refinement_for_low_level_elements( const bool aSwitch )
+            void
+            set_refinement_for_low_level_elements( const bool aSwitch )
             {
                 mRefinementForLowLevelElements = aSwitch;
             }
 
             //-------------------------------------------------------------------------------
 
-            void set_use_advanced_t_matrices( const bool aSwitch )
+            void
+            set_use_advanced_t_matrices( const bool aSwitch )
             {
                 mAdvancedTMatrices = aSwitch;
             }
 
             //-------------------------------------------------------------------------------
 
-            void set_write_background_mesh( const std::string & aWriteBackgroundMesh )
+            void
+            set_write_background_mesh( const std::string& aWriteBackgroundMesh )
             {
                 mWriteBackgroundMesh = aWriteBackgroundMesh;
             }
 
             //-------------------------------------------------------------------------------
 
-            void set_write_output_lagrange_mesh( const std::string & aWriteOutputLagrangeMesh )
+            void
+            set_write_output_lagrange_mesh( const std::string& aWriteOutputLagrangeMesh )
             {
                 mWriteOutputLagrangeMesh = aWriteOutputLagrangeMesh;
             }
 
             //-------------------------------------------------------------------------------
 
-            void set_write_output_lagrange_mesh_to_exodus( const std::string & aWriteOutputLagrangeMesh )
+            void
+            set_write_output_lagrange_mesh_to_exodus( const std::string& aWriteOutputLagrangeMesh )
             {
                 mWriteOutputLagrangeMeshToExodus = aWriteOutputLagrangeMesh;
             }
 
             //-------------------------------------------------------------------------------
 
-            void set_restart_refinement_pattern_file( const std::string & aRestartfromRefinedPattern )
+            void
+            set_write_refinement_pattern_file_flag( bool aWriteRefinmentPatternFile )
+            {
+                mWriteRefinementPatternFileFlag = aWriteRefinmentPatternFile;
+            }
+
+            //-------------------------------------------------------------------------------
+
+            void
+            set_restart_refinement_pattern_file( const std::string& aRestartfromRefinedPattern )
             {
                 mRestartfromRefinedPattern = aRestartfromRefinedPattern;
             }
 
             //-------------------------------------------------------------------------------
 
-            const std::string & get_write_background_mesh()
+            const std::string&
+            get_write_background_mesh()
             {
                 return mWriteBackgroundMesh;
             }
 
             //-------------------------------------------------------------------------------
 
-            const std::string & get_write_output_lagrange_mesh()
+            const std::string&
+            get_write_output_lagrange_mesh()
             {
                 return mWriteOutputLagrangeMesh;
             }
 
             //-------------------------------------------------------------------------------
 
-            const std::string & get_write_output_lagrange_mesh_to_exodus()
+            const std::string&
+            get_write_output_lagrange_mesh_to_exodus()
             {
                 return mWriteOutputLagrangeMeshToExodus;
             }
 
             //-------------------------------------------------------------------------------
 
-            const std::string & get_restart_refinement_pattern_file()
+            bool
+            get_write_refinement_pattern_file_flag()
+            {
+                return mWriteRefinementPatternFileFlag;
+            }
+
+            //-------------------------------------------------------------------------------
+
+            const std::string&
+            get_restart_refinement_pattern_file()
             {
                 return mRestartfromRefinedPattern;
             }
 
             //-------------------------------------------------------------------------------
 
-            uint get_max_refinement_level() const
+            uint
+            get_max_refinement_level() const
             {
                 return mMaxRefinementLevel;
             }
 
             //-------------------------------------------------------------------------------
 
-            void set_max_refinement_level( const uint aLevel )
+            void
+            set_max_refinement_level( const uint aLevel )
             {
                 mMaxRefinementLevel = std::min( aLevel, gMaxNumberOfLevels - 1 );
             }
             //-------------------------------------------------------------------------------
 
-            bool get_refinement_interrelation() const
+            bool
+            get_refinement_interrelation() const
             {
                 return mRefinementInterrelation;
             }
 
             //-------------------------------------------------------------------------------
 
-            void set_renumber_lagrange_nodes( const bool aSwitch )
+            void
+            set_renumber_lagrange_nodes( const bool aSwitch )
             {
                 mRenumberLagrangeNodes = aSwitch;
             }
 
             //-------------------------------------------------------------------------------
 
-            bool get_renumber_lagrange_nodes() const
+            bool
+            get_renumber_lagrange_nodes() const
             {
                 return mRenumberLagrangeNodes;
             }
 
             //-------------------------------------------------------------------------------
 
-            void set_refinement_interrelation( const bool aSwitch )
+            void
+            set_refinement_interrelation( const bool aSwitch )
             {
                 mRefinementInterrelation = aSwitch;
             }
@@ -1244,7 +1341,7 @@ namespace moris
              *
              * @param aRefinementFunctions
              */
-            void set_refinement_functions( Cell<Refinement_Function> aRefinementFunctions );
+            void set_refinement_functions( Cell< Refinement_Function > aRefinementFunctions );
 
             /**
              * Get a user-defined refinement function from the parameters
@@ -1254,20 +1351,21 @@ namespace moris
             Refinement_Function get_refinement_function( uint aFunctionIndex );
 
             //-------------------------------------------------------------------------------
-        private:
+
+          private:
             //-------------------------------------------------------------------------------
 
             /**
              * returns an error message for an invalid parameter
              */
-            void error( const std::string & aMessage ) const;
+            void error( const std::string& aMessage ) const;
 
             //-------------------------------------------------------------------------------
 
             /**
              * calls error message only if parameters are locked
              */
-            void error_if_locked( const std::string & aFunctionName  ) const;
+            void error_if_locked( const std::string& aFunctionName ) const;
 
             //-------------------------------------------------------------------------------
 
@@ -1301,7 +1399,7 @@ namespace moris
         /**
          * creates a parameter list from a parameter object
          */
-        ParameterList create_hmr_parameter_list( const Parameters * aParameters );
+        ParameterList create_hmr_parameter_list( const Parameters* aParameters );
 
         // -----------------------------------------------------------------------------
     } /* namespace hmr */
