@@ -14,7 +14,6 @@ namespace moris
 {
     namespace fem
     {
-
         //--------------------------------------------------------------------------------------------------------------
 
         CM_Spalart_Allmaras_Turbulence::CM_Spalart_Allmaras_Turbulence()
@@ -308,6 +307,8 @@ namespace moris
                     + this->diffusion_coefficient() * sum( tFIViscosity->gradx( 2 )( { 0, mSpaceDim - 1 }, { 0, 0 } ) );
         }
 
+        //--------------------------------------------------------------------------------------------------------------
+
         void
         CM_Spalart_Allmaras_Turbulence::eval_ddivfluxdu(
                 const moris::Cell< MSI::Dof_Type >& aDofTypes )
@@ -594,6 +595,8 @@ namespace moris
                     "CM_Spalart_Allmaras_Turbulence::eval_dproductioncoeffdu - mdProductionCoeffdu contains NAN or INF, exiting!" );
         }
 
+        //--------------------------------------------------------------------------------------------------------------
+
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::dproductioncoeffdu(
                 const moris::Cell< MSI::Dof_Type >& aDofType,
@@ -647,6 +650,8 @@ namespace moris
             // return the production term
             return mProductionTerm;
         }
+
+        //--------------------------------------------------------------------------------------------------------------
 
         void
         CM_Spalart_Allmaras_Turbulence::eval_production_term()
@@ -703,6 +708,8 @@ namespace moris
             MORIS_ASSERT( isfinite( mdProductionTermdu( tDofIndex ) ),
                     "CM_Spalart_Allmaras_Turbulence::eval_dproductiontermdu - mdProductionTermdu contains NAN or INF, exiting!" );
         }
+
+        //--------------------------------------------------------------------------------------------------------------
 
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::dproductiontermdu(
@@ -766,6 +773,8 @@ namespace moris
                 mWallDestructionCoeff = { { -mCw1 * mAlpha * tModViscosity / tWallDistance2 } };
             }
         }
+
+        //--------------------------------------------------------------------------------------------------------------
 
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::wall_destruction_coefficient(
@@ -848,17 +857,17 @@ namespace moris
                 // if wall distance depends on derivative dof type
                 if ( ( mPropWallDistance->check_dof_dependency( aDofTypes ) ) && ( tWallDistance2 > mEpsilon ) )
                 {
-                    // threshold wall distance
-                    real tWallDistance3 = std::max( std::pow( tWallDistance, 3.0 ), mEpsilon );
+                    // compute denominator
+                    real tWallDistance3 = std::pow( tWallDistance, 3.0 );
 
                     // add contribution to dwalldestructiondu
-                    mdWallDestructionCoeffdu( tDofIndex ) -= 2.0 * mCw1 * this->fw() * std::pow( tModViscosity, 2.0 ) * mPropWallDistance->dPropdDOF( aDofTypes ) / tWallDistance3;
+                    mdWallDestructionCoeffdu( tDofIndex ) -= 2.0 * mCw1 * this->fw() * tModViscosity * mPropWallDistance->dPropdDOF( aDofTypes ) / tWallDistance3;
 
                     // if contribution from ft2
                     if ( mUseFt2 )
                     {
                         mdWallDestructionCoeffdu( tDofIndex ) +=
-                                2.0 * ( mCb1 * this->ft2() / std::pow( mKappa, 2.0 ) ) * std::pow( tModViscosity, 2.0 ) * mPropWallDistance->dPropdDOF( aDofTypes ) / tWallDistance3;
+                                2.0 * ( mCb1 * this->ft2() / std::pow( mKappa, 2.0 ) ) * tModViscosity * mPropWallDistance->dPropdDOF( aDofTypes ) / tWallDistance3;
                     }
                 }
             }
@@ -881,18 +890,20 @@ namespace moris
                 // if wall distance depends on derivative dof type
                 if ( ( mPropWallDistance->check_dof_dependency( aDofTypes ) ) && ( tWallDistance2 > mEpsilon ) )
                 {
-                    // threshold wall distance
-                    real tWallDistance3 = std::max( std::pow( tWallDistance, 3.0 ), mEpsilon );
+                    // compute denominator
+                    real tWallDistance3 = std::pow( tWallDistance, 3.0 );
 
                     // add contribution to dwalldestructiondu
                     mdWallDestructionCoeffdu( tDofIndex ) +=
-                            2.0 * mCw1 * mAlpha * std::pow( tModViscosity, 2.0 ) * mPropWallDistance->dPropdDOF( aDofTypes ) / tWallDistance3;
+                            2.0 * mCw1 * mAlpha * tModViscosity * mPropWallDistance->dPropdDOF( aDofTypes ) / tWallDistance3;
                 }
             }
 
             MORIS_ASSERT( isfinite( mdWallDestructionCoeffdu( tDofIndex ) ),
                     "CM_Spalart_Allmaras_Turbulence::eval_dwalldestructioncoeffdu - mdWallDestructionCoeffdu contains NAN or INF, exiting!" );
         }
+
+        //--------------------------------------------------------------------------------------------------------------
 
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::dwalldestructioncoeffdu(
@@ -925,7 +936,7 @@ namespace moris
             return mdWallDestructionCoeffdu( tDofIndex );
         }
 
-        //------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
 
         void
         CM_Spalart_Allmaras_Turbulence::eval_wall_destruction_term()
@@ -940,6 +951,8 @@ namespace moris
             // compute wall destruction term
             mWallDestructionTerm = this->wall_destruction_coefficient() * tModViscosity;
         }
+
+        //--------------------------------------------------------------------------------------------------------------
 
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::wall_destruction_term(
@@ -962,7 +975,7 @@ namespace moris
             return mWallDestructionTerm;
         }
 
-        //------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
 
         void
         CM_Spalart_Allmaras_Turbulence::eval_dwalldestructiontermdu(
@@ -1003,6 +1016,8 @@ namespace moris
             MORIS_ASSERT( isfinite( mdWallDestructionTermdu( tDofIndex ) ),
                     "CM_Spalart_Allmaras_Turbulence::eval_dwalldestructiontermdu - mdWallDestructionTermdu contains NAN or INF, exiting!" );
         }
+
+        //--------------------------------------------------------------------------------------------------------------
 
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::dwalldestructiontermdu(
@@ -1063,6 +1078,8 @@ namespace moris
                 mDiffusionCoeff = { { ( tKinViscosity + tModViscosity * this->fn() ) / mSigma } };
             }
         }
+
+        //--------------------------------------------------------------------------------------------------------------
 
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::diffusion_coefficient(
@@ -1158,6 +1175,8 @@ namespace moris
                     "CM_Spalart_Allmaras_Turbulence::eval_ddiffusioncoeffdu - mdDiffusionCoeffdu contains NAN or INF, exiting!" );
         }
 
+        //--------------------------------------------------------------------------------------------------------------
+
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::ddiffusioncoeffdu(
                 const moris::Cell< MSI::Dof_Type >& aDofType,
@@ -1188,6 +1207,8 @@ namespace moris
             // return the derivative
             return mdDiffusionCoeffdu( tDofIndex );
         }
+
+        //--------------------------------------------------------------------------------------------------------------
 
         void
         CM_Spalart_Allmaras_Turbulence::eval_ddiffusioncoeffdx( uint aOrder )
@@ -1233,6 +1254,8 @@ namespace moris
             }
         }
 
+        //--------------------------------------------------------------------------------------------------------------
+
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::ddiffusioncoeffdx(
                 uint                  aOrder,
@@ -1258,6 +1281,8 @@ namespace moris
             // return the derivative
             return mdDiffusionCoeffdx( aOrder - 1 );
         }
+
+        //--------------------------------------------------------------------------------------------------------------
 
         void
         CM_Spalart_Allmaras_Turbulence::eval_ddiffusioncoeffdxdu(
@@ -1334,6 +1359,8 @@ namespace moris
                     "CM_Spalart_Allmaras_Turbulence::eval_ddiffusioncoeffdxdu - mdDiffusionCoeffdxdu contains NAN or INF, exiting!" );
         }
 
+        //--------------------------------------------------------------------------------------------------------------
+
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::ddiffusioncoeffdxdu(
                 const moris::Cell< MSI::Dof_Type >& aDofType,
@@ -1363,7 +1390,6 @@ namespace moris
             // return the derivative
             return mdDiffusionCoeffdxdu( aOrder - 1 )( tDofIndex );
         }
-
 
         //------------------------------------------------------------------------------
 
@@ -1452,6 +1478,8 @@ namespace moris
             MORIS_ASSERT( isfinite( mdModVelocitydu( tDofIndex ) ),
                     "CM_Spalart_Allmaras_Turbulence::eval_dmodvelocitydu - mdModVelocitydu contains NAN or INF, exiting!" );
         }
+
+        //--------------------------------------------------------------------------------------------------------------
 
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::dmodvelocitydu(
@@ -1572,6 +1600,8 @@ namespace moris
                     "CM_Spalart_Allmaras_Turbulence::eval_dmodvelocitylinearizeddu - mdModVelocitydu contains NAN or INF, exiting!" );
         }
 
+        //--------------------------------------------------------------------------------------------------------------
+
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::dmodvelocitylinearizeddu(
                 const moris::Cell< MSI::Dof_Type >& aDofType,
@@ -1629,6 +1659,8 @@ namespace moris
             return mChi;
         }
 
+        //--------------------------------------------------------------------------------------------------------------
+
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::dchidu(
                 const moris::Cell< MSI::Dof_Type >& aDofType,
@@ -1665,6 +1697,8 @@ namespace moris
             return mdChidu( tDofIndex );
         }
 
+        //--------------------------------------------------------------------------------------------------------------
+
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::dchidx(
                 uint                  aOrder,
@@ -1694,6 +1728,8 @@ namespace moris
             // return the derivative
             return mdChidx( aOrder - 1 );
         }
+
+        //--------------------------------------------------------------------------------------------------------------
 
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::dchidxdu(
@@ -1746,6 +1782,8 @@ namespace moris
             }
         }
 
+        //--------------------------------------------------------------------------------------------------------------
+
         real
         CM_Spalart_Allmaras_Turbulence::ft2(
                 enum CM_Function_Type aCMFunctionType )
@@ -1766,6 +1804,8 @@ namespace moris
             // return the diffusion coefficient
             return mFt2;
         }
+
+        //--------------------------------------------------------------------------------------------------------------
 
         void
         CM_Spalart_Allmaras_Turbulence::eval_dft2du(
@@ -1794,6 +1834,8 @@ namespace moris
             MORIS_ASSERT( isfinite( mdFt2du( tDofIndex ) ),
                     "CM_Spalart_Allmaras_Turbulence::eval_dft2du - mdFt2du contains NAN or INF, exiting!" );
         }
+
+        //--------------------------------------------------------------------------------------------------------------
 
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::dft2du(
@@ -1875,6 +1917,8 @@ namespace moris
                     MORIS_ERROR( false, "CM_Spalart_Allmaras_Turbulence::eval_w - space dim can only be 2 or 3" );
             }
         }
+
+        //--------------------------------------------------------------------------------------------------------------
 
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::w(
@@ -1980,6 +2024,8 @@ namespace moris
             }
         }
 
+        //--------------------------------------------------------------------------------------------------------------
+
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::dwdu(
                 const moris::Cell< MSI::Dof_Type >& aDofType,
@@ -2026,6 +2072,8 @@ namespace moris
             mS = std::max( mS, mEpsilon );
         }
 
+        //--------------------------------------------------------------------------------------------------------------
+
         real
         CM_Spalart_Allmaras_Turbulence::s(
                 enum CM_Function_Type aCMFunctionType )
@@ -2046,6 +2094,8 @@ namespace moris
             // return
             return mS;
         }
+
+        //--------------------------------------------------------------------------------------------------------------
 
         void
         CM_Spalart_Allmaras_Turbulence::eval_dsdu(
@@ -2075,6 +2125,8 @@ namespace moris
                 mdSdu( tDofIndex ).fill( 0.0 );
             }
         }
+
+        //--------------------------------------------------------------------------------------------------------------
 
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::dsdu(
@@ -2133,6 +2185,8 @@ namespace moris
             return mFv1;
         }
 
+        //--------------------------------------------------------------------------------------------------------------
+
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::dfv1du(
                 const moris::Cell< MSI::Dof_Type >& aDofType,
@@ -2181,6 +2235,8 @@ namespace moris
             mFv2 = 1.0 - this->chi() / tDeno;
         }
 
+        //--------------------------------------------------------------------------------------------------------------
+
         real
         CM_Spalart_Allmaras_Turbulence::fv2(
                 enum CM_Function_Type aCMFunctionType )
@@ -2201,6 +2257,8 @@ namespace moris
             // return
             return mFv2;
         }
+
+        //--------------------------------------------------------------------------------------------------------------
 
         void
         CM_Spalart_Allmaras_Turbulence::eval_dfv2du(
@@ -2225,7 +2283,7 @@ namespace moris
             if ( std::abs( tDeno ) > mEpsilon )
             {
                 // threshold deno
-                real tDeno2 = std::max( std::pow( tDeno, 2.0 ), mEpsilon );
+                real tDeno2 = std::pow( tDeno, 2.0 );
 
                 // compute adfv2du
                 mdFv2du( tDofIndex ) =
@@ -2237,6 +2295,8 @@ namespace moris
                 mdFv2du( tDofIndex ) = -this->dchidu( aDofTypes ) / tDeno;
             }
         }
+
+        //--------------------------------------------------------------------------------------------------------------
 
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::dfv2du(
@@ -2288,6 +2348,8 @@ namespace moris
             mSBar = this->fv2() * tFIViscosity->val()( 0 ) / tDeno;
         }
 
+        //--------------------------------------------------------------------------------------------------------------
+
         real
         CM_Spalart_Allmaras_Turbulence::sbar(
                 enum CM_Function_Type aCMFunctionType )
@@ -2308,6 +2370,8 @@ namespace moris
             // return
             return mSBar;
         }
+
+        //--------------------------------------------------------------------------------------------------------------
 
         void
         CM_Spalart_Allmaras_Turbulence::eval_dsbardu(
@@ -2350,8 +2414,8 @@ namespace moris
             // if wall distance depends on derivative dof type
             if ( ( mPropWallDistance->check_dof_dependency( aDofTypes ) ) && ( tDeno > mEpsilon ) )
             {
-                // threshold deno
-                real tKappa2WallDistance3 = std::max( std::pow( mKappa, 2.0 ) * std::pow( tWallDistance, 3.0 ), mEpsilon );
+                // compute denominator
+                real tKappa2WallDistance3 = std::pow( mKappa, 2.0 ) * std::pow( tWallDistance, 3.0 );
 
                 // add contribution to dsbardu
                 mdSBardu( tDofIndex ) -=
@@ -2361,6 +2425,8 @@ namespace moris
             MORIS_ASSERT( isfinite( mdSBardu( tDofIndex ) ),
                     "CM_Spalart_Allmaras_Turbulence::eval_dsbardu - mdSBardu contains NAN or INF, exiting!" );
         }
+
+        //--------------------------------------------------------------------------------------------------------------
 
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::dsbardu(
@@ -2405,6 +2471,8 @@ namespace moris
             mSMod = this->s() * ( std::pow( mCv2, 2 ) * this->s() + mCv3 * this->sbar() ) / tDeno;
         }
 
+        //--------------------------------------------------------------------------------------------------------------
+
         real
         CM_Spalart_Allmaras_Turbulence::smod(
                 enum CM_Function_Type aCMFunctionType )
@@ -2425,6 +2493,8 @@ namespace moris
             // return
             return mSMod;
         }
+
+        //--------------------------------------------------------------------------------------------------------------
 
         void
         CM_Spalart_Allmaras_Turbulence::eval_dsmoddu(
@@ -2451,8 +2521,8 @@ namespace moris
 
             if ( std::abs( tSModDeno ) > mEpsilon )
             {
-                // threshold deno
-                real tSModDeno2 = std::max( std::pow( tSModDeno, 2 ), mEpsilon );
+                // compute denominator
+                real tSModDeno2 = std::pow( tSModDeno, 2 );
 
                 // compute dsmoddu
                 mdSModdu( tDofIndex ) =
@@ -2468,6 +2538,8 @@ namespace moris
             MORIS_ASSERT( isfinite( mdSModdu( tDofIndex ) ),
                     "CM_Spalart_Allmaras_Turbulence::eval_dsmoddu - mdSModdu contains NAN or INF, exiting!" );
         }
+
+        //--------------------------------------------------------------------------------------------------------------
 
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::dsmoddu(
@@ -2520,6 +2592,8 @@ namespace moris
             }
         }
 
+        //--------------------------------------------------------------------------------------------------------------
+
         real
         CM_Spalart_Allmaras_Turbulence::stilde(
                 enum CM_Function_Type aCMFunctionType )
@@ -2540,6 +2614,8 @@ namespace moris
             // return
             return mSTilde;
         }
+
+        //--------------------------------------------------------------------------------------------------------------
 
         void
         CM_Spalart_Allmaras_Turbulence::eval_dstildedu(
@@ -2576,6 +2652,8 @@ namespace moris
             MORIS_ASSERT( isfinite( mdSTildedu( tDofIndex ) ),
                     "CM_Spalart_Allmaras_Turbulence::eval_dstildedu - mdSTildedu contains NAN or INF, exiting!" );
         }
+
+        //--------------------------------------------------------------------------------------------------------------
 
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::dstildedu(
@@ -2630,6 +2708,8 @@ namespace moris
             mR = std::min( mR, mRLim );
         }
 
+        //--------------------------------------------------------------------------------------------------------------
+
         real
         CM_Spalart_Allmaras_Turbulence::r(
                 enum CM_Function_Type aCMFunctionType )
@@ -2650,6 +2730,8 @@ namespace moris
             // return
             return mR;
         }
+
+        //--------------------------------------------------------------------------------------------------------------
 
         void
         CM_Spalart_Allmaras_Turbulence::eval_drdu(
@@ -2695,8 +2777,8 @@ namespace moris
                 // check deno
                 if ( std::abs( tRDeno ) > mEpsilon )
                 {
-                    // threshold deno
-                    real tdRduDeno1 = std::max( std::pow( this->stilde() * mKappa * tWallDistance, 2.0 ), mEpsilon );
+                    // compute denominator
+                    real tdRduDeno1 = std::pow( this->stilde() * mKappa * tWallDistance, 2.0 );
 
                     // add contribution from dStildedu
                     mdRdu( tDofIndex ) -= tFIViscosity->val() * this->dstildedu( aDofTypes ) / tdRduDeno1;
@@ -2704,10 +2786,8 @@ namespace moris
                     // if wall distance depends on derivative dof type
                     if ( mPropWallDistance->check_dof_dependency( aDofTypes ) )
                     {
-                        // threshold deno
-                        real tdRduDeno2 = clip_value(
-                                this->stilde() * std::pow( mKappa, 2.0 ) * std::pow( tWallDistance, 3.0 ),
-                                mEpsilon );
+                        // compute denominator
+                        real tdRduDeno2 = this->stilde() * std::pow( mKappa, 2.0 ) * std::pow( tWallDistance, 3.0 );
 
                         // add contribution from wall distance
                         mdRdu( tDofIndex ) -=
@@ -2723,6 +2803,8 @@ namespace moris
             MORIS_ASSERT( isfinite( mdRdu( tDofIndex ) ),
                     "CM_Spalart_Allmaras_Turbulence::eval_drdu - mdRdu contains NAN or INF, exiting!" );
         }
+
+        //--------------------------------------------------------------------------------------------------------------
 
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::drdu(
@@ -2764,6 +2846,8 @@ namespace moris
             mG = this->r() + mCw2 * ( std::pow( this->r(), 6.0 ) - this->r() );
         }
 
+        //--------------------------------------------------------------------------------------------------------------
+
         real
         CM_Spalart_Allmaras_Turbulence::g(
                 enum CM_Function_Type aCMFunctionType )
@@ -2784,6 +2868,8 @@ namespace moris
             // return
             return mG;
         }
+
+        //--------------------------------------------------------------------------------------------------------------
 
         void
         CM_Spalart_Allmaras_Turbulence::eval_dgdu(
@@ -2808,6 +2894,8 @@ namespace moris
             MORIS_ASSERT( isfinite( mdGdu( tDofIndex ) ),
                     "CM_Spalart_Allmaras_Turbulence::eval_dgdu - mdGdu contains NAN or INF, exiting!" );
         }
+
+        //--------------------------------------------------------------------------------------------------------------
 
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::dgdu(
@@ -2853,6 +2941,8 @@ namespace moris
             mFw = this->g() * std::pow( mFw, 1.0 / 6.0 );
         }
 
+        //--------------------------------------------------------------------------------------------------------------
+
         real
         CM_Spalart_Allmaras_Turbulence::fw(
                 enum CM_Function_Type aCMFunctionType )
@@ -2873,6 +2963,8 @@ namespace moris
             // return
             return mFw;
         }
+
+        //--------------------------------------------------------------------------------------------------------------
 
         void
         CM_Spalart_Allmaras_Turbulence::eval_dfwdu(
@@ -2896,8 +2988,8 @@ namespace moris
 
             if ( tFwDeno > mEpsilon )
             {
-                // threshold deno
-                real tdFwduDeno = clip_value( this->g() * tFwDeno, mEpsilon );
+                // compute denonminator
+                real tdFwduDeno = this->g() * tFwDeno;
 
                 // compute dfwdu
                 mdFwdu( tDofIndex ) = ( this->fw() * std::pow( mCw3, 6.0 ) * this->dgdu( aDofTypes ) ) / tdFwduDeno;
@@ -2908,6 +3000,8 @@ namespace moris
                 mdFwdu( tDofIndex ) = this->dgdu( aDofTypes ) * std::pow( ( 1.0 + std::pow( mCw3, 6.0 ) ) / tFwDeno, 1 / 6 );
             }
         }
+
+        //--------------------------------------------------------------------------------------------------------------
 
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::dfwdu(
@@ -2952,6 +3046,8 @@ namespace moris
             mFn = ( mCn1 + std::pow( this->chi(), 3.0 ) ) / tFnDeno;
         }
 
+        //--------------------------------------------------------------------------------------------------------------
+
         real
         CM_Spalart_Allmaras_Turbulence::fn(
                 enum CM_Function_Type aCMFunctionType )
@@ -2972,6 +3068,8 @@ namespace moris
             // return
             return mFn;
         }
+
+        //--------------------------------------------------------------------------------------------------------------
 
         void
         CM_Spalart_Allmaras_Turbulence::eval_dfndu(
@@ -2995,8 +3093,8 @@ namespace moris
 
             if ( std::abs( tFnDeno ) > mEpsilon )
             {
-                // threshold deno
-                real tdFnduDeno = std::max( std::pow( tFnDeno, 2.0 ), mEpsilon );
+                // compute denominator
+                real tdFnduDeno = std::pow( tFnDeno, 2.0 );
 
                 // compute dfndu
                 mdFndu( tDofIndex ) =
@@ -3009,6 +3107,8 @@ namespace moris
                         -3.0 * mCn1 * std::pow( this->chi(), 2.0 ) * this->dchidu( aDofTypes ) / tFnDeno;
             }
         }
+
+        //--------------------------------------------------------------------------------------------------------------
 
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::dfndu(
@@ -3041,6 +3141,8 @@ namespace moris
             return mdFndu( tDofIndex );
         }
 
+        //--------------------------------------------------------------------------------------------------------------
+
         void
         CM_Spalart_Allmaras_Turbulence::eval_dfndx( uint aOrder )
         {
@@ -3056,8 +3158,8 @@ namespace moris
 
             if ( std::abs( tFnDeno ) > mEpsilon )
             {
-                // threshold deno
-                real tdFnduDeno = std::max( std::pow( tFnDeno, 2.0 ), mEpsilon );
+                // compute denominator
+                real tdFnduDeno = std::pow( tFnDeno, 2.0 );
 
                 // compute dfndx
                 mdFndx( aOrder - 1 ) =
@@ -3070,6 +3172,8 @@ namespace moris
                         -3.0 * mCn1 * std::pow( this->chi(), 2.0 ) * this->dchidx( 1 ) / tFnDeno;
             }
         }
+
+        //--------------------------------------------------------------------------------------------------------------
 
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::dfndx(
@@ -3097,6 +3201,8 @@ namespace moris
             return mdFndx( aOrder - 1 );
         }
 
+        //--------------------------------------------------------------------------------------------------------------
+
         void
         CM_Spalart_Allmaras_Turbulence::eval_dfndxdu(
                 const moris::Cell< MSI::Dof_Type >& aDofTypes,
@@ -3120,8 +3226,8 @@ namespace moris
 
             if ( std::abs( tFnDeno ) > mEpsilon )
             {
-                // threshold deno
-                real tdFndxduDeno = clip_value( std::pow( tFnDeno, 3.0 ), mEpsilon );
+                // compute denominator
+                real tdFndxduDeno = std::pow( tFnDeno, 3.0 );
 
                 // compute dfndxdu
                 mdFndxdu( aOrder - 1 )( tDofIndex ) =
@@ -3132,6 +3238,8 @@ namespace moris
                 mdFndxdu( aOrder - 1 )( tDofIndex ) = -3.0 * mCn1 * ( 2.0 * this->chi() * this->dchidx( 1 ) * this->dchidu( aDofTypes ) + std::pow( this->chi(), 2.0 ) * this->dchidxdu( aDofTypes, 1 ) ) / tFnDeno;
             }
         }
+
+        //--------------------------------------------------------------------------------------------------------------
 
         const Matrix< DDRMat >&
         CM_Spalart_Allmaras_Turbulence::dfndxdu(

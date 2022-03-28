@@ -13,7 +13,7 @@ namespace moris
         const real mCv1 = 7.1;
 
         const real mEpsilon = 1e-10;    // needs to be consistent with threshold set in
-                                        // cl_FEM_CM_Spalart_Allmaras_Turbulence.cpp
+                                        // cl_FEM_CM_Spalart_Allmaras_Turbulence.hpp
 
         //------------------------------------------------------------------------------
 
@@ -227,8 +227,8 @@ namespace moris
 
             if ( std::abs( tFv1Deno ) > mEpsilon )
             {
-                // threshold deno
-                real tFv1Deno2 = std::max( std::pow( tFv1Deno, 2.0 ), mEpsilon );
+                // compute denominator
+                real tFv1Deno2 = std::pow( tFv1Deno, 2.0 );
 
                 // compute adfv1du
                 adfv1du = 3.0 * std::pow( mCv1, 3.0 ) * std::pow( tChi, 2.0 ) * tdchidu / tFv1Deno2;
@@ -267,8 +267,8 @@ namespace moris
 
             if ( std::abs( tFv1Deno ) > mEpsilon )
             {
-                // threshold deno
-                real tFv1Deno2 = std::max( std::pow( tFv1Deno, 2.0 ), mEpsilon );
+                // compute denominator
+                real tFv1Deno2 = std::pow( tFv1Deno, 2.0 );
 
                 // compute dfv1dx
                 adfv1dx = 3.0 * mCv1 * std::pow( tChi, 2.0 ) * tdchidx / tFv1Deno2;
@@ -336,8 +336,8 @@ namespace moris
 
             if ( std::abs( tFv1Deno ) > mEpsilon )
             {
-                // threshold deno
-                real tFv1Deno3 = clip_value( std::pow( tFv1Deno, 3.0 ), mEpsilon );
+                // compute denominator
+                real tFv1Deno3 = std::pow( tFv1Deno, 3.0 );
 
                 // compute dfv1dxdu
                 adfv1dxdu =
