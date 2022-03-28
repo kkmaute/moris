@@ -172,9 +172,12 @@ namespace xtk
             // quick access to the Cut integration mesh's Bspline Mesh Infos (the Bspline to Lagrange mesh relationships)
             moris::Cell< Bspline_Mesh_Info* > mBsplineMeshInfos;
 
-            // Number of enrichment levels on a given IP cell
-            moris::Cell< uint > mNumUnzippingsOnIpCell; // input: IP-cell index || output: number of enr. IP-cells and clusters to be created
+            // Maps tracking how an IP cell gets unzipped
             moris_index mNumEnrIpCells; 
+            moris::Cell< uint > mNumUnzippingsOnIpCell; // input: IP-cell index || output: number of enr. IP-cells and clusters to be created
+            //moris::Cell< moris::Cell< uint > > mNumValidUnzippingsOnIpCell; // input: B-spline mesh index, IP-cell index || output: number of valid enr. IP-cells and clusters to be created
+            moris::Cell< moris::Cell<  moris::Cell< moris_index > > > mMaterialSpgsUnzippedOnIpCell; // input: B-spline mesh index, IP-cell index || output: list of SPG indices wrt. which clusters containign need to be created
+            moris::Cell< moris::Cell<  moris::Cell< moris_index > > > mVoidSpgsUnzippedOnIpCell; // input: B-spline mesh index, IP-cell index || output: list of SPG indices wrt. which void clusters need to be created
 
             // indices of enriched IP cells as a function of the base IP cell and the local SPG index
             moris::Cell< moris::Cell< moris_index > > mEnrIpCellIndices; // input: IP cell index, local SPG index || output: index of enr. IP cell
@@ -608,8 +611,8 @@ namespace xtk
             construct_enriched_integration_mesh();
 
             void
-            construct_enriched_integration_mesh( const moris_index aMeshIndexInList );
-
+            construct_enriched_integration_mesh( const Matrix< IndexMat > aBsplineMeshIndices );
+            
             // ----------------------------------------------------------------------------------
 
             void
