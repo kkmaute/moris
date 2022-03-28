@@ -14,10 +14,7 @@
 #include <memory>
 #include <string>
 
-
-#include "cl_Communication_Tools.hpp" // COM/src
-
-
+#include "cl_Communication_Tools.hpp"    // COM/src
 
 namespace moris
 {
@@ -25,31 +22,32 @@ namespace moris
     /*
      * prints a logo. Created using figlet.
      */
-    void print_logo()
+    void
+    print_logo()
     {
-        std::fprintf( stdout, "\n");
-        std::fprintf( stdout, "            .___  ___.   ______   .______       __       _______.\n");
-        std::fprintf( stdout, "            |   \\/   |  /  __  \\  |   _  \\     |  |     /       |\n");
-        std::fprintf( stdout, "            |  \\  /  | |  |  |  | |  |_)  |    |  |    |   (----`\n");
-        std::fprintf( stdout, "            |  |\\/|  | |  |  |  | |      /     |  |     \\   \\\n");
-        std::fprintf( stdout, "            |  |  |  | |  `--'  | |  |\\  \\----.|  | .----)   |\n");
-        std::fprintf( stdout, "            |__|  |__|  \\______/  | _| `._____||__| |_______/\n");
-        std::fprintf( stdout, "\n");
-        std::fprintf( stdout, "            Copyright (c) 2018 University of Colorado at Boulder\n");
-        std::fprintf( stdout, "                               Center for Aerospace Structures\n");
-        std::fprintf( stdout, "\n");
-        std::fprintf( stdout, "\n");
-
+        std::fprintf( stdout, "\n" );
+        std::fprintf( stdout, "            .___  ___.   ______   .______       __       _______.\n" );
+        std::fprintf( stdout, "            |   \\/   |  /  __  \\  |   _  \\     |  |     /       |\n" );
+        std::fprintf( stdout, "            |  \\  /  | |  |  |  | |  |_)  |    |  |    |   (----`\n" );
+        std::fprintf( stdout, "            |  |\\/|  | |  |  |  | |      /     |  |     \\   \\\n" );
+        std::fprintf( stdout, "            |  |  |  | |  `--'  | |  |\\  \\----.|  | .----)   |\n" );
+        std::fprintf( stdout, "            |__|  |__|  \\______/  | _| `._____||__| |_______/\n" );
+        std::fprintf( stdout, "\n" );
+        std::fprintf( stdout, "            Copyright (c) 2022 University of Colorado Boulder\n" );
+        std::fprintf( stdout, "                               Aerospace Mechanics Research Center\n" );
+        std::fprintf( stdout, "\n" );
+        std::fprintf( stdout, "\n" );
     }
 
     //------------------------------------------------------------------------------
     /*
      * tries to get the cpu type, returns unknown if it fails
      */
-    std::string get_cpu_info()
+    std::string
+    get_cpu_info()
     {
         // test if proc/cpuinfo exists
-        std::ifstream tProcCpuInfo("/proc/cpuinfo");
+        std::ifstream tProcCpuInfo( "/proc/cpuinfo" );
 
         // test if file exists
         if ( tProcCpuInfo )
@@ -64,7 +62,7 @@ namespace moris
             char tBuffer[ tBufferSize ];
 
             // create pointer for stream object
-            std::shared_ptr<FILE> tStream(
+            std::shared_ptr< FILE > tStream(
                     popen( "cat /proc/cpuinfo | grep \"model name\" | head -n 1 2>&1", "r" ),
                     pclose );
 
@@ -80,8 +78,8 @@ namespace moris
                 }
 
                 // trim string
-                auto tStart = tString.find_first_of(':') + 2;
-                auto tEnd   = tString.find_last_not_of('\n');
+                auto tStart = tString.find_first_of( ':' ) + 2;
+                auto tEnd   = tString.find_last_not_of( '\n' );
 
                 // return info
                 return tString.substr( tStart, ( tEnd - tStart + 1 ) );
@@ -104,20 +102,20 @@ namespace moris
      */
     void
     print_banner(
-            int  & argc,
-            char * argv[] )
+            int&  argc,
+            char* argv[] )
     {
         // banner is only printed by first proc
-        if (par_rank() == 0)
+        if ( par_rank() == 0 )
         {
             print_logo();
 
-#if defined(DEBUG)
-            std::fprintf( stdout, "     DEBUG flags are on.\n\n");
+#if defined( DEBUG )
+            std::fprintf( stdout, "     DEBUG flags are on.\n\n" );
 #endif
 
             // Who?
-            std::fprintf( stdout, "     User/Host   : %s at %s ( %s / %s )\n",
+            std::fprintf( stdout, "     User/Host   : %s at %s ( %s / %s )\n", //
                     std::getenv( "USER" ),
                     std::getenv( "HOSTNAME" ),
                     std::getenv( "OSTYPE" ),
@@ -126,47 +124,46 @@ namespace moris
             std::string tCpuInfo = get_cpu_info();
 
             std::fprintf( stdout, "     CPU Info    : %s \n", tCpuInfo.c_str() );
-            std::fprintf( stdout, "     Procs Used  : %i \n", ( int ) par_size() );
+            std::fprintf( stdout, "     Procs Used  : %i \n", (int)par_size() );
 
             // insert blank line
-            std::fprintf( stdout, "\n");
+            std::fprintf( stdout, "\n" );
 
             // When built?
-            std::fprintf( stdout, "     Build Date  : %s at %s\n", __DATE__ , __TIME__ );
+            std::fprintf( stdout, "     Build Date  : %s at %s\n", __DATE__, __TIME__ );
 
             // When run
-            time_t tTimeStamp = time(NULL);
-            std::fprintf( stdout, "     Date of Run : %s \n", ctime(&tTimeStamp) );
+            time_t tTimeStamp = time( NULL );
+            std::fprintf( stdout, "     Date of Run : %s \n", ctime( &tTimeStamp ) );
 
             // What Matrix lib?
 #ifdef MORIS_USE_ARMA
-            std::fprintf( stdout, "     Matrix Lib  : Armadillo\n");
+            std::fprintf( stdout, "     Matrix Lib  : Armadillo\n" );
 #else
-            std::fprintf( stdout, "     Matrix Lib  : Eigen\n");
+            std::fprintf( stdout, "     Matrix Lib  : Eigen\n" );
 #endif
 
             // insert blank line
-            std::fprintf( stdout, "\n");
+            std::fprintf( stdout, "\n" );
 
             // What?
             std::fprintf( stdout, "     Executable  : %s\n", argv[ 0 ] );
 
-            std::fprintf( stdout, "     Arguments   :");
+            std::fprintf( stdout, "     Arguments   :" );
 
-            for (int ia = 1; ia < argc; ++ia)
+            for ( int ia = 1; ia < argc; ++ia )
             {
                 std::fprintf( stdout, " %s", argv[ ia ] );
             }
-            std::fprintf( stdout, "\n");
-
+            std::fprintf( stdout, "\n" );
 
             // Where?
-            std::fprintf( stdout, "     Run Dir     : %s\n", std::getenv( "PWD" ));
-            std::fprintf( stdout, "\n");
+            std::fprintf( stdout, "     Run Dir     : %s\n", std::getenv( "PWD" ) );
+            std::fprintf( stdout, "\n" );
         }
     }
 
     //------------------------------------------------------------------------------
-}
+}    // namespace moris
 
 #endif /* SRC_CORE_BANNER_HPP_ */
