@@ -594,11 +594,11 @@ namespace moris
 
                         if ( par_size() == 1 )
                         {
-                            MORIS_LOG_INFO("  decomposing mesh over %u proc", ( unsigned int ) par_size() ) ;
+                            MORIS_LOG_INFO("decomposing mesh over %u proc", ( unsigned int ) par_size() ) ;
                         }
                         else
                         {
-                            MORIS_LOG_INFO("  decomposing mesh over %u procs", ( unsigned int ) par_size() ) ;
+                            MORIS_LOG_INFO("decomposing mesh over %u procs", ( unsigned int ) par_size() ) ;
                         }
                         MORIS_LOG_INFO("--------------------------------------------------------------------------------" ) ;
                         MORIS_LOG_INFO( " " );
@@ -683,13 +683,13 @@ namespace moris
                         {
                             case 2:
                             {
-                                MORIS_LOG_INFO("  proc dimensions (x,y) are ( %i , %i )",
+                                MORIS_LOG_INFO("proc dimensions (x,y) are ( %i , %i )",
                                         mProcDims(0), mProcDims(1) );
                                 break;
                             }
                             case 3:
                             {
-                                MORIS_LOG_INFO("  proc dimensions (x,y,z) are ( %i , %i , %i )",
+                                MORIS_LOG_INFO("proc dimensions (x,y,z) are ( %i , %i , %i )",
                                         mProcDims(0), mProcDims(1), mProcDims(2) );
                                 break;
                             }
@@ -782,7 +782,7 @@ namespace moris
 
                         uint tNumberOfDimensions = mParameters->get_number_of_dimensions();
 
-                        std::string tString = "  proc " + std::to_string( tMyRank );
+                        std::string tString = "proc " + std::to_string( tMyRank );
 
                         // add dots to the string for pretty output
                         if ( tMyRank < 10 )

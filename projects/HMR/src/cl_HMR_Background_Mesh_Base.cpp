@@ -30,6 +30,9 @@ namespace moris
                 mNumberOfChildrenPerElement( pow( 2, aParameters->get_number_of_dimensions() ) ),
                 mMyRank( par_rank() )
         {
+            barrier();
+            MORIS_LOG_INFO(" Background_Mesh_Base - proc %d", par_rank() ) ;
+
             // make sure that settings are OK
             aParameters->check_sanity();
 
@@ -53,6 +56,9 @@ namespace moris
 
             // set number of neighbors per element
             mNumberOfNeighborsPerElement = std::pow( 3, mNumberOfDimensions ) - 1;
+
+            barrier();
+            MORIS_LOG_INFO(" Done with Background_Mesh_Base - proc %d", par_rank() ) ;
         }
 
         //-------------------------------------------------------------------------------
@@ -1402,9 +1408,10 @@ namespace moris
 
         //--------------------------------------------------------------------------------
 
-        void Background_Mesh_Base::create_staircase_buffer_for_element(       Background_Element_Base * aElement,
+        void Background_Mesh_Base::create_staircase_buffer_for_element(
+                Background_Element_Base * aElement,
                 luint                   & aElementCounter,
-                const uint                    & aHalfBuffer )
+                const uint              & aHalfBuffer )
         {
             // cell containing neighbors of each parent
             Cell< Background_Element_Base* > tNeighbors;
@@ -1528,7 +1535,7 @@ namespace moris
                 }
                 else
                 {
-                    MORIS_LOG_INFO("%s Created staircase buffer  of width %u.",
+                    MORIS_LOG_INFO("%s Created staircase buffer of width %u.",
                             proc_string().c_str(),
                             ( unsigned int ) mBufferSize);
 
