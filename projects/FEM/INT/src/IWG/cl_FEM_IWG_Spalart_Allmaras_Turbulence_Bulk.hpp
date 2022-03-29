@@ -43,12 +43,6 @@ namespace moris
                         MAX_ENUM
                 };
 
-            private :
-
-                // Spalart Allmaras model constants
-                real mCb2 = 0.6220;
-                real mSigma = 2.0/3.0;
-
             public:
                 //------------------------------------------------------------------------------
                 /*

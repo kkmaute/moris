@@ -45,10 +45,6 @@ namespace moris
             // get the residual viscosity FI
             Field_Interpolator* tFIViscosity = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
-            // get the velocity FI
-            // FIXME protect dof type
-            Field_Interpolator* tFIVelocity = mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
-
             // get the SA turbulence CM
             const std::shared_ptr< Constitutive_Model >& tCMSATurbulence =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE ) );
@@ -56,9 +52,6 @@ namespace moris
             // get the SUPG stabilization parameter
             const std::shared_ptr< Stabilization_Parameter >& tSPSUPG =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::SUPG ) );
-
-            // compute modified velocity
-            Matrix< DDRMat > tModVelocity = tFIVelocity->val() - mCb2 * tFIViscosity->gradx( 1 ) / mSigma;
 
             // compute residual of the strong form
             Matrix< DDRMat > tR;
@@ -70,11 +63,11 @@ namespace moris
             // compute the residual weak form
             tRes += aWStar
                   * ( tFIViscosity->N_trans()
-                                  * ( tFIViscosity->gradt( 1 ) + trans( tModVelocity ) * tFIViscosity->gradx( 1 )
+                                  * ( tFIViscosity->gradt( 1 ) + trans( tCMSATurbulence->modified_velocity() ) * tFIViscosity->gradx( 1 )
                                           - tCMSATurbulence->production_term() + tCMSATurbulence->wall_destruction_term() )
                           + trans( tFIViscosity->dnNdxn( 1 ) )
                                     * ( tCMSATurbulence->diffusion_coefficient()( 0 ) * tFIViscosity->gradx( 1 )
-                                            + tModVelocity * tSPSUPG->val()( 0 ) * tR( 0 ) ) );
+                                            + tCMSATurbulence->modified_velocity() * tSPSUPG->val()( 0 ) * tR( 0 ) ) );
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
@@ -99,10 +92,6 @@ namespace moris
             // get the residual viscosity FI
             Field_Interpolator* tFIViscosity = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
-            // get the velocity FI
-            // FIXME protect dof type
-            Field_Interpolator* tFIVelocity = mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
-
             // get the SA turbulence CM
             const std::shared_ptr< Constitutive_Model >& tCMSATurbulence =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE ) );
@@ -110,9 +99,6 @@ namespace moris
             // get the SUPG stabilization parameter
             const std::shared_ptr< Stabilization_Parameter >& tSPSUPG =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::SUPG ) );
-
-            // compute modified velocity
-            Matrix< DDRMat > tModVelocity = tFIVelocity->val() - mCb2 * tFIViscosity->gradx( 1 ) / mSigma;
 
             // compute residual of the strng form
             Matrix< DDRMat > tR;
@@ -139,31 +125,11 @@ namespace moris
                 // if residual dof type (here viscosity)
                 if ( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                 {
-                    // compute dModVelocitydModViscosity
-                    Matrix< DDRMat > tModVelocityDer = -mCb2 * tFIViscosity->dnNdxn( 1 ) / mSigma;
-
                     // compute the jacobian
                     tJac += aWStar
-                          * ( tFIViscosity->N_trans()
-                                          * ( tFIViscosity->dnNdtn( 1 )
-                                                  + trans( tFIVelocity->val() - 2.0 * mCb2 * tFIViscosity->gradx( 1 ) / mSigma )
-                                                            * tFIViscosity->dnNdxn( 1 ) )
-                                  + trans( tFIViscosity->dnNdxn( 1 ) )
-                                            * ( tCMSATurbulence->diffusion_coefficient()( 0 ) * tFIViscosity->dnNdxn( 1 )
-                                                    + tModVelocityDer * tSPSUPG->val()( 0 ) * tR( 0 ) ) );
-                }
-
-                // if velocity dof type
-                // FIXME protect dof type
-                else if ( tDofType( 0 ) == MSI::Dof_Type::VX )
-                {
-                    // compute dModVelocitydVelocity
-                    const Matrix< DDRMat >& tModVelocityDer = tFIVelocity->N();
-
-                    // compute the jacobian
-                    tJac += aWStar
-                          * ( tFIViscosity->N_trans() * trans( tFIViscosity->gradx( 1 ) ) * tModVelocityDer
-                                  + trans( tFIViscosity->dnNdxn( 1 ) ) * tModVelocityDer * tSPSUPG->val()( 0 ) * tR( 0 ) );
+                            * ( tFIViscosity->N_trans() * tFIViscosity->dnNdtn( 1 )
+                                    + tFIViscosity->N_trans() * trans( tCMSATurbulence->modified_velocity() ) * tFIViscosity->dnNdxn( 1 )
+                                    + trans( tFIViscosity->dnNdxn( 1 ) ) * tCMSATurbulence->diffusion_coefficient()( 0 ) * tFIViscosity->dnNdxn( 1 ) );
                 }
 
                 // if turbulence model depends on dof
@@ -171,18 +137,17 @@ namespace moris
                 {
                     // compute the jacobian
                     tJac += aWStar
-                          * ( tFIViscosity->N_trans()
-                                          * ( -1.0 * tCMSATurbulence->dproductiontermdu( tDofType )
-                                                  + tCMSATurbulence->dwalldestructiontermdu( tDofType ) )
-                                  + trans( tFIViscosity->dnNdxn( 1 ) ) * tFIViscosity->gradx( 1 )
-                                            * tCMSATurbulence->ddiffusioncoeffdu( tDofType ) );
+                            * ( tFIViscosity->N_trans() * ( tCMSATurbulence->dwalldestructiontermdu( tDofType ) - tCMSATurbulence->dproductiontermdu( tDofType ) )
+                                    + trans( tFIViscosity->dnNdxn( 1 ) ) * tFIViscosity->gradx( 1 ) * tCMSATurbulence->ddiffusioncoeffdu( tDofType )
+                                    + tFIViscosity->N_trans() * trans( tFIViscosity->gradx( 1 ) ) * tCMSATurbulence->dmodvelocitydu( tDofType )
+                                    + trans( tFIViscosity->dnNdxn( 1 ) ) * tCMSATurbulence->dmodvelocitydu( tDofType ) * tSPSUPG->val()( 0 ) * tR( 0 ) );
                 }
 
                 // if SP SUPG depends on dof
                 if ( tSPSUPG->check_dof_dependency( tDofType ) )
                 {
                     // add contribution to jacobian
-                    tJac += aWStar * ( trans( tFIViscosity->dnNdxn( 1 ) ) * tModVelocity * tR( 0 ) * tSPSUPG->dSPdMasterDOF( tDofType ) );
+                    tJac += aWStar * ( trans( tFIViscosity->dnNdxn( 1 ) ) * tCMSATurbulence->modified_velocity() * tR( 0 ) * tSPSUPG->dSPdMasterDOF( tDofType ) );
                 }
 
                 // compute jacobian of the strong form
@@ -190,7 +155,7 @@ namespace moris
                 this->compute_jacobian_strong_form( tDofType, tJ );
 
                 // compute the jacobian
-                tJac += aWStar * ( trans( tFIViscosity->dnNdxn( 1 ) ) * tModVelocity * tSPSUPG->val()( 0 ) * tJ );
+                tJac += aWStar * ( trans( tFIViscosity->dnNdxn( 1 ) ) * tCMSATurbulence->modified_velocity() * tSPSUPG->val()( 0 ) * tJ );
             }
 
             // check for nan, infinity
@@ -230,20 +195,16 @@ namespace moris
             // get the residual viscosity FI
             Field_Interpolator* tFIViscosity = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
-            // get the velocity FI
-            // FIXME protect dof type
-            Field_Interpolator* tFIVelocity = mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
-
             // get the SA turbulence CM
             const std::shared_ptr< Constitutive_Model >& tCMSATurbulence =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE ) );
 
-            // compute modified velocity
-            Matrix< DDRMat > tModVelocity = tFIVelocity->val() - mCb2 * tFIViscosity->gradx( 1 ) / mSigma;
-
             // compute strong form of residual
-            aR = tFIViscosity->gradt( 1 ) + trans( tModVelocity ) * tFIViscosity->gradx( 1 ) - tCMSATurbulence->production_term()
-               + tCMSATurbulence->wall_destruction_term() - tCMSATurbulence->divflux();
+            aR = tFIViscosity->gradt( 1 )
+               + trans( tCMSATurbulence->modified_velocity() ) * tFIViscosity->gradx( 1 )
+               - tCMSATurbulence->production_term()
+               + tCMSATurbulence->wall_destruction_term()
+               - tCMSATurbulence->divflux();
 
             MORIS_ASSERT( isfinite( aR ),
                     "IWG_Spalart_Allmaras_Turbulence_Bulk::compute_residual_strong_form - Residual contains NAN or INF, exiting!" );
@@ -259,10 +220,6 @@ namespace moris
             // get the residual viscosity FI
             Field_Interpolator* tFIViscosity = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
-            // get the velocity FI
-            // FIXME protect dof type
-            Field_Interpolator* tFIVelocity = mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
-
             // get the SA turbulence CM
             const std::shared_ptr< Constitutive_Model >& tCMSATurbulence =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE ) );
@@ -276,14 +233,7 @@ namespace moris
             // if dof type is residual dof type (here viscosity)
             if ( aDofTypes( 0 ) == mResidualDofType( 0 )( 0 ) )
             {
-                aJ = tFIViscosity->dnNdtn( 1 )
-                   + trans( tFIVelocity->val() - 2.0 * mCb2 * tFIViscosity->gradx( 1 ) / mSigma ) * tFIViscosity->dnNdxn( 1 );    // -
-            }
-            // if dof type is velocity dof type
-            // FIXME protect dof type
-            else if ( aDofTypes( 0 ) == MSI::Dof_Type::VX )
-            {
-                aJ = trans( tFIViscosity->gradx( 1 ) ) * tFIVelocity->N();
+                aJ = tFIViscosity->dnNdtn( 1 ) + trans( tCMSATurbulence->modified_velocity() ) * tFIViscosity->dnNdxn( 1 );
             }
             else
             {
@@ -294,9 +244,10 @@ namespace moris
             if ( tCMSATurbulence->check_dof_dependency( aDofTypes ) )
             {
                 // add contribution to jacobian
-                aJ += -1.0 * tCMSATurbulence->dproductiontermdu( aDofTypes )
-                    + tCMSATurbulence->dwalldestructiontermdu( aDofTypes )
-                    - tCMSATurbulence->ddivfluxdu( aDofTypes );
+                aJ += - tCMSATurbulence->dproductiontermdu( aDofTypes )
+                      + tCMSATurbulence->dwalldestructiontermdu( aDofTypes )
+                      - tCMSATurbulence->ddivfluxdu( aDofTypes )
+                      + trans( tFIViscosity->gradx( 1 ) ) * tCMSATurbulence->dmodvelocitydu( aDofTypes );
             }
 
             MORIS_ASSERT( isfinite( aJ ),
