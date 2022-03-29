@@ -127,7 +127,7 @@ namespace moris
 
                 //--------------------------------------------------------------------------------------------------
 
-                void set_secondiry_dof_type_list( const moris::Cell< enum MSI::Dof_Type > aStaggeredDofTypeList);
+                void set_secondary_dof_type_list( const moris::Cell< enum MSI::Dof_Type > aStaggeredDofTypeList);
 
                 //--------------------------------------------------------------------------------------------------
 

@@ -52,6 +52,9 @@ namespace moris
             // get time offsets for outputting pseudo time steps; if offset is zero no output is written
             mTimeOffSet = aParameterListNonlinearSolver.get< real >( "NLA_pseudo_time_offset" );
 
+            // get time step size used once maximum number of step has been reached
+            mSteadyStateStepSize = aParameterListNonlinearSolver.get< real >( "NLA_pseudo_time_steady_state_step_size" );
+
             // strategy depending parameters
             switch ( mTimeStepStrategy )
             {
@@ -109,7 +112,8 @@ namespace moris
                 case sol::SolverPseudoTimeControlType::Comsol:
                 {
                     // get constant time step size
-                    mComsolParameter = aParameterListNonlinearSolver.get< real >( "NLA_pseudo_time_comsol" );
+                    mComsolParameter_1 = aParameterListNonlinearSolver.get< real >( "NLA_pseudo_time_comsol_1" );
+                    mComsolParameter_2 = aParameterListNonlinearSolver.get< real >( "NLA_pseudo_time_comsol_2" );
 
                     // set initial time step size
                     mInitialStepSize = 1.0;
@@ -286,14 +290,14 @@ namespace moris
                         // compute new time step
                         aTimeStep = std::pow( 1.3, std::min( (real)mTimeStepCounter, 9.0 ) );
 
-                        if ( mTimeStepCounter > mComsolParameter )
+                        if ( mTimeStepCounter > mComsolParameter_1 )
                         {
-                            aTimeStep += 9.0 * std::pow( 1.3, std::min( mTimeStepCounter - mComsolParameter, 9.0 ) );
+                            aTimeStep += 9.0 * std::pow( 1.3, std::min( mTimeStepCounter - mComsolParameter_1, 9.0 ) );
                         }
 
-                        if ( mTimeStepCounter > 2.0 * mComsolParameter )
+                        if ( mTimeStepCounter > mComsolParameter_2 )
                         {
-                            aTimeStep += 90.0 * std::pow( 1.3, std::min( mTimeStepCounter - 2.0 * mComsolParameter, 9.0 ) );
+                            aTimeStep += 90.0 * std::pow( 1.3, std::min( mTimeStepCounter - mComsolParameter_2, 9.0 ) );
                         }
 
                         // increase time step counter
@@ -305,6 +309,12 @@ namespace moris
                 {
                     MORIS_ERROR( false, "Solver_Pseudo_Time_Control::eval - strategy not implemented.\n" );
                 }
+            }
+
+            // set steady state step size
+            if ( mTimeStepCounter > mMaxNumTimeSteps && mSteadyStateStepSize > 0.0 )
+            {
+                aTimeStep = mSteadyStateStepSize;
             }
 
             // output pseudo time step
@@ -324,7 +334,7 @@ namespace moris
             if ( tPerformUpdate )
             {
                 // log load factor
-                MORIS_LOG_INFO( "Updated pseudo time step (InvResNorm) - updated previous time step in time step %d", mTimeStepCounter );
+                MORIS_LOG_INFO( "Updated pseudo time step - updated previous time step in time step %d", mTimeStepCounter );
 
                 // compute norms for previous and current solutions
                 // FIXME: should use vec_norm2 but this does not work in parallel

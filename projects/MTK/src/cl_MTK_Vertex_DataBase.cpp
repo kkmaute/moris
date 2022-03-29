@@ -67,8 +67,9 @@ namespace moris::mtk
     {
         // get the first interpolation vertex
         Vertex_Interpolation** tFirstIPVertex = mMesh->get_vertex_interpolation( mVertexIndex );
+        uint tLocalOrder = mMesh->get_local_mesh_index( aBSplineMeshIndex );
 
-        return *( tFirstIPVertex + aBSplineMeshIndex );
+        return *( tFirstIPVertex + tLocalOrder );
     }
 
     //------------------------------------------------------------------------------
@@ -78,8 +79,9 @@ namespace moris::mtk
     {
         // get the first interpolation vertex
         Vertex_Interpolation** tFirstIPVertex = mMesh->get_vertex_interpolation( mVertexIndex );
+        uint tLocalOrder = mMesh->get_local_mesh_index( aBSplineMeshIndex );
 
-        return *( tFirstIPVertex + aBSplineMeshIndex );
+        return *( tFirstIPVertex + tLocalOrder );
     }
 
     //------------------------------------------------------------------------------

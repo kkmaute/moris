@@ -33,6 +33,8 @@ namespace moris::mtk
         uint mNumCells;
 
         uint mNumInterpolations;
+
+        uint mNumLocalInterpolations;
     };
 }// namespace moris::mtk
 

@@ -53,6 +53,9 @@ namespace moris
             Field_Interpolator* tFIPrevious =
                     mMasterPreviousFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
+            // store field manager of previous time step with field manager of current time step (previous state might be used in property)
+            mMasterFIManager->set_field_interpolator_manager_previous( mMasterPreviousFIManager );
+
             // get current weight property
             const std::shared_ptr< Property >& tPropWeightCurrent =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::WEIGHT_CURRENT ) );
@@ -76,7 +79,7 @@ namespace moris
             // if first time step
             else
             {
-                // get previous weight property
+                // get initial condition property
                 const std::shared_ptr< Property >& tPropInitialCondition =
                         mMasterProp( static_cast< uint >( IWG_Property_Type::INITIAL_CONDITION ) );
 
@@ -112,12 +115,30 @@ namespace moris
             Field_Interpolator* tFICurrent =
                     mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
+            // get residual dof type field interpolator for previous time step
+            Field_Interpolator* tFIPrevious =
+                    mMasterPreviousFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+
+            // store field manager of previous time step with field manager of current time step (previous state might be used in property)
+            mMasterFIManager->set_field_interpolator_manager_previous( mMasterPreviousFIManager );
+
             // get current weight property
             const std::shared_ptr< Property >& tPropWeightCurrent =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::WEIGHT_CURRENT ) );
 
+            // get previous weight property
+            const std::shared_ptr< Property >& tPropWeightPrevious =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::WEIGHT_PREVIOUS ) );
+
+            // get initial condition property
+            const std::shared_ptr< Property >& tPropInitialCondition =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::INITIAL_CONDITION ) );
+
             // get the number of master dof type dependencies
             uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
+
+            // FIXME set initial time
+            real tInitTime = 0.0;
 
             // loop over master dof type dependencies
             for ( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
@@ -136,7 +157,8 @@ namespace moris
                     // add contribution to Jacobian
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * ( tFICurrent->N_trans() * tPropWeightCurrent->val()( 0 ) * tFICurrent->N() );
+                            { tMasterDepStartIndex, tMasterDepStopIndex } ) +=
+                            aWStar * ( tFICurrent->N_trans() * tPropWeightCurrent->val()( 0 ) * tFICurrent->N() );
                 }
 
                 // if current weight property has dependency on the dof type
@@ -145,7 +167,28 @@ namespace moris
                     // add contribution to Jacobian
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * ( tFICurrent->N_trans() * tFICurrent->val() * tPropWeightCurrent->dPropdDOF( tDofType ) );
+                            { tMasterDepStartIndex, tMasterDepStopIndex } ) +=
+                            aWStar * ( tFICurrent->N_trans() * tFICurrent->val() * tPropWeightCurrent->dPropdDOF( tDofType ) );
+                }
+
+                // if previous weight property has dependency on the dof type
+                if ( tPropWeightPrevious->check_dof_dependency( tDofType ) )
+                {
+                    // if not the first time step
+                    if ( mMasterFIManager->get_IP_geometry_interpolator()->valt()( 0 ) > tInitTime )
+                    {
+                        mSet->get_jacobian()(
+                                { tMasterResStartIndex, tMasterResStopIndex },
+                                { tMasterDepStartIndex, tMasterDepStopIndex } ) -=
+                                aWStar * ( tFICurrent->N_trans() * tFIPrevious->val() * tPropWeightPrevious->dPropdDOF( tDofType ) );
+                    }
+                    else
+                    {
+                        mSet->get_jacobian()(
+                                { tMasterResStartIndex, tMasterResStopIndex },
+                                { tMasterDepStartIndex, tMasterDepStopIndex } ) -=
+                                aWStar * ( tFICurrent->N_trans() * tPropInitialCondition->val() * tPropWeightPrevious->dPropdDOF( tDofType ) );
+                    }
                 }
             }
             // FIXME add derivative for initial conditions?

@@ -611,7 +611,10 @@ namespace moris
             tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_residual_exponent", 1.0 );
 
             // Comsol parameter (laminar: 20, 2D turbulent: 25, 3D turbulent: 30)
-            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_comsol", 20.0 );
+            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_comsol_1", 20.0 );
+
+            // Comsol parameter (laminar: 40, 2D turbulent: 50, 3D turbulent: 60)
+            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_comsol_2", 40.0 );
 
             // Maximum number of pseudo time step size
             tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_max_num_steps", 1 );
@@ -621,6 +624,10 @@ namespace moris
 
             // Required pseudo time step size needed for convergence
             tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_required_step_size", MORIS_REAL_MAX );
+
+            // Time step size used once maximum number of step has been reached
+            // for negative values, time step size defined by strategy is used
+            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_steady_state_step_size", -1.0 );
 
             // Time offsets for outputting pseudo time steps; if offset is zero no output is written
             tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_offset", 0.0 );

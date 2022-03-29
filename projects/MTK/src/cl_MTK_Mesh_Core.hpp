@@ -1280,6 +1280,11 @@ namespace moris
                 get_entity_owner( enum EntityRank aEntityRank,
                     moris_index                   aEntityIndex ) const;
 
+                 //--------------------------------------------------------------------------------------------------------------
+                 
+                virtual uint 
+                get_local_mesh_index( const uint aBsplineMeshIndex );
+
                 //--------------------------------------------------------------------------------------------------------------
 
                 virtual moris_id* 

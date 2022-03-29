@@ -12,15 +12,16 @@ namespace moris::mtk
 {
 
     // ----------------------------------------------------------------------------
-    Interpolation_Mesh_Editor::Interpolation_Mesh_Editor( moris::mtk::Interpolation_Mesh& aMTKMesh ) :
-        mInputMesh( aMTKMesh )
+    Interpolation_Mesh_Editor::Interpolation_Mesh_Editor( moris::mtk::Interpolation_Mesh& aMTKMesh )
+            : mInputMesh( aMTKMesh )
     {
         mIPMeshInfo = new Interpolation_Mesh_Info;
         // copy the necessary data for the old mesh
-        mIPMeshInfo->mVertices          = mInputMesh.get_all_vertices();
-        mIPMeshInfo->mNumInterpolations = mInputMesh.get_num_interpolations();
-        mIPMeshInfo->mSpatialDim        = mInputMesh.get_spatial_dim();
-        mIPMeshInfo->mNumCells          = mInputMesh.get_num_elems();
+        mIPMeshInfo->mVertices               = mInputMesh.get_all_vertices();
+        mIPMeshInfo->mNumInterpolations      = mInputMesh.get_num_interpolations();
+        mIPMeshInfo->mSpatialDim             = mInputMesh.get_spatial_dim();
+        mIPMeshInfo->mNumCells               = mInputMesh.get_num_elems();
+        mIPMeshInfo->mNumLocalInterpolations = mInputMesh.get_enriched_mesh_indices().numel();
     }
 
     // ----------------------------------------------------------------------------
@@ -48,16 +49,19 @@ namespace moris::mtk
             std::copy( tVertexCoords.data(), tVertexCoords.data() + mIPMeshInfo->mSpatialDim, mOutputMesh->mVertexCoordinates.colptr( iVertex ) );
 
             // loop over the ip vertices corresponding a vertex
-            for ( uint iOrder = 0; iOrder < mIPMeshInfo->mNumInterpolations; iOrder++ )
+            for ( uint iOrder = 0; iOrder < mIPMeshInfo->mNumLocalInterpolations; iOrder++ )
             {
+                // this converts the local consecutive mesh order to the bspline mesh index observed in global scheme
+                uint tGlobalOrder = mOutputMesh->mMeshIndices( iOrder );
+
                 // put the interpolation vertex in the list
-                mIPMeshInfo->mVertexInterpoltions.push_back( mIPMeshInfo->mVertices( iVertex )->get_interpolation( iOrder ) );
+                mIPMeshInfo->mVertexInterpoltions.push_back( mIPMeshInfo->mVertices( iVertex )->get_interpolation( tGlobalOrder ) );
 
                 // obtain t-matrix info
-                Matrix< DDRMat > const* tWeights = mIPMeshInfo->mVertices( iVertex )->get_interpolation( iOrder )->get_weights();
-                Matrix< IdMat >         tIds     = mIPMeshInfo->mVertices( iVertex )->get_interpolation( iOrder )->get_ids();
-                Matrix< IndexMat >      tIndices = mIPMeshInfo->mVertices( iVertex )->get_interpolation( iOrder )->get_indices();
-                Matrix< IdMat >         tOwners  = mIPMeshInfo->mVertices( iVertex )->get_interpolation( iOrder )->get_owners();
+                Matrix< DDRMat > const * tWeights = mIPMeshInfo->mVertices( iVertex )->get_interpolation( tGlobalOrder )->get_weights();
+                Matrix< IdMat >          tIds     = mIPMeshInfo->mVertices( iVertex )->get_interpolation( tGlobalOrder )->get_ids();
+                Matrix< IndexMat >       tIndices = mIPMeshInfo->mVertices( iVertex )->get_interpolation( tGlobalOrder )->get_indices();
+                Matrix< IdMat >          tOwners  = mIPMeshInfo->mVertices( iVertex )->get_interpolation( tGlobalOrder )->get_owners();
 
                 // insert t-matrix info into a big cell
                 mOutputMesh->mWeights( iOrder ).insert( mOutputMesh->mOffSetTMatrix( iOrder )( iVertex ), tWeights->cbegin(), tWeights->cend() );
@@ -75,7 +79,8 @@ namespace moris::mtk
     void
     Interpolation_Mesh_Editor::initialize_vertex_data()
     {
-        uint tNumInterpolations = mIPMeshInfo->mNumInterpolations;
+        uint tNumInterpolations = mIPMeshInfo->mNumLocalInterpolations;
+
         // set the size of mOffSetTMatrix
         mOutputMesh->mOffSetTMatrix.resize( tNumInterpolations );
         mOutputMesh->mWeights.resize( tNumInterpolations );
@@ -99,7 +104,10 @@ namespace moris::mtk
             // loop ove the Lagrange nodes
             for ( uint iVertex = 0; iVertex < mIPMeshInfo->mVertices.size(); iVertex++ )
             {
-                tOffSet += mIPMeshInfo->mVertices( iVertex )->get_interpolation( iLocalOrder )->get_weights()->n_rows();
+                // this converts the local consecutive mesh order to the bspline mesh index observed in global scheme
+                uint tGlobalOrder = mOutputMesh->mMeshIndices( iLocalOrder );
+
+                tOffSet += mIPMeshInfo->mVertices( iVertex )->get_interpolation( tGlobalOrder )->get_weights()->n_rows();
                 mOutputMesh->mOffSetTMatrix( iLocalOrder )( iVertex + 1 ) = tOffSet;
             }
 
@@ -114,8 +122,7 @@ namespace moris::mtk
         mOutputMesh->mVertexCoordinates.set_size( mIPMeshInfo->mSpatialDim, mIPMeshInfo->mVertices.size() );
 
         // reserve space for ip vertices
-        mIPMeshInfo->mVertexInterpoltions.reserve( mIPMeshInfo->mNumInterpolations * mIPMeshInfo->mVertices.size() );
-
+        mIPMeshInfo->mVertexInterpoltions.reserve( mIPMeshInfo->mNumLocalInterpolations * mIPMeshInfo->mVertices.size() );
     }
 
     // ----------------------------------------------------------------------------
@@ -234,6 +241,12 @@ namespace moris::mtk
     Interpolation_Mesh_Editor::create_enriched_mesh_indices()
     {
         mOutputMesh->mMeshIndices = mInputMesh.get_enriched_mesh_indices();
+
+        // generate the inverse map that corresponds to global mesh index to local mesh index in the database
+        for ( uint iLocalOrder = 0; iLocalOrder < mOutputMesh->mMeshIndices.numel(); iLocalOrder++ )
+        {
+            mOutputMesh->mGlobalMeshIndexToLocalMeshIndex[ mOutputMesh->mMeshIndices( iLocalOrder ) ] = iLocalOrder;
+        }
     }
 
     // ----------------------------------------------------------------------------
@@ -245,16 +258,16 @@ namespace moris::mtk
         mOutputMesh->mVertexInterpoltions.resize( mIPMeshInfo->mVertexInterpoltions.size() );
 
         // loop over the order of interpolations
-        for ( uint iOrder = 0; iOrder < mIPMeshInfo->mNumInterpolations; iOrder++ )
+        for ( uint iOrder = 0; iOrder < mIPMeshInfo->mNumLocalInterpolations; iOrder++ )
         {
             // loop over the lagrange vertices
             for ( size_t iVertex = 0; iVertex < mIPMeshInfo->mVertices.size(); iVertex++ )
             {
                 // construct the vertices
-                mOutputMesh->mVertexInterpoltions( mIPMeshInfo->mNumInterpolations * iVertex + iOrder ) =
-                    Vertex_Interpolation_DataBase( iVertex,
-                        iOrder,
-                        mOutputMesh );
+                mOutputMesh->mVertexInterpoltions( mIPMeshInfo->mNumLocalInterpolations * iVertex + iOrder ) =
+                        Vertex_Interpolation_DataBase( iVertex,
+                                iOrder,
+                                mOutputMesh );
             }
         }
 
@@ -460,33 +473,36 @@ namespace moris::mtk
     Interpolation_Mesh_Editor::check_t_matrices()
     {
         bool tOutput = true;
-        for ( uint i = 0; i < mOutputMesh->mVertices.size(); i++ )
+        for ( const auto& iGloablOrder : mOutputMesh->mMeshIndices )
         {
-            // get member data for the old and new mesh , t-matrices
-            Matrix< IndexMat > tBasisIndicesOldMesh = mInputMesh.get_mtk_vertex( i ).get_interpolation( 0 )->get_indices();
-            Matrix< IndexMat > tBaisIndicesNewMesh  = mOutputMesh->mVertices( i ).get_interpolation( 0 )->get_indices();
-
-            Matrix< IdMat > tBasisIdsOldMesh = mInputMesh.get_mtk_vertex( i ).get_interpolation( 0 )->get_ids();
-            Matrix< IdMat > tBasisIdsNewMesh = mOutputMesh->mVertices( i ).get_interpolation( 0 )->get_ids();
-
-            Matrix< IdMat > tBasisOwnerOldMesh = mInputMesh.get_mtk_vertex( i ).get_interpolation( 0 )->get_owners();
-            Matrix< IdMat > tBasisOwnerNewMesh = mOutputMesh->mVertices( i ).get_interpolation( 0 )->get_owners();
-
-            const Matrix< DDRMat >* tBasisWeightsOldMesh = mInputMesh.get_mtk_vertex( i ).get_interpolation( 0 )->get_weights();
-            const Matrix< DDRMat >* tBasisWightsNewMesh  = mOutputMesh->mVertices( i ).get_interpolation( 0 )->get_weights();
-
-            // check if t-matrices are equal
-            bool tEqualIndex  = std::equal( tBasisIndicesOldMesh.begin(), tBasisIndicesOldMesh.end(), tBaisIndicesNewMesh.begin() );
-            bool tEqualId     = std::equal( tBasisIdsOldMesh.begin(), tBasisIdsOldMesh.end(), tBasisIdsNewMesh.begin() );
-            bool tEqualOwner  = std::equal( tBasisOwnerOldMesh.begin(), tBasisOwnerOldMesh.end(), tBasisOwnerNewMesh.begin() );
-            bool tEqualWeight = std::equal( tBasisWeightsOldMesh->cbegin(), tBasisWeightsOldMesh->cend(), tBasisWightsNewMesh->cbegin() );
-
-            tOutput = tEqualIndex && tEqualId && tEqualOwner && tEqualWeight;
-
-            if ( !tOutput )
+            for ( uint i = 0; i < mOutputMesh->mVertices.size(); i++ )
             {
-                MORIS_LOG_ERROR( "T-matrices are not matching for vertex %u of the mesh, the bspline local mesh index is %u", i, (uint)0 );
-                return tOutput;
+                // get member data for the old and new mesh , t-matrices
+                Matrix< IndexMat > tBasisIndicesOldMesh = mInputMesh.get_mtk_vertex( i ).get_interpolation( iGloablOrder )->get_indices();
+                Matrix< IndexMat > tBaisIndicesNewMesh  = mOutputMesh->mVertices( i ).get_interpolation( iGloablOrder )->get_indices();
+
+                Matrix< IdMat > tBasisIdsOldMesh = mInputMesh.get_mtk_vertex( i ).get_interpolation( iGloablOrder )->get_ids();
+                Matrix< IdMat > tBasisIdsNewMesh = mOutputMesh->mVertices( i ).get_interpolation( iGloablOrder )->get_ids();
+
+                Matrix< IdMat > tBasisOwnerOldMesh = mInputMesh.get_mtk_vertex( i ).get_interpolation( iGloablOrder )->get_owners();
+                Matrix< IdMat > tBasisOwnerNewMesh = mOutputMesh->mVertices( i ).get_interpolation( iGloablOrder )->get_owners();
+
+                const Matrix< DDRMat >* tBasisWeightsOldMesh = mInputMesh.get_mtk_vertex( i ).get_interpolation( iGloablOrder )->get_weights();
+                const Matrix< DDRMat >* tBasisWightsNewMesh  = mOutputMesh->mVertices( i ).get_interpolation( iGloablOrder )->get_weights();
+
+                // check if t-matrices are equal
+                bool tEqualIndex  = std::equal( tBasisIndicesOldMesh.begin(), tBasisIndicesOldMesh.end(), tBaisIndicesNewMesh.begin() );
+                bool tEqualId     = std::equal( tBasisIdsOldMesh.begin(), tBasisIdsOldMesh.end(), tBasisIdsNewMesh.begin() );
+                bool tEqualOwner  = std::equal( tBasisOwnerOldMesh.begin(), tBasisOwnerOldMesh.end(), tBasisOwnerNewMesh.begin() );
+                bool tEqualWeight = std::equal( tBasisWeightsOldMesh->cbegin(), tBasisWeightsOldMesh->cend(), tBasisWightsNewMesh->cbegin() );
+
+                tOutput = tEqualIndex && tEqualId && tEqualOwner && tEqualWeight;
+
+                if ( !tOutput )
+                {
+                    MORIS_LOG_ERROR( "T-matrices are not matching for vertex %u of the mesh, the bspline local mesh index is %u", i, (uint)0 );
+                    return tOutput;
+                }
             }
         }
         return tOutput;

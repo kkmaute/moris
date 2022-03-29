@@ -11,6 +11,7 @@
 #include "cl_FEM_IWG.hpp"
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Cluster.hpp"
+#include "cl_FEM_IWG_Spalart_Allmaras_Turbulence_Bulk.hpp"
 #undef protected
 #undef private
 // LINALG/src
@@ -28,6 +29,31 @@
 
 using namespace moris;
 using namespace fem;
+
+void
+tWallDistanceValFunc(
+        moris::Matrix< moris::DDRMat >&                aPropMatrix,
+        moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+        moris::fem::Field_Interpolator_Manager*        aFIManager )
+{
+    moris::fem::Field_Interpolator* tFIWallDist =
+            aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::L2 );
+
+    aPropMatrix = aParameters( 0 ) * tFIWallDist->val();
+}
+
+void
+tWallDistanceDerFunc(
+        moris::Matrix< moris::DDRMat >&                aPropMatrix,
+        moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+        moris::fem::Field_Interpolator_Manager*        aFIManager )
+{
+    moris::fem::Field_Interpolator* tFIWallDist =
+            aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::L2 );
+
+    aPropMatrix = aParameters( 0 ) * tFIWallDist->N();
+}
+
 
 TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbulence_Bulk]" )
 {
@@ -389,7 +415,13 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
     real tEpsilon = 1E-5;
 
     // define a perturbation relative size
-    real tPerturbation = 1E-4;
+    real tPerturbation = 1E-5;
+
+    // define turbulent viscosity scaling (should be similar to wall distance, can be positive or negative)
+    real tViscosityScaling = 1e-5;
+
+    // define wall distance scaling (needs to be positive and small)
+    real tWallDistScaling = 1e-5;
 
     // init geometry inputs
     //------------------------------------------------------------------------------
@@ -416,25 +448,24 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
     Matrix< DDRMat > tNumCoeffs = { { 8, 18, 32 }, { 16, 54, 128 } };
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tVelDofTypes = { MSI::Dof_Type::VX };
+    moris::Cell< MSI::Dof_Type >                tVelDofTypes      = { MSI::Dof_Type::VX };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tVisDofTypes      = { { MSI::Dof_Type::VISCOSITY } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tWallDistDofTypes = { { MSI::Dof_Type::L2 } };
 
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tVisDofTypes = { { MSI::Dof_Type::VISCOSITY } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes    = { tVelDofTypes, tVisDofTypes( 0 ) };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tVelDofTypes, tVisDofTypes( 0 ), tWallDistDofTypes( 0 ) };
 
     // init IWG
     //------------------------------------------------------------------------------
     // create the properties
     std::shared_ptr< fem::Property > tPropWallDistance = std::make_shared< fem::Property >();
-    tPropWallDistance->set_parameters( { { { 1e-0 } } } );    // FIXME: should be small number
-    tPropWallDistance->set_val_function( tConstValFunc );
+    tPropWallDistance->set_parameters( { { { 1.0 } } } );
+    tPropWallDistance->set_dof_type_list( tWallDistDofTypes );
+    tPropWallDistance->set_val_function( tWallDistanceValFunc );
+    tPropWallDistance->set_dof_derivative_functions( { tWallDistanceDerFunc } );
 
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
-    // tPropViscosity->set_parameters( { {{ 2.0 }} } );
     tPropViscosity->set_val_function( tConstValFunc );
-    tPropViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
-    // tPropViscosity->set_dof_type_list( { tVisDofTypes } );
-    // tPropViscosity->set_val_function( tVISCOSITYFIValFunc );
-    // tPropViscosity->set_dof_derivative_functions( { tVISCOSITYFIDerFunc } );
+    // tPropViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
@@ -482,11 +513,13 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
     tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 1;
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::L2 ) )        = 2;
 
     // set size and populate the set master dof type map
     tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
     tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 1;
+    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::L2 ) )        = 2;
 
     // loop on the space dimension
     for ( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -600,8 +633,9 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
             uint tNumCoeff = tNumCoeffs( iSpaceDim - 2, iInterpOrder - 1 );
 
             // get number of dof per type
-            int tNumDofVel = tNumCoeff * iSpaceDim;
-            int tNumDofVis = tNumCoeff;
+            int tNumDofVel      = tNumCoeff * iSpaceDim;
+            int tNumDofVis      = tNumCoeff;
+            int tNumDofWallDist = tNumCoeff;
 
             // create a space time interpolation rule
             mtk::Interpolation_Rule tFIRule( tGeometryType,
@@ -618,8 +652,14 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                     // fill coefficients for master FI
                     Matrix< DDRMat > tMasterDOFHatVel;
                     fill_uhat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
+
                     Matrix< DDRMat > tMasterDOFHatVis;
                     fill_phat( tMasterDOFHatVis, iSpaceDim, iInterpOrder );
+                    tMasterDOFHatVis = tViscosityScaling * tMasterDOFHatVis;
+
+                    Matrix< DDRMat > tMasterDOFHatWallDist;
+                    fill_phat( tMasterDOFHatWallDist, iSpaceDim, iInterpOrder );
+                    tMasterDOFHatWallDist = tWallDistScaling * tMasterDOFHatWallDist;
 
                     // create a cell of field interpolators for IWG
                     Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
@@ -632,24 +672,32 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                     tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
                     tMasterFIs( 1 )->set_coeff( tMasterDOFHatVis );
 
+                    // create the field interpolator wall distance
+                    tMasterFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tWallDistDofTypes( 0 ) );
+                    tMasterFIs( 2 )->set_coeff( tMasterDOFHatWallDist );
+
                     // set size and fill the set residual assembly map
                     tIWG->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
                     tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofVel - 1 } };
                     tIWG->mSet->mResDofAssemblyMap( 1 ) = { { tNumDofVel, tNumDofVel + tNumDofVis - 1 } };
+                    tIWG->mSet->mResDofAssemblyMap( 2 ) = { { tNumDofVel + tNumDofVis, tNumDofVel + tNumDofVis + tNumDofWallDist - 1 } };
 
                     // set size and fill the set jacobian assembly map
                     Matrix< DDSMat > tJacAssembly = {
                         { 0, tNumDofVel - 1 },
-                        { tNumDofVel, tNumDofVel + tNumDofVis - 1 }
+                        { tNumDofVel, tNumDofVel + tNumDofVis - 1 },
+                        { tNumDofVel + tNumDofVis, tNumDofVel + tNumDofVis + tNumDofWallDist - 1 }
                     };
+
                     tIWG->mSet->mJacDofAssemblyMap.resize( tDofTypes.size() );
                     tIWG->mSet->mJacDofAssemblyMap( 0 ) = tJacAssembly;
                     tIWG->mSet->mJacDofAssemblyMap( 1 ) = tJacAssembly;
+                    tIWG->mSet->mJacDofAssemblyMap( 2 ) = tJacAssembly;
 
                     // set size and init the set residual and jacobian
                     tIWG->mSet->mResidual.resize( 1 );
-                    tIWG->mSet->mResidual( 0 ).set_size( tNumDofVel + tNumDofVis, 1, 0.0 );
-                    tIWG->mSet->mJacobian.set_size( tNumDofVel + tNumDofVis, tNumDofVel + tNumDofVis, 0.0 );
+                    tIWG->mSet->mResidual( 0 ).set_size( tNumDofVel + tNumDofVis + tNumDofWallDist, 1, 0.0 );
+                    tIWG->mSet->mJacobian.set_size( tNumDofVel + tNumDofVis + tNumDofWallDist, tNumDofVel + tNumDofVis + tNumDofWallDist, 0.0 );
 
                     // build global dof type list
                     tIWG->get_global_dof_type_list();
@@ -686,6 +734,472 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                         // set integration point
                         tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
 
+                        //-------------------------------------------------------------------------------------------------------------------------
+                        // check components of constitutive model - derivatives with respect to velocity dofs
+                        {
+                            real tErrorLimit = 1e-5;
+
+                            moris::fem::IWG_Spalart_Allmaras_Turbulence_Bulk* tSAIWG =
+                                    dynamic_cast< moris::fem::IWG_Spalart_Allmaras_Turbulence_Bulk* >( tIWG.get() );
+
+                            const Matrix< DDRMat >& tJacDestructionCoefficient = tCMMasterSATurbulence->dwalldestructioncoeffdu( tVelDofTypes );
+                            const Matrix< DDRMat >& tJacProductionCoefficient  = tCMMasterSATurbulence->dproductioncoeffdu( tVelDofTypes );
+                            const Matrix< DDRMat >& tJacDiffusionCoefficient   = tCMMasterSATurbulence->ddiffusioncoeffdu( tVelDofTypes );
+                            const Matrix< DDRMat >& tJacDivFlux                = tCMMasterSATurbulence->ddivfluxdu( tVelDofTypes );
+                            const Matrix< DDRMat >& tJacSUPG                   = tSPSUPG->dSPdMasterDOF( tVelDofTypes );
+                            const Matrix< DDRMat >& tJacDestructionTerm        = tCMMasterSATurbulence->dwalldestructiontermdu( tVelDofTypes );
+                            const Matrix< DDRMat >& tJacProductionTerm         = tCMMasterSATurbulence->dproductiontermdu( tVelDofTypes );
+
+                            Matrix< DDRMat > tJacStrongForm, tResStrongForm;
+                            tSAIWG->compute_jacobian_strong_form( tVelDofTypes, tJacStrongForm );
+
+                            Matrix< DDRMat > tJacDestructionCoefficientFD( 1, tMasterDOFHatVel.numel(), 0.0 );
+                            Matrix< DDRMat > tJacProductionCoefficientFD( 1, tMasterDOFHatVel.numel(), 0.0 );
+                            Matrix< DDRMat > tJacDiffusionCoefficientFD( 1, tMasterDOFHatVel.numel(), 0.0 );
+                            Matrix< DDRMat > tJacDivFluxFD( 1, tMasterDOFHatVel.numel(), 0.0 );
+                            Matrix< DDRMat > tJacSUPGFD( 1, tMasterDOFHatVel.numel(), 0.0 );
+                            Matrix< DDRMat > tJacStrongFormFD( 1, tMasterDOFHatVel.numel(), 0.0 );
+                            Matrix< DDRMat > tJacDestructionTermFD( 1, tMasterDOFHatVel.numel(), 0.0 );
+                            Matrix< DDRMat > tJacProductionTermFD( 1, tMasterDOFHatVel.numel(), 0.0 );
+
+                            uint tCount = 0;
+
+                            for ( uint iDim = 0; iDim < tMasterDOFHatVel.n_cols(); ++iDim )
+                            {
+                                for ( uint iCoef = 0; iCoef < tMasterDOFHatVel.n_rows(); ++iCoef )
+                                {
+                                    tMasterDOFHatVel( iCoef, iDim ) += tPerturbation;
+                                    tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
+                                    tMasterFIs( 0 )->reset_eval_flags();
+                                    tCMMasterSATurbulence->reset_eval_flags();
+                                    tSPSUPG->reset_eval_flags();
+                                    tJacDestructionCoefficientFD( tCount ) = tCMMasterSATurbulence->wall_destruction_coefficient()( 0 );
+                                    tJacProductionCoefficientFD( tCount )  = tCMMasterSATurbulence->production_coefficient()( 0 );
+                                    tJacDestructionTermFD( tCount )        = tCMMasterSATurbulence->wall_destruction_term()( 0 );
+                                    tJacProductionTermFD( tCount )         = tCMMasterSATurbulence->production_term()( 0 );
+                                    tJacDiffusionCoefficientFD( tCount )   = tCMMasterSATurbulence->diffusion_coefficient()( 0 );
+                                    tJacDivFluxFD( tCount )                = tCMMasterSATurbulence->divflux()( 0 );
+                                    tJacSUPGFD( tCount )                   = tSPSUPG->val()( 0 );
+                                    tSAIWG->compute_residual_strong_form( tResStrongForm );
+                                    tJacStrongFormFD( tCount ) = tResStrongForm( 0 );
+
+                                    tMasterDOFHatVel( iCoef, iDim ) -= 2.0 * tPerturbation;
+                                    tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
+                                    tMasterFIs( 0 )->reset_eval_flags();
+                                    tCMMasterSATurbulence->reset_eval_flags();
+                                    tSPSUPG->reset_eval_flags();
+                                    tJacDestructionCoefficientFD( tCount ) -= tCMMasterSATurbulence->wall_destruction_coefficient()( 0 );
+                                    tJacProductionCoefficientFD( tCount ) -= tCMMasterSATurbulence->production_coefficient()( 0 );
+                                    tJacDestructionTermFD( tCount ) -= tCMMasterSATurbulence->wall_destruction_term()( 0 );
+                                    tJacProductionTermFD( tCount ) -= tCMMasterSATurbulence->production_term()( 0 );
+                                    tJacDiffusionCoefficientFD( tCount ) -= tCMMasterSATurbulence->diffusion_coefficient()( 0 );
+                                    tJacDivFluxFD( tCount ) -= tCMMasterSATurbulence->divflux()( 0 );
+                                    tJacSUPGFD( tCount ) -= tSPSUPG->val()( 0 );
+                                    tSAIWG->compute_residual_strong_form( tResStrongForm );
+                                    tJacStrongFormFD( tCount ) -= tResStrongForm( 0 );
+
+                                    tJacDestructionCoefficientFD( tCount ) = tJacDestructionCoefficientFD( tCount ) / 2.0 / tPerturbation;
+                                    tJacProductionCoefficientFD( tCount )  = tJacProductionCoefficientFD( tCount ) / 2.0 / tPerturbation;
+                                    tJacDestructionTermFD( tCount )        = tJacDestructionTermFD( tCount ) / 2.0 / tPerturbation;
+                                    tJacProductionTermFD( tCount )         = tJacProductionTermFD( tCount ) / 2.0 / tPerturbation;
+                                    tJacDiffusionCoefficientFD( tCount )   = tJacDiffusionCoefficientFD( tCount ) / 2.0 / tPerturbation;
+                                    tJacDivFluxFD( tCount )                = tJacDivFluxFD( tCount ) / 2.0 / tPerturbation;
+                                    tJacSUPGFD( tCount )                   = tJacSUPGFD( tCount ) / 2.0 / tPerturbation;
+                                    tJacStrongFormFD( tCount )             = tJacStrongFormFD( tCount ) / 2.0 / tPerturbation;
+
+                                    tMasterDOFHatVel( iCoef, iDim ) += tPerturbation;
+                                    tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
+                                    tMasterFIs( 0 )->reset_eval_flags();
+                                    tCMMasterSATurbulence->reset_eval_flags();
+                                    tSPSUPG->reset_eval_flags();
+
+                                    tCount++;
+                                }
+                            }
+
+                            real tRelError;
+                            for ( uint iI = 0; iI < tCount; ++iI )
+                            {
+                                tRelError = std::abs( tJacDestructionCoefficient( iI ) - tJacDestructionCoefficientFD( iI ) ) / ( std::abs( tJacDestructionCoefficientFD( iI ) ) + MORIS_REAL_EPS );
+                                if ( tRelError > tErrorLimit )
+                                {
+                                    std::cout << "tJacDestructionCoefficient velocity dof: ana = "
+                                              << tJacDestructionCoefficient( iI ) << " FD = "
+                                              << tJacDestructionCoefficientFD( iI ) << " rel error = "
+                                              << tRelError
+                                              << std::endl;
+                                }
+
+                                tRelError = std::abs( tJacDestructionTerm( iI ) - tJacDestructionTermFD( iI ) ) / ( std::abs( tJacDestructionTermFD( iI ) ) + MORIS_REAL_EPS );
+                                if ( tRelError > tErrorLimit )
+                                {
+                                    std::cout << "tJacDestructionTerm velocity dof: ana = "
+                                              << tJacDestructionTerm( iI ) << " FD = "
+                                              << tJacDestructionTermFD( iI ) << " rel error = "
+                                              << tRelError
+                                              << std::endl;
+                                }
+
+                                tRelError = std::abs( tJacProductionCoefficient( iI ) - tJacProductionCoefficientFD( iI ) ) / ( std::abs( tJacProductionCoefficientFD( iI ) ) + MORIS_REAL_EPS );
+                                if ( tRelError > tErrorLimit )
+                                {
+                                    std::cout << "tJacProductionCoefficient velocity dof: ana = "
+                                              << tJacProductionCoefficient( iI ) << " FD = "
+                                              << tJacProductionCoefficientFD( iI ) << " rel error = "
+                                              << tRelError
+                                              << std::endl;
+                                }
+
+                                tRelError = std::abs( tJacProductionTerm( iI ) - tJacProductionTermFD( iI ) ) / ( std::abs( tJacProductionTermFD( iI ) ) + MORIS_REAL_EPS );
+                                if ( tRelError > tErrorLimit )
+                                {
+                                    std::cout << "tJacProductionTerm velocity dof: ana = "
+                                              << tJacProductionTerm( iI ) << " FD = "
+                                              << tJacProductionTermFD( iI ) << " rel error = "
+                                              << tRelError
+                                              << std::endl;
+                                }
+
+                                tRelError = std::abs( tJacDiffusionCoefficient( iI ) - tJacDiffusionCoefficientFD( iI ) ) / ( std::abs( tJacDiffusionCoefficientFD( iI ) ) + MORIS_REAL_EPS );
+                                if ( tRelError > tErrorLimit )
+                                {
+                                    std::cout << "tJacDiffusionCoefficientFD velocity dof:"
+                                              << " ana = " << tJacDiffusionCoefficient( iI )
+                                              << " FD  = " << tJacDiffusionCoefficientFD( iI )
+                                              << " rel error = " << tRelError << std::endl;
+                                }
+
+                                tRelError = std::abs( tJacDivFlux( iI ) - tJacDivFluxFD( iI ) ) / ( std::abs( tJacDivFluxFD( iI ) ) + MORIS_REAL_EPS );
+                                if ( tRelError > tErrorLimit )
+                                {
+                                    std::cout << "tJacDivFluxFD velocity dof:"
+                                              << " ana = " << tJacDivFlux( iI )
+                                              << " FD  = " << tJacDivFluxFD( iI )
+                                              << " rel error = " << tRelError << std::endl;
+                                }
+
+                                tRelError = std::abs( tJacSUPG( iI ) - tJacSUPGFD( iI ) ) / ( std::abs( tJacSUPGFD( iI ) ) + MORIS_REAL_EPS );
+                                if ( tRelError > tErrorLimit )
+                                {
+                                    std::cout << "tJacSUPGFD velocity dof:"
+                                              << " ana = " << tJacSUPG( iI )
+                                              << " FD  = " << tJacSUPGFD( iI )
+                                              << " rel error = " << tRelError << std::endl;
+                                }
+
+                                tRelError = std::abs( tJacStrongForm( iI ) - tJacStrongFormFD( iI ) ) / ( std::abs( tJacStrongFormFD( iI ) ) + MORIS_REAL_EPS );
+                                if ( tRelError > tErrorLimit )
+                                {
+                                    std::cout << "tJacStrongForm velocity dof:"
+                                              << " ana = " << tJacStrongForm( iI )
+                                              << " FD  = " << tJacStrongFormFD( iI )
+                                              << " rel error = " << tRelError << std::endl;
+                                }
+                            }
+                        }
+
+                        //-------------------------------------------------------------------------------------------------------------------------
+                        // check components of constitutive model - derivatives with respect to viscosity dofs
+                        {
+                            real tErrorLimit = 1e-5;
+
+                            moris::fem::IWG_Spalart_Allmaras_Turbulence_Bulk* tSAIWG =
+                                    dynamic_cast< moris::fem::IWG_Spalart_Allmaras_Turbulence_Bulk* >( tIWG.get() );
+
+                            const Matrix< DDRMat >& tJacDestructionCoefficient = tCMMasterSATurbulence->dwalldestructioncoeffdu( tVisDofTypes( 0 ) );
+                            const Matrix< DDRMat >& tJacProductionCoefficient  = tCMMasterSATurbulence->dproductioncoeffdu( tVisDofTypes( 0 ) );
+                            const Matrix< DDRMat >& tJacDiffusionCoefficient   = tCMMasterSATurbulence->ddiffusioncoeffdu( tVisDofTypes( 0 ) );
+                            const Matrix< DDRMat >& tJacDivFlux                = tCMMasterSATurbulence->ddivfluxdu( tVisDofTypes( 0 ) );
+                            const Matrix< DDRMat >& tJacSUPG                   = tSPSUPG->dSPdMasterDOF( tVisDofTypes( 0 ) );
+
+                            Matrix< DDRMat > tJacStrongForm, tResStrongForm;
+                            tSAIWG->compute_jacobian_strong_form( tVisDofTypes( 0 ), tJacStrongForm );
+
+                            Matrix< DDRMat > tJacDestructionCoefficientFD( 1, tMasterDOFHatVis.numel(), 0.0 );
+                            Matrix< DDRMat > tJacProductionCoefficientFD( 1, tMasterDOFHatVis.numel(), 0.0 );
+                            Matrix< DDRMat > tJacDiffusionCoefficientFD( 1, tMasterDOFHatVis.numel(), 0.0 );
+                            Matrix< DDRMat > tJacDivFluxFD( 1, tMasterDOFHatVis.numel(), 0.0 );
+                            Matrix< DDRMat > tJacSUPGFD( 1, tMasterDOFHatVis.numel(), 0.0 );
+                            Matrix< DDRMat > tJacStrongFormFD( 1, tMasterDOFHatVel.numel(), 0.0 );
+
+                            uint tCount = 0;
+
+                            for ( uint iDim = 0; iDim < tMasterDOFHatVis.n_cols(); ++iDim )
+                            {
+                                for ( uint iCoef = 0; iCoef < tMasterDOFHatVis.n_rows(); ++iCoef )
+                                {
+                                    tMasterDOFHatVis( iCoef, iDim ) += tPerturbation;
+                                    tMasterFIs( 1 )->set_coeff( tMasterDOFHatVis );
+                                    tMasterFIs( 1 )->reset_eval_flags();
+                                    tCMMasterSATurbulence->reset_eval_flags();
+                                    tSPSUPG->reset_eval_flags();
+                                    tJacDestructionCoefficientFD( tCount ) = tCMMasterSATurbulence->wall_destruction_coefficient()( 0 );
+                                    tJacProductionCoefficientFD( tCount )  = tCMMasterSATurbulence->production_coefficient()( 0 );
+                                    tJacDiffusionCoefficientFD( tCount )   = tCMMasterSATurbulence->diffusion_coefficient()( 0 );
+                                    tJacDivFluxFD( tCount )                = tCMMasterSATurbulence->divflux()( 0 );
+                                    tJacSUPGFD( tCount )                   = tSPSUPG->val()( 0 );
+                                    tSAIWG->compute_residual_strong_form( tResStrongForm );
+                                    tJacStrongFormFD( tCount ) = tResStrongForm( 0 );
+
+                                    tMasterDOFHatVis( iCoef, iDim ) -= 2.0 * tPerturbation;
+                                    tMasterFIs( 1 )->set_coeff( tMasterDOFHatVis );
+                                    tMasterFIs( 1 )->reset_eval_flags();
+                                    tCMMasterSATurbulence->reset_eval_flags();
+                                    tSPSUPG->reset_eval_flags();
+                                    tJacDestructionCoefficientFD( tCount ) -= tCMMasterSATurbulence->wall_destruction_coefficient()( 0 );
+                                    tJacProductionCoefficientFD( tCount ) -= tCMMasterSATurbulence->production_coefficient()( 0 );
+                                    tJacDiffusionCoefficientFD( tCount ) -= tCMMasterSATurbulence->diffusion_coefficient()( 0 );
+                                    tJacDivFluxFD( tCount ) -= tCMMasterSATurbulence->divflux()( 0 );
+                                    tJacSUPGFD( tCount ) -= tSPSUPG->val()( 0 );
+                                    tSAIWG->compute_residual_strong_form( tResStrongForm );
+                                    tJacStrongFormFD( tCount ) -= tResStrongForm( 0 );
+
+                                    tJacDestructionCoefficientFD( tCount ) = tJacDestructionCoefficientFD( tCount ) / 2.0 / tPerturbation;
+                                    tJacProductionCoefficientFD( tCount )  = tJacProductionCoefficientFD( tCount ) / 2.0 / tPerturbation;
+                                    tJacDiffusionCoefficientFD( tCount )   = tJacDiffusionCoefficientFD( tCount ) / 2.0 / tPerturbation;
+                                    tJacDivFluxFD( tCount )                = tJacDivFluxFD( tCount ) / 2.0 / tPerturbation;
+                                    tJacSUPGFD( tCount )                   = tJacSUPGFD( tCount ) / 2.0 / tPerturbation;
+                                    tJacStrongFormFD( tCount )             = tJacStrongFormFD( tCount ) / 2.0 / tPerturbation;
+
+                                    tMasterDOFHatVis( iCoef, iDim ) += tPerturbation;
+                                    tMasterFIs( 1 )->set_coeff( tMasterDOFHatVis );
+                                    tMasterFIs( 1 )->reset_eval_flags();
+                                    tCMMasterSATurbulence->reset_eval_flags();
+                                    tSPSUPG->reset_eval_flags();
+
+                                    tCount++;
+                                }
+                            }
+
+                            real tRelError;
+                            for ( uint iI = 0; iI < tCount; ++iI )
+                            {
+                                tRelError = std::abs( tJacDestructionCoefficient( iI ) - tJacDestructionCoefficientFD( iI ) ) / ( std::abs( tJacDestructionCoefficientFD( iI ) ) + MORIS_REAL_EPS );
+                                if ( tRelError > tErrorLimit )
+                                {
+                                    std::cout << "tJacDestructionCoefficient viscosity dof: ana = "
+                                              << tJacDestructionCoefficient( iI ) << " FD = "
+                                              << tJacDestructionCoefficientFD( iI ) << " rel error = "
+                                              << tRelError
+                                              << std::endl;
+                                }
+
+                                tRelError = std::abs( tJacProductionCoefficient( iI ) - tJacProductionCoefficientFD( iI ) ) / ( std::abs( tJacProductionCoefficientFD( iI ) ) + MORIS_REAL_EPS );
+                                if ( tRelError > tErrorLimit )
+                                {
+                                    std::cout << "tJacProductionCoefficient viscosity dof: ana = "
+                                              << tJacProductionCoefficient( iI ) << " FD = "
+                                              << tJacProductionCoefficientFD( iI ) << " rel error = "
+                                              << tRelError
+                                              << std::endl;
+                                }
+
+                                tRelError = std::abs( tJacDiffusionCoefficient( iI ) - tJacDiffusionCoefficientFD( iI ) ) / ( std::abs( tJacDiffusionCoefficientFD( iI ) ) + MORIS_REAL_EPS );
+                                if ( tRelError > tErrorLimit )
+                                {
+                                    std::cout << "tJacDiffusionCoefficientFD viscosity dof:"
+                                              << " ana = " << tJacDiffusionCoefficient( iI )
+                                              << " FD  = " << tJacDiffusionCoefficientFD( iI )
+                                              << " rel error = " << tRelError
+                                              << std::endl;
+                                }
+
+                                tRelError = std::abs( tJacDivFlux( iI ) - tJacDivFluxFD( iI ) ) / ( std::abs( tJacDivFluxFD( iI ) ) + MORIS_REAL_EPS );
+                                if ( tRelError > tErrorLimit )
+                                {
+                                    std::cout << "tJacDivFluxFD viscosity dof:"
+                                              << " ana = " << tJacDivFlux( iI )
+                                              << " FD  = " << tJacDivFluxFD( iI )
+                                              << " rel error = " << tRelError << std::endl;
+                                }
+
+                                tRelError = std::abs( tJacSUPG( iI ) - tJacSUPGFD( iI ) ) / ( std::abs( tJacSUPGFD( iI ) ) + MORIS_REAL_EPS );
+                                if ( tRelError > tErrorLimit )
+                                {
+                                    std::cout << "tJacSUPGFD viscosity dof:"
+                                              << " ana = " << tJacSUPG( iI )
+                                              << " FD  = " << tJacSUPGFD( iI )
+                                              << " rel error = " << tRelError << std::endl;
+                                }
+
+                                tRelError = std::abs( tJacStrongForm( iI ) - tJacStrongFormFD( iI ) ) / ( std::abs( tJacStrongFormFD( iI ) ) + MORIS_REAL_EPS );
+                                if ( tRelError > tErrorLimit )
+                                {
+                                    std::cout << "tJacStrongForm viscosity dof:"
+                                              << " ana = " << tJacStrongForm( iI )
+                                              << " FD  = " << tJacStrongFormFD( iI )
+                                              << " rel error = " << tRelError << std::endl;
+                                }
+                            }
+                        }
+
+                        //-------------------------------------------------------------------------------------------------------------------------
+                        // check components of constitutive model - derivatives with respect to wall distance dofs
+                        {
+                            real tErrorLimit = 1e-5;
+
+                            moris::fem::IWG_Spalart_Allmaras_Turbulence_Bulk* tSAIWG =
+                                    dynamic_cast< moris::fem::IWG_Spalart_Allmaras_Turbulence_Bulk* >( tIWG.get() );
+
+                            const Matrix< DDRMat >& tJacDestructionCoefficient = tCMMasterSATurbulence->dwalldestructioncoeffdu( tWallDistDofTypes( 0 ) );
+                            const Matrix< DDRMat >& tJacProductionCoefficient  = tCMMasterSATurbulence->dproductioncoeffdu( tWallDistDofTypes( 0 ) );
+                            const Matrix< DDRMat >& tJacDiffusionCoefficient   = tCMMasterSATurbulence->ddiffusioncoeffdu( tWallDistDofTypes( 0 ) );
+                            const Matrix< DDRMat >& tJacDestructionTerm        = tCMMasterSATurbulence->dwalldestructiontermdu( tWallDistDofTypes( 0 ) );
+                            const Matrix< DDRMat >& tJacProductionTerm         = tCMMasterSATurbulence->dproductiontermdu( tWallDistDofTypes( 0 ) );
+                            const Matrix< DDRMat >& tJacDivFlux                = tCMMasterSATurbulence->ddivfluxdu( tWallDistDofTypes( 0 ) );
+                            const Matrix< DDRMat >& tJacSUPG                   = tSPSUPG->dSPdMasterDOF( tWallDistDofTypes( 0 ) );
+
+                            Matrix< DDRMat > tJacStrongForm, tResStrongForm;
+                            tSAIWG->compute_jacobian_strong_form( tWallDistDofTypes( 0 ), tJacStrongForm );
+
+                            Matrix< DDRMat > tJacDestructionCoefficientFD( 1, tMasterDOFHatWallDist.numel(), 0.0 );
+                            Matrix< DDRMat > tJacProductionCoefficientFD( 1, tMasterDOFHatWallDist.numel(), 0.0 );
+                            Matrix< DDRMat > tJacDiffusionCoefficientFD( 1, tMasterDOFHatWallDist.numel(), 0.0 );
+                            Matrix< DDRMat > tJacDestructionTermFD( 1, tMasterDOFHatWallDist.numel(), 0.0 );
+                            Matrix< DDRMat > tJacProductionTermFD( 1, tMasterDOFHatWallDist.numel(), 0.0 );
+                            Matrix< DDRMat > tJacDivFluxFD( 1, tMasterDOFHatWallDist.numel(), 0.0 );
+                            Matrix< DDRMat > tJacSUPGFD( 1, tMasterDOFHatWallDist.numel(), 0.0 );
+                            Matrix< DDRMat > tJacStrongFormFD( 1, tMasterDOFHatWallDist.numel(), 0.0 );
+
+                            uint tCount = 0;
+
+                            for ( uint iDim = 0; iDim < tMasterDOFHatWallDist.n_cols(); ++iDim )
+                            {
+                                for ( uint iCoef = 0; iCoef < tMasterDOFHatWallDist.n_rows(); ++iCoef )
+                                {
+                                    tMasterDOFHatWallDist( iCoef, iDim ) += tPerturbation;
+                                    tMasterFIs( 2 )->set_coeff( tMasterDOFHatWallDist );
+                                    tMasterFIs( 2 )->reset_eval_flags();
+                                    tCMMasterSATurbulence->reset_eval_flags();
+                                    tSPSUPG->reset_eval_flags();
+                                    tJacDestructionCoefficientFD( tCount ) = tCMMasterSATurbulence->wall_destruction_coefficient()( 0 );
+                                    tJacProductionCoefficientFD( tCount )  = tCMMasterSATurbulence->production_coefficient()( 0 );
+                                    tJacDiffusionCoefficientFD( tCount )   = tCMMasterSATurbulence->diffusion_coefficient()( 0 );
+                                    tJacDestructionTermFD( tCount )        = tCMMasterSATurbulence->wall_destruction_term()( 0 );
+                                    tJacProductionTermFD( tCount )         = tCMMasterSATurbulence->production_term()( 0 );
+                                    tJacDivFluxFD( tCount )                = tCMMasterSATurbulence->divflux()( 0 );
+                                    tJacSUPGFD( tCount )                   = tSPSUPG->val()( 0 );
+                                    tSAIWG->compute_residual_strong_form( tResStrongForm );
+                                    tJacStrongFormFD( tCount ) = tResStrongForm( 0 );
+
+                                    tMasterDOFHatWallDist( iCoef, iDim ) -= 2.0 * tPerturbation;
+                                    tMasterFIs( 2 )->set_coeff( tMasterDOFHatWallDist );
+                                    tMasterFIs( 2 )->reset_eval_flags();
+                                    tCMMasterSATurbulence->reset_eval_flags();
+                                    tSPSUPG->reset_eval_flags();
+                                    tJacDestructionCoefficientFD( tCount ) -= tCMMasterSATurbulence->wall_destruction_coefficient()( 0 );
+                                    tJacProductionCoefficientFD( tCount ) -= tCMMasterSATurbulence->production_coefficient()( 0 );
+                                    tJacDiffusionCoefficientFD( tCount ) -= tCMMasterSATurbulence->diffusion_coefficient()( 0 );
+                                    tJacDestructionTermFD( tCount ) -= tCMMasterSATurbulence->wall_destruction_term()( 0 );
+                                    tJacProductionTermFD( tCount ) -= tCMMasterSATurbulence->production_term()( 0 );
+                                    tJacDivFluxFD( tCount ) -= tCMMasterSATurbulence->divflux()( 0 );
+                                    tJacSUPGFD( tCount ) -= tSPSUPG->val()( 0 );
+                                    tSAIWG->compute_residual_strong_form( tResStrongForm );
+                                    tJacStrongFormFD( tCount ) -= tResStrongForm( 0 );
+
+                                    tJacDestructionCoefficientFD( tCount ) = tJacDestructionCoefficientFD( tCount ) / 2.0 / tPerturbation;
+                                    tJacProductionCoefficientFD( tCount )  = tJacProductionCoefficientFD( tCount ) / 2.0 / tPerturbation;
+                                    tJacDiffusionCoefficientFD( tCount )   = tJacDiffusionCoefficientFD( tCount ) / 2.0 / tPerturbation;
+                                    tJacDestructionTermFD( tCount )        = tJacDestructionTermFD( tCount ) / 2.0 / tPerturbation;
+                                    tJacProductionTermFD( tCount )         = tJacProductionTermFD( tCount ) / 2.0 / tPerturbation;
+                                    tJacDivFluxFD( tCount )                = tJacDivFluxFD( tCount ) / 2.0 / tPerturbation;
+                                    tJacSUPGFD( tCount )                   = tJacSUPGFD( tCount ) / 2.0 / tPerturbation;
+                                    tJacStrongFormFD( tCount )             = tJacStrongFormFD( tCount ) / 2.0 / tPerturbation;
+
+                                    tMasterDOFHatWallDist( iCoef, iDim ) += tPerturbation;
+                                    tMasterFIs( 2 )->set_coeff( tMasterDOFHatWallDist );
+                                    tMasterFIs( 2 )->reset_eval_flags();
+                                    tCMMasterSATurbulence->reset_eval_flags();
+                                    tSPSUPG->reset_eval_flags();
+
+                                    tCount++;
+                                }
+                            }
+
+                            real tRelError;
+                            for ( uint iI = 0; iI < tCount; ++iI )
+                            {
+                                tRelError = std::abs( tJacDestructionCoefficient( iI ) - tJacDestructionCoefficientFD( iI ) ) / ( std::abs( tJacDestructionCoefficientFD( iI ) ) + MORIS_REAL_EPS );
+                                if ( tRelError > tErrorLimit )
+                                {
+                                    std::cout << "tJacDestructionCoefficient wall distance dof: ana = "
+                                              << tJacDestructionCoefficient( iI ) << " FD = "
+                                              << tJacDestructionCoefficientFD( iI ) << " rel error = "
+                                              << tRelError
+                                              << std::endl;
+                                }
+
+                                tRelError = std::abs( tJacProductionCoefficient( iI ) - tJacProductionCoefficientFD( iI ) ) / ( std::abs( tJacProductionCoefficientFD( iI ) ) + MORIS_REAL_EPS );
+                                if ( tRelError > tErrorLimit )
+                                {
+                                    std::cout << "tJacProductionCoefficient wall distance dof: ana = "
+                                              << tJacProductionCoefficient( iI ) << " FD = "
+                                              << tJacProductionCoefficientFD( iI ) << " rel error = "
+                                              << tRelError
+                                              << std::endl;
+                                }
+
+                                tRelError = std::abs( tJacDiffusionCoefficient( iI ) - tJacDiffusionCoefficientFD( iI ) ) / ( std::abs( tJacDiffusionCoefficientFD( iI ) ) + MORIS_REAL_EPS );
+                                if ( tRelError > tErrorLimit )
+                                {
+                                    std::cout << "tJacDiffusionCoefficientFD wall distance dof:"
+                                              << " ana = " << tJacDiffusionCoefficient( iI )
+                                              << " FD  = " << tJacDiffusionCoefficientFD( iI )
+                                              << " rel error = " << tRelError
+                                              << std::endl;
+                                }
+
+                                tRelError = std::abs( tJacProductionTerm( iI ) - tJacProductionTermFD( iI ) ) / ( std::abs( tJacProductionTermFD( iI ) ) + MORIS_REAL_EPS );
+                                if ( tRelError > tErrorLimit )
+                                {
+                                    std::cout << "tJacProductionTerm wall distance dof: ana = "
+                                              << tJacProductionTerm( iI ) << " FD = "
+                                              << tJacProductionTermFD( iI ) << " rel error = "
+                                              << tRelError
+                                              << std::endl;
+                                }
+
+                                tRelError = std::abs( tJacDestructionTerm( iI ) - tJacDestructionTermFD( iI ) ) / ( std::abs( tJacDestructionTermFD( iI ) ) + MORIS_REAL_EPS );
+                                if ( tRelError > tErrorLimit )
+                                {
+                                    std::cout << "tJacDestructionTerm wall distance dof: ana = "
+                                              << tJacDestructionTerm( iI ) << " FD = "
+                                              << tJacDestructionTermFD( iI ) << " rel error = "
+                                              << tRelError
+                                              << std::endl;
+                                }
+
+                                tRelError = std::abs( tJacDivFlux( iI ) - tJacDivFluxFD( iI ) ) / ( std::abs( tJacDivFluxFD( iI ) ) + MORIS_REAL_EPS );
+                                if ( tRelError > tErrorLimit )
+                                {
+                                    std::cout << "tJacDivFluxFD wall distance dof:"
+                                              << " ana = " << tJacDivFlux( iI )
+                                              << " FD  = " << tJacDivFluxFD( iI )
+                                              << " rel error = " << tRelError << std::endl;
+                                }
+
+                                tRelError = std::abs( tJacSUPG( iI ) - tJacSUPGFD( iI ) ) / ( std::abs( tJacSUPGFD( iI ) ) + MORIS_REAL_EPS );
+                                if ( tRelError > tErrorLimit )
+                                {
+                                    std::cout << "tJacSUPGFD wall distance dof:"
+                                              << " ana = " << tJacSUPG( iI )
+                                              << " FD  = " << tJacSUPGFD( iI )
+                                              << " rel error = " << tRelError << std::endl;
+                                }
+
+                                tRelError = std::abs( tJacStrongForm( iI ) - tJacStrongFormFD( iI ) ) / ( std::abs( tJacStrongFormFD( iI ) ) + MORIS_REAL_EPS );
+                                if ( tRelError > tErrorLimit )
+                                {
+                                    std::cout << "tJacStrongForm wall distance dof:"
+                                              << " ana = " << tJacStrongForm( iI )
+                                              << " FD  = " << tJacStrongFormFD( iI )
+                                              << " rel error = " << tRelError << std::endl;
+                                }
+                            }
+                        }
+
+                        //-------------------------------------------------------------------------------------------------------------------------
+
                         // check evaluation of the residual for IWG
                         //------------------------------------------------------------------------------
                         // reset residual
@@ -710,7 +1224,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                                 1.0,
                                 tJacobian,
                                 tJacobianFD,
-                                true );
+                                true,
+                                false );
 
                         // print for debug
                         if ( !tCheckJacobian )
@@ -782,12 +1297,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Negative",
     tPropWallDistance->set_val_function( tConstValFunc );
 
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
-    // tPropViscosity->set_parameters( { {{ 2.0 }} } );
     tPropViscosity->set_val_function( tConstValFunc );
     tPropViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
-    // tPropViscosity->set_dof_type_list( { tVisDofTypes } );
-    // tPropViscosity->set_val_function( tVISCOSITYFIValFunc );
-    // tPropViscosity->set_dof_derivative_functions( { tVISCOSITYFIDerFunc } );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
