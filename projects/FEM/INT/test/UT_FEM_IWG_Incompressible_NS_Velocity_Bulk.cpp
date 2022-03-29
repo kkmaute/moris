@@ -4,19 +4,19 @@
 #include "assert.hpp"
 
 #define protected public
-#define private   public
-//FEM//INT//src
+#define private public
+// FEM//INT//src
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IWG.hpp"
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Cluster.hpp"
 #undef protected
 #undef private
-//LINALG/src
+// LINALG/src
 #include "op_equal_equal.hpp"
-//MTK/src
+// MTK/src
 #include "cl_MTK_Enums.hpp"
-//FEM//INT//src
+// FEM//INT//src
 #include "cl_FEM_Enums.hpp"
 #include "cl_FEM_Field_Interpolator.hpp"
 #include "cl_FEM_Property.hpp"
@@ -44,17 +44,19 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_No_Turbulence",
 
     // create list of interpolation orders
     moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
-            mtk::Interpolation_Order::LINEAR,
-            mtk::Interpolation_Order::QUADRATIC,
-            mtk::Interpolation_Order::CUBIC };
+        mtk::Interpolation_Order::LINEAR,
+        mtk::Interpolation_Order::QUADRATIC,
+        mtk::Interpolation_Order::CUBIC
+    };
 
     // create list of integration orders
     moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
-            mtk::Integration_Order::QUAD_2x2,
-            mtk::Integration_Order::HEX_2x2x2 };
+        mtk::Integration_Order::QUAD_2x2,
+        mtk::Integration_Order::HEX_2x2x2
+    };
 
     // create list with number of coeffs
-    Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
+    Matrix< DDRMat > tNumCoeffs = { { 8, 18, 32 }, { 16, 54, 128 } };
 
     // dof type list
     moris::Cell< moris::Cell< MSI::Dof_Type > > tVelDofTypes  = { { MSI::Dof_Type::VX } };
@@ -66,51 +68,51 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_No_Turbulence",
     //------------------------------------------------------------------------------
     // create the properties
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
-    tPropViscosity->set_parameters( { {{ 1.0 }} } );
+    tPropViscosity->set_parameters( { { { 1.0 } } } );
     tPropViscosity->set_val_function( tConstValFunc );
-    //tPropViscosity->set_dof_type_list( { tPDofTypes } );
-    //tPropViscosity->set_val_function( tPFIValFunc );
-    //tPropViscosity->set_dof_derivative_functions( { tPFIDerFunc } );
+    // tPropViscosity->set_dof_type_list( { tPDofTypes } );
+    // tPropViscosity->set_val_function( tPFIValFunc );
+    // tPropViscosity->set_dof_derivative_functions( { tPFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropDensity = std::make_shared< fem::Property >();
-    tPropDensity->set_parameters( { {{ 2.0 }} } );
+    tPropDensity->set_parameters( { { { 2.0 } } } );
     tPropDensity->set_val_function( tConstValFunc );
-    //tPropDensity->set_dof_type_list( { tPDofTypes } );
-    //tPropDensity->set_val_function( tPFIValFunc );
-    //tPropDensity->set_dof_derivative_functions( { tPFIDerFunc } );
+    // tPropDensity->set_dof_type_list( { tPDofTypes } );
+    // tPropDensity->set_val_function( tPFIValFunc );
+    // tPropDensity->set_dof_derivative_functions( { tPFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropGravity = std::make_shared< fem::Property >();
     tPropGravity->set_val_function( tConstValFunc );
-    //tPropGravity->set_dof_type_list( { tPDofTypes } );
-    //tPropGravity->set_val_function( tPFIValFunc );
-    //tPropGravity->set_dof_derivative_functions( { tPFIDerFunc } );
+    // tPropGravity->set_dof_type_list( { tPDofTypes } );
+    // tPropGravity->set_val_function( tPFIValFunc );
+    // tPropGravity->set_dof_derivative_functions( { tPFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropThermalExp = std::make_shared< fem::Property >();
-    tPropThermalExp->set_parameters( { {{ 23.0 }} } );
+    tPropThermalExp->set_parameters( { { { 23.0 } } } );
     tPropThermalExp->set_val_function( tConstValFunc );
-    //tPropThermalExp->set_dof_type_list( { tTEMPDofTypes } );
-    //tPropThermalExp->set_val_function( tTEMPFIValFunc );
-    //tPropThermalExp->set_dof_derivative_functions( { tTEMPFIDerFunc } );
+    // tPropThermalExp->set_dof_type_list( { tTEMPDofTypes } );
+    // tPropThermalExp->set_val_function( tTEMPFIValFunc );
+    // tPropThermalExp->set_dof_derivative_functions( { tTEMPFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropRefTemp = std::make_shared< fem::Property >();
-    tPropRefTemp->set_parameters( { {{ 15.0 }} } );
+    tPropRefTemp->set_parameters( { { { 15.0 } } } );
     tPropRefTemp->set_val_function( tConstValFunc );
-    //tPropRefTemp->set_dof_type_list( { tTEMPDofTypes } );
-    //tPropRefTemp->set_val_function( tTEMPFIValFunc );
-    //tPropRefTemp->set_dof_derivative_functions( { tTEMPFIDerFunc } );
+    // tPropRefTemp->set_dof_type_list( { tTEMPDofTypes } );
+    // tPropRefTemp->set_val_function( tTEMPFIValFunc );
+    // tPropRefTemp->set_dof_derivative_functions( { tTEMPFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropMassSource = std::make_shared< fem::Property >();
-    tPropMassSource->set_parameters( { {{ 3.5 }} } );
+    tPropMassSource->set_parameters( { { { 3.5 } } } );
     tPropMassSource->set_val_function( tConstValFunc );
-    //tPropMassSource->set_dof_type_list( { tTEMPDofTypes } );
-    //tPropMassSource->set_val_function( tTEMPFIValFunc );
-    //tPropMassSource->set_dof_derivative_functions( { tTEMPFIDerFunc } );
+    // tPropMassSource->set_dof_type_list( { tTEMPDofTypes } );
+    // tPropMassSource->set_val_function( tTEMPFIValFunc );
+    // tPropMassSource->set_dof_derivative_functions( { tTEMPFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropBodyLoad = std::make_shared< fem::Property >();
     tPropBodyLoad->set_val_function( tConstValFunc );
-    //tPropMassSource->set_dof_type_list( { tTEMPDofTypes } );
-    //tPropMassSource->set_val_function( tTEMPFIValFunc );
-    //tPropMassSource->set_dof_derivative_functions( { tTEMPFIDerFunc } );
+    // tPropMassSource->set_dof_type_list( { tTEMPDofTypes } );
+    // tPropMassSource->set_val_function( tTEMPFIValFunc );
+    // tPropMassSource->set_dof_derivative_functions( { tTEMPFIDerFunc } );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
@@ -130,10 +132,10 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_No_Turbulence",
     tSPIncFlow->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ) }, mtk::Master_Slave::MASTER );
     tSPIncFlow->set_property( tPropDensity, "Density", mtk::Master_Slave::MASTER );
     tSPIncFlow->set_property( tPropViscosity, "Viscosity", mtk::Master_Slave::MASTER );
-    tSPIncFlow->set_parameters( { {{ 36.0 }} } );
+    tSPIncFlow->set_parameters( { { { 36.0 } } } );
 
     // create a dummy fem cluster and set it to SP
-    fem::Cluster * tCluster = new fem::Cluster();
+    fem::Cluster* tCluster = new fem::Cluster();
     tSPIncFlow->set_cluster( tCluster );
 
     // define the IWGs
@@ -143,19 +145,19 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_No_Turbulence",
             tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK );
     tIWG->set_residual_dof_type( tVelDofTypes );
     tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
-    tIWG->set_property( tPropGravity,        "Gravity" );
-    tIWG->set_property( tPropThermalExp,     "ThermalExpansion" );
-    tIWG->set_property( tPropRefTemp,        "ReferenceTemp" );
-    tIWG->set_property( tPropMassSource,     "MassSource" );
-    tIWG->set_property( tPropBodyLoad,       "Load" );
+    tIWG->set_property( tPropGravity, "Gravity" );
+    tIWG->set_property( tPropThermalExp, "ThermalExpansion" );
+    tIWG->set_property( tPropRefTemp, "ReferenceTemp" );
+    tIWG->set_property( tPropMassSource, "MassSource" );
+    tIWG->set_property( tPropBodyLoad, "Load" );
     tIWG->set_constitutive_model( tCMMasterIncFluid, "IncompressibleFluid" );
     tIWG->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
 
     // init set info
     //------------------------------------------------------------------------------
     // set a fem set pointer
-    MSI::Equation_Set * tSet = new fem::Set();
-    static_cast<fem::Set*>(tSet)->set_set_type( fem::Element_Type::BULK );
+    MSI::Equation_Set* tSet = new fem::Set();
+    static_cast< fem::Set* >( tSet )->set_set_type( fem::Element_Type::BULK );
     tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
@@ -163,41 +165,41 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_No_Turbulence",
 
     // set size and populate the set dof type map
     tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
-    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
-    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )      = 2;
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )   = 0;
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )    = 1;
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 2;
 
     // set size and populate the set master dof type map
     tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )      = 2;
+    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )   = 0;
+    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )    = 1;
+    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 2;
 
     // loop on the space dimension
-    for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
+    for ( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
     {
         // set geometry inputs
         //------------------------------------------------------------------------------
         // switch on space dimension
-        switch( iSpaceDim )
+        switch ( iSpaceDim )
         {
-            case 2 :
+            case 2:
             {
                 // set momentum source term
-                tPropBodyLoad->set_parameters( { { { 0.5},{ 0.35 } } } );
+                tPropBodyLoad->set_parameters( { { { 0.5 }, { 0.35 } } } );
 
 
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::QUAD;
 
-               // set velocity dof types
-               tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } };
-               break;
+                // set velocity dof types
+                tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } };
+                break;
             }
-            case 3 :
+            case 3:
             {
                 // set momentum source term
-                tPropBodyLoad->set_parameters( { { { 0.5},{ 0.35 },{ 0.42 } } } );
+                tPropBodyLoad->set_parameters( { { { 0.5 }, { 0.35 }, { 0.42 } } } );
 
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::HEX;
@@ -221,7 +223,7 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_No_Turbulence",
         tSPIncFlow->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
-        for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
+        for ( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
         {
             // create an interpolation order
             mtk::Interpolation_Order tGIInterpolationOrder = tInterpolationOrders( iInterpOrder - 1 );
@@ -239,7 +241,7 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_No_Turbulence",
             Geometry_Interpolator tGI = Geometry_Interpolator( tGIRule );
 
             // create time coeff tHat
-            Matrix< DDRMat > tTHat = {{ 0.0 }, { 1.0 }};
+            Matrix< DDRMat > tTHat = { { 0.0 }, { 1.0 } };
 
             Matrix< DDRMat > tXHat;
             fill_xhat( tXHat, iSpaceDim, iInterpOrder );
@@ -281,18 +283,20 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_No_Turbulence",
             int tNumDofP    = tNumCoeff;
             int tNumDofTEMP = tNumCoeff;
 
-            //create a space time interpolation rule
-            mtk::Interpolation_Rule tFIRule ( tGeometryType,
-                                         mtk::Interpolation_Type::LAGRANGE,
-                                         tInterpolationOrder,
-                                         mtk::Interpolation_Type::LAGRANGE,
-                                         mtk::Interpolation_Order::LINEAR );
+            // create a space time interpolation rule
+            mtk::Interpolation_Rule tFIRule( tGeometryType,
+                    mtk::Interpolation_Type::LAGRANGE,
+                    tInterpolationOrder,
+                    mtk::Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Order::LINEAR );
 
             // fill coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatVel;;
+            Matrix< DDRMat > tMasterDOFHatVel;
             fill_uhat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
+
             Matrix< DDRMat > tMasterDOFHatP;
             fill_phat( tMasterDOFHatP, iSpaceDim, iInterpOrder );
+
             Matrix< DDRMat > tMasterDOFHatTEMP;
             fill_phat( tMasterDOFHatTEMP, iSpaceDim, iInterpOrder );
 
@@ -313,15 +317,17 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_No_Turbulence",
 
             // set size and fill the set residual assembly map
             tIWG->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
-            tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofVel-1 } };
+            tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofVel - 1 } };
             tIWG->mSet->mResDofAssemblyMap( 1 ) = { { tNumDofVel, tNumDofVel + tNumDofP - 1 } };
             tIWG->mSet->mResDofAssemblyMap( 2 ) = { { tNumDofVel + tNumDofP, tNumDofVel + tNumDofP + tNumDofTEMP - 1 } };
 
             // set size and fill the set jacobian assembly map
             Matrix< DDSMat > tJacAssembly = {
-                    { 0, tNumDofVel - 1 },
-                    { tNumDofVel, tNumDofVel + tNumDofP - 1 },
-                    { tNumDofVel + tNumDofP, tNumDofVel + tNumDofP + tNumDofTEMP - 1 } };
+                { 0, tNumDofVel - 1 },
+                { tNumDofVel, tNumDofVel + tNumDofP - 1 },
+                { tNumDofVel + tNumDofP, tNumDofVel + tNumDofP + tNumDofTEMP - 1 }
+            };
+
             tIWG->mSet->mJacDofAssemblyMap.resize( tDofTypes.size() );
             tIWG->mSet->mJacDofAssemblyMap( 0 ) = tJacAssembly;
             tIWG->mSet->mJacDofAssemblyMap( 1 ) = tJacAssembly;
@@ -345,12 +351,12 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_No_Turbulence",
             tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
+            moris::Cell< moris::Cell< enum PDV_Type > >        tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
-            Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tFIManager.mFI = tMasterFIs;
+            tFIManager.mFI                     = tMasterFIs;
             tFIManager.mIPGeometryInterpolator = &tGI;
             tFIManager.mIGGeometryInterpolator = &tGI;
 
@@ -362,7 +368,7 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_No_Turbulence",
 
             // loop iver integration points
             uint tNumGPs = tIntegPoints.n_cols();
-            for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
+            for ( uint iGP = 0; iGP < tNumGPs; iGP++ )
             {
                 // reset IWG evaluation flags
                 tIWG->reset_eval_flags();
@@ -400,9 +406,9 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_No_Turbulence",
                         true );
 
                 // print for debug
-                if( !tCheckJacobian )
+                if ( !tCheckJacobian )
                 {
-                    std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<"iGP "<<iGP<<std::endl;
+                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << "iGP " << iGP << std::endl;
                 }
 
                 // require check is true
@@ -413,7 +419,7 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_No_Turbulence",
             tMasterFIs.clear();
         }
     }
-}/*END_TEST_CASE*/
+} /*END_TEST_CASE*/
 
 TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_With_Turbulence",
         "[IWG_Incompressible_NS_Velocity_Bulk_With_Turbulence]" )
@@ -432,25 +438,27 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_With_Turbulence",
 
     // create list of interpolation orders
     moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
-            mtk::Interpolation_Order::LINEAR,
-            mtk::Interpolation_Order::QUADRATIC,
-            mtk::Interpolation_Order::CUBIC };
+        mtk::Interpolation_Order::LINEAR,
+        mtk::Interpolation_Order::QUADRATIC,
+        mtk::Interpolation_Order::CUBIC
+    };
 
     // create list of integration orders
     moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
-            mtk::Integration_Order::QUAD_2x2,
-            mtk::Integration_Order::HEX_2x2x2 };
+        mtk::Integration_Order::QUAD_2x2,
+        mtk::Integration_Order::HEX_2x2x2
+    };
 
     // create list with number of coeffs
-    Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
+    Matrix< DDRMat > tNumCoeffs = { { 8, 18, 32 }, { 16, 54, 128 } };
 
     // dof type list
     moris::Cell< MSI::Dof_Type > tVisDofTypes  = { MSI::Dof_Type::VISCOSITY };
     moris::Cell< MSI::Dof_Type > tTEMPDofTypes = { MSI::Dof_Type::TEMP };
 
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tVelDofTypes  = { { MSI::Dof_Type::VX } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tPDofTypes    = { { MSI::Dof_Type::P } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes     = { tVelDofTypes( 0 ), tPDofTypes( 0 ), tTEMPDofTypes, tVisDofTypes };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tVelDofTypes = { { MSI::Dof_Type::VX } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tPDofTypes   = { { MSI::Dof_Type::P } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes    = { tVelDofTypes( 0 ), tPDofTypes( 0 ), tTEMPDofTypes, tVisDofTypes };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -458,53 +466,53 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_With_Turbulence",
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
     tPropViscosity->set_val_function( tConstValFunc );
     tPropViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
-    //tPropViscosity->set_dof_type_list( { tPDofTypes } );
-    //tPropViscosity->set_val_function( tPFIValFunc );
-    //tPropViscosity->set_dof_derivative_functions( { tPFIDerFunc } );
+    // tPropViscosity->set_dof_type_list( { tPDofTypes } );
+    // tPropViscosity->set_val_function( tPFIValFunc );
+    // tPropViscosity->set_dof_derivative_functions( { tPFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropKinViscosity = std::make_shared< fem::Property >();
     tPropKinViscosity->set_val_function( tConstValFunc );
     tPropKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
     std::shared_ptr< fem::Property > tPropDensity = std::make_shared< fem::Property >();
-    tPropDensity->set_parameters( { {{ 2.0 }} } );
+    tPropDensity->set_parameters( { { { 2.0 } } } );
     tPropDensity->set_val_function( tConstValFunc );
-    //tPropDensity->set_dof_type_list( { tPDofTypes } );
-    //tPropDensity->set_val_function( tPFIValFunc );
-    //tPropDensity->set_dof_derivative_functions( { tPFIDerFunc } );
+    // tPropDensity->set_dof_type_list( { tPDofTypes } );
+    // tPropDensity->set_val_function( tPFIValFunc );
+    // tPropDensity->set_dof_derivative_functions( { tPFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropGravity = std::make_shared< fem::Property >();
     tPropGravity->set_val_function( tConstValFunc );
-    //tPropGravity->set_dof_type_list( { tPDofTypes } );
-    //tPropGravity->set_val_function( tPFIValFunc );
-    //tPropGravity->set_dof_derivative_functions( { tPFIDerFunc } );
+    // tPropGravity->set_dof_type_list( { tPDofTypes } );
+    // tPropGravity->set_val_function( tPFIValFunc );
+    // tPropGravity->set_dof_derivative_functions( { tPFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropThermalExp = std::make_shared< fem::Property >();
-    tPropThermalExp->set_parameters( { {{ 23.0 }} } );
+    tPropThermalExp->set_parameters( { { { 23.0 } } } );
     tPropThermalExp->set_val_function( tConstValFunc );
-    //tPropThermalExp->set_dof_type_list( { tTEMPDofTypes } );
-    //tPropThermalExp->set_val_function( tTEMPFIValFunc );
-    //tPropThermalExp->set_dof_derivative_functions( { tTEMPFIDerFunc } );
+    // tPropThermalExp->set_dof_type_list( { tTEMPDofTypes } );
+    // tPropThermalExp->set_val_function( tTEMPFIValFunc );
+    // tPropThermalExp->set_dof_derivative_functions( { tTEMPFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropRefTemp = std::make_shared< fem::Property >();
-    tPropRefTemp->set_parameters( { {{ 15.0 }} } );
+    tPropRefTemp->set_parameters( { { { 15.0 } } } );
     tPropRefTemp->set_val_function( tConstValFunc );
-    //tPropRefTemp->set_dof_type_list( { tTEMPDofTypes } );
-    //tPropRefTemp->set_val_function( tTEMPFIValFunc );
-    //tPropRefTemp->set_dof_derivative_functions( { tTEMPFIDerFunc } );
+    // tPropRefTemp->set_dof_type_list( { tTEMPDofTypes } );
+    // tPropRefTemp->set_val_function( tTEMPFIValFunc );
+    // tPropRefTemp->set_dof_derivative_functions( { tTEMPFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropMassSource = std::make_shared< fem::Property >();
-    tPropMassSource->set_parameters( { {{ 3.5 }} } );
+    tPropMassSource->set_parameters( { { { 3.5 } } } );
     tPropMassSource->set_val_function( tConstValFunc );
-    //tPropMassSource->set_dof_type_list( { tTEMPDofTypes } );
-    //tPropMassSource->set_val_function( tTEMPFIValFunc );
-    //tPropMassSource->set_dof_derivative_functions( { tTEMPFIDerFunc } );
+    // tPropMassSource->set_dof_type_list( { tTEMPDofTypes } );
+    // tPropMassSource->set_val_function( tTEMPFIValFunc );
+    // tPropMassSource->set_dof_derivative_functions( { tTEMPFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropBodyLoad = std::make_shared< fem::Property >();
     tPropBodyLoad->set_val_function( tConstValFunc );
-    //tPropMassSource->set_dof_type_list( { tTEMPDofTypes } );
-    //tPropMassSource->set_val_function( tTEMPFIValFunc );
-    //tPropMassSource->set_dof_derivative_functions( { tTEMPFIDerFunc } );
+    // tPropMassSource->set_dof_type_list( { tTEMPDofTypes } );
+    // tPropMassSource->set_val_function( tTEMPFIValFunc );
+    // tPropMassSource->set_dof_derivative_functions( { tTEMPFIDerFunc } );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
@@ -525,10 +533,10 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_With_Turbulence",
     tSPIncFlow->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ) }, mtk::Master_Slave::MASTER );
     tSPIncFlow->set_property( tPropDensity, "Density", mtk::Master_Slave::MASTER );
     tSPIncFlow->set_property( tPropViscosity, "Viscosity", mtk::Master_Slave::MASTER );
-    tSPIncFlow->set_parameters( { {{ 36.0 }} } );
+    tSPIncFlow->set_parameters( { { { 36.0 } } } );
 
     // create a dummy fem cluster and set it to SP
-    fem::Cluster * tCluster = new fem::Cluster();
+    fem::Cluster* tCluster = new fem::Cluster();
     tSPIncFlow->set_cluster( tCluster );
 
     // define the IWGs
@@ -538,19 +546,19 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_With_Turbulence",
             tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK );
     tIWG->set_residual_dof_type( tVelDofTypes );
     tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
-    tIWG->set_property( tPropGravity,        "Gravity" );
-    tIWG->set_property( tPropThermalExp,     "ThermalExpansion" );
-    tIWG->set_property( tPropRefTemp,        "ReferenceTemp" );
-    tIWG->set_property( tPropMassSource,     "MassSource" );
-    tIWG->set_property( tPropBodyLoad,       "Load" );
+    tIWG->set_property( tPropGravity, "Gravity" );
+    tIWG->set_property( tPropThermalExp, "ThermalExpansion" );
+    tIWG->set_property( tPropRefTemp, "ReferenceTemp" );
+    tIWG->set_property( tPropMassSource, "MassSource" );
+    tIWG->set_property( tPropBodyLoad, "Load" );
     tIWG->set_constitutive_model( tCMMasterTurbulence, "IncompressibleFluid" );
     tIWG->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
 
     // init set info
     //------------------------------------------------------------------------------
     // set a fem set pointer
-    MSI::Equation_Set * tSet = new fem::Set();
-    static_cast<fem::Set*>(tSet)->set_set_type( fem::Element_Type::BULK );
+    MSI::Equation_Set* tSet = new fem::Set();
+    static_cast< fem::Set* >( tSet )->set_set_type( fem::Element_Type::BULK );
     tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
@@ -571,44 +579,44 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_With_Turbulence",
     tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 3;
 
     // loop on the space dimension
-    for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
+    for ( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
     {
         // set geometry inputs
         //------------------------------------------------------------------------------
         // switch on space dimension
-        switch( iSpaceDim )
+        switch ( iSpaceDim )
         {
-            case 2 :
+            case 2:
             {
                 // set momentum source term
-                tPropBodyLoad->set_parameters( { { { 0.5 },{ 0.35 } } } );
+                tPropBodyLoad->set_parameters( { { { 0.5 }, { 0.35 } } } );
 
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::QUAD;
 
-               // set velocity dof types
-               tVelDofTypes = {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }};
+                // set velocity dof types
+                tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } };
 
-               // set viscosity property parameters
-               tPropKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
-               tPropViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
+                // set viscosity property parameters
+                tPropKinViscosity->set_parameters( { { { 1.0 } }, { { 0.0 }, { 0.0 } } } );
+                tPropViscosity->set_parameters( { { { 1.0 } }, { { 0.0 }, { 0.0 } } } );
 
-               break;
+                break;
             }
-            case 3 :
+            case 3:
             {
                 // set momentum source term
-                tPropBodyLoad->set_parameters( { { { 0.5 },{ 0.35 },{ 0.42 } } } );
+                tPropBodyLoad->set_parameters( { { { 0.5 }, { 0.35 }, { 0.42 } } } );
 
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::HEX;
 
                 // set velocity dof types
-                tVelDofTypes = {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }};
+                tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } };
 
                 // set viscosity property parameters
-                tPropKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
-                tPropViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
+                tPropKinViscosity->set_parameters( { { { 1.0 } }, { { 0.0 }, { 0.0 }, { 0.0 } } } );
+                tPropViscosity->set_parameters( { { { 1.0 } }, { { 0.0 }, { 0.0 }, { 0.0 } } } );
 
                 break;
             }
@@ -627,7 +635,7 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_With_Turbulence",
         tSPIncFlow->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
-        for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
+        for ( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
         {
             // create an interpolation order
             mtk::Interpolation_Order tGIInterpolationOrder = tInterpolationOrders( iInterpOrder - 1 );
@@ -645,7 +653,7 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_With_Turbulence",
             Geometry_Interpolator tGI = Geometry_Interpolator( tGIRule );
 
             // create time coeff tHat
-            Matrix< DDRMat > tTHat = {{ 0.0 }, { 1.0 }};
+            Matrix< DDRMat > tTHat = { { 0.0 }, { 1.0 } };
 
             Matrix< DDRMat > tXHat;
             fill_xhat( tXHat, iSpaceDim, iInterpOrder );
@@ -688,20 +696,23 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_With_Turbulence",
             int tNumDofTEMP = tNumCoeff;
             int tNumDofVis  = tNumCoeff;
 
-            //create a space time interpolation rule
-            mtk::Interpolation_Rule tFIRule ( tGeometryType,
-                                         mtk::Interpolation_Type::LAGRANGE,
-                                         tInterpolationOrder,
-                                         mtk::Interpolation_Type::LAGRANGE,
-                                         mtk::Interpolation_Order::LINEAR );
+            // create a space time interpolation rule
+            mtk::Interpolation_Rule tFIRule( tGeometryType,
+                    mtk::Interpolation_Type::LAGRANGE,
+                    tInterpolationOrder,
+                    mtk::Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Order::LINEAR );
 
             // fill coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatVel;;
+            Matrix< DDRMat > tMasterDOFHatVel;
             fill_uhat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
+
             Matrix< DDRMat > tMasterDOFHatP;
             fill_phat( tMasterDOFHatP, iSpaceDim, iInterpOrder );
+
             Matrix< DDRMat > tMasterDOFHatTEMP;
             fill_phat( tMasterDOFHatTEMP, iSpaceDim, iInterpOrder );
+
             Matrix< DDRMat > tMasterDOFHatVis;
             fill_phat( tMasterDOFHatVis, iSpaceDim, iInterpOrder );
 
@@ -726,17 +737,19 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_With_Turbulence",
 
             // set size and fill the set residual assembly map
             tIWG->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
-            tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofVel-1 } };
+            tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofVel - 1 } };
             tIWG->mSet->mResDofAssemblyMap( 1 ) = { { tNumDofVel, tNumDofVel + tNumDofP - 1 } };
             tIWG->mSet->mResDofAssemblyMap( 2 ) = { { tNumDofVel + tNumDofP, tNumDofVel + tNumDofP + tNumDofTEMP - 1 } };
             tIWG->mSet->mResDofAssemblyMap( 3 ) = { { tNumDofVel + tNumDofP + tNumDofTEMP, tNumDofVel + tNumDofP + tNumDofTEMP + tNumDofVis - 1 } };
 
             // set size and fill the set jacobian assembly map
             Matrix< DDSMat > tJacAssembly = {
-                    { 0, tNumDofVel - 1 },
-                    { tNumDofVel, tNumDofVel + tNumDofP - 1 },
-                    { tNumDofVel + tNumDofP, tNumDofVel + tNumDofP + tNumDofTEMP - 1 },
-                    { tNumDofVel + tNumDofP + tNumDofTEMP, tNumDofVel + tNumDofP + tNumDofTEMP + tNumDofVis - 1 } };
+                { 0, tNumDofVel - 1 },
+                { tNumDofVel, tNumDofVel + tNumDofP - 1 },
+                { tNumDofVel + tNumDofP, tNumDofVel + tNumDofP + tNumDofTEMP - 1 },
+                { tNumDofVel + tNumDofP + tNumDofTEMP, tNumDofVel + tNumDofP + tNumDofTEMP + tNumDofVis - 1 }
+            };
+
             tIWG->mSet->mJacDofAssemblyMap.resize( tDofTypes.size() );
             tIWG->mSet->mJacDofAssemblyMap( 0 ) = tJacAssembly;
             tIWG->mSet->mJacDofAssemblyMap( 1 ) = tJacAssembly;
@@ -761,12 +774,12 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_With_Turbulence",
             tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
+            moris::Cell< moris::Cell< enum PDV_Type > >        tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
-            Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tFIManager.mFI = tMasterFIs;
+            tFIManager.mFI                     = tMasterFIs;
             tFIManager.mIPGeometryInterpolator = &tGI;
             tFIManager.mIGGeometryInterpolator = &tGI;
 
@@ -778,7 +791,7 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_With_Turbulence",
 
             // loop iver integration points
             uint tNumGPs = tIntegPoints.n_cols();
-            for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
+            for ( uint iGP = 0; iGP < tNumGPs; iGP++ )
             {
                 // reset IWG evaluation flags
                 tIWG->reset_eval_flags();
@@ -816,9 +829,9 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_With_Turbulence",
                         true );
 
                 // print for debug
-                if( !tCheckJacobian )
+                if ( !tCheckJacobian )
                 {
-                    std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<"iGP "<<iGP<<std::endl;
+                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << "iGP " << iGP << std::endl;
                 }
 
                 // require check is true
@@ -829,4 +842,4 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_With_Turbulence",
             tMasterFIs.clear();
         }
     }
-}/*END_TEST_CASE*/
+} /*END_TEST_CASE*/
