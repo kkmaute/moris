@@ -2300,9 +2300,6 @@ namespace xtk
                 // get the T-matrix of the current IP node wrt the current B-spline mesh
                 moris::Cell< mtk::Vertex_Interpolation* > tVertexInterpolations = this->get_vertex_interpolations( *tIpCell, tMeshIndex );
 
-                // get the number of SPGs that are present in the associated B-spline element
-                uint tNumSpgsAssociatedWithIpCell = mBsplineMeshInfos( iBspMesh )->get_num_SPGs_associated_with_extraction_cell( iIpCell );
-
                 // get max number of enr IP cells associated with the current IP cell
                 uint tMaxNumUnzippings = mNumUnzippingsOnIpCell( iIpCell );
 

@@ -40,7 +40,7 @@ Enriched_Integration_Mesh::Enriched_Integration_Mesh( Model* aXTKModel )
     Tracer tTracer( "XTK", "Enriched Integration Mesh", "Construction", mModel->mVerboseLevel, 0  );
 
     // standard assumption: Enr. IG Mesh is associated with first B-spline mesh
-    mMeshIndexInModel = 0;
+    mBsplineMeshIndices = {{0}};
 
     this->setup_cell_clusters();
     this->setup_blockset_with_cell_clusters();
@@ -65,24 +65,25 @@ Enriched_Integration_Mesh::Enriched_Integration_Mesh( Model* aXTKModel )
 //------------------------------------------------------------------------------
 
 Enriched_Integration_Mesh::Enriched_Integration_Mesh( 
-        Model*              aXTKModel,
-        moris::moris_index  aInterpIndex )
+        Model*                   aXTKModel,
+        const Matrix< IndexMat > aBsplineMeshIndices )
         : mModel( aXTKModel )
         , mCutIgMesh( mModel->get_cut_integration_mesh() )
-        , mMeshIndexInModel( aInterpIndex )
         , mCellClusters( 0, nullptr )
         , mFields( 0 )
         , mFieldLabelToIndex( 2 )
         , mCellInfo( nullptr )
-        //, mBsplineMeshInfo( aBsplineMeshInfo )
 {
     // log/trace this function
     Tracer tTracer( "XTK", "Enriched Integration Mesh", "SPG Based Construction", mModel->mVerboseLevel, 0  );
 
-    // MORIS_ERROR( false, "Enriched_Integration_Mesh() - Initialization for SPG based enrichment not fully implemented yet." ); 
+    // copy list of mesh indices
+    mBsplineMeshIndices = aBsplineMeshIndices;
 
     // TODO: this function needs significant changeing, more later ...
     this->setup_cell_clusters_new();
+
+    MORIS_ERROR( false, "Enriched_Integration_Mesh() - Initialization for SPG based enrichment not fully implemented yet." );
     
     // TODO: need to figure out if blocksets can be commited without extra void cells ...
     this->setup_blockset_with_cell_clusters();
@@ -780,7 +781,7 @@ Enriched_Integration_Mesh::create_basis_support_fields( moris::Matrix< moris::DD
     moris::mtk::Interpolation_Mesh &tMeshData = mModel->get_background_mesh();
 
     // get the enriched interpolation mesh
-    Enriched_Interpolation_Mesh *tEnrInterpMesh = mModel->mEnrichedInterpMesh( mMeshIndexInModel );
+    Enriched_Interpolation_Mesh *tEnrInterpMesh = mModel->mEnrichedInterpMesh( 0 );
 
     // base string of field
     std::string tBaseStr = "weights";
@@ -2238,10 +2239,10 @@ void
 Enriched_Integration_Mesh::setup_cell_clusters()
 {
     // trace/log this function
-    Tracer tTracer( "XTK", "Enriched Integration Mesh", "setup_cell_clusters" ,mModel->mVerboseLevel, 1  );
+    Tracer tTracer( "XTK", "Enriched Integration Mesh", "setup_cell_clusters", mModel->mVerboseLevel, 1  );
 
     // get pointer to enr. IP mesh
-    Enriched_Interpolation_Mesh *tEnrInterpMesh = mModel->mEnrichedInterpMesh( mMeshIndexInModel );
+    Enriched_Interpolation_Mesh* tEnrInterpMesh = mModel->mEnrichedInterpMesh( 0 );
 
     // Number of interpolation cells
     moris::uint tNumInterpCells = tEnrInterpMesh->get_num_entities( EntityRank::ELEMENT );
@@ -2324,22 +2325,16 @@ void
 Enriched_Integration_Mesh::setup_cell_clusters_new()
 {
     // trace/log this function
-    Tracer tTracer( "XTK", "Enriched Integration Mesh", "setup_cell_clusters" ,mModel->mVerboseLevel, 1  );
+    Tracer tTracer( "XTK", "Enriched Integration Mesh", "setup_cell_clusters", mModel->mVerboseLevel, 1 );
 
     // get pointer to the enrichment
     Enrichment const* tEnrichment = mModel->mEnrichment;
-
-    // get pointer to Bspline mesh info
-    Bspline_Mesh_Info const* tBsplineMeshInfo = tEnrichment->get_bspline_mesh_info_for_list_index( mMeshIndexInModel );
-    
-    // get the IP-SPG-SP relationship
-    moris::Cell< moris::Cell< moris::Cell< moris_index > > > const& tExtractionCellToSubPhase = tBsplineMeshInfo->mExtractionCellToSubPhase;
 
     // get number of base IP cells
     uint tNumBaseIpCells = mModel->mBackgroundMesh->get_num_elems();
 
     // get pointer to enr. IP mesh
-    Enriched_Interpolation_Mesh* tEnrInterpMesh = mModel->mEnrichedInterpMesh( mMeshIndexInModel );
+    Enriched_Interpolation_Mesh* tEnrInterpMesh = mModel->mEnrichedInterpMesh( 0 );
 
     // Number of interpolation cells
     moris::uint tNumEnrInterpCells = tEnrInterpMesh->get_num_entities( EntityRank::ELEMENT );
@@ -2348,14 +2343,14 @@ Enriched_Integration_Mesh::setup_cell_clusters_new()
     MORIS_ASSERT( tEnrichment->get_num_enr_ip_cells() == tNumEnrInterpCells, 
         "Enriched_Integration_Mesh::setup_cell_clusters_new() - Enrichment and enriched IP mesh report different number of enr. IP cells" );
 
-    // allocate cell cluster member data
-    mCellClusters.resize( tNumEnrInterpCells, nullptr );
+    // allocate memory for cell cluster member data
+    mCellClusters.resize( tNumEnrInterpCells );
 
-    // Allocate subphase index to cluster index
+    // Allocate memory for subphase index to cluster index map
     moris::Cell< moris_index > tEmptyIndexList( 0 );
-    mClusterIndexToSubphaseIndices.resize( tNumEnrInterpCells );
+    mClusterIndexToSubphaseIndices.resize( tNumEnrInterpCells ); // FIXME: this map doesn't work yet
 
-    // reference the enriched cells
+    // reference the enriched IP cells
     Cell< Interpolation_Cell_Unzipped* > const& tEnrichedInterpCells = tEnrInterpMesh->get_enriched_interpolation_cells();
 
     // loop over all base IP cells
@@ -2365,7 +2360,8 @@ Enriched_Integration_Mesh::setup_cell_clusters_new()
         moris_index tIpCellIndex = (moris_index) iIpCell;
 
         // get the number of SPGs associated with the current IP cell
-        uint tNumSPGsOnIpCell = tBsplineMeshInfo->get_num_SPGs_associated_with_extraction_cell( tIpCellIndex );
+        moris::Cell< moris_index > const& tSPsOnCell = mCutIgMesh->get_parent_cell_subphases( tIpCellIndex );
+        uint tNumSPsOnCell = tSPsOnCell.size();
 
         // check if the IP cell gets cut
         bool tAllClustersOnCellTrivial = !mCutIgMesh->parent_cell_has_children( tIpCellIndex );
@@ -2385,141 +2381,85 @@ Enriched_Integration_Mesh::setup_cell_clusters_new()
             // check if the clusters associated with the current IP cell are generally trivial
             mCellClusters( tEnrIpCellIndex )->mTrivial = tAllClustersOnCellTrivial;
 
-            // check if the Cluster is invalid 
-            // (i.e. if there is no SPG associated with the current cluster, and it only exists bc. there's another B-Spline mesh with more SPGs on the same IP cell)
-            if( iEnrIpCellOnBaseIpCell >= tNumSPGsOnIpCell )
+            // check if the cluster is void, i.e. if the cluster corresponds to one of the SPs on the IP cell
+            if( iEnrIpCellOnBaseIpCell < tNumSPsOnCell ) // material cluster
             {
-                mCellClusters( tEnrIpCellIndex )->mInvalid = true;
+                mCellClusters( tEnrIpCellIndex )->mVoid = false;
+                
+                // material cluster is only trivial if it is the only suphase on base IP cell, i.e. there are no triangulated child cells
+                mCellClusters( tEnrIpCellIndex )->mTrivial = tAllClustersOnCellTrivial;
             }
-            else // if the cluster is invalid, skip the next couple steps
+            else // void clusters
             {
-                // get list of SPs on current cluster
-                moris::Cell< moris_index > const& tSPsInCluster = tExtractionCellToSubPhase( iIpCell )( iEnrIpCellOnBaseIpCell );
+                mCellClusters( tEnrIpCellIndex )->mVoid = true;
+                
+                // all void clusters are trivial
+                mCellClusters( tEnrIpCellIndex )->mTrivial = true;
+            }
 
-                // get the number of SPs in cluster
-                uint tNumPrimarySPsInCluster = tSPsInCluster.size();
+            // Cluster is trivial (integration domain is single quadrilateral cell which is either void or full)
+            if( mCellClusters( tEnrIpCellIndex )->mTrivial )
+            {
+                // get the base cell 
+                moris::mtk::Cell const* tBaseCell = mCellClusters( tEnrIpCellIndex )->mInterpolationCell->get_base_cell();
+                
+                // get the parametric coordinates of the vertices and store them in the cluster
+                tBaseCell->get_cell_info()->get_loc_coords_of_cell( mCellClusters( tEnrIpCellIndex )->mLocalCoords );
 
-                // check if the cluster is void, i.e. it doesn't have any SPs on it, Void clusters are also always trivial
-                if( tNumPrimarySPsInCluster == 0 )
+                // get the indices of the vertices associated with the IP cell
+                Matrix< IndexMat > tVertexIndices = tBaseCell->get_vertex_inds();
+
+                // find the mtk::cells with the indices and store them in the cluster
+                mCellClusters( tEnrIpCellIndex )->mVerticesInCluster = this->get_mtk_vertices_loc_inds( tVertexIndices );
+
+                // store base cell as primary or void integration cell on cluster
+                if( mCellClusters( tEnrIpCellIndex )->mVoid ) // cluster is void
                 {
-                    mCellClusters( tEnrIpCellIndex )->mVoid = true;
-                    mCellClusters( tEnrIpCellIndex )->mTrivial = true;
+                    mCellClusters( tEnrIpCellIndex )->mVoidIntegrationCells.push_back( tBaseCell );
+                } 
+                else // cluster is full
+                {
+                    mCellClusters( tEnrIpCellIndex )->mPrimaryIntegrationCells.push_back( tBaseCell );
+
+                    // sanitiy check for this case
+                    MORIS_ASSERT( mCellClusters( tEnrIpCellIndex )->is_full(), 
+                        "Enriched_Integration_Mesh::setup_cell_clusters_new() - cluster is trivial and non-void, but not recognized as full" );
                 }
-                else
+            }
+            else // Cluster is non-trivial and has TRIs/TETs
+            {
+                // get the group of all IG mesh vertices on the current IP cell
+                std::shared_ptr< IG_Vertex_Group > tVertexGroupForCluster = 
+                    mCutIgMesh->get_vertex_group( mCutIgMesh->get_parent_cell_group_index( tIpCellIndex ) );
+
+                // store the IG vertices on the cluster
+                mCellClusters( tEnrIpCellIndex )->set_ig_vertex_group( tVertexGroupForCluster );
+
+                // initialize list of void IG cell groups
+                moris::Cell< std::shared_ptr< IG_Cell_Group > > tVoidSubphases;
+                tVoidSubphases.reserve( tNumSPsOnCell - 1 );
+
+                // get the only SP index on cluster
+                moris_index tPrimarySpIndex = tSPsOnCell( iEnrIpCellOnBaseIpCell );
+
+                // get the  IG cell group in the cluster
+                std::shared_ptr< IG_Cell_Group > tIgCellGroupsInCluster = mCutIgMesh->get_subphase_ig_cells( tPrimarySpIndex );
+
+                // set primary IG cells in cluster
+                mCellClusters( tEnrIpCellIndex )->set_primary_integration_cell_group( tIgCellGroupsInCluster );
+
+                // get the subphases in the void region
+                for ( moris::uint iVoid = 0; iVoid < tNumSPsOnCell; iVoid++ )
                 {
-                    // case that there's material and the cell is trivial
-                    if( tAllClustersOnCellTrivial )
+                    if ( tSPsOnCell( iVoid ) != tPrimarySpIndex )
                     {
-                        // check that there's only one SP
-                        MORIS_ASSERT( tNumPrimarySPsInCluster == 1, 
-                            "Enriched_Integration_Mesh::setup_cell_clusters_new() - trivial cluster with more than one subphase ... something's wrong." );
+                        tVoidSubphases.push_back( mCutIgMesh->get_subphase_ig_cells( tSPsOnCell( iVoid ) ) );
                     }
                 }
 
-                // Cluster is trivial (integration domain is single quadrilateral cell which is either void or full)
-                if( mCellClusters( tEnrIpCellIndex )->mTrivial )
-                {
-                    // get the base cell 
-                    moris::mtk::Cell const* tBaseCell = mCellClusters( tEnrIpCellIndex )->mInterpolationCell->get_base_cell();
-                    
-                    // get the parametric coordinates of the vertices and store them in the cluster
-                    tBaseCell->get_cell_info()->get_loc_coords_of_cell( mCellClusters( tEnrIpCellIndex )->mLocalCoords );
+                // store the void IG cells with the cluster
+                mCellClusters( tEnrIpCellIndex )->set_void_integration_cell_groups( tVoidSubphases );
 
-                    // get the indices of the vertices associated with the IP cell
-                    Matrix< IndexMat > tVertexIndices = tBaseCell->get_vertex_inds();
-
-                    // find the mtk::cells with the indices and store them in the cluster
-                    mCellClusters( tEnrIpCellIndex )->mVerticesInCluster = this->get_mtk_vertices_loc_inds( tVertexIndices );
-
-                    // store base cell as primary or void integration cell on cluster
-                    if( mCellClusters( tEnrIpCellIndex )->mVoid ) // cluster is void
-                    {
-                        mCellClusters( tEnrIpCellIndex )->mVoidIntegrationCells.push_back( tBaseCell );
-                    } 
-                    else // cluster is full
-                    {
-                        mCellClusters( tEnrIpCellIndex )->mPrimaryIntegrationCells.push_back( tBaseCell );
-                    }
-                }
-                else // Cluster is non-trivial and has triangles
-                {
-                    // get the group of all IG mesh vertices on the current IP cell
-                    std::shared_ptr< IG_Vertex_Group > tVertexGroupForCluster = 
-                        mCutIgMesh->get_vertex_group( mCutIgMesh->get_parent_cell_group_index( tIpCellIndex ) );
-
-                    // store the IG vertices on the cluster
-                    mCellClusters( tEnrIpCellIndex )->set_ig_vertex_group( tVertexGroupForCluster );
-
-                    // get list of all subphases associated with the same background cell
-                    moris::Cell< moris_index > const& tParentCellSubphases = mCutIgMesh->get_parent_cell_subphases( tIpCellIndex );
-                    uint tNumSpsOnIpCell = tParentCellSubphases.size();
-
-                    // initialize list of void IG cell groups
-                    moris::Cell< std::shared_ptr< IG_Cell_Group > > tVoidSubphases;
-                    tVoidSubphases.reserve( tNumSpsOnIpCell - tNumPrimarySPsInCluster );
-
-                    // if there's only one primary IG cell group in the element simplify the procedure to set the primary and void IG cells
-                    if( tNumPrimarySPsInCluster == 1 )
-                    {
-                        // get the only SP index on cluster
-                        moris_index tPrimarySpIndex = tSPsInCluster( 0 );
-
-                        // get the  IG cell group in the cluster
-                        std::shared_ptr< IG_Cell_Group > tIgCellGroupsInCluster = mCutIgMesh->get_subphase_ig_cells( tPrimarySpIndex );
-
-                        // set primary IG cells in cluster
-                        mCellClusters( tEnrIpCellIndex )->set_primary_integration_cell_group( tIgCellGroupsInCluster );
-
-                        // get the subphases in the void region
-                        for ( moris::uint iVoid = 0; iVoid < tNumSpsOnIpCell; iVoid++ )
-                        {
-                            if ( tParentCellSubphases( iVoid ) != tPrimarySpIndex )
-                            {
-                                tVoidSubphases.push_back( mCutIgMesh->get_subphase_ig_cells( tParentCellSubphases( iVoid ) ) );
-                            }
-                        }
-
-                        // store the void IG cells with the cluster
-                        mCellClusters( tEnrIpCellIndex )->set_void_integration_cell_groups( tVoidSubphases );
-                    }
-                    else // if there's multiple IG cell groups in the cluster
-                    {
-                        // initialize list of all IG cell groups from the SPs in the cluster
-                        moris::Cell< std::shared_ptr< IG_Cell_Group > > tIgCellGroupsInCluster( tNumPrimarySPsInCluster );
-
-                        // collect all IG cell groups in the current cluster
-                        for ( moris::uint iSP = 0; iSP < tNumPrimarySPsInCluster; iSP++ )
-                        {
-                            tIgCellGroupsInCluster( iSP ) = mCutIgMesh->get_subphase_ig_cells( tSPsInCluster( iSP ) );
-                        }
-
-                        // set primary IG cells in cluster
-                        mCellClusters( tEnrIpCellIndex )->set_primary_integration_cell_groups( tIgCellGroupsInCluster );
-
-                        // TODO: is there a more efficient set-subtraction algorithm?
-                        // loops for finding void SPs on Cluster
-                        for ( moris::uint iSpOnIpCell = 0; iSpOnIpCell < tNumSpsOnIpCell; iSpOnIpCell++ )
-                        {
-                            bool tSpIsVoid = true;
-
-                            // check if SP is one of the primary SPs
-                            for ( moris::uint iPrimarySP = 0; iPrimarySP < tNumPrimarySPsInCluster; iPrimarySP++ )
-                            {
-                                tSpIsVoid = tSpIsVoid && ( tParentCellSubphases( iSpOnIpCell ) != tSPsInCluster( iPrimarySP ) );
-                            }
-
-                            // if not, add to the list of void SPs
-                            if( tSpIsVoid )
-                            {
-                                tVoidSubphases.push_back( mCutIgMesh->get_subphase_ig_cells( tParentCellSubphases( iSpOnIpCell ) ) );
-                            }
-                        } // end: loop finding void SPs in Cluster
-
-                        // check that the number of void and primary SPs match up
-                        MORIS_ASSERT( tVoidSubphases.size() == tNumSpsOnIpCell - tNumPrimarySPsInCluster ,
-                            "Enriched_Integration_Mesh::setup_cell_clusters_new() - Sum of primary and void SPs on Cluster don't add up to total number of SPs on Cluster" );
-                    }
-                } // end: conditional branch for non-trivial clusters
             } // end: construction of valid clusters
         } // end: loop over enriched IP cells associated with the IP cell
     } // end: loop over base IP cells
@@ -2534,7 +2474,7 @@ Enriched_Integration_Mesh::setup_blockset_with_cell_clusters()
     moris::mtk::Mesh &tBackgroundMesh = mModel->get_background_mesh();
 
     // enriched interpolation mesh
-    Enriched_Interpolation_Mesh *tEnrInterpMesh = mModel->mEnrichedInterpMesh( mMeshIndexInModel );
+    Enriched_Interpolation_Mesh *tEnrInterpMesh = mModel->mEnrichedInterpMesh( 0 );
 
     // my proc rank
     moris_index tProcRank = par_rank();
@@ -2615,7 +2555,7 @@ void
 Enriched_Integration_Mesh::setup_side_set_clusters()
 {
     // get data for easy access
-    Enriched_Interpolation_Mesh* tEnrInterpMesh   = mModel->mEnrichedInterpMesh( mMeshIndexInModel );
+    Enriched_Interpolation_Mesh* tEnrInterpMesh   = mModel->mEnrichedInterpMesh( 0 );
     moris::mtk::Mesh&            tBackgroundMesh = *mModel->mBackgroundMesh;
     Integration_Mesh_Generator   tIGMeshGen;
 
@@ -2892,7 +2832,7 @@ Enriched_Integration_Mesh::create_interface_double_side_sets_and_clusters()
     Integration_Mesh_Generator tIGMeshGen;
 
     // access interpolation mesh
-    Enriched_Interpolation_Mesh *tEnrInterpMesh = mModel->mEnrichedInterpMesh( mMeshIndexInModel );
+    Enriched_Interpolation_Mesh *tEnrInterpMesh = mModel->mEnrichedInterpMesh( 0 );
 
     // get the enriched interpolation cell
     Cell< Interpolation_Cell_Unzipped * > &tEnrIpCells = tEnrInterpMesh->get_enriched_interpolation_cells();

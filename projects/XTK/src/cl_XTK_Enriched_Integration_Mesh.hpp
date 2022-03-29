@@ -42,8 +42,8 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
     Model*                   mModel;
     Cut_Integration_Mesh*    mCutIgMesh;
 
-    //mesh index
-    moris::moris_index mMeshIndexInModel;
+    // mesh indices
+    Matrix< IndexMat > mBsplineMeshIndices;
 
     // Cell Clusters
     moris::Cell< std::shared_ptr< xtk::Cell_Cluster > > mCellClusters;
@@ -101,8 +101,8 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
     Enriched_Integration_Mesh( Model* aXTKModel );
 
     Enriched_Integration_Mesh( 
-        Model*                    aXTKModel,
-        moris::moris_index        aInterpIndex );
+        Model*                   aXTKModel,
+        const Matrix< IndexMat > aBsplineMeshIndices );
     //------------------------------------------------------------------------------
     ~Enriched_Integration_Mesh();
     //------------------------------------------------------------------------------
