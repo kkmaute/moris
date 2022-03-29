@@ -84,6 +84,7 @@ set(HEADERS
     cl_XTK_Decomposition_Algorithm_Factory.hpp
     cl_XTK_Diagnostics.hpp
     cl_XTK_Subphase_Group.hpp
+    fn_XTK_convert_index_cell_to_index_map.hpp 
     )                                                                                                                                                                                                                                                                   
 
 

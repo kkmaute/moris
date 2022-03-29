@@ -67,7 +67,14 @@ namespace moris
             // add H1 contribution to residual
             if ( tPropH1Term != nullptr )
             {
-                tRes += aWStar * tPropH1Term->val() * trans( tFI->dnNdxn( 1 ) ) * ( tFI->gradx( 1 ) - tFI->dnNdxn( 1 ) * mNodalWeakBCs );
+                if ( tPropSource != nullptr )
+                {
+                    tRes += aWStar * tPropH1Term->val() * trans( tFI->dnNdxn( 1 ) ) * ( tFI->gradx( 1 ) - tPropSource->dnPropdxn( 1 ) );
+                }
+                else
+                {
+                    tRes += aWStar * tPropH1Term->val() * trans( tFI->dnNdxn( 1 ) ) * ( tFI->gradx( 1 ) - tFI->dnNdxn( 1 ) * mNodalWeakBCs );
+                }
             }
 
             // add diffusion term to residual
@@ -149,7 +156,16 @@ namespace moris
                 {
                     if ( tPropSource->check_dof_dependency( tDofType ) )
                     {
-                        tJac += aWStar * tFI->val() * tFI->N_trans() * tPropSource->dPropdDOF( tDofType );
+                        tJac -= aWStar * tFI->N_trans() * tPropSource->dPropdDOF( tDofType );
+                    }
+
+                    if ( tPropH1Term != nullptr )
+                    {
+                        if ( tPropH1Term->check_space_dependency( 1 ) )
+                        {
+                            MORIS_ERROR( false, "IWG_L2::compute_jacobian - H1 contribution for spatially varying properties not implemented." );
+                            // tJac -= aWStar * tPropH1Term->val() * trans( tFI->dnNdxn( 1 ) ) * !! missing functionality of property !!;
+                        }
                     }
                 }
 

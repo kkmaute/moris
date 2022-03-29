@@ -15,7 +15,6 @@ namespace xtk
     
     Cell_Cluster::Cell_Cluster()
             : mTrivial( true )
-            , mFull( false )
             , mVoid( false )
             , mInvalid( false )
             , mInterpolationCell( nullptr )
@@ -36,6 +35,15 @@ namespace xtk
     Cell_Cluster::is_trivial( const mtk::Master_Slave aIsMaster ) const
     {
         return mTrivial;
+    }
+
+    //----------------------------------------------------------------
+
+    bool
+    Cell_Cluster::is_full() const
+    {
+        // Cluster is full if it is trivial and not void
+        return ( mTrivial && !mVoid );
     }
 
     //----------------------------------------------------------------

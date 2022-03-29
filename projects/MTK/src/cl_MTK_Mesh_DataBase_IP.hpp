@@ -73,6 +73,7 @@ namespace moris
             moris::Cell< moris_id > mCellOwnerList;
 
             Matrix< IndexMat > mMeshIndices;
+            std::unordered_map<moris_index, moris_index > mGlobalMeshIndexToLocalMeshIndex; 
 
           public:
             // ----------------------------------------------------------------------------
@@ -493,6 +494,18 @@ namespace moris
 
             virtual Vertex_Interpolation**
             get_vertex_interpolation( moris_index aVertexIndex ) override;
+
+            // -------------------------------------------------------------------------------
+
+            /**
+             * @brief Get the local mesh index of a bspline mesh
+             * 
+             * @param aBsplineMeshIndex  global bspline mesh index
+             * @return uint local mesh index in the data-base
+             */
+
+            virtual uint 
+            get_local_mesh_index( const uint aBsplineMeshIndex ) override;
 
             // -------------------------------------------------------------------------------
 

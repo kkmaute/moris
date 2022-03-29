@@ -43,6 +43,7 @@ namespace moris
             protected:
 
                 // pointer to the mesh cluster
+                // NOTE: first cluster in list is the one that gets built in XTK
                 moris::Cell< std::shared_ptr< fem::Cluster > > mFemCluster;
 
                 // pointer to the master and slave mesh interpolation cell

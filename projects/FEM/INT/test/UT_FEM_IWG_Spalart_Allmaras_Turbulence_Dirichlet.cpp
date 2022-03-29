@@ -4,20 +4,20 @@
 #include "assert.hpp"
 
 #define protected public
-#define private   public
-//FEM//INT//src
+#define private public
+// FEM//INT//src
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IWG.hpp"
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Cluster.hpp"
 #undef protected
 #undef private
-//LINALG/src
+// LINALG/src
 #include "op_equal_equal.hpp"
 #include "fn_norm.hpp"
-//MTK/src
+// MTK/src
 #include "cl_MTK_Enums.hpp"
-//FEM//INT//src
+// FEM//INT//src
 #include "cl_FEM_Enums.hpp"
 #include "cl_FEM_Field_Interpolator.hpp"
 #include "cl_FEM_Property.hpp"
@@ -29,14 +29,44 @@
 using namespace moris;
 using namespace fem;
 
+void
+tWallDistanceValFunc(
+        moris::Matrix< moris::DDRMat >&                aPropMatrix,
+        moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+        moris::fem::Field_Interpolator_Manager*        aFIManager )
+{
+    moris::fem::Field_Interpolator* tFIWallDist =
+            aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::L2 );
+
+    aPropMatrix = aParameters( 0 ) * tFIWallDist->val();
+}
+
+void
+tWallDistanceDerFunc(
+        moris::Matrix< moris::DDRMat >&                aPropMatrix,
+        moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+        moris::fem::Field_Interpolator_Manager*        aFIManager )
+{
+    moris::fem::Field_Interpolator* tFIWallDist =
+            aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::L2 );
+
+    aPropMatrix = aParameters( 0 ) * tFIWallDist->N();
+}
+
 TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Symmetric",
         "[IWG_Spalart_Allmaras_Turbulence_Dirichlet_Symmetric]" )
 {
     // define an epsilon environment
-    real tEpsilon = 1E-6;
+    real tEpsilon = 1E-4;
 
     // define a perturbation relative size
-    real tPerturbation = 1E-6;
+    real tPerturbation = 1E-5;
+
+    // define turbulent viscosity scaling (should be similar to wall distance, can be positive or negative)
+    real tViscosityScaling = 1e-5;
+
+    // define wall distance scaling (needs to be positive and small)
+    real tWallDistScaling = 1e-5;
 
     // init geometry inputs
     //------------------------------------------------------------------------------
@@ -48,49 +78,48 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Symmetric",
 
     // create list of interpolation orders
     moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
-            mtk::Interpolation_Order::LINEAR,
-            mtk::Interpolation_Order::QUADRATIC,
-            mtk::Interpolation_Order::CUBIC };
+        mtk::Interpolation_Order::LINEAR,
+        mtk::Interpolation_Order::QUADRATIC,
+        mtk::Interpolation_Order::CUBIC
+    };
 
     // create list of integration orders
     moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
-            mtk::Integration_Order::QUAD_2x2,
-            mtk::Integration_Order::HEX_2x2x2 };
+        mtk::Integration_Order::QUAD_2x2,
+        mtk::Integration_Order::HEX_2x2x2
+    };
 
     // create list with number of coeffs
-    Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
+    Matrix< DDRMat > tNumCoeffs = { { 8, 18, 32 }, { 16, 54, 128 } };
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tVelDofTypes  = { MSI::Dof_Type::VX };
+    moris::Cell< MSI::Dof_Type >                tVelDofTypes      = { MSI::Dof_Type::VX };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tVisDofTypes      = { { MSI::Dof_Type::VISCOSITY } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tWallDistDofTypes = { { MSI::Dof_Type::L2 } };
 
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tVisDofTypes = { { MSI::Dof_Type::VISCOSITY } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes    = { tVelDofTypes, tVisDofTypes( 0 ) };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tVelDofTypes, tVisDofTypes( 0 ), tWallDistDofTypes( 0 ) };
 
     // init IWG
     //------------------------------------------------------------------------------
     // create the properties
     std::shared_ptr< fem::Property > tPropDirichlet = std::make_shared< fem::Property >();
-    tPropDirichlet->set_parameters( { {{ 2.0 }} } );
+    tPropDirichlet->set_parameters( { { { 2.0 } } } );
     tPropDirichlet->set_val_function( tConstValFunc );
-    //tPropDirichlet->set_dof_type_list( { tVisDofTypes } );
-    //tPropDirichlet->set_val_function( tVISCOSITYFIValFunc );
-    //tPropDirichlet->set_dof_derivative_functions( { tVISCOSITYFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
-    tPropViscosity->set_parameters( { {{ 2.0 }} } );
+    tPropViscosity->set_parameters( { { { 2.0 } } } );
     tPropViscosity->set_val_function( tConstValFunc );
-    //tPropViscosity->set_dof_type_list( { tVisDofTypes } );
-    //tPropViscosity->set_val_function( tVISCOSITYFIValFunc );
-    //tPropViscosity->set_dof_derivative_functions( { tVISCOSITYFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropUpwind = std::make_shared< fem::Property >();
-    tPropUpwind->set_parameters( { {{ 1.0 }} } );
+    tPropUpwind->set_parameters( { { { 1.0 } } } );
     tPropUpwind->set_val_function( tConstValFunc );
 
     // create the properties
     std::shared_ptr< fem::Property > tPropWallDistance = std::make_shared< fem::Property >();
-    tPropWallDistance->set_parameters( { {{ 1.0 }} } );
-    tPropWallDistance->set_val_function( tConstValFunc );
+    tPropWallDistance->set_parameters( { { { 1.0 } } } );
+    tPropWallDistance->set_dof_type_list( tWallDistDofTypes );
+    tPropWallDistance->set_val_function( tWallDistanceValFunc );
+    tPropWallDistance->set_dof_derivative_functions( { tWallDistanceDerFunc } );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
@@ -107,11 +136,11 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Symmetric",
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche =
             tSPFactory.create_SP( fem::Stabilization_Type::TURBULENCE_DIRICHLET_NITSCHE );
-    tSPNitsche->set_parameters( { {{ 1.0 }} } );
+    tSPNitsche->set_parameters( { { { 1.0 } } } );
     tSPNitsche->set_constitutive_model( tCMMasterSATurbulence, "SpalartAllmarasTurbulence" );
 
     // create a dummy fem cluster and set it to SP
-    fem::Cluster * tCluster = new fem::Cluster();
+    fem::Cluster* tCluster = new fem::Cluster();
     tSPNitsche->set_cluster( tCluster );
 
     // define the IWGs
@@ -129,8 +158,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Symmetric",
     // init set info
     //------------------------------------------------------------------------------
     // set a fem set pointer
-    MSI::Equation_Set * tSet = new fem::Set();
-    static_cast<fem::Set*>(tSet)->set_set_type( fem::Element_Type::SIDESET );
+    MSI::Equation_Set* tSet = new fem::Set();
+    static_cast< fem::Set* >( tSet )->set_set_type( fem::Element_Type::SIDESET );
     tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
@@ -140,14 +169,16 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Symmetric",
     tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 1;
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::L2 ) )        = 2;
 
     // set size and populate the set master dof type map
     tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
     tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 1;
+    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::L2 ) )        = 2;
 
     // loop on the space dimension
-    for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
+    for ( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
     {
         // create and set normal
         Matrix< DDRMat > tNormal( iSpaceDim, 1, 0.5 );
@@ -157,37 +188,37 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Symmetric",
         // set geometry inputs
         //------------------------------------------------------------------------------
         // switch on space dimension
-        switch( iSpaceDim )
+        switch ( iSpaceDim )
         {
-            case 2 :
+            case 2:
             {
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::QUAD;
 
                 // fill space coeff xHat
-                tXHat = {{ 0.0, 0.0 },
-                         { 1.0, 0.0 },
-                         { 1.0, 1.0 },
-                         { 0.0, 1.0 }};
+                tXHat = { { 0.0, 0.0 },
+                    { 1.0, 0.0 },
+                    { 1.0, 1.0 },
+                    { 0.0, 1.0 } };
 
-               // set velocity dof types
-               tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
-               break;
+                // set velocity dof types
+                tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
+                break;
             }
-            case 3 :
+            case 3:
             {
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::HEX;
 
                 // fill space coeff xHat
-                tXHat = {{ 0.0, 0.0, 0.0 },
-                         { 1.0, 0.0, 0.0 },
-                         { 1.0, 1.0, 0.0 },
-                         { 0.0, 1.0, 0.0 },
-                         { 0.0, 0.0, 1.0 },
-                         { 1.0, 0.0, 1.0 },
-                         { 1.0, 1.0, 1.0 },
-                         { 0.0, 1.0, 1.0 }};
+                tXHat = { { 0.0, 0.0, 0.0 },
+                    { 1.0, 0.0, 0.0 },
+                    { 1.0, 1.0, 0.0 },
+                    { 0.0, 1.0, 0.0 },
+                    { 0.0, 0.0, 1.0 },
+                    { 1.0, 0.0, 1.0 },
+                    { 1.0, 1.0, 1.0 },
+                    { 0.0, 1.0, 1.0 } };
 
                 // set velocity dof types
                 tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ };
@@ -206,16 +237,16 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Symmetric",
         //------------------------------------------------------------------------------
         // create a space geometry interpolation rule
         mtk::Interpolation_Rule tGIRule( tGeometryType,
-                                    mtk::Interpolation_Type::LAGRANGE,
-                                    mtk::Interpolation_Order::LINEAR,
-                                    mtk::Interpolation_Type::LAGRANGE,
-                                    mtk::Interpolation_Order::LINEAR );
+                mtk::Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Order::LINEAR,
+                mtk::Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Order::LINEAR );
 
         // create a space time geometry interpolator
         Geometry_Interpolator tGI = Geometry_Interpolator( tGIRule );
 
         // create time coeff tHat
-        Matrix< DDRMat > tTHat = {{ 0.0 }, { 1.0 }};
+        Matrix< DDRMat > tTHat = { { 0.0 }, { 1.0 } };
 
         // set the coefficients xHat, tHat
         tGI.set_coeff( tXHat, tTHat );
@@ -225,7 +256,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Symmetric",
         tSPNitsche->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
-        for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
+        for ( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
         {
             // integration points
             //------------------------------------------------------------------------------
@@ -257,21 +288,28 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Symmetric",
             uint tNumCoeff = tNumCoeffs( iSpaceDim - 2, iInterpOrder - 1 );
 
             // get number of dof per type
-            int tNumDofVel  = tNumCoeff * iSpaceDim;
-            int tNumDofVis  = tNumCoeff;
+            int tNumDofVel      = tNumCoeff * iSpaceDim;
+            int tNumDofVis      = tNumCoeff;
+            int tNumDofWallDist = tNumCoeff;
 
-            //create a space time interpolation rule
-            mtk::Interpolation_Rule tFIRule ( tGeometryType,
-                                         mtk::Interpolation_Type::LAGRANGE,
-                                         tInterpolationOrder,
-                                         mtk::Interpolation_Type::LAGRANGE,
-                                         mtk::Interpolation_Order::LINEAR );
+            // create a space time interpolation rule
+            mtk::Interpolation_Rule tFIRule( tGeometryType,
+                    mtk::Interpolation_Type::LAGRANGE,
+                    tInterpolationOrder,
+                    mtk::Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Order::LINEAR );
 
             // fill coefficients for master FI
             Matrix< DDRMat > tMasterDOFHatVel;
             fill_uhat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
+
             Matrix< DDRMat > tMasterDOFHatVis;
             fill_phat( tMasterDOFHatVis, iSpaceDim, iInterpOrder );
+            tMasterDOFHatVis = tViscosityScaling * tMasterDOFHatVis;
+
+            Matrix< DDRMat > tMasterDOFHatWallDist;
+            fill_phat( tMasterDOFHatWallDist, iSpaceDim, iInterpOrder );
+            tMasterDOFHatWallDist = tWallDistScaling * tMasterDOFHatWallDist;
 
             // create a cell of field interpolators for IWG
             Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
@@ -284,23 +322,32 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Symmetric",
             tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
             tMasterFIs( 1 )->set_coeff( tMasterDOFHatVis );
 
+            // create the field interpolator wall distance
+            tMasterFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tWallDistDofTypes( 0 ) );
+            tMasterFIs( 2 )->set_coeff( tMasterDOFHatWallDist );
+
             // set size and fill the set residual assembly map
             tIWG->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
-            tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofVel-1 } };
+            tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofVel - 1 } };
             tIWG->mSet->mResDofAssemblyMap( 1 ) = { { tNumDofVel, tNumDofVel + tNumDofVis - 1 } };
+            tIWG->mSet->mResDofAssemblyMap( 2 ) = { { tNumDofVel + tNumDofVis, tNumDofVel + tNumDofVis + tNumDofWallDist - 1 } };
 
             // set size and fill the set jacobian assembly map
             Matrix< DDSMat > tJacAssembly = {
-                    { 0, tNumDofVel - 1 },
-                    { tNumDofVel, tNumDofVel + tNumDofVis - 1 } };
+                { 0, tNumDofVel - 1 },
+                { tNumDofVel, tNumDofVel + tNumDofVis - 1 },
+                { tNumDofVel + tNumDofVis, tNumDofVel + tNumDofVis + tNumDofWallDist - 1 }
+            };
+
             tIWG->mSet->mJacDofAssemblyMap.resize( tDofTypes.size() );
             tIWG->mSet->mJacDofAssemblyMap( 0 ) = tJacAssembly;
             tIWG->mSet->mJacDofAssemblyMap( 1 ) = tJacAssembly;
+            tIWG->mSet->mJacDofAssemblyMap( 2 ) = tJacAssembly;
 
             // set size and init the set residual and jacobian
             tIWG->mSet->mResidual.resize( 1 );
-            tIWG->mSet->mResidual( 0 ).set_size( tNumDofVel + tNumDofVis, 1, 0.0 );
-            tIWG->mSet->mJacobian.set_size( tNumDofVel + tNumDofVis, tNumDofVel + tNumDofVis, 0.0 );
+            tIWG->mSet->mResidual( 0 ).set_size( tNumDofVel + tNumDofVis + tNumDofWallDist, 1, 0.0 );
+            tIWG->mSet->mJacobian.set_size( tNumDofVel + tNumDofVis + tNumDofWallDist, tNumDofVel + tNumDofVis + tNumDofWallDist, 0.0 );
 
             // build global dof type list
             tIWG->get_global_dof_type_list();
@@ -309,12 +356,12 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Symmetric",
             tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
+            moris::Cell< moris::Cell< enum PDV_Type > >        tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
-            Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tFIManager.mFI = tMasterFIs;
+            tFIManager.mFI                     = tMasterFIs;
             tFIManager.mIPGeometryInterpolator = &tGI;
             tFIManager.mIGGeometryInterpolator = &tGI;
 
@@ -326,7 +373,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Symmetric",
 
             // loop over integration points
             uint tNumGPs = tIntegPoints.n_cols();
-            for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
+            for ( uint iGP = 0; iGP < tNumGPs; iGP++ )
             {
                 // reset IWG evaluation flags
                 tIWG->reset_eval_flags();
@@ -364,9 +411,9 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Symmetric",
                         true );
 
                 // print for debug
-                if( !tCheckJacobian )
+                if ( !tCheckJacobian )
                 {
-                    std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<"iGP "<<iGP<<std::endl;
+                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << "iGP " << iGP << std::endl;
                 }
 
                 // require check is true
@@ -377,16 +424,22 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Symmetric",
             tMasterFIs.clear();
         }
     }
-}/*END_TEST_CASE*/
+} /*END_TEST_CASE*/
 
 TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric",
         "[IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric]" )
 {
     // define an epsilon environment
-    real tEpsilon = 1E-6;
+    real tEpsilon = 1E-4;
 
     // define a perturbation relative size
-    real tPerturbation = 1E-6;
+    real tPerturbation = 1E-5;
+
+    // define turbulent viscosity scaling (should be similar to wall distance, can be positive or negative)
+    real tViscosityScaling = 1e-5;
+
+    // define wall distance scaling (needs to be positive and small)
+    real tWallDistScaling = 1e-5;
 
     // init geometry inputs
     //------------------------------------------------------------------------------
@@ -398,49 +451,48 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric",
 
     // create list of interpolation orders
     moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
-            mtk::Interpolation_Order::LINEAR,
-            mtk::Interpolation_Order::QUADRATIC,
-            mtk::Interpolation_Order::CUBIC };
+        mtk::Interpolation_Order::LINEAR,
+        mtk::Interpolation_Order::QUADRATIC,
+        mtk::Interpolation_Order::CUBIC
+    };
 
     // create list of integration orders
     moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
-            mtk::Integration_Order::QUAD_2x2,
-            mtk::Integration_Order::HEX_2x2x2 };
+        mtk::Integration_Order::QUAD_2x2,
+        mtk::Integration_Order::HEX_2x2x2
+    };
 
     // create list with number of coeffs
-    Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
+    Matrix< DDRMat > tNumCoeffs = { { 8, 18, 32 }, { 16, 54, 128 } };
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tVelDofTypes  = { MSI::Dof_Type::VX };
+    moris::Cell< MSI::Dof_Type >                tVelDofTypes      = { MSI::Dof_Type::VX };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tVisDofTypes      = { { MSI::Dof_Type::VISCOSITY } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tWallDistDofTypes = { { MSI::Dof_Type::L2 } };
 
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tVisDofTypes = { { MSI::Dof_Type::VISCOSITY } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes    = { tVelDofTypes, tVisDofTypes( 0 ) };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tVelDofTypes, tVisDofTypes( 0 ), tWallDistDofTypes( 0 ) };
 
     // init IWG
     //------------------------------------------------------------------------------
     // create the properties
     std::shared_ptr< fem::Property > tPropDirichlet = std::make_shared< fem::Property >();
-    tPropDirichlet->set_parameters( { {{ 2.0 }} } );
+    tPropDirichlet->set_parameters( { { { 2.0 } } } );
     tPropDirichlet->set_val_function( tConstValFunc );
-    //tPropDirichlet->set_dof_type_list( { tVisDofTypes } );
-    //tPropDirichlet->set_val_function( tVISCOSITYFIValFunc );
-    //tPropDirichlet->set_dof_derivative_functions( { tVISCOSITYFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
-    tPropViscosity->set_parameters( { {{ 2.0 }} } );
+    tPropViscosity->set_parameters( { { { 2.0 } } } );
     tPropViscosity->set_val_function( tConstValFunc );
-    //tPropViscosity->set_dof_type_list( { tVisDofTypes } );
-    //tPropViscosity->set_val_function( tVISCOSITYFIValFunc );
-    //tPropViscosity->set_dof_derivative_functions( { tVISCOSITYFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropUpwind = std::make_shared< fem::Property >();
-    tPropUpwind->set_parameters( { {{ 1.0 }} } );
+    tPropUpwind->set_parameters( { { { 1.0 } } } );
     tPropUpwind->set_val_function( tConstValFunc );
 
     // create the properties
     std::shared_ptr< fem::Property > tPropWallDistance = std::make_shared< fem::Property >();
-    tPropWallDistance->set_parameters( { {{ 1.0 }} } );
-    tPropWallDistance->set_val_function( tConstValFunc );
+    tPropWallDistance->set_parameters( { { { 1.0 } } } );
+    tPropWallDistance->set_dof_type_list( tWallDistDofTypes );
+    tPropWallDistance->set_val_function( tWallDistanceValFunc );
+    tPropWallDistance->set_dof_derivative_functions( { tWallDistanceDerFunc } );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
@@ -457,11 +509,11 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric",
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche =
             tSPFactory.create_SP( fem::Stabilization_Type::TURBULENCE_DIRICHLET_NITSCHE );
-    tSPNitsche->set_parameters( { {{ 1.0 }} } );
+    tSPNitsche->set_parameters( { { { 1.0 } } } );
     tSPNitsche->set_constitutive_model( tCMMasterSATurbulence, "SpalartAllmarasTurbulence" );
 
     // create a dummy fem cluster and set it to SP
-    fem::Cluster * tCluster = new fem::Cluster();
+    fem::Cluster* tCluster = new fem::Cluster();
     tSPNitsche->set_cluster( tCluster );
 
     // define the IWGs
@@ -479,8 +531,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric",
     // init set info
     //------------------------------------------------------------------------------
     // set a fem set pointer
-    MSI::Equation_Set * tSet = new fem::Set();
-    static_cast<fem::Set*>(tSet)->set_set_type( fem::Element_Type::SIDESET );
+    MSI::Equation_Set* tSet = new fem::Set();
+    static_cast< fem::Set* >( tSet )->set_set_type( fem::Element_Type::SIDESET );
     tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
@@ -490,14 +542,16 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric",
     tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 1;
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::L2 ) )        = 2;
 
     // set size and populate the set master dof type map
     tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
     tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 1;
+    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::L2 ) )        = 2;
 
     // loop on the space dimension
-    for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
+    for ( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
     {
         // create and set normal
         Matrix< DDRMat > tNormal( iSpaceDim, 1, 0.5 );
@@ -507,37 +561,37 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric",
         // set geometry inputs
         //------------------------------------------------------------------------------
         // switch on space dimension
-        switch( iSpaceDim )
+        switch ( iSpaceDim )
         {
-            case 2 :
+            case 2:
             {
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::QUAD;
 
                 // fill space coeff xHat
-                tXHat = {{ 0.0, 0.0 },
-                         { 1.0, 0.0 },
-                         { 1.0, 1.0 },
-                         { 0.0, 1.0 }};
+                tXHat = { { 0.0, 0.0 },
+                    { 1.0, 0.0 },
+                    { 1.0, 1.0 },
+                    { 0.0, 1.0 } };
 
-               // set velocity dof types
-               tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
-               break;
+                // set velocity dof types
+                tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
+                break;
             }
-            case 3 :
+            case 3:
             {
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::HEX;
 
                 // fill space coeff xHat
-                tXHat = {{ 0.0, 0.0, 0.0 },
-                         { 1.0, 0.0, 0.0 },
-                         { 1.0, 1.0, 0.0 },
-                         { 0.0, 1.0, 0.0 },
-                         { 0.0, 0.0, 1.0 },
-                         { 1.0, 0.0, 1.0 },
-                         { 1.0, 1.0, 1.0 },
-                         { 0.0, 1.0, 1.0 }};
+                tXHat = { { 0.0, 0.0, 0.0 },
+                    { 1.0, 0.0, 0.0 },
+                    { 1.0, 1.0, 0.0 },
+                    { 0.0, 1.0, 0.0 },
+                    { 0.0, 0.0, 1.0 },
+                    { 1.0, 0.0, 1.0 },
+                    { 1.0, 1.0, 1.0 },
+                    { 0.0, 1.0, 1.0 } };
 
                 // set velocity dof types
                 tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ };
@@ -556,16 +610,16 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric",
         //------------------------------------------------------------------------------
         // create a space geometry interpolation rule
         mtk::Interpolation_Rule tGIRule( tGeometryType,
-                                    mtk::Interpolation_Type::LAGRANGE,
-                                    mtk::Interpolation_Order::LINEAR,
-                                    mtk::Interpolation_Type::LAGRANGE,
-                                    mtk::Interpolation_Order::LINEAR );
+                mtk::Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Order::LINEAR,
+                mtk::Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Order::LINEAR );
 
         // create a space time geometry interpolator
         Geometry_Interpolator tGI = Geometry_Interpolator( tGIRule );
 
         // create time coeff tHat
-        Matrix< DDRMat > tTHat = {{ 0.0 }, { 1.0 }};
+        Matrix< DDRMat > tTHat = { { 0.0 }, { 1.0 } };
 
         // set the coefficients xHat, tHat
         tGI.set_coeff( tXHat, tTHat );
@@ -575,7 +629,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric",
         tSPNitsche->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
-        for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
+        for ( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
         {
             // integration points
             //------------------------------------------------------------------------------
@@ -607,21 +661,28 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric",
             uint tNumCoeff = tNumCoeffs( iSpaceDim - 2, iInterpOrder - 1 );
 
             // get number of dof per type
-            int tNumDofVel  = tNumCoeff * iSpaceDim;
-            int tNumDofVis  = tNumCoeff;
+            int tNumDofVel      = tNumCoeff * iSpaceDim;
+            int tNumDofVis      = tNumCoeff;
+            int tNumDofWallDist = tNumCoeff;
 
-            //create a space time interpolation rule
-            mtk::Interpolation_Rule tFIRule ( tGeometryType,
-                                         mtk::Interpolation_Type::LAGRANGE,
-                                         tInterpolationOrder,
-                                         mtk::Interpolation_Type::LAGRANGE,
-                                         mtk::Interpolation_Order::LINEAR );
+            // create a space time interpolation rule
+            mtk::Interpolation_Rule tFIRule( tGeometryType,
+                    mtk::Interpolation_Type::LAGRANGE,
+                    tInterpolationOrder,
+                    mtk::Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Order::LINEAR );
 
             // fill coefficients for master FI
             Matrix< DDRMat > tMasterDOFHatVel;
             fill_uhat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
+
             Matrix< DDRMat > tMasterDOFHatVis;
             fill_phat( tMasterDOFHatVis, iSpaceDim, iInterpOrder );
+            tMasterDOFHatVis = tViscosityScaling * tMasterDOFHatVis;
+
+            Matrix< DDRMat > tMasterDOFHatWallDist;
+            fill_phat( tMasterDOFHatWallDist, iSpaceDim, iInterpOrder );
+            tMasterDOFHatWallDist = tWallDistScaling * tMasterDOFHatWallDist;
 
             // create a cell of field interpolators for IWG
             Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
@@ -634,23 +695,32 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric",
             tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
             tMasterFIs( 1 )->set_coeff( tMasterDOFHatVis );
 
+            // create the field interpolator wall distance
+            tMasterFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tWallDistDofTypes( 0 ) );
+            tMasterFIs( 2 )->set_coeff( tMasterDOFHatWallDist );
+
             // set size and fill the set residual assembly map
             tIWG->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
-            tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofVel-1 } };
+            tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofVel - 1 } };
             tIWG->mSet->mResDofAssemblyMap( 1 ) = { { tNumDofVel, tNumDofVel + tNumDofVis - 1 } };
+            tIWG->mSet->mResDofAssemblyMap( 2 ) = { { tNumDofVel + tNumDofVis, tNumDofVel + tNumDofVis + tNumDofWallDist - 1 } };
 
             // set size and fill the set jacobian assembly map
             Matrix< DDSMat > tJacAssembly = {
-                    { 0, tNumDofVel - 1 },
-                    { tNumDofVel, tNumDofVel + tNumDofVis - 1 } };
+                { 0, tNumDofVel - 1 },
+                { tNumDofVel, tNumDofVel + tNumDofVis - 1 },
+                { tNumDofVel + tNumDofVis, tNumDofVel + tNumDofVis + tNumDofWallDist - 1 }
+            };
+
             tIWG->mSet->mJacDofAssemblyMap.resize( tDofTypes.size() );
             tIWG->mSet->mJacDofAssemblyMap( 0 ) = tJacAssembly;
             tIWG->mSet->mJacDofAssemblyMap( 1 ) = tJacAssembly;
+            tIWG->mSet->mJacDofAssemblyMap( 2 ) = tJacAssembly;
 
             // set size and init the set residual and jacobian
             tIWG->mSet->mResidual.resize( 1 );
-            tIWG->mSet->mResidual( 0 ).set_size( tNumDofVel + tNumDofVis, 1, 0.0 );
-            tIWG->mSet->mJacobian.set_size( tNumDofVel + tNumDofVis, tNumDofVel + tNumDofVis, 0.0 );
+            tIWG->mSet->mResidual( 0 ).set_size( tNumDofVel + tNumDofVis + tNumDofWallDist, 1, 0.0 );
+            tIWG->mSet->mJacobian.set_size( tNumDofVel + tNumDofVis + tNumDofWallDist, tNumDofVel + tNumDofVis + tNumDofWallDist, 0.0 );
 
             // build global dof type list
             tIWG->get_global_dof_type_list();
@@ -659,12 +729,12 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric",
             tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
+            moris::Cell< moris::Cell< enum PDV_Type > >        tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
-            Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tFIManager.mFI = tMasterFIs;
+            tFIManager.mFI                     = tMasterFIs;
             tFIManager.mIPGeometryInterpolator = &tGI;
             tFIManager.mIGGeometryInterpolator = &tGI;
 
@@ -676,7 +746,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric",
 
             // loop over integration points
             uint tNumGPs = tIntegPoints.n_cols();
-            for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
+            for ( uint iGP = 0; iGP < tNumGPs; iGP++ )
             {
                 // reset IWG evaluation flags
                 tIWG->reset_eval_flags();
@@ -714,9 +784,9 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric",
                         true );
 
                 // print for debug
-                if( !tCheckJacobian )
+                if ( !tCheckJacobian )
                 {
-                    std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<"iGP "<<iGP<<std::endl;
+                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << "iGP " << iGP << std::endl;
                 }
 
                 // require check is true
@@ -727,16 +797,22 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric",
             tMasterFIs.clear();
         }
     }
-}/*END_TEST_CASE*/
+} /*END_TEST_CASE*/
 
 TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Symmetric_Negative",
         "[IWG_Spalart_Allmaras_Turbulence_Dirichlet_Symmetric_Negative]" )
 {
     // define an epsilon environment
-    real tEpsilon = 1E-5;
+    real tEpsilon = 1E-4;
 
     // define a perturbation relative size
-    real tPerturbation = 1E-6;
+    real tPerturbation = 1E-5;
+
+    // define turbulent viscosity scaling (should be similar to wall distance, can be positive or negative)
+    real tViscosityScaling = -1e-5;
+
+    // define wall distance scaling (needs to be positive and small)
+    real tWallDistScaling = 1e-5;
 
     // init geometry inputs
     //------------------------------------------------------------------------------
@@ -748,49 +824,48 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Symmetric_Negative",
 
     // create list of interpolation orders
     moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
-            mtk::Interpolation_Order::LINEAR,
-            mtk::Interpolation_Order::QUADRATIC,
-            mtk::Interpolation_Order::CUBIC };
+        mtk::Interpolation_Order::LINEAR,
+        mtk::Interpolation_Order::QUADRATIC,
+        mtk::Interpolation_Order::CUBIC
+    };
 
     // create list of integration orders
     moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
-            mtk::Integration_Order::QUAD_2x2,
-            mtk::Integration_Order::HEX_2x2x2 };
+        mtk::Integration_Order::QUAD_2x2,
+        mtk::Integration_Order::HEX_2x2x2
+    };
 
     // create list with number of coeffs
-    Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
+    Matrix< DDRMat > tNumCoeffs = { { 8, 18, 32 }, { 16, 54, 128 } };
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tVelDofTypes = { MSI::Dof_Type::VX };
+    moris::Cell< MSI::Dof_Type >                tVelDofTypes      = { MSI::Dof_Type::VX };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tVisDofTypes      = { { MSI::Dof_Type::VISCOSITY } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tWallDistDofTypes = { { MSI::Dof_Type::L2 } };
 
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tVisDofTypes = { { MSI::Dof_Type::VISCOSITY } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes    = { tVelDofTypes, tVisDofTypes( 0 ) };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tVelDofTypes, tVisDofTypes( 0 ), tWallDistDofTypes( 0 ) };
 
     // init IWG
     //------------------------------------------------------------------------------
     // create the properties
     std::shared_ptr< fem::Property > tPropDirichlet = std::make_shared< fem::Property >();
-    tPropDirichlet->set_parameters( { {{ 2.0 }} } );
+    tPropDirichlet->set_parameters( { { { 2.0 } } } );
     tPropDirichlet->set_val_function( tConstValFunc );
-    //tPropDirichlet->set_dof_type_list( { tVisDofTypes } );
-    //tPropDirichlet->set_val_function( tVISCOSITYFIValFunc );
-    //tPropDirichlet->set_dof_derivative_functions( { tVISCOSITYFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
-    tPropViscosity->set_parameters( { {{ 2.0 }} } );
+    tPropViscosity->set_parameters( { { { 2.0 } } } );
     tPropViscosity->set_val_function( tConstValFunc );
-    //tPropViscosity->set_dof_type_list( { tVisDofTypes } );
-    //tPropViscosity->set_val_function( tVISCOSITYFIValFunc );
-    //tPropViscosity->set_dof_derivative_functions( { tVISCOSITYFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropUpwind = std::make_shared< fem::Property >();
-    tPropUpwind->set_parameters( { {{ 1.0 }} } );
+    tPropUpwind->set_parameters( { { { 1.0 } } } );
     tPropUpwind->set_val_function( tConstValFunc );
 
     // create the properties
     std::shared_ptr< fem::Property > tPropWallDistance = std::make_shared< fem::Property >();
-    tPropWallDistance->set_parameters( { {{ 1.0 }} } );
-    tPropWallDistance->set_val_function( tConstValFunc );
+    tPropWallDistance->set_parameters( { { { 1.0 } } } );
+    tPropWallDistance->set_dof_type_list( tWallDistDofTypes );
+    tPropWallDistance->set_val_function( tWallDistanceValFunc );
+    tPropWallDistance->set_dof_derivative_functions( { tWallDistanceDerFunc } );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
@@ -807,11 +882,11 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Symmetric_Negative",
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche =
             tSPFactory.create_SP( fem::Stabilization_Type::TURBULENCE_DIRICHLET_NITSCHE );
-    tSPNitsche->set_parameters( { {{ 1.0 }} } );
+    tSPNitsche->set_parameters( { { { 1.0 } } } );
     tSPNitsche->set_constitutive_model( tCMMasterSATurbulence, "SpalartAllmarasTurbulence" );
 
     // create a dummy fem cluster and set it to SP
-    fem::Cluster * tCluster = new fem::Cluster();
+    fem::Cluster* tCluster = new fem::Cluster();
     tSPNitsche->set_cluster( tCluster );
 
     // define the IWGs
@@ -829,8 +904,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Symmetric_Negative",
     // init set info
     //------------------------------------------------------------------------------
     // set a fem set pointer
-    MSI::Equation_Set * tSet = new fem::Set();
-    static_cast<fem::Set*>(tSet)->set_set_type( fem::Element_Type::SIDESET );
+    MSI::Equation_Set* tSet = new fem::Set();
+    static_cast< fem::Set* >( tSet )->set_set_type( fem::Element_Type::SIDESET );
     tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
@@ -840,14 +915,16 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Symmetric_Negative",
     tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 1;
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::L2 ) )        = 2;
 
     // set size and populate the set master dof type map
     tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
     tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 1;
+    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::L2 ) )        = 2;
 
     // loop on the space dimension
-    for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
+    for ( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
     {
         // create and set normal
         Matrix< DDRMat > tNormal( iSpaceDim, 1, 0.5 );
@@ -857,37 +934,37 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Symmetric_Negative",
         // set geometry inputs
         //------------------------------------------------------------------------------
         // switch on space dimension
-        switch( iSpaceDim )
+        switch ( iSpaceDim )
         {
-            case 2 :
+            case 2:
             {
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::QUAD;
 
                 // fill space coeff xHat
-                tXHat = {{ 0.0, 0.0 },
-                         { 1.0, 0.0 },
-                         { 1.0, 1.0 },
-                         { 0.0, 1.0 }};
+                tXHat = { { 0.0, 0.0 },
+                    { 1.0, 0.0 },
+                    { 1.0, 1.0 },
+                    { 0.0, 1.0 } };
 
-               // set velocity dof types
-               tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
-               break;
+                // set velocity dof types
+                tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
+                break;
             }
-            case 3 :
+            case 3:
             {
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::HEX;
 
                 // fill space coeff xHat
-                tXHat = {{ 0.0, 0.0, 0.0 },
-                         { 1.0, 0.0, 0.0 },
-                         { 1.0, 1.0, 0.0 },
-                         { 0.0, 1.0, 0.0 },
-                         { 0.0, 0.0, 1.0 },
-                         { 1.0, 0.0, 1.0 },
-                         { 1.0, 1.0, 1.0 },
-                         { 0.0, 1.0, 1.0 }};
+                tXHat = { { 0.0, 0.0, 0.0 },
+                    { 1.0, 0.0, 0.0 },
+                    { 1.0, 1.0, 0.0 },
+                    { 0.0, 1.0, 0.0 },
+                    { 0.0, 0.0, 1.0 },
+                    { 1.0, 0.0, 1.0 },
+                    { 1.0, 1.0, 1.0 },
+                    { 0.0, 1.0, 1.0 } };
 
                 // set velocity dof types
                 tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ };
@@ -906,16 +983,16 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Symmetric_Negative",
         //------------------------------------------------------------------------------
         // create a space geometry interpolation rule
         mtk::Interpolation_Rule tGIRule( tGeometryType,
-                                    mtk::Interpolation_Type::LAGRANGE,
-                                    mtk::Interpolation_Order::LINEAR,
-                                    mtk::Interpolation_Type::LAGRANGE,
-                                    mtk::Interpolation_Order::LINEAR );
+                mtk::Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Order::LINEAR,
+                mtk::Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Order::LINEAR );
 
         // create a space time geometry interpolator
         Geometry_Interpolator tGI = Geometry_Interpolator( tGIRule );
 
         // create time coeff tHat
-        Matrix< DDRMat > tTHat = {{ 0.0 }, { 1.0 }};
+        Matrix< DDRMat > tTHat = { { 0.0 }, { 1.0 } };
 
         // set the coefficients xHat, tHat
         tGI.set_coeff( tXHat, tTHat );
@@ -925,7 +1002,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Symmetric_Negative",
         tSPNitsche->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
-        for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
+        for ( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
         {
             // integration points
             //------------------------------------------------------------------------------
@@ -957,22 +1034,28 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Symmetric_Negative",
             uint tNumCoeff = tNumCoeffs( iSpaceDim - 2, iInterpOrder - 1 );
 
             // get number of dof per type
-            int tNumDofVel  = tNumCoeff * iSpaceDim;
-            int tNumDofVis  = tNumCoeff;
+            int tNumDofVel      = tNumCoeff * iSpaceDim;
+            int tNumDofVis      = tNumCoeff;
+            int tNumDofWallDist = tNumCoeff;
 
-            //create a space time interpolation rule
-            mtk::Interpolation_Rule tFIRule ( tGeometryType,
-                                         mtk::Interpolation_Type::LAGRANGE,
-                                         tInterpolationOrder,
-                                         mtk::Interpolation_Type::LAGRANGE,
-                                         mtk::Interpolation_Order::LINEAR );
+            // create a space time interpolation rule
+            mtk::Interpolation_Rule tFIRule( tGeometryType,
+                    mtk::Interpolation_Type::LAGRANGE,
+                    tInterpolationOrder,
+                    mtk::Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Order::LINEAR );
 
             // fill coefficients for master FI
             Matrix< DDRMat > tMasterDOFHatVel;
             fill_uhat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
+
             Matrix< DDRMat > tMasterDOFHatVis;
             fill_phat( tMasterDOFHatVis, iSpaceDim, iInterpOrder );
-            tMasterDOFHatVis = - 1.0 * tMasterDOFHatVis;
+            tMasterDOFHatVis = tViscosityScaling * tMasterDOFHatVis;
+
+            Matrix< DDRMat > tMasterDOFHatWallDist;
+            fill_phat( tMasterDOFHatWallDist, iSpaceDim, iInterpOrder );
+            tMasterDOFHatWallDist = tWallDistScaling * tMasterDOFHatWallDist;
 
             // create a cell of field interpolators for IWG
             Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
@@ -985,23 +1068,32 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Symmetric_Negative",
             tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
             tMasterFIs( 1 )->set_coeff( tMasterDOFHatVis );
 
+            // create the field interpolator wall distance
+            tMasterFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tWallDistDofTypes( 0 ) );
+            tMasterFIs( 2 )->set_coeff( tMasterDOFHatWallDist );
+
             // set size and fill the set residual assembly map
             tIWG->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
-            tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofVel-1 } };
+            tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofVel - 1 } };
             tIWG->mSet->mResDofAssemblyMap( 1 ) = { { tNumDofVel, tNumDofVel + tNumDofVis - 1 } };
+            tIWG->mSet->mResDofAssemblyMap( 2 ) = { { tNumDofVel + tNumDofVis, tNumDofVel + tNumDofVis + tNumDofWallDist - 1 } };
 
             // set size and fill the set jacobian assembly map
             Matrix< DDSMat > tJacAssembly = {
-                    { 0, tNumDofVel - 1 },
-                    { tNumDofVel, tNumDofVel + tNumDofVis - 1 } };
+                { 0, tNumDofVel - 1 },
+                { tNumDofVel, tNumDofVel + tNumDofVis - 1 },
+                { tNumDofVel + tNumDofVis, tNumDofVel + tNumDofVis + tNumDofWallDist - 1 }
+            };
+
             tIWG->mSet->mJacDofAssemblyMap.resize( tDofTypes.size() );
             tIWG->mSet->mJacDofAssemblyMap( 0 ) = tJacAssembly;
             tIWG->mSet->mJacDofAssemblyMap( 1 ) = tJacAssembly;
+            tIWG->mSet->mJacDofAssemblyMap( 2 ) = tJacAssembly;
 
             // set size and init the set residual and jacobian
             tIWG->mSet->mResidual.resize( 1 );
-            tIWG->mSet->mResidual( 0 ).set_size( tNumDofVel + tNumDofVis, 1, 0.0 );
-            tIWG->mSet->mJacobian.set_size( tNumDofVel + tNumDofVis, tNumDofVel + tNumDofVis, 0.0 );
+            tIWG->mSet->mResidual( 0 ).set_size( tNumDofVel + tNumDofVis + tNumDofWallDist, 1, 0.0 );
+            tIWG->mSet->mJacobian.set_size( tNumDofVel + tNumDofVis + tNumDofWallDist, tNumDofVel + tNumDofVis + tNumDofWallDist, 0.0 );
 
             // build global dof type list
             tIWG->get_global_dof_type_list();
@@ -1010,12 +1102,12 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Symmetric_Negative",
             tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
+            moris::Cell< moris::Cell< enum PDV_Type > >        tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
-            Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tFIManager.mFI = tMasterFIs;
+            tFIManager.mFI                     = tMasterFIs;
             tFIManager.mIPGeometryInterpolator = &tGI;
             tFIManager.mIGGeometryInterpolator = &tGI;
 
@@ -1027,7 +1119,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Symmetric_Negative",
 
             // loop over integration points
             uint tNumGPs = tIntegPoints.n_cols();
-            for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
+            for ( uint iGP = 0; iGP < tNumGPs; iGP++ )
             {
                 // reset IWG evaluation flags
                 tIWG->reset_eval_flags();
@@ -1065,9 +1157,9 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Symmetric_Negative",
                         true );
 
                 // print for debug
-                if( !tCheckJacobian )
+                if ( !tCheckJacobian )
                 {
-                    std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<"iGP "<<iGP<<std::endl;
+                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << "iGP " << iGP << std::endl;
                 }
 
                 // require check is true
@@ -1078,16 +1170,22 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Symmetric_Negative",
             tMasterFIs.clear();
         }
     }
-}/*END_TEST_CASE*/
+} /*END_TEST_CASE*/
 
 TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric_Negative",
         "[IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric_Negative]" )
 {
     // define an epsilon environment
-    real tEpsilon = 1E-5;
+    real tEpsilon = 1E-4;
 
     // define a perturbation relative size
-    real tPerturbation = 1E-6;
+    real tPerturbation = 1E-5;
+
+    // define turbulent viscosity scaling (should be similar to wall distance, can be positive or negative)
+    real tViscosityScaling = -1e-5;
+
+    // define wall distance scaling (needs to be positive and small)
+    real tWallDistScaling = 1e-5;
 
     // init geometry inputs
     //------------------------------------------------------------------------------
@@ -1099,49 +1197,48 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric_Negative",
 
     // create list of interpolation orders
     moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
-            mtk::Interpolation_Order::LINEAR,
-            mtk::Interpolation_Order::QUADRATIC,
-            mtk::Interpolation_Order::CUBIC };
+        mtk::Interpolation_Order::LINEAR,
+        mtk::Interpolation_Order::QUADRATIC,
+        mtk::Interpolation_Order::CUBIC
+    };
 
     // create list of integration orders
     moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
-            mtk::Integration_Order::QUAD_2x2,
-            mtk::Integration_Order::HEX_2x2x2 };
+        mtk::Integration_Order::QUAD_2x2,
+        mtk::Integration_Order::HEX_2x2x2
+    };
 
     // create list with number of coeffs
-    Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
+    Matrix< DDRMat > tNumCoeffs = { { 8, 18, 32 }, { 16, 54, 128 } };
 
     // dof type list
-    moris::Cell< MSI::Dof_Type > tVelDofTypes  = { MSI::Dof_Type::VX };
+    moris::Cell< MSI::Dof_Type >                tVelDofTypes      = { MSI::Dof_Type::VX };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tVisDofTypes      = { { MSI::Dof_Type::VISCOSITY } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tWallDistDofTypes = { { MSI::Dof_Type::L2 } };
 
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tVisDofTypes = { { MSI::Dof_Type::VISCOSITY } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes    = { tVelDofTypes, tVisDofTypes( 0 ) };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tVelDofTypes, tVisDofTypes( 0 ), tWallDistDofTypes( 0 ) };
 
     // init IWG
     //------------------------------------------------------------------------------
     // create the properties
     std::shared_ptr< fem::Property > tPropDirichlet = std::make_shared< fem::Property >();
-    tPropDirichlet->set_parameters( { {{ 2.0 }} } );
+    tPropDirichlet->set_parameters( { { { 2.0 } } } );
     tPropDirichlet->set_val_function( tConstValFunc );
-    //tPropDirichlet->set_dof_type_list( { tVisDofTypes } );
-    //tPropDirichlet->set_val_function( tVISCOSITYFIValFunc );
-    //tPropDirichlet->set_dof_derivative_functions( { tVISCOSITYFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
-    tPropViscosity->set_parameters( { {{ 2.0 }} } );
+    tPropViscosity->set_parameters( { { { 2.0 } } } );
     tPropViscosity->set_val_function( tConstValFunc );
-    //tPropViscosity->set_dof_type_list( { tVisDofTypes } );
-    //tPropViscosity->set_val_function( tVISCOSITYFIValFunc );
-    //tPropViscosity->set_dof_derivative_functions( { tVISCOSITYFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropUpwind = std::make_shared< fem::Property >();
-    tPropUpwind->set_parameters( { {{ 1.0 }} } );
+    tPropUpwind->set_parameters( { { { 1.0 } } } );
     tPropUpwind->set_val_function( tConstValFunc );
 
     // create the properties
     std::shared_ptr< fem::Property > tPropWallDistance = std::make_shared< fem::Property >();
-    tPropWallDistance->set_parameters( { {{ 1.0 }} } );
-    tPropWallDistance->set_val_function( tConstValFunc );
+    tPropWallDistance->set_parameters( { { { 1.0 } } } );
+    tPropWallDistance->set_dof_type_list( tWallDistDofTypes );
+    tPropWallDistance->set_val_function( tWallDistanceValFunc );
+    tPropWallDistance->set_dof_derivative_functions( { tWallDistanceDerFunc } );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
@@ -1158,11 +1255,11 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric_Negative",
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche =
             tSPFactory.create_SP( fem::Stabilization_Type::TURBULENCE_DIRICHLET_NITSCHE );
-    tSPNitsche->set_parameters( { {{ 1.0 }} } );
+    tSPNitsche->set_parameters( { { { 1.0 } } } );
     tSPNitsche->set_constitutive_model( tCMMasterSATurbulence, "SpalartAllmarasTurbulence" );
 
     // create a dummy fem cluster and set it to SP
-    fem::Cluster * tCluster = new fem::Cluster();
+    fem::Cluster* tCluster = new fem::Cluster();
     tSPNitsche->set_cluster( tCluster );
 
     // define the IWGs
@@ -1180,8 +1277,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric_Negative",
     // init set info
     //------------------------------------------------------------------------------
     // set a fem set pointer
-    MSI::Equation_Set * tSet = new fem::Set();
-    static_cast<fem::Set*>(tSet)->set_set_type( fem::Element_Type::SIDESET );
+    MSI::Equation_Set* tSet = new fem::Set();
+    static_cast< fem::Set* >( tSet )->set_set_type( fem::Element_Type::SIDESET );
     tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
@@ -1191,14 +1288,16 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric_Negative",
     tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 1;
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::L2 ) )        = 2;
 
     // set size and populate the set master dof type map
     tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
     tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 1;
+    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::L2 ) )        = 2;
 
     // loop on the space dimension
-    for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
+    for ( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
     {
         // create and set normal
         Matrix< DDRMat > tNormal( iSpaceDim, 1, 0.5 );
@@ -1208,37 +1307,37 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric_Negative",
         // set geometry inputs
         //------------------------------------------------------------------------------
         // switch on space dimension
-        switch( iSpaceDim )
+        switch ( iSpaceDim )
         {
-            case 2 :
+            case 2:
             {
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::QUAD;
 
                 // fill space coeff xHat
-                tXHat = {{ 0.0, 0.0 },
-                         { 1.0, 0.0 },
-                         { 1.0, 1.0 },
-                         { 0.0, 1.0 }};
+                tXHat = { { 0.0, 0.0 },
+                    { 1.0, 0.0 },
+                    { 1.0, 1.0 },
+                    { 0.0, 1.0 } };
 
-               // set velocity dof types
-               tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
-               break;
+                // set velocity dof types
+                tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
+                break;
             }
-            case 3 :
+            case 3:
             {
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::HEX;
 
                 // fill space coeff xHat
-                tXHat = {{ 0.0, 0.0, 0.0 },
-                         { 1.0, 0.0, 0.0 },
-                         { 1.0, 1.0, 0.0 },
-                         { 0.0, 1.0, 0.0 },
-                         { 0.0, 0.0, 1.0 },
-                         { 1.0, 0.0, 1.0 },
-                         { 1.0, 1.0, 1.0 },
-                         { 0.0, 1.0, 1.0 }};
+                tXHat = { { 0.0, 0.0, 0.0 },
+                    { 1.0, 0.0, 0.0 },
+                    { 1.0, 1.0, 0.0 },
+                    { 0.0, 1.0, 0.0 },
+                    { 0.0, 0.0, 1.0 },
+                    { 1.0, 0.0, 1.0 },
+                    { 1.0, 1.0, 1.0 },
+                    { 0.0, 1.0, 1.0 } };
 
                 // set velocity dof types
                 tVelDofTypes = { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ };
@@ -1257,16 +1356,16 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric_Negative",
         //------------------------------------------------------------------------------
         // create a space geometry interpolation rule
         mtk::Interpolation_Rule tGIRule( tGeometryType,
-                                    mtk::Interpolation_Type::LAGRANGE,
-                                    mtk::Interpolation_Order::LINEAR,
-                                    mtk::Interpolation_Type::LAGRANGE,
-                                    mtk::Interpolation_Order::LINEAR );
+                mtk::Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Order::LINEAR,
+                mtk::Interpolation_Type::LAGRANGE,
+                mtk::Interpolation_Order::LINEAR );
 
         // create a space time geometry interpolator
         Geometry_Interpolator tGI = Geometry_Interpolator( tGIRule );
 
         // create time coeff tHat
-        Matrix< DDRMat > tTHat = {{ 0.0 }, { 1.0 }};
+        Matrix< DDRMat > tTHat = { { 0.0 }, { 1.0 } };
 
         // set the coefficients xHat, tHat
         tGI.set_coeff( tXHat, tTHat );
@@ -1276,7 +1375,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric_Negative",
         tSPNitsche->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
-        for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
+        for ( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
         {
             // integration points
             //------------------------------------------------------------------------------
@@ -1308,22 +1407,28 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric_Negative",
             uint tNumCoeff = tNumCoeffs( iSpaceDim - 2, iInterpOrder - 1 );
 
             // get number of dof per type
-            int tNumDofVel  = tNumCoeff * iSpaceDim;
-            int tNumDofVis  = tNumCoeff;
+            int tNumDofVel      = tNumCoeff * iSpaceDim;
+            int tNumDofVis      = tNumCoeff;
+            int tNumDofWallDist = tNumCoeff;
 
-            //create a space time interpolation rule
-            mtk::Interpolation_Rule tFIRule ( tGeometryType,
-                                         mtk::Interpolation_Type::LAGRANGE,
-                                         tInterpolationOrder,
-                                         mtk::Interpolation_Type::LAGRANGE,
-                                         mtk::Interpolation_Order::LINEAR );
+            // create a space time interpolation rule
+            mtk::Interpolation_Rule tFIRule( tGeometryType,
+                    mtk::Interpolation_Type::LAGRANGE,
+                    tInterpolationOrder,
+                    mtk::Interpolation_Type::LAGRANGE,
+                    mtk::Interpolation_Order::LINEAR );
 
             // fill coefficients for master FI
             Matrix< DDRMat > tMasterDOFHatVel;
             fill_uhat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
+
             Matrix< DDRMat > tMasterDOFHatVis;
             fill_phat( tMasterDOFHatVis, iSpaceDim, iInterpOrder );
-            tMasterDOFHatVis = -1.0 * tMasterDOFHatVis;
+            tMasterDOFHatVis = tViscosityScaling * tMasterDOFHatVis;
+
+            Matrix< DDRMat > tMasterDOFHatWallDist;
+            fill_phat( tMasterDOFHatWallDist, iSpaceDim, iInterpOrder );
+            tMasterDOFHatWallDist = tWallDistScaling * tMasterDOFHatWallDist;
 
             // create a cell of field interpolators for IWG
             Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
@@ -1336,23 +1441,32 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric_Negative",
             tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
             tMasterFIs( 1 )->set_coeff( tMasterDOFHatVis );
 
+            // create the field interpolator wall distance
+            tMasterFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tWallDistDofTypes( 0 ) );
+            tMasterFIs( 2 )->set_coeff( tMasterDOFHatWallDist );
+
             // set size and fill the set residual assembly map
             tIWG->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
-            tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofVel-1 } };
+            tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofVel - 1 } };
             tIWG->mSet->mResDofAssemblyMap( 1 ) = { { tNumDofVel, tNumDofVel + tNumDofVis - 1 } };
+            tIWG->mSet->mResDofAssemblyMap( 2 ) = { { tNumDofVel + tNumDofVis, tNumDofVel + tNumDofVis + tNumDofWallDist - 1 } };
 
             // set size and fill the set jacobian assembly map
             Matrix< DDSMat > tJacAssembly = {
-                    { 0, tNumDofVel - 1 },
-                    { tNumDofVel, tNumDofVel + tNumDofVis - 1 } };
+                { 0, tNumDofVel - 1 },
+                { tNumDofVel, tNumDofVel + tNumDofVis - 1 },
+                { tNumDofVel + tNumDofVis, tNumDofVel + tNumDofVis + tNumDofWallDist - 1 }
+            };
+
             tIWG->mSet->mJacDofAssemblyMap.resize( tDofTypes.size() );
             tIWG->mSet->mJacDofAssemblyMap( 0 ) = tJacAssembly;
             tIWG->mSet->mJacDofAssemblyMap( 1 ) = tJacAssembly;
+            tIWG->mSet->mJacDofAssemblyMap( 2 ) = tJacAssembly;
 
             // set size and init the set residual and jacobian
             tIWG->mSet->mResidual.resize( 1 );
-            tIWG->mSet->mResidual( 0 ).set_size( tNumDofVel + tNumDofVis, 1, 0.0 );
-            tIWG->mSet->mJacobian.set_size( tNumDofVel + tNumDofVis, tNumDofVel + tNumDofVis, 0.0 );
+            tIWG->mSet->mResidual( 0 ).set_size( tNumDofVel + tNumDofVis + tNumDofWallDist, 1, 0.0 );
+            tIWG->mSet->mJacobian.set_size( tNumDofVel + tNumDofVis + tNumDofWallDist, tNumDofVel + tNumDofVis + tNumDofWallDist, 0.0 );
 
             // build global dof type list
             tIWG->get_global_dof_type_list();
@@ -1361,12 +1475,12 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric_Negative",
             tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
+            moris::Cell< moris::Cell< enum PDV_Type > >        tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
-            Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tFIManager.mFI = tMasterFIs;
+            tFIManager.mFI                     = tMasterFIs;
             tFIManager.mIPGeometryInterpolator = &tGI;
             tFIManager.mIGGeometryInterpolator = &tGI;
 
@@ -1378,7 +1492,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric_Negative",
 
             // loop over integration points
             uint tNumGPs = tIntegPoints.n_cols();
-            for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
+            for ( uint iGP = 0; iGP < tNumGPs; iGP++ )
             {
                 // reset IWG evaluation flags
                 tIWG->reset_eval_flags();
@@ -1416,9 +1530,9 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric_Negative",
                         true );
 
                 // print for debug
-                if( !tCheckJacobian )
+                if ( !tCheckJacobian )
                 {
-                    std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<"iGP "<<iGP<<std::endl;
+                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << "iGP " << iGP << std::endl;
                 }
 
                 // require check is true
@@ -1429,4 +1543,4 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric_Negative",
             tMasterFIs.clear();
         }
     }
-}/*END_TEST_CASE*/
+} /*END_TEST_CASE*/

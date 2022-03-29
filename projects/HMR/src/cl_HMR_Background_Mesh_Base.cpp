@@ -1402,9 +1402,10 @@ namespace moris
 
         //--------------------------------------------------------------------------------
 
-        void Background_Mesh_Base::create_staircase_buffer_for_element(       Background_Element_Base * aElement,
+        void Background_Mesh_Base::create_staircase_buffer_for_element(
+                Background_Element_Base * aElement,
                 luint                   & aElementCounter,
-                const uint                    & aHalfBuffer )
+                const uint              & aHalfBuffer )
         {
             // cell containing neighbors of each parent
             Cell< Background_Element_Base* > tNeighbors;
@@ -1528,7 +1529,7 @@ namespace moris
                 }
                 else
                 {
-                    MORIS_LOG_INFO("%s Created staircase buffer  of width %u.",
+                    MORIS_LOG_INFO("%s Created staircase buffer of width %u.",
                             proc_string().c_str(),
                             ( unsigned int ) mBufferSize);
 

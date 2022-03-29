@@ -32,11 +32,10 @@ namespace xtk
       protected:
 
         bool                                            mTrivial;
-        bool                                            mFull;
         bool                                            mVoid;
         bool                                            mInvalid;
         Interpolation_Cell_Unzipped const*              mInterpolationCell;
-        Child_Mesh const*                               mChildMesh;
+        Child_Mesh const*                               mChildMesh;  // FIXME: this doesn't seem to be used, should be removed
         moris::Cell< moris::mtk::Cell const* >          mPrimaryIntegrationCells;
         moris::Cell< moris::mtk::Cell const* >          mVoidIntegrationCells;
         moris::Cell< moris::mtk::Vertex const* >        mVerticesInCluster;
@@ -52,6 +51,7 @@ namespace xtk
         Cell_Cluster();
         ~Cell_Cluster();
         bool                                          is_trivial( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
+        bool                                          is_full() const;
         bool                                          is_void() const;
         bool                                          is_invalid() const;
         moris::Cell< moris::mtk::Cell const* > const& get_primary_cells_in_cluster( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;

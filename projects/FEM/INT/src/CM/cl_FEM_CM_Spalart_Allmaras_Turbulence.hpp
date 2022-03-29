@@ -29,7 +29,7 @@ namespace moris
 
           private:
             // internal threshold for zero
-            // needs to be consistent with threshold set in fn_FEM_IWG_Spalart_Allmaras_Turbulence_Tools.hpp
+            // needs to be consistent with threshold set in fn_FEM_IWG_Spalart_Allmaras_Turbulence_Tools.cpp
             const real mEpsilon = 1e-10;
 
             // Spalart-Allmaras model constants

@@ -1025,7 +1025,7 @@ namespace moris
             //        tNonlinearSolverMonolythicT.set_dof_type_list( tDofTypesT );
             //        tNonlinearSolverMonolythicU.set_dof_type_list( tDofTypesU );
             //
-            //        tNonlinearSolverMonolythicU.set_secondiry_dof_type_list(tDofTypesT);
+            //        tNonlinearSolverMonolythicU.set_secondary_dof_type_list(tDofTypesT);
             //
             //        tNonlinearSolverMain.set_sub_nonlinear_solver( &tNonlinearSolverMonolythicT );
             //        tNonlinearSolverMain.set_sub_nonlinear_solver( &tNonlinearSolverMonolythicU );

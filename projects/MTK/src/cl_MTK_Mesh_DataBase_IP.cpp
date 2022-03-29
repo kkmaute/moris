@@ -207,7 +207,7 @@ namespace moris::mtk
     uint
     Interpolation_Mesh_DataBase_IP::get_num_interpolations()
     {
-        return mMeshIndices.numel();
+        return mMeshIndices.max() + 1;
     }
 
 
@@ -317,6 +317,14 @@ namespace moris::mtk
     Interpolation_Mesh_DataBase_IP::get_vertex_interpolation( moris_index aVertexIndex )
     {
         return mVertexInterpoltionsPtrs.memptr() + mMeshIndices.numel() * aVertexIndex;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    uint
+    Interpolation_Mesh_DataBase_IP::get_local_mesh_index( const uint aBsplineMeshIndex )
+    {
+        return mGlobalMeshIndexToLocalMeshIndex[ aBsplineMeshIndex ];
     }
 
     //--------------------------------------------------------------------------------------------------------------

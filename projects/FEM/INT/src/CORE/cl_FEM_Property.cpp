@@ -1,5 +1,5 @@
 
-#include "cl_FEM_Property.hpp" //FEM/MSI/src
+#include "cl_FEM_Property.hpp"    //FEM/MSI/src
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 
 namespace moris
@@ -25,8 +25,9 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Property::set_space_der_functions(
-                const moris::Cell< PropertyFunc > & aSpaceDerFunctions )
+        void
+        Property::set_space_der_functions(
+                const moris::Cell< PropertyFunc >& aSpaceDerFunctions )
         {
             // get the max order of space derivatives
             uint tMaxOrder = aSpaceDerFunctions.size();
@@ -38,7 +39,7 @@ namespace moris
             mSpaceDerFunctions.resize( tMaxOrder );
 
             // loop over order and set function
-            for( uint iOrder = 0; iOrder < tMaxOrder; iOrder++ )
+            for ( uint iOrder = 0; iOrder < tMaxOrder; iOrder++ )
             {
                 // set the value function
                 mSpaceDerFunctions( iOrder ) = aSpaceDerFunctions( iOrder );
@@ -50,7 +51,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Property::reset_eval_flags()
+        void
+        Property::reset_eval_flags()
         {
             // reset the property value
             mPropEval = true;
@@ -67,8 +69,9 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Property::set_field_interpolator_manager(
-                Field_Interpolator_Manager * aFieldInterpolatorManager )
+        void
+        Property::set_field_interpolator_manager(
+                Field_Interpolator_Manager* aFieldInterpolatorManager )
         {
             // set field interpolator manager
             mFIManager = aFieldInterpolatorManager;
@@ -76,8 +79,9 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Property::set_dof_type_list(
-                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes )
+        void
+        Property::set_dof_type_list(
+                const moris::Cell< moris::Cell< MSI::Dof_Type > >& aDofTypes )
         {
             // set dof type list
             mDofTypes = aDofTypes;
@@ -100,11 +104,12 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Property::build_dof_type_map()
+        void
+        Property::build_dof_type_map()
         {
             // determine the max Dof_Type enum
             sint tMaxEnum = 0;
-            for( uint iDof = 0; iDof < mDofTypes.size(); iDof++ )
+            for ( uint iDof = 0; iDof < mDofTypes.size(); iDof++ )
             {
                 tMaxEnum = std::max( tMaxEnum, static_cast< int >( mDofTypes( iDof )( 0 ) ) );
             }
@@ -115,7 +120,7 @@ namespace moris
             mDofTypeMap.set_size( tMaxEnum, 1, -1 );
 
             // fill the Dof_Type map
-            for( uint iDof = 0; iDof < mDofTypes.size(); iDof++ )
+            for ( uint iDof = 0; iDof < mDofTypes.size(); iDof++ )
             {
                 // fill the property map
                 mDofTypeMap( static_cast< int >( mDofTypes( iDof )( 0 ) ), 0 ) = iDof;
@@ -124,8 +129,9 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        bool Property::check_dof_dependency(
-                const moris::Cell< MSI::Dof_Type > & aDofType )
+        bool
+        Property::check_dof_dependency(
+                const moris::Cell< MSI::Dof_Type >& aDofType )
         {
             // throw error if property hasn't been initialized
             MORIS_ASSERT( this != nullptr, "cl_FEM_Property - check_dof_dependency(): Property is nullptr." );
@@ -134,7 +140,7 @@ namespace moris
             uint tDofIndex = static_cast< uint >( aDofType( 0 ) );
 
             // if aDofType is an active dof type for the property
-            if( tDofIndex >= mDofTypeMap.numel() )
+            if ( tDofIndex >= mDofTypeMap.numel() )
             {
                 return false;
             }
@@ -149,8 +155,9 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Property::set_dv_type_list(
-                const moris::Cell< moris::Cell< PDV_Type > > & aDvTypes )
+        void
+        Property::set_dv_type_list(
+                const moris::Cell< moris::Cell< PDV_Type > >& aDvTypes )
         {
             // set dv type list
             mDvTypes = aDvTypes;
@@ -173,7 +180,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Property::build_dv_type_map()
+        void
+        Property::build_dv_type_map()
         {
             // get number of dv types
             uint tNumDvTypes = mDvTypes.size();
@@ -181,7 +189,7 @@ namespace moris
             // determine the max Dv_Type enum
             sint tMaxEnum = 0;
 
-            for( uint iDV = 0; iDV < tNumDvTypes; iDV++ )
+            for ( uint iDV = 0; iDV < tNumDvTypes; iDV++ )
             {
                 tMaxEnum = std::max( tMaxEnum, static_cast< int >( mDvTypes( iDV )( 0 ) ) );
             }
@@ -192,7 +200,7 @@ namespace moris
             mDvTypeMap.set_size( tMaxEnum, 1, -1 );
 
             // fill the Dof_Type map
-            for( uint iDV = 0; iDV < tNumDvTypes; iDV++ )
+            for ( uint iDV = 0; iDV < tNumDvTypes; iDV++ )
             {
                 // fill the property map
                 mDvTypeMap( static_cast< int >( mDvTypes( iDV )( 0 ) ), 0 ) = iDV;
@@ -201,8 +209,9 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        bool Property::check_dv_dependency(
-                const moris::Cell< PDV_Type > & aDvType )
+        bool
+        Property::check_dv_dependency(
+                const moris::Cell< PDV_Type >& aDvType )
         {
             // set bool for dependency
             bool tDvDependency = false;
@@ -211,7 +220,7 @@ namespace moris
             uint tDvIndex = static_cast< uint >( aDvType( 0 ) );
 
             // if aDvType is an active dv type for the property
-            if( tDvIndex < mDvTypeMap.numel() && mDvTypeMap( tDvIndex ) != -1 )
+            if ( tDvIndex < mDvTypeMap.numel() && mDvTypeMap( tDvIndex ) != -1 )
             {
                 // bool is set to true
                 tDvDependency = true;
@@ -223,8 +232,9 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Property::set_field_type_list(
-                const moris::Cell< moris::Cell< mtk::Field_Type > > & aFieldTypes )
+        void
+        Property::set_field_type_list(
+                const moris::Cell< moris::Cell< mtk::Field_Type > >& aFieldTypes )
         {
             // set field type list
             mFieldTypes = aFieldTypes;
@@ -235,7 +245,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Property::build_field_type_map()
+        void
+        Property::build_field_type_map()
         {
             // get number of field types
             uint tNumFieldTypes = mFieldTypes.size();
@@ -243,7 +254,7 @@ namespace moris
             // determine the max Field_Type enum
             sint tMaxEnum = 0;
 
-            for( uint iFi = 0; iFi < tNumFieldTypes; iFi++ )
+            for ( uint iFi = 0; iFi < tNumFieldTypes; iFi++ )
             {
                 tMaxEnum = std::max( tMaxEnum, static_cast< int >( mFieldTypes( iFi )( 0 ) ) );
             }
@@ -254,7 +265,7 @@ namespace moris
             mFieldTypeMap.set_size( tMaxEnum, 1, -1 );
 
             // fill the Field_Type map
-            for( uint iFi = 0; iFi < tNumFieldTypes; iFi++ )
+            for ( uint iFi = 0; iFi < tNumFieldTypes; iFi++ )
             {
                 // fill the property map
                 mFieldTypeMap( static_cast< int >( mFieldTypes( iFi )( 0 ) ), 0 ) = iFi;
@@ -263,8 +274,9 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        bool Property::check_field_dependency(
-                const moris::Cell< mtk::Field_Type > & aFieldType )
+        bool
+        Property::check_field_dependency(
+                const moris::Cell< mtk::Field_Type >& aFieldType )
         {
             // set bool for dependency
             bool tFieldDependency = false;
@@ -273,7 +285,7 @@ namespace moris
             uint tFieldIndex = static_cast< uint >( aFieldType( 0 ) );
 
             // if aFieldType is an active field type for the property
-            if( tFieldIndex < mFieldTypeMap.numel() && mFieldTypeMap( tFieldIndex ) != -1 )
+            if ( tFieldIndex < mFieldTypeMap.numel() && mFieldTypeMap( tFieldIndex ) != -1 )
             {
                 // bool is set to true
                 tFieldDependency = true;
@@ -285,8 +297,9 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Property::get_non_unique_dof_types(
-                moris::Cell< MSI::Dof_Type > & aDofTypes )
+        void
+        Property::get_non_unique_dof_types(
+                moris::Cell< MSI::Dof_Type >& aDofTypes )
         {
             // init counter
             uint tCounter = 0;
@@ -311,10 +324,11 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Property::get_non_unique_dof_dv_and_field_types(
-                moris::Cell< MSI::Dof_Type >   & aDofTypes,
-                moris::Cell< PDV_Type >        & aDvTypes,
-                moris::Cell< mtk::Field_Type > & aFieldTypes)
+        void
+        Property::get_non_unique_dof_dv_and_field_types(
+                moris::Cell< MSI::Dof_Type >&   aDofTypes,
+                moris::Cell< PDV_Type >&        aDvTypes,
+                moris::Cell< mtk::Field_Type >& aFieldTypes )
         {
             // init counter
             uint tDofCounter   = 0;
@@ -371,10 +385,11 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & Property::val()
+        const Matrix< DDRMat >&
+        Property::val()
         {
             // if the property was not evaluated
-            if( mPropEval )
+            if ( mPropEval )
             {
                 // evaluate the property
                 this->eval_Prop();
@@ -389,11 +404,12 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Property::eval_Prop()
+        void
+        Property::eval_Prop()
         {
-//            // check that mValFunc was assigned
-//            MORIS_ASSERT( mSetValFunction == true,
-//                    "Property::eval_Prop - mValFunction not assigned. " );
+            //            // check that mValFunc was assigned
+            //            MORIS_ASSERT( mSetValFunction == true,
+            //                    "Property::eval_Prop - mValFunction not assigned. " );
 
             // check that mFIManager was assigned
             MORIS_ASSERT( mFIManager != nullptr,
@@ -405,7 +421,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        bool Property::check_space_dependency( const uint & aOrder )
+        bool
+        Property::check_space_dependency( const uint& aOrder )
         {
             // throw error if property hasn't been initialized
             MORIS_ASSERT( this != nullptr, "cl_FEM_Property - check_space_dependency(): Property is nullptr." );
@@ -416,10 +433,11 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & Property::dnPropdxn( const uint & aOrder )
+        const Matrix< DDRMat >&
+        Property::dnPropdxn( const uint& aOrder )
         {
             // if the property was not evaluated
-            if( mdPropdxEval( aOrder - 1 ) )
+            if ( mdPropdxEval( aOrder - 1 ) )
             {
                 // evaluate the property
                 this->eval_dnPropdxn( aOrder );
@@ -434,7 +452,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Property::eval_dnPropdxn( const uint & aOrder )
+        void
+        Property::eval_dnPropdxn( const uint& aOrder )
         {
             // check that mSetSpaceDerFunc was assigned
             MORIS_ASSERT( mSetSpaceDerFunctions( aOrder - 1 ) == true,
@@ -450,8 +469,9 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & Property::dPropdDOF(
-                const moris::Cell< MSI::Dof_Type > & aDofType )
+        const Matrix< DDRMat >&
+        Property::dPropdDOF(
+                const moris::Cell< MSI::Dof_Type >& aDofType )
         {
             // if aDofType is not an active dof type for the property
             MORIS_ERROR( this->check_dof_dependency( aDofType ),
@@ -461,7 +481,7 @@ namespace moris
             uint tDofIndex = mDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
 
             // if the derivative has not been evaluated yet
-            if( mPropDofDerEval( tDofIndex ) )
+            if ( mPropDofDerEval( tDofIndex ) )
             {
                 // evaluate the derivative
                 this->eval_dPropdDOF( aDofType );
@@ -476,8 +496,9 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Property::eval_dPropdDOF(
-                const moris::Cell< MSI::Dof_Type > & aDofType )
+        void
+        Property::eval_dPropdDOF(
+                const moris::Cell< MSI::Dof_Type >& aDofType )
         {
             // get the dof index
             uint tDofIndex = mDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
@@ -494,13 +515,13 @@ namespace moris
 
             // if so use mDerivativeFunction to compute the derivative
             mDofDerFunctions( tDofIndex )( mPropDofDer( tDofIndex ), mParameters, mFIManager );
-
         }
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & Property::dPropdDV(
-                const moris::Cell< PDV_Type > & aDvType )
+        const Matrix< DDRMat >&
+        Property::dPropdDV(
+                const moris::Cell< PDV_Type >& aDvType )
         {
             // if aDvType is not an active dv type for the property
             MORIS_ERROR( this->check_dv_dependency( aDvType ),
@@ -510,7 +531,7 @@ namespace moris
             uint tDvIndex = mDvTypeMap( static_cast< uint >( aDvType( 0 ) ) );
 
             // if the derivative has not been evaluated yet
-            if( mPropDvDerEval( tDvIndex ) )
+            if ( mPropDvDerEval( tDvIndex ) )
             {
                 // evaluate the derivative
                 this->eval_dPropdDV( aDvType );
@@ -525,8 +546,9 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Property::eval_dPropdDV(
-                const moris::Cell< PDV_Type > & aDvType )
+        void
+        Property::eval_dPropdDV(
+                const moris::Cell< PDV_Type >& aDvType )
         {
             // get the dv index
             uint tDvIndex = mDvTypeMap( static_cast< uint >( aDvType( 0 ) ) );
