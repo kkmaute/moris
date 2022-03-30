@@ -210,7 +210,8 @@ namespace moris
                 const real&       aRefNorm,
                 const real&       aResNorm,
                 sol::Dist_Vector* aCurrentSolution,
-                real&             aTimeStep )
+                real&             aTimeStep,
+                real&             aTotalTime )
         {
             // initialize flag whether to perform update of "previous" solution
             bool tPerformUpdate = false;
@@ -316,6 +317,10 @@ namespace moris
             {
                 aTimeStep = mSteadyStateStepSize;
             }
+
+            // update total time
+            mTotalTime += aTimeStep;
+            aTotalTime = mTotalTime;
 
             // output pseudo time step
             if ( mTimeOffSet > 0.0 )

@@ -63,9 +63,12 @@ namespace moris
             /// required relative residual drop to update "previous" solution and time step size
             real mRelativeResidualDropThreshold;
 
-            // time step size used once maximum number of step has been reached
-            // for negative values, time step size defined by strategy is used
+            /// time step size used once maximum number of step has been reached
+            /// for negative values, time step size defined by strategy is used
             real mSteadyStateStepSize = -1.0;
+
+            /// total pseudo time
+            real mTotalTime = 0.0;
 
             /// time offset for outputting pseudo time solutions
             real mTimeOffSet = 0.0;
@@ -107,7 +110,8 @@ namespace moris
                     const real&       aRefNorm,
                     const real&       aResNorm,
                     sol::Dist_Vector* aCurrentSolution,
-                    real&             aTimeStep );
+                    real&             aTimeStep,
+                    real&             aTotalTime );
         };
     }    // namespace NLA
 }    // namespace moris
