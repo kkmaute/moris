@@ -3477,6 +3477,10 @@ Integration_Mesh_Generator::construct_subphase_groups(
 
             // ... add them to the last admitted SPG
             aBsplineMeshInfo->set_ligament_side_ordinals_of_last_admitted_subphase_group( tActiveLigamentSideOrdinals );
+
+            // get bulk phase of the subphase group and set it
+            moris_index tBulkPhaseIndex = aCutIntegrationMesh->get_subphase_bulk_phase( tSPsInBin( iSPG )( 0 ) );
+            aBsplineMeshInfo->set_bulk_phase_of_last_admitted_subphase_group( tBulkPhaseIndex );
         }  
     }
 }

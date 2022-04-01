@@ -26,7 +26,7 @@ namespace xtk
         moris_index mBsplineCellIndex;
 
         // index of bulk phase the SPG lives on
-        moris_index mBulkPhaseIndex;
+        moris_index mBulkPhaseIndex = -1;
 
         // List of subphases in group
         moris::Cell< moris_index > mSubphaseIndicesInGroup;
@@ -77,7 +77,7 @@ namespace xtk
         void 
         set_ig_cell_indices( moris::Cell< moris_index > aIgCellIndicesInGroup )
         {
-            MORIS_ASSERT( aIgCellIndicesInGroup.size() > 0, "Subphase_Group::set_ig_cell_indices() - passing empty list IG cells" );
+            MORIS_ASSERT( aIgCellIndicesInGroup.size() > 0, "Subphase_Group::set_ig_cell_indices() - passing empty list of IG cells" );
             mIgCellIndicesInGroup = aIgCellIndicesInGroup;
             mIgCellIndicesSet = true;
         }
@@ -93,6 +93,18 @@ namespace xtk
         get_SP_indices_in_group() const
         {
             return mSubphaseIndicesInGroup;
+        }
+
+        void 
+        set_bulk_phase( const moris_index aBulkPhaseIndex )
+        { 
+            mBulkPhaseIndex = aBulkPhaseIndex;
+        }
+
+        moris_index
+        get_bulk_phase() const
+        { 
+            return mBulkPhaseIndex;
         }
     };
 
@@ -124,9 +136,6 @@ namespace xtk
 
         // SP to SPG map
         moris::Cell< moris_index > mSpToSpgMap;
-
-        // // store which bulk-phases are present in each basis (B-spline) cell
-        // // moris::Cell< moris::Cell< moris_index > > mBulkPhasesInBsplineCells; // TODO: needed?
 
         // ----------------------------------------------------------------------------------
 
@@ -326,6 +335,31 @@ namespace xtk
 
             // commit information to corresponding subphase group
             mSubphaseGroups( mMaxSpgIndex )->set_ligament_side_ordinals( tLigamentSideOrdinals );
+        }
+
+        // ----------------------------------------------------------------------------------
+
+        void
+        set_bulk_phase_of_last_admitted_subphase_group( const moris_index aBulkPhaseIndex )
+        {
+            // access last SPG admitted and set its bulk phase
+            mSubphaseGroups( mMaxSpgIndex )->set_bulk_phase( aBulkPhaseIndex );
+        }
+
+        // ----------------------------------------------------------------------------------
+
+        moris_index
+        get_bulk_phase_for_subphase_group( const moris_index aSpgIndex ) const
+        {
+            // access last SPG admitted and set its bulk phase
+            moris_index tBulkPhaseIndex = mSubphaseGroups( aSpgIndex )->get_bulk_phase();
+
+            // check that the bulk phase for the SPG has been set
+            MORIS_ASSERT( tBulkPhaseIndex > -1, 
+                "Bspline_Mesh_Info::get_bulk_phase_for_subphase_group() - Bulk phase for SPG has not been set." );
+
+            // return the index
+            return tBulkPhaseIndex;
         }
 
         // ----------------------------------------------------------------------------------

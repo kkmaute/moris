@@ -176,7 +176,7 @@ namespace xtk
             moris_index mNumEnrIpCells; 
             moris::Cell< uint > mNumUnzippingsOnIpCell; // input: IP-cell index || output: number of enr. IP-cells and clusters to be created
             //moris::Cell< moris::Cell< uint > > mNumValidUnzippingsOnIpCell; // input: B-spline mesh index, IP-cell index || output: number of valid enr. IP-cells and clusters to be created
-            moris::Cell< moris::Cell<  moris::Cell< moris_index > > > mMaterialSpgsUnzippedOnIpCell; // input: B-spline mesh index, IP-cell index || output: list of SPG indices wrt. which clusters containign need to be created
+            moris::Cell< moris::Cell<  moris::Cell< moris_index > > > mMaterialSpgsUnzippedOnIpCell; // input: B-spline mesh index, IP-cell index || output: list of SPG indices wrt. which clusters containing material need to be created
             moris::Cell< moris::Cell<  moris::Cell< moris_index > > > mVoidSpgsUnzippedOnIpCell; // input: B-spline mesh index, IP-cell index || output: list of SPG indices wrt. which void clusters need to be created
 
             // indices of enriched IP cells as a function of the base IP cell and the local SPG index

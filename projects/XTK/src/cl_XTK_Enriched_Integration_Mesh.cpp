@@ -80,27 +80,18 @@ Enriched_Integration_Mesh::Enriched_Integration_Mesh(
     // copy list of mesh indices
     mBsplineMeshIndices = aBsplineMeshIndices;
 
-    // TODO: this function needs significant changeing, more later ...
     this->setup_cell_clusters_new();
-
-    MORIS_ERROR( false, "Enriched_Integration_Mesh() - Initialization for SPG based enrichment not fully implemented yet." );
     
-    // TODO: need to figure out if blocksets can be commited without extra void cells ...
     this->setup_blockset_with_cell_clusters();
     
-    // TODO: ...
     this->setup_side_set_clusters();
     
-    // TODO: ...
     this->setup_double_side_set_clusters();
-    
-    // TODO: ...
+
     this->setup_interface_side_sets();
-    
-    // TODO: ...
+
     this->setup_color_to_set();
-    
-    // TODO: ...
+
     this->collect_all_sets();
 
     // get the Cell info for trivial integration clusters
@@ -1854,7 +1845,11 @@ Enriched_Integration_Mesh::print_block_sets( moris::uint aVerbosityLevel ) const
 
     for ( moris::uint iBS = 0; iBS < this->get_num_blocks(); iBS++ )
     {
-        std::cout << "\n    Block Name: " << std::setw( 20 ) << mBlockSetNames( iBS ) << " | Block Set Ord: " << std::setw( 9 ) << iBS << " | Num Cell Clusters: " << std::setw( 9 ) << mPrimaryBlockSetClusters( iBS ).size() << " | Bulk Phase: " << std::setw( 9 ) << mBlockSetColors( iBS )( 0 );
+        std::cout << "\n    Block Name: " << std::setw( 20 ) << 
+            mBlockSetNames( iBS ) << " | Block Set Ord: " << 
+            std::setw( 9 ) << iBS << " | Num Cell Clusters: " << 
+            std::setw( 9 ) << mPrimaryBlockSetClusters( iBS ).size() << 
+            " | Bulk Phase: " << std::setw( 9 ) << mBlockSetColors( iBS )( 0 );
 
         if ( aVerbosityLevel > 0 )
         {
@@ -2482,7 +2477,7 @@ Enriched_Integration_Mesh::setup_blockset_with_cell_clusters()
     // get block sets (in background mesh data)
     Cell< std::string > tBlockSetsNames = tBackgroundMesh.get_set_names( EntityRank::ELEMENT );
 
-    // for each block set construct
+    // for each block set constructed
     for ( moris::uint iBS = 0; iBS < tBlockSetsNames.size(); iBS++ )
     {
         // split set into child and no child as we need to have the same type of integration cell in each set
@@ -2527,18 +2522,22 @@ Enriched_Integration_Mesh::setup_blockset_with_cell_clusters()
                 // get the index for the current blockset (depends on bulk-phase index and cut or non-cut)
                 moris_index tSetOrd = MORIS_INDEX_MAX;
 
-                if ( tCluster.is_trivial() )
+                // only register non-void clusters, i.e. clusters that thave a primary bulk-phase
+                if( tBulkPhaseIndex > -1 )
                 {
-                    tSetOrd = tNoChildBlockSetOrds( tBulkPhaseIndex );
-                }
+                    if ( tCluster.is_trivial() )
+                    {
+                        tSetOrd = tNoChildBlockSetOrds( tBulkPhaseIndex );
+                    }
 
-                else
-                {
-                    tSetOrd = tChildBlockSetOrds( tBulkPhaseIndex );
-                }
+                    else
+                    {
+                        tSetOrd = tChildBlockSetOrds( tBulkPhaseIndex );
+                    }
 
-                // add to member data
-                mPrimaryBlockSetClusters( tSetOrd ).push_back( &tCluster );
+                    // add cluster to Set
+                    mPrimaryBlockSetClusters( tSetOrd ).push_back( &tCluster );
+                }
             }
         }
     }
@@ -2571,7 +2570,8 @@ Enriched_Integration_Mesh::setup_side_set_clusters()
     moris_index tParRank = par_rank();
 
     // access background facet to child facet connectivity
-    moris::Cell< std::shared_ptr< moris::Cell< moris::moris_index > > > const &tBGFacetToChildFacet = mCutIgMesh->get_background_facet_to_child_facet_connectivity();
+    moris::Cell< std::shared_ptr< moris::Cell< moris::moris_index > > > const &tBGFacetToChildFacet = 
+        mCutIgMesh->get_background_facet_to_child_facet_connectivity();
 
     // for each side set construct
     for ( moris::uint iSS = 0; iSS < tSideSetNames.size(); iSS++ )
@@ -2608,30 +2608,34 @@ Enriched_Integration_Mesh::setup_side_set_clusters()
         {
             mtk::Cell const *tBaseCell  = tCellsInSideSet( iC );
             moris_index      tSideOrd   = tCellOrdsInSideSet( iC );
-            moris_index      tSideIndex = tBackgroundMesh.get_entity_connected_to_entity_loc_inds( tBaseCell->get_index(), EntityRank::ELEMENT, tBackgroundMesh.get_facet_rank() )( tSideOrd );
+            moris_index      tSideIndex = tBackgroundMesh.get_entity_connected_to_entity_loc_inds( tBaseCell->get_index(), 
+                                                                                                   EntityRank::ELEMENT, 
+                                                                                                   tBackgroundMesh.get_facet_rank() )( tSideOrd );
 
             // only place cluster's related to the background cells owned by current proc in sets
             if ( tBaseCell->get_owner() == tParRank )
             {
                 // get the enriched interpolation cells associated with base cell
-                moris::Cell< xtk::Interpolation_Cell_Unzipped const * > tEnrichedCellsOfBaseCell = tEnrInterpMesh->get_enriched_cells_from_base_cell( tBaseCell );
+                moris::Cell< xtk::Interpolation_Cell_Unzipped const * > tEnrichedCellsOfBaseCell = 
+                    tEnrInterpMesh->get_enriched_cells_from_base_cell( tBaseCell );
 
                 // get the subphase indices associated with the current parent cell
                 moris::Cell< moris_index > const &tSubphasesWrtParentCell = mCutIgMesh->get_parent_cell_subphases( tBaseCell->get_index() );
 
-                MORIS_ASSERT( tSubphasesWrtParentCell.size() == tEnrichedCellsOfBaseCell.size(), "Discrepency in number of interpolation cells and subphases related to base cell." );
-
                 // check some things out
                 for ( moris::uint iSP = 0; iSP < tSubphasesWrtParentCell.size(); iSP++ )
                 {
-                    MORIS_ASSERT( tSubphasesWrtParentCell( iSP ) == tEnrichedCellsOfBaseCell( iSP )->get_subphase_index(), "Discrepency in subphase index." );
+                    MORIS_ASSERT( tSubphasesWrtParentCell( iSP ) == tEnrichedCellsOfBaseCell( iSP )->get_subphase_index(), 
+                        "Discrepency in subphase index." );
                 }
 
-                // if this is a null ptr, the bg facet does not have any child facets associated with it, this indicates that the side set is on a facet not intersected by the geometry
+                // if this is a null ptr, the bg facet does not have any child facets associated with it, 
+                // this indicates that the side set is on a facet not intersected by the geometry
                 if ( tBGFacetToChildFacet( tSideIndex ) != nullptr )
                 {
                     // for the base cell, get the associated vertices
-                    std::shared_ptr< IG_Vertex_Group > tVertexGroupForCluster = mCutIgMesh->get_vertex_group( mCutIgMesh->get_parent_cell_group_index( tBaseCell->get_index() ) );
+                    std::shared_ptr< IG_Vertex_Group > tVertexGroupForCluster = 
+                        mCutIgMesh->get_vertex_group( mCutIgMesh->get_parent_cell_group_index( tBaseCell->get_index() ) );
 
                     // collect all the integration cells on the current facet and the side ordinal
                     moris::Cell< moris::mtk::Cell * > tIgCellsOnBgFacet;
@@ -2686,9 +2690,6 @@ Enriched_Integration_Mesh::setup_side_set_clusters()
                 }
                 else
                 {
-                    MORIS_ASSERT( tEnrichedCellsOfBaseCell.size() == 1,
-                        "For the trivial case, a base cell should have 1 enriched interpolation cell associated with it" );
-
                     // phase of cell
                     moris_index tBulkPhase = tEnrichedCellsOfBaseCell( 0 )->get_bulkphase_index();
 
