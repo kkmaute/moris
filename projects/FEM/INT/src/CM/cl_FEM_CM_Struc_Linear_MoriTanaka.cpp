@@ -25,14 +25,14 @@ namespace moris
             uint tCurrentIndexOffSet = static_cast< uint >( CM_Property_Type_Lin::MAX_ENUM );
 
             // populate the map
-            mPropertyMap["YoungsModulusMatrix"] = static_cast< uint >( CM_Property_Type_MT::EMOD1 ) + tCurrentIndexOffSet;
-            mPropertyMap["PoissonRatioMatrix"]  = static_cast< uint >( CM_Property_Type_MT::NU1 ) + tCurrentIndexOffSet;
-            mPropertyMap["YoungsModulusFiber"]  = static_cast< uint >( CM_Property_Type_MT::EMOD2 ) + tCurrentIndexOffSet;
-            mPropertyMap["PoissonRatioFiber"]   = static_cast< uint >( CM_Property_Type_MT::NU2 ) + tCurrentIndexOffSet;
-            mPropertyMap["VolumeFraction"]      = static_cast< uint >( CM_Property_Type_MT::VF ) + tCurrentIndexOffSet;
-            mPropertyMap["OrientationInPlane"]  = static_cast< uint >( CM_Property_Type_MT::THETA_IP ) + tCurrentIndexOffSet;
-            mPropertyMap["OrientationOutPlane"] = static_cast< uint >( CM_Property_Type_MT::THETA_OP ) + tCurrentIndexOffSet;
-            mPropertyMap["AspectRatio"]         = static_cast< uint >( CM_Property_Type_MT::AR ) + tCurrentIndexOffSet;
+            mPropertyMap[ "YoungsModulusMatrix" ] = static_cast< uint >( CM_Property_Type_MT::EMOD1 ) + tCurrentIndexOffSet;
+            mPropertyMap[ "PoissonRatioMatrix" ]  = static_cast< uint >( CM_Property_Type_MT::NU1 ) + tCurrentIndexOffSet;
+            mPropertyMap[ "YoungsModulusFiber" ]  = static_cast< uint >( CM_Property_Type_MT::EMOD2 ) + tCurrentIndexOffSet;
+            mPropertyMap[ "PoissonRatioFiber" ]   = static_cast< uint >( CM_Property_Type_MT::NU2 ) + tCurrentIndexOffSet;
+            mPropertyMap[ "VolumeFraction" ]      = static_cast< uint >( CM_Property_Type_MT::VF ) + tCurrentIndexOffSet;
+            mPropertyMap[ "OrientationInPlane" ]  = static_cast< uint >( CM_Property_Type_MT::THETA_IP ) + tCurrentIndexOffSet;
+            mPropertyMap[ "OrientationOutPlane" ] = static_cast< uint >( CM_Property_Type_MT::THETA_OP ) + tCurrentIndexOffSet;
+            mPropertyMap[ "AspectRatio" ]         = static_cast< uint >( CM_Property_Type_MT::AR ) + tCurrentIndexOffSet;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -59,7 +59,7 @@ namespace moris
         void
         CM_Struc_Linear_MoriTanaka::eval_const()
         {
-            // get the properties of the CM model
+            //  get the properties of the CM model
             const real& tNuMat   = mPropPoissonMat->val()( 0 );
             const real& tEmodMat = mPropEModMat->val()( 0 );
             const real& tEmodFib = mPropEModFib->val()( 0 );
@@ -79,18 +79,18 @@ namespace moris
         CM_Struc_Linear_MoriTanaka::full_plane_stress(
                 std::initializer_list< const real >&& tParams )
         {
-            // reset the constitutive tensor
-            mConst.fill( 0.0 );
+            //  reset the constitutive tensor
+            mConstPrime.fill( 0.0 );
 
             // get the constitutive model parameters
-            const real& tEm    = tParams.begin()[0];
-            const real& tEf    = tParams.begin()[1];
-            const real& tNum   = tParams.begin()[2];
-            const real& tNuf   = tParams.begin()[3];
-            const real& tVf    = tParams.begin()[4];
-            const real& theta1 = tParams.begin()[5];
+            const real& tEm    = tParams.begin()[ 0 ];
+            const real& tEf    = tParams.begin()[ 1 ];
+            const real& tNum   = tParams.begin()[ 2 ];
+            const real& tNuf   = tParams.begin()[ 3 ];
+            const real& tVf    = tParams.begin()[ 4 ];
+            const real& theta1 = tParams.begin()[ 5 ];
             // const real& theta2 = tParams.begin()[6];
-            const real& tAspectRatio = tParams.begin()[7];
+            const real& tAspectRatio = tParams.begin()[ 7 ];
 
             // High aspect ratio => continuous fiber
             if ( tAspectRatio > 1000. || tAspectRatio == 0. )
@@ -103,13 +103,13 @@ namespace moris
                 real tC66 = ( tEm * ( -( tEf * ( 1 + tVf ) * ( 1 + tNum ) ) + tEm * ( -1 + tVf ) * ( 1 + tNuf ) ) ) / ( 2. * ( 1 + tNum ) * ( tEf * ( -1 + tVf ) * ( 1 + tNum ) - tEm * ( 1 + tVf ) * ( 1 + tNuf ) ) );
 
                 // first row
-                mConst( 0, 0 ) = tC11 - ( tC12 * tC12 / tC33 );
-                mConst( 0, 1 ) = tC12 - ( tC12 * tC23 / tC33 );
+                mConstPrime( 0, 0 ) = tC11 - ( tC12 * tC12 / tC33 );
+                mConstPrime( 0, 1 ) = tC12 - ( tC12 * tC23 / tC33 );
                 // second row
-                mConst( 1, 0 ) = mConst( 0, 1 );
-                mConst( 1, 1 ) = tC22 - ( tC23 * tC23 / tC33 );
+                mConstPrime( 1, 0 ) = mConstPrime( 0, 1 );
+                mConstPrime( 1, 1 ) = tC22 - ( tC23 * tC23 / tC33 );
                 // third row
-                mConst( 2, 2 ) = tC66;
+                mConstPrime( 2, 2 ) = tC66;
             }
             else
             {
@@ -137,13 +137,13 @@ namespace moris
                 Matrix< DDRMat > tCeff = mConstMatrix + tVf * ( mConstFiber - mConstMatrix ) * tAMT;
 
                 // first row
-                mConst( 0, 0 ) = tCeff( 0, 0 ) - ( tCeff( 0, 1 ) * tCeff( 0, 1 ) / tCeff( 2, 2 ) );
-                mConst( 0, 1 ) = tCeff( 0, 1 ) - ( tCeff( 0, 1 ) * tCeff( 1, 2 ) / tCeff( 2, 2 ) );
+                mConstPrime( 0, 0 ) = tCeff( 0, 0 ) - ( tCeff( 0, 1 ) * tCeff( 0, 1 ) / tCeff( 2, 2 ) );
+                mConstPrime( 0, 1 ) = tCeff( 0, 1 ) - ( tCeff( 0, 1 ) * tCeff( 1, 2 ) / tCeff( 2, 2 ) );
                 // second row
-                mConst( 1, 0 ) = mConst( 0, 1 );
-                mConst( 1, 1 ) = tCeff( 1, 1 ) - ( tCeff( 1, 2 ) * tCeff( 1, 2 ) / tCeff( 2, 2 ) );
+                mConstPrime( 1, 0 ) = mConstPrime( 0, 1 );
+                mConstPrime( 1, 1 ) = tCeff( 1, 1 ) - ( tCeff( 1, 2 ) * tCeff( 1, 2 ) / tCeff( 2, 2 ) );
                 // third row
-                mConst( 2, 2 ) = tCeff( 5, 5 );
+                mConstPrime( 2, 2 ) = tCeff( 5, 5 );
             }
 
             real lx = std::cos( theta1 );
@@ -161,11 +161,11 @@ namespace moris
             mRotation( 1, 1 ) = ry * ry;
             mRotation( 1, 2 ) = rx * ry;
             // third row
-            mRotation( 2, 0 ) = 2 * lx * rx;
-            mRotation( 2, 1 ) = 2 * ly * ry;
+            mRotation( 2, 0 ) = 2.0 * lx * rx;
+            mRotation( 2, 1 ) = 2.0 * ly * ry;
             mRotation( 2, 2 ) = lx * ry + ly * rx;
 
-            mConst = trans( mRotation ) * mConst * mRotation;
+            mConst = trans( mRotation ) * mConstPrime * mRotation;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -178,14 +178,14 @@ namespace moris
             mConst.fill( 0.0 );
 
             // get the constitutive model parameters
-            const real& tEm          = tParams.begin()[0];
-            const real& tEf          = tParams.begin()[1];
-            const real& tNum         = tParams.begin()[2];
-            const real& tNuf         = tParams.begin()[3];
-            const real& tVf          = tParams.begin()[4];
-            const real& theta1       = tParams.begin()[5];
-            const real& theta2       = tParams.begin()[6];
-            const real& tAspectRatio = tParams.begin()[7];
+            const real& tEm          = tParams.begin()[ 0 ];
+            const real& tEf          = tParams.begin()[ 1 ];
+            const real& tNum         = tParams.begin()[ 2 ];
+            const real& tNuf         = tParams.begin()[ 3 ];
+            const real& tVf          = tParams.begin()[ 4 ];
+            const real& theta1       = tParams.begin()[ 5 ];
+            const real& theta2       = tParams.begin()[ 6 ];
+            const real& tAspectRatio = tParams.begin()[ 7 ];
 
             // High aspect ratio => continuous fiber
             if ( tAspectRatio > 1000. || tAspectRatio == 0. )
@@ -391,6 +391,8 @@ namespace moris
                         case Model_Type::PLANE_STRESS:
                         {
                             mRotation.set_size( 3, 3, 0.0 );
+                            mConstPrime.set_size( 3, 3, 0.0 );
+                            mRotationDer.set_size( 3, 3, 0.0 );
                             break;
                         }
                         default:
@@ -405,6 +407,8 @@ namespace moris
                 case 3:
                 {
                     mRotation.set_size( 6, 6, 0.0 );
+                    mConstPrime.set_size( 3, 3, 0.0 );
+                    mRotationDer.set_size( 6, 6, 0.0 );
                     break;
                 }
                 default:
@@ -413,5 +417,120 @@ namespace moris
                 }
             }
         }
-    }   
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void
+        CM_Struc_Linear_MoriTanaka::eval_dFluxdDOF( const Cell< MSI::Dof_Type >& aDofTypes )
+        {
+            // call the parent contribution
+            CM_Struc_Linear::eval_dFluxdDOF( aDofTypes );
+
+            // get the dof type as a uint
+            const uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
+
+            // get the dof type index
+            const uint tDofIndex = mGlobalDofTypeMap( tDofType );
+
+            // if elastic modulus depends on dof type
+            if ( mPropThetaIp->check_dof_dependency( aDofTypes ) )
+            {
+                // update consitutive matrix and rotation tensor
+                this->eval_const();
+
+                // FIXME: hard wired to plane stress - mRotationDer needs to go into seperate routine
+
+                // get rotation angle
+                const real& theta1 = mPropThetaIp->val()( 0 );
+
+                // compute derivative of ration matrix wrt in-plane angle
+                real ly  = std::sin( theta1 );
+                real lx2 = std::cos( 2.0 * theta1 );
+                real ly2 = std::sin( 2.0 * theta1 );
+
+                // first row
+                mRotationDer( 0, 0 ) = -ly2;
+                mRotationDer( 0, 1 ) = ly2;
+                mRotationDer( 0, 2 ) = lx2;
+                // second row
+                mRotationDer( 1, 0 ) = ly2;
+                mRotationDer( 1, 1 ) = -ly2;
+                mRotationDer( 1, 2 ) = 2.0 * ly * ly - 1.0;
+                // third row
+                mRotationDer( 2, 0 ) = 4.0 * ly * ly - 2.0;
+                mRotationDer( 2, 1 ) = 2.0 - 4.0 * ly * ly;
+                mRotationDer( 2, 2 ) = -2.0 * ly2;
+
+                // compute derivative with indirect dependency through properties
+                mdFluxdDof( tDofIndex ) +=
+                        ( trans( mRotationDer ) * mConstPrime * mRotation              //
+                                + trans( mRotation ) * mConstPrime * mRotationDer )    //
+                        * this->strain() * mPropThetaIp->dPropdDOF( aDofTypes );
+            }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void
+        CM_Struc_Linear_MoriTanaka::eval_dTestTractiondDOF(
+                const Cell< MSI::Dof_Type >& aDofTypes,
+                const Matrix< DDRMat >&      aNormal,
+                const Matrix< DDRMat >&      aJump,
+                const Cell< MSI::Dof_Type >& aTestDofTypes )
+        {
+            CM_Struc_Linear::eval_dTestTractiondDOF( aDofTypes, aNormal, aJump, aTestDofTypes );
+
+            // get test dof type index
+            const uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
+
+            // get the dof type index
+            const uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // if test traction wrt displacement
+            if ( aTestDofTypes( 0 ) == mDofDispl )
+            {
+
+                // if elastic modulus depends on dof type
+                if ( mPropThetaIp->check_dof_dependency( aDofTypes ) )
+                {
+                    // update consitutive matrix and rotation tensor
+                    this->eval_const();
+
+                    // FIXME: hard wired to plane stress - mRotationDer needs to go into seperate routine
+
+                    // get rotation angle
+                    const real& theta1 = mPropThetaIp->val()( 0 );
+
+                    // compute derivative of ration matrix wrt in-plane angle
+                    real ly  = std::sin( theta1 );
+                    real lx2 = std::cos( 2.0 * theta1 );
+                    real ly2 = std::sin( 2.0 * theta1 );
+
+                    // first row
+                    mRotationDer( 0, 0 ) = -ly2;
+                    mRotationDer( 0, 1 ) = ly2;
+                    mRotationDer( 0, 2 ) = lx2;
+                    // second row
+                    mRotationDer( 1, 0 ) = ly2;
+                    mRotationDer( 1, 1 ) = -ly2;
+                    mRotationDer( 1, 2 ) = 2.0 * ly * ly - 1.0;
+                    // third row
+                    mRotationDer( 2, 0 ) = 4.0 * ly * ly - 2.0;
+                    mRotationDer( 2, 1 ) = 2.0 - 4.0 * ly * ly;
+                    mRotationDer( 2, 2 ) = -2.0 * ly2;
+
+                    // flatten the normal
+                    Matrix< DDRMat > tFlatNormal;
+                    this->flatten_normal( aNormal, tFlatNormal );
+
+                    // compute test traction wrt displacement
+                    mdTestTractiondDof( tTestDofIndex )( tDofIndex ) =
+                            trans( this->testStrain() )
+                            * ( trans( mRotationDer ) * mConstPrime * mRotation + trans( mRotation ) * mConstPrime * mRotationDer )
+                            * trans( tFlatNormal ) * aJump * mPropThetaIp->dPropdDOF( aDofTypes );
+                }
+            }
+        }
+
+    }    // namespace fem
 }    // namespace moris
