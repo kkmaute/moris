@@ -175,7 +175,7 @@ namespace moris
                 std::initializer_list< const real >&& tParams )
         {
             // reset the constitutive tensor
-            mConst.fill( 0.0 );
+            mConstPrime.fill( 0.0 );
 
             // get the constitutive model parameters
             const real& tEm          = tParams.begin()[ 0 ];
@@ -191,21 +191,21 @@ namespace moris
             if ( tAspectRatio > 1000. || tAspectRatio == 0. )
             {
                 // first row
-                mConst( 0, 0 ) = ( std::pow( tEf, 2 ) * ( -1 + tVf ) * tVf * std::pow( 1 + tNum, 2 ) * ( -1 + 2 * tNum ) + std::pow( tEm, 2 ) * ( -1 + tVf ) * ( 1 + tVf + ( -1 + tVf ) * tNum ) * ( -1 + tNuf + 2 * std::pow( tNuf, 2 ) ) - tEm * tEf * ( 1 + tNum ) * ( -1 + tNum + tVf * ( 1 + tNuf - 6 * tNum * tNuf + tVf * ( -2 + tNum + tNuf + 4 * tNum * tNuf ) ) ) ) / ( ( 1 + tNum ) * ( tEf * ( -1 + tVf ) * ( -1 + tNum + 2 * std::pow( tNum, 2 ) ) - tEm * ( 1 + tVf - 2 * tNum ) * ( -1 + tNuf + 2 * std::pow( tNuf, 2 ) ) ) );    // 1st row
-                mConst( 0, 1 ) = ( tEm * ( -( tEf * ( 1 + tNum ) * ( ( -1 + tVf ) * tNum + 2 * tVf * ( -1 + tNum ) * tNuf ) ) + tEm * ( -1 + tVf ) * tNum * ( -1 + tNuf + 2 * std::pow( tNuf, 2 ) ) ) ) / ( ( 1 + tNum ) * ( tEf * ( -1 + tVf ) * ( -1 + tNum + 2 * std::pow( tNum, 2 ) ) - tEm * ( 1 + tVf - 2 * tNum ) * ( -1 + tNuf + 2 * std::pow( tNuf, 2 ) ) ) );
-                mConst( 0, 2 ) = mConst( 0, 1 );
+                mConstPrime( 0, 0 ) = ( std::pow( tEf, 2 ) * ( -1 + tVf ) * tVf * std::pow( 1 + tNum, 2 ) * ( -1 + 2 * tNum ) + std::pow( tEm, 2 ) * ( -1 + tVf ) * ( 1 + tVf + ( -1 + tVf ) * tNum ) * ( -1 + tNuf + 2 * std::pow( tNuf, 2 ) ) - tEm * tEf * ( 1 + tNum ) * ( -1 + tNum + tVf * ( 1 + tNuf - 6 * tNum * tNuf + tVf * ( -2 + tNum + tNuf + 4 * tNum * tNuf ) ) ) ) / ( ( 1 + tNum ) * ( tEf * ( -1 + tVf ) * ( -1 + tNum + 2 * std::pow( tNum, 2 ) ) - tEm * ( 1 + tVf - 2 * tNum ) * ( -1 + tNuf + 2 * std::pow( tNuf, 2 ) ) ) );    // 1st row
+                mConstPrime( 0, 1 ) = ( tEm * ( -( tEf * ( 1 + tNum ) * ( ( -1 + tVf ) * tNum + 2 * tVf * ( -1 + tNum ) * tNuf ) ) + tEm * ( -1 + tVf ) * tNum * ( -1 + tNuf + 2 * std::pow( tNuf, 2 ) ) ) ) / ( ( 1 + tNum ) * ( tEf * ( -1 + tVf ) * ( -1 + tNum + 2 * std::pow( tNum, 2 ) ) - tEm * ( 1 + tVf - 2 * tNum ) * ( -1 + tNuf + 2 * std::pow( tNuf, 2 ) ) ) );
+                mConstPrime( 0, 2 ) = mConstPrime( 0, 1 );
                 // second row
-                mConst( 1, 0 ) = mConst( 0, 1 );
-                mConst( 1, 1 ) = -( ( tEm * ( -1 + tNum ) * ( std::pow( tEf, 2 ) * ( -1 + tVf ) * std::pow( 1 + tNum, 2 ) * ( -3 - 2 * tVf + 4 * ( 1 + tVf ) * tNum ) + std::pow( tEm, 2 ) * ( -1 + tVf ) * ( 1 + 2 * tVf ) * std::pow( 1 + tNuf, 2 ) * ( -1 + 2 * tNuf ) + 2 * tEm * tEf * ( 1 + tNum ) * ( 1 + tNuf ) * ( 2 - 2 * tNum - 3 * tNuf + tVf * tNuf + 4 * tNum * tNuf - 2 * std::pow( tVf, 2 ) * ( -1 + tNum + tNuf ) ) ) ) / ( ( 1 + tNum ) * ( tEf * ( -1 + tVf ) * ( -3 + tNum + 4 * std::pow( tNum, 2 ) ) - tEm * ( -1 + tVf * ( -3 + 4 * tNum ) ) * ( 1 + tNuf ) ) * ( tEf * ( -1 + tVf ) * ( -1 + tNum + 2 * std::pow( tNum, 2 ) ) - tEm * ( 1 + tVf - 2 * tNum ) * ( -1 + tNuf + 2 * std::pow( tNuf, 2 ) ) ) ) );
-                mConst( 1, 2 ) = -( ( tEm * ( pow( tEf, 2 ) * ( -1 + tVf ) * pow( 1 + tNum, 2 ) * ( tVf * pow( 1 - 2 * tNum, 2 ) + ( 3 - 4 * tNum ) * tNum ) + std::pow( tEm, 2 ) * ( -1 + tVf ) * ( -tNum + tVf * ( -1 + 2 * tNum ) ) * pow( 1 + tNuf, 2 ) * ( -1 + 2 * tNuf ) - 2 * tEm * tEf * ( 1 + tNum ) * ( 1 + tNuf ) * ( pow( tVf, 2 ) * ( -1 + 2 * tNum ) * ( -1 + tNum + tNuf ) + tVf * ( -1 + tNum + 5 * tNuf - 7 * tNum * tNuf ) + tNum * ( 2 - 2 * tNum - 3 * tNuf + 4 * tNum * tNuf ) ) ) ) / ( ( 1 + tNum ) * ( tEf * ( -1 + tVf ) * ( -3 + tNum + 4 * pow( tNum, 2 ) ) - tEm * ( -1 + tVf * ( -3 + 4 * tNum ) ) * ( 1 + tNuf ) ) * ( tEf * ( -1 + tVf ) * ( -1 + tNum + 2 * pow( tNum, 2 ) ) - tEm * ( 1 + tVf - 2 * tNum ) * ( -1 + tNuf + 2 * pow( tNuf, 2 ) ) ) ) );
+                mConstPrime( 1, 0 ) = mConstPrime( 0, 1 );
+                mConstPrime( 1, 1 ) = -( ( tEm * ( -1 + tNum ) * ( std::pow( tEf, 2 ) * ( -1 + tVf ) * std::pow( 1 + tNum, 2 ) * ( -3 - 2 * tVf + 4 * ( 1 + tVf ) * tNum ) + std::pow( tEm, 2 ) * ( -1 + tVf ) * ( 1 + 2 * tVf ) * std::pow( 1 + tNuf, 2 ) * ( -1 + 2 * tNuf ) + 2 * tEm * tEf * ( 1 + tNum ) * ( 1 + tNuf ) * ( 2 - 2 * tNum - 3 * tNuf + tVf * tNuf + 4 * tNum * tNuf - 2 * std::pow( tVf, 2 ) * ( -1 + tNum + tNuf ) ) ) ) / ( ( 1 + tNum ) * ( tEf * ( -1 + tVf ) * ( -3 + tNum + 4 * std::pow( tNum, 2 ) ) - tEm * ( -1 + tVf * ( -3 + 4 * tNum ) ) * ( 1 + tNuf ) ) * ( tEf * ( -1 + tVf ) * ( -1 + tNum + 2 * std::pow( tNum, 2 ) ) - tEm * ( 1 + tVf - 2 * tNum ) * ( -1 + tNuf + 2 * std::pow( tNuf, 2 ) ) ) ) );
+                mConstPrime( 1, 2 ) = -( ( tEm * ( pow( tEf, 2 ) * ( -1 + tVf ) * pow( 1 + tNum, 2 ) * ( tVf * pow( 1 - 2 * tNum, 2 ) + ( 3 - 4 * tNum ) * tNum ) + std::pow( tEm, 2 ) * ( -1 + tVf ) * ( -tNum + tVf * ( -1 + 2 * tNum ) ) * pow( 1 + tNuf, 2 ) * ( -1 + 2 * tNuf ) - 2 * tEm * tEf * ( 1 + tNum ) * ( 1 + tNuf ) * ( pow( tVf, 2 ) * ( -1 + 2 * tNum ) * ( -1 + tNum + tNuf ) + tVf * ( -1 + tNum + 5 * tNuf - 7 * tNum * tNuf ) + tNum * ( 2 - 2 * tNum - 3 * tNuf + 4 * tNum * tNuf ) ) ) ) / ( ( 1 + tNum ) * ( tEf * ( -1 + tVf ) * ( -3 + tNum + 4 * pow( tNum, 2 ) ) - tEm * ( -1 + tVf * ( -3 + 4 * tNum ) ) * ( 1 + tNuf ) ) * ( tEf * ( -1 + tVf ) * ( -1 + tNum + 2 * pow( tNum, 2 ) ) - tEm * ( 1 + tVf - 2 * tNum ) * ( -1 + tNuf + 2 * pow( tNuf, 2 ) ) ) ) );
                 // third row
-                mConst( 2, 0 ) = mConst( 0, 2 );
-                mConst( 2, 1 ) = mConst( 1, 2 );
-                mConst( 2, 2 ) = mConst( 1, 1 );
+                mConstPrime( 2, 0 ) = mConstPrime( 0, 2 );
+                mConstPrime( 2, 1 ) = mConstPrime( 1, 2 );
+                mConstPrime( 2, 2 ) = mConstPrime( 1, 1 );
                 // shear terms - order  xy, xz, yz (older version had yz, xz, xy)
-                mConst( 5, 5 ) = ( tEm * ( tEf * ( 3 + tVf - 4 * tNum ) * ( 1 + tNum ) - tEm * ( -1 + tVf ) * ( 1 + tNuf ) ) ) / ( 2. * ( 1 + tNum ) * ( tEf * ( -1 + tVf ) * ( -3 + tNum + 4 * pow( tNum, 2 ) ) - tEm * ( -1 + tVf * ( -3 + 4 * tNum ) ) * ( 1 + tNuf ) ) );
-                mConst( 4, 4 ) = ( tEm * ( -( tEf * ( 1 + tVf ) * ( 1 + tNum ) ) + tEm * ( -1 + tVf ) * ( 1 + tNuf ) ) ) / ( 2. * ( 1 + tNum ) * ( tEf * ( -1 + tVf ) * ( 1 + tNum ) - tEm * ( 1 + tVf ) * ( 1 + tNuf ) ) );
-                mConst( 3, 3 ) = mConst( 4, 4 );
+                mConstPrime( 5, 5 ) = ( tEm * ( tEf * ( 3 + tVf - 4 * tNum ) * ( 1 + tNum ) - tEm * ( -1 + tVf ) * ( 1 + tNuf ) ) ) / ( 2. * ( 1 + tNum ) * ( tEf * ( -1 + tVf ) * ( -3 + tNum + 4 * pow( tNum, 2 ) ) - tEm * ( -1 + tVf * ( -3 + 4 * tNum ) ) * ( 1 + tNuf ) ) );
+                mConstPrime( 4, 4 ) = ( tEm * ( -( tEf * ( 1 + tVf ) * ( 1 + tNum ) ) + tEm * ( -1 + tVf ) * ( 1 + tNuf ) ) ) / ( 2. * ( 1 + tNum ) * ( tEf * ( -1 + tVf ) * ( 1 + tNum ) - tEm * ( 1 + tVf ) * ( 1 + tNuf ) ) );
+                mConstPrime( 3, 3 ) = mConstPrime( 4, 4 );
             }
             else    // Low aspect ratio, particles
             {
@@ -230,10 +230,10 @@ namespace moris
 
                 // Get the effective stiffness matrix
                 // CeffMT = C1 + tVf*(C2 - C1).AMT
-                mConst = mConstMatrix + tVf * ( mConstFiber - mConstMatrix ) * tAMT;
+                mConstPrime = mConstMatrix + tVf * ( mConstFiber - mConstMatrix ) * tAMT;
 
                 // Exchange C44 with C66
-                std::swap( mConst( 3, 3 ), mConst( 5, 5 ) );
+                std::swap( mConstPrime( 3, 3 ), mConstPrime( 5, 5 ) );
             }
 
             real lx = std::cos( theta2 ) * std::cos( theta1 );
@@ -291,7 +291,7 @@ namespace moris
             mRotation( 5, 4 ) = rz * tx + rx * tz;
             mRotation( 5, 5 ) = rx * ty + ry * tx;
 
-            mConst = trans( mRotation ) * mConst * mRotation;
+            mConst = trans( mRotation ) * mConstPrime * mRotation;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -392,7 +392,7 @@ namespace moris
                         {
                             mRotation.set_size( 3, 3, 0.0 );
                             mConstPrime.set_size( 3, 3, 0.0 );
-                            mRotationDer.set_size( 3, 3, 0.0 );
+                            mRotationDerInPlane.set_size( 3, 3, 0.0 );
                             break;
                         }
                         default:
@@ -404,13 +404,16 @@ namespace moris
                     }
                     break;
                 }
+
                 case 3:
                 {
                     mRotation.set_size( 6, 6, 0.0 );
-                    mConstPrime.set_size( 3, 3, 0.0 );
-                    mRotationDer.set_size( 6, 6, 0.0 );
+                    mConstPrime.set_size( 6, 6, 0.0 );
+                    mRotationDerInPlane.set_size( 6, 6, 0.0 );
+                    mRotationDerOutPlane.set_size( 6, 6, 0.0 );
                     break;
                 }
+
                 default:
                 {
                     MORIS_ERROR( false, "Mori Tanaka implemented for 2d and 3d only" );
@@ -435,36 +438,32 @@ namespace moris
             // if elastic modulus depends on dof type
             if ( mPropThetaIp->check_dof_dependency( aDofTypes ) )
             {
-                // update consitutive matrix and rotation tensor
+                // update constitutive matrix and rotation tensor
                 this->eval_const();
 
-                // FIXME: hard wired to plane stress - mRotationDer needs to go into seperate routine
-
-                // get rotation angle
-                const real& theta1 = mPropThetaIp->val()( 0 );
-
-                // compute derivative of ration matrix wrt in-plane angle
-                real ly  = std::sin( theta1 );
-                real lx2 = std::cos( 2.0 * theta1 );
-                real ly2 = std::sin( 2.0 * theta1 );
-
-                // first row
-                mRotationDer( 0, 0 ) = -ly2;
-                mRotationDer( 0, 1 ) = ly2;
-                mRotationDer( 0, 2 ) = lx2;
-                // second row
-                mRotationDer( 1, 0 ) = ly2;
-                mRotationDer( 1, 1 ) = -ly2;
-                mRotationDer( 1, 2 ) = 2.0 * ly * ly - 1.0;
-                // third row
-                mRotationDer( 2, 0 ) = 4.0 * ly * ly - 2.0;
-                mRotationDer( 2, 1 ) = 2.0 - 4.0 * ly * ly;
-                mRotationDer( 2, 2 ) = -2.0 * ly2;
+                // evalute the derivative of the rotation tensor
+                this->eval_inplane_rotation_derivative();
 
                 // compute derivative with indirect dependency through properties
                 mdFluxdDof( tDofIndex ) +=
-                        ( trans( mRotationDer ) * mConstPrime * mRotation              //
-                                + trans( mRotation ) * mConstPrime * mRotationDer )    //
+                        ( trans( mRotationDerInPlane ) * mConstPrime * mRotation              //
+                                + trans( mRotation ) * mConstPrime * mRotationDerInPlane )    //
+                        * this->strain() * mPropThetaIp->dPropdDOF( aDofTypes );
+            }
+
+            // if elastic modulus depends on dof type
+            if ( mPropThetaOp->check_dof_dependency( aDofTypes ) && mSpaceDim == 3 )
+            {
+                // update constitutive matrix and rotation tensor
+                this->eval_const();
+
+                // evalute the derivative of the rotation tensor
+                this->eval_outplane_rotation_derivative();
+
+                // compute derivative with indirect dependency through properties
+                mdFluxdDof( tDofIndex ) +=
+                        ( trans( mRotationDerOutPlane ) * mConstPrime * mRotation              //
+                                + trans( mRotation ) * mConstPrime * mRotationDerOutPlane )    //
                         * this->strain() * mPropThetaIp->dPropdDOF( aDofTypes );
             }
         }
@@ -489,35 +488,14 @@ namespace moris
             // if test traction wrt displacement
             if ( aTestDofTypes( 0 ) == mDofDispl )
             {
-
                 // if elastic modulus depends on dof type
                 if ( mPropThetaIp->check_dof_dependency( aDofTypes ) )
                 {
                     // update consitutive matrix and rotation tensor
                     this->eval_const();
 
-                    // FIXME: hard wired to plane stress - mRotationDer needs to go into seperate routine
-
-                    // get rotation angle
-                    const real& theta1 = mPropThetaIp->val()( 0 );
-
-                    // compute derivative of ration matrix wrt in-plane angle
-                    real ly  = std::sin( theta1 );
-                    real lx2 = std::cos( 2.0 * theta1 );
-                    real ly2 = std::sin( 2.0 * theta1 );
-
-                    // first row
-                    mRotationDer( 0, 0 ) = -ly2;
-                    mRotationDer( 0, 1 ) = ly2;
-                    mRotationDer( 0, 2 ) = lx2;
-                    // second row
-                    mRotationDer( 1, 0 ) = ly2;
-                    mRotationDer( 1, 1 ) = -ly2;
-                    mRotationDer( 1, 2 ) = 2.0 * ly * ly - 1.0;
-                    // third row
-                    mRotationDer( 2, 0 ) = 4.0 * ly * ly - 2.0;
-                    mRotationDer( 2, 1 ) = 2.0 - 4.0 * ly * ly;
-                    mRotationDer( 2, 2 ) = -2.0 * ly2;
+                    // evalute the derivative of the rotation tensor
+                    this->eval_inplane_rotation_derivative();
 
                     // flatten the normal
                     Matrix< DDRMat > tFlatNormal;
@@ -526,11 +504,238 @@ namespace moris
                     // compute test traction wrt displacement
                     mdTestTractiondDof( tTestDofIndex )( tDofIndex ) =
                             trans( this->testStrain() )
-                            * ( trans( mRotationDer ) * mConstPrime * mRotation + trans( mRotation ) * mConstPrime * mRotationDer )
+                            * ( trans( mRotationDerInPlane ) * mConstPrime * mRotation + trans( mRotation ) * mConstPrime * mRotationDerInPlane )
+                            * trans( tFlatNormal ) * aJump * mPropThetaIp->dPropdDOF( aDofTypes );
+                }
+
+                // if elastic modulus depends on dof type
+                if ( mPropThetaOp->check_dof_dependency( aDofTypes ) )
+                {
+                    // evalute the derivative of the rotation tensor
+                    this->eval_outplane_rotation_derivative();
+
+                    // flatten the normal
+                    Matrix< DDRMat > tFlatNormal;
+                    this->flatten_normal( aNormal, tFlatNormal );
+
+                    // compute test traction wrt displacement
+                    mdTestTractiondDof( tTestDofIndex )( tDofIndex ) =
+                            trans( this->testStrain() )
+                            * ( trans( mRotationDerOutPlane ) * mConstPrime * mRotation + trans( mRotation ) * mConstPrime * mRotationDerOutPlane )
                             * trans( tFlatNormal ) * aJump * mPropThetaIp->dPropdDOF( aDofTypes );
                 }
             }
         }
 
+        //--------------------------------------------------------------------------------------------------------------
+
+        void
+        CM_Struc_Linear_MoriTanaka::eval_inplane_rotation_derivative()
+        {
+            switch ( mSpaceDim )
+            {
+                case 2:
+                {
+                    // get rotation angle
+                    const real& theta1 = mPropThetaIp->val()( 0 );
+
+                    // compute derivative of ration matrix wrt in-plane angle
+                    real lx2 = std::cos( 2.0 * theta1 );
+                    real ly2 = std::sin( 2.0 * theta1 );
+
+                    // first row
+                    mRotationDerInPlane( 0, 0 ) = -ly2;
+                    mRotationDerInPlane( 0, 1 ) = ly2;
+                    mRotationDerInPlane( 0, 2 ) = lx2;
+                    // second row
+                    mRotationDerInPlane( 1, 0 ) = ly2;
+                    mRotationDerInPlane( 1, 1 ) = -ly2;
+                    mRotationDerInPlane( 1, 2 ) = -lx2;
+                    // third row
+                    mRotationDerInPlane( 2, 0 ) = -2 * lx2;
+                    mRotationDerInPlane( 2, 1 ) = 2 * lx2;
+                    mRotationDerInPlane( 2, 2 ) = -2.0 * ly2;
+
+                    break;
+                }
+
+                case 3:
+                {
+                    // get rotation angle
+                    const real& thetai = mPropThetaIp->val()( 0 );
+                    const real& thetao = mPropThetaOp->val()( 0 );
+
+                    // name cos and sin for convience
+                    real ci  = std::cos( thetai );
+                    real si  = std::sin( thetai );
+                    real co  = std::cos( thetao );
+                    real so  = std::sin( thetao );
+                    real c2i = std::cos( 2 * thetai );
+                    real s2i = std::sin( 2 * thetai );
+                    real c2o = std::cos( 2 * thetao );
+                    real s2o = std::sin( 2 * thetao );
+
+                    // first row
+                    mRotationDerInPlane( 0, 0 ) = -2 * ci * co * co * si;
+                    mRotationDerInPlane( 0, 1 ) = s2i;
+                    mRotationDerInPlane( 0, 2 ) = -2 * ci * si * so * so;
+                    mRotationDerInPlane( 0, 3 ) = c2i * so;
+                    mRotationDerInPlane( 0, 4 ) = -2 * ci * co * si * so;
+                    mRotationDerInPlane( 0, 5 ) = c2i * co;
+
+                    // second row
+                    mRotationDerInPlane( 1, 0 ) = 2 * ci * co * co * si;
+                    mRotationDerInPlane( 1, 1 ) = -s2i;
+                    mRotationDerInPlane( 1, 2 ) = 2 * ci * si * so * so;
+                    mRotationDerInPlane( 1, 3 ) = -c2i * so;
+                    mRotationDerInPlane( 1, 4 ) = 2 * ci * co * si * so;
+                    mRotationDerInPlane( 1, 5 ) = -c2i * co;
+
+                    // third row
+                    mRotationDerInPlane( 2, 0 ) = 0.0;
+                    mRotationDerInPlane( 2, 1 ) = 0.0;
+                    mRotationDerInPlane( 2, 2 ) = 0.0;
+                    mRotationDerInPlane( 2, 3 ) = 0.0;
+                    mRotationDerInPlane( 2, 4 ) = 0.0;
+                    mRotationDerInPlane( 2, 5 ) = 0.0;
+
+                    // fourth row
+                    mRotationDerInPlane( 3, 0 ) = -2 * c2i * co * co;
+                    mRotationDerInPlane( 3, 1 ) = 2 - 4 * si * si;
+                    mRotationDerInPlane( 3, 2 ) = 2 * so * so * ( 2 * si * si - 1 );
+                    mRotationDerInPlane( 3, 3 ) = -4 * ci * si * so;
+                    mRotationDerInPlane( 3, 4 ) = -c2i * s2o;
+                    mRotationDerInPlane( 3, 5 ) = -4 * ci * co * si;
+
+                    // fifth row
+                    mRotationDerInPlane( 4, 0 ) = 2 * co * si * so;
+                    mRotationDerInPlane( 4, 1 ) = 0.0;
+                    mRotationDerInPlane( 4, 2 ) = -2 * co * si * so;
+                    mRotationDerInPlane( 4, 3 ) = ci * co;
+                    mRotationDerInPlane( 4, 4 ) = -c2o * si;
+                    mRotationDerInPlane( 4, 5 ) = -ci * so;
+
+                    // sixth row
+                    mRotationDerInPlane( 5, 0 ) = 2 * ci * co * so;
+                    mRotationDerInPlane( 5, 1 ) = 0.0;
+                    mRotationDerInPlane( 5, 2 ) = -2 * ci * co * so;
+                    mRotationDerInPlane( 5, 3 ) = -co * si;
+                    mRotationDerInPlane( 5, 4 ) = -c2o * ci;
+                    mRotationDerInPlane( 5, 5 ) = si * so;
+
+                    break;
+                }
+
+                default:
+                {
+                    MORIS_ERROR( false, "Mori Tanaka implemented for 2d and 3d only" );
+                    break;
+                }
+            }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void
+        CM_Struc_Linear_MoriTanaka::eval_outplane_rotation_derivative()
+        {
+            // get rotation angle
+            const real& thetai = mPropThetaIp->val()( 0 );
+            const real& thetao = mPropThetaOp->val()( 0 );
+
+            // name cos and sin for convience
+            real ci  = std::cos( thetai );
+            real si  = std::sin( thetai );
+            real co  = std::cos( thetao );
+            real so  = std::sin( thetao );
+            real c2i = std::cos( 2 * thetai );
+            real s2i = std::sin( 2 * thetai );
+            real c2o = std::cos( 2 * thetao );
+            real s2o = std::sin( 2 * thetao );
+
+            // first row
+            mRotationDerOutPlane( 0, 0 ) = -2 * ci * ci * co * so;
+            mRotationDerOutPlane( 0, 1 ) = 0.0;
+            mRotationDerOutPlane( 0, 2 ) = 2 * ci * ci * co * so;
+            mRotationDerOutPlane( 0, 3 ) = ci * co * si;
+            mRotationDerOutPlane( 0, 4 ) = c2o * ci * ci;
+            mRotationDerOutPlane( 0, 5 ) = -ci * si * so;
+
+            // second row
+            mRotationDerOutPlane( 1, 0 ) = -2 * co * si * si * so;
+            mRotationDerOutPlane( 1, 1 ) = 0.0;
+            mRotationDerOutPlane( 1, 2 ) = 2 * co * si * si * so;
+            mRotationDerOutPlane( 1, 3 ) = -ci * co * si;
+            mRotationDerOutPlane( 1, 4 ) = -si * si * ( 2 * so * so - 1 );
+            mRotationDerOutPlane( 1, 5 ) = ci * si * so;
+
+            // third row
+            mRotationDerOutPlane( 2, 0 ) = s2o;
+            mRotationDerOutPlane( 2, 1 ) = 0.0;
+            mRotationDerOutPlane( 2, 2 ) = -s2o;
+            mRotationDerOutPlane( 2, 3 ) = 0.0;
+            mRotationDerOutPlane( 2, 4 ) = 2 * so * so - 1;
+            mRotationDerOutPlane( 2, 5 ) = 0.0;
+
+            // fourth row
+            mRotationDerOutPlane( 3, 0 ) = 4 * ci * co * si * so;
+            mRotationDerOutPlane( 3, 1 ) = 0.0;
+            mRotationDerOutPlane( 3, 2 ) = -4 * ci * co * si * so;
+            mRotationDerOutPlane( 3, 3 ) = c2i * co;
+            mRotationDerOutPlane( 3, 4 ) = -c2o * s2i;
+            mRotationDerOutPlane( 3, 5 ) = -c2i * so;
+
+            // fifth row
+            mRotationDerOutPlane( 4, 0 ) = -2 * c2o * ci;
+            mRotationDerOutPlane( 4, 1 ) = 0.0;
+            mRotationDerOutPlane( 4, 2 ) = 2 * c2o * ci;
+            mRotationDerOutPlane( 4, 3 ) = -si * so;
+            mRotationDerOutPlane( 4, 4 ) = -4 * ci * co * so;
+            mRotationDerOutPlane( 4, 5 ) = -co * si;
+
+            // sixth row
+            mRotationDerOutPlane( 5, 0 ) = 2 * c2o * si;
+            mRotationDerOutPlane( 5, 1 ) = 0.0;
+            mRotationDerOutPlane( 5, 2 ) = -2 * c2o * si;
+            mRotationDerOutPlane( 5, 3 ) = -ci * so;
+            mRotationDerOutPlane( 5, 4 ) = 4 * co * si * so;
+            mRotationDerOutPlane( 5, 5 ) = -ci * co;
+        }
+        //--------------------------------------------------------------------------------------------------------------
+
+        void
+        CM_Struc_Linear_MoriTanaka::eval_dConstdDOF(
+                const moris::Cell< MSI::Dof_Type >& aDofTypes )
+        {
+            // get the dof type as a uint
+            uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
+
+            // get the dof type index
+            uint tDofIndex = mGlobalDofTypeMap( tDofType );
+
+            // get the derivative dof type FI
+            Field_Interpolator* tFIDer =
+                    mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+            // reset the matrix
+            mdConstdDof( tDofIndex ).set_size( mConst.n_rows(), tFIDer->get_number_of_space_time_coefficients(), 0.0 );
+
+            // if conductivity depends on the dof type
+            if ( mPropThetaIp->check_dof_dependency( aDofTypes ) )
+            {
+                // update consitutive matrix and rotation tensor
+                this->eval_const();
+
+                // evalute the derivative of the rotation tensor
+                this->eval_inplane_rotation_derivative();
+
+                Matrix< DDRMat > tdConstdProp = trans( mRotationDerInPlane ) * mConstPrime * mRotation    //
+                                              + trans( mRotation ) * mConstPrime * mRotationDerInPlane;
+
+                // compute derivative with indirect dependency through properties
+                mdConstdDof( tDofIndex ) = tdConstdProp.get_column( 0 )    //
+                                         * mPropThetaIp->dPropdDOF( aDofTypes );
+            }
+        }
     }    // namespace fem
 }    // namespace moris

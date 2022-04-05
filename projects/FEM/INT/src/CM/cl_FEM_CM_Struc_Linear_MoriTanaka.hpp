@@ -37,7 +37,8 @@ namespace moris
             Matrix< DDRMat > mConstMatrix;
             Matrix< DDRMat > mConstFiber;
             Matrix< DDRMat > mRotation;
-            Matrix< DDRMat > mRotationDer;
+            Matrix< DDRMat > mRotationDerInPlane;
+            Matrix< DDRMat > mRotationDerOutPlane;
             Matrix< DDRMat > mConstPrime;
 
             // property type for CM
@@ -169,6 +170,29 @@ namespace moris
                     const Matrix< DDRMat >&      aNormal,
                     const Matrix< DDRMat >&      aJump,
                     const Cell< MSI::Dof_Type >& aTestDofTypes );
+
+
+            //--------------------------------------------------------------------------------------------------------------
+            /**
+             * evaluate the derivative of the rotation tensor wrt in plane and out of plane angeles
+             *
+             */
+            void eval_inplane_rotation_derivative();
+
+            //--------------------------------------------------------------------------------------------------------------
+            /**
+             * evaluate the derivative of the rotation tensor wrt in plane and out of plane angeles
+             *
+             */
+            void eval_outplane_rotation_derivative();
+
+            //--------------------------------------------------------------------------------------------------------------
+            /**
+             * evaluate the constitutive model derivative wrt to a dof type
+             *
+             * @param[ in ] aDofTypes  dof type wrt which the derivative is evaluated
+             */
+            virtual void eval_dConstdDOF( const Cell< MSI::Dof_Type >& aDofTypes );
         };
         //--------------------------------------------------------------------------------------------------------------
     } /* namespace fem */
