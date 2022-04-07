@@ -32,7 +32,7 @@ namespace xtk
       protected:
 
         bool                                            mTrivial;
-        bool                                            mVoid;
+        bool                                            mVoid = false;
         bool                                            mInvalid;
         Interpolation_Cell_Unzipped const*              mInterpolationCell;
         Child_Mesh const*                               mChildMesh;  // FIXME: this doesn't seem to be used, should be removed

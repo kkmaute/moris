@@ -23,7 +23,6 @@ Interpolation_Cell_Unzipped::Interpolation_Cell_Unzipped(
         : Interpolation_Cell( aCellId, aCellIndex, aCellOwner, aConnectivity )
         , mBaseCell( aBaseCell )
         , mSubPhaseIndex( aSubphaseIndex )
-        , mLocalSpgIndex( -1 )
         , mBulkPhaseIndex( aBulkPhaseIndex )
 {
 }
@@ -32,20 +31,25 @@ Interpolation_Cell_Unzipped::Interpolation_Cell_Unzipped(
 
 Interpolation_Cell_Unzipped::Interpolation_Cell_Unzipped(
         moris::mtk::Cell*                        aBaseCell,
-        moris_index                              aLocalSpgIndex,
+        moris_index                              aPrimarySubPhaseIndex,
+        moris_index                              aPrimaryBulkPhaseIndex,
         moris_id                                 aEnrCellId,
         moris_index                              aEnrCellIndex,
         moris_id                                 aEnrCellOwner,
+        moris_index                              aNumMeshIndices,
         std::shared_ptr< moris::mtk::Cell_Info > aConnectivity,
         bool                                     aIsSpgBasedConstruction )
         : Interpolation_Cell( aEnrCellId, aEnrCellIndex, aEnrCellOwner, aConnectivity )
         , mBaseCell( aBaseCell )
-        , mSubPhaseIndex( -1 )
-        , mLocalSpgIndex( aLocalSpgIndex )
-        , mBulkPhaseIndex( -1 )
+        , mSubPhaseIndex( aPrimarySubPhaseIndex )
+        , mBulkPhaseIndex( aPrimaryBulkPhaseIndex )
 {
     MORIS_ASSERT( aIsSpgBasedConstruction, 
         "Interpolation_Cell_Unzipped::Interpolation_Cell_Unzipped() - second constructor can only be used with SPG-based enrichment" );
+
+    // size lists
+    mSpgIndices.resize( aNumMeshIndices, -1 );
+    mBulkPhaseIndices.resize( aNumMeshIndices, -1 );
 }
 
 //------------------------------------------------------------------------------
@@ -118,17 +122,7 @@ Interpolation_Cell_Unzipped::get_base_cell()
 moris_index
 Interpolation_Cell_Unzipped::get_subphase_index() const
 {
-    MORIS_ASSERT( mSubPhaseIndex != -1, "Interpolation_Cell_Unzipped::get_subphase_index() - UIPV has been constructed using SPGs, no SP index available." );
     return mSubPhaseIndex;
-}
-
-//------------------------------------------------------------------------------
-
-moris_index
-Interpolation_Cell_Unzipped::get_local_SPG_index() const
-{
-    MORIS_ASSERT( mLocalSpgIndex != -1, "Interpolation_Cell_Unzipped::get_local_SPG_index() - UIPV has been constructed using SPs, no SPG index available." );
-    return mLocalSpgIndex;
 }
 
 //------------------------------------------------------------------------------
@@ -136,8 +130,35 @@ Interpolation_Cell_Unzipped::get_local_SPG_index() const
 moris_index
 Interpolation_Cell_Unzipped::get_bulkphase_index() const
 {
-    MORIS_ASSERT( mBulkPhaseIndex != -1, "Interpolation_Cell_Unzipped::get_bulkphase_index() - UIPV has been constructed using SPGs, bulk-phase index not well-defined." );
     return mBulkPhaseIndex;
+}
+
+//------------------------------------------------------------------------------
+
+void
+Interpolation_Cell_Unzipped::set_SPG_and_BP_indices_for_DM_list_index(
+        const moris_index aMeshListIndex,
+        const moris_index aSpgIndex,
+        const moris_index aBulkPhaseIndex )
+{
+    mSpgIndices( aMeshListIndex ) = aSpgIndex;
+    mBulkPhaseIndices( aMeshListIndex ) = aBulkPhaseIndex;
+}
+
+//------------------------------------------------------------------------------
+
+moris_index
+Interpolation_Cell_Unzipped::get_SPG_index_for_DM_list_index( const moris_index aMeshListIndex ) const
+{
+    return mSpgIndices( aMeshListIndex );
+}
+
+//------------------------------------------------------------------------------
+
+moris_index
+Interpolation_Cell_Unzipped::get_bulkphase_index_for_DM_list_index( const moris_index aMeshListIndex ) const
+{
+    return mBulkPhaseIndices( aMeshListIndex );
 }
 
 //------------------------------------------------------------------------------

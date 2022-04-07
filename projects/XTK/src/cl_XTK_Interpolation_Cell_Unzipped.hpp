@@ -35,30 +35,37 @@ class Interpolation_Cell_Unzipped: public Interpolation_Cell
 protected:
     moris::mtk::Cell*                                  mBaseCell;
     moris::moris_index                                 mSubPhaseIndex;
-    moris::moris_index                                 mLocalSpgIndex;
     moris::moris_index                                 mBulkPhaseIndex;
     moris::Cell< xtk::Interpolation_Vertex_Unzipped* > mVertices;
+
+    moris::Cell< moris::moris_index > mSpgIndices;
+    moris::Cell< moris::moris_index > mBulkPhaseIndices;
 
 public:
     Interpolation_Cell_Unzipped(){};
     
     // constructor for SPG based initialization
-    Interpolation_Cell_Unzipped(moris::mtk::Cell*      aBaseCell,
-                                moris_index            aSubphaseIndex,
-                                moris_index            aBulkPhaseIndex,
-                                moris_id               aCellId,
-                                moris_index            aCellIndex,
-                                moris_id               aCellOwner,
-                                std::shared_ptr<moris::mtk::Cell_Info> aConnectivity);
+    Interpolation_Cell_Unzipped(
+            moris::mtk::Cell*      aBaseCell,
+            moris_index            aSubphaseIndex,
+            moris_index            aBulkPhaseIndex,
+            moris_id               aCellId,
+            moris_index            aCellIndex,
+            moris_id               aCellOwner,
+            std::shared_ptr< moris::mtk::Cell_Info > aConnectivity );
 
     // constructor for SPG based initialization
-    Interpolation_Cell_Unzipped(moris::mtk::Cell*      aBaseCell,
-                                moris_index            aLocalSpgIndex,
-                                moris_id               aEnrCellId,
-                                moris_index            aEnrCellIndex,
-                                moris_id               aEnrCellOwner,
-                                std::shared_ptr<moris::mtk::Cell_Info> aConnectivity,
-                                bool                   aIsSpgBasedConstruction ); // FIXME: this can go eventually, leave for now to distinquish constructors
+    // FIXME: this can go eventually, leave for now to distinquish constructors
+    Interpolation_Cell_Unzipped(
+            moris::mtk::Cell*      aBaseCell,
+            moris_index            aPrimarySubPhaseIndex,
+            moris_index            aPrimaryBulkPhaseIndex,
+            moris_id               aEnrCellId,
+            moris_index            aEnrCellIndex,
+            moris_id               aEnrCellOwner,
+            moris_index            aNumMeshIndices,
+            std::shared_ptr< moris::mtk::Cell_Info > aConnectivity,
+            bool                                     aIsSpgBasedConstruction );
 
     //------------------------------------------------------------------------------
     // MTK Interpolation Cell Implementation
@@ -105,8 +112,8 @@ public:
     // Accessor functions of XTK specific data structures
     //------------------------------------------------------------------------------
 
-    /*
-     * Return the processor local sub phase index of this interpolation cell
+    /**
+     * @brief Return the processor local sub phase index of this interpolation cell
      */
     moris_index
     get_subphase_index() const;
@@ -114,20 +121,47 @@ public:
     //------------------------------------------------------------------------------
 
     /**
-     * @brief Return the position of the enr. IP cell within the list of enr. IP cells on associated base IP cell
-     * 
-     * @return moris_index 
-     */
-    moris_index
-    get_local_SPG_index() const;
-
-    //------------------------------------------------------------------------------
-
-    /*
-     * Return the bulk phase index of the subphase
+     * @brief Return the bulk phase index of the subphase
      */
     moris_index
     get_bulkphase_index() const;
+
+    //------------------------------------------------------------------------------
+
+    /**
+     * @brief Set the SPG and BP indices for a given DM list index
+     * 
+     * @param aMeshListIndex 
+     * @param aSpgIndex 
+     * @param aBulkPhaseIndex 
+     */
+    void
+    set_SPG_and_BP_indices_for_DM_list_index(
+            const moris_index aMeshListIndex,
+            const moris_index aSpgIndex,
+            const moris_index aBulkPhaseIndex );
+
+    //------------------------------------------------------------------------------
+
+    /**
+     * @brief Retrieve the SPG index for the primary phase for a given DM list index from the Enr. IP cell
+     * 
+     * @param aMeshListIndex 
+     * @return moris_index 
+     */
+    moris_index
+    get_SPG_index_for_DM_list_index( const moris_index aMeshListIndex ) const;
+
+    //------------------------------------------------------------------------------
+
+    /**
+     * @brief Retrieve the bulk-phase index for the primary phase for a given DM list index from the Enr. IP cell
+     * 
+     * @param aMeshListIndex 
+     * @return moris_index 
+     */
+    moris_index
+    get_bulkphase_index_for_DM_list_index( const moris_index aMeshListIndex ) const;
 
     //------------------------------------------------------------------------------
 

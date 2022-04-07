@@ -75,6 +75,8 @@ NonLinBlockGaussSeidel::solver_nonlinear_system( Nonlinear_Problem* aNonlinearPr
 
     // initialize pseudo time step
     real tPseudoTimeStep;
+    real tPseudoTotalTime = 0.0;
+
     bool tTimeStepIsConverged = tPseudoTimeControl.get_initial_step_size( tPseudoTimeStep );
 
     // NLBGS loop
@@ -90,6 +92,7 @@ NonLinBlockGaussSeidel::solver_nonlinear_system( Nonlinear_Problem* aNonlinearPr
 
         // print and store pseudo time step in logger
         MORIS_LOG_SPEC( "PseudoTimeStep", tPseudoTimeStep );
+        MORIS_LOG_SPEC( "PseudoTotalTime", tPseudoTotalTime );
 
         gLogger.set_action_data(
                 "NonLinearAlgorithm",
@@ -97,6 +100,13 @@ NonLinBlockGaussSeidel::solver_nonlinear_system( Nonlinear_Problem* aNonlinearPr
                 "Solve",
                 "PseudoTimeStep",
                 tPseudoTimeStep );
+
+        gLogger.set_action_data(
+                "NonLinearAlgorithm",
+                "NLBGS",
+                "Solve",
+                "PseudoTotalTime",
+                tPseudoTotalTime );
 
         // print and store load factor in logger
         MORIS_LOG_SPEC( "LoadFactor", tLoadFactor );
@@ -184,7 +194,8 @@ NonLinBlockGaussSeidel::solver_nonlinear_system( Nonlinear_Problem* aNonlinearPr
                 mMyNonLinSolverManager->get_ref_norm(),
                 mMyNonLinSolverManager->get_residual_norm(),
                 aNonlinearProblem->get_full_vector(),
-                tPseudoTimeStep );
+                tPseudoTimeStep,
+                tPseudoTotalTime );
 
         // Determine load factor
         tLoadControlStrategy.eval(

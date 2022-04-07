@@ -467,11 +467,12 @@ namespace xtk
                     tMeshIndex,
                     tMaxEnrichmentLevel );
 
+            // print number of enriched basis functions to log file
             MORIS_LOG_SPEC( "Num Enriched Basis", mEnrichmentData( tMeshIndex ).mNumEnrichmentLevels );
 
             // find the SPs within one IP cell that are also within the same SPG 
             // NOTE: this is needed for cluster construction later; also needs to be repeated for every Mesh index, hence it's here
-            this->establish_IP_SPG_SP_relationship( tMeshIndex );
+            // this->establish_IP_SPG_SP_relationship( tMeshIndex );
         }
 
         // FIXME: enriched IP cells not parallel consistent yet
@@ -1127,7 +1128,7 @@ namespace xtk
                 // FIXME: this is written in an expensive way for debugging, make sleeker once confirmed everything works
                 // find the bulk-phase index corresponding to the SPG and put it in map
                 moris_index tPrevSetBpIndex = mEnrichmentData( aEnrichmentDataIndex ).mBulkPhaseInEnrichedBasis( tBaseIndex + tClusterEnrLev );
-                moris_index tBulkPhaseIndex = mXTKModelPtr->mCutIntegrationMesh->get_subphase_group_bulk_phase( tSpgIndex, tMeshListIndex );
+                moris_index tBulkPhaseIndex = mBsplineMeshInfos( tMeshListIndex )->get_bulk_phase_for_subphase_group( tSpgIndex );
                 
                 // check if the bulk phase has not already been set for this enr. BF
                 if( tPrevSetBpIndex == -1 )
@@ -2266,6 +2267,7 @@ namespace xtk
 
         // maximum mesh index
         moris_index tMaxMeshIndex = mMeshIndices.max();
+        uint tNumBspMeshes = mMeshIndices.numel();
 
         // Enriched Interpolation Cell Index to Vertex Index map
         Matrix< IndexMat > tEnrInterpCellToVertex( tEnrInterpMesh->get_num_elements(), tEnrInterpMesh->mNumVertsPerInterpCell );
@@ -2277,7 +2279,7 @@ namespace xtk
 
         // loop over the B-spline meshes (i.e. discretization mesh indices)
         // this is done as the T-matrices at the enriched IP vertices need to be constructed wrt each B-spline mesh
-        for ( moris::uint iBspMesh = 0; iBspMesh < mMeshIndices.numel(); iBspMesh++ )
+        for ( moris::uint iBspMesh = 0; iBspMesh < tNumBspMeshes; iBspMesh++ )
         {
             // Mesh Index
             moris_index tMeshIndex = mMeshIndices( iBspMesh );
@@ -2285,8 +2287,11 @@ namespace xtk
             // iterate through all IP cells (iterator iIpCell is equal to IP cell's index)
             for ( moris::uint iIpCell = 0; iIpCell < mBackgroundMeshPtr->get_num_elems(); iIpCell++ )
             {    
+                // convert to index
+                moris_index tIpCellIndex = (moris_index) iIpCell;
+                
                 // get the MTK cell 
-                mtk::Cell* tIpCell = &( mCutIgMesh->get_mtk_cell( (moris_index) iIpCell ) );
+                mtk::Cell* tIpCell = &( mCutIgMesh->get_mtk_cell( tIpCellIndex ) );
 
                 // ID of the owning processor ("Owner")
                 moris_id tOwner = tIpCell->get_owner();
@@ -2338,7 +2343,7 @@ namespace xtk
                     }
                     else // invalid clusters
                     {
-                        // simply reuse an already present enrichment, but leave cluster empty
+                        // simply reuse an already present enrichment, but set cluster void later
                         tSpgIndex = mMaterialSpgsUnzippedOnIpCell( iBspMesh )( iIpCell )( 0 );
                     }
 
@@ -2408,6 +2413,9 @@ namespace xtk
                         }
                     } // end: loop over IP vertices
 
+                    // get the bulk-phase index for the SPG
+                    moris_index tBulkPhaseIndex = mBsplineMeshInfos( iBspMesh )->get_bulk_phase_for_subphase_group( tSpgIndex );
+
                     // create the unzipped interpolation cell on first go
                     /* Note: the Interpolation_Cell_Unzipped carries a list of Interpolation_Vertex_Unzipped (IVU) which themselves get updated for every DMI
                      * Hence, the Interpolation_Cell_Unzipped can be left alone after initial creation.
@@ -2416,22 +2424,37 @@ namespace xtk
                     {
                         // FIXME: use a communicated proc global ID once everything is parallel consistent
                         moris_index tCellID = tCellIndex;
+
+                        // get the bulk- and sub-phase indices for the primary phase
+                        // set both to -1 if cluster has no primary phase, i.e. has no material
+                        moris_index tPrimaryBulkPhase = -1;
+                        moris_index tPrimarySubPhase = -1;
+                        if( iEnrIpCell < tNumMaterialClusters )
+                        {
+                            tPrimaryBulkPhase = tBulkPhaseIndex;
+                            tPrimarySubPhase = mCutIgMesh->get_parent_cell_subphases( tIpCellIndex )( iEnrIpCell );
+                        }
                         
                         // create new enriched interpolation cell and put it in list associating it with the underlying parent IP cell
                         tEnrInterpMesh->mEnrichedInterpCells( tCellIndex ) =
                                 new Interpolation_Cell_Unzipped(
-                                        tIpCell,
-                                        (moris_index) iEnrIpCell,
-                                        tCellID,
-                                        tCellIndex,
-                                        tOwner,
-                                        tEnrInterpMesh->mCellInfo,
-                                        true );
+                                        tIpCell,            // Base IP cell
+                                        tPrimarySubPhase,   // sub-phase index of the primary cells
+                                        tPrimaryBulkPhase,  // Bulk-phase index of the primary cells
+                                        tCellID,            // ID of Enr. IP cell
+                                        tCellIndex,         // Index of Enr. IP cell
+                                        tOwner,             // Owning Proc of Enr. IP cell
+                                        tNumBspMeshes,      // number of B-spline meshes being treated (for initializing internal lists)
+                                        tEnrInterpMesh->mCellInfo,  // Cell info for the IP Cell type (e.g. Quad4, Hex27, etc.)
+                                        true );                     // signal that the SPG base construction is used
 
                         // add enriched interpolation cell to base cell to enriched cell data
                         tEnrInterpMesh->mBaseCelltoEnrichedCell( tIpCell->get_index() ).push_back( 
                             tEnrInterpMesh->mEnrichedInterpCells( tCellIndex ) );
                     }
+
+                    // store SPG and Bulk-phase indices for the current mesh index 
+                    tEnrInterpMesh->mEnrichedInterpCells( tCellIndex )->set_SPG_and_BP_indices_for_DM_list_index( iBspMesh, tSpgIndex, tBulkPhaseIndex );
 
                 } // end: loop over enr. IP cells on base IP cell
             } // end: loop over IP cells on mesh
