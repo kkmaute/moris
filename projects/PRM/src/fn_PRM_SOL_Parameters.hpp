@@ -625,6 +625,9 @@ namespace moris
             // Required pseudo time step size needed for convergence
             tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_required_step_size", MORIS_REAL_MAX );
 
+            // maximum time step size
+            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_max_step_size", MORIS_REAL_MAX );
+
             // Time step size used once maximum number of step has been reached
             // for negative values, time step size defined by strategy is used
             tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_steady_state_step_size", -1.0 );
