@@ -180,12 +180,16 @@ NonLinBlockGaussSeidel::solver_nonlinear_system( Nonlinear_Problem* aNonlinearPr
         // check if hard break is triggered
         if ( tHartBreak )
         {
+            MORIS_LOG_INFO( "Number of Iterations to Hard Stop: %d", It );
+
             break;
         }
 
         // exit if convergence criterion is met
         if ( tIsConverged and tLoadFactor >= 1.0 and tTimeStepIsConverged )
         {
+            MORIS_LOG_INFO( "Number of Iterations to Convergence: %d", It );
+
             break;
         }
 

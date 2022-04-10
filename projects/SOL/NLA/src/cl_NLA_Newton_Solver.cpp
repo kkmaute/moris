@@ -161,12 +161,16 @@ Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProblem )
         // check if hard break is triggered
         if ( tHardBreak )
         {
+            MORIS_LOG_INFO( "Number of Iterations to Hard Stop: %d", It );
+
             break;
         }
 
         // exit if convergence criterion is met
         if ( tIsConverged and tLoadFactor >= 1.0 )
         {
+            MORIS_LOG_INFO( "Number of Iterations to Convergence: %d", It );
+
             break;
         }
 
