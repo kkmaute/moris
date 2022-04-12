@@ -44,7 +44,8 @@ namespace moris
         enum class SolverPseudoTimeControlType
         {
             None,           // No pseudo time step control
-            Exponential,    // Time step index based strategy
+            Polynomial,     // Time step index based strategy: polynomial growth
+            Exponential,    // Time step index based strategy: exponential growth
             InvResNorm,     // Residual based strategy
             Hybrid,         // Combined time step index and residual based strategy
             Comsol          // COMSOL ( see COMSOL_CFDModuleUsersGuide 6.0, page 92, 241)

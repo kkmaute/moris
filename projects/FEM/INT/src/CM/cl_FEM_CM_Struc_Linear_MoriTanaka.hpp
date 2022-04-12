@@ -3,14 +3,14 @@
 
 #include <map>
 
-#include "typedefs.hpp"//MRS/COR/src
-#include "cl_Cell.hpp"//MRS/CON/src
+#include "typedefs.hpp"    //MRS/COR/src
+#include "cl_Cell.hpp"     //MRS/CON/src
 
-#include "cl_Matrix.hpp"//LINALG/src
-#include "linalg_typedefs.hpp"//LINALG/src
+#include "cl_Matrix.hpp"          //LINALG/src
+#include "linalg_typedefs.hpp"    //LINALG/src
 
-#include "cl_FEM_Field_Interpolator.hpp"//FEM/INT/src
-#include "cl_FEM_Constitutive_Model.hpp"//FEM/INT/src
+#include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
+#include "cl_FEM_Constitutive_Model.hpp"    //FEM/INT/src
 #include "cl_FEM_CM_Struc_Linear.hpp"
 
 namespace moris
@@ -21,7 +21,7 @@ namespace moris
 
         class CM_Struc_Linear_MoriTanaka : public CM_Struc_Linear
         {
-            protected:
+          protected:
             // default local properties
             std::shared_ptr< Property > mPropEModMat        = nullptr;
             std::shared_ptr< Property > mPropEModFib        = nullptr;
@@ -32,11 +32,14 @@ namespace moris
             std::shared_ptr< Property > mPropThetaOp        = nullptr;
             std::shared_ptr< Property > mPropAspectRatio    = nullptr;
 
-            // matrices used in the homogenization process 
-            Matrix<DDRMat> mEshelbyTensor;
-            Matrix<DDRMat> mConstMatrix;
-            Matrix<DDRMat> mConstFiber;
-            Matrix<DDRMat> mRotation; 
+            // matrices used in the homogenization process
+            Matrix< DDRMat > mEshelbyTensor;
+            Matrix< DDRMat > mConstMatrix;
+            Matrix< DDRMat > mConstFiber;
+            Matrix< DDRMat > mRotation;
+            Matrix< DDRMat > mRotationDerInPlane;
+            Matrix< DDRMat > mRotationDerOutPlane;
+            Matrix< DDRMat > mConstPrime;
 
             // property type for CM
             enum class CM_Property_Type_MT
@@ -53,6 +56,7 @@ namespace moris
             };
 
             //--------------------------------------------------------------------------------------------------------------
+
           public:
             /*
              * trivial constructor
@@ -85,58 +89,56 @@ namespace moris
             /**
              * evaluate the constitutive model matrix
              */
-            virtual
-            void eval_const() override;
+            virtual void eval_const() override;
 
             //--------------------------------------------------------------------------------------------------------------
 
             /**
              * @brief computes the plane stress constitutive tensor
-             * 
-             * @param tParams 
+             *
+             * @param tParams
              */
 
-            virtual
-            void full_plane_stress(
-                std::initializer_list< const real > && tParams ) override;
+            virtual void full_plane_stress(
+                    std::initializer_list< const real >&& tParams ) override;
 
             //--------------------------------------------------------------------------------------------------------------
 
             /**
              * @brief computes the 3d constitutive tensor
-             * 
-             * @param tParams 
+             *
+             * @param tParams
              */
             void full_3d(
-                std::initializer_list< const real > && tParams );
+                    std::initializer_list< const real >&& tParams );
 
 
             //--------------------------------------------------------------------------------------------------------------
 
             /**
              * @brief Set the isotopic tensor for matrix and fiber
-             * 
-             * @param aEmod 
-             * @param aNu 
-             * @param aIsotropicConst 
+             *
+             * @param aEmod
+             * @param aNu
+             * @param aIsotropicConst
              */
 
             void
             set_isotopic_tensor( const real& aEmod,
-                const real&                  aNu,
-                Matrix<DDRMat>& aIsotropicConst );
+                    const real&              aNu,
+                    Matrix< DDRMat >&        aIsotropicConst );
 
             //--------------------------------------------------------------------------------------------------------------
 
             /**
              * @brief Set the eshelby tensor object
-             * 
-             * @param AR 
-             * @param v 
+             *
+             * @param AR
+             * @param v
              */
 
             void
-            set_eshelby_tensor( real const& aAspectRatio, real const& aNu );
+            set_eshelby_tensor( real const & aAspectRatio, real const & aNu );
 
             //--------------------------------------------------------------------------------------------------------------
             /**
@@ -144,8 +146,53 @@ namespace moris
              *  based on the current member data
              *  for spatial dimensions and model types
              */
-            virtual 
-            void set_function_pointers() override;
+            virtual void set_function_pointers() override;
+
+            //--------------------------------------------------------------------------------------------------------------
+            /**
+             * evaluate the constitutive model flux derivative wrt to a dof type
+             *
+             * @param[ in ] aDofTypes  dof type wrt which the derivative is evaluated
+             */
+            virtual void eval_dFluxdDOF( const Cell< MSI::Dof_Type >& aDofTypes );
+
+            //--------------------------------------------------------------------------------------------------------------
+            /**
+             * evaluate the constitutive model test traction derivative wrt to a dof type
+             *
+             * @param[ in ] aDofTypes      dof type wrt which the derivative is evaluated
+             * @param[ in ] aNormal        surface normal
+             * @param[ in ] aJump          displacement jump
+             * @param[ in ] aTestDofTypes  dof type of test function
+             */
+            virtual void eval_dTestTractiondDOF(
+                    const Cell< MSI::Dof_Type >& aDofTypes,
+                    const Matrix< DDRMat >&      aNormal,
+                    const Matrix< DDRMat >&      aJump,
+                    const Cell< MSI::Dof_Type >& aTestDofTypes );
+
+
+            //--------------------------------------------------------------------------------------------------------------
+            /**
+             * evaluate the derivative of the rotation tensor wrt in plane and out of plane angeles
+             *
+             */
+            void eval_inplane_rotation_derivative();
+
+            //--------------------------------------------------------------------------------------------------------------
+            /**
+             * evaluate the derivative of the rotation tensor wrt in plane and out of plane angeles
+             *
+             */
+            void eval_outplane_rotation_derivative();
+
+            //--------------------------------------------------------------------------------------------------------------
+            /**
+             * evaluate the constitutive model derivative wrt to a dof type
+             *
+             * @param[ in ] aDofTypes  dof type wrt which the derivative is evaluated
+             */
+            virtual void eval_dConstdDOF( const Cell< MSI::Dof_Type >& aDofTypes );
         };
         //--------------------------------------------------------------------------------------------------------------
     } /* namespace fem */

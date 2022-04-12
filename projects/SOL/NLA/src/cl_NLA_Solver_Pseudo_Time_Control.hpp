@@ -57,6 +57,9 @@ namespace moris
             /// required pseudo time step size needed for convergence
             real mRequiredStepSize = 1000.0;
 
+            /// maximum time step
+            real mMaxStepSize = 1e18;
+
             /// maximum number of time steps
             uint mMaxNumTimeSteps = 1;
 

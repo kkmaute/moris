@@ -42,6 +42,7 @@ namespace moris
              * 5: distance to interface measure
              * 6: L2 weight
              * 7: H1 weight
+             * 8: intended sign of design level set function (optional)
              */
 
           public:
@@ -77,7 +78,6 @@ namespace moris
             //! weight of H1 semi-norm contribution
             real mH1SWeight;
 
-
             // Parameters from Markus,Coco paper
             real mPhiBound;
             real mPhiGamma;
@@ -87,6 +87,8 @@ namespace moris
             real mWeightDelPhi1;
             real mWeightDelPhi2;
 
+            // Sign of level set function
+            real mLevelSetSign = 1.0;
 
             //! flag whether to skip computing dQIdu; skipping useful e.g. for level set regularization
             bool mSkipComputeDQIDU = false;

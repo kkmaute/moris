@@ -17,11 +17,11 @@ namespace moris
         CM_Struc_Linear_Isotropic::CM_Struc_Linear_Isotropic()
         {
             // set the property pointer cell size
-            mProperties.resize( mProperties.size() + static_cast< uint >( CM_Property_Type_Iso::MAX_ENUM ) , nullptr );
+            mProperties.resize( mProperties.size() + static_cast< uint >( CM_Property_Type_Iso::MAX_ENUM ), nullptr );
 
             // populate the map
-            mPropertyMap["YoungsModulus"] = static_cast< uint >( CM_Property_Type_Iso::EMOD ) + static_cast< uint >( CM_Property_Type_Lin::MAX_ENUM );
-            mPropertyMap["PoissonRatio"]  = static_cast< uint >( CM_Property_Type_Iso::NU ) + static_cast< uint >( CM_Property_Type_Lin::MAX_ENUM ); 
+            mPropertyMap[ "YoungsModulus" ] = static_cast< uint >( CM_Property_Type_Iso::EMOD ) + static_cast< uint >( CM_Property_Type_Lin::MAX_ENUM );
+            mPropertyMap[ "PoissonRatio" ]  = static_cast< uint >( CM_Property_Type_Iso::NU ) + static_cast< uint >( CM_Property_Type_Lin::MAX_ENUM );
         }
 
         //------------------------------------------------------------------------------
@@ -40,10 +40,10 @@ namespace moris
 
             // check that essential properties exist
             MORIS_ASSERT( mPropEMod,
-                "CM_Struc_Linear_Isotropic::set_local_properties - Young's modulus property does not exist.\n" );
+                    "CM_Struc_Linear_Isotropic::set_local_properties - Young's modulus property does not exist.\n" );
 
             MORIS_ASSERT( mPropPoisson,
-                "CM_Struc_Linear_Isotropic::set_local_properties - Poisson ratio property does not exist.\n" );
+                    "CM_Struc_Linear_Isotropic::set_local_properties - Poisson ratio property does not exist.\n" );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -54,7 +54,7 @@ namespace moris
             // get the Poisson's ratio value
             const real tNu = mPropPoisson->val()( 0 );
 
-            // get the Youngs' modulus value
+            // get the Young's modulus value
             const real tEmod = mPropEMod->val()( 0 );
 
             // evaluate the constitutive matrix
@@ -86,9 +86,9 @@ namespace moris
 
         void
         CM_Struc_Linear_Isotropic::eval_inv_bulk_modulus_generic(
-            const real& aNu,
-            const real& aEMod,
-            real&       aInvBulkModulus )
+                const real& aNu,
+                const real& aEMod,
+                real&       aInvBulkModulus )
         {
             aInvBulkModulus = 3.0 * ( 1.0 - 2.0 * aNu ) / aEMod;
         }
@@ -97,9 +97,9 @@ namespace moris
 
         void
         CM_Struc_Linear_Isotropic::eval_inv_bulk_modulus_plane_stress(
-            const real& aNu,
-            const real& aEMod,
-            real&       aInvBulkModulus )
+                const real& aNu,
+                const real& aEMod,
+                real&       aInvBulkModulus )
         {
             aInvBulkModulus = 2.0 * ( 1.0 - aNu ) / aEMod;
         }
@@ -108,11 +108,11 @@ namespace moris
 
         Matrix< DDRMat >
         CM_Struc_Linear_Isotropic::eval_dInvBulkModulusdDOF(
-            const Cell< MSI::Dof_Type >& aDofTypes )
+                const Cell< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof FI
             Field_Interpolator* tFI =
-                mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+                    mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // init inverse of the bulk modulus
             Matrix< DDRMat > tdInvBulkModulusdDOF( 1, tFI->get_number_of_space_time_coefficients(), 0.0 );
@@ -121,7 +121,7 @@ namespace moris
             if ( mPropEMod->check_dof_dependency( aDofTypes ) )
             {
                 tdInvBulkModulusdDOF -=
-                    eval_inv_bulk_modulus() * mPropEMod->dPropdDOF( aDofTypes ) / mPropEMod->val()( 0 );
+                        eval_inv_bulk_modulus() * mPropEMod->dPropdDOF( aDofTypes ) / mPropEMod->val()( 0 );
             }
 
             // if Poisson ratio property depends on dof type
@@ -153,7 +153,7 @@ namespace moris
             {
                 // compute derivative with indirect dependency through properties
                 mdFluxdDof( tDofIndex ) +=
-                    this->constitutive() * this->strain() * mPropEMod->dPropdDOF( aDofTypes ) / mPropEMod->val()( 0 );
+                        this->constitutive() * this->strain() * mPropEMod->dPropdDOF( aDofTypes ) / mPropEMod->val()( 0 );
             }
 
             // if Poisson ratio depends on dof type
@@ -167,14 +167,13 @@ namespace moris
 
         void
         CM_Struc_Linear_Isotropic::eval_dTestTractiondDOF(
-            const Cell< MSI::Dof_Type >& aDofTypes,
-            const Matrix< DDRMat >&      aNormal,
-            const Matrix< DDRMat >&      aJump,
-            const Cell< MSI::Dof_Type >& aTestDofTypes )
+                const Cell< MSI::Dof_Type >& aDofTypes,
+                const Matrix< DDRMat >&      aNormal,
+                const Matrix< DDRMat >&      aJump,
+                const Cell< MSI::Dof_Type >& aTestDofTypes )
         {
-
+            // compute generic derivative of test traction
             CM_Struc_Linear::eval_dTestTractiondDOF( aDofTypes, aNormal, aJump, aTestDofTypes );
-
 
             // get test dof type index
             const uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
@@ -187,7 +186,7 @@ namespace moris
             {
                 // compute derivative
                 mdTestTractiondDof( tTestDofIndex )( tDofIndex ) =
-                    this->testTraction( aNormal, aTestDofTypes ) * trans( aJump ) * mPropEMod->dPropdDOF( aDofTypes ) / mPropEMod->val()( 0 );
+                        this->testTraction( aNormal, aTestDofTypes ) * trans( aJump ) * mPropEMod->dPropdDOF( aDofTypes ) / mPropEMod->val()( 0 );
             }
 
             // if Poisson's ratio depends on dof type
@@ -237,10 +236,10 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        CM_Struc_Linear_Isotropic::full_plane_stress( std::initializer_list< const real > && tParams )
+        CM_Struc_Linear_Isotropic::full_plane_stress( std::initializer_list< const real >&& tParams )
         {
-            const real& tEmod = tParams.begin()[0];
-            const real& tNu   = tParams.begin()[1];
+            const real& tEmod = tParams.begin()[ 0 ];
+            const real& tNu   = tParams.begin()[ 1 ];
 
             const real tPre = tEmod / ( 1 - std::pow( tNu, 2 ) );
 
@@ -254,10 +253,10 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        CM_Struc_Linear_Isotropic::deviatoric_plane_stress( std::initializer_list< const real > && tParams )
+        CM_Struc_Linear_Isotropic::deviatoric_plane_stress( std::initializer_list< const real >&& tParams )
         {
-            const real& tEmod = tParams.begin()[0];
-            const real& tNu   = tParams.begin()[1];
+            const real& tEmod = tParams.begin()[ 0 ];
+            const real& tNu   = tParams.begin()[ 1 ];
 
             const real tPre = tEmod / ( ( 1 + tNu ) * 2.0 );
 
@@ -271,10 +270,10 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        CM_Struc_Linear_Isotropic::full_plane_strain( std::initializer_list< const real > && tParams )
+        CM_Struc_Linear_Isotropic::full_plane_strain( std::initializer_list< const real >&& tParams )
         {
-            const real& tEmod = tParams.begin()[0];
-            const real& tNu   = tParams.begin()[1];
+            const real& tEmod = tParams.begin()[ 0 ];
+            const real& tNu   = tParams.begin()[ 1 ];
 
             const real tPre = tEmod / ( 1.0 + tNu ) / ( 1.0 - 2.0 * tNu );
 
@@ -293,10 +292,10 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        CM_Struc_Linear_Isotropic::deviatoric_plane_strain( std::initializer_list< const real > && tParams )
+        CM_Struc_Linear_Isotropic::deviatoric_plane_strain( std::initializer_list< const real >&& tParams )
         {
-            const real& tEmod = tParams.begin()[0];
-            const real& tNu   = tParams.begin()[1];
+            const real& tEmod = tParams.begin()[ 0 ];
+            const real& tNu   = tParams.begin()[ 1 ];
 
             const real tPre = tEmod / ( 3.0 * ( 1.0 + tNu ) );
 
@@ -315,10 +314,10 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        CM_Struc_Linear_Isotropic::full_axisymmetric( std::initializer_list< const real > && tParams )
+        CM_Struc_Linear_Isotropic::full_axisymmetric( std::initializer_list< const real >&& tParams )
         {
-            const real& tEmod = tParams.begin()[0];
-            const real& tNu   = tParams.begin()[1];
+            const real& tEmod = tParams.begin()[ 0 ];
+            const real& tNu   = tParams.begin()[ 1 ];
 
             const real tPre = tEmod / ( 1.0 + tNu ) / ( 1.0 - 2.0 * tNu );
 
@@ -339,10 +338,10 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        CM_Struc_Linear_Isotropic::deviatoric_axisymmetric( std::initializer_list< const real > && tParams )
+        CM_Struc_Linear_Isotropic::deviatoric_axisymmetric( std::initializer_list< const real >&& tParams )
         {
-            const real& tEmod = tParams.begin()[0];
-            const real& tNu   = tParams.begin()[1];
+            const real& tEmod = tParams.begin()[ 0 ];
+            const real& tNu   = tParams.begin()[ 1 ];
 
             real tPre = tEmod / ( 3.0 * ( 1.0 + tNu ) );
 
@@ -363,10 +362,10 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        CM_Struc_Linear_Isotropic::full_3d( std::initializer_list< const real > && tParams )
+        CM_Struc_Linear_Isotropic::full_3d( std::initializer_list< const real >&& tParams )
         {
-            const real& tEmod = tParams.begin()[0];
-            const real& tNu   = tParams.begin()[1];
+            const real& tEmod = tParams.begin()[ 0 ];
+            const real& tNu   = tParams.begin()[ 1 ];
 
             const real tPre = tEmod / ( 1.0 + tNu ) / ( 1.0 - 2.0 * tNu );
 
@@ -388,10 +387,10 @@ namespace moris
 
         void
         CM_Struc_Linear_Isotropic::deviatoric_3d(
-            std::initializer_list< const real > && tParams  )
+                std::initializer_list< const real >&& tParams )
         {
-            const real& tEmod = tParams.begin()[0];
-            const real& tNu   = tParams.begin()[1];
+            const real& tEmod = tParams.begin()[ 0 ];
+            const real& tNu   = tParams.begin()[ 1 ];
 
             const real tPre = tEmod / ( 3.0 * ( 1.0 + tNu ) );
 

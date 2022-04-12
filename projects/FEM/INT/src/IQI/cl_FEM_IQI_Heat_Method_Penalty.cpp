@@ -38,8 +38,8 @@ namespace moris
             if ( !mIsInitialized )
             {
                 // check for proper size of constant function parameters
-                MORIS_ERROR( mParameters.size() == 7,
-                        "IQI_Heat_Method_Penalty::initialize - Needs 7 constant parameters." );
+                MORIS_ERROR( mParameters.size() == 7 || mParameters.size() == 8,
+                        "IQI_Heat_Method_Penalty::initialize - Needs 7 or 8 constant parameters." );
 
                 // get weights for L2 and H1 semi-norm contributions
                 mPhiBound      = mParameters( 0 )( 0 );
@@ -49,6 +49,11 @@ namespace moris
                 mWeightPhi2    = mParameters( 4 )( 0 );
                 mWeightDelPhi1 = mParameters( 5 )( 0 );
                 mWeightDelPhi2 = mParameters( 6 )( 0 );
+
+                if ( mParameters.size() == 8 )
+                {
+                    mLevelSetSign = mParameters( 7 )( 0 );
+                }
 
                 // check mQuantityDofType is defined
                 MORIS_ERROR( mQuantityDofType.size() > 0,
@@ -75,11 +80,11 @@ namespace moris
             aQI.fill( 0.0 );
 
             // project level set field
-            real tVal = std::exp( -2.0 * mPhiGradient * tFI->val()( 0 ) / mPhiBound );
+            real tVal = std::exp( -2.0 * mPhiGradient * mLevelSetSign * tFI->val()( 0 ) / mPhiBound );
 
             // Compute phi tilde
             moris::real      tPhiTilde   = ( 2.0 / ( 1.0 + tVal ) - 1.0 ) * mPhiBound;
-            Matrix< DDRMat > tPhiTildeDx = ( 4.0 * mPhiGradient * tVal ) / std::pow( 1.0 + tVal, 2 ) * tFI->gradx( 1 );
+            Matrix< DDRMat > tPhiTildeDx = ( 4.0 * mPhiGradient * tVal ) / std::pow( 1.0 + tVal, 2 ) * mLevelSetSign * tFI->gradx( 1 );
 
             // Compute alpha
             moris::real tAlpha = std::exp( -mPhiGamma * std::pow( tPhiTilde / mPhiBound, 2 ) );
@@ -194,7 +199,7 @@ namespace moris
                 return;
             }
 
-            MORIS_ERROR( 0, "Intentionally not implemented - Sensitivitiy not used for heat method regularizations" );
+            MORIS_ERROR( 0, "Intentionally not implemented - Sensitivity not used for heat method regularization." );
         }
 
         //------------------------------------------------------------------------------
@@ -210,7 +215,7 @@ namespace moris
                 return;
             }
 
-            MORIS_ERROR( 0, "Intentionally not implemented - Sensitivitiy not used for heat method regularizations" );
+            MORIS_ERROR( 0, "Intentionally not implemented - Sensitivity not used for heat method regularization." );
         }
 
         //------------------------------------------------------------------------------

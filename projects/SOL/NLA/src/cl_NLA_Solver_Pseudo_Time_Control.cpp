@@ -43,6 +43,9 @@ namespace moris
             // get required pseudo time step size needed for convergence
             mRequiredStepSize = aParameterListNonlinearSolver.get< real >( "NLA_pseudo_time_required_step_size" );
 
+            // maximum time step size
+            mMaxStepSize = aParameterListNonlinearSolver.get< real >( "NLA_pseudo_time_max_step_size" );
+
             // get maximum number of time steps
             mMaxNumTimeSteps = aParameterListNonlinearSolver.get< sint >( "NLA_pseudo_time_max_num_steps" );
 
@@ -58,6 +61,22 @@ namespace moris
             // strategy depending parameters
             switch ( mTimeStepStrategy )
             {
+                case sol::SolverPseudoTimeControlType::Polynomial:
+                {
+                    // get constant time step size
+                    mConstantStepSize = aParameterListNonlinearSolver.get< real >( "NLA_pseudo_time_constant" );
+
+                    // get pre-factor for time step index-based increase of time step
+                    mTimeStepIndexFactor = aParameterListNonlinearSolver.get< real >( "NLA_pseudo_time_step_index_factor" );
+
+                    // get exponent for time step index-based increase
+                    mTimeStepExponent = aParameterListNonlinearSolver.get< real >( "NLA_pseudo_time_step_index_exponent" );
+
+                    // set initial time step size
+                    mInitialStepSize = mConstantStepSize;
+
+                    break;
+                }
                 case sol::SolverPseudoTimeControlType::Exponential:
                 {
                     // get constant time step size
@@ -228,7 +247,7 @@ namespace moris
                     return true;
                 }
                 // constant relaxation parameter
-                case sol::SolverPseudoTimeControlType::Exponential:
+                case sol::SolverPseudoTimeControlType::Polynomial:
                 {
                     // update increase time step only if requirement on relative residual is satisfied
                     if ( tRelResNorm < mRelativeResidualDropThreshold )
@@ -238,6 +257,22 @@ namespace moris
 
                         // compute new time step
                         aTimeStep = std::max( mConstantStepSize, mTimeStepIndexFactor * std::pow( mTimeStepCounter, mTimeStepExponent ) );
+
+                        // increase time step counter
+                        mTimeStepCounter++;
+                    }
+                    break;
+                }
+                case sol::SolverPseudoTimeControlType::Exponential:
+                {
+                    // update increase time step only if requirement on relative residual is satisfied
+                    if ( tRelResNorm < mRelativeResidualDropThreshold )
+                    {
+                        // set update flag to true
+                        tPerformUpdate = true;
+
+                        // compute new time step
+                        aTimeStep = mConstantStepSize * std::pow( mTimeStepIndexFactor, std::floor( mTimeStepCounter / mTimeStepExponent ) * mTimeStepExponent );
 
                         // increase time step counter
                         mTimeStepCounter++;
@@ -317,6 +352,9 @@ namespace moris
             {
                 aTimeStep = mSteadyStateStepSize;
             }
+
+            // enforce maximum time step size
+            aTimeStep = std::min( aTimeStep, mMaxStepSize );
 
             // update total time
             mTotalTime += aTimeStep;
