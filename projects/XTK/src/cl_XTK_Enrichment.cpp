@@ -1822,11 +1822,15 @@ namespace xtk
         mMaterialSpgsUnzippedOnIpCell.resize( tNumBspMeshes );
         mVoidSpgsUnzippedOnIpCell.resize( tNumBspMeshes );
 
+        // initialize map relating SPGs to unzipping of a given IP cell
+        mBaseIpCellAndSpgToUnzipping.resize( tNumBspMeshes );
+
         // initialize lists with correct size for each B-spline mesh
         for ( moris::size_t iMeshIndex = 0; iMeshIndex < mMeshIndices.numel(); iMeshIndex++ )
         {
             mMaterialSpgsUnzippedOnIpCell( iMeshIndex ).resize( tNumIpElems );
             mVoidSpgsUnzippedOnIpCell( iMeshIndex ).resize( tNumIpElems );
+            mBaseIpCellAndSpgToUnzipping( iMeshIndex ).resize( tNumIpElems );
         }
 
         // loop to obtain the number of max possible number of enr. IP cells
@@ -1907,10 +1911,13 @@ namespace xtk
             // get the SPGs that are associated with the current IP cell
             moris::Cell< moris_index > const& tSPGsOnCell = 
                 tBsplineMeshInfo->get_SPG_indices_associated_with_extraction_cell( aIpCellIndex );
-            uint tNumSPGs =  tSPGsOnCell.size();
+            uint tNumSPGsOnCell =  tSPGsOnCell.size();
 
             // initialize punchcard logging which SPGs have material on the current IP cell
-            moris::Cell< bool > tVoidSPGs( tNumSPGs, true );
+            moris::Cell< bool > tVoidSPGs( tNumSPGsOnCell, true );
+
+            // initialize list relating each SPG to a specific unzipping
+            mBaseIpCellAndSpgToUnzipping( iMeshIndex )( aIpCellIndex ).resize( tNumSPGsOnCell );
 
             // convert List of SPGs to map
             IndexMap tSpgIndexToLocalMap;
@@ -1931,11 +1938,14 @@ namespace xtk
 
                 // mark the SPG as having material in the punch card
                 tVoidSPGs( tLocalSpgIndex ) = false;
+
+                // relate the unzipping to the local SPG index, store this information in map
+                mBaseIpCellAndSpgToUnzipping( iMeshIndex )( aIpCellIndex )( tLocalSpgIndex ) = iSP;
             }
 
             // count the number of void IP cells that need to be constructed
             uint tNumVoidClusters = 0;
-            for( uint iSPG = 0; iSPG < tNumSPGs; iSPG++ )
+            for( uint iSPG = 0; iSPG < tNumSPGsOnCell; iSPG++ )
             {
                 tNumVoidClusters += tVoidSPGs( iSPG );
             }
@@ -1945,10 +1955,14 @@ namespace xtk
 
             // store SPG indices for void clusters
             uint tVoidSpgCounter = 0;
-            for( uint iSPG = 0; iSPG < tNumSPGs; iSPG++ )
+            for( uint iSPG = 0; iSPG < tNumSPGsOnCell; iSPG++ )
             {
+                // if SPG has noted to not have material in it
                 if( tVoidSPGs( iSPG ) )
                 {
+                    // relate the unzipping to the local SPG index, store this information in map
+                    mBaseIpCellAndSpgToUnzipping( iMeshIndex )( aIpCellIndex )( iSPG ) = tNumSPs + tVoidSpgCounter;
+
                     mVoidSpgsUnzippedOnIpCell( iMeshIndex )( aIpCellIndex )( tVoidSpgCounter ) = tSPGsOnCell( iSPG );
                     tVoidSpgCounter++;
                 }
@@ -2346,6 +2360,9 @@ namespace xtk
                         // simply reuse an already present enrichment, but set cluster void later
                         tSpgIndex = mMaterialSpgsUnzippedOnIpCell( iBspMesh )( iIpCell )( 0 );
                     }
+
+                    // make sure a valid SPG index gets assigned
+                    MORIS_ASSERT( tSpgIndex > -1, "Enrichment::construct_enriched_interpolation_vertices_and_cells_new() - SPG index not assigned." );
 
                     // get list of non-enriched basis indices interpolating into the current subphase
                     Cell< moris_index > const & tBasisInSpg = mEnrichmentData( tMeshIndex ).mSubphaseGroupBGBasisIndices( tSpgIndex );

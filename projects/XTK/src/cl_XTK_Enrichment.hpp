@@ -180,7 +180,11 @@ namespace xtk
             moris::Cell< moris::Cell<  moris::Cell< moris_index > > > mVoidSpgsUnzippedOnIpCell; // input: B-spline mesh index, IP-cell index || output: list of SPG indices wrt. which void clusters need to be created
 
             // indices of enriched IP cells as a function of the base IP cell and the local SPG index
-            moris::Cell< moris::Cell< moris_index > > mEnrIpCellIndices; // input: IP cell index, local SPG index || output: index of enr. IP cell
+            moris::Cell< moris::Cell< moris_index > > mEnrIpCellIndices; // input: base IP cell index, index of unzipping || output: index of enr. IP cell
+
+            // map allowing correct UIPC to be grabbed base on base IP cell and SPG index (for Ghost)
+            // input: B-spline mesh index, base IP cell index, SPG index local to corresponding B-spline element || output: index of unzipping
+            moris::Cell< moris::Cell<  moris::Cell< moris_index > > > mBaseIpCellAndSpgToUnzipping;
 
             // ----------------------------------------------------------------------------------
 
