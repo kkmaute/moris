@@ -3983,24 +3983,27 @@ namespace moris
                 moris_index const          aSideOrdinal,
                 moris::Cell< mtk::Cell* >& aCells )
         {
+            // get pattern of the current B-spline mesh
+            uint tBSplinePattern = mBSplineMeshes( aDiscretizationMeshIndex )->get_activation_pattern();
+
+            // get Lagrange pattern of this mesh
+            uint tLagrangePattern = this->get_activation_pattern();
+
+            // set activation pattern to B-splines
+            mBackgroundMesh->set_activation_pattern( tBSplinePattern );
+
             // get pointer to B-spline and background element
             Element * tBsplineElement = mBSplineMeshes( aDiscretizationMeshIndex )->get_element( aBsplineElementIndex );
 
             // get pointer to background element
             Background_Element_Base* tBackgroundElement = tBsplineElement->get_background_element();
 
-            // // get pattern of the current B-spline mesh
-            // uint tBSplinePattern = mBSplineMeshes( aDiscretizationMeshIndex )->get_activation_pattern();
-            // 
             // // since the currently active pattern may be finer, jump back to parent elements until level associated with B-spline mesh is found
             // while( ! tBackgroundElement->is_active( tBSplinePattern ) )
             // {
             //     // jump to parent
             //     tBackgroundElement = tBackgroundElement->get_parent();
             // }
-
-            // get Lagrange pattern of this mesh
-            auto tLagrangePattern = this->get_activation_pattern();
 
             // initialize variable storing number of Lagrange elements on side ordinal
             luint tCount = 0;
@@ -4098,6 +4101,9 @@ namespace moris
                 luint tMemoryIndex = tActiveElements( Ik )->get_memory_index();
                 aCells( Ik ) = this->get_element_by_memory_index( tMemoryIndex );
             }
+
+            // set activation pattern back to the Lagrange
+            mBackgroundMesh->set_activation_pattern( tLagrangePattern );
         }
 
         //------------------------------------------------------------------------------
