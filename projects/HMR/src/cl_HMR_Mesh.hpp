@@ -344,6 +344,15 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
+            void 
+            get_elements_in_bspline_element_and_side_ordinal(
+                    moris_index const          aBsplineElementIndex,
+                    moris_index const          aDiscretizationMeshIndex,
+                    moris_index const          aSideOrdinal,
+                    moris::Cell< mtk::Cell* >& aCells );
+
+            //-------------------------------------------------------------------------------
+
             void get_elements_in_interpolation_cluster_and_side_ordinal(
                     moris_index const            aElementIndex,
                     moris_index const            aDiscretizationMeshIndex,

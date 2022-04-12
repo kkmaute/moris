@@ -154,6 +154,24 @@ namespace moris
             // ----------------------------------------------------------------------------
 
             /**
+             * Returns lagrange elements on given side ordinal inside a given B-Spline element
+             *
+             * @param aElementIndex Lagrange element Index
+             * @param aDiscretizationMeshIndex dicretization mesh index
+             * @param aSideOrdinal Side Ordinal
+             *
+             * @return Lagrange elements
+             */
+            virtual void 
+            get_elements_in_bspline_element_and_side_ordinal(
+                    moris_index const          aBsplineElementIndex,
+                    moris_index const          aDiscretizationMeshIndex,
+                    moris_index const          aSideOrdinal,
+                    moris::Cell< mtk::Cell* >& aCells );
+
+            // ----------------------------------------------------------------------------
+
+            /**
              * Returns lagrange elements inside the same B-Spline elements as the input lagragne element and side ordinal
              *
              * @param aElementIndex Lagrange element Index

@@ -915,7 +915,8 @@ namespace moris
                 /**
                  * collect Lagrange elements on an BSpline interpolation element
                  */
-                void get_elements_in_interpolation_cluster(
+                void 
+                get_elements_in_interpolation_cluster(
                         moris_index const aElementIndex,
                         moris_index const aDiscretizationMeshIndex,
                         moris::Cell< mtk::Cell * > & aCells);
@@ -923,13 +924,29 @@ namespace moris
                 // ----------------------------------------------------------------------------
 
                 /**
-                  * collect Lagrange elements on an BSpline interpolation element and side ordinal
-                  */
-                void get_elements_in_interpolation_cluster_and_side_ordinal(
-                        moris_index const            aElementIndex,
+                 * @brief collect Lagrange elements on an BSpline interpolation element and side ordinal
+                 * 
+                 * @param aBsplineElementIndex 
+                 * @param aDiscretizationMeshIndex 
+                 * @param aSideOrdinal 
+                 * @param aCells 
+                 */
+                void 
+                get_elements_in_bspline_element_and_side_ordinal(
+                        moris_index const            aBsplineElementIndex,
                         moris_index const            aDiscretizationMeshIndex,
                         moris_index const            aSideOrdinal,
                         moris::Cell< mtk::Cell * > & aCells );
+
+                /**
+                  * collect Lagrange elements on an BSpline interpolation element and side ordinal
+                  */
+                void 
+                get_elements_in_interpolation_cluster_and_side_ordinal(
+                        moris_index const          aElementIndex,
+                        moris_index const          aDiscretizationMeshIndex,
+                        moris_index const          aSideOrdinal,
+                        moris::Cell< mtk::Cell* >& aCells );
 
                 // ----------------------------------------------------------------------------
 
