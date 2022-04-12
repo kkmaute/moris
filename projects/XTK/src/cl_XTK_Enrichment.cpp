@@ -1853,6 +1853,17 @@ namespace xtk
                 // count total number of enr. IP cells
                 tEnrIpCellCounter ++;
             } 
+
+            // convert the local unzipping index in mBaseIpCellAndSpgToUnzipping to the global enr. IP cell index
+            for( uint iBspMesh = 0; iBspMesh < mBaseIpCellAndSpgToUnzipping.size(); iBspMesh++ )
+            {
+                for( uint iSPG = 0; iSPG < mBaseIpCellAndSpgToUnzipping( iBspMesh )( iIpCell ).size(); iSPG++ )
+                {
+                    // replace unzipping index with enr. IP cell index
+                    moris_index tUnzippingIndex = mBaseIpCellAndSpgToUnzipping( iBspMesh )( iIpCell )( iSPG );
+                    mBaseIpCellAndSpgToUnzipping( iBspMesh )( iIpCell )( iSPG ) = mEnrIpCellIndices( iIpCell )( tUnzippingIndex );
+                }
+            }
         }
         
         // store number of Enr IP cells

@@ -183,8 +183,8 @@ namespace xtk
             moris::Cell< moris::Cell< moris_index > > mEnrIpCellIndices; // input: base IP cell index, index of unzipping || output: index of enr. IP cell
 
             // map allowing correct UIPC to be grabbed base on base IP cell and SPG index (for Ghost)
-            // input: B-spline mesh index, base IP cell index, SPG index local to corresponding B-spline element || output: index of unzipping
-            moris::Cell< moris::Cell<  moris::Cell< moris_index > > > mBaseIpCellAndSpgToUnzipping;
+            // input: B-spline mesh index, base IP cell index, SPG index local to corresponding B-spline element || output: Enr. IP cell index
+            moris::Cell< moris::Cell< moris::Cell< moris_index > > > mBaseIpCellAndSpgToUnzipping;
 
             // ----------------------------------------------------------------------------------
 
@@ -299,6 +299,14 @@ namespace xtk
             get_mesh_indices() const 
             {
                 return mMeshIndices;
+            }
+
+            // ----------------------------------------------------------------------------------
+            
+            moris::Cell< moris::Cell< moris_index > > const&
+            get_unzipped_IP_cell_to_base_IP_cell_and_SPG( const moris_index aBsplineMeshListIndex ) const 
+            {
+                return mBaseIpCellAndSpgToUnzipping( aBsplineMeshListIndex );
             }
 
             // ----------------------------------------------------------------------------------
