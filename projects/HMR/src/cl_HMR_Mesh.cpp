@@ -994,17 +994,20 @@ namespace moris
 
         //-----------------------------------------------------------------------------
 
-        void Mesh::get_lagrange_elements_in_bspline_elements(
-                moris_index const aDiscretizationMeshIndex,
-                moris::Cell< moris::Cell< mtk::Cell * > > & aCells,
-                moris::Cell< moris::Cell< moris_index > > & aCellIndices,
-                moris::Cell< moris_index > & aLagToBspCellIndices )
+        void
+        Mesh::get_lagrange_elements_in_bspline_elements(
+                moris_index const                          aDiscretizationMeshIndex,
+                moris::Cell< moris::Cell< mtk::Cell* > >&  aCells,
+                moris::Cell< moris::Cell< moris_index > >& aCellIndices,
+                moris::Cell< moris_index >&                aLagToBspCellIndices,
+                moris::Cell< uint >&                       aBspCellRefineLevels )
         {
             mMesh->get_lagrange_elements_in_bspline_elements(
                 aDiscretizationMeshIndex,
                 aCells,
                 aCellIndices,
-                aLagToBspCellIndices );
+                aLagToBspCellIndices,
+                aBspCellRefineLevels );
         }
 
         //-----------------------------------------------------------------------------

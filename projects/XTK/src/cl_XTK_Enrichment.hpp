@@ -294,6 +294,14 @@ namespace xtk
                     std::string aFileName);
 
             // ----------------------------------------------------------------------------------
+            
+            Matrix< IndexMat >
+            get_mesh_indices() const 
+            {
+                return mMeshIndices;
+            }
+
+            // ----------------------------------------------------------------------------------
 
             /**
              * @brief Get the bspline mesh info for a given B-spline mesh

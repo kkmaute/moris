@@ -327,11 +327,13 @@ namespace moris
 
             // ----------------------------------------------------------------------------
 
-            void get_lagrange_elements_in_bspline_elements(
-                    moris_index const aDiscretizationMeshIndex,
-                    moris::Cell< moris::Cell< mtk::Cell * > > & aCells,
-                    moris::Cell< moris::Cell< moris_index > > & aCellIndices,
-                    moris::Cell< moris_index > & aLagToBspCellIndices );
+            void 
+            get_lagrange_elements_in_bspline_elements(
+                    moris_index const                          aDiscretizationMeshIndex,
+                    moris::Cell< moris::Cell< mtk::Cell* > >&  aCells,
+                    moris::Cell< moris::Cell< moris_index > >& aCellIndices,
+                    moris::Cell< moris_index >&                aLagToBspCellIndices,
+                    moris::Cell< uint >&                       aBspCellRefineLevels );
 
             // ----------------------------------------------------------------------------
 

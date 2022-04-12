@@ -3152,7 +3152,7 @@ Enriched_Integration_Mesh::register_double_side_set_names( moris::Cell< std::str
     // block set ords
     Cell< moris_index > tDblSideSetOrds( tNumSetsToRegister );
 
-    // get number of allready existing double sided side sets (i.e. interface side sets)
+    // get number of already existing double sided side sets (i.e. interface side sets)
     uint tNumInterfaceSets = mDoubleSideSets.size();
 
     // iterate and add double side sets

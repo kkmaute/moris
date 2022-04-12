@@ -127,12 +127,13 @@ namespace moris
              * @param aCells list of lists of Lagrange elements (mtk::cells) inside each B-spline element
              * @param aCellIndices list of lists of Lagrange elements (indices) inside each B-spline element
              */
-            virtual
-            void get_lagrange_elements_in_bspline_elements(
-                    moris_index const aDiscretizationMeshIndex,
-                    moris::Cell< moris::Cell< mtk::Cell * > > & aCells,
-                    moris::Cell< moris::Cell< moris_index > > & aCellIndices,
-                    moris::Cell< moris_index > & aLagToBspCellIndices );
+            virtual void
+            get_lagrange_elements_in_bspline_elements(
+                    moris_index const                          aDiscretizationMeshIndex,
+                    moris::Cell< moris::Cell< mtk::Cell* > >&  aCells,
+                    moris::Cell< moris::Cell< moris_index > >& aCellIndices,
+                    moris::Cell< moris_index >&                aLagToBspCellIndices,
+                    moris::Cell< uint >&                       aBspCellRefineLevels );
 
             // ----------------------------------------------------------------------------
 

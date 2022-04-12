@@ -3393,7 +3393,8 @@ Integration_Mesh_Generator::establish_bspline_mesh_info(
         aMeshIndex, 
         aBsplineMeshInfo->mExtractionCellsInBsplineCells,
         aBsplineMeshInfo->mExtractionCellsIndicesInBsplineCells,
-        aBsplineMeshInfo->mExtractionCellToBsplineCell );
+        aBsplineMeshInfo->mExtractionCellToBsplineCell,
+        aBsplineMeshInfo->mBsplineCellLevels );
 }
 
 // ----------------------------------------------------------------------------------

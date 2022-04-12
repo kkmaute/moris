@@ -71,6 +71,12 @@ namespace xtk
             return mLocalIndex;
         }
 
+        moris_index
+        get_bspline_cell_index() const
+        {
+            return mBsplineCellIndex;
+        }
+
         void 
         set_ligament_side_ordinals( moris::Cell< moris_index > aLigamentSideOrdinals )
         { 
@@ -137,6 +143,10 @@ namespace xtk
         // input: index of (B-spline) basis cell || output: list of (Lagrange) extraction cells (or their indices)
         moris::Cell< moris::Cell< mtk::Cell* > >  mExtractionCellsInBsplineCells;
         moris::Cell< moris::Cell< moris_index > > mExtractionCellsIndicesInBsplineCells;
+
+        // store which refinement level the B-spline elements are on,
+        // Note: this is needed for Ghost to ensure the whole length of a coarser B-spline cell gets penalized at a refinement boundary
+        moris::Cell< uint > mBsplineCellLevels; // input: index of (B-spline) basis cell || output: refinement level of the (B-spline) basis cell
 
         // store which Subphase groups sit in a given (B-spline) basis cells
         // input: index of (B-spline) basis cell || output: list of indices of SPGs living on it

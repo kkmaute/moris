@@ -3834,12 +3834,14 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Lagrange_Mesh_Base::get_lagrange_elements_in_bspline_elements(
-                moris_index const aDiscretizationMeshIndex,
-                moris::Cell< moris::Cell< mtk::Cell * > > & aCells,
-                moris::Cell< moris::Cell< moris_index > > & aCellIndices,
-                moris::Cell< moris_index > & aLagToBspCellIndices )
-        {
+        void
+        Lagrange_Mesh_Base::get_lagrange_elements_in_bspline_elements(
+                moris_index const                          aDiscretizationMeshIndex,
+                moris::Cell< moris::Cell< mtk::Cell* > >&  aCells,
+                moris::Cell< moris::Cell< moris_index > >& aCellIndices,
+                moris::Cell< moris_index >&                aLagToBspCellIndices,
+                moris::Cell< uint >&                       aBspCellRefineLevels )
+        {            
             // get B-Spline pattern of this mesh
             uint tBSplinePattern = mBSplineMeshes( aDiscretizationMeshIndex )->get_activation_pattern();
 
@@ -3868,6 +3870,7 @@ namespace moris
             // initialize the output list sizes
             aCells.resize( tNumBsplineElems );
             aCellIndices.resize( tNumBsplineElems );
+            aBspCellRefineLevels.resize( tNumBsplineElems );
 
             // for each B-spline element find and store the Lagrange elements within it
             for ( luint iBspElem = 0; iBspElem < tNumBsplineElems; iBspElem++ )
@@ -3875,6 +3878,9 @@ namespace moris
                 // get pointer to b-spline and background elements
                 Element * tBsplineElement = mBSplineMeshes( aDiscretizationMeshIndex )->get_element( iBspElem );
                 Background_Element_Base * tBackgroundElement  = tBsplineElement->get_background_element();
+
+                // get and store the refinement level of the current B-spline element
+                aBspCellRefineLevels( iBspElem ) = tBsplineElement->get_level();
 
                 // check that current element is actually active on the current activation pattern
                 MORIS_ASSERT( tBackgroundElement->is_active( mBSplineMeshes( aDiscretizationMeshIndex )->get_activation_pattern() ), 
