@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MSI_Solver_Interface.hpp
  *
- *  Created on: Jul 14, 2018
- *      Author: schmidt
  */
 #ifndef SRC_FEM_CL_MSI_SOLVER_INTERFACE_HPP_
 #define SRC_FEM_CL_MSI_SOLVER_INTERFACE_HPP_
@@ -141,6 +144,7 @@ namespace moris
             void initialize_set(
                     const uint aMyEquSetInd,
                     const bool aIsStaggered,
+                    const bool aTimeContinuityOnlyFlag               = false,
                     const bool aIsAdjointOffDiagonalTimeContribution = false );
 
             //------------------------------------------------------------------------------

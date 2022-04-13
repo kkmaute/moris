@@ -52,32 +52,12 @@ int main( int argc, char * argv[] )
     moris_pause( argc, argv );
 
     // Kokkos::initialize(argc, argv);
-    barrier();
-    int one=1;
 
-    int sumup=sum_all(one);
-    if (par_rank() == 0)
-    {
-        std::cout << " in main 0 " << sumup << std::endl << std::flush ;
-    }
     // set severity level 0 - all outputs
     gLogger.initialize( argc, argv );
 
-    barrier();
-    sumup=sum_all(one);
-    if (par_rank() == 0)
-    {
-        std::cout << " in main 1 " << sumup << std::endl << std::flush ;
-    }
     // print banner
     moris::print_banner( argc, argv );
-
-    barrier();
-    sumup=sum_all(one);
-    if (par_rank() == 0)
-    {
-        std::cout << " in main 2 " << sumup << std::endl << std::flush ;
-    }
 
     // print git branch and hash
     if ( par_rank() == 0 )
@@ -90,14 +70,6 @@ int main( int argc, char * argv[] )
         MORIS_LOG_SPEC("Par Rank",par_rank());
         MORIS_LOG_SPEC("Par Size",par_size());
     }
-
-    barrier();
-    sumup=sum_all(one);
-    if (par_rank() == 0)
-    {
-        std::cout << " in main 3 " << sumup << std::endl << std::flush ;
-    }
-
 
     int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
 

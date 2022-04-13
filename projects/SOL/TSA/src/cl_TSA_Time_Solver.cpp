@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_TSA_Time_Solver.cpp
  *
- *  Created on: Okt 10, 2018
- *      Author: schmidt
  */
 #include "cl_DLA_Solver_Interface.hpp"
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
@@ -30,10 +33,10 @@ using namespace tsa;
 //-------------------------------------------------------------------------------
 
 Time_Solver::Time_Solver( const enum TimeSolverType aTimeSolverType )
-: mTimeSolverType( aTimeSolverType )
+        : mTimeSolverType( aTimeSolverType )
 {
     // create solver factory
-    Time_Solver_Factory  tTimeSolFactory;
+    Time_Solver_Factory tTimeSolFactory;
 
     // create solver object
     std::shared_ptr< Time_Solver_Algorithm > tTimeSolver = tTimeSolFactory.create_time_solver( aTimeSolverType );
@@ -52,13 +55,13 @@ Time_Solver::Time_Solver( const enum TimeSolverType aTimeSolverType )
 //--------------------------------------------------------------------------------------------------
 
 Time_Solver::Time_Solver(
-        const ParameterList         aParameterlist,
-        sol::SOL_Warehouse        * aSolverWarehouse,
-        const enum tsa::TimeSolverType   aTimeSolverType )
-: mParameterListTimeSolver( aParameterlist ),
-  mSolverWarehouse( aSolverWarehouse ),
-  mSolverInterface( mSolverWarehouse->get_solver_interface() ),
-  mTimeSolverType( aTimeSolverType )
+        const ParameterList            aParameterlist,
+        sol::SOL_Warehouse*            aSolverWarehouse,
+        const enum tsa::TimeSolverType aTimeSolverType )
+        : mParameterListTimeSolver( aParameterlist )
+        , mSolverWarehouse( aSolverWarehouse )
+        , mSolverInterface( mSolverWarehouse->get_solver_interface() )
+        , mTimeSolverType( aTimeSolverType )
 {
     mDofTypeList.resize( 0 );
 
@@ -68,9 +71,9 @@ Time_Solver::Time_Solver(
 //--------------------------------------------------------------------------------------------------
 
 Time_Solver::Time_Solver(
-        moris::Cell< std::shared_ptr< Time_Solver_Algorithm > > & aTimeSolverList,
-        const enum TimeSolverType                                 aTimeSolverType )
-: mTimeSolverType( aTimeSolverType )
+        moris::Cell< std::shared_ptr< Time_Solver_Algorithm > >& aTimeSolverList,
+        const enum TimeSolverType                                aTimeSolverType )
+        : mTimeSolverType( aTimeSolverType )
 {
     mTimeSolverAlgorithmList = aTimeSolverList;
 
@@ -86,11 +89,12 @@ Time_Solver::~Time_Solver()
 
 //--------------------------------------------------------------------------------------------------
 
-void Time_Solver::delete_pointers()
+void
+Time_Solver::delete_pointers()
 {
-    if( mIsMasterTimeSolver )
+    if ( mIsMasterTimeSolver )
     {
-        for( auto tFullSolVec : mFullVector)
+        for ( auto tFullSolVec : mFullVector )
         {
             delete tFullSolVec;
         }
@@ -98,7 +102,7 @@ void Time_Solver::delete_pointers()
         mFullVector.clear();
         delete mFullMap;
 
-        for( auto tFullSolVec : mFullVectorSensitivity)
+        for ( auto tFullSolVec : mFullVectorSensitivity )
         {
             delete tFullSolVec;
         }
@@ -111,7 +115,8 @@ void Time_Solver::delete_pointers()
 
 //--------------------------------------------------------------------------------------------------
 
-void Time_Solver::set_dof_type_list(
+void
+Time_Solver::set_dof_type_list(
         const moris::Cell< enum MSI::Dof_Type > aDofTypeList,
         const moris::sint                       aLevel )
 {
@@ -120,9 +125,10 @@ void Time_Solver::set_dof_type_list(
 
 //--------------------------------------------------------------------------------------------------
 
-void Time_Solver::set_time_solver_algorithm( std::shared_ptr< Time_Solver_Algorithm > aTimeSolver )
+void
+Time_Solver::set_time_solver_algorithm( std::shared_ptr< Time_Solver_Algorithm > aTimeSolver )
 {
-    if( mCallCounter == 0 )
+    if ( mCallCounter == 0 )
     {
         // removes all elements from the Cell and destroy them
         mTimeSolverAlgorithmList.clear();
@@ -131,7 +137,7 @@ void Time_Solver::set_time_solver_algorithm( std::shared_ptr< Time_Solver_Algori
         mTimeSolverAlgorithmList.resize( 1, nullptr );
 
         // Set nonlinear solver on first entry
-        mTimeSolverAlgorithmList( 0 ) =  aTimeSolver;
+        mTimeSolverAlgorithmList( 0 ) = aTimeSolver;
     }
     else
     {
@@ -144,12 +150,13 @@ void Time_Solver::set_time_solver_algorithm( std::shared_ptr< Time_Solver_Algori
 
 //-------------------------------------------------------------------------------------------------------
 
-void Time_Solver::set_time_solver_algorithm(
+void
+Time_Solver::set_time_solver_algorithm(
         std::shared_ptr< Time_Solver_Algorithm > aTimeSolver,
         const moris::uint                        aListEntry )
 {
     // Check if list is smaller than given entry
-    if( aListEntry >= mTimeSolverAlgorithmList.size() )
+    if ( aListEntry >= mTimeSolverAlgorithmList.size() )
     {
         // Resize to new entry value and set nullptr on new entries
         mTimeSolverAlgorithmList.resize( aListEntry + 1, nullptr );
@@ -161,9 +168,10 @@ void Time_Solver::set_time_solver_algorithm(
 
 //-------------------------------------------------------------------------------------------------------
 
-void Time_Solver::set_sub_time_solver( Time_Solver * aTimeSolver )
+void
+Time_Solver::set_sub_time_solver( Time_Solver* aTimeSolver )
 {
-    if( mCallCounterTimeSolver == 0 )
+    if ( mCallCounterTimeSolver == 0 )
     {
         // removes all elements from the Cell and destroy them
         mTimeSubSolverList.clear();
@@ -172,7 +180,7 @@ void Time_Solver::set_sub_time_solver( Time_Solver * aTimeSolver )
         mTimeSubSolverList.resize( 1, nullptr );
 
         // Set nonlinear solver on first entry
-        mTimeSubSolverList( 0 ) =  aTimeSolver;
+        mTimeSubSolverList( 0 ) = aTimeSolver;
     }
     else
     {
@@ -185,12 +193,13 @@ void Time_Solver::set_sub_time_solver( Time_Solver * aTimeSolver )
 
 //-------------------------------------------------------------------------------------------------------
 
-void Time_Solver::set_sub_time_solver(
-        Time_Solver       * aTimeSolver,
-        const moris::uint   aListEntry )
+void
+Time_Solver::set_sub_time_solver(
+        Time_Solver*      aTimeSolver,
+        const moris::uint aListEntry )
 {
     // Check if list is smaller than given entry
-    if( aListEntry >= mTimeSubSolverList.size() )
+    if ( aListEntry >= mTimeSubSolverList.size() )
     {
         // Resize to new entry value and set nullptr on new entries
         mTimeSubSolverList.resize( aListEntry + 1, nullptr );
@@ -202,7 +211,8 @@ void Time_Solver::set_sub_time_solver(
 
 //-------------------------------------------------------------------------------------------------------
 
-moris::Cell< enum MSI::Dof_Type > Time_Solver::get_dof_type_union()
+moris::Cell< enum MSI::Dof_Type >
+Time_Solver::get_dof_type_union()
 {
     moris::sint tCounter = 0;
 
@@ -230,18 +240,20 @@ moris::Cell< enum MSI::Dof_Type > Time_Solver::get_dof_type_union()
 
 //--------------------------------------------------------------------------------------------------
 
-void Time_Solver::set_solver_warehouse( sol::SOL_Warehouse * aSolverWarehouse )
+void
+Time_Solver::set_solver_warehouse( sol::SOL_Warehouse* aSolverWarehouse )
 {
     mSolverWarehouse = aSolverWarehouse;
 
-    mSolverInterface = mSolverWarehouse->get_solver_interface() ;
+    mSolverInterface = mSolverWarehouse->get_solver_interface();
 }
 
 //-------------------------------------------------------------------------------------------------------
 
-void Time_Solver::set_output(
+void
+Time_Solver::set_output(
         const uint      aOutputIndex,
-        Output_Criteria aOutputCriteria)
+        Output_Criteria aOutputCriteria )
 {
     mOutputIndices.push_back( aOutputIndex );
     mOutputCriteriaPointer.push_back( aOutputCriteria );
@@ -249,20 +261,21 @@ void Time_Solver::set_output(
 
 //-------------------------------------------------------------------------------------------------------
 
-void Time_Solver::check_for_outputs(
-        const moris::real & aTime,
-        const bool          aEndOfTimeIteration )
+void
+Time_Solver::check_for_outputs(
+        const moris::real& aTime,
+        const bool         aEndOfTimeIteration )
 {
-    if( mIsForwardSolve )
+    if ( mIsForwardSolve )
     {
         uint tCounter = 0;
 
         // loop over all outputs and check if it is triggered
-        for( Output_Criteria tOutputCriterias : mOutputCriteriaPointer )
+        for ( Output_Criteria tOutputCriterias : mOutputCriteriaPointer )
         {
             bool tIsOutput = false;
 
-            if( tOutputCriterias == nullptr )
+            if ( tOutputCriterias == nullptr )
             {
                 tIsOutput = true;
             }
@@ -271,7 +284,7 @@ void Time_Solver::check_for_outputs(
                 tIsOutput = tOutputCriterias( this );
             }
 
-            if( tIsOutput )
+            if ( tIsOutput )
             {
                 mSolverInterface->initiate_output( mOutputIndices( tCounter ), aTime, aEndOfTimeIteration );
             }
@@ -283,7 +296,8 @@ void Time_Solver::check_for_outputs(
 
 //-------------------------------------------------------------------------------------------------------
 
-void Time_Solver::solve( moris::Cell< sol::Dist_Vector * > & aFullVector )
+void
+Time_Solver::solve( moris::Cell< sol::Dist_Vector* >& aFullVector )
 {
     moris::Cell< enum MSI::Dof_Type > tDofTypeUnion = this->get_dof_type_union();
 
@@ -295,17 +309,19 @@ void Time_Solver::solve( moris::Cell< sol::Dist_Vector * > & aFullVector )
 
     mTimeSolverAlgorithmList( 0 )->solve( aFullVector );
 
-    //this->check_for_outputs();
+    // this->check_for_outputs();
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
 
-void Time_Solver::solve()
+void
+Time_Solver::solve()
 {
     Tracer tTracer( "TimeSolver", "Forward Analysis", "Solve" );
+
     // flags if thats the master time solver and if this is a forward solve
     mIsMasterTimeSolver = true;
-    mIsForwardSolve = true;
+    mIsForwardSolve     = true;
 
     // delete pointers
     this->delete_pointers();
@@ -325,7 +341,7 @@ void Time_Solver::solve()
     uint tNumRHMS = mSolverInterface->get_num_rhs();
 
     // set size for full solution vector on timestep 0 and previous solution vector on timestep -1.
-    mFullVector.resize( 2, nullptr);
+    mFullVector.resize( 2, nullptr );
 
     // full vector and prev full vector
     mFullVector( 0 ) = tMatFactory.create_vector( mSolverInterface, mFullMap, tNumRHMS );
@@ -345,24 +361,24 @@ void Time_Solver::solve()
 
     mTimeSolverAlgorithmList( 0 )->set_time_solver( this );
 
-    if( not mSolverWarehouse->get_load_sol_vec_from_file().empty() )
+    if ( not mSolverWarehouse->get_load_sol_vec_from_file().empty() )
     {
         std::string tSolVecPath = mSolverWarehouse->get_load_sol_vec_from_file();
 
         // detect file type
-        std::string tType = tSolVecPath.substr( tSolVecPath.find_last_of(".")+1, tSolVecPath.length() );
+        std::string tType = tSolVecPath.substr( tSolVecPath.find_last_of( "." ) + 1, tSolVecPath.length() );
 
-        if( tType == "hdf5" || tType == "h5" )
+        if ( tType == "hdf5" || tType == "h5" )
         {
             mFullVector( 1 )->read_vector_from_HDF5( tSolVecPath.c_str() );
         }
         else
         {
-            MORIS_ERROR( false, "Time_Solver::solve(), Solution vector input type unknown. New types can be implemented here.");
+            MORIS_ERROR( false, "Time_Solver::solve(), Solution vector input type unknown. New types can be implemented here." );
         }
 
-        Matrix< DDRMat > tTime_0 = { {0.0},{0.0} };
-        Matrix< DDRMat > tTime_1 = { {0.0},{1.0} };
+        Matrix< DDRMat > tTime_0 = { { 0.0 }, { 0.0 } };
+        Matrix< DDRMat > tTime_1 = { { 0.0 }, { 1.0 } };
 
         mSolverInterface->set_previous_time( tTime_0 );
         mSolverInterface->set_time( tTime_1 );
@@ -376,20 +392,20 @@ void Time_Solver::solve()
         mTimeSolverAlgorithmList( 0 )->solve( mFullVector );
 
         // output solution vector to file
-        if( not mSolverWarehouse->get_save_final_sol_vec_to_file().empty() )
+        if ( not mSolverWarehouse->get_save_final_sol_vec_to_file().empty() )
         {
             std::string tSolVecPath = mSolverWarehouse->get_save_final_sol_vec_to_file();
 
             // detect file type
-            std::string tType = tSolVecPath.substr( tSolVecPath.find_last_of(".")+1, tSolVecPath.length() );
+            std::string tType = tSolVecPath.substr( tSolVecPath.find_last_of( "." ) + 1, tSolVecPath.length() );
 
-            if( tType == "hdf5" || tType == "h5" )
+            if ( tType == "hdf5" || tType == "h5" )
             {
                 mFullVector( 1 )->save_vector_to_HDF5( tSolVecPath.c_str() );
             }
             else
             {
-                MORIS_ERROR( false, "Time_Solver::solve(), Solution vector output type unknown. New types can be implemented here.");
+                MORIS_ERROR( false, "Time_Solver::solve(), Solution vector output type unknown. New types can be implemented here." );
             }
         }
     }
@@ -397,7 +413,8 @@ void Time_Solver::solve()
 
 //--------------------------------------------------------------------------------------------------------------------------
 
-void Time_Solver::solve_sensitivity()
+void
+Time_Solver::solve_sensitivity()
 {
     Tracer tTracer( "TimeSolver", "Sensitivity Analysis", "Solve" );
     mIsForwardSolve = false;
@@ -429,27 +446,28 @@ void Time_Solver::solve_sensitivity()
     mTimeSolverAlgorithmList( 0 )->solve( mFullVectorSensitivity );
 
     // output solution vector to file
-    if( not mSolverWarehouse->get_save_final_adjoint_vec_to_file().empty() )
+    if ( not mSolverWarehouse->get_save_final_adjoint_vec_to_file().empty() )
     {
         std::string tSolVecPath = mSolverWarehouse->get_save_final_adjoint_vec_to_file();
 
         // detect file type
-        std::string tType = tSolVecPath.substr( tSolVecPath.find_last_of(".")+1, tSolVecPath.length() );
+        std::string tType = tSolVecPath.substr( tSolVecPath.find_last_of( "." ) + 1, tSolVecPath.length() );
 
-        if( tType == "hdf5" || tType == "h5" )
+        if ( tType == "hdf5" || tType == "h5" )
         {
             mFullVectorSensitivity( 0 )->save_vector_to_HDF5( tSolVecPath.c_str() );
         }
         else
         {
-            MORIS_ERROR( false, "Time_Solver::solve_sensitivity(), Solution vector output type unknown. New types can be implemented here.");
+            MORIS_ERROR( false, "Time_Solver::solve_sensitivity(), Solution vector output type unknown. New types can be implemented here." );
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
 
-void Time_Solver::initialize_sol_vec()
+void
+Time_Solver::initialize_sol_vec()
 {
     // extract initialization string from parameter list
     moris::Cell< moris::Cell< std::string > > tDofTypeAndValuePair;
@@ -459,13 +477,13 @@ void Time_Solver::initialize_sol_vec()
 
     // use string to determine initial guess
     // if parameter is not given, initialize with all zeros
-    if( tStrInitialGuess.size() == 0 )
+    if ( tStrInitialGuess.size() == 0 )
     {
         mFullVector( 1 )->vec_put_scalar( 0.0 );
     }
 
     // if user defines parameter
-    else 
+    else
     {
         // check if file name with type is specified
         std::string tType = tStrInitialGuess.substr( tStrInitialGuess.find_last_of( "." ) + 1, tStrInitialGuess.length() );
@@ -480,10 +498,10 @@ void Time_Solver::initialize_sol_vec()
             MORIS_ERROR( par_size() == 1, "Time_Solver::initialize_sol_vec() - Restarting from hdf5 file only possible in serial." );
 
             // read HDF5 file to moris matrix
-            hid_t tFileID = open_hdf5_file( tStrInitialGuess );
-            herr_t tStatus = 0;
+            hid_t            tFileID = open_hdf5_file( tStrInitialGuess );
+            herr_t           tStatus = 0;
             Matrix< DDRMat > tInitialGuess;
-            load_matrix_from_hdf5_file( tFileID, "SolVec", tInitialGuess, tStatus);
+            load_matrix_from_hdf5_file( tFileID, "SolVec", tInitialGuess, tStatus );
 
             // get length of solution vector
             uint tSolVecLength = tInitialGuess.length();
@@ -492,7 +510,7 @@ void Time_Solver::initialize_sol_vec()
             Matrix< DDSMat > tPos( tSolVecLength, 1, 0 );
 
             // create trivial map
-            for( uint Ik = 0; Ik < tSolVecLength; Ik++ )
+            for ( uint Ik = 0; Ik < tSolVecLength; Ik++ )
             {
                 tPos( Ik ) = Ik;
             }
@@ -510,12 +528,12 @@ void Time_Solver::initialize_sol_vec()
             // create map object
             sol::Matrix_Vector_Factory tMatFactory( mSolverWarehouse->get_tpl_type() );
 
-            sol::Dist_Map*  tFeeMap = tMatFactory.create_map( mSolverInterface->get_my_local_global_map() );
+            sol::Dist_Map* tFeeMap = tMatFactory.create_map( mSolverInterface->get_my_local_global_map() );
 
             uint tNumRHMS = mSolverInterface->get_num_rhs();
 
             // full vector and previous full vector
-            sol::Dist_Vector * tFreeVector = tMatFactory.create_vector( mSolverInterface, tFeeMap, tNumRHMS );
+            sol::Dist_Vector* tFreeVector = tMatFactory.create_vector( mSolverInterface, tFeeMap, tNumRHMS );
 
             // initialize solution vector
             tFreeVector->vec_put_scalar( 0.0 );
@@ -524,7 +542,7 @@ void Time_Solver::initialize_sol_vec()
             map< std::string, enum MSI::Dof_Type > tDofTypeMap = MSI::get_msi_dof_type_map();
 
             // loop over input dof types
-            for( uint Ik = 0; Ik < tDofTypeAndValuePair.size(); Ik++ )
+            for ( uint Ik = 0; Ik < tDofTypeAndValuePair.size(); Ik++ )
             {
                 // First string is dof type
                 moris::Cell< enum MSI::Dof_Type > tDofType = { tDofTypeMap.find( tDofTypeAndValuePair( Ik )( 0 ) ) };
@@ -533,7 +551,7 @@ void Time_Solver::initialize_sol_vec()
                 moris::Matrix< IdMat > tAdofIds = mSolverInterface->get_my_local_global_map( tDofType );
 
                 // if one dof type is set to random all dof entries are set to random
-                if( tDofTypeAndValuePair( Ik )( 1 ) == "random" )
+                if ( tDofTypeAndValuePair( Ik )( 1 ) == "random" )
                 {
                     tFreeVector->random();
                     break;
@@ -545,14 +563,14 @@ void Time_Solver::initialize_sol_vec()
                 // add value into Matrix
                 moris::Matrix< DDRMat > tValues( tAdofIds.numel(), 1, tValue );
 
-                if( tDofTypeAndValuePair( Ik ).size() == 2 )
+                if ( tDofTypeAndValuePair( Ik ).size() == 2 )
                 {
                     // replace initial values in solution vector
                     tFreeVector->replace_global_values(
                             tAdofIds,
                             tValues );
                 }
-                else if( tDofTypeAndValuePair( Ik ).size() == 3 )
+                else if ( tDofTypeAndValuePair( Ik ).size() == 3 )
                 {
                     // get solution vector index
                     moris::sint tVectorIndex = std::stoi( tDofTypeAndValuePair( Ik )( 2 ) );
@@ -561,7 +579,7 @@ void Time_Solver::initialize_sol_vec()
                     tFreeVector->replace_global_values(
                             tAdofIds,
                             tValues,
-                            ( uint ) tVectorIndex );
+                            (uint)tVectorIndex );
                 }
                 else
                 {
@@ -571,7 +589,7 @@ void Time_Solver::initialize_sol_vec()
 
             mFullVector( 1 )->import_local_to_global( *tFreeVector );
 
-            delete( tFreeVector );
+            delete ( tFreeVector );
             delete tFeeMap;
         }
     }
@@ -579,7 +597,8 @@ void Time_Solver::initialize_sol_vec()
 
 //--------------------------------------------------------------------------------------------------------------------------
 
-void Time_Solver::initialize_prev_sol_vec()
+void
+Time_Solver::initialize_prev_sol_vec()
 {
     // initialize prev solution vector with zero( time level -1 )
     mFullVector( 0 )->vec_put_scalar( 0.0 );
@@ -599,10 +618,10 @@ void Time_Solver::initialize_prev_sol_vec()
         MORIS_ERROR( par_size() == 1, "Time_Solver::initialize_sol_vec() - Restarting from hdf5 file only possible in serial." );
 
         // read HDF5 file to moris matrix
-        hid_t tFileID = open_hdf5_file( tStrInitSol );
-        herr_t tStatus = 0;
+        hid_t            tFileID = open_hdf5_file( tStrInitSol );
+        herr_t           tStatus = 0;
         Matrix< DDRMat > tInitSol;
-        load_matrix_from_hdf5_file( tFileID, "SolVec", tInitSol, tStatus);
+        load_matrix_from_hdf5_file( tFileID, "SolVec", tInitSol, tStatus );
 
         // get length of solution vector
         uint tSolVecLength = tInitSol.length();
@@ -611,7 +630,7 @@ void Time_Solver::initialize_prev_sol_vec()
         Matrix< DDSMat > tPos( tSolVecLength, 1, 0 );
 
         // create trivial map
-        for( uint Ik = 0; Ik < tSolVecLength; Ik++ )
+        for ( uint Ik = 0; Ik < tSolVecLength; Ik++ )
         {
             tPos( Ik ) = Ik;
         }
@@ -623,9 +642,10 @@ void Time_Solver::initialize_prev_sol_vec()
 
 //--------------------------------------------------------------------------------------------------------------------------
 
-void Time_Solver::prepare_sol_vec_for_next_time_step()
+void
+Time_Solver::prepare_sol_vec_for_next_time_step()
 {
-    if( mIsMasterTimeSolver )
+    if ( mIsMasterTimeSolver )
     {
         // get num RHS
         uint tNumRHMS = mSolverInterface->get_num_rhs();
@@ -634,21 +654,21 @@ void Time_Solver::prepare_sol_vec_for_next_time_step()
         sol::Matrix_Vector_Factory tMatFactory( mSolverWarehouse->get_tpl_type() );
 
         // full vector and prev full vector
-        sol::Dist_Vector * tFullVector = tMatFactory.create_vector( mSolverInterface, mFullMap, tNumRHMS );
+        sol::Dist_Vector* tFullVector = tMatFactory.create_vector( mSolverInterface, mFullMap, tNumRHMS );
 
         mFullVector.push_back( tFullVector );
 
         uint tNumSolVec = mFullVector.size();
 
-        mFullVector( tNumSolVec-1 )->vec_plus_vec( 1.0, *(mFullVector( tNumSolVec-2 )), 0.0 );
+        mFullVector( tNumSolVec - 1 )->vec_plus_vec( 1.0, *( mFullVector( tNumSolVec - 2 ) ), 0.0 );
         //        mFullVector( tNumSolVec-1 )->vec_put_scalar( 0.0 );
     }
-
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
 
-void Time_Solver::initialize_time_levels()
+void
+Time_Solver::initialize_time_levels()
 {
     // extract initialization string from parameter list
     moris::Cell< moris::Cell< std::string > > tDofTypeAndTimeLevelPair;
@@ -660,7 +680,7 @@ void Time_Solver::initialize_time_levels()
     map< std::string, enum MSI::Dof_Type > tDofTypeMap = MSI::get_msi_dof_type_map();
 
     // loop over input dof types
-    for( uint Ik = 0; Ik < tDofTypeAndTimeLevelPair.size(); Ik++ )
+    for ( uint Ik = 0; Ik < tDofTypeAndTimeLevelPair.size(); Ik++ )
     {
         // First string is dof type
         enum MSI::Dof_Type tDofType = tDofTypeMap.find( tDofTypeAndTimeLevelPair( Ik )( 0 ) );
@@ -673,7 +693,8 @@ void Time_Solver::initialize_time_levels()
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
-void Time_Solver::set_time_solver_parameters()
+void
+Time_Solver::set_time_solver_parameters()
 {
     // Maximal number of linear solver restarts on fail
     mParameterListTimeSolver = prm::create_time_solver_parameter_list();
@@ -681,10 +702,11 @@ void Time_Solver::set_time_solver_parameters()
 
 //--------------------------------------------------------------------------------------------------------------------------
 
-void Time_Solver::get_full_solution( moris::Matrix< DDRMat > & LHSValues )
+void
+Time_Solver::get_full_solution( moris::Matrix< DDRMat >& LHSValues )
 {
     // get index of last solution vector
-    uint tNumSolVec = mFullVector.size() -2;
+    uint tNumSolVec = mFullVector.size() - 2;
 
     // extract solution values
     mFullVector( tNumSolVec )->extract_copy( LHSValues );
