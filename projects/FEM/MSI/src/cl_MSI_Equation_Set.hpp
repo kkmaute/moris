@@ -1,15 +1,18 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MSI_Equation_Set.hpp
  *
- *  Created on: Apr 10, 2019
- *      Author: schmidt
  */
 
 #ifndef SRC_FEM_CL_MSI_EQUATION_BLOCK_HPP_
 #define SRC_FEM_CL_MSI_EQUATION_BLOCK_HPP_
 
 #include "assert.h"
-#include "cl_Communication_Tools.hpp"               //FEM/INT/src
+#include "cl_Communication_Tools.hpp"    //FEM/INT/src
 #include "cl_Map.hpp"
 #include "cl_MTK_Enums.hpp"
 #include "cl_FEM_Enums.hpp"
@@ -22,7 +25,7 @@ namespace moris
     {
         class Cell;
         class Set;
-    }
+    }    // namespace mtk
     namespace fem
     {
         class Field;
@@ -32,7 +35,7 @@ namespace moris
     {
         enum class Output_Type;
         enum class Field_Type;
-    }
+    }    // namespace vis
 
     namespace MSI
     {
@@ -48,15 +51,15 @@ namespace moris
          */
         class Equation_Set
         {
-        private:
+          private:
 
-        protected:
+          protected:
             moris::Cell< MSI::Equation_Object* > mEquationObjList;
 
-            moris::Cell< Matrix< DDRMat > > mResidual;
-            Matrix< DDRMat >                mJacobian;
-            moris::Cell< Matrix< DDRMat > > mQI;
-            moris::Cell< Matrix< DDRMat > > mdRdp;
+            moris::Cell< Matrix< DDRMat > >                mResidual;
+            Matrix< DDRMat >                               mJacobian;
+            moris::Cell< Matrix< DDRMat > >                mQI;
+            moris::Cell< Matrix< DDRMat > >                mdRdp;
             moris::Cell< moris::Cell< Matrix< DDRMat > > > mdQIdp;
 
             // lists of master and slave groups of dof types
@@ -92,7 +95,7 @@ namespace moris
             moris::Matrix< DDSMat >                              mPdvMatAssemblyVector;
             std::map< std::pair< moris_index, PDV_Type >, uint > mPdvGeoAssemblyMap;
             moris::Matrix< DDSMat >                              mPdvGeoAssemblyVector;
-            bool mPdvGeoAssemblyFlag = false;
+            bool                                                 mPdvGeoAssemblyFlag = false;
 
             // Map from requested IQI Name to index.
             // I do not know if this is slow because the map is called per gauss point.
@@ -117,25 +120,25 @@ namespace moris
             moris::Cell< moris::Cell< enum mtk::Field_Type > > mUniqueFieldTypeListMasterSlave;
 
             // unique list of dof and dv types. Master and Slave are combined
-            moris::Cell< enum MSI::Dof_Type >  mUniqueDofTypeList;
-            moris::Cell< enum PDV_Type >       mUniqueDvTypeList;
-            moris::Cell< enum mtk::Field_Type >mUniqueFieldTypeList;
+            moris::Cell< enum MSI::Dof_Type >   mUniqueDofTypeList;
+            moris::Cell< enum PDV_Type >        mUniqueDvTypeList;
+            moris::Cell< enum mtk::Field_Type > mUniqueFieldTypeList;
 
             // pointer to the model solver interface
-            Model_Solver_Interface * mModelSolverInterface = nullptr;
+            Model_Solver_Interface* mModelSolverInterface = nullptr;
 
             // FIXME pointer to the GEN MSI interface
-            MSI::Design_Variable_Interface * mDesignVariableInterface = nullptr;
+            MSI::Design_Variable_Interface* mDesignVariableInterface = nullptr;
 
-            bool mIsEmptySet = false;    //FIXME this flag is a hack. find better solution
+            bool mIsEmptySet = false;    // FIXME this flag is a hack. find better solution
 
-            Matrix< DDRMat > * mSetElementalValues;
-            Matrix< DDRMat > * mSetNodalValues;
-            Matrix< DDRMat > * mSetGlobalValues;
+            Matrix< DDRMat >* mSetElementalValues;
+            Matrix< DDRMat >* mSetNodalValues;
+            Matrix< DDRMat >* mSetGlobalValues;
 
             uint tNumRHS = 1;
 
-            MSI::Equation_Model * mEquationModel = nullptr;
+            MSI::Equation_Model* mEquationModel = nullptr;
 
             //! actual pdof values. Cells are for different multi-vectors
             moris::Cell< Matrix< DDRMat > > mPdofValues;
@@ -155,8 +158,7 @@ namespace moris
             friend class Element_Time_Sideset;
             friend class Element;
 
-        public:
-
+          public:
             //------------------------------------------------------------------------------
             /**
              * trivial constructor
@@ -171,14 +173,16 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            void set_equation_model(  MSI::Equation_Model * aEquationModel )
+            void
+            set_equation_model( MSI::Equation_Model* aEquationModel )
             {
                 mEquationModel = aEquationModel;
             }
 
             //------------------------------------------------------------------------------
 
-            MSI::Equation_Model * get_equation_model()
+            MSI::Equation_Model*
+            get_equation_model()
             {
                 return mEquationModel;
             }
@@ -188,7 +192,7 @@ namespace moris
              * get dof type list
              * @param[ in ] aIsMaster enum for master or slave
              */
-            moris::Cell< moris::Cell< MSI::Dof_Type > > & get_dof_type_list(
+            moris::Cell< moris::Cell< MSI::Dof_Type > >& get_dof_type_list(
                     mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
             //------------------------------------------------------------------------------
@@ -196,7 +200,7 @@ namespace moris
              * get dof type map
              * @param[ in ] aIsMaster enum for master or slave
              */
-            Matrix< DDSMat > & get_dof_type_map(
+            Matrix< DDSMat >& get_dof_type_map(
                     mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
             //------------------------------------------------------------------------------
@@ -230,7 +234,7 @@ namespace moris
              * get dv type list
              * @param[ in ] aIsMaster enum for master or slave
              */
-            const moris::Cell< moris::Cell< PDV_Type > > & get_dv_type_list(
+            const moris::Cell< moris::Cell< PDV_Type > >& get_dv_type_list(
                     mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
             //------------------------------------------------------------------------------
@@ -238,7 +242,7 @@ namespace moris
              * get dv type map
              * @param[ in ] aIsMaster enum for master or slave
              */
-            const Matrix< DDSMat > & get_dv_type_map(
+            const Matrix< DDSMat >& get_dv_type_map(
                     mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
             //------------------------------------------------------------------------------
@@ -272,7 +276,7 @@ namespace moris
              * get field type list
              * @param[ in ] aIsMaster enum for master or slave
              */
-            const moris::Cell< moris::Cell< mtk::Field_Type > > & get_field_type_list(
+            const moris::Cell< moris::Cell< mtk::Field_Type > >& get_field_type_list(
                     mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
             //------------------------------------------------------------------------------
@@ -280,7 +284,7 @@ namespace moris
              * get fieldtype map
              * @param[ in ] aIsMaster enum for master or slave
              */
-            const Matrix< DDSMat > & get_field_type_map(
+            const Matrix< DDSMat >& get_field_type_map(
                     mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
             //------------------------------------------------------------------------------
@@ -307,27 +311,32 @@ namespace moris
             /**
              * initialize set
              */
-            virtual void initialize_set( const bool aIsStaggered )
+            virtual void
+            initialize_set(
+                    const bool aIsStaggered,
+                    const bool aTimeContinuityOnlyFlag )
             {
-                MORIS_ERROR( false, "Equation_Set::initialize_set - not implemented for virtual member function");
+                MORIS_ERROR( false, "Equation_Set::initialize_set - not implemented for virtual member function" );
             }
 
             //-------------------------------------------------------------------------------------------------
             /**
              * free memory
              */
-            virtual void free_memory()
+            virtual void
+            free_memory()
             {
-                MORIS_ERROR( false, "Equation_Set::free_memory - not implemented for virtual member function");
+                MORIS_ERROR( false, "Equation_Set::free_memory - not implemented for virtual member function" );
             }
 
             //-------------------------------------------------------------------------------------------------
             /**
              * finalize
              */
-            virtual void finalize( MSI::Model_Solver_Interface * aModelSolverInterface )
+            virtual void
+            finalize( MSI::Model_Solver_Interface* aModelSolverInterface )
             {
-                MORIS_ERROR(false,"Equation_Set::finalize - not implemented for msi base class.");
+                MORIS_ERROR( false, "Equation_Set::finalize - not implemented for msi base class." );
             }
 
             //-------------------------------------------------------------------------------------------------
@@ -335,7 +344,8 @@ namespace moris
              * set GEN/MSI interface
              * @param[ in ] aDesignVariableInterface a GEN/MSI interface pointer
              */
-            virtual void set_dv_interface( MSI::Design_Variable_Interface * aDesignVariableInterface )
+            virtual void
+            set_dv_interface( MSI::Design_Variable_Interface* aDesignVariableInterface )
             {
                 MORIS_ERROR( false, "Equation_Set::set_dv_interface - not implemented for msi base class." );
             }
@@ -344,7 +354,8 @@ namespace moris
             /**
              * get residual
              */
-            Cell< Matrix< DDRMat > > & get_residual()
+            Cell< Matrix< DDRMat > >&
+            get_residual()
             {
                 return mResidual;
             }
@@ -353,7 +364,8 @@ namespace moris
             /**
              * get residual dof assembly map
              */
-            moris::Cell< moris::Matrix< DDSMat > > & get_res_dof_assembly_map()
+            moris::Cell< moris::Matrix< DDSMat > >&
+            get_res_dof_assembly_map()
             {
                 return mResDofAssemblyMap;
             };
@@ -362,7 +374,8 @@ namespace moris
             /**
              * get QI
              */
-            Cell< Matrix< DDRMat > > & get_QI()
+            Cell< Matrix< DDRMat > >&
+            get_QI()
             {
                 return mQI;
             }
@@ -372,9 +385,10 @@ namespace moris
              * get the element on the set
              * param[ out ] aElementType element type for the set
              */
-            virtual enum fem::Element_Type get_element_type() const
+            virtual enum fem::Element_Type
+            get_element_type() const
             {
-                MORIS_ERROR( false, "Equation_Set::get_element_type - not implemented for virtual member function");
+                MORIS_ERROR( false, "Equation_Set::get_element_type - not implemented for virtual member function" );
                 return fem::Element_Type::UNDEFINED;
             }
 
@@ -382,13 +396,14 @@ namespace moris
             /**
              * get QI assembly map
              */
-            moris_index get_QI_assembly_index( const std::string & aIQIName );
+            moris_index get_QI_assembly_index( const std::string& aIQIName );
 
             //-------------------------------------------------------------------------------------------------
             /**
              * get jacobian
              */
-            Matrix< DDRMat > & get_jacobian()
+            Matrix< DDRMat >&
+            get_jacobian()
             {
                 return mJacobian;
             }
@@ -397,7 +412,8 @@ namespace moris
             /**
              * get jacobian dof assembly map
              */
-            moris::Cell< moris::Matrix< DDSMat > > & get_jac_dof_assembly_map()
+            moris::Cell< moris::Matrix< DDSMat > >&
+            get_jac_dof_assembly_map()
             {
                 return mJacDofAssemblyMap;
             }
@@ -406,7 +422,8 @@ namespace moris
             /**
              * get dRdp
              */
-            moris::Cell< Matrix< DDRMat > > & get_drdp()
+            moris::Cell< Matrix< DDRMat > >&
+            get_drdp()
             {
                 return mdRdp;
             }
@@ -415,7 +432,8 @@ namespace moris
             /**
              * get dRdpMat
              */
-            Matrix< DDRMat > & get_drdpmat()
+            Matrix< DDRMat >&
+            get_drdpmat()
             {
                 return mdRdp( 0 );
             }
@@ -424,7 +442,8 @@ namespace moris
             /**
              * get dRdpMat pdv assembly map
              */
-            moris::Cell< moris::Matrix< DDSMat > > & get_mat_pdv_assembly_map()
+            moris::Cell< moris::Matrix< DDSMat > >&
+            get_mat_pdv_assembly_map()
             {
                 return mPdvMatAssemblyMap;
             }
@@ -433,7 +452,8 @@ namespace moris
             /**
              * get dRdpMat pdv assembly vector
              */
-            Matrix< DDSMat > & get_mat_pdv_assembly_vector()
+            Matrix< DDSMat >&
+            get_mat_pdv_assembly_vector()
             {
                 return mPdvMatAssemblyVector;
             }
@@ -442,7 +462,8 @@ namespace moris
             /**
              * get dRdpGeo
              */
-            Matrix< DDRMat > & get_drdpgeo()
+            Matrix< DDRMat >&
+            get_drdpgeo()
             {
                 return mdRdp( 1 );
             }
@@ -451,7 +472,8 @@ namespace moris
             /**
              * get dRdpGeo pdv assembly map
              */
-            std::map< std::pair< moris_index, PDV_Type >, uint > & get_geo_pdv_assembly_map()
+            std::map< std::pair< moris_index, PDV_Type >, uint >&
+            get_geo_pdv_assembly_map()
             {
                 return mPdvGeoAssemblyMap;
             }
@@ -460,7 +482,8 @@ namespace moris
             /**
              * get dRdpGeo pdv assembly flag
              */
-            bool get_geo_pdv_assembly_flag()
+            bool
+            get_geo_pdv_assembly_flag()
             {
                 return mPdvGeoAssemblyFlag;
             }
@@ -469,7 +492,8 @@ namespace moris
             /**
              * get dRdpGeo pdv assembly vector
              */
-            Matrix< DDSMat > & get_geo_pdv_assembly_vector()
+            Matrix< DDSMat >&
+            get_geo_pdv_assembly_vector()
             {
                 return mPdvGeoAssemblyVector;
             }
@@ -478,7 +502,8 @@ namespace moris
             /**
              * get dQIdp
              */
-            moris::Cell< moris::Cell< Matrix< DDRMat > > > & get_dqidp()
+            moris::Cell< moris::Cell< Matrix< DDRMat > > >&
+            get_dqidp()
             {
                 return mdQIdp;
             }
@@ -487,7 +512,8 @@ namespace moris
             /**
              * get dQIdp for material pdv
              */
-            moris::Cell< Matrix< DDRMat > > & get_dqidpmat()
+            moris::Cell< Matrix< DDRMat > >&
+            get_dqidpmat()
             {
                 return mdQIdp( 0 );
             }
@@ -496,7 +522,8 @@ namespace moris
             /**
              * get dQIdp for geometry pdv
              */
-            moris::Cell< Matrix< DDRMat > > & get_dqidpgeo()
+            moris::Cell< Matrix< DDRMat > >&
+            get_dqidpgeo()
             {
                 return mdQIdp( 1 );
             }
@@ -506,9 +533,10 @@ namespace moris
              * get number of requested IQI for SA on set
              * @param[ out ] uint number of requested IQI for SA on set
              */
-            virtual uint get_number_of_requested_IQIs()
+            virtual uint
+            get_number_of_requested_IQIs()
             {
-                MORIS_ERROR( false, "not implemented for base class.");
+                MORIS_ERROR( false, "not implemented for base class." );
                 return 0;
             }
 
@@ -516,7 +544,8 @@ namespace moris
             /**
              * get number of right hand side
              */
-            uint get_num_rhs()
+            uint
+            get_num_rhs()
             {
                 return tNumRHS;
             }
@@ -526,7 +555,8 @@ namespace moris
              * set model solver interface
              * @param[ in ] aModelSolverInterface a model solver interface pointer
              */
-            void set_model_solver_interface( Model_Solver_Interface * aModelSolverInterface )
+            void
+            set_model_solver_interface( Model_Solver_Interface* aModelSolverInterface )
             {
                 mModelSolverInterface = aModelSolverInterface;
             }
@@ -536,7 +566,8 @@ namespace moris
              * get model solver interface
              * @param[ out ] aModelSolverInterface a model solver interface pointer
              */
-            Model_Solver_Interface * get_model_solver_interface()
+            Model_Solver_Interface*
+            get_model_solver_interface()
             {
                 return mModelSolverInterface;
             }
@@ -545,7 +576,8 @@ namespace moris
             /**
              * get number of equation objects
              */
-            uint get_num_equation_objects()
+            uint
+            get_num_equation_objects()
             {
                 return mEquationObjList.size();
             }
@@ -554,7 +586,8 @@ namespace moris
             /**
              * get list of equation object pointers
              */
-            Cell< MSI::Equation_Object * > & get_equation_object_list()
+            Cell< MSI::Equation_Object* >&
+            get_equation_object_list()
             {
                 return mEquationObjList;
             };
@@ -564,7 +597,8 @@ namespace moris
              * get unique dof type list
              * @param[ out ] mUniqueDofTypeList a unique list of dof type
              */
-            const moris::Cell< enum MSI::Dof_Type > & get_unique_dof_type_list()
+            const moris::Cell< enum MSI::Dof_Type >&
+            get_unique_dof_type_list()
             {
                 return mUniqueDofTypeList;
             }
@@ -574,7 +608,8 @@ namespace moris
              * get unique dof type list
              * @param[ out ] mUniqueDofTypeList a unique list of dof type
              */
-            const moris::Cell< moris::Cell< enum MSI::Dof_Type > > & get_unique_master_slave_dof_type_list()
+            const moris::Cell< moris::Cell< enum MSI::Dof_Type > >&
+            get_unique_master_slave_dof_type_list()
             {
                 return mUniqueDofTypeListMasterSlave;
             }
@@ -583,7 +618,8 @@ namespace moris
             /**
              * get number of unique dof types
              */
-            moris::uint get_num_unique_dof_types()
+            moris::uint
+            get_num_unique_dof_types()
             {
                 return mUniqueDofTypeList.size();
             }
@@ -593,7 +629,8 @@ namespace moris
              * get unique dv type list
              * @param[ out ] mUniqueDvTypeList a unique list of dv type
              */
-            const moris::Cell< enum PDV_Type > & get_unique_dv_type_list()
+            const moris::Cell< enum PDV_Type >&
+            get_unique_dv_type_list()
             {
                 return mUniqueDvTypeList;
             }
@@ -602,7 +639,8 @@ namespace moris
             /**
              * get number of unique dv types
              */
-            moris::uint get_num_unique_dv_types()
+            moris::uint
+            get_num_unique_dv_types()
             {
                 return mUniqueDvTypeList.size();
             }
@@ -612,7 +650,8 @@ namespace moris
              * get unique field type list
              * @param[ out ] mUniqueFieldTypeList a unique list of field type
              */
-            const moris::Cell< enum mtk::Field_Type > & get_unique_field_type_list()
+            const moris::Cell< enum mtk::Field_Type >&
+            get_unique_field_type_list()
             {
                 return mUniqueFieldTypeList;
             }
@@ -621,7 +660,8 @@ namespace moris
             /**
              * get number of unique field types
              */
-            moris::uint get_num_unique_field_types()
+            moris::uint
+            get_num_unique_field_types()
             {
                 return mUniqueFieldTypeList.size();
             }
@@ -630,13 +670,13 @@ namespace moris
             /**
              * get requested dof types
              */
-            const moris::Cell < enum MSI::Dof_Type > & get_requested_dof_types();
+            const moris::Cell< enum MSI::Dof_Type >& get_requested_dof_types();
 
             //------------------------------------------------------------------------------
             /**
              * get secondary dof types
              */
-            const moris::Cell< enum MSI::Dof_Type > & get_secondary_dof_types();
+            const moris::Cell< enum MSI::Dof_Type >& get_secondary_dof_types();
 
             //------------------------------------------------------------------------------
             /**
@@ -648,7 +688,7 @@ namespace moris
             /**
              * get requested dv types
              */
-            moris::Cell < enum PDV_Type > get_requested_dv_types();
+            moris::Cell< enum PDV_Type > get_requested_dv_types();
 
             //------------------------------------------------------------------------------
             /**
@@ -657,10 +697,11 @@ namespace moris
              * @param[ in ] aVisMeshSet
              * @param[ in ] aOnlyPrimayCells
              */
-            virtual void set_visualization_set(
-                    const uint        aMeshIndex,
-                    moris::mtk::Set * aVisMeshSet,
-                    const bool        aOnlyPrimayCells )
+            virtual void
+            set_visualization_set(
+                    const uint       aMeshIndex,
+                    moris::mtk::Set* aVisMeshSet,
+                    const bool       aOnlyPrimayCells )
             {
                 MORIS_ASSERT( false, "Equation_Set::set_visualization_set(), not implemented for base class" );
             }
@@ -672,10 +713,11 @@ namespace moris
              * @param[ in ] aFieldValues matrix to be filled with QI global values
              * @param[ in ] aQINames     list of QI names to compute
              */
-            virtual void compute_quantity_of_interest_global(
-                    const uint                         aMeshIndex,
-                    Matrix< DDRMat >                 * aFieldValues,
-                    const moris::Cell< std::string > & aQINames )
+            virtual void
+            compute_quantity_of_interest_global(
+                    const uint                        aMeshIndex,
+                    Matrix< DDRMat >*                 aFieldValues,
+                    const moris::Cell< std::string >& aQINames )
             {
                 MORIS_ASSERT( false, "Equation_Set::compute_quantity_of_interest_global - not implemented for base class." );
             }
@@ -687,10 +729,11 @@ namespace moris
              * @param[ in ] aFieldValues matrix to be filled with QI nodal values
              * @param[ in ] aQINames     list of QI names to compute
              */
-            virtual void compute_quantity_of_interest_nodal(
-                    const uint                         aMeshIndex,
-                    Matrix< DDRMat >                 * aFieldValues,
-                    const moris::Cell< std::string > & aQINames )
+            virtual void
+            compute_quantity_of_interest_nodal(
+                    const uint                        aMeshIndex,
+                    Matrix< DDRMat >*                 aFieldValues,
+                    const moris::Cell< std::string >& aQINames )
             {
                 MORIS_ASSERT( false, "Equation_Set::compute_quantity_of_interest_nodal - not implemented for base class." );
             }
@@ -702,36 +745,39 @@ namespace moris
              * @param[ in ] aFieldValues matrix to be filled with QI elemental values
              * @param[ in ] aQINames     list of QI names to compute
              */
-            virtual void compute_quantity_of_interest_elemental(
-                    const uint                         aMeshIndex,
-                    Matrix< DDRMat >                 * aFieldValues,
-                    const moris::Cell< std::string > & aQINames )
+            virtual void
+            compute_quantity_of_interest_elemental(
+                    const uint                        aMeshIndex,
+                    Matrix< DDRMat >*                 aFieldValues,
+                    const moris::Cell< std::string >& aQINames )
             {
                 MORIS_ASSERT( false, "Equation_Set::compute_quantity_of_interest_elemental - not implemented for base class." );
             }
 
             //------------------------------------------------------------------------------
 
-            virtual void populate_fields(
-                    moris::Cell< std::shared_ptr< fem::Field > >  & aFieldToPopulate,
-                    moris::Cell< std::string > const              & aFieldIQINames )
+            virtual void
+            populate_fields(
+                    moris::Cell< std::shared_ptr< fem::Field > >& aFieldToPopulate,
+                    moris::Cell< std::string > const &            aFieldIQINames )
             {
-                MORIS_ERROR( false, "populate_fields(), no child implementation.");
+                MORIS_ERROR( false, "populate_fields(), no child implementation." );
             }
 
             //------------------------------------------------------------------------------
 
-            virtual std::string get_set_name()
+            virtual std::string
+            get_set_name()
             {
 
-                MORIS_ERROR(false, "get_set_name(), not implemented for base class.");
+                MORIS_ERROR( false, "get_set_name(), not implemented for base class." );
                 return "";
             }
 
             //------------------------------------------------------------------------------
         };
         //------------------------------------------------------------------------------
-    } /* namespace fem */
+    }    // namespace MSI
 } /* namespace moris */
 
 #endif /* SRC_FEM_CL_MSI_EQUATION_SET_HPP_ */

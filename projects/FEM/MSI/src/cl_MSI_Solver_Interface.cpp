@@ -1,8 +1,11 @@
 /*
- * cl_MSI_Solver_Interface.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Sep 23, 2018
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MSI_Solver_Interface.cpp
+
  */
 #include "cl_MSI_Solver_Interface.hpp"
 #include "cl_MDL_Model.hpp"
@@ -47,9 +50,10 @@ namespace moris
         //-------------------------------------------------------------------------------------------------------
 
         void
-        MSI_Solver_Interface::initiate_output( const uint aOutputIndex,
-                const real                                aTime,
-                const bool                                aEndOfTimeIteration )
+        MSI_Solver_Interface::initiate_output(
+                const uint aOutputIndex,
+                const real aTime,
+                const bool aEndOfTimeIteration )
         {
             // end of time iteration that the exodus file should be closed
             mModel->output_solution( aOutputIndex, aTime, aEndOfTimeIteration );
@@ -64,6 +68,8 @@ namespace moris
             mMSI->mEquationModel->set_solution_vector( mSolutionVector );
         }
 
+        //------------------------------------------------------------------------------
+
         void
         MSI_Solver_Interface::postmultiply_implicit_dQds()
         {
@@ -71,6 +77,8 @@ namespace moris
             // mMSI->mEquationModel->compute_explicit_dQIdp();
             // mMSI->mEquationModel->compute_implicit_dQIdp();
         }
+
+        //------------------------------------------------------------------------------
 
         void
         MSI_Solver_Interface::compute_IQI()
@@ -176,11 +184,12 @@ namespace moris
         MSI_Solver_Interface::initialize_set(
                 const uint aMyEquSetInd,
                 const bool aIsStaggered,
+                const bool aTimeContinuityOnlyFlag,
                 const bool aIsAdjointOffDiagonalTimeContribution )
         {
             mMSI->get_equation_model()->set_is_adjoint_off_diagonal_time_contribution( aIsAdjointOffDiagonalTimeContribution );
 
-            mMSI->get_equation_set( aMyEquSetInd )->initialize_set( aIsStaggered );
+            mMSI->get_equation_set( aMyEquSetInd )->initialize_set( aIsStaggered, aTimeContinuityOnlyFlag );
         }
 
         //-------------------------------------------------------------------------------------------------------

@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_Equation_Model.cpp
  *
- *  Created on: May 08, 2020
- *      Author: schmidt
  */
 
 #include "cl_MSI_Design_Variable_Interface.hpp"
@@ -27,6 +30,7 @@ namespace moris
 {
     namespace MSI
     {
+        //------------------------------------------------------------------------------
 
         Equation_Model::~Equation_Model()
         {
@@ -37,14 +41,15 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        moris::sint Equation_Model::get_num_rhs( )
+        moris::sint
+        Equation_Model::get_num_rhs()
         {
-            if( !mIsForwardAnalysis )
+            if ( !mIsForwardAnalysis )
             {
                 mNumSensitivityAnalysisRHS = this->get_requested_IQI_names().size();
 
                 MORIS_ASSERT( mNumSensitivityAnalysisRHS > 0,
-                        "MSI::Equation_Model::get_num_rhs(), num rhs not set for sensitivity analysis");
+                        "MSI::Equation_Model::get_num_rhs(), num rhs not set for sensitivity analysis" );
 
                 return mNumSensitivityAnalysisRHS;
             }
@@ -56,7 +61,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Equation_Model::compute_IQIs()
+        void
+        Equation_Model::compute_IQIs()
         {
             // get number of IQI on the model
             moris::uint tNumIQIsOnModel =
@@ -72,23 +78,23 @@ namespace moris
                 moris::uint tNumIQIsOnSet = mFemSets( tSetIndex )->get_number_of_requested_IQIs();
 
                 // if some IQI are requested on treated equation set
-                if( tNumIQIsOnSet > 0 )
+                if ( tNumIQIsOnSet > 0 )
                 {
                     // get number of equation objects on treated equation set
                     moris::uint tNumEquationObjectOnSet = mFemSets( tSetIndex )->get_num_equation_objects();
 
                     // initialize treated equation set // FIXME????
-                    mFemSets( tSetIndex )->initialize_set( false );
+                    mFemSets( tSetIndex )->initialize_set( false, false );
 
                     // loop over equation objects on treated equation set
-                    for( moris::uint tEquationObjectIndex = 0; tEquationObjectIndex < tNumEquationObjectOnSet; tEquationObjectIndex++ )
+                    for ( moris::uint tEquationObjectIndex = 0; tEquationObjectIndex < tNumEquationObjectOnSet; tEquationObjectIndex++ )
                     {
                         // compute QI
                         // FIXME this is elemental right now??
                         mFemSets( tSetIndex )->get_equation_object_list()( tEquationObjectIndex )->compute_QI();
 
                         // loop over IQIs on model
-                        for( moris::uint tIQIIndex = 0; tIQIIndex < tNumIQIsOnModel; tIQIIndex++ )
+                        for ( moris::uint tIQIIndex = 0; tIQIIndex < tNumIQIsOnModel; tIQIIndex++ )
                         {
                             // assemble QI values into global vector
                             mGlobalIQIVal( tIQIIndex ) += mFemSets( tSetIndex )->get_QI()( tIQIIndex );
@@ -99,14 +105,8 @@ namespace moris
                 }
             }
 
-//            //print statement
-//            for(uint i = 0 ; i < mGlobalIQIVal.size() ; i++)
-//            {
-//                print(mGlobalIQIVal(i), std::to_string(i));
-//            }
-
             // Normalization
-            if (gLogger.mIteration == 0)
+            if ( gLogger.mIteration == 0 )
             {
                 this->normalize_IQIs();
             }
@@ -114,7 +114,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Equation_Model::initialize_explicit_and_implicit_dQIdp()
+        void
+        Equation_Model::initialize_explicit_and_implicit_dQIdp()
         {
             // create map for dQIdpMap
             moris::sol::Matrix_Vector_Factory tMatFactory( sol::MapType::Epetra );
@@ -141,9 +142,10 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Equation_Model::compute_explicit_and_implicit_dQIdp()
+        void
+        Equation_Model::compute_explicit_and_implicit_dQIdp()
         {
-            //Trace this function
+            // Trace this function
             Tracer tTracer( "MSI", "EquationModel", "ComputedQIdpExplAndImpl" );
 
             // get local number of equation sets
@@ -157,15 +159,13 @@ namespace moris
                         mFemSets( tSetIndex )->get_num_equation_objects();
 
                 // initialize treated equation set //FIXME????
-                mFemSets( tSetIndex )->initialize_set( false );
+                mFemSets( tSetIndex )->initialize_set( false, false );
 
                 // loop over equation objects on treated equation set
                 for ( moris::uint tEqObjIndex = 0; tEqObjIndex < tNumEqObjOnSet; tEqObjIndex++ )
                 {
                     // compute dQIdp implicit
-                    mFemSets( tSetIndex )->
-                            get_equation_object_list()( tEqObjIndex )->
-                            compute_dQIdp_explicit_implicit();
+                    mFemSets( tSetIndex )->get_equation_object_list()( tEqObjIndex )->compute_dQIdp_explicit_implicit();
                 }
 
                 // free memory on treated equation set
@@ -181,9 +181,10 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Equation_Model::compute_implicit_dQIdp()
+        void
+        Equation_Model::compute_implicit_dQIdp()
         {
-            //Trace this function
+            // Trace this function
             Tracer tTracer( "MSI", "EquationModel", "Compute_dQIdp_Impl" );
 
             // get local number of equation sets
@@ -197,15 +198,13 @@ namespace moris
                         mFemSets( tSetIndex )->get_num_equation_objects();
 
                 // initialize treated equation set //FIXME????
-                mFemSets( tSetIndex )->initialize_set( false );
+                mFemSets( tSetIndex )->initialize_set( false, false );
 
                 // loop over equation objects on treated equation set
                 for ( moris::uint tEquationObjectIndex = 0; tEquationObjectIndex < tNumEquationObjectOnSet; tEquationObjectIndex++ )
                 {
                     // compute dQIdp implicit
-                    mFemSets( tSetIndex )->
-                            get_equation_object_list()( tEquationObjectIndex )->
-                            compute_dQIdp_implicit();
+                    mFemSets( tSetIndex )->get_equation_object_list()( tEquationObjectIndex )->compute_dQIdp_implicit();
                 }
                 // free memory on treated equation set
                 mFemSets( tSetIndex )->free_matrix_memory();
@@ -217,10 +216,11 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Equation_Model::compute_explicit_dQIdp()
+        void
+        Equation_Model::compute_explicit_dQIdp()
         {
-            //Trace this function
-            Tracer tTracer(  "MSI", "EquationModel", "Compute_dQIdp_Expl" );
+            // Trace this function
+            Tracer tTracer( "MSI", "EquationModel", "Compute_dQIdp_Expl" );
 
             // get local number of equation sets
             moris::uint tNumSets = mFemSets.size();
@@ -233,18 +233,16 @@ namespace moris
                         mFemSets( iSet )->get_num_equation_objects();
 
                 // initialize treated equation set //FIXME????
-                mFemSets( iSet )->initialize_set( false );
+                mFemSets( iSet )->initialize_set( false, false );
 
                 // if some IQI are requested on treated equation set
-                if( mFemSets( iSet )->get_number_of_requested_IQIs() > 0 )
+                if ( mFemSets( iSet )->get_number_of_requested_IQIs() > 0 )
                 {
                     // loop over equation objects on treated equation set
                     for ( moris::uint iEqObj = 0; iEqObj < tNumEquationObjectOnSet; iEqObj++ )
                     {
                         // compute dQIdp explicit
-                        mFemSets( iSet )->
-                                get_equation_object_list()( iEqObj )->
-                                compute_dQIdp_explicit();
+                        mFemSets( iSet )->get_equation_object_list()( iEqObj )->compute_dQIdp_explicit();
                     }
                     // free memory on treated equation set
                     mFemSets( iSet )->free_matrix_memory();
@@ -257,7 +255,8 @@ namespace moris
 
         //-------------------------------------------------------------------------------------------------
 
-        sol::Dist_Vector * Equation_Model::get_dQIdp()
+        sol::Dist_Vector*
+        Equation_Model::get_dQIdp()
         {
             // create map object
             moris::sol::Matrix_Vector_Factory tMatFactory( sol::MapType::Epetra );
@@ -284,11 +283,12 @@ namespace moris
 
         //-------------------------------------------------------------------------------------------------
 
-        void Equation_Model::normalize_IQIs()
+        void
+        Equation_Model::normalize_IQIs()
         {
         }
 
         //-------------------------------------------------------------------------------------------------
 
-    }/* end_namespace_msi */
-}/* end_namespace_moris */
+    }    // namespace MSI
+}    // namespace moris

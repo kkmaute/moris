@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_NLA_Nonlinear_Problem.cpp
  *
- *  Created on: Sep 21, 2018
- *      Author: schmidt
  */
 #include "cl_NLA_Nonlinear_Problem.hpp"
 #include "cl_NLA_Nonlinear_Solver.hpp"
@@ -26,17 +29,19 @@ using namespace moris;
 using namespace NLA;
 using namespace dla;
 
+//-----------------------------------------------------------------------------
+
 Nonlinear_Problem::Nonlinear_Problem(
-        sol::SOL_Warehouse       * aSolverWarehouse,
-        Solver_Interface         * aSolverInterface,
-        sol::Dist_Vector         * aFullVector,
-        const moris::sint          aNonlinearSolverManagerIndex,
-        const bool                 aBuildLinerSystemFlag,
-        const enum sol::MapType    aMapType)
-: mFullVector( aFullVector ),
-  mBuildLinerSystemFlag( aBuildLinerSystemFlag ),
-  mMapType( aMapType ),
-  mNonlinearSolverManagerIndex( aNonlinearSolverManagerIndex )
+        sol::SOL_Warehouse*     aSolverWarehouse,
+        Solver_Interface*       aSolverInterface,
+        sol::Dist_Vector*       aFullVector,
+        const moris::sint       aNonlinearSolverManagerIndex,
+        const bool              aBuildLinerSystemFlag,
+        const enum sol::MapType aMapType )
+        : mFullVector( aFullVector )
+        , mBuildLinerSystemFlag( aBuildLinerSystemFlag )
+        , mMapType( aMapType )
+        , mNonlinearSolverManagerIndex( aNonlinearSolverManagerIndex )
 {
     mSolverWarehouse = aSolverWarehouse;
 
@@ -48,7 +53,7 @@ Nonlinear_Problem::Nonlinear_Problem(
     //        PetscInitializeNoArguments();
     //    }
 
-    const moris::Cell< enum MSI::Dof_Type > & tRequesedDofTypes = mSolverInterface->get_requested_dof_types();
+    const moris::Cell< enum MSI::Dof_Type >& tRequesedDofTypes = mSolverInterface->get_requested_dof_types();
 
     // delete pointers if they already exist
     this->delete_pointers();
@@ -56,7 +61,7 @@ Nonlinear_Problem::Nonlinear_Problem(
     // Build Matrix vector factory
     sol::Matrix_Vector_Factory tMatFactory( mMapType );
 
-    MORIS_LOG_SPEC("Total number of DOFs for non-linear system",
+    MORIS_LOG_SPEC( "Total number of DOFs for non-linear system",
             sum_all( aSolverInterface->get_my_local_global_map( tRequesedDofTypes ).numel() ) );
 
     // create map object FIXME ask linear problem for map
@@ -69,7 +74,7 @@ Nonlinear_Problem::Nonlinear_Problem(
     if ( mBuildLinerSystemFlag )
     {
         // create solver factory
-        Solver_Factory  tSolFactory;
+        Solver_Factory tSolFactory;
 
         mLinearProblem = tSolFactory.create_linear_system(
                 aSolverInterface,
@@ -83,17 +88,17 @@ Nonlinear_Problem::Nonlinear_Problem(
 //-----------------------------------------------------------------------------
 
 Nonlinear_Problem::Nonlinear_Problem(
-        Solver_Interface       * aSolverInterface,
-        const moris::sint        aNonlinearSolverManagerIndex,
-        const bool               aBuildLinerSystemFlag,
-        const enum sol::MapType  aMapType )
-: mBuildLinerSystemFlag( aBuildLinerSystemFlag ),
-  mMapType( aMapType ),
-  mNonlinearSolverManagerIndex( aNonlinearSolverManagerIndex )
+        Solver_Interface*       aSolverInterface,
+        const moris::sint       aNonlinearSolverManagerIndex,
+        const bool              aBuildLinerSystemFlag,
+        const enum sol::MapType aMapType )
+        : mBuildLinerSystemFlag( aBuildLinerSystemFlag )
+        , mMapType( aMapType )
+        , mNonlinearSolverManagerIndex( aNonlinearSolverManagerIndex )
 {
     mSolverInterface = aSolverInterface;
 
-    if( mMapType == sol::MapType::Petsc )
+    if ( mMapType == sol::MapType::Petsc )
     {
         // Initialize petsc solvers
         PetscInitializeNoArguments();
@@ -102,7 +107,7 @@ Nonlinear_Problem::Nonlinear_Problem(
     // Build Matrix vector factory
     sol::Matrix_Vector_Factory tMatFactory( mMapType );
 
-    mMap = tMatFactory.create_map( aSolverInterface->get_my_local_global_overlapping_map());
+    mMap = tMatFactory.create_map( aSolverInterface->get_my_local_global_overlapping_map() );
 
     uint tNumRHMS = aSolverInterface->get_num_rhs();
 
@@ -125,7 +130,7 @@ Nonlinear_Problem::Nonlinear_Problem(
         MORIS_LOG_INFO( "Build linear problem with index %-5i", mNonlinearSolverManagerIndex );
 
         // create solver factory
-        Solver_Factory  tSolFactory;
+        Solver_Factory tSolFactory;
 
         mLinearProblem = tSolFactory.create_linear_system( aSolverInterface, mMapType );
     }
@@ -136,7 +141,8 @@ Nonlinear_Problem::Nonlinear_Problem(
 
 //-----------------------------------------------------------------------------
 
-void Nonlinear_Problem::set_interface( Solver_Interface * aSolverInterface )
+void
+Nonlinear_Problem::set_interface( Solver_Interface* aSolverInterface )
 {
 }
 
@@ -145,21 +151,21 @@ void Nonlinear_Problem::set_interface( Solver_Interface * aSolverInterface )
 Nonlinear_Problem::~Nonlinear_Problem()
 {
     this->delete_pointers();
-    
-    delete mMap;
-    mMap=nullptr;
-    
-    delete mMapFull;
-    mMapFull=nullptr;
 
-    if( mIsMasterSystem )
+    delete mMap;
+    mMap = nullptr;
+
+    delete mMapFull;
+    mMapFull = nullptr;
+
+    if ( mIsMasterSystem )
     {
         delete mFullVector;
     }
 
-    if(mIsMasterSystem)
+    if ( mIsMasterSystem )
     {
-        if ( mMapType == sol::MapType::Petsc)
+        if ( mMapType == sol::MapType::Petsc )
         {
             PetscFinalize();
         }
@@ -168,22 +174,25 @@ Nonlinear_Problem::~Nonlinear_Problem()
 
 //-----------------------------------------------------------------------------
 
-void Nonlinear_Problem::delete_pointers()
+void
+Nonlinear_Problem::delete_pointers()
 {
-    delete( mLinearProblem );
+    delete ( mLinearProblem );
+
     mLinearProblem = nullptr;
 }
 
 //-----------------------------------------------------------------------------
 
-void Nonlinear_Problem::build_linearized_problem(
-        const bool & aRebuildJacobian,
-        const bool & aCombinedResJacAssebly,
-        const sint   aNonLinearIt )
+void
+Nonlinear_Problem::build_linearized_problem(
+        const bool& aRebuildJacobian,
+        const bool& aCombinedResJacAssebly,
+        const sint  aNonLinearIt )
 {
     Tracer tTracer( "NonLinearProblem", "Build" );
 
-    if( aCombinedResJacAssebly )
+    if ( aCombinedResJacAssebly )
     {
         // build residual and jacobian
         mLinearProblem->assemble_residual_and_jacobian();
@@ -191,7 +200,7 @@ void Nonlinear_Problem::build_linearized_problem(
     else
     {
         // build jacobian only if requested
-        if( aRebuildJacobian )
+        if ( aRebuildJacobian )
         {
             mLinearProblem->assemble_jacobian();
         }
@@ -202,12 +211,12 @@ void Nonlinear_Problem::build_linearized_problem(
 
     // in case of sensitivity analysis and staggered solver: assemble contribution contributions of
     // of secondary dof types to residual
-    if( !mSolverInterface->get_is_forward_analysis() )
+    if ( !mSolverInterface->get_is_forward_analysis() )
     {
-        moris::Cell< enum MSI::Dof_Type >tSecDofTypes = mMyNonLinSolver->get_sec_dof_type_union();
+        moris::Cell< enum MSI::Dof_Type > tSecDofTypes = mMyNonLinSolver->get_sec_dof_type_union();
 
         // in case of secondary dof types
-        if( tSecDofTypes.size() != 0)
+        if ( tSecDofTypes.size() != 0 )
         {
             moris::Cell< enum MSI::Dof_Type > tDofTypeUnion = mMyNonLinSolver->get_dof_type_union();
 
@@ -224,16 +233,17 @@ void Nonlinear_Problem::build_linearized_problem(
 
 //-----------------------------------------------------------------------------
 
-void Nonlinear_Problem::build_linearized_problem(
-        const bool & aRebuildJacobian,
-        const sint   aNonLinearIt,
-        const sint   aRestart )
+void
+Nonlinear_Problem::build_linearized_problem(
+        const bool& aRebuildJacobian,
+        const sint  aNonLinearIt,
+        const sint  aRestart )
 {
     Tracer tTracer( "NonLinearProblem", "Build" );
 
     this->restart_from_sol_vec( aRestart );
 
-    if( aRebuildJacobian )
+    if ( aRebuildJacobian )
     {
         mLinearProblem->assemble_jacobian();
     }
@@ -243,18 +253,20 @@ void Nonlinear_Problem::build_linearized_problem(
 
 //-----------------------------------------------------------------------------
 
-sol::Dist_Vector * Nonlinear_Problem::get_full_vector()
+sol::Dist_Vector*
+Nonlinear_Problem::get_full_vector()
 {
     return mFullVector;
 }
 
 //-----------------------------------------------------------------------------
 
-void Nonlinear_Problem::extract_my_values(
-        const moris::uint                            & aNumIndices,
-        const moris::Matrix< DDSMat >                & aGlobalBlockRows,
-        const moris::uint                            & aBlockRowOffsets,
-        moris::Cell< moris::Matrix< DDRMat > >       & LHSValues )
+void
+Nonlinear_Problem::extract_my_values(
+        const moris::uint&                      aNumIndices,
+        const moris::Matrix< DDSMat >&          aGlobalBlockRows,
+        const moris::uint&                      aBlockRowOffsets,
+        moris::Cell< moris::Matrix< DDRMat > >& LHSValues )
 {
     mFullVector->extract_my_values(
             aNumIndices,
@@ -265,39 +277,50 @@ void Nonlinear_Problem::extract_my_values(
 
 //-----------------------------------------------------------------------------
 
-void Nonlinear_Problem::print_sol_vec( const sint aNonLinearIt )
+void
+Nonlinear_Problem::print_sol_vec( const sint aNonLinearIt )
 {
-    char NonLinNum[100];
+    char NonLinNum[ 100 ];
     std::sprintf( NonLinNum, "NonLIt.%04u", aNonLinearIt );
 
-    char SolVector[100];
+    char SolVector[ 100 ];
     std::strcpy( SolVector, "SolVector." );
     std::strcat( SolVector, NonLinNum );
-    std::strcat( SolVector,".h5\0");
+    std::strcat( SolVector, ".h5\0" );
 
     mFullVector->save_vector_to_HDF5( SolVector );
 }
 
 //-----------------------------------------------------------------------------
 
-void Nonlinear_Problem::restart_from_sol_vec( const sint aRestart )
+void
+Nonlinear_Problem::restart_from_sol_vec( const sint aRestart )
 {
-    char NonLinNum[100];
+    char NonLinNum[ 100 ];
     std::sprintf( NonLinNum, "NonLIt.%04u", aRestart );
 
-    char SolVector[100];
+    char SolVector[ 100 ];
     std::strcpy( SolVector, "SolVector." );
     std::strcat( SolVector, NonLinNum );
-    std::strcat( SolVector,".h5\0");
+    std::strcat( SolVector, ".h5\0" );
 
     mFullVector->read_vector_from_HDF5( SolVector );
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void Nonlinear_Problem::set_time_value(
-        const moris::real & aLambda,
-        moris::uint         aPos )
+void
+Nonlinear_Problem::set_time_value(
+        const moris::real& aLambda,
+        moris::uint        aPos )
 {
     mSolverInterface->set_time_value( aLambda, aPos );
+}
+
+//--------------------------------------------------------------------------------------------------
+
+real
+Nonlinear_Problem::get_static_residual_norm()
+{
+    return mLinearProblem->compute_static_residual_norm();
 }
