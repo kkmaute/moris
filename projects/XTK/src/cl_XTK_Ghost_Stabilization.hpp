@@ -138,7 +138,12 @@ namespace xtk
             *  @param[in] aBulkPhase Bulk phase
             */
             void
-            visualize_ghost_on_mesh(moris_index const & aBulkPhase);
+            visualize_ghost_on_mesh( moris_index const& aBulkPhase );
+
+            void
+            visualize_ghost_on_mesh_new(
+                    moris_index const& aBsplineMeshListIndex,
+                    moris_index const& aBulkPhaseIndex );
 
             // ----------------------------------------------------------------------------------
             /*!

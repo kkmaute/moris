@@ -16,6 +16,9 @@
 #include "cl_MTK_Cell_Info_Factory.hpp"
 #include "cl_MTK_Enums.hpp"
 #include "fn_norm.hpp"
+
+#include "fn_determine_cell_topology.hpp"
+
 namespace xtk
 {
 Ghost_Stabilization::Ghost_Stabilization() :
@@ -98,16 +101,53 @@ Ghost_Stabilization::visualize_ghost_on_mesh( moris_index const& aBulkPhase )
     // get the double side set index in the mesh
     moris_index tDSSIndexInMesh = tEnrIgMesh.get_double_sided_set_index( tGhostName );
 
-    // topology
-    enum CellTopology tFacetTopo = CellTopology::HEX8;
-    if ( mXTKModel->get_spatial_dim() == 2 )
-    {
-        tFacetTopo = CellTopology::QUAD4;
-    }
+    // get the cell topology for the IP cells for visualization
+    enum CellTopology tFacetTopo = determine_cell_topology( mXTKModel->get_spatial_dim(), mtk::Interpolation_Order::LINEAR, CellShape::RECTANGULAR );
+
     moris_index tSSIndex = tEnrIgMesh.create_side_set_from_dbl_side_set( tDSSIndexInMesh, "ghost_ss_" + std::to_string( aBulkPhase ) );
     // tEnrIgMesh.create_side_set_from_dbl_side_set(tDSSIndexInMesh,"ghost_ss_" + std::to_string(aBulkPhase));
     tEnrIgMesh.create_block_set_from_cells_of_side_set( tSSIndex, "ghost_bs_" + std::to_string( aBulkPhase ), tFacetTopo );
 
+    tEnrIgMesh.setup_color_to_set();
+    tEnrIgMesh.collect_all_sets( false );
+}
+
+// ----------------------------------------------------------------------------------
+
+void
+Ghost_Stabilization::visualize_ghost_on_mesh_new(
+        moris_index const& aBsplineMeshListIndex,
+        moris_index const& aBulkPhaseIndex )
+{
+    // log/trace this function
+    Tracer tTracer( "XTK", "Ghost", "visualize ghost on mesh (new approach)" );
+    
+    // get the enriched integration mesh
+    Enriched_Integration_Mesh& tEnrIgMesh = mXTKModel->get_enriched_integ_mesh( 0 );
+
+    // get the B-spline mesh index
+    moris_index tBspMeshIndex = mMeshIndices( aBsplineMeshListIndex );
+
+    // get the set name
+    std::string tGhostName = this->get_ghost_dbl_side_set_name( aBulkPhaseIndex, tBspMeshIndex );
+
+    // get the double side set index in the mesh
+    moris_index tDSSIndexInMesh = tEnrIgMesh.get_double_sided_set_index( tGhostName );
+
+    // create strings for Ghost Side set and block set names
+    std::string tGhostSsName = "Ghost_SS_B" + std::to_string( tBspMeshIndex ) + "_p" + std::to_string( aBulkPhaseIndex );
+    std::string tGhostBsName = "Ghost_BS_B" + std::to_string( tBspMeshIndex ) + "_p" + std::to_string( aBulkPhaseIndex );
+
+    // get the index of the side set
+    moris_index tSSIndex = tEnrIgMesh.create_side_set_from_dbl_side_set( tDSSIndexInMesh, tGhostSsName );
+
+    // get the cell topology for the IP cells for visualization
+    enum CellTopology tFacetTopo = determine_cell_topology( mXTKModel->get_spatial_dim(), mtk::Interpolation_Order::LINEAR, CellShape::RECTANGULAR );
+
+    // create a block set for 
+    tEnrIgMesh.create_block_set_from_cells_of_side_set( tSSIndex, tGhostBsName, tFacetTopo );
+
+    // finalize sets
     tEnrIgMesh.setup_color_to_set();
     tEnrIgMesh.collect_all_sets( false );
 }
@@ -1559,6 +1599,12 @@ Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh_new( Ghost_Setup_D
                 tEnrIntegMesh.mDoubleSideSets( tCurrentDblSsIndexInEnrIgMesh )( iGhostFacet ) = tDblSideCluster;
 
             } // end for: loop over Ghost facets in Dbl.-SS.
+
+            // set color of the Double Side set for visualization
+            tEnrIntegMesh.set_double_side_set_colors(
+                tCurrentDblSsIndexInEnrIgMesh,
+                { { tGhostDblSsIndex } },
+                { { tGhostDblSsIndex } } );
 
             // update index for the next Ghost Dbl.-SS.
             tGhostDblSsIndex++;
