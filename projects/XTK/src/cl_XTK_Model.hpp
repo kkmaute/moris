@@ -336,6 +336,9 @@ namespace xtk
             void
             construct_face_oriented_ghost_penalization_cells();
 
+            void
+            construct_face_oriented_ghost_penalization_cells_new();
+
             // ----------------------------------------------------------------------------------
             /**
              * @return Ghost stabilization
