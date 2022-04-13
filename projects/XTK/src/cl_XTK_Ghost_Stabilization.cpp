@@ -57,6 +57,34 @@ Ghost_Stabilization::setup_ghost_stabilization()
 // ----------------------------------------------------------------------------------
 
 void
+Ghost_Stabilization::setup_ghost_stabilization_new()
+{
+    // get access to the B-spline mesh information
+    mMeshIndices = mXTKModel->mEnrichment->get_mesh_indices();
+    mBsplineMeshInfos = mXTKModel->mCutIntegrationMesh->get_bspline_mesh_info();
+ 
+    // initialize object carrying generateddata for ghost facets
+    Ghost_Setup_Data tGhostSetupData;
+
+    // check whether a linear Lagrange mesh is used
+    tGhostSetupData.mLinearBackgroundMesh = this->is_linear_ip_mesh();
+
+    // setup the side sets
+    this->declare_ghost_double_side_sets_in_mesh_new( tGhostSetupData );
+
+    // Construct Ghost Double Side Clusters and Sets
+    this->construct_ghost_double_side_sets_in_mesh_new( tGhostSetupData );
+
+    // Look through the vertices used in ghost stabilization
+    // and identify which ones do not have their t-matrix.
+    // Retrieve these t-matrices from their owner. This ensures
+    // the solver has all appropriate information downstream.
+    this->identify_and_setup_aura_vertices_in_ghost( tGhostSetupData );
+}
+
+// ----------------------------------------------------------------------------------
+
+void
 Ghost_Stabilization::visualize_ghost_on_mesh( moris_index const& aBulkPhase )
 {
     Tracer tTracer( "XTK", "Ghost", "visualize_ghost_on_mesh" );
@@ -89,9 +117,23 @@ Ghost_Stabilization::visualize_ghost_on_mesh( moris_index const& aBulkPhase )
 std::string
 Ghost_Stabilization::get_ghost_dbl_side_set_name( moris_index const& aBulkPhase )
 {
-    MORIS_ASSERT( aBulkPhase < (moris_index)mXTKModel->get_geom_engine()->get_num_bulk_phase(), "Bulk Phase index out of bounds." );
+    MORIS_ASSERT( aBulkPhase < (moris_index)mXTKModel->get_geom_engine()->get_num_bulk_phase(), 
+        "Ghost_Stabilization::get_ghost_dbl_side_set_name() - Bulk Phase index out of bounds." );
 
     return "ghost_p" + std::to_string( aBulkPhase );
+}
+
+// ----------------------------------------------------------------------------------
+
+std::string
+Ghost_Stabilization::get_ghost_dbl_side_set_name( 
+        moris_index const& aBulkPhase,
+        moris_index const& aBspMeshIndex )
+{
+    MORIS_ASSERT( aBulkPhase < (moris_index)mXTKModel->get_geom_engine()->get_num_bulk_phase(),
+        "Ghost_Stabilization::get_ghost_dbl_side_set_name_new() - Bulk Phase index out of bounds." );
+
+    return "ghost_B" + std::to_string( aBspMeshIndex ) + "_p" + std::to_string( aBulkPhase );
 }
 
 // ----------------------------------------------------------------------------------
@@ -867,7 +909,49 @@ Ghost_Stabilization::declare_ghost_double_side_sets_in_mesh( Ghost_Setup_Data& a
         tGhostDoubleSideNames( iBulkPhase ) = tGhostSideSetName;
     }
 
-    // get the dbl. side set indices for the ghost side sets
+    // register and get the dbl. side set indices for the ghost side sets in the overall mesh data
+    aGhostSetupData.mDblSideSetIndexInMesh = mXTKModel->get_enriched_integ_mesh( 0 ).register_double_side_set_names( tGhostDoubleSideNames );
+}
+
+// ----------------------------------------------------------------------------------
+
+void
+Ghost_Stabilization::declare_ghost_double_side_sets_in_mesh_new( Ghost_Setup_Data& aGhostSetupData )
+{
+    // log/trace this function
+    Tracer tTracer( "XTK", "Ghost", "declare_ghost_double_side_sets_in_mesh" );
+    
+    // get number of Bulk phases on mesh
+    uint tNumBulkPhases = mXTKModel->get_geom_engine()->get_num_bulk_phase();
+
+    // get number of B-spline meshes
+    uint tNumBspMeshes = mMeshIndices.numel();
+
+    // inialize container with Ghost Set Names
+    Cell< std::string > tGhostDoubleSideNames( tNumBulkPhases * tNumBspMeshes );
+
+    // initialize counter for Ghost side sets
+    uint tNumGhostSideSets = 0;
+
+    // for every B-spline mesh index ...
+    for ( uint iBspMesh = 0; iBspMesh < tNumBspMeshes; iBspMesh++ )
+    {
+        // get the B-spline mesh index
+        moris_index tBspMeshIndex = mMeshIndices( iBspMesh );
+
+        // ... and every bulk phase ...
+        for ( moris::moris_index iBulkPhase = 0; iBulkPhase < (moris_index)tNumBulkPhases; iBulkPhase++ )
+        {
+            // .. create name for ghost set associated with current bulk phase and B-spline mesh and save it in container
+            std::string tGhostSideSetName = this->get_ghost_dbl_side_set_name( iBulkPhase, tBspMeshIndex );
+            tGhostDoubleSideNames( tNumGhostSideSets ) = tGhostSideSetName;
+
+            // count number of Ghost side sets
+            tNumGhostSideSets++;
+        }
+    }
+
+    // register and get the dbl. side set indices for the ghost side sets in the overall mesh data
     aGhostSetupData.mDblSideSetIndexInMesh = mXTKModel->get_enriched_integ_mesh( 0 ).register_double_side_set_names( tGhostDoubleSideNames );
 }
 
@@ -1180,11 +1264,322 @@ Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh( Ghost_Setup_Data&
 
 // ----------------------------------------------------------------------------------
 
+void
+Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh_new( Ghost_Setup_Data& aGhostSetupData )
+{
+    // log/trace this function
+    Tracer tTracer( "XTK", "Ghost", "Construct Ghost double side sets (new approach)" );
+
+    // get the enriched IP and IG meshes
+    Enriched_Interpolation_Mesh& tEnrInterpMesh = mXTKModel->get_enriched_interp_mesh();
+    Enriched_Integration_Mesh&   tEnrIntegMesh  = mXTKModel->get_enriched_integ_mesh();
+
+    // get the background mesh
+    moris::mtk::Mesh* tLagrangeBackgroundMesh = &mXTKModel->get_background_mesh();
+
+    // get list of all enr. (i.e. unzipped) IP cells
+    Cell< Interpolation_Cell_Unzipped* >& tEnrIpCells = tEnrInterpMesh.get_enriched_interpolation_cells();
+    Cut_Integration_Mesh*                 tCutIgMesh  = mXTKModel->get_cut_integration_mesh();
+
+    // get number of bulk phases in the mesh
+    moris::uint tNumBulkPhases = mXTKModel->get_geom_engine()->get_num_bulk_phase();
+
+    // estimate: number of ghost facets is in the same order of magnitude as the number of subphases
+    // FIXME: estimate base on SPs, should be based on SPGs for better accuracy
+    moris::uint tReserveSize = tNumBulkPhases * std::min( (uint) 10, tCutIgMesh->get_num_subphases() );
+
+    // get number of B-spline meshes
+    moris::uint tNumBspMeshes = mMeshIndices.numel();
+
+    // size lists in Ghost setup data 
+    aGhostSetupData.mMasterSideIpCellsNew.resize( tNumBspMeshes );
+    aGhostSetupData.mSlaveSideIpCellsNew.resize( tNumBspMeshes );
+    aGhostSetupData.mMasterSideIgCellSideOrdsNew.resize( tNumBspMeshes );
+    aGhostSetupData.mSlaveSideIgCellSideOrdsNew.resize( tNumBspMeshes );
+    aGhostSetupData.mTrivialFlagNew.resize( tNumBspMeshes );
+    aGhostSetupData.mTransitionLocationNew.resize( tNumBspMeshes );
+
+    for( uint iBspMesh = 0; iBspMesh < tNumBspMeshes; iBspMesh++ )
+    {
+        // get the mesh index
+        moris_index tBspMeshIndex = mMeshIndices( iBspMesh );
+
+        // access subphase group neighborhood information
+        std::shared_ptr< Subphase_Neighborhood_Connectivity > tSpgNeighborhood = tCutIgMesh->get_subphase_group_neighborhood( iBspMesh );
+        moris::Cell< std::shared_ptr< moris::Cell< moris_index > > > const& tSpgToSpg                 = tSpgNeighborhood->mSubphaseToSubPhase;
+        moris::Cell< std::shared_ptr< moris::Cell< moris_index > > > const& tSpgToSpgMySideOrds       = tSpgNeighborhood->mSubphaseToSubPhaseMySideOrds;
+        moris::Cell< std::shared_ptr< moris::Cell< moris_index > > > const& tSpgToSpgNeighborSideOrds = tSpgNeighborhood->mSubphaseToSubPhaseNeighborSideOrds;
+        // moris::Cell< std::shared_ptr< moris::Cell< moris_index > > > const& tTransitionLocation       = tSpgNeighborhood->mTransitionNeighborCellLocation;
+
+        // reserve memory in ghost setup data according to estimate
+        aGhostSetupData.mMasterSideIpCellsNew( iBspMesh ).reserve( tReserveSize );
+        aGhostSetupData.mSlaveSideIpCellsNew( iBspMesh ).reserve( tReserveSize );
+        aGhostSetupData.mMasterSideIgCellSideOrdsNew( iBspMesh ).reserve( tReserveSize );
+        aGhostSetupData.mSlaveSideIgCellSideOrdsNew( iBspMesh ).reserve( tReserveSize );
+        aGhostSetupData.mTrivialFlagNew( iBspMesh ).reserve( tReserveSize );
+        aGhostSetupData.mTransitionLocationNew( iBspMesh ).reserve( tReserveSize );
+
+        aGhostSetupData.mMasterSideIpCellsNew( iBspMesh ).resize( tNumBulkPhases );
+        aGhostSetupData.mSlaveSideIpCellsNew( iBspMesh ).resize( tNumBulkPhases );
+        aGhostSetupData.mMasterSideIgCellSideOrdsNew( iBspMesh ).resize( tNumBulkPhases );
+        aGhostSetupData.mSlaveSideIgCellSideOrdsNew( iBspMesh ).resize( tNumBulkPhases );
+        aGhostSetupData.mTrivialFlagNew( iBspMesh ).resize( tNumBulkPhases );
+        aGhostSetupData.mTransitionLocationNew( iBspMesh ).resize( tNumBulkPhases );
+
+        // quick access to SPG list for current Bspline mesh
+        moris::Cell< Subphase_Group* > const& tSubphaseGroups = mBsplineMeshInfos( iBspMesh )->mSubphaseGroups;
+        uint tNumSPGs = tSubphaseGroups.size();
+
+        // sanity check
+        MORIS_ASSERT( tSpgToSpg.size() == tNumSPGs, 
+            "Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh_new() - "
+            "Number of SPGs in SPG neighborhood and in B-spline mesh info don't match." );
+
+        // get the relationship between the unzipped IP cells, the base IP cells and SPGs from the enrichment
+        moris::Cell< moris::Cell< moris_index > > const& tBaseIpCellAndSpgToUnzipping = 
+            mXTKModel->mEnrichment->get_unzipped_IP_cell_to_base_IP_cell_and_SPG( iBspMesh );
+
+        // go through all SPG - neighbor pairs
+        for( uint iSPG = 0; iSPG < tNumSPGs; iSPG++ )
+        {
+            // get the Bulk-phase and B-spline element indices for the current SPG
+            moris_index tBulkPhaseIndex = tSubphaseGroups( iSPG )->get_bulk_phase();
+            moris_index tFirstBspElemIndex = tSubphaseGroups( iSPG )->get_bspline_cell_index();
+            moris_index tFirstLocalSpgIndex = tSubphaseGroups( iSPG )->get_local_index();
+            moris_index tFirstRepIpCellIndex = mBsplineMeshInfos( iBspMesh )->mExtractionCellsIndicesInBsplineCells( tFirstBspElemIndex )( 0 );
+
+            // access SPGs that are connected to the current SPG
+            moris::Cell< moris_index > const& tNeighborSPGs     = *tSpgToSpg( iSPG );
+            moris::Cell< moris_index > const& tMySideOrds       = *tSpgToSpgMySideOrds( iSPG );
+            moris::Cell< moris_index > const& tNeighborSideOrds = *tSpgToSpgNeighborSideOrds( iSPG );
+
+            for( uint iNeighborSPG = 0; iNeighborSPG < tNeighborSPGs.size(); iNeighborSPG++ )
+            {
+                // get neighbor SPG's index
+                moris_index tNeighborSpgIndex = tNeighborSPGs( iNeighborSPG );
+
+                // sanity check that both SPGs have the same bulk-phase indes
+                MORIS_ASSERT( tBulkPhaseIndex == tSubphaseGroups( tNeighborSpgIndex )->get_bulk_phase(),
+                    "Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh_new() - "
+                    "Bulk phase between neighboring subphase groups does not match" );
+
+                // check whether ghost facts need to be created for this SPG pair
+                moris_index tIsTrivial = 0;
+                bool tCreateGhostFacets = this->create_ghost_new( iBspMesh, iSPG, tNeighborSpgIndex, tIsTrivial );
+
+                // mark facets for Ghost construction
+                // FIXME: refinement boundaries not taken into account yet
+                if( tCreateGhostFacets )
+                {
+                    // get neighbor B-spline element index
+                    moris_index tSecondBspElemIndex = tSubphaseGroups( tNeighborSpgIndex )->get_bspline_cell_index();
+                    moris_index tSecondRepIpCellIndex = mBsplineMeshInfos( iBspMesh )->mExtractionCellsIndicesInBsplineCells( tSecondBspElemIndex )( 0 );
+
+                    // get SPG index local to B-spline element
+                    moris_index tSecondLocalSpgIndex = tSubphaseGroups( tNeighborSpgIndex )->get_local_index();
+
+                    // get the side ordinals
+                    moris_index tMySideOrdinal = tMySideOrds( iNeighborSPG );
+                    moris_index tNeighborSideOrdinal = tNeighborSideOrds( iNeighborSPG );
+
+
+
+                    // initialize lists of base Ip cells on the respective side ordinals of the two B-spline elements
+                    moris::Cell< mtk::Cell* > tBaseIpCellsOnMyOrdinal;
+                    moris::Cell< mtk::Cell* > tBaseIpCellsOnNeighborOrdinal;
+
+                    // get the base IP elements on the first B-spline elements' facet
+                    // Note: HMR uses 1-based indices for the side ordinals, hence the "+1"
+                    tLagrangeBackgroundMesh->get_elements_in_interpolation_cluster_and_side_ordinal( 
+                        tFirstRepIpCellIndex, tBspMeshIndex, tMySideOrdinal + 1, tBaseIpCellsOnMyOrdinal );
+                    tLagrangeBackgroundMesh->get_elements_in_interpolation_cluster_and_side_ordinal( 
+                        tSecondRepIpCellIndex, tBspMeshIndex, tNeighborSideOrdinal + 1, tBaseIpCellsOnNeighborOrdinal );
+
+                    // initialize lists of unzipped Ip cell indices on the respective side ordinals of the two B-spline elements
+                    moris::Cell< moris_index > tEnrIpCellIndsOnMyOrdinal( tBaseIpCellsOnMyOrdinal.size() );
+                    moris::Cell< moris_index > tEnrIpCellIndsOnNeighborOrdinal( tBaseIpCellsOnNeighborOrdinal.size() );
+
+                    // FIXME: see fixme above
+                    MORIS_ERROR( tBaseIpCellsOnMyOrdinal.size() == tBaseIpCellsOnNeighborOrdinal.size(), 
+                        "Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh_new() - "
+                        "Different number of IP elements on the side ordinals of the connected B-spline element. This case is not handled yet." );
+
+// // debug 
+// std::cout << "----------------------------------------------" << std::endl;
+// std::cout << "Construct Ghost facets between SPGs: " << iSPG << " - " << tNeighborSpgIndex << std::endl;
+// std::cout << "B-spline elements: " << tFirstBspElemIndex << " - " << tSecondBspElemIndex << std::endl;
+// std::cout << "Face ordinals: " << tMySideOrdinal << " - " << tNeighborSideOrdinal << std::endl;
+// std::cout << "My IP cells: ";
+
+                    // get first Enr./Unzipped IP cells
+                    for( uint iMyIpCells = 0; iMyIpCells < tBaseIpCellsOnMyOrdinal.size(); iMyIpCells++ )
+                    {
+                        // collect the enr. Ip cell's indices
+                        moris_index tBaseIpCellIndex = tBaseIpCellsOnMyOrdinal( iMyIpCells )->get_index();
+                        tEnrIpCellIndsOnMyOrdinal( iMyIpCells ) = tBaseIpCellAndSpgToUnzipping( tBaseIpCellIndex )( tFirstLocalSpgIndex );
+
+// std::cout << tBaseIpCellIndex << ", ";
+
+                        // store in Ghost setup data the Ip cells used and their side ordinals
+                        aGhostSetupData.mMasterSideIpCellsNew( iBspMesh )( tBulkPhaseIndex ).push_back( tEnrIpCellIndsOnMyOrdinal( iMyIpCells ) );
+                        aGhostSetupData.mMasterSideIgCellSideOrdsNew( iBspMesh )( tBulkPhaseIndex ).push_back( tMySideOrds( iNeighborSPG ) );
+
+                        // TODO: store wheter the IP element transition is trivial
+                        aGhostSetupData.mTrivialFlagNew( iBspMesh )( tBulkPhaseIndex ).push_back( 0 );
+                    }
+
+// std::cout << "\nNeighbor IP cells: ";
+
+                    // get neighbor Enr./Unzipped IP cells
+                    for( moris_index iNeighborIpCells = tBaseIpCellsOnNeighborOrdinal.size() - 1; iNeighborIpCells > -1; iNeighborIpCells-- )
+                    {
+                        // collect the enr. Ip cell's indices
+                        moris_index tBaseIpCellIndex = tBaseIpCellsOnNeighborOrdinal( iNeighborIpCells )->get_index();
+                        tEnrIpCellIndsOnNeighborOrdinal( iNeighborIpCells ) = tBaseIpCellAndSpgToUnzipping( tBaseIpCellIndex )( tSecondLocalSpgIndex );
+
+// std::cout << tBaseIpCellIndex << ", ";
+
+                        // store in Ghost setup data the Ip cells used and their side ordinals
+                        aGhostSetupData.mSlaveSideIpCellsNew( iBspMesh )( tBulkPhaseIndex ).push_back( tEnrIpCellIndsOnNeighborOrdinal( iNeighborIpCells ) );
+                        aGhostSetupData.mSlaveSideIgCellSideOrdsNew( iBspMesh )( tBulkPhaseIndex ).push_back( tNeighborSideOrds( iNeighborSPG ) );
+                    }
+                    
+// std::cout << "\n----------------------------------------------\n" << std::endl;
+
+                    // FIXME: handle non-trivial IP and B-spline element transitions
+                    // // mark as trivial or not in ghost setup data
+                    // aGhostSetupData.mTrivialFlagNew( iBspMesh )( tBulkPhaseIndex ).push_back( tIsTrivial );
+
+                    // // mark the transition location
+                    // aGhostSetupData.mTransitionLocation( tBulkPhase ).push_back( (*tTransitionLocation( iSP ))( jSpNeighbor ) );
+
+                    // // count number of non-trivial B-spline element transitions
+                    // if ( tIsTrivial > 0 )
+                    // {
+                    //     tNonTrivialCount++;
+                    // }
+
+                } // end if: mark elements for ghost side construction
+            } // end for: loop over neighboring SPGs 
+        } // end for: loop over all SPGs
+
+        // check that reserved size was appropriate
+        MORIS_ASSERT( aGhostSetupData.mMasterSideIpCellsNew( iBspMesh ).size() < tReserveSize,
+            "Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh: initial reservation of aGhostSetupData too small, increased by %f\n",
+            aGhostSetupData.mMasterSideIpCellsNew( iBspMesh ).size() / tReserveSize );
+
+        // free up unused memory
+        aGhostSetupData.mMasterSideIpCellsNew( iBspMesh ).shrink_to_fit();
+        aGhostSetupData.mSlaveSideIpCellsNew( iBspMesh ).shrink_to_fit();
+        aGhostSetupData.mMasterSideIgCellSideOrdsNew( iBspMesh ).shrink_to_fit();
+        aGhostSetupData.mSlaveSideIgCellSideOrdsNew( iBspMesh ).shrink_to_fit();
+        aGhostSetupData.mTrivialFlagNew( iBspMesh ).shrink_to_fit();
+        aGhostSetupData.mTransitionLocationNew( iBspMesh ).shrink_to_fit();    
+
+    }
+
+    // TODO: allocate entity IDs for dummy IP cells for non-trivial Ghost facets
+    // Get next free ID and index for new cells/elements
+    moris_id tCurrentId = tEnrIntegMesh.allocate_entity_ids( 0, EntityRank::ELEMENT );
+    moris_id tCurrentIndex = tEnrIntegMesh.get_num_entities( EntityRank::ELEMENT );
+
+    // get total number of ghost facets for each B-spline mesh and bulk phase on current processor
+    Matrix< DDUMat > tLocalNumberOfGhostFacets( tNumBspMeshes, tNumBulkPhases, 1 );
+    for ( uint iBspMesh = 0; iBspMesh < tNumBspMeshes; iBspMesh++ )
+    {
+        for ( uint iBulkPhase = 0; iBulkPhase < tNumBulkPhases; iBulkPhase++ )
+        {
+            tLocalNumberOfGhostFacets( iBspMesh, iBulkPhase ) = aGhostSetupData.mMasterSideIpCellsNew( iBspMesh )( iBulkPhase ).size();
+        }
+    }
+    
+    // get global (i.e. across all procs) number of ghost facets for each bulk phase
+    Matrix< DDUMat > tTotalNumberOfGhostFacets = sum_all_matrix( tLocalNumberOfGhostFacets );
+
+    // initialize list of double side set indices
+    moris::Cell< moris_index > tDoubleSideSetIndexList;
+    tDoubleSideSetIndexList.reserve( tNumBspMeshes * tNumBulkPhases );
+
+    // initialize Ghost-Dbl.-SS. index
+    moris_index tGhostDblSsIndex = 0;
+
+    // iterate through B-spline meshes ...
+    for ( uint iBspMesh = 0; iBspMesh < tNumBspMeshes; iBspMesh++ )
+    {
+        // ... and bulk phases
+        for ( moris::uint iBulkPhase = 0; iBulkPhase < tNumBulkPhases; iBulkPhase++ )
+        {
+            // get the index of the current Double-Side-Set in the enriched integration mesh
+            moris_index tCurrentDblSsIndexInEnrIgMesh = aGhostSetupData.mDblSideSetIndexInMesh( tGhostDblSsIndex );
+            
+            // store index in list of all Ghost Dbl.-SS.'s
+            tDoubleSideSetIndexList.push_back( tCurrentDblSsIndexInEnrIgMesh );
+
+            // get number of Ghost facets to be created
+            uint tNumGhostFacetsInDblSS = aGhostSetupData.mMasterSideIpCellsNew( iBspMesh )( iBulkPhase ).size();
+
+            // resize list of Double sided clusters for current Dbl.-SS. in enr. IG mesh
+            tEnrIntegMesh.mDoubleSideSets( tCurrentDblSsIndexInEnrIgMesh ).resize( tNumGhostFacetsInDblSS );
+
+            // print number of Ghost facets to console
+            MORIS_LOG_SPEC( 
+                "Total Ghost Facets for B-spline mesh " + std::to_string( mMeshIndices( iBspMesh ) ) + 
+                " Bulk Phase " + std::to_string( iBulkPhase ), 
+                tLocalNumberOfGhostFacets( iBspMesh, iBulkPhase ) );
+
+            // iterate through double sides in this bulk phase
+            for ( moris::uint iGhostFacet = 0; iGhostFacet < tNumGhostFacetsInDblSS; iGhostFacet++ )
+            {
+
+                // create a new single side cluster for each of the pairs
+                std::shared_ptr< Side_Cluster > tSlaveSideCluster =
+                    this->create_slave_side_cluster_new( aGhostSetupData, tEnrIpCells, iBspMesh, iBulkPhase, iGhostFacet, tCurrentIndex, tCurrentId );
+
+                std::shared_ptr< Side_Cluster > tMasterSideCluster =
+                    this->create_master_side_cluster_new( aGhostSetupData, tEnrIpCells, iBspMesh, iBulkPhase, iGhostFacet, tSlaveSideCluster.get(), tCurrentIndex, tCurrentId );
+
+                // add single side clusters the integration mesh
+                tEnrIntegMesh.mDoubleSideSingleSideClusters.push_back( tMasterSideCluster );
+                tEnrIntegMesh.mDoubleSideSingleSideClusters.push_back( tSlaveSideCluster );
+
+                // store the indices of the single side clusters associated with the double side clusters
+                tEnrIntegMesh.mDoubleSideSetsMasterIndex( tCurrentDblSsIndexInEnrIgMesh ).push_back( tEnrIntegMesh.mDoubleSideSingleSideClusters.size() - 1 );
+                tEnrIntegMesh.mDoubleSideSetsSlaveIndex( tCurrentDblSsIndexInEnrIgMesh ).push_back( tEnrIntegMesh.mDoubleSideSingleSideClusters.size() - 1 );
+
+                // create double side cluster
+                mtk::Double_Side_Cluster* tDblSideCluster = new mtk::Double_Side_Cluster(
+                    tMasterSideCluster.get(),
+                    tSlaveSideCluster.get(),
+                    tMasterSideCluster->mVerticesInCluster );
+
+                // add double side cluster to list of all double side clusters in integration mesh
+                tEnrIntegMesh.mDoubleSideClusters.push_back( tDblSideCluster );
+
+                // add double side cluster to list of double side clusters on current set
+                tEnrIntegMesh.mDoubleSideSets( tCurrentDblSsIndexInEnrIgMesh )( iGhostFacet ) = tDblSideCluster;
+
+            } // end for: loop over Ghost facets in Dbl.-SS.
+
+            // update index for the next Ghost Dbl.-SS.
+            tGhostDblSsIndex++;
+
+        } // end for: loop over bulk phases
+    } // end for: loop over B-spline meshes
+
+    // commit Ghost Dbl.-SS.'s to the enriched integration mesh
+    tEnrIntegMesh.commit_double_side_set( tDoubleSideSetIndexList );
+
+    // finalize enriched integration mesh
+    tEnrIntegMesh.collect_all_sets();
+}
+
+// ----------------------------------------------------------------------------------
+
 bool
 Ghost_Stabilization::create_ghost(
     Ghost_Setup_Data&  aGhostSetupData,
-    moris_index const& aFirstSubphase,  // this is an ID
-    moris_index const& aSecondSubphase, // this is an ID
+    moris_index const& aFirstSubphase, 
+    moris_index const& aSecondSubphase,
     moris_index&       aTrivialFlag )
 {
     // Rules:
@@ -1283,6 +1678,96 @@ Ghost_Stabilization::create_ghost(
 
 // ----------------------------------------------------------------------------------
 
+bool
+Ghost_Stabilization::create_ghost_new(
+        moris_index const& aBspMeshListIndex,
+        moris_index const& aFirstSpgIndex, 
+        moris_index const& aSecondSpgIndex,
+        moris_index&       aTrivialFlag )
+{
+    // make sure flag is set to true, this is only turned to false on transition from coarse to fine cells
+    aTrivialFlag = 0;
+
+    // quick access to the B-spline mesh info
+    Bspline_Mesh_Info* tBsplineMeshInfo = mBsplineMeshInfos( aBspMeshListIndex );
+
+    // get the B-spline element indices
+    moris_index tFirstBspElemIndex = tBsplineMeshInfo->mSubphaseGroups( aFirstSpgIndex )->get_bspline_cell_index();
+    moris_index tSecondBspElemIndex = tBsplineMeshInfo->mSubphaseGroups( aSecondSpgIndex )->get_bspline_cell_index();
+
+    // check that the two SPGs are on different elements
+    MORIS_ASSERT( tFirstBspElemIndex != tSecondBspElemIndex,
+        "Ghost_Stabilization::create_ghost_new() - Subphase group neighborhood relation inconsistent: SPGs on same B-spline element" );
+
+    // check whether B-spline elements are intersected
+    bool tFirstBspElemIsCut = tBsplineMeshInfo->mSpgIndicesInBsplineCells( tFirstBspElemIndex ).size() > 1;
+    bool tSecondBspElemIsCut = tBsplineMeshInfo->mSpgIndicesInBsplineCells( tSecondBspElemIndex ).size() > 1;
+    
+    // if neither is cut, don't construct a Ghost facet
+    if( !tFirstBspElemIsCut && !tSecondBspElemIsCut )
+    {
+        return false;
+    }
+
+    // get the owner of IP elements inside the first B-spline element
+    mtk::Cell const* tFirstBaseIpCell = tBsplineMeshInfo->mExtractionCellsInBsplineCells( tFirstBspElemIndex )( 0 );
+    moris_id tFirstOwner = tFirstBaseIpCell->get_owner();
+
+    // get current proc rank
+    moris_id tProcRank = par_rank();
+
+    // if the IP Cells within the first B-spline element are not owned by current proc, don't construct a Ghost facet
+    if( tFirstOwner != tProcRank )
+    {
+        return false;
+    }
+
+    // get the refinement levels of the B-spline elements
+    uint tFirstBspLevel  = tBsplineMeshInfo->mBsplineCellLevels( tFirstBspElemIndex );
+    uint tSecondBspLevel = tBsplineMeshInfo->mBsplineCellLevels( tSecondBspElemIndex );
+
+    // make sure ghost always gets constructed from the coarser B-spline element
+    if( tFirstBspLevel > tSecondBspLevel ) // if current Bsp-element is finer (on a higher refinement level) than the neighbor
+    {
+        return false;
+    }
+
+    // construct (non-?)trivial ghost facet if current B-spline element is coarser
+    if ( tFirstBspLevel < tSecondBspLevel ) // if current Bsp-element is coarser (on a lower refinement level) than the neighbor
+    {
+        aTrivialFlag = 1;
+        return true;
+    }
+
+    // else: both B-spline elements are on the same refinement level
+
+    // get the IDs of the Subphase groups 
+    // FIXME: SPGs don't have IDs yet, not parallel consistent
+    moris_index tFirstSpgId  = aFirstSpgIndex; //mXTKModel->get_SPG_id( aBspMeshListIndex, aFirstSpgIndex );
+    moris_index tSecondSpgId = aSecondSpgIndex; //mXTKModel->get_SPG_id( aBspMeshListIndex, aSecondSpgIndex );
+
+    // check that the two SPGs are different
+    MORIS_ASSERT( tFirstSpgId != tSecondSpgId,
+        "Ghost_Stabilization::create_ghost_new() - Subphase group neighborhood relation inconsistent: SPG IDs equal" );
+
+    // ghost facet only gets constructed by element with SPG with bigger ID
+    // to avoid duplicate Ghost-facets when B-spline elements are on same proc and same refinement level
+    if( tFirstSpgId > tSecondSpgId )
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+    
+    // check that all cases are covered by the logic; decision on ghost facet construction should exist at this point
+    MORIS_ERROR( false, "Ghost_Stabilization::create_ghost_new() - logic broken; unknown if a ghost facet needs to be constructed or not." );
+    return false;
+}
+
+// ----------------------------------------------------------------------------------
+
 std::shared_ptr< Side_Cluster >
 Ghost_Stabilization::create_slave_side_cluster(
     Ghost_Setup_Data&                     aGhostSetupData,
@@ -1318,6 +1803,56 @@ Ghost_Stabilization::create_slave_side_cluster(
 
     // leader vertex group
     std::shared_ptr< IG_Vertex_Group > tVertexGroup = tCutIGMesh->get_vertex_group( tCutIGMesh->get_parent_cell_group_index( tSlaveSideCluster->mInterpolationCell->get_base_cell()->get_index() ) );
+
+    tSlaveSideCluster->set_ig_vertex_group( tVertexGroup );
+
+    return tSlaveSideCluster;
+}
+
+// ----------------------------------------------------------------------------------
+
+std::shared_ptr< Side_Cluster >
+Ghost_Stabilization::create_slave_side_cluster_new(
+    Ghost_Setup_Data&                     aGhostSetupData,
+    Cell< Interpolation_Cell_Unzipped* >& aEnrIpCells,
+    uint const&                           aBsplineMeshListIndex,
+    uint const&                           aBulkPhaseIndex,
+    uint const&                           aGhostFacetIndexInSet,
+    moris_index&                          aCurrentIndex,
+    moris_index&                          aCurrentId )
+{
+    // cut integration mesh access
+    Cut_Integration_Mesh* tCutIGMesh = mXTKModel->get_cut_integration_mesh();
+
+    // create a new side cluster for the slave
+    std::shared_ptr< Side_Cluster > tSlaveSideCluster = std::make_shared< Side_Cluster >();
+
+    // get the index to the Enr. IP cell the side cluster is attached to
+    moris_index tSlaveEnrIpCellIndex = aGhostSetupData.mSlaveSideIpCellsNew( aBsplineMeshListIndex )( aBulkPhaseIndex )( aGhostFacetIndexInSet );
+
+    // give the cluster the enriched interpolation cell
+    tSlaveSideCluster->mInterpolationCell = aEnrIpCells( tSlaveEnrIpCellIndex );
+
+    // slave cluster is always trivial because the small facet is always the slave in the case of HMR hanging nodes
+    tSlaveSideCluster->mTrivial = true;
+
+    // add integration cell
+    tSlaveSideCluster->mIntegrationCells = { 
+        this->get_linear_ig_cell( 
+            aGhostSetupData, 
+            aEnrIpCells( tSlaveEnrIpCellIndex ), 
+            aCurrentIndex, 
+            aCurrentId ) };
+
+    // allocate space in integration cell side ordinals
+    moris_index tSideOrdinal = aGhostSetupData.mSlaveSideIgCellSideOrdsNew( aBsplineMeshListIndex )( aBulkPhaseIndex )( aGhostFacetIndexInSet );
+    tSlaveSideCluster->mIntegrationCellSideOrdinals = { { tSideOrdinal } };
+
+    tSlaveSideCluster->mAssociatedCellCluster = &mXTKModel->get_enriched_integ_mesh().get_xtk_cell_cluster( *tSlaveSideCluster->mInterpolationCell );
+
+    // leader vertex group
+    std::shared_ptr< IG_Vertex_Group > tVertexGroup = 
+        tCutIGMesh->get_vertex_group( tCutIGMesh->get_parent_cell_group_index( tSlaveSideCluster->mInterpolationCell->get_base_cell()->get_index() ) );
 
     tSlaveSideCluster->set_ig_vertex_group( tVertexGroup );
 
@@ -1418,24 +1953,99 @@ Ghost_Stabilization::create_master_side_cluster(
         tMasterSideCluster->mTrivial = true;
 
         // add integration cell
-        tMasterSideCluster->mIntegrationCells = { this->get_linear_ig_cell( aGhostSetupData, aEnrIpCells( aGhostSetupData.mMasterSideIpCells( aBulkIndex )( aCellIndex ) ), aCurrentIndex, aCurrentId ) };
+        tMasterSideCluster->mIntegrationCells = { 
+            this->get_linear_ig_cell( 
+                aGhostSetupData, 
+                aEnrIpCells( aGhostSetupData.mMasterSideIpCells( aBulkIndex )( aCellIndex ) ), 
+                aCurrentIndex, 
+                aCurrentId ) };
 
         // add side ordinal relative to the integration cell
-        tMasterSideCluster->mIntegrationCellSideOrdinals = { { aGhostSetupData.mMasterSideIgCellSideOrds( aBulkIndex )( aCellIndex ) } };
+        moris_index tSideOrdinal = aGhostSetupData.mMasterSideIgCellSideOrds( aBulkIndex )( aCellIndex );
+        tMasterSideCluster->mIntegrationCellSideOrdinals = { { tSideOrdinal } };
 
         // add the vertices on the side ordinal
-        tMasterSideCluster->mVerticesInCluster = tMasterSideCluster->mIntegrationCells( 0 )->get_geometric_vertices_on_side_ordinal( tMasterSideCluster->mIntegrationCellSideOrdinals( 0 ) );
+        tMasterSideCluster->mVerticesInCluster = 
+            tMasterSideCluster->mIntegrationCells( 0 )->get_geometric_vertices_on_side_ordinal( tMasterSideCluster->mIntegrationCellSideOrdinals( 0 ) );
 
-
+        // get and set the Cell cluster
         tMasterSideCluster->mAssociatedCellCluster = &mXTKModel->get_enriched_integ_mesh().get_xtk_cell_cluster( *tMasterSideCluster->mInterpolationCell );
 
-        // leader vertex group
-        std::shared_ptr< IG_Vertex_Group > tVertexGroup = tCutIGMesh->get_vertex_group( tCutIGMesh->get_parent_cell_group_index( tMasterSideCluster->mInterpolationCell->get_base_cell()->get_index() ) );
+        // get the vertex group from the IP cell
+        std::shared_ptr< IG_Vertex_Group > tVertexGroup = 
+            tCutIGMesh->get_vertex_group( tCutIGMesh->get_parent_cell_group_index( tMasterSideCluster->mInterpolationCell->get_base_cell()->get_index() ) );
 
+        // set Side cluster to use vertex group from IP cell
         tMasterSideCluster->set_ig_vertex_group( tVertexGroup );
-
     }
 
+    // return side cluster contstructed
+    return tMasterSideCluster;
+}
+
+// ----------------------------------------------------------------------------------
+
+std::shared_ptr< Side_Cluster >
+Ghost_Stabilization::create_master_side_cluster_new(
+    Ghost_Setup_Data&                     aGhostSetupData,
+    Cell< Interpolation_Cell_Unzipped* >& aEnrIpCells,
+    uint const&                           aBsplineMeshListIndex,
+    uint const&                           aBulkPhaseIndex,
+    uint const&                           aGhostFacetIndexInSet,
+    Side_Cluster*                         aSlaveSideCluster,
+    moris_index&                          aCurrentIndex,
+    moris_index&                          aCurrentId )
+{
+    // get access to the cut integration mesh
+    Cut_Integration_Mesh* tCutIGMesh = mXTKModel->get_cut_integration_mesh();
+
+    // create the master side cluster
+    std::shared_ptr< Side_Cluster > tMasterSideCluster = std::make_shared< Side_Cluster >();
+
+    // get the index to the Enr. IP cell the side cluster is attached to
+    moris_index tMasterEnrIpCellIndex = aGhostSetupData.mSlaveSideIpCellsNew( aBsplineMeshListIndex )( aBulkPhaseIndex )( aGhostFacetIndexInSet );
+
+    // set the enr. IP cell the side cluster is attached to
+    tMasterSideCluster->mInterpolationCell = aEnrIpCells( tMasterEnrIpCellIndex );
+
+    // Setup the master side cluster
+    if ( aGhostSetupData.mTrivialFlagNew( aBsplineMeshListIndex )( aBulkPhaseIndex )( aGhostFacetIndexInSet ) > 0 )
+    {
+        MORIS_ERROR( false, "Ghost_Stabilization::create_master_side_cluster_new() - non-trivial IP element transitions not handled yet." );
+    }
+    else
+    {
+        // flag the master side as trivial
+        tMasterSideCluster->mTrivial = true;
+
+        // add integration cell
+        tMasterSideCluster->mIntegrationCells = { 
+            this->get_linear_ig_cell( 
+                aGhostSetupData, 
+                aEnrIpCells( tMasterEnrIpCellIndex ), 
+                aCurrentIndex, 
+                aCurrentId ) };
+
+        // add side ordinal relative to the integration cell
+        moris_index tSideOrdinal = aGhostSetupData.mMasterSideIgCellSideOrdsNew( aBsplineMeshListIndex )( aBulkPhaseIndex )( aGhostFacetIndexInSet );
+        tMasterSideCluster->mIntegrationCellSideOrdinals = { { tSideOrdinal } };
+
+        // add the vertices on the side ordinal
+        tMasterSideCluster->mVerticesInCluster = 
+            tMasterSideCluster->mIntegrationCells( 0 )->get_geometric_vertices_on_side_ordinal( tMasterSideCluster->mIntegrationCellSideOrdinals( 0 ) );
+
+        // get and set the cell cluster
+        tMasterSideCluster->mAssociatedCellCluster = &mXTKModel->get_enriched_integ_mesh().get_xtk_cell_cluster( *tMasterSideCluster->mInterpolationCell );
+
+        // get the vertex group from the IP cell
+        std::shared_ptr< IG_Vertex_Group > tVertexGroup = 
+            tCutIGMesh->get_vertex_group( tCutIGMesh->get_parent_cell_group_index( tMasterSideCluster->mInterpolationCell->get_base_cell()->get_index() ) );
+
+        // set Side cluster to use vertex group from IP cell
+        tMasterSideCluster->set_ig_vertex_group( tVertexGroup );
+    }
+
+    // return side cluster contstructed
     return tMasterSideCluster;
 }
 
