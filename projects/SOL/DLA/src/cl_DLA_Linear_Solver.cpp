@@ -1,4 +1,12 @@
-
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_DLA_Linear_Solver.cpp
+ *
+ */
 #include "cl_DLA_Linear_Solver.hpp"
 
 #include "cl_DLA_Solver_Factory.hpp"
@@ -14,7 +22,7 @@
 #include "cl_Logger.hpp"
 #include "cl_Tracer.hpp"
 
-#include "cl_Stopwatch.hpp" //CHR/src
+#include "cl_Stopwatch.hpp"    //CHR/src
 
 using namespace moris;
 using namespace dla;
@@ -22,7 +30,7 @@ using namespace dla;
 Linear_Solver::Linear_Solver()
 {
     // create solver factory
-    Solver_Factory  tSolFactory;
+    Solver_Factory tSolFactory;
 
     // create solver object
     std::shared_ptr< Linear_Solver_Algorithm > tLinSolver = tSolFactory.create_solver( sol::SolverType::AMESOS_IMPL );
@@ -32,7 +40,7 @@ Linear_Solver::Linear_Solver()
 
     mLinearSolverList.clear();
 
-    mLinearSolverList.resize( 1,nullptr );
+    mLinearSolverList.resize( 1, nullptr );
 
     mLinearSolverList( 0 ) = tLinSolver;
 
@@ -42,10 +50,10 @@ Linear_Solver::Linear_Solver()
 //--------------------------------------------------------------------------------------------------
 
 Linear_Solver::Linear_Solver( const moris::ParameterList aParameterlist )
-: mParameterListLinearSolver( aParameterlist )
+        : mParameterListLinearSolver( aParameterlist )
 {
     // create solver factory
-    Solver_Factory  tSolFactory;
+    Solver_Factory tSolFactory;
 
     // create solver object
     std::shared_ptr< Linear_Solver_Algorithm > tLinSolver = tSolFactory.create_solver( sol::SolverType::AMESOS_IMPL );
@@ -55,20 +63,21 @@ Linear_Solver::Linear_Solver( const moris::ParameterList aParameterlist )
 
     mLinearSolverList.clear();
 
-    mLinearSolverList.resize( 1,nullptr );
+    mLinearSolverList.resize( 1, nullptr );
 
     mLinearSolverList( 0 ) = tLinSolver;
 
     this->set_linear_solver_manager_parameters();
 }
 
-//Linear_Solver::~Linear_Solver()
+// Linear_Solver::~Linear_Solver()
 //{}
 
 //--------------------------------------------------------------------------------------------------
-void Linear_Solver::set_linear_algorithm( std::shared_ptr< Linear_Solver_Algorithm > aLinSolverAlgorithm )
+void
+Linear_Solver::set_linear_algorithm( std::shared_ptr< Linear_Solver_Algorithm > aLinSolverAlgorithm )
 {
-    if( mCallCounter == 0 )
+    if ( mCallCounter == 0 )
     {
         // removes all elements from the Cell and destroy them
         mLinearSolverList.clear();
@@ -77,7 +86,7 @@ void Linear_Solver::set_linear_algorithm( std::shared_ptr< Linear_Solver_Algorit
         mLinearSolverList.resize( 1 );
 
         // Set linear solver on first entry
-        mLinearSolverList( 0 ) = aLinSolverAlgorithm ;
+        mLinearSolverList( 0 ) = aLinSolverAlgorithm;
     }
     else
     {
@@ -89,32 +98,34 @@ void Linear_Solver::set_linear_algorithm( std::shared_ptr< Linear_Solver_Algorit
 }
 
 //-------------------------------------------------------------------------------------------------------
-void Linear_Solver::set_linear_algorithm(
+void
+Linear_Solver::set_linear_algorithm(
         const moris::uint                          aListEntry,
         std::shared_ptr< Linear_Solver_Algorithm > aLinSolverAlgorithm )
 {
     // Check if list is smaller than given entry
-    if( mLinearSolverList.size() >= aListEntry )
+    if ( mLinearSolverList.size() >= aListEntry )
     {
         // Resize to new entry value and set nullptr on new entries
-        mLinearSolverList.resize( aListEntry + 1, nullptr);
+        mLinearSolverList.resize( aListEntry + 1, nullptr );
     }
     // Set linear solver on entry
     mLinearSolverList( aListEntry ) = aLinSolverAlgorithm;
 }
 
 //-------------------------------------------------------------------------------------------------------
-void Linear_Solver::solver_linear_system(
-        dla::Linear_Problem  * aLinearProblem,
-        const moris::sint      aIter )
+void
+Linear_Solver::solver_linear_system(
+        dla::Linear_Problem* aLinearProblem,
+        const moris::sint    aIter )
 {
     Tracer tTracer( "LinearSolver", LOGGER_NON_SPECIFIC_ENTITY_TYPE, "Solve" );
 
-    moris::sint tErrorStatus = 0;
+    moris::sint tErrorStatus        = 0;
     moris::sint tMaxNumLinRestarts  = mParameterListLinearSolver.get< moris::sint >( "DLA_max_lin_solver_restarts" );
     moris::sint tTryRestartOnFailIt = 1;
 
-    // if printing of LHS requested through input file, initialize hdf5 files here 
+    // if printing of LHS requested through input file, initialize hdf5 files here
     // and save LHS before and after solve
     if ( !this->get_LHS_output_filename().empty() )
     {
@@ -125,7 +136,7 @@ void Linear_Solver::solver_linear_system(
         // generate .hdf5 file
         std::string tHdf5FilePath = this->get_LHS_output_filename() + ".hdf5";
         MORIS_LOG_INFO( "Save LHS to file: ", tHdf5FilePath.c_str() );
-        hid_t tFileID = create_hdf5_file( tHdf5FilePath );
+        hid_t  tFileID = create_hdf5_file( tHdf5FilePath );
         herr_t tStatus = 0;
 
         // write initial guess to hdf5
@@ -151,7 +162,7 @@ void Linear_Solver::solver_linear_system(
     }
 
     // Restart the linear solver using the current solution as an initial guess if the previous linear solve failed
-    while ( tErrorStatus !=0 && tTryRestartOnFailIt <= tMaxNumLinRestarts && ( moris::sint )mLinearSolverList.size() <= tMaxNumLinRestarts )
+    while ( tErrorStatus != 0 && tTryRestartOnFailIt <= tMaxNumLinRestarts && (moris::sint)mLinearSolverList.size() <= tMaxNumLinRestarts )
     {
         if ( par_rank() == 0 )
         {
@@ -159,7 +170,9 @@ void Linear_Solver::solver_linear_system(
             Cell< moris::real > tSolVecNorm = aLinearProblem->get_free_solver_LHS()->vec_norm2();
 
             MORIS_LOG( " ... Previous linear solve failed. Trying restart %i of %i, using current solution with SolVecNorm = %5.15e as an initial guess. ",
-                    tTryRestartOnFailIt, tMaxNumLinRestarts, tSolVecNorm( 0 ));
+                    tTryRestartOnFailIt,
+                    tMaxNumLinRestarts,
+                    tSolVecNorm( 0 ) );
         }
 
         // Re-solve scaled linear system with current solution as an initial guess
@@ -169,9 +182,9 @@ void Linear_Solver::solver_linear_system(
         tTryRestartOnFailIt = tTryRestartOnFailIt + 1;
     }
 
-    if( ( tErrorStatus != 0 ) )
+    if ( ( tErrorStatus != 0 ) )
     {
-        if( par_rank() == 0)
+        if ( par_rank() == 0 )
         {
             MORIS_LOG( " " );
             MORIS_LOG( "Linear Solver status absolute value = %i", tErrorStatus );
@@ -181,14 +194,15 @@ void Linear_Solver::solver_linear_system(
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
-void Linear_Solver::set_linear_solver_manager_parameters()
+void
+Linear_Solver::set_linear_solver_manager_parameters()
 {
     // Maximal number of linear solver restarts on fail
-    mParameterListLinearSolver.insert( "DLA_max_lin_solver_restarts" , 0 );
+    mParameterListLinearSolver.insert( "DLA_max_lin_solver_restarts", 0 );
 
     // Maximal number of linear solver restarts on fail
-    mParameterListLinearSolver.insert( "DLA_hard_break" , true );
+    mParameterListLinearSolver.insert( "DLA_hard_break", true );
 
     // Determines if lin solve should restart on fail
-    mParameterListLinearSolver.insert( "DLA_rebuild_lin_solver_on_fail" , false );
+    mParameterListLinearSolver.insert( "DLA_rebuild_lin_solver_on_fail", false );
 }
