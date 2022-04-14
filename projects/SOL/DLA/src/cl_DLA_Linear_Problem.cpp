@@ -192,8 +192,8 @@ namespace moris
             // assemble dynamic residual
             mSolverInterface->assemble_RHS( tDynRes, true );
 
-            std::cout << "Norm of dynamic residual " << tDynRes->vec_norm2()( 0 ) << std::endl;
-            std::cout << "Norm of total   residual " << mPointVectorRHS->vec_norm2()( 0 ) << std::endl;
+            MORIS_LOG_INFO( "Norm of dynamic residual: %e", tDynRes->vec_norm2()( 0 ) );
+            MORIS_LOG_INFO( "Norm of total residual  : %e", mPointVectorRHS->vec_norm2()( 0 ) );
 
             // subtract dynamic from total residual to obtain static residual
             tDynRes->vec_plus_vec( -1.0, *mPointVectorRHS, 1.0 );
@@ -201,7 +201,8 @@ namespace moris
             // compute norm of static residual
             real tStaticResNorm = tDynRes->vec_norm2()( 0 );
 
-            std::cout << "Norm of static  residual " << tStaticResNorm << std::endl;
+            MORIS_LOG_INFO( "Norm of static residual : %e", tStaticResNorm );
+            ;
 
             // delete auxiliary vector
             delete tDynRes;
