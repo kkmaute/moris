@@ -1,7 +1,12 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_NLA_Solver_Pseudo_Time_Control.cpp
+ *
  */
-
 #include "cl_NLA_Solver_Pseudo_Time_Control.hpp"
 
 #include "typedefs.hpp"
@@ -9,6 +14,8 @@
 #include "cl_Communication_Tools.hpp"
 
 #include "cl_DLA_Solver_Interface.hpp"
+#include "cl_NLA_Nonlinear_Solver.hpp"
+
 #include "cl_SOL_Dist_Vector.hpp"
 #include "cl_SOL_Warehouse.hpp"
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
@@ -25,10 +32,9 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------------------
 
         Solver_Pseudo_Time_Control::Solver_Pseudo_Time_Control(
-                ParameterList&      aParameterListNonlinearSolver,
-                sol::Dist_Vector*   aCurrentSolution,
-                Solver_Interface*   aSolverInterface,
-                sol::SOL_Warehouse* aSolverWarehouse )
+                ParameterList&    aParameterListNonlinearSolver,
+                sol::Dist_Vector* aCurrentSolution,
+                Nonlinear_Solver* aNonLinSolverManager )
         {
             // get relaxation strategy
             mTimeStepStrategy = static_cast< sol::SolverPseudoTimeControlType >(
@@ -146,27 +152,37 @@ namespace moris
             }
 
             // store solver interface
-            mSolverInterface = aSolverInterface;
+            mSolverInterface = aNonLinSolverManager->get_solver_interface();
 
             // create vector to store "previous solution"
 
             // get num RHS
             uint tNumRHMS = mSolverInterface->get_num_rhs();
 
-            // get full map
-            sol::Dist_Map* tFullMap = aCurrentSolution->get_map();
+            // get local map
+            sol::Dist_Map* tLocalMap = aCurrentSolution->get_map();
 
             // create map object
-            sol::Matrix_Vector_Factory tMatFactory( aSolverWarehouse->get_tpl_type() );
+            sol::Matrix_Vector_Factory tMatFactory( aNonLinSolverManager->get_solver_warehouse()->get_tpl_type() );
 
             // create vector
-            mPreviousSolution = tMatFactory.create_vector( mSolverInterface, tFullMap, tNumRHMS );
+            mPreviousSolution = tMatFactory.create_vector( mSolverInterface, tLocalMap, tNumRHMS );
 
             // copy current solution onto "previous" solution
             mPreviousSolution->vec_plus_vec( 1.0, *( aCurrentSolution ), 0.0 );
 
             // save current solution vector set by time solver
             mOldPrevTimeStepVector = mSolverInterface->get_solution_vector_prev_time_step();
+
+            // create distributed vectors to compute change in solution
+            sol::Dist_Map* tFullMapCurrent  = tMatFactory.create_map( mSolverInterface->get_my_local_global_map() );
+            sol::Dist_Map* tFullMapPrevious = tMatFactory.create_map( mSolverInterface->get_my_local_global_map() );
+
+            mFullCurrentSolution  = tMatFactory.create_vector( mSolverInterface, tFullMapCurrent, tNumRHMS );
+            mFullPreviousSolution = tMatFactory.create_vector( mSolverInterface, tFullMapPrevious, tNumRHMS );
+
+            // set flag to compute static residual
+            aNonLinSolverManager->set_compute_static_residual_flag( true );
 
             // save time frames set by time solver
             mTimeFrameCurrent  = mSolverInterface->get_time();
@@ -195,6 +211,10 @@ namespace moris
 
             // delete vector for "previous solution"
             delete mPreviousSolution;
+
+            // delete vectors used to compute change in solution norm
+            delete mFullCurrentSolution;
+            delete mFullPreviousSolution;
 
             // reset true previous solution
             mSolverInterface->set_solution_vector_prev_time_step( mOldPrevTimeStepVector );
@@ -226,26 +246,35 @@ namespace moris
 
         bool
         Solver_Pseudo_Time_Control::compute_time_step_size(
-                const real&       aRefNorm,
-                const real&       aResNorm,
+                Nonlinear_Solver* aNonLinSolverManager,
                 sol::Dist_Vector* aCurrentSolution,
                 real&             aTimeStep,
                 real&             aTotalTime )
         {
+
+            // skip setting remaining parameters if no pseudo time step control is used
+            if ( mTimeStepStrategy == sol::SolverPseudoTimeControlType::None )
+            {
+                return true;
+            }
+
             // initialize flag whether to perform update of "previous" solution
             bool tPerformUpdate = false;
 
+            // get static residuals
+            const real aRefNorm = aNonLinSolverManager->get_static_ref_norm();
+            const real aResNorm = aNonLinSolverManager->get_static_residual_norm();
+
             // compute relative residual
-            real tRelResNorm = aResNorm / aRefNorm;
+            const real tRelResNorm = aResNorm / aRefNorm;
+
+            MORIS_LOG_INFO( "Norm of static reference residual: %e", aRefNorm );
+            MORIS_LOG_INFO( "Norm of static residual:           %e", aResNorm );
+            MORIS_LOG_INFO( "Ratio of static residual norms:    %e", tRelResNorm );
 
             // compute pseudo time step and return convergence status
             switch ( mTimeStepStrategy )
             {
-                // no pseudo time stepping
-                case sol::SolverPseudoTimeControlType::None:
-                {
-                    return true;
-                }
                 // constant relaxation parameter
                 case sol::SolverPseudoTimeControlType::Polynomial:
                 {
@@ -315,6 +344,34 @@ namespace moris
                     }
                     break;
                 }
+                case sol::SolverPseudoTimeControlType::SwitchedRelaxation:
+                {
+                    // update increase time step only if requirement on relative residual is satisfied
+                    if ( tRelResNorm < mRelativeResidualDropThreshold )
+                    {
+                        // set update flag to true
+                        tPerformUpdate = true;
+
+                        if ( mTimeStepCounter < 2 )
+                        {
+                            aTimeStep = mConstantStepSize;
+                        }
+                        else
+                        {
+                            aTimeStep = mPrevStepSize * mPrevRelResNorm / tRelResNorm;
+                        }
+
+                        // save previous time step size
+                        mPrevStepSize = aTimeStep;
+
+                        // save previous relative residual
+                        mPrevRelResNorm = tRelResNorm;
+
+                        // increase time step counter
+                        mTimeStepCounter++;
+                    }
+                    break;
+                }
                 case sol::SolverPseudoTimeControlType::Comsol:
                 {
                     // update increase time step only if requirement on relative residual is satisfied
@@ -380,18 +437,14 @@ namespace moris
                 MORIS_LOG_INFO( "Updated pseudo time step - updated previous time step in time step %d", mTimeStepCounter );
 
                 // compute norms for previous and current solutions
-                // FIXME: should use vec_norm2 but this does not work in parallel
-                Matrix< DDRMat > tVector;
-                mPreviousSolution->extract_copy( tVector );
-                real tPreviousNorm = sum_all( norm( tVector ) );
+                mFullPreviousSolution->import_local_to_global( *mPreviousSolution );
+                real tPreviousNorm = mFullPreviousSolution->vec_norm2()( 0 );
 
-                aCurrentSolution->extract_copy( tVector );
-                real tCurrentNorm = sum_all( norm( tVector ) );
+                mFullCurrentSolution->import_local_to_global( *aCurrentSolution );
+                real tCurrentNorm = mFullCurrentSolution->vec_norm2()( 0 );
 
-                // compute change in full vector
-                mPreviousSolution->vec_plus_vec( -1.0, *( aCurrentSolution ), 1.0 );
-                mPreviousSolution->extract_copy( tVector );
-                real tDeltaNorm = sum_all( norm( tVector ) );
+                mFullPreviousSolution->vec_plus_vec( -1.0, *( mFullCurrentSolution ), 1.0 );
+                real tDeltaNorm = mFullCurrentSolution->vec_norm2()( 0 );
 
                 MORIS_LOG_INFO( "Solution norms: previous = %e  current %e  change %e", tPreviousNorm, tCurrentNorm, tDeltaNorm );
 
