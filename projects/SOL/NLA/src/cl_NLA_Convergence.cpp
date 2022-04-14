@@ -1,15 +1,18 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_NLA_Convergence.cpp
  *
- *  Created on: Sep 21, 2018
- *      Author: schmidt
  */
 #include <ctime>
 
-#include "cl_NLA_Convergence.hpp"
-
 #include "cl_SOL_Enums.hpp"
+
 #include "cl_SOL_Dist_Vector.hpp"
+#include "cl_NLA_Convergence.hpp"
 
 #include "cl_DLA_Linear_Problem.hpp"
 
@@ -26,11 +29,8 @@ namespace moris
         bool
         Convergence::check_for_convergence(
                 Nonlinear_Algorithm* tNonLinSolver,
-                moris::sint&         aIt,
-                moris::real&         aRefNorm,
-                moris::real&         aResNorm,
-                const moris::real&   aAssemblyTime,
-                const moris::real&   aSolvTime,
+                moris::sint          aIt,
+                moris::sint          aMaxIter,
                 bool&                aHartBreak )
         {
             // initialize return value
@@ -40,48 +40,77 @@ namespace moris
             Cell< moris::real > solNorm = tNonLinSolver->mNonlinearProblem->get_linearized_problem()->get_free_solver_LHS()->vec_norm2();
 
             // compute residual norm which is the norm of the RHS of the linearized problem
-            aResNorm = tNonLinSolver->mNonlinearProblem->get_linearized_problem()->get_solver_RHS()->vec_norm2()( 0 );
+            real tResNorm = tNonLinSolver->mNonlinearProblem->get_linearized_problem()->get_solver_RHS()->vec_norm2()( 0 );
+
+            // initialize reference residual norm
+            real tRefNorm = 0.0;
 
             // set the residual norm to the reference norm for the first iteration
             if ( aIt <= 1 )
             {
-                aRefNorm = aResNorm;
+                // set reference norm
+                tRefNorm = tResNorm;
 
-                MORIS_LOG_SPEC( "ReferenceNorm", aRefNorm );
+                // store reference with solver mangager of solver algorithm
+                tNonLinSolver->mMyNonLinSolverManager->set_ref_norm( tRefNorm );
+
+                // log reference norm
+                MORIS_LOG_SPEC( "ReferenceNorm", tRefNorm );
+
+                // compute static residual norm
+                if ( tNonLinSolver->mMyNonLinSolverManager->get_compute_static_residual_flag() )
+                {
+                    // compute and store static residual
+                    real tStaticResNorm = tNonLinSolver->mNonlinearProblem->get_static_residual_norm();
+
+                    // store reference with solver mangager of solver algorithm
+                    tNonLinSolver->mMyNonLinSolverManager->set_static_ref_norm( tStaticResNorm );
+
+                    // log reference norm for static residual
+                    MORIS_LOG_SPEC( "StaticReferenceNorm", tStaticResNorm );
+                }
+            }
+            else
+            {
+                // get reference norm
+                tRefNorm = tNonLinSolver->mMyNonLinSolverManager->get_ref_norm();
             }
 
             // log residual and solution norms
-            MORIS_LOG_SPEC( "ResidualNorm", aResNorm );
+            MORIS_LOG_SPEC( "ResidualNorm", tResNorm );
             MORIS_LOG_SPEC( "SolutionNorm", solNorm( 0 ) );
+
+            // store current residual with solver mangager of solver algorithm
+            tNonLinSolver->mMyNonLinSolverManager->set_residual_norm( tResNorm );
 
             // log relative drop of residual
             if ( aIt > 1 )
             {
-                MORIS_LOG_SPEC( "NlinResDrop", aResNorm / aRefNorm );
+                MORIS_LOG_SPEC( "NlinResDrop", tResNorm / tRefNorm );
             }
 
             // check that residual is valid
-            MORIS_ERROR( !( std::isnan( aResNorm ) || std::isinf( aResNorm ) ),
+            MORIS_ERROR( !( std::isnan( tResNorm ) || std::isinf( tResNorm ) ),
                     "Convergence::check_for_convergence(): Residual contains NAN or INF, exiting!" );
 
             // check that residual does not exceed upper limit (should defined in MORIS global definitions)
-            MORIS_ERROR( !( aResNorm > 1e20 ),
+            MORIS_ERROR( !( tResNorm > 1e20 ),
                     "Convergence::check_for_convergence(): Residual Norm has exceeded 1e20" );
 
             // Check for convergence
-            if ( ( aIt > 1 ) && ( aResNorm < aRefNorm * tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_rel_res_norm_drop" ) ) )
+            if ( ( aIt > 1 ) && ( tResNorm < tRefNorm * tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_rel_res_norm_drop" ) ) )
             {
                 MORIS_LOG_INFO( "NlinResDrop < %6.1e", tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_rel_res_norm_drop" ) );
 
                 tIsConverged = true;
             }
-            else if ( ( aIt > 1 ) && ( aResNorm < tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_tot_res_norm" ) ) )
+            else if ( ( aIt > 1 ) && ( tResNorm < tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_tot_res_norm" ) ) )
             {
                 MORIS_LOG_INFO( "NlinResDrop < %6.1e", tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_rel_res_norm_drop" ) );
 
                 tIsConverged = true;
             }
-            else if ( ( aIt > 1 ) && ( aResNorm > aRefNorm * tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_max_rel_res_norm" ) ) )
+            else if ( ( aIt > 1 ) && ( tResNorm > tRefNorm * tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_max_rel_res_norm" ) ) )
             {
                 MORIS_LOG_INFO( "MaxRelResNorm > %6.1e", tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_max_rel_res_norm" ) );
 
@@ -89,9 +118,24 @@ namespace moris
 
                 if ( tNonLinSolver->mParameterListNonlinearSolver.get< bool >( "NLA_hard_break" ) )
                 {
-                    aIt = tNonLinSolver->mParameterListNonlinearSolver.get< moris::sint >( "NLA_max_iter" );
-
                     aHartBreak = true;
+                }
+            }
+
+            // Compute static residual for final iteration; skip if aMaxIter equals 1
+            if ( tIsConverged or aHartBreak or ( aIt == aMaxIter && aMaxIter > 1 ) )
+            {
+                // compute static residual norm
+                if ( tNonLinSolver->mMyNonLinSolverManager->get_compute_static_residual_flag() )
+                {
+                    // compute and store static residual
+                    real tStaticResNorm = tNonLinSolver->mNonlinearProblem->get_static_residual_norm();
+
+                    // store reference with solver mangager of solver algorithm
+                    tNonLinSolver->mMyNonLinSolverManager->set_static_residual_norm( tStaticResNorm );
+
+                    // log norm pf static residual
+                    MORIS_LOG_SPEC( "StaticResidualNorm", tStaticResNorm );
                 }
             }
 
@@ -103,53 +147,54 @@ namespace moris
         bool
         Convergence::check_for_convergence(
                 Nonlinear_Algorithm* tNonLinSolver,
-                moris::sint&         aIt,
-                moris::real&         aRefNorm,
-                moris::real&         aResNorm,
-                const moris::real&   aSolvTime,
+                moris::sint          aIt,
                 bool&                aHartBreak )
         {
             // initialize return value
             bool tIsConverged = false;
 
+            // get current and reference residual norms
+            real tResNorm = tNonLinSolver->mMyNonLinSolverManager->get_residual_norm();
+            real tRefNorm = tNonLinSolver->mMyNonLinSolverManager->get_ref_norm();
+
             // log reference norm
             if ( aIt <= 1 )
             {
-                MORIS_LOG_SPEC( "ReferenceNorm", aRefNorm );
+                MORIS_LOG_SPEC( "ReferenceNorm", tRefNorm );
             }
 
             // log residual and solution norms
-            MORIS_LOG_SPEC( "ResidualNorm", aResNorm );
+            MORIS_LOG_SPEC( "ResidualNorm", tResNorm );
 
             // log relative drop of residual
             if ( aIt > 1 )
             {
-                MORIS_LOG_SPEC( "NlinResDrop", aResNorm / aRefNorm );
+                MORIS_LOG_SPEC( "NlinResDrop", tResNorm / ( tRefNorm + MORIS_REAL_EPS ) );
             }
 
             // check that residual is valid
-            MORIS_ERROR( !( std::isnan( aResNorm ) || std::isinf( aResNorm ) ),
+            MORIS_ERROR( !( std::isnan( tResNorm ) || std::isinf( tResNorm ) ),
                     "Convergence::check_for_convergence(): Residual contains NAN or INF, exiting!" );
 
             // check that residual does not exceed upper limit (should defined in MORIS global definitions)
-            MORIS_ERROR( !( aResNorm > 1e20 ),
+            MORIS_ERROR( !( tResNorm > 1e20 ),
                     "Convergence::check_for_convergence(): Residual Norm has exceeded 1e20" );
 
             // Check for convergence
-            if ( ( aIt >= 1 ) && ( aResNorm < aRefNorm * tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_rel_res_norm_drop" ) ) )
+            if ( ( aIt >= 1 ) && ( tResNorm < tRefNorm * tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_rel_res_norm_drop" ) ) )
             {
                 MORIS_LOG_INFO( "NlinResDrop < %6.1e", tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_rel_res_norm_drop" ) );
 
                 tIsConverged = true;
             }
-            else if ( ( aIt >= 1 ) && ( aResNorm < tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_tot_res_norm" ) ) )
+            else if ( ( aIt >= 1 ) && ( tResNorm < tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_tot_res_norm" ) ) )
             {
                 MORIS_LOG_INFO( "NlinResNorm < %6.1e", tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_tot_res_norm" ) );
 
                 tIsConverged = true;
             }
             else if ( ( aIt >= 1 )
-                      && ( aResNorm > aRefNorm * tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_max_rel_res_norm" ) ) )
+                      && ( tResNorm > tRefNorm * tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_max_rel_res_norm" ) ) )
             {
                 MORIS_LOG_INFO( "MaxRelResNorm > %6.1e", tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_max_rel_res_norm" ) );
 
@@ -157,8 +202,6 @@ namespace moris
 
                 if ( tNonLinSolver->mParameterListNonlinearSolver.get< bool >( "NLA_hard_break" ) )
                 {
-                    aIt = tNonLinSolver->mParameterListNonlinearSolver.get< moris::sint >( "NLA_max_iter" );
-
                     aHartBreak = true;
                 }
             }
