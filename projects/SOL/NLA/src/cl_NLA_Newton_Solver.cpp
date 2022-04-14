@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_NLA_Newton_Solver.cpp
  *
- *  Created on: Sep 21, 2018
- *      Author: schmidt
  */
 #include <ctime>
 
@@ -68,6 +71,7 @@ Newton_Solver::~Newton_Solver()
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
+
 void
 Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProblem )
 {
@@ -76,10 +80,17 @@ Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProblem )
     // set nonlinear system
     mNonlinearProblem = aNonlinearProblem;
 
-    // get algorithmic parameters
-    moris::sint tMaxIts                 = mParameterListNonlinearSolver.get< moris::sint >( "NLA_max_iter" );
-    bool        tCombinedResJacAssembly = mParameterListNonlinearSolver.get< bool >( "NLA_combined_res_jac_assembly" );
-    //        moris::sint tRebuildIterations = mParameterListNonlinearSolver.get< moris::sint >( "NLA_num_nonlin_rebuild_iterations" );
+    // get maximum number of iterations
+    sint tMaxIts = mParameterListNonlinearSolver.get< sint >( "NLA_max_iter" );
+
+    // increase maximum number of iterations by one if static residual is required
+    if ( mMyNonLinSolverManager->get_compute_static_residual_flag() )
+    {
+        tMaxIts++;
+    }
+
+    // get option for computing residual and jacobian: separate or together
+    bool tCombinedResJacAssembly = mParameterListNonlinearSolver.get< bool >( "NLA_combined_res_jac_assembly" );
 
     // set relaxation strategy
     Solver_Relaxation tRelaxationStrategy( mParameterListNonlinearSolver );
@@ -91,22 +102,16 @@ Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProblem )
     bool tIsConverged     = false;
     bool tRebuildJacobian = true;
 
-    moris::real tRelaxationParameter = 0.0;
-    moris::real tMaxNewTime          = 0.0;
-    moris::real tMaxAssemblyTime     = 0.0;
+    real tRelaxationParameter = 0.0;
 
     // initialize load control parameter
     real tLoadFactor = tLoadControlStrategy.get_initial_load_factor();
 
     // Newton loop
-    for ( moris::sint It = 1; It <= tMaxIts; ++It )
+    for ( sint It = 1; It <= tMaxIts; ++It )
     {
         // log solver iteration
         MORIS_LOG_ITERATION();
-
-        // start timing - purpose not clear
-        clock_t tNewtonLoopStartTime = clock();
-        clock_t tStartAssemblyTime   = clock();
 
         // assemble RHS and Jac
         if ( It > 1 )
@@ -143,41 +148,36 @@ Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProblem )
             mNonlinearProblem->build_linearized_problem( tRebuildJacobian, tCombinedResJacAssembly, It );
         }
 
-        // timing not clear
-        tMaxAssemblyTime = this->calculate_time_needed( tStartAssemblyTime );
-
         // check for convergence
-        bool        tHardBreak = false;
+        bool tHardBreak = false;
+
         Convergence tConvergence;
         tIsConverged = tConvergence.check_for_convergence(
                 this,
                 It,
-                mMyNonLinSolverManager->get_ref_norm(),
-                mMyNonLinSolverManager->get_residual_norm(),
-                tMaxAssemblyTime,
-                tMaxNewTime,
+                tMaxIts,
                 tHardBreak );
-
-        // check if hard break is triggered
-        if ( tHardBreak )
-        {
-            MORIS_LOG_INFO( "Number of Iterations to Hard Stop: %d", It );
-
-            break;
-        }
 
         // exit if convergence criterion is met
         if ( tIsConverged and tLoadFactor >= 1.0 )
         {
-            MORIS_LOG_INFO( "Number of Iterations to Convergence: %d", It );
+            MORIS_LOG_INFO( "Number of Iterations (Convergence): %d", It );
+
+            break;
+        }
+
+        // check if hard break is triggered or maximum iterations are reached
+        if ( tHardBreak or ( It == tMaxIts && tMaxIts > 1 ) )
+        {
+            MORIS_LOG_INFO( "Number of Iterations (Hard Stop): %d", It );
 
             break;
         }
 
         // Determine if new search direction needs to be computed and compute relaxation value
         bool tComputeSearchDirection = tRelaxationStrategy.eval(
-                mMyNonLinSolverManager->get_ref_norm(),
-                mMyNonLinSolverManager->get_residual_norm(),
+                It,
+                mMyNonLinSolverManager,
                 tRelaxationParameter );
 
         // Check that constant relaxation strategy with relaxation equals 1 is used in case of sensitivity analysis
@@ -201,15 +201,13 @@ Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProblem )
 
             // Determine load factor
             tLoadControlStrategy.eval(
-                    mMyNonLinSolverManager->get_ref_norm(),
-                    mMyNonLinSolverManager->get_residual_norm(),
+                    It,
+                    mMyNonLinSolverManager,
                     tLoadFactor );
         }
 
         // Update solution
         ( mNonlinearProblem->get_full_vector() )->vec_plus_vec( -tRelaxationParameter, *mNonlinearProblem->get_linearized_problem()->get_full_solver_LHS(), 1.0 );
-
-        tMaxNewTime = this->calculate_time_needed( tNewtonLoopStartTime );
     }
 }
 
@@ -217,8 +215,8 @@ Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProblem )
 
 void
 Newton_Solver::solve_linear_system(
-        moris::sint& aIter,
-        bool&        aHardBreak )
+        sint& aIter,
+        bool& aHardBreak )
 {
     if ( !( mMyNonLinSolverManager->get_solver_interface()->get_is_forward_analysis() ) )
     {
@@ -235,7 +233,7 @@ Newton_Solver::solve_linear_system(
 //--------------------------------------------------------------------------------------------------------------------------
 
 void
-Newton_Solver::get_full_solution( moris::Matrix< DDRMat >& LHSValues )
+Newton_Solver::get_full_solution( Matrix< DDRMat >& LHSValues )
 {
     mNonlinearProblem->get_full_vector()->extract_copy( LHSValues );
 }
@@ -243,7 +241,7 @@ Newton_Solver::get_full_solution( moris::Matrix< DDRMat >& LHSValues )
 //--------------------------------------------------------------------------------------------------------------------------
 
 void
-Newton_Solver::get_solution( moris::Matrix< DDRMat >& LHSValues )
+Newton_Solver::get_solution( Matrix< DDRMat >& LHSValues )
 {
     mNonlinearProblem->get_full_vector()->extract_copy( LHSValues );
 }
@@ -252,10 +250,10 @@ Newton_Solver::get_solution( moris::Matrix< DDRMat >& LHSValues )
 
 void
 Newton_Solver::extract_my_values(
-        const moris::uint&                      aNumIndices,
-        const moris::Matrix< DDSMat >&          aGlobalBlockRows,
-        const moris::uint&                      aBlockRowOffsets,
-        moris::Cell< moris::Matrix< DDRMat > >& LHSValues )
+        const uint&               aNumIndices,
+        const Matrix< DDSMat >&   aGlobalBlockRows,
+        const uint&               aBlockRowOffsets,
+        Cell< Matrix< DDRMat > >& LHSValues )
 {
     mNonlinearProblem->get_full_vector()->extract_my_values( aNumIndices, aGlobalBlockRows, aBlockRowOffsets, LHSValues );
 }
