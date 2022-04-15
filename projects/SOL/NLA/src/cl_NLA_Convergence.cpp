@@ -54,9 +54,6 @@ namespace moris
                 // store reference with solver mangager of solver algorithm
                 tNonLinSolver->mMyNonLinSolverManager->set_ref_norm( tRefNorm );
 
-                // log reference norm
-                MORIS_LOG_SPEC( "ReferenceNorm", tRefNorm );
-
                 // compute static residual norm
                 if ( tNonLinSolver->mMyNonLinSolverManager->get_compute_static_residual_flag() )
                 {
@@ -69,6 +66,9 @@ namespace moris
                     // log reference norm for static residual
                     MORIS_LOG_SPEC( "StaticReferenceNorm", tStaticResNorm );
                 }
+
+                // log reference norm
+                MORIS_LOG_SPEC( "ReferenceNorm", tRefNorm );
             }
             else
             {
@@ -86,7 +86,7 @@ namespace moris
             // log relative drop of residual
             if ( aIt > 1 )
             {
-                MORIS_LOG_SPEC( "NlinResDrop", tResNorm / tRefNorm );
+                MORIS_LOG_SPEC( "RelResidualDrop", tResNorm / tRefNorm );
             }
 
             // check that residual is valid
@@ -122,9 +122,12 @@ namespace moris
                 }
             }
 
-            // Compute static residual for final iteration; skip if aMaxIter equals 1
+            // Store data at final iteration; skip if aMaxIter equals 1
             if ( tIsConverged or aHartBreak or ( aIt == aMaxIter && aMaxIter > 1 ) )
             {
+                // store relative number of iterations
+                tNonLinSolver->mMyNonLinSolverManager->set_relative_number_iterations( ( (real)aIt ) / aMaxIter );
+
                 // compute static residual norm
                 if ( tNonLinSolver->mMyNonLinSolverManager->get_compute_static_residual_flag() )
                 {
@@ -161,6 +164,14 @@ namespace moris
             if ( aIt <= 1 )
             {
                 MORIS_LOG_SPEC( "ReferenceNorm", tRefNorm );
+
+                // log static reference residual norm
+                if ( tNonLinSolver->mMyNonLinSolverManager->get_compute_static_residual_flag() )
+                {
+                    const real tStaticRefNorm = tNonLinSolver->mMyNonLinSolverManager->get_static_ref_norm();
+
+                    MORIS_LOG_SPEC( "StaticReferenceNorm", tStaticRefNorm );
+                }
             }
 
             // log residual and solution norms
@@ -169,7 +180,7 @@ namespace moris
             // log relative drop of residual
             if ( aIt > 1 )
             {
-                MORIS_LOG_SPEC( "NlinResDrop", tResNorm / ( tRefNorm + MORIS_REAL_EPS ) );
+                MORIS_LOG_SPEC( "RelResidualDrop", tResNorm / ( tRefNorm + MORIS_REAL_EPS ) );
             }
 
             // check that residual is valid
@@ -179,6 +190,20 @@ namespace moris
             // check that residual does not exceed upper limit (should defined in MORIS global definitions)
             MORIS_ERROR( !( tResNorm > 1e20 ),
                     "Convergence::check_for_convergence(): Residual Norm has exceeded 1e20" );
+
+            // log static residual norm and relative drop in static residual
+            if ( tNonLinSolver->mMyNonLinSolverManager->get_compute_static_residual_flag() )
+            {
+                const real tStaticRefNorm = tNonLinSolver->mMyNonLinSolverManager->get_static_ref_norm();
+                const real tStaticResNorm = tNonLinSolver->mMyNonLinSolverManager->get_static_residual_norm();
+
+                MORIS_LOG_SPEC( "StaticResidualNorm", tStaticResNorm );
+
+                if ( aIt > 1 )
+                {
+                    MORIS_LOG_SPEC( "StaticResDrop", tStaticResNorm / ( tStaticRefNorm + MORIS_REAL_EPS ) );
+                }
+            }
 
             // Check for convergence
             if ( ( aIt >= 1 ) && ( tResNorm < tRefNorm * tNonLinSolver->mParameterListNonlinearSolver.get< moris::real >( "NLA_rel_res_norm_drop" ) ) )
