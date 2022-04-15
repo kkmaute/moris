@@ -77,6 +77,9 @@ namespace moris
             //! Flag for computing static residual
             bool mComputeStaticResidual = false;
 
+            //! Number of iterations of algorithm needed to converge / stop relative to maximum
+            real mRelNumIterations = 0;
+
             ParameterList mParameterListNonLinearSolver;
 
             enum NonlinearSolverType mNonLinSolverType = NonlinearSolverType::END_ENUM;
@@ -438,6 +441,32 @@ namespace moris
             set_static_residual_norm( const real& aStaticResidualNorm )
             {
                 mStaticResidualNorm = aStaticResidualNorm;
+            }
+
+            //--------------------------------------------------------------------------------------------------
+
+            /**
+             * @brief Returns number of iterations need to converge relative to maximum number of iterations
+             *
+             * @return relative number of iterations
+             */
+            real
+            get_relative_number_iterations()
+            {
+                return mRelNumIterations;
+            }
+
+            //--------------------------------------------------------------------------------------------------
+
+            /**
+             * @brief set number of iterations need to converge relative to maximum number of iterations
+             *
+             * @param[in] aRelNumIterations  relative number of iterations
+             */
+            void
+            set_relative_number_iterations( const real& aRelNumIterations )
+            {
+                mRelNumIterations = aRelNumIterations;
             }
 
             //--------------------------------------------------------------------------------------------------
