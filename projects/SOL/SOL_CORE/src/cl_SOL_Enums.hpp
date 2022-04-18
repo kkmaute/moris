@@ -53,6 +53,7 @@ namespace moris
             Exponential,           // Time step index based strategy: exponential growth
             SwitchedRelaxation,    // Switched relaxation (based on Ceze and Fidkowski, 2013)
             ResidualDifference,    // Monotonic residual difference method (based on Ceze and Fidkowski, 2013)
+            Expur,                 // Exponential with under-relaxation (based on Ceze and Fidkowski, 2013)
             Comsol                 // COMSOL ( see COMSOL_CFDModuleUsersGuide 6.0, page 92, 241)
         };
     }    // namespace sol

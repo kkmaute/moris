@@ -163,6 +163,22 @@ namespace moris
 
                     break;
                 }
+                case sol::SolverPseudoTimeControlType::Expur:
+                {
+                    // get initial time step size
+                    mConstantStepSize = aParameterListNonlinearSolver.get< real >( "NLA_pseudo_time_constant" );
+
+                    // get pre-factor
+                    mResidualFactor = aParameterListNonlinearSolver.get< real >( "NLA_pseudo_time_residual_factor" );
+
+                    MORIS_ERROR( mResidualFactor > 1.0,
+                            "Solver_Pseudo_Time_Control::Solver_Pseudo_Time_Control - Expur strategy: NLA_pseudo_time_residual_factor needs to be larger 1.0" );
+
+                    // set initial time step size
+                    mInitialStepSize = mConstantStepSize;
+
+                    break;
+                }
                 case sol::SolverPseudoTimeControlType::Comsol:
                 {
                     // get constant time step size
@@ -440,7 +456,47 @@ namespace moris
                     }
                     break;
                 }
+                case sol::SolverPseudoTimeControlType::Expur:
+                {
+                    // update increase time step only if requirement on relative residual is satisfied
+                    if ( aRelResNorm < mRelResUpdate )
+                    {
+                        // set update flag to true
+                        tPerformUpdate = true;
 
+                        // initialize previous step parameters
+                        if ( mTimeStepCounter < 2 )
+                        {
+                            mPrevStepSize = mConstantStepSize;
+                        }
+
+                        // initialize new time step
+                        aTimeStep = mPrevStepSize;
+
+                        MORIS_LOG_INFO( "tRelNumIter %f", tRelNumIter );
+
+                        // increase time step
+                        if ( tRelNumIter < 0.3 )
+                        {
+                            aTimeStep = mPrevStepSize * mResidualFactor;
+                        }
+
+                        // reduce time step
+                        if ( tRelNumIter > 0.7 )
+                        {
+                            aTimeStep = mPrevStepSize / mResidualFactor;
+                        }
+
+                        MORIS_LOG_INFO( "mPrevStepSize %f  aTimeStep %f", mPrevStepSize, aTimeStep );
+
+                        // save previous time step size
+                        mPrevStepSize = aTimeStep;
+
+                        // increase time step counter
+                        mTimeStepCounter++;
+                    }
+                    break;
+                }
                 case sol::SolverPseudoTimeControlType::Comsol:
                 {
                     // update increase time step only if requirement on relative residual is satisfied
