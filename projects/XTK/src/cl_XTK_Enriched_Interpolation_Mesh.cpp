@@ -451,7 +451,7 @@ namespace xtk
             for ( uint iCheckCell = 0; iCheckCell < tClusterCellsCheck.size(); iCheckCell++ )
             {
                 MORIS_ASSERT( tClusterCellsCheck( iCheckCell )->get_cell_info()->compute_cell_shape( tClusterCellsCheck( iCheckCell ) ) == tCellShape,
-                        "Mesh_Core_STK::get_IG_blockset_shape - cell shape is not consistent in the block" );
+                    "Enriched_Interpolation_Mesh::get_IG_blockset_shape() - cell shape is not consistent in the block" );
             }
         }
 

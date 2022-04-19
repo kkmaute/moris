@@ -1,8 +1,11 @@
-/*
- * cl_MTK_Double_Side_Cluster.hpp
- *
- *  Created on: May 14, 2019
- *      Author: doble
+/* 
+ * Copyright (c) 2022 University of Colorado 
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details. 
+ * 
+ * ------------------------------------------------------------------------------------ 
+ * 
+ * cl_MTK_Double_Side_Cluster.hpp  
+ * 
  */
 
 #ifndef PROJECTS_MTK_SRC_CL_MTK_DOUBLE_SIDE_CLUSTER_HPP_

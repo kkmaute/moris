@@ -1,8 +1,11 @@
-/**
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_XTK_Subphase_Group.hpp  
  * 
- *  Created on: Jan  18, 2022 
- *      Author: Nils Wunsch
  */
 #ifndef SRC_cl_XTK_Subphase_Group
 #define SRC_cl_XTK_Subphase_Group

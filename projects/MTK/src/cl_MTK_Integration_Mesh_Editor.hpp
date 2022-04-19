@@ -1,9 +1,13 @@
 /*
- * cl_MTK_Integration_Mesh_Editor.hpp
- *
- *  Created on: Dec  09, 2021
- *      Author: momo
+ * Copyright (c) 2022 University of Colorado 
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details. 
+ * 
+ * ------------------------------------------------------------------------------------ 
+ * 
+ * cl_MTK_Integration_Mesh_Editor.hpp  
+ * 
  */
+
 #ifndef SRC_cl_MTK_Integration_Mesh_Editor_HPP_
 #define SRC_cl_MTK_Integration_Mesh_Editor_HPP_
 

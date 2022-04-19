@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_WRK_Workflow_HMR_XTK.cpp
+ * 
+ */
+
 #include "cl_WRK_Performer_Manager.hpp"
 #include "cl_WRK_Workflow_HMR_XTK.hpp"
 #include "cl_HMR.hpp"

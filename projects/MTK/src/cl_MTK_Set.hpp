@@ -95,7 +95,6 @@ namespace moris
                       mSetClusters( aBlockSetClusters )
             {
                 this->communicate_ip_geometry_type();
-
                 this->communicate_interpolation_order();
             };
 

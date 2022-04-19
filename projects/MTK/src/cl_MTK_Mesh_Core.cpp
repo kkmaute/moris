@@ -978,21 +978,22 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
 
-        void Mesh::get_sideset_cells_and_ords(
-                const  std::string               & aSetName,
-                moris::Cell< Cell const * > & aCells,
-                Matrix< IndexMat >               & aSidesetOrdinals ) const
+        void
+        Mesh::get_sideset_cells_and_ords(
+                const std::string&           aSetName,
+                moris::Cell< Cell const * >& aCells,
+                Matrix< IndexMat >&          aSidesetOrdinals ) const
         {
-            Matrix<IndexMat> tElemIndices;
+            Matrix< IndexMat > tElemIndices;
             this->get_sideset_elems_loc_inds_and_ords( aSetName, tElemIndices, aSidesetOrdinals );
 
             // convert element indices to cell pointers
             uint tNumCellsInSet = tElemIndices.numel();
-            aCells = moris::Cell< Cell const * >(tNumCellsInSet);
+            aCells              = moris::Cell< Cell const * >( tNumCellsInSet );
 
-            for(uint i = 0 ; i < tNumCellsInSet; i++)
+            for ( uint i = 0; i < tNumCellsInSet; i++ )
             {
-                aCells(i) = &this->get_mtk_cell(tElemIndices(i));
+                aCells( i ) = &this->get_mtk_cell( tElemIndices( i ) );
             }
         }
 

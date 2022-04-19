@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Mesh_DataBase_IG.cpp
+ * 
+ */
+
 #include "cl_MTK_Mesh_DataBase_IG.hpp"
 #include "cl_MTK_Vertex_DataBase.hpp"
 #include "cl_MTK_Cell_DataBase.hpp"
@@ -179,7 +189,7 @@ namespace moris::mtk
             for ( uint iCheckCell = 0; iCheckCell < tClusterCellsCheck.size(); iCheckCell++ )
             {
                 MORIS_ASSERT( tClusterCellsCheck( iCheckCell )->get_cell_info()->compute_cell_shape( tClusterCellsCheck( iCheckCell ) ) == tCellShape,
-                    "Mesh_Core_STK::get_IG_blockset_shape - cell shape is not consistent in the block" );
+                    "Integration_Mesh_DataBase_IG::get_IG_blockset_shape - cell shape is not consistent in the block" );
             }
         }
 

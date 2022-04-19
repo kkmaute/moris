@@ -282,19 +282,23 @@ namespace moris
         //------------------------------------------------------------------------------
 
         moris_index
-        Cell::get_vertex_ordinal_wrt_cell(moris_index const & aVertexIndex) const
+        Cell::get_vertex_ordinal_wrt_cell( moris_index const& aVertexIndex ) const
         {
-           Matrix< IndexMat > tVertexInds = this->get_vertex_inds();
-           for(moris::uint i = 0; i < tVertexInds.numel(); i++)
-           {
-               if(tVertexInds(i) == aVertexIndex)
-               {
-                   return (moris_index)i;
-               }
-           }
+            // get all vertex indices on current mtk::cell
+            Matrix< IndexMat > tVertexInds = this->get_vertex_inds();
 
-            MORIS_ERROR(0, "Vertex not attached to cell.");
-           return MORIS_INDEX_MAX;
+            // loop through all indices on cell and check if vertex index lives on this cell
+            for( moris::uint i = 0; i < tVertexInds.numel(); i++ )
+            {
+                if( tVertexInds( i ) == aVertexIndex )
+                {
+                    return (moris_index) i;
+                }
+            }
+
+            // throw error if vertex is not found on mtk::cell
+            MORIS_ERROR( false, "mtk::Cell::get_vertex_ordinal_wrt_cell() - Vertex not attached to cell.");
+            return MORIS_INDEX_MAX;
         }
 
         //------------------------------------------------------------------------------
