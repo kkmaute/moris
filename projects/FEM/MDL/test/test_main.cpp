@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ */
 #define CATCH_CONFIG_RUNNER
 #include <catch.hpp>
 
@@ -18,15 +25,15 @@ moris::Logger       gLogger;
 
 int
 main(
-        int    argc,
-        char * argv[] )
+        int   argc,
+        char* argv[] )
 {
     // Initialize Moris global communication manager
-    gMorisComm.initialize(&argc, &argv);
+    gMorisComm.initialize( &argc, &argv );
 
     // Severity level 0 - all outputs
-//    gLogger.initialize(0);
-    gLogger.initialize("gLogger.log", 2, 1);
+    //    gLogger.initialize(0);
+    gLogger.initialize( "gLogger.log", 2, 1 );
 
     // Run Tests
     int result = Catch::Session().run( argc, argv );

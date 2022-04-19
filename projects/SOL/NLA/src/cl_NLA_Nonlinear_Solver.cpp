@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_NLA_Nonlinear_Solver.cpp
  *
- *  Created on: Okt 10, 2018
- *      Author: schmidt
  */
 #include "cl_DLA_Solver_Interface.hpp"
 
@@ -291,28 +294,6 @@ Nonlinear_Solver::set_solver_warehouse( sol::SOL_Warehouse* aSolverWarehouse )
 
 //-------------------------------------------------------------------------------------------------------
 
-//    void Nonlinear_Solver::solve()
-//    {
-//        moris::Cell< enum MSI::Dof_Type > tDofTypeUnion = this->get_dof_type_union();
-//
-//        mSolverInput->set_requested_dof_types( tDofTypeUnion );
-//
-//        if ( mNonLinSolverType == NonlinearSolverType::NLBGS_SOLVER )
-//        {
-//            mNonlinearProblem = new Nonlinear_Problem( mSolverWarehouse, mSolverInput, mSolverWarehouse->get_full_vector(), mNonlinearSolverManagerIndex,  false );
-//        }
-//        else
-//        {
-//            mNonlinearProblem = new Nonlinear_Problem( mSolverWarehouse, mSolverInput, mSolverWarehouse->get_full_vector(), mNonlinearSolverManagerIndex );
-//        }
-//
-//        mNonlinearSolverAlgorithmList( 0 )->set_nonlinear_solver_manager( this );
-//
-//        mNonlinearSolverAlgorithmList( 0 )->solver_nonlinear_system( mNonlinearProblem );
-//    }
-
-//-------------------------------------------------------------------------------------------------------
-
 void
 Nonlinear_Solver::solve( sol::Dist_Vector* aFullVector )
 {
@@ -405,6 +386,7 @@ Nonlinear_Solver::solve( Nonlinear_Problem* aNonlinearProblem )
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
+
 void
 Nonlinear_Solver::set_nonlinear_solver_manager_parameters()
 {
@@ -412,17 +394,23 @@ Nonlinear_Solver::set_nonlinear_solver_manager_parameters()
     mParameterListNonLinearSolver.insert( "NLA_max_non_lin_solver_restarts", 0 );
 }
 
+//--------------------------------------------------------------------------------------------------------------------------
+
 void
 Nonlinear_Solver::get_full_solution( moris::Matrix< DDRMat >& LHSValues )
 {
     mNonlinearProblem->get_full_vector()->extract_copy( LHSValues );
 }
+
 //--------------------------------------------------------------------------------------------------------------------------
+
 void
 Nonlinear_Solver::set_time_step_iter( const sint aTimeIter )
 {
     mTimeIter = aTimeIter;
 }
+
+//--------------------------------------------------------------------------------------------------------------------------
 
 moris::sint
 Nonlinear_Solver::get_time_step_iter()
@@ -458,4 +446,35 @@ void
 Nonlinear_Solver::set_time_solver_type( tsa::Time_Solver_Algorithm* aTimeSolverAlgorithm )
 {
     mMyTimeSolverAlgorithm = aTimeSolverAlgorithm;
+}
+
+//--------------------------------------------------------------------------------------------------------------------------
+
+void
+Nonlinear_Solver::set_compute_static_residual_flag( bool aFlag )
+{
+    mComputeStaticResidual = aFlag;
+
+    // set flag for all sub-solvers
+    for ( uint Ik = 0; Ik < mNonLinearSubSolverList.size(); ++Ik )
+    {
+        // get sub-solver
+        Nonlinear_Solver* tSubSolver = mNonLinearSubSolverList( Ik );
+
+        // check that sub-solver exists
+        MORIS_ERROR( tSubSolver != nullptr,
+                "Nonlinear_Solver::set_compute_static_residual_flag - sub-solver %d not defined.",
+                Ik );
+
+        // set compute static residual flag
+        tSubSolver->set_compute_static_residual_flag( aFlag );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------------------------------
+
+bool
+Nonlinear_Solver::get_compute_static_residual_flag()
+{
+    return mComputeStaticResidual;
 }

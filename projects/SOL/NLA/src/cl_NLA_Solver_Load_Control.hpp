@@ -1,7 +1,12 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_NLA_Solver_Load_Control.hpp
+ *
  */
-
 #ifndef SRC_FEM_CL_NLA_SOLVER_LOAD_CONTROL_HPP_
 #define SRC_FEM_CL_NLA_SOLVER_LOAD_CONTROL_HPP_
 
@@ -13,6 +18,8 @@ namespace moris
 {
     namespace NLA
     {
+        class Nonlinear_Solver;
+
         class Solver_Load_Control
         {
           private:
@@ -48,9 +55,9 @@ namespace moris
              *  evaluates the relaxation parameter
              */
             void eval(
-                    const real& aRefNorm,
-                    const real& aResNorm,
-                    real&       aLoadFactor );
+                    sint              aIter,
+                    Nonlinear_Solver* aNonLinSolverManager,
+                    real&             aLoadFactor );
         };
     }    // namespace NLA
 }    // namespace moris

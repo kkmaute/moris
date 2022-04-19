@@ -8,14 +8,14 @@
  * 
  */
 
-#include<iostream>
-#include<ios>
-#include<limits>
+#include <iostream>
+#include <ios>
+#include <limits>
 
 #include "../MRS/IOS/src/cl_Git_info.hpp"
-#include "cl_Communication_Manager.hpp" // COM/src
-#include "cl_Logger.hpp"                // MRS/IOS/src
-#include "banner.hpp"                   // COR/src
+#include "cl_Communication_Manager.hpp"    // COM/src
+#include "cl_Logger.hpp"                   // MRS/IOS/src
+#include "banner.hpp"                      // COR/src
 #include <Kokkos_Core.hpp>
 
 moris::Comm_Manager gMorisComm;
@@ -24,14 +24,15 @@ moris::Logger       gLogger;
 using namespace moris;
 //---------------------------------------------------------------
 
-int fn_WRK_Workflow_Main_Interface( int argc, char * argv[] );
+int fn_WRK_Workflow_Main_Interface( int argc, char* argv[] );
 
 //---------------------------------------------------------------
 
-void moris_pause( int  & argc, char * argv[] )
+void
+moris_pause( int& argc, char* argv[] )
 {
     // go through user arguments and look for flags
-    for( int k=0; k<argc; ++k )
+    for ( int k = 0; k < argc; ++k )
     {
         // user requests delayed start
         if ( std::string( argv[ k ] ) == "--pause" || std::string( argv[ k ] ) == "-p" )
@@ -40,8 +41,9 @@ void moris_pause( int  & argc, char * argv[] )
             {
                 std::string dummy;
 
-                std::cout << "Press enter to continue . . .\n" << std::flush;
-                std::getline(std::cin, dummy);
+                std::cout << "Press enter to continue . . .\n"
+                          << std::flush;
+                std::getline( std::cin, dummy );
             }
         }
     }
@@ -53,7 +55,8 @@ void moris_pause( int  & argc, char * argv[] )
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-int main( int argc, char * argv[] )
+int
+main( int argc, char* argv[] )
 {
     // initialize MORIS global communication manager
     gMorisComm = moris::Comm_Manager( &argc, &argv );
@@ -74,16 +77,16 @@ int main( int argc, char * argv[] )
     {
         git_info tGitInfo;
 
-        std::fprintf( stdout, "\n     GIT branch    : %s\n",  tGitInfo.get_git_branch().c_str() );
-        std::fprintf( stdout,   "     GIT revision  : %s\n\n",tGitInfo.get_git_hash().c_str() );
+        std::fprintf( stdout, "\n     GIT branch    : %s\n", tGitInfo.get_git_branch().c_str() );
+        std::fprintf( stdout, "     GIT revision  : %s\n\n", tGitInfo.get_git_hash().c_str() );
 
-        MORIS_LOG_SPEC("Par Rank",par_rank());
-        MORIS_LOG_SPEC("Par Size",par_size());
+        MORIS_LOG_SPEC( "Par Rank", par_rank() );
+        MORIS_LOG_SPEC( "Par Size", par_size() );
     }
 
     int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
 
-    //Kokkos::finalize_all();
+    // Kokkos::finalize_all();
 
     // finalize MORIS global communication manager
     gMorisComm.finalize();

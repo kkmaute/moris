@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_SOL_Enums.hpp
  *
- *  Created on: Jul 2, 2018
- *      Author: schmidt
  */
 #ifndef SRC_DISTLINALG_CL_SOL_ENUMS_HPP_
 #define SRC_DISTLINALG_CL_SOL_ENUMS_HPP_
@@ -43,12 +46,15 @@ namespace moris
 
         enum class SolverPseudoTimeControlType
         {
-            None,           // No pseudo time step control
-            Polynomial,     // Time step index based strategy: polynomial growth
-            Exponential,    // Time step index based strategy: exponential growth
-            InvResNorm,     // Residual based strategy
-            Hybrid,         // Combined time step index and residual based strategy
-            Comsol          // COMSOL ( see COMSOL_CFDModuleUsersGuide 6.0, page 92, 241)
+            None,                  // No pseudo time step control
+            Polynomial,            // Time step index based strategy: polynomial growth
+            InvResNorm,            // Residual based strategy
+            Hybrid,                // Combined Polynomial and InvResNorm stratgies
+            Exponential,           // Time step index based strategy: exponential growth
+            SwitchedRelaxation,    // Switched relaxation (based on Ceze and Fidkowski, 2013)
+            ResidualDifference,    // Monotonic residual difference method (based on Ceze and Fidkowski, 2013)
+            Expur,                 // Exponential with under-relaxation (based on Ceze and Fidkowski, 2013)
+            Comsol                 // COMSOL ( see COMSOL_CFDModuleUsersGuide 6.0, page 92, 241)
         };
     }    // namespace sol
 }    // namespace moris

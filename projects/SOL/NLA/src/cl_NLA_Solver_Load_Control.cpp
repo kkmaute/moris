@@ -1,8 +1,17 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_NLA_Solver_Load_Control.cpp
- */
 
+ */
 #include "cl_NLA_Solver_Load_Control.hpp"
+
+#include "cl_SOL_Dist_Vector.hpp"
+
+#include "cl_NLA_Nonlinear_Solver.hpp"
 
 #include "typedefs.hpp"
 
@@ -64,9 +73,9 @@ namespace moris
 
         void
         Solver_Load_Control::eval(
-                const real& aRefNorm,
-                const real& aResNorm,
-                real&       aLoadFactor )
+                sint              aIter,
+                Nonlinear_Solver* aNonLinSolverManager,
+                real&             aLoadFactor )
         {
             // compute relaxation value depending on strategy
             switch ( mLoadControlStrategy )
@@ -80,6 +89,9 @@ namespace moris
                 }
                 case sol::SolverLoadControlType::Exponential:
                 {
+                    const real aResNorm = aNonLinSolverManager->get_static_ref_norm();
+                    const real aRefNorm = aNonLinSolverManager->get_static_residual_norm();
+
                     // compute relative residual
                     real tRelResNorm = aResNorm / aRefNorm;
 
