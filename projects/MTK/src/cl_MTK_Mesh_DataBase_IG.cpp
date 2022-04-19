@@ -173,26 +173,41 @@ namespace moris::mtk
             // get the cells in the first cluster
             moris::Cell< moris::mtk::Cell const* > tClusterCells = tSetClusters( 0 )->get_primary_cells_in_cluster();
 
-            // compute the cell shape of the first cell
-            tCellShape = tClusterCells( 0 )->get_cell_info()->compute_cell_shape( tClusterCells( 0 ) );
-        }
-
-        // within debug, checking all cells to make sure that they are the same Cell Shape
-        // if cells exist
-        // looping through the clusters
-        for ( uint iCluster = 0; iCluster < tSetClusters.size(); iCluster++ )
-        {
-            // get cell of cells in the cluster
-            moris::Cell< moris::mtk::Cell const* > tClusterCellsCheck = tSetClusters( iCluster )->get_primary_cells_in_cluster();
-
-            // looping through the cells in the cluster
-            for ( uint iCheckCell = 0; iCheckCell < tClusterCellsCheck.size(); iCheckCell++ )
+            // compute the cell shape based on the first cell
+            if( tClusterCells.size() > 0 )
             {
-                MORIS_ASSERT( tClusterCellsCheck( iCheckCell )->get_cell_info()->compute_cell_shape( tClusterCellsCheck( iCheckCell ) ) == tCellShape,
-                    "Integration_Mesh_DataBase_IG::get_IG_blockset_shape - cell shape is not consistent in the block" );
+                tCellShape = tClusterCells( 0 )->get_cell_info()->compute_cell_shape( tClusterCells( 0 ) );
+            }
+            else // in case there are void clusters, look at the void cells
+            {
+                tClusterCells = tSetClusters( 0 )->get_void_cells_in_cluster();
+                tCellShape =tClusterCells( 0 )->get_cell_info()->compute_cell_shape( tClusterCells( 0 ) );
             }
         }
 
+// within debug, check all cells to make sure that they are the same Cell Shape
+#ifdef DEBUG
+
+        // skip check for sets only used for visualization purposes
+        if( !std::strstr( aSetName.c_str(), "Vis" ) )
+        {
+            // checking all clusters in set
+            for ( uint iCluster = 0; iCluster < tSetClusters.size(); iCluster++ )
+            {
+                // get cell of cells in the cluster
+                moris::Cell< moris::mtk::Cell const* > tClusterCellsCheck = tSetClusters( iCluster )->get_primary_cells_in_cluster();
+
+                // looping through the cells in the cluster
+                for ( uint iCheckCell = 0; iCheckCell < tClusterCellsCheck.size(); iCheckCell++ )
+                {
+                    MORIS_ASSERT( tClusterCellsCheck( iCheckCell )->get_cell_info()->compute_cell_shape( tClusterCellsCheck( iCheckCell ) ) == tCellShape,
+                        "Integration_Mesh_DataBase_IG::get_IG_blockset_shape - cell shape is not consistent in the block" );
+                }
+            }
+        }
+#endif
+
+        // return the shape of the IG cells
         return tCellShape;
     }
 

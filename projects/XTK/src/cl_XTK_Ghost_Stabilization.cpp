@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_XTK_Ghost_Stabilization.cpp
  *
- *  Created on: Mar 26, 2019
- *      Author: doble
  */
 
 #include "cl_XTK_Ghost_Stabilization.hpp"
@@ -105,7 +108,6 @@ Ghost_Stabilization::visualize_ghost_on_mesh( moris_index const& aBulkPhase )
     enum CellTopology tFacetTopo = determine_cell_topology( mXTKModel->get_spatial_dim(), mtk::Interpolation_Order::LINEAR, CellShape::RECTANGULAR );
 
     moris_index tSSIndex = tEnrIgMesh.create_side_set_from_dbl_side_set( tDSSIndexInMesh, "ghost_ss_" + std::to_string( aBulkPhase ) );
-    // tEnrIgMesh.create_side_set_from_dbl_side_set(tDSSIndexInMesh,"ghost_ss_" + std::to_string(aBulkPhase));
     tEnrIgMesh.create_block_set_from_cells_of_side_set( tSSIndex, "ghost_bs_" + std::to_string( aBulkPhase ), tFacetTopo );
 
     tEnrIgMesh.setup_color_to_set();
@@ -135,8 +137,8 @@ Ghost_Stabilization::visualize_ghost_on_mesh_new(
     moris_index tDSSIndexInMesh = tEnrIgMesh.get_double_sided_set_index( tGhostName );
 
     // create strings for Ghost Side set and block set names
-    std::string tGhostSsName = "Ghost_SS_B" + std::to_string( tBspMeshIndex ) + "_p" + std::to_string( aBulkPhaseIndex );
-    std::string tGhostBsName = "Ghost_BS_B" + std::to_string( tBspMeshIndex ) + "_p" + std::to_string( aBulkPhaseIndex );
+    std::string tGhostSsName = "Vis_Ghost_SS_B" + std::to_string( tBspMeshIndex ) + "_p" + std::to_string( aBulkPhaseIndex );
+    std::string tGhostBsName = "Vis_Ghost_BS_B" + std::to_string( tBspMeshIndex ) + "_p" + std::to_string( aBulkPhaseIndex );
 
     // get the index of the side set
     moris_index tSSIndex = tEnrIgMesh.create_side_set_from_dbl_side_set( tDSSIndexInMesh, tGhostSsName );

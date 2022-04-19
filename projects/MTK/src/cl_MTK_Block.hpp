@@ -156,8 +156,18 @@ namespace moris
 
                     if( mSetClusters.size() > 0 )
                     {
-                        // set the integration geometry type
-                        tIGGeometryType = mSetClusters( 0 )->get_primary_cells_in_cluster( )( 0 )->get_geometry_type();
+                        // get list of primary IG cells in cluster
+                        moris::Cell< mtk::Cell const* > const& tPrimaryIgCellsInCluster = mSetClusters( 0 )->get_primary_cells_in_cluster();
+
+                        // set interpolation order for IG cells fixme
+                        if( tPrimaryIgCellsInCluster.size() > 0 )
+                        {
+                            tIGGeometryType = tPrimaryIgCellsInCluster( 0 )->get_geometry_type();
+                        }
+                        else // in case there are void clusters, look at the void IG cells
+                        {
+                            tIGGeometryType = mSetClusters( 0 )->get_void_cells_in_cluster()( 0 )->get_geometry_type();
+                        }
                     }
 
                     uint tRecIGGeometryType = min_all( (uint)tIGGeometryType );

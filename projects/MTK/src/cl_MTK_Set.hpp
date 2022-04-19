@@ -510,8 +510,18 @@ namespace moris
                     // interpolation order for IP cells fixme
                     tIPInterpolationOrder = mSetClusters( 0 )->get_interpolation_cell( mtk::Master_Slave::MASTER ).get_interpolation_order();
 
-                    // interpolation order for IG cells fixme
-                    tIGInterpolationOrder = mSetClusters( 0 )->get_primary_cells_in_cluster( mtk::Master_Slave::MASTER )( 0 )->get_interpolation_order();
+                    // get list of primary IG cells in cluster
+                    moris::Cell< mtk::Cell const* > const& tPrimaryIgCellsInCluster = mSetClusters( 0 )->get_primary_cells_in_cluster( mtk::Master_Slave::MASTER );
+
+                    // set interpolation order for IG cells fixme
+                    if( tPrimaryIgCellsInCluster.size() > 0 )
+                    {
+                        tIGInterpolationOrder = tPrimaryIgCellsInCluster( 0 )->get_interpolation_order();
+                    }
+                    else // in case there are void clusters, look at the void clusters
+                    {
+                        tIGInterpolationOrder = mSetClusters( 0 )->get_void_cells_in_cluster()( 0 )->get_interpolation_order();
+                    }
                 }
 
                 uint tRecIPInterpolationOrder = min_all( (uint)tIPInterpolationOrder );
