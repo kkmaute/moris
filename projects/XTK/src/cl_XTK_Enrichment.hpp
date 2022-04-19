@@ -1,9 +1,11 @@
-
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_XTK_Enrichment.hpp
  *
- *  Created on: Feb 23, 2018
- *      Author: ktdoble
  */
 
 #ifndef XTK_SRC_XTK_CL_XTK_ENRICHMENT_HPP_
@@ -186,6 +188,9 @@ namespace xtk
             // input: B-spline mesh index, base IP cell index, SPG index local to corresponding B-spline element || output: Enr. IP cell index
             moris::Cell< moris::Cell< moris::Cell< moris_index > > > mBaseIpCellAndSpgToUnzipping;
 
+            // map allowing to enr. IP cell / non-void cluster associated with a given subphase
+            Cell< moris_index > mSubphaseIndexToEnrIpCellIndex; // input: subphase index || output: enriched interpolation cell index
+
             // ----------------------------------------------------------------------------------
 
         public:
@@ -329,6 +334,14 @@ namespace xtk
             get_num_unzippings_of_base_ip_cell( moris_index aBaseIpCellIndex ) const
             {
                 return mNumUnzippingsOnIpCell( aBaseIpCellIndex );
+            }
+
+            // ----------------------------------------------------------------------------------
+            
+            moris::Cell< moris_index > const&
+            get_subphase_to_UIPC_map() const 
+            {
+                return mSubphaseIndexToEnrIpCellIndex;
             }
 
             // ----------------------------------------------------------------------------------

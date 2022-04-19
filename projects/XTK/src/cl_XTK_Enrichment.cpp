@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_XTK_Enrichment.cpp
  *
- *  Created on: Feb 18, 2019
- *      Author: doble
  */
 
 #include "cl_XTK_Enrichment.hpp"
@@ -1791,6 +1794,14 @@ namespace xtk
 
         // allocate base cell to enriched cell data
         tEnrInterpMesh->mBaseCelltoEnrichedCell.resize( mBackgroundMeshPtr->get_num_elems() );
+
+        // initialize subphase index to UIPC index map, for the SP based enrichment this map is trivial
+        uint tNumSPs = mCutIgMesh->get_num_subphases();
+        mSubphaseIndexToEnrIpCellIndex.resize( tNumSPs );
+        for( uint iSP = 0; iSP < tNumSPs; iSP++ )
+        {
+            mSubphaseIndexToEnrIpCellIndex( iSP ) = iSP;
+        }
     }
 
     //-------------------------------------------------------------------------------------
@@ -1825,6 +1836,9 @@ namespace xtk
         // initialize map relating SPGs to unzipping of a given IP cell
         mBaseIpCellAndSpgToUnzipping.resize( tNumBspMeshes );
 
+        // initialize subphase to UIPC map
+        mSubphaseIndexToEnrIpCellIndex.resize( mCutIgMesh->get_num_subphases() );
+
         // initialize lists with correct size for each B-spline mesh
         for ( moris::size_t iMeshIndex = 0; iMeshIndex < mMeshIndices.numel(); iMeshIndex++ )
         {
@@ -1845,10 +1859,23 @@ namespace xtk
             // correct size for list of enr. IP cell indices on current Ip cell
             mEnrIpCellIndices( iIpCell ).resize( tNumUnzippingsOfIpCell );
 
+            // get the number of SPs on the current IP cell
+            moris::Cell< moris_index > const& tSPsOnCell = mCutIgMesh->get_parent_cell_subphases( iIpCell );
+
             for ( moris::uint iEnrLvl = 0; iEnrLvl < tNumUnzippingsOfIpCell; iEnrLvl++)
             {
                 // fill map relating IP-cell index and local enr. lvl to the index of the resulting enr. IP cell
                 mEnrIpCellIndices( iIpCell )( iEnrLvl ) = (moris_index) tEnrIpCellCounter;
+
+                // assemble subphase to UIPC map
+                if( iEnrLvl < tSPsOnCell.size() )
+                {
+                    // get the index of the subphase associated with the current non-void UIPC
+                    moris_index tSpIndex = tSPsOnCell( iEnrLvl );
+
+                    // link the Subphase index to the current enr. IP cell index
+                    mSubphaseIndexToEnrIpCellIndex( tSpIndex ) = tEnrIpCellCounter;
+                }
 
                 // count total number of enr. IP cells
                 tEnrIpCellCounter ++;
@@ -1936,8 +1963,11 @@ namespace xtk
 
             for( uint iSP = 0; iSP < tNumSPs; iSP++ )
             {
+                // get the index of the current subphase
+                moris_index tSpIndex = tSPsOnCell( iSP );
+
                 // get the index of SPG the currently treated SP belongs to
-                moris_index tSpgIndex = tBsplineMeshInfo->mSpToSpgMap( tSPsOnCell( iSP ) );
+                moris_index tSpgIndex = tBsplineMeshInfo->mSpToSpgMap( tSpIndex );
 
                 // store SPG index containing material
                 mMaterialSpgsUnzippedOnIpCell( iMeshIndex )( aIpCellIndex )( iSP ) = tSpgIndex;
