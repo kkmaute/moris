@@ -104,7 +104,8 @@ namespace moris
                  * @param aMTKPerformer pointer to MTK Mesh_Manager
                  * @param aXTKPerformer pointer to XTK_Model
                  */
-                void output_T_matrices(
+                bool
+                output_T_matrices(
                         const std::shared_ptr< mtk::Mesh_Manager > aMTKPerformer,
                         xtk::Model* const &                        aXTKPerformer );
         };
