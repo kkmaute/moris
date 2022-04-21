@@ -360,13 +360,29 @@ namespace moris
                     moris::Cell< mtk::Cell * > & aCells);
 
             //-------------------------------------------------------------------------------
-            uint get_num_basis_functions(const uint aMeshIndex);
-            //-------------------------------------------------------------------------------
 
-            Matrix< IndexMat > get_elements_connected_to_element_and_face_ind_loc_inds( moris_index aElementIndex ) const;
+            uint get_num_basis_functions( const uint aMeshIndex );
 
             //-------------------------------------------------------------------------------
-            Matrix< IndexMat > get_elements_connected_to_element_and_face_ord_loc_inds( moris_index aElementIndex ) const;
+
+            Matrix< IndexMat > 
+            get_elements_connected_to_element_and_face_ind_loc_inds( moris_index aElementIndex ) const;
+
+            //-------------------------------------------------------------------------------
+
+            Matrix< IndexMat > 
+            get_elements_connected_to_element_and_face_ord_loc_inds( moris_index aElementIndex ) const;
+
+            //-------------------------------------------------------------------------------
+
+            void
+            get_elements_connected_to_element_through_face_ord( 
+                    moris_index aElementIndex,
+                    moris_index aSideOrdinal,
+                    moris::Cell< moris_index > aNeighborElements,
+                    moris::Cell< moris_index > aNeighborSideOrdinals,
+                    moris::Cell< moris_index > aTransitionLocations ) const;
+
             //-------------------------------------------------------------------------------
             //          Global ID Functions
             //-------------------------------------------------------------------------------
