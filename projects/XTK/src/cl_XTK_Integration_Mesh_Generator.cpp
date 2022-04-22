@@ -3647,13 +3647,6 @@ Integration_Mesh_Generator::construct_subphase_groups(
             // set the list of IG cells to the b-spline mesh info
             aBsplineMeshInfo->add_ig_cell_indices_to_last_admitted_subphase_group( tIgCellIndicesInSPG );
 
-            // figure out the side ordinals of subphase connectivity to neighboring B-spline cells, and ...
-            moris::Cell< bool > tActiveLigamentSideOrdinals = 
-                this->collect_subphase_group_ligament_side_ordinals( aCutIntegrationMesh, tSPsInBin( iSPG ), tSubphaseIndexToBsplineCell );
-
-            // ... add them to the last admitted SPG
-            aBsplineMeshInfo->set_ligament_side_ordinals_of_last_admitted_subphase_group( tActiveLigamentSideOrdinals );
-
             // get bulk phase of the subphase group and set it
             moris_index tBulkPhaseIndex = aCutIntegrationMesh->get_subphase_bulk_phase( tSPsInBin( iSPG )( 0 ) );
             aBsplineMeshInfo->set_bulk_phase_of_last_admitted_subphase_group( tBulkPhaseIndex );

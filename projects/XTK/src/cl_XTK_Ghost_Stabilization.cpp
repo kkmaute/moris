@@ -1085,13 +1085,6 @@ Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh( Ghost_Setup_Data&
     Cell< Interpolation_Cell_Unzipped* >& tEnrIpCells = tEnrInterpMesh.get_enriched_interpolation_cells();
     Cut_Integration_Mesh*                 tCutIgMesh  = mXTKModel->get_cut_integration_mesh();
 
-    // FIXME: Why was this here? 
-    // TODO: delete this if it doesn't end up being needed
-    // moris::Cell< std::shared_ptr< moris::Cell< moris_index > > > mSubphaseToSubPhase;
-    // moris::Cell< std::shared_ptr< moris::Cell< moris_index > > > mSubphaseToSubPhaseMySideOrds;
-    // moris::Cell< std::shared_ptr< moris::Cell< moris_index > > > mSubphaseToSubPhaseNeighborSideOrds;
-    // moris::Cell< std::shared_ptr< moris::Cell< moris_index > > > mTransitionNeighborCellLocation;
-
     // access subphase neighborhood information
     std::shared_ptr< Subphase_Neighborhood_Connectivity >               tSubphaseNeighborhood               = tCutIgMesh->get_subphase_neighborhood();
     moris::Cell< std::shared_ptr< moris::Cell< moris_index > > > const& tSubphaseToSubphase                 = tSubphaseNeighborhood->mSubphaseToSubPhase;
@@ -1949,8 +1942,6 @@ Ghost_Stabilization::create_master_side_cluster(
             aGhostSetupData.mMasterSideIgCellSideOrds( aBulkIndex )( aCellIndex ),
             aGhostSetupData.mTransitionLocation( aBulkIndex )( aCellIndex ),
             tLocCoords );
-        
-        
 
         // add integration cell
         tMasterSideCluster->mIntegrationCells.push_back( tNewIgCell.get() );
