@@ -27,10 +27,13 @@ namespace moris::mtk
 
     // ----------------------------------------------------------------------------
 
-    Integration_Mesh_Editor::Integration_Mesh_Editor( moris::mtk::Integration_Mesh *aMTKMesh,
-        moris::mtk::Interpolation_Mesh_DataBase_IP                                 *aIPMeshDataBase ) :
-        mInputMesh( aMTKMesh ),
-        mIPMeshDataBase( aIPMeshDataBase )
+    Integration_Mesh_Editor::Integration_Mesh_Editor(
+            moris::mtk::Integration_Mesh*               aMTKMesh,
+            moris::mtk::Interpolation_Mesh_DataBase_IP* aIPMeshDataBase,
+            bool                                        aCheckMesh )
+            : mInputMesh( aMTKMesh )
+            , mIPMeshDataBase( aIPMeshDataBase )
+            , mCheckMesh( aCheckMesh )
     {
         mIGMeshInfo              = new Integration_Mesh_Info;
         mIGMeshInfo->mVertices   = mInputMesh->get_all_vertices();
@@ -897,7 +900,7 @@ namespace moris::mtk
         // create the mesh objects( vertices, cells, ...)
         this->create_mesh();
 
-        //check that input and output mesh are the same (it is active  in debug)
+        //check that input and output mesh are the same (it is active in debug)
         this->check_input_output_mesh();
 
         return mOutputMesh;
@@ -2295,26 +2298,29 @@ namespace moris::mtk
     void
     Integration_Mesh_Editor::check_input_output_mesh()
     {
-         // checks to confirm that the new mesh is equivalent to the old mesh
-        MORIS_ASSERT( this->check_vertices(), "Vertices in the old and new mesh are not identical" );
+        if( mCheckMesh )
+        {
+            // checks to confirm that the new mesh is equivalent to the old mesh
+            MORIS_ASSERT( this->check_vertices(), "Vertices in the old and new mesh are not identical" );
 
-        MORIS_ASSERT( this->check_cells(), "Cells in the old and new mesh are not identical" );
+            MORIS_ASSERT( this->check_cells(), "Cells in the old and new mesh are not identical" );
 
-        MORIS_ASSERT( this->check_cell_clusters(), "Cell clusters in the old and new mesh are not identical" );
+            MORIS_ASSERT( this->check_cell_clusters(), "Cell clusters in the old and new mesh are not identical" );
 
-        MORIS_ASSERT( this->check_side_clusters(), "side clusters in the old and new mesh are not identical" );
+            MORIS_ASSERT( this->check_side_clusters(), "side clusters in the old and new mesh are not identical" );
 
-        MORIS_ASSERT( this->check_block_sets(), "Block sets in the old and new mesh are not identical" );
+            MORIS_ASSERT( this->check_block_sets(), "Block sets in the old and new mesh are not identical" );
 
-        MORIS_ASSERT( this->check_side_sets(), "Side Sets in the old and new mesh are not identical" );
+            MORIS_ASSERT( this->check_side_sets(), "Side Sets in the old and new mesh are not identical" );
 
-        MORIS_ASSERT( this->check_double_sided_clusters(), "Double sided clusters in the old and new mesh are not identical" );
+            MORIS_ASSERT( this->check_double_sided_clusters(), "Double sided clusters in the old and new mesh are not identical" );
 
-        MORIS_ASSERT( this->check_ghost_clusters(), "Ghost side clusters and double sided clusters in the old and new mesh are not identical" );
+            MORIS_ASSERT( this->check_ghost_clusters(), "Ghost side clusters and double sided clusters in the old and new mesh are not identical" );
 
-        MORIS_ASSERT( this->check_double_sided_sets(), "Double sided sets in the old and new mesh are not identical" );
+            MORIS_ASSERT( this->check_double_sided_sets(), "Double sided sets in the old and new mesh are not identical" );
 
-        MORIS_ASSERT( this->check_maps(), "Maps in the old and new mesh are not identical" );
+            MORIS_ASSERT( this->check_maps(), "Maps in the old and new mesh are not identical" );
+        }
     }
 
 
@@ -2624,7 +2630,13 @@ namespace moris::mtk
                 // if output is false return
                 if ( !tOutput )
                 {
-                    MORIS_LOG_ERROR( "side cluster number %u of the mesh, is inconsistent,tEqualIPCell %d,tVertexIdAndIndexEqual %d ,tPrimaryCellIdAndIndexEqual %d, tEqualSideOrdinals %d , tEqualLocalCoords %d  ",
+                    MORIS_LOG_ERROR( 
+                        "Side cluster number %u is inconsistent; "
+                        "tEqualIPCell %d \n"
+                        "tVertexIdAndIndexEqual %d \n"
+                        "tPrimaryCellIdAndIndexEqual %d \n"
+                        "tEqualSideOrdinals %d \n"
+                        "tEqualLocalCoords %d \n",
                         iCounter,
                         tEqualIPCell,
                         tVertexIdAndIndexEqual,

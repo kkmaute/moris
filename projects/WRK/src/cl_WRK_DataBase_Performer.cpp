@@ -55,7 +55,7 @@ namespace moris
 
             mInterpolationMesh = tIPMeshEditor.perform();
 
-            mIGMeshEditor = new mtk::Integration_Mesh_Editor( tEnrIntegMesh, mInterpolationMesh );
+            mIGMeshEditor = new mtk::Integration_Mesh_Editor( tEnrIntegMesh, mInterpolationMesh, mCheckMesh );
 
             mIntegrationMesh = mIGMeshEditor->perform();
 
