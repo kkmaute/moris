@@ -216,6 +216,7 @@ namespace xtk
         if ( mParameterList.get< bool >( "decompose" ) )
         {
             mTriangulateAll = mParameterList.get< bool >( "triangulate_all" );
+            mTriangulateAllInPost = mParameterList.get< bool >( "triangulate_all_in_post" );
 
             mIgElementOrder = mParameterList.get< moris::uint >( "ig_element_order" );
 
@@ -1589,6 +1590,22 @@ namespace xtk
     {
         // get value from parameterlist
         return mParameterList.get< std::string >( "MPC_output_file" );
+    }
+
+    // -----------------------------------------------------------------------------
+
+    bool
+    Model::kill_workflow_flag()
+    {
+        // indicate to kill workflow if T-matrix output of full triangulation in post-processing of the cut IG mesh has been requested
+        if( this->get_T_matrix_output_file_name() == "" || mTriangulateAllInPost )
+        {
+            return true;
+        }
+        else // otherwise don't kill the workflow
+        {
+            return false;
+        }
     }
 
     //------------------------------------------------------------------------------

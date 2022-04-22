@@ -110,8 +110,9 @@ namespace xtk
         bool mGhost             = false;// Model has setup ghost stabilization
 
         // Flag to cleanup mesh at end of decomposition
-        bool mTriangulateAll = false;// Triangulate all background cells
-        bool mCleanupMesh    = false;// Cleanup the mesh
+        bool mTriangulateAll = false; // Triangulate all background cells
+        bool mTriangulateAllInPost = false; // Triangulate all background cells in post-processing of cut integration mesh (only for exo-mesh output)
+        bool mCleanupMesh    = false; // Cleanup the mesh
 
         // polynomial order of IG elements, 1 is default, 2 or higher will invoke order elevation in decomposition
         uint mIgElementOrder = 1;// Triangulate all background cells
@@ -495,6 +496,11 @@ namespace xtk
 
             std::string
             get_MPC_output_file_name();
+
+            //-----------------------------------------------------------------------------------
+
+            bool
+            kill_workflow_flag();
 
             //-----------------------------------------------------------------------------------
 
