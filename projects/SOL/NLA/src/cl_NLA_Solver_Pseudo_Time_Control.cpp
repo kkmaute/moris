@@ -174,10 +174,10 @@ namespace moris
                     // get scaling on previous residual
                     mResidualExponent = aParameterListNonlinearSolver.get< real >( "NLA_pseudo_time_residual_exponent" );
 
-                    MORIS_ERROR( mResidualFactor > 1.0,
+                    MORIS_ERROR( mResidualFactor >= 1.0,
                             "Solver_Pseudo_Time_Control::Solver_Pseudo_Time_Control - Expur strategy: NLA_pseudo_time_residual_factor needs to be larger 1.0" );
 
-                    MORIS_ERROR( mResidualExponent < 1.0,
+                    MORIS_ERROR( mResidualExponent <= 1.0,
                             "Solver_Pseudo_Time_Control::Solver_Pseudo_Time_Control - Expur strategy: NLA_pseudo_time_residual_exponent needs to be smaller 1.0" );
 
                     // set initial time step size
@@ -511,6 +511,8 @@ namespace moris
                             if ( aRelResNorm > mPrevRelResNorm )
                             {
                                 tPerformUpdate = false;
+
+                                MORIS_LOG_INFO( "Increase of static residual: %f", aRelResNorm / mPrevRelResNorm );
                             }
 
                             // compute new time step
