@@ -444,7 +444,8 @@ Enriched_Integration_Mesh::get_set_entity_loc_inds(
 Matrix< IndexMat >
 Enriched_Integration_Mesh::get_element_indices_in_block_set( uint aSetIndex )
 {
-    return this->get_block_entity_loc_inds( this->get_set_names( EntityRank::ELEMENT )( aSetIndex ) );
+    std::string tSetName = this->get_set_names( EntityRank::ELEMENT )( aSetIndex );
+    return this->get_block_entity_loc_inds( tSetName );
 }
 
 //------------------------------------------------------------------------------

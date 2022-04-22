@@ -278,27 +278,30 @@ namespace moris
             std::shared_ptr< mtk::Mesh_Manager > tMTKDataBasePerformer = std::make_shared< mtk::Mesh_Manager >();
             tDataBasePerformer.set_output_performer( tMTKDataBasePerformer );
 
+            // turn off the mesh check if no FEM-model will be constructed on the mesh
+            tDataBasePerformer.set_mesh_check( !tXTKPerformer->kill_workflow_flag() );
+
             // perform the mtk data base
             tDataBasePerformer.perform();
 
             // set the mtk performer
             mPerformerManager->mMTKPerformer( 1 ) = tMTKDataBasePerformer;
 
-            // output T-matrices and MPCs if requested
-            bool tOutputTMatrices = this->output_T_matrices( tMTKPerformer, tXTKPerformer );
-
-            // delete the xtk-performer
-            delete tXTKPerformer;
+            // output T-matrices and/or MPCs if requested
+            this->output_T_matrices( tMTKPerformer, tXTKPerformer );
             
             // stop workflow if T-Matrices have been outputted
-            if ( tOutputTMatrices )
+            if ( tXTKPerformer->kill_workflow_flag() )
             {
-                MORIS_LOG( "-----------------------------------------------------------" );
-                MORIS_LOG( "T-Matrix output requested. Stopping workflow after XTK/MTK." );
-                MORIS_LOG( "-----------------------------------------------------------" );
+                MORIS_LOG( "----------------------------------------------------------------------------------------------------" );
+                MORIS_LOG( "T-Matrix output or triangulation of all elements in post requested. Stopping workflow after XTK/MTK." );
+                MORIS_LOG( "----------------------------------------------------------------------------------------------------" );
                 moris::Matrix< DDRMat > tMat( 1, 1, std::numeric_limits< real >::quiet_NaN() );
                 return tMat;
             }
+
+            // delete the xtk-performer
+            delete tXTKPerformer;
 
             // IMPORTANT!!! do not overwrite previous XTK  and MTK performer before we know if this XTK performer triggers a restart.
             // otherwise the fem::field meshes are deleted and cannot be used anymore.

@@ -63,8 +63,7 @@ Integration_Mesh_Generator::perform()
     this->check_intersected_background_cell_levels(tGenerationData,tCutIntegrationMesh.get(),tBackgroundMesh);
 
     // make mSameLevelChildMeshes flag global consistent
-
-    if(!tCutIntegrationMesh->mSameLevelChildMeshes)
+    if( !tCutIntegrationMesh->mSameLevelChildMeshes)
     {
         return tCutIntegrationMesh;
     }
@@ -157,6 +156,38 @@ Integration_Mesh_Generator::perform()
     // construct the bulk phase blocks
     moris::Cell< std::shared_ptr< IG_Cell_Group > > tBulkPhaseCellGroups;
     this->construct_bulk_phase_cell_groups( tCutIntegrationMesh.get(), tBulkPhaseCellGroups );
+
+    // if triangulation of all cells is requested, also subdivide the non-cut cells
+    if( mXTKModel->mTriangulateAllInPost )
+    {
+        MORIS_LOG_WARNING( "Triangulation of non-intersected background cells in post-processing requested." );
+        MORIS_LOG_WARNING( "Mesh may be missing some side sets at the domain boundary." );
+
+        // find non-intersected cells to triangulate in post
+        this->determine_non_intersected_background_cells( tGenerationData, tCutIntegrationMesh.get(), tBackgroundMesh );
+
+        // create the regular subdivision routine with a factory
+        std::shared_ptr< Decomposition_Algorithm > tRegSubAlg = 
+            create_decomposition_algorithm( this->determine_reg_subdivision_template(), mXTKModel->get_parameter_list() );
+
+        // swap the list of intersected cells out with list of non-intersected cells to trigger regular subdivision on the non-intersected cells
+        Cell< moris_index > tAllIntersecedBgCells = tGenerationData.mAllIntersectedBgCellInds;
+        tGenerationData.mAllIntersectedBgCellInds = tGenerationData.mAllNonIntersectedBgCellInds;
+
+        // perform the regular subdivision on the non-intersected cells
+        Decomposition_Data tDecompositionData;
+        tRegSubAlg->perform( &tGenerationData, &tDecompositionData, tCutIntegrationMesh.get(), tBackgroundMesh, this );
+
+        // assign list of intersected BG cells back to Mesh Generation Data
+        tGenerationData.mAllIntersectedBgCellInds = tAllIntersecedBgCells;
+
+        // re-finalize mesh
+        tCutIntegrationMesh->finalize_cut_mesh_construction();
+        this->compute_ig_cell_bulk_phase( tCutIntegrationMesh.get() );
+
+        // assign newly generated IG cells to subphases
+        this->construct_subphases_on_triangulated_non_cut_cells( &tGenerationData, tCutIntegrationMesh.get(), tBackgroundMesh );
+    }
 
     // check if order elevation has been requested
     if ( this->get_ig_mesh_order() > 1 )
@@ -253,6 +284,26 @@ uint
 Integration_Mesh_Generator::get_ig_mesh_order()
 {
     return this->mXTKModel->ig_element_order();
+}
+
+// ----------------------------------------------------------------------------------
+
+enum Subdivision_Method
+Integration_Mesh_Generator::determine_reg_subdivision_template()
+{
+    if( this->get_spatial_dim() == 2 )
+    {
+        return Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4;
+    }
+    else if( this->get_spatial_dim() == 2 )
+    {
+        return Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8;
+    }
+    else
+    {
+        MORIS_ERROR( false, "Integration_Mesh_Generator::determine_reg_subdivision_template() - Spatial dimension is not 2 or 3." );
+        return Subdivision_Method::NO_METHOD;
+    }
 }
 
 // ----------------------------------------------------------------------------------
@@ -422,6 +473,71 @@ Integration_Mesh_Generator::determine_intersected_background_cells(
 
     unique( aMeshGenerationData.mAllIntersectedBgCellInds );
 
+    return true;
+}
+
+// ----------------------------------------------------------------------------------
+
+bool
+Integration_Mesh_Generator::determine_non_intersected_background_cells(
+    Integration_Mesh_Generation_Data& aMeshGenerationData,
+    Cut_Integration_Mesh*             aCutIntegrationMesh,
+    moris::mtk::Mesh*                 aBackgroundMesh )
+{
+    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Determine intersected background cells" ,mXTKModel->mVerboseLevel, 1  );
+    uint   tNumGeometries = mActiveGeometries.numel();
+
+    // get number of Lagrange elements
+    uint tNumCells = aBackgroundMesh->get_num_elems();
+
+    // initialize memory for the list of non-intersected cells
+    aMeshGenerationData.mAllNonIntersectedBgCellInds.reserve( tNumCells );
+
+    // Initialize geometric query
+    Geometric_Query_XTK tGeometricQuery;
+
+    // say I am just interested in a yes or no answer
+    tGeometricQuery.set_query_type( moris::ge::Query_Type::INTERSECTION_NO_LOCATION );
+
+    // large coord matrix that I want to keep in scope for a long time avoid copying coordinate all the time.
+    tGeometricQuery.set_coordinates_matrix( &aCutIntegrationMesh->mVertexCoordinates );
+
+    tGeometricQuery.set_query_entity_rank( EntityRank::ELEMENT );
+
+    // iterate through all cells
+    for ( moris::uint iCell = 0; iCell < tNumCells; iCell++ )
+    {
+        // assume the cell is non-cut
+        bool tCellIsCut = false;
+
+        // setup geometric query with this current cell information
+        tGeometricQuery.set_parent_cell( &aBackgroundMesh->get_mtk_cell( (moris_index)iCell ) );
+        tGeometricQuery.set_query_cell( &aBackgroundMesh->get_mtk_cell( (moris_index)iCell ) );
+
+        // iterate through all geometries for current cell and check if it gets cut by any of the geometries
+        for ( moris::size_t iGeom = 0; iGeom < tNumGeometries; iGeom++ )
+        {
+            // current index for this geometry
+            moris_index tGeometryIndex = mActiveGeometries( iGeom );
+
+            // tell the query which geometric index we are working on
+            tGeometricQuery.set_geometric_index( tGeometryIndex );
+
+            // set to true if cell is cut by current or any previous geometry
+            tCellIsCut = tCellIsCut ||  mXTKModel->get_geom_engine()->geometric_query( &tGeometricQuery );
+        }
+
+        // if the cell is not cut by any geometry, store the cell's index
+        if( !tCellIsCut )
+        {
+            aMeshGenerationData.mAllNonIntersectedBgCellInds.push_back( iCell );
+        }
+    }
+
+    // remove the excess space
+    shrink_to_fit_all( aMeshGenerationData.mAllIntersectedBgCellInds );
+
+    // return success
     return true;
 }
 
@@ -761,7 +877,7 @@ Integration_Mesh_Generator::identify_and_construct_subphases(
         tSubphaseIndices.clear();
     }
 
-    // iterate over background cells and make the subphase group contain only them
+    // iterate over background cells and make the subphase contain only them
     for ( moris::size_t iBgCell = 0; iBgCell < aBackgroundMesh->get_num_elems(); iBgCell++ )
     {
         // check whether current Bg Cell has already been treated 
@@ -811,6 +927,52 @@ Integration_Mesh_Generator::identify_and_construct_subphases(
 
     // give all sub-phases a global ID (across all procs)
     this->assign_subphase_glob_ids( aCutIntegrationMesh, aBackgroundMesh );
+}
+
+// ----------------------------------------------------------------------------------
+
+void
+Integration_Mesh_Generator::construct_subphases_on_triangulated_non_cut_cells(
+    Integration_Mesh_Generation_Data*                 aMeshGenerationData,
+    Cut_Integration_Mesh*                             aCutIntegrationMesh,
+    moris::mtk::Mesh*                                 aBackgroundMesh )
+{
+    MORIS_ERROR( mXTKModel->mTriangulateAllInPost, 
+        "Integration_Mesh_Generator::construct_subphases_on_triangulated_non_cut_cells() - "
+        "This function should only be invoked if triangulation of all elements in post has been requested." );
+
+    // get the non-intersected BG cells
+    Cell< moris_index > const& tNonIntersectedBgCells = aMeshGenerationData->mAllNonIntersectedBgCellInds;
+
+    // get the number of new cell groups
+    uint tNumNewTriangulatedBgCells = tNonIntersectedBgCells.size();
+
+    // mark these BG cells to now also have children
+    for( uint iNonIntersectBgCell = 0; iNonIntersectBgCell < tNumNewTriangulatedBgCells; iNonIntersectBgCell++ )
+    {
+        // get the index of the non-intersected BG cell
+        moris_index tBgCellIndex = tNonIntersectedBgCells( iNonIntersectBgCell );
+
+        // mark the BG cell to have children
+        aCutIntegrationMesh->mParentCellHasChildren( tBgCellIndex ) = (moris_index) true;
+
+        // get the IG-Cell-Group that has been constructed on the current BG element by the regular subdivision on the non-intersected BG cells
+        std::shared_ptr< IG_Cell_Group > tIgCellGroup = aCutIntegrationMesh->get_ig_cell_group( tBgCellIndex );
+
+        // assign the new IG-Cell-Group to the subphase
+        aCutIntegrationMesh->mSubPhaseCellGroups( tBgCellIndex )->mIgCellGroup = tIgCellGroup->mIgCellGroup;
+    }
+
+    // in debug check that all BG cells have been marked to have children
+#ifdef DEBUG
+    for( uint iBgCell = 0; iBgCell < aCutIntegrationMesh->mParentCellHasChildren.size(); iBgCell++ )
+    {
+        MORIS_ASSERT( aCutIntegrationMesh->mParentCellHasChildren( iBgCell ) == (moris_index) true,
+            "Integration_Mesh_Generator::construct_subphases_on_triangulated_non_cut_cells() - "
+            "BG cell with index %i not marked to have children.", iBgCell );   
+    }
+#endif
+
 }
 
 // ----------------------------------------------------------------------------------
@@ -879,7 +1041,7 @@ Integration_Mesh_Generator::construct_subphase_neighborhood(
             moris_index tFacetIndex             = tCellToCellSideIndex( 1, iN );
             moris_index tMyOrdinal              = tCellToCellSideOrd( 1, iN );
             moris_index tNeighborOrdinal        = tCellToCellSideOrd( 2, iN );
-            moris_index tTransitionCellLocation = tCellToCellSideOrd( 3, iN ); // TODO: need to understand this information ~Nils
+            moris_index tTransitionCellLocation = tCellToCellSideOrd( 3, iN );
 
             // find Ig-cells that are representative for connection from center-Bg-cell through currently treated side ordinal
             Cell< moris::moris_index > tMyCellSubphaseIndices( 0 ); // list of Sub-phases (indices) present on current Lag-elem
@@ -896,7 +1058,6 @@ Integration_Mesh_Generator::construct_subphase_neighborhood(
                 tRepresentativeIgCells,                     // to be filled
                 tRepresentativeIgCellsOrdinal );            // to be filled
             
-            // TODO: need to understand this bit ~Nils
             // transitioning between mesh levels (i.e. there's a hierarchical refinement boundary at the currently treated facet)
             if ( tTransitionCellLocation != MORIS_INDEX_MAX )
             {
@@ -948,7 +1109,8 @@ Integration_Mesh_Generator::construct_subphase_neighborhood(
                     moris_index tMyIgCellIndex   = tRepresentativeIgCells( iMySP );
                     moris_index tMyIgCellSideOrd = tRepresentativeIgCellsOrdinal( iMySP );
 
-                    // case: transition between background cell and triangulated cells (at least one of the Bg-cells is NOT cut)
+                    // case: transition between background cell and another background cell or triangulated cells 
+                    // i.e. at least one of the Bg-cells is NOT cut
                     if ( !aCutIntegrationMesh->parent_cell_has_children( tCurrentCell->get_index() ) || 
                             !aCutIntegrationMesh->parent_cell_has_children( tOtherCell->get_index() ) )
                     {
@@ -997,6 +1159,10 @@ Integration_Mesh_Generator::construct_subphase_neighborhood(
                                 tNeighborSubphaseIndex = aCutIntegrationMesh->get_ig_cell_subphase_index( iCell->get_index() );
                             }
                         }
+
+                        MORIS_ASSERT( tNeighborSubphaseIndex != MORIS_INDEX_MAX, 
+                            "Integration_Mesh_Generator::construct_subphase_neighborhood() - "
+                            "Adjacent IG Cell not found." );
 
                         //// MORIS_ASSERT( aCutIntegrationMesh->get_subphase_bulk_phase( tNeighborSubphaseIndex ) == aCutIntegrationMesh->get_subphase_bulk_phase( tMySubphaseIndex ), "Subphase bulk phase mismatch" );
 
