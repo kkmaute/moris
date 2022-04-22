@@ -171,8 +171,14 @@ namespace moris
                     // get pre-factor
                     mResidualFactor = aParameterListNonlinearSolver.get< real >( "NLA_pseudo_time_residual_factor" );
 
+                    // get scaling on previous residual
+                    mResidualExponent = aParameterListNonlinearSolver.get< real >( "NLA_pseudo_time_residual_exponent" );
+
                     MORIS_ERROR( mResidualFactor > 1.0,
                             "Solver_Pseudo_Time_Control::Solver_Pseudo_Time_Control - Expur strategy: NLA_pseudo_time_residual_factor needs to be larger 1.0" );
+
+                    MORIS_ERROR( mResidualExponent < 1.0,
+                            "Solver_Pseudo_Time_Control::Solver_Pseudo_Time_Control - Expur strategy: NLA_pseudo_time_residual_exponent needs to be smaller 1.0" );
 
                     // set initial time step size
                     mInitialStepSize = mConstantStepSize;
@@ -297,7 +303,6 @@ namespace moris
                 real&             aTotalTime,
                 real&             aRelResNorm )
         {
-
             // skip setting remaining parameters if no pseudo time step control is used
             if ( mTimeStepStrategy == sol::SolverPseudoTimeControlType::None )
             {
@@ -338,6 +343,9 @@ namespace moris
                         // compute new time step
                         aTimeStep = std::max( mConstantStepSize, mTimeStepIndexFactor * std::pow( mTimeStepCounter, mTimeStepExponent ) );
 
+                        // enforce maximum time step size
+                        aTimeStep = std::min( aTimeStep, mMaxStepSize );
+
                         // increase time step counter
                         mTimeStepCounter++;
                     }
@@ -354,6 +362,9 @@ namespace moris
                         // compute new time step
                         aTimeStep = mConstantStepSize * std::pow( mTimeStepIndexFactor, std::floor( mTimeStepCounter / mTimeStepExponent ) * mTimeStepExponent );
 
+                        // enforce maximum time step size
+                        aTimeStep = std::min( aTimeStep, mMaxStepSize );
+
                         // increase time step counter
                         mTimeStepCounter++;
                     }
@@ -363,6 +374,9 @@ namespace moris
                 {
                     // compute new time step
                     aTimeStep = mResidualFactor / std::pow( aRelResNorm, mResidualExponent );
+
+                    // enforce maximum time step size
+                    aTimeStep = std::min( aTimeStep, mMaxStepSize );
 
                     // update increase time step only if requirement on relative residual is satisfied
                     if ( aRelResNorm < mRelResUpdate )
@@ -383,6 +397,9 @@ namespace moris
                     real tResBased = mResidualFactor / std::pow( aRelResNorm, mResidualExponent );
 
                     aTimeStep = std::max( tIndexBased, tResBased );
+
+                    // enforce maximum time step size
+                    aTimeStep = std::min( aTimeStep, mMaxStepSize );
 
                     // update increase time step only if requirement on relative residual is satisfied
                     if ( aRelResNorm < mRelResUpdate )
@@ -412,6 +429,9 @@ namespace moris
 
                         // compute new time step
                         aTimeStep = mPrevStepSize * std::max( 1.0, mResidualExponent * mPrevRelResNorm / aRelResNorm );
+
+                        // enforce maximum time step size
+                        aTimeStep = std::min( aTimeStep, mMaxStepSize );
 
                         // save previous time step size
                         mPrevStepSize = aTimeStep;
@@ -444,6 +464,9 @@ namespace moris
 
                         // compute new time step
                         aTimeStep = mPrevStepSize * std::pow( mResidualFactor, tExponent );
+
+                        // enforce maximum time step size
+                        aTimeStep = std::min( aTimeStep, mMaxStepSize );
 
                         // save previous time step size
                         mPrevStepSize = aTimeStep;
@@ -484,13 +507,39 @@ namespace moris
                         // reduce time step
                         if ( tRelNumIter > 0.7 )
                         {
-                            aTimeStep = mPrevStepSize / mResidualFactor;
+                            // perform update only if static residual has decreased
+                            if ( aRelResNorm > mPrevRelResNorm )
+                            {
+                                tPerformUpdate = false;
+                            }
+
+                            // compute new time step
+                            aTimeStep = mPrevStepSize * mResidualExponent;
                         }
+
+                        // check that time step does not drop below initial one
+                        if ( aTimeStep < mConstantStepSize )
+                        {
+                            // set time step size to initial one
+                            aTimeStep = mConstantStepSize;
+
+                            // force update
+                            tPerformUpdate = true;
+                        }
+
+                        // enforce maximum time step size
+                        aTimeStep = std::min( aTimeStep, mMaxStepSize );
 
                         MORIS_LOG_INFO( "mPrevStepSize %f  aTimeStep %f", mPrevStepSize, aTimeStep );
 
                         // save previous time step size
                         mPrevStepSize = aTimeStep;
+
+                        // save previous relative residual only if update will be performed
+                        if ( tPerformUpdate )
+                        {
+                            mPrevRelResNorm = aRelResNorm;
+                        }
 
                         // increase time step counter
                         mTimeStepCounter++;
@@ -518,6 +567,9 @@ namespace moris
                             aTimeStep += 90.0 * std::pow( 1.3, std::min( mTimeStepCounter - mComsolParameter_2, 9.0 ) );
                         }
 
+                        // enforce maximum time step size
+                        aTimeStep = std::min( aTimeStep, mMaxStepSize );
+
                         // increase time step counter
                         mTimeStepCounter++;
                     }
@@ -528,9 +580,6 @@ namespace moris
                     MORIS_ERROR( false, "Solver_Pseudo_Time_Control::eval - strategy not implemented.\n" );
                 }
             }
-
-            // enforce maximum time step size
-            aTimeStep = std::min( aTimeStep, mMaxStepSize );
 
             // set steady state step size
             if ( aRelResNorm < mSteadyStateRelRes || mSteadyStateMode )
@@ -575,7 +624,7 @@ namespace moris
                 real tCurrentNorm = mFullCurrentSolution->vec_norm2()( 0 );
 
                 mFullPreviousSolution->vec_plus_vec( -1.0, *( mFullCurrentSolution ), 1.0 );
-                real tDeltaNorm = mFullCurrentSolution->vec_norm2()( 0 );
+                real tDeltaNorm = mFullPreviousSolution->vec_norm2()( 0 );
 
                 MORIS_LOG_INFO( "Solution norms: previous = %e  current %e  change %e", tPreviousNorm, tCurrentNorm, tDeltaNorm );
 
