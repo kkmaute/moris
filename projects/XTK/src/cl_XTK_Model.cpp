@@ -1598,7 +1598,7 @@ namespace xtk
     Model::kill_workflow_flag()
     {
         // indicate to kill workflow if T-matrix output of full triangulation in post-processing of the cut IG mesh has been requested
-        if( this->get_T_matrix_output_file_name() == "" || mTriangulateAllInPost )
+        if( this->get_T_matrix_output_file_name() != "" || mTriangulateAllInPost )
         {
             return true;
         }
