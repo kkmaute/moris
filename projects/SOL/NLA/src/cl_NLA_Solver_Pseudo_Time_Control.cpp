@@ -499,24 +499,23 @@ namespace moris
                         MORIS_LOG_INFO( "tRelNumIter %f", tRelNumIter );
 
                         // increase time step
-                        if ( tRelNumIter < 0.3 )
+                        if ( tRelNumIter < 0.4 )
                         {
                             aTimeStep = mPrevStepSize * mResidualFactor;
                         }
 
                         // reduce time step
-                        if ( tRelNumIter > 0.7 )
+                        if ( tRelNumIter > 0.8 )
                         {
-                            // perform update only if static residual has decreased
-                            if ( aRelResNorm > mPrevRelResNorm )
-                            {
-                                tPerformUpdate = false;
-
-                                MORIS_LOG_INFO( "Increase of static residual: %f", aRelResNorm / mPrevRelResNorm );
-                            }
-
-                            // compute new time step
                             aTimeStep = mPrevStepSize * mResidualExponent;
+                        }
+
+                        // perform update only if static residual has not increased by more than 25%
+                        if ( aRelResNorm > 1.25 * mPrevRelResNorm )
+                        {
+                            tPerformUpdate = false;
+
+                            MORIS_LOG_INFO( "Increase of static residual: %f (RelNumIter = %f)", aRelResNorm / mPrevRelResNorm, tRelNumIter );
                         }
 
                         // check that time step does not drop below initial one
@@ -632,6 +631,11 @@ namespace moris
 
                 // copy current solution onto "previous" solution
                 mPreviousSolution->vec_plus_vec( 1.0, *( aCurrentSolution ), 0.0 );
+            }
+            else
+            {
+                // reset current solution to the one of the previous time step
+                aCurrentSolution->vec_plus_vec( 1.0, *( mPreviousSolution ), 0.0 );
             }
 
             // check if time step size or number of time steps meets convergence criterion
