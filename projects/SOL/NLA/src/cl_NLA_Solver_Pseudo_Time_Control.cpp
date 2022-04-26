@@ -641,6 +641,12 @@ namespace moris
             // check if time step size or number of time steps meets convergence criterion
             if ( aRelResNorm < mRelResNormDrop || mTimeStepCounter > mMaxNumTimeSteps )
             {
+                MORIS_LOG_INFO( "Pseudo-transient continuation converged: %e < %e || %d > %d",
+                        aRelResNorm,
+                        mRelResNormDrop,
+                        mTimeStepCounter,
+                        mMaxNumTimeSteps );
+
                 tIsConverged = true;
             }
 
