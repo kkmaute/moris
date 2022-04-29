@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_WRK_Workflow_HMR_XTK.cpp
+ * 
+ */
+
 #include "cl_WRK_Performer_Manager.hpp"
 #include "cl_WRK_Workflow_HMR_XTK.hpp"
 #include "cl_HMR.hpp"
@@ -268,14 +278,27 @@ namespace moris
             std::shared_ptr< mtk::Mesh_Manager > tMTKDataBasePerformer = std::make_shared< mtk::Mesh_Manager >();
             tDataBasePerformer.set_output_performer( tMTKDataBasePerformer );
 
+            // turn off the mesh check if no FEM-model will be constructed on the mesh
+            tDataBasePerformer.set_mesh_check( !tXTKPerformer->kill_workflow_flag() );
+
             // perform the mtk data base
             tDataBasePerformer.perform();
 
             // set the mtk performer
             mPerformerManager->mMTKPerformer( 1 ) = tMTKDataBasePerformer;
 
-            // output T-matrices and MPCs if requested
+            // output T-matrices and/or MPCs if requested
             this->output_T_matrices( tMTKPerformer, tXTKPerformer );
+            
+            // stop workflow if T-Matrices have been outputted
+            if ( tXTKPerformer->kill_workflow_flag() )
+            {
+                MORIS_LOG( "----------------------------------------------------------------------------------------------------" );
+                MORIS_LOG( "T-Matrix output or triangulation of all elements in post requested. Stopping workflow after XTK/MTK." );
+                MORIS_LOG( "----------------------------------------------------------------------------------------------------" );
+                moris::Matrix< DDRMat > tMat( 1, 1, std::numeric_limits< real >::quiet_NaN() );
+                return tMat;
+            }
 
             // delete the xtk-performer
             delete tXTKPerformer;
@@ -399,7 +422,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void
+        bool
         Workflow_HMR_XTK::output_T_matrices(
                 const std::shared_ptr< mtk::Mesh_Manager > aMTKPerformer,
                 xtk::Model* const &                        aXTKPerformer )
@@ -410,8 +433,8 @@ namespace moris
             {
                 mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair( 0 ).get_integration_mesh()->save_IG_node_TMatrices_to_file( tTmatrixFileName );
 
-                MORIS_ERROR( false,
-                        "Workflow_HMR_XTK - Output T-Matrices: Kill run here by intention, only T-Matrices requested" );
+                // return flag stopping the workflow after the T-Matrix output
+                return true;
             }
 
             // Output MPCs if requested
@@ -420,6 +443,8 @@ namespace moris
             {
                 mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair( 0 ).get_integration_mesh()->save_MPC_to_hdf5( tMpcFileName );
             }
+
+            return false;
         }
 
         //--------------------------------------------------------------------------------------------------------------

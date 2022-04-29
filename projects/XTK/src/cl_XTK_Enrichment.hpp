@@ -1,9 +1,11 @@
-
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_XTK_Enrichment.hpp
  *
- *  Created on: Feb 23, 2018
- *      Author: ktdoble
  */
 
 #ifndef XTK_SRC_XTK_CL_XTK_ENRICHMENT_HPP_
@@ -180,7 +182,14 @@ namespace xtk
             moris::Cell< moris::Cell<  moris::Cell< moris_index > > > mVoidSpgsUnzippedOnIpCell; // input: B-spline mesh index, IP-cell index || output: list of SPG indices wrt. which void clusters need to be created
 
             // indices of enriched IP cells as a function of the base IP cell and the local SPG index
-            moris::Cell< moris::Cell< moris_index > > mEnrIpCellIndices; // input: IP cell index, local SPG index || output: index of enr. IP cell
+            moris::Cell< moris::Cell< moris_index > > mEnrIpCellIndices; // input: base IP cell index, index of unzipping || output: index of enr. IP cell
+
+            // map allowing correct UIPC to be grabbed base on base IP cell and SPG index (for Ghost)
+            // input: B-spline mesh index, base IP cell index, SPG index local to corresponding B-spline element || output: Enr. IP cell index
+            moris::Cell< moris::Cell< moris::Cell< moris_index > > > mBaseIpCellAndSpgToUnzipping;
+
+            // map allowing to enr. IP cell / non-void cluster associated with a given subphase
+            Cell< moris_index > mSubphaseIndexToEnrIpCellIndex; // input: subphase index || output: enriched interpolation cell index
 
             // ----------------------------------------------------------------------------------
 
@@ -290,6 +299,22 @@ namespace xtk
                     std::string aFileName);
 
             // ----------------------------------------------------------------------------------
+            
+            Matrix< IndexMat >
+            get_mesh_indices() const 
+            {
+                return mMeshIndices;
+            }
+
+            // ----------------------------------------------------------------------------------
+            
+            moris::Cell< moris::Cell< moris_index > > const&
+            get_unzipped_IP_cell_to_base_IP_cell_and_SPG( const moris_index aBsplineMeshListIndex ) const 
+            {
+                return mBaseIpCellAndSpgToUnzipping( aBsplineMeshListIndex );
+            }
+
+            // ----------------------------------------------------------------------------------
 
             /**
              * @brief Get the bspline mesh info for a given B-spline mesh
@@ -309,6 +334,14 @@ namespace xtk
             get_num_unzippings_of_base_ip_cell( moris_index aBaseIpCellIndex ) const
             {
                 return mNumUnzippingsOnIpCell( aBaseIpCellIndex );
+            }
+
+            // ----------------------------------------------------------------------------------
+            
+            moris::Cell< moris_index > const&
+            get_subphase_to_UIPC_map() const 
+            {
+                return mSubphaseIndexToEnrIpCellIndex;
             }
 
             // ----------------------------------------------------------------------------------

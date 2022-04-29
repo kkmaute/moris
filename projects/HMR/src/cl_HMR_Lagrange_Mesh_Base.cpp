@@ -3834,12 +3834,14 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Lagrange_Mesh_Base::get_lagrange_elements_in_bspline_elements(
-                moris_index const aDiscretizationMeshIndex,
-                moris::Cell< moris::Cell< mtk::Cell * > > & aCells,
-                moris::Cell< moris::Cell< moris_index > > & aCellIndices,
-                moris::Cell< moris_index > & aLagToBspCellIndices )
-        {
+        void
+        Lagrange_Mesh_Base::get_lagrange_elements_in_bspline_elements(
+                moris_index const                          aDiscretizationMeshIndex,
+                moris::Cell< moris::Cell< mtk::Cell* > >&  aCells,
+                moris::Cell< moris::Cell< moris_index > >& aCellIndices,
+                moris::Cell< moris_index >&                aLagToBspCellIndices,
+                moris::Cell< uint >&                       aBspCellRefineLevels )
+        {            
             // get B-Spline pattern of this mesh
             uint tBSplinePattern = mBSplineMeshes( aDiscretizationMeshIndex )->get_activation_pattern();
 
@@ -3868,13 +3870,17 @@ namespace moris
             // initialize the output list sizes
             aCells.resize( tNumBsplineElems );
             aCellIndices.resize( tNumBsplineElems );
+            aBspCellRefineLevels.resize( tNumBsplineElems );
 
             // for each B-spline element find and store the Lagrange elements within it
             for ( luint iBspElem = 0; iBspElem < tNumBsplineElems; iBspElem++ )
             {
                 // get pointer to b-spline and background elements
-                Element * tBsplineElement = mBSplineMeshes( aDiscretizationMeshIndex )->get_element( iBspElem );
-                Background_Element_Base * tBackgroundElement  = tBsplineElement->get_background_element();
+                Element* tBsplineElement = mBSplineMeshes( aDiscretizationMeshIndex )->get_element( iBspElem );
+                Background_Element_Base* tBackgroundElement  = tBsplineElement->get_background_element();
+
+                // get and store the refinement level of the current B-spline element
+                aBspCellRefineLevels( iBspElem ) = tBsplineElement->get_level();
 
                 // check that current element is actually active on the current activation pattern
                 MORIS_ASSERT( tBackgroundElement->is_active( mBSplineMeshes( aDiscretizationMeshIndex )->get_activation_pattern() ), 
@@ -3970,6 +3976,138 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        void 
+        Lagrange_Mesh_Base::get_elements_in_bspline_element_and_side_ordinal(
+                moris_index const          aBsplineElementIndex,
+                moris_index const          aDiscretizationMeshIndex,
+                moris_index const          aSideOrdinal,
+                moris::Cell< mtk::Cell* >& aCells )
+        {
+            // get pattern of the current B-spline mesh
+            uint tBSplinePattern = mBSplineMeshes( aDiscretizationMeshIndex )->get_activation_pattern();
+
+            // get Lagrange pattern of this mesh
+            uint tLagrangePattern = this->get_activation_pattern();
+
+            // set activation pattern to B-splines
+            mBackgroundMesh->set_activation_pattern( tBSplinePattern );
+
+            // get pointer to B-spline and background element
+            Element * tBsplineElement = mBSplineMeshes( aDiscretizationMeshIndex )->get_element( aBsplineElementIndex );
+
+            // get pointer to background element
+            Background_Element_Base* tBackgroundElement = tBsplineElement->get_background_element();
+
+            // // since the currently active pattern may be finer, jump back to parent elements until level associated with B-spline mesh is found
+            // while( ! tBackgroundElement->is_active( tBSplinePattern ) )
+            // {
+            //     // jump to parent
+            //     tBackgroundElement = tBackgroundElement->get_parent();
+            // }
+
+            // initialize variable storing number of Lagrange elements on side ordinal
+            luint tCount = 0;
+
+            // retrieve number of lagrange elements on side ordinal
+            switch( aSideOrdinal )
+            {
+                case( 1 ) :
+                {
+                    tBackgroundElement->get_number_of_active_descendants_on_side_1( tLagrangePattern, tCount );
+                    break;
+                }
+                case( 2 ) :
+                {
+                    tBackgroundElement->get_number_of_active_descendants_on_side_2( tLagrangePattern, tCount );
+                    break;
+                }
+                case( 3 ) :
+                {
+                    tBackgroundElement->get_number_of_active_descendants_on_side_3( tLagrangePattern, tCount );
+                    break;
+                }
+                case( 4 ) :
+                {
+                    tBackgroundElement->get_number_of_active_descendants_on_side_4( tLagrangePattern, tCount );
+                    break;
+                }
+                case( 5 ) :
+                {
+                    tBackgroundElement->get_number_of_active_descendants_on_side_5( tLagrangePattern, tCount );
+                    break;
+                }
+                case( 6 ) :
+                {
+                    tBackgroundElement->get_number_of_active_descendants_on_side_6( tLagrangePattern, tCount );
+                    break;
+                }
+                default :
+                {
+                    MORIS_ERROR( false, "Invalid Side set ordinal.");
+                }
+            }
+
+            // initialize list of background elements on side ordinal
+            moris::Cell< Background_Element_Base * > tActiveElements( tCount, nullptr );
+
+            // reset counter
+            tCount = 0;
+
+            // retrieve lagrange elements on side ordinal
+            switch( aSideOrdinal )
+            {
+                case( 1 ) :
+                {
+                    tBackgroundElement->collect_active_descendants_on_side_1( tLagrangePattern, tActiveElements, tCount );
+                    break;
+                }
+                case( 2 ) :
+                {
+                    tBackgroundElement->collect_active_descendants_on_side_2( tLagrangePattern, tActiveElements, tCount );
+                    break;
+                }
+                case( 3 ) :
+                {
+                    tBackgroundElement->collect_active_descendants_on_side_3( tLagrangePattern, tActiveElements, tCount );
+                    break;
+                }
+                case( 4 ) :
+                {
+                    tBackgroundElement->collect_active_descendants_on_side_4( tLagrangePattern, tActiveElements, tCount );
+                    break;
+                }
+                case( 5 ) :
+                {
+                    tBackgroundElement->collect_active_descendants_on_side_5( tLagrangePattern, tActiveElements, tCount );
+                    break;
+                }
+                case( 6 ) :
+                {
+                    tBackgroundElement->collect_active_descendants_on_side_6( tLagrangePattern, tActiveElements, tCount );
+                    break;
+                }
+                default :
+                {
+                    MORIS_ERROR( false, "Invalid Side set ordinal.");
+                }
+            }
+
+            // initialize list of mtk::cells on side ordinal
+            aCells.resize( tCount, nullptr );
+
+            // retrieve corresponding IP elements from corresponding background elements
+            for( uint Ik = 0; Ik < tCount; Ik ++ )
+            {
+                luint tMemoryIndex = tActiveElements( Ik )->get_memory_index();
+                aCells( Ik ) = this->get_element_by_memory_index( tMemoryIndex );
+            }
+
+            // set activation pattern back to the Lagrange
+            mBackgroundMesh->set_activation_pattern( tLagrangePattern );
+        }
+
+        //------------------------------------------------------------------------------
+
         void Lagrange_Mesh_Base::get_elements_in_interpolation_cluster_and_side_ordinal(
                 moris_index const            aElementIndex,
                 moris_index const            aDiscretizationMeshIndex,
@@ -3978,6 +4116,7 @@ namespace moris
         {
             // get B-Spline pattern of this mesh
             auto tBSplinePattern = mBSplineMeshes( aDiscretizationMeshIndex )->get_activation_pattern();
+
             // get Lagrange pattern of this mesh
             auto tLagrangePattern = this->get_activation_pattern();
 

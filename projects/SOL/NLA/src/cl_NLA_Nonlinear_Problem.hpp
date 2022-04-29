@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_NLA_Nonlinear_Problem.hpp
  *
- *  Created on: Nov 18, 2018
- *      Author: schmidt
  */
 #ifndef MORIS_DISTLINALG_CL_NLA_NONLINEAR_PROBLEM_HPP_
 #define MORIS_DISTLINALG_CL_NLA_NONLINEAR_PROBLEM_HPP_
@@ -69,6 +72,7 @@ namespace moris
 
           public:
             //--------------------------------------------------------------------------------------------------
+
             /**
              * @brief Constructor. Creates nonlinear system
              *
@@ -77,11 +81,13 @@ namespace moris
              * @param[in] aBuildLinerSystemFlag        Flag if linear system shall be build or not. Default = true
              * @param[in] aMapType                     Map type. Epetra or Petsc. Default MapType::Epetra
              */
-            Nonlinear_Problem( Solver_Interface* aSolverInterface,
-                    const moris::sint            aNonlinearSolverManagerIndex = 0,
-                    const bool                   aBuildLinerSystemFlag        = true,
-                    const enum sol::MapType      aMapType                     = sol::MapType::Epetra );
+            Nonlinear_Problem(
+                    Solver_Interface*       aSolverInterface,
+                    const moris::sint       aNonlinearSolverManagerIndex = 0,
+                    const bool              aBuildLinerSystemFlag        = true,
+                    const enum sol::MapType aMapType                     = sol::MapType::Epetra );
             //--------------------------------------------------------------------------------------------------
+
             /**
              * @brief Constructor. Creates nonlinear system
              *
@@ -91,20 +97,24 @@ namespace moris
              * @param[in] aBuildLinerSystemFlag        Flag if linear system shall be build or not. Default = true
              * @param[in] aMapType                     Map type. Epetra or Petsc. Default MapType::Epetra
              */
-            Nonlinear_Problem( sol::SOL_Warehouse* aNonlinDatabase,
-                    Solver_Interface*              aSolverInterface,
-                    sol::Dist_Vector*              aFullVector,
-                    const moris::sint              aNonlinearSolverManagerIndex = 0,
-                    const bool                     aBuildLinerSystemFlag        = true,
-                    const enum sol::MapType        aMapType                     = sol::MapType::Epetra );
+            Nonlinear_Problem(
+                    sol::SOL_Warehouse*     aNonlinDatabase,
+                    Solver_Interface*       aSolverInterface,
+                    sol::Dist_Vector*       aFullVector,
+                    const moris::sint       aNonlinearSolverManagerIndex = 0,
+                    const bool              aBuildLinerSystemFlag        = true,
+                    const enum sol::MapType aMapType                     = sol::MapType::Epetra );
 
             //--------------------------------------------------------------------------------------------------
+
             ~Nonlinear_Problem();
 
             //--------------------------------------------------------------------------------------------------
+
             void set_interface( Solver_Interface* aSolverInterface );
 
             //--------------------------------------------------------------------------------------------------
+
             void
             set_nonlinear_solver( Nonlinear_Solver* aNonlinearSolver )
             {
@@ -112,22 +122,29 @@ namespace moris
             };
 
             //--------------------------------------------------------------------------------------------------
-            void build_linearized_problem( const bool& aRebuildJacobian,
-                    const bool&                        aCombinedResJacAssebly,
-                    sint                               aNonLinearIt );
+
+            void build_linearized_problem(
+                    const bool& aRebuildJacobian,
+                    const bool& aCombinedResJacAssebly,
+                    sint        aNonLinearIt );
 
             //--------------------------------------------------------------------------------------------------
-            void build_linearized_problem( const bool& aRebuildJacobian,
-                    const sint                         aNonLinearIt,
-                    const sint                         aRestart );
+
+            void build_linearized_problem(
+                    const bool& aRebuildJacobian,
+                    const sint  aNonLinearIt,
+                    const sint  aRestart );
 
             //--------------------------------------------------------------------------------------------------
+
             void print_sol_vec( const sint aNonLinearIt );
 
             //--------------------------------------------------------------------------------------------------
+
             void restart_from_sol_vec( const sint aNonLinearIt );
 
             //--------------------------------------------------------------------------------------------------
+
             dla::Linear_Problem*
             get_linearized_problem()
             {
@@ -135,17 +152,28 @@ namespace moris
             };
 
             //--------------------------------------------------------------------------------------------------
+
             sol::Dist_Vector* get_full_vector();
 
             //--------------------------------------------------------------------------------------------------
-            void extract_my_values( const moris::uint&      aNumIndices,
+
+            void extract_my_values(
+                    const moris::uint&                      aNumIndices,
                     const moris::Matrix< DDSMat >&          aGlobalBlockRows,
                     const moris::uint&                      aBlockRowOffsets,
                     moris::Cell< moris::Matrix< DDRMat > >& LHSValues );
 
             //--------------------------------------------------------------------------------------------------
-            void set_time_value( const moris::real& aLambda,
-                    moris::uint                     aPos = 1 );
+
+            void set_time_value(
+                    const moris::real& aLambda,
+                    moris::uint        aPos = 1 );
+
+            //--------------------------------------------------------------------------------------------------
+
+            real get_static_residual_norm();
+
+            //--------------------------------------------------------------------------------------------------
         };
     }    // namespace NLA
 }    // namespace moris

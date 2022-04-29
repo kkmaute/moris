@@ -28,6 +28,7 @@ namespace moris
             mPropertyMap[ "WeightCurrent" ]    = static_cast< uint >( IWG_Property_Type::WEIGHT_CURRENT );
             mPropertyMap[ "WeightPrevious" ]   = static_cast< uint >( IWG_Property_Type::WEIGHT_PREVIOUS );
             mPropertyMap[ "InitialCondition" ] = static_cast< uint >( IWG_Property_Type::INITIAL_CONDITION );
+            mPropertyMap[ "WeightResidual" ]   = static_cast< uint >( IWG_Property_Type::WEIGHT_RESIDUAL );
         }
 
         //------------------------------------------------------------------------------
@@ -64,6 +65,16 @@ namespace moris
             const std::shared_ptr< Property >& tPropWeightPrevious =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::WEIGHT_PREVIOUS ) );
 
+            // get residual weight property
+            const std::shared_ptr< Property >& tPropWeightResidual =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::WEIGHT_RESIDUAL ) );
+
+            real tResWeight = 1.0;
+            if ( tPropWeightResidual != nullptr )
+            {
+                tResWeight = tPropWeightResidual->val()( 0 );
+            }
+
             // FIXME set initial time
             real tInitTime = 0.0;
 
@@ -89,7 +100,8 @@ namespace moris
 
             // add contribution to residual
             mSet->get_residual()( 0 )(
-                    { tMasterResStartIndex, tMasterResStopIndex } ) += aWStar * ( tFICurrent->N_trans() * tJump );
+                    { tMasterResStartIndex, tMasterResStopIndex } ) +=
+                    aWStar * tResWeight * ( tFICurrent->N_trans() * tJump );
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),

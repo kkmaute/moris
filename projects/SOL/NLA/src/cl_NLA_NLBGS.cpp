@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_NLA_NLBGS.cpp
  *
- *  Created on: Jan 18, 2018
- *      Author: schmidt
  */
 #include <ctime>
 
@@ -56,9 +59,9 @@ NonLinBlockGaussSeidel::solver_nonlinear_system( Nonlinear_Problem* aNonlinearPr
 {
     Tracer tTracer( "NonLinearAlgorithm", "NLBGS", "Solve" );
 
-    moris::sint tMaxIts           = mParameterListNonlinearSolver.get< moris::sint >( "NLA_max_iter" );
-    moris::uint tNonLinSysStartIt = 0;
-    moris::uint tNumNonLinSystems = mMyNonLinSolverManager->get_dof_type_list().size();
+    sint tMaxIts           = mParameterListNonlinearSolver.get< sint >( "NLA_max_iter" );
+    uint tNonLinSysStartIt = 0;
+    uint tNumNonLinSystems = mMyNonLinSolverManager->get_dof_type_list().size();
 
     // set solver load control strategy
     Solver_Load_Control tLoadControlStrategy( mParameterListNonlinearSolver );
@@ -67,8 +70,7 @@ NonLinBlockGaussSeidel::solver_nonlinear_system( Nonlinear_Problem* aNonlinearPr
     Solver_Pseudo_Time_Control tPseudoTimeControl(
             mParameterListNonlinearSolver,
             aNonlinearProblem->get_full_vector(),
-            mMyNonLinSolverManager->get_solver_interface(),
-            mMyNonLinSolverManager->get_solver_warehouse() );
+            mMyNonLinSolverManager );
 
     // initialize load control parameter
     real tLoadFactor = tLoadControlStrategy.get_initial_load_factor();
@@ -76,6 +78,7 @@ NonLinBlockGaussSeidel::solver_nonlinear_system( Nonlinear_Problem* aNonlinearPr
     // initialize pseudo time step
     real tPseudoTimeStep;
     real tPseudoTotalTime = 0.0;
+    real tRelStaticRes    = 1.0;
 
     bool tTimeStepIsConverged = tPseudoTimeControl.get_initial_step_size( tPseudoTimeStep );
 
@@ -85,14 +88,10 @@ NonLinBlockGaussSeidel::solver_nonlinear_system( Nonlinear_Problem* aNonlinearPr
         // log iterations
         MORIS_LOG_ITERATION();
 
-        moris::real tMaxNewTime = 0.0;
-
-        // get_nonlinear_problem()
-        clock_t tNewtonLoopStartTime = clock();
-
-        // print and store pseudo time step in logger
+        // print and store pseudo time step, total time step, and relative static residual in logger
         MORIS_LOG_SPEC( "PseudoTimeStep", tPseudoTimeStep );
         MORIS_LOG_SPEC( "PseudoTotalTime", tPseudoTotalTime );
+        MORIS_LOG_SPEC( "RelStaticResidual", tRelStaticRes );
 
         gLogger.set_action_data(
                 "NonLinearAlgorithm",
@@ -107,6 +106,13 @@ NonLinBlockGaussSeidel::solver_nonlinear_system( Nonlinear_Problem* aNonlinearPr
                 "Solve",
                 "PseudoTotalTime",
                 tPseudoTotalTime );
+
+        gLogger.set_action_data(
+                "NonLinearAlgorithm",
+                "NLBGS",
+                "Solve",
+                "RelativeStaticResidual",
+                tRelStaticRes );
 
         // print and store load factor in logger
         MORIS_LOG_SPEC( "LoadFactor", tLoadFactor );
@@ -160,7 +166,6 @@ NonLinBlockGaussSeidel::solver_nonlinear_system( Nonlinear_Problem* aNonlinearPr
             }
         }
 
-        tMaxNewTime     = this->calculate_time_needed( tNewtonLoopStartTime );
         bool tHartBreak = false;
 
         // compute residual norms using residual from sub-solvers
@@ -172,35 +177,36 @@ NonLinBlockGaussSeidel::solver_nonlinear_system( Nonlinear_Problem* aNonlinearPr
         bool tIsConverged = tConvergence.check_for_convergence(
                 this,
                 It,
-                mMyNonLinSolverManager->get_ref_norm(),
-                mMyNonLinSolverManager->get_residual_norm(),
-                tMaxNewTime,
                 tHartBreak );
-
-        // check if hard break is triggered
-        if ( tHartBreak )
-        {
-            break;
-        }
 
         // exit if convergence criterion is met
         if ( tIsConverged and tLoadFactor >= 1.0 and tTimeStepIsConverged )
         {
+            MORIS_LOG_INFO( "Number of Iterations (Convergence): %d", It );
+
+            break;
+        }
+
+        // check if hard break is triggered
+        if ( tHartBreak or It == tMaxIts )
+        {
+            MORIS_LOG_INFO( "Number of Iterations (Hard Stop): %d", It );
+
             break;
         }
 
         // compute new time step size and check for convergence of time stepping
         tTimeStepIsConverged = tPseudoTimeControl.compute_time_step_size(
-                mMyNonLinSolverManager->get_ref_norm(),
-                mMyNonLinSolverManager->get_residual_norm(),
+                mMyNonLinSolverManager,
                 aNonlinearProblem->get_full_vector(),
                 tPseudoTimeStep,
-                tPseudoTotalTime );
+                tPseudoTotalTime,
+                tRelStaticRes );
 
         // Determine load factor
         tLoadControlStrategy.eval(
-                mMyNonLinSolverManager->get_ref_norm(),
-                mMyNonLinSolverManager->get_residual_norm(),
+                It,
+                mMyNonLinSolverManager,
                 tLoadFactor );
     }    // end loop for NLBGS iterations
 }
@@ -209,8 +215,8 @@ NonLinBlockGaussSeidel::solver_nonlinear_system( Nonlinear_Problem* aNonlinearPr
 
 void
 NonLinBlockGaussSeidel::solve_linear_system(
-        moris::sint& aIter,
-        bool&        aHardBreak )
+        sint& aIter,
+        bool& aHardBreak )
 {
     // Solve linear system
 }
@@ -218,35 +224,90 @@ NonLinBlockGaussSeidel::solve_linear_system(
 //--------------------------------------------------------------------------------------------------------------------------
 
 void
-NonLinBlockGaussSeidel::compute_norms( const moris::sint aIter )
+NonLinBlockGaussSeidel::compute_norms( const sint aIter )
 {
-    moris::uint tNumNonLinSystems = mMyNonLinSolverManager->get_dof_type_list().size();
-    moris::uint tNonLinSysStartIt = 0;
+    uint tNumNonLinSystems = mMyNonLinSolverManager->get_dof_type_list().size();
+    uint tNonLinSysStartIt = 0;
 
+    // check whether static residual need to be evaluated
+    bool tComputeStaticResidual = mMyNonLinSolverManager->get_compute_static_residual_flag();
+
+    // compute reference residual norms
     if ( aIter == 1 )
     {
-        moris::real tSqrtRefNorm = 0.0;
+        real tSqrtRefNorm       = 0.0;
+        real tSqrtStaticRefNorm = 0.0;
 
         // Loop over all non-linear systems
         for ( uint Ik = tNonLinSysStartIt; Ik < tNumNonLinSystems; Ik++ )
         {
-            moris::real tSubSolverRefNorm = mMyNonLinSolverManager->get_sub_nonlinear_solver( Ik )->get_ref_norm();
+            real tSubSolverRefNorm = mMyNonLinSolverManager->get_sub_nonlinear_solver( Ik )->get_ref_norm();
 
-            tSqrtRefNorm = tSqrtRefNorm + std::pow( tSubSolverRefNorm, 2 );
+            tSqrtRefNorm += std::pow( tSubSolverRefNorm, 2 );
+
+            if ( tComputeStaticResidual )
+            {
+                real tSubSolverStaticRefNorm = mMyNonLinSolverManager->get_sub_nonlinear_solver( Ik )->get_static_ref_norm();
+
+                tSqrtStaticRefNorm += std::pow( tSubSolverStaticRefNorm, 2 );
+            }
         }
 
-        mMyNonLinSolverManager->get_ref_norm() = std::sqrt( tSqrtRefNorm );
+        // store reference residual norms
+        mMyNonLinSolverManager->set_ref_norm( std::sqrt( tSqrtRefNorm ) );
+
+        if ( tComputeStaticResidual )
+        {
+            mMyNonLinSolverManager->set_static_ref_norm( std::sqrt( tSqrtStaticRefNorm ) );
+        }
     }
 
-    moris::real tSqrtResNorm = 0.0;
+    // compute current residual norms
+    real tSqrtResNorm       = 0.0;
+    real tSqrtStaticResNorm = 0.0;
 
     // Loop over all non-linear systems
     for ( uint Ik = tNonLinSysStartIt; Ik < tNumNonLinSystems; Ik++ )
     {
-        moris::real tSubSolverResNorm = mMyNonLinSolverManager->get_sub_nonlinear_solver( Ik )->get_residual_norm();
+        real tSubSolverResNorm = mMyNonLinSolverManager->get_sub_nonlinear_solver( Ik )->get_residual_norm();
 
-        tSqrtResNorm = tSqrtResNorm + std::pow( tSubSolverResNorm, 2 );
+        tSqrtResNorm += std::pow( tSubSolverResNorm, 2 );
+
+        if ( tComputeStaticResidual )
+        {
+            // get static residual norm
+            real tSubSolverStaticResNorm = mMyNonLinSolverManager->get_sub_nonlinear_solver( Ik )->get_static_residual_norm();
+
+            // check that static residual is valid
+            MORIS_ASSERT( tSubSolverStaticResNorm >= 0.0,
+                    "NonLinBlockGaussSeidel::compute_norms - invalid static residual." );
+
+            // square static residual
+            tSqrtStaticResNorm += std::pow( tSubSolverStaticResNorm, 2 );
+        }
     }
 
-    mMyNonLinSolverManager->get_residual_norm() = std::sqrt( tSqrtResNorm );
+    // store current residual norms
+    mMyNonLinSolverManager->set_residual_norm( std::sqrt( tSqrtResNorm ) );
+
+    if ( tComputeStaticResidual )
+    {
+        mMyNonLinSolverManager->set_static_residual_norm( std::sqrt( tSqrtStaticResNorm ) );
+    }
+
+    // compute maximum relative number of iterations
+    real tRelNumIterations = 0.0;
+
+    // Loop over all non-linear systems
+    for ( uint Ik = tNonLinSysStartIt; Ik < tNumNonLinSystems; Ik++ )
+    {
+        // get relative number of iterations from subsolver
+        real tSubSolverRelNumIter = mMyNonLinSolverManager->get_sub_nonlinear_solver( Ik )->get_relative_number_iterations();
+
+        // compute maximum
+        tRelNumIterations = std::max( tRelNumIterations, tSubSolverRelNumIter );
+    }
+
+    // store maximum relative number of iterations
+    mMyNonLinSolverManager->set_relative_number_iterations( tRelNumIterations );
 }

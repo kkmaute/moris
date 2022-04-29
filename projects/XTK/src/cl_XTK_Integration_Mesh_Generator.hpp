@@ -36,6 +36,9 @@ struct Integration_Mesh_Generation_Data
     // All intersected background cells (uniques removed from the concatenated version of mIntersectedBackgroundCellIndex)
     moris::Cell< moris_index > mAllIntersectedBgCellInds;
 
+    // all non-intersected background cells needed to triangulate all BG-cells in post
+    moris::Cell< moris_index > mAllNonIntersectedBgCellInds;
+
     // // this maps from the background cell index to the child mesh index
     // std::unordered_map< moris_index, moris_index > mIntersectedBackgroundCellIndexToChildMeshIndex;
 };
@@ -262,6 +265,9 @@ class Integration_Mesh_Generator
     get_ig_mesh_order();
 
     enum Subdivision_Method
+    determine_reg_subdivision_template();
+
+    enum Subdivision_Method
     determine_order_elevation_template();
 
     void 
@@ -296,6 +302,11 @@ class Integration_Mesh_Generator
         Cut_Integration_Mesh *            aCutIntegrationMesh,
         moris::mtk::Mesh *                aBackgroundMesh );
 
+    bool
+    determine_non_intersected_background_cells(
+        Integration_Mesh_Generation_Data &aMeshGenerationData,
+        Cut_Integration_Mesh *            aCutIntegrationMesh,
+        moris::mtk::Mesh *                aBackgroundMesh );
 
     void
     deduce_interfaces(
@@ -452,6 +463,11 @@ class Integration_Mesh_Generator
         moris::mtk::Mesh *                                aBackgroundMesh,
         std::shared_ptr< Cell_Neighborhood_Connectivity > aCutNeighborhood );
 
+    void
+    construct_subphases_on_triangulated_non_cut_cells(
+        Integration_Mesh_Generation_Data*                 aMeshGenerationData,
+        Cut_Integration_Mesh*                             aCutIntegrationMesh,
+        moris::mtk::Mesh*                                 aBackgroundMesh );
 
     void
     construct_subphase_neighborhood(

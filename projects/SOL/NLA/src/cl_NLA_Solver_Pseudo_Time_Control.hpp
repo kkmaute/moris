@@ -1,7 +1,12 @@
 /*
- * cl_NLA_Solver_Load_Control.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_NLA_Solver_Pseudo_Time_Control.hpp
+ *
  */
-
 #ifndef SRC_FEM_CL_NLA_SOLVER_PSEUDO_TIME_CONTROL_HPP_
 #define SRC_FEM_CL_NLA_SOLVER_PSEUDO_TIME_CONTROL_HPP_
 
@@ -21,6 +26,8 @@ namespace moris
 
     namespace NLA
     {
+        class Nonlinear_Solver;
+
         class Solver_Pseudo_Time_Control
         {
           private:
@@ -54,18 +61,29 @@ namespace moris
             /// Comsol parameter (laminar: 40, 2D turbulent: 50, 3D turbulent: 60)
             real mComsolParameter_2 = 40.0;
 
-            /// required pseudo time step size needed for convergence
-            real mRequiredStepSize = 1000.0;
+            /// required drop in relative static residual norm
+            real mRelResNormDrop = 1.0;
+
+            /// required relative residual drop to update "previous" solution and time step size
+            real mRelResUpdate;
+
+            /// maximum time step size
+            real mMaxStepSize = 1e18;
+
+            /// previous time step size
+            real mPrevStepSize = 1e18;
+
+            /// previous relative residual norm
+            real mPrevRelResNorm = 1e18;
 
             /// maximum number of time steps
             uint mMaxNumTimeSteps = 1;
 
-            /// required relative residual drop to update "previous" solution and time step size
-            real mRelativeResidualDropThreshold;
+            // relative static residual norm for switching to steady state computation
+            real mSteadyStateRelRes = -1.0;
 
             /// time step size used once maximum number of step has been reached
-            /// for negative values, time step size defined by strategy is used
-            real mSteadyStateStepSize = -1.0;
+            real mSteadyStateStepSize = 1.0e18;
 
             /// total pseudo time
             real mTotalTime = 0.0;
@@ -76,6 +94,9 @@ namespace moris
             /// pseudo time for outputting pseudo time solutions
             real mOutputTime = 0.0;
 
+            /// flag to indicate whether steady state mode entered
+            bool mSteadyStateMode = false;
+
             // solver interface
             Solver_Interface* mSolverInterface = nullptr;
 
@@ -84,6 +105,8 @@ namespace moris
 
             // vector with true previous solution (set by time solver)
             sol::Dist_Vector* mOldPrevTimeStepVector = nullptr;
+            sol::Dist_Vector* mFullCurrentSolution   = nullptr;
+            sol::Dist_Vector* mFullPreviousSolution  = nullptr;
 
             // true time frames (set by time solver)
             Matrix< DDRMat > mTimeFrameCurrent;
@@ -91,10 +114,9 @@ namespace moris
 
           public:
             Solver_Pseudo_Time_Control(
-                    ParameterList&      aParameterListNonlinearSolver,
-                    sol::Dist_Vector*   aCurrentSolution,
-                    Solver_Interface*   aSolverInterface,
-                    sol::SOL_Warehouse* aSolverWarehouse );
+                    ParameterList&    aParameterListNonlinearSolver,
+                    sol::Dist_Vector* aCurrentSolution,
+                    Nonlinear_Solver* aNonLinSolverManager );
 
             ~Solver_Pseudo_Time_Control();
 
@@ -107,11 +129,11 @@ namespace moris
              * compute the new time step size and check for convergence
              */
             bool compute_time_step_size(
-                    const real&       aRefNorm,
-                    const real&       aResNorm,
+                    Nonlinear_Solver* aNonLinSolverManager,
                     sol::Dist_Vector* aCurrentSolution,
                     real&             aTimeStep,
-                    real&             aTotalTime );
+                    real&             aTotalTime,
+                    real&             aRelResNorm );
         };
     }    // namespace NLA
 }    // namespace moris

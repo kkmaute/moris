@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_XTK_Ghost_Penalization.hpp
  *
- *  Created on: Mar 26, 2019
- *      Author: doble
  */
 
 #ifndef PROJECTS_XTK_SRC_XTK_CL_XTK_GHOST_STABILIZATION_HPP_
@@ -40,6 +43,9 @@ namespace xtk
         Cell< moris_index > mSubphaseIndexToInterpolationCellIndex; // input: subphase index || output: enriched interpolation cell index
         Cell< moris_index > mDblSideSetIndexInMesh;                 // input: index of ghost side set || output: corresponding index of dbl. side set as saved on enriched IG mesh
 
+        // ----------------------------------------------------------------------------------
+        // Maps for old Ghost
+
         // interpolation cells
         Cell< Cell< moris_index > > mMasterSideIpCells; // input: bulk phase index || output: list of enriched master IP cells used for ghost facet construction 
         Cell< Cell< moris_index > > mSlaveSideIpCells;  // input: bulk phase index || output: list of corresponding enriched slave IP cells used for ghost facet construction  
@@ -51,6 +57,23 @@ namespace xtk
         // trivial clusters are ones that are not on a hanging node interface
         Cell< Cell< moris_index > > mTrivialFlag;        // input: bulk phase index || output: list of trivial flags indicating whether corresponding ghost facet construction is trivial (i.e. no hanging nodes)
         Cell< Cell< moris_index > > mTransitionLocation; // input: bulk phase index || output: list of transition locations of corresponding ghost facet construction 
+
+        // ----------------------------------------------------------------------------------
+        // Revised Maps for new Ghost
+
+        // interpolation cells
+        Cell< Cell< Cell< moris_index > > > mMasterSideIpCellsNew; // input: B-spline mesh list index, bulk phase index || output: list of enriched master IP cells used for ghost facet construction 
+        Cell< Cell< Cell< moris_index > > > mSlaveSideIpCellsNew;  // input: B-spline mesh list index, bulk phase index || output: list of corresponding enriched slave IP cells used for ghost facet construction  
+
+        // Side ordinals
+        Cell< Cell< Cell< moris_index > > > mMasterSideIgCellSideOrdsNew; // input: B-spline mesh list index, bulk phase index || output: list of side ordinals of the master IP cells used for ghost facet construction
+        Cell< Cell< Cell< moris_index > > > mSlaveSideIgCellSideOrdsNew;  // input: B-spline mesh list index, bulk phase index || output: list of side ordinals of the corresponding slave IP cells used for ghost facet construction
+
+        // trivial clusters are ones that are not on a hanging node interface
+        Cell< Cell< Cell< moris_index > > > mTrivialFlagNew;        // input: B-spline mesh list index, bulk phase index || output: list of trivial flags indicating whether corresponding ghost facet construction is trivial (i.e. no hanging nodes)
+        Cell< Cell< Cell< moris_index > > > mTransitionLocationNew; // input: B-spline mesh list index, bulk phase index || output: list of transition locations of corresponding ghost facet construction 
+
+        // ----------------------------------------------------------------------------------
 
         // Linear integration cells
         bool                                           mLinearBackgroundMesh = false;
@@ -76,6 +99,19 @@ namespace xtk
 
     class Ghost_Stabilization
     {
+        private:
+
+            // Pointer to the XTK-model
+            Model* mXTKModel;
+
+            // B-spline mesh information
+            Matrix< IndexMat > mMeshIndices;
+            moris_index mMinMeshIndex; 
+            moris::Cell< Bspline_Mesh_Info* > mBsplineMeshInfos;
+
+            bool
+            is_linear_ip_mesh();
+
         public:
             // ----------------------------------------------------------------------------------
             /*!
@@ -96,13 +132,21 @@ namespace xtk
             void
             setup_ghost_stabilization();
 
+            void
+            setup_ghost_stabilization_new();
+
             // ----------------------------------------------------------------------------------
             /*!
             *  @brief Work with meshes, to add visualization set for provided bulk phase
             *  @param[in] aBulkPhase Bulk phase
             */
             void
-            visualize_ghost_on_mesh(moris_index const & aBulkPhase);
+            visualize_ghost_on_mesh( moris_index const& aBulkPhase );
+
+            void
+            visualize_ghost_on_mesh_new(
+                    moris_index const& aBsplineMeshListIndex,
+                    moris_index const& aBulkPhaseIndex );
 
             // ----------------------------------------------------------------------------------
             /*!
@@ -112,6 +156,11 @@ namespace xtk
             */
             std::string
             get_ghost_dbl_side_set_name(moris_index const & aBulkPhase);
+
+            std::string
+            get_ghost_dbl_side_set_name( 
+                    moris_index const& aBulkPhase,
+                    moris_index const& aBspMeshIndex );
 
             // ----------------------------------------------------------------------------------
             /*!
@@ -234,12 +283,18 @@ namespace xtk
             // ----------------------------------------------------------------------------------
 
             void
-            declare_ghost_double_side_sets_in_mesh(Ghost_Setup_Data & aGhostSetupData);
+            declare_ghost_double_side_sets_in_mesh( Ghost_Setup_Data& aGhostSetupData );
+
+            void
+            declare_ghost_double_side_sets_in_mesh_new( Ghost_Setup_Data& aGhostSetupData );
 
             // ----------------------------------------------------------------------------------
 
             void
-            construct_ghost_double_side_sets_in_mesh(Ghost_Setup_Data & aGhostSetupData);
+            construct_ghost_double_side_sets_in_mesh( Ghost_Setup_Data& aGhostSetupData );
+
+            void
+            construct_ghost_double_side_sets_in_mesh_new( Ghost_Setup_Data& aGhostSetupData );
 
             // ----------------------------------------------------------------------------------
             /**
@@ -263,6 +318,13 @@ namespace xtk
                     moris_index const & aSecondSubphase,
                     moris_index &       aTrivialFlag);
 
+            bool
+            create_ghost_new(
+                    moris_index const& aBspMeshListIndex,
+                    moris_index const& aFirstSpgIndex, 
+                    moris_index const& aSecondSpgIndex,
+                    moris_index&       aTrivialFlag);
+
             // ----------------------------------------------------------------------------------
 
             std::shared_ptr<Side_Cluster>
@@ -273,6 +335,16 @@ namespace xtk
                     uint const   & aCellIndex,
                     moris_index  & aCurrentIndex,
                     moris_index  & aCurrentId);
+
+            std::shared_ptr< Side_Cluster >
+            create_slave_side_cluster_new(
+                    Ghost_Setup_Data&                     aGhostSetupData,
+                    Cell< Interpolation_Cell_Unzipped* >& aEnrIpCells,
+                    uint const&                           aBsplineMeshListIndex,
+                    uint const&                           aBulkPhaseIndex,
+                    uint const&                           aGhostFacetIndexInSet,
+                    moris_index&                          aCurrentIndex,
+                    moris_index&                          aCurrentId );
 
             // ----------------------------------------------------------------------------------
 
@@ -285,6 +357,17 @@ namespace xtk
                     Side_Cluster* aSlaveSideCluster,
                     moris_index & aCurrentIndex,
                     moris_index & aCurrentId);
+
+            std::shared_ptr< Side_Cluster >
+            create_master_side_cluster_new(
+                    Ghost_Setup_Data&                     aGhostSetupData,
+                    Cell< Interpolation_Cell_Unzipped* >& aEnrIpCells,
+                    uint const&                           aBsplineMeshListIndex,
+                    uint const&                           aBulkPhaseIndex,
+                    uint const&                           aGhostFacetIndexInSet,
+                    Side_Cluster*                         aSlaveSideCluster,
+                    moris_index&                          aCurrentIndex,
+                    moris_index&                          aCurrentId );
 
             // ----------------------------------------------------------------------------------
 
@@ -334,14 +417,6 @@ namespace xtk
             // ----------------------------------------------------------------------------------
 
             moris_index get_side_ordinals_for_non_trivial_master();
-
-        private:
-            Model* mXTKModel; /*Pointer to the model*/
-            moris_index mMinMeshIndex;
-
-            bool
-            is_linear_ip_mesh();
-
     };
 
 }

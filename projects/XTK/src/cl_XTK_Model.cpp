@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_XTK_Model.cpp
  *
- *  Created on: Feb 18, 2019
- *      Author: doble
  */
 
 #include "cl_XTK_Model.hpp"
@@ -213,6 +216,7 @@ namespace xtk
         if ( mParameterList.get< bool >( "decompose" ) )
         {
             mTriangulateAll = mParameterList.get< bool >( "triangulate_all" );
+            mTriangulateAllInPost = mParameterList.get< bool >( "triangulate_all_in_post" );
 
             mIgElementOrder = mParameterList.get< moris::uint >( "ig_element_order" );
 
@@ -290,16 +294,47 @@ namespace xtk
 
         if ( mParameterList.get< bool >( "ghost_stab" ) )
         {
-            this->construct_face_oriented_ghost_penalization_cells();
+            
+            // construct ghost using the new procedure if specifically requested by user
+            if ( mParameterList.get< bool >( "use_SPG_based_enrichment" ) )
+            {
+                this->construct_face_oriented_ghost_penalization_cells_new();
+            }
+            else // otherwise, just use old way
+            {
+                this->construct_face_oriented_ghost_penalization_cells();
+            }
 
             if ( mParameterList.get< bool >( "visualize_ghost" ) )
             {
+                // log/trace the creation of Ghost mesh sets for visualization
                 Tracer tTracer( "XTK", "GhostStabilization", "Visualize" );
 
-                for ( moris::moris_index i = 0; i < (moris_index)mGeometryEngine->get_num_bulk_phase(); i++ )
+                // visualize ghost using the new procedure if specifically requested by user
+                if ( mParameterList.get< bool >( "use_SPG_based_enrichment" ) )
                 {
-                    mGhostStabilization->visualize_ghost_on_mesh( i );
+                    // get the B-spline mesh indices
+                    Matrix< IndexMat > tBsplineMeshIndices;
+                    moris::string_to_mat( mParameterList.get< std::string >( "enrich_mesh_indices" ), tBsplineMeshIndices );
+
+                    // visualize ghost mesh sets for all B-spline meshes and bulk-phases
+                    for ( moris::moris_index iBM = 0; iBM < (moris_index) tBsplineMeshIndices.numel(); iBM++ )
+                    {
+                        for ( moris::moris_index iBP = 0; iBP < (moris_index) mGeometryEngine->get_num_bulk_phase(); iBP++ )
+                        {
+                            mGhostStabilization->visualize_ghost_on_mesh_new( iBM, iBP );
+                        }
+                    }
                 }
+                else // otherwise, just use the old way
+                {
+                    // visualize ghost mesh sets for every bulk-phase
+                    for ( moris::moris_index i = 0; i < (moris_index) mGeometryEngine->get_num_bulk_phase(); i++ )
+                    {
+                        mGhostStabilization->visualize_ghost_on_mesh( i );
+                    }
+                }
+
             }
         }
 
@@ -1298,6 +1333,24 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
+    void
+    Model::construct_face_oriented_ghost_penalization_cells_new()
+    {
+        Tracer tTracer( "XTK", "Ghost Stabilization", "Construct Ghost Facets (new approach)" );
+
+        MORIS_ERROR( mDecomposed, "Mesh needs to be decomposed prior to calling ghost penalization" );
+
+        MORIS_ERROR( !mGhost, "Ghost penalization has already been called" );
+
+        mGhostStabilization = new Ghost_Stabilization( this );
+
+        mGhostStabilization->setup_ghost_stabilization_new();
+
+        mGhost = true;
+    }
+
+    // ----------------------------------------------------------------------------------
+
     Ghost_Stabilization &
     Model::get_ghost_stabilization( moris::moris_index aIndex )
     {
@@ -1537,6 +1590,22 @@ namespace xtk
     {
         // get value from parameterlist
         return mParameterList.get< std::string >( "MPC_output_file" );
+    }
+
+    // -----------------------------------------------------------------------------
+
+    bool
+    Model::kill_workflow_flag()
+    {
+        // indicate to kill workflow if T-matrix output of full triangulation in post-processing of the cut IG mesh has been requested
+        if( this->get_T_matrix_output_file_name() != "" || mTriangulateAllInPost )
+        {
+            return true;
+        }
+        else // otherwise don't kill the workflow
+        {
+            return false;
+        }
     }
 
     //------------------------------------------------------------------------------

@@ -902,18 +902,21 @@ namespace moris
                  * @param aCells list of lists of Lagrange elements (mtk::cells) inside each B-spline element
                  * @param aCellIndices list of lists of Lagrange elements (indices) inside each B-spline element
                  */
-                void get_lagrange_elements_in_bspline_elements(
-                        moris_index const aDiscretizationMeshIndex,
-                        moris::Cell< moris::Cell< mtk::Cell * > > & aCells,
-                        moris::Cell< moris::Cell< moris_index > > & aCellIndices,
-                        moris::Cell< moris_index > & aLagToBspCellIndices );
+                void
+                get_lagrange_elements_in_bspline_elements(
+                        moris_index const                          aDiscretizationMeshIndex,
+                        moris::Cell< moris::Cell< mtk::Cell* > >&  aCells,
+                        moris::Cell< moris::Cell< moris_index > >& aCellIndices,
+                        moris::Cell< moris_index >&                aLagToBspCellIndices,
+                        moris::Cell< uint >&                       aBspCellRefineLevels );
 
                 // -----------------------------------------------------------------------------
 
                 /**
                  * collect Lagrange elements on an BSpline interpolation element
                  */
-                void get_elements_in_interpolation_cluster(
+                void 
+                get_elements_in_interpolation_cluster(
                         moris_index const aElementIndex,
                         moris_index const aDiscretizationMeshIndex,
                         moris::Cell< mtk::Cell * > & aCells);
@@ -921,13 +924,29 @@ namespace moris
                 // ----------------------------------------------------------------------------
 
                 /**
-                  * collect Lagrange elements on an BSpline interpolation element and side ordinal
-                  */
-                void get_elements_in_interpolation_cluster_and_side_ordinal(
-                        moris_index const            aElementIndex,
+                 * @brief collect Lagrange elements on an BSpline interpolation element and side ordinal
+                 * 
+                 * @param aBsplineElementIndex 
+                 * @param aDiscretizationMeshIndex 
+                 * @param aSideOrdinal 
+                 * @param aCells 
+                 */
+                void 
+                get_elements_in_bspline_element_and_side_ordinal(
+                        moris_index const            aBsplineElementIndex,
                         moris_index const            aDiscretizationMeshIndex,
                         moris_index const            aSideOrdinal,
                         moris::Cell< mtk::Cell * > & aCells );
+
+                /**
+                  * collect Lagrange elements on an BSpline interpolation element and side ordinal
+                  */
+                void 
+                get_elements_in_interpolation_cluster_and_side_ordinal(
+                        moris_index const          aElementIndex,
+                        moris_index const          aDiscretizationMeshIndex,
+                        moris_index const          aSideOrdinal,
+                        moris::Cell< mtk::Cell* >& aCells );
 
                 // ----------------------------------------------------------------------------
 

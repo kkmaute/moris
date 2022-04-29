@@ -36,6 +36,9 @@ namespace moris
             mtk::Integration_Mesh_DataBase_IG*   mIntegrationMesh;
             mtk::Integration_Mesh_Editor*        mIGMeshEditor;
 
+            // flag allowing the mesh check to be turned on/off for debugging
+            bool mCheckMesh = true;
+
           public:
             //------------------------------------------------------------------------------
 
@@ -84,6 +87,21 @@ namespace moris
 
             void
             free_memory();
+
+            //------------------------------------------------------------------------------
+
+            /**
+             * @brief Set whether a mesh check should be performed or not after building the mesh data base
+             * 
+             * @param aCheckMesh 
+             */
+            void
+            set_mesh_check( bool aCheckMesh )
+            {
+                mCheckMesh = aCheckMesh;
+            }
+
+            //------------------------------------------------------------------------------
         };
     }// namespace wrk
 }// namespace moris

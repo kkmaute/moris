@@ -994,17 +994,20 @@ namespace moris
 
         //-----------------------------------------------------------------------------
 
-        void Mesh::get_lagrange_elements_in_bspline_elements(
-                moris_index const aDiscretizationMeshIndex,
-                moris::Cell< moris::Cell< mtk::Cell * > > & aCells,
-                moris::Cell< moris::Cell< moris_index > > & aCellIndices,
-                moris::Cell< moris_index > & aLagToBspCellIndices )
+        void
+        Mesh::get_lagrange_elements_in_bspline_elements(
+                moris_index const                          aDiscretizationMeshIndex,
+                moris::Cell< moris::Cell< mtk::Cell* > >&  aCells,
+                moris::Cell< moris::Cell< moris_index > >& aCellIndices,
+                moris::Cell< moris_index >&                aLagToBspCellIndices,
+                moris::Cell< uint >&                       aBspCellRefineLevels )
         {
             mMesh->get_lagrange_elements_in_bspline_elements(
                 aDiscretizationMeshIndex,
                 aCells,
                 aCellIndices,
-                aLagToBspCellIndices );
+                aLagToBspCellIndices,
+                aBspCellRefineLevels );
         }
 
         //-----------------------------------------------------------------------------
@@ -1018,6 +1021,22 @@ namespace moris
                 aElementIndex,
                 aDiscretizationMeshIndex,
                 aCells);
+        }
+
+        //-----------------------------------------------------------------------------
+
+        void 
+        Mesh::get_elements_in_bspline_element_and_side_ordinal(
+                moris_index const          aBsplineElementIndex,
+                moris_index const          aDiscretizationMeshIndex,
+                moris_index const          aSideOrdinal,
+                moris::Cell< mtk::Cell* >& aCells )
+        {
+            mMesh->get_elements_in_bspline_element_and_side_ordinal(
+                    aBsplineElementIndex,
+                    aDiscretizationMeshIndex,
+                    aSideOrdinal,
+                    aCells);
         }
 
         //-----------------------------------------------------------------------------
@@ -1037,7 +1056,8 @@ namespace moris
 
         //-----------------------------------------------------------------------------
 
-        Matrix< IndexMat > Mesh::get_elements_connected_to_element_and_face_ind_loc_inds( moris_index aElementIndex ) const
+        Matrix< IndexMat > 
+        Mesh::get_elements_connected_to_element_and_face_ind_loc_inds( moris_index aElementIndex ) const
         {
             // collect memory indices of active neighbors
             Matrix< DDLUMat> tMemoryIndices;
@@ -1086,7 +1106,10 @@ namespace moris
             return tIndices;
         }
 
-        Matrix< IndexMat > Mesh::get_elements_connected_to_element_and_face_ord_loc_inds( moris_index aElementIndex ) const
+        //-----------------------------------------------------------------------------
+
+        Matrix< IndexMat > 
+        Mesh::get_elements_connected_to_element_and_face_ord_loc_inds( moris_index aElementIndex ) const
         {
             // collect memory indices of active neighbors
             Matrix< DDLUMat> tMemoryIndices;
@@ -1101,6 +1124,7 @@ namespace moris
                     tNeighborCellFacetsOrds,
                     tTransitionNeighborCellLocation,
                     tNumberOfNeighbors );
+
             // reserve memory for output matrix
             Matrix< IndexMat > tNeighborIndicesAndSideOrds( 4, tNumberOfNeighbors);
 
@@ -1122,6 +1146,73 @@ namespace moris
 
             }
             return tNeighborIndicesAndSideOrds;
+        }
+
+        //-----------------------------------------------------------------------------
+
+        void
+        Mesh::get_elements_connected_to_element_through_face_ord( 
+                moris_index aElementIndex,
+                moris_index aSideOrdinal,
+                moris::Cell< moris_index > aNeighborElements,
+                moris::Cell< moris_index > aNeighborSideOrdinals,
+                moris::Cell< moris_index > aTransitionLocations ) const
+        {
+            // initialize output list for active neighbor search
+            Matrix< DDLUMat> tMemoryIndices;
+            Matrix< DDLUMat> tThisCellFacetsOrds;
+            Matrix< DDLUMat> tNeighborCellFacetsOrds;
+            Matrix< DDLUMat> tTransitionNeighborCellLocation;
+            luint tNumberOfNeighbors;
+
+            // collect memory indices of active neighbors 
+            this->collect_memory_indices_of_active_element_neighbors( aElementIndex,
+                    tMemoryIndices,
+                    tThisCellFacetsOrds,
+                    tNeighborCellFacetsOrds,
+                    tTransitionNeighborCellLocation,
+                    tNumberOfNeighbors );
+
+            // initialize counter 
+            uint tNumNeighborsOnSideOrd = 0;
+            moris::Cell< uint > tValidNeighbors( 0 ); 
+
+            // find the number of neighbors on the given side ordinal
+            for( uint iNeighbor = 0; iNeighbor < tNumberOfNeighbors; iNeighbor++ )
+            {
+                if( tThisCellFacetsOrds( iNeighbor ) == (uint) aSideOrdinal )
+                {
+                    tNumNeighborsOnSideOrd++;
+                    tValidNeighbors.push_back( iNeighbor );
+                }
+            }
+
+            // check that there are actually any neighbors
+            MORIS_ASSERT( tNumNeighborsOnSideOrd > 0, 
+                "Mesh::get_elements_connected_to_element_through_face_ord() - No neighbors found on side ordinal." );
+
+            // initialize output lists with correct size
+            aNeighborElements.resize( tNumNeighborsOnSideOrd );
+            aNeighborSideOrdinals.resize( tNumNeighborsOnSideOrd );
+            aTransitionLocations.resize( tNumNeighborsOnSideOrd );
+
+            // find all neighbors on the given side ordinal
+            for( uint iNeighbor = 0; iNeighbor < tNumNeighborsOnSideOrd; iNeighbor++ )
+            {
+                // get local neighbor index
+                uint tLocalNeighborIndex = tValidNeighbors( iNeighbor );
+
+                // get access to the neighbor element
+                Element * tOtherCell = mMesh->get_element_by_memory_index( tMemoryIndices( tLocalNeighborIndex ) );
+
+                // check validity of neighbor element
+                MORIS_ASSERT( tOtherCell->get_index() != MORIS_INDEX_MAX, 
+                    "Mesh::get_elements_connected_to_element_through_face_ord() - A Neighbor Cell with max index is about to be outputted.");
+
+                aNeighborElements( iNeighbor ) = tOtherCell->get_index();
+                aNeighborSideOrdinals( iNeighbor ) = tNeighborCellFacetsOrds( tLocalNeighborIndex );
+                aTransitionLocations( iNeighbor ) = tTransitionNeighborCellLocation( tLocalNeighborIndex );
+            }
         }
 
         //-----------------------------------------------------------------------------

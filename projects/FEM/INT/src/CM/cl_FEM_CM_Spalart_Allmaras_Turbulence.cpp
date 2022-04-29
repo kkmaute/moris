@@ -835,10 +835,16 @@ namespace moris
                 // add contribution to dwalldestructiondu
                 mdWallDestructionCoeffdu( tDofIndex ) = mCw1 * this->dfwdu( aDofTypes ) * tModViscosity / tWallDistance2;
 
+                MORIS_ASSERT( isfinite( mdWallDestructionCoeffdu( tDofIndex ) ),
+                        "CM_Spalart_Allmaras_Turbulence::eval_dwalldestructioncoeffdu - mdWallDestructionCoeffdu contains NAN or INF (1)" );
+
                 // if contribution from ft2
                 if ( mUseFt2 )
                 {
                     mdWallDestructionCoeffdu( tDofIndex ) -= mCb1 * this->dft2du( aDofTypes ) * tModViscosity / std::pow( mKappa, 2.0 ) / tWallDistance2;
+
+                    MORIS_ASSERT( isfinite( mdWallDestructionCoeffdu( tDofIndex ) ),
+                            "CM_Spalart_Allmaras_Turbulence::eval_dwalldestructioncoeffdu - mdWallDestructionCoeffdu contains NAN or INF (2)" );
                 }
 
                 // if derivative dof type is viscosity
@@ -847,10 +853,16 @@ namespace moris
                     // add contribution to dwalldestructiondu
                     mdWallDestructionCoeffdu( tDofIndex ) += mCw1 * this->fw() * tFIModViscosity->N() / tWallDistance2;
 
+                    MORIS_ASSERT( isfinite( mdWallDestructionCoeffdu( tDofIndex ) ),
+                            "CM_Spalart_Allmaras_Turbulence::eval_dwalldestructioncoeffdu - mdWallDestructionCoeffdu contains NAN or INF (3)" );
+
                     // if contribution from ft2
                     if ( mUseFt2 )
                     {
                         mdWallDestructionCoeffdu( tDofIndex ) -= mCb1 * this->ft2() * tFIModViscosity->N() / std::pow( mKappa, 2.0 ) / tWallDistance2;
+
+                        MORIS_ASSERT( isfinite( mdWallDestructionCoeffdu( tDofIndex ) ),
+                                "CM_Spalart_Allmaras_Turbulence::eval_dwalldestructioncoeffdu - mdWallDestructionCoeffdu contains NAN or INF (4)" );
                     }
                 }
 
@@ -863,11 +875,17 @@ namespace moris
                     // add contribution to dwalldestructiondu
                     mdWallDestructionCoeffdu( tDofIndex ) -= 2.0 * mCw1 * this->fw() * tModViscosity * mPropWallDistance->dPropdDOF( aDofTypes ) / tWallDistance3;
 
+                    MORIS_ASSERT( isfinite( mdWallDestructionCoeffdu( tDofIndex ) ),
+                            "CM_Spalart_Allmaras_Turbulence::eval_dwalldestructioncoeffdu - mdWallDestructionCoeffdu contains NAN or INF (5)" );
+
                     // if contribution from ft2
                     if ( mUseFt2 )
                     {
                         mdWallDestructionCoeffdu( tDofIndex ) +=
                                 2.0 * ( mCb1 * this->ft2() / std::pow( mKappa, 2.0 ) ) * tModViscosity * mPropWallDistance->dPropdDOF( aDofTypes ) / tWallDistance3;
+
+                        MORIS_ASSERT( isfinite( mdWallDestructionCoeffdu( tDofIndex ) ),
+                                "CM_Spalart_Allmaras_Turbulence::eval_dwalldestructioncoeffdu - mdWallDestructionCoeffdu contains NAN or INF (6)" );
                     }
                 }
             }
@@ -896,6 +914,9 @@ namespace moris
                     // add contribution to dwalldestructiondu
                     mdWallDestructionCoeffdu( tDofIndex ) +=
                             2.0 * mCw1 * mAlpha * tModViscosity * mPropWallDistance->dPropdDOF( aDofTypes ) / tWallDistance3;
+
+                    MORIS_ASSERT( isfinite( mdWallDestructionCoeffdu( tDofIndex ) ),
+                            "CM_Spalart_Allmaras_Turbulence::eval_dwalldestructioncoeffdu - mdWallDestructionCoeffdu contains NAN or INF (7)" );
                 }
             }
 
@@ -2938,6 +2959,7 @@ namespace moris
 
             // compute fw
             mFw = ( 1.0 + std::pow( mCw3, 6.0 ) ) / tFwDeno;
+
             mFw = this->g() * std::pow( mFw, 1.0 / 6.0 );
         }
 
@@ -2988,16 +3010,22 @@ namespace moris
 
             if ( tFwDeno > mEpsilon )
             {
-                // compute denonminator
-                real tdFwduDeno = this->g() * tFwDeno;
+                // compute denominator; as g() can be zero clip denominator
+                real tdFwduDeno = clip_value( this->g() * tFwDeno, MORIS_REAL_EPS );
 
                 // compute dfwdu
                 mdFwdu( tDofIndex ) = ( this->fw() * std::pow( mCw3, 6.0 ) * this->dgdu( aDofTypes ) ) / tdFwduDeno;
+
+                MORIS_ASSERT( isfinite( mdFwdu( tDofIndex ) ),
+                        "CM_Spalart_Allmaras_Turbulence::eval_dfwdu - mdFwdu( tDofIndex ) has NAN or INF (1)" );
             }
             else
             {
                 // compute dfwdu
-                mdFwdu( tDofIndex ) = this->dgdu( aDofTypes ) * std::pow( ( 1.0 + std::pow( mCw3, 6.0 ) ) / tFwDeno, 1 / 6 );
+                mdFwdu( tDofIndex ) = this->dgdu( aDofTypes ) * std::pow( ( 1.0 + std::pow( mCw3, 6.0 ) ) / tFwDeno, 1.0 / 6.0 );
+
+                MORIS_ASSERT( isfinite( mdFwdu( tDofIndex ) ),
+                        "CM_Spalart_Allmaras_Turbulence::eval_dfwdu - mdFwdu( tDofIndex ) has NAN or INF (2)" );
             }
         }
 

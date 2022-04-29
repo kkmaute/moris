@@ -37,7 +37,7 @@ namespace prm
         tParameterList.insert( "decompose", true );
         tParameterList.insert( "decomposition_type", "conformal" );
         tParameterList.insert( "octree_refinement_level", "-1" );
-        tParameterList.insert( "triangulate_all", false );
+        tParameterList.insert( "triangulate_all", false ); // NOTE: this option does fail if the Lagrange mesh is not uniformely refined
         tParameterList.insert( "ig_element_order", moris::uint(1) );
 
         // cleanup
@@ -85,6 +85,10 @@ namespace prm
         // T-Matrix output if needed
         tParameterList.insert( "T_matrix_output_file", "" );
         tParameterList.insert( "MPC_output_file", "" );
+
+        // triangulate mesh at the end of constructing, this allows non-uniform refinement in the Lagrange mesh
+        // NOTE: this option is only intended for mesh output, the produced mesh may miss some domain boundary side sets
+        tParameterList.insert( "triangulate_all_in_post", false );
 
         // path to folder for XTK output
         tParameterList.insert( "output_path", "./" );

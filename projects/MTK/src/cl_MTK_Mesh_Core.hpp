@@ -127,12 +127,13 @@ namespace moris
              * @param aCells list of lists of Lagrange elements (mtk::cells) inside each B-spline element
              * @param aCellIndices list of lists of Lagrange elements (indices) inside each B-spline element
              */
-            virtual
-            void get_lagrange_elements_in_bspline_elements(
-                    moris_index const aDiscretizationMeshIndex,
-                    moris::Cell< moris::Cell< mtk::Cell * > > & aCells,
-                    moris::Cell< moris::Cell< moris_index > > & aCellIndices,
-                    moris::Cell< moris_index > & aLagToBspCellIndices );
+            virtual void
+            get_lagrange_elements_in_bspline_elements(
+                    moris_index const                          aDiscretizationMeshIndex,
+                    moris::Cell< moris::Cell< mtk::Cell* > >&  aCells,
+                    moris::Cell< moris::Cell< moris_index > >& aCellIndices,
+                    moris::Cell< moris_index >&                aLagToBspCellIndices,
+                    moris::Cell< uint >&                       aBspCellRefineLevels );
 
             // ----------------------------------------------------------------------------
 
@@ -149,6 +150,24 @@ namespace moris
                     moris_index aElementIndex,
                     moris_index aDiscretizationMeshIndex,
                     moris::Cell< mtk::Cell * > & tCells);
+
+            // ----------------------------------------------------------------------------
+
+            /**
+             * Returns lagrange elements on given side ordinal inside a given B-Spline element
+             *
+             * @param aElementIndex Lagrange element Index
+             * @param aDiscretizationMeshIndex dicretization mesh index
+             * @param aSideOrdinal Side Ordinal
+             *
+             * @return Lagrange elements
+             */
+            virtual void 
+            get_elements_in_bspline_element_and_side_ordinal(
+                    moris_index const          aBsplineElementIndex,
+                    moris_index const          aDiscretizationMeshIndex,
+                    moris_index const          aSideOrdinal,
+                    moris::Cell< mtk::Cell* >& aCells );
 
             // ----------------------------------------------------------------------------
 

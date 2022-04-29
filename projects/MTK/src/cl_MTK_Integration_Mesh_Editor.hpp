@@ -1,9 +1,13 @@
 /*
- * cl_MTK_Integration_Mesh_Editor.hpp
- *
- *  Created on: Dec  09, 2021
- *      Author: momo
+ * Copyright (c) 2022 University of Colorado 
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details. 
+ * 
+ * ------------------------------------------------------------------------------------ 
+ * 
+ * cl_MTK_Integration_Mesh_Editor.hpp  
+ * 
  */
+
 #ifndef SRC_cl_MTK_Integration_Mesh_Editor_HPP_
 #define SRC_cl_MTK_Integration_Mesh_Editor_HPP_
 
@@ -101,6 +105,8 @@ namespace moris::mtk
 
         Integration_Mesh_Info* mIGMeshInfo;
 
+        bool mCheckMesh;
+
         //counters in order to add data later
         uint mNumPreviousVertices;
         uint mNumPreviousCells;
@@ -129,7 +135,10 @@ namespace moris::mtk
          * @param aIPMeshDataBase
          */
 
-        Integration_Mesh_Editor( moris::mtk::Integration_Mesh* aMTKMesh, moris::mtk::Interpolation_Mesh_DataBase_IP* aIPMeshDataBase );
+        Integration_Mesh_Editor( 
+                moris::mtk::Integration_Mesh*               aMTKMesh, 
+                moris::mtk::Interpolation_Mesh_DataBase_IP* aIPMeshDataBase,
+                bool                                        aCheckMesh = true );
 
         // ----------------------------------------------------------------------------
 

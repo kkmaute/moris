@@ -619,15 +619,20 @@ namespace moris
             // Maximum number of pseudo time step size
             tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_max_num_steps", 1 );
 
-            // Required relative residual norm for load factor to be increased
-            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_relres", 1.0 );
+            // Maximum time step size
+            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_max_step_size", MORIS_REAL_MAX );
 
             // Required pseudo time step size needed for convergence
-            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_required_step_size", MORIS_REAL_MAX );
+            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_rel_res_norm_drop", -1.0 );
+
+            // Required relative residual norm for time step to be updated
+            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_rel_res_norm_update", -1.0 );
+
+            // Relative static residual norm for switching to steady state computation
+            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_steady_rel_res_norm", -1.0 );
 
             // Time step size used once maximum number of step has been reached
-            // for negative values, time step size defined by strategy is used
-            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_steady_state_step_size", -1.0 );
+            tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_steady_step_size", MORIS_REAL_MAX );
 
             // Time offsets for outputting pseudo time steps; if offset is zero no output is written
             tNonLinAlgorithmParameterList.insert( "NLA_pseudo_time_offset", 0.0 );

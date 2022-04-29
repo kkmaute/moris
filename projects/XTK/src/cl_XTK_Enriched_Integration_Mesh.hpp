@@ -1,9 +1,13 @@
 /*
- * cl_XTK_Enriched_Integration_Mesh.hpp
- *
- *  Created on: Jul 22, 2019
- *      Author: doble
+ * Copyright (c) 2022 University of Colorado 
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details. 
+ * 
+ * ------------------------------------------------------------------------------------ 
+ * 
+ * cl_XTK_Enriched_Integration_Mesh.hpp  
+ * 
  */
+
 #ifndef PROJECTS_XTK_SRC_XTK_CL_XTK_ENRICHED_INTEGRATION_MESH_HPP_
 #define PROJECTS_XTK_SRC_XTK_CL_XTK_ENRICHED_INTEGRATION_MESH_HPP_
 

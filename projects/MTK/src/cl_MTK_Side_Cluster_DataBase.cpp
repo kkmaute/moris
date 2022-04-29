@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado 
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details. 
+ * 
+ * ------------------------------------------------------------------------------------ 
+ * 
+ * cl_MTK_Side_Cluster_DataBase.cpp  
+ * 
+ */
 
 #include "cl_MTK_Side_Cluster_DataBase.hpp"
 #include "cl_MTK_Cell_Info.hpp"
@@ -146,8 +155,9 @@ namespace moris::mtk
     // ----------------------------------------------------------------------------------
 
     moris::Matrix< moris::DDRMat >
-    Side_Cluster_DataBase::get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const* aVertex,
-        const mtk::Master_Slave                                                                   aIsMaster ) const
+    Side_Cluster_DataBase::get_vertex_local_coordinate_wrt_interp_cell( 
+        moris::mtk::Vertex const* aVertex,
+        const mtk::Master_Slave   aIsMaster ) const
     {
         // determine if the cluster is trivial
         bool tTrivial = mMesh->cluster_is_trivial( ClusterType::SIDE_CLUSTER, mSideClusterIndex );
