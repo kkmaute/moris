@@ -283,7 +283,17 @@ namespace moris::mtk
             }
         }
 
-        MORIS_ERROR( 0, "Vertex not found on facet." );
+        // print debug information if search for vertex on side cluster fails
+        std::cout << "Side_Cluster_DataBase::get_vertex_ordinal_on_facet() - " << 
+            "Looking for vertex with ID " << aVertex->get_id() << " in Dbl-Side Cluster with Vertices [ ";
+        for ( moris::moris_index i = 0; i < (moris_index)tVerticesOnSide.size(); i++ )
+        {
+            std::cout << tVerticesOnSide( i )->get_id() << " ";
+        }
+        std::cout << "]" << std::endl;
+
+        // throw error and return default
+        MORIS_ERROR( false, "Side_Cluster_DataBase::get_vertex_ordinal_on_facet() - Vertex not found on facet." );
         return MORIS_INDEX_MAX;
     }
 
