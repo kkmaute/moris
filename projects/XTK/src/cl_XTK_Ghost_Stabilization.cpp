@@ -1417,8 +1417,6 @@ Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh_new( Ghost_Setup_D
                     moris_index tMySideOrdinal = tMySideOrds( iNeighborSPG );
                     moris_index tNeighborSideOrdinal = tNeighborSideOrds( iNeighborSPG );
 
-
-
                     // initialize lists of base Ip cells on the respective side ordinals of the two B-spline elements
                     moris::Cell< mtk::Cell* > tBaseIpCellsOnMyOrdinal;
                     moris::Cell< mtk::Cell* > tBaseIpCellsOnNeighborOrdinal;
@@ -1565,20 +1563,39 @@ Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh_new( Ghost_Setup_D
             // iterate through double sides in this bulk phase
             for ( moris::uint iGhostFacet = 0; iGhostFacet < tNumGhostFacetsInDblSS; iGhostFacet++ )
             {
-
-                // create a new single side cluster for each of the pairs
+                // create a new single side cluster - slave side
                 std::shared_ptr< Side_Cluster > tSlaveSideCluster =
-                    this->create_slave_side_cluster_new( aGhostSetupData, tEnrIpCells, iBspMesh, iBulkPhase, iGhostFacet, tCurrentIndex, tCurrentId );
+                    this->create_slave_side_cluster_new( 
+                        aGhostSetupData, 
+                        tEnrIpCells, 
+                        iBspMesh, 
+                        iBulkPhase, 
+                        iGhostFacet, 
+                        tCurrentIndex, 
+                        tCurrentId );
 
+                // create a new single side cluster - master side
                 std::shared_ptr< Side_Cluster > tMasterSideCluster =
-                    this->create_master_side_cluster_new( aGhostSetupData, tEnrIpCells, iBspMesh, iBulkPhase, iGhostFacet, tSlaveSideCluster.get(), tCurrentIndex, tCurrentId );
+                    this->create_master_side_cluster_new( 
+                        aGhostSetupData, 
+                        tEnrIpCells, 
+                        iBspMesh, 
+                        iBulkPhase, 
+                        iGhostFacet, 
+                        tSlaveSideCluster.get(), 
+                        tCurrentIndex, 
+                        tCurrentId );
 
-                // add single side clusters the integration mesh
+                // add single side cluster for master side to the integration mesh
                 tEnrIntegMesh.mDoubleSideSingleSideClusters.push_back( tMasterSideCluster );
+
+                // store the index of the single side clusters associated with the double side clusters
+                tEnrIntegMesh.mDoubleSideSetsMasterIndex( tCurrentDblSsIndexInEnrIgMesh ).push_back( tEnrIntegMesh.mDoubleSideSingleSideClusters.size() - 1 );
+
+                // add single side cluster for slave side to the integration mesh
                 tEnrIntegMesh.mDoubleSideSingleSideClusters.push_back( tSlaveSideCluster );
 
-                // store the indices of the single side clusters associated with the double side clusters
-                tEnrIntegMesh.mDoubleSideSetsMasterIndex( tCurrentDblSsIndexInEnrIgMesh ).push_back( tEnrIntegMesh.mDoubleSideSingleSideClusters.size() - 1 );
+                // store the index of the single side clusters associated with the double side clusters
                 tEnrIntegMesh.mDoubleSideSetsSlaveIndex( tCurrentDblSsIndexInEnrIgMesh ).push_back( tEnrIntegMesh.mDoubleSideSingleSideClusters.size() - 1 );
 
                 // create double side cluster
@@ -2042,7 +2059,7 @@ Ghost_Stabilization::create_master_side_cluster_new(
     std::shared_ptr< Side_Cluster > tMasterSideCluster = std::make_shared< Side_Cluster >();
 
     // get the index to the Enr. IP cell the side cluster is attached to
-    moris_index tMasterEnrIpCellIndex = aGhostSetupData.mSlaveSideIpCellsNew( aBsplineMeshListIndex )( aBulkPhaseIndex )( aGhostFacetIndexInSet );
+    moris_index tMasterEnrIpCellIndex = aGhostSetupData.mMasterSideIpCellsNew( aBsplineMeshListIndex )( aBulkPhaseIndex )( aGhostFacetIndexInSet );
 
     // set the enr. IP cell the side cluster is attached to
     tMasterSideCluster->mInterpolationCell = aEnrIpCells( tMasterEnrIpCellIndex );
