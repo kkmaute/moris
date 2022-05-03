@@ -45,6 +45,9 @@ namespace moris
             Field_Interpolator * tFIPressure =
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofMap["Pressure"] );
 
+            // get the pressure
+            real tPressure = tFIPressure->val()( 0 );
+
             // get the density property value
             real tDensity = mMasterProp( static_cast< uint >( Property_Type::DENSITY ) )->val()( 0 );
 
@@ -57,14 +60,28 @@ namespace moris
             // get the diameter property value
             real tDiameter = mMasterProp( static_cast< uint >( Property_Type::DIAMETER ) )->val()( 0 );
 
-            // compute dvxdy - dvydx
-            real tVorticity = tFIVelocity->gradx( 1 )( 1, 0 ) - tFIVelocity->gradx( 1 )( 0, 1 );
+            // compute strain-rate
+            Matrix< DDRMat > tStrainRate = 0.5 * ( tFIVelocity->gradx( 1 ) + trans( tFIVelocity->gradx( 1 ) ) );
+
+            // compute traction
+            Matrix< DDRMat > tTraction = 2.0 * tViscosity * tStrainRate * mNormal - tPressure * mNormal;
 
             // compute deno = 0.5 rho U² D
             real tDeno = 0.5 * tDensity * std::pow( tUMax, 2.0 ) * tDiameter;
 
             // compute QI
-            aQI = {{ ( mBeta * tViscosity * tVorticity * mNormal( 1 ) - tFIPressure->val()( 0 ) * mNormal( 0 ) ) / tDeno }};
+            if( mBeta == 1 ) // drag coefficient
+            {
+                aQI = {{ tTraction( 0 ) / tDeno }};
+            }
+            else if( mBeta == -1 ) // lift coefficient
+            {
+                aQI = {{ tTraction( 1 ) / tDeno }};
+            }
+            else
+            {
+                MORIS_ERROR( false, "IQI_Drag_Lift_Coefficient::compute_QI() - unknown mBeta." );
+            }
         }
 
         //------------------------------------------------------------------------------
@@ -82,6 +99,9 @@ namespace moris
             Field_Interpolator * tFIPressure =
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofMap["Pressure"] );
 
+            // get the pressure
+            real tPressure = tFIPressure->val()( 0 );
+
             // get the density property value
             real tDensity = mMasterProp( static_cast< uint >( Property_Type::DENSITY ) )->val()( 0 );
 
@@ -94,15 +114,27 @@ namespace moris
             // get the diameter property value
             real tDiameter = mMasterProp( static_cast< uint >( Property_Type::DIAMETER ) )->val()( 0 );
 
-            // compute dvxdy - dvydx
-            real tVorticity = tFIVelocity->gradx( 1 )( 1, 0 ) - tFIVelocity->gradx( 1 )( 0, 1 );
+            // compute strain-rate
+            Matrix< DDRMat > tStrainRate = 0.5 * ( tFIVelocity->gradx( 1 ) + trans( tFIVelocity->gradx( 1 ) ) );
+
+            // compute traction
+            Matrix< DDRMat > tTraction = 2.0 * tViscosity * tStrainRate * mNormal - tPressure * mNormal;
 
             // compute deno = 0.5 rho U² D
             real tDeno = 0.5 * tDensity * std::pow( tUMax, 2.0 ) * tDiameter;
 
-            // compute QI
-            mSet->get_QI()( tQIIndex ) += aWStar * (
-                    ( mBeta * tViscosity * tVorticity * mNormal( 1 ) - tFIPressure->val()( 0 ) * mNormal( 0 ) ) / tDeno );
+            if( mBeta == 1 ) // new drag coefficient
+            {
+                mSet->get_QI()( tQIIndex ) += aWStar * ( tTraction( 0 ) / tDeno );
+            }
+            else if( mBeta == -1 ) // new lift coefficient
+            {
+                mSet->get_QI()( tQIIndex ) += aWStar * ( tTraction( 1 ) / tDeno );
+            }
+            else
+            {
+                MORIS_ERROR( false, "IQI_Drag_Lift_Coefficient::compute_QI() - unknown mBeta." );
+            }
         }
 
         //------------------------------------------------------------------------------
