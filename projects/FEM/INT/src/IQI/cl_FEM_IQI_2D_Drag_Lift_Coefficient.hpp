@@ -30,11 +30,17 @@ namespace moris
                 // property type for the IQI
                 enum class Property_Type
                 {
-                    DENSITY,    // fluid density
-                    VISCOSITY,
-                    VELOCITY_MAX,
-                    DIAMETER,
+                    REF_DENSITY,
+                    REF_VELOCITY,
+                    LENGTHSCALE,
+                    REF_PRESSURE,
                     MAX_ENUM
+                };
+
+                enum class IQI_Constitutive_Type
+                {
+                        FLUID,
+                        MAX_ENUM
                 };
 
                 // sign for drag/lift

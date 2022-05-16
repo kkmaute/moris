@@ -16,18 +16,23 @@ namespace moris
 
         IQI_Drag_Lift_Coefficient::IQI_Drag_Lift_Coefficient( sint aBeta )
         {
-            // fill master dof map (default)
-            mMasterDofMap[ "Velocity" ] = MSI::Dof_Type::VX;
-            mMasterDofMap[ "Pressure" ] = MSI::Dof_Type::P;
-
             // set the property pointer cell size
             mMasterProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
 
             // populate the map
-            mPropertyMap[ "Density" ]     = static_cast< uint >( Property_Type::DENSITY );
-            mPropertyMap[ "Viscosity" ]   = static_cast< uint >( Property_Type::VISCOSITY );
-            mPropertyMap[ "VelocityMax" ] = static_cast< uint >( Property_Type::VELOCITY_MAX );
-            mPropertyMap[ "Diameter" ]    = static_cast< uint >( Property_Type::DIAMETER );
+            // NOTE: the user can either directly give a reference pressure value, 
+            // NOTE: or give the density, velocity, and a reference lengthscale to normalize against the dynamic pressure
+            mPropertyMap[ "RefDensity" ]     = static_cast< uint >( Property_Type::REF_DENSITY );
+            mPropertyMap[ "RefVelocity" ]    = static_cast< uint >( Property_Type::REF_VELOCITY );
+            mPropertyMap[ "LengthScale" ]    = static_cast< uint >( Property_Type::LENGTHSCALE );
+            mPropertyMap[ "RefPressure" ]    = static_cast< uint >( Property_Type::REF_PRESSURE );
+
+            // set size for the constitutive model pointer cell
+            mMasterCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
+
+            // populate the constitutive map
+            mConstitutiveMap[ "Fluid" ] =
+                    static_cast< uint >( IQI_Constitutive_Type::FLUID );
 
             // set mBeta
             mBeta = aBeta;
@@ -37,72 +42,120 @@ namespace moris
 
         void IQI_Drag_Lift_Coefficient::compute_QI( Matrix< DDRMat > & aQI )
         {
-            // get the velocity FI
-            Field_Interpolator * tFIVelocity =
-                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofMap["Velocity"] );
+            // get the reference pressure property
+            std::shared_ptr< fem::Property > tPropRefPressure = mMasterProp( static_cast< uint >( Property_Type::REF_PRESSURE ) );
 
-            // get the pressure FI
-            Field_Interpolator * tFIPressure =
-                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofMap["Pressure"] );
+            // initialize variable storing the reference pressure
+            real tRefPressure = 0.0;
 
-            // get the density property value
-            real tDensity = mMasterProp( static_cast< uint >( Property_Type::DENSITY ) )->val()( 0 );
+            // check if user has defined the reference pressure directly
+            if( tPropRefPressure != nullptr )
+            {
+                tRefPressure = tPropRefPressure->val()( 0 );
+            }
+            // otherwise compute dynamic pressure as reference
+            else
+            {
+                // get the density property value
+                std::shared_ptr< fem::Property > tPropRefDensity = mMasterProp( static_cast< uint >( Property_Type::REF_DENSITY ) );
 
-            // get the viscosity property value
-            real tViscosity = mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) )->val()( 0 );
+                // get the maximum velocity property value
+                std::shared_ptr< fem::Property > tPropRefVelocity = mMasterProp( static_cast< uint >( Property_Type::REF_VELOCITY ) );
 
-            // get the maximum velocity property value
-            real tUMax = mMasterProp( static_cast< uint >( Property_Type::VELOCITY_MAX ) )->val()( 0 );
+                // get the diameter property value
+                std::shared_ptr< fem::Property > tPropLengthScale = mMasterProp( static_cast< uint >( Property_Type::LENGTHSCALE ) );
 
-            // get the diameter property value
-            real tDiameter = mMasterProp( static_cast< uint >( Property_Type::DIAMETER ) )->val()( 0 );
+                // check that the properties are actually populated
+                MORIS_ASSERT( tPropRefDensity != nullptr && tPropRefVelocity != nullptr && tPropLengthScale != nullptr,
+                    "IQI_Drag_Lift_Coefficient::compute_QI() - Properties not fully populated. "
+                    "User must specify either reference pressure, or give reference values for the density, velocity and length scale." );
 
-            // compute dvxdy - dvydx
-            real tVorticity = tFIVelocity->gradx( 1 )( 1, 0 ) - tFIVelocity->gradx( 1 )( 0, 1 );
+                // compute the dynamic pressure as reference
+                tRefPressure = 0.5 * tPropRefDensity->val()( 0 ) * tPropLengthScale->val()( 0 ) * tPropRefVelocity->val()( 0 ) * tPropRefVelocity->val()( 0 );
+            }
 
-            // compute deno = 0.5 rho U² D
-            real tDeno = 0.5 * tDensity * std::pow( tUMax, 2.0 ) * tDiameter;
+            // check for zero in denominator
+            MORIS_ERROR( std::abs( tRefPressure ) > MORIS_REAL_EPS, 
+                "IQI_Drag_Lift_Coefficient::compute_QI() - Zero reference pressure detected. Check properties. (must not be zero)" );
+
+            // get the diffusion CM
+            const std::shared_ptr< Constitutive_Model > & tFluidCM =
+                    mMasterCM( static_cast< uint >( IQI_Constitutive_Type::FLUID ) );
 
             // compute QI
-            aQI = {{ ( mBeta * tViscosity * tVorticity * mNormal( 1 ) - tFIPressure->val()( 0 ) * mNormal( 0 ) ) / tDeno }};
+            if( mBeta == 1 ) // drag coefficient
+            {
+                aQI = {{ tFluidCM->traction( mNormal )( 0 ) / tRefPressure }};
+            }
+            else if( mBeta == -1 ) // lift coefficient
+            {
+                aQI = {{ tFluidCM->traction( mNormal )( 1 ) / tRefPressure }};
+            }
+            else
+            {
+                MORIS_ERROR( false, "IQI_Drag_Lift_Coefficient::compute_QI() - unknown mBeta." );
+            }
         }
 
         //------------------------------------------------------------------------------
 
         void IQI_Drag_Lift_Coefficient::compute_QI( real aWStar )
         {
+            // get the reference pressure property
+            std::shared_ptr< fem::Property > tPropRefPressure = mMasterProp( static_cast< uint >( Property_Type::REF_PRESSURE ) );
+
+            // initialize variable storing the reference pressure
+            real tRefPressure = 0.0;
+
+            // check if user has defined the reference pressure directly
+            if( tPropRefPressure != nullptr )
+            {
+                tRefPressure = tPropRefPressure->val()( 0 );
+            }
+            // otherwise compute dynamic pressure as reference
+            else
+            {
+                // get the density property value
+                std::shared_ptr< fem::Property > tPropRefDensity = mMasterProp( static_cast< uint >( Property_Type::REF_DENSITY ) );
+
+                // get the maximum velocity property value
+                std::shared_ptr< fem::Property > tPropRefVelocity = mMasterProp( static_cast< uint >( Property_Type::REF_VELOCITY ) );
+
+                // get the diameter property value
+                std::shared_ptr< fem::Property > tPropLengthScale = mMasterProp( static_cast< uint >( Property_Type::LENGTHSCALE ) );
+
+                // check that the properties are actually populated
+                MORIS_ASSERT( tPropRefDensity != nullptr && tPropRefVelocity != nullptr && tPropLengthScale != nullptr,
+                    "IQI_Drag_Lift_Coefficient::compute_QI() - Properties not fully populated. "
+                    "User must specify either reference pressure, or give reference values for the density, velocity and length scale." );
+
+                // compute the dynamic pressure as reference
+                tRefPressure = 0.5 * tPropRefDensity->val()( 0 ) * tPropLengthScale->val()( 0 ) * tPropRefVelocity->val()( 0 ) * tPropRefVelocity->val()( 0 );
+            }
+
+            // check for zero in denominator
+            MORIS_ERROR( std::abs( tRefPressure ) > MORIS_REAL_EPS, 
+                "IQI_Drag_Lift_Coefficient::compute_QI() - Zero reference pressure detected. Check properties. (must not be zero)" );
+
+            // get the diffusion CM
+            const std::shared_ptr< Constitutive_Model > & tFluidCM =
+                    mMasterCM( static_cast< uint >( IQI_Constitutive_Type::FLUID ) );
+
             // get index for QI
             sint tQIIndex = mSet->get_QI_assembly_index( mName );
 
-            // get the velocity FI
-            Field_Interpolator * tFIVelocity =
-                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofMap["Velocity"] );
-
-            // get the pressure FI
-            Field_Interpolator * tFIPressure =
-                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofMap["Pressure"] );
-
-            // get the density property value
-            real tDensity = mMasterProp( static_cast< uint >( Property_Type::DENSITY ) )->val()( 0 );
-
-            // get the viscosity property value
-            real tViscosity = mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) )->val()( 0 );
-
-            // get the maximum velocity property value
-            real tUMax = mMasterProp( static_cast< uint >( Property_Type::VELOCITY_MAX ) )->val()( 0 );
-
-            // get the diameter property value
-            real tDiameter = mMasterProp( static_cast< uint >( Property_Type::DIAMETER ) )->val()( 0 );
-
-            // compute dvxdy - dvydx
-            real tVorticity = tFIVelocity->gradx( 1 )( 1, 0 ) - tFIVelocity->gradx( 1 )( 0, 1 );
-
-            // compute deno = 0.5 rho U² D
-            real tDeno = 0.5 * tDensity * std::pow( tUMax, 2.0 ) * tDiameter;
-
-            // compute QI
-            mSet->get_QI()( tQIIndex ) += aWStar * (
-                    ( mBeta * tViscosity * tVorticity * mNormal( 1 ) - tFIPressure->val()( 0 ) * mNormal( 0 ) ) / tDeno );
+            if( mBeta == 1 ) // new drag coefficient
+            {
+                mSet->get_QI()( tQIIndex ) += aWStar * ( tFluidCM->traction( mNormal )( 0 ) / tRefPressure );
+            }
+            else if( mBeta == -1 ) // new lift coefficient
+            {
+                mSet->get_QI()( tQIIndex ) += aWStar * ( tFluidCM->traction( mNormal )( 1 ) / tRefPressure );
+            }
+            else
+            {
+                MORIS_ERROR( false, "IQI_Drag_Lift_Coefficient::compute_QI() - unknown mBeta." );
+            }
         }
 
         //------------------------------------------------------------------------------
