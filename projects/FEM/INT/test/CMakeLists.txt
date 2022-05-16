@@ -45,6 +45,8 @@ set(TEST_SOURCES
     UT_FEM_CM_Struc_Linear_Isotropic_Axisymmetric.cpp
     UT_FEM_CM_Spalart_Allmaras_Turbulence.cpp
     UT_FEM_CM_Struct_Linear_MT.cpp
+    UT_FEM_CM_Struc_NonLinear_Saint_Venant_Kirchhoff.cpp
+    UT_FEM_CM_Struc_NonLinear_Neo_Hookean.cpp
     
     UT_FEM_SP_Fluid.cpp
     UT_FEM_SP_YZBeta_Advection.cpp
@@ -71,8 +73,10 @@ set(TEST_SOURCES
     UT_FEM_IWG_Struc_Linear_Axisymmetric_Dirichlet.cpp
     UT_FEM_IWG_Struc_Linear_Axisymmetric_Pressure_Dirichlet.cpp
     UT_FEM_IWG_Struc_Linear_Axisymmetric_Interface.cpp
-
     UT_FEM_IWG_Struc_Linear_Axisymmetric_Virtual_Work_Ghost.cpp
+    
+    UT_FEM_IWG_Struc_Nonlinear_Bulk.cpp
+    UT_FEM_IWG_Struc_Nonlinear_Dirichlet.cpp
     
     UT_FEM_IWG_Incompressible_NS_Velocity_Bulk.cpp
     UT_FEM_IWG_Incompressible_NS_Pressure_Bulk.cpp

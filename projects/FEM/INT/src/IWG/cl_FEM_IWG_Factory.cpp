@@ -33,6 +33,10 @@
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Bulk.hpp"
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Dirichlet.hpp"
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Fluid_Interface.hpp"
+// Nonlinear elasticity
+#include "cl_FEM_IWG_Isotropic_Struc_Nonlinear_Bulk.hpp"
+#include "cl_FEM_IWG_Isotropic_Struc_Nonlinear_Dirichlet.hpp"
+
 //Incompressible fluid
 #include "cl_FEM_IWG_Incompressible_NS_Velocity_Bulk.hpp"
 #include "cl_FEM_IWG_Incompressible_NS_Pressure_Bulk.hpp"
@@ -184,6 +188,35 @@ namespace moris
 
                 case IWG_Type::STRUC_VON_MISES_STRESS :
                     return std::make_shared< IWG_Struc_Stress >( Stress_Type::VON_MISES_STRESS );
+
+                    //------------------------------------------------------------------------------
+
+                case IWG_Type::STRUC_NON_LINEAR_BULK_SE:
+                    return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Bulk >( CM_Function_Type::PK2, CM_Function_Type::LAGRANGIAN );
+
+                case IWG_Type::STRUC_NON_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE_SE:
+                    return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Dirichlet >( CM_Function_Type::PK2, CM_Function_Type::LAGRANGIAN, -1 );
+
+                case IWG_Type::STRUC_NON_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE_SE:
+                    return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Dirichlet >( CM_Function_Type::PK2, CM_Function_Type::LAGRANGIAN, 1 );
+
+                case IWG_Type::STRUC_NON_LINEAR_BULK_PF:
+                    return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Bulk >( CM_Function_Type::PK1, CM_Function_Type::DEFORMATION_GRADIENT );
+
+                case IWG_Type::STRUC_NON_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE_PF:
+                    return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Dirichlet >( CM_Function_Type::PK1, CM_Function_Type::DEFORMATION_GRADIENT, -1 );
+
+                case IWG_Type::STRUC_NON_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE_PF:
+                    return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Dirichlet >( CM_Function_Type::PK1, CM_Function_Type::DEFORMATION_GRADIENT, 1 );
+
+                case IWG_Type::STRUC_NON_LINEAR_BULK_CAUCHYEPS:
+                    return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Bulk >( CM_Function_Type::CAUCHY, CM_Function_Type::EULERIAN );
+
+                case IWG_Type::STRUC_NON_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE_CAUCHYEPS:
+                    return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Dirichlet >( CM_Function_Type::CAUCHY, CM_Function_Type::EULERIAN, -1 );
+
+                case IWG_Type::STRUC_NON_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE_CAUCHYEPS:
+                    return std::make_shared< IWG_Isotropic_Struc_Nonlinear_Dirichlet >( CM_Function_Type::CAUCHY, CM_Function_Type::EULERIAN, 1 );
 
                     //------------------------------------------------------------------------------
 

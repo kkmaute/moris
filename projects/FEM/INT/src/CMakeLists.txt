@@ -6,13 +6,13 @@ set(${INT}_VERSION ${MORIS_VERSION})
 
 # List header dependencies                                                                                                                                                                                                                                                     
 set(INT_INCLUDES
-	"CORE"
+    "CORE"
     "ELEM"
     "IP"
-	"MM"
-	"CM"
+    "MM"
+    "CM"
     "SP"
-	"IWG"
+    "IWG"
     "IQI"
     "MEA")
 
@@ -80,6 +80,8 @@ set(HEADERS
     CM/cl_FEM_CM_Diffusion_Linear_Isotropic_Turbulence.hpp
 
     CM/cl_FEM_CM_Struc_Nonlinear_Isotropic.hpp
+    CM/cl_FEM_CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff.hpp
+    CM/cl_FEM_CM_Struc_Nonlinear_Isotropic_Neo_Hookean.hpp
     CM/cl_FEM_CM_Struc_Linear_Isotropic.hpp
     CM/cl_FEM_CM_Struc_Linear_MoriTanaka.hpp
     CM/cl_FEM_CM_Struc_Linear.hpp
@@ -142,6 +144,9 @@ set(HEADERS
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Penalty.hpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Nitsche.hpp 
     IWG/cl_FEM_IWG_Struc_Stress.hpp
+    
+    IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Bulk.hpp
+    IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Dirichlet.hpp
 
     IWG/cl_FEM_IWG_Advection_Bulk.hpp
     IWG/cl_FEM_IWG_Diffusion_Bulk.hpp
@@ -275,8 +280,10 @@ set(LIB_SOURCES
     CM/cl_FEM_CM_Diffusion_Linear_Isotropic_Turbulence.cpp
 
     CM/cl_FEM_CM_Struc_Nonlinear_Isotropic.cpp
+    CM/cl_FEM_CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff.cpp
+    CM/cl_FEM_CM_Struc_Nonlinear_Isotropic_Neo_Hookean.cpp
     CM/cl_FEM_CM_Struc_Linear_Isotropic.cpp
-     CM/cl_FEM_CM_Struc_Linear_MoriTanaka.cpp
+    CM/cl_FEM_CM_Struc_Linear_MoriTanaka.cpp
     CM/cl_FEM_CM_Struc_Linear.cpp
 
     CM/cl_FEM_CM_Fluid_Incompressible.cpp
@@ -341,6 +348,9 @@ set(LIB_SOURCES
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Penalty.cpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Nitsche.cpp
     IWG/cl_FEM_IWG_Struc_Stress.cpp
+    
+    IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Bulk.cpp
+    IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Dirichlet.cpp
     
     IWG/cl_FEM_IWG_Advection_Bulk.cpp
     IWG/cl_FEM_IWG_Diffusion_Bulk.cpp
