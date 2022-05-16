@@ -161,6 +161,7 @@ namespace moris
             // storage for test strain evaluation
             Matrix< DDRMat > mTestStrain;
             Matrix< DDRMat > mTestStrainTrans;
+            moris::Cell< Matrix< DDRMat > > mdTestStraindDof;
 
             // storage for constitutive matrix evaluation
             Matrix< DDRMat >                mConst;
@@ -171,6 +172,7 @@ namespace moris
             std::string mName = "Undefined";
 
           private:
+
             // bool for global dof type list and map build
             bool mGlobalDofBuild      = true;
             bool mGlobalDvBuild       = true;
@@ -220,6 +222,7 @@ namespace moris
             // flag for test strain related evaluation
             bool mTestStrainEval      = true;
             bool mTestStrainTransEval = true;
+            moris::Matrix< DDBMat > mdTestStraindDofEval;
 
             // flag for constitutive matrix related evaluation
             bool                    mConstEval = true;
@@ -746,7 +749,15 @@ namespace moris
              * @param[ in ]  aCMFunctionType  enum indicating which flux is called, if there are several
              * @param[ out ] mFlux constitutive model flux
              */
-            virtual const Matrix< DDRMat >& flux( enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
+            virtual const Matrix< DDRMat >&
+            flux( enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
+
+            virtual const Matrix< DDRMat >&
+            flux( int                     aFlatType,
+                    enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
+
+
+            // ---------------------------------------------------------------------------------------------------------------------------------
 
             //------------------------------------------------------------------------------
             /**
@@ -918,6 +929,24 @@ namespace moris
              * @param[ out ] mTestStrain transpose of constitutive model test strain
              */
             virtual const Matrix< DDRMat >& testStrain_trans(
+                    enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
+
+            /**
+             * evaluate the derivative of the constitutive model test strain wrt dof
+             * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
+             */
+            virtual void eval_dTestStraindDOF( const moris::Cell< MSI::Dof_Type >& aDofTypes )
+            {
+                MORIS_ERROR( false, " Constitutive_Model::eval_dTestStraindDOF - This function does nothing. " );
+            }
+
+            /**
+             * get the derivative of the constitutive model test strain wrt dof
+             * @param[ in ]  aDofTypes a dof type wrt which the derivative is evaluated
+             * @param[ out ] mdTestStraindDOF derivative of constitutive model test strain
+             */
+            virtual const Matrix< DDRMat >& dTestStraindDOF(
+                    const moris::Cell< MSI::Dof_Type >& aDofTypes,
                     enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
