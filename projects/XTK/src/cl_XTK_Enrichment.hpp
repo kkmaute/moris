@@ -125,8 +125,6 @@ namespace xtk
 
             // flag whether SPG or SP based Enrichment is used
             bool mUseSPGs = false;
-
-            // Basis bulk measures
     };
 
     // ----------------------------------------------------------------------------------
@@ -190,6 +188,13 @@ namespace xtk
 
             // map allowing to enr. IP cell / non-void cluster associated with a given subphase
             Cell< moris_index > mSubphaseIndexToEnrIpCellIndex; // input: subphase index || output: enriched interpolation cell index
+
+            // Experimental: maps associating UIPCs / Cell clusters with SPGs
+            // input: B-spline mesh list index, SPG index || output: List of Cell clusters on SPG
+            Cell< Cell< Cell< moris_index > > > mSpgToUipcIndex;
+
+            // input: B-spline mesh list index, Cluster/UIPC index || output: SPG index this Cluster/UIPC is in
+            Cell< Cell< moris_index > > mUipcToSpgIndex;
 
             // ----------------------------------------------------------------------------------
 
@@ -358,6 +363,42 @@ namespace xtk
             get_enr_ip_cell_indices_on_base_ip_cell( moris_index aBaseIpCellIndex ) const
             {
                 return mEnrIpCellIndices( aBaseIpCellIndex );
+            }
+
+            // ----------------------------------------------------------------------------------
+
+            moris::Cell< moris::Cell< moris::Cell< moris_index > > > const&
+            get_SPG_to_UIPC_map() const
+            {
+                return mSpgToUipcIndex;
+            }
+
+            // ----------------------------------------------------------------------------------
+
+            moris::Cell< moris_index > const&
+            get_UIPC_indices_on_SPG( 
+                    const moris_index aBspMeshListIndex, 
+                    const moris_index aSpgIndex ) const
+            {
+                return mSpgToUipcIndex( aBspMeshListIndex )( aSpgIndex );
+            }
+
+            // ----------------------------------------------------------------------------------
+            
+            moris::Cell< moris::Cell< moris_index > > const&
+            get_UIPC_to_SPG_map() const
+            {
+                return mUipcToSpgIndex;
+            }
+
+            // ----------------------------------------------------------------------------------
+
+            moris_index
+            get_SPG_on_UIPC( 
+                    const moris_index aBspMeshListIndex, 
+                    const moris_index aEnrIpCellIndex ) const
+            {
+                return mUipcToSpgIndex( aBspMeshListIndex )( aEnrIpCellIndex );
             }
 
             // ----------------------------------------------------------------------------------
