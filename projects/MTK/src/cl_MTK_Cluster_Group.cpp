@@ -17,7 +17,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         Cluster_Group::Cluster_Group(
-                moris::Cell< Cluster const * > aClusters,
+                moris::Cell< std::shared_ptr< mtk::Cluster > > aClusters,
                 const moris_index              aBsplineMeshListIndex )
                 : mClusters( aClusters )
                 , mBsplineMeshListIndex( aBsplineMeshListIndex )
@@ -27,7 +27,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        moris::Cell< Cluster const* > const& 
+        moris::Cell< std::shared_ptr< mtk::Cluster > > const&
         Cluster_Group::get_clusters_in_group() const
         {
             return mClusters;

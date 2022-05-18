@@ -25,7 +25,7 @@ namespace moris
           private:
 
             // list of clusters in group
-            moris::Cell< moris::mtk::Cluster const* > mClusters;
+            moris::Cell< std::shared_ptr< mtk::Cluster > > mClusters;
 
             // index on which B-spline mesh the cluster group is valid
             // NOTE: this is the index of the B-spline mesh wrt. to the list of B-spline meshes enriched using the current Lagrange mesh. 
@@ -37,7 +37,7 @@ namespace moris
           public:
           
             Cluster_Group(
-                    moris::Cell< moris::mtk::Cluster const * > aClusters,
+                    moris::Cell< std::shared_ptr< mtk::Cluster > > aClusters,
                     const moris_index                          aBsplineMeshListIndex );
 
             ~Cluster_Group(){};
@@ -49,7 +49,7 @@ namespace moris
              * 
              * @return moris::Cell< mtk::Cluster const* > const& list of clusters in the cluster group
              */
-            moris::Cell< Cluster const* > const& get_clusters_in_group() const;
+            moris::Cell< std::shared_ptr< mtk::Cluster > > const& get_clusters_in_group() const;
 
             //------------------------------------------------------------------------------
 
