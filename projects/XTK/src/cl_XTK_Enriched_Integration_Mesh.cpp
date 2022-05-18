@@ -139,11 +139,11 @@ Enriched_Integration_Mesh::~Enriched_Integration_Mesh()
     }
     mListofDoubleSideSets.clear();
 
-    for ( auto p : mDoubleSideClusters )
-    {
-        delete p;
-    }
-    mDoubleSideClusters.clear();
+    // for ( auto p : mDoubleSideClusters )
+    // {
+    //     delete p;
+    // }
+    // mDoubleSideClusters.clear();
 
     mDoubleSideSingleSideClusters.clear();
 }
@@ -609,7 +609,10 @@ Enriched_Integration_Mesh::create_dbl_sided_interface_set(
         Side_Cluster *tSlaveSideCluster  = mDoubleSideSingleSideClusters( mDoubleSideSetsSlaveIndex( tDblSideSetOrds( 0 ) )( i ) ).get();
 
         // create double side set
-        mtk::Double_Side_Cluster *tDblSideCluster = new mtk::Double_Side_Cluster( tMasterSideCluster, tSlaveSideCluster, tMasterSideCluster->get_vertices_in_cluster() );
+        std::shared_ptr< mtk::Double_Side_Cluster > tDblSideCluster = std::make_shared< mtk::Double_Side_Cluster >(
+            tMasterSideCluster, 
+            tSlaveSideCluster, 
+            tMasterSideCluster->get_vertices_in_cluster() );
 
         mDoubleSideClusters.push_back( tDblSideCluster );
         mDoubleSideSets( tDblSideSetOrds( 0 ) ).push_back( tDblSideCluster );
@@ -1716,10 +1719,17 @@ Enriched_Integration_Mesh::get_double_sided_set_index( std::string aDoubleSideSe
 moris::Cell< mtk::Cluster const * >
 Enriched_Integration_Mesh::get_double_side_set_cluster( moris_index aSideSetOrdinal ) const
 {
-    MORIS_ASSERT( aSideSetOrdinal < (moris_index)mDoubleSideSetLabels.size(), "Double side set ordinal out of bounds" );
-    moris::Cell< mtk::Cluster const * > tDblSideClusters;
-    tDblSideClusters.data() = std::vector< mtk::Cluster const * >( mDoubleSideSets( aSideSetOrdinal ).cbegin(),
-        mDoubleSideSets( aSideSetOrdinal ).cend() );
+    MORIS_ASSERT( aSideSetOrdinal < (moris_index) mDoubleSideSetLabels.size(), 
+        "Enriched_Integration_Mesh::get_double_side_set_cluster() - Double side set ordinal out of bounds" );
+
+    moris::uint tNumDblSideClustersInSet = mDoubleSideSets( aSideSetOrdinal ).size();
+
+    moris::Cell< mtk::Cluster const * > tDblSideClusters( tNumDblSideClustersInSet );
+
+    for ( moris::uint i = 0; i < tNumDblSideClustersInSet; i++ )
+    {
+        tDblSideClusters( i ) = mDoubleSideSets( aSideSetOrdinal )( i ).get();
+    }
 
     return tDblSideClusters;
 }
@@ -1898,7 +1908,11 @@ Enriched_Integration_Mesh::print_side_sets( moris::uint aVerbosityLevel ) const
 
     for ( moris::uint iSS = 0; iSS < this->get_num_side_sets(); iSS++ )
     {
-        std::cout << "    Side Set Name: " << std::setw( 20 ) << mSideSetLabels( iSS ) << " | Side Set Ord: " << std::setw( 9 ) << iSS << " | Num Cell Clusters: " << std::setw( 9 ) << this->mSideSets( iSS ).size() << " | Bulk Phase: " << std::setw( 9 ) << mSideSetColors( iSS )( 0 ) << std::endl;
+        std::cout << "    Side Set Name: " << std::setw( 20 ) << mSideSetLabels( iSS ) << 
+            " | Side Set Ord: " << std::setw( 9 ) << iSS << 
+            " | Num Cell Clusters: " << std::setw( 9 ) << this->mSideSets( iSS ).size() << 
+            " | Bulk Phase: " << std::setw( 9 ) << mSideSetColors( iSS )( 0 ) << std::endl;
+
         if ( aVerbosityLevel > 0 )
         {
             for ( moris::uint iCL = 0; iCL < this->mSideSets( iSS ).size(); iCL++ )
@@ -1927,14 +1941,20 @@ Enriched_Integration_Mesh::print_double_side_sets( moris::uint aVerbosityLevel )
 
     for ( moris::uint iSS = 0; iSS < this->get_num_double_side_set(); iSS++ )
     {
-        std::cout << "    Dbl Side Set Name: " << std::setw( 20 ) << mDoubleSideSetLabels( iSS ) << " | Dbl Side Set Ord: " << std::setw( 9 ) << iSS << " | Num Cell Clusters: " << std::setw( 9 ) << this->mDoubleSideSets( iSS ).size() << " | Master Bulk Phase: " << std::setw( 9 ) << mMasterDoubleSideSetColor( iSS )( 0 ) << " | Slave Bulk Phase: " << std::setw( 9 ) << mSlaveDoubleSideSetColor( iSS )( 0 );
+        std::cout << "    Dbl Side Set Name: " << std::setw( 20 ) << mDoubleSideSetLabels( iSS ) << 
+            " | Dbl Side Set Ord: " << std::setw( 9 ) << iSS << 
+            " | Num Cell Clusters: " << std::setw( 9 ) << this->mDoubleSideSets( iSS ).size() << 
+            " | Master Bulk Phase: " << std::setw( 9 ) << mMasterDoubleSideSetColor( iSS )( 0 ) << 
+            " | Slave Bulk Phase: " << std::setw( 9 ) << mSlaveDoubleSideSetColor( iSS )( 0 );
 
         if ( aVerbosityLevel > 0 )
         {
             for ( moris::uint i = 0; i < mDoubleSideSets( iSS ).size(); i++ )
             {
-                std::cout << "\n      Master Interpolation Cell: " << std::setw( 9 ) << mDoubleSideSets( iSS )( i )->get_interpolation_cell( mtk::Master_Slave::MASTER ).get_id();
-                std::cout << " | Slave Interpolation Cell: " << std::setw( 9 ) << mDoubleSideSets( iSS )( i )->get_interpolation_cell( mtk::Master_Slave::SLAVE ).get_id();
+                std::cout << "\n      Master Interpolation Cell: " << std::setw( 9 ) << 
+                    mDoubleSideSets( iSS )( i )->get_interpolation_cell( mtk::Master_Slave::MASTER ).get_id();
+                std::cout << " | Slave Interpolation Cell: " << std::setw( 9 ) << 
+                    mDoubleSideSets( iSS )( i )->get_interpolation_cell( mtk::Master_Slave::SLAVE ).get_id();
             }
         }
 
@@ -1965,7 +1985,7 @@ Enriched_Integration_Mesh::create_side_set_from_dbl_side_set( moris_index const 
 {
     Cell< moris_index > tSideSetIndex = this->register_side_set_names( { aSideSetName } );
 
-    moris::Cell< mtk::Double_Side_Cluster * > &tDblSideClusters = mDoubleSideSets( aDblSideSetIndex );
+    moris::Cell< std::shared_ptr< mtk::Double_Side_Cluster > >& tDblSideClusters = mDoubleSideSets( aDblSideSetIndex );
 
     moris::uint tCount = 0;
     for ( moris::uint i = 0; i < tDblSideClusters.size(); i++ )
@@ -3273,7 +3293,7 @@ Enriched_Integration_Mesh::create_interface_double_side_sets_and_clusters()
                             tSubphaseToSubphaseSideClusterIndex( tFollowerSubphaseIndex )[tLeaderSubphaseIndex] = tNewClusterIndex;
 
                             // create double side set
-                            mtk::Double_Side_Cluster *tDblSideCluster = new mtk::Double_Side_Cluster(
+                            std::shared_ptr< mtk::Double_Side_Cluster > tDblSideCluster = std::make_shared< mtk::Double_Side_Cluster >(
                                 tSideClusters( tNewClusterIndex - 1 ).get(),
                                 tSideClusters( tNewClusterIndex ).get(),
                                 tSideClusters( tNewClusterIndex - 1 )->get_vertices_in_cluster() );
@@ -3320,8 +3340,8 @@ Enriched_Integration_Mesh::create_interface_double_side_sets_and_clusters()
     }
 
     // build list of side set indices
-     moris::Cell< moris_index > tDoubleSideSetIndexList;
-     tDoubleSideSetIndexList.reserve( mDoubleSideSets.size() - mListofDoubleSideSets.size() );
+    moris::Cell< moris_index > tDoubleSideSetIndexList;
+    tDoubleSideSetIndexList.reserve( mDoubleSideSets.size() - mListofDoubleSideSets.size() );
 
     // construct double side set interfaces
     for ( moris::uint Ik = mListofDoubleSideSets.size(); Ik < mDoubleSideSets.size(); Ik++ )
@@ -3659,7 +3679,7 @@ Enriched_Integration_Mesh::create_interface_side_sets_from_interface_double_side
     // get the double side set index
     moris_index tDblSideSetIndex = this->get_dbl_side_set_index( aBulkphase0, aBulkphase1 );
 
-    moris::Cell< mtk::Double_Side_Cluster * > &tDblSideClusters = mDoubleSideSets( tDblSideSetIndex );
+    moris::Cell< std::shared_ptr< mtk::Double_Side_Cluster > >& tDblSideClusters = mDoubleSideSets( tDblSideSetIndex );
 
     // place the clusters in the two side sets
     for ( moris::uint i = 0; i < tDblSideClusters.size(); i++ )

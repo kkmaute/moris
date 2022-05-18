@@ -81,18 +81,18 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
     moris::Cell< moris::Cell< moris_index > >                          mColorsSideSets; /*transpose of mSideSetColors*/
 
     // double side sets
-    std::unordered_map< std::string, moris_index >           mDoubleSideSetLabelToOrd;
-    moris::Cell< std::string >                               mDoubleSideSetLabels;
-    moris::Cell< moris::Cell< mtk::Double_Side_Cluster * > > mDoubleSideSets;
-    moris::Cell< moris::Cell< moris_index > >                mDoubleSideSetsMasterIndex;
-    moris::Cell< moris::Cell< moris_index > >                mDoubleSideSetsSlaveIndex;
-    moris::Cell< mtk::Double_Side_Cluster * >                mDoubleSideClusters;
-    moris::Cell< std::shared_ptr< xtk::Side_Cluster > >      mDoubleSideSingleSideClusters; /*lefts and rights of the double side sets*/
-    moris::Matrix< moris::IndexMat >                         mBulkPhaseToDblSideIndex;
-    moris::Cell< moris::Matrix< IndexMat > >                 mMasterDoubleSideSetColor;
-    moris::Cell< moris::Matrix< IndexMat > >                 mSlaveDoubleSideSetColor;
-    moris::Cell< moris::Cell< moris_index > >                mColorMasterDoubleSideSet; /*transpose of mMasterDoubleSideSetColor*/
-    moris::Cell< moris::Cell< moris_index > >                mColorSlaveDoubleSideSet; /*transpose of mSlaveDoubleSideSetColor*/
+    std::unordered_map< std::string, moris_index >             mDoubleSideSetLabelToOrd;
+    moris::Cell< std::string >                                 mDoubleSideSetLabels;
+    moris::Cell< moris::Cell< std::shared_ptr< mtk::Double_Side_Cluster > > > mDoubleSideSets;
+    moris::Cell< moris::Cell< moris_index > >                  mDoubleSideSetsMasterIndex;
+    moris::Cell< moris::Cell< moris_index > >                  mDoubleSideSetsSlaveIndex;
+    moris::Cell< std::shared_ptr< mtk::Double_Side_Cluster > > mDoubleSideClusters;
+    moris::Cell< std::shared_ptr< xtk::Side_Cluster > >        mDoubleSideSingleSideClusters; /*lefts and rights of the double side sets*/
+    moris::Matrix< moris::IndexMat >                           mBulkPhaseToDblSideIndex;
+    moris::Cell< moris::Matrix< IndexMat > >                   mMasterDoubleSideSetColor;
+    moris::Cell< moris::Matrix< IndexMat > >                   mSlaveDoubleSideSetColor;
+    moris::Cell< moris::Cell< moris_index > >                  mColorMasterDoubleSideSet; /*transpose of mMasterDoubleSideSetColor*/
+    moris::Cell< moris::Cell< moris_index > >                  mColorSlaveDoubleSideSet; /*transpose of mSlaveDoubleSideSetColor*/
 
     // Fields
     moris::Cell< xtk::Field >                                     mFields; /*Structure Node (0), Cell(1)*/

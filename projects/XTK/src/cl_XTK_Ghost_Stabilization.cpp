@@ -1272,7 +1272,7 @@ Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh( Ghost_Setup_Data&
             tEnrIntegMesh.mDoubleSideSingleSideClusters.push_back( tSlaveSideCluster );
 
             // create double side cluster
-            mtk::Double_Side_Cluster* tDblSideCluster = new mtk::Double_Side_Cluster(
+            std::shared_ptr< mtk::Double_Side_Cluster > tDblSideCluster = std::make_shared< mtk::Double_Side_Cluster >(
                 tMasterSideCluster.get(),
                 tSlaveSideCluster.get(),
                 tMasterSideCluster->mVerticesInCluster );
@@ -1599,7 +1599,7 @@ Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh_new( Ghost_Setup_D
                 tEnrIntegMesh.mDoubleSideSetsSlaveIndex( tCurrentDblSsIndexInEnrIgMesh ).push_back( tEnrIntegMesh.mDoubleSideSingleSideClusters.size() - 1 );
 
                 // create double side cluster
-                mtk::Double_Side_Cluster* tDblSideCluster = new mtk::Double_Side_Cluster(
+                std::shared_ptr< mtk::Double_Side_Cluster > tDblSideCluster = std::make_shared< mtk::Double_Side_Cluster >(
                     tMasterSideCluster.get(),
                     tSlaveSideCluster.get(),
                     tMasterSideCluster->mVerticesInCluster );
