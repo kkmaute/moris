@@ -9,6 +9,7 @@
  */
 
 #include "cl_MTK_Cluster_Group.hpp"
+#include "cl_MTK_Cluster.hpp"
 
 namespace moris
 {
@@ -17,7 +18,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         Cluster_Group::Cluster_Group(
-                moris::Cell< std::shared_ptr< mtk::Cluster > > aClusters,
+                moris::Cell< std::shared_ptr< Cluster > > aClusters,
                 const moris_index              aBsplineMeshListIndex )
                 : mClusters( aClusters )
                 , mBsplineMeshListIndex( aBsplineMeshListIndex )
@@ -27,7 +28,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        moris::Cell< std::shared_ptr< mtk::Cluster > > const&
+        moris::Cell< std::shared_ptr< Cluster > > const&
         Cluster_Group::get_clusters_in_group() const
         {
             return mClusters;

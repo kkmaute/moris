@@ -11,12 +11,19 @@
 #define SRC_cl_MTK_Cluster_Group
 
 #include "cl_Cell.hpp"
-#include "cl_MTK_Cluster.hpp"
+#include "cl_MTK_Enums.hpp"
+#include "cl_Matrix.hpp"
 
 namespace moris
 {
     namespace mtk
     {
+        //------------------------------------------------------------------------------
+
+        // forward declare the mtk::Cluster
+        class Cluster;
+
+        //------------------------------------------------------------------------------
 
         class Cluster_Group
         {
@@ -25,7 +32,7 @@ namespace moris
           private:
 
             // list of clusters in group
-            moris::Cell< std::shared_ptr< mtk::Cluster > > mClusters;
+            moris::Cell< std::shared_ptr< Cluster > > mClusters;
 
             // index on which B-spline mesh the cluster group is valid
             // NOTE: this is the index of the B-spline mesh wrt. to the list of B-spline meshes enriched using the current Lagrange mesh. 
@@ -37,7 +44,7 @@ namespace moris
           public:
           
             Cluster_Group(
-                    moris::Cell< std::shared_ptr< mtk::Cluster > > aClusters,
+                    moris::Cell< std::shared_ptr< Cluster > > aClusters,
                     const moris_index                          aBsplineMeshListIndex );
 
             ~Cluster_Group(){};
@@ -47,9 +54,9 @@ namespace moris
             /**
              * @brief Get a the list of clusters in the cluster group
              * 
-             * @return moris::Cell< mtk::Cluster const* > const& list of clusters in the cluster group
+             * @return moris::Cell< Cluster const* > const& list of clusters in the cluster group
              */
-            moris::Cell< std::shared_ptr< mtk::Cluster > > const& get_clusters_in_group() const;
+            moris::Cell< std::shared_ptr< Cluster > > const& get_clusters_in_group() const;
 
             //------------------------------------------------------------------------------
 

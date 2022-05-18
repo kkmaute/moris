@@ -1,15 +1,17 @@
 /*
- * cl_XTK_Cell_Cluster.hpp
- *
- *  Created on: Jul 22, 2019
- *      Author: doble
+ * Copyright (c) 2022 University of Colorado 
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details. 
+ * 
+ * ------------------------------------------------------------------------------------ 
+ * 
+ * cl_XTK_Cell_Cluster.hpp  
+ * 
  */
-
 #ifndef PROJECTS_XTK_SRC_XTK_CL_XTK_CELL_CLUSTER_HPP_
 #define PROJECTS_XTK_SRC_XTK_CL_XTK_CELL_CLUSTER_HPP_
 
-
 #include "cl_MTK_Cell_Cluster.hpp"
+#include "cl_MTK_Cluster_Group.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 
 using namespace moris;
@@ -20,7 +22,6 @@ namespace xtk
     class Child_Mesh;
     class IG_Vertex_Group;
     class IG_Cell_Group;
-    class Side_Cluster;
 
     class Cell_Cluster : public mtk::Cell_Cluster
     {
@@ -43,6 +44,7 @@ namespace xtk
         std::shared_ptr< IG_Vertex_Group >              mVertexGroup;
         moris::Cell< std::shared_ptr< IG_Cell_Group > > mPrimaryIgCellGroup;
         moris::Cell< std::shared_ptr< IG_Cell_Group > > mVoidIgCellGroup;
+        std::shared_ptr< mtk::Cluster_Group >           mClusterGroup;
 
         //------------------------------------------------------------------------------
 
@@ -66,11 +68,13 @@ namespace xtk
         //------------------------------------------------------------------------------
 
         // functions for internal XTK use
-        Interpolation_Cell_Unzipped const* get_xtk_interpolation_cell() const;
+        Interpolation_Cell_Unzipped const* 
+        get_xtk_interpolation_cell() const;
 
         //------------------------------------------------------------------------------
 
-        Matrix< IndexMat > get_hanging_nodes() const;
+        Matrix< IndexMat > 
+        get_hanging_nodes() const;
 
         //------------------------------------------------------------------------------
 
@@ -102,8 +106,26 @@ namespace xtk
 
         std::shared_ptr< IG_Vertex_Group >
         get_ig_vertex_group();
-    };
-}    // namespace xtk
 
+        //------------------------------------------------------------------------------
+
+        moris::real
+        compute_cluster_group_cell_measure(
+                const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const;
+
+        //------------------------------------------------------------------------------
+
+        moris::real
+        compute_cluster_group_cell_measure_derivative(
+                const Matrix< DDRMat > & aPerturbedVertexCoords,
+                uint aDirection,
+                const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
+
+        //------------------------------------------------------------------------------
+
+    };  // class Cell_Cluster 
+}    // namespace xtk
 
 #endif /* PROJECTS_XTK_SRC_XTK_CL_XTK_CELL_CLUSTER_HPP_ */

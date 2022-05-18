@@ -1,14 +1,18 @@
 /*
- * cl_XTK_Cell_Cluster.cpp
- *
- *  Created on: Jul 22, 2019
- *      Author: doble
+ * Copyright (c) 2022 University of Colorado 
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details. 
+ * 
+ * ------------------------------------------------------------------------------------ 
+ * 
+ * cl_XTK_Cell_Cluster.cpp  
+ * 
  */
 
 #include "cl_XTK_Cell_Cluster.hpp"
 #include "cl_XTK_Interpolation_Cell_Unzipped.hpp"
 #include "cl_XTK_Child_Mesh.hpp"
 #include "cl_XTK_Cut_Integration_Mesh.hpp"
+
 namespace xtk
 {
     //----------------------------------------------------------------
@@ -272,7 +276,7 @@ namespace xtk
         }
     }
 
-    //----------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
     void
     Cell_Cluster::set_ig_vertex_group(std::shared_ptr<IG_Vertex_Group> aVertexGroup)
@@ -288,15 +292,38 @@ namespace xtk
             mLocalCoords.set_row(i, *mVertexGroup->get_vertex_local_coords(mVerticesInCluster(i)->get_index()));
         }
     }
+    //------------------------------------------------------------------------------
 
     std::shared_ptr<IG_Vertex_Group>
     Cell_Cluster::get_ig_vertex_group()
     {
         return mVertexGroup;
     }
+    
+    //------------------------------------------------------------------------------
 
-    //----------------------------------------------------------------
+    moris::real
+    Cell_Cluster::compute_cluster_group_cell_measure(
+            const mtk::Primary_Void aPrimaryOrVoid,
+            const mtk::Master_Slave aIsMaster ) const
+    {
+        return mClusterGroup->compute_cluster_group_volume( aPrimaryOrVoid, aIsMaster );
+    }
+
+    //------------------------------------------------------------------------------
+
+    moris::real
+    Cell_Cluster::compute_cluster_group_cell_measure_derivative(
+            const Matrix< DDRMat >& aPerturbedVertexCoords,
+            uint aDirection,
+            const mtk::Primary_Void aPrimaryOrVoid,
+            const mtk::Master_Slave aIsMaster ) const
+    {
+        return mClusterGroup->compute_cluster_group_volume_derivative( aPerturbedVertexCoords, aDirection, aPrimaryOrVoid, aIsMaster );
+    }
+
+    //------------------------------------------------------------------------------
  
-}
+}   // namespace xtk
 
 

@@ -1,8 +1,11 @@
 /*
- * cl_XTK_Side_Cluster.cpp
- *
- *  Created on: Jul 22, 2019
- *      Author: doble
+ * Copyright (c) 2022 University of Colorado 
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details. 
+ * 
+ * ------------------------------------------------------------------------------------ 
+ * 
+ * cl_XTK_Side_Cluster.cpp  
+ * 
  */
 
 #include "cl_XTK_Side_Cluster.hpp"
@@ -12,8 +15,6 @@
 #include "cl_XTK_Child_Mesh.hpp"
 #include "assert.hpp"
 #include "fn_TOL_Capacities.hpp"
-
-
 
 namespace xtk
 {
@@ -175,7 +176,7 @@ namespace xtk
         return this->get_vertices_local_coordinates_wrt_interp_cell(aIsMaster).n_cols();
     }
 
-    //----------------------------------------------------------------
+    //------------------------------------------------------------------------------
     
     moris::real
     Side_Cluster::compute_cluster_cell_measure(
@@ -196,6 +197,16 @@ namespace xtk
 
             return mInterpolationCell->compute_cell_measure();
         }
+    }
+
+    //------------------------------------------------------------------------------
+
+    moris::real
+    Side_Cluster::compute_cluster_group_cell_measure(
+            const mtk::Primary_Void aPrimaryOrVoid,
+            const mtk::Master_Slave aIsMaster ) const
+    {
+        return mClusterGroup->compute_cluster_group_volume( aPrimaryOrVoid, aIsMaster );
     }
 
     //----------------------------------------------------------------
@@ -245,6 +256,20 @@ namespace xtk
         }
     }
 
+    //------------------------------------------------------------------------------
+
+    moris::real
+    Side_Cluster::compute_cluster_group_cell_measure_derivative(
+            const Matrix< DDRMat >& aPerturbedVertexCoords,
+            uint aDirection,
+            const mtk::Primary_Void aPrimaryOrVoid,
+            const mtk::Master_Slave aIsMaster ) const
+    {
+        return mClusterGroup->compute_cluster_group_volume_derivative( aPerturbedVertexCoords, aDirection, aPrimaryOrVoid, aIsMaster );
+    }
+
+    //------------------------------------------------------------------------------
+
     void
     Side_Cluster::set_ig_vertex_group(std::shared_ptr<IG_Vertex_Group> aVertexGroup)
     {
@@ -260,10 +285,29 @@ namespace xtk
         }
     }
 
-    //----------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
-    
-    //----------------------------------------------------------------
+    moris::real
+    Side_Cluster::compute_cluster_group_cell_side_measure(
+            const mtk::Primary_Void aPrimaryOrVoid,
+            const mtk::Master_Slave aIsMaster ) const
+    {
+        return mClusterGroup->compute_cluster_group_side_measure( aPrimaryOrVoid, aIsMaster );
+    }
+
+    //---------------------------------------------------------------------------------------
+
+    moris::real
+    Side_Cluster::compute_cluster_cell_side_measure_derivative(
+            const Matrix< DDRMat >& aPerturbedVertexCoords,
+            uint aDirection,
+            const mtk::Primary_Void aPrimaryOrVoid,
+            const mtk::Master_Slave aIsMaster ) const
+    {
+        return mClusterGroup->compute_cluster_group_side_measure_derivative( aPerturbedVertexCoords, aDirection, aPrimaryOrVoid, aIsMaster );
+    }
+
+    //------------------------------------------------------------------------------
 
     size_t
     Side_Cluster::capacity()
@@ -282,11 +326,8 @@ namespace xtk
         return tTotalSize;
     }
 
-    
-    //----------------------------------------------------------------
-    
+    //------------------------------------------------------------------------------
 
-    //----------------------------------------------------------------
-}
+}   // namespace xtk
 
 
