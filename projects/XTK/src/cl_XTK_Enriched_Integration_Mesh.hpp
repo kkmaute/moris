@@ -554,6 +554,15 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
     void
     setup_cluster_groups();
 
+    void
+    setup_cell_cluster_groups();
+    
+    void
+    setup_side_cluster_groups();
+    
+    void
+    setup_dbl_side_cluster_groups();
+
     //------------------------------------------------------------------------------
 
     void
