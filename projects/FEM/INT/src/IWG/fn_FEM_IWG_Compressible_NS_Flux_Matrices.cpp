@@ -54,6 +54,7 @@ namespace moris
             aAMats.assign( tNumSpaceDims + 2, tEmptyA );
             //mA.resize( tNumSpaceDims + 2 );          
 
+            // clang-format off
             // assemble matrices based on 
             switch ( tNumSpaceDims )
             {
@@ -132,6 +133,7 @@ namespace moris
                     MORIS_ERROR( false, "fn_FEM_IWG_Compressible_NS::assemble_A_matrices() - Number of space dimensions must be 2 or 3" );
                 };
             }
+            // clang-format on
         }
 
         //------------------------------------------------------------------------------
@@ -163,6 +165,7 @@ namespace moris
                 aKMats( iDim ).resize( tNumSpaceDims );
             }            
 
+            // clang-format off
             // assemble matrices based on 
             switch ( tNumSpaceDims )
             {
@@ -293,6 +296,7 @@ namespace moris
                     MORIS_ERROR( false, "fn_FEM_IWG_Compressible_NS::assemble_A_matrices() - Number of space dimensions must be 2 or 3" );
                 };
             }
+            // clang-format on
         }                    
 
         //------------------------------------------------------------------------------

@@ -1,10 +1,12 @@
 /*
- * cl_MTK_Cell_Cluster.hpp
- *
- *  Created on: Apr 26, 2019
- *      Author: doble
+ * Copyright (c) 2022 University of Colorado 
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details. 
+ * 
+ * ------------------------------------------------------------------------------------ 
+ * 
+ * cl_MTK_Cell_Cluster.hpp  
+ * 
  */
-
 #ifndef PROJECTS_MTK_SRC_CL_MTK_CELL_CLUSTER_HPP_
 #define PROJECTS_MTK_SRC_CL_MTK_CELL_CLUSTER_HPP_
 
@@ -18,6 +20,8 @@ namespace moris
 {
     namespace mtk
     {
+        class Cluster_Group;
+
         class Cell_Cluster : public Cluster
         {
             public:
@@ -150,6 +154,8 @@ namespace moris
                     return tCellIndices;
                 }
 
+                //------------------------------------------------------------------------------
+
                 virtual
                 moris::Matrix<moris::IndexMat>
                 get_void_cell_indices_in_cluster() const
@@ -173,6 +179,19 @@ namespace moris
 
                     return tCellIndices;
                 }
+
+                //----------------------------------------------------------------
+
+                virtual
+                void
+                set_cluster_group( 
+                        const moris_index aBsplineMeshListIndex,
+                        std::shared_ptr< Cluster_Group > aClusterGroupPtr )
+                {
+                    MORIS_ERROR( false, "mtk::Cell_Cluster::set_cluster_group() - only implemented for child xtk::Cell_Cluster" );
+                };
+
+                //------------------------------------------------------------------------------
 
                 virtual
                 moris::real
@@ -201,6 +220,21 @@ namespace moris
                     return tVolume;
                 }
 
+                //------------------------------------------------------------------------------
+
+                virtual
+                moris::real
+                compute_cluster_group_cell_measure(
+                        const moris_index       aBsplineMeshListIndex,
+                        const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                        const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const
+                {
+                    MORIS_ERROR( false, "mtk::Cell_Cluster::compute_cluster_group_cell_measure() - Only implemented in child xtk::Cell_Cluster" );
+                    return 0.0;
+                }
+
+                //------------------------------------------------------------------------------
+
                 virtual
                 Matrix<DDRMat>
                 compute_cluster_ig_cell_measures(
@@ -227,6 +261,8 @@ namespace moris
 
                     return tMeasureVec;
                 }
+
+                //------------------------------------------------------------------------------
 
                 virtual
                 moris::real
@@ -293,6 +329,23 @@ namespace moris
                     return tDerivative;
                 }
 
+                //------------------------------------------------------------------------------
+
+                virtual
+                moris::real
+                compute_cluster_group_cell_measure_derivative(
+                        const moris_index       aBsplineMeshListIndex,
+                        const Matrix< DDRMat > & aPerturbedVertexCoords,
+                        uint aDirection,
+                        const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                        const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
+                {
+                    MORIS_ERROR( false, "mtk::Cell_Cluster::compute_cluster_group_cell_measure_derivative() - Only implemented in child xtk::Cell_Cluster" );
+                    return 0.0;
+                }
+
+                //------------------------------------------------------------------------------
+
                 moris::real
                 compute_cluster_cell_side_measure(
                         const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
@@ -302,6 +355,20 @@ namespace moris
                     return 0;
                 }
 
+                //------------------------------------------------------------------------------
+
+                moris::real
+                compute_cluster_group_cell_side_measure(
+                        const moris_index       aBsplineMeshListIndex,
+                        const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                        const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const
+                {
+                    MORIS_ERROR( false, "mtk::Cell_Cluster::compute_cluster_group_cell_side_measure() - Only valid on xtk::Side_Cluster" );
+                    return 0.0;
+                }
+
+                //------------------------------------------------------------------------------
+
                 Matrix<DDRMat>
                 compute_cluster_ig_cell_side_measures(
                         const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
@@ -310,6 +377,8 @@ namespace moris
                     MORIS_ERROR(0,"compute_cluster_ig_cell_side_measures only valid on side clusters");
                     return {{0}};
                 }
+
+                //------------------------------------------------------------------------------
 
                 moris::real
                 compute_cluster_cell_side_measure_derivative(
@@ -321,6 +390,22 @@ namespace moris
                     MORIS_ERROR(0,"compute_cluster_cell_side_measure_derivative only valid on side clusters");
                     return 0;
                 }
+
+                //------------------------------------------------------------------------------
+
+                moris::real
+                compute_cluster_group_cell_side_measure_derivative(
+                        const moris_index       aBsplineMeshListIndex,
+                        const Matrix< DDRMat >& aPerturbedVertexCoords,
+                        uint aDirection,
+                        const mtk::Primary_Void aPrimaryOrVoid,
+                        const mtk::Master_Slave aIsMaster ) const
+                {
+                    MORIS_ERROR( false, "mtk::Cell_Cluster::compute_cluster_group_cell_side_measure_derivative() - Only valid on xtk::Side_Cluster" );
+                    return 0.0;
+                }
+
+                //------------------------------------------------------------------------------
 
                 virtual
                 moris::moris_index

@@ -1,19 +1,24 @@
 /*
- * cl_MTK_Cluster.hpp
- *
- *  Created on: Apr 26, 2019
- *      Author: Schmidt
+ * Copyright (c) 2022 University of Colorado 
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details. 
+ * 
+ * ------------------------------------------------------------------------------------ 
+ * 
+ * cl_MTK_Cluster.hpp  
+ * 
  */
-
 #ifndef PROJECTS_MTK_SRC_CL_MTK_CLUSTER_HPP_
 #define PROJECTS_MTK_SRC_CL_MTK_CLUSTER_HPP_
 
 #include "cl_Cell.hpp"
 #include "cl_MTK_Cell.hpp"
+
 namespace moris
 {
     namespace mtk
     {
+        class Cluster_Group;
+
         class Cluster
         {
             private:
@@ -196,6 +201,21 @@ namespace moris
                     return 0;
                 }
 
+                //----------------------------------------------------------------
+
+                virtual
+                void
+                set_cluster_group( 
+                        const moris_index aBsplineMeshListIndex,
+                        std::shared_ptr< Cluster_Group > aClusterGroupPtr )
+                {
+                    MORIS_ERROR( false, "mtk::Cluster::set_cluster_group() - not implemented for this class" );
+                };
+                
+                // virtual
+                // std::shared_ptr< Cluster_Group >
+                // get_cluster_group() const = 0;
+
                 //##############################################
                 // Local Coordinate Access
                 // (Pure Virtual)
@@ -232,6 +252,8 @@ namespace moris
                 moris_index
                 get_dim_of_param_coord( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const = 0;
 
+                //------------------------------------------------------------------------------
+
                 /*
                  * Compute the measure (volume 3d or area 2d) of the cells in the void or primary phase
                  */
@@ -241,6 +263,18 @@ namespace moris
                         const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                         const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const = 0;
 
+                //------------------------------------------------------------------------------
+
+                virtual
+                moris::real
+                compute_cluster_group_cell_measure(
+                        const moris_index       aBsplineMeshListIndex,
+                        const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                        const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const = 0;
+
+                //------------------------------------------------------------------------------
+                
+                
                 /*
                  * Compute the measure of individual IG cells (volume 3d or area 2d) in the void or primary phase
                  */
@@ -250,6 +284,8 @@ namespace moris
                         const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                         const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const = 0;
 
+                //------------------------------------------------------------------------------
+                
                 /*
                  * Compute the derivative of measure (volume 3d or area 2d) of the cells in the void or primary phase
                  * wrt a given vertex and space direction
@@ -262,6 +298,19 @@ namespace moris
                         const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                         const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const = 0;
 
+                //------------------------------------------------------------------------------
+                
+                virtual
+                moris::real
+                compute_cluster_group_cell_measure_derivative(
+                        const moris_index       aBsplineMeshListIndex,
+                        const Matrix< DDRMat >& aPerturbedVertexCoords,
+                        uint aDirection,
+                        const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                        const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const = 0;
+
+                //------------------------------------------------------------------------------
+                
                 /*
                  * Compute the side measure (surface area 3d or length 2d) of the cells in the void or primary phase on the side set.
                  * Only valid on side cluster type mtk clusters
@@ -271,6 +320,18 @@ namespace moris
                 compute_cluster_cell_side_measure(
                         const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                         const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const = 0;
+
+                //------------------------------------------------------------------------------
+                
+                virtual
+                moris::real
+                compute_cluster_group_cell_side_measure(
+                        const moris_index       aBsplineMeshListIndex,
+                        const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                        const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const = 0;
+
+                //------------------------------------------------------------------------------
+                
                 /*
                  * Compute vector of individual side measures for each IG cell
                  */
@@ -280,6 +341,8 @@ namespace moris
                         const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                         const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const = 0;
 
+                //------------------------------------------------------------------------------
+                
                 /*
                  * Compute the derivative side measure (surface area 3d or length 2d) of the cells in the void or primary phase on the side set.
                  * wrt a given vertex and space direction
@@ -289,6 +352,17 @@ namespace moris
                 moris::real
                 compute_cluster_cell_side_measure_derivative(
                         const Matrix< DDRMat > & aPerturbedVertexCoords,
+                        uint aDirection,
+                        const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                        const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const = 0;
+
+                //------------------------------------------------------------------------------
+                
+                virtual
+                moris::real
+                compute_cluster_group_cell_side_measure_derivative(
+                        const moris_index       aBsplineMeshListIndex,
+                        const Matrix< DDRMat >& aPerturbedVertexCoords,
                         uint aDirection,
                         const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                         const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const = 0;

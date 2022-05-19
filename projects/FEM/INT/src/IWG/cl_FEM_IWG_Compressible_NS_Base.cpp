@@ -217,6 +217,7 @@ namespace moris
             Field_Interpolator * tFI2 =  mMasterFIManager->get_field_interpolators_for_type( mVectorDof );
             Field_Interpolator * tFI3 =  mMasterFIManager->get_field_interpolators_for_type( mLastDof   );
 
+            // clang-format off
             // construct Y - vector based on the number of space dims
             switch ( this->num_space_dims() )
             {
@@ -248,6 +249,7 @@ namespace moris
                     break;
                 }
             }
+            // clang-format on
 
             // check that thermodynamic variables are not zero
             MORIS_ASSERT( tFI1->val()( 0 ) != 0.0 and tFI3->val()( 0 ) != 0.0,
@@ -277,6 +279,7 @@ namespace moris
             Field_Interpolator * tFI2 =  mMasterFIManager->get_field_interpolators_for_type( mVectorDof );
             Field_Interpolator * tFI3 =  mMasterFIManager->get_field_interpolators_for_type( mLastDof   );
 
+            // clang-format off
             // construct Y - vector based on the number of space dims
             switch ( this->num_space_dims() )
             {
@@ -310,6 +313,7 @@ namespace moris
                     break;
                 }
             }
+            // clang-format on
 
             // return dYdt
             return mdYdt;
@@ -335,6 +339,7 @@ namespace moris
             Field_Interpolator * tFI2 =  mMasterFIManager->get_field_interpolators_for_type( mVectorDof );
             Field_Interpolator * tFI3 =  mMasterFIManager->get_field_interpolators_for_type( mLastDof   );
 
+            // clang-format off
             // construct Y - vector based on the number of space dims
             switch ( this->num_space_dims() )
             {
@@ -401,6 +406,7 @@ namespace moris
                     break;
                 }
             }
+            // clang-format on
 
             // return dYdt
             return mdYdx( aSpatialDirection );
@@ -429,6 +435,7 @@ namespace moris
             Field_Interpolator * tFI2 =  mMasterFIManager->get_field_interpolators_for_type( mVectorDof );
             Field_Interpolator * tFI3 =  mMasterFIManager->get_field_interpolators_for_type( mLastDof   );
 
+            // clang-format off
             // construct Y - vector based on the number of space dims
             switch ( this->num_space_dims() )
             {
@@ -476,6 +483,7 @@ namespace moris
                     break;
                 }
             }
+            // clang-format off
 
             // return value
             return md2Ydx2( tFlatIndex );

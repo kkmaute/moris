@@ -1,14 +1,18 @@
 /*
- * cl_XTK_Cell_Cluster.cpp
- *
- *  Created on: Jul 22, 2019
- *      Author: doble
+ * Copyright (c) 2022 University of Colorado 
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details. 
+ * 
+ * ------------------------------------------------------------------------------------ 
+ * 
+ * cl_XTK_Cell_Cluster.cpp  
+ * 
  */
 
 #include "cl_XTK_Cell_Cluster.hpp"
 #include "cl_XTK_Interpolation_Cell_Unzipped.hpp"
 #include "cl_XTK_Child_Mesh.hpp"
 #include "cl_XTK_Cut_Integration_Mesh.hpp"
+
 namespace xtk
 {
     //----------------------------------------------------------------
@@ -22,6 +26,7 @@ namespace xtk
             , mPrimaryIntegrationCells( 0, nullptr )
             , mVoidIntegrationCells( 0, nullptr )
             , mVerticesInCluster( 0, nullptr )
+            , mClusterGroups( 0, nullptr )
     {
     }
 
@@ -272,7 +277,7 @@ namespace xtk
         }
     }
 
-    //----------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
     void
     Cell_Cluster::set_ig_vertex_group(std::shared_ptr<IG_Vertex_Group> aVertexGroup)
@@ -289,14 +294,62 @@ namespace xtk
         }
     }
 
+    //------------------------------------------------------------------------------
+
+    void
+    Cell_Cluster::set_cluster_group( 
+            const moris_index aBsplineMeshListIndex,
+            std::shared_ptr< mtk::Cluster_Group > aClusterGroupPtr )
+    {
+        // check that the cluster group is set to the correct B-spline list index
+        MORIS_ASSERT( aClusterGroupPtr->get_Bspline_index_for_cluster_group() == aBsplineMeshListIndex,
+            "xtk::Cell_Cluster::set_cluster_group() - Index which the cluster group lives on is not the list index it gets set to on the cluster." );
+
+        // check if the list of cluster groups is big enough to accommodate the cluster groups for each B-spline mesh 
+        if( mClusterGroups.size() < (uint) aBsplineMeshListIndex + 1 )
+        {
+            // ... if not increase the size
+            mClusterGroups.resize( aBsplineMeshListIndex + 1 );
+        }
+        
+        // store pointer to the cluster group associated with this B-spline mesh
+        mClusterGroups( aBsplineMeshListIndex ) = aClusterGroupPtr;
+    }
+
+    //------------------------------------------------------------------------------
+
     std::shared_ptr<IG_Vertex_Group>
     Cell_Cluster::get_ig_vertex_group()
     {
         return mVertexGroup;
     }
+    
+    //------------------------------------------------------------------------------
 
-    //----------------------------------------------------------------
+    moris::real
+    Cell_Cluster::compute_cluster_group_cell_measure(
+            const moris_index aBsplineMeshListIndex,
+            const mtk::Primary_Void aPrimaryOrVoid,
+            const mtk::Master_Slave aIsMaster ) const
+    {
+        return mClusterGroups( aBsplineMeshListIndex )->compute_cluster_group_volume( aPrimaryOrVoid, aIsMaster );
+    }
+
+    //------------------------------------------------------------------------------
+
+    moris::real
+    Cell_Cluster::compute_cluster_group_cell_measure_derivative(
+            const moris_index       aBsplineMeshListIndex,
+            const Matrix< DDRMat >& aPerturbedVertexCoords,
+            uint aDirection,
+            const mtk::Primary_Void aPrimaryOrVoid,
+            const mtk::Master_Slave aIsMaster ) const
+    {
+        return mClusterGroups( aBsplineMeshListIndex )->compute_cluster_group_volume_derivative( aPerturbedVertexCoords, aDirection, aPrimaryOrVoid, aIsMaster );
+    }
+
+    //------------------------------------------------------------------------------
  
-}
+}   // namespace xtk
 
 

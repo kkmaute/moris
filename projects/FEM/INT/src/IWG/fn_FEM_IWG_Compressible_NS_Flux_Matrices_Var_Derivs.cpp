@@ -62,6 +62,7 @@ namespace moris
             real tVL3 = aVL( 2 );
             real tVL4 = aVL( 3 );      
 
+            // clang-format off
             // assemble matrices based on 
             switch ( tNumSpaceDims )
             {
@@ -193,7 +194,7 @@ namespace moris
 
                     // break for 3D case
                     break;
-                }                
+                }              
             
                 // unknown number of spatial dimensions
                 default:
@@ -201,6 +202,7 @@ namespace moris
                     MORIS_ERROR( false, "fn_FEM_IWG_Compressible_NS::eval_VL_dAdY() - Number of space dimensions must be 2 or 3" );
                 };
             }
+            // clang-format on
         }
 
         //------------------------------------------------------------------------------
@@ -241,6 +243,7 @@ namespace moris
             real tC3 = 1.0/(tR*tT*tT);
             real tC4 = tP/(tR*tT*tT);
 
+            // clang-format off
             // assemble matrices based on number of spatial dimensions
             switch ( tNumSpaceDims )
             {
@@ -828,6 +831,7 @@ namespace moris
                     break;
                 }
             }
+            // clang-format on
         }
 
         //------------------------------------------------------------------------------
@@ -877,6 +881,7 @@ namespace moris
             real tVR3 = aVR( 2 );
             real tVR4 = aVR( 3 );      
 
+            // clang-format off
             // assemble matrices based on 
             switch ( tNumSpaceDims )
             {
@@ -1015,6 +1020,7 @@ namespace moris
                     MORIS_ERROR( false, "fn_FEM_IWG_Compressible_NS::eval_dAdY_VR() - Number of space dimensions must be 2 or 3" );
                 };
             }
+            // clang-format on
         }
 
         //------------------------------------------------------------------------------
@@ -1047,6 +1053,7 @@ namespace moris
                 adKdY( iDim ).assign( tNumSpaceDims, tZeroMat );
             }
             
+            // clang-format off
             // assemble matrices based on number of spatial dimensions
             switch ( tNumSpaceDims )
             {
@@ -1209,6 +1216,7 @@ namespace moris
                     break;
                 }
             }
+            // clang-format on
         }
 
         //------------------------------------------------------------------------------
@@ -1237,6 +1245,7 @@ namespace moris
             MORIS_ASSERT( aVL.length() == tNumSpaceDims + 2, 
                     "fn_FEM_IWG_Compressible_NS::eval_VL_dKdY - length of pre-multiplication vector incorrect." );      
 
+            // clang-format off
             // assemble matrices based on 
             switch ( tNumSpaceDims )
             {
@@ -1535,6 +1544,7 @@ namespace moris
                     MORIS_ERROR( false, "fn_FEM_IWG_Compressible_NS::eval_VL_dKdY() - Number of space dimensions must be 2 or 3" );
                 };
             }
+            // clang-format on
         }
 
         //------------------------------------------------------------------------------
@@ -1568,6 +1578,7 @@ namespace moris
             real tVR3 = aVR( 2 );
             real tVR4 = aVR( 3 );    
 
+            // clang-format off
             // assemble matrices based on 
             switch ( tNumSpaceDims )
             {
@@ -1865,6 +1876,7 @@ namespace moris
                     MORIS_ERROR( false, "fn_FEM_IWG_Compressible_NS::eval_dKdY_VR() - Number of space dimensions must be 2 or 3" );
                 };
             }
+            // clang-format on
         }
 
         //------------------------------------------------------------------------------
@@ -1896,6 +1908,7 @@ namespace moris
             MORIS_ASSERT( aVL.length() == tNumSpaceDims + 2, 
                     "fn_FEM_IWG_Compressible_NS::eval_VL_dKijidY - length of pre-multiplication vector incorrect." );      
 
+            // clang-format off
             // assemble matrices based on 
             switch ( tNumSpaceDims )
             {
@@ -2072,6 +2085,7 @@ namespace moris
                     MORIS_ERROR( false, "fn_FEM_IWG_Compressible_NS::eval_VL_dKijidY() - Number of space dimensions must be 2 or 3" );
                 };
             }
+            // clang-format on
         }
 
         //------------------------------------------------------------------------------
@@ -2107,6 +2121,7 @@ namespace moris
             real tVR3 = aVR( 2 );
             real tVR4 = aVR( 3 );   
 
+            // clang-format off
             // assemble matrices based on 
             switch ( tNumSpaceDims )
             {
@@ -2277,6 +2292,7 @@ namespace moris
                     MORIS_ERROR( false, "fn_FEM_IWG_Compressible_NS::eval_dKijidY_VR() - Number of space dimensions must be 2 or 3" );
                 };
             }
+            // clang-format on
         }
 
         //------------------------------------------------------------------------------

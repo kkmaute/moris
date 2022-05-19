@@ -398,7 +398,7 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal",
                 // print for debug
                 if( !tCheckJacobian )
                 {
-                    std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<"iGP "<<iGP<<std::endl;
+                    std::cout << "Case: Geometry " << iSpaceDim << ", Order " << iInterpOrder << ", iGP " << iGP << std::endl;
                 }
 
                 // require check is true
@@ -418,7 +418,7 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_VdW",
 {
     // define an epsilon environment
     real tEpsilon = 1.0E-6;
-    real tEpsilonCubic = 3.0E-6;
+    real tEpsilonCubic = 3.2E-6;
 
     // define a perturbation relative size
     real tPerturbation = 2.0E-4;

@@ -89,11 +89,23 @@ namespace moris
                 }
                 case sol::SolverLoadControlType::Exponential:
                 {
-                    const real aResNorm = aNonLinSolverManager->get_static_ref_norm();
-                    const real aRefNorm = aNonLinSolverManager->get_static_residual_norm();
+                    real tResNorm = 1.0;
+                    real tRefNorm = 1.0;
+
+                    // use static residual if available
+                    if ( aNonLinSolverManager->get_compute_static_residual_flag() )
+                    {
+                        tResNorm = aNonLinSolverManager->get_static_ref_norm();
+                        tRefNorm = aNonLinSolverManager->get_static_residual_norm();
+                    }
+                    else
+                    {
+                        tResNorm = aNonLinSolverManager->get_ref_norm();
+                        tRefNorm = aNonLinSolverManager->get_residual_norm();
+                    }
 
                     // compute relative residual
-                    real tRelResNorm = aResNorm / aRefNorm;
+                    real tRelResNorm = tResNorm / tRefNorm;
 
                     // update laod factor if requirement on relative residual is satisfied
                     if ( tRelResNorm < mRelativeResidualDropThreshold )

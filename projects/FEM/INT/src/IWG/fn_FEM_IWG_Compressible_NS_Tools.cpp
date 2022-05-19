@@ -22,6 +22,7 @@ namespace moris
             // get length of the flattened tensor
             uint tLength = aFlattenedTensor.length();
 
+            // clang-format off
             switch ( tLength )
             {
                 // 2D: convert 3x1 flattened tensor back to 2x2 matrix
@@ -51,6 +52,7 @@ namespace moris
                     break;
                 }
             }
+            // clang-format on
         }
 
         //------------------------------------------------------------------------------
@@ -64,6 +66,7 @@ namespace moris
             // initialize return value
             uint tFlatIndex;
             
+            // clang-format off
             // two cases: 2D and 3D
             switch ( aNumSpaceDims )
             {
@@ -125,6 +128,7 @@ namespace moris
                 }
 
             } // end switch statement
+            // clang-format on
 
             // return index
             return tFlatIndex;

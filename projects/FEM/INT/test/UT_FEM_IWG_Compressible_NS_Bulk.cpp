@@ -257,6 +257,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
             
             Matrix< DDRMat > tXHat;
 
+            // clang-format off
             if ( iSpaceDim == 2 )
             {
                 tXHat = { 
@@ -277,6 +278,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
                     {  2.4, -1.3, 3.4 }, 
                     { -0.4, -1.3, 3.4 } };
             }
+            // clang-format on
 
 
             // set the coefficients xHat, tHat

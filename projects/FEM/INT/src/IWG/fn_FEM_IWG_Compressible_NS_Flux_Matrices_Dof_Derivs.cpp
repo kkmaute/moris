@@ -67,6 +67,7 @@ namespace moris
             // =======================
             // Assemble A0 derivatives
             // =======================
+            // clang-format off
 
             // derivative matrix for FIRST ROW OF A0
         
@@ -201,7 +202,9 @@ namespace moris
 
             adA0dDOF( tThirdVarIndex )( { tThirdVarIndex, tThirdVarIndex }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
                     tCv * aMM->DensityDOF( aResidualDofTypes( 2 ) ) + tRho * aMM->CpDOF( aResidualDofTypes( 2 ) ) - 
-                    tEtot * aMM->AlphaPDOF( aResidualDofTypes( 2 ) ) - tAlphaP * aCM->dEnergydDOF( aResidualDofTypes( 2 ) );                              
+                    tEtot * aMM->AlphaPDOF( aResidualDofTypes( 2 ) ) - tAlphaP * aCM->dEnergydDOF( aResidualDofTypes( 2 ) );
+
+            // clang-format on                              
         }
 
         //------------------------------------------------------------------------------
@@ -257,6 +260,7 @@ namespace moris
             // =======================
             // Assemble A1 derivatives
             // =======================
+            // clang-format off
 
             // derivative matrix for FIRST ROW OF A1
         
@@ -484,7 +488,9 @@ namespace moris
 
             adA1dDOF( tThirdVarIndex )( { tThirdVarIndex, tThirdVarIndex }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
                     tUx * ( tCv * aMM->DensityDOF( aResidualDofTypes( 2 ) ) + tRho * aMM->CpDOF( aResidualDofTypes( 2 ) ) - 
-                    tEtot * aMM->AlphaPDOF( aResidualDofTypes( 2 ) ) - tAlphaP * aCM->dEnergydDOF( aResidualDofTypes( 2 ) ) );                              
+                    tEtot * aMM->AlphaPDOF( aResidualDofTypes( 2 ) ) - tAlphaP * aCM->dEnergydDOF( aResidualDofTypes( 2 ) ) );  
+
+            // clang-format on                            
         }  
 
         //------------------------------------------------------------------------------
@@ -540,6 +546,7 @@ namespace moris
             // =======================
             // Assemble A2 derivatives
             // =======================
+            // clang-format off
 
             // derivative matrix for FIRST ROW OF A2
         
@@ -765,7 +772,9 @@ namespace moris
 
             adA2dDOF( tThirdVarIndex )( { tThirdVarIndex, tThirdVarIndex }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
                     tUy * ( tCv * aMM->DensityDOF( aResidualDofTypes( 2 ) ) + tRho * aMM->CpDOF( aResidualDofTypes( 2 ) ) - 
-                    tEtot * aMM->AlphaPDOF( aResidualDofTypes( 2 ) ) - tAlphaP * aCM->dEnergydDOF( aResidualDofTypes( 2 ) ) );   
+                    tEtot * aMM->AlphaPDOF( aResidualDofTypes( 2 ) ) - tAlphaP * aCM->dEnergydDOF( aResidualDofTypes( 2 ) ) );  
+
+            // clang-format on 
 
         }   
 
@@ -817,6 +826,7 @@ namespace moris
             // =======================
             // Assemble A3 derivatives
             // =======================
+            // clang-format off
 
             // derivative matrix for FIRST ROW OF A3
         
@@ -1042,7 +1052,9 @@ namespace moris
 
             adA3dDOF( tThirdVarIndex )( { tThirdVarIndex, tThirdVarIndex }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
                     tUz * ( tCv * aMM->DensityDOF( aResidualDofTypes( 2 ) ) + tRho * aMM->CpDOF( aResidualDofTypes( 2 ) ) - 
-                    tEtot * aMM->AlphaPDOF( aResidualDofTypes( 2 ) ) - tAlphaP * aCM->dEnergydDOF( aResidualDofTypes( 2 ) ) );  
+                    tEtot * aMM->AlphaPDOF( aResidualDofTypes( 2 ) ) - tAlphaP * aCM->dEnergydDOF( aResidualDofTypes( 2 ) ) ); 
+
+            // clang-format on 
 
         }
 
@@ -1092,6 +1104,7 @@ namespace moris
                 aKijYjDOF( iCol + 1 ).set_size( tNumSpaceDims, tNumBases, 0.0 );
             }
 
+            // clang-format off
             // put dof derivatives of stress tensor entries into right places
             if ( tNumSpaceDims == 2 )
             {
@@ -1138,6 +1151,7 @@ namespace moris
                 MORIS_ERROR( false, 
                         "fn_FEM_IWG_Compressible_NS::eval_KijYjDOF_matrices - number of spatial dimensions != {2,3}" );
             }
+            // clang-format on
 
             // temperature residual
             aKijYjDOF( tNumSpaceDims + 1  ) = 

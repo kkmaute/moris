@@ -21,6 +21,7 @@
 #include <unordered_map>
 #include "cl_TOL_Memory_Map.hpp"
 #include "cl_XTK_Subphase_Group.hpp"
+#include "cl_MTK_Cluster_Group.hpp"
 
 using namespace moris;
 
@@ -52,6 +53,12 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
     // Cell Clusters
     moris::Cell< std::shared_ptr< xtk::Cell_Cluster > > mCellClusters;
 
+    // cluster groups, 
+    // NOTE: first array index corresponds to index of the B-spline mesh in mBsplineMeshIndices 
+    moris::Cell< moris::Cell< std::shared_ptr< mtk::Cluster_Group > > > mCellClusterGroups;
+    moris::Cell< moris::Cell< std::shared_ptr< mtk::Cluster_Group > > > mSideClusterGroups;
+    moris::Cell< moris::Cell< std::shared_ptr< mtk::Cluster_Group > > > mDblSideClusterGroups;
+
     // Vertex Set
     std::unordered_map< std::string, moris_index >     mVertexSetLabelToOrd;
     moris::Cell< std::string >                         mVertexSetNames;
@@ -74,18 +81,18 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
     moris::Cell< moris::Cell< moris_index > >                          mColorsSideSets; /*transpose of mSideSetColors*/
 
     // double side sets
-    std::unordered_map< std::string, moris_index >           mDoubleSideSetLabelToOrd;
-    moris::Cell< std::string >                               mDoubleSideSetLabels;
-    moris::Cell< moris::Cell< mtk::Double_Side_Cluster * > > mDoubleSideSets;
-    moris::Cell< moris::Cell< moris_index > >                mDoubleSideSetsMasterIndex;
-    moris::Cell< moris::Cell< moris_index > >                mDoubleSideSetsSlaveIndex;
-    moris::Cell< mtk::Double_Side_Cluster * >                mDoubleSideClusters;
-    moris::Cell< std::shared_ptr< xtk::Side_Cluster > >      mDoubleSideSingleSideClusters; /*lefts and rights of the double side sets*/
-    moris::Matrix< moris::IndexMat >                         mBulkPhaseToDblSideIndex;
-    moris::Cell< moris::Matrix< IndexMat > >                 mMasterDoubleSideSetColor;
-    moris::Cell< moris::Matrix< IndexMat > >                 mSlaveDoubleSideSetColor;
-    moris::Cell< moris::Cell< moris_index > >                mColorMasterDoubleSideSet; /*transpose of mMasterDoubleSideSetColor*/
-    moris::Cell< moris::Cell< moris_index > >                mColorSlaveDoubleSideSet; /*transpose of mSlaveDoubleSideSetColor*/
+    std::unordered_map< std::string, moris_index >             mDoubleSideSetLabelToOrd;
+    moris::Cell< std::string >                                 mDoubleSideSetLabels;
+    moris::Cell< moris::Cell< std::shared_ptr< mtk::Double_Side_Cluster > > > mDoubleSideSets;
+    moris::Cell< moris::Cell< moris_index > >                  mDoubleSideSetsMasterIndex;
+    moris::Cell< moris::Cell< moris_index > >                  mDoubleSideSetsSlaveIndex;
+    moris::Cell< std::shared_ptr< mtk::Double_Side_Cluster > > mDoubleSideClusters;
+    moris::Cell< std::shared_ptr< xtk::Side_Cluster > >        mDoubleSideSingleSideClusters; /*lefts and rights of the double side sets*/
+    moris::Matrix< moris::IndexMat >                           mBulkPhaseToDblSideIndex;
+    moris::Cell< moris::Matrix< IndexMat > >                   mMasterDoubleSideSetColor;
+    moris::Cell< moris::Matrix< IndexMat > >                   mSlaveDoubleSideSetColor;
+    moris::Cell< moris::Cell< moris_index > >                  mColorMasterDoubleSideSet; /*transpose of mMasterDoubleSideSetColor*/
+    moris::Cell< moris::Cell< moris_index > >                  mColorSlaveDoubleSideSet; /*transpose of mSlaveDoubleSideSetColor*/
 
     // Fields
     moris::Cell< xtk::Field >                                     mFields; /*Structure Node (0), Cell(1)*/
@@ -541,6 +548,30 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
 
     void
     setup_color_to_set();
+
+    //------------------------------------------------------------------------------
+
+    void
+    setup_cluster_groups();
+
+    void
+    setup_cell_cluster_groups();
+    
+    void
+    setup_side_cluster_groups();
+    
+    void
+    setup_dbl_side_cluster_groups();
+
+    //------------------------------------------------------------------------------
+
+    void
+    visualize_cluster_measures(); 
+
+    //------------------------------------------------------------------------------
+    
+    void 
+    visualize_cluster_group_measures();
 
     //------------------------------------------------------------------------------
 
