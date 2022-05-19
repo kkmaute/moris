@@ -462,8 +462,7 @@ namespace moris
             // if viscosity is the test dof
             if ( aTestDofTypes( 0 ) == mDofViscosity && aDofTypes( 0 ) == mDofViscosity )
             {
-                MORIS_LOG_INFO( "Missing second order derivative of effective dynamic viscosity- FD for now" );
-
+                // FIXME: Missing second order derivative of effective dynamic viscosity - FD for now
                 Constitutive_Model::eval_dtesttractiondu_FD(
                         aDofTypes,
                         aTestDofTypes,
