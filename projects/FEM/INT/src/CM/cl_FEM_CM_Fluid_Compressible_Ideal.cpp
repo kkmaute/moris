@@ -721,7 +721,7 @@ namespace moris
 
             // compute Stress
             mStress = 2.0 * tPropDynamicViscosity->val()( 0 ) *
-                    ( this->strain() - ( 1 / 3 ) * tFIVelocity->div() * mFlatIdentity  ) -
+                    ( this->strain() - ( 1.0 / 3.0 ) * tFIVelocity->div() * mFlatIdentity  ) -
                     mFlatIdentity * this->pressure();
         }
 
@@ -760,7 +760,7 @@ namespace moris
                 // compute contribution
                 mdStressdDof( tDofIndex ) +=
                         2.0 * tPropDynamicViscosity->val()( 0 ) *
-                        ( this->dStraindDOF( aDofTypes ) - ( 1 / 3 ) * mFlatIdentity * tFIVelocity->div_operator() );
+                        ( this->dStraindDOF( aDofTypes ) - ( 1.0 / 3.0 ) * mFlatIdentity * tFIVelocity->div_operator() );
             }
 
             // direct dependency on the temperature dof type
@@ -776,7 +776,7 @@ namespace moris
             {
                 // compute derivative with indirect dependency through properties
                 mdStressdDof( tDofIndex ) +=
-                        2.0 * ( this->strain() - ( 1 / 3 ) * tFIVelocity->div() * mFlatIdentity ) *
+                        2.0 * ( this->strain() - ( 1.0 / 3.0 ) * tFIVelocity->div() * mFlatIdentity ) *
                         tPropDynamicViscosity->dPropdDOF( aDofTypes );
             }
         }
