@@ -1,8 +1,11 @@
 /*
- * cl_FEM_IWG_Compressible_NS_Bulk_Stabilization.cpp
- *
- *  Created on: Apr 7, 2021
- *      Author: wunsch
+ * Copyright (c) 2022 University of Colorado 
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details. 
+ * 
+ * ------------------------------------------------------------------------------------ 
+ * 
+ * cl_FEM_IWG_Compressible_NS_Bulk_Stabilization.cpp  
+ * 
  */
 
 #include "cl_FEM_Set.hpp"
@@ -162,10 +165,12 @@ namespace moris
                     {
                         for ( uint mDim = 0; mDim < this->num_space_dims(); mDim++ )
                         {
+                            // clang-format off
                             // add contribution from the K-terms
                             tM += this->G()( kDim, jDim ) * this->G()( lDim, mDim ) * 
                                     this->K( kDim, lDim ) * this->A0inv() *
                                     this->K( mDim, jDim ) * this->A0inv(); 
+                            // clang-format on
                         }
                     }
                 }
@@ -291,6 +296,7 @@ namespace moris
                         Matrix< DDRMat > tdAkdY;
                         eval_dAdY( tMM, tCM, mMasterFIManager, mResidualDofType, kDim + 1, iVar, tdAkdY );
 
+                        // clang-format off
                         // add contribution from the A-terms
                         tdMdVar += this->G()( jDim, kDim ) * (  // tdMdVar
                                              tdAjdY * this->A0inv()          * this->A( kDim + 1 ) * this->A0inv() + 
@@ -310,6 +316,7 @@ namespace moris
                                         this->K( kDim, lDim ) * this->A0inv()          * this->K( mDim, jDim ) * this->dA0invdY( iVar ) ); 
                             }
                         }
+                        // clang-format on
                     }
                 }
             }

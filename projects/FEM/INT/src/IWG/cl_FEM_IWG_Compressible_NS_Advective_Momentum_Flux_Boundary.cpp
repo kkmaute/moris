@@ -266,6 +266,7 @@ namespace moris
 
         void IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_normal_matrix( Matrix< DDRMat > & aNormalMatrix )
         {
+            // clang-format off
             // assembly into matrix
             // for 2D
             if( mMasterFIManager->get_field_interpolators_for_type( mDofVelocity )->get_number_of_fields() == 2 )
@@ -282,6 +283,7 @@ namespace moris
                         {         0.0 , mNormal( 1 ),         0.0 , mNormal( 2 ),         0.0 , mNormal( 0 ) },
                         {         0.0 ,         0.0 , mNormal( 2 ), mNormal( 1 ), mNormal( 0 ),         0.0  } };
             }
+            // clang-format on
         }
 
         //------------------------------------------------------------------------------

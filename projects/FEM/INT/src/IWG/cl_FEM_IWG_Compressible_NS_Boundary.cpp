@@ -1,8 +1,11 @@
 /*
- * cl_FEM_IWG_Compressible_NS_Boundary.cpp
- *
- *  Created on: Mar 16, 2021
- *      Author: wunsch
+ * Copyright (c) 2022 University of Colorado 
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details. 
+ * 
+ * ------------------------------------------------------------------------------------ 
+ * 
+ * cl_FEM_IWG_Compressible_NS_Boundary.cpp  
+ * 
  */
 
 #include "cl_FEM_IWG_Compressible_NS_Boundary.hpp"
