@@ -12,10 +12,13 @@
 
 #include "cl_Cell.hpp"
 #include "cl_MTK_Cell.hpp"
+
 namespace moris
 {
     namespace mtk
     {
+        class Cluster_Group;
+
         class Cluster
         {
             private:
@@ -198,6 +201,21 @@ namespace moris
                     return 0;
                 }
 
+                //----------------------------------------------------------------
+
+                virtual
+                void
+                set_cluster_group( 
+                        const moris_index aBsplineMeshListIndex,
+                        std::shared_ptr< Cluster_Group > aClusterGroupPtr )
+                {
+                    MORIS_ERROR( false, "mtk::Cluster::set_cluster_group() - not implemented for this class" );
+                };
+                
+                // virtual
+                // std::shared_ptr< Cluster_Group >
+                // get_cluster_group() const = 0;
+
                 //##############################################
                 // Local Coordinate Access
                 // (Pure Virtual)
@@ -250,6 +268,7 @@ namespace moris
                 virtual
                 moris::real
                 compute_cluster_group_cell_measure(
+                        const moris_index       aBsplineMeshListIndex,
                         const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                         const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const = 0;
 
@@ -284,7 +303,8 @@ namespace moris
                 virtual
                 moris::real
                 compute_cluster_group_cell_measure_derivative(
-                        const Matrix< DDRMat > & aPerturbedVertexCoords,
+                        const moris_index       aBsplineMeshListIndex,
+                        const Matrix< DDRMat >& aPerturbedVertexCoords,
                         uint aDirection,
                         const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                         const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const = 0;
@@ -306,6 +326,7 @@ namespace moris
                 virtual
                 moris::real
                 compute_cluster_group_cell_side_measure(
+                        const moris_index       aBsplineMeshListIndex,
                         const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                         const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const = 0;
 
@@ -340,7 +361,8 @@ namespace moris
                 virtual
                 moris::real
                 compute_cluster_group_cell_side_measure_derivative(
-                        const Matrix< DDRMat > & aPerturbedVertexCoords,
+                        const moris_index       aBsplineMeshListIndex,
+                        const Matrix< DDRMat >& aPerturbedVertexCoords,
                         uint aDirection,
                         const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                         const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const = 0;

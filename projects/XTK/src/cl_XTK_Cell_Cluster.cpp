@@ -26,6 +26,7 @@ namespace xtk
             , mPrimaryIntegrationCells( 0, nullptr )
             , mVoidIntegrationCells( 0, nullptr )
             , mVerticesInCluster( 0, nullptr )
+            , mClusterGroups( 0, nullptr )
     {
     }
 
@@ -292,6 +293,29 @@ namespace xtk
             mLocalCoords.set_row(i, *mVertexGroup->get_vertex_local_coords(mVerticesInCluster(i)->get_index()));
         }
     }
+
+    //------------------------------------------------------------------------------
+
+    void
+    Cell_Cluster::set_cluster_group( 
+            const moris_index aBsplineMeshListIndex,
+            std::shared_ptr< mtk::Cluster_Group > aClusterGroupPtr )
+    {
+        // check that the cluster group is set to the correct B-spline list index
+        MORIS_ASSERT( aClusterGroupPtr->get_Bspline_index_for_cluster_group() == aBsplineMeshListIndex,
+            "xtk::Cell_Cluster::set_cluster_group() - Index which the cluster group lives on is not the list index it gets set to on the cluster." );
+
+        // check if the list of cluster groups is big enough to accommodate the cluster groups for each B-spline mesh 
+        if( mClusterGroups.size() < (uint) aBsplineMeshListIndex + 1 )
+        {
+            // ... if not increase the size
+            mClusterGroups.resize( aBsplineMeshListIndex + 1 );
+        }
+        
+        // store pointer to the cluster group associated with this B-spline mesh
+        mClusterGroups( aBsplineMeshListIndex ) = aClusterGroupPtr;
+    }
+
     //------------------------------------------------------------------------------
 
     std::shared_ptr<IG_Vertex_Group>
@@ -304,22 +328,24 @@ namespace xtk
 
     moris::real
     Cell_Cluster::compute_cluster_group_cell_measure(
+            const moris_index aBsplineMeshListIndex,
             const mtk::Primary_Void aPrimaryOrVoid,
             const mtk::Master_Slave aIsMaster ) const
     {
-        return mClusterGroup->compute_cluster_group_volume( aPrimaryOrVoid, aIsMaster );
+        return mClusterGroups( aBsplineMeshListIndex )->compute_cluster_group_volume( aPrimaryOrVoid, aIsMaster );
     }
 
     //------------------------------------------------------------------------------
 
     moris::real
     Cell_Cluster::compute_cluster_group_cell_measure_derivative(
+            const moris_index       aBsplineMeshListIndex,
             const Matrix< DDRMat >& aPerturbedVertexCoords,
             uint aDirection,
             const mtk::Primary_Void aPrimaryOrVoid,
             const mtk::Master_Slave aIsMaster ) const
     {
-        return mClusterGroup->compute_cluster_group_volume_derivative( aPerturbedVertexCoords, aDirection, aPrimaryOrVoid, aIsMaster );
+        return mClusterGroups( aBsplineMeshListIndex )->compute_cluster_group_volume_derivative( aPerturbedVertexCoords, aDirection, aPrimaryOrVoid, aIsMaster );
     }
 
     //------------------------------------------------------------------------------

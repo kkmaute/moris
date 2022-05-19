@@ -36,6 +36,13 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        moris_index Cluster_Group::get_Bspline_index_for_cluster_group() const
+        {
+            return mBsplineMeshListIndex;
+        }
+
+        //------------------------------------------------------------------------------
+
         moris::real
         Cluster_Group::compute_cluster_group_volume(
                 const mtk::Primary_Void aPrimaryOrVoid,

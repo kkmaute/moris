@@ -23,6 +23,7 @@ namespace moris
 {
     namespace mtk
     {
+        class Cluster_Group;
 
         class Side_Cluster : public Cluster
         {
@@ -139,6 +140,17 @@ namespace moris
 
                 // ----------------------------------------------------------------------------------
 
+                virtual
+                void
+                set_cluster_group( 
+                        const moris_index aBsplineMeshListIndex,
+                        std::shared_ptr< Cluster_Group > aClusterGroupPtr )
+                {
+                    MORIS_ERROR( false, "mtk::Side_Cluster::set_cluster_group() - only implemented for child xtk::Side_Cluster" );
+                };
+
+                // ----------------------------------------------------------------------------------
+
                 //##############################################
                 // Size Access
                 //##############################################
@@ -166,6 +178,7 @@ namespace moris
                 virtual
                 moris::real
                 compute_cluster_group_cell_measure(
+                        const moris_index       aBsplineMeshListIndex,
                         const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                         const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const
                 {
@@ -204,6 +217,7 @@ namespace moris
                 virtual
                 moris::real
                 compute_cluster_group_cell_measure_derivative(
+                        const moris_index       aBsplineMeshListIndex,
                         const Matrix< DDRMat > & aPerturbedVertexCoords,
                         uint aDirection,
                         const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
@@ -230,6 +244,7 @@ namespace moris
                 virtual
                 moris::real
                 compute_cluster_group_cell_side_measure(
+                        const moris_index       aBsplineMeshListIndex,
                         const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                         const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const
                 {
@@ -270,6 +285,7 @@ namespace moris
                 virtual
                 moris::real
                 compute_cluster_group_cell_side_measure_derivative(
+                        const moris_index       aBsplineMeshListIndex,
                         const Matrix< DDRMat > & aPerturbedVertexCoords,
                         uint aDirection,
                         const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,

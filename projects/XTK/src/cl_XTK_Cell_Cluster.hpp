@@ -44,7 +44,7 @@ namespace xtk
         std::shared_ptr< IG_Vertex_Group >              mVertexGroup;
         moris::Cell< std::shared_ptr< IG_Cell_Group > > mPrimaryIgCellGroup;
         moris::Cell< std::shared_ptr< IG_Cell_Group > > mVoidIgCellGroup;
-        std::shared_ptr< mtk::Cluster_Group >           mClusterGroup;
+        moris::Cell< std::shared_ptr< mtk::Cluster_Group > > mClusterGroups;
 
         //------------------------------------------------------------------------------
 
@@ -104,6 +104,13 @@ namespace xtk
 
         //------------------------------------------------------------------------------
 
+        void
+        set_cluster_group( 
+                const moris_index aBsplineMeshListIndex,
+                std::shared_ptr< mtk::Cluster_Group > aClusterGroupPtr );
+
+        //------------------------------------------------------------------------------
+
         std::shared_ptr< IG_Vertex_Group >
         get_ig_vertex_group();
 
@@ -111,6 +118,7 @@ namespace xtk
 
         moris::real
         compute_cluster_group_cell_measure(
+                const moris_index       aBsplineMeshListIndex,
                 const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                 const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const;
 
@@ -118,7 +126,8 @@ namespace xtk
 
         moris::real
         compute_cluster_group_cell_measure_derivative(
-                const Matrix< DDRMat > & aPerturbedVertexCoords,
+                const moris_index       aBsplineMeshListIndex,
+                const Matrix< DDRMat >& aPerturbedVertexCoords,
                 uint aDirection,
                 const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                 const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;

@@ -41,7 +41,7 @@ namespace xtk
         moris::Cell< moris::Matrix< moris::DDRMat > > mVertexLocalCoords;
         moris::Matrix< moris::DDRMat >                mVertexLocalCoordsMat;  /*FIXME: get rid of mVertexLocalCoords*/
         xtk::Cell_Cluster const                      *mAssociatedCellCluster; /* Associated cell cluster (needed for volume computations in nitsche).*/
-        std::shared_ptr< mtk::Cluster_Group >         mClusterGroup;
+        moris::Cell< std::shared_ptr< mtk::Cluster_Group > > mClusterGroups;
 
         //---------------------------------------------------------------------------------------
 
@@ -129,6 +129,7 @@ namespace xtk
 
         moris::real
         compute_cluster_group_cell_measure(
+                const moris_index       aBsplineMeshListIndex,
                 const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                 const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const;
 
@@ -152,6 +153,7 @@ namespace xtk
 
         moris::real
         compute_cluster_group_cell_measure_derivative(
+                const moris_index       aBsplineMeshListIndex,
                 const Matrix< DDRMat >& aPerturbedVertexCoords,
                 uint aDirection,
                 const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
@@ -161,6 +163,7 @@ namespace xtk
 
         moris::real
         compute_cluster_group_cell_side_measure(
+                const moris_index       aBsplineMeshListIndex,
                 const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                 const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const;
 
@@ -168,6 +171,7 @@ namespace xtk
 
         moris::real
         compute_cluster_cell_side_measure_derivative(
+                const moris_index       aBsplineMeshListIndex,
                 const Matrix< DDRMat >& aPerturbedVertexCoords,
                 uint aDirection,
                 const mtk::Primary_Void aPrimaryOrVoid,
@@ -177,6 +181,13 @@ namespace xtk
         
         void
         set_ig_vertex_group( std::shared_ptr< IG_Vertex_Group > aVertexGroup );
+
+        //------------------------------------------------------------------------------
+
+        void
+        set_cluster_group( 
+                const moris_index aBsplineMeshListIndex,
+                std::shared_ptr< mtk::Cluster_Group > aClusterGroupPtr );
 
         //---------------------------------------------------------------------------------------
 

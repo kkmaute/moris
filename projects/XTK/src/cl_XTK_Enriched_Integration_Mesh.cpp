@@ -2815,7 +2815,7 @@ Enriched_Integration_Mesh::setup_cell_cluster_groups()
         // get the number of SPGs on the current B-spline mesh
         uint tNumSPGs = tSpgToClusterIndex( iBspMesh ).size();
 
-        // initizlize the list of Cell cluster group
+        // initialize the list of Cell cluster group
         mCellClusterGroups( iBspMesh ).resize( tNumSPGs );
 
         // go over Cluster groups, which correspond to the SPGs
@@ -2837,6 +2837,12 @@ Enriched_Integration_Mesh::setup_cell_cluster_groups()
 
             // create and commit a new Cluster group to the list
             mCellClusterGroups( iBspMesh )( iSPG ) = std::make_shared< mtk::Cluster_Group >( tClustersInGroup, iBspMesh );
+
+            // assign the cluster group created to all cluster which it was created from
+            for( uint iCluster = 0; iCluster < tNumClustersInGroup; iCluster++ )
+            {
+                tClustersInGroup( iCluster )->set_cluster_group( iBspMesh, mCellClusterGroups( iBspMesh )( iSPG ) );
+            }
         }
     } // end for: each B-spline mesh
 }
@@ -2903,6 +2909,15 @@ Enriched_Integration_Mesh::setup_side_cluster_groups()
                 {
                     // create side cluster group
                     mSideClusterGroups( iBspMesh ).push_back( std::make_shared< mtk::Cluster_Group >( tSideClustersInSpgs( iSPG ), iBspMesh ) );
+
+                    // index of the newly created Cluster Group in the list
+                    uint tNewSideClusterGroupIndex = mSideClusterGroups( iBspMesh ).size() - 1;
+
+                    // assign the cluster group created to all cluster which it was created from
+                    for( uint iCluster = 0; iCluster < tSideClustersInSpgs( iSPG ).size(); iCluster++ )
+                    {
+                        tSideClustersInSpgs( iSPG )( iCluster )->set_cluster_group( iBspMesh, mSideClusterGroups( iBspMesh )( tNewSideClusterGroupIndex ) );
+                    }
                 }
             }
         } // end for: each side set
@@ -2980,6 +2995,15 @@ Enriched_Integration_Mesh::setup_dbl_side_cluster_groups()
                 {
                     // create side cluster group
                     mDblSideClusterGroups( iBspMesh ).push_back( std::make_shared< mtk::Cluster_Group >( tDblSideClustersInSpgs( iSPG ), iBspMesh ) );
+
+//                     // index of the newly created Cluster Group in the list
+//                     uint tNewDblSideClusterGroupIndex = mDblSideClusterGroups( iBspMesh ).size() - 1;
+// 
+//                     // assign the cluster group created to all cluster which it was created from
+//                     for( uint iCluster = 0; iCluster < tDblSideClustersInSpgs( iSPG ).size(); iCluster++ )
+//                     {
+//                         tDblSideClustersInSpgs( iSPG )( iCluster )->set_cluster_group( iBspMesh, mDblSideClusterGroups( iBspMesh )( tNewDblSideClusterGroupIndex ) );
+//                     }
                 }
             }
         } // end for: each dbl-side set
@@ -3033,36 +3057,30 @@ Enriched_Integration_Mesh::visualize_cluster_group_measures()
         tClusterGroupVolumeFieldIndices( iBspMesh ) = this->create_field( tClusterGroupVolumeFields( iBspMesh ), EntityRank::ELEMENT, 0 );
 
         // get the number of cell cluster groups
-        uint tNumCellClusterGroups = mCellClusterGroups( iBspMesh ).size();
+        uint tNumCellClusters = mCellClusters.size();
 
         // go over Cluster groups, which correspond to the SPGs
-        for( uint iCCG = 0; iCCG < tNumCellClusterGroups; iCCG++ )
+        for( uint iCluster = 0; iCluster < tNumCellClusters; iCluster++ )
         {
-            // compute the total volume
-            real tClusterGroupVolume = mCellClusterGroups( iBspMesh )( iCCG )->compute_cluster_group_volume();   
+            // get the cell cluster
+            std::shared_ptr< mtk::Cluster > tCluster = mCellClusters( iCluster );
 
-            // get number of clusters in group
-            uint tNumClustersInGroup = mCellClusterGroups( iBspMesh )( iCCG )->get_clusters_in_group().size();
+            // compute the cluster group volume
+            real tClusterGroupVolume = tCluster->compute_cluster_group_cell_measure( iBspMesh );   
 
-            // assign cluster group volume to every primary IG cell in every cluster within the group
-            for ( uint iClusterInGroup = 0; iClusterInGroup < tNumClustersInGroup; iClusterInGroup++ )
+            // get the cells in cluster
+            Cell< mtk::Cell const* > const& tIgCellsInCluster = tCluster->get_primary_cells_in_cluster();
+
+            for ( uint iIgCell = 0; iIgCell < tIgCellsInCluster.size(); iIgCell++ )
             {
-                // get the cell cluster
-                std::shared_ptr< mtk::Cluster > tCluster = mCellClusterGroups( iBspMesh )( iCCG )->get_clusters_in_group()( iClusterInGroup );
-
-                // get the cells in cluster
-                Cell< mtk::Cell const* > const& tIgCellsInCluster = tCluster->get_primary_cells_in_cluster();
-
-                for ( uint iIgCell = 0; iIgCell < tIgCellsInCluster.size(); iIgCell++ )
-                {
-                    tClusterGroupVolumes( iBspMesh )( tIgCellsInCluster( iIgCell )->get_index() )  = tClusterGroupVolume;
-                }
-            } // end for: each cluster in cluster group
-        } // end for: each cluster group
+                tClusterGroupVolumes( iBspMesh )( tIgCellsInCluster( iIgCell )->get_index() )  = tClusterGroupVolume;
+            }
+        } // end for: each cluster
 
         // commit field data to exo
         this->add_field_data( tClusterGroupVolumeFieldIndices( iBspMesh ), EntityRank::ELEMENT, tClusterGroupVolumes( iBspMesh ) );
-    }
+    
+    } //end for: each B-spline mesh
 
     //----------------------------------------------------------------
     // TODO: compute and visualize side cluster groups side length/surface

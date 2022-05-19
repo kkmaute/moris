@@ -385,6 +385,7 @@ namespace moris
 
                 moris::real
                 compute_cluster_group_cell_measure(
+                        const moris_index       aBsplineMeshListIndex,
                         const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                         const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const;
 
@@ -399,7 +400,7 @@ namespace moris
 
                 moris::real
                 compute_cluster_cell_measure_derivative(
-                        const Matrix< DDRMat > & aPerturbedVertexCoords,
+                        const Matrix< DDRMat >& aPerturbedVertexCoords,
                         uint aDirection,
                         const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                         const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const;
@@ -408,7 +409,8 @@ namespace moris
 
                 moris::real
                 compute_cluster_group_cell_measure_derivative(
-                        const Matrix< DDRMat > & aPerturbedVertexCoords,
+                        const moris_index       aBsplineMeshListIndex,
+                        const Matrix< DDRMat >& aPerturbedVertexCoords,
                         uint aDirection,
                         const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                         const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const;
@@ -424,6 +426,7 @@ namespace moris
 
                 moris::real
                 compute_cluster_group_cell_side_measure(
+                        const moris_index       aBsplineMeshListIndex,
                         const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                         const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const;
 
@@ -447,7 +450,8 @@ namespace moris
 
                 moris::real
                 compute_cluster_group_cell_side_measure_derivative(
-                        const Matrix< DDRMat > & aPerturbedVertexCoords,
+                        const moris_index       aBsplineMeshListIndex,
+                        const Matrix< DDRMat >& aPerturbedVertexCoords,
                         uint aDirection,
                         const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                         const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const;

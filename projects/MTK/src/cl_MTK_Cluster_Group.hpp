@@ -61,6 +61,15 @@ namespace moris
             //------------------------------------------------------------------------------
 
             /**
+             * @brief Get the Bspline mesh list index wich the cluster group lives on
+             * 
+             * @return moris_index Bspline mesh list index
+             */
+            moris_index get_Bspline_index_for_cluster_group() const;
+
+            //------------------------------------------------------------------------------
+
+            /**
              * @brief Compute the sum of all cluster volumes within the cluster group
              * 
              * @param aPrimaryOrVoid 
