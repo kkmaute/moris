@@ -33,87 +33,97 @@ namespace moris
 
         enum class IWG_Type
         {
-                UNDEFINED,
-                L2,         // L2 projection
-                HJ,         // Hamilton-Jacobi
-                HJTEST,     // Space time IWG for test only
-                HELMHOLTZ,  // Helmholtz
-                LSNORMAL,   // LS normal
-                OLSSON,     // Olsson et al. (2007) reinitialization
+            UNDEFINED,
+            L2,           // L2 projection
+            HJ,           // Hamilton-Jacobi
+            HJTEST,       // Space time IWG for test only
+            HELMHOLTZ,    // Helmholtz
+            LSNORMAL,     // LS normal
+            OLSSON,       // Olsson et al. (2007) reinitialization
 
-                SPATIALDIFF_BULK,      // spatial diffusion bulk
-                SPATIALDIFF_PC_BULK,   // spatial diffusion bulk with phase change
-                ADVECTION_BULK,
-                SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE, // spatial diffusion Dirichlet (Nitsche)
-                SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE,
-                SPATIALDIFF_NEUMANN,   // spatial diffusion Neumann
-                SPATIALDIFF_ROBIN,   // spatial diffusion Robin (Convection)
-                SPATIALDIFF_RADIATION,   // spatial diffusion Radiation BC
-                SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE, // spatial diffusion Nitsche interface condition
-                SPATIALDIFF_INTERFACE_UNSYMMETRIC_NITSCHE,
-                SPATIALDIFF_GGLS_PC,   // spatial diffusion GGLS stabilization term for phase change
-                SPATIALDIFF_VW_GHOST,  // spatial diffusion virtual work ghost
+            SPATIALDIFF_BULK,       // spatial diffusion bulk
+            SPATIALDIFF_PC_BULK,    // spatial diffusion bulk with phase change
+            ADVECTION_BULK,
+            SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE,    // spatial diffusion Dirichlet (Nitsche)
+            SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE,
+            SPATIALDIFF_NEUMANN,                        // spatial diffusion Neumann
+            SPATIALDIFF_ROBIN,                          // spatial diffusion Robin (Convection)
+            SPATIALDIFF_RADIATION,                      // spatial diffusion Radiation BC
+            SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE,    // spatial diffusion Nitsche interface condition
+            SPATIALDIFF_INTERFACE_UNSYMMETRIC_NITSCHE,
+            SPATIALDIFF_GGLS_PC,     // spatial diffusion GGLS stabilization term for phase change
+            SPATIALDIFF_VW_GHOST,    // spatial diffusion virtual work ghost
 
-                STRUC_LINEAR_BULK,     // linear elasticity bulk
-                STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE,// linear elasticity Dirichlet (Nitsche)
-                STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE,// linear elasticity Dirichlet (Nitsche)
-                STRUC_LINEAR_NEUMANN,  // linear elasticity Neumann
-                STRUC_LINEAR_INTERFACE_SYMMETRIC_NITSCHE,// linear elasticity Nitsche interface condition
-                STRUC_LINEAR_INTERFACE_UNSYMMETRIC_NITSCHE,
-                STRUC_LINEAR_VW_GHOST, // linear elasticity Ghost flux based
-                STRUC_LINEAR_PRESSURE_BULK, //linear elasticity bulk mixed formulation
-                STRUC_LINEAR_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE, // linear elasticity Dirichlet mixed formulation (Nitsche)
-                STRUC_LINEAR_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE,
-                STRUC_LINEAR_FLUID_INTERFACE, //one-side fluid-structure coupling
-                STRUC_VON_MISES_STRESS,
+            STRUC_LINEAR_BULK,                             // linear elasticity bulk
+            STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE,      // linear elasticity Dirichlet (Nitsche)
+            STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE,    // linear elasticity Dirichlet (Nitsche)
+            STRUC_LINEAR_NEUMANN,                          // linear elasticity Neumann
+            STRUC_LINEAR_INTERFACE_SYMMETRIC_NITSCHE,      // linear elasticity Nitsche interface condition
+            STRUC_LINEAR_INTERFACE_UNSYMMETRIC_NITSCHE,
+            STRUC_LINEAR_VW_GHOST,                                // linear elasticity Ghost flux based
+            STRUC_LINEAR_PRESSURE_BULK,                           // linear elasticity bulk mixed formulation
+            STRUC_LINEAR_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE,    // linear elasticity Dirichlet mixed formulation (Nitsche)
+            STRUC_LINEAR_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE,
+            STRUC_LINEAR_FLUID_INTERFACE,    // one-side fluid-structure coupling
+            STRUC_VON_MISES_STRESS,
 
-                INCOMPRESSIBLE_NS_VELOCITY_BULK,
-                INCOMPRESSIBLE_NS_PRESSURE_BULK,
-                INCOMPRESSIBLE_NS_CONVECTIVE_VELOCITY_GHOST,
-                INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE,
-                INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_UNSYMMETRIC_NITSCHE,
-                INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE,
-                INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE,
-                INCOMPRESSIBLE_NS_VELOCITY_SLIPBOUNDARY_SYMMETRIC_NITSCHE,
-                INCOMPRESSIBLE_NS_VELOCITY_SLIPBOUNDARY_UNSYMMETRIC_NITSCHE,
-                INCOMPRESSIBLE_NS_PRESSURE_SLIPBOUNDARY_SYMMETRIC_NITSCHE,
-                INCOMPRESSIBLE_NS_PRESSURE_SLIPBOUNDARY_UNSYMMETRIC_NITSCHE,
-                INCOMPRESSIBLE_NS_IMPOSED_PRESSURE,
-                INCOMPRESSIBLE_NS_VELOCITY_INTERFACE_SYMMETRIC_NITSCHE,
-                INCOMPRESSIBLE_NS_VELOCITY_INTERFACE_UNSYMMETRIC_NITSCHE,
-                INCOMPRESSIBLE_NS_PRESSURE_INTERFACE_SYMMETRIC_NITSCHE,
-                INCOMPRESSIBLE_NS_PRESSURE_INTERFACE_UNSYMMETRIC_NITSCHE,
+            STRUC_NON_LINEAR_BULK_SE,                             // nonlinear elasticity bulk, based on S and E work conjugates
+            STRUC_NON_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE_SE,      // nonlinear elasticity sym Dirichlet (Nitsche), based on S and E work conjugates
+            STRUC_NON_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE_SE,    // nonlinear elasticity nonsym Dirichlet (Nitsche), based on S and E work conjugates
+            STRUC_NON_LINEAR_BULK_PF,                             // nonlinear elasticity bulk, based on P and F work conjugates
+            STRUC_NON_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE_PF,      // nonlinear elasticity sym Dirichlet (Nitsche), based on P and F work conjugates
+            STRUC_NON_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE_PF,    // nonlinear elasticity nonsym Dirichlet (Nitsche), based on P and F work conjugates
+            STRUC_NON_LINEAR_BULK_CAUCHYEPS,                             // nonlinear elasticity bulk, based on Cauchy and Epsilon work conjugates
+            STRUC_NON_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE_CAUCHYEPS,      // nonlinear elasticity sym Dirichlet (Nitsche), based on Cauchy and Epsilon work conjugates
+            STRUC_NON_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE_CAUCHYEPS,    // nonlinear elasticity nonsym Dirichlet (Nitsche), based on Cauchy and Epsilon work conjugates
 
-                COMPRESSIBLE_NS_BULK,
-                COMPRESSIBLE_NS_BOUNDARY,
-                COMPRESSIBLE_NS_DIRICHLET_SYMMETRIC_NITSCHE,
-                COMPRESSIBLE_NS_DIRICHLET_UNSYMMETRIC_NITSCHE,
-                
-                COMPRESSIBLE_NS_DENSITY_BULK,
-                COMPRESSIBLE_NS_VELOCITY_BULK,
-                COMPRESSIBLE_NS_TEMPERATURE_BULK,
-                COMPRESSIBLE_NS_ADVECTIVE_MOMENTUM_FLUX,
-                COMPRESSIBLE_NS_ADVECTIVE_ENERGY_FLUX,
-                COMPRESSIBLE_NS_MASS_FLUX_NEUMANN,
-                COMPRESSIBLE_NS_TRACTION_NEUMANN,
-                COMPRESSIBLE_NS_HEAT_FLUX_NEUMANN,
-                COMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE,
-                COMPRESSIBLE_NS_VELOCITY_DIRICHLET_UNSYMMETRIC_NITSCHE,
-                COMPRESSIBLE_NS_TEMPERATURE_DIRICHLET_SYMMETRIC_NITSCHE,
-                COMPRESSIBLE_NS_TEMPERATURE_DIRICHLET_UNSYMMETRIC_NITSCHE,
+            INCOMPRESSIBLE_NS_VELOCITY_BULK,
+            INCOMPRESSIBLE_NS_PRESSURE_BULK,
+            INCOMPRESSIBLE_NS_CONVECTIVE_VELOCITY_GHOST,
+            INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE,
+            INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_UNSYMMETRIC_NITSCHE,
+            INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE,
+            INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE,
+            INCOMPRESSIBLE_NS_VELOCITY_SLIPBOUNDARY_SYMMETRIC_NITSCHE,
+            INCOMPRESSIBLE_NS_VELOCITY_SLIPBOUNDARY_UNSYMMETRIC_NITSCHE,
+            INCOMPRESSIBLE_NS_PRESSURE_SLIPBOUNDARY_SYMMETRIC_NITSCHE,
+            INCOMPRESSIBLE_NS_PRESSURE_SLIPBOUNDARY_UNSYMMETRIC_NITSCHE,
+            INCOMPRESSIBLE_NS_IMPOSED_PRESSURE,
+            INCOMPRESSIBLE_NS_VELOCITY_INTERFACE_SYMMETRIC_NITSCHE,
+            INCOMPRESSIBLE_NS_VELOCITY_INTERFACE_UNSYMMETRIC_NITSCHE,
+            INCOMPRESSIBLE_NS_PRESSURE_INTERFACE_SYMMETRIC_NITSCHE,
+            INCOMPRESSIBLE_NS_PRESSURE_INTERFACE_UNSYMMETRIC_NITSCHE,
 
-                FS_STRUC_INTERFACE,
-                TIME_CONTINUITY_DOF,
-                SPALART_ALLMARAS_TURBULENCE_BULK,
-                SPALART_ALLMARAS_TURBULENCE_DIRICHLET_SYMMETRIC_NITSCHE,
-                SPALART_ALLMARAS_TURBULENCE_DIRICHLET_UNSYMMETRIC_NITSCHE,
-                SPALART_ALLMARAS_TURBULENCE_INTERFACE_SYMMETRIC_NITSCHE,
-                SPALART_ALLMARAS_TURBULENCE_INTERFACE_UNSYMMETRIC_NITSCHE,
-                STRUC_LINEAR_CONTACT_SYMMETRIC_NITSCHE,
-                STRUC_LINEAR_CONTACT_UNSYMMETRIC_NITSCHE,
-                STRUC_LINEAR_CONTACT_PENALTY,
-                GHOST_NORMAL_FIELD,
-                END_IWG_TYPE
+            COMPRESSIBLE_NS_BULK,
+            COMPRESSIBLE_NS_BOUNDARY,
+            COMPRESSIBLE_NS_DIRICHLET_SYMMETRIC_NITSCHE,
+            COMPRESSIBLE_NS_DIRICHLET_UNSYMMETRIC_NITSCHE,
+
+            COMPRESSIBLE_NS_DENSITY_BULK,
+            COMPRESSIBLE_NS_VELOCITY_BULK,
+            COMPRESSIBLE_NS_TEMPERATURE_BULK,
+            COMPRESSIBLE_NS_ADVECTIVE_MOMENTUM_FLUX,
+            COMPRESSIBLE_NS_ADVECTIVE_ENERGY_FLUX,
+            COMPRESSIBLE_NS_MASS_FLUX_NEUMANN,
+            COMPRESSIBLE_NS_TRACTION_NEUMANN,
+            COMPRESSIBLE_NS_HEAT_FLUX_NEUMANN,
+            COMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE,
+            COMPRESSIBLE_NS_VELOCITY_DIRICHLET_UNSYMMETRIC_NITSCHE,
+            COMPRESSIBLE_NS_TEMPERATURE_DIRICHLET_SYMMETRIC_NITSCHE,
+            COMPRESSIBLE_NS_TEMPERATURE_DIRICHLET_UNSYMMETRIC_NITSCHE,
+
+            FS_STRUC_INTERFACE,
+            TIME_CONTINUITY_DOF,
+            SPALART_ALLMARAS_TURBULENCE_BULK,
+            SPALART_ALLMARAS_TURBULENCE_DIRICHLET_SYMMETRIC_NITSCHE,
+            SPALART_ALLMARAS_TURBULENCE_DIRICHLET_UNSYMMETRIC_NITSCHE,
+            SPALART_ALLMARAS_TURBULENCE_INTERFACE_SYMMETRIC_NITSCHE,
+            SPALART_ALLMARAS_TURBULENCE_INTERFACE_UNSYMMETRIC_NITSCHE,
+            STRUC_LINEAR_CONTACT_SYMMETRIC_NITSCHE,
+            STRUC_LINEAR_CONTACT_UNSYMMETRIC_NITSCHE,
+            STRUC_LINEAR_CONTACT_PENALTY,
+            GHOST_NORMAL_FIELD,
+            END_IWG_TYPE
         };
 
         //------------------------------------------------------------------------------
@@ -161,6 +171,12 @@ namespace moris
                 VON_MISES_STRESS,
                 PRINCIPAL_STRESS,
                 STRESS_VECTOR,
+                
+                NORMAL_STRESS_CAUCHY,
+                SHEAR_STRESS_CAUCHY,
+                VON_MISES_STRESS_CAUCHY,
+                PRINCIPAL_STRESS_CAUCHY,
+                STRESS_VECTOR_CAUCHY,
 
                 HOMOGENIZED_CONSTITUTIVE,
                 HEAT_METHOD_PENALTY,
@@ -181,7 +197,9 @@ namespace moris
                 STRUC_LIN_ISO,
                 STRUC_LIN_MT,
                 STRUC_LIN_ISO_PRESSURE,
-                STRUC_NONLIN_ISO,
+                STRUC_NON_LIN_ISO,
+                STRUC_NON_LIN_ISO_SAINT_VENANT_KIRCHHOFF,
+                STRUC_NON_LIN_ISO_NEO_HOOKEAN,
                 FLUID_INCOMPRESSIBLE,
                 FLUID_TURBULENCE,
                 FLUID_COMPRESSIBLE_IDEAL,
@@ -326,15 +344,21 @@ namespace moris
 
         enum class CM_Function_Type
         {
-                DEFAULT,
-                THERMAL,
-                FLUID,
-                MECHANICAL,
-                ENERGY,
-                WORK,
-                HEAT,
-                PRESSURE,
-                END_CM_FUNCTION_TYPE
+            DEFAULT,
+            THERMAL,
+            FLUID,
+            MECHANICAL,
+            ENERGY,
+            WORK,
+            HEAT,
+            PRESSURE,
+            PK1,
+            PK2,
+            CAUCHY,
+            DEFORMATION_GRADIENT,
+            LAGRANGIAN,
+            EULERIAN,
+            END_CM_FUNCTION_TYPE
         };
 
         //------------------------------------------------------------------------------

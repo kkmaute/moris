@@ -15,10 +15,15 @@ namespace moris
     {
         //------------------------------------------------------------------------------
 
-        IQI_Stress::IQI_Stress( enum Stress_Type aStressType )
-                                                        {
+        IQI_Stress::IQI_Stress(
+                enum Stress_Type      aStressType,
+                enum CM_Function_Type aFluxType )
+        {
             // assign stress type to evaluate
             mStressType = aStressType;
+
+            // assign flux type for CM request
+            mFluxType = aFluxType;
 
             // set size for the constitutive model pointer cell
             mMasterCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
@@ -26,7 +31,7 @@ namespace moris
             // populate the constitutive map
             mConstitutiveMap[ "ElastLinIso" ] = static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO );
         }
-        
+
         //------------------------------------------------------------------------------
 
         void IQI_Stress::compute_QI( Matrix< DDRMat > & aQI )
@@ -132,12 +137,12 @@ namespace moris
 
             // compute contributions to von mises stress
             real tNormalStressContribution =
-                    std::pow( tStressVector( 0 ) - tStressVector( 1 ), 2.0 ) +
-                    std::pow( tStressVector( 1 ) - tStressVector( 2 ), 2.0 ) +
+                    std::pow( tStressVector( 0 ) - tStressVector( 1 ), 2.0 ) +    //
+                    std::pow( tStressVector( 1 ) - tStressVector( 2 ), 2.0 ) +    //
                     std::pow( tStressVector( 2 ) - tStressVector( 0 ), 2.0 );
             real tShearStressContribution =
-                    std::pow( tStressVector( 3 ), 2.0 ) +
-                    std::pow( tStressVector( 4 ), 2.0 ) +
+                    std::pow( tStressVector( 3 ), 2.0 ) +    //
+                    std::pow( tStressVector( 4 ), 2.0 ) +    //
                     std::pow( tStressVector( 5 ), 2.0 );
 
             real tVonMisesStress = std::sqrt( 0.5 * tNormalStressContribution + 3.0 * tShearStressContribution );
@@ -199,8 +204,8 @@ namespace moris
                         2.0 * tStressVector( 3 ) * tStressVector( 4 ) * tStressVector( 5 );
 
                 // help values
-                real tQ = ( 1 / 9 ) * ( std::pow( tI1, 2.0 ) - 3.0 * tI2 );
-                real tR = ( 1 / 54 ) * ( 2.0 * std::pow( tI1, 3.0 ) - 9.0 * tI1 * tI2 + 27.0 * tI3 );
+                real tQ = ( 1.0 / 9.0 ) * ( std::pow( tI1, 2.0 ) - 3.0 * tI2 );
+                real tR = ( 1.0 / 54.0 ) * ( 2.0 * std::pow( tI1, 3.0 ) - 9.0 * tI1 * tI2 + 27.0 * tI3 );
                 real tT = std::acos( tR / std::sqrt( std::pow( tQ, 3.0 ) ) );
 
                 // compute principal values
@@ -265,8 +270,8 @@ namespace moris
             aStressVector.set_size( 6, 1, 0.0 );
 
             // get stress vector from Constitutive model
-            Matrix< DDRMat > tCMStress =
-                    mMasterCM( static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO ) )->flux();
+            const Matrix< DDRMat >& tCMStress =
+                    mMasterCM( static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO ) )->flux( mFluxType );
 
             // pull apart stress vector into components
             uint tNumStressComponents = tCMStress.length();

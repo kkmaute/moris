@@ -82,6 +82,17 @@ namespace moris
                 case IQI_Type::STRESS_VECTOR:
                     return std::make_shared< IQI_Stress >( Stress_Type::STRESS_VECTOR );
 
+                case IQI_Type::NORMAL_STRESS_CAUCHY:
+                    return std::make_shared< IQI_Stress >( Stress_Type::NORMAL_STRESS, CM_Function_Type::CAUCHY );
+                case IQI_Type::SHEAR_STRESS_CAUCHY:
+                    return std::make_shared< IQI_Stress >( Stress_Type::SHEAR_STRESS, CM_Function_Type::CAUCHY );
+                case IQI_Type::VON_MISES_STRESS_CAUCHY:
+                    return std::make_shared< IQI_Stress >( Stress_Type::VON_MISES_STRESS, CM_Function_Type::CAUCHY );
+                case IQI_Type::PRINCIPAL_STRESS_CAUCHY:
+                    return std::make_shared< IQI_Stress >( Stress_Type::PRINCIPAL_STRESS, CM_Function_Type::CAUCHY );
+                case IQI_Type::STRESS_VECTOR_CAUCHY:
+                    return std::make_shared< IQI_Stress >( Stress_Type::STRESS_VECTOR, CM_Function_Type::CAUCHY );
+
                 case IQI_Type::MAX_NORMAL_STRESS:
                     return std::make_shared< IQI_Max_Stress >( Stress_Type::NORMAL_STRESS );
                 case IQI_Type::MAX_SHEAR_STRESS:

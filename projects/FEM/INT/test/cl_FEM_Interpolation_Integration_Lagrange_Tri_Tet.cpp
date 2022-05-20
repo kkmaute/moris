@@ -1,15 +1,15 @@
 #include <catch.hpp>
-//MRS/COR/src
+// MRS/COR/src
 #include "typedefs.hpp"
 #include "cl_Matrix.hpp"
-//LINALG/src
+// LINALG/src
 #include "linalg_typedefs.hpp"
 #include "op_times.hpp"
 #include "op_minus.hpp"
 #include "fn_trans.hpp"
 #include "fn_norm.hpp"
 #include "fn_sum.hpp"
-//FEM/INT/src
+// FEM/INT/src
 #include "cl_MTK_Interpolation_Rule.hpp"
 #include "cl_MTK_Integration_Rule.hpp"
 #include "cl_MTK_Integrator.hpp"
@@ -51,7 +51,7 @@ TEST_CASE( "Lagrange TRI3", "[moris],[fem],[Tri3LagInterp]" )
             mtk::Integration_Type::GAUSS,
             mtk::Integration_Order::TRI_1,
             mtk::Integration_Type::GAUSS,
-            mtk::Integration_Order:: BAR_1 );
+            mtk::Integration_Order::BAR_1 );
 
     // create an integrator
     mtk::Integrator tIntegrator( tIntegrationRule );
@@ -72,7 +72,7 @@ TEST_CASE( "Lagrange TRI3", "[moris],[fem],[Tri3LagInterp]" )
         // create matrix that contains the shape function
         Matrix< DDRMat > tN;
 
-        for( uint k=0; k<tNumOfTestPoints; ++k )
+        for ( uint k = 0; k < tNumOfTestPoints; ++k )
         {
             // evaluate shape function at point k
             tFunction->eval_N( tZeta.get_column( k ), tN );
@@ -92,7 +92,7 @@ TEST_CASE( "Lagrange TRI3", "[moris],[fem],[Tri3LagInterp]" )
         // create matrix that contains the first order derivatives
         Matrix< DDRMat > tdNdXi;
 
-        for( uint k=0; k < tNumOfTestPoints; ++k )
+        for ( uint k = 0; k < tNumOfTestPoints; ++k )
         {
             // unpack the test point k
             Matrix< DDRMat > tTestPoint = tZeta.get_column( k );
@@ -102,18 +102,18 @@ TEST_CASE( "Lagrange TRI3", "[moris],[fem],[Tri3LagInterp]" )
 
             Matrix< DDRMat > tdNdXiFD( tdNdXi.n_rows(), tdNdXi.n_cols(), 0.0 );
 
-            for ( uint iDim = 0; iDim < tTestPoint.numel()-1; iDim++ )
+            for ( uint iDim = 0; iDim < tTestPoint.numel() - 1; iDim++ )
             {
                 // perturbed evaluation point
                 Matrix< DDRMat > tPertEvalPoint = tTestPoint;
-                tPertEvalPoint( iDim ) = tPertEvalPoint( iDim ) - tPerturbation;
+                tPertEvalPoint( iDim )          = tPertEvalPoint( iDim ) - tPerturbation;
 
                 // evaluate N at point l - delta xi
                 Matrix< DDRMat > tNMinus;
                 tFunction->eval_N( tPertEvalPoint, tNMinus );
 
                 // perturbed evaluation point
-                tPertEvalPoint = tTestPoint;
+                tPertEvalPoint         = tTestPoint;
                 tPertEvalPoint( iDim ) = tPertEvalPoint( iDim ) + tPerturbation;
 
                 // evaluate td2NdXi2 at point k + delta xi
@@ -139,7 +139,7 @@ TEST_CASE( "Lagrange TRI3", "[moris],[fem],[Tri3LagInterp]" )
         Matrix< DDRMat > td2NdXi2;
 
         // loop over the test points
-        for( uint k=0; k < tNumOfTestPoints; ++k )
+        for ( uint k = 0; k < tNumOfTestPoints; ++k )
         {
             // unpack the test point k
             Matrix< DDRMat > tTestPoint = tZeta.get_column( k );
@@ -149,18 +149,18 @@ TEST_CASE( "Lagrange TRI3", "[moris],[fem],[Tri3LagInterp]" )
 
             Matrix< DDRMat > td2NdXi2FD( td2NdXi2.n_rows(), td2NdXi2.n_cols(), 0.0 );
 
-            for (  uint iDim = 0; iDim < tFunction->get_number_of_param_dimensions(); iDim++ )
+            for ( uint iDim = 0; iDim < tFunction->get_number_of_param_dimensions(); iDim++ )
             {
                 // perturbed evaluation point
                 Matrix< DDRMat > tPertEvalPoint = tTestPoint;
-                tPertEvalPoint( iDim ) = tPertEvalPoint( iDim ) - tPerturbation;
+                tPertEvalPoint( iDim )          = tPertEvalPoint( iDim ) - tPerturbation;
 
                 // evaluate N at point l - delta xi
                 Matrix< DDRMat > tdNdXiMinus;
                 tFunction->eval_dNdXi( tPertEvalPoint, tdNdXiMinus );
 
                 // perturbed evaluation point
-                tPertEvalPoint = tTestPoint;
+                tPertEvalPoint         = tTestPoint;
                 tPertEvalPoint( iDim ) = tPertEvalPoint( iDim ) + tPerturbation;
 
                 // evaluate td2NdXi2 at point k + delta xi
@@ -177,13 +177,13 @@ TEST_CASE( "Lagrange TRI3", "[moris],[fem],[Tri3LagInterp]" )
                     td2NdXi2FD.get_row( 5 ) = td2NdXi2FDTemp.get_row( 1 );
                     td2NdXi2FD.get_row( 4 ) = td2NdXi2FDTemp.get_row( 2 );
                 }
-                else if( iDim == 1 )
+                else if ( iDim == 1 )
                 {
                     td2NdXi2FD.get_row( 5 ) = td2NdXi2FDTemp.get_row( 0 );
                     td2NdXi2FD.get_row( 1 ) = td2NdXi2FDTemp.get_row( 1 );
                     td2NdXi2FD.get_row( 3 ) = td2NdXi2FDTemp.get_row( 2 );
                 }
-                else if( iDim == 2 )
+                else if ( iDim == 2 )
                 {
                     td2NdXi2FD.get_row( 4 ) = td2NdXi2FDTemp.get_row( 0 );
                     td2NdXi2FD.get_row( 3 ) = td2NdXi2FDTemp.get_row( 1 );
@@ -214,7 +214,7 @@ TEST_CASE( "Lagrange TRI3", "[moris],[fem],[Tri3LagInterp]" )
         bool tCheck = true;
 
         // loop over the param points
-        for( uint k=0; k < tNumOfParamPoints; ++k )
+        for ( uint k = 0; k < tNumOfParamPoints; ++k )
         {
             // get the param point k
             Matrix< DDRMat > tParamPoint = tZetaCoords.get_column( k );
@@ -268,7 +268,7 @@ TEST_CASE( "Lagrange TRI6", "[moris],[fem],[Tri6LagInterp]" )
             mtk::Integration_Type::GAUSS,
             mtk::Integration_Order::TRI_3,
             mtk::Integration_Type::GAUSS,
-            mtk::Integration_Order:: BAR_1 );
+            mtk::Integration_Order::BAR_1 );
 
     // create an integrator
     mtk::Integrator tIntegrator( tIntegrationRule );
@@ -289,7 +289,7 @@ TEST_CASE( "Lagrange TRI6", "[moris],[fem],[Tri6LagInterp]" )
         // create matrix that contains the shape function
         Matrix< DDRMat > tN;
 
-        for( uint k=0; k<tNumOfTestPoints; ++k )
+        for ( uint k = 0; k < tNumOfTestPoints; ++k )
         {
             // evaluate shape function at point k
             tFunction->eval_N( tZeta.get_column( k ), tN );
@@ -312,7 +312,7 @@ TEST_CASE( "Lagrange TRI6", "[moris],[fem],[Tri6LagInterp]" )
         // create matrix that contains the first order derivatives
         Matrix< DDRMat > tdNdXi;
 
-        for( uint k=0; k < tNumOfTestPoints; ++k )
+        for ( uint k = 0; k < tNumOfTestPoints; ++k )
         {
             // unpack the test point k
             Matrix< DDRMat > tTestPoint = tZeta.get_column( k );
@@ -322,18 +322,18 @@ TEST_CASE( "Lagrange TRI6", "[moris],[fem],[Tri6LagInterp]" )
 
             Matrix< DDRMat > tdNdXiFD( tdNdXi.n_rows(), tdNdXi.n_cols(), 0.0 );
 
-            for ( uint iDim = 0; iDim < tTestPoint.numel()-1; iDim++ )
+            for ( uint iDim = 0; iDim < tTestPoint.numel() - 1; iDim++ )
             {
                 // perturbed evaluation point
                 Matrix< DDRMat > tPertEvalPoint = tTestPoint;
-                tPertEvalPoint( iDim ) = tPertEvalPoint( iDim ) - tPerturbation;
+                tPertEvalPoint( iDim )          = tPertEvalPoint( iDim ) - tPerturbation;
 
                 // evaluate N at point l - delta xi
                 Matrix< DDRMat > tNMinus;
                 tFunction->eval_N( tPertEvalPoint, tNMinus );
 
                 // perturbed evaluation point
-                tPertEvalPoint = tTestPoint;
+                tPertEvalPoint         = tTestPoint;
                 tPertEvalPoint( iDim ) = tPertEvalPoint( iDim ) + tPerturbation;
 
                 // evaluate td2NdXi2 at point k + delta xi
@@ -360,7 +360,7 @@ TEST_CASE( "Lagrange TRI6", "[moris],[fem],[Tri6LagInterp]" )
         Matrix< DDRMat > td2NdXi2;
 
         // loop over the test points
-        for( uint k=0; k < tNumOfTestPoints; ++k )
+        for ( uint k = 0; k < tNumOfTestPoints; ++k )
         {
             // unpack the test point k
             Matrix< DDRMat > tTestPoint = tZeta.get_column( k );
@@ -370,18 +370,18 @@ TEST_CASE( "Lagrange TRI6", "[moris],[fem],[Tri6LagInterp]" )
 
             Matrix< DDRMat > td2NdXi2FD( td2NdXi2.n_rows(), td2NdXi2.n_cols(), 0.0 );
 
-            for (  uint iDim = 0; iDim < tFunction->get_number_of_param_dimensions(); iDim++ )
+            for ( uint iDim = 0; iDim < tFunction->get_number_of_param_dimensions(); iDim++ )
             {
                 // perturbed evaluation point
                 Matrix< DDRMat > tPertEvalPoint = tTestPoint;
-                tPertEvalPoint( iDim ) = tPertEvalPoint( iDim ) - tPerturbation;
+                tPertEvalPoint( iDim )          = tPertEvalPoint( iDim ) - tPerturbation;
 
                 // evaluate N at point l - delta xi
                 Matrix< DDRMat > tdNdXiMinus;
                 tFunction->eval_dNdXi( tPertEvalPoint, tdNdXiMinus );
 
                 // perturbed evaluation point
-                tPertEvalPoint = tTestPoint;
+                tPertEvalPoint         = tTestPoint;
                 tPertEvalPoint( iDim ) = tPertEvalPoint( iDim ) + tPerturbation;
 
                 // evaluate td2NdXi2 at point k + delta xi
@@ -398,13 +398,13 @@ TEST_CASE( "Lagrange TRI6", "[moris],[fem],[Tri6LagInterp]" )
                     td2NdXi2FD.get_row( 5 ) = td2NdXi2FDTemp.get_row( 1 );
                     td2NdXi2FD.get_row( 4 ) = td2NdXi2FDTemp.get_row( 2 );
                 }
-                else if( iDim == 1 )
+                else if ( iDim == 1 )
                 {
                     td2NdXi2FD.get_row( 5 ) = td2NdXi2FDTemp.get_row( 0 );
                     td2NdXi2FD.get_row( 1 ) = td2NdXi2FDTemp.get_row( 1 );
                     td2NdXi2FD.get_row( 3 ) = td2NdXi2FDTemp.get_row( 2 );
                 }
-                else if( iDim == 2 )
+                else if ( iDim == 2 )
                 {
                     td2NdXi2FD.get_row( 4 ) = td2NdXi2FDTemp.get_row( 0 );
                     td2NdXi2FD.get_row( 3 ) = td2NdXi2FDTemp.get_row( 1 );
@@ -434,7 +434,7 @@ TEST_CASE( "Lagrange TRI6", "[moris],[fem],[Tri6LagInterp]" )
         bool tCheck = true;
 
         // loop over the param points
-        for( uint k=0; k < tNumOfParamPoints; ++k )
+        for ( uint k = 0; k < tNumOfParamPoints; ++k )
         {
             // get the param point k
             Matrix< DDRMat > tParamPoint = tZetaCoords.get_column( k );
@@ -487,7 +487,7 @@ TEST_CASE( "Lagrange TRI10", "[moris],[fem],[Tri10LagInterp]" )
             mtk::Integration_Type::GAUSS,
             mtk::Integration_Order::TRI_6,
             mtk::Integration_Type::GAUSS,
-            mtk::Integration_Order:: BAR_1 );
+            mtk::Integration_Order::BAR_1 );
 
     // create an integrator
     mtk::Integrator tIntegrator( tIntegrationRule );
@@ -508,10 +508,10 @@ TEST_CASE( "Lagrange TRI10", "[moris],[fem],[Tri10LagInterp]" )
         // create matrix that contains the shape function
         Matrix< DDRMat > tN;
 
-        for( uint k=0; k<tNumOfTestPoints; ++k )
+        for ( uint k = 0; k < tNumOfTestPoints; ++k )
         {
             // evaluate shape function at point k
-            tFunction->eval_N( tZeta.get_column( k ),tN );
+            tFunction->eval_N( tZeta.get_column( k ), tN );
 
             // test unity
             tCheckPU = tCheckPU && ( std::abs( sum( tN ) - 1.0 ) < tEpsilon );
@@ -531,7 +531,7 @@ TEST_CASE( "Lagrange TRI10", "[moris],[fem],[Tri10LagInterp]" )
         // create matrix that contains the first order derivatives
         Matrix< DDRMat > tdNdXi;
 
-        for( uint k=0; k < tNumOfTestPoints; ++k )
+        for ( uint k = 0; k < tNumOfTestPoints; ++k )
         {
             // unpack the test point k
             Matrix< DDRMat > tTestPoint = tZeta.get_column( k );
@@ -541,18 +541,18 @@ TEST_CASE( "Lagrange TRI10", "[moris],[fem],[Tri10LagInterp]" )
 
             Matrix< DDRMat > tdNdXiFD( tdNdXi.n_rows(), tdNdXi.n_cols(), 0.0 );
 
-            for ( uint iDim = 0; iDim < tTestPoint.numel()-1; iDim++ )
+            for ( uint iDim = 0; iDim < tTestPoint.numel() - 1; iDim++ )
             {
                 // perturbed evaluation point
                 Matrix< DDRMat > tPertEvalPoint = tTestPoint;
-                tPertEvalPoint( iDim ) = tPertEvalPoint( iDim ) - tPerturbation;
+                tPertEvalPoint( iDim )          = tPertEvalPoint( iDim ) - tPerturbation;
 
                 // evaluate N at point l - delta xi
                 Matrix< DDRMat > tNMinus;
                 tFunction->eval_N( tPertEvalPoint, tNMinus );
 
                 // perturbed evaluation point
-                tPertEvalPoint = tTestPoint;
+                tPertEvalPoint         = tTestPoint;
                 tPertEvalPoint( iDim ) = tPertEvalPoint( iDim ) + tPerturbation;
 
                 // evaluate td2NdXi2 at point k + delta xi
@@ -579,7 +579,7 @@ TEST_CASE( "Lagrange TRI10", "[moris],[fem],[Tri10LagInterp]" )
         Matrix< DDRMat > td2NdXi2;
 
         // loop over the test points
-        for( uint k=0; k < tNumOfTestPoints; ++k )
+        for ( uint k = 0; k < tNumOfTestPoints; ++k )
         {
             // unpack the test point k
             Matrix< DDRMat > tTestPoint = tZeta.get_column( k );
@@ -589,18 +589,18 @@ TEST_CASE( "Lagrange TRI10", "[moris],[fem],[Tri10LagInterp]" )
 
             Matrix< DDRMat > td2NdXi2FD( td2NdXi2.n_rows(), td2NdXi2.n_cols(), 0.0 );
 
-            for (  uint iDim = 0; iDim < tFunction->get_number_of_param_dimensions(); iDim++ )
+            for ( uint iDim = 0; iDim < tFunction->get_number_of_param_dimensions(); iDim++ )
             {
                 // perturbed evaluation point
                 Matrix< DDRMat > tPertEvalPoint = tTestPoint;
-                tPertEvalPoint( iDim ) = tPertEvalPoint( iDim ) - tPerturbation;
+                tPertEvalPoint( iDim )          = tPertEvalPoint( iDim ) - tPerturbation;
 
                 // evaluate N at point l - delta xi
                 Matrix< DDRMat > tdNdXiMinus;
                 tFunction->eval_dNdXi( tPertEvalPoint, tdNdXiMinus );
 
                 // perturbed evaluation point
-                tPertEvalPoint = tTestPoint;
+                tPertEvalPoint         = tTestPoint;
                 tPertEvalPoint( iDim ) = tPertEvalPoint( iDim ) + tPerturbation;
 
                 // evaluate td2NdXi2 at point k + delta xi
@@ -616,13 +616,13 @@ TEST_CASE( "Lagrange TRI10", "[moris],[fem],[Tri10LagInterp]" )
                     td2NdXi2FD.get_row( 5 ) = td2NdXi2FDTemp.get_row( 1 );
                     td2NdXi2FD.get_row( 4 ) = td2NdXi2FDTemp.get_row( 2 );
                 }
-                else if( iDim == 1 )
+                else if ( iDim == 1 )
                 {
                     td2NdXi2FD.get_row( 5 ) = td2NdXi2FDTemp.get_row( 0 );
                     td2NdXi2FD.get_row( 1 ) = td2NdXi2FDTemp.get_row( 1 );
                     td2NdXi2FD.get_row( 3 ) = td2NdXi2FDTemp.get_row( 2 );
                 }
-                else if( iDim == 2 )
+                else if ( iDim == 2 )
                 {
                     td2NdXi2FD.get_row( 4 ) = td2NdXi2FDTemp.get_row( 0 );
                     td2NdXi2FD.get_row( 3 ) = td2NdXi2FDTemp.get_row( 1 );
@@ -652,7 +652,7 @@ TEST_CASE( "Lagrange TRI10", "[moris],[fem],[Tri10LagInterp]" )
         bool tCheck = true;
 
         // loop over the param points
-        for( uint k=0; k < tNumOfParamPoints; ++k )
+        for ( uint k = 0; k < tNumOfParamPoints; ++k )
         {
             // get the param point k
             Matrix< DDRMat > tParamPoint = tZetaCoords.get_column( k );
@@ -705,7 +705,7 @@ TEST_CASE( "Lagrange TET4", "[moris],[fem],[Tet4LagInterp]" )
             mtk::Integration_Type::GAUSS,
             mtk::Integration_Order::TET_1,
             mtk::Integration_Type::GAUSS,
-            mtk::Integration_Order:: BAR_1 );
+            mtk::Integration_Order::BAR_1 );
 
     // create an integrator
     mtk::Integrator tIntegrator( tIntegrationRule );
@@ -726,10 +726,10 @@ TEST_CASE( "Lagrange TET4", "[moris],[fem],[Tet4LagInterp]" )
         // create matrix that contains the shape function
         Matrix< DDRMat > tN;
 
-        for( uint k=0; k<tNumOfTestPoints; ++k )
+        for ( uint k = 0; k < tNumOfTestPoints; ++k )
         {
             // evaluate shape function at point k
-            tFunction->eval_N( tZeta.get_column( k ),tN );
+            tFunction->eval_N( tZeta.get_column( k ), tN );
 
             // test unity
             tCheckPU = tCheckPU && ( std::abs( sum( tN ) - 1.0 ) < tEpsilon );
@@ -749,7 +749,7 @@ TEST_CASE( "Lagrange TET4", "[moris],[fem],[Tet4LagInterp]" )
         // create matrix that contains the first order derivatives
         Matrix< DDRMat > tdNdXi;
 
-        for( uint k=0; k < tNumOfTestPoints; ++k )
+        for ( uint k = 0; k < tNumOfTestPoints; ++k )
         {
             // unpack the test point k
             Matrix< DDRMat > tTestPoint = tZeta.get_column( k );
@@ -759,18 +759,18 @@ TEST_CASE( "Lagrange TET4", "[moris],[fem],[Tet4LagInterp]" )
 
             Matrix< DDRMat > tdNdXiFD( tdNdXi.n_rows(), tdNdXi.n_cols(), 0.0 );
 
-            for ( uint iDim = 0; iDim < tTestPoint.numel()-1; iDim++ )
+            for ( uint iDim = 0; iDim < tTestPoint.numel() - 1; iDim++ )
             {
                 // perturbed evaluation point
                 Matrix< DDRMat > tPertEvalPoint = tTestPoint;
-                tPertEvalPoint( iDim ) = tPertEvalPoint( iDim ) - tPerturbation;
+                tPertEvalPoint( iDim )          = tPertEvalPoint( iDim ) - tPerturbation;
 
                 // evaluate N at point l - delta xi
                 Matrix< DDRMat > tNMinus;
                 tFunction->eval_N( tPertEvalPoint, tNMinus );
 
                 // perturbed evaluation point
-                tPertEvalPoint = tTestPoint;
+                tPertEvalPoint         = tTestPoint;
                 tPertEvalPoint( iDim ) = tPertEvalPoint( iDim ) + tPerturbation;
 
                 // evaluate td2NdXi2 at point k + delta xi
@@ -797,7 +797,7 @@ TEST_CASE( "Lagrange TET4", "[moris],[fem],[Tet4LagInterp]" )
         Matrix< DDRMat > td2NdXi2;
 
         // loop over the test points
-        for( uint k=0; k < tNumOfTestPoints; ++k )
+        for ( uint k = 0; k < tNumOfTestPoints; ++k )
         {
             // unpack the test point k
             Matrix< DDRMat > tTestPoint = tZeta.get_column( k );
@@ -807,18 +807,18 @@ TEST_CASE( "Lagrange TET4", "[moris],[fem],[Tet4LagInterp]" )
 
             Matrix< DDRMat > td2NdXi2FD( td2NdXi2.n_rows(), td2NdXi2.n_cols(), 0.0 );
 
-            for (  uint iDim = 0; iDim < tFunction->get_number_of_param_dimensions(); iDim++ )
+            for ( uint iDim = 0; iDim < tFunction->get_number_of_param_dimensions(); iDim++ )
             {
                 // perturbed evaluation point
                 Matrix< DDRMat > tPertEvalPoint = tTestPoint;
-                tPertEvalPoint( iDim ) = tPertEvalPoint( iDim ) - tPerturbation;
+                tPertEvalPoint( iDim )          = tPertEvalPoint( iDim ) - tPerturbation;
 
                 // evaluate N at point l - delta xi
                 Matrix< DDRMat > tdNdXiMinus;
                 tFunction->eval_dNdXi( tPertEvalPoint, tdNdXiMinus );
 
                 // perturbed evaluation point
-                tPertEvalPoint = tTestPoint;
+                tPertEvalPoint         = tTestPoint;
                 tPertEvalPoint( iDim ) = tPertEvalPoint( iDim ) + tPerturbation;
 
                 // evaluate td2NdXi2 at point k + delta xi
@@ -835,21 +835,21 @@ TEST_CASE( "Lagrange TET4", "[moris],[fem],[Tet4LagInterp]" )
                     td2NdXi2FD.get_row( 8 ) = td2NdXi2FDTemp.get_row( 2 );
                     td2NdXi2FD.get_row( 6 ) = td2NdXi2FDTemp.get_row( 3 );
                 }
-                else if( iDim == 1 )
+                else if ( iDim == 1 )
                 {
                     td2NdXi2FD.get_row( 9 ) = td2NdXi2FDTemp.get_row( 0 );
                     td2NdXi2FD.get_row( 1 ) = td2NdXi2FDTemp.get_row( 1 );
                     td2NdXi2FD.get_row( 7 ) = td2NdXi2FDTemp.get_row( 2 );
                     td2NdXi2FD.get_row( 5 ) = td2NdXi2FDTemp.get_row( 3 );
                 }
-                else if( iDim == 2 )
+                else if ( iDim == 2 )
                 {
                     td2NdXi2FD.get_row( 8 ) = td2NdXi2FDTemp.get_row( 0 );
                     td2NdXi2FD.get_row( 7 ) = td2NdXi2FDTemp.get_row( 1 );
                     td2NdXi2FD.get_row( 2 ) = td2NdXi2FDTemp.get_row( 2 );
                     td2NdXi2FD.get_row( 4 ) = td2NdXi2FDTemp.get_row( 3 );
                 }
-                else if( iDim == 3 )
+                else if ( iDim == 3 )
                 {
                     td2NdXi2FD.get_row( 6 ) = td2NdXi2FDTemp.get_row( 0 );
                     td2NdXi2FD.get_row( 5 ) = td2NdXi2FDTemp.get_row( 1 );
@@ -880,7 +880,7 @@ TEST_CASE( "Lagrange TET4", "[moris],[fem],[Tet4LagInterp]" )
         bool tCheck = true;
 
         // loop over the param points
-        for( uint k=0; k < tNumOfParamPoints; ++k )
+        for ( uint k = 0; k < tNumOfParamPoints; ++k )
         {
             // get the param point k
             Matrix< DDRMat > tParamPoint = tZetaCoords.get_column( k );
@@ -933,7 +933,7 @@ TEST_CASE( "Lagrange TET10", "[moris],[fem],[Tet10LagInterp]" )
             mtk::Integration_Type::GAUSS,
             mtk::Integration_Order::TET_4,
             mtk::Integration_Type::GAUSS,
-            mtk::Integration_Order:: BAR_1 );
+            mtk::Integration_Order::BAR_1 );
 
     // create an integrator
     mtk::Integrator tIntegrator( tIntegrationRule );
@@ -954,7 +954,7 @@ TEST_CASE( "Lagrange TET10", "[moris],[fem],[Tet10LagInterp]" )
         // create matrix that contains the shape function
         Matrix< DDRMat > tN;
 
-        for( uint k=0; k<tNumOfTestPoints; ++k )
+        for ( uint k = 0; k < tNumOfTestPoints; ++k )
         {
             // evaluate shape function at point k
             tFunction->eval_N( tZeta.get_column( k ), tN );
@@ -977,7 +977,7 @@ TEST_CASE( "Lagrange TET10", "[moris],[fem],[Tet10LagInterp]" )
         // create matrix that contains the first order derivatives
         Matrix< DDRMat > tdNdXi;
 
-        for( uint k=0; k < tNumOfTestPoints; ++k )
+        for ( uint k = 0; k < tNumOfTestPoints; ++k )
         {
             // unpack the test point k
             Matrix< DDRMat > tTestPoint = tZeta.get_column( k );
@@ -987,18 +987,18 @@ TEST_CASE( "Lagrange TET10", "[moris],[fem],[Tet10LagInterp]" )
 
             Matrix< DDRMat > tdNdXiFD( tdNdXi.n_rows(), tdNdXi.n_cols(), 0.0 );
 
-            for ( uint iDim = 0; iDim < tTestPoint.numel()-1; iDim++ )
+            for ( uint iDim = 0; iDim < tTestPoint.numel() - 1; iDim++ )
             {
                 // perturbed evaluation point
                 Matrix< DDRMat > tPertEvalPoint = tTestPoint;
-                tPertEvalPoint( iDim ) = tPertEvalPoint( iDim ) - tPerturbation;
+                tPertEvalPoint( iDim )          = tPertEvalPoint( iDim ) - tPerturbation;
 
                 // evaluate N at point l - delta xi
                 Matrix< DDRMat > tNMinus;
                 tFunction->eval_N( tPertEvalPoint, tNMinus );
 
                 // perturbed evaluation point
-                tPertEvalPoint = tTestPoint;
+                tPertEvalPoint         = tTestPoint;
                 tPertEvalPoint( iDim ) = tPertEvalPoint( iDim ) + tPerturbation;
 
                 // evaluate td2NdXi2 at point k + delta xi
@@ -1025,7 +1025,7 @@ TEST_CASE( "Lagrange TET10", "[moris],[fem],[Tet10LagInterp]" )
         Matrix< DDRMat > td2NdXi2;
 
         // loop over the test points
-        for( uint k=0; k < tNumOfTestPoints; ++k )
+        for ( uint k = 0; k < tNumOfTestPoints; ++k )
         {
             // unpack the test point k
             Matrix< DDRMat > tTestPoint = tZeta.get_column( k );
@@ -1035,18 +1035,18 @@ TEST_CASE( "Lagrange TET10", "[moris],[fem],[Tet10LagInterp]" )
 
             Matrix< DDRMat > td2NdXi2FD( td2NdXi2.n_rows(), td2NdXi2.n_cols(), 0.0 );
 
-            for (  uint iDim = 0; iDim < tFunction->get_number_of_param_dimensions(); iDim++ )
+            for ( uint iDim = 0; iDim < tFunction->get_number_of_param_dimensions(); iDim++ )
             {
                 // perturbed evaluation point
                 Matrix< DDRMat > tPertEvalPoint = tTestPoint;
-                tPertEvalPoint( iDim ) = tPertEvalPoint( iDim ) - tPerturbation;
+                tPertEvalPoint( iDim )          = tPertEvalPoint( iDim ) - tPerturbation;
 
                 // evaluate N at point l - delta xi
                 Matrix< DDRMat > tdNdXiMinus;
                 tFunction->eval_dNdXi( tPertEvalPoint, tdNdXiMinus );
 
                 // perturbed evaluation point
-                tPertEvalPoint = tTestPoint;
+                tPertEvalPoint         = tTestPoint;
                 tPertEvalPoint( iDim ) = tPertEvalPoint( iDim ) + tPerturbation;
 
                 // evaluate td2NdXi2 at point k + delta xi
@@ -1063,21 +1063,21 @@ TEST_CASE( "Lagrange TET10", "[moris],[fem],[Tet10LagInterp]" )
                     td2NdXi2FD.get_row( 8 ) = td2NdXi2FDTemp.get_row( 2 );
                     td2NdXi2FD.get_row( 6 ) = td2NdXi2FDTemp.get_row( 3 );
                 }
-                else if( iDim == 1 )
+                else if ( iDim == 1 )
                 {
                     td2NdXi2FD.get_row( 9 ) = td2NdXi2FDTemp.get_row( 0 );
                     td2NdXi2FD.get_row( 1 ) = td2NdXi2FDTemp.get_row( 1 );
                     td2NdXi2FD.get_row( 7 ) = td2NdXi2FDTemp.get_row( 2 );
                     td2NdXi2FD.get_row( 5 ) = td2NdXi2FDTemp.get_row( 3 );
                 }
-                else if( iDim == 2 )
+                else if ( iDim == 2 )
                 {
                     td2NdXi2FD.get_row( 8 ) = td2NdXi2FDTemp.get_row( 0 );
                     td2NdXi2FD.get_row( 7 ) = td2NdXi2FDTemp.get_row( 1 );
                     td2NdXi2FD.get_row( 2 ) = td2NdXi2FDTemp.get_row( 2 );
                     td2NdXi2FD.get_row( 4 ) = td2NdXi2FDTemp.get_row( 3 );
                 }
-                else if( iDim == 3 )
+                else if ( iDim == 3 )
                 {
                     td2NdXi2FD.get_row( 6 ) = td2NdXi2FDTemp.get_row( 0 );
                     td2NdXi2FD.get_row( 5 ) = td2NdXi2FDTemp.get_row( 1 );
@@ -1108,7 +1108,7 @@ TEST_CASE( "Lagrange TET10", "[moris],[fem],[Tet10LagInterp]" )
         bool tCheck = true;
 
         // loop over the param points
-        for( uint k=0; k < tNumOfParamPoints; ++k )
+        for ( uint k = 0; k < tNumOfParamPoints; ++k )
         {
             // get the param point k
             Matrix< DDRMat > tParamPoint = tZetaCoords.get_column( k );
@@ -1165,7 +1165,7 @@ TEST_CASE( "Lagrange TET20", "[moris],[fem],[Tet20LagInterp]" )
             mtk::Integration_Type::GAUSS,
             mtk::Integration_Order::TET_5,
             mtk::Integration_Type::GAUSS,
-            mtk::Integration_Order:: BAR_1 );
+            mtk::Integration_Order::BAR_1 );
 
     // create an integrator
     mtk::Integrator tIntegrator( tIntegrationRule );
@@ -1186,10 +1186,10 @@ TEST_CASE( "Lagrange TET20", "[moris],[fem],[Tet20LagInterp]" )
         // create matrix that contains the shape function
         Matrix< DDRMat > tN;
 
-        for( uint k=0; k<tNumOfTestPoints; ++k )
+        for ( uint k = 0; k < tNumOfTestPoints; ++k )
         {
             // evaluate shape function at point k
-            tFunction->eval_N( tZeta.get_column( k ) , tN);
+            tFunction->eval_N( tZeta.get_column( k ), tN );
 
             // test unity
             tCheckPU = tCheckPU && ( std::abs( sum( tN ) - 1.0 ) < tEpsilon );
@@ -1209,7 +1209,7 @@ TEST_CASE( "Lagrange TET20", "[moris],[fem],[Tet20LagInterp]" )
         // create matrix that contains the first order derivatives
         Matrix< DDRMat > tdNdXi;
 
-        for( uint k=0; k < tNumOfTestPoints; ++k )
+        for ( uint k = 0; k < tNumOfTestPoints; ++k )
         {
             // unpack the test point k
             Matrix< DDRMat > tTestPoint = tZeta.get_column( k );
@@ -1219,18 +1219,18 @@ TEST_CASE( "Lagrange TET20", "[moris],[fem],[Tet20LagInterp]" )
 
             Matrix< DDRMat > tdNdXiFD( tdNdXi.n_rows(), tdNdXi.n_cols(), 0.0 );
 
-            for ( uint iDim = 0; iDim < tTestPoint.numel()-1; iDim++ )
+            for ( uint iDim = 0; iDim < tTestPoint.numel() - 1; iDim++ )
             {
                 // perturbed evaluation point
                 Matrix< DDRMat > tPertEvalPoint = tTestPoint;
-                tPertEvalPoint( iDim ) = tPertEvalPoint( iDim ) - tPerturbation;
+                tPertEvalPoint( iDim )          = tPertEvalPoint( iDim ) - tPerturbation;
 
                 // evaluate N at point l - delta xi
                 Matrix< DDRMat > tNMinus;
                 tFunction->eval_N( tPertEvalPoint, tNMinus );
 
                 // perturbed evaluation point
-                tPertEvalPoint = tTestPoint;
+                tPertEvalPoint         = tTestPoint;
                 tPertEvalPoint( iDim ) = tPertEvalPoint( iDim ) + tPerturbation;
 
                 // evaluate td2NdXi2 at point k + delta xi
@@ -1257,7 +1257,7 @@ TEST_CASE( "Lagrange TET20", "[moris],[fem],[Tet20LagInterp]" )
         Matrix< DDRMat > td2NdXi2;
 
         // loop over the test points
-        for( uint k=0; k < tNumOfTestPoints; ++k )
+        for ( uint k = 0; k < tNumOfTestPoints; ++k )
         {
             // unpack the test point k
             Matrix< DDRMat > tTestPoint = tZeta.get_column( k );
@@ -1267,18 +1267,18 @@ TEST_CASE( "Lagrange TET20", "[moris],[fem],[Tet20LagInterp]" )
 
             Matrix< DDRMat > td2NdXi2FD( td2NdXi2.n_rows(), td2NdXi2.n_cols(), 0.0 );
 
-            for (  uint iDim = 0; iDim < tFunction->get_number_of_param_dimensions(); iDim++ )
+            for ( uint iDim = 0; iDim < tFunction->get_number_of_param_dimensions(); iDim++ )
             {
                 // perturbed evaluation point
                 Matrix< DDRMat > tPertEvalPoint = tTestPoint;
-                tPertEvalPoint( iDim ) = tPertEvalPoint( iDim ) - tPerturbation;
+                tPertEvalPoint( iDim )          = tPertEvalPoint( iDim ) - tPerturbation;
 
                 // evaluate N at point l - delta xi
                 Matrix< DDRMat > tdNdXiMinus;
                 tFunction->eval_dNdXi( tPertEvalPoint, tdNdXiMinus );
 
                 // perturbed evaluation point
-                tPertEvalPoint = tTestPoint;
+                tPertEvalPoint         = tTestPoint;
                 tPertEvalPoint( iDim ) = tPertEvalPoint( iDim ) + tPerturbation;
 
                 // evaluate td2NdXi2 at point k + delta xi
@@ -1295,21 +1295,21 @@ TEST_CASE( "Lagrange TET20", "[moris],[fem],[Tet20LagInterp]" )
                     td2NdXi2FD.get_row( 8 ) = td2NdXi2FDTemp.get_row( 2 );
                     td2NdXi2FD.get_row( 6 ) = td2NdXi2FDTemp.get_row( 3 );
                 }
-                else if( iDim == 1 )
+                else if ( iDim == 1 )
                 {
                     td2NdXi2FD.get_row( 9 ) = td2NdXi2FDTemp.get_row( 0 );
                     td2NdXi2FD.get_row( 1 ) = td2NdXi2FDTemp.get_row( 1 );
                     td2NdXi2FD.get_row( 7 ) = td2NdXi2FDTemp.get_row( 2 );
                     td2NdXi2FD.get_row( 5 ) = td2NdXi2FDTemp.get_row( 3 );
                 }
-                else if( iDim == 2 )
+                else if ( iDim == 2 )
                 {
                     td2NdXi2FD.get_row( 8 ) = td2NdXi2FDTemp.get_row( 0 );
                     td2NdXi2FD.get_row( 7 ) = td2NdXi2FDTemp.get_row( 1 );
                     td2NdXi2FD.get_row( 2 ) = td2NdXi2FDTemp.get_row( 2 );
                     td2NdXi2FD.get_row( 4 ) = td2NdXi2FDTemp.get_row( 3 );
                 }
-                else if( iDim == 3 )
+                else if ( iDim == 3 )
                 {
                     td2NdXi2FD.get_row( 6 ) = td2NdXi2FDTemp.get_row( 0 );
                     td2NdXi2FD.get_row( 5 ) = td2NdXi2FDTemp.get_row( 1 );
@@ -1340,13 +1340,13 @@ TEST_CASE( "Lagrange TET20", "[moris],[fem],[Tet20LagInterp]" )
         bool tCheck = true;
 
         // loop over the param points
-        for( uint k=0; k < tNumOfParamPoints; ++k )
+        for ( uint k = 0; k < tNumOfParamPoints; ++k )
         {
             // get the param point k
             Matrix< DDRMat > tParamPoint = tZetaCoords.get_column( k );
 
             // evaluate shape functions at param point k
-            tFunction->eval_N( tParamPoint,tN );
+            tFunction->eval_N( tParamPoint, tN );
 
             // check that kth shape function = 1
             tCheck = tCheck && ( std::abs( tN( k ) - 1.0 ) < tEpsilon );
@@ -1370,12 +1370,16 @@ TEST_CASE( "Lagrange TET4 integration", "[moris],[fem],[Tet4LagInteg]" )
     double tEpsilon = 1E-12;
 
     // define a TET4 in the physical space
+    // clang-format off
     Matrix< DDRMat > tXHat = {
             { 0.0,  0.0, 0.0 },
             { 0.0, -1.0, 0.0 },
             { 1.0,  0.0, 0.0 },
             { 0.0,  0.0, 1.0 }};
-    Matrix< DDRMat > tTHat = {{0.0}, {2.0}};
+    // clang-format on
+
+    Matrix< DDRMat > tTHat = { { 0.0 }, { 2.0 } };
+
     real tExpectedVolume = 2.0 * 1.0 / 6.0;
 
     // define an interpolation rule for the TET4
@@ -1397,12 +1401,12 @@ TEST_CASE( "Lagrange TET4 integration", "[moris],[fem],[Tet4LagInteg]" )
             mtk::Integration_Type::GAUSS,
             mtk::Integration_Order::TET_5,
             mtk::Integration_Type::GAUSS,
-            mtk::Integration_Order:: BAR_1 );
+            mtk::Integration_Order::BAR_1 );
 
     // create an integrator
     mtk::Integrator tIntegrator( tIntegrationRule );
 
-    //get number of integration points
+    // get number of integration points
     uint tNumOfIntegPoints = tIntegrator.get_number_of_points();
 
     // get integration points
@@ -1417,7 +1421,7 @@ TEST_CASE( "Lagrange TET4 integration", "[moris],[fem],[Tet4LagInteg]" )
     real tVolume = 0;
 
     // loop over integration points
-    for( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
+    for ( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
     {
         // set integration point for geometry interpolator
         tGeoInterpolator.set_space_time( tIntegPoints.get_column( iGP ) );
@@ -1439,21 +1443,25 @@ TEST_CASE( "Lagrange TET10 integration", "[moris],[fem],[Tet10LagInteg]" )
     double tEpsilon = 1E-12;
 
     // define a TET10 in the physical space
-    real t12 = 1.0/2.0;
-    Matrix< DDRMat > tXHat = {
-            { 0.0,  0.0, 0.0 },
-            { 0.0, -1.0, 0.0 },
-            { 1.0,  0.0, 0.0 },
-            { 0.0,  0.0, 1.0 },
-            { 0.0, -t12, 0.0 },
-            { t12, -t12, 0.0 },
-            { t12,  0.0, 0.0 },
-            { 0.0,  0.0, t12 },
-            { 0.0, -t12, t12 },
-            { t12,  0.0, t12 } };
+    real t12 = 1.0 / 2.0;
 
-    Matrix< DDRMat > tTHat = {{0.0}, {2.0}};
-    real tExpectedVolume = 2 * 0.5 / 3.0;
+    // clang-format off
+    Matrix< DDRMat > tXHat = {
+                { 0.0,  0.0, 0.0 },
+                { 0.0, -1.0, 0.0 },
+                { 1.0,  0.0, 0.0 },
+                { 0.0,  0.0, 1.0 },
+                { 0.0, -t12, 0.0 },
+                { t12, -t12, 0.0 },
+                { t12,  0.0, 0.0 },
+                { 0.0,  0.0, t12 },
+                { 0.0, -t12, t12 },
+                { t12,  0.0, t12 } };
+    // clang-format on
+
+    Matrix< DDRMat > tTHat = { { 0.0 }, { 2.0 } };
+
+    real tExpectedVolume = 2.0 * 0.5 / 3.0;
 
     // define an interpolation rule for the TET10
     mtk::Interpolation_Rule tGeomRule(
@@ -1473,12 +1481,12 @@ TEST_CASE( "Lagrange TET10 integration", "[moris],[fem],[Tet10LagInteg]" )
             mtk::Integration_Type::GAUSS,
             mtk::Integration_Order::TET_5,
             mtk::Integration_Type::GAUSS,
-            mtk::Integration_Order:: BAR_1 );
+            mtk::Integration_Order::BAR_1 );
 
     // create an integrator
     mtk::Integrator tIntegrator( tIntegrationRule );
 
-    //get number of integration points
+    // get number of integration points
     uint tNumOfIntegPoints = tIntegrator.get_number_of_points();
 
     // get integration points
@@ -1491,10 +1499,10 @@ TEST_CASE( "Lagrange TET10 integration", "[moris],[fem],[Tet10LagInteg]" )
 
     // init volume
     real tVolume = 0.0;
-    real tWStar = 0.0;
+    real tWStar  = 0.0;
 
     // loop over integration points
-    for( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
+    for ( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
     {
         // set integration point for geometry interpolator
         tGeoInterpolator.set_space_time( tIntegPoints.get_column( iGP ) );
@@ -1507,7 +1515,7 @@ TEST_CASE( "Lagrange TET10 integration", "[moris],[fem],[Tet10LagInteg]" )
     }
 
     bool tCheck = true;
-    tCheck = tCheck && ( std::abs( tVolume - tExpectedVolume ) < tEpsilon );
+    tCheck      = tCheck && ( std::abs( tVolume - tExpectedVolume ) < tEpsilon );
     REQUIRE( tCheck );
 }
 
@@ -1519,32 +1527,36 @@ TEST_CASE( "Lagrange TET20 integration", "[moris],[fem],[Tet20LagInteg]" )
     double tEpsilon = 1E-12;
 
     // define a TET20 in the physical space
-    real t13 = 1.0/3.0;
-    real t23 = 2.0/3.0;
-    Matrix< DDRMat > tXHat = {
-            { 0.0,  0.0, 0.0 },
-            { 0.0, -1.0, 0.0 },
-            { 1.0,  0.0, 0.0 },
-            { 0.0,  0.0, 1.0 },
-            { 0.0, -t13, 0.0 },
-            { 0.0, -t23, 0.0 },
-            { t13, -t23, 0.0 },
-            { t23, -t13, 0.0 },
-            { t13,  0.0, 0.0 },
-            { t23,  0.0, 0.0 },
-            { 0.0,  0.0, t13 },
-            { 0.0,  0.0, t23 },
-            { 0.0, -t23, t13 },
-            { 0.0, -t13, t23 },
-            { t23,  0.0, t13 },
-            { t13,  0.0, t23 },
-            { t13, -t13, 0.0 },
-            { 0.0, -t13, t13 },
-            { t13, -t13, t13 },
-            { t13,  0.0, t13 } };
+    real t13 = 1.0 / 3.0;
+    real t23 = 2.0 / 3.0;
 
-    Matrix< DDRMat > tTHat = {{0.0}, {2.0}};
-    real tExpectedVolume = 2 * 0.5 / 3.0;
+    // clang-format off
+    Matrix< DDRMat > tXHat = {
+                { 0.0,  0.0, 0.0 },
+                { 0.0, -1.0, 0.0 },
+                { 1.0,  0.0, 0.0 },
+                { 0.0,  0.0, 1.0 },
+                { 0.0, -t13, 0.0 },
+                { 0.0, -t23, 0.0 },
+                { t13, -t23, 0.0 },
+                { t23, -t13, 0.0 },
+                { t13,  0.0, 0.0 },
+                { t23,  0.0, 0.0 },
+                { 0.0,  0.0, t13 },
+                { 0.0,  0.0, t23 },
+                { 0.0, -t23, t13 },
+                { 0.0, -t13, t23 },
+                { t23,  0.0, t13 },
+                { t13,  0.0, t23 },
+                { t13, -t13, 0.0 },
+                { 0.0, -t13, t13 },
+                { t13, -t13, t13 },
+                { t13,  0.0, t13 } };
+    // clang-format on
+
+    Matrix< DDRMat > tTHat = { { 0.0 }, { 2.0 } };
+
+    real tExpectedVolume = 2.0 * 0.5 / 3.0;
 
     // define an interpolation rule for the TET20
     mtk::Interpolation_Rule tGeomRule(
@@ -1565,12 +1577,12 @@ TEST_CASE( "Lagrange TET20 integration", "[moris],[fem],[Tet20LagInteg]" )
             mtk::Integration_Type::GAUSS,
             mtk::Integration_Order::TET_15,
             mtk::Integration_Type::GAUSS,
-            mtk::Integration_Order:: BAR_1 );
+            mtk::Integration_Order::BAR_1 );
 
     // create an integrator
     mtk::Integrator tIntegrator( tIntegrationRule );
 
-    //get number of integration points
+    // get number of integration points
     uint tNumOfIntegPoints = tIntegrator.get_number_of_points();
 
     // get integration points
@@ -1585,7 +1597,7 @@ TEST_CASE( "Lagrange TET20 integration", "[moris],[fem],[Tet20LagInteg]" )
     real tVolume = 0;
 
     // loop over integration points
-    for( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
+    for ( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
     {
         // set integration point for geometry interpolator
         tGeoInterpolator.set_space_time( tIntegPoints.get_column( iGP ) );
@@ -1607,11 +1619,15 @@ TEST_CASE( "Lagrange TRI3 integration", "[moris],[fem],[Tri3LagInteg]" )
     double tEpsilon = 1E-12;
 
     // define a TET4 in the physical space
+    // clang-format off
     Matrix< DDRMat > tXHat = {
             { 0.0,  0.0 },
             { 1.0, -1.0 },
             { 3.0,  0.0 }};
-    Matrix< DDRMat > tTHat = {{0.0}, {2.0}};
+    // clang-format on
+
+    Matrix< DDRMat > tTHat = { { 0.0 }, { 2.0 } };
+
     real tExpectedVolume = 3;
 
     // define an interpolation rule for the TRI3
@@ -1633,12 +1649,12 @@ TEST_CASE( "Lagrange TRI3 integration", "[moris],[fem],[Tri3LagInteg]" )
             mtk::Integration_Type::GAUSS,
             mtk::Integration_Order::TRI_1,
             mtk::Integration_Type::GAUSS,
-            mtk::Integration_Order:: BAR_1 );
+            mtk::Integration_Order::BAR_1 );
 
     // create an integrator
     mtk::Integrator tIntegrator( tIntegrationRule );
 
-    //get number of integration points
+    // get number of integration points
     uint tNumOfIntegPoints = tIntegrator.get_number_of_points();
 
     // get integration points
@@ -1653,7 +1669,7 @@ TEST_CASE( "Lagrange TRI3 integration", "[moris],[fem],[Tri3LagInteg]" )
     real tVolume = 0;
 
     // loop over integration points
-    for( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
+    for ( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
     {
         // set integration point for geometry interpolator
         tGeoInterpolator.set_space_time( tIntegPoints.get_column( iGP ) );
@@ -1676,14 +1692,18 @@ TEST_CASE( "Lagrange TRI6 integration", "[moris],[fem],[Tri6LagInteg]" )
     double tEpsilon = 1E-12;
 
     // define a TET4 in the physical space
+    // clang-format off
     Matrix< DDRMat > tXHat = {
-            { 0.0,  0.0 },
-            { 1.0, -1.0 },
-            { 3.0,  0.0 },
-            { 0.5, -0.5 },
-            { 2.0, -0.5 },
-            { 1.5,  0.0 }};
-    Matrix< DDRMat > tTHat = {{0.0}, {2.0}};
+                { 0.0,  0.0 },
+                { 1.0, -1.0 },
+                { 3.0,  0.0 },
+                { 0.5, -0.5 },
+                { 2.0, -0.5 },
+                { 1.5,  0.0 }};
+    // clang-format on
+
+    Matrix< DDRMat > tTHat = { { 0.0 }, { 2.0 } };
+
     real tExpectedVolume = 3;
 
     // define an interpolation rule for the TRI10
@@ -1705,12 +1725,12 @@ TEST_CASE( "Lagrange TRI6 integration", "[moris],[fem],[Tri6LagInteg]" )
             mtk::Integration_Type::GAUSS,
             mtk::Integration_Order::TRI_3,
             mtk::Integration_Type::GAUSS,
-            mtk::Integration_Order:: BAR_1 );
+            mtk::Integration_Order::BAR_1 );
 
     // create an integrator
     mtk::Integrator tIntegrator( tIntegrationRule );
 
-    //get number of integration points
+    // get number of integration points
     uint tNumOfIntegPoints = tIntegrator.get_number_of_points();
 
     // get integration points
@@ -1725,7 +1745,7 @@ TEST_CASE( "Lagrange TRI6 integration", "[moris],[fem],[Tri6LagInteg]" )
     real tVolume = 0;
 
     // loop over integration points
-    for( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
+    for ( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
     {
         // set integration point for geometry interpolator
         tGeoInterpolator.set_space_time( tIntegPoints.get_column( iGP ) );
@@ -1747,20 +1767,22 @@ TEST_CASE( "Lagrange TRI10 integration", "[moris],[fem],[Tri10LagInteg]" )
     double tEpsilon = 1E-12;
 
     // define a TET4 in the physical space
+    // clang-format off
     Matrix< DDRMat > tXHat = {
-            { 0.0,          0.0 },
-            { 1.0,         -1.0 },
-            { 3.0,          0.0 },
-            { 1.0/3.0,     -1.0/3.0 },
-            { 2.0/3.0,     -2.0/3.0 },
-            { 1.0+2.0/3.0, -2.0/3.0 },
-            { 1.0+4.0/3.0, -1.0/3.0 },
-            { 2.0,          0.0 },
-            { 1.0,          0.0 },
-            { 4.0/3.0,     -0.5 }};
+                { 0.0,          0.0 },
+                { 1.0,         -1.0 },
+                { 3.0,          0.0 },
+                { 1.0/3.0,     -1.0/3.0 },
+                { 2.0/3.0,     -2.0/3.0 },
+                { 1.0+2.0/3.0, -2.0/3.0 },
+                { 1.0+4.0/3.0, -1.0/3.0 },
+                { 2.0,          0.0 },
+                { 1.0,          0.0 },
+                { 4.0/3.0,     -0.5 }};
+    // clang-format on
 
-    Matrix< DDRMat > tTHat = {{0.0}, {2.0}};
-    real tExpectedVolume = 3;
+    Matrix< DDRMat > tTHat           = { { 0.0 }, { 2.0 } };
+    real             tExpectedVolume = 3;
 
     // define an interpolation rule for the TRI10
     mtk::Interpolation_Rule tGeomRule(
@@ -1781,12 +1803,12 @@ TEST_CASE( "Lagrange TRI10 integration", "[moris],[fem],[Tri10LagInteg]" )
             mtk::Integration_Type::GAUSS,
             mtk::Integration_Order::TRI_6,
             mtk::Integration_Type::GAUSS,
-            mtk::Integration_Order:: BAR_1 );
+            mtk::Integration_Order::BAR_1 );
 
     // create an integrator
     mtk::Integrator tIntegrator( tIntegrationRule );
 
-    //get number of integration points
+    // get number of integration points
     uint tNumOfIntegPoints = tIntegrator.get_number_of_points();
 
     // get integration points
@@ -1801,7 +1823,7 @@ TEST_CASE( "Lagrange TRI10 integration", "[moris],[fem],[Tri10LagInteg]" )
     real tVolume = 0;
 
     // loop over integration points
-    for( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
+    for ( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
     {
         // set integration point for geometry interpolator
         tGeoInterpolator.set_space_time( tIntegPoints.get_column( iGP ) );

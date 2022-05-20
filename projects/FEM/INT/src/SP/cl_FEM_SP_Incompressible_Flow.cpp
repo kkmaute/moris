@@ -32,6 +32,22 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
+        SP_Incompressible_Flow::set_space_dim( uint aSpaceDim )
+        {
+            // check that space dimension is 1, 2, 3
+            MORIS_ERROR( aSpaceDim > 0 && aSpaceDim < 4,
+                    "SP_Incompressible_Flow::set_space_dim - wrong space dimension." );
+
+            // set space dimension
+            mSpaceDim = aSpaceDim;
+
+            // set function pointer
+            this->set_function_pointers();
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void
         SP_Incompressible_Flow::set_function_pointers()
         {
             // switch on space dimensions
@@ -371,10 +387,6 @@ namespace moris
             // get the space jacobian from IP geometry interpolator
             const Matrix< DDRMat >& tInvSpaceJacobian =
                     mMasterFIManager->get_IP_geometry_interpolator()->inverse_space_jacobian();
-
-            // FIXME should not be here
-            mSpaceDim = mMasterFIManager->get_IP_geometry_interpolator()->get_number_of_space_dimensions();
-            this->set_function_pointers();
 
             // evaluate Gij = sum_d dxi_d/dx_i dxi_d/dx_j
             this->mEvalGFunc( aG, tInvSpaceJacobian );

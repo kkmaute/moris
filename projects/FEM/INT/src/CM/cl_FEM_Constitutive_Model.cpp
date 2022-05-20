@@ -86,6 +86,7 @@ namespace moris
             // reset the test strain value and derivative flags
             mTestStrainEval         = true;
             mTestStrainTransEval    = true;
+            mdTestStraindDofEval.fill( true );
 
             // reset the constitutive matrix value and derivative flags
             mConstEval         = true;
@@ -316,6 +317,7 @@ namespace moris
             mdTestTractiondDofEval.set_size( tNumDirectDofTypes, tNumGlobalDofTypes, true );
             mdStressdDofEval.set_size( tNumGlobalDofTypes, 1, true );
             mdStraindDofEval.set_size( tNumGlobalDofTypes, 1, true );
+            mdTestStraindDofEval.set_size( tNumGlobalDofTypes, 1, true );
             mddivstrainduEval.set_size( tNumGlobalDofTypes, 1, true );
             mdConstdDofEval.set_size( tNumGlobalDofTypes, 1, true );
 
@@ -336,6 +338,7 @@ namespace moris
             }
             mdStressdDof.resize( tNumGlobalDofTypes );
             mdStraindDof.resize( tNumGlobalDofTypes );
+            mdTestStraindDof.resize( tNumGlobalDofTypes );
             mddivstraindu.resize( tNumGlobalDofTypes );
             mdConstdDof.resize( tNumGlobalDofTypes );
 
@@ -2477,6 +2480,45 @@ namespace moris
             }
             // return the flux value
             return mFlux;
+        }
+
+        const Matrix< DDRMat >&
+        Constitutive_Model::flux(
+                int                   aFlatType,
+                enum CM_Function_Type aCMFunctionType )
+        {
+            // no parent implementation
+            MORIS_ERROR( false, "Constitutive_Model::flux - Not implemented in parent class." );
+
+            // return the flux value
+            return mFlux;
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat > &
+        Constitutive_Model::dTestStraindDOF(
+                const moris::Cell< MSI::Dof_Type >& aDofTypes,
+                enum CM_Function_Type aCMFunctionType )
+        {
+            // check CM function type, base class only supports "DEFAULT"
+            MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,
+                    "Nonlinear_Isotropic::dTestStraindDOF - Only DEFAULT CM function type known in base class." );
+
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            // if the derivative of the teststrain wrt. DOF was not evaluated
+            if( mdTestStraindDofEval( tDofIndex ) )
+            {
+                // evaluate the derivative of the teststrain wrt. DOF
+                this->eval_dTestStraindDOF( aDofTypes );
+
+                // set bool for evaluation
+                mdTestStraindDofEval( tDofIndex ) = false;
+            }
+            // return the derivative of the teststrain wrt. DOF values
+            return mdTestStraindDof( tDofIndex );
         }
 
         //------------------------------------------------------------------------------

@@ -1,21 +1,22 @@
 /*
- * cl_FEM_IWG_Spalart_Allmaras_Turbulence_Bulk.hpp
+ * cl_FEM_IWG_Isotropic_Struc_Nonlinear_Dirichlet.hpp
  *
- *  Created on: Mar 23, 2020
- *      Author: noel
+ *  Created on: May 13, 2022
+ *      Author: hermann
  */
 
-#ifndef SRC_FEM_CL_FEM_IWG_SPALART_ALLMARAS_TURBULENCE_BULK_HPP_
-#define SRC_FEM_CL_FEM_IWG_SPALART_ALLMARAS_TURBULENCE_BULK_HPP_
-//MRS/COR/src
+#ifndef SRC_FEM_CL_FEM_IWG_ISOTROPIC_STRUC_NONLINEAR_DIRICHLET_HPP_
+#define SRC_FEM_CL_FEM_IWG_ISOTROPIC_STRUC_NONLINEAR_DIRICHLET_HPP_
+
 #include <map>
-#include "typedefs.hpp"
-#include "cl_Cell.hpp"
-//LINALG/src
-#include "cl_Matrix.hpp"
-#include "linalg_typedefs.hpp"
-//FEM/INT/src
-#include "cl_FEM_IWG.hpp"
+
+#include "typedefs.hpp"                     //MRS/COR/src
+#include "cl_Cell.hpp"                      //MRS/CON/src
+
+#include "cl_Matrix.hpp"                    //LINALG/src
+#include "linalg_typedefs.hpp"              //LINALG/src
+
+#include "cl_FEM_IWG.hpp"                   //FEM/INT/src
 
 namespace moris
 {
@@ -23,56 +24,71 @@ namespace moris
     {
         //------------------------------------------------------------------------------
 
-        class IWG_Spalart_Allmaras_Turbulence_Bulk : public IWG
+        class IWG_Isotropic_Struc_Nonlinear_Dirichlet : public IWG
         {
 
                 //------------------------------------------------------------------------------
             public:
 
-                // local constitutive enums
+                // sign for symmetric/unsymmetric Nitsche
+                sint mBeta = 1;
+
+                // stress and strain type to evaluate the IWG
+                enum CM_Function_Type mStressType;
+                enum CM_Function_Type mStrainType;
+
+                enum class IWG_Property_Type
+                {
+                    DIRICHLET,
+                    SELECT,
+                    THICKNESS,
+                    MAX_ENUM
+                };
+
                 enum class IWG_Constitutive_Type
                 {
-                        SPALART_ALLMARAS_TURBULENCE,
-                        MAX_ENUM
+                    ELAST_LIN_ISO,
+                    MAX_ENUM
                 };
 
-                // local stabilization enums
                 enum class IWG_Stabilization_Type
                 {
-                        SUPG,
-                        MAX_ENUM
+                    DIRICHLET_NITSCHE,
+                    MAX_ENUM
                 };
 
-            public:
                 //------------------------------------------------------------------------------
                 /*
-                 *  constructor
+                 * constructor
                  */
-                IWG_Spalart_Allmaras_Turbulence_Bulk();
+                IWG_Isotropic_Struc_Nonlinear_Dirichlet(
+                		enum CM_Function_Type aStressType,
+        				enum CM_Function_Type aStrainType,
+        				sint aBeta );
 
                 //------------------------------------------------------------------------------
                 /**
                  * trivial destructor
                  */
-                ~IWG_Spalart_Allmaras_Turbulence_Bulk(){};
+                ~IWG_Isotropic_Struc_Nonlinear_Dirichlet(){};
 
                 //------------------------------------------------------------------------------
                 /**
-                 * compute the residual
+                 * computes the residual
                  * @param[ in ] aWStar weight associated to the evaluation point
                  */
                 void compute_residual( real aWStar );
 
                 //------------------------------------------------------------------------------
                 /**
-                 * compute the jacobian
+                 * computes the jacobian
                  * @param[ in ] aWStar weight associated to the evaluation point
                  */
                 void compute_jacobian( real aWStar );
 
                 //------------------------------------------------------------------------------
                 /**
-                 * compute the residual and the jacobian
+                 * computes the residual and the jacobian
                  * @param[ in ] aWStar weight associated to the evaluation point
                  */
                 void compute_jacobian_and_residual( real aWStar );
@@ -84,29 +100,10 @@ namespace moris
                  */
                 void compute_dRdp( real aWStar );
 
-            private:
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the residual strong form
-                 * @param[ in ] aR real to fill with R
-                 */
-                void compute_residual_strong_form( Matrix< DDRMat > & aR );
-
-                //------------------------------------------------------------------------------
-                /**
-                 * compute the jacobian strong form
-                 * @param[ in ] aDofTypes a list of dof type wrt which
-                 *                        the derivative is requested
-                 * @param[ in ] aJ        a matrix to fill with dRdDof
-                 */
-                void compute_jacobian_strong_form(
-                        const moris::Cell< MSI::Dof_Type > & aDofTypes,
-                        Matrix< DDRMat >                   & aJ );
-
                 //------------------------------------------------------------------------------
         };
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
 
-#endif /* SRC_FEM_CL_FEM_IWG_SPALART_ALLMARAS_TURBULENCE_BULK_HPP_ */
+#endif /* SRC_FEM_CL_FEM_IWG_ISOTROPIC_STRUC_NONLINEAR_DIRICHLET_HPP_ */
