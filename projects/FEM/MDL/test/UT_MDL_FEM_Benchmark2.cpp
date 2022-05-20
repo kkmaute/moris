@@ -185,7 +185,7 @@ namespace moris
 
             tParameters.set( "number_of_elements_per_dimension", std::to_string( tNumX ) + "," + std::to_string( tNumY ) );
             tParameters.set( "domain_dimensions", std::to_string( tDomainLX ) + "," + std::to_string( tDomainLY ) );
-            tParameters.set( "domain_offset", std::to_string( -tDomainLX / 2 ) + "," + std::to_string( -tDomainLY / 2 ) );
+            tParameters.set( "domain_offset", std::to_string( -tDomainLX / 2.0 ) + "," + std::to_string( -tDomainLY / 2.0 ) );
             tParameters.set( "domain_sidesets", "1,2,3,4" );
             tParameters.set( "lagrange_output_meshes", "0" );
 

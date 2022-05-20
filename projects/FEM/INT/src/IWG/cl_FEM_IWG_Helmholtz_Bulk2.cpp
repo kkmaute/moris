@@ -52,10 +52,10 @@ namespace moris
 
             // compute Dirac filter
             real tDiracFilter = 0.0;
-            if ( phi->val()( 0 ) < 3 * mHe )
+            if ( phi->val()( 0 ) < 3.0 * mHe )
             {
                 real tTanh   = std::tanh( mSharpParam * phi->val()( 0 ) / tNormPhi );
-                tDiracFilter = 0.5 * mSharpParam * ( 1.0 - std::pow( tTanh, 2 ) );
+                tDiracFilter = 0.5 * mSharpParam * ( 1.0 - std::pow( tTanh, 2.0 ) );
             }
 
             uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
@@ -95,10 +95,10 @@ namespace moris
             // compute Dirac filter and derivative wrt phi / norm( phi )
             real tDiracFilter = 0.0;
 //            real tDDiracFilter = 0.0;
-            if ( phi->val()( 0 ) < 3 * mHe )
+            if ( phi->val()( 0 ) < 3.0 * mHe )
             {
                 real tTanh = std::tanh( mSharpParam * phi->val()( 0 ) / tNormPhi );
-                tDiracFilter  = 0.5 * mSharpParam * ( 1.0 - std::pow( tTanh, 2 ) );
+                tDiracFilter  = 0.5 * mSharpParam * ( 1.0 - std::pow( tTanh, 2.0 ) );
 //                tDDiracFilter = - 2 * mSharpParam * tDiracFilter * tTanh;
             }
 

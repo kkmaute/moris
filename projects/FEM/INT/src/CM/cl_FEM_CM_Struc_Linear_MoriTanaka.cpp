@@ -93,14 +93,35 @@ namespace moris
             const real& tAspectRatio = tParams.begin()[ 7 ];
 
             // High aspect ratio => continuous fiber
-            if ( tAspectRatio > 1000. || tAspectRatio == 0. )
+            if ( tAspectRatio > 1000.0 || tAspectRatio == 0.0 )
             {
-                real tC11 = ( std::pow( tEf, 2 ) * ( -1 + tVf ) * tVf * std::pow( 1 + tNum, 2 ) * ( -1 + 2 * tNum ) + std::pow( tEm, 2 ) * ( -1 + tVf ) * ( 1 + tVf + ( -1 + tVf ) * tNum ) * ( -1 + tNuf + 2 * std::pow( tNuf, 2 ) ) - tEm * tEf * ( 1 + tNum ) * ( -1 + tNum + tVf * ( 1 + tNuf - 6 * tNum * tNuf + tVf * ( -2 + tNum + tNuf + 4 * tNum * tNuf ) ) ) ) / ( ( 1 + tNum ) * ( tEf * ( -1 + tVf ) * ( -1 + tNum + 2 * std::pow( tNum, 2 ) ) - tEm * ( 1 + tVf - 2 * tNum ) * ( -1 + tNuf + 2 * std::pow( tNuf, 2 ) ) ) );    // 1st row
-                real tC12 = ( tEm * ( -( tEf * ( 1 + tNum ) * ( ( -1 + tVf ) * tNum + 2 * tVf * ( -1 + tNum ) * tNuf ) ) + tEm * ( -1 + tVf ) * tNum * ( -1 + tNuf + 2 * std::pow( tNuf, 2 ) ) ) ) / ( ( 1 + tNum ) * ( tEf * ( -1 + tVf ) * ( -1 + tNum + 2 * std::pow( tNum, 2 ) ) - tEm * ( 1 + tVf - 2 * tNum ) * ( -1 + tNuf + 2 * std::pow( tNuf, 2 ) ) ) );
-                real tC22 = -( ( tEm * ( -1 + tNum ) * ( std::pow( tEf, 2 ) * ( -1 + tVf ) * std::pow( 1 + tNum, 2 ) * ( -3 - 2 * tVf + 4 * ( 1 + tVf ) * tNum ) + std::pow( tEm, 2 ) * ( -1 + tVf ) * ( 1 + 2 * tVf ) * std::pow( 1 + tNuf, 2 ) * ( -1 + 2 * tNuf ) + 2 * tEm * tEf * ( 1 + tNum ) * ( 1 + tNuf ) * ( 2 - 2 * tNum - 3 * tNuf + tVf * tNuf + 4 * tNum * tNuf - 2 * std::pow( tVf, 2 ) * ( -1 + tNum + tNuf ) ) ) ) / ( ( 1 + tNum ) * ( tEf * ( -1 + tVf ) * ( -3 + tNum + 4 * std::pow( tNum, 2 ) ) - tEm * ( -1 + tVf * ( -3 + 4 * tNum ) ) * ( 1 + tNuf ) ) * ( tEf * ( -1 + tVf ) * ( -1 + tNum + 2 * std::pow( tNum, 2 ) ) - tEm * ( 1 + tVf - 2 * tNum ) * ( -1 + tNuf + 2 * std::pow( tNuf, 2 ) ) ) ) );
-                real tC23 = -( ( tEm * ( pow( tEf, 2 ) * ( -1 + tVf ) * pow( 1 + tNum, 2 ) * ( tVf * pow( 1 - 2 * tNum, 2 ) + ( 3 - 4 * tNum ) * tNum ) + std::pow( tEm, 2 ) * ( -1 + tVf ) * ( -tNum + tVf * ( -1 + 2 * tNum ) ) * pow( 1 + tNuf, 2 ) * ( -1 + 2 * tNuf ) - 2 * tEm * tEf * ( 1 + tNum ) * ( 1 + tNuf ) * ( pow( tVf, 2 ) * ( -1 + 2 * tNum ) * ( -1 + tNum + tNuf ) + tVf * ( -1 + tNum + 5 * tNuf - 7 * tNum * tNuf ) + tNum * ( 2 - 2 * tNum - 3 * tNuf + 4 * tNum * tNuf ) ) ) ) / ( ( 1 + tNum ) * ( tEf * ( -1 + tVf ) * ( -3 + tNum + 4 * pow( tNum, 2 ) ) - tEm * ( -1 + tVf * ( -3 + 4 * tNum ) ) * ( 1 + tNuf ) ) * ( tEf * ( -1 + tVf ) * ( -1 + tNum + 2 * pow( tNum, 2 ) ) - tEm * ( 1 + tVf - 2 * tNum ) * ( -1 + tNuf + 2 * pow( tNuf, 2 ) ) ) ) );
+                real tC11 = 
+                    ( std::pow( tEf, 2.0 ) * ( -1.0 + tVf ) * tVf * std::pow( 1.0 + tNum, 2.0 ) * ( -1.0 + 2.0 * tNum ) + 
+                    std::pow( tEm, 2.0 ) * ( -1.0 + tVf ) * ( 1.0 + tVf + ( -1.0 + tVf ) * tNum ) * ( -1.0 + tNuf + 2.0 * std::pow( tNuf, 2.0 ) ) - 
+                    tEm * tEf * ( 1.0 + tNum ) * ( -1.0 + tNum + tVf * ( 1.0 + tNuf - 6.0 * tNum * tNuf + tVf * ( -2.0 + tNum + tNuf + 4.0 * tNum * tNuf ) ) ) ) / 
+                        ( ( 1.0 + tNum ) * ( tEf * ( -1.0 + tVf ) * ( -1.0 + tNum + 2.0 * std::pow( tNum, 2.0 ) ) - 
+                    tEm * ( 1.0 + tVf - 2.0 * tNum ) * ( -1.0 + tNuf + 2.0 * std::pow( tNuf, 2.0 ) ) ) );    // 1st row
+                real tC12 = 
+                    ( tEm * ( -( tEf * ( 1.0 + tNum ) * ( ( -1.0 + tVf ) * tNum + 2.0 * tVf * ( -1.0 + tNum ) * tNuf ) ) + 
+                    tEm * ( -1.0 + tVf ) * tNum * ( -1.0 + tNuf + 2.0 * std::pow( tNuf, 2.0 ) ) ) ) / ( ( 1.0 + tNum ) * ( tEf * ( -1.0 + tVf ) * ( -1.0 + tNum + 2.0 * std::pow( tNum, 2.0 ) ) - 
+                    tEm * ( 1.0 + tVf - 2.0 * tNum ) * ( -1.0 + tNuf + 2.0 * std::pow( tNuf, 2.0 ) ) ) );
+                real tC22 = 
+                    -( ( tEm * ( -1.0 + tNum ) * ( std::pow( tEf, 2.0 ) * ( -1.0 + tVf ) * std::pow( 1.0 + tNum, 2.0 ) * ( -3.0 - 2.0 * tVf + 4.0 * ( 1.0 + tVf ) * tNum ) + 
+                    std::pow( tEm, 2.0 ) * ( -1.0 + tVf ) * ( 1.0 + 2.0 * tVf ) * std::pow( 1.0 + tNuf, 2.0 ) * ( -1.0 + 2.0 * tNuf ) + 2.0 * tEm * tEf * ( 1.0 + tNum ) * ( 1.0 + tNuf ) * ( 2.0 - 2.0 * tNum - 3.0 * tNuf + 
+                    tVf * tNuf + 4.0 * tNum * tNuf - 2.0 * std::pow( tVf, 2.0 ) * ( -1.0 + tNum + tNuf ) ) ) ) / 
+                        ( ( 1.0 + tNum ) * ( tEf * ( -1.0 + tVf ) * ( -3.0 + tNum + 4.0 * std::pow( tNum, 2.0 ) ) - 
+                    tEm * ( -1.0 + tVf * ( -3.0 + 4.0 * tNum ) ) * ( 1.0 + tNuf ) ) * ( tEf * ( -1.0 + tVf ) * ( -1.0 + tNum + 2.0 * std::pow( tNum, 2.0 ) ) - 
+                    tEm * ( 1.0 + tVf - 2.0 * tNum ) * ( -1.0 + tNuf + 2.0 * std::pow( tNuf, 2.0 ) ) ) ) );
+                real tC23 = 
+                    -( ( tEm * ( pow( tEf, 2.0 ) * ( -1.0 + tVf ) * pow( 1.0 + tNum, 2.0 ) * ( tVf * pow( 1.0 - 2.0 * tNum, 2.0 ) + 
+                    ( 3.0 - 4.0 * tNum ) * tNum ) + std::pow( tEm, 2.0 ) * ( -1.0 + tVf ) * ( -tNum + tVf * ( -1.0 + 2.0 * tNum ) ) * pow( 1.0 + tNuf, 2.0 ) * ( -1.0 + 2.0 * tNuf ) - 
+                    2.0 * tEm * tEf * ( 1.0 + tNum ) * ( 1.0 + tNuf ) * ( pow( tVf, 2.0 ) * ( -1.0 + 2.0 * tNum ) * ( -1.0 + tNum + tNuf ) + tVf * ( -1.0 + tNum + 5.0 * tNuf - 7.0 * tNum * tNuf ) + 
+                    tNum * ( 2.0 - 2.0 * tNum - 3.0 * tNuf + 4.0 * tNum * tNuf ) ) ) ) / 
+                        ( ( 1.0 + tNum ) * ( tEf * ( -1.0 + tVf ) * ( -3.0 + tNum + 4.0 * pow( tNum, 2.0 ) ) - 
+                        tEm * ( -1.0 + tVf * ( -3.0 + 4.0 * tNum ) ) * ( 1.0 + tNuf ) ) * ( tEf * ( -1.0 + tVf ) * ( -1.0 + tNum + 2.0 * pow( tNum, 2.0 ) ) - 
+                        tEm * ( 1.0 + tVf - 2.0 * tNum ) * ( -1.0 + tNuf + 2.0 * pow( tNuf, 2.0 ) ) ) ) );
                 real tC33 = tC22;
-                real tC66 = ( tEm * ( -( tEf * ( 1 + tVf ) * ( 1 + tNum ) ) + tEm * ( -1 + tVf ) * ( 1 + tNuf ) ) ) / ( 2. * ( 1 + tNum ) * ( tEf * ( -1 + tVf ) * ( 1 + tNum ) - tEm * ( 1 + tVf ) * ( 1 + tNuf ) ) );
+                real tC66 = ( tEm * ( -( tEf * ( 1.0 + tVf ) * ( 1.0 + tNum ) ) + tEm * ( -1.0 + tVf ) * ( 1.0 + tNuf ) ) ) / ( 2.0 * ( 1.0 + tNum ) * ( tEf * ( -1.0 + tVf ) * ( 1.0 + tNum ) - tEm * ( 1.0 + tVf ) * ( 1.0 + tNuf ) ) );
 
                 // first row
                 mConstPrime( 0, 0 ) = tC11 - ( tC12 * tC12 / tC33 );
@@ -130,7 +151,7 @@ namespace moris
 
                 // Mori-Tanaka concetration tensor
                 // AMT = Adil.[(1 - tVf)*I + tVf*Adil]^-1
-                Matrix< DDRMat > tAMT = tAdil * inv( ( 1 - tVf ) * I + tVf * tAdil );
+                Matrix< DDRMat > tAMT = tAdil * inv( ( 1.0 - tVf ) * I + tVf * tAdil );
 
                 // Get the effective stiffness matrix
                 // Ceff = C1 + tVf*(C2 - C1).AMT
@@ -188,23 +209,52 @@ namespace moris
             const real& tAspectRatio = tParams.begin()[ 7 ];
 
             // High aspect ratio => continuous fiber
-            if ( tAspectRatio > 1000. || tAspectRatio == 0. )
+            if ( tAspectRatio > 1000.0 || tAspectRatio == 0.0 )
             {
                 // first row
-                mConstPrime( 0, 0 ) = ( std::pow( tEf, 2 ) * ( -1 + tVf ) * tVf * std::pow( 1 + tNum, 2 ) * ( -1 + 2 * tNum ) + std::pow( tEm, 2 ) * ( -1 + tVf ) * ( 1 + tVf + ( -1 + tVf ) * tNum ) * ( -1 + tNuf + 2 * std::pow( tNuf, 2 ) ) - tEm * tEf * ( 1 + tNum ) * ( -1 + tNum + tVf * ( 1 + tNuf - 6 * tNum * tNuf + tVf * ( -2 + tNum + tNuf + 4 * tNum * tNuf ) ) ) ) / ( ( 1 + tNum ) * ( tEf * ( -1 + tVf ) * ( -1 + tNum + 2 * std::pow( tNum, 2 ) ) - tEm * ( 1 + tVf - 2 * tNum ) * ( -1 + tNuf + 2 * std::pow( tNuf, 2 ) ) ) );    // 1st row
-                mConstPrime( 0, 1 ) = ( tEm * ( -( tEf * ( 1 + tNum ) * ( ( -1 + tVf ) * tNum + 2 * tVf * ( -1 + tNum ) * tNuf ) ) + tEm * ( -1 + tVf ) * tNum * ( -1 + tNuf + 2 * std::pow( tNuf, 2 ) ) ) ) / ( ( 1 + tNum ) * ( tEf * ( -1 + tVf ) * ( -1 + tNum + 2 * std::pow( tNum, 2 ) ) - tEm * ( 1 + tVf - 2 * tNum ) * ( -1 + tNuf + 2 * std::pow( tNuf, 2 ) ) ) );
+                mConstPrime( 0, 0 ) = 
+                    ( std::pow( tEf, 2.0 ) * ( -1.0 + tVf ) * tVf * std::pow( 1.0 + tNum, 2.0 ) * ( -1.0 + 2.0 * tNum ) + 
+                    std::pow( tEm, 2.0 ) * ( -1.0 + tVf ) * ( 1.0 + tVf + ( -1.0 + tVf ) * tNum ) * ( -1.0 + tNuf + 2.0 * std::pow( tNuf, 2.0 ) ) - 
+                    tEm * tEf * ( 1.0 + tNum ) * ( -1.0 + tNum + tVf * ( 1.0 + tNuf - 6.0 * tNum * tNuf + tVf * ( -2 + tNum + tNuf + 4.0 * tNum * tNuf ) ) ) ) / 
+                        ( ( 1.0 + tNum ) * ( tEf * ( -1.0 + tVf ) * ( -1.0 + tNum + 2.0 * std::pow( tNum, 2.0 ) ) - 
+                    tEm * ( 1.0 + tVf - 2.0 * tNum ) * ( -1.0 + tNuf + 2.0 * std::pow( tNuf, 2.0 ) ) ) );    // 1st row
+                mConstPrime( 0, 1 ) = 
+                    ( tEm * ( -( tEf * ( 1.0 + tNum ) * ( ( -1.0 + tVf ) * tNum + 2.0 * tVf * ( -1.0 + tNum ) * tNuf ) ) + 
+                    tEm * ( -1.0 + tVf ) * tNum * ( -1.0 + tNuf + 2.0 * std::pow( tNuf, 2.0 ) ) ) ) / 
+                        ( ( 1.0 + tNum ) * ( tEf * ( -1.0 + tVf ) * ( -1.0 + tNum + 2.0 * std::pow( tNum, 2.0 ) ) - 
+                    tEm * ( 1.0 + tVf - 2.0 * tNum ) * ( -1.0 + tNuf + 2.0 * std::pow( tNuf, 2.0 ) ) ) );
                 mConstPrime( 0, 2 ) = mConstPrime( 0, 1 );
                 // second row
                 mConstPrime( 1, 0 ) = mConstPrime( 0, 1 );
-                mConstPrime( 1, 1 ) = -( ( tEm * ( -1 + tNum ) * ( std::pow( tEf, 2 ) * ( -1 + tVf ) * std::pow( 1 + tNum, 2 ) * ( -3 - 2 * tVf + 4 * ( 1 + tVf ) * tNum ) + std::pow( tEm, 2 ) * ( -1 + tVf ) * ( 1 + 2 * tVf ) * std::pow( 1 + tNuf, 2 ) * ( -1 + 2 * tNuf ) + 2 * tEm * tEf * ( 1 + tNum ) * ( 1 + tNuf ) * ( 2 - 2 * tNum - 3 * tNuf + tVf * tNuf + 4 * tNum * tNuf - 2 * std::pow( tVf, 2 ) * ( -1 + tNum + tNuf ) ) ) ) / ( ( 1 + tNum ) * ( tEf * ( -1 + tVf ) * ( -3 + tNum + 4 * std::pow( tNum, 2 ) ) - tEm * ( -1 + tVf * ( -3 + 4 * tNum ) ) * ( 1 + tNuf ) ) * ( tEf * ( -1 + tVf ) * ( -1 + tNum + 2 * std::pow( tNum, 2 ) ) - tEm * ( 1 + tVf - 2 * tNum ) * ( -1 + tNuf + 2 * std::pow( tNuf, 2 ) ) ) ) );
-                mConstPrime( 1, 2 ) = -( ( tEm * ( pow( tEf, 2 ) * ( -1 + tVf ) * pow( 1 + tNum, 2 ) * ( tVf * pow( 1 - 2 * tNum, 2 ) + ( 3 - 4 * tNum ) * tNum ) + std::pow( tEm, 2 ) * ( -1 + tVf ) * ( -tNum + tVf * ( -1 + 2 * tNum ) ) * pow( 1 + tNuf, 2 ) * ( -1 + 2 * tNuf ) - 2 * tEm * tEf * ( 1 + tNum ) * ( 1 + tNuf ) * ( pow( tVf, 2 ) * ( -1 + 2 * tNum ) * ( -1 + tNum + tNuf ) + tVf * ( -1 + tNum + 5 * tNuf - 7 * tNum * tNuf ) + tNum * ( 2 - 2 * tNum - 3 * tNuf + 4 * tNum * tNuf ) ) ) ) / ( ( 1 + tNum ) * ( tEf * ( -1 + tVf ) * ( -3 + tNum + 4 * pow( tNum, 2 ) ) - tEm * ( -1 + tVf * ( -3 + 4 * tNum ) ) * ( 1 + tNuf ) ) * ( tEf * ( -1 + tVf ) * ( -1 + tNum + 2 * pow( tNum, 2 ) ) - tEm * ( 1 + tVf - 2 * tNum ) * ( -1 + tNuf + 2 * pow( tNuf, 2 ) ) ) ) );
+                mConstPrime( 1, 1 ) = 
+                    -( ( tEm * ( -1.0 + tNum ) * ( std::pow( tEf, 2.0 ) * ( -1.0 + tVf ) * std::pow( 1.0 + tNum, 2.0 ) * ( -3.0 - 2.0 * tVf + 
+                    4.0 * ( 1.0 + tVf ) * tNum ) + std::pow( tEm, 2.0 ) * ( -1.0 + tVf ) * ( 1.0 + 2.0 * tVf ) * std::pow( 1.0 + tNuf, 2.0 ) * ( -1.0 + 2.0 * tNuf ) + 
+                    2.0 * tEm * tEf * ( 1.0 + tNum ) * ( 1.0 + tNuf ) * ( 2.0 - 2.0 * tNum - 
+                    3.0 * tNuf + tVf * tNuf + 4.0 * tNum * tNuf - 
+                    2.0 * std::pow( tVf, 2.0 ) * ( -1.0 + tNum + tNuf ) ) ) ) / 
+                        ( ( 1.0 + tNum ) * ( tEf * ( -1.0 + tVf ) * ( -3.0 + tNum + 4.0 * std::pow( tNum, 2.0 ) ) - 
+                    tEm * ( -1.0 + tVf * ( -3.0 + 4.0 * tNum ) ) * ( 1.0 + tNuf ) ) * ( tEf * ( -1.0 + tVf ) * ( -1.0 + tNum + 2.0 * std::pow( tNum, 2.0 ) ) - tEm * ( 1.0 + tVf - 2.0 * tNum ) * ( -1.0 + tNuf + 2.0 * std::pow( tNuf, 2.0 ) ) ) ) );
+                mConstPrime( 1, 2 ) = 
+                    -( ( tEm * ( pow( tEf, 2.0 ) * ( -1.0 + tVf ) * pow( 1.0 + tNum, 2.0 ) * ( tVf * pow( 1.0 - 2.0 * tNum, 2.0 ) + 
+                    ( 3.0 - 4.0 * tNum ) * tNum ) + std::pow( tEm, 2.0 ) * ( -1.0 + tVf ) * ( -tNum + tVf * ( -1.0 + 2.0 * tNum ) ) * pow( 1.0 + tNuf, 2.0 ) * ( -1.0 + 2.0 * tNuf ) - 
+                    2.0 * tEm * tEf * ( 1.0 + tNum ) * ( 1.0 + tNuf ) * ( pow( tVf, 2.0 ) * ( -1.0 + 2.0 * tNum ) * ( -1.0 + tNum + tNuf ) + 
+                    tVf * ( -1.0 + tNum + 5.0 * tNuf - 7.0 * tNum * tNuf ) + tNum * ( 2.0 - 2.0 * tNum - 3.0 * tNuf + 4.0 * tNum * tNuf ) ) ) ) / 
+                        ( ( 1.0 + tNum ) * ( tEf * ( -1.0 + tVf ) * ( -3.0 + tNum + 4.0 * pow( tNum, 2.0 ) ) - 
+                    tEm * ( -1.0 + tVf * ( -3.0 + 4.0 * tNum ) ) * ( 1.0 + tNuf ) ) * ( tEf * ( -1.0 + tVf ) * ( -1.0 + tNum + 2.0 * pow( tNum, 2.0 ) ) - 
+                    tEm * ( 1.0 + tVf - 2.0 * tNum ) * ( -1.0 + tNuf + 2.0 * pow( tNuf, 2.0 ) ) ) ) );
                 // third row
                 mConstPrime( 2, 0 ) = mConstPrime( 0, 2 );
                 mConstPrime( 2, 1 ) = mConstPrime( 1, 2 );
                 mConstPrime( 2, 2 ) = mConstPrime( 1, 1 );
                 // shear terms - order  xy, xz, yz (older version had yz, xz, xy)
-                mConstPrime( 5, 5 ) = ( tEm * ( tEf * ( 3 + tVf - 4 * tNum ) * ( 1 + tNum ) - tEm * ( -1 + tVf ) * ( 1 + tNuf ) ) ) / ( 2. * ( 1 + tNum ) * ( tEf * ( -1 + tVf ) * ( -3 + tNum + 4 * pow( tNum, 2 ) ) - tEm * ( -1 + tVf * ( -3 + 4 * tNum ) ) * ( 1 + tNuf ) ) );
-                mConstPrime( 4, 4 ) = ( tEm * ( -( tEf * ( 1 + tVf ) * ( 1 + tNum ) ) + tEm * ( -1 + tVf ) * ( 1 + tNuf ) ) ) / ( 2. * ( 1 + tNum ) * ( tEf * ( -1 + tVf ) * ( 1 + tNum ) - tEm * ( 1 + tVf ) * ( 1 + tNuf ) ) );
+                mConstPrime( 5, 5 ) = 
+                    ( tEm * ( tEf * ( 3.0 + tVf - 4.0 * tNum ) * ( 1.0 + tNum ) - 
+                    tEm * ( -1.0 + tVf ) * ( 1.0 + tNuf ) ) ) / ( 2.0 * ( 1.0 + tNum ) * ( tEf * ( -1.0 + tVf ) * ( -3.0 + tNum + 4.0 * pow( tNum, 2.0 ) ) - 
+                    tEm * ( -1.0 + tVf * ( -3.0 + 4.0 * tNum ) ) * ( 1.0 + tNuf ) ) );
+                mConstPrime( 4, 4 ) = 
+                    ( tEm * ( -( tEf * ( 1.0 + tVf ) * ( 1.0 + tNum ) ) + 
+                    tEm * ( -1.0 + tVf ) * ( 1.0 + tNuf ) ) ) / ( 2.0 * ( 1.0 + tNum ) * ( tEf * ( -1.0 + tVf ) * ( 1.0 + tNum ) - 
+                    tEm * ( 1.0 + tVf ) * ( 1.0 + tNuf ) ) );
                 mConstPrime( 3, 3 ) = mConstPrime( 4, 4 );
             }
             else    // Low aspect ratio, particles
@@ -226,7 +276,7 @@ namespace moris
 
                 // Mori-Tanaka concentration tensor
                 // AMT = Adil.[(1 - tVf)*I + tVf*Adil]^-1
-                Matrix< DDRMat > tAMT = tAdil * inv( ( 1 - tVf ) * I + tVf * tAdil );
+                Matrix< DDRMat > tAMT = tAdil * inv( ( 1.0 - tVf ) * I + tVf * tAdil );
 
                 // Get the effective stiffness matrix
                 // CeffMT = C1 + tVf*(C2 - C1).AMT
@@ -270,23 +320,23 @@ namespace moris
             mRotation( 2, 4 ) = tx * tz;
             mRotation( 2, 5 ) = tx * ty;
             // fourth row
-            mRotation( 3, 0 ) = 2 * lx * rx;
-            mRotation( 3, 1 ) = 2 * ly * ry;
-            mRotation( 3, 2 ) = 2 * lz * rz;
+            mRotation( 3, 0 ) = 2.0 * lx * rx;
+            mRotation( 3, 1 ) = 2.0 * ly * ry;
+            mRotation( 3, 2 ) = 2.0 * lz * rz;
             mRotation( 3, 3 ) = ly * rz + lz * ry;
             mRotation( 3, 4 ) = lz * rx + lx * rz;
             mRotation( 3, 5 ) = lx * ry + ly * rx;
             // fifth row
-            mRotation( 4, 0 ) = 2 * lx * tx;
-            mRotation( 4, 1 ) = 2 * ly * ty;
-            mRotation( 4, 2 ) = 2 * lz * tz;
+            mRotation( 4, 0 ) = 2.0 * lx * tx;
+            mRotation( 4, 1 ) = 2.0 * ly * ty;
+            mRotation( 4, 2 ) = 2.0 * lz * tz;
             mRotation( 4, 3 ) = ty * lz + tz * ly;
             mRotation( 4, 4 ) = tz * lx + tx * lz;
             mRotation( 4, 5 ) = tx * ly + ty * lx;
             // sixth row
-            mRotation( 5, 0 ) = 2 * rx * tx;
-            mRotation( 5, 1 ) = 2 * ry * ty;
-            mRotation( 5, 2 ) = 2 * rz * tz;
+            mRotation( 5, 0 ) = 2.0 * rx * tx;
+            mRotation( 5, 1 ) = 2.0 * ry * ty;
+            mRotation( 5, 2 ) = 2.0 * rz * tz;
             mRotation( 5, 3 ) = ry * tz + rz * ty;
             mRotation( 5, 4 ) = rz * tx + rx * tz;
             mRotation( 5, 5 ) = rx * ty + ry * tx;
@@ -302,11 +352,11 @@ namespace moris
             moris::real tAspectRatio2 = tAspectRatio * tAspectRatio;
 
             real g = 1.0;
-            if ( tAspectRatio == 1. )
+            if ( tAspectRatio == 1.0 )
             {
                 // Eshelby Tensor
-                mEshelbyTensor( 0, 0 ) = ( 7 - 5 * v ) / ( 15 - 15 * v );
-                mEshelbyTensor( 0, 1 ) = ( 1 - 5 * v ) / ( 15. * ( -1 + v ) );
+                mEshelbyTensor( 0, 0 ) = ( 7.0 - 5.0 * v ) / ( 15.0 - 15.0 * v );
+                mEshelbyTensor( 0, 1 ) = ( 1.0 - 5.0 * v ) / ( 15.0 * ( -1.0 + v ) );
                 mEshelbyTensor( 0, 2 ) = mEshelbyTensor( 0, 1 );
 
                 mEshelbyTensor( 1, 0 ) = mEshelbyTensor( 0, 1 );
@@ -317,38 +367,54 @@ namespace moris
                 mEshelbyTensor( 2, 1 ) = mEshelbyTensor( 2, 0 );
                 mEshelbyTensor( 2, 2 ) = mEshelbyTensor( 0, 0 );
 
-                mEshelbyTensor( 3, 3 ) = ( 2 * ( -4 + 5 * v ) ) / ( 15. * ( -1 + v ) );
+                mEshelbyTensor( 3, 3 ) = ( 2.0 * ( -4.0 + 5.0 * v ) ) / ( 15.0 * ( -1.0 + v ) );
                 mEshelbyTensor( 4, 4 ) = mEshelbyTensor( 3, 3 );
                 mEshelbyTensor( 5, 5 ) = mEshelbyTensor( 3, 3 );
 
                 return;
             }
 
-            if ( tAspectRatio < 1. )
+            if ( tAspectRatio < 1.0 )
             {
-                g = ( tAspectRatio * ( std::acos( tAspectRatio ) - tAspectRatio * std::pow( 1 - tAspectRatio2, 0.5 ) ) ) / std::pow( 1 - tAspectRatio2, 1.5 );
+                g = ( tAspectRatio * ( std::acos( tAspectRatio ) - tAspectRatio * std::pow( 1.0 - tAspectRatio2, 0.5 ) ) ) / 
+                    std::pow( 1.0 - tAspectRatio2, 1.5 );
             }
 
-            if ( tAspectRatio > 1. )
+            if ( tAspectRatio > 1.0 )
             {
-                g = ( tAspectRatio * ( tAspectRatio * std::pow( tAspectRatio2 - 1, 0.5 ) - std::acosh( tAspectRatio ) ) ) / std::pow( tAspectRatio2 - 1, 1.5 );
+                g = ( tAspectRatio * ( tAspectRatio * std::pow( tAspectRatio2 - 1, 0.5 ) - std::acosh( tAspectRatio ) ) ) / 
+                    std::pow( tAspectRatio2 - 1.0, 1.5 );
             }
 
             // Eshelby Tensor
-            mEshelbyTensor( 0, 0 ) = ( 1 + ( -1 + 3 * tAspectRatio2 ) / ( -1 + tAspectRatio2 ) - 2 * v ) / ( 2. * ( 1 - v ) ) - ( ( 1 + ( 3 * tAspectRatio2 ) / ( -1 + tAspectRatio2 ) - 2 * v ) * g ) / ( 2. * ( 1 - v ) );
-            mEshelbyTensor( 0, 1 ) = -( 1 + 1 / ( -1 + tAspectRatio2 ) - 2 * v ) / ( 2. * ( 1 - v ) ) + ( ( 1 + 3 / ( 2. * ( -1 + tAspectRatio2 ) ) - 2 * v ) * g ) / ( 2. * ( 1 - v ) );
+            mEshelbyTensor( 0, 0 ) = 
+                ( 1.0 + ( -1.0 + 3.0 * tAspectRatio2 ) / ( -1.0 + tAspectRatio2 ) - 2.0 * v ) / ( 2.0 * ( 1.0 - v ) ) - 
+                ( ( 1.0 + ( 3.0 * tAspectRatio2 ) / ( -1.0 + tAspectRatio2 ) - 2.0 * v ) * g ) / ( 2.0 * ( 1.0 - v ) );
+            mEshelbyTensor( 0, 1 ) = 
+                -( 1.0 + 1.0 / ( -1.0 + tAspectRatio2 ) - 2.0 * v ) / ( 2.0 * ( 1.0 - v ) ) + 
+                ( ( 1.0 + 3.0 / ( 2.0 * ( -1.0 + tAspectRatio2 ) ) - 2.0 * v ) * g ) / ( 2.0 * ( 1.0 - v ) );
             mEshelbyTensor( 0, 2 ) = mEshelbyTensor( 0, 1 );
 
-            mEshelbyTensor( 1, 0 ) = -tAspectRatio2 / ( 2. * ( -1 + tAspectRatio2 ) * ( 1 - v ) ) + ( ( -1 + ( 3 * tAspectRatio2 ) / ( -1 + tAspectRatio2 ) + 2 * v ) * g ) / ( 4. * ( 1 - v ) );
-            mEshelbyTensor( 1, 1 ) = ( 3 * tAspectRatio2 ) / ( 8. * ( -1 + tAspectRatio2 ) * ( 1 - v ) ) + ( ( 1 - 9 / ( 4. * ( -1 + tAspectRatio2 ) ) - 2 * v ) * g ) / ( 4. * ( 1 - v ) );
-            mEshelbyTensor( 1, 2 ) = tAspectRatio2 / ( 8. * ( -1 + tAspectRatio2 ) * ( 1 - v ) ) - ( ( 1 + 3 / ( 4. * ( -1 + tAspectRatio2 ) ) - 2 * v ) * g ) / ( 4. * ( 1 - v ) );
+            mEshelbyTensor( 1, 0 ) = 
+                -tAspectRatio2 / ( 2.0 * ( -1.0 + tAspectRatio2 ) * ( 1.0 - v ) ) + 
+                ( ( -1.0 + ( 3.0 * tAspectRatio2 ) / ( -1.0 + tAspectRatio2 ) + 2.0 * v ) * g ) / ( 4.0 * ( 1.0 - v ) );
+            mEshelbyTensor( 1, 1 ) = 
+                ( 3.0 * tAspectRatio2 ) / ( 8.0 * ( -1.0 + tAspectRatio2 ) * ( 1.0 - v ) ) + 
+                ( ( 1.0 - 9.0 / ( 4.0 * ( -1.0 + tAspectRatio2 ) ) - 2.0 * v ) * g ) / ( 4.0 * ( 1.0 - v ) );
+            mEshelbyTensor( 1, 2 ) = 
+                tAspectRatio2 / ( 8.0 * ( -1.0 + tAspectRatio2 ) * ( 1.0 - v ) ) - 
+                ( ( 1.0 + 3.0 / ( 4.0 * ( -1.0 + tAspectRatio2 ) ) - 2.0 * v ) * g ) / ( 4.0 * ( 1.0 - v ) );
 
             mEshelbyTensor( 2, 0 ) = mEshelbyTensor( 1, 0 );
             mEshelbyTensor( 2, 1 ) = mEshelbyTensor( 1, 2 );
             mEshelbyTensor( 2, 2 ) = mEshelbyTensor( 1, 1 );
 
-            mEshelbyTensor( 3, 3 ) = tAspectRatio2 / ( 4. * ( -1 + tAspectRatio2 ) * ( 1 - v ) ) + ( ( 1 - 3 / ( 4. * ( -1 + tAspectRatio2 ) ) - 2 * v ) * g ) / ( 2. * ( 1 - v ) );
-            mEshelbyTensor( 4, 4 ) = ( 1 - ( 1 + tAspectRatio2 ) / ( -1 + tAspectRatio2 ) - 2 * v ) / ( 2. * ( 1 - v ) ) - ( ( 1 - ( 3 * ( 1 + tAspectRatio2 ) ) / ( -1 + tAspectRatio2 ) - 2 * v ) * g ) / ( 4. * ( 1 - v ) );
+            mEshelbyTensor( 3, 3 ) = 
+                tAspectRatio2 / ( 4.0 * ( -1.0 + tAspectRatio2 ) * ( 1.0 - v ) ) + 
+                ( ( 1.0 - 3.0 / ( 4.0 * ( -1.0 + tAspectRatio2 ) ) - 2.0 * v ) * g ) / ( 2.0 * ( 1.0 - v ) );
+            mEshelbyTensor( 4, 4 ) = 
+                ( 1.0 - ( 1.0 + tAspectRatio2 ) / ( -1.0 + tAspectRatio2 ) - 2.0 * v ) / ( 2.0 * ( 1.0 - v ) ) - 
+                ( ( 1.0 - ( 3.0 * ( 1.0 + tAspectRatio2 ) ) / ( -1.0 + tAspectRatio2 ) - 2.0 * v ) * g ) / ( 4.0 * ( 1.0 - v ) );
             mEshelbyTensor( 5, 5 ) = mEshelbyTensor( 4, 4 );
         }
 
@@ -552,8 +618,8 @@ namespace moris
                     mRotationDerInPlane( 1, 1 ) = -ly2;
                     mRotationDerInPlane( 1, 2 ) = -lx2;
                     // third row
-                    mRotationDerInPlane( 2, 0 ) = -2 * lx2;
-                    mRotationDerInPlane( 2, 1 ) = 2 * lx2;
+                    mRotationDerInPlane( 2, 0 ) = -2.0 * lx2;
+                    mRotationDerInPlane( 2, 1 ) = 2.0 * lx2;
                     mRotationDerInPlane( 2, 2 ) = -2.0 * ly2;
 
                     break;
@@ -570,25 +636,25 @@ namespace moris
                     real si  = std::sin( thetai );
                     real co  = std::cos( thetao );
                     real so  = std::sin( thetao );
-                    real c2i = std::cos( 2 * thetai );
-                    real s2i = std::sin( 2 * thetai );
-                    real c2o = std::cos( 2 * thetao );
-                    real s2o = std::sin( 2 * thetao );
+                    real c2i = std::cos( 2.0 * thetai );
+                    real s2i = std::sin( 2.0 * thetai );
+                    real c2o = std::cos( 2.0 * thetao );
+                    real s2o = std::sin( 2.0 * thetao );
 
                     // first row
-                    mRotationDerInPlane( 0, 0 ) = -2 * ci * co * co * si;
+                    mRotationDerInPlane( 0, 0 ) = -2.0 * ci * co * co * si;
                     mRotationDerInPlane( 0, 1 ) = s2i;
-                    mRotationDerInPlane( 0, 2 ) = -2 * ci * si * so * so;
+                    mRotationDerInPlane( 0, 2 ) = -2.0 * ci * si * so * so;
                     mRotationDerInPlane( 0, 3 ) = c2i * so;
-                    mRotationDerInPlane( 0, 4 ) = -2 * ci * co * si * so;
+                    mRotationDerInPlane( 0, 4 ) = -2.0 * ci * co * si * so;
                     mRotationDerInPlane( 0, 5 ) = c2i * co;
 
                     // second row
-                    mRotationDerInPlane( 1, 0 ) = 2 * ci * co * co * si;
+                    mRotationDerInPlane( 1, 0 ) = 2.0 * ci * co * co * si;
                     mRotationDerInPlane( 1, 1 ) = -s2i;
-                    mRotationDerInPlane( 1, 2 ) = 2 * ci * si * so * so;
+                    mRotationDerInPlane( 1, 2 ) = 2.0 * ci * si * so * so;
                     mRotationDerInPlane( 1, 3 ) = -c2i * so;
-                    mRotationDerInPlane( 1, 4 ) = 2 * ci * co * si * so;
+                    mRotationDerInPlane( 1, 4 ) = 2.0 * ci * co * si * so;
                     mRotationDerInPlane( 1, 5 ) = -c2i * co;
 
                     // third row
@@ -600,25 +666,25 @@ namespace moris
                     mRotationDerInPlane( 2, 5 ) = 0.0;
 
                     // fourth row
-                    mRotationDerInPlane( 3, 0 ) = -2 * c2i * co * co;
-                    mRotationDerInPlane( 3, 1 ) = 2 - 4 * si * si;
-                    mRotationDerInPlane( 3, 2 ) = 2 * so * so * ( 2 * si * si - 1 );
-                    mRotationDerInPlane( 3, 3 ) = -4 * ci * si * so;
+                    mRotationDerInPlane( 3, 0 ) = -2.0 * c2i * co * co;
+                    mRotationDerInPlane( 3, 1 ) = 2.0 - 4.0 * si * si;
+                    mRotationDerInPlane( 3, 2 ) = 2.0 * so * so * ( 2.0 * si * si - 1 );
+                    mRotationDerInPlane( 3, 3 ) = -4.0 * ci * si * so;
                     mRotationDerInPlane( 3, 4 ) = -c2i * s2o;
-                    mRotationDerInPlane( 3, 5 ) = -4 * ci * co * si;
+                    mRotationDerInPlane( 3, 5 ) = -4.0 * ci * co * si;
 
                     // fifth row
-                    mRotationDerInPlane( 4, 0 ) = 2 * co * si * so;
+                    mRotationDerInPlane( 4, 0 ) = 2.0 * co * si * so;
                     mRotationDerInPlane( 4, 1 ) = 0.0;
-                    mRotationDerInPlane( 4, 2 ) = -2 * co * si * so;
+                    mRotationDerInPlane( 4, 2 ) = -2.0 * co * si * so;
                     mRotationDerInPlane( 4, 3 ) = ci * co;
                     mRotationDerInPlane( 4, 4 ) = -c2o * si;
                     mRotationDerInPlane( 4, 5 ) = -ci * so;
 
                     // sixth row
-                    mRotationDerInPlane( 5, 0 ) = 2 * ci * co * so;
+                    mRotationDerInPlane( 5, 0 ) = 2.0 * ci * co * so;
                     mRotationDerInPlane( 5, 1 ) = 0.0;
-                    mRotationDerInPlane( 5, 2 ) = -2 * ci * co * so;
+                    mRotationDerInPlane( 5, 2 ) = -2.0 * ci * co * so;
                     mRotationDerInPlane( 5, 3 ) = -co * si;
                     mRotationDerInPlane( 5, 4 ) = -c2o * ci;
                     mRotationDerInPlane( 5, 5 ) = si * so;
@@ -648,25 +714,25 @@ namespace moris
             real si  = std::sin( thetai );
             real co  = std::cos( thetao );
             real so  = std::sin( thetao );
-            real c2i = std::cos( 2 * thetai );
-            real s2i = std::sin( 2 * thetai );
-            real c2o = std::cos( 2 * thetao );
-            real s2o = std::sin( 2 * thetao );
+            real c2i = std::cos( 2.0 * thetai );
+            real s2i = std::sin( 2.0 * thetai );
+            real c2o = std::cos( 2.0 * thetao );
+            real s2o = std::sin( 2.0 * thetao );
 
             // first row
-            mRotationDerOutPlane( 0, 0 ) = -2 * ci * ci * co * so;
+            mRotationDerOutPlane( 0, 0 ) = -2.0 * ci * ci * co * so;
             mRotationDerOutPlane( 0, 1 ) = 0.0;
-            mRotationDerOutPlane( 0, 2 ) = 2 * ci * ci * co * so;
+            mRotationDerOutPlane( 0, 2 ) = 2.0 * ci * ci * co * so;
             mRotationDerOutPlane( 0, 3 ) = ci * co * si;
             mRotationDerOutPlane( 0, 4 ) = c2o * ci * ci;
             mRotationDerOutPlane( 0, 5 ) = -ci * si * so;
 
             // second row
-            mRotationDerOutPlane( 1, 0 ) = -2 * co * si * si * so;
+            mRotationDerOutPlane( 1, 0 ) = -2.0 * co * si * si * so;
             mRotationDerOutPlane( 1, 1 ) = 0.0;
-            mRotationDerOutPlane( 1, 2 ) = 2 * co * si * si * so;
+            mRotationDerOutPlane( 1, 2 ) = 2.0 * co * si * si * so;
             mRotationDerOutPlane( 1, 3 ) = -ci * co * si;
-            mRotationDerOutPlane( 1, 4 ) = -si * si * ( 2 * so * so - 1 );
+            mRotationDerOutPlane( 1, 4 ) = -si * si * ( 2.0 * so * so - 1.0 );
             mRotationDerOutPlane( 1, 5 ) = ci * si * so;
 
             // third row
@@ -674,31 +740,31 @@ namespace moris
             mRotationDerOutPlane( 2, 1 ) = 0.0;
             mRotationDerOutPlane( 2, 2 ) = -s2o;
             mRotationDerOutPlane( 2, 3 ) = 0.0;
-            mRotationDerOutPlane( 2, 4 ) = 2 * so * so - 1;
+            mRotationDerOutPlane( 2, 4 ) = 2.0 * so * so - 1;
             mRotationDerOutPlane( 2, 5 ) = 0.0;
 
             // fourth row
-            mRotationDerOutPlane( 3, 0 ) = 4 * ci * co * si * so;
+            mRotationDerOutPlane( 3, 0 ) = 4.0 * ci * co * si * so;
             mRotationDerOutPlane( 3, 1 ) = 0.0;
-            mRotationDerOutPlane( 3, 2 ) = -4 * ci * co * si * so;
+            mRotationDerOutPlane( 3, 2 ) = -4.0 * ci * co * si * so;
             mRotationDerOutPlane( 3, 3 ) = c2i * co;
             mRotationDerOutPlane( 3, 4 ) = -c2o * s2i;
             mRotationDerOutPlane( 3, 5 ) = -c2i * so;
 
             // fifth row
-            mRotationDerOutPlane( 4, 0 ) = -2 * c2o * ci;
+            mRotationDerOutPlane( 4, 0 ) = -2.0 * c2o * ci;
             mRotationDerOutPlane( 4, 1 ) = 0.0;
-            mRotationDerOutPlane( 4, 2 ) = 2 * c2o * ci;
+            mRotationDerOutPlane( 4, 2 ) = 2.0 * c2o * ci;
             mRotationDerOutPlane( 4, 3 ) = -si * so;
-            mRotationDerOutPlane( 4, 4 ) = -4 * ci * co * so;
+            mRotationDerOutPlane( 4, 4 ) = -4.0 * ci * co * so;
             mRotationDerOutPlane( 4, 5 ) = -co * si;
 
             // sixth row
-            mRotationDerOutPlane( 5, 0 ) = 2 * c2o * si;
+            mRotationDerOutPlane( 5, 0 ) = 2.0 * c2o * si;
             mRotationDerOutPlane( 5, 1 ) = 0.0;
-            mRotationDerOutPlane( 5, 2 ) = -2 * c2o * si;
+            mRotationDerOutPlane( 5, 2 ) = -2.0 * c2o * si;
             mRotationDerOutPlane( 5, 3 ) = -ci * so;
-            mRotationDerOutPlane( 5, 4 ) = 4 * co * si * so;
+            mRotationDerOutPlane( 5, 4 ) = 4.0 * co * si * so;
             mRotationDerOutPlane( 5, 5 ) = -ci * co;
         }
         //--------------------------------------------------------------------------------------------------------------

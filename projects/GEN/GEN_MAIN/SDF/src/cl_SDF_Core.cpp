@@ -170,12 +170,12 @@ namespace moris
                 if(par_size() == 1)
                 {
                     std::fprintf(stdout, "Time for ray cast              : %5.3f [sec]\n",
-                            tElapsedTime/1000);
+                            tElapsedTime/1000.0);
                 }
                 else
                 {
                     std::fprintf(stdout, "Proc % i - Time for ray cast              : %5.3f [sec]\n",
-                            (int) par_rank(), tElapsedTime/1000);
+                            (int) par_rank(), tElapsedTime/1000.0);
                 }
             }
         }
@@ -307,13 +307,13 @@ namespace moris
                 if(par_size() == 1)
                 {
                     std::fprintf(stdout, "Time for udf                   : %5.3f [sec]\n",
-                            tElapsedTime/1000);
+                            tElapsedTime/1000.0);
 
                 }
                 else
                 {
                     std::fprintf(stdout, "Proc % i - Time for udf                   : %5.3f [sec]\n",
-                            (int) par_rank(), tElapsedTime/1000);
+                            (int) par_rank(), tElapsedTime/1000.0);
                 }
             }
         }
@@ -1053,14 +1053,14 @@ namespace moris
                     if(par_size() == 1)
                     {
                         std::fprintf(stdout, "Time for sweeping              : %5.3f [sec]\nSwept %i nodes\n",
-                                tElapsedTime/1000,
+                                tElapsedTime/1000.0,
                                 ( int ) tSweepCount);
                     }
                     else
                     {
                         std::fprintf(stdout, "Proc % i - Time for sweeping              : %5.3f [sec]\nSwept %i nodes\n",
                                 (int) par_rank(),
-                                tElapsedTime/1000,
+                                tElapsedTime/1000.0,
                                 ( int ) tSweepCount );
                     }
                 }

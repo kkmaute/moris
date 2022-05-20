@@ -134,7 +134,7 @@ namespace moris
     Matrix<DDRMat> compute_dobjective_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria)
     {
         Matrix<DDRMat> tDObjectiveDCriteria( 1, 2 );
-        tDObjectiveDCriteria( 0 ) = 1 / 2.7;
+        tDObjectiveDCriteria( 0 ) = 1.0 / 2.7;
         tDObjectiveDCriteria( 1 ) = 0;
 
         return tDObjectiveDCriteria;

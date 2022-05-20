@@ -95,20 +95,20 @@ namespace moris
                 };
 
                 Cell< Matrix< DDRMat > > tIntersectionGlobalCoordinates = {
-                    { { 0.0, -0.5 - ( tFrac / 2 ) } },
+                    { { 0.0, -0.5 - ( tFrac / 2.0 ) } },
                     { { -1.0, 0.0 } },
                     { { 0.5, 0.0 } },
-                    { { 0.0, -0.5 - ( tFrac / 2 ) } },
+                    { { 0.0, -0.5 - ( tFrac / 2.0 ) } },
                     { { -1.0, 0.0 } },
-                    { { 0.0, 0.5 + ( tFrac / 2 ) } },
+                    { { 0.0, 0.5 + ( tFrac / 2.0 ) } },
                     { { 0.5, 0.0 } },
-                    { { 0.0, 0.5 + ( tFrac / 2 ) } },
+                    { { 0.0, 0.5 + ( tFrac / 2.0 ) } },
                     { { 0.25, -1.0 } },
                     { { 0.25, 0.0 } },
                     { { 0.25, 0.0 } },
                     { { 0.25, 1.0 } },
-                    { { 0.25, -0.25 - tFrac / 4 } },
-                    { { 0.25, 0.25 + tFrac / 4 } },
+                    { { 0.25, -0.25 - tFrac / 4.0 } },
+                    { { 0.25, 0.25 + tFrac / 4.0 } },
                     { { 1.0, -1.0 } },
                     { { 1.0, -1.0 } },
                     { { 1.0, 0.0 } },
@@ -201,7 +201,7 @@ namespace moris
                                 11,
                                 { {} },
                                 { {} },
-                                { { 0.0, -0.5 - ( tFrac / 2 ) } },
+                                { { 0.0, -0.5 - ( tFrac / 2.0 ) } },
                                 { { 0.5, 0 } },
                                 { {} },
                                 {} );
@@ -229,7 +229,7 @@ namespace moris
                                 { {} },
                                 { {} },
                                 { { 0.5, 0.0 } },
-                                { { 0.0, 0.5 + ( tFrac / 2 ) } },
+                                { { 0.0, 0.5 + ( tFrac / 2.0 ) } },
                                 { {} },
                                 {} );
 
@@ -275,10 +275,10 @@ namespace moris
                 CHECK( tGeometryEngine.get_field_value( 0, 20, { {} } ) == Approx( 0.423278 ) );
                 CHECK( tGeometryEngine.get_field_value( 0, 21, { {} } ) == Approx( 0.0 ) );
                 CHECK( tGeometryEngine.get_field_value( 0, 22, { {} } ) == Approx( 0.0 ) );
-                CHECK( tGeometryEngine.get_field_value( 0, 23, { {} } ) == Approx( ( sqrt( 41 ) - 3 ) / 4 ) );
+                CHECK( tGeometryEngine.get_field_value( 0, 23, { {} } ) == Approx( ( sqrt( 41.0 ) - 3.0 ) / 4.0 ) );
                 CHECK( tGeometryEngine.get_field_value( 0, 25, { {} } ) == Approx( 0.5 ) );
                 CHECK( tGeometryEngine.get_field_value( 0, 26, { {} } ) == Approx( 0.5 ) );
-                CHECK( tGeometryEngine.get_field_value( 0, 28, { {} } ) == Approx( ( sqrt( 41 ) - 3 ) / 4 ) );
+                CHECK( tGeometryEngine.get_field_value( 0, 28, { {} } ) == Approx( ( sqrt( 41.0 ) - 3.0 ) / 4.0 ) );
 
                 // Get the PDV host manager and set the number of total nodes
                 Pdv_Host_Manager* tPDVHostManager = dynamic_cast< Pdv_Host_Manager* >( tGeometryEngine.get_design_variable_interface() );
@@ -783,14 +783,14 @@ namespace moris
                 };
 
                 Cell< Matrix< DDRMat > > tIntersectionGlobalCoordinates = {
-                    { { 0.0, -0.5 - ( tFrac / 2 ) } },
+                    { { 0.0, -0.5 - ( tFrac / 2.0 ) } },
                     { { -1.0, 0.0 } },
                     { { 0.5, 0.0 } },
-                    { { 0.0, -0.5 - ( tFrac / 2 ) } },
+                    { { 0.0, -0.5 - ( tFrac / 2.0 ) } },
                     { { -1.0, 0.0 } },
-                    { { 0.0, 0.5 + ( tFrac / 2 ) } },
+                    { { 0.0, 0.5 + ( tFrac / 2.0 ) } },
                     { { 0.5, 0.0 } },
-                    { { 0.0, 0.5 + ( tFrac / 2 ) } }
+                    { { 0.0, 0.5 + ( tFrac / 2.0 ) } }
                 };
 
                 // Check element intersections

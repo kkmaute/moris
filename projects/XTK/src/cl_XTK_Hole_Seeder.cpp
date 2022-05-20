@@ -109,7 +109,7 @@ Hole_Seeder::seed_field()
     }
     else
     {
-        yOffset = (tMaxY+tMinY)/2;
+        yOffset = (tMaxY+tMinY)/2.0;
         tMinY = yOffset;
     }
 
@@ -121,7 +121,7 @@ Hole_Seeder::seed_field()
     }
     else
     {
-        zOffset = (tMaxZ+tMinZ)/2;
+        zOffset = (tMaxZ+tMinZ)/2.0;
         tMinZ = zOffset;
     }
 

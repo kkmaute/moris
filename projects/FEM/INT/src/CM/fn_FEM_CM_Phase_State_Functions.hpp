@@ -71,7 +71,7 @@ namespace moris
                     }
                     else
                     {
-                        return ( std::pow( tTemp - tTlower, 2.0 ) * ( 2 * tTemp + tTlower - 3 * tTupper ) ) / std::pow( tTlower - tTupper, 3.0 );
+                        return ( std::pow( tTemp - tTlower, 2.0 ) * ( 2.0 * tTemp + tTlower - 3.0 * tTupper ) ) / std::pow( tTlower - tTupper, 3.0 );
                     }
                     break;
                 }
