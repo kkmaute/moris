@@ -4,18 +4,18 @@
 #include "assert.hpp"
 
 #define protected public
-#define private   public
-//FEM//INT//src
+#define private public
+// FEM//INT//src
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IWG.hpp"
 #include "cl_FEM_Set.hpp"
 #undef protected
 #undef private
-//LINALG/src
+// LINALG/src
 #include "op_equal_equal.hpp"
-//MTK/src
+// MTK/src
 #include "cl_MTK_Enums.hpp"
-//FEM//INT//src
+// FEM//INT//src
 #include "cl_FEM_Enums.hpp"
 #include "cl_FEM_Field_Interpolator.hpp"
 #include "cl_FEM_Property.hpp"
@@ -31,11 +31,11 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal",
         "[IWG_Compressible_NS_Temperature_Bulk_Ideal]" )
 {
     // define an epsilon environment
-    real tEpsilon = 1.0E-6;
+    real tEpsilon      = 1.0E-6;
     real tEpsilonCubic = 5.0E-6;
 
     // define a perturbation relative size
-    real tPerturbation = 2.0E-4;
+    real tPerturbation      = 2.0E-4;
     real tPerturbationCubic = 7.0E-4;
 
     // init geometry inputs
@@ -45,24 +45,26 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal",
 
     // create list of interpolation orders
     moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
-            mtk::Interpolation_Order::LINEAR,
-	        mtk::Interpolation_Order::QUADRATIC,
-            mtk::Interpolation_Order::CUBIC };
+        mtk::Interpolation_Order::LINEAR,
+        mtk::Interpolation_Order::QUADRATIC,
+        mtk::Interpolation_Order::CUBIC
+    };
 
     // create list of integration orders
     moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
-            mtk::Integration_Order::QUAD_2x2,
-            mtk::Integration_Order::HEX_2x2x2 };
+        mtk::Integration_Order::QUAD_2x2,
+        mtk::Integration_Order::HEX_2x2x2
+    };
 
     // create list with number of coeffs
-    Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
+    Matrix< DDRMat > tNumCoeffs = { { 8, 18, 32 }, { 16, 54, 128 } };
 
     // dof type list
     moris::Cell< MSI::Dof_Type > tDensityDof  = { MSI::Dof_Type::RHO };
     moris::Cell< MSI::Dof_Type > tVelocityDof = { MSI::Dof_Type::VX };
 
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tTempDof     = { { MSI::Dof_Type::TEMP } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes    = { tDensityDof, tVelocityDof, tTempDof( 0 ) };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tTempDof  = { { MSI::Dof_Type::TEMP } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tDensityDof, tVelocityDof, tTempDof( 0 ) };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -70,22 +72,22 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal",
 
     // dynamic viscosity
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
-    tPropViscosity->set_parameters( { {{ 11.9 }} } );
+    tPropViscosity->set_parameters( { { { 11.9 } } } );
     tPropViscosity->set_val_function( tConstValFunc );
 
     // isochoric heat capacity
     std::shared_ptr< fem::Property > tPropHeatCapacity = std::make_shared< fem::Property >();
-    tPropHeatCapacity->set_parameters( { {{ 5.7 }} } );
+    tPropHeatCapacity->set_parameters( { { { 5.7 } } } );
     tPropHeatCapacity->set_val_function( tConstValFunc );
 
     // specific gas constant
     std::shared_ptr< fem::Property > tPropGasConstant = std::make_shared< fem::Property >();
-    tPropGasConstant->set_parameters( { {{ 2.8 }} } );
+    tPropGasConstant->set_parameters( { { { 2.8 } } } );
     tPropGasConstant->set_val_function( tConstValFunc );
 
     // thermal conductivity
     std::shared_ptr< fem::Property > tPropConductivity = std::make_shared< fem::Property >();
-    tPropConductivity->set_parameters( { {{ 3.7 }} } );
+    tPropConductivity->set_parameters( { { { 3.7 } } } );
     tPropConductivity->set_val_function( tConstValFunc );
 
     // body force
@@ -96,7 +98,7 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal",
 
     // body heat load
     std::shared_ptr< fem::Property > tPropHeatLoad = std::make_shared< fem::Property >();
-    tPropHeatLoad->set_parameters( { {{ -2.3 }} } );
+    tPropHeatLoad->set_parameters( { { { -2.3 } } } );
     tPropHeatLoad->set_val_function( tConstValFunc );
 
     // define constitutive model and assign properties
@@ -104,10 +106,10 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal",
 
     std::shared_ptr< fem::Constitutive_Model > tCMMasterFluid =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_COMPRESSIBLE_IDEAL );
-    tCMMasterFluid->set_dof_type_list( {tDensityDof, tVelocityDof, tTempDof( 0 ) } );
-    tCMMasterFluid->set_property( tPropViscosity,    "DynamicViscosity" );
+    tCMMasterFluid->set_dof_type_list( { tDensityDof, tVelocityDof, tTempDof( 0 ) } );
+    tCMMasterFluid->set_property( tPropViscosity, "DynamicViscosity" );
     tCMMasterFluid->set_property( tPropHeatCapacity, "IsochoricHeatCapacity" );
-    tCMMasterFluid->set_property( tPropGasConstant,  "SpecificGasConstant" );
+    tCMMasterFluid->set_property( tPropGasConstant, "SpecificGasConstant" );
     tCMMasterFluid->set_property( tPropConductivity, "ThermalConductivity" );
 
     // define the IWGs
@@ -124,8 +126,8 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal",
     //------------------------------------------------------------------------------
     // set a fem set pointer
 
-    MSI::Equation_Set * tSet = new fem::Set();
-    static_cast<fem::Set*>(tSet)->set_set_type( fem::Element_Type::BULK );
+    MSI::Equation_Set* tSet = new fem::Set();
+    static_cast< fem::Set* >( tSet )->set_set_type( fem::Element_Type::BULK );
     tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
@@ -133,23 +135,23 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal",
 
     // set size and populate the set dof type map
     tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::RHO ) )   = 0;
-    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )    = 1;
-    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )  = 2;
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::RHO ) )  = 0;
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )   = 1;
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 2;
 
     // set size and populate the set master dof type map
     tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::RHO ) )   = 0;
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )    = 1;
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )  = 2;
+    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::RHO ) )  = 0;
+    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )   = 1;
+    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 2;
 
     // loop on the space dimension
-    for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
+    for ( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
     {
         // output for debugging
-        //std::cout << "-------------------------------------------------------------------\n" << std::flush;
-        //std::cout << "Performing Tests For Number of Spatial dimensions: " << iSpaceDim << "\n" << std::flush;
-        //std::cout << "-------------------------------------------------------------------\n\n" << std::flush;
+        // std::cout << "-------------------------------------------------------------------\n" << std::flush;
+        // std::cout << "Performing Tests For Number of Spatial dimensions: " << iSpaceDim << "\n" << std::flush;
+        // std::cout << "-------------------------------------------------------------------\n\n" << std::flush;
 
         // use correct body force for number of spatial dimensions
         if ( iSpaceDim == 2 )
@@ -158,9 +160,9 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal",
             tIWG->set_property( tPropBodyForce3D, "BodyForce" );
 
         // switch on space dimension
-        switch( iSpaceDim )
+        switch ( iSpaceDim )
         {
-            case 2 :
+            case 2:
             {
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::QUAD;
@@ -169,7 +171,7 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal",
                 tVelocityDof = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
                 break;
             }
-            case 3 :
+            case 3:
             {
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::HEX;
@@ -189,19 +191,19 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal",
         tCMMasterFluid->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
-        for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
+        for ( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
         {
             // tune finite differencing for cubic shape functions
             if ( iInterpOrder == 3 )
             {
-                tEpsilon = tEpsilonCubic;
+                tEpsilon      = tEpsilonCubic;
                 tPerturbation = tPerturbationCubic;
             }
 
             // output for debugging
-            //std::cout << "-------------------------------------------------------------------\n" << std::flush;
-            //std::cout << "-------------------------------------------------------------------\n" << std::flush;
-            //std::cout << "Performing Tests For Interpolation Order:" << iInterpOrder << "\n\n" << std::flush;
+            // std::cout << "-------------------------------------------------------------------\n" << std::flush;
+            // std::cout << "-------------------------------------------------------------------\n" << std::flush;
+            // std::cout << "Performing Tests For Interpolation Order:" << iInterpOrder << "\n\n" << std::flush;
 
             // create an interpolation order
             mtk::Interpolation_Order tGIInterpolationOrder = tInterpolationOrders( iInterpOrder - 1 );
@@ -219,7 +221,7 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal",
             Geometry_Interpolator tGI = Geometry_Interpolator( tGIRule );
 
             // create time coeff tHat
-            Matrix< DDRMat > tTHat = {{ 0.26 }, { 0.87 }};
+            Matrix< DDRMat > tTHat = { { 0.26 }, { 0.87 } };
 
             Matrix< DDRMat > tXHat;
             fill_xhat( tXHat, iSpaceDim, iInterpOrder );
@@ -257,13 +259,13 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal",
             uint tNumCoeff = tNumCoeffs( iSpaceDim - 2, iInterpOrder - 1 );
 
             // get number of dof per type
-            int tNumDofRho  = tNumCoeff;
-            int tNumDofVel  = tNumCoeff * iSpaceDim;
-            int tNumDofTemp = tNumCoeff;
+            int tNumDofRho   = tNumCoeff;
+            int tNumDofVel   = tNumCoeff * iSpaceDim;
+            int tNumDofTemp  = tNumCoeff;
             int tTotalNumDof = tNumDofRho + tNumDofVel + tNumDofTemp;
 
-            //create a space time interpolation rule
-            mtk::Interpolation_Rule tFIRule (
+            // create a space time interpolation rule
+            mtk::Interpolation_Rule tFIRule(
                     tGeometryType,
                     mtk::Interpolation_Type::LAGRANGE,
                     tInterpolationOrder,
@@ -301,9 +303,10 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal",
 
             // set size and fill the set jacobian assembly map
             Matrix< DDSMat > tJacAssembly = {
-                    { 0, tNumDofRho - 1 },
-                    { tNumDofRho, tNumDofRho + tNumDofVel - 1 },
-                    { tNumDofRho + tNumDofVel, tTotalNumDof - 1 } };
+                { 0, tNumDofRho - 1 },
+                { tNumDofRho, tNumDofRho + tNumDofVel - 1 },
+                { tNumDofRho + tNumDofVel, tTotalNumDof - 1 }
+            };
             tIWG->mSet->mJacDofAssemblyMap.resize( tDofTypes.size() );
             tIWG->mSet->mJacDofAssemblyMap( 0 ) = tJacAssembly;
             tIWG->mSet->mJacDofAssemblyMap( 1 ) = tJacAssembly;
@@ -327,12 +330,12 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal",
             tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
+            moris::Cell< moris::Cell< enum PDV_Type > >        tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
-            Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tFIManager.mFI = tMasterFIs;
+            tFIManager.mFI                     = tMasterFIs;
             tFIManager.mIPGeometryInterpolator = &tGI;
             tFIManager.mIGGeometryInterpolator = &tGI;
 
@@ -350,11 +353,11 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal",
 
             // loop over integration points
             uint tNumGPs = tIntegPoints.n_cols();
-            for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
+            for ( uint iGP = 0; iGP < tNumGPs; iGP++ )
             {
                 // output for debugging
-                //std::cout << "-------------------------------------------------------------------\n" << std::flush;
-                //std::cout << "Looping over Gauss points. Current GP-#: " << iGP << "\n\n" << std::flush;
+                // std::cout << "-------------------------------------------------------------------\n" << std::flush;
+                // std::cout << "Looping over Gauss points. Current GP-#: " << iGP << "\n\n" << std::flush;
 
                 // reset CM evaluation flags
                 tCMMasterFluid->reset_eval_flags();
@@ -396,7 +399,7 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal",
                         true );
 
                 // print for debug
-                if( !tCheckJacobian )
+                if ( !tCheckJacobian )
                 {
                     std::cout << "Case: Geometry " << iSpaceDim << ", Order " << iInterpOrder << ", iGP " << iGP << std::endl;
                 }
@@ -409,7 +412,7 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal",
             tMasterFIs.clear();
         }
     }
-}/*END_TEST_CASE*/
+} /*END_TEST_CASE*/
 
 //------------------------------------------------------------------------------
 
@@ -417,11 +420,11 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_VdW",
         "[IWG_Compressible_NS_Temperature_Bulk_Vdw]" )
 {
     // define an epsilon environment
-    real tEpsilon = 1.0E-6;
-    real tEpsilonCubic = 3.2E-6;
+    real tEpsilon      = 1.0E-6;
+    real tEpsilonCubic = 4.0E-6;
 
     // define a perturbation relative size
-    real tPerturbation = 2.0E-4;
+    real tPerturbation      = 2.0E-4;
     real tPerturbationCubic = 9.0E-4;
 
     // init geometry inputs
@@ -431,24 +434,26 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_VdW",
 
     // create list of interpolation orders
     moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
-            mtk::Interpolation_Order::LINEAR,
-            mtk::Interpolation_Order::QUADRATIC,
-            mtk::Interpolation_Order::CUBIC };
+        mtk::Interpolation_Order::LINEAR,
+        mtk::Interpolation_Order::QUADRATIC,
+        mtk::Interpolation_Order::CUBIC
+    };
 
     // create list of integration orders
     moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
-            mtk::Integration_Order::QUAD_2x2,
-            mtk::Integration_Order::HEX_2x2x2 };
+        mtk::Integration_Order::QUAD_2x2,
+        mtk::Integration_Order::HEX_2x2x2
+    };
 
     // create list with number of coeffs
-    Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
+    Matrix< DDRMat > tNumCoeffs = { { 8, 18, 32 }, { 16, 54, 128 } };
 
     // dof type list
     moris::Cell< MSI::Dof_Type > tDensityDof  = { MSI::Dof_Type::RHO };
     moris::Cell< MSI::Dof_Type > tVelocityDof = { MSI::Dof_Type::VX };
 
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tTempDof     = { { MSI::Dof_Type::TEMP } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes    = { tDensityDof, tVelocityDof, tTempDof( 0 ) };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tTempDof  = { { MSI::Dof_Type::TEMP } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tDensityDof, tVelocityDof, tTempDof( 0 ) };
 
     // init IWG
     //------------------------------------------------------------------------------
@@ -456,7 +461,7 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_VdW",
 
     // body heat load
     std::shared_ptr< fem::Property > tPropHeatLoad = std::make_shared< fem::Property >();
-    tPropHeatLoad->set_parameters( { {{ -2.3 }} } );
+    tPropHeatLoad->set_parameters( { { { -2.3 } } } );
     tPropHeatLoad->set_val_function( tConstValFunc );
 
     // body force
@@ -467,37 +472,37 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_VdW",
 
     // isochoric heat capacity
     std::shared_ptr< fem::Property > tPropHeatCapacity = std::make_shared< fem::Property >();
-    tPropHeatCapacity->set_parameters( { {{ 5.7 }} } );
+    tPropHeatCapacity->set_parameters( { { { 5.7 } } } );
     tPropHeatCapacity->set_val_function( tConstValFunc );
 
     // specific gas constant
     std::shared_ptr< fem::Property > tPropGasConstant = std::make_shared< fem::Property >();
-    tPropGasConstant->set_parameters( { {{ 2.8 }} } );
+    tPropGasConstant->set_parameters( { { { 2.8 } } } );
     tPropGasConstant->set_val_function( tConstValFunc );
 
     // dynamic viscosity
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
-    tPropViscosity->set_parameters( { {{ 11.9 }} } );
+    tPropViscosity->set_parameters( { { { 11.9 } } } );
     tPropViscosity->set_val_function( tConstValFunc );
 
     // thermal conductivity
     std::shared_ptr< fem::Property > tPropConductivity = std::make_shared< fem::Property >();
-    tPropConductivity->set_parameters( { {{ 3.7 }} } );
+    tPropConductivity->set_parameters( { { { 3.7 } } } );
     tPropConductivity->set_val_function( tConstValFunc );
 
     // Capillarity Coefficient
     std::shared_ptr< fem::Property > tPropCapillarity = std::make_shared< fem::Property >();
-    tPropCapillarity->set_parameters( { {{ 2.1 }} } );
+    tPropCapillarity->set_parameters( { { { 2.1 } } } );
     tPropCapillarity->set_val_function( tConstValFunc );
 
     // First VdW constant
     std::shared_ptr< fem::Property > tPropFirstVdWconst = std::make_shared< fem::Property >();
-    tPropFirstVdWconst->set_parameters( { {{ 9.1 }} } );
+    tPropFirstVdWconst->set_parameters( { { { 9.1 } } } );
     tPropFirstVdWconst->set_val_function( tConstValFunc );
 
     // Second VdW constant
     std::shared_ptr< fem::Property > tPropSecondVdWconst = std::make_shared< fem::Property >();
-    tPropSecondVdWconst->set_parameters( { {{ 6.9 }} } );
+    tPropSecondVdWconst->set_parameters( { { { 6.9 } } } );
     tPropSecondVdWconst->set_val_function( tConstValFunc );
 
     // define constitutive model and assign properties
@@ -505,13 +510,13 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_VdW",
 
     std::shared_ptr< fem::Constitutive_Model > tCMMasterFluid =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_COMPRESSIBLE_VDW );
-    tCMMasterFluid->set_dof_type_list( {tDensityDof, tVelocityDof, tTempDof( 0 ) } );
-    tCMMasterFluid->set_property( tPropHeatCapacity,   "IsochoricHeatCapacity" );
-    tCMMasterFluid->set_property( tPropGasConstant,    "SpecificGasConstant" );
-    tCMMasterFluid->set_property( tPropViscosity,      "DynamicViscosity" );
-    tCMMasterFluid->set_property( tPropConductivity,   "ThermalConductivity" );
-    tCMMasterFluid->set_property( tPropCapillarity,    "CapillarityCoefficient" );
-    tCMMasterFluid->set_property( tPropFirstVdWconst,  "FirstVdWconstant" );
+    tCMMasterFluid->set_dof_type_list( { tDensityDof, tVelocityDof, tTempDof( 0 ) } );
+    tCMMasterFluid->set_property( tPropHeatCapacity, "IsochoricHeatCapacity" );
+    tCMMasterFluid->set_property( tPropGasConstant, "SpecificGasConstant" );
+    tCMMasterFluid->set_property( tPropViscosity, "DynamicViscosity" );
+    tCMMasterFluid->set_property( tPropConductivity, "ThermalConductivity" );
+    tCMMasterFluid->set_property( tPropCapillarity, "CapillarityCoefficient" );
+    tCMMasterFluid->set_property( tPropFirstVdWconst, "FirstVdWconstant" );
     tCMMasterFluid->set_property( tPropSecondVdWconst, "SecondVdWconstant" );
 
     // define the IWGs
@@ -528,8 +533,8 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_VdW",
     //------------------------------------------------------------------------------
     // set a fem set pointer
 
-    MSI::Equation_Set * tSet = new fem::Set();
-    static_cast<fem::Set*>(tSet)->set_set_type( fem::Element_Type::BULK );
+    MSI::Equation_Set* tSet = new fem::Set();
+    static_cast< fem::Set* >( tSet )->set_set_type( fem::Element_Type::BULK );
     tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
@@ -537,23 +542,23 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_VdW",
 
     // set size and populate the set dof type map
     tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::RHO ) )   = 0;
-    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )    = 1;
-    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )  = 2;
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::RHO ) )  = 0;
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )   = 1;
+    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 2;
 
     // set size and populate the set master dof type map
     tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::RHO ) )   = 0;
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )    = 1;
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )  = 2;
+    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::RHO ) )  = 0;
+    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )   = 1;
+    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 2;
 
     // loop on the space dimension
-    for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
+    for ( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
     {
         // output for debugging
-        //std::cout << "-------------------------------------------------------------------\n" << std::flush;
-        //std::cout << "Performing Tests For Number of Spatial dimensions: " << iSpaceDim << "\n" << std::flush;
-        //std::cout << "-------------------------------------------------------------------\n\n" << std::flush;
+        // std::cout << "-------------------------------------------------------------------\n" << std::flush;
+        // std::cout << "Performing Tests For Number of Spatial dimensions: " << iSpaceDim << "\n" << std::flush;
+        // std::cout << "-------------------------------------------------------------------\n\n" << std::flush;
 
         // use correct body force for number of spatial dimensions
         if ( iSpaceDim == 2 )
@@ -562,9 +567,9 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_VdW",
             tIWG->set_property( tPropBodyForce3D, "BodyForce" );
 
         // switch on space dimension
-        switch( iSpaceDim )
+        switch ( iSpaceDim )
         {
-            case 2 :
+            case 2:
             {
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::QUAD;
@@ -573,7 +578,7 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_VdW",
                 tVelocityDof = { MSI::Dof_Type::VX, MSI::Dof_Type::VY };
                 break;
             }
-            case 3 :
+            case 3:
             {
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::HEX;
@@ -593,19 +598,19 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_VdW",
         tCMMasterFluid->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
-        for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
+        for ( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
         {
             // tune finite differencing for cubic shape functions
             if ( iInterpOrder == 3 )
             {
-                tEpsilon = tEpsilonCubic;
+                tEpsilon      = tEpsilonCubic;
                 tPerturbation = tPerturbationCubic;
             }
 
             // output for debugging
-            //std::cout << "-------------------------------------------------------------------\n" << std::flush;
-            //std::cout << "-------------------------------------------------------------------\n" << std::flush;
-            //std::cout << "Performing Tests For Interpolation Order:" << iInterpOrder << "\n\n" << std::flush;
+            // std::cout << "-------------------------------------------------------------------\n" << std::flush;
+            // std::cout << "-------------------------------------------------------------------\n" << std::flush;
+            // std::cout << "Performing Tests For Interpolation Order:" << iInterpOrder << "\n\n" << std::flush;
 
             // create an interpolation order
             mtk::Interpolation_Order tGIInterpolationOrder = tInterpolationOrders( iInterpOrder - 1 );
@@ -623,7 +628,7 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_VdW",
             Geometry_Interpolator tGI = Geometry_Interpolator( tGIRule );
 
             // create time coeff tHat
-            Matrix< DDRMat > tTHat = {{ 0.26 }, { 0.87 }};
+            Matrix< DDRMat > tTHat = { { 0.26 }, { 0.87 } };
 
             Matrix< DDRMat > tXHat;
             fill_xhat( tXHat, iSpaceDim, iInterpOrder );
@@ -661,13 +666,13 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_VdW",
             uint tNumCoeff = tNumCoeffs( iSpaceDim - 2, iInterpOrder - 1 );
 
             // get number of dof per type
-            int tNumDofRho  = tNumCoeff;
-            int tNumDofVel  = tNumCoeff * iSpaceDim;
-            int tNumDofTemp = tNumCoeff;
+            int tNumDofRho   = tNumCoeff;
+            int tNumDofVel   = tNumCoeff * iSpaceDim;
+            int tNumDofTemp  = tNumCoeff;
             int tTotalNumDof = tNumDofRho + tNumDofVel + tNumDofTemp;
 
-            //create a space time interpolation rule
-            mtk::Interpolation_Rule tFIRule (
+            // create a space time interpolation rule
+            mtk::Interpolation_Rule tFIRule(
                     tGeometryType,
                     mtk::Interpolation_Type::LAGRANGE,
                     tInterpolationOrder,
@@ -705,9 +710,10 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_VdW",
 
             // set size and fill the set jacobian assembly map
             Matrix< DDSMat > tJacAssembly = {
-                    { 0, tNumDofRho - 1 },
-                    { tNumDofRho, tNumDofRho + tNumDofVel - 1 },
-                    { tNumDofRho + tNumDofVel, tTotalNumDof - 1 } };
+                { 0, tNumDofRho - 1 },
+                { tNumDofRho, tNumDofRho + tNumDofVel - 1 },
+                { tNumDofRho + tNumDofVel, tTotalNumDof - 1 }
+            };
             tIWG->mSet->mJacDofAssemblyMap.resize( tDofTypes.size() );
             tIWG->mSet->mJacDofAssemblyMap( 0 ) = tJacAssembly;
             tIWG->mSet->mJacDofAssemblyMap( 1 ) = tJacAssembly;
@@ -731,12 +737,12 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_VdW",
             tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
+            moris::Cell< moris::Cell< enum PDV_Type > >        tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
-            Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tFIManager.mFI = tMasterFIs;
+            tFIManager.mFI                     = tMasterFIs;
             tFIManager.mIPGeometryInterpolator = &tGI;
             tFIManager.mIGGeometryInterpolator = &tGI;
 
@@ -754,11 +760,11 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_VdW",
 
             // loop over integration points
             uint tNumGPs = tIntegPoints.n_cols();
-            for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
+            for ( uint iGP = 0; iGP < tNumGPs; iGP++ )
             {
                 // output for debugging
-                //std::cout << "-------------------------------------------------------------------\n" << std::flush;
-                //std::cout << "Looping over Gauss points. Current GP-#: " << iGP << "\n\n" << std::flush;
+                // std::cout << "-------------------------------------------------------------------\n" << std::flush;
+                // std::cout << "Looping over Gauss points. Current GP-#: " << iGP << "\n\n" << std::flush;
 
                 // reset CM evaluation flags
                 tCMMasterFluid->reset_eval_flags();
@@ -800,9 +806,9 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_VdW",
                         true );
 
                 // print for debug
-                if( !tCheckJacobian )
+                if ( !tCheckJacobian )
                 {
-                    std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<"iGP "<<iGP<<std::endl;
+                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << "iGP " << iGP << std::endl;
                 }
 
                 // require check is true
@@ -813,4 +819,4 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_VdW",
             tMasterFIs.clear();
         }
     }
-}/*END_TEST_CASE*/
+} /*END_TEST_CASE*/
