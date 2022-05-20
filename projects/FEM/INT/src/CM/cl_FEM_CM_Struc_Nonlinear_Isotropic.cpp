@@ -237,8 +237,8 @@ namespace moris
                     m_proj_sym  = &CM_Struc_Nonlinear_Isotropic::proj_sym_2d;
                     m_proj_nsym  = &CM_Struc_Nonlinear_Isotropic::proj_nsym_2d;
 
-                    mFluxHead.set_size( 4, 4, 0.0 ); // FIXME
-                    mCauchy.set_size( 3, 1, 0.0 );    // FIXME
+                    //                    mFluxHead.set_size( 4, 4, 0.0 ); // FIXME
+                    //                    mCauchy.set_size( 3, 1, 0.0 );    // FIXME
                     mFluxProj.set_size( 4, 4, 0.0);
 
                     break;
@@ -264,8 +264,8 @@ namespace moris
                     m_proj_nsym  = &CM_Struc_Nonlinear_Isotropic::proj_nsym_3d;
 
                     // FIXME
-                    mFluxHead.set_size( 9, 9, 0.0 );
-                    mStrain.set_size( 6, 1, 0.0 );
+                    //                    mFluxHead.set_size( 9, 9, 0.0 );
+                    //                    mStrain.set_size( 6, 1, 0.0 );
 
                     mFluxProj.set_size( 9, 9, 0.0);
 
@@ -496,8 +496,6 @@ namespace moris
             // Calculate the inverse of the right cauchy green deformation tensor (full)
             mInvRCGDef = inv(tRCGDefFull);
         }
-
-
 
         //--------------------------------------------------------------------------------------------------------------
 
@@ -876,7 +874,7 @@ namespace moris
         }
 
         // FIXME:: Storage for derivative of deformation gradient wrt displacement is set twice to include the possibility of
-        // 		   taking the derivative wrt. to dof
+        //    taking the derivative wrt. to dof
         void
         CM_Struc_Nonlinear_Isotropic::eval_dDGStraindDOF(
                 const Cell< MSI::Dof_Type > & aDofTypes )
@@ -1737,7 +1735,6 @@ namespace moris
                     { aNormal(0,0), aNormal(1,0), 0, 0 },
                     { 0, 0, aNormal(0,0), aNormal(1,0) }
             };
-
         }
 
         void

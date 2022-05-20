@@ -15,10 +15,15 @@ namespace moris
     {
         //------------------------------------------------------------------------------
 
-        IQI_Stress::IQI_Stress( enum Stress_Type aStressType )
-                                                        {
+        IQI_Stress::IQI_Stress(
+                enum Stress_Type      aStressType,
+                enum CM_Function_Type aFluxType )
+        {
             // assign stress type to evaluate
             mStressType = aStressType;
+
+            // assign flux type for CM request
+            mFluxType = aFluxType;
 
             // set size for the constitutive model pointer cell
             mMasterCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
@@ -26,7 +31,7 @@ namespace moris
             // populate the constitutive map
             mConstitutiveMap[ "ElastLinIso" ] = static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO );
         }
-        
+
         //------------------------------------------------------------------------------
 
         void IQI_Stress::compute_QI( Matrix< DDRMat > & aQI )
@@ -265,8 +270,8 @@ namespace moris
             aStressVector.set_size( 6, 1, 0.0 );
 
             // get stress vector from Constitutive model
-            Matrix< DDRMat > tCMStress =
-                    mMasterCM( static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO ) )->flux();
+            const Matrix< DDRMat >& tCMStress =
+                    mMasterCM( static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO ) )->flux( mFluxType );
 
             // pull apart stress vector into components
             uint tNumStressComponents = tCMStress.length();

@@ -36,6 +36,9 @@ namespace moris
                 // stress type to evaluate
                 enum Stress_Type mStressType;
 
+                // flux type to evaluate
+                enum CM_Function_Type mFluxType;
+
                 enum class IQI_Constitutive_Type
                 {
                         ELAST_LIN_ISO,
@@ -60,18 +63,22 @@ namespace moris
             public:
 
                 //------------------------------------------------------------------------------
-                /*
-                 * constructor
-                 */
-                IQI_Stress( enum Stress_Type aStressType );
+              /*
+               * constructor
+               * @param[ in ] aStressType stress type to evaluate stress in IQI
+               * @param[ in ] aFluxType   flux type to evaluate for the CM to evaluate stress in IQI
+               */
+              IQI_Stress(
+                      enum Stress_Type      aStressType,
+                      enum CM_Function_Type aFluxType = CM_Function_Type::DEFAULT );
 
-                //------------------------------------------------------------------------------
-                /**
-                 * trivial destructor
-                 */
-                ~IQI_Stress(){};
+              //------------------------------------------------------------------------------
+              /**
+               * trivial destructor
+               */
+              ~IQI_Stress(){};
 
-                //------------------------------------------------------------------------------
+              //------------------------------------------------------------------------------
 
             private:
 

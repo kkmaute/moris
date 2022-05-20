@@ -171,6 +171,12 @@ namespace moris
                 VON_MISES_STRESS,
                 PRINCIPAL_STRESS,
                 STRESS_VECTOR,
+                
+                NORMAL_STRESS_CAUCHY,
+                SHEAR_STRESS_CAUCHY,
+                VON_MISES_STRESS_CAUCHY,
+                PRINCIPAL_STRESS_CAUCHY,
+                STRESS_VECTOR_CAUCHY,
 
                 HOMOGENIZED_CONSTITUTIVE,
                 HEAT_METHOD_PENALTY,
