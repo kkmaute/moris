@@ -12,8 +12,8 @@ namespace moris
         // Spalart Allmaras model constants
         const real mCv1 = 7.1;
 
-        const real mEpsilon = 1e-10;    // needs to be consistent with threshold set in
-                                        // cl_FEM_CM_Spalart_Allmaras_Turbulence.hpp
+        const real mEpsilon      = 1e-10;    // needs to be consistent with threshold set in
+        const real mEpsilonDeriv = 1e-60;    // cl_FEM_CM_Spalart_Allmaras_Turbulence.hpp
 
         //------------------------------------------------------------------------------
 
@@ -195,6 +195,9 @@ namespace moris
 
             // compute fv1
             return tChi3 / tFv1Deno;
+
+            // xxx to be removed
+            clip_value( tChi3 + std::pow( mCv1, 3.0 ), mEpsilon, tChi3 );
         }
 
         //------------------------------------------------------------------------------
@@ -227,15 +230,21 @@ namespace moris
 
             if ( std::abs( tFv1Deno ) > mEpsilon )
             {
-                // compute denominator
-                real tFv1Deno2 = std::pow( tFv1Deno, 2.0 );
+                // threshold denominator
+                real tFv1Deno2 = clip_value( std::pow( tFv1Deno, 2.0 ), mEpsilonDeriv );
 
                 // compute adfv1du
                 adfv1du = 3.0 * std::pow( mCv1, 3.0 ) * std::pow( tChi, 2.0 ) * tdchidu / tFv1Deno2;
+
+                // xxx to be removed
+                clip_value( std::pow( tFv1Deno, 2.0 ), mEpsilonDeriv, 3.0 * std::pow( mCv1, 3.0 ) * std::pow( tChi, 2.0 ) );
             }
             else
             {
                 adfv1du = 3.0 * std::pow( tChi, 2.0 ) * tdchidu / tFv1Deno;
+
+                // xxx to be removed
+                clip_value( std::pow( tChi, 3.0 ) + std::pow( mCv1, 3.0 ), mEpsilon, 3.0 * std::pow( tChi, 2.0 ) );
             }
         }
 
@@ -267,16 +276,22 @@ namespace moris
 
             if ( std::abs( tFv1Deno ) > mEpsilon )
             {
-                // compute denominator
-                real tFv1Deno2 = std::pow( tFv1Deno, 2.0 );
+                // threshold denominator
+                real tFv1Deno2 = clip_value( std::pow( tFv1Deno, 2.0 ), mEpsilonDeriv );
 
                 // compute dfv1dx
                 adfv1dx = 3.0 * mCv1 * std::pow( tChi, 2.0 ) * tdchidx / tFv1Deno2;
+
+                // xxx to be removed
+                clip_value( std::pow( tFv1Deno, 2.0 ), mEpsilonDeriv, 3.0 * mCv1 * std::pow( tChi, 2.0 ) );
             }
             else
             {
                 // compute dfv1dx
                 adfv1dx = 3.0 * std::pow( tChi, 2.0 ) * tdchidx / tFv1Deno;
+
+                // xxx to be removed
+                clip_value( std::pow( tChi, 3.0 ) + std::pow( mCv1, 3.0 ), mEpsilon, 3.0 * std::pow( tChi, 2.0 ) );
             }
         }
 
@@ -336,8 +351,8 @@ namespace moris
 
             if ( std::abs( tFv1Deno ) > mEpsilon )
             {
-                // compute denominator
-                real tFv1Deno3 = std::pow( tFv1Deno, 3.0 );
+                // threshold denominator
+                real tFv1Deno3 = clip_value( std::pow( tFv1Deno, 3.0 ), mEpsilonDeriv );
 
                 // compute dfv1dxdu
                 adfv1dxdu =
