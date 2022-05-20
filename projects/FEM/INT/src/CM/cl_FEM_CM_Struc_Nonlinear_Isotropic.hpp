@@ -970,6 +970,7 @@ namespace moris
                     ( this->*m_proj_nsym )( aVector, aProjMatrix );
                 }
 
+                // FIXME provide header
                 void proj_nsym_2d(
                         const Matrix< DDRMat > & aVector,
                         Matrix< DDRMat >       & aProjMatrix );
@@ -981,20 +982,6 @@ namespace moris
                 void eval_flux_proj_nsym(
                         enum CM_Function_Type aCMFunctionType);
 
-                //--------------------------------------------------------------------------------------------------------------
-                /**
-                 * get the reordered flux
-                 * @param[ in ]  aCMFunctionType  enum indicating which flux is called, if there are several
-                 * @param[ out ] mFluxHead reordered flux by calculating the kronecker tensor product
-                 */
-                //                const Matrix< DDRMat > & fluxHead();
-
-                //--------------------------------------------------------------------------------------------------------------
-                //                //--------------------------------------------------------------------------------------------------------------
-                //                /**
-                //                 * reordering the flux by calculating the kronecker tensor product of a identity matrix and the flux
-                //                 */
-                //                void eval_fluxHead();
         };
         //--------------------------------------------------------------------------------------------------------------
     } /* namespace fem */

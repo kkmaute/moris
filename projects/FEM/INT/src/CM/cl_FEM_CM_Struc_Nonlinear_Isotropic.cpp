@@ -975,6 +975,7 @@ namespace moris
             }
         }
 
+        // FIXME consider an implementation similar to the testTraction with jump ?
         void CM_Struc_Nonlinear_Isotropic::eval_dLGTestStraindDOF_2d(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
@@ -1009,6 +1010,7 @@ namespace moris
             }
         }
 
+        // FIXME consider an implementation similar to the testTraction with jump ?
         void CM_Struc_Nonlinear_Isotropic::eval_dLGTestStraindDOF_3d(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
@@ -1617,52 +1619,6 @@ namespace moris
                 }
             }
         }
-
-        //        void CM_Struc_Nonlinear_Isotropic::eval_dTeststraindDOF_2D()
-        //        {
-        //            // get displacement field interpolator
-        //            Field_Interpolator * tFIDispl = mFIManager->get_field_interpolators_for_type( mDofDispl );
-        //
-        //            // compute displacement gradient
-        //            const Matrix< DDRMat > & tdnNdxn = tFIDispl->dnNdxn( 1 );
-        //
-        //            // get number of bases for displacement
-        //            uint tNumBases = tFIDispl->get_number_of_space_time_bases();
-        //
-        //            // build the derivative of the test strain
-        //            mdTeststraindDof.set_size( 4, tNumBases * 2, 0.0 );
-        //            mdTeststraindDof( { 0, 0 }, { 0, tNumBases - 1 } ) = tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } );
-        //            mdTeststraindDof( { 1, 1 }, { 0, tNumBases - 1 } ) = tdnNdxn( { 1, 1 }, { 0, tNumBases - 1 } );
-        //
-        //            mdTeststraindDof( { 2, 2 }, { tNumBases, 2 * tNumBases - 1 } ) = tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } );
-        //            mdTeststraindDof( { 3, 3 }, { tNumBases, 2 * tNumBases - 1 } ) = tdnNdxn( { 1, 1 }, { 0, tNumBases - 1 } );
-        //        }
-        //
-        //        void CM_Struc_Nonlinear_Isotropic::eval_dTeststraindDOF_3D()
-        //        {
-        //            // get displacement field interpolator
-        //            Field_Interpolator * tFIDispl = mFIManager->get_field_interpolators_for_type( mDofDispl );
-        //
-        //            // compute displacement gradient
-        //            const Matrix< DDRMat > & tdnNdxn = tFIDispl->dnNdxn( 1 );
-        //
-        //            // get number of bases for displacement
-        //            uint tNumBases = tFIDispl->get_number_of_space_time_bases();
-        //
-        //            // build the derivative of the test strain
-        //            mdTeststraindDof.set_size( 9, tNumBases * 3, 0.0 );
-        //            mdTeststraindDof( { 0, 0 }, { 0, tNumBases - 1 } ) = tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } );
-        //            mdTeststraindDof( { 1, 1 }, { 0, tNumBases - 1 } ) = tdnNdxn( { 1, 1 }, { 0, tNumBases - 1 } );
-        //            mdTeststraindDof( { 2, 2 }, { 0, tNumBases - 1 } ) = tdnNdxn( { 2, 2 }, { 0, tNumBases - 1 } );
-        //
-        //            mdTeststraindDof( { 3, 3 }, { tNumBases, 2 * tNumBases - 1 } ) = tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } );
-        //            mdTeststraindDof( { 4, 4 }, { tNumBases, 2 * tNumBases - 1 } ) = tdnNdxn( { 1, 1 }, { 0, tNumBases - 1 } );
-        //            mdTeststraindDof( { 5, 5 }, { tNumBases, 2 * tNumBases - 1 } ) = tdnNdxn( { 2, 2 }, { 0, tNumBases - 1 } );
-        //
-        //            mdTeststraindDof( { 6, 6 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } );
-        //            mdTeststraindDof( { 7, 7 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tdnNdxn( { 1, 1 }, { 0, tNumBases - 1 } );
-        //            mdTeststraindDof( { 8, 8 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tdnNdxn( { 2, 2 }, { 0, tNumBases - 1 } );
-        //        }
 
         //--------------------------------------------------------------------------------------------------------------
 
