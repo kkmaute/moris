@@ -3105,19 +3105,26 @@ Enriched_Integration_Mesh::visualize_cluster_group_measures()
     //----------------------------------------------------------------
     // Generate and write SPG fields
 
-    moris::Cell< moris::moris_index > tSpgFieldIndices( tNumBspMeshes );
+    // arrays to store the field indices where the SPG IDs and SPG indices fields will be stored for visualization
+    moris::Cell< moris::moris_index > tSpgIndexFieldIndices( tNumBspMeshes );
+    moris::Cell< moris::moris_index > tSpgIdFieldIndices( tNumBspMeshes );
 
     // create list with information where the write the output fields
-    std::string tSpgFieldName = "SPGs_B";
-    Cell< std::string > tSpgFieldNames( tNumBspMeshes );
+    std::string tSpgIndexFieldName = "SPG_Indices_B";
+    std::string tSpgIdFieldName = "SPG_IDs_B";
+    Cell< std::string > tSpgIndexFieldNames( tNumBspMeshes );
+    Cell< std::string > tSpgIdFieldNames( tNumBspMeshes );
     for ( moris::uint iBspMesh = 0; iBspMesh < tNumBspMeshes; iBspMesh++ )
     {
-        tSpgFieldNames( iBspMesh ) = tSpgFieldName + std::to_string( iBspMesh );
-        tSpgFieldIndices( iBspMesh ) = this->create_field( tSpgFieldNames( iBspMesh ), EntityRank::ELEMENT, 0 );
+        tSpgIndexFieldNames( iBspMesh ) = tSpgIndexFieldName + std::to_string( iBspMesh );
+        tSpgIdFieldNames( iBspMesh ) = tSpgIdFieldName + std::to_string( iBspMesh );
+        tSpgIndexFieldIndices( iBspMesh ) = this->create_field( tSpgIndexFieldNames( iBspMesh ), EntityRank::ELEMENT, 0 );
+        tSpgIdFieldIndices( iBspMesh ) = this->create_field( tSpgIdFieldNames( iBspMesh ), EntityRank::ELEMENT, 0 );
     }
 
     // initialize list that holds the SPG indices for every IG cell for everry B-spline mesh
     Cell< moris::Matrix< moris::DDRMat > > tSpgIndices( tNumBspMeshes, tDummy );
+    Cell< moris::Matrix< moris::DDRMat > > tSpgIds( tNumBspMeshes, tDummy );
 
     // retrieve the IG cell's SPG indices for every B-spline mesh
     for ( moris::uint iBspMesh = 0; iBspMesh < tNumBspMeshes; iBspMesh++ )
@@ -3131,15 +3138,20 @@ Enriched_Integration_Mesh::visualize_cluster_group_measures()
             // get the the integration cell belonging to the current SPG
             moris::Cell< moris_index > const& tIgCellsInSPG = tBsplineMeshInfo->mSubphaseGroups( iSPG )->get_ig_cell_indices_in_group();
 
+            // get the SPG's index 
+            moris_id tSpgId = tBsplineMeshInfo->mSubphaseGroupIds( iSPG );
+
             // assign current SPG index to all IG cells in SPG
             for( uint iIgCell = 0; iIgCell < tIgCellsInSPG.size(); iIgCell++ )
             {
                 tSpgIndices( iBspMesh )( tIgCellsInSPG( iIgCell ) ) = (real) iSPG;
+                tSpgIds( iBspMesh )( tIgCellsInSPG( iIgCell ) ) = (real) tSpgId;
             }
         }
 
         // commit SPG field data to exo
-        this->add_field_data( tSpgFieldIndices( iBspMesh ), EntityRank::ELEMENT, tSpgIndices( iBspMesh ) );
+        this->add_field_data( tSpgIndexFieldIndices( iBspMesh ), EntityRank::ELEMENT, tSpgIndices( iBspMesh ) );
+        this->add_field_data( tSpgIdFieldIndices( iBspMesh ), EntityRank::ELEMENT, tSpgIds( iBspMesh ) );
     }
     
 }
