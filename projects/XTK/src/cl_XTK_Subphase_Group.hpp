@@ -12,6 +12,7 @@
 
 #include "cl_Cell.hpp"
 #include "cl_MTK_Cell.hpp"
+#include "cl_MPI_Tools.hpp"
 
 using namespace moris;
 namespace xtk
@@ -24,6 +25,10 @@ namespace xtk
       private:
         // index for Subphase_Group
         moris_index mSubphaseGroupIndex;
+        moris_id    mSubphaseGroupId = MORIS_ID_MAX;
+
+        // owning proc
+        moris_index mOwningProc = MORIS_INDEX_MAX;
 
         // associated B-spline Element
         moris_index mBsplineCellIndex;
@@ -36,6 +41,7 @@ namespace xtk
 
         // List of subphases in group
         moris::Cell< moris_index > mSubphaseIndicesInGroup;
+        moris::Cell< moris_id > mSubphaseIdsInGroup;
 
         // List of ig cells in group
         moris::Cell< moris_index > mIgCellIndicesInGroup;
@@ -53,11 +59,13 @@ namespace xtk
                 moris_index                aBsplineCellIndex,
                 moris_index                aLocalSpgIndex,
                 moris::Cell< moris_index > aSubphaseIndicesInGroup )
+                // moris::Cell< moris_index > aSubphaseIdsInGroup )
         {
             mSubphaseGroupIndex =     aSubphaseGroupIndex;
             mBsplineCellIndex =       aBsplineCellIndex;
             mLocalIndex =             aLocalSpgIndex;
             mSubphaseIndicesInGroup = aSubphaseIndicesInGroup;
+            //mSubphaseIdsInGroup =     aSubphaseIdsInGroup;
         }
 
         ~Subphase_Group(){}
@@ -68,11 +76,36 @@ namespace xtk
             return mSubphaseGroupIndex;
         }
 
+        void
+        set_id( moris_id aSubphaseGroupId )
+        {
+            mSubphaseGroupId = aSubphaseGroupId;
+        }
+
+        moris_id
+        get_id() const
+        {
+            return mSubphaseGroupId;
+        }
+
+        moris_index
+        get_owner() const
+        {
+            return mOwningProc;
+        }
+
+        void
+        set_owning_proc( moris_index aOwningProc )
+        {
+            mOwningProc = aOwningProc;
+        }
+
         moris_index
         get_local_index() const
         {
             return mLocalIndex;
         }
+        
 
         moris_index
         get_bspline_cell_index() const
@@ -126,7 +159,26 @@ namespace xtk
         { 
             return mBulkPhaseIndex;
         }
-    };
+
+        bool 
+        is_subphase_ID_in_group( const moris_id aSubphaseId )
+        {
+            // go through Subphases in this group ...
+            for( uint iSP = 0; iSP < mSubphaseIdsInGroup.size(); iSP++ )
+            {
+                // ... check if current SP is one looked for ...
+                if( mSubphaseIdsInGroup( iSP ) == aSubphaseId )
+                {
+                    // ... and return that it has been found if that is the case
+                    return true;
+                }
+            }
+
+            // if the SP has not been found, return a false
+            return false; 
+        }
+
+    }; // end: class definition
 
     // ----------------------------------------------------------------------------------
 
@@ -157,8 +209,13 @@ namespace xtk
 
         // Subphase Groups
         moris::Cell< Subphase_Group* > mSubphaseGroups;
+        moris::Cell< moris_index > mOwnedSubphaseGroupIndices; // list of SPG indices owned by the current proc
+        moris::Cell< moris_index > mNotOwnedSubphaseGroupIndices; // list of SPG indices NOT owned by the current proc
+        moris::Cell< moris_id > mSubphaseGroupIds; // IDs corresponding to SPGs in first list
+        moris_id mAllocatedSpgIds = 1; // tracker for which IDs have already been taken (NOTE: this information only gets updated on proc 0)
 
         // SP to SPG map
+        // input: SP index || output: index of SPG the SP belongs to
         moris::Cell< moris_index > mSpToSpgMap;
 
         // ----------------------------------------------------------------------------------
@@ -201,9 +258,15 @@ namespace xtk
             return mExtractionCellsInBsplineCells.size();
         }
 
+        // ----------------------------------------------------------------------------------
+
         uint
         get_num_SPGs() const
         {
+            // check that the number of SPGs returned matches the list of SPGs
+            MORIS_ASSERT( (uint) mMaxSpgIndex + 1 == mSubphaseGroups.size(), "Bspline_Mesh_Info::get_num_SPGs() - mismatch between size of array of SPGs and maximum index stored" );
+            
+            // return value
             return (uint) mMaxSpgIndex + 1;
         }
 
@@ -419,6 +482,82 @@ namespace xtk
                 {
                     mSpToSpgMap( tSpIndicesInGroup( iSP ) ) = tSpgIndex;
                 }
+            }
+        }
+
+        // ----------------------------------------------------------------------------------
+
+        moris_id
+        allocate_subphase_group_ids( moris::size_t aNumIdstoAllocate )
+        {
+            // get rank of current proc and how big the MPI communicator is
+            int tProcRank = moris::par_rank();
+            int tProcSize = moris::par_size();
+
+            // size_t is defined as uint here because of aNumRequested
+            // Initialize gathered information outputs (information which will be scattered across processors)
+            moris::Cell< moris::moris_id > aGatheredInfo;
+            moris::Cell< moris::moris_id > tFirstId( 1 );
+            moris::Cell< moris::moris_id > tNumIdsRequested( 1 );
+
+            // put current processors ID request size into the Cell that will be shared across procs
+            tNumIdsRequested( 0 ) = (moris::moris_id) aNumIdstoAllocate;
+
+            // hand ID range size request to root processor
+            moris::gather( tNumIdsRequested, aGatheredInfo );
+
+            // initialize list holding the first ID in range for each processor
+            moris::Cell< moris::moris_id > tProcFirstID( tProcSize );
+
+            // Manage information only on the root processor
+            if ( tProcRank == 0 )
+            {
+                // Loop over entities print the number of entities requested by each processor
+                for ( int iProc = 0; iProc < tProcSize; ++iProc )
+                {
+                    // Give each processor their desired amount of IDs
+                    tProcFirstID( iProc ) = mAllocatedSpgIds;
+
+                    // update the number of already allocated SPG IDs 
+                    mAllocatedSpgIds = mAllocatedSpgIds + aGatheredInfo( iProc );
+                }
+            }
+
+            // on proc 0: split up the list of first IDs for every proc and send it to every other proc
+            // on all procs: receive the assigned first SP ID as tFirstId
+            moris::scatter( tProcFirstID, tFirstId );
+
+            // return the first SP ID assigned 
+            return tFirstId( 0 );
+        }
+
+        // ----------------------------------------------------------------------------------
+
+        void
+        assign_owned_subphase_group_ids( moris_id aFirstSpgId )
+        {
+            // set size of array storing SPG IDs
+            mSubphaseGroupIds.resize( this->get_num_SPGs(), MORIS_ID_MAX );
+
+            // get the number of owned 
+            uint tNumOwnedSPGs = mOwnedSubphaseGroupIndices.size();
+
+            // check that the number of owned and non-owned SPGs add up
+            MORIS_ASSERT( tNumOwnedSPGs + mNotOwnedSubphaseGroupIndices.size() == this->get_num_SPGs(), 
+                "Bspline_Mesh_Info::assign_owned_subphase_group_ids() - number of owned and non-owned SPGs don't add up" );
+
+            // assign IDs to every owned SPG
+            for( uint iOwnedSPG = 0; iOwnedSPG < tNumOwnedSPGs; iOwnedSPG++ )
+            {
+                // get the owned SPG's index
+                moris_index mOwnedSpgIndex = mOwnedSubphaseGroupIndices( iOwnedSPG );
+
+                // assign ID to SPG
+                mSubphaseGroupIds( mOwnedSpgIndex ) = aFirstSpgId;
+                mSubphaseGroups( mOwnedSpgIndex )->set_id( aFirstSpgId );
+
+                // increment the ID for the next SPG
+                aFirstSpgId++;
             }
         }
 

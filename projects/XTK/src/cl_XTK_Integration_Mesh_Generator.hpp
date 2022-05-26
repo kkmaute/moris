@@ -388,28 +388,38 @@ class Integration_Mesh_Generator
         std::shared_ptr< Facet_Based_Connectivity >       aFaceConnectivity,
         std::shared_ptr< Cell_Neighborhood_Connectivity > aNeighborhood );
 
+    // ----------------------------------------------------------------------------------
+    
     void
     create_facet_from_element_to_node(
         moris::Cell< moris::mtk::Cell * > &         aCells,
         std::shared_ptr< Facet_Based_Connectivity > aFaceConnectivity );
 
+    // ----------------------------------------------------------------------------------
+    
     void
     create_edges_from_element_to_node(
         moris::Cell< moris::mtk::Cell * >          aCells,
         std::shared_ptr< Edge_Based_Connectivity > aEdgeConnectivity );
 
+    // ----------------------------------------------------------------------------------
+    
     void
     select_background_cell_for_edge(
         std::shared_ptr< Edge_Based_Connectivity > aEdgeBasedConnectivity,
         Cut_Integration_Mesh *                     aCutIntegrationMesh,
         moris::Cell< moris::mtk::Cell * > &        aBackgroundCellForEdge );
 
+    // ----------------------------------------------------------------------------------
+    
     void
     select_background_cell_for_facet(
         std::shared_ptr< Facet_Based_Connectivity > aEdgeBasedConnectivity,
         Cut_Integration_Mesh *                      aCutIntegrationMesh,
         moris::Cell< moris::mtk::Cell * > &         aBackgroundCellForEdge );
 
+    // ----------------------------------------------------------------------------------
+    
     void
     deduce_facet_ancestry(
         Cut_Integration_Mesh *                      aCutIntegrationMesh,
@@ -418,6 +428,8 @@ class Integration_Mesh_Generator
         moris::Cell< moris::mtk::Cell * > const &   aParentCellForDeduction,
         std::shared_ptr< Facet_Based_Ancestry >     aIgFacetAncestry );
 
+    // ----------------------------------------------------------------------------------
+    
     void
     compute_bg_facet_to_child_facet_connectivity(
         Cut_Integration_Mesh *                                               aCutIntegrationMesh,
@@ -426,7 +438,8 @@ class Integration_Mesh_Generator
         std::shared_ptr< Facet_Based_Ancestry >                              aIgFacetAncestry,
         moris::Cell< std::shared_ptr< moris::Cell< moris::moris_index > > > &aBgFacetToIgFacet );
 
-
+    // ----------------------------------------------------------------------------------
+    
     void
     deduce_edge_ancestry(
         Cut_Integration_Mesh *                     aCutIntegrationMesh,
@@ -435,6 +448,8 @@ class Integration_Mesh_Generator
         moris::Cell< moris::mtk::Cell * > const &  aParentCellForDeduction,
         std::shared_ptr< Edge_Based_Ancestry >     aIgEdgeAncestry );
 
+    // ----------------------------------------------------------------------------------
+    
     void
     commit_new_ig_vertices_to_cut_mesh(
         Integration_Mesh_Generation_Data *aMeshGenerationData,
@@ -443,11 +458,15 @@ class Integration_Mesh_Generator
         moris::mtk::Mesh *                aBackgroundMesh,
         Decomposition_Algorithm *         aDecompositionAlgorithm );
 
+    // ----------------------------------------------------------------------------------
+    
     void
     link_new_vertices_to_geometry_engine(
         Decomposition_Data *     aDecompositionData,
         Decomposition_Algorithm *aDecompAlg );
 
+    // ----------------------------------------------------------------------------------
+    
     void
     commit_new_ig_cells_to_cut_mesh(
         Integration_Mesh_Generation_Data *aMeshGenerationData,
@@ -456,6 +475,8 @@ class Integration_Mesh_Generator
         moris::mtk::Mesh *                aBackgroundMesh,
         Decomposition_Algorithm *         aDecompositionAlgorithm );
 
+    // ----------------------------------------------------------------------------------
+    
     void
     identify_and_construct_subphases(
         Integration_Mesh_Generation_Data *                aMeshGenerationData,
@@ -463,12 +484,16 @@ class Integration_Mesh_Generator
         moris::mtk::Mesh *                                aBackgroundMesh,
         std::shared_ptr< Cell_Neighborhood_Connectivity > aCutNeighborhood );
 
+    // ----------------------------------------------------------------------------------
+    
     void
     construct_subphases_on_triangulated_non_cut_cells(
         Integration_Mesh_Generation_Data*                 aMeshGenerationData,
         Cut_Integration_Mesh*                             aCutIntegrationMesh,
         moris::mtk::Mesh*                                 aBackgroundMesh );
 
+    // ----------------------------------------------------------------------------------
+    
     void
     construct_subphase_neighborhood(
         Cut_Integration_Mesh *                                               aCutIntegrationMesh,
@@ -478,6 +503,8 @@ class Integration_Mesh_Generator
         std::shared_ptr< Subphase_Neighborhood_Connectivity >                aSubphaseNeighborhood );
 
 
+    // ----------------------------------------------------------------------------------
+    
     void
     collect_subphases_attached_to_facet_on_cell(
         Cut_Integration_Mesh *                               aCutIntegrationMesh,
@@ -490,6 +517,8 @@ class Integration_Mesh_Generator
         Cell< moris::moris_index > &                         aRepresentativeIgCells,
         Cell< moris::moris_index > &                         aRepresentativeIgCellsOrdinal );
 
+    // ----------------------------------------------------------------------------------
+    
     void
     collect_ig_cells_and_side_ords_on_bg_facet(
         Cut_Integration_Mesh *             aCutIntegrationMesh,
@@ -497,22 +526,56 @@ class Integration_Mesh_Generator
         moris::Cell< moris::mtk::Cell * > &aIgCell,
         moris::Cell< moris_index > &       aIgCellSideOrds );
 
+    // ----------------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------
+    
+    /**
+     * @brief finds the range of valid Subphase IDs on each processor and assigns them to the SPs
+     * 
+     * @param aCutIntegrationMesh pointer to the Cut_Integration_Mesh
+     * @param aBackgroundMesh pointer to the HMR Lagrange Background mesh
+     */
     void
     assign_subphase_glob_ids(
-        Cut_Integration_Mesh *aCutIntegrationMesh,
-        moris::mtk::Mesh *    aBackgroundMesh );
+            Cut_Integration_Mesh* aCutIntegrationMesh,
+            moris::mtk::Mesh *    aBackgroundMesh );
 
-
+    // ----------------------------------------------------------------------------------
+    
+    /**
+     * @brief Prepares lists of Subphases the executing proc has access to but doesn't own for each processor that actually ownes these subphases. 
+     * Additionally, the parent IP cell IDs, IG cell group IDs, and the number of IG cells in each SP will be collected.
+     * 
+     * @param aCutIntegrationMesh pointer to the Cut_Integration_Mesh
+     * @param aNotOwnedSubphasesToProcs outer cell: owner proc index in XTK comm-table || inner cell: list of non-owned SPs whose IDs need to be requested from that owning proc
+     * @param aParentCellIds outer cell: owner proc index in XTK comm-table || inner cell: parent Cell IDs corresponding to the SPs in the lists above
+     * @param aChildCellIds outer cell: owner proc index in XTK comm-table || inner cell: IDs of the first IG cell in the IG cell groups corresponding to the SPs in the lists above
+     * @param aNumChildCellsInSubphase outer cell: owner proc index in XTK comm-table || inner cell: number of IG cells in each of the SPs in the lists above
+     * @param aProcRanks list of procs in same order as in the XTK Comm-Table
+     * @param aProcRankToDataIndex unordered map relating the proc rank to its position in the XTK Comm-Table
+     */
     void
     prepare_subphase_identifier_requests(
-        Cut_Integration_Mesh *                    aCutIntegrationMesh,
-        Cell< Cell< moris_id > > &                aNotOwnedSubphasesToProcs,
-        Cell< moris::Matrix< IdMat > > &          aParentCellIds,
-        Cell< moris::Matrix< IdMat > > &          aChildCellIds,
-        Cell< moris::Matrix< IdMat > > &          aNumChildCellsInSubphase,
-        Cell< uint > &                            aProcRanks,
-        std::unordered_map< moris_id, moris_id > &aProcRankToDataIndex );
+            Cut_Integration_Mesh *                    aCutIntegrationMesh,
+            Cell< Cell< moris_index > > &             aNotOwnedSubphasesToProcs,
+            Cell< moris::Matrix< IdMat > > &          aParentCellIds,
+            Cell< moris::Matrix< IdMat > > &          aChildCellIds,
+            Cell< moris::Matrix< IdMat > > &          aNumChildCellsInSubphase,
+            Cell< uint > &                            aProcRanks,
+            std::unordered_map< moris_id, moris_id > &aProcRankToDataIndex );
 
+    // ----------------------------------------------------------------------------------
+
+    /**
+     * @brief 
+     * 
+     * @param aCutIntegrationMesh pointer to the Cut_Integration_Mesh
+     * @param aBackgroundMesh pointer to the Lagrange Background Mesh
+     * @param aReceivedParentCellIds outer cell: owner proc index in XTK comm-table || inner cell: parent Cell IDs corresponding to the SPs whose IDs are requested 
+     * @param aFirstChildCellIds outer cell: owner proc index in XTK comm-table || inner cell: IDs of the first IG cell in the IG cell groups corresponding to the SPs whose IDs are requested 
+     * @param aReceivedNumChildCellsInSubphase outer cell: owner proc index in XTK comm-table || inner cell: number of IG cells in each of the SPs whose IDs are requested 
+     * @param aSubphaseIds outer cell: owner proc index in XTK comm-table || inner cell: IDs of the Subphase corresponding to the SPs specified by the above lists
+     */
     void
     prepare_subphase_id_answers(
         Cut_Integration_Mesh *      aCutIntegrationMesh,
@@ -522,13 +585,104 @@ class Integration_Mesh_Generator
         Cell< Matrix< IndexMat > > &aReceivedNumChildCellsInSubphase,
         Cell< Matrix< IndexMat > > &aSubphaseIds );
 
+    // ----------------------------------------------------------------------------------
+    
+    /**
+     * @brief 
+     * 
+     * @param aCutIntegrationMesh 
+     * @param aSubphaseIndices 
+     * @param aReceivedSubphaseIds 
+     */
     void
     handle_received_subphase_id_request_answers(
-        Cut_Integration_Mesh *             aCutIntegrationMesh,
-        Cell< Cell< moris_index > > const &aSubphaseIndices,
-        Cell< Matrix< IndexMat > > const & aReceivedSubphaseIds );
+            Cut_Integration_Mesh *             aCutIntegrationMesh,
+            Cell< Cell< moris_index > > const &aSubphaseIndices,
+            Cell< Matrix< IndexMat > > const & aReceivedSubphaseIds );
+    
+    // ----------------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------
 
+    /**
+     * @brief finds the range of valid Subphase group IDs on each processor and assigns them to the SPGs
+     * 
+     * @param aCutIntegrationMesh pointer to the Cut_Integration_Mesh
+     * @param aBackgroundMesh pointer to the HMR Lagrange Background mesh
+     * @param aBsplineMeshInfo pointer to the B-spline mesh info for the B-spline mesh wrt. which the SPG IDs should be assigned
+     */
+    void
+    assign_subphase_group_glob_ids(
+            Cut_Integration_Mesh* aCutIntegrationMesh,
+            moris::mtk::Mesh*     aBackgroundMesh,
+            Bspline_Mesh_Info*    aBsplineMeshInfo );
 
+    // ----------------------------------------------------------------------------------
+    
+    /**
+     * @brief 
+     * 
+     * @param aCutIntegrationMesh pointer to the Cut_Integration_Mesh
+     * @param aNotOwnedSpgsToProcs outer cell: owner proc index in XTK comm-table || inner cell: list of non-owned SPGs whose IDs need to be requested from that owning proc
+     * @param tSubphaseIds outer cell: owner proc index in XTK comm-table || inner cell: first SP IDs in SPGs as listed in array above
+     * @param aChildCellIds outer cell: owner proc index in XTK comm-table || inner cell: IDs of the first IG cell in the first SP in SPGs as listed in array above
+     * @param tNumSpsInSpg outer cell: owner proc index in XTK comm-table || inner cell: number of 
+     * @param aProcRanks list of procs in same order as in the XTK Comm-Table
+     * @param aProcRankToDataIndex unordered map relating the proc rank to its position in the XTK Comm-Table
+     */
+    void
+    prepare_subphase_group_id_requests(
+            Cut_Integration_Mesh*                     aCutIntegrationMesh,
+            Bspline_Mesh_Info*                        aBsplineMeshInfo,
+            Cell< Cell< moris_id > >&                 aNotOwnedSpgsToProcs,
+            Cell< moris::Matrix< IdMat > >&           tSubphaseIds,
+            Cell< moris::Matrix< IdMat > >&           aChildCellIds,
+            Cell< moris::Matrix< IdMat > >&           tNumSpsInSpg,
+            Cell< uint >&                             aProcRanks,
+            std::unordered_map< moris_id, moris_id >& aProcRankToDataIndex );
+
+    // ----------------------------------------------------------------------------------
+
+    /**
+     * @brief 
+     * 
+     * @param aCutIntegrationMesh 
+     * @param aBsplineMeshInfo 
+     * @param aBackgroundMesh 
+     * @param aReceivedParentCellIds 
+     * @param aFirstChildCellIds 
+     * @param aReceivedNumChildCellsInSubphase 
+     * @param aSubphaseIds 
+     */
+    void
+    prepare_subphase_group_id_answers(
+            Cut_Integration_Mesh*       aCutIntegrationMesh,
+            Bspline_Mesh_Info*          aBsplineMeshInfo,
+            moris::mtk::Mesh*           aBackgroundMesh,
+            Cell< Matrix< IndexMat > >& aReceivedSubphaseIds,
+            Cell< Matrix< IndexMat > >& aReceivedFirstChildCellIds,
+            Cell< Matrix< IndexMat > >& aReceivedNumSpsInSpg,
+            Cell< Matrix< IndexMat > >& aSubphaseGroupIds );
+
+    // ----------------------------------------------------------------------------------
+    
+    /**
+     * @brief 
+     * 
+     * @param aCutIntegrationMesh 
+     * @param aBsplineMeshInfo 
+     * @param aSubphaseIndices 
+     * @param aReceivedSubphaseIds 
+     */
+    void
+    handle_received_subphase_group_id_request_answers(
+            Cut_Integration_Mesh*              aCutIntegrationMesh,
+            Bspline_Mesh_Info*                 aBsplineMeshInfo,
+            Cell< Cell< moris_index > > const& aSubphaseGroupIndices,
+            Cell< Matrix< IndexMat > > const&  aReceivedSubphaseGroupIds );
+
+    // ----------------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------
+    
     /**
      * @brief perform flood fill on IG cell group and assign a subphase index to every IG cell
      * 
@@ -638,7 +792,7 @@ class Integration_Mesh_Generator
      * @param aCutIntegrationMesh pointer to the cut integration mesh which carries the information
      * @param aLagrangeMesh pointer to the Lagrange mesh for which the information needs to be estabilished
      * @param aBsplineMeshInfo pointer to the B-spline mesh info to be used for construction
-     * @param aMeshIndex discretization mesh index
+     * @param aMeshIndex discretization mesh index (NOT List index!, since this index is used to get B-spline mesh info from HMR)
      */
     void
     establish_bspline_mesh_info(
@@ -654,13 +808,30 @@ class Integration_Mesh_Generator
      * 
      * @param aCutIntegrationMesh pointer to cut integration mesh holding B-spline mesh info and SPGs
      * @param aBsplineMeshInfo pointer to the B-spline mesh info to be used for construction
-     * @param aMeshIndex discretization mesh index
+     * @param aMeshListIndex discretization mesh list index (i.e. index of the B-spline mesh to be treated in the list of mesh indices to be enriched)
      */
     void
     construct_subphase_groups(
             Cut_Integration_Mesh* aCutIntegrationMesh,
             Bspline_Mesh_Info*    aBsplineMeshInfo,
-            const moris_index     aMeshIndex );
+            const moris_index     aMeshListIndex );
+
+    // ----------------------------------------------------------------------------------
+
+    /**
+     * @brief finds all owned and non-owned SPGs on the current proc
+     * 
+     * @param aCutIntegrationMesh pointer to cut integration mesh holding B-spline mesh info and SPGs
+     * @param aLagrangeMesh pointer to Lagrange mesh
+     * @param aBsplineMeshInfo pointer to the B-spline mesh info to be used for construction
+     * @param aBsplineMeshListIndex index of the B-spline mesh within the list of mesh-indices to enrich
+     */
+    void
+    communicate_subphase_groups(
+            Cut_Integration_Mesh* aCutIntegrationMesh,
+            moris::mtk::Mesh*     aLagrangeMesh,
+            Bspline_Mesh_Info*    aBsplineMeshInfo,
+            const moris_index     aBsplineMeshListIndex );
 
     // ----------------------------------------------------------------------------------
     
@@ -668,14 +839,14 @@ class Integration_Mesh_Generator
      * @brief find the subphase indices within a given B-spline element on a given B-spline mesh
      * 
      * @param aCutIntegrationMesh pointer to cut integration mesh
-     * @param aDiscretizationMeshIndex index of the B-spline mesh to be treated
+     * @param aMeshListIndex index of the B-spline mesh to be treated within the list of discretization mesh indices to be enriched
      * @param aCurrentBspCellIndex index of the B-spline element
      * @param aSubPhaseIndices output: list of subphase indices to be filled
      */
     void
     get_subphase_indices_in_bspline_cell(
             Cut_Integration_Mesh* aCutIntegrationMesh,
-            moris_index           aDiscretizationMeshIndex,
+            moris_index           aMeshListIndex,
             uint                  aCurrentBspCellIndex,
             Matrix< IndexMat >&   aSubPhaseIndices  );
 

@@ -758,6 +758,12 @@ namespace xtk
 
             // ----------------------------------------------------------------------------------
 
+            /**
+             * @brief allocate new IDs for Subphases globally across all procs
+             * 
+             * @param aNumIdstoAllocate number of Subphase IDs the current processor would like to allocate
+             * @return moris_id first ID of the range of IDs that gets assigned to the current processor's Subphases
+             */
             moris_id
             allocate_subphase_ids( moris::size_t aNumIdstoAllocate );
 

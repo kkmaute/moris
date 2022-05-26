@@ -814,6 +814,9 @@ namespace xtk
 
         return tFirstId( 0 );
     }
+
+    // ----------------------------------------------------------------------------------
+    
     moris_id
     Cut_Integration_Mesh::allocate_subphase_ids( moris::size_t aNumIdstoAllocate )
     {
@@ -821,25 +824,29 @@ namespace xtk
         int tProcSize = moris::par_size();
 
         // size_t is defined as uint here because of aNumRequested
-        //Initialize gathered information outputs (information which will be scattered across processors)
+        // Initialize gathered information outputs (information which will be scattered across processors)
         moris::Cell< moris::moris_id > aGatheredInfo;
         moris::Cell< moris::moris_id > tFirstId( 1 );
         moris::Cell< moris::moris_id > tNumIdsRequested( 1 );
 
-        tNumIdsRequested( 0 ) = (moris::moris_id)aNumIdstoAllocate;
+        // put current processors ID request size into the Cell that will be shared across procs
+        tNumIdsRequested( 0 ) = (moris::moris_id) aNumIdstoAllocate;
 
+        // hand ID range size request to root processor
         moris::gather( tNumIdsRequested, aGatheredInfo );
 
+        // initialize list holding the first ID in range for each processor
         moris::Cell< moris::moris_id > tProcFirstID( tProcSize );
 
+        // Subphase IDs up to the number of IP cells have already been used. Hence, the first free ID is:
         moris_index tFirstSubphaseId = mBackgroundMesh->get_max_entity_id( EntityRank::ELEMENT ) + 1;
 
+        // Manage information on the root processor
         if ( tProcRank == 0 )
         {
             // Loop over entities print the number of entities requested by each processor
             for ( int iProc = 0; iProc < tProcSize; ++iProc )
             {
-
                 // Give each processor their desired amount of IDs
                 tProcFirstID( iProc ) = tFirstSubphaseId;
 
@@ -848,11 +855,16 @@ namespace xtk
             }
         }
 
+        // on proc 0: split up the list of first IDs for every proc and send it to every other proc
+        // on all procs: receive the assigned first SP ID as tFirstId
         moris::scatter( tProcFirstID, tFirstId );
 
+        // return the first SP ID assigned 
         return tFirstId( 0 );
     }
+
     // ----------------------------------------------------------------------------------
+
     moris::moris_index
     Cut_Integration_Mesh::get_first_available_index( enum EntityRank aEntityRank ) const
     {
