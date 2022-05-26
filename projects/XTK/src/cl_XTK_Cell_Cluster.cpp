@@ -30,6 +30,20 @@ namespace xtk
     {
     }
 
+    Cell_Cluster::Cell_Cluster( bool aOnlyForVisualization )
+            : mTrivial( true )
+            , mVoid( false )
+            , mInvalid( false )
+            , mInterpolationCell( nullptr )
+            , mChildMesh( nullptr )
+            , mPrimaryIntegrationCells( 0, nullptr )
+            , mVoidIntegrationCells( 0, nullptr )
+            , mVerticesInCluster( 0, nullptr )
+            , mClusterGroups( 0, nullptr )
+    {
+        mOnlyForVis = aOnlyForVisualization;
+    }
+
     //----------------------------------------------------------------
 
     Cell_Cluster::~Cell_Cluster(){}
@@ -332,7 +346,14 @@ namespace xtk
             const mtk::Primary_Void aPrimaryOrVoid,
             const mtk::Master_Slave aIsMaster ) const
     {
-        return mClusterGroups( aBsplineMeshListIndex )->compute_cluster_group_volume( aPrimaryOrVoid, aIsMaster );
+        if( !mOnlyForVis ) 
+        {
+            return mClusterGroups( aBsplineMeshListIndex )->compute_cluster_group_volume( aPrimaryOrVoid, aIsMaster );
+        }
+        else // cluster groups are not defined on clusters that are only for visualization purposes (e.g. for ghost visualization)
+        {        
+            return -1.0;
+        }
     }
 
     //------------------------------------------------------------------------------

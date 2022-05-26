@@ -97,12 +97,6 @@ Enriched_Integration_Mesh::Enriched_Integration_Mesh(
 
     this->collect_all_sets();
 
-    this->setup_cluster_groups();
-
-    this->visualize_cluster_measures(); 
-
-    this->visualize_cluster_group_measures();
-
     // get the Cell info for trivial integration clusters
     if ( this->get_spatial_dim() == 2 )
     {
@@ -2016,9 +2010,10 @@ Enriched_Integration_Mesh::create_side_set_from_dbl_side_set( moris_index const 
 
 moris_index
 Enriched_Integration_Mesh::create_block_set_from_cells_of_side_set(
-    moris_index const &      aSideSetIndex,
-    std::string const &      aBlockSetName,
-    enum CellTopology const &aCellTopo )
+    moris_index const&       aSideSetIndex,
+    std::string const&       aBlockSetName,
+    enum CellTopology const& aCellTopo,
+    bool                     aCreateOnlyForVis )
 {
     moris::Cell< std::shared_ptr< xtk::Side_Cluster > > &tSideClusters = mSideSets( aSideSetIndex );
 
@@ -2034,7 +2029,7 @@ Enriched_Integration_Mesh::create_block_set_from_cells_of_side_set(
         if ( tIpCellInSet.find( tSideCluster->mIntegrationCells( 0 )->get_id() ) == tIpCellInSet.end() )
         {
             // create a new cell cluster
-            std::shared_ptr< xtk::Cell_Cluster > tCellCluster = std::make_shared< Cell_Cluster >();
+            std::shared_ptr< xtk::Cell_Cluster > tCellCluster = std::make_shared< Cell_Cluster >( aCreateOnlyForVis );
 
             // get the ith enriched interpolation cell
             tCellCluster->mInterpolationCell = tSideCluster->mInterpolationCell;
@@ -3073,7 +3068,7 @@ Enriched_Integration_Mesh::visualize_cluster_group_measures()
 
             for ( uint iIgCell = 0; iIgCell < tIgCellsInCluster.size(); iIgCell++ )
             {
-                tClusterGroupVolumes( iBspMesh )( tIgCellsInCluster( iIgCell )->get_index() )  = tClusterGroupVolume;
+                tClusterGroupVolumes( iBspMesh )( tIgCellsInCluster( iIgCell )->get_index() ) = tClusterGroupVolume;
             }
         } // end for: each cluster
 
@@ -3124,14 +3119,14 @@ Enriched_Integration_Mesh::visualize_cluster_group_measures()
     // initialize list that holds the SPG indices for every IG cell for everry B-spline mesh
     Cell< moris::Matrix< moris::DDRMat > > tSpgIndices( tNumBspMeshes, tDummy );
 
-    // retrieve the IG cell's SPG indices for ever B-spline mesh
+    // retrieve the IG cell's SPG indices for every B-spline mesh
     for ( moris::uint iBspMesh = 0; iBspMesh < tNumBspMeshes; iBspMesh++ )
     {
         // get the B-spline mesh info
         Bspline_Mesh_Info* tBsplineMeshInfo = mModel->mCutIntegrationMesh->get_bspline_mesh_info()( iBspMesh );
 
         // get the integration cells on every SPG and assign 
-        for ( moris::uint iSPG = 0; iSPG < tBsplineMeshInfo->mSubphaseGroups.size(); iSPG++ )
+        for ( moris::uint iSPG = 0; iSPG < tBsplineMeshInfo->get_num_SPGs(); iSPG++ )
         {
             // get the the integration cell belonging to the current SPG
             moris::Cell< moris_index > const& tIgCellsInSPG = tBsplineMeshInfo->mSubphaseGroups( iSPG )->get_ig_cell_indices_in_group();

@@ -213,20 +213,24 @@ namespace xtk
             this->probe_bg_cell( tBgCellIds );
         }
 
+        // perform decomposition if requested in parameterlist
         if ( mParameterList.get< bool >( "decompose" ) )
         {
+            // get parameters specifying the integration mesh from the parameterlist
             mTriangulateAll = mParameterList.get< bool >( "triangulate_all" );
             mTriangulateAllInPost = mParameterList.get< bool >( "triangulate_all_in_post" );
-
             mIgElementOrder = mParameterList.get< moris::uint >( "ig_element_order" );
 
-            if ( mParameterList.get< bool >( "cleanup_cut_mesh" ) )
-            {
-                mCleanupMesh = true;
-            }
+            // if ( mParameterList.get< bool >( "cleanup_cut_mesh" ) )
+            // {
+            //     mCleanupMesh = true;
+            // }
 
+            // generate list of decomposition methods to be performed to generate the XTK mesh
             Cell< enum Subdivision_Method > tSubdivisionMethods = this->get_subdivision_methods();
-            bool                            tSuccess            = this->decompose( tSubdivisionMethods );
+
+            // perform the decomposition methods specified
+            bool tSuccess = this->decompose( tSubdivisionMethods );
 
             // Return false if cells are on different refinement levels
             if ( !tSuccess )
@@ -235,8 +239,10 @@ namespace xtk
             }
         }
 
+        // perform mesh cleanup if requested through parameterlist
         if ( mParameterList.get< bool >( "cleanup_cut_mesh" ) )
         {
+            // set flag as member variable
             mCleanupMesh = true;
 
             // cleanup the mesh
@@ -244,6 +250,7 @@ namespace xtk
             tMeshCleanup.perform();
         }
 
+        // return that the decomposition was performed successfully
         return true;
     }
 
@@ -414,15 +421,20 @@ namespace xtk
         }
 
         if ( mEnriched )
-        {
-            // get the enriched IP mesh
-            xtk::Enriched_Interpolation_Mesh &tEnrInterpMesh = this->get_enriched_interp_mesh();
+        {            
+            // if SPG based enrichment is used, construct the cluster groups here
+            if ( mParameterList.get< bool >( "use_SPG_based_enrichment" ) )
+            {
+                mEnrichedIntegMesh( 0 )->setup_cluster_groups();
+            }
 
-            // FIXME: add loop for enr. IG meshes back in once validated
-            xtk::Enriched_Integration_Mesh   &tEnrIntegMesh  = this->get_enriched_integ_mesh();
-            
-            // get meshes
+            // get the reference to the enriched IP mesh
+            xtk::Enriched_Interpolation_Mesh& tEnrInterpMesh = this->get_enriched_interp_mesh();
 
+            // get the reference to the enriched IG mesh
+            xtk::Enriched_Integration_Mesh& tEnrIntegMesh = this->get_enriched_integ_mesh();
+
+            // set a mesh name for the XTK-mesh in the MTK output performer
             std::string tXTKMeshName = "XTKMesh";
 
             // place the pair in mesh manager
@@ -488,6 +500,13 @@ namespace xtk
             if ( mParameterList.get< bool >( "exodus_output_XTK_ig_mesh" ) )
             {
                 Tracer tTracer( "XTK", "Overall", "Visualize" );
+
+                if ( mParameterList.get< bool >( "use_SPG_based_enrichment" ) )
+                {
+                    mEnrichedIntegMesh( 0 )->visualize_cluster_measures(); 
+                    mEnrichedIntegMesh( 0 )->visualize_cluster_group_measures();
+                }
+
                 tEnrIntegMesh.write_mesh( &mParameterList );
             }
             // print the memory usage of XTK
@@ -634,10 +653,11 @@ namespace xtk
     bool
     Model::decompose( Cell< enum Subdivision_Method > aMethods )
     {
+        // log/trace the mesh decomposition
         Tracer tTracer( "XTK", "Decomposition", "Decompose" );
 
+        // get the geometries for each level-set field in GEN
         moris::Matrix< moris::IndexMat > tActiveGeometries( 1, mGeometryEngine->get_num_geometries() );
-
         for ( moris::uint i = 0; i < mGeometryEngine->get_num_geometries(); i++ )
         {
             tActiveGeometries( i ) = (moris_index)i;
@@ -649,11 +669,14 @@ namespace xtk
         // perform decomposition
         mCutIntegrationMesh = tIntegrationGenerator.perform();
 
+        // check that only Lagrange elements on the lowest refinement-level are cut / got decomposed 
         mDecomposed = mCutIntegrationMesh->mSameLevelChildMeshes;
         if ( !mDecomposed )
         {
-            MORIS_LOG_INFO( "Decomposition Failed. Not all child meshes on the same level." );
+            MORIS_LOG_INFO( "xtk::Model::decompose() - Decomposition Failed. Not all child meshes on the same level." );
         }
+
+        // print diagnostic data if requested by user
         if ( mDiagnostics )
         {
             if ( interpolated_coordinate_check( mCutIntegrationMesh.get() ) )
@@ -666,6 +689,7 @@ namespace xtk
             }
         }
 
+        // return successfull decomposition
         return mDecomposed;
     }
 

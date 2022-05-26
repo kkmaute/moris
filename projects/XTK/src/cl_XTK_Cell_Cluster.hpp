@@ -35,6 +35,7 @@ namespace xtk
         bool                                            mTrivial;
         bool                                            mVoid = false;
         bool                                            mInvalid;
+        bool                                            mOnlyForVis = false;
         Interpolation_Cell_Unzipped const*              mInterpolationCell;
         Child_Mesh const*                               mChildMesh;  // FIXME: this doesn't seem to be used, should be removed
         moris::Cell< moris::mtk::Cell const* >          mPrimaryIntegrationCells;
@@ -64,6 +65,10 @@ namespace xtk
         moris::Matrix< moris::DDRMat >                get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const *aVertex, const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
         moris_index                                   get_dim_of_param_coord( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
         moris::Matrix< moris::DDRMat >                get_primary_cell_local_coords_on_side_wrt_interp_cell( moris::moris_index aPrimaryCellClusterIndex ) const;
+
+        // constructor for cell clusters that will only be used for visualization purposes
+        // this results in cell-clusters that may miss some data and have reduced functionality
+        Cell_Cluster( bool aOnlyForVisualization );
 
         //------------------------------------------------------------------------------
 

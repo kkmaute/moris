@@ -463,13 +463,33 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
      * @param[in] aDblSideSetIndex Double side set index
      * @param[in] aBlockSetName New block set name
      * @param[in] aCellTopo New block set cell topology
+     * @param[in] bool set this to true if the blockset's only purpose is for visualization
      * @return Block set index
      */
     moris_index
     create_block_set_from_cells_of_side_set(
-        moris_index const &      aSideSetIndex,
-        std::string const &      aBlockSetName,
-        enum CellTopology const &aCellTopo );
+        moris_index const&       aSideSetIndex,
+        std::string const&       aBlockSetName,
+        enum CellTopology const& aCellTopo,
+        bool                     aCreateOnlyForVis = false );
+
+
+    //------------------------------------------------------------------------------
+
+    void
+    setup_cluster_groups();
+
+    //------------------------------------------------------------------------------
+
+    void
+    visualize_cluster_measures(); 
+
+    //------------------------------------------------------------------------------
+    
+    void 
+    visualize_cluster_group_measures();
+
+    //------------------------------------------------------------------------------
 
   protected:
 
@@ -552,9 +572,6 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
     //------------------------------------------------------------------------------
 
     void
-    setup_cluster_groups();
-
-    void
     setup_cell_cluster_groups();
     
     void
@@ -562,16 +579,6 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
     
     void
     setup_dbl_side_cluster_groups();
-
-    //------------------------------------------------------------------------------
-
-    void
-    visualize_cluster_measures(); 
-
-    //------------------------------------------------------------------------------
-    
-    void 
-    visualize_cluster_group_measures();
 
     //------------------------------------------------------------------------------
 
