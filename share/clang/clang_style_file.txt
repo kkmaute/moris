@@ -16,7 +16,6 @@ AlwaysBreakAfterReturnType: None
 AlwaysBreakBeforeMultilineStrings: true
 AlwaysBreakTemplateDeclarations: false
 AlwaysBreakAfterDefinitionReturnType: true
-ArrayInitializerAlignmentStyle: Right
 BinPackArguments: false
 BinPackParameters: false
 BraceWrapping:
