@@ -1814,7 +1814,7 @@ Integration_Mesh_Generator::prepare_subphase_group_id_answers(
                     "Trying to request index from a suphase group whose ID has not been assigned." );
                 
                 // check that the SP found on this proc has the same number of IG cells in it as the one from the requesting proc
-                MORIS_ERROR( (moris_index) tSubphaseGroup->get_SP_indices_in_group().size() == aReceivedNumSpsInSpg( iProc )( jSPG ), 
+                MORIS_ERROR( (moris_index) tSubphaseGroup->get_num_SPs_in_group() == aReceivedNumSpsInSpg( iProc )( jSPG ), 
                     "Integration_Mesh_Generator::prepare_subphase_id_answers() - Number of cells in subphase discrepency" );
 
                 // TODO: the Subphase IDs are not assigned to the SPGs yet

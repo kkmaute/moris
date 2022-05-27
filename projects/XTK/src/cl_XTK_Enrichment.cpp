@@ -463,7 +463,6 @@ namespace xtk
                     tSpgIndicesInSupport,
                     tMaxEnrichmentLevel );
 
-            // FIXME: move communication to SPGs once everything is parallel consistent
             // Assign enriched basis indices Only indices here because interpolation cells needs basis
             // indices and basis ids are created using the interpolation cell ids
             this->assign_enriched_coefficients_identifiers(
@@ -1090,6 +1089,9 @@ namespace xtk
         // get the position of the DMI in the list of B-spline meshes
         moris_index tMeshListIndex = this->get_list_index_for_mesh_index( aEnrichmentDataIndex );
 
+        // get access to the Bspline mesh info for the current mesh
+        Bspline_Mesh_Info* tBsplineMeshInfo = mBsplineMeshInfos( tMeshListIndex );
+
         // size data
         mEnrichmentData( aEnrichmentDataIndex ).mSubphaseGroupIndsInEnrichedBasis.resize( tNumEnrichmentBasis );
         mEnrichmentData( aEnrichmentDataIndex ).mBulkPhaseInEnrichedBasis.set_size( 1, tNumEnrichmentBasis, gNoID );
@@ -1101,16 +1103,29 @@ namespace xtk
             // get the maximum enrichment level in this basis support
             moris::moris_index tMaxEnrLev = aMaxEnrichmentLevel( iBaseBF );
 
-            // counter
-            Cell< moris_index > tCounter( tMaxEnrLev + 1, 0 );
+            // initialize counters counting SPGs and SPs in the basis support
+            Cell< moris_index > tSpgCounter( tMaxEnrLev + 1, 0 );
+            Cell< moris_index > tSpCounter( tMaxEnrLev + 1, 0 );
 
             // get the number of SPGs in the support of the enr. BF
             uint tNumSpgIndicesInSupport = aSpgIndicesInSupport( iBaseBF ).numel();
+
+            // get the number of SPs in the support of the enr. BF
+            uint tNumSpsInSupport = 0;
+            for( uint iSPG = 0; iSPG < tNumSpgIndicesInSupport; iSPG++ )
+            {
+                // get the current SPG index
+                moris_index tSpgIndex = aSpgIndicesInSupport( iBaseBF )( iSPG );
+
+                // count up number of SPs in support
+                tNumSpsInSupport += tBsplineMeshInfo->mSubphaseGroups( tSpgIndex )->get_num_SPs_in_group(); 
+            }
 
             // allocate member data for these basis functions
             for ( moris::moris_index iEnr = tBaseIndex; iEnr < tBaseIndex + tMaxEnrLev + 1; iEnr++ )
             {
                 mEnrichmentData( aEnrichmentDataIndex ).mSubphaseGroupIndsInEnrichedBasis( iEnr ).resize( 1, tNumSpgIndicesInSupport );
+                mEnrichmentData( aEnrichmentDataIndex ).mSubphaseIndsInEnrichedBasis( iEnr ).resize( 1, tNumSpsInSupport );
             }
 
             // iterate through SPGs in support and add them to appropriate location in mSubphaseGroupIndsInEnrichedBasis
@@ -1121,22 +1136,38 @@ namespace xtk
 
                 // get the current SPGs index
                 moris_index tSpgIndex = aSpgIndicesInSupport( iBaseBF )( iSPG );
+                
+                // count up index of the enriched Basis function
+                moris_index tEnrBfIndex = tBaseIndex + tClusterEnrLev;
 
                 // add to the member data
-                mEnrichmentData( aEnrichmentDataIndex ).mSubphaseGroupIndsInEnrichedBasis( tBaseIndex + tClusterEnrLev )( tCounter( tClusterEnrLev ) ) = tSpgIndex;
+                mEnrichmentData( aEnrichmentDataIndex ).mSubphaseGroupIndsInEnrichedBasis( tEnrBfIndex )( tSpgCounter( tClusterEnrLev ) ) = tSpgIndex;
 
-                // increment count
-                tCounter( tClusterEnrLev )++;
+                // increment count of SPGs in the enriched basis' support
+                tSpgCounter( tClusterEnrLev )++;
 
-                // FIXME: this is written in an expensive way for debugging, make sleeker once confirmed everything works
+                // get SPs on current SPG
+                Cell< moris_index > const& tSpIndicesInSpg = tBsplineMeshInfo->mSubphaseGroups( tSpgIndex )->get_SP_indices_in_group();
+                uint tNumSpsOnSpg = tSpIndicesInSpg.size();
+
+                // fill list of SPs in basis support
+                for( uint iSP = 0; iSP < tNumSpsOnSpg; iSP++ )
+                {
+                    // add SP to list of SPs in basis support
+                    mEnrichmentData( aEnrichmentDataIndex ).mSubphaseIndsInEnrichedBasis( tEnrBfIndex )( tSpCounter( tClusterEnrLev ) ) = tSpIndicesInSpg( iSP );
+
+                    // count up number of SPs in the enriched basis' support
+                    tSpCounter( tClusterEnrLev )++;
+                }
+
                 // find the bulk-phase index corresponding to the SPG and put it in map
-                moris_index tPrevSetBpIndex = mEnrichmentData( aEnrichmentDataIndex ).mBulkPhaseInEnrichedBasis( tBaseIndex + tClusterEnrLev );
+                moris_index tPrevSetBpIndex = mEnrichmentData( aEnrichmentDataIndex ).mBulkPhaseInEnrichedBasis( tEnrBfIndex );
                 moris_index tBulkPhaseIndex = mBsplineMeshInfos( tMeshListIndex )->get_bulk_phase_for_subphase_group( tSpgIndex );
                 
                 // check if the bulk phase has not already been set for this enr. BF
                 if( tPrevSetBpIndex == -1 )
                 {
-                    mEnrichmentData( aEnrichmentDataIndex ).mBulkPhaseInEnrichedBasis( tBaseIndex + tClusterEnrLev ) = tBulkPhaseIndex;
+                    mEnrichmentData( aEnrichmentDataIndex ).mBulkPhaseInEnrichedBasis( tEnrBfIndex ) = tBulkPhaseIndex;
                 }
 #ifdef DEBUG
                 else // if the bulk phase has already been set for this enr. BF  ...
@@ -1154,7 +1185,7 @@ namespace xtk
             for ( moris::moris_index iEnr = 0; iEnr < tMaxEnrLev + 1; iEnr++ )
             {
                 moris_index tIndex = tBaseIndex + iEnr;
-                mEnrichmentData( aEnrichmentDataIndex ).mSubphaseGroupIndsInEnrichedBasis( tIndex ).resize( 1, tCounter( iEnr ) );
+                mEnrichmentData( aEnrichmentDataIndex ).mSubphaseGroupIndsInEnrichedBasis( tIndex ).resize( 1, tSpgCounter( iEnr ) );
 
                 // sort in ascending order (easier to find in MPI)
                 // if this sort is removed the function  subphase_is_in_support needs to be updated
@@ -1177,85 +1208,102 @@ namespace xtk
             moris::Cell< moris_index > const & aMaxEnrichmentLevel )
     {
         // get number of non-enriched BFs
-        uint tNumBasis = mEnrichmentData( aEnrichmentDataIndex ).mElementIndsInBasis.size();
+        uint tNumNonEnrichedBFs = mEnrichmentData( aEnrichmentDataIndex ).mElementIndsInBasis.size();
         
-        mEnrichmentData( aEnrichmentDataIndex ).mBasisEnrichmentIndices.resize( tNumBasis );
+        // initialize array holding the enriched basis function function indices living on any given non-enriched BF
+        mEnrichmentData( aEnrichmentDataIndex ).mBasisEnrichmentIndices.resize( tNumNonEnrichedBFs );
 
+        // initialize counter for number of enriched BFs
         mEnrichmentData( aEnrichmentDataIndex ).mNumEnrichmentLevels = 0;
 
-        for ( moris::uint i = 0; i < tNumBasis; i++ )
+        // continue to initialize array holding the enriched basis function function indices living on any given non-enriched BF
+        for ( moris::uint iBF = 0; iBF < tNumNonEnrichedBFs; iBF++ )
         {
-            moris::moris_index tMaxEnrLev                                        = aMaxEnrichmentLevel( i ) + 1;
-            mEnrichmentData( aEnrichmentDataIndex ).mNumEnrichmentLevels         = mEnrichmentData( aEnrichmentDataIndex ).mNumEnrichmentLevels + tMaxEnrLev;
-            mEnrichmentData( aEnrichmentDataIndex ).mBasisEnrichmentIndices( i ) = moris::Matrix< moris::IndexMat >( 1, tMaxEnrLev );
+            moris::moris_index tMaxEnrLev = aMaxEnrichmentLevel( iBF ) + 1;
+            mEnrichmentData( aEnrichmentDataIndex ).mNumEnrichmentLevels = mEnrichmentData( aEnrichmentDataIndex ).mNumEnrichmentLevels + tMaxEnrLev;
+            mEnrichmentData( aEnrichmentDataIndex ).mBasisEnrichmentIndices( iBF ) = moris::Matrix< moris::IndexMat >( 1, tMaxEnrLev );
         }
 
         // allocate enriched basis index to id data
         mEnrichmentData( aEnrichmentDataIndex ).mEnrichedBasisIndexToId.resize( 1, mEnrichmentData( aEnrichmentDataIndex ).mNumEnrichmentLevels );
         mEnrichmentData( aEnrichmentDataIndex ).mEnrichedBasisIndexToId.fill( MORIS_INDEX_MAX );
 
+        // get current processor's ID
         moris_index tParRank = par_rank();
 
-        // get the comm table
+        // get the XTK comm table
         Matrix< IndexMat > tCommTable = mXTKModelPtr->get_communication_table();
 
-        // Procs CEll
+        // Initialize map relating the global MPI proc rank to its position in the XTK Comm Table
         Cell< moris_index > tProcRanks( tCommTable.numel() );
-
         std::unordered_map< moris_id, moris_id > tProcRankToIndexInData;
 
-        // resize proc ranks and setup map to comm table
-        for ( moris::uint i = 0; i < tCommTable.numel(); i++ )
+        // relate the global MPI proc rank to its position in the XTK Comm Table
+        for ( moris::uint iProc = 0; iProc < tCommTable.numel(); iProc++ )
         {
-            tProcRankToIndexInData[tCommTable( i )] = i;
-            tProcRanks( i )                         = ( tCommTable( i ) );
+            tProcRankToIndexInData[tCommTable( iProc )] = iProc;
+            tProcRanks( iProc ) = ( tCommTable( iProc ) );
         }
 
-        // first index and id ( not first gets background basis information)
+        // get the first first free global ID (not first gets background basis information)
         moris::moris_index tIndOffset     = 0;
         moris::moris_id    tBasisIdOffset = this->allocate_basis_ids( aEnrichmentDataIndex, mEnrichmentData( aEnrichmentDataIndex ).mNumEnrichmentLevels );
 
-// TODO: once the SPGs have IDs and parallel consistent, this here needs to be changed to use SPG IDs
+        // TODO: once the SPGs have IDs and parallel consistent, this here needs to be changed to use SPG IDs
         Cell< Cell< moris_index > > tBasisIdToBasisOwner( tCommTable.numel() );
         Cell< Cell< moris_index > > tSubphaseIdInSupport( tCommTable.numel() );
         //Cell< Cell< moris_index > > tSubphaseGroupIdInSupport( tCommTable.numel() );
         Cell< Cell< moris_index > > tBasisIndexToBasisOwner( tCommTable.numel() );
 
-        for ( moris::uint i = 0; i < mEnrichmentData( aEnrichmentDataIndex ).mBasisEnrichmentIndices.size(); i++ )
+        // for each non-enriched BF ...
+        for ( moris::uint iNonEnrichedBF = 0; iNonEnrichedBF < tNumNonEnrichedBFs; iNonEnrichedBF++ )
         {
+            // ... get their basis owner and ...
             moris_index tOwner = mBackgroundMeshPtr->get_entity_owner(
-                    i,
-                    mBasisRank,
-                    aEnrichmentDataIndex );
+                iNonEnrichedBF,
+                mBasisRank,
+                aEnrichmentDataIndex );
 
-            moris_id tBackBasisId =
-                    mBackgroundMeshPtr->get_glb_entity_id_from_entity_loc_index(
-                            i,
-                            mBasisRank,
-                            aEnrichmentDataIndex );
+            // .. get their basis ID
+            moris_id tBackBasisId = mBackgroundMeshPtr->get_glb_entity_id_from_entity_loc_index(
+                iNonEnrichedBF,
+                mBasisRank,
+                aEnrichmentDataIndex );
 
+            // get the owning processor's position in the communication arrays
             moris_index tProcDataIndex = tProcRankToIndexInData[tOwner];
 
-            // always set indices
-            moris::Matrix< moris::IndexMat >& tBasisEnrichmentInds = mEnrichmentData( aEnrichmentDataIndex ).mBasisEnrichmentIndices( i );
+            // get access to the list of enriched BF indices living on the current non-enriched BF
+            moris::Matrix< moris::IndexMat >& tBasisEnrichmentInds = mEnrichmentData( aEnrichmentDataIndex ).mBasisEnrichmentIndices( iNonEnrichedBF );
+            uint tNumEnrichedBFsOnBasis = tBasisEnrichmentInds.numel();
 
-            for ( moris::uint j = 0; j < tBasisEnrichmentInds.numel(); j++ )
+            // assign indices to each enriched Basis function by counting up the enriched bases living on each non-enriched Basis
+            for ( moris::uint jEnrBF = 0; jEnrBF < tNumEnrichedBFsOnBasis; jEnrBF++ )
             {
-                tBasisEnrichmentInds( j ) = tIndOffset;
+                tBasisEnrichmentInds( jEnrBF ) = tIndOffset;
                 tIndOffset++;
             }
 
             // only set id if we own it and package data for communication if shared
             if ( tOwner == tParRank )
             {
+                // get access to the non-enriched basis' ID
                 mEnrichmentData( aEnrichmentDataIndex ).mEnrichedBasisIndexToId( tBasisEnrichmentInds( 0 ) ) = tBackBasisId;
 
-                for ( moris::uint j = 1; j < tBasisEnrichmentInds.numel(); j++ )
+                // give all enr. BFs their IDs
+                for ( moris::uint jEnrBF = 1; jEnrBF < tNumEnrichedBFsOnBasis; jEnrBF++ )
                 {
-                    MORIS_ASSERT( mEnrichmentData( aEnrichmentDataIndex ).mEnrichedBasisIndexToId( tBasisEnrichmentInds( j ) ) == MORIS_INDEX_MAX, "Already set enriched basis id" );
+                    // get the current enriched basis' index
+                    moris_index tEnrBfInd = tBasisEnrichmentInds( jEnrBF );
 
-                    mEnrichmentData( aEnrichmentDataIndex ).mEnrichedBasisIndexToId( tBasisEnrichmentInds( j ) ) = tBasisIdOffset;
+                    // check that the basis doesn't already have an ID attached to it
+                    MORIS_ASSERT( mEnrichmentData( aEnrichmentDataIndex ).mEnrichedBasisIndexToId( tEnrBfInd ) == MORIS_INDEX_MAX, 
+                        "Enrichment::assign_enriched_coefficients_identifiers() - Already set enriched basis id" );
 
+                    // assign ID to enriched BF
+                    mEnrichmentData( aEnrichmentDataIndex ).mEnrichedBasisIndexToId( tEnrBfInd ) = tBasisIdOffset;
+
+                    // increment ID for next enr. BF
                     tBasisIdOffset++;
                 }
             }
@@ -1263,14 +1311,16 @@ namespace xtk
             // if we don't own the basis setup the communication to get the basis
             else
             {
-                for ( moris::uint j = 0; j < tBasisEnrichmentInds.numel(); j++ )
+                // prepare ID requests for all enr. BFs
+                for ( moris::uint jEnrBF = 0; jEnrBF < tNumEnrichedBFsOnBasis; jEnrBF++ )
                 {
-                    moris_index tEnrichedBasisIndex = tBasisEnrichmentInds( j );
+                    // get the current enriched basis' index
+                    moris_index tEnrichedBasisIndex = tBasisEnrichmentInds( jEnrBF );
 
-// TODO: once the SPGs have IDs and parallel consistent, this here needs to be changed to use SPGs
+                    // TODO: once the SPGs have IDs and parallel consistent, this here needs to be changed to use SPGs
                     moris_index tFirstSubphaseInSupportIndex = mEnrichmentData( aEnrichmentDataIndex ).mSubphaseIndsInEnrichedBasis( tEnrichedBasisIndex )( 0 );
                     //moris_index tFirstSpgInSupportIndex = mEnrichmentData( aEnrichmentDataIndex ).mSubphaseGroupIndsInEnrichedBasis( tEnrichedBasisIndex )( 0 );
-
+ 
                     moris_index tFirstSubphaseInSupportId = mXTKModelPtr->get_subphase_id( tFirstSubphaseInSupportIndex );
                     //moris_index tFirstSubphaseGroupInSupportId = mXTKModelPtr->get_subphase_group_id( tFirstSpgInSupportIndex );
 
@@ -1458,21 +1508,26 @@ namespace xtk
             Cell< moris::Matrix< moris::IndexMat > > const & aReceivedEnrichedIds,
             Cell< Cell< moris_index > > const &              aBasisIndexToBasisOwner )
     {
-        for ( moris::uint i = 0; i < aReceivedEnrichedIds.size(); i++ )
+        for ( moris::uint iProc = 0; iProc < aReceivedEnrichedIds.size(); iProc++ )
         {
-            if ( aReceivedEnrichedIds( i )( 0 ) != MORIS_INDEX_MAX )
+            if ( aReceivedEnrichedIds( iProc )( 0 ) != MORIS_INDEX_MAX )
             {
-                MORIS_ASSERT( aReceivedEnrichedIds( i ).numel() == aBasisIndexToBasisOwner( i ).size(),
-                        "Dimension mismatch between received information and expected information" );
+                // check size of received data
+                MORIS_ASSERT( aReceivedEnrichedIds( iProc ).numel() == aBasisIndexToBasisOwner( iProc ).size(),
+                    "Enrichment::set_received_enriched_basis_ids() - Dimension mismatch between received information and expected information" );
 
-                for ( moris::uint j = 0; j < aReceivedEnrichedIds( i ).numel(); j++ )
+                // loop over the received Basis-Ids for every proc
+                for ( moris::uint jBasisId = 0; jBasisId < aReceivedEnrichedIds( iProc ).numel(); jBasisId++ )
                 {
-                    moris_index tLocalBasisIndex = aBasisIndexToBasisOwner( i )( j );
-                    moris_index tGlobaId         = aReceivedEnrichedIds( i )( j );
+                    // get the local enr. basis index and corresponding ID from the communicated information
+                    moris_index tLocalBasisIndex = aBasisIndexToBasisOwner( iProc )( jBasisId );
+                    moris_index tGlobaId         = aReceivedEnrichedIds( iProc )( jBasisId );
 
+                    // check that a basis-ID doesn't get assigned twice
                     MORIS_ASSERT( mEnrichmentData( aEnrichmentDataIndex ).mEnrichedBasisIndexToId( tLocalBasisIndex ) == MORIS_INDEX_MAX,
-                            "Id already set for this basis function" );
+                        "Enrichment::set_received_enriched_basis_ids() - Id already set for this basis function" );
 
+                    // assign enr. basis ID to proc local enr. basis index 
                     mEnrichmentData( aEnrichmentDataIndex ).mEnrichedBasisIndexToId( tLocalBasisIndex ) = tGlobaId;
                 }
             }

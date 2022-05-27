@@ -148,6 +148,12 @@ namespace xtk
             return mSubphaseIndicesInGroup;
         }
 
+        uint
+        get_num_SPs_in_group() const
+        {
+            return mSubphaseIndicesInGroup.size();
+        }
+
         void 
         set_bulk_phase( const moris_index aBulkPhaseIndex )
         { 
