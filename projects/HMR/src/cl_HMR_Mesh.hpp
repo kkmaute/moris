@@ -303,18 +303,18 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
-            luint get_num_active_bg_elements_on_discretization_mesh_index( moris_index const aDiscretizationMeshIndex )
+            luint get_num_active_bg_elements_on_discretization_mesh_index_including_aura( moris_index const aDiscretizationMeshIndex )
             {
-                return mMesh->get_num_active_bg_elements_on_discretization_mesh_index( aDiscretizationMeshIndex );
+                return mMesh->get_num_active_bg_elements_on_discretization_mesh_index_including_aura( aDiscretizationMeshIndex );
             }
 
             // ----------------------------------------------------------------------------
 
-            void get_active_bg_element_indices_on_discretization_mesh_index( 
+            void get_active_bg_element_indices_on_discretization_mesh_index_including_aura( 
                     moris_index const aDiscretizationMeshIndex, 
                     Matrix< DDLUMat > & aElementIDs )
             {
-                mMesh->get_active_bg_element_indices_on_discretization_mesh_index( aDiscretizationMeshIndex, aElementIDs );
+                mMesh->get_active_bg_element_indices_on_discretization_mesh_index_including_aura( aDiscretizationMeshIndex, aElementIDs );
             }
 
 

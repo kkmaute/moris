@@ -3849,7 +3849,7 @@ namespace moris
             uint tLagrangePattern = this->get_activation_pattern();
 
             // get number of Lagrange elements on current mesh
-            luint tNumLagElems = this->get_background_mesh()->get_number_of_active_elements_on_proc();
+            luint tNumLagElems = this->get_background_mesh()->get_number_of_active_elements_on_proc_including_aura();
             aLagToBspCellIndices.resize( tNumLagElems, -1 );
 
             // set the activation pattern to that of the B-spline mesh
@@ -3857,11 +3857,11 @@ namespace moris
             mBackgroundMesh->set_activation_pattern( tBSplinePattern );
 
             // get number of B-spline elements on bg mesh
-            luint tNumBsplineElems = this->get_num_active_bg_elements_on_discretization_mesh_index( aDiscretizationMeshIndex );
+            luint tNumBsplineElems = this->get_num_active_bg_elements_on_discretization_mesh_index_including_aura( aDiscretizationMeshIndex );
 
             // get indices of active B-spline elements on bg mesh
             Matrix< DDLUMat > tElementIndices;
-            this->get_active_bg_element_indices_on_discretization_mesh_index( aDiscretizationMeshIndex, tElementIndices );
+            this->get_active_bg_element_indices_on_discretization_mesh_index_including_aura( aDiscretizationMeshIndex, tElementIndices );
 
             // check for debug
             MORIS_ASSERT( tElementIndices.numel() == tNumBsplineElems, 
@@ -3876,7 +3876,7 @@ namespace moris
             for ( luint iBspElem = 0; iBspElem < tNumBsplineElems; iBspElem++ )
             {
                 // get pointer to b-spline and background elements
-                Element* tBsplineElement = mBSplineMeshes( aDiscretizationMeshIndex )->get_element( iBspElem );
+                Element* tBsplineElement = mBSplineMeshes( aDiscretizationMeshIndex )->get_element_including_aura( iBspElem );
                 Background_Element_Base* tBackgroundElement  = tBsplineElement->get_background_element();
 
                 // get and store the refinement level of the current B-spline element
@@ -3911,7 +3911,7 @@ namespace moris
                     aCells( iBspElem )( iLagElem ) = this->get_element_by_memory_index( tMemoryIndex );
                     moris_index tLagElemIndex = aCells( iBspElem )( iLagElem )->get_index();
                     aCellIndices( iBspElem )( iLagElem ) = tLagElemIndex;
-                    
+
                     // store which B-spline element current Larange element belongs to
                     aLagToBspCellIndices( (uint) tLagElemIndex ) = iBspElem;
                 }

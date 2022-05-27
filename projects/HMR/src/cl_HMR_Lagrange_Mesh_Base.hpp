@@ -716,9 +716,9 @@ namespace moris
                  * @param aDiscretizationMeshIndex b-spline background mesh index
                  * @return luint number of active elements on that b-spline mesh
                  */
-                luint get_num_active_bg_elements_on_discretization_mesh_index( moris_index const aDiscretizationMeshIndex )
+                luint get_num_active_bg_elements_on_discretization_mesh_index_including_aura( moris_index const aDiscretizationMeshIndex )
                 {
-                    return mBSplineMeshes( aDiscretizationMeshIndex )->get_background_mesh()->get_number_of_active_elements_on_proc();
+                    return mBSplineMeshes( aDiscretizationMeshIndex )->get_background_mesh()->get_number_of_active_elements_on_proc_including_aura();
                 }
 
                 // ----------------------------------------------------------------------------
@@ -729,11 +729,11 @@ namespace moris
                  * @param aDiscretizationMeshIndex b-spline background mesh index
                  * @param aElementIDs Matrix< DDLUMat > to fill with list of active BG element indices
                  */
-                void get_active_bg_element_indices_on_discretization_mesh_index( 
+                void get_active_bg_element_indices_on_discretization_mesh_index_including_aura( 
                         moris_index const aDiscretizationMeshIndex, 
                         Matrix< DDLUMat > & aElementIDs )
                 {
-                    mBSplineMeshes( aDiscretizationMeshIndex )->get_background_mesh()->get_active_elements_on_proc( aElementIDs );
+                    mBSplineMeshes( aDiscretizationMeshIndex )->get_background_mesh()->get_active_elements_on_proc_including_aura( aElementIDs );
                 }
 
                 // ----------------------------------------------------------------------------
@@ -896,7 +896,7 @@ namespace moris
                 // -----------------------------------------------------------------------------
 
                 /**
-                 * @brief Get the lagrange elements inside the bspline elements for the whole mesh
+                 * @brief Get the lagrange elements inside the bspline elements for the whole mesh including the aura
                  * 
                  * @param aDiscretizationMeshIndex discretization mesh index
                  * @param aCells list of lists of Lagrange elements (mtk::cells) inside each B-spline element

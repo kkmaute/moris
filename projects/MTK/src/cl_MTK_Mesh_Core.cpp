@@ -1160,7 +1160,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        luint Mesh::get_num_active_bg_elements_on_discretization_mesh_index( moris_index const aDiscretizationMeshIndex )
+        luint Mesh::get_num_active_bg_elements_on_discretization_mesh_index_including_aura( moris_index const aDiscretizationMeshIndex )
         {
             MORIS_ERROR( false, "Mesh::get_num_active_bg_elements_on_discretization_mesh_index() -  not implemented in mtk base class" );
             return 0;
@@ -1168,11 +1168,11 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Mesh::get_active_bg_element_indices_on_discretization_mesh_index( 
+        void Mesh::get_active_bg_element_indices_on_discretization_mesh_index_including_aura( 
                 moris_index const aDiscretizationMeshIndex, 
                 Matrix< DDLUMat > & aElementIDs )
         {
-            MORIS_ERROR( false, "Mesh::get_active_bg_element_indices_on_discretization_mesh_index() -  not implemented in mtk base class" );
+            MORIS_ERROR( false, "Mesh::get_active_bg_element_indices_on_discretization_mesh_index_including_aura() -  not implemented in mtk base class" );
         }
 
         //--------------------------------------------------------------------------------------------------------------
