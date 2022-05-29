@@ -201,15 +201,14 @@ namespace moris
             if ( mHasReaction )
             {
                 // compute tau S with linearized version of destruction term
-                real tTauS =
-                        2.0 * tCMSATurbulence->wall_destruction_coefficient()( 0 )
-                        - tCMSATurbulence->production_coefficient()( 0 );
+                real tTauS = 2.0 * tCMSATurbulence->wall_destruction_coefficient()( 0 )
+                           - tCMSATurbulence->production_coefficient()( 0 );
 
                 // compute the regularized absolute of source term
-                tTauS = std::sqrt( tTauS * tTauS + mEpsilon ) - std::sqrt( mEpsilon );
+                real tTauSabs = std::max( std::abs( tTauS ), mEpsilon );
 
                 // add contribution of reaction term
-                tTau += std::pow( tTauS, mExponent );
+                tTau += std::pow( tTauSabs, mExponent );
             }
 
             // threshold tau
@@ -258,17 +257,16 @@ namespace moris
             real tTau = std::pow( tTauA, mExponent ) + std::pow( tTauK, mExponent );
 
             // if use reaction term
-            real tTauS    = 0;
-            real tTauSabs = 0;
+            real tTauS    = 0.0;
+            real tTauSabs = 0.0;
             if ( mHasReaction )
             {
                 // compute tau S with linearized version of destruction term
-                tTauS =
-                        2.0 * tCMSATurbulence->wall_destruction_coefficient()( 0 )
-                        - tCMSATurbulence->production_coefficient()( 0 );
+                tTauS = 2.0 * tCMSATurbulence->wall_destruction_coefficient()( 0 )
+                      - tCMSATurbulence->production_coefficient()( 0 );
 
                 // compute the regularized absolute of source term
-                tTauSabs = std::sqrt( tTauS * tTauS + mEpsilon ) - std::sqrt( mEpsilon );
+                tTauSabs = std::max( std::abs( tTauS ), mEpsilon );
 
                 // add contribution of reaction term
                 tTau += std::pow( tTauSabs, mExponent );
@@ -304,11 +302,14 @@ namespace moris
                     // if use reaction term
                     if ( mHasReaction )
                     {
-                        // compute tdtauSdu
-                        mdPPdMasterDof( tDofIndex ) +=
-                                std::pow( tTauSabs, mExponent - 1.0 )
-                                * tTauS / std::sqrt( tTauS * tTauS + mEpsilon )
-                                * ( 2.0 * tCMSATurbulence->dwalldestructioncoeffdu( aDofTypes ) - tCMSATurbulence->dproductioncoeffdu( aDofTypes ) );
+                        if ( tTauSabs > mEpsilon )
+                        {
+                            // compute tdtauSdu
+                            mdPPdMasterDof( tDofIndex ) +=
+                                    std::pow( tTauSabs, mExponent - 1.0 )
+                                    * tTauS / tTauSabs
+                                    * ( 2.0 * tCMSATurbulence->dwalldestructioncoeffdu( aDofTypes ) - tCMSATurbulence->dproductioncoeffdu( aDofTypes ) );
+                        }
                     }
                 }
 
