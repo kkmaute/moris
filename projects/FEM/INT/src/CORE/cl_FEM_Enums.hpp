@@ -155,6 +155,8 @@ namespace moris
                 THERMAL_ENERGY_CONVECTIVE_FLUX,
                 THERMAL_ENERGY_DIFFUSIVE_FLUX,
 
+                JUMP_DOF,
+
                 ADVECTION_STRONG_RESIDUAL,
                 STRONG_RESIDUAL_SA,
                 STRONG_RESIDUAL_INCOMPRESSIBLE_NS,
