@@ -152,30 +152,50 @@ namespace moris
                     // get list of list of coordinate of vertices on current cluster
                     moris::Matrix< moris::DDRMat > tLocalCoords = tCluster->get_vertices_local_coordinates_wrt_interp_cell();
 
-                    // get list of (pointers to) vertices on current cluster
-                    moris::Cell< moris::mtk::Vertex const * > tIGVertices = tCluster->get_vertices_in_cluster();
+                    // get list of (pointers to) all vertices on current cluster
+                    moris::Cell< moris::mtk::Vertex const* > tIGVertices = tCluster->get_vertices_in_cluster();
 
-                    // get number of vertices on the treated mesh cluster
-                    uint tNumVerticesOnCluster = tLocalCoords.n_rows();
+                    // build map stating where in the list of all IG vertices on the current cluster the primary IG vertices sit
+                    std::unordered_map< moris_id, uint > tIgVertexMap;
+                    for( uint iIgVert = 0; iIgVert < tIGVertices.size(); iIgVert++ )
+                    {
+                        tIgVertexMap[ tIGVertices( iIgVert )->get_id() ] = iIgVert;
+                    }
+
+                    // get list of (pointers to) primary vertices on current cluster
+                    moris::Cell< moris::mtk::Vertex* > tPrimaryIGVertices = tCluster->get_primary_vertices_in_cluster();
+
+                    // get number of primary vertices on the treated mesh cluster
+                    uint tNumPrimaryVerticesOnCluster = tPrimaryIGVertices.size();
 
                     // loop over the vertices on the treated mesh cluster
-                    for( uint iIgVert = 0; iIgVert < tNumVerticesOnCluster; iIgVert++ )
+                    for( uint iPrimaryIgVert = 0; iPrimaryIgVert < tNumPrimaryVerticesOnCluster; iPrimaryIgVert++ )
                     {
+                        // get the current primary IG vertex ID
+                        moris_id tPrimaryVertexID = tPrimaryIGVertices( iPrimaryIgVert )->get_id();
+
+                        // look for position of primary vertex in list of all vertices on cluster
+                        auto tIter = tIgVertexMap.find( tPrimaryVertexID );
+
+                        // check that the primary vertex is actually in the list of 
+                        MORIS_ERROR( tIter != tIgVertexMap.end(), 
+                            "Integration_Mesh::get_IG_to_IP_nodal_T_matrices() - Primary vertex ID on cluster not found in list of all vertex IDs on cluster" );
+
+                        // get the position of the current primary IG vertex in the list of all IG vertices on the cluster
+                        uint tIgVertListIndex = tIter->second;
+
                         // set interpolation point in space to current vertex
-                        tSpaceInterpolator.set_space_time( trans( tLocalCoords.get_row( iIgVert ) ) );
+                        tSpaceInterpolator.set_space_time( trans( tLocalCoords.get_row( tIgVertListIndex ) ) );
 
                         // evaluate vector of shape functions at current vertex and retrieve it
                         const Matrix< DDRMat > & tN = tSpaceInterpolator.NXi();
-
-                        // get current vertex ID and index
-                        moris_id tIGVertexId = tIGVertices( iIgVert )->get_id();
 
                         // get number of shape functions interpolating into current vertex
                         uint tNumSFs = tN.n_cols();
 
                         // initialize size of T-Matrix for current vertex
-                        aIGtoIPIds( tIGVertexId - 1 ).set_size( 1, tNumSFs, gNoID );
-                        aIGtoIPWeights( tIGVertexId - 1 ).set_size( 1, tNumSFs, -1.0 );
+                        aIGtoIPIds( tPrimaryVertexID - 1 ).set_size( 1, tNumSFs, gNoID );
+                        aIGtoIPWeights( tPrimaryVertexID - 1 ).set_size( 1, tNumSFs, -1.0 );
 
                         // initialize counter
                         uint tCount = 0;
@@ -187,10 +207,10 @@ namespace moris
                             if ( std::abs( tN( iSF ) ) > 10.0 * MORIS_REAL_EPS )
                             {
                                 // copy pointer of dof and convert to mtk::Vertex
-                                aIGtoIPIds( tIGVertexId - 1 )( tCount ) = tIPVertices( iSF )->get_id();
+                                aIGtoIPIds( tPrimaryVertexID - 1 )( tCount ) = tIPVertices( iSF )->get_id();
 
                                 // copy entry of T-Matrix
-                                aIGtoIPWeights( tIGVertexId - 1 )( tCount ) = tN( iSF );
+                                aIGtoIPWeights( tPrimaryVertexID - 1 )( tCount ) = tN( iSF );
 
                                 // increment counter
                                 tCount++;
