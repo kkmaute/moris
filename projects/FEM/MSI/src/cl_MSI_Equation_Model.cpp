@@ -74,6 +74,9 @@ namespace moris
             // loop over local equation sets
             for ( moris::uint tSetIndex = 0; tSetIndex < tNumSets; tSetIndex++ )
             {
+                // initialize treated equation set // FIXME????
+                mFemSets( tSetIndex )->initialize_set( false, false );
+
                 // get number of IQIs on treated equation set
                 moris::uint tNumIQIsOnSet = mFemSets( tSetIndex )->get_number_of_requested_IQIs();
 
@@ -82,9 +85,6 @@ namespace moris
                 {
                     // get number of equation objects on treated equation set
                     moris::uint tNumEquationObjectOnSet = mFemSets( tSetIndex )->get_num_equation_objects();
-
-                    // initialize treated equation set // FIXME????
-                    mFemSets( tSetIndex )->initialize_set( false, false );
 
                     // loop over equation objects on treated equation set
                     for ( moris::uint tEquationObjectIndex = 0; tEquationObjectIndex < tNumEquationObjectOnSet; tEquationObjectIndex++ )
