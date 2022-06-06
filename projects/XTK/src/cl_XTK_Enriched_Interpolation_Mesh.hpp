@@ -48,6 +48,8 @@ namespace xtk
             // enriched interpolation cells
             moris::uint                          mNumVertsPerInterpCell;
             Cell< Interpolation_Cell_Unzipped* > mEnrichedInterpCells;     // over allocated
+            Cell< moris_index > mOwnedEnrichedInterpCells;
+            Cell< moris_index > mNotOwnedEnrichedInterpCells;
 
             // for each outer cell (base interpolation vertex), indices of enriched vertices
             Cell< Cell< Cell< moris_index > > > mBaseInterpVertToVertEnrichmentIndex; 

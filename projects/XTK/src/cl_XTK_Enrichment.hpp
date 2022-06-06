@@ -175,12 +175,12 @@ namespace xtk
             // Maps tracking how an IP cell gets unzipped
             moris_index mNumEnrIpCells; 
             moris::Cell< uint > mNumUnzippingsOnIpCell; // input: IP-cell index || output: number of enr. IP-cells and clusters to be created
-            //moris::Cell< moris::Cell< uint > > mNumValidUnzippingsOnIpCell; // input: B-spline mesh index, IP-cell index || output: number of valid enr. IP-cells and clusters to be created
             moris::Cell< moris::Cell<  moris::Cell< moris_index > > > mMaterialSpgsUnzippedOnIpCell; // input: B-spline mesh index, IP-cell index || output: list of SPG indices wrt. which clusters containing material need to be created
             moris::Cell< moris::Cell<  moris::Cell< moris_index > > > mVoidSpgsUnzippedOnIpCell; // input: B-spline mesh index, IP-cell index || output: list of SPG indices wrt. which void clusters need to be created
 
             // indices of enriched IP cells as a function of the base IP cell and the local SPG index
             moris::Cell< moris::Cell< moris_index > > mEnrIpCellIndices; // input: base IP cell index, index of unzipping || output: index of enr. IP cell
+            moris::Cell< moris_index > mUipcUnzippingIndices; // input: UIPC index || output: unzipping index
 
             // map allowing correct UIPC to be grabbed base on base IP cell and SPG index (for Ghost)
             // input: B-spline mesh index, base IP cell index, SPG index local to corresponding B-spline element || output: Enr. IP cell index
@@ -702,6 +702,19 @@ namespace xtk
 
             void
             construct_enriched_interpolation_vertices_and_cells_new();
+
+            // ----------------------------------------------------------------------------------
+
+            void
+            communicate_unzipped_ip_cells();
+
+            // ----------------------------------------------------------------------------------
+
+            /**
+             * @brief retrieve the unzipping for every enriched IP cell and store it in the member variable list
+             */
+            void
+            construct_UIPC_to_unzipping_index();
 
             // ----------------------------------------------------------------------------------
 

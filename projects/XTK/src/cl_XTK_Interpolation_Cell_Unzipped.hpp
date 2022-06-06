@@ -60,7 +60,6 @@ public:
             moris::mtk::Cell*      aBaseCell,
             moris_index            aPrimarySubPhaseIndex,
             moris_index            aPrimaryBulkPhaseIndex,
-            moris_id               aEnrCellId,
             moris_index            aEnrCellIndex,
             moris_id               aEnrCellOwner,
             moris_index            aNumMeshIndices,

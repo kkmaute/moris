@@ -1094,6 +1094,7 @@ namespace xtk
 
         // size data
         mEnrichmentData( aEnrichmentDataIndex ).mSubphaseGroupIndsInEnrichedBasis.resize( tNumEnrichmentBasis );
+        mEnrichmentData( aEnrichmentDataIndex ).mSubphaseIndsInEnrichedBasis.resize( tNumEnrichmentBasis );
         mEnrichmentData( aEnrichmentDataIndex ).mBulkPhaseInEnrichedBasis.set_size( 1, tNumEnrichmentBasis, gNoID );
 
         moris_index tBaseIndex = 0;
@@ -1727,10 +1728,16 @@ namespace xtk
         // allocate memory for enriched interpolation cells
         this->allocate_interpolation_cells_new();
 
+        // construct inverse of the map relating base IP cells and their unzipping to the resulting UIPC index
+        this->construct_UIPC_to_unzipping_index();
+
         // unzip all IP cells and vertices and construct the whole enr. IP mesh
         /* Note: This constructs all unzipped (i.e. enriched) IP cells with unzipped interpolation vertices being attached to a single cell
          * this also handles the case of multiple enrichments where the number of interpolation vertices vary */
         this->construct_enriched_interpolation_vertices_and_cells_new();
+
+        // assign IDs to all UIPCs and communicate them across all procs
+        this->communicate_unzipped_ip_cells();
 
         mXTKModelPtr->mEnrichedInterpMesh( 0 )->mCoeffToEnrichCoeffs.resize( mMeshIndices.max() + 1 );
         mXTKModelPtr->mEnrichedInterpMesh( 0 )->mEnrichCoeffLocToGlob.resize( mMeshIndices.max() + 1 );
@@ -1891,9 +1898,8 @@ namespace xtk
         // initialize map relating SPGs to unzipping of a given IP cell
         mBaseIpCellAndSpgToUnzipping.resize( tNumBspMeshes );
 
-        // initialize lists relating SPGs and UIPCs
+        // initialize map relating SPGs and UIPCs
         mSpgToUipcIndex.resize( tNumBspMeshes );
-        mUipcToSpgIndex.resize( tNumBspMeshes );
 
         // initialize subphase to UIPC map
         mSubphaseIndexToEnrIpCellIndex.resize( mCutIgMesh->get_num_subphases() );
@@ -1956,11 +1962,13 @@ namespace xtk
         }
         
         // store number of Enr IP cells
-        mNumEnrIpCells = tEnrIpCellCounter;
+        mNumEnrIpCells = (moris_index) tEnrIpCellCounter;
 
         // there is one interpolation cell per subphase
         tEnrInterpMesh->mEnrichedInterpCells.resize( mNumEnrIpCells );
 
+        // initialize reverse map relating SPGs and UIPCs
+        mUipcToSpgIndex.resize( tNumBspMeshes );
         for ( moris::size_t iBspMesh = 0; iBspMesh < tNumBspMeshes; iBspMesh++ )
         {
             mUipcToSpgIndex( iBspMesh ).resize( mNumEnrIpCells );
@@ -2506,7 +2514,7 @@ namespace xtk
                             // store enriched vertex's index for given parent cell index and element local node index 
                             tEnrInterpCellToVertex( tUipcIndex, iIpCellVertex ) = tVertexCount;
 
-                            // update vertex ID to use for nex unzipped vertex
+                            // update vertex ID to use for next unzipped vertex
                             tVertId++;
                             
                             // track number of unzipped vertices that have been created
@@ -2532,9 +2540,6 @@ namespace xtk
                      * Access to the right IVUs is given once they're all constructed (see code section with double for-loop just below) */
                     if ( iBspMesh == 0 )
                     {
-                        // FIXME: use a communicated proc global ID once everything is parallel consistent
-                        moris_index tCellID = tUipcIndex;
-
                         // get the bulk- and sub-phase indices for the primary phase
                         // set both to -1 if cluster has no primary phase, i.e. has no material
                         moris_index tPrimaryBulkPhase = -1;
@@ -2551,7 +2556,6 @@ namespace xtk
                                         tIpCell,            // Base IP cell
                                         tPrimarySubPhase,   // sub-phase index of the primary cells
                                         tPrimaryBulkPhase,  // Bulk-phase index of the primary cells
-                                        tCellID,            // ID of Enr. IP cell
                                         tUipcIndex,         // Index of Enr. IP cell
                                         tOwner,             // Owning Proc of Enr. IP cell
                                         tNumBspMeshes,      // number of B-spline meshes being treated (for initializing internal lists)
@@ -2595,6 +2599,284 @@ namespace xtk
         // make sure list is only as big as it needs to be
         // FIXME: shouldn't this be a shrink-to-fit?
         tEnrInterpMesh->mEnrichedInterpVerts.resize( tVertexCount );
+    }
+
+    //-------------------------------------------------------------------------------------
+
+    void 
+    Enrichment::communicate_unzipped_ip_cells()
+    {        
+        // get current proc's rank
+        moris_id tMyRank = par_rank();
+        moris_id tCommSize = par_size();
+        
+        /* ---------------------------------------------------------------------------------------- */
+        /* Step 1: Let each proc decide how many UIPC-IDs it needs & communicate ID ranges */
+        moris_id tMyFirstUipcId = (moris_id) get_processor_offset( mNumEnrIpCells );
+
+        /* ---------------------------------------------------------------------------------------- */
+        /* Step 2: Sort entities into owned and non-owned */
+        
+        // get the enriched interpolation mesh pointer, this one is constructed here
+        Enriched_Interpolation_Mesh* tEnrInterpMesh = mXTKModelPtr->mEnrichedInterpMesh( 0 );
+
+        // allocate memory for lists of owned and non-owned UIPCs
+        tEnrInterpMesh->mOwnedEnrichedInterpCells.reserve( mNumEnrIpCells );
+        uint tApproxNumberNonOwnedUipcs = (uint) std::floor( 0.3 * (real) mNumEnrIpCells ); // TODO: Is this estimate any good?
+        tEnrInterpMesh->mNotOwnedEnrichedInterpCells.reserve( tApproxNumberNonOwnedUipcs );
+
+        // counter counting up the number of UIPCs owned by the other processors
+        Cell< uint > tNumUIPCsRequestedFromProcs( tCommSize, 0 );
+
+        // go through all UIPCs and check whether they're owned or not
+        for( moris_index iUIPC = 0; iUIPC < mNumEnrIpCells; iUIPC++ ) // case: UIPC is owned by current proc
+        {
+            // get the underlying background element's owner
+            moris_id tUipcOwner = tEnrInterpMesh->mEnrichedInterpCells( iUIPC )->get_base_cell()->get_owner();
+
+            // sort into list according to owned and non-owned
+            if( tUipcOwner == tMyRank )
+            {
+                // add index to list of owned UIPCs
+                tEnrInterpMesh->mOwnedEnrichedInterpCells.push_back( iUIPC );
+
+                // since it is owned, assign an ID
+                tEnrInterpMesh->mEnrichedInterpCells( iUIPC )->set_id( tMyFirstUipcId );
+
+                // increment ID counter
+                tMyFirstUipcId++;
+            }
+            else // case: non-owned UIPC
+            {
+                // add index to list of non-owned UIPCs (do not assign an ID to these)
+                tEnrInterpMesh->mNotOwnedEnrichedInterpCells.push_back( iUIPC );
+
+                // count the number of UIPCs owned by neighboring procs
+                tNumUIPCsRequestedFromProcs( tUipcOwner )++;
+            }
+        }
+
+        // free unused memory
+        tEnrInterpMesh->mOwnedEnrichedInterpCells.shrink_to_fit();
+        tEnrInterpMesh->mNotOwnedEnrichedInterpCells.shrink_to_fit();
+
+        /* ---------------------------------------------------------------------------------------- */
+        /* The following steps are only necessary if code runs in parallel */
+
+        if( tCommSize == 1 ) // serial
+        {
+            // check that all UIPCs are owned in serial
+            MORIS_ASSERT( tEnrInterpMesh->mOwnedEnrichedInterpCells.size() == tEnrInterpMesh->mEnrichedInterpCells.size(),
+                "Enrichment::communicate_unzipped_ip_cells() - Code running in serial; not all UIPCs are owned by proc 0." );
+        }
+        else // parallel
+        {
+
+            /* ---------------------------------------------------------------------------------------- */
+            /* Step 3: Prepare requests for non-owned entities */
+
+            // initialize lists of information that identifies UIPCs on other procs
+            Cell< Matrix< IdMat > >    tRequestBaseCellIds( tCommSize );        // Base cell IDs, ...
+            Cell< Matrix< IndexMat > > tRequestBaseCellIndices( tCommSize );    // ... indices, and ...
+            Cell< Matrix< IndexMat > > tRequestUnzippingOnCells( tCommSize );   // ... which unzipping on that base cell identify the unzipped IP cell
+            Cell< Matrix< IndexMat > > tRequestBulkPhaseIndices( tCommSize );   // additionally, ship bulk-phase to perform check
+
+            // reserve memory for information to be sent
+            uint tNumNotOwnedUipcs = tEnrInterpMesh->mNotOwnedEnrichedInterpCells.size();
+            tRequestBaseCellIds.reserve( tNumNotOwnedUipcs );
+            tRequestBaseCellIndices.reserve( tNumNotOwnedUipcs );
+            tRequestUnzippingOnCells.reserve( tNumNotOwnedUipcs );
+            tRequestBulkPhaseIndices.reserve( tNumNotOwnedUipcs );
+
+            // intitialize the matrices with the correct sizes
+            for( moris_id iProc = 0; iProc < tCommSize; iProc++ )
+            {
+                uint tNumUipcsOnProc = tNumUIPCsRequestedFromProcs( iProc );
+                tRequestBaseCellIds( iProc ).set_size( tNumUipcsOnProc, 1 );
+                tRequestBaseCellIndices( iProc ).set_size( tNumUipcsOnProc, 1 );
+                tRequestUnzippingOnCells( iProc ).set_size( tNumUipcsOnProc, 1 );
+                tRequestBulkPhaseIndices( iProc ).set_size( tNumUipcsOnProc, 1 );
+            }
+
+            // get the number of non-owned UIPCs 
+            uint tNumNonOwnedUIPCs = tEnrInterpMesh->mNotOwnedEnrichedInterpCells.size();
+
+            // initialize indexing counters for all procs
+            Cell< uint > tIndexUipcRequestedFromProc( tCommSize, 0 );
+
+            // go through the non-owned UIPCs and fill the arrays to be communicated
+            for( uint iNonOwnedUIPC = 0; iNonOwnedUIPC < tNumNonOwnedUIPCs; iNonOwnedUIPC++ )
+            {
+                // get UIPC index
+                moris_index tUipcIndex = tEnrInterpMesh->mNotOwnedEnrichedInterpCells( iNonOwnedUIPC );
+
+                // get the Unzipping index of the current UIPC
+                moris_index tUnzipping = mUipcUnzippingIndices( tUipcIndex );
+
+                // get the UIPC
+                Interpolation_Cell_Unzipped* tUIPC = tEnrInterpMesh->mEnrichedInterpCells( tUipcIndex );
+
+                // get the base cell ID
+                moris_id tBaseCellId = tUIPC->get_base_cell()->get_id();
+
+                // get the UIPC's owner
+                moris_id tOwningProc = tUIPC->get_base_cell()->get_owner();
+
+                // check that the unzipping makes sense
+                MORIS_ASSERT( tUnzipping < MORIS_INDEX_MAX, 
+                    "Enrichment::communicate_unzipped_ip_cells() - UIPC to Unzipping map returned MORIS_INDEX_MAX, incomplete map construction" ); 
+
+                // get the bulk-phase index
+                moris_index tBulkPhase = tUIPC->get_bulkphase_index();
+
+                // fill matrices for communication
+                tRequestBaseCellIds( tOwningProc )( tIndexUipcRequestedFromProc( tOwningProc ) ) = tBaseCellId;
+                tRequestUnzippingOnCells( tOwningProc )( tIndexUipcRequestedFromProc( tOwningProc ) ) = tUnzipping;
+                tRequestBulkPhaseIndices( tOwningProc )( tIndexUipcRequestedFromProc( tOwningProc ) ) = tBulkPhase;
+
+                // record indices of the requested UIPCs to allocate answers correctly later
+                tRequestBaseCellIndices( tOwningProc )( tIndexUipcRequestedFromProc( tOwningProc ) ) = tUipcIndex;
+
+                // increment the indexing counter
+                tIndexUipcRequestedFromProc( tOwningProc )++;
+            }
+
+            /* ---------------------------------------------------------------------------------------- */
+            /* Step 4: Send and Receive requests about non-owned entities to and from other procs */
+
+            // prepare communication list 
+            // todo: only communicate with other procs that actually need to answer ID questions
+            Matrix< IdMat > tCommunicationList( tCommSize, 1 );
+            for( moris_id iProc = 0; iProc < tCommSize; iProc++ )
+            {
+                tCommunicationList( iProc ) = iProc;
+            }
+
+            // initialize arrays for receiving
+            Cell< Matrix< IdMat > >    tReceivedRequestBaseCellIds;
+            Cell< Matrix< IndexMat > > tReceivedRequestUnzippingOnCells;
+            Cell< Matrix< IndexMat > > tReceivedRequestBulkPhaseIndices;
+
+            // communicate information
+            communicate_mats( tCommunicationList, tRequestBaseCellIds,      tReceivedRequestBaseCellIds );
+            communicate_mats( tCommunicationList, tRequestUnzippingOnCells, tReceivedRequestUnzippingOnCells );
+            communicate_mats( tCommunicationList, tRequestBulkPhaseIndices, tReceivedRequestBulkPhaseIndices );
+            
+            /* ---------------------------------------------------------------------------------------- */
+            /* Step 5: Find answers to the requests */
+
+            // initialize lists of ID answers to other procs
+            Cell< Matrix< IdMat > > tAnswerUipcIds( tCommSize );
+            for( moris_id iProc = 0; iProc < tCommSize; iProc++ )
+            {
+                tAnswerUipcIds( iProc ).set_size( tReceivedRequestBaseCellIds( iProc ).numel(), 1 );
+            }
+
+            // initialize indexing counters for all procs
+            Cell< uint > tIndexUipcAnswerToProc( tCommSize, 0 );
+
+            // answer requests from each proc
+            for( moris_id iProc = 0; iProc < tCommSize; iProc++ )
+            {
+                // check for how many UIPCs IDs have been requested by the current Proc
+                uint tNumRequestdUipcIds = tReceivedRequestBaseCellIds( iProc ).numel();
+
+                // go through all UIPCs for which IDs have been requested
+                for( uint iReqUIPC = 0; iReqUIPC < tNumRequestdUipcIds; iReqUIPC++ )
+                {
+                    // make temporary copy of the received information
+                    moris_id tBaseCellId   = tReceivedRequestBaseCellIds( iProc )( iReqUIPC );
+                    moris_index tUnzipping = tReceivedRequestUnzippingOnCells( iProc )( iReqUIPC );
+                    moris_index tBulkPhase = tReceivedRequestBulkPhaseIndices( iProc )( iReqUIPC );
+
+                    // get the index of the base cell
+                    moris_index tBaseCellIndex = mXTKModelPtr->mBackgroundMesh->get_loc_entity_ind_from_entity_glb_id( tBaseCellId, EntityRank::ELEMENT ); 
+
+                    // get the index of the requested UIPC on the current proc
+                    moris_index tUipcIndex = mEnrIpCellIndices( tBaseCellIndex )( tUnzipping );
+
+                    // get the pointer to the UIPC 
+                    Interpolation_Cell_Unzipped* tUIPC = tEnrInterpMesh->mEnrichedInterpCells( tUipcIndex );
+
+                    // get the ID of the UIPC
+                    moris_id tUipcID = tUIPC->get_id();
+
+                    // check if the output makes sense
+                    MORIS_ASSERT( tUipcID != MORIS_ID_MAX,
+                        "Enrichment::communicate_unzipped_ip_cells() - UIPC request from other proc cannot be answered by current proc. "
+                        "This UIPC has ID = MORIS_ID_MAX on current proc, i.e. it is not owned by current proc" );
+
+                    MORIS_ASSERT( tUIPC->get_bulkphase_index() ==  tBulkPhase, 
+                        "Enrichment::communicate_unzipped_ip_cells() - " 
+                        "UIPC has different bulk phases on requesting and receiving proc." );
+
+                    // write the id into the answer array
+                    tAnswerUipcIds( iProc )( tIndexUipcAnswerToProc( iProc ) ) = tUipcID;
+
+                    // increment indexing counter
+                    tIndexUipcAnswerToProc( iProc )++;
+                }
+            }
+
+            /* ---------------------------------------------------------------------------------------- */
+            /* Step 6: Send and receive answers to and from other procs */
+
+            // initialize arrays for receiving
+            Cell< Matrix< IdMat > > tReceivedAnswerBaseCellIds;
+
+            // communicate answers
+            communicate_mats( tCommunicationList, tAnswerUipcIds, tReceivedAnswerBaseCellIds );
+
+            /* ---------------------------------------------------------------------------------------- */
+            /* Step 7: Use answers to assign IDs to non-owned UIPCs */
+
+            // answers received from each proc
+            for( moris_id iProc = 0; iProc < tCommSize; iProc++ )
+            {
+                // check for how many UIPCs IDs have been requested by the current Proc
+                uint tNumAnswereddUipcIds = tReceivedAnswerBaseCellIds( iProc ).numel();
+
+                // go through all UIPCs for which IDs have been requested
+                for( uint iAnsUIPC = 0; iAnsUIPC < tNumAnswereddUipcIds; iAnsUIPC++ )
+                {
+                    // get the ID of the UIPC
+                    moris_id tUipcId = tReceivedAnswerBaseCellIds( iProc )( iAnsUIPC );
+
+                    // get the index of the UIPC
+                    moris_index tUipcIndex = tRequestBaseCellIndices( iProc )( iAnsUIPC );
+
+                    // check that UIPC doesn't have an index attached to it already
+                    MORIS_ASSERT( tEnrInterpMesh->mEnrichedInterpCells( tUipcIndex )->get_id() == MORIS_ID_MAX, 
+                        "Enrichment::communicate_unzipped_ip_cells() - " 
+                        "Trying to assign parallel communicated UIPC ID to an UIPC that already has an ID" );
+
+                    // assign ID to UIPC
+                    tEnrInterpMesh->mEnrichedInterpCells( tUipcIndex )->set_id( tUipcId );
+                }
+            }
+        }
+    }
+
+    //-------------------------------------------------------------------------------------
+
+    void
+    Enrichment::construct_UIPC_to_unzipping_index()
+    {        
+        // allocate the size of the map 
+        mUipcUnzippingIndices.resize( mNumEnrIpCells, MORIS_INDEX_MAX );
+
+        // go through all base IP cells and their unzippings to construct the reverse map
+        for( uint iBaseIpCell = 0; iBaseIpCell < mEnrIpCellIndices.size(); iBaseIpCell++ )
+        {
+            for( uint iUnzipping = 0; iUnzipping < mEnrIpCellIndices( iBaseIpCell ).size(); iUnzipping++ )
+            {
+                // get the UIPC index 
+                moris_index tUipcIndex = mEnrIpCellIndices( iBaseIpCell )( iUnzipping );
+
+                // assign the UIPCs unzipping index to it
+                mUipcUnzippingIndices( tUipcIndex ) = (moris_index) iUnzipping;
+            }
+        }
     }
 
     //-------------------------------------------------------------------------------------

@@ -1772,7 +1772,7 @@ namespace xtk
     {
         this->setup_local_to_global_maps();
 
-        //this->setup_vertex_to_bulk_phase(); // the information setup in this function are not used for now
+        // this->setup_vertex_to_bulk_phase(); // the information setup in this function remains unused
 
         this->setup_basis_ownership();
 
@@ -2220,7 +2220,6 @@ namespace xtk
         // iterate through the verts and collect them for communication
         for ( moris::uint iP = 0; iP < aNotOwnedIpVerts.size(); iP++ )
         {
-
             aOutwardBaseVertexIds( iP ).resize( 1, aNotOwnedIpVerts( iP ).size() );
             aOutwardIpCellIds( iP ).resize( 1, aNotOwnedIpVerts( iP ).size() );
 
@@ -2259,24 +2258,24 @@ namespace xtk
         aVertexIdAnswer.resize( aReceivedBaseVertexIds.size() );
 
         // iterate through received data
-        for ( moris::uint i = 0; i < aReceivedBaseVertexIds.size(); i++ )
+        for ( moris::uint iProc = 0; iProc < aReceivedBaseVertexIds.size(); iProc++ )
         {
-            uint tNumReceivedReqs = aReceivedBaseVertexIds( i ).n_cols();
+            uint tNumReceivedReqs = aReceivedBaseVertexIds( iProc ).n_cols();
 
-            aVertexIdAnswer( i ).resize( 1, tNumReceivedReqs );
+            aVertexIdAnswer( iProc ).resize( 1, tNumReceivedReqs );
 
-            if ( aReceivedBaseVertexIds( i )( 0 ) != MORIS_INDEX_MAX )
+            if ( aReceivedBaseVertexIds( iProc )( 0 ) != MORIS_INDEX_MAX )
             {
                 // iterate through received requests
-                for ( moris::uint j = 0; j < tNumReceivedReqs; j++ )
+                for ( moris::uint jCell = 0; jCell < tNumReceivedReqs; jCell++ )
                 {
                     bool tSuccess = false;
 
                     // base vertex id
-                    moris_index tBaseVertexId = aReceivedBaseVertexIds( i )( j );
+                    moris_index tBaseVertexId = aReceivedBaseVertexIds( iProc )( jCell );
 
                     // ip cell id
-                    moris_index tIpCellId = aReceivedIpCellIds( i )( j );
+                    moris_index tIpCellId = aReceivedIpCellIds( iProc )( jCell );
 
                     // ip cell index
                     moris_index tIpCellInd = this->get_loc_entity_ind_from_entity_glb_id( tIpCellId, EntityRank::ELEMENT );
@@ -2287,24 +2286,24 @@ namespace xtk
                     // vertices attached to the ip cell
                     moris::Cell< xtk::Interpolation_Vertex_Unzipped* > const & tVerts = tIpCell->get_xtk_interpolation_vertices();
 
-                    for ( moris::uint iV = 0; iV < tVerts.size(); iV++ )
+                    for ( moris::uint iVert = 0; iVert < tVerts.size(); iVert++ )
                     {
-                        if ( tVerts( iV )->get_base_vertex()->get_id() == tBaseVertexId )
+                        if ( tVerts( iVert )->get_base_vertex()->get_id() == tBaseVertexId )
                         {
                             tSuccess                  = true;
-                            aVertexIdAnswer( i )( j ) = tVerts( iV )->get_id();
+                            aVertexIdAnswer( iProc )( jCell ) = tVerts( iVert )->get_id();
                         }
                     }
 
                     if ( tSuccess == false )
                     {
-                        MORIS_ASSERT( false, "Vertex Not Found" );
+                        MORIS_ASSERT( false, "Enriched_Interpolation_Mesh::prepare_ip_vertex_id_answers() - Vertex Not Found" );
                     }
                 }
             }
             else
             {
-                aVertexIdAnswer( i )( 0 ) = MORIS_INDEX_MAX;
+                aVertexIdAnswer( iProc )( 0 ) = MORIS_INDEX_MAX;
             }
         }
     }
@@ -2882,16 +2881,17 @@ namespace xtk
 
         //        mGlobaltoLobalMaps(3).clear();
 
-        for ( moris::uint i = 0; i < tNumCells; i++ )
+        for ( moris::uint iCell = 0; iCell < tNumCells; iCell++ )
         {
-            mLocalToGlobalMaps( 3 )( mEnrichedInterpCells( i )->get_index() ) = mEnrichedInterpCells( i )->get_id();
+            mLocalToGlobalMaps( 3 )( mEnrichedInterpCells( iCell )->get_index() ) = mEnrichedInterpCells( iCell )->get_id();
 
-            MORIS_ASSERT( mEnrichedInterpCells( i )->get_index() == (moris_index)i, "Index alignment issue in cells" );
+            MORIS_ASSERT( mEnrichedInterpCells( iCell )->get_index() == (moris_index) iCell, 
+                "Enriched_Interpolation_Mesh::setup_cell_maps() - Index alignment issue in cells" );
 
-            MORIS_ASSERT( mGlobaltoLobalMaps( 3 ).find( mEnrichedInterpCells( i )->get_id() ) == mGlobaltoLobalMaps( 3 ).end(),
-                    "Duplicate id in the cell map detected" );
+            MORIS_ASSERT( mGlobaltoLobalMaps( 3 ).find( mEnrichedInterpCells( iCell )->get_id() ) == mGlobaltoLobalMaps( 3 ).end(),
+                "Enriched_Interpolation_Mesh::setup_cell_maps() - Duplicate id in the cell map detected" );
 
-            mGlobaltoLobalMaps( 3 )[mEnrichedInterpCells( i )->get_id()] = mEnrichedInterpCells( i )->get_index();
+            mGlobaltoLobalMaps( 3 )[mEnrichedInterpCells( iCell )->get_id()] = mEnrichedInterpCells( iCell )->get_index();
         }
     }
 

@@ -33,13 +33,12 @@ Interpolation_Cell_Unzipped::Interpolation_Cell_Unzipped(
         moris::mtk::Cell*                        aBaseCell,
         moris_index                              aPrimarySubPhaseIndex,
         moris_index                              aPrimaryBulkPhaseIndex,
-        moris_id                                 aEnrCellId,
         moris_index                              aEnrCellIndex,
         moris_id                                 aEnrCellOwner,
         moris_index                              aNumMeshIndices,
         std::shared_ptr< moris::mtk::Cell_Info > aConnectivity,
         bool                                     aIsSpgBasedConstruction )
-        : Interpolation_Cell( aEnrCellId, aEnrCellIndex, aEnrCellOwner, aConnectivity )
+        : Interpolation_Cell( MORIS_ID_MAX, aEnrCellIndex, aEnrCellOwner, aConnectivity )
         , mBaseCell( aBaseCell )
         , mSubPhaseIndex( aPrimarySubPhaseIndex )
         , mBulkPhaseIndex( aPrimaryBulkPhaseIndex )
