@@ -2787,7 +2787,6 @@ namespace xtk
                     // make temporary copy of the received information
                     moris_id tBaseCellId   = tReceivedRequestBaseCellIds( iProc )( iReqUIPC );
                     moris_index tUnzipping = tReceivedRequestUnzippingOnCells( iProc )( iReqUIPC );
-                    moris_index tBulkPhase = tReceivedRequestBulkPhaseIndices( iProc )( iReqUIPC );
 
                     // get the index of the base cell
                     moris_index tBaseCellIndex = mXTKModelPtr->mBackgroundMesh->get_loc_entity_ind_from_entity_glb_id( tBaseCellId, EntityRank::ELEMENT ); 
@@ -2806,7 +2805,7 @@ namespace xtk
                         "Enrichment::communicate_unzipped_ip_cells() - UIPC request from other proc cannot be answered by current proc. "
                         "This UIPC has ID = MORIS_ID_MAX on current proc, i.e. it is not owned by current proc" );
 
-                    MORIS_ASSERT( tUIPC->get_bulkphase_index() ==  tBulkPhase, 
+                    MORIS_ASSERT( tUIPC->get_bulkphase_index() == tReceivedRequestBulkPhaseIndices( iProc )( iReqUIPC ), 
                         "Enrichment::communicate_unzipped_ip_cells() - " 
                         "UIPC has different bulk phases on requesting and receiving proc." );
 
