@@ -1263,11 +1263,13 @@ Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh( Ghost_Setup_Data&
                 "Bulk phase mismatch on master side of double side set cluster" );
 
             // add to side clusters the integration mesh
-            tEnrIntegMesh.mDoubleSideSetsMasterIndex( aGhostSetupData.mDblSideSetIndexInMesh( iBulkPhase ) ).push_back( tEnrIntegMesh.mDoubleSideSingleSideClusters.size() );
+            tEnrIntegMesh.mDoubleSideSetsMasterIndex( aGhostSetupData.mDblSideSetIndexInMesh( iBulkPhase ) ).push_back( 
+                tEnrIntegMesh.mDoubleSideSingleSideClusters.size() );
 
             tEnrIntegMesh.mDoubleSideSingleSideClusters.push_back( tMasterSideCluster );
 
-            tEnrIntegMesh.mDoubleSideSetsSlaveIndex( aGhostSetupData.mDblSideSetIndexInMesh( iBulkPhase ) ).push_back( tEnrIntegMesh.mDoubleSideSingleSideClusters.size() );
+            tEnrIntegMesh.mDoubleSideSetsSlaveIndex( aGhostSetupData.mDblSideSetIndexInMesh( iBulkPhase ) ).push_back( 
+                tEnrIntegMesh.mDoubleSideSingleSideClusters.size() );
 
             tEnrIntegMesh.mDoubleSideSingleSideClusters.push_back( tSlaveSideCluster );
 
@@ -1333,6 +1335,9 @@ Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh_new( Ghost_Setup_D
     aGhostSetupData.mSlaveSideIgCellSideOrdsNew.resize( tNumBspMeshes );
     aGhostSetupData.mTrivialFlagNew.resize( tNumBspMeshes );
     aGhostSetupData.mTransitionLocationNew.resize( tNumBspMeshes );
+
+    // initialize counter for ghost clusters
+    uint tNumGhostClusters = 0;
 
     for( uint iBspMesh = 0; iBspMesh < tNumBspMeshes; iBspMesh++ )
     {
@@ -1459,6 +1464,9 @@ Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh_new( Ghost_Setup_D
 
                         // TODO: store wheter the IP element transition is trivial
                         aGhostSetupData.mTrivialFlagNew( iBspMesh )( tBulkPhaseIndex ).push_back( 0 );
+
+                        // count number of ghost clusters that get constructed
+                        tNumGhostClusters++;
                     }
 
 // std::cout << "\nNeighbor IP cells: ";
@@ -1511,9 +1519,8 @@ Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh_new( Ghost_Setup_D
 
     }
 
-    // TODO: allocate entity IDs for dummy IP cells for non-trivial Ghost facets
     // Get next free ID and index for new cells/elements
-    moris_id tCurrentId = tEnrIntegMesh.allocate_entity_ids( 0, EntityRank::ELEMENT );
+    moris_id tCurrentId = tEnrIntegMesh.allocate_entity_ids( tNumGhostClusters, EntityRank::ELEMENT );
     moris_id tCurrentIndex = tEnrIntegMesh.get_num_entities( EntityRank::ELEMENT );
 
     // get total number of ghost facets for each B-spline mesh and bulk phase on current processor
@@ -1800,9 +1807,12 @@ Ghost_Stabilization::create_ghost_new(
     // else: both B-spline elements are on the same refinement level
 
     // get the IDs of the Subphase groups 
-    // FIXME: SPGs don't have IDs yet, not parallel consistent
-    moris_index tFirstSpgId  = aFirstSpgIndex; //mXTKModel->get_SPG_id( aBspMeshListIndex, aFirstSpgIndex );
-    moris_index tSecondSpgId = aSecondSpgIndex; //mXTKModel->get_SPG_id( aBspMeshListIndex, aSecondSpgIndex );
+    moris_index tFirstSpgId  = tBsplineMeshInfo->mSubphaseGroups( aFirstSpgIndex )->get_id();
+    moris_index tSecondSpgId = tBsplineMeshInfo->mSubphaseGroups( aSecondSpgIndex )->get_id();
+
+    // check that the two SPG IDs are valid
+    MORIS_ASSERT( ( tFirstSpgId != MORIS_ID_MAX ) && ( tSecondSpgId != MORIS_ID_MAX ),
+        "Ghost_Stabilization::create_ghost_new() - At least one SPG ID within the pair is invalid." );
 
     // check that the two SPGs are different
     MORIS_ASSERT( tFirstSpgId != tSecondSpgId,
@@ -1848,7 +1858,12 @@ Ghost_Stabilization::create_slave_side_cluster(
     tSlaveSideCluster->mTrivial = true;
 
     // add integration cell
-    tSlaveSideCluster->mIntegrationCells = { this->get_linear_ig_cell( aGhostSetupData, aEnrIpCells( aGhostSetupData.mSlaveSideIpCells( aBulkIndex )( aCellIndex ) ), aCurrentIndex, aCurrentId ) };
+    tSlaveSideCluster->mIntegrationCells = { 
+        this->get_linear_ig_cell( 
+            aGhostSetupData, 
+            aEnrIpCells( aGhostSetupData.mSlaveSideIpCells( aBulkIndex )( aCellIndex ) ), 
+            aCurrentIndex, 
+            aCurrentId ) };
 
     // allocate space in integration cell side ordinals
     tSlaveSideCluster->mIntegrationCellSideOrdinals = { { aGhostSetupData.mSlaveSideIgCellSideOrds( aBulkIndex )( aCellIndex ) } };
