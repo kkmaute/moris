@@ -232,6 +232,7 @@ set(HEADERS
     IQI/cl_FEM_IQI_Strong_Residual_SA.hpp
     IQI/cl_FEM_IQI_Strong_Residual_Incompressible_NS.hpp
     IQI/cl_FEM_IQI_Zienkiewicz_Zhu.hpp
+    IQI/cl_FEM_IQI_Jump_Dof.hpp
      
     MEA/cl_FEM_Cluster_Measure.hpp
     )
@@ -442,6 +443,7 @@ set(LIB_SOURCES
     IQI/cl_FEM_IQI_Strong_Residual_SA.cpp
     IQI/cl_FEM_IQI_Strong_Residual_Incompressible_NS.cpp
     IQI/cl_FEM_IQI_Zienkiewicz_Zhu.cpp
+    IQI/cl_FEM_IQI_Jump_Dof.cpp
     
     MEA/cl_FEM_Cluster_Measure.cpp
     

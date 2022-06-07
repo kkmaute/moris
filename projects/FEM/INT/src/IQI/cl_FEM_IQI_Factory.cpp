@@ -39,6 +39,7 @@
 #include "cl_FEM_IQI_Strong_Residual_SA.hpp"
 #include "cl_FEM_IQI_Strong_Residual_Incompressible_NS.hpp"
 #include "cl_FEM_IQI_Zienkiewicz_Zhu.hpp"
+#include "cl_FEM_IQI_Jump_Dof.hpp"
 
 namespace moris
 {
@@ -159,6 +160,9 @@ namespace moris
 
                 case IQI_Type::ZIENKIEWICZ_ZHU_VON_MISES_STRESS:
                     return std::make_shared< IQI_Zienkiewicz_Zhu >( Stress_Type::VON_MISES_STRESS );
+
+                case IQI_Type::JUMP_DOF:
+                    return std::make_shared< IQI_Jump_Dof >();
 
                 default:
                     MORIS_ERROR( false, " IQI_Factory::create_IQI - No IQI type specified. " );

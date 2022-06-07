@@ -383,6 +383,8 @@ Time_Solver::solve()
         mSolverInterface->set_previous_time( tTime_0 );
         mSolverInterface->set_time( tTime_1 );
 
+        mSolverInterface->compute_IQI();
+
         // input second time slap value for output
         this->check_for_outputs( 1.0, true );
     }

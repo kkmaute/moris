@@ -365,7 +365,9 @@ namespace moris
 
             // check that number of coefficient on mesh matches size of coefficient vector
             MORIS_ASSERT( (sint)mCoefficients.n_rows() == mNumberOfCoefficients,
-                    "Field_Discrete::compute_nodal_values - number of coefficient on mesh does not match size of coefficient vector.\n");
+                    "Field_Discrete::compute_nodal_values - number of coefficient on mesh does not match size of coefficient vector. %d vs %d\n",
+					(sint)mCoefficients.n_rows(),
+					mNumberOfCoefficients);
 
             // check that coefficient vector has been initialized
             MORIS_ASSERT( mCoefficientsAreInitialized,

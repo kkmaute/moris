@@ -2113,9 +2113,6 @@ namespace moris
             // compute vorticity in vector form and its Frobenius norm
             real tWW = dot( this->w(), this->w() );
 
-            // compute S
-            // mS = std::sqrt( 2.0 * tWW + mEpsilon * mEpsilon ) - mEpsilon;
-
             mS = std::max( std::sqrt( 2.0 * tWW ), mEpsilon );
         }
 
@@ -2160,12 +2157,6 @@ namespace moris
 
             // init dsdu
             mdSdu( tDofIndex ).set_size( 1, tFIDer->get_number_of_space_time_coefficients() );
-
-            //            // compute vorticity in vector form and its Frobenius norm
-            //            real tWW = dot( this->w(), this->w() );
-            //
-            //            // compute dsdu
-            //            mdSdu( tDofIndex ) = 2.0 * trans( this->w() ) * this->dwdu( aDofTypes ) / std::sqrt( 2.0 * tWW + mEpsilon * mEpsilon );
 
             // if s is greater than threshold
             if ( this->s() > mEpsilon )
