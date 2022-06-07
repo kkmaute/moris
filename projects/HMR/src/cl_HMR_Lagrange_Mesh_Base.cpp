@@ -3939,7 +3939,7 @@ namespace moris
             //this->select_activation_pattern();
 
             // get pointer to element
-            auto tLagrangeElement = this->get_element( aElementIndex );
+            auto tLagrangeElement = this->get_element_including_aura( aElementIndex );
 
             // get pointer to background element
             auto tBackgroundElement = tLagrangeElement->get_background_element();
@@ -3993,7 +3993,7 @@ namespace moris
             mBackgroundMesh->set_activation_pattern( tBSplinePattern );
 
             // get pointer to B-spline and background element
-            Element * tBsplineElement = mBSplineMeshes( aDiscretizationMeshIndex )->get_element( aBsplineElementIndex );
+            Element * tBsplineElement = mBSplineMeshes( aDiscretizationMeshIndex )->get_element_including_aura( aBsplineElementIndex );
 
             // get pointer to background element
             Background_Element_Base* tBackgroundElement = tBsplineElement->get_background_element();
@@ -4124,7 +4124,7 @@ namespace moris
             //this->select_activation_pattern();
 
             // get pointer to element
-            auto tLagrangeElement = this->get_element( aElementIndex );
+            auto tLagrangeElement = this->get_element_including_aura( aElementIndex );
 
             // get pointer to background element
             auto tBackgroundElement = tLagrangeElement->get_background_element();
