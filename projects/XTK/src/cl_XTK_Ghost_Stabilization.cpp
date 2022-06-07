@@ -341,7 +341,11 @@ Ghost_Stabilization::identify_and_setup_aura_vertices_in_ghost( Ghost_Setup_Data
     // this is needed for communication routine
     moris::Cell< mtk::Cell const* > tGhostIpCellConnectedToVertex;
 
-    this->get_ip_vertices_in_ghost_sets( aGhostSetupData, tGhostVerticesWithInterpolation, tGhostVerticesWithoutInterpolation, tGhostIpCellConnectedToVertex );
+    this->get_ip_vertices_in_ghost_sets( 
+        aGhostSetupData, 
+        tGhostVerticesWithInterpolation, 
+        tGhostVerticesWithoutInterpolation, 
+        tGhostIpCellConnectedToVertex );
 
     for ( moris::uint iMeshIndex = 0; iMeshIndex < tEnrInterpMesh.mMeshIndices.numel(); iMeshIndex++ )
     {
@@ -429,7 +433,14 @@ Ghost_Stabilization::identify_and_setup_aura_vertices_in_ghost( Ghost_Setup_Data
         barrier();
 
         // commit it to my data
-        this->handle_received_interpolation_data( tMeshIndex, tNotOwnedIPVertIndsToProcs, tNotOwnedEnrichedCellBulkPhaseToProcs, tRequestedTMatrixWeights, tRequestedTMatrixIndices, tRequestedTMatrixOwners, tRequestedTMatrixOffsets );
+        this->handle_received_interpolation_data( 
+            tMeshIndex, 
+            tNotOwnedIPVertIndsToProcs, 
+            tNotOwnedEnrichedCellBulkPhaseToProcs, 
+            tRequestedTMatrixWeights, 
+            tRequestedTMatrixIndices, 
+            tRequestedTMatrixOwners, 
+            tRequestedTMatrixOffsets );
 
         //wait
         barrier();
@@ -860,7 +871,9 @@ Ghost_Stabilization::handle_received_interpolation_data(
                     moris_id tBasisOwner = tExtractedTBasisOwners( iV )( iBs );
 
                     MORIS_ASSERT( tEnrInterpMesh.get_basis_owner( tBasisIndices( iBs ), aMeshIndex ) == tBasisOwner, "Ownership discrepency." );
-                    MORIS_ASSERT( tEnrInterpMesh.get_basis_bulk_phase( tBasisIndices( iBs ), aMeshIndex ) == aNotOwnedEnrichedCellBulkPhaseToProcs( iP )( iV ), "Bulkphase discrepency." );
+                    
+                    // TODO: this check is non-sense in the case of SPG based enrichment
+                    // MORIS_ASSERT( tEnrInterpMesh.get_basis_bulk_phase( tBasisIndices( iBs ), aMeshIndex ) == aNotOwnedEnrichedCellBulkPhaseToProcs( iP )( iV ), "Bulkphase discrepency." );
 
                     // if the basis has an owning proc that is not in the comm table, add it to the comm table
                     if ( tProcRankToIndexInData.find( tBasisOwner ) == tProcRankToIndexInData.end() && tBasisOwner != par_rank() )
