@@ -299,7 +299,7 @@ namespace moris
                     tJacSS += aWStar
                             * ( +tFISlave->N_trans() * tSlaveWeight
                                             * tCMSlaveElasticity->dTractiondDOF( tDofType, mNormal )
-                                    + mBeta * tMasterWeight
+                                    + mBeta * tSlaveWeight
                                               * tCMSlaveElasticity->dTestTractiondDOF(
                                                       tDofType, mNormal, tJump, mResidualDofType( 0 ) ) );
                 }
