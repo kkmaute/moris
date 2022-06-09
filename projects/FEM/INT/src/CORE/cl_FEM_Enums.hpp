@@ -67,15 +67,21 @@ namespace moris
             STRUC_LINEAR_FLUID_INTERFACE,    // one-side fluid-structure coupling
             STRUC_VON_MISES_STRESS,
 
-            STRUC_NON_LINEAR_BULK_SE,                             // nonlinear elasticity bulk, based on S and E work conjugates
-            STRUC_NON_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE_SE,      // nonlinear elasticity sym Dirichlet (Nitsche), based on S and E work conjugates
-            STRUC_NON_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE_SE,    // nonlinear elasticity nonsym Dirichlet (Nitsche), based on S and E work conjugates
-            STRUC_NON_LINEAR_BULK_PF,                             // nonlinear elasticity bulk, based on P and F work conjugates
-            STRUC_NON_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE_PF,      // nonlinear elasticity sym Dirichlet (Nitsche), based on P and F work conjugates
-            STRUC_NON_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE_PF,    // nonlinear elasticity nonsym Dirichlet (Nitsche), based on P and F work conjugates
+            STRUC_NON_LINEAR_BULK_SE,                                    // nonlinear elasticity bulk, based on S and E work conjugates
+            STRUC_NON_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE_SE,             // nonlinear elasticity sym Dirichlet (Nitsche), based on S and E work conjugates
+            STRUC_NON_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE_SE,           // nonlinear elasticity nonsym Dirichlet (Nitsche), based on S and E work conjugates
+            STRUC_NON_LINEAR_INTERFACE_SYMMETRIC_NITSCHE_SE,             // nonlinear elasticity sym Interface (Nitsche), based on S and E work conjugates
+            STRUC_NON_LINEAR_INTERFACE_UNSYMMETRIC_NITSCHE_SE,           // nonlinear elasticity nonsym Interface (Nitsche), based on S and E work conjugates
+            STRUC_NON_LINEAR_BULK_PF,                                    // nonlinear elasticity bulk, based on P and F work conjugates
+            STRUC_NON_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE_PF,             // nonlinear elasticity sym Dirichlet (Nitsche), based on P and F work conjugates
+            STRUC_NON_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE_PF,           // nonlinear elasticity nonsym Dirichlet (Nitsche), based on P and F work conjugates
+            STRUC_NON_LINEAR_INTERFACE_SYMMETRIC_NITSCHE_PF,             // nonlinear elasticity sym Interface (Nitsche), based on P and F work conjugates
+            STRUC_NON_LINEAR_INTERFACE_UNSYMMETRIC_NITSCHE_PF,           // nonlinear elasticity nonsym Interface (Nitsche), based on P and F work conjugates
             STRUC_NON_LINEAR_BULK_CAUCHYEPS,                             // nonlinear elasticity bulk, based on Cauchy and Epsilon work conjugates
             STRUC_NON_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE_CAUCHYEPS,      // nonlinear elasticity sym Dirichlet (Nitsche), based on Cauchy and Epsilon work conjugates
             STRUC_NON_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE_CAUCHYEPS,    // nonlinear elasticity nonsym Dirichlet (Nitsche), based on Cauchy and Epsilon work conjugates
+            STRUC_NON_LINEAR_INTERFACE_SYMMETRIC_NITSCHE_CAUCHYEPS,      // nonlinear elasticity sym Interface (Nitsche), based on Cauchy and Epsilon work conjugates
+            STRUC_NON_LINEAR_INTERFACE_UNSYMMETRIC_NITSCHE_CAUCHYEPS,    // nonlinear elasticity nonsym Interface (Nitsche), based on Cauchy and Epsilon work conjugates
 
             INCOMPRESSIBLE_NS_VELOCITY_BULK,
             INCOMPRESSIBLE_NS_PRESSURE_BULK,
