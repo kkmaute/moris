@@ -21,6 +21,7 @@ namespace moris
     namespace sol
     {
         class Dist_Vector;
+        class SOL_Warehouse;
     }
 
     namespace mtk
@@ -39,6 +40,9 @@ namespace moris
           private:
             moris::MSI::Model_Solver_Interface* mMSI    = nullptr;
             moris::MSI::Dof_Manager*            mDofMgn = nullptr;
+
+            // pointer to solver warehouse
+            std::shared_ptr< sol::SOL_Warehouse > mSolverWarehouse = nullptr;
 
             sol::Dist_Vector* mSolutionVector                = nullptr;
             sol::Dist_Vector* mPrevSolutionVector            = nullptr;
@@ -86,6 +90,18 @@ namespace moris
 
             sol::Dist_Vector*
             get_solution_vector_prev_time_step();
+
+            //------------------------------------------------------------------------------
+
+            /**
+             * @brief get the solution vector for a certain dof type
+             *
+             * @param aListOfDofTypes
+             * @return sol::Dist_Vector*
+             */
+
+            sol::Dist_Vector*
+            get_solution_vector( const moris::Cell< enum MSI::Dof_Type >& aListOfDofTypes );
 
             //------------------------------------------------------------------------------
 
@@ -495,6 +511,18 @@ namespace moris
             //------------------------------------------------------------------------------
 
             void set_requested_IQI_names( const moris::Cell< std::string >& aIQINames );
+
+             //------------------------------------------------------------------------------
+            
+            /**
+             * @brief Set the solver warehouse object store a pointer of the warehouse
+             * 
+             * @param aSolverWarehouse 
+             */
+            void
+            set_solver_warehouse( std::shared_ptr< sol::SOL_Warehouse >  aSolverWarehouse );
+
+             //------------------------------------------------------------------------------
         };
     }    // namespace MSI
 }    // namespace moris

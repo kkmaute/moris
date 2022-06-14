@@ -12,6 +12,9 @@
 #include "cl_MSI_Equation_Model.hpp"
 
 #include "cl_SOL_Dist_Vector.hpp"
+#include "cl_SOL_Dist_Map.hpp"
+#include "cl_SOL_Matrix_Vector_Factory.hpp"
+#include "cl_SOL_Warehouse.hpp"
 
 namespace moris
 {
@@ -101,6 +104,29 @@ namespace moris
         MSI_Solver_Interface::get_solution_vector_prev_time_step()
         {
             return mPrevSolutionVector;
+        }
+
+        //------------------------------------------------------------------------------
+        
+        sol::Dist_Vector*
+        MSI_Solver_Interface::get_solution_vector(const moris::Cell<enum MSI::Dof_Type> & aListOfDofTypes)
+        {
+            //MORIS_ASSERT(mSolverWarehouse.get()!=nullptr, "Wrong-Wrong");
+                
+            // create the factory based on the tpl
+            sol::Matrix_Vector_Factory tMatFactory( mSolverWarehouse->get_tpl_type() );
+
+            //create a map based on the dof type that is specified
+            sol::Dist_Map * tDofDMap = tMatFactory.create_map( this->get_my_local_global_overlapping_map( aListOfDofTypes ));
+
+            // create a dist. vector
+            sol::Dist_Vector * tDofDVec = tMatFactory.create_vector( this, tDofDMap, 1 );
+
+            //populate the vector based on the map
+            tDofDVec->import_local_to_global( *mSolutionVector );
+
+            //return the dist vector
+            return tDofDVec;
         }
 
         //------------------------------------------------------------------------------
@@ -219,6 +245,15 @@ namespace moris
         }
 
         //-------------------------------------------------------------------------------------------------------
+
+        void
+        MSI_Solver_Interface::set_solver_warehouse( std::shared_ptr< sol::SOL_Warehouse > aSolverWarehouse )
+        {
+            mSolverWarehouse = aSolverWarehouse;
+        }
+        
+        //-------------------------------------------------------------------------------------------------------
+
 
     }    // namespace MSI
 }    // namespace moris
