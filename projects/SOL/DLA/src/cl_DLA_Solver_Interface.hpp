@@ -28,6 +28,7 @@ namespace moris
     {
         class Dist_Vector;
         class Dist_Matrix;
+        class SOL_Warehouse;
     }    // namespace sol
 
     namespace mtk
@@ -323,6 +324,22 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        /**
+         * @brief Get the my local global overlapping map of the adofs
+         * 
+         * @param aListOfDofTypes 
+         * @return moris::Matrix< DDSMat > 
+         */
+
+        virtual moris::Matrix< DDSMat >
+        get_my_local_global_overlapping_map(const moris::Cell< enum MSI::Dof_Type >& aListOfDofTypes )
+        {
+            MORIS_ERROR( false, "Solver_Interface::get_my_local_global_overlapping_map(): Virtual class not overwritten" );
+            return Matrix< DDSMat >( 0, 0 );
+        };
+
+        //------------------------------------------------------------------------------
+
         virtual moris::Matrix< DDUMat > get_constrained_Ids() = 0;
 
         //------------------------------------------------------------------------------
@@ -590,6 +607,15 @@ namespace moris
         };
 
         //------------------------------------------------------------------------------
+
+        /**
+         * @brief Set the solver warehouse object
+         * 
+         * @param aSolverWarehouse 
+         */
+        
+        virtual void 
+        set_solver_warehouse(std::shared_ptr< sol::SOL_Warehouse > aSolverWarehouse);
     };
 }    // namespace moris
 
