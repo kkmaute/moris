@@ -16,6 +16,7 @@
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Cell_Cluster.hpp"
 #include "cl_XTK_Side_Cluster.hpp"
+#include "cl_XTK_Cluster_Group.hpp"
 #include "cl_MTK_Side_Set.hpp"
 #include "cl_MTK_Vertex.hpp"
 #include "cl_MTK_Double_Side_Set.hpp"
@@ -2831,7 +2832,7 @@ Enriched_Integration_Mesh::setup_cell_cluster_groups()
             }
 
             // create and commit a new Cluster group to the list
-            mCellClusterGroups( iBspMesh )( iSPG ) = std::make_shared< mtk::Cluster_Group >( tClustersInGroup, iBspMesh );
+            mCellClusterGroups( iBspMesh )( iSPG ) = std::make_shared< Cluster_Group >( tClustersInGroup, iBspMesh, mtk::Cluster_Type::CELL );
 
             // assign the cluster group created to all cluster which it was created from
             for( uint iCluster = 0; iCluster < tNumClustersInGroup; iCluster++ )
@@ -2903,7 +2904,7 @@ Enriched_Integration_Mesh::setup_side_cluster_groups()
                 if( tSideClustersInSpgs( iSPG ).size() > 0 )
                 {
                     // create side cluster group
-                    mSideClusterGroups( iBspMesh ).push_back( std::make_shared< mtk::Cluster_Group >( tSideClustersInSpgs( iSPG ), iBspMesh ) );
+                    mSideClusterGroups( iBspMesh ).push_back( std::make_shared< Cluster_Group >( tSideClustersInSpgs( iSPG ), iBspMesh, mtk::Cluster_Type::SIDE ) );
 
                     // index of the newly created Cluster Group in the list
                     uint tNewSideClusterGroupIndex = mSideClusterGroups( iBspMesh ).size() - 1;
@@ -2989,7 +2990,7 @@ Enriched_Integration_Mesh::setup_dbl_side_cluster_groups()
                 if( tDblSideClustersInSpgs( iSPG ).size() > 0 )
                 {
                     // create side cluster group
-                    mDblSideClusterGroups( iBspMesh ).push_back( std::make_shared< mtk::Cluster_Group >( tDblSideClustersInSpgs( iSPG ), iBspMesh ) );
+                    mDblSideClusterGroups( iBspMesh ).push_back( std::make_shared< Cluster_Group >( tDblSideClustersInSpgs( iSPG ), iBspMesh, mtk::Cluster_Type::SIDE ) );
 
 //                     // index of the newly created Cluster Group in the list
 //                     uint tNewDblSideClusterGroupIndex = mDblSideClusterGroups( iBspMesh ).size() - 1;

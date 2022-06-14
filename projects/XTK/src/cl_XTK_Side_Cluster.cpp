@@ -11,6 +11,7 @@
 #include "cl_XTK_Side_Cluster.hpp"
 #include "cl_XTK_Cut_Integration_Mesh.hpp"
 #include "cl_XTK_Cell_Cluster.hpp"
+#include "cl_XTK_Cluster_Group.hpp"
 #include "cl_XTK_Interpolation_Cell_Unzipped.hpp"
 #include "cl_XTK_Child_Mesh.hpp"
 #include "assert.hpp"
@@ -304,7 +305,7 @@ namespace xtk
     void
     Side_Cluster::set_cluster_group( 
             const moris_index aBsplineMeshListIndex,
-            std::shared_ptr< mtk::Cluster_Group > aClusterGroupPtr )
+            std::shared_ptr< Cluster_Group > aClusterGroupPtr )
     {
         // check that the cluster group is set to the correct B-spline list index
         MORIS_ASSERT( aClusterGroupPtr->get_Bspline_index_for_cluster_group() == aBsplineMeshListIndex,

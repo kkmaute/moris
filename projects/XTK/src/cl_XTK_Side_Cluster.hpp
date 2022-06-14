@@ -11,7 +11,6 @@
 #define PROJECTS_XTK_SRC_XTK_CL_XTK_SIDE_CLUSTER_HPP_
 
 #include "cl_MTK_Side_Cluster.hpp"
-#include "cl_MTK_Cluster_Group.hpp"
 #include <unordered_map>
 
 using namespace moris;
@@ -21,6 +20,7 @@ namespace xtk
     class Interpolation_Cell_Unzipped;
     class Cell_Cluster;
     class IG_Vertex_Group;
+    class Cluster_Group;
 
     class Side_Cluster : public mtk::Side_Cluster
     {
@@ -41,7 +41,7 @@ namespace xtk
         moris::Cell< moris::Matrix< moris::DDRMat > > mVertexLocalCoords;
         moris::Matrix< moris::DDRMat >                mVertexLocalCoordsMat;  /*FIXME: get rid of mVertexLocalCoords*/
         xtk::Cell_Cluster const                      *mAssociatedCellCluster; /* Associated cell cluster (needed for volume computations in nitsche).*/
-        moris::Cell< std::shared_ptr< mtk::Cluster_Group > > mClusterGroups;
+        moris::Cell< std::shared_ptr< Cluster_Group > > mClusterGroups;
 
         //---------------------------------------------------------------------------------------
 
@@ -187,7 +187,7 @@ namespace xtk
         void
         set_cluster_group( 
                 const moris_index aBsplineMeshListIndex,
-                std::shared_ptr< mtk::Cluster_Group > aClusterGroupPtr );
+                std::shared_ptr< Cluster_Group > aClusterGroupPtr );
 
         //---------------------------------------------------------------------------------------
 

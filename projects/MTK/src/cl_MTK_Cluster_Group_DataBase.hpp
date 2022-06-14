@@ -4,44 +4,44 @@
  * 
  * ------------------------------------------------------------------------------------ 
  * 
- * cl_MTK_Cluster_Group.hpp  
+ * cl_MTK_Cluster_Group_DataBase.hpp
  * 
  */
-#ifndef SRC_cl_MTK_Cluster_Group
-#define SRC_cl_MTK_Cluster_Group
+#ifndef SRC_cl_MTK_Cell_Cluster_DataBase
+#define SRC_cl_MTK_Cell_Cluster_DataBase
 
-#include "cl_Cell.hpp"
-#include "cl_MTK_Enums.hpp"
-#include "cl_Matrix.hpp"
+#include "cl_MTK_Cluster_Group.hpp"
 
 namespace moris
 {
     namespace mtk
     {
-        //------------------------------------------------------------------------------
-
-        // forward declare the mtk::Cluster
-        class Cluster;
+        // forward declare the mesh for access
+        class Mesh;
 
         //------------------------------------------------------------------------------
 
-        class Cluster_Group
+        class Cluster_Group_DataBase : public Cluster_Group
         {
-            //------------------------------------------------------------------------------
-
-          protected:
-
-            // index on which B-spline mesh the cluster group is valid
-            // NOTE: this is the index of the B-spline mesh wrt. to the list of B-spline meshes enriched using the current Lagrange mesh. 
-            // NOTE: This corresponds to the mesh indices used by MSI.
-            moris_index mBsplineMeshListIndex;
-
-            // type of Clusters in group
-            mtk::Cluster_Type mClusterType;
 
             //------------------------------------------------------------------------------
+            
+        private:
 
-          public:
+            // pointer to parent mesh holding information
+            mtk::Mesh* mMesh;
+
+            // cluster group index in list of cluster groups for its B-spline mesh
+            moris_index mClusterGroupIndex;
+
+            // cluster type (mClusterType) and B-spline mesh index (mBsplineMeshListIndex) inherited as member variables from the mtk::Cluster_Group
+
+            // FIXME: temporary placeholder, remove later
+            moris::Cell< std::shared_ptr< mtk::Cluster > > mDummy;
+
+            //------------------------------------------------------------------------------
+
+        public:
 
             //------------------------------------------------------------------------------
 
@@ -51,37 +51,17 @@ namespace moris
              * @param aBsplineMeshListIndex 
              * @param aClusterType 
              */
-            Cluster_Group(
-                    const moris_index  aBsplineMeshListIndex,
-                    const Cluster_Type aClusterType );
-
-            /**
-             * @brief default constructor initializing nothing
-             * 
-             */
-            Cluster_Group(){};
-
-            ~Cluster_Group(){};
+            Cluster_Group_DataBase(
+                    const moris_index       aBsplineMeshListIndex,
+                    const enum Cluster_Type aClusterType );
 
             //------------------------------------------------------------------------------
 
             /**
-             * @brief Get the Bspline mesh list index wich the cluster group lives on
+             * @brief Default Destructor
              * 
-             * @return moris_index Bspline mesh list index
              */
-            moris_index 
-            get_Bspline_index_for_cluster_group() const;
-
-            //------------------------------------------------------------------------------
-
-            /**
-             * @brief Get the Bspline mesh list index wich the cluster group lives on
-             * 
-             * @return moris_index Bspline mesh list index
-             */
-            mtk::Cluster_Type 
-            get_cluster_type_in_group() const;
+            ~Cluster_Group_DataBase() = default;
 
             //------------------------------------------------------------------------------
 
@@ -90,9 +70,7 @@ namespace moris
              * 
              * @return moris::Cell< Cluster const* > const& list of clusters in the cluster group
              */
-            virtual
-            moris::Cell< std::shared_ptr< Cluster > > const& 
-            get_clusters_in_group() const = 0;
+            moris::Cell< std::shared_ptr< mtk::Cluster > > const& get_clusters_in_group() const;
 
             //------------------------------------------------------------------------------
 
@@ -103,11 +81,10 @@ namespace moris
              * @param aIsMaster 
              * @return moris::real volume of all clusters 
              */
-            virtual
             moris::real
             compute_cluster_group_volume(
                     const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const = 0;
+                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const;
 
             //------------------------------------------------------------------------------
 
@@ -120,13 +97,12 @@ namespace moris
              * @param aIsMaster 
              * @return moris::real 
              */            
-            virtual
             moris::real
             compute_cluster_group_volume_derivative(
                     const Matrix< DDRMat > & aPerturbedVertexCoords,
                     uint aDirection,
                     const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const = 0;
+                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const;
 
             //------------------------------------------------------------------------------
             
@@ -137,11 +113,10 @@ namespace moris
              * @param aIsMaster 
              * @return moris::real 
              */
-            virtual
             moris::real
             compute_cluster_group_side_measure(
                     const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const = 0;
+                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const;
 
             //------------------------------------------------------------------------------
             
@@ -154,19 +129,18 @@ namespace moris
              * @param aIsMaster 
              * @return moris::real 
              */
-            virtual
             moris::real
             compute_cluster_group_side_measure_derivative(
                     const Matrix< DDRMat > & aPerturbedVertexCoords,
                     uint aDirection,
                     const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const = 0;
+                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const;
 
-            //------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
-        };    // class mtk::Cluster_Group
+        }; // class mtk::Cluster_Group_DataBase
 
-    }    // namespace mtk
-}    // namespace moris
+    } // namespace moris::mtk
+} // namespace moris::mtk
 
-#endif /* cl_MTK_Cluster_Group.hpp */
+#endif /* cl_MTK_Cell_Cluster_DataBase.hpp */

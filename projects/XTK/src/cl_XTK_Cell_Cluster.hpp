@@ -11,7 +11,6 @@
 #define PROJECTS_XTK_SRC_XTK_CL_XTK_CELL_CLUSTER_HPP_
 
 #include "cl_MTK_Cell_Cluster.hpp"
-#include "cl_MTK_Cluster_Group.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 
 using namespace moris;
@@ -22,6 +21,7 @@ namespace xtk
     class Child_Mesh;
     class IG_Vertex_Group;
     class IG_Cell_Group;
+    class Cluster_Group;
 
     class Cell_Cluster : public mtk::Cell_Cluster
     {
@@ -45,7 +45,7 @@ namespace xtk
         std::shared_ptr< IG_Vertex_Group >              mVertexGroup;
         moris::Cell< std::shared_ptr< IG_Cell_Group > > mPrimaryIgCellGroup;
         moris::Cell< std::shared_ptr< IG_Cell_Group > > mVoidIgCellGroup;
-        moris::Cell< std::shared_ptr< mtk::Cluster_Group > > mClusterGroups;
+        moris::Cell< std::shared_ptr< Cluster_Group > > mClusterGroups;
 
         //------------------------------------------------------------------------------
 
@@ -112,7 +112,7 @@ namespace xtk
         void
         set_cluster_group( 
                 const moris_index aBsplineMeshListIndex,
-                std::shared_ptr< mtk::Cluster_Group > aClusterGroupPtr );
+                std::shared_ptr< Cluster_Group > aClusterGroupPtr );
 
         //------------------------------------------------------------------------------
 

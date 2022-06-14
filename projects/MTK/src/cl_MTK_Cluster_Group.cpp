@@ -18,99 +18,30 @@ namespace moris
         //------------------------------------------------------------------------------
 
         Cluster_Group::Cluster_Group(
-                moris::Cell< std::shared_ptr< Cluster > > aClusters,
-                const moris_index              aBsplineMeshListIndex )
-                : mClusters( aClusters )
-                , mBsplineMeshListIndex( aBsplineMeshListIndex )
+                const moris_index  aBsplineMeshListIndex,
+                const Cluster_Type aClusterType )
+                : mBsplineMeshListIndex( aBsplineMeshListIndex )
+                , mClusterType( aClusterType )
         {
-            // only initialize the cluster group with the list of clusters, do nothing else in constructor
+            // only initialize member variables
         }
+
 
         //------------------------------------------------------------------------------
 
-        moris::Cell< std::shared_ptr< Cluster > > const&
-        Cluster_Group::get_clusters_in_group() const
-        {
-            return mClusters;
-        }
-
-        //------------------------------------------------------------------------------
-
-        moris_index Cluster_Group::get_Bspline_index_for_cluster_group() const
+        moris_index 
+        Cluster_Group::get_Bspline_index_for_cluster_group() const
         {
             return mBsplineMeshListIndex;
         }
 
         //------------------------------------------------------------------------------
 
-        moris::real
-        Cluster_Group::compute_cluster_group_volume(
-                const mtk::Primary_Void aPrimaryOrVoid,
-                const mtk::Master_Slave aIsMaster ) const
+        mtk::Cluster_Type
+        Cluster_Group::get_cluster_type_in_group() const
         {
-            // initialize volume measure
-            real tVolume = 0.0;
-
-            // sum up volume over all clusters 
-            for( uint iCluster = 0; iCluster < mClusters.size(); iCluster++ )
-            {
-                tVolume += mClusters( iCluster )->compute_cluster_cell_measure( aPrimaryOrVoid, aIsMaster );
-            }
-
-            // return sum
-            return tVolume;
+            return mClusterType;
         }
-
-        //------------------------------------------------------------------------------
-        
-        moris::real
-        Cluster_Group::compute_cluster_group_volume_derivative(
-                const Matrix< DDRMat > & aPerturbedVertexCoords,
-                uint aDirection,
-                const mtk::Primary_Void aPrimaryOrVoid,
-                const mtk::Master_Slave aIsMaster ) const
-        {
-            MORIS_ERROR( false, 
-                "Cluster_Group::compute_cluster_group_volume_derivative() - not implemented yet." );
-
-            return 0.0;
-        }
-
-        //------------------------------------------------------------------------------
-        
-        moris::real
-        Cluster_Group::compute_cluster_group_side_measure(
-                const mtk::Primary_Void aPrimaryOrVoid,
-                const mtk::Master_Slave aIsMaster ) const
-        {
-            // initialize interface/boundary surface/length
-            real tInterfaceSize = 0.0;
-
-            // sum up interface/boundary surface/length over all clusters 
-            for( uint iCluster = 0; iCluster < mClusters.size(); iCluster++ )
-            {
-                tInterfaceSize += mClusters( iCluster )->compute_cluster_cell_side_measure( aPrimaryOrVoid, aIsMaster );
-            }
-
-            // return sum
-            return tInterfaceSize;
-        }
-
-        //------------------------------------------------------------------------------
-        
-        moris::real
-        Cluster_Group::compute_cluster_group_side_measure_derivative(
-                const Matrix< DDRMat > & aPerturbedVertexCoords,
-                uint aDirection,
-                const mtk::Primary_Void aPrimaryOrVoid,
-                const mtk::Master_Slave aIsMaster ) const
-        {
-            MORIS_ERROR( false, 
-                "Cluster_Group::compute_cluster_group_side_measure_derivative() - not implemented yet." );
-
-            return 0.0;
-        }
-
 
         //------------------------------------------------------------------------------
 

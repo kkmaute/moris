@@ -21,7 +21,6 @@
 #include <unordered_map>
 #include "cl_TOL_Memory_Map.hpp"
 #include "cl_XTK_Subphase_Group.hpp"
-#include "cl_MTK_Cluster_Group.hpp"
 
 using namespace moris;
 
@@ -34,6 +33,7 @@ class Interpolation_Cell_Unzipped;
 class Ghost_Stabilization;
 class Enrichment;
 class Cut_Integration_Mesh;
+class Cluster_Group;
 
 class Enriched_Integration_Mesh : public mtk::Integration_Mesh
 {
@@ -55,9 +55,9 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
 
     // cluster groups, 
     // NOTE: first array index corresponds to index of the B-spline mesh in mBsplineMeshIndices 
-    moris::Cell< moris::Cell< std::shared_ptr< mtk::Cluster_Group > > > mCellClusterGroups;
-    moris::Cell< moris::Cell< std::shared_ptr< mtk::Cluster_Group > > > mSideClusterGroups;
-    moris::Cell< moris::Cell< std::shared_ptr< mtk::Cluster_Group > > > mDblSideClusterGroups;
+    moris::Cell< moris::Cell< std::shared_ptr< Cluster_Group > > > mCellClusterGroups;
+    moris::Cell< moris::Cell< std::shared_ptr< Cluster_Group > > > mSideClusterGroups;
+    moris::Cell< moris::Cell< std::shared_ptr< Cluster_Group > > > mDblSideClusterGroups;
 
     // Vertex Set
     std::unordered_map< std::string, moris_index >     mVertexSetLabelToOrd;
