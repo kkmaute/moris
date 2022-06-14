@@ -30,6 +30,7 @@
 #include "cl_WRK_DataBase_Performer.hpp"
 #include "cl_MIG.hpp"
 
+#include "cl_WRK_Reinitialize_Performer.hpp"
 namespace moris
 {
     namespace wrk
@@ -72,6 +73,9 @@ namespace moris
             moris::Cell< moris::Cell< ParameterList > > tMORISParameterList;
             tMORISParameterListFunc( tMORISParameterList );
 
+            std::string        tWRKString            = "WRKParameterList";
+            Parameter_Function tWRKParameterListFunc = mPerformerManager->mLibrary->load_function< Parameter_Function >( tWRKString, false );
+
             // create HMR performer
             mPerformerManager->mHMRPerformer( 0 ) = std::make_shared< hmr::HMR >( tHMRParameterList( 0 )( 0 ), mPerformerManager->mLibrary );
 
@@ -103,6 +107,16 @@ namespace moris
                 // create MTK performer - will be used for HMR mesh
                 mPerformerManager->mRemeshingMiniPerformer( 0 ) =
                         std::make_shared< wrk::Remeshing_Mini_Performer >( tMORISParameterList( 0 )( 0 ), mPerformerManager->mLibrary );
+            }
+
+            // if it is not empty then initialize the sub performer and construct it only once at the beginning
+            if ( tWRKParameterListFunc )
+            {
+                // allocate size
+                mPerformerManager->mReinitializePerformer.resize( 1 );
+
+                // construct the parameter list
+                mPerformerManager->mReinitializePerformer( 0 ) = std::make_shared< wrk::Reinitialize_Performer >( mPerformerManager->mLibrary );
             }
         }
 
@@ -211,8 +225,31 @@ namespace moris
                 return tMat;
             }
 
-            // Set new advs in GE
-            mPerformerManager->mGENPerformer( 0 )->set_advs( aNewADVs );
+            // Stage *: Reinitialization of the adv field
+
+            if ( mPerformerManager->mReinitializePerformer.size() > 0 )
+            {
+                // decide if the reinitialization would be required
+                if ( tOptIter > 0 and tOptIter % ( mPerformerManager->mReinitializePerformer( 0 )->get_reinitialization_frequency() ) == 0 )
+                {
+                    // Set new advs in GE
+                    Tracer tTracer( "GEN", "Levelset", "Re-InitializeADVs" );
+
+                    mPerformerManager->mGENPerformer( 0 )->distribute_advs(
+                            mPerformerManager->mMTKPerformer( 0 )->get_mesh_pair( 0 ),
+                            mPerformerManager->mReinitializePerformer( 0 )->get_mtk_fields() );
+                }
+                else
+                {
+                    mPerformerManager->mGENPerformer( 0 )->set_advs( aNewADVs );
+                }
+            }
+            else
+            {
+                // Set new advs in GE
+                mPerformerManager->mGENPerformer( 0 )->set_advs( aNewADVs );
+            }
+
 
             // Stage 1: HMR refinement
 
@@ -354,6 +391,21 @@ namespace moris
 
             // Build MDL components and solve
             mPerformerManager->mMDLPerformer( 0 )->perform();
+
+            // perform mapping at this stgae between solution field and adv field as some data will be deleted
+            if ( mPerformerManager->mReinitializePerformer.size() > 0 )
+            {
+                // decide if we need to perform mapping 
+                if ( tOptIter % ( mPerformerManager->mReinitializePerformer( 0 )->get_reinitialization_frequency() ) ==  //
+                mPerformerManager->mReinitializePerformer( 0 )->get_reinitialization_frequency() - 1 )
+                {
+                    // perform mapping of the solution to the adv
+                    mPerformerManager->mReinitializePerformer( 0 )->perform( mPerformerManager->mHMRPerformer,
+                            mPerformerManager->mGENPerformer,
+                            mPerformerManager->mMTKPerformer,
+                            mPerformerManager->mMDLPerformer );
+                }
+            }
 
             moris::Cell< moris::Matrix< DDRMat > > tVal = mPerformerManager->mMDLPerformer( 0 )->get_IQI_values();
 

@@ -17,6 +17,7 @@ set(HEADERS
     cl_WRK_perform_refinement.hpp
     cl_WRK_perform_remeshing.hpp
     cl_WRK_DataBase_Performer.hpp
+    cl_WRK_Reinitialize_Performer.hpp
     )
  
 set(GEN_INCLUDES
@@ -47,6 +48,7 @@ set(LIB_SOURCES
     cl_WRK_perform_refinement.cpp
     cl_WRK_perform_remeshing.cpp
     cl_WRK_DataBase_Performer.cpp
+    cl_WRK_Reinitialize_Performer.cpp
     )
 
 # List library dependencies
