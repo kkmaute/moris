@@ -363,6 +363,9 @@ namespace moris
                     mSolverWarehouse->initialize();
                 }
 
+                //set the solver warehouse pointer
+                mSolverInterface->set_solver_warehouse(mSolverWarehouse);
+
                 // finalize the model solver interface
                 mModelSolverInterface->finalize();
 
