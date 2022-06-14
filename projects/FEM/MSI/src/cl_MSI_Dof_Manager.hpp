@@ -27,6 +27,7 @@ namespace moris
                 moris::Cell < Pdof_Host * >          mPdofHostList;  // List of all pdof hosts
                 moris::Cell < Adof * >               mAdofList;      // List of all adofs
                 moris::Cell<moris::Cell < Adof * > > mAdofListOwned; // List of all owned adofs
+                moris::Cell<moris::Cell < Adof * > > mAdofListOwnedAndShared; // List of all owned adofs
                 //moris::Cell < Adof * >       mAdofListShared;
 
                 moris::Cell< enum Dof_Type >   mPdofTypeList;          // List containing all used unique dof types.
