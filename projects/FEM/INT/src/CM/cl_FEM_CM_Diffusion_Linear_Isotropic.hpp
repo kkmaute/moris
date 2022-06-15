@@ -35,6 +35,7 @@ namespace moris
                 std::shared_ptr< Property > mPropHeatCapacity = nullptr;
                 std::shared_ptr< Property > mPropDensity      = nullptr;
                 std::shared_ptr< Property > mPropEigenStrain  = nullptr;
+                std::shared_ptr< Property > mPropLSSign  = nullptr;
 
             private:
 
@@ -49,6 +50,7 @@ namespace moris
                     HEAT_CAPACITY,
                     DENSITY,
                     EIGEN_STRAIN,
+                    LEVELSET_SIGN,
                     MAX_ENUM
                 };
 
