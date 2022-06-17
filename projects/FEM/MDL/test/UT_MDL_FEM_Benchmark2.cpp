@@ -324,6 +324,7 @@ namespace moris
             tIQITEMP->set_name( "IQI_TEMP" );
 
             std::shared_ptr< fem::IQI > tIQIL2 = tIQIFactory.create_IQI( fem::IQI_Type::L2_ERROR_ANALYTIC );
+            tIQIL2->set_quantity_dof_type( { MSI::Dof_Type::TEMP } );
             tIQIL2->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Master_Slave::MASTER );
             tIQIL2->set_property( tPropL2Analytic, "L2Check", mtk::Master_Slave::MASTER );
             tIQIL2->set_name( "IQI_L2" );
@@ -654,6 +655,7 @@ namespace moris
             tIQITEMP->set_name( "IQI_TEMP" );
 
             std::shared_ptr< fem::IQI > tIQIL2 = tIQIFactory.create_IQI( fem::IQI_Type::L2_ERROR_ANALYTIC );
+            tIQIL2->set_quantity_dof_type( { MSI::Dof_Type::TEMP } );
             tIQIL2->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Master_Slave::MASTER );
             tIQIL2->set_property( tPropL2Analytic, "L2Check", mtk::Master_Slave::MASTER );
             tIQIL2->set_name( "IQI_L2" );
@@ -1001,6 +1003,7 @@ namespace moris
             tIQITEMP->set_name( "IQI_Temp" );
 
             std::shared_ptr< fem::IQI > tIQIL2 = tIQIFactory.create_IQI( fem::IQI_Type::L2_ERROR_ANALYTIC );
+            tIQIL2->set_quantity_dof_type( { MSI::Dof_Type::TEMP } );
             tIQIL2->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Master_Slave::MASTER );
             tIQIL2->set_property( tPropL2Analytic, "L2Check", mtk::Master_Slave::MASTER );
             tIQIL2->set_name( "IQI_L2" );
@@ -1352,6 +1355,7 @@ namespace moris
             tIQITEMP->set_name( "IQI_Temp" );
 
             std::shared_ptr< fem::IQI > tIQIL2 = tIQIFactory.create_IQI( fem::IQI_Type::L2_ERROR_ANALYTIC );
+            tIQIL2->set_quantity_dof_type( { MSI::Dof_Type::TEMP } );
             tIQIL2->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Master_Slave::MASTER );
             tIQIL2->set_property( tPropL2Analytic, "L2Check", mtk::Master_Slave::MASTER );
             tIQIL2->set_name( "IQI_L2" );
