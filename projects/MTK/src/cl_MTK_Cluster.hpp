@@ -204,13 +204,33 @@ namespace moris
                 //----------------------------------------------------------------
 
                 virtual
+                bool
+                has_cluster_group( const moris_index aBsplineMeshListIndex ) const
+                {
+                    MORIS_ERROR( false, "mtk::Cluster::has_cluster_group() - not implemented for this class" );
+                    return false;
+                }
+
+                //----------------------------------------------------------------
+
+                virtual
+                std::shared_ptr< Cluster_Group >
+                get_cluster_group( const moris_index aBsplineMeshListIndex ) const
+                {
+                    MORIS_ERROR( false, "mtk::Cluster::get_cluster_group() - not implemented for this class" );
+                    return nullptr;
+                }
+
+                //----------------------------------------------------------------
+
+                virtual
                 void
                 set_cluster_group( 
                         const moris_index aBsplineMeshListIndex,
                         std::shared_ptr< Cluster_Group > aClusterGroupPtr )
                 {
                     MORIS_ERROR( false, "mtk::Cluster::set_cluster_group() - not implemented for this class" );
-                };
+                }
                 
                 // virtual
                 // std::shared_ptr< Cluster_Group >

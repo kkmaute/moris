@@ -28,16 +28,15 @@ namespace moris
                  */
 
                 // Master side cluster
-                moris::mtk::Cluster const * mMasterSideCluster;
+                moris::mtk::Cluster const* mMasterSideCluster;
 
                 // Slave side cluster
-                moris::mtk::Cluster const * mSlaveSideCluster;
-
+                moris::mtk::Cluster const* mSlaveSideCluster;
 
                 /*!
                  * A one way pairing from master vertices to slave vertices
                  */
-                moris::Cell<moris::mtk::Vertex const *> mMasterToSlaveVertexPairs;
+                moris::Cell< moris::mtk::Vertex const* > mMasterToSlaveVertexPairs;
 
             public:
                 // ----------------------------------------------------------------------------------

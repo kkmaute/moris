@@ -13,6 +13,12 @@
 #include "cl_MTK_Cell_Cluster.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 
+// forward declare the mtk::Cluster_Group
+namespace moris::mtk
+{
+    class Cluster_Group;
+}
+
 using namespace moris;
 
 namespace xtk
@@ -21,7 +27,6 @@ namespace xtk
     class Child_Mesh;
     class IG_Vertex_Group;
     class IG_Cell_Group;
-    class Cluster_Group;
 
     class Cell_Cluster : public mtk::Cell_Cluster
     {
@@ -45,7 +50,7 @@ namespace xtk
         std::shared_ptr< IG_Vertex_Group >              mVertexGroup;
         moris::Cell< std::shared_ptr< IG_Cell_Group > > mPrimaryIgCellGroup;
         moris::Cell< std::shared_ptr< IG_Cell_Group > > mVoidIgCellGroup;
-        moris::Cell< std::shared_ptr< Cluster_Group > > mClusterGroups;
+        moris::Cell< std::shared_ptr< mtk::Cluster_Group > > mClusterGroups;
 
         //------------------------------------------------------------------------------
 
@@ -107,12 +112,22 @@ namespace xtk
         void
         set_ig_vertex_group( std::shared_ptr< IG_Vertex_Group > aVertexGroup );
 
+        //----------------------------------------------------------------
+
+        bool
+        has_cluster_group( const moris_index aBsplineMeshListIndex ) const override;
+
+        //----------------------------------------------------------------
+
+        std::shared_ptr< mtk::Cluster_Group >
+        get_cluster_group( const moris_index aBsplineMeshListIndex ) const override;
+
         //------------------------------------------------------------------------------
 
         void
         set_cluster_group( 
                 const moris_index aBsplineMeshListIndex,
-                std::shared_ptr< Cluster_Group > aClusterGroupPtr );
+                std::shared_ptr< mtk::Cluster_Group > aClusterGroupPtr ) override;
 
         //------------------------------------------------------------------------------
 

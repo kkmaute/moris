@@ -138,16 +138,37 @@ namespace moris
                         moris::mtk::Vertex const * aVertex,
                         const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER) const  = 0;
 
+
+                //----------------------------------------------------------------
+
+                virtual
+                bool
+                has_cluster_group( const moris_index aBsplineMeshListIndex ) const override
+                {
+                    MORIS_ERROR( false, "mtk::Side_Cluster::has_cluster_group() - not implemented for this class" );
+                    return false;
+                }
+
+                //----------------------------------------------------------------
+
+                virtual
+                std::shared_ptr< Cluster_Group >
+                get_cluster_group( const moris_index aBsplineMeshListIndex ) const override
+                {
+                    MORIS_ERROR( false, "mtk::Side_Cluster::get_cluster_group() - not implemented for this class" );
+                    return nullptr;
+                }
+
                 // ----------------------------------------------------------------------------------
 
                 virtual
                 void
                 set_cluster_group( 
                         const moris_index aBsplineMeshListIndex,
-                        std::shared_ptr< Cluster_Group > aClusterGroupPtr )
+                        std::shared_ptr< Cluster_Group > aClusterGroupPtr ) override
                 {
                     MORIS_ERROR( false, "mtk::Side_Cluster::set_cluster_group() - only implemented for child xtk::Side_Cluster" );
-                };
+                }
 
                 // ----------------------------------------------------------------------------------
 

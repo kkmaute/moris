@@ -9,7 +9,7 @@
  */
 
 #include "cl_XTK_Cell_Cluster.hpp"
-#include "cl_XTK_Cluster_Group.hpp"
+#include "cl_MTK_Cluster_Group.hpp"
 #include "cl_XTK_Interpolation_Cell_Unzipped.hpp"
 #include "cl_XTK_Child_Mesh.hpp"
 #include "cl_XTK_Cut_Integration_Mesh.hpp"
@@ -311,12 +311,51 @@ namespace xtk
         }
     }
 
+
+    //----------------------------------------------------------------
+
+    bool
+    Cell_Cluster::has_cluster_group( const moris_index aBsplineMeshListIndex ) const
+    {
+        // if the list of B-spline meshes for which the cluster groups have been set isn't large enough ...
+        if( mClusterGroups.size() < (uint) aBsplineMeshListIndex + 1 )
+        {
+            // ... the cluster group has not been set yet
+            return false;
+        }
+
+        // if the entry exists but is empty
+        else if( mClusterGroups( aBsplineMeshListIndex ).get() == nullptr )
+        {
+            return false;
+        }
+
+        // if the entry both exists and is not empty, the cluster has a group
+        else
+        {
+            return true;
+        }
+    }
+
+    //----------------------------------------------------------------
+
+    std::shared_ptr< mtk::Cluster_Group >
+    Cell_Cluster::get_cluster_group( const moris_index aBsplineMeshListIndex ) const
+    {
+        // check that the cluster group exists and is set
+        MORIS_ASSERT( this->has_cluster_group( aBsplineMeshListIndex ),
+            "xtk::Cell_Cluster::get_cluster_group() - Cluster group is not set or does not exist." );
+
+        // return the pointer to the cluster group
+        return mClusterGroups( aBsplineMeshListIndex );
+    }
+
     //------------------------------------------------------------------------------
 
     void
     Cell_Cluster::set_cluster_group( 
             const moris_index aBsplineMeshListIndex,
-            std::shared_ptr< Cluster_Group > aClusterGroupPtr )
+            std::shared_ptr< mtk::Cluster_Group > aClusterGroupPtr )
     {
         // check that the cluster group is set to the correct B-spline list index
         MORIS_ASSERT( aClusterGroupPtr->get_Bspline_index_for_cluster_group() == aBsplineMeshListIndex,

@@ -13,6 +13,12 @@
 #include "cl_MTK_Side_Cluster.hpp"
 #include <unordered_map>
 
+// forward declare the mtk::Cluster_Group
+namespace moris::mtk
+{
+    class Cluster_Group;
+}
+
 using namespace moris;
 
 namespace xtk
@@ -20,7 +26,6 @@ namespace xtk
     class Interpolation_Cell_Unzipped;
     class Cell_Cluster;
     class IG_Vertex_Group;
-    class Cluster_Group;
 
     class Side_Cluster : public mtk::Side_Cluster
     {
@@ -41,7 +46,7 @@ namespace xtk
         moris::Cell< moris::Matrix< moris::DDRMat > > mVertexLocalCoords;
         moris::Matrix< moris::DDRMat >                mVertexLocalCoordsMat;  /*FIXME: get rid of mVertexLocalCoords*/
         xtk::Cell_Cluster const                      *mAssociatedCellCluster; /* Associated cell cluster (needed for volume computations in nitsche).*/
-        moris::Cell< std::shared_ptr< Cluster_Group > > mClusterGroups;
+        moris::Cell< std::shared_ptr< mtk::Cluster_Group > > mClusterGroups;
 
         //---------------------------------------------------------------------------------------
 
@@ -182,12 +187,22 @@ namespace xtk
         void
         set_ig_vertex_group( std::shared_ptr< IG_Vertex_Group > aVertexGroup );
 
-        //------------------------------------------------------------------------------
+        //---------------------------------------------------------------------------------------
+
+        bool
+        has_cluster_group( const moris_index aBsplineMeshListIndex ) const override;
+
+        //---------------------------------------------------------------------------------------
+
+        std::shared_ptr< mtk::Cluster_Group >
+        get_cluster_group( const moris_index aBsplineMeshListIndex ) const override;
+
+        //---------------------------------------------------------------------------------------
 
         void
         set_cluster_group( 
                 const moris_index aBsplineMeshListIndex,
-                std::shared_ptr< Cluster_Group > aClusterGroupPtr );
+                std::shared_ptr< mtk::Cluster_Group > aClusterGroupPtr ) override;
 
         //---------------------------------------------------------------------------------------
 

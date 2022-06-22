@@ -26,7 +26,7 @@ namespace moris
 
             //------------------------------------------------------------------------------
             
-        private:
+        protected:
 
             // pointer to parent mesh holding information
             mtk::Mesh* mMesh;
@@ -58,9 +58,16 @@ namespace moris
             //------------------------------------------------------------------------------
 
             /**
+             * @brief default constructor initializing nothing
+             * 
+             */
+            Cluster_Group_DataBase() = default;
+
+            /**
              * @brief Default Destructor
              * 
              */
+            virtual
             ~Cluster_Group_DataBase() = default;
 
             //------------------------------------------------------------------------------

@@ -26,7 +26,7 @@ namespace xtk
     {
         //------------------------------------------------------------------------------
 
-      private:
+      protected:
 
         // list of clusters in group
         moris::Cell< std::shared_ptr< mtk::Cluster > > mClusters;
@@ -42,7 +42,18 @@ namespace xtk
                 const moris_index                              aBsplineMeshListIndex,
                 const mtk::Cluster_Type                        aClusterType );
 
-        ~Cluster_Group(){};
+        /**
+         * @brief default constructor initializing nothing
+         * 
+         */
+        Cluster_Group() = default;
+
+        /**
+         * @brief Default Destructor
+         * 
+         */
+        virtual
+        ~Cluster_Group() = default;
 
         //------------------------------------------------------------------------------
 

@@ -49,8 +49,9 @@ namespace moris
              * @param aMesh the mesh pointer
              */
 
-            Cell_Cluster_DataBase( moris_index aCellClusterIndex,
-                mtk::Mesh*                     aMesh );
+            Cell_Cluster_DataBase( 
+                    moris_index aCellClusterIndex,
+                    mtk::Mesh*  aMesh );
 
 
             //------------------------------------------------------------------------------
@@ -73,7 +74,8 @@ namespace moris
              * @return false slave side
              */
 
-            virtual bool
+            virtual 
+            bool
             is_trivial( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const override;
 
             //------------------------------------------------------------------------------
@@ -85,7 +87,8 @@ namespace moris
              * @return moris::Cell< moris::mtk::Cell const* > const&  cell containing primary cells
              */
 
-            virtual moris::Cell< moris::mtk::Cell const* > const&
+            virtual 
+            moris::Cell< moris::mtk::Cell const* > const&
             get_primary_cells_in_cluster( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const override;
 
             //------------------------------------------------------------------------------
@@ -96,7 +99,8 @@ namespace moris
              * @return moris::Cell< moris::mtk::Cell const* > const& cell containing void cells
              */
 
-            virtual moris::Cell< moris::mtk::Cell const* > const&
+            virtual 
+            moris::Cell< moris::mtk::Cell const* > const&
             get_void_cells_in_cluster() const override;
 
             //------------------------------------------------------------------------------
@@ -108,7 +112,8 @@ namespace moris
              * @return moris::mtk::Cell const& interpolation cell of the cluster(this is unique)
              */
 
-            virtual moris::mtk::Cell const&
+            virtual 
+            moris::mtk::Cell const&
             get_interpolation_cell( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const override;
 
             //------------------------------------------------------------------------------
@@ -120,7 +125,8 @@ namespace moris
              * @return moris::Cell< moris::mtk::Vertex const* > get vertices in the cluster
              */
 
-            virtual moris::Cell< moris::mtk::Vertex const* >
+            virtual 
+            moris::Cell< moris::mtk::Vertex const* >
             get_vertices_in_cluster( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const override;
 
             //------------------------------------------------------------------------------
@@ -132,7 +138,8 @@ namespace moris
              * @return moris::Matrix< moris::DDRMat > coordinates of the vertices (nVert*nDim)
              */
 
-            virtual moris::Matrix< moris::DDRMat >
+            virtual 
+            moris::Matrix< moris::DDRMat >
             get_vertices_local_coordinates_wrt_interp_cell( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const override;
 
             //------------------------------------------------------------------------------
@@ -145,7 +152,8 @@ namespace moris
              * @return moris::Matrix< moris::DDRMat > coordinates of the vertex (1*nDim)
              */
 
-            virtual moris::Matrix< moris::DDRMat >
+            virtual 
+            moris::Matrix< moris::DDRMat >
             get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const* aVertex,
                 const mtk::Master_Slave                                            aIsMaster = mtk::Master_Slave::MASTER ) const override;
 
@@ -158,7 +166,8 @@ namespace moris
              * @return moris_index spatial dimension of the probelm
              */
 
-            virtual moris_index
+            virtual 
+            moris_index
             get_dim_of_param_coord( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const override;
 
             //------------------------------------------------------------------------------
@@ -170,8 +179,65 @@ namespace moris
              * @return moris::Matrix< moris::DDRMat > coordinates of the cell in the cluster (nVert*nDim)
              */
 
-            virtual moris::Matrix< moris::DDRMat >
+            virtual 
+            moris::Matrix< moris::DDRMat >
             get_primary_cell_local_coords_on_side_wrt_interp_cell( moris::moris_index aPrimaryCellClusterIndex ) const override;
+
+            //------------------------------------------------------------------------------
+
+            virtual
+            moris::real
+            compute_cluster_group_cell_measure(
+                    const moris_index       aBsplineMeshListIndex,
+                    const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const override
+            {
+                MORIS_ERROR( false, "mtk::Side_Cluster_DataBase::compute_cluster_group_cell_measure() - Only implemented in child mtk::Cell_Cluster_DataBase" );
+                return 0.0;
+            }
+
+            //------------------------------------------------------------------------------
+
+            virtual
+            moris::real
+            compute_cluster_group_cell_measure_derivative(
+                    const moris_index       aBsplineMeshListIndex,
+                    const Matrix< DDRMat > & aPerturbedVertexCoords,
+                    uint aDirection,
+                    const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                    const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const override
+            {
+                MORIS_ERROR( false, "mtk::Side_Cluster_DataBase::compute_cluster_group_cell_measure_derivative() - Only implemented in child mtk::Cell_Cluster_DataBase" );
+                return 0.0;
+            }
+
+            //------------------------------------------------------------------------------
+
+            virtual
+            moris::real
+            compute_cluster_group_cell_side_measure(
+                    const moris_index       aBsplineMeshListIndex,
+                    const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const override
+            {
+                MORIS_ERROR( false, "mtk::Cell_Cluster_DataBase::compute_cluster_group_cell_side_measure() - Only valid on mtk::Side_Cluster_DataBase" );
+                return 0.0;
+            }
+
+            //------------------------------------------------------------------------------
+
+            virtual
+            moris::real
+            compute_cluster_group_cell_side_measure_derivative(
+                    const moris_index       aBsplineMeshListIndex,
+                    const Matrix< DDRMat >& aPerturbedVertexCoords,
+                    uint aDirection,
+                    const mtk::Primary_Void aPrimaryOrVoid,
+                    const mtk::Master_Slave aIsMaster ) const override
+            {
+                MORIS_ERROR( false, "mtk::Cell_Cluster_DataBase::compute_cluster_group_cell_side_measure_derivative() - Only valid on mtk::Side_Cluster_DataBase" );
+                return 0.0;
+            }
 
             //------------------------------------------------------------------------------
 

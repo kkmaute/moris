@@ -10,7 +10,6 @@
 #ifndef SRC_cl_MTK_Cluster_Group
 #define SRC_cl_MTK_Cluster_Group
 
-#include "cl_Cell.hpp"
 #include "cl_MTK_Enums.hpp"
 #include "cl_Matrix.hpp"
 
@@ -59,9 +58,15 @@ namespace moris
              * @brief default constructor initializing nothing
              * 
              */
-            Cluster_Group(){};
+            Cluster_Group() = default;
 
-            ~Cluster_Group(){};
+
+            /**
+             * @brief Default Destructor
+             * 
+             */
+            virtual
+            ~Cluster_Group() = default;
 
             //------------------------------------------------------------------------------
 
