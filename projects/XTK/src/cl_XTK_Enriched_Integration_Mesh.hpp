@@ -49,15 +49,17 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
 
     // mesh indices
     Matrix< IndexMat > mBsplineMeshIndices;
+    std::unordered_map< moris_index, moris_index > mMeshIndexToLocMeshIndex;
+    bool mLocalMeshIndexMapIsSet = false;
 
     // Cell Clusters
     moris::Cell< std::shared_ptr< xtk::Cell_Cluster > > mCellClusters;
 
     // cluster groups, 
     // NOTE: first array index corresponds to index of the B-spline mesh in mBsplineMeshIndices 
-    moris::Cell< moris::Cell< std::shared_ptr< Cluster_Group > > > mCellClusterGroups;
-    moris::Cell< moris::Cell< std::shared_ptr< Cluster_Group > > > mSideClusterGroups;
-    moris::Cell< moris::Cell< std::shared_ptr< Cluster_Group > > > mDblSideClusterGroups;
+    moris::Cell< moris::Cell< std::shared_ptr< xtk::Cluster_Group > > > mCellClusterGroups;
+    moris::Cell< moris::Cell< std::shared_ptr< xtk::Cluster_Group > > > mSideClusterGroups;
+    moris::Cell< moris::Cell< std::shared_ptr< xtk::Cluster_Group > > > mDblSideClusterGroups;
 
     // Vertex Set
     std::unordered_map< std::string, moris_index >     mVertexSetLabelToOrd;
@@ -83,7 +85,7 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
     // double side sets
     std::unordered_map< std::string, moris_index >             mDoubleSideSetLabelToOrd;
     moris::Cell< std::string >                                 mDoubleSideSetLabels;
-    moris::Cell< moris::Cell< std::shared_ptr< mtk::Double_Side_Cluster > > > mDoubleSideSets;
+    moris::Cell< moris::Cell< std::shared_ptr< mtk::Double_Side_Cluster > > > mDoubleSideSets; // outer cell: index of the dbl-side set || inner cell: all dbl-side clusters that live on this dbl-side set
     moris::Cell< moris::Cell< moris_index > >                  mDoubleSideSetsMasterIndex;
     moris::Cell< moris::Cell< moris_index > >                  mDoubleSideSetsSlaveIndex;
     moris::Cell< std::shared_ptr< mtk::Double_Side_Cluster > > mDoubleSideClusters;
@@ -178,8 +180,20 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
     //------------------------------------------------------------------------------
 
     //------------------------------------------------------------------------------
-    // Additional Set Functions
+    // Additional Get/Set Functions
     //------------------------------------------------------------------------------
+
+    void               setup_mesh_index_map();
+    moris_index        get_local_mesh_index( const moris_index aDiscretizationMeshIndex ) const;
+    Matrix< IndexMat > get_enriched_mesh_indices() const;
+    uint               get_num_interpolation_types() const;
+    uint               get_num_cell_cluster_groups( const moris_index aDiscretizationMeshIndex ) const;
+    uint               get_num_side_cluster_groups( const moris_index aDiscretizationMeshIndex ) const;
+    Cell< std::shared_ptr< xtk::Cluster_Group > > const& get_cell_cluster_groups( const moris_index aDiscretizationMeshIndex ) const;
+    Cell< std::shared_ptr< xtk::Cluster_Group > > const& get_side_cluster_groups( const moris_index aDiscretizationMeshIndex ) const;
+
+    //------------------------------------------------------------------------------
+
     moris::Cell< xtk::Cell_Cluster const * > const &
     get_xtk_cell_clusters_in_block_set( moris_index aBlockSetOrdinal ) const;
 

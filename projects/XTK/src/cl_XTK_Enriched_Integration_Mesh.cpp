@@ -151,6 +151,103 @@ Enriched_Integration_Mesh::get_mesh_type() const
     return MeshType::XTK;
 }
 
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
+void
+Enriched_Integration_Mesh::setup_mesh_index_map()
+{
+    // setup conversion table from MSI discretization mesh index to position of B-spline mesh in list of XTK meshes
+    if( !mLocalMeshIndexMapIsSet )
+    {
+        this->setup_mesh_index_map();
+        mLocalMeshIndexMapIsSet = true;
+    }
+
+    // find mesh list index in map
+    for ( moris::uint iMeshIndex = 0; iMeshIndex < (uint)mBsplineMeshIndices.max() + 1; iMeshIndex++ )
+    {
+        mMeshIndexToLocMeshIndex[iMeshIndex] = iMeshIndex;
+    }
+}
+
+// ----------------------------------------------------------------------------
+
+moris_index
+Enriched_Integration_Mesh::get_local_mesh_index( const moris_index aDiscretizationMeshIndex ) const
+{
+    auto tIter = mMeshIndexToLocMeshIndex.find( aDiscretizationMeshIndex );
+
+    MORIS_ASSERT( tIter != mMeshIndexToLocMeshIndex.end(), "Enriched_Integration_Mesh::get_local_mesh_index() - Mesh index not in map" );
+
+    return tIter->second;
+}
+
+// ----------------------------------------------------------------------------
+
+Matrix< IndexMat >
+Enriched_Integration_Mesh::get_enriched_mesh_indices() const
+{
+    return mBsplineMeshIndices;
+}
+
+// ----------------------------------------------------------------------------
+
+uint
+Enriched_Integration_Mesh::get_num_interpolation_types() const
+{
+    return mBsplineMeshIndices.numel();
+}
+
+// ----------------------------------------------------------------------------
+
+uint
+Enriched_Integration_Mesh::get_num_cell_cluster_groups( const moris_index aDiscretizationMeshIndex ) const
+{
+    // get the list index for the discretization mesh index
+    moris_index tBsplineMeshListIndex = this->get_local_mesh_index( aDiscretizationMeshIndex );
+
+    // get the number of cluster groups for the current B-spline mesh index
+    return mCellClusterGroups( tBsplineMeshListIndex ).size();
+}
+
+// ----------------------------------------------------------------------------
+
+uint
+Enriched_Integration_Mesh::get_num_side_cluster_groups( const moris_index aDiscretizationMeshIndex ) const
+{
+    // get the list index for the discretization mesh index
+    moris_index tBsplineMeshListIndex = this->get_local_mesh_index( aDiscretizationMeshIndex );
+
+    // get the number of cluster groups for the current B-spline mesh index
+    return mSideClusterGroups( tBsplineMeshListIndex ).size();
+}
+
+// ----------------------------------------------------------------------------
+
+Cell< std::shared_ptr< xtk::Cluster_Group > > const&
+Enriched_Integration_Mesh::get_cell_cluster_groups( const moris_index aDiscretizationMeshIndex ) const
+{
+    // get the list index for the discretization mesh index
+    moris_index tBsplineMeshListIndex = this->get_local_mesh_index( aDiscretizationMeshIndex );
+
+    // get the number of cluster groups for the current B-spline mesh index
+    return mCellClusterGroups( tBsplineMeshListIndex );
+}
+
+// ----------------------------------------------------------------------------
+
+Cell< std::shared_ptr< xtk::Cluster_Group > > const&
+Enriched_Integration_Mesh::get_side_cluster_groups( const moris_index aDiscretizationMeshIndex ) const
+{
+    // get the list index for the discretization mesh index
+    moris_index tBsplineMeshListIndex = this->get_local_mesh_index( aDiscretizationMeshIndex );
+
+    // get the number of cluster groups for the current B-spline mesh index
+    return mSideClusterGroups( tBsplineMeshListIndex );
+}
+
+// ----------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
 moris::uint
@@ -567,12 +664,16 @@ Enriched_Integration_Mesh::get_block_entity_loc_inds( std::string aSetName ) con
     return tCellIndices;
 }
 
+//------------------------------------------------------------------------------
+
 void
 Enriched_Integration_Mesh::create_dbl_sided_interface_set(
     moris_index aMasterBulkPhaseIndex,
     moris_index aSlaveBulkPhaseIndex )
 {
-    MORIS_ERROR( aMasterBulkPhaseIndex > aSlaveBulkPhaseIndex, "The master bulk phase needs to be lower than the slave bulk phase." );
+    MORIS_ERROR( aMasterBulkPhaseIndex > aSlaveBulkPhaseIndex, 
+        "Enriched_Integration_Mesh::create_dbl_sided_interface_set() - "
+        "The master bulk phase needs to be lower than the slave bulk phase." );
 
     // get the name of this side set
     std::string tInterfaceDblSideName = this->get_dbl_interface_side_set_name( aMasterBulkPhaseIndex, aSlaveBulkPhaseIndex );
@@ -600,8 +701,8 @@ Enriched_Integration_Mesh::create_dbl_sided_interface_set(
         mDoubleSideSetsSlaveIndex( tDblSideSetOrds( 0 ) )( i )  = mDoubleSideSetsMasterIndex( tOtherInterfaceIndex )( i );
 
         // get master ans slave clusters
-        Side_Cluster *tMasterSideCluster = mDoubleSideSingleSideClusters( mDoubleSideSetsMasterIndex( tDblSideSetOrds( 0 ) )( i ) ).get();
-        Side_Cluster *tSlaveSideCluster  = mDoubleSideSingleSideClusters( mDoubleSideSetsSlaveIndex( tDblSideSetOrds( 0 ) )( i ) ).get();
+        Side_Cluster* tMasterSideCluster = mDoubleSideSingleSideClusters( mDoubleSideSetsMasterIndex( tDblSideSetOrds( 0 ) )( i ) ).get();
+        Side_Cluster* tSlaveSideCluster  = mDoubleSideSingleSideClusters( mDoubleSideSetsSlaveIndex( tDblSideSetOrds( 0 ) )( i ) ).get();
 
         // create double side set
         std::shared_ptr< mtk::Double_Side_Cluster > tDblSideCluster = std::make_shared< mtk::Double_Side_Cluster >(
@@ -2805,13 +2906,13 @@ Enriched_Integration_Mesh::setup_cell_cluster_groups()
     // get the SPG to Cluster Index map from the enrichment
     Cell< Cell< Cell< moris_index > > > const& tSpgToClusterIndex = mModel->mEnrichment->get_SPG_to_UIPC_map();
 
-    // estabilish cluster group measures for every B-spline mesh
+    // estabilish cluster groups for every B-spline mesh
     for( uint iBspMesh = 0; iBspMesh < tNumBspMeshes; iBspMesh++ )
     {
         // get the number of SPGs on the current B-spline mesh
         uint tNumSPGs = tSpgToClusterIndex( iBspMesh ).size();
 
-        // initialize the list of Cell cluster group
+        // initialize the list of Cell cluster groups
         mCellClusterGroups( iBspMesh ).resize( tNumSPGs );
 
         // go over Cluster groups, which correspond to the SPGs
@@ -2832,7 +2933,7 @@ Enriched_Integration_Mesh::setup_cell_cluster_groups()
             }
 
             // create and commit a new Cluster group to the list
-            mCellClusterGroups( iBspMesh )( iSPG ) = std::make_shared< Cluster_Group >( tClustersInGroup, iBspMesh, mtk::Cluster_Type::CELL );
+            mCellClusterGroups( iBspMesh )( iSPG ) = std::make_shared< xtk::Cluster_Group >( tClustersInGroup, iBspMesh, mtk::Cluster_Type::CELL );
 
             // assign the cluster group created to all cluster which it was created from
             for( uint iCluster = 0; iCluster < tNumClustersInGroup; iCluster++ )
@@ -2885,7 +2986,7 @@ Enriched_Integration_Mesh::setup_side_cluster_groups()
             tSideClustersInSpgs.reserve( tNumSideClustersInSet );
 
             // sort all side clusters on set into groups
-            for( uint iSideClusterOnSet = 0; iSideClusterOnSet < mSideSets( iSideSet ).size(); iSideClusterOnSet++ )
+            for( uint iSideClusterOnSet = 0; iSideClusterOnSet < tNumSideClustersInSet; iSideClusterOnSet++ )
             {
                 // get the master UIPC index
                 moris_index tMasterUipcIndex = mSideSets( iSideSet )( iSideClusterOnSet )->get_interpolation_cell_index();
@@ -2904,7 +3005,7 @@ Enriched_Integration_Mesh::setup_side_cluster_groups()
                 if( tSideClustersInSpgs( iSPG ).size() > 0 )
                 {
                     // create side cluster group
-                    mSideClusterGroups( iBspMesh ).push_back( std::make_shared< Cluster_Group >( tSideClustersInSpgs( iSPG ), iBspMesh, mtk::Cluster_Type::SIDE ) );
+                    mSideClusterGroups( iBspMesh ).push_back( std::make_shared< xtk::Cluster_Group >( tSideClustersInSpgs( iSPG ), iBspMesh, mtk::Cluster_Type::SIDE ) );
 
                     // index of the newly created Cluster Group in the list
                     uint tNewSideClusterGroupIndex = mSideClusterGroups( iBspMesh ).size() - 1;
@@ -2947,8 +3048,8 @@ Enriched_Integration_Mesh::setup_dbl_side_cluster_groups()
     for( uint iBspMesh = 0; iBspMesh < tNumBspMeshes; iBspMesh++ )
     {
         // TODO: this estimate needs another look at it
-        // estimate the number of dbl side cluster groups as the number of cell cluster groups
-        uint tApproxNumDblSideClusterGroups = mCellClusterGroups( iBspMesh ).size();
+        // estimate the number of dbl side cluster groups as double the number of cell cluster groups
+        uint tApproxNumDblSideClusterGroups = 2 * mSideClusterGroups( iBspMesh ).size();
 
         // reserve memory for dbl side cluster groups
         mDblSideClusterGroups( iBspMesh ).reserve( tApproxNumDblSideClusterGroups );
@@ -2960,48 +3061,113 @@ Enriched_Integration_Mesh::setup_dbl_side_cluster_groups()
         // NOTE: this is done such that there aren't side clusters from different side-sets in the same group
         for( uint iDblSideSet = 0; iDblSideSet < mDoubleSideSets.size(); iDblSideSet++ )
         {
-            // establish a lists of side clusters belonging to each SPG
+            // establish a lists of double side clusters belonging to each SPG
             // input: SPG index || output: List of dbl-side clusters in Group
             Cell< Cell< std::shared_ptr< mtk::Cluster > > > tDblSideClustersInSpgs( tNumSPGs );
+            Cell< Cell< moris_index > > tDblSideClustersInSpgsMasterIndices( tNumSPGs );
+            Cell< Cell< moris_index > > tDblSideClustersInSpgsSlaveIndices( tNumSPGs );
 
-            // get the number of side clusters in the current side set
+            // get the number of double side clusters in the current double side set
             uint tNumDblSideClustersInSet = mDoubleSideSets( iDblSideSet ).size();
 
             // reserve memory in the array for all clusters on the set
             tDblSideClustersInSpgs.reserve( tNumDblSideClustersInSet );
+            tDblSideClustersInSpgsMasterIndices.reserve( tNumDblSideClustersInSet );
+            tDblSideClustersInSpgsSlaveIndices.reserve( tNumDblSideClustersInSet );
 
-            // sort all side clusters on set into groups
-            for( uint iSideClusterOnSet = 0; iSideClusterOnSet < mDoubleSideSets( iDblSideSet ).size(); iSideClusterOnSet++ )
+            // collect all dbl-side clusters that are associated with the same SPG
+            for( uint iDblSideClusterOnSet = 0; iDblSideClusterOnSet < tNumDblSideClustersInSet; iDblSideClusterOnSet++ )
             {
                 // get the master UIPC index
-                moris_index tMasterUipcIndex = mDoubleSideSets( iDblSideSet )( iSideClusterOnSet )->get_master_interpolation_cell().get_index();
+                moris_index tMasterUipcIndex = mDoubleSideSets( iDblSideSet )( iDblSideClusterOnSet )->get_master_interpolation_cell().get_index();
 
                 // get the SPG index the UIPC is in
                 moris_index tSpgIndex = mModel->mEnrichment->get_SPG_on_UIPC( iBspMesh, tMasterUipcIndex );
 
                 // add the current side cluster to its group
-                tDblSideClustersInSpgs( tSpgIndex ).push_back( mDoubleSideSets( iDblSideSet )( iSideClusterOnSet ) );
+                tDblSideClustersInSpgs( tSpgIndex ).push_back( mDoubleSideSets( iDblSideSet )( iDblSideClusterOnSet ) );
+                tDblSideClustersInSpgsMasterIndices( tSpgIndex ).push_back( mDoubleSideSetsMasterIndex( iDblSideSet )( iDblSideClusterOnSet ) );
+                tDblSideClustersInSpgsSlaveIndices( tSpgIndex ).push_back( mDoubleSideSetsSlaveIndex( iDblSideSet )( iDblSideClusterOnSet ) );
             }
 
-            // go through side cluster groups found and add them to the global list of side cluster groups
+            // go through double side cluster groups found and add them to the global list of side cluster groups
             for( uint iSPG = 0; iSPG < tNumSPGs; iSPG++ )
             {
-                // skip side cluster groups that are empty
-                if( tDblSideClustersInSpgs( iSPG ).size() > 0 )
-                {
-                    // create side cluster group
-                    mDblSideClusterGroups( iBspMesh ).push_back( std::make_shared< Cluster_Group >( tDblSideClustersInSpgs( iSPG ), iBspMesh, mtk::Cluster_Type::SIDE ) );
+                // get the number of side clusters in the group associated with the current SPG
+                uint tNumClustersInGroup = tDblSideClustersInSpgs( iSPG ).size();
 
-//                     // index of the newly created Cluster Group in the list
-//                     uint tNewDblSideClusterGroupIndex = mDblSideClusterGroups( iBspMesh ).size() - 1;
-// 
-//                     // assign the cluster group created to all cluster which it was created from
-//                     for( uint iCluster = 0; iCluster < tDblSideClustersInSpgs( iSPG ).size(); iCluster++ )
-//                     {
-//                         tDblSideClustersInSpgs( iSPG )( iCluster )->set_cluster_group( iBspMesh, mDblSideClusterGroups( iBspMesh )( tNewDblSideClusterGroupIndex ) );
-//                     }
-                }
-            }
+                // skip double side cluster groups that are empty
+                if( tNumClustersInGroup > 0 )
+                {
+                    // initialize lists of single side clusters associated with the dbl-side cluster group
+                    Cell< std::shared_ptr< mtk::Cluster > > tMasterSideClustersInSpgs( tNumClustersInGroup );
+                    Cell< std::shared_ptr< mtk::Cluster > > tSlaveSideClustersInSpgs( tNumClustersInGroup );
+
+                    // collect single side clusters belonging to the group of double side clusters
+                    for( uint iClusterInGroup = 0; iClusterInGroup < tNumClustersInGroup; iClusterInGroup++ )
+                    {
+                        // indices of the associated single sided clusters
+                        moris_index tCurrentDblSideMasterSideClusterIndex = tDblSideClustersInSpgsMasterIndices( iSPG )( iClusterInGroup );
+                        moris_index tCurrentDblSideSlaveSideClusterIndex  = tDblSideClustersInSpgsSlaveIndices( iSPG )( iClusterInGroup );
+
+                        // get pointers to the master and slave clusters of the dbl-side cluster
+                        std::shared_ptr< mtk::Cluster > tMasterSideCluster = mDoubleSideSingleSideClusters( tCurrentDblSideMasterSideClusterIndex );
+                        std::shared_ptr< mtk::Cluster > tSlaveSideCluster  = mDoubleSideSingleSideClusters( tCurrentDblSideSlaveSideClusterIndex );
+
+                        // collect single side clusters in the group
+                        tMasterSideClustersInSpgs( iClusterInGroup ) = tMasterSideCluster;
+                        tSlaveSideClustersInSpgs( iClusterInGroup ) = tSlaveSideCluster;
+                    }
+
+                    // check whether a side cluster group has already been established for the single side clusters 
+                    bool tSideClusterGroupAlreadyEstablished = tMasterSideClustersInSpgs( 0 )->has_cluster_group( iBspMesh );
+
+#ifdef DEBUG
+
+// in debug check that all single side clusters in group belong to the same side cluster group
+for( uint iClusterInGroup = 0; iClusterInGroup < tNumClustersInGroup; iClusterInGroup++ )
+{
+    MORIS_ASSERT( tMasterSideClustersInSpgs( iClusterInGroup )->has_cluster_group( iBspMesh ) == tSideClusterGroupAlreadyEstablished,
+        "Enriched_Integration_Mesh::setup_dbl_side_cluster_groups() - "
+        "One of the Master side clusters has a / has no cluster group deviating from the rest of the group" );
+
+    MORIS_ASSERT( tSlaveSideClustersInSpgs( iClusterInGroup )->has_cluster_group( iBspMesh ) == tSideClusterGroupAlreadyEstablished,
+        "Enriched_Integration_Mesh::setup_dbl_side_cluster_groups() - "
+        "One of the Slave side clusters has a / has no cluster group deviating from the rest of the group" );
+}
+
+#endif
+
+                    // if no side cluster group has been established for the side clusters in the group do so now 
+                    if( !tSideClusterGroupAlreadyEstablished )
+                    {
+                        // create a new cluster group from the list of slave and master side clusters
+                        std::shared_ptr< xtk::Cluster_Group > tNewMasterSideCluster = 
+                            std::make_shared< xtk::Cluster_Group >( tMasterSideClustersInSpgs, iBspMesh, mtk::Cluster_Type::SIDE );
+                        std::shared_ptr< xtk::Cluster_Group > tNewSlaveSideCluster = 
+                            std::make_shared< xtk::Cluster_Group >( tSlaveSideClustersInSpgs, iBspMesh, mtk::Cluster_Type::SIDE );
+
+                        // add new cluster groups to list of cluster groups
+                        mDblSideClusterGroups( iBspMesh ).push_back( tNewMasterSideCluster );
+                        mDblSideClusterGroups( iBspMesh ).push_back( tNewSlaveSideCluster );
+
+                        // index of the newly created Cluster Groups in the list
+                        uint tNewMasterSideClusterGroupIndex = mDblSideClusterGroups( iBspMesh ).size() - 2;
+                        uint tNewSlaveSideClusterGroupIndex  = mDblSideClusterGroups( iBspMesh ).size() - 1;
+
+                        // set cluster groups to the clusters they are composed of 
+                        for( uint iSideCluster = 0; iSideCluster < tNumClustersInGroup; iSideCluster++ )
+                        {
+                            tMasterSideClustersInSpgs( iSideCluster )->
+                                set_cluster_group( iBspMesh, mDblSideClusterGroups( iBspMesh )( tNewMasterSideClusterGroupIndex ) );
+
+                            tSlaveSideClustersInSpgs( iSideCluster )->
+                                set_cluster_group( iBspMesh, mDblSideClusterGroups( iBspMesh )( tNewSlaveSideClusterGroupIndex ) );
+                        }
+
+                    } // end if: only construct new cluster groups if the side clusters have not already cluster groups assigned to them
+                } // end if: only construct cluster groups on non-empty SPGs
+            } // end for: each SPG on the current B-spline mesh
         } // end for: each dbl-side set
 
         // free unused memory
