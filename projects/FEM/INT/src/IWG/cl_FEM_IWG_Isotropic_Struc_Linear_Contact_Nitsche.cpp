@@ -46,7 +46,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IWG_Isotropic_Struc_Linear_Contact_Nitsche::compute_residual( real aWStar )
+        void
+        IWG_Isotropic_Struc_Linear_Contact_Nitsche::compute_residual( real aWStar )
         {
 #ifdef DEBUG
             // check master and slave field interpolators
@@ -65,77 +66,90 @@ namespace moris
             uint tSlaveResStopIndex  = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 1 );
 
             // get master field interpolator for the residual dof type
-            Field_Interpolator * tFIMaster = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            Field_Interpolator* tFIMaster = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get slave field interpolator for the residual dof type
-            Field_Interpolator * tFISlave  = mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            Field_Interpolator* tFISlave = mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the elasticity constitutive model
-            const std::shared_ptr< Constitutive_Model > & tCMMasterElasticity =
+            const std::shared_ptr< Constitutive_Model >& tCMMasterElasticity =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
 
-            const std::shared_ptr< Constitutive_Model > & tCMSlaveElasticity =
+            const std::shared_ptr< Constitutive_Model >& tCMSlaveElasticity =
                     mSlaveCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
 
             // get the Nitsche stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter > & tSPNitsche =
+            const std::shared_ptr< Stabilization_Parameter >& tSPNitsche =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE ) );
 
             // get thickness property
-            const std::shared_ptr< Property > & tPropThickness =
+            const std::shared_ptr< Property >& tPropThickness =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
 
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
-            aWStar *= (tPropThickness!=nullptr) ? tPropThickness->val()(0) : 1;
+            aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
 
             const real tNitsche      = tSPNitsche->val()( 0 );
             const real tMasterWeight = tSPNitsche->val()( 1 );
             const real tSlaveWeight  = tSPNitsche->val()( 2 );
 
             // normal projection operator
-            const  Matrix< DDRMat > tNormalProjector  = mNormal * trans( mNormal );
+            const Matrix< DDRMat > tNormalProjector = mNormal * trans( mNormal );
 
             // compute the jump
-            const  Matrix< DDRMat > tJump = tFIMaster->val() - tFISlave->val();
+            const Matrix< DDRMat > tJump = tFIMaster->val() - tFISlave->val();
 
             // compute projection of displacement jump onto normal
-            // const real tINormalJump = dot( tJump, mNormal );
+            const real tINormalJump = dot( tJump, mNormal );
 
             // evaluate average traction
             const Matrix< DDRMat > tTraction =
-                    tMasterWeight * tCMMasterElasticity->traction( mNormal ) +
-                    tSlaveWeight  * tCMSlaveElasticity->traction( mNormal );
+                    tMasterWeight * tCMMasterElasticity->traction( mNormal ) + tSlaveWeight * tCMSlaveElasticity->traction( mNormal );
 
             // compute contact pressure
             const real tIfcPressure = dot( tTraction, mNormal );
 
-            // check for penetration (tINormalJump > 0 )
-            // if ( tINormalJump >= 0.0 || tIfcPressure <= 0 )
-            if ( tIfcPressure <= 0 )
+            // check for contact
+            if ( tIfcPressure - tNitsche * tINormalJump < 0 )
             {
                 // compute master residual
                 mSet->get_residual()( 0 )(
-                        { tMasterResStartIndex, tMasterResStopIndex } ) += aWStar * (
-                                - tFIMaster->N_trans() * tNormalProjector * tTraction
-                                + mBeta * tMasterWeight * tCMMasterElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tJump
+                        { tMasterResStartIndex, tMasterResStopIndex } ) +=                                                                                  //
+                        aWStar * (                                                                                                                          //
+                                -tFIMaster->N_trans() * tNormalProjector * tTraction                                                                        //
+                                + mBeta * tMasterWeight * tCMMasterElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tJump    //
                                 + tNitsche * tFIMaster->N_trans() * tNormalProjector * tJump );
 
                 // compute slave residual
                 mSet->get_residual()( 0 )(
-                        { tSlaveResStartIndex, tSlaveResStopIndex } ) += aWStar * (
-                                + tFISlave->N_trans() * tNormalProjector * tTraction
-                                + mBeta * tSlaveWeight * tCMSlaveElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tJump
+                        { tSlaveResStartIndex, tSlaveResStopIndex } ) +=                                                                                  //
+                        aWStar * (                                                                                                                        //
+                                +tFISlave->N_trans() * tNormalProjector * tTraction                                                                       //
+                                + mBeta * tSlaveWeight * tCMSlaveElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tJump    //
                                 - tNitsche * tFISlave->N_trans() * tNormalProjector * tJump );
 
                 // check for nan, infinity
                 MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
-                        "IWG_Isotropic_Struc_Linear_Interface::compute_residual - Residual contains NAN or INF, exiting!");
+                        "IWG_Isotropic_Struc_Linear_Interface::compute_residual - Residual contains NAN or INF, exiting!" );
+            }
+            else
+            {
+                mSet->get_residual()( 0 )(
+                        { tMasterResStartIndex, tMasterResStopIndex } ) +=    //
+                        aWStar * (                                            //
+                                -mBeta / tNitsche * tMasterWeight * tCMMasterElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tTraction );
+
+                mSet->get_residual()( 0 )(
+                        { tSlaveResStartIndex, tSlaveResStopIndex } ) +=    //
+                        aWStar * (                                          //
+                                -mBeta / tNitsche * tSlaveWeight * tCMSlaveElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tTraction );
             }
         }
 
         //------------------------------------------------------------------------------
 
-        void IWG_Isotropic_Struc_Linear_Contact_Nitsche::compute_jacobian( real aWStar )
+        void
+        IWG_Isotropic_Struc_Linear_Contact_Nitsche::compute_jacobian( real aWStar )
         {
 #ifdef DEBUG
             // check master and slave field interpolators
@@ -154,216 +168,253 @@ namespace moris
             const uint tSlaveResStopIndex  = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 1 );
 
             // get master field interpolator for the residual dof type
-            Field_Interpolator * tFIMaster = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            Field_Interpolator* tFIMaster = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get slave field interpolator for the residual dof type
-            Field_Interpolator * tFISlave  = mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            Field_Interpolator* tFISlave = mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the elasticity constitutive model
-            const std::shared_ptr< Constitutive_Model > & tCMMasterElasticity =
+            const std::shared_ptr< Constitutive_Model >& tCMMasterElasticity =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
 
-            const std::shared_ptr< Constitutive_Model > & tCMSlaveElasticity =
+            const std::shared_ptr< Constitutive_Model >& tCMSlaveElasticity =
                     mSlaveCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
 
             // get the Nitsche stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter > & tSPNitsche =
+            const std::shared_ptr< Stabilization_Parameter >& tSPNitsche =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE ) );
 
             // get thickness property
-            const std::shared_ptr< Property > & tPropThickness =
+            const std::shared_ptr< Property >& tPropThickness =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
 
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
-            aWStar *= (tPropThickness!=nullptr) ? tPropThickness->val()(0) : 1;
+            aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
 
             const real tNitsche      = tSPNitsche->val()( 0 );
             const real tMasterWeight = tSPNitsche->val()( 1 );
             const real tSlaveWeight  = tSPNitsche->val()( 2 );
 
             // normal projection operator
-            const  Matrix< DDRMat > tNormalProjector  = mNormal * trans( mNormal );
+            const Matrix< DDRMat > tNormalProjector = mNormal * trans( mNormal );
 
             // compute the jump
-            const  Matrix< DDRMat > tJump = tFIMaster->val() - tFISlave->val();
+            const Matrix< DDRMat > tJump = tFIMaster->val() - tFISlave->val();
 
             // compute projection of displacement jump onto normal
-            // const real tINormalJump = dot( tJump, mNormal );
+            const real tINormalJump = dot( tJump, mNormal );
 
             // evaluate average traction
             const Matrix< DDRMat > tTraction =
-                    tMasterWeight * tCMMasterElasticity->traction( mNormal ) +
-                    tSlaveWeight  * tCMSlaveElasticity->traction( mNormal );
+                    tMasterWeight * tCMMasterElasticity->traction( mNormal ) + tSlaveWeight * tCMSlaveElasticity->traction( mNormal );
 
             // compute contact pressure
             const real tIfcPressure = dot( tTraction, mNormal );
 
-            // check for penetration (tINormalJump > 0 )
-            // if ( tINormalJump >= 0.0 || tIfcPressure <= 0 )
-            if ( tIfcPressure <= 0 )
+            // get number of master dof dependencies
+            const uint tMasterNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
+
+            // compute the Jacobian for indirect dof dependencies through master constitutive models
+            for ( uint iDOF = 0; iDOF < tMasterNumDofDependencies; iDOF++ )
             {
-                // get number of master dof dependencies
-                const uint tMasterNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
+                // get the dof type
+                const Cell< MSI::Dof_Type >& tDofType = mRequestedMasterGlobalDofTypes( iDOF );
 
-                // compute the Jacobian for indirect dof dependencies through master constitutive models
-                for( uint iDOF = 0; iDOF < tMasterNumDofDependencies; iDOF++ )
+                // get the index for the dof type
+                const sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
+                const uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
+                const uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
+
+                // extract sub-matrices
+                auto tJacMM = mSet->get_jacobian()(
+                        { tMasterResStartIndex, tMasterResStopIndex },
+                        { tMasterDepStartIndex, tMasterDepStopIndex } );
+
+                auto tJacSM = mSet->get_jacobian()(
+                        { tSlaveResStartIndex, tSlaveResStopIndex },
+                        { tMasterDepStartIndex, tMasterDepStopIndex } );
+
+                // compute Jacobian direct dependencies
+                if ( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                 {
-                    // get the dof type
-                    const Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
-
-                    // get the index for the dof type
-                    const sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
-                    const uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
-                    const uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
-
-                    // extract sub-matrices
-                    auto tJacMM = mSet->get_jacobian()(
-                            { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } );
-
-                    auto tJacSM =  mSet->get_jacobian()(
-                            { tSlaveResStartIndex,  tSlaveResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } );
-
-                    // compute Jacobian direct dependencies
-                    if ( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
+                    // check for contact
+                    if ( tIfcPressure - tNitsche * tINormalJump < 0 )
                     {
-                        tJacMM += aWStar * (
-                                + mBeta * tMasterWeight * tCMMasterElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tFIMaster->N()
-                                + tNitsche * tFIMaster->N_trans() * tNormalProjector * tFIMaster->N() );
+                        tJacMM += aWStar * (                                                                                                                                  //
+                                          +mBeta * tMasterWeight * tCMMasterElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tFIMaster->N()    //
+                                          + tNitsche * tFIMaster->N_trans() * tNormalProjector * tFIMaster->N() );
 
-                        tJacSM += aWStar * (
-                                + mBeta * tSlaveWeight * tCMSlaveElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tFIMaster->N()
-                                - tNitsche * tFISlave->N_trans() * tNormalProjector * tFIMaster->N() );
-                    }
-
-                    // if dependency on the dof type
-                    if ( tCMMasterElasticity->check_dof_dependency( tDofType ) )
-                    {
-                        // add contribution to Jacobian
-                        tJacMM += aWStar * (
-                                - tMasterWeight * tFIMaster->N_trans() * tNormalProjector * tCMMasterElasticity->dTractiondDOF( tDofType, mNormal )
-                                + mBeta * tMasterWeight * tCMMasterElasticity->dTestTractiondDOF( tDofType, mNormal, tNormalProjector * tJump, mResidualDofType( 0 ) ) );
-
-                        tJacSM += aWStar * (
-                                tMasterWeight * tFISlave->N_trans() * tNormalProjector * tCMMasterElasticity->dTractiondDOF( tDofType, mNormal ) );
-                    }
-
-                    // if dependency of stabilization parameters on the dof type
-                    if ( tSPNitsche->check_dof_dependency( tDofType, mtk::Master_Slave::MASTER ) )
-                    {
-                        // get the derivatives of the SPs
-                        const Matrix< DDRMat > tNitscheDer      = tSPNitsche->dSPdMasterDOF( tDofType ).get_row( 0 );
-                        const Matrix< DDRMat > tMasterWeightDer = tSPNitsche->dSPdMasterDOF( tDofType ).get_row( 1 );
-                        const Matrix< DDRMat > tSlaveWeightDer  = tSPNitsche->dSPdMasterDOF( tDofType ).get_row( 2 );
-
-                        // get traction derivative
-                        const Matrix< DDRMat > tTractionDer =
-                                tCMMasterElasticity->traction( mNormal ) * tMasterWeightDer +
-                                tCMSlaveElasticity->traction( mNormal ) * tSlaveWeightDer;
-
-                        // add contribution to Jacobian
-                        tJacMM += aWStar * (
-                                - tFIMaster->N_trans() * tNormalProjector * tTractionDer +
-                                + mBeta * tCMMasterElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tJump * tMasterWeightDer
-                                + tFIMaster->N_trans() * tNormalProjector * tJump * tNitscheDer );
-
-                        tJacSM += aWStar * (
-                                + tFISlave->N_trans() * tNormalProjector * tTractionDer
-                                + mBeta * tCMSlaveElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tJump * tSlaveWeightDer
-                                - tFISlave->N_trans() * tNormalProjector * tJump * tNitscheDer );
+                        tJacSM += aWStar * (                                                                                                                                //
+                                          +mBeta * tSlaveWeight * tCMSlaveElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tFIMaster->N()    //
+                                          - tNitsche * tFISlave->N_trans() * tNormalProjector * tFIMaster->N() );
                     }
                 }
 
-                // compute the Jacobian for indirect dof dependencies through slave constitutive models
-                uint tSlaveNumDofDependencies = mRequestedSlaveGlobalDofTypes.size();
-                for( uint iDOF = 0; iDOF < tSlaveNumDofDependencies; iDOF++ )
+                // if dependency on the dof type
+                if ( tCMMasterElasticity->check_dof_dependency( tDofType ) )
                 {
-                    // get dof type
-                    const Cell< MSI::Dof_Type > & tDofType = mRequestedSlaveGlobalDofTypes( iDOF );
-
-                    // get the index for the dof type
-                    const sint tDofDepIndex        = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::SLAVE );
-                    const uint tSlaveDepStartIndex = mSet->get_jac_dof_assembly_map()( tSlaveDofIndex )( tDofDepIndex, 0 );
-                    const uint tSlaveDepStopIndex  = mSet->get_jac_dof_assembly_map()( tSlaveDofIndex )( tDofDepIndex, 1 );
-
-                    // extract sub-matrices
-                    auto tJacMS = mSet->get_jacobian()(
-                            { tMasterResStartIndex, tMasterResStopIndex },
-                            { tSlaveDepStartIndex,  tSlaveDepStopIndex  } );
-
-                    auto tJacSS = mSet->get_jacobian()(
-                            { tSlaveResStartIndex, tSlaveResStopIndex },
-                            { tSlaveDepStartIndex, tSlaveDepStopIndex } );
-
-                    // if dof type is residual dof type
-                    if( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
-                    {
-                        tJacMS += aWStar * (
-                                - mBeta * tMasterWeight * tCMMasterElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tFISlave->N()
-                                - tNitsche * tFIMaster->N_trans() * tNormalProjector * tFISlave->N() );
-
-                        tJacSS += aWStar * (
-                                - mBeta * tSlaveWeight * tCMSlaveElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tFISlave->N()
-                                + tNitsche * tFISlave->N_trans() * tNormalProjector * tFISlave->N() );
-                    }
-
-                    // if dependency on the dof type
-                    if ( tCMSlaveElasticity->check_dof_dependency( tDofType ) )
+                    if ( tIfcPressure - tNitsche * tINormalJump < 0 )
                     {
                         // add contribution to Jacobian
-                        tJacMS += aWStar * (
-                                - tSlaveWeight * tFIMaster->N_trans() * tNormalProjector * tCMSlaveElasticity->dTractiondDOF( tDofType, mNormal ) );
+                        tJacMM += aWStar * (                                                                                                                    //
+                                          -tMasterWeight * tFIMaster->N_trans() * tNormalProjector * tCMMasterElasticity->dTractiondDOF( tDofType, mNormal )    //
+                                          + mBeta * tMasterWeight * tCMMasterElasticity->dTestTractiondDOF( tDofType, mNormal, tNormalProjector * tJump, mResidualDofType( 0 ) ) );
 
-                        tJacSS += aWStar * (
-                                + tSlaveWeight * tFISlave->N_trans() * tNormalProjector * tCMSlaveElasticity->dTractiondDOF( tDofType, mNormal )
-                                + mBeta * tSlaveWeight * tCMSlaveElasticity->dTestTractiondDOF( tDofType, mNormal, tNormalProjector * tJump, mResidualDofType( 0 ) ) );
+                        tJacSM += aWStar * ( tMasterWeight * tFISlave->N_trans() * tNormalProjector * tCMMasterElasticity->dTractiondDOF( tDofType, mNormal ) );
                     }
-
-                    // if dependency of stabilization parameters on the dof type
-                    if ( tSPNitsche->check_dof_dependency( tDofType, mtk::Master_Slave::SLAVE ) )
+                    else
                     {
-                        // get the derivatives of the SPs
-                        const Matrix< DDRMat > tNitscheDer      = tSPNitsche->dSPdSlaveDOF( tDofType ).get_row( 0 );
-                        const Matrix< DDRMat > tMasterWeightDer = tSPNitsche->dSPdSlaveDOF( tDofType ).get_row( 1 );
-                        const Matrix< DDRMat > tSlaveWeightDer  = tSPNitsche->dSPdSlaveDOF( tDofType ).get_row( 2 );
+                        tJacMM += aWStar * -mBeta / tNitsche * tMasterWeight * (                                                                                                                              //
+                                          tMasterWeight * tCMMasterElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tCMMasterElasticity->dTractiondDOF( tDofType, mNormal )    //
+                                          + tCMMasterElasticity->dTestTractiondDOF( tDofType, mNormal, tNormalProjector * tTraction, mResidualDofType( 0 ) ) );
 
-                        // get traction derivative
-                        const Matrix< DDRMat > tTractionDer =
-                                tCMMasterElasticity->traction( mNormal ) * tMasterWeightDer +
-                                tCMSlaveElasticity->traction( mNormal ) * tSlaveWeightDer;
+                        tJacSM += aWStar * -mBeta / tNitsche * tSlaveWeight * (    //
+                                          tMasterWeight * tCMSlaveElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tCMMasterElasticity->dTractiondDOF( tDofType, mNormal ) );
+                    }
+                }
 
+                // if dependency of stabilization parameters on the dof type
+                if ( tSPNitsche->check_dof_dependency( tDofType, mtk::Master_Slave::MASTER ) )
+                {
+                    // get the derivatives of the SPs
+                    const Matrix< DDRMat > tNitscheDer      = tSPNitsche->dSPdMasterDOF( tDofType ).get_row( 0 );
+                    const Matrix< DDRMat > tMasterWeightDer = tSPNitsche->dSPdMasterDOF( tDofType ).get_row( 1 );
+                    const Matrix< DDRMat > tSlaveWeightDer  = tSPNitsche->dSPdMasterDOF( tDofType ).get_row( 2 );
+
+                    // get traction derivative
+                    const Matrix< DDRMat > tTractionDer =
+                            tCMMasterElasticity->traction( mNormal ) * tMasterWeightDer + tCMSlaveElasticity->traction( mNormal ) * tSlaveWeightDer;
+
+                    if ( tIfcPressure - tNitsche * tINormalJump < 0 )
+                    {
                         // add contribution to Jacobian
-                        tJacMS += aWStar * (
-                                - tFIMaster->N_trans() * tNormalProjector * tTractionDer
-                                + mBeta * tCMMasterElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tJump * tMasterWeightDer
-                                + tFIMaster->N_trans() * tNormalProjector * tJump * tNitscheDer );
+                        tJacMM += aWStar * (                                                                                                                             //
+                                          -tFIMaster->N_trans() * tNormalProjector * tTractionDer                                                                        //
+                                          + mBeta * tCMMasterElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tJump * tMasterWeightDer    //
+                                          + tFIMaster->N_trans() * tNormalProjector * tJump * tNitscheDer );
 
-                        tJacSS += aWStar * (
-                                tFISlave->N_trans() * tTractionDer
-                                + mBeta * tCMSlaveElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tJump * tSlaveWeightDer
-                                - tFISlave->N_trans() * tNormalProjector * tJump * tNitscheDer );
+                        tJacSM += aWStar * (                                                                                                                           //
+                                          +tFISlave->N_trans() * tNormalProjector * tTractionDer                                                                       //
+                                          + mBeta * tCMSlaveElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tJump * tSlaveWeightDer    //
+                                          - tFISlave->N_trans() * tNormalProjector * tJump * tNitscheDer );
+                    }
+                    else
+                    {
+                        MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Contact_Nitsche::compute_jacobian - state dependent stabilization not implemented." );
+                    }
+                }
+            }
+
+            // compute the Jacobian for indirect dof dependencies through slave constitutive models
+            uint tSlaveNumDofDependencies = mRequestedSlaveGlobalDofTypes.size();
+            for ( uint iDOF = 0; iDOF < tSlaveNumDofDependencies; iDOF++ )
+            {
+                // get dof type
+                const Cell< MSI::Dof_Type >& tDofType = mRequestedSlaveGlobalDofTypes( iDOF );
+
+                // get the index for the dof type
+                const sint tDofDepIndex        = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::SLAVE );
+                const uint tSlaveDepStartIndex = mSet->get_jac_dof_assembly_map()( tSlaveDofIndex )( tDofDepIndex, 0 );
+                const uint tSlaveDepStopIndex  = mSet->get_jac_dof_assembly_map()( tSlaveDofIndex )( tDofDepIndex, 1 );
+
+                // extract sub-matrices
+                auto tJacMS = mSet->get_jacobian()(
+                        { tMasterResStartIndex, tMasterResStopIndex },
+                        { tSlaveDepStartIndex, tSlaveDepStopIndex } );
+
+                auto tJacSS = mSet->get_jacobian()(
+                        { tSlaveResStartIndex, tSlaveResStopIndex },
+                        { tSlaveDepStartIndex, tSlaveDepStopIndex } );
+
+                // if dof type is residual dof type
+                if ( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
+                {
+                    if ( tIfcPressure - tNitsche * tINormalJump < 0 )
+                    {
+                        tJacMS += aWStar * (                                                                                                                                 //
+                                          -mBeta * tMasterWeight * tCMMasterElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tFISlave->N()    //
+                                          - tNitsche * tFIMaster->N_trans() * tNormalProjector * tFISlave->N() );
+
+                        tJacSS += aWStar * (                                                                                                                               //
+                                          -mBeta * tSlaveWeight * tCMSlaveElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tFISlave->N()    //
+                                          + tNitsche * tFISlave->N_trans() * tNormalProjector * tFISlave->N() );
+                    }
+                }
+
+                // if dependency on the dof type
+                if ( tCMSlaveElasticity->check_dof_dependency( tDofType ) )
+                {
+                    if ( tIfcPressure - tNitsche * tINormalJump < 0 )
+                    {
+                        // add contribution to Jacobian
+                        tJacMS += aWStar * ( -tSlaveWeight * tFIMaster->N_trans() * tNormalProjector * tCMSlaveElasticity->dTractiondDOF( tDofType, mNormal ) );
+
+                        tJacSS += aWStar * (                                                                                                                 //
+                                          +tSlaveWeight * tFISlave->N_trans() * tNormalProjector * tCMSlaveElasticity->dTractiondDOF( tDofType, mNormal )    //
+                                          + mBeta * tSlaveWeight * tCMSlaveElasticity->dTestTractiondDOF( tDofType, mNormal, tNormalProjector * tJump, mResidualDofType( 0 ) ) );
+                    }
+                    else
+                    {
+                        tJacMS += aWStar * -mBeta / tNitsche * tMasterWeight * (    //
+                                          tSlaveWeight * tCMMasterElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tCMSlaveElasticity->dTractiondDOF( tDofType, mNormal ) );
+
+                        tJacSS += aWStar * -mBeta / tNitsche * tSlaveWeight * (                                                                                                                            //
+                                          tSlaveWeight * tCMSlaveElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tCMSlaveElasticity->dTractiondDOF( tDofType, mNormal )    //
+                                          + tCMSlaveElasticity->dTestTractiondDOF( tDofType, mNormal, tNormalProjector * tTraction, mResidualDofType( 0 ) ) );
+                    }
+                }
+
+                // if dependency of stabilization parameters on the dof type
+                if ( tSPNitsche->check_dof_dependency( tDofType, mtk::Master_Slave::SLAVE ) )
+                {
+                    // get the derivatives of the SPs
+                    const Matrix< DDRMat > tNitscheDer      = tSPNitsche->dSPdSlaveDOF( tDofType ).get_row( 0 );
+                    const Matrix< DDRMat > tMasterWeightDer = tSPNitsche->dSPdSlaveDOF( tDofType ).get_row( 1 );
+                    const Matrix< DDRMat > tSlaveWeightDer  = tSPNitsche->dSPdSlaveDOF( tDofType ).get_row( 2 );
+
+                    // get traction derivative
+                    const Matrix< DDRMat > tTractionDer =
+                            tCMMasterElasticity->traction( mNormal ) * tMasterWeightDer + tCMSlaveElasticity->traction( mNormal ) * tSlaveWeightDer;
+
+                    if ( tIfcPressure - tNitsche * tINormalJump < 0 )
+                    {
+                        // add contribution to Jacobian
+                        tJacMS += aWStar * (                                                                                                                             //
+                                          -tFIMaster->N_trans() * tNormalProjector * tTractionDer                                                                        //
+                                          + mBeta * tCMMasterElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tJump * tMasterWeightDer    //
+                                          + tFIMaster->N_trans() * tNormalProjector * tJump * tNitscheDer );
+
+                        tJacSS += aWStar * (                                                                                                                           //
+                                          tFISlave->N_trans() * tTractionDer                                                                                           //
+                                          + mBeta * tCMSlaveElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tJump * tSlaveWeightDer    //
+                                          - tFISlave->N_trans() * tNormalProjector * tJump * tNitscheDer );
+                    }
+                    else
+                    {
+                        MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Contact_Nitsche::compute_jacobian - state dependent stabilization not implemented." );
                     }
                 }
             }
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_jacobian() ),
-                    "IWG_Isotropic_Struc_Linear_Interface::compute_jacobian - Jacobian contains NAN or INF, exiting!");
+                    "IWG_Isotropic_Struc_Linear_Interface::compute_jacobian - Jacobian contains NAN or INF, exiting!" );
         }
 
         //------------------------------------------------------------------------------
 
-        void IWG_Isotropic_Struc_Linear_Contact_Nitsche::compute_jacobian_and_residual( real aWStar )
+        void
+        IWG_Isotropic_Struc_Linear_Contact_Nitsche::compute_jacobian_and_residual( real aWStar )
         {
-            MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Contact_Nitsche::compute_jacobian_and_residual - This function does nothing.");
+            MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Contact_Nitsche::compute_jacobian_and_residual - This function does nothing." );
         }
 
         //------------------------------------------------------------------------------
 
-        void IWG_Isotropic_Struc_Linear_Contact_Nitsche::compute_dRdp( real aWStar )
+        void
+        IWG_Isotropic_Struc_Linear_Contact_Nitsche::compute_dRdp( real aWStar )
         {
-            MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Contact_Nitsche::compute_dRdp - This function does nothing.");
+            MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Contact_Nitsche::compute_dRdp - This function does nothing." );
         }
 
         //------------------------------------------------------------------------------

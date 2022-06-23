@@ -11,6 +11,7 @@
 #include "cl_DLA_Solver_Interface.hpp"
 #include "cl_SOL_Dist_Matrix.hpp"
 #include "cl_SOL_Dist_Vector.hpp"
+#include "cl_SOL_Warehouse.hpp"
 
 using namespace moris;
 
@@ -429,4 +430,12 @@ Solver_Interface::get_adof_ids_based_on_criteria(
         // resize cell to number of triggered equation objects
         aCriteriaIds.resize( tCounter );
     }
+}
+
+//---------------------------------------------------------------------------------------------------------
+
+void 
+Solver_Interface::set_solver_warehouse( std::shared_ptr< sol::SOL_Warehouse > aSolverWarehouse)
+{
+    MORIS_ERROR( false, "Solver_Interface::set_solver_warehouse(), not implemented for base class" );
 }
