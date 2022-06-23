@@ -11,6 +11,7 @@
 #include "cl_XTK_Side_Cluster.hpp"
 #include "cl_XTK_Cut_Integration_Mesh.hpp"
 #include "cl_XTK_Cell_Cluster.hpp"
+#include "cl_MTK_Cluster_Group.hpp"
 #include "cl_XTK_Interpolation_Cell_Unzipped.hpp"
 #include "cl_XTK_Child_Mesh.hpp"
 #include "assert.hpp"
@@ -204,11 +205,11 @@ namespace xtk
 
     moris::real
     Side_Cluster::compute_cluster_group_cell_measure(
-            const moris_index       aBsplineMeshListIndex,
+            const moris_index       aDiscretizationMeshIndex,
             const mtk::Primary_Void aPrimaryOrVoid,
             const mtk::Master_Slave aIsMaster ) const
     {
-        return mClusterGroups( aBsplineMeshListIndex )->compute_cluster_group_volume( aPrimaryOrVoid, aIsMaster );
+        return mClusterGroups( aDiscretizationMeshIndex )->compute_cluster_group_cell_measure( aPrimaryOrVoid, aIsMaster );
     }
 
     //----------------------------------------------------------------
@@ -262,13 +263,13 @@ namespace xtk
 
     moris::real
     Side_Cluster::compute_cluster_group_cell_measure_derivative(
-            const moris_index       aBsplineMeshListIndex,
+            const moris_index       aDiscretizationMeshIndex,
             const Matrix< DDRMat >& aPerturbedVertexCoords,
             uint aDirection,
             const mtk::Primary_Void aPrimaryOrVoid,
             const mtk::Master_Slave aIsMaster ) const
     {
-        return mClusterGroups( aBsplineMeshListIndex )->compute_cluster_group_volume_derivative( aPerturbedVertexCoords, aDirection, aPrimaryOrVoid, aIsMaster );
+        return mClusterGroups( aDiscretizationMeshIndex )->compute_cluster_group_cell_measure_derivative( aPerturbedVertexCoords, aDirection, aPrimaryOrVoid, aIsMaster );
     }
 
     //------------------------------------------------------------------------------
@@ -292,46 +293,84 @@ namespace xtk
 
     moris::real
     Side_Cluster::compute_cluster_group_cell_side_measure(
-            const moris_index       aBsplineMeshListIndex,
+            const moris_index       aDiscretizationMeshIndex,
             const mtk::Primary_Void aPrimaryOrVoid,
             const mtk::Master_Slave aIsMaster ) const
     {
-        return mClusterGroups( aBsplineMeshListIndex )->compute_cluster_group_side_measure( aPrimaryOrVoid, aIsMaster );
+        return mClusterGroups( aDiscretizationMeshIndex )->compute_cluster_group_side_measure( aPrimaryOrVoid, aIsMaster );
+    }
+
+    //------------------------------------------------------------------------------
+
+    bool
+    Side_Cluster::has_cluster_group( const moris_index aDiscretizationMeshIndex ) const 
+    {
+        // if the list of B-spline meshes for which the cluster groups have been set isn't large enough ...
+        if( mClusterGroups.size() < (uint) aDiscretizationMeshIndex + 1 )
+        {
+            // ... the cluster group has not been set yet
+            return false;
+        }
+
+        // if the entry exists but is empty
+        else if( mClusterGroups( aDiscretizationMeshIndex ).get() == nullptr )
+        {
+            return false;
+        }
+
+        // if the entry both exists and is not empty, the cluster has a group
+        else
+        {
+            return true;
+        }
+    }
+
+    //------------------------------------------------------------------------------
+
+    std::shared_ptr< mtk::Cluster_Group >
+    Side_Cluster::get_cluster_group( const moris_index aDiscretizationMeshIndex ) const
+    {
+        // check that the cluster group exists and is set
+        MORIS_ASSERT( this->has_cluster_group( aDiscretizationMeshIndex ),
+            "xtk::Cell_Cluster::get_cluster_group() - Cluster group is not set or does not exist." );
+
+        // return the pointer to the cluster group
+        return mClusterGroups( aDiscretizationMeshIndex );
     }
 
     //------------------------------------------------------------------------------
 
     void
     Side_Cluster::set_cluster_group( 
-            const moris_index aBsplineMeshListIndex,
+            const moris_index aDiscretizationMeshIndex,
             std::shared_ptr< mtk::Cluster_Group > aClusterGroupPtr )
     {
         // check that the cluster group is set to the correct B-spline list index
-        MORIS_ASSERT( aClusterGroupPtr->get_Bspline_index_for_cluster_group() == aBsplineMeshListIndex,
+        MORIS_ASSERT( aClusterGroupPtr->get_discretization_mesh_index_for_cluster_group() == aDiscretizationMeshIndex,
             "xtk::Side_Cluster::set_cluster_group() - Index which the cluster group lives on is not the list index it gets set to on the cluster." );
 
         // check if the list of cluster groups is big enough to accommodate the cluster groups for each B-spline mesh 
-        if( mClusterGroups.size() < (uint) aBsplineMeshListIndex + 1 )
+        if( mClusterGroups.size() < (uint) aDiscretizationMeshIndex + 1 )
         {
             // ... if not increase the size
-            mClusterGroups.resize( aBsplineMeshListIndex + 1 );
+            mClusterGroups.resize( aDiscretizationMeshIndex + 1 );
         }
         
         // store pointer to the cluster group associated with this B-spline mesh
-        mClusterGroups( aBsplineMeshListIndex ) = aClusterGroupPtr;
+        mClusterGroups( aDiscretizationMeshIndex ) = aClusterGroupPtr;
     }
 
     //---------------------------------------------------------------------------------------
 
     moris::real
-    Side_Cluster::compute_cluster_cell_side_measure_derivative(
-            const moris_index       aBsplineMeshListIndex,
+    Side_Cluster::compute_cluster_group_cell_side_measure_derivative(
+            const moris_index       aDiscretizationMeshIndex,
             const Matrix< DDRMat >& aPerturbedVertexCoords,
             uint aDirection,
             const mtk::Primary_Void aPrimaryOrVoid,
             const mtk::Master_Slave aIsMaster ) const
     {
-        return mClusterGroups( aBsplineMeshListIndex )->compute_cluster_group_side_measure_derivative( aPerturbedVertexCoords, aDirection, aPrimaryOrVoid, aIsMaster );
+        return mClusterGroups( aDiscretizationMeshIndex )->compute_cluster_group_side_measure_derivative( aPerturbedVertexCoords, aDirection, aPrimaryOrVoid, aIsMaster );
     }
 
     //------------------------------------------------------------------------------

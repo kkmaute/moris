@@ -4,11 +4,11 @@
  * 
  * ------------------------------------------------------------------------------------ 
  * 
- * cl_MTK_Cluster_Group.cpp  
+ * cl_MTK_Cell_Cluster_Group_DataBase.cpp  
  * 
  */
 
-#include "cl_MTK_Cluster_Group.hpp"
+#include "cl_MTK_Cell_Cluster_Group_DataBase.hpp"
 #include "cl_MTK_Cluster.hpp"
 
 namespace moris
@@ -17,29 +17,24 @@ namespace moris
     {
         //------------------------------------------------------------------------------
 
-        Cluster_Group::Cluster_Group( const moris_index  aDiscretizationMeshIndex )
-                : mDiscretizationMeshIndex( aDiscretizationMeshIndex )
+        Cell_Cluster_Group_DataBase::Cell_Cluster_Group_DataBase( 
+                const moris_index                  aDiscretizationMeshIndex,
+                moris::Cell< mtk::Cluster const* > aClusters )
+                : mtk::Cell_Cluster_Group( aDiscretizationMeshIndex )
+                , mClusters( aClusters )
         {
             // only initialize member variables
         }
 
         //------------------------------------------------------------------------------
 
-        moris_index 
-        Cluster_Group::get_discretization_mesh_index_for_cluster_group() const
+        const moris::Cell< mtk::Cluster const* >
+        Cell_Cluster_Group_DataBase::get_clusters_in_group() const
         {
-            return mDiscretizationMeshIndex;
+            return mClusters;
         }
 
         //------------------------------------------------------------------------------
 
-        mtk::Cluster_Type
-        Cluster_Group::get_cluster_type_in_group() const
-        {
-            return mClusterType;
-        }
-
-        //------------------------------------------------------------------------------
-
-    } // namespace moris
-} // namespace mtk
+    } // namespace mtk
+} // namespace moris
