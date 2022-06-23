@@ -131,6 +131,11 @@ namespace moris
 
         // -----------------------------------------------------------------
 
+        /**
+         * @brief constructor from initializer list
+         *
+         */
+
         Matrix( std::initializer_list< std::initializer_list< Type > > const & aInitList )
                 : mMatrix( aInitList )
         {
@@ -139,21 +144,46 @@ namespace moris
         // -----------------------------------------------------------------
 
         /**
+         * @brief constructor with read-only memory
+         *
+         * @param ptr_aux_mem  pointer to external (read only)
+         * @param aNumRows     number of rows
+         * @param aNumCols     number of columns
+         *
+         */
+
+        Matrix(
+                const Type* const & aArray,
+                size_t const &      aNumRows,
+                size_t const &      aNumCols )
+                : mMatrix( aArray, aNumRows, aNumCols )
+        {
+            MORIS_CHECK_MEMORY( sizeof( Type ) * aNumRows * aNumCols < MORIS_MAX_MATRIX_SIZE,
+                    "Matrix::Matrix: Maximum allowable size exceeded: %f MB.\n",
+                    sizeof( Type ) * aNumRows * aNumCols / 1e6 );
+        }
+
+        // -----------------------------------------------------------------
+
+        /**
          * @brief Construct a new Matrix object using arma advanced constructor
          *
-         * @param ptr_aux_mem pointer type
-         * @param aNumRows number of rows
-         * @param aNumCols number of columns
-         * @param copy_aux_mem copy the memory
-         * @param strict size change of the matrix
+         * @param ptr_aux_mem  pointer to external (writable)
+         * @param aNumRows     number of rows
+         * @param aNumCols     number of columns
+         * @param copy_aux_mem flag whether memory should be copied or used
+         * @param strict       flag whether memory size can change
+         *
+         * Note: defaults for flags do not work; conflict with constructor with
+         *       initializer list
          */
 
         Matrix(
                 Type* const &  ptr_aux_mem,
                 size_t const & aNumRows,
                 size_t const & aNumCols,
-                bool const &   copy_aux_mem = true,
-                bool const &   strict       = false )
+                bool const &   copy_aux_mem,
+                bool const &   strict )
                 : mMatrix( ptr_aux_mem, aNumRows, aNumCols, copy_aux_mem, strict )
         {
             MORIS_CHECK_MEMORY( sizeof( Type ) * aNumRows * aNumCols < MORIS_MAX_MATRIX_SIZE,
