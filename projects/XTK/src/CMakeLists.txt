@@ -31,7 +31,9 @@ set(HEADERS
     cl_XTK_Background_Mesh.hpp
     cl_XTK_Cell_Cluster.hpp
     cl_XTK_Side_Cluster.hpp
-    cl_XTK_Cluster_Group.hpp
+    #cl_XTK_Cluster_Group.hpp
+    cl_XTK_Cell_Cluster_Group.hpp
+    cl_XTK_Side_Cluster_Group.hpp
     cl_XTK_Child_Mesh_Modification_Template.hpp
     cl_XTK_Child_Mesh.hpp
     cl_XTK_Cut_Mesh.hpp
@@ -119,7 +121,9 @@ cl_XTK_Cell_No_CM.cpp
 cl_XTK_Interpolation_Cell.cpp
 cl_XTK_Cell_Cluster.cpp
 cl_XTK_Side_Cluster.cpp
-cl_XTK_Cluster_Group.cpp
+#cl_XTK_Cluster_Group.cpp
+cl_XTK_Cell_Cluster_Group.cpp
+cl_XTK_Side_Cluster_Group.cpp
 
 cl_MTK_Vertex_Interpolation_XTK_Impl.cpp
 cl_MTK_Vertex_XTK_Impl.cpp

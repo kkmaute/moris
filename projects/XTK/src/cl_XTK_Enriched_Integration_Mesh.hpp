@@ -33,7 +33,8 @@ class Interpolation_Cell_Unzipped;
 class Ghost_Stabilization;
 class Enrichment;
 class Cut_Integration_Mesh;
-class Cluster_Group;
+class Cell_Cluster_Group;
+class Side_Cluster_Group;
 
 class Enriched_Integration_Mesh : public mtk::Integration_Mesh
 {
@@ -55,11 +56,10 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
     // Cell Clusters
     moris::Cell< std::shared_ptr< xtk::Cell_Cluster > > mCellClusters;
 
-    // cluster groups, 
-    // NOTE: first array index corresponds to index of the B-spline mesh in mBsplineMeshIndices 
-    moris::Cell< moris::Cell< std::shared_ptr< xtk::Cluster_Group > > > mCellClusterGroups;
-    moris::Cell< moris::Cell< std::shared_ptr< xtk::Cluster_Group > > > mSideClusterGroups;
-    moris::Cell< moris::Cell< std::shared_ptr< xtk::Cluster_Group > > > mDblSideClusterGroups;
+    // cluster groups, first array index corresponds to the discretization mesh index
+    moris::Cell< moris::Cell< std::shared_ptr< xtk::Cell_Cluster_Group > > > mCellClusterGroups;
+    moris::Cell< moris::Cell< std::shared_ptr< xtk::Side_Cluster_Group > > > mSideClusterGroups;
+    moris::Cell< moris::Cell< std::shared_ptr< xtk::Side_Cluster_Group > > > mDblSideClusterGroups;
 
     // Vertex Set
     std::unordered_map< std::string, moris_index >     mVertexSetLabelToOrd;
@@ -189,8 +189,8 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
     uint               get_num_interpolation_types() const;
     uint               get_num_cell_cluster_groups( const moris_index aDiscretizationMeshIndex ) const;
     uint               get_num_side_cluster_groups( const moris_index aDiscretizationMeshIndex ) const;
-    Cell< std::shared_ptr< xtk::Cluster_Group > > const& get_cell_cluster_groups( const moris_index aDiscretizationMeshIndex ) const;
-    Cell< std::shared_ptr< xtk::Cluster_Group > > const& get_side_cluster_groups( const moris_index aDiscretizationMeshIndex ) const;
+    Cell< std::shared_ptr< xtk::Cell_Cluster_Group > > const& get_cell_cluster_groups( const moris_index aDiscretizationMeshIndex ) const;
+    Cell< std::shared_ptr< xtk::Side_Cluster_Group > > const& get_side_cluster_groups( const moris_index aDiscretizationMeshIndex ) const;
 
     //------------------------------------------------------------------------------
 
