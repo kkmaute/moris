@@ -24,7 +24,7 @@ namespace moris
 
             // populate the property map
             mPropertyMap[ "Dirichlet" ] = static_cast< uint >( IWG_Property_Type::DIRICHLET );
-            mPropertyMap[ "Select" ] = static_cast< uint >( IWG_Property_Type::SELECT );
+            mPropertyMap[ "Select" ]    = static_cast< uint >( IWG_Property_Type::SELECT );
             mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
 
             // set size for the constitutive model pointer cell
@@ -42,7 +42,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IWG_Isotropic_Struc_Linear_Pressure_Dirichlet::compute_residual( real aWStar )
+        void
+        IWG_Isotropic_Struc_Linear_Pressure_Dirichlet::compute_residual( real aWStar )
         {
 #ifdef DEBUG
             // check master field interpolators, properties and constitutive models
@@ -56,19 +57,19 @@ namespace moris
 
             // get field interpolator for given dof type
             // FIXME protect dof type
-            Field_Interpolator * tFIDispl =
+            Field_Interpolator* tFIDispl =
                     mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX );
 
             // get the selection matrix property
-            const std::shared_ptr< Property > & tPropSelect =
+            const std::shared_ptr< Property >& tPropSelect =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
 
             // set a default selection matrix if needed
             Matrix< DDRMat > tM;
             if ( tPropSelect == nullptr )
             {
-                // get spatial dimension
-                uint tSpaceDim = tFIDispl->get_number_of_fields();
+                // get number of fields which should equal spatial dimension
+                const uint tSpaceDim = tFIDispl->get_number_of_fields();
 
                 // set selection matrix as identity
                 eye( tSpaceDim, tSpaceDim, tM );
@@ -79,18 +80,18 @@ namespace moris
             }
 
             // get the imposed displacement property
-            const std::shared_ptr< Property > & tPropDirichlet =
+            const std::shared_ptr< Property >& tPropDirichlet =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
 
             // get thickness property
-            const std::shared_ptr< Property > & tPropThickness =
+            const std::shared_ptr< Property >& tPropThickness =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
 
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
-            aWStar *= (tPropThickness!=nullptr) ? tPropThickness->val()(0) : 1;
+            aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
 
             // get CM for elasticity
-            const std::shared_ptr< Constitutive_Model > & tCMElasticity =
+            const std::shared_ptr< Constitutive_Model >& tCMElasticity =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
 
             // compute displacement jump
@@ -98,18 +99,19 @@ namespace moris
 
             // compute the residual
             mSet->get_residual()( 0 )(
-                    { tMasterResStartIndex, tMasterResStopIndex },
-                    { 0, 0 } ) += aWStar * (
+                    { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) +=    //
+                    aWStar * (                                                      //
                             mBeta * trans( tCMElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) ) * tM * tJump );
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
-                    "IWG_Isotropic_Struc_Linear_Pressure_Dirichlet::compute_residual - Residual contains NAN or INF, exiting!");
+                    "IWG_Isotropic_Struc_Linear_Pressure_Dirichlet::compute_residual - Residual contains NAN or INF, exiting!" );
         }
 
         //------------------------------------------------------------------------------
 
-        void IWG_Isotropic_Struc_Linear_Pressure_Dirichlet::compute_jacobian( real aWStar )
+        void
+        IWG_Isotropic_Struc_Linear_Pressure_Dirichlet::compute_jacobian( real aWStar )
         {
 #ifdef DEBUG
             // check master field interpolators, properties and constitutive models
@@ -123,19 +125,19 @@ namespace moris
 
             // get field interpolator for given dof type
             // FIXME protect dof type
-            Field_Interpolator * tFIDispl =
+            Field_Interpolator* tFIDispl =
                     mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX );
 
             // get the selection matrix property
-            const std::shared_ptr< Property > & tPropSelect =
+            const std::shared_ptr< Property >& tPropSelect =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
 
             // set a default selection matrix if needed
             Matrix< DDRMat > tM;
             if ( tPropSelect == nullptr )
             {
-                // get spatial dimension
-                uint tSpaceDim = tFIDispl->get_dof_type().size();
+                // get number of fields which should equal spatial dimension
+                const uint tSpaceDim = tFIDispl->get_number_of_fields();
 
                 // set selection matrix as identity
                 eye( tSpaceDim, tSpaceDim, tM );
@@ -146,19 +148,19 @@ namespace moris
             }
 
             // get the imposed displacement property
-            const std::shared_ptr< Property > & tPropDirichlet =
+            const std::shared_ptr< Property >& tPropDirichlet =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
 
             // get CM for elasticity
-            const std::shared_ptr< Constitutive_Model > & tCMElasticity =
+            const std::shared_ptr< Constitutive_Model >& tCMElasticity =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
 
             // get thickness property
-            const std::shared_ptr< Property > & tPropThickness =
+            const std::shared_ptr< Property >& tPropThickness =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
 
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
-            aWStar *= (tPropThickness!=nullptr) ? tPropThickness->val()(0) : 1;
+            aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
 
             // compute jump
             Matrix< DDRMat > tJump = tFIDispl->val() - tPropDirichlet->val();
@@ -166,13 +168,13 @@ namespace moris
             // compute the jacobian for dof dependencies
             uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
 
-            for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
+            for ( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the dof type
-                const Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                const Cell< MSI::Dof_Type >& tDofType = mRequestedMasterGlobalDofTypes( iDOF );
 
                 // get the index for this dof type
-                uint tDofDepIndex = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( iDOF )( 0 ), mtk::Master_Slave::MASTER );
+                uint tDofDepIndex         = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( iDOF )( 0 ), mtk::Master_Slave::MASTER );
                 uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
                 uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
 
@@ -181,7 +183,8 @@ namespace moris
                 {
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                            { tMasterDepStartIndex, tMasterDepStopIndex } ) +=    //
+                            aWStar * (                                            //
                                     mBeta * trans( tCMElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) ) * tM * tFIDispl->N() );
                 }
 
@@ -190,37 +193,41 @@ namespace moris
                 {
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    mBeta * trans( tCMElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) ) * tM * tPropDirichlet->dPropdDOF( tDofType ) );
+                            { tMasterDepStartIndex, tMasterDepStopIndex } ) +=                                          //
+                            aWStar * (                                                                                  //
+                                    mBeta * trans( tCMElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) ) *    //
+                                    tM * tPropDirichlet->dPropdDOF( tDofType ) );
                 }
 
                 // if elasticity CM depends on dof type
-                if( tCMElasticity->check_dof_dependency( tDofType ) )
+                if ( tCMElasticity->check_dof_dependency( tDofType ) )
                 {
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    mBeta * tCMElasticity->dTestTractiondDOF( tDofType, mNormal, tM * tJump, mResidualDofType( 0 ) ) );
+                            { tMasterDepStartIndex, tMasterDepStopIndex } ) +=    //
+                            aWStar * ( mBeta * tCMElasticity->dTestTractiondDOF( tDofType, mNormal, tM * tJump, mResidualDofType( 0 ) ) );
                 }
             }
 
             // check for nan, infinity
-            MORIS_ASSERT( isfinite( mSet->get_jacobian() ) ,
-                    "IWG_Isotropic_Struc_Linear_Pressure_Dirichlet::compute_jacobian - Jacobian contains NAN or INF, exiting!");
+            MORIS_ASSERT( isfinite( mSet->get_jacobian() ),
+                    "IWG_Isotropic_Struc_Linear_Pressure_Dirichlet::compute_jacobian - Jacobian contains NAN or INF, exiting!" );
         }
 
         //------------------------------------------------------------------------------
 
-        void IWG_Isotropic_Struc_Linear_Pressure_Dirichlet::compute_jacobian_and_residual( real aWStar )
+        void
+        IWG_Isotropic_Struc_Linear_Pressure_Dirichlet::compute_jacobian_and_residual( real aWStar )
         {
-            MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Pressure_Dirichlet::compute_jacobian_and_residual - This function does nothing.");
+            MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Pressure_Dirichlet::compute_jacobian_and_residual - This function does nothing." );
         }
 
         //------------------------------------------------------------------------------
 
-        void IWG_Isotropic_Struc_Linear_Pressure_Dirichlet::compute_dRdp( real aWStar )
+        void
+        IWG_Isotropic_Struc_Linear_Pressure_Dirichlet::compute_dRdp( real aWStar )
         {
-            MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Pressure_Dirichlet::compute_dRdp - Not implemented.");
+            MORIS_ERROR( false, "IWG_Isotropic_Struc_Linear_Pressure_Dirichlet::compute_dRdp - Not implemented." );
         }
 
         //------------------------------------------------------------------------------

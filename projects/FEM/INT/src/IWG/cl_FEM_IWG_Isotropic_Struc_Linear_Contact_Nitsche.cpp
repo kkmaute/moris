@@ -104,7 +104,8 @@ namespace moris
 
             // evaluate average traction
             const Matrix< DDRMat > tTraction =
-                    tMasterWeight * tCMMasterElasticity->traction( mNormal ) + tSlaveWeight * tCMSlaveElasticity->traction( mNormal );
+                    tMasterWeight * tCMMasterElasticity->traction( mNormal )    //
+                    + tSlaveWeight * tCMSlaveElasticity->traction( mNormal );
 
             // compute contact pressure
             const real tIfcPressure = dot( tTraction, mNormal );

@@ -66,11 +66,11 @@ namespace moris
             Matrix< DDRMat > tM;
             if ( tPropSelect == nullptr )
             {
-                // get spatial dimension
-                uint tSpaceDim = tFI->get_dof_type().size();
+                // get number of fields
+                const uint tNumFields = tFI->get_number_of_fields();
 
                 // set selection matrix as identity
-                eye( tSpaceDim, tSpaceDim, tM );
+                eye( tNumFields, tNumFields, tM );
             }
             else
             {
@@ -137,11 +137,11 @@ namespace moris
             Matrix< DDRMat > tM;
             if ( tPropSelect == nullptr )
             {
-                // get spatial dimension
-                uint tSpaceDim = tFI->get_dof_type().size();
+                // get number of fields
+                const uint tNumFields = tFI->get_number_of_fields();
 
                 // set selection matrix as identity
-                eye( tSpaceDim, tSpaceDim, tM );
+                eye( tNumFields, tNumFields, tM );
             }
             else
             {
