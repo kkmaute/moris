@@ -128,10 +128,6 @@ namespace moris
                                 +tFISlave->N_trans() * tNormalProjector * tTraction                                                                       //
                                 + mBeta * tSlaveWeight * tCMSlaveElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tJump    //
                                 - tNitsche * tFISlave->N_trans() * tNormalProjector * tJump );
-
-                // check for nan, infinity
-                MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
-                        "IWG_Isotropic_Struc_Linear_Interface::compute_residual - Residual contains NAN or INF, exiting!" );
             }
             else
             {
@@ -145,6 +141,10 @@ namespace moris
                         aWStar * (                                          //
                                 -mBeta / tNitsche * tSlaveWeight * tCMSlaveElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tTraction );
             }
+
+            // check for nan, infinity
+            MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
+                    "IWG_Isotropic_Struc_Linear_Contact_Nitsche::compute_residual - Residual contains NAN or INF, exiting!" );
         }
 
         //------------------------------------------------------------------------------
@@ -399,7 +399,7 @@ namespace moris
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_jacobian() ),
-                    "IWG_Isotropic_Struc_Linear_Interface::compute_jacobian - Jacobian contains NAN or INF, exiting!" );
+                    "IWG_Isotropic_Struc_Linear_Contact_Nitsche::compute_jacobian - Jacobian contains NAN or INF, exiting!" );
         }
 
         //------------------------------------------------------------------------------

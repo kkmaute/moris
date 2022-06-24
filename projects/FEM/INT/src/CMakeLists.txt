@@ -143,6 +143,7 @@ set(HEADERS
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Dirichlet.hpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Penalty.hpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Nitsche.hpp 
+    IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche.hpp 
     IWG/cl_FEM_IWG_Struc_Stress.hpp
     
     IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Bulk.hpp
@@ -349,6 +350,7 @@ set(LIB_SOURCES
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Dirichlet.cpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Penalty.cpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Nitsche.cpp
+    IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche.cpp
     IWG/cl_FEM_IWG_Struc_Stress.cpp
     
     IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Bulk.cpp
