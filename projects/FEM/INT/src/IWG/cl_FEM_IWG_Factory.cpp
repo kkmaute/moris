@@ -29,6 +29,10 @@
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Dirichlet.hpp"
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Neumann.hpp"
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Interface.hpp"
+#include "cl_FEM_IWG_Isotropic_Struc_Linear_Interface_SLM_Constraint.hpp"
+#include "cl_FEM_IWG_Isotropic_Struc_Linear_Interface_SLM_L2.hpp"
+#include "cl_FEM_IWG_Isotropic_Struc_Linear_Interface_SLM_Mixed.hpp"
+#include "cl_FEM_IWG_Isotropic_Struc_Linear_Interface_SLM_LMJump.hpp"
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost.hpp"
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Bulk.hpp"
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Dirichlet.hpp"
@@ -158,6 +162,20 @@ namespace moris
 
                 case IWG_Type::STRUC_LINEAR_INTERFACE_UNSYMMETRIC_NITSCHE :
                     return std::make_shared< IWG_Isotropic_Struc_Linear_Interface >( 1 );
+
+
+                case IWG_Type::Struc_Linear_Interface_SLM_Constraint :
+                    return std::make_shared< IWG_Isotropic_Struc_Linear_Interface_SLM_Constraint >();
+
+                case IWG_Type::Struc_Linear_Interface_SLM_L2 :
+                    return std::make_shared< IWG_Isotropic_Struc_Linear_Interface_SLM_L2 >();
+
+                case IWG_Type::Struc_Linear_Interface_SLM_Mixed :
+                    return std::make_shared< IWG_Isotropic_Struc_Linear_Interface_SLM_Mixed >();
+
+                case IWG_Type::Struc_Linear_Interface_SLM_LMJump :
+                    return std::make_shared< IWG_Isotropic_Struc_Linear_Interface_SLM_LMJump >();
+
 
                 case IWG_Type::STRUC_LINEAR_NEUMANN :
                     return std::make_shared< IWG_Isotropic_Struc_Linear_Neumann >();

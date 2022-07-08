@@ -60,6 +60,12 @@ namespace moris
             STRUC_LINEAR_NEUMANN,                          // linear elasticity Neumann
             STRUC_LINEAR_INTERFACE_SYMMETRIC_NITSCHE,      // linear elasticity Nitsche interface condition
             STRUC_LINEAR_INTERFACE_UNSYMMETRIC_NITSCHE,
+
+			Struc_Linear_Interface_SLM_Constraint,			// linear elasticity stabilzed lagrange multiplier constraint
+			Struc_Linear_Interface_SLM_L2,					// linear elasticity stabilzed lagrange multiplier L2 projection
+			Struc_Linear_Interface_SLM_Mixed,				// linear elasticity stabilzed lagrange multiplier mixed term
+			Struc_Linear_Interface_SLM_LMJump,				// linear elasticity stabilzed lagrange multiplier LM jump term
+
             STRUC_LINEAR_VW_GHOST,                                // linear elasticity Ghost flux based
             STRUC_LINEAR_PRESSURE_BULK,                           // linear elasticity bulk mixed formulation
             STRUC_LINEAR_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE,    // linear elasticity Dirichlet mixed formulation (Nitsche)
@@ -156,6 +162,7 @@ namespace moris
                 THERMAL_ENERGY_DIFFUSIVE_FLUX,
 
                 JUMP_DOF,
+				JUMP_TRACTION,
 
                 ADVECTION_STRONG_RESIDUAL,
                 STRONG_RESIDUAL_SA,
@@ -278,6 +285,7 @@ namespace moris
             PENALTY_CONTACT,
             STAB_PENALTY_CONTACT,
             MEASURE,
+			LAGRANGE_MULTIPLIER_L2,
             END_STABILIZATION_TYPE
         };
 

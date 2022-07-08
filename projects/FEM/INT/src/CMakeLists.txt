@@ -121,6 +121,7 @@ set(HEADERS
     SP/cl_FEM_SP_Stab_Penalty_Contact.hpp
     SP/cl_FEM_SP_Penalty_Contact.hpp 
     SP/cl_FEM_SP_Measure.hpp
+    SP/cl_FEM_SP_Lagrange_Multiplier_L2.hpp
 
 
     IWG/cl_FEM_IWG_Factory.hpp
@@ -138,6 +139,10 @@ set(HEADERS
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Dirichlet.hpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Neumann.hpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Interface.hpp
+    IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Interface_SLM_Constraint.hpp
+    IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Interface_SLM_L2.hpp
+    IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Interface_SLM_Mixed.hpp
+    IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Interface_SLM_LMJump.hpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Fluid_Interface.hpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Bulk.hpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Dirichlet.hpp
@@ -233,6 +238,7 @@ set(HEADERS
     IQI/cl_FEM_IQI_Strong_Residual_Incompressible_NS.hpp
     IQI/cl_FEM_IQI_Zienkiewicz_Zhu.hpp
     IQI/cl_FEM_IQI_Jump_Dof.hpp
+    IQI/cl_FEM_IQI_Jump_Traction.hpp
      
     MEA/cl_FEM_Cluster_Measure.hpp
     )
@@ -324,6 +330,7 @@ set(LIB_SOURCES
     SP/cl_FEM_SP_Stab_Penalty_Contact.cpp
     SP/cl_FEM_SP_Penalty_Contact.cpp  
     SP/cl_FEM_SP_Measure.cpp
+    SP/cl_FEM_SP_Lagrange_Multiplier_L2.cpp
 
 
     IWG/cl_FEM_IWG.cpp
@@ -342,6 +349,10 @@ set(LIB_SOURCES
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Dirichlet.cpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Neumann.cpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Interface.cpp
+    IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Interface_SLM_Constraint.cpp
+    IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Interface_SLM_L2.cpp
+    IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Interface_SLM_Mixed.cpp
+    IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Interface_SLM_LMJump.cpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Fluid_Interface.cpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost.cpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Bulk.cpp
@@ -444,6 +455,7 @@ set(LIB_SOURCES
     IQI/cl_FEM_IQI_Strong_Residual_Incompressible_NS.cpp
     IQI/cl_FEM_IQI_Zienkiewicz_Zhu.cpp
     IQI/cl_FEM_IQI_Jump_Dof.cpp
+    IQI/cl_FEM_IQI_Jump_Traction.cpp
     
     MEA/cl_FEM_Cluster_Measure.cpp
     
