@@ -54,6 +54,10 @@ namespace moris
             EVX,         //< X-Entropy transport of production rate
             EVY,         //< Y-Entropy transport of production rate
             EVZ,         //< Z-Entropy transport of production rate
+
+			LAMBDAX,	 //< x component of the Lagrange multiplier traction
+			LAMBDAY,	 //< y component of the Lagrange multiplier traction
+			LAMBDAZ,	 //< z component of the Lagrange multiplier traction
  
             UNDEFINED,   //< Undefined
             END_ENUM     //

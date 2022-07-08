@@ -165,8 +165,6 @@ namespace moris
                 case IWG_Type::STRUC_LINEAR_INTERFACE_UNSYMMETRIC_NITSCHE:
                     return std::make_shared< IWG_Isotropic_Struc_Linear_Interface >( 1 );
 
-<<<<<<< HEAD
-
                 case IWG_Type::Struc_Linear_Interface_SLM_Constraint :
                     return std::make_shared< IWG_Isotropic_Struc_Linear_Interface_SLM_Constraint >();
 
@@ -181,9 +179,6 @@ namespace moris
 
 
                 case IWG_Type::STRUC_LINEAR_NEUMANN :
-=======
-                case IWG_Type::STRUC_LINEAR_NEUMANN:
->>>>>>> 61f77ba512c9688560c862fc54f45744860e3f69
                     return std::make_shared< IWG_Isotropic_Struc_Linear_Neumann >();
 
                 case IWG_Type::STRUC_LINEAR_VW_GHOST:
