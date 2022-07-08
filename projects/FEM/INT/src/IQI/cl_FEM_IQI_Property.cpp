@@ -87,20 +87,26 @@ namespace moris
                 // if property depends on dof type
                 if ( tProperty->check_dof_dependency( tDofType ) )
                 {
-                    // get index of property if defined; otherwise set to 0
-                    uint tTypeIndex = mIQITypeIndex != -1 ? mIQITypeIndex : 0;
-
                     // build selection matrix
                     uint tNumVecFieldComps = tProperty->val().numel();
 
-                    Matrix< DDRMat > tSelect( tNumVecFieldComps, 1, 0.0 );
+                    Matrix< DDRMat > tSelect( tNumVecFieldComps, 1, 0.0);
 
-                    tSelect( tTypeIndex, 0 ) = 1.0;
+                    // if no index is specfied it will return the whole dqdu
+                    if( mIQITypeIndex == -1) 
+                    {
+                        tSelect.fill(1.0);
+                    }
+                    else
+                    {
+                        //if an index is specified it will only return dQ(index)d
+                        tSelect( mIQITypeIndex, 0 ) = 1.0;
+                    }
 
                     // compute dQIdu
                     mSet->get_residual()( tQIIndex )(
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) +=
-                                    aWStar * trans( tProperty->dPropdDOF( tDofType ) * tSelect );
+                            aWStar * trans( tProperty->dPropdDOF( tDofType ) ) * tSelect;
                 }
             }
         }

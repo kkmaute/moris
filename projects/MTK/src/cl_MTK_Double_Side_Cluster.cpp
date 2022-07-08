@@ -570,13 +570,13 @@ namespace moris
 
         moris::real
         Double_Side_Cluster::compute_cluster_group_cell_measure(
-                const moris_index       aBsplineMeshListIndex,
+                const moris_index       aDiscretizationMeshIndex,
                 const mtk::Primary_Void aPrimaryOrVoid,
                 const mtk::Master_Slave aIsMaster       ) const
         {
             moris::mtk::Cluster const & tCluster = this->get_cluster(aIsMaster);
 
-            return tCluster.compute_cluster_group_cell_measure( aBsplineMeshListIndex, aPrimaryOrVoid, aIsMaster );
+            return tCluster.compute_cluster_group_cell_measure( aDiscretizationMeshIndex, aPrimaryOrVoid, aIsMaster );
         }
 
         //----------------------------------------------------------------------------------
@@ -612,7 +612,7 @@ namespace moris
 
         moris::real
         Double_Side_Cluster::compute_cluster_group_cell_measure_derivative(
-                const moris_index       aBsplineMeshListIndex,
+                const moris_index       aDiscretizationMeshIndex,
                 const Matrix< DDRMat >& aPerturbedVertexCoords,
                 uint aDirection,
                 const mtk::Primary_Void aPrimaryOrVoid,
@@ -620,7 +620,7 @@ namespace moris
         {
             moris::mtk::Cluster const& tCluster = this->get_cluster(aIsMaster);
             return tCluster.compute_cluster_group_cell_measure_derivative(
-                    aBsplineMeshListIndex,
+                    aDiscretizationMeshIndex,
                     aPerturbedVertexCoords,
                     aDirection,
                     aPrimaryOrVoid,
@@ -643,13 +643,13 @@ namespace moris
 
         moris::real
         Double_Side_Cluster::compute_cluster_group_cell_side_measure(
-                const moris_index       aBsplineMeshListIndex,
+                const moris_index       aDiscretizationMeshIndex,
                 const mtk::Primary_Void aPrimaryOrVoid,
                 const mtk::Master_Slave aIsMaster       ) const
         {
             moris::mtk::Cluster const & tCluster = this->get_cluster(aIsMaster);
 
-            return tCluster.compute_cluster_group_cell_side_measure( aBsplineMeshListIndex, aPrimaryOrVoid, aIsMaster );
+            return tCluster.compute_cluster_group_cell_side_measure( aDiscretizationMeshIndex, aPrimaryOrVoid, aIsMaster );
         }
 
         //----------------------------------------------------------------------------------
@@ -685,7 +685,7 @@ namespace moris
 
         moris::real
         Double_Side_Cluster::compute_cluster_group_cell_side_measure_derivative(
-                const moris_index       aBsplineMeshListIndex,
+                const moris_index       aDiscretizationMeshIndex,
                 const Matrix< DDRMat >& aPerturbedVertexCoords,
                 uint aDirection,
                 const mtk::Primary_Void aPrimaryOrVoid,
@@ -693,7 +693,7 @@ namespace moris
         {
             moris::mtk::Cluster const & tCluster = this->get_cluster(aIsMaster);
             return tCluster.compute_cluster_group_cell_side_measure_derivative(
-                    aBsplineMeshListIndex,
+                    aDiscretizationMeshIndex,
                     aPerturbedVertexCoords,
                     aDirection,
                     aPrimaryOrVoid,

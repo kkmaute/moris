@@ -81,6 +81,7 @@ set(TEST_SOURCES
     
     UT_FEM_IWG_Struc_Nonlinear_Bulk.cpp
     UT_FEM_IWG_Struc_Nonlinear_Dirichlet.cpp
+    UT_FEM_IWG_Struc_Nonlinear_Interface.cpp
     
     UT_FEM_IWG_Incompressible_NS_Velocity_Bulk.cpp
     UT_FEM_IWG_Incompressible_NS_Pressure_Bulk.cpp

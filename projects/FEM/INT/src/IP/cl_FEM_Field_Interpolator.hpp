@@ -34,6 +34,9 @@ namespace moris
                 // tolerance for check
                 real mEpsilon = 1e-12;
 
+                // discretization (B-spline) mesh index the field interpolator operates on
+                moris_index mDiscretizationMeshIndex = -1;
+
                 // how many fields are to be interpolated
                 const uint mNumberOfFields;
 
@@ -219,6 +222,19 @@ namespace moris
                 }
 
                 //------------------------------------------------------------------------------
+
+                /**
+                 * @brief Get the discretization mesh index for the DoF type the FI operates on
+                 * 
+                 * @return const moris_index 
+                 */
+                const moris_index get_discretization_mesh_index() const
+                {
+                    MORIS_ASSERT( mDiscretizationMeshIndex > -1, "Field_Interpolator::get_discretization_mesh_index() - Discretization mesh index not set." );
+                    return mDiscretizationMeshIndex;
+                }
+
+                //------------------------------------------------------------------------------
                 /**
                  * get dof type
                  */
@@ -288,6 +304,11 @@ namespace moris
                 {
                     return mSpaceInterpolation->get_interpolation_order();
                 }
+
+                //------------------------------------------------------------------------------
+
+                void set_discretization_mesh_index( const moris_index aDiscretizationMeshIndex );
+
                 //------------------------------------------------------------------------------
                 /**
                  * set the parametric point where field is interpolated

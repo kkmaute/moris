@@ -154,10 +154,15 @@ namespace moris
                 MORIS_ASSERT( mFI( tDofIndex ) == nullptr, "Field_Interpolator_Manager::create_field_interpolators - Field interpolator was created previously" );
 
                 // create a field interpolator for the dof type group
-                mFI( tDofIndex ) = new Field_Interpolator( mDofTypes( iDof ).size(),
+                mFI( tDofIndex ) = new Field_Interpolator( 
+                        mDofTypes( iDof ).size(),
                         tFieldInterpolationRule,
                         mIPGeometryInterpolator,
                         mDofTypes( iDof ) );
+                
+                // get the discretization mesh index for the DoF type and store it in the field interpolator for easy retrieval whereever needed
+                moris_index tMeshIndexForDof = aModelSolverInterface->get_adof_index_for_type( mDofTypes( iDof )( 0 ) );
+                mFI( tDofIndex )->set_discretization_mesh_index( tMeshIndexForDof );
             }
 
             // dv field interpolators------------------------------------------

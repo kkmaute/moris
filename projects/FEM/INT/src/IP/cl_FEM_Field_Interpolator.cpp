@@ -221,6 +221,13 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        void Field_Interpolator::set_discretization_mesh_index( const moris_index aDiscretizationMeshIndex )
+        {
+            mDiscretizationMeshIndex = aDiscretizationMeshIndex;
+        }
+
+        //------------------------------------------------------------------------------
+
         void Field_Interpolator::set_space_time( const Matrix< DDRMat > & aParamPoint )
         {
             // check input size aParamPoint

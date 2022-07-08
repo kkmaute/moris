@@ -16,7 +16,7 @@ namespace moris
         IWG_Isotropic_Struc_Nonlinear_Dirichlet::IWG_Isotropic_Struc_Nonlinear_Dirichlet(
                 enum CM_Function_Type aStressType,
                 enum CM_Function_Type aStrainType,
-                sint aBeta )
+                sint                  aBeta )
         {
             // sign for symmetric/unsymmetric Nitsche
             mBeta = aBeta;
@@ -72,8 +72,8 @@ namespace moris
             Matrix< DDRMat > tM;
             if ( tPropSelect == nullptr )
             {
-                // get spatial dimension
-                uint tSpaceDim = tFIDispl->get_dof_type().size();
+                // get number of fields which should equal spatial dimension
+                const uint tSpaceDim = tFIDispl->get_number_of_fields();
 
                 // set selection matrix as identity
                 eye( tSpaceDim, tSpaceDim, tM );
@@ -107,10 +107,11 @@ namespace moris
 
             // compute the residual
             mSet->get_residual()( 0 )(
-                    { tMasterResStartIndex, tMasterResStopIndex } ) +=
-                            aWStar * ( -tFIDispl->N_trans() * tM * tCMElasticity->traction( mNormal, mStressType)
-                                    + mBeta * trans( tCMElasticity->testTraction( mNormal, mResidualDofType( 0 ), mStressType ) ) * tM * tJump    //
-                                    + tSPNitsche->val()( 0 ) * tFIDispl->N_trans() * tM * tJump );
+                    { tMasterResStartIndex, tMasterResStopIndex } ) +=                                                                    //
+                    aWStar * (                                                                                                            //
+                            -tFIDispl->N_trans() * tM * tCMElasticity->traction( mNormal, mStressType )                                   //
+                            + mBeta * trans( tCMElasticity->testTraction( mNormal, mResidualDofType( 0 ), mStressType ) ) * tM * tJump    //
+                            + tSPNitsche->val()( 0 ) * tFIDispl->N_trans() * tM * tJump );
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
@@ -144,8 +145,8 @@ namespace moris
             Matrix< DDRMat > tM;
             if ( tPropSelect == nullptr )
             {
-                // get spatial dimension
-                uint tSpaceDim = tFIDispl->get_number_of_fields();
+                // get number of fields which should equal spatial dimension
+                const uint tSpaceDim = tFIDispl->get_number_of_fields();
 
                 // set selection matrix as identity
                 eye( tSpaceDim, tSpaceDim, tM );
@@ -197,27 +198,27 @@ namespace moris
                 if ( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                 {
                     // compute the jacobian for direct dof dependencies
-                    tJac += aWStar * (                                                                                            //
-                            mBeta * trans( tCMElasticity->testTraction( mNormal, mResidualDofType( 0 ), mStressType ) ) * tM * tFIDispl->N()    //
-                            + tSPNitsche->val()( 0 ) * tFIDispl->N_trans() * tM * tFIDispl->N() );
+                    tJac += aWStar * (                                                                                                                  //
+                                    mBeta * trans( tCMElasticity->testTraction( mNormal, mResidualDofType( 0 ), mStressType ) ) * tM * tFIDispl->N()    //
+                                    + tSPNitsche->val()( 0 ) * tFIDispl->N_trans() * tM * tFIDispl->N() );
                 }
 
                 // if dependency on the dof type
                 if ( tPropDirichlet->check_dof_dependency( tDofType ) )
                 {
                     // add contribution to jacobian
-                    tJac -= aWStar * (                                                                                                                    //
-                            mBeta * trans( tCMElasticity->testTraction( mNormal, mResidualDofType( 0 ), mStressType ) ) * tM * tPropDirichlet->dPropdDOF( tDofType )    //
-                            + tSPNitsche->val()( 0 ) * tFIDispl->N_trans() * tM * tPropDirichlet->dPropdDOF( tDofType ) );
+                    tJac -= aWStar * (                                                                                                                                          //
+                                    mBeta * trans( tCMElasticity->testTraction( mNormal, mResidualDofType( 0 ), mStressType ) ) * tM * tPropDirichlet->dPropdDOF( tDofType )    //
+                                    + tSPNitsche->val()( 0 ) * tFIDispl->N_trans() * tM * tPropDirichlet->dPropdDOF( tDofType ) );
                 }
 
                 // if dependency on the dof type
                 if ( tCMElasticity->check_dof_dependency( tDofType ) )
                 {
                     // add contribution to jacobian
-                    tJac += aWStar * (                                                                               //
-                            -tFIDispl->N_trans() * tM * tCMElasticity->dTractiondDOF( tDofType, mNormal, mStressType )    //
-                            + mBeta * tCMElasticity->dTestTractiondDOF( tDofType, mNormal, tM * tJump, mResidualDofType( 0 ), mStressType ) );
+                    tJac += aWStar * (                                                                                            //
+                                    -tFIDispl->N_trans() * tM * tCMElasticity->dTractiondDOF( tDofType, mNormal, mStressType )    //
+                                    + mBeta * tCMElasticity->dTestTractiondDOF( tDofType, mNormal, tM * tJump, mResidualDofType( 0 ), mStressType ) );
                 }
 
                 // if dependency on the dof type

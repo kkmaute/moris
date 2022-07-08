@@ -259,6 +259,7 @@ namespace moris
                  * @param[in] aDofType    Dof type index.
                  */
                 moris::sint get_adof_index_for_type( moris::uint aDofType );
+                moris_index get_adof_index_for_type( MSI::Dof_Type aDofType );
 
                 //------------------------------------------------------------------------------
 

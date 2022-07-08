@@ -22,6 +22,7 @@ namespace moris
 
             // populate the property map
             mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
+            mPropertyMap[ "Select" ]    = static_cast< uint >( IWG_Property_Type::SELECT );
 
             // set size for the constitutive model pointer cell
             mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
@@ -86,6 +87,26 @@ namespace moris
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
 
+            // get the selection matrix property
+            const std::shared_ptr< Property >& tPropSelect =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
+
+            // set a default selection matrix if needed
+            Matrix< DDRMat > tM;
+            if ( tPropSelect == nullptr )
+            {
+                // get number of fields which should equal spatial dimension
+                const uint tSpaceDim = tFIMaster->get_number_of_fields();
+
+                // set selection matrix as identity
+                eye( tSpaceDim, tSpaceDim, tM );
+            }
+            else
+            {
+                tM = tPropSelect->val();
+            }
+
+            // Nitsche penalty and traction averaging weights
             const real tNitsche      = tSPNitsche->val()( 0 );
             const real tMasterWeight = tSPNitsche->val()( 1 );
             const real tSlaveWeight  = tSPNitsche->val()( 2 );
@@ -101,18 +122,18 @@ namespace moris
             // compute master residual
             mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex } ) +=
                     aWStar
-                    * ( -tFIMaster->N_trans() * tTraction
+                    * ( -tFIMaster->N_trans() * tM * tTraction
                             + mBeta * tMasterWeight
-                                      * tCMMasterElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) * tJump
-                            + tNitsche * tFIMaster->N_trans() * tJump );
+                                      * tCMMasterElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) * tM * tJump
+                            + tNitsche * tFIMaster->N_trans() * tM * tJump );
 
             // compute slave residual
             mSet->get_residual()( 0 )( { tSlaveResStartIndex, tSlaveResStopIndex } ) +=
                     aWStar
-                    * ( +tFISlave->N_trans() * tTraction
+                    * ( +tFISlave->N_trans() * tM * tTraction
                             + mBeta * tSlaveWeight * tCMSlaveElasticity->testTraction( mNormal, mResidualDofType( 0 ) )
-                                      * tJump
-                            - tNitsche * tFISlave->N_trans() * tJump );
+                                      * tM * tJump
+                            - tNitsche * tFISlave->N_trans() * tM * tJump );
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
@@ -165,6 +186,26 @@ namespace moris
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
 
+            // get the selection matrix property
+            const std::shared_ptr< Property >& tPropSelect =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
+
+            // set a default selection matrix if needed
+            Matrix< DDRMat > tM;
+            if ( tPropSelect == nullptr )
+            {
+                // get number of fields which should equal spatial dimension
+                const uint tSpaceDim = tFIMaster->get_number_of_fields();
+
+                // set selection matrix as identity
+                eye( tSpaceDim, tSpaceDim, tM );
+            }
+            else
+            {
+                tM = tPropSelect->val();
+            }
+
+            // Nitsche penalty and traction averaging weights
             const real tNitsche      = tSPNitsche->val()( 0 );
             const real tMasterWeight = tSPNitsche->val()( 1 );
             const real tSlaveWeight  = tSPNitsche->val()( 2 );
@@ -199,14 +240,14 @@ namespace moris
                     tJacMM += aWStar
                             * ( +mBeta * tMasterWeight
                                             * tCMMasterElasticity->testTraction( mNormal, mResidualDofType( 0 ) )
-                                            * tFIMaster->N()
-                                    + tNitsche * tFIMaster->N_trans() * tFIMaster->N() );
+                                            * tM * tFIMaster->N()
+                                    + tNitsche * tFIMaster->N_trans() * tM * tFIMaster->N() );
 
                     tJacSM += aWStar
                             * ( +mBeta * tSlaveWeight
                                             * tCMSlaveElasticity->testTraction( mNormal, mResidualDofType( 0 ) )
-                                            * tFIMaster->N()
-                                    - tNitsche * tFISlave->N_trans() * tFIMaster->N() );
+                                            * tM * tFIMaster->N()
+                                    - tNitsche * tFISlave->N_trans() * tM * tFIMaster->N() );
                 }
 
                 // if dependency on the dof type
@@ -215,14 +256,14 @@ namespace moris
                     // add contribution to jacobian
                     tJacMM += aWStar
                             * ( -tFIMaster->N_trans() * tMasterWeight
-                                            * tCMMasterElasticity->dTractiondDOF( tDofType, mNormal )
+                                            * tM * tCMMasterElasticity->dTractiondDOF( tDofType, mNormal )
                                     + mBeta * tMasterWeight
                                               * tCMMasterElasticity->dTestTractiondDOF(
-                                                      tDofType, mNormal, tJump, mResidualDofType( 0 ) ) );
+                                                      tDofType, mNormal, tM * tJump, mResidualDofType( 0 ) ) );
 
                     tJacSM += aWStar
                             * ( tFISlave->N_trans() * tMasterWeight
-                                    * tCMMasterElasticity->dTractiondDOF( tDofType, mNormal ) );
+                                    * tM * tCMMasterElasticity->dTractiondDOF( tDofType, mNormal ) );
                 }
 
                 // if dependency of stabilization parameters on the dof type
@@ -240,16 +281,16 @@ namespace moris
 
                     // add contribution to jacobian
                     tJacMM += aWStar
-                            * ( -tFIMaster->N_trans() * tTractionDer
+                            * ( -tFIMaster->N_trans() * tM * tTractionDer
                                     + mBeta * tCMMasterElasticity->testTraction( mNormal, mResidualDofType( 0 ) )
-                                              * tJump * tMasterWeightDer
-                                    + tFIMaster->N_trans() * tJump * tNitscheDer );
+                                              * tM * tJump * tMasterWeightDer
+                                    + tFIMaster->N_trans() * tM * tJump * tNitscheDer );
 
                     tJacSM += aWStar
-                            * ( +tFISlave->N_trans() * tTractionDer
-                                    + mBeta * tCMSlaveElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) * tJump
-                                              * tSlaveWeightDer
-                                    - tFISlave->N_trans() * tJump * tNitscheDer );
+                            * ( +tFISlave->N_trans() * tM * tTractionDer
+                                    + mBeta * tCMSlaveElasticity->testTraction( mNormal, mResidualDofType( 0 ) )
+                                              * tM * tJump * tSlaveWeightDer
+                                    - tFISlave->N_trans() * tM * tJump * tNitscheDer );
                 }
             }
 
@@ -278,14 +319,14 @@ namespace moris
                     tJacMS += aWStar
                             * ( -mBeta * tMasterWeight
                                             * tCMMasterElasticity->testTraction( mNormal, mResidualDofType( 0 ) )
-                                            * tFISlave->N()
-                                    - tNitsche * tFIMaster->N_trans() * tFISlave->N() );
+                                            * tM * tFISlave->N()
+                                    - tNitsche * tFIMaster->N_trans() * tM * tFISlave->N() );
 
                     tJacSS += aWStar
                             * ( -mBeta * tSlaveWeight
                                             * tCMSlaveElasticity->testTraction( mNormal, mResidualDofType( 0 ) )
-                                            * tFISlave->N()
-                                    + tNitsche * tFISlave->N_trans() * tFISlave->N() );
+                                            * tM * tFISlave->N()
+                                    + tNitsche * tFISlave->N_trans() * tM * tFISlave->N() );
                 }
 
                 // if dependency on the dof type
@@ -294,14 +335,14 @@ namespace moris
                     // add contribution to jacobian
                     tJacMS += aWStar
                             * ( -tFIMaster->N_trans() * tSlaveWeight
-                                    * tCMSlaveElasticity->dTractiondDOF( tDofType, mNormal ) );
+                                    * tM * tCMSlaveElasticity->dTractiondDOF( tDofType, mNormal ) );
 
                     tJacSS += aWStar
                             * ( +tFISlave->N_trans() * tSlaveWeight
-                                            * tCMSlaveElasticity->dTractiondDOF( tDofType, mNormal )
-                                    + mBeta * tMasterWeight
+                                            * tM * tCMSlaveElasticity->dTractiondDOF( tDofType, mNormal )
+                                    + mBeta * tSlaveWeight
                                               * tCMSlaveElasticity->dTestTractiondDOF(
-                                                      tDofType, mNormal, tJump, mResidualDofType( 0 ) ) );
+                                                      tDofType, mNormal, tM * tJump, mResidualDofType( 0 ) ) );
                 }
 
                 // if dependency of stabilization parameters on the dof type
@@ -319,16 +360,16 @@ namespace moris
 
                     // add contribution to jacobian
                     tJacMS += aWStar
-                            * ( -tFIMaster->N_trans() * tTractionDer
+                            * ( -tFIMaster->N_trans() * tM * tTractionDer
                                     + mBeta * tCMMasterElasticity->testTraction( mNormal, mResidualDofType( 0 ) )
-                                              * tJump * tMasterWeightDer
-                                    + tFIMaster->N_trans() * tJump * tNitscheDer );
+                                              * tM * tJump * tMasterWeightDer
+                                    + tFIMaster->N_trans() * tM * tJump * tNitscheDer );
 
                     tJacSS += aWStar
-                            * ( +tFISlave->N_trans() * tTractionDer
-                                    + mBeta * tCMSlaveElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) * tJump
-                                              * tSlaveWeightDer
-                                    - tFISlave->N_trans() * tJump * tNitscheDer );
+                            * ( +tFISlave->N_trans() * tM * tTractionDer
+                                    + mBeta * tCMSlaveElasticity->testTraction( mNormal, mResidualDofType( 0 ) )
+                                              * tM * tJump * tSlaveWeightDer
+                                    - tFISlave->N_trans() * tM * tJump * tNitscheDer );
                 }
             }
 
