@@ -882,32 +882,84 @@ namespace moris
              *
              * @param[out] Matrix Iterator of First element in Matrix
              */
-            Mat_It
-            begin()
+            auto
+            begin() -> decltype( mMatrix.begin() )
             {
                 return mMatrix.begin();
             }
 
             // -------------------------------------------------------------------------
 
-            Mat_It
-            end()
+            /*!
+             * const iterator returning the first element of the
+             * matrix.
+             *
+             * @param[out] Matrix Iterator of First element in Matrix
+             */
+
+            auto const
+            begin() const -> decltype( mMatrix.begin() )
+            {
+                return mMatrix.begin();
+            }
+
+            // -------------------------------------------------------------------------
+
+            /*!
+             * Non const iterator returning the first element of the
+             * matrix.
+             *
+             * @param[out] Matrix Iterator of First element in Matrix
+             */
+
+            auto
+            end() -> decltype( mMatrix.end() )
             {
                 return mMatrix.end();
             }
 
             // -------------------------------------------------------------------------
 
-            Const_Mat_It
-            cbegin() const
+            /*!
+             * const iterator returning the first element of the
+             * matrix.
+             *
+             * @param[out] Matrix Iterator of First element in Matrix
+             */
+
+            auto const
+            end() const -> decltype( mMatrix.end() )
+            {
+                return mMatrix.end();
+            }
+
+            // -------------------------------------------------------------------------
+
+            /*!
+             * const iterator returning the first element of the
+             * matrix.
+             *
+             * @param[out] Matrix Iterator of First element in Matrix
+             */
+
+            auto const
+            cbegin() const -> decltype( mMatrix.cbegin() )
             {
                 return mMatrix.cbegin();
             }
 
             // -------------------------------------------------------------------------
 
-            Const_Mat_It
-            cend() const
+            /*!
+             * const iterator returning the last element of the
+             * matrix.
+             *
+             * @param[out] Matrix Iterator of First element in Matrix
+             */
+
+
+            auto const
+            cend() const -> decltype( mMatrix.cend() )
             {
                 return mMatrix.cend();
             }
