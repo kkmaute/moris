@@ -4,88 +4,80 @@
  * 
  * ------------------------------------------------------------------------------------ 
  * 
- * cl_MTK_Cluster_Group.hpp  
+ * cl_MTK_Side_Cluster_Group.hpp  
  * 
  */
-#ifndef SRC_cl_MTK_Cluster_Group
-#define SRC_cl_MTK_Cluster_Group
+#ifndef SRC_cl_MTK_Side_Cluster_Group
+#define SRC_cl_MTK_Side_Cluster_Group
 
-#include "cl_MTK_Enums.hpp"
-#include "cl_Matrix.hpp"
+#include "cl_MTK_Cluster_Group.hpp"
 
 namespace moris
 {
     namespace mtk
     {
         //------------------------------------------------------------------------------
-
-        // forward declare the mtk::Cluster
+        
         class Cluster;
 
         //------------------------------------------------------------------------------
 
-        class Cluster_Group
+        class Side_Cluster_Group : public Cluster_Group
         {
             //------------------------------------------------------------------------------
 
-          protected:
-
-            // discretization mesh index
-            // NOTE: this is the discretization mesh index as it is used by MSI 
-            moris_index mDiscretizationMeshIndex;
-
-            // type of Clusters in group
-            mtk::Cluster_Type mClusterType = mtk::Cluster_Type::UNDEFINED;
+        protected:
 
             //------------------------------------------------------------------------------
 
-          public:
+            /**
+             * @brief Get a the list of clusters in the cluster group (how the clusters are accessed is handled by the children)
+             * 
+             * @return moris::Cell< Cluster const* > const& list of clusters in the cluster group
+             */
+            virtual
+            const moris::Cell< mtk::Cluster const* >
+            get_side_clusters_in_group() const = 0;
+
+            //------------------------------------------------------------------------------
+
+            /**
+             * @brief Get a the list of clusters in the cluster group (how the cell cluster group is accessed is handled by the children)
+             * 
+             * @return mtk::Cluster_Group const* pointer to the bulk cluster group associated with the current side cluster group
+             */
+            virtual
+            mtk::Cluster_Group const* 
+            get_associated_cell_cluster_group() const = 0;
+
+            //------------------------------------------------------------------------------
+
+        public:
 
             //------------------------------------------------------------------------------
 
             /**
              * @brief Constructor
              * 
-             * @param aDiscretizationMeshIndex discretization mesh index (in MSI) that the cluster group is associated with
+             * @param aDiscretizationMeshIndex discretization mesh index (in MSI) that the cluster group is associated with 
              */
-            Cluster_Group( const moris_index aDiscretizationMeshIndex );
+            Side_Cluster_Group( const moris_index aDiscretizationMeshIndex );
+
+            //------------------------------------------------------------------------------
 
             /**
              * @brief default constructor initializing nothing
              * 
              */
-            Cluster_Group() = default;
-
+            Side_Cluster_Group() = default;
 
             /**
              * @brief Default Destructor
              * 
              */
             virtual
-            ~Cluster_Group() = default;
+            ~Side_Cluster_Group() = default;
 
-            //------------------------------------------------------------------------------
-
-            /**
-             * @brief Get the Bspline mesh list index wich the cluster group lives on
-             * 
-             * @return moris_index Bspline mesh list index
-             */
-            moris_index 
-            get_discretization_mesh_index_for_cluster_group() const;
-
-            //------------------------------------------------------------------------------
-
-            /**
-             * @brief Get the Bspline mesh list index wich the cluster group lives on
-             * 
-             * @return moris_index Bspline mesh list index
-             */
-            mtk::Cluster_Type 
-            get_cluster_type_in_group() const;
-
-            //------------------------------------------------------------------------------
-            // Pure Virtual Functions Handled by this Class' Children
             //------------------------------------------------------------------------------
 
             /**
@@ -95,11 +87,10 @@ namespace moris
              * @param aIsMaster 
              * @return moris::real volume of all clusters 
              */
-            virtual
             moris::real
             compute_cluster_group_cell_measure(
                     const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const = 0;
+                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const;
 
             //------------------------------------------------------------------------------
 
@@ -112,13 +103,12 @@ namespace moris
              * @param aIsMaster 
              * @return moris::real 
              */            
-            virtual
             moris::real
             compute_cluster_group_cell_measure_derivative(
                     const Matrix< DDRMat > & aPerturbedVertexCoords,
                     uint aDirection,
                     const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const = 0;
+                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const;
 
             //------------------------------------------------------------------------------
             
@@ -129,11 +119,10 @@ namespace moris
              * @param aIsMaster 
              * @return moris::real 
              */
-            virtual
             moris::real
             compute_cluster_group_side_measure(
                     const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const = 0;
+                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const;
 
             //------------------------------------------------------------------------------
             
@@ -146,19 +135,18 @@ namespace moris
              * @param aIsMaster 
              * @return moris::real 
              */
-            virtual
             moris::real
             compute_cluster_group_side_measure_derivative(
                     const Matrix< DDRMat > & aPerturbedVertexCoords,
                     uint aDirection,
                     const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const = 0;
+                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const;
 
             //------------------------------------------------------------------------------
 
-        };    // class mtk::Cluster_Group
+        }; // class mtk::Side_Cluster_Group
 
-    }    // namespace mtk
-}    // namespace moris
+    } // namespace mtk
+} // namespace moris
 
-#endif /* cl_MTK_Cluster_Group.hpp */
+#endif /* cl_MTK_Side_Cluster_Group.hpp */

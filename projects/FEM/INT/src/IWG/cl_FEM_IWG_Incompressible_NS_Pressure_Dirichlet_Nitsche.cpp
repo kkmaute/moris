@@ -1,9 +1,9 @@
 
-//FEM/INT/src
+// FEM/INT/src
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche.hpp"
-//LINALG/src
+// LINALG/src
 #include "fn_trans.hpp"
 #include "fn_norm.hpp"
 #include "fn_eye.hpp"
@@ -36,7 +36,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche::compute_residual( real aWStar )
+        void
+        IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche::compute_residual( real aWStar )
         {
             // check master field interpolators
 #ifdef DEBUG
@@ -50,19 +51,19 @@ namespace moris
 
             // get the veocity dof type
             // FIXME protect dof type
-            Field_Interpolator * tVelocityFI =
+            Field_Interpolator* tVelocityFI =
                     mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get the selection matrix property
-            const std::shared_ptr< Property > & tPropSelect =
+            const std::shared_ptr< Property >& tPropSelect =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
 
             // set a default selection matrix if needed
             Matrix< DDRMat > tM;
             if ( tPropSelect == nullptr )
             {
-                // get spatial dimension
-                uint tSpaceDim = tVelocityFI->get_number_of_fields();
+                // get number of fields which should equal spatial dimension
+                const uint tSpaceDim = tVelocityFI->get_number_of_fields();
 
                 // set selection matrix as identity
                 eye( tSpaceDim, tSpaceDim, tM );
@@ -73,11 +74,11 @@ namespace moris
             }
 
             // get the imposed velocity property
-            const std::shared_ptr< Property > & tPropVelocity =
+            const std::shared_ptr< Property >& tPropVelocity =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
 
             // get the fluid constitutive model
-            const std::shared_ptr< Constitutive_Model > & tCMFluid =
+            const std::shared_ptr< Constitutive_Model >& tCMFluid =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE ) );
 
             // compute the jump
@@ -85,18 +86,18 @@ namespace moris
 
             // compute master residual
             mSet->get_residual()( 0 )(
-                    { tMasterResStartIndex, tMasterResStopIndex },
-                    { 0, 0 } ) -= aWStar * (
-                             mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType( 0 ) ) ) * tM * tVelocityJump );
+                    { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) -=    //
+                    aWStar * ( mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType( 0 ) ) ) * tM * tVelocityJump );
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
-                    "IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche::compute_residual - Residual contains NAN or INF, exiting!");
+                    "IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche::compute_residual - Residual contains NAN or INF, exiting!" );
         }
 
         //------------------------------------------------------------------------------
 
-        void IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche::compute_jacobian( real aWStar )
+        void
+        IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche::compute_jacobian( real aWStar )
         {
 #ifdef DEBUG
             // check master field interpolators
@@ -110,19 +111,19 @@ namespace moris
 
             // get the veocity dof type
             // FIXME protect dof type
-            Field_Interpolator * tVelocityFI =
+            Field_Interpolator* tVelocityFI =
                     mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get the selection matrix property
-            const std::shared_ptr< Property > & tPropSelect =
+            const std::shared_ptr< Property >& tPropSelect =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
 
             // set a default selection matrix if needed
             Matrix< DDRMat > tM;
             if ( tPropSelect == nullptr )
             {
-                // get spatial dimension
-                uint tSpaceDim = tVelocityFI->get_dof_type().size();
+                // get number of fields which should equal spatial dimension
+                const uint tSpaceDim = tVelocityFI->get_number_of_fields();
 
                 // set selection matrix as identity
                 eye( tSpaceDim, tSpaceDim, tM );
@@ -133,11 +134,11 @@ namespace moris
             }
 
             // get the imposed velocity property
-            const std::shared_ptr< Property > & tPropVelocity =
+            const std::shared_ptr< Property >& tPropVelocity =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
 
             // get the fluid constitutive model
-            const std::shared_ptr< Constitutive_Model > & tCMFluid =
+            const std::shared_ptr< Constitutive_Model >& tCMFluid =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE ) );
 
             // compute the jump
@@ -147,10 +148,10 @@ namespace moris
             uint tMasterNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
 
             // compute the jacobian for indirect dof dependencies through master
-            for( uint iDOF = 0; iDOF < tMasterNumDofDependencies; iDOF++ )
+            for ( uint iDOF = 0; iDOF < tMasterNumDofDependencies; iDOF++ )
             {
                 // get the dof type
-                Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                Cell< MSI::Dof_Type >& tDofType = mRequestedMasterGlobalDofTypes( iDOF );
 
                 // get the index for the dof type
                 sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
@@ -164,8 +165,8 @@ namespace moris
                     // compute jacobian direct dependencies
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                     mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType( 0 ) ) ) * tM * tVelocityFI->N() );
+                            { tMasterDepStartIndex, tMasterDepStopIndex } ) -=    //
+                            aWStar * ( mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType( 0 ) ) ) * tM * tVelocityFI->N() );
                 }
 
                 // if imposed velocity property depends on dof type
@@ -174,8 +175,8 @@ namespace moris
                     // add contribution of CM to jacobian
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                     mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType( 0 ) ) ) * tM * tPropVelocity->dPropdDOF( tDofType ) );
+                            { tMasterDepStartIndex, tMasterDepStopIndex } ) +=    //
+                            aWStar * ( mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType( 0 ) ) ) * tM * tPropVelocity->dPropdDOF( tDofType ) );
                 }
 
                 // if fluid constitutive model depends on dof type
@@ -184,19 +185,20 @@ namespace moris
                     // add contribution of CM to jacobian
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                     mBeta * tCMFluid->dTestTractiondDOF( tDofType, mNormal, tM * tVelocityJump, mResidualDofType( 0 ) ) );
+                            { tMasterDepStartIndex, tMasterDepStopIndex } ) -=    //
+                            aWStar * ( mBeta * tCMFluid->dTestTractiondDOF( tDofType, mNormal, tM * tVelocityJump, mResidualDofType( 0 ) ) );
                 }
             }
 
             // check for nan, infinity
-            MORIS_ASSERT( isfinite( mSet->get_jacobian() ) ,
-                    "IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche::compute_jacobian - Jacobian contains NAN or INF, exiting!");
+            MORIS_ASSERT( isfinite( mSet->get_jacobian() ),
+                    "IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche::compute_jacobian - Jacobian contains NAN or INF, exiting!" );
         }
 
         //------------------------------------------------------------------------------
 
-        void IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche::compute_jacobian_and_residual( real aWStar )
+        void
+        IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche::compute_jacobian_and_residual( real aWStar )
         {
 #ifdef DEBUG
             // check master field interpolators
@@ -208,7 +210,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche::compute_dRdp( real aWStar )
+        void
+        IWG_Incompressible_NS_Pressure_Dirichlet_Nitsche::compute_dRdp( real aWStar )
         {
 #ifdef DEBUG
             // check master field interpolators, properties and constitutive models

@@ -20,13 +20,13 @@ namespace moris
 
         enum class Element_Type
         {
-                UNDEFINED,
-                BULK,
-                SIDESET,
-                DOUBLE_SIDESET,
-                TIME_SIDESET,
-                TIME_BOUNDARY,
-                END_ELEMENT_TYPE
+            UNDEFINED,
+            BULK,
+            SIDESET,
+            DOUBLE_SIDESET,
+            TIME_SIDESET,
+            TIME_BOUNDARY,
+            END_ELEMENT_TYPE
         };
 
         //------------------------------------------------------------------------------
@@ -127,6 +127,8 @@ namespace moris
             SPALART_ALLMARAS_TURBULENCE_INTERFACE_UNSYMMETRIC_NITSCHE,
             STRUC_LINEAR_CONTACT_SYMMETRIC_NITSCHE,
             STRUC_LINEAR_CONTACT_UNSYMMETRIC_NITSCHE,
+            STRUC_LINEAR_CONTACT_GAP_SYMMETRIC_NITSCHE,
+            STRUC_LINEAR_CONTACT_GAP_UNSYMMETRIC_NITSCHE,
             STRUC_LINEAR_CONTACT_PENALTY,
             GHOST_NORMAL_FIELD,
             END_IWG_TYPE
@@ -136,122 +138,122 @@ namespace moris
 
         enum class IQI_Type
         {
-                UNDEFINED,
-                VOLUME,         // volume
-                STRAIN_ENERGY,
-                VOLUME_FRACTION,
-                DOF,
-                MAX_DOF,
-                PROPERTY,
-                STABILIZATION,
-                L2_ERROR_ANALYTIC,
-                H1_ERROR_ANALYTIC,
-                H1_ERROR,
-                J_INTEGRAL,
-                LIFT_COEFF,
-                DRAG_COEFF,
-                LATENT_HEAT_ABSORPTION,
-                TURBULENT_DYNAMIC_VISCOSITY,
-                EFFECTIVE_DYNAMIC_VISCOSITY,
-                EFFECTIVE_CONDUCTIVITY,
-                SPALART_ALLMARAS_COEFFICIENT,
-                POWER_DISSIPATION,
-                TOTAL_PRESSURE,
-                MASS_FLOW,
-                THERMAL_ENERGY_CONVECTIVE_FLUX,
-                THERMAL_ENERGY_DIFFUSIVE_FLUX,
+            UNDEFINED,
+            VOLUME,    // volume
+            STRAIN_ENERGY,
+            VOLUME_FRACTION,
+            DOF,
+            MAX_DOF,
+            PROPERTY,
+            STABILIZATION,
+            L2_ERROR_ANALYTIC,
+            H1_ERROR_ANALYTIC,
+            H1_ERROR,
+            J_INTEGRAL,
+            LIFT_COEFF,
+            DRAG_COEFF,
+            LATENT_HEAT_ABSORPTION,
+            TURBULENT_DYNAMIC_VISCOSITY,
+            EFFECTIVE_DYNAMIC_VISCOSITY,
+            EFFECTIVE_CONDUCTIVITY,
+            SPALART_ALLMARAS_COEFFICIENT,
+            POWER_DISSIPATION,
+            TOTAL_PRESSURE,
+            MASS_FLOW,
+            THERMAL_ENERGY_CONVECTIVE_FLUX,
+            THERMAL_ENERGY_DIFFUSIVE_FLUX,
 
-                JUMP_DOF,
-                JUMP_TRACTION,
+            JUMP_DOF,
+            JUMP_TRACTION,
 
-                ADVECTION_STRONG_RESIDUAL,
-                STRONG_RESIDUAL_SA,
-                STRONG_RESIDUAL_INCOMPRESSIBLE_NS,
+            ADVECTION_STRONG_RESIDUAL,
+            STRONG_RESIDUAL_SA,
+            STRONG_RESIDUAL_INCOMPRESSIBLE_NS,
 
-                MAX_STRESS,
-                MAX_NORMAL_STRESS,
-                MAX_SHEAR_STRESS,
-                MAX_VON_MISES_STRESS,
-                MAX_PRINCIPAL_STRESS,
+            MAX_STRESS,
+            MAX_NORMAL_STRESS,
+            MAX_SHEAR_STRESS,
+            MAX_VON_MISES_STRESS,
+            MAX_PRINCIPAL_STRESS,
 
-                STRESS,
-                NORMAL_STRESS,
-                SHEAR_STRESS,
-                VON_MISES_STRESS,
-                PRINCIPAL_STRESS,
-                STRESS_VECTOR,
-                
-                NORMAL_STRESS_CAUCHY,
-                SHEAR_STRESS_CAUCHY,
-                VON_MISES_STRESS_CAUCHY,
-                PRINCIPAL_STRESS_CAUCHY,
-                STRESS_VECTOR_CAUCHY,
+            STRESS,
+            NORMAL_STRESS,
+            SHEAR_STRESS,
+            VON_MISES_STRESS,
+            PRINCIPAL_STRESS,
+            STRESS_VECTOR,
 
-                HOMOGENIZED_CONSTITUTIVE,
-                HEAT_METHOD_PENALTY,
+            NORMAL_STRESS_CAUCHY,
+            SHEAR_STRESS_CAUCHY,
+            VON_MISES_STRESS_CAUCHY,
+            PRINCIPAL_STRESS_CAUCHY,
+            STRESS_VECTOR_CAUCHY,
 
-                ZIENKIEWICZ_ZHU_VON_MISES_STRESS,
+            HOMOGENIZED_CONSTITUTIVE,
+            HEAT_METHOD_PENALTY,
 
-                END_IQI_TYPE
+            ZIENKIEWICZ_ZHU_VON_MISES_STRESS,
+
+            END_IQI_TYPE
         };
 
         //------------------------------------------------------------------------------
 
         enum class Constitutive_Type
         {
-                UNDEFINED,
-                DIFF_LIN_ISO,
-                DIFF_LIN_ISO_PC,
-                DIFF_LIN_ISO_TURBULENCE,
-                STRUC_LIN_ISO,
-                STRUC_LIN_MT,
-                STRUC_LIN_ISO_PRESSURE,
-                STRUC_NON_LIN_ISO,
-                STRUC_NON_LIN_ISO_SAINT_VENANT_KIRCHHOFF,
-                STRUC_NON_LIN_ISO_NEO_HOOKEAN,
-                FLUID_INCOMPRESSIBLE,
-                FLUID_TURBULENCE,
-                FLUID_COMPRESSIBLE_IDEAL,
-                FLUID_COMPRESSIBLE_VDW,
-                FLUID_COMPRESSIBLE_NEWTONIAN,
-                SPALART_ALLMARAS_TURBULENCE,
-                END_CONSTITUTIVE_TYPE
+            UNDEFINED,
+            DIFF_LIN_ISO,
+            DIFF_LIN_ISO_PC,
+            DIFF_LIN_ISO_TURBULENCE,
+            STRUC_LIN_ISO,
+            STRUC_LIN_MT,
+            STRUC_LIN_ISO_PRESSURE,
+            STRUC_NON_LIN_ISO,
+            STRUC_NON_LIN_ISO_SAINT_VENANT_KIRCHHOFF,
+            STRUC_NON_LIN_ISO_NEO_HOOKEAN,
+            FLUID_INCOMPRESSIBLE,
+            FLUID_TURBULENCE,
+            FLUID_COMPRESSIBLE_IDEAL,
+            FLUID_COMPRESSIBLE_VDW,
+            FLUID_COMPRESSIBLE_NEWTONIAN,
+            SPALART_ALLMARAS_TURBULENCE,
+            END_CONSTITUTIVE_TYPE
         };
 
         //------------------------------------------------------------------------------
 
         enum class Material_Type
         {
-                UNDEFINED,
-                PERFECT_GAS,
-                VAN_DER_WAALS_FLUID,
-                END_MATERIAL_TYPE
-        };        
+            UNDEFINED,
+            PERFECT_GAS,
+            VAN_DER_WAALS_FLUID,
+            END_MATERIAL_TYPE
+        };
 
         //------------------------------------------------------------------------------
 
         enum class Variable_Set
         {
-                UNDEFINED,
-                CONSERVATIVE,
-                DENSITY_PRIMITIVE,
-                PRESSURE_PRIMITIVE,
-                ENTROPY,
-                END_VARIABLE_SET
+            UNDEFINED,
+            CONSERVATIVE,
+            DENSITY_PRIMITIVE,
+            PRESSURE_PRIMITIVE,
+            ENTROPY,
+            END_VARIABLE_SET
         };
 
         //------------------------------------------------------------------------------
 
         enum class Model_Type
         {
-                UNDEFINED,
-                PLANE_STRESS,
-                PLANE_STRAIN,
-                AXISYMMETRIC,
-                FULL,
-                HYDROSTATIC, // not implemented yet
-                DEVIATORIC,
-                END_MODEL_TYPE
+            UNDEFINED,
+            PLANE_STRESS,
+            PLANE_STRAIN,
+            AXISYMMETRIC,
+            FULL,
+            HYDROSTATIC,    // not implemented yet
+            DEVIATORIC,
+            END_MODEL_TYPE
         };
 
         //------------------------------------------------------------------------------
@@ -292,23 +294,23 @@ namespace moris
 
         enum class Measure_Type
         {
-                UNDEFINED,
-                CELL_MEASURE,
-                CELL_SIDE_MEASURE,
-                CELL_LENGTH_MEASURE,
-                END_MEASURE_TYPE
+            UNDEFINED,
+            CELL_MEASURE,
+            CELL_SIDE_MEASURE,
+            CELL_LENGTH_MEASURE,
+            END_MEASURE_TYPE
         };
 
-        inline
-        map< std::string, enum fem::Measure_Type > get_measure_type_map()
+        inline map< std::string, enum fem::Measure_Type >
+        get_measure_type_map()
         {
             map< std::string, enum fem::Measure_Type > tFemMeasureTypeMap;
 
-            tFemMeasureTypeMap["UNDEFINED"]           = fem::Measure_Type::UNDEFINED;
-            tFemMeasureTypeMap["CELL_MEASURE"]        = fem::Measure_Type::CELL_MEASURE;
-            tFemMeasureTypeMap["CELL_SIDE_MEASURE"]   = fem::Measure_Type::CELL_SIDE_MEASURE;
-            tFemMeasureTypeMap["CELL_LENGTH_MEASURE"] = fem::Measure_Type::CELL_LENGTH_MEASURE;
-            tFemMeasureTypeMap["END_MEASURE_TYPE"]    = fem::Measure_Type::END_MEASURE_TYPE;
+            tFemMeasureTypeMap[ "UNDEFINED" ]           = fem::Measure_Type::UNDEFINED;
+            tFemMeasureTypeMap[ "CELL_MEASURE" ]        = fem::Measure_Type::CELL_MEASURE;
+            tFemMeasureTypeMap[ "CELL_SIDE_MEASURE" ]   = fem::Measure_Type::CELL_SIDE_MEASURE;
+            tFemMeasureTypeMap[ "CELL_LENGTH_MEASURE" ] = fem::Measure_Type::CELL_LENGTH_MEASURE;
+            tFemMeasureTypeMap[ "END_MEASURE_TYPE" ]    = fem::Measure_Type::END_MEASURE_TYPE;
 
             return tFemMeasureTypeMap;
         }
@@ -317,36 +319,36 @@ namespace moris
 
         enum class FDScheme_Type
         {
-                UNDEFINED,
-                POINT_1_FORWARD,
-                POINT_1_BACKWARD,
-                POINT_3_CENTRAL,
-                POINT_5,
-                END_FD_SCHEME
+            UNDEFINED,
+            POINT_1_FORWARD,
+            POINT_1_BACKWARD,
+            POINT_3_CENTRAL,
+            POINT_5,
+            END_FD_SCHEME
         };
 
         //------------------------------------------------------------------------------
 
         enum class Perturbation_Type
         {
-                UNDEFINED,
-                RELATIVE,
-                ABSOLUTE,
-                END_PERTURBATION_TYPE
+            UNDEFINED,
+            RELATIVE,
+            ABSOLUTE,
+            END_PERTURBATION_TYPE
         };
 
         //------------------------------------------------------------------------------
 
         enum class Stress_Type
         {
-                UNDEFINED,
-                NORMAL_STRESS,
-                SHEAR_STRESS,
-                VON_MISES_STRESS,
-                PRINCIPAL_STRESS,
-                MAX_SHEAR_STRESS,
-                STRESS_VECTOR,
-                END_STRESS_TYPE
+            UNDEFINED,
+            NORMAL_STRESS,
+            SHEAR_STRESS,
+            VON_MISES_STRESS,
+            PRINCIPAL_STRESS,
+            MAX_SHEAR_STRESS,
+            STRESS_VECTOR,
+            END_STRESS_TYPE
         };
 
         //------------------------------------------------------------------------------

@@ -1,12 +1,9 @@
 /*
- * cl_FEM_IWG_Isotropic_Struc_Linear_Interface.hpp
- *
- *  Created on: Oct 10, 2019
- *      Author: schmidt
+ * cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche.hpp
  */
 
-#ifndef SRC_FEM_CL_FEM_IWG_ISOTROPIC_STRUC_LINEAR_INTERFACE_HPP_
-#define SRC_FEM_CL_FEM_IWG_ISOTROPIC_STRUC_LINEAR_INTERFACE_HPP_
+#ifndef PROJECTS_FEM_INT_SRC_CL_FEM_IWG_ISOTROPIC_STRUC_LINEAR_CONTACT_GAP_NITSCHE_HPP_
+#define PROJECTS_FEM_INT_SRC_CL_FEM_IWG_ISOTROPIC_STRUC_LINEAR_CONTACT_GAP_NITSCHE_HPP_
 
 #include <map>
 
@@ -25,17 +22,18 @@ namespace moris
     {
         //------------------------------------------------------------------------------
 
-        class IWG_Isotropic_Struc_Linear_Interface : public IWG
+        class IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche : public IWG
         {
 
           public:
-            // sint for symmetric/unsymmetric Nitsche
+            // sign for symmetric/unsymmetric Nitsche
             sint mBeta = 1;
 
             enum class IWG_Property_Type
             {
+                MATERIAL,
                 THICKNESS,
-                SELECT,
+                GAP,
                 MAX_ENUM
             };
 
@@ -54,34 +52,34 @@ namespace moris
             //------------------------------------------------------------------------------
             /*
              * constructor
-             * @param[ in ] aBeta +1 or -1 for symmetric/unsymmetric symmetric Nitsche
              */
-            IWG_Isotropic_Struc_Linear_Interface( sint aBeta );
+            IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche( sint aBeta );
 
             //------------------------------------------------------------------------------
             /**
              * trivial destructor
              */
-            ~IWG_Isotropic_Struc_Linear_Interface(){};
+            ~IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche(){};
 
             //------------------------------------------------------------------------------
             /**
              * compute the residual
-             * @param[ in ] aWStar weight associated to the evaluation point
+             * @param[ in ] aResidual cell of residual vectors to fill
              */
             void compute_residual( real aWStar );
 
             //------------------------------------------------------------------------------
             /**
              * compute the jacobian
-             * @param[ in ] aWStar weight associated to the evaluation point
+             * @param[ in ] aJacobians cell of cell of jacobian matrices to fill
              */
             void compute_jacobian( real aWStar );
 
             //------------------------------------------------------------------------------
             /**
              * compute the residual and the jacobian
-             * @param[ in ] aWStar weight associated to the evaluation point
+             * @param[ in ] aJacobians cell of cell of jacobian matrices to fill
+             * @param[ in ] aResidual  cell of residual vectors to fill
              */
             void compute_jacobian_and_residual( real aWStar );
 
@@ -98,4 +96,4 @@ namespace moris
     } /* namespace fem */
 } /* namespace moris */
 
-#endif /* SRC_FEM_CL_FEM_IWG_ISOTROPIC_STRUC_LINEAR_INTERFACE_HPP_ */
+#endif /* PROJECTS_FEM_INT_SRC_CL_FEM_IWG_ISOTROPIC_STRUC_LINEAR_CONTACT_GAP_NITSCHE_HPP_ */

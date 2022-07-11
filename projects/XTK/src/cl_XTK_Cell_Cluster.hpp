@@ -11,8 +11,13 @@
 #define PROJECTS_XTK_SRC_XTK_CL_XTK_CELL_CLUSTER_HPP_
 
 #include "cl_MTK_Cell_Cluster.hpp"
-#include "cl_MTK_Cluster_Group.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
+
+// forward declare the mtk::Cluster_Group
+namespace moris::mtk
+{
+    class Cluster_Group;
+}
 
 using namespace moris;
 
@@ -107,12 +112,22 @@ namespace xtk
         void
         set_ig_vertex_group( std::shared_ptr< IG_Vertex_Group > aVertexGroup );
 
+        //----------------------------------------------------------------
+
+        bool
+        has_cluster_group( const moris_index aDiscretizationMeshIndex ) const override;
+
+        //----------------------------------------------------------------
+
+        std::shared_ptr< mtk::Cluster_Group >
+        get_cluster_group( const moris_index aDiscretizationMeshIndex ) const override;
+
         //------------------------------------------------------------------------------
 
         void
         set_cluster_group( 
-                const moris_index aBsplineMeshListIndex,
-                std::shared_ptr< mtk::Cluster_Group > aClusterGroupPtr );
+                const moris_index aDiscretizationMeshIndex,
+                std::shared_ptr< mtk::Cluster_Group > aClusterGroupPtr ) override;
 
         //------------------------------------------------------------------------------
 
@@ -123,7 +138,7 @@ namespace xtk
 
         moris::real
         compute_cluster_group_cell_measure(
-                const moris_index       aBsplineMeshListIndex,
+                const moris_index       aDiscretizationMeshIndex,
                 const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                 const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const;
 
@@ -131,7 +146,7 @@ namespace xtk
 
         moris::real
         compute_cluster_group_cell_measure_derivative(
-                const moris_index       aBsplineMeshListIndex,
+                const moris_index       aDiscretizationMeshIndex,
                 const Matrix< DDRMat >& aPerturbedVertexCoords,
                 uint aDirection,
                 const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,

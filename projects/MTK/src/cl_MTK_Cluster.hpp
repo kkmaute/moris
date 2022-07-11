@@ -204,13 +204,33 @@ namespace moris
                 //----------------------------------------------------------------
 
                 virtual
+                bool
+                has_cluster_group( const moris_index aDiscretizationMeshIndex ) const
+                {
+                    MORIS_ERROR( false, "mtk::Cluster::has_cluster_group() - not implemented for this class" );
+                    return false;
+                }
+
+                //----------------------------------------------------------------
+
+                virtual
+                std::shared_ptr< Cluster_Group >
+                get_cluster_group( const moris_index aDiscretizationMeshIndex ) const
+                {
+                    MORIS_ERROR( false, "mtk::Cluster::get_cluster_group() - not implemented for this class" );
+                    return nullptr;
+                }
+
+                //----------------------------------------------------------------
+
+                virtual
                 void
                 set_cluster_group( 
-                        const moris_index aBsplineMeshListIndex,
+                        const moris_index aDiscretizationMeshIndex,
                         std::shared_ptr< Cluster_Group > aClusterGroupPtr )
                 {
                     MORIS_ERROR( false, "mtk::Cluster::set_cluster_group() - not implemented for this class" );
-                };
+                }
                 
                 // virtual
                 // std::shared_ptr< Cluster_Group >
@@ -268,7 +288,7 @@ namespace moris
                 virtual
                 moris::real
                 compute_cluster_group_cell_measure(
-                        const moris_index       aBsplineMeshListIndex,
+                        const moris_index       aDiscretizationMeshIndex,
                         const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                         const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const = 0;
 
@@ -303,7 +323,7 @@ namespace moris
                 virtual
                 moris::real
                 compute_cluster_group_cell_measure_derivative(
-                        const moris_index       aBsplineMeshListIndex,
+                        const moris_index       aDiscretizationMeshIndex,
                         const Matrix< DDRMat >& aPerturbedVertexCoords,
                         uint aDirection,
                         const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
@@ -326,7 +346,7 @@ namespace moris
                 virtual
                 moris::real
                 compute_cluster_group_cell_side_measure(
-                        const moris_index       aBsplineMeshListIndex,
+                        const moris_index       aDiscretizationMeshIndex,
                         const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                         const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const = 0;
 
@@ -361,7 +381,7 @@ namespace moris
                 virtual
                 moris::real
                 compute_cluster_group_cell_side_measure_derivative(
-                        const moris_index       aBsplineMeshListIndex,
+                        const moris_index       aDiscretizationMeshIndex,
                         const Matrix< DDRMat >& aPerturbedVertexCoords,
                         uint aDirection,
                         const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,

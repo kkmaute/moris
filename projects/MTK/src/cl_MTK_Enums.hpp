@@ -133,6 +133,18 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        enum class Cluster_Type
+        {
+                CELL,       // cell/bulk cluster
+                SIDE,       // side cluster
+                DBL_SIDE,   // double-side cluster
+                UNDEFINED
+        };
+
+        moris::map< std::string, mtk::Cluster_Type > get_cluster_type_map();
+
+        //------------------------------------------------------------------------------
+
         enum class Field_Type
         {
                 FIELD_1,
