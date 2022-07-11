@@ -162,6 +162,7 @@ namespace moris
                 THERMAL_ENERGY_DIFFUSIVE_FLUX,
 
                 JUMP_DOF,
+                JUMP_TRACTION,
 
                 ADVECTION_STRONG_RESIDUAL,
                 STRONG_RESIDUAL_SA,
