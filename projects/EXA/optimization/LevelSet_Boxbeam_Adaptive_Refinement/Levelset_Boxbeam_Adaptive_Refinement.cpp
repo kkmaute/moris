@@ -841,7 +841,7 @@ namespace moris
 
     void MORISGENERALParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
     {
-        tParameterlist.resize( 1 );
+        tParameterlist.resize( 3 );
         tParameterlist( 0 ).resize( 1 );
 
 
