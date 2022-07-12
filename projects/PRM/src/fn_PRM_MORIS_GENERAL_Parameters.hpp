@@ -25,7 +25,7 @@ namespace moris
     namespace prm
     {
 
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
     // creates a parameter list with default inputs
     inline
@@ -86,12 +86,14 @@ namespace moris
     inline
     void create_mapping_parameterlist( ParameterList & aParameterlist )
     {
-
+        aParameterlist.insert( "adv_field", "" );
+        aParameterlist.insert( "dof_type", "" );
+        aParameterlist.insert( "reinitialization_frequency", 1 );
+        aParameterlist.insert( "output_mesh_file", "" );
+        aParameterlist.insert( "time_offset", 0.0 );
     }
 
     //------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-
     }/* end_namespace_prm */
 }/* end_namespace_moris */
 
