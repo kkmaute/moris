@@ -94,7 +94,7 @@ namespace moris
                  *
                  * @param aADVs ADVs, empty if not on proc 0
                  */
-                void compute_design_criteria( const Matrix<DDRMat> & aADVs );
+                void compute_design_criteria( Matrix< DDRMat >& aADVs );
 
                 /**
                  * Computes objective values

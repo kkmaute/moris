@@ -57,7 +57,7 @@ namespace moris
                  *
                  * @return vector of criteria
                  */
-                Matrix<DDRMat> perform(const Matrix<DDRMat> & aNewADVs);
+                Matrix< DDRMat > perform( Matrix< DDRMat >& aNewADVs );
 
                 /**
                  * Gets the derivative of the criteria with respect to the advs

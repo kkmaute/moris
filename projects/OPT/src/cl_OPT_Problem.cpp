@@ -167,7 +167,8 @@ namespace moris
 
         // -------------------------------------------------------------------------------------------------------------
 
-        void Problem::compute_design_criteria(const Matrix<DDRMat> & aNewADVs)
+        void
+        Problem::compute_design_criteria( Matrix< DDRMat >& aNewADVs )
         {
             // check for proper size of input ADV vector (on processor 0 only as all other processors
             // have zero-size ADV vector
@@ -176,7 +177,6 @@ namespace moris
                 // Check that input ADV vector has correct size
                 MORIS_ERROR( mADVs.n_rows() == aNewADVs.n_rows() && mADVs.n_cols() == aNewADVs.n_cols(),
                               "Problem::compute_design_criteria - size of ADV vectors does not match.\n");
-                mADVs = aNewADVs;
             }
 
             // compute design criteria
@@ -185,6 +185,10 @@ namespace moris
             // compute objective and constraints (on processor 0 only)
             if (par_rank() == 0)
             {
+                //save the new ADV vector ( this is done after the criteria is computed since get-criteria might make some changes
+                // in the adv vector e.g reinitialization of the ADV vector)
+                mADVs = aNewADVs;
+
                 // log criteria and ADVs
                 MORIS_LOG_SPEC( "Criteria", ios::stringify_log( mCriteria ) );
 

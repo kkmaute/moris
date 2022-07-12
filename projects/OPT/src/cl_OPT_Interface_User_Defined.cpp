@@ -44,7 +44,8 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Interface_User_Defined::perform(const Matrix<DDRMat> & aNewADVs)
+        Matrix< DDRMat >
+        Interface_User_Defined::perform( Matrix< DDRMat >& aNewADVs )
         {
             mADVs = aNewADVs;
 
