@@ -107,25 +107,34 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        
+
         sol::Dist_Vector*
-        MSI_Solver_Interface::get_solution_vector(const moris::Cell<enum MSI::Dof_Type> & aListOfDofTypes)
+        MSI_Solver_Interface::get_solution_vector( const moris::Cell< enum MSI::Dof_Type >& aListOfDofTypes,
+                moris::Cell< moris_index > const &                                          aLocalCoefficientsIndices )
         {
-            //MORIS_ASSERT(mSolverWarehouse.get()!=nullptr, "Wrong-Wrong");
-                
             // create the factory based on the tpl
             sol::Matrix_Vector_Factory tMatFactory( mSolverWarehouse->get_tpl_type() );
 
-            //create a map based on the dof type that is specified
-            sol::Dist_Map * tDofDMap = tMatFactory.create_map( this->get_my_local_global_overlapping_map( aListOfDofTypes ));
+            // get the map that goes from local adof mesh index to adof id
+            moris::Matrix< DDSMat > tLocalAdofIds = this->get_my_local_global_overlapping_map( aListOfDofTypes );
+
+            // pick the indices that are provided in the input list
+            moris::Matrix< DDSMat > tRequiredAdofIds( aLocalCoefficientsIndices.size(), 1 );
+
+            // fill out the ids based on the provided local indices
+            std::transform( aLocalCoefficientsIndices.begin(), aLocalCoefficientsIndices.end(), tRequiredAdofIds.begin(),    //
+                    [ &tLocalAdofIds ]( moris_index const & aCoeffIndex ) { return tLocalAdofIds( aCoeffIndex ); } );
+
+            // create a map based on the dof type that is specified
+            sol::Dist_Map* tDofDMap = tMatFactory.create_map( tRequiredAdofIds );
 
             // create a dist. vector
-            sol::Dist_Vector * tDofDVec = tMatFactory.create_vector( this, tDofDMap, 1 );
+            sol::Dist_Vector* tDofDVec = tMatFactory.create_vector( this, tDofDMap, 1 );
 
             //populate the vector based on the map
             tDofDVec->import_local_to_global( *mSolutionVector );
 
-            //return the dist vector
+            // return the dist vector
             return tDofDVec;
         }
 
