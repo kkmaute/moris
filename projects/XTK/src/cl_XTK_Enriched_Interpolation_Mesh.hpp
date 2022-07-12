@@ -38,9 +38,10 @@ namespace xtk
             enum EntityRank mBasisRank = EntityRank::INVALID;
 
             // mesh index
-            Matrix< IndexMat >                             mMeshIndices;
+            Matrix< IndexMat > mMeshIndices;
+            Matrix< IndexMat > mUnenrichedMeshIndices;    // lis of the meshes that will be unenriched by overriding t-matrices
             std::unordered_map< moris_index, moris_index > mMeshIndexToLocMeshIndex;    // over allocated
-            Matrix< IndexMat >                             mUnenrichedMeshIndices;  // lis of the meshes that will be unenriched by overriding t-matrices
+
 
             // enriched interpolation vertices
             moris::uint                            mNumVerts;
@@ -681,18 +682,6 @@ namespace xtk
 
             //------------------------------------------------------------------------------
 
-            /**
-             * @brief this function added the index id of the shared vertex enrichment tht re added during the ghost construction
-             * The vertex enrichments has interpolation but don't have base vertex interpolation  
-             * 
-             * @param aAdofMap 
-             */
-
-            void
-            add_shared_adofs_to_map( map< moris_id, moris_index >& aAdofMap ) const;
-
-            //------------------------------------------------------------------------------
-
           public:
             /**
              * @brief This function is for the debug purpose and to make sure that unenriched mesh has been enriched before
@@ -729,7 +718,6 @@ namespace xtk
              */
             void
             override_vertex_enrichment_id_index();
-
     };
 }// namespace xtk
 

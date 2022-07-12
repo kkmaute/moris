@@ -1689,19 +1689,23 @@ namespace xtk
     }
 
     //------------------------------------------------------------------------------
-    void 
-    Model::perform_unenrichment( Matrix< IndexMat > const & aUnenrichedBsplineMeshIndices)
+    void
+    Model::perform_unenrichment( Matrix< IndexMat > const &aUnenrichedBsplineMeshIndices )
     {
-        Tracer tTracer("XTK", "No-Type", "Unenrichment");
-        
-        //set the mesh indices 
-        mEnrichedInterpMesh( 0 )->set_unenriched_mesh_indices(aUnenrichedBsplineMeshIndices) ;
+        // if there is any elements in the matrix
+        if ( aUnenrichedBsplineMeshIndices.numel() )
+        {
+            Tracer tTracer( "XTK", "No-Type", "Unenrichment" );
 
-        // override id and index of t-matrices
-        mEnrichedInterpMesh( 0 )->override_vertex_enrichment_id_index();
+            // set the mesh indices
+            mEnrichedInterpMesh( 0 )->set_unenriched_mesh_indices( aUnenrichedBsplineMeshIndices );
 
-        //override the required maps
-        mEnrichedInterpMesh(0)->override_maps();
+            // override id and index of t-matrices
+            mEnrichedInterpMesh( 0 )->override_vertex_enrichment_id_index();
+
+            // override the required maps
+            mEnrichedInterpMesh( 0 )->override_maps();
+        }
     }
     //------------------------------------------------------------------------------
 
