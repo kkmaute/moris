@@ -11,7 +11,6 @@ namespace moris
 {
     namespace fem
     {
-
         //------------------------------------------------------------------------------
 
         CM_Struc_Linear_Isotropic::CM_Struc_Linear_Isotropic()
@@ -20,8 +19,11 @@ namespace moris
             mProperties.resize( mProperties.size() + static_cast< uint >( CM_Property_Type_Iso::MAX_ENUM ), nullptr );
 
             // populate the map
-            mPropertyMap[ "YoungsModulus" ] = static_cast< uint >( CM_Property_Type_Iso::EMOD ) + static_cast< uint >( CM_Property_Type_Lin::MAX_ENUM );
-            mPropertyMap[ "PoissonRatio" ]  = static_cast< uint >( CM_Property_Type_Iso::NU ) + static_cast< uint >( CM_Property_Type_Lin::MAX_ENUM );
+            mPropertyMap[ "YoungsModulus" ] = static_cast< uint >( CM_Property_Type_Iso::EMOD )    //
+                                            + static_cast< uint >( CM_Property_Type_Lin::MAX_ENUM );
+
+            mPropertyMap[ "PoissonRatio" ] = static_cast< uint >( CM_Property_Type_Iso::NU )    //
+                                           + static_cast< uint >( CM_Property_Type_Lin::MAX_ENUM );
         }
 
         //------------------------------------------------------------------------------
