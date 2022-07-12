@@ -132,7 +132,7 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_No_Turbulence",
     tSPIncFlow->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ) }, mtk::Master_Slave::MASTER );
     tSPIncFlow->set_property( tPropDensity, "Density", mtk::Master_Slave::MASTER );
     tSPIncFlow->set_property( tPropViscosity, "Viscosity", mtk::Master_Slave::MASTER );
-    tSPIncFlow->set_parameters( { { { 36.0 } } } );
+    tSPIncFlow->set_parameters( { { { 36.0 } }, { { 1.0 } } } );
 
     // create a dummy fem cluster and set it to SP
     fem::Cluster* tCluster = new fem::Cluster();
@@ -533,7 +533,7 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_With_Turbulence",
     tSPIncFlow->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ) }, mtk::Master_Slave::MASTER );
     tSPIncFlow->set_property( tPropDensity, "Density", mtk::Master_Slave::MASTER );
     tSPIncFlow->set_property( tPropViscosity, "Viscosity", mtk::Master_Slave::MASTER );
-    tSPIncFlow->set_parameters( { { { 36.0 } } } );
+    tSPIncFlow->set_parameters( { { { 36.0 } }, { { 1.0 } } } );
 
     // create a dummy fem cluster and set it to SP
     fem::Cluster* tCluster = new fem::Cluster();
