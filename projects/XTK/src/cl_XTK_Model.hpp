@@ -869,8 +869,18 @@ namespace xtk
                     Cell< Matrix< DDRMat > >& aReceivedData );
 
             //------------------------------------------------------------------------------
+            /**
+             * @brief perform unenrichment on an already enriched mesh by overrding the t-matrices id and index 
+             *
+             * @param aUnenrichedBsplineMeshIndices
+             */
+            
+            void
+            perform_unenrichment( Matrix< IndexMat > const & aUnenrichedBsplineMeshIndices );
 
-        private:
+            //------------------------------------------------------------------------------
+
+          private:
 
             //------------------------------------------------------------------------------
             // Enrichment computation functions
