@@ -125,7 +125,7 @@ namespace moris
             const real tIfcPressureSlave  = dot( tTractionSlave, tNormalSlave );
 
             // check for contact on master side
-            if ( tIfcPressureMaster - tNitsche * tNormalJumpMaster < 0 || true )
+            if ( tIfcPressureMaster - tNitsche * tNormalJumpMaster < 0 )
             {
                 // compute master residual
                 mSet->get_residual()( 0 )(
@@ -150,7 +150,7 @@ namespace moris
             }
 
             // check for contact on slave side
-            if ( tIfcPressureSlave - tNitsche * tNormalJumpSlave < 0 || true )
+            if ( tIfcPressureSlave - tNitsche * tNormalJumpSlave < 0 )
             {
                 // compute slave residual
                 mSet->get_residual()( 0 )(
@@ -284,7 +284,7 @@ namespace moris
                 // compute Jacobian direct dependencies
                 if ( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                 {
-                    if ( tIfcPressureMaster - tNitsche * tNormalJumpMaster < 0 || true )
+                    if ( tIfcPressureMaster - tNitsche * tNormalJumpMaster < 0 )
                     {
                         tJacMM += aWStar * tMasterWeight * (                                                                                                              //
                                           +mBeta * tCMMasterElasticity->testTraction( tNormalMaster, mResidualDofType( 0 ) ) * tNormalProjectorMaster * tFIMaster->N()    //
@@ -294,7 +294,7 @@ namespace moris
                                           -tNitsche * tFISlave->N_trans() * tPrjSlaveToMasterTrans * tNormalProjectorMaster * tFIMaster->N() );
                     }
 
-                    if ( tIfcPressureSlave - tNitsche * tNormalJumpSlave < 0 || true )
+                    if ( tIfcPressureSlave - tNitsche * tNormalJumpSlave < 0 )
                     {
                         tJacMM += aWStar * tSlaveWeight * (    //
                                           +tNitsche * tFIMaster->N_trans() * tPrjMasterToSlaveTrans * tNormalProjectorSlave * tPrjMasterToSlave * tFIMaster->N() );
@@ -308,7 +308,7 @@ namespace moris
                 // if dependency on the dof type
                 if ( tCMMasterElasticity->check_dof_dependency( tDofType ) )
                 {
-                    if ( tIfcPressureMaster - tNitsche * tNormalJumpMaster < 0 || true )
+                    if ( tIfcPressureMaster - tNitsche * tNormalJumpMaster < 0 )
                     {
                         // add contribution to Jacobian
                         tJacMM += aWStar * tMasterWeight * (                                                                                                //
@@ -334,7 +334,7 @@ namespace moris
                     const Matrix< DDRMat > tMasterWeightDer = tSPNitsche->dSPdMasterDOF( tDofType ).get_row( 1 );
                     const Matrix< DDRMat > tSlaveWeightDer  = tSPNitsche->dSPdMasterDOF( tDofType ).get_row( 2 );
 
-                    if ( tIfcPressureMaster - tNitsche * tNormalJumpMaster < 0 || true )
+                    if ( tIfcPressureMaster - tNitsche * tNormalJumpMaster < 0 )
                     {
                         // add contribution to Jacobian
                         tJacMM += aWStar * (                                                                                                                                    //
@@ -357,7 +357,7 @@ namespace moris
                                 * ( 1.0 / tNitsche * tMasterWeightDer - tMasterWeight / tNitsche / tNitsche * tNitscheDer );
                     }
 
-                    if ( tIfcPressureSlave - tNitsche * tNormalJumpSlave < 0 || true )
+                    if ( tIfcPressureSlave - tNitsche * tNormalJumpSlave < 0 )
                     {
                         tJacMM += aWStar * (                                                                                                           //
                                           ( +tFIMaster->N_trans() * tPrjMasterToSlaveTrans * tNormalProjectorSlave * tTractionSlave                    //
@@ -405,7 +405,7 @@ namespace moris
                 // if dof type is residual dof type
                 if ( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                 {
-                    if ( tIfcPressureMaster - tNitsche * tNormalJumpMaster < 0 || true )
+                    if ( tIfcPressureMaster - tNitsche * tNormalJumpMaster < 0 )
                     {
                         tJacMS += aWStar * tMasterWeight * (                                                                                                                                 //
                                           -mBeta * tCMMasterElasticity->testTraction( tNormalMaster, mResidualDofType( 0 ) ) * tNormalProjectorMaster * tPrjSlaveToMaster * tFISlave->N()    //
@@ -415,7 +415,7 @@ namespace moris
                                           +tNitsche * tFISlave->N_trans() * tPrjSlaveToMasterTrans * tNormalProjectorMaster * tPrjSlaveToMaster * tFISlave->N() );
                     }
 
-                    if ( tIfcPressureSlave - tNitsche * tNormalJumpSlave < 0 || true )
+                    if ( tIfcPressureSlave - tNitsche * tNormalJumpSlave < 0 )
                     {
                         tJacMS += aWStar * tSlaveWeight * (    //
                                           -tNitsche * tFIMaster->N_trans() * tPrjMasterToSlaveTrans * tNormalProjectorSlave * tFISlave->N() );
@@ -429,7 +429,7 @@ namespace moris
                 // if dependency on the dof type
                 if ( tCMSlaveElasticity->check_dof_dependency( tDofType ) )
                 {
-                    if ( tIfcPressureSlave - tNitsche * tNormalJumpSlave < 0 || true )
+                    if ( tIfcPressureSlave - tNitsche * tNormalJumpSlave < 0 )
                     {
                         // add contribution to Jacobian
                         tJacMS += aWStar * tSlaveWeight * (    //
@@ -455,7 +455,7 @@ namespace moris
                     const Matrix< DDRMat > tMasterWeightDer = tSPNitsche->dSPdSlaveDOF( tDofType ).get_row( 1 );
                     const Matrix< DDRMat > tSlaveWeightDer  = tSPNitsche->dSPdSlaveDOF( tDofType ).get_row( 2 );
 
-                    if ( tIfcPressureMaster - tNitsche * tNormalJumpMaster < 0 || true )
+                    if ( tIfcPressureMaster - tNitsche * tNormalJumpMaster < 0 )
                     {
                         // add contribution to Jacobian
                         tJacMS += aWStar * (                                                                                                                                    //
@@ -478,7 +478,7 @@ namespace moris
                                 * ( 1.0 / tNitsche * tMasterWeightDer - tMasterWeight / tNitsche / tNitsche * tNitscheDer );
                     }
 
-                    if ( tIfcPressureSlave - tNitsche * tNormalJumpSlave < 0 || true )
+                    if ( tIfcPressureSlave - tNitsche * tNormalJumpSlave < 0 )
                     {
                         tJacMS += aWStar * (                                                                                                           //
                                           ( +tFIMaster->N_trans() * tPrjMasterToSlaveTrans * tNormalProjectorSlave * tTractionSlave                    //
