@@ -24,7 +24,6 @@ namespace moris
             mPropertyMap[ "Density" ]      = static_cast< uint >( CM_Property_Type::DENSITY );
             mPropertyMap[ "HeatCapacity" ] = static_cast< uint >( CM_Property_Type::HEAT_CAPACITY );
             mPropertyMap[ "EigenStrain" ]  = static_cast< uint >( CM_Property_Type::EIGEN_STRAIN );
-            mPropertyMap[ "LevelSetSign" ]  = static_cast< uint >( CM_Property_Type::LEVELSET_SIGN );
         }
 
         //------------------------------------------------------------------------------
@@ -79,9 +78,6 @@ namespace moris
 
             // set the eigenstrain property
             mPropEigenStrain = get_property( "EigenStrain" );
-
-            //set the level set sign property used for the heat method to generate SDF
-            mPropLSSign = get_property("LevelSetSign");
         }
 
         //------------------------------------------------------------------------------
@@ -108,12 +104,8 @@ namespace moris
                 // add eigen strain contribution
                 if ( tNorm > MORIS_REAL_EPS )
                 {
-                    moris::real tLevelSetSign = 1.0;
-                    if ( mPropLSSign != nullptr )
-                    {
-                        tLevelSetSign = mPropLSSign->val()( 0 );
-                    }
-                    mFlux += tLevelSetSign * mPropConductivity->val()( 0 ) * tGradTheta / tNorm;
+
+                    mFlux += mPropEigenStrain->val()(0) * mPropConductivity->val()( 0 ) * tGradTheta / tNorm;
                 }
             }
         }
@@ -369,16 +361,9 @@ namespace moris
                     Matrix< DDRMat > tNormGradTheta = tGradTheta / tNorm;
                     Matrix< DDRMat > tNormBTheta    = tBTheta / tNorm;
 
-                    //get the level set sign
-                    moris::real tLevelSetSign = 1.0;
-                    if ( mPropLSSign != nullptr )
-                    {
-                        tLevelSetSign = mPropLSSign->val()( 0 );
-                    }
-
                     // compute derivative with direct dependency
                     mdFluxdDof( tDofIndex ) +=
-                            tLevelSetSign * mPropConductivity->val()( 0 ) *  ( tNormBTheta - tNormGradTheta * trans( tNormGradTheta ) * tNormBTheta );
+                            mPropEigenStrain->val()( 0 ) * mPropConductivity->val()( 0 ) * ( tNormBTheta - tNormGradTheta * trans( tNormGradTheta ) * tNormBTheta );
                 }
             }
         }
