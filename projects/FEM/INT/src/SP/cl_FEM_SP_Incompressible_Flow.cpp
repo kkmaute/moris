@@ -190,8 +190,10 @@ namespace moris
             // get the density and viscosity properties
             const std::shared_ptr< Property >& tDensityProp =
                     mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
+
             const std::shared_ptr< Property >& tViscosityProp =
                     mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
+
             const std::shared_ptr< Property >& tInvPermeabProp =
                     mMasterProp( static_cast< uint >( Property_Type::INV_PERMEABILITY ) );
 
@@ -201,6 +203,7 @@ namespace moris
 
             // get impermeability
             real tInvPermeab = 0.0;
+
             if ( tInvPermeabProp != nullptr )
             {
                 tInvPermeab = tInvPermeabProp->val()( 0 );
@@ -221,7 +224,9 @@ namespace moris
             Matrix< DDRMat > tGijGij  = tFlatG * trans( tFlatG );
 
             real tPPVal =
-                    std::pow( tDensity, 2.0 ) * tvivjGij( 0 ) + mCI * std::pow( tViscosity, 2.0 ) * tGijGij( 0 ) + std::pow( tInvPermeab, 2.0 );
+                    std::pow( tDensity, 2.0 ) * tvivjGij( 0 )             //
+                    + mCI * std::pow( tViscosity, 2.0 ) * tGijGij( 0 )    //
+                    + std::pow( tInvPermeab, 2.0 );
 
             // if time solve
             if ( mSetBetaTime )
@@ -268,8 +273,10 @@ namespace moris
             // get the density and viscosity properties
             const std::shared_ptr< Property >& tDensityProp =
                     mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
+
             const std::shared_ptr< Property >& tViscosityProp =
                     mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
+
             const std::shared_ptr< Property >& tInvPermeabProp =
                     mMasterProp( static_cast< uint >( Property_Type::INV_PERMEABILITY ) );
 
@@ -279,6 +286,7 @@ namespace moris
 
             // get impermeability
             real tInvPermeab = 0.0;
+
             if ( tInvPermeabProp != nullptr )
             {
                 tInvPermeab = tInvPermeabProp->val()( 0 );
@@ -299,7 +307,9 @@ namespace moris
             Matrix< DDRMat > tGijGij  = tFlatG * trans( tFlatG );
 
             real tPPVal =
-                    std::pow( tDensity, 2.0 ) * tvivjGij( 0 ) + mCI * std::pow( tViscosity, 2.0 ) * tGijGij( 0 ) + std::pow( tInvPermeab, 2.0 );
+                    std::pow( tDensity, 2.0 ) * tvivjGij( 0 )             //
+                    + mCI * std::pow( tViscosity, 2.0 ) * tGijGij( 0 )    //
+                    + std::pow( tInvPermeab, 2.0 );
 
             // if time solve
             if ( mSetBetaTime )
