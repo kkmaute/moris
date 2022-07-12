@@ -107,7 +107,8 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Workflow_STK_XTK::perform(const Matrix<DDRMat> & aNewADVs)
+        Matrix< DDRMat >
+        Workflow_STK_XTK::perform( Matrix< DDRMat >& aNewADVs )
         {
             // Set new advs in GE
             mPerformerManager->mGENPerformer( 0 )->set_advs(aNewADVs);

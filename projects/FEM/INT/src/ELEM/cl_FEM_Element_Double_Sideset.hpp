@@ -75,10 +75,7 @@ namespace moris
                 /**
                  * compute QI
                  */
-                void compute_QI()
-                {
-                    MORIS_ERROR( false, "Element_Double_Sideset::compute_QI - not implemented.");
-                }
+                void compute_QI();
 
                 //------------------------------------------------------------------------------
                 /**

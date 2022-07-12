@@ -73,9 +73,6 @@ namespace moris
             moris::Cell< moris::Cell< ParameterList > > tMORISParameterList;
             tMORISParameterListFunc( tMORISParameterList );
 
-            std::string        tWRKString            = "WRKParameterList";
-            Parameter_Function tWRKParameterListFunc = mPerformerManager->mLibrary->load_function< Parameter_Function >( tWRKString, false );
-
             // create HMR performer
             mPerformerManager->mHMRPerformer( 0 ) = std::make_shared< hmr::HMR >( tHMRParameterList( 0 )( 0 ), mPerformerManager->mLibrary );
 
@@ -102,22 +99,25 @@ namespace moris
             // Set performer to MDL
             mPerformerManager->mMDLPerformer( 0 )->set_performer( mPerformerManager->mMTKPerformer( 1 ) );
 
-            if ( tMORISParameterList.size() > 0 )
+            if ( !tMORISParameterList.empty() )
             {
+                if ( !tMORISParameterList( 0 ).empty() )
+                {
                 // create MTK performer - will be used for HMR mesh
                 mPerformerManager->mRemeshingMiniPerformer( 0 ) =
                         std::make_shared< wrk::Remeshing_Mini_Performer >( tMORISParameterList( 0 )( 0 ), mPerformerManager->mLibrary );
-            }
-
-            // if it is not empty then initialize the sub performer and construct it only once at the beginning
-            if ( tWRKParameterListFunc )
-            {
-                // allocate size
+                }
+                
+                if ( !tMORISParameterList( 2 ).empty() )
+                {
+                    // allocate size
                 mPerformerManager->mReinitializePerformer.resize( 1 );
 
                 // construct the parameter list
                 mPerformerManager->mReinitializePerformer( 0 ) = std::make_shared< wrk::Reinitialize_Performer >( mPerformerManager->mLibrary );
+                }
             }
+
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -207,7 +207,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Matrix< DDRMat >
-        Workflow_HMR_XTK::perform( const Matrix< DDRMat >& aNewADVs )
+        Workflow_HMR_XTK::perform( Matrix< DDRMat >& aNewADVs )
         {
             sint tOptIter = gLogger.get_iteration(
                     "OptimizationManager",
@@ -234,10 +234,13 @@ namespace moris
                 {
                     // Set new advs in GE
                     Tracer tTracer( "GEN", "Levelset", "Re-InitializeADVs" );
-
+                    
                     mPerformerManager->mGENPerformer( 0 )->distribute_advs(
                             mPerformerManager->mMTKPerformer( 0 )->get_mesh_pair( 0 ),
                             mPerformerManager->mReinitializePerformer( 0 )->get_mtk_fields() );
+
+                    // get advs from GE and overwrite them
+                    aNewADVs = mPerformerManager->mGENPerformer( 0 )->get_advs();
                 }
                 else
                 {
@@ -395,9 +398,9 @@ namespace moris
             // perform mapping at this stgae between solution field and adv field as some data will be deleted
             if ( mPerformerManager->mReinitializePerformer.size() > 0 )
             {
-                // decide if we need to perform mapping 
-                if ( tOptIter % ( mPerformerManager->mReinitializePerformer( 0 )->get_reinitialization_frequency() ) ==  //
-                mPerformerManager->mReinitializePerformer( 0 )->get_reinitialization_frequency() - 1 )
+                // decide if we need to perform mapping
+                if ( tOptIter % ( mPerformerManager->mReinitializePerformer( 0 )->get_reinitialization_frequency() ) ==    //
+                        mPerformerManager->mReinitializePerformer( 0 )->get_reinitialization_frequency() - 1 )
                 {
                     // perform mapping of the solution to the adv
                     mPerformerManager->mReinitializePerformer( 0 )->perform( mPerformerManager->mHMRPerformer,

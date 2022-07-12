@@ -4,7 +4,7 @@
 #include "cl_Matrix.hpp"
 #include "cl_Tracer.hpp"
 #include "cl_Logger.hpp"
-//#include "cl_MTK_Mesh_Pair.hpp"
+#include "cl_MTK_Mesh_Pair.hpp"
 
 #include "cl_MTK_Field.hpp"
 #include "cl_MTK_Field_Discrete.hpp"
@@ -29,6 +29,13 @@
 #include "cl_MSI_Model_Solver_Interface.hpp"
 #include "cl_MSI_Solver_Interface.hpp"
 
+#include "cl_SOL_Dist_Vector.hpp"
+#include "cl_SOL_Dist_Map.hpp"
+#include "cl_SOL_Matrix_Vector_Factory.hpp"
+#include "cl_SOL_Warehouse.hpp"
+#include "cl_MSI_Equation_Model.hpp"
+#include "fn_sort.hpp"
+
 namespace moris
 {
     namespace wrk
@@ -42,12 +49,12 @@ namespace moris
         {
 
             // call the work flow parameter list and see if it is empty
-            std::string        tWRKString            = "WRKParameterList";
-            Parameter_Function tWRKParameterListFunc = aLibrary->load_function< Parameter_Function >( tWRKString, true );
+            std::string        tMORISString            = "MORISGENERALParameterList";
+            Parameter_Function tMORISParameterListFunc = aLibrary->load_function< Parameter_Function >( tMORISString, true );
 
             // extract the PRM list
-            moris::Cell< moris::Cell< ParameterList > > tWRKParameterList;
-            tWRKParameterListFunc( tWRKParameterList );
+            moris::Cell< moris::Cell< ParameterList > > tMORISParameterList;
+            tMORISParameterListFunc( tMORISParameterList );
 
             // call the msi paramater list;
             std::string        tMSIString = "MSIParameterList";
@@ -58,10 +65,10 @@ namespace moris
             moris::Cell< moris::Cell< ParameterList > > tMSIParameterList;
             tMSIParameterListFunc( tMSIParameterList );
 
-            mAdofMeshIndex = tMSIParameterList( 0 )( 0 ).get< moris::sint >( tWRKParameterList( 0 )( 0 ).get< std::string >( "dof_type" ) );
+            mAdofMeshIndex = tMSIParameterList( 0 )( 0 ).get< moris::sint >( tMORISParameterList( 2 )( 0 ).get< std::string >( "dof_type" ) );
 
             // get the adv field name that wll be reinitialized
-            mADVFiledName = tWRKParameterList( 0 )( 0 ).get< std::string >( "adv_field" );
+            mADVFiledName = tMORISParameterList( 2 )( 0 ).get< std::string >( "adv_field" );
 
             // get msi string to dof type map
             moris::map< std::string, MSI::Dof_Type > tMSIDofTypeMap =
@@ -69,16 +76,16 @@ namespace moris
 
             // get the quantity dof type from parameter list
             string_to_cell(
-                    tWRKParameterList( 0 )( 0 ).get< std::string >( "dof_type" ),
+                    tMORISParameterList( 2 )( 0 ).get< std::string >( "dof_type" ),
                     mDofTypes,
                     tMSIDofTypeMap );
 
 
-            mReinitializationFrequency = tWRKParameterList( 0 )( 0 ).get< sint >( "reinitialization_frequency" );
+            mReinitializationFrequency = tMORISParameterList( 2 )( 0 ).get< sint >( "reinitialization_frequency" );
 
             // get the mesh output info
-            mOutputMeshFile = tWRKParameterList( 0 )( 0 ).get< std::string >( "output_mesh_file" );
-            mTimeOffset     = tWRKParameterList( 0 )( 0 ).get< real >( "time_offset" );
+            mOutputMeshFile = tMORISParameterList( 2 )( 0 ).get< std::string >( "output_mesh_file" );
+            mTimeOffset     = tMORISParameterList( 2 )( 0 ).get< real >( "time_offset" );
         }
 
         //------------------------------------------------------------------------------
@@ -91,11 +98,11 @@ namespace moris
                 moris::Cell< std::shared_ptr< mdl::Model > >           aMDLPerformer )
         {
             // Tracer to trace the time
-            Tracer tTracer( "WRK", "Reinitialize ADVs", "Perform reinitialize" );
-
+            Tracer tTracer( "WRK", "Reinitialize ADVs", "Perform Reinitialize" );
             // initialize and populate the fields
             moris::Cell< std::shared_ptr< mtk::Field > > tGENFields;
             tGENFields.append( aGENPerformer( 0 )->get_mtk_fields() );
+
 
             // find the index of the desired adv field that will be reinitialized
             auto itr = std::find_if( tGENFields.begin(), tGENFields.end(), [ & ]( std::shared_ptr< mtk::Field > const & aFiled )    //
@@ -124,7 +131,7 @@ namespace moris
                     tTargetBSplinePattern );    // order, Lagrange pattern, bspline pattern
 
             // Create  mesh pair for the discrete field
-            mtk::Mesh_Pair tMeshPairTarget( tInterpolationMeshTarget, nullptr, true );
+            mtk::Mesh_Pair tMeshPairTarget( tInterpolationMeshTarget, ( *itr )->get_mesh_pair().get_integration_mesh(), false );
 
             // get the source mesh
             moris::mtk::Mesh* tSourceMesh = aMTKPerformer( 0 )->get_mesh_pair( 0 ).get_interpolation_mesh();
@@ -145,13 +152,18 @@ namespace moris
             mtk::Mesh_Pair tMeshPairSource( tInterpolationMeshSource, nullptr, true );
 
             // get the solution field and get a matrix of the solutions
-            sol::Dist_Vector* tPartialSolutionVector = aMDLPerformer( 0 )->get_solver_interface()->get_solution_vector( mDofTypes );
+            // generate a cell containing the indices of the bspline coefficients
+            // since indices are consecutive and they start from 0
+            moris::Cell< moris_index > tLocalCoeffIndices( tTargetMesh->get_num_entities( EntityRank::BSPLINE ) );
+            std::iota(tLocalCoeffIndices.begin(),tLocalCoeffIndices.end(), 0 ) ;
+
+            moris::sol::Dist_Vector*   tPartialSolutionVector = aMDLPerformer( 0 )->get_solver_interface()->get_solution_vector( mDofTypes, tLocalCoeffIndices );
             tPartialSolutionVector->extract_copy( mCoefficients );
 
             // delete the pointer as it is not needed anymore
             delete tPartialSolutionVector;
 
-            // create field object for this mesh. with the source
+            // create field object for this mesh ,the discretization index is zero as there is only one discretization in the newly constructed IP mesh
             std::shared_ptr< mtk::Field_Discrete > tFieldSource = std::make_shared< mtk::Field_Discrete >( tMeshPairSource, 0 );
 
             // unlock fields and set the coeff
@@ -161,38 +173,39 @@ namespace moris
             // compute the nodal values based on the coeff
             tFieldSource->compute_nodal_values();
 
-            // get the solution vector of the dof type that will be mapped to the adv field
+            // create field object for this mesh ,the discretization index is zero as there is only one discretization in the newly constructed IP mesh
             std::shared_ptr< mtk::Field_Discrete > tFieldTarget = std::make_shared< mtk::Field_Discrete >( tMeshPairTarget, 0 );
             tFieldTarget->set_label( mADVFiledName );
 
-            //set the nodal values
+            // set the nodal values
             tFieldTarget->unlock_field();
             tFieldTarget->set_values( tFieldSource->get_values() );
 
-            //invoke the mapper and map to the target field
+            // invoke the mapper and map to the target field
             mtk::Mapper tMapper;
             tFieldTarget->unlock_field();
             tMapper.map_input_field_to_output_field_2( tFieldTarget.get() );
 
-            //compute the nodal value
+            // compute the nodal value
             tFieldTarget->compute_nodal_values();
 
-            //get the coefficents and store them
+            // get the coefficents and store them
             mCoefficients = tFieldTarget->get_coefficients();
 
-            //clip the values
-            this->impose_upper_lower_bound( aGENPerformer );
+            // clip the values and
+            this->impose_upper_lower_bound( aGENPerformer, tFieldTarget.get() );
 
-            //replace the newly constructed field
+            // replace the newly constructed field
             tGENFields( tADVFieldIndex ) = tFieldTarget;
 
-            //store the fields
+            // store the fields
             mMTKFields = tGENFields;
 
-            //output the fields if asked
+            // output the fields if asked
             if ( mOutputMeshFile != "" )
             {
-                this->output_fields( tFieldTarget.get(), tFieldSource.get(), mOutputMeshFile );
+                // TO DO: this functionally needs to be restored
+                //this->output_fields( tFieldTarget.get(), tFieldSource.get(), mOutputMeshFile );
             }
         }
 
@@ -213,16 +226,37 @@ namespace moris
         }
         //------------------------------------------------------------------------------
         void
-        Reinitialize_Performer::impose_upper_lower_bound( moris::Cell< std::shared_ptr< ge::Geometry_Engine > >& aGENPerformer )
+        Reinitialize_Performer::impose_upper_lower_bound( moris::Cell< std::shared_ptr< ge::Geometry_Engine > >& aGENPerformer, mtk::Field* aField )
         {
-            Matrix< DDRMat > tLowerBounds = aGENPerformer( 0 )->get_lower_bounds();
-            Matrix< DDRMat > tUpperBounds = aGENPerformer( 0 )->get_upper_bounds();
+            // lower bound and upper bound are defined on proc 0 and they need to be communicated to other
+            // Note:  we make an assumption that all the lower bounds and upper bounds are equal
 
-            // clip the values of the adv before putting in GEN
+            // initialize  the upper and lower abound
+            moris::real tLowerBound;
+            moris::real tUpperBound;
+
+            // assign the values on processor 0
+            if ( par_rank() == 0 )
+            {
+                tLowerBound = aGENPerformer( 0 )->get_lower_bounds()( 0 );
+                tUpperBound = aGENPerformer( 0 )->get_upper_bounds()( 0 );
+            }
+
+
+            // Bcast the values to other processeors
+            MPI_Bcast( &tLowerBound, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD );
+            MPI_Bcast( &tUpperBound, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD );
+
+            // clip the values of the adv
             for ( uint iADV = 0; iADV < mCoefficients.numel(); iADV++ )
             {
-                mCoefficients( iADV ) = std::max( tLowerBounds( iADV ), std::min( mCoefficients( iADV ), tUpperBounds( iADV ) ) );
+                mCoefficients( iADV ) = std::max( tLowerBound, std::min( mCoefficients( iADV ), tUpperBound ) );
             }
+
+            // update the field based on the newly clipped coeff
+            aField->unlock_field();
+            aField->set_coefficients( mCoefficients );
+            aField->compute_nodal_values();
         }
 
         //------------------------------------------------------------------------------
@@ -255,10 +289,8 @@ namespace moris
                 // determine time shift
                 tTimeShift = tOptIter * mTimeOffset;
             }
-
             // call the lagrange mesh
             moris::mtk::Mesh* tMesh = aTarget->get_mesh_pair().get_interpolation_mesh();
-
             // Write mesh
             mtk::Writer_Exodus tWriter( tMesh );
             tWriter.write_mesh( "./", aExoFileName, "./", "gen_temp.exo" );
@@ -272,8 +304,8 @@ namespace moris
 
 
             // Create field on mesh
-            tWriter.write_nodal_field( tNodalFieldNames(0), aTarget->get_values() );
-            tWriter.write_nodal_field( tNodalFieldNames(1), aSource->get_values() );
+            tWriter.write_nodal_field( tNodalFieldNames( 0 ), aTarget->get_values() );
+            tWriter.write_nodal_field( tNodalFieldNames( 1 ), aSource->get_values() );
 
             // Finalize
             tWriter.close_file( true );

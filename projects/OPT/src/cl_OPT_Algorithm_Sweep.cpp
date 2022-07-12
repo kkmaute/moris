@@ -224,8 +224,11 @@ namespace moris
             // Loop through evaluation points
             for (uint tEvaluationIndex = 0; tEvaluationIndex < tTotalEvaluations; tEvaluationIndex++)
             {
+                // get the evaluation point
+                moris::Matrix< moris::DDRMat > tEvaluationPoint = mEvaluationPoints.get_column( tEvaluationIndex );
+
                 // Compute design criteria at current evaluation point
-                this->compute_design_criteria(mEvaluationPoints.get_column(tEvaluationIndex));
+                this->compute_design_criteria( tEvaluationPoint );
 
                 // Set evaluation name
                 tEvaluationName = " eval_" + std::to_string(tEvaluationIndex + 1) + "-" + std::to_string(tTotalEvaluations);

@@ -39,7 +39,8 @@ namespace xtk
 
             // mesh index
             Matrix< IndexMat >                             mMeshIndices;
-            std::unordered_map< moris_index, moris_index > mMeshIndexToLocMeshIndex;   // over allocated
+            std::unordered_map< moris_index, moris_index > mMeshIndexToLocMeshIndex;    // over allocated
+            Matrix< IndexMat >                             mUnenrichedMeshIndices;  // lis of the meshes that will be unenriched by overriding t-matrices
 
             // enriched interpolation vertices
             moris::uint                            mNumVerts;
@@ -677,6 +678,58 @@ namespace xtk
                     moris::size_t aNumReqs,
                     enum EntityRank aEntityRank,
                     bool            aStartFresh );
+
+            //------------------------------------------------------------------------------
+
+            /**
+             * @brief this function added the index id of the shared vertex enrichment tht re added during the ghost construction
+             * The vertex enrichments has interpolation but don't have base vertex interpolation  
+             * 
+             * @param aAdofMap 
+             */
+
+            void
+            add_shared_adofs_to_map( map< moris_id, moris_index >& aAdofMap ) const;
+
+            //------------------------------------------------------------------------------
+
+          public:
+            /**
+             * @brief This function is for the debug purpose and to make sure that unenriched mesh has been enriched before
+             *
+             */
+            void
+            determine_unenriched_meshes_are_enriched_beforehand() const;
+
+            //------------------------------------------------------------------------------
+
+            /**
+             * @brief Set the unenriched mesh indices object set function to populate unenriched mesh indices
+             *
+             * @param aMeshIndices
+             */
+            void
+            set_unenriched_mesh_indices( Matrix< IndexMat > const & aMeshIndices );
+
+            //------------------------------------------------------------------------------
+
+            /**
+             * @brief function that overwrites "some" maps to make the mesh unenriched, this function should be used with caution as it does not overwrite all
+             * information
+             *
+             */
+            void
+            override_maps();
+
+            //------------------------------------------------------------------------------
+
+            /**
+             * @brief this function replaces the t-matrices of the coefficients with their non-enriched version
+             *
+             */
+            void
+            override_vertex_enrichment_id_index();
+
     };
 }// namespace xtk
 

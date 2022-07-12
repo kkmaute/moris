@@ -49,6 +49,7 @@ namespace prm
         tParameterList.insert( "basis_rank", "node" );
         tParameterList.insert( "enrich_mesh_indices", "0" );
         tParameterList.insert( "sort_basis_enrichment_levels", false );
+        tParameterList.insert( "unenriched_mesh_indices", "" );
 
         // ghost stabilization and ghost related parameters
         tParameterList.insert( "ghost_stab", false );// Perform ghost stabilization
@@ -129,10 +130,9 @@ namespace prm
         tParameterList.insert( "union_side_set_names", "" );
         tParameterList.insert( "union_side_set_colors", "" );
 
-        //Periodic environment sidesets
-        tParameterList.insert( "periodic_side_set_pair", "" );
-
         tParameterList.insert( "identify_hanging_nodes", false );
+
+        tParameterList.insert( "delete_xtk_after_generation", true );
 
         return tParameterList;
     }

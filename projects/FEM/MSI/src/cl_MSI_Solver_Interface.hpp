@@ -101,7 +101,8 @@ namespace moris
              */
 
             sol::Dist_Vector*
-            get_solution_vector( const moris::Cell< enum MSI::Dof_Type >& aListOfDofTypes );
+            get_solution_vector( const moris::Cell< enum MSI::Dof_Type >& aListOfDofTypes,
+                    moris::Cell< moris_index > const &                    aLocalCoefficientsIndices );
 
             //------------------------------------------------------------------------------
 

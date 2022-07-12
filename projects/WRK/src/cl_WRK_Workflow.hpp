@@ -98,9 +98,8 @@ namespace moris
                  *
                  * @return vector of criteria
                  */
-                virtual
-                Matrix<DDRMat> 
-                perform(const Matrix<DDRMat> & aNewADVs) = 0;
+                virtual Matrix< DDRMat >
+                perform( Matrix< DDRMat >& aNewADVs ) = 0;
 
                 //------------------------------------------------------------------------------
                 /**

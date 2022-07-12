@@ -822,7 +822,6 @@ namespace moris
          *
          * @param[in] Expression.
          */
-
         template< typename E >
         void
         operator+=( const E& aExpression )
@@ -830,13 +829,14 @@ namespace moris
             mMatrix += aExpression;
         }
 
-        // -------------------------------------------------------------------------
+         // -------------------------------------------------------------------------
 
-        /**
+            /**
          * @brief Armadillo implementation of moris::Matrix_Base::operator -=
          *
          * @param[in] moris matrix.
          */
+
 
         void
         operator-=( const Matrix< arma::Mat< Type > >& aMatrix )
@@ -846,7 +846,7 @@ namespace moris
 
         // -------------------------------------------------------------------------
 
-        /**
+              /**
          * @brief Armadillo implementation of moris::Matrix_Base::operator -=
          *
          * @param[in] Data_Type.
@@ -856,6 +856,97 @@ namespace moris
         operator-=( const Data_Type& aData )
         {
             mMatrix -= aData;
+        }
+
+        // -------------------------------------------------------------------------
+
+        /*!
+         * Non const iterator returning the first element of the
+         * matrix.
+         *
+         * @param[out] Matrix Iterator of First element in Matrix
+         */
+        auto
+        begin() -> decltype( mMatrix.begin() )
+        {
+            return mMatrix.begin();
+        }
+
+        // -------------------------------------------------------------------------
+
+        /*!
+         * const iterator returning the first element of the
+         * matrix.
+         *
+         * @param[out] Matrix Iterator of First element in Matrix
+         */
+
+        auto const
+        begin() const -> decltype( mMatrix.begin() )
+        {
+            return mMatrix.begin();
+        }
+
+        // -------------------------------------------------------------------------
+
+        /*!
+         * Non const iterator returning the first element of the
+         * matrix.
+         *
+         * @param[out] Matrix Iterator of First element in Matrix
+         */
+
+        auto
+        end() -> decltype( mMatrix.end() )
+        {
+            return mMatrix.end();
+        }
+        
+        // -------------------------------------------------------------------------
+
+
+        /*!
+         * const iterator returning the first element of the
+         * matrix.
+         *
+         * @param[out] Matrix Iterator of First element in Matrix
+         */
+
+        auto const
+        end() const -> decltype( mMatrix.end() )
+        {
+            return mMatrix.end();
+        }
+
+        // -------------------------------------------------------------------------
+
+        /*!
+         * const iterator returning the first element of the
+         * matrix.
+         *
+         * @param[out] Matrix Iterator of First element in Matrix
+         */
+
+        auto const
+        cbegin() const -> decltype( mMatrix.cbegin() )
+        {
+            return mMatrix.cbegin();
+        }
+
+        // -------------------------------------------------------------------------
+
+        /*!
+         * const iterator returning the last element of the
+         * matrix.
+         *
+         * @param[out] Matrix Iterator of First element in Matrix
+         */
+
+
+        auto const
+        cend() const -> decltype( mMatrix.cend() )
+        {
+            return mMatrix.cend();
         }
 
         // -------------------------------------------------------------------------
@@ -871,48 +962,6 @@ namespace moris
         operator-=( const E& aExpression )
         {
             mMatrix -= aExpression;
-        }
-
-        // -------------------------------------------------------------------------
-
-        /*
-         * Iterators and Iterator related functions
-         */
-
-        /*!
-         * Non const iterator returning the first element of the
-         * matrix.
-         *
-         * @param[out] Matrix Iterator of First element in Matrix
-         */
-        Mat_It
-        begin()
-        {
-            return mMatrix.begin();
-        }
-
-        // -------------------------------------------------------------------------
-
-        Mat_It
-        end()
-        {
-            return mMatrix.end();
-        }
-
-        // -------------------------------------------------------------------------
-
-        Const_Mat_It
-        cbegin() const
-        {
-            return mMatrix.cbegin();
-        }
-
-        // -------------------------------------------------------------------------
-
-        Const_Mat_It
-        cend() const
-        {
-            return mMatrix.cend();
         }
 
         // -------------------------------------------------------------------------

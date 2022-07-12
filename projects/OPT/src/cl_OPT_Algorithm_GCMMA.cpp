@@ -157,7 +157,7 @@ void opt_alg_gcmma_func_wrap(
         double*      aConval )
 {
     // Update the ADV matrix
-    const Matrix<DDRMat> tADVs(aAdv, aOptAlgGCMMA->mProblem->get_num_advs(), 1);
+    Matrix< DDRMat > tADVs( aAdv, aOptAlgGCMMA->mProblem->get_num_advs(), 1, false, true );
 
     // Write restart file
     aOptAlgGCMMA->write_advs_to_file(tADVs);

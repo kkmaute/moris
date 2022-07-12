@@ -1552,14 +1552,36 @@ namespace moris
                 // Convert to B-spline field
                 if ( mProperties( tPropertyIndex )->intended_discretization() )
                 {
-                    // Create B-spline property
-                    mProperties( tPropertyIndex ) = std::make_shared< BSpline_Property >(
-                            tNewOwnedADVs,
-                            tSharedCoefficientIndices( mGeometries.size() + tPropertyIndex ),
-                            tSharedADVIds( mGeometries.size() + tPropertyIndex ),
-                            tAllOffsetIDs( mGeometries.size() + tPropertyIndex ),
-                            aMeshPair,
-                            mProperties( tPropertyIndex ) );
+                    // Always have shape sensitivities if B-spline field
+                    mShapeSensitivities = true;
+
+                    std::string tPropName = mProperties( tPropertyIndex )->get_name();
+
+                    if ( not tFieldNameToIndexMap.key_exists( tPropName ) )
+                    {
+                        // Create B-spline property
+                        mProperties( tPropertyIndex ) = std::make_shared< BSpline_Property >(
+                                tNewOwnedADVs,
+                                tSharedCoefficientIndices( mGeometries.size() + tPropertyIndex ),
+                                tSharedADVIds( mGeometries.size() + tPropertyIndex ),
+                                tAllOffsetIDs( mGeometries.size() + tPropertyIndex ),
+                                aMeshPair,
+                                mProperties( tPropertyIndex ) );
+                    }
+                    else
+                    {
+                        uint tMTKFieldIndex = tFieldNameToIndexMap.find( tPropName );
+
+                        // Create B-spline property
+                        mProperties( tPropertyIndex ) = std::make_shared< BSpline_Property >(
+                                tNewOwnedADVs,
+                                tSharedCoefficientIndices( mGeometries.size() + tPropertyIndex ),
+                                tSharedADVIds( mGeometries.size() + tPropertyIndex ),
+                                tAllOffsetIDs( mGeometries.size() + tPropertyIndex ),
+                                aMeshPair,
+                                mProperties( tPropertyIndex ),
+                                aFields( tMTKFieldIndex ) );
+                    }
                 }
             }
 

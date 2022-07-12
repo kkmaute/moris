@@ -16,6 +16,7 @@ namespace moris
     {
         class Field;
         class Mesh_Manager;
+        class Mesh;
     }    // namespace mtk
     namespace MSI
     {
@@ -126,19 +127,19 @@ namespace moris
 
             /**
              * @brief clip values of advs
-             * 
-             * @param aGENPerformer 
+             *
+             * @param aGENPerformer
              */
 
             void
-            impose_upper_lower_bound( moris::Cell< std::shared_ptr< ge::Geometry_Engine > >& aGENPerformer );
+            impose_upper_lower_bound( moris::Cell< std::shared_ptr< ge::Geometry_Engine > >& aGENPerformer, mtk::Field* aField );
 
             //------------------------------------------------------------------------------
 
             /**
              * @brief Get the mtk fields object get the replaced fields to use in GEN
-             * 
-             * @return moris::Cell< std::shared_ptr< mtk::Field > > 
+             *
+             * @return moris::Cell< std::shared_ptr< mtk::Field > >
              */
             moris::Cell< std::shared_ptr< mtk::Field > >
             get_mtk_fields() const;
@@ -147,11 +148,11 @@ namespace moris
 
             /**
              * @brief  output the mapped and original field on the same mesh
-             * 
-             * @param aTarget 
-             * @param aSource 
+             *
+             * @param aTarget
+             * @param aSource
              */
-            void    
+            void
             output_fields(mtk::Field* aTarget, mtk::Field* aSource, std::string aExoFileName) const;
 
         };

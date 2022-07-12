@@ -97,7 +97,7 @@ namespace moris
                  *
                  * @param vector of ADV values
                  */
-                void compute_design_criteria(const Matrix<DDRMat> & aNewADVs);
+                void compute_design_criteria( Matrix< DDRMat >& aNewADVs );
 
                 /**
                  * Computes analytically the criteria gradients for current ADV vector of problem

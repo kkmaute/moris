@@ -99,8 +99,10 @@ namespace moris
             const Matrix< DDRMat > tNormalSlave  = -1.0 * mNormal;
 
             // projections from slave to master and master to slave (needs to be generalized)
-            const real tPrjSlaveToMaster = 1.0;    // should be matrix
-            const real tPrjMastertoSlave = 1.0;    // should be matrix
+            const real tPrjSlaveToMaster      = 1.0;    // should be matrix
+            const real tPrjMasterToSlave      = 1.0;    // should be matrix
+            const real tPrjSlaveToMasterTrans = 1.0;    // should be matrix
+            const real tPrjMasterToSlaveTrans = 1.0;    // should be matrix
 
             // normal projection operator
             const Matrix< DDRMat > tNormalProjectorMaster = tNormalMaster * trans( tNormalMaster );
@@ -108,7 +110,7 @@ namespace moris
 
             // compute the jump
             const Matrix< DDRMat > tJumpMaster = tFIMaster->val() - tPrjSlaveToMaster * tFISlave->val();
-            const Matrix< DDRMat > tJumpSlave  = tFISlave->val() - tPrjMastertoSlave * tFIMaster->val();
+            const Matrix< DDRMat > tJumpSlave  = tFISlave->val() - tPrjMasterToSlave * tFIMaster->val();
 
             // compute projection of displacement jump onto normal
             const real tNormalJumpMaster = dot( tJumpMaster, tNormalMaster );
@@ -132,6 +134,12 @@ namespace moris
                                 -tFIMaster->N_trans() * tNormalProjectorMaster * tTractionMaster                                                              //
                                 + mBeta * tCMMasterElasticity->testTraction( tNormalMaster, mResidualDofType( 0 ) ) * tNormalProjectorMaster * tJumpMaster    //
                                 + tNitsche * tFIMaster->N_trans() * tNormalProjectorMaster * tJumpMaster );
+
+                mSet->get_residual()( 0 )(
+                        { tSlaveResStartIndex, tSlaveResStopIndex } ) +=                                                    //
+                        aWStar * tMasterWeight * (                                                                          //
+                                +tFISlave->N_trans() * tPrjSlaveToMasterTrans * tNormalProjectorMaster * tTractionMaster    //
+                                - tNitsche * tFISlave->N_trans() * tPrjSlaveToMasterTrans * tNormalProjectorMaster * tJumpMaster );
             }
             else
             {
@@ -145,6 +153,12 @@ namespace moris
             if ( tIfcPressureSlave - tNitsche * tNormalJumpSlave < 0 )
             {
                 // compute slave residual
+                mSet->get_residual()( 0 )(
+                        { tMasterResStartIndex, tMasterResStopIndex } ) +=                                                 //
+                        aWStar * tSlaveWeight * (                                                                          //
+                                +tFIMaster->N_trans() * tPrjMasterToSlaveTrans * tNormalProjectorSlave * tTractionSlave    //
+                                - tNitsche * tFIMaster->N_trans() * tPrjMasterToSlaveTrans * tNormalProjectorSlave * tJumpSlave );
+
                 mSet->get_residual()( 0 )(
                         { tSlaveResStartIndex, tSlaveResStopIndex } ) +=                                                                                  //
                         aWStar * tSlaveWeight * (                                                                                                         //
@@ -219,8 +233,10 @@ namespace moris
             const Matrix< DDRMat > tNormalSlave  = -1.0 * mNormal;
 
             // projections from slave to master and master to slave (needs to be generalized)
-            const real tPrjSlaveToMaster = 1.0;    // should be matrix
-            const real tPrjMastertoSlave = 1.0;    // should be matrix
+            const real tPrjSlaveToMaster      = 1.0;    // should be matrix
+            const real tPrjMasterToSlave      = 1.0;    // should be matrix
+            const real tPrjSlaveToMasterTrans = 1.0;    // should be matrix
+            const real tPrjMasterToSlaveTrans = 1.0;    // should be matrix
 
             // normal projection operator
             const Matrix< DDRMat > tNormalProjectorMaster = tNormalMaster * trans( tNormalMaster );
@@ -228,7 +244,7 @@ namespace moris
 
             // compute the jump
             const Matrix< DDRMat > tJumpMaster = tFIMaster->val() - tPrjSlaveToMaster * tFISlave->val();
-            const Matrix< DDRMat > tJumpSlave  = tFISlave->val() - tPrjMastertoSlave * tFIMaster->val();
+            const Matrix< DDRMat > tJumpSlave  = tFISlave->val() - tPrjMasterToSlave * tFIMaster->val();
 
             // compute projection of displacement jump onto normal
             const real tNormalJumpMaster = dot( tJumpMaster, tNormalMaster );
@@ -273,13 +289,19 @@ namespace moris
                         tJacMM += aWStar * tMasterWeight * (                                                                                                              //
                                           +mBeta * tCMMasterElasticity->testTraction( tNormalMaster, mResidualDofType( 0 ) ) * tNormalProjectorMaster * tFIMaster->N()    //
                                           + tNitsche * tFIMaster->N_trans() * tNormalProjectorMaster * tFIMaster->N() );
+
+                        tJacSM += aWStar * tMasterWeight * (    //
+                                          -tNitsche * tFISlave->N_trans() * tPrjSlaveToMasterTrans * tNormalProjectorMaster * tFIMaster->N() );
                     }
 
                     if ( tIfcPressureSlave - tNitsche * tNormalJumpSlave < 0 )
                     {
-                        tJacSM += aWStar * tSlaveWeight * (                                                                                                            //
-                                          -mBeta * tCMSlaveElasticity->testTraction( tNormalSlave, mResidualDofType( 0 ) ) * tNormalProjectorSlave * tFIMaster->N()    //
-                                          - tNitsche * tFISlave->N_trans() * tNormalProjectorSlave * tFIMaster->N() );
+                        tJacMM += aWStar * tSlaveWeight * (    //
+                                          +tNitsche * tFIMaster->N_trans() * tPrjMasterToSlaveTrans * tNormalProjectorSlave * tPrjMasterToSlave * tFIMaster->N() );
+
+                        tJacSM += aWStar * tSlaveWeight * (                                                                                                                                //
+                                          -mBeta * tCMSlaveElasticity->testTraction( tNormalSlave, mResidualDofType( 0 ) ) * tNormalProjectorSlave * tPrjMasterToSlave * tFIMaster->N()    //
+                                          - tNitsche * tFISlave->N_trans() * tNormalProjectorSlave * tPrjMasterToSlave * tFIMaster->N() );
                     }
                 }
 
@@ -292,6 +314,9 @@ namespace moris
                         tJacMM += aWStar * tMasterWeight * (                                                                                                //
                                           -tFIMaster->N_trans() * tNormalProjectorMaster * tCMMasterElasticity->dTractiondDOF( tDofType, tNormalMaster )    //
                                           + mBeta * tCMMasterElasticity->dTestTractiondDOF( tDofType, tNormalMaster, tNormalProjectorMaster * tJumpMaster, mResidualDofType( 0 ) ) );
+
+                        tJacSM += aWStar * tMasterWeight * (    //
+                                          +tFISlave->N_trans() * tPrjSlaveToMasterTrans * tNormalProjectorMaster * tCMMasterElasticity->dTractiondDOF( tDofType, tNormalMaster ) );
                     }
                     else
                     {
@@ -315,9 +340,15 @@ namespace moris
                         tJacMM += aWStar * (                                                                                                                                    //
                                           ( -tFIMaster->N_trans() * tNormalProjectorMaster * tTractionMaster                                                                    //
                                                   + mBeta * tCMMasterElasticity->testTraction( tNormalMaster, mResidualDofType( 0 ) ) * tNormalProjectorMaster * tJumpMaster    //
-                                                  + tNitsche * tFIMaster->N_trans() * tNormalProjectorMaster * tJumpMaster )
-                                                  * tMasterWeightDer    //
-                                          + tFIMaster->N_trans() * tNormalProjectorMaster * tJumpMaster * tNitscheDer );
+                                                  + tNitsche * tFIMaster->N_trans() * tNormalProjectorMaster * tJumpMaster )                                                    //
+                                                  * tMasterWeightDer                                                                                                            //
+                                          + tMasterWeight * tFIMaster->N_trans() * tNormalProjectorMaster * tJumpMaster * tNitscheDer );
+
+                        tJacSM += aWStar * (                                                                                                            //
+                                          ( +tFISlave->N_trans() * tPrjSlaveToMasterTrans * tNormalProjectorMaster * tTractionMaster                    //
+                                                  - tNitsche * tFISlave->N_trans() * tPrjSlaveToMasterTrans * tNormalProjectorMaster * tJumpMaster )    //
+                                                  * tMasterWeightDer                                                                                    //
+                                          - tMasterWeight * tFISlave->N_trans() * tPrjSlaveToMaster * tNormalProjectorMaster * tJumpMaster * tNitscheDer );
                     }
                     else
                     {
@@ -328,12 +359,18 @@ namespace moris
 
                     if ( tIfcPressureSlave - tNitsche * tNormalJumpSlave < 0 )
                     {
+                        tJacMM += aWStar * (                                                                                                           //
+                                          ( +tFIMaster->N_trans() * tPrjMasterToSlaveTrans * tNormalProjectorSlave * tTractionSlave                    //
+                                                  - tNitsche * tFIMaster->N_trans() * tPrjMasterToSlaveTrans * tNormalProjectorSlave * tJumpSlave )    //
+                                                  * tSlaveWeightDer                                                                                    //
+                                          - tSlaveWeight * tFIMaster->N_trans() * tPrjMasterToSlaveTrans * tNormalProjectorSlave * tJumpSlave * tNitscheDer );
+
                         tJacSM += aWStar * (                                                                                                                                //
                                           ( -tFISlave->N_trans() * tNormalProjectorSlave * tTractionSlave                                                                   //
                                                   + mBeta * tCMSlaveElasticity->testTraction( tNormalSlave, mResidualDofType( 0 ) ) * tNormalProjectorSlave * tJumpSlave    //
-                                                  + tNitsche * tFISlave->N_trans() * tNormalProjectorSlave * tJumpSlave )
-                                                  * tSlaveWeightDer    //
-                                          + tFISlave->N_trans() * tNormalProjectorSlave * tJumpSlave * tNitscheDer );
+                                                  + tNitsche * tFISlave->N_trans() * tNormalProjectorSlave * tJumpSlave )                                                   //
+                                                  * tSlaveWeightDer                                                                                                         //
+                                          + tSlaveWeight * tFISlave->N_trans() * tNormalProjectorSlave * tJumpSlave * tNitscheDer );
                     }
                     else
                     {
@@ -370,13 +407,19 @@ namespace moris
                 {
                     if ( tIfcPressureMaster - tNitsche * tNormalJumpMaster < 0 )
                     {
-                        tJacMS += aWStar * tMasterWeight * (                                                                                                             //
-                                          -mBeta * tCMMasterElasticity->testTraction( tNormalMaster, mResidualDofType( 0 ) ) * tNormalProjectorMaster * tFISlave->N()    //
-                                          - tNitsche * tFIMaster->N_trans() * tNormalProjectorMaster * tFISlave->N() );
+                        tJacMS += aWStar * tMasterWeight * (                                                                                                                                 //
+                                          -mBeta * tCMMasterElasticity->testTraction( tNormalMaster, mResidualDofType( 0 ) ) * tNormalProjectorMaster * tPrjSlaveToMaster * tFISlave->N()    //
+                                          - tNitsche * tFIMaster->N_trans() * tNormalProjectorMaster * tPrjSlaveToMaster * tFISlave->N() );
+
+                        tJacSS += aWStar * tMasterWeight * (    //
+                                          +tNitsche * tFISlave->N_trans() * tPrjSlaveToMasterTrans * tNormalProjectorMaster * tPrjSlaveToMaster * tFISlave->N() );
                     }
 
                     if ( tIfcPressureSlave - tNitsche * tNormalJumpSlave < 0 )
                     {
+                        tJacMS += aWStar * tSlaveWeight * (    //
+                                          -tNitsche * tFIMaster->N_trans() * tPrjMasterToSlaveTrans * tNormalProjectorSlave * tFISlave->N() );
+
                         tJacSS += aWStar * tSlaveWeight * (                                                                                                           //
                                           +mBeta * tCMSlaveElasticity->testTraction( tNormalSlave, mResidualDofType( 0 ) ) * tNormalProjectorSlave * tFISlave->N()    //
                                           + tNitsche * tFISlave->N_trans() * tNormalProjectorSlave * tFISlave->N() );
@@ -389,6 +432,9 @@ namespace moris
                     if ( tIfcPressureSlave - tNitsche * tNormalJumpSlave < 0 )
                     {
                         // add contribution to Jacobian
+                        tJacMS += aWStar * tSlaveWeight * (    //
+                                          +tFIMaster->N_trans() * tPrjMasterToSlaveTrans * tNormalProjectorSlave * tCMSlaveElasticity->dTractiondDOF( tDofType, tNormalSlave ) );
+
                         tJacSS += aWStar * tSlaveWeight * (                                                                                             //
                                           -tFISlave->N_trans() * tNormalProjectorSlave * tCMSlaveElasticity->dTractiondDOF( tDofType, tNormalSlave )    //
                                           + mBeta * tCMSlaveElasticity->dTestTractiondDOF( tDofType, tNormalSlave, tNormalProjectorSlave * tJumpSlave, mResidualDofType( 0 ) ) );
@@ -417,22 +463,34 @@ namespace moris
                                                   + mBeta * tCMMasterElasticity->testTraction( tNormalMaster, mResidualDofType( 0 ) ) * tNormalProjectorMaster * tJumpMaster    //
                                                   + tNitsche * tFIMaster->N_trans() * tNormalProjectorMaster * tJumpMaster )
                                                   * tMasterWeightDer    //
-                                          + tFIMaster->N_trans() * tNormalProjectorMaster * tJumpMaster * tNitscheDer );
+                                          + tMasterWeight * tFIMaster->N_trans() * tNormalProjectorMaster * tJumpMaster * tNitscheDer );
+
+                        tJacSS += aWStar * (                                                                                                            //
+                                          ( +tFISlave->N_trans() * tPrjSlaveToMasterTrans * tNormalProjectorMaster * tTractionMaster                    //
+                                                  - tNitsche * tFISlave->N_trans() * tPrjSlaveToMasterTrans * tNormalProjectorMaster * tJumpMaster )    //
+                                                  * tMasterWeightDer                                                                                    //
+                                          - tMasterWeight * tFISlave->N_trans() * tPrjSlaveToMasterTrans * tNormalProjectorMaster * tJumpMaster * tNitscheDer );
                     }
                     else
                     {
-                        tJacMS += aWStar * (    //
-                                          -mBeta * tCMMasterElasticity->testTraction( tNormalMaster, mResidualDofType( 0 ) ) * tNormalProjectorMaster * tTractionMaster )
+                        tJacMS += aWStar * (                                                                                                                                 //
+                                          -mBeta * tCMMasterElasticity->testTraction( tNormalMaster, mResidualDofType( 0 ) ) * tNormalProjectorMaster * tTractionMaster )    //
                                 * ( 1.0 / tNitsche * tMasterWeightDer - tMasterWeight / tNitsche / tNitsche * tNitscheDer );
                     }
 
                     if ( tIfcPressureSlave - tNitsche * tNormalJumpSlave < 0 )
                     {
+                        tJacMS += aWStar * (                                                                                                           //
+                                          ( +tFIMaster->N_trans() * tPrjMasterToSlaveTrans * tNormalProjectorSlave * tTractionSlave                    //
+                                                  - tNitsche * tFIMaster->N_trans() * tPrjMasterToSlaveTrans * tNormalProjectorSlave * tJumpSlave )    //
+                                                  * tSlaveWeightDer                                                                                    //
+                                          - tSlaveWeight * tFIMaster->N_trans() * tPrjMasterToSlaveTrans * tNormalProjectorSlave * tJumpSlave * tNitscheDer );
+
                         tJacSS += aWStar * (                                                                                                                                //
                                           ( -tFISlave->N_trans() * tNormalProjectorSlave * tTractionSlave                                                                   //
                                                   + mBeta * tCMSlaveElasticity->testTraction( tNormalSlave, mResidualDofType( 0 ) ) * tNormalProjectorSlave * tJumpSlave    //
-                                                  + tNitsche * tFISlave->N_trans() * tNormalProjectorSlave * tJumpSlave )
-                                                  * tSlaveWeightDer    //
+                                                  + tNitsche * tFISlave->N_trans() * tNormalProjectorSlave * tJumpSlave )                                                   //
+                                                  * tSlaveWeightDer                                                                                                         //
                                           + tFISlave->N_trans() * tNormalProjectorSlave * tJumpSlave * tNitscheDer );
                     }
                     else
