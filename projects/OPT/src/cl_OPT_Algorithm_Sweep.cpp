@@ -225,7 +225,7 @@ namespace moris
             for (uint tEvaluationIndex = 0; tEvaluationIndex < tTotalEvaluations; tEvaluationIndex++)
             {
                 // get the evaluation point
-                moris::Matrix< moris::DDRMat > tEvaluationPoint = mEvaluationPoints.get_column( tEvaluationIndex );
+                Matrix< DDRMat > tEvaluationPoint = mEvaluationPoints.get_column( tEvaluationIndex );
 
                 // Compute design criteria at current evaluation point
                 this->compute_design_criteria( tEvaluationPoint );

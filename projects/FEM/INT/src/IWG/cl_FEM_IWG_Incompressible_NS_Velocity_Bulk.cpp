@@ -163,7 +163,10 @@ namespace moris
             }
 
             // if body load
-            if ( tLoadProp != nullptr ) { tRes -= aWStar * ( tVelocityFI->N_trans() * tLoadProp->val() ); }
+            if ( tLoadProp != nullptr )
+            {
+                tRes -= aWStar * ( tVelocityFI->N_trans() * tLoadProp->val() );
+            }
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),

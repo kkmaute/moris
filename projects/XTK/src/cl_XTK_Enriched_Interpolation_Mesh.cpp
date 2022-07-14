@@ -3046,16 +3046,16 @@ namespace xtk
 
     void
     Enriched_Interpolation_Mesh::determine_unenriched_meshes_are_enriched_beforehand() const
-    {   
-        //loop over the unenriched meshes to see if they have been enriched before
-        for(auto const & iUnenrichedMeshIndex : mUnenrichedMeshIndices)
+    {
+        // loop over the unenriched meshes to see if they have been enriched before
+        for ( auto const & iUnenrichedMeshIndex : mUnenrichedMeshIndices )
         {
-            // check if unenriched mesh index, exits in the mesh indices ( enriched meshes) 
+            // check if unenriched mesh index, exits in the mesh indices ( enriched meshes)
             bool tMeshIsUnenriched = std::any_of( mMeshIndices.cbegin(), mMeshIndices.cend(), [ &iUnenrichedMeshIndex ]( moris_index aMeshIndex )    //
                     { return iUnenrichedMeshIndex == aMeshIndex; } );
-            
+
             // throw an error specifying which mesh number is not enriched before
-            MORIS_ERROR(tMeshIsUnenriched, "Mesh %u is not enriched beforehand", iUnenrichedMeshIndex);
+            MORIS_ERROR( tMeshIsUnenriched, "Mesh %u is not enriched beforehand", iUnenrichedMeshIndex );
         }
     }
 
@@ -3066,32 +3066,32 @@ namespace xtk
     Enriched_Interpolation_Mesh::override_maps()
     {
         // loop over the meshes that will be unenriched
-        for( auto const & iMeshIndex : mUnenrichedMeshIndices )
+        for ( auto const & iMeshIndex : mUnenrichedMeshIndices )
         {
-                // get the local mesh index
-                moris::moris_index tLocalMeshIndex = this->get_local_mesh_index(iMeshIndex);
+            // get the local mesh index
+            moris::moris_index tLocalMeshIndex = this->get_local_mesh_index( iMeshIndex );
 
-                // get the global to local basis map from HMR that corresponds to the unenriched version
-                map<moris_id, moris_index > tGlobalToLocalHMRBaisMap;
-                mXTKModel->mBackgroundMesh->get_adof_map(iMeshIndex,tGlobalToLocalHMRBaisMap);
+            // get the global to local basis map from HMR that corresponds to the unenriched version
+            map< moris_id, moris_index > tGlobalToLocalHMRBaisMap;
+            mXTKModel->mBackgroundMesh->get_adof_map( iMeshIndex, tGlobalToLocalHMRBaisMap );
 
-                // clear the maps and cells that need to be overwritten
-                mGlobaltoLocalBasisMaps(tLocalMeshIndex).clear();
-                mEnrichCoeffLocToGlob(tLocalMeshIndex).set_size(1,tGlobalToLocalHMRBaisMap.size(),MORIS_INDEX_MAX);
-                mEnrichCoeffOwnership(tLocalMeshIndex).set_size(1,tGlobalToLocalHMRBaisMap.size(),MORIS_INDEX_MAX );
+            // clear the maps and cells that need to be overwritten
+            mGlobaltoLocalBasisMaps( tLocalMeshIndex ).clear();
+            mEnrichCoeffLocToGlob( tLocalMeshIndex ).set_size( 1, tGlobalToLocalHMRBaisMap.size(), MORIS_INDEX_MAX );
+            mEnrichCoeffOwnership( tLocalMeshIndex ).set_size( 1, tGlobalToLocalHMRBaisMap.size(), MORIS_INDEX_MAX );
 
-                // loop over the global to local hmr map and fill out the xtk maps 
-                for(auto const & iGlobalToLocal : tGlobalToLocalHMRBaisMap )
-                {
-                    // set the local to global and global to local maps
-                    mGlobaltoLocalBasisMaps(tLocalMeshIndex)[iGlobalToLocal.first]= iGlobalToLocal.second;
-                    mEnrichCoeffLocToGlob(tLocalMeshIndex)(iGlobalToLocal.second) = iGlobalToLocal.first; 
+            // loop over the global to local hmr map and fill out the xtk maps
+            for ( auto const & iGlobalToLocal : tGlobalToLocalHMRBaisMap )
+            {
+                // set the local to global and global to local maps
+                mGlobaltoLocalBasisMaps( tLocalMeshIndex )[ iGlobalToLocal.first ] = iGlobalToLocal.second;
+                mEnrichCoeffLocToGlob( tLocalMeshIndex )( iGlobalToLocal.second )  = iGlobalToLocal.first;
 
-                    //get the owner of the non-enriched basis owner and store it
-                    moris_index tOwner = mXTKModel->get_background_mesh().get_entity_owner( iGlobalToLocal.second, mBasisRank, iMeshIndex );
-                    mEnrichCoeffOwnership(tLocalMeshIndex)(iGlobalToLocal.second)=tOwner; 
-                }
-        } 
+                // get the owner of the non-enriched basis owner and store it
+                moris_index tOwner                                                = mXTKModel->get_background_mesh().get_entity_owner( iGlobalToLocal.second, mBasisRank, iMeshIndex );
+                mEnrichCoeffOwnership( tLocalMeshIndex )( iGlobalToLocal.second ) = tOwner;
+            }
+        }
     }
 
     // ----------------------------------------------------------------------------
@@ -3101,7 +3101,7 @@ namespace xtk
     {
         mUnenrichedMeshIndices = aMeshIndices;
 
-        //check if the mesh index is compatibale
+        // check if the mesh index is compatibale
         this->determine_unenriched_meshes_are_enriched_beforehand();
     }
 
@@ -3113,7 +3113,7 @@ namespace xtk
         // loop over the unenriched mesh indices
         for ( auto const & iMeshIndex : mUnenrichedMeshIndices )
         {
-            moris_index tLocalMeshIndex  = this->get_local_mesh_index(iMeshIndex);
+            moris_index tLocalMeshIndex = this->get_local_mesh_index( iMeshIndex );
 
             // loop over the vertex enrichments to change their id and index
             for ( Vertex_Enrichment* iVertexEnrichment : mInterpVertEnrichment( tLocalMeshIndex ) )
@@ -3126,14 +3126,14 @@ namespace xtk
                     {
                         // get the base vertex interpolation
                         mtk::Vertex_Interpolation const * tBaseVertexInterpolation = iVertexEnrichment->get_base_vertex_interpolation();
-                        
+
                         // extract basis indices of the base one
                         moris::Matrix< IndexMat > tBaseCoeffInds = tBaseVertexInterpolation->get_indices();
 
-                        //get access to the basis to local index map of the vertex enrichment for modification
+                        // get access to the basis to local index map of the vertex enrichment for modification
                         std::unordered_map< moris::moris_index, moris::moris_index >& tVertEnrichMap = iVertexEnrichment->get_basis_map();
 
-                        //clear the map and populate it with the new indices
+                        // clear the map and populate it with the new indices
                         tVertEnrichMap.clear();
                         for ( moris::uint iBC = 0; iBC < tBaseCoeffInds.numel(); iBC++ )
                         {

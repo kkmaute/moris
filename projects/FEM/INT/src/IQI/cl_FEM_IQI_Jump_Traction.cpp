@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_IQI_Jump_Traction.cpp
+ *
+ */
+
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IQI_Jump_Traction.hpp"
@@ -37,34 +47,15 @@ namespace moris
                     tCMMasterElasticity->traction( mNormal ) - tCMSlaveElasticity->traction( - mNormal );
 
             // based on the IQI index select the norm or the individual component
-            switch ( mIQITypeIndex )
+            if ( mIQITypeIndex == -1 )
             {
-                case -1:
-                {
-                    aQI = dot( tTractionJump, tTractionJump );
-                    break;
-                }
-                case 0:
-                {
-                    aQI = { (std::pow( tTractionJump( 0 ) , 2.0 ) )  };
-                    break;
-                }
-                case 1:
-                {
-                    aQI = { (std::pow( tTractionJump( 1 ) , 2.0 ) ) };
-                    break;
-                }
-                case 2:
-                {
-                    aQI = { (std::pow( tTractionJump( 2 ) , 2.0 ) ) };
-                    break;
-                }
-
-                default:
-                {
-                    MORIS_ERROR( false,
-                            "IQI_Jump_Traction::compute_QI - incorrect vector index." );
-                }
+                // compute norm if no index
+                aQI = dot( tTractionJump, tTractionJump );
+            }
+            else
+            {
+                // pick the component otherwise (0,1,2)
+                aQI = { tTractionJump( mIQITypeIndex ) * tTractionJump( mIQITypeIndex ) };
             }
         }
 
@@ -90,8 +81,14 @@ namespace moris
             Matrix< DDRMat > tMat;
 
             // based on the IQI index select the norm or the individual component
-            switch ( mIQITypeIndex )
+            if ( mIQITypeIndex == -1 )
             {
+                // compute norm if no index
+                tMat = dot( tTractionJump, tTractionJump );
+            }
+            else
+            {
+<<<<<<< HEAD
                 case -1:
                 {
                     tMat = dot( tTractionJump, tTractionJump );
@@ -119,8 +116,13 @@ namespace moris
                     MORIS_ERROR( false,
                             "IQI_Jump_Traction::compute_QI - incorrect vector index." );
                 }
+=======
+                // pick the component otherwise (0,1,2)
+                tMat = { tTractionJump( mIQITypeIndex ) * tTractionJump( mIQITypeIndex ) };
+>>>>>>> f582df1f940dccfbcd66c8c845897c1d17866b0d
             }
 
+            //add the contribution
             mSet->get_QI()( tQIIndex ) += aWStar * tMat;
         }
 

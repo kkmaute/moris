@@ -829,9 +829,9 @@ namespace moris
             mMatrix += aExpression;
         }
 
-         // -------------------------------------------------------------------------
+        // -------------------------------------------------------------------------
 
-            /**
+        /**
          * @brief Armadillo implementation of moris::Matrix_Base::operator -=
          *
          * @param[in] moris matrix.
@@ -846,7 +846,7 @@ namespace moris
 
         // -------------------------------------------------------------------------
 
-              /**
+        /**
          * @brief Armadillo implementation of moris::Matrix_Base::operator -=
          *
          * @param[in] Data_Type.
@@ -901,7 +901,7 @@ namespace moris
         {
             return mMatrix.end();
         }
-        
+
         // -------------------------------------------------------------------------
 
 

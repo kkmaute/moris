@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_WRK_Reinitialize_Performer.cpp
+ *
+ */
+
 #include "cl_WRK_Reinitialize_Performer.hpp"
 
 #include <memory>
@@ -155,9 +165,9 @@ namespace moris
             // generate a cell containing the indices of the bspline coefficients
             // since indices are consecutive and they start from 0
             moris::Cell< moris_index > tLocalCoeffIndices( tTargetMesh->get_num_entities( EntityRank::BSPLINE ) );
-            std::iota(tLocalCoeffIndices.begin(),tLocalCoeffIndices.end(), 0 ) ;
+            std::iota( tLocalCoeffIndices.begin(), tLocalCoeffIndices.end(), 0 );
 
-            moris::sol::Dist_Vector*   tPartialSolutionVector = aMDLPerformer( 0 )->get_solver_interface()->get_solution_vector( mDofTypes, tLocalCoeffIndices );
+            moris::sol::Dist_Vector* tPartialSolutionVector = aMDLPerformer( 0 )->get_solver_interface()->get_solution_vector( mDofTypes, tLocalCoeffIndices );
             tPartialSolutionVector->extract_copy( mCoefficients );
 
             // delete the pointer as it is not needed anymore
@@ -205,7 +215,7 @@ namespace moris
             if ( mOutputMeshFile != "" )
             {
                 // TO DO: this functionally needs to be restored
-                //this->output_fields( tFieldTarget.get(), tFieldSource.get(), mOutputMeshFile );
+                // this->output_fields( tFieldTarget.get(), tFieldSource.get(), mOutputMeshFile );
             }
         }
 
@@ -270,7 +280,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        Reinitialize_Performer::output_fields( mtk::Field* aTarget, mtk::Field* aSource , std::string aExoFileName) const
+        Reinitialize_Performer::output_fields( mtk::Field* aTarget, mtk::Field* aSource, std::string aExoFileName ) const
         {
             //
             Tracer tTracer( "WRK", "Reinitialize ADVs", "Outputting Fields" );
