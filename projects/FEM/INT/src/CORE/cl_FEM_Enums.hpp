@@ -144,7 +144,6 @@ namespace moris
 
         enum class IQI_Type
         {
-<<<<<<< HEAD
                 UNDEFINED,
                 VOLUME,         // volume
                 STRAIN_ENERGY,
@@ -202,67 +201,7 @@ namespace moris
                 ZIENKIEWICZ_ZHU_VON_MISES_STRESS,
 
                 END_IQI_TYPE
-=======
-            UNDEFINED,
-            VOLUME,    // volume
-            STRAIN_ENERGY,
-            VOLUME_FRACTION,
-            DOF,
-            MAX_DOF,
-            PROPERTY,
-            STABILIZATION,
-            L2_ERROR_ANALYTIC,
-            H1_ERROR_ANALYTIC,
-            H1_ERROR,
-            J_INTEGRAL,
-            LIFT_COEFF,
-            DRAG_COEFF,
-            LATENT_HEAT_ABSORPTION,
-            TURBULENT_DYNAMIC_VISCOSITY,
-            EFFECTIVE_DYNAMIC_VISCOSITY,
-            EFFECTIVE_CONDUCTIVITY,
-            SPALART_ALLMARAS_COEFFICIENT,
-            POWER_DISSIPATION,
-            TOTAL_PRESSURE,
-            MASS_FLOW,
-            THERMAL_ENERGY_CONVECTIVE_FLUX,
-            THERMAL_ENERGY_DIFFUSIVE_FLUX,
-
-            JUMP_DOF,
-            JUMP_TRACTION,
-
-            ADVECTION_STRONG_RESIDUAL,
-            STRONG_RESIDUAL_SA,
-            STRONG_RESIDUAL_INCOMPRESSIBLE_NS,
-
-            MAX_STRESS,
-            MAX_NORMAL_STRESS,
-            MAX_SHEAR_STRESS,
-            MAX_VON_MISES_STRESS,
-            MAX_PRINCIPAL_STRESS,
-
-            STRESS,
-            NORMAL_STRESS,
-            SHEAR_STRESS,
-            VON_MISES_STRESS,
-            PRINCIPAL_STRESS,
-            STRESS_VECTOR,
-
-            NORMAL_STRESS_CAUCHY,
-            SHEAR_STRESS_CAUCHY,
-            VON_MISES_STRESS_CAUCHY,
-            PRINCIPAL_STRESS_CAUCHY,
-            STRESS_VECTOR_CAUCHY,
-
-            HOMOGENIZED_CONSTITUTIVE,
-            HEAT_METHOD_PENALTY,
-
-            ZIENKIEWICZ_ZHU_VON_MISES_STRESS,
-
-            END_IQI_TYPE
->>>>>>> 61f77ba512c9688560c862fc54f45744860e3f69
         };
-
         //------------------------------------------------------------------------------
 
         enum class Constitutive_Type

@@ -27,11 +27,6 @@ namespace moris
             // populate the constitutive map
             mConstitutiveMap[ "ElastLinIso" ] = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
 
-            // set size for the constitutive model pointer cell
-            mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
-
-            // populate the constitutive map
-            mStabilizationMap[ "L2Weight" ] = static_cast< uint >( IWG_Stabilization_Type::L2_WEIGHT );
 
         }
 
@@ -60,17 +55,13 @@ namespace moris
             const std::shared_ptr< Constitutive_Model > & tCMElasticity =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
 
-            // get the L2-weight
-            const std::shared_ptr< Stabilization_Parameter > & tSPL2Weight =
-            		mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::L2_WEIGHT ) );
-
             // get sub-matrix
             auto tRes = mSet->get_residual()( 0 )(
                     { tMasterResStartIndex, tMasterResStopIndex } );
 
             // compute the residual
-//            tRes -= aWStar * tSPL2Weight->val()( 0 ) * ( tFILambda->N_trans() * ( tCMElasticity->traction( tPropNormal->val() ) - tFILambda->val() ) );
-            tRes += aWStar * tSPL2Weight->val()( 0 ) * ( tFILambda->N_trans() * ( tCMElasticity->traction( tPropNormal->val() ) - tFILambda->val() ) );
+            tRes -= aWStar * tFILambda->N_trans() * ( tFILambda->val() - tCMElasticity->traction( tPropNormal->val() ) );
+
 
 
             // check for nan, infinity
@@ -102,10 +93,6 @@ namespace moris
             const std::shared_ptr< Constitutive_Model > & tCMElasticity =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
 
-            // get the L2-weight
-            const std::shared_ptr< Stabilization_Parameter > & tSPL2Weight =
-            		mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::L2_WEIGHT ) );
-
             // get the number of master dof dependencies
             uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
 
@@ -130,18 +117,14 @@ namespace moris
                 if ( tDofType( 0 ) == MSI::Dof_Type::VX )
                 {
                     // compute the contribution to Jacobian
-//                    tJac += aWStar * tSPL2Weight->val()( 0 ) * ( tFILambda->N_trans() * tFILambda->N() );
-                    tJac -= aWStar * tSPL2Weight->val()( 0 ) * ( tFILambda->N_trans() * tFILambda->N() );
-
+                    tJac -= aWStar  * ( tFILambda->N_trans() * tFILambda->N() );
                 }
 
                 // if constitutive model depends on the dof type
                 if ( tCMElasticity->check_dof_dependency( tDofType ) )
                 {
                     // compute the contribution to Jacobian
-//                    tJac -= aWStar * tSPL2Weight->val()( 0 ) * ( tFILambda->N_trans() * tCMElasticity->dTractiondDOF( tDofType, tPropNormal->val() ) );
-                    tJac += aWStar * tSPL2Weight->val()( 0 ) * ( tFILambda->N_trans() * tCMElasticity->dTractiondDOF( tDofType, tPropNormal->val() ) );
-
+                    tJac += aWStar *  ( tFILambda->N_trans() * tCMElasticity->dTractiondDOF( tDofType, tPropNormal->val() ) );
                 }
             }
 

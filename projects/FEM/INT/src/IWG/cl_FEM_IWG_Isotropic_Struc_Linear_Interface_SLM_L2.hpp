@@ -45,12 +45,6 @@ namespace moris
                     MAX_ENUM
                 };
 
-                enum class IWG_Stabilization_Type
-                {
-                    L2_WEIGHT,
-                    MAX_ENUM
-                };
-
                 //------------------------------------------------------------------------------
                 /*
                  * constructor

@@ -26,7 +26,7 @@ namespace moris
 
                 enum class IWG_Property_Type
                 {
-                    MAX_ENUM
+                		MAX_ENUM
                 };
 
                 enum class IWG_Constitutive_Type
@@ -36,7 +36,6 @@ namespace moris
 
                 enum class IWG_Stabilization_Type
                 {
-                		NITSCHE_INTERFACE,
                         MAX_ENUM
                 };
 

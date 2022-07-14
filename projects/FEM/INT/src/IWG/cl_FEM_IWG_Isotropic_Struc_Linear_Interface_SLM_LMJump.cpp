@@ -3,6 +3,7 @@
 
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_Set.hpp"
+#include "cl_FEM_Cluster.hpp"
 
 #include "fn_eye.hpp"
 #include "fn_dot.hpp"
@@ -25,18 +26,6 @@ namespace moris
             // set size for the stabilization parameter pointer cell
             mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
 
-			// -----------------------------------
-			// populate the constitutive map
-            mStabilizationMap[ "NitscheInterface" ] = static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE );
-			// -----------------------------------
-
-
-
-            // set size for the stabilization parameter pointer cell
-        //    mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
-
-            // populate the stabilization map
-        //    mStabilizationMap[ "NitscheInterface" ] = static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE );
 
         }
 
@@ -51,11 +40,7 @@ namespace moris
             this->check_field_interpolators( mtk::Master_Slave::SLAVE );
 #endif
 
-            // get the Nitsche stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter >& tSPNitsche =
-                   mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE ) );
 
-            const real tNitsche      = tSPNitsche->val()( 0 );
 
             // get master index for residual dof type, indices for assembly
             const uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
@@ -67,14 +52,6 @@ namespace moris
             const uint tSlaveResStartIndex = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 0 );
             const uint tSlaveResStopIndex  = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 1 );
 
-            // get master field interpolator for the residual dof type
-            //Field_Interpolator* tFILambdaMaster =
-             //       mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
-
-            // get slave field interpolator for the residual dof type
-            //Field_Interpolator* tFILambdaSlave =
-              //      mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
-
             Field_Interpolator* tFILambdaMaster =
                     mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
@@ -82,25 +59,18 @@ namespace moris
             Field_Interpolator* tFILambdaSlave =
                     mSlaveFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
-
-            const auto tTestMasterLambda = tFILambdaMaster->N_trans();
-            const auto tTestSlaveLambda = tFILambdaSlave->N_trans();
-
-            const auto tLambdaJumpMaster = tFILambdaSlave->val() - tFILambdaMaster->val();
-            const auto tLambdaJumpSlave = tFILambdaMaster->val() - tFILambdaSlave->val();
-
+            real h = mCluster->compute_cluster_cell_side_measure( mtk::Primary_Void::PRIMARY, mtk::Master_Slave::MASTER );
 
             // compute master residual
-            mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex } ) +=
-//            mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex } ) -=
+            mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex } ) -=
                     aWStar
-                    * ( 1.0 / tNitsche * tTestMasterLambda * tLambdaJumpMaster );
+                    * ( h * tFILambdaMaster->N_trans() * ( tFILambdaMaster->val() - tFILambdaSlave->val() ) );
+
 
             // compute slave residual
             mSet->get_residual()( 0 )( { tSlaveResStartIndex, tSlaveResStopIndex } ) +=
-//            mSet->get_residual()( 0 )( { tSlaveResStartIndex, tSlaveResStopIndex } ) -=
                     aWStar
-                    * ( 1.0 / tNitsche * tTestSlaveLambda * tLambdaJumpSlave );
+                    * ( h * tFILambdaSlave->N_trans() * ( tFILambdaMaster->val() - tFILambdaSlave->val() ) );
 
 
             // check for nan, infinity
@@ -119,13 +89,7 @@ namespace moris
             this->check_field_interpolators( mtk::Master_Slave::SLAVE );
 #endif
 
-            // get the Nitsche stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter >& tSPNitsche =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE ) );
-
-            const real tNitsche      = tSPNitsche->val()( 0 );
-
-            // get master index for residual dof type, indices for assembly
+             // get master index for residual dof type, indices for assembly
             const uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             const uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
             const uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
@@ -135,20 +99,15 @@ namespace moris
             const uint tSlaveResStartIndex = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 0 );
             const uint tSlaveResStopIndex  = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 1 );
 
-            // get master field interpolator for the residual dof type
-           // Field_Interpolator* tFILambdaMaster =
-             //       mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
-
-            // get slave field interpolator for the residual dof type
-           // Field_Interpolator* tFILambdaSlave =
-             //       mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
-
             Field_Interpolator* tFILambdaMaster =
                     mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get slave field interpolator for the residual dof type
             Field_Interpolator* tFILambdaSlave =
                     mSlaveFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+
+            real h = mCluster->compute_cluster_cell_side_measure( mtk::Primary_Void::PRIMARY, mtk::Master_Slave::MASTER );
+
 
             // compute the jacobian for indirect dof dependencies through master constitutive models
             uint tMasterNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
@@ -172,13 +131,11 @@ namespace moris
                 // compute jacobian direct dependencies
                 if ( tDofType( 0 ) == MSI::Dof_Type::VX )
                 {
-                    tJacMM += aWStar
-//                	 tJacMM -= aWStar
-                            * ( -1.0 / tNitsche * tFILambdaMaster->N_trans() * tFILambdaMaster->N() );
+                    tJacMM -= aWStar
+                            * ( h * tFILambdaMaster->N_trans() * tFILambdaMaster->N() );
 
                     tJacSM += aWStar
-//                	 tJacSM -= aWStar
-                            * (  1.0 / tNitsche * tFILambdaSlave->N_trans() * tFILambdaMaster->N() );
+                            * ( h * tFILambdaSlave->N_trans() * tFILambdaMaster->N() );
                 }
             }
 
@@ -205,12 +162,10 @@ namespace moris
                 if ( tDofType( 0 ) == MSI::Dof_Type::VX )
                 {
                     tJacMS += aWStar
-//                	tJacMS -= aWStar
-                            * (  1.0 / tNitsche * tFILambdaMaster->N_trans() * tFILambdaSlave->N() );
+                            * ( h * tFILambdaMaster->N_trans() * tFILambdaSlave->N() );
 
-                    tJacSS += aWStar
-//                	 tJacSS -= aWStar
-                            * ( -1.0 / tNitsche * tFILambdaSlave->N_trans() * tFILambdaSlave->N() );
+                    tJacSS -= aWStar
+                            * ( h * tFILambdaSlave->N_trans() * tFILambdaSlave->N() );
                 }
             }
 

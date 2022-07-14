@@ -26,6 +26,8 @@ namespace moris
 
                 enum class IWG_Property_Type
                 {
+                	YOUNGS_MODULUS_MASTER,
+					YOUNGS_MODULUS_SLAVE,
                     MAX_ENUM
                 };
 

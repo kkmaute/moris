@@ -34,7 +34,7 @@ namespace moris
 
             // evaluate average traction difference
             const Matrix< DDRMat > tTractionJump =
-                    tCMMasterElasticity->traction( mNormal ) - tCMSlaveElasticity->traction( mNormal );
+                    tCMMasterElasticity->traction( mNormal ) - tCMSlaveElasticity->traction( - mNormal );
 
             // based on the IQI index select the norm or the individual component
             switch ( mIQITypeIndex )
@@ -46,17 +46,17 @@ namespace moris
                 }
                 case 0:
                 {
-                    aQI = { tTractionJump( 0 ) };
+                    aQI = { (std::pow( tTractionJump( 0 ) , 2.0 ) )  };
                     break;
                 }
                 case 1:
                 {
-                    aQI = { tTractionJump( 1 ) };
+                    aQI = { (std::pow( tTractionJump( 1 ) , 2.0 ) ) };
                     break;
                 }
                 case 2:
                 {
-                    aQI = { tTractionJump( 2 ) };
+                    aQI = { (std::pow( tTractionJump( 2 ) , 2.0 ) ) };
                     break;
                 }
 
@@ -99,19 +99,20 @@ namespace moris
                 }
                 case 0:
                 {
-                    tMat = { tTractionJump( 0 ) };
+                    tMat = { (std::pow( tTractionJump( 0 ) , 2.0 ) )  };
                     break;
                 }
                 case 1:
                 {
-                    tMat = { tTractionJump( 1 ) };
+                    tMat = { (std::pow( tTractionJump( 1 ) , 2.0 ) ) };
                     break;
                 }
                 case 2:
                 {
-                    tMat = { tTractionJump( 2 ) };
+                    tMat = { (std::pow( tTractionJump( 2 ) , 2.0 ) ) };
                     break;
                 }
+
 
                 default:
                 {

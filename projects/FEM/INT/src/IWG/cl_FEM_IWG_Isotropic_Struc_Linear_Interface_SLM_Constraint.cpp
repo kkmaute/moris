@@ -23,6 +23,7 @@ namespace moris
 
             // set size for the stabilization parameter pointer cell
             mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
+
         }
 
         //------------------------------------------------------------------------------
@@ -61,15 +62,12 @@ namespace moris
             Field_Interpolator* tFILambdaSlave =
                     mSlaveFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
-
-            // evaluate temperature jump
-           // const auto tTestDisplJump = tFIDisplMaster->val() - tFIDisplSlave->val();
-
             const auto tTestDisplMaster = tFIDisplMaster->N_trans();
             const auto tTestDisplSlave = tFIDisplSlave->N_trans();
 
             const auto tWeightedMasterLambda = 0.5 * tFILambdaMaster->val();
             const auto tWeightedSlaveLambda = 0.5 * tFILambdaSlave->val();
+
 
             // compute master residual
             mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex } ) -=
@@ -77,9 +75,9 @@ namespace moris
                     * ( tTestDisplMaster * ( tWeightedMasterLambda + tWeightedSlaveLambda ) );
 
             // compute slave residual
-            mSet->get_residual()( 0 )( { tSlaveResStartIndex, tSlaveResStopIndex } ) -=
+            mSet->get_residual()( 0 )( { tSlaveResStartIndex, tSlaveResStopIndex } ) +=
                     aWStar
-                    * ( -1.0 * tTestDisplSlave * ( tWeightedMasterLambda + tWeightedSlaveLambda ) );
+                    * ( tTestDisplSlave * ( tWeightedMasterLambda + tWeightedSlaveLambda ) );
 
 
             // check for nan, infinity
@@ -124,7 +122,6 @@ namespace moris
             Field_Interpolator* tFILambdaSlave =
                     mSlaveFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
-
             // compute the jacobian for indirect dof dependencies through master constitutive models
             uint tMasterNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
             for ( uint iDOF = 0; iDOF < tMasterNumDofDependencies; iDOF++ )
@@ -150,8 +147,10 @@ namespace moris
                     tJacMM -= aWStar
                             * ( 0.5 * tFIDisplMaster->N_trans() * tFILambdaMaster->N() );
 
-                    tJacSM -= aWStar
-                            * ( -0.5 * tFIDisplSlave->N_trans() * tFILambdaMaster->N() );
+
+                    tJacSM += aWStar
+                            * ( 0.5 * tFIDisplSlave->N_trans() * tFILambdaMaster->N() );
+
                 }
             }
 
@@ -178,10 +177,12 @@ namespace moris
                 if ( tDofType( 0 ) == MSI::Dof_Type::VX )
                 {
                     tJacMS -= aWStar
-                            * ( 0.5 * tFIDisplMaster->N_trans() * tFILambdaSlave->N() );
+                    		* ( 0.5 * tFIDisplMaster->N_trans() * tFILambdaSlave->N() );
 
-                    tJacSS -= aWStar
-                            * ( -0.5 * tFIDisplSlave->N_trans() * tFILambdaSlave->N() );
+
+                    tJacSS += aWStar
+                            * ( 0.5 * tFIDisplSlave->N_trans() * tFILambdaSlave->N() );
+
                 }
             }
 

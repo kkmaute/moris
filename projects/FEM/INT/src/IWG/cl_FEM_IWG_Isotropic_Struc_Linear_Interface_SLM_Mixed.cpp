@@ -18,12 +18,17 @@ namespace moris
             // set size for the property pointer cell
             mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
+            // populate the property map
+            mPropertyMap[ "Youngsmodulus_Master" ] = static_cast< uint >( IWG_Property_Type::YOUNGS_MODULUS_MASTER );
+            mPropertyMap[ "Youngsmodulus_Slave" ] = static_cast< uint >( IWG_Property_Type::YOUNGS_MODULUS_SLAVE );
+
             // set size for the constitutive model pointer cell
             mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
             mSlaveCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // set size for the stabilization parameter pointer cell
             mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
+
         }
 
         //------------------------------------------------------------------------------
@@ -63,39 +68,27 @@ namespace moris
                     mSlaveFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX );
 
 
-            // evaluate temperature jump
+            // get the property youngsmodulus Master
+            const std::shared_ptr< Property > & tPropYoungsMaster =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::YOUNGS_MODULUS_MASTER ) );
+
+            // get the property youngsmodulus Slave
+            const std::shared_ptr< Property > & tPropYoungsSlave =
+            		mMasterProp( static_cast< uint >( IWG_Property_Type::YOUNGS_MODULUS_SLAVE ) );
+
+
+            // evaluate displacement jump
             const auto tDisplJump = tFIDisplMaster->val() - tFIDisplSlave->val();
 
-
-            const auto tWeightedTestMasterLambda = tFILambdaMaster->N_trans();
-            const auto tWeightedTestSlaveLambda = tFILambdaSlave->N_trans();
-
             // compute master residual
-            mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex } ) +=
+            mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex } ) -=
                     aWStar
-                    * ( tWeightedTestMasterLambda * tDisplJump );
+                    * ( tFILambdaMaster->N_trans() * ( tFIDisplMaster->val() - tFIDisplSlave->val() ) ) * tPropYoungsMaster->val()( 0 );
 
             // compute slave residual
-            mSet->get_residual()( 0 )( { tSlaveResStartIndex, tSlaveResStopIndex } ) +=
+            mSet->get_residual()( 0 )( { tSlaveResStartIndex, tSlaveResStopIndex } ) -=
                     aWStar
-                    * ( tWeightedTestSlaveLambda * tDisplJump  );
-
-
-            // Lambda jump
-         //   const auto tLambdaJump = tFILambdaMaster->val() - tFILambdaSlave->val();
-
-            // compute master residual
-         //   mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex } ) +=
-         //   		aWStar
-		 //			* ( tWeightedTestMasterLambda * tLambdaJump );
-
-            // compute slave residual
-          //  mSet->get_residual()( 0 )( { tSlaveResStartIndex, tSlaveResStopIndex } ) +=
-          //  		aWStar
-		  //		* ( tWeightedTestSlaveLambda * tLambdaJump  );
-
-
-
+                    * ( tFILambdaSlave->N_trans() * ( tFIDisplMaster->val() - tFIDisplSlave->val() ) ) * tPropYoungsSlave->val()( 0 );
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
@@ -138,6 +131,14 @@ namespace moris
             Field_Interpolator* tFIDisplSlave =
                     mSlaveFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX );
 
+            // get the property youngsmodulus Master
+            const std::shared_ptr< Property > & tPropYoungsMaster =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::YOUNGS_MODULUS_MASTER ) );
+
+            // get the property youngsmodulus Slave
+            const std::shared_ptr< Property > & tPropYoungsSlave =
+            		mMasterProp( static_cast< uint >( IWG_Property_Type::YOUNGS_MODULUS_SLAVE ) );
+
             // compute the jacobian for indirect dof dependencies through master constitutive models
             uint tMasterNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
             for ( uint iDOF = 0; iDOF < tMasterNumDofDependencies; iDOF++ )
@@ -160,11 +161,11 @@ namespace moris
                 // compute jacobian direct dependencies
                 if ( tDofType( 0 ) == MSI::Dof_Type::UX )
                 {
-                    tJacMM += aWStar
-                            * ( tFILambdaMaster->N_trans() * tFIDisplMaster->N() );
+                    tJacMM -= aWStar
+                            * ( tFILambdaMaster->N_trans() * tFIDisplMaster->N() ) * tPropYoungsMaster->val()( 0 );
 
-                    tJacSM += aWStar
-                            * ( tFILambdaSlave->N_trans() * tFIDisplMaster->N() );
+                    tJacSM -= aWStar
+                            * ( tFILambdaSlave->N_trans() * tFIDisplMaster->N() ) * tPropYoungsSlave->val()( 0 );
                 }
             }
 
@@ -191,10 +192,10 @@ namespace moris
                 if ( tDofType( 0 ) == MSI::Dof_Type::UX )
                 {
                     tJacMS += aWStar
-                            * ( -1.0 * tFILambdaMaster->N_trans() * tFIDisplSlave->N() );
+                            * ( tFILambdaMaster->N_trans() * tFIDisplSlave->N() )* tPropYoungsMaster->val()( 0 );
 
                     tJacSS += aWStar
-                            * ( -1.0 * tFILambdaSlave->N_trans() * tFIDisplSlave->N() );
+                            * ( tFILambdaSlave->N_trans() * tFIDisplSlave->N() ) * tPropYoungsSlave->val()( 0 );
                 }
             }
 
