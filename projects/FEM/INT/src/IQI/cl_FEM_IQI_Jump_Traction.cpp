@@ -88,38 +88,8 @@ namespace moris
             }
             else
             {
-<<<<<<< HEAD
-                case -1:
-                {
-                    tMat = dot( tTractionJump, tTractionJump );
-                    break;
-                }
-                case 0:
-                {
-                    tMat = { (std::pow( tTractionJump( 0 ) , 2.0 ) )  };
-                    break;
-                }
-                case 1:
-                {
-                    tMat = { (std::pow( tTractionJump( 1 ) , 2.0 ) ) };
-                    break;
-                }
-                case 2:
-                {
-                    tMat = { (std::pow( tTractionJump( 2 ) , 2.0 ) ) };
-                    break;
-                }
-
-
-                default:
-                {
-                    MORIS_ERROR( false,
-                            "IQI_Jump_Traction::compute_QI - incorrect vector index." );
-                }
-=======
                 // pick the component otherwise (0,1,2)
                 tMat = { tTractionJump( mIQITypeIndex ) * tTractionJump( mIQITypeIndex ) };
->>>>>>> f582df1f940dccfbcd66c8c845897c1d17866b0d
             }
 
             //add the contribution

@@ -389,6 +389,14 @@ TEST_CASE( "IWG_Interface_SLM_Mixed", "[moris],[fem],[IWG_Interface_SLM_Mixed]" 
     //------------------------------------------------------------------------------
     // create the properties
 
+    std::shared_ptr< fem::Property > tPropEModMaster = std::make_shared< fem::Property >();
+    tPropEModMaster->set_parameters( { {{ 0.3 }} } );
+    tPropEModMaster->set_val_function( tConstValFunc_Elast );
+
+    std::shared_ptr< fem::Property > tPropEModSlave = std::make_shared< fem::Property >();
+    tPropEModSlave->set_parameters( { {{ 1.7 }} } );
+    tPropEModSlave->set_val_function( tConstValFunc_Elast );
+
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
@@ -397,6 +405,8 @@ TEST_CASE( "IWG_Interface_SLM_Mixed", "[moris],[fem],[IWG_Interface_SLM_Mixed]" 
     tIWG->set_residual_dof_type( tLMDofTypes );
     tIWG->set_dof_type_list( tAllDofTypes, mtk::Master_Slave::MASTER );
     tIWG->set_dof_type_list( tAllDofTypes, mtk::Master_Slave::SLAVE );
+    tIWG->set_property( tPropEModMaster, "Youngsmodulus_Master", mtk::Master_Slave::MASTER );
+    tIWG->set_property( tPropEModSlave, "Youngsmodulus_Slave", mtk::Master_Slave::MASTER );
 
     // init set info
     //------------------------------------------------------------------------------

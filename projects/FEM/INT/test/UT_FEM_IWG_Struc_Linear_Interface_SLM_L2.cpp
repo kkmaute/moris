@@ -86,12 +86,12 @@ TEST_CASE( "IWG_Interface_SLM_L2", "[moris],[fem],[IWG_Interface_SLM_L2]" )
     tCMMasterStrucLinIso->set_property( tPropNu, "PoissonRatio" );
     tCMMasterStrucLinIso->set_local_properties();
 
-    fem::SP_Factory tSPFactory;
-
-    std::shared_ptr< fem::Stabilization_Parameter > tSPL2Weight = tSPFactory.create_SP( fem::Stabilization_Type::LAGRANGE_MULTIPLIER_L2 );
-    tSPL2Weight->set_dof_type_list( {{ MSI::Dof_Type::UX }}, mtk::Master_Slave::MASTER );
-    tSPL2Weight->set_parameters( { {{ 2.3 }} });
-    tSPL2Weight->set_property( tPropEMod, "Material", mtk::Master_Slave::MASTER );
+//    fem::SP_Factory tSPFactory;
+//
+//    std::shared_ptr< fem::Stabilization_Parameter > tSPL2Weight = tSPFactory.create_SP( fem::Stabilization_Type::LAGRANGE_MULTIPLIER_L2 );
+//    tSPL2Weight->set_dof_type_list( {{ MSI::Dof_Type::UX }}, mtk::Master_Slave::MASTER );
+//    tSPL2Weight->set_parameters( { {{ 2.3 }} });
+//    tSPL2Weight->set_property( tPropEMod, "Material", mtk::Master_Slave::MASTER );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
@@ -101,7 +101,7 @@ TEST_CASE( "IWG_Interface_SLM_L2", "[moris],[fem],[IWG_Interface_SLM_L2]" )
     tIWG->set_residual_dof_type( tLMDofTypes );
     tIWG->set_dof_type_list( tAllDofTypes, mtk::Master_Slave::MASTER );
     tIWG->set_constitutive_model( tCMMasterStrucLinIso, "ElastLinIso" );
-    tIWG->set_stabilization_parameter( tSPL2Weight, "L2Weight");
+//    tIWG->set_stabilization_parameter( tSPL2Weight, "L2Weight");
     tIWG->set_property( tPropDummyNormal, "Normal", mtk::Master_Slave::MASTER );
 
     // init set info
