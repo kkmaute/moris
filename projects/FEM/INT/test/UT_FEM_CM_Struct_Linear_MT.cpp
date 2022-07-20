@@ -20,6 +20,7 @@
 #include "cl_FEM_CM_Factory.hpp"
 #include "fn_FEM_Check.hpp"
 #include "FEM_Test_Proxy/cl_FEM_Inputs_for_Elasticity_UT.cpp"
+#include "FEM_Test_Proxy/cl_FEM_Inputs_for_Diffusion_UT.cpp"
 
 using namespace moris;
 using namespace fem;
@@ -29,7 +30,7 @@ tDOFFunction( moris::Matrix< moris::DDRMat >&          aPropMatrix,
         moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
         moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
-    aPropMatrix = aFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX )->val()( 0 );
+    aPropMatrix = aFIManager->get_field_interpolators_for_type( MSI::Dof_Type::PHID )->val()( 0 );
 }
 
 void
@@ -37,7 +38,8 @@ tDOFFunctionDer( moris::Matrix< moris::DDRMat >&       aPropMatrix,
         moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
         moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
-    aPropMatrix = aFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX )->N().get_row( 0 );
+
+    aPropMatrix = aFIManager->get_field_interpolators_for_type( MSI::Dof_Type::PHID )->N();
 }
 
 
@@ -47,7 +49,7 @@ TEST_CASE( "CM_Struc_Linear_MT", "[CM_Struc_Lin_MT]" )
     real tEpsilon = 1.0E-4;
 
     // define a perturbation relative size
-    real tPerturbation = 2.0E-5;
+    real tPerturbation = 2.0E-7;
 
     // init geometry inputs
     //------------------------------------------------------------------------------
@@ -74,14 +76,15 @@ TEST_CASE( "CM_Struc_Linear_MT", "[CM_Struc_Lin_MT]" )
     Matrix< DDRMat > tNumCoeffs = { { 8, 18, 32 }, { 16, 54, 128 } };
 
     // dof type list
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDispDofTypes = { { MSI::Dof_Type::UX } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes     = tDispDofTypes;
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDispDofTypes      = { { MSI::Dof_Type::UX } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes          = { { MSI::Dof_Type::UX }, { MSI::Dof_Type::PHID } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tSecondaryDofTypes = { { MSI::Dof_Type::PHID } };
 
     // create a list of property names used in the MT model
     moris::Cell< std::string > tPropertyNames = { "YoungsModulusMatrix", "PoissonRatioMatrix", "YoungsModulusFiber", "PoissonRatioFiber", "VolumeFraction", "AspectRatio", "OrientationInPlane", "OrientationOutPlane" };
 
     // initialize a cell of values for the defined propoetis
-    moris::Cell< real > tValues = { 1.0, 0.2, 2.0, 0.2, 0.1, 10, 1.0, 0.0 };
+    moris::Cell< real > tValues = { 1.0, 0.2, 2.0, 0.2, 0.1, 10, 1.0, 1.0 };
 
     // initialize a propet cell that will be used in the CM later
     moris::Cell< std::shared_ptr< fem::Property > > tPropertyCell;
@@ -94,11 +97,11 @@ TEST_CASE( "CM_Struc_Linear_MT", "[CM_Struc_Lin_MT]" )
         iProp->set_parameters( { { { tValues( iCounter ) } } } );
         iProp->set_val_function( tConstValFunc_Elast );
 
-        if ( tPropertyNames( iCounter ) == "OrientationInPlane" || tPropertyNames( iCounter ) == "OrientationOutPlane" )
+        if ( tPropertyNames( iCounter ) == "OrientationOutPlane" )
         {
             iProp->set_parameters( { { { tValues( iCounter ) } } } );
             iProp->set_val_function( tDOFFunction );
-            iProp->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
+            iProp->set_dof_type_list( { { MSI::Dof_Type::PHID } } );
             iProp->set_dof_derivative_functions( { tDOFFunctionDer } );
         }
         // store the the created propety
@@ -129,11 +132,13 @@ TEST_CASE( "CM_Struc_Linear_MT", "[CM_Struc_Lin_MT]" )
 
     // set size and populate the set dof type map
     tCMMasterStrucLinIso->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tCMMasterStrucLinIso->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
+    tCMMasterStrucLinIso->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )   = 0;
+    tCMMasterStrucLinIso->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::PHID ) ) = 1;
 
     // set size and populate the set master dof type map
     tCMMasterStrucLinIso->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tCMMasterStrucLinIso->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
+    tCMMasterStrucLinIso->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )   = 0;
+    tCMMasterStrucLinIso->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::PHID ) ) = 1;
 
     map< enum MSI::Dof_Type, std::string > tDofTypeToNameMap = MSI::get_dof_type_name_map();
 
@@ -165,8 +170,8 @@ TEST_CASE( "CM_Struc_Linear_MT", "[CM_Struc_Lin_MT]" )
                     { 0.0, 1.0 } };
 
                 // set velocity dof types
-                tDispDofTypes = { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } };
-
+                tDispDofTypes      = { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } };
+                tSecondaryDofTypes = { { MSI::Dof_Type::PHID } };
                 break;
             }
             case 3:
@@ -185,7 +190,8 @@ TEST_CASE( "CM_Struc_Linear_MT", "[CM_Struc_Lin_MT]" )
                     { 0.0, 1.0, 1.0 } };
 
                 // set velocity dof types
-                tDispDofTypes = { { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } };
+                tDispDofTypes      = { { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } };
+                tSecondaryDofTypes = { { MSI::Dof_Type::PHID } };
 
                 break;
             }
@@ -267,6 +273,13 @@ TEST_CASE( "CM_Struc_Linear_MT", "[CM_Struc_Lin_MT]" )
             tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
             tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
 
+            // create the field interpolator phi_d field
+            // set coefficients for field interpolators
+            Matrix< DDRMat > tUHat0;
+            fill_that( tUHat0, iSpaceDim, iInterpOrder );
+            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tSecondaryDofTypes( 0 ) );
+            tMasterFIs( 1 )->set_coeff( tUHat0 );
+
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > >        tDummyDv;
@@ -285,7 +298,7 @@ TEST_CASE( "CM_Struc_Linear_MT", "[CM_Struc_Lin_MT]" )
             tCMMasterStrucLinIso->set_field_interpolator_manager( &tFIManager );
 
             uint tNumGPs = tIntegPoints.n_cols();
-            for ( uint iGP = 0; iGP < tNumGPs; iGP++ )
+            for ( uint iGP = 0; iGP < 1; iGP++ )
             {
                 // reset CM evaluation flags
                 tCMMasterStrucLinIso->reset_eval_flags();
@@ -362,8 +375,6 @@ TEST_CASE( "CM_Struc_Linear_MT", "[CM_Struc_Lin_MT]" )
                     //             tJump,
                     //             tDofTest );
 
-                    //     print( tdtesttractiondu, "tdtesttractiondu" );
-
                     //     // evaluate dtractiondu by FD
                     //     Matrix< DDRMat > tdtesttractionduFD;
                     //     tCMMasterStrucLinIso->eval_dtesttractiondu_FD(
@@ -376,9 +387,9 @@ TEST_CASE( "CM_Struc_Linear_MT", "[CM_Struc_Lin_MT]" )
 
                     //     // check that analytical and FD match
                     //     bool tCheckTestTractionFluid = fem::check( tdtesttractiondu, tdtesttractionduFD, tEpsilon );
-                    //     // REQUIRE( tCheckTestTractionFluid );
+                    //     REQUIRE( tCheckTestTractionFluid );
 
-                    //     print( tdtesttractionduFD, "tdtesttractionduFD" );
+                    //     // print( tdtesttractionduFD, "tdtesttractionduFD" );
                     // }
                 }
             }
