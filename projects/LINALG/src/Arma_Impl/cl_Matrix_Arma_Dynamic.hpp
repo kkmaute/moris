@@ -927,7 +927,7 @@ namespace moris
          * @param[out] Matrix Iterator of First element in Matrix
          */
 
-        auto const
+        auto
         cbegin() const -> decltype( mMatrix.cbegin() )
         {
             return mMatrix.cbegin();
@@ -943,7 +943,7 @@ namespace moris
          */
 
 
-        auto const
+        auto
         cend() const -> decltype( mMatrix.cend() )
         {
             return mMatrix.cend();
