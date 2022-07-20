@@ -632,7 +632,7 @@ namespace moris
         /**
          * @brief Returns a const iterator to the first element
          */
-        auto const
+        auto
         begin() const
                 -> decltype( mCell.begin() )
         {
@@ -645,7 +645,7 @@ namespace moris
          * @brief Returns a const iterator to the last element
          */
 
-        auto const
+        auto
         end() const
                 -> decltype( mCell.end() )
         {
