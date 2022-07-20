@@ -25,23 +25,29 @@ namespace moris
     namespace ios
     {
         template<typename Matrix_Type>
-        inline std::string stringify(const Matrix<Matrix_Type>& aMatrix)
+        inline std::string stringify( const Matrix< Matrix_Type >& aMatrix )
         {
             std::ostringstream out;
-            for (uint iCol = 0; iCol < aMatrix.n_cols(); iCol++)
+
+            if( aMatrix.numel() > 0 )
             {
-                if (iCol > 0)
+                std::ostringstream out;
+                for ( uint iCol = 0; iCol < aMatrix.n_cols(); iCol++ )
                 {
-                    out << "; ";
-                }
+                    if ( iCol > 0 )
+                    {
+                        out << "; ";
+                    }
 
-                for (uint iRow = 0; iRow < aMatrix.n_rows()-1; iRow++)
-                {
-                    out << aMatrix(iRow, iCol) << ", ";
-                }
+                    for ( uint iRow = 0; iRow < aMatrix.n_rows() - 1; iRow++ )
+                    {
+                        out << aMatrix(iRow, iCol) << ", ";
+                    }
 
-                out << aMatrix(aMatrix.n_rows()-1, iCol);
+                    out << aMatrix( aMatrix.n_rows() - 1, iCol );
+                }
             }
+
             return out.str();
         }
 
@@ -50,27 +56,32 @@ namespace moris
         {
             // check matrix size being printed
             if ( aMatrix.numel() > LOGGER_MAX_NUMEL_MATRIX_PRINT )
+            {
                 return "[Matrix has too many elements to print.]";
+            }
 
             // initialize string stream
             std::ostringstream out;
             out << "[" ;
 
-            for (uint iRow = 0; iRow < aMatrix.n_rows(); iRow++)
+            if ( aMatrix.numel() > 0 )
             {
-                if (iRow > 0)
+                for (uint iRow = 0; iRow < aMatrix.n_rows(); iRow++)
                 {
-                    out << " ; ";
-                }
-
-                for (uint iCol = 0; iCol < aMatrix.n_cols(); iCol++)
-                {
-                    if (iCol > 0)
+                    if (iRow > 0)
                     {
-                        out << ", ";
+                        out << " ; ";
                     }
 
-                    out << aMatrix(iRow, iCol);
+                    for (uint iCol = 0; iCol < aMatrix.n_cols(); iCol++)
+                    {
+                        if (iCol > 0)
+                        {
+                            out << ", ";
+                        }
+
+                        out << aMatrix(iRow, iCol);
+                    }
                 }
             }
 
@@ -92,21 +103,24 @@ namespace moris
             std::ostringstream out;
             out << "[" << std::setprecision(LOGGER_FLOAT_PRECISION) << std::scientific;
 
-            for (uint iRow = 0; iRow < aMatrix.n_rows(); iRow++)
+            if ( aMatrix.numel() > 0 )
             {
-                if (iRow > 0)
+                for (uint iRow = 0; iRow < aMatrix.n_rows(); iRow++)
                 {
-                    out << " ; ";
-                }
-
-                for (uint iCol = 0; iCol < aMatrix.n_cols(); iCol++)
-                {
-                    if (iCol > 0)
+                    if (iRow > 0)
                     {
-                        out << ", ";
+                        out << " ; ";
                     }
 
-                    out << aMatrix(iRow, iCol);
+                    for (uint iCol = 0; iCol < aMatrix.n_cols(); iCol++)
+                    {
+                        if (iCol > 0)
+                        {
+                            out << ", ";
+                        }
+
+                        out << aMatrix(iRow, iCol);
+                    }
                 }
             }
 
@@ -128,21 +142,24 @@ namespace moris
             std::ostringstream out;
             out << "[" << std::boolalpha;
 
-            for (uint iRow = 0; iRow < aMatrix.n_rows(); iRow++)
+            if ( aMatrix.numel() > 0 )
             {
-                if (iRow > 0)
+                for (uint iRow = 0; iRow < aMatrix.n_rows(); iRow++)
                 {
-                    out << " ; ";
-                }
-
-                for (uint iCol = 0; iCol < aMatrix.n_cols(); iCol++)
-                {
-                    if (iCol > 0)
+                    if (iRow > 0)
                     {
-                        out << ", ";
+                        out << " ; ";
                     }
 
-                    out << aMatrix(iRow, iCol);
+                    for (uint iCol = 0; iCol < aMatrix.n_cols(); iCol++)
+                    {
+                        if (iCol > 0)
+                        {
+                            out << ", ";
+                        }
+
+                        out << aMatrix(iRow, iCol);
+                    }
                 }
             }
 
