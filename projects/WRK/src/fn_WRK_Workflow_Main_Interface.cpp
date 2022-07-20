@@ -36,6 +36,8 @@
 
 #include "cl_Library_IO.hpp"
 
+#include "fn_stringify_matrix.hpp"
+
 using namespace moris;
 
 // Parameter function
@@ -86,7 +88,8 @@ int fn_WRK_Workflow_Main_Interface( int argc, char * argv[] )
             tWorkflows(0)->initialize(tADVs, tDummyBounds, tDummyBounds);
             Matrix<DDRMat> tIQIVal = tWorkflows(0)->get_criteria(tADVs);
 
-            print(tIQIVal, "IQI values");
+            // print out matrix of IQI values
+            MORIS_LOG_SPEC( "IQI values", ios::stringify_log( tIQIVal ) );
         }
     }
 
