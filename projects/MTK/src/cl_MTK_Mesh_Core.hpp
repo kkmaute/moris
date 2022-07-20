@@ -187,6 +187,39 @@ namespace moris
                     moris_index const            aSideOrdinal,
                     moris::Cell< mtk::Cell * > & aCells);
 
+            //------------------------------------------------------------------------------
+
+            /**
+             * @brief Get the neighboring elements connected to a given element through a given side ordinal
+             * 
+             * @param aElementIndex element wrt. which the neighbors are to be determined
+             * @param aSideOrdinal index of side ordinal relative to the given element
+             * @param aMyRefineLevel 
+             * @param aMyOctreePosition 
+             * @param aNeighborElements output: list of neighboring elements connected through the side ordinal
+             * @param aNeighborSideOrdinals output: list of neighboring element's side ordinals
+             * @param aTransitionLocations output: list of the transition locations for the facet connectivity
+             * @param aNeighborRefinementLevels 
+             */
+            virtual bool
+            get_elements_connected_to_element_through_face_ord(
+                    moris_index                 aBaseElementIndex,
+                    moris_index                 aMySideOrdinal,
+                    moris_index&                aMyRefineLevel, 
+                    moris::Cell< moris_index >& aNeighborElements,
+                    moris::Cell< moris_index >& aNeighborElementSideOrdinals,
+                    moris::Cell< moris_index >& aTransitionLocations,
+                    moris::Cell< moris_index >& aNeighborRefinementLevels ) const
+            {
+                MORIS_ERROR( false,
+                    "mtk::Mesh::get_elements_connected_to_element_through_face_ord() - "
+                    "Entered virtual function in Mesh base class; function is not implemented." );
+                
+                return false;
+            }
+
+            //------------------------------------------------------------------------------
+
             // FIXME This should be default, individual calls should be virtual
             /**
              * Gets the number of entities for a specified entity rank.

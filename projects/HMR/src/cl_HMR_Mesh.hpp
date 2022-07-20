@@ -375,13 +375,15 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
-            void
-            get_elements_connected_to_element_through_face_ord( 
-                    moris_index aElementIndex,
-                    moris_index aSideOrdinal,
-                    moris::Cell< moris_index > aNeighborElements,
-                    moris::Cell< moris_index > aNeighborSideOrdinals,
-                    moris::Cell< moris_index > aTransitionLocations ) const;
+            bool
+            get_elements_connected_to_element_through_face_ord(
+                    moris_index                 aBaseElementIndex,
+                    moris_index                 aMySideOrdinal,
+                    moris_index&                aMyRefineLevel, 
+                    moris::Cell< moris_index >& aNeighborElements,
+                    moris::Cell< moris_index >& aNeighborElementSideOrdinals,
+                    moris::Cell< moris_index >& aTransitionLocations,
+                    moris::Cell< moris_index >& aNeighborRefinementLevels ) const;
 
             //-------------------------------------------------------------------------------
             //          Global ID Functions
