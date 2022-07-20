@@ -4349,13 +4349,14 @@ Integration_Mesh_Generator::construct_subphase_group_neighborhood(
         tSpgNeighborhood->mSubphaseToSubPhase( iSPG )                 = std::make_shared< moris::Cell< moris_index > >();
         tSpgNeighborhood->mSubphaseToSubPhaseMySideOrds( iSPG )       = std::make_shared< moris::Cell< moris_index > >();
         tSpgNeighborhood->mSubphaseToSubPhaseNeighborSideOrds( iSPG ) = std::make_shared< moris::Cell< moris_index > >();
-        tSpgNeighborhood->mTransitionNeighborCellLocation( iSPG )     = std::make_shared< moris::Cell< moris_index > >();
+        
+        // leave the transition location empty since this is not needed
+        tSpgNeighborhood->mTransitionNeighborCellLocation( iSPG ) = std::make_shared< moris::Cell< moris_index > >( 0 );
 
         // reserve memory for sub-lists in SPG neighborhood according to estimate
         tSpgNeighborhood->mSubphaseToSubPhase( iSPG )->reserve( 4 );
         tSpgNeighborhood->mSubphaseToSubPhaseMySideOrds( iSPG )->reserve( 4 );
         tSpgNeighborhood->mSubphaseToSubPhaseNeighborSideOrds( iSPG )->reserve( 4 );
-        tSpgNeighborhood->mTransitionNeighborCellLocation( iSPG )->reserve( 4 );
 
         // get the SP indices on the current SPG
         const moris::Cell< moris_index >& tSpIndicesInGroup = aBsplineMeshInfo->mSubphaseGroups( iSPG )->get_SP_indices_in_group();
@@ -4399,12 +4400,10 @@ Integration_Mesh_Generator::construct_subphase_group_neighborhood(
                         // get connectivity information for SPGs from SP neighborhood connectivity
                         const moris_index tMySideOrdinal              = (*tSpNeighborhood->mSubphaseToSubPhaseMySideOrds( tCurrentSpIndex ))( iSpNeighbor );
                         const moris_index tOtherSideOrdinal           = (*tSpNeighborhood->mSubphaseToSubPhaseNeighborSideOrds( tCurrentSpIndex ))( iSpNeighbor );
-                        const moris_index tTransitionNeighborLocation = (*tSpNeighborhood->mTransitionNeighborCellLocation( tCurrentSpIndex ))( iSpNeighbor );
 
                         // put connectivity information into SPG neighborhood connectivity
                         tSpgNeighborhood->mSubphaseToSubPhaseMySideOrds( iSPG )->push_back( tMySideOrdinal );
                         tSpgNeighborhood->mSubphaseToSubPhaseNeighborSideOrds( iSPG )->push_back( tOtherSideOrdinal );
-                        tSpgNeighborhood->mTransitionNeighborCellLocation( iSPG )->push_back( tTransitionNeighborLocation );
                     }
                 }
             } // end: loop over neighbor SPs
