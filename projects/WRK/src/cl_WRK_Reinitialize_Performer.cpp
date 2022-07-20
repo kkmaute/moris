@@ -121,45 +121,11 @@ namespace moris
             // find the index of the adv field
             moris_index tADVFieldIndex = std::distance( tGENFields.begin(), itr );
 
-            // get the necessary data to build the target HMR mesh
-            uint tTargetLagrangeOrder     = ( *itr )->get_lagrange_order();
-            uint tDiscretizationOrder     = ( *itr )->get_discretization_order();
+            // get the the adv discretization mesh index
             uint tDiscretizationMeshIndex = ( *itr )->get_discretization_mesh_index();
 
             // get interpolation mesh from mesh pair
             moris::mtk::Mesh* tTargetMesh = ( *itr )->get_mesh_pair().get_interpolation_mesh();
-
-            uint tTargetLagrangePattern = tTargetMesh->get_HMR_lagrange_mesh()->get_activation_pattern();
-            uint tTargetBSplinePattern  = tTargetMesh->get_HMR_lagrange_mesh()->get_bspline_pattern( tDiscretizationMeshIndex );
-
-            // build the target HMR mesh based on the adv field
-            hmr::Interpolation_Mesh_HMR* tInterpolationMeshTarget = new hmr::Interpolation_Mesh_HMR(
-                    aHMRPerformers( 0 )->get_database(),
-                    tTargetLagrangeOrder,
-                    tTargetLagrangePattern,
-                    tDiscretizationOrder,
-                    tTargetBSplinePattern );    // order, Lagrange pattern, bspline pattern
-
-            // Create  mesh pair for the discrete field
-            mtk::Mesh_Pair tMeshPairTarget( tInterpolationMeshTarget, ( *itr )->get_mesh_pair().get_integration_mesh(), false );
-
-            // get the source mesh
-            moris::mtk::Mesh* tSourceMesh = aMTKPerformer( 0 )->get_mesh_pair( 0 ).get_interpolation_mesh();
-
-            // get the source mesh bspline info
-            uint tSourceBSplinePattern = tSourceMesh->get_HMR_lagrange_mesh()->get_bspline_pattern( mAdofMeshIndex );
-            uint tSourceBSplineOrder   = tSourceMesh->get_HMR_lagrange_mesh()->get_bspline_order( mAdofMeshIndex );
-
-            // build the hmr mesh which is a source
-            hmr::Interpolation_Mesh_HMR* tInterpolationMeshSource = new hmr::Interpolation_Mesh_HMR(
-                    aHMRPerformers( 0 )->get_database(),
-                    tTargetLagrangeOrder,
-                    tTargetLagrangePattern,
-                    tSourceBSplineOrder,
-                    tSourceBSplinePattern );    // order, Lagrange pattern, bspline pattern
-
-            // Create  mesh pair
-            mtk::Mesh_Pair tMeshPairSource( tInterpolationMeshSource, nullptr, true );
 
             // get the solution field and get a matrix of the solutions
             // generate a cell containing the indices of the bspline coefficients
@@ -174,7 +140,7 @@ namespace moris
             delete tPartialSolutionVector;
 
             // create field object for this mesh ,the discretization index is zero as there is only one discretization in the newly constructed IP mesh
-            std::shared_ptr< mtk::Field_Discrete > tFieldSource = std::make_shared< mtk::Field_Discrete >( tMeshPairSource, 0 );
+            std::shared_ptr< mtk::Field_Discrete > tFieldSource = std::make_shared< mtk::Field_Discrete >( aMTKPerformer( 0 )->get_mesh_pair( 0 ), mAdofMeshIndex );
 
             // unlock fields and set the coeff
             tFieldSource->unlock_field();
@@ -184,7 +150,7 @@ namespace moris
             tFieldSource->compute_nodal_values();
 
             // create field object for this mesh ,the discretization index is zero as there is only one discretization in the newly constructed IP mesh
-            std::shared_ptr< mtk::Field_Discrete > tFieldTarget = std::make_shared< mtk::Field_Discrete >( tMeshPairTarget, 0 );
+            std::shared_ptr< mtk::Field_Discrete > tFieldTarget = std::make_shared< mtk::Field_Discrete >( ( *itr )->get_mesh_pair(), tDiscretizationMeshIndex );
             tFieldTarget->set_label( mADVFiledName );
 
             // set the nodal values
@@ -214,8 +180,7 @@ namespace moris
             // output the fields if asked
             if ( mOutputMeshFile != "" )
             {
-                // TO DO: this functionally needs to be restored
-                // this->output_fields( tFieldTarget.get(), tFieldSource.get(), mOutputMeshFile );
+                this->output_fields( tFieldTarget.get(), tFieldSource.get(), mOutputMeshFile );
             }
         }
 
