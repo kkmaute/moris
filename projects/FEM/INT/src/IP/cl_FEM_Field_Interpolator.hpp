@@ -230,7 +230,7 @@ namespace moris
              *
              * @return const moris_index
              */
-            const moris_index
+            moris_index
             get_discretization_mesh_index() const
             {
                 MORIS_ASSERT( mDiscretizationMeshIndex > -1, "Field_Interpolator::get_discretization_mesh_index() - Discretization mesh index not set." );
