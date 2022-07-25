@@ -31,7 +31,6 @@ namespace moris
 
             if( aMatrix.numel() > 0 )
             {
-                std::ostringstream out;
                 for ( uint iCol = 0; iCol < aMatrix.n_cols(); iCol++ )
                 {
                     if ( iCol > 0 )
