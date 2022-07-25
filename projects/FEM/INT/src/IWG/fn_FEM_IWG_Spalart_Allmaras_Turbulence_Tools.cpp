@@ -195,9 +195,6 @@ namespace moris
 
             // compute fv1
             return tChi3 / tFv1Deno;
-
-            // xxx to be removed
-            clip_value( tChi3 + std::pow( mCv1, 3.0 ), mEpsilon, tChi3 );
         }
 
         //------------------------------------------------------------------------------
@@ -235,16 +232,10 @@ namespace moris
 
                 // compute adfv1du
                 adfv1du = 3.0 * std::pow( mCv1, 3.0 ) * std::pow( tChi, 2.0 ) * tdchidu / tFv1Deno2;
-
-                // xxx to be removed
-                clip_value( std::pow( tFv1Deno, 2.0 ), mEpsilonDeriv, 3.0 * std::pow( mCv1, 3.0 ) * std::pow( tChi, 2.0 ) );
             }
             else
             {
                 adfv1du = 3.0 * std::pow( tChi, 2.0 ) * tdchidu / tFv1Deno;
-
-                // xxx to be removed
-                clip_value( std::pow( tChi, 3.0 ) + std::pow( mCv1, 3.0 ), mEpsilon, 3.0 * std::pow( tChi, 2.0 ) );
             }
         }
 
@@ -281,17 +272,11 @@ namespace moris
 
                 // compute dfv1dx
                 adfv1dx = 3.0 * mCv1 * std::pow( tChi, 2.0 ) * tdchidx / tFv1Deno2;
-
-                // xxx to be removed
-                clip_value( std::pow( tFv1Deno, 2.0 ), mEpsilonDeriv, 3.0 * mCv1 * std::pow( tChi, 2.0 ) );
             }
             else
             {
                 // compute dfv1dx
                 adfv1dx = 3.0 * std::pow( tChi, 2.0 ) * tdchidx / tFv1Deno;
-
-                // xxx to be removed
-                clip_value( std::pow( tChi, 3.0 ) + std::pow( mCv1, 3.0 ), mEpsilon, 3.0 * std::pow( tChi, 2.0 ) );
             }
         }
 
