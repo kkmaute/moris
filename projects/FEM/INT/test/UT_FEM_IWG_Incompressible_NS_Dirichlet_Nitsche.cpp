@@ -4,20 +4,20 @@
 #include "assert.hpp"
 
 #define protected public
-#define private   public
-//FEM//INT//src
+#define private public
+// FEM//INT//src
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IWG.hpp"
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Cluster.hpp"
 #undef protected
 #undef private
-//LINALG/src
+// LINALG/src
 #include "op_equal_equal.hpp"
 #include "fn_norm.hpp"
-//MTK/src
+// MTK/src
 #include "cl_MTK_Enums.hpp"
-//FEM//INT//src
+// FEM//INT//src
 #include "cl_FEM_Enums.hpp"
 #include "cl_FEM_Field_Interpolator.hpp"
 #include "cl_FEM_Property.hpp"
@@ -49,46 +49,48 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Symmetric_Nitsche",
 
     // create list of interpolation orders
     moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
-            mtk::Interpolation_Order::LINEAR,
-            mtk::Interpolation_Order::QUADRATIC,
-            mtk::Interpolation_Order::CUBIC };
+        mtk::Interpolation_Order::LINEAR,
+        mtk::Interpolation_Order::QUADRATIC,
+        mtk::Interpolation_Order::CUBIC
+    };
 
     // create list of integration orders
     moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
-            mtk::Integration_Order::QUAD_2x2,
-            mtk::Integration_Order::HEX_2x2x2 };
+        mtk::Integration_Order::QUAD_2x2,
+        mtk::Integration_Order::HEX_2x2x2
+    };
 
     // create list with number of coeffs
-    Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
+    Matrix< DDRMat > tNumCoeffs = { { 8, 18, 32 }, { 16, 54, 128 } };
 
     // dof type list
     moris::Cell< MSI::Dof_Type > tVisDofTypes = { MSI::Dof_Type::VISCOSITY };
 
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tVelDofTypes  = { { MSI::Dof_Type::VX } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tPDofTypes    = { { MSI::Dof_Type::P } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes     = { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tVelDofTypes = { { MSI::Dof_Type::VX } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tPDofTypes   = { { MSI::Dof_Type::P } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes    = { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes };
 
     // create the properties
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
-    tPropViscosity->set_parameters( { {{ 1.0 }} } );
+    tPropViscosity->set_parameters( { { { 1.0 } } } );
     tPropViscosity->set_val_function( tConstValFunc );
-    //tPropViscosity->set_dof_type_list( { tPDofTypes } );
-    //tPropViscosity->set_val_function( tPFIValFunc );
-    //tPropViscosity->set_dof_derivative_functions( { tPFIDerFunc } );
+    // tPropViscosity->set_dof_type_list( { tPDofTypes } );
+    // tPropViscosity->set_val_function( tPFIValFunc );
+    // tPropViscosity->set_dof_derivative_functions( { tPFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropKinViscosity = std::make_shared< fem::Property >();
     tPropKinViscosity->set_val_function( tConstValFunc );
     tPropKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
     std::shared_ptr< fem::Property > tPropDensity = std::make_shared< fem::Property >();
-    tPropDensity->set_parameters( { {{ 1.0 }} } );
+    tPropDensity->set_parameters( { { { 1.0 } } } );
     tPropDensity->set_val_function( tConstValFunc );
-    //tPropDensity->set_dof_type_list( { tPDofTypes } );
-    //tPropDensity->set_val_function( tPFIValFunc );
-    //tPropDensity->set_dof_derivative_functions( { tPFIDerFunc } );
+    // tPropDensity->set_dof_type_list( { tPDofTypes } );
+    // tPropDensity->set_val_function( tPFIValFunc );
+    // tPropDensity->set_dof_derivative_functions( { tPFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropUpwind = std::make_shared< fem::Property >();
-    tPropUpwind->set_parameters( { {{ 1.0 }} } );
+    tPropUpwind->set_parameters( { { { 1.0 } } } );
     tPropUpwind->set_val_function( tConstValFunc );
 
     std::shared_ptr< fem::Property > tPropVelocity = std::make_shared< fem::Property >();
@@ -113,10 +115,10 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Symmetric_Nitsche",
     tSPNitsche->set_dof_type_list( { tVelDofTypes }, mtk::Master_Slave::MASTER );
     tSPNitsche->set_property( tPropDensity, "Density", mtk::Master_Slave::MASTER );
     tSPNitsche->set_property( tPropViscosity, "Viscosity", mtk::Master_Slave::MASTER );
-    tSPNitsche->set_parameters( { {{ 1.0 }}, {{ 1.0 }} } );
+    tSPNitsche->set_parameters( { { { 1.0 } }, { { 1.0 } } } );
 
     // create a dummy fem cluster and set it to SP
-    fem::Cluster * tCluster = new fem::Cluster();
+    fem::Cluster* tCluster = new fem::Cluster();
     tSPNitsche->set_cluster( tCluster );
 
     // define the IWGs
@@ -132,8 +134,8 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Symmetric_Nitsche",
     tIWGVelocity->set_stabilization_parameter( tSPNitsche, "DirichletNitsche" );
 
     // set a fem set pointer
-    MSI::Equation_Set * tSet = new fem::Set();
-    static_cast<fem::Set*>(tSet)->set_set_type( fem::Element_Type::SIDESET );
+    MSI::Equation_Set* tSet = new fem::Set();
+    static_cast< fem::Set* >( tSet )->set_set_type( fem::Element_Type::SIDESET );
     tIWGVelocity->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
@@ -157,7 +159,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Symmetric_Nitsche",
     tIWGVelocity->get_global_dof_type_list();
 
     // loop on the space dimension
-    for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
+    for ( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
     {
         // create the normal
         Matrix< DDRMat > tNormal( iSpaceDim, 1, 0.5 );
@@ -167,46 +169,46 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Symmetric_Nitsche",
         Matrix< DDRMat > tVelocity( iSpaceDim, 1, 10.0 );
 
         // switch on space dimension
-        switch( iSpaceDim )
+        switch ( iSpaceDim )
         {
-            case 2 :
+            case 2:
             {
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::QUAD;
 
                 // fill space coeff xHat
-                tXHat = {{ 0.0, 0.0 },
-                        { 1.0, 0.0 },
-                        { 1.0, 1.0 },
-                        { 0.0, 1.0 }};
+                tXHat = { { 0.0, 0.0 },
+                    { 1.0, 0.0 },
+                    { 1.0, 1.0 },
+                    { 0.0, 1.0 } };
 
                 // set velocity dof types
                 tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } };
 
                 // set viscosity property parameters
-                tPropKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
+                tPropKinViscosity->set_parameters( { { { 1.0 } }, { { 0.0 }, { 0.0 } } } );
                 break;
             }
-            case 3 :
+            case 3:
             {
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::HEX;
 
                 // fill space coeff xHat
-                tXHat = {{ 0.0, 0.0, 0.0 },
-                        { 1.0, 0.0, 0.0 },
-                        { 1.0, 1.0, 0.0 },
-                        { 0.0, 1.0, 0.0 },
-                        { 0.0, 0.0, 1.0 },
-                        { 1.0, 0.0, 1.0 },
-                        { 1.0, 1.0, 1.0 },
-                        { 0.0, 1.0, 1.0 }};
+                tXHat = { { 0.0, 0.0, 0.0 },
+                    { 1.0, 0.0, 0.0 },
+                    { 1.0, 1.0, 0.0 },
+                    { 0.0, 1.0, 0.0 },
+                    { 0.0, 0.0, 1.0 },
+                    { 1.0, 0.0, 1.0 },
+                    { 1.0, 1.0, 1.0 },
+                    { 0.0, 1.0, 1.0 } };
 
                 // set velocity dof types
                 tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } };
 
                 // set viscosity property parameters
-                tPropKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
+                tPropKinViscosity->set_parameters( { { { 1.0 } }, { { 0.0 }, { 0.0 }, { 0.0 } } } );
 
                 break;
             }
@@ -230,7 +232,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Symmetric_Nitsche",
         Geometry_Interpolator tGI = Geometry_Interpolator( tGIRule );
 
         // create time coeff tHat
-        Matrix< DDRMat > tTHat = {{ 0.0 }, { 1.0 }};
+        Matrix< DDRMat > tTHat = { { 0.0 }, { 1.0 } };
 
         // set the coefficients xHat, tHat
         tGI.set_coeff( tXHat, tTHat );
@@ -244,7 +246,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Symmetric_Nitsche",
         tIWGVelocity->set_normal( tNormal );
 
         // loop on the interpolation order
-        for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
+        for ( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
         {
             // integration points
             //------------------------------------------------------------------------------
@@ -280,8 +282,8 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Symmetric_Nitsche",
             int tNumDofP   = tNumCoeff;
             int tNumDofVis = tNumCoeff;
 
-            //create a space time interpolation rule
-            mtk::Interpolation_Rule tFIRule (
+            // create a space time interpolation rule
+            mtk::Interpolation_Rule tFIRule(
                     tGeometryType,
                     mtk::Interpolation_Type::LAGRANGE,
                     tInterpolationOrder,
@@ -313,15 +315,16 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Symmetric_Nitsche",
 
             // set size and fill the set residual assembly map
             tIWGVelocity->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
-            tIWGVelocity->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofVel-1 } };
+            tIWGVelocity->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofVel - 1 } };
             tIWGVelocity->mSet->mResDofAssemblyMap( 1 ) = { { tNumDofVel, tNumDofVel + tNumDofP - 1 } };
             tIWGVelocity->mSet->mResDofAssemblyMap( 2 ) = { { tNumDofVel + tNumDofP, tNumDofVel + tNumDofP + tNumDofVis - 1 } };
 
             // set size and fill the set jacobian assembly map
             Matrix< DDSMat > tJacAssembly = {
-                    { 0, tNumDofVel - 1 },
-                    { tNumDofVel, tNumDofVel + tNumDofP - 1 },
-                    { tNumDofVel + tNumDofP, tNumDofVel + tNumDofP + tNumDofVis - 1 } };
+                { 0, tNumDofVel - 1 },
+                { tNumDofVel, tNumDofVel + tNumDofP - 1 },
+                { tNumDofVel + tNumDofP, tNumDofVel + tNumDofP + tNumDofVis - 1 }
+            };
             tIWGVelocity->mSet->mJacDofAssemblyMap.resize( tDofTypes.size() );
             tIWGVelocity->mSet->mJacDofAssemblyMap( 0 ) = tJacAssembly;
             tIWGVelocity->mSet->mJacDofAssemblyMap( 1 ) = tJacAssembly;
@@ -336,12 +339,12 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Symmetric_Nitsche",
             tIWGVelocity->mRequestedMasterGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
+            moris::Cell< moris::Cell< enum PDV_Type > >        tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
-            Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tFIManager.mFI = tMasterFIs;
+            tFIManager.mFI                     = tMasterFIs;
             tFIManager.mIPGeometryInterpolator = &tGI;
             tFIManager.mIGGeometryInterpolator = &tGI;
 
@@ -352,7 +355,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Symmetric_Nitsche",
             tIWGVelocity->set_field_interpolator_manager( &tFIManager );
 
             uint tNumGPs = tIntegPoints.n_cols();
-            for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
+            for ( uint iGP = 0; iGP < tNumGPs; iGP++ )
             {
                 // reset IWG evaluation flags
                 tIWGVelocity->reset_eval_flags();
@@ -390,16 +393,16 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Symmetric_Nitsche",
                         true );
 
                 // check that jacobian is symmetric for symmetric version using upper diagonal block
-                uint tNumRowBlock = tJacobian.n_rows() / iSpaceDim;
-                Matrix< DDRMat > tBlock = tJacobian({ 0, tNumRowBlock-1 },{ 0, tNumRowBlock-1 });
+                uint             tNumRowBlock = tJacobian.n_rows() / iSpaceDim;
+                Matrix< DDRMat > tBlock       = tJacobian( { 0, tNumRowBlock - 1 }, { 0, tNumRowBlock - 1 } );
 
-                real tRelError = norm( tBlock - trans( tBlock ) ) / norm ( tBlock );
+                real tRelError = norm( tBlock - trans( tBlock ) ) / norm( tBlock );
                 REQUIRE( tRelError < 1e-12 );
 
                 // print for debug
-                if( !tCheckJacobian )
+                if ( !tCheckJacobian )
                 {
-                    std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<" iGP "<<iGP<<std::endl;
+                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << " iGP " << iGP << std::endl;
                 }
 
                 // require check is true
@@ -410,7 +413,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Symmetric_Nitsche",
             tMasterFIs.clear();
         }
     }
-}/*END_TEST_CASE*/
+} /*END_TEST_CASE*/
 
 TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Unsymmetric_Nitsche",
         "[IWG_Incompressible_NS_Dirichlet_Velocity_Unsymmetric_Nitsche]" )
@@ -431,53 +434,55 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Unsymmetric_Nitsche",
 
     // create list of interpolation orders
     moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
-            mtk::Interpolation_Order::LINEAR,
-            mtk::Interpolation_Order::QUADRATIC,
-            mtk::Interpolation_Order::CUBIC };
+        mtk::Interpolation_Order::LINEAR,
+        mtk::Interpolation_Order::QUADRATIC,
+        mtk::Interpolation_Order::CUBIC
+    };
 
     // create list of integration orders
-     moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
-             mtk::Integration_Order::QUAD_2x2,
-             mtk::Integration_Order::HEX_2x2x2 };
+    moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
+        mtk::Integration_Order::QUAD_2x2,
+        mtk::Integration_Order::HEX_2x2x2
+    };
 
     // create list with number of coeffs
-    Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
+    Matrix< DDRMat > tNumCoeffs = { { 8, 18, 32 }, { 16, 54, 128 } };
 
     // dof type list
     moris::Cell< MSI::Dof_Type > tVisDofTypes = { MSI::Dof_Type::VISCOSITY };
 
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tVelDofTypes  = { { MSI::Dof_Type::VX } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tPDofTypes    = { { MSI::Dof_Type::P } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes     = { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tVelDofTypes = { { MSI::Dof_Type::VX } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tPDofTypes   = { { MSI::Dof_Type::P } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes    = { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes };
 
     // create the properties
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
-    tPropViscosity->set_parameters( { {{ 1.0 }} } );
+    tPropViscosity->set_parameters( { { { 1.0 } } } );
     tPropViscosity->set_val_function( tConstValFunc );
-    //tPropViscosity->set_dof_type_list( { tPDofTypes } );
-    //tPropViscosity->set_val_function( tPFIValFunc );
-    //tPropViscosity->set_dof_derivative_functions( { tPFIDerFunc } );
+    // tPropViscosity->set_dof_type_list( { tPDofTypes } );
+    // tPropViscosity->set_val_function( tPFIValFunc );
+    // tPropViscosity->set_dof_derivative_functions( { tPFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropKinViscosity = std::make_shared< fem::Property >();
     tPropKinViscosity->set_val_function( tConstValFunc );
     tPropKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
     std::shared_ptr< fem::Property > tPropDensity = std::make_shared< fem::Property >();
-    tPropDensity->set_parameters( { {{ 1.0 }} } );
+    tPropDensity->set_parameters( { { { 1.0 } } } );
     tPropDensity->set_val_function( tConstValFunc );
-    //tPropDensity->set_dof_type_list( { tPDofTypes } );
-    //tPropDensity->set_val_function( tPFIValFunc );
-    //tPropDensity->set_dof_derivative_functions( { tPFIDerFunc } );
+    // tPropDensity->set_dof_type_list( { tPDofTypes } );
+    // tPropDensity->set_val_function( tPFIValFunc );
+    // tPropDensity->set_dof_derivative_functions( { tPFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropUpwind = std::make_shared< fem::Property >();
-    tPropUpwind->set_parameters( { {{ 1.0 }} } );
+    tPropUpwind->set_parameters( { { { 1.0 } } } );
     tPropUpwind->set_val_function( tConstValFunc );
 
     std::shared_ptr< fem::Property > tPropVelocity = std::make_shared< fem::Property >();
     tPropVelocity->set_val_function( tConstValFunc );
-    //tPropVelocity->set_dof_type_list( { tPDofTypes } );
-    //tPropVelocity->set_val_function( tPFIValFunc );
-    //tPropVelocity->set_dof_derivative_functions( { tPFIDerFunc } );
+    // tPropVelocity->set_dof_type_list( { tPDofTypes } );
+    // tPropVelocity->set_val_function( tPFIValFunc );
+    // tPropVelocity->set_dof_derivative_functions( { tPFIDerFunc } );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
@@ -498,10 +503,10 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Unsymmetric_Nitsche",
     tSPNitsche->set_dof_type_list( { tVelDofTypes }, mtk::Master_Slave::MASTER );
     tSPNitsche->set_property( tPropDensity, "Density", mtk::Master_Slave::MASTER );
     tSPNitsche->set_property( tPropViscosity, "Viscosity", mtk::Master_Slave::MASTER );
-    tSPNitsche->set_parameters( { {{ 1.0 }}, {{ 1.0 }} } );
+    tSPNitsche->set_parameters( { { { 1.0 } }, { { 1.0 } } } );
 
     // create a dummy fem cluster and set it to SP
-    fem::Cluster * tCluster = new fem::Cluster();
+    fem::Cluster* tCluster = new fem::Cluster();
     tSPNitsche->set_cluster( tCluster );
 
     // define the IWGs
@@ -517,8 +522,8 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Unsymmetric_Nitsche",
     tIWGVelocity->set_stabilization_parameter( tSPNitsche, "DirichletNitsche" );
 
     // set a fem set pointer
-    MSI::Equation_Set * tSet = new fem::Set();
-    static_cast<fem::Set*>(tSet)->set_set_type( fem::Element_Type::SIDESET );
+    MSI::Equation_Set* tSet = new fem::Set();
+    static_cast< fem::Set* >( tSet )->set_set_type( fem::Element_Type::SIDESET );
     tIWGVelocity->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
@@ -537,7 +542,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Unsymmetric_Nitsche",
     tIWGVelocity->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
 
     // loop on the space dimension
-    for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
+    for ( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
     {
         // create the normal
         Matrix< DDRMat > tNormal( iSpaceDim, 1, 0.5 );
@@ -547,47 +552,47 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Unsymmetric_Nitsche",
         Matrix< DDRMat > tVelocity( iSpaceDim, 1, 10.0 );
 
         // switch on space dimension
-        switch( iSpaceDim )
+        switch ( iSpaceDim )
         {
-            case 2 :
+            case 2:
             {
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::QUAD;
 
                 // fill space coeff xHat
-                tXHat = {{ 0.0, 0.0 },
-                        { 1.0, 0.0 },
-                        { 1.0, 1.0 },
-                        { 0.0, 1.0 }};
+                tXHat = { { 0.0, 0.0 },
+                    { 1.0, 0.0 },
+                    { 1.0, 1.0 },
+                    { 0.0, 1.0 } };
 
                 // set velocity dof types
                 tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } };
 
                 // set viscosity property parameters
-                tPropKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
+                tPropKinViscosity->set_parameters( { { { 1.0 } }, { { 0.0 }, { 0.0 } } } );
 
                 break;
             }
-            case 3 :
+            case 3:
             {
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::HEX;
 
                 // fill space coeff xHat
-                tXHat = {{ 0.0, 0.0, 0.0 },
-                        { 1.0, 0.0, 0.0 },
-                        { 1.0, 1.0, 0.0 },
-                        { 0.0, 1.0, 0.0 },
-                        { 0.0, 0.0, 1.0 },
-                        { 1.0, 0.0, 1.0 },
-                        { 1.0, 1.0, 1.0 },
-                        { 0.0, 1.0, 1.0 }};
+                tXHat = { { 0.0, 0.0, 0.0 },
+                    { 1.0, 0.0, 0.0 },
+                    { 1.0, 1.0, 0.0 },
+                    { 0.0, 1.0, 0.0 },
+                    { 0.0, 0.0, 1.0 },
+                    { 1.0, 0.0, 1.0 },
+                    { 1.0, 1.0, 1.0 },
+                    { 0.0, 1.0, 1.0 } };
 
                 // set velocity dof types
                 tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } };
 
                 // set viscosity property parameters
-                tPropKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
+                tPropKinViscosity->set_parameters( { { { 1.0 } }, { { 0.0 }, { 0.0 }, { 0.0 } } } );
 
                 break;
             }
@@ -611,7 +616,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Unsymmetric_Nitsche",
         Geometry_Interpolator tGI = Geometry_Interpolator( tGIRule );
 
         // create time coeff tHat
-        Matrix< DDRMat > tTHat = {{ 0.0 }, { 1.0 }};
+        Matrix< DDRMat > tTHat = { { 0.0 }, { 1.0 } };
 
         // set the coefficients xHat, tHat
         tGI.set_coeff( tXHat, tTHat );
@@ -625,12 +630,12 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Unsymmetric_Nitsche",
         tIWGVelocity->set_normal( tNormal );
 
         // loop on the interpolation order
-        for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
+        for ( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
         {
             // integration points
             //------------------------------------------------------------------------------
             // get an integration order
-            mtk::Integration_Order tIntegrationOrder   = tIntegrationOrders( iSpaceDim - 2 );
+            mtk::Integration_Order tIntegrationOrder = tIntegrationOrders( iSpaceDim - 2 );
 
             // create an integration rule
             mtk::Integration_Rule tIntegrationRule(
@@ -661,8 +666,8 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Unsymmetric_Nitsche",
             int tNumDofP   = tNumCoeff;
             int tNumDofVis = tNumCoeff;
 
-            //create a space time interpolation rule
-            mtk::Interpolation_Rule tFIRule (
+            // create a space time interpolation rule
+            mtk::Interpolation_Rule tFIRule(
                     tGeometryType,
                     mtk::Interpolation_Type::LAGRANGE,
                     tInterpolationOrder,
@@ -694,15 +699,16 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Unsymmetric_Nitsche",
 
             // set size and fill the set residual assembly map
             tIWGVelocity->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
-            tIWGVelocity->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofVel-1 } };
+            tIWGVelocity->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofVel - 1 } };
             tIWGVelocity->mSet->mResDofAssemblyMap( 1 ) = { { tNumDofVel, tNumDofVel + tNumDofP - 1 } };
             tIWGVelocity->mSet->mResDofAssemblyMap( 2 ) = { { tNumDofVel + tNumDofP, tNumDofVel + tNumDofP + tNumDofVis - 1 } };
 
             // set size and fill the set jacobian assembly map
             Matrix< DDSMat > tJacAssembly = {
-                    { 0, tNumDofVel - 1 },
-                    { tNumDofVel, tNumDofVel + tNumDofP - 1 },
-                    { tNumDofVel + tNumDofP, tNumDofVel + tNumDofP + tNumDofVis - 1 } };
+                { 0, tNumDofVel - 1 },
+                { tNumDofVel, tNumDofVel + tNumDofP - 1 },
+                { tNumDofVel + tNumDofP, tNumDofVel + tNumDofP + tNumDofVis - 1 }
+            };
             tIWGVelocity->mSet->mJacDofAssemblyMap.resize( tDofTypes.size() );
             tIWGVelocity->mSet->mJacDofAssemblyMap( 0 ) = tJacAssembly;
             tIWGVelocity->mSet->mJacDofAssemblyMap( 1 ) = tJacAssembly;
@@ -720,12 +726,12 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Unsymmetric_Nitsche",
             tIWGVelocity->mRequestedMasterGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
+            moris::Cell< moris::Cell< enum PDV_Type > >        tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
-            Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tFIManager.mFI = tMasterFIs;
+            tFIManager.mFI                     = tMasterFIs;
             tFIManager.mIPGeometryInterpolator = &tGI;
             tFIManager.mIGGeometryInterpolator = &tGI;
 
@@ -736,7 +742,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Unsymmetric_Nitsche",
             tIWGVelocity->set_field_interpolator_manager( &tFIManager );
 
             uint tNumGPs = tIntegPoints.n_cols();
-            for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
+            for ( uint iGP = 0; iGP < tNumGPs; iGP++ )
             {
                 // reset IWG evaluation flags
                 tIWGVelocity->reset_eval_flags();
@@ -774,9 +780,9 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Unsymmetric_Nitsche",
                         true );
 
                 // print for debug
-                if( !tCheckJacobian )
+                if ( !tCheckJacobian )
                 {
-                    std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<" iGP "<<iGP<<std::endl;
+                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << " iGP " << iGP << std::endl;
                 }
 
                 // require check is true
@@ -787,7 +793,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Velocity_Unsymmetric_Nitsche",
             tMasterFIs.clear();
         }
     }
-}/*END_TEST_CASE*/
+} /*END_TEST_CASE*/
 
 TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Symmetric_Nitsche",
         "[IWG_Incompressible_NS_Dirichlet_Pressure_Symmetric_Nitsche]" )
@@ -808,49 +814,51 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Symmetric_Nitsche",
 
     // create list of interpolation orders
     moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
-            mtk::Interpolation_Order::LINEAR,
-            mtk::Interpolation_Order::QUADRATIC,
-            mtk::Interpolation_Order::CUBIC };
+        mtk::Interpolation_Order::LINEAR,
+        mtk::Interpolation_Order::QUADRATIC,
+        mtk::Interpolation_Order::CUBIC
+    };
 
     // create list of integration orders
-     moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
-             mtk::Integration_Order::QUAD_2x2,
-             mtk::Integration_Order::HEX_2x2x2 };
+    moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
+        mtk::Integration_Order::QUAD_2x2,
+        mtk::Integration_Order::HEX_2x2x2
+    };
 
     // create list with number of coeffs
-    Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
+    Matrix< DDRMat > tNumCoeffs = { { 8, 18, 32 }, { 16, 54, 128 } };
 
     // dof type list
     moris::Cell< MSI::Dof_Type > tVisDofTypes = { MSI::Dof_Type::VISCOSITY };
 
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tVelDofTypes  = { { MSI::Dof_Type::VX } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tPDofTypes    = { { MSI::Dof_Type::P } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes     = { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tVelDofTypes = { { MSI::Dof_Type::VX } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tPDofTypes   = { { MSI::Dof_Type::P } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes    = { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes };
 
     // create the properties
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
-    tPropViscosity->set_parameters( { {{ 1.0 }} } );
+    tPropViscosity->set_parameters( { { { 1.0 } } } );
     tPropViscosity->set_val_function( tConstValFunc );
-    //tPropViscosity->set_dof_type_list( { tPDofTypes } );
-    //tPropViscosity->set_val_function( tPFIValFunc );
-    //tPropViscosity->set_dof_derivative_functions( { tPFIDerFunc } );
+    // tPropViscosity->set_dof_type_list( { tPDofTypes } );
+    // tPropViscosity->set_val_function( tPFIValFunc );
+    // tPropViscosity->set_dof_derivative_functions( { tPFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropKinViscosity = std::make_shared< fem::Property >();
     tPropKinViscosity->set_val_function( tConstValFunc );
     tPropKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
     std::shared_ptr< fem::Property > tPropDensity = std::make_shared< fem::Property >();
-    tPropDensity->set_parameters( { {{ 1.0 }} } );
+    tPropDensity->set_parameters( { { { 1.0 } } } );
     tPropDensity->set_val_function( tConstValFunc );
-    //tPropDensity->set_dof_type_list( { tPDofTypes } );
-    //tPropDensity->set_val_function( tPFIValFunc );
-    //tPropDensity->set_dof_derivative_functions( { tPFIDerFunc } );
+    // tPropDensity->set_dof_type_list( { tPDofTypes } );
+    // tPropDensity->set_val_function( tPFIValFunc );
+    // tPropDensity->set_dof_derivative_functions( { tPFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropVelocity = std::make_shared< fem::Property >();
     tPropVelocity->set_val_function( tConstValFunc );
-    //tPropVelocity->set_dof_type_list( { tPDofTypes } );
-    //tPropVelocity->set_val_function( tPFIValFunc );
-    //tPropVelocity->set_dof_derivative_functions( { tPFIDerFunc } );
+    // tPropVelocity->set_dof_type_list( { tPDofTypes } );
+    // tPropVelocity->set_val_function( tPFIValFunc );
+    // tPropVelocity->set_dof_derivative_functions( { tPFIDerFunc } );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
@@ -874,8 +882,8 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Symmetric_Nitsche",
     tIWGPressure->set_constitutive_model( tCMMasterTurbulence, "IncompressibleFluid" );
 
     // set a fem set pointer
-    MSI::Equation_Set * tSet = new fem::Set();
-    static_cast<fem::Set*>(tSet)->set_set_type( fem::Element_Type::SIDESET );
+    MSI::Equation_Set* tSet = new fem::Set();
+    static_cast< fem::Set* >( tSet )->set_set_type( fem::Element_Type::SIDESET );
     tIWGPressure->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
@@ -894,7 +902,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Symmetric_Nitsche",
     tIWGPressure->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
 
     // loop on the space dimension
-    for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
+    for ( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
     {
         // create the normal
         Matrix< DDRMat > tNormal( iSpaceDim, 1, 0.5 );
@@ -904,47 +912,47 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Symmetric_Nitsche",
         Matrix< DDRMat > tVelocity( iSpaceDim, 1, 10.0 );
 
         // switch on space dimension
-        switch( iSpaceDim )
+        switch ( iSpaceDim )
         {
-            case 2 :
+            case 2:
             {
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::QUAD;
 
                 // fill space coeff xHat
-                tXHat = {{ 0.0, 0.0 },
-                        { 1.0, 0.0 },
-                        { 1.0, 1.0 },
-                        { 0.0, 1.0 }};
+                tXHat = { { 0.0, 0.0 },
+                    { 1.0, 0.0 },
+                    { 1.0, 1.0 },
+                    { 0.0, 1.0 } };
 
                 // set velocity dof types
                 tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } };
 
                 // set viscosity property parameters
-                tPropKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
+                tPropKinViscosity->set_parameters( { { { 1.0 } }, { { 0.0 }, { 0.0 } } } );
 
                 break;
             }
-            case 3 :
+            case 3:
             {
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::HEX;
 
                 // fill space coeff xHat
-                tXHat = {{ 0.0, 0.0, 0.0 },
-                        { 1.0, 0.0, 0.0 },
-                        { 1.0, 1.0, 0.0 },
-                        { 0.0, 1.0, 0.0 },
-                        { 0.0, 0.0, 1.0 },
-                        { 1.0, 0.0, 1.0 },
-                        { 1.0, 1.0, 1.0 },
-                        { 0.0, 1.0, 1.0 }};
+                tXHat = { { 0.0, 0.0, 0.0 },
+                    { 1.0, 0.0, 0.0 },
+                    { 1.0, 1.0, 0.0 },
+                    { 0.0, 1.0, 0.0 },
+                    { 0.0, 0.0, 1.0 },
+                    { 1.0, 0.0, 1.0 },
+                    { 1.0, 1.0, 1.0 },
+                    { 0.0, 1.0, 1.0 } };
 
                 // set velocity dof types
                 tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } };
 
                 // set viscosity property parameters
-                tPropKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
+                tPropKinViscosity->set_parameters( { { { 1.0 } }, { { 0.0 }, { 0.0 }, { 0.0 } } } );
                 break;
             }
             default:
@@ -967,7 +975,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Symmetric_Nitsche",
         Geometry_Interpolator tGI = Geometry_Interpolator( tGIRule );
 
         // create time coeff tHat
-        Matrix< DDRMat > tTHat = {{ 0.0 }, { 1.0 }};
+        Matrix< DDRMat > tTHat = { { 0.0 }, { 1.0 } };
 
         // set the coefficients xHat, tHat
         tGI.set_coeff( tXHat, tTHat );
@@ -980,12 +988,12 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Symmetric_Nitsche",
         tIWGPressure->set_normal( tNormal );
 
         // loop on the interpolation order
-        for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
+        for ( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
         {
             // integration points
             //------------------------------------------------------------------------------
             // get an integration order
-            mtk::Integration_Order tIntegrationOrder   = tIntegrationOrders( iSpaceDim - 2 );
+            mtk::Integration_Order tIntegrationOrder = tIntegrationOrders( iSpaceDim - 2 );
 
             // create an integration rule
             mtk::Integration_Rule tIntegrationRule(
@@ -1016,8 +1024,8 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Symmetric_Nitsche",
             int tNumDofP   = tNumCoeff;
             int tNumDofVis = tNumCoeff;
 
-            //create a space time interpolation rule
-            mtk::Interpolation_Rule tFIRule (
+            // create a space time interpolation rule
+            mtk::Interpolation_Rule tFIRule(
                     tGeometryType,
                     mtk::Interpolation_Type::LAGRANGE,
                     tInterpolationOrder,
@@ -1049,15 +1057,16 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Symmetric_Nitsche",
 
             // set size and fill the set residual assembly map
             tIWGPressure->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
-            tIWGPressure->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofVel-1 } };
+            tIWGPressure->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofVel - 1 } };
             tIWGPressure->mSet->mResDofAssemblyMap( 1 ) = { { tNumDofVel, tNumDofVel + tNumDofP - 1 } };
             tIWGPressure->mSet->mResDofAssemblyMap( 2 ) = { { tNumDofVel + tNumDofP, tNumDofVel + tNumDofP + tNumDofVis - 1 } };
 
             // set size and fill the set jacobian assembly map
             Matrix< DDSMat > tJacAssembly = {
-                    { 0, tNumDofVel - 1 },
-                    { tNumDofVel, tNumDofVel + tNumDofP - 1 },
-                    { tNumDofVel + tNumDofP, tNumDofVel + tNumDofP + tNumDofVis - 1 } };
+                { 0, tNumDofVel - 1 },
+                { tNumDofVel, tNumDofVel + tNumDofP - 1 },
+                { tNumDofVel + tNumDofP, tNumDofVel + tNumDofP + tNumDofVis - 1 }
+            };
             tIWGPressure->mSet->mJacDofAssemblyMap.resize( tDofTypes.size() );
             tIWGPressure->mSet->mJacDofAssemblyMap( 0 ) = tJacAssembly;
             tIWGPressure->mSet->mJacDofAssemblyMap( 1 ) = tJacAssembly;
@@ -1075,12 +1084,12 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Symmetric_Nitsche",
             tIWGPressure->mRequestedMasterGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
+            moris::Cell< moris::Cell< enum PDV_Type > >        tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
-            Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tFIManager.mFI = tMasterFIs;
+            tFIManager.mFI                     = tMasterFIs;
             tFIManager.mIPGeometryInterpolator = &tGI;
             tFIManager.mIGGeometryInterpolator = &tGI;
 
@@ -1091,7 +1100,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Symmetric_Nitsche",
             tIWGPressure->set_field_interpolator_manager( &tFIManager );
 
             uint tNumGPs = tIntegPoints.n_cols();
-            for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
+            for ( uint iGP = 0; iGP < tNumGPs; iGP++ )
             {
                 // reset IWG evaluation flags
                 tIWGPressure->reset_eval_flags();
@@ -1129,9 +1138,9 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Symmetric_Nitsche",
                         true );
 
                 // print for debug
-                if( !tCheckJacobian )
+                if ( !tCheckJacobian )
                 {
-                    std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<" iGP "<<iGP<<std::endl;
+                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << " iGP " << iGP << std::endl;
                 }
 
                 // require check is true
@@ -1142,7 +1151,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Symmetric_Nitsche",
             tMasterFIs.clear();
         }
     }
-}/*END_TEST_CASE*/
+} /*END_TEST_CASE*/
 
 TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Unsymmetric_Nitsche",
         "[IWG_Incompressible_NS_Dirichlet_Pressure_Unsymmetric_Nitsche]" )
@@ -1163,49 +1172,51 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Unsymmetric_Nitsche",
 
     // create list of interpolation orders
     moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
-            mtk::Interpolation_Order::LINEAR,
-            mtk::Interpolation_Order::QUADRATIC,
-            mtk::Interpolation_Order::CUBIC };
+        mtk::Interpolation_Order::LINEAR,
+        mtk::Interpolation_Order::QUADRATIC,
+        mtk::Interpolation_Order::CUBIC
+    };
 
     // create list of integration orders
-     moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
-             mtk::Integration_Order::QUAD_2x2,
-             mtk::Integration_Order::HEX_2x2x2 };
+    moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
+        mtk::Integration_Order::QUAD_2x2,
+        mtk::Integration_Order::HEX_2x2x2
+    };
 
     // create list with number of coeffs
-    Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
+    Matrix< DDRMat > tNumCoeffs = { { 8, 18, 32 }, { 16, 54, 128 } };
 
     // dof type list
     moris::Cell< MSI::Dof_Type > tVisDofTypes = { MSI::Dof_Type::VISCOSITY };
 
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tVelDofTypes  = { { MSI::Dof_Type::VX } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tPDofTypes    = { { MSI::Dof_Type::P } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes     = { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tVelDofTypes = { { MSI::Dof_Type::VX } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tPDofTypes   = { { MSI::Dof_Type::P } };
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes    = { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes };
 
     // create the properties
     std::shared_ptr< fem::Property > tPropViscosity = std::make_shared< fem::Property >();
-    tPropViscosity->set_parameters( { {{ 1.0 }} } );
+    tPropViscosity->set_parameters( { { { 1.0 } } } );
     tPropViscosity->set_val_function( tConstValFunc );
-    //tPropViscosity->set_dof_type_list( { tPDofTypes } );
-    //tPropViscosity->set_val_function( tPFIValFunc );
-    //tPropViscosity->set_dof_derivative_functions( { tPFIDerFunc } );
+    // tPropViscosity->set_dof_type_list( { tPDofTypes } );
+    // tPropViscosity->set_val_function( tPFIValFunc );
+    // tPropViscosity->set_dof_derivative_functions( { tPFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropKinViscosity = std::make_shared< fem::Property >();
     tPropKinViscosity->set_val_function( tConstValFunc );
     tPropKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
     std::shared_ptr< fem::Property > tPropDensity = std::make_shared< fem::Property >();
-    tPropDensity->set_parameters( { {{ 1.0 }} } );
+    tPropDensity->set_parameters( { { { 1.0 } } } );
     tPropDensity->set_val_function( tConstValFunc );
-    //tPropDensity->set_dof_type_list( { tPDofTypes } );
-    //tPropDensity->set_val_function( tPFIValFunc );
-    //tPropDensity->set_dof_derivative_functions( { tPFIDerFunc } );
+    // tPropDensity->set_dof_type_list( { tPDofTypes } );
+    // tPropDensity->set_val_function( tPFIValFunc );
+    // tPropDensity->set_dof_derivative_functions( { tPFIDerFunc } );
 
     std::shared_ptr< fem::Property > tPropVelocity = std::make_shared< fem::Property >();
     tPropVelocity->set_val_function( tConstValFunc );
-    //tPropVelocity->set_dof_type_list( { tPDofTypes } );
-    //tPropVelocity->set_val_function( tPFIValFunc );
-    //tPropVelocity->set_dof_derivative_functions( { tPFIDerFunc } );
+    // tPropVelocity->set_dof_type_list( { tPDofTypes } );
+    // tPropVelocity->set_val_function( tPFIValFunc );
+    // tPropVelocity->set_dof_derivative_functions( { tPFIDerFunc } );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
@@ -1229,8 +1240,8 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Unsymmetric_Nitsche",
     tIWGPressure->set_constitutive_model( tCMMasterTurbulence, "IncompressibleFluid" );
 
     // set a fem set pointer
-    MSI::Equation_Set * tSet = new fem::Set();
-    static_cast<fem::Set*>(tSet)->set_set_type( fem::Element_Type::SIDESET );
+    MSI::Equation_Set* tSet = new fem::Set();
+    static_cast< fem::Set* >( tSet )->set_set_type( fem::Element_Type::SIDESET );
     tIWGPressure->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
@@ -1249,7 +1260,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Unsymmetric_Nitsche",
     tIWGPressure->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
 
     // loop on the space dimension
-    for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
+    for ( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
     {
         // create the normal
         Matrix< DDRMat > tNormal( iSpaceDim, 1, 0.5 );
@@ -1259,47 +1270,47 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Unsymmetric_Nitsche",
         Matrix< DDRMat > tVelocity( iSpaceDim, 1, 10.0 );
 
         // switch on space dimension
-        switch( iSpaceDim )
+        switch ( iSpaceDim )
         {
-            case 2 :
+            case 2:
             {
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::QUAD;
 
                 // fill space coeff xHat
-                tXHat = {{ 0.0, 0.0 },
-                        { 1.0, 0.0 },
-                        { 1.0, 1.0 },
-                        { 0.0, 1.0 }};
+                tXHat = { { 0.0, 0.0 },
+                    { 1.0, 0.0 },
+                    { 1.0, 1.0 },
+                    { 0.0, 1.0 } };
 
                 // set velocity dof types
                 tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } };
 
                 // set viscosity property parameters
-                tPropKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
+                tPropKinViscosity->set_parameters( { { { 1.0 } }, { { 0.0 }, { 0.0 } } } );
 
                 break;
             }
-            case 3 :
+            case 3:
             {
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::HEX;
 
                 // fill space coeff xHat
-                tXHat = {{ 0.0, 0.0, 0.0 },
-                        { 1.0, 0.0, 0.0 },
-                        { 1.0, 1.0, 0.0 },
-                        { 0.0, 1.0, 0.0 },
-                        { 0.0, 0.0, 1.0 },
-                        { 1.0, 0.0, 1.0 },
-                        { 1.0, 1.0, 1.0 },
-                        { 0.0, 1.0, 1.0 }};
+                tXHat = { { 0.0, 0.0, 0.0 },
+                    { 1.0, 0.0, 0.0 },
+                    { 1.0, 1.0, 0.0 },
+                    { 0.0, 1.0, 0.0 },
+                    { 0.0, 0.0, 1.0 },
+                    { 1.0, 0.0, 1.0 },
+                    { 1.0, 1.0, 1.0 },
+                    { 0.0, 1.0, 1.0 } };
 
                 // set velocity dof types
                 tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } };
 
                 // set viscosity property parameters
-                tPropKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
+                tPropKinViscosity->set_parameters( { { { 1.0 } }, { { 0.0 }, { 0.0 }, { 0.0 } } } );
                 break;
             }
             default:
@@ -1322,7 +1333,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Unsymmetric_Nitsche",
         Geometry_Interpolator tGI = Geometry_Interpolator( tGIRule );
 
         // create time coeff tHat
-        Matrix< DDRMat > tTHat = {{ 0.0 }, { 1.0 }};
+        Matrix< DDRMat > tTHat = { { 0.0 }, { 1.0 } };
 
         // set the coefficients xHat, tHat
         tGI.set_coeff( tXHat, tTHat );
@@ -1335,12 +1346,12 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Unsymmetric_Nitsche",
         tIWGPressure->set_normal( tNormal );
 
         // loop on the interpolation order
-        for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
+        for ( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
         {
             // integration points
             //------------------------------------------------------------------------------
             // get an integration order
-            mtk::Integration_Order tIntegrationOrder   = tIntegrationOrders( iSpaceDim - 2 );
+            mtk::Integration_Order tIntegrationOrder = tIntegrationOrders( iSpaceDim - 2 );
 
             // create an integration rule
             mtk::Integration_Rule tIntegrationRule(
@@ -1371,8 +1382,8 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Unsymmetric_Nitsche",
             int tNumDofP   = tNumCoeff;
             int tNumDofVis = tNumCoeff;
 
-            //create a space time interpolation rule
-            mtk::Interpolation_Rule tFIRule (
+            // create a space time interpolation rule
+            mtk::Interpolation_Rule tFIRule(
                     tGeometryType,
                     mtk::Interpolation_Type::LAGRANGE,
                     tInterpolationOrder,
@@ -1404,15 +1415,16 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Unsymmetric_Nitsche",
 
             // set size and fill the set residual assembly map
             tIWGPressure->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
-            tIWGPressure->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofVel-1 } };
+            tIWGPressure->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofVel - 1 } };
             tIWGPressure->mSet->mResDofAssemblyMap( 1 ) = { { tNumDofVel, tNumDofVel + tNumDofP - 1 } };
             tIWGPressure->mSet->mResDofAssemblyMap( 2 ) = { { tNumDofVel + tNumDofP, tNumDofVel + tNumDofP + tNumDofVis - 1 } };
 
             // set size and fill the set jacobian assembly map
             Matrix< DDSMat > tJacAssembly = {
-                    { 0, tNumDofVel - 1 },
-                    { tNumDofVel, tNumDofVel + tNumDofP - 1 },
-                    { tNumDofVel + tNumDofP, tNumDofVel + tNumDofP + tNumDofVis - 1 } };
+                { 0, tNumDofVel - 1 },
+                { tNumDofVel, tNumDofVel + tNumDofP - 1 },
+                { tNumDofVel + tNumDofP, tNumDofVel + tNumDofP + tNumDofVis - 1 }
+            };
             tIWGPressure->mSet->mJacDofAssemblyMap.resize( tDofTypes.size() );
             tIWGPressure->mSet->mJacDofAssemblyMap( 0 ) = tJacAssembly;
             tIWGPressure->mSet->mJacDofAssemblyMap( 1 ) = tJacAssembly;
@@ -1430,12 +1442,12 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Unsymmetric_Nitsche",
             tIWGPressure->mRequestedMasterGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
+            moris::Cell< moris::Cell< enum PDV_Type > >        tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
-            Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tFIManager.mFI = tMasterFIs;
+            tFIManager.mFI                     = tMasterFIs;
             tFIManager.mIPGeometryInterpolator = &tGI;
             tFIManager.mIGGeometryInterpolator = &tGI;
 
@@ -1446,7 +1458,7 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Unsymmetric_Nitsche",
             tIWGPressure->set_field_interpolator_manager( &tFIManager );
 
             uint tNumGPs = tIntegPoints.n_cols();
-            for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
+            for ( uint iGP = 0; iGP < tNumGPs; iGP++ )
             {
                 // reset IWG evaluation flags
                 tIWGPressure->reset_eval_flags();
@@ -1484,9 +1496,9 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Unsymmetric_Nitsche",
                         true );
 
                 // print for debug
-                if( !tCheckJacobian )
+                if ( !tCheckJacobian )
                 {
-                    std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<" iGP "<<iGP<<std::endl;
+                    std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << " iGP " << iGP << std::endl;
                 }
 
                 // require check is true
@@ -1497,4 +1509,4 @@ TEST_CASE( "IWG_Incompressible_NS_Dirichlet_Pressure_Unsymmetric_Nitsche",
             tMasterFIs.clear();
         }
     }
-}/*END_TEST_CASE*/
+} /*END_TEST_CASE*/
