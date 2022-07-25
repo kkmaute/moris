@@ -25,7 +25,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IQI_Property::compute_QI( Matrix< DDRMat > & aQI )
+        void
+        IQI_Property::compute_QI( Matrix< DDRMat >& aQI )
         {
             // get property index
             uint tPropertyIndex = static_cast< uint >( IQI_Property_Type::PROPERTY );
@@ -34,50 +35,52 @@ namespace moris
             uint tTypeIndex = mIQITypeIndex != -1 ? mIQITypeIndex : 0;
 
             // evaluate the QI
-            aQI = mMasterProp( tPropertyIndex )->val()(tTypeIndex);
+            aQI = mMasterProp( tPropertyIndex )->val()( tTypeIndex );
         }
 
         //------------------------------------------------------------------------------
 
-        void IQI_Property::compute_QI( real aWStar )
+        void
+        IQI_Property::compute_QI( real aWStar )
         {
             // get index for QI
             sint tQIIndex = mSet->get_QI_assembly_index( mName );
 
             // get the property
-            std::shared_ptr< Property > & tProperty =
+            std::shared_ptr< Property >& tProperty =
                     mMasterProp( static_cast< uint >( IQI_Property_Type::PROPERTY ) );
 
             // check that pointer to property exists
-            MORIS_ASSERT( tProperty ,
-                    "IQI_Property::compute_QI - property does not exist.\n");
+            MORIS_ASSERT( tProperty,
+                    "IQI_Property::compute_QI - property does not exist.\n" );
 
             // get index of property if defined; otherwise set to 0
             uint tTypeIndex = mIQITypeIndex != -1 ? mIQITypeIndex : 0;
 
             // evaluate the QI
-            mSet->get_QI()( tQIIndex ) += aWStar * ( tProperty->val()(tTypeIndex) );
+            mSet->get_QI()( tQIIndex ) += aWStar * ( tProperty->val()( tTypeIndex ) );
         }
 
         //------------------------------------------------------------------------------
 
-        void IQI_Property::compute_dQIdu( real aWStar )
+        void
+        IQI_Property::compute_dQIdu( real aWStar )
         {
             // get the column index to assemble in residual
             sint tQIIndex = mSet->get_QI_assembly_index( mName );
 
             // get the property
-            std::shared_ptr< Property > & tProperty =
+            std::shared_ptr< Property >& tProperty =
                     mMasterProp( static_cast< uint >( IQI_Property_Type::PROPERTY ) );
 
             // get the number of master dof type dependencies
             uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
 
             // compute dQIdu for indirect dof dependencies
-            for( uint iDof = 0; iDof < tNumDofDependencies; iDof++ )
+            for ( uint iDof = 0; iDof < tNumDofDependencies; iDof++ )
             {
                 // get the treated dof type
-                Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDof );
+                Cell< MSI::Dof_Type >& tDofType = mRequestedMasterGlobalDofTypes( iDof );
 
                 // get master index for residual dof type, indices for assembly
                 uint tMasterDofIndex      = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
@@ -90,18 +93,21 @@ namespace moris
                     // build selection matrix
                     uint tNumVecFieldComps = tProperty->val().numel();
 
-                    Matrix< DDRMat > tSelect( tNumVecFieldComps, 1, 0.0);
+                    Matrix< DDRMat > tSelect( tNumVecFieldComps, 1, 0.0 );
 
-                    // if no index is specfied it will return the whole dqdu
-                    if( mIQITypeIndex == -1) 
+                    // if no index is specified it will return the whole dqdu
+                    if ( mIQITypeIndex == -1 )
                     {
-                        tSelect.fill(1.0);
+                        tSelect.fill( 1.0 );
                     }
                     else
                     {
-                        //if an index is specified it will only return dQ(index)d
+                        // if an index is specified it will only return dQ(index)d
                         tSelect( mIQITypeIndex, 0 ) = 1.0;
                     }
+
+                    MORIS_ASSERT( tProperty->dPropdDOF( tDofType ).n_cols() == tMasterDepStopIndex - tMasterDepStartIndex + 1,
+                            "IQI_Property::compute_dQIdu - Incorrect size of dof derivative of property" );
 
                     // compute dQIdu
                     mSet->get_residual()( tQIIndex )(
@@ -113,12 +119,13 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IQI_Property::compute_dQIdu(
-                moris::Cell< MSI::Dof_Type > & aDofType,
-                Matrix< DDRMat >             & adQIdu )
+        void
+        IQI_Property::compute_dQIdu(
+                moris::Cell< MSI::Dof_Type >& aDofType,
+                Matrix< DDRMat >&             adQIdu )
         {
             // get the property
-            std::shared_ptr< Property > & tProperty =
+            std::shared_ptr< Property >& tProperty =
                     mMasterProp( static_cast< uint >( IQI_Property_Type::PROPERTY ) );
 
             // if property depends on dof type
@@ -130,8 +137,5 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-    }/* end_namespace_fem */
-}/* end_namespace_moris */
-
-
-
+    }    // namespace fem
+}    // namespace moris
