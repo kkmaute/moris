@@ -32,7 +32,7 @@ using namespace fem;
 
 void
 UT_FEM_IWG_Incompressible_NS_Pressure_Neumann(
-        bool aUseTotalPressure,
+        bool aUsePressure,
         bool aUseTotalPressure,
         bool aUseBackflowPrevention )
 {
@@ -94,42 +94,38 @@ UT_FEM_IWG_Incompressible_NS_Pressure_Neumann(
     std::shared_ptr< fem::Property > tPropTotalPressure      = nullptr;
     std::shared_ptr< fem::Property > tPropBackflowPrevention = nullptr;
 
-    if ( aUseTotalPressure )
+    if ( aUsePressure )
     {
-        std::shared_ptr< fem::Property > tPropPressure = std::make_shared< fem::Property >();
+        tPropPressure = std::make_shared< fem::Property >();
         tPropPressure->set_parameters( { { { 3.33 } } } );
         tPropPressure->set_val_function( tConstValFunc );
     }
 
     if ( aUseTotalPressure )
     {
-        std::shared_ptr< fem::Property > tPropTotalPressure = std::make_shared< fem::Property >();
+        tPropTotalPressure = std::make_shared< fem::Property >();
         tPropTotalPressure->set_parameters( { { { 3.33 } } } );
         tPropTotalPressure->set_val_function( tConstValFunc );
     }
 
-    if ( a UseBackflowPrevention )
+    if ( aUseBackflowPrevention )
     {
         tPropBackflowPrevention = std::make_shared< fem::Property >();
         tPropBackflowPrevention->set_parameters( { { { 1.0 } } } );
         tPropBackflowPrevention->set_val_function( tConstValFunc );
     }
 
-    // create a dummy fem cluster and set it to SP
-    fem::Cluster* tCluster = new fem::Cluster();
-    tSPNitsche->set_cluster( tCluster );
-
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
     std::shared_ptr< fem::IWG > tIWGNeumann =
             tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_IMPOSED_PRESSURE );
-    tPropPressure->set_residual_dof_type( tVelDofTypes );
-    tPropPressure->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ) }, mtk::Master_Slave::MASTER );
-    tPropPressure->set_property( tPropDensity, "Density" );
-    tPropPressure->set_property( tPropPressure, "Pressure" );
-    tPropPressure->set_property( tPropTotalPressure, "TotalPressure" );
-    tPropPressure->set_property( tPropVelocity, "BackFlowPrevention" );
+    tIWGNeumann->set_residual_dof_type( tVelDofTypes );
+    tIWGNeumann->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ) }, mtk::Master_Slave::MASTER );
+    tIWGNeumann->set_property( tPropDensity, "Density" );
+    tIWGNeumann->set_property( tPropPressure, "Pressure" );
+    tIWGNeumann->set_property( tPropTotalPressure, "TotalPressure" );
+    tIWGNeumann->set_property( tPropBackflowPrevention, "BackFlowPrevention" );
 
     // set a fem set pointer
     MSI::Equation_Set* tSet = new fem::Set();
@@ -150,8 +146,6 @@ UT_FEM_IWG_Incompressible_NS_Pressure_Neumann(
     tIWGNeumann->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )  = 1;
 
     // build global dof type list
-    tCMMasterTurbulence->get_global_dof_type_list();
-    tSPNitsche->get_global_dof_type_list();
     tIWGNeumann->get_global_dof_type_list();
 
     // loop on the space dimension
@@ -290,9 +284,9 @@ UT_FEM_IWG_Incompressible_NS_Pressure_Neumann(
             // create a cell of field interpolators for IWG
             Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
 
-            // create the field interpolator velocity
+            // create the field interpolator velocity ( use negative of default values to trigger backflow )
             tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
-            tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
+            tMasterFIs( 0 )->set_coeff( -1.0 * tMasterDOFHatVel );
 
             // create the field interpolator pressure
             tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
@@ -316,7 +310,7 @@ UT_FEM_IWG_Incompressible_NS_Pressure_Neumann(
             // set size and init the set residual and jacobian
             tIWGNeumann->mSet->mResidual.resize( 1 );
             tIWGNeumann->mSet->mResidual( 0 ).set_size( tNumDofVel + tNumDofP, 1, 0.0 );
-            tIWGNeumann->mSet->mJacobian.set_size( tNumDofVel + tNumDofP , tNumDofVel + tNumDofP, 0.0 );
+            tIWGNeumann->mSet->mJacobian.set_size( tNumDofVel + tNumDofP, tNumDofVel + tNumDofP, 0.0 );
 
             // populate the requested master dof type
             tIWGNeumann->mRequestedMasterGlobalDofTypes = tDofTypes;
@@ -379,7 +373,7 @@ UT_FEM_IWG_Incompressible_NS_Pressure_Neumann(
                 uint             tNumRowBlock = tJacobian.n_rows() / iSpaceDim;
                 Matrix< DDRMat > tBlock       = tJacobian( { 0, tNumRowBlock - 1 }, { 0, tNumRowBlock - 1 } );
 
-                real tRelError = norm( tBlock - trans( tBlock ) ) / norm( tBlock );
+                real tRelError = norm( tBlock - trans( tBlock ) ) / ( norm( tBlock ) + MORIS_REAL_EPS );
                 REQUIRE( tRelError < 1e-12 );
 
                 // print for debug
@@ -402,19 +396,19 @@ UT_FEM_IWG_Incompressible_NS_Pressure_Neumann(
 TEST_CASE( "IWG_Incompressible_NS_Pressure_Neumann",
         "[IWG_Incompressible_NS_Pressure_Neumann]" )
 {
-    UT_FEM_IWG_Incompressible_NS_Pressure_Neumann(true,false,false);
+    UT_FEM_IWG_Incompressible_NS_Pressure_Neumann( true, false, false );
 }
 
 
 TEST_CASE( "IWG_Incompressible_NS_Pressure_Neumann_TotalPressure",
         "[IWG_Incompressible_NS_Pressure_Neumann_TotalPressure]" )
 {
-    UT_FEM_IWG_Incompressible_NS_Pressure_Neumann(false,true,false);
+    UT_FEM_IWG_Incompressible_NS_Pressure_Neumann( false, true, false );
 }
 
 TEST_CASE( "IWG_Incompressible_NS_Pressure_Neumann_BackflowPrevention",
         "[IWG_Incompressible_NS_Pressure_Neumann_BackflowPrevention]" )
 {
-    UT_FEM_IWG_Incompressible_NS_Pressure_Neumann(false,false,true);
+    UT_FEM_IWG_Incompressible_NS_Pressure_Neumann( false, false, true );
 }
 /*END_TEST_CASE*/
