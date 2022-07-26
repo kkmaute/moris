@@ -17,6 +17,7 @@
 // Diffusion
 #include "cl_FEM_IWG_Diffusion_Bulk.hpp"
 #include "cl_FEM_IWG_Diffusion_Dirichlet_Nitsche.hpp"
+#include "cl_FEM_IWG_Diffusion_Dirichlet_Neumann_Nitsche.hpp"
 #include "cl_FEM_IWG_Diffusion_Neumann.hpp"
 #include "cl_FEM_IWG_Diffusion_Robin.hpp"
 #include "cl_FEM_IWG_Diffusion_Radiation.hpp"
@@ -124,6 +125,12 @@ namespace moris
 
                 case IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE:
                     return std::make_shared< IWG_Diffusion_Dirichlet_Nitsche >( 1 );
+
+                case IWG_Type::SPATIALDIFF_DIRICHLET_NEUMANN_SYMMETRIC_NITSCHE:
+                    return std::make_shared< IWG_Diffusion_Dirichlet_Neumann_Nitsche >( 1 );
+
+                case IWG_Type::SPATIALDIFF_DIRICHLET_NEUMANN_UNSYMMETRIC_NITSCHE:
+                    return std::make_shared< IWG_Diffusion_Dirichlet_Neumann_Nitsche >( -1 );
 
                 case IWG_Type::SPATIALDIFF_NEUMANN:
                     return std::make_shared< IWG_Diffusion_Neumann >();
