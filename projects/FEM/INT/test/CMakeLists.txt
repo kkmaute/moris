@@ -56,6 +56,7 @@ set(TEST_SOURCES
     UT_FEM_IWG_Diffusion_Phase_Change_Bulk.cpp
     UT_FEM_IWG_GGLS_Diffusion_Phase_Change.cpp
     UT_FEM_IWG_Diffusion_Dirichlet.cpp
+    UT_FEM_IWG_Diffusion_Dirichlet_Neumann_Nitsche.cpp
     UT_FEM_IWG_Diffusion_Interface.cpp
     UT_FEM_IWG_Diffusion_Ghost.cpp
     UT_FEM_IWG_Diffusion_Virtual_Work_Ghost.cpp
