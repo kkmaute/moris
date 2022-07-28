@@ -46,10 +46,10 @@ namespace moris
             ADVECTION_BULK,
             SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE,    // spatial diffusion Dirichlet (Nitsche)
             SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE,
-            SPATIALDIFF_DIRICHLET_NEUMANN_SYMMETRIC_NITSCHE,
-            SPATIALDIFF_DIRICHLET_NEUMANN_UNSYMMETRIC_NITSCHE,
+            SPATIALDIFF_ROBIN_SYMMETRIC_NITSCHE,
+            SPATIALDIFF_ROBIN_UNSYMMETRIC_NITSCHE,
             SPATIALDIFF_NEUMANN,                        // spatial diffusion Neumann
-            SPATIALDIFF_ROBIN,                          // spatial diffusion Robin (Convection)
+            SPATIALDIFF_CONVECTION,                          // spatial diffusion Robin (Convection)
             SPATIALDIFF_RADIATION,                      // spatial diffusion Radiation BC
             SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE,    // spatial diffusion Nitsche interface condition
             SPATIALDIFF_INTERFACE_UNSYMMETRIC_NITSCHE,
@@ -269,7 +269,7 @@ namespace moris
         {
             UNDEFINED,
             DIRICHLET_NITSCHE,
-            DIRICHLET_NEUMANN_NITSCHE,
+            ROBIN_NITSCHE,
             GGLS_DIFFUSION,
             GHOST_DISPL,
             GHOST_NORMAL_FIELD,

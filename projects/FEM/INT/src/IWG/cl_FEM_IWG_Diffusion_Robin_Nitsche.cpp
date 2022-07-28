@@ -4,14 +4,14 @@
  *
  *------------------------------------------------------------------------------------
  *
- * cl_FEM_IWG_Diffusion_Dirichlet_Neumann_Nitsche.cpp
+ * cl_FEM_IWG_Diffusion_Robin_Nitsche.cpp
  *
  */
 
 // FEM/INT/src
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
-#include "cl_FEM_IWG_Diffusion_Dirichlet_Neumann_Nitsche.hpp"
+#include "cl_FEM_IWG_Diffusion_Robin_Nitsche.hpp"
 // LINALG/src
 #include "fn_trans.hpp"
 #include "fn_norm.hpp"
@@ -24,7 +24,7 @@ namespace moris
     {
         //------------------------------------------------------------------------------
 
-        IWG_Diffusion_Dirichlet_Neumann_Nitsche::IWG_Diffusion_Dirichlet_Neumann_Nitsche( sint aBeta )
+        IWG_Diffusion_Robin_Nitsche::IWG_Diffusion_Robin_Nitsche( sint aBeta )
         {
             // set sign for symmetric/unsymmetric Nitsche
             mBeta = aBeta;
@@ -33,9 +33,9 @@ namespace moris
             mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
-            mPropertyMap[ "Dirichlet" ]  = static_cast< uint >( IWG_Property_Type::DIRICHLET );
-            mPropertyMap[ "SlipLength" ] = static_cast< uint >( IWG_Property_Type::SLIPLENGTH );
-            mPropertyMap[ "Traction" ]   = static_cast< uint >( IWG_Property_Type::TRACTION );
+            mPropertyMap[ "Dirichlet" ]      = static_cast< uint >( IWG_Property_Type::DIRICHLET );
+            mPropertyMap[ "NeumannPenalty" ] = static_cast< uint >( IWG_Property_Type::NEUMANN_PENALTY );
+            mPropertyMap[ "Traction" ]       = static_cast< uint >( IWG_Property_Type::TRACTION );
 
             // set size for the constitutive model pointer cell
             mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
@@ -47,13 +47,13 @@ namespace moris
             mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
 
             // populate the stabilization map
-            mStabilizationMap[ "DirichletNeumannNitsche" ] = static_cast< uint >( IWG_Stabilization_Type::SPLIPLENGTH_NITSCHE );
+            mStabilizationMap[ "RobinNitsche" ] = static_cast< uint >( IWG_Stabilization_Type::ROBIN_NITSCHE );
         }
 
         //------------------------------------------------------------------------------
 
         void
-        IWG_Diffusion_Dirichlet_Neumann_Nitsche::compute_residual( real aWStar )
+        IWG_Diffusion_Robin_Nitsche::compute_residual( real aWStar )
         {
             // check master field interpolators
 #ifdef DEBUG
@@ -74,8 +74,8 @@ namespace moris
                     mMasterProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
 
             // get the slip length property
-            const std::shared_ptr< Property >& tPropSlipLength =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::SLIPLENGTH ) );
+            const std::shared_ptr< Property >& tPropNeumannPen =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::NEUMANN_PENALTY ) );
 
             // get the traction property
             const std::shared_ptr< Property >& tPropTraction =
@@ -85,19 +85,19 @@ namespace moris
             const std::shared_ptr< Constitutive_Model >& tCMDiffusion =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
 
-            // get the Nitsche stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter >& tSPNitsche =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::SPLIPLENGTH_NITSCHE ) );
-
-            // check that slip length is defined
-            MORIS_ASSERT( tPropSlipLength,
-                    "IWG_Diffusion_Dirichlet_Neumann_Nitsche::compute_residual - Slip length not defined.\n" );
-
-            // get the conductivity
+            // get the dynamic viscosity property
             const std::shared_ptr< Property >& tPropConductivity = tCMDiffusion->get_property( "Conductivity" );
 
+            // get the Nitsche stabilization parameter
+            const std::shared_ptr< Stabilization_Parameter >& tSPNitsche =
+                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::ROBIN_NITSCHE ) );
+
+            // check that slip length is defined
+            MORIS_ASSERT( tPropNeumannPen and tPropConductivity,
+                    "IWG_Diffusion_Robin_Nitsche::compute_residual - Slip length not defined.\n" );
+
             // get the slip length
-            const real tSplipLength = tPropSlipLength->val()( 0 );
+            const real tNeumannPen = tPropNeumannPen->val()( 0 );
 
             // compute the dirichlet jump
             Matrix< DDRMat > tJump = tPropConductivity->val() * tFITemp->val();
@@ -108,17 +108,16 @@ namespace moris
             }
 
             // compute the traction jump
-            tJump += tSplipLength * tCMDiffusion->traction( mNormal );
+            tJump += tNeumannPen * tCMDiffusion->traction( mNormal );
             if ( tPropTraction )
             {
                 // subtract the prescribed traction , by default is zero
-                tJump -= tSplipLength * tPropTraction->val();
+                tJump -= tNeumannPen * tPropTraction->val();
             }
 
             // penalty parameters
             const real tStabilityPenalty = tSPNitsche->val()( 0 );
             const real tAdjointPenalty   = tSPNitsche->val()( 1 );
-
 
             // get sub-matrix
             auto tRes = mSet->get_residual()( 0 )(
@@ -134,13 +133,13 @@ namespace moris
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
-                    "IWG_Diffusion_Dirichlet_Neumann_Nitsche::compute_residual - Residual contains NAN or INF, exiting!" );
+                    "IWG_Diffusion_Robin_Nitsche::compute_residual - Residual contains NAN or INF, exiting!" );
         }
 
         //------------------------------------------------------------------------------
 
         void
-        IWG_Diffusion_Dirichlet_Neumann_Nitsche::compute_jacobian( real aWStar )
+        IWG_Diffusion_Robin_Nitsche::compute_jacobian( real aWStar )
         {
 #ifdef DEBUG
             // check master field interpolators
@@ -161,8 +160,8 @@ namespace moris
                     mMasterProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
 
             // get the slip length property
-            const std::shared_ptr< Property >& tPropSlipLength =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::SLIPLENGTH ) );
+            const std::shared_ptr< Property >& tPropNeumannPen =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::NEUMANN_PENALTY ) );
 
             // get the traction property
             const std::shared_ptr< Property >& tPropTraction =
@@ -172,19 +171,19 @@ namespace moris
             const std::shared_ptr< Constitutive_Model >& tCMDiffusion =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
 
-            // get the Nitsche stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter >& tSPNitsche =
-                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::SPLIPLENGTH_NITSCHE ) );
-
-            // check that slip length is defined
-            MORIS_ASSERT( tPropSlipLength,
-                    "IWG_Diffusion_Dirichlet_Neumann_Nitsche::compute_residual - Slip length not defined.\n" );
-
-            // get the conductivity
+            // get the dynamic viscosity property
             const std::shared_ptr< Property >& tPropConductivity = tCMDiffusion->get_property( "Conductivity" );
 
+            // get the Nitsche stabilization parameter
+            const std::shared_ptr< Stabilization_Parameter >& tSPNitsche =
+                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::ROBIN_NITSCHE ) );
+
+            // check that slip length is defined
+            MORIS_ASSERT( tPropNeumannPen and tPropConductivity,
+                    "IWG_Diffusion_Robin_Nitsche::compute_residual - Slip length not defined.\n" );
+
             // get the slip length
-            const real tSplipLength = tPropSlipLength->val()( 0 );
+            const real tNeumannPen = tPropNeumannPen->val()( 0 );
 
             // compute the dirichlet jump
             Matrix< DDRMat > tJump = tPropConductivity->val() * tFITemp->val();
@@ -195,11 +194,11 @@ namespace moris
             }
 
             // compute the traction jump
-            tJump += tSplipLength * tCMDiffusion->traction( mNormal );
+            tJump += tNeumannPen * tCMDiffusion->traction( mNormal );
             if ( tPropTraction )
             {
                 // subtract the prescribed traction , by default is zero
-                tJump -= tSplipLength * tPropTraction->val();
+                tJump -= tNeumannPen * tPropTraction->val();
             }
 
             // penalty parameters
@@ -239,7 +238,6 @@ namespace moris
                 // if fluid constitutive model depends on dof type
                 if ( tCMDiffusion->check_dof_dependency( tDofType ) )
                 {
-
                     // compute Jacobian direct dependencies
                     tJac += aWStar * (                                                                                           //
                                     tFITemp->N_trans() * (                                                                       //
@@ -248,11 +246,11 @@ namespace moris
                                               tAdjointPenalty * tJump( 0 ) ) );
 
                     // compute the dependencies of the jacobian on the jump term which has traction in it
-                    tJac += aWStar * (                                                                                               //
-                                    tFITemp->N_trans() * (                                                                           //
-                                            tStabilityPenalty * tSplipLength * tCMDiffusion->dTractiondDOF( tDofType, mNormal ) )    //
-                                    - mBeta * tCMDiffusion->testTraction( mNormal, mResidualDofType( 0 ) ) * (                       //
-                                              tAdjointPenalty * tSplipLength * tCMDiffusion->dTractiondDOF( tDofType, mNormal ) ) );
+                    tJac += aWStar * (                                                                                              //
+                                    tFITemp->N_trans() * (                                                                          //
+                                            tStabilityPenalty * tNeumannPen * tCMDiffusion->dTractiondDOF( tDofType, mNormal ) )    //
+                                    - mBeta * tCMDiffusion->testTraction( mNormal, mResidualDofType( 0 ) ) * (                      //
+                                              tAdjointPenalty * tNeumannPen * tCMDiffusion->dTractiondDOF( tDofType, mNormal ) ) );
                 }
 
                 // if prescribed traction depends on the dof type
@@ -260,7 +258,7 @@ namespace moris
                 {
                     if ( tPropDirichlet->check_dof_dependency( tDofType ) )
                     {
-                        MORIS_ERROR( false, "IWG_Diffusion_Dirichlet_Neumann_Nitsche::compute_jacobian - %s.\n", "Dof dependency of prescribed traction not implemented yet" );
+                        MORIS_ERROR( false, "IWG_Diffusion_Robin_Nitsche::compute_jacobian - %s.\n", "Dof dependency of prescribed traction not implemented yet" );
                     }
                 }
 
@@ -269,51 +267,51 @@ namespace moris
                 {
                     if ( tPropTraction->check_dof_dependency( tDofType ) )
                     {
-                        MORIS_ERROR( false, "IWG_Diffusion_Dirichlet_Neumann_Nitsche::compute_jacobian - %s.\n", "Dof dependency of prescribed traction not implemented yet" );
+                        MORIS_ERROR( false, "IWG_Diffusion_Robin_Nitsche::compute_jacobian - %s.\n", "Dof dependency of prescribed traction not implemented yet" );
                     }
                 }
 
-                if ( tPropSlipLength->check_dof_dependency( tDofType ) )
+                if ( tPropNeumannPen->check_dof_dependency( tDofType ) )
                 {
-                    MORIS_ERROR( false, "IWG_Diffusion_Dirichlet_Neumann_Nitsche::compute_jacobian - %s.\n", "Dof dependency of prescribed traction not implemented yet" );
+                    MORIS_ERROR( false, "IWG_Diffusion_Robin_Nitsche::compute_jacobian - %s.\n", "Dof dependency of prescribed traction not implemented yet" );
                 }
 
                 // if stabilization parameter depends on the dof type
                 if ( tSPNitsche->check_dof_dependency( tDofType ) )
                 {
-                    MORIS_ERROR( false, "IWG_Diffusion_Dirichlet_Neumann_Nitsche::compute_jacobian - %s.\n", "Dof dependency of prescribed traction not implemented yet" );
+                    MORIS_ERROR( false, "IWG_Diffusion_Robin_Nitsche::compute_jacobian - %s.\n", "Dof dependency of prescribed traction not implemented yet" );
                 }
             }
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_jacobian() ),
-                    "IWG_Diffusion_Dirichlet_Neumann_Nitsche::compute_jacobian - Jacobian contains NAN or INF, exiting!" );
+                    "IWG_Diffusion_Robin_Nitsche::compute_jacobian - Jacobian contains NAN or INF, exiting!" );
         }
 
         //------------------------------------------------------------------------------
 
         void
-        IWG_Diffusion_Dirichlet_Neumann_Nitsche::compute_jacobian_and_residual( real aWStar )
+        IWG_Diffusion_Robin_Nitsche::compute_jacobian_and_residual( real aWStar )
         {
 #ifdef DEBUG
             // check master field interpolators
             this->check_field_interpolators();
 #endif
 
-            MORIS_ERROR( false, "IWG_Diffusion_Dirichlet_Neumann_Nitsche::compute_jacobian_and_residual - Not implemented." );
+            MORIS_ERROR( false, "IWG_Diffusion_Robin_Nitsche::compute_jacobian_and_residual - Not implemented." );
         }
 
         //------------------------------------------------------------------------------
 
         void
-        IWG_Diffusion_Dirichlet_Neumann_Nitsche::compute_dRdp( real aWStar )
+        IWG_Diffusion_Robin_Nitsche::compute_dRdp( real aWStar )
         {
 #ifdef DEBUG
             // check master field interpolators, properties and constitutive models
             this->check_field_interpolators();
 #endif
 
-            MORIS_ERROR( false, "IWG_Diffusion_Dirichlet_Neumann_Nitsche::compute_dRdp - Not implemented." );
+            MORIS_ERROR( false, "IWG_Diffusion_Robin_Nitsche::compute_dRdp - Not implemented." );
         }
 
         //------------------------------------------------------------------------------

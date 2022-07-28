@@ -4,12 +4,12 @@
  *
  *------------------------------------------------------------------------------------
  *
- * cl_FEM_SP_Dirichlet_Neumann_Nitsche.hpp
+ * cl_FEM_SP_Robin_Nitsche.hpp
  *
  */
 
-#ifndef SRC_FEM_CL_FEM_SP_DIRICHLET_NEUMANN_NITSCHE_HPP_
-#define SRC_FEM_CL_FEM_SP_DIRICHLET_NEUMANN_NITSCHE_HPP_
+#ifndef SRC_FEM_CL_FEM_SP_ROBIN_NITSCHE_HPP_
+#define SRC_FEM_CL_FEM_SP_ROBIN_NITSCHE_HPP_
 
 #include <map>
 
@@ -40,7 +40,7 @@ namespace moris
          *             gamma_t1 = alpha_tgang/(alpha_tang*sliplength+h)
          *             gamma_t2 = h/( alpha_tang*sliplength+h )
          */
-        class SP_Dirichlet_Neumann_Nitsche : public Stabilization_Parameter
+        class SP_Robin_Nitsche : public Stabilization_Parameter
         {
 
             //------------------------------------------------------------------------------
@@ -59,8 +59,7 @@ namespace moris
             // property type for the SP
             enum class Property_Type
             {
-                MATERIAL,
-                SLIPLENGTH,    // slip length
+                NEUMANN_PENALTY,
                 MAX_ENUM
             };
 
@@ -73,13 +72,13 @@ namespace moris
             /*
              * constructor
              */
-            SP_Dirichlet_Neumann_Nitsche();
+            SP_Robin_Nitsche();
 
             //------------------------------------------------------------------------------
             /**
              * trivial destructor
              */
-            ~SP_Dirichlet_Neumann_Nitsche(){};
+            ~SP_Robin_Nitsche(){};
 
             //------------------------------------------------------------------------------
             /**
@@ -144,7 +143,7 @@ namespace moris
             void
             eval_dSPdMasterDV( const moris::Cell< PDV_Type >& aDvTypes )
             {
-                MORIS_ERROR( false, "SP_Dirichlet_Neumann_Nitsche::eval_dSPdMasterDV - not implemented." );
+                MORIS_ERROR( false, "SP_Robin_Nitsche::eval_dSPdMasterDV - not implemented." );
             }
 
             //------------------------------------------------------------------------------
@@ -153,4 +152,4 @@ namespace moris
     } /* namespace fem */
 } /* namespace moris */
 
-#endif /* SRC_FEM_CL_FEM_SP_Dirichlet_Neumann_Nitsche_HPP_ */
+#endif /* SRC_FEM_CL_FEM_SP_Robin_Nitsche_HPP_ */

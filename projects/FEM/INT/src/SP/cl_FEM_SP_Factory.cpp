@@ -2,7 +2,7 @@
 //FEM/INT/src
 #include "cl_FEM_SP_Factory.hpp"
 #include "cl_FEM_SP_Dirichlet_Nitsche.hpp"
-#include "cl_FEM_SP_Dirichlet_Neumann_Nitsche.hpp"
+#include "cl_FEM_SP_Robin_Nitsche.hpp"
 #include "cl_FEM_SP_Ghost_Displacement.hpp"
 #include "cl_FEM_SP_Ghost_Virtual_Work.hpp"
 #include "cl_FEM_SP_Nitsche_Interface.hpp"
@@ -41,9 +41,9 @@ namespace moris
             {
                 case fem::Stabilization_Type::DIRICHLET_NITSCHE :
                     return std::make_shared< SP_Dirichlet_Nitsche >();
-                
-                case fem::Stabilization_Type::DIRICHLET_NEUMANN_NITSCHE:
-                    return std::make_shared< SP_Dirichlet_Neumann_Nitsche >();
+
+                case fem::Stabilization_Type::ROBIN_NITSCHE:
+                    return std::make_shared< SP_Robin_Nitsche >();
 
                 case fem::Stabilization_Type::GGLS_DIFFUSION :
                     return std::make_shared< SP_GGLS_Diffusion >();
