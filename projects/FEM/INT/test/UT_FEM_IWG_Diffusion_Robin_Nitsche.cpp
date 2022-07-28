@@ -37,7 +37,7 @@ using namespace moris;
 using namespace fem;
 
 void
-UT_FEM_IWG_Diffusion_Dirichlet_Neumann_Nitsche_Core( enum fem::IWG_Type tIWGType )
+UT_FEM_IWG_Diffusion_Robin_Nitsche_Core( enum fem::IWG_Type tIWGType )
 {
     // define an epsilon environment
     real tEpsilon = 1E-6;
@@ -89,9 +89,9 @@ UT_FEM_IWG_Diffusion_Dirichlet_Neumann_Nitsche_Core( enum fem::IWG_Type tIWGType
     //         tPropMasterDirichlet->set_val_function( tTEMPFIValFunc_Diff );
     //         tPropMasterDirichlet->set_dof_derivative_functions( { tTEMPFIDerFunc_Diff } );
 
-    std::shared_ptr< fem::Property > tPropMasterSlipLength = std::make_shared< fem::Property >();
-    tPropMasterSlipLength->set_parameters( { { { 0.1 } } } );
-    tPropMasterSlipLength->set_val_function( tConstValFunc_Diff );
+    std::shared_ptr< fem::Property > tPropMasterNemannPen = std::make_shared< fem::Property >();
+    tPropMasterNemannPen->set_parameters( { { { 0.1 } } } );
+    tPropMasterNemannPen->set_val_function( tConstValFunc_Diff );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
@@ -105,15 +105,14 @@ UT_FEM_IWG_Diffusion_Dirichlet_Neumann_Nitsche_Core( enum fem::IWG_Type tIWGType
 
     // define stabilization parameters
     fem::SP_Factory                                 tSPFactory;
-    std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNeumannNitsche =
-            tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NEUMANN_NITSCHE );
-    tSPDirichletNeumannNitsche->set_parameters( { { { 10.0 } } } );
-    tSPDirichletNeumannNitsche->set_property( tPropMasterSlipLength, "SlipLength", mtk::Master_Slave::MASTER );
-    tSPDirichletNeumannNitsche->set_property( tPropMasterConductivity, "Material", mtk::Master_Slave::MASTER );
+    std::shared_ptr< fem::Stabilization_Parameter > tSPRobinNitsche =
+            tSPFactory.create_SP( fem::Stabilization_Type::ROBIN_NITSCHE );
+    tSPRobinNitsche->set_parameters( { { { 10.0 } } } );
+    tSPRobinNitsche->set_property( tPropMasterNemannPen, "NeumannPenalty", mtk::Master_Slave::MASTER );
 
     // create a dummy fem cluster and set it to SP
     fem::Cluster* tCluster = new fem::Cluster();
-    tSPDirichletNeumannNitsche->set_cluster( tCluster );
+    tSPRobinNitsche->set_cluster( tCluster );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
@@ -122,10 +121,10 @@ UT_FEM_IWG_Diffusion_Dirichlet_Neumann_Nitsche_Core( enum fem::IWG_Type tIWGType
             tIWGFactory.create_IWG( tIWGType );
     tIWG->set_residual_dof_type( tTempDofTypes );
     tIWG->set_dof_type_list( { tTempDofTypes } );
-    tIWG->set_stabilization_parameter( tSPDirichletNeumannNitsche, "DirichletNeumannNitsche" );
+    tIWG->set_stabilization_parameter( tSPRobinNitsche, "RobinNitsche" );
     tIWG->set_constitutive_model( tCMMasterDiffLinIso, "Diffusion" );
     tIWG->set_property( tPropMasterDirichlet, "Dirichlet" );
-    tIWG->set_property( tPropMasterSlipLength, "SlipLength" );
+    tIWG->set_property( tPropMasterNemannPen, "NeumannPenalty" );
 
     // init set info
     //------------------------------------------------------------------------------
@@ -343,7 +342,7 @@ UT_FEM_IWG_Diffusion_Dirichlet_Neumann_Nitsche_Core( enum fem::IWG_Type tIWGType
                         true );
 
                 // This check does not apply anymore!
-                if ( tIWGType == fem::IWG_Type::SPATIALDIFF_DIRICHLET_NEUMANN_SYMMETRIC_NITSCHE )
+                if ( tIWGType == fem::IWG_Type::SPATIALDIFF_ROBIN_SYMMETRIC_NITSCHE )
                 {
                     // real tRelError = norm( tJacobian - trans( tJacobian ) ) / norm( tJacobian );
                     // REQUIRE( tRelError < 1e-12 );
@@ -365,17 +364,17 @@ UT_FEM_IWG_Diffusion_Dirichlet_Neumann_Nitsche_Core( enum fem::IWG_Type tIWGType
     }
 }
 
-TEST_CASE( "IWG_Diff_Dirichlet_Neumann_Symmetric", "[moris],[fem],[IWG_Diff_Dirichlet_Neumann_Symmetric]" )
+TEST_CASE( "IWG_Diff_Robin_Symmetric", "[moris],[fem],[IWG_Diff_Robin_Symmetric]" )
 {
-    UT_FEM_IWG_Diffusion_Dirichlet_Neumann_Nitsche_Core( fem::IWG_Type::SPATIALDIFF_DIRICHLET_NEUMANN_SYMMETRIC_NITSCHE );
+    UT_FEM_IWG_Diffusion_Robin_Nitsche_Core( fem::IWG_Type::SPATIALDIFF_ROBIN_SYMMETRIC_NITSCHE );
 }
 
-TEST_CASE( "IWG_Diff_Dirichlet_Neumann_Unsymmetric", "[moris],[fem],[IWG_Diff_Dirichlet_Neumann_Unsymmetric]" )
+TEST_CASE( "IWG_Diff_Robin_Unsymmetric", "[moris],[fem],[IWG_Diff_Robin_Unsymmetric]" )
 {
-    UT_FEM_IWG_Diffusion_Dirichlet_Neumann_Nitsche_Core( fem::IWG_Type::SPATIALDIFF_DIRICHLET_NEUMANN_UNSYMMETRIC_NITSCHE );
+    UT_FEM_IWG_Diffusion_Robin_Nitsche_Core( fem::IWG_Type::SPATIALDIFF_ROBIN_UNSYMMETRIC_NITSCHE );
 }
 
-TEST_CASE( "IWG_Diff_Dirichlet_Neumann_Geo_Prop", "[moris],[fem],[IWG_Diff_Dirichlet_Neumann_Geo_Prop]" )
+TEST_CASE( "IWG_Diff_Robin_Geo_Prop", "[moris],[fem],[IWG_Diff_Robin_Geo_Prop]" )
 {
     // define an epsilon environment
     real tEpsilon = 1E-6;
@@ -392,9 +391,9 @@ TEST_CASE( "IWG_Diff_Dirichlet_Neumann_Geo_Prop", "[moris],[fem],[IWG_Diff_Diric
     tPropMasterDirichlet->set_parameters( { { { 1.0 } } } );
     tPropMasterDirichlet->set_val_function( tGeoValFunction_UTIWGDIFFDIR );
 
-    std::shared_ptr< fem::Property > tPropMasterSlipLength = std::make_shared< fem::Property >();
-    tPropMasterSlipLength->set_parameters( { { { 0.01 } } } );
-    tPropMasterSlipLength->set_val_function( tConstValFunc_Diff );
+    std::shared_ptr< fem::Property > tPropMasterNemannPen = std::make_shared< fem::Property >();
+    tPropMasterNemannPen->set_parameters( { { { 0.01 } } } );
+    tPropMasterNemannPen->set_val_function( tConstValFunc_Diff );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
@@ -408,26 +407,26 @@ TEST_CASE( "IWG_Diff_Dirichlet_Neumann_Geo_Prop", "[moris],[fem],[IWG_Diff_Diric
 
     // define stabilization parameters
     fem::SP_Factory                                 tSPFactory;
-    std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNeumannNitsche =
-            tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NEUMANN_NITSCHE );
-    tSPDirichletNeumannNitsche->set_parameters( { { { 10.0 } } } );
-    tSPDirichletNeumannNitsche->set_property( tPropMasterSlipLength, "SlipLength", mtk::Master_Slave::MASTER );
-    tSPDirichletNeumannNitsche->set_property( tPropMasterConductivity, "Material", mtk::Master_Slave::MASTER );
+    std::shared_ptr< fem::Stabilization_Parameter > tSPRobinNitsche =
+            tSPFactory.create_SP( fem::Stabilization_Type::ROBIN_NITSCHE );
+    tSPRobinNitsche->set_parameters( { { { 10.0 } } } );
+    tSPRobinNitsche->set_property( tPropMasterNemannPen, "NeumannPenalty", mtk::Master_Slave::MASTER );
 
     // create a dummy fem cluster and set it to SP
     fem::Cluster* tCluster = new fem::Cluster();
-    tSPDirichletNeumannNitsche->set_cluster( tCluster );
+    tSPRobinNitsche->set_cluster( tCluster );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
-    std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_NEUMANN_SYMMETRIC_NITSCHE );
+    std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_ROBIN_SYMMETRIC_NITSCHE );
     tIWG->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
     tIWG->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Master_Slave::MASTER );
-    tIWG->set_stabilization_parameter( tSPDirichletNeumannNitsche, "DirichletNeumannNitsche" );
+    tIWG->set_stabilization_parameter( tSPRobinNitsche, "RobinNitsche" );
     tIWG->set_constitutive_model( tCMMasterDiffLinIso, "Diffusion" );
     tIWG->set_property( tPropMasterDirichlet, "Dirichlet" );
-    tIWG->set_property( tPropMasterSlipLength, "SlipLength" );
+    tIWG->set_property( tPropMasterNemannPen, "NeumannPenalty" );
+
 
     // set the normal
     //------------------------------------------------------------------------------
