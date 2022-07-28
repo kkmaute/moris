@@ -99,7 +99,7 @@ set(HEADERS
     SP/cl_FEM_SP_Factory.hpp
 
     SP/cl_FEM_SP_Dirichlet_Nitsche.hpp
-    SP/cl_FEM_SP_Dirichlet_Neumann_Nitsche.hpp
+    SP/cl_FEM_SP_Robin_Nitsche.hpp
     SP/cl_FEM_SP_Nitsche_Interface.hpp
     SP/cl_FEM_SP_Reciprocal_Total_Volume.hpp
     SP/cl_FEM_SP_Time_Velocity_Ghost.hpp 
@@ -159,9 +159,9 @@ set(HEADERS
     IWG/cl_FEM_IWG_Advection_Bulk.hpp
     IWG/cl_FEM_IWG_Diffusion_Bulk.hpp
     IWG/cl_FEM_IWG_Diffusion_Dirichlet_Nitsche.hpp
-    IWG/cl_FEM_IWG_Diffusion_Dirichlet_Neumann_Nitsche.hpp
+    IWG/cl_FEM_IWG_Diffusion_Robin_Nitsche.hpp
     IWG/cl_FEM_IWG_Diffusion_Neumann.hpp
-    IWG/cl_FEM_IWG_Diffusion_Robin.hpp
+    IWG/cl_FEM_IWG_Diffusion_Convection.hpp
     IWG/cl_FEM_IWG_Diffusion_Radiation.hpp
     IWG/cl_FEM_IWG_Diffusion_Interface.hpp
     IWG/cl_FEM_IWG_Diffusion_Virtual_Work_Ghost.hpp
@@ -312,7 +312,7 @@ set(LIB_SOURCES
     SP/cl_FEM_SP_Factory.cpp
 
     SP/cl_FEM_SP_Dirichlet_Nitsche.cpp
-    SP/cl_FEM_SP_Dirichlet_Neumann_Nitsche.cpp
+    SP/cl_FEM_SP_Robin_Nitsche.cpp
     SP/cl_FEM_SP_Nitsche_Interface.cpp
     SP/cl_FEM_SP_Reciprocal_Total_Volume.cpp
     SP/cl_FEM_SP_Convective_Ghost.cpp
@@ -374,9 +374,9 @@ set(LIB_SOURCES
     IWG/cl_FEM_IWG_Advection_Bulk.cpp
     IWG/cl_FEM_IWG_Diffusion_Bulk.cpp
     IWG/cl_FEM_IWG_Diffusion_Dirichlet_Nitsche.cpp
-    IWG/cl_FEM_IWG_Diffusion_Dirichlet_Neumann_Nitsche.cpp
+    IWG/cl_FEM_IWG_Diffusion_Robin_Nitsche.cpp
     IWG/cl_FEM_IWG_Diffusion_Neumann.cpp
-    IWG/cl_FEM_IWG_Diffusion_Robin.cpp
+    IWG/cl_FEM_IWG_Diffusion_Convection.cpp
     IWG/cl_FEM_IWG_Diffusion_Radiation.cpp
     IWG/cl_FEM_IWG_Diffusion_Interface.cpp
     IWG/cl_FEM_IWG_Diffusion_Virtual_Work_Ghost.cpp
