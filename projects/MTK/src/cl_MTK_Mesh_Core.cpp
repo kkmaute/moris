@@ -831,6 +831,14 @@ namespace moris
             return {{0}};
         }
 
+        Matrix< IdMat >  Mesh::get_coefficient_ijkl_IDs_of_node(
+                uint aNodeIndex,
+                uint aBSplineMeshIndex )
+        {
+            MORIS_ERROR(false,"Mesh::get_coefficient_ijkl_IDs_of_node() not implemented for this mesh type.");
+            return {{0}};
+        }
+
         //--------------------------------------------------------------------------------------------------------------
 
         Matrix< IdMat >

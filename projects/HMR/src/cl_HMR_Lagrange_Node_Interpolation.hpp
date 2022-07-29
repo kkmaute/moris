@@ -95,6 +95,13 @@ namespace moris
              */
             Matrix< IdMat > get_owners() const;
 
+            /**
+             * returns the owners of the interpolation coefficients
+             * these ids are not consecutive and iriginally created as luint.
+             * consider using luint here for large problems
+             */
+            Matrix< IdMat > get_ijkl_id() const;
+
 // ----------------------------------------------------------------------------
         };
     }

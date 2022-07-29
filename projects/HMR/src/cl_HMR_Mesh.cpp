@@ -476,6 +476,15 @@ namespace moris
         }
 
         //-----------------------------------------------------------------------------
+
+        Matrix< IdMat >  Mesh::get_coefficient_ijkl_IDs_of_node(
+                uint aNodeIndex,
+                uint aBSplineMeshIndex)
+        {
+            return mMesh->get_node_by_index(aNodeIndex)->get_interpolation(aBSplineMeshIndex)->get_ijkl_id();
+        }
+
+        //-----------------------------------------------------------------------------
         Matrix<IndexMat> Mesh::get_entity_connected_to_entity_loc_inds(
                 moris_index       aEntityIndex,
                 enum EntityRank   aInputEntityRank,
