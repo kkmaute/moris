@@ -1,12 +1,15 @@
 /*
- * cl_FEM_IWG_Diffusion_Robin.hpp
- *
- *  Created on: July 17, 2020
- *      Author: wunsch
+ * Copyright (c) 2022 University of Colorado
+ *Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details. 
+ * 
+ *------------------------------------------------------------------------------------
+ * 
+ * cl_FEM_IWG_Diffusion_Convection.hpp  
+ * 
  */
 
-#ifndef SRC_FEM_CL_FEM_IWG_Diffusion_Robin_HPP_
-#define SRC_FEM_CL_FEM_IWG_Diffusion_Robin_HPP_
+#ifndef SRC_FEM_CL_FEM_IWG_DIFFUSION_CONVECTION_HPP_
+#define SRC_FEM_CL_FEM_IWG_DIFFUSION_CONVECTION_HPP_
 
 #include <map>
 
@@ -25,7 +28,7 @@ namespace moris
     {
         //------------------------------------------------------------------------------
 
-        class IWG_Diffusion_Robin : public IWG
+        class IWG_Diffusion_Convection : public IWG
         {
                 //------------------------------------------------------------------------------
             public:
@@ -40,13 +43,13 @@ namespace moris
                 /*
                  * constructor
                  */
-                IWG_Diffusion_Robin();
+                IWG_Diffusion_Convection();
 
                 //------------------------------------------------------------------------------
                 /**
                  * trivial destructor
                  */
-                ~IWG_Diffusion_Robin(){};
+                ~IWG_Diffusion_Convection(){};
 
                 //------------------------------------------------------------------------------
                 /**

@@ -1,5 +1,14 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ *Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details. 
+ * 
+ *------------------------------------------------------------------------------------
+ * 
+ * cl_FEM_IWG_Diffusion_Convection.cpp  
+ * 
+ */
 
-#include "cl_FEM_IWG_Diffusion_Robin.hpp"
+#include "cl_FEM_IWG_Diffusion_Convection.hpp"
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 
@@ -14,7 +23,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        IWG_Diffusion_Robin::IWG_Diffusion_Robin()
+        IWG_Diffusion_Convection::IWG_Diffusion_Convection()
         {
             // set size for the property pointer cell
             mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
@@ -26,7 +35,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IWG_Diffusion_Robin::compute_residual( real aWStar )
+        void IWG_Diffusion_Convection::compute_residual( real aWStar )
         {
 #ifdef DEBUG
             // check master field interpolators, properties, constitutive models
@@ -57,12 +66,12 @@ namespace moris
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
-                    "IWG_Diffusion_Robin::compute_residual - Residual contains NAN or INF, exiting!");
+                    "IWG_Diffusion_Convection::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
 
-        void IWG_Diffusion_Robin::compute_jacobian( real aWStar )
+        void IWG_Diffusion_Convection::compute_jacobian( real aWStar )
         {
 #ifdef DEBUG
             // check master field interpolators, properties, constitutive models
@@ -118,21 +127,21 @@ namespace moris
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_jacobian() ) ,
-                    "IWG_Diffusion_Robin::compute_jacobian - Jacobian contains NAN or INF, exiting!");
+                    "IWG_Diffusion_Convection::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
 
-        void IWG_Diffusion_Robin::compute_jacobian_and_residual( real aWStar )
+        void IWG_Diffusion_Convection::compute_jacobian_and_residual( real aWStar )
         {
-            MORIS_ERROR( false, " IWG_Diffusion_Robin::compute_jacobian_and_residual - Not implemented." );
+            MORIS_ERROR( false, " IWG_Diffusion_Convection::compute_jacobian_and_residual - Not implemented." );
         }
 
         //------------------------------------------------------------------------------
 
-        void IWG_Diffusion_Robin::compute_dRdp( real aWStar )
+        void IWG_Diffusion_Convection::compute_dRdp( real aWStar )
         {
-            MORIS_ERROR( false, "IWG_Diffusion_Robin::compute_dRdp - Not implemented.");
+            MORIS_ERROR( false, "IWG_Diffusion_Convection::compute_dRdp - Not implemented.");
         }
 
         //------------------------------------------------------------------------------

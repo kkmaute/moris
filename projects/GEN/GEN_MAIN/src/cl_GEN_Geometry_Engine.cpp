@@ -20,6 +20,7 @@
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
 #include "cl_MTK_Writer_Exodus.hpp"
+#include "cl_Mesh_Enums.hpp"
 
 // XTK FIXME
 #include "cl_XTK_Topology.hpp"
@@ -1266,6 +1267,7 @@ namespace moris
                     Matrix< IdMat >    tAllCoefIds( tMaxNumberOfCoefficients, 1, gNoID );
                     Matrix< IndexMat > tAllCoefIndices( tMaxNumberOfCoefficients, 1, gNoIndex );
                     Matrix< IdMat >    tAllCoefOwners( tMaxNumberOfCoefficients, 1, gNoID );
+                    Matrix< IdMat >    tAllCoefijklIDs( tMaxNumberOfCoefficients, 1, gNoID );
 
                     for ( uint tNodeIndex = 0; tNodeIndex < tNumNodes; tNodeIndex++ )
                     {
@@ -1289,6 +1291,15 @@ namespace moris
                                     tNodeIndex,
                                     tDiscretizationMeshIndex );
 
+                            Matrix< IdMat > tCoeffijklIDs;
+
+                            if( MeshType::HMR == tMesh->get_mesh_type() )
+                            {
+                                tCoeffijklIDs = tMesh->get_coefficient_ijkl_IDs_of_node(
+                                        tNodeIndex,
+                                        tDiscretizationMeshIndex );
+                            }
+
                             // check that number of indices and ids are the same
                             MORIS_ASSERT( tCoefIds.numel() == tCoefIndices.numel(),
                                     "distribute_advs - numbers of coefficients and ids do not match.\n" );
@@ -1311,6 +1322,11 @@ namespace moris
                                     tAllCoefIds( tCurrentIndex ) = tCoefIds( tCoefIndex );
 
                                     tAllCoefOwners( tCurrentIndex ) = tCoefOwners( tCoefIndex );
+
+                                    if( tMesh->get_mesh_type() == MeshType::HMR )
+                                    {
+                                        tAllCoefijklIDs( tCurrentIndex ) = tCoeffijklIDs( tCoefIndex );
+                                    }
                                 }
                                 else
                                 {
@@ -1328,9 +1344,11 @@ namespace moris
                                 aMeshPair,
                                 tAllCoefIds,
                                 tAllCoefOwners,
+                                tAllCoefijklIDs,
                                 tNumCoeff,
                                 tFieldIndex,
-                                tDiscretizationMeshIndex );
+                                tDiscretizationMeshIndex,
+                                tMesh->get_mesh_type() );
                     }
 
                     uint tOwnedCounter  = 0;
@@ -1365,16 +1383,6 @@ namespace moris
                             tSharedCoefficients( tSharedCounter++ ) = Ik;
                         }
                     }
-
-                    //                    // Get owned coefficients
-                    //                    Matrix<DDUMat> tOwnedCoefficients = tMesh->get_owned_discretization_coefficient_indices(
-                    //                            tNodeIndices,
-                    //                            tDiscretizationMeshIndex);
-                    //
-                    //                    // Get shared coefficients
-                    //                    Matrix<DDUMat> tSharedCoefficients = tMesh->get_shared_discretization_coefficient_indices(
-                    //                            tNodeIndices,
-                    //                            tDiscretizationMeshIndex);
 
                     // Sizes of ID vectors
                     uint tNumOwnedADVs          = tOwnedADVIds.length();
@@ -1725,9 +1733,11 @@ namespace moris
                 mtk::Mesh_Pair&  aMeshPair,
                 Matrix< IdMat >& aAllCoefIds,
                 Matrix< IdMat >& aAllCoefOwners,
+                Matrix< IdMat >& aAllCoefijklIds,
                 Cell< uint >&    aNumCoeff,
                 uint             aFieldIndex,
-                uint             aDiscretizationMeshIndex )
+                uint             aDiscretizationMeshIndex,
+                enum MeshType    aMeshType )
         {
 
             Matrix< IdMat > tCommTable = aMeshPair.get_interpolation_mesh()->get_communication_table();
@@ -1744,6 +1754,7 @@ namespace moris
             }
 
             moris::Cell< Matrix< IdMat > > tSharedCoeffsPosGlobal( tNumCommProcs );
+            moris::Cell< Matrix< IdMat > > tSharedCoeffsijklIdGlobal( tNumCommProcs );
 
             // Set Mat to store number of shared coeffs per processor
             Matrix< DDUMat > tNumSharedCoeffsPerProc( tNumCommProcs, 1, 0 );
@@ -1774,6 +1785,7 @@ namespace moris
                 if ( tNumSharedCoeffsPerProc( Ik ) != 0 )
                 {
                     tSharedCoeffsPosGlobal( Ik ).set_size( tNumSharedCoeffsPerProc( Ik ), 1 );
+                    tSharedCoeffsijklIdGlobal( Ik ).set_size( tNumSharedCoeffsPerProc( Ik ), 1 );
                 }
             }
 
@@ -1795,12 +1807,19 @@ namespace moris
                     tSharedCoeffsPosGlobal( tProcIdPos )( tShredCoeffPosPerProc( tProcIdPos ) ) =
                             aAllCoefIds( Ia );
 
+                    if( aMeshType == MeshType::HMR )
+                    {
+                        tSharedCoeffsijklIdGlobal( tProcIdPos )( tShredCoeffPosPerProc( tProcIdPos ) ) =
+                            aAllCoefijklIds( Ia );
+                    }
+
                     tShredCoeffPosPerProc( tProcIdPos )++;
                 }
             }
 
             // receiving list
             moris::Cell< Matrix< IdMat > > tMatsToReceive;
+            moris::Cell< Matrix< IdMat > > tMatsToReceiveijklID;
 
             barrier();
 
@@ -1809,6 +1828,18 @@ namespace moris
                     tCommTable,
                     tSharedCoeffsPosGlobal,
                     tMatsToReceive );
+
+            barrier();
+
+            if( aMeshType == MeshType::HMR )
+            {
+                communicate_mats(
+                    tCommTable,
+                    tSharedCoeffsijklIdGlobal,
+                    tMatsToReceiveijklID );
+
+                MORIS_ASSERT(tMatsToReceiveijklID.size() == tMatsToReceive.size(), "size must be the same");
+            }
 
             map< moris_id, moris_index > tCoeffGlobaltoLocalMap;
             aMeshPair.get_interpolation_mesh()->get_adof_map(
@@ -1829,11 +1860,22 @@ namespace moris
                         aAllCoefIds( tLocalCoeffInd )    = tID;
                         aAllCoefOwners( tLocalCoeffInd ) = par_rank();
 
+                        if( aMeshType == MeshType::HMR )
+                        {
+                            aAllCoefijklIds( tLocalCoeffInd ) = tMatsToReceiveijklID( Ik )( Ii );
+                        }
+
                         aNumCoeff( aFieldIndex )++;
                     }
 
                     MORIS_ASSERT( aAllCoefIds( tLocalCoeffInd ) == tID,
-                            "Field_Discrete::communicate_missing_owned_coefficients( ), coefficient IDs are nor parallel consistent" );
+                            "communicate_missing_owned_coefficients( ), coefficient IDs are not parallel consistent" );
+
+                    if( aMeshType == MeshType::HMR )
+                    {
+                        MORIS_ASSERT( aAllCoefijklIds( tLocalCoeffInd ) == tMatsToReceiveijklID( Ik )( Ii ),
+                            "communicate_missing_owned_coefficients( ), coefficient ijkl IDs are not parallel consistent" );
+                    }
                 }
             }
         }
