@@ -1262,38 +1262,6 @@ Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh( Ghost_Setup_Data&
         // iterate through double sides in this bulk phase
         for ( moris::uint iGhostFacet = 0; iGhostFacet < aGhostSetupData.mMasterSideIpCells( iBulkPhase ).size(); iGhostFacet++ )
         {
-
-// debug
-moris::mtk::Mesh* tLagrangeBackgroundMesh = &mXTKModel->get_background_mesh();
-moris_index tMasterUipcIndex = aGhostSetupData.mMasterSideIpCells( iBulkPhase )( iGhostFacet );
-moris_index tMasterSideOrdinal = aGhostSetupData.mMasterSideIgCellSideOrds( iBulkPhase )( iGhostFacet );
-Interpolation_Cell_Unzipped* tUIPC = tEnrInterpMesh.get_enriched_interpolation_cells()( tMasterUipcIndex );
-moris_index tBaseCellIndex = tUIPC->get_base_cell()->get_index();
-moris_index tMyRefineLevel = -2;
-moris::Cell< moris_index > tNeighborElements;
-moris::Cell< moris_index > tNeighborSideOrdinals;
-moris::Cell< moris_index > tTransitionLocations;
-moris::Cell< moris_index > tNeighborRefinementLevels;
-
-
-tLagrangeBackgroundMesh->get_elements_connected_to_element_through_face_ord(
-    tBaseCellIndex, 
-    tMasterSideOrdinal, 
-    tMyRefineLevel, 
-    tNeighborElements, 
-    tNeighborSideOrdinals, 
-    tTransitionLocations, 
-    tNeighborRefinementLevels );
-
-// debug
-std::cout << "Constructing Ghost Facet: " << iBulkPhase << " - " << iGhostFacet << 
-    " | Between UIPCs: " << aGhostSetupData.mMasterSideIpCells( iBulkPhase )( iGhostFacet ) << 
-    " - " << aGhostSetupData.mSlaveSideIpCells( iBulkPhase )( iGhostFacet ) << std::endl;
-std::cout << "Master Side Ordinal: " << aGhostSetupData.mMasterSideIgCellSideOrds( iBulkPhase )( iGhostFacet ) << std::endl;
-std::cout << "Slave Side Ordinal: " << aGhostSetupData.mSlaveSideIgCellSideOrds( iBulkPhase )( iGhostFacet ) << std::endl;
-std::cout << "tMyRefineLevel: " << tMyRefineLevel << std::endl;
-std::cout << "Transition Location: " << aGhostSetupData.mTransitionLocation( iBulkPhase )( iGhostFacet ) << " \n" << std::endl;
-
             // create a new side cluster for each of the pairs
             std::shared_ptr< Side_Cluster > tSlaveSideCluster =
                 this->create_slave_side_cluster( aGhostSetupData, tEnrIpCells, iBulkPhase, iGhostFacet, tCurrentIndex, tCurrentId );
