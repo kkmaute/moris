@@ -1155,11 +1155,15 @@ namespace xtk
         mInterfaceFacets = aInterfaces;
     }
 
+    // ----------------------------------------------------------------------------------
+
     moris::Cell< moris_index > const&
     Cut_Integration_Mesh::get_interface_facets()
     {
         return mInterfaceFacets;
     }
+
+    // ----------------------------------------------------------------------------------
 
     void
     Cut_Integration_Mesh::set_bulk_phase_to_bulk_phase_dbl_side_interface( moris::Cell< moris::Cell< std::shared_ptr< IG_Cell_Double_Side_Group > > >& aBptoBpDblSideInterfaces )
@@ -1167,11 +1171,15 @@ namespace xtk
         mBptoBpDblSideInterfaces = aBptoBpDblSideInterfaces;
     }
 
+    // ----------------------------------------------------------------------------------
+
     moris::Cell< moris::Cell< std::shared_ptr< IG_Cell_Double_Side_Group > > > const&
     Cut_Integration_Mesh::get_bulk_phase_to_bulk_phase_dbl_side_interface()
     {
         return mBptoBpDblSideInterfaces;
     }
+
+    // ----------------------------------------------------------------------------------
 
     void
     Cut_Integration_Mesh::set_background_facet_to_child_facet_connectivity( moris::Cell< std::shared_ptr< moris::Cell< moris::moris_index > > > const& aBgtoChildFacet )
@@ -1179,11 +1187,15 @@ namespace xtk
         mBGFacetToChildFacet = aBgtoChildFacet;
     }
 
+    // ----------------------------------------------------------------------------------
+
     moris::Cell< std::shared_ptr< moris::Cell< moris::moris_index > > > const&
     Cut_Integration_Mesh::get_background_facet_to_child_facet_connectivity()
     {
         return mBGFacetToChildFacet;
     }
+
+    // ----------------------------------------------------------------------------------
 
     void
     Cut_Integration_Mesh::set_subphase_neighborhood( std::shared_ptr< Subphase_Neighborhood_Connectivity > aSubphaseNeighborhood )
@@ -1191,11 +1203,15 @@ namespace xtk
         mSubphaseNeighborhood = aSubphaseNeighborhood;
     }
 
+    // ----------------------------------------------------------------------------------
+
     std::shared_ptr< Subphase_Neighborhood_Connectivity >
     Cut_Integration_Mesh::get_subphase_neighborhood()
     {
         return mSubphaseNeighborhood;
     }
+
+    // ----------------------------------------------------------------------------------
 
     std::shared_ptr< Subphase_Neighborhood_Connectivity >
     Cut_Integration_Mesh::get_subphase_group_neighborhood( moris_index aMeshIndex )
@@ -1203,11 +1219,15 @@ namespace xtk
         return mSubphaseGroupNeighborhood( aMeshIndex );
     }
 
+    // ----------------------------------------------------------------------------------
+
     moris::Cell< Bspline_Mesh_Info* > &
     Cut_Integration_Mesh::get_bspline_mesh_info()
     {
         return mBsplineMeshInfos;
     }
+
+    // ----------------------------------------------------------------------------------
 
     void
     Cut_Integration_Mesh::setup_glob_to_loc_subphase_map()
@@ -1226,11 +1246,15 @@ namespace xtk
         }
     }
 
+    // ----------------------------------------------------------------------------------
+
     moris_index
     Cut_Integration_Mesh::get_cell_bulk_phase( moris_index aCellIndex )
     {
         return mIntegrationCellBulkPhase( aCellIndex );
     }
+
+    // ----------------------------------------------------------------------------------
 
     Cell< moris_index >
     Cut_Integration_Mesh::register_side_set_names( moris::Cell< std::string > const& aSideSetNames )
@@ -1255,6 +1279,8 @@ namespace xtk
         }
         return tSideSetOrds;
     }
+
+    // ----------------------------------------------------------------------------------
 
     Cell< moris_index >
     Cut_Integration_Mesh::register_block_set_names(
@@ -1284,6 +1310,8 @@ namespace xtk
         return tBlockOrds;
     }
 
+    // ----------------------------------------------------------------------------------
+
     void
     Cut_Integration_Mesh::write_mesh(
             std::string aOutputPath,
@@ -1309,6 +1337,8 @@ namespace xtk
         writer.close_file();
     }
 
+    // ----------------------------------------------------------------------------------
+
     Cell_Connectivity
     Cut_Integration_Mesh::get_background_cell_connectivity( moris_index aBGCellId ) const
     {
@@ -1331,6 +1361,8 @@ namespace xtk
             return Cell_Connectivity();
         }
     }
+
+    // ----------------------------------------------------------------------------------
 
     void
     Cut_Integration_Mesh::print_cells(
@@ -1412,6 +1444,8 @@ namespace xtk
         }
     }
 
+    // ----------------------------------------------------------------------------------
+
     void
     Cut_Integration_Mesh::print_vertices(
             bool        aOmitIndex,
@@ -1470,6 +1504,9 @@ namespace xtk
             tOutputFile.close();
         }
     }
+
+    // ----------------------------------------------------------------------------------
+
     void
     Cut_Integration_Mesh::print_groupings( std::string aFile )
     {
