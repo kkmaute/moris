@@ -1267,26 +1267,6 @@ namespace moris
                     tNumSpatialDims );
             }
 
-// debug
-if( aTransitionLocations.size() > 1 )
-{
-    std::cout << "\n=============================" << std::endl;
-    std::cout << "MySideOrdinal = " << aSideOrdinal << std::endl;
-    std::cout << "My and Their Refinement Levels = " << aMyRefineLevel << " - " << aNeighborRefinementLevels( 0 ) << std::endl;
-    std::cout << "Transition Locations from big to small  = " << aTransitionLocations( 0 ) << ", " << aTransitionLocations( 1 ) << std::endl;
-    std::cout << "Neighbor Indices: " << aNeighborElements( 0 ) << ", " << aNeighborElements( 1 ) << std::endl;
-    std::cout << "=============================\n" << std::endl;
-}
-else
-{
-    std::cout << "\n=============================" << std::endl;
-    std::cout << "MySideOrdinal = " << aSideOrdinal << std::endl;
-    std::cout << "My and Their Refinement Levels = " << aMyRefineLevel << " - " << aNeighborRefinementLevels( 0 ) << std::endl;
-    std::cout << "1st Transition Location from big to small  = " << aTransitionLocations( 0 ) << std::endl;
-    std::cout << "Neighbor Index: " << aNeighborElements( 0 ) << std::endl;
-    std::cout << "=============================\n" << std::endl;
-}
-
             // return whether element transition is non-trivial
             return tNonTrivialFlag;
 
