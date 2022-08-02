@@ -706,6 +706,10 @@ Integration_Mesh_Generator::compute_ig_cell_bulk_phase(
     // keep assigning bulk-phase indices base on neighbors of the IG cells with unassigned bulk-phase
     while( !tAllIgCellsHaveBulkPhase )
     {
+        // log this information
+        MORIS_LOG_INFO( "Could not assign bulk-phase to all IG cells. Perform neighbor based assignment." );
+        MORIS_LOG_SPEC( "Number of IG cells to assign bulk-phases to", tNumIgCellsWithoutBulkPhase );
+
         // empty list of Ig cells that need subsequent passes
         tIgCellsStillWithoutBulkPhase.resize( 0 );
 
