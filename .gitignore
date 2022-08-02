@@ -2,6 +2,7 @@
 .cproject
 .project
 .settings
+.metadata
 
 # Sometimes generated when debugging
 LDLIBS.txt

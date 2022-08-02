@@ -86,7 +86,7 @@ namespace moris
                  *
                  * @return vector of criteria
                  */
-                Matrix<DDRMat> perform(const Matrix<DDRMat> & aNewADVs);
+                Matrix< DDRMat > perform( Matrix< DDRMat >& aNewADVs );
 
                 //------------------------------------------------------------------------------
                 /**

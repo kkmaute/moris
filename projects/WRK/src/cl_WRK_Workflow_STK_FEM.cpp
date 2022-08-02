@@ -76,7 +76,8 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Workflow_STK_FEM::perform(const Matrix<DDRMat> & aNewADVs)
+        Matrix< DDRMat >
+        Workflow_STK_FEM::perform( Matrix< DDRMat >& aNewADVs )
         {
 
             // Stage 1: MDL perform ---------------------------------------------------------------------

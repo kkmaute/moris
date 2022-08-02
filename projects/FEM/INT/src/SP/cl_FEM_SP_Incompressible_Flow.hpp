@@ -50,7 +50,7 @@ namespace moris
             // pointer to function for G evaluation
             void ( *mEvalGFunc )(
                     Matrix< DDRMat >&       aG,
-                    const Matrix< DDRMat >& aInvSpaceJacobian );
+                    const Matrix< DDRMat >& aInvSpaceJacobian ) = nullptr;
 
             /*
              * Rem: mParameters( 0 ) - CI = 36,60,128 for linear, quadratic, cubic;

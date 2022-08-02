@@ -99,6 +99,7 @@ set(HEADERS
     SP/cl_FEM_SP_Factory.hpp
 
     SP/cl_FEM_SP_Dirichlet_Nitsche.hpp
+    SP/cl_FEM_SP_Robin_Nitsche.hpp
     SP/cl_FEM_SP_Nitsche_Interface.hpp
     SP/cl_FEM_SP_Reciprocal_Total_Volume.hpp
     SP/cl_FEM_SP_Time_Velocity_Ghost.hpp 
@@ -121,6 +122,7 @@ set(HEADERS
     SP/cl_FEM_SP_Stab_Penalty_Contact.hpp
     SP/cl_FEM_SP_Penalty_Contact.hpp 
     SP/cl_FEM_SP_Measure.hpp
+    SP/cl_FEM_SP_Lagrange_Multiplier_L2.hpp
 
 
     IWG/cl_FEM_IWG_Factory.hpp
@@ -138,11 +140,16 @@ set(HEADERS
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Dirichlet.hpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Neumann.hpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Interface.hpp
+    IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Interface_SLM_Constraint.hpp
+    IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Interface_SLM_L2.hpp
+    IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Interface_SLM_Mixed.hpp
+    IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Interface_SLM_LMJump.hpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Fluid_Interface.hpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Bulk.hpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Dirichlet.hpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Penalty.hpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Nitsche.hpp 
+    IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche.hpp 
     IWG/cl_FEM_IWG_Struc_Stress.hpp
     
     IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Bulk.hpp
@@ -152,8 +159,9 @@ set(HEADERS
     IWG/cl_FEM_IWG_Advection_Bulk.hpp
     IWG/cl_FEM_IWG_Diffusion_Bulk.hpp
     IWG/cl_FEM_IWG_Diffusion_Dirichlet_Nitsche.hpp
+    IWG/cl_FEM_IWG_Diffusion_Robin_Nitsche.hpp
     IWG/cl_FEM_IWG_Diffusion_Neumann.hpp
-    IWG/cl_FEM_IWG_Diffusion_Robin.hpp
+    IWG/cl_FEM_IWG_Diffusion_Convection.hpp
     IWG/cl_FEM_IWG_Diffusion_Radiation.hpp
     IWG/cl_FEM_IWG_Diffusion_Interface.hpp
     IWG/cl_FEM_IWG_Diffusion_Virtual_Work_Ghost.hpp
@@ -234,6 +242,7 @@ set(HEADERS
     IQI/cl_FEM_IQI_Strong_Residual_Incompressible_NS.hpp
     IQI/cl_FEM_IQI_Zienkiewicz_Zhu.hpp
     IQI/cl_FEM_IQI_Jump_Dof.hpp
+    IQI/cl_FEM_IQI_Jump_Traction.hpp
      
     MEA/cl_FEM_Cluster_Measure.hpp
     )
@@ -303,6 +312,7 @@ set(LIB_SOURCES
     SP/cl_FEM_SP_Factory.cpp
 
     SP/cl_FEM_SP_Dirichlet_Nitsche.cpp
+    SP/cl_FEM_SP_Robin_Nitsche.cpp
     SP/cl_FEM_SP_Nitsche_Interface.cpp
     SP/cl_FEM_SP_Reciprocal_Total_Volume.cpp
     SP/cl_FEM_SP_Convective_Ghost.cpp
@@ -325,6 +335,7 @@ set(LIB_SOURCES
     SP/cl_FEM_SP_Stab_Penalty_Contact.cpp
     SP/cl_FEM_SP_Penalty_Contact.cpp  
     SP/cl_FEM_SP_Measure.cpp
+    SP/cl_FEM_SP_Lagrange_Multiplier_L2.cpp
 
 
     IWG/cl_FEM_IWG.cpp
@@ -343,12 +354,17 @@ set(LIB_SOURCES
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Dirichlet.cpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Neumann.cpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Interface.cpp
+    IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Interface_SLM_Constraint.cpp
+    IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Interface_SLM_L2.cpp
+    IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Interface_SLM_Mixed.cpp
+    IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Interface_SLM_LMJump.cpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Fluid_Interface.cpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Virtual_Work_Ghost.cpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Bulk.cpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Pressure_Dirichlet.cpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Penalty.cpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Nitsche.cpp
+    IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche.cpp
     IWG/cl_FEM_IWG_Struc_Stress.cpp
     
     IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Bulk.cpp
@@ -358,8 +374,9 @@ set(LIB_SOURCES
     IWG/cl_FEM_IWG_Advection_Bulk.cpp
     IWG/cl_FEM_IWG_Diffusion_Bulk.cpp
     IWG/cl_FEM_IWG_Diffusion_Dirichlet_Nitsche.cpp
+    IWG/cl_FEM_IWG_Diffusion_Robin_Nitsche.cpp
     IWG/cl_FEM_IWG_Diffusion_Neumann.cpp
-    IWG/cl_FEM_IWG_Diffusion_Robin.cpp
+    IWG/cl_FEM_IWG_Diffusion_Convection.cpp
     IWG/cl_FEM_IWG_Diffusion_Radiation.cpp
     IWG/cl_FEM_IWG_Diffusion_Interface.cpp
     IWG/cl_FEM_IWG_Diffusion_Virtual_Work_Ghost.cpp
@@ -446,7 +463,8 @@ set(LIB_SOURCES
     IQI/cl_FEM_IQI_Strong_Residual_Incompressible_NS.cpp
     IQI/cl_FEM_IQI_Zienkiewicz_Zhu.cpp
     IQI/cl_FEM_IQI_Jump_Dof.cpp
-    
+    IQI/cl_FEM_IQI_Jump_Traction.cpp
+   
     MEA/cl_FEM_Cluster_Measure.cpp
     
     )

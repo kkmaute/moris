@@ -56,6 +56,7 @@ set(TEST_SOURCES
     UT_FEM_IWG_Diffusion_Phase_Change_Bulk.cpp
     UT_FEM_IWG_GGLS_Diffusion_Phase_Change.cpp
     UT_FEM_IWG_Diffusion_Dirichlet.cpp
+    UT_FEM_IWG_Diffusion_Robin_Nitsche.cpp
     UT_FEM_IWG_Diffusion_Interface.cpp
     UT_FEM_IWG_Diffusion_Ghost.cpp
     UT_FEM_IWG_Diffusion_Virtual_Work_Ghost.cpp
@@ -65,6 +66,10 @@ set(TEST_SOURCES
     UT_FEM_IWG_Struc_Linear_Dirichlet.cpp
     UT_FEM_IWG_Struc_Linear_Pressure_Dirichlet.cpp
     UT_FEM_IWG_Struc_Linear_Interface.cpp
+    
+    UT_FEM_IWG_Struc_Linear_Interface_SLM_Constraint_and_Mixed.cpp
+    UT_FEM_IWG_Struc_Linear_Interface_SLM_L2.cpp
+    
     #UT_FEM_IWG_Struc_Linear_Ghost.cpp
     UT_FEM_IWG_Struc_Linear_Virtual_Work_Ghost.cpp
 
@@ -84,6 +89,7 @@ set(TEST_SOURCES
     UT_FEM_IWG_Incompressible_NS_Dirichlet_Nitsche.cpp
     UT_FEM_IWG_Incompressible_NS_SlipBoundary_Nitsche.cpp
     UT_FEM_IWG_Incompressible_NS_Interface_Nitsche.cpp
+    UT_FEM_IWG_Incompressible_NS_Pressure_Neumann.cpp
     
     UT_FEM_IWG_Compressible_NS_Bulk.cpp
     UT_FEM_IWG_Compressible_NS_Bulk_Analytical.cpp
@@ -109,6 +115,7 @@ set(TEST_SOURCES
     UT_FEM_IWG_Spalart_Allmaras_Turbulence_Dirichlet.cpp
     UT_FEM_IWG_Spalart_Allmaras_Turbulence_Interface.cpp
     
+    UT_FEM_IQI_Dof.cpp
     UT_FEM_IQI_Strain_Energy.cpp
     UT_FEM_IQI_Power_Dissipation.cpp
   

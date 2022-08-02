@@ -107,5 +107,26 @@ namespace moris
     }
 
 // ----------------------------------------------------------------------------
+
+    Matrix< IdMat > Lagrange_Node_Interpolation::get_ijkl_id() const
+    {
+        // get number of basis
+        uint tNumberOfBasis = this->get_number_of_coefficients();
+
+        // allocate output matrix 
+        // for big problems it might be better to have a luint here as these ids are not consecutive
+        Matrix< IdMat > aIJKId( tNumberOfBasis, 1 );
+
+        // loop over all basis
+        for( uint k=0; k<tNumberOfBasis; ++k )
+        {
+            aIJKId( k ) = reinterpret_cast<hmr::Basis*>(mCoefficients( k ))->get_hmr_id();
+        }
+
+        // return id matrix
+        return aIJKId;
+    }
+
+// ----------------------------------------------------------------------------
     } /* namespace hmr */
 } /* namespace moris */

@@ -100,17 +100,18 @@ namespace moris
             const Matrix< DDRMat > tJump = tFIMaster->val() - tFISlave->val();
 
             // compute projection of displacement jump onto normal
-            const real tINormalJump = dot( tJump, mNormal );
+            const real tNormalJump = dot( tJump, mNormal );
 
             // evaluate average traction
             const Matrix< DDRMat > tTraction =
-                    tMasterWeight * tCMMasterElasticity->traction( mNormal ) + tSlaveWeight * tCMSlaveElasticity->traction( mNormal );
+                    tMasterWeight * tCMMasterElasticity->traction( mNormal )    //
+                    + tSlaveWeight * tCMSlaveElasticity->traction( mNormal );
 
             // compute contact pressure
             const real tIfcPressure = dot( tTraction, mNormal );
 
             // check for contact
-            if ( tIfcPressure - tNitsche * tINormalJump < 0 )
+            if ( tIfcPressure - tNitsche * tNormalJump < 0 )
             {
                 // compute master residual
                 mSet->get_residual()( 0 )(
@@ -127,10 +128,6 @@ namespace moris
                                 +tFISlave->N_trans() * tNormalProjector * tTraction                                                                       //
                                 + mBeta * tSlaveWeight * tCMSlaveElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tJump    //
                                 - tNitsche * tFISlave->N_trans() * tNormalProjector * tJump );
-
-                // check for nan, infinity
-                MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
-                        "IWG_Isotropic_Struc_Linear_Interface::compute_residual - Residual contains NAN or INF, exiting!" );
             }
             else
             {
@@ -144,6 +141,10 @@ namespace moris
                         aWStar * (                                          //
                                 -mBeta / tNitsche * tSlaveWeight * tCMSlaveElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tTraction );
             }
+
+            // check for nan, infinity
+            MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
+                    "IWG_Isotropic_Struc_Linear_Contact_Nitsche::compute_residual - Residual contains NAN or INF, exiting!" );
         }
 
         //------------------------------------------------------------------------------
@@ -202,7 +203,7 @@ namespace moris
             const Matrix< DDRMat > tJump = tFIMaster->val() - tFISlave->val();
 
             // compute projection of displacement jump onto normal
-            const real tINormalJump = dot( tJump, mNormal );
+            const real tNormalJump = dot( tJump, mNormal );
 
             // evaluate average traction
             const Matrix< DDRMat > tTraction =
@@ -238,7 +239,7 @@ namespace moris
                 if ( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                 {
                     // check for contact
-                    if ( tIfcPressure - tNitsche * tINormalJump < 0 )
+                    if ( tIfcPressure - tNitsche * tNormalJump < 0 )
                     {
                         tJacMM += aWStar * (                                                                                                                                  //
                                           +mBeta * tMasterWeight * tCMMasterElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tFIMaster->N()    //
@@ -253,7 +254,7 @@ namespace moris
                 // if dependency on the dof type
                 if ( tCMMasterElasticity->check_dof_dependency( tDofType ) )
                 {
-                    if ( tIfcPressure - tNitsche * tINormalJump < 0 )
+                    if ( tIfcPressure - tNitsche * tNormalJump < 0 )
                     {
                         // add contribution to Jacobian
                         tJacMM += aWStar * (                                                                                                                    //
@@ -285,7 +286,7 @@ namespace moris
                     const Matrix< DDRMat > tTractionDer =
                             tCMMasterElasticity->traction( mNormal ) * tMasterWeightDer + tCMSlaveElasticity->traction( mNormal ) * tSlaveWeightDer;
 
-                    if ( tIfcPressure - tNitsche * tINormalJump < 0 )
+                    if ( tIfcPressure - tNitsche * tNormalJump < 0 )
                     {
                         // add contribution to Jacobian
                         tJacMM += aWStar * (                                                                                                                             //
@@ -329,7 +330,7 @@ namespace moris
                 // if dof type is residual dof type
                 if ( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                 {
-                    if ( tIfcPressure - tNitsche * tINormalJump < 0 )
+                    if ( tIfcPressure - tNitsche * tNormalJump < 0 )
                     {
                         tJacMS += aWStar * (                                                                                                                                 //
                                           -mBeta * tMasterWeight * tCMMasterElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) * tNormalProjector * tFISlave->N()    //
@@ -344,7 +345,7 @@ namespace moris
                 // if dependency on the dof type
                 if ( tCMSlaveElasticity->check_dof_dependency( tDofType ) )
                 {
-                    if ( tIfcPressure - tNitsche * tINormalJump < 0 )
+                    if ( tIfcPressure - tNitsche * tNormalJump < 0 )
                     {
                         // add contribution to Jacobian
                         tJacMS += aWStar * ( -tSlaveWeight * tFIMaster->N_trans() * tNormalProjector * tCMSlaveElasticity->dTractiondDOF( tDofType, mNormal ) );
@@ -376,7 +377,7 @@ namespace moris
                     const Matrix< DDRMat > tTractionDer =
                             tCMMasterElasticity->traction( mNormal ) * tMasterWeightDer + tCMSlaveElasticity->traction( mNormal ) * tSlaveWeightDer;
 
-                    if ( tIfcPressure - tNitsche * tINormalJump < 0 )
+                    if ( tIfcPressure - tNitsche * tNormalJump < 0 )
                     {
                         // add contribution to Jacobian
                         tJacMS += aWStar * (                                                                                                                             //
@@ -398,7 +399,7 @@ namespace moris
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_jacobian() ),
-                    "IWG_Isotropic_Struc_Linear_Interface::compute_jacobian - Jacobian contains NAN or INF, exiting!" );
+                    "IWG_Isotropic_Struc_Linear_Contact_Nitsche::compute_jacobian - Jacobian contains NAN or INF, exiting!" );
         }
 
         //------------------------------------------------------------------------------

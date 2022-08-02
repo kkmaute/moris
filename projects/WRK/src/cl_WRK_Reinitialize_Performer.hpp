@@ -1,5 +1,16 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_WRK_Reinitialize_Performer.hpp
+ *
+ */
+
 #ifndef SRC_cl_WRK_Reinitialize_Performer
 #define SRC_cl_WRK_Reinitialize_Performer
+
 #include <memory>
 #include "cl_Param_List.hpp"
 #include "cl_Matrix.hpp"
@@ -12,11 +23,14 @@ namespace moris
         class HMR;
         class Mesh;
     }    // namespace hmr
+
     namespace mtk
     {
         class Field;
         class Mesh_Manager;
+        class Mesh;
     }    // namespace mtk
+
     namespace MSI
     {
         enum class Dof_Type;
@@ -126,19 +140,19 @@ namespace moris
 
             /**
              * @brief clip values of advs
-             * 
-             * @param aGENPerformer 
+             *
+             * @param aGENPerformer
              */
 
             void
-            impose_upper_lower_bound( moris::Cell< std::shared_ptr< ge::Geometry_Engine > >& aGENPerformer );
+            impose_upper_lower_bound( moris::Cell< std::shared_ptr< ge::Geometry_Engine > >& aGENPerformer, mtk::Field* aField );
 
             //------------------------------------------------------------------------------
 
             /**
              * @brief Get the mtk fields object get the replaced fields to use in GEN
-             * 
-             * @return moris::Cell< std::shared_ptr< mtk::Field > > 
+             *
+             * @return moris::Cell< std::shared_ptr< mtk::Field > >
              */
             moris::Cell< std::shared_ptr< mtk::Field > >
             get_mtk_fields() const;
@@ -147,16 +161,14 @@ namespace moris
 
             /**
              * @brief  output the mapped and original field on the same mesh
-             * 
-             * @param aTarget 
-             * @param aSource 
+             *
+             * @param aTarget
+             * @param aSource
              */
-            void    
-            output_fields(mtk::Field* aTarget, mtk::Field* aSource, std::string aExoFileName) const;
-
+            void
+            output_fields( mtk::Field* aTarget, mtk::Field* aSource, std::string aExoFileName ) const;
         };
     }    // namespace wrk
 }    // namespace moris
-
 
 #endif /* cl_WRK_Reinitailize_Performer.hpp */

@@ -459,9 +459,11 @@ namespace moris
                     mtk::Mesh_Pair&  aMeshPair,
                     Matrix< IdMat >& aAllCoefIds,
                     Matrix< IdMat >& aAllCoefOwners,
+                    Matrix< IdMat >& aAllCoefijklIds,
                     Cell< uint >&    aNumCoeff,
                     uint             aFieldIndex,
-                    uint             aDiscretizationMeshIndex );
+                    uint             aDiscretizationMeshIndex,
+                    enum MeshType    aMeshType );
 
             /**
              * Create PDV_Type hosts with the specified PDV_Type types on the interpolation mesh

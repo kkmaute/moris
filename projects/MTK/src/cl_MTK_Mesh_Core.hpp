@@ -1077,6 +1077,10 @@ namespace moris
                     uint aNodeIndex,
                     uint aBSplineMeshIndex );
 
+            virtual Matrix< IdMat >  get_coefficient_ijkl_IDs_of_node(
+                    uint aNodeIndex,
+                    uint aBSplineMeshIndex);
+
             /**
              * Get the IDs of the discretization coefficients of a node.
              *

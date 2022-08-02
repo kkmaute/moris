@@ -295,6 +295,12 @@ namespace xtk
                     }
                 }
             }
+
+            // get index of B-spline meshes indecies that will be unenriched later
+            Matrix< IndexMat > tUnenrichedBsplineMeshIndices;
+            moris::string_to_mat( mParameterList.get< std::string >( "unenriched_mesh_indices" ), tUnenrichedBsplineMeshIndices );
+
+            this->perform_unenrichment( tUnenrichedBsplineMeshIndices );
         }
 
         if ( mParameterList.get< bool >( "identify_hanging_nodes" ) )
@@ -1686,7 +1692,24 @@ namespace xtk
     }
 
     //------------------------------------------------------------------------------
+    void
+    Model::perform_unenrichment( Matrix< IndexMat > const &aUnenrichedBsplineMeshIndices )
+    {
+        // if there is any elements in the matrix
+        if ( aUnenrichedBsplineMeshIndices.numel() )
+        {
+            Tracer tTracer( "XTK", "No-Type", "Unenrichment" );
 
+            // set the mesh indices
+            mEnrichedInterpMesh( 0 )->set_unenriched_mesh_indices( aUnenrichedBsplineMeshIndices );
+
+            // override id and index of t-matrices
+            mEnrichedInterpMesh( 0 )->override_vertex_enrichment_id_index();
+
+            // override the required maps
+            mEnrichedInterpMesh( 0 )->override_maps();
+        }
+    }
     //------------------------------------------------------------------------------
 
     //------------------------------------------------------------------------------

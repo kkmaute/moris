@@ -530,7 +530,7 @@ namespace moris
                 mdFluxdDof( tDofIndex ) +=
                         ( trans( mRotationDerOutPlane ) * mConstPrime * mRotation              //
                                 + trans( mRotation ) * mConstPrime * mRotationDerOutPlane )    //
-                        * this->strain() * mPropThetaIp->dPropdDOF( aDofTypes );
+                        * this->strain() * mPropThetaOp->dPropdDOF( aDofTypes );
             }
         }
 
@@ -577,6 +577,9 @@ namespace moris
                 // if elastic modulus depends on dof type
                 if ( mPropThetaOp->check_dof_dependency( aDofTypes ) )
                 {
+                    // update consitutive matrix and rotation tensor
+                    this->eval_const();
+
                     // evalute the derivative of the rotation tensor
                     this->eval_outplane_rotation_derivative();
 
@@ -588,7 +591,7 @@ namespace moris
                     mdTestTractiondDof( tTestDofIndex )( tDofIndex ) =
                             trans( this->testStrain() )
                             * ( trans( mRotationDerOutPlane ) * mConstPrime * mRotation + trans( mRotation ) * mConstPrime * mRotationDerOutPlane )
-                            * trans( tFlatNormal ) * aJump * mPropThetaIp->dPropdDOF( aDofTypes );
+                            * trans( tFlatNormal ) * aJump * mPropThetaOp->dPropdDOF( aDofTypes );
                 }
             }
         }

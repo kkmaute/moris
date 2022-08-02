@@ -102,7 +102,7 @@ namespace moris
             std::map< std::string, uint > mMaterialModelMap;
 
             // spatial dimensions
-            uint mSpaceDim;
+            uint mSpaceDim = 0;
 
             // storage for flux evaluation
             Matrix< DDRMat >                mFlux;
@@ -159,8 +159,8 @@ namespace moris
             moris::Cell< Matrix< DDRMat > > mddivstraindu;
 
             // storage for test strain evaluation
-            Matrix< DDRMat > mTestStrain;
-            Matrix< DDRMat > mTestStrainTrans;
+            Matrix< DDRMat >                mTestStrain;
+            Matrix< DDRMat >                mTestStrainTrans;
             moris::Cell< Matrix< DDRMat > > mdTestStraindDof;
 
             // storage for constitutive matrix evaluation
@@ -172,7 +172,6 @@ namespace moris
             std::string mName = "Undefined";
 
           private:
-
             // bool for global dof type list and map build
             bool mGlobalDofBuild      = true;
             bool mGlobalDvBuild       = true;
@@ -220,8 +219,8 @@ namespace moris
             moris::Matrix< DDBMat > mddivstrainduEval;
 
             // flag for test strain related evaluation
-            bool mTestStrainEval      = true;
-            bool mTestStrainTransEval = true;
+            bool                    mTestStrainEval      = true;
+            bool                    mTestStrainTransEval = true;
             moris::Matrix< DDBMat > mdTestStraindDofEval;
 
             // flag for constitutive matrix related evaluation
@@ -935,7 +934,8 @@ namespace moris
              * evaluate the derivative of the constitutive model test strain wrt dof
              * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
              */
-            virtual void eval_dTestStraindDOF( const moris::Cell< MSI::Dof_Type >& aDofTypes )
+            virtual void
+            eval_dTestStraindDOF( const moris::Cell< MSI::Dof_Type >& aDofTypes )
             {
                 MORIS_ERROR( false, " Constitutive_Model::eval_dTestStraindDOF - This function does nothing. " );
             }
@@ -947,7 +947,7 @@ namespace moris
              */
             virtual const Matrix< DDRMat >& dTestStraindDOF(
                     const moris::Cell< MSI::Dof_Type >& aDofTypes,
-                    enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
+                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
             /**

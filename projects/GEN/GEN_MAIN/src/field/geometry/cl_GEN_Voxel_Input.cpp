@@ -16,11 +16,13 @@ namespace moris
                 std::string               aVoxelFieldName,
                 Matrix< DDRMat >          aDomainDimensions,
                 Matrix< DDRMat >          aDomainOffset,
+                Matrix< DDRMat >          aGrainIdToValueMap,
                 Geometry_Field_Parameters aParameters )
                 : Field( aConstants, aParameters )
                 , Geometry( aParameters )
                 , mDomainDimensions( aDomainDimensions )
                 , mDomainOffset( aDomainOffset )
+                , mGrainIdToValueMap( aGrainIdToValueMap )
         {
             this->read_voxel_data( aVoxelFieldName );
         }
@@ -51,7 +53,9 @@ namespace moris
             moris::real tVoxelSizeZ = mDomainDimensions( 2 ) / mVoxelsInZ;
 
             MORIS_ASSERT(
-                    aCoordinates( 0 ) - mDomainOffset( 0 ) >= 0.0 && aCoordinates( 1 ) - mDomainOffset( 1 ) >= 0.0 && aCoordinates( 1 ) - mDomainOffset( 2 ) >= 0.0,
+                    aCoordinates( 0 ) - mDomainOffset( 0 ) >= 0.0               //
+                            && aCoordinates( 1 ) - mDomainOffset( 1 ) >= 0.0    //
+                            && aCoordinates( 1 ) - mDomainOffset( 2 ) >= 0.0,
                     "Voxel_Input::get_field_value_3d() - invalid domain dimensions; check offset.\n" );
 
             moris::uint tI = std::floor( ( aCoordinates( 0 ) - mDomainOffset( 0 ) ) / tVoxelSizeX );    // K
@@ -85,9 +89,13 @@ namespace moris
         real
         Voxel_Input::get_field_value_2d( const Matrix< DDRMat >& aCoordinates )
         {
+            int tGrainID;
+
             // check whether coordinates are within voxel domain
-            if ( aCoordinates( 0 ) - mDomainOffset( 0 ) >= 0.0
-                    && aCoordinates( 1 ) - mDomainOffset( 1 ) >= 0.0 )
+            if ( aCoordinates( 0 ) - mDomainOffset( 0 ) >= 0.0                                 //
+                    && mDomainOffset( 0 ) + mDomainDimensions( 0 ) - aCoordinates( 0 ) >= 0    //
+                    && aCoordinates( 1 ) - mDomainOffset( 1 ) >= 0.0                           //
+                    && mDomainOffset( 1 ) + mDomainDimensions( 1 ) - aCoordinates( 1 ) >= 0 )
             {
                 moris::real tVoxelSizeX = mDomainDimensions( 0 ) / mVoxelsInX;
                 moris::real tVoxelSizeY = mDomainDimensions( 1 ) / mVoxelsInY;
@@ -109,12 +117,20 @@ namespace moris
                 // mVoxelField columns are ordered - VoxelIndex - GainsId - I - J
                 moris::uint tRow = tI * mVoxelsInY + tJ;
 
-                return (moris::real)mVoxelField( tRow, 1 );
+                tGrainID = mVoxelField( tRow, 1 );
             }
             else
             {
-                return mNumGrainInd;
+                tGrainID = mNumGrainInd + 1;
             }
+
+            // return mapped value if map exists
+            if ( mGrainIdToValueMap.numel() > 0 )
+            {
+                return mGrainIdToValueMap( tGrainID - 1 );
+            }
+
+            return tGrainID;
         }
 
         //--------------------------------------------------------------------------------------------------------------

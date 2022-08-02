@@ -38,8 +38,10 @@ namespace xtk
             enum EntityRank mBasisRank = EntityRank::INVALID;
 
             // mesh index
-            Matrix< IndexMat >                             mMeshIndices;
-            std::unordered_map< moris_index, moris_index > mMeshIndexToLocMeshIndex;   // over allocated
+            Matrix< IndexMat > mMeshIndices;
+            Matrix< IndexMat > mUnenrichedMeshIndices;    // lis of the meshes that will be unenriched by overriding t-matrices
+            std::unordered_map< moris_index, moris_index > mMeshIndexToLocMeshIndex;    // over allocated
+
 
             // enriched interpolation vertices
             moris::uint                            mNumVerts;
@@ -677,6 +679,45 @@ namespace xtk
                     moris::size_t aNumReqs,
                     enum EntityRank aEntityRank,
                     bool            aStartFresh );
+
+            //------------------------------------------------------------------------------
+
+          public:
+            /**
+             * @brief This function is for the debug purpose and to make sure that unenriched mesh has been enriched before
+             *
+             */
+            void
+            determine_unenriched_meshes_are_enriched_beforehand() const;
+
+            //------------------------------------------------------------------------------
+
+            /**
+             * @brief Set the unenriched mesh indices object set function to populate unenriched mesh indices
+             *
+             * @param aMeshIndices
+             */
+            void
+            set_unenriched_mesh_indices( Matrix< IndexMat > const & aMeshIndices );
+
+            //------------------------------------------------------------------------------
+
+            /**
+             * @brief function that overwrites "some" maps to make the mesh unenriched, this function should be used with caution as it does not overwrite all
+             * information
+             *
+             */
+            void
+            override_maps();
+
+            //------------------------------------------------------------------------------
+
+            /**
+             * @brief this function replaces the t-matrices of the coefficients with their non-enriched version
+             *
+             */
+            void
+            override_vertex_enrichment_id_index();
     };
 }// namespace xtk
 

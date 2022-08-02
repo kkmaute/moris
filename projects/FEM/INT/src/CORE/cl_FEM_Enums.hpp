@@ -20,13 +20,13 @@ namespace moris
 
         enum class Element_Type
         {
-                UNDEFINED,
-                BULK,
-                SIDESET,
-                DOUBLE_SIDESET,
-                TIME_SIDESET,
-                TIME_BOUNDARY,
-                END_ELEMENT_TYPE
+            UNDEFINED,
+            BULK,
+            SIDESET,
+            DOUBLE_SIDESET,
+            TIME_SIDESET,
+            TIME_BOUNDARY,
+            END_ELEMENT_TYPE
         };
 
         //------------------------------------------------------------------------------
@@ -46,8 +46,10 @@ namespace moris
             ADVECTION_BULK,
             SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE,    // spatial diffusion Dirichlet (Nitsche)
             SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE,
+            SPATIALDIFF_ROBIN_SYMMETRIC_NITSCHE,
+            SPATIALDIFF_ROBIN_UNSYMMETRIC_NITSCHE,
             SPATIALDIFF_NEUMANN,                        // spatial diffusion Neumann
-            SPATIALDIFF_ROBIN,                          // spatial diffusion Robin (Convection)
+            SPATIALDIFF_CONVECTION,                          // spatial diffusion Robin (Convection)
             SPATIALDIFF_RADIATION,                      // spatial diffusion Radiation BC
             SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE,    // spatial diffusion Nitsche interface condition
             SPATIALDIFF_INTERFACE_UNSYMMETRIC_NITSCHE,
@@ -60,6 +62,12 @@ namespace moris
             STRUC_LINEAR_NEUMANN,                          // linear elasticity Neumann
             STRUC_LINEAR_INTERFACE_SYMMETRIC_NITSCHE,      // linear elasticity Nitsche interface condition
             STRUC_LINEAR_INTERFACE_UNSYMMETRIC_NITSCHE,
+
+			Struc_Linear_Interface_SLM_Constraint,			// linear elasticity stabilzed lagrange multiplier constraint
+			Struc_Linear_Interface_SLM_L2,					// linear elasticity stabilzed lagrange multiplier L2 projection
+			Struc_Linear_Interface_SLM_Mixed,				// linear elasticity stabilzed lagrange multiplier mixed term
+			Struc_Linear_Interface_SLM_LMJump,				// linear elasticity stabilzed lagrange multiplier LM jump term
+
             STRUC_LINEAR_VW_GHOST,                                // linear elasticity Ghost flux based
             STRUC_LINEAR_PRESSURE_BULK,                           // linear elasticity bulk mixed formulation
             STRUC_LINEAR_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE,    // linear elasticity Dirichlet mixed formulation (Nitsche)
@@ -127,6 +135,8 @@ namespace moris
             SPALART_ALLMARAS_TURBULENCE_INTERFACE_UNSYMMETRIC_NITSCHE,
             STRUC_LINEAR_CONTACT_SYMMETRIC_NITSCHE,
             STRUC_LINEAR_CONTACT_UNSYMMETRIC_NITSCHE,
+            STRUC_LINEAR_CONTACT_GAP_SYMMETRIC_NITSCHE,
+            STRUC_LINEAR_CONTACT_GAP_UNSYMMETRIC_NITSCHE,
             STRUC_LINEAR_CONTACT_PENALTY,
             GHOST_NORMAL_FIELD,
             END_IWG_TYPE
@@ -162,6 +172,7 @@ namespace moris
                 THERMAL_ENERGY_DIFFUSIVE_FLUX,
 
                 JUMP_DOF,
+				JUMP_TRACTION,
 
                 ADVECTION_STRONG_RESIDUAL,
                 STRONG_RESIDUAL_SA,
@@ -193,64 +204,63 @@ namespace moris
 
                 END_IQI_TYPE
         };
-
         //------------------------------------------------------------------------------
 
         enum class Constitutive_Type
         {
-                UNDEFINED,
-                DIFF_LIN_ISO,
-                DIFF_LIN_ISO_PC,
-                DIFF_LIN_ISO_TURBULENCE,
-                STRUC_LIN_ISO,
-                STRUC_LIN_MT,
-                STRUC_LIN_ISO_PRESSURE,
-                STRUC_NON_LIN_ISO,
-                STRUC_NON_LIN_ISO_SAINT_VENANT_KIRCHHOFF,
-                STRUC_NON_LIN_ISO_NEO_HOOKEAN,
-                FLUID_INCOMPRESSIBLE,
-                FLUID_TURBULENCE,
-                FLUID_COMPRESSIBLE_IDEAL,
-                FLUID_COMPRESSIBLE_VDW,
-                FLUID_COMPRESSIBLE_NEWTONIAN,
-                SPALART_ALLMARAS_TURBULENCE,
-                END_CONSTITUTIVE_TYPE
+            UNDEFINED,
+            DIFF_LIN_ISO,
+            DIFF_LIN_ISO_PC,
+            DIFF_LIN_ISO_TURBULENCE,
+            STRUC_LIN_ISO,
+            STRUC_LIN_MT,
+            STRUC_LIN_ISO_PRESSURE,
+            STRUC_NON_LIN_ISO,
+            STRUC_NON_LIN_ISO_SAINT_VENANT_KIRCHHOFF,
+            STRUC_NON_LIN_ISO_NEO_HOOKEAN,
+            FLUID_INCOMPRESSIBLE,
+            FLUID_TURBULENCE,
+            FLUID_COMPRESSIBLE_IDEAL,
+            FLUID_COMPRESSIBLE_VDW,
+            FLUID_COMPRESSIBLE_NEWTONIAN,
+            SPALART_ALLMARAS_TURBULENCE,
+            END_CONSTITUTIVE_TYPE
         };
 
         //------------------------------------------------------------------------------
 
         enum class Material_Type
         {
-                UNDEFINED,
-                PERFECT_GAS,
-                VAN_DER_WAALS_FLUID,
-                END_MATERIAL_TYPE
-        };        
+            UNDEFINED,
+            PERFECT_GAS,
+            VAN_DER_WAALS_FLUID,
+            END_MATERIAL_TYPE
+        };
 
         //------------------------------------------------------------------------------
 
         enum class Variable_Set
         {
-                UNDEFINED,
-                CONSERVATIVE,
-                DENSITY_PRIMITIVE,
-                PRESSURE_PRIMITIVE,
-                ENTROPY,
-                END_VARIABLE_SET
+            UNDEFINED,
+            CONSERVATIVE,
+            DENSITY_PRIMITIVE,
+            PRESSURE_PRIMITIVE,
+            ENTROPY,
+            END_VARIABLE_SET
         };
 
         //------------------------------------------------------------------------------
 
         enum class Model_Type
         {
-                UNDEFINED,
-                PLANE_STRESS,
-                PLANE_STRAIN,
-                AXISYMMETRIC,
-                FULL,
-                HYDROSTATIC, // not implemented yet
-                DEVIATORIC,
-                END_MODEL_TYPE
+            UNDEFINED,
+            PLANE_STRESS,
+            PLANE_STRAIN,
+            AXISYMMETRIC,
+            FULL,
+            HYDROSTATIC,    // not implemented yet
+            DEVIATORIC,
+            END_MODEL_TYPE
         };
 
         //------------------------------------------------------------------------------
@@ -259,6 +269,7 @@ namespace moris
         {
             UNDEFINED,
             DIRICHLET_NITSCHE,
+            ROBIN_NITSCHE,
             GGLS_DIFFUSION,
             GHOST_DISPL,
             GHOST_NORMAL_FIELD,
@@ -284,6 +295,7 @@ namespace moris
             PENALTY_CONTACT,
             STAB_PENALTY_CONTACT,
             MEASURE,
+			LAGRANGE_MULTIPLIER_L2,
             END_STABILIZATION_TYPE
         };
 
@@ -291,23 +303,23 @@ namespace moris
 
         enum class Measure_Type
         {
-                UNDEFINED,
-                CELL_MEASURE,
-                CELL_SIDE_MEASURE,
-                CELL_LENGTH_MEASURE,
-                END_MEASURE_TYPE
+            UNDEFINED,
+            CELL_MEASURE,
+            CELL_SIDE_MEASURE,
+            CELL_LENGTH_MEASURE,
+            END_MEASURE_TYPE
         };
 
-        inline
-        map< std::string, enum fem::Measure_Type > get_measure_type_map()
+        inline map< std::string, enum fem::Measure_Type >
+        get_measure_type_map()
         {
             map< std::string, enum fem::Measure_Type > tFemMeasureTypeMap;
 
-            tFemMeasureTypeMap["UNDEFINED"]           = fem::Measure_Type::UNDEFINED;
-            tFemMeasureTypeMap["CELL_MEASURE"]        = fem::Measure_Type::CELL_MEASURE;
-            tFemMeasureTypeMap["CELL_SIDE_MEASURE"]   = fem::Measure_Type::CELL_SIDE_MEASURE;
-            tFemMeasureTypeMap["CELL_LENGTH_MEASURE"] = fem::Measure_Type::CELL_LENGTH_MEASURE;
-            tFemMeasureTypeMap["END_MEASURE_TYPE"]    = fem::Measure_Type::END_MEASURE_TYPE;
+            tFemMeasureTypeMap[ "UNDEFINED" ]           = fem::Measure_Type::UNDEFINED;
+            tFemMeasureTypeMap[ "CELL_MEASURE" ]        = fem::Measure_Type::CELL_MEASURE;
+            tFemMeasureTypeMap[ "CELL_SIDE_MEASURE" ]   = fem::Measure_Type::CELL_SIDE_MEASURE;
+            tFemMeasureTypeMap[ "CELL_LENGTH_MEASURE" ] = fem::Measure_Type::CELL_LENGTH_MEASURE;
+            tFemMeasureTypeMap[ "END_MEASURE_TYPE" ]    = fem::Measure_Type::END_MEASURE_TYPE;
 
             return tFemMeasureTypeMap;
         }
@@ -316,36 +328,36 @@ namespace moris
 
         enum class FDScheme_Type
         {
-                UNDEFINED,
-                POINT_1_FORWARD,
-                POINT_1_BACKWARD,
-                POINT_3_CENTRAL,
-                POINT_5,
-                END_FD_SCHEME
+            UNDEFINED,
+            POINT_1_FORWARD,
+            POINT_1_BACKWARD,
+            POINT_3_CENTRAL,
+            POINT_5,
+            END_FD_SCHEME
         };
 
         //------------------------------------------------------------------------------
 
         enum class Perturbation_Type
         {
-                UNDEFINED,
-                RELATIVE,
-                ABSOLUTE,
-                END_PERTURBATION_TYPE
+            UNDEFINED,
+            RELATIVE,
+            ABSOLUTE,
+            END_PERTURBATION_TYPE
         };
 
         //------------------------------------------------------------------------------
 
         enum class Stress_Type
         {
-                UNDEFINED,
-                NORMAL_STRESS,
-                SHEAR_STRESS,
-                VON_MISES_STRESS,
-                PRINCIPAL_STRESS,
-                MAX_SHEAR_STRESS,
-                STRESS_VECTOR,
-                END_STRESS_TYPE
+            UNDEFINED,
+            NORMAL_STRESS,
+            SHEAR_STRESS,
+            VON_MISES_STRESS,
+            PRINCIPAL_STRESS,
+            MAX_SHEAR_STRESS,
+            STRESS_VECTOR,
+            END_STRESS_TYPE
         };
 
         //------------------------------------------------------------------------------

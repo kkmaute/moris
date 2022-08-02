@@ -2,6 +2,7 @@
 //FEM/INT/src
 #include "cl_FEM_SP_Factory.hpp"
 #include "cl_FEM_SP_Dirichlet_Nitsche.hpp"
+#include "cl_FEM_SP_Robin_Nitsche.hpp"
 #include "cl_FEM_SP_Ghost_Displacement.hpp"
 #include "cl_FEM_SP_Ghost_Virtual_Work.hpp"
 #include "cl_FEM_SP_Nitsche_Interface.hpp"
@@ -24,6 +25,7 @@
 #include "cl_FEM_SP_Penalty_Contact.hpp"
 #include "cl_FEM_SP_Spalart_Allmaras_Nitsche_Interface.hpp"
 #include "cl_FEM_SP_Measure.hpp"
+#include "cl_FEM_SP_Lagrange_Multiplier_L2.hpp"
 
 
 namespace moris
@@ -39,6 +41,9 @@ namespace moris
             {
                 case fem::Stabilization_Type::DIRICHLET_NITSCHE :
                     return std::make_shared< SP_Dirichlet_Nitsche >();
+
+                case fem::Stabilization_Type::ROBIN_NITSCHE:
+                    return std::make_shared< SP_Robin_Nitsche >();
 
                 case fem::Stabilization_Type::GGLS_DIFFUSION :
                     return std::make_shared< SP_GGLS_Diffusion >();
@@ -105,6 +110,9 @@ namespace moris
 
                 case fem::Stabilization_Type::MEASURE :
                     return std::make_shared< SP_Measure >();
+
+                case fem::Stabilization_Type::LAGRANGE_MULTIPLIER_L2 :
+                    return std::make_shared< SP_Lagrange_Multiplier_L2 >();
 
                 default:
                     MORIS_ERROR( false, " SP_Factory::create_SP - No stabilization type specified. " );

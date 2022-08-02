@@ -766,18 +766,12 @@ namespace moris
             {
                 // compute wall destruction coefficient
                 mWallDestructionCoeff = { { ( mCw1 * this->fw() - mCb1 * this->ft2() / std::pow( mKappa, 2.0 ) ) * tModViscosity / tWallDistance2 } };
-
-                // xxx to be removed
-                clip_value( std::pow( tWallDistance, 2.0 ), mEpsilon, ( mCw1 * this->fw() - mCb1 * this->ft2() / std::pow( mKappa, 2.0 ) ) * tModViscosity );
             }
             // if viscosity is negative
             else
             {
                 // compute wall destruction coefficient
                 mWallDestructionCoeff = { { -mCw1 * mAlpha * tModViscosity / tWallDistance2 } };
-
-                // xxx to be removed
-                clip_value( std::pow( tWallDistance, 2.0 ), mEpsilon, -mCw1 * mAlpha * tModViscosity );
             }
         }
 
@@ -842,9 +836,6 @@ namespace moris
                 // add contribution to dwalldestructiondu
                 mdWallDestructionCoeffdu( tDofIndex ) = mCw1 * this->dfwdu( aDofTypes ) * tModViscosity / tWallDistance2;
 
-                // xxx to be removed
-                clip_value( std::pow( tWallDistance, 2.0 ), mEpsilon, mCw1 * tModViscosity );
-
                 MORIS_ASSERT( isfinite( mdWallDestructionCoeffdu( tDofIndex ) ),
                         "CM_Spalart_Allmaras_Turbulence::eval_dwalldestructioncoeffdu - mdWallDestructionCoeffdu contains NAN or INF (1)" );
 
@@ -852,9 +843,6 @@ namespace moris
                 if ( mUseFt2 )
                 {
                     mdWallDestructionCoeffdu( tDofIndex ) -= mCb1 * this->dft2du( aDofTypes ) * tModViscosity / std::pow( mKappa, 2.0 ) / tWallDistance2;
-
-                    // xxx to be removed
-                    clip_value( std::pow( tWallDistance, 2.0 ), mEpsilon, mCb1 * tModViscosity / std::pow( mKappa, 2.0 ) );
 
                     MORIS_ASSERT( isfinite( mdWallDestructionCoeffdu( tDofIndex ) ),
                             "CM_Spalart_Allmaras_Turbulence::eval_dwalldestructioncoeffdu - mdWallDestructionCoeffdu contains NAN or INF (2)" );
@@ -866,9 +854,6 @@ namespace moris
                     // add contribution to dwalldestructiondu
                     mdWallDestructionCoeffdu( tDofIndex ) += mCw1 * this->fw() * tFIModViscosity->N() / tWallDistance2;
 
-                    // xxx to be removed
-                    clip_value( std::pow( tWallDistance, 2.0 ), mEpsilon, mCw1 * this->fw() );
-
                     MORIS_ASSERT( isfinite( mdWallDestructionCoeffdu( tDofIndex ) ),
                             "CM_Spalart_Allmaras_Turbulence::eval_dwalldestructioncoeffdu - mdWallDestructionCoeffdu contains NAN or INF (3)" );
 
@@ -876,9 +861,6 @@ namespace moris
                     if ( mUseFt2 )
                     {
                         mdWallDestructionCoeffdu( tDofIndex ) -= mCb1 * this->ft2() * tFIModViscosity->N() / std::pow( mKappa, 2.0 ) / tWallDistance2;
-
-                        // xxx to be removed
-                        clip_value( std::pow( tWallDistance, 2.0 ), mEpsilon, mCb1 * this->ft2() / std::pow( mKappa, 2.0 ) );
 
                         MORIS_ASSERT( isfinite( mdWallDestructionCoeffdu( tDofIndex ) ),
                                 "CM_Spalart_Allmaras_Turbulence::eval_dwalldestructioncoeffdu - mdWallDestructionCoeffdu contains NAN or INF (4)" );
@@ -893,9 +875,6 @@ namespace moris
 
                     // add contribution to dwalldestructiondu
                     mdWallDestructionCoeffdu( tDofIndex ) -= 2.0 * mCw1 * this->fw() * tModViscosity * mPropWallDistance->dPropdDOF( aDofTypes ) / tWallDistance3;
-
-                    // xxx to be removed
-                    clip_value( std::pow( tWallDistance, 3.0 ), mEpsilonDeriv, 2.0 * mCw1 * this->fw() * tModViscosity );
 
                     MORIS_ASSERT( isfinite( mdWallDestructionCoeffdu( tDofIndex ) ),
                             "CM_Spalart_Allmaras_Turbulence::eval_dwalldestructioncoeffdu - mdWallDestructionCoeffdu contains NAN or INF (5)" );
@@ -936,9 +915,6 @@ namespace moris
                     // add contribution to dwalldestructiondu
                     mdWallDestructionCoeffdu( tDofIndex ) +=
                             2.0 * mCw1 * mAlpha * tModViscosity * mPropWallDistance->dPropdDOF( aDofTypes ) / tWallDistance3;
-
-                    // xxx to be removed
-                    clip_value( std::pow( tWallDistance, 3.0 ), mEpsilonDeriv, 2.0 * mCw1 * mAlpha * tModViscosity );
 
                     MORIS_ASSERT( isfinite( mdWallDestructionCoeffdu( tDofIndex ) ),
                             "CM_Spalart_Allmaras_Turbulence::eval_dwalldestructioncoeffdu - mdWallDestructionCoeffdu contains NAN or INF (7)" );
@@ -2277,9 +2253,6 @@ namespace moris
 
             // compute fv2
             mFv2 = 1.0 - this->chi() / tDeno;
-
-            // xxx to be removed
-            clip_value( 1.0 + this->chi() * this->fv1(), mEpsilon, this->chi() );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -2393,9 +2366,6 @@ namespace moris
 
             // compute sbar
             mSBar = this->fv2() * tFIViscosity->val()( 0 ) / tDeno;
-
-            // xxx to be removed
-            clip_value( std::pow( mKappa * tWallDistance, 2.0 ), mEpsilon, this->fv2() * tFIViscosity->val()( 0 ) );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -2454,9 +2424,6 @@ namespace moris
             mdSBardu( tDofIndex ) =
                     tFIViscosity->val() * this->dfv2du( aDofTypes ) / tDeno;
 
-            // xxx to be removed
-            clip_value( std::pow( mKappa * tWallDistance, 2.0 ), mEpsilon, tFIViscosity->val()( 0 ) );
-
             // if derivative dof type is viscosity dof type
             if ( aDofTypes( 0 ) == mDofViscosity )
             {
@@ -2473,9 +2440,6 @@ namespace moris
                 // add contribution to dsbardu
                 mdSBardu( tDofIndex ) -=
                         2.0 * this->fv2() * tFIViscosity->val()( 0 ) * mPropWallDistance->dPropdDOF( aDofTypes ) / tKappa2WallDistance3;
-
-                // xxx to be removed
-                clip_value( std::pow( mKappa, 2.0 ) * std::pow( tWallDistance, 3.0 ), mEpsilonDeriv, 2.0 * this->fv2() * tFIViscosity->val()( 0 ) );
             }
 
             MORIS_ASSERT( isfinite( mdSBardu( tDofIndex ) ),
@@ -2525,9 +2489,6 @@ namespace moris
 
             // compute smod
             mSMod = this->s() * ( std::pow( mCv2, 2 ) * this->s() + mCv3 * this->sbar() ) / tDeno;
-
-            // xxx to be removed
-            clip_value( ( mCv3 - 2.0 * mCv2 ) * this->s() - this->sbar(), mEpsilon, this->s() * ( std::pow( mCv2, 2 ) * this->s() + mCv3 * this->sbar() ) );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -2764,18 +2725,7 @@ namespace moris
             mR = tFIViscosity->val()( 0 ) / tRDeno;
 
             // select minimum
-            // mR = std::min( mR, mRLim );
-
-            // xxx to be removed and line above commented out
-            if ( mR < mRLim )
-            {
-
-                clip_value( this->stilde() * std::pow( mKappa * tWallDistance, 2.0 ), mEpsilon, tFIViscosity->val()( 0 ) );
-            }
-            else
-            {
-                mR = mRLim;
-            }
+            mR = std::min( mR, mRLim );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -2853,9 +2803,6 @@ namespace moris
                     // add contribution from dStildedu
                     mdRdu( tDofIndex ) -= tFIViscosity->val() * this->dstildedu( aDofTypes ) / tdRduDeno1;
 
-                    // xxx to be removed
-                    clip_value( std::pow( this->stilde() * mKappa * tWallDistance, 2.0 ), mEpsilonDeriv, tFIViscosity->val()( 0 ) );
-
                     // if wall distance depends on derivative dof type
                     if ( mPropWallDistance->check_dof_dependency( aDofTypes ) )
                     {
@@ -2867,12 +2814,6 @@ namespace moris
                         // add contribution from wall distance
                         mdRdu( tDofIndex ) -=
                                 2.0 * tFIViscosity->val()( 0 ) * mPropWallDistance->dPropdDOF( aDofTypes ) / tdRduDeno2;
-
-                        // xxx to be removed
-                        clip_value(
-                                this->stilde() * std::pow( mKappa, 2.0 ) * std::pow( tWallDistance, 3.0 ),
-                                mEpsilonDeriv,
-                                2.0 * tFIViscosity->val()( 0 ) );
                     }
                 }
             }
@@ -3020,9 +2961,6 @@ namespace moris
             // compute fw
             mFw = ( 1.0 + std::pow( mCw3, 6.0 ) ) / tFwDeno;
 
-            // xxx to be removed
-            clip_value( std::pow( this->g(), 6.0 ) + std::pow( mCw3, 6.0 ), mEpsilon, ( 1.0 + std::pow( mCw3, 6.0 ) ) );
-
             mFw = this->g() * std::pow( mFw, 1.0 / 6.0 );
         }
 
@@ -3079,9 +3017,6 @@ namespace moris
                 // compute dfwdu
                 mdFwdu( tDofIndex ) = ( this->fw() * std::pow( mCw3, 6.0 ) * this->dgdu( aDofTypes ) ) / tdFwduDeno;
 
-                // xxx to be removed
-                clip_value( this->g() * tFwDeno, mEpsilonDeriv, this->fw() * std::pow( mCw3, 6.0 ) );
-
                 MORIS_ASSERT( isfinite( mdFwdu( tDofIndex ) ),
                         "CM_Spalart_Allmaras_Turbulence::eval_dfwdu - mdFwdu( tDofIndex ) has NAN or INF (1)" );
             }
@@ -3135,9 +3070,6 @@ namespace moris
         {
             // threshold deno
             real tFnDeno = clip_value( mCn1 - std::pow( this->chi(), 3.0 ), mEpsilon );
-
-            // xxx to be removed
-            clip_value( mCn1 - std::pow( this->chi(), 3.0 ), mEpsilon, ( mCn1 + std::pow( this->chi(), 3.0 ) ) );
 
             // compute fn
             mFn = ( mCn1 + std::pow( this->chi(), 3.0 ) ) / tFnDeno;
@@ -3196,18 +3128,12 @@ namespace moris
                 // compute dfndu
                 mdFndu( tDofIndex ) =
                         6.0 * mCn1 * std::pow( this->chi(), 2 ) * this->dchidu( aDofTypes ) / tdFnduDeno;
-
-                // xxx to be removed
-                clip_value( std::pow( tFnDeno, 2.0 ), mEpsilonDeriv, 6.0 * mCn1 * std::pow( this->chi(), 2 ) );
             }
             else
             {
                 // compute dfndu
                 mdFndu( tDofIndex ) =
                         -3.0 * mCn1 * std::pow( this->chi(), 2.0 ) * this->dchidu( aDofTypes ) / tFnDeno;
-
-                // xxx to be removed
-                clip_value( mCn1 - std::pow( this->chi(), 3.0 ), mEpsilon, -3.0 * mCn1 * std::pow( this->chi(), 2.0 ) );
             }
         }
 
@@ -3267,18 +3193,12 @@ namespace moris
                 // compute dfndx
                 mdFndx( aOrder - 1 ) =
                         6.0 * mCn1 * std::pow( this->chi(), 2 ) * this->dchidx( 1 ) / tdFnduDeno;
-
-                // xxx to be removed
-                clip_value( std::pow( tFnDeno, 2.0 ), mEpsilonDeriv, 6.0 * mCn1 * std::pow( this->chi(), 2 ) );
             }
             else
             {
                 // compute dfndx
                 mdFndx( aOrder - 1 ) =
                         -3.0 * mCn1 * std::pow( this->chi(), 2.0 ) * this->dchidx( 1 ) / tFnDeno;
-
-                // xxx to be removed
-                clip_value( mCn1 - std::pow( this->chi(), 3.0 ), mEpsilon, -3.0 * mCn1 * std::pow( this->chi(), 2.0 ) );
             }
         }
 

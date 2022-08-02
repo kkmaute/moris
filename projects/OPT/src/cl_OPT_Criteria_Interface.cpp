@@ -7,11 +7,12 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Criteria_Interface::get_criteria(const Matrix<DDRMat> & aNewADVs)
+        Matrix< DDRMat >
+        Criteria_Interface::get_criteria( Matrix< DDRMat >& aNewADVs )
         {
             mEvaluated = false;
 
-            return this->perform(aNewADVs);
+            return this->perform( aNewADVs );
         }
 
         //--------------------------------------------------------------------------------------------------------------

@@ -272,7 +272,7 @@ namespace moris
                 // check if the weight property has been stipulated
                 if ( tPropWeight != nullptr )
                 {
-                    adQIdu = tPropWeight->val()( 0 ) * mExponent * tdQI * trans( tFIMaxDof->N() ) * tSelect / mRefValue;
+                    adQIdu = tPropWeight->val()( 0 ) * mExponent * tdQI * tFIMaxDof->N_trans() * tSelect / mRefValue;
 
                     // check dof dependency on the property
                     if ( tPropWeight->check_dof_dependency( aDofType ) )
@@ -282,7 +282,7 @@ namespace moris
                 }
                 else
                 {
-                    adQIdu = mExponent * tdQI * trans( tFIMaxDof->N() ) * tSelect / mRefValue;
+                    adQIdu = mExponent * tdQI * tFIMaxDof->N_trans() * tSelect / mRefValue;
                 }
             }
         }

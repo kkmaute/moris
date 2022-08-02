@@ -114,6 +114,18 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
+            /**
+             * returns the ijk id for hm meshes
+             */
+            virtual 
+            Matrix< IdMat > get_ijkl_id() const
+            {
+                MORIS_ERROR(false,"Vertex_Interpolation::get_ijkl_id() not implemented for this mesh type.");
+                return Matrix< IdMat >(0,0);
+            }
+
+//------------------------------------------------------------------------------
+
 
         };
     }

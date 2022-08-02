@@ -30,7 +30,8 @@ namespace moris
 
         //----------------------------------------------------------------------------------------------------------------------
 
-        void Algorithm::compute_design_criteria(const Matrix<DDRMat> & aADVs)
+        void
+        Algorithm::compute_design_criteria( Matrix< DDRMat >& aADVs )
         {
             // check that only processor with rank 0 enters this routine
             MORIS_ERROR( par_rank() == 0,

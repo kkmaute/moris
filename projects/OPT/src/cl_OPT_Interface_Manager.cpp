@@ -104,7 +104,8 @@ namespace moris
 
         // -------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Interface_Manager::perform(const Matrix<DDRMat> & aNewADVs)
+        Matrix< DDRMat >
+        Interface_Manager::perform( Matrix< DDRMat >& aNewADVs )
         {
             // Set up global criteria
             Matrix<DDRMat> tGlobalCriteria(1, 1);

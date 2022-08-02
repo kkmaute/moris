@@ -19,11 +19,11 @@ namespace moris
             // set the property pointer cell size
             mProperties.resize( static_cast< uint >( CM_Property_Type_Lin::MAX_ENUM ), nullptr );
 
-            mPropertyMap["CTE"]                  = static_cast< uint >( CM_Property_Type_Lin::CTE );
-            mPropertyMap["PropertyTemperature"]  = static_cast< uint >( CM_Property_Type_Lin::TEMP_PROP );
-            mPropertyMap["ReferenceTemperature"] = static_cast< uint >( CM_Property_Type_Lin::TEMP_REF );
-            mPropertyMap["AxisymRotationAxis"]   = static_cast< uint >( CM_Property_Type_Lin::ROT_AXI );
-            mPropertyMap["EigenStrain"]          = static_cast< uint >( CM_Property_Type_Lin::EIGEN_STRAIN );
+            mPropertyMap[ "CTE" ]                  = static_cast< uint >( CM_Property_Type_Lin::CTE );
+            mPropertyMap[ "PropertyTemperature" ]  = static_cast< uint >( CM_Property_Type_Lin::TEMP_PROP );
+            mPropertyMap[ "ReferenceTemperature" ] = static_cast< uint >( CM_Property_Type_Lin::TEMP_REF );
+            mPropertyMap[ "AxisymRotationAxis" ]   = static_cast< uint >( CM_Property_Type_Lin::ROT_AXI );
+            mPropertyMap[ "EigenStrain" ]          = static_cast< uint >( CM_Property_Type_Lin::EIGEN_STRAIN );
         }
 
         //------------------------------------------------------------------------------
@@ -278,10 +278,10 @@ namespace moris
                 mFlux -= tP;
             }
 
-            // if eigen-strain is not defined
+            // if eigen-strain is defined
             if ( mPropEigenStrain != nullptr )
             {
-                // add eigen strain contribution
+                // add eigen strain contribution; note the sign
                 mFlux += this->constitutive() * mPropEigenStrain->val();
             }
         }
@@ -854,7 +854,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        CM_Struc_Linear::full_plane_stress( std::initializer_list< const real > && tParams )
+        CM_Struc_Linear::full_plane_stress( std::initializer_list< const real > &&tParams )
         {
             MORIS_ERROR( 0, "full_plane_stress function not implemented in the base class CM_Struc_Linear" );
         }
@@ -862,7 +862,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        CM_Struc_Linear::deviatoric_plane_stress( std::initializer_list< const real > && tParams )
+        CM_Struc_Linear::deviatoric_plane_stress( std::initializer_list< const real > &&tParams )
         {
             MORIS_ERROR( 0, "deviatoric_plane_stress function not implemented in the base class CM_Struc_Linear" );
         }
@@ -870,7 +870,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        CM_Struc_Linear::full_plane_strain( std::initializer_list< const real > && tParams )
+        CM_Struc_Linear::full_plane_strain( std::initializer_list< const real > &&tParams )
         {
             MORIS_ERROR( 0, "full_plane_strain function not implemented in the base class CM_Struc_Linear" );
         }
@@ -878,7 +878,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        CM_Struc_Linear::deviatoric_plane_strain( std::initializer_list< const real > && tParams )
+        CM_Struc_Linear::deviatoric_plane_strain( std::initializer_list< const real > &&tParams )
         {
             MORIS_ERROR( 0, "deviatoric_plane_strain function not implemented in the base class CM_Struc_Linear" );
         }
@@ -886,7 +886,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        CM_Struc_Linear::full_axisymmetric( std::initializer_list< const real > && tParams )
+        CM_Struc_Linear::full_axisymmetric( std::initializer_list< const real > &&tParams )
         {
             MORIS_ERROR( 0, "full_axisymmetric function not implemented in the base class CM_Struc_Linear" );
         }
@@ -894,7 +894,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        CM_Struc_Linear::deviatoric_axisymmetric( std::initializer_list< const real > && tParams )
+        CM_Struc_Linear::deviatoric_axisymmetric( std::initializer_list< const real > &&tParams )
         {
             MORIS_ERROR( 0, "deviatoric_axisymmetric function not implemented in the base class CM_Struc_Linear" );
         }
@@ -902,7 +902,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        CM_Struc_Linear::full_3d( std::initializer_list< const real > && tParams )
+        CM_Struc_Linear::full_3d( std::initializer_list< const real > &&tParams )
         {
             MORIS_ERROR( 0, "full_3d function not implemented in the base class CM_Struc_Linear" );
         }
@@ -910,7 +910,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        CM_Struc_Linear::deviatoric_3d( std::initializer_list< const real > && tParams )
+        CM_Struc_Linear::deviatoric_3d( std::initializer_list< const real > &&tParams )
         {
             MORIS_ERROR( 0, "deviatoric_3d function not implemented in the base class CM_Struc_Linear" );
         }
