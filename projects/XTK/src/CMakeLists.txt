@@ -88,6 +88,7 @@ set(HEADERS
     cl_XTK_Diagnostics.hpp
     cl_XTK_Subphase_Group.hpp
     fn_XTK_convert_index_cell_to_index_map.hpp 
+    fn_XTK_find_most_frequent_int_in_cell.hpp
     )                                                                                                                                                                                                                                                                   
 
 

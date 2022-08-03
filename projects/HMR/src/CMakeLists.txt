@@ -85,6 +85,7 @@ set(HEADERS
     fn_HMR_Exec_perform_mapping.hpp
     fn_HMR_get_basis_neighbors_2d.hpp
     fn_HMR_get_basis_neighbors_3d.hpp
+    fn_HMR_refinement_transition_locations.hpp
     HMR_Globals.hpp
     HMR_Tools.hpp
     )

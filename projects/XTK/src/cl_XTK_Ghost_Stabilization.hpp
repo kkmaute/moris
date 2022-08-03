@@ -55,7 +55,7 @@ namespace xtk
         Cell< Cell< moris_index > > mSlaveSideIgCellSideOrds;  // input: bulk phase index || output: list of side ordinals of the corresponding slave IP cells used for ghost facet construction
 
         // trivial clusters are ones that are not on a hanging node interface
-        Cell< Cell< moris_index > > mTrivialFlag;        // input: bulk phase index || output: list of trivial flags indicating whether corresponding ghost facet construction is trivial (i.e. no hanging nodes)
+        Cell< Cell< moris_index > > mNonTrivialFlag;     // input: bulk phase index || output: list of flags indicating whether corresponding ghost facet construction is Non-trivial (i.e. it has hanging nodes)
         Cell< Cell< moris_index > > mTransitionLocation; // input: bulk phase index || output: list of transition locations of corresponding ghost facet construction 
 
         // ----------------------------------------------------------------------------------
@@ -70,7 +70,7 @@ namespace xtk
         Cell< Cell< Cell< moris_index > > > mSlaveSideIgCellSideOrdsNew;  // input: B-spline mesh list index, bulk phase index || output: list of side ordinals of the corresponding slave IP cells used for ghost facet construction
 
         // trivial clusters are ones that are not on a hanging node interface
-        Cell< Cell< Cell< moris_index > > > mTrivialFlagNew;        // input: B-spline mesh list index, bulk phase index || output: list of trivial flags indicating whether corresponding ghost facet construction is trivial (i.e. no hanging nodes)
+        Cell< Cell< Cell< moris_index > > > mNonTrivialFlagNew;     // input: B-spline mesh list index, bulk phase index || output: list of trivial flags indicating whether corresponding ghost facet construction is trivial (i.e. no hanging nodes)
         Cell< Cell< Cell< moris_index > > > mTransitionLocationNew; // input: B-spline mesh list index, bulk phase index || output: list of transition locations of corresponding ghost facet construction 
 
         // ----------------------------------------------------------------------------------
@@ -89,7 +89,7 @@ namespace xtk
             tTotal += moris::internal_capacity( mMasterSideIgCellSideOrds );
             tTotal += moris::internal_capacity( mMasterSideIgCellSideOrds );
             tTotal += moris::internal_capacity( mSlaveSideIgCellSideOrds );
-            tTotal += moris::internal_capacity( mTrivialFlag );
+            tTotal += moris::internal_capacity( mNonTrivialFlag );
             tTotal += moris::internal_capacity( mTransitionLocation );
             return tTotal;
         }
@@ -323,7 +323,7 @@ namespace xtk
                     moris_index const& aBspMeshListIndex,
                     moris_index const& aFirstSpgIndex, 
                     moris_index const& aSecondSpgIndex,
-                    moris_index&       aTrivialFlag);
+                    moris_index&       aNonTrivialFlag );
 
             // ----------------------------------------------------------------------------------
 
@@ -371,16 +371,26 @@ namespace xtk
 
             // ----------------------------------------------------------------------------------
 
-            std::shared_ptr<xtk::Cell_XTK_No_CM>
+            std::shared_ptr< xtk::Cell_XTK_No_CM >
             create_non_trivial_master_ig_cell(
-                    Ghost_Setup_Data &  aGhostSetupData,
-                    uint const & aBulkIndex,
-                    uint const & aCellIndex,
-                    Side_Cluster* aMasterSideCluster,
-                    Side_Cluster* aSlaveSideCluster,
-                    moris_index & aCurrentIndex,
-                    moris_index & aCurrentId);
+                    Ghost_Setup_Data& aGhostSetupData,
+                    uint const &      aBulkIndex,
+                    uint const &      aCellIndex,
+                    Side_Cluster*     aMasterSideCluster,
+                    Side_Cluster*     aSlaveSideCluster,
+                    moris_index&      aCurrentIndex,
+                    moris_index&      aCurrentId );
 
+            std::shared_ptr<xtk::Cell_XTK_No_CM>
+            create_non_trivial_master_ig_cell_new(
+                    Ghost_Setup_Data& aGhostSetupData,
+                    uint const&       aBsplineMeshListIndex,
+                    uint const&       aBulkIndex,
+                    uint const&       aCellIndex,
+                    Side_Cluster*     aMasterSideCluster,
+                    Side_Cluster*     aSlaveSideCluster,
+                    moris_index&      aCurrentIndex,
+                    moris_index&      aCurrentId );
 
             // ----------------------------------------------------------------------------------
 

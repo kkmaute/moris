@@ -699,21 +699,37 @@ class Integration_Mesh_Generator
         std::shared_ptr< IG_Cell_Group >                  aIgCellGroup,
         moris_index &                                     aMaxValueAssigned );
 
+    // ----------------------------------------------------------------------------------
+    
     void
     extract_cells_from_cell_groups(
         moris::Cell< std::shared_ptr< IG_Cell_Group > > const &aCellGroups,
         moris::Cell< moris::mtk::Cell * > &                    aCellsInGroups );
 
+    // ----------------------------------------------------------------------------------
+    
     void
-    compute_ig_cell_bulk_phase(
-        Cut_Integration_Mesh *aCutIntegrationMesh );
+    compute_ig_cell_bulk_phase( Cut_Integration_Mesh *aCutIntegrationMesh );
+
+    // ----------------------------------------------------------------------------------
+    
+    moris_index
+    deduce_ig_cell_bulk_phase_index( moris::mtk::Cell const* aCell );
 
     moris_index
-    deduce_ig_cell_bulk_phase_index( moris::mtk::Cell const *aCell );
+    deduce_ig_cell_bulk_phase_from_vertices( moris::mtk::Cell const* aCell );
 
+    moris_index
+    deduce_ig_cell_bulk_phase_from_facets(
+            moris::mtk::Cell const* aCell,
+            Cut_Integration_Mesh* aCutIntegrationMesh );
+
+    // ----------------------------------------------------------------------------------
+    
     moris_index
     get_max_index( moris::Cell< moris::mtk::Cell * > &aCells );
 
+    // ----------------------------------------------------------------------------------
 
     void
     assign_node_requests_identifiers(
@@ -722,6 +738,8 @@ class Integration_Mesh_Generator
         moris::mtk::Mesh *    aBackgroundMesh,
         moris::moris_index    aMPITag );
 
+    // ----------------------------------------------------------------------------------
+    
     void
     sort_new_node_requests_by_owned_and_not_owned(
         Decomposition_Data &                      tDecompData,
@@ -732,12 +750,16 @@ class Integration_Mesh_Generator
         Cell< uint > &                            aProcRanks,
         std::unordered_map< moris_id, moris_id > &aProcRankToIndexInData );
 
+    // ----------------------------------------------------------------------------------
+    
     void
     assign_owned_request_id(
         Decomposition_Data &aDecompData,
         Cell< uint > const &aOwnedRequest,
         moris::moris_id &   aNodeId );
 
+    // ----------------------------------------------------------------------------------
+    
     void
     setup_outward_requests(
         Decomposition_Data const &                aDecompData,
@@ -747,12 +769,17 @@ class Integration_Mesh_Generator
         std::unordered_map< moris_id, moris_id > &aProcRankToIndexInData,
         Cell< Matrix< IndexMat > > &              aOutwardRequests );
 
+    // ----------------------------------------------------------------------------------
+    
     void
     prepare_request_answers(
         Decomposition_Data &              aDecompData,
         moris::mtk::Mesh *                aBackgroundMesh,
         Cell< Matrix< IndexMat > > const &aReceiveData,
         Cell< Matrix< IndexMat > > &      aRequestAnswers );
+    
+    // ----------------------------------------------------------------------------------
+
     void
     handle_received_request_answers(
         Decomposition_Data &              aDecompData,
@@ -761,6 +788,7 @@ class Integration_Mesh_Generator
         Cell< Matrix< IndexMat > > const &aRequestAnswers,
         moris::moris_id &                 aNodeId );
 
+    // ----------------------------------------------------------------------------------
 
     moris::uint
     verbosity_level();

@@ -14,6 +14,7 @@
 #include "cl_XTK_Decomposition_Algorithm.hpp"
 #include "fn_determine_cell_topology.hpp"
 #include "fn_mesh_flood_fill.hpp"
+#include "fn_XTK_find_most_frequent_int_in_cell.hpp"
 
 using namespace moris;
 namespace xtk
@@ -85,9 +86,6 @@ Integration_Mesh_Generator::perform()
 
     tCutIntegrationMesh->finalize_cut_mesh_construction();
 
-    // set the bulk phase of each cell
-    this->compute_ig_cell_bulk_phase( tCutIntegrationMesh.get() );
-
     // pick out the cell groups
     moris::Cell< std::shared_ptr< IG_Cell_Group > >& tActiveIgCellGroups = tCutIntegrationMesh->get_all_cell_groups();
 
@@ -98,6 +96,9 @@ Integration_Mesh_Generator::perform()
     std::shared_ptr< Facet_Based_Connectivity > tFaceConnectivity = std::make_shared< Facet_Based_Connectivity >();
     this->create_facet_from_element_to_node( tActiveIgCells, tFaceConnectivity );
     tCutIntegrationMesh->set_face_connectivity( tFaceConnectivity );
+
+    // set the bulk phase of each cell
+    this->compute_ig_cell_bulk_phase( tCutIntegrationMesh.get() );
 
     // create facet ancestry
     moris::Cell< moris::mtk::Cell* > tBGCellForFacet;
@@ -658,17 +659,101 @@ Integration_Mesh_Generator::extract_cells_from_cell_groups(
         aCellsInGroups.append( aCellGroups( i )->mIgCellGroup );
     }
 }
+
 // ----------------------------------------------------------------------------------
+
 void
 Integration_Mesh_Generator::compute_ig_cell_bulk_phase(
     Cut_Integration_Mesh* aCutIntegrationMesh )
 {
-    for ( moris::size_t iCell = 0; iCell < aCutIntegrationMesh->get_num_entities( EntityRank::ELEMENT, 0 ); iCell++ )
-    {
-        moris_index tBulkPhaseIndex = this->deduce_ig_cell_bulk_phase_index( &aCutIntegrationMesh->get_mtk_cell( iCell ) );
+    // log/trace this function
+    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Compute IG cell bulk phases", mXTKModel->mVerboseLevel, 1 );
 
+    // get an estimate how many IG cells will have issues with vertex-based phase assignment
+    uint tNumGeometries = mGeometryEngine->get_num_geometries();
+    uint tNumIgCells = aCutIntegrationMesh->get_num_entities( EntityRank::ELEMENT, 0 );
+    uint tExpectedNumUnassignableIgCells = tNumGeometries * ( tNumIgCells / 1000 ) + 1;
+
+    // initialize list of IG cells whose bulk-phase cannot be determined solely by the nodal Level-Set values
+    moris::Cell< moris_index > tIgCellsWithoutBulkPhase( 0 );
+    tIgCellsWithoutBulkPhase.reserve( tExpectedNumUnassignableIgCells );
+
+    // go over all IG cells in the mesh and try to establish the bulk-phase index based on nodal level-set values
+    for ( moris::size_t iCell = 0; iCell < tNumIgCells; iCell++ )
+    {
+        // get the Bulk-phase index for the IG cell
+        // moris_index tBulkPhaseIndex = this->deduce_ig_cell_bulk_phase_index( &aCutIntegrationMesh->get_mtk_cell( iCell ) );
+        moris_index tBulkPhaseIndex = this->deduce_ig_cell_bulk_phase_from_vertices( &aCutIntegrationMesh->get_mtk_cell( iCell ) );
+
+        // store the bulk-phase of the IG cell
         aCutIntegrationMesh->mIntegrationCellBulkPhase( iCell ) = tBulkPhaseIndex;
+
+        // check if the bulk-phase could actually be assigned, if not...
+        if( tBulkPhaseIndex == MORIS_INDEX_MAX )
+        {
+            // ... mark the IG cell as unassigned
+            tIgCellsWithoutBulkPhase.push_back( iCell );
+        }
     }
+
+    // determine whether all IG cells have already been assigned a bulk phase
+    uint tNumIgCellsWithoutBulkPhase = tIgCellsWithoutBulkPhase.size();
+    bool tAllIgCellsHaveBulkPhase = ( tNumIgCellsWithoutBulkPhase == 0 );
+
+    // initialize a list of IG cells that still has unassigned bulk-phases after neighbor-based bulk-phase voting
+    moris::Cell< moris_index > tIgCellsStillWithoutBulkPhase;
+
+    // keep assigning bulk-phase indices base on neighbors of the IG cells with unassigned bulk-phase
+    while( !tAllIgCellsHaveBulkPhase )
+    {
+        // log this information
+        MORIS_LOG_INFO( "Could not assign bulk-phase to all IG cells. Perform neighbor based assignment." );
+        MORIS_LOG_SPEC( "Number of IG cells to assign bulk-phases to", tNumIgCellsWithoutBulkPhase );
+
+        // empty list of Ig cells that need subsequent passes
+        tIgCellsStillWithoutBulkPhase.resize( 0 );
+
+        // go over the IG cells with unassigned bulk-phases and try to find their bulk-phases based on their neighbors
+        for ( moris::size_t iUnassignedCell = 0; iUnassignedCell < tNumIgCellsWithoutBulkPhase; iUnassignedCell++ )
+        {
+            // get the index for the IG cell with the unassigned bulk-phase
+            moris_index tIgCellIndex = tIgCellsWithoutBulkPhase( iUnassignedCell );
+
+            // get the bulk-phase for the IG cell based on the neighbor bulk-phases
+            moris_index tBulkPhaseIndex = this->deduce_ig_cell_bulk_phase_from_facets( &aCutIntegrationMesh->get_mtk_cell( tIgCellIndex ), aCutIntegrationMesh );
+
+            // store the bulk-phase of the IG cell
+            aCutIntegrationMesh->mIntegrationCellBulkPhase( tIgCellIndex ) = tBulkPhaseIndex;
+
+            // check if the bulk-phase could still not be assigned
+            if( tBulkPhaseIndex == MORIS_INDEX_MAX )
+            {
+                // ... mark the IG cell as unassigned
+                tIgCellsStillWithoutBulkPhase.push_back( tIgCellIndex );
+            }
+        } // end: loop over unassigned IG cells
+
+        // update the number of unassinged IG cells
+        uint tNumIgCellsAssignedInLoop = tNumIgCellsWithoutBulkPhase - tIgCellsStillWithoutBulkPhase.size();
+        tNumIgCellsWithoutBulkPhase = tNumIgCellsWithoutBulkPhase - tNumIgCellsAssignedInLoop;
+
+        // check that number of IG cells with assigned bulk-phases actually increases and that the code is not stuck in an infinite loop
+        MORIS_ERROR( tNumIgCellsAssignedInLoop > 0, 
+            "Integration_Mesh_Generator::compute_ig_cell_bulk_phase() - IG cell phase assignment stuck in infinite loop." );
+
+        // check if anything is still unassigned
+        tAllIgCellsHaveBulkPhase = ( tNumIgCellsWithoutBulkPhase == 0 );
+
+        // copy over unassigned IG-cells and start over if needed
+        tIgCellsWithoutBulkPhase = tIgCellsStillWithoutBulkPhase;
+    }
+
+    // Step 1: deduce IG cells bulk-phase indices based on vertex voting system
+    //          + collect cells that don't have clear bulk phases in list
+
+    // Step 2: for IG cells that don't have a clear bulk-phase, assign their bulk phase based on facet based neighbor voting
+    //          + repeat this until all IG cells have their bulk-phase (encapsuled cells may not have any neighbors that are able to vote on the bulk phase)
+    //          + have a check in the while loop that if there are unassigned IG cells but no new IG cells get their bulk-phases assigned, something's wrong
 }
 
 // ----------------------------------------------------------------------------------
@@ -706,33 +791,186 @@ Integration_Mesh_Generator::deduce_ig_cell_bulk_phase_index( moris::mtk::Cell co
     uint                             tMaxCol = 0;
     moris::Matrix< moris::IndexMat > tNodalPhaseVals( 1, tNumGeom, MORIS_INDEX_MAX );
 
-    for ( moris::uint i = 0; i < tNumGeom; i++ )
+    for ( moris::uint iGeom = 0; iGeom < tNumGeom; iGeom++ )
     {
         bool tFoundNonInterfaceNode = false;
 
-        for ( moris::uint iV = 0; iV < tVertices.size(); iV++ )
+        for ( moris::uint iVert = 0; iVert < tVertices.size(); iVert++ )
         {
-            if ( !mGeometryEngine->is_interface_vertex( tVertices( iV )->get_index(), i ) )
+            if ( !mGeometryEngine->is_interface_vertex( tVertices( iVert )->get_index(), iGeom ) )
             {
-                moris_index tPhaseIndex = mGeometryEngine->get_node_phase_index_wrt_a_geometry( tVertices( iV )->get_index(), i );
+                moris_index tPhaseIndex = mGeometryEngine->get_node_phase_index_wrt_a_geometry( tVertices( iVert )->get_index(), iGeom );
                 tFoundNonInterfaceNode  = true;
                 tPhaseVotes( tPhaseIndex )++;
             }
-        }
+        } // end: loop over all vertices on IG cell
 
         // take the phase with the maximum number of votes
         tPhaseVotes.max( tMaxRow, tMaxCol );
-        tNodalPhaseVals( 0, i ) = tMaxCol;
+        tNodalPhaseVals( 0, iGeom ) = tMaxCol;
         tPhaseVotes.fill( 0 );
+
+        // 
         if ( !tFoundNonInterfaceNode )
         {
+            MORIS_LOG_WARNING( 
+                "IMG::deduce_ig_cell_bulk_phase_index() - Did not find a non-interface node for this element, set to dummy: %i",  
+                mGeometryEngine->get_num_phases() );
             return mGeometryEngine->get_num_phases();
-            std::cout << "WARNING Did not find a non-interface node for this element, set to dummy:  " << mGeometryEngine->get_num_phases() << std::endl;
         }
+
         // MORIS_ERROR( tFoundNonInterfaceNode, "Did not find a non-interface node for this element" );
-    }
+
+    } // end: loop over all level-sets
 
     return mGeometryEngine->get_elem_phase_index( tNodalPhaseVals );
+
+}
+
+// ----------------------------------------------------------------------------------
+
+moris_index
+Integration_Mesh_Generator::deduce_ig_cell_bulk_phase_from_vertices( moris::mtk::Cell const* aCell )
+{
+    // cell vertices
+    moris::Cell< moris::mtk::Vertex* > tVertices = aCell->get_vertex_pointers();
+    moris::size_t                      tNumGeom  = mGeometryEngine->get_num_geometries();
+
+    // allocate phase on or off value (either 0 or 1)
+    Matrix< IndexMat > tPhaseVotes( 1, 2 );
+    tPhaseVotes.fill( 0 );
+
+    uint                             tMaxRow = 0;
+    uint                             tMaxCol = 0;
+    moris::Matrix< moris::IndexMat > tNodalPhaseVals( 1, tNumGeom, MORIS_INDEX_MAX );
+
+    for ( moris::uint iGeom = 0; iGeom < tNumGeom; iGeom++ )
+    {
+        bool tFoundNonInterfaceNode = false;
+
+        for ( moris::uint iVert = 0; iVert < tVertices.size(); iVert++ )
+        {
+            if ( !mGeometryEngine->is_interface_vertex( tVertices( iVert )->get_index(), iGeom ) )
+            {
+                moris_index tPhaseIndex = mGeometryEngine->get_node_phase_index_wrt_a_geometry( tVertices( iVert )->get_index(), iGeom );
+                tFoundNonInterfaceNode  = true;
+                tPhaseVotes( tPhaseIndex )++;
+            }
+        } // end: loop over all vertices on IG cell
+
+        // take the phase with the maximum number of votes
+        tPhaseVotes.max( tMaxRow, tMaxCol );
+        tNodalPhaseVals( 0, iGeom ) = tMaxCol;
+        tPhaseVotes.fill( 0 );
+
+        // do not return bulk-phase if non could be assigned based on the vertex Level-Set values
+        if ( !tFoundNonInterfaceNode )
+        {
+            // MORIS_LOG_SPEC( "Vertex-based phase assignment failed for IG cell index", aCell->get_index() );
+            return MORIS_INDEX_MAX;
+        }
+
+    } // end: loop over all level-sets
+
+    // return the dominant phase index
+    return mGeometryEngine->get_elem_phase_index( tNodalPhaseVals );
+}
+
+// ----------------------------------------------------------------------------------
+
+moris_index
+Integration_Mesh_Generator::deduce_ig_cell_bulk_phase_from_facets( 
+        moris::mtk::Cell const* aCell,
+        Cut_Integration_Mesh* aCutIntegrationMesh )
+{
+    // access the facet connectivity
+    std::shared_ptr< Facet_Based_Connectivity > tFaceConn = aCutIntegrationMesh->get_face_connectivity();
+
+    // get the current cell's index
+    moris_index tIgCellIndex = aCell->get_index();
+
+    // get the facet indices for the current IG cell
+    moris::Cell< moris_index > tFacetsOnCell = tFaceConn->mCellToFacet( tIgCellIndex );
+    uint tNumFacetsOnCell = tFacetsOnCell.size();
+
+    // initialize list of IG cells connected to current IG cell
+    moris::Cell< moris_index > tNeighborIgCells;
+    tNeighborIgCells.reserve( tNumFacetsOnCell );
+
+    // get the IG cells connected to current IG cell
+    for( uint iFacet = 0; iFacet < tNumFacetsOnCell; iFacet++ )
+    {
+        // get the current facet's index
+        moris_index tFacetIndex = tFacetsOnCell( iFacet );
+
+        // get the number of IG cells connected to the current facet
+        uint tNumCellsOnFacet = tFaceConn->mFacetToCell( tFacetIndex ).size();
+
+        // if this is not a domain boundary facet, proceed, otherwise, ignore
+        if( tNumCellsOnFacet > 1 )
+        {
+            // get the indices of the cells connected to the current facet
+            moris_index tFirstCellConnectedToFacet  = tFaceConn->mFacetToCell( tFacetIndex )( 0 )->get_index();
+            moris_index tSecondCellConnectedToFacet = tFaceConn->mFacetToCell( tFacetIndex )( 1 )->get_index();
+
+            // if this cell is not the current cell itself, use the this cell as neighbor
+            if( tFirstCellConnectedToFacet != tIgCellIndex )
+            {
+                tNeighborIgCells.push_back( tFirstCellConnectedToFacet );
+            }
+
+            // otherwise the second connected cell is the neighbor cell
+            else
+            {
+                tNeighborIgCells.push_back( tSecondCellConnectedToFacet );
+            }
+
+        } // end: only treat facets with two cells connected to it
+    }
+
+    // get the number of neighbor IG cells
+    uint tNumNeighborIgCells = tNeighborIgCells.size();
+
+    // initialize the list of neighboring bulk-phases
+    moris::Cell< moris_index > tValidNeighborBulkPhases;
+    tValidNeighborBulkPhases.reserve( tNumNeighborIgCells );
+
+    // go over the neighbor IG cells and find the valid ones
+    for( uint iNeighbor = 0; iNeighbor < tNumNeighborIgCells; iNeighbor++ )
+    {
+        // get the neighbor IG cell's index
+        moris_index tNeighborIgCellIndex = tNeighborIgCells( iNeighbor );
+
+        // get the current neighbors bulk-phase
+        moris_index tNeighborBulkPhase = aCutIntegrationMesh->mIntegrationCellBulkPhase( tNeighborIgCellIndex );
+
+        // only count valid neighbor bulk phases
+        if( tNeighborBulkPhase != MORIS_INDEX_MAX )
+        {
+            tValidNeighborBulkPhases.push_back( tNeighborBulkPhase );
+        }
+    }
+
+    // get the number of valid neighbors
+    uint tNumValidNeighborBulkPhases = tValidNeighborBulkPhases.size();
+
+    // break function if there aren't any valid neighbor bulk-phases
+    if( tNumValidNeighborBulkPhases == 0 )
+    {
+        return MORIS_INDEX_MAX;
+    }
+
+    // find the bulk-phase that the most neighbors have
+    uint tCount = 0;
+    moris_index tBulkPhase = xtk::find_most_frequent_index_in_cell( tValidNeighborBulkPhases, tCount );
+
+    // check that the bulk-phase index makes sense
+    MORIS_ASSERT( tBulkPhase != MORIS_INDEX_MAX, 
+        "Integration_Mesh_Generator::deduce_ig_cell_bulk_phase_from_facets() - Bulk-phase voting returned MORIS_INDEX_MAX." );
+
+    // return the bulk-phase
+    return tBulkPhase;
+
 }
 
 // ----------------------------------------------------------------------------------
@@ -743,37 +981,97 @@ Integration_Mesh_Generator::deduce_interfaces(
     std::shared_ptr< Facet_Based_Connectivity > aFacetConnectivity,
     moris::Cell< moris_index >&                 aInterfaces )
 {
-    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Deduce Interface" ,mXTKModel->mVerboseLevel, 1  );
+    // log/trace this function call
+    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Deduce Interface", mXTKModel->mVerboseLevel, 1 );
 
     // all cell groups at this point should be such that an integration cell does not appear twice
     aInterfaces.clear();
     aInterfaces.reserve( aFacetConnectivity->mFacetVertices.size() );
 
-
+    // loop over all facets in the whole integration mesh
     for ( moris::uint iFacet = 0; iFacet < aFacetConnectivity->mFacetVertices.size(); iFacet++ )
     {
-        for ( moris::uint iG = 0; iG < mActiveGeometries.numel(); iG++ )
+        // get the number of elements attached to the current facet
+        uint tNumElemsAttachedToFacet = aFacetConnectivity->mFacetToCell( iFacet ).size();
+
+        // check that each facet has, as expected would be expected, only one or two elements attached to it
+        MORIS_ASSERT( ( tNumElemsAttachedToFacet > 0 ) && ( tNumElemsAttachedToFacet < 3 ),
+            "Integration_Mesh_Generator::deduce_interfaces() - Facet is expected to have exactly 1 or 2 elements attached to it." );
+
+        // check if facet has two elements attached to it
+        if( tNumElemsAttachedToFacet == 2 )
         {
-            moris_index tGeomIndex        = mActiveGeometries( iG );
-            bool        tIsInterfaceFacet = true;
+            // get access to the two elements
+            moris::mtk::Cell* tFirstCell = aFacetConnectivity->mFacetToCell( iFacet )( 0 );
+            moris::mtk::Cell* tSecondCell = aFacetConnectivity->mFacetToCell( iFacet )( 1 );
 
-            for ( moris::uint iV = 0; iV < aFacetConnectivity->mFacetVertices( iFacet ).size(); iV++ )
-            {
-                moris::mtk::Vertex* tVertex = aFacetConnectivity->mFacetVertices( iFacet )( iV );
-                if ( !mGeometryEngine->is_interface_vertex( tVertex->get_index(), tGeomIndex ) )
-                {
-                    tIsInterfaceFacet = false;
-                    break;
-                }
-            }
+            // get the bulk phase to the two elements
+            moris_index tFirstCellBulkPhase = aCutIntegrationMesh->get_cell_bulk_phase( tFirstCell->get_index() );
+            moris_index tSecondCellBulkPhase = aCutIntegrationMesh->get_cell_bulk_phase( tSecondCell->get_index() );
 
-            if ( tIsInterfaceFacet )
+            // check whether the two elements adjacent to the facet have different bulk phases
+            if ( tFirstCellBulkPhase != tSecondCellBulkPhase )
             {
                 aInterfaces.push_back( iFacet );
             }
         }
-    }
+
+    } // end: loop over all facets in the mesh
+
+    // size out unused memory
+    aInterfaces.shrink_to_fit();
 }
+
+
+// Note: this is an old version of the function above, will be removed if new way of deducting interfaces turns out more robust
+// void
+// Integration_Mesh_Generator::deduce_interfaces(
+//     Cut_Integration_Mesh*                       aCutIntegrationMesh,
+//     std::shared_ptr< Facet_Based_Connectivity > aFacetConnectivity,
+//     moris::Cell< moris_index >&                 aInterfaces )
+// {
+//     Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Deduce Interface" ,mXTKModel->mVerboseLevel, 1  );
+// 
+//     // all cell groups at this point should be such that an integration cell does not appear twice
+//     aInterfaces.clear();
+//     aInterfaces.reserve( aFacetConnectivity->mFacetVertices.size() );
+// 
+//     // loop over all facets in the whole integration mesh
+//     for ( moris::uint iFacet = 0; iFacet < aFacetConnectivity->mFacetVertices.size(); iFacet++ )
+//     {
+//         // loop over all geometries / Level-Sets
+//         for ( moris::uint iGeom = 0; iGeom < mActiveGeometries.numel(); iGeom++ )
+//         {
+//             // get the geometry index of the current Level-Set
+//             moris_index tGeomIndex        = mActiveGeometries( iGeom );
+//             bool        tIsInterfaceFacet = true;
+// 
+//             // go over the vertices on the current facet for the current geometry
+//             for ( moris::uint iVert = 0; iVert < aFacetConnectivity->mFacetVertices( iFacet ).size(); iVert++ )
+//             {
+//                 // get access to the vertex being treated 
+//                 moris::mtk::Vertex* tVertex = aFacetConnectivity->mFacetVertices( iFacet )( iVert );
+// 
+//                 // determine whether the Level-Set is zero at the vertex within snapping tolerance
+//                 if ( !mGeometryEngine->is_interface_vertex( tVertex->get_index(), tGeomIndex ) )
+//                 {
+//                     // if any of the vertices on the facet is not on the interface, mark the whole facet to not be an interface and ...
+//                     tIsInterfaceFacet = false;
+//                     
+//                     // ...skip the rest the vertex for-loop
+//                     break;
+//                 }
+//             }
+// 
+//             // list facet as an interface facet ( this is repeated for each geometry )
+//             if ( tIsInterfaceFacet )
+//             {
+//                 aInterfaces.push_back( iFacet );
+//             }
+// 
+//         } // end: loop over all Level-Sets
+//     } // end: loop over all facets in the mesh
+// }
 
 // ----------------------------------------------------------------------------------
 
@@ -2070,7 +2368,6 @@ Integration_Mesh_Generator::construct_bulk_phase_to_bulk_phase_interface(
 
         if ( tFaceConn->mFacetToCell( tFacetIndex ).size() == 2 )
         {
-
             moris_index tMyCellBulkPhase   = aCutIntegrationMesh->get_cell_bulk_phase( tFaceConn->mFacetToCell( tFacetIndex )( 0 )->get_index() );
             moris_index tYourCellBulkPhase = aCutIntegrationMesh->get_cell_bulk_phase( tFaceConn->mFacetToCell( tFacetIndex )( 1 )->get_index() );
 
@@ -2096,7 +2393,8 @@ Integration_Mesh_Generator::construct_bulk_phase_to_bulk_phase_interface(
         else
         {
             // This else case happens when an interface is coincident with the boundary of the domain
-            std::cout << "Warning: interface case not handled " << std::endl;
+            // std::cout << "Warning: interface case not handled " << std::endl;
+            MORIS_LOG_WARNING( "IMG::construct_bulk_phase_to_bulk_phase_interface() - Interface case not handled" );
         }
     }
 }
@@ -2129,7 +2427,6 @@ Integration_Mesh_Generator::construct_bulk_phase_to_bulk_phase_dbl_side_interfac
 
         if ( tFaceConn->mFacetToCell( tFacetIndex ).size() == 2 )
         {
-
             moris_index tMyCellBulkPhase   = aCutIntegrationMesh->get_cell_bulk_phase( tFaceConn->mFacetToCell( tFacetIndex )( 0 )->get_index() );
             moris_index tYourCellBulkPhase = aCutIntegrationMesh->get_cell_bulk_phase( tFaceConn->mFacetToCell( tFacetIndex )( 1 )->get_index() );
 
@@ -2391,7 +2688,7 @@ Integration_Mesh_Generator::create_facet_from_element_to_node(
     moris::Cell< moris::mtk::Cell* >&           aCells,
     std::shared_ptr< Facet_Based_Connectivity > aFaceConnectivity )
 {
-    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Creating Facets",mXTKModel->mVerboseLevel, 1 );
+    Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Creating Facets", mXTKModel->mVerboseLevel, 1 );
 
     // Note: this function assumes that all cells are of same type, i.e. have the same cell info
 
@@ -2411,20 +2708,24 @@ Integration_Mesh_Generator::create_facet_from_element_to_node(
         // reserve memory for list of vertex points
         tVertices.reserve( aCells.size() );
 
-        for ( moris::uint i = 0; i < aCells.size(); i++ )
+        // this stack of loops counts the number of unique vertices in the mesh
+        // go over all IG cells in the mesh
+        for ( moris::uint iCell = 0; iCell < aCells.size(); iCell++ )
         {
-            moris::Cell< moris::mtk::Vertex* > tCellVerts = aCells( i )->get_vertex_pointers();
+            // get access to the list of vertices on the current IG cell
+            moris::Cell< moris::mtk::Vertex* > tCellVerts = aCells( iCell )->get_vertex_pointers();
 
-            for ( moris::uint iV = 0; iV < tCellVerts.size(); iV++ )
+            // go over all vertices on the current IG cell
+            for ( moris::uint iVertex = 0; iVertex < tCellVerts.size(); iVertex++ )
             {
-                // check vertex has already been assigned local vertex index
-                if ( tVertexIndexToLocalIndexMap.find( tCellVerts( iV )->get_index() ) == tVertexIndexToLocalIndexMap.end() )
+                // check if vertex has already been assigned local vertex index
+                if ( tVertexIndexToLocalIndexMap.find( tCellVerts( iVertex )->get_index() ) == tVertexIndexToLocalIndexMap.end() )
                 {
                     // add local vertex index to map
-                    tVertexIndexToLocalIndexMap[tCellVerts( iV )->get_index()] = (moris_index)tNumNodes;
+                    tVertexIndexToLocalIndexMap[ tCellVerts( iVertex )->get_index() ] = (moris_index) tNumNodes;
 
                     // store vertex pointer
-                    tVertices.push_back( tCellVerts( iV ) );
+                    tVertices.push_back( tCellVerts( iVertex ) );
 
                     // increase node counter
                     tNumNodes++;
@@ -2453,29 +2754,29 @@ Integration_Mesh_Generator::create_facet_from_element_to_node(
         moris::Cell< moris::Cell< uint > > tVertexToFacetIndex( tNumNodes );
         moris::Cell< moris::mtk::Vertex* > tVerticesOnFacet( tNumNodesPerFacet, nullptr );
 
-        // iterate through cells
-        for ( moris::uint i = 0; i < aCells.size(); i++ )
+        // go through all IG cells on mesh
+        for ( moris::uint iCell = 0; iCell < aCells.size(); iCell++ )
         {
             // check that cell exits only once
-            MORIS_ERROR( aFaceConnectivity->mCellIndexToCellOrdinal.find( aCells( i )->get_index() ) == aFaceConnectivity->mCellIndexToCellOrdinal.end(),
+            MORIS_ERROR( aFaceConnectivity->mCellIndexToCellOrdinal.find( aCells( iCell )->get_index() ) == aFaceConnectivity->mCellIndexToCellOrdinal.end(),
                     "Duplicate cell in aCells provided" );
 
             // set local cell index in map
-            aFaceConnectivity->mCellIndexToCellOrdinal[aCells( i )->get_index()] = i;
+            aFaceConnectivity->mCellIndexToCellOrdinal[aCells( iCell )->get_index()] = iCell;
 
             // get list of vertex pointers of cell
-            moris::Cell< moris::mtk::Vertex* > tCellVerts = aCells( i )->get_vertex_pointers();
+            moris::Cell< moris::mtk::Vertex* > tCellVerts = aCells( iCell )->get_vertex_pointers();
 
             // reserve memory for storing facets on cell
-            aFaceConnectivity->mCellToFacet( i ).reserve( tNumFacesPerElem );
+            aFaceConnectivity->mCellToFacet( iCell ).reserve( tNumFacesPerElem );
 
             // iterate through edges of cell
-            for ( moris::uint iEdge = 0; iEdge < tElementToFacetMap.n_rows(); iEdge++ )
+            for ( moris::uint iFacet = 0; iFacet < tElementToFacetMap.n_rows(); iFacet++ )
             {
-                // get the vertices on the edge
-                for ( moris::uint iVOnE = 0; iVOnE < tElementToFacetMap.n_cols(); iVOnE++ )
+                // get the vertices on the facet
+                for ( moris::uint iVertOnFace = 0; iVertOnFace < tElementToFacetMap.n_cols(); iVertOnFace++ )
                 {
-                    tVerticesOnFacet( iVOnE ) = tCellVerts( tElementToFacetMap( iEdge, iVOnE ) );
+                    tVerticesOnFacet( iVertOnFace ) = tCellVerts( tElementToFacetMap( iFacet, iVertOnFace ) );
                 }
 
                 // figure out if the edge exists and if so where
@@ -2498,26 +2799,28 @@ Integration_Mesh_Generator::create_facet_from_element_to_node(
                     aFaceConnectivity->mFacetToCell.push_back( moris::Cell< moris::mtk::Cell* >(), tIncNumFacets );
                     aFaceConnectivity->mFacetToCellEdgeOrdinal.push_back( moris::Cell< moris::moris_index >(), tIncNumFacets );
 
-                    // reserve memory for list storing cells and their side ordinal connected to edge
+                    // reserve memory for list storing cells and their side ordinal connected to facet
                     // guess of cell size: number of facets per element
                     aFaceConnectivity->mFacetToCell.back().reserve( tNumFacesPerElem );
                     aFaceConnectivity->mFacetToCellEdgeOrdinal.back().reserve( tNumFacesPerElem );
 
                     // store facet index with vertex
                     auto tIter = tVertexIndexToLocalIndexMap.find( tVerticesOnFacet( 0 )->get_index() );
-                    MORIS_ERROR( tIter != tVertexIndexToLocalIndexMap.end(), "Invalid vertex detected." );
+                    MORIS_ERROR( tIter != tVertexIndexToLocalIndexMap.end(), 
+                        "Integration_Mesh_Generator::create_facet_from_element_to_node() - "
+                        "Invalid vertex detected." );
                     moris_index tLocalVertexIndex = tIter->second;
 
                     tVertexToFacetIndex( tLocalVertexIndex ).push_back( tFacetIndex );
                 }
 
                 // store facet index on cell
-                aFaceConnectivity->mCellToFacet( i ).push_back( tFacetIndex );
+                aFaceConnectivity->mCellToFacet( iCell ).push_back( tFacetIndex );
 
                 // store cell and cell ordinal with facet
                 // if needed increase cell capacity by increments of number of faces per element
-                aFaceConnectivity->mFacetToCell( tFacetIndex ).push_back( aCells( i ), tNumFacesPerElem );
-                aFaceConnectivity->mFacetToCellEdgeOrdinal( tFacetIndex ).push_back( iEdge, tNumFacesPerElem );
+                aFaceConnectivity->mFacetToCell( tFacetIndex ).push_back( aCells( iCell ), tNumFacesPerElem );
+                aFaceConnectivity->mFacetToCellEdgeOrdinal( tFacetIndex ).push_back( iFacet, tNumFacesPerElem );
             }
         }
 
@@ -4349,13 +4652,14 @@ Integration_Mesh_Generator::construct_subphase_group_neighborhood(
         tSpgNeighborhood->mSubphaseToSubPhase( iSPG )                 = std::make_shared< moris::Cell< moris_index > >();
         tSpgNeighborhood->mSubphaseToSubPhaseMySideOrds( iSPG )       = std::make_shared< moris::Cell< moris_index > >();
         tSpgNeighborhood->mSubphaseToSubPhaseNeighborSideOrds( iSPG ) = std::make_shared< moris::Cell< moris_index > >();
-        tSpgNeighborhood->mTransitionNeighborCellLocation( iSPG )     = std::make_shared< moris::Cell< moris_index > >();
+        
+        // leave the transition location empty since this is not needed
+        tSpgNeighborhood->mTransitionNeighborCellLocation( iSPG ) = std::make_shared< moris::Cell< moris_index > >( 0 );
 
         // reserve memory for sub-lists in SPG neighborhood according to estimate
         tSpgNeighborhood->mSubphaseToSubPhase( iSPG )->reserve( 4 );
         tSpgNeighborhood->mSubphaseToSubPhaseMySideOrds( iSPG )->reserve( 4 );
         tSpgNeighborhood->mSubphaseToSubPhaseNeighborSideOrds( iSPG )->reserve( 4 );
-        tSpgNeighborhood->mTransitionNeighborCellLocation( iSPG )->reserve( 4 );
 
         // get the SP indices on the current SPG
         const moris::Cell< moris_index >& tSpIndicesInGroup = aBsplineMeshInfo->mSubphaseGroups( iSPG )->get_SP_indices_in_group();
@@ -4399,12 +4703,10 @@ Integration_Mesh_Generator::construct_subphase_group_neighborhood(
                         // get connectivity information for SPGs from SP neighborhood connectivity
                         const moris_index tMySideOrdinal              = (*tSpNeighborhood->mSubphaseToSubPhaseMySideOrds( tCurrentSpIndex ))( iSpNeighbor );
                         const moris_index tOtherSideOrdinal           = (*tSpNeighborhood->mSubphaseToSubPhaseNeighborSideOrds( tCurrentSpIndex ))( iSpNeighbor );
-                        const moris_index tTransitionNeighborLocation = (*tSpNeighborhood->mTransitionNeighborCellLocation( tCurrentSpIndex ))( iSpNeighbor );
 
                         // put connectivity information into SPG neighborhood connectivity
                         tSpgNeighborhood->mSubphaseToSubPhaseMySideOrds( iSPG )->push_back( tMySideOrdinal );
                         tSpgNeighborhood->mSubphaseToSubPhaseNeighborSideOrds( iSPG )->push_back( tOtherSideOrdinal );
-                        tSpgNeighborhood->mTransitionNeighborCellLocation( iSPG )->push_back( tTransitionNeighborLocation );
                     }
                 }
             } // end: loop over neighbor SPs

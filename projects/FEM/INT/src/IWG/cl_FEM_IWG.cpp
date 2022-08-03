@@ -3682,7 +3682,9 @@ namespace moris
                     mSet->get_drdpgeo()(
                             { tResDofAssemblyStart, tResDofAssemblyStop },
                             { 0, tNumPdvToAssemble } ) +=
-                            tFDScheme( 1 )( iPoint ) * mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } ) * tClusterMeasure->dMEAdPDV() / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                    tFDScheme( 1 )( iPoint ) * 
+                                    mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } ) * 
+                                    tClusterMeasure->dMEAdPDV() / ( tFDScheme( 2 )( 0 ) * tDeltaH );
 
                     // reset cluster measures
                     mCluster->reset_cluster_measure();

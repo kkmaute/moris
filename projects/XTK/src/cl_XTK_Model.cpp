@@ -281,6 +281,9 @@ namespace xtk
             // if high to low double side sets need to be created
             if ( mParameterList.get< bool >( "high_to_low_dbl_side_sets" ) )
             {
+                // log this operation
+                Tracer tTracer( "XTK", "Enrichment", "Create high to low double side sets" );
+
                 for ( moris::uint i = 0; i < mGeometryEngine->get_num_bulk_phase(); i++ )
                 {
                     for ( moris::uint j = 0; j < mGeometryEngine->get_num_bulk_phase(); j++ )

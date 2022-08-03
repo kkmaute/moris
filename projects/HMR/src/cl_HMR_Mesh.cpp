@@ -8,6 +8,7 @@
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Background_Element.hpp"
 #include "cl_HMR_Element.hpp"
+#include "fn_HMR_refinement_transition_locations.hpp"
 #include "MTK_Tools.hpp"
 #include "fn_sort.hpp"
 #include "fn_unique.hpp"
@@ -1159,14 +1160,20 @@ namespace moris
 
         //-----------------------------------------------------------------------------
 
-        void
+        bool
         Mesh::get_elements_connected_to_element_through_face_ord( 
                 moris_index aElementIndex,
                 moris_index aSideOrdinal,
-                moris::Cell< moris_index > aNeighborElements,
-                moris::Cell< moris_index > aNeighborSideOrdinals,
-                moris::Cell< moris_index > aTransitionLocations ) const
+                moris_index& aMyRefineLevel, 
+                moris::Cell< moris_index >& aNeighborElements,
+                moris::Cell< moris_index >& aNeighborSideOrdinals,
+                moris::Cell< moris_index >& aTransitionLocations,
+                moris::Cell< moris_index >& aNeighborRefinementLevels ) const
         {
+            // get the current element's refinement level
+            Element * tElement = mMesh->get_element( aElementIndex );
+            aMyRefineLevel = tElement->get_level();
+            
             // initialize output list for active neighbor search
             Matrix< DDLUMat> tMemoryIndices;
             Matrix< DDLUMat> tThisCellFacetsOrds;
@@ -1175,7 +1182,8 @@ namespace moris
             luint tNumberOfNeighbors;
 
             // collect memory indices of active neighbors 
-            this->collect_memory_indices_of_active_element_neighbors( aElementIndex,
+            this->collect_memory_indices_of_active_element_neighbors( 
+                    aElementIndex,
                     tMemoryIndices,
                     tThisCellFacetsOrds,
                     tNeighborCellFacetsOrds,
@@ -1200,10 +1208,14 @@ namespace moris
             MORIS_ASSERT( tNumNeighborsOnSideOrd > 0, 
                 "Mesh::get_elements_connected_to_element_through_face_ord() - No neighbors found on side ordinal." );
 
+            // mark transition as trivial or non-trivial (non-trivial case 1: transition from big to small)
+            bool tNonTrivialFlag = ( tNumNeighborsOnSideOrd > 1 );
+
             // initialize output lists with correct size
             aNeighborElements.resize( tNumNeighborsOnSideOrd );
             aNeighborSideOrdinals.resize( tNumNeighborsOnSideOrd );
             aTransitionLocations.resize( tNumNeighborsOnSideOrd );
+            aNeighborRefinementLevels.resize( tNumNeighborsOnSideOrd );
 
             // find all neighbors on the given side ordinal
             for( uint iNeighbor = 0; iNeighbor < tNumNeighborsOnSideOrd; iNeighbor++ )
@@ -1221,7 +1233,43 @@ namespace moris
                 aNeighborElements( iNeighbor ) = tOtherCell->get_index();
                 aNeighborSideOrdinals( iNeighbor ) = tNeighborCellFacetsOrds( tLocalNeighborIndex );
                 aTransitionLocations( iNeighbor ) = tTransitionNeighborCellLocation( tLocalNeighborIndex );
+                aNeighborRefinementLevels( iNeighbor ) = tOtherCell->get_level();
             }
+
+            // check whether the current element is finer than its neighbor, if so use the neighbors transition location to the current element
+            if( aMyRefineLevel > aNeighborRefinementLevels( 0 ) )
+            {
+                // run some checks that the data makes sense
+                MORIS_ASSERT( aTransitionLocations.size() == 1, 
+                    "hmr::Mesh::get_elements_connected_to_element_through_face_ord() - "
+                    "Neighbor element coarser, but multiple neighbor elements listed. This does not make sense." );
+
+                // mark transition as non-trivial (case 2: transition from small to big)
+                tNonTrivialFlag = true;
+
+                // get the neighbor's side ordinal
+                moris_index tBigElementsSideOrdinal = aNeighborSideOrdinals( 0 );
+
+                // find the child ordinal that the current element sits at, if it has one
+                Background_Element_Base * tBackElement = tElement->get_background_element();
+                moris_index tMyOctreePosition = tElement->get_background_element()->get_child_index();
+
+                // get the number of spatial dimensions
+                uint tNumSpatialDims = tBackElement->get_number_of_facets() / 2;
+                MORIS_ASSERT( tNumSpatialDims == 2 || tNumSpatialDims == 3, 
+                    "hmr::Mesh::get_elements_connected_to_element_through_face_ord() - "
+                    "Number of spatial dimensions not 2 or 3." );
+
+                // get the transition location from the coarser neighbor element's point of view
+                aTransitionLocations( 0 ) = get_refinement_transition_location_for_neighbor_child_ordinal(
+                    tBigElementsSideOrdinal, 
+                    tMyOctreePosition, 
+                    tNumSpatialDims );
+            }
+
+            // return whether element transition is non-trivial
+            return tNonTrivialFlag;
+
         }
 
         //-----------------------------------------------------------------------------
@@ -1253,7 +1301,7 @@ namespace moris
                 Matrix< DDLUMat> & aThisCellFacetOrds,
                 Matrix< DDLUMat> & aNeighborCellFacetOrds,
                 Matrix< DDLUMat> & aTransitionNeighborCellLocation,
-                luint            & aCounter) const
+                luint            & aCounter ) const
         {
             // get active index of this mesh
             uint tPattern = mMesh->get_activation_pattern();
@@ -1335,11 +1383,11 @@ namespace moris
                 {
                     if( ! tNeighbor->is_padding() )
                     {
+                        // if there's multiple neighbors on this facet
                         if( tNeighbor->is_refined( tPattern ) )
                         {
-
                             // get the neighbor child cell ordinal
-                            int tNeighborSideOrd = tBackElement->get_neighbor_side_ordinal(k);
+                            // int tNeighborSideOrd = tBackElement->get_neighbor_side_ordinal(k);
 
                             // get my child cell ordinals that would be on this side (for use in XTK ghost)
                             Matrix<IndexMat> tMyChildOrds;
@@ -1347,7 +1395,8 @@ namespace moris
 
                             tStart = aCounter;
 
-                            tNeighbor->collect_active_descendants_by_memory_index( tPattern,
+                            tNeighbor->collect_active_descendants_by_memory_index( 
+                                    tPattern,
                                     aMemoryIndices,
                                     aCounter,
                                     k );
@@ -1365,6 +1414,7 @@ namespace moris
 
 
                         }
+                        // if there's only one neighbor on this facet
                         else
                         {
                             while ( ! tNeighbor->is_active( tPattern ) )

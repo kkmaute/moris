@@ -106,7 +106,7 @@ namespace moris
             tParameterList.insert( "write_lagrange_output_mesh_to_exodus", std::string( "" ) );
 
             //! name of restart file - write
-            tParameterList.insert( "write_refinement_pattern_file", true );
+            tParameterList.insert( "write_refinement_pattern_file", false );
 
             //! name of restart file - load
             tParameterList.insert( "restart_refinement_pattern_file", std::string( "" ) );
