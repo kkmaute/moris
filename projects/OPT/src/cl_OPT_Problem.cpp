@@ -46,7 +46,7 @@ namespace moris
             Tracer tTracer( "OPT", "OptProblem", "Initialize" );
 
             // Initialize ADVs
-            mInterface->initialize(mADVs, mLowerBounds, mUpperBounds);
+            mInterface->initialize(mADVs, mLowerBounds, mUpperBounds, mIjklIds );
 
             // Override interface ADVs
             this->override_advs();
@@ -297,12 +297,26 @@ namespace moris
             Matrix<DDRMat> tRestartADVs;
             Matrix<DDRMat> tRestartUpperBounds;
             Matrix<DDRMat> tRestartLowerBounds;
+            Matrix<IdMat>  tIjklIdsFile;
+            sint tParSizeFile = 0;
 
             // Read ADVS from restart file
             herr_t tStatus = 0;
             load_matrix_from_hdf5_file( tFileID, "ADVs",        tRestartADVs,        tStatus);
             load_matrix_from_hdf5_file( tFileID, "UpperBounds", tRestartUpperBounds, tStatus);
             load_matrix_from_hdf5_file( tFileID, "LowerBounds", tRestartLowerBounds, tStatus);
+
+            load_scalar_from_hdf5_file( tFileID, "NumProcs", tParSizeFile, tStatus);
+            
+            // FIXME this function also should work if you want to restart with same number procs but new proc layout
+            // in this case this if criteria should be deleted
+            if( par_size() != tParSizeFile)
+            {
+                load_matrix_from_hdf5_file( tFileID, "IjklIds", tIjklIdsFile, tStatus);
+
+                MORIS_ERROR(tIjklIdsFile.numel() == tRestartADVs.numel(),"restart adv vector and ijkl ID vector not of same size");
+                MORIS_ERROR(tIjklIdsFile.numel() == mIjklIds.numel(),"restart ijkl ID vector and new ijkl ID vector not of same size");
+            }
 
             // Close restart file
             close_hdf5_file(tFileID);
@@ -317,6 +331,52 @@ namespace moris
 
             MORIS_LOG_INFO("Norm of ADV vector - before loading restart %e   after %e.\n",
                     norm(mADVs), norm(tRestartADVs) );
+
+            // reorder adv for new proc layout. FIXME see above
+            if( par_size() != tParSizeFile)
+            {
+                moris::map< moris_id, sint > tIjklIdToPosMap;
+                for ( uint Ik = 0; Ik < mIjklIds.numel(); Ik++ )
+                {
+                    if( mIjklIds(Ik) != gNoID )
+                    {
+                        tIjklIdToPosMap[ mIjklIds(Ik) ] = Ik;
+                    }
+                }
+
+                Matrix<DDRMat> tRestartADVsTemp;
+                Matrix<DDRMat> tRestartUpperBoundsTemp;
+                Matrix<DDRMat> tRestartLowerBoundsTemp;
+
+                tRestartADVsTemp        = tRestartADVs;
+                tRestartUpperBoundsTemp = tRestartUpperBounds;
+                tRestartLowerBoundsTemp = tRestartLowerBounds;
+
+                tRestartADVs.fill(MORIS_REAL_MAX);
+                tRestartUpperBounds.fill(MORIS_REAL_MAX);
+                tRestartLowerBounds.fill(MORIS_REAL_MAX);
+
+                for ( uint Ik = 0; Ik < tIjklIdsFile.numel(); Ik++ )
+                {
+                    if ( tIjklIdToPosMap.key_exists( tIjklIdsFile(Ik) ) )
+                    {
+                        sint tIndxed = tIjklIdToPosMap.find( tIjklIdsFile(Ik) );
+                        tRestartADVs( tIndxed ) = tRestartADVsTemp( Ik );
+                        tRestartUpperBounds( tIndxed ) = tRestartUpperBoundsTemp( Ik );
+                        tRestartLowerBounds( tIndxed ) = tRestartLowerBoundsTemp( Ik );
+                    }
+                    else
+                    {
+                        tRestartADVs( Ik ) = tRestartADVsTemp( Ik );
+                        tRestartUpperBounds( Ik ) = tRestartUpperBoundsTemp( Ik );
+                        tRestartLowerBounds( Ik ) = tRestartLowerBoundsTemp( Ik );
+                    }
+                }
+
+                MORIS_ERROR(tRestartADVs.max() != MORIS_REAL_MAX,"Restart ADV is MORIS_REAL_MAX");
+                MORIS_ERROR(tRestartUpperBounds.max() != MORIS_REAL_MAX,"Restart upper bound is MORIS_REAL_MAX");
+                MORIS_ERROR(tRestartLowerBounds.max() != MORIS_REAL_MAX,"Restart lower bound is MORIS_REAL_MAX");
+            }
 
             // Copy restart vectors on member variables
             mADVs        = tRestartADVs;

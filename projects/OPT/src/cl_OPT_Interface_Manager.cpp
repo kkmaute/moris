@@ -42,10 +42,12 @@ namespace moris
         void Interface_Manager::initialize(
                 Matrix<DDRMat>& aGlobalADVs,
                 Matrix<DDRMat>& aGlobalLowerBounds,
-                Matrix<DDRMat>& aGlobalUpperBounds)
+                Matrix<DDRMat>& aGlobalUpperBounds,
+                Matrix<IdMat >& aIjklIds)
         {
             // Set up ADVs
-            mInterfaces(0)->initialize(aGlobalADVs, aGlobalLowerBounds, aGlobalUpperBounds);
+            Matrix<IdMat> tDummy;
+            mInterfaces(0)->initialize(aGlobalADVs, aGlobalLowerBounds, aGlobalUpperBounds,tDummy);
 
             uint tCurrentGlobalADV = aGlobalADVs.length();
 
@@ -63,7 +65,8 @@ namespace moris
                 for (uint tInterfaceIndex = 1; tInterfaceIndex < mNumInterfaces; tInterfaceIndex++)
                 {
                     // Get the local bounds
-                    mInterfaces(tInterfaceIndex)->initialize(tLocalADVs, tLocalLowerBounds, tLocalUpperBounds);
+                    Matrix<IdMat> tDummy;
+                    mInterfaces(tInterfaceIndex)->initialize(tLocalADVs, tLocalLowerBounds, tLocalUpperBounds,tDummy);
             
                     // Compare with current global bounds
                     for (uint tADVIndex = 0; tADVIndex < tCurrentGlobalADV; tADVIndex++)
@@ -81,7 +84,8 @@ namespace moris
                 for (uint tInterfaceIndex = 1; tInterfaceIndex < mNumInterfaces; tInterfaceIndex++)
                 {
                     // Get the local ADVs and bounds
-                    mInterfaces(tInterfaceIndex)->initialize(tLocalADVs, tLocalLowerBounds, tLocalUpperBounds);
+                    Matrix<IdMat> tDummy;
+                    mInterfaces(tInterfaceIndex)->initialize(tLocalADVs, tLocalLowerBounds, tLocalUpperBounds,tDummy);
                     mNumADVsPerInterface(tInterfaceIndex) = tLocalADVs.length();
 
                     // Put into the global ADVs

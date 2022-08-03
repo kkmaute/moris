@@ -83,7 +83,8 @@ int fn_WRK_Workflow_Main_Interface( int argc, char * argv[] )
         {
             Matrix<DDRMat> tADVs(0, 0);
             Matrix<DDRMat> tDummyBounds;
-            tWorkflows(0)->initialize(tADVs, tDummyBounds, tDummyBounds);
+            Matrix<IdMat> tDummy1(1, 1, 0.0);
+            tWorkflows(0)->initialize(tADVs, tDummyBounds, tDummyBounds,tDummy1);
             Matrix<DDRMat> tIQIVal = tWorkflows(0)->get_criteria(tADVs);
 
             print(tIQIVal, "IQI values");

@@ -453,6 +453,13 @@ namespace moris
             save_matrix_to_hdf5_file(tFileID, "UpperBounds", mProblem->get_upper_bounds(), tStatus);
             save_matrix_to_hdf5_file(tFileID, "LowerBounds", mProblem->get_lower_bounds(), tStatus);
 
+            if( mProblem->get_ijklIDs().numel() == aADVs.numel() )
+            {
+                save_matrix_to_hdf5_file(tFileID, "IjklIds", mProblem->get_ijklIDs(), tStatus);
+            }
+
+            save_scalar_to_hdf5_file(tFileID, "NumProcs", par_size(), tStatus);
+
             // Close file
             close_hdf5_file(tFileID);
         }

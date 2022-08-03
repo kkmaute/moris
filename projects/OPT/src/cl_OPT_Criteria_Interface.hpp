@@ -49,7 +49,8 @@ namespace moris
                 virtual void initialize(
                         Matrix<DDRMat>& aADVs,
                         Matrix<DDRMat>& aLowerBounds,
-                        Matrix<DDRMat>& aUpperBounds) = 0;
+                        Matrix<DDRMat>& aUpperBounds,
+                        Matrix<IdMat >& aIjklIds) = 0;
 
                 /**
                  * Gets the criteria values given a new set of ADVs

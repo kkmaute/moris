@@ -235,6 +235,14 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        Matrix< IdMat >&
+        Geometry_Engine::get_IjklIDs()
+        {
+            return mFullijklIDs;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         Matrix< DDRMat >&
         Geometry_Engine::get_lower_bounds()
         {
@@ -1238,6 +1246,9 @@ namespace moris
                 tOwnedADVIds = tPrimitiveADVIds;
             }
 
+            // this is done to initialize primitive adv positions with gNoID
+            mOwnedijklIds.set_size( tPrimitiveADVIds.numel(), 1, gNoID );
+
             // Owned and shared ADVs per field
             Cell< Matrix< DDUMat > > tSharedCoefficientIndices( tFields.size() );
             Cell< Matrix< DDSMat > > tSharedADVIds( tFields.size() );
@@ -1393,12 +1404,14 @@ namespace moris
                     tOwnedADVIds.resize( tNumOwnedADVs + tNumOwnedCoefficients, 1 );
                     mLowerBounds.resize( tNumOwnedADVs + tNumOwnedCoefficients, 1 );
                     mUpperBounds.resize( tNumOwnedADVs + tNumOwnedCoefficients, 1 );
+                    mOwnedijklIds.resize( tNumOwnedADVs + tNumOwnedCoefficients, 1);
                     tSharedADVIds( tFieldIndex ).resize( tNumOwnedCoefficients + tNumSharedCoefficients, 1 );
                     tSharedCoefficientIndices( tFieldIndex ) = tOwnedCoefficients;
 
                     // Add owned coefficients to lists
                     for ( uint tOwnedCoefficient = 0; tOwnedCoefficient < tNumOwnedCoefficients; tOwnedCoefficient++ )
                     {
+                        // HMR coeffs are not neccesarily consecutive. Therefore this is a really hacky implementation
                         sint tADVId = tOffsetID
                                     + tMesh->get_glb_entity_id_from_entity_loc_index(
                                             tOwnedCoefficients( tOwnedCoefficient ),
@@ -1411,6 +1424,11 @@ namespace moris
                         mLowerBounds( tNumOwnedADVs + tOwnedCoefficient ) = tFields( tFieldIndex )->get_discretization_lower_bound();
                         mUpperBounds( tNumOwnedADVs + tOwnedCoefficient ) = tFields( tFieldIndex )->get_discretization_upper_bound();
 
+                        if( tMesh->get_mesh_type() == MeshType::HMR )
+                        {
+                            mOwnedijklIds( tNumOwnedADVs + tOwnedCoefficient ) = tAllCoefijklIDs( tOwnedCoefficients( tOwnedCoefficient ) );
+                        }
+
                         tSharedADVIds( tFieldIndex )( tOwnedCoefficient ) = tADVId;
                     }
 
@@ -1418,6 +1436,7 @@ namespace moris
                     tSharedCoefficientIndices( tFieldIndex ).resize( tNumOwnedCoefficients + tNumSharedCoefficients, 1 );
                     for ( uint tSharedCoefficient = 0; tSharedCoefficient < tNumSharedCoefficients; tSharedCoefficient++ )
                     {
+                        // HMR coeffs are not neccesarily consecutive. Therefore this is a really hacky implementation
                         sint tADVId = tOffsetID
                                     + tMesh->get_glb_entity_id_from_entity_loc_index(
                                             tSharedCoefficients( tSharedCoefficient ),
@@ -1469,6 +1488,7 @@ namespace moris
             // Get primitive ADVs from owned vector
             mPrimitiveADVs->import_local_to_global( *tNewOwnedADVs );
 
+            
             // Set field ADVs using distributed vector
             if ( mInitialPrimitiveADVs.length() > 0 )
             {
@@ -1616,11 +1636,13 @@ namespace moris
             Cell< Matrix< DDSMat > > tSendingIDs( 0 );
             Cell< Matrix< DDRMat > > tSendingLowerBounds( 0 );
             Cell< Matrix< DDRMat > > tSendingUpperBounds( 0 );
+            Cell< Matrix< DDSMat > > tSendingijklIDs( 0 );
 
             // Receiving mats
             Cell< Matrix< DDSMat > > tReceivingIDs( 0 );
             Cell< Matrix< DDRMat > > tReceivingLowerBounds( 0 );
             Cell< Matrix< DDRMat > > tReceivingUpperBounds( 0 );
+            Cell< Matrix< DDSMat > > tReceivingjklIDs( 0 );
 
             // Set up communication list for communicating ADV IDs
             Matrix< IdMat > tCommunicationList( 1, 1, 0 );
@@ -1631,6 +1653,7 @@ namespace moris
                 tSendingIDs.resize( par_size() - 1 );
                 tSendingLowerBounds.resize( par_size() - 1 );
                 tSendingUpperBounds.resize( par_size() - 1 );
+                tSendingijklIDs.resize( par_size() - 1 );
 
                 // Assign communication list
                 for ( uint tProcessorIndex = 1; tProcessorIndex < (uint)par_size(); tProcessorIndex++ )
@@ -1643,12 +1666,17 @@ namespace moris
                 tSendingIDs         = { tOwnedADVIds };
                 tSendingLowerBounds = { mLowerBounds };
                 tSendingUpperBounds = { mUpperBounds };
+                tSendingijklIDs     = { mOwnedijklIds };
             }
 
             // Communicate mats
             communicate_mats( tCommunicationList, tSendingIDs, tReceivingIDs );
             communicate_mats( tCommunicationList, tSendingLowerBounds, tReceivingLowerBounds );
             communicate_mats( tCommunicationList, tSendingUpperBounds, tReceivingUpperBounds );
+            if( tMesh->get_mesh_type() == MeshType::HMR )
+            {
+                communicate_mats( tCommunicationList, tSendingijklIDs, tReceivingjklIDs );
+            }
 
             MORIS_LOG_INFO( "Time to communicate ADV IDs: %f sec", ( moris::real )( clock() - tStart_Communicate_ADV_IDs ) / CLOCKS_PER_SEC );
 
@@ -1659,18 +1687,31 @@ namespace moris
             {
                 // Start full IDs with owned IDs on processor 0
                 mFullADVIds = tOwnedADVIds;
+                if( tMesh->get_mesh_type() == MeshType::HMR )
+                {
+                    mFullijklIDs = mOwnedijklIds;
+                }
+                else
+                {
+                    mFullijklIDs.set_size( 0, 0 );
+                }
 
                 // Assemble additional IDs/bounds from other processors
                 for ( uint tProcessorIndex = 1; tProcessorIndex < (uint)par_size(); tProcessorIndex++ )
                 {
                     // Get number of received ADVs
                     uint tFullADVsFilled  = mFullADVIds.length();
+                    uint tFullijklIDsFilled  = mFullijklIDs.length();
                     uint tNumReceivedADVs = tReceivingIDs( tProcessorIndex - 1 ).length();
 
                     // Resize full ADV IDs and bounds
                     mFullADVIds.resize( tFullADVsFilled + tNumReceivedADVs, 1 );
                     mLowerBounds.resize( tFullADVsFilled + tNumReceivedADVs, 1 );
                     mUpperBounds.resize( tFullADVsFilled + tNumReceivedADVs, 1 );
+                    if( tMesh->get_mesh_type() == MeshType::HMR )
+                    {
+                        mFullijklIDs.resize( tFullijklIDsFilled + tNumReceivedADVs, 1 );
+                    }
 
                     // Assign received ADV IDs
                     for ( uint tADVIndex = 0; tADVIndex < tNumReceivedADVs; tADVIndex++ )
@@ -1680,6 +1721,12 @@ namespace moris
                                 tReceivingLowerBounds( tProcessorIndex - 1 )( tADVIndex );
                         mUpperBounds( tFullADVsFilled + tADVIndex ) =
                                 tReceivingUpperBounds( tProcessorIndex - 1 )( tADVIndex );
+
+                        if( tMesh->get_mesh_type() == MeshType::HMR )
+                        {
+                            mFullijklIDs( tFullijklIDsFilled + tADVIndex ) =
+                                    tReceivingjklIDs( tProcessorIndex - 1 )( tADVIndex );
+                        }
                     }
                 }
             }
@@ -1687,6 +1734,7 @@ namespace moris
             {
                 mLowerBounds.set_size( 0, 0 );
                 mUpperBounds.set_size( 0, 0 );
+                mFullijklIDs.set_size( 0, 0 );
             }
 
             MORIS_LOG_INFO( "Time to assemble ADVs and bounds on Proc 0: %f sec", ( moris::real )( clock() - tStart_ADV_Bounds ) / CLOCKS_PER_SEC );

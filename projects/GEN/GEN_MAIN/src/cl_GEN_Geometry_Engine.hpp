@@ -72,12 +72,14 @@ namespace moris
             Matrix< DDRMat >  mInitialPrimitiveADVs;
             Matrix< DDRMat >  mADVs;
             Matrix< DDSMat >  mFullADVIds;
+            Matrix< IdMat >   mFullijklIDs;
             sol::Dist_Vector* mOwnedADVs     = nullptr;
             sol::Dist_Vector* mPrimitiveADVs = nullptr;
 
             // Bounds
             Matrix< DDRMat > mLowerBounds;
             Matrix< DDRMat > mUpperBounds;
+            Matrix< IdMat > mOwnedijklIds;
 
             // IQIs
             Cell< std::string > mRequestedIQIs;
@@ -148,6 +150,13 @@ namespace moris
              * @return vector of advs
              */
             Matrix< DDRMat >& get_advs();
+
+            /**
+             * Get vector with ijkl IDs. All Ids are on proc 0, all others return empty vec
+             *
+             * @return vector of aijkl Ids
+             */
+            Matrix< IdMat >& get_IjklIDs();
 
             /**
              * Gets the lower bounds from the geometry engine
