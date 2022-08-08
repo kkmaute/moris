@@ -51,10 +51,21 @@ TEST_CASE( "Interpolation mesh QUAD4 - Integration mesh QUAD4 ",
     mtk::Geometry_Type tSideGeoTypeIG = mtk::Geometry_Type::LINE;
 
     // define a QUAD4 integration element, i.e. space param coordinates xiHat
-    Matrix< DDRMat > tXiHatIG = { { -1.0, -1.0 }, { 1.0, -1.0 }, { 1.0, 1.0 }, { -1.0, 1.0 } };
+    Matrix< DDRMat > tXiHatIG = { //
+        { -1.0, -1.0 },
+        { +1.0, -1.0 },
+        { +1.0, +1.0 },
+        { -1.0, +1.0 }
+    };
+
 
     // the QUAD4 integration element in space physical coordinates xHat
-    Matrix< DDRMat > tXHatIG = { { 0.0, 0.0 }, { 1.0, 0.0 }, { 1.0, 1.0 }, { 0.0, 1.0 } };
+    Matrix< DDRMat > tXHatIG = { //
+        { 0.0, 0.0 },
+        { 1.0, 0.0 },
+        { 1.0, 1.0 },
+        { 0.0, 1.0 }
+    };
 
     Matrix< DDRMat > tTHatIG = { { 0.0 }, { 1.0 } };
 
@@ -82,9 +93,11 @@ TEST_CASE( "Interpolation mesh QUAD4 - Integration mesh QUAD4 ",
     mtk::Integrator tSideIntegrator( tSideIntegRule );
 
     // get number of integration points, integration points and weights
-    uint             tNumOfIntegPoints = tSideIntegrator.get_number_of_points();
+    uint tNumOfIntegPoints = tSideIntegrator.get_number_of_points();
+
     Matrix< DDRMat > tIntegPoints;
     tSideIntegrator.get_points( tIntegPoints );
+
     Matrix< DDRMat > tIntegWeights;
     tSideIntegrator.get_weights( tIntegWeights );
 
@@ -461,9 +474,11 @@ TEST_CASE( "Interpolation mesh TET4 - Integration mesh TET4 ",
     mtk::Integrator tSideIntegrator( tSideIntegRule );
 
     // get number of integration points, integration points and weights
-    uint             tNumOfIntegPoints = tSideIntegrator.get_number_of_points();
+    uint tNumOfIntegPoints = tSideIntegrator.get_number_of_points();
+
     Matrix< DDRMat > tIntegPoints;
     tSideIntegrator.get_points( tIntegPoints );
+
     Matrix< DDRMat > tIntegWeights;
     tSideIntegrator.get_weights( tIntegWeights );
 
@@ -519,6 +534,7 @@ TEST_CASE( "Interpolation mesh TET4 - Integration mesh TET4 ",
             switch ( tSideOrdinal )
             {
                 case 0:
+                {
                     tRefIntegPointI = { //
                         { tIntegPointI( 0 ) },
                         { tIntegPointI( 1 ) },
@@ -526,78 +542,87 @@ TEST_CASE( "Interpolation mesh TET4 - Integration mesh TET4 ",
                         { 1.0 - tIntegPointI( 0 ) - tIntegPointI( 1 ) },
                         { tIntegPointI( 2 ) }
                     };
-            };
-            break;
-            case 1:
-                tRefIntegPointI = { //
-                    { 0.0 },
-                    { tIntegPointI( 0 ) },
-                    { tIntegPointI( 1 ) },
-                    { 1.0 - tIntegPointI( 0 ) - tIntegPointI( 1 ) },
-                    { tIntegPointI( 2 ) }
-                };
-                break;
-            case 2:
-                tRefIntegPointI = { //
-                    { tIntegPointI( 0 ) },
-                    { 0.0 },
-                    { 1.0 - tIntegPointI( 0 ) - tIntegPointI( 1 ) },
-                    { tIntegPointI( 1 ) },
-                    { tIntegPointI( 2 ) }
-                };
-                break;
-            case 3:
-                tRefIntegPointI = { //
-                    { tIntegPointI( 0 ) },
-                    { 1.0 - tIntegPointI( 0 ) - tIntegPointI( 1 ) },
-                    { tIntegPointI( 1 ) },
-                    { 0.0 },
-                    { tIntegPointI( 2 ) }
-                };
-                break;
-            default:
-                MORIS_ASSERT( false, "Wrong side ordinal." );
-                break;
+                    break;
+                }
+                case 1:
+                {
+                    tRefIntegPointI = { //
+                        { 0.0 },
+                        { tIntegPointI( 0 ) },
+                        { tIntegPointI( 1 ) },
+                        { 1.0 - tIntegPointI( 0 ) - tIntegPointI( 1 ) },
+                        { tIntegPointI( 2 ) }
+                    };
+                    break;
+                }
+                case 2:
+                {
+                    tRefIntegPointI = { //
+                        { tIntegPointI( 0 ) },
+                        { 0.0 },
+                        { 1.0 - tIntegPointI( 0 ) - tIntegPointI( 1 ) },
+                        { tIntegPointI( 1 ) },
+                        { tIntegPointI( 2 ) }
+                    };
+                    break;
+                }
+                case 3:
+                {
+                    tRefIntegPointI = { //
+                        { tIntegPointI( 0 ) },
+                        { 1.0 - tIntegPointI( 0 ) - tIntegPointI( 1 ) },
+                        { tIntegPointI( 1 ) },
+                        { 0.0 },
+                        { tIntegPointI( 2 ) }
+                    };
+                    break;
+                }
+                default:
+                {
+                    MORIS_ERROR( false, "Wrong side ordinal." );
+                    break;
+                }
+            }
+
+            // get the integration point in the IP parametric space
+            // via the side shape functions
+            Matrix< DDRMat > tRefIntegPointI2( 5, 1, 0.0 );
+            Matrix< DDRMat > tN;
+
+            tSideSpaceInterp->eval_N( tIntegPointI, tN );
+
+            tRefIntegPointI2( { 0, 3 }, { 0, 0 } ) = trans( tN * tSideParamCoords );
+
+            tRefIntegPointI2( 4 ) = tIntegPointI( 2 );
+
+            // check the integration point in the IP parametric space
+            for ( uint iCoords = 0; iCoords < 5; iCoords++ )
+            {
+                tIntegPointCheck =
+                        tIntegPointCheck &&    //
+                        ( std::abs( tRefIntegPointI( iCoords ) - tRefIntegPointI2( iCoords ) ) < tEpsilon );
+            }
+
+            // evaluate detJ
+            real tDetJ = tSideDetJ * tTimeDetJ;
+
+            // add contribution to the surface
+            tSurface = tSurface + tDetJ * tIntegWeights( iGP );
         }
 
-        // get the integration point in the IP parametric space
-        // via the side shape functions
-        Matrix< DDRMat > tRefIntegPointI2( 5, 1, 0.0 );
-        Matrix< DDRMat > tN;
+        // check integration points coords
+        REQUIRE( tIntegPointCheck );
 
-        tSideSpaceInterp->eval_N( tIntegPointI, tN );
+        // check the surface value
+        Matrix< DDRMat > tSurfaceExact = { { 1.0 / 2.0, std::sqrt( 3.0 ) / 2.0, 1.0 / 2.0, 1.0 / 2.0 } };
 
-        tRefIntegPointI2( { 0, 3 }, { 0, 0 } ) = trans( tN * tSideParamCoords );
-        tRefIntegPointI2( 4 )                  = tIntegPointI( 2 );
+        tSurfaceCheck = tSurfaceCheck && ( std::abs( tSurface - tSurfaceExact( iSide ) ) < tEpsilon );
 
-        // check the integration point in the IP parametric space
-        for ( uint iCoords = 0; iCoords < 5; iCoords++ )
-        {
-            tIntegPointCheck =
-                    tIntegPointCheck &&    //
-                    ( std::abs( tRefIntegPointI( iCoords ) - tRefIntegPointI2( iCoords ) ) < tEpsilon );
-        }
-
-        // evaluate detJ
-        real tDetJ = tSideDetJ * tTimeDetJ;
-
-        // add contribution to the surface
-        tSurface = tSurface + tDetJ * tIntegWeights( iGP );
+        REQUIRE( tSurfaceCheck );
     }
 
-    // check integration points coords
-    REQUIRE( tIntegPointCheck );
-
-    // check the surface value
-    Matrix< DDRMat > tSurfaceExact = { { 1.0 / 2.0, std::sqrt( 3.0 ) / 2.0, 1.0 / 2.0, 1.0 / 2.0 } };
-
-    tSurfaceCheck = tSurfaceCheck && ( std::abs( tSurface - tSurfaceExact( iSide ) ) < tEpsilon );
-
-    REQUIRE( tSurfaceCheck );
-}
-
-// clean up
-delete tSideSpaceInterp;
+    // clean up
+    delete tSideSpaceInterp;
 }
 
 TEST_CASE( "Interpolation mesh HEX8 - Integration mesh HEX8 ",
@@ -646,13 +671,13 @@ TEST_CASE( "Interpolation mesh HEX8 - Integration mesh HEX8 ",
     // define a HEX8 integration element, i.e. space param coordinates xiHat
     Matrix< DDRMat > tXiHatIG = {
         { -1.0, -1.0, -1.0 },
-        { 1.0, -1.0, -1.0 },
-        { 1.0, 1.0, -1.0 },
-        { -1.0, 1.0, -1.0 },
-        { -1.0, -1.0, 1.0 },
-        { 1.0, -1.0, 1.0 },
-        { 1.0, 1.0, 1.0 },
-        { -1.0, 1.0, 1.0 }
+        { +1.0, -1.0, -1.0 },
+        { +1.0, +1.0, -1.0 },
+        { -1.0, +1.0, -1.0 },
+        { -1.0, -1.0, +1.0 },
+        { +1.0, -1.0, +1.0 },
+        { +1.0, +1.0, +1.0 },
+        { -1.0, +1.0, +1.0 }
     };
 
     // the HEX8 integration element in space physical coordinates xHat
@@ -722,104 +747,103 @@ TEST_CASE( "Interpolation mesh HEX8 - Integration mesh HEX8 ",
             { 0, 3, 2, 1 },
             { 4, 5, 6, 7 }
         };
-    };
 
-    Matrix< DDSMat > tSideNodes = tElementNodes.get_row( tSideOrdinal );
+        Matrix< DDSMat > tSideNodes = tElementNodes.get_row( tSideOrdinal );
 
-    // phys coords
-    Matrix< DDRMat > tSidePhysCoords( tSideNodes.numel(), 3 );
-    Matrix< DDRMat > tSideParamCoords( tSideNodes.numel(), 3 );
+        // phys coords
+        Matrix< DDRMat > tSidePhysCoords( tSideNodes.numel(), 3 );
+        Matrix< DDRMat > tSideParamCoords( tSideNodes.numel(), 3 );
 
-    for ( uint iNode = 0; iNode < tSideNodes.numel(); iNode++ )
-    {
-        tSidePhysCoords.get_row( iNode )  = tXHatIG.get_row( tSideNodes( iNode ) );
-        tSideParamCoords.get_row( iNode ) = tXiHatIG.get_row( tSideNodes( iNode ) );
-    }
-
-    // get the side normal
-    Matrix< DDRMat > tTangent1 = tSidePhysCoords.get_row( 1 ) - tSidePhysCoords.get_row( 0 );
-    Matrix< DDRMat > tTangent2 = tSidePhysCoords.get_row( 3 ) - tSidePhysCoords.get_row( 0 );
-    Matrix< DDRMat > tNormal   = cross( tTangent1, tTangent2 );
-    tNormal                    = tNormal / norm( tNormal );
-
-    // get the side detJ
-    real tSideDetJ = norm( cross( tTangent1, tTangent2 ) ) / 4.0;
-
-    // get the time detJ
-    real tTimeDetJ = ( tTHatIG( 1 ) - tTHatIG( 0 ) ) / 2.0;
-
-    // init the surface of the integration mesh
-    real tSurface = 0;
-
-    // loop over the integration points
-    for ( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
-    {
-        // get the treated integration point location in integration space
-        Matrix< DDRMat > tIntegPointI = tIntegPoints.get_column( iGP );
-
-        // get the integration point in the IP parametric space
-        // via lookup tables
-        Matrix< DDRMat > tRefIntegPointI( 4, 1, 0.0 );
-
-        switch ( tSideOrdinal )
+        for ( uint iNode = 0; iNode < tSideNodes.numel(); iNode++ )
         {
-            case 0:
-                tRefIntegPointI = { { tIntegPointI( 0 ) }, { -1.0 }, { tIntegPointI( 1 ) }, { tIntegPointI( 2 ) } };
-                break;
-            case 1:
-                tRefIntegPointI = { { 1.0 }, { tIntegPointI( 0 ) }, { tIntegPointI( 1 ) }, { tIntegPointI( 2 ) } };
-                break;
-            case 2:
-                tRefIntegPointI = { { -tIntegPointI( 0 ) }, { 1.0 }, { tIntegPointI( 1 ) }, { tIntegPointI( 2 ) } };
-                break;
-            case 3:
-                tRefIntegPointI = { { -1.0 }, { tIntegPointI( 1 ) }, { tIntegPointI( 0 ) }, { tIntegPointI( 2 ) } };
-                break;
-            case 4:
-                tRefIntegPointI = { { tIntegPointI( 1 ) }, { tIntegPointI( 0 ) }, { -1.0 }, { tIntegPointI( 2 ) } };
-                break;
-            case 5:
-                tRefIntegPointI = { { tIntegPointI( 0 ) }, { tIntegPointI( 1 ) }, { 1.0 }, { tIntegPointI( 2 ) } };
-                break;
-            default:
-                MORIS_ASSERT( false, "Wrong side ordinal." );
-                break;
+            tSidePhysCoords.get_row( iNode )  = tXHatIG.get_row( tSideNodes( iNode ) );
+            tSideParamCoords.get_row( iNode ) = tXiHatIG.get_row( tSideNodes( iNode ) );
         }
 
-        // get the integration point in the IP parametric space
-        // via the side shape functions
-        Matrix< DDRMat > tRefIntegPointI2( 4, 1, 0.0 );
-        Matrix< DDRMat > tN;
+        // get the side normal
+        Matrix< DDRMat > tTangent1 = tSidePhysCoords.get_row( 1 ) - tSidePhysCoords.get_row( 0 );
+        Matrix< DDRMat > tTangent2 = tSidePhysCoords.get_row( 3 ) - tSidePhysCoords.get_row( 0 );
+        Matrix< DDRMat > tNormal   = cross( tTangent1, tTangent2 );
+        tNormal                    = tNormal / norm( tNormal );
 
-        tSideSpaceInterp->eval_N( tIntegPointI, tN );
+        // get the side detJ
+        real tSideDetJ = norm( cross( tTangent1, tTangent2 ) ) / 4.0;
 
-        tRefIntegPointI2( { 0, 2 }, { 0, 0 } ) = trans( tN * tSideParamCoords );
-        tRefIntegPointI2( 3 )                  = tIntegPointI( 2 );
+        // get the time detJ
+        real tTimeDetJ = ( tTHatIG( 1 ) - tTHatIG( 0 ) ) / 2.0;
 
-        // check the integration point in the IP parametric space
-        for ( uint iCoords = 0; iCoords < 4; iCoords++ )
+        // init the surface of the integration mesh
+        real tSurface = 0;
+
+        // loop over the integration points
+        for ( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
         {
-            tIntegPointCheck =
-                    tIntegPointCheck &&    //
-                    ( std::abs( tRefIntegPointI( iCoords ) - tRefIntegPointI2( iCoords ) ) < tEpsilon );
+            // get the treated integration point location in integration space
+            Matrix< DDRMat > tIntegPointI = tIntegPoints.get_column( iGP );
+
+            // get the integration point in the IP parametric space
+            // via lookup tables
+            Matrix< DDRMat > tRefIntegPointI( 4, 1, 0.0 );
+
+            switch ( tSideOrdinal )
+            {
+                case 0:
+                    tRefIntegPointI = { { tIntegPointI( 0 ) }, { -1.0 }, { tIntegPointI( 1 ) }, { tIntegPointI( 2 ) } };
+                    break;
+                case 1:
+                    tRefIntegPointI = { { 1.0 }, { tIntegPointI( 0 ) }, { tIntegPointI( 1 ) }, { tIntegPointI( 2 ) } };
+                    break;
+                case 2:
+                    tRefIntegPointI = { { -tIntegPointI( 0 ) }, { 1.0 }, { tIntegPointI( 1 ) }, { tIntegPointI( 2 ) } };
+                    break;
+                case 3:
+                    tRefIntegPointI = { { -1.0 }, { tIntegPointI( 1 ) }, { tIntegPointI( 0 ) }, { tIntegPointI( 2 ) } };
+                    break;
+                case 4:
+                    tRefIntegPointI = { { tIntegPointI( 1 ) }, { tIntegPointI( 0 ) }, { -1.0 }, { tIntegPointI( 2 ) } };
+                    break;
+                case 5:
+                    tRefIntegPointI = { { tIntegPointI( 0 ) }, { tIntegPointI( 1 ) }, { 1.0 }, { tIntegPointI( 2 ) } };
+                    break;
+                default:
+                    MORIS_ASSERT( false, "Wrong side ordinal." );
+                    break;
+            }
+
+            // get the integration point in the IP parametric space
+            // via the side shape functions
+            Matrix< DDRMat > tRefIntegPointI2( 4, 1, 0.0 );
+            Matrix< DDRMat > tN;
+
+            tSideSpaceInterp->eval_N( tIntegPointI, tN );
+
+            tRefIntegPointI2( { 0, 2 }, { 0, 0 } ) = trans( tN * tSideParamCoords );
+            tRefIntegPointI2( 3 )                  = tIntegPointI( 2 );
+
+            // check the integration point in the IP parametric space
+            for ( uint iCoords = 0; iCoords < 4; iCoords++ )
+            {
+                tIntegPointCheck =
+                        tIntegPointCheck &&    //
+                        ( std::abs( tRefIntegPointI( iCoords ) - tRefIntegPointI2( iCoords ) ) < tEpsilon );
+            }
+
+            // evaluate detJ
+            real tDetJ = tSideDetJ * tTimeDetJ;
+
+            // add contribution to the surface
+            tSurface = tSurface + tDetJ * tIntegWeights( iGP );
         }
 
-        // evaluate detJ
-        real tDetJ = tSideDetJ * tTimeDetJ;
+        // check integration points coords
+        REQUIRE( tIntegPointCheck );
 
-        // add contribution to the surface
-        tSurface = tSurface + tDetJ * tIntegWeights( iGP );
+        // check the surface value
+        tSurfaceCheck = tSurfaceCheck && ( std::abs( tSurface - 1.0 ) < tEpsilon );
+
+        REQUIRE( tSurfaceCheck );
     }
 
-    // check integration points coords
-    REQUIRE( tIntegPointCheck );
-
-    // check the surface value
-    tSurfaceCheck = tSurfaceCheck && ( std::abs( tSurface - 1.0 ) < tEpsilon );
-
-    REQUIRE( tSurfaceCheck );
-}
-
-// clean up
-delete tSideSpaceInterp;
+    // clean up
+    delete tSideSpaceInterp;
 }

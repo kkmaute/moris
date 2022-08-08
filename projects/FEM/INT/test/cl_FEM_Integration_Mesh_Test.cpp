@@ -509,6 +509,7 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
             { 1.0, 1.0, 1.0 },
             { -1.0, 1.0, 1.0 }
         };
+
         Matrix< DDRMat > tTauHatIG = { { -1.0 }, { 1.0 }, { 0.0 } };
 
         // the HEX8 integration element in param  coordinates xiHat, tauHat
@@ -705,6 +706,7 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
         Matrix< DDRMat > tTHatIP = { { 0.0 },
             { 1.0 },
             { 0.5 } };
+
         // the HEX8 interpolation element in param  coordinates xiHat, tauHat
         Matrix< DDRMat > tXiHatIP = { //
             { -1.0, -1.0, -1.0 },
@@ -767,179 +769,180 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
             { -1.0, 1.0, -1.0 },
             { -1.0, -1.0, 1.0 }
         };
-    };
-    Matrix< DDRMat > tTauHatIG = { { -1.0 }, { 1.0 }, { 0.0 } };
 
-    // the TET4 integration element in space physical coordinates xHat
-    Matrix< DDRMat > tXHatIG = { //
-        { 0.0, 0.0, 0.0 },
-        { 0.5, 0.0, 0.0 },
-        { 0.0, 1.0, 0.0 },
-        { 0.0, 0.0, 1.0 }
-    };
-    Matrix< DDRMat > tTHatIG = { { 0.0 }, { 1.0 }, { 0.5 } };
+        Matrix< DDRMat > tTauHatIG = { { -1.0 }, { 1.0 }, { 0.0 } };
 
-    // create a space and time geometry interpolator fot the integration element
-    Geometry_Interpolator tGeoInterpIG( tGeoInterpIGRule, tGeoInterpIPRule );
+        // the TET4 integration element in space physical coordinates xHat
+        Matrix< DDRMat > tXHatIG = { //
+            { 0.0, 0.0, 0.0 },
+            { 0.5, 0.0, 0.0 },
+            { 0.0, 1.0, 0.0 },
+            { 0.0, 0.0, 1.0 }
+        };
 
-    // set the coefficients xHat, tHat
-    tGeoInterpIG.set_space_coeff( tXHatIG );
-    tGeoInterpIG.set_time_coeff( tTHatIG );
+        Matrix< DDRMat > tTHatIG = { { 0.0 }, { 1.0 }, { 0.5 } };
 
-    // set the coefficients xiHat, tauHat
-    tGeoInterpIG.set_space_param_coeff( tXiHatIG );
-    tGeoInterpIG.set_time_param_coeff( tTauHatIG );
+        // create a space and time geometry interpolator fot the integration element
+        Geometry_Interpolator tGeoInterpIG( tGeoInterpIGRule, tGeoInterpIPRule );
 
-    // space geometry interpolations for integration mesh
-    mtk::Interpolation_Function_Base* tIntegSpaceInterpolation =    //
-            tGeoInterpIGRule.create_space_interpolation_function();
+        // set the coefficients xHat, tHat
+        tGeoInterpIG.set_space_coeff( tXHatIG );
+        tGeoInterpIG.set_time_coeff( tTHatIG );
 
-    uint tIntegNumSpaceBases    = tIntegSpaceInterpolation->get_number_of_bases();
-    uint tIntegNumParamSpaceDim = tIntegSpaceInterpolation->get_number_of_param_dimensions();
+        // set the coefficients xiHat, tauHat
+        tGeoInterpIG.set_space_param_coeff( tXiHatIG );
+        tGeoInterpIG.set_time_param_coeff( tTauHatIG );
 
-    // create a integration rule
-    mtk::Integration_Rule tIntegrationRule(
-            tGeoTypeIG,
-            mtk::Integration_Type::GAUSS,
-            mtk::Integration_Order::TET_5,
-            mtk::Integration_Type::GAUSS,
-            mtk::Integration_Order::BAR_3 );
+        // space geometry interpolations for integration mesh
+        mtk::Interpolation_Function_Base* tIntegSpaceInterpolation =    //
+                tGeoInterpIGRule.create_space_interpolation_function();
 
-    // create a side integrator
-    mtk::Integrator tIntegrator( tIntegrationRule );
+        uint tIntegNumSpaceBases    = tIntegSpaceInterpolation->get_number_of_bases();
+        uint tIntegNumParamSpaceDim = tIntegSpaceInterpolation->get_number_of_param_dimensions();
 
-    // get number of integration points, integration points and weights
-    uint tNumOfIntegPoints = tIntegrator.get_number_of_points();
+        // create a integration rule
+        mtk::Integration_Rule tIntegrationRule(
+                tGeoTypeIG,
+                mtk::Integration_Type::GAUSS,
+                mtk::Integration_Order::TET_5,
+                mtk::Integration_Type::GAUSS,
+                mtk::Integration_Order::BAR_3 );
 
-    Matrix< DDRMat > tIntegPoints;
-    tIntegrator.get_points( tIntegPoints );
+        // create a side integrator
+        mtk::Integrator tIntegrator( tIntegrationRule );
 
-    Matrix< DDRMat > tIntegWeights;
-    tIntegrator.get_weights( tIntegWeights );
+        // get number of integration points, integration points and weights
+        uint tNumOfIntegPoints = tIntegrator.get_number_of_points();
 
-    // boolean for surface check
-    bool tSurfaceCheck  = true;
-    bool tSurfaceCheck2 = true;
-    bool tMappedIPCheck = true;
+        Matrix< DDRMat > tIntegPoints;
+        tIntegrator.get_points( tIntegPoints );
 
-    // init the surface of the integration mesh
-    real tSurface  = 0;
-    real tSurface2 = 0;
+        Matrix< DDRMat > tIntegWeights;
+        tIntegrator.get_weights( tIntegWeights );
 
-    // loop over the integration points
-    for ( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
-    {
-        // get the treated integration point location in integration space
-        Matrix< DDRMat > tIntegPointI = tIntegPoints.get_column( iGP );
+        // boolean for surface check
+        bool tSurfaceCheck  = true;
+        bool tSurfaceCheck2 = true;
+        bool tMappedIPCheck = true;
 
-        // set the treated integration point location in the surface ref space for the geometry interp
-        tGeoInterpIG.set_space_time( tIntegPointI );
+        // init the surface of the integration mesh
+        real tSurface  = 0;
+        real tSurface2 = 0;
 
-        // get the treated integration point location in the interpolation space
-        //------------------------------------------------------------------------------
-        // unpack the space and time param coords of the integration point
-        Matrix< DDRMat > tXi = tIntegPointI( { 0, tIntegNumParamSpaceDim - 1 }, { 0, 0 } );
-        Matrix< DDRMat > tTau( 1, 1, tIntegPointI( tIntegNumParamSpaceDim ) );
-
-        Matrix< DDRMat > tNIntegSpace;
-        Matrix< DDRMat > tNTime;
-
-        // evaluate space interpolation shape functions at integration point
-        tIntegSpaceInterpolation->eval_N( tXi, tNIntegSpace );
-
-        // evaluate time interpolation shape functions at aParamPoint
-        tTimeInterpolation->eval_N( tTau, tNTime );
-
-        // build space time interpolation functions for integration mesh
-        Matrix< DDRMat > tN = trans( vectorize( trans( tNIntegSpace ) * tNTime ) );
-
-        // get the parametric coordinates of the integration mesh in interpolation mesh
-        Matrix< DDRMat > tInterpParamCoords( tNumTimeDim + tNumParamSpaceDim, tNumTimeBases * tIntegNumSpaceBases );
-
-        // get the time parametric coordinates
-        Matrix< DDRMat > tTimeParamCoords;
-        tTimeInterpolation->get_param_coords( tTimeParamCoords );
-
-        // get a vector of ones
-        Matrix< DDRMat > tOnes( 1, tIntegNumSpaceBases, 1.0 );
-
-        // loop on the time bases
-        for ( uint i = 0; i < tNumTimeBases; i++ )
+        // loop over the integration points
+        for ( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
         {
-            // fill the space time parametric coordinates matrix with space coordinates
-            tInterpParamCoords(
-                    { 0, tNumParamSpaceDim - 1 }, { i * tIntegNumSpaceBases, ( i + 1 ) * tIntegNumSpaceBases - 1 } ) =    //
-                    trans( tXiHatIG );
+            // get the treated integration point location in integration space
+            Matrix< DDRMat > tIntegPointI = tIntegPoints.get_column( iGP );
 
-            // fill the space time parametric coordinates matrix with time coordinates
-            tInterpParamCoords(
-                    { tNumParamSpaceDim, tNumParamSpaceDim }, { i * tIntegNumSpaceBases, ( i + 1 ) * tIntegNumSpaceBases - 1 } ) =    //
-                    tTimeParamCoords( i ) * tOnes;
+            // set the treated integration point location in the surface ref space for the geometry interp
+            tGeoInterpIG.set_space_time( tIntegPointI );
+
+            // get the treated integration point location in the interpolation space
+            //------------------------------------------------------------------------------
+            // unpack the space and time param coords of the integration point
+            Matrix< DDRMat > tXi = tIntegPointI( { 0, tIntegNumParamSpaceDim - 1 }, { 0, 0 } );
+            Matrix< DDRMat > tTau( 1, 1, tIntegPointI( tIntegNumParamSpaceDim ) );
+
+            Matrix< DDRMat > tNIntegSpace;
+            Matrix< DDRMat > tNTime;
+
+            // evaluate space interpolation shape functions at integration point
+            tIntegSpaceInterpolation->eval_N( tXi, tNIntegSpace );
+
+            // evaluate time interpolation shape functions at aParamPoint
+            tTimeInterpolation->eval_N( tTau, tNTime );
+
+            // build space time interpolation functions for integration mesh
+            Matrix< DDRMat > tN = trans( vectorize( trans( tNIntegSpace ) * tNTime ) );
+
+            // get the parametric coordinates of the integration mesh in interpolation mesh
+            Matrix< DDRMat > tInterpParamCoords( tNumTimeDim + tNumParamSpaceDim, tNumTimeBases * tIntegNumSpaceBases );
+
+            // get the time parametric coordinates
+            Matrix< DDRMat > tTimeParamCoords;
+            tTimeInterpolation->get_param_coords( tTimeParamCoords );
+
+            // get a vector of ones
+            Matrix< DDRMat > tOnes( 1, tIntegNumSpaceBases, 1.0 );
+
+            // loop on the time bases
+            for ( uint i = 0; i < tNumTimeBases; i++ )
+            {
+                // fill the space time parametric coordinates matrix with space coordinates
+                tInterpParamCoords(
+                        { 0, tNumParamSpaceDim - 1 }, { i * tIntegNumSpaceBases, ( i + 1 ) * tIntegNumSpaceBases - 1 } ) =    //
+                        trans( tXiHatIG );
+
+                // fill the space time parametric coordinates matrix with time coordinates
+                tInterpParamCoords(
+                        { tNumParamSpaceDim, tNumParamSpaceDim }, { i * tIntegNumSpaceBases, ( i + 1 ) * tIntegNumSpaceBases - 1 } ) =    //
+                        tTimeParamCoords( i ) * tOnes;
+            }
+
+            // compute the parametric coordinates of the SideParamPoint in the parent reference element
+            Matrix< DDRMat > tRefIntegPointI = tInterpParamCoords * trans( tN );
+
+            // compute the parametric coordinates of the SideParamPoint in the parent reference element
+            const Matrix< DDRMat >& tRefIntegPointI2 = tGeoInterpIG.map_integration_point();
+
+            for ( uint iCoords = 0; iCoords < 4; iCoords++ )
+            {
+                tMappedIPCheck =
+                        tMappedIPCheck &&    //
+                        ( std::abs( tRefIntegPointI( iCoords ) - tRefIntegPointI2( iCoords ) ) < tEpsilon );
+            }
+
+            // evaluate detJ
+            //------------------------------------------------------------------------------
+            // set the global integration point for the IP geometry interp
+            tGeoInterpIP.set_space_time( tRefIntegPointI );
+
+            real tDetJ1 = tGeoInterpIP.det_J();
+
+            // get the space jacobian
+            Matrix< DDRMat > tdNSpacedXi;
+            tIntegSpaceInterpolation->eval_dNdXi( tXi, tdNSpacedXi );
+            Matrix< DDRMat > tSpaceJt = tdNSpacedXi * tXiHatIG;
+
+            // get the time Jacobian
+            Matrix< DDRMat > tdNTimedTau;
+            tTimeInterpolation->eval_dNdXi( tTau, tdNTimedTau );
+            Matrix< DDRMat > tTimeJt = tdNTimedTau * tTauHatIG;
+
+            Matrix< DDRMat > tSpaceJt2( tIntegNumParamSpaceDim, tIntegNumParamSpaceDim, 1.0 );
+            tSpaceJt2(
+                    { 1, tIntegNumParamSpaceDim - 1 }, { 0, tIntegNumParamSpaceDim - 1 } ) =    //
+                    trans( tSpaceJt );
+
+            real detJSpace = det( tSpaceJt2 ) / 6.0;
+            real tDetJ2    = detJSpace * det( tTimeJt );
+
+            real tDetJ = tDetJ1 * tDetJ2;
+
+            // add contribution to the surface
+            tSurface = tSurface + tDetJ * tIntegWeights( iGP );
+
+            // add contribution to the surface from GeoInterpIG
+            tSurface2 = tSurface2 + tGeoInterpIG.det_J() * tIntegWeights( iGP );
         }
 
-        // compute the parametric coordinates of the SideParamPoint in the parent reference element
-        Matrix< DDRMat > tRefIntegPointI = tInterpParamCoords * trans( tN );
+        // check integration points values
+        REQUIRE( tMappedIPCheck );
 
-        // compute the parametric coordinates of the SideParamPoint in the parent reference element
-        const Matrix< DDRMat >& tRefIntegPointI2 = tGeoInterpIG.map_integration_point();
+        // check the surface value
+        tSurfaceCheck = tSurfaceCheck && ( std::abs( tSurface - 0.083333333334 ) < tEpsilon );
 
-        for ( uint iCoords = 0; iCoords < 4; iCoords++ )
-        {
-            tMappedIPCheck =
-                    tMappedIPCheck &&    //
-                    ( std::abs( tRefIntegPointI( iCoords ) - tRefIntegPointI2( iCoords ) ) < tEpsilon );
-        }
+        REQUIRE( tSurfaceCheck );
 
-        // evaluate detJ
-        //------------------------------------------------------------------------------
-        // set the global integration point for the IP geometry interp
-        tGeoInterpIP.set_space_time( tRefIntegPointI );
+        // check the surface value
+        tSurfaceCheck2 = tSurfaceCheck2 && ( std::abs( tSurface2 - 0.083333333334 ) < tEpsilon );
 
-        real tDetJ1 = tGeoInterpIP.det_J();
+        REQUIRE( tSurfaceCheck2 );
 
-        // get the space jacobian
-        Matrix< DDRMat > tdNSpacedXi;
-        tIntegSpaceInterpolation->eval_dNdXi( tXi, tdNSpacedXi );
-        Matrix< DDRMat > tSpaceJt = tdNSpacedXi * tXiHatIG;
-
-        // get the time Jacobian
-        Matrix< DDRMat > tdNTimedTau;
-        tTimeInterpolation->eval_dNdXi( tTau, tdNTimedTau );
-        Matrix< DDRMat > tTimeJt = tdNTimedTau * tTauHatIG;
-
-        Matrix< DDRMat > tSpaceJt2( tIntegNumParamSpaceDim, tIntegNumParamSpaceDim, 1.0 );
-        tSpaceJt2(
-                { 1, tIntegNumParamSpaceDim - 1 }, { 0, tIntegNumParamSpaceDim - 1 } ) =    //
-                trans( tSpaceJt );
-
-        real detJSpace = det( tSpaceJt2 ) / 6.0;
-        real tDetJ2    = detJSpace * det( tTimeJt );
-
-        real tDetJ = tDetJ1 * tDetJ2;
-
-        // add contribution to the surface
-        tSurface = tSurface + tDetJ * tIntegWeights( iGP );
-
-        // add contribution to the surface from GeoInterpIG
-        tSurface2 = tSurface2 + tGeoInterpIG.det_J() * tIntegWeights( iGP );
+        // clean up
+        delete tSpaceInterpolation;
+        delete tTimeInterpolation;
+        delete tIntegSpaceInterpolation;
     }
-
-    // check integration points values
-    REQUIRE( tMappedIPCheck );
-
-    // check the surface value
-    tSurfaceCheck = tSurfaceCheck && ( std::abs( tSurface - 0.083333333334 ) < tEpsilon );
-
-    REQUIRE( tSurfaceCheck );
-
-    // check the surface value
-    tSurfaceCheck2 = tSurfaceCheck2 && ( std::abs( tSurface2 - 0.083333333334 ) < tEpsilon );
-
-    REQUIRE( tSurfaceCheck2 );
-
-    // clean up
-    delete tSpaceInterpolation;
-    delete tTimeInterpolation;
-    delete tIntegSpaceInterpolation;
-}
 }

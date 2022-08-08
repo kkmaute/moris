@@ -34,9 +34,9 @@ TEST_CASE( "Double sided side-set QUAD ", "[moris],[fem],[DoubleSidedQUAD]" )
     // hex param coords
     Matrix< DDRMat > tParamCoords = { //
         { -1.0, -1.0 },
-        { 1.0, -1.0 },
-        { 1.0, 1.0 },
-        { -1.0, 1.0 }
+        { +1.0, -1.0 },
+        { +1.0, +1.0 },
+        { -1.0, +1.0 }
     };
 
     // interpolation rule for the volume
@@ -871,13 +871,13 @@ TEST_CASE( "Double sided side-set HEX ", "[moris],[fem],[DoubleSidedHEX]" )
     // hex param coords
     Matrix< DDRMat > tHexParamCoords = { //
         { -1.0, -1.0, -1.0 },
-        { 1.0, -1.0, -1.0 },
-        { 1.0, 1.0, -1.0 },
-        { -1.0, 1.0, -1.0 },
-        { -1.0, -1.0, 1.0 },
-        { 1.0, -1.0, 1.0 },
-        { 1.0, 1.0, 1.0 },
-        { -1.0, 1.0, 1.0 }
+        { +1.0, -1.0, -1.0 },
+        { +1.0, +1.0, -1.0 },
+        { -1.0, +1.0, -1.0 },
+        { -1.0, -1.0, +1.0 },
+        { +1.0, -1.0, +1.0 },
+        { +1.0, +1.0, +1.0 },
+        { -1.0, +1.0, +1.0 }
     };
 
     // interpolation rule for the volume
@@ -945,278 +945,277 @@ TEST_CASE( "Double sided side-set HEX ", "[moris],[fem],[DoubleSidedHEX]" )
                     { 0.0, 1.0, 1.0 },
                     { 0.0, 0.0, 1.0 }
                 };
-        };
-        break;
-        case ( 1 ):
-            tXHatIP_M = { //
-                { 0.0, 0.0, 0.0 },
-                { 1.0, 0.0, 0.0 },
-                { 1.0, 1.0, 0.0 },
-                { 0.0, 1.0, 0.0 },
-                { 0.0, 0.0, 1.0 },
-                { 1.0, 0.0, 1.0 },
-                { 1.0, 1.0, 1.0 },
-                { 0.0, 1.0, 1.0 }
-            };
-            break;
-        case ( 2 ):
-            tXHatIP_M = { //
-                { 0.0, 1.0, 0.0 },
-                { 0.0, 0.0, 0.0 },
-                { 1.0, 0.0, 0.0 },
-                { 1.0, 1.0, 0.0 },
-                { 0.0, 1.0, 1.0 },
-                { 0.0, 0.0, 1.0 },
-                { 1.0, 0.0, 1.0 },
-                { 1.0, 1.0, 1.0 }
-            };
-            break;
-        case ( 3 ):
-            tXHatIP_M = { //
-                { 1.0, 0.0, 0.0 },
-                { 0.0, 0.0, 0.0 },
-                { 0.0, 0.0, 1.0 },
-                { 1.0, 0.0, 1.0 },
-                { 1.0, 1.0, 0.0 },
-                { 0.0, 1.0, 0.0 },
-                { 0.0, 1.0, 1.0 },
-                { 1.0, 1.0, 1.0 }
-            };
-            break;
-        case ( 4 ):
-            tXHatIP_M = { //
-                { 1.0, 0.0, 0.0 },
-                { 1.0, 0.0, 1.0 },
-                { 1.0, 1.0, 1.0 },
-                { 1.0, 1.0, 0.0 },
-                { 0.0, 0.0, 0.0 },
-                { 0.0, 0.0, 1.0 },
-                { 0.0, 1.0, 1.0 },
-                { 0.0, 1.0, 0.0 }
-            };
-            break;
-        case ( 5 ):
-            tXHatIP_M = { //
-                { 0.0, 0.0, 0.0 },
-                { 0.0, 1.0, 0.0 },
-                { 0.0, 1.0, 1.0 },
-                { 0.0, 0.0, 1.0 },
-                { 1.0, 0.0, 0.0 },
-                { 1.0, 1.0, 0.0 },
-                { 1.0, 1.0, 1.0 },
-                { 1.0, 0.0, 1.0 }
-            };
-            break;
-        default:
-        {
-            MORIS_ERROR( false, " wrong master side ordinal " );
-            break;
-        }
-    }
-
-    // define an integration master element in the phys space
-    Matrix< DDRMat > tXHatIG_M = tXHatIP_M;
-
-    // define the master integration element in param space
-    Matrix< DDRMat > tXiHatIG_M = tHexParamCoords;
-
-    // get the node ids associated to the master side ordinal
-    Matrix< DDSMat > tMasterSideNodes = tSideNodes.get_row( tMasterSideOrd );
-
-    // phys coords amd parm coords in IP param space for the side
-    uint tNumSideNodes = tMasterSideNodes.numel();
-
-    Matrix< DDRMat > tMasterSidePhysCoords( tNumSideNodes, 3 );
-    Matrix< DDRMat > tMasterSideParamCoords( tNumSideNodes, 3 );
-
-    for ( uint iNode = 0; iNode < tNumSideNodes; iNode++ )
-    {
-        tMasterSidePhysCoords.get_row( iNode )  = tXHatIG_M.get_row( tMasterSideNodes( iNode ) );
-        tMasterSideParamCoords.get_row( iNode ) = tXiHatIG_M.get_row( tMasterSideNodes( iNode ) );
-    }
-
-    // loop over slave side ordinals
-    // for ( uint iSlaveOrd = iMasterOrd; iSlaveOrd < 6; iSlaveOrd++ )
-    for ( uint iSlaveOrd = 0; iSlaveOrd < 6; iSlaveOrd++ )
-    {
-        // side ordinal for master integration mesh
-        moris_index tSlaveSideOrd = iSlaveOrd;
-
-        // sort the nodes on side or not
-        Matrix< DDSMat > tNodesOnSlaveSide   = tSideNodes.get_row( iSlaveOrd );
-        Matrix< DDSMat > tNodeNotOnSlaveSide = tFacingSideNodes.get_row( iSlaveOrd );
-
-        // define an interpolation slave element in the phys space
-        Matrix< DDRMat > tXHatIP;
-        switch ( iSlaveOrd )
-        {
-            case ( 0 ):
-                tXHatIP = { //
-                    { 1.0, 0.0, 0.0 },
-                    { 1.0, 0.0, 1.0 },
-                    { 2.0, 0.0, 1.0 },
-                    { 2.0, 0.0, 0.0 },
-                    { 1.0, 1.0, 0.0 },
-                    { 1.0, 1.0, 1.0 },
-                    { 2.0, 1.0, 1.0 },
-                    { 2.0, 1.0, 0.0 }
-                };
                 break;
             case ( 1 ):
-                tXHatIP = { //
-                    { 2.0, 0.0, 0.0 },
+                tXHatIP_M = { //
+                    { 0.0, 0.0, 0.0 },
                     { 1.0, 0.0, 0.0 },
-                    { 1.0, 0.0, 1.0 },
-                    { 2.0, 0.0, 1.0 },
-                    { 2.0, 1.0, 0.0 },
                     { 1.0, 1.0, 0.0 },
+                    { 0.0, 1.0, 0.0 },
+                    { 0.0, 0.0, 1.0 },
+                    { 1.0, 0.0, 1.0 },
                     { 1.0, 1.0, 1.0 },
-                    { 2.0, 1.0, 1.0 }
+                    { 0.0, 1.0, 1.0 }
                 };
                 break;
             case ( 2 ):
-                tXHatIP = { //
-                    { 2.0, 0.0, 1.0 },
-                    { 2.0, 0.0, 0.0 },
+                tXHatIP_M = { //
+                    { 0.0, 1.0, 0.0 },
+                    { 0.0, 0.0, 0.0 },
                     { 1.0, 0.0, 0.0 },
-                    { 1.0, 0.0, 1.0 },
-                    { 2.0, 1.0, 1.0 },
-                    { 2.0, 1.0, 0.0 },
                     { 1.0, 1.0, 0.0 },
+                    { 0.0, 1.0, 1.0 },
+                    { 0.0, 0.0, 1.0 },
+                    { 1.0, 0.0, 1.0 },
                     { 1.0, 1.0, 1.0 }
                 };
                 break;
             case ( 3 ):
-                tXHatIP = { //
+                tXHatIP_M = { //
                     { 1.0, 0.0, 0.0 },
-                    { 2.0, 0.0, 0.0 },
-                    { 2.0, 1.0, 0.0 },
-                    { 1.0, 1.0, 0.0 },
+                    { 0.0, 0.0, 0.0 },
+                    { 0.0, 0.0, 1.0 },
                     { 1.0, 0.0, 1.0 },
-                    { 2.0, 0.0, 1.0 },
-                    { 2.0, 1.0, 1.0 },
+                    { 1.0, 1.0, 0.0 },
+                    { 0.0, 1.0, 0.0 },
+                    { 0.0, 1.0, 1.0 },
                     { 1.0, 1.0, 1.0 }
                 };
                 break;
             case ( 4 ):
-                tXHatIP = { //
+                tXHatIP_M = { //
                     { 1.0, 0.0, 0.0 },
-                    { 1.0, 1.0, 0.0 },
-                    { 1.0, 1.0, 1.0 },
                     { 1.0, 0.0, 1.0 },
-                    { 2.0, 0.0, 0.0 },
-                    { 2.0, 1.0, 0.0 },
-                    { 2.0, 1.0, 1.0 },
-                    { 2.0, 0.0, 1.0 }
+                    { 1.0, 1.0, 1.0 },
+                    { 1.0, 1.0, 0.0 },
+                    { 0.0, 0.0, 0.0 },
+                    { 0.0, 0.0, 1.0 },
+                    { 0.0, 1.0, 1.0 },
+                    { 0.0, 1.0, 0.0 }
                 };
                 break;
             case ( 5 ):
-                tXHatIP = { //
-                    { 2.0, 0.0, 0.0 },
-                    { 2.0, 0.0, 1.0 },
-                    { 2.0, 1.0, 1.0 },
-                    { 2.0, 1.0, 0.0 },
+                tXHatIP_M = { //
+                    { 0.0, 0.0, 0.0 },
+                    { 0.0, 1.0, 0.0 },
+                    { 0.0, 1.0, 1.0 },
+                    { 0.0, 0.0, 1.0 },
                     { 1.0, 0.0, 0.0 },
-                    { 1.0, 0.0, 1.0 },
+                    { 1.0, 1.0, 0.0 },
                     { 1.0, 1.0, 1.0 },
-                    { 1.0, 1.0, 0.0 }
+                    { 1.0, 0.0, 1.0 }
                 };
                 break;
             default:
-                MORIS_ERROR( false, " wrong slave side ordinal " );
+            {
+                MORIS_ERROR( false, " wrong master side ordinal " );
                 break;
+            }
         }
 
-        // node permutation for $ rotation in plane
-        for ( uint iPermute = 0; iPermute < tPermuteCases.n_rows(); iPermute++ )
-        {
-            // get the first corresponding node on the slave side
-            moris_index tSlaveNode = iPermute;
+        // define an integration master element in the phys space
+        Matrix< DDRMat > tXHatIG_M = tXHatIP_M;
 
-            // for a master slave pair
+        // define the master integration element in param space
+        Matrix< DDRMat > tXiHatIG_M = tHexParamCoords;
+
+        // get the node ids associated to the master side ordinal
+        Matrix< DDSMat > tMasterSideNodes = tSideNodes.get_row( tMasterSideOrd );
+
+        // phys coords amd parm coords in IP param space for the side
+        uint tNumSideNodes = tMasterSideNodes.numel();
+
+        Matrix< DDRMat > tMasterSidePhysCoords( tNumSideNodes, 3 );
+        Matrix< DDRMat > tMasterSideParamCoords( tNumSideNodes, 3 );
+
+        for ( uint iNode = 0; iNode < tNumSideNodes; iNode++ )
+        {
+            tMasterSidePhysCoords.get_row( iNode )  = tXHatIG_M.get_row( tMasterSideNodes( iNode ) );
+            tMasterSideParamCoords.get_row( iNode ) = tXiHatIG_M.get_row( tMasterSideNodes( iNode ) );
+        }
+
+        // loop over slave side ordinals
+        // for ( uint iSlaveOrd = iMasterOrd; iSlaveOrd < 6; iSlaveOrd++ )
+        for ( uint iSlaveOrd = 0; iSlaveOrd < 6; iSlaveOrd++ )
+        {
+            // side ordinal for master integration mesh
+            moris_index tSlaveSideOrd = iSlaveOrd;
+
+            // sort the nodes on side or not
+            Matrix< DDSMat > tNodesOnSlaveSide   = tSideNodes.get_row( iSlaveOrd );
+            Matrix< DDSMat > tNodeNotOnSlaveSide = tFacingSideNodes.get_row( iSlaveOrd );
 
             // define an interpolation slave element in the phys space
-            Matrix< DDRMat > tXHatIP_S( 8, 3, 0.0 );
-
-            // fill the phys coords
-            for ( uint i = 0; i < 4; i++ )
+            Matrix< DDRMat > tXHatIP;
+            switch ( iSlaveOrd )
             {
-                moris_index tNodeSide    = tNodesOnSlaveSide( tPermuteCases( iPermute, i ) );
-                moris_index tNodeNotSide = tNodeNotOnSlaveSide( tPermuteCases( iPermute, i ) );
-
-                // place the interface nodes
-                tXHatIP_S.get_row( tNodeSide )    = tXHatIP.get_row( tNodesOnSlaveSide( i ) );
-                tXHatIP_S.get_row( tNodeNotSide ) = tXHatIP.get_row( tNodeNotOnSlaveSide( i ) );
+                case ( 0 ):
+                    tXHatIP = { //
+                        { 1.0, 0.0, 0.0 },
+                        { 1.0, 0.0, 1.0 },
+                        { 2.0, 0.0, 1.0 },
+                        { 2.0, 0.0, 0.0 },
+                        { 1.0, 1.0, 0.0 },
+                        { 1.0, 1.0, 1.0 },
+                        { 2.0, 1.0, 1.0 },
+                        { 2.0, 1.0, 0.0 }
+                    };
+                    break;
+                case ( 1 ):
+                    tXHatIP = { //
+                        { 2.0, 0.0, 0.0 },
+                        { 1.0, 0.0, 0.0 },
+                        { 1.0, 0.0, 1.0 },
+                        { 2.0, 0.0, 1.0 },
+                        { 2.0, 1.0, 0.0 },
+                        { 1.0, 1.0, 0.0 },
+                        { 1.0, 1.0, 1.0 },
+                        { 2.0, 1.0, 1.0 }
+                    };
+                    break;
+                case ( 2 ):
+                    tXHatIP = { //
+                        { 2.0, 0.0, 1.0 },
+                        { 2.0, 0.0, 0.0 },
+                        { 1.0, 0.0, 0.0 },
+                        { 1.0, 0.0, 1.0 },
+                        { 2.0, 1.0, 1.0 },
+                        { 2.0, 1.0, 0.0 },
+                        { 1.0, 1.0, 0.0 },
+                        { 1.0, 1.0, 1.0 }
+                    };
+                    break;
+                case ( 3 ):
+                    tXHatIP = { //
+                        { 1.0, 0.0, 0.0 },
+                        { 2.0, 0.0, 0.0 },
+                        { 2.0, 1.0, 0.0 },
+                        { 1.0, 1.0, 0.0 },
+                        { 1.0, 0.0, 1.0 },
+                        { 2.0, 0.0, 1.0 },
+                        { 2.0, 1.0, 1.0 },
+                        { 1.0, 1.0, 1.0 }
+                    };
+                    break;
+                case ( 4 ):
+                    tXHatIP = { //
+                        { 1.0, 0.0, 0.0 },
+                        { 1.0, 1.0, 0.0 },
+                        { 1.0, 1.0, 1.0 },
+                        { 1.0, 0.0, 1.0 },
+                        { 2.0, 0.0, 0.0 },
+                        { 2.0, 1.0, 0.0 },
+                        { 2.0, 1.0, 1.0 },
+                        { 2.0, 0.0, 1.0 }
+                    };
+                    break;
+                case ( 5 ):
+                    tXHatIP = { //
+                        { 2.0, 0.0, 0.0 },
+                        { 2.0, 0.0, 1.0 },
+                        { 2.0, 1.0, 1.0 },
+                        { 2.0, 1.0, 0.0 },
+                        { 1.0, 0.0, 0.0 },
+                        { 1.0, 0.0, 1.0 },
+                        { 1.0, 1.0, 1.0 },
+                        { 1.0, 1.0, 0.0 }
+                    };
+                    break;
+                default:
+                    MORIS_ERROR( false, " wrong slave side ordinal " );
+                    break;
             }
 
-            // define an integration slave element in the phys space
-            Matrix< DDRMat > tXHatIG_S = tXHatIP_S;
-
-            // define the slave integration element in param space
-            Matrix< DDRMat > tXiHatIG_S = tHexParamCoords;
-
-            // get the node ids associated to the master side ordinal
-            Matrix< DDSMat > tSlaveSideNodes = tSideNodes.get_row( tSlaveSideOrd );
-
-            // phys coords and parm coords in IP param space for the side
-            Matrix< DDRMat > tSlaveSidePhysCoords( tNumSideNodes, 3 );
-            Matrix< DDRMat > tSlaveSideParamCoords( tNumSideNodes, 3 );
-
-            for ( uint iNode = 0; iNode < tNumSideNodes; iNode++ )
+            // node permutation for $ rotation in plane
+            for ( uint iPermute = 0; iPermute < tPermuteCases.n_rows(); iPermute++ )
             {
-                tSlaveSidePhysCoords.get_row( iNode )  = tXHatIG_S.get_row( tSlaveSideNodes( iNode ) );
-                tSlaveSideParamCoords.get_row( iNode ) = tXiHatIG_S.get_row( tSlaveSideNodes( iNode ) );
-            }
+                // get the first corresponding node on the slave side
+                moris_index tSlaveNode = iPermute;
 
-            // bool for integration point check
-            bool tIntegPointCheck = true;
+                // for a master slave pair
 
-            // loop over the integration points
-            for ( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
-            {
-                // get the treated integration point location in integration space
-                Matrix< DDRMat > tMasterIntegPointI = tIntegPoints.get_column( iGP );
+                // define an interpolation slave element in the phys space
+                Matrix< DDRMat > tXHatIP_S( 8, 3, 0.0 );
 
-                // get the treated integration point location in integration space
-                Matrix< DDRMat > tSlaveIntegPointI =
-                        side_coordinate_map(
-                                tSideGeoTypeIG,
-                                tSlaveNode,
-                                tMasterIntegPointI );
-
-                // get the integration point in the IP parametric space
-                // via the side shape functions for the master side
-                Matrix< DDRMat > tN1;
-                tSideSpaceInterp->eval_N( tMasterIntegPointI( { 0, 1 }, { 0, 0 } ), tN1 );
-                Matrix< DDRMat > tMasterRefIntegPointI = trans( tN1 * tMasterSideParamCoords );
-
-                // get the integration point in the IP parametric space
-                // via the rotation matrix for the slave side
-                Matrix< DDRMat > tN2;
-                tSideSpaceInterp->eval_N( tSlaveIntegPointI( { 0, 1 }, { 0, 0 } ), tN2 );
-                Matrix< DDRMat > tSlaveRefIntegPointI = trans( tN2 * tSlaveSideParamCoords );
-
-                // to check only
-                Matrix< DDRMat > tN3;
-                tSpaceInterp->eval_N( tMasterRefIntegPointI, tN3 );
-                Matrix< DDRMat > tMasterPhysIntegPointI = trans( tN3 * tXHatIP_M );
-
-                // to check only
-                Matrix< DDRMat > tN4;
-                tSpaceInterp->eval_N( tSlaveRefIntegPointI, tN4 );
-                Matrix< DDRMat > tSlavePhysIntegPointI = trans( tN4 * tXHatIP_S );
-
-                // check the integration point in the IP parametric space
-                for ( uint iCoords = 0; iCoords < 3; iCoords++ )
+                // fill the phys coords
+                for ( uint i = 0; i < 4; i++ )
                 {
-                    tIntegPointCheck = tIntegPointCheck && ( std::abs( tMasterPhysIntegPointI( iCoords ) - tSlavePhysIntegPointI( iCoords ) ) < tEpsilon );
+                    moris_index tNodeSide    = tNodesOnSlaveSide( tPermuteCases( iPermute, i ) );
+                    moris_index tNodeNotSide = tNodeNotOnSlaveSide( tPermuteCases( iPermute, i ) );
+
+                    // place the interface nodes
+                    tXHatIP_S.get_row( tNodeSide )    = tXHatIP.get_row( tNodesOnSlaveSide( i ) );
+                    tXHatIP_S.get_row( tNodeNotSide ) = tXHatIP.get_row( tNodeNotOnSlaveSide( i ) );
                 }
-                REQUIRE( tIntegPointCheck );
+
+                // define an integration slave element in the phys space
+                Matrix< DDRMat > tXHatIG_S = tXHatIP_S;
+
+                // define the slave integration element in param space
+                Matrix< DDRMat > tXiHatIG_S = tHexParamCoords;
+
+                // get the node ids associated to the master side ordinal
+                Matrix< DDSMat > tSlaveSideNodes = tSideNodes.get_row( tSlaveSideOrd );
+
+                // phys coords and parm coords in IP param space for the side
+                Matrix< DDRMat > tSlaveSidePhysCoords( tNumSideNodes, 3 );
+                Matrix< DDRMat > tSlaveSideParamCoords( tNumSideNodes, 3 );
+
+                for ( uint iNode = 0; iNode < tNumSideNodes; iNode++ )
+                {
+                    tSlaveSidePhysCoords.get_row( iNode )  = tXHatIG_S.get_row( tSlaveSideNodes( iNode ) );
+                    tSlaveSideParamCoords.get_row( iNode ) = tXiHatIG_S.get_row( tSlaveSideNodes( iNode ) );
+                }
+
+                // bool for integration point check
+                bool tIntegPointCheck = true;
+
+                // loop over the integration points
+                for ( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
+                {
+                    // get the treated integration point location in integration space
+                    Matrix< DDRMat > tMasterIntegPointI = tIntegPoints.get_column( iGP );
+
+                    // get the treated integration point location in integration space
+                    Matrix< DDRMat > tSlaveIntegPointI =
+                            side_coordinate_map(
+                                    tSideGeoTypeIG,
+                                    tSlaveNode,
+                                    tMasterIntegPointI );
+
+                    // get the integration point in the IP parametric space
+                    // via the side shape functions for the master side
+                    Matrix< DDRMat > tN1;
+                    tSideSpaceInterp->eval_N( tMasterIntegPointI( { 0, 1 }, { 0, 0 } ), tN1 );
+                    Matrix< DDRMat > tMasterRefIntegPointI = trans( tN1 * tMasterSideParamCoords );
+
+                    // get the integration point in the IP parametric space
+                    // via the rotation matrix for the slave side
+                    Matrix< DDRMat > tN2;
+                    tSideSpaceInterp->eval_N( tSlaveIntegPointI( { 0, 1 }, { 0, 0 } ), tN2 );
+                    Matrix< DDRMat > tSlaveRefIntegPointI = trans( tN2 * tSlaveSideParamCoords );
+
+                    // to check only
+                    Matrix< DDRMat > tN3;
+                    tSpaceInterp->eval_N( tMasterRefIntegPointI, tN3 );
+                    Matrix< DDRMat > tMasterPhysIntegPointI = trans( tN3 * tXHatIP_M );
+
+                    // to check only
+                    Matrix< DDRMat > tN4;
+                    tSpaceInterp->eval_N( tSlaveRefIntegPointI, tN4 );
+                    Matrix< DDRMat > tSlavePhysIntegPointI = trans( tN4 * tXHatIP_S );
+
+                    // check the integration point in the IP parametric space
+                    for ( uint iCoords = 0; iCoords < 3; iCoords++ )
+                    {
+                        tIntegPointCheck = tIntegPointCheck && ( std::abs( tMasterPhysIntegPointI( iCoords ) - tSlavePhysIntegPointI( iCoords ) ) < tEpsilon );
+                    }
+                    REQUIRE( tIntegPointCheck );
+                }
             }
         }
     }
-}
-// clean up
-delete tSpaceInterp;
-delete tSideSpaceInterp;
+    // clean up
+    delete tSpaceInterp;
+    delete tSideSpaceInterp;
 }
