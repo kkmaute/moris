@@ -90,7 +90,8 @@ namespace moris
                 void initialize(
                         Matrix<DDRMat>& aADVs,
                         Matrix<DDRMat>& aLowerBounds,
-                        Matrix<DDRMat>& aUpperBounds ) = 0;
+                        Matrix<DDRMat>& aUpperBounds,
+                        Matrix< IdMat>& aIjklIDs ) = 0;
 
                 //------------------------------------------------------------------------------
                 /**

@@ -37,6 +37,7 @@ namespace moris
 
                 Matrix<DDRMat> mADVs;       // Abstract Design Variable vector
                 Matrix<DDRMat> mCriteria;   // vector of criteria values
+                Matrix<IdMat > mIjklIds;       // ijklIds for restart
 
             public:
 
@@ -122,6 +123,11 @@ namespace moris
                 Matrix<DDRMat> & get_lower_bounds()
                 {
                     return mLowerBounds;
+                }
+
+                Matrix<IdMat> & get_ijklIDs()
+                {
+                    return mIjklIds;
                 }
 
                 /**

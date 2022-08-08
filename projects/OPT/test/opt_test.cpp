@@ -273,7 +273,8 @@ namespace moris
                     Matrix<DDRMat> tADVs;
                     Matrix<DDRMat> tLowerBounds;
                     Matrix<DDRMat> tUpperBounds;
-                    tInterface->initialize(tADVs, tLowerBounds, tUpperBounds);
+                    Matrix<IdMat>  tDummy;
+                    tInterface->initialize(tADVs, tLowerBounds, tUpperBounds,tDummy);
                     for (uint tADVIndex = 0; tADVIndex < 8; tADVIndex++)
                     {
                         REQUIRE(tADVs(tADVIndex) == tADVIndex + 1);

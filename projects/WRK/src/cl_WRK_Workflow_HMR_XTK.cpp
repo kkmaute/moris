@@ -134,7 +134,8 @@ namespace moris
         Workflow_HMR_XTK::initialize(
                 Matrix< DDRMat >& aADVs,
                 Matrix< DDRMat >& aLowerBounds,
-                Matrix< DDRMat >& aUpperBounds )
+                Matrix< DDRMat >& aUpperBounds,
+                Matrix< IdMat  >& aIjklIDs )
         {
             mInitializeOptimizationRestart = false;
 
@@ -219,6 +220,7 @@ namespace moris
                 aADVs        = mPerformerManager->mGENPerformer( 0 )->get_advs();
                 aLowerBounds = mPerformerManager->mGENPerformer( 0 )->get_lower_bounds();
                 aUpperBounds = mPerformerManager->mGENPerformer( 0 )->get_upper_bounds();
+                aIjklIDs     = mPerformerManager->mGENPerformer( 0 )->get_IjklIDs();
             }
         }
 

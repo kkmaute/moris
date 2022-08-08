@@ -37,7 +37,8 @@ namespace moris
         void Interface_User_Defined::initialize(
                 Matrix<DDRMat>& aADVs,
                 Matrix<DDRMat>& aLowerBounds,
-                Matrix<DDRMat>& aUpperBounds)
+                Matrix<DDRMat>& aUpperBounds,
+                Matrix<IdMat >& aIjklIds)
         {
             initialize_user_defined(aADVs, aLowerBounds, aUpperBounds);
         }

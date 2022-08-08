@@ -70,7 +70,8 @@ namespace moris
         void Workflow_STK_FEM::initialize(
                 Matrix<DDRMat>& aADVs,
                 Matrix<DDRMat>& aLowerBounds,
-                Matrix<DDRMat>& aUpperBounds)
+                Matrix<DDRMat>& aUpperBounds,
+                Matrix< IdMat  >& aIjklIDs)
         {
         }
 

@@ -90,7 +90,8 @@ namespace moris
         void Workflow_STK_XTK::initialize(
                 Matrix<DDRMat>& aADVs,
                 Matrix<DDRMat>& aLowerBounds,
-                Matrix<DDRMat>& aUpperBounds)
+                Matrix<DDRMat>& aUpperBounds,
+                Matrix< IdMat  >& aIjklIDs)
         {
             // Stage 2: Initialize Level set field in GEN -----------------------------------------------
             // Trace GEN
