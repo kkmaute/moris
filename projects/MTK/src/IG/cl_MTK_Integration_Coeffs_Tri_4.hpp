@@ -8,12 +8,12 @@
 #ifndef SRC_MTK_CL_MTK_INTEGRATION_COEFFS_TRI_4_HPP_
 #define SRC_MTK_CL_MTK_INTEGRATION_COEFFS_TRI_4_HPP_
 
-//MRS/COR/src
+// MRS/COR/src
 #include "typedefs.hpp"
-//LINALG/src
+// LINALG/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-//MTK/src
+// MTK/src
 #include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Integration_Coeffs.hpp"
 
@@ -25,10 +25,10 @@ namespace moris
         template<>
         uint
         Integration_Coeffs<
-        Integration_Type::GAUSS,
-        Integration_Order::TRI_4>::get_number_of_dimensions()
+                Integration_Type::GAUSS,
+                Integration_Order::TRI_4 >::get_number_of_dimensions()
         {
-            return 3;
+            return 2;
         }
 
         //------------------------------------------------------------------------------
@@ -36,8 +36,8 @@ namespace moris
         template<>
         uint
         Integration_Coeffs<
-        Integration_Type::GAUSS,
-        Integration_Order::TRI_4>::get_number_of_points()
+                Integration_Type::GAUSS,
+                Integration_Order::TRI_4 >::get_number_of_points()
         {
             return 4;
         }
@@ -47,32 +47,20 @@ namespace moris
         template<>
         void
         Integration_Coeffs<
-        Integration_Type::GAUSS,
-        Integration_Order::TRI_4>::get_points( Matrix< DDRMat > & aIntegrationPoints )
+                Integration_Type::GAUSS,
+                Integration_Order::TRI_4 >::get_points( Matrix< DDRMat >& aIntegrationPoints )
         {
-            aIntegrationPoints =
-            {
-                    {
-                            0.333333333333333,
+            aIntegrationPoints = {
+                { 0.333333333333333,
 
-                            0.600000000000000,
-                            0.200000000000000,
-                            0.200000000000000
-                    },
-                    {
-                            0.333333333333333,
+                        0.600000000000000,
+                        0.200000000000000,
+                        0.200000000000000 },
+                { 0.333333333333333,
 
-                            0.200000000000000,
-                            0.600000000000000,
-                            0.200000000000000
-                    },
-                    {
-                            0.333333333333333,
-
-                            0.200000000000000,
-                            0.200000000000000,
-                            0.600000000000000
-                    }
+                        0.200000000000000,
+                        0.600000000000000,
+                        0.200000000000000 }
             };
         }
 
@@ -81,18 +69,15 @@ namespace moris
         template<>
         void
         Integration_Coeffs<
-        Integration_Type::GAUSS,
-        Integration_Order::TRI_4 >::get_weights( Matrix< DDRMat > & aIntegrationWeights )
+                Integration_Type::GAUSS,
+                Integration_Order::TRI_4 >::get_weights( Matrix< DDRMat >& aIntegrationWeights )
         {
-            aIntegrationWeights =
-            {
-                    {
-                            -0.562500000000000,
+            aIntegrationWeights = {
+                { -0.562500000000000,
 
-                            0.520833333333333,
-                            0.520833333333333,
-                            0.520833333333333
-                    }
+                        0.520833333333333,
+                        0.520833333333333,
+                        0.520833333333333 }
             };
         }
 
