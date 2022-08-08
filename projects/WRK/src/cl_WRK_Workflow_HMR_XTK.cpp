@@ -135,7 +135,7 @@ namespace moris
                 Matrix< DDRMat >& aADVs,
                 Matrix< DDRMat >& aLowerBounds,
                 Matrix< DDRMat >& aUpperBounds,
-                Matrix< IdMat  >& aIjklIDs )
+                Matrix< IdMat >&  aIjklIDs )
         {
             mInitializeOptimizationRestart = false;
 
@@ -279,10 +279,11 @@ namespace moris
             // Stage 1: HMR refinement
             if ( false && tOptIter > 0 )
             {
-                Matrix< DDRMat > tLowerBounds = mPerformerManager->mGENPerformer( 0 )->get_lower_bounds();
-                Matrix< DDRMat > tUpperBounds = mPerformerManager->mGENPerformer( 0 )->get_upper_bounds();
+                Matrix< DDRMat >& tLowerBounds = mPerformerManager->mGENPerformer( 0 )->get_lower_bounds();
+                Matrix< DDRMat >& tUpperBounds = mPerformerManager->mGENPerformer( 0 )->get_upper_bounds();
+                Matrix< IdMat >&  aIjklIDs     = mPerformerManager->mGENPerformer( 0 )->get_IjklIDs();
 
-                this->initialize( aNewADVs, tLowerBounds, tUpperBounds );
+                this->initialize( aNewADVs, tLowerBounds, tUpperBounds, aIjklIDs );
             }
 
             // Stage 2: XTK -----------------------------------------------------------------------------
