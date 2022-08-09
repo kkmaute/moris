@@ -253,7 +253,9 @@ namespace moris
             if ( mPerformerManager->mReinitializePerformer.size() > 0 )
             {
                 // decide if the reinitialization would be required
-                if ( tOptIter > 0 and tOptIter % ( mPerformerManager->mReinitializePerformer( 0 )->get_reinitialization_frequency() ) == 0 )
+                sint tReinitFreq = mPerformerManager->mReinitializePerformer( 0 )->get_reinitialization_frequency();
+
+                if ( tOptIter > 0 and tOptIter % tReinitFreq == 0 )
                 {
                     // Set new advs in GE
                     Tracer tTracer( "GEN", "Levelset", "Re-InitializeADVs" );
@@ -277,13 +279,25 @@ namespace moris
             }
 
             // Stage 1: HMR refinement
-            if ( false && tOptIter > 0 )
+            if ( mPerformerManager->mRemeshingMiniPerformer( 0 ) )
             {
-                Matrix< DDRMat >& tLowerBounds = mPerformerManager->mGENPerformer( 0 )->get_lower_bounds();
-                Matrix< DDRMat >& tUpperBounds = mPerformerManager->mGENPerformer( 0 )->get_upper_bounds();
-                Matrix< IdMat >&  aIjklIDs     = mPerformerManager->mGENPerformer( 0 )->get_IjklIDs();
+                sint tReinitFreq = mPerformerManager->mRemeshingMiniPerformer( 0 )->get_reinitialization_frequency();
 
-                this->initialize( aNewADVs, tLowerBounds, tUpperBounds, aIjklIDs );
+                if ( tOptIter > 0 and tOptIter % tReinitFreq == 0 )
+                {
+
+                    // allocate auxiliary arrays
+                    Matrix< DDRMat > tADVs;
+                    Matrix< DDRMat > tLowerBounds;
+                    Matrix< DDRMat > tUpperBounds;
+                    Matrix< IdMat >  tIjklIDs;
+
+                    // initialize HMR and GEN
+                    this->initialize( tADVs, tLowerBounds, tUpperBounds, tIjklIDs );
+
+                    // Set new advs in GE
+                    mPerformerManager->mGENPerformer( 0 )->set_advs( aNewADVs );
+                }
             }
 
             // Stage 2: XTK -----------------------------------------------------------------------------
