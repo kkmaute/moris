@@ -756,9 +756,9 @@ namespace xtk
             moris_index aCellGroupIndex )
     {
         MORIS_ERROR( aCellGroupIndex < (moris_index)mIntegrationCellGroups.size(),
-                "Child Mesh Index out of bounds." );
+                "Cut_Integration_Mesh::add_cell_to_cell_group() - Child Mesh Index out of bounds." );
         MORIS_ERROR( aCellIndex < (moris_index)mIntegrationCells.size(),
-                "Cell Index out of bounds." );
+                "Cut_Integration_Mesh::add_cell_to_cell_group() - Cell Index out of bounds." );
 
         mIntegrationCellGroups( aCellGroupIndex )->mIgCellGroup.push_back( mIntegrationCells( aCellIndex ) );
         mIntegrationCellToCellGroupIndex( aCellIndex ).push_back( aCellGroupIndex );

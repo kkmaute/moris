@@ -177,10 +177,10 @@ namespace xtk
             // in(1): index of facet; in(2): how many-eth mtk::Cell attached to facet || out: side ordinal (index) of this facet relative to this mtk::Cell
             moris::Cell< moris::Cell< moris::moris_index > >  mFacetToCellEdgeOrdinal;   // over allocated
 
-            // in: index of mtk::Cell on mesh || out: list of facet-indices attached to it (facet indices as defined within this Facet_Based_Connectivity-object)
+            // in: index of mtk::Cell in List || out: list of facet-indices attached to it (facet indices as defined within this Facet_Based_Connectivity-object)
             moris::Cell< moris::Cell< moris_index > >         mCellToFacet;              // over allocated
             
-            // ?
+            // map relating Cell index in List to Cell index in Mesh
             std::unordered_map< moris_index, moris_index >    mCellIndexToCellOrdinal;   // over allocated
 
             moris_index

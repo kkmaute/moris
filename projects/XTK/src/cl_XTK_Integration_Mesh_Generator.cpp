@@ -711,6 +711,7 @@ Integration_Mesh_Generator::compute_ig_cell_bulk_phase(
         MORIS_LOG_SPEC( "Number of IG cells to assign bulk-phases to", tNumIgCellsWithoutBulkPhase );
 
         // empty list of Ig cells that need subsequent passes
+        tIgCellsStillWithoutBulkPhase.reserve( tNumIgCellsWithoutBulkPhase );
         tIgCellsStillWithoutBulkPhase.resize( 0 );
 
         // go over the IG cells with unassigned bulk-phases and try to find their bulk-phases based on their neighbors
@@ -889,15 +890,29 @@ Integration_Mesh_Generator::deduce_ig_cell_bulk_phase_from_facets(
     // get the current cell's index
     moris_index tIgCellIndex = aCell->get_index();
 
+    // ignore background cells fed into this function
+    // NOTE: QUADs/HEXs should always get their phase from the nodal based phase assignment, as they're not intersected by definition
+    // NOTE: Therefore, they have a clear/trivial phase assignment before.
+    if( (uint) aCell->get_geometry_type() == 4 || (uint) aCell->get_geometry_type() == 2 )
+    {
+        return MORIS_INDEX_MAX - 1;
+    }
+
+    // get the current cell's position in the facet connectivity
+    auto tMapPos = tFaceConn->mCellIndexToCellOrdinal.find( tIgCellIndex );
+    MORIS_ERROR( tMapPos != tFaceConn->mCellIndexToCellOrdinal.end() , 
+        "Integration_Mesh_Generator::deduce_ig_cell_bulk_phase_from_facets() - "
+        "Trying to assign bulk phase (based on neighbors) to IG cell that is neither in the facet connectivity graph, nor a QUAD or HEX.");
+    moris_index tIgCellIndexInFacetConn = tMapPos->second;
+
     // get the facet indices for the current IG cell
-    moris::Cell< moris_index > tFacetsOnCell = tFaceConn->mCellToFacet( tIgCellIndex );
+    moris::Cell< moris_index > tFacetsOnCell = tFaceConn->mCellToFacet( tIgCellIndexInFacetConn );
     uint tNumFacetsOnCell = tFacetsOnCell.size();
 
-    // initialize list of IG cells connected to current IG cell
-    moris::Cell< moris_index > tNeighborIgCells;
-    tNeighborIgCells.reserve( tNumFacetsOnCell );
+    // ballot on which neighboring IG cells can vote for their bulk phase based on their volume 
+    std::unordered_map< moris_index, real > tBulkPhaseVoteBallot;
 
-    // get the IG cells connected to current IG cell
+    // get the valid IG cells connected to current IG cell
     for( uint iFacet = 0; iFacet < tNumFacetsOnCell; iFacet++ )
     {
         // get the current facet's index
@@ -906,71 +921,70 @@ Integration_Mesh_Generator::deduce_ig_cell_bulk_phase_from_facets(
         // get the number of IG cells connected to the current facet
         uint tNumCellsOnFacet = tFaceConn->mFacetToCell( tFacetIndex ).size();
 
-        // if this is not a domain boundary facet, proceed, otherwise, ignore
+        // if this is not a domain boundary facet: proceed, otherwise: ignore
         if( tNumCellsOnFacet > 1 )
         {
             // get the indices of the cells connected to the current facet
-            moris_index tFirstCellConnectedToFacet  = tFaceConn->mFacetToCell( tFacetIndex )( 0 )->get_index();
-            moris_index tSecondCellConnectedToFacet = tFaceConn->mFacetToCell( tFacetIndex )( 1 )->get_index();
+            moris::mtk::Cell* tFirstCellConnectedToFacet  = tFaceConn->mFacetToCell( tFacetIndex )( 0 );
+            moris::mtk::Cell* tSecondCellConnectedToFacet = tFaceConn->mFacetToCell( tFacetIndex )( 1 );
+            
+            // store the neighbor cell
+            moris::mtk::Cell* tNeighborIgCell;
 
             // if this cell is not the current cell itself, use the this cell as neighbor
-            if( tFirstCellConnectedToFacet != tIgCellIndex )
+            if( tFirstCellConnectedToFacet->get_index() != tIgCellIndex )
             {
-                tNeighborIgCells.push_back( tFirstCellConnectedToFacet );
+                tNeighborIgCell = tFirstCellConnectedToFacet;
             }
 
             // otherwise the second connected cell is the neighbor cell
             else
             {
-                tNeighborIgCells.push_back( tSecondCellConnectedToFacet );
+                tNeighborIgCell = tSecondCellConnectedToFacet;
             }
 
-        } // end: only treat facets with two cells connected to it
-    }
+            // check that the neighbor cell has valid bulk-phase already before listing valid neighbor, otherwise ignore
+            moris_index tNeighborBulkPhase = aCutIntegrationMesh->mIntegrationCellBulkPhase( tNeighborIgCell->get_index() );
+            if( tNeighborBulkPhase != MORIS_INDEX_MAX )
+            {
+                // get the valid IG cell's volume
+                real tCellVolume = tNeighborIgCell->compute_cell_measure();
 
-    // get the number of neighbor IG cells
-    uint tNumNeighborIgCells = tNeighborIgCells.size();
+                // look for the bulk-phase on the voting ballot
+                auto tIter = tBulkPhaseVoteBallot.find( tNeighborBulkPhase);
 
-    // initialize the list of neighboring bulk-phases
-    moris::Cell< moris_index > tValidNeighborBulkPhases;
-    tValidNeighborBulkPhases.reserve( tNumNeighborIgCells );
+                // if it is not on the ballot add it
+                if( tIter == tBulkPhaseVoteBallot.end() )
+                {
+                    tBulkPhaseVoteBallot[ tNeighborBulkPhase ] = tCellVolume;
+                }
 
-    // go over the neighbor IG cells and find the valid ones
-    for( uint iNeighbor = 0; iNeighbor < tNumNeighborIgCells; iNeighbor++ )
+                // if it is already on the ballot, add weight to the vote
+                else
+                {
+                    tIter->second += tCellVolume;
+                }
+            } // end: only consider neighbors that already have a bulk-phase assigned to them
+
+        } // end: only treat facets with two IG cells connected to it
+    } // end: loop over all facets attached to current IG cell
+
+    // initialize vote counter
+    moris_index tWinnerBulkPhase = MORIS_INDEX_MAX;
+    real tWinnerVote = -1.0;
+
+    // go over ballot and take strongest vote
+    for( auto const& tIter : tBulkPhaseVoteBallot )
     {
-        // get the neighbor IG cell's index
-        moris_index tNeighborIgCellIndex = tNeighborIgCells( iNeighbor );
-
-        // get the current neighbors bulk-phase
-        moris_index tNeighborBulkPhase = aCutIntegrationMesh->mIntegrationCellBulkPhase( tNeighborIgCellIndex );
-
-        // only count valid neighbor bulk phases
-        if( tNeighborBulkPhase != MORIS_INDEX_MAX )
+        if( tIter.second > tWinnerVote )
         {
-            tValidNeighborBulkPhases.push_back( tNeighborBulkPhase );
+            tWinnerBulkPhase = tIter.first;
+            tWinnerVote = tIter.second;
         }
     }
 
-    // get the number of valid neighbors
-    uint tNumValidNeighborBulkPhases = tValidNeighborBulkPhases.size();
-
-    // break function if there aren't any valid neighbor bulk-phases
-    if( tNumValidNeighborBulkPhases == 0 )
-    {
-        return MORIS_INDEX_MAX;
-    }
-
-    // find the bulk-phase that the most neighbors have
-    uint tCount = 0;
-    moris_index tBulkPhase = xtk::find_most_frequent_index_in_cell( tValidNeighborBulkPhases, tCount );
-
-    // check that the bulk-phase index makes sense
-    MORIS_ASSERT( tBulkPhase != MORIS_INDEX_MAX, 
-        "Integration_Mesh_Generator::deduce_ig_cell_bulk_phase_from_facets() - Bulk-phase voting returned MORIS_INDEX_MAX." );
-
     // return the bulk-phase
-    return tBulkPhase;
-
+    return tWinnerBulkPhase;
 }
 
 // ----------------------------------------------------------------------------------
@@ -2759,7 +2773,7 @@ Integration_Mesh_Generator::create_facet_from_element_to_node(
         {
             // check that cell exits only once
             MORIS_ERROR( aFaceConnectivity->mCellIndexToCellOrdinal.find( aCells( iCell )->get_index() ) == aFaceConnectivity->mCellIndexToCellOrdinal.end(),
-                    "Duplicate cell in aCells provided" );
+                    "Integration_Mesh_Generator::create_facet_from_element_to_node() - Duplicate cell in aCells provided" );
 
             // set local cell index in map
             aFaceConnectivity->mCellIndexToCellOrdinal[aCells( iCell )->get_index()] = iCell;

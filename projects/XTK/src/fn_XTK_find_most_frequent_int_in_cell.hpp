@@ -38,15 +38,20 @@ namespace xtk
 
         // find the array element with the max frequency
         moris_index tMaxCount = 0;
-        moris_index tResult = -1;
+        moris_index tResult = MORIS_INDEX_MAX;
+        bool tCheck = false;
         for( auto i : tHash ) 
         {
             if ( tMaxCount < i.second ) 
             {
                 tResult = i.first;
                 tMaxCount = i.second;
+                tCheck = true;
             }
         }
+
+        // check that any index has been found and the hash table didn't fail
+        MORIS_ERROR( tCheck, "xtk::find_most_frequent_index_in_cell() - function failed to find any index" );
 
         // return the array element that occurs the most often
         aCount = (moris_index) tMaxCount;
