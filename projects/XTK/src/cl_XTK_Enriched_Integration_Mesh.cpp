@@ -226,6 +226,18 @@ Enriched_Integration_Mesh::get_num_side_cluster_groups( const moris_index aDiscr
 
 // ----------------------------------------------------------------------------
 
+uint
+Enriched_Integration_Mesh::get_num_dbl_side_single_side_cluster_groups( const moris_index aDiscretizationMeshIndex ) const
+{
+    // get the list index for the discretization mesh index
+    moris_index tBsplineMeshListIndex = this->get_local_mesh_index( aDiscretizationMeshIndex );
+
+    // get the number of cluster groups for the current B-spline mesh index
+    return mDblSideClusterGroups( tBsplineMeshListIndex ).size();
+}
+
+// ----------------------------------------------------------------------------
+
 Cell< std::shared_ptr< xtk::Cell_Cluster_Group > > const&
 Enriched_Integration_Mesh::get_cell_cluster_groups( const moris_index aDiscretizationMeshIndex ) const
 {
@@ -2889,8 +2901,8 @@ void
 Enriched_Integration_Mesh::setup_cluster_groups()
 {
     this->setup_cell_cluster_groups();
-    this->setup_side_cluster_groups();
     this->setup_dbl_side_cluster_groups();
+    this->setup_side_cluster_groups();
 }
 
 //------------------------------------------------------------------------------

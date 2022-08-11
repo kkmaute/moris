@@ -189,6 +189,7 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
     uint               get_num_interpolation_types() const;
     uint               get_num_cell_cluster_groups( const moris_index aDiscretizationMeshIndex ) const;
     uint               get_num_side_cluster_groups( const moris_index aDiscretizationMeshIndex ) const;
+    uint               get_num_dbl_side_single_side_cluster_groups( const moris_index aDiscretizationMeshIndex ) const;
     Cell< std::shared_ptr< xtk::Cell_Cluster_Group > > const& get_cell_cluster_groups( const moris_index aDiscretizationMeshIndex ) const;
     Cell< std::shared_ptr< xtk::Side_Cluster_Group > > const& get_side_cluster_groups( const moris_index aDiscretizationMeshIndex ) const;
 
