@@ -3034,6 +3034,9 @@ namespace moris
                                 case mtk::Interpolation_Order::LINEAR:
                                     return mtk::Integration_Order::BAR_3;
 
+                                case mtk::Interpolation_Order::SERENDIPITY:
+                                    return mtk::Integration_Order::BAR_4;
+
                                 case mtk::Interpolation_Order::QUADRATIC:
                                     return mtk::Integration_Order::BAR_4;
 

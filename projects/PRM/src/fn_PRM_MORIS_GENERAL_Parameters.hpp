@@ -58,6 +58,8 @@ namespace moris
             aParameterlist.insert( "remeshing_refinement_pattern", "" );
             aParameterlist.insert( "refinement_function_name", "" );
 
+            aParameterlist.insert( "remeshing_frequency", MORIS_SINT_MAX );
+
             // mode "ab_initio"
             aParameterlist.insert( "remeshing_field_names", "" );
             aParameterlist.insert( "remeshing_levels_of_refinement", "" );
@@ -74,7 +76,6 @@ namespace moris
             aParameterlist.insert( "minimum_refinement_level", "" );
 
             aParameterlist.insert( "output_meshes", false );
-
 
             // modde "previous"
         }

@@ -7,25 +7,25 @@
 #ifndef SRC_FEM_CL_FEM_IQI_HPP_
 #define SRC_FEM_CL_FEM_IQI_HPP_
 
-#include "typedefs.hpp"                     //MRS/COR/src
-#include "cl_Cell.hpp"                      //MRS/CON/src
-#include "cl_Matrix.hpp"                    //LNA/src
-//MRS/COR/src           // note: linalg_typedefs.hpp must be included AFTER the cl_Matrix.hpp
+#include "typedefs.hpp"     //MRS/COR/src
+#include "cl_Cell.hpp"      //MRS/CON/src
+#include "cl_Matrix.hpp"    //LNA/src
+// MRS/COR/src           // note: linalg_typedefs.hpp must be included AFTER the cl_Matrix.hpp
 #include "linalg_typedefs.hpp"
-//FEM/INT/src
+// FEM/INT/src
 #include "cl_FEM_Field_Interpolator.hpp"
 #include "cl_FEM_Property.hpp"
 #include "cl_FEM_Constitutive_Model.hpp"
 #include "cl_FEM_Stabilization_Parameter.hpp"
 #include "cl_FEM_Enums.hpp"
 #include "fn_FEM_FD_Scheme.hpp"
-//FEM/MSI/src
+// FEM/MSI/src
 #include "cl_MSI_Dof_Type_Enums.hpp"
-//FEM/VIS/src
+// FEM/VIS/src
 #include "cl_VIS_Output_Enums.hpp"
-//GEN/src
+// GEN/src
 #include "cl_GEN_Pdv_Enums.hpp"
-//LINALG/src
+// LINALG/src
 #include "fn_vectorize.hpp"
 
 namespace moris
@@ -42,13 +42,12 @@ namespace moris
          */
         class IQI
         {
-        protected :
-
+          protected:
             // FEM set pointer
-            fem::Set * mSet = nullptr;
+            fem::Set* mSet = nullptr;
 
             // cluster pointer
-            fem::Cluster * mCluster = nullptr;
+            fem::Cluster* mCluster = nullptr;
 
             // FEM IQI type
             enum fem::IQI_Type mFEMIQIType;
@@ -78,9 +77,9 @@ namespace moris
             bool mGlobalDofBuild = true;
 
             // field interpolator manager pointer
-            Field_Interpolator_Manager * mMasterFIManager          = nullptr;
-            Field_Interpolator_Manager * mSlaveFIManager           = nullptr;
-            Field_Interpolator_Manager * mMasterPreviousFIManager  = nullptr;
+            Field_Interpolator_Manager* mMasterFIManager         = nullptr;
+            Field_Interpolator_Manager* mSlaveFIManager          = nullptr;
+            Field_Interpolator_Manager* mMasterPreviousFIManager = nullptr;
 
             // master and slave dv type lists
             moris::Cell< moris::Cell< PDV_Type > > mMasterDvTypes;
@@ -148,38 +147,37 @@ namespace moris
             // bool for time boundary
             bool mTimeBoundary = false;
 
-        private:
-
+          private:
             // Normalization
             real mReferenceValue = 1.0;
-            bool mNormalized = false;
+            bool mNormalized     = false;
 
             // function pointers
-            void ( IQI:: * m_compute_dQIdu_FD )(
+            void ( IQI::*m_compute_dQIdu_FD )(
                     real               aWStar,
                     real               aPerturbation,
                     fem::FDScheme_Type aFDSchemeType ) = nullptr;
-            void ( IQI:: * m_compute_dQIdp_FD_material )(
+            void ( IQI::*m_compute_dQIdp_FD_material )(
                     real               aWStar,
                     real               aPerturbation,
                     fem::FDScheme_Type aFDSchemeType ) = nullptr;
-            void ( IQI:: * m_compute_dQIdp_FD_geometry )(
-                    real                                aWStar,
-                    real                                aPerturbation,
-                    fem::FDScheme_Type                  aFDSchemeType,
-                    Matrix< DDSMat >                  & aGeoLocalAssembly,
-                    moris::Cell< Matrix< IndexMat > > & aVertexIndices ) = nullptr;
+            void ( IQI::*m_compute_dQIdp_FD_geometry )(
+                    real                               aWStar,
+                    real                               aPerturbation,
+                    fem::FDScheme_Type                 aFDSchemeType,
+                    Matrix< DDSMat >&                  aGeoLocalAssembly,
+                    moris::Cell< Matrix< IndexMat > >& aVertexIndices ) = nullptr;
 
             // function pointer for building the perturbation size for FD
-            real ( IQI:: * m_build_perturbation_size )(
-                    const real & aPerturbation,
-                    const real & aCoefficientToPerturb,
-                    const real & aMaxPerturbation,
-                    const real & aTolerance ) = nullptr;
+            real ( IQI::*m_build_perturbation_size )(
+                    const real& aPerturbation,
+                    const real& aCoefficientToPerturb,
+                    const real& aMaxPerturbation,
+                    const real& aTolerance ) = nullptr;
 
             //------------------------------------------------------------------------------
-        public :
 
+          public:
             //------------------------------------------------------------------------------
             /**
              * constructor
@@ -197,7 +195,8 @@ namespace moris
              * set name
              * param[ in ] aName a string for CM name
              */
-            void set_name( std::string aName )
+            void
+            set_name( std::string aName )
             {
                 mName = aName;
             }
@@ -207,7 +206,8 @@ namespace moris
              * get name
              * param[ out ] mName a string for CM name
              */
-            std::string get_name()
+            std::string
+            get_name()
             {
                 return mName;
             }
@@ -223,7 +223,8 @@ namespace moris
              * set time continuity flag
              * param[ in ] aTimeContinuity bool true if IWG for time continuity
              */
-            void set_time_continuity( bool aTimeContinuity )
+            void
+            set_time_continuity( bool aTimeContinuity )
             {
                 mTimeContinuity = aTimeContinuity;
             }
@@ -233,7 +234,8 @@ namespace moris
              * get time continuity flag
              * param[ out ] mTimeContinuity ool true if IWG for time continuity
              */
-            bool get_time_continuity()
+            bool
+            get_time_continuity()
             {
                 return mTimeContinuity;
             }
@@ -243,7 +245,8 @@ namespace moris
              * set time boundary flag
              * param[ in ] aTimeBoundary bool true if IWG for time boundary
              */
-            void set_time_boundary( bool aTimeBoundary )
+            void
+            set_time_boundary( bool aTimeBoundary )
             {
                 mTimeBoundary = aTimeBoundary;
             }
@@ -253,7 +256,8 @@ namespace moris
              * get time boundary flag
              * param[ out ] mTimeBoundary bool true if IWG for time boundary
              */
-            bool get_time_boundary()
+            bool
+            get_time_boundary()
             {
                 return mTimeBoundary;
             }
@@ -263,7 +267,8 @@ namespace moris
              * set bulk type
              * @param[ in ] aBulkType element type for the IWG
              */
-            void set_bulk_type( fem::Element_Type aBulkType )
+            void
+            set_bulk_type( fem::Element_Type aBulkType )
             {
                 mBulkType = aBulkType;
             }
@@ -273,7 +278,8 @@ namespace moris
              * get bulk type
              * @param[ out ] mBulkType element type for the IWG
              */
-            fem::Element_Type get_bulk_type()
+            fem::Element_Type
+            get_bulk_type()
             {
                 return mBulkType;
             }
@@ -282,7 +288,8 @@ namespace moris
             /**
              * get fem IQI type
              */
-            enum fem::IQI_Type get_fem_IQI_type()
+            enum fem::IQI_Type
+            get_fem_IQI_type()
             {
                 return mFEMIQIType;
             }
@@ -294,7 +301,7 @@ namespace moris
              * param[ in ] aIsMaster  an enum for master or slave
              */
             void set_phase_name(
-                    std::string aPhaseName,
+                    std::string       aPhaseName,
                     mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
             //------------------------------------------------------------------------------
@@ -311,7 +318,8 @@ namespace moris
              * set quantity dof type (IQI dof, max dof)
              * @param[ in ] aQuantityDofType a cell of residual dof types
              */
-            void set_quantity_dof_type( const moris::Cell< MSI::Dof_Type > & aQuantityDofType )
+            void
+            set_quantity_dof_type( const moris::Cell< MSI::Dof_Type >& aQuantityDofType )
             {
                 mQuantityDofType = aQuantityDofType;
             }
@@ -321,7 +329,8 @@ namespace moris
              * return a dof type for the quantity (IQI dof, max dof)
              * @param[ out ] mQuantityDofType a cell of residual dof types
              */
-            const moris::Cell< MSI::Dof_Type > & get_quantity_dof_type() const
+            const moris::Cell< MSI::Dof_Type >&
+            get_quantity_dof_type() const
             {
                 return mQuantityDofType;
             }
@@ -339,14 +348,15 @@ namespace moris
              *
              * @param aReferenceValue Reference value for scaling the IQI, can be a norm if IQI is a vector.
              */
-            void set_reference_value(real aReferenceValue);
+            void set_reference_value( real aReferenceValue );
 
             //------------------------------------------------------------------------------
             /*
              * set fem set pointer
              * @param[ in ] aSetPointer a FEM set pointer
              */
-            void set_set_pointer( Set * aSetPointer )
+            void
+            set_set_pointer( Set* aSetPointer )
             {
                 mSet = aSetPointer;
 
@@ -359,7 +369,8 @@ namespace moris
              * set fem cluster pointer
              * @param[ in ] aClusterPointer a FEM cluster pointer
              */
-            void set_cluster_pointer( fem::Cluster * aClusterPointer )
+            void
+            set_cluster_pointer( fem::Cluster* aClusterPointer )
             {
                 mCluster = aClusterPointer;
             }
@@ -376,7 +387,8 @@ namespace moris
              * set output type index
              * @param[ in ] aOutputTypeIndex output type index
              */
-            void set_output_type_index( sint aOutputTypeIndex )
+            void
+            set_output_type_index( sint aOutputTypeIndex )
             {
                 mIQITypeIndex = aOutputTypeIndex;
             }
@@ -386,7 +398,8 @@ namespace moris
              * set normal
              * @param[ in ] aNormal normal vector
              */
-            void set_normal( Matrix< DDRMat > & aNormal )
+            void
+            set_normal( const Matrix< DDRMat >& aNormal )
             {
                 mNormal = aNormal;
             }
@@ -396,7 +409,8 @@ namespace moris
              * set parameters
              * @param[ in ] aParameters a list of parameters
              */
-            void set_parameters( moris::Cell< Matrix< DDRMat > > aParameters )
+            void
+            set_parameters( const moris::Cell< Matrix< DDRMat > >& aParameters )
             {
                 // set a cluster
                 mParameters = aParameters;
@@ -408,8 +422,8 @@ namespace moris
              * @param[ in ] aFieldInterpolatorManager a field interpolator manager pointer
              */
             void set_field_interpolator_manager(
-                    Field_Interpolator_Manager * aFieldInterpolatorManager,
-                    mtk::Master_Slave            aIsMaster = mtk::Master_Slave::MASTER );
+                    Field_Interpolator_Manager* aFieldInterpolatorManager,
+                    mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER );
 
             //------------------------------------------------------------------------------
             /*
@@ -418,8 +432,8 @@ namespace moris
              * @param[ in ] aIsMaster                 an enum for master or slave
              */
             void set_field_interpolator_manager_previous_time(
-                    Field_Interpolator_Manager * aFieldInterpolatorManager,
-                    mtk::Master_Slave            aIsMaster = mtk::Master_Slave::MASTER );
+                    Field_Interpolator_Manager* aFieldInterpolatorManager,
+                    mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER );
 
             //------------------------------------------------------------------------------
             /*
@@ -427,7 +441,7 @@ namespace moris
              * @param[ out ] aFieldInterpolatorManager a field interpolator manager pointer
              * @param[ in ]  aIsMaster                 an enum for master or slave
              */
-            Field_Interpolator_Manager * get_field_interpolator_manager(
+            Field_Interpolator_Manager* get_field_interpolator_manager(
                     mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
             //------------------------------------------------------------------------------
@@ -437,8 +451,8 @@ namespace moris
              * @param[ in ] aIsMaster enum for master or slave
              */
             void set_dof_type_list(
-                    const moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
-                    mtk::Master_Slave                                   aIsMaster = mtk::Master_Slave::MASTER );
+                    const moris::Cell< moris::Cell< MSI::Dof_Type > >& aDofTypes,
+                    mtk::Master_Slave                                  aIsMaster = mtk::Master_Slave::MASTER );
 
             //------------------------------------------------------------------------------
             /**
@@ -447,10 +461,11 @@ namespace moris
              * @param[ in ] aDofStrings list of strings describing the group dof types
              * @param[ in ] aIsMaster   enum for master or slave
              */
-            virtual void set_dof_type_list(
-                    moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
-                    moris::Cell< std::string >                  & aDofStrings,
-                    mtk::Master_Slave                             aIsMaster = mtk::Master_Slave::MASTER )
+            virtual void
+            set_dof_type_list(
+                    moris::Cell< moris::Cell< MSI::Dof_Type > >& aDofTypes,
+                    moris::Cell< std::string >&                  aDofStrings,
+                    mtk::Master_Slave                            aIsMaster = mtk::Master_Slave::MASTER )
             {
                 MORIS_ERROR( false, "IQI::set_dof_type_list - not implemented for base class." );
             }
@@ -460,7 +475,7 @@ namespace moris
              * return a cell of dof types
              * @param[ in ] aIsMaster enum master or slave
              */
-            const moris::Cell< moris::Cell< MSI::Dof_Type > > & get_dof_type_list(
+            const moris::Cell< moris::Cell< MSI::Dof_Type > >& get_dof_type_list(
                     mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
             //------------------------------------------------------------------------------
@@ -470,9 +485,9 @@ namespace moris
              * for both master and slave
              */
             void get_non_unique_dof_dv_and_field_types(
-                    moris::Cell< moris::Cell< MSI::Dof_Type > >   & aDofTypes,
-                    moris::Cell< moris::Cell< PDV_Type > >        & aDvTypes,
-                    moris::Cell< moris::Cell< mtk::Field_Type > > & aFieldTypes );
+                    moris::Cell< moris::Cell< MSI::Dof_Type > >&   aDofTypes,
+                    moris::Cell< moris::Cell< PDV_Type > >&        aDvTypes,
+                    moris::Cell< moris::Cell< mtk::Field_Type > >& aFieldTypes );
 
             //------------------------------------------------------------------------------
             /**
@@ -480,7 +495,7 @@ namespace moris
              * IQI, property, constitutive and stabilization dependencies
              * @param[ in ] aIsMaster enum master or slave
              */
-            const moris::Cell< moris::Cell< MSI::Dof_Type > > & get_global_dof_type_list(
+            const moris::Cell< moris::Cell< MSI::Dof_Type > >& get_global_dof_type_list(
                     mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
             //------------------------------------------------------------------------------
@@ -498,15 +513,15 @@ namespace moris
              * @param[ in ] aIsMaster enum for master or slave
              */
             void set_dv_type_list(
-                    const moris::Cell< moris::Cell< PDV_Type > > & aDvTypes,
-                    mtk::Master_Slave                              aIsMaster = mtk::Master_Slave::MASTER );
+                    const moris::Cell< moris::Cell< PDV_Type > >& aDvTypes,
+                    mtk::Master_Slave                             aIsMaster = mtk::Master_Slave::MASTER );
 
             //------------------------------------------------------------------------------
             /**
              * return a cell of dv types
              * @param[ in ] aIsMaster enum master or slave
              */
-            moris::Cell< moris::Cell< PDV_Type > > & get_dv_type_list(
+            moris::Cell< moris::Cell< PDV_Type > >& get_dv_type_list(
                     mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
             //------------------------------------------------------------------------------
@@ -515,7 +530,7 @@ namespace moris
              * @param[ in ]  aIsMaster enum master or slave
              * @param[ out ] aFieldTypes a list of group of field types
              */
-            const moris::Cell< moris::Cell< mtk::Field_Type > > & get_field_type_list(
+            const moris::Cell< moris::Cell< mtk::Field_Type > >& get_field_type_list(
                     mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
 
             //------------------------------------------------------------------------------
@@ -525,8 +540,8 @@ namespace moris
              * @param[ in ] aIsMaster enum for master or slave
              */
             void set_field_type_list(
-                    const moris::Cell< moris::Cell< mtk::Field_Type > > & aDvTypes,
-                          mtk::Master_Slave                        aIsMaster = mtk::Master_Slave::MASTER );
+                    const moris::Cell< moris::Cell< mtk::Field_Type > >& aDvTypes,
+                    mtk::Master_Slave                                    aIsMaster = mtk::Master_Slave::MASTER );
 
             //------------------------------------------------------------------------------
             /**
@@ -534,7 +549,7 @@ namespace moris
              * IQI, property, constitutive and stabilization dependencies
              * @param[ in ] aGlobalDvTypeList a non unique list of dv types to fill
              */
-            void get_non_unique_global_dv_type_list( moris::Cell< PDV_Type > & aGlobalDvTypeList );
+            void get_non_unique_global_dv_type_list( moris::Cell< PDV_Type >& aGlobalDvTypeList );
 
             //------------------------------------------------------------------------------
             /**
@@ -542,7 +557,7 @@ namespace moris
              * IQI, property, constitutive and stabilization dependencies
              * @param[ in ] aIsMaster enum master or slave
              */
-            const moris::Cell< moris::Cell< PDV_Type > > & get_global_dv_type_list(
+            const moris::Cell< moris::Cell< PDV_Type > >& get_global_dv_type_list(
                     mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
             //------------------------------------------------------------------------------
@@ -552,7 +567,7 @@ namespace moris
              * @param[ in ]  aIsMaster    enum master or slave
              * @param[ out ] mFieldTypes global list of group of dv types
              */
-            const moris::Cell< moris::Cell< mtk::Field_Type > > & get_global_field_type_list(
+            const moris::Cell< moris::Cell< mtk::Field_Type > >& get_global_field_type_list(
                     mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
             //------------------------------------------------------------------------------
@@ -573,7 +588,7 @@ namespace moris
              * @param[ in ]  aIsMaster   enum master or slave
              * @param[ out ] aProperties cell of property pointers
              */
-            moris::Cell< std::shared_ptr< fem::Property > > & get_properties(
+            moris::Cell< std::shared_ptr< fem::Property > >& get_properties(
                     mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
             //------------------------------------------------------------------------------
@@ -594,7 +609,7 @@ namespace moris
              * @param[ in ]  aIsMaster           enum master or slave
              * @param[ out ] aConstitutiveModels cell of constitutive model pointers
              */
-            moris::Cell< std::shared_ptr< fem::Constitutive_Model > > & get_constitutive_models(
+            moris::Cell< std::shared_ptr< fem::Constitutive_Model > >& get_constitutive_models(
                     mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
             //------------------------------------------------------------------------------
@@ -612,7 +627,8 @@ namespace moris
              * get stabilization parameters
              * @param[ out ] mStabilizationParam cell of stabilization parameter pointers
              */
-            moris::Cell< std::shared_ptr< fem::Stabilization_Parameter > > & get_stabilization_parameters()
+            moris::Cell< std::shared_ptr< fem::Stabilization_Parameter > >&
+            get_stabilization_parameters()
             {
                 // return stabilization parameter pointers
                 return mStabilizationParam;
@@ -632,7 +648,8 @@ namespace moris
              * @param[ in ] aPerturbation real for relative perturbation of the dof values
              * @param[ in ] aFDSchemeType enum for FD scheme
              */
-            void compute_dQIdu_FD(
+            void
+            compute_dQIdu_FD(
                     real               aWStar,
                     real               aPerturbation,
                     fem::FDScheme_Type aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL )
@@ -661,8 +678,8 @@ namespace moris
                     real               aWStar,
                     real               aPerturbation,
                     real               aEpsilon,
-                    Matrix< DDRMat > & adQIdu,
-                    Matrix< DDRMat > & adQIduFD,
+                    Matrix< DDRMat >&  adQIdu,
+                    Matrix< DDRMat >&  adQIduFD,
                     bool               aErrorPrint,
                     fem::FDScheme_Type aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL );
 
@@ -671,7 +688,8 @@ namespace moris
              * evaluate the derivative of the quantity of interest wrt to dv types
              * @param[ in ] aWStar weight associated to the evaluation point
              */
-            virtual void compute_dQIdp( real aWStar )
+            virtual void
+            compute_dQIdp( real aWStar )
             {
                 MORIS_ERROR( false, "IQI::compute_dQIdp - Not implemented for base class. " );
             }
@@ -684,7 +702,8 @@ namespace moris
              * @param[ in ] aPerturbation dv relative perturbation
              * @param[ in ] aFDSchemeType enum for FD scheme
              */
-            void compute_dQIdp_FD_material(
+            void
+            compute_dQIdp_FD_material(
                     moris::real        aWStar,
                     moris::real        aPerturbation,
                     fem::FDScheme_Type aFDSchemeType = fem::FDScheme_Type::POINT_3_CENTRAL )
@@ -698,12 +717,13 @@ namespace moris
                     moris::real        aPerturbation,
                     fem::FDScheme_Type aFDSchemeType );
 
-            void select_dQIdp_FD_material_double(
+            void
+            select_dQIdp_FD_material_double(
                     moris::real        aWStar,
                     moris::real        aPerturbation,
                     fem::FDScheme_Type aFDSchemeType )
             {
-                MORIS_ERROR( false, "IQI::select_dQIdp_FD_material_double - not implemented yet");
+                MORIS_ERROR( false, "IQI::select_dQIdp_FD_material_double - not implemented yet" );
             }
 
             //------------------------------------------------------------------------------
@@ -715,12 +735,13 @@ namespace moris
              * @param[ in ] aGeoLocalAssembly matrix filled with pdv local assembly indices
              * @param[ in ] aFDSchemeType     enum for FD scheme
              */
-            void compute_dQIdp_FD_geometry(
-                    moris::real                         aWStar,
-                    moris::real                         aPerturbation,
-                    fem::FDScheme_Type                  aFDSchemeType,
-                    Matrix< DDSMat >                  & aGeoLocalAssembly,
-                    moris::Cell< Matrix< IndexMat > > & aVertexIndices )
+            void
+            compute_dQIdp_FD_geometry(
+                    moris::real                        aWStar,
+                    moris::real                        aPerturbation,
+                    fem::FDScheme_Type                 aFDSchemeType,
+                    Matrix< DDSMat >&                  aGeoLocalAssembly,
+                    moris::Cell< Matrix< IndexMat > >& aVertexIndices )
             {
                 // compute dQIdp geometry by FD
                 ( this->*m_compute_dQIdp_FD_geometry )(
@@ -732,27 +753,28 @@ namespace moris
             }
 
             void select_dQIdp_FD_geometry_bulk(
-                    moris::real                         aWStar,
-                    moris::real                         aPerturbation,
-                    fem::FDScheme_Type                  aFDSchemeType,
-                    Matrix< DDSMat >                  & aGeoLocalAssembly,
-                    moris::Cell< Matrix< IndexMat > > & aVertexIndices );
+                    moris::real                        aWStar,
+                    moris::real                        aPerturbation,
+                    fem::FDScheme_Type                 aFDSchemeType,
+                    Matrix< DDSMat >&                  aGeoLocalAssembly,
+                    moris::Cell< Matrix< IndexMat > >& aVertexIndices );
 
             void select_dQIdp_FD_geometry_sideset(
-                    moris::real                         aWStar,
-                    moris::real                         aPerturbation,
-                    fem::FDScheme_Type                  aFDSchemeType,
-                    Matrix< DDSMat >                  & aGeoLocalAssembly,
-                    moris::Cell< Matrix< IndexMat > > & aVertexIndices );
+                    moris::real                        aWStar,
+                    moris::real                        aPerturbation,
+                    fem::FDScheme_Type                 aFDSchemeType,
+                    Matrix< DDSMat >&                  aGeoLocalAssembly,
+                    moris::Cell< Matrix< IndexMat > >& aVertexIndices );
 
-            void select_dQIdp_FD_geometry_double(
-                    moris::real                         aWStar,
-                    moris::real                         aPerturbation,
-                    fem::FDScheme_Type                  aFDSchemeType,
-                    Matrix< DDSMat >                  & aGeoLocalAssembly,
-                    moris::Cell< Matrix< IndexMat > > & aVertexIndices )
+            void
+            select_dQIdp_FD_geometry_double(
+                    moris::real                        aWStar,
+                    moris::real                        aPerturbation,
+                    fem::FDScheme_Type                 aFDSchemeType,
+                    Matrix< DDSMat >&                  aGeoLocalAssembly,
+                    moris::Cell< Matrix< IndexMat > >& aVertexIndices )
             {
-                MORIS_ERROR( false, "IQI::compute_dQIdp_FD_geometry_double - not implemented yet");
+                MORIS_ERROR( false, "IQI::compute_dQIdp_FD_geometry_double - not implemented yet" );
             }
 
             //------------------------------------------------------------------------------
@@ -773,7 +795,7 @@ namespace moris
              * Evaluate the quantity of interest.
              * @param[ out ] aQIVal quantity of interest matrix to fill
              */
-            virtual void compute_QI( Matrix< DDRMat > & aQIVal ) = 0;
+            virtual void compute_QI( Matrix< DDRMat >& aQIVal ) = 0;
 
             //------------------------------------------------------------------------------
             /**
@@ -789,8 +811,8 @@ namespace moris
              * @param[ out ] adQIdu derivative of quantity of interest
              */
             virtual void compute_dQIdu(
-                    moris::Cell< MSI::Dof_Type > & aDofType,
-                    Matrix< DDRMat >             & adQIdu ) = 0;
+                    moris::Cell< MSI::Dof_Type >& aDofType,
+                    Matrix< DDRMat >&             adQIdu ) = 0;
 
             //------------------------------------------------------------------------------
             /**
@@ -807,10 +829,10 @@ namespace moris
              * @param[ in ] aTolerance            tolerance to check that built perturbation is not too small
              */
             real build_perturbation_size(
-                    const real & aPerturbation,
-                    const real & aCoefficientToPerturb,
-                    const real & aMaxPerturbation,
-                    const real   aTolerance = 1e-12 );
+                    const real& aPerturbation,
+                    const real& aCoefficientToPerturb,
+                    const real& aMaxPerturbation,
+                    const real  aTolerance = 1e-12 );
 
             /**
              * build relative perturbation size for finite difference
@@ -819,10 +841,10 @@ namespace moris
              * @param[ in ] aTolerance            tolerance to check that built perturbation is not too small
              */
             real build_perturbation_size_relative(
-                    const real & aPerturbation,
-                    const real & aCoefficientToPerturb,
-                    const real & aMaxPerturbation,
-                    const real & aTolerance );
+                    const real& aPerturbation,
+                    const real& aCoefficientToPerturb,
+                    const real& aMaxPerturbation,
+                    const real& aTolerance );
 
             /**
              * build absolute perturbation size for finite difference
@@ -831,10 +853,10 @@ namespace moris
              * @param[ in ] aTolerance            tolerance to check that built perturbation is not too small
              */
             real build_perturbation_size_absolute(
-                    const real & aPerturbation,
-                    const real & aCoefficientToPerturb,
-                    const real & aMaxPerturbation,
-                    const real & aTolerance );
+                    const real& aPerturbation,
+                    const real& aCoefficientToPerturb,
+                    const real& aMaxPerturbation,
+                    const real& aTolerance );
 
             //------------------------------------------------------------------------------
             /**
@@ -847,21 +869,22 @@ namespace moris
              * @param[ out ] tDeltaH              perturbation size built for finite difference
              */
             real check_ig_coordinates_inside_ip_element(
-                    const real & aPerturbation,
-                    const real & aCoefficientToPerturb,
-                    const uint & aSpatialDirection,
-                    fem::FDScheme_Type & aUsedFDScheme );
+                    const real&         aPerturbation,
+                    const real&         aCoefficientToPerturb,
+                    const uint&         aSpatialDirection,
+                    fem::FDScheme_Type& aUsedFDScheme );
 
 
             //------------------------------------------------------------------------------
-              /**
-               * get the matrix dimension of the IQI in order to initialize the size of the mGloblaIQIVal
-               * returns 1*1 which is a scaler by default
-               */
-              virtual std::pair<uint,uint> get_matrix_dim()
-              {
-                  return std::make_pair(1,1);
-              }
+            /**
+             * get the matrix dimension of the IQI in order to initialize the size of the mGloblaIQIVal
+             * returns 1*1 which is a scaler by default
+             */
+            virtual std::pair< uint, uint >
+            get_matrix_dim()
+            {
+                return std::make_pair( 1, 1 );
+            }
         };
         //------------------------------------------------------------------------------
     } /* namespace fem */

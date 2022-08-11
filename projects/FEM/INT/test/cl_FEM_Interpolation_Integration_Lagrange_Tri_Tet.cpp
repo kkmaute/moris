@@ -170,24 +170,15 @@ TEST_CASE( "Lagrange TRI3", "[moris],[fem],[Tri3LagInterp]" )
                 // compute the second order derivatives by finite difference
                 Matrix< DDRMat > td2NdXi2FDTemp = ( tdNdXiPlus - tdNdXiMinus ) / ( 2.0 * tPerturbation );
 
-
                 if ( iDim == 0 )
                 {
                     td2NdXi2FD.get_row( 0 ) = td2NdXi2FDTemp.get_row( 0 );
-                    td2NdXi2FD.get_row( 5 ) = td2NdXi2FDTemp.get_row( 1 );
-                    td2NdXi2FD.get_row( 4 ) = td2NdXi2FDTemp.get_row( 2 );
+                    td2NdXi2FD.get_row( 2 ) += 0.5 * td2NdXi2FDTemp.get_row( 1 );
                 }
                 else if ( iDim == 1 )
                 {
-                    td2NdXi2FD.get_row( 5 ) = td2NdXi2FDTemp.get_row( 0 );
+                    td2NdXi2FD.get_row( 2 ) += 0.5 * td2NdXi2FDTemp.get_row( 0 );
                     td2NdXi2FD.get_row( 1 ) = td2NdXi2FDTemp.get_row( 1 );
-                    td2NdXi2FD.get_row( 3 ) = td2NdXi2FDTemp.get_row( 2 );
-                }
-                else if ( iDim == 2 )
-                {
-                    td2NdXi2FD.get_row( 4 ) = td2NdXi2FDTemp.get_row( 0 );
-                    td2NdXi2FD.get_row( 3 ) = td2NdXi2FDTemp.get_row( 1 );
-                    td2NdXi2FD.get_row( 2 ) = td2NdXi2FDTemp.get_row( 2 );
                 }
             }
             // check
@@ -391,24 +382,15 @@ TEST_CASE( "Lagrange TRI6", "[moris],[fem],[Tri6LagInterp]" )
                 // compute the second order derivatives by finite difference
                 Matrix< DDRMat > td2NdXi2FDTemp = ( tdNdXiPlus - tdNdXiMinus ) / ( 2.0 * tPerturbation );
 
-
                 if ( iDim == 0 )
                 {
                     td2NdXi2FD.get_row( 0 ) = td2NdXi2FDTemp.get_row( 0 );
-                    td2NdXi2FD.get_row( 5 ) = td2NdXi2FDTemp.get_row( 1 );
-                    td2NdXi2FD.get_row( 4 ) = td2NdXi2FDTemp.get_row( 2 );
+                    td2NdXi2FD.get_row( 2 ) += 0.5 * td2NdXi2FDTemp.get_row( 1 );
                 }
                 else if ( iDim == 1 )
                 {
-                    td2NdXi2FD.get_row( 5 ) = td2NdXi2FDTemp.get_row( 0 );
+                    td2NdXi2FD.get_row( 2 ) += 0.5 * td2NdXi2FDTemp.get_row( 0 );
                     td2NdXi2FD.get_row( 1 ) = td2NdXi2FDTemp.get_row( 1 );
-                    td2NdXi2FD.get_row( 3 ) = td2NdXi2FDTemp.get_row( 2 );
-                }
-                else if ( iDim == 2 )
-                {
-                    td2NdXi2FD.get_row( 4 ) = td2NdXi2FDTemp.get_row( 0 );
-                    td2NdXi2FD.get_row( 3 ) = td2NdXi2FDTemp.get_row( 1 );
-                    td2NdXi2FD.get_row( 2 ) = td2NdXi2FDTemp.get_row( 2 );
                 }
             }
             // check
@@ -416,6 +398,67 @@ TEST_CASE( "Lagrange TRI6", "[moris],[fem],[Tri6LagInterp]" )
         }
         REQUIRE( tCheck );
     }
+
+    //------------------------------------------------------------------------------
+
+    SECTION( "TRI6: test d3NdXi3" )
+    {
+        // create matrix that contains the third order derivatives
+        Matrix< DDRMat > td3NdXi3;
+
+        bool tCheck = true;
+        for ( uint k = 0; k < tNumOfTestPoints; ++k )
+        {
+            // unpack the test point k
+            Matrix< DDRMat > tTestPoint = tZeta.get_column( k );
+
+            // evaluate shape function at point k
+            tFunction->eval_d3NdXi3( tTestPoint, td3NdXi3 );
+
+            Matrix< DDRMat > td3NdXi3FD( td3NdXi3.n_rows(), td3NdXi3.n_cols(), 0.0 );
+
+            for ( uint iDim = 0; iDim < tFunction->get_number_of_param_dimensions(); iDim++ )
+            {
+                // perturbed evaluation point
+                Matrix< DDRMat > tPertEvalPoint = tTestPoint;
+                tPertEvalPoint( iDim )          = tPertEvalPoint( iDim ) - tPerturbation;
+
+                // evaluate td2NdXi2 at point k - delta xi
+                Matrix< DDRMat > td2NdXi2Minus;
+                tFunction->eval_d2NdXi2( tPertEvalPoint, td2NdXi2Minus );
+
+                // perturbed evaluation point
+                tPertEvalPoint         = tTestPoint;
+                tPertEvalPoint( iDim ) = tPertEvalPoint( iDim ) + tPerturbation;
+
+                // evaluate td2NdXi2 at point k + delta xi
+                Matrix< DDRMat > td2NdXi2Plus;
+                tFunction->eval_d2NdXi2( tPertEvalPoint, td2NdXi2Plus );
+
+                // evaluate FD
+                Matrix< DDRMat > td3NdXi3FDTemp = ( td2NdXi2Plus - td2NdXi2Minus ) / ( 2.0 * tPerturbation );
+
+                // evaluate td3NdXi3_FD
+                if ( iDim == 0 )
+                {
+                    td3NdXi3FD.get_row( 0 ) = td3NdXi3FDTemp.get_row( 0 );
+                    td3NdXi3FD.get_row( 2 ) = td3NdXi3FDTemp.get_row( 2 );
+                    td3NdXi3FD.get_row( 3 ) = td3NdXi3FDTemp.get_row( 1 );
+                }
+                else
+                {
+                    td3NdXi3FD.get_row( 1 ) = td3NdXi3FDTemp.get_row( 1 );
+                }
+            }
+
+            // test error
+            tCheck = tCheck && fem::check( td3NdXi3, td3NdXi3FD, tEpsilon );
+        }
+
+        REQUIRE( tCheck );
+    }
+
+    //------------------------------------------------------------------------------
 
     SECTION( "TRI6: test param coords" )
     {
@@ -455,7 +498,6 @@ TEST_CASE( "Lagrange TRI6", "[moris],[fem],[Tri6LagInterp]" )
 
     //------------------------------------------------------------------------------
 }
-
 
 TEST_CASE( "Lagrange TRI10", "[moris],[fem],[Tri10LagInterp]" )
 {
@@ -562,6 +604,7 @@ TEST_CASE( "Lagrange TRI10", "[moris],[fem],[Tri10LagInterp]" )
                 // compute the first order derivatives wrt param coords by finite difference
                 tdNdXiFD.get_row( iDim ) = ( tNPlus - tNMinus ) / ( 2.0 * tPerturbation );
             }
+
             // check evaluated derivatives against FD
             tCheckdNdXi = tCheckdNdXi && fem::check( tdNdXi, tdNdXiFD, tEpsilon );
         }
@@ -613,27 +656,85 @@ TEST_CASE( "Lagrange TRI10", "[moris],[fem],[Tri10LagInterp]" )
                 if ( iDim == 0 )
                 {
                     td2NdXi2FD.get_row( 0 ) = td2NdXi2FDTemp.get_row( 0 );
-                    td2NdXi2FD.get_row( 5 ) = td2NdXi2FDTemp.get_row( 1 );
-                    td2NdXi2FD.get_row( 4 ) = td2NdXi2FDTemp.get_row( 2 );
+                    td2NdXi2FD.get_row( 2 ) += 0.5 * td2NdXi2FDTemp.get_row( 1 );
                 }
                 else if ( iDim == 1 )
                 {
-                    td2NdXi2FD.get_row( 5 ) = td2NdXi2FDTemp.get_row( 0 );
+                    td2NdXi2FD.get_row( 2 ) += 0.5 * td2NdXi2FDTemp.get_row( 0 );
                     td2NdXi2FD.get_row( 1 ) = td2NdXi2FDTemp.get_row( 1 );
-                    td2NdXi2FD.get_row( 3 ) = td2NdXi2FDTemp.get_row( 2 );
-                }
-                else if ( iDim == 2 )
-                {
-                    td2NdXi2FD.get_row( 4 ) = td2NdXi2FDTemp.get_row( 0 );
-                    td2NdXi2FD.get_row( 3 ) = td2NdXi2FDTemp.get_row( 1 );
-                    td2NdXi2FD.get_row( 2 ) = td2NdXi2FDTemp.get_row( 2 );
                 }
             }
+
             // check
             tCheck = tCheck && fem::check( td2NdXi2, td2NdXi2FD, tEpsilon );
         }
+
         REQUIRE( tCheck );
     }
+
+    //------------------------------------------------------------------------------
+
+    SECTION( "TRI10: test d3NdXi3" )
+    {
+        // boolean to check evaluated d2NdZeta2
+        bool tCheck = true;
+
+        // create matrix that contains the third order derivatives
+        Matrix< DDRMat > td3NdXi3;
+
+        // loop over the test points
+        for ( uint k = 0; k < tNumOfTestPoints; ++k )
+        {
+            // unpack the test point k
+            Matrix< DDRMat > tTestPoint = tZeta.get_column( k );
+
+            // evaluation of the second order derivatives d2NdZeta2 at test point k
+            tFunction->eval_d3NdXi3( tTestPoint, td3NdXi3 );
+
+            Matrix< DDRMat > td3NdXi3FD( td3NdXi3.n_rows(), td3NdXi3.n_cols(), 0.0 );
+
+            for ( uint iDim = 0; iDim < tFunction->get_number_of_param_dimensions(); iDim++ )
+            {
+                // perturbed evaluation point
+                Matrix< DDRMat > tPertEvalPoint = tTestPoint;
+                tPertEvalPoint( iDim )          = tPertEvalPoint( iDim ) - tPerturbation;
+
+                // evaluate td2NdXi2 at point k - delta xi
+                Matrix< DDRMat > td2NdXi2Minus;
+                tFunction->eval_d2NdXi2( tPertEvalPoint, td2NdXi2Minus );
+
+                // perturbed evaluation point
+                tPertEvalPoint         = tTestPoint;
+                tPertEvalPoint( iDim ) = tPertEvalPoint( iDim ) + tPerturbation;
+
+                // evaluate td2NdXi2 at point k + delta xi
+                Matrix< DDRMat > td2NdXi2Plus;
+                tFunction->eval_d2NdXi2( tPertEvalPoint, td2NdXi2Plus );
+
+                // evaluate FD
+                Matrix< DDRMat > td3NdXi3FDTemp = ( td2NdXi2Plus - td2NdXi2Minus ) / ( 2.0 * tPerturbation );
+
+                // evaluate td3NdXi3_FD
+                if ( iDim == 0 )
+                {
+                    td3NdXi3FD.get_row( 0 ) = td3NdXi3FDTemp.get_row( 0 );
+                    td3NdXi3FD.get_row( 2 ) = td3NdXi3FDTemp.get_row( 2 );
+                    td3NdXi3FD.get_row( 3 ) = td3NdXi3FDTemp.get_row( 1 );
+                }
+                else
+                {
+                    td3NdXi3FD.get_row( 1 ) = td3NdXi3FDTemp.get_row( 1 );
+                }
+            }
+
+            // test error
+            tCheck = tCheck && fem::check( td3NdXi3, td3NdXi3FD, tEpsilon );
+        }
+
+        REQUIRE( tCheck );
+    }
+
+    //------------------------------------------------------------------------------
 
     SECTION( "TRI10: test param coords" )
     {

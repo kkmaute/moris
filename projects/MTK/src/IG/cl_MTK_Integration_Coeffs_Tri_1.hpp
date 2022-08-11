@@ -8,12 +8,12 @@
 #ifndef SRC_MTK_CL_MTK_INTEGRATION_COEFFS_TRI_1_HPP_
 #define SRC_MTK_CL_MTK_INTEGRATION_COEFFS_TRI_1_HPP_
 
-//MRS/COR/src
+// MRS/COR/src
 #include "typedefs.hpp"
-//LINALG/src
+// LINALG/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-//MTK/src
+// MTK/src
 #include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Integration_Coeffs.hpp"
 
@@ -27,18 +27,18 @@ namespace moris
         template<>
         uint
         Integration_Coeffs<
-        Integration_Type::GAUSS,
-        Integration_Order::TRI_1>::get_number_of_dimensions()
+                Integration_Type::GAUSS,
+                Integration_Order::TRI_1 >::get_number_of_dimensions()
         {
-            return 3;
+            return 2;
         }
         //------------------------------------------------------------------------------
 
         template<>
         uint
         Integration_Coeffs<
-        Integration_Type::GAUSS,
-        Integration_Order::TRI_1>::get_number_of_points()
+                Integration_Type::GAUSS,
+                Integration_Order::TRI_1 >::get_number_of_points()
         {
             return 1;
         }
@@ -48,14 +48,12 @@ namespace moris
         template<>
         void
         Integration_Coeffs<
-        Integration_Type::GAUSS,
-        Integration_Order::TRI_1>::get_points( Matrix< DDRMat > & aIntegrationPoints )
+                Integration_Type::GAUSS,
+                Integration_Order::TRI_1 >::get_points( Matrix< DDRMat >& aIntegrationPoints )
         {
-            aIntegrationPoints =
-            {
-                    {0.333333333333333},
-                    {0.333333333333333},
-                    {0.333333333333333}
+            aIntegrationPoints = {
+                { 0.333333333333333 },
+                { 0.333333333333333 }
             };
         }
 
@@ -64,8 +62,8 @@ namespace moris
         template<>
         void
         Integration_Coeffs<
-        Integration_Type::GAUSS,
-        Integration_Order::TRI_1 >::get_weights( Matrix< DDRMat > & aIntegrationWeights )
+                Integration_Type::GAUSS,
+                Integration_Order::TRI_1 >::get_weights( Matrix< DDRMat >& aIntegrationWeights )
         {
             aIntegrationWeights.set_size( 1, 1, 1.0 );
         }

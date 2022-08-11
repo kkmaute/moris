@@ -1,8 +1,11 @@
 /*
- * cl_MTK_Cell_Info_Quad9.cpp
+ * cl_MTK_Cell_Info_Quad8.cpp
+ *
+ *  Created on: Sep 26, 2019
+ *      Author: doble
  */
 
-#include "cl_MTK_Cell_Info_Quad9.hpp"
+#include "cl_MTK_Cell_Info_Quad8.hpp"
 #include "cl_MTK_Cell_Info_Quad4.hpp"
 #include "cl_MTK_Cell.hpp"
 #include "cl_MTK_Vertex.hpp"
@@ -22,7 +25,7 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         enum Geometry_Type
-        Cell_Info_Quad9::get_cell_geometry() const
+        Cell_Info_Quad8::get_cell_geometry() const
         {
             return Geometry_Type::QUAD;
         }
@@ -30,31 +33,31 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         enum CellTopology
-        Cell_Info_Quad9::get_cell_topology() const
+        Cell_Info_Quad8::get_cell_topology() const
         {
-            return CellTopology::QUAD9;
+            return CellTopology::QUAD8;
         }
 
         // ----------------------------------------------------------------------------------
 
         enum Interpolation_Order
-        Cell_Info_Quad9::get_cell_interpolation_order() const
+        Cell_Info_Quad8::get_cell_interpolation_order() const
         {
-            return Interpolation_Order::QUADRATIC;
+            return Interpolation_Order::SERENDIPITY;
         }
 
         // ----------------------------------------------------------------------------------
 
         enum Integration_Order
-        Cell_Info_Quad9::get_cell_integration_order() const
+        Cell_Info_Quad8::get_cell_integration_order() const
         {
-            return Integration_Order::QUAD_3x3;
+            return Integration_Order::QUAD_2x2;
         }
 
         //-----------------------------------------------------------------------------
 
         enum CellShape
-        Cell_Info_Quad9::compute_cell_shape( moris::mtk::Cell const * aCell ) const
+        Cell_Info_Quad8::compute_cell_shape( moris::mtk::Cell const * aCell ) const
         {
             // getting vertices and storing them in a local matrix, since each node will be used a few times
             moris::Cell< Vertex* > tVertices = aCell->get_vertex_pointers();
@@ -98,8 +101,7 @@ namespace moris
                 auto tCross13 = tEdgeVectors( 1 )( 0 ) * tEdgeVectors( 3 )( 1 ) - tEdgeVectors( 1 )( 1 ) * tEdgeVectors( 3 )( 0 );
 
                 // if they aren't parallel, then it is a straight cell
-                if ( std::abs( tCross02 ) > tEpsilon ||    //
-                        std::abs( tCross13 ) > tEpsilon )
+                if ( std::abs( tCross02 ) > tEpsilon || std::abs( tCross13 ) > tEpsilon )
                 {
                     tCellShape = CellShape::STRAIGHT;
                 }
@@ -107,10 +109,8 @@ namespace moris
                 // if they are parallel edges check if it is rectangular and aligned
                 else
                 {
-                    // if the first two edges aren't perpendicular or if it isn't aligned
-                    if ( std::abs( dot( tEdgeVectors( 0 ), tEdgeVectors( 1 ) ) ) > tEpsilon ||    //
-                            std::abs( tEdgeVectors( 0 )( 1 ) ) > tEpsilon ||                      //
-                            tEdgeVectors( 0 )( 0 ) < 0.0 )
+                    // if the first two edges aren't perpindicular or if it isn't aligned
+                    if ( std::abs( dot( tEdgeVectors( 0 ), tEdgeVectors( 1 ) ) ) > tEpsilon || std::abs( tEdgeVectors( 0 )( 1 ) ) > tEpsilon || tEdgeVectors( 0 )( 0 ) < 0.0 )
                     {
                         tCellShape = CellShape::PARALLEL;
                     }
@@ -123,23 +123,15 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         uint
-        Cell_Info_Quad9::get_num_verts() const
+        Cell_Info_Quad8::get_num_verts() const
         {
-            return 9;
+            return 8;
         }
 
         // ----------------------------------------------------------------------------------
 
         uint
-        Cell_Info_Quad9::get_num_facets() const
-        {
-            return 4;
-        }
-
-        // ----------------------------------------------------------------------------------
-
-        uint
-        Cell_Info_Quad9::get_num_edges() const
+        Cell_Info_Quad8::get_num_facets() const
         {
             return 4;
         }
@@ -147,7 +139,15 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         uint
-        Cell_Info_Quad9::get_num_verts_per_facet() const
+        Cell_Info_Quad8::get_num_edges() const
+        {
+            return 4;
+        }
+
+        // ----------------------------------------------------------------------------------
+
+        uint
+        Cell_Info_Quad8::get_num_verts_per_facet() const
         {
             return 3;
         }
@@ -155,7 +155,7 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         uint
-        Cell_Info_Quad9::get_loc_coord_dim() const
+        Cell_Info_Quad8::get_loc_coord_dim() const
         {
             return 2;
         }
@@ -163,7 +163,7 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         moris::Matrix< moris::IndexMat >
-        Cell_Info_Quad9::get_node_to_face_map() const
+        Cell_Info_Quad8::get_node_to_face_map() const
         {
             MORIS_ERROR( 0, "Elements have no faces in 2D. Check the MTK mesh class to get nodes connected to an element." );
             return moris::Matrix< moris::IndexMat >( 0, 0 );
@@ -172,7 +172,7 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         moris::Matrix< moris::IndexMat >
-        Cell_Info_Quad9::get_node_to_edge_map() const
+        Cell_Info_Quad8::get_node_to_edge_map() const
         {
             return { { 0, 1, 4 }, { 1, 2, 5 }, { 2, 3, 6 }, { 3, 0, 7 } };
         }
@@ -180,7 +180,7 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         moris::Matrix< moris::IndexMat >
-        Cell_Info_Quad9::get_node_to_facet_map() const
+        Cell_Info_Quad8::get_node_to_facet_map() const
         {
             return this->get_node_to_edge_map();
         }
@@ -188,7 +188,7 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         moris::Matrix< moris::IndexMat >
-        Cell_Info_Quad9::get_node_to_face_map( moris::uint aSideOrdinal ) const
+        Cell_Info_Quad8::get_node_to_face_map( moris::uint aSideOrdinal ) const
         {
             MORIS_ERROR( 0, "Elements have no faces in 2D. Check the MTK mesh class to get nodes connected to an element." );
             return moris::Matrix< moris::IndexMat >( 0, 0 );
@@ -197,7 +197,7 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         moris::Matrix< moris::IndexMat >
-        Cell_Info_Quad9::get_geometric_node_to_facet_map() const
+        Cell_Info_Quad8::get_geometric_node_to_facet_map() const
         {
             Cell_Info_Quad4 tQuad4;
             return tQuad4.get_node_to_facet_map();
@@ -206,7 +206,7 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         moris::Matrix< moris::IndexMat >
-        Cell_Info_Quad9::get_geometric_node_to_facet_map( moris::uint aSideOrdinal ) const
+        Cell_Info_Quad8::get_geometric_node_to_facet_map( moris::uint aSideOrdinal ) const
         {
             Cell_Info_Quad4 tQuad4;
             return tQuad4.get_node_to_facet_map( aSideOrdinal );
@@ -215,7 +215,7 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         moris::Matrix< moris::IndexMat >
-        Cell_Info_Quad9::get_node_to_edge_map( moris::uint aEdgeOrdinal ) const
+        Cell_Info_Quad8::get_node_to_edge_map( moris::uint aEdgeOrdinal ) const
         {
             switch ( aEdgeOrdinal )
             {
@@ -251,7 +251,7 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         moris::Matrix< moris::IndexMat >
-        Cell_Info_Quad9::get_node_to_facet_map( moris::uint aSideOrdinal ) const
+        Cell_Info_Quad8::get_node_to_facet_map( moris::uint aSideOrdinal ) const
         {
             return this->get_node_to_edge_map( aSideOrdinal );
         }
@@ -259,7 +259,7 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         moris::Matrix< moris::IndexMat >
-        Cell_Info_Quad9::get_node_map_outward_normal( moris::uint aSideOrdinal ) const
+        Cell_Info_Quad8::get_node_map_outward_normal( moris::uint aSideOrdinal ) const
         {
             switch ( aSideOrdinal )
             {
@@ -295,7 +295,7 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         moris::uint
-        Cell_Info_Quad9::get_adjacent_side_ordinal( moris::uint aSideOrdinal ) const
+        Cell_Info_Quad8::get_adjacent_side_ordinal( moris::uint aSideOrdinal ) const
         {
             switch ( aSideOrdinal )
             {
@@ -331,11 +331,14 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         moris::Cell< moris_index >
-        Cell_Info_Quad9::get_vertex_path_to_entity_rank_and_ordinal(
+        Cell_Info_Quad8::get_vertex_path_to_entity_rank_and_ordinal(
                 moris_index aVertexOrdinal,
                 moris_index aOtherEntityOrdinal,
                 moris_index aOtherEntityRank ) const
         {
+            MORIS_ERROR( false,
+                    "Cell_Info_Quad8::get_vertex_path_to_entity_rank_and_ordinal - not implemented" );
+
             switch ( aOtherEntityRank )
             {
                 // node to node paths
@@ -365,11 +368,12 @@ namespace moris
                         { 0, 0, 0, 0, 0, 0, 0, 0, -1 }
                     };
 
+
                     moris_index tPathRank  = tVertexToVertexRanks( (uint)aVertexOrdinal, (uint)aOtherEntityOrdinal );
                     moris_index tPathIndex = tVertexToVertexIndices( (uint)aVertexOrdinal, (uint)aOtherEntityOrdinal );
 
                     MORIS_ASSERT( tPathRank != -1 && tPathIndex != -1,
-                            "Cell_Info_Quad9::get_vertex_path_to_entity_rank_and_ordinal() - Vertex doesn't have path to itself." );
+                            "Cell_Info_Quad8::get_vertex_path_to_entity_rank_and_ordinal() - Vertex doesn't have path to itself." );
 
                     return { tPathIndex, tPathRank };
                     break;
@@ -406,7 +410,7 @@ namespace moris
                     moris_index tPathIndex = tVertexToEdgeIndices( (uint)aVertexOrdinal, (uint)aOtherEntityOrdinal );
 
                     MORIS_ASSERT( tPathRank != -1 && tPathIndex != -1,
-                            "Cell_Info_Quad9::get_vertex_path_to_entity_rank_and_ordinal() - Vertex doesn't have path to itself." );
+                            "Cell_Info_Quad8::get_vertex_path_to_entity_rank_and_ordinal() - Vertex doesn't have path to itself." );
 
                     return { tPathIndex, tPathRank };
                     break;
@@ -423,7 +427,7 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         moris::Cell< moris_index >
-        Cell_Info_Quad9::get_edge_path_to_entity_rank_and_ordinal(
+        Cell_Info_Quad8::get_edge_path_to_entity_rank_and_ordinal(
                 moris_index aEdgeOrdinal,
                 moris_index aOtherEntityOrdinal,
                 moris_index aOtherEntityRank ) const
@@ -451,7 +455,7 @@ namespace moris
 
                                 default:
                                 {
-                                    MORIS_ERROR( 0, "Invalid other edge ordinal for QUAD9" );
+                                    MORIS_ERROR( 0, "Invalid other edge ordinal for Quad8" );
                                     return moris::Cell< moris_index >( 0 );
                                 }
                             }
@@ -459,7 +463,7 @@ namespace moris
 
                         default:
                         {
-                            MORIS_ERROR( 0, "Invalid other entity rank for QUAD9 - edge has only path to edges" );
+                            MORIS_ERROR( 0, "Invalid other entity rank for Quad8 - edge has only path to edges" );
                             return moris::Cell< moris_index >( 0 );
                         }
                     }    // end: switch: aOtherEntityRank
@@ -494,7 +498,7 @@ namespace moris
 
                         default:
                         {
-                            MORIS_ERROR( 0, "Invalid other entity rank for QUAD9 - edge only has path to edges" );
+                            MORIS_ERROR( 0, "Invalid other entity rank for Quad8 - edge only has path to edges" );
                             return moris::Cell< moris_index >( 0 );
                         }
                     }    // end: switch: aOtherEntityRank
@@ -529,7 +533,7 @@ namespace moris
 
                         default:
                         {
-                            MORIS_ERROR( 0, "Invalid other entity rank for QUAD9 - edge only has path to edges" );
+                            MORIS_ERROR( 0, "Invalid other entity rank for Quad8 - edge only has path to edges" );
                             return moris::Cell< moris_index >( 0 );
                         }
                     }    // end: switch: aOtherEntityRank
@@ -581,7 +585,7 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         bool
-        Cell_Info_Quad9::is_entity_connected_to_facet(
+        Cell_Info_Quad8::is_entity_connected_to_facet(
                 moris_index aFacetOrdinal,
                 moris_index aOtherEntityOrdinal,
                 moris_index aOtherEntityRank ) const
@@ -625,7 +629,7 @@ namespace moris
 
                 default:
                 {
-                    MORIS_ERROR( 0, "Cell_Info_Quad9::is_entity_connected_to_facet() - Invalid other entity rank for QUAD4 (must be 0-Vertex or 1-Edge" );
+                    MORIS_ERROR( 0, "Cell_Info_Quad8::is_entity_connected_to_facet() - Invalid other entity rank for QUAD4 (must be 0-Vertex or 1-Edge" );
                     return false;
                     break;
                 }
@@ -635,7 +639,7 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         Matrix< DDRMat >
-        Cell_Info_Quad9::get_vertex_loc_coord( moris_index const & aVertexOrdinal ) const
+        Cell_Info_Quad8::get_vertex_loc_coord( moris_index const & aVertexOrdinal ) const
         {
             switch ( aVertexOrdinal )
             {
@@ -679,11 +683,6 @@ namespace moris
                     return { { -1.000000000000000e+00, 0.000000000000000e+00 } };
                     break;
                 }
-                case 8:
-                {
-                    return { { 0.000000000000000e+00, 0.000000000000000e+00 } };
-                    break;
-                }
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid vertex ordinal specified" );
@@ -696,7 +695,7 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         Matrix< DDRMat >
-        Cell_Info_Quad9::get_loc_coord_on_side_ordinal( moris::uint aSideOrdinal ) const
+        Cell_Info_Quad8::get_loc_coord_on_side_ordinal( moris::uint aSideOrdinal ) const
         {
             switch ( aSideOrdinal )
             {
@@ -732,7 +731,7 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         moris::real
-        Cell_Info_Quad9::compute_cell_size_special( moris::mtk::Cell const * aCell ) const
+        Cell_Info_Quad8::compute_cell_size_special( moris::mtk::Cell const * aCell ) const
         {
             moris::Cell< Vertex* > tVertices = aCell->get_vertex_pointers();
 
@@ -751,7 +750,7 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         moris::real
-        Cell_Info_Quad9::compute_cell_side_size(
+        Cell_Info_Quad8::compute_cell_side_size(
                 moris::mtk::Cell const * aCell,
                 moris_index const &      aSideOrd ) const
         {
@@ -765,34 +764,32 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         void
-        Cell_Info_Quad9::eval_N(
+        Cell_Info_Quad8::eval_N(
                 const Matrix< DDRMat >& aXi,
                 Matrix< DDRMat >&       aNXi ) const
         {
             // make sure that input is correct
             MORIS_ASSERT( aXi.length() >= 2,
-                    "QUAD9 - eval_N: aXi not allocated or hat wrong size." );
+                    "Quad8 - eval_N: aXi not allocated or hat wrong size." );
 
             // unpack xi and eta from input vector
-            real xi  = aXi( 0 );
-            real eta = aXi( 1 );
+            const real xi  = aXi( 0 );
+            const real eta = aXi( 1 );
 
             // often used constants
-            real c    = xi * eta * 0.25;
-            real xi2  = std::pow( xi, 2 );
-            real eta2 = std::pow( eta, 2 );
+            const real xi2  = std::pow( xi, 2 );
+            const real eta2 = std::pow( eta, 2 );
 
             // populate output matrix
-            aNXi.set_size( 1, 9 );
-            aNXi( 0 ) = ( c * ( eta - 1.0 ) * ( xi - 1.0 ) );
-            aNXi( 1 ) = ( c * ( eta - 1.0 ) * ( xi + 1.0 ) );
-            aNXi( 2 ) = ( c * ( eta + 1.0 ) * ( xi + 1.0 ) );
-            aNXi( 3 ) = ( c * ( eta + 1.0 ) * ( xi - 1.0 ) );
-            aNXi( 4 ) = ( eta * ( 1.0 - xi2 ) * ( eta - 1.0 ) ) * 0.5;
-            aNXi( 5 ) = ( xi * ( 1.0 - eta2 ) * ( xi + 1.0 ) ) * 0.5;
-            aNXi( 6 ) = ( eta * ( 1.0 - xi2 ) * ( eta + 1.0 ) ) * 0.5;
-            aNXi( 7 ) = ( xi * ( 1.0 - eta2 ) * ( xi - 1.0 ) ) * 0.5;
-            aNXi( 8 ) = ( eta2 - 1.0 ) * ( xi2 - 1.0 );
+            aNXi.set_size( 1, 8 );
+            aNXi( 0 ) = -( eta - 1.0 ) * ( xi - 1.0 ) * ( eta + xi + 1.0 ) * 0.25;
+            aNXi( 1 ) = ( eta - 1.0 ) * ( xi + 1.0 ) * ( eta - xi + 1.0 ) * 0.25;
+            aNXi( 2 ) = ( eta + 1.0 ) * ( xi + 1.0 ) * ( eta + xi - 1.0 ) * 0.25;
+            aNXi( 3 ) = ( eta + 1.0 ) * ( xi - 1.0 ) * ( -eta + xi + 1.0 ) * 0.25;
+            aNXi( 4 ) = ( xi2 - 1.0 ) * ( eta - 1.0 ) * 0.5;
+            aNXi( 5 ) = -( eta2 - 1.0 ) * ( xi + 1.0 ) * 0.5;
+            aNXi( 6 ) = -( xi2 - 1.0 ) * ( eta + 1.0 ) * 0.5;
+            aNXi( 7 ) = ( eta2 - 1.0 ) * ( xi - 1.0 ) * 0.5;
         }
     }    // namespace mtk
 }    // namespace moris

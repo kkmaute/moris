@@ -24,8 +24,6 @@
 
 #include "cl_MSI_Dof_Type_Enums.hpp"
 #include "cl_MTK_Mesh_Manager.hpp"
-
-
 #include "cl_HMR.hpp"
 #include "cl_HMR_Mesh.hpp"
 #include "cl_HMR_Database.hpp"
@@ -52,7 +50,6 @@ namespace moris
     {
         // Parameter function
         typedef void ( *Parameter_Function )( moris::Cell< moris::Cell< moris::ParameterList > >& aParameterList );
-
 
         Reinitialize_Performer::Reinitialize_Performer( std::shared_ptr< Library_IO > aLibrary )
                 : mLibrary( aLibrary )
@@ -90,7 +87,6 @@ namespace moris
                     mDofTypes,
                     tMSIDofTypeMap );
 
-
             mReinitializationFrequency = tMORISParameterList( 2 )( 0 ).get< sint >( "reinitialization_frequency" );
 
             // get the mesh output info
@@ -109,10 +105,10 @@ namespace moris
         {
             // Tracer to trace the time
             Tracer tTracer( "WRK", "Reinitialize ADVs", "Perform Reinitialize" );
+
             // initialize and populate the fields
             moris::Cell< std::shared_ptr< mtk::Field > > tGENFields;
             tGENFields.append( aGENPerformer( 0 )->get_mtk_fields() );
-
 
             // find the index of the desired adv field that will be reinitialized
             auto itr = std::find_if( tGENFields.begin(), tGENFields.end(), [ & ]( std::shared_ptr< mtk::Field > const & aFiled )    //
@@ -215,10 +211,7 @@ namespace moris
             {
                 tLowerBound = aGENPerformer( 0 )->get_lower_bounds()( 0 );
                 tUpperBound = aGENPerformer( 0 )->get_upper_bounds()( 0 );
-            }
-
-
-            // Bcast the values to other processeors
+            }    // Bcast the values to other processeors
             MPI_Bcast( &tLowerBound, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD );
             MPI_Bcast( &tUpperBound, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD );
 
@@ -277,7 +270,6 @@ namespace moris
             moris::Cell< std::string > tNodalFieldNames = { "Mapped_Field", "Original_Field" };
             tWriter.set_nodal_fields( tNodalFieldNames );
 
-
             // Create field on mesh
             tWriter.write_nodal_field( tNodalFieldNames( 0 ), aTarget->get_values() );
             tWriter.write_nodal_field( tNodalFieldNames( 1 ), aSource->get_values() );
@@ -286,5 +278,4 @@ namespace moris
             tWriter.close_file( true );
         }
     }    // namespace wrk
-
 }    // namespace moris

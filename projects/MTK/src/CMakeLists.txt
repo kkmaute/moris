@@ -74,6 +74,7 @@ cl_MTK_Side_Sets_Info.hpp
 cl_MTK_Cell_Info.hpp
 cl_MTK_Cell_Info_Tri3.hpp
 cl_MTK_Cell_Info_Tri6.hpp
+cl_MTK_Cell_Info_Quad8.hpp
 cl_MTK_Cell_Info_Quad9.hpp
 cl_MTK_Cell_Info_Quad16.hpp
 cl_MTK_Cell_Info_Tet4.hpp
@@ -214,6 +215,7 @@ cl_MTK_Cell_Info.cpp
 cl_MTK_Cell_Info_Tri3.cpp
 cl_MTK_Cell_Info_Tri6.cpp
 cl_MTK_Cell_Info_Quad4.cpp
+cl_MTK_Cell_Info_Quad8.cpp
 cl_MTK_Cell_Info_Quad9.cpp
 cl_MTK_Cell_Info_Quad16.cpp
 cl_MTK_Cell_Info_Tet4.cpp

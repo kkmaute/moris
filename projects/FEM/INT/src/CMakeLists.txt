@@ -39,7 +39,7 @@ set(HEADERS
     CORE/cl_FEM_Node_Base.hpp
     CORE/cl_FEM_Node.hpp
     CORE/cl_FEM_Field.hpp        
-    CORE/fn_FEM_Rotation_Matrix.hpp
+    CORE/fn_FEM_Side_Coordinate_Map.hpp
     CORE/cl_FEM_Property.hpp
     CORE/cl_FEM_Set_User_Info.hpp
     CORE/cl_FEM_Phase_User_Info.hpp
