@@ -209,5 +209,8 @@ namespace moris
 
             mVertexIdToLocalIndex[ aVertexId ] = aVertexLocalIndex;
         }
+
+        //----------------------------------------------------------------
+
     }    // namespace mtk
 }    // namespace moris

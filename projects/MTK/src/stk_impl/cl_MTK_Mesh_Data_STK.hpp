@@ -9,21 +9,20 @@
 #define PROJECTS_MTK_SRC_STK_IMPL_CL_MTK_MESH_DATA_STK_HPP_
 
 // Third-party header files.
-#include <stk_io/StkMeshIoBroker.hpp>     // for StkMeshIoBroker
-#include <stk_mesh/base/GetEntities.hpp>  // for count_entities
-#include <stk_mesh/base/MetaData.hpp>     // for MetaData
-#include <stk_mesh/base/BulkData.hpp>     // for BulkData
-#include <stk_mesh/base/Selector.hpp>     // for Selector
-#include <stk_mesh/base/FEMHelpers.hpp>   // for Selector
-#include "stk_io/DatabasePurpose.hpp"     // for DatabasePurpose::READ_MESH
-#include "stk_mesh/base/CoordinateSystems.hpp" // for Cartesian
-#include "stk_mesh/base/CreateFaces.hpp"  // for handling faces
-#include "stk_mesh/base/CreateEdges.hpp"  // for handling faces
-#include "stk_mesh/base/Bucket.hpp"       // for buckets
-#include "stk_mesh/base/Field.hpp"    // for coordinates
-#include "stk_mesh/base/GetEntities.hpp"    // for coordinates
-#include "stk_mesh/base/FieldParallel.hpp"  // for handling parallel fields
-
+#include <stk_io/StkMeshIoBroker.hpp>             // for StkMeshIoBroker
+#include <stk_mesh/base/GetEntities.hpp>          // for count_entities
+#include <stk_mesh/base/MetaData.hpp>             // for MetaData
+#include <stk_mesh/base/BulkData.hpp>             // for BulkData
+#include <stk_mesh/base/Selector.hpp>             // for Selector
+#include <stk_mesh/base/FEMHelpers.hpp>           // for Selector
+#include "stk_io/DatabasePurpose.hpp"             // for DatabasePurpose::READ_MESH
+#include "stk_mesh/base/CoordinateSystems.hpp"    // for Cartesian
+#include "stk_mesh/base/CreateFaces.hpp"          // for handling faces
+#include "stk_mesh/base/CreateEdges.hpp"          // for handling faces
+#include "stk_mesh/base/Bucket.hpp"               // for buckets
+#include "stk_mesh/base/Field.hpp"                // for coordinates
+#include "stk_mesh/base/GetEntities.hpp"          // for coordinates
+#include "stk_mesh/base/FieldParallel.hpp"        // for handling parallel fields
 
 #include "cl_MTK_Sets_Info.hpp"
 #include "cl_MTK_Mesh_Data_Input.hpp"
@@ -40,115 +39,107 @@
 #include "cl_MTK_Cell_STK.hpp"
 #include "cl_MTK_Vertex_STK.hpp"
 
-
 namespace moris
 {
-namespace mtk
-{
-class Mesh_Data_STK
-{
-public:
-    Mesh_Data_STK()
+    namespace mtk
     {
+        class Mesh_Data_STK
+        {
+          public:
+            Mesh_Data_STK()
+            {
+            }
 
-    }
+            ~Mesh_Data_STK()
+            {
+                delete mMeshReader;
+                delete mMtkMeshBulkData;
+                delete mMtkMeshMetaData;
+            }
 
-    ~Mesh_Data_STK()
-    {
-        delete mMeshReader;
-        delete mMtkMeshBulkData;
-        delete mMtkMeshMetaData;
- 
-    }
+            // STK specific Member variables
+            stk::io::StkMeshIoBroker* mMeshReader;
+            stk::mesh::MetaData*      mMtkMeshMetaData;
+            stk::mesh::BulkData*      mMtkMeshBulkData;
 
-    // STK specific Member variables
-    stk::io::StkMeshIoBroker*    mMeshReader;
-    stk::mesh::MetaData*         mMtkMeshMetaData;
-    stk::mesh::BulkData*         mMtkMeshBulkData;
+            // General mesh trait member variables
+            bool mDataGeneratedMesh = false;
+            bool mCreatedFaces      = false;
+            bool mCreatedEdges      = false;
 
-    // General mesh trait member variables
-    bool mDataGeneratedMesh = false;
-    bool mCreatedFaces      = false;
-    bool mCreatedEdges      = false;
+            // Local to Global c
+            // moris::Cell(0) - Node Local to Global
+            // moris::Cell(1) - Edge Local to Global
+            // moris::Cell(2) - Face Local to Global
+            // moris::Cell(3) - Elem Local to Global
+            moris::Cell< moris::Matrix< IdMat > > mEntityLocaltoGlobalMap;
 
-    // Local to Global c
-    // moris::Cell(0) - Node Local to Global
-    // moris::Cell(1) - Edge Local to Global
-    // moris::Cell(2) - Face Local to Global
-    // moris::Cell(3) - Elem Local to Global
-    moris::Cell<moris::Matrix< IdMat >> mEntityLocaltoGlobalMap;
+            // Local to Global c
+            // moris::Cell(0) - Node Global to Local
+            // moris::Cell(1) - Edge Global to Local
+            // moris::Cell(2) - Face Global to Local
+            // moris::Cell(3) - Elem Global to Local
+            // Keep in mind not all of these are created
+            moris::Cell< std::unordered_map< moris_id, moris_index > > mEntityGlobaltoLocalMap;
 
-    // Local to Global c
-    // moris::Cell(0) - Node Global to Local
-    // moris::Cell(1) - Edge Global to Local
-    // moris::Cell(2) - Face Global to Local
-    // moris::Cell(3) - Elem Global to Local
-    // Keep in mind not all of these are created
-    moris::Cell<std::unordered_map<moris_id,moris_index>> mEntityGlobaltoLocalMap;
+            // Exterior moris::Cell Entity Rank (Same structure as local to global
+            //  Interior moris::Cell (processor rank)
+            moris::Cell< moris::Cell< moris::Matrix< IndexMat > > > mEntitySendList;
+            moris::Cell< moris::Cell< moris::Matrix< IndexMat > > > mEntityReceiveList;
 
+            //    // moris::Cell and Vertex
+            moris::Cell< mtk::Cell_STK >                 mMtkCells;
+            moris::Cell< mtk::Vertex_Core_STK >          mMtkVertices;
+            moris::Cell< mtk::Vertex_Interpolation_STK > mMtkVerticeInterpolation;
 
-    //Exterior moris::Cell Entity Rank (Same structure as local to global
-    // Interior moris::Cell (processor rank)
-    moris::Cell<moris::Cell<moris::Matrix< IndexMat >>> mEntitySendList;
-    moris::Cell<moris::Cell<moris::Matrix< IndexMat >>> mEntityReceiveList;
+            // cell connectivity
+            moris::Cell< std::shared_ptr< mtk::Cell_Info > > mCellInfo;
 
-    //    // moris::Cell and Vertex
-    moris::Cell<mtk::Cell_STK>               mMtkCells;
-    moris::Cell<mtk::Vertex_Core_STK>             mMtkVertices;
-    moris::Cell<mtk::Vertex_Interpolation_STK> mMtkVerticeInterpolation;
+            uint mMaxNumFields = 20;
+            uint mNumDims      = 0;
 
-    // cell connectivity
-    moris::Cell<std::shared_ptr<mtk::Cell_Info>> mCellInfo;
+            typedef stk::mesh::Field< real >                          Field1CompReal;
+            typedef stk::mesh::Field< real, stk::mesh::Cartesian2d >  Field2CompReal;
+            typedef stk::mesh::Field< real, stk::mesh::Cartesian3d >  Field3CompReal;
+            typedef stk::mesh::Field< real, stk::mesh::FullTensor22 > Field4CompReal;
+            typedef stk::mesh::Field< real, stk::mesh::FullTensor >   Field9CompReal;
 
-    uint mMaxNumFields = 20;
-    uint mNumDims = 0;
+            std::vector< Field1CompReal* > mField1CompVecsReal;
+            std::vector< Field2CompReal* > mField2CompVecsReal;
+            std::vector< Field3CompReal* > mField3CompVecsReal;
+            std::vector< Field4CompReal* > mField4CompVecsReal;
+            std::vector< Field9CompReal* > mField9CompVecsReal;
 
+            typedef stk::mesh::Field< sint >                          Field1CompInt;
+            typedef stk::mesh::Field< sint, stk::mesh::Cartesian2d >  Field2CompInt;
+            typedef stk::mesh::Field< sint, stk::mesh::Cartesian3d >  Field3CompInt;
+            typedef stk::mesh::Field< sint, stk::mesh::FullTensor22 > Field4CompInt;
+            typedef stk::mesh::Field< sint, stk::mesh::FullTensor >   Field9CompInt;
 
-    typedef stk::mesh::Field<real>    Field1CompReal;
-    typedef stk::mesh::Field<real,stk::mesh::Cartesian2d>  Field2CompReal;
-    typedef stk::mesh::Field<real,stk::mesh::Cartesian3d>  Field3CompReal;
-    typedef stk::mesh::Field<real,stk::mesh::FullTensor22> Field4CompReal;
-    typedef stk::mesh::Field<real,stk::mesh::FullTensor>   Field9CompReal;
+            std::vector< Field1CompInt* > mField1CompVecsInt;
+            std::vector< Field2CompInt* > mField2CompVecsInt;
+            std::vector< Field3CompInt* > mField3CompVecsInt;
+            std::vector< Field4CompInt* > mField4CompVecsInt;
+            std::vector< Field9CompInt* > mField9CompVecsInt;
 
-    std::vector<Field1CompReal*> mField1CompVecsReal;
-    std::vector<Field2CompReal*> mField2CompVecsReal;
-    std::vector<Field3CompReal*> mField3CompVecsReal;
-    std::vector<Field4CompReal*> mField4CompVecsReal;
-    std::vector<Field9CompReal*> mField9CompVecsReal;
+            std::vector< bool > mSetRankFlags;    // Flags for user-defined node [0], side [1], and block [2] sets.
 
-    typedef stk::mesh::Field<sint>    Field1CompInt;
-    typedef stk::mesh::Field<sint,stk::mesh::Cartesian2d>  Field2CompInt;
-    typedef stk::mesh::Field<sint,stk::mesh::Cartesian3d>  Field3CompInt;
-    typedef stk::mesh::Field<sint,stk::mesh::FullTensor22> Field4CompInt;
-    typedef stk::mesh::Field<sint,stk::mesh::FullTensor>   Field9CompInt;
+            // TODO: ADD edge sets (not sure why these were neglected in previous implementation
+            std::vector< std::vector< std::string > > mSetNames;    // User-defined names for node [0], side [1], and block [2] sets.
 
-    std::vector<Field1CompInt*> mField1CompVecsInt;
-    std::vector<Field2CompInt*> mField2CompVecsInt;
-    std::vector<Field3CompInt*> mField3CompVecsInt;
-    std::vector<Field4CompInt*> mField4CompVecsInt;
-    std::vector<Field9CompInt*> mField9CompVecsInt;
+            std::map< uint, uint > mProcsSharedToIndex;
 
+            // Fields to Declare on Output (note this is needed for supplementary fields
+            // provided when mesh is loaded from a file only
+            moris::Cell< Field1CompReal* > mRealNodeScalarFieldsToAddToOutput;
 
-    std::vector < bool > mSetRankFlags;   // Flags for user-defined node [0], side [1], and block [2] sets.
-    // TODO: ADD edge sets (not sure why these were neglected in previous implementation
-    std::vector < std::vector < std::string > > mSetNames;  // User-defined names for node [0], side [1], and block [2] sets.
-
-    std::map < uint, uint > mProcsSharedToIndex;
-
-    // Fields to Declare on Output (note this is needed for supplementary fields
-    // provided when mesh is loaded from a file only
-    moris::Cell<Field1CompReal*> mRealNodeScalarFieldsToAddToOutput;
-
-    // Shared Vertex Information
-    std::unordered_map<moris_index,moris_index> mVertexSharingProcsMap; // maps between processor rank and location in cell of mVertexSharingData
-    moris::Matrix<moris::IdMat> mProcsWithSharedVertex;
-    moris::Cell<moris::Matrix<moris::IdMat>> mVertexSharingData; // for a processor (single cell in vector) , Vertex Ids and the vertex index on the other processor. Sorted by vertex ids ascending order
-    moris::Cell<moris::Matrix<moris::IdMat>> mCellSharingData;
-
-
-};
-}
-}
-
+            // Shared Vertex Information
+            std::unordered_map< moris_index, moris_index > mVertexSharingProcsMap;    // maps between processor rank and location in cell of mVertexSharingData
+            moris::Matrix< moris::IdMat >                  mProcsWithSharedVertex;
+            moris::Cell< moris::Matrix< moris::IdMat > >   mVertexSharingData;    // for a processor (single cell in vector) , Vertex Ids and the vertex index on the other processor. Sorted by vertex ids ascending order
+            moris::Cell< moris::Matrix< moris::IdMat > >   mCellSharingData;
+        };
+    }    // namespace mtk
+}    // namespace moris
 
 #endif /* PROJECTS_MTK_SRC_STK_IMPL_CL_MTK_MESH_DATA_STK_HPP_ */
