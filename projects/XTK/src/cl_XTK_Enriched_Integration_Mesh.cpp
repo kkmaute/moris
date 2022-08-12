@@ -3082,7 +3082,7 @@ Enriched_Integration_Mesh::setup_dbl_side_cluster_groups()
 
         // TODO: this estimate needs another look at it
         // estimate the number of dbl side cluster groups as double the number of cell cluster groups
-        uint tApproxNumDblSideClusterGroups = 2 * mSideClusterGroups( iBspMesh ).size();
+        uint tApproxNumDblSideClusterGroups = 2 * mCellClusterGroups( iBspMesh ).size();
 
         // reserve memory for dbl side cluster groups
         mDblSideClusterGroups( tDMI ).reserve( tApproxNumDblSideClusterGroups );
