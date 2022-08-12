@@ -32,7 +32,6 @@ namespace moris
             // map from vertex id to local index
             std::unordered_map< moris_index, moris_index > mVertexIdToLocalIndex;
 
-
           public:
             //----------------------------------------------------------------
 
@@ -127,8 +126,11 @@ namespace moris
             //----------------------------------------------------------------
 
             void
-            add_vertex_to_map( moris_id aVertexId,
-                    moris_index         aVertexLocalIndex );
+            add_vertex_to_map(
+                    moris_id    aVertexId,
+                    moris_index aVertexLocalIndex );
+
+            //----------------------------------------------------------------
         };
     }    // namespace mtk
 }    // namespace moris

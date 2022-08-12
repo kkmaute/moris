@@ -31,32 +31,35 @@ namespace moris
         //------------------------------------------------------------------------------
 
         // Parameter function
-        typedef void ( *Parameter_Function ) ( moris::Cell< moris::Cell< moris::ParameterList > > & aParameterList );
-        
+        typedef void ( *Parameter_Function )( moris::Cell< moris::Cell< moris::ParameterList > >& aParameterList );
+
         //--------------------------------------------------------------------------------------------------------------
 
-        Workflow_STK_FEM::Workflow_STK_FEM( wrk::Performer_Manager * aPerformerManager )
-        : Workflow( aPerformerManager )
+        Workflow_STK_FEM::Workflow_STK_FEM( wrk::Performer_Manager* aPerformerManager )
+                : Workflow( aPerformerManager )
         {
             Tracer tTracer( "Workflow", "STK_FEM", "Initialize" );
-            MORIS_LOG_SPEC("Par_Rank",par_rank());
-            MORIS_LOG_SPEC("Par_Size",par_size());
+            MORIS_LOG_SPEC( "Par_Rank", par_rank() );
+            MORIS_LOG_SPEC( "Par_Size", par_size() );
 
             // Performer set for this workflow
-            //mPerformerManager->mGENPerformer.resize( 1 );
-            //mPerformerManager->mXTKPerformer.resize( 1 );
+            // mPerformerManager->mGENPerformer.resize( 1 );
+            // mPerformerManager->mXTKPerformer.resize( 1 );
             mPerformerManager->mMTKPerformer.resize( 1 );
             mPerformerManager->mMDLPerformer.resize( 1 );
 
             // load the STK parameter list
             std::string tSTKString = "STKParameterList";
-            Parameter_Function tSTKParameterListFunc = mPerformerManager->mLibrary->load_function<Parameter_Function>( tSTKString );
+
+            Parameter_Function tSTKParameterListFunc =
+                    mPerformerManager->mLibrary->load_function< Parameter_Function >( tSTKString );
+
             moris::Cell< moris::Cell< ParameterList > > tSTKParameterList;
             tSTKParameterListFunc( tSTKParameterList );
 
             // load the meshes
             mPerformerManager->mMTKPerformer( 0 ) = std::make_shared< mtk::Mesh_Manager >();
-            this->create_stk(tSTKParameterList);
+            this->create_stk( tSTKParameterList );
 
             // create MDL performer
             mPerformerManager->mMDLPerformer( 0 ) = std::make_shared< mdl::Model >( mPerformerManager->mLibrary, 0 );
@@ -67,11 +70,12 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Workflow_STK_FEM::initialize(
-                Matrix<DDRMat>& aADVs,
-                Matrix<DDRMat>& aLowerBounds,
-                Matrix<DDRMat>& aUpperBounds,
-                Matrix< IdMat  >& aIjklIDs)
+        void
+        Workflow_STK_FEM::initialize(
+                Matrix< DDRMat >& aADVs,
+                Matrix< DDRMat >& aLowerBounds,
+                Matrix< DDRMat >& aUpperBounds,
+                Matrix< IdMat >&  aIjklIDs )
         {
         }
 
@@ -91,14 +95,14 @@ namespace moris
             moris::Cell< moris::Matrix< DDRMat > > tVal = mPerformerManager->mMDLPerformer( 0 )->get_IQI_values();
 
             // Communicate IQIs
-            for( uint iIQIIndex = 0; iIQIIndex < tVal.size(); iIQIIndex++ )
+            for ( uint iIQIIndex = 0; iIQIIndex < tVal.size(); iIQIIndex++ )
             {
                 tVal( iIQIIndex )( 0 ) = sum_all( tVal( iIQIIndex )( 0 ) );
             }
 
             moris::Matrix< DDRMat > tMat( tVal.size(), 1, 0.0 );
 
-            for( uint Ik = 0; Ik < tVal.size(); Ik ++ )
+            for ( uint Ik = 0; Ik < tVal.size(); Ik++ )
             {
                 tMat( Ik ) = tVal( Ik )( 0 );
             }
@@ -108,42 +112,43 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Workflow_STK_FEM::compute_dcriteria_dadv()
+        Matrix< DDRMat >
+        Workflow_STK_FEM::compute_dcriteria_dadv()
         {
-            return {{}};
+            return { {} };
         }
 
         void
-        Workflow_STK_FEM::create_stk(Cell< Cell<ParameterList> > & aParameterLists)
+        Workflow_STK_FEM::create_stk( Cell< Cell< ParameterList > >& aParameterLists )
         {
-            Tracer tTracer( "STK", "Mesh", "InitializeMesh" );
-            std::string tMeshFile = aParameterLists(0)(0).get<std::string>("input_file");
+            Tracer            tTracer( "STK", "Mesh", "InitializeMesh" );
+            std::string       tMeshFile     = aParameterLists( 0 )( 0 ).get< std::string >( "input_file" );
             mtk::MtkMeshData* tSuppMeshData = nullptr;
 
             mtk::Cell_Cluster_Input* tCellClusterData = nullptr;
 
             // construct the meshes
-            mIpMesh = std::make_shared<mtk::Interpolation_Mesh_STK>( tMeshFile, tSuppMeshData, true );
+            mIpMesh = std::make_shared< mtk::Interpolation_Mesh_STK >( tMeshFile, tSuppMeshData, true );
 
-            mIgMesh = std::make_shared<mtk::Integration_Mesh_STK> ( *mIpMesh, tCellClusterData );
+            mIgMesh = std::make_shared< mtk::Integration_Mesh_STK >( *mIpMesh, tCellClusterData );
 
-            mPerformerManager->mMTKPerformer( 0 )->register_mesh_pair(mIpMesh.get(),mIgMesh.get());
+            mPerformerManager->mMTKPerformer( 0 )->register_mesh_pair( mIpMesh.get(), mIgMesh.get() );
 
-            if(aParameterLists(0)(0).get<bool>("periodic_workspace"))
+            if ( aParameterLists( 0 )( 0 ).get< bool >( "periodic_workspace" ) )
             {
-                std::cout<<" Periodic BCs "<<std::endl;
-                mtk::Periodic_Boundary_Condition_Helper tPBCHelper(mPerformerManager->mMTKPerformer( 0 ),0,aParameterLists(0)(0));
+                std::cout << " Periodic BCs " << std::endl;
+                mtk::Periodic_Boundary_Condition_Helper tPBCHelper( mPerformerManager->mMTKPerformer( 0 ), 0, aParameterLists( 0 )( 0 ) );
                 tPBCHelper.setup_periodic_boundary_conditions();
 
                 // call some function in MTK to setup periodic boundary conditions
             }
 
             // output the mesh
-            moris::mtk::Writer_Exodus tWriter(mIgMesh.get());
-            tWriter.write_mesh("", "stk_fem_mesh.exo", "", "temp.exo");
+            moris::mtk::Writer_Exodus tWriter( mIgMesh.get() );
+            tWriter.write_mesh( "", "stk_fem_mesh.exo", "", "temp.exo" );
             tWriter.close_file();
         }
 
         //--------------------------------------------------------------------------------------------------------------
-    } /* namespace mdl */
+    }    // namespace wrk
 } /* namespace moris */

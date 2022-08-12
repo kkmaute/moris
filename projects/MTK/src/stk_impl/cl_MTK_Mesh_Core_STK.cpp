@@ -887,11 +887,17 @@ namespace moris
             // Access data through a selector
             stk::mesh::Selector     tSetSelector( *tSetPart );
             stk::mesh::EntityVector aElements;
-            stk::mesh::get_selected_entities( tSetSelector, mSTKMeshData->mMtkMeshBulkData->buckets( this->get_stk_entity_rank( EntityRank::ELEMENT ) ), aElements );
+
+            stk::mesh::get_selected_entities(
+                    tSetSelector,
+                    mSTKMeshData->mMtkMeshBulkData->buckets(
+                            this->get_stk_entity_rank( EntityRank::ELEMENT ) ),
+                    aElements );
 
             // Get entity Ids
             uint            tNumElements = aElements.size();
             Matrix< IdMat > tElementIDs( tNumElements, 1 );
+
             for ( uint tElementIndex = 0; tElementIndex < tNumElements; tElementIndex++ )
             {
                 tElementIDs( tElementIndex ) = (moris_id)mSTKMeshData->mMtkMeshBulkData->identifier( aElements[ tElementIndex ] );
@@ -1885,13 +1891,15 @@ namespace moris
             for ( uint iVertInd = 0; iVertInd < tNumNodes; iVertInd++ )
             {
                 // pass global node ids, node index and a pointer to this mesh into the vertex
-                mSTKMeshData->mMtkVertices( iVertInd ) = Vertex_Core_STK( this->get_glb_entity_id_from_entity_loc_index( iVertInd, EntityRank::NODE ),
-                        iVertInd,
-                        this );
+                mSTKMeshData->mMtkVertices( iVertInd ) =
+                        Vertex_Core_STK( this->get_glb_entity_id_from_entity_loc_index( iVertInd, EntityRank::NODE ),
+                                iVertInd,
+                                this );
             }
 
             // Setup Vertices interpolation
             mSTKMeshData->mMtkVerticeInterpolation = moris::Cell< Vertex_Interpolation_STK >( tNumNodes );
+
             for ( moris::moris_index iVertInd = 0; iVertInd < (moris::moris_index)tNumNodes; iVertInd++ )
             {
                 // pass global node ids, node index and a pointer to this mesh into the vertex
@@ -1911,7 +1919,10 @@ namespace moris
             mtk::Cell_Info_Factory tFactory;
 
             // iterate through buckets
-            const stk::mesh::BucketVector& tCellBuckets = mSTKMeshData->mMtkMeshBulkData->get_buckets( stk::topology::ELEMENT_RANK, mSTKMeshData->mMtkMeshMetaData->universal_part() );
+            const stk::mesh::BucketVector& tCellBuckets =
+                    mSTKMeshData->mMtkMeshBulkData->get_buckets(
+                            stk::topology::ELEMENT_RANK,
+                            mSTKMeshData->mMtkMeshMetaData->universal_part() );
 
             for ( size_t iBucket = 0; iBucket < tCellBuckets.size(); iBucket++ )
             {
@@ -1930,7 +1941,6 @@ namespace moris
 
                 for ( size_t iC = 0; iC < tCellBucket.size(); iC++ )
                 {
-
                     // get the stk cell
                     stk::mesh::Entity tSTKCell = tCellBucket[ iC ];
 
@@ -1940,7 +1950,11 @@ namespace moris
                     // local index
                     moris_index tIndex = this->get_loc_entity_ind_from_entity_glb_id( tId, EntityRank::ELEMENT );
 
-                    Matrix< IndexMat > tElementToNode = get_entity_connected_to_entity_loc_inds( tIndex, EntityRank::ELEMENT, EntityRank::NODE );
+                    Matrix< IndexMat > tElementToNode =
+                            get_entity_connected_to_entity_loc_inds(
+                                    tIndex,
+                                    EntityRank::ELEMENT,
+                                    EntityRank::NODE );
 
                     // setup vertices of cells
                     moris::Cell< Vertex* > tElementVertices( tElementToNode.numel() );
