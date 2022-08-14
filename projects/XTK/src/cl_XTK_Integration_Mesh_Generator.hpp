@@ -238,8 +238,9 @@ namespace xtk
     class Integration_Mesh_Generator
     {
       private:
-        Model*                                 mXTKModel;
-        moris::ge::Geometry_Engine*            mGeometryEngine;
+        Model*                      mXTKModel       = nullptr;
+        moris::ge::Geometry_Engine* mGeometryEngine = nullptr;
+
         moris::Matrix< moris::IndexMat >       mActiveGeometries;
         moris::Cell< enum Subdivision_Method > mSubdivisionMethods;
 
@@ -507,7 +508,6 @@ namespace xtk
                 std::shared_ptr< Facet_Based_Connectivity >                          aFacetConnectivity,
                 moris::Cell< std::shared_ptr< moris::Cell< moris::moris_index > > >* aBgFacetToChildFacet,
                 std::shared_ptr< Subphase_Neighborhood_Connectivity >                aSubphaseNeighborhood );
-
 
         // ----------------------------------------------------------------------------------
 
@@ -994,9 +994,6 @@ namespace xtk
                 Cut_Integration_Mesh* aCutIntegrationMesh,
                 Bspline_Mesh_Info*    aBsplineMeshInfo,
                 const moris_index     aMeshIndex );
-
-        // ----------------------------------------------------------------------------------
-
 
         // ----------------------------------------------------------------------------------
     };
