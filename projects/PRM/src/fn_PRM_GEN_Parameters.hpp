@@ -169,6 +169,7 @@ namespace moris
             tParameterList.insert( "image_sdf_scaling", 0.0 );     // sdf scaling factor (0: automatic scaling)
             tParameterList.insert( "image_sdf_shift", 0.0 );       // sdf shift value
             tParameterList.insert( "image_sdf_default", -1.0 );    // sdf value outside image
+            tParameterList.insert( "image_sdf_interpolate", false );   // whether sdf value is interpolated
 
             return tParameterList;
         }

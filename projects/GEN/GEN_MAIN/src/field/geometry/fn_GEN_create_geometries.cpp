@@ -288,6 +288,7 @@ namespace moris
                 real tSDFScaling = aGeometryParameterList.get< real >( "image_sdf_scaling" );
                 real tSDFShift   = aGeometryParameterList.get< real >( "image_sdf_shift" );
                 real tSDFDefault = aGeometryParameterList.get< real >( "image_sdf_default" );
+                bool tsDFInterp  = aGeometryParameterList.get< bool >( "image_sdf_interpolate" );
 
                 return std::make_shared< Image_SDF_Geometry >(
                         aADVs,
@@ -300,6 +301,7 @@ namespace moris
                         tSDFScaling,
                         tSDFShift,
                         tSDFDefault,
+                        tsDFInterp,
                         tParameters );
             }
             else if ( tGeometryType == "user_defined" )

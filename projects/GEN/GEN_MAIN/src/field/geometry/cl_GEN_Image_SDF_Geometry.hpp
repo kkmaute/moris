@@ -34,13 +34,15 @@ namespace moris
             uint mVoxelsInY = 1;    /// number of pixels/voxels in y-direction
             uint mVoxelsInZ = 1;    /// number of pixels/voxels in z-direction
 
-            real mVoxelSizeX = 0.0;    /// size of voxel in x-direction
-            real mVoxelSizeY = 0.0;    /// size of voxel in y-direction
-            real mVoxelSizeZ = 0.0;    /// size of voxel in z-direction
+            real mVoxelSizeX = MORIS_REAL_MAX;    /// size of voxel in x-direction
+            real mVoxelSizeY = MORIS_REAL_MAX;    /// size of voxel in y-direction
+            real mVoxelSizeZ = MORIS_REAL_MAX;    /// size of voxel in z-direction
 
-            real mSDFScaling = -1.0;              /// scaling of sdf field (0: automatic)
+            real mSdfScaling = -1.0;              /// scaling of sdf field (0: automatic)
             real mSdfShift   = 0.0;               /// shift of sdf field
             real mSdfDefault = MORIS_REAL_MAX;    /// sdf value at points outside image
+
+            bool mDoInterpolate = false;    /// flag to perform interpolation
 
           public:
             /**
@@ -62,17 +64,19 @@ namespace moris
                     std::string               aImageFileName,
                     Matrix< DDRMat >          aDomainDimensions,
                     Matrix< DDRMat >          aDomainOffset,
-                    real                      aSDFScaling,
+                    real                      aSdfScaling,
                     real                      aSdfShift,
                     real                      aSdfDefault,
+                    bool                      aSdfInterpolate,
                     Geometry_Field_Parameters aParameters = {} )
                     : Field( aADVs, aGeometryVariableIndices, aADVIndices, aConstants, aParameters )
                     , Geometry( aParameters )
                     , mDomainDimensions( aDomainDimensions )
                     , mDomainOffset( aDomainOffset )
-                    , mSDFScaling( aSDFScaling )
+                    , mSdfScaling( aSdfScaling )
                     , mSdfShift( aSdfShift )
                     , mSdfDefault( aSdfDefault )
+                    , mDoInterpolate( aSdfInterpolate )
             {
                 this->read_image_sdf_data( aImageFileName );
             }

@@ -42,19 +42,61 @@ namespace moris
             if ( mDomainOffset( 1 ) + mDomainDimensions( 1 ) - aCoordinates( 1 ) + tEpsilon < 0 ) return mSdfDefault;
             if ( mDomainOffset( 2 ) + mDomainDimensions( 2 ) - aCoordinates( 2 ) + tEpsilon < 0 ) return mSdfDefault;
 
-            // compute i,j,k position
-            sint tI = std::floor( ( aCoordinates( 0 ) - mDomainOffset( 0 ) ) / mVoxelSizeX );
-            sint tJ = std::floor( ( aCoordinates( 1 ) - mDomainOffset( 1 ) ) / mVoxelSizeY );
-            sint tK = std::floor( ( aCoordinates( 2 ) - mDomainOffset( 2 ) ) / mVoxelSizeZ );
+            // compute relative position in image
+            const real tIpos = ( aCoordinates( 0 ) - mDomainOffset( 0 ) ) / mVoxelSizeX;
+            const real tJpos = ( aCoordinates( 1 ) - mDomainOffset( 1 ) ) / mVoxelSizeY;
+            const real tKpos = ( aCoordinates( 2 ) - mDomainOffset( 2 ) ) / mVoxelSizeZ;
 
-            // clip i, j, k
-            tI = std::max( 0, std::min( tI, (sint)mVoxelsInX - 1 ) );
-            tJ = std::max( 0, std::min( tJ, (sint)mVoxelsInY - 1 ) );
-            tK = std::max( 0, std::min( tK, (sint)mVoxelsInZ - 1 ) );
+            // compute i,j,k position of lower left voxel
+            sint tI = std::floor( tIpos );
+            sint tJ = std::floor( tJpos );
+            sint tK = std::floor( tKpos );
 
-            uint tRow = tK * mVoxelsInX * mVoxelsInY + tJ * mVoxelsInX + tI;
+            real tInterpolatedValue;
 
-            return mSdfField( tRow ) + mSdfShift;
+            // linear interpolation
+            if ( mDoInterpolate )
+            {
+                // clip i,j,k position (enforce i,j,k to be within domain)
+                tI = std::max( 0, std::min( tI, (sint)mVoxelsInX - 2 ) );
+                tJ = std::max( 0, std::min( tJ, (sint)mVoxelsInY - 2 ) );
+                tK = std::max( 0, std::min( tK, (sint)mVoxelsInZ - 2 ) );
+
+                const uint tRow = tK * mVoxelsInX * mVoxelsInY + tJ * mVoxelsInX + tI;
+
+                // compute relative position in between voxels
+                real tIloc = tIpos - (real)tI;
+                real tJloc = tJpos - (real)tJ;
+                real tKloc = tKpos - (real)tK;
+
+                // clip relative position in between voxels and shift-scale relative positions
+                tIloc = -1.0 + 2.0 * std::max( 0.0, std::min( tIloc, 1.0 ) );
+                tJloc = -1.0 + 2.0 * std::max( 0.0, std::min( tJloc, 1.0 ) );
+                tKloc = -1.0 + 2.0 * std::max( 0.0, std::min( tKloc, 1.0 ) );
+
+                tInterpolatedValue                                                                                                                     //
+                        = 0.25 * ( 1.0 - tIloc ) * ( 1.0 - tJloc ) * ( 1.0 - tKloc ) * mSdfField( tRow )                                               //
+                        + 0.25 * ( 1.0 + tIloc ) * ( 1.0 - tJloc ) * ( 1.0 - tKloc ) * mSdfField( tRow + 1 )                                           //
+                        + 0.25 * ( 1.0 + tIloc ) * ( 1.0 + tJloc ) * ( 1.0 - tKloc ) * mSdfField( tRow + mVoxelsInX + 1 )                              //
+                        + 0.25 * ( 1.0 - tIloc ) * ( 1.0 + tJloc ) * ( 1.0 - tKloc ) * mSdfField( tRow + mVoxelsInX )                                  //
+                        + 0.25 * ( 1.0 - tIloc ) * ( 1.0 - tJloc ) * ( 1.0 + tKloc ) * mSdfField( tRow + mVoxelsInX * mVoxelsInY )                     //
+                        + 0.25 * ( 1.0 + tIloc ) * ( 1.0 - tJloc ) * ( 1.0 + tKloc ) * mSdfField( tRow + mVoxelsInX * mVoxelsInY + 1 )                 //
+                        + 0.25 * ( 1.0 + tIloc ) * ( 1.0 + tJloc ) * ( 1.0 + tKloc ) * mSdfField( tRow + mVoxelsInX * mVoxelsInY + mVoxelsInX + 1 )    //
+                        + 0.25 * ( 1.0 - tIloc ) * ( 1.0 + tJloc ) * ( 1.0 + tKloc ) * mSdfField( tRow + mVoxelsInX * mVoxelsInY + mVoxelsInX );
+            }
+            else
+            {
+                // clip i,j,k position (allow i,j,k  on boundaries)
+                tI = std::max( 0, std::min( tI, (sint)mVoxelsInX - 1 ) );
+                tJ = std::max( 0, std::min( tJ, (sint)mVoxelsInY - 1 ) );
+                tK = std::max( 0, std::min( tK, (sint)mVoxelsInZ - 1 ) );
+
+                const uint tRow = tK * mVoxelsInX * mVoxelsInY + tJ * mVoxelsInX + tI;
+
+                tInterpolatedValue = mSdfField( tRow );
+            }
+
+            return ( tInterpolatedValue + mSdfShift );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -71,17 +113,52 @@ namespace moris
             if ( mDomainOffset( 0 ) + mDomainDimensions( 0 ) - aCoordinates( 0 ) + tEpsilon < 0 ) return mSdfDefault;
             if ( mDomainOffset( 1 ) + mDomainDimensions( 1 ) - aCoordinates( 1 ) + tEpsilon < 0 ) return mSdfDefault;
 
-            // compute i,j position
-            sint tI = std::floor( ( aCoordinates( 0 ) - mDomainOffset( 0 ) ) / mVoxelSizeX );
-            sint tJ = std::floor( ( aCoordinates( 1 ) - mDomainOffset( 1 ) ) / mVoxelSizeY );
+            // compute relative position in image
+            const real tIpos = ( aCoordinates( 0 ) - mDomainOffset( 0 ) ) / mVoxelSizeX;
+            const real tJpos = ( aCoordinates( 1 ) - mDomainOffset( 1 ) ) / mVoxelSizeY;
 
-            // clip i, j
-            tI = std::max( 0, std::min( tI, (sint)mVoxelsInX - 1 ) );
-            tJ = std::max( 0, std::min( tJ, (sint)mVoxelsInY - 1 ) );
+            // compute i,j position of lower left voxel
+            sint tI = std::floor( tIpos );
+            sint tJ = std::floor( tJpos );
 
-            uint tRow = tJ * mVoxelsInX + tI;
+            real tInterpolatedValue;
 
-            return mSdfField( tRow ) + mSdfShift;
+            if ( mDoInterpolate )
+            {
+                // clip i,j position (enforce i,j to be within domain)
+                tI = std::max( 0, std::min( tI, (sint)mVoxelsInX - 2 ) );
+                tJ = std::max( 0, std::min( tJ, (sint)mVoxelsInY - 2 ) );
+
+                // compute relative position in between voxels
+                real tIloc = tIpos - (real)tI;
+                real tJloc = tJpos - (real)tJ;
+
+                // clip relative position in between voxels and shift-scale relative positions
+                tIloc = -1.0 + 2.0 * std::max( 0.0, std::min( tIloc, 1.0 ) );
+                tJloc = -1.0 + 2.0 * std::max( 0.0, std::min( tJloc, 1.0 ) );
+
+                // linear interpolation
+                const uint tRow = tJ * mVoxelsInX + tI;
+
+                tInterpolatedValue                                                                        //
+                        = 0.5 * ( 1.0 - tIloc ) * ( 1.0 - tJloc ) * mSdfField( tRow )                     //
+                        + 0.5 * ( 1.0 + tIloc ) * ( 1.0 - tJloc ) * mSdfField( tRow + 1 )                 //
+                        + 0.5 * ( 1.0 + tIloc ) * ( 1.0 + tJloc ) * mSdfField( tRow + mVoxelsInX + 1 )    //
+                        + 0.5 * ( 1.0 - tIloc ) * ( 1.0 + tJloc ) * mSdfField( tRow + mVoxelsInX );
+            }
+            else
+            {
+                // clip i,j position (allow i,j,k  on boundaries)
+                tI = std::max( 0, std::min( tI, (sint)mVoxelsInX - 1 ) );
+                tJ = std::max( 0, std::min( tJ, (sint)mVoxelsInY - 1 ) );
+
+                // linear interpolation
+                const uint tRow = tJ * mVoxelsInX + tI;
+
+                tInterpolatedValue = mSdfField( tRow );
+            }
+
+            return tInterpolatedValue + mSdfShift;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -138,7 +215,7 @@ namespace moris
             {
                 mVoxelsInZ = tDimensions( 2 );
 
-                mVoxelSizeY = mDomainDimensions( 2 ) / mVoxelsInZ;
+                mVoxelSizeZ = mDomainDimensions( 2 ) / mVoxelsInZ;
             }
 
             // check for proper size of sdf file (stored in single vector)
@@ -148,7 +225,7 @@ namespace moris
             // scale sdf file
 
             // check whether automatic scaling factor needs to be computed
-            if ( std::abs( mSDFScaling ) < MORIS_REAL_EPS )
+            if ( std::abs( mSdfScaling ) < MORIS_REAL_EPS )
             {
                 // compute range of sdf values
                 real tSdfDifference = mSdfField.max() - mSdfField.min();
@@ -164,10 +241,10 @@ namespace moris
                     tPhysicalDim = std::pow( mDomainDimensions( 0 ) * mDomainDimensions( 1 ), 1.0 / 2.0 );
                 }
 
-                mSDFScaling = tPhysicalDim / tSdfDifference;
+                mSdfScaling = tPhysicalDim / tSdfDifference;
             }
 
-            mSdfField = mSDFScaling * mSdfField;
+            mSdfField = mSdfScaling * mSdfField;
 
             // compute default value
             if ( mSdfDefault < 0 )
