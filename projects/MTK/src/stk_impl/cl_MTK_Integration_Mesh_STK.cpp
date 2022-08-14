@@ -1054,6 +1054,9 @@ namespace moris
                 uint tMasterBlkIndex = MORIS_UINT_MAX;
                 uint tSlaveBlkIndex  = MORIS_UINT_MAX;
 
+                // initialize inconsistency flag (side set connected to more than 2 bulk phases)
+                bool tInconsistentFlag = false;
+
                 for ( uint Ic = 0; Ic < tNumClusterInSet; Ic++ )
                 {
                     const Side_Cluster_STK *tSideClusters =
@@ -1063,7 +1066,7 @@ namespace moris
                     moris_index tIpCellIndex = tSideClusters->get_interpolation_cell().get_index();
                     uint        tBlkIndex    = mIpCellToBlockSetOrd( tIpCellIndex );
 
-                    // store master block index and check if there are more than 2 blcoks
+                    // store master block index and check if there are more than 2 blocks
                     if ( tBlkIndex <= tMasterBlkIndex )
                     {
                         tMasterBlkIndex = tBlkIndex;
@@ -1076,10 +1079,22 @@ namespace moris
                         }
                         else
                         {
-                            MORIS_ERROR( tSlaveBlkIndex == tBlkIndex,
-                                    "Integration_Mesh_STK::setup_double_side_set_clusters_all_trivial - side set is connected to more than two block sets" );
+                            if ( tSlaveBlkIndex != tBlkIndex )
+                            {
+                                MORIS_LOG_INFO( "Integration_Mesh_STK::setup_double_side_set_clusters_all_trivial - side set  %s is connected to more than two block sets",
+                                        mListofSideSets( Ik )->get_set_name().c_str() );
+
+                                tInconsistentFlag = true;
+                                break;
+                            }
                         }
                     }
+                }
+
+                // skip side set if side set is inconsistent
+                if ( tInconsistentFlag )
+                {
+                    continue;
                 }
 
                 // loop over all clusters in set
