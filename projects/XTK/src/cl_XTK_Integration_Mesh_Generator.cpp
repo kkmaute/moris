@@ -32,7 +32,10 @@ namespace xtk
             , mActiveGeometries( aActiveGeometries )
             , mSubdivisionMethods( aMethods )
     {
-        mOutputCutIgMesh = mXTKModel->mParameterList.get< bool >( "output_cut_ig_mesh" );
+        if ( mXTKModel->mParameterList.get< bool >( "has_parameter_list" ) )
+        {
+            mOutputCutIgMesh = mXTKModel->mParameterList.get< bool >( "output_cut_ig_mesh" );
+        }
     }
     // ----------------------------------------------------------------------------------
 
