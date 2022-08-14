@@ -13,33 +13,36 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        real Field_Analytic::get_field_value(
-                uint                  aNodeIndex,
-                const Matrix<DDRMat>& aCoordinates)
+        real
+        Field_Analytic::get_field_value(
+                uint                    aNodeIndex,
+                const Matrix< DDRMat >& aCoordinates )
         {
-            return this->get_field_value(aCoordinates);
+            return this->get_field_value( aCoordinates );
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        const Matrix<DDRMat>& Field_Analytic::get_dfield_dadvs(
-                uint                  aNodeIndex,
-                const Matrix<DDRMat>& aCoordinates)
+        const Matrix< DDRMat >&
+        Field_Analytic::get_dfield_dadvs(
+                uint                    aNodeIndex,
+                const Matrix< DDRMat >& aCoordinates )
         {
-            return this->get_dfield_dadvs(aCoordinates);
+            return this->get_dfield_dadvs( aCoordinates );
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Field_Analytic::get_dfield_dcoordinates(
-                uint                  aNodeIndex,
-                const Matrix<DDRMat>& aCoordinates,
-                Matrix<DDRMat>&       aSensitivities)
+        void
+        Field_Analytic::get_dfield_dcoordinates(
+                uint                    aNodeIndex,
+                const Matrix< DDRMat >& aCoordinates,
+                Matrix< DDRMat >&       aSensitivities )
         {
-            this->get_dfield_dcoordinates(aCoordinates, aSensitivities);
+            this->get_dfield_dcoordinates( aCoordinates, aSensitivities );
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-    }
-}
+    }    // namespace ge
+}    // namespace moris
