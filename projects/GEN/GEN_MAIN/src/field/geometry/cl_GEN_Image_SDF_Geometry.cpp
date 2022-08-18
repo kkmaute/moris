@@ -47,16 +47,16 @@ namespace moris
             const real tJpos = ( aCoordinates( 1 ) - mDomainOffset( 1 ) ) / mVoxelSizeY;
             const real tKpos = ( aCoordinates( 2 ) - mDomainOffset( 2 ) ) / mVoxelSizeZ;
 
-            // compute i,j,k position of lower left voxel
-            sint tI = std::floor( tIpos );
-            sint tJ = std::floor( tJpos );
-            sint tK = std::floor( tKpos );
-
             real tInterpolatedValue;
 
             // linear interpolation
             if ( mDoInterpolate )
             {
+                // compute i,j,k position of lower left voxel
+                sint tI = std::floor( tIpos );
+                sint tJ = std::floor( tJpos );
+                sint tK = std::floor( tKpos );
+
                 // clip i,j,k position (enforce i,j,k to be within domain)
                 tI = std::max( 0, std::min( tI, (sint)mVoxelsInX - 2 ) );
                 tJ = std::max( 0, std::min( tJ, (sint)mVoxelsInY - 2 ) );
@@ -74,18 +74,23 @@ namespace moris
                 tJloc = -1.0 + 2.0 * std::max( 0.0, std::min( tJloc, 1.0 ) );
                 tKloc = -1.0 + 2.0 * std::max( 0.0, std::min( tKloc, 1.0 ) );
 
-                tInterpolatedValue                                                                                                                     //
-                        = 0.25 * ( 1.0 - tIloc ) * ( 1.0 - tJloc ) * ( 1.0 - tKloc ) * mSdfField( tRow )                                               //
-                        + 0.25 * ( 1.0 + tIloc ) * ( 1.0 - tJloc ) * ( 1.0 - tKloc ) * mSdfField( tRow + 1 )                                           //
-                        + 0.25 * ( 1.0 + tIloc ) * ( 1.0 + tJloc ) * ( 1.0 - tKloc ) * mSdfField( tRow + mVoxelsInX + 1 )                              //
-                        + 0.25 * ( 1.0 - tIloc ) * ( 1.0 + tJloc ) * ( 1.0 - tKloc ) * mSdfField( tRow + mVoxelsInX )                                  //
-                        + 0.25 * ( 1.0 - tIloc ) * ( 1.0 - tJloc ) * ( 1.0 + tKloc ) * mSdfField( tRow + mVoxelsInX * mVoxelsInY )                     //
-                        + 0.25 * ( 1.0 + tIloc ) * ( 1.0 - tJloc ) * ( 1.0 + tKloc ) * mSdfField( tRow + mVoxelsInX * mVoxelsInY + 1 )                 //
-                        + 0.25 * ( 1.0 + tIloc ) * ( 1.0 + tJloc ) * ( 1.0 + tKloc ) * mSdfField( tRow + mVoxelsInX * mVoxelsInY + mVoxelsInX + 1 )    //
-                        + 0.25 * ( 1.0 - tIloc ) * ( 1.0 + tJloc ) * ( 1.0 + tKloc ) * mSdfField( tRow + mVoxelsInX * mVoxelsInY + mVoxelsInX );
+                tInterpolatedValue                                                                                                                      //
+                        = 0.125 * ( 1.0 - tIloc ) * ( 1.0 - tJloc ) * ( 1.0 - tKloc ) * mSdfField( tRow )                                               //
+                        + 0.125 * ( 1.0 + tIloc ) * ( 1.0 - tJloc ) * ( 1.0 - tKloc ) * mSdfField( tRow + 1 )                                           //
+                        + 0.125 * ( 1.0 + tIloc ) * ( 1.0 + tJloc ) * ( 1.0 - tKloc ) * mSdfField( tRow + mVoxelsInX + 1 )                              //
+                        + 0.125 * ( 1.0 - tIloc ) * ( 1.0 + tJloc ) * ( 1.0 - tKloc ) * mSdfField( tRow + mVoxelsInX )                                  //
+                        + 0.125 * ( 1.0 - tIloc ) * ( 1.0 - tJloc ) * ( 1.0 + tKloc ) * mSdfField( tRow + mVoxelsInX * mVoxelsInY )                     //
+                        + 0.125 * ( 1.0 + tIloc ) * ( 1.0 - tJloc ) * ( 1.0 + tKloc ) * mSdfField( tRow + mVoxelsInX * mVoxelsInY + 1 )                 //
+                        + 0.125 * ( 1.0 + tIloc ) * ( 1.0 + tJloc ) * ( 1.0 + tKloc ) * mSdfField( tRow + mVoxelsInX * mVoxelsInY + mVoxelsInX + 1 )    //
+                        + 0.125 * ( 1.0 - tIloc ) * ( 1.0 + tJloc ) * ( 1.0 + tKloc ) * mSdfField( tRow + mVoxelsInX * mVoxelsInY + mVoxelsInX );
             }
             else
             {
+                // compute i,j,k position of closest voxel
+                sint tI = std::round( tIpos );
+                sint tJ = std::round( tJpos );
+                sint tK = std::round( tKpos );
+
                 // clip i,j,k position (allow i,j,k  on boundaries)
                 tI = std::max( 0, std::min( tI, (sint)mVoxelsInX - 1 ) );
                 tJ = std::max( 0, std::min( tJ, (sint)mVoxelsInY - 1 ) );
@@ -117,14 +122,14 @@ namespace moris
             const real tIpos = ( aCoordinates( 0 ) - mDomainOffset( 0 ) ) / mVoxelSizeX;
             const real tJpos = ( aCoordinates( 1 ) - mDomainOffset( 1 ) ) / mVoxelSizeY;
 
-            // compute i,j position of lower left voxel
-            sint tI = std::floor( tIpos );
-            sint tJ = std::floor( tJpos );
-
             real tInterpolatedValue;
 
             if ( mDoInterpolate )
             {
+                // compute i,j position of lower left voxel
+                sint tI = std::floor( tIpos );
+                sint tJ = std::floor( tJpos );
+
                 // clip i,j position (enforce i,j to be within domain)
                 tI = std::max( 0, std::min( tI, (sint)mVoxelsInX - 2 ) );
                 tJ = std::max( 0, std::min( tJ, (sint)mVoxelsInY - 2 ) );
@@ -140,14 +145,18 @@ namespace moris
                 // linear interpolation
                 const uint tRow = tJ * mVoxelsInX + tI;
 
-                tInterpolatedValue                                                                        //
-                        = 0.5 * ( 1.0 - tIloc ) * ( 1.0 - tJloc ) * mSdfField( tRow )                     //
-                        + 0.5 * ( 1.0 + tIloc ) * ( 1.0 - tJloc ) * mSdfField( tRow + 1 )                 //
-                        + 0.5 * ( 1.0 + tIloc ) * ( 1.0 + tJloc ) * mSdfField( tRow + mVoxelsInX + 1 )    //
-                        + 0.5 * ( 1.0 - tIloc ) * ( 1.0 + tJloc ) * mSdfField( tRow + mVoxelsInX );
+                tInterpolatedValue                                                                         //
+                        = 0.25 * ( 1.0 - tIloc ) * ( 1.0 - tJloc ) * mSdfField( tRow )                     //
+                        + 0.25 * ( 1.0 + tIloc ) * ( 1.0 - tJloc ) * mSdfField( tRow + 1 )                 //
+                        + 0.25 * ( 1.0 + tIloc ) * ( 1.0 + tJloc ) * mSdfField( tRow + mVoxelsInX + 1 )    //
+                        + 0.25 * ( 1.0 - tIloc ) * ( 1.0 + tJloc ) * mSdfField( tRow + mVoxelsInX );
             }
             else
             {
+                // compute i,j,k position of closest voxel
+                sint tI = std::round( tIpos );
+                sint tJ = std::round( tJpos );
+
                 // clip i,j position (allow i,j,k  on boundaries)
                 tI = std::max( 0, std::min( tI, (sint)mVoxelsInX - 1 ) );
                 tJ = std::max( 0, std::min( tJ, (sint)mVoxelsInY - 1 ) );
@@ -208,14 +217,14 @@ namespace moris
             mVoxelsInX = tDimensions( 0 );
             mVoxelsInY = tDimensions( 1 );
 
-            mVoxelSizeX = mDomainDimensions( 0 ) / mVoxelsInX;
-            mVoxelSizeY = mDomainDimensions( 1 ) / mVoxelsInY;
+            mVoxelSizeX = mDomainDimensions( 0 ) / ( mVoxelsInX - 1 );
+            mVoxelSizeY = mDomainDimensions( 1 ) / ( mVoxelsInY - 1 );
 
             if ( tDimensions.numel() > 2 )
             {
                 mVoxelsInZ = tDimensions( 2 );
 
-                mVoxelSizeZ = mDomainDimensions( 2 ) / mVoxelsInZ;
+                mVoxelSizeZ = mDomainDimensions( 2 ) / ( mVoxelsInZ - 1 );
             }
 
             // check for proper size of sdf file (stored in single vector)
