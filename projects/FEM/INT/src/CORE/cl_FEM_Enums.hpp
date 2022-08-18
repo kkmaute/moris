@@ -41,38 +41,38 @@ namespace moris
             LSNORMAL,     // LS normal
             OLSSON,       // Olsson et al. (2007) reinitialization
 
-            SPATIALDIFF_BULK,       // spatial diffusion bulk
-            SPATIALDIFF_PC_BULK,    // spatial diffusion bulk with phase change
-            ADVECTION_BULK,
-            SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE,    // spatial diffusion Dirichlet (Nitsche)
-            SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE,
-            SPATIALDIFF_ROBIN_SYMMETRIC_NITSCHE,
-            SPATIALDIFF_ROBIN_UNSYMMETRIC_NITSCHE,
-            SPATIALDIFF_NEUMANN,                        // spatial diffusion Neumann
-            SPATIALDIFF_CONVECTION,                          // spatial diffusion Robin (Convection)
-            SPATIALDIFF_RADIATION,                      // spatial diffusion Radiation BC
-            SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE,    // spatial diffusion Nitsche interface condition
-            SPATIALDIFF_INTERFACE_UNSYMMETRIC_NITSCHE,
-            SPATIALDIFF_GGLS_PC,     // spatial diffusion GGLS stabilization term for phase change
-            SPATIALDIFF_VW_GHOST,    // spatial diffusion virtual work ghost
+            SPATIALDIFF_BULK,                             // spatial diffusion bulk
+            SPATIALDIFF_PC_BULK,                          // spatial diffusion bulk with phase change
+            ADVECTION_BULK,                               // spatial advection bulk
+            SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE,      // spatial diffusion Dirichlet (Nitsche)
+            SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE,    // spatial diffusion Dirichlet (Nitsche)
+            SPATIALDIFF_ROBIN_SYMMETRIC_NITSCHE,          // spatial diffusion Robin (Nitsche)
+            SPATIALDIFF_ROBIN_UNSYMMETRIC_NITSCHE,        // spatial diffusion Robin (Nitsche)
+            SPATIALDIFF_NEUMANN,                          // spatial diffusion Neumann
+            SPATIALDIFF_CONVECTION,                       // spatial diffusion Robin (Convection)
+            SPATIALDIFF_RADIATION,                        // spatial diffusion Radiation BC
+            SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE,      // spatial diffusion Nitsche interface condition
+            SPATIALDIFF_INTERFACE_UNSYMMETRIC_NITSCHE,    // spatial diffusion Nitsche interface condition
+            SPATIALDIFF_GGLS_PC,                          // spatial diffusion GGLS stabilization term for phase change
+            SPATIALDIFF_VW_GHOST,                         // spatial diffusion virtual work ghost
 
             STRUC_LINEAR_BULK,                             // linear elasticity bulk
             STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE,      // linear elasticity Dirichlet (Nitsche)
             STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE,    // linear elasticity Dirichlet (Nitsche)
             STRUC_LINEAR_NEUMANN,                          // linear elasticity Neumann
             STRUC_LINEAR_INTERFACE_SYMMETRIC_NITSCHE,      // linear elasticity Nitsche interface condition
-            STRUC_LINEAR_INTERFACE_UNSYMMETRIC_NITSCHE,
+            STRUC_LINEAR_INTERFACE_UNSYMMETRIC_NITSCHE,    // linear elasticity Nitsche interface condition
 
-			Struc_Linear_Interface_SLM_Constraint,			// linear elasticity stabilzed lagrange multiplier constraint
-			Struc_Linear_Interface_SLM_L2,					// linear elasticity stabilzed lagrange multiplier L2 projection
-			Struc_Linear_Interface_SLM_Mixed,				// linear elasticity stabilzed lagrange multiplier mixed term
-			Struc_Linear_Interface_SLM_LMJump,				// linear elasticity stabilzed lagrange multiplier LM jump term
+            Struc_Linear_Interface_SLM_Constraint,    // linear elasticity stabilzed lagrange multiplier constraint
+            Struc_Linear_Interface_SLM_L2,            // linear elasticity stabilzed lagrange multiplier L2 projection
+            Struc_Linear_Interface_SLM_Mixed,         // linear elasticity stabilzed lagrange multiplier mixed term
+            Struc_Linear_Interface_SLM_LMJump,        // linear elasticity stabilzed lagrange multiplier LM jump term
 
-            STRUC_LINEAR_VW_GHOST,                                // linear elasticity Ghost flux based
-            STRUC_LINEAR_PRESSURE_BULK,                           // linear elasticity bulk mixed formulation
-            STRUC_LINEAR_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE,    // linear elasticity Dirichlet mixed formulation (Nitsche)
-            STRUC_LINEAR_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE,
-            STRUC_LINEAR_FLUID_INTERFACE,    // one-side fluid-structure coupling
+            STRUC_LINEAR_VW_GHOST,                                  // linear elasticity Ghost flux based
+            STRUC_LINEAR_PRESSURE_BULK,                             // linear elasticity bulk mixed formulation
+            STRUC_LINEAR_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE,      // linear elasticity Dirichlet mixed formulation (Nitsche)
+            STRUC_LINEAR_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE,    // linear elasticity Dirichlet mixed formulation (Nitsche)
+            STRUC_LINEAR_FLUID_INTERFACE,                           // one-side fluid-structure coupling
             STRUC_VON_MISES_STRESS,
 
             STRUC_NON_LINEAR_BULK_SE,                                    // nonlinear elasticity bulk, based on S and E work conjugates
@@ -146,63 +146,63 @@ namespace moris
 
         enum class IQI_Type
         {
-                UNDEFINED,
-                VOLUME,         // volume
-                STRAIN_ENERGY,
-                VOLUME_FRACTION,
-                DOF,
-                MAX_DOF,
-                PROPERTY,
-                STABILIZATION,
-                L2_ERROR_ANALYTIC,
-                H1_ERROR_ANALYTIC,
-                H1_ERROR,
-                J_INTEGRAL,
-                LIFT_COEFF,
-                DRAG_COEFF,
-                LATENT_HEAT_ABSORPTION,
-                TURBULENT_DYNAMIC_VISCOSITY,
-                EFFECTIVE_DYNAMIC_VISCOSITY,
-                EFFECTIVE_CONDUCTIVITY,
-                SPALART_ALLMARAS_COEFFICIENT,
-                POWER_DISSIPATION,
-                TOTAL_PRESSURE,
-                MASS_FLOW,
-                THERMAL_ENERGY_CONVECTIVE_FLUX,
-                THERMAL_ENERGY_DIFFUSIVE_FLUX,
+            UNDEFINED,
+            VOLUME,    // volume
+            STRAIN_ENERGY,
+            VOLUME_FRACTION,
+            DOF,
+            MAX_DOF,
+            PROPERTY,
+            STABILIZATION,
+            L2_ERROR_ANALYTIC,
+            H1_ERROR_ANALYTIC,
+            H1_ERROR,
+            J_INTEGRAL,
+            LIFT_COEFF,
+            DRAG_COEFF,
+            LATENT_HEAT_ABSORPTION,
+            TURBULENT_DYNAMIC_VISCOSITY,
+            EFFECTIVE_DYNAMIC_VISCOSITY,
+            EFFECTIVE_CONDUCTIVITY,
+            SPALART_ALLMARAS_COEFFICIENT,
+            POWER_DISSIPATION,
+            TOTAL_PRESSURE,
+            MASS_FLOW,
+            THERMAL_ENERGY_CONVECTIVE_FLUX,
+            THERMAL_ENERGY_DIFFUSIVE_FLUX,
 
-                JUMP_DOF,
-				JUMP_TRACTION,
+            JUMP_DOF,
+            JUMP_TRACTION,
 
-                ADVECTION_STRONG_RESIDUAL,
-                STRONG_RESIDUAL_SA,
-                STRONG_RESIDUAL_INCOMPRESSIBLE_NS,
+            ADVECTION_STRONG_RESIDUAL,
+            STRONG_RESIDUAL_SA,
+            STRONG_RESIDUAL_INCOMPRESSIBLE_NS,
 
-                MAX_STRESS,
-                MAX_NORMAL_STRESS,
-                MAX_SHEAR_STRESS,
-                MAX_VON_MISES_STRESS,
-                MAX_PRINCIPAL_STRESS,
+            MAX_STRESS,
+            MAX_NORMAL_STRESS,
+            MAX_SHEAR_STRESS,
+            MAX_VON_MISES_STRESS,
+            MAX_PRINCIPAL_STRESS,
 
-                STRESS,
-                NORMAL_STRESS,
-                SHEAR_STRESS,
-                VON_MISES_STRESS,
-                PRINCIPAL_STRESS,
-                STRESS_VECTOR,
-                
-                NORMAL_STRESS_CAUCHY,
-                SHEAR_STRESS_CAUCHY,
-                VON_MISES_STRESS_CAUCHY,
-                PRINCIPAL_STRESS_CAUCHY,
-                STRESS_VECTOR_CAUCHY,
+            STRESS,
+            NORMAL_STRESS,
+            SHEAR_STRESS,
+            VON_MISES_STRESS,
+            PRINCIPAL_STRESS,
+            STRESS_VECTOR,
 
-                HOMOGENIZED_CONSTITUTIVE,
-                HEAT_METHOD_PENALTY,
+            NORMAL_STRESS_CAUCHY,
+            SHEAR_STRESS_CAUCHY,
+            VON_MISES_STRESS_CAUCHY,
+            PRINCIPAL_STRESS_CAUCHY,
+            STRESS_VECTOR_CAUCHY,
 
-                ZIENKIEWICZ_ZHU_VON_MISES_STRESS,
+            HOMOGENIZED_CONSTITUTIVE,
+            HEAT_METHOD_PENALTY,
 
-                END_IQI_TYPE
+            ZIENKIEWICZ_ZHU_VON_MISES_STRESS,
+
+            END_IQI_TYPE
         };
         //------------------------------------------------------------------------------
 
@@ -295,7 +295,7 @@ namespace moris
             PENALTY_CONTACT,
             STAB_PENALTY_CONTACT,
             MEASURE,
-			LAGRANGE_MULTIPLIER_L2,
+            LAGRANGE_MULTIPLIER_L2,
             END_STABILIZATION_TYPE
         };
 
