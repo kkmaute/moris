@@ -3,7 +3,7 @@
 # -----------------------------------------------------------------------------
 
 #> does not seem to do anything
-# if ( USE_TACC )
+# if ( USE_INTEL )
 #     SET(PETSC_PATH "$ENV{PETSC_DIR}")
 #     SET(PETSC_DIR  "$ENV{PETSC_DIR}")
 #     SET(PETSC_LIB  "$ENV{PETSC_LIB}")

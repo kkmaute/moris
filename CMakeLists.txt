@@ -218,7 +218,7 @@ option(MORIS_HAVE_PARALLEL_TESTS
 option(MORIS_PERFORM_CHECK
     "Use performance check." ON )
     
-option(MORIS_USE_TACC "USE TACC" OFF)
+option(MORIS_USE_INTEL "USE BLANCA" OFF)
 
 option(MORIS_USE_OPENMP "Use OpenMP" OFF)
 
@@ -315,7 +315,7 @@ set(MORIS_C_LINK_EXECUTABLE ${MORIS_C_COMPILER} )
 
 # Set default C++ compiler
 if (NOT MORIS_CXX_COMPILER )
-    if (MORIS_USE_TACC ) 
+    if (MORIS_USE_INTEL ) 
         set(MORIS_CXX_COMPILER "mpicxx" )
         if (HAVE_PEDANTIC)
             set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wunused-variable -Wsign-compare" )
@@ -343,7 +343,7 @@ string(REPLACE ":" ";" LIB_SEARCH_PATH "$ENV{LD_LIBRARY_PATH}")
 list(REMOVE_DUPLICATES LIB_SEARCH_PATH)
 message(STATUS "Library search path: ${LIB_SEARCH_PATH}")
 
-if (MORIS_USE_TACC)
+if (MORIS_USE_INTEL)
    find_library(MORIS_LIB_Ifcore NAMES ifcore HINTS ${LIB_SEARCH_PATH})
    message(STATUS "MORIS_LIB_Ifcore = ${MORIS_LIB_Ifcore}")
    link_libraries(${MORIS_LIB_Ifcore})
@@ -379,7 +379,7 @@ if (MORIS_USE_TACC)
    link_libraries(${MORIS_LIB_Crypto})
    #list(APPEND MORIS_BASE_LIBS ${MORIS_LIB_Crypto})
    
-else(MORIS_USE_TACC)
+else(MORIS_USE_INTEL)
    
    find_library(MORIS_LIB_Mpi NAMES mpi_mpifh HINTS ${LIB_SEARCH_PATH} )
    message(STATUS "MORIS_LIB_Mpi = ${MORIS_LIB_Mpi}")
@@ -415,7 +415,7 @@ else(MORIS_USE_TACC)
    message(STATUS "MORIS_LIB_Sz = ${MORIS_LIB_Sz}")
    link_libraries(${MORIS_LIB_Sz})
    #list(APPEND MORIS_BASE_LIBS ${MORIS_LIB_Sz})
-endif(MORIS_USE_TACC)
+endif(MORIS_USE_INTEL)
 
 list(APPEND MORIS_DEFINITIONS "-DF77ADD_")
 
@@ -470,7 +470,7 @@ else()
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type Release" FORCE)
     check_cxx_compiler_flag(-O3 HAVE_O3_OPTIMISATION)
     if (HAVE_O3_OPTIMISATION)
-        if (MORIS_USE_TACC)
+        if (MORIS_USE_INTEL)
 	        set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -O3 -xCORE-AVX2 -mkl:sequential -ip")
         else()
             set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -O3 -m64")
