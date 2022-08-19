@@ -1017,11 +1017,6 @@ namespace moris
                     "Space determinant (Tri-P2) close to zero or negative: %e\n",
                     tDetJ );
 
-            MORIS_ASSERT( std::abs( det( aSpaceJt ) / 2.0 - tDetJ ) < 1e-8 * tDetJ,
-                    "Inconsistent space determinant (Tri-P2): %e vs %e\n",
-                    tDetJ,
-                    det( aSpaceJt ) );
-
             return tDetJ;
         }
 
