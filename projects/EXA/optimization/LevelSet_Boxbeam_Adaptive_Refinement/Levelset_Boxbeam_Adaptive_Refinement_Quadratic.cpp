@@ -870,6 +870,8 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "remeshing_field_names", "Box,Level_Set_Field" );
         tParameterlist( 0 )( 0 ).set( "remeshing_levels_of_refinement", "1" );
         tParameterlist( 0 )( 0 ).set( "remeshing_refinement_pattern", "0" );
+
+        tParameterlist( 0 )( 0 ).set( "output_meshes", true );
     }
 
     //--------------------------------------------------------------------------------------------------------------
