@@ -1793,15 +1793,15 @@ namespace xtk
         mEnrichCoeffBulkPhase.resize( mMeshIndices.max() + 1 );
 
         // verify all the subphases in a enriched basis support are the same bulk phase
-        for ( moris::size_t iMesh = 0; iMesh < mMeshIndices.numel(); iMesh++ )
+        for ( moris::size_t iBspMesh = 0; iBspMesh < mMeshIndices.numel(); iBspMesh++ )
         {
             // Mesh index
-            moris_index tMeshIndex = mMeshIndices( iMesh );
+            moris_index tMeshIndex = mMeshIndices( iBspMesh );
 
             // Number of enriched functions
             moris::size_t tNumEnrBasis = mEnrichCoeffLocToGlob( tMeshIndex ).numel();
 
-            // allocate interpolation cells in basis support
+            // allocate interpolation cells in basis support // input: enr. BF index || output: list of UIPCs in the BF's support
             moris::Cell< moris::Cell< Interpolation_Cell_Unzipped* > > tCellsInEnrSupports( tNumEnrBasis );
 
             Cell< Interpolation_Cell_Unzipped* > const & tEnrIpCells = this->get_enriched_interpolation_cells();
@@ -1811,29 +1811,30 @@ namespace xtk
 
             MORIS_ASSERT( tNumCells == (moris_index)tEnrIpCells.size(), "Inconsistent num cells information." );
 
-            // create the enriched interpolation basis to interpolation cell interpolation
-            for ( moris_index i = 0; i < tNumCells; i++ )
+            // collect all UIPCs that a given enriched basis function interpolates into
+            for ( moris_index iUIPC = 0; iUIPC < tNumCells; iUIPC++ )
             {
                 moris::Cell< xtk::Interpolation_Vertex_Unzipped* > const & tVertices =
-                        tEnrIpCells( i )->get_xtk_interpolation_vertices();
+                        tEnrIpCells( iUIPC )->get_xtk_interpolation_vertices();
 
-                for ( moris::size_t iV = 0; iV < tVertices.size(); iV++ )
+                for ( moris::size_t iVert = 0; iVert < tVertices.size(); iVert++ )
                 {
-                    if ( tVertices( iV )->has_interpolation( tMeshIndex ) )
+                    if ( tVertices( iVert )->has_interpolation( tMeshIndex ) )
                     {
-                        Vertex_Enrichment* tVertInterp = tVertices( iV )->get_xtk_interpolation( tMeshIndex );
+                        Vertex_Enrichment* tVertInterp = tVertices( iVert )->get_xtk_interpolation( tMeshIndex );
 
                         Matrix< IndexMat > tBasisIndices = tVertInterp->get_indices();
 
-                        // iterate through vertices and add the ip cell to the support
-                        for ( moris::uint iB = 0; iB < tBasisIndices.numel(); iB++ )
+                        // iterate through vertices and add the UIPCs cell to the list of cells supported by the basis
+                        for ( moris::uint iBF = 0; iBF < tBasisIndices.numel(); iBF++ )
                         {
-                            tCellsInEnrSupports( tBasisIndices( iB ) ).push_back( tEnrIpCells( i ) );
+                            tCellsInEnrSupports( tBasisIndices( iBF ) ).push_back( tEnrIpCells( iUIPC ) );
                         }
                     }
                 }
             }
 
+            // initialize list associating enr. BFs and the bulk-phase they interpolate into
             mEnrichCoeffBulkPhase( tMeshIndex ).resize( 1, tNumEnrBasis );
             mEnrichCoeffBulkPhase( tMeshIndex ).fill( MORIS_INDEX_MAX );
 
@@ -1841,14 +1842,14 @@ namespace xtk
             bool tIsConsisent = true;
 
             // iterate through enriched basis functions
-            for ( moris::size_t i = 0; i < tNumEnrBasis; i++ )
+            for ( moris::size_t iBF = 0; iBF < tNumEnrBasis; iBF++ )
             {
                 // iterate through enriched interpolation cells in the support
-                moris_index tNumSubphaseInSupport = tCellsInEnrSupports( i ).size();
+                moris_index tNumSubphaseInSupport = tCellsInEnrSupports( iBF ).size();
 
                 for ( moris::moris_index iSP = 0; iSP < tNumSubphaseInSupport; iSP++ )
                 {
-                    Interpolation_Cell_Unzipped* tIpCell = tCellsInEnrSupports( i )( iSP );
+                    Interpolation_Cell_Unzipped* tIpCell = tCellsInEnrSupports( iBF )( iSP );
 
                     moris_index tBulkPhase = tIpCell->get_bulkphase_index();
 
@@ -1857,21 +1858,21 @@ namespace xtk
                     // check that all subphases in basis support have same bluk phase as first subphase
                     if ( iSP == 0 )
                     {
-                        mEnrichCoeffBulkPhase( tMeshIndex )( i ) = tBulkPhase;
+                        mEnrichCoeffBulkPhase( tMeshIndex )( iBF ) = tBulkPhase;
                     }
 
-                    if ( tBulkPhase != mEnrichCoeffBulkPhase( tMeshIndex )( i ) )
+                    if ( tBulkPhase != mEnrichCoeffBulkPhase( tMeshIndex )( iBF ) )
                     {
                         tIsConsisent = false;
 
-                        std::cout << "enriched basis = " << i                                                  //
+                        std::cout << "enriched basis = " << iBF                                                //
                                   << "  subphase = " << iSP                                                    //
-                                  << "  expected bulk phase = " << mEnrichCoeffBulkPhase( tMeshIndex )( i )    //
+                                  << "  expected bulk phase = " << mEnrichCoeffBulkPhase( tMeshIndex )( iBF )  //
                                   << "  current bulk phase  = " << tBulkPhase                                  //
                                   << std::endl;
 
-                        print( tCellsInEnrSupports( i )( 0 )->get_vertex_coords(), "Vertex coordinates of subphase 0" );
-                        print( tIpCell->get_vertex_coords(), "Vertex coordinates of subphase i" );
+                        // print( tCellsInEnrSupports( iBF )( 0 )->get_vertex_coords(), "Vertex coordinates of subphase 0" );
+                        // print( tIpCell->get_vertex_coords(), "Vertex coordinates of subphase i" );
                     }
                 }
             }

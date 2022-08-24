@@ -280,7 +280,7 @@ namespace xtk
         // make sure we have access to all the vertex interpolation
         this->setup_background_vertex_interpolations();
 
-        // iterate through basis types (i.e. linear and quadratic)
+        // construct data needed for enrichment for every B-spline mesh the Lagrange mesh is related to
         for ( moris::size_t iMeshIndex = 0; iMeshIndex < mMeshIndices.numel(); iMeshIndex++ )
         {
             // get the mesh index
@@ -331,6 +331,15 @@ namespace xtk
                         tPrunedSubphaseNeighborhood,
                         tSubPhaseBinEnrichment( iBasisFunction ),
                         tMaxEnrichmentLevel( iBasisFunction ) );
+
+
+// debug
+// std::cout << "iBasisFunction = " << iBasisFunction << std::endl;
+// moris::print( tParentElementsInSupport, "BG Elems. in Support" );
+// moris::print( tSubphaseClusterIndicesInSupport( iBasisFunction ), "SPs in Support" );
+// moris::print( tPrunedSubphaseNeighborhood, "Pruned Subphase Neighborhood" );
+// moris::print( tSubPhaseBinEnrichment( iBasisFunction ), "tSubPhaseBinEnrichment" );
+
 
                 // Sort enrichment levels
                 if ( mSortBasisEnrichmentLevels )
@@ -673,28 +682,31 @@ namespace xtk
     {
         std::shared_ptr< Subphase_Neighborhood_Connectivity > tSubphaseNeighborhood = mCutIgMesh->get_subphase_neighborhood();
 
+        // get the number of subphased in the current Basis' support
+        uint tNumSPsInSupport = aSubphasesInSupport.numel();
+
         // Construct full element neighbor graph in support and the corresponding shared faces
-        aPrunedSubPhaseToSubphase.resize( aSubphasesInSupport.numel(), 50 );    // FIXME: Keenan this allocation needs to done smarter
+        aPrunedSubPhaseToSubphase.resize( tNumSPsInSupport, 50 );    // FIXME: Keenan this allocation needs to done smarter
         aPrunedSubPhaseToSubphase.fill( MORIS_INDEX_MAX );
 
         // get subphase neighborhood information
         moris::Cell< std::shared_ptr< moris::Cell< moris_index > > > const & tSubphasetoSubphase = tSubphaseNeighborhood->mSubphaseToSubPhase;
 
-        for ( moris::size_t i = 0; i < aSubphasesInSupport.numel(); i++ )
+        for ( moris::size_t iSP = 0; iSP < tNumSPsInSupport; iSP++ )
         {
-            moris::Cell< moris_index > const & tSingleSubPhaseNeighbors = *tSubphasetoSubphase( aSubphasesInSupport( i ) );
+            moris::Cell< moris_index > const & tSingleSubPhaseNeighbors = *tSubphasetoSubphase( aSubphasesInSupport( iSP ) );
 
             // iterate through and prune subphases not in support
             moris::uint tCount = 0;
-            for ( moris::size_t j = 0; j < tSingleSubPhaseNeighbors.size(); j++ )
+            for ( moris::size_t iNeighborSP = 0; iNeighborSP < tSingleSubPhaseNeighbors.size(); iNeighborSP++ )
             {
-                moris_index tNeighborSubphaseIndex = tSingleSubPhaseNeighbors( j );
+                moris_index tNeighborSubphaseIndex = tSingleSubPhaseNeighbors( iNeighborSP );
 
                 auto tNeighborIter = aSubPhaseIndexToSupportIndex.find( tNeighborSubphaseIndex );
 
                 if ( tNeighborIter != aSubPhaseIndexToSupportIndex.end() )
                 {
-                    aPrunedSubPhaseToSubphase( i, tCount ) = tNeighborIter->second;
+                    aPrunedSubPhaseToSubphase( iSP, tCount ) = tNeighborIter->second;
                     tCount++;
                 }
             }
@@ -2192,6 +2204,20 @@ namespace xtk
     void
     Enrichment::construct_enriched_interpolation_vertices_and_cells()
     {
+
+// debug
+// uint tNumBaseCoeffs = mEnrichmentData( 0 ).mBasisEnrichmentIndices.size();
+// for( uint iCoeff = 0; iCoeff < tNumBaseCoeffs; iCoeff++ )
+// {
+//     uint tNumEnrLvls = mEnrichmentData( 0 ).mBasisEnrichmentIndices( iCoeff ).numel();
+//     for( uint iLvl = 0; iLvl < tNumEnrLvls; iLvl++ )
+//     {
+//         std::cout << "Enr. Basis Coeff for Base BF = " << iCoeff << 
+//                 " and enr. lvl. = " << iLvl << 
+//                 " : " << mEnrichmentData( 0 ).mBasisEnrichmentIndices( iCoeff )(iLvl) << std::endl;
+//     }
+// }
+
         // get the enriched interpolation mesh pointer, this one is constructed here
         Enriched_Interpolation_Mesh* tEnrInterpMesh = mXTKModelPtr->mEnrichedInterpMesh( 0 );
 
@@ -2216,8 +2242,11 @@ namespace xtk
         moris_index tVertId      = 1;
         uint        tVertexCount = 0;
 
+        // get the number of subphases in the current mesh
+        uint tNumSPs = mCutIgMesh->get_num_subphases();
+
         // iterate through subphases and construct an interpolation cell in the interpolation mesh for each one
-        for ( moris::uint iSP = 0; iSP < mCutIgMesh->get_num_subphases(); iSP++ )
+        for ( moris::uint iSP = 0; iSP < tNumSPs; iSP++ )
         {
             // information about this cell
             moris::mtk::Cell* tParentCell = mCutIgMesh->get_subphase_parent_cell( iSP );
