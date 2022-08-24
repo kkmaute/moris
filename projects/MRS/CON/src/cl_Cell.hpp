@@ -792,6 +792,34 @@ namespace moris
 
     //------------------------------------------------------------------
 
+    /*!
+     * Iterates through cell and prints cell as a row vector. Usefull for some debugging tasks.
+     * Will only work on data types that allow std::cout calls
+     */
+    template< typename T >
+    void
+    print_as_row_vector(
+            Cell< T > const & aCell,
+            std::string       aStr = "Cell" )
+    {
+        std::cout << aStr << " = [ " << std::flush;
+        for ( moris::uint i = 0; i < aCell.size(); i++ )
+        {
+            if( i == aCell.size() - 1 )
+            {
+                std::cout << aCell( i ) << std::flush;
+            }
+            else
+            {
+                std::cout << aCell( i ) << ", " << std::flush;
+            }
+        }
+
+        std::cout << " ]" << std::endl;
+    }
+
+    //------------------------------------------------------------------
+
     inline moris::Cell< char >
     string_to_char( moris::Cell< std::string >& strings );
 
