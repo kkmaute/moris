@@ -332,15 +332,6 @@ namespace xtk
                         tSubPhaseBinEnrichment( iBasisFunction ),
                         tMaxEnrichmentLevel( iBasisFunction ) );
 
-
-// debug
-// std::cout << "iBasisFunction = " << iBasisFunction << std::endl;
-// moris::print( tParentElementsInSupport, "BG Elems. in Support" );
-// moris::print( tSubphaseClusterIndicesInSupport( iBasisFunction ), "SPs in Support" );
-// moris::print( tPrunedSubphaseNeighborhood, "Pruned Subphase Neighborhood" );
-// moris::print( tSubPhaseBinEnrichment( iBasisFunction ), "tSubPhaseBinEnrichment" );
-
-
                 // Sort enrichment levels
                 if ( mSortBasisEnrichmentLevels )
                 {
@@ -2204,20 +2195,6 @@ namespace xtk
     void
     Enrichment::construct_enriched_interpolation_vertices_and_cells()
     {
-
-// debug
-// uint tNumBaseCoeffs = mEnrichmentData( 0 ).mBasisEnrichmentIndices.size();
-// for( uint iCoeff = 0; iCoeff < tNumBaseCoeffs; iCoeff++ )
-// {
-//     uint tNumEnrLvls = mEnrichmentData( 0 ).mBasisEnrichmentIndices( iCoeff ).numel();
-//     for( uint iLvl = 0; iLvl < tNumEnrLvls; iLvl++ )
-//     {
-//         std::cout << "Enr. Basis Coeff for Base BF = " << iCoeff << 
-//                 " and enr. lvl. = " << iLvl << 
-//                 " : " << mEnrichmentData( 0 ).mBasisEnrichmentIndices( iCoeff )(iLvl) << std::endl;
-//     }
-// }
-
         // get the enriched interpolation mesh pointer, this one is constructed here
         Enriched_Interpolation_Mesh* tEnrInterpMesh = mXTKModelPtr->mEnrichedInterpMesh( 0 );
 
