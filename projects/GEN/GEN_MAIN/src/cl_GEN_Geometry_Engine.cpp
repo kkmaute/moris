@@ -362,16 +362,16 @@ namespace moris
                     // Evaluate the rest of the nodes
                     for ( uint tNodeCount = 1; tNodeCount < aNodeIndices.length(); tNodeCount++ )
                     {
-                        real tEval = mGeometries( mActiveGeometryIndex )->get_field_value( tNodeCount, aNodeCoordinates.get_row( tNodeCount ) );
+                        real tEval = mGeometries( mActiveGeometryIndex )->    //
+                                     get_field_value( tNodeCount, aNodeCoordinates.get_row( tNodeCount ) );
 
                         tMin = std::min( tMin, tEval );
                         tMax = std::max( tMax, tEval );
                     }
 
-                    bool tHasZeroLsvInbetween        = ( tMax >= mIsocontourThreshold ) and ( tMin <= mIsocontourThreshold );
-                    bool tHasCloseToZeroLsvFromAbove = ( std::abs( tMax - mIsocontourThreshold ) < mIsocontourTolerance );
-                    bool tHasCloseToZeroLsvFromBelow = ( std::abs( tMin - mIsocontourThreshold ) < mIsocontourTolerance );
-                    tIsIntersected                   = tHasZeroLsvInbetween or tHasCloseToZeroLsvFromAbove or tHasCloseToZeroLsvFromBelow;
+                    tIsIntersected = ( tMax >= mIsocontourThreshold and tMin <= mIsocontourThreshold )
+                                  or ( std::abs( tMax - mIsocontourThreshold ) < mIsocontourTolerance )
+                                  or ( std::abs( tMin - mIsocontourThreshold ) < mIsocontourTolerance );
 
                     break;
                 }
@@ -434,7 +434,9 @@ namespace moris
                         tMax = std::max( tMax, tEval );
                     }
 
-                    tIsIntersected = ( tMax >= mIsocontourThreshold and tMin <= mIsocontourThreshold ) or ( std::abs( tMax - mIsocontourThreshold ) < mIsocontourTolerance ) or ( std::abs( tMin - mIsocontourThreshold ) < mIsocontourTolerance );
+                    tIsIntersected = ( tMax >= mIsocontourThreshold and tMin <= mIsocontourThreshold )
+                                  or ( std::abs( tMax - mIsocontourThreshold ) < mIsocontourTolerance )
+                                  or ( std::abs( tMin - mIsocontourThreshold ) < mIsocontourTolerance );
 
                     break;
                 }
@@ -1304,7 +1306,7 @@ namespace moris
 
                             Matrix< IdMat > tCoeffijklIDs;
 
-                            if( MeshType::HMR == tMesh->get_mesh_type() )
+                            if ( MeshType::HMR == tMesh->get_mesh_type() )
                             {
                                 tCoeffijklIDs = tMesh->get_coefficient_ijkl_IDs_of_node(
                                         tNodeIndex,
@@ -1334,7 +1336,7 @@ namespace moris
 
                                     tAllCoefOwners( tCurrentIndex ) = tCoefOwners( tCoefIndex );
 
-                                    if( tMesh->get_mesh_type() == MeshType::HMR )
+                                    if ( tMesh->get_mesh_type() == MeshType::HMR )
                                     {
                                         tAllCoefijklIDs( tCurrentIndex ) = tCoeffijklIDs( tCoefIndex );
                                     }
@@ -1404,7 +1406,7 @@ namespace moris
                     tOwnedADVIds.resize( tNumOwnedADVs + tNumOwnedCoefficients, 1 );
                     mLowerBounds.resize( tNumOwnedADVs + tNumOwnedCoefficients, 1 );
                     mUpperBounds.resize( tNumOwnedADVs + tNumOwnedCoefficients, 1 );
-                    mOwnedijklIds.resize( tNumOwnedADVs + tNumOwnedCoefficients, 1);
+                    mOwnedijklIds.resize( tNumOwnedADVs + tNumOwnedCoefficients, 1 );
                     tSharedADVIds( tFieldIndex ).resize( tNumOwnedCoefficients + tNumSharedCoefficients, 1 );
                     tSharedCoefficientIndices( tFieldIndex ) = tOwnedCoefficients;
 
@@ -1424,7 +1426,7 @@ namespace moris
                         mLowerBounds( tNumOwnedADVs + tOwnedCoefficient ) = tFields( tFieldIndex )->get_discretization_lower_bound();
                         mUpperBounds( tNumOwnedADVs + tOwnedCoefficient ) = tFields( tFieldIndex )->get_discretization_upper_bound();
 
-                        if( tMesh->get_mesh_type() == MeshType::HMR )
+                        if ( tMesh->get_mesh_type() == MeshType::HMR )
                         {
                             mOwnedijklIds( tNumOwnedADVs + tOwnedCoefficient ) = tAllCoefijklIDs( tOwnedCoefficients( tOwnedCoefficient ) );
                         }
@@ -1488,7 +1490,7 @@ namespace moris
             // Get primitive ADVs from owned vector
             mPrimitiveADVs->import_local_to_global( *tNewOwnedADVs );
 
-            
+
             // Set field ADVs using distributed vector
             if ( mInitialPrimitiveADVs.length() > 0 )
             {
@@ -1673,7 +1675,7 @@ namespace moris
             communicate_mats( tCommunicationList, tSendingIDs, tReceivingIDs );
             communicate_mats( tCommunicationList, tSendingLowerBounds, tReceivingLowerBounds );
             communicate_mats( tCommunicationList, tSendingUpperBounds, tReceivingUpperBounds );
-            if( tMesh->get_mesh_type() == MeshType::HMR )
+            if ( tMesh->get_mesh_type() == MeshType::HMR )
             {
                 communicate_mats( tCommunicationList, tSendingijklIDs, tReceivingjklIDs );
             }
@@ -1687,7 +1689,7 @@ namespace moris
             {
                 // Start full IDs with owned IDs on processor 0
                 mFullADVIds = tOwnedADVIds;
-                if( tMesh->get_mesh_type() == MeshType::HMR )
+                if ( tMesh->get_mesh_type() == MeshType::HMR )
                 {
                     mFullijklIDs = mOwnedijklIds;
                 }
@@ -1700,15 +1702,15 @@ namespace moris
                 for ( uint tProcessorIndex = 1; tProcessorIndex < (uint)par_size(); tProcessorIndex++ )
                 {
                     // Get number of received ADVs
-                    uint tFullADVsFilled  = mFullADVIds.length();
-                    uint tFullijklIDsFilled  = mFullijklIDs.length();
-                    uint tNumReceivedADVs = tReceivingIDs( tProcessorIndex - 1 ).length();
+                    uint tFullADVsFilled    = mFullADVIds.length();
+                    uint tFullijklIDsFilled = mFullijklIDs.length();
+                    uint tNumReceivedADVs   = tReceivingIDs( tProcessorIndex - 1 ).length();
 
                     // Resize full ADV IDs and bounds
                     mFullADVIds.resize( tFullADVsFilled + tNumReceivedADVs, 1 );
                     mLowerBounds.resize( tFullADVsFilled + tNumReceivedADVs, 1 );
                     mUpperBounds.resize( tFullADVsFilled + tNumReceivedADVs, 1 );
-                    if( tMesh->get_mesh_type() == MeshType::HMR )
+                    if ( tMesh->get_mesh_type() == MeshType::HMR )
                     {
                         mFullijklIDs.resize( tFullijklIDsFilled + tNumReceivedADVs, 1 );
                     }
@@ -1722,7 +1724,7 @@ namespace moris
                         mUpperBounds( tFullADVsFilled + tADVIndex ) =
                                 tReceivingUpperBounds( tProcessorIndex - 1 )( tADVIndex );
 
-                        if( tMesh->get_mesh_type() == MeshType::HMR )
+                        if ( tMesh->get_mesh_type() == MeshType::HMR )
                         {
                             mFullijklIDs( tFullijklIDsFilled + tADVIndex ) =
                                     tReceivingjklIDs( tProcessorIndex - 1 )( tADVIndex );
@@ -1855,10 +1857,10 @@ namespace moris
                     tSharedCoeffsPosGlobal( tProcIdPos )( tShredCoeffPosPerProc( tProcIdPos ) ) =
                             aAllCoefIds( Ia );
 
-                    if( aMeshType == MeshType::HMR )
+                    if ( aMeshType == MeshType::HMR )
                     {
                         tSharedCoeffsijklIdGlobal( tProcIdPos )( tShredCoeffPosPerProc( tProcIdPos ) ) =
-                            aAllCoefijklIds( Ia );
+                                aAllCoefijklIds( Ia );
                     }
 
                     tShredCoeffPosPerProc( tProcIdPos )++;
@@ -1879,14 +1881,14 @@ namespace moris
 
             barrier();
 
-            if( aMeshType == MeshType::HMR )
+            if ( aMeshType == MeshType::HMR )
             {
                 communicate_mats(
-                    tCommTable,
-                    tSharedCoeffsijklIdGlobal,
-                    tMatsToReceiveijklID );
+                        tCommTable,
+                        tSharedCoeffsijklIdGlobal,
+                        tMatsToReceiveijklID );
 
-                MORIS_ASSERT(tMatsToReceiveijklID.size() == tMatsToReceive.size(), "size must be the same");
+                MORIS_ASSERT( tMatsToReceiveijklID.size() == tMatsToReceive.size(), "size must be the same" );
             }
 
             map< moris_id, moris_index > tCoeffGlobaltoLocalMap;
@@ -1908,7 +1910,7 @@ namespace moris
                         aAllCoefIds( tLocalCoeffInd )    = tID;
                         aAllCoefOwners( tLocalCoeffInd ) = par_rank();
 
-                        if( aMeshType == MeshType::HMR )
+                        if ( aMeshType == MeshType::HMR )
                         {
                             aAllCoefijklIds( tLocalCoeffInd ) = tMatsToReceiveijklID( Ik )( Ii );
                         }
@@ -1919,10 +1921,10 @@ namespace moris
                     MORIS_ASSERT( aAllCoefIds( tLocalCoeffInd ) == tID,
                             "communicate_missing_owned_coefficients( ), coefficient IDs are not parallel consistent" );
 
-                    if( aMeshType == MeshType::HMR )
+                    if ( aMeshType == MeshType::HMR )
                     {
                         MORIS_ASSERT( aAllCoefijklIds( tLocalCoeffInd ) == tMatsToReceiveijklID( Ik )( Ii ),
-                            "communicate_missing_owned_coefficients( ), coefficient ijkl IDs are not parallel consistent" );
+                                "communicate_missing_owned_coefficients( ), coefficient ijkl IDs are not parallel consistent" );
                     }
                 }
             }
@@ -2458,9 +2460,9 @@ namespace moris
                     return aProximIndex == 0;
                     break;
                 }
-                case 1:    // one parent is left of, one parent is on interface -> child has to be left of interface
+                case 1:    // one parent is left of, one parent is on interface -> child has to be left of or on the interface
                 {
-                    return aProximIndex == 0;
+                    return aProximIndex == 0 || aProximIndex == 1;
                     break;
                 }
                 case 2:    // one parent is left the other right of interface -> child position cannot be determined yet
@@ -2468,9 +2470,9 @@ namespace moris
                     return true;
                     break;
                 }
-                case 3:    // one parent is on interface the other is right of interface -> child has to be  right of interface
+                case 3:    // one parent is on interface the other is right of interface -> child has to be right of or on the interface
                 {
-                    return aProximIndex == 2;
+                    return aProximIndex == 2 || aProximIndex == 1;
                     break;
                 }
                 case 4:    // both right of interface -> child has to be  right of interface
