@@ -263,6 +263,9 @@ namespace moris
                 std::shared_ptr< Geometry >     aInterfaceGeometry,
                 real                            aIsocontourThreshold )
         {
+            // spatial dimension
+            uint tNumDims = aAncestorNodeCoordinates( 0 ).numel();
+
             // number of nodes to be used for interpolation
             uint tNumBases;
 
@@ -271,8 +274,8 @@ namespace moris
 
             mtk::Interpolation_Function_Base* tInterpolation;
 
-            // create interpolation function based on spatial dimension  of problem
-            switch ( aAncestorNodeCoordinates( 0 ).numel() )
+            // create interpolation function based on spatial dimension of problem
+            switch ( tNumDims )
             {
                 case 2:
                 {
@@ -315,8 +318,18 @@ namespace moris
             // get level set values of corner nodes
             for ( uint in = 0; in < tNumBases; ++in )
             {
-                tPhiBCNodes( in ) = aInterfaceGeometry->get_field_value( aAncestorNodeIndices( in ), aAncestorNodeCoordinates( in ) );
+                tPhiBCNodes( in ) = aInterfaceGeometry->get_field_value(
+                        aAncestorNodeIndices( in ),
+                        aAncestorNodeCoordinates( in ) );
             }
+
+            // scale element level set field such that norm equals 1.0
+            const real tPhiScaling = 1.0 / norm( tPhiBCNodes );
+
+            tPhiBCNodes = tPhiScaling * tPhiBCNodes;
+
+            // scale threshold
+            aIsocontourThreshold *= tPhiScaling;
 
             // check that dimension of ancestor node coordinate equals dimension of parent node coordinates
             MORIS_ASSERT( aFirstParentNodeLocalCoordinates.numel() == aAncestorNodeCoordinates( 0 ).numel(),
@@ -329,8 +342,8 @@ namespace moris
             tInterpolation->eval_N( aFirstParentNodeLocalCoordinates, tFirstParentBasis );
             tInterpolation->eval_N( aSecondParentNodeLocalCoordinates, tSecondParentBasis );
 
-            real tFirstParentPhi  = dot( tFirstParentBasis, tPhiBCNodes );
-            real tSecondParentPhi = dot( tSecondParentBasis, tPhiBCNodes );
+            const real tFirstParentPhi  = dot( tFirstParentBasis, tPhiBCNodes );
+            const real tSecondParentPhi = dot( tSecondParentBasis, tPhiBCNodes );
 
             // check that line is intersected
             if ( ( tFirstParentPhi - aIsocontourThreshold ) * ( tSecondParentPhi - aIsocontourThreshold ) > 0 )
@@ -340,78 +353,195 @@ namespace moris
                 return MORIS_REAL_MAX;
             }
 
+            // check that difference between first and second parent is not smaller than MORIS_REAL_EPS
+            MORIS_ERROR( std::abs( tFirstParentPhi - tSecondParentPhi ) > MORIS_REAL_EPS,
+                    "Intersection_Node_Bilinear::compute_intersection - level set values of edge end points identical" );
+
             // set Newton parameters
-            const uint tNewMaxIter = 20;
-            const real tNewRelax   = 1.0;
-            const real tNewRelEps  = 1e-8;
-            const real tNewAbsEps  = 1e-14;
+            const uint tNewMaxIter  = 20;    // maximum number of iterations in Newton
+            const uint tCurvMaxIter = 10;    // maximum number of iterations using curvature information
+
+            const real tNewRelax  = 1.0;      // relaxation factor for solution update
+            const real tNewRelEps = 1e-8;     // required relative residual drop
+            const real tNewAbsEps = 1e-12;    // required absolute residual drop
+            const real tCurvMin   = 1e-8;     // threshold for curvature magnitude above which curvature is used
 
             // allocate matrices used within Newton loop
             Matrix< DDRMat > tCellCoordinate( aFirstParentNodeLocalCoordinates.numel(), 1 );
             Matrix< DDRMat > tBasis;
             Matrix< DDRMat > tDBasisDxi;
-            Matrix< DDRMat > tJac;
+            Matrix< DDRMat > tDBasisDxi2;
+            Matrix< DDRMat > tD2PhiDxi2;
+
+            // vector from first to second parent in local coordinates
+            Matrix< DDRMat > tSecondToFirstParent = aSecondParentNodeLocalCoordinates - aFirstParentNodeLocalCoordinates;
 
             // initialized reference residual
             real tReferenceResidual = 0.0;
+            real tResidual          = 0.0;
 
             // compute initial guess: location of intersection point along edge in edge CS
-            real tEdgeCoordinate = 0.0;
+            real tEdgeCoordinate = ( 2.0 * aIsocontourThreshold - tFirstParentPhi - tSecondParentPhi )    //
+                                 / ( tSecondParentPhi - tFirstParentPhi );
 
-            // perform
-            for ( uint iNew = 0; iNew < tNewMaxIter; ++iNew )
+            Matrix< DDRMat > tInitialGuess = { { std::min( 1.0, std::max( tEdgeCoordinate, -1.0 ) ), -1.0, 1.0 } };
+
+            // loop over initial guess trials
+            for ( uint iGuess = 0; iGuess < tInitialGuess.numel(); iGuess++ )
             {
-                // compute local coordinate in background cell CS
-                tCellCoordinate = 0.5 * ( 1.0 - tEdgeCoordinate ) * aFirstParentNodeLocalCoordinates
-                                + 0.5 * ( 1.0 + tEdgeCoordinate ) * aSecondParentNodeLocalCoordinates;
+                // set initial guess
+                tEdgeCoordinate = tInitialGuess( iGuess );
 
-                // compute basis function
-                tInterpolation->eval_N( tCellCoordinate, tBasis );
-
-                // compute residual
-                real tResidual = dot( tBasis, tPhiBCNodes ) - aIsocontourThreshold;
-
-                // check convergence against absolute residual
-                if ( std::abs( tResidual ) < tNewAbsEps )
+                // perform iterations
+                for ( uint iNew = 0; iNew < tNewMaxIter; ++iNew )
                 {
-                    delete tInterpolation;
+                    // compute local coordinate in background cell CS
+                    tCellCoordinate = 0.5 * ( 1.0 - tEdgeCoordinate ) * aFirstParentNodeLocalCoordinates
+                                    + 0.5 * ( 1.0 + tEdgeCoordinate ) * aSecondParentNodeLocalCoordinates;
 
-                    return tEdgeCoordinate;
+                    // compute basis function
+                    tInterpolation->eval_N( tCellCoordinate, tBasis );
+
+                    // compute residual
+                    tResidual = dot( tBasis, tPhiBCNodes ) - aIsocontourThreshold;
+
+                    // check convergence against absolute residual
+                    if ( std::abs( tResidual ) < tNewAbsEps )
+                    {
+                        delete tInterpolation;
+
+                        return tEdgeCoordinate;
+                    }
+
+                    // store reference residual
+                    if ( iNew == 0 )
+                    {
+                        tReferenceResidual = std::abs( tResidual );
+                    }
+
+                    // check convergence against relative residual
+                    if ( std::abs( tResidual ) < tNewRelEps * tReferenceResidual )
+                    {
+                        delete tInterpolation;
+
+                        return tEdgeCoordinate;
+                    }
+
+                    // compute Jacobian
+                    tInterpolation->eval_dNdXi( tCellCoordinate, tDBasisDxi );
+
+                    // compute first order gradient of residual with respect to edge coordinate
+                    real tGradRes = 0.5 * dot( tSecondToFirstParent, tDBasisDxi * tPhiBCNodes );
+
+                    // initialize solution increment
+                    real tSolIncrement;
+
+                    // initialize curvature variable
+                    real tSqrt2   = -1.0;
+                    real tCurvRes = 0.0;
+
+                    // compute second order derivatives
+                    if ( iNew < tCurvMaxIter )
+                    {
+                        // compute Hessian
+                        tInterpolation->eval_d2NdXi2( tCellCoordinate, tDBasisDxi2 );
+
+                        tD2PhiDxi2 = tDBasisDxi2 * tPhiBCNodes;
+
+                        // compute second order derivative of residual with respect to edge coordinate
+                        if ( tNumDims == 2 )
+                        {
+                            tCurvRes =                                                                                   //
+                                    0.125 * tD2PhiDxi2( 0 ) * tSecondToFirstParent( 0 ) * tSecondToFirstParent( 0 ) +    //
+                                    0.125 * tD2PhiDxi2( 1 ) * tSecondToFirstParent( 1 ) * tSecondToFirstParent( 1 ) +    //
+                                    0.250 * tD2PhiDxi2( 2 ) * tSecondToFirstParent( 0 ) * tSecondToFirstParent( 1 );
+                        }
+                        else
+                        {
+                            tCurvRes =                                                                                   //
+                                    0.125 * tD2PhiDxi2( 0 ) * tSecondToFirstParent( 0 ) * tSecondToFirstParent( 0 ) +    //
+                                    0.125 * tD2PhiDxi2( 1 ) * tSecondToFirstParent( 1 ) * tSecondToFirstParent( 1 ) +    //
+                                    0.125 * tD2PhiDxi2( 2 ) * tSecondToFirstParent( 2 ) * tSecondToFirstParent( 2 ) +    //
+                                    0.250 * tD2PhiDxi2( 3 ) * tSecondToFirstParent( 1 ) * tSecondToFirstParent( 2 ) +    //
+                                    0.250 * tD2PhiDxi2( 4 ) * tSecondToFirstParent( 0 ) * tSecondToFirstParent( 2 ) +    //
+                                    0.250 * tD2PhiDxi2( 5 ) * tSecondToFirstParent( 0 ) * tSecondToFirstParent( 1 );
+                        }
+
+                        // compute square of sqrt term in root finding formula for quadratic equations
+                        tSqrt2 = tGradRes * tGradRes - 4.0 * tCurvRes * tResidual;
+                    }
+
+                    // update solution depending on curvature
+                    if ( iNew < tCurvMaxIter && std::abs( tCurvRes ) > tCurvMin && tSqrt2 >= 0.0 )
+                    {
+                        // add roots of quadratic function to current edge coordinate
+                        real tSqrt = std::sqrt( tSqrt2 );
+
+                        real tRootMin = ( -1.0 * tGradRes - tSqrt ) / ( 2.0 * tCurvRes );
+                        real tRootMax = ( -1.0 * tGradRes + tSqrt ) / ( 2.0 * tCurvRes );
+
+                        // check with root is in [-1,1] interval
+                        bool tRootMinIsValid = std::abs( tEdgeCoordinate + tRootMin ) <= 1.0;
+                        bool tRootMaxIsValid = std::abs( tEdgeCoordinate + tRootMax ) <= 1.0;
+
+                        // compute increment
+                        if ( tRootMinIsValid && tRootMaxIsValid )
+                        {
+                            tSolIncrement = std::abs( tRootMin ) < std::abs( tRootMax ) ? tRootMin : tRootMax;
+                        }
+                        else if ( tRootMinIsValid )
+                        {
+                            tSolIncrement = tRootMin;
+                        }
+                        else if ( tRootMaxIsValid )
+                        {
+                            tSolIncrement = tRootMax;
+                        }
+                        else
+                        {
+                            tSolIncrement = -1.0 * tResidual / ( tGradRes + MORIS_REAL_EPS );
+                        }
+                    }
+                    else
+                    {
+                        // compute increment
+                        tSolIncrement = -1.0 * tResidual / ( tGradRes + MORIS_REAL_EPS );
+                    }
+
+                    // update solution
+                    tEdgeCoordinate += tNewRelax * tSolIncrement;
+
+                    // trim solution
+                    tEdgeCoordinate = std::min( 1.0, std::max( tEdgeCoordinate, -1.0 ) );
                 }
-
-                // store reference residual
-                if ( iNew == 0 )
-                {
-                    tReferenceResidual = std::abs( tResidual );
-                }
-
-                // check convergence against relative residual
-                if ( std::abs( tResidual ) < tNewRelEps * tReferenceResidual )
-                {
-                    delete tInterpolation;
-
-                    return tEdgeCoordinate;
-                }
-
-                // compute Jacobian
-                tInterpolation->eval_dNdXi( tCellCoordinate, tDBasisDxi );
-
-                tJac = 0.5 * ( aSecondParentNodeLocalCoordinates - aFirstParentNodeLocalCoordinates ) * tDBasisDxi * tPhiBCNodes;
-
-                // compute increment
-                real tSolIncrement = tNewRelax * tResidual / ( tJac( 0 ) + MORIS_REAL_EPS );
-
-                // update solution
-                tEdgeCoordinate -= tSolIncrement;
-
-                // trim solution
-                tEdgeCoordinate = std::min( 1.0, std::max( tEdgeCoordinate, -1.0 ) );
             }
 
-            MORIS_ERROR( false,
-                    "Intersection_Node_Bilinear::compute_intersection - Newton did not convergence." );
+            // print debug information
+            for ( uint in = 0; in < tNumBases; ++in )
+            {
+                std::string tStrg = "Anchestor_Node_" + std::to_string( aAncestorNodeIndices( in ) );
+                print( aAncestorNodeCoordinates( in ), tStrg );
+            }
 
-            return MORIS_REAL_MAX;
+            print( tPhiBCNodes, "tPhiBCNodes" );
+
+            fprintf( stderr, "tFirstParentPhi =%e   tSecondParentPhi = %e\n", tFirstParentPhi, tSecondParentPhi );
+
+            print( aFirstParentNodeLocalCoordinates, "aFirstParentNodeLocalCoordinates" );
+            print( aSecondParentNodeLocalCoordinates, "aSecondParentNodeLocalCoordinates" );
+
+            MORIS_ERROR( false,
+                    "Intersection_Node_Bilinear::compute_intersection - Newton did not convergence: %s %e %s %e %s %e",
+                    "Reference residual",
+                    tReferenceResidual,
+                    "Current residual",
+                    std::abs( tResidual ),
+                    "Edge coordinate",
+                    tEdgeCoordinate );
+
+            delete tInterpolation;
+
+            return tEdgeCoordinate;
         }
 
         //--------------------------------------------------------------------------------------------------------------
