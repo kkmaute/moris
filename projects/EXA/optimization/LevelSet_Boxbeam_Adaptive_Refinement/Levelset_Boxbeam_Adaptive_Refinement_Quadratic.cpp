@@ -472,6 +472,7 @@ namespace moris
 
         tParameterlist( 0 )( 0 ).set( "print_phase_table", true );
         tParameterlist( 0 )( 0 ).set( "intersection_tolerance", 1e-8 );
+        tParameterlist( 0 )( 0 ).set( "isocontour_tolerance", 1e-8 );
 
         // init geometry counter
         uint tGeoCounter = 0;
