@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_GEN_Field.cpp
+ *
+ */
+
 #include "cl_GEN_Field.hpp"
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
 #include "cl_SOL_Dist_Map.hpp"
@@ -47,7 +57,7 @@ namespace moris
 
             // Fill with pointers to ADVs
             this->set_advs(aADVs);
-            
+
             // Fill constant parameters
             this->fill_constant_parameters();
 
@@ -291,7 +301,7 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        
+
         void Field::fill_constant_parameters()
         {
             uint tParameterIndex = 0;

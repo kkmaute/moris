@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_XTK_Node_Hierarchy_Template_Library.cpp
+ *
+ */
+
 #include "cl_XTK_Node_Hierarchy_Interface.hpp"
 #include "cl_XTK_Decomposition_Algorithm.hpp"
 #include "cl_XTK_Integration_Mesh_Generator.hpp"
@@ -714,7 +724,6 @@ Node_Hierachy_Template_Library::load_3d_template(
         aNodeHierTemplate->mNumCells          = 2;
         break;
 
-
     case ( 10250 ):
         aNodeHierTemplate->mCellToNodeOrdinal = moris::Matrix< moris::IndexMat >( { { 0, 1, 4, 5 }, { 0, 4, 2, 5 }, { 0, 5, 2, 3 } } );
         aNodeHierTemplate->mNumCells          = 3;
@@ -823,3 +832,4 @@ Node_Hierachy_Template_Library::load_3d_template(
 // ----------------------------------------------------------------------------------
 
 }// namespace xtk
+

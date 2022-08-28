@@ -1,9 +1,13 @@
 /*
- * fn_FEM_IWG_Compressible_NS_Check_Dof.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Mar 18, 2021
- *      Author: wunsch
+ *------------------------------------------------------------------------------------
+ *
+ * fn_FEM_IWG_Compressible_NS_Dof_Check.cpp
+ *
  */
+
 #include "fn_FEM_IWG_Compressible_NS.hpp"
 
 #include "fn_trans.hpp"
@@ -17,7 +21,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        bool check_residual_dof_types( 
+        bool check_residual_dof_types(
                 const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes )
         {
             // initialize
@@ -48,19 +52,19 @@ namespace moris
 
             // return whether check was successful or not
             return tCheck;
-        }   
+        }
 
         //------------------------------------------------------------------------------
 
         bool check_dof_dependencies(
-                fem::Set                                          * aFemSet, 
+                fem::Set                                          * aFemSet,
                 const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes,
                 const moris::Cell< moris::Cell< MSI::Dof_Type > > & aRequestedDofTypeList )
-        {  
+        {
             // get and check the number of dof dependencies
             uint tNumDofDependencies = aRequestedDofTypeList.size();
-            if ( tNumDofDependencies != 3 )   
-            {     
+            if ( tNumDofDependencies != 3 )
+            {
                 MORIS_LOG_ERROR( "Compressible_NS_Dof_Check::check_dof_dependencies() - More than three DoF dependencies." );
             }
 
@@ -71,15 +75,15 @@ namespace moris
 
             if ( !tCheck )
             {
-                MORIS_LOG_ERROR( 
+                MORIS_LOG_ERROR(
                         "Compressible_NS_Dof_Check::check_dof_dependencies() - Only Pressure and Density Primitive variables supported for now."
                         "DoF ordering must be (rho,u,T) or (p,u,T)." );
             }
-        
-            // check that the assembly map is a connected block            
+
+            // check that the assembly map is a connected block
             uint tMasterDof1Index      = aFemSet->get_dof_index_for_type( aResidualDofTypes( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterDof2Index      = aFemSet->get_dof_index_for_type( aResidualDofTypes( 1 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterDof3Index      = aFemSet->get_dof_index_for_type( aResidualDofTypes( 2 )( 0 ), mtk::Master_Slave::MASTER );            
+            uint tMasterDof3Index      = aFemSet->get_dof_index_for_type( aResidualDofTypes( 2 )( 0 ), mtk::Master_Slave::MASTER );
             sint tDofDep1Index         = aFemSet->get_dof_index_for_type( aRequestedDofTypeList( 0 )( 0 ), mtk::Master_Slave::MASTER );
             sint tDofDep2Index         = aFemSet->get_dof_index_for_type( aRequestedDofTypeList( 1 )( 0 ), mtk::Master_Slave::MASTER );
             sint tDofDep3Index         = aFemSet->get_dof_index_for_type( aRequestedDofTypeList( 2 )( 0 ), mtk::Master_Slave::MASTER );
@@ -87,16 +91,17 @@ namespace moris
             uint tMasterDep2StartIndex = aFemSet->get_jac_dof_assembly_map()( tMasterDof2Index )( tDofDep2Index, 0 );
             uint tMasterDep2StopIndex  = aFemSet->get_jac_dof_assembly_map()( tMasterDof2Index )( tDofDep2Index, 1 );
             uint tMasterDep3StartIndex = aFemSet->get_jac_dof_assembly_map()( tMasterDof3Index )( tDofDep3Index, 0 );
-            
+
             if ( !( ( tMasterDep1StopIndex + 1 == tMasterDep2StartIndex ) && ( tMasterDep2StopIndex + 1 == tMasterDep3StartIndex ) ) )
             {
                 MORIS_LOG_ERROR( "Compressible_NS_Dof_Check::check_dof_dependencies() - Assembly map is not connected." );
             }
 
             return tCheck;
-        }               
+        }
 
         //------------------------------------------------------------------------------
 
     } /* namespace fem */
 } /* namespace moris */
+

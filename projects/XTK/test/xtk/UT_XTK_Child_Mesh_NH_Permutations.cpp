@@ -1,13 +1,12 @@
 /*
- * cl_XTK_Child_Mesh_Test_NH_Permutations.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jun 25, 2018
- *      Author: ktdoble
+ *------------------------------------------------------------------------------------
+ *
+ * UT_XTK_Child_Mesh_NH_Permutations.cpp
+ *
  */
-
-#ifndef UNIT_TEST_SRC_XTK_CL_XTK_CHILD_MESH_TEST_NH_PERMUTATIONS_CPP_
-#define UNIT_TEST_SRC_XTK_CL_XTK_CHILD_MESH_TEST_NH_PERMUTATIONS_CPP_
-
 #include "catch.hpp"
 
 #include "cl_Matrix.hpp"
@@ -26,7 +25,6 @@
 #include "cl_XTK_Child_Mesh.hpp"
 
 #include "fn_GEN_Triangle_Geometry.hpp"
-
 
 namespace xtk
 {
@@ -101,7 +99,6 @@ private:
     size_t mNumPermutations;
     Cell<Cell<size_t>> mPermutations;
 
-
 private:
     void load_all_permutations()
     {
@@ -126,7 +123,6 @@ private:
                          {4,2,5,0},
                          {4,5,0,2},
                          {4,5,2,0},
-
 
                          {5,0,2,4},
                          {5,0,4,2},
@@ -195,7 +191,6 @@ private:
 
     void load_pos_a_permutations()
     {
-
 
         mPermutations = {{0,2,4,5},  // 5420
                          {0,4,2,5},  // 5240
@@ -487,7 +482,6 @@ setup_node_coordinates_bisected(size_t const & tEdgeOrd,
     aNodeCoordinates(4,0) = (tEdgeNodeCoordinates)(0,0);     aNodeCoordinates(4,1) =  (tEdgeNodeCoordinates)(0,1);     aNodeCoordinates(4,2) =  (tEdgeNodeCoordinates)(0,2);
 }
 
-
 bool
 verify_edge_is_on_parent_edge(moris::Matrix< moris::IndexMat> const  & aParentEdgeNodes,
                               moris::Matrix< moris::DDRMat >         & aNodeCoordinates,
@@ -538,7 +532,6 @@ verify_edge_is_on_parent_edge(moris::Matrix< moris::IndexMat> const  & aParentEd
             tVal = tVal + 10.0;
         }
 
-
     }
 
     if(moris::equal_to(tVal,0))
@@ -561,7 +554,6 @@ TEST_CASE("Node Hierarchy Template 3 Node Case Permutations","[3_NODE]")
     moris::Matrix< moris::IndexMat > tNodeIndex({{0,1,2,3}});
 
     moris::Matrix< moris::IdMat > tNodeIds({{1,2,3,4,5,6,7}});
-
 
     moris::Matrix< moris::IndexMat > tElementsAncestry({{0}}); // Not used
     moris::Matrix< moris::DDSTMat  > tElementNodeParentRanks(1,4,0);
@@ -615,7 +607,6 @@ TEST_CASE("Node Hierarchy Template 3 Node Case Permutations","[3_NODE]")
             // Compute base tet volume
             real tTetVol = ge::compute_volume_for_multiple_tets(tNodeCoords,tChildMesh.get_element_to_node());
 
-
             // Compute base element surface normals (parent faces)
             moris::Matrix< moris::IndexMat > const & tParentFaceToNode = tChildMesh.get_face_to_node();
             size_t tNumParentFaces = tParentFaceToNode.n_rows();
@@ -636,7 +627,6 @@ TEST_CASE("Node Hierarchy Template 3 Node Case Permutations","[3_NODE]")
             tChildMesh.add_entity_to_intersect_connectivity(4,tEdgeL,true);
             tChildMesh.add_entity_to_intersect_connectivity(5,tEdgeM,true);
             tChildMesh.add_entity_to_intersect_connectivity(6,tEdgeH,true);
-
 
             tChildMesh.modify_child_mesh(TemplateType::HIERARCHY_TET4);
 
@@ -674,7 +664,6 @@ TEST_CASE("Node Hierarchy Template 3 Node Case Permutations","[3_NODE]")
 
             CHECK(approximate(tTetVol,tTotalChildVol));
 
-
             // Check ancestry of faces
             moris::Matrix< moris::IndexMat > const & tFaceToNode      = tChildMesh.get_face_to_node();
             moris::Matrix< moris::IndexMat > const & tFaceParentInds  = tChildMesh.get_face_parent_inds();
@@ -709,7 +698,6 @@ TEST_CASE("Node Hierarchy Template 3 Node Case Permutations","[3_NODE]")
             }
             CHECK(tChildFacewithParentFaceRank == 10);
 
-
             // Check Edge Ancestry
             moris::mtk::Cell_Info_Tet4 tConn;
               moris::Matrix<moris::IndexMat> tParentEdgeToNodeMap       = tConn.get_node_to_edge_map();
@@ -740,7 +728,6 @@ TEST_CASE("Node Hierarchy Template 4 Node Case Permutations","[4_NODE]")
     moris::Matrix< moris::IndexMat > tNodeIndex({{0,1,2,3}});
 
     moris::Matrix< moris::IdMat > tNodeIds({{1,2,3,4,5,6,7,8}});
-
 
     moris::Matrix< moris::IndexMat > tElementsAncestry({{0}}); // Not used
     moris::Matrix< moris::DDSTMat  > tElementNodeParentRanks(1,4,0);
@@ -796,7 +783,6 @@ TEST_CASE("Node Hierarchy Template 4 Node Case Permutations","[4_NODE]")
             // Compute base tet volume
             real tTetVol = ge::compute_volume_for_multiple_tets(tNodeCoords,tChildMesh.get_element_to_node());
 
-
             // Compute base element surface normals (parent faces)
             moris::Matrix< moris::IndexMat > const & tParentFaceToNode = tChildMesh.get_face_to_node();
             size_t tNumParentFaces = tParentFaceToNode.n_rows();
@@ -818,7 +804,6 @@ TEST_CASE("Node Hierarchy Template 4 Node Case Permutations","[4_NODE]")
             tChildMesh.add_entity_to_intersect_connectivity(5,tEdgeML,true);
             tChildMesh.add_entity_to_intersect_connectivity(6,tEdgeMH,true);
             tChildMesh.add_entity_to_intersect_connectivity(7,tEdgeH,true);
-
 
             tChildMesh.modify_child_mesh(TemplateType::HIERARCHY_TET4);
 
@@ -856,7 +841,6 @@ TEST_CASE("Node Hierarchy Template 4 Node Case Permutations","[4_NODE]")
 
             CHECK(approximate(tTetVol,tTotalChildVol));
 
-
             // Check ancestry of faces
             moris::Matrix< moris::IndexMat > const & tFaceToNode     = tChildMesh.get_face_to_node();
             moris::Matrix< moris::IndexMat > const & tFaceParentInds = tChildMesh.get_face_parent_inds();
@@ -891,7 +875,6 @@ TEST_CASE("Node Hierarchy Template 4 Node Case Permutations","[4_NODE]")
               }
               CHECK(tChildFacewithParentFaceRank == 12);
 
-
             // Check Edge Ancestry
               moris::mtk::Cell_Info_Tet4 tConn;
               moris::Matrix<moris::IndexMat> tParentEdgeToNodeMap       = tConn.get_node_to_edge_map();
@@ -919,7 +902,6 @@ TEST_CASE("Bisected Tetrahedral Template","[BISECT_TEMPLATE]")
     moris::Matrix< moris::IndexMat > tNodeIndex({{0,1,2,3}});
 
     moris::Matrix< moris::IdMat > tNodeIds({{1,2,3,4,5}});
-
 
     moris::Matrix< moris::IndexMat > tElementsAncestry({{0}}); // Not used
     moris::Matrix< moris::DDSTMat  > tElementNodeParentRanks(1,4,0);
@@ -953,14 +935,12 @@ TEST_CASE("Bisected Tetrahedral Template","[BISECT_TEMPLATE]")
         tChildMesh.add_node_indices({{4}});
         tChildMesh.add_node_ids(tNodeIds);
 
-
         // Set up node coordinates
         moris::Matrix< moris::DDRMat > tNodeCoords;
         setup_node_coordinates_bisected(iEdge,tNodeCoords);
 
         // Compute base tet volume
         real tTetVol = ge::compute_volume_for_multiple_tets(tNodeCoords,tChildMesh.get_element_to_node());
-
 
         // Compute base element surface normals (parent faces)
         moris::Matrix< moris::IndexMat > const & tParentFaceToNode = tChildMesh.get_face_to_node();
@@ -1018,7 +998,6 @@ TEST_CASE("Bisected Tetrahedral Template","[BISECT_TEMPLATE]")
         real tTotalChildVol = ge::compute_volume_for_multiple_tets(tNodeCoords,tChildMesh.get_element_to_node());;
 
         CHECK(approximate(tTetVol,tTotalChildVol));
-
 
         // Check ancestry of faces
         moris::Matrix< moris::IndexMat > const & tFaceToNode      = tChildMesh.get_face_to_node();
@@ -1082,7 +1061,6 @@ TEST_CASE("2 Edge intersected Tetrahedral Template","[2_NODE]")
     moris::Matrix< moris::IndexMat > tNodeIndex({{0,1,2,3}});
 
     moris::Matrix< moris::IdMat > tNodeIds({{1,2,3,4,5,6}});
-
 
     moris::Matrix< moris::IndexMat > tElementsAncestry({{0}}); // Not used
     moris::Matrix< moris::DDSTMat  > tElementNodeParentRanks(1,4,0);
@@ -1185,7 +1163,6 @@ TEST_CASE("2 Edge intersected Tetrahedral Template","[2_NODE]")
         real tTotalChildVol = ge::compute_volume_for_multiple_tets(tNodeCoords,tChildMesh.get_element_to_node());;
 
         CHECK(approximate(tTetVol,tTotalChildVol));
-
 
         // Check ancestry of faces
         moris::Matrix< moris::IndexMat > const & tFaceToNode      = tChildMesh.get_face_to_node();
@@ -1468,8 +1445,5 @@ TEST_CASE("2 Edge intersected Tetrahedral Template","[2_NODE]")
 //    }
 //}
 
-
 }
 
-
-#endif /* UNIT_TEST_SRC_XTK_CL_XTK_CHILD_MESH_TEST_NH_PERMUTATIONS_CPP_ */

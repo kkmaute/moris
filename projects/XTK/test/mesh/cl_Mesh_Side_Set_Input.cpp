@@ -1,12 +1,12 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_Mesh_Side_Set_Input.cpp
  *
- *  Created on: Aug 30, 2017
- *      Author: ktdoble
  */
-
-
-
 
 #include "catch.hpp"
 
@@ -14,9 +14,6 @@
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-
-
-
 
 TEST_CASE("Side Set Input","[SIDE_SET_INPUT]")
 {
@@ -36,7 +33,6 @@ TEST_CASE("Side Set Input","[SIDE_SET_INPUT]")
     size_t tStringLength = 24;
     mesh::Side_Set_Input<size_t,moris::DDSTMat> tSideSetInput(tNumSides,tStringLength);
 
-
     CHECK(!tSideSetInput.has_sides());
     /*
      * Add element and side ordinal pairs (note adding 3 here to fill space allocated in constructor)
@@ -47,7 +43,6 @@ TEST_CASE("Side Set Input","[SIDE_SET_INPUT]")
     tSideSetInput.add_element_id_and_side_ordinal(tElementIds,tSideOrdinals);
 
     CHECK(tSideSetInput.has_sides());
-
 
     /*
      * Add the side set name (Note this is less than the length above)
@@ -61,7 +56,6 @@ TEST_CASE("Side Set Input","[SIDE_SET_INPUT]")
      * Do it again and expect a throw
      */
     CHECK_THROWS(tSideSetInput.set_side_set_name(tSideSetName));
-
 
     /*
      * Test accessing functions

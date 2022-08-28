@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_Map_Epetra.cpp
  *
- *  Created on: Mar 19, 2018
- *      Author: schmidt
  */
+
 #include "catch.hpp"
 #include "fn_equal_to.hpp" // ALG/src
 #include "typedefs.hpp" // COR/src

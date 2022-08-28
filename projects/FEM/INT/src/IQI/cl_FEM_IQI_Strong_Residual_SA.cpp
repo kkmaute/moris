@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_IQI_Strong_Residual_SA.cpp
+ *
+ */
 
 #include "cl_FEM_IQI_Strong_Residual_SA.hpp"
 
@@ -23,7 +32,7 @@ namespace moris
             mConstitutiveMap[ "SpalartAllmarasTurbulence" ] =
                     static_cast< uint >( IQI_Constitutive_Type::TURBULENCE );
         }
-        
+
         //------------------------------------------------------------------------------
 
         void IQI_Strong_Residual_SA::compute_QI( Matrix< DDRMat > & aQI )
@@ -93,3 +102,4 @@ namespace moris
         //------------------------------------------------------------------------------
     }/* end_namespace_fem */
 }/* end_namespace_moris */
+

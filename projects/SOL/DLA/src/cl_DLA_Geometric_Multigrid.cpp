@@ -1,8 +1,12 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_DLA_Geometric_Multigrid.cpp
  *
- *  Created on: Dez 12, 2018
- *      Author: schmidt */
+ */
 
 #include "cl_DLA_Solver_Interface.hpp"
 #include "cl_SOL_Dist_Matrix.hpp"
@@ -14,8 +18,6 @@
 
 #include "cl_MTK_Mesh_Core.hpp"
 #include "cl_HMR_Database.hpp"
-
-
 
 namespace moris
 {
@@ -132,3 +134,4 @@ namespace dla
     }
 }
 }
+

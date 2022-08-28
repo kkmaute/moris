@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_OPT_Manager.cpp
+ *
+ */
+
 #include "cl_OPT_Manager.hpp"
 #include "fn_OPT_create_problem.hpp"
 #include "fn_OPT_create_interface.hpp"
@@ -108,3 +118,4 @@ namespace moris
         // -------------------------------------------------------------------------------------------------------------
     }
 }
+

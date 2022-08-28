@@ -1,5 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_SP_Pressure_Ghost.cpp
+ *
+ */
 
-//FEM/INT/src
 #include "cl_FEM_SP_Pressure_Ghost.hpp"
 #include "cl_FEM_Cluster.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
@@ -211,7 +219,7 @@ namespace moris
             }
 
             // compute deltaP
-            real tDeltaP = 
+            real tDeltaP =
                     tViscosityProp->val()( 0 ) / tElementSize +
                     tDensityProp->val()( 0 ) * tInfinityNorm / 6.0;
 
@@ -285,5 +293,4 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-
 

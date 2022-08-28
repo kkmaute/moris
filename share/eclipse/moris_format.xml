@@ -1,3 +1,5 @@
+<!-- Copyright (c) 2022 University of Colorado -->
+<!-- Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details. -->
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <profiles version="1">
     <profile kind="CodeFormatterProfile" name="moris" version="1">
@@ -191,3 +193,4 @@
         <setting id="org.eclipse.cdt.core.formatter.insert_space_before_closing_paren_in_method_invocation" value="insert"/>
     </profile>
 </profiles>
+

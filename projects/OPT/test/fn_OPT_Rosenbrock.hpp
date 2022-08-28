@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * fn_OPT_Rosenbrock.hpp
+ *
+ */
+
 #ifndef MORIS_FN_OPT_ROSENBROCK_HPP
 #define MORIS_FN_OPT_ROSENBROCK_HPP
 
@@ -198,3 +208,4 @@ namespace moris
 }
 
 #endif //MORIS_FN_OPT_ROSENBROCK_HPP
+

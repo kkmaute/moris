@@ -1,6 +1,12 @@
-//
-// example specific interface to moris
-//
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * example_test_case.cpp
+ *
+ */
 
 #include <catch.hpp>
 
@@ -38,3 +44,4 @@ TEST_CASE("Couette_Flow_Static",
     // call to performance manager main interface
     fn_WRK_Workflow_Main_Interface( argc, argv );
 }
+

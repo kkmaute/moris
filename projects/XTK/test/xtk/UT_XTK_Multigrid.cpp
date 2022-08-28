@@ -1,8 +1,11 @@
 /*
- * cl_XTK_Multigrid.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Feb 04, 2019
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * UT_XTK_Multigrid.cpp
+ *
  */
 
 #include <memory>
@@ -129,7 +132,6 @@ namespace xtk
                 //moris::print(tMesh->get_t_matrix_of_node_loc_ind(i,EntityRank::BSPLINE),"bspline t matrix");
             }
 
-
         //    moris::moris_id tElementInd = 8;
         //    Matrix<IndexMat> tFaces = tMesh->get_entity_connected_to_entity_loc_inds(tElementInd,EntityRank::ELEMENT,EntityRank::FACE);
         //    Matrix<IndexMat> tNeighborElements = tMesh->get_elements_connected_to_element_and_face_ind_loc_inds(tElementInd);
@@ -163,7 +165,6 @@ namespace xtk
             tXTKModel.perform_basis_enrichment();
 
             tXTKModel.perform_multilevel_enrichment_internal();
-
 
 //            moris::mtk::Mesh* tXTKMTK = tXTKModel.get_xtk_as_mtk();
 //

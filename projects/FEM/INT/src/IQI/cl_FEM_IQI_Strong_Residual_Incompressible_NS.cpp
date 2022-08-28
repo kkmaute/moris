@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_IQI_Strong_Residual_Incompressible_NS.cpp
+ *
+ */
 
 #include "cl_FEM_IQI_Strong_Residual_Incompressible_NS.hpp"
 
@@ -194,3 +203,4 @@ namespace moris
         //------------------------------------------------------------------------------
     }    // namespace fem
 }    // namespace moris
+

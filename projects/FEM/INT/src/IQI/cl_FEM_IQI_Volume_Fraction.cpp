@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_IQI_Volume_Fraction.cpp
  *
- *  Created on: Feb 28, 2020
- *      Author: schmidt
  */
 
 #include "cl_FEM_Set.hpp"
@@ -29,7 +32,7 @@ namespace moris
             // populate the constitutive map
             mStabilizationMap[ "Reciprocal_total_vol" ] = static_cast< uint >( IQI_Stabilization_Type::RECIPROCAL_TOTAL_VOLUME );
         }
-        
+
         //------------------------------------------------------------------------------
 
         void IQI_Volume_Fraction::compute_QI( Matrix< DDRMat > & aQI )
@@ -40,7 +43,7 @@ namespace moris
             // evaluate the QI
             aQI( 0 ) = mStabilizationParam( 0 )->val()( 0 );
         }
-        
+
         //------------------------------------------------------------------------------
 
         void IQI_Volume_Fraction::compute_QI( real aWStar )
@@ -56,5 +59,4 @@ namespace moris
 
     }/* end namespace fem */
 }/* end namespace moris */
-
 

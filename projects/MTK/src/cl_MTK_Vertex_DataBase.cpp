@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Vertex_DataBase.cpp
  *
- *  Created on: Dec  13, 2021
- *      Author: momo
  */
+
 #include "cl_MTK_Vertex_DataBase.hpp"
 #include <typeinfo>
 #include "fn_TOL_Capacities.hpp"
@@ -35,7 +39,6 @@ namespace moris::mtk
 
     //------------------------------------------------------------------------------
 
-
     moris_id
     Vertex_DataBase::get_id() const
     {
@@ -44,7 +47,6 @@ namespace moris::mtk
     }
 
     //------------------------------------------------------------------------------
-
 
     moris_index
     Vertex_DataBase::get_index() const

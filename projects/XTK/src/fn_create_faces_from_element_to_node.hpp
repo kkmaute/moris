@@ -1,8 +1,11 @@
 /*
- * fn_create_faces.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jun 19, 2018
- *      Author: ktdoble
+ *------------------------------------------------------------------------------------
+ *
+ * fn_create_faces_from_element_to_node.hpp
+ *
  */
 
 #ifndef SRC_XTK_FN_CREATE_FACES_FROM_ELEMENT_TO_NODE_HPP_
@@ -176,3 +179,4 @@ namespace xtk
 }
 
 #endif /* SRC_XTK_FN_CREATE_FACES_FROM_ELEMENT_TO_NODE_HPP_ */
+

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_XTK_Octree_Interface.cpp
+ *
+ */
+
 #include "cl_XTK_Octree_Interface.hpp"
 #include "cl_XTK_Decomposition_Algorithm.hpp"
 #include "cl_XTK_Regular_Subdivision_Interface.hpp"
@@ -54,7 +64,6 @@ IJK_Mesh::get_vertex_parent_entities() const
     tIndex                                             = this->get_vertex_index( this->max_vert_i(), this->max_vert_j(), this->max_vert_k() );
     tVertexAncestry.mVertexParentEntityIndex( tIndex ) = 6;
     tVertexAncestry.mVertexParentEntityRank( tIndex )  = EntityRank::NODE;
-
 
     // Vertex 7
     tIndex                                             = this->get_vertex_index( this->min_vert_i(), this->max_vert_j(), this->max_vert_k() );
@@ -130,7 +139,6 @@ IJK_Mesh::get_vertex_parent_entities() const
             tVertexAncestry.mVertexParentEntityRank( tIndex )  = EntityRank::FACE;
         }
     }
-
 
     // EDGES WITH VARIABLE I
     // fixed J and K edges
@@ -244,7 +252,6 @@ IJK_Mesh::get_vertex_parent_entities() const
         tVertexAncestry.mVertexParentEntityRank( tIndex )  = EntityRank::EDGE;
     }
 
-
     // flag the interior vertices
     for ( moris::uint k = 1; k < this->num_vert_z() - 1; k++ )
     {
@@ -261,7 +268,6 @@ IJK_Mesh::get_vertex_parent_entities() const
 
     return tVertexAncestry;
 }
-
 
 Octree_Interface::Octree_Interface( ParameterList &aParameterList )
 {
@@ -356,7 +362,6 @@ Octree_Interface::perform_impl_vertex_requests(
 
     mDifference.reserve( tNumChildMeshes );
 
-
     // iterate through cells
     for ( auto &iCell : aMeshGenerationData->mAllIntersectedBgCellInds )
     {
@@ -424,7 +429,7 @@ Octree_Interface::perform_impl_vertex_requests(
                     }
                     else
                     {
-                        MORIS_ASSERT( moris::norm( tNewCoordinate - mDecompData->tNewNodeCoordinate( tNewNodeIndexInSubdivision ) ) < 1e-12, 
+                        MORIS_ASSERT( moris::norm( tNewCoordinate - mDecompData->tNewNodeCoordinate( tNewNodeIndexInSubdivision ) ) < 1e-12,
                              "Vertex coordinate mismatch, could be a hashing collision, parent rank: ELEMENT , index: %i  hash: %i", tCell.get_index(), ( *tVertexHashes )( iV ) );
                     }
                 }
@@ -449,10 +454,10 @@ Octree_Interface::perform_impl_vertex_requests(
                     }
                     else
                     {
-                        MORIS_ASSERT( moris::norm( tNewCoordinate - mDecompData->tNewNodeCoordinate( tNewNodeIndexInSubdivision ) ) < 1e-12, 
+                        MORIS_ASSERT( moris::norm( tNewCoordinate - mDecompData->tNewNodeCoordinate( tNewNodeIndexInSubdivision ) ) < 1e-12,
                             "Vertex coordinate mismatch, could be a hashing collision, parent rank: %s, parent index: %d, hash: %d",
-                            get_enum_str( tVertexAncestry->get_vertex_parent_rank( iV ) ).c_str(), 
-                            tCellConnectivity.get_entity_index( tVertexAncestry->get_vertex_parent_index( iV ), tVertexAncestry->get_vertex_parent_rank( iV ) ), 
+                            get_enum_str( tVertexAncestry->get_vertex_parent_rank( iV ) ).c_str(),
+                            tCellConnectivity.get_entity_index( tVertexAncestry->get_vertex_parent_index( iV ), tVertexAncestry->get_vertex_parent_rank( iV ) ),
                             ( *tVertexHashes )( iV ) );
                     }
                 }
@@ -505,7 +510,6 @@ Octree_Interface::perform_impl_generate_mesh(
 
         std::cout << "iCM = " << iCM << " | tChildMesh->get_parent_cell()->get_level() = " << tChildMesh->get_parent_cell()->get_level() << std::endl;
 
-
         for ( moris::uint iNewCell = 0; iNewCell < tCellTemplates->n_rows(); iNewCell++ )
         {
             mNewCellChildMeshIndex( tCurrentCellIndex ) = iCM;
@@ -514,7 +518,6 @@ Octree_Interface::perform_impl_generate_mesh(
             {
                 // Ijk index
                 moris_index tIgCellIJKIndex = ( *tCellTemplates )( iNewCell, iV );
-
 
                 // std::cout << " mDifference( iCM ) = " << mDifference( iCM ) << std::endl;
                 // index in child mesh vertex group
@@ -582,7 +585,6 @@ Octree_Interface::get_ig_cell_topology() const
     return CellTopology::HEX8;
 }
 
-
 moris::Cell< std::unordered_map< moris_index, moris_index > >
 Octree_Interface::generate_octree_template_vertex_group_to_ijk_map()
 {
@@ -611,9 +613,8 @@ Octree_Interface::generate_octree_template_vertex_group_to_ijk_map()
         }
     }
 
-
     return tMaps;
 }
 
-
 }// namespace xtk
+

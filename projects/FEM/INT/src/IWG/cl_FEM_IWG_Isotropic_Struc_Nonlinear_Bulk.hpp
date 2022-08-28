@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_IWG_Isotropic_Struc_Nonlinear_Bulk.hpp
  *
- *  Created on: Mar 30, 2022
- *      Author: hermann
  */
 
 #ifndef SRC_FEM_CL_FEM_IWG_ISOTROPIC_STRUC_NONLINEAR_BULK_HPP_
@@ -12,7 +15,6 @@
 
 #include "typedefs.hpp"                     //MRS/COR/src
 #include "cl_Cell.hpp"                      //MRS/CON/src
-
 
 #include "cl_Matrix.hpp"                    //LINALG/src
 #include "linalg_typedefs.hpp"              //LINALG/src
@@ -100,3 +102,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_FEM_CL_FEM_IWG_ISOTROPIC_STRUC_NONLINEAR_BULK_HPP_ */
+

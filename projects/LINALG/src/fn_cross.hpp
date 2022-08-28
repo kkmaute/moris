@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_cross.hpp
  *
- *  Created on: Jan 16, 2019
- *      Author: doble
  */
 
 #ifndef PROJECTS_LINALG_SRC_FN_CROSS_HPP_
@@ -43,6 +46,5 @@ cross(Matrix< Matrix_Type > const & aA,
 }
 }
 
-
-
 #endif /* PROJECTS_LINALG_SRC_FN_CROSS_HPP_ */
+

@@ -1,8 +1,11 @@
 /*
- * fn_compute_xtk_mesh_volume.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Oct 5, 2018
- *      Author: doble
+ *------------------------------------------------------------------------------------
+ *
+ * fn_compute_xtk_model_volumes.hpp
+ *
  */
 
 #ifndef PROJECTS_XTK_SRC_XTK_FN_COMPUTE_XTK_MODEL_VOLUMES_HPP_
@@ -17,10 +20,7 @@
 namespace xtk
 {
 
-
 }
 
-
-
-
 #endif /* PROJECTS_XTK_SRC_XTK_FN_COMPUTE_XTK_MODEL_VOLUMES_HPP_ */
+

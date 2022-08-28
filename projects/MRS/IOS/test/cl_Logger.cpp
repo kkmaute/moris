@@ -1,4 +1,13 @@
-// Third-party header files.
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_Logger.cpp
+ *
+ */
+
 #include <catch.hpp>
 
 // MORIS header files.
@@ -19,3 +28,4 @@ TEST_CASE(
 
         MORIS_LOG_WARNING("Test check severity level warning  || %-5i   ", 44 );
 }
+

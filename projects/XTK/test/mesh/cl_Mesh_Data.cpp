@@ -1,10 +1,13 @@
 /*
- * cl_Mesh.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jun 12, 2017
- *      Author: ktdoble
+ *------------------------------------------------------------------------------------
+ *
+ * cl_Mesh_Data.cpp
+ *
  */
-// Test suite
+
 #include <memory>
 #include <mpi.h>
 #include "catch.hpp"
@@ -28,7 +31,6 @@
 
 // Topology includes
 #include "topology/cl_XTK_Hexahedron_8_Topology.hpp"
-
 
 using namespace xtk;
 
@@ -112,7 +114,6 @@ TEST_CASE("STK Mesh Test Serial","[MESH][STK]")
     }
 }
 
-
 TEST_CASE("Batch Create New Nodes Functions","[MESH][BATCH_CREATE]")
 {
 
@@ -135,7 +136,6 @@ TEST_CASE("Batch Create New Nodes Functions","[MESH][BATCH_CREATE]")
     MPI_Comm_rank(MPI_COMM_WORLD, &tProcRank);
     MPI_Comm_size(MPI_COMM_WORLD, &tProcSize);
 
-
     /*
      * Construct the Mesh
      */
@@ -143,7 +143,6 @@ TEST_CASE("Batch Create New Nodes Functions","[MESH][BATCH_CREATE]")
     std::string tMeshFileName = "generated:1x1x2";
     mesh::Mesh_Builder_Stk<xtk::real, xtk::size_t,xtk::moris::DDRMat, xtk::moris::DDSTMat> tMeshBuilder;
     std::shared_ptr<mesh::Mesh_Data<xtk::real, xtk::size_t,xtk::moris::DDRMat, xtk::moris::DDSTMat>> tMeshData = tMeshBuilder.build_mesh_from_string(tMeshFileName, tScalarFields, true);
-
 
     /*
      * Test Allocation of Entity Ids
@@ -172,7 +171,6 @@ TEST_CASE("Batch Create New Nodes Functions","[MESH][BATCH_CREATE]")
      * Setup pending node data structure
      */
     moris::Cell<xtk::Pending_Node<xtk::real, xtk::size_t,xtk::moris::DDRMat, xtk::moris::DDSTMat>> tPendingNodes(3);
-
 
     /*
      * Setup Parent Element Topology with Nodes Corresponding to Element 1
@@ -210,7 +208,6 @@ TEST_CASE("Batch Create New Nodes Functions","[MESH][BATCH_CREATE]")
 
        tPendingNodes(2).set_pending_node_info(&tNodeIndex3,&tNodeId3,tNodeCoords3,tDummyTopology,tLocalCoords3);
 
-
        /*
         * Check the map prior to modifying the mesh
         */
@@ -223,9 +220,7 @@ TEST_CASE("Batch Create New Nodes Functions","[MESH][BATCH_CREATE]")
        }
 //       tMeshData->batch_create_new_nodes(tPendingNodes);
 
-
        tExpectedMap = moris::Matrix< moris::DDSTMat >({{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 51, 200, 94}});
-
 
        if(tProcSize==1)
         {
@@ -237,9 +232,7 @@ TEST_CASE("Batch Create New Nodes Functions","[MESH][BATCH_CREATE]")
         */
        moris::Matrix< moris::DDSTMat > tNodeIndices({{tNodeIndex1,tNodeIndex2,tNodeIndex3}});
 
-
        moris::Matrix< moris::DDRMat > tExpectedNodeCoordinates({{1.24, 1.3, 1.5}, {1.9, -2.3, 5.5}, {-3.24, -0.3, -2.5}});
-
 
        if(tProcSize==1)
        {
@@ -307,7 +300,6 @@ TEST_CASE("Part Ordinals", "[MESH][PARTS][ORDINALS]")
     mesh::Mesh_Builder_Stk<xtk::real, xtk::size_t, xtk::moris::DDRMat, xtk::moris::DDSTMat> tMeshBuilder;
     std::shared_ptr<mesh::Mesh_Data<xtk::real, xtk::size_t, xtk::moris::DDRMat, xtk::moris::DDSTMat>> tMeshData = tMeshBuilder.build_mesh_from_string( tMeshFileName,{},true);
 
-
     /*
      * Get number of buckets in the mesh
      */
@@ -364,8 +356,6 @@ TEST_CASE("Part Ordinals", "[MESH][PARTS][ORDINALS]")
     CHECK(tPartOrdinals.size() == 1);
     CHECK(tPartNames(0).compare("top_bread") == 0);
 
-
-
     tMeshData->get_all_part_names(EntityRank::ELEMENT,tPartNames);
 
     CHECK(tPartNames.size() == 3);
@@ -407,8 +397,6 @@ TEST_CASE("STK Mesh with Side Set", "[STK][SIDE_SET]")
             tMeshData->get_part_name_from_part_ordinals(tPartOrdinals,tPartNames);
         }
 
-
-
     }
 
     tMeshData->get_all_part_names(EntityRank::FACE,tPartNames);
@@ -429,8 +417,6 @@ TEST_CASE("STK Mesh with Side Set", "[STK][SIDE_SET]")
 
 }
 
-
-
 #include <stk_mesh/base/BulkData.hpp>
 #include <stk_mesh/base/Field.hpp>
 #include <stk_io/StkMeshIoBroker.hpp>
@@ -439,7 +425,6 @@ TEST_CASE("STK Mesh with Side Set", "[STK][SIDE_SET]")
 
 namespace xtk
 {
-
 
 TEST_CASE("Discretizing level set field onto a fine mesh and transferring to a coarse mesh via Percept","[MESH_FIELDS]")
 {
@@ -492,9 +477,6 @@ TEST_CASE("Discretizing level set field onto a fine mesh and transferring to a c
 //    tFineMesh.write_output_mesh(tMeshNameOutputFine,tScalarFieldNames,tTime);
 //    tCoarseMesh->write_output_mesh(tMeshNameOutputCoarse,tLevelSetMeshManager.get_level_set_field_name(),tTime);
 }
-
-
-
 
 #include <stk_mesh/base/MetaData.hpp>    // for MetaData
 #include <stk_mesh/base/BulkData.hpp>    // for BulkData
@@ -597,7 +579,4 @@ TEST_CASE("Mesh Side Set and Block Set Functions",
 }
 
 }
-
-
-
 

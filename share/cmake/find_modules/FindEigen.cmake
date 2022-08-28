@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # EIGEN Find Module ------------------------------------------------------
 # -------------------------------------------------------------------------
 
@@ -26,3 +33,4 @@ include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(EIGEN DEFAULT_MSG EIGEN_DIRS)
 
 mark_as_advanced(EIGEN_DIRS)
+

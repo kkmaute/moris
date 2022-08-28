@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_SDF_Triangle_Vertex.cpp
+ *
+ */
+
 #include "cl_SDF_Triangle_Vertex.hpp"
 #include "op_times.hpp"
 

@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * op_equal_equal_Eigen.hpp
  *
- *  Created on: Aug 31, 2018
- *      Author: doble
  */
 
 #ifndef PROJECTS_LINALG_SRC_EIGEN_IMPL_OP_EQUAL_EQUAL_EIGEN_HPP_
@@ -61,6 +64,5 @@ operator==(typename Eigen::DenseBase< ET1 >::Scalar & aA,
 }
 }
 
-
-
 #endif /* PROJECTS_LINALG_SRC_EIGEN_IMPL_OP_EQUAL_EQUAL_EIGEN_HPP_ */
+

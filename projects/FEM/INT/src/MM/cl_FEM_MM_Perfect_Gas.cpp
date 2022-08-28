@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_MM_Perfect_Gas.cpp
  *
- *  Created on: Feb 2, 2020
- *  Author: wunsch
  */
 
 #include "cl_FEM_MM_Perfect_Gas.hpp"
@@ -127,7 +130,7 @@ namespace moris
 
             // compute internal energy
             md2Eintdx2 = tIsochoricHeatCapacity * this->dnTemperaturedxn( 2 );
-        }        
+        }
 
         //------------------------------------------------------------------------------
         //------------------------------------------------------------------------------
@@ -138,7 +141,7 @@ namespace moris
             std::shared_ptr< Property > tPropIsochoricHeatCapacity = get_property( "IsochoricHeatCapacity" );
 
             // get the dof type index
-            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );   
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
 
             // compute internal energy
             mEintDof( tDofIndex ) = tPropIsochoricHeatCapacity->val()( 0 ) * this->TemperatureDOF( aDofTypes );
@@ -158,7 +161,7 @@ namespace moris
             std::shared_ptr< Property > tPropIsochoricHeatCapacity = get_property( "IsochoricHeatCapacity" );
 
             // get the dof type index
-            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );            
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
 
             // compute internal energy
             mEintDotDof( tDofIndex ) = tPropIsochoricHeatCapacity->val()( 0 ) * this->TemperatureDotDOF( aDofTypes );
@@ -167,7 +170,7 @@ namespace moris
             if ( tPropIsochoricHeatCapacity->check_dof_dependency( aDofTypes ) )
             {
                 mEintDotDof( tDofIndex ) += this->TemperatureDot()( 0 ) * tPropIsochoricHeatCapacity->dPropdDOF( aDofTypes );
-            }            
+            }
         }
 
         //------------------------------------------------------------------------------
@@ -178,7 +181,7 @@ namespace moris
             std::shared_ptr< Property > tPropIsochoricHeatCapacity = get_property( "IsochoricHeatCapacity" );
 
             // get the dof type index
-            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );            
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
 
             // compute internal energy
             mdEintdxDof( tDofIndex ) = tPropIsochoricHeatCapacity->val()( 0 ) * this->dnTemperaturedxnDOF( aDofTypes, 1 );
@@ -187,8 +190,8 @@ namespace moris
             if ( tPropIsochoricHeatCapacity->check_dof_dependency( aDofTypes ) )
             {
                 mdEintdxDof( tDofIndex ) += this->dnTemperaturedxn( 1 ) * tPropIsochoricHeatCapacity->dPropdDOF( aDofTypes );
-            }              
-        }       
+            }
+        }
 
         //------------------------------------------------------------------------------
 
@@ -198,7 +201,7 @@ namespace moris
             std::shared_ptr< Property > tPropIsochoricHeatCapacity = get_property( "IsochoricHeatCapacity" );
 
             // get the dof type index
-            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );            
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
 
             // compute internal energy
             md2Eintdx2Dof( tDofIndex ) = tPropIsochoricHeatCapacity->val()( 0 ) * this->dnTemperaturedxnDOF( aDofTypes, 2 );
@@ -207,12 +210,12 @@ namespace moris
             if ( tPropIsochoricHeatCapacity->check_dof_dependency( aDofTypes ) )
             {
                 md2Eintdx2Dof( tDofIndex ) += this->dnTemperaturedxn( 2 ) * tPropIsochoricHeatCapacity->dPropdDOF( aDofTypes );
-            }   
-        }        
+            }
+        }
 
         //------------------------------------------------------------------------------
         // DENSITY (SECOND EQUATION OF STATE)
-        //------------------------------------------------------------------------------          
+        //------------------------------------------------------------------------------
 
         void MM_Perfect_Gas::eval_density()
         {
@@ -223,7 +226,7 @@ namespace moris
             mDensity = this->pressure() / ( tSpecificGasConstant * this->temperature()( 0 ) );
         }
 
-        //------------------------------------------------------------------------------          
+        //------------------------------------------------------------------------------
 
         void MM_Perfect_Gas::eval_DensityDot()
         {
@@ -237,9 +240,9 @@ namespace moris
             mDensityDot = ( 1.0 / ( tSpecificGasConstant * tTemperature ) ) * (
                     this->PressureDot() -
                     this->pressure()( 0 ) * this->TemperatureDot() / tTemperature );
-        }     
+        }
 
-        //------------------------------------------------------------------------------          
+        //------------------------------------------------------------------------------
 
         void MM_Perfect_Gas::eval_dDensitydx()
         {
@@ -261,7 +264,7 @@ namespace moris
         {
             // FIXME: skip for now as not needed
             MORIS_ERROR( false, "MM_Perfect_Gas::eval_d2Densitydx2 - Not implemented yet." );
-        }  
+        }
 
         //------------------------------------------------------------------------------
         //------------------------------------------------------------------------------
@@ -289,7 +292,7 @@ namespace moris
                 mDensityDof( tDofIndex ) = ( 1.0 / ( tSpecificGasConstant * tTemperature ) ) *
                         this->PressureDOF( aDofTypes );
             }
-        }   
+        }
 
         //------------------------------------------------------------------------------
 
@@ -319,7 +322,7 @@ namespace moris
                         this->PressureDotDOF( aDofTypes ) -
                         ( this->TemperatureDot()( 0 ) / tTemperature ) * this->PressureDOF( aDofTypes ) );
             }
-        }       
+        }
 
         //------------------------------------------------------------------------------
 
@@ -357,11 +360,11 @@ namespace moris
         {
             // FIXME: skip for now as not needed
             MORIS_ERROR( false, "MM_Perfect_Gas::eval_d2Densitydx2DOF - Not implemented yet." );
-        }            
+        }
 
         //------------------------------------------------------------------------------
         // PRESSURE (SECOND EQUATION OF STATE)
-        //------------------------------------------------------------------------------          
+        //------------------------------------------------------------------------------
 
         void MM_Perfect_Gas::eval_pressure()
         {
@@ -372,7 +375,7 @@ namespace moris
             mPressure = tSpecificGasConstant * this->density() * this->temperature();
         }
 
-        //------------------------------------------------------------------------------          
+        //------------------------------------------------------------------------------
 
         void MM_Perfect_Gas::eval_PressureDot()
         {
@@ -380,12 +383,12 @@ namespace moris
             real tSpecificGasConstant = get_property( "SpecificGasConstant" )->val()( 0 );
 
             // compute pressure as function of density and temperature
-            mPressureDot = tSpecificGasConstant * ( 
+            mPressureDot = tSpecificGasConstant * (
                     this->DensityDot() * this->temperature() +
                     this->density() * this->TemperatureDot() );
-        }     
+        }
 
-        //------------------------------------------------------------------------------          
+        //------------------------------------------------------------------------------
 
         void MM_Perfect_Gas::eval_dPressuredx()
         {
@@ -393,7 +396,7 @@ namespace moris
             real tSpecificGasConstant = get_property( "SpecificGasConstant" )->val()( 0 );
 
             // compute pressure as function of density and temperature
-            mdPressuredx = tSpecificGasConstant * ( 
+            mdPressuredx = tSpecificGasConstant * (
                     this->temperature()( 0 ) * this->dnDensitydxn( 1 ) +
                     this->density()( 0 ) * this->dnTemperaturedxn( 1 ) );
         }
@@ -404,7 +407,7 @@ namespace moris
         {
             // FIXME: skip for now as not needed
             MORIS_ERROR( false, "MM_Perfect_Gas::eval_d2Pressuredx2 - Not implemented yet." );
-        }  
+        }
 
         //------------------------------------------------------------------------------
         //------------------------------------------------------------------------------
@@ -423,7 +426,7 @@ namespace moris
 
             if ( aDofTypes( 0 ) == mDofDensity )
                 mPressureDof( tDofIndex ) = tSpecificGasConstant * this->temperature() * this->DensityDOF( aDofTypes );
-        }   
+        }
 
         //------------------------------------------------------------------------------
 
@@ -445,7 +448,7 @@ namespace moris
                 mPressureDotDof( tDofIndex ) = tSpecificGasConstant * (
                         this->temperature() * this->DensityDotDOF( aDofTypes ) +
                         this->TemperatureDot() * this->DensityDOF( aDofTypes ) );
-        }       
+        }
 
         //------------------------------------------------------------------------------
 
@@ -467,7 +470,7 @@ namespace moris
                 mdPressuredxDof( tDofIndex ) = tSpecificGasConstant * (
                         this->temperature()( 0 ) * this->dnDensitydxnDOF( aDofTypes, 1 ) +
                         this->dnTemperaturedxn( 1 ) * this->DensityDOF( aDofTypes ) );
-        }        
+        }
 
         //------------------------------------------------------------------------------
 
@@ -475,11 +478,11 @@ namespace moris
         {
             // FIXME: skip for now as not needed
             MORIS_ERROR( false, "MM_Perfect_Gas::eval_d2Pressuredx2DOF - Not implemented yet." );
-        }    
+        }
 
         //------------------------------------------------------------------------------
         // TEMPERATURE (SECOND EQUATION OF STATE)
-        //------------------------------------------------------------------------------          
+        //------------------------------------------------------------------------------
 
         void MM_Perfect_Gas::eval_temperature()
         {
@@ -487,15 +490,15 @@ namespace moris
             MORIS_ERROR( false, "MM_Perfect_Gas::eval_temperature - Not implemented yet." );
         }
 
-        //------------------------------------------------------------------------------          
+        //------------------------------------------------------------------------------
 
         void MM_Perfect_Gas::eval_TemperatureDot()
         {
             // FIXME: skip for now as not needed
             MORIS_ERROR( false, "MM_Perfect_Gas::eval_TemperatureDot - Not implemented yet." );
-        }     
+        }
 
-        //------------------------------------------------------------------------------          
+        //------------------------------------------------------------------------------
 
         void MM_Perfect_Gas::eval_dTemperaturedx()
         {
@@ -509,7 +512,7 @@ namespace moris
         {
             // FIXME: skip for now as not needed
             MORIS_ERROR( false, "MM_Perfect_Gas::eval_d2Temperaturedx2 - Not implemented yet." );
-        }  
+        }
 
         //------------------------------------------------------------------------------
         //------------------------------------------------------------------------------
@@ -518,7 +521,7 @@ namespace moris
         {
             // FIXME: skip for now as not needed
             MORIS_ERROR( false, "MM_Perfect_Gas::eval_TemperatureDOF - Not implemented yet." );
-        }   
+        }
 
         //------------------------------------------------------------------------------
 
@@ -526,7 +529,7 @@ namespace moris
         {
             // FIXME: skip for now as not needed
             MORIS_ERROR( false, "MM_Perfect_Gas::eval_TemperatureDotDOF - Not implemented yet." );
-        }       
+        }
 
         //------------------------------------------------------------------------------
 
@@ -534,7 +537,7 @@ namespace moris
         {
             // FIXME: skip for now as not needed
             MORIS_ERROR( false, "MM_Perfect_Gas::eval_dTemperaturedxDOF - Not implemented yet." );
-        }        
+        }
 
         //------------------------------------------------------------------------------
 
@@ -542,19 +545,19 @@ namespace moris
         {
             // FIXME: skip for now as not needed
             MORIS_ERROR( false, "MM_Perfect_Gas::eval_d2Temperaturedx2DOF - Not implemented yet." );
-        }          
+        }
 
         //------------------------------------------------------------------------------
         // THERMODYNAMIC QUANTITIES
-        //------------------------------------------------------------------------------  
+        //------------------------------------------------------------------------------
 
         void MM_Perfect_Gas::eval_VolumeExpansivity()
         {
             // compute value 1/T
             mAlphaP = { 1.0 / this->temperature()( 0 ) };
-        }     
+        }
 
-        //------------------------------------------------------------------------------  
+        //------------------------------------------------------------------------------
 
         void MM_Perfect_Gas::eval_VolumeExpansivityDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
@@ -563,17 +566,17 @@ namespace moris
 
             // compute value -N/T^2
             mAlphaPDof( tDofIndex ) = -1.0 * this->TemperatureDOF( aDofTypes ) / std::pow( this->temperature()( 0 ), 2.0 );
-        }   
+        }
 
-        //------------------------------------------------------------------------------  
+        //------------------------------------------------------------------------------
 
         void MM_Perfect_Gas::eval_IsothermalCompressibility()
         {
             // compute value 1/p
             mBetaT = { 1.0 / this->pressure()( 0 ) };
-        }      
+        }
 
-        //------------------------------------------------------------------------------  
+        //------------------------------------------------------------------------------
 
         void MM_Perfect_Gas::eval_IsothermalCompressibilityDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
@@ -582,33 +585,33 @@ namespace moris
 
             // compute value -N/p^2
             mBetaTDof( tDofIndex ) = -1.0 * this->PressureDOF( aDofTypes ) / std::pow( this->pressure()( 0 ), 2.0 );
-        }   
+        }
 
         //------------------------------------------------------------------------------
-        //------------------------------------------------------------------------------  
+        //------------------------------------------------------------------------------
 
         void MM_Perfect_Gas::eval_Cv()
         {
             MORIS_ERROR( false, " MM_Perfect_Gas::eval_Cv - This function is not implemented yet. " );
-        }      
+        }
 
-        //------------------------------------------------------------------------------  
+        //------------------------------------------------------------------------------
 
         void MM_Perfect_Gas::eval_CvDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             MORIS_ERROR( false, " MM_Perfect_Gas::eval_CvDOF - This function is not implemented yet. " );
-        }     
+        }
 
-        //------------------------------------------------------------------------------  
+        //------------------------------------------------------------------------------
 
         // Cp as function of Cv
         void MM_Perfect_Gas::eval_Cp()
-        {            
+        {
             // evaluate Cp
             mCp = this->Cv() + get_property( "SpecificGasConstant" )->val();
-        }      
+        }
 
-        //------------------------------------------------------------------------------  
+        //------------------------------------------------------------------------------
 
         void MM_Perfect_Gas::eval_CpDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
@@ -617,18 +620,18 @@ namespace moris
 
             // evaluate Cp
             mCpDof( tDofIndex ) = this->CvDOF( aDofTypes );
-        }   
+        }
 
-        //------------------------------------------------------------------------------  
+        //------------------------------------------------------------------------------
 
         // Cp as function of Cv
         void MM_Perfect_Gas::eval_Gamma()
         {
             // evaluate Gamma
             mGamma = ( this->Cv() + get_property( "SpecificGasConstant" )->val() ) / ( this->Cv()( 0 ) );
-        }      
+        }
 
-        //------------------------------------------------------------------------------  
+        //------------------------------------------------------------------------------
 
         void MM_Perfect_Gas::eval_GammaDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
@@ -640,10 +643,11 @@ namespace moris
 
             // compute the DoF derivative
             mGammaDof( tDofIndex ) = ( -1.0 * get_property( "SpecificGasConstant" )->val()( 0 ) / ( tCv * tCv ) ) * this->CvDOF( aDofTypes );
-        }     
+        }
 
         //--------------------------------------------------------------------------------------------------------------
         //--------------------------------------------------------------------------------------------------------------
 
     } /* namespace fem */
 } /* namespace moris */
+

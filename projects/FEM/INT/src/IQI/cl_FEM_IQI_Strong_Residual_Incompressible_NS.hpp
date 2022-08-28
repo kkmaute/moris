@@ -1,8 +1,11 @@
 /*
- * cl_FEM_IQI_STRONG_RESIDUAL_INCOMPRESSIBLE_NS.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Feb 17, 2022
- *      Author: noel
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_IQI_Strong_Residual_Incompressible_NS.hpp
+ *
  */
 
 #ifndef PROJECTS_FEM_INT_SRC_CL_FEM_IQI_STRONG_RESIDUAL_INCOMPRESSIBLE_NS_HPP_
@@ -100,3 +103,4 @@ namespace moris
 } /* end namespace moris */
 
 #endif /* PROJECTS_FEM_INT_SRC_CL_FEM_IQI_STRONG_RESIDUAL_INCOMPRESSIBLE_NS_HPP_ */
+

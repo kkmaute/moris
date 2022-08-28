@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # -------------------------------------------------------------------------
 # Boost libraries and includes --------------------------------------------
 # -------------------------------------------------------------------------
@@ -104,3 +111,4 @@ endif()
 #link_directories(${MORIS_BOOST_FLAGS})
 #add_definitions(${MORIS_BOOST_DEFINITIONS})
 #include_directories(${MORIS_BOOST_INCLUDE_DIRS})
+

@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 set(EXAMPLE_MAIN Main_Axisymmetric_Problem)
 set(EXAMPLE_FILES Axisymmetric_Problem Axisymmetric_Problem_ConstantThermalField )
 set(EXAMPLE_PROCS 1)

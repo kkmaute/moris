@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MSI_Node_Proxy.hpp
  *
- *  Created on: Jul 24, 2018
- *      Author: schmidt
  */
+
 #ifndef SRC_MSI_CL_NODE_OBJ_HPP_
 #define SRC_MSI_CL_NODE_OBJ_HPP_
 
@@ -22,7 +26,6 @@ namespace moris
         Matrix< IndexMat >  mAdofInd;
         Matrix< DDRMat >  mMatrix;
         Matrix< IdMat > mAdofOwningProcessor;
-
 
     public:
         Node_Proxy(){};
@@ -60,3 +63,4 @@ namespace moris
 }
 
 #endif /* SRC_MSI_CL_NODE_OBJ_HPP_ */
+

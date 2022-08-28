@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_Map.hpp
+ *
+ */
+
 #ifndef MORIS_CONTAINERS_CL_MAP_HPP_
 #define MORIS_CONTAINERS_CL_MAP_HPP_
 
@@ -40,7 +50,6 @@ namespace moris
          * Default destructor
          */
         ~map() = default;
-
 
         /**
          * The function insert extends an existing container by the number of elements inserted. During this operation,
@@ -226,10 +235,10 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------
-        
+
         /**
          * @brief returns the underlying std::map such that other std libraries can called
-         * 
+         *
          * @return std::map< T1, T2 >&  underlying std::map
          */
         std::map< T1, T2 > &
@@ -243,3 +252,4 @@ namespace moris
 }
 
 #endif /* CL_MAP_HPP_ */
+

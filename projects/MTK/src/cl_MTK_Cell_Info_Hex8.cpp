@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Cell_Info_Hex8.cpp
  *
- *  Created on: Sep 26, 2019
- *      Author: doble
  */
 
 #include "cl_MTK_Cell_Info_Hex8.hpp"
@@ -18,7 +21,7 @@ namespace moris
 namespace mtk
 {
     // ----------------------------------------------------------------------------------
-    
+
     enum Geometry_Type
     Cell_Info_Hex8::get_cell_geometry() const
     {
@@ -175,12 +178,12 @@ namespace mtk
     moris::Matrix< moris::IndexMat >
     Cell_Info_Hex8::get_node_to_face_map() const
     {
-        return { 
-            { 1, 5, 4, 0 }, 
-            { 1, 2, 6, 5 }, 
-            { 3, 7, 6, 2 }, 
-            { 0, 4, 7, 3 }, 
-            { 0, 3, 2, 1 }, 
+        return {
+            { 1, 5, 4, 0 },
+            { 1, 2, 6, 5 },
+            { 3, 7, 6, 2 },
+            { 0, 4, 7, 3 },
+            { 0, 3, 2, 1 },
             { 4, 5, 6, 7 } };
     }
 
@@ -189,9 +192,9 @@ namespace mtk
     moris::Matrix< moris::IndexMat >
     Cell_Info_Hex8::get_node_to_edge_map() const
     {
-        return { 
-            { 0, 1 }, { 1, 2 }, { 2, 3 }, { 3, 0 }, 
-            { 4, 5 }, { 5, 6 }, { 6, 7 }, { 7, 4 }, 
+        return {
+            { 0, 1 }, { 1, 2 }, { 2, 3 }, { 3, 0 },
+            { 4, 5 }, { 5, 6 }, { 6, 7 }, { 7, 4 },
             { 0, 4 }, { 1, 5 }, { 2, 6 }, { 3, 7 } };
     }
 
@@ -2826,3 +2829,4 @@ namespace mtk
     }
 }// namespace mtk
 }// namespace moris
+

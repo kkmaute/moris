@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MDL_DiffusionElement_Cut_Mesh.cpp
+ *
+ */
 
 #include "catch.hpp"
 
@@ -464,3 +473,4 @@ void tConstValFunction_MDLCUT
 
     }/* namespace mdl */
 }/* namespace moris */
+

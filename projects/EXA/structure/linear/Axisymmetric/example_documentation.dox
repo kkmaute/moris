@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 namespace moris {
 
 /** \page EXA_Structure_Linear_Axisymmetric Axisymmetric Problem
@@ -71,3 +78,4 @@ http://www.ce.memphis.edu/7117/notes/presentations/chapter_09.pdf
 None.
 */
 }
+

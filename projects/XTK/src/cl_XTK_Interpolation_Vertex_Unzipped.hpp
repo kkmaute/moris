@@ -1,13 +1,15 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_XTK_Interpolation_Vertex_Unzipped.hpp
  *
- *  Created on: Jul 10, 2019
- *      Author: doble
  */
 
 #ifndef PROJECTS_XTK_SRC_XTK_CL_XTK_INTERPOLATION_VERTEX_UNZIPPED_HPP_
 #define PROJECTS_XTK_SRC_XTK_CL_XTK_INTERPOLATION_VERTEX_UNZIPPED_HPP_
-
 
 #include "typedefs.hpp"
 #include "cl_MTK_Vertex.hpp"
@@ -18,7 +20,6 @@ namespace xtk
 {
     class Vertex_Enrichment;
 }
-
 
 using namespace moris;
 
@@ -40,7 +41,7 @@ namespace xtk
       public:
         Interpolation_Vertex_Unzipped(){};
 
-        Interpolation_Vertex_Unzipped( 
+        Interpolation_Vertex_Unzipped(
                 mtk::Vertex*       aBaseInterpVertex,
                 moris_id           aVertexId,
                 moris_index        aVertexIndex,
@@ -69,7 +70,7 @@ namespace xtk
         //------------------------------------------------------------------------------
 
         void
-        add_vertex_interpolation( 
+        add_vertex_interpolation(
                 const uint         aOrder,
                 Vertex_Enrichment* aVertexInterp );
 
@@ -85,7 +86,7 @@ namespace xtk
         mtk::Vertex* get_base_vertex();
 
       protected:
-      
+
         void
         set_vertex_id( moris_index const & aId );
     };
@@ -101,5 +102,5 @@ namespace xtk
     }
 }    // namespace xtk
 
-
 #endif /* PROJECTS_XTK_SRC_XTK_CL_XTK_INTERPOLATION_VERTEX_UNZIPPED_HPP_ */
+

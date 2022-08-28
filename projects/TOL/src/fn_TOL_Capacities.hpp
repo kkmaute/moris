@@ -1,6 +1,11 @@
 /*
- * fn_Tol_Capacities.hpp
- *      Author: doble
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * fn_TOL_Capacities.hpp
+ *
  */
 
 #ifndef SRC_TOOLS_FN_TOL_CAPACITIES_HPP_
@@ -13,7 +18,7 @@ namespace moris
     /*!
      * @brief Calculates the internal data structure capacity of the moris::cell
      * the internal class must have a capacity function defined.
-     */ 
+     */
     template<typename Class_With_Capacity_FN>
     inline
     size_t
@@ -26,16 +31,15 @@ namespace moris
             tInternalCapacity = aCell(i).capacity();
         }
 
-        // return the calculated internal memory usage, 
+        // return the calculated internal memory usage,
         // add the capacity ofthe vector itself
         return tInternalCapacity + aCell.capacity();
     }
-    
-    
+
      /*!
      * @brief Calculates the internal data structure capacity of the moris::cell
      * the internal class must have a capacity function defined.
-     */ 
+     */
 
     template<>
     inline
@@ -49,7 +53,7 @@ namespace moris
             tInternalCapacity = aCell(i).length()*sizeof(char);
         }
 
-        // return the calculated internal memory usage, 
+        // return the calculated internal memory usage,
         // add the capacity ofthe vector itself
         return tInternalCapacity + aCell.capacity();
     }
@@ -69,20 +73,20 @@ namespace moris
             }
         }
 
-        // return the calculated internal memory usage, 
+        // return the calculated internal memory usage,
         // add the capacity ofthe vector itself
         return tInternalCapacity + aCell.capacity();
     }
 
     //------------------------------------------------------------------------------
-    
+
     /**
      * @brief compute the cpacity of moris::Cell<mori::Cell<DataTyp>>
      * where DataType is a native data type that does not have a capacity
-     * 
-     * @tparam DataType 
-     * @param aCell 
-     * @return size_t 
+     *
+     * @tparam DataType
+     * @param aCell
+     * @return size_t
      */
     template< typename DataType >
     inline size_t

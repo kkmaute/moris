@@ -1,9 +1,13 @@
 /*
- * cl_Dof_Manager.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jul 14, 2018
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MSI_Dof_Manager.cpp
+ *
  */
+
 #include "cl_MSI_Adof.hpp"
 #include "cl_MSI_Dof_Manager.hpp"
 #include "cl_FEM_Node_Base.hpp"
@@ -724,7 +728,6 @@ namespace moris
                         // Add adof to owned  and shared adof list
                         mAdofListOwnedAndShared( Ij )( tCounterOwnedAndShared++ ) = aAdofListofTypes( Ij )( Ib );
 
-
                         //                    else
                         //                    {
                         //                        mAdofListShared( tCounterShared ) = tAdofListofTypes( Ij )( Ib );
@@ -1191,3 +1194,4 @@ namespace moris
         }
     }    // namespace MSI
 }    // namespace moris
+

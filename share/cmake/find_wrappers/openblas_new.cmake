@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # -------------------------------------------------------------------------
 # OPENBLAS libraries ----------------------------------------------------------
 # -------------------------------------------------------------------------
@@ -31,3 +38,4 @@ endif()
 #add_definitions("-DMORIS_HAVE_OPENBLAS")
 #set(MORIS_OPENBLAS_LIBS ${LAPACK_LIBRARIES})
 #set(MORIS_OPENBLAS_LAPACK_MKL_LIBS ${OPENBLAS_LIBRARIES})
+

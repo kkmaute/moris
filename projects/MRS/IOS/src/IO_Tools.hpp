@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * IO_Tools.hpp
  *
- *  Created on: Jan 7, 2019
- *      Author: schmidt
  */
+
 #ifndef PROJECTS_MRS_IOS_SRC_IO_TOOLS_HPP_
 #define PROJECTS_MRS_IOS_SRC_IO_TOOLS_HPP_
 
@@ -28,3 +32,4 @@ std::string print_log( const Args ... aArgs )
 }
 
 #endif /* PROJECTS_MRS_IOS_SRC_IO_TOOLS_HPP_ */
+

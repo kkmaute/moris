@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # Main Dependencies ---------------------------------
 # ---------------------------------------------------
 
@@ -39,3 +46,4 @@ include(${MORIS_DEPENDS_DIR}/VIS_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/WRK_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/XTK_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/MIG_Depends.cmake)
+

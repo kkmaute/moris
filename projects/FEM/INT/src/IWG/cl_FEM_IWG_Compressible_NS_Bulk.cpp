@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_IWG_Compressible_NS_Bulk.cpp
  *
- *  Created on: Feb 10, 2021
- *      Author: wunsch
  */
 
 #include "cl_FEM_Set.hpp"
@@ -80,7 +83,7 @@ namespace moris
             mSqrtMinvEval = true;
             mdMdYEval = true;
 
-            mTauEval = true; 
+            mTauEval = true;
         }
 
         //------------------------------------------------------------------------------
@@ -92,7 +95,7 @@ namespace moris
             this->check_field_interpolators();
 #endif
             // check residual dof types
-            MORIS_ASSERT( check_residual_dof_types( mResidualDofType  ), 
+            MORIS_ASSERT( check_residual_dof_types( mResidualDofType  ),
                     "IWG_Compressible_NS_Bulk::compute_jacobian() - Only pressure or density primitive variables supported for now." );
 
             // get number of space dimensions
@@ -143,7 +146,7 @@ namespace moris
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
-                    "IWG_Compressible_NS_Bulk::compute_residual - Residual contains NAN or INF, exiting!");                                 
+                    "IWG_Compressible_NS_Bulk::compute_residual - Residual contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
@@ -155,11 +158,11 @@ namespace moris
             this->check_field_interpolators();
 #endif
             // check residual dof types
-            MORIS_ASSERT( check_residual_dof_types( mResidualDofType  ), 
+            MORIS_ASSERT( check_residual_dof_types( mResidualDofType  ),
                     "IWG_Compressible_NS_Bulk::compute_jacobian() - Only pressure or density primitive variables supported for now." );
 
             // check DoF dependencies
-            MORIS_ASSERT( check_dof_dependencies( mSet, mResidualDofType, mRequestedMasterGlobalDofTypes ), 
+            MORIS_ASSERT( check_dof_dependencies( mSet, mResidualDofType, mRequestedMasterGlobalDofTypes ),
                     "IWG_Compressible_NS_Bulk::compute_jacobian - Set of DoF dependencies not suppported." );
 
             // get number of space dimensions
@@ -179,7 +182,7 @@ namespace moris
             // add contribution from d(A0)/dDof * Y,t
             Matrix< DDRMat > tdAdY;
             eval_dAdY_VR( tMM, tCM, mMasterFIManager, mResidualDofType, this->dYdt(), 0, tdAdY );
-            tJac += aWStar * this->W_trans() * ( tdAdY * this->W() + this->A( 0 ) * this->dWdt() ); 
+            tJac += aWStar * this->W_trans() * ( tdAdY * this->W() + this->A( 0 ) * this->dWdt() );
 
             // loop over contributions from A-matrices
             for ( uint iDim = 0; iDim < tNumSpaceDims; iDim++ )
@@ -204,7 +207,7 @@ namespace moris
                 {
                     // get dKij/dY * Y,ij
                     eval_dKdY_VR( tPropMu, tPropKappa, mMasterFIManager, this->dYdx( jDim ), iDim, jDim, dKdY );
-                                
+
                     // add contributions from K-matrices
                     tJac += aWStar * this->dWdx_trans( iDim ) * ( dKdY * this->W() + K( iDim, jDim ) * this->dWdx( jDim ) );
                 }
@@ -230,7 +233,7 @@ namespace moris
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_jacobian() ) ,
-                    "IWG_Compressible_NS_Bulk::compute_jacobian - Jacobian contains NAN or INF, exiting!");                     
+                    "IWG_Compressible_NS_Bulk::compute_jacobian - Jacobian contains NAN or INF, exiting!");
         }
 
         //------------------------------------------------------------------------------
@@ -256,7 +259,7 @@ namespace moris
 
             MORIS_ERROR( false, "IWG_Compressible_NS_Bulk::compute_dRdp - Not implemented." );
         }
-        
+
         //------------------------------------------------------------------------------
 
         Matrix< DDRMat > IWG_Compressible_NS_Bulk::dSqrtMinvdu_FD( const uint aColInd, const real aPerturbation )
@@ -294,7 +297,7 @@ namespace moris
                     uint tDofCounter = 0;
 
                     // get the dof type
-                    Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iFI );                                 
+                    Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iFI );
 
                     // get the index for the dof type
                     sint tMasterDepDofIndex   = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
@@ -373,3 +376,4 @@ namespace moris
 
     } /* namespace fem */
 } /* namespace moris */
+

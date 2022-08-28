@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Integration_Coeffs_Quad_3x3.hpp
  *
- *  Created on: Jul 19, 2018
- *      Author: messe
  */
 
 #ifndef SRC_MTK_CL_MTK_INTEGRATION_COEFFS_QUAD_3X3_HPP_
@@ -28,7 +31,6 @@ namespace moris
     {
         return 2;
     }
-
 
 //------------------------------------------------------------------------------
 
@@ -94,6 +96,5 @@ namespace moris
 //------------------------------------------------------------------------------
     } /* namespace mtk */
 } /* namespace moris */
-
 
 #endif /* SRC_MTK_CL_MTK_INTEGRATION_COEFFS_QUAD_3X3_HPP_ */

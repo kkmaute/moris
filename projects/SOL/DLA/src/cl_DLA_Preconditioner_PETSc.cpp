@@ -1,9 +1,13 @@
 /*
- * cl_DLA_Linear_Solver_PETSc.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Dez 12, 2018
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * cl_DLA_Preconditioner_PETSc.cpp
+ *
  */
+
 #include "cl_DLA_Preconditioner_PETSc.hpp"
 #include "cl_DLA_Linear_Solver_PETSc.hpp"
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
@@ -166,7 +170,6 @@ Preconditioner_PETSc::build_multigrid_preconditioner( Linear_Problem *aLinearSys
 
         KSPSetOperators( dKSPFirstDown, aLinearSystem->get_matrix()->get_petsc_matrix(), aLinearSystem->get_matrix()->get_petsc_matrix() );
 
-
         uint tNumBlocks = tCriteriaIds.size();
 
         moris::Cell< IS > tIs( tNumBlocks );
@@ -275,7 +278,6 @@ Preconditioner_PETSc::build_schwarz_preconditioner_petsc()
     mLinearSolverAlgoritm->mSolverInterface->get_adof_ids_based_on_criteria( tCriteriaIds,
             tVolumeFractionThreshold );
 
-
     uint tNumSerialDofs = mLinearSolverAlgoritm->mSolverInterface->get_num_my_dofs();
 
     moris::Matrix< DDSMat > tMat( tNumSerialDofs, 1, 0 );
@@ -364,7 +366,6 @@ Preconditioner_PETSc::build_schwarz_preconditioner( Linear_Problem *aLinearSyste
     mLinearSolverAlgoritm->mSolverInterface->get_adof_ids_based_on_criteria( tCriteriaIds,
             tVolumeFractionThreshold );
 
-
     uint tNumSerialDofs = mLinearSolverAlgoritm->mSolverInterface->get_num_my_dofs();
 
     moris::Matrix< DDSMat > tMat( tNumSerialDofs, 1, 0 );
@@ -439,3 +440,4 @@ Preconditioner_PETSc::build_schwarz_preconditioner( Linear_Problem *aLinearSyste
 
     mPreconMat->matrix_global_assembly();
 }
+

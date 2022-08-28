@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_FEM_CM_Struct_Linear_MT.cpp
+ *
+ */
 
 #include "catch.hpp"
 
@@ -41,7 +50,6 @@ tDOFFunctionDer( moris::Matrix< moris::DDRMat >&       aPropMatrix,
 
     aPropMatrix = aFIManager->get_field_interpolators_for_type( MSI::Dof_Type::PHID )->N();
 }
-
 
 TEST_CASE( "CM_Struc_Linear_MT", "[CM_Struc_Lin_MT]" )
 {
@@ -280,7 +288,6 @@ TEST_CASE( "CM_Struc_Linear_MT", "[CM_Struc_Lin_MT]" )
             tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tSecondaryDofTypes( 0 ) );
             tMasterFIs( 1 )->set_coeff( tUHat0 );
 
-
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > >        tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
@@ -362,7 +369,6 @@ TEST_CASE( "CM_Struc_Linear_MT", "[CM_Struc_Lin_MT]" )
                     bool tCheckTractionStruc = fem::check( tdtractiondu, tdtractionduFD, tEpsilon );
                     REQUIRE( tCheckTractionStruc );
 
-
                     // for ( uint iTestDof = 0; iTestDof < tMasterDofTypes.size(); iTestDof++ )
                     // {
                     //     // get the test dof type
@@ -398,3 +404,4 @@ TEST_CASE( "CM_Struc_Linear_MT", "[CM_Struc_Lin_MT]" )
         }
     }
 } /*END_TEST_CASE*/
+

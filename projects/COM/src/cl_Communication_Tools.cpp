@@ -1,11 +1,14 @@
 /*
- * cl_MPI_XTK.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jan 27, 2017
- *      Author: doble
+ *------------------------------------------------------------------------------------
+ *
+ * cl_Communication_Tools.cpp
+ *
  */
-#include "cl_Communication_Tools.hpp" // COM/src
 
+#include "cl_Communication_Tools.hpp" // COM/src
 
 namespace moris
 {
@@ -544,7 +547,7 @@ namespace moris
                         aGatheredCells(i)(tCellIndex).push_back(tChars[j]);
                     }
                 }
-                
+
                 aGatheredCells(i).pop_back();
             }
         }
@@ -569,3 +572,4 @@ namespace moris
         return tReductionResult;
     }
 }
+

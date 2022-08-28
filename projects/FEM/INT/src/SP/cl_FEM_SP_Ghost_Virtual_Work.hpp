@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_SP_Ghost_Virtual_Work.hpp
  *
- *  Created on: Jan 23, 2019
- *  Author: noel
  */
 
 #ifndef SRC_FEM_CL_FEM_SP_GHOST_VIRTUAL_WORK_HPP_
@@ -127,3 +130,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_FEM_CL_FEM_SP_GHOST_VIRTUAL_WORK_HPP_ */
+

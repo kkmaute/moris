@@ -1,10 +1,12 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_XTK_Interpolation_Cell_Unzipped.cpp
  *
- *  Created on: Jul 10, 2019
- *      Author: doble
  */
-
 
 #include "cl_XTK_Interpolation_Cell_Unzipped.hpp"
 namespace xtk
@@ -43,7 +45,7 @@ Interpolation_Cell_Unzipped::Interpolation_Cell_Unzipped(
         , mSubPhaseIndex( aPrimarySubPhaseIndex )
         , mBulkPhaseIndex( aPrimaryBulkPhaseIndex )
 {
-    MORIS_ASSERT( aIsSpgBasedConstruction, 
+    MORIS_ASSERT( aIsSpgBasedConstruction,
         "Interpolation_Cell_Unzipped::Interpolation_Cell_Unzipped() - second constructor can only be used with SPG-based enrichment" );
 
     // size lists

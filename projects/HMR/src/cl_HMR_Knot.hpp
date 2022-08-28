@@ -1,8 +1,11 @@
 /*
- * fn_HMR_Knot.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: May 30, 2018
- *      Author: messe
+ *------------------------------------------------------------------------------------
+ *
+ * cl_HMR_Knot.hpp
+ *
  */
 
 #ifndef SRC_HMR_CL_HMR_KNOT_HPP_
@@ -420,3 +423,4 @@ namespace moris
     }
 }
 #endif /* SRC_HMR_CL_HMR_KNOT_HPP_ */
+

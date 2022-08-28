@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_IWG_Helmholtz_Bulk.cpp
+ *
+ */
 
 #include "cl_FEM_IWG_Helmholtz_Bulk.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
@@ -64,3 +73,4 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
+

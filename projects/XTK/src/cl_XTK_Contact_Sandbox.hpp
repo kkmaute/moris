@@ -1,9 +1,12 @@
-// /*
-//  * cl_XTK_Contact_Sandbox.hpp
-//  *
-//  *  Created on: Nov 13, 2020
-//  *      Author: ktdoble
-//  */
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_XTK_Contact_Sandbox.hpp
+ *
+ */
 
 // #ifndef SRC_XTK_cl_XTK_Contact_Sandbox_
 // #define SRC_XTK_cl_XTK_Contact_Sandbox_
@@ -24,7 +27,7 @@
 //     using ExecSpace = Kokkos::DefaultExecutionSpace;
 //     using MemSpace = typename ExecSpace::memory_space;
 //     using DeviceType = Kokkos::Device<ExecSpace, MemSpace>;
-    
+
 //     class Bounding_Box
 //     {
 //         private:
@@ -56,18 +59,17 @@
 //                 tMaxPoint[i] +=  aInflateValue;
 //             }
 //         }
-        
 
 //         void
 //         set_bounds(Matrix<DDRMat> const & aBounds)
 //         {
 //             ArborX::Point & tMinPoint = mBox.minCorner();
 //             tMinPoint[0] = aBounds(0,0);
-//             tMinPoint[1] = aBounds(1,0); 
+//             tMinPoint[1] = aBounds(1,0);
 
 //             ArborX::Point & tMaxPoint = mBox.maxCorner();
 //             tMaxPoint[0] = aBounds(0,1);
-//             tMaxPoint[1] = aBounds(1,1); 
+//             tMaxPoint[1] = aBounds(1,1);
 
 //             if(mSpatialDim == 2)
 //             {
@@ -76,13 +78,13 @@
 //             }
 //             else
 //             {
-//                 tMinPoint[2] = aBounds(2,0); 
-//                 tMaxPoint[2] = aBounds(2,1); 
+//                 tMinPoint[2] = aBounds(2,0);
+//                 tMaxPoint[2] = aBounds(2,1);
 //             }
 
 //         }
 
-//         Matrix<DDRMat> 
+//         Matrix<DDRMat>
 //         get_bounding_box_as_cell() const
 //         {
 //             ArborX::Point const & tMinPoint = mBox.minCorner();
@@ -97,7 +99,7 @@
 //             }
 //             else
 //             {
-//                 return { 
+//                 return {
 //                          { tMinPoint[0], tMinPoint[1], tMinPoint[2]},
 //                          { tMaxPoint[0], tMinPoint[1], tMinPoint[2]},
 //                          { tMaxPoint[0], tMaxPoint[1], tMinPoint[2]},
@@ -120,36 +122,33 @@
 //         {
 //             return  mBox;
 //         }
-        
-//         ArborX::Point & 
+
+//         ArborX::Point &
 //         get_max_point()
 //         {
 //             return mBox.maxCorner();
 //         }
 
-//         ArborX::Point & 
+//         ArborX::Point &
 //         get_min_point()
 //         {
 //             return mBox.minCorner();
 //         }
 
-
 //     };
-
 
 //     // All the sets related to a given mtk side set
 //     struct Mesh_Set_AABBs
 //     {
 //         // B_n = {b_n^1, b_n^2,..., b_n^k }
-//         Bounding_Box mAllVertsAABB; 
+//         Bounding_Box mAllVertsAABB;
 //         Cell<Bounding_Box> mIGVertexAABBs;
 
 //         // B_f = {b_f^1, b_f^2,..., b_f^k }
 //         Bounding_Box mAllFacetClusterAABBs;
 //         Cell<Bounding_Box> mFacetClusterAABBs;
-        
-//     };
 
+//     };
 
 // }
 
@@ -183,7 +182,7 @@
 // }
 // namespace xtk
 // {
-    
+
 //     class Contact_Sandbox
 //     {
 //     private:
@@ -207,7 +206,6 @@
 //                         {};
 
 //         ~Contact_Sandbox(){};
-
 
 //         void
 //         perform_global_contact_search( Matrix<DDRMat> const & aCurrentDispVec,
@@ -242,7 +240,7 @@
 
 //             // Compute communication partners and ghosting candidates
 //             // TODO:
-            
+
 //             tic tTimer2;
 //             // construct the BVH for vertices
 //             ArborX::BVH<DeviceType> tBVH0(tMeshSet0AABBs.mFacetClusterAABBs);
@@ -261,7 +259,7 @@
 //             real tElapsedTime = tTimer2.toc<moris::chronos::milliseconds>().wall;
 //             std::cout<<"Contact Search Time: "<<( double ) tElapsedTime / 1000<<std::endl;
 //             // MORIS_LOG_INFO( "Global contact search:",           ( double ) tElapsedTime / 1000 );
-            
+
 //         }
 
 //         /*!
@@ -297,7 +295,7 @@
 //                     Matrix<DDRMat>     const & aPredictedDispVec,
 //                     Cell<Bounding_Box>       & aSideClusterBBs)
 //         {
-//             // number of clusters 
+//             // number of clusters
 //             moris::uint tNumClusters = aSet->get_num_clusters_on_set();
 
 //             // size the number of clusters
@@ -324,9 +322,9 @@
 //             // get the set clusters
 //             moris::Matrix< IndexMat > tSetIgVerts = aSet->get_ig_vertices_inds_on_block(true);
 
-//             // number of clusters 
+//             // number of clusters
 //             moris::uint tNumVerts  = tSetIgVerts.numel();
-            
+
 //             // size the number of clusters
 //             aVertexBBs.resize(tNumVerts, mIntegrationMesh->get_spatial_dim());
 
@@ -348,7 +346,7 @@
 //                                      Matrix<DDRMat> const & aCurrentDispVec,
 //                                      Matrix<DDRMat> const & aPredictedDispVec,
 //                                      Bounding_Box         & aVertexSetBB)
-//         {   
+//         {
 //             moris::uint tSpatialDim = mIntegrationMesh->get_spatial_dim();
 
 //             moris::uint tNumNodes = aVerticesForBB.numel();
@@ -368,7 +366,6 @@
 //                 {
 //                     tCurrentLoc   = tNodeCoord(iSpatial) + aCurrentDispVec(aVerticesForBB(i),iSpatial);
 //                     tPredictedLoc = tNodeCoord(iSpatial) + aPredictedDispVec(aVerticesForBB(i),iSpatial);
-
 
 //                     if(tCurrentLoc >= tPredictedLoc)
 //                     {
@@ -406,8 +403,6 @@
 
 //             aVertexSetBB.set_bounds(tBounds);
 
-            
-
 //         }
 
 //         void
@@ -418,7 +413,7 @@
 //             {
 //                 moris::uint tSpatialDim = mIntegrationMesh->get_spatial_dim();
 //                 moris::Matrix< moris::DDRMat > tNodeCoord =  mIntegrationMesh->get_node_coordinate(aVertexIndex);
-                
+
 //                 // allocate bounds
 //                 Matrix<DDRMat> tBounds(tSpatialDim,2);
 
@@ -429,7 +424,6 @@
 //                 {
 //                     tCurrentLoc   = tNodeCoord(iSpatial) + aCurrentDispVec(aVertexIndex,iSpatial);
 //                     tPredictedLoc = tNodeCoord(iSpatial) + aPredictedDispVec(aVertexIndex,iSpatial);
-
 
 //                     if(tCurrentLoc >= tPredictedLoc)
 //                     {
@@ -487,7 +481,7 @@
 //                 tMinPoint[2] = 0.0;
 //                 tMaxPoint[2] = 0.0;
 //             }
-            
+
 //             for(moris::uint iBB =0; iBB< aBoundingBoxes.size(); iBB++)
 //             {
 //                 for(moris::uint iSpatial = 0; iSpatial<tSpatialDim; iSpatial++)
@@ -566,7 +560,7 @@
 //         }
 //         /*
 //         * Save the cell of bounding boxes to a VTK file
-//         */ 
+//         */
 //         void
 //         save_to_vtk(const std::string   & aFilePath,
 //                     Cell<Bounding_Box const *> & aBoxesToViz)
@@ -587,7 +581,6 @@
 
 //             // initialize element counter
 //             luint tNumberOfElements = aBoxesToViz.size();
-
 
 //             // number of nodes per element
 //             uint tNumberOfNodesPerElement = std::pow( 2, mIntegrationMesh->get_spatial_dim() );
@@ -701,11 +694,8 @@
 //             }
 
 //         }
-        
 
-        
 //     };
-   
 
 // }
 

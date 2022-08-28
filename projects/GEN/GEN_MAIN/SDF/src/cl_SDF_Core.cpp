@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_SDF_Core.cpp
+ *
+ */
+
 #include <fstream>
 
 #include "cl_Stopwatch.hpp"
@@ -104,7 +114,6 @@ namespace moris
                     "Number of surface elements does not match" );
         }
 
-
 //-------------------------------------------------------------------------------
 
         void
@@ -140,7 +149,7 @@ namespace moris
                         voxelize( 0 );
                     }
                 }
-                
+
                 if( mData.mUnsureNodesCount > 0 )
                 {
                     tRotation = true;
@@ -533,7 +542,6 @@ namespace moris
             // initialize counter for intersected triangles
             uint tCount = 0;
 
-
             // loop over all candidates
             for( uint k=0; k<tNumberOfTriangles; ++k )
             {
@@ -594,7 +602,6 @@ namespace moris
 
             uint tCount = 0;
 
-
             bool tError;
             // loop over all intersected triangles and find intersection point
             for( uint k = 0; k<tNumberOfTriangles; ++k )
@@ -637,8 +644,6 @@ namespace moris
                 // sort array
                 Matrix< DDRMat > tCoordsKSorted;
                 sort( tCoordsK, tCoordsKSorted );
-
-
 
                 // make result unique
                 uint tCountUnique = 0;
@@ -736,7 +741,6 @@ namespace moris
 
             // counter for elements in volume
             mData.mVolumeElements = 0;
-
 
             // reset buffer diagonal
             mData.mBufferDiagonal = 0;
@@ -1019,7 +1023,6 @@ namespace moris
         Core::sweep()
         {
 
-
             uint tNumberOfVertices = mMesh.get_num_nodes();
 
             uint tSweepCount = 1;
@@ -1081,7 +1084,6 @@ namespace moris
 
             // allocate matrix
             aSDF.set_size( tNumberOfVertices, 1 );
-
 
             // loop over all nodes and write real values
             for( uint k=0; k<tNumberOfVertices; ++k )
@@ -1241,7 +1243,6 @@ namespace moris
                 // remember cell type
                 tCellTypes( k ) = tCellType;
 
-
                 if( tCellType == 29 )
                 {
                     // special case for HEX27
@@ -1280,7 +1281,6 @@ namespace moris
                         tIndices( i ) = tCell->get_vertex( i )->get_index();
                     }
                 }
-
 
                 tIChar = swap_byte_endian( (int) tNumberOfCellVerts );
                 tFile.write((char *) &tIChar, sizeof(int));
@@ -1406,7 +1406,6 @@ namespace moris
                 tFile.write( (char*) &tIChar, sizeof(int));
             }
 
-
             // close the output file
             tFile.close();
         }
@@ -1508,7 +1507,6 @@ namespace moris
                 // remember cell type
                 tCellTypes( k ) = tCellType;
 
-
                 if( tCellType == 29 )
                 {
                     // special case for HEX27
@@ -1548,7 +1546,6 @@ namespace moris
                     }
                 }
 
-
                 tIChar = swap_byte_endian( (int) tNumberOfCellVerts );
                 tFile.write((char *) &tIChar, sizeof(int));
 
@@ -1572,7 +1569,6 @@ namespace moris
                 tFile.write( (char*) &tIChar, sizeof(int));
             }
             tFile << std::endl;
-
 
             tFile << "POINT_DATA " << tNumberOfNodes << std::endl;
 
@@ -1695,6 +1691,6 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-
     } /* namespace sdf */
 } /* namespace moris */
+

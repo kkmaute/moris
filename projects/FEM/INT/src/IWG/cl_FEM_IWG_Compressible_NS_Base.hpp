@@ -1,12 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_IWG_Compressible_NS_Base.hpp
  *
- *  Created on: Apr 23, 2021
- *      Author: wunsch
- *
- * Base IWG for unified NS equations using flux matrices
- * operating on all residual DoF types simultaneously
- * 
  */
 
 #ifndef SRC_FEM_CL_FEM_IWG_COMPRESSIBLE_NS_BASE_HPP_
@@ -49,21 +48,21 @@ namespace moris
                 uint mLastDofIndex    = 2;
 
                 // List of accepted variable sets
-                moris::Cell< moris::Cell< MSI::Dof_Type > > mConservativeVars = { 
-                        { MSI::Dof_Type::P }, 
-                        { MSI::Dof_Type::MX }, 
+                moris::Cell< moris::Cell< MSI::Dof_Type > > mConservativeVars = {
+                        { MSI::Dof_Type::P },
+                        { MSI::Dof_Type::MX },
                         { MSI::Dof_Type::E } };
-                moris::Cell< moris::Cell< MSI::Dof_Type > > mDensityPrimitiveVars = { 
-                        { MSI::Dof_Type::RHO }, 
-                        { MSI::Dof_Type::VX }, 
+                moris::Cell< moris::Cell< MSI::Dof_Type > > mDensityPrimitiveVars = {
+                        { MSI::Dof_Type::RHO },
+                        { MSI::Dof_Type::VX },
                         { MSI::Dof_Type::TEMP } };
-                moris::Cell< moris::Cell< MSI::Dof_Type > > mPressurePrimitiveVars = { 
-                        { MSI::Dof_Type::P }, 
-                        { MSI::Dof_Type::VX }, 
+                moris::Cell< moris::Cell< MSI::Dof_Type > > mPressurePrimitiveVars = {
+                        { MSI::Dof_Type::P },
+                        { MSI::Dof_Type::VX },
                         { MSI::Dof_Type::TEMP } };
-                moris::Cell< moris::Cell< MSI::Dof_Type > > mEntropyVars = { 
-                        { MSI::Dof_Type::EVP }, 
-                        { MSI::Dof_Type::EVX }, 
+                moris::Cell< moris::Cell< MSI::Dof_Type > > mEntropyVars = {
+                        { MSI::Dof_Type::EVP },
+                        { MSI::Dof_Type::EVX },
                         { MSI::Dof_Type::EVT } };
 
                 // evaluation flags for variable set
@@ -86,7 +85,7 @@ namespace moris
                 bool mAEval = true;
                 bool mKEval = true;
                 bool mKijiEval = true;
-                
+
                 // evaluation flags for the body load coefficient matrix
                 bool mCEval = true;
                 bool mdCdYEval = true;
@@ -107,14 +106,14 @@ namespace moris
                 Matrix< DDRMat > mdWtransdt;
                 moris::Cell< Matrix< DDRMat > > mdWtransdx;
 
-                // cells of matrices containing the flux matrices 
+                // cells of matrices containing the flux matrices
                 moris::Cell< Matrix< DDRMat > > mA;
                 moris::Cell< moris::Cell< Matrix< DDRMat > > > mK;
-                moris::Cell< Matrix< DDRMat > > mKiji;   
-                
+                moris::Cell< Matrix< DDRMat > > mKiji;
+
                 // storage vars for the body load coefficient matrix
-                Matrix< DDRMat > mC; 
-                Matrix< DDRMat > mdCdYVR; 
+                Matrix< DDRMat > mC;
+                Matrix< DDRMat > mdCdYVR;
                 moris::Cell< Matrix< DDRMat > > mdCdY;
 
                 // matrix temporarily storing assembly indices
@@ -234,17 +233,17 @@ namespace moris
                  * @param[ in ]  aStdRes  standardized element residual
                  */
                 void assemble_residual( const Matrix< DDRMat > & aStdRes );
-                
+
                 //------------------------------------------------------------------------------
                 /**
                  * assemble the standardized element Jacobian in into the set Jacobian
                  * @param[ in ]  aStdJac  standardized element Jacobian
                  */
-                void assemble_jacobian( const Matrix< DDRMat > & aStdJac );   
+                void assemble_jacobian( const Matrix< DDRMat > & aStdJac );
 
                 //------------------------------------------------------------------------------
                 /**
-                 * get the assembly indices associated with the various dof types for the 
+                 * get the assembly indices associated with the various dof types for the
                  * standardized elemental residual and jacobian
                  * @param[ in ]   aDofType  DoF-Type for which the assembly indices are requested
                  * @param[ out ]  tIndices  Vector of two entries containing the start and end indices
@@ -296,7 +295,7 @@ namespace moris
                  * @param[ in ]  aJ index of the second spatial dimension for derivative
                  * @param[ out ] d2Ydx2  spatial derivatives of the state variables
                  */
-                const Matrix< DDRMat > & d2Ydx2( const uint aI, const uint aJ ); 
+                const Matrix< DDRMat > & d2Ydx2( const uint aI, const uint aJ );
 
                 //------------------------------------------------------------------------------
                 //------------------------------------------------------------------------------
@@ -340,7 +339,7 @@ namespace moris
                  * @param[ in ]  aK index
                  * @param[ out ] mA A-matrix
                  */
-                const Matrix< DDRMat > & A( const uint aK );   
+                const Matrix< DDRMat > & A( const uint aK );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -349,7 +348,7 @@ namespace moris
                  * @param[ in ]  aJ  second index
                  * @param[ out ] Kij K-matrix
                  */
-                const Matrix< DDRMat > & K( const uint aI, const uint aJ );      
+                const Matrix< DDRMat > & K( const uint aI, const uint aJ );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -357,23 +356,23 @@ namespace moris
                  * @param[ in ]  aJ  index
                  * @param[ out ] Kij_i spatial derivatives of the K flux matrices
                  */
-                const Matrix< DDRMat > & Kiji ( const uint aJ );   
+                const Matrix< DDRMat > & Kiji ( const uint aJ );
 
                 //------------------------------------------------------------------------------
                 /**
                  * get the coefficient matrix for the body loads
                  * @param[ out ] mC coefficient matrix
                  */
-                const Matrix< DDRMat > & C();   
+                const Matrix< DDRMat > & C();
 
                 //------------------------------------------------------------------------------
                 /**
                  * get the state variable derivative of the coefficient matrix for the body loads
-                 * pre multiplied with a vector from the right 
+                 * pre multiplied with a vector from the right
                  * @param[ in ]  aVR      vector for pre-multiplication
                  * @param[ out ] mdCdYVR  coefficient matrix
                  */
-                const Matrix< DDRMat > & dCdY_VR( const Matrix< DDRMat > aVR );   
+                const Matrix< DDRMat > & dCdY_VR( const Matrix< DDRMat > aVR );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -381,7 +380,7 @@ namespace moris
                  * @param[ in ]  aYind  state variable index
                  * @param[ out ] mC     coefficient matrix
                  */
-                const Matrix< DDRMat > & dCdY( const uint aYind );   
+                const Matrix< DDRMat > & dCdY( const uint aYind );
 
                 //------------------------------------------------------------------------------
                 //------------------------------------------------------------------------------
@@ -389,8 +388,8 @@ namespace moris
                  * get the multiplication matrix for condensed tensors
                  * @param[ out ] mMultipMat multiplication matrix for condensed tensors
                  */
-                const Matrix< DDRMat > & MultipMat(); 
-                
+                const Matrix< DDRMat > & MultipMat();
+
                 //------------------------------------------------------------------------------
                 //------------------------------------------------------------------------------
                 /**
@@ -405,3 +404,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_FEM_CL_FEM_IWG_COMPRESSIBLE_NS_VELOCITY_BULK_HPP_ */
+

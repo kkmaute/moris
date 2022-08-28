@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_HMR_File.cpp
  *
- *  Created on: Jun 29, 2018
- *      Author: messe
  */
 
 #include "cl_HMR_File.hpp" //HMR/src
@@ -913,3 +916,4 @@ namespace moris
 
     }
 } /* namespace moris */
+

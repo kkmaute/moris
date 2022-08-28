@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MSI_Dof_Type_Enums.hpp
  *
- *  Created on: Jul 23, 2018
- *      Author: schmidt
  */
+
 #ifndef SRC_FEM_CL_DOF_TYPE_ENUMS_HPP_
 #define SRC_FEM_CL_DOF_TYPE_ENUMS_HPP_
 
@@ -40,14 +44,14 @@ namespace moris
 
             P,           //< Pressure
             RHO,         //< Density
- 
+
             VISCOSITY,   //< Turbulence viscosity
             STRESS_DOF,  //< Stress Dof
 
             E,           //< Energy density
-            MX,          //< X-Momentum 
-            MY,          //< Y-Momentum 
-            MZ,          //< Z-Momentum 
+            MX,          //< X-Momentum
+            MY,          //< Y-Momentum
+            MZ,          //< Z-Momentum
 
             EVP,         //< Entropy Variable for TD System Potential
             EVT,         //< Entropy production rate
@@ -58,7 +62,7 @@ namespace moris
 			LAMBDAX,	 //< x component of the Lagrange multiplier traction
 			LAMBDAY,	 //< y component of the Lagrange multiplier traction
 			LAMBDAZ,	 //< z component of the Lagrange multiplier traction
- 
+
             UNDEFINED,   //< Undefined
             END_ENUM     //
         };
@@ -159,3 +163,4 @@ namespace moris
 }
 
 #endif /* SRC_FEM_CL_DOF_TYPE_ENUMS_HPP_ */
+

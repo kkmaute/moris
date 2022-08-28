@@ -1,10 +1,12 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * UT_XTK_Child_Mesh_Conform_2D.cpp
  *
- *  Created on: Sep 10, 2019
- *      Author: doble
  */
-
 
 #include "catch.hpp"
 
@@ -21,7 +23,6 @@
 #include "cl_MTK_Mesh_Factory.hpp"
 #include "cl_MTK_Mesh_Data_Input.hpp"
 
-
 namespace xtk
 {
 class Permutations_2D
@@ -36,7 +37,6 @@ public:
     {
         return mNumPermutations;
     }
-
 
     Cell<size_t>
     get_permutation(size_t aIndex)
@@ -55,7 +55,6 @@ private:
         mNumPermutations = mPermutations.size();
     }
 };
-
 
 void
 get_midside_coordinate(moris::moris_index const & aEdgeIndex,
@@ -84,8 +83,6 @@ get_midside_coordinate(moris::moris_index const & aEdgeIndex,
         std::cout<<"INVALID EDGE"<<std::endl;
     }
 }
-
-
 
 void
 setup_node_coordinates(moris::moris_index const & tEdge0,
@@ -162,7 +159,6 @@ TEST_CASE(" 2-D Conformal Decomposition Templates ","[2D_Conf_Temp]")
         moris::moris_index tEdge0  = tCurrentPermutation(0);
         moris::moris_index tEdge1  = tCurrentPermutation(1);
 
-
         // Set up node coordinates
         moris::Matrix< moris::DDRMat > tNodeCoords;
         setup_node_coordinates(tEdge0,tEdge1,tNodeCoords);
@@ -171,7 +167,6 @@ TEST_CASE(" 2-D Conformal Decomposition Templates ","[2D_Conf_Temp]")
         tChildMesh.add_entity_to_intersect_connectivity(4,tEdge1,true);
 
         tChildMesh.modify_child_mesh(TemplateType::CONFORMAL_TRI3);
-
 
         moris_id tElemId = 1;
         tChildMesh.set_child_element_ids(tElemId);
@@ -228,7 +223,6 @@ TEST_CASE(" 2-D Conformal Coincident Decomposition Templates ","[2D_Conf_Coin_Te
 
         tChildMesh.modify_child_mesh(TemplateType::CONFORMAL_TRI3);
 
-
         moris_id tElemId = 1;
         tChildMesh.set_child_element_ids(tElemId);
 
@@ -238,3 +232,4 @@ TEST_CASE(" 2-D Conformal Coincident Decomposition Templates ","[2D_Conf_Coin_Te
     }
 }
 }
+

@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * Levelset_Boxbeam_Adaptive_Refinement_Quadratic.cpp
+ *
+ */
 
 #include <string>
 #include <iostream>
@@ -23,7 +32,6 @@
 #include "fn_stringify_matrix.hpp"
 
 #include "AztecOO.h"
-
 
 #ifdef __cplusplus
 extern "C" {
@@ -118,7 +126,6 @@ namespace moris
     std::string tDofStrg = tIs3D ? "UX,UY,UZ" : "UX,UY";
 
     std::string tDirichletStr = tIs3D ? "0.0;0.0;0.0" : "0.0;0.0";
-
 
     //------------------------------------------------------------------------------
 
@@ -365,7 +372,6 @@ namespace moris
 
         return tDConstraintDCriteria;
     }
-
 
     //--------------------------------------------------------------------------------------------------------------
 
@@ -878,8 +884,8 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 }    // namespace moris
 
-
 //--------------------------------------------------------------------------------------------------------------
 #ifdef __cplusplus
 }
 #endif
+

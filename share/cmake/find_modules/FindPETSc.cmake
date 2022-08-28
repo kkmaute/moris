@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 IF (PETSC_INCLUDE_DIRS)
   SET(PETSC_FIND_QUIETLY TRUE)
 ENDIF (PETSC_INCLUDE_DIRS)
@@ -78,3 +85,4 @@ mark_as_advanced(PETSC_DIR
     PETSC_LIBRARY_DIR
     PETSC_LIBRARY_DEBUG
     PETSC_LIBRARY_RELEASE )
+

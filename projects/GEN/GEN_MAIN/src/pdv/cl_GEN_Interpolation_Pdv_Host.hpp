@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_GEN_Interpolation_Pdv_Host.hpp
+ *
+ */
+
 #ifndef MORIS_CL_GEN_INTERPOLATION_PDV_Type_HOST_HPP_
 #define MORIS_CL_GEN_INTERPOLATION_PDV_Type_HOST_HPP_
 
@@ -195,3 +205,4 @@ namespace moris
 }
 
 #endif /* MORIS_CL_GEN_INTERPOLATION_PDV_HOST_HPP_ */
+

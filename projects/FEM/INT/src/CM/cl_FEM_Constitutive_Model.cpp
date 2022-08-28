@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_Constitutive_Model.cpp
  *
- *  Created on: Dec 10, 2019
- *      Author: noel
  */
 
 #include "cl_FEM_Constitutive_Model.hpp"
@@ -164,7 +167,7 @@ namespace moris
 
             // set the property in the property cell
             mProperties( mPropertyMap[ aPropertyString ] ) = aProperty;
-        }      
+        }
 
         //------------------------------------------------------------------------------
 
@@ -195,7 +198,7 @@ namespace moris
 
             // set the MM in the MM cell
             mMaterialModels( mMaterialModelMap[ aMaterialModelString ] ) = aMaterialModel;
-        }          
+        }
 
         //------------------------------------------------------------------------------
 
@@ -210,7 +213,7 @@ namespace moris
 
             // get the material model in the material model cell
             return  mMaterialModels( mMaterialModelMap[ aMaterialModelString ] );
-        }        
+        }
 
         //------------------------------------------------------------------------------
 
@@ -1190,7 +1193,7 @@ namespace moris
             }
             // reset the coefficients values
             tFI->set_coeff( tCoeff );
-            
+
             // set value to storage
             mdFluxdDof( tDofIndex ) = adFluxdDOF_FD;
         }
@@ -1291,7 +1294,7 @@ namespace moris
             }
             // reset the coefficients values
             tFIDerivative->set_coeff( tCoeff );
-            
+
             // set value for storage
             mdTractiondDof( tDofIndex ) = adtractiondu_FD;
         }
@@ -2986,7 +2989,7 @@ namespace moris
         }
 
         //-----------------------------------------------------------------------------
-        
+
         const Matrix< DDRMat > & Constitutive_Model::dEnergyDotdDOF(
                 const moris::Cell< MSI::Dof_Type > & aDofType,
                 enum CM_Function_Type aCMFunctionType )
@@ -3018,8 +3021,8 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        
-        const Matrix< DDRMat > & Constitutive_Model::dGradEnergydDOF( 
+
+        const Matrix< DDRMat > & Constitutive_Model::dGradEnergydDOF(
                 const moris::Cell< MSI::Dof_Type > & aDofType,
                 enum CM_Function_Type aCMFunctionType )
         {
@@ -3051,7 +3054,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & Constitutive_Model::dGradEnergyDotdDOF( 
+        const Matrix< DDRMat > & Constitutive_Model::dGradEnergyDotdDOF(
                 const moris::Cell< MSI::Dof_Type > & aDofType,
                 enum CM_Function_Type aCMFunctionType )
         {
@@ -3083,7 +3086,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & Constitutive_Model::dGradDivFluxdDOF( 
+        const Matrix< DDRMat > & Constitutive_Model::dGradDivFluxdDOF(
                 const moris::Cell< MSI::Dof_Type > & aDofType,
                 enum CM_Function_Type aCMFunctionType )
         {
@@ -3443,3 +3446,4 @@ namespace moris
 
     }/* end_fem_namespace */
 }/* end_moris_namespace */
+

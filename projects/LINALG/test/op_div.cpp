@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * op_div.cpp
+ *
+ */
+
 #include <catch.hpp>
 #include "fn_equal_to.hpp" //ALG
 
@@ -21,3 +31,4 @@ TEST_CASE(
         REQUIRE( tDivide( 3, 0 ) ==  1.0 );
     }
 }
+

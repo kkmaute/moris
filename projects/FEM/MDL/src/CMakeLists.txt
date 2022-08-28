@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 #  Model Source ------------------------------------
 # -------------------------------------------------------------------------
 
@@ -111,3 +118,4 @@ install(TARGETS ${MDL}-lib
 # Export library into *Targets file
 install(EXPORT ${MDL}Targets
     DESTINATION ${${MDL}_CONFIG_INSTALL_DIR} )
+

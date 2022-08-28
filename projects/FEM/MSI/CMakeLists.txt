@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # MSI -----------------------------------------------------------------
 # -------------------------------------------------------------------------
 
@@ -17,3 +24,4 @@ add_subdirectory(src)
 if(MORIS_USE_TESTS AND BUILD_MSI)
     add_subdirectory(test)
 endif()
+

@@ -1,8 +1,11 @@
 /*
- * cl_MTK_Intersection_Detect.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jun 7, 2021
- *      Author: momo
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Intersection_Detect_2D.hpp
+ *
  */
 
 #ifndef PROJECTS_MTK_SRC_CL_MTK_INTERSECTION_DETECT_2D_HPP_
@@ -13,7 +16,6 @@
 #include "cl_Param_List.hpp"
 #include "cl_MTK_Intersec_Mesh_Data.hpp"
 #include "cl_MTK_Double_Side_Cluster.hpp"
-
 
 namespace moris
 {
@@ -232,7 +234,6 @@ namespace moris
                 group_cut_cells(moris::Matrix< IndexMat> const & aCutCellIndetiferMatrix,
                         std::unordered_map< moris_index , moris::Cell< moris_index > > & aCutCellIdentifierToCutCellIndex) const;
 
-
                 // ----------------------------------------------------------------------------
 
                 /**
@@ -248,6 +249,5 @@ namespace moris
     }
 }
 
-
-
 #endif /* PROJECTS_MTK_SRC_CL_MTK_INTERSECTION_DETECT_HPP_ */
+

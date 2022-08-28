@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * UT_FEM_IQI_Strain_Energy.cpp
  *
- *  Created on: Dec 5, 2019
- *      Author: noel
  */
 
 #include <string>
@@ -43,7 +46,6 @@ void tConstValFunction_UTIQISTRAINENERGY
 {
     aPropMatrix = aParameters( 0 );
 }
-
 
 void tFIValDvFunction_UTIQISTRAINENERGY
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
@@ -287,3 +289,4 @@ TEST_CASE("IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]")
     CHECK( tCheckdQIdu );
 
 } /*END_TEST_CASE*/
+

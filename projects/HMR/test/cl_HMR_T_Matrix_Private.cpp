@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_HMR_T_Matrix_Private.cpp
+ *
+ */
+
 #include <catch.hpp>
 #include "cl_HMR_Background_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
@@ -13,7 +23,6 @@
 #include "cl_Matrix.hpp" //LINALG/src
 #include "op_times.hpp" //LINALG/src
 #include "fn_norm.hpp"
-
 
 #define protected public
 #define private   public
@@ -297,7 +306,6 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr],[hmr_t_matrix]")
                 moris::hmr::Background_Mesh_Base* tBackgroundMesh
                 = tFactory.create_background_mesh( tParameters );
 
-
                 // create B-Spline Mesh
                 moris::hmr::BSpline_Mesh_Base * tBSplineMesh =  tFactory.create_bspline_mesh( tParameters,
                                                                                               tBackgroundMesh,
@@ -367,3 +375,4 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr],[hmr_t_matrix]")
         } // end section
     } // end par rank
 } // end test case
+

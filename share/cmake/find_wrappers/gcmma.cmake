@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # -------------------------------------------------------------------------
 # GCMMA libraries --------------------------------------------------------
 # -------------------------------------------------------------------------
@@ -15,3 +22,4 @@ endif()
 include_directories(${GCMMA_INCLUDE_DIRS})
 link_directories(${GCMMA_LIBRARY_DIRS})
 set(MORIS_GCMMA_LIBS ${GCMMA_LIBRARIES})
+

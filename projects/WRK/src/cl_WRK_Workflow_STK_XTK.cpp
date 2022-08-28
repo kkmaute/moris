@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_WRK_Workflow_STK_XTK.cpp
+ *
+ */
+
 #include "cl_WRK_Performer_Manager.hpp"
 #include "cl_WRK_Workflow_STK_XTK.hpp"
 #include "cl_Param_List.hpp"
@@ -12,7 +22,6 @@
 #include "cl_GEN_Geometry_Engine.hpp"
 #include "cl_XTK_Model.hpp"
 #include "cl_MDL_Model.hpp"
-
 
 #include "cl_Logger.hpp"
 #include "cl_Tracer.hpp"
@@ -29,7 +38,7 @@ namespace moris
 
         // Parameter function
         typedef void ( *Parameter_Function ) ( moris::Cell< moris::Cell< moris::ParameterList > > & aParameterList );
-        
+
         //--------------------------------------------------------------------------------------------------------------
 
         Workflow_STK_XTK::Workflow_STK_XTK( wrk::Performer_Manager * aPerformerManager )
@@ -236,3 +245,4 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
     } /* namespace mdl */
 } /* namespace moris */
+

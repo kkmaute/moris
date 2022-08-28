@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_HMR_Background_Mesh_Base.cpp
+ *
+ */
+
 #include "cl_HMR_Background_Mesh_Base.hpp" //HMR/src
 
 #include <fstream>
@@ -86,7 +96,6 @@ namespace moris
                 }
             }
         }
-
 
         //-------------------------------------------------------------------------------
 
@@ -738,7 +747,6 @@ namespace moris
                 mActivePattern = tOldPattern;
             }
 
-
             // stop timer
             real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
@@ -761,7 +769,6 @@ namespace moris
                         ( double ) tElapsedTime / 1000);
                 MORIS_LOG_INFO( " " );
             }
-
 
             // update database
             this->update_database();
@@ -1976,7 +1983,6 @@ namespace moris
             // get back to old pattern
             mActivePattern = tOldPattern;
 
-
             // stop timer
             real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
@@ -2168,7 +2174,6 @@ namespace moris
 
                 // collect all elements on this level
                 this->collect_elements_on_level_including_aura( l, tElementList );
-
 
                 // loop over all elements
                 for( Background_Element_Base* tElement : tElementList )

@@ -1,14 +1,16 @@
 /*
- * cl_XTK_Child_Mesh_Test.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jun 21, 2018
- *      Author: ktdoble
+ *------------------------------------------------------------------------------------
+ *
+ * cl_XTK_Child_Mesh.hpp
+ *
  */
 
 #ifndef SRC_XTK_CL_XTK_CHILD_MESH_HPP_
 #define SRC_XTK_CL_XTK_CHILD_MESH_HPP_
 #include <unordered_map>
-
 
 // Linear algebra includes
 #include "cl_Matrix.hpp"
@@ -61,11 +63,11 @@ class Child_Mesh
 public:
 
     // ----------------------------------------------------------------------------------
- 
+
     Child_Mesh();
 
     // ----------------------------------------------------------------------------------
- 
+
     Child_Mesh(moris::uint                        aSpatialDimension,
                moris::moris_index                 aParentElementIndex,
                moris::Matrix< moris::IndexMat > & aNodeInds,
@@ -85,19 +87,17 @@ public:
                Cell<moris_index> const & aGeometryIndices );
 
     // ----------------------------------------------------------------------------------
- 
+
     Child_Mesh(Mesh_Modification_Template & aMeshModTemplate);
 
     // ----------------------------------------------------------------------------------
- 
+
     ~Child_Mesh();
 
     // ----------------------------------------------------------------------------------
- 
 
     // Declare iterator type
     typename std::unordered_map<moris::size_t,moris::size_t>::iterator Map_Iterator;
-
 
     // --------------------------------------------------------------
     // Functions to access connectivity
@@ -108,14 +108,14 @@ public:
      */
     moris::size_t
     get_num_entities(enum EntityRank aEntityRank) const;
-    
+
     // ----------------------------------------------------------------------------------
 
      enum EntityRank
     get_facet_rank() const;
 
     // ----------------------------------------------------------------------------------
- 
+
     enum EntityRank
     get_facet_rank_internal() const;
 
@@ -132,17 +132,17 @@ public:
      */
     std::shared_ptr<moris::mtk::Cell_Info>
     get_cell_info_sp() const;
-    
+
     // ----------------------------------------------------------------------------------
- 
+
     /*
      * return element to node connectivity matrix (processor local indices)
      */
     moris::Matrix< moris::IndexMat > const &
     get_element_to_node() const;
-    
+
     // ----------------------------------------------------------------------------------
- 
+
     /*
      * return element to node connectivity matrix (processor local indices)
      */
@@ -154,16 +154,15 @@ public:
      */
     moris::Matrix< moris::IndexMat >
     get_node_to_element_local() const;
-    
+
     // ----------------------------------------------------------------------------------
- 
 
     moris::moris_index
     get_element_node_ordinal(moris::moris_index aCMLocElemIndex,
                              moris::moris_index aProcLocNodeIndex);
 
     // ----------------------------------------------------------------------------------
- 
+
     /*
      * Converts the existing element to node connectivity (which contains proc local indices)
      * to child mesh local indices
@@ -172,7 +171,7 @@ public:
     get_element_to_node_local() const;
 
     // ----------------------------------------------------------------------------------
- 
+
     /*
      * Converts the existing element to node connectivity (which contains proc local indices)
      * to child mesh local indices
@@ -181,7 +180,7 @@ public:
     get_element_to_node_global() const;
 
     // ----------------------------------------------------------------------------------
- 
+
     /*
      * Return edge to node
      */
@@ -189,12 +188,12 @@ public:
     get_edge_to_node();
 
     // ----------------------------------------------------------------------------------
- 
+
     moris::Matrix< moris::IndexMat > const &
     get_edge_to_node() const;
 
     // ----------------------------------------------------------------------------------
- 
+
     /*
      * Return edge to node
      */
@@ -202,7 +201,7 @@ public:
     get_edge_to_node_local() const;
 
     // ----------------------------------------------------------------------------------
- 
+
     /*
      * Return element to edge
      */
@@ -210,7 +209,7 @@ public:
     get_element_to_edge() const;
 
     // ----------------------------------------------------------------------------------
- 
+
     /*
      * Return edges connected to elements
      */
@@ -218,7 +217,7 @@ public:
     get_edge_to_element() const;
 
     // ----------------------------------------------------------------------------------
- 
+
     /*
      * return faces to node
      */
@@ -226,22 +225,22 @@ public:
     get_face_to_node() const;
 
     // ----------------------------------------------------------------------------------
- 
+
     moris::Matrix< moris::IndexMat > const &
     get_facet_to_node() const;
 
     // ----------------------------------------------------------------------------------
- 
+
     moris::Matrix< moris::IndexMat > const &
     get_face_to_element() const;
 
     // ----------------------------------------------------------------------------------
- 
+
     moris::Matrix<moris::IndexMat> const &
     get_facet_to_element() const;
 
     // ----------------------------------------------------------------------------------
- 
+
     /*
      * return element to face connectivity matrix (cm local element indices)
      */
@@ -249,7 +248,7 @@ public:
     get_face_to_node_local() const;
 
     // ----------------------------------------------------------------------------------
- 
+
     /*
      * return element to face connectivity matrix (cm local element indices)
      */
@@ -257,12 +256,12 @@ public:
     get_element_to_face() const;
 
     // ----------------------------------------------------------------------------------
- 
+
     moris::Matrix<moris::IndexMat> const &
     get_element_to_facet() const;
 
     // ----------------------------------------------------------------------------------
- 
+
     /*
      * get the facet ordinal given a cm cell index and cm facet index
      */
@@ -270,7 +269,7 @@ public:
     get_cell_facet_ordinal(moris_index aCellIndex, moris_index aFacetIndex) const;
 
     // ----------------------------------------------------------------------------------
- 
+
     /*
      * Return element to element connectivity (cm local element indices)
      */
@@ -278,7 +277,7 @@ public:
     get_element_to_element() const;
 
     // ----------------------------------------------------------------------------------
- 
+
     /*
      * Return the parametric coordinates of the nodes (ordered by cm local index)
      */
@@ -286,7 +285,7 @@ public:
     get_parametric_coordinates() const;
 
     // ----------------------------------------------------------------------------------
- 
+
     /*
      * Return the parametric coordinates of a node using a node index
      */
@@ -294,7 +293,7 @@ public:
     get_parametric_coordinates(moris::moris_index aNodeIndex) const;
 
     // ----------------------------------------------------------------------------------
- 
+
     /*!
      *
      */
@@ -302,15 +301,14 @@ public:
     get_child_geometry_type() const;
 
     // ----------------------------------------------------------------------------------
- 
+
     moris::mtk::Interpolation_Order
     get_child_interpolation_order() const;
-
 
     // ----------------------------------------------------------------------------------
     // Functions to access ancestry
     // ----------------------------------------------------------------------------------
- 
+
      /*!
      * Get and entities parent entity rank
      */
@@ -319,7 +317,7 @@ public:
                                   moris::moris_index aCMLocIndex);
 
     // ----------------------------------------------------------------------------------
- 
+
     /*!
      * Get and entities parent entity rank
      */
@@ -328,98 +326,98 @@ public:
                                       moris::moris_index aCMLocIndex);
 
     // ----------------------------------------------------------------------------------
- 
+
     moris::moris_index
     get_parent_element_index() const;
-    
+
     // ----------------------------------------------------------------------------------
 
     moris::moris_index
     get_child_mesh_index() const;
 
     // ----------------------------------------------------------------------------------
- 
+
     moris::Matrix< moris::IndexMat > const &
     get_face_parent_inds() const;
 
     // ----------------------------------------------------------------------------------
- 
+
     moris::Matrix< moris::DDSTMat > const &
     get_face_parent_ranks() const;
 
     // ----------------------------------------------------------------------------------
- 
+
     moris::Matrix< moris::IndexMat > const &
     get_facet_parent_inds() const;
 
     // ----------------------------------------------------------------------------------
- 
+
     moris::Matrix< moris::DDSTMat > const &
     get_facet_parent_ranks() const;
 
     // ----------------------------------------------------------------------------------
- 
+
     moris::Matrix< moris::IndexMat > const &
     get_edge_parent_inds() const;
 
     // ----------------------------------------------------------------------------------
- 
+
     moris::Matrix< moris::DDSTMat > const &
     get_edge_parent_ranks() const;
 
     // ----------------------------------------------------------------------------------
- 
+
     moris::Matrix< moris::IndexMat > const &
     get_node_indices() const;
 
     // ----------------------------------------------------------------------------------
- 
+
     moris::Matrix< moris::IdMat > const &
     get_node_ids() const;
 
     // ----------------------------------------------------------------------------------
- 
+
     moris::Cell<moris::mtk::Vertex const *> const &
     get_vertices() const;
 
     // ----------------------------------------------------------------------------------
- 
+
     moris::Matrix< moris::IdMat > const &
     get_element_ids() const;
 
     // ----------------------------------------------------------------------------------
- 
+
     moris::Matrix< moris::IndexMat > const &
     get_element_inds() const;
 
     // ----------------------------------------------------------------------------------
- 
+
     moris::Matrix<moris::IndexMat>
     convert_to_proc_local_elem_inds(moris::Matrix< moris::IndexMat > aConnOfElementCMIndices);
 
     // ----------------------------------------------------------------------------------
- 
+
     // Function to access ordinals
     moris::Matrix< moris::IndexMat >
     get_edge_ordinal_from_element_and_edge_indices(moris::moris_index const & aElementIndex,
                                                    moris::Matrix< moris::IndexMat > const & aEdgeIndices) const;
 
     // ----------------------------------------------------------------------------------
- 
+
     // Function to access ordinals
     moris::moris_index
     get_edge_ordinal_from_element_and_edge_indices(moris::moris_index const & aElementIndex,
                                                    moris::moris_index const & aEdgeIndex) const;
 
     // ----------------------------------------------------------------------------------
- 
+
     // Function to access ordinals
     moris::moris_index
     get_face_ordinal_from_element_and_face_index(moris::moris_index const & aElementIndex,
                                                  moris::moris_index         aFacetIndex) const;
-                                                 
+
     // ----------------------------------------------------------------------------------
- 
+
     /*
      * Returns the child element and face ordinal connected to a provided parent face
      */
@@ -432,20 +430,20 @@ public:
             moris::Matrix< moris::IndexMat > & aChildElemOnFacetOrdinal) const;
 
     // ----------------------------------------------------------------------------------
- 
+
     moris::moris_index
     get_cm_local_node_index(moris::moris_index aNodeProcIndex) const;
 
     // ----------------------------------------------------------------------------------
- 
+
     bool
     has_interface_along_geometry(moris_index aGeomIndex) const;
 
     // ----------------------------------------------------------------------------------
- 
+
     moris_index
     get_local_geom_index(moris_index aGeomIndex) const;
-    
+
     // --------------------------------------------------------------
     // Functions to modify the mesh
     // --------------------------------------------------------------
@@ -458,12 +456,12 @@ public:
     modify_child_mesh(enum TemplateType aTemplate);
 
     // ----------------------------------------------------------------------------------
- 
+
     void
     initialize_unzipping();
 
     // ----------------------------------------------------------------------------------
- 
+
     void
     finalize_unzipping();
 
@@ -479,7 +477,7 @@ public:
                                                            moris::Matrix<moris::IndexMat> & aInterfacePairSideOrds) const;
 
     // ----------------------------------------------------------------------------------
- 
+
     void
     unzip_child_mesh_interface(moris::moris_index                       aGeometryIndex,
                                moris::Matrix< moris::IndexMat > const & aInterfaceElementPairsCMIndex,
@@ -489,12 +487,12 @@ public:
                                moris::Matrix< moris::IndexMat > const & aUnzippedInterfaceNodeIds);
 
     // ----------------------------------------------------------------------------------
- 
+
     void
     convert_tet4_to_tet10_child();
 
     // ----------------------------------------------------------------------------------
- 
+
     /*
      * Add more nodes to the existing node indices list
      */
@@ -502,7 +500,7 @@ public:
     add_node_indices(moris::Matrix< moris::IndexMat > const & aNewNodeInds);
 
     // ----------------------------------------------------------------------------------
- 
+
     /*
      * Add more nodes to the existing node indices list
      */
@@ -510,12 +508,12 @@ public:
     add_node_ids(moris::Matrix< moris::IdMat > const & aNewNodeIds);
 
     // ----------------------------------------------------------------------------------
- 
+
     void
     add_vertices(moris::Cell<moris::mtk::Vertex const *> const & aVertices);
 
     // ----------------------------------------------------------------------------------
- 
+
     /*
      * sets the node ids. note this overwrites existing mNodeIds data
      */
@@ -524,7 +522,7 @@ public:
     set_node_ids(moris::Matrix< moris::IdMat > const & aNewNodeIds);
 
     // ----------------------------------------------------------------------------------
- 
+
     /*
      * Sets the globally unique element Ids for the child mesh. This is important for mesh from data creation
      * @param[in] aElementId - First element Id (note: this is incremented as the id is assigned)
@@ -532,7 +530,7 @@ public:
     void set_child_element_ids(moris::moris_id & aElementId);
 
     // ----------------------------------------------------------------------------------
- 
+
     /*
      * Sets the processor unique element indices for the child mesh.
      * @param[in] aElementInd - First element Ind (note: this is incremented as the ind is assigned)
@@ -540,7 +538,7 @@ public:
     void set_child_element_inds(moris::moris_index & aElementInd);
 
     // ----------------------------------------------------------------------------------
- 
+
     /*!
      * Add node parametric coordinate for a single node
      */
@@ -549,7 +547,7 @@ public:
                                     moris::Matrix< moris::DDRMat > const & aParamCoord );
 
     // ----------------------------------------------------------------------------------
- 
+
     /*!
      * Add node parametric coordinate for multiple nodes
      * @param[in] aNodeIndices - List of node indices with parametric coordinates
@@ -560,13 +558,13 @@ public:
                                     moris::Matrix< moris::DDRMat >  const & aParamCoord );
 
     // ----------------------------------------------------------------------------------
- 
+
     void
     allocate_parametric_coordinates( moris::size_t aNumNewNodes,
                                      moris::size_t aDimOfParmCoord);
 
     // ----------------------------------------------------------------------------------
- 
+
     /*
      * Resizes element related matrices
      */
@@ -574,25 +572,25 @@ public:
     allocate_more_elements(moris::size_t const & aNumMoreElements);
 
     // ----------------------------------------------------------------------------------
- 
+
     void
     insert_child_mesh_template(Mesh_Modification_Template & aMeshModTemplate);
 
     // ----------------------------------------------------------------------------------
- 
+
     void
     setup_template_interface_facets(Mesh_Modification_Template & aMeshModTemplate,
                                     Matrix<DDSTMat> &           aInterfaceSideOrdinals);
 
     // ----------------------------------------------------------------------------------
- 
+
     /*
      * Convert the element to node, parent information to  the local indexing scheme rather than ordinal
      */
     void reindex_template(Mesh_Modification_Template & aMeshModTemplate);
 
     // ----------------------------------------------------------------------------------
- 
+
     /*
      * Replace the information associated with an element
      */
@@ -608,7 +606,7 @@ public:
                     moris::Matrix< moris::DDSTMat >  const & aElementInterfaceFaces);
 
     // ----------------------------------------------------------------------------------
- 
+
     /*
      * Replace the information associated with an element
      */
@@ -623,7 +621,7 @@ public:
                 moris::Matrix< moris::DDSTMat>   const & aElementInterfaceFaces);
 
     // ----------------------------------------------------------------------------------
- 
+
     /*!
      * Add node inheritance
      * @param[in] aCMLocNodeIndex - Child mesh local node index
@@ -636,7 +634,7 @@ public:
                          moris::moris_index aParentEntityRank);
 
     // ----------------------------------------------------------------------------------
- 
+
     /*
      * Generates face connectivities, edge connectivities, element to element graph
      */
@@ -647,12 +645,11 @@ public:
                             bool aGenerateElemToElem);
 
     // ----------------------------------------------------------------------------------
- 
+
     void
     add_new_geometry_interface(moris_index aChildIndex);
 
     // ----------------------------------------------------------------------------------
- 
 
     /**
      * aFlag - 0 means the provided aDPrime1Ind is appended to the end of existing nodes
@@ -666,7 +663,7 @@ public:
                                          moris::size_t aFlag);
 
     // ----------------------------------------------------------------------------------
- 
+
     void
     mark_edge_as_on_interface(moris::moris_index aEdgeIndex);
 
@@ -675,7 +672,7 @@ public:
                                moris_index aGeometryIndex);
 
     // ----------------------------------------------------------------------------------
- 
+
     /*
      * Take the information of edges on the interface and
      * figure out which faces are on the interface, then
@@ -685,7 +682,6 @@ public:
     mark_interface_faces_from_interface_coincident_faces();
 
     // ----------------------------------------------------------------------------------
- 
 
     // --------------------------------------------------------------
     // Functions for elemental phase information and subphase bins
@@ -694,25 +690,24 @@ public:
     void
     initialize_element_phase_mat();
 
-    
     // ----------------------------------------------------------------------------------
- 
+
     void
     set_element_phase_index(moris::size_t aEntityIndex,
                             moris::size_t aEntityPhaseIndex);
 
     // ----------------------------------------------------------------------------------
- 
+
     moris::size_t
     get_element_phase_index( moris::size_t const & aEntityIndex) const;
 
     // ----------------------------------------------------------------------------------
- 
+
     moris_index
     get_element_subphase_index(moris::size_t const & aEntityIndex) const;
 
     // ----------------------------------------------------------------------------------
- 
+
     /*!
      * Returns the active bulk phases in this child mesh
      */
@@ -720,47 +715,47 @@ public:
     get_active_bulk_phases(Cell<moris_index> & aBulkPhasesIndex) const;
 
     // ----------------------------------------------------------------------------------
- 
+
     moris::Matrix< moris::IndexMat > const &
     get_element_phase_indices() const;
 
     // ----------------------------------------------------------------------------------
- 
+
     moris_index
     get_element_subphase_id(moris::size_t const & aEntityIndex) const;
 
     // ----------------------------------------------------------------------------------
- 
+
     moris::size_t
     get_num_subphase_bins() const;
 
     // ----------------------------------------------------------------------------------
- 
+
     Cell<moris::moris_index> const &
     get_subphase_bin_bulk_phase() const;
 
     // ----------------------------------------------------------------------------------
- 
+
     Cell<moris::Matrix< moris::IndexMat >> const &
     get_subphase_groups() const;
 
     // ----------------------------------------------------------------------------------
- 
+
     Cell<moris_index> const &
     get_subphase_indices( ) const;
 
     // ----------------------------------------------------------------------------------
- 
+
     moris::Matrix<moris::IndexMat> const &
     get_subphase_ids( ) const;
 
     // ----------------------------------------------------------------------------------
- 
+
     moris_index
     get_subphase_loc_index(moris_index aSubPhaseIndex) const;
 
     // ----------------------------------------------------------------------------------
- 
+
     void
     get_subphases_attached_to_facet(moris_index aFacetIndex,
                                     Cell<moris_index> & aSubPhaseCMIndex,
@@ -768,7 +763,7 @@ public:
                                     Cell<moris_index> & aRepresentativeChildCellSideOrdinal) const;
 
     // ----------------------------------------------------------------------------------
- 
+
     /*
     * Constructs the internal double side sets for this child mesh
     * @return Whether there are interfaces between another child mesh
@@ -777,43 +772,42 @@ public:
     construct_internal_double_sides_between_subphases();
 
     // ----------------------------------------------------------------------------------
-    
+
     bool
     has_inter_child_mesh_interfaces();
 
     // ----------------------------------------------------------------------------------
- 
+
     uint
     get_num_double_side_interfaces() const;
 
     // ----------------------------------------------------------------------------------
- 
+
     Cell< moris_index > const &
     get_double_side_interface_subphase_indices(moris_index aDblSideCMIndex) const;
 
     // ----------------------------------------------------------------------------------
- 
+
     Cell<Cell< moris_index >> const &
     get_double_side_interface_cell_pairs(moris_index aDblSideCMIndex) const;
 
     // ----------------------------------------------------------------------------------
- 
+
     Cell<Cell< moris_index >> const &
     get_double_side_interface_cell_pairs_facet_ords(moris_index aDblSideCMIndex) const;
 
     // ----------------------------------------------------------------------------------
- 
+
     void
     delete_double_sides_interface_sets();
 
     // ----------------------------------------------------------------------------------
- 
- 
+
     void
     print_double_sides_between_subphases( moris_index aVerboseLevel = 0);
 
     // ----------------------------------------------------------------------------------
- 
+
     /*
      * Sets the elemental subphase value in this child mesh
      */
@@ -822,13 +816,13 @@ public:
                             moris::Matrix< moris::IndexMat > const & aElementSubPhase);
 
     // ----------------------------------------------------------------------------------
- 
+
     void
     set_subphase_id(moris_id const & aSubphaseIndex,
                      moris_id & aSubphaseId);
 
     // ----------------------------------------------------------------------------------
- 
+
     /*
      * Returns the elemental subphase values
      */
@@ -836,7 +830,7 @@ public:
     get_elemental_subphase_bin_membership() const;
 
     // ----------------------------------------------------------------------------------
- 
+
     /*
      * Add a basis to subphase bin relationship
      */
@@ -846,12 +840,12 @@ public:
                                                moris_index aBasisEnrLev);
 
     // ----------------------------------------------------------------------------------
- 
+
     Cell<moris_index> const &
     get_subphase_basis_indices(moris_index aSubphaseBin) const;
 
     // ----------------------------------------------------------------------------------
- 
+
     Cell<moris_index> const &
     get_subphase_basis_enrichment_levels(moris_index aSubphaseBin) const;
 
@@ -869,8 +863,8 @@ public:
                                   Cell<moris::Matrix< moris::IdMat >> & aElementCMInds) const;
 
     // ----------------------------------------------------------------------------------
-    
-    moris::Matrix< moris::DDSTMat  > const & 
+
+    moris::Matrix< moris::DDSTMat  > const &
     get_cell_interface_side_ords();
     /*
      * Fora a given interface on geometry, pack the sides
@@ -882,17 +876,17 @@ public:
                           moris_index aIndexFlag              = 0) const;
 
     // ----------------------------------------------------------------------------------
- 
+
     moris::Matrix< moris::IdMat >
     pack_interface_sides_loc_inds() const;
 
     // ----------------------------------------------------------------------------------
- 
+
     enum CellTopology
     template_to_cell_topology(enum TemplateType aTemplateType);
 
     // ----------------------------------------------------------------------------------
- 
+
     void
     mark_as_hmr_child_mesh(){ mHMR = true; };
 
@@ -909,7 +903,6 @@ public:
     // ----------------------------------------------------------------------------------
     moris::Memory_Map
     get_memory_usage();
-
 
 private:
     // child mesh index
@@ -987,7 +980,7 @@ private:
 
     bool                             mHasCoincidentEdges;
     moris::Matrix< moris::IndexMat > mEdgeOnInterface;
-    
+
     bool mHasInterChildMeshInterface;
 
     // Phase member variables -----------------------------
@@ -1022,22 +1015,21 @@ private:
     generate_face_connectivity_and_ancestry(moris::Matrix< moris::IndexMat > const & aElementToNodeLocal);
 
     // ----------------------------------------------------------------------------------
- 
+
     void
     generate_edge_connectivity_and_ancestry(moris::Matrix< moris::IndexMat > const & aElementToNodeLocal);
 
     // ----------------------------------------------------------------------------------
- 
+
     void
     generate_element_to_element_connectivity();
 
     // ----------------------------------------------------------------------------------
- 
+
     void
     set_up_proc_local_to_cm_local_node_map();
 
     // ----------------------------------------------------------------------------------
- 
 
     /*
      * Note: this function only adds nodes which do not already exist to the map
@@ -1047,7 +1039,7 @@ private:
     add_nodes_to_map(moris::Matrix< moris::IndexMat > const & aNodesToAdd);
 
     // ----------------------------------------------------------------------------------
- 
+
     /*
      * Takes the element face ordinal ancestry and creates a face ancestry
      */
@@ -1055,42 +1047,42 @@ private:
     setup_face_ancestry();
 
     // ----------------------------------------------------------------------------------
- 
+
     void
     setup_edge_ancestry();
 
     // ----------------------------------------------------------------------------------
- 
+
     moris::Matrix< moris::IndexMat >
     convert_to_cm_local_indices(moris::Matrix< moris::IndexMat > const & aEntityRankToNode) const;
 
     // ----------------------------------------------------------------------------------
- 
+
     moris::Matrix< moris::IndexMat >
     convert_to_proc_indices(moris::Matrix< moris::IndexMat > const & aEntityRankToNodeLocal) const;
 
     // ----------------------------------------------------------------------------------
- 
+
     moris::Matrix< moris::IdMat >
     convert_cm_loc_to_glob_ids(moris::Matrix< moris::IndexMat > const & aEntityRankToNodeLocal) const;
 
     // ----------------------------------------------------------------------------------
- 
+
     moris::Matrix< moris::IdMat >
     convert_proc_to_glob_ids(moris::Matrix< moris::IndexMat > const & aEntityRankToNodeLocal) const;
 
     // ----------------------------------------------------------------------------------
- 
+
     void
     modify_child_mesh_internal(enum TemplateType aTemplate);
 
     // ----------------------------------------------------------------------------------
- 
+
     void
     create_intersect_connectivity();
 
     // ----------------------------------------------------------------------------------
- 
+
     /*
      * Edges needed to get permutation
      */
@@ -1101,9 +1093,8 @@ private:
                moris::size_t const &                      aElementIndex,
                moris::size_t &                            aPermutation);
 
-
     // ----------------------------------------------------------------------------------
- 
+
     /*
      * This assumes the edge ordinals provided are ordered in the same order as is found in the auxiliary connectivity
      */
@@ -1111,14 +1102,13 @@ private:
     get_intersection_permutation(moris::Matrix< moris::IndexMat > const & aOrderedEdgeOrdinals,
                                  moris::size_t & aPermutation);
 
-
     // ----------------------------------------------------------------------------------
- 
+
     void
     reindex_template_parent_information(Mesh_Modification_Template & aMeshModTemplate);
 
     // ----------------------------------------------------------------------------------
- 
+
     /*
      * Clear member data associated with intersection connectivity
      */
@@ -1126,7 +1116,7 @@ private:
     cleanup_intersect_connectivity();
 
     // ----------------------------------------------------------------------------------
- 
+
     /*
      * Add nodes created during modification inheritance information
      */
@@ -1134,13 +1124,13 @@ private:
     add_intersect_conn_node_inheritance();
 
     // ----------------------------------------------------------------------------------
- 
+
     void
     construct_subphase_bins( moris::moris_index                     & aSubPhaseIndex,
                              moris::Matrix< moris::IndexMat > const & aElementSubPhase);
 
     // ----------------------------------------------------------------------------------
- 
+
     template<typename Mat_Type>
     void
     row_vector_connectivity_check(moris::Matrix<Mat_Type> & aConnectivity)
@@ -1156,3 +1146,4 @@ private:
 
 }
 #endif /* SRC_XTK_CL_XTK_CHILD_MESH_HPP_ */
+

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_SDF_Mesh.cpp
+ *
+ */
+
 #include "cl_Stopwatch.hpp"
 #include "cl_Communication_Tools.hpp"
 
@@ -5,7 +15,6 @@
 
 #include "cl_MTK_Enums.hpp"
 #include "cl_SDF_Mesh.hpp"
-
 
 namespace moris
 {
@@ -45,7 +54,6 @@ namespace moris
                     MORIS_ERROR( false, "Can't determine order of 3D cell");
                 }
             }
-
 
             // get number of nodes
             uint tNumberOfNodes = aMesh->get_num_nodes();
@@ -254,3 +262,4 @@ namespace moris
 //-------------------------------------------------------------------------------
     } /* namespace sdf */
 } /* namespace moris */
+

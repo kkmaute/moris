@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_HMR_BSpline_Mesh_Base.cpp
  *
- *  Created on: Okt 12, 2018
- *      Author: Schmidt
  */
+
 #include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
 
 #include <fstream>
@@ -107,7 +111,6 @@ namespace moris
             MORIS_LOG_INFO( "Creation took %5.3f seconds.",
                     ( double ) tElapsedTime / 1000 );
             MORIS_LOG_INFO( " " );
-
 
 //            MORIS_LOG_INFO( "%s Created B-Spline mesh of order %u on pattern %u."
 //                            "Mesh has %lu  Elements and %lu basis in total."
@@ -1186,7 +1189,6 @@ namespace moris
                 tBasis->set_memory_index( tCount++ );
             }
 
-
             // This function seems not to be needed, however for debugging purposes the basis can be stored in a vtk file.
             // In this case the information is needed
             // calculate basis coordinates
@@ -1861,7 +1863,7 @@ namespace moris
                 // get parents for each basis
                 this->link_basis_to_parents();
             }
-            
+
             // stop timer
             real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
@@ -1946,7 +1948,6 @@ namespace moris
                 // count number of basis per proc
                 Matrix< DDUMat > tBasisCount( tNumberOfProcs, 1, 0 );
 
-
                 // loop over all active basis
                 for( auto tBasis : mAllBasisOnProc )
                 {
@@ -1977,7 +1978,6 @@ namespace moris
                 }
 
                 MORIS_ERROR( tBasisCommCheck.max() == 0, "synchronize_flags: error in communication table" );
-
 
                 // dummy matrices for cells to send
                 Matrix< DDLUMat > tEmptyLuint;
@@ -2707,3 +2707,4 @@ namespace moris
 
     } /* namespace hmr */
 } /* namespace moris */
+

@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Vertex_XTK_Impl.hpp
  *
- *  Created on: Mar 8, 2019
- *      Author: doble
  */
 
 #ifndef PROJECTS_XTK_SRC_XTK_CL_MTK_VERTEX_XTK_IMPL_HPP_
@@ -32,14 +35,13 @@ namespace moris
             Vertex_XTK(moris::moris_id        aVertexId,
                        moris::moris_index     aVertexIndex,
                        moris::moris_index     aOwner,
-                       std::shared_ptr<moris::Matrix<moris::DDRMat>> aCoordinates);                       
+                       std::shared_ptr<moris::Matrix<moris::DDRMat>> aCoordinates);
 //------------------------------------------------------------------------------
 
             /**
              * Destructor
              */
             ~Vertex_XTK();
-
 
 //------------------------------------------------------------------------------
             void
@@ -108,6 +110,5 @@ namespace moris
 } /* namespace moris */
 //------------------------------------------------------------------------------
 
-
-
 #endif /* PROJECTS_XTK_SRC_XTK_CL_MTK_VERTEX_XTK_IMPL_HPP_ */
+

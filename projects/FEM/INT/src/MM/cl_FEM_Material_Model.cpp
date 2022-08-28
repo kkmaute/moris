@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_Material_Model.cpp
  *
- *  Created on: Feb 1, 2021
- *      Author: wunsch
  */
 
 #include "cl_FEM_Material_Model.hpp"
@@ -49,7 +52,7 @@ namespace moris
             mEintDofEval.fill( true );
             mEintDotDofEval.fill( true );
             mdEintdxDofEval.fill( true );
-            md2Eintdx2DofEval.fill( true );            
+            md2Eintdx2DofEval.fill( true );
 
             // reset eval flags for density, if it is a dependent variable
             mDensityEval = true;
@@ -58,7 +61,7 @@ namespace moris
             md2Densitydx2Eval = true;
 
             mDensityDofEval.fill( true );
-            mDensityDotDofEval.fill( true );          
+            mDensityDotDofEval.fill( true );
             mdDensitydxDofEval.fill( true );
             md2Densitydx2DofEval.fill( true );
 
@@ -69,7 +72,7 @@ namespace moris
             md2Pressuredx2Eval = true;
 
             mPressureDofEval.fill( true );
-            mPressureDotDofEval.fill( true );          
+            mPressureDotDofEval.fill( true );
             mdPressuredxDofEval.fill( true );
             md2Pressuredx2DofEval.fill( true );
 
@@ -80,9 +83,9 @@ namespace moris
             md2Temperaturedx2Eval = true;
 
             mTemperatureDofEval.fill( true );
-            mTemperatureDotDofEval.fill( true );          
+            mTemperatureDotDofEval.fill( true );
             mdTemperaturedxDofEval.fill( true );
-            md2Temperaturedx2DofEval.fill( true );     
+            md2Temperaturedx2DofEval.fill( true );
 
             // reset eval flags for thermodynamic quantities
             mAlphaPEval = true;
@@ -95,7 +98,7 @@ namespace moris
             mBetaTDofEval.fill( true );
             mCvDofEval.fill( true );
             mCpDofEval.fill( true );
-            mGammaDofEval.fill( true );           
+            mGammaDofEval.fill( true );
 
             // reset underlying properties
             for( const std::shared_ptr< Property > & tProp : mProperties )
@@ -160,8 +163,8 @@ namespace moris
                         m_get_PressureDotDof = &Material_Model::PressureDotDOF_triv;
                         m_get_dnPressuredxnDof = &Material_Model::dnPressuredxnDOF_triv;
 
-                        break; 
-                    } 
+                        break;
+                    }
 
                     // Temperature DoF Type Found
                     case static_cast< int >( MSI::Dof_Type::TEMP ):
@@ -182,9 +185,9 @@ namespace moris
 
                     default:
                     {
-                        // do nothing 
-                        break; 
-                    }                                          
+                        // do nothing
+                        break;
+                    }
                 }
             }
 
@@ -359,7 +362,7 @@ namespace moris
             mPressureDof.resize( tNumGlobalDofTypes );
             mPressureDotDof.resize( tNumGlobalDofTypes );
             mdPressuredxDof.resize( tNumGlobalDofTypes );
-            md2Pressuredx2Dof.resize( tNumGlobalDofTypes );                
+            md2Pressuredx2Dof.resize( tNumGlobalDofTypes );
 
             // set flags for evaluation
             mTemperatureDofEval.set_size( tNumGlobalDofTypes, 1, true );
@@ -384,8 +387,8 @@ namespace moris
             mAlphaPDof.resize( tNumGlobalDofTypes );
             mBetaTDof.resize( tNumGlobalDofTypes );
             mCvDof.resize( tNumGlobalDofTypes );
-            mCpDof.resize( tNumGlobalDofTypes );    
-            mGammaDof.resize( tNumGlobalDofTypes );                
+            mCpDof.resize( tNumGlobalDofTypes );
+            mGammaDof.resize( tNumGlobalDofTypes );
 
             // initialize storage variables specific to child MMs
             this->initialize_spec_storage_vars_and_eval_flags();
@@ -606,7 +609,7 @@ namespace moris
 
             // return the flux value
             return mEintDot;
-        }        
+        }
 
         //------------------------------------------------------------------------------
 
@@ -749,9 +752,10 @@ namespace moris
                 MORIS_ERROR( false, "Material_Model::dnEintdxnDOF - aOrder unknown, only 1 and 2 supported." );
                 return mdEintdxDof( 0 );
             }
-        }    
+        }
 
     //-----------------------------------------------------------------------------
 
     }/* end_fem_namespace */
 }/* end_moris_namespace */
+

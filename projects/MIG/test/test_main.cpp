@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * test_main.cpp
  *
- *  Created on: Sep 17, 2018
- *      Author: doble
  */
 
 #define CATCH_CONFIG_RUNNER
@@ -40,5 +43,4 @@ main(
 
     return result;
 }
-
 

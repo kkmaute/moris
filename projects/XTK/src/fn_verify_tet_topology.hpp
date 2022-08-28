@@ -1,14 +1,15 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_verify_tet_topology.hpp
  *
- *  Created on: Apr 24, 2018
- *      Author: ktdoble
  */
 
 #ifndef SRC_MESH_FN_VERIFY_TET_TOPOLOGY_HPP_
 #define SRC_MESH_FN_VERIFY_TET_TOPOLOGY_HPP_
-
-
 
 #include "cl_Matrix.hpp"
 #include "cl_XTK_Matrix_Base_Utilities.hpp"
@@ -68,7 +69,6 @@ verify_tet4_edge_topology(moris::Matrix< moris::IndexMat > const & aElementToNod
     moris::Matrix< moris::IndexMat > tActualEdgeToNode(6,2);
     moris::Matrix< moris::IndexMat > tReorderEdgesMatrix(tNumElem,6);
 
-
     MORIS_ASSERT(tNumEdgePerElem==6,"TET4 NEEDS TO HAVE 6 EDGES (6 COLUMMNS)");
 
     for( moris::moris_index i = 0; i<tNumElem; i++)
@@ -111,7 +111,6 @@ verify_tet4_edge_topology(moris::Matrix< moris::IndexMat > const & aElementToNod
 
         }
 
-
         // Reorder edges as follows
         for(moris::moris_index iA = 0; iA<tNumEdgePerElem; iA++)
         {
@@ -127,7 +126,6 @@ verify_tet4_edge_topology(moris::Matrix< moris::IndexMat > const & aElementToNod
                 }
             }
         }
-
 
     }
 
@@ -155,7 +153,6 @@ verify_tet4_face_topology(moris::Matrix< moris::IndexMat > const & aElementToNod
         moris::Matrix< moris::IndexMat > tExpectedEdgeToNode;
         moris::Matrix< moris::IndexMat > tActualEdgeToNode(6,3);
         moris::Matrix< moris::IndexMat > tReorderEdgesMatrix(tNumElem,6);
-
 
         MORIS_ASSERT(tNumFacePerElem==4,"TET4 NEEDS TO HAVE 4 FACES (4 COLUMMNS)");
 
@@ -206,7 +203,6 @@ verify_tet4_face_topology(moris::Matrix< moris::IndexMat > const & aElementToNod
         return tValidFaceTopo;
 }
 
-
 /*
  * Verify that the tet4 topology provided results in a valid topology. (i.e. edge 0 contains node 0 and node 1)
  * This function checks the face ordering, edge ordering
@@ -224,7 +220,6 @@ verify_tet4_topology(moris::Matrix< moris::IndexMat > const & aElementToNode,
     MORIS_ASSERT(aElementToNode.n_cols() == 4,"INVALID NUMBER OF NODES PROVIDED, NEEDS TO BE 4 FOR TET4");
 
     bool tValidTopo = false;
-
 
     // verify the edges
     bool tValidEdgeTopo = verify_tet4_edge_topology(aElementToNode,aElementToEdge,aEdgeToNode);
@@ -252,8 +247,7 @@ verify_tet4_topology(moris::Matrix< moris::IndexMat > const & aElementToNode,
 
 }
 
-
 }
 
-
 #endif /* SRC_MESH_FN_VERIFY_TET_TOPOLOGY_HPP_ */
+

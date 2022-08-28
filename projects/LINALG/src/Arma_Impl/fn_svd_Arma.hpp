@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_svd_Arma.hpp
  *
- *  Created on: Sep 12, 2018
- *      Author: messe
  */
 
 #ifndef PROJECTS_LINALG_SRC_ARMA_IMPL_FN_SVD_ARMA_HPP_
@@ -51,3 +54,4 @@ namespace moris
 }
 
 #endif /* PROJECTS_LINALG_SRC_ARMA_IMPL_FN_SVD_ARMA_HPP_ */
+

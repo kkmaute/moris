@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_Interpolation_Function_Lagrange_Hex8.cpp
+ *
+ */
+
 #include <catch.hpp>
 
 #include "typedefs.hpp" //MRS/COR/src
@@ -32,12 +42,10 @@ TEST_CASE( "Lagrange HEX8", "[moris],[fem],[Hex8LagInterpolation]" )
     load_matrix_from_binary_file( tXi,
             tPrefix + "points_3d.bin" );
 
-
     // load values from nodes from file
     Matrix< DDRMat > tPhiHat;
     load_matrix_from_binary_file( tPhiHat,
             tPrefix + "lagrange_hex8_phihat.bin" );
-
 
     // load solutions for N*tPhiHat
     Matrix< DDRMat > tPhi;
@@ -240,7 +248,6 @@ TEST_CASE( "Lagrange HEX8", "[moris],[fem],[Hex8LagInterpolation]" )
         REQUIRE( tCheck );
     }
 
-
     //------------------------------------------------------------------------------
 
     // tidy up
@@ -248,3 +255,4 @@ TEST_CASE( "Lagrange HEX8", "[moris],[fem],[Hex8LagInterpolation]" )
 
     //------------------------------------------------------------------------------
 }
+

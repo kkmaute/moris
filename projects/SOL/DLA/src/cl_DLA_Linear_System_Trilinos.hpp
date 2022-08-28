@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_DLA_Linear_System_Trilinos.hpp
  *
- *  Created on: Dec 6, 2017
- *      Author: schmidt
  */
+
 #ifndef SRC_DISTLINALG_CL_DLA_LINEAR_SYSTEM_TRILISOS_HPP_
 #define SRC_DISTLINALG_CL_DLA_LINEAR_SYSTEM_TRILISOS_HPP_
 
@@ -62,3 +66,4 @@ namespace dla
 }
 }
 #endif /* SRC_DISTLINALG_CL_DLA_LINEAR_SYSTEM_TRILISOS_HPP_ */
+

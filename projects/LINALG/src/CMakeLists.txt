@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # LINALG --------------------------------------------------------------------
 # -------------------------------------------------------------------------
 
@@ -306,3 +313,4 @@ endif()
 # Export library into *Targets file
 install(EXPORT ${LINALG}Targets
     DESTINATION ${${LINALG}_CONFIG_INSTALL_DIR} )
+

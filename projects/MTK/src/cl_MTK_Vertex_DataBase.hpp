@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Vertex_DataBase.hpp
  *
- *  Created on: Dec  11, 2021
- *      Author: momo
  */
+
 #ifndef SRC_cl_MTK_Vertex_DataBase_HPP_
 #define SRC_cl_MTK_Vertex_DataBase_HPP_
 
@@ -22,7 +26,6 @@ namespace mtk
       private:
          moris_index mVertexIndex;
         mtk::Mesh*  mMesh = nullptr;
-
 
       public:
         //------------------------------------------------------------------------------
@@ -46,7 +49,6 @@ namespace mtk
         Vertex_DataBase( moris_index aVertexIndex,
             mtk::Mesh* const&        aMesh );
 
-
         //------------------------------------------------------------------------------
 
         /**
@@ -56,7 +58,6 @@ namespace mtk
         ~Vertex_DataBase() = default ;
 
         //------------------------------------------------------------------------------
-
 
         /**
          * @brief Get the coords of the vertex
@@ -85,7 +86,6 @@ namespace mtk
          */
         virtual moris_index
         get_index() const override;
-
 
         //------------------------------------------------------------------------------
 
@@ -135,7 +135,6 @@ namespace mtk
         virtual bool
         has_interpolation( const uint aBSplineMeshIndex ) override;
 
-
         //------------------------------------------------------------------------------
 
         /**
@@ -155,8 +154,8 @@ namespace mtk
 
         /**
          * @brief memory usage of the mesh
-         * 
-         * @return size_t 
+         *
+         * @return size_t
          */
 
         size_t
@@ -165,6 +164,5 @@ namespace mtk
 
 }// namespace mtk
 }// namespace moris
-
 
 #endif /* cl_MTK_Vertex_DataBase.hpp */

@@ -1,9 +1,11 @@
-
 /*
- * cl_Linalg_Matrix.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jun 12, 2017
- *      Author: ktdoble
+ *------------------------------------------------------------------------------------
+ *
+ * cl_XTK_Matrix_Base.hpp
+ *
  */
 
 #ifndef INCLUDE_CL_LINALG_MATRIX_HPP_
@@ -68,5 +70,5 @@
 //};
 //}
 
-
 #endif /* INCLUDE_CL_LINALG_MATRIX_HPP_ */
+

@@ -1,10 +1,12 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * op_less_equal.cpp
  *
- *  Created on: Sep 6, 2018
- *      Author: doble
  */
-
 
 #include <catch.hpp>
 #include "fn_equal_to.hpp" //ALG
@@ -157,3 +159,4 @@ TEST_CASE(
      }
 }
 }
+

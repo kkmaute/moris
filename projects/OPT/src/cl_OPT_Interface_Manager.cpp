@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_OPT_Interface_Manager.cpp
+ *
+ */
+
 #include "cl_OPT_Interface_Manager.hpp"
 #include "fn_sum.hpp"
 #include "fn_Parsing_Tools.hpp"
@@ -67,7 +77,7 @@ namespace moris
                     // Get the local bounds
                     Matrix<IdMat> tDummy;
                     mInterfaces(tInterfaceIndex)->initialize(tLocalADVs, tLocalLowerBounds, tLocalUpperBounds,tDummy);
-            
+
                     // Compare with current global bounds
                     for (uint tADVIndex = 0; tADVIndex < tCurrentGlobalADV; tADVIndex++)
                     {
@@ -76,7 +86,7 @@ namespace moris
                     }
                 }
             }
-            
+
             // ADVs are not shared
             else
             {
@@ -361,3 +371,4 @@ namespace moris
 
     }
 }
+

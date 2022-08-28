@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 set(EXAMPLE_MAIN Main_Zienkiewicz_Zhu_Adaptive_Refinement)
 set(EXAMPLE_FILES Zienkiewicz_Zhu_Adaptive_Refinement )
 set(EXAMPLE_PROCS 1)
@@ -94,3 +101,4 @@ if(MORIS_HAVE_PARALLEL_TESTS)
         WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
     endforeach()
 endif()
+

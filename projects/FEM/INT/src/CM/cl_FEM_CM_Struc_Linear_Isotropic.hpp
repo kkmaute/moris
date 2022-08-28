@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_CM_Struc_Linear_Isotropic.hpp
+ *
+ */
+
 #ifndef SRC_FEM_CL_FEM_CM_STRUC_LINEAR_ISOTROPIC_HPP_
 #define SRC_FEM_CL_FEM_CM_STRUC_LINEAR_ISOTROPIC_HPP_
 
@@ -50,7 +60,6 @@ namespace moris
              */
             ~CM_Struc_Linear_Isotropic(){};
 
-
             //------------------------------------------------------------------------------
             /**
              * set local properties
@@ -72,7 +81,6 @@ namespace moris
              * @param[ out ] dInvBulkModulusdDOF derivative of K
              */
             virtual Matrix< DDRMat > eval_dInvBulkModulusdDOF( const Cell< MSI::Dof_Type >& aDofTypes );
-
 
             //--------------------------------------------------------------------------------------------------------------
             /**
@@ -107,14 +115,12 @@ namespace moris
                     const real& aEMod,
                     real&       aInvBulkModulus );
 
-
             //--------------------------------------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model flux derivative wrt to a dof type
              * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
              */
             virtual void eval_dFluxdDOF( const Cell< MSI::Dof_Type >& aDofTypes );
-
 
             //--------------------------------------------------------------------------------------------------------------
             /**
@@ -213,3 +219,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_FEM_CL_FEM_CM_STRUC_LINEAR_ISOTROPIC_HPP_ */
+

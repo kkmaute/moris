@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * UT_MDL_Gyroid.cpp
  *
- *  Created on: Oct 23, 2019
- *      Author: noel
  */
 
 #include "catch.hpp"
@@ -88,9 +91,7 @@
 
 #include "fn_PRM_HMR_Parameters.hpp"
 
-
 #include "fn_norm.hpp"
-
 
 namespace moris
 {
@@ -271,7 +272,6 @@ TEST_CASE("MDL Gyroid","[MDL_Gyroid]")
         tHMR.finalize();
 
 //        tDatabase->get_background_mesh()->save_to_vtk("Bachgroundmesh_initial_3x3x3.vtk");
-
 
 //==============================
         tHMR.save_to_exodus( 0, "gyroid_general_geomEng.g" );
@@ -539,7 +539,4 @@ delete tInterpMesh;
 }/* END_TEST_CASE */
 
 }/* END_MORIS_NAMESPACE */
-
-
-
 

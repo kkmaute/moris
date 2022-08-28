@@ -1,8 +1,11 @@
 /*
- * cl_MTK_Connectivity.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jul 29, 2019
- *      Author: ryan
+ *------------------------------------------------------------------------------------
+ *
+ * UT_MTK_Connectivity.cpp
+ *
  */
 
 #include "catch.hpp"
@@ -622,5 +625,4 @@ TEST_CASE("Tri3 Connectivity Test", "[MTK_CONN_TRI3]")
 }
 
 }
-
 

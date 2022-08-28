@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_Integrator_Test.cpp
+ *
+ */
+
 #include "catch.hpp"
 #include "cl_MTK_Integrator.hpp" //FEM//INT//src
 #include "fn_FEM_Check.hpp"
@@ -41,7 +51,6 @@ TEST_CASE( "Integrator", "[moris],[fem],[Integrator]" )
 
         // check the number of points
         REQUIRE( tFieldIntegrator.get_number_of_points() == tSpaceIntegrator.get_number_of_points());
-
 
         // switch points and their weights, since they are in a different order in space time
         Matrix< DDRMat > tSpaceIntegPoints;
@@ -130,7 +139,6 @@ TEST_CASE( "Integrator", "[moris],[fem],[Integrator]" )
         REQUIRE( tCheckWeights );
     }
 
-
     SECTION( "Integrator : Space quad - Time bar" )
     {
         // space time integrator for space QUAD2x2 and time bar2
@@ -191,7 +199,6 @@ TEST_CASE( "Integrator", "[moris],[fem],[Integrator]" )
         }
         REQUIRE( tCheckWeights );
     }
-
 
     SECTION( "Integrator : Space hex - Time bar" )
     {

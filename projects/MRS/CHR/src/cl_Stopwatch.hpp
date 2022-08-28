@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_Stopwatch.hpp
+ *
+ */
+
 #ifndef MORIS_CHRONOS_CL_STOPWATCH_HPP_
 #define MORIS_CHRONOS_CL_STOPWATCH_HPP_
 
@@ -170,3 +180,4 @@ namespace moris
 }// namespace moris
 
 #endif/* MORIS_CHRONOS_CL_STOPWATCH_HPP_ */
+

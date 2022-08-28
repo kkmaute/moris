@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_HMR_Facet.cpp
+ *
+ */
+
 #include "cl_HMR_Facet.hpp"
 
 #include "cl_HMR_Element.hpp"
@@ -231,3 +241,4 @@ namespace moris
         // ----------------------------------------------------------------------------
     } /* namespace hmr */
 } /* namespace moris */
+

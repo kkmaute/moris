@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # -------------------------------------------------------------------------
 # SuiteSparse libraries ------------------------------------------------------
 # -------------------------------------------------------------------------
@@ -14,3 +21,4 @@ if(NOT SUITESPARSE_FOUND_ONCE)
 endif()
 
 include_directories(${SUITESPARSE_INCLUDE_DIRS})
+

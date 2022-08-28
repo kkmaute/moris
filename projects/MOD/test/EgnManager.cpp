@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * EgnManager.cpp
  *
- *  Created on: May 8, 2017
- *      Author: gleim
  */
 
 #include <catch.hpp>
@@ -47,5 +50,4 @@ TEST_CASE("moris::model::EqnManager",
     // Print outputs for testing purpose
 //    aL.GlbSolVecU.print("aL.GlbSolVecU");
         }
-
 

@@ -1,10 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_FEM_IWG_Spalart_Allmaras_Turbulence_Tools.hpp
  *
- *  Created on: Apr 15, 2021
- *      Author: noel
- * 
- * Free functions used in the IWGs for the Spalart-Allmaras turbulence model
  */
 
 #ifndef SRC_FEM_FN_FEM_IWG_SPALART_ALLMARAS_TOOLS_HPP_
@@ -120,3 +121,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_FEM_FN_FEM_IWG_SPALART_ALLMARAS_TOOLS_HPP_ */
+

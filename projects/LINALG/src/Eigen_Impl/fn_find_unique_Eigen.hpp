@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_find_unique_Eigen.hpp
  *
- *  Created on: Aug 29, 2018
- *      Author: schmidt
  */
+
 #ifndef PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_FIND_UNIQUE_EIGEN_HPP_
 #define PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_FIND_UNIQUE_EIGEN_HPP_
 #include <Eigen/Dense>
@@ -69,3 +73,4 @@ namespace moris
 }
 
 #endif /* PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_FIND_UNIQUE_EIGEN_HPP_ */
+

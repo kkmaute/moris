@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_GEN_Geometry_Engine.hpp
+ *
+ */
+
 #ifndef MORIS_CL_Geometry_Engine_HPP_
 #define MORIS_CL_Geometry_Engine_HPP_
 
@@ -207,9 +217,7 @@ namespace moris
                     const Matrix< IndexMat >&                                         aNodeIndices,
                     moris::Cell< std::shared_ptr< moris::Matrix< moris::DDRMat > > >* aNodeCoordinates );
 
-
             bool geometric_query( Geometric_Query_Interface* aGeometricQuery );
-
 
             /**
              * Determines if the given edge is intersected, and queues an intersection node if it is. If an intersection
@@ -455,13 +463,11 @@ namespace moris
             std::string
             get_diagnostic_file_name( std::string const & aLabel ) const;
 
-
             /**
              *
              */
             void
             induce_as_interface_vertex_on_active_geometry( moris_index aVertexIndex );
-
 
           private:
             void communicate_missing_owned_coefficients(
@@ -566,3 +572,4 @@ namespace moris
 }    // namespace moris
 
 #endif /* MORIS_CL_Geometry_Engine_HPP_ */
+

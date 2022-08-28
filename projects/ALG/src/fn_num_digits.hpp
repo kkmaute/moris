@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * fn_num_digits.hpp
+ *
+ */
+
 #ifndef MORIS_ALGORITHMS_FN_NUM_DIGITS_HPP_
 #define MORIS_ALGORITHMS_FN_NUM_DIGITS_HPP_
 
@@ -36,3 +46,4 @@ namespace moris
 }    // namespace moris
 
 #endif    /* MORIS_ALGORITHMS_FN_NUM_DIGITS_HPP_ */
+

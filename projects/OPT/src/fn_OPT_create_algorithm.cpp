@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * fn_OPT_create_algorithm.cpp
+ *
+ */
+
 #include "fn_OPT_create_algorithm.hpp"
 #include "cl_OPT_Algorithm_GCMMA.hpp"
 #include "cl_OPT_Algorithm_LBFGS.hpp"
@@ -36,3 +46,4 @@ namespace moris
         }
     }
 }
+

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_GEN_Geometric_Proximity.hpp
+ *
+ */
+
 #ifndef MORIS_CL_Geometric_Proximity_HPP_
 #define MORIS_CL_Geometric_Proximity_HPP_
 
@@ -49,3 +59,4 @@ namespace moris
 }    // namespace moris
 
 #endif    // MORIS_CL_Geometric_Proximity_HPP_
+

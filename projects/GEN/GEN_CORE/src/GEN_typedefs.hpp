@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * GEN_typedefs.hpp
+ *
+ */
+
 #ifndef MORIS_GEN_TYPEDEFS_HPP
 #define MORIS_GEN_TYPEDEFS_HPP
 
@@ -15,3 +25,4 @@ namespace moris
 }
 
 #endif //MORIS_GEN_TYPEDEFS_HPP
+

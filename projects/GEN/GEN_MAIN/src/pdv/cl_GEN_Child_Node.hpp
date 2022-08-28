@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_GEN_Child_Node.hpp
+ *
+ */
+
 #ifndef MORIS_CL_GEN_CHILD_NODE_HPP
 #define MORIS_CL_GEN_CHILD_NODE_HPP
 
@@ -103,3 +113,4 @@ namespace moris
 }    // namespace moris
 
 #endif    // MORIS_CL_GEN_CHILD_NODE_HPP
+

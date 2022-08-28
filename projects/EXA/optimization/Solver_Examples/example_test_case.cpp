@@ -1,7 +1,12 @@
-//
-// Example testing various solver configurations for a thermo-elastic problem
-// Intented for easy copy pasting when setting up 
-//
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * example_test_case.cpp
+ *
+ */
 
 #include <catch.hpp>
 
@@ -154,3 +159,4 @@ TEST_CASE("Staggered_FA_and_SA_Mixed_Time_Elements",
     // catch test statements should follow
     REQUIRE( tRet ==  0 );
 }
+

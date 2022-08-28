@@ -1,8 +1,11 @@
 /*
- * cl_XTK_Matrix_Tools.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jun 20, 2017
- *      Author: ktdoble
+ *------------------------------------------------------------------------------------
+ *
+ * cl_XTK_Matrix_Base_Utilities.hpp
+ *
  */
 
 #ifndef SRC_LINALG_CL_XTK_MATRIXBASE_UTILITIES_HPP_
@@ -102,7 +105,6 @@ namespace xtk
 
         // Sort the rows in ascending order if the order matters
         if(!aOrderMatters){  xtk::row_bubble_sort(aMat); }
-
 
         for(size_t i = 0; i<aMat.n_rows(); i++)
         {
@@ -274,3 +276,4 @@ namespace xtk
 }
 
 #endif /* SRC_LINALG_CL_XTK_MATRIXBASE_UTILITIES_HPP_ */
+

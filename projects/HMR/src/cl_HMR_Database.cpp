@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_HMR_Database.cpp
+ *
+ */
+
 #include "cl_HMR_Database.hpp"
 
 #include "cl_HMR_Field.hpp"
@@ -662,7 +672,6 @@ namespace moris
             //            }
             //
             //            mBackgroundMesh->reset_neigbors();
-
 
             // reset other patterns
             for ( uint k = 0; k < gNumberOfPatterns; ++k )
@@ -1751,3 +1760,4 @@ namespace moris
         // ----------------------------------------------------------------------------
     } /* namespace hmr */
 } /* namespace moris */
+

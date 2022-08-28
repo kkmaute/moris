@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # OPENBLAS Find Module --------------------------------------------------------
 # -------------------------------------------------------------------------
 
@@ -66,4 +73,5 @@ _import_libraries(OPENBLAS_LIBRARY_TARGETS ${OPENBLAS_LIBRARIES})
 
 add_library(OPENBLAS::openblas INTERFACE IMPORTED GLOBAL)
 target_link_libraries(OPENBLAS::openblas INTERFACE ${OPENBLAS_LIBRARY_TARGETS})
+
 

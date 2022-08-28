@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_HMR_Lagrange_Mesh.hpp
  *
- *  Created on: May 15, 2018
- *      Author: messe
  */
 
 #ifndef SRC_HMR_CL_HMR_LAGRANGE_MESH_HPP_
@@ -111,7 +114,6 @@ namespace moris
            this->delete_t_matrix_lagrange_mesh();
         }
 
-
 // ----------------------------------------------------------------------------
 
         /**
@@ -137,7 +139,6 @@ namespace moris
 // ----------------------------------------------------------------------------
     private:
 // ----------------------------------------------------------------------------
-
 
         /**
          * calculates domain wide unique node ID (1D case)
@@ -643,8 +644,8 @@ namespace moris
             return new Lagrange_Edge< 4 >( this, aEdge );
         }
 
-
     } /* namespace hmr */
 } /* namespace moris */
 
 #endif /* SRC_HMR_CL_HMR_LAGRANGE_MESH_HPP_ */
+

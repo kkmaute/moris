@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_FEM_CM_Compressible_Fluid_Ideal.cpp
+ *
+ */
 
 #include "catch.hpp"
 
@@ -85,7 +94,6 @@ TEST_CASE( "CM_Fluid_Compressible_Ideal", "[CM_Fluid_Compressible_Ideal]" )
     std::shared_ptr< fem::Property > tPropConductivity = std::make_shared< fem::Property >();
     tPropConductivity->set_parameters( { {{ 3.7 }} } );
     tPropConductivity->set_val_function( tConstValFunc );
-
 
     // define constitutive model and assign properties
     fem::CM_Factory tCMFactory;
@@ -538,3 +546,4 @@ TEST_CASE( "CM_Fluid_Compressible_Ideal", "[CM_Fluid_Compressible_Ideal]" )
         }
     }
 }/*END_TEST_CASE*/
+

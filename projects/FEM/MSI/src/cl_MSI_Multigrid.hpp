@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MSI_Multigrid.hpp
  *
- *  Created on: Dez 12, 2018
- *      Author: schmidt
  */
+
 #ifndef SRC_FEM_CL_MSI_MULTIGRID_HPP_
 #define SRC_FEM_CL_MSI_MULTIGRID_HPP_
 
@@ -118,3 +122,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_FEM_CL_MSI_MULTIGRID_HPP_ */
+

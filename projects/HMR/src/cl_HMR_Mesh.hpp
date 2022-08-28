@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_HMR_Mesh.hpp
  *
- *  Created on: Jul 24, 2018
- *      Author: messe
  */
 
 #ifndef SRC_HMR_CL_HMR_INTERFACE_HPP_
@@ -13,7 +16,6 @@
 #include "cl_Mesh_Enums.hpp"
 #include "MTK_Tools.hpp"
 #include "cl_MTK_Mesh_Core.hpp" //MTK/src
-
 
 namespace moris
 {
@@ -61,7 +63,6 @@ namespace moris
                     std::shared_ptr< Database >   aDatabase,
                     const uint                  & aLagrangeOrder,
                     const uint                  & aLagrangePattern );
-
 
             Mesh(
                     std::shared_ptr< Database >   aDatabase,
@@ -314,13 +315,12 @@ namespace moris
 
             // ----------------------------------------------------------------------------
 
-            void get_active_bg_element_indices_on_discretization_mesh_index_including_aura( 
-                    moris_index const aDiscretizationMeshIndex, 
+            void get_active_bg_element_indices_on_discretization_mesh_index_including_aura(
+                    moris_index const aDiscretizationMeshIndex,
                     Matrix< DDLUMat > & aElementIDs )
             {
                 mMesh->get_active_bg_element_indices_on_discretization_mesh_index_including_aura( aDiscretizationMeshIndex, aElementIDs );
             }
-
 
             // ----------------------------------------------------------------------------
 
@@ -331,7 +331,7 @@ namespace moris
 
             // ----------------------------------------------------------------------------
 
-            void 
+            void
             get_lagrange_elements_in_bspline_elements(
                     moris_index const                          aDiscretizationMeshIndex,
                     moris::Cell< moris::Cell< mtk::Cell* > >&  aCells,
@@ -348,7 +348,7 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
-            void 
+            void
             get_elements_in_bspline_element_and_side_ordinal(
                     moris_index const          aBsplineElementIndex,
                     moris_index const          aDiscretizationMeshIndex,
@@ -369,12 +369,12 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
-            Matrix< IndexMat > 
+            Matrix< IndexMat >
             get_elements_connected_to_element_and_face_ind_loc_inds( moris_index aElementIndex ) const;
 
             //-------------------------------------------------------------------------------
 
-            Matrix< IndexMat > 
+            Matrix< IndexMat >
             get_elements_connected_to_element_and_face_ord_loc_inds( moris_index aElementIndex ) const;
 
             //-------------------------------------------------------------------------------
@@ -383,7 +383,7 @@ namespace moris
             get_elements_connected_to_element_through_face_ord(
                     moris_index                 aBaseElementIndex,
                     moris_index                 aMySideOrdinal,
-                    moris_index&                aMyRefineLevel, 
+                    moris_index&                aMyRefineLevel,
                     moris::Cell< moris_index >& aNeighborElements,
                     moris::Cell< moris_index >& aNeighborElementSideOrdinals,
                     moris::Cell< moris_index >& aTransitionLocations,
@@ -522,7 +522,6 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
-
             moris::Cell<moris::mtk::Vertex const *>
             get_all_vertices() const;
 
@@ -633,7 +632,6 @@ namespace moris
                     const enum EntityRank aEntityRank,
                     const uint            aEntityIndex,
                     const moris_index     aIndex = 0);
-
 
             //-------------------------------------------------------------------------------
 
@@ -774,3 +772,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_HMR_CL_HMR_INTERFACE_HPP_ */
+

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_GEN_BSpline_Field.cpp
+ *
+ */
+
 #include "cl_GEN_BSpline_Field.hpp"
 #include "cl_MTK_Mesh_Pair.hpp"
 #include "cl_MTK_Field.hpp"
@@ -312,7 +322,6 @@ namespace moris
             //tMapper.map_input_field_to_output_field_2(tOutputField);
             tMapper.perform_mapping(tOutputField, EntityRank::NODE, EntityRank::BSPLINE);
 
-
             // Get coefficients
             Matrix<DDRMat> tCoefficients = tOutputField->get_coefficients();
 
@@ -327,3 +336,4 @@ namespace moris
 
     }
 }
+

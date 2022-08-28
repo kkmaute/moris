@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_det_Eigen.hpp
  *
- *  Created on: Aug 27, 2018
- *      Author: doble
  */
 
 #ifndef PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_DET_EIGEN_HPP_
@@ -32,6 +35,5 @@ det( Eigen::MatrixBase<ET> &  A)
 
 }
 
-
-
 #endif /* PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_DET_EIGEN_HPP_ */
+

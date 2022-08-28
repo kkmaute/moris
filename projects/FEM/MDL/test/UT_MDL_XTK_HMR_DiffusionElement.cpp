@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * UT_MDL_XTK_HMR_DiffusionElement.cpp
  *
- *  Created on: Jun 27, 2019
- *      Author: doble
  */
 
 #include "catch.hpp"
@@ -1262,3 +1265,4 @@ namespace moris
     }
 
 }    // namespace moris
+

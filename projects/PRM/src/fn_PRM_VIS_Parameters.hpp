@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_PRM_VIS_Parameters.hpp
  *
- *  Created on: Feb 6, 2020
- *      Author: schmidt
  */
 
 #ifndef PROJECTS_PRM_SRC_FN_PRM_VIS_PARAMETERS_HPP_
@@ -53,3 +56,4 @@ namespace moris
 }/* end_namespace_moris */
 
 #endif /* PROJECTS_PRM_SRC_FN_PRM_VIS_PARAMETERS_HPP_ */
+

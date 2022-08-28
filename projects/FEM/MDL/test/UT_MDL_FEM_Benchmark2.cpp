@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * UT_MDL_FEM_Benchmark2.cpp
  *
- *  Created on: Feb 04, 2020
- *      Author: noel
  */
 
 #include "catch.hpp"
@@ -176,7 +179,6 @@ namespace moris
             // Mesh Setup
             moris::uint tNumX = 20; /* Number of elements in x*/
             moris::uint tNumY = 20; /* Number of elements in y*/
-
 
             uint          tLagrangeMeshIndex = 0;
             std::string   tOuterFieldName    = "Outercircle";
@@ -804,7 +806,6 @@ namespace moris
             delete tInterpolationMesh;
         }
     }
-
 
     TEST_CASE( "FEM Benchmark 2 - 2Mat", "[MDL_FEM_Benchmark2_2Mat]" )
     {
@@ -1509,3 +1510,4 @@ namespace moris
         }
     }
 }    // namespace moris
+

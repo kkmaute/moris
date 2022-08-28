@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * Couette_Flow_Static.cpp
+ *
+ */
+
 #include <string>
 #include <iostream>
 #include "typedefs.hpp"
@@ -19,7 +29,6 @@
 #include "fn_equal_to.hpp"
 
 #include "AztecOO.h"
-
 
 #ifdef __cplusplus
 extern "C" {
@@ -555,3 +564,4 @@ namespace moris
 #ifdef __cplusplus
 }
 #endif
+

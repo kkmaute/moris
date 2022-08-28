@@ -1,9 +1,13 @@
 /*
- * cl_XTK_Diagnostics.hpp  
- * 
- *  Created on: Oct  01, 2021 
- *      Author: Keenan Doble
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_XTK_Diagnostics.hpp
+ *
  */
+
 #ifndef SRC_cl_XTK_Diagnostics
 #define SRC_cl_XTK_Diagnostics
 
@@ -22,17 +26,17 @@ class Model;
 
 /**
 * @brief Checks if the interpolation to a coordinate is as expected
-* 
-* @param aCutMesh 
+*
+* @param aCutMesh
 * @return true - all coordinates of integration vertices evaluate to their expected value
-* @return false 
+* @return false
 */
 bool
 interpolated_coordinate_check( Cut_Integration_Mesh* aCutMesh );
 
 /**
  * @brief Checks that interface vertices are sufficiently close to the interface. Note, due to geometric approximation error this function may not work for functions very different from SDF
- * 
+ *
  * @param aModel - XTK model
  * @param aIsocontourThreshold - Isocontour threshold
  * @param aIsocontourTolerance - Isocontour tolerance
@@ -60,6 +64,5 @@ check_cells(
     std::unordered_map< moris::moris_index, moris::moris_index > const& aGoldCellMap,
     moris::Matrix< moris::IndexMat > const&                             aGoldCellConn );
 }// namespace xtk
-
 
 #endif /* cl_XTK_Diagnostics.hpp */

@@ -1,9 +1,13 @@
 /*
- * cl_HMR_T_Matrix.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jun 23, 2019
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * cl_HMR_T_Matrix_2.cpp
+ *
  */
+
 #include "cl_HMR_T_Matrix_2.hpp" //HMR/src
 
 #include <limits>
@@ -210,3 +214,4 @@ namespace moris
 
     } /* namespace hmr */
 } /* namespace moris */
+

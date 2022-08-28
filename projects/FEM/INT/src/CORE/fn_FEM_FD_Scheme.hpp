@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_FEM_FD_Scheme.hpp
  *
- *  Created on: Jun 18, 2020
- *      Author: noel
  */
 
 #ifndef SRC_FEM_FN_FEM_FD_SCHEME_HPP_
@@ -93,3 +96,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_FEM_FN_FEM_FD_SCHEME_HPP_ */
+

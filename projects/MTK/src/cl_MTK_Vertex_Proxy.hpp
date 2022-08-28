@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Vertex_Proxy.hpp
  *
- *  Created on: Apr 26, 2019
- *      Author: doble
  */
 
 #ifndef PROJECTS_MTK_TEST_CL_MTK_VERTEX_PROXY_HPP_
@@ -115,3 +118,4 @@ namespace moris
 }
 
 #endif /* PROJECTS_MTK_TEST_CL_MTK_VERTEX_PROXY_HPP_ */
+

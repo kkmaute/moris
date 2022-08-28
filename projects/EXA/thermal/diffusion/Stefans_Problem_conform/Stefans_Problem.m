@@ -1,3 +1,10 @@
+%
+% Copyright (c) 2022 University of Colorado
+% Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+%
+%------------------------------------------------------------------------------------
+%
+
 %% Semi-Analytical Solution for a 1D Stefan's Problem
 close all;
 clear;
@@ -101,5 +108,6 @@ for it = nTimeSteps+1:nTimeSteps+1
     xlabel('x');
            
 end
+
 
 

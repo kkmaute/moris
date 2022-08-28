@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Mesh_Factory.cpp
+ *
+ */
+
 #include "cl_MTK_Mesh_Factory.hpp"
 #include "cl_MTK_Interpolation_Mesh_STK.hpp"
 #include "cl_MTK_Integration_Mesh_STK.hpp"
@@ -158,3 +168,4 @@ namespace moris
 
     }
 }
+

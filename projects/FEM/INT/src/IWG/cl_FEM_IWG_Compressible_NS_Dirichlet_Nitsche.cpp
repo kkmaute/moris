@@ -1,5 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_IWG_Compressible_NS_Dirichlet_Nitsche.cpp
+ *
+ */
 
-//FEM/INT/src
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IWG_Compressible_NS_Dirichlet_Nitsche.hpp"
@@ -80,7 +88,7 @@ namespace moris
             this->check_field_interpolators();
 #endif
             // check residual dof types
-            MORIS_ASSERT( check_residual_dof_types( mResidualDofType ), 
+            MORIS_ASSERT( check_residual_dof_types( mResidualDofType ),
                     "IWG_Compressible_NS_Dirichlet_Nitsche::compute_residual() - Only pressure or density primitive variables supported for now."
                     " See error message above for specifics." );
 
@@ -147,11 +155,11 @@ namespace moris
             this->check_field_interpolators();
 #endif
             // check residual dof types
-            MORIS_ASSERT( check_residual_dof_types( mResidualDofType ), 
+            MORIS_ASSERT( check_residual_dof_types( mResidualDofType ),
                     "IWG_Compressible_NS_Dirichlet_Nitsche::compute_jacobian() - Only pressure or density primitive variables supported for now." );
 
             // check DoF dependencies
-            MORIS_ASSERT( check_dof_dependencies( mSet, mResidualDofType, mRequestedMasterGlobalDofTypes ), 
+            MORIS_ASSERT( check_dof_dependencies( mSet, mResidualDofType, mRequestedMasterGlobalDofTypes ),
                     "IWG_Compressible_NS_Dirichlet_Nitsche::compute_jacobian() - Set of DoF dependencies not suppported. See error message above." );
 
             // get number of space dimensions
@@ -177,7 +185,7 @@ namespace moris
             std::shared_ptr< Stabilization_Parameter > & tSPNitsche =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE_PENALTY_PARAMETER ) );
 
-            // Nitsche Penalty Term 
+            // Nitsche Penalty Term
             if ( tSPNitsche != nullptr )
             {
                 // convert vector of nitsche weights to diagonal matrix
@@ -204,7 +212,7 @@ namespace moris
             if ( tPropUpwind != nullptr )
             {
                 // add contribution
-                tJac -= aWStar * tPropUpwind->val()( 0 ) * this->W_trans() * ( 
+                tJac -= aWStar * tPropUpwind->val()( 0 ) * this->W_trans() * (
                         this->UpwindOperator() * this->dJumpdDOF() + this->dUpwindOperatordY( this->jump() ) * this->W() );
             }
 
@@ -241,6 +249,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        
+
     } /* namespace fem */
 } /* namespace moris */
+

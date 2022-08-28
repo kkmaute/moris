@@ -1,13 +1,15 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_XML_Parser.hpp
  *
- *  Created on: Sep 10, 2018
- *      Author: messe
  */
 
 #ifndef PROJECTS_MRS_IOS_SRC_CL_XML_PARSER_HPP_
 #define PROJECTS_MRS_IOS_SRC_CL_XML_PARSER_HPP_
-
 
 #include <string>
 #include <set>
@@ -131,3 +133,4 @@ namespace moris
 }
 
 #endif /* PROJECTS_MRS_IOS_SRC_CL_XML_PARSER_HPP_ */
+

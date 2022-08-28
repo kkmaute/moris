@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_Element_Double_Sideset.cpp
+ *
+ */
+
 #include <iostream>
 // FEM/INT/src
 #include "cl_FEM_Element_Double_Sideset.hpp"
@@ -156,7 +166,7 @@ namespace moris
                 // get the vertices indices
                 Matrix< IndexMat > tMasterVertexIndices =
                         mMasterCell->get_vertices_ind_on_side_ordinal( aMasterSideOrdinal );
-                
+
                 Matrix< IndexMat > tSlaveVertexIndices =
                         mSlaveCell->get_vertices_ind_on_side_ordinal( aSlaveSideOrdinal );
 
@@ -773,3 +783,4 @@ namespace moris
 
     } /* namespace fem */
 } /* namespace moris */
+

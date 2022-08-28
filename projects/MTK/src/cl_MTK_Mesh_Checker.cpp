@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Mesh_Checker.cpp
  *
- *  Created on: Jan 15, 2020
- *      Author: doble
  */
 
 #include "cl_MTK_Mesh_Checker.hpp"
@@ -49,7 +52,6 @@ namespace mtk
         MORIS_ERROR( par_rank() == 0, "ONLY VALID ON PROC 0" );
 
         moris_index tIndex = get_vertex_index( aVertexId, aProcIndex );
-
 
         return mCollectVertexCoords( aProcIndex ).get_row( tIndex );
     }
@@ -100,7 +102,6 @@ namespace mtk
         // verify the ownership
         mIpCellOwnerDiag = this->verify_cell_ownership( &mSerializedIpMesh );
         mIgCellOwnerDiag = this->verify_cell_ownership( &mSerializedIgMesh );
-
 
         return false;
     }
@@ -184,7 +185,6 @@ namespace mtk
                 return false;
             }
 
-
             // check the coordinates
             for ( moris::uint iV = 0; iV < tIpVertsOnSide.size(); iV++ )
             {
@@ -248,7 +248,6 @@ namespace mtk
             Matrix< IndexMat > tAllNodeMaps   = this->concatenate_cell_of_mats( aSerializedMesh->mCollectVertexIds, 1 );
             Matrix< DDRMat >   tAllNodeCoords = this->concatenate_cell_of_mats( aSerializedMesh->mCollectVertexCoords, 1 );
 
-
             // check coordinates
             std::unordered_map< moris_id, moris_index > tNodeIdToIndMap;
             for ( moris::uint i = 0; i < tAllNodeMaps.numel(); i++ )
@@ -269,7 +268,6 @@ namespace mtk
                 }
             }
         }
-
 
         broadcast( tValidInd );
 
@@ -303,7 +301,6 @@ namespace mtk
 
                     moris_id tSerialVertInd = this->get_vertex_serial_index_from_id( tVertexId, aSerializedMesh );
                     moris_id tProcVertInd   = this->get_vertex_proc_index_from_id( tVertexId, iP, aSerializedMesh );
-
 
                     if ( tVertexOwners( tSerialVertInd ) == MORIS_INDEX_MAX )
                     {
@@ -371,7 +368,6 @@ namespace mtk
                 {
                     moris_id tCellId = aSerializedMesh->mCollectCellIds( iP )( iV );
 
-
                     moris_id tSerialVertInd = this->get_cell_serial_index_from_id( tCellId, aSerializedMesh );
                     moris_id tProcVertInd   = this->get_cell_proc_index_from_id( tCellId, iP, aSerializedMesh );
 
@@ -406,7 +402,6 @@ namespace mtk
                 }
             }
         }
-
 
         broadcast( tValidInd );
 
@@ -474,7 +469,6 @@ namespace mtk
     }
 
     //--------------------------------------------------------------------------------
-
 
     void
     Mesh_Checker::serialize_mesh()
@@ -597,7 +591,6 @@ namespace mtk
     {
         moris_index tTag = 650;
 
-
         // get the basis weights
         Matrix< DDRMat >   tVertexTMatrixWeightsData;
         Matrix< IndexMat > tVertexTMatrixWeightsOffsets;
@@ -612,7 +605,6 @@ namespace mtk
         Matrix< IndexMat > tVertexTMatrixIdsData;
         Matrix< IndexMat > tVertexTMatrixIdsOffsets;
         this->cell_of_mats_to_flattened_mat( aSerializedMesh->mVertexTMatrixBasisIds, tVertexTMatrixIdsData, tVertexTMatrixIdsOffsets );
-
 
         // gather the vertex t-matrices
         moris::Cell< Matrix< IndexMat > > tGatheredFlattenedBasisIdData;
@@ -633,7 +625,6 @@ namespace mtk
                 this->flattened_mat_to_cell_of_mats( tGatheredFlattenedBasisIdData( i ), tGatheredFlattenedBasisIdOffsets( i ), aSerializedMesh->mCollectVertexTMatrixBasisIds( i ) );
             }
         }
-
 
         //    moris::Cell<Matrix<DDRMat>> tTest;
         //    this->serial_mat_to_cell_of_mats(tVertexTMatrixWeightsData,tVertexTMatrixWeightsOffsets,tTest);
@@ -742,3 +733,4 @@ namespace mtk
 
 }// namespace mtk
 }// namespace moris
+

@@ -1,11 +1,12 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Cell_Cluster.cpp
  *
- *  Created on: Apr 26, 2019
- *      Author: doble
  */
-
-
 
 #include "catch.hpp"
 #include "cl_MTK_Cell_Cluster_Proxy.hpp"
@@ -29,14 +30,12 @@ namespace moris
 namespace mtk
 {
 
-
 TEST_CASE("Cell Cluster Proxy","[MTK_CLUSTER_PROXY]")
         {
 
     // nodes and node coordinates (used for both meshes)
     Matrix<IndexMat> tLocalToGlobalNodeMap = {{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44}};
     Matrix<DDRMat> tNodeCoordinates ={{0, 0, 0},{1, 0, 0},{0, 1, 0},{1, 1, 0},{0, 0, 1},{1, 0, 1},{0, 1, 1},{1, 1, 1},{0, 0, 2},{1, 0, 2},{0, 1, 2},{1, 1, 2},{0, 0, 3},{1, 0, 3},{0, 1, 3},{1, 1, 3},{0, 0, 4},{1, 0, 4},{0, 1, 4},{1, 1, 4},{0.5, 0, 3.5},{1, 0.5, 3.5},{0.5, 1, 3.5},{0, 0.5, 3.5},{0.5, 0.5, 3},{0.5, 0.5, 4},{0.5, 0.5, 3.5},{0.1, 0, 3.1},{0.9, 0, 3.1},{0.1, 0.1, 3.1},{0.9, 0.1, 3.1},{1, 0, 3.1},{0, 0, 3.1},{1, 0.1, 3.1},{1, 0.9, 3.1},{0.9, 0.9, 3.1},{1, 1, 3.1},{0.9, 1, 3.1},{0.1, 1, 3.1},{0.1, 0.9, 3.1},{0, 1, 3.1},{0, 0.9, 3.1},{0, 0.1, 3.1},{0.5, 0.5, 3.1}};
-
 
     // setup interpolation mesh
     // interpolation cell information
@@ -61,7 +60,6 @@ TEST_CASE("Cell Cluster Proxy","[MTK_CLUSTER_PROXY]")
         tInterpCell.mVertices.push_back(&tInterpVertices(i));
     }
 
-
     // setup integration mesh
     // Cells and cell topology in material phase 0
     // Tetrathedral cells in material phase 1
@@ -80,7 +78,6 @@ TEST_CASE("Cell Cluster Proxy","[MTK_CLUSTER_PROXY]")
     // setup vertices
     uint tNumVertices = tLocalToGlobalNodeMap.numel();
     moris::Cell<Vertex_Proxy> tVertices(tNumVertices);
-
 
     for(moris::uint  i = 0; i < tNumVertices; i++)
     {
@@ -146,7 +143,6 @@ TEST_CASE("Cell Cluster Proxy","[MTK_CLUSTER_PROXY]")
     }
 
     tCellCluster.mVerticesInCluster = tVerticesInCluster;
-
 
     // set parametric coordinate relative to the interpolation cell
     tCellCluster.mVertexParamCoords = tLocalCoordinatesWrtInterpCell;
@@ -234,7 +230,6 @@ TEST_CASE(" Same Interpolation and Integration Mesh + Cluster Input ","[MTK_MESH
                                         {0, 0.1, 3.1},
                                         {0.5, 0.5, 3.1}};
 
-
         Matrix<IndexMat> tLocalToGlobalNodeMap = {{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44}};
 
         Matrix<IndexMat> tInterpElemsAsIntegCellIds     = {{1,2,3,4}};
@@ -277,7 +272,6 @@ TEST_CASE(" Same Interpolation and Integration Mesh + Cluster Input ","[MTK_MESH
                                               {30, 13, 40, 44},
                                               {13, 15, 40, 44},
                                               {13, 25, 15, 44}};
-
 
         // Tetrathedral cells in material phase 1
         Matrix<IndexMat> tCellToNodeGhost0 = {{21, 27, 31, 30},
@@ -331,7 +325,6 @@ TEST_CASE(" Same Interpolation and Integration Mesh + Cluster Input ","[MTK_MESH
 
         Matrix<IndexMat> tCellIdsGhost0 = {{5, 7, 9, 11, 13, 15, 19, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 34, 35, 36, 37, 38, 39, 40, 41, 45, 46, 47, 48, 49, 50, 51, 52, 56, 57, 58, 59, 60, 61, 64, 65, 66, 67, 68, 69, 70, 71, 72}};
 
-
         moris::mtk::MtkSetsInfo tMtkMeshSets;
         // Define side sets on the integration mesh (i.e. fixed bc, interface and ghost)
         // Fixed bc
@@ -379,7 +372,6 @@ TEST_CASE(" Same Interpolation and Integration Mesh + Cluster Input ","[MTK_MESH
         tCellsForGhost.mBlockSetTopo = CellTopology::HEX8;
         tMtkMeshSets.add_block_set(&tCellsForGhost);
 
-
         // Mesh data input structure
         moris::mtk::MtkMeshData tMeshDataInput(3);
 
@@ -399,7 +391,6 @@ TEST_CASE(" Same Interpolation and Integration Mesh + Cluster Input ","[MTK_MESH
         tMeshDataInput.LocaltoGlobalNodeMap    = &tLocalToGlobalNodeMap;
         tMeshDataInput.SetsInfo                = &tMtkMeshSets;
         tMeshDataInput.MarkNoBlockForIO        = false;
-
 
         // Get the 4th cell from interpolation mesh
         moris::moris_id tInterpCellIndex = 3;
@@ -447,7 +438,6 @@ TEST_CASE(" Same Interpolation and Integration Mesh + Cluster Input ","[MTK_MESH
         CHECK(all_true(tPrimaryCellIdsInCluster == tConvertedPrimaryCellIds));
         CHECK(all_true(tVoidCellIdsInCluster == tConvertedVoidCellIds));
 
-
         // Check vertices
         moris::Matrix<moris::IdMat> tVertexIds = tCellClusterIndex3.get_vertex_ids_in_cluster();
         CHECK(all_true(tVertexIDsInCluster == tVertexIds));
@@ -479,7 +469,6 @@ TEST_CASE(" Same Interpolation and Integration Mesh + Cluster Input ","[MTK_MESH
 
         }
 
-
         // check the local coordinates we receive from void cells
         moris::Cell<moris::mtk::Cell const *> const & tVoidCells = tCellClusterIndex3.get_void_cells_in_cluster();
 
@@ -498,8 +487,6 @@ TEST_CASE(" Same Interpolation and Integration Mesh + Cluster Input ","[MTK_MESH
             CHECK(all_true(tGoldParamCoords == tCellParametricCoords));
 
         }
-
-
 
         // check the integration mesh cluster of interpolation cell index 0
         moris_index tInterpCellIndex0 = 0;
@@ -539,9 +526,6 @@ TEST_CASE(" Same Interpolation and Integration Mesh + Cluster Input ","[MTK_MESH
         CHECK(all_true(tClustersInBlock0(0)->get_primary_cell_ids_in_cluster() == tCellIdsCluster1Material));
         CHECK(tClustersInBlock1.size() == 3);
 
-
-
-
         // cleanup
         delete tInterpMesh1;
         delete tIntegMesh1;
@@ -550,3 +534,4 @@ TEST_CASE(" Same Interpolation and Integration Mesh + Cluster Input ","[MTK_MESH
 }
 }
 }
+

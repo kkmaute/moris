@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_Mesh_Enums.hpp
  *
- *  Created on: Oct 20, 2016
- *      Author: doble
  */
 
 #ifndef MORIS_MESH_CL_MESH_ENUMS_HPP_
@@ -88,7 +91,6 @@ get_enum_str( enum CellTopology aCellTopoEnum )
             return "invalid cell topology enum provided";
     }
 }
-
 
 namespace moris
 {
@@ -241,3 +243,4 @@ namespace moris
 }    // namespace moris
 
 #endif /* MORIS_MESH_CL_MESH_ENUMS_HPP_ */
+

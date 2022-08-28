@@ -1,8 +1,11 @@
 /*
- * cl_SDF_Mesh.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Sep 30, 2018
- *      Author: messe
+ *------------------------------------------------------------------------------------
+ *
+ * cl_SDF_Object.hpp
+ *
  */
 
 #ifndef PROJECTS_GEN_SDF_SRC_CL_SDF_OBJECT_HPP_
@@ -34,7 +37,6 @@ namespace moris
 
             Object ( const std::string & aFilePath,
                      Matrix< DDRMat >    aOffsets = { {0 ,0 , 0} } );
-
 
 //-------------------------------------------------------------------------------
 
@@ -99,3 +101,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* PROJECTS_GEN_SDF_SRC_CL_SDF_OBJECT_HPP_ */
+

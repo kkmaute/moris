@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * Homogenization_3D.cpp
+ *
+ */
 
 #include <string>
 #include <iostream>
@@ -311,7 +320,6 @@ namespace moris
         tParameterList( 0 )( tPropCounter ).set( "value_function", "Func_Const" );
         tPropCounter++;
 
-
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
         tParameterList( 0 )( tPropCounter ).set( "property_name", "PropEigenStrain" );
         tParameterList( 0 )( tPropCounter ).set( "function_parameters", tEigenStrain );
@@ -394,7 +402,6 @@ namespace moris
         tParameterList( 2 )( tSPCounter ).set( "master_properties", "PropYoungOuter,Material" );
         tSPCounter++;
 
-
         // create parameter list for Nitsche stabilization parameter for inclusion-outer material interface
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name", "SPInterfaceNitsche" );
@@ -403,7 +410,6 @@ namespace moris
         tParameterList( 2 )( tSPCounter ).set( "master_properties", "PropYoungInner,Material" );
         tParameterList( 2 )( tSPCounter ).set( "slave_properties", "PropYoungOuter,Material" );
         tSPCounter++;
-
 
         // create parameter list for Nitsche stabilization parameter for inclusion-outer material interface
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
@@ -422,7 +428,6 @@ namespace moris
         tParameterList( 2 )( tSPCounter ).set( "master_properties", "PropYoungInner,Material" );
         tParameterList( 2 )( tSPCounter ).set( "slave_properties", "PropYoungInner,Material" );
         tSPCounter++;
-
 
         //------------------------------------------------------------------------------
         // init IWG counter
@@ -459,7 +464,6 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters", "SPNitsche,DirichletNitsche" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", tDBC );
         tIWGCounter++;
-
 
         // create parameter list for interface conditions
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
@@ -540,7 +544,6 @@ namespace moris
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tOuterPhase );
         tIQICounter++;
 
-
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIYoungsModulus2" );
         tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::PROPERTY ) );
@@ -556,7 +559,6 @@ namespace moris
         tParameterList( 4 )( tIQICounter ).set( "master_constitutive_models", "CMStrucLinIsoInner,Elast" );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tInnerPhase );
         tIQICounter++;
-
 
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIHomOuter" );
@@ -640,9 +642,6 @@ namespace moris
 #ifdef __cplusplus
 }
 #endif
-
-
-
 
 // #include <string>
 // #include <iostream>
@@ -951,7 +950,6 @@ namespace moris
 //         tParameterList( 0 )( tPropCounter ).set( "value_function", "Func_Const" );
 //         tPropCounter++;
 
-
 //         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
 //         tParameterList( 0 )( tPropCounter ).set( "property_name", "PropEigenStrain" );
 //         tParameterList( 0 )( tPropCounter ).set( "function_parameters", tEigenStrain );
@@ -1034,7 +1032,6 @@ namespace moris
 //         tParameterList( 2 )( tSPCounter ).set( "master_properties", "PropYoungOuter,Material" );
 //         tSPCounter++;
 
-
 //         // create parameter list for Nitsche stabilization parameter for inclusion-outer material interface
 //         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
 //         tParameterList( 2 )( tSPCounter ).set( "stabilization_name", "SPInterfaceNitsche" );
@@ -1043,7 +1040,6 @@ namespace moris
 //         tParameterList( 2 )( tSPCounter ).set( "master_properties", "PropYoungInner,Material" );
 //         tParameterList( 2 )( tSPCounter ).set( "slave_properties", "PropYoungOuter,Material" );
 //         tSPCounter++;
-
 
 //         // create parameter list for Nitsche stabilization parameter for inclusion-outer material interface
 //         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
@@ -1062,7 +1058,6 @@ namespace moris
 //         tParameterList( 2 )( tSPCounter ).set( "master_properties", "PropYoungInner,Material" );
 //         tParameterList( 2 )( tSPCounter ).set( "slave_properties", "PropYoungInner,Material" );
 //         tSPCounter++;
-
 
 //         //------------------------------------------------------------------------------
 //         // init IWG counter
@@ -1099,7 +1094,6 @@ namespace moris
 //         tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters", "SPNitsche,DirichletNitsche" );
 //         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", tDBC );
 //         tIWGCounter++;
-
 
 //         // create parameter list for interface conditions
 //         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
@@ -1183,7 +1177,6 @@ namespace moris
 //         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tOuterPhase );
 //         tIQICounter++;
 
-
 //         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
 //         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIYoungsModulus2" );
 //         tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::PROPERTY ) );
@@ -1199,7 +1192,6 @@ namespace moris
 //         tParameterList( 4 )( tIQICounter ).set( "master_constitutive_models", "CMStrucLinIsoInner,Elast" );
 //         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tInnerPhase );
 //         tIQICounter++;
-
 
 //         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
 //         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIHomOuter" );

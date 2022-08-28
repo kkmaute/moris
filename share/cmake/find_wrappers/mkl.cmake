@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # -------------------------------------------------------------------------
 # MKL libraries -----------------------------------------------------------
 # -------------------------------------------------------------------------
@@ -27,3 +34,4 @@ endif()
 include_directories(${MKL_INCLUDE_DIRS})
 set(MORIS_MKL_LIBS ${MKL_LIBRARIES})
 set(MORIS_ACML_LAPACK_MKL_OPENBLAS_LIBS ${MKL_LIBRARIES})
+

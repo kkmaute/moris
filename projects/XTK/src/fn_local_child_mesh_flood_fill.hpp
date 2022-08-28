@@ -1,18 +1,19 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_local_child_mesh_flood_fill.hpp
  *
- *  Created on: May 16, 2018
- *      Author: doble
  */
 
 #ifndef SRC_XTK_FN_LOCAL_CHILD_MESH_FLOOD_FILL_HPP_
 #define SRC_XTK_FN_LOCAL_CHILD_MESH_FLOOD_FILL_HPP_
 
-
 // XTKL: Linalg Includes
 #include "cl_XTK_Child_Mesh.hpp"
 #include "cl_Matrix.hpp"
-
 
 // XTKL: XTK Includes
 #include "fn_mesh_flood_fill.hpp"
@@ -65,5 +66,5 @@ local_child_mesh_flood_fill(Child_Mesh & aChildMesh)
 }
 }
 
-
 #endif /* SRC_XTK_FN_LOCAL_CHILD_MESH_FLOOD_FILL_HPP_ */
+

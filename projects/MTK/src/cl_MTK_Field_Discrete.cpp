@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Field_Discrete.cpp
+ *
+ */
 
 #include "cl_MTK_Field_Discrete.hpp"
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
@@ -237,7 +246,6 @@ namespace moris
                 }
             }
 
-
             // Set size of the moris::Mats in the Cell
             for ( moris::uint Ik = 0; Ik < tNumCommProcs; Ik++ )
             {
@@ -268,7 +276,6 @@ namespace moris
                     tShredCoeffPosPerProc( tProcIdPos )++;
                 }
             }
-
 
             // receiving list
             moris::Cell< Matrix< IdMat > > tMatsToReceive;
@@ -500,3 +507,4 @@ namespace moris
 
     }
 }
+

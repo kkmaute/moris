@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Cell_Info_Factory.hpp
  *
- *  Created on: Sep 11, 2019
- *      Author: doble
  */
 
 #ifndef PROJECTS_MTK_SRC_CL_MTK_Cell_Info_Factory_HPP_
@@ -29,7 +32,6 @@ public:
     create_cell_info(enum Geometry_Type       aCellGeom,
                      enum Interpolation_Order aInterpOrder);
 
-    
     std::shared_ptr<moris::mtk::Cell_Info>
     create_cell_info_sp(enum Geometry_Type       aCellGeom,
                         enum Interpolation_Order aInterpOrder);
@@ -38,5 +40,5 @@ public:
 }
 }
 
-
 #endif /* PROJECTS_MTK_SRC_CL_MTK_Cell_Info_Factory_HPP_ */
+

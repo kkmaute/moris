@@ -1,4 +1,13 @@
-// contains methods for Query class
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_Query.cpp
+ *
+ */
+
 #include "cl_Query.hpp"
 
 #include <iostream>
@@ -26,12 +35,10 @@
 
 #include "fn_assert.hpp"
 
-
 namespace moris
 {
 namespace ios
 {
-
 
 //-----------------------------------------------------------------------------------------------------------//
 // FUNCTION DEFINITIONS
@@ -56,7 +63,6 @@ void Query::run(int  & argc, char * argv[] )
     enum EntityType   tEntityType   =  EntityType::Unknown;
     enum EntityAction tEntityAction =  EntityAction ::Unknown;
 
-
     // go through user arguments and look for flags
     for( int k=0; k<argc; ++k )
     {
@@ -68,8 +74,6 @@ void Query::run(int  & argc, char * argv[] )
             std::cout << "Reading from: " << tFileNameRead << "\n";
         }
 
-
-
         // WRITE FILE
         if ( std::string( argv[ k ] ) == "--write" || std::string( argv[ k ] ) == "-wf" )
         {
@@ -77,8 +81,6 @@ void Query::run(int  & argc, char * argv[] )
             tFileNameWrite =  std::string( argv[ k+1 ] );
             std::cout << "Write to: " << tFileNameWrite << "\n";
         }
-
-
 
         // QUERY TYPE: TABLE
         if ( std::string( argv[ k ] ) == "--table" || std::string( argv[ k ] ) == "-tb" )
@@ -107,7 +109,6 @@ void Query::run(int  & argc, char * argv[] )
 
         }
 
-
         // QUERY TYPE: TREE
         if ( std::string( argv[ k ] ) == "--tree" || std::string( argv[ k ] ) == "-tr" )
         {
@@ -129,7 +130,6 @@ void Query::run(int  & argc, char * argv[] )
 
     } // end for each input argument
 
-
     // check user input
     if (!tReadFileIsDeclared)
     {
@@ -149,7 +149,6 @@ void Query::run(int  & argc, char * argv[] )
         std::cout << "-> To run a table query looking for non-linear solvers, enter:  --table NonLinearSolver Arbitrary Solve \n";
     }
 
-
     // initialize query
     if (tReadFileIsDeclared)
         this->initialize(tFileNameRead);
@@ -167,9 +166,7 @@ void Query::run(int  & argc, char * argv[] )
                           tEntityBase, tEntityType, tEntityAction);
     }
 
-
 }
-
 
 //-----------------------------------------------------------------------------------------------------------//
 // function copies table from log file into cell arrays fed into function, returns number of lines in table
@@ -218,11 +215,9 @@ uint Query::extract_info_from_log_file()
     if( !mLogFileRead )
         MORIS_ASSERT( false, "<MRS::IOS::cl_Query.hpp::extract_info_from_text_file>: Read file could not be opened.");
 
-
     // Skip Header ------------------------------------------------------------------- //
 
     this->skip_header();
-
 
     // Read Table  ------------------------------------------------------------------- //
 
@@ -294,13 +289,11 @@ uint Query::extract_info_from_log_file()
         }
     }
 
-
     // close everything and end ------------------------------------------------------ //
     mLogFileRead.close();
 
     return tLineCounter;
 }
-
 
 //-----------------------------------------------------------------------------------------------------------//
 // returns a two column list with the indices of the first and last line where information for this function
@@ -336,7 +329,6 @@ void Query::isolate_functions()
 
 }
 
-
 //-----------------------------------------------------------------------------------------------------------//
 // Function to copy the header of an open read file to an open write file
 void Query::copy_header(std::ofstream * aLogFileWrite)
@@ -357,7 +349,6 @@ void Query::copy_header(std::ofstream * aLogFileWrite)
         std::getline(mLogFileRead, tCurrentLine);
     }
 
-
     // copy header ending
     *aLogFileWrite << tCurrentLine << "\n\n";
 
@@ -367,7 +358,6 @@ void Query::copy_header(std::ofstream * aLogFileWrite)
         std::getline(mLogFileRead, tCurrentLine);
     }
 }
-
 
 //-----------------------------------------------------------------------------------------------------------//
 // Function to skip the header of an open read file
@@ -397,8 +387,6 @@ void Query::skip_header()
     }
 }
 
-
-
 //-----------------------------------------------------------------------------------------------------------//
 // gets the maximum ID out of all function instance (= number of different function instances - 1)
 uint Query::get_max_func_ID()
@@ -416,7 +404,6 @@ uint Query::get_max_func_ID()
     // return map that lists the first and last lines for logging for each instance by ID
     return tMaxFuncID;
 }
-
 
 //-----------------------------------------------------------------------------------------------------------//
 // creates a line with vertical vertical markers according to indentation level
@@ -436,20 +423,7 @@ std::string Query::create_empty_line(uint aIndentationLevel)
     return tEmptyLine;
 }
 
-
 //-----------------------------------------------------------------------------------------------------------//
 } // namespace std
 } // namespace moris
-
-
-
-
-
-
-
-
-
-
-
-
 

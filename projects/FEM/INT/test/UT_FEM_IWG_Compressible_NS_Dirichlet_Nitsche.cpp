@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_FEM_IWG_Compressible_NS_Dirichlet_Nitsche.cpp
+ *
+ */
+
 #include <string>
 #include <catch.hpp>
 #include <memory>
@@ -127,7 +137,7 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Nitsche_Pressure_Primitive",
             tMMFactory.create_MM( fem::Material_Type::PERFECT_GAS );
     tMMFluid->set_dof_type_list( {tPressureDof, tTempDof } );
     tMMFluid->set_property( tPropHeatCapacity, "IsochoricHeatCapacity" );
-    tMMFluid->set_property( tPropGasConstant,  "SpecificGasConstant" );    
+    tMMFluid->set_property( tPropGasConstant,  "SpecificGasConstant" );
 
     // define constitutive model and assign properties
     fem::CM_Factory tCMFactory;
@@ -179,7 +189,7 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Nitsche_Pressure_Primitive",
                 break;
             }
             case 1 :
-            { 
+            {
                 tIWG->set_property( tPropPrescPres, "PrescribedDof1" );
                 tIWG->set_property( tPropPrescVel,  "PrescribedVelocity" );
                 tIWG->set_property( tPropVelSelect, "SelectVelocity" );
@@ -512,6 +522,7 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Nitsche_Pressure_Primitive",
 
         } // loop over spatial dimensions
 
-    } // loop over different IWG configurations  
+    } // loop over different IWG configurations
 
 }/*END_TEST_CASE*/
+

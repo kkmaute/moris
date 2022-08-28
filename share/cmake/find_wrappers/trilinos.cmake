@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # -------------------------------------------------------------------------
 # Trilinos libraries and includes -----------------------------------------
 # -------------------------------------------------------------------------
@@ -200,3 +207,4 @@ endif()
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 include_directories(${MORIS_TRILINOS_INCLUDE_DIRS})
+

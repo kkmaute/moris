@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_Communicator_Epetra.cpp
+ *
+ */
 
 #include "cl_Communicator_Epetra.hpp"
 
@@ -28,3 +37,4 @@ Communicator_Epetra::~Communicator_Epetra()
 {
     delete( mEpetraComm );
 }
+

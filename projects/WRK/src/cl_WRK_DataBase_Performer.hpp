@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_WRK_DataBase_Performer.hpp
  *
- *  Created on: Dec  29, 2021
- *      Author: momo
  */
+
 #ifndef SRC_cl_WRK_DataBase_Performer
 #define SRC_cl_WRK_DataBase_Performer
 #include "cl_WRK_Performer.hpp"
@@ -92,8 +96,8 @@ namespace moris
 
             /**
              * @brief Set whether a mesh check should be performed or not after building the mesh data base
-             * 
-             * @param aCheckMesh 
+             *
+             * @param aCheckMesh
              */
             void
             set_mesh_check( bool aCheckMesh )
@@ -105,6 +109,5 @@ namespace moris
         };
     }// namespace wrk
 }// namespace moris
-
 
 #endif /* cl_WRK_DataBase_Performer.hpp */

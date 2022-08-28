@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_IQI_Volume.hpp
  *
- *  Created on: Nov 20, 2019
- *      Author: noel
  */
 
 #ifndef PROJECTS_FEM_INT_SRC_CL_FEM_IQI_VOLUME_HPP_
@@ -85,3 +88,4 @@ namespace moris
 } /* end namespace moris */
 
 #endif /* PROJECTS_FEM_INT_SRC_CL_FEM_IQI_VOLUME_HPP_ */
+

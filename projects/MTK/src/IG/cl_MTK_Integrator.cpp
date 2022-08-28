@@ -1,4 +1,13 @@
-//MTK/src
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Integrator.cpp
+ *
+ */
+
 #include "cl_MTK_Integration_Rule.hpp"
 #include "cl_MTK_Integrator.hpp"
 
@@ -107,3 +116,4 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace mtk */
 } /* namespace moris */
+

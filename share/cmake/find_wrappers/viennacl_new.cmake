@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # -------------------------------------------------------------------------
 # ViennaCL libraries ------------------------------------------------------
 # -------------------------------------------------------------------------
@@ -23,4 +30,5 @@ if(NOT TARGET viennacl)
 endif()
 
 #include_directories(${VIENNACL_INCLUDE_DIRS})
+
 

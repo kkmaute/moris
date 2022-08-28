@@ -1,8 +1,11 @@
 /*
- * fn_sqrtmat.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Feb 01, 2020
- *      Author: maute
+ *------------------------------------------------------------------------------------
+ *
+ * fn_sylvester.hpp
+ *
  */
 
 #ifndef PROJECTS_LINALG_SRC_FN_SYLVESTER_HPP_
@@ -18,7 +21,6 @@
 #ifdef MORIS_USE_ARMA
 #include "fn_sylvester_Arma.hpp"
 #endif
-
 
 namespace moris
 {
@@ -66,3 +68,4 @@ namespace moris
 }
 
 #endif /* PROJECTS_LINALG_SRC_FN_SYLVESTER_HPP_ */
+

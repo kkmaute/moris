@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_FEM_CM_Struc_NonLinear_Neo_Hookean.cpp
+ *
+ */
 
 #include "catch.hpp"
 
@@ -225,7 +234,6 @@ TEST_CASE( "CM_Struc_NonLinear_Neo_Hookean",
             tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
             tMasterFIs( 0 )->set_coeff( 0.1 * tMasterDOFHatVel );
 
-
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
@@ -356,8 +364,6 @@ TEST_CASE( "CM_Struc_NonLinear_Neo_Hookean",
                     bool tCheckPK1 = fem::check( tdPK1Stressdu, tdPK1StressduFD, tEpsilon );
                     REQUIRE( tCheckPK1 );
 
-
-
                     // traction
                     //------------------------------------------------------------------------------
                     // evaluate PK1 traction
@@ -417,7 +423,6 @@ TEST_CASE( "CM_Struc_NonLinear_Neo_Hookean",
 //                    // loop over test dof type
                     for( uint iTestDof = 0; iTestDof < tMasterDofTypes.size(); iTestDof++ )
                     {
-
 
 //                        const Matrix< DDRMat > & tLGdTestStraindDOF =
 //                                tCMMasterStrucLinIso->dTestStraindDOF( iTestDof, CM_Function_Type::LAGRANGIAN );
@@ -503,3 +508,4 @@ TEST_CASE( "CM_Struc_NonLinear_Neo_Hookean",
         }
     }
 }/*END_TEST_CASE*/
+

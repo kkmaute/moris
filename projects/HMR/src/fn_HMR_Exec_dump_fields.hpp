@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_HMR_Exec_dump_fields.hpp
  *
- *  Created on: Nov 14, 2018
- *      Author: messe
  */
 
 #ifndef PROJECTS_HMR_SRC_FN_HMR_EXEC_DUMP_FIELDS_HPP_
@@ -102,3 +105,4 @@ namespace moris
 }
 
 #endif /* PROJECTS_HMR_SRC_FN_HMR_EXEC_DUMP_FIELDS_HPP_ */
+

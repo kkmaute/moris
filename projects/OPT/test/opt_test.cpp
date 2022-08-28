@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * opt_test.cpp
+ *
+ */
+
 #include <catch.hpp>
 
 #include "fn_PRM_OPT_Parameters.hpp"
@@ -293,3 +303,4 @@ namespace moris
         }
     }
 }
+

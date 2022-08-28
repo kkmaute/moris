@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * HDF5_Tools.hpp
  *
- *  Created on: Oct 16, 2018
- *      Author: messe
  */
 
 #ifndef PROJECTS_MRS_IOS_SRC_HDF5_TOOLS_HPP_
@@ -163,7 +166,7 @@ namespace moris
      *
      * see also https://support.hdfgroup.org/HDF5/doc/H5.user/Datatypes.html
      */
-    template < typename T > 
+    template < typename T >
     inline
     hid_t
     get_hdf5_datatype( const T & aSample )
@@ -184,7 +187,7 @@ namespace moris
 
     //------------------------------------------------------------------------------
 
-    template <> 
+    template <>
     inline
     hid_t
     get_hdf5_datatype( const long int & aSample )
@@ -195,7 +198,7 @@ namespace moris
     //------------------------------------------------------------------------------
 
     // moris::uint
-    template <> 
+    template <>
     inline
     hid_t
     get_hdf5_datatype( const unsigned int & aSample )
@@ -206,7 +209,7 @@ namespace moris
     //------------------------------------------------------------------------------
 
     // moris::luint
-    template <> 
+    template <>
     inline
     hid_t
     get_hdf5_datatype( const long unsigned int & aSample )
@@ -216,8 +219,8 @@ namespace moris
 
     //------------------------------------------------------------------------------
 
-    template <> 
-    inline 
+    template <>
+    inline
     hid_t
     get_hdf5_datatype( const double & aSample )
     {
@@ -226,7 +229,7 @@ namespace moris
 
     //------------------------------------------------------------------------------
 
-    template <> 
+    template <>
     inline
     hid_t
     get_hdf5_datatype( const long double & aSample )
@@ -236,7 +239,7 @@ namespace moris
 
     //------------------------------------------------------------------------------
 
-    template<> 
+    template<>
     inline
     hid_t
     get_hdf5_datatype( const bool & aSample )
@@ -855,3 +858,4 @@ namespace moris
 }
 
 #endif /* PROJECTS_MRS_IOS_SRC_HDF5_TOOLS_HPP_ */
+

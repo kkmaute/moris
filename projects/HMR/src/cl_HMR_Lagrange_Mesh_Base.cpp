@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_HMR_Lagrange_Mesh_Base.cpp
+ *
+ */
+
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
 
 #include <cstdio>
@@ -1716,7 +1726,6 @@ namespace moris
             }
             tFile << std::endl;
 
-
             tFile << "SCALARS DOMAIN_ID int" << std::endl;
             tFile << "LOOKUP_TABLE default" << std::endl;
             for ( moris::uint k = 0; k <  tNumberOfNodes; ++k)
@@ -1853,7 +1862,6 @@ namespace moris
                     }
                 }
             }
-
 
             MORIS_ERROR( tCount == mNumberOfUsedNodes, "Number Of used Nodes does not match" );
         }
@@ -2335,7 +2343,6 @@ namespace moris
                     tPedigreeListSend( p ).set_size( tMemoryCount( p ), 1 );
                 }
 
-
                 // reset counters
                 tElementCount.fill( 0 );
                 tMemoryCount.fill( 0 );
@@ -2496,7 +2503,6 @@ namespace moris
 
             mEdges.clear();
         }
-
 
         //------------------------------------------------------------------------------
 
@@ -3727,7 +3733,7 @@ namespace moris
             }
 
             this->delete_t_matrix_lagrange_mesh();
-            
+
             // stop timer
             real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
@@ -3808,7 +3814,7 @@ namespace moris
             Background_Element_Base * tBackgroundElement  = tBsplineElement->get_background_element();
 
             // check that current element is actually active on the current activation pattern
-            MORIS_ERROR( tBackgroundElement->is_active( mBSplineMeshes( aDiscretizationMeshIndex )->get_activation_pattern() ), 
+            MORIS_ERROR( tBackgroundElement->is_active( mBSplineMeshes( aDiscretizationMeshIndex )->get_activation_pattern() ),
                 "Lagrange_Mesh_Base::get_elements_in_bspline_element() - trying to get non-active B-Spline element." );
 
             // get the number of active Lagrange elmements within active B-spline element
@@ -3823,8 +3829,8 @@ namespace moris
 
             // initialize output cell with correct size
             aCells.resize( tNumActiveLagrangeElements, nullptr );
-            
-            // 
+
+            //
             for( uint iLagElem = 0; iLagElem < tNumActiveLagrangeElements; iLagElem ++ )
             {
                 luint tMemoryIndex = tActiveElements( iLagElem )->get_memory_index();
@@ -3841,7 +3847,7 @@ namespace moris
                 moris::Cell< moris::Cell< moris_index > >& aCellIndices,
                 moris::Cell< moris_index >&                aLagToBspCellIndices,
                 moris::Cell< uint >&                       aBspCellRefineLevels )
-        {            
+        {
             // get B-Spline pattern of this mesh
             uint tBSplinePattern = mBSplineMeshes( aDiscretizationMeshIndex )->get_activation_pattern();
 
@@ -3864,7 +3870,7 @@ namespace moris
             this->get_active_bg_element_indices_on_discretization_mesh_index_including_aura( aDiscretizationMeshIndex, tElementIndices );
 
             // check for debug
-            MORIS_ASSERT( tElementIndices.numel() == tNumBsplineElems, 
+            MORIS_ASSERT( tElementIndices.numel() == tNumBsplineElems,
                 "Lagrange_Mesh_Base::get_lagrange_elements_in_bspline_elements() - number of Bsp-elems and size of Bsp-elem index list don't match." );
 
             // initialize the output list sizes
@@ -3883,7 +3889,7 @@ namespace moris
                 aBspCellRefineLevels( iBspElem ) = tBsplineElement->get_level();
 
                 // check that current element is actually active on the current activation pattern
-                MORIS_ASSERT( tBackgroundElement->is_active( mBSplineMeshes( aDiscretizationMeshIndex )->get_activation_pattern() ), 
+                MORIS_ASSERT( tBackgroundElement->is_active( mBSplineMeshes( aDiscretizationMeshIndex )->get_activation_pattern() ),
                     "Lagrange_Mesh_Base::get_elements_in_bspline_element() - trying to get non-active B-Spline element." );
 
                 // get the number of active Lagrange elmements within active B-spline element
@@ -3896,13 +3902,13 @@ namespace moris
                 tBackgroundElement->collect_active_descendants( tLagrangePattern, tActiveElements, tNumActiveLagrangeElementsCheck );
 
                 // sanity check that the number of descendants in list matches number reported
-                MORIS_ASSERT( tNumActiveLagrangeElementsCheck == tNumActiveLagrangeElements, 
+                MORIS_ASSERT( tNumActiveLagrangeElementsCheck == tNumActiveLagrangeElements,
                     "Lagrange_Mesh_Base::get_lagrange_elements_in_bspline_elements() - Number of Active descendants doesn't match list of descendants." );
 
                 // initialize output cell with correct size
                 aCells( iBspElem ).resize( tNumActiveLagrangeElements, nullptr );
                 aCellIndices( iBspElem ).resize( tNumActiveLagrangeElements, -1 );
-                
+
                 // get the Lagrange elements and their indices
                 for( uint iLagElem = 0; iLagElem < tNumActiveLagrangeElements; iLagElem ++ )
                 {
@@ -3944,7 +3950,7 @@ namespace moris
             // get pointer to background element
             auto tBackgroundElement = tLagrangeElement->get_background_element();
 
-            // keep jumping to parent until we have the active element 
+            // keep jumping to parent until we have the active element
             // Note: underlying assumption that the Lagrange element is at least as refined as the active bspline element
             while( ! tBackgroundElement->is_active( tBSplinePattern ) )
             {
@@ -3976,7 +3982,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void 
+        void
         Lagrange_Mesh_Base::get_elements_in_bspline_element_and_side_ordinal(
                 moris_index const          aBsplineElementIndex,
                 moris_index const          aDiscretizationMeshIndex,
@@ -4376,3 +4382,4 @@ namespace moris
 
     } /* namespace hmr */
 } /* namespace moris */
+

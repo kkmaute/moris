@@ -1,8 +1,11 @@
 /*
- * UT_MDL_XTK_HMR_Linear_Struc_Contact_2d.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jan 25, 2020
- *      Author: doble
+ *------------------------------------------------------------------------------------
+ *
+ * UT_MDL_XTK_HMR_Linear_Struc_Contact_2D.cpp
+ *
  */
 
 #include "catch.hpp"
@@ -12,7 +15,6 @@
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
 #include "cl_XTK_Ghost_Stabilization.hpp"
 #include "typedefs.hpp"
-
 
 #include "cl_MTK_Vertex.hpp"    //MTK
 #include "cl_MTK_Cell.hpp"
@@ -130,7 +132,6 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         bool tVerboseGeometry = false;
         bool tVizIGMeshBeforeFEM = false;
 
-
         // Construct Left Plane
 
         Matrix<moris::DDRMat> tLeftCenters = {{ (tCenterPoint(0) + 0.01)  - ( tBlockL / 2.0 ) * std::cos(tAngle) ,
@@ -240,13 +241,11 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
             tTopField->evaluate_scalar_function( tTopPlaneFP );
             tBottomField->evaluate_scalar_function( tBottomPlaneFP );
 
-
             tHMR.flag_surface_elements_on_working_pattern( tLeftField );
             tHMR.flag_surface_elements_on_working_pattern( tRightField );
 //            tHMR.flag_surface_elements_on_working_pattern( tMidField );
             tHMR.flag_surface_elements_on_working_pattern( tTopField );
             tHMR.flag_surface_elements_on_working_pattern( tBottomField );
-
 
             tHMR.perform_refinement_based_on_working_pattern( 0 );
 
@@ -299,7 +298,6 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
             }
         }
 
-
         if(tVizIGMeshBeforeFEM)
         {
             tEnrIntegMesh.deactivate_empty_sets();
@@ -312,7 +310,6 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
             writer.close_file();
 
         }
-
 
         // place the pair in mesh manager
         std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();
@@ -498,7 +495,6 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         tSetInterface1.set_mesh_set_name( tEnrIntegMesh.get_dbl_interface_side_set_name(0,1) );
         tSetInterface1.set_IWGs( { tIWGInterface } );
 
-
         fem::Set_User_Info tSetInterface2;
         tSetInterface2.set_mesh_set_name( tEnrIntegMesh.get_dbl_interface_side_set_name(1,9) );
         tSetInterface2.set_IWGs( { tIWGInterface } );
@@ -529,7 +525,6 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         tSetInfo( 17 ) = tSetInterface1;
         tSetInfo( 18 ) = tSetInterface2;
         tSetInfo( 19 ) = tSetInterface3;
-
 
         // create model
         mdl::Model * tModel = new mdl::Model( tMeshManager,
@@ -576,7 +571,6 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
 
         NLA::Nonlinear_Solver tNonlinearSolverMain;
         tNonlinearSolverMain.set_nonlinear_algorithm( tNonlinearSolverAlgorithm, 0 );
-
 
         tNonlinearSolverMain.set_dof_type_list( tDofTypesU );
 
@@ -643,9 +637,9 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
 //        //    print(tFullSol,"tFullSol");
 //
 
-
         delete tModel;
         delete tInterpolationMesh;
     }
 }
 }
+

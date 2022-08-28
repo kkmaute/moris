@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Cell_Info_Tri6.hpp
  *
- *  Created on: Oct 19, 2021
- *      Author: wunsch
  */
 
 #ifndef PROJECTS_MTK_SRC_CL_MTK_TRI6_CELL_INFO_HPP_
@@ -21,7 +24,7 @@ namespace moris
         {
         public:
             // ----------------------------------------------------------------------------------
-            
+
             enum Geometry_Type
             get_cell_geometry() const;
 
@@ -154,3 +157,4 @@ namespace moris
     } // namespace mtk
 } // namespace moris
 #endif /* PROJECTS_MTK_SRC_CL_MTK_TRI3_CELL_INFO_HPP_ */
+

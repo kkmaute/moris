@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_Geometry_Interpolator.cpp
+ *
+ */
+
 #include "fn_norm.hpp"
 #include "fn_cross.hpp"
 #include "fn_dot.hpp"
@@ -880,3 +890,4 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
+

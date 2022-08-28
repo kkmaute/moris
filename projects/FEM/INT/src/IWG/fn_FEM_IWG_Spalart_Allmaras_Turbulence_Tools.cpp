@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * fn_FEM_IWG_Spalart_Allmaras_Turbulence_Tools.cpp
+ *
+ */
 
 #include "fn_FEM_IWG_Spalart_Allmaras_Turbulence_Tools.hpp"
 #include "fn_trans.hpp"
@@ -352,3 +361,4 @@ namespace moris
 
     } /* namespace fem */
 } /* namespace moris */
+

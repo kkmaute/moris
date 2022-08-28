@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * UT_XTK_HMR.cpp
  *
- *  Created on: Aug 29, 2019
- *      Author: doble
  */
 
 #include "catch.hpp"
@@ -21,7 +24,6 @@
 
 namespace moris
 {
-
 
 moris::real
 LevelSetSphereCylinder(const moris::Matrix< moris::DDRMat > & aPoint )
@@ -98,14 +100,13 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
 
             // initialize a mesh manager
             std::shared_ptr<mtk::Mesh_Manager> tMeshManager = std::make_shared<mtk::Mesh_Manager>();
-            
+
             tMeshManager->set_performer(tHMR);
 
             tHMR->set_performer(tMeshManager);
-            
+
             tHMR->perform_initial_refinement();
             tHMR->perform();
-
 
             Cell< std::shared_ptr<ge::Geometry> > tGeometryVector(1);
             tGeometryVector(0) = std::make_shared<moris::ge::User_Defined_Geometry>(Matrix<DDRMat>(0, 0), &(LevelSetSphereCylinderGeometry));

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_OPT_Algorithm.cpp
+ *
+ */
+
 #include "cl_OPT_Algorithm.hpp"
 #include "HDF5_Tools.hpp"
 
@@ -428,7 +438,7 @@ namespace moris
         }
 
         // -------------------------------------------------------------------------------------------------------------
-        
+
         void Algorithm::write_advs_to_file( const Matrix<DDRMat> aADVs )
         {
             // Get iteration from global clock
@@ -538,3 +548,4 @@ namespace moris
 
     }
 }
+

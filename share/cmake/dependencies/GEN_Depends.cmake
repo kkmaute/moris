@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # Geometry Engine Dependencies --------------------------------------------
 # -------------------------------------------------------------------------
 
@@ -23,3 +30,4 @@ include(${MORIS_DEPENDS_DIR}/MTK_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/MSI_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/PRM_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/WRK_Depends.cmake)
+

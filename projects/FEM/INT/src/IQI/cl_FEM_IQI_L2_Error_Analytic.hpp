@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_IQI_L2_Error_Analytic.hpp
  *
- *  Created on: Feb 3, 2020
- *      Author: noel
  */
 
 #ifndef PROJECTS_FEM_INT_SRC_CL_FEM_IQI_L2_ERROR_ANALYTIC_HPP_
@@ -95,3 +98,4 @@ namespace moris
 } /* end namespace moris */
 
 #endif /* PROJECTS_FEM_INT_SRC_CL_FEM_IQI_L2_ERROR_ANALYTIC_HPP_ */
+

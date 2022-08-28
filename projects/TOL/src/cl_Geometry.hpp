@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_Geometry.hpp
  *
- *  Created on: Apr 7, 2017
- *      Author: gleim
  */
 
 #ifndef SRC_TOOLS_CL_GEOMETRY_HPP_
@@ -30,3 +33,4 @@ namespace moris
 }
 
 #endif /* SRC_TOOLS_CL_GEOMETRY_HPP_ */
+

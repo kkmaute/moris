@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * fn_OPT_create_interface.cpp
+ *
+ */
+
 #include "fn_OPT_create_interface.hpp"
 #include "cl_OPT_Interface_User_Defined.hpp"
 #include "cl_OPT_Interface_Manager.hpp"
@@ -60,3 +70,4 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
     }
 }
+

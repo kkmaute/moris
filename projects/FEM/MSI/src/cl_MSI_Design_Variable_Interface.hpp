@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MSI_Design_Variable_Interface.hpp
  *
- *  Created on: Jan 10, 2020
- *      Author: schmidt
  */
+
 #ifndef SRC_FEM_CL_MSI_DESIGN_VARIABLE_INTERFACE_HPP_
 #define SRC_FEM_CL_MSI_DESIGN_VARIABLE_INTERFACE_HPP_
 
@@ -223,3 +227,4 @@ namespace moris
 }
 
 #endif /* SRC_FEM_CL_MSI_SOLVER_INTERFACE_HPP_ */
+

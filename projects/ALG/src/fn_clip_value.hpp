@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * fn_clip_value.hpp
+ *
+ */
+
 #ifndef SRC_ALGORITHMS_FN_CLIP_VALUE_HPP_
 #define SRC_ALGORITHMS_FN_CLIP_VALUE_HPP_
 
@@ -38,3 +48,4 @@ namespace moris
 }    // namespace moris
 
 #endif /* SRC_ALGORITHMS_FN_CLIP_VALUE_HPP_ */
+

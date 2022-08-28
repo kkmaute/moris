@@ -1,11 +1,13 @@
 /*
- * fn_eig_sym.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Aug 29, 2018
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * fn_eig_gen.cpp
+ *
  */
 
-// Third-party header files.
 #include <catch.hpp>
 #include "fn_equal_to.hpp" // ALG/src
 #include "cl_Matrix.hpp"
@@ -66,3 +68,4 @@ TEST_CASE( "moris::eig_gen", "[linalgebra],[eig_gen]" )
 #endif
     }
 }
+

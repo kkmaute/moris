@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_OPT_Interface_User_Defined.hpp
+ *
+ */
+
 #ifndef MORIS_CL_OPT_INTERFACE_USER_DEFINED_HPP
 #define MORIS_CL_OPT_INTERFACE_USER_DEFINED_HPP
 
@@ -71,7 +81,7 @@ namespace moris
              * @return matrix d(criteria)_i/d(adv)_j
              */
             Matrix<DDRMat> compute_dcriteria_dadv();
-            
+
         private:
 
             // Loaded user-defined functions
@@ -83,3 +93,4 @@ namespace moris
 }
 
 #endif //MORIS_CL_OPT_INTERFACE_USER_DEFINED_HPP
+

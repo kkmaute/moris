@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * ChannelTurbulent2D.cpp
+ *
+ */
+
 #include <string>
 #include <iostream>
 #include <sstream>
@@ -24,7 +34,7 @@
 #include "AztecOO.h"
 
 //---------------------------------------------------------------
-    
+
 // global variable for interpolation order
 extern uint gInterpolationOrder;
 
@@ -32,7 +42,7 @@ extern uint gInterpolationOrder;
 extern uint gTestCaseIndex;
 
 //---------------------------------------------------------------
-    
+
 #ifdef  __cplusplus
 extern "C"
 {
@@ -63,7 +73,7 @@ namespace moris
 
     // inlet pressure
     real tInPres   = 0.001 * 101325.0; // N/m2  - 0.6 atm
-    
+
     // reference values
     real presref   = tInPres;          // reference pressure
     real lenref    = 1e-3;             // reference length
@@ -74,10 +84,10 @@ namespace moris
     real velref   = std::sqrt(presref/rhoref);
     real timeref  = lenref/velref;
     real massref  = rhoref*std::pow(lenref,3.0);
-    
+
     // reynolds number based on reference values and fluid properties see below
     real reynolds = lenref*velref*0.3289/43.32e-6;
-  
+
     // scaling parameters: input: m -> used for computation: mm
     real tLengthScale = 1.0/lenref;   // 1 m  = 1.0/lref;
     real tTimeScale   = 1.0/timeref;  // 1 s  = 1.0 s
@@ -122,7 +132,7 @@ namespace moris
 
     std::string tDomainOffX  = moris_to_string(tOffsetX);
     std::string tDomainOffY  = moris_to_string(tOffsetY);
- 
+
     std::string tNumElemsPerDim     = tNumElemX    + "," + tNumElemY;
     std::string tDomainDims         = tDomainDimX  + "," + tDomainDimY;
     std::string tDomainOffset       = tDomainOffX  + "," + tDomainOffY;
@@ -156,8 +166,8 @@ namespace moris
     real tHeatFlx  = 250.0e4;          // W/m^2 - 250 W/cm^2
     real tInKinVisc = 3.0 * 43.32e-6 / 0.3289; // m^2/s
 
-    std::string tInletPressure      = moris_to_string(tInPres  * tPressureScale);  
-    std::string tInletTemperature   = moris_to_string(tInTemp  * tTempScale);      
+    std::string tInletPressure      = moris_to_string(tInPres  * tPressureScale);
+    std::string tInletTemperature   = moris_to_string(tInTemp  * tTempScale);
     std::string tVolumetricHeatLoad = moris_to_string(tHeatFlx * tPowerScale/tLengthScale/tLengthScale/tLengthScale);
     std::string tInletKinViscosity  = moris_to_string(tInKinVisc * tLengthScale*tLengthScale/tTimeScale);
 
@@ -212,7 +222,7 @@ namespace moris
 
     // FD in sweep
     std::string  tSweepFdEpsilon =  "1.0e-4";
-    
+
     // Element inverse estimate
     std::string tCInv = gInterpolationOrder == 2 ? "60.0" : "36.0";
 
@@ -301,7 +311,6 @@ namespace moris
         // get point on plane
         real tPx = *aGeometryParameters(2);
         real tPy = *aGeometryParameters(3);
- 
 
         real tReturnValue = tNx * (tPx - tX) + tNy * (tPy - tY);
 
@@ -542,7 +551,6 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "refinement_buffer",  tRefineBuffer );
         tParameterlist( 0 )( 0 ).set( "staircase_buffer",   tRefineBuffer );
 
-
         tParameterlist( 0 )( 0 ).set( "initial_refinement",         tInitialRef );
         tParameterlist( 0 )( 0 ).set( "initial_refinement_pattern", "0,1" );
 
@@ -709,7 +717,6 @@ namespace moris
 
             std::cout << "Reynolds number     = " << 1.0/std::stod(tFluidViscosity)  << " (" << reynolds << ")\n";
 
-
         }
 
         // create a cell of cell of parameter list for fem
@@ -755,7 +762,6 @@ namespace moris
         tParameterList( tPhaseIndex )( tPhaseCounter ).set( "phase_name",       "PhaseAll" );
         tParameterList( tPhaseIndex )( tPhaseCounter ).set( "phase_indices",    "0,1"  );
         tPhaseCounter++;
-
 
         //------------------------------------------------------------------------------
         // fill the property part of the parameter list
@@ -849,8 +855,6 @@ namespace moris
         tParameterList( tPropIndex )( tPropCounter ).set( "property_name",            "PropSelectUY");
         tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      "0.0,0.0;0.0,1.0");
         tPropCounter++;
-
-
 
         // create inlet kinematic viscosity property
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
@@ -1416,7 +1420,6 @@ namespace moris
         tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropInletPressure,Pressure" );
         tIWGCounter++;
 
-
         // inlet viscosity
         tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name",                   "IWGInletViscosity" );
@@ -1911,10 +1914,10 @@ namespace moris
 
         tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
         tParameterlist( 0 )( 0 ).set( "Solver_Type" , "Amesos_Mumps" );
- 
+
         tParameterlist( 0 )( 1 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
         tParameterlist( 0 )( 1 ).set( "Solver_Type" , "Amesos_Mumps" );
- 
+
         /*
         tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::BELOS_IMPL );
         tParameterlist( 0 )( 0 ).set( "ifpack_prec_type", "ILU");
@@ -1924,7 +1927,7 @@ namespace moris
         tParameterlist( 0 )( 1 ).set( "ifpack_prec_type", "ILU");
         tParameterlist( 0 )( 1 ).set( "fact: level-of-fill", 3);
         */
-        
+
         //------------------------------------------------------------------------------
 
         tParameterlist( 1 ).resize( 2 );
@@ -2074,3 +2077,4 @@ namespace moris
 #ifdef  __cplusplus
 }
 #endif
+

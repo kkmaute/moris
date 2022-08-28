@@ -1,3 +1,10 @@
+%
+% Copyright (c) 2022 University of Colorado
+% Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+%
+%------------------------------------------------------------------------------------
+%
+
 function save_matrix_to_binary( aMatrix, aPath )
     tFileInfo = dir(aPath);
     
@@ -21,4 +28,5 @@ function save_matrix_to_binary( aMatrix, aPath )
     fwrite( tFileID, tVector, "double");
     fclose(tFileID);
 end
+
 

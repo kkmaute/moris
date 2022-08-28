@@ -1,11 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MSI_Design_Variable_Interface.cpp
  *
- *  Created on: Jan 10, 20120
- *      Author: schmidt
  */
 
-//FEM/MSI/src
 #include "cl_MSI_Design_Variable_Interface.hpp"
 #include "cl_MSI_Equation_Model.hpp"
 //SOL/src
@@ -37,3 +39,4 @@ namespace moris
 
     }
 }
+

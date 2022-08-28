@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_Geometry_Interpolator.hpp
  *
- *  Created on: Jan 31, 2019
- *      Author: noel
  */
 
 #ifndef SRC_FEM_CL_FEM_GEOMETRY_INTERPOLATOR_HPP_
@@ -547,7 +550,6 @@ namespace moris
                         const Matrix< DDRMat > & adNdXi,
                         const Matrix< DDRMat > & ad2NdXi2 );
 
-
                 //------------------------------------------------------------------------------
                 /**
                  * evaluates the geometry Jacobian and the matrices needed for the second
@@ -653,3 +655,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_FEM_CL_FEM_GEOMETRY_INTERPOLATOR_HPP_ */
+

@@ -1,9 +1,13 @@
 /*
- * cl_Design_Variable_Interface_Proxy.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jun 18, 2018
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_Design_Variable_Interface_Proxy.hpp
+ *
  */
+
 #ifndef SRC_MSI_CL_DESIGN_VARIABLE_INTERFACE_PROXY_HPP_
 #define SRC_MSI_CL_DESIGN_VARIABLE_INTERFACE_PROXY_HPP_
 
@@ -32,7 +36,6 @@ private:
     moris::Matrix< DDSMat >        mMap;
     moris::Matrix< DDUMat >        mConstraintDofs;
     moris::map< PDV_Type, sint > mDvToIndexMap;
-
 
 public :
     FEM_Design_Variable_Interface_Proxy()
@@ -252,3 +255,4 @@ public :
 }
 }
 #endif /* SRC_MSI_CL_DESIGN_VARIABLE_INTERFACE_PROXY_HPP_ */
+

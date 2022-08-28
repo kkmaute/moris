@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Matrix_Field_Info.hpp
  *
- *  Created on: Oct 23, 2018
- *      Author: doble
  */
 
 #ifndef PROJECTS_MTK_SRC_CL_MTK_MATRIX_FIELD_INFO_HPP_
@@ -146,7 +149,6 @@ struct Matrix_Field_Info
         return mFieldEntityRank;
     }
 
-
     Matrix<IdMat> const &
     get_field_entity_ids() const
     {
@@ -158,7 +160,6 @@ struct Matrix_Field_Info
     {
         return mFieldData;
     }
-
 
     /*
      * Ask if field has data
@@ -235,5 +236,5 @@ private:
 }
 }
 
-
 #endif /* PROJECTS_MTK_SRC_CL_MTK_MATRIX_FIELD_INFO_HPP_ */
+

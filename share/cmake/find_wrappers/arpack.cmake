@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # -------------------------------------------------------------------------
 # ARPACK libraries --------------------------------------------------------
 # -------------------------------------------------------------------------
@@ -18,3 +25,4 @@ if(NOT ARPACK_FOUND_ONCE)
 endif()
 
 set(MORIS_ARPACK_LIBS ${ARPACK_LIBRARIES})
+

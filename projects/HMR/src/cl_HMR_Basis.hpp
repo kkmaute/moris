@@ -1,8 +1,11 @@
 /*
- * cl_HMR_Lagrange_Node.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: May 24, 2018
- *      Author: messe
+ *------------------------------------------------------------------------------------
+ *
+ * cl_HMR_Basis.hpp
+ *
  */
 
 #ifndef SRC_HMR_CL_HMR_BASIS_HPP_
@@ -887,7 +890,6 @@ namespace moris
                     MORIS_ERROR( false, "insert_neighbor() not available for selected basis type." );
                 }
 
-
                 //------------------------------------------------------------------------------
 
                 virtual Basis * get_neighbor( const uint & aNeighborNumber )
@@ -989,7 +991,6 @@ namespace moris
                     MORIS_ERROR( false, "get_interpolation() const not available for for selected basis type.");
                     return nullptr;
                 }
-
 
                 //------------------------------------------------------------------------------
 
@@ -1095,3 +1096,4 @@ namespace moris
 } /* namespace moris */
 
 #endif
+

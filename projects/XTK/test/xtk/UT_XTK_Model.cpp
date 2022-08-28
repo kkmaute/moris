@@ -1,8 +1,11 @@
 /*
- * cl_XTK_Model.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jun 20, 2017
- *      Author: ktdoble
+ *------------------------------------------------------------------------------------
+ *
+ * UT_XTK_Model.cpp
+ *
  */
 
 #include "catch.hpp"
@@ -31,7 +34,6 @@
 #include "cl_Profiler.hpp"
 #include "Child_Mesh_Verification_Utilities.hpp"
 
-
 namespace xtk
 {
 
@@ -58,12 +60,10 @@ TEST_CASE( "Geometry with a coincident bounrady to background cell", "[XTK_CONFO
     tGeometryEngineParameters.mGeometries = tGeometry;
     moris::ge::Geometry_Engine tGeometryEngine( tMeshData, tGeometryEngineParameters );
 
-
     // Setup XTK Model ----------------------------------------------------------------
     size_t tModelDimension = 3;
     Model  tXTKModel( tModelDimension, tMeshData, &tGeometryEngine );
     tXTKModel.setup_diagnostics( true, "./xtk_diag/", "nhcoin1" );
-
 
     //Specify decomposition Method and Cut Mesh ---------------------------------------
     Cell< enum Subdivision_Method >
@@ -592,7 +592,6 @@ TEST_CASE( "Geometry with a center point of the regular subdivision", "[XTK_CONF
     moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
     tGeometryEngineParameters.mGeometries = tGeometry;
     moris::ge::Geometry_Engine tGeometryEngine( tMeshData, tGeometryEngineParameters );
-
 
     // Setup XTK Model ----------------------------------------------------------------
     size_t tModelDimension = 3;
@@ -1253,7 +1252,6 @@ TEST_CASE( "Geometry with a plane to trigger 2 edge intersected tets", "[XTK_CON
     tGeometryEngineParameters.mGeometries = tGeometry;
     moris::ge::Geometry_Engine tGeometryEngine( tMeshData, tGeometryEngineParameters );
 
-
     // Setup XTK Model ----------------------------------------------------------------
     size_t tModelDimension = 3;
     Model  tXTKModel( tModelDimension, tMeshData, &tGeometryEngine );
@@ -1703,3 +1701,4 @@ tGoldCellMap =
     CHECK( verify_interface_vertices( &tXTKModel, tIsoContourThreshold, tIsoContourTolerance ) );
 }
 }// namespace xtk
+

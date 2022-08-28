@@ -1,18 +1,19 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_verify_tri_topology.hpp
  *
- *  Created on: Aug 7, 2019
- *      Author: ryan
  */
 
 #ifndef SRC_MESH_FN_VERIFY_TRI_TOPOLOGY_HPP_
 #define SRC_MESH_FN_VERIFY_TRI_TOPOLOGY_HPP_
 
-
 #include "cl_Matrix.hpp"
 #include "cl_XTK_Matrix_Base_Utilities.hpp"
 #include "fn_print.hpp"
-
 
 namespace xtk
 {
@@ -49,7 +50,6 @@ verify_tri3_edge_topology(moris::Matrix< moris::IndexMat > const & aElementToNod
     moris::Matrix< moris::IndexMat > tActualEdgeToNode(6,2);
     moris::Matrix< moris::IndexMat > tReorderEdgesMatrix(tNumElem,6);
 
-
     MORIS_ASSERT(tNumEdgePerElem == 3, "TRI3 NEEDS TO HAVE 3 EDGES (3 COLUMNS)");
 
     for( moris::moris_index i = 0; i < tNumElem; i++ )
@@ -83,7 +83,6 @@ verify_tri3_edge_topology(moris::Matrix< moris::IndexMat > const & aElementToNod
 
         }
 
-
         // Reorder edges as follows
         for( moris::moris_index iA = 0; iA < tNumEdgePerElem; iA++ )
         {
@@ -99,7 +98,6 @@ verify_tri3_edge_topology(moris::Matrix< moris::IndexMat > const & aElementToNod
                 }
             }
         }
-
 
     }
 
@@ -140,3 +138,4 @@ verify_tri3_topology(moris::Matrix< moris::IndexMat > const & aElementToNode,
 }
 
 #endif /* SRC_MESH_FN_VERIFY_TRI_TOPOLOGY_HPP_ */
+

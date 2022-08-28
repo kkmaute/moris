@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_HMR_BSpline_Mesh_Base.hpp
  *
- *  Created on: Jun 12, 2018
- *      Author: messe
  */
 
 #ifndef SRC_HMR_CL_HMR_BSPLINE_MESH_BASE_HPP_
@@ -309,7 +312,6 @@ namespace moris
             void collect_active_and_refined_elements_from_level( const uint              & aLevel,
                                                                        Cell< Element * > & aElements );
 
-
 // ----------------------------------------------------------------------------
         private:
 // ----------------------------------------------------------------------------
@@ -434,3 +436,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_HMR_CL_HMR_BSPLINE_MESH_BASE_HPP_ */
+

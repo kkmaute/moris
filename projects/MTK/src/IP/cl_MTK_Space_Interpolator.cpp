@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Space_Interpolator.cpp
+ *
+ */
+
 #include "fn_norm.hpp"
 #include "fn_cross.hpp"
 #include "fn_dot.hpp"
@@ -1642,7 +1652,6 @@ namespace moris
             aJ3at( 1, 8 ) = 3.0 * std::pow( aJt( 1, 2 ), 2.0 ) * aJt( 1, 1 );
             aJ3at( 2, 8 ) = 3.0 * std::pow( aJt( 2, 2 ), 2.0 ) * aJt( 2, 1 );
 
-
             // Block (3) ------------------------------------------------
             aJ3at( 0, 9 ) = 6.0 * aJt( 0, 0 ) * aJt( 0, 1 ) * aJt( 0, 2 );
             aJ3at( 1, 9 ) = 6.0 * aJt( 1, 0 ) * aJt( 1, 1 ) * aJt( 1, 2 );
@@ -1701,7 +1710,6 @@ namespace moris
             aJ3at( 6, 8 ) = std::pow( aJt( 1, 2 ), 2.0 ) * aJt( 2, 1 ) + 2.0 * aJt( 1, 2 ) * aJt( 2, 2 ) * aJt( 1, 1 );
             aJ3at( 7, 8 ) = std::pow( aJt( 2, 2 ), 2.0 ) * aJt( 0, 1 ) + 2.0 * aJt( 2, 2 ) * aJt( 0, 2 ) * aJt( 2, 1 );
             aJ3at( 8, 8 ) = std::pow( aJt( 2, 2 ), 2.0 ) * aJt( 1, 1 ) + 2.0 * aJt( 2, 2 ) * aJt( 1, 2 ) * aJt( 2, 1 );
-
 
             // Block (6) ------------------------------------------------
             aJ3at( 3, 9 ) =
@@ -2718,7 +2726,6 @@ namespace moris
                     break;
                 }
 
-
                 default:
                 {
                     MORIS_ERROR( false,
@@ -2730,3 +2737,4 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace mtk */
 } /* namespace moris */
+

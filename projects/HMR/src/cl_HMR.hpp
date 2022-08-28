@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_HMR.hpp
  *
- *  Created on: May 5, 2018
- *      Author: schmidt
  */
 
 #ifndef SRC_HMR_CL_HMR_HPP_
@@ -97,7 +100,6 @@ namespace moris
                         const  Matrix< DDRMat > & aVertexValues,
                         const  uint               aUpperBound = 0.0 );
 
-
                 // -----------------------------------------------------------------------------
             public :
                 // -----------------------------------------------------------------------------
@@ -125,7 +127,7 @@ namespace moris
                  *
                  * @param[in] aParameters  ref to container of user defined settings
                  */
-                HMR ( 
+                HMR (
                         ParameterList                       & aParameterList,
                         std::shared_ptr<moris::Library_IO>    aLibrary = nullptr ) ;
 
@@ -391,7 +393,6 @@ namespace moris
                         Cell< hmr::Element* > & aCandidates,
                         Lagrange_Mesh_Base    * aMesh );
 
-
                 // -----------------------------------------------------------------------------
 
                 /**
@@ -592,3 +593,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_HMR_CL_HMR_HPP_ */
+

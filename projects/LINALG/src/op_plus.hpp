@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * op_plus.hpp
  *
- *  Created on: Aug 27, 2018
- *      Author: doble
  */
 
 #ifndef PROJECTS_LINALG_SRC_OP_PLUS_HPP_
@@ -15,7 +18,6 @@
 #ifdef MORIS_USE_ARMA
 #include "op_plus_Arma.hpp"
 #endif
-
 
 #include "cl_Matrix.hpp"
 
@@ -53,5 +55,5 @@ namespace moris
     }
 }
 
-
 #endif /* PROJECTS_LINALG_SRC_OP_PLUS_HPP_ */
+

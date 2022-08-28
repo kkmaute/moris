@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * main.cpp
  *
- *  Created on: Aug 23, 2018
- *      Author: doble
  */
 
 #include <mpi.h>
@@ -10,7 +13,6 @@
 #include "cl_Communication_Manager.hpp" // COM/src
 #include "typedefs.hpp" // COR/src
 #include "banner.hpp" // COR/src
-
 
 #include <iostream>
 #include <ctime>
@@ -21,7 +23,6 @@
 
 moris::Comm_Manager gMorisComm;
 moris::Logger       gLogger;
-
 
 using namespace moris;
 
@@ -40,3 +41,4 @@ main( int    argc,
 
     return 0;
 }
+

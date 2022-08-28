@@ -1,6 +1,12 @@
-//
-// example specific interface to moris
-//
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * example_test_case.cpp
+ *
+ */
 
 #include <catch.hpp>
 
@@ -351,3 +357,4 @@ TEST_CASE("HeatMethod_Quadratic",
     // perform check for Test Case 3
     check_results("HeatMethod_3.exo","SEN_HeatMethod_3.hdf5",gTestCaseIndex);
 }
+

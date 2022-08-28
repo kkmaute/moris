@@ -1,14 +1,12 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Integrator_Test_Polynomial.hpp
  *
- *  Created on: Jul 20, 2018
- *      Author: messe
  */
-#include <string>
-#include "typedefs.hpp" //MRS/COR/src
-#include "cl_Matrix.hpp" //LNA/src
-#include "linalg_typedefs.hpp" //LNA/src
-
 
 #ifndef SRC_MTK_CL_MTK_POLYNOMIAL_FOR_TEST_HPP_
 #define SRC_MTK_CL_MTK_POLYNOMIAL_FOR_TEST_HPP_
@@ -78,6 +76,5 @@ namespace moris
 //------------------------------------------------------------------------------
      } /* namespace mtk */
 } /* namespace moris */
-
 
 #endif /* SRC_MTK_CL_MTK_POLYNOMIAL_FOR_TEST_HPP_ */

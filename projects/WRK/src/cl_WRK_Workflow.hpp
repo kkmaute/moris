@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_WRK_Workflow.hpp
  *
- *  Created on: Feb 19, 2020
- *      Author: schmidt
  */
 
 #ifndef PROJECTS_FEM_MDL_SRC_CL_WRK_WORKFLOW_HPP_
@@ -109,12 +112,12 @@ namespace moris
                  * @return matrix d(criteria)_i/d(adv)_j
                  */
                 virtual
-                Matrix<DDRMat> 
+                Matrix<DDRMat>
                 compute_dcriteria_dadv() = 0;
         };
         //------------------------------------------------------------------------------
     } /* namespace mdl */
 } /* namespace moris */
 
-
 #endif /* PROJECTS_FEM_MDL_SRC_CL_WRK_PERFORMER_MANAGER_HPP_ */
+

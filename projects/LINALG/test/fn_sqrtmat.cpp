@@ -1,11 +1,13 @@
 /*
- * fn_linsolve.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Feb 01, 2020
- *      Author: maute
+ *------------------------------------------------------------------------------------
+ *
+ * fn_sqrtmat.cpp
+ *
  */
 
-// Third-party header files.
 #include <catch.hpp>
 #include "fn_equal_to.hpp"
 #include "cl_Matrix.hpp"
@@ -95,3 +97,4 @@ namespace moris
         }
     }
 }
+

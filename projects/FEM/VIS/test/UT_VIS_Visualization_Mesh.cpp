@@ -1,9 +1,11 @@
-
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * UT_VIS_Visualization_Mesh.cpp
  *
- *  Created on: Dez 02, 2019
- *      Author: schmidt
  */
 
 #include "catch.hpp"
@@ -177,5 +179,4 @@ TEST_CASE("Visualization Mesh Output","[VIS],[Vizualization_Mesh_Output]")
     }
     }
 }
-
 

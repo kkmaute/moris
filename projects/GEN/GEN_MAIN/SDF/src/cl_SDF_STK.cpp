@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_SDF_STK.cpp
+ *
+ */
+
 #include "cl_SDF_STK.hpp"
 
 #include "cl_Stopwatch.hpp"
@@ -32,7 +42,6 @@ namespace moris
 
             // get number of elements
             uint tNumberOfElements = tMesh->get_num_elems();
-
 
             // get number of nodes per element
             uint tNumberOfNodesPerElement
@@ -209,3 +218,4 @@ namespace moris
 //-------------------------------------------------------------------------------
     }
 }
+

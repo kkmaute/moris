@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_IQI_Effective_Dynamic_Viscosity.cpp
+ *
+ */
 
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
@@ -22,7 +31,7 @@ namespace moris
             mConstitutiveMap[ "Fluid_Turbulence" ] =
                     static_cast< uint >( IQI_Constitutive_Type::FLUID_TURBULENCE );
         }
-        
+
         //------------------------------------------------------------------------------
 
         void IQI_Effective_Dynamic_Viscosity::compute_QI( Matrix< DDRMat > & aQI )
@@ -34,7 +43,7 @@ namespace moris
             // compute effective dynamic viscosity
             aQI = tCMFluidTurbulence->effective_dynamic_viscosity();
         }
-        
+
         //------------------------------------------------------------------------------
 
         void IQI_Effective_Dynamic_Viscosity::compute_QI( real aWStar )
@@ -52,6 +61,4 @@ namespace moris
         //------------------------------------------------------------------------------
     }/* end_namespace_fem */
 }/* end_namespace_moris */
-
-
 

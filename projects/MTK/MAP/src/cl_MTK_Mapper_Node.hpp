@@ -1,8 +1,11 @@
 /*
- * cl_MTK_Node.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Nov 8, 2018
- *      Author: messe
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Mapper_Node.hpp
+ *
  */
 
 #ifndef PROJECTS_MTK_MAP_SRC_CL_MTK_MAPPER_NODE_HPP_
@@ -15,7 +18,6 @@
 #include "fn_norm.hpp"
 #include "cl_MTK_Vertex.hpp"
 #include "cl_Cell.hpp"
-
 
 namespace moris
 {
@@ -220,5 +222,5 @@ namespace moris
     }
 }
 
-
 #endif /* PROJECTS_MTK_MAP_SRC_CL_MTK_MAPPER_NODE_HPP_ */
+

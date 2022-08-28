@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 ### IOS Library Config File ###
 
 if(@IOS@_CONFIGURED)
@@ -35,4 +42,5 @@ include("@PACKAGE_IOS_CONFIG_INSTALL_DIR@/@IOS@Targets.cmake")
 # Library target list
 set(@IOS@_LIBRARIES @IOS@-lib)
 set(ALL_MRS_LIBS "${ALL_MRS_LIBS};@IOS@-lib")
+
 

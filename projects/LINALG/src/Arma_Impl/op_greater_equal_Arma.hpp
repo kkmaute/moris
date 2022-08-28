@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * op_greater_equal_Arma.hpp
  *
- *  Created on: Aug 31, 2018
- *      Author: doble
  */
 
 #ifndef PROJECTS_LINALG_SRC_ARMA_IMPL_OP_GREATER_EQUAL_ARMA_HPP_
@@ -28,10 +31,7 @@ operator>=( Matrix< Matrix_Type > & aA,
     return  aA.matrix_data() >= aB;
 }
 
-
-
 }
 
-
-
 #endif /* PROJECTS_LINALG_SRC_ARMA_IMPL_OP_GREATER_EQUAL_ARMA_HPP_ */
+

@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_VIS_Cell_Visualization.hpp
  *
- *  Created on: Dec 02, 2019
- *      Author: schmidt
  */
 
 #ifndef PROJECTS_MTK_SRC_STK_IMPL_CL_VIS_CELL_VISULIZATION_HPP_
@@ -21,7 +24,6 @@ namespace moris
 {
 namespace vis
 {
-
 
 /**
  * \brief the mtk::Cell class provides the cell information that is
@@ -52,9 +54,9 @@ public:
                               moris_index          aCellInd,
                         const moris::Cell< mtk::Vertex* > aCellVertices,
                         const moris::mtk::Cell *   aIntegrationCell ) :
-                        Cell(aCellId, 
-                             aCellInd, 
-                             aIntegrationCell->get_owner(), 
+                        Cell(aCellId,
+                             aCellInd,
+                             aIntegrationCell->get_owner(),
                              aIntegrationCell->get_cell_info_sp() ),
                         mCellVertices( aCellVertices ),
                         mIntegrationcell( aIntegrationCell )
@@ -172,7 +174,5 @@ public:
 } /* namespace vis */
 } /* namespace moris */
 //------------------------------------------------------------------------------
-
-
 
 #endif /* PROJECTS_MTK_SRC_STK_IMPL_CL_VIS_CELL_VISULIZATION_HPP_ */

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * HMR_User_Defined_Refinement.cpp
+ *
+ */
+
 #include <string>
 #include <iostream>
 
@@ -103,3 +113,4 @@ extern "C"
 #ifdef  __cplusplus
 }
 #endif
+

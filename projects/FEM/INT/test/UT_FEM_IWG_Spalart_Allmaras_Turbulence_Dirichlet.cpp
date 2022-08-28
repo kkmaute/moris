@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_FEM_IWG_Spalart_Allmaras_Turbulence_Dirichlet.cpp
+ *
+ */
+
 #include <string>
 #include <catch.hpp>
 #include <memory>
@@ -1544,3 +1554,4 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Dirichlet_Unsymmetric_Negative",
         }
     }
 } /*END_TEST_CASE*/
+

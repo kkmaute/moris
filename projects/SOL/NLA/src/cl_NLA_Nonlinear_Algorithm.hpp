@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_NLA_Nonlinear_Algorithm.hpp
  *
- *  Created on: Nov 18, 2018
- *      Author: schmidt
  */
+
 #ifndef MORIS_DISTLINALG_CL_NLA_NONLINEAR_ALGORITHM_HPP_
 #define MORIS_DISTLINALG_CL_NLA_NONLINEAR_ALGORITHM_HPP_
 
@@ -167,3 +171,4 @@ namespace moris
     }    // namespace NLA
 }    // namespace moris
 #endif /* MORIS_DISTLINALG_CL_NLA_NONLINEAR_ALGORITHM_HPP_ */
+

@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Debug_Ghost.hpp
  *
- *  Created on: Jun 8, 2021
- *      Author: momo
  */
 
 #ifndef PROJECTS_MTK_SRC_CL_MTK_DEBUG_GHOST_HPP_
@@ -31,7 +34,5 @@ namespace moris
     }
 }
 
-
-
-
 #endif /* PROJECTS_MTK_SRC_CL_MTK_DEBUG_GHOST_HPP_ */
+

@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_XTK_Cut_Mesh.hpp
  *
- *  Created on: Jun 23, 2017
- *      Author: ktdoble
  */
 
 #ifndef SRC_XTK_CL_XTK_CUT_MESH_HPP_
@@ -112,7 +115,7 @@ namespace xtk
 
         // ----------------------------------------------------------------------------------
         void
-        set_child_mesh( moris_index aCMIndex, 
+        set_child_mesh( moris_index aCMIndex,
                         Child_Mesh* aChildMesh);
         /**
          * @ brief Sets up template ancestry with parametric information
@@ -561,3 +564,4 @@ namespace xtk
 } // namespace xtk
 
 #endif /* SRC_XTK_CL_XTK_CUT_MESH_HPP_ */
+

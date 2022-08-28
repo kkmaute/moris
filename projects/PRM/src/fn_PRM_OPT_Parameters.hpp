@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * fn_PRM_OPT_Parameters.hpp
+ *
+ */
+
 #ifndef MORIS_FN_PRM_OPT_PARAMETERS_HPP
 #define MORIS_FN_PRM_OPT_PARAMETERS_HPP
 
@@ -15,7 +25,7 @@ namespace moris
             ParameterList tParameterList;
 
             tParameterList.insert("is_optimization_problem", false);      // Whether or not to use OPT
-            tParameterList.insert("workflow", "HMR_XTK");                 // Workflow to use, HMR_XTK - standard workflow, STK_XTK 
+            tParameterList.insert("workflow", "HMR_XTK");                 // Workflow to use, HMR_XTK - standard workflow, STK_XTK
             tParameterList.insert("problem", "user_defined");             // OPT Problem class type
             tParameterList.insert("restart_file", "");                    // Name of restart file
             tParameterList.insert("finite_difference_type", "none");      // Type of finite differencing for gradients;
@@ -202,3 +212,4 @@ namespace moris
 }
 
 #endif //MORIS_FN_PRM_OPT_PARAMETERS_HPP
+

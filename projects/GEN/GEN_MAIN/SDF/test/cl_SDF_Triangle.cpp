@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_SDF_Triangle.cpp
+ *
+ */
+
 #include <catch.hpp>
 #include "typedefs.hpp"
 #include "cl_Matrix.hpp"
@@ -12,7 +22,6 @@
 
 using namespace moris;
 using namespace sdf;
-
 
 TEST_CASE(
         "ge::sdf::Triangle",
@@ -200,7 +209,6 @@ TEST_CASE(
                { 0.241215798847012}
        };
 
-
        Matrix< F31RMat > tDelta( 3, 1);
        tDelta = tProjection -  tTriangle.project_point_to_local_cartesian( tPoint );
 
@@ -307,3 +315,4 @@ TEST_CASE(
        delete tVertex;
    }
 }
+

@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_properties_and_constitutive_model.hpp
  *
- *  Created on: Oct 14, 2019
- *      Author: noel
  */
 
 #ifndef PROJECTS_FEM_MDL_TUTORIALS_FN_PROPERTIES_AND_CONSTITUTIVE_MODEL_HPP_
@@ -28,12 +31,10 @@ Circle4MatMDL(const moris::Matrix< moris::DDRMat > & aPoint )
     moris::real mYCenter = 0.01;
     moris::real mRadius = 0.47334;
 
-
     return  (aPoint(0) - mXCenter) * (aPoint(0) - mXCenter)
                     + (aPoint(1) - mYCenter) * (aPoint(1) - mYCenter)
                     - (mRadius * mRadius);
 }
-
 
 Matrix< DDRMat > tConstValFunction2MatMDL( moris::Cell< Matrix< DDRMat > >         & aParameters,
                                            moris::Cell< fem::Field_Interpolator* > & aDofFI,
@@ -42,7 +43,6 @@ Matrix< DDRMat > tConstValFunction2MatMDL( moris::Cell< Matrix< DDRMat > >      
 {
     return aParameters( 0 );
 }
-
 
 Cell< Cell< fem::Property_User_Defined_Info > >
 create_bulk_properties(fem::Property_User_Defined_Info & aConductivityProp,
@@ -101,7 +101,6 @@ create_diff_lin_constitutive_info()
     return fem::Constitutive_User_Defined_Info( fem::Constitutive_Type::DIFF_LIN_ISO, {{ MSI::Dof_Type::TEMP }}, { fem::Property_Type::CONDUCTIVITY } );
 }
 
-
 Cell< Cell< fem::Constitutive_User_Defined_Info > >
 create_bulk_diff_lin_constitutive( fem::Constitutive_User_Defined_Info & aDiffLinConst )
 {
@@ -138,5 +137,5 @@ create_interface_diff_lin_constitutive( fem::Constitutive_User_Defined_Info & aM
 
 }
 
-
 #endif /* PROJECTS_FEM_MDL_TUTORIALS_FN_PROPERTIES_AND_CONSTITUTIVE_MODEL_HPP_ */
+

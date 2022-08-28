@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 namespace moris {
 
 /** \page EXA_THERMAL_GGLS_DEMO Fickian Problem for Demonstrating Gradient Galerkin Least Squares Stabilization
@@ -16,3 +23,4 @@ namespace moris {
 */
 
 }
+

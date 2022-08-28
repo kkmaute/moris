@@ -1,4 +1,13 @@
-// C++ header files.
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_Tuple.cpp
+ *
+ */
+
 #include <iostream>
 #include <string>
 
@@ -66,3 +75,4 @@ TEST_CASE(
     REQUIRE( aInt25 == aInt22);
     REQUIRE( aInt26 == aInt23);
 }
+

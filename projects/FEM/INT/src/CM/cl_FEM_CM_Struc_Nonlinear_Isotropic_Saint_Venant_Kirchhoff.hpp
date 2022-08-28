@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff.hpp
+ *
+ */
+
 #ifndef SRC_FEM_CL_FEM_CM_STRUC_NONLINEAR_ISOTROPIC_SAINT_VENANT_KIRCHHOFF_HPP_
 #define SRC_FEM_CL_FEM_CM_STRUC_NONLINEAR_ISOTROPIC_SAINT_VENANT_KIRCHHOFF_HPP_
 
@@ -136,7 +146,7 @@ namespace moris
                  * evaluate the constitutive model matrix
                  */
                 void eval_const();
-                
+
                 //--------------------------------------------------------------------------------------------------------------
                 /**
                  * evaluate the traction based on first Piola-Kirchhoff stress Tp = P N
@@ -344,3 +354,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_FEM_CL_FEM_CM_STRUC_NONLINEAR_ISOTROPIC_SAINT_VENANT_KIRCHHOFF_HPP_ */
+

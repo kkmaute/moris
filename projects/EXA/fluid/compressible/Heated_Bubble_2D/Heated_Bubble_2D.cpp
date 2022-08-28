@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * Heated_Bubble_2D.cpp
+ *
+ */
+
 #include <string>
 #include <iostream>
 #include "typedefs.hpp"
@@ -19,7 +29,6 @@
 #include "fn_equal_to.hpp"
 
 #include "AztecOO.h"
-
 
 #ifdef  __cplusplus
 extern "C"
@@ -106,7 +115,7 @@ namespace moris
     //------------------------------------------------------------------------------
 
     // convert Nitsche penalty to string
-    std::string sNitscheGammas = 
+    std::string sNitscheGammas =
             ios::stringify( tNitscheGammaP  ) + ";" +
             ios::stringify( tNitscheGammaVX ) + ";" +
             ios::stringify( tNitscheGammaVY ) + ";" +
@@ -138,7 +147,7 @@ namespace moris
         // get coordinates
         real tX = aFIManager->get_IP_geometry_interpolator()->valx()( 0 );
         real tY = aFIManager->get_IP_geometry_interpolator()->valx()( 1 );
-        
+
         // get radius
         real tR = std::sqrt( tX * tX + tY * tY );
 
@@ -450,7 +459,7 @@ std::string tOffSet = ios::stringify( tChannelLength / -2.0 ) + "," + ios::strin
         tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      "0.0,0.0;0.0,1.0");
         tPropCounter++;
 
-        // time continuity weights        
+        // time continuity weights
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
         tParameterList( tPropIndex )( tPropCounter ).set( "property_name",            "PropWeightCurrent" );
         tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      std::to_string( tTCWeight ) );
@@ -476,7 +485,7 @@ std::string tOffSet = ios::stringify( tChannelLength / -2.0 ) + "," + ios::strin
         tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      "0.0") ;
         tParameterList( tPropIndex )( tPropCounter ).set( "value_function",           "Func_Const") ;
         tPropCounter++;
-                
+
         // zero property
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
         tParameterList( tPropIndex )( tPropCounter ).set( "property_name",            "PropVectorZero") ;
@@ -495,7 +504,7 @@ std::string tOffSet = ios::stringify( tChannelLength / -2.0 ) + "," + ios::strin
         tParameterList( tMMIndex )( tMMCounter ).set( "material_name", "MMFluid" );
         tParameterList( tMMIndex )( tMMCounter ).set( "phase_name",    "PhaseFluid") ;
         tParameterList( tMMIndex )( tMMCounter ).set( "material_type", (uint) fem::Material_Type::PERFECT_GAS );
-        tParameterList( tMMIndex )( tMMCounter ).set( "dof_dependencies",  std::pair< std::string, std::string >( 
+        tParameterList( tMMIndex )( tMMCounter ).set( "dof_dependencies",  std::pair< std::string, std::string >(
                                                                            "P;TEMP", "Pressure,Temperature" ) );
         tParameterList( tMMIndex )( tMMCounter ).set( "properties", "PropHeatCapacity,IsochoricHeatCapacity;"
                                                                     "PropGasConstant,SpecificGasConstant"    );
@@ -512,7 +521,7 @@ std::string tOffSet = ios::stringify( tChannelLength / -2.0 ) + "," + ios::strin
         tParameterList( tCMIndex )( tCMCounter ).set( "constitutive_name", "CMFluid" );
         tParameterList( tCMIndex )( tCMCounter ).set( "phase_name",        "PhaseFluid") ;
         tParameterList( tCMIndex )( tCMCounter ).set( "constitutive_type", (uint) fem::Constitutive_Type::FLUID_COMPRESSIBLE_NEWTONIAN );
-        tParameterList( tCMIndex )( tCMCounter ).set( "dof_dependencies",  std::pair< std::string, std::string >( 
+        tParameterList( tCMIndex )( tCMCounter ).set( "dof_dependencies",  std::pair< std::string, std::string >(
                                                                            "P;VX,VY;TEMP", "Pressure,Velocity,Temperature" ) );
         tParameterList( tCMIndex )( tCMCounter ).set( "properties", "PropViscosity,DynamicViscosity;"
                                                                     "PropConductivity,ThermalConductivity"    );
@@ -543,7 +552,6 @@ std::string tOffSet = ios::stringify( tChannelLength / -2.0 ) + "," + ios::strin
         tParameterList( tSPIndex )( tSPCounter ).set( "function_parameters",     "1.0" );
         tParameterList( tSPIndex )( tSPCounter ).set( "master_properties",       "PropDummy,Material" );
         tSPCounter++;
-
 
         //------------------------------------------------------------------------------
         // fill the IWG part of the parameter list
@@ -582,7 +590,7 @@ std::string tOffSet = ios::stringify( tChannelLength / -2.0 ) + "," + ios::strin
         // tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   (uint) fem::IWG_Type::COMPRESSIBLE_NS_BOUNDARY );
         // tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "P;VX,VY;TEMP" );
         // tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropInitialPressure,Pressure;"
-        //                                                                               "PropViscosity,DynamicViscosity;" 
+        //                                                                               "PropViscosity,DynamicViscosity;"
         //                                                                               "PropConductivity,ThermalConductivity" );
         // tParameterList( tIWGIndex )( tIWGCounter ).set( "master_material_model",      "MMFluid,FluidMM" );
         // tParameterList( tIWGIndex )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,FluidCM" );
@@ -780,13 +788,13 @@ std::string tOffSet = ios::stringify( tChannelLength / -2.0 ) + "," + ios::strin
         tParameterlist( 3 )( 0 ).set("NLA_DofTypes", "P;VX,VY;TEMP" );
 
         tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
-        //tParameterlist( 4 )( 0 ).set("TSA_Nonlinear_solver", 2);       
+        //tParameterlist( 4 )( 0 ).set("TSA_Nonlinear_solver", 2);
         tParameterlist( 4 )( 0 ).set("TSA_Num_Time_Steps", tNumTimeSteps );
         tParameterlist( 4 )( 0 ).set("TSA_Time_Frame",     tTimeFrame );
 
         tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
         tParameterlist( 5 )( 0 ).set("TSA_DofTypes"           , "P;VX,VY;TEMP" );
-        tParameterlist( 5 )( 0 ).set("TSA_Initialize_Sol_Vec" , "P," + ios::stringify( tInitialPressure ) + 
+        tParameterlist( 5 )( 0 ).set("TSA_Initialize_Sol_Vec" , "P," + ios::stringify( tInitialPressure ) +
                                                                 ";VX,0.0;VY,0.0;TEMP," + ios::stringify( tInitialTemperature ) );
         // tParameterlist( 5 )( 0 ).set("TSA_Initialize_Sol_Vec" , "P,1.0;VX,1.0;VY,0.0;TEMP,1.0" );
         tParameterlist( 5 )( 0 ).set("TSA_Output_Indices"     , "0" );
@@ -844,3 +852,4 @@ std::string tOffSet = ios::stringify( tChannelLength / -2.0 ) + "," + ios::strin
 #ifdef  __cplusplus
 }
 #endif
+

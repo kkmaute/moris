@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_Material_Model_Temperature_Functions.cpp
  *
- *  Created on: Feb 2, 2021
- *      Author: wunsch
  */
 
 #include "cl_FEM_Material_Model.hpp"
@@ -56,14 +59,14 @@ namespace moris
             }
             // return the flux value
             return mTemperatureDot;
-        }   
+        }
 
         // trivial operation: get value from FI
         const Matrix< DDRMat > & Material_Model::TemperatureDot_triv()
         {
             // return the temperature rate of change
             return mFIManager->get_field_interpolators_for_type( mDofTemperature )->gradt( 1 );
-        }             
+        }
 
         //------------------------------------------------------------------------------
 
@@ -73,36 +76,36 @@ namespace moris
             switch ( aOrder )
             {
                 case 1: // first derivative
-                {    
+                {
                     if ( mdTemperaturedxEval )
                     {
                         // evaluate the flux
                         this->eval_dTemperaturedx();
-    
+
                         // set bool for evaluation
                         mdTemperaturedxEval = false;
                     }
-    
+
                     // return the flux value
                     return mdTemperaturedx;
                 }
-    
+
                 case 2: // second derivative
                 {
-    
+
                     if ( md2Temperaturedx2Eval )
                     {
                         // evaluate the flux
                         this->eval_d2Temperaturedx2();
-    
+
                         // set bool for evaluation
                         md2Temperaturedx2Eval = false;
                     }
-    
+
                     // return the flux value
                     return md2Temperaturedx2;
                 }
-    
+
                 default:
                 {
                     MORIS_ERROR( false, "Material_Model::dnTemperaturedxn - aOrder unknown, only 1 and 2 supported." );
@@ -116,7 +119,7 @@ namespace moris
         {
             // return the temperature rate of change
             return mFIManager->get_field_interpolators_for_type( mDofTemperature )->gradx( aOrder );
-        }         
+        }
 
         //-----------------------------------------------------------------------------
         //-----------------------------------------------------------------------------
@@ -149,7 +152,7 @@ namespace moris
         // trivial operation: get values from FI
         const Matrix< DDRMat > & Material_Model::TemperatureDOF_triv( const moris::Cell< MSI::Dof_Type > & aDofType )
         {
-            // check DOF deriv is wrt to own DOF-type is with             
+            // check DOF deriv is wrt to own DOF-type is with
             if ( aDofType( 0 ) != mDofTemperature )
             {
                 // get the dof type index
@@ -174,7 +177,7 @@ namespace moris
                 // return the temperature dof deriv
                 return mFIManager->get_field_interpolators_for_type( mDofTemperature )->N();
             }
-        } 
+        }
 
         //-----------------------------------------------------------------------------
 
@@ -206,7 +209,7 @@ namespace moris
         // trivial operation: get values from FI
         const Matrix< DDRMat > & Material_Model::TemperatureDotDOF_triv( const moris::Cell< MSI::Dof_Type > & aDofType )
         {
-            // check DOF deriv is wrt to own DOF-type is with             
+            // check DOF deriv is wrt to own DOF-type is with
             if ( aDofType( 0 ) != mDofTemperature )
             {
                 // get the dof type index
@@ -231,7 +234,7 @@ namespace moris
                 // return the temperature rate of change dof deriv
                 return mFIManager->get_field_interpolators_for_type( mDofTemperature )->dnNdtn( 1 );
             }
-        }         
+        }
 
         //-----------------------------------------------------------------------------
 
@@ -249,49 +252,49 @@ namespace moris
             switch ( aOrder )
             {
                 case 1: // first derivative
-                {    
+                {
                     // if the derivative has not been evaluated yet
                     if( mdTemperaturedxDofEval( tDofIndex ) )
                     {
                         // evaluate the derivative
                         this->eval_dTemperaturedxDOF( aDofType );
-    
+
                         // set bool for evaluation
                         mdTemperaturedxDofEval( tDofIndex ) = false;
                     }
-    
+
                     // return the derivative
                     return mdTemperaturedxDof( tDofIndex );
                 }
-    
+
                 case 2: // second derivative
-                {    
+                {
                     // if the derivative has not been evaluated yet
                     if( md2Temperaturedx2DofEval( tDofIndex ) )
                     {
                         // evaluate the derivative
                         this->eval_d2Temperaturedx2DOF( aDofType );
-    
+
                         // set bool for evaluation
                         md2Temperaturedx2DofEval( tDofIndex ) = false;
                     }
-    
+
                     // return the derivative
                     return md2Temperaturedx2Dof( tDofIndex );
                 }
-    
+
                 default:
                 {
                     MORIS_ERROR( false, "Material_Model::dnTemperaturedxnDOF_dep - aOrder unknown, only 1 and 2 supported." );
                     return mdTemperaturedxDof( 0 );
                 }
             }
-        }    
+        }
 
         // trivial operation: get values from FI
         const Matrix< DDRMat > & Material_Model::dnTemperaturedxnDOF_triv( const moris::Cell< MSI::Dof_Type > & aDofType, uint aOrder )
         {
-            // check DOF deriv is wrt to own DOF-type is with             
+            // check DOF deriv is wrt to own DOF-type is with
             if ( aDofType( 0 ) != mDofTemperature )
             {
                 // get the dof type index
@@ -305,11 +308,11 @@ namespace moris
                         mdTemperaturedxDof( tDofIndex ).set_size( mSpaceDim,
                                 mFIManager->get_field_interpolators_for_type( aDofType( 0 ) )->
                                 get_number_of_space_time_coefficients(), 0.0 );
-    
+
                         // set flag
                         mdTemperaturedxDofEval( tDofIndex )= false;
                     }
-    
+
                     // return zero matrix
                     return mdTemperaturedxDof( tDofIndex );
                 }
@@ -332,17 +335,18 @@ namespace moris
                 else
                 {
                     MORIS_ERROR( false, "Material_Model::dnTemperaturedxnDOF_triv - only orders 1 and 2 implemented." );
-                    return mdTemperaturedxDof( 0 );                    
-                }                
+                    return mdTemperaturedxDof( 0 );
+                }
             }
             else
             {
                 // return the temperature gradient dof deriv
                 return mFIManager->get_field_interpolators_for_type( mDofTemperature )->dnNdxn( aOrder );
             }
-        }    
+        }
 
         //-----------------------------------------------------------------------------
 
     }/* end_fem_namespace */
 }/* end_moris_namespace */
+

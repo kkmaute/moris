@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 set(EXAMPLE_MAIN Main_Shape_Sensitivity_Circle_Sweep_Thermoelastic)
 set(EXAMPLE_FILES Shape_Sensitivity_Circle_Sweep_Thermoelastic Shape_Sensitivity_Circle_Sweep_Thermoelastic_Staggered Shape_Sensitivity_Circle_Sweep_Thermoelastic_GCMMA)
 set(EXAMPLE_PROCS 1 2)
@@ -94,3 +101,4 @@ if(MORIS_HAVE_PARALLEL_TESTS)
                  COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS_EXA} $<TARGET_FILE:${EXAMPLE_MAIN}>)
     endforeach()
 endif()
+

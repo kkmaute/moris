@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_FEM_SP_YZBeta_Advection.cpp
+ *
+ */
 
 #include "catch.hpp"
 
@@ -343,3 +352,4 @@ TEST_CASE( "SP_YZBeta_Advection_Beq2", "[SP_YZBeta_Advection_Beq2]" )
 {
     UT_FEM_SP_YZBETA_Advection_Core( 2.0 );
 }
+

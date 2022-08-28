@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 namespace moris{
 
 // Level 5 module
@@ -248,3 +255,4 @@ The last function takes the export target and generates a file that will be used
 
 */
 }
+

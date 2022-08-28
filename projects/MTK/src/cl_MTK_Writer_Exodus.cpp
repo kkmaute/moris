@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Writer_Exodus.cpp
+ *
+ */
+
 #include <exodusII.h>
 
 #include "cl_MTK_Writer_Exodus.hpp"
@@ -1164,3 +1174,4 @@ namespace moris
         }
     }    // namespace mtk
 }    // namespace moris
+

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_Array.hpp
+ *
+ */
+
 #ifndef MORIS_CONTAINERS_CL_ARRAY_HPP_
 #define MORIS_CONTAINERS_CL_ARRAY_HPP_
 
@@ -145,3 +155,4 @@ namespace moris
 }
 
 #endif /* MORIS_CONTAINERS_CL_ARRAY_HPP_ */
+

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_IQI_Jump_Dof.hpp
+ *
+ */
+
 #ifndef PROJECTS_FEM_INT_SRC_IQI_CL_FEM_IQI_JUMP_DOF_HPP_
 #define PROJECTS_FEM_INT_SRC_IQI_CL_FEM_IQI_JUMP_DOF_HPP_
 
@@ -45,10 +55,10 @@ namespace moris
           private:
 
             //------------------------------------------------------------------------------
-            
+
             /**
-             * @brief initialize the parameters 
-             * 
+             * @brief initialize the parameters
+             *
              */
             void initialize();
 
@@ -70,7 +80,7 @@ namespace moris
 
             /**
              * @brief evaluates IQI
-             * 
+             *
              * @param aMat IQI matrix
              */
 
@@ -98,5 +108,5 @@ namespace moris
     } /* end namespace fem */
 } /* end namespace moris */
 
-
 #endif /* PROJECTS_FEM_INT_SRC_IQI_CL_FEM_IQI_Jump_Dof_HPP_ */
+

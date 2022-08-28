@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 namespace moris {
 
 /** \page EXA_THERMAL_ADVECTION_CHANNEL_WITH_FOUR_CYLINDERS_TRANSIENT Channel with Four Cylinders Transient
@@ -11,3 +18,4 @@ namespace moris {
 */
 
 }
+

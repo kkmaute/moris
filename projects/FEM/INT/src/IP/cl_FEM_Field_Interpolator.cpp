@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_Field_Interpolator.cpp
+ *
+ */
 
 #include "cl_Matrix.hpp"    //LNA/src
 #include "linalg_typedefs.hpp"
@@ -13,7 +22,6 @@
 #include "op_equal_equal.hpp"
 #include "op_less_equal.hpp"
 #include "op_greater_equal.hpp"
-
 
 #include "cl_FEM_Field_Interpolator.hpp"    //FEM/INT/src
 #include "cl_MTK_Enums.hpp"                 //MTK/src
@@ -1060,3 +1068,4 @@ namespace moris
 
     } /* namespace fem */
 } /* namespace moris */
+

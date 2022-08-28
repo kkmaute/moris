@@ -1,10 +1,19 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_Tracer_Enums.hpp
+ *
+ */
+
 #ifndef PROJECTS_MRS_IOS_SRC_CL_TRACER_ENUMS_HPP_
 #define PROJECTS_MRS_IOS_SRC_CL_TRACER_ENUMS_HPP_
 
 #include <cstdio>
 #include <string>
 #include <cstring>
-
 
 namespace moris
 {
@@ -122,9 +131,8 @@ namespace moris
     //inline
     const std::string get_enum_str(enum OutputSpecifier aOutputSpecifier);
 
-
     enum OutputSpecifier get_output_spec_enum_from_str(std::string aEnumString);
-
 
 } // namespace moris
 #endif /* PROJECTS_MRS_IOS_SRC_CL_TRACER_ENUMS_HPP_ */
+

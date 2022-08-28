@@ -1,17 +1,18 @@
 /*
- * cl_XTK_Hexahedron_8_Basis_Functions.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jul 17, 2017
- *      Author: ktdoble
+ *------------------------------------------------------------------------------------
+ *
+ * cl_GEN_Hexahedron_8_Basis_Function.hpp
+ *
  */
 
 #ifndef PROJECTS_GEN_SRC_NEW_ADDITIONAL_CL_GEN_HEXAHEDRON_8_BASIS_FUNCTION_HPP_
 #define PROJECTS_GEN_SRC_NEW_ADDITIONAL_CL_GEN_HEXAHEDRON_8_BASIS_FUNCTION_HPP_
 
-
 #include "../../new/additional/cl_GEN_Basis_Function.hpp"
 #include "cl_Matrix.hpp"
-
 
 namespace moris
 {
@@ -44,9 +45,9 @@ public:
         aBasisFunctionValues(0,7) = 0.125*(1.0-tXi)*(1.0+tEta)*(1.0+tZeta);
     }
 
-
 };
 }
 }
 
 #endif /* PROJECTS_GEN_SRC_NEW_ADDITIONAL_CL_GEN_HEXAHEDRON_8_BASIS_FUNCTION_HPP_ */
+

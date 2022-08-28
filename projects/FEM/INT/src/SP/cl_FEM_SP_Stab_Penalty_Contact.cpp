@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_SP_Stab_Penalty_Contact.cpp
  *
- *  Created on: Feb 13, 2020
- *      Author: ritzert
  */
 
 #include "cl_FEM_SP_Stab_Penalty_Contact.hpp"   //FEM/INT/src
@@ -37,3 +40,4 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
+

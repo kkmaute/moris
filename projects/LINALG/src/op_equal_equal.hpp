@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * op_equal_equal.hpp
  *
- *  Created on: Aug 31, 2018
- *      Author: doble
  */
 
 #ifndef PROJECTS_LINALG_OP_EQUAL_EQUAL_HPP_
@@ -75,3 +78,4 @@ namespace moris
 }
 
 #endif /* PROJECTS_LINALG_OP_EQUAL_EQUAL_HPP_ */
+

@@ -1,10 +1,12 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Intersection_Detect.cpp
  *
- *  Created on: Jun 7, 2021
- *      Author: momo
  */
-
 
 #include "cl_MTK_Intersection_Detect.hpp"
 
@@ -36,7 +38,6 @@
 #include "cl_MTK_Double_Side_Set.hpp"
 #include "cl_Tracer.hpp"
 #include "cl_Stopwatch.hpp" //CHR/src
-
 
 #include "cl_MTK_Writer_Exodus.hpp"
 
@@ -208,7 +209,7 @@ namespace moris
                     //case 1 where both sides just have one cluster ( they can be trivial or non trivial)
                     if ( tSideClustersIndices1.size() == 1 and tSideClustersIndices2.size() == 1 )
                     {
-                        //parametric coordinates are predefined as the corners and center 
+                        //parametric coordinates are predefined as the corners and center
                         moris::Cell< Matrix<DDRMat> > tParamCoordsCell2 (4, Matrix<DDRMat>(2,3) );
                         tParamCoordsCell2(0) = { { -1.0, +1.0,  0.0 }, { -1.0, -1.0,  0.0 } };
                         tParamCoordsCell2(1) = { { -1.0,  0.0, -1.0 }, { -1.0,  0.0, +1.0 } };
@@ -219,7 +220,7 @@ namespace moris
                         moris_index tPhase2  = tLocalCellNumToColor2 ( tSideClustersIndices2(0) );
                         moris_index tPhase1  = tLocalCellNumToColor1 (tSideClustersIndices1(0) );
 
-                        //phase interaction table value 
+                        //phase interaction table value
                         moris_index tPhaseToPhaseIndex = tPhaseInteractionTable( tPhase1, tPhase2 );
 
                         //create a dummy cell in order to specify that all of the cut cells need to be assigned
@@ -348,14 +349,14 @@ namespace moris
                     //case 4 where both sides have more than one cluster within
                     else
                     {
-                        uint tIGCellNum = 0; 
+                        uint tIGCellNum = 0;
                         //loop through the clusters to obtain number of IG surfaces of each cluster
                         for(uint iCluster = 0 ; iCluster < tSideClustersIndices1.size(); iCluster++)
                         {
                             tIGCellNum  += tSideClusters1( tSideClustersIndices1( iCluster ) )->get_num_primary_cells();
                         }
 
-                        // Initialize the cut cell surfaces 
+                        // Initialize the cut cell surfaces
                         moris::Cell < moris::Matrix <DDRMat> > tParamCoordsCell1 (tIGCellNum, moris::Matrix <DDRMat>(2,3) );
 
                         // A local map determining that each IG cell/surfaces belongs to which local cluster
@@ -364,7 +365,7 @@ namespace moris
                         //iterative counter to assign the cut cell surfaces and IG cell to local cluster index map
                         uint iCounter = 0;
 
-                        //loop through each cluster to assign coordinates of the surface 
+                        //loop through each cluster to assign coordinates of the surface
                         for(uint iCluster = 0 ; iCluster < tSideClustersIndices1.size(); iCluster++)
                         {
                             // number of surfaces in each cluster
@@ -410,7 +411,7 @@ namespace moris
                         //iterative counter to assign the cut cell surfaces and IG cell to local cluster index map
                         iCounter = 0;
 
-                        //loop through each cluster to assign coordinates of the surface 
+                        //loop through each cluster to assign coordinates of the surface
                         for(uint iCluster = 0 ; iCluster < tSideClustersIndices2.size(); iCluster++)
                         {
                             // number of surfaces in each cluster
@@ -457,7 +458,7 @@ namespace moris
                         //unique multiplier to distingush between sub clusters
                         uint tMultiplier = std::max(   tParamCoordsCell1.size(),   tParamCoordsCell2.size() );
 
-                        // iterate through grouped cut cell in order to create dbl sideded cluster with the correct 
+                        // iterate through grouped cut cell in order to create dbl sideded cluster with the correct
                         //IP cell and phase information
                         for( auto & iCutCellGroup : tCutCellIdentifierToCutCell)
                         {
@@ -490,7 +491,6 @@ namespace moris
             //add the double sided set based on the interactions
             this->construct_add_dbl_sided_set(tPhaseInteractionTable);
         }
-
 
         //---------------------------------------------------------------------
 
@@ -682,7 +682,6 @@ namespace moris
 
             this->PointsXInY( aFirstTRICoords, aSecondTRICoords, P1 ) ;
 
-
             if ( P1.n_cols() > 1)
             {
                 aIntersectVec.set_size( 1, 3, 1 );
@@ -713,7 +712,7 @@ namespace moris
             // max size of the cut  polygons
             uint tMaxSize = aParamCoordsCell1.size() * aParamCoordsCell2.size() ;
 
-            //reserve the space for max 
+            //reserve the space for max
             aIntersectedAreas.reserve( tMaxSize );
 
             //set the max size in order to avoid resizing at each step
@@ -796,12 +795,10 @@ namespace moris
                 }
             }
 
-            tUniqueIntersectedPoints.resize(2,i+1);  
+            tUniqueIntersectedPoints.resize(2,i+1);
 
             //intersection cell from the algorithm comes as coordinates, convert them to unique coordinate indices
             moris::Cell< Matrix< IndexMat > > tPVertexIndex( aIndicesinCutCell.size() , Matrix< IndexMat >(1,3)) ;
-
-
 
             //loop over the cell of coordinates to assign indicies
             for( size_t i = 0 ; i < aIndicesinCutCell.size() ; i++ )
@@ -853,7 +850,7 @@ namespace moris
             //permutation of the 2D coordinates to 3D
             std::pair<moris_id, moris_id> tCoordOrder = this->permutation_pair(aPairCount);
 
-            //3rd coordinate that 
+            //3rd coordinate that
             Matrix <DDRMat> tDummyCoords(tNumSurfaceNodes,1,-1);
 
             //fill in the coordinate matrix
@@ -901,7 +898,7 @@ namespace moris
             // get physical coordinates of the slave side
             moris::mtk::Interpolation::trilinear_interpolation_multivalue( tIPCellCoordinates, tSlaveParametricCoordinates3D, tPhysicalCoordinates3D );
 
-            // physcal coordinates of the 
+            // physcal coordinates of the
             moris::mtk::Interpolation::trilinear_interpolation( tIPCellCoordinates, tHeadnodeCoords, tCoordinatesTop );
 
             moris::Cell<moris::mtk::Vertex* > tSlaveVerticesCell;
@@ -920,7 +917,6 @@ namespace moris
             //store the vertices to prevent memory leak
             mMasterVertices.append(tMasterVerticesConst);
             mSlaveVertices.append(tSlaveVerticesConst);
-
 
             tic tTimerCell;
 
@@ -1166,7 +1162,6 @@ namespace moris
 
             return tIgCell;
         }
-
 
         //------------------------------------------------------------------------------------------------------------
         //name the cluster set
@@ -1727,7 +1722,6 @@ namespace moris
 
                     this->Intersect( NbTbbc, NaTaac, tP, tnc ) ;
 
-
                     if ( tP.n_cols() != 0 )
                     {
                         // if intersection is more dimension than a line
@@ -1739,17 +1733,14 @@ namespace moris
                         Matrix < IdMat> Taac4to6 =  aFirstTRIConnect( {ac,ac}, {0, 2});
                         Matrix < DDUMat> tmp( 1, Taac4to6.n_cols() );
 
-
                         for (uint Ii = 0 ; Ii < Taac4to6.n_cols() ; Ii++ )
                         {
                             tmp(Ii) = ad( Taac4to6(Ii) - 1);
                         }
 
-
                         Matrix < DDUMat> comp( 1, tmp.n_cols() ,0.0 );
 
                         Matrix < DDNIMat> tn = find( tmp == comp ) ;
-
 
                         if ( tn.numel() != 0)
                         {
@@ -1766,7 +1757,6 @@ namespace moris
                             {
                                 al.push_back( t( Ii ) );
                             }
-
 
                             for ( uint Ii = 0; Ii < t.n_cols() ; Ii++ )
                             {
@@ -1801,7 +1791,6 @@ namespace moris
                 Matrix < DDUMat> zerovec( 1, bdTbbc.n_cols() ,0.0 );
 
                 Matrix < DDNIMat > tmp = find( bdTbbc == zerovec );
-
 
                 if (tmp.numel() != 0 )
                 {
@@ -1944,3 +1933,4 @@ namespace moris
     }
 
 }
+

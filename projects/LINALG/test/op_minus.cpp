@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * op_minus.cpp
  *
- *  Created on: Aug 29, 2018
- *      Author: doble
  */
 
 #include <catch.hpp>
@@ -49,5 +52,4 @@ TEST_CASE(
     REQUIRE( Dm( 2, 2 ) == -4.0 );
 }
 }
-
 

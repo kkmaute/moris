@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_Dist_Vector_Test.cpp
  *
- *  Created on: Jun 18, 2018
- *      Author: schmidt
  */
+
 #include "catch.hpp"
 #include "fn_equal_to.hpp" // ALG/src
 #include "typedefs.hpp" // COR/src
@@ -357,5 +361,4 @@ TEST_CASE("Import Dist Vector","[Import Dist Vector],[DistLinAlg]")
 }
 }
 }
-
 

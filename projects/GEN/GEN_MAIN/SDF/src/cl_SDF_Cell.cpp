@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_SDF_Cell.cpp
+ *
+ */
+
 #include "typedefs.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
@@ -67,3 +77,4 @@ namespace moris
 //-------------------------------------------------------------------------------
     } /* namespace sdf */
 } /* namespace moris */
+

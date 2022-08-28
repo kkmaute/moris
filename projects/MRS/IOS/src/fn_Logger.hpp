@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * fn_Logger.hpp
+ *
+ */
+
 #ifndef MORIS_IOS_FN_LOGGER_HPP_
 #define MORIS_IOS_FN_LOGGER_HPP_
 
@@ -25,3 +35,4 @@ namespace ios
 }    // namespace moris
 
 #endif    /* MORIS_IOS_FN_LOGGER_HPP_ */
+

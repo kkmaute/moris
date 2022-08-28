@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_DLA_Linear_Solver_Belos.hpp
  *
- *  Created on: Jan 06, 2020
- *      Author: schmidt
  */
+
 #ifndef SRC_DISTLINALG_CL_LINEAR_SOLVER_BELOS_HPP_
 #define SRC_DISTLINALG_CL_LINEAR_SOLVER_BELOS_HPP_
 
@@ -11,7 +15,6 @@
 #include "Epetra_ConfigDefs.h"
 
 #include "cl_DLA_Linear_Solver_Algorithm.hpp"
-
 
 #include "BelosConfigDefs.hpp"
 #include "BelosLinearProblem.hpp"
@@ -57,3 +60,4 @@ public:
 }
 
 #endif /* SRC_DISTLINALG_CL_LINEAR_SOLVER_BELOS_HPP_ */
+

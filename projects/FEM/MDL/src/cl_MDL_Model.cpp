@@ -1,5 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MDL_Model.cpp
+ *
+ */
 
-// added by christian: link to Google Perftools
 #ifdef WITHGPERFTOOLS
 #include <gperftools/profiler.h>
 #endif
@@ -527,3 +535,4 @@ namespace moris
 
     } /* namespace mdl */
 } /* namespace moris */
+

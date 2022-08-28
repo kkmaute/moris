@@ -1,10 +1,19 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_Field.cpp
+ *
+ */
+
 #include <iostream>
 #include <cstdio>
 
 #include "cl_FEM_Field.hpp"
 #include "cl_Matrix.hpp"
 // HD5 c-interface
-
 
 namespace moris
 {
@@ -135,3 +144,4 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace hmr */
 } /* namespace moris */
+

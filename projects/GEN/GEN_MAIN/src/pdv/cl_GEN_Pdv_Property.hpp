@@ -1,6 +1,12 @@
-//
-// Created by christopherson on 5/19/20.
-//
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_GEN_Pdv_Property.hpp
+ *
+ */
 
 #ifndef MORIS_CL_GEN_PDV_PROPERTY_HPP
 #define MORIS_CL_GEN_PDV_PROPERTY_HPP
@@ -56,3 +62,4 @@ namespace moris
 }
 
 #endif //MORIS_CL_GEN_PDV_PROPERTY_HPP
+

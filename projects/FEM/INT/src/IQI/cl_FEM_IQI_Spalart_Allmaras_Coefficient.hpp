@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_IQI_Spalart_Allmaras_Coefficient.hpp
  *
- *  Created on: Feb 25, 2022
- *      Author: noel
  */
 
 #ifndef PROJECTS_FEM_INT_SRC_CL_FEM_IQI_SPALART_ALLMARAS_COEFFICIENT_HPP_
@@ -99,3 +102,4 @@ namespace moris
 } /* end namespace moris */
 
 #endif /* PROJECTS_FEM_INT_SRC_CL_FEM_IQI_SPALART_ALLMARAS_COEFFICIENT_HPP_ */
+

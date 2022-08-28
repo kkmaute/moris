@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * UT_MDL_Transient.cpp
  *
- *  Created on: Apr 30, 2020
- *      Author: noel
  */
 
 #include "catch.hpp"
@@ -89,7 +92,6 @@
 #include "cl_GEN_Plane.hpp"
 
 #include "fn_norm.hpp"
-
 
 namespace moris
 {
@@ -329,7 +331,6 @@ TEST_CASE("MDL Transient","[MDL_Transient]")
     }
 
 }/* END_TEST_CASE */
-
 
 TEST_CASE("MDL Transient XFEM","[MDL_Transient_XFEM]")
 {
@@ -621,7 +622,4 @@ TEST_CASE("MDL Transient XFEM","[MDL_Transient_XFEM]")
 
 }/*END_TEST_CASE */
 }/* END_MORIS_NAMESPACE */
-
-
-
 

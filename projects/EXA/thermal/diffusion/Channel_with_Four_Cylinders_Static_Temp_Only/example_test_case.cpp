@@ -1,6 +1,12 @@
-//
-// example specific interface to moris
-//
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * example_test_case.cpp
+ *
+ */
 
 #include <catch.hpp>
 
@@ -234,7 +240,6 @@ void check_linear_results_parallel()
     uint tNumNodes = tExoIO.get_number_of_nodes();
     uint tNumElems = tExoIO.get_number_of_elements();
 
-
     if (gPrintReferenceValues)
     {
         std::cout << "Number of dimensions: " << tNumDims  << std::endl;
@@ -314,7 +319,6 @@ void check_quadratic_results_parallel()
     uint tNumDims  = tExoIO.get_number_of_dimensions();
     uint tNumNodes = tExoIO.get_number_of_nodes();
     uint tNumElems = tExoIO.get_number_of_elements();
-
 
     if (gPrintReferenceValues)
     {
@@ -444,3 +448,4 @@ TEST_CASE("Channel_with_Four_Cylinders_Static_Quadratic",
         }
     }
 }
+

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_OPT_Problem.hpp
+ *
+ */
+
 #ifndef MORIS_CL_OPT_PROBLEM_HPP_
 #define MORIS_CL_OPT_PROBLEM_HPP_
 
@@ -265,3 +275,4 @@ namespace moris
 }
 
 #endif /* MORIS_CL_OPT_PROBLEM_HPP_ */
+

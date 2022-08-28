@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_IQI_Mass_Flow.cpp
  *
- *  Created on: Sep 27, 2020
- *      Author: noel
  */
+
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IQI_Mass_Flow.hpp"
@@ -25,7 +29,7 @@ namespace moris
             // populate the constitutive map
             mConstitutiveMap[ "Fluid" ] = static_cast< uint >( IQI_Constitutive_Type::FLUID );
         }
-        
+
         //------------------------------------------------------------------------------
 
         void IQI_Mass_Flow::compute_QI( Matrix< DDRMat > & aQI )
@@ -46,7 +50,7 @@ namespace moris
             // evaluate the QI
             aQI = tPropDensity->val() * tFIVelocity->val_trans() * mNormal;
         }
-        
+
         //------------------------------------------------------------------------------
 
         void IQI_Mass_Flow::compute_QI( real aWStar )
@@ -162,6 +166,4 @@ namespace moris
         //------------------------------------------------------------------------------
     }/* end_namespace_fem */
 }/* end_namespace_moris */
-
-
 

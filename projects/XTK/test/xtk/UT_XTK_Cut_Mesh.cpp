@@ -1,9 +1,12 @@
-// /*
-//  * UT_XTK_Cut_Mesh.cpp
-//  *
-//  *  Created on: Jun 21, 2017
-//  *      Author: ktdoble
-//  */
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_XTK_Cut_Mesh.cpp
+ *
+ */
 
 // #include <memory>   // Shared ptrs
 
@@ -135,9 +138,6 @@
 
 //     }
 
-
-
-
 //     /*
 //      * Tests the following:
 //      * - Signed volume of regular subdivision
@@ -259,7 +259,6 @@
 
 //     }
 
-
 //     TEST_CASE("Node Hierarchy Geometry Check","[VOLUME_CHECK_REG_SUB]")
 //     {
 //         if(par_size() == 1)
@@ -293,7 +292,6 @@
 //             Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8};
 //             tXTKModel.decompose(tDecompositionMethods);
 
-
 //             moris::Matrix<moris::DDRMat> tNodeCoords = tXTKModel.get_background_mesh().get_all_node_coordinates_loc_inds();
 
 //             moris::real tParentPhase0Vol = compute_non_intersected_parent_element_volume_by_phase(0,tNodeCoords,tXTKModel);
@@ -304,10 +302,10 @@
 //             moris::real tGoldVolume = 1;
 //             CHECK(tGoldVolume == Approx(tParentPhase0Vol + tParentPhase1Vol + tChildPhase0Vol + tChildPhase1Vol));
 
-
 //             delete tMeshData;
 //         }
 
 //     }
 
 // }
+

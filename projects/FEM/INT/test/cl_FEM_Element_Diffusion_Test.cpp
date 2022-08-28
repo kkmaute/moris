@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_Element_Diffusion_Test.cpp
+ *
+ */
+
 //#include "catch.hpp"
 //
 //#include "cl_MTK_Vertex.hpp"    //MTK
@@ -601,3 +611,4 @@
 //
 //    }/* namespace fem */
 //}/* namespace moris */
+

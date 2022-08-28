@@ -1,9 +1,13 @@
 /*
- * cl_NLA_Solver_Interface_Proxy.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jun 18, 2018
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * cl_NLA_Solver_Interface_Proxy2.cpp
+ *
  */
+
 #include "cl_NLA_Solver_Interface_Proxy2.hpp"
 #include "cl_Communication_Tools.hpp" // COM/src
 #include "cl_SOL_Dist_Vector.hpp"
@@ -234,5 +238,4 @@ void NLA_Solver_Interface_Proxy_II::get_equation_object_operator_and_rhs(
         MORIS_ERROR(false,"NLA_Node_Proxy_II::get_equation_object_operator: not defined");
     }
 }
-
 

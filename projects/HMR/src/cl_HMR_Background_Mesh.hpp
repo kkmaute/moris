@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_HMR_Background_Mesh.hpp
  *
- *  Created on: May 1, 2018
- *      Author: messe
  */
 
 #ifndef SRC_HMR_CL_HMR_BACKGROUND_MESH_HPP_
@@ -1172,7 +1175,6 @@ namespace moris
                         }
                     }
 
-
                     if ( tCheck )
                     {
                         moris::Cell< Background_Element_Base* > tBackgroundElements;
@@ -1361,7 +1363,6 @@ namespace moris
             MORIS_ERROR( false, "Don't know how to collect_neighbors_on_level_zero.");
         }
 
-
         //-------------------------------------------------------------------------------
 
         template < uint N >
@@ -1414,3 +1415,4 @@ namespace moris
 #include "cl_HMR_Background_Mesh_3D.hpp"
 
 #endif /* SRC_HMR_CL_HMR_BACKGROUND_MESH_HPP_ */
+

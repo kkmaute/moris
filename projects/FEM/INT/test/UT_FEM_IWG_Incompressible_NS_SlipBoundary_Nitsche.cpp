@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_FEM_IWG_Incompressible_NS_SlipBoundary_Nitsche.cpp
+ *
+ */
+
 #include <string>
 #include <catch.hpp>
 #include <memory>
@@ -1494,3 +1504,4 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Pressure_Unsymmetric_Nitsche",
         }
     }
 }/*END_TEST_CASE*/
+

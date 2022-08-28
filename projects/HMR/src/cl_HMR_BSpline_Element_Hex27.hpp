@@ -1,10 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_HMR_BSpline_Element_Hex27.hpp
  *
- *  Created on: December 05, 2018
- *  using MATLAB
  */
- 
+
 #ifndef SRC_HMR_CL_HMR_BSPLINE_ELEMENT_HEX27_HPP_
 #define SRC_HMR_CL_HMR_BSPLINE_ELEMENT_HEX27_HPP_
 
@@ -34,7 +37,7 @@ namespace moris
         /**
          * node IDs needed for VTK output
          *
-         * @param[out] Matrix< DDLUMat > 
+         * @param[out] Matrix< DDLUMat >
          *
          * @return void
          *
@@ -87,8 +90,8 @@ namespace moris
         template<>
         void
         BSpline_Element< 3, 27 >::get_ijk_of_basis(
-            const uint & aBasisNumber, 
-            luint      * aIJK ) 
+            const uint & aBasisNumber,
+            luint      * aIJK )
         {
             // get element local coordinate
             switch ( aBasisNumber )
@@ -937,32 +940,32 @@ namespace moris
                  if ( ! mBasis[   0 ]->is_flagged() )
                  {
                      // link neighbors of basis 0
-                     mBasis[   0 ]->insert_neighbor(  0, tBasis[  26 ] ); 
-                     mBasis[   0 ]->insert_neighbor(  1, mBasis[   8 ] ); 
-                     mBasis[   0 ]->insert_neighbor(  2, mBasis[  11 ] ); 
-                     mBasis[   0 ]->insert_neighbor(  3, tBasis[  30 ] ); 
-                     mBasis[   0 ]->insert_neighbor(  4, tBasis[   6 ] ); 
-                     mBasis[   0 ]->insert_neighbor(  5, mBasis[  12 ] ); 
-                     mBasis[   0 ]->insert_neighbor(  6, tBasis[   1 ] ); 
-                     mBasis[   0 ]->insert_neighbor(  7, tBasis[   7 ] ); 
-                     mBasis[   0 ]->insert_neighbor(  8, tBasis[  11 ] ); 
-                     mBasis[   0 ]->insert_neighbor(  9, tBasis[   5 ] ); 
-                     mBasis[   0 ]->insert_neighbor( 10, tBasis[  25 ] ); 
-                     mBasis[   0 ]->insert_neighbor( 11, tBasis[  27 ] ); 
-                     mBasis[   0 ]->insert_neighbor( 12, mBasis[  21 ] ); 
-                     mBasis[   0 ]->insert_neighbor( 13, tBasis[  32 ] ); 
-                     mBasis[   0 ]->insert_neighbor( 14, tBasis[  42 ] ); 
-                     mBasis[   0 ]->insert_neighbor( 15, mBasis[  25 ] ); 
-                     mBasis[   0 ]->insert_neighbor( 16, mBasis[  23 ] ); 
-                     mBasis[   0 ]->insert_neighbor( 17, tBasis[  46 ] ); 
-                     mBasis[   0 ]->insert_neighbor( 18, tBasis[   0 ] ); 
-                     mBasis[   0 ]->insert_neighbor( 19, tBasis[   2 ] ); 
-                     mBasis[   0 ]->insert_neighbor( 20, tBasis[  12 ] ); 
-                     mBasis[   0 ]->insert_neighbor( 21, tBasis[  10 ] ); 
-                     mBasis[   0 ]->insert_neighbor( 22, tBasis[  41 ] ); 
-                     mBasis[   0 ]->insert_neighbor( 23, tBasis[  43 ] ); 
-                     mBasis[   0 ]->insert_neighbor( 24, mBasis[  20 ] ); 
-                     mBasis[   0 ]->insert_neighbor( 25, tBasis[  48 ] ); 
+                     mBasis[   0 ]->insert_neighbor(  0, tBasis[  26 ] );
+                     mBasis[   0 ]->insert_neighbor(  1, mBasis[   8 ] );
+                     mBasis[   0 ]->insert_neighbor(  2, mBasis[  11 ] );
+                     mBasis[   0 ]->insert_neighbor(  3, tBasis[  30 ] );
+                     mBasis[   0 ]->insert_neighbor(  4, tBasis[   6 ] );
+                     mBasis[   0 ]->insert_neighbor(  5, mBasis[  12 ] );
+                     mBasis[   0 ]->insert_neighbor(  6, tBasis[   1 ] );
+                     mBasis[   0 ]->insert_neighbor(  7, tBasis[   7 ] );
+                     mBasis[   0 ]->insert_neighbor(  8, tBasis[  11 ] );
+                     mBasis[   0 ]->insert_neighbor(  9, tBasis[   5 ] );
+                     mBasis[   0 ]->insert_neighbor( 10, tBasis[  25 ] );
+                     mBasis[   0 ]->insert_neighbor( 11, tBasis[  27 ] );
+                     mBasis[   0 ]->insert_neighbor( 12, mBasis[  21 ] );
+                     mBasis[   0 ]->insert_neighbor( 13, tBasis[  32 ] );
+                     mBasis[   0 ]->insert_neighbor( 14, tBasis[  42 ] );
+                     mBasis[   0 ]->insert_neighbor( 15, mBasis[  25 ] );
+                     mBasis[   0 ]->insert_neighbor( 16, mBasis[  23 ] );
+                     mBasis[   0 ]->insert_neighbor( 17, tBasis[  46 ] );
+                     mBasis[   0 ]->insert_neighbor( 18, tBasis[   0 ] );
+                     mBasis[   0 ]->insert_neighbor( 19, tBasis[   2 ] );
+                     mBasis[   0 ]->insert_neighbor( 20, tBasis[  12 ] );
+                     mBasis[   0 ]->insert_neighbor( 21, tBasis[  10 ] );
+                     mBasis[   0 ]->insert_neighbor( 22, tBasis[  41 ] );
+                     mBasis[   0 ]->insert_neighbor( 23, tBasis[  43 ] );
+                     mBasis[   0 ]->insert_neighbor( 24, mBasis[  20 ] );
+                     mBasis[   0 ]->insert_neighbor( 25, tBasis[  48 ] );
 
                      // flag this basis
                      mBasis[   0 ]->flag();
@@ -977,32 +980,32 @@ namespace moris
                  if ( ! mBasis[   1 ]->is_flagged() )
                  {
                      // link neighbors of basis 1
-                     mBasis[   1 ]->insert_neighbor(  0, tBasis[  28 ] ); 
-                     mBasis[   1 ]->insert_neighbor(  1, tBasis[  31 ] ); 
-                     mBasis[   1 ]->insert_neighbor(  2, mBasis[   9 ] ); 
-                     mBasis[   1 ]->insert_neighbor(  3, mBasis[   8 ] ); 
-                     mBasis[   1 ]->insert_neighbor(  4, tBasis[   8 ] ); 
-                     mBasis[   1 ]->insert_neighbor(  5, mBasis[  13 ] ); 
-                     mBasis[   1 ]->insert_neighbor(  6, tBasis[   3 ] ); 
-                     mBasis[   1 ]->insert_neighbor(  7, tBasis[   9 ] ); 
-                     mBasis[   1 ]->insert_neighbor(  8, tBasis[  13 ] ); 
-                     mBasis[   1 ]->insert_neighbor(  9, tBasis[   7 ] ); 
-                     mBasis[   1 ]->insert_neighbor( 10, tBasis[  27 ] ); 
-                     mBasis[   1 ]->insert_neighbor( 11, tBasis[  29 ] ); 
-                     mBasis[   1 ]->insert_neighbor( 12, tBasis[  33 ] ); 
-                     mBasis[   1 ]->insert_neighbor( 13, mBasis[  21 ] ); 
-                     mBasis[   1 ]->insert_neighbor( 14, tBasis[  44 ] ); 
-                     mBasis[   1 ]->insert_neighbor( 15, tBasis[  47 ] ); 
-                     mBasis[   1 ]->insert_neighbor( 16, mBasis[  24 ] ); 
-                     mBasis[   1 ]->insert_neighbor( 17, mBasis[  25 ] ); 
-                     mBasis[   1 ]->insert_neighbor( 18, tBasis[   2 ] ); 
-                     mBasis[   1 ]->insert_neighbor( 19, tBasis[   4 ] ); 
-                     mBasis[   1 ]->insert_neighbor( 20, tBasis[  14 ] ); 
-                     mBasis[   1 ]->insert_neighbor( 21, tBasis[  12 ] ); 
-                     mBasis[   1 ]->insert_neighbor( 22, tBasis[  43 ] ); 
-                     mBasis[   1 ]->insert_neighbor( 23, tBasis[  45 ] ); 
-                     mBasis[   1 ]->insert_neighbor( 24, tBasis[  49 ] ); 
-                     mBasis[   1 ]->insert_neighbor( 25, mBasis[  20 ] ); 
+                     mBasis[   1 ]->insert_neighbor(  0, tBasis[  28 ] );
+                     mBasis[   1 ]->insert_neighbor(  1, tBasis[  31 ] );
+                     mBasis[   1 ]->insert_neighbor(  2, mBasis[   9 ] );
+                     mBasis[   1 ]->insert_neighbor(  3, mBasis[   8 ] );
+                     mBasis[   1 ]->insert_neighbor(  4, tBasis[   8 ] );
+                     mBasis[   1 ]->insert_neighbor(  5, mBasis[  13 ] );
+                     mBasis[   1 ]->insert_neighbor(  6, tBasis[   3 ] );
+                     mBasis[   1 ]->insert_neighbor(  7, tBasis[   9 ] );
+                     mBasis[   1 ]->insert_neighbor(  8, tBasis[  13 ] );
+                     mBasis[   1 ]->insert_neighbor(  9, tBasis[   7 ] );
+                     mBasis[   1 ]->insert_neighbor( 10, tBasis[  27 ] );
+                     mBasis[   1 ]->insert_neighbor( 11, tBasis[  29 ] );
+                     mBasis[   1 ]->insert_neighbor( 12, tBasis[  33 ] );
+                     mBasis[   1 ]->insert_neighbor( 13, mBasis[  21 ] );
+                     mBasis[   1 ]->insert_neighbor( 14, tBasis[  44 ] );
+                     mBasis[   1 ]->insert_neighbor( 15, tBasis[  47 ] );
+                     mBasis[   1 ]->insert_neighbor( 16, mBasis[  24 ] );
+                     mBasis[   1 ]->insert_neighbor( 17, mBasis[  25 ] );
+                     mBasis[   1 ]->insert_neighbor( 18, tBasis[   2 ] );
+                     mBasis[   1 ]->insert_neighbor( 19, tBasis[   4 ] );
+                     mBasis[   1 ]->insert_neighbor( 20, tBasis[  14 ] );
+                     mBasis[   1 ]->insert_neighbor( 21, tBasis[  12 ] );
+                     mBasis[   1 ]->insert_neighbor( 22, tBasis[  43 ] );
+                     mBasis[   1 ]->insert_neighbor( 23, tBasis[  45 ] );
+                     mBasis[   1 ]->insert_neighbor( 24, tBasis[  49 ] );
+                     mBasis[   1 ]->insert_neighbor( 25, mBasis[  20 ] );
 
                      // flag this basis
                      mBasis[   1 ]->flag();
@@ -1017,32 +1020,32 @@ namespace moris
                  if ( ! mBasis[   2 ]->is_flagged() )
                  {
                      // link neighbors of basis 2
-                     mBasis[   2 ]->insert_neighbor(  0, mBasis[   9 ] ); 
-                     mBasis[   2 ]->insert_neighbor(  1, tBasis[  35 ] ); 
-                     mBasis[   2 ]->insert_neighbor(  2, tBasis[  39 ] ); 
-                     mBasis[   2 ]->insert_neighbor(  3, mBasis[  10 ] ); 
-                     mBasis[   2 ]->insert_neighbor(  4, tBasis[  18 ] ); 
-                     mBasis[   2 ]->insert_neighbor(  5, mBasis[  14 ] ); 
-                     mBasis[   2 ]->insert_neighbor(  6, tBasis[  13 ] ); 
-                     mBasis[   2 ]->insert_neighbor(  7, tBasis[  19 ] ); 
-                     mBasis[   2 ]->insert_neighbor(  8, tBasis[  23 ] ); 
-                     mBasis[   2 ]->insert_neighbor(  9, tBasis[  17 ] ); 
-                     mBasis[   2 ]->insert_neighbor( 10, mBasis[  21 ] ); 
-                     mBasis[   2 ]->insert_neighbor( 11, tBasis[  33 ] ); 
-                     mBasis[   2 ]->insert_neighbor( 12, tBasis[  40 ] ); 
-                     mBasis[   2 ]->insert_neighbor( 13, tBasis[  38 ] ); 
-                     mBasis[   2 ]->insert_neighbor( 14, mBasis[  24 ] ); 
-                     mBasis[   2 ]->insert_neighbor( 15, tBasis[  51 ] ); 
-                     mBasis[   2 ]->insert_neighbor( 16, tBasis[  55 ] ); 
-                     mBasis[   2 ]->insert_neighbor( 17, mBasis[  26 ] ); 
-                     mBasis[   2 ]->insert_neighbor( 18, tBasis[  12 ] ); 
-                     mBasis[   2 ]->insert_neighbor( 19, tBasis[  14 ] ); 
-                     mBasis[   2 ]->insert_neighbor( 20, tBasis[  24 ] ); 
-                     mBasis[   2 ]->insert_neighbor( 21, tBasis[  22 ] ); 
-                     mBasis[   2 ]->insert_neighbor( 22, mBasis[  20 ] ); 
-                     mBasis[   2 ]->insert_neighbor( 23, tBasis[  49 ] ); 
-                     mBasis[   2 ]->insert_neighbor( 24, tBasis[  56 ] ); 
-                     mBasis[   2 ]->insert_neighbor( 25, tBasis[  54 ] ); 
+                     mBasis[   2 ]->insert_neighbor(  0, mBasis[   9 ] );
+                     mBasis[   2 ]->insert_neighbor(  1, tBasis[  35 ] );
+                     mBasis[   2 ]->insert_neighbor(  2, tBasis[  39 ] );
+                     mBasis[   2 ]->insert_neighbor(  3, mBasis[  10 ] );
+                     mBasis[   2 ]->insert_neighbor(  4, tBasis[  18 ] );
+                     mBasis[   2 ]->insert_neighbor(  5, mBasis[  14 ] );
+                     mBasis[   2 ]->insert_neighbor(  6, tBasis[  13 ] );
+                     mBasis[   2 ]->insert_neighbor(  7, tBasis[  19 ] );
+                     mBasis[   2 ]->insert_neighbor(  8, tBasis[  23 ] );
+                     mBasis[   2 ]->insert_neighbor(  9, tBasis[  17 ] );
+                     mBasis[   2 ]->insert_neighbor( 10, mBasis[  21 ] );
+                     mBasis[   2 ]->insert_neighbor( 11, tBasis[  33 ] );
+                     mBasis[   2 ]->insert_neighbor( 12, tBasis[  40 ] );
+                     mBasis[   2 ]->insert_neighbor( 13, tBasis[  38 ] );
+                     mBasis[   2 ]->insert_neighbor( 14, mBasis[  24 ] );
+                     mBasis[   2 ]->insert_neighbor( 15, tBasis[  51 ] );
+                     mBasis[   2 ]->insert_neighbor( 16, tBasis[  55 ] );
+                     mBasis[   2 ]->insert_neighbor( 17, mBasis[  26 ] );
+                     mBasis[   2 ]->insert_neighbor( 18, tBasis[  12 ] );
+                     mBasis[   2 ]->insert_neighbor( 19, tBasis[  14 ] );
+                     mBasis[   2 ]->insert_neighbor( 20, tBasis[  24 ] );
+                     mBasis[   2 ]->insert_neighbor( 21, tBasis[  22 ] );
+                     mBasis[   2 ]->insert_neighbor( 22, mBasis[  20 ] );
+                     mBasis[   2 ]->insert_neighbor( 23, tBasis[  49 ] );
+                     mBasis[   2 ]->insert_neighbor( 24, tBasis[  56 ] );
+                     mBasis[   2 ]->insert_neighbor( 25, tBasis[  54 ] );
 
                      // flag this basis
                      mBasis[   2 ]->flag();
@@ -1057,32 +1060,32 @@ namespace moris
                  if ( ! mBasis[   3 ]->is_flagged() )
                  {
                      // link neighbors of basis 3
-                     mBasis[   3 ]->insert_neighbor(  0, mBasis[  11 ] ); 
-                     mBasis[   3 ]->insert_neighbor(  1, mBasis[  10 ] ); 
-                     mBasis[   3 ]->insert_neighbor(  2, tBasis[  37 ] ); 
-                     mBasis[   3 ]->insert_neighbor(  3, tBasis[  34 ] ); 
-                     mBasis[   3 ]->insert_neighbor(  4, tBasis[  16 ] ); 
-                     mBasis[   3 ]->insert_neighbor(  5, mBasis[  15 ] ); 
-                     mBasis[   3 ]->insert_neighbor(  6, tBasis[  11 ] ); 
-                     mBasis[   3 ]->insert_neighbor(  7, tBasis[  17 ] ); 
-                     mBasis[   3 ]->insert_neighbor(  8, tBasis[  21 ] ); 
-                     mBasis[   3 ]->insert_neighbor(  9, tBasis[  15 ] ); 
-                     mBasis[   3 ]->insert_neighbor( 10, tBasis[  32 ] ); 
-                     mBasis[   3 ]->insert_neighbor( 11, mBasis[  21 ] ); 
-                     mBasis[   3 ]->insert_neighbor( 12, tBasis[  38 ] ); 
-                     mBasis[   3 ]->insert_neighbor( 13, tBasis[  36 ] ); 
-                     mBasis[   3 ]->insert_neighbor( 14, mBasis[  23 ] ); 
-                     mBasis[   3 ]->insert_neighbor( 15, mBasis[  26 ] ); 
-                     mBasis[   3 ]->insert_neighbor( 16, tBasis[  53 ] ); 
-                     mBasis[   3 ]->insert_neighbor( 17, tBasis[  50 ] ); 
-                     mBasis[   3 ]->insert_neighbor( 18, tBasis[  10 ] ); 
-                     mBasis[   3 ]->insert_neighbor( 19, tBasis[  12 ] ); 
-                     mBasis[   3 ]->insert_neighbor( 20, tBasis[  22 ] ); 
-                     mBasis[   3 ]->insert_neighbor( 21, tBasis[  20 ] ); 
-                     mBasis[   3 ]->insert_neighbor( 22, tBasis[  48 ] ); 
-                     mBasis[   3 ]->insert_neighbor( 23, mBasis[  20 ] ); 
-                     mBasis[   3 ]->insert_neighbor( 24, tBasis[  54 ] ); 
-                     mBasis[   3 ]->insert_neighbor( 25, tBasis[  52 ] ); 
+                     mBasis[   3 ]->insert_neighbor(  0, mBasis[  11 ] );
+                     mBasis[   3 ]->insert_neighbor(  1, mBasis[  10 ] );
+                     mBasis[   3 ]->insert_neighbor(  2, tBasis[  37 ] );
+                     mBasis[   3 ]->insert_neighbor(  3, tBasis[  34 ] );
+                     mBasis[   3 ]->insert_neighbor(  4, tBasis[  16 ] );
+                     mBasis[   3 ]->insert_neighbor(  5, mBasis[  15 ] );
+                     mBasis[   3 ]->insert_neighbor(  6, tBasis[  11 ] );
+                     mBasis[   3 ]->insert_neighbor(  7, tBasis[  17 ] );
+                     mBasis[   3 ]->insert_neighbor(  8, tBasis[  21 ] );
+                     mBasis[   3 ]->insert_neighbor(  9, tBasis[  15 ] );
+                     mBasis[   3 ]->insert_neighbor( 10, tBasis[  32 ] );
+                     mBasis[   3 ]->insert_neighbor( 11, mBasis[  21 ] );
+                     mBasis[   3 ]->insert_neighbor( 12, tBasis[  38 ] );
+                     mBasis[   3 ]->insert_neighbor( 13, tBasis[  36 ] );
+                     mBasis[   3 ]->insert_neighbor( 14, mBasis[  23 ] );
+                     mBasis[   3 ]->insert_neighbor( 15, mBasis[  26 ] );
+                     mBasis[   3 ]->insert_neighbor( 16, tBasis[  53 ] );
+                     mBasis[   3 ]->insert_neighbor( 17, tBasis[  50 ] );
+                     mBasis[   3 ]->insert_neighbor( 18, tBasis[  10 ] );
+                     mBasis[   3 ]->insert_neighbor( 19, tBasis[  12 ] );
+                     mBasis[   3 ]->insert_neighbor( 20, tBasis[  22 ] );
+                     mBasis[   3 ]->insert_neighbor( 21, tBasis[  20 ] );
+                     mBasis[   3 ]->insert_neighbor( 22, tBasis[  48 ] );
+                     mBasis[   3 ]->insert_neighbor( 23, mBasis[  20 ] );
+                     mBasis[   3 ]->insert_neighbor( 24, tBasis[  54 ] );
+                     mBasis[   3 ]->insert_neighbor( 25, tBasis[  52 ] );
 
                      // flag this basis
                      mBasis[   3 ]->flag();
@@ -1097,32 +1100,32 @@ namespace moris
                  if ( ! mBasis[   4 ]->is_flagged() )
                  {
                      // link neighbors of basis 4
-                     mBasis[   4 ]->insert_neighbor(  0, tBasis[  58 ] ); 
-                     mBasis[   4 ]->insert_neighbor(  1, mBasis[  16 ] ); 
-                     mBasis[   4 ]->insert_neighbor(  2, mBasis[  19 ] ); 
-                     mBasis[   4 ]->insert_neighbor(  3, tBasis[  62 ] ); 
-                     mBasis[   4 ]->insert_neighbor(  4, mBasis[  12 ] ); 
-                     mBasis[   4 ]->insert_neighbor(  5, tBasis[  79 ] ); 
-                     mBasis[   4 ]->insert_neighbor(  6, tBasis[  42 ] ); 
-                     mBasis[   4 ]->insert_neighbor(  7, mBasis[  25 ] ); 
-                     mBasis[   4 ]->insert_neighbor(  8, mBasis[  23 ] ); 
-                     mBasis[   4 ]->insert_neighbor(  9, tBasis[  46 ] ); 
-                     mBasis[   4 ]->insert_neighbor( 10, tBasis[  57 ] ); 
-                     mBasis[   4 ]->insert_neighbor( 11, tBasis[  59 ] ); 
-                     mBasis[   4 ]->insert_neighbor( 12, mBasis[  22 ] ); 
-                     mBasis[   4 ]->insert_neighbor( 13, tBasis[  64 ] ); 
-                     mBasis[   4 ]->insert_neighbor( 14, tBasis[  74 ] ); 
-                     mBasis[   4 ]->insert_neighbor( 15, tBasis[  80 ] ); 
-                     mBasis[   4 ]->insert_neighbor( 16, tBasis[  84 ] ); 
-                     mBasis[   4 ]->insert_neighbor( 17, tBasis[  78 ] ); 
-                     mBasis[   4 ]->insert_neighbor( 18, tBasis[  41 ] ); 
-                     mBasis[   4 ]->insert_neighbor( 19, tBasis[  43 ] ); 
-                     mBasis[   4 ]->insert_neighbor( 20, mBasis[  20 ] ); 
-                     mBasis[   4 ]->insert_neighbor( 21, tBasis[  48 ] ); 
-                     mBasis[   4 ]->insert_neighbor( 22, tBasis[  73 ] ); 
-                     mBasis[   4 ]->insert_neighbor( 23, tBasis[  75 ] ); 
-                     mBasis[   4 ]->insert_neighbor( 24, tBasis[  85 ] ); 
-                     mBasis[   4 ]->insert_neighbor( 25, tBasis[  83 ] ); 
+                     mBasis[   4 ]->insert_neighbor(  0, tBasis[  58 ] );
+                     mBasis[   4 ]->insert_neighbor(  1, mBasis[  16 ] );
+                     mBasis[   4 ]->insert_neighbor(  2, mBasis[  19 ] );
+                     mBasis[   4 ]->insert_neighbor(  3, tBasis[  62 ] );
+                     mBasis[   4 ]->insert_neighbor(  4, mBasis[  12 ] );
+                     mBasis[   4 ]->insert_neighbor(  5, tBasis[  79 ] );
+                     mBasis[   4 ]->insert_neighbor(  6, tBasis[  42 ] );
+                     mBasis[   4 ]->insert_neighbor(  7, mBasis[  25 ] );
+                     mBasis[   4 ]->insert_neighbor(  8, mBasis[  23 ] );
+                     mBasis[   4 ]->insert_neighbor(  9, tBasis[  46 ] );
+                     mBasis[   4 ]->insert_neighbor( 10, tBasis[  57 ] );
+                     mBasis[   4 ]->insert_neighbor( 11, tBasis[  59 ] );
+                     mBasis[   4 ]->insert_neighbor( 12, mBasis[  22 ] );
+                     mBasis[   4 ]->insert_neighbor( 13, tBasis[  64 ] );
+                     mBasis[   4 ]->insert_neighbor( 14, tBasis[  74 ] );
+                     mBasis[   4 ]->insert_neighbor( 15, tBasis[  80 ] );
+                     mBasis[   4 ]->insert_neighbor( 16, tBasis[  84 ] );
+                     mBasis[   4 ]->insert_neighbor( 17, tBasis[  78 ] );
+                     mBasis[   4 ]->insert_neighbor( 18, tBasis[  41 ] );
+                     mBasis[   4 ]->insert_neighbor( 19, tBasis[  43 ] );
+                     mBasis[   4 ]->insert_neighbor( 20, mBasis[  20 ] );
+                     mBasis[   4 ]->insert_neighbor( 21, tBasis[  48 ] );
+                     mBasis[   4 ]->insert_neighbor( 22, tBasis[  73 ] );
+                     mBasis[   4 ]->insert_neighbor( 23, tBasis[  75 ] );
+                     mBasis[   4 ]->insert_neighbor( 24, tBasis[  85 ] );
+                     mBasis[   4 ]->insert_neighbor( 25, tBasis[  83 ] );
 
                      // flag this basis
                      mBasis[   4 ]->flag();
@@ -1137,32 +1140,32 @@ namespace moris
                  if ( ! mBasis[   5 ]->is_flagged() )
                  {
                      // link neighbors of basis 5
-                     mBasis[   5 ]->insert_neighbor(  0, tBasis[  60 ] ); 
-                     mBasis[   5 ]->insert_neighbor(  1, tBasis[  63 ] ); 
-                     mBasis[   5 ]->insert_neighbor(  2, mBasis[  17 ] ); 
-                     mBasis[   5 ]->insert_neighbor(  3, mBasis[  16 ] ); 
-                     mBasis[   5 ]->insert_neighbor(  4, mBasis[  13 ] ); 
-                     mBasis[   5 ]->insert_neighbor(  5, tBasis[  81 ] ); 
-                     mBasis[   5 ]->insert_neighbor(  6, tBasis[  44 ] ); 
-                     mBasis[   5 ]->insert_neighbor(  7, tBasis[  47 ] ); 
-                     mBasis[   5 ]->insert_neighbor(  8, mBasis[  24 ] ); 
-                     mBasis[   5 ]->insert_neighbor(  9, mBasis[  25 ] ); 
-                     mBasis[   5 ]->insert_neighbor( 10, tBasis[  59 ] ); 
-                     mBasis[   5 ]->insert_neighbor( 11, tBasis[  61 ] ); 
-                     mBasis[   5 ]->insert_neighbor( 12, tBasis[  65 ] ); 
-                     mBasis[   5 ]->insert_neighbor( 13, mBasis[  22 ] ); 
-                     mBasis[   5 ]->insert_neighbor( 14, tBasis[  76 ] ); 
-                     mBasis[   5 ]->insert_neighbor( 15, tBasis[  82 ] ); 
-                     mBasis[   5 ]->insert_neighbor( 16, tBasis[  86 ] ); 
-                     mBasis[   5 ]->insert_neighbor( 17, tBasis[  80 ] ); 
-                     mBasis[   5 ]->insert_neighbor( 18, tBasis[  43 ] ); 
-                     mBasis[   5 ]->insert_neighbor( 19, tBasis[  45 ] ); 
-                     mBasis[   5 ]->insert_neighbor( 20, tBasis[  49 ] ); 
-                     mBasis[   5 ]->insert_neighbor( 21, mBasis[  20 ] ); 
-                     mBasis[   5 ]->insert_neighbor( 22, tBasis[  75 ] ); 
-                     mBasis[   5 ]->insert_neighbor( 23, tBasis[  77 ] ); 
-                     mBasis[   5 ]->insert_neighbor( 24, tBasis[  87 ] ); 
-                     mBasis[   5 ]->insert_neighbor( 25, tBasis[  85 ] ); 
+                     mBasis[   5 ]->insert_neighbor(  0, tBasis[  60 ] );
+                     mBasis[   5 ]->insert_neighbor(  1, tBasis[  63 ] );
+                     mBasis[   5 ]->insert_neighbor(  2, mBasis[  17 ] );
+                     mBasis[   5 ]->insert_neighbor(  3, mBasis[  16 ] );
+                     mBasis[   5 ]->insert_neighbor(  4, mBasis[  13 ] );
+                     mBasis[   5 ]->insert_neighbor(  5, tBasis[  81 ] );
+                     mBasis[   5 ]->insert_neighbor(  6, tBasis[  44 ] );
+                     mBasis[   5 ]->insert_neighbor(  7, tBasis[  47 ] );
+                     mBasis[   5 ]->insert_neighbor(  8, mBasis[  24 ] );
+                     mBasis[   5 ]->insert_neighbor(  9, mBasis[  25 ] );
+                     mBasis[   5 ]->insert_neighbor( 10, tBasis[  59 ] );
+                     mBasis[   5 ]->insert_neighbor( 11, tBasis[  61 ] );
+                     mBasis[   5 ]->insert_neighbor( 12, tBasis[  65 ] );
+                     mBasis[   5 ]->insert_neighbor( 13, mBasis[  22 ] );
+                     mBasis[   5 ]->insert_neighbor( 14, tBasis[  76 ] );
+                     mBasis[   5 ]->insert_neighbor( 15, tBasis[  82 ] );
+                     mBasis[   5 ]->insert_neighbor( 16, tBasis[  86 ] );
+                     mBasis[   5 ]->insert_neighbor( 17, tBasis[  80 ] );
+                     mBasis[   5 ]->insert_neighbor( 18, tBasis[  43 ] );
+                     mBasis[   5 ]->insert_neighbor( 19, tBasis[  45 ] );
+                     mBasis[   5 ]->insert_neighbor( 20, tBasis[  49 ] );
+                     mBasis[   5 ]->insert_neighbor( 21, mBasis[  20 ] );
+                     mBasis[   5 ]->insert_neighbor( 22, tBasis[  75 ] );
+                     mBasis[   5 ]->insert_neighbor( 23, tBasis[  77 ] );
+                     mBasis[   5 ]->insert_neighbor( 24, tBasis[  87 ] );
+                     mBasis[   5 ]->insert_neighbor( 25, tBasis[  85 ] );
 
                      // flag this basis
                      mBasis[   5 ]->flag();
@@ -1177,32 +1180,32 @@ namespace moris
                  if ( ! mBasis[   6 ]->is_flagged() )
                  {
                      // link neighbors of basis 6
-                     mBasis[   6 ]->insert_neighbor(  0, mBasis[  17 ] ); 
-                     mBasis[   6 ]->insert_neighbor(  1, tBasis[  67 ] ); 
-                     mBasis[   6 ]->insert_neighbor(  2, tBasis[  71 ] ); 
-                     mBasis[   6 ]->insert_neighbor(  3, mBasis[  18 ] ); 
-                     mBasis[   6 ]->insert_neighbor(  4, mBasis[  14 ] ); 
-                     mBasis[   6 ]->insert_neighbor(  5, tBasis[  91 ] ); 
-                     mBasis[   6 ]->insert_neighbor(  6, mBasis[  24 ] ); 
-                     mBasis[   6 ]->insert_neighbor(  7, tBasis[  51 ] ); 
-                     mBasis[   6 ]->insert_neighbor(  8, tBasis[  55 ] ); 
-                     mBasis[   6 ]->insert_neighbor(  9, mBasis[  26 ] ); 
-                     mBasis[   6 ]->insert_neighbor( 10, mBasis[  22 ] ); 
-                     mBasis[   6 ]->insert_neighbor( 11, tBasis[  65 ] ); 
-                     mBasis[   6 ]->insert_neighbor( 12, tBasis[  72 ] ); 
-                     mBasis[   6 ]->insert_neighbor( 13, tBasis[  70 ] ); 
-                     mBasis[   6 ]->insert_neighbor( 14, tBasis[  86 ] ); 
-                     mBasis[   6 ]->insert_neighbor( 15, tBasis[  92 ] ); 
-                     mBasis[   6 ]->insert_neighbor( 16, tBasis[  96 ] ); 
-                     mBasis[   6 ]->insert_neighbor( 17, tBasis[  90 ] ); 
-                     mBasis[   6 ]->insert_neighbor( 18, mBasis[  20 ] ); 
-                     mBasis[   6 ]->insert_neighbor( 19, tBasis[  49 ] ); 
-                     mBasis[   6 ]->insert_neighbor( 20, tBasis[  56 ] ); 
-                     mBasis[   6 ]->insert_neighbor( 21, tBasis[  54 ] ); 
-                     mBasis[   6 ]->insert_neighbor( 22, tBasis[  85 ] ); 
-                     mBasis[   6 ]->insert_neighbor( 23, tBasis[  87 ] ); 
-                     mBasis[   6 ]->insert_neighbor( 24, tBasis[  97 ] ); 
-                     mBasis[   6 ]->insert_neighbor( 25, tBasis[  95 ] ); 
+                     mBasis[   6 ]->insert_neighbor(  0, mBasis[  17 ] );
+                     mBasis[   6 ]->insert_neighbor(  1, tBasis[  67 ] );
+                     mBasis[   6 ]->insert_neighbor(  2, tBasis[  71 ] );
+                     mBasis[   6 ]->insert_neighbor(  3, mBasis[  18 ] );
+                     mBasis[   6 ]->insert_neighbor(  4, mBasis[  14 ] );
+                     mBasis[   6 ]->insert_neighbor(  5, tBasis[  91 ] );
+                     mBasis[   6 ]->insert_neighbor(  6, mBasis[  24 ] );
+                     mBasis[   6 ]->insert_neighbor(  7, tBasis[  51 ] );
+                     mBasis[   6 ]->insert_neighbor(  8, tBasis[  55 ] );
+                     mBasis[   6 ]->insert_neighbor(  9, mBasis[  26 ] );
+                     mBasis[   6 ]->insert_neighbor( 10, mBasis[  22 ] );
+                     mBasis[   6 ]->insert_neighbor( 11, tBasis[  65 ] );
+                     mBasis[   6 ]->insert_neighbor( 12, tBasis[  72 ] );
+                     mBasis[   6 ]->insert_neighbor( 13, tBasis[  70 ] );
+                     mBasis[   6 ]->insert_neighbor( 14, tBasis[  86 ] );
+                     mBasis[   6 ]->insert_neighbor( 15, tBasis[  92 ] );
+                     mBasis[   6 ]->insert_neighbor( 16, tBasis[  96 ] );
+                     mBasis[   6 ]->insert_neighbor( 17, tBasis[  90 ] );
+                     mBasis[   6 ]->insert_neighbor( 18, mBasis[  20 ] );
+                     mBasis[   6 ]->insert_neighbor( 19, tBasis[  49 ] );
+                     mBasis[   6 ]->insert_neighbor( 20, tBasis[  56 ] );
+                     mBasis[   6 ]->insert_neighbor( 21, tBasis[  54 ] );
+                     mBasis[   6 ]->insert_neighbor( 22, tBasis[  85 ] );
+                     mBasis[   6 ]->insert_neighbor( 23, tBasis[  87 ] );
+                     mBasis[   6 ]->insert_neighbor( 24, tBasis[  97 ] );
+                     mBasis[   6 ]->insert_neighbor( 25, tBasis[  95 ] );
 
                      // flag this basis
                      mBasis[   6 ]->flag();
@@ -1217,32 +1220,32 @@ namespace moris
                  if ( ! mBasis[   7 ]->is_flagged() )
                  {
                      // link neighbors of basis 7
-                     mBasis[   7 ]->insert_neighbor(  0, mBasis[  19 ] ); 
-                     mBasis[   7 ]->insert_neighbor(  1, mBasis[  18 ] ); 
-                     mBasis[   7 ]->insert_neighbor(  2, tBasis[  69 ] ); 
-                     mBasis[   7 ]->insert_neighbor(  3, tBasis[  66 ] ); 
-                     mBasis[   7 ]->insert_neighbor(  4, mBasis[  15 ] ); 
-                     mBasis[   7 ]->insert_neighbor(  5, tBasis[  89 ] ); 
-                     mBasis[   7 ]->insert_neighbor(  6, mBasis[  23 ] ); 
-                     mBasis[   7 ]->insert_neighbor(  7, mBasis[  26 ] ); 
-                     mBasis[   7 ]->insert_neighbor(  8, tBasis[  53 ] ); 
-                     mBasis[   7 ]->insert_neighbor(  9, tBasis[  50 ] ); 
-                     mBasis[   7 ]->insert_neighbor( 10, tBasis[  64 ] ); 
-                     mBasis[   7 ]->insert_neighbor( 11, mBasis[  22 ] ); 
-                     mBasis[   7 ]->insert_neighbor( 12, tBasis[  70 ] ); 
-                     mBasis[   7 ]->insert_neighbor( 13, tBasis[  68 ] ); 
-                     mBasis[   7 ]->insert_neighbor( 14, tBasis[  84 ] ); 
-                     mBasis[   7 ]->insert_neighbor( 15, tBasis[  90 ] ); 
-                     mBasis[   7 ]->insert_neighbor( 16, tBasis[  94 ] ); 
-                     mBasis[   7 ]->insert_neighbor( 17, tBasis[  88 ] ); 
-                     mBasis[   7 ]->insert_neighbor( 18, tBasis[  48 ] ); 
-                     mBasis[   7 ]->insert_neighbor( 19, mBasis[  20 ] ); 
-                     mBasis[   7 ]->insert_neighbor( 20, tBasis[  54 ] ); 
-                     mBasis[   7 ]->insert_neighbor( 21, tBasis[  52 ] ); 
-                     mBasis[   7 ]->insert_neighbor( 22, tBasis[  83 ] ); 
-                     mBasis[   7 ]->insert_neighbor( 23, tBasis[  85 ] ); 
-                     mBasis[   7 ]->insert_neighbor( 24, tBasis[  95 ] ); 
-                     mBasis[   7 ]->insert_neighbor( 25, tBasis[  93 ] ); 
+                     mBasis[   7 ]->insert_neighbor(  0, mBasis[  19 ] );
+                     mBasis[   7 ]->insert_neighbor(  1, mBasis[  18 ] );
+                     mBasis[   7 ]->insert_neighbor(  2, tBasis[  69 ] );
+                     mBasis[   7 ]->insert_neighbor(  3, tBasis[  66 ] );
+                     mBasis[   7 ]->insert_neighbor(  4, mBasis[  15 ] );
+                     mBasis[   7 ]->insert_neighbor(  5, tBasis[  89 ] );
+                     mBasis[   7 ]->insert_neighbor(  6, mBasis[  23 ] );
+                     mBasis[   7 ]->insert_neighbor(  7, mBasis[  26 ] );
+                     mBasis[   7 ]->insert_neighbor(  8, tBasis[  53 ] );
+                     mBasis[   7 ]->insert_neighbor(  9, tBasis[  50 ] );
+                     mBasis[   7 ]->insert_neighbor( 10, tBasis[  64 ] );
+                     mBasis[   7 ]->insert_neighbor( 11, mBasis[  22 ] );
+                     mBasis[   7 ]->insert_neighbor( 12, tBasis[  70 ] );
+                     mBasis[   7 ]->insert_neighbor( 13, tBasis[  68 ] );
+                     mBasis[   7 ]->insert_neighbor( 14, tBasis[  84 ] );
+                     mBasis[   7 ]->insert_neighbor( 15, tBasis[  90 ] );
+                     mBasis[   7 ]->insert_neighbor( 16, tBasis[  94 ] );
+                     mBasis[   7 ]->insert_neighbor( 17, tBasis[  88 ] );
+                     mBasis[   7 ]->insert_neighbor( 18, tBasis[  48 ] );
+                     mBasis[   7 ]->insert_neighbor( 19, mBasis[  20 ] );
+                     mBasis[   7 ]->insert_neighbor( 20, tBasis[  54 ] );
+                     mBasis[   7 ]->insert_neighbor( 21, tBasis[  52 ] );
+                     mBasis[   7 ]->insert_neighbor( 22, tBasis[  83 ] );
+                     mBasis[   7 ]->insert_neighbor( 23, tBasis[  85 ] );
+                     mBasis[   7 ]->insert_neighbor( 24, tBasis[  95 ] );
+                     mBasis[   7 ]->insert_neighbor( 25, tBasis[  93 ] );
 
                      // flag this basis
                      mBasis[   7 ]->flag();
@@ -1257,32 +1260,32 @@ namespace moris
                  if ( ! mBasis[   8 ]->is_flagged() )
                  {
                      // link neighbors of basis 8
-                     mBasis[   8 ]->insert_neighbor(  0, tBasis[  27 ] ); 
-                     mBasis[   8 ]->insert_neighbor(  1, mBasis[   1 ] ); 
-                     mBasis[   8 ]->insert_neighbor(  2, mBasis[  21 ] ); 
-                     mBasis[   8 ]->insert_neighbor(  3, mBasis[   0 ] ); 
-                     mBasis[   8 ]->insert_neighbor(  4, tBasis[   7 ] ); 
-                     mBasis[   8 ]->insert_neighbor(  5, mBasis[  25 ] ); 
-                     mBasis[   8 ]->insert_neighbor(  6, tBasis[   2 ] ); 
-                     mBasis[   8 ]->insert_neighbor(  7, tBasis[   8 ] ); 
-                     mBasis[   8 ]->insert_neighbor(  8, tBasis[  12 ] ); 
-                     mBasis[   8 ]->insert_neighbor(  9, tBasis[   6 ] ); 
-                     mBasis[   8 ]->insert_neighbor( 10, tBasis[  26 ] ); 
-                     mBasis[   8 ]->insert_neighbor( 11, tBasis[  28 ] ); 
-                     mBasis[   8 ]->insert_neighbor( 12, mBasis[   9 ] ); 
-                     mBasis[   8 ]->insert_neighbor( 13, mBasis[  11 ] ); 
-                     mBasis[   8 ]->insert_neighbor( 14, tBasis[  43 ] ); 
-                     mBasis[   8 ]->insert_neighbor( 15, mBasis[  13 ] ); 
-                     mBasis[   8 ]->insert_neighbor( 16, mBasis[  20 ] ); 
-                     mBasis[   8 ]->insert_neighbor( 17, mBasis[  12 ] ); 
-                     mBasis[   8 ]->insert_neighbor( 18, tBasis[   1 ] ); 
-                     mBasis[   8 ]->insert_neighbor( 19, tBasis[   3 ] ); 
-                     mBasis[   8 ]->insert_neighbor( 20, tBasis[  13 ] ); 
-                     mBasis[   8 ]->insert_neighbor( 21, tBasis[  11 ] ); 
-                     mBasis[   8 ]->insert_neighbor( 22, tBasis[  42 ] ); 
-                     mBasis[   8 ]->insert_neighbor( 23, tBasis[  44 ] ); 
-                     mBasis[   8 ]->insert_neighbor( 24, mBasis[  24 ] ); 
-                     mBasis[   8 ]->insert_neighbor( 25, mBasis[  23 ] ); 
+                     mBasis[   8 ]->insert_neighbor(  0, tBasis[  27 ] );
+                     mBasis[   8 ]->insert_neighbor(  1, mBasis[   1 ] );
+                     mBasis[   8 ]->insert_neighbor(  2, mBasis[  21 ] );
+                     mBasis[   8 ]->insert_neighbor(  3, mBasis[   0 ] );
+                     mBasis[   8 ]->insert_neighbor(  4, tBasis[   7 ] );
+                     mBasis[   8 ]->insert_neighbor(  5, mBasis[  25 ] );
+                     mBasis[   8 ]->insert_neighbor(  6, tBasis[   2 ] );
+                     mBasis[   8 ]->insert_neighbor(  7, tBasis[   8 ] );
+                     mBasis[   8 ]->insert_neighbor(  8, tBasis[  12 ] );
+                     mBasis[   8 ]->insert_neighbor(  9, tBasis[   6 ] );
+                     mBasis[   8 ]->insert_neighbor( 10, tBasis[  26 ] );
+                     mBasis[   8 ]->insert_neighbor( 11, tBasis[  28 ] );
+                     mBasis[   8 ]->insert_neighbor( 12, mBasis[   9 ] );
+                     mBasis[   8 ]->insert_neighbor( 13, mBasis[  11 ] );
+                     mBasis[   8 ]->insert_neighbor( 14, tBasis[  43 ] );
+                     mBasis[   8 ]->insert_neighbor( 15, mBasis[  13 ] );
+                     mBasis[   8 ]->insert_neighbor( 16, mBasis[  20 ] );
+                     mBasis[   8 ]->insert_neighbor( 17, mBasis[  12 ] );
+                     mBasis[   8 ]->insert_neighbor( 18, tBasis[   1 ] );
+                     mBasis[   8 ]->insert_neighbor( 19, tBasis[   3 ] );
+                     mBasis[   8 ]->insert_neighbor( 20, tBasis[  13 ] );
+                     mBasis[   8 ]->insert_neighbor( 21, tBasis[  11 ] );
+                     mBasis[   8 ]->insert_neighbor( 22, tBasis[  42 ] );
+                     mBasis[   8 ]->insert_neighbor( 23, tBasis[  44 ] );
+                     mBasis[   8 ]->insert_neighbor( 24, mBasis[  24 ] );
+                     mBasis[   8 ]->insert_neighbor( 25, mBasis[  23 ] );
 
                      // flag this basis
                      mBasis[   8 ]->flag();
@@ -1297,32 +1300,32 @@ namespace moris
                  if ( ! mBasis[   9 ]->is_flagged() )
                  {
                      // link neighbors of basis 9
-                     mBasis[   9 ]->insert_neighbor(  0, mBasis[   1 ] ); 
-                     mBasis[   9 ]->insert_neighbor(  1, tBasis[  33 ] ); 
-                     mBasis[   9 ]->insert_neighbor(  2, mBasis[   2 ] ); 
-                     mBasis[   9 ]->insert_neighbor(  3, mBasis[  21 ] ); 
-                     mBasis[   9 ]->insert_neighbor(  4, tBasis[  13 ] ); 
-                     mBasis[   9 ]->insert_neighbor(  5, mBasis[  24 ] ); 
-                     mBasis[   9 ]->insert_neighbor(  6, tBasis[   8 ] ); 
-                     mBasis[   9 ]->insert_neighbor(  7, tBasis[  14 ] ); 
-                     mBasis[   9 ]->insert_neighbor(  8, tBasis[  18 ] ); 
-                     mBasis[   9 ]->insert_neighbor(  9, tBasis[  12 ] ); 
-                     mBasis[   9 ]->insert_neighbor( 10, mBasis[   8 ] ); 
-                     mBasis[   9 ]->insert_neighbor( 11, tBasis[  31 ] ); 
-                     mBasis[   9 ]->insert_neighbor( 12, tBasis[  35 ] ); 
-                     mBasis[   9 ]->insert_neighbor( 13, mBasis[  10 ] ); 
-                     mBasis[   9 ]->insert_neighbor( 14, mBasis[  13 ] ); 
-                     mBasis[   9 ]->insert_neighbor( 15, tBasis[  49 ] ); 
-                     mBasis[   9 ]->insert_neighbor( 16, mBasis[  14 ] ); 
-                     mBasis[   9 ]->insert_neighbor( 17, mBasis[  20 ] ); 
-                     mBasis[   9 ]->insert_neighbor( 18, tBasis[   7 ] ); 
-                     mBasis[   9 ]->insert_neighbor( 19, tBasis[   9 ] ); 
-                     mBasis[   9 ]->insert_neighbor( 20, tBasis[  19 ] ); 
-                     mBasis[   9 ]->insert_neighbor( 21, tBasis[  17 ] ); 
-                     mBasis[   9 ]->insert_neighbor( 22, mBasis[  25 ] ); 
-                     mBasis[   9 ]->insert_neighbor( 23, tBasis[  47 ] ); 
-                     mBasis[   9 ]->insert_neighbor( 24, tBasis[  51 ] ); 
-                     mBasis[   9 ]->insert_neighbor( 25, mBasis[  26 ] ); 
+                     mBasis[   9 ]->insert_neighbor(  0, mBasis[   1 ] );
+                     mBasis[   9 ]->insert_neighbor(  1, tBasis[  33 ] );
+                     mBasis[   9 ]->insert_neighbor(  2, mBasis[   2 ] );
+                     mBasis[   9 ]->insert_neighbor(  3, mBasis[  21 ] );
+                     mBasis[   9 ]->insert_neighbor(  4, tBasis[  13 ] );
+                     mBasis[   9 ]->insert_neighbor(  5, mBasis[  24 ] );
+                     mBasis[   9 ]->insert_neighbor(  6, tBasis[   8 ] );
+                     mBasis[   9 ]->insert_neighbor(  7, tBasis[  14 ] );
+                     mBasis[   9 ]->insert_neighbor(  8, tBasis[  18 ] );
+                     mBasis[   9 ]->insert_neighbor(  9, tBasis[  12 ] );
+                     mBasis[   9 ]->insert_neighbor( 10, mBasis[   8 ] );
+                     mBasis[   9 ]->insert_neighbor( 11, tBasis[  31 ] );
+                     mBasis[   9 ]->insert_neighbor( 12, tBasis[  35 ] );
+                     mBasis[   9 ]->insert_neighbor( 13, mBasis[  10 ] );
+                     mBasis[   9 ]->insert_neighbor( 14, mBasis[  13 ] );
+                     mBasis[   9 ]->insert_neighbor( 15, tBasis[  49 ] );
+                     mBasis[   9 ]->insert_neighbor( 16, mBasis[  14 ] );
+                     mBasis[   9 ]->insert_neighbor( 17, mBasis[  20 ] );
+                     mBasis[   9 ]->insert_neighbor( 18, tBasis[   7 ] );
+                     mBasis[   9 ]->insert_neighbor( 19, tBasis[   9 ] );
+                     mBasis[   9 ]->insert_neighbor( 20, tBasis[  19 ] );
+                     mBasis[   9 ]->insert_neighbor( 21, tBasis[  17 ] );
+                     mBasis[   9 ]->insert_neighbor( 22, mBasis[  25 ] );
+                     mBasis[   9 ]->insert_neighbor( 23, tBasis[  47 ] );
+                     mBasis[   9 ]->insert_neighbor( 24, tBasis[  51 ] );
+                     mBasis[   9 ]->insert_neighbor( 25, mBasis[  26 ] );
 
                      // flag this basis
                      mBasis[   9 ]->flag();
@@ -1337,32 +1340,32 @@ namespace moris
                  if ( ! mBasis[  10 ]->is_flagged() )
                  {
                      // link neighbors of basis 10
-                     mBasis[  10 ]->insert_neighbor(  0, mBasis[  21 ] ); 
-                     mBasis[  10 ]->insert_neighbor(  1, mBasis[   2 ] ); 
-                     mBasis[  10 ]->insert_neighbor(  2, tBasis[  38 ] ); 
-                     mBasis[  10 ]->insert_neighbor(  3, mBasis[   3 ] ); 
-                     mBasis[  10 ]->insert_neighbor(  4, tBasis[  17 ] ); 
-                     mBasis[  10 ]->insert_neighbor(  5, mBasis[  26 ] ); 
-                     mBasis[  10 ]->insert_neighbor(  6, tBasis[  12 ] ); 
-                     mBasis[  10 ]->insert_neighbor(  7, tBasis[  18 ] ); 
-                     mBasis[  10 ]->insert_neighbor(  8, tBasis[  22 ] ); 
-                     mBasis[  10 ]->insert_neighbor(  9, tBasis[  16 ] ); 
-                     mBasis[  10 ]->insert_neighbor( 10, mBasis[  11 ] ); 
-                     mBasis[  10 ]->insert_neighbor( 11, mBasis[   9 ] ); 
-                     mBasis[  10 ]->insert_neighbor( 12, tBasis[  39 ] ); 
-                     mBasis[  10 ]->insert_neighbor( 13, tBasis[  37 ] ); 
-                     mBasis[  10 ]->insert_neighbor( 14, mBasis[  20 ] ); 
-                     mBasis[  10 ]->insert_neighbor( 15, mBasis[  14 ] ); 
-                     mBasis[  10 ]->insert_neighbor( 16, tBasis[  54 ] ); 
-                     mBasis[  10 ]->insert_neighbor( 17, mBasis[  15 ] ); 
-                     mBasis[  10 ]->insert_neighbor( 18, tBasis[  11 ] ); 
-                     mBasis[  10 ]->insert_neighbor( 19, tBasis[  13 ] ); 
-                     mBasis[  10 ]->insert_neighbor( 20, tBasis[  23 ] ); 
-                     mBasis[  10 ]->insert_neighbor( 21, tBasis[  21 ] ); 
-                     mBasis[  10 ]->insert_neighbor( 22, mBasis[  23 ] ); 
-                     mBasis[  10 ]->insert_neighbor( 23, mBasis[  24 ] ); 
-                     mBasis[  10 ]->insert_neighbor( 24, tBasis[  55 ] ); 
-                     mBasis[  10 ]->insert_neighbor( 25, tBasis[  53 ] ); 
+                     mBasis[  10 ]->insert_neighbor(  0, mBasis[  21 ] );
+                     mBasis[  10 ]->insert_neighbor(  1, mBasis[   2 ] );
+                     mBasis[  10 ]->insert_neighbor(  2, tBasis[  38 ] );
+                     mBasis[  10 ]->insert_neighbor(  3, mBasis[   3 ] );
+                     mBasis[  10 ]->insert_neighbor(  4, tBasis[  17 ] );
+                     mBasis[  10 ]->insert_neighbor(  5, mBasis[  26 ] );
+                     mBasis[  10 ]->insert_neighbor(  6, tBasis[  12 ] );
+                     mBasis[  10 ]->insert_neighbor(  7, tBasis[  18 ] );
+                     mBasis[  10 ]->insert_neighbor(  8, tBasis[  22 ] );
+                     mBasis[  10 ]->insert_neighbor(  9, tBasis[  16 ] );
+                     mBasis[  10 ]->insert_neighbor( 10, mBasis[  11 ] );
+                     mBasis[  10 ]->insert_neighbor( 11, mBasis[   9 ] );
+                     mBasis[  10 ]->insert_neighbor( 12, tBasis[  39 ] );
+                     mBasis[  10 ]->insert_neighbor( 13, tBasis[  37 ] );
+                     mBasis[  10 ]->insert_neighbor( 14, mBasis[  20 ] );
+                     mBasis[  10 ]->insert_neighbor( 15, mBasis[  14 ] );
+                     mBasis[  10 ]->insert_neighbor( 16, tBasis[  54 ] );
+                     mBasis[  10 ]->insert_neighbor( 17, mBasis[  15 ] );
+                     mBasis[  10 ]->insert_neighbor( 18, tBasis[  11 ] );
+                     mBasis[  10 ]->insert_neighbor( 19, tBasis[  13 ] );
+                     mBasis[  10 ]->insert_neighbor( 20, tBasis[  23 ] );
+                     mBasis[  10 ]->insert_neighbor( 21, tBasis[  21 ] );
+                     mBasis[  10 ]->insert_neighbor( 22, mBasis[  23 ] );
+                     mBasis[  10 ]->insert_neighbor( 23, mBasis[  24 ] );
+                     mBasis[  10 ]->insert_neighbor( 24, tBasis[  55 ] );
+                     mBasis[  10 ]->insert_neighbor( 25, tBasis[  53 ] );
 
                      // flag this basis
                      mBasis[  10 ]->flag();
@@ -1377,32 +1380,32 @@ namespace moris
                  if ( ! mBasis[  11 ]->is_flagged() )
                  {
                      // link neighbors of basis 11
-                     mBasis[  11 ]->insert_neighbor(  0, mBasis[   0 ] ); 
-                     mBasis[  11 ]->insert_neighbor(  1, mBasis[  21 ] ); 
-                     mBasis[  11 ]->insert_neighbor(  2, mBasis[   3 ] ); 
-                     mBasis[  11 ]->insert_neighbor(  3, tBasis[  32 ] ); 
-                     mBasis[  11 ]->insert_neighbor(  4, tBasis[  11 ] ); 
-                     mBasis[  11 ]->insert_neighbor(  5, mBasis[  23 ] ); 
-                     mBasis[  11 ]->insert_neighbor(  6, tBasis[   6 ] ); 
-                     mBasis[  11 ]->insert_neighbor(  7, tBasis[  12 ] ); 
-                     mBasis[  11 ]->insert_neighbor(  8, tBasis[  16 ] ); 
-                     mBasis[  11 ]->insert_neighbor(  9, tBasis[  10 ] ); 
-                     mBasis[  11 ]->insert_neighbor( 10, tBasis[  30 ] ); 
-                     mBasis[  11 ]->insert_neighbor( 11, mBasis[   8 ] ); 
-                     mBasis[  11 ]->insert_neighbor( 12, mBasis[  10 ] ); 
-                     mBasis[  11 ]->insert_neighbor( 13, tBasis[  34 ] ); 
-                     mBasis[  11 ]->insert_neighbor( 14, mBasis[  12 ] ); 
-                     mBasis[  11 ]->insert_neighbor( 15, mBasis[  20 ] ); 
-                     mBasis[  11 ]->insert_neighbor( 16, mBasis[  15 ] ); 
-                     mBasis[  11 ]->insert_neighbor( 17, tBasis[  48 ] ); 
-                     mBasis[  11 ]->insert_neighbor( 18, tBasis[   5 ] ); 
-                     mBasis[  11 ]->insert_neighbor( 19, tBasis[   7 ] ); 
-                     mBasis[  11 ]->insert_neighbor( 20, tBasis[  17 ] ); 
-                     mBasis[  11 ]->insert_neighbor( 21, tBasis[  15 ] ); 
-                     mBasis[  11 ]->insert_neighbor( 22, tBasis[  46 ] ); 
-                     mBasis[  11 ]->insert_neighbor( 23, mBasis[  25 ] ); 
-                     mBasis[  11 ]->insert_neighbor( 24, mBasis[  26 ] ); 
-                     mBasis[  11 ]->insert_neighbor( 25, tBasis[  50 ] ); 
+                     mBasis[  11 ]->insert_neighbor(  0, mBasis[   0 ] );
+                     mBasis[  11 ]->insert_neighbor(  1, mBasis[  21 ] );
+                     mBasis[  11 ]->insert_neighbor(  2, mBasis[   3 ] );
+                     mBasis[  11 ]->insert_neighbor(  3, tBasis[  32 ] );
+                     mBasis[  11 ]->insert_neighbor(  4, tBasis[  11 ] );
+                     mBasis[  11 ]->insert_neighbor(  5, mBasis[  23 ] );
+                     mBasis[  11 ]->insert_neighbor(  6, tBasis[   6 ] );
+                     mBasis[  11 ]->insert_neighbor(  7, tBasis[  12 ] );
+                     mBasis[  11 ]->insert_neighbor(  8, tBasis[  16 ] );
+                     mBasis[  11 ]->insert_neighbor(  9, tBasis[  10 ] );
+                     mBasis[  11 ]->insert_neighbor( 10, tBasis[  30 ] );
+                     mBasis[  11 ]->insert_neighbor( 11, mBasis[   8 ] );
+                     mBasis[  11 ]->insert_neighbor( 12, mBasis[  10 ] );
+                     mBasis[  11 ]->insert_neighbor( 13, tBasis[  34 ] );
+                     mBasis[  11 ]->insert_neighbor( 14, mBasis[  12 ] );
+                     mBasis[  11 ]->insert_neighbor( 15, mBasis[  20 ] );
+                     mBasis[  11 ]->insert_neighbor( 16, mBasis[  15 ] );
+                     mBasis[  11 ]->insert_neighbor( 17, tBasis[  48 ] );
+                     mBasis[  11 ]->insert_neighbor( 18, tBasis[   5 ] );
+                     mBasis[  11 ]->insert_neighbor( 19, tBasis[   7 ] );
+                     mBasis[  11 ]->insert_neighbor( 20, tBasis[  17 ] );
+                     mBasis[  11 ]->insert_neighbor( 21, tBasis[  15 ] );
+                     mBasis[  11 ]->insert_neighbor( 22, tBasis[  46 ] );
+                     mBasis[  11 ]->insert_neighbor( 23, mBasis[  25 ] );
+                     mBasis[  11 ]->insert_neighbor( 24, mBasis[  26 ] );
+                     mBasis[  11 ]->insert_neighbor( 25, tBasis[  50 ] );
 
                      // flag this basis
                      mBasis[  11 ]->flag();
@@ -1417,32 +1420,32 @@ namespace moris
                  if ( ! mBasis[  12 ]->is_flagged() )
                  {
                      // link neighbors of basis 12
-                     mBasis[  12 ]->insert_neighbor(  0, tBasis[  42 ] ); 
-                     mBasis[  12 ]->insert_neighbor(  1, mBasis[  25 ] ); 
-                     mBasis[  12 ]->insert_neighbor(  2, mBasis[  23 ] ); 
-                     mBasis[  12 ]->insert_neighbor(  3, tBasis[  46 ] ); 
-                     mBasis[  12 ]->insert_neighbor(  4, mBasis[   0 ] ); 
-                     mBasis[  12 ]->insert_neighbor(  5, mBasis[   4 ] ); 
-                     mBasis[  12 ]->insert_neighbor(  6, tBasis[  26 ] ); 
-                     mBasis[  12 ]->insert_neighbor(  7, mBasis[   8 ] ); 
-                     mBasis[  12 ]->insert_neighbor(  8, mBasis[  11 ] ); 
-                     mBasis[  12 ]->insert_neighbor(  9, tBasis[  30 ] ); 
-                     mBasis[  12 ]->insert_neighbor( 10, tBasis[  41 ] ); 
-                     mBasis[  12 ]->insert_neighbor( 11, tBasis[  43 ] ); 
-                     mBasis[  12 ]->insert_neighbor( 12, mBasis[  20 ] ); 
-                     mBasis[  12 ]->insert_neighbor( 13, tBasis[  48 ] ); 
-                     mBasis[  12 ]->insert_neighbor( 14, tBasis[  58 ] ); 
-                     mBasis[  12 ]->insert_neighbor( 15, mBasis[  16 ] ); 
-                     mBasis[  12 ]->insert_neighbor( 16, mBasis[  19 ] ); 
-                     mBasis[  12 ]->insert_neighbor( 17, tBasis[  62 ] ); 
-                     mBasis[  12 ]->insert_neighbor( 18, tBasis[  25 ] ); 
-                     mBasis[  12 ]->insert_neighbor( 19, tBasis[  27 ] ); 
-                     mBasis[  12 ]->insert_neighbor( 20, mBasis[  21 ] ); 
-                     mBasis[  12 ]->insert_neighbor( 21, tBasis[  32 ] ); 
-                     mBasis[  12 ]->insert_neighbor( 22, tBasis[  57 ] ); 
-                     mBasis[  12 ]->insert_neighbor( 23, tBasis[  59 ] ); 
-                     mBasis[  12 ]->insert_neighbor( 24, mBasis[  22 ] ); 
-                     mBasis[  12 ]->insert_neighbor( 25, tBasis[  64 ] ); 
+                     mBasis[  12 ]->insert_neighbor(  0, tBasis[  42 ] );
+                     mBasis[  12 ]->insert_neighbor(  1, mBasis[  25 ] );
+                     mBasis[  12 ]->insert_neighbor(  2, mBasis[  23 ] );
+                     mBasis[  12 ]->insert_neighbor(  3, tBasis[  46 ] );
+                     mBasis[  12 ]->insert_neighbor(  4, mBasis[   0 ] );
+                     mBasis[  12 ]->insert_neighbor(  5, mBasis[   4 ] );
+                     mBasis[  12 ]->insert_neighbor(  6, tBasis[  26 ] );
+                     mBasis[  12 ]->insert_neighbor(  7, mBasis[   8 ] );
+                     mBasis[  12 ]->insert_neighbor(  8, mBasis[  11 ] );
+                     mBasis[  12 ]->insert_neighbor(  9, tBasis[  30 ] );
+                     mBasis[  12 ]->insert_neighbor( 10, tBasis[  41 ] );
+                     mBasis[  12 ]->insert_neighbor( 11, tBasis[  43 ] );
+                     mBasis[  12 ]->insert_neighbor( 12, mBasis[  20 ] );
+                     mBasis[  12 ]->insert_neighbor( 13, tBasis[  48 ] );
+                     mBasis[  12 ]->insert_neighbor( 14, tBasis[  58 ] );
+                     mBasis[  12 ]->insert_neighbor( 15, mBasis[  16 ] );
+                     mBasis[  12 ]->insert_neighbor( 16, mBasis[  19 ] );
+                     mBasis[  12 ]->insert_neighbor( 17, tBasis[  62 ] );
+                     mBasis[  12 ]->insert_neighbor( 18, tBasis[  25 ] );
+                     mBasis[  12 ]->insert_neighbor( 19, tBasis[  27 ] );
+                     mBasis[  12 ]->insert_neighbor( 20, mBasis[  21 ] );
+                     mBasis[  12 ]->insert_neighbor( 21, tBasis[  32 ] );
+                     mBasis[  12 ]->insert_neighbor( 22, tBasis[  57 ] );
+                     mBasis[  12 ]->insert_neighbor( 23, tBasis[  59 ] );
+                     mBasis[  12 ]->insert_neighbor( 24, mBasis[  22 ] );
+                     mBasis[  12 ]->insert_neighbor( 25, tBasis[  64 ] );
 
                      // flag this basis
                      mBasis[  12 ]->flag();
@@ -1457,32 +1460,32 @@ namespace moris
                  if ( ! mBasis[  13 ]->is_flagged() )
                  {
                      // link neighbors of basis 13
-                     mBasis[  13 ]->insert_neighbor(  0, tBasis[  44 ] ); 
-                     mBasis[  13 ]->insert_neighbor(  1, tBasis[  47 ] ); 
-                     mBasis[  13 ]->insert_neighbor(  2, mBasis[  24 ] ); 
-                     mBasis[  13 ]->insert_neighbor(  3, mBasis[  25 ] ); 
-                     mBasis[  13 ]->insert_neighbor(  4, mBasis[   1 ] ); 
-                     mBasis[  13 ]->insert_neighbor(  5, mBasis[   5 ] ); 
-                     mBasis[  13 ]->insert_neighbor(  6, tBasis[  28 ] ); 
-                     mBasis[  13 ]->insert_neighbor(  7, tBasis[  31 ] ); 
-                     mBasis[  13 ]->insert_neighbor(  8, mBasis[   9 ] ); 
-                     mBasis[  13 ]->insert_neighbor(  9, mBasis[   8 ] ); 
-                     mBasis[  13 ]->insert_neighbor( 10, tBasis[  43 ] ); 
-                     mBasis[  13 ]->insert_neighbor( 11, tBasis[  45 ] ); 
-                     mBasis[  13 ]->insert_neighbor( 12, tBasis[  49 ] ); 
-                     mBasis[  13 ]->insert_neighbor( 13, mBasis[  20 ] ); 
-                     mBasis[  13 ]->insert_neighbor( 14, tBasis[  60 ] ); 
-                     mBasis[  13 ]->insert_neighbor( 15, tBasis[  63 ] ); 
-                     mBasis[  13 ]->insert_neighbor( 16, mBasis[  17 ] ); 
-                     mBasis[  13 ]->insert_neighbor( 17, mBasis[  16 ] ); 
-                     mBasis[  13 ]->insert_neighbor( 18, tBasis[  27 ] ); 
-                     mBasis[  13 ]->insert_neighbor( 19, tBasis[  29 ] ); 
-                     mBasis[  13 ]->insert_neighbor( 20, tBasis[  33 ] ); 
-                     mBasis[  13 ]->insert_neighbor( 21, mBasis[  21 ] ); 
-                     mBasis[  13 ]->insert_neighbor( 22, tBasis[  59 ] ); 
-                     mBasis[  13 ]->insert_neighbor( 23, tBasis[  61 ] ); 
-                     mBasis[  13 ]->insert_neighbor( 24, tBasis[  65 ] ); 
-                     mBasis[  13 ]->insert_neighbor( 25, mBasis[  22 ] ); 
+                     mBasis[  13 ]->insert_neighbor(  0, tBasis[  44 ] );
+                     mBasis[  13 ]->insert_neighbor(  1, tBasis[  47 ] );
+                     mBasis[  13 ]->insert_neighbor(  2, mBasis[  24 ] );
+                     mBasis[  13 ]->insert_neighbor(  3, mBasis[  25 ] );
+                     mBasis[  13 ]->insert_neighbor(  4, mBasis[   1 ] );
+                     mBasis[  13 ]->insert_neighbor(  5, mBasis[   5 ] );
+                     mBasis[  13 ]->insert_neighbor(  6, tBasis[  28 ] );
+                     mBasis[  13 ]->insert_neighbor(  7, tBasis[  31 ] );
+                     mBasis[  13 ]->insert_neighbor(  8, mBasis[   9 ] );
+                     mBasis[  13 ]->insert_neighbor(  9, mBasis[   8 ] );
+                     mBasis[  13 ]->insert_neighbor( 10, tBasis[  43 ] );
+                     mBasis[  13 ]->insert_neighbor( 11, tBasis[  45 ] );
+                     mBasis[  13 ]->insert_neighbor( 12, tBasis[  49 ] );
+                     mBasis[  13 ]->insert_neighbor( 13, mBasis[  20 ] );
+                     mBasis[  13 ]->insert_neighbor( 14, tBasis[  60 ] );
+                     mBasis[  13 ]->insert_neighbor( 15, tBasis[  63 ] );
+                     mBasis[  13 ]->insert_neighbor( 16, mBasis[  17 ] );
+                     mBasis[  13 ]->insert_neighbor( 17, mBasis[  16 ] );
+                     mBasis[  13 ]->insert_neighbor( 18, tBasis[  27 ] );
+                     mBasis[  13 ]->insert_neighbor( 19, tBasis[  29 ] );
+                     mBasis[  13 ]->insert_neighbor( 20, tBasis[  33 ] );
+                     mBasis[  13 ]->insert_neighbor( 21, mBasis[  21 ] );
+                     mBasis[  13 ]->insert_neighbor( 22, tBasis[  59 ] );
+                     mBasis[  13 ]->insert_neighbor( 23, tBasis[  61 ] );
+                     mBasis[  13 ]->insert_neighbor( 24, tBasis[  65 ] );
+                     mBasis[  13 ]->insert_neighbor( 25, mBasis[  22 ] );
 
                      // flag this basis
                      mBasis[  13 ]->flag();
@@ -1497,32 +1500,32 @@ namespace moris
                  if ( ! mBasis[  14 ]->is_flagged() )
                  {
                      // link neighbors of basis 14
-                     mBasis[  14 ]->insert_neighbor(  0, mBasis[  24 ] ); 
-                     mBasis[  14 ]->insert_neighbor(  1, tBasis[  51 ] ); 
-                     mBasis[  14 ]->insert_neighbor(  2, tBasis[  55 ] ); 
-                     mBasis[  14 ]->insert_neighbor(  3, mBasis[  26 ] ); 
-                     mBasis[  14 ]->insert_neighbor(  4, mBasis[   2 ] ); 
-                     mBasis[  14 ]->insert_neighbor(  5, mBasis[   6 ] ); 
-                     mBasis[  14 ]->insert_neighbor(  6, mBasis[   9 ] ); 
-                     mBasis[  14 ]->insert_neighbor(  7, tBasis[  35 ] ); 
-                     mBasis[  14 ]->insert_neighbor(  8, tBasis[  39 ] ); 
-                     mBasis[  14 ]->insert_neighbor(  9, mBasis[  10 ] ); 
-                     mBasis[  14 ]->insert_neighbor( 10, mBasis[  20 ] ); 
-                     mBasis[  14 ]->insert_neighbor( 11, tBasis[  49 ] ); 
-                     mBasis[  14 ]->insert_neighbor( 12, tBasis[  56 ] ); 
-                     mBasis[  14 ]->insert_neighbor( 13, tBasis[  54 ] ); 
-                     mBasis[  14 ]->insert_neighbor( 14, mBasis[  17 ] ); 
-                     mBasis[  14 ]->insert_neighbor( 15, tBasis[  67 ] ); 
-                     mBasis[  14 ]->insert_neighbor( 16, tBasis[  71 ] ); 
-                     mBasis[  14 ]->insert_neighbor( 17, mBasis[  18 ] ); 
-                     mBasis[  14 ]->insert_neighbor( 18, mBasis[  21 ] ); 
-                     mBasis[  14 ]->insert_neighbor( 19, tBasis[  33 ] ); 
-                     mBasis[  14 ]->insert_neighbor( 20, tBasis[  40 ] ); 
-                     mBasis[  14 ]->insert_neighbor( 21, tBasis[  38 ] ); 
-                     mBasis[  14 ]->insert_neighbor( 22, mBasis[  22 ] ); 
-                     mBasis[  14 ]->insert_neighbor( 23, tBasis[  65 ] ); 
-                     mBasis[  14 ]->insert_neighbor( 24, tBasis[  72 ] ); 
-                     mBasis[  14 ]->insert_neighbor( 25, tBasis[  70 ] ); 
+                     mBasis[  14 ]->insert_neighbor(  0, mBasis[  24 ] );
+                     mBasis[  14 ]->insert_neighbor(  1, tBasis[  51 ] );
+                     mBasis[  14 ]->insert_neighbor(  2, tBasis[  55 ] );
+                     mBasis[  14 ]->insert_neighbor(  3, mBasis[  26 ] );
+                     mBasis[  14 ]->insert_neighbor(  4, mBasis[   2 ] );
+                     mBasis[  14 ]->insert_neighbor(  5, mBasis[   6 ] );
+                     mBasis[  14 ]->insert_neighbor(  6, mBasis[   9 ] );
+                     mBasis[  14 ]->insert_neighbor(  7, tBasis[  35 ] );
+                     mBasis[  14 ]->insert_neighbor(  8, tBasis[  39 ] );
+                     mBasis[  14 ]->insert_neighbor(  9, mBasis[  10 ] );
+                     mBasis[  14 ]->insert_neighbor( 10, mBasis[  20 ] );
+                     mBasis[  14 ]->insert_neighbor( 11, tBasis[  49 ] );
+                     mBasis[  14 ]->insert_neighbor( 12, tBasis[  56 ] );
+                     mBasis[  14 ]->insert_neighbor( 13, tBasis[  54 ] );
+                     mBasis[  14 ]->insert_neighbor( 14, mBasis[  17 ] );
+                     mBasis[  14 ]->insert_neighbor( 15, tBasis[  67 ] );
+                     mBasis[  14 ]->insert_neighbor( 16, tBasis[  71 ] );
+                     mBasis[  14 ]->insert_neighbor( 17, mBasis[  18 ] );
+                     mBasis[  14 ]->insert_neighbor( 18, mBasis[  21 ] );
+                     mBasis[  14 ]->insert_neighbor( 19, tBasis[  33 ] );
+                     mBasis[  14 ]->insert_neighbor( 20, tBasis[  40 ] );
+                     mBasis[  14 ]->insert_neighbor( 21, tBasis[  38 ] );
+                     mBasis[  14 ]->insert_neighbor( 22, mBasis[  22 ] );
+                     mBasis[  14 ]->insert_neighbor( 23, tBasis[  65 ] );
+                     mBasis[  14 ]->insert_neighbor( 24, tBasis[  72 ] );
+                     mBasis[  14 ]->insert_neighbor( 25, tBasis[  70 ] );
 
                      // flag this basis
                      mBasis[  14 ]->flag();
@@ -1537,32 +1540,32 @@ namespace moris
                  if ( ! mBasis[  15 ]->is_flagged() )
                  {
                      // link neighbors of basis 15
-                     mBasis[  15 ]->insert_neighbor(  0, mBasis[  23 ] ); 
-                     mBasis[  15 ]->insert_neighbor(  1, mBasis[  26 ] ); 
-                     mBasis[  15 ]->insert_neighbor(  2, tBasis[  53 ] ); 
-                     mBasis[  15 ]->insert_neighbor(  3, tBasis[  50 ] ); 
-                     mBasis[  15 ]->insert_neighbor(  4, mBasis[   3 ] ); 
-                     mBasis[  15 ]->insert_neighbor(  5, mBasis[   7 ] ); 
-                     mBasis[  15 ]->insert_neighbor(  6, mBasis[  11 ] ); 
-                     mBasis[  15 ]->insert_neighbor(  7, mBasis[  10 ] ); 
-                     mBasis[  15 ]->insert_neighbor(  8, tBasis[  37 ] ); 
-                     mBasis[  15 ]->insert_neighbor(  9, tBasis[  34 ] ); 
-                     mBasis[  15 ]->insert_neighbor( 10, tBasis[  48 ] ); 
-                     mBasis[  15 ]->insert_neighbor( 11, mBasis[  20 ] ); 
-                     mBasis[  15 ]->insert_neighbor( 12, tBasis[  54 ] ); 
-                     mBasis[  15 ]->insert_neighbor( 13, tBasis[  52 ] ); 
-                     mBasis[  15 ]->insert_neighbor( 14, mBasis[  19 ] ); 
-                     mBasis[  15 ]->insert_neighbor( 15, mBasis[  18 ] ); 
-                     mBasis[  15 ]->insert_neighbor( 16, tBasis[  69 ] ); 
-                     mBasis[  15 ]->insert_neighbor( 17, tBasis[  66 ] ); 
-                     mBasis[  15 ]->insert_neighbor( 18, tBasis[  32 ] ); 
-                     mBasis[  15 ]->insert_neighbor( 19, mBasis[  21 ] ); 
-                     mBasis[  15 ]->insert_neighbor( 20, tBasis[  38 ] ); 
-                     mBasis[  15 ]->insert_neighbor( 21, tBasis[  36 ] ); 
-                     mBasis[  15 ]->insert_neighbor( 22, tBasis[  64 ] ); 
-                     mBasis[  15 ]->insert_neighbor( 23, mBasis[  22 ] ); 
-                     mBasis[  15 ]->insert_neighbor( 24, tBasis[  70 ] ); 
-                     mBasis[  15 ]->insert_neighbor( 25, tBasis[  68 ] ); 
+                     mBasis[  15 ]->insert_neighbor(  0, mBasis[  23 ] );
+                     mBasis[  15 ]->insert_neighbor(  1, mBasis[  26 ] );
+                     mBasis[  15 ]->insert_neighbor(  2, tBasis[  53 ] );
+                     mBasis[  15 ]->insert_neighbor(  3, tBasis[  50 ] );
+                     mBasis[  15 ]->insert_neighbor(  4, mBasis[   3 ] );
+                     mBasis[  15 ]->insert_neighbor(  5, mBasis[   7 ] );
+                     mBasis[  15 ]->insert_neighbor(  6, mBasis[  11 ] );
+                     mBasis[  15 ]->insert_neighbor(  7, mBasis[  10 ] );
+                     mBasis[  15 ]->insert_neighbor(  8, tBasis[  37 ] );
+                     mBasis[  15 ]->insert_neighbor(  9, tBasis[  34 ] );
+                     mBasis[  15 ]->insert_neighbor( 10, tBasis[  48 ] );
+                     mBasis[  15 ]->insert_neighbor( 11, mBasis[  20 ] );
+                     mBasis[  15 ]->insert_neighbor( 12, tBasis[  54 ] );
+                     mBasis[  15 ]->insert_neighbor( 13, tBasis[  52 ] );
+                     mBasis[  15 ]->insert_neighbor( 14, mBasis[  19 ] );
+                     mBasis[  15 ]->insert_neighbor( 15, mBasis[  18 ] );
+                     mBasis[  15 ]->insert_neighbor( 16, tBasis[  69 ] );
+                     mBasis[  15 ]->insert_neighbor( 17, tBasis[  66 ] );
+                     mBasis[  15 ]->insert_neighbor( 18, tBasis[  32 ] );
+                     mBasis[  15 ]->insert_neighbor( 19, mBasis[  21 ] );
+                     mBasis[  15 ]->insert_neighbor( 20, tBasis[  38 ] );
+                     mBasis[  15 ]->insert_neighbor( 21, tBasis[  36 ] );
+                     mBasis[  15 ]->insert_neighbor( 22, tBasis[  64 ] );
+                     mBasis[  15 ]->insert_neighbor( 23, mBasis[  22 ] );
+                     mBasis[  15 ]->insert_neighbor( 24, tBasis[  70 ] );
+                     mBasis[  15 ]->insert_neighbor( 25, tBasis[  68 ] );
 
                      // flag this basis
                      mBasis[  15 ]->flag();
@@ -1577,32 +1580,32 @@ namespace moris
                  if ( ! mBasis[  16 ]->is_flagged() )
                  {
                      // link neighbors of basis 16
-                     mBasis[  16 ]->insert_neighbor(  0, tBasis[  59 ] ); 
-                     mBasis[  16 ]->insert_neighbor(  1, mBasis[   5 ] ); 
-                     mBasis[  16 ]->insert_neighbor(  2, mBasis[  22 ] ); 
-                     mBasis[  16 ]->insert_neighbor(  3, mBasis[   4 ] ); 
-                     mBasis[  16 ]->insert_neighbor(  4, mBasis[  25 ] ); 
-                     mBasis[  16 ]->insert_neighbor(  5, tBasis[  80 ] ); 
-                     mBasis[  16 ]->insert_neighbor(  6, tBasis[  43 ] ); 
-                     mBasis[  16 ]->insert_neighbor(  7, mBasis[  13 ] ); 
-                     mBasis[  16 ]->insert_neighbor(  8, mBasis[  20 ] ); 
-                     mBasis[  16 ]->insert_neighbor(  9, mBasis[  12 ] ); 
-                     mBasis[  16 ]->insert_neighbor( 10, tBasis[  58 ] ); 
-                     mBasis[  16 ]->insert_neighbor( 11, tBasis[  60 ] ); 
-                     mBasis[  16 ]->insert_neighbor( 12, mBasis[  17 ] ); 
-                     mBasis[  16 ]->insert_neighbor( 13, mBasis[  19 ] ); 
-                     mBasis[  16 ]->insert_neighbor( 14, tBasis[  75 ] ); 
-                     mBasis[  16 ]->insert_neighbor( 15, tBasis[  81 ] ); 
-                     mBasis[  16 ]->insert_neighbor( 16, tBasis[  85 ] ); 
-                     mBasis[  16 ]->insert_neighbor( 17, tBasis[  79 ] ); 
-                     mBasis[  16 ]->insert_neighbor( 18, tBasis[  42 ] ); 
-                     mBasis[  16 ]->insert_neighbor( 19, tBasis[  44 ] ); 
-                     mBasis[  16 ]->insert_neighbor( 20, mBasis[  24 ] ); 
-                     mBasis[  16 ]->insert_neighbor( 21, mBasis[  23 ] ); 
-                     mBasis[  16 ]->insert_neighbor( 22, tBasis[  74 ] ); 
-                     mBasis[  16 ]->insert_neighbor( 23, tBasis[  76 ] ); 
-                     mBasis[  16 ]->insert_neighbor( 24, tBasis[  86 ] ); 
-                     mBasis[  16 ]->insert_neighbor( 25, tBasis[  84 ] ); 
+                     mBasis[  16 ]->insert_neighbor(  0, tBasis[  59 ] );
+                     mBasis[  16 ]->insert_neighbor(  1, mBasis[   5 ] );
+                     mBasis[  16 ]->insert_neighbor(  2, mBasis[  22 ] );
+                     mBasis[  16 ]->insert_neighbor(  3, mBasis[   4 ] );
+                     mBasis[  16 ]->insert_neighbor(  4, mBasis[  25 ] );
+                     mBasis[  16 ]->insert_neighbor(  5, tBasis[  80 ] );
+                     mBasis[  16 ]->insert_neighbor(  6, tBasis[  43 ] );
+                     mBasis[  16 ]->insert_neighbor(  7, mBasis[  13 ] );
+                     mBasis[  16 ]->insert_neighbor(  8, mBasis[  20 ] );
+                     mBasis[  16 ]->insert_neighbor(  9, mBasis[  12 ] );
+                     mBasis[  16 ]->insert_neighbor( 10, tBasis[  58 ] );
+                     mBasis[  16 ]->insert_neighbor( 11, tBasis[  60 ] );
+                     mBasis[  16 ]->insert_neighbor( 12, mBasis[  17 ] );
+                     mBasis[  16 ]->insert_neighbor( 13, mBasis[  19 ] );
+                     mBasis[  16 ]->insert_neighbor( 14, tBasis[  75 ] );
+                     mBasis[  16 ]->insert_neighbor( 15, tBasis[  81 ] );
+                     mBasis[  16 ]->insert_neighbor( 16, tBasis[  85 ] );
+                     mBasis[  16 ]->insert_neighbor( 17, tBasis[  79 ] );
+                     mBasis[  16 ]->insert_neighbor( 18, tBasis[  42 ] );
+                     mBasis[  16 ]->insert_neighbor( 19, tBasis[  44 ] );
+                     mBasis[  16 ]->insert_neighbor( 20, mBasis[  24 ] );
+                     mBasis[  16 ]->insert_neighbor( 21, mBasis[  23 ] );
+                     mBasis[  16 ]->insert_neighbor( 22, tBasis[  74 ] );
+                     mBasis[  16 ]->insert_neighbor( 23, tBasis[  76 ] );
+                     mBasis[  16 ]->insert_neighbor( 24, tBasis[  86 ] );
+                     mBasis[  16 ]->insert_neighbor( 25, tBasis[  84 ] );
 
                      // flag this basis
                      mBasis[  16 ]->flag();
@@ -1617,32 +1620,32 @@ namespace moris
                  if ( ! mBasis[  17 ]->is_flagged() )
                  {
                      // link neighbors of basis 17
-                     mBasis[  17 ]->insert_neighbor(  0, mBasis[   5 ] ); 
-                     mBasis[  17 ]->insert_neighbor(  1, tBasis[  65 ] ); 
-                     mBasis[  17 ]->insert_neighbor(  2, mBasis[   6 ] ); 
-                     mBasis[  17 ]->insert_neighbor(  3, mBasis[  22 ] ); 
-                     mBasis[  17 ]->insert_neighbor(  4, mBasis[  24 ] ); 
-                     mBasis[  17 ]->insert_neighbor(  5, tBasis[  86 ] ); 
-                     mBasis[  17 ]->insert_neighbor(  6, mBasis[  13 ] ); 
-                     mBasis[  17 ]->insert_neighbor(  7, tBasis[  49 ] ); 
-                     mBasis[  17 ]->insert_neighbor(  8, mBasis[  14 ] ); 
-                     mBasis[  17 ]->insert_neighbor(  9, mBasis[  20 ] ); 
-                     mBasis[  17 ]->insert_neighbor( 10, mBasis[  16 ] ); 
-                     mBasis[  17 ]->insert_neighbor( 11, tBasis[  63 ] ); 
-                     mBasis[  17 ]->insert_neighbor( 12, tBasis[  67 ] ); 
-                     mBasis[  17 ]->insert_neighbor( 13, mBasis[  18 ] ); 
-                     mBasis[  17 ]->insert_neighbor( 14, tBasis[  81 ] ); 
-                     mBasis[  17 ]->insert_neighbor( 15, tBasis[  87 ] ); 
-                     mBasis[  17 ]->insert_neighbor( 16, tBasis[  91 ] ); 
-                     mBasis[  17 ]->insert_neighbor( 17, tBasis[  85 ] ); 
-                     mBasis[  17 ]->insert_neighbor( 18, mBasis[  25 ] ); 
-                     mBasis[  17 ]->insert_neighbor( 19, tBasis[  47 ] ); 
-                     mBasis[  17 ]->insert_neighbor( 20, tBasis[  51 ] ); 
-                     mBasis[  17 ]->insert_neighbor( 21, mBasis[  26 ] ); 
-                     mBasis[  17 ]->insert_neighbor( 22, tBasis[  80 ] ); 
-                     mBasis[  17 ]->insert_neighbor( 23, tBasis[  82 ] ); 
-                     mBasis[  17 ]->insert_neighbor( 24, tBasis[  92 ] ); 
-                     mBasis[  17 ]->insert_neighbor( 25, tBasis[  90 ] ); 
+                     mBasis[  17 ]->insert_neighbor(  0, mBasis[   5 ] );
+                     mBasis[  17 ]->insert_neighbor(  1, tBasis[  65 ] );
+                     mBasis[  17 ]->insert_neighbor(  2, mBasis[   6 ] );
+                     mBasis[  17 ]->insert_neighbor(  3, mBasis[  22 ] );
+                     mBasis[  17 ]->insert_neighbor(  4, mBasis[  24 ] );
+                     mBasis[  17 ]->insert_neighbor(  5, tBasis[  86 ] );
+                     mBasis[  17 ]->insert_neighbor(  6, mBasis[  13 ] );
+                     mBasis[  17 ]->insert_neighbor(  7, tBasis[  49 ] );
+                     mBasis[  17 ]->insert_neighbor(  8, mBasis[  14 ] );
+                     mBasis[  17 ]->insert_neighbor(  9, mBasis[  20 ] );
+                     mBasis[  17 ]->insert_neighbor( 10, mBasis[  16 ] );
+                     mBasis[  17 ]->insert_neighbor( 11, tBasis[  63 ] );
+                     mBasis[  17 ]->insert_neighbor( 12, tBasis[  67 ] );
+                     mBasis[  17 ]->insert_neighbor( 13, mBasis[  18 ] );
+                     mBasis[  17 ]->insert_neighbor( 14, tBasis[  81 ] );
+                     mBasis[  17 ]->insert_neighbor( 15, tBasis[  87 ] );
+                     mBasis[  17 ]->insert_neighbor( 16, tBasis[  91 ] );
+                     mBasis[  17 ]->insert_neighbor( 17, tBasis[  85 ] );
+                     mBasis[  17 ]->insert_neighbor( 18, mBasis[  25 ] );
+                     mBasis[  17 ]->insert_neighbor( 19, tBasis[  47 ] );
+                     mBasis[  17 ]->insert_neighbor( 20, tBasis[  51 ] );
+                     mBasis[  17 ]->insert_neighbor( 21, mBasis[  26 ] );
+                     mBasis[  17 ]->insert_neighbor( 22, tBasis[  80 ] );
+                     mBasis[  17 ]->insert_neighbor( 23, tBasis[  82 ] );
+                     mBasis[  17 ]->insert_neighbor( 24, tBasis[  92 ] );
+                     mBasis[  17 ]->insert_neighbor( 25, tBasis[  90 ] );
 
                      // flag this basis
                      mBasis[  17 ]->flag();
@@ -1657,32 +1660,32 @@ namespace moris
                  if ( ! mBasis[  18 ]->is_flagged() )
                  {
                      // link neighbors of basis 18
-                     mBasis[  18 ]->insert_neighbor(  0, mBasis[  22 ] ); 
-                     mBasis[  18 ]->insert_neighbor(  1, mBasis[   6 ] ); 
-                     mBasis[  18 ]->insert_neighbor(  2, tBasis[  70 ] ); 
-                     mBasis[  18 ]->insert_neighbor(  3, mBasis[   7 ] ); 
-                     mBasis[  18 ]->insert_neighbor(  4, mBasis[  26 ] ); 
-                     mBasis[  18 ]->insert_neighbor(  5, tBasis[  90 ] ); 
-                     mBasis[  18 ]->insert_neighbor(  6, mBasis[  20 ] ); 
-                     mBasis[  18 ]->insert_neighbor(  7, mBasis[  14 ] ); 
-                     mBasis[  18 ]->insert_neighbor(  8, tBasis[  54 ] ); 
-                     mBasis[  18 ]->insert_neighbor(  9, mBasis[  15 ] ); 
-                     mBasis[  18 ]->insert_neighbor( 10, mBasis[  19 ] ); 
-                     mBasis[  18 ]->insert_neighbor( 11, mBasis[  17 ] ); 
-                     mBasis[  18 ]->insert_neighbor( 12, tBasis[  71 ] ); 
-                     mBasis[  18 ]->insert_neighbor( 13, tBasis[  69 ] ); 
-                     mBasis[  18 ]->insert_neighbor( 14, tBasis[  85 ] ); 
-                     mBasis[  18 ]->insert_neighbor( 15, tBasis[  91 ] ); 
-                     mBasis[  18 ]->insert_neighbor( 16, tBasis[  95 ] ); 
-                     mBasis[  18 ]->insert_neighbor( 17, tBasis[  89 ] ); 
-                     mBasis[  18 ]->insert_neighbor( 18, mBasis[  23 ] ); 
-                     mBasis[  18 ]->insert_neighbor( 19, mBasis[  24 ] ); 
-                     mBasis[  18 ]->insert_neighbor( 20, tBasis[  55 ] ); 
-                     mBasis[  18 ]->insert_neighbor( 21, tBasis[  53 ] ); 
-                     mBasis[  18 ]->insert_neighbor( 22, tBasis[  84 ] ); 
-                     mBasis[  18 ]->insert_neighbor( 23, tBasis[  86 ] ); 
-                     mBasis[  18 ]->insert_neighbor( 24, tBasis[  96 ] ); 
-                     mBasis[  18 ]->insert_neighbor( 25, tBasis[  94 ] ); 
+                     mBasis[  18 ]->insert_neighbor(  0, mBasis[  22 ] );
+                     mBasis[  18 ]->insert_neighbor(  1, mBasis[   6 ] );
+                     mBasis[  18 ]->insert_neighbor(  2, tBasis[  70 ] );
+                     mBasis[  18 ]->insert_neighbor(  3, mBasis[   7 ] );
+                     mBasis[  18 ]->insert_neighbor(  4, mBasis[  26 ] );
+                     mBasis[  18 ]->insert_neighbor(  5, tBasis[  90 ] );
+                     mBasis[  18 ]->insert_neighbor(  6, mBasis[  20 ] );
+                     mBasis[  18 ]->insert_neighbor(  7, mBasis[  14 ] );
+                     mBasis[  18 ]->insert_neighbor(  8, tBasis[  54 ] );
+                     mBasis[  18 ]->insert_neighbor(  9, mBasis[  15 ] );
+                     mBasis[  18 ]->insert_neighbor( 10, mBasis[  19 ] );
+                     mBasis[  18 ]->insert_neighbor( 11, mBasis[  17 ] );
+                     mBasis[  18 ]->insert_neighbor( 12, tBasis[  71 ] );
+                     mBasis[  18 ]->insert_neighbor( 13, tBasis[  69 ] );
+                     mBasis[  18 ]->insert_neighbor( 14, tBasis[  85 ] );
+                     mBasis[  18 ]->insert_neighbor( 15, tBasis[  91 ] );
+                     mBasis[  18 ]->insert_neighbor( 16, tBasis[  95 ] );
+                     mBasis[  18 ]->insert_neighbor( 17, tBasis[  89 ] );
+                     mBasis[  18 ]->insert_neighbor( 18, mBasis[  23 ] );
+                     mBasis[  18 ]->insert_neighbor( 19, mBasis[  24 ] );
+                     mBasis[  18 ]->insert_neighbor( 20, tBasis[  55 ] );
+                     mBasis[  18 ]->insert_neighbor( 21, tBasis[  53 ] );
+                     mBasis[  18 ]->insert_neighbor( 22, tBasis[  84 ] );
+                     mBasis[  18 ]->insert_neighbor( 23, tBasis[  86 ] );
+                     mBasis[  18 ]->insert_neighbor( 24, tBasis[  96 ] );
+                     mBasis[  18 ]->insert_neighbor( 25, tBasis[  94 ] );
 
                      // flag this basis
                      mBasis[  18 ]->flag();
@@ -1697,32 +1700,32 @@ namespace moris
                  if ( ! mBasis[  19 ]->is_flagged() )
                  {
                      // link neighbors of basis 19
-                     mBasis[  19 ]->insert_neighbor(  0, mBasis[   4 ] ); 
-                     mBasis[  19 ]->insert_neighbor(  1, mBasis[  22 ] ); 
-                     mBasis[  19 ]->insert_neighbor(  2, mBasis[   7 ] ); 
-                     mBasis[  19 ]->insert_neighbor(  3, tBasis[  64 ] ); 
-                     mBasis[  19 ]->insert_neighbor(  4, mBasis[  23 ] ); 
-                     mBasis[  19 ]->insert_neighbor(  5, tBasis[  84 ] ); 
-                     mBasis[  19 ]->insert_neighbor(  6, mBasis[  12 ] ); 
-                     mBasis[  19 ]->insert_neighbor(  7, mBasis[  20 ] ); 
-                     mBasis[  19 ]->insert_neighbor(  8, mBasis[  15 ] ); 
-                     mBasis[  19 ]->insert_neighbor(  9, tBasis[  48 ] ); 
-                     mBasis[  19 ]->insert_neighbor( 10, tBasis[  62 ] ); 
-                     mBasis[  19 ]->insert_neighbor( 11, mBasis[  16 ] ); 
-                     mBasis[  19 ]->insert_neighbor( 12, mBasis[  18 ] ); 
-                     mBasis[  19 ]->insert_neighbor( 13, tBasis[  66 ] ); 
-                     mBasis[  19 ]->insert_neighbor( 14, tBasis[  79 ] ); 
-                     mBasis[  19 ]->insert_neighbor( 15, tBasis[  85 ] ); 
-                     mBasis[  19 ]->insert_neighbor( 16, tBasis[  89 ] ); 
-                     mBasis[  19 ]->insert_neighbor( 17, tBasis[  83 ] ); 
-                     mBasis[  19 ]->insert_neighbor( 18, tBasis[  46 ] ); 
-                     mBasis[  19 ]->insert_neighbor( 19, mBasis[  25 ] ); 
-                     mBasis[  19 ]->insert_neighbor( 20, mBasis[  26 ] ); 
-                     mBasis[  19 ]->insert_neighbor( 21, tBasis[  50 ] ); 
-                     mBasis[  19 ]->insert_neighbor( 22, tBasis[  78 ] ); 
-                     mBasis[  19 ]->insert_neighbor( 23, tBasis[  80 ] ); 
-                     mBasis[  19 ]->insert_neighbor( 24, tBasis[  90 ] ); 
-                     mBasis[  19 ]->insert_neighbor( 25, tBasis[  88 ] ); 
+                     mBasis[  19 ]->insert_neighbor(  0, mBasis[   4 ] );
+                     mBasis[  19 ]->insert_neighbor(  1, mBasis[  22 ] );
+                     mBasis[  19 ]->insert_neighbor(  2, mBasis[   7 ] );
+                     mBasis[  19 ]->insert_neighbor(  3, tBasis[  64 ] );
+                     mBasis[  19 ]->insert_neighbor(  4, mBasis[  23 ] );
+                     mBasis[  19 ]->insert_neighbor(  5, tBasis[  84 ] );
+                     mBasis[  19 ]->insert_neighbor(  6, mBasis[  12 ] );
+                     mBasis[  19 ]->insert_neighbor(  7, mBasis[  20 ] );
+                     mBasis[  19 ]->insert_neighbor(  8, mBasis[  15 ] );
+                     mBasis[  19 ]->insert_neighbor(  9, tBasis[  48 ] );
+                     mBasis[  19 ]->insert_neighbor( 10, tBasis[  62 ] );
+                     mBasis[  19 ]->insert_neighbor( 11, mBasis[  16 ] );
+                     mBasis[  19 ]->insert_neighbor( 12, mBasis[  18 ] );
+                     mBasis[  19 ]->insert_neighbor( 13, tBasis[  66 ] );
+                     mBasis[  19 ]->insert_neighbor( 14, tBasis[  79 ] );
+                     mBasis[  19 ]->insert_neighbor( 15, tBasis[  85 ] );
+                     mBasis[  19 ]->insert_neighbor( 16, tBasis[  89 ] );
+                     mBasis[  19 ]->insert_neighbor( 17, tBasis[  83 ] );
+                     mBasis[  19 ]->insert_neighbor( 18, tBasis[  46 ] );
+                     mBasis[  19 ]->insert_neighbor( 19, mBasis[  25 ] );
+                     mBasis[  19 ]->insert_neighbor( 20, mBasis[  26 ] );
+                     mBasis[  19 ]->insert_neighbor( 21, tBasis[  50 ] );
+                     mBasis[  19 ]->insert_neighbor( 22, tBasis[  78 ] );
+                     mBasis[  19 ]->insert_neighbor( 23, tBasis[  80 ] );
+                     mBasis[  19 ]->insert_neighbor( 24, tBasis[  90 ] );
+                     mBasis[  19 ]->insert_neighbor( 25, tBasis[  88 ] );
 
                      // flag this basis
                      mBasis[  19 ]->flag();
@@ -1737,32 +1740,32 @@ namespace moris
                  if ( ! mBasis[  20 ]->is_flagged() )
                  {
                      // link neighbors of basis 20
-                     mBasis[  20 ]->insert_neighbor(  0, mBasis[  25 ] ); 
-                     mBasis[  20 ]->insert_neighbor(  1, mBasis[  24 ] ); 
-                     mBasis[  20 ]->insert_neighbor(  2, mBasis[  26 ] ); 
-                     mBasis[  20 ]->insert_neighbor(  3, mBasis[  23 ] ); 
-                     mBasis[  20 ]->insert_neighbor(  4, mBasis[  21 ] ); 
-                     mBasis[  20 ]->insert_neighbor(  5, mBasis[  22 ] ); 
-                     mBasis[  20 ]->insert_neighbor(  6, mBasis[   8 ] ); 
-                     mBasis[  20 ]->insert_neighbor(  7, mBasis[   9 ] ); 
-                     mBasis[  20 ]->insert_neighbor(  8, mBasis[  10 ] ); 
-                     mBasis[  20 ]->insert_neighbor(  9, mBasis[  11 ] ); 
-                     mBasis[  20 ]->insert_neighbor( 10, mBasis[  12 ] ); 
-                     mBasis[  20 ]->insert_neighbor( 11, mBasis[  13 ] ); 
-                     mBasis[  20 ]->insert_neighbor( 12, mBasis[  14 ] ); 
-                     mBasis[  20 ]->insert_neighbor( 13, mBasis[  15 ] ); 
-                     mBasis[  20 ]->insert_neighbor( 14, mBasis[  16 ] ); 
-                     mBasis[  20 ]->insert_neighbor( 15, mBasis[  17 ] ); 
-                     mBasis[  20 ]->insert_neighbor( 16, mBasis[  18 ] ); 
-                     mBasis[  20 ]->insert_neighbor( 17, mBasis[  19 ] ); 
-                     mBasis[  20 ]->insert_neighbor( 18, mBasis[   0 ] ); 
-                     mBasis[  20 ]->insert_neighbor( 19, mBasis[   1 ] ); 
-                     mBasis[  20 ]->insert_neighbor( 20, mBasis[   2 ] ); 
-                     mBasis[  20 ]->insert_neighbor( 21, mBasis[   3 ] ); 
-                     mBasis[  20 ]->insert_neighbor( 22, mBasis[   4 ] ); 
-                     mBasis[  20 ]->insert_neighbor( 23, mBasis[   5 ] ); 
-                     mBasis[  20 ]->insert_neighbor( 24, mBasis[   6 ] ); 
-                     mBasis[  20 ]->insert_neighbor( 25, mBasis[   7 ] ); 
+                     mBasis[  20 ]->insert_neighbor(  0, mBasis[  25 ] );
+                     mBasis[  20 ]->insert_neighbor(  1, mBasis[  24 ] );
+                     mBasis[  20 ]->insert_neighbor(  2, mBasis[  26 ] );
+                     mBasis[  20 ]->insert_neighbor(  3, mBasis[  23 ] );
+                     mBasis[  20 ]->insert_neighbor(  4, mBasis[  21 ] );
+                     mBasis[  20 ]->insert_neighbor(  5, mBasis[  22 ] );
+                     mBasis[  20 ]->insert_neighbor(  6, mBasis[   8 ] );
+                     mBasis[  20 ]->insert_neighbor(  7, mBasis[   9 ] );
+                     mBasis[  20 ]->insert_neighbor(  8, mBasis[  10 ] );
+                     mBasis[  20 ]->insert_neighbor(  9, mBasis[  11 ] );
+                     mBasis[  20 ]->insert_neighbor( 10, mBasis[  12 ] );
+                     mBasis[  20 ]->insert_neighbor( 11, mBasis[  13 ] );
+                     mBasis[  20 ]->insert_neighbor( 12, mBasis[  14 ] );
+                     mBasis[  20 ]->insert_neighbor( 13, mBasis[  15 ] );
+                     mBasis[  20 ]->insert_neighbor( 14, mBasis[  16 ] );
+                     mBasis[  20 ]->insert_neighbor( 15, mBasis[  17 ] );
+                     mBasis[  20 ]->insert_neighbor( 16, mBasis[  18 ] );
+                     mBasis[  20 ]->insert_neighbor( 17, mBasis[  19 ] );
+                     mBasis[  20 ]->insert_neighbor( 18, mBasis[   0 ] );
+                     mBasis[  20 ]->insert_neighbor( 19, mBasis[   1 ] );
+                     mBasis[  20 ]->insert_neighbor( 20, mBasis[   2 ] );
+                     mBasis[  20 ]->insert_neighbor( 21, mBasis[   3 ] );
+                     mBasis[  20 ]->insert_neighbor( 22, mBasis[   4 ] );
+                     mBasis[  20 ]->insert_neighbor( 23, mBasis[   5 ] );
+                     mBasis[  20 ]->insert_neighbor( 24, mBasis[   6 ] );
+                     mBasis[  20 ]->insert_neighbor( 25, mBasis[   7 ] );
 
                      // flag this basis
                      mBasis[  20 ]->flag();
@@ -1777,32 +1780,32 @@ namespace moris
                  if ( ! mBasis[  21 ]->is_flagged() )
                  {
                      // link neighbors of basis 21
-                     mBasis[  21 ]->insert_neighbor(  0, mBasis[   8 ] ); 
-                     mBasis[  21 ]->insert_neighbor(  1, mBasis[   9 ] ); 
-                     mBasis[  21 ]->insert_neighbor(  2, mBasis[  10 ] ); 
-                     mBasis[  21 ]->insert_neighbor(  3, mBasis[  11 ] ); 
-                     mBasis[  21 ]->insert_neighbor(  4, tBasis[  12 ] ); 
-                     mBasis[  21 ]->insert_neighbor(  5, mBasis[  20 ] ); 
-                     mBasis[  21 ]->insert_neighbor(  6, tBasis[   7 ] ); 
-                     mBasis[  21 ]->insert_neighbor(  7, tBasis[  13 ] ); 
-                     mBasis[  21 ]->insert_neighbor(  8, tBasis[  17 ] ); 
-                     mBasis[  21 ]->insert_neighbor(  9, tBasis[  11 ] ); 
-                     mBasis[  21 ]->insert_neighbor( 10, mBasis[   0 ] ); 
-                     mBasis[  21 ]->insert_neighbor( 11, mBasis[   1 ] ); 
-                     mBasis[  21 ]->insert_neighbor( 12, mBasis[   2 ] ); 
-                     mBasis[  21 ]->insert_neighbor( 13, mBasis[   3 ] ); 
-                     mBasis[  21 ]->insert_neighbor( 14, mBasis[  25 ] ); 
-                     mBasis[  21 ]->insert_neighbor( 15, mBasis[  24 ] ); 
-                     mBasis[  21 ]->insert_neighbor( 16, mBasis[  26 ] ); 
-                     mBasis[  21 ]->insert_neighbor( 17, mBasis[  23 ] ); 
-                     mBasis[  21 ]->insert_neighbor( 18, tBasis[   6 ] ); 
-                     mBasis[  21 ]->insert_neighbor( 19, tBasis[   8 ] ); 
-                     mBasis[  21 ]->insert_neighbor( 20, tBasis[  18 ] ); 
-                     mBasis[  21 ]->insert_neighbor( 21, tBasis[  16 ] ); 
-                     mBasis[  21 ]->insert_neighbor( 22, mBasis[  12 ] ); 
-                     mBasis[  21 ]->insert_neighbor( 23, mBasis[  13 ] ); 
-                     mBasis[  21 ]->insert_neighbor( 24, mBasis[  14 ] ); 
-                     mBasis[  21 ]->insert_neighbor( 25, mBasis[  15 ] ); 
+                     mBasis[  21 ]->insert_neighbor(  0, mBasis[   8 ] );
+                     mBasis[  21 ]->insert_neighbor(  1, mBasis[   9 ] );
+                     mBasis[  21 ]->insert_neighbor(  2, mBasis[  10 ] );
+                     mBasis[  21 ]->insert_neighbor(  3, mBasis[  11 ] );
+                     mBasis[  21 ]->insert_neighbor(  4, tBasis[  12 ] );
+                     mBasis[  21 ]->insert_neighbor(  5, mBasis[  20 ] );
+                     mBasis[  21 ]->insert_neighbor(  6, tBasis[   7 ] );
+                     mBasis[  21 ]->insert_neighbor(  7, tBasis[  13 ] );
+                     mBasis[  21 ]->insert_neighbor(  8, tBasis[  17 ] );
+                     mBasis[  21 ]->insert_neighbor(  9, tBasis[  11 ] );
+                     mBasis[  21 ]->insert_neighbor( 10, mBasis[   0 ] );
+                     mBasis[  21 ]->insert_neighbor( 11, mBasis[   1 ] );
+                     mBasis[  21 ]->insert_neighbor( 12, mBasis[   2 ] );
+                     mBasis[  21 ]->insert_neighbor( 13, mBasis[   3 ] );
+                     mBasis[  21 ]->insert_neighbor( 14, mBasis[  25 ] );
+                     mBasis[  21 ]->insert_neighbor( 15, mBasis[  24 ] );
+                     mBasis[  21 ]->insert_neighbor( 16, mBasis[  26 ] );
+                     mBasis[  21 ]->insert_neighbor( 17, mBasis[  23 ] );
+                     mBasis[  21 ]->insert_neighbor( 18, tBasis[   6 ] );
+                     mBasis[  21 ]->insert_neighbor( 19, tBasis[   8 ] );
+                     mBasis[  21 ]->insert_neighbor( 20, tBasis[  18 ] );
+                     mBasis[  21 ]->insert_neighbor( 21, tBasis[  16 ] );
+                     mBasis[  21 ]->insert_neighbor( 22, mBasis[  12 ] );
+                     mBasis[  21 ]->insert_neighbor( 23, mBasis[  13 ] );
+                     mBasis[  21 ]->insert_neighbor( 24, mBasis[  14 ] );
+                     mBasis[  21 ]->insert_neighbor( 25, mBasis[  15 ] );
 
                      // flag this basis
                      mBasis[  21 ]->flag();
@@ -1817,32 +1820,32 @@ namespace moris
                  if ( ! mBasis[  22 ]->is_flagged() )
                  {
                      // link neighbors of basis 22
-                     mBasis[  22 ]->insert_neighbor(  0, mBasis[  16 ] ); 
-                     mBasis[  22 ]->insert_neighbor(  1, mBasis[  17 ] ); 
-                     mBasis[  22 ]->insert_neighbor(  2, mBasis[  18 ] ); 
-                     mBasis[  22 ]->insert_neighbor(  3, mBasis[  19 ] ); 
-                     mBasis[  22 ]->insert_neighbor(  4, mBasis[  20 ] ); 
-                     mBasis[  22 ]->insert_neighbor(  5, tBasis[  85 ] ); 
-                     mBasis[  22 ]->insert_neighbor(  6, mBasis[  25 ] ); 
-                     mBasis[  22 ]->insert_neighbor(  7, mBasis[  24 ] ); 
-                     mBasis[  22 ]->insert_neighbor(  8, mBasis[  26 ] ); 
-                     mBasis[  22 ]->insert_neighbor(  9, mBasis[  23 ] ); 
-                     mBasis[  22 ]->insert_neighbor( 10, mBasis[   4 ] ); 
-                     mBasis[  22 ]->insert_neighbor( 11, mBasis[   5 ] ); 
-                     mBasis[  22 ]->insert_neighbor( 12, mBasis[   6 ] ); 
-                     mBasis[  22 ]->insert_neighbor( 13, mBasis[   7 ] ); 
-                     mBasis[  22 ]->insert_neighbor( 14, tBasis[  80 ] ); 
-                     mBasis[  22 ]->insert_neighbor( 15, tBasis[  86 ] ); 
-                     mBasis[  22 ]->insert_neighbor( 16, tBasis[  90 ] ); 
-                     mBasis[  22 ]->insert_neighbor( 17, tBasis[  84 ] ); 
-                     mBasis[  22 ]->insert_neighbor( 18, mBasis[  12 ] ); 
-                     mBasis[  22 ]->insert_neighbor( 19, mBasis[  13 ] ); 
-                     mBasis[  22 ]->insert_neighbor( 20, mBasis[  14 ] ); 
-                     mBasis[  22 ]->insert_neighbor( 21, mBasis[  15 ] ); 
-                     mBasis[  22 ]->insert_neighbor( 22, tBasis[  79 ] ); 
-                     mBasis[  22 ]->insert_neighbor( 23, tBasis[  81 ] ); 
-                     mBasis[  22 ]->insert_neighbor( 24, tBasis[  91 ] ); 
-                     mBasis[  22 ]->insert_neighbor( 25, tBasis[  89 ] ); 
+                     mBasis[  22 ]->insert_neighbor(  0, mBasis[  16 ] );
+                     mBasis[  22 ]->insert_neighbor(  1, mBasis[  17 ] );
+                     mBasis[  22 ]->insert_neighbor(  2, mBasis[  18 ] );
+                     mBasis[  22 ]->insert_neighbor(  3, mBasis[  19 ] );
+                     mBasis[  22 ]->insert_neighbor(  4, mBasis[  20 ] );
+                     mBasis[  22 ]->insert_neighbor(  5, tBasis[  85 ] );
+                     mBasis[  22 ]->insert_neighbor(  6, mBasis[  25 ] );
+                     mBasis[  22 ]->insert_neighbor(  7, mBasis[  24 ] );
+                     mBasis[  22 ]->insert_neighbor(  8, mBasis[  26 ] );
+                     mBasis[  22 ]->insert_neighbor(  9, mBasis[  23 ] );
+                     mBasis[  22 ]->insert_neighbor( 10, mBasis[   4 ] );
+                     mBasis[  22 ]->insert_neighbor( 11, mBasis[   5 ] );
+                     mBasis[  22 ]->insert_neighbor( 12, mBasis[   6 ] );
+                     mBasis[  22 ]->insert_neighbor( 13, mBasis[   7 ] );
+                     mBasis[  22 ]->insert_neighbor( 14, tBasis[  80 ] );
+                     mBasis[  22 ]->insert_neighbor( 15, tBasis[  86 ] );
+                     mBasis[  22 ]->insert_neighbor( 16, tBasis[  90 ] );
+                     mBasis[  22 ]->insert_neighbor( 17, tBasis[  84 ] );
+                     mBasis[  22 ]->insert_neighbor( 18, mBasis[  12 ] );
+                     mBasis[  22 ]->insert_neighbor( 19, mBasis[  13 ] );
+                     mBasis[  22 ]->insert_neighbor( 20, mBasis[  14 ] );
+                     mBasis[  22 ]->insert_neighbor( 21, mBasis[  15 ] );
+                     mBasis[  22 ]->insert_neighbor( 22, tBasis[  79 ] );
+                     mBasis[  22 ]->insert_neighbor( 23, tBasis[  81 ] );
+                     mBasis[  22 ]->insert_neighbor( 24, tBasis[  91 ] );
+                     mBasis[  22 ]->insert_neighbor( 25, tBasis[  89 ] );
 
                      // flag this basis
                      mBasis[  22 ]->flag();
@@ -1857,32 +1860,32 @@ namespace moris
                  if ( ! mBasis[  23 ]->is_flagged() )
                  {
                      // link neighbors of basis 23
-                     mBasis[  23 ]->insert_neighbor(  0, mBasis[  12 ] ); 
-                     mBasis[  23 ]->insert_neighbor(  1, mBasis[  20 ] ); 
-                     mBasis[  23 ]->insert_neighbor(  2, mBasis[  15 ] ); 
-                     mBasis[  23 ]->insert_neighbor(  3, tBasis[  48 ] ); 
-                     mBasis[  23 ]->insert_neighbor(  4, mBasis[  11 ] ); 
-                     mBasis[  23 ]->insert_neighbor(  5, mBasis[  19 ] ); 
-                     mBasis[  23 ]->insert_neighbor(  6, mBasis[   0 ] ); 
-                     mBasis[  23 ]->insert_neighbor(  7, mBasis[  21 ] ); 
-                     mBasis[  23 ]->insert_neighbor(  8, mBasis[   3 ] ); 
-                     mBasis[  23 ]->insert_neighbor(  9, tBasis[  32 ] ); 
-                     mBasis[  23 ]->insert_neighbor( 10, tBasis[  46 ] ); 
-                     mBasis[  23 ]->insert_neighbor( 11, mBasis[  25 ] ); 
-                     mBasis[  23 ]->insert_neighbor( 12, mBasis[  26 ] ); 
-                     mBasis[  23 ]->insert_neighbor( 13, tBasis[  50 ] ); 
-                     mBasis[  23 ]->insert_neighbor( 14, mBasis[   4 ] ); 
-                     mBasis[  23 ]->insert_neighbor( 15, mBasis[  22 ] ); 
-                     mBasis[  23 ]->insert_neighbor( 16, mBasis[   7 ] ); 
-                     mBasis[  23 ]->insert_neighbor( 17, tBasis[  64 ] ); 
-                     mBasis[  23 ]->insert_neighbor( 18, tBasis[  30 ] ); 
-                     mBasis[  23 ]->insert_neighbor( 19, mBasis[   8 ] ); 
-                     mBasis[  23 ]->insert_neighbor( 20, mBasis[  10 ] ); 
-                     mBasis[  23 ]->insert_neighbor( 21, tBasis[  34 ] ); 
-                     mBasis[  23 ]->insert_neighbor( 22, tBasis[  62 ] ); 
-                     mBasis[  23 ]->insert_neighbor( 23, mBasis[  16 ] ); 
-                     mBasis[  23 ]->insert_neighbor( 24, mBasis[  18 ] ); 
-                     mBasis[  23 ]->insert_neighbor( 25, tBasis[  66 ] ); 
+                     mBasis[  23 ]->insert_neighbor(  0, mBasis[  12 ] );
+                     mBasis[  23 ]->insert_neighbor(  1, mBasis[  20 ] );
+                     mBasis[  23 ]->insert_neighbor(  2, mBasis[  15 ] );
+                     mBasis[  23 ]->insert_neighbor(  3, tBasis[  48 ] );
+                     mBasis[  23 ]->insert_neighbor(  4, mBasis[  11 ] );
+                     mBasis[  23 ]->insert_neighbor(  5, mBasis[  19 ] );
+                     mBasis[  23 ]->insert_neighbor(  6, mBasis[   0 ] );
+                     mBasis[  23 ]->insert_neighbor(  7, mBasis[  21 ] );
+                     mBasis[  23 ]->insert_neighbor(  8, mBasis[   3 ] );
+                     mBasis[  23 ]->insert_neighbor(  9, tBasis[  32 ] );
+                     mBasis[  23 ]->insert_neighbor( 10, tBasis[  46 ] );
+                     mBasis[  23 ]->insert_neighbor( 11, mBasis[  25 ] );
+                     mBasis[  23 ]->insert_neighbor( 12, mBasis[  26 ] );
+                     mBasis[  23 ]->insert_neighbor( 13, tBasis[  50 ] );
+                     mBasis[  23 ]->insert_neighbor( 14, mBasis[   4 ] );
+                     mBasis[  23 ]->insert_neighbor( 15, mBasis[  22 ] );
+                     mBasis[  23 ]->insert_neighbor( 16, mBasis[   7 ] );
+                     mBasis[  23 ]->insert_neighbor( 17, tBasis[  64 ] );
+                     mBasis[  23 ]->insert_neighbor( 18, tBasis[  30 ] );
+                     mBasis[  23 ]->insert_neighbor( 19, mBasis[   8 ] );
+                     mBasis[  23 ]->insert_neighbor( 20, mBasis[  10 ] );
+                     mBasis[  23 ]->insert_neighbor( 21, tBasis[  34 ] );
+                     mBasis[  23 ]->insert_neighbor( 22, tBasis[  62 ] );
+                     mBasis[  23 ]->insert_neighbor( 23, mBasis[  16 ] );
+                     mBasis[  23 ]->insert_neighbor( 24, mBasis[  18 ] );
+                     mBasis[  23 ]->insert_neighbor( 25, tBasis[  66 ] );
 
                      // flag this basis
                      mBasis[  23 ]->flag();
@@ -1897,32 +1900,32 @@ namespace moris
                  if ( ! mBasis[  24 ]->is_flagged() )
                  {
                      // link neighbors of basis 24
-                     mBasis[  24 ]->insert_neighbor(  0, mBasis[  13 ] ); 
-                     mBasis[  24 ]->insert_neighbor(  1, tBasis[  49 ] ); 
-                     mBasis[  24 ]->insert_neighbor(  2, mBasis[  14 ] ); 
-                     mBasis[  24 ]->insert_neighbor(  3, mBasis[  20 ] ); 
-                     mBasis[  24 ]->insert_neighbor(  4, mBasis[   9 ] ); 
-                     mBasis[  24 ]->insert_neighbor(  5, mBasis[  17 ] ); 
-                     mBasis[  24 ]->insert_neighbor(  6, mBasis[   1 ] ); 
-                     mBasis[  24 ]->insert_neighbor(  7, tBasis[  33 ] ); 
-                     mBasis[  24 ]->insert_neighbor(  8, mBasis[   2 ] ); 
-                     mBasis[  24 ]->insert_neighbor(  9, mBasis[  21 ] ); 
-                     mBasis[  24 ]->insert_neighbor( 10, mBasis[  25 ] ); 
-                     mBasis[  24 ]->insert_neighbor( 11, tBasis[  47 ] ); 
-                     mBasis[  24 ]->insert_neighbor( 12, tBasis[  51 ] ); 
-                     mBasis[  24 ]->insert_neighbor( 13, mBasis[  26 ] ); 
-                     mBasis[  24 ]->insert_neighbor( 14, mBasis[   5 ] ); 
-                     mBasis[  24 ]->insert_neighbor( 15, tBasis[  65 ] ); 
-                     mBasis[  24 ]->insert_neighbor( 16, mBasis[   6 ] ); 
-                     mBasis[  24 ]->insert_neighbor( 17, mBasis[  22 ] ); 
-                     mBasis[  24 ]->insert_neighbor( 18, mBasis[   8 ] ); 
-                     mBasis[  24 ]->insert_neighbor( 19, tBasis[  31 ] ); 
-                     mBasis[  24 ]->insert_neighbor( 20, tBasis[  35 ] ); 
-                     mBasis[  24 ]->insert_neighbor( 21, mBasis[  10 ] ); 
-                     mBasis[  24 ]->insert_neighbor( 22, mBasis[  16 ] ); 
-                     mBasis[  24 ]->insert_neighbor( 23, tBasis[  63 ] ); 
-                     mBasis[  24 ]->insert_neighbor( 24, tBasis[  67 ] ); 
-                     mBasis[  24 ]->insert_neighbor( 25, mBasis[  18 ] ); 
+                     mBasis[  24 ]->insert_neighbor(  0, mBasis[  13 ] );
+                     mBasis[  24 ]->insert_neighbor(  1, tBasis[  49 ] );
+                     mBasis[  24 ]->insert_neighbor(  2, mBasis[  14 ] );
+                     mBasis[  24 ]->insert_neighbor(  3, mBasis[  20 ] );
+                     mBasis[  24 ]->insert_neighbor(  4, mBasis[   9 ] );
+                     mBasis[  24 ]->insert_neighbor(  5, mBasis[  17 ] );
+                     mBasis[  24 ]->insert_neighbor(  6, mBasis[   1 ] );
+                     mBasis[  24 ]->insert_neighbor(  7, tBasis[  33 ] );
+                     mBasis[  24 ]->insert_neighbor(  8, mBasis[   2 ] );
+                     mBasis[  24 ]->insert_neighbor(  9, mBasis[  21 ] );
+                     mBasis[  24 ]->insert_neighbor( 10, mBasis[  25 ] );
+                     mBasis[  24 ]->insert_neighbor( 11, tBasis[  47 ] );
+                     mBasis[  24 ]->insert_neighbor( 12, tBasis[  51 ] );
+                     mBasis[  24 ]->insert_neighbor( 13, mBasis[  26 ] );
+                     mBasis[  24 ]->insert_neighbor( 14, mBasis[   5 ] );
+                     mBasis[  24 ]->insert_neighbor( 15, tBasis[  65 ] );
+                     mBasis[  24 ]->insert_neighbor( 16, mBasis[   6 ] );
+                     mBasis[  24 ]->insert_neighbor( 17, mBasis[  22 ] );
+                     mBasis[  24 ]->insert_neighbor( 18, mBasis[   8 ] );
+                     mBasis[  24 ]->insert_neighbor( 19, tBasis[  31 ] );
+                     mBasis[  24 ]->insert_neighbor( 20, tBasis[  35 ] );
+                     mBasis[  24 ]->insert_neighbor( 21, mBasis[  10 ] );
+                     mBasis[  24 ]->insert_neighbor( 22, mBasis[  16 ] );
+                     mBasis[  24 ]->insert_neighbor( 23, tBasis[  63 ] );
+                     mBasis[  24 ]->insert_neighbor( 24, tBasis[  67 ] );
+                     mBasis[  24 ]->insert_neighbor( 25, mBasis[  18 ] );
 
                      // flag this basis
                      mBasis[  24 ]->flag();
@@ -1937,32 +1940,32 @@ namespace moris
                  if ( ! mBasis[  25 ]->is_flagged() )
                  {
                      // link neighbors of basis 25
-                     mBasis[  25 ]->insert_neighbor(  0, tBasis[  43 ] ); 
-                     mBasis[  25 ]->insert_neighbor(  1, mBasis[  13 ] ); 
-                     mBasis[  25 ]->insert_neighbor(  2, mBasis[  20 ] ); 
-                     mBasis[  25 ]->insert_neighbor(  3, mBasis[  12 ] ); 
-                     mBasis[  25 ]->insert_neighbor(  4, mBasis[   8 ] ); 
-                     mBasis[  25 ]->insert_neighbor(  5, mBasis[  16 ] ); 
-                     mBasis[  25 ]->insert_neighbor(  6, tBasis[  27 ] ); 
-                     mBasis[  25 ]->insert_neighbor(  7, mBasis[   1 ] ); 
-                     mBasis[  25 ]->insert_neighbor(  8, mBasis[  21 ] ); 
-                     mBasis[  25 ]->insert_neighbor(  9, mBasis[   0 ] ); 
-                     mBasis[  25 ]->insert_neighbor( 10, tBasis[  42 ] ); 
-                     mBasis[  25 ]->insert_neighbor( 11, tBasis[  44 ] ); 
-                     mBasis[  25 ]->insert_neighbor( 12, mBasis[  24 ] ); 
-                     mBasis[  25 ]->insert_neighbor( 13, mBasis[  23 ] ); 
-                     mBasis[  25 ]->insert_neighbor( 14, tBasis[  59 ] ); 
-                     mBasis[  25 ]->insert_neighbor( 15, mBasis[   5 ] ); 
-                     mBasis[  25 ]->insert_neighbor( 16, mBasis[  22 ] ); 
-                     mBasis[  25 ]->insert_neighbor( 17, mBasis[   4 ] ); 
-                     mBasis[  25 ]->insert_neighbor( 18, tBasis[  26 ] ); 
-                     mBasis[  25 ]->insert_neighbor( 19, tBasis[  28 ] ); 
-                     mBasis[  25 ]->insert_neighbor( 20, mBasis[   9 ] ); 
-                     mBasis[  25 ]->insert_neighbor( 21, mBasis[  11 ] ); 
-                     mBasis[  25 ]->insert_neighbor( 22, tBasis[  58 ] ); 
-                     mBasis[  25 ]->insert_neighbor( 23, tBasis[  60 ] ); 
-                     mBasis[  25 ]->insert_neighbor( 24, mBasis[  17 ] ); 
-                     mBasis[  25 ]->insert_neighbor( 25, mBasis[  19 ] ); 
+                     mBasis[  25 ]->insert_neighbor(  0, tBasis[  43 ] );
+                     mBasis[  25 ]->insert_neighbor(  1, mBasis[  13 ] );
+                     mBasis[  25 ]->insert_neighbor(  2, mBasis[  20 ] );
+                     mBasis[  25 ]->insert_neighbor(  3, mBasis[  12 ] );
+                     mBasis[  25 ]->insert_neighbor(  4, mBasis[   8 ] );
+                     mBasis[  25 ]->insert_neighbor(  5, mBasis[  16 ] );
+                     mBasis[  25 ]->insert_neighbor(  6, tBasis[  27 ] );
+                     mBasis[  25 ]->insert_neighbor(  7, mBasis[   1 ] );
+                     mBasis[  25 ]->insert_neighbor(  8, mBasis[  21 ] );
+                     mBasis[  25 ]->insert_neighbor(  9, mBasis[   0 ] );
+                     mBasis[  25 ]->insert_neighbor( 10, tBasis[  42 ] );
+                     mBasis[  25 ]->insert_neighbor( 11, tBasis[  44 ] );
+                     mBasis[  25 ]->insert_neighbor( 12, mBasis[  24 ] );
+                     mBasis[  25 ]->insert_neighbor( 13, mBasis[  23 ] );
+                     mBasis[  25 ]->insert_neighbor( 14, tBasis[  59 ] );
+                     mBasis[  25 ]->insert_neighbor( 15, mBasis[   5 ] );
+                     mBasis[  25 ]->insert_neighbor( 16, mBasis[  22 ] );
+                     mBasis[  25 ]->insert_neighbor( 17, mBasis[   4 ] );
+                     mBasis[  25 ]->insert_neighbor( 18, tBasis[  26 ] );
+                     mBasis[  25 ]->insert_neighbor( 19, tBasis[  28 ] );
+                     mBasis[  25 ]->insert_neighbor( 20, mBasis[   9 ] );
+                     mBasis[  25 ]->insert_neighbor( 21, mBasis[  11 ] );
+                     mBasis[  25 ]->insert_neighbor( 22, tBasis[  58 ] );
+                     mBasis[  25 ]->insert_neighbor( 23, tBasis[  60 ] );
+                     mBasis[  25 ]->insert_neighbor( 24, mBasis[  17 ] );
+                     mBasis[  25 ]->insert_neighbor( 25, mBasis[  19 ] );
 
                      // flag this basis
                      mBasis[  25 ]->flag();
@@ -1977,32 +1980,32 @@ namespace moris
                  if ( ! mBasis[  26 ]->is_flagged() )
                  {
                      // link neighbors of basis 26
-                     mBasis[  26 ]->insert_neighbor(  0, mBasis[  20 ] ); 
-                     mBasis[  26 ]->insert_neighbor(  1, mBasis[  14 ] ); 
-                     mBasis[  26 ]->insert_neighbor(  2, tBasis[  54 ] ); 
-                     mBasis[  26 ]->insert_neighbor(  3, mBasis[  15 ] ); 
-                     mBasis[  26 ]->insert_neighbor(  4, mBasis[  10 ] ); 
-                     mBasis[  26 ]->insert_neighbor(  5, mBasis[  18 ] ); 
-                     mBasis[  26 ]->insert_neighbor(  6, mBasis[  21 ] ); 
-                     mBasis[  26 ]->insert_neighbor(  7, mBasis[   2 ] ); 
-                     mBasis[  26 ]->insert_neighbor(  8, tBasis[  38 ] ); 
-                     mBasis[  26 ]->insert_neighbor(  9, mBasis[   3 ] ); 
-                     mBasis[  26 ]->insert_neighbor( 10, mBasis[  23 ] ); 
-                     mBasis[  26 ]->insert_neighbor( 11, mBasis[  24 ] ); 
-                     mBasis[  26 ]->insert_neighbor( 12, tBasis[  55 ] ); 
-                     mBasis[  26 ]->insert_neighbor( 13, tBasis[  53 ] ); 
-                     mBasis[  26 ]->insert_neighbor( 14, mBasis[  22 ] ); 
-                     mBasis[  26 ]->insert_neighbor( 15, mBasis[   6 ] ); 
-                     mBasis[  26 ]->insert_neighbor( 16, tBasis[  70 ] ); 
-                     mBasis[  26 ]->insert_neighbor( 17, mBasis[   7 ] ); 
-                     mBasis[  26 ]->insert_neighbor( 18, mBasis[  11 ] ); 
-                     mBasis[  26 ]->insert_neighbor( 19, mBasis[   9 ] ); 
-                     mBasis[  26 ]->insert_neighbor( 20, tBasis[  39 ] ); 
-                     mBasis[  26 ]->insert_neighbor( 21, tBasis[  37 ] ); 
-                     mBasis[  26 ]->insert_neighbor( 22, mBasis[  19 ] ); 
-                     mBasis[  26 ]->insert_neighbor( 23, mBasis[  17 ] ); 
-                     mBasis[  26 ]->insert_neighbor( 24, tBasis[  71 ] ); 
-                     mBasis[  26 ]->insert_neighbor( 25, tBasis[  69 ] ); 
+                     mBasis[  26 ]->insert_neighbor(  0, mBasis[  20 ] );
+                     mBasis[  26 ]->insert_neighbor(  1, mBasis[  14 ] );
+                     mBasis[  26 ]->insert_neighbor(  2, tBasis[  54 ] );
+                     mBasis[  26 ]->insert_neighbor(  3, mBasis[  15 ] );
+                     mBasis[  26 ]->insert_neighbor(  4, mBasis[  10 ] );
+                     mBasis[  26 ]->insert_neighbor(  5, mBasis[  18 ] );
+                     mBasis[  26 ]->insert_neighbor(  6, mBasis[  21 ] );
+                     mBasis[  26 ]->insert_neighbor(  7, mBasis[   2 ] );
+                     mBasis[  26 ]->insert_neighbor(  8, tBasis[  38 ] );
+                     mBasis[  26 ]->insert_neighbor(  9, mBasis[   3 ] );
+                     mBasis[  26 ]->insert_neighbor( 10, mBasis[  23 ] );
+                     mBasis[  26 ]->insert_neighbor( 11, mBasis[  24 ] );
+                     mBasis[  26 ]->insert_neighbor( 12, tBasis[  55 ] );
+                     mBasis[  26 ]->insert_neighbor( 13, tBasis[  53 ] );
+                     mBasis[  26 ]->insert_neighbor( 14, mBasis[  22 ] );
+                     mBasis[  26 ]->insert_neighbor( 15, mBasis[   6 ] );
+                     mBasis[  26 ]->insert_neighbor( 16, tBasis[  70 ] );
+                     mBasis[  26 ]->insert_neighbor( 17, mBasis[   7 ] );
+                     mBasis[  26 ]->insert_neighbor( 18, mBasis[  11 ] );
+                     mBasis[  26 ]->insert_neighbor( 19, mBasis[   9 ] );
+                     mBasis[  26 ]->insert_neighbor( 20, tBasis[  39 ] );
+                     mBasis[  26 ]->insert_neighbor( 21, tBasis[  37 ] );
+                     mBasis[  26 ]->insert_neighbor( 22, mBasis[  19 ] );
+                     mBasis[  26 ]->insert_neighbor( 23, mBasis[  17 ] );
+                     mBasis[  26 ]->insert_neighbor( 24, tBasis[  71 ] );
+                     mBasis[  26 ]->insert_neighbor( 25, tBasis[  69 ] );
 
                      // flag this basis
                      mBasis[  26 ]->flag();
@@ -2032,7 +2035,7 @@ namespace moris
             if ( tBasis != NULL )
             {
                 // test if basis has been refined already
-                if ( ! tBasis->has_children() ) 
+                if ( ! tBasis->has_children() )
                 {
                    // create temporary container for children
                    tBasis->init_children_container();
@@ -2867,7 +2870,7 @@ namespace moris
                                    luint tIJK[ 3 ] = { i, j, k };
 
                                    // create child
-                                   tBasis->insert_child( tCount, 
+                                   tBasis->insert_child( tCount,
                                        new BSpline< 3, 64, 26 >( tIJK, tLevel, gNoProcOwner ) );
 
                                // increment basis counter
@@ -5064,7 +5067,6 @@ namespace moris
                 }
             }
 
-
             // initialize child container
             Element * tChildren[ 8 ];
 
@@ -5317,3 +5319,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_HMR_CL_HMR_BSPLINE_ELEMENT_HEX27_HPP_ */
+

@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_SDF_Generator.cpp
+ *
+ */
 
 #include "cl_SDF_Mesh.hpp"
 #include "cl_SDF_Core.hpp"
@@ -155,3 +164,4 @@ namespace moris
 //-------------------------------------------------------------------------------
     } /* namespace sdf */
 } /* namespace moris */
+

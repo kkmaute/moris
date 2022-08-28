@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_ctrans.hpp
  *
- *  Created on: Aug 29, 2018
- *      Author: sonne
  */
 
 #ifndef PROJECTS_LINALG_SRC_FN_CTRANS_HPP_
@@ -43,6 +46,5 @@ ctrans( const Matrix< Matrix_Type > & aA )
 
 }
 
-
-
 #endif /* PROJECTS_LINALG_SRC_FN_CTRANS_HPP_ */
+

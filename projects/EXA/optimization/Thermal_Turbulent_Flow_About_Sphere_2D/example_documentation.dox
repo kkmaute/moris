@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 namespace moris {
 
 /** \page EXA_OPTIMIZATION_THERMAL_TURBULENT_FLOW_ABOUT_SPHERE_2D Thermal Turbulent Flow about a sphere 2D
@@ -20,3 +27,4 @@ This example highlights the use of the following features:
 */
 
 }
+

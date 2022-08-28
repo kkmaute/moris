@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # Parameters Dependencies ---------------------------------------------
 # -------------------------------------------------------------------------
 
@@ -19,3 +26,4 @@ set(PRM_TPL_DEPENDENCIES
 include(${MORIS_DEPENDS_DIR}/LINALG_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/INT_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/VIS_Depends.cmake)
+

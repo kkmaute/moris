@@ -1,9 +1,13 @@
 /*
- * cl_FEM_IQI_Strain_energy.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Dec 5, 2019
- *      Author: noel
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_IQI_Strain_Energy.cpp
+ *
  */
+
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IQI_Strain_Energy.hpp"

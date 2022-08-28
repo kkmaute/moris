@@ -1,8 +1,11 @@
 /*
- * cl_MTK_Interpolation_Function_Tri6.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Apr 03, 2019
- *      Author: noel
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Interpolation_Function_Lagrange_Tri6.hpp
+ *
  */
 
 #ifndef SRC_MTK_CL_MTK_INTERPOLATION_FUNCTION_LAGRANGE_TRI6_HPP_
@@ -156,3 +159,4 @@ namespace moris
     } /* namespace mtk */
 } /* namespace moris */
 #endif /* SRC_MTK_CL_MTK_INTERPOLATION_FUNCTION_LAGRANGE_TRI6_HPP_ */
+

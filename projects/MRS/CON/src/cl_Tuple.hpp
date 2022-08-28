@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_Tuple.hpp
+ *
+ */
+
 #ifndef MORIS_CONTAINERS_CL_TUPLE_HPP_
 #define MORIS_CONTAINERS_CL_TUPLE_HPP_
 
@@ -163,7 +173,7 @@ namespace moris
 {
     /**
      * Makes a moris::Tuple from a list of arguments.
-     * 
+     *
      * @param[in] aArgs List of arguments to be packed into a Tuple.
      */
     template< typename... Types>
@@ -184,3 +194,4 @@ namespace moris
 }
 
 #endif /* CL_TUPLE_HPP_ */
+

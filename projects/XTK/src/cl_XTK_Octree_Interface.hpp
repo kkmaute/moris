@@ -1,16 +1,19 @@
 /*
- * cl_XTK_Octree_Interface.hpp  
- * 
- *  Created on: Oct  02, 2021 
- *      Author: Keenan Doble
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_XTK_Octree_Interface.hpp
+ *
  */
+
 #ifndef SRC_cl_XTK_Octree_Interface
 #define SRC_cl_XTK_Octree_Interface
 
 #include "cl_XTK_Decomposition_Algorithm.hpp"
 #include <functional>
 #include <cmath>
-
 
 namespace xtk
 {
@@ -80,7 +83,6 @@ class IJK
 };
 //https://www.openfoam.com/documentation/guides/latest/api/classFoam_1_1ijkMesh.html
 
-
 class IJK_Mesh
 {
   public:
@@ -147,7 +149,6 @@ class IJK_Mesh
         return IJK( tI, tJ, tK );
     }
 
-
     lint
     min_vert_i() const
     {
@@ -184,7 +185,6 @@ class IJK_Mesh
         return this->num_vert_z() - 1;
     }
 
-
     void
     get_vertex_parent(
         IJK const &  aVertIJK,
@@ -210,7 +210,6 @@ class IJK_Mesh
 
         return false;
     }
-
 
     uint
     num_cell_x() const
@@ -301,7 +300,6 @@ class IJK_Mesh
         const moris_index tNumCellsY = this->num_cell_y();
         const moris_index tNumCellsZ = this->num_cell_z();
 
-
         return ( ( tNumCellsX + 1 ) * tNumCellsY * tNumCellsZ )
                + ( ( tNumCellsY + 1 ) * tNumCellsZ * tNumCellsX )
                + ( ( tNumCellsZ + 1 ) * tNumCellsX * tNumCellsY );
@@ -319,12 +317,10 @@ class IJK_Mesh
         const moris_index tNumCellsY = this->num_cell_y();
         const moris_index tNumCellsZ = this->num_cell_z();
 
-
         return ( ( tNumCellsX - 1 ) * tNumCellsY * tNumCellsZ )
                + ( ( tNumCellsY - 1 ) * tNumCellsZ * tNumCellsX )
                + ( ( tNumCellsZ - 1 ) * tNumCellsX * tNumCellsY );
     }
-
 
     bool
     check_ijk_to_vertex_index() const
@@ -386,7 +382,6 @@ class IJK_Mesh
         return true;
     }
 };
-
 
 class Octree_Template
 {
@@ -500,12 +495,10 @@ class Octree_Template
 
         const Vertex_Ancestry *tVertexAncestry = this->get_vertex_ancestry();
 
-
         // iterate through vertices
         for ( moris::uint iVertex = 0; iVertex < mOctreeMeshGrid.num_verts(); iVertex++ )
         {
             const IJK tIJK = mOctreeMeshGrid.get_vertex_ijk( iVertex );
-
 
             moris_index tIInt = (moris_index)std::trunc( 10000 * mOctreeParamCoords( iVertex, 0 ) );
             moris_index tJInt = (moris_index)std::trunc( 10000 * mOctreeParamCoords( iVertex, 1 ) );
@@ -577,7 +570,6 @@ class Octree_Template
     }
 };
 
-
 class Octree_Comparator
 {
   public:
@@ -598,7 +590,7 @@ class Octree_Comparator
     }
     /**
      * @brief Translates IJK from template 0 to template 1
-     * 
+     *
      * @param aIJK Coarse IJK
      * @return IJK Fine IJK
      */
@@ -627,7 +619,7 @@ class Octree_Comparator
     }
     /**
      * @brief List of IJK positions unique to the fine grid
-     * 
+     *
      * @return Cell<IJK>  container of IJK positions in fine grid
      */
     Cell< IJK >
@@ -713,7 +705,7 @@ class Octree_Interface : public Decomposition_Algorithm
 
     /**
      * @brief Determine the lowest and highest element level that we need to refine
-     * 
+     *
      * @return moris::Cell<moris_index> const - {LowerBound,UpperBound}
      */
     moris::Cell< moris_index > const
@@ -727,6 +719,5 @@ class Octree_Interface : public Decomposition_Algorithm
 };
 
 }// namespace xtk
-
 
 #endif /* cl_XTK_Octree_Interface.hpp */

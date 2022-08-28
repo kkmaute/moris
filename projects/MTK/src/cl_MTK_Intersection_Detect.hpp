@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Intersection_Detect.hpp
  *
- *  Created on: Jun 7, 2021
- *      Author: momo
  */
 
 #ifndef PROJECTS_MTK_SRC_CL_MTK_INTERSECTION_DETECT_HPP_
@@ -12,7 +15,6 @@
 #include "cl_MTK_Side_Cluster_ISC_Impl.hpp"
 #include "cl_Param_List.hpp"
 #include "cl_MTK_Intersec_Mesh_Data.hpp"
-
 
 namespace moris
 {
@@ -68,7 +70,6 @@ namespace moris
                 // All the master side cells created in the intersection process
                 moris::Cell<moris::mtk::Cell const *>                   mMasterSideCells;
                 moris::Cell<moris::mtk::Cell const *>                   mSlaveSideCells;
-
 
                 moris::Cell<moris::mtk::Vertex const *>                 mMasterVertices;
                 moris::Cell<moris::mtk::Vertex const *>                 mSlaveVertices;
@@ -169,7 +170,7 @@ namespace moris
                  * @param[ in ]  aSecondTRINodeIndex Local indices of the second TRI mesh
                  */
 
-                void 
+                void
                 elementwise_bruteforce_search (
                         moris::Cell < moris::Matrix <DDRMat> >  const &  tParamCoordsCell,
                         moris::Matrix< moris::IndexMat>  const &         tIGCellToSideClusterMap,
@@ -268,7 +269,7 @@ namespace moris
                  * @param[ in ] aPairCount Number of the pair in the periodic side set pair
                  * @param[ in ] tTopNodeCoordinates head node of tetrahedran physical coordinates
                  */
-                 void 
+                 void
                  create_slave_vertices(moris::Cell< moris::mtk::Vertex *> & aSlaveVertices,
                          Matrix < DDRMat> &                                 aSurfaceNodesCoordinates,
                          moris::mtk::Cell const &                           aSlaveInterpCell,
@@ -366,7 +367,6 @@ namespace moris
                 std::pair< moris_id, moris_id >
                 permutation_pair(uint const & aPairCount) const;
 
-
                  // ----------------------------------------------------------------------------
 
                 /**
@@ -375,7 +375,7 @@ namespace moris
                  * @param[ in ] aPairCount Number of the pair in the periodic side set pair
                  * @param[ out ] indices which we should use
                  */
-                void 
+                void
                 group_cut_cells(moris::Matrix< IndexMat> const & aCutCellIndetiferMatrix,
                 std::unordered_map< moris_index , moris::Cell< moris_index > > & aCutCellIdentifierToCutCellIndex) const;
 
@@ -398,6 +398,5 @@ namespace moris
     }
 }
 
-
-
 #endif /* PROJECTS_MTK_SRC_CL_MTK_INTERSECTION_DETECT_HPP_ */
+

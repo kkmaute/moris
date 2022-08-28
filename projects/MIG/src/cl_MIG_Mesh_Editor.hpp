@@ -1,9 +1,13 @@
 /*
- * cl_mig_Mesh_Editor.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jan  25, 2022
- *      Author: momo
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MIG_Mesh_Editor.hpp
+ *
  */
+
 #ifndef SRC_cl_MIG_Mesh_Editor
 #define SRC_cl_MIG_Mesh_Editor
 
@@ -20,7 +24,6 @@ namespace moris::mtk
 {
     class Integration_Mesh_DataBase_IG;
 }// namespace moris::mtk
-
 
 namespace moris::mig
 {
@@ -41,7 +44,7 @@ namespace moris::mig
 
         /**
          * @brief Construct a new Periodic_Mesh_Editor object
-         * 
+         *
          */
 
         Periodic_Mesh_Editor() = default;
@@ -50,9 +53,9 @@ namespace moris::mig
 
         /**
          * @brief Construct a new Periodic_Mesh_Editor object
-         * 
-         * @param aIGMesh 
-         * @param aPeriodicData2D 
+         *
+         * @param aIGMesh
+         * @param aPeriodicData2D
          */
 
         Periodic_Mesh_Editor( mtk::Integration_Mesh_DataBase_IG* aIGMesh, mig::Periodic_2D* aPeriodicData2D );
@@ -61,9 +64,9 @@ namespace moris::mig
 
         /**
          * @brief Construct a new Periodic_Mesh_Editor object
-         * 
-         * @param aIGMesh 
-         * @param mPeriodicData3D 
+         *
+         * @param aIGMesh
+         * @param mPeriodicData3D
          */
 
         Periodic_Mesh_Editor( mtk::Integration_Mesh_DataBase_IG* aIGMesh, mig::Periodic_3D* mPeriodicData3D );
@@ -72,7 +75,7 @@ namespace moris::mig
 
         /**
          * @brief Destroy the Periodic_Mesh_Editor object
-         * 
+         *
          */
 
         ~Periodic_Mesh_Editor();
@@ -80,16 +83,16 @@ namespace moris::mig
 
         /**
          * @brief added newly genrated data to the data base
-         * 
-         * @param aSideClusterToVertexIndices 
-         * @param aVerticesCoords 
-         * @param aSideClusterToCells 
-         * @param aCellToVertexIndices 
-         * @param aSideClusterToIPCell 
-         * @param aVertexParametricCoords 
-         * @param aDoubleSidedClustersIndex 
-         * @param mNumDblSideCluster 
-         * @param aNumGeometry 
+         *
+         * @param aSideClusterToVertexIndices
+         * @param aVerticesCoords
+         * @param aSideClusterToCells
+         * @param aCellToVertexIndices
+         * @param aSideClusterToIPCell
+         * @param aVertexParametricCoords
+         * @param aDoubleSidedClustersIndex
+         * @param mNumDblSideCluster
+         * @param aNumGeometry
          */
 
         virtual void
@@ -108,18 +111,18 @@ namespace moris::mig
 
         /**
          * @brief adds data to the ge and also to the mtk data base
-         * 
+         *
          */
 
-        void  
+        void
         perform();
 
         //------------------------------------------------------------------------------------------------------------
 
         /**
          * @brief Set the geometry engine object
-         * 
-         * @param aGeometryEngine 
+         *
+         * @param aGeometryEngine
          */
 
         void
@@ -129,7 +132,7 @@ namespace moris::mig
 
         /**
          * @brief adds vertex data to the geomtry
-         * 
+         *
          */
 
         void
@@ -145,7 +148,6 @@ namespace moris::mig
         create_vertices();
 
         //------------------------------------------------------------------------------------------------------------
-
 
         void
         create_cells();
@@ -186,6 +188,5 @@ namespace moris::mig
         merge_meshes();
     };
 }// namespace moris::mig
-
 
 #endif /* cl_mig_Mesh_Editor.hpp */

@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # -------------------------------------------------------------------------
 # LBFGSB libraries ---------------------------------------------------------
 # -------------------------------------------------------------------------
@@ -28,3 +35,4 @@ if(NOT TARGET ${MORIS}::lbfgsb)
 	add_library(${MORIS}::lbfgsb INTERFACE IMPORTED GLOBAL)
 	target_link_libraries(${MORIS}::lbfgsb INTERFACE ${LBFGSB_LIBRARY_TARGETS})
 endif()
+

@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_FEM_Convert_Dimensions.cpp
  *
- *  Created on: Jun 23, 2021
- *      Author: wunsch
  */
 
 #include "cl_Matrix.hpp"
@@ -16,15 +19,15 @@ namespace moris
     namespace fem
     {
 
-        /* The below functions assume the 2D element to be a QUAD9 - TIME2 element 
+        /* The below functions assume the 2D element to be a QUAD9 - TIME2 element
         * with 18 Nodes and the 1D element to be a LINE3 - TIME2 element with 6 DoFs
-        * 
+        *
         * Ordering Scheme:
-        * 
+        *
         * Timelevels:      t_1            t_2
-        * 
+        *
         *        1D:   1 -- 3 -- 2    4 --  6 -- 5
-        * 
+        *
         *              4 -- 7 -- 3   13 -- 16 -- 12
         *              |         |    |          |
         *        2D:   8    9    6   17    18    15
@@ -42,13 +45,13 @@ namespace moris
                     "convert_residual_2D_to_1D_quadratic() : 2D residual of wrong size, must be 18 x 1 " );
 
             // convert the 2D residual to 1D
-            Matrix< DDRMat > tRes1D = { 
+            Matrix< DDRMat > tRes1D = {
                     { aRes2D(  0 ) + aRes2D(  3 ) + aRes2D(  7 ) },
                     { aRes2D(  1 ) + aRes2D(  2 ) + aRes2D(  5 ) },
                     { aRes2D(  4 ) + aRes2D(  6 ) + aRes2D(  8 ) },
                     { aRes2D(  9 ) + aRes2D( 12 ) + aRes2D( 16 ) },
                     { aRes2D( 10 ) + aRes2D( 11 ) + aRes2D( 14 ) },
-                    { aRes2D( 13 ) + aRes2D( 15 ) + aRes2D( 17 ) } 
+                    { aRes2D( 13 ) + aRes2D( 15 ) + aRes2D( 17 ) }
                     };
 
             // return converted residual vector
@@ -85,9 +88,9 @@ namespace moris
             return tMultiRes1D;
         }
 
-        //------------------------------------------------------------------------------  
+        //------------------------------------------------------------------------------
 
-        Matrix< DDRMat > convert_comp_flow_residual_2D_to_1D_quadratic( 
+        Matrix< DDRMat > convert_comp_flow_residual_2D_to_1D_quadratic(
                 const Matrix< DDRMat > & aCFRes2D )
         {
             // check size of the residual inputed
@@ -101,7 +104,7 @@ namespace moris
             tCFRes1D( { 12, 17 } ) = tCFRes1D( { 18, 23 } );
             tCFRes1D = tCFRes1D( { 0, 17 } );
 
-            // return 
+            // return
             return tCFRes1D;
         }
 
@@ -145,7 +148,7 @@ namespace moris
                     tJac1D( tRow1D, tCol1D ) = tJac1D( tRow1D, tCol1D ) + aJac2D( iRow2D, iCol2D );
                 }
             }
-            
+
             // return 1D jacobian
             return tJac1D;
         }
@@ -169,16 +172,16 @@ namespace moris
                 for ( uint iColVarBlock = 0; iColVarBlock < aNumStateVars; iColVarBlock++ )
                 {
                     // extract block from 2D jacobian
-                    Matrix< DDRMat > tJac2DBlock = aJac2D( 
-                            { iRowVarBlock * 18, ( iRowVarBlock + 1 ) * 18 - 1 }, 
+                    Matrix< DDRMat > tJac2DBlock = aJac2D(
+                            { iRowVarBlock * 18, ( iRowVarBlock + 1 ) * 18 - 1 },
                             { iColVarBlock * 18, ( iColVarBlock + 1 ) * 18 - 1 } );
 
                     // convert block to 1D
                     Matrix< DDRMat > tJac1DBlock = convert_Jacobian_2D_to_1D_quadratic( tJac2DBlock );
 
                     // put 1D block onto 1D Jacobian
-                    tMultiJac1D( 
-                            { iRowVarBlock * 6, ( iRowVarBlock + 1 ) * 6 - 1 }, 
+                    tMultiJac1D(
+                            { iRowVarBlock * 6, ( iRowVarBlock + 1 ) * 6 - 1 },
                             { iColVarBlock * 6, ( iColVarBlock + 1 ) * 6 - 1 } ) = tJac1DBlock.matrix_data();
                 }
             }
@@ -187,9 +190,9 @@ namespace moris
             return tMultiJac1D;
         }
 
-        //------------------------------------------------------------------------------  
+        //------------------------------------------------------------------------------
 
-        Matrix< DDRMat > convert_comp_flow_jacobian_2D_to_1D_quadratic( 
+        Matrix< DDRMat > convert_comp_flow_jacobian_2D_to_1D_quadratic(
                 const Matrix< DDRMat > & aCFJac2D )
         {
             // check size of the Jacobian inputed
@@ -205,7 +208,7 @@ namespace moris
             tCFJac1D( { 12, 17 }, { 12, 17 } ) = tCFJac1D( { 18, 23 }, { 18, 23 } );
             tCFJac1D = tCFJac1D( { 0, 17 }, { 0, 17 } );
 
-            // return 
+            // return
             return tCFJac1D;
         }
 
@@ -237,7 +240,7 @@ namespace moris
                     { aDofVec1D( 1 + 3 ) },
                     { aDofVec1D( 2 + 3 ) },
                     { aDofVec1D( 0 + 3 ) },
-                    { aDofVec1D( 2 + 3 ) } 
+                    { aDofVec1D( 2 + 3 ) }
                     };
 
             // return converted DoF vector

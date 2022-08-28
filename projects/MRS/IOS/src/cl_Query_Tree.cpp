@@ -1,4 +1,13 @@
-// contains methods for Query class
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_Query_Tree.cpp
+ *
+ */
+
 #include "cl_Query.hpp"
 
 #include <iostream>
@@ -24,7 +33,6 @@
 #include "Log_Constants.hpp"
 #include "fn_stringify.hpp"
 
-
 namespace moris
 {
 namespace ios
@@ -41,7 +49,6 @@ void Query::tree_query(std::string aFileNameWrite, bool aSuppressText)
 
     std::cout << "Creating process tree ... " << std::flush;
 
-
     // create text file to write to
     std::ofstream tLogFileWrite;
     tLogFileWrite.open(aFileNameWrite);
@@ -50,7 +57,6 @@ void Query::tree_query(std::string aFileNameWrite, bool aSuppressText)
         MORIS_ASSERT( false,
                 "<MRS::IOS::cl_Query::tree_query>: Write file could not be opened.");
     }
-
 
     // Read and Copy Header ---------------------------------------------------------- //
     copy_header(& tLogFileWrite);
@@ -64,7 +70,6 @@ void Query::tree_query(std::string aFileNameWrite, bool aSuppressText)
     bool tPrevOutputLineIsEmpty = false;
     bool tPrevFuncInstaceIsShort = false;
 
-
     // logic loop for tree goes through every line of log information
     for (uint iLine = 0; iLine < mNumLines; iLine++)
     {
@@ -76,7 +81,6 @@ void Query::tree_query(std::string aFileNameWrite, bool aSuppressText)
                 tCurrentEntity = "";
             else
                 tCurrentEntity = get_enum_str( mEntityTypes(iLine) ) + " ";
-
 
             // get line where the function instance is signed out
             tEndLine = mInstanceStartEnd( mFunctionIDs(iLine) )( 1 );
@@ -103,13 +107,11 @@ void Query::tree_query(std::string aFileNameWrite, bool aSuppressText)
                 tPrevFuncInstaceIsShort = true;
         }
 
-
         // case: sign out line
         else if (mOutputSpecifiers(iLine) == OutputSpecifier::ElapsedTime)
         {
             // do nothing
         }
-
 
         // case: iteration or step
         else if ( (mOutputSpecifiers(iLine) == OutputSpecifier::Iteration)
@@ -125,7 +127,6 @@ void Query::tree_query(std::string aFileNameWrite, bool aSuppressText)
                           << mOutputValues( iLine ) << "\n";
             tPrevOutputLineIsEmpty = false;
         }
-
 
         // case: text output specifier and text is suppressed, don't do anything
         else if ( (    (mOutputSpecifiers(iLine) == OutputSpecifier::FreeText)
@@ -147,7 +148,6 @@ void Query::tree_query(std::string aFileNameWrite, bool aSuppressText)
 
             tPrevOutputLineIsEmpty = false;
         }
-
 
         // step indentation level down in empty lines if previous output is of higher level
         if (iLine < mNumLines - 1)
@@ -171,16 +171,4 @@ void Query::tree_query(std::string aFileNameWrite, bool aSuppressText)
 //-----------------------------------------------------------------------------------------------------------//
 } // namespace std
 } // namespace moris
-
-
-
-
-
-
-
-
-
-
-
-
 

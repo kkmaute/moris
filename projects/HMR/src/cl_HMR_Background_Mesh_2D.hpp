@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_HMR_Background_Mesh_2D.hpp
  *
- *  Created on: Jun 21, 2018
- *      Author: messe
  */
 
 #ifndef SRC_HMR_CL_HMR_BACKGROUND_MESH_2D_HPP_
@@ -797,5 +800,5 @@ namespace moris
     } /* namespace hmr */
 }
 
-
 #endif /* SRC_HMR_CL_HMR_BACKGROUND_MESH_2D_HPP_ */
+

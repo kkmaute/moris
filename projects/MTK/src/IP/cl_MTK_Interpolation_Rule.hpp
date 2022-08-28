@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Interpolation_Rule.hpp
  *
- *  Created on: Jul 18, 2018
- *      Author: messe
  */
 
 #ifndef SRC_MTK_CL_MTK_INTERPOLATION_RULE_HPP_
@@ -169,3 +172,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_MTK_CL_MTK_INTERPOLATION_RULE_HPP_ */
+

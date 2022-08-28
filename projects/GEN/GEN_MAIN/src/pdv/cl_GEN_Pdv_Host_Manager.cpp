@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_GEN_Pdv_Host_Manager.cpp
+ *
+ */
+
 #include "cl_GEN_Pdv_Host_Manager.hpp"
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
 #include "cl_Communication_Tools.hpp"
@@ -396,7 +406,7 @@ namespace moris
             // determine maximum node index used for sizing the pdv hosts
             moris_index tMax = 0;
             for( moris::uint iSet = 0; iSet< tNumSets; iSet++)
-            {   
+            {
                 if(aNodeIndicesPerSet(iSet).numel() > 0)
                 {
                     tMax = std::max(aNodeIndicesPerSet(iSet).max(),tMax);
@@ -1615,3 +1625,4 @@ namespace moris
 
     }
 }
+

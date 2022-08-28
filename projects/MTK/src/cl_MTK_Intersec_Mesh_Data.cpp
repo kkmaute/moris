@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Intersec_Mesh_Data.cpp
  *
- *  Created on: Aug 19, 2021
- *      Author: momo
  */
 
 #include "cl_MTK_Intersec_Mesh_Data.hpp"
@@ -197,3 +200,4 @@ namespace moris
         //---------------------------------------------------------------------
     }
 }
+

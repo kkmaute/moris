@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_XTK_Interpolation_Cell.cpp
  *
- *  Created on: Jul 23, 2019
- *      Author: doble
  */
 
 #include "cl_XTK_Interpolation_Cell.hpp"

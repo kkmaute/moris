@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * Axisymmetric_Problem.cpp
+ *
+ */
+
 #include <string>
 #include <iostream>
 
@@ -27,7 +37,6 @@
 
 #include "AztecOO.h"
 
-
 #ifdef  __cplusplus
 extern "C"
 {
@@ -50,7 +59,7 @@ namespace moris
     std::string tBedding = std::to_string(1.0*1e-6);
 
     //------------------------------------------------------------------------------
-    
+
     // FUNCTIONS
 
     // Constant function for properties
@@ -420,3 +429,4 @@ namespace moris
 #ifdef  __cplusplus
 }
 #endif
+

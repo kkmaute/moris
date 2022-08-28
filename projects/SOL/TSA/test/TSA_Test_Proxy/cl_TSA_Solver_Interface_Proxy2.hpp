@@ -1,9 +1,13 @@
 /*
- * cl_TSA_Solver_Interface_Proxy_@.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jun 18, 2018
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * cl_TSA_Solver_Interface_Proxy2.hpp
+ *
  */
+
 #ifndef SRC_DISTLINALG_CL_TSA_SOLVER_INTERFACE_PROXY_HPP_
 #define SRC_DISTLINALG_CL_TSA_SOLVER_INTERFACE_PROXY_HPP_
 
@@ -100,7 +104,6 @@ namespace moris
 
                 // local dimension of the problem
                 uint get_max_num_global_dofs(){ return 4; };
-
 
                 // ----------------------------------------------------------------------------------------------
                 // local dimension of the problem
@@ -278,3 +281,4 @@ namespace moris
     }
 }
 #endif /* SRC_DISTLINALG_CL_TSA_SOLVER_INTERFACE_PROXY_HPP_ */
+

@@ -1,19 +1,20 @@
 /*
- * typedefs.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jun 12, 2017
- *      Author: ktdoble
+ *------------------------------------------------------------------------------------
+ *
+ * xtk_typedefs.hpp
+ *
  */
 
 #ifndef SRC_CORE_XTK_TYPEDEFS_HPP_
 #define SRC_CORE_XTK_TYPEDEFS_HPP_
 
-
 // C++ header files.
 #include <cstddef>
 #include <vector>
 #include <complex>
-
 
 /**
  * @xtkdescription
@@ -71,7 +72,6 @@ namespace xtk
     typedef std::size_t               size_t;
     typedef bool                      bool_t;
 
-
 //#ifdef XTK_USE_32BIT
     typedef int                       lint;  // long int in 64bit, int in 32bit.
     typedef int                       sint;  // signed int in 32bit and 64bit.
@@ -94,9 +94,5 @@ namespace xtk
     typedef Eigen::Matrix<xtk::sint, Eigen::Dynamic, Eigen::Dynamic> moris::DDSTMat_Sint;
 #endif
 
-
-
-
-
-
 #endif /* SRC_CORE_XTK_TYPEDEFS_HPP_ */
+

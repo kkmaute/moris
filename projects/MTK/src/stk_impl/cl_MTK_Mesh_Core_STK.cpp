@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Mesh_Core_STK.cpp
  *
- *  Created on: Apr 15, 2019
- *      Author: doble
  */
 
 #include "Ioss_Region.h"      // for Region, NodeBlockContainer
@@ -3948,3 +3951,4 @@ namespace moris
 
     }    // namespace mtk
 }    // namespace moris
+

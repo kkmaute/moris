@@ -1,15 +1,17 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_VIS_Side_Cluster_Visualization.hpp
  *
- *  Created on: Jul 27, 2021
- *      Author: momo
  */
 
 #ifndef PROJECTS_FEM_VIS_SRC_CL_VIS_SIDE_CLUSTER_VISUALIZATION_HPP_
 #define PROJECTS_FEM_VIS_SRC_CL_VIS_SIDE_CLUSTER_VISUALIZATION_HPP_
 
 #include <unordered_map>
-
 
 #include "cl_MTK_Side_Cluster.hpp"
 
@@ -36,7 +38,6 @@ namespace moris
 
                 // map from vertex id to local index
                 std::unordered_map<moris_index,moris_index> mVertexIdToLocalIndex;
-
 
             public:
                 //----------------------------------------------------------------
@@ -161,6 +162,6 @@ namespace moris
 
     }
 
-
 }
 #endif /* PROJECTS_FEM_VIS_SRC_CL_VIS_SIDE_CLUSTER_VISUALIZATION_HPP_ */
+

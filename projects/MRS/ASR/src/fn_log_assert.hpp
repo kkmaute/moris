@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * fn_log_assert.hpp
+ *
+ */
+
 #ifndef MORIS_ASSERT_FN_LOG_ASSERT_HPP_
 #define MORIS_ASSERT_FN_LOG_ASSERT_HPP_
 
@@ -226,3 +236,4 @@ namespace moris
 }// namespace moris
 
 #endif /* MORIS_ASSERT_FN_LOG_ASSERT_HPP_ */
+

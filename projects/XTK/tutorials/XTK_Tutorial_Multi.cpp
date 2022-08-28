@@ -1,18 +1,19 @@
 /*
- * XTK_Tutorial_1.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Oct 11, 2018
- *      Author: doble
+ *------------------------------------------------------------------------------------
+ *
+ * XTK_Tutorial_Multi.cpp
+ *
  */
 
-// MORIS header files.
 #include "cl_Communication_Manager.hpp" // COM/src
 #include "cl_Logger.hpp" // MRS/IOS/src
 #include "paths.hpp"
 
 moris::Comm_Manager gMorisComm;
 moris::Logger       gLogger;
-
 
 /*
  * XTK at a minimum needs:
@@ -32,14 +33,11 @@ moris::Logger       gLogger;
 #include "cl_MTK_Mesh.hpp"
 #include "cl_MTK_Mesh_Factory.hpp"
 
-
 /*
  * 5.) A geometry and geometry engine
  */
 #include "geometry/cl_Sphere.hpp"
 #include "geomeng/cl_MGE_Geometry_Engine.hpp"
-
-
 
 // Set namespaces to use
 using namespace mesh;
@@ -60,7 +58,6 @@ main( int    argc,
 
     // Severity level 0 - all outputs
     gLogger.initialize( 0 );
-
 
     /*!
      * \section XFEM Model With Multiple Geometries
@@ -196,7 +193,6 @@ main( int    argc,
     tGeometryEngine.mThresholdValue = 0.0;
     tGeometryEngine.mComputeDxDp = true;
 
-
     /*!
      * \subsection xtk_setup 5.) XTK Model Setup
      *  The XTK model receives the model dimension, the background mesh and the geometry engine.
@@ -212,7 +208,6 @@ main( int    argc,
     size_t tModelDimension = 3;
     Model tXTKModel(tModelDimension, tBackgroundMesh.get(), tGeometryEngine);
     tXTKModel.mVerbose  =  false;
-
 
     /*!
      * \section XTKCapabilities Core Capabilities
@@ -307,11 +302,9 @@ main( int    argc,
     std::string tMeshOutputFile = "./xtk_exo/XTK_Tutorial_Multi.e";
     tOutputMesh->create_output_mesh(tMeshOutputFile);
 
-
     delete tOutputMesh;
 
     gMorisComm.finalize();
 
 }
-
 

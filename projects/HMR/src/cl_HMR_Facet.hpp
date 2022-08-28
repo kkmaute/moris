@@ -1,9 +1,11 @@
-
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_HMR_Facet.hpp
  *
- *  Created on: Sept 24, 2018
- *      Author: messe
  */
 
 #ifndef SRC_HMR_CL_HMR_FACE_BASE_HPP_
@@ -241,3 +243,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_HMR_CL_HMR_FACE_BASE_HPP_ */
+

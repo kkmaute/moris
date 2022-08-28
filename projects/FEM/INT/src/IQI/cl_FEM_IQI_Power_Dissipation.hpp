@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_IQI_Power_Dissipation.hpp
  *
- *  Created on: Sept 27, 2020
- *      Author: noel
  */
 
 #ifndef PROJECTS_FEM_INT_SRC_CL_FEM_IQI_POWER_DISSIPATION_HPP_
@@ -88,3 +91,4 @@ namespace moris
 } /* end namespace moris */
 
 #endif /* PROJECTS_FEM_INT_SRC_CL_FEM_IQI_POWER_DISSIPATION_HPP_ */
+

@@ -1,8 +1,11 @@
 /*
- * fn_diag.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Sep 6, 2018
- *      Author: doble
+ *------------------------------------------------------------------------------------
+ *
+ * fn_diag_mat.hpp
+ *
  */
 
 #ifndef PROJECTS_LINALG_SRC_FN_DIAG_MAT_HPP_
@@ -49,6 +52,5 @@ diag_mat(   Matrix< Matrix_Type >  & aA,
 
 }
 
-
-
 #endif /* PROJECTS_LINALG_SRC_FN_DIAG_MAT_HPP_ */
+

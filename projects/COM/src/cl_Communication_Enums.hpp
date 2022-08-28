@@ -1,8 +1,11 @@
 /*
- * cl_MPI_Enums.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jan 31, 2017
- *      Author: doble
+ *------------------------------------------------------------------------------------
+ *
+ * cl_Communication_Enums.hpp
+ *
  */
 
 #ifndef SRC_COMM_CL_COMMUNCATION_ENUMS_HPP_
@@ -21,5 +24,5 @@ enum class CommunicationType
     END_ENUM         // This should be the last enum (used to check the length of the in some functions)
 };
 
-
 #endif /* SRC_COMM_CL_COMMUNCATION_ENUMS_HPP_ */
+

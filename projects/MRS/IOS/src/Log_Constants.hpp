@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * Log_Constants.hpp
+ *
+ */
+
 #ifndef MORIS_LOG_CONSTANTS_HPP_
 #define MORIS_LOG_CONSTANTS_HPP_
 
@@ -24,3 +34,4 @@ const moris::uint QUERY_MAX_COLUMN_WIDTH = 18;
 const bool PRINT_WALL_TIME = true;
 
 #endif /* MORIS_LOG_CONSTANTS_HPP_ */
+

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * fn_GEN_check_equal.hpp
+ *
+ */
+
 #ifndef MORIS_FN_GEN_CHECK_EQUAL_HPP
 #define MORIS_FN_GEN_CHECK_EQUAL_HPP
 
@@ -36,3 +46,4 @@ namespace moris
 }
 
 #endif //MORIS_FN_GEN_CHECK_EQUAL_HPP
+

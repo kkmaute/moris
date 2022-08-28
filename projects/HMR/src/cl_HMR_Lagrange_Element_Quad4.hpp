@@ -1,10 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_HMR_Lagrange_Element_Quad4.hpp
  *
- *  Created on: December 05, 2018
- *  using MATLAB
  */
- 
+
 #ifndef SRC_HMR_CL_HMR_LAGRANGE_ELEMENT_QUAD4_HPP_
 #define SRC_HMR_CL_HMR_LAGRANGE_ELEMENT_QUAD4_HPP_
 
@@ -61,7 +64,7 @@ namespace moris
         template<>
         inline
         uint
-        Lagrange_Element< 2, 4 >::get_vtk_type() 
+        Lagrange_Element< 2, 4 >::get_vtk_type()
         {
             return 9;
         }
@@ -71,7 +74,7 @@ namespace moris
         /**
          * node IDs needed for VTK output
          *
-         * @param[out] moris::Matrix< DDLUMat > 
+         * @param[out] moris::Matrix< DDLUMat >
          *
          * @return void
          *
@@ -104,8 +107,8 @@ namespace moris
         inline
         void
         Lagrange_Element< 2, 4 >::get_ijk_of_basis(
-            const uint & aBasisNumber, 
-            luint      * aIJK ) 
+            const uint & aBasisNumber,
+            luint      * aIJK )
         {
             // get element local coordinate
             switch ( aBasisNumber )
@@ -170,7 +173,7 @@ namespace moris
              Element* tNeighbor
                  = this->get_neighbor( aAllElementsOnProc, 0 );
 
-             // test if neighbor 0 exists 
+             // test if neighbor 0 exists
              if ( tNeighbor != NULL )
              {
                  // copy nodes from this neighbor
@@ -181,7 +184,7 @@ namespace moris
              // get pointer to neighbor 3
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 3 );
 
-             // test if neighbor 3 exists 
+             // test if neighbor 3 exists
              if ( tNeighbor != NULL )
              {
                  // copy nodes from this neighbor
@@ -199,7 +202,7 @@ namespace moris
                      this->create_basis( k );
 
                      // increment node counter
-                     ++aBasisCounter; 
+                     ++aBasisCounter;
                  }
              }
         }
@@ -311,7 +314,7 @@ namespace moris
             auto tLevel = mElement->get_level() + 1;
 
             // owner of element
-            auto tOwner = mElement->get_owner(); 
+            auto tOwner = mElement->get_owner();
 
             // get position of element
             const luint * tElIJ = mElement->get_ijk();
@@ -453,3 +456,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_HMR_CL_HMR_LAGRANGE_ELEMENT_QUAD4_HPP_ */
+

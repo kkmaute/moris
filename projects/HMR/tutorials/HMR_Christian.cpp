@@ -1,4 +1,13 @@
-//------------------------------------------------------------------------------
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * HMR_Christian.cpp
+ *
+ */
+
 #include <memory>
 #include <string>
 
@@ -30,12 +39,10 @@
 #include "cl_MTK_Mapper.hpp"
 #include "cl_MTK_Mesh_Factory.hpp"
 
-
 //------------------------------------------------------------------------------
 
 // geometry engine
 //#include <GEN/src/cl_GEN_Geometry_Engine.hpp>
-
 
 //------------------------------------------------------------------------------
 // HMR
@@ -81,3 +88,4 @@ main(
     return 0;
 
 }
+

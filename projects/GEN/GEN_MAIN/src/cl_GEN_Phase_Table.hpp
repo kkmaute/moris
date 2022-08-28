@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_GEN_Phase_Table.hpp
+ *
+ */
+
 #ifndef MORIS_CL_GEN_PHASE_TABLE_HPP_
 #define MORIS_CL_GEN_PHASE_TABLE_HPP_
 
@@ -100,3 +110,4 @@ namespace moris
 }
 
 #endif /* MORIS_CL_GEN_PHASE_TABLE_HPP_ */
+

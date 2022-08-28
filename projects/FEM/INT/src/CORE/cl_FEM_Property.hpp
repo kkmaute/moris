@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_Property.hpp
  *
- *  Created on: Jul 12, 2019
- *      Author: noel
  */
+
 #ifndef SRC_FEM_CL_FEM_PROPERTY_HPP_
 #define SRC_FEM_CL_FEM_PROPERTY_HPP_
 
@@ -504,3 +508,4 @@ namespace moris
     } /* namespace fem */
 } /* namespace moris */
 #endif /* SRC_FEM_CL_FEM_PROPERTY_HPP_ */
+

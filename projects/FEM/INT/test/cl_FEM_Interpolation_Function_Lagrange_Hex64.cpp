@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_Interpolation_Function_Lagrange_Hex64.cpp
+ *
+ */
+
 #include <catch.hpp>
 //MRS/COR/src
 #include "typedefs.hpp"
@@ -245,3 +255,4 @@ TEST_CASE( "Lagrange HEX64", "[moris],[fem],[Hex64LagInterpolation]" )
 
     //------------------------------------------------------------------------------
 }
+

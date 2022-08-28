@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_VIS_Factory.hpp
  *
- *  Created on: Dez 02, 2019
- *      Author: schmidt
  */
+
 #ifndef SRC_FEM_CL_VIS_FACTORY_HPP_
 #define SRC_FEM_CL_VIS_FACTORY_HPP_
 
@@ -53,7 +57,6 @@ namespace moris
 
             moris::Cell< std::string > tRequestedSetNames;
 
-
         public:
             VIS_Factory(
                     std::shared_ptr< mtk::Mesh_Manager > aMesh,
@@ -87,9 +90,9 @@ namespace moris
 
 //-----------------------------------------------------------------------------------------------------------
 
-
         };
     } /* namespace VIS */
 } /* namespace moris */
 
 #endif /* SRC_FEM_CL_VIS_FACTORY_HPP_ */
+

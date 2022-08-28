@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # MTK Dependencies --------------------------------------------------------
 # -------------------------------------------------------------------------
 
@@ -23,3 +30,4 @@ include(${MORIS_DEPENDS_DIR}/INT_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/TSA_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/NLA_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/MDL_Depends.cmake)
+

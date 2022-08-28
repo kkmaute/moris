@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_OPT_Problem.cpp
+ *
+ */
+
 #include "cl_OPT_Problem.hpp"
 #include "op_plus.hpp"
 #include "fn_norm.hpp"
@@ -307,7 +317,7 @@ namespace moris
             load_matrix_from_hdf5_file( tFileID, "LowerBounds", tRestartLowerBounds, tStatus);
 
             load_scalar_from_hdf5_file( tFileID, "NumProcs", tParSizeFile, tStatus);
-            
+
             // FIXME this function also should work if you want to restart with same number procs but new proc layout
             // in this case this if criteria should be deleted
             if( par_size() != tParSizeFile)
@@ -387,3 +397,4 @@ namespace moris
         }
     }
 }
+

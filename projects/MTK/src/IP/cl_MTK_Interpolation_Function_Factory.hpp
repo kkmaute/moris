@@ -1,14 +1,15 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Interpolation_Function_Factory.hpp
  *
- *  Created on: Jul 9, 2018
- *      Author: messe
  */
-
 
 #ifndef SRC_MTK_CL_MTK_INTERPOLATION_FUNCTION_FACTORY_HPP_
 #define SRC_MTK_CL_MTK_INTERPOLATION_FUNCTION_FACTORY_HPP_
-
 
 #include "typedefs.hpp" //MRS/COR/src
 #include "cl_MTK_Enums.hpp" //MTK/src
@@ -99,6 +100,5 @@ namespace moris
 //------------------------------------------------------------------------------
     } /* namespace mtk */
 } /* namespace moris */
-
 
 #endif /* SRC_MTK_CL_MTK_INTERPOLATION_FUNCTION_FACTORY_HPP_ */

@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * UT_MTK_Mesh_Comm_Maps.cpp
  *
- *  Created on: Jun 3, 2019
- *      Author: doble
  */
 
 #include "catch.hpp"
@@ -108,7 +111,6 @@ TEST_CASE("MTK Vertex Communication Tables","[VERTEX_COMM_TABLES]")
                                                        {11, 14},
                                                        {12, 15}};
 
-
             Matrix<IdMat> tVertexPairsWithProc2Gold = {{5, 4},
                                                        {6, 5},
                                                        {7, 6},
@@ -200,7 +202,6 @@ TEST_CASE("MTK Vertex Communication Tables","[VERTEX_COMM_TABLES]")
                                                        {11, 14},
                                                        {12, 15}};
 
-
             Matrix<IdMat> tVertexPairsWithProc2Gold = {{13, 12},
                                                        {14, 13},
                                                        {15, 14},
@@ -220,3 +221,4 @@ TEST_CASE("MTK Vertex Communication Tables","[VERTEX_COMM_TABLES]")
     }
 }
 }
+

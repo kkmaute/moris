@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_Double_Sided_Sideset_Test.cpp
+ *
+ */
+
 #include "catch.hpp"
 #include "cl_MTK_Integrator.hpp"            //MTK/sr
 #include "cl_MTK_Interpolation_Rule.hpp"    //MTK/src
@@ -1219,3 +1229,4 @@ TEST_CASE( "Double sided side-set HEX ", "[moris],[fem],[DoubleSidedHEX]" )
     delete tSpaceInterp;
     delete tSideSpaceInterp;
 }
+

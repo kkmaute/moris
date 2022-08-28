@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_HMR.cpp
  *
- *  Created on: May 5, 2018
- *      Author: messe
  */
+
 #include <memory>
 #include <mutex>
 
@@ -1509,7 +1513,6 @@ namespace moris
                 {
                 }
 
-
                 //                else if ( tFlag == 0 )
                 //                {
                 //                    // flag the parent of this element
@@ -1838,7 +1841,6 @@ namespace moris
                         uint( aFunctionIndex ) );
             }
 
-
             // add length of list to counter
             aElementCounter += tRefinementList.size();
 
@@ -2005,7 +2007,6 @@ namespace moris
                     MORIS_ERROR( false, "the behavior of this function is not tested when using a refinement function." );
                 }
 
-
                 // add length of list to counter
                 tElementCounter += tRefinementList.size();
 
@@ -2070,7 +2071,6 @@ namespace moris
                             aFieldValues,
                             uint( aFunctionIndex ) );
                 }
-
 
                 // add length of list to counter
                 tElementCounter = tRefinementList.size();
@@ -2683,3 +2683,4 @@ namespace moris
         // ----------------------------------------------------------------------------
     } /* namespace hmr */
 } /* namespace moris */
+

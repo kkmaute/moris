@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_tet_volume.hpp
  *
- *  Created on: Jun 22, 2017
- *      Author: ktdoble
  */
 
 #ifndef SRC_TOOLS_FN_TET_VOLUME_HPP_
@@ -65,3 +68,4 @@ namespace xtk
 }    // namespace xtk
 
 #endif /* SRC_TOOLS_FN_TET_VOLUME_HPP_ */
+

@@ -1,8 +1,11 @@
 /*
- * cl_FEM_IQI_Strain_Energy.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Feb, 2020
- *      Author: doble
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_IQI_Stress.hpp
+ *
  */
 
 #ifndef PROJECTS_FEM_INT_SRC_CL_FEM_IQI_STRESS_HPP_
@@ -174,3 +177,4 @@ namespace moris
 } /* end namespace moris */
 
 #endif /* PROJECTS_FEM_INT_SRC_CL_FEM_IQI_STRESS_HPP_ */
+

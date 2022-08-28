@@ -1,8 +1,11 @@
 /*
- * cl_MTK_Face.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Sep 23, 2018
- *      Author: messe
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Facet.hpp
+ *
  */
 
 #ifndef PROJECTS_MTK_SRC_CL_MTK_FACET_HPP_
@@ -58,7 +61,6 @@ namespace moris
             const mtk::Cell *
             get_slave() const = 0;
 
-
 //-----------------------------------------------------------------------------
 
             // fixme add active flag
@@ -68,6 +70,5 @@ namespace moris
     } /* namespace mtk */
 } /* namespace moris */
 
-
-
 #endif /* PROJECTS_MTK_SRC_CL_MTK_FACET_HPP_ */
+

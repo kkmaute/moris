@@ -1,8 +1,11 @@
 /*
- * cl_FEM_SP_SUPG_Advection.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Apr 18, 2020
- *  Author: wunsch
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_SP_GGLS_Diffusion.hpp
+ *
  */
 
 #ifndef SRC_FEM_CL_FEM_SP_GGLS_DIFFUSION_HPP_
@@ -146,3 +149,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_FEM_CL_FEM_SP_GGLS_DIFFUSION_HPP_ */
+

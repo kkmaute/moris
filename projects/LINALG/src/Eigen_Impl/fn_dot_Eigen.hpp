@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_dot_Eigen.hpp
  *
- *  Created on: Aug 29, 2018
- *      Author: sonne
  */
 
 #ifndef PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_DOT_EIGEN_HPP_
@@ -40,9 +43,7 @@ dot( const Eigen::MatrixBase<ET> &  aA,
     return aA.cwiseProduct(aB).sum();
 }
 
-
-
 }
 
-
 #endif /* PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_DOT_EIGEN_HPP_ */
+

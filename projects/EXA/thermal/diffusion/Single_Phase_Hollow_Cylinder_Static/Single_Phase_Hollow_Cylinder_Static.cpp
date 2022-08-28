@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * Single_Phase_Hollow_Cylinder_Static.cpp
+ *
+ */
 
 #include <string>
 #include <iostream>
@@ -473,3 +482,4 @@ namespace moris
 #ifdef __cplusplus
 }
 #endif
+

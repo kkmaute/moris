@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_FEM_IWG_Compressible_NS_Bulk_Flux_Matrices.cpp
+ *
+ */
+
 #include <string>
 #include <catch.hpp>
 #include <memory>
@@ -104,7 +114,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Flux_Matrices",
             tMMFactory.create_MM( fem::Material_Type::PERFECT_GAS );
     tMMFluid->set_dof_type_list( {tPressureDof, tTempDof } );
     tMMFluid->set_property( tPropHeatCapacity, "IsochoricHeatCapacity" );
-    tMMFluid->set_property( tPropGasConstant,  "SpecificGasConstant" );    
+    tMMFluid->set_property( tPropGasConstant,  "SpecificGasConstant" );
 
     // define constitutive model and assign properties
     fem::CM_Factory tCMFactory;
@@ -137,7 +147,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Flux_Matrices",
     tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
     tIWG->set_property( tPropViscosity,    "DynamicViscosity" );
     tIWG->set_property( tPropConductivity, "ThermalConductivity" );
-    tIWG->set_property( tPropHeatLoad, "BodyHeatLoad" ); 
+    tIWG->set_property( tPropHeatLoad, "BodyHeatLoad" );
     tIWG->set_material_model( tMMFluid, "FluidMM" );
     tIWG->set_constitutive_model( tCMMasterFluid, "FluidCM" );
 
@@ -210,7 +220,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Flux_Matrices",
     tMasterDOFHatP = trans( tMasterDOFHatP );
     fill_smooth_UHat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
     fill_smooth_TempHat( tMasterDOFHatTemp, iSpaceDim, iInterpOrder );
-    tMasterDOFHatTemp = trans( tMasterDOFHatTemp ); 
+    tMasterDOFHatTemp = trans( tMasterDOFHatTemp );
 
     //------------------------------------------------------------------------------
     // space and time geometry interpolators
@@ -251,7 +261,6 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Flux_Matrices",
     // get integration weights
     Matrix< DDRMat > tIntegWeights;
     tIntegrator.get_weights( tIntegWeights );
-
 
     //------------------------------------------------------------------------------
     // field interpolators
@@ -352,7 +361,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Flux_Matrices",
     Matrix< DDRMat > tParamPoint = {
             {-0.67},
             {+0.22},
-            {+0.87}};      
+            {+0.87}};
 
     // set integration point
     tCMMasterFluid->mSet->mMasterFIManager->set_space_time( tParamPoint );
@@ -360,13 +369,13 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Flux_Matrices",
 
     // for debug
     print( tIWG->mSet->mMasterFIManager->get_IP_geometry_interpolator()->valx(), "x-pos" );
-    print( tIWG->mSet->mMasterFIManager->get_IP_geometry_interpolator()->valt(), "t-pos" ); 
+    print( tIWG->mSet->mMasterFIManager->get_IP_geometry_interpolator()->valt(), "t-pos" );
 
     // check evaluation of the residual for IWG
     //------------------------------------------------------------------------------
     // reset residual & jacobian
-    tIWG->mSet->mResidual( 0 ).fill( 0.0 );      
-    tIWG->mSet->mJacobian.fill( 0.0 );    
+    tIWG->mSet->mResidual( 0 ).fill( 0.0 );
+    tIWG->mSet->mJacobian.fill( 0.0 );
 
     // compute residual & jacobian
     tIWG->compute_residual( 1.0 );
@@ -395,7 +404,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Flux_Matrices",
     Matrix< DDRMat > tdYdy     = tChildIWG->dYdx( 1 );
     Matrix< DDRMat > tdYdy_ref = get_reference_dYdx()( 1 );
     REQUIRE( fem::check( tdYdy, tdYdy_ref, tEpsilon, true, true, tAbsTol ) );
-    
+
     // Force term
     std::cout << "\nChecking C-Operator ... \n" << std::flush;
     Matrix< DDRMat > tC     = tChildIWG->C();
@@ -425,7 +434,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Flux_Matrices",
     Cell< Matrix< DDRMat > > tKiji_ref = get_reference_Kiji();
     REQUIRE( fem::check( tKiji( 0 ), tKiji_ref( 0 ), tEpsilon, true, true, tAbsTol ) );
     REQUIRE( fem::check( tKiji( 1 ), tKiji_ref( 1 ), tEpsilon, true, true, tAbsTol ) );
-    
+
     // For Stabilization
     std::cout << "\nChecking LY (strong form of the residual) ... \n" << std::flush;
     Matrix< DDRMat > tLY     = tChildIWG->LY();
@@ -496,7 +505,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Flux_Matrices",
     REQUIRE( fem::check( tdRsdDof, tdRsdDof_ref, tEpsilon, true, true, tAbsTol ) );
 
     std::cout << "\nChecking GLS-Jacobian ... \n" << std::flush;
-    Matrix< DDRMat > tGLSJac = tChildIWG->GLSTestFunc() * 
+    Matrix< DDRMat > tGLSJac = tChildIWG->GLSTestFunc() *
             ( tChildIWG->dTaudY( tChildIWG->LY() ) * tChildIWG->W() + tChildIWG->Tau() * ( tChildIWG->LW() + tChildIWG->dLdDofY() ) ) +
             tChildIWG->dGLSTestFuncdDof( tChildIWG->Tau() * tChildIWG->LY() );
     Matrix< DDRMat > tGLSJac_ref = get_reference_JacGLS();

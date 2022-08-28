@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_FEM_IWG_Compressible_NS_Bulk_Analytical.cpp
+ *
+ */
+
 #include <string>
 #include <catch.hpp>
 #include <memory>
@@ -47,7 +57,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive_Analytical",
     // define absolute tolerance accepted as numerical error
     real tAbsTol = 1.0E-14;
 
-    // weight for the GLS term, use 0 for turning GLS off, use 1 for weak form + regular GLS formulation 
+    // weight for the GLS term, use 0 for turning GLS off, use 1 for weak form + regular GLS formulation
     real tGLSWeightFactor = 0.0;
 
     // init geometry inputs
@@ -104,7 +114,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive_Analytical",
             tMMFactory.create_MM( fem::Material_Type::PERFECT_GAS );
     tMMFluid->set_dof_type_list( {tPressureDof, tTempDof } );
     tMMFluid->set_property( tPropHeatCapacity, "IsochoricHeatCapacity" );
-    tMMFluid->set_property( tPropGasConstant,  "SpecificGasConstant" );    
+    tMMFluid->set_property( tPropGasConstant,  "SpecificGasConstant" );
 
     // define constitutive model and assign properties
     fem::CM_Factory tCMFactory;
@@ -137,7 +147,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive_Analytical",
     tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
     tIWG->set_property( tPropViscosity,    "DynamicViscosity" );
     tIWG->set_property( tPropConductivity, "ThermalConductivity" );
-    tIWG->set_property( tPropHeatLoad, "BodyHeatLoad" ); 
+    tIWG->set_property( tPropHeatLoad, "BodyHeatLoad" );
     tIWG->set_material_model( tMMFluid, "FluidMM" );
     tIWG->set_constitutive_model( tCMMasterFluid, "FluidCM" );
 
@@ -244,7 +254,6 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive_Analytical",
     // get integration weights
     Matrix< DDRMat > tIntegWeights;
     tIntegrator.get_weights( tIntegWeights );
-
 
     //------------------------------------------------------------------------------
     // field interpolators
@@ -371,7 +380,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive_Analytical",
         // Matrix< DDRMat > tParamPoint = {
         //         {-0.67},
         //         {+0.22},
-        //         {+0.87}};      
+        //         {+0.87}};
 
         // set integration point
         tCMMasterFluid->mSet->mMasterFIManager->set_space_time( tParamPoint );
@@ -379,13 +388,13 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive_Analytical",
 
         // for debug
         // print( tIWG->mSet->mMasterFIManager->get_IP_geometry_interpolator()->valx(), "x-pos" );
-        // print( tIWG->mSet->mMasterFIManager->get_IP_geometry_interpolator()->valt(), "t-pos" ); 
+        // print( tIWG->mSet->mMasterFIManager->get_IP_geometry_interpolator()->valt(), "t-pos" );
 
         // check evaluation of the residual for IWG
         //------------------------------------------------------------------------------
         // reset residual & jacobian
-        tIWG->mSet->mResidual( 0 ).fill( 0.0 );      
-        tIWG->mSet->mJacobian.fill( 0.0 );    
+        tIWG->mSet->mResidual( 0 ).fill( 0.0 );
+        tIWG->mSet->mJacobian.fill( 0.0 );
 
         // compute detJ of integration domain
         real tDetJ = tIWG->mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
@@ -427,7 +436,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive_Analytical",
     Matrix< DDRMat > tJacobian1D = fem::convert_comp_flow_jacobian_2D_to_1D_quadratic( tJacobian );
 
     // Analytical residual for the weak form from Matlab code
-    Matrix< DDRMat > tResWeakFormAna1D = { 
+    Matrix< DDRMat > tResWeakFormAna1D = {
                 { -2.719421205234789e-02 },
                 {  3.254348159384793e-02 },
                 {  7.661289950608770e-02 },

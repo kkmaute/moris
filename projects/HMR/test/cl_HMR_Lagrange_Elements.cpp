@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_HMR_Lagrange_Elements.cpp
  *
- *  Created on: May 31, 2019
- *      Author: doble
  */
+
 #include "catch.hpp"
 
 #include "cl_HMR.hpp"
@@ -218,3 +222,4 @@ TEST_CASE("Single Hex 64 Lagrange Mesh","[Lag_Hex64]")
 }
 
 }
+

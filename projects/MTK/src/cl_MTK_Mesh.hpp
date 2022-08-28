@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Mesh.hpp
  *
- *  Created on: Jul 24, 2018
- *      Author: messe
  */
 
 #ifndef SRC_MESH_CL_MTK_MESH_HPP_
@@ -200,7 +203,6 @@ namespace moris
                 return get_num_entities(EntityRank::ELEMENT);
             }
 
-
             //------------------------------------------------------------------------------
 
             /*
@@ -213,8 +215,6 @@ namespace moris
             {
                 return get_num_nodes();
             }
-
-
 
             //------------------------------------------------------------------------------
             //##############################################
@@ -270,15 +270,15 @@ namespace moris
 
             /**
              * @brief Get the neighboring elements connected to a given element through a given side ordinal
-             * 
+             *
              * @param aElementIndex element wrt. which the neighbors are to be determined
              * @param aSideOrdinal index of side ordinal relative to the given element
-             * @param aMyRefineLevel 
-             * @param aMyOctreePosition 
+             * @param aMyRefineLevel
+             * @param aMyOctreePosition
              * @param aNeighborElements output: list of neighboring elements connected through the side ordinal
              * @param aNeighborSideOrdinals output: list of neighboring element's side ordinals
              * @param aTransitionLocations output: list of the transition locations for the facet connectivity
-             * @param aNeighborRefinementLevels 
+             * @param aNeighborRefinementLevels
              */
             virtual void
             get_elements_connected_to_element_through_face_ord(
@@ -689,7 +689,6 @@ namespace moris
                  MORIS_ERROR(0," get_sideset_elems_loc_inds_and_ords has no base implementation");
              }
 
-
              virtual
              void
              get_sideset_cells_and_ords(
@@ -730,7 +729,6 @@ namespace moris
                  return Matrix< DDRMat >(0,0);
              }
 
-
              /*
               * Given a field name and rank associated with field, add the field data
               * For now, this is just for real type single component fields
@@ -745,7 +743,6 @@ namespace moris
                  MORIS_ERROR(0,"Entered virtual function in Mesh base class, (add_mesh_field_real_scalar_data_loc_inds is not implemented)");
 
              }
-
 
              //------------------------------------------------------------------------------
              //##############################################
@@ -830,7 +827,6 @@ namespace moris
              }
 
              //------------------------------------------------------------------------------
-
 
             //FIXME: THIS FUNCTION DESCRIPTION NEEDS TO BE IMPROVED
             //FIXME: Also, a unit test (not clear what needs to be provided)
@@ -1085,6 +1081,5 @@ namespace moris
     } /* namespace mtk */
 } /* namespace moris */
 
-
-
 #endif /* SRC_MESH_CL_MTK_MESH_HPP_ */
+

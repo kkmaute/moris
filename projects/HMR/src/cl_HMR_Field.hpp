@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_HMR_Field.hpp
  *
- *  Created on: Sep 13, 2018
- *      Author: messe
  */
 
 #ifndef PROJECTS_HMR_SRC_CL_HMR_FIELD_HPP_
@@ -16,7 +19,6 @@
 #include "cl_Mesh_Enums.hpp"
 #include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
-
 
 namespace moris
 {
@@ -357,3 +359,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* PROJECTS_HMR_SRC_CL_HMR_FIELD_HPP_ */
+

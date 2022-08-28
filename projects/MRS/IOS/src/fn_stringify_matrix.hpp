@@ -1,10 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_stringify_matrix.hpp
  *
- *  Created on: Dec 1, 2020
- *      Author: wunsch
- *
- *  Function that converts various matrix types to a string format compatible with the logger
  */
 
 #ifndef PROJECTS_MRS_IOS_SRC_FN_STRINGIFY_MATRIX_HPP_
@@ -169,7 +170,6 @@ namespace moris
             return out.str();
         }
 
-
         //template<>
         //inline std::string stringify< Matrix< Matrix_Type > >(Matrix<Matrix_Type> aMatrix)
         //{
@@ -194,5 +194,5 @@ namespace moris
     } // end namespace ios
 } // end namespace moris
 
-
 #endif /* PROJECTS_MRS_IOS_SRC_FN_STRINGIFY_MATRIX_HPP_ */
+

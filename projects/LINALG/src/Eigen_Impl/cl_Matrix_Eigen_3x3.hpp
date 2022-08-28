@@ -1,8 +1,11 @@
 /*
- * cl_Matrix_Eigen_Dynamic.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Aug 24, 2018
- *      Author: doble
+ *------------------------------------------------------------------------------------
+ *
+ * cl_Matrix_Eigen_3x3.hpp
+ *
  */
 
 #ifndef PROJECTS_LINALG_SRC_EIGEN_IMPL_CL_MATRIX_EIGEN_3X3_HPP_
@@ -10,7 +13,6 @@
 
 #include "cl_Matrix.hpp"
 #include "Eigen/Dense"
-
 
 namespace moris
 {
@@ -81,3 +83,4 @@ public:
 }
 
 #endif /* PROJECTS_LINALG_SRC_EIGEN_IMPL_CL_MATRIX_EIGEN_3X3_HPP_ */
+

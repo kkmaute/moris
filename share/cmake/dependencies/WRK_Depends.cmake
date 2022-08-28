@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # WRK Dependencies --------------------------------------------------------
 # -------------------------------------------------------------------------
 
@@ -29,3 +36,4 @@ include(${MORIS_DEPENDS_DIR}/MIG_Depends.cmake)
 
 # added as temp fix for hmr exe, test, and tutorials
 include(${MORIS_DEPENDS_DIR}/DLA_Depends.cmake)
+

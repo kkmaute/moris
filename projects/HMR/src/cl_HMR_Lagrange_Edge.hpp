@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_HMR_Lagrange_Edge.hpp
  *
- *  Created on: Sep 26, 2018
- *      Author: messe
  */
 
 #ifndef PROJECTS_HMR_SRC_CL_HMR_LAGRANGE_EDGE_HPP_

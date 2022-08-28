@@ -1,14 +1,15 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_zip.hpp
  *
- *  Created on: Sep 2, 2015
- *      Author: negrete
  */
 
 #ifndef SRC_CONTAINERS_FN_ZIP_HPP_
 #define SRC_CONTAINERS_FN_ZIP_HPP_
-
-
 
 // Third-party header files.
 #include <boost/iterator/zip_iterator.hpp>
@@ -39,5 +40,5 @@ namespace moris
 
 }// namespace moris
 
-
 #endif /* SRC_CONTAINERS_FN_ZIP_HPP_ */
+

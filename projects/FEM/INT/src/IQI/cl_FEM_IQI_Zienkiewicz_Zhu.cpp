@@ -1,9 +1,13 @@
 /*
- * cl_FEM_IQI_Stress.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Dec 5, 2019
- *      Author: noel
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_IQI_Zienkiewicz_Zhu.cpp
+ *
  */
+
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IQI_Zienkiewicz_Zhu.hpp"
@@ -325,3 +329,4 @@ namespace moris
 
     }    // namespace fem
 }    // namespace moris
+

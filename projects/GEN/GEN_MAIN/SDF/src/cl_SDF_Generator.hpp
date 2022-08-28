@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_SDF_Generator.hpp
  *
- *  Created on: Oct 4, 2018
- *      Author: messe
  */
 
 #ifndef PROJECTS_GEN_SDF_SRC_CL_SDF_GENERATOR_HPP_
@@ -43,7 +46,6 @@ public:
             SDF_Generator( const std::string & aObjectPath,
                            Matrix<DDRMat>   aObjectOffset,
                            const bool aVerboseFlag = true );
-
 
 //-------------------------------------------------------------------------------
 
@@ -122,3 +124,4 @@ public:
 } /* namespace moris */
 
 #endif /* PROJECTS_GEN_SDF_SRC_CL_SDF_GENERATOR_HPP_ */
+

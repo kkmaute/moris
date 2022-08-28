@@ -1,11 +1,13 @@
 /*
- * fn_sum.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Sep 12, 2018
- *      Author: messe
+ *------------------------------------------------------------------------------------
+ *
+ * fn_svd.cpp
+ *
  */
 
-// Third-party header files.
 #include <catch.hpp>
 
 // MORIS project header files.
@@ -67,3 +69,4 @@ TEST_CASE(
             }
         }
 }
+

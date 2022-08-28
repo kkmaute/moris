@@ -1,4 +1,13 @@
-// Third-party header files.
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_Bi_Map.cpp
+ *
+ */
+
 //#include <catch.hpp>
 //
 //// MORIS project header files.
@@ -46,3 +55,4 @@
 //    }
 //
 //}
+

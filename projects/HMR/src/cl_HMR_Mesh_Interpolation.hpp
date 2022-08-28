@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_HMR_Mesh_Interpolation.hpp
  *
- *  Created on: Apr 19, 2019
- *      Author: doble
  */
 
 #ifndef PROJECTS_HMR_SRC_CL_HMR_MESH_INTERPOLATION_HPP_
@@ -70,3 +73,4 @@ namespace moris
     }
 }
 #endif /* PROJECTS_HMR_SRC_CL_HMR_MESH_INTERPOLATION_HPP_ */
+

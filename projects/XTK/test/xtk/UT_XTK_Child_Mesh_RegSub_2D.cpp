@@ -1,9 +1,13 @@
 /*
- * cl_XTK_Child_Mesh_RegSub_2D.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jan 25, 2019
- *      Author: ryan
+ *------------------------------------------------------------------------------------
+ *
+ * UT_XTK_Child_Mesh_RegSub_2D.cpp
+ *
  */
+
 #include "catch.hpp"
 
 #include "cl_Matrix.hpp"
@@ -54,7 +58,6 @@ TEST_CASE("Regular Subdivision QUAD4","[REG_SUB_TEMPLATE_QUAD4]")
     Matrix< DDSTMat >  tParentEdgeRanks(1, 4, 1);
     Matrix< IndexMat > tElementAncestry = {{0}};
 
-
     // Setup mesh modification template
     // Initialize Template
     xtk::Mesh_Modification_Template tRegSubTemplate(tElementAncestry(0, 0),
@@ -94,7 +97,6 @@ TEST_CASE("Regular Subdivision QUAD4","[REG_SUB_TEMPLATE_QUAD4]")
                                                                     tMax,
                                                                     tMaxFloodFill,
                                                                     true);
-
 
     moris::Matrix< moris::IndexMat > tExpectedElementSubphase(1, 4, 0);
     CHECK( all_true( tExpectedElementSubphase == tElementSubphase ) );

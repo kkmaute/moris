@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_FEM_CM_Struc_Linear_Isotropic_Axisymmetric.cpp
+ *
+ */
 
 #include "catch.hpp"
 
@@ -206,7 +215,6 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Axi", "[CM_Struc_Lin_Iso_Axi]" )
             tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
             tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
 
-
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
@@ -320,8 +328,6 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Axi", "[CM_Struc_Lin_Iso_Axi]" )
 //                        REQUIRE( tCheckTestTractionFluid );
 //                    }
 
-
-
                 }
             }
             // clean up
@@ -329,3 +335,4 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Axi", "[CM_Struc_Lin_Iso_Axi]" )
         }
     }
 }/*END_TEST_CASE*/
+

@@ -1,15 +1,17 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * op_minus.hpp
  *
- *  Created on: Aug 29, 2018
- *      Author: doble
  */
 
 #ifndef PROJECTS_LINALG_SRC_OP_MINUS_HPP_
 #define PROJECTS_LINALG_SRC_OP_MINUS_HPP_
 
 #include "cl_Matrix.hpp"
-
 
 #ifdef MORIS_USE_EIGEN
 #include "Eigen_Impl/op_minus_Eigen.hpp"
@@ -18,7 +20,6 @@
 #ifdef MORIS_USE_ARMA
 #include "op_minus_Arma.hpp"
 #endif
-
 
 namespace moris
 {
@@ -76,3 +77,4 @@ namespace moris
 }
 
 #endif /* PROJECTS_LINALG_SRC_OP_MINUS_HPP_ */
+

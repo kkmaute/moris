@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * Shape_Sensitivity_Bspline.cpp
+ *
+ */
+
 #include <string>
 #include <iostream>
 #include "typedefs.hpp"
@@ -19,7 +29,6 @@
 #include "fn_equal_to.hpp"
 
 #include "AztecOO.h"
-
 
 #ifdef  __cplusplus
 extern "C"
@@ -404,7 +413,6 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "Save_Frequency", 1 );
     }
 
-
     void OPTParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
     {
         tParameterlist.resize( 3 );
@@ -437,3 +445,4 @@ namespace moris
 #ifdef  __cplusplus
 }
 #endif
+

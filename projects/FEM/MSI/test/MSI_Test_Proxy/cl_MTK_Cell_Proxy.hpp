@@ -1,8 +1,11 @@
 /*
- * cl_MTK_Cell_STK.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Sep 17, 2018
- *      Author: doble
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Cell_Proxy.hpp
+ *
  */
 
 #ifndef PROJECTS_MTK_SRC_STK_IMPL_CL_MTK_CELL_STK_HPP_
@@ -26,7 +29,6 @@ namespace moris
 {
 namespace mtk
 {
-
 
 /**
  * \brief the mtk::Cell class provides the cell information that is
@@ -221,7 +223,6 @@ public:
         // Normalize
         Matrix<DDRMat> tUnitOutwardNormal = tOutwardNormal / moris::norm(tOutwardNormal);
 
-
         return tUnitOutwardNormal;
 
     }
@@ -257,6 +258,5 @@ public:
 } /* namespace moris */
 //------------------------------------------------------------------------------
 
-
-
 #endif /* PROJECTS_MTK_SRC_STK_IMPL_CL_MTK_CELL_STK_HPP_ */
+

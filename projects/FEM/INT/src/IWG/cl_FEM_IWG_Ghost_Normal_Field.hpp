@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_IWG_Ghost_Normal_Field.hpp
  *
- *  Created on: Jul 27, 2020
- *      Author: noel
  */
 
 #ifndef SRC_FEM_CL_FEM_IWG_Ghost_Normal_Field_HPP_
@@ -110,3 +113,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_FEM_CL_FEM_IWG_Ghost_Normal_Field_HPP_ */
+

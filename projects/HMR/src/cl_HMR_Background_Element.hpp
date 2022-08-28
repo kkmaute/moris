@@ -1,8 +1,11 @@
 /*
- * clHMRElement.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: May 1, 2018
- *      Author: messe
+ *------------------------------------------------------------------------------------
+ *
+ * cl_HMR_Background_Element.hpp
+ *
  */
 
 #ifndef SRC_HMR_CL_HMR_BACKGROUND_ELEMENT_HPP_
@@ -460,7 +463,6 @@ namespace moris
                 // print blank line
                 std::fprintf( stdout, "\n" );
             }
-
 
 //--------------------------------------------------------------------------------
 
@@ -1535,7 +1537,6 @@ namespace moris
        {
            MORIS_ERROR( false, "Don't know how to collect active descendants.");
        }
-
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -4457,3 +4458,4 @@ namespace moris
 #include "fn_HMR_Background_Element_Edges_3D.hpp"
 
 #endif /* SRC_HMR_CL_HMR_BACKGROUND_ELEMENT_HPP_ */
+

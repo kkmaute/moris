@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 set(EXAMPLE_MAIN Main_Channel_with_Four_Cylinders_Transient)
 set(EXAMPLE_FILE Channel_with_Four_Cylinders_Transient)
 
@@ -88,3 +95,4 @@ if(MORIS_HAVE_PARALLEL_TESTS)
     WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
     COMMAND ${MORIS_EXECUTE_COMMAND} -n 1 ${VALGRIND} ${VALGRIND_OPTIONS_EXA} $<TARGET_FILE:${EXAMPLE_MAIN}>)
 endif()
+

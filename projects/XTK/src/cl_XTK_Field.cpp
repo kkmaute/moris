@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_XTK_Field.cpp
  *
- *  Created on: Sep 6, 2019
- *      Author: doble
  */
 
 #include "cl_XTK_Field.hpp"
@@ -19,3 +22,4 @@ Field::Field(std::string aFieldLabel,
 }
 
 }
+

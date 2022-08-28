@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_GEN_Voxel_Input.hpp
+ *
+ */
+
 #ifndef MORIS_CL_GEN_VOXEL_HPP
 #define MORIS_CL_GEN_VOXEL_HPP
 
@@ -118,3 +128,4 @@ namespace moris
 }    // namespace moris
 
 #endif    // MORIS_CL_GEN_VOXEL_HPP
+

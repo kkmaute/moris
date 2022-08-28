@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_Field_Interpolator_Manager.cpp
+ *
+ */
 
 #include "cl_FEM_Field_Interpolator_Manager.hpp" //FEM/INT/src
 #include "cl_FEM_Set.hpp"                   //FEM/INT/src
@@ -154,12 +163,12 @@ namespace moris
                 MORIS_ASSERT( mFI( tDofIndex ) == nullptr, "Field_Interpolator_Manager::create_field_interpolators - Field interpolator was created previously" );
 
                 // create a field interpolator for the dof type group
-                mFI( tDofIndex ) = new Field_Interpolator( 
+                mFI( tDofIndex ) = new Field_Interpolator(
                         mDofTypes( iDof ).size(),
                         tFieldInterpolationRule,
                         mIPGeometryInterpolator,
                         mDofTypes( iDof ) );
-                
+
                 // get the discretization mesh index for the DoF type and store it in the field interpolator for easy retrieval whereever needed
                 moris_index tMeshIndexForDof = aModelSolverInterface->get_adof_index_for_type( mDofTypes( iDof )( 0 ) );
                 mFI( tDofIndex )->set_discretization_mesh_index( tMeshIndexForDof );
@@ -295,8 +304,8 @@ namespace moris
                 false );
 
             // create a geometry interpolator for IG cells
-            // IG interpolation requires knowledge about  the IP Element in 
-            // order to have an appropriate mapping for integration points, 
+            // IG interpolation requires knowledge about  the IP Element in
+            // order to have an appropriate mapping for integration points,
             // tIPGeometryInterpolationRule
             mIGGeometryInterpolator = new Geometry_Interpolator(
                 tIGGeometryInterpolationRule,
@@ -488,3 +497,4 @@ namespace moris
 
     } /* namespace fem */
 } /* namespace moris */
+

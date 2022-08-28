@@ -1,9 +1,13 @@
 /*
- * MatrixPETSc.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Dec 5, 2018
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MatrixPETSc.cpp
+ *
  */
+
 #include "cl_MatrixPETSc.hpp"
 
 #include <cstddef>
@@ -22,7 +26,7 @@ using namespace moris;
 
 // ----------------------------------------------------------------------------
 
-Matrix_PETSc::Matrix_PETSc(       
+Matrix_PETSc::Matrix_PETSc(
         moris::Solver_Interface    * aInput,
         sol::Dist_Map*  aMap )
 : sol::Dist_Matrix( aMap )
@@ -135,7 +139,7 @@ void Matrix_PETSc::build_graph(
 
 // ----------------------------------------------------------------------------
 
-void Matrix_PETSc::fill_matrix( 
+void Matrix_PETSc::fill_matrix(
         const moris::uint             & aNumMyDof,
         const moris::Matrix< DDRMat > & aA_val,
         const moris::Matrix< DDSMat > & aEleDofConectivity)
@@ -194,7 +198,7 @@ void Matrix_PETSc::sum_into_values(
 
 // ----------------------------------------------------------------------------
 
-void Matrix_PETSc::get_matrix_values( 
+void Matrix_PETSc::get_matrix_values(
         const moris::Matrix< DDSMat > & aRequestedIds,
         moris::Matrix< DDRMat >       & aValues )
 {
@@ -222,7 +226,7 @@ void Matrix_PETSc::matrix_global_assembly()
 
 // ----------------------------------------------------------------------------
 
-void Matrix_PETSc::dirichlet_BC_vector(       
+void Matrix_PETSc::dirichlet_BC_vector(
         moris::Matrix< DDUMat >       & aDirichletBCVec,
         const moris::Matrix< DDUMat > & aMyConstraintDofs )
 {
@@ -255,3 +259,4 @@ void Matrix_PETSc::save_matrix_to_matlab_file( const char* aFilename )
 
     PetscViewerDestroy( &tViewer );
 }
+

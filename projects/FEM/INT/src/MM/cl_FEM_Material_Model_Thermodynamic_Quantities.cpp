@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_Material_Model_Thermodynamic_Quantities.cpp
  *
- *  Created on: Feb 12, 2021
- *      Author: wunsch
  */
 
 #include "cl_FEM_Material_Model.hpp"
@@ -47,7 +50,7 @@ namespace moris
             }
             // return the density value
             return mBetaT;
-        }     
+        }
 
         //-----------------------------------------------------------------------------
         //-----------------------------------------------------------------------------
@@ -181,7 +184,7 @@ namespace moris
             }
         }
 
-        //------------------------------------------------------------------------------ 
+        //------------------------------------------------------------------------------
         //------------------------------------------------------------------------------
 
         const Matrix< DDRMat > & Material_Model::Cp_dep()
@@ -257,9 +260,9 @@ namespace moris
                 // return zero matrix
                 return mCpDof( tDofIndex );
             }
-        }      
+        }
 
-        //------------------------------------------------------------------------------ 
+        //------------------------------------------------------------------------------
         //------------------------------------------------------------------------------
 
         const Matrix< DDRMat > & Material_Model::Gamma_dep()
@@ -335,9 +338,10 @@ namespace moris
                 // return zero matrix
                 return mGammaDof( tDofIndex );
             }
-        }             
+        }
 
         //-----------------------------------------------------------------------------
 
     }/* end_fem_namespace */
 }/* end_moris_namespace */
+

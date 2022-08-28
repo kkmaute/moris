@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_BoostBitset.hpp
+ *
+ */
+
 #ifndef SRC_CONTAINERS_CL_BOOSTBITSET_HPP_
 #define SRC_CONTAINERS_CL_BOOSTBITSET_HPP_
 
@@ -102,7 +112,6 @@ namespace moris
         {
             return mBitset.count();
         }
-
 
         /**
          * @brief Sets the position index in the bitset to 1.
@@ -251,9 +260,8 @@ namespace moris
             return( mBitset & mBitset );
         }
 
-
     };
 }
 
-
 #endif /* SRC_CONTAINERS_CL_BOOSTBITSET_HPP_ */
+

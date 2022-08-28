@@ -1,10 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_HMR_Lagrange_Element_Hex27.hpp
  *
- *  Created on: December 05, 2018
- *  using MATLAB
  */
- 
+
 #ifndef SRC_HMR_CL_HMR_LAGRANGE_ELEMENT_HEX27_HPP_
 #define SRC_HMR_CL_HMR_LAGRANGE_ELEMENT_HEX27_HPP_
 
@@ -19,7 +22,7 @@ namespace moris
         template<>
         inline
         void
-        Lagrange_Element< 3, 27 >::set_cell_info() 
+        Lagrange_Element< 3, 27 >::set_cell_info()
         {
             std::shared_ptr<moris::mtk::Cell_Info> tCellInfo = std::make_shared<moris::mtk::Cell_Info_Hex27 >();
 
@@ -136,7 +139,7 @@ namespace moris
         template<>
         inline
         uint
-        Lagrange_Element< 3, 27 >::get_vtk_type() 
+        Lagrange_Element< 3, 27 >::get_vtk_type()
         {
             return 29;
         }
@@ -146,7 +149,7 @@ namespace moris
         /**
          * node IDs needed for VTK output
          *
-         * @param[out] moris::Matrix< DDLUMat > 
+         * @param[out] moris::Matrix< DDLUMat >
          *
          * @return void
          *
@@ -427,7 +430,7 @@ namespace moris
              // get pointer to neighbor 4
              Element* tNeighbor = this->get_neighbor( aAllElementsOnProc, 4 );
 
-             // test if neighbor 4 exists 
+             // test if neighbor 4 exists
              if ( tNeighbor != NULL )
              {
                  // copy nodes from this neighbor
@@ -445,7 +448,7 @@ namespace moris
              // get pointer to neighbor 0
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 0 );
 
-             // test if neighbor 0 exists 
+             // test if neighbor 0 exists
              if ( tNeighbor != NULL )
              {
                  // copy nodes from this neighbor
@@ -463,7 +466,7 @@ namespace moris
              // get pointer to neighbor 3
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 3 );
 
-             // test if neighbor 3 exists 
+             // test if neighbor 3 exists
              if ( tNeighbor != NULL )
              {
                  // copy nodes from this neighbor
@@ -488,7 +491,7 @@ namespace moris
                      this->create_basis( k );
 
                      // increment node counter
-                     ++aBasisCounter; 
+                     ++aBasisCounter;
                  }
              }
         }
@@ -1355,7 +1358,7 @@ namespace moris
             auto tLevel = mElement->get_level() + 1;
 
             // owner of element
-            auto tOwner = mElement->get_owner(); 
+            auto tOwner = mElement->get_owner();
 
             // get position of element
             const luint * tElIJK = mElement->get_ijk();
@@ -3035,3 +3038,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_HMR_CL_HMR_LAGRANGE_ELEMENT_HEX27_HPP_ */
+

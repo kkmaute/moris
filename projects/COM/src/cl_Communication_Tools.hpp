@@ -1,9 +1,13 @@
 /*
- * cl_mpi_xtk.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jan 27, 2017
- *      Author: doble
+ *------------------------------------------------------------------------------------
+ *
+ * cl_Communication_Tools.hpp
+ *
  */
+
 #ifndef SRC_COMM_CL_COMMUNICATION_TOOLS_HPP_
 #define SRC_COMM_CL_COMMUNICATION_TOOLS_HPP_
 
@@ -217,7 +221,6 @@ namespace moris
             Matrix < DDUMat >       & aProcCoords,
             Matrix < IdMat >        & aProcNeighbors );
 
-
     //------------------------------------------------------------------------------
 
     /**
@@ -388,7 +391,7 @@ namespace moris
     * MPI_LAND is a predefined reduction operation that will calculate the logical and of the values reduced.
     * https://www.rookiehpc.com/mpi/docs/mpi_land.php
     */
-    
+
     bool
     all_land(bool aMyBool);
 
@@ -432,7 +435,7 @@ namespace moris
             // get my ID
             uint tMyRank = par_rank();
 
-            // size matrix for storing receiving values	
+            // size matrix for storing receiving values
             aScalarsToReceive.set_size( tNumberOfProcs, 1, 0 );
 
             // Allocate memory for request vector
@@ -810,14 +813,14 @@ namespace moris
 
         if(aFixedDim == 0)
         {
-            
+
             tNumRow = aMatToGather.n_rows();
         }
         else
         {
             tNumCol = aMatToGather.n_cols();
         }
-  
+
         MPI_Request tRequest;
 
         // send the matrix via nonblocking request
@@ -863,7 +866,7 @@ namespace moris
                         tNumRow = tLength/tNumCol;
                     }
                 }
-                
+
                 // check for correct rows or columns as incorrect rounding may happen
                 MORIS_ASSERT( tNumCol * tNumRow == tLength,
                         "all_gather_vector - incorrect number of rows or columns.");
@@ -934,3 +937,4 @@ namespace moris
 }
 
 #endif /* SRC_COMM_CL_COMMUNICATION_TOOLS_HPP_ */
+

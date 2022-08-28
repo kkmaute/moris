@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * Channel2D.cpp
+ *
+ */
+
 #include <string>
 #include <iostream>
 #include <sstream>
@@ -150,7 +160,6 @@ namespace moris
     // Bspline limit
     moris::real tBSplineLimit = 5.0 * tElementEdgeLength;
 
-
     /* ------------------------------------------------------------------------ */
     // loading parameters
     real tInTemp  = 0.0;        // K     - 500 K
@@ -280,7 +289,6 @@ namespace moris
         // get point on plane
         real tPx = *aGeometryParameters( 2 );
         real tPy = *aGeometryParameters( 3 );
-
 
         real tReturnValue = tNx * ( tPx - tX ) + tNy * ( tPy - tY );
 
@@ -490,7 +498,6 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "refinement_buffer", tRefineBuffer );
         tParameterlist( 0 )( 0 ).set( "staircase_buffer", tRefineBuffer );
 
-
         tParameterlist( 0 )( 0 ).set( "initial_refinement", tInitialRef );
         tParameterlist( 0 )( 0 ).set( "initial_refinement_pattern", "0,1" );
 
@@ -697,7 +704,6 @@ namespace moris
         tParameterList( tPhaseIndex )( tPhaseCounter ).set( "phase_name", "PhaseAll" );
         tParameterList( tPhaseIndex )( tPhaseCounter ).set( "phase_indices", "0,1" );
         tPhaseCounter++;
-
 
         //------------------------------------------------------------------------------
         // fill the property part of the parameter list
@@ -1447,3 +1453,4 @@ namespace moris
 #ifdef __cplusplus
 }
 #endif
+

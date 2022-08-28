@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 set(EXAMPLE_MAIN Thermal_Flow_About_Sphere_3D)
 set(EXAMPLE_FILE Channel3D)
 set(EXAMPLE_PROCS 1 4)
@@ -89,3 +96,4 @@ if(MORIS_HAVE_PARALLEL_TESTS)
                  COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS_EXA} $<TARGET_FILE:${EXAMPLE_MAIN}>)
     endforeach()
 endif()
+

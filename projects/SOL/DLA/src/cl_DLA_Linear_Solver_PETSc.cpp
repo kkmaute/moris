@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_DLA_Linear_Solver_PETSc.cpp
  *
- *  Created on: Dez 12, 2018
- *      Author: schmidt
  */
+
 #include "cl_DLA_Linear_Solver_PETSc.hpp"
 #include "cl_DLA_Preconditioner_PETSc.hpp"
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
@@ -154,7 +158,6 @@ moris::sint Linear_Solver_PETSc::solve_linear_system(
     KSPGetIterationNumber(mPetscKSPProblem, &Iter );
     std::cout<<Iter<<" Iterations"<<std::endl;
 
-
     mSolverInterface = nullptr;
 
     return 0;
@@ -233,5 +236,4 @@ void Linear_Solver_PETSc::set_solver_internal_parameters( )
 
         PCSORSetIterations( mpc, 1 , 1 );
 }
-
 

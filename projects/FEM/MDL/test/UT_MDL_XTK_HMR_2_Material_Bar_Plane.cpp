@@ -1,8 +1,11 @@
 /*
- * UT_MDL_XTK_HMR_Multi_Material_Bar_Plane.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Oct 4, 2019
- *      Author: doble
+ *------------------------------------------------------------------------------------
+ *
+ * UT_MDL_XTK_HMR_2_Material_Bar_Plane.cpp
+ *
  */
 
 #include "catch.hpp"
@@ -92,7 +95,6 @@ Circle2MatMDL(const moris::Matrix< moris::DDRMat > & aPoint )
     moris::real mXCenter = 0.01;
     moris::real mYCenter = 0.01;
     moris::real mRadius = 0.47334;
-
 
     return  (aPoint(0) - mXCenter) * (aPoint(0) - mXCenter)
                     + (aPoint(1) - mYCenter) * (aPoint(1) - mYCenter)
@@ -187,7 +189,6 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
         xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
         xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
 
-
 //        moris_index tSSIndex = tEnrIntegMesh.create_side_set_from_dbl_side_set(1,"ghost_ss_p0");
 //        tEnrIntegMesh.create_block_set_from_cells_of_side_set(tSSIndex,"ghost_bs_p0", CellTopology::QUAD4);
 
@@ -198,7 +199,6 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
         // Write the fields
         writer.set_time(0.0);
         writer.close_file();
-
 
         // place the pair in mesh manager
         std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();
@@ -427,7 +427,6 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
 //
 //        CHECK(norm(tFullSol - tGoldSolution)<1e-08);
 
-
         // Declare the fields related to enrichment strategy in output options
         // output solution and meshes
         // FIXME add with output if needed
@@ -457,9 +456,9 @@ TEST_CASE("XTK HMR 2 Material Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_2D]"
 //            tSTKIntegSol(i) = tIntegSol(tMyIndex);
 //        }
 
-
         //    delete tInterpMesh1;
         delete tModel;
         delete tInterpMesh;
     }
 }
+

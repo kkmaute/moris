@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_FEM_IWG_GGLS_Diffusion_Phase_Change.cpp
+ *
+ */
+
 #include <string>
 #include <catch.hpp>
 #include <memory>
@@ -191,7 +201,6 @@ namespace moris
             // set the evaluation point
             tGI.set_space_time( aParamPoint );
 
-
             // field interpolators
             //------------------------------------------------------------------------------
 
@@ -273,7 +282,6 @@ namespace moris
                     1.0,
                     tJacobian,
                     tJacobianFD );
-
 
             // require check is true
             //REQUIRE( tCheckJacobian );
@@ -413,3 +421,4 @@ namespace moris
 
     } // end namespace fem
 } // end namespace moris
+

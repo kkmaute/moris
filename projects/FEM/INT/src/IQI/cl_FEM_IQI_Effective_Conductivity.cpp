@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_IQI_Effective_Conductivity.cpp
+ *
+ */
 
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
@@ -22,7 +31,7 @@ namespace moris
             mConstitutiveMap[ "Diffusion_Turbulence" ] =
                     static_cast< uint >( IQI_Constitutive_Type::DIFFUSION_TURBULENCE );
         }
-        
+
         //------------------------------------------------------------------------------
 
         void IQI_Effective_Conductivity::compute_QI( Matrix< DDRMat > & aQI )
@@ -34,7 +43,6 @@ namespace moris
             // compute turbulent dynamic viscosity
             aQI = tCMDiffusionTurbulence->effective_conductivity();
         }
-        
 
         //------------------------------------------------------------------------------
 
@@ -53,6 +61,4 @@ namespace moris
         //------------------------------------------------------------------------------
     }/* end_namespace_fem */
 }/* end_namespace_moris */
-
-
 

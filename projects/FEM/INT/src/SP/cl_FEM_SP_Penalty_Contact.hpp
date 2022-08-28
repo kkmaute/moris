@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_SP_Penalty_Contact.hpp
  *
- *  Created on: Feb 13, 2020
- *      Author: ritzert
  */
 
 #ifndef PROJECTS_FEM_INT_SRC_CL_FEM_SP_PENALTY_CONTACT_HPP_
@@ -20,7 +23,6 @@
 #include "cl_FEM_Constitutive_Model.hpp"    //FEM/INT/src
 #include "cl_FEM_Stabilization_Parameter.hpp"     //FEM/INT/src
 #include "cl_FEM_Cluster.hpp"     //FEM/INT/src
-
 
 namespace moris
 {
@@ -159,6 +161,5 @@ namespace moris
     } /* namespace fem */
 } /* namespace moris */
 
-
-
 #endif /* PROJECTS_FEM_INT_SRC_CL_FEM_SP_PENALTY_CONTACT_HPP_ */
+

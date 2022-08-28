@@ -1,8 +1,11 @@
 /*
- * cl_WRK_Workflow.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Feb 19, 2020
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * cl_WRK_Workflow_HMR_XTK.hpp
+ *
  */
 
 #ifndef PROJECTS_FEM_MDL_SRC_CL_WRK_WORKFLOW_HMR_XTK_HPP_
@@ -11,7 +14,7 @@
 #include "cl_WRK_Workflow.hpp"
 #include "cl_OPT_Criteria_Interface.hpp"
 #include "typedefs.hpp"                       //MRS/COR/src
-#include "cl_Cell.hpp"    
+#include "cl_Cell.hpp"
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
@@ -114,5 +117,5 @@ namespace moris
     } /* namespace mdl */
 } /* namespace moris */
 
-
 #endif /* PROJECTS_FEM_MDL_SRC_CL_WRK_WORKFLOW_HMR_XTK_HPP_ */
+

@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Topology.hpp
  *
- *  Created on: Sep 25, 2018
- *      Author: doble
  */
 
 #ifndef PROJECTS_MTK_SRC_CL_MTK_TOPOLOGY_HPP_
@@ -12,7 +15,6 @@
 #include "linalg_typedefs.hpp"
 #include "typedefs.hpp"
 #include "cl_Mesh_Enums.hpp"
-
 
 namespace moris
 {
@@ -26,7 +28,6 @@ class Interpolation
 }
 }
 }
-
 
 namespace moris
 {
@@ -54,11 +55,8 @@ class Interpolation_Hex8: public Interpolation
     }
 };
 
-
-
 }
 }
-
 
 namespace moris
 {
@@ -85,6 +83,5 @@ namespace mtk
 }
 }
 
-
-
 #endif /* PROJECTS_MTK_SRC_CL_MTK_TOPOLOGY_HPP_ */
+

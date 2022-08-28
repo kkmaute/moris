@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MDL_Mesh_Model_Helper.cpp
+ *
+ */
 
 #include "cl_Stopwatch.hpp" //CHR/src
 
@@ -33,7 +42,6 @@ namespace moris
         // colormap build on first entry of list
         // create fem::blocks -- input
         //
-
 
         // get blocks
         // get vertices on blocks
@@ -143,7 +151,6 @@ namespace moris
             //FIXME
             mVertexColorToNodeIndMap( Ii ).set_size( 1000000, 1, -1);
         }
-
 
         uint tCounter3 = 0;
         for( uint Ii = 0; Ii<VertexIndOnColor.size(); ++Ii )
@@ -255,7 +262,6 @@ namespace moris
 //
 //        return tOwnedANodesOffsetList( par_rank(), 0);
 
-
         for( uint Ii = 0; Ii<mNodes.size(); ++Ii )
         {
             mNodes( Ii )->set_id( Ii );
@@ -314,14 +320,11 @@ namespace moris
 //
 //        uint tNumBlocks = mIntegrationMesh->get_num_blocks();
 
-
-
-
     }
 
 //    void Mesh_Model_Helper::create_nodes()
 //    {}
 
-
     } /* namespace mdl */
 } /* namespace moris */
+

@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 ### model Library Config File ###
 
 # CMake configuration
@@ -8,3 +15,4 @@ set_and_check(@MODEL@_INCLUDE_DIR @PACKAGE_LIB_INSTALL_DIR@)
 
 # Create library target
 include(@MODEL@Targets.cmake)
+

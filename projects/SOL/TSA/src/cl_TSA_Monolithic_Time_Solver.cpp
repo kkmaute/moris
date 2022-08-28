@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_TSA_Monolithic_Time_Solver.cpp
  *
- *  Created on: Feb 11, 2019
- *      Author: schmidt
  */
 
 #include "cl_TSA_Monolithic_Time_Solver.hpp"
@@ -19,7 +22,6 @@
 
 #include "HDF5_Tools.hpp"
 #include "cl_Ascii.hpp"
-
 
 using namespace moris;
 using namespace tsa;
@@ -246,3 +248,4 @@ Monolithic_Time_Solver::get_new_lambda()
 {
     return mLambdaInc;
 }
+

@@ -1,11 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_sum.cpp
  *
- *  Created on: Aug 30, 2018
- *      Author: sonne
  */
 
-// Third-party header files.
 #include <catch.hpp>
 
 // MORIS project header files.
@@ -15,8 +17,6 @@
 #include "linalg_typedefs.hpp"
 #include "typedefs.hpp"
 #include "fn_sum.hpp"
-
-
 
 TEST_CASE(
         "moris::sum",
@@ -67,9 +67,4 @@ TEST_CASE(
     }
 
 }
-
-
-
-
-
 

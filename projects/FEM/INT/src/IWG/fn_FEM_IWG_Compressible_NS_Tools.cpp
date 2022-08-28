@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_FEM_IWG_Compressible_NS_Tools.cpp
  *
- *  Created on: Mar 31, 2021
- *      Author: wunsch
  */
+
 #include "fn_FEM_IWG_Compressible_NS.hpp"
 
 #include "fn_trans.hpp"
@@ -33,7 +37,7 @@ namespace moris
                             { aFlattenedTensor( 2 ), aFlattenedTensor( 1 ) } };
                     break;
                 }
- 
+
                 // 3D: convert 6x1 flattened tensor back to 3x3 matrix
                 case 6 :
                 {
@@ -43,10 +47,10 @@ namespace moris
                             { aFlattenedTensor( 4 ), aFlattenedTensor( 3 ), aFlattenedTensor( 2 ) } };
                     break;
                 }
-                
+
                 default:
                 {
-                    MORIS_ERROR( false, 
+                    MORIS_ERROR( false,
                             "fn_FEM_IWG_Compressible_NS::unfold_flat_tensor - aFlattenedTensor must be a vector of length 3 (2D) or 6 (3D)." );
                     return { { 0.0 } };
                     break;
@@ -60,18 +64,18 @@ namespace moris
         uint convert_index_pair_to_flat( const uint aI, const uint aJ, const uint aNumSpaceDims )
         {
             // check that indices are not out of bounds
-            MORIS_ASSERT( ( aI >= 0 ) and ( aI < aNumSpaceDims ) and ( aJ >= 0 ) and ( aJ < aNumSpaceDims ), 
+            MORIS_ASSERT( ( aI >= 0 ) and ( aI < aNumSpaceDims ) and ( aJ >= 0 ) and ( aJ < aNumSpaceDims ),
                     "fn_FEM_IWG_Compressible_NS::convert_index_pair_to_flat() - indices out of bounds." );
 
             // initialize return value
             uint tFlatIndex;
-            
+
             // clang-format off
             // two cases: 2D and 3D
             switch ( aNumSpaceDims )
             {
 
-                // 2D   
+                // 2D
                 case 2 :
                 {
                     if ( aI + aJ == 0 )
@@ -89,7 +93,7 @@ namespace moris
                     break;
                 }
 
-                // 3D   
+                // 3D
                 case 3 :
                 {
                     if ( aI + aJ == 0 )
@@ -118,10 +122,10 @@ namespace moris
                     }
                     break;
                 }
-                
+
                 default :
                 {
-                    MORIS_ERROR( false, 
+                    MORIS_ERROR( false,
                             "fn_FEM_IWG_Compressible_NS::convert_index_pair_to_flat() - "
                             "number of spatial dimensions not supported (only 2D or 3D supported)." );
                     break;
@@ -132,9 +136,10 @@ namespace moris
 
             // return index
             return tFlatIndex;
-        }             
+        }
 
         //------------------------------------------------------------------------------
 
     } /* namespace fem */
 } /* namespace moris */
+

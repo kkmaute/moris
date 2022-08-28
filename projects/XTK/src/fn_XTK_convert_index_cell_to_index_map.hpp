@@ -1,9 +1,13 @@
-/**
- * fn_XTK_convert_index_cell_to_index_map.hpp  
- * 
- *  Created on: Mar  22, 2022 
- *      Author: Nils Wunsch
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * fn_XTK_convert_index_cell_to_index_map.hpp
+ *
  */
+
 #ifndef SRC_fn_XTK_convert_index_cell_to_index_map
 #define SRC_fn_XTK_convert_index_cell_to_index_map
 

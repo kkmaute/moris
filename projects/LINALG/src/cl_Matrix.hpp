@@ -1,9 +1,11 @@
-
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_Matrix.hpp
  *
- *  Created on: Aug 23, 2018
- *      Author: doble
  */
 
 #ifndef PROJECTS_LINALG_SRC_CL_MATRIX_HPP_
@@ -556,3 +558,4 @@ namespace moris
 #include "op_times.hpp"
 
 #endif /* PROJECTS_LINALG_SRC_CL_MATRIX_HPP_ */
+

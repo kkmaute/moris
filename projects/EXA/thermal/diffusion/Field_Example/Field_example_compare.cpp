@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * Field_example_compare.cpp
+ *
+ */
+
 #include <string>
 #include <iostream>
 #include "paths.hpp"
@@ -22,7 +32,6 @@
 #include "fn_norm.hpp"
 
 #include "AztecOO.h"
-
 
 //---------------------------------------------------------------
 
@@ -65,7 +74,7 @@ namespace moris
     // material parameters
 
     std::string  tCond = "1.0";
-    
+
     /* ------------------------------------------------------------------------ */
     // Solver config
 
@@ -279,7 +288,6 @@ namespace moris
             tSPCounter++;
         }
 
-
         //------------------------------------------------------------------------------
         // init IWG counter
         uint tIWGCounter = 0;
@@ -315,7 +323,6 @@ namespace moris
          tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tRightSurface );
          tIWGCounter++;
 
-
         if (tUseGhost)
         {
             // create IWG - ghost temp
@@ -344,7 +351,6 @@ namespace moris
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tPhase1 );
         tIQICounter++;
 
-
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkL2Error") ;
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::H1_ERROR ) );
@@ -371,7 +377,6 @@ namespace moris
         //tParameterList( 6 )( tFieldCounter ).set( "IQI_Name",                  "IQIBulkTEMP") ;
         //tParameterList( 6 )( tFieldCounter ).set( "field_output_to_file",      "Field_example_write.hdf5" );
         tIQICounter++;
-
 
     }
 
@@ -446,3 +451,4 @@ namespace moris
 #ifdef  __cplusplus
 }
 #endif
+

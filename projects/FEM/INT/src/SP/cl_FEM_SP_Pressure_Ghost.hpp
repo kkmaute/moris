@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_SP_Pressure_Ghost.hpp
  *
- *  Created on: Mar 21, 2020
- *  Author: noel
  */
 
 #ifndef SRC_FEM_CL_FEM_SP_PRESSURE_GHOST_HPP_
@@ -158,3 +161,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_FEM_CL_FEM_SP_PRESSURE_GHOST_HPP_ */
+

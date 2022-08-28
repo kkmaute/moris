@@ -1,8 +1,11 @@
 /*
- * UT_MDL_XTK_HMR_2D.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Sep 18, 2019
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * UT_MDL_XTK_HMR_Linear_Struc_2D.cpp
+ *
  */
 
 #include "catch.hpp"
@@ -84,8 +87,6 @@
 #include "cl_GEN_Circle.hpp"
 
 #include "fn_PRM_HMR_Parameters.hpp"
-
-
 
 namespace moris
 {
@@ -434,7 +435,6 @@ TEST_CASE("2D XTK WITH HMR Struc Interface 2D","[XTK_HMR_Struc_Interface_2D]")
 
         NLA::Nonlinear_Solver tNonlinearSolverMain;
         tNonlinearSolverMain.set_nonlinear_algorithm( tNonlinearSolverAlgorithm, 0 );
-
 
         tNonlinearSolverMain       .set_dof_type_list( tDofTypesU );
 
@@ -820,7 +820,7 @@ TEST_CASE("2D XTK WITH HMR Struc 2D first","[XTK_HMR_Struc_2D_01]")
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
         bool tSuccess = tXTKModel.decompose(tDecompositionMethods);
         CHECK(tSuccess);
-        
+
         tXTKModel.perform_basis_enrichment( EntityRank::NODE, 0 );
 
         // get meshes
@@ -1031,7 +1031,6 @@ TEST_CASE("2D XTK WITH HMR Struc 2D first","[XTK_HMR_Struc_2D_01]")
 
         NLA::Nonlinear_Solver tNonlinearSolverMain;
         tNonlinearSolverMain.set_nonlinear_algorithm( tNonlinearSolverAlgorithm, 0 );
-
 
         tNonlinearSolverMain       .set_dof_type_list( tDofTypesU );
 
@@ -1289,7 +1288,6 @@ TEST_CASE("2D XTK WITH HMR Struc 2D second","[XTK_HMR_Struc_2D_02]")
         NLA::Nonlinear_Solver tNonlinearSolverMain;
         tNonlinearSolverMain.set_nonlinear_algorithm( tNonlinearSolverAlgorithm, 0 );
 
-
         tNonlinearSolverMain       .set_dof_type_list( tDofTypesU );
 
         // Create solver database
@@ -1324,6 +1322,4 @@ TEST_CASE("2D XTK WITH HMR Struc 2D second","[XTK_HMR_Struc_2D_02]")
 }
 
 }   // end moris namespace
-
-
 

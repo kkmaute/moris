@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_HMR_Node_Sharing.cpp
  *
- *  Created on: Dec 31, 2018
- *      Author: doble
  */
 
 #include "cl_HMR.hpp"
@@ -10,7 +13,6 @@
 #include "cl_HMR_Mesh.hpp"
 #include "cl_HMR_Parameters.hpp"
 #include "catch.hpp"
-
 
 #include "cl_Communication_Manager.hpp" //COM/src
 #include "cl_Communication_Tools.hpp" //COM/src
@@ -34,7 +36,6 @@ Node_Sharing_UT_Func( const Matrix< DDRMat > & aPoint )
     return norm( aPoint ) - 1.2;
 }
 
-
 // useful function for this test to test node sharing information in HMR
 bool
 verify_HMR_node_sharing(HMR & aHMR,
@@ -51,8 +52,6 @@ verify_HMR_node_sharing(HMR & aHMR,
 
     return tValid;
 }
-
-
 
 //TEST_CASE("HMR_Node_Sharing", "[moris],[mesh],[hmr],[node_share]")
 //{
@@ -327,3 +326,4 @@ verify_HMR_node_sharing(HMR & aHMR,
 //
 //    }
 //}
+

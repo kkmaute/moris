@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Edge.hpp
  *
- *  Created on: Sep 26, 2018
- *      Author: messe
  */
 
 #ifndef PROJECTS_MTK_CL_MTK_EDGE_HPP_
@@ -33,6 +36,5 @@ namespace moris
     }
 }
 
-
-
 #endif /* PROJECTS_MTK_CL_MTK_EDGE_HPP_ */
+

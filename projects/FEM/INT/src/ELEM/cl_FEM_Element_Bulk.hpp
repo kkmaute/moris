@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_Element_Bulk.hpp
  *
- *  Created on: Apr 22, 2018
- *      Author: schmidt
  */
 
 #ifndef SRC_FEM_CL_FEM_ELEMENT_BULK_HPP_
@@ -85,7 +88,7 @@ namespace moris
                  * compute dQIdp
                  */
                 void compute_dQIdp_explicit();
-                
+
                 //------------------------------------------------------------------------------
                 /**
                  * compute dRdp and dQIdp
@@ -154,3 +157,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_FEM_CL_FEM_ELEMENT_BULK_HPP_ */
+

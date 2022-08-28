@@ -1,8 +1,11 @@
 /*
- * cl_FEM_IWG_Isotropic_Struc_Linear_Neumann.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Okt 06, 2019
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_IWG_Isotropic_Struc_Linear_Fluid_Interface.hpp
+ *
  */
 
 #ifndef SRC_FEM_CL_FEM_IWG_ISOTROPIC_STRUC_LINEAR_FLUID_INTERFACE_HPP_
@@ -91,3 +94,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_FEM_CL_FEM_IWG_ISOTROPIC_STRUC_LINEAR_FLUID_INTERFACE_HPP_ */
+

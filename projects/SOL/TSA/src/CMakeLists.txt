@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # Time Solver Algebra Source ---------------------------------------
 # -------------------------------------------------------------------------
 
@@ -118,3 +125,4 @@ install(TARGETS ${TSA}-lib
 # Export library into *Targets file
 install(EXPORT ${TSA}Targets
     DESTINATION ${${TSA}_CONFIG_INSTALL_DIR} )
+

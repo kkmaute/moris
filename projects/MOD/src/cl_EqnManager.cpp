@@ -1,10 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_EqnManager.cpp
  *
- *  Created on: Apr 11, 2017
- *      Author: gleim
- *
  */
+
 #include "cl_EqnManager.hpp" // MOD/src
 
 extern moris::Logger gLogger;
@@ -63,7 +66,6 @@ void moris::EqnManager::build_global_system(moris::ArgListEqnMgr_build_global_sy
     }
 }
 
-
 void moris::EqnManager::get_eqn_obj( moris::ArgListEqnMgr_get_eqn_obj & aL)
 {
 
@@ -96,7 +98,6 @@ void moris::EqnManager::get_eqn_obj( moris::ArgListEqnMgr_get_eqn_obj & aL)
     }
     }
 }
-
 
 void
 moris::EqnManager::check_eqn_obj(moris::Mat<moris::real> &aResVec,

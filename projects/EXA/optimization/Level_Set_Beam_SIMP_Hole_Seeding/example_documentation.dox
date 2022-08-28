@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 namespace moris {
 
 /** \page EXA_OPTIMIZATION_SIMP_HOLE_SEEDING Levelset Beam SIMP Hole Seeding
@@ -19,3 +26,4 @@ This example highlights the use of the following features:
 */
 
 }
+

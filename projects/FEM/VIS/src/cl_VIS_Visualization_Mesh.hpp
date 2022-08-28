@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_VIS_Visualization_Mesh.hpp
  *
- *  Created on: Dec 02, 2019
- *      Author: Schmidt
  */
 
 #ifndef PROJECTS_MTK_SRC_CL_VIS_VISUALIZATION_MESH_HPP_
@@ -454,3 +457,4 @@ namespace moris
 }
 
 #endif /* PROJECTS_MTK_SRC_CL_VIS_VISUALIZATION_MESH_HPP_ */
+

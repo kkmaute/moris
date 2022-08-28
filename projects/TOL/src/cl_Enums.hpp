@@ -1,13 +1,15 @@
 /*
- * cl_tools_Enums.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Oct 20, 2016
- *      Author: doble
+ *------------------------------------------------------------------------------------
+ *
+ * cl_Enums.hpp
+ *
  */
 
 #ifndef SRC_TOOLS_CL_ENUMS_HPP_
 #define SRC_TOOLS_CL_ENUMS_HPP_
-
 
 enum class DerivativeType
 {
@@ -33,8 +35,5 @@ enum class FunctionType
     LEVELSET_RANDOM
 };
 
-
-
-
-
 #endif /* SRC_TOOLS_CL_ENUMS_HPP_ */
+

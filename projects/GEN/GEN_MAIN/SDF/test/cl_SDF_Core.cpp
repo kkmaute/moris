@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_SDF_Core.cpp
+ *
+ */
+
 #include <string>
 #include <catch.hpp>
 
@@ -87,8 +97,6 @@ TEST_CASE(
                     {147}, {148}
                 };
 
-
-
                 Matrix< IndexMat > tElementsAtSurface;
                 Matrix< IndexMat > tElementsInVolume;
 
@@ -105,3 +113,4 @@ TEST_CASE(
         delete tInput;
     }
 }
+

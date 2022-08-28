@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 namespace moris{
 
 // Level 4 module
@@ -302,3 +309,4 @@ Note that this file is used to provide users with what information (mostly paths
 
 */
 }
+

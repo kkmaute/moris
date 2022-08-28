@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * fn_save_and_load_matrix_binary_file.cpp
+ *
+ */
+
 #include <catch.hpp>
 
 #include "cl_Matrix.hpp"
@@ -65,3 +75,4 @@ TEST_CASE("moris::save_and_load_binary_file",
         // make sure that norm is less than an epsilon
         REQUIRE( tError <= 1E-6 );
 }
+

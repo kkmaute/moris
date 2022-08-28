@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * Vessel_with_Fins_3D.cpp
+ *
+ */
+
 #include <string>
 #include <iostream>
 #include <math.h>
@@ -21,7 +31,6 @@
 #include "fn_equal_to.hpp"
 
 #include "AztecOO.h"
-
 
 #ifdef  __cplusplus
 extern "C"
@@ -154,9 +163,9 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "staircase_buffer",   2 );
         tParameterlist( 0 )( 0 ).set( "initial_refinement", "0" );
         tParameterlist( 0 )( 0 ).set( "initial_refinement_pattern", "0" );
-		
+
         tParameterlist( 0 )( 0 ).set( "use_number_aura", 1);
-        
+
 		tParameterlist( 0 )( 0 ).set( "use_multigrid",  0 );
         tParameterlist( 0 )( 0 ).set( "severity_level", 0 );
 
@@ -259,7 +268,6 @@ namespace moris
         tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;
 
-
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
         tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropConductivity_Inner" );
         tParameterList( 0 )( tPropCounter ).set( "function_parameters",      "0.01" );
@@ -329,18 +337,18 @@ namespace moris
         tParameterList( 1 )( tCMCounter ).set( "constitutive_name", "CMDiffusion_Outer" );
         tParameterList( 1 )( tCMCounter ).set( "constitutive_type", static_cast< uint >( fem::Constitutive_Type::DIFF_LIN_ISO ) );
         tParameterList( 1 )( tCMCounter ).set( "dof_dependencies",  std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
-        tParameterList( 1 )( tCMCounter ).set( "properties",        
+        tParameterList( 1 )( tCMCounter ).set( "properties",
 	        "PropConductivity_Outer , Conductivity;"
 	        "PropDensity_Outer      , Density;"
 		"PropHeatCapacity_Outer     , Heat_Capacity" );
         tCMCounter++;
- 
+
         // create parameter list for constitutive model - outer ring
         tParameterList( 1 ).push_back( prm::create_constitutive_model_parameter_list() );
         tParameterList( 1 )( tCMCounter ).set( "constitutive_name", "CMDiffusion_Outer_Dummy" );
         tParameterList( 1 )( tCMCounter ).set( "constitutive_type", static_cast< uint >( fem::Constitutive_Type::DIFF_LIN_ISO ) );
         tParameterList( 1 )( tCMCounter ).set( "dof_dependencies",  std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
-        tParameterList( 1 )( tCMCounter ).set( "properties",        
+        tParameterList( 1 )( tCMCounter ).set( "properties",
 	        "PropConductivity_Outer , Conductivity;"
 	        "PropDensity_Outer      , Density;"
 		"PropHeatCapacity_Outer     , Heat_Capacity" );
@@ -461,7 +469,7 @@ namespace moris
 	    tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPGGLSDiffusion_Inner,GGLS_Param" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "HMR_dummy_n_p6,HMR_dummy_c_p6" );
         tIWGCounter++;
-		
+
 		tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGInletFlux" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_NEUMANN ) );
@@ -526,7 +534,7 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::TIME_CONTINUITY_DOF ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP" );
         tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "TEMP" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_properties",          
+        tParameterList( 3 )( tIWGCounter ).set( "master_properties",
 	        "PropWeightCurrent   , WeightCurrent;"
 	        "PropWeightPrevious  , WeightPrevious;"
 		    "PropInitialCondition, InitialCondition" );
@@ -624,3 +632,4 @@ namespace moris
 #ifdef  __cplusplus
 }
 #endif
+

@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_IWG_Olsson_CLS_Bulk.cpp
+ *
+ */
 
 #include "cl_FEM_IWG_Olsson_CLS_Bulk.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
@@ -48,7 +57,6 @@ namespace moris
                            - mEpsilon  * dot( phi->gradx( 1 ), nPhi->val() ) ) * trans( nPhi->val() ) ) * tWStar;
         }
 
-
 //------------------------------------------------------------------------------
 
         void IWG_Olsson_CLS_Bulk::compute_jacobian( real tWStar )
@@ -98,3 +106,4 @@ namespace moris
 //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
+

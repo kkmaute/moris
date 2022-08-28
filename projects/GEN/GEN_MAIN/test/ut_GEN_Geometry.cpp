@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * ut_GEN_Geometry.cpp
+ *
+ */
+
 #include "catch.hpp"
 #include "fn_Parsing_Tools.hpp"
 #include "cl_Library_IO.hpp"
@@ -742,7 +752,7 @@ namespace moris
             tSwissCheeseParameterList.set("target_y_spacing", 0.55);
             tSwissCheeseParameterList.set("row_offset", 1.0);
             tSwissCheese = create_geometry(tSwissCheeseParameterList, tADVs);
-            
+
             // Check holes
             check_swiss_cheese(tSwissCheese, -2.0, -1.0, 0.1, 0.2);
             check_swiss_cheese(tSwissCheese, -2.0, -0.5, 0.1, 0.2, false);
@@ -774,7 +784,7 @@ namespace moris
             check_swiss_cheese(tSwissCheese, 3.0, 0.0, 0.1, 0.2, false);
             check_swiss_cheese(tSwissCheese, 3.0, -0.5, 0.1, 0.2);
             check_swiss_cheese(tSwissCheese, 3.0, 1.0, 0.1, 0.2, false);
-            
+
             // Create swiss cheese
             tSwissCheeseParameterList.set("hole_x_semidiameter", 0.45);
             tSwissCheeseParameterList.set("hole_y_semidiameter", 0.45);
@@ -782,7 +792,7 @@ namespace moris
             tSwissCheeseParameterList.set("allow_less_than_target_spacing", false);
             tSwissCheeseParameterList.set("row_offset", 0.0);
             tSwissCheese = create_geometry(tSwissCheeseParameterList, tADVs);
-            
+
             // Check holes
             check_swiss_cheese(tSwissCheese, -2.0, -1.0, 0.45, 0.45);
             check_swiss_cheese(tSwissCheese, -2.0, -0.5, 0.45, 0.45, false);
@@ -868,3 +878,4 @@ namespace moris
     //------------------------------------------------------------------------------------------------------------------
 
 }
+

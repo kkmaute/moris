@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_approximate.hpp
  *
- *  Created on: Jan 11, 2018
- *      Author: doble
  */
 
 #ifndef SRC_TOOLS_FN_APPROXIMATE_HPP_
@@ -55,5 +58,5 @@ bool approximate(real const & aNum1,
 
 }
 
-
 #endif /* SRC_TOOLS_FN_APPROXIMATE_HPP_ */
+

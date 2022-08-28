@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_GEN_Scaled_Field.hpp
+ *
+ */
+
 #ifndef MORIS_CL_GEN_SCALED_FIELD_HPP
 #define MORIS_CL_GEN_SCALED_FIELD_HPP
 
@@ -93,3 +103,4 @@ namespace moris
 }
 
 #endif //MORIS_CL_GEN_SCALED_FIELD_HPP
+

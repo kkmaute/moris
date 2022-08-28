@@ -1,8 +1,11 @@
 /*
- * cl_FEM_fn_fem_check.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jun 11, 2020
- *      Author: noel
+ *------------------------------------------------------------------------------------
+ *
+ * fn_FEM_Check.hpp
+ *
  */
 
 #ifndef SRC_FEM_FN_FEM_CHECK_HPP_
@@ -26,7 +29,7 @@ namespace moris
                 moris::real                      aFDtolerance = -1.0 )
         {
             // check if FD tolerance is defined
-            // aFDtolerance is the absolute error do to finite differencing, 
+            // aFDtolerance is the absolute error do to finite differencing,
             // i.e. the absolute error that will accepted by the check, even if the relative error check fails
             if ( aFDtolerance < 0.0 )
             {
@@ -97,3 +100,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_FEM_FN_FEM_CHECK_HPP_ */
+

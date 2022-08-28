@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MSI_Multigrid.cpp
  *
- *  Created on: Dez 11, 2018
- *      Author: schmidt
  */
+
 #include "cl_MSI_Adof.hpp"
 #include "cl_MSI_Dof_Manager.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"
@@ -11,7 +15,6 @@
 
 #include "cl_MTK_Mesh.hpp"
 #include "cl_HMR_Database.hpp"
-
 
 namespace moris
 {
@@ -309,3 +312,4 @@ namespace moris
 
 }
 }
+

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * fn_GEN_create_simple_mesh.cpp
+ *
+ */
+
 #include "fn_GEN_create_simple_mesh.hpp"
 #include "cl_HMR.hpp"
 #include "cl_HMR_Mesh.hpp"
@@ -48,3 +58,4 @@ namespace moris
         }
     }
 }
+

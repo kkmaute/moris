@@ -1,8 +1,11 @@
 /*
- * UT_XTK_HMR_2D.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Sep 10, 2019
- *      Author: doble
+ *------------------------------------------------------------------------------------
+ *
+ * UT_XTK_HMR_Multigrid.cpp
+ *
  */
 
 #include "catch.hpp"
@@ -243,7 +246,6 @@ TEST_CASE("2D XTK WITH HMR MULLTIGRID 11","[XTK_HMR_Multigrid]")
         close_hdf5_file( tFileID );
         delete tInterpMesh;
 
-
 /*        // output to exodus file ----------------------------------------------------------
         xtk::Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
 
@@ -285,3 +287,4 @@ TEST_CASE("2D XTK WITH HMR MULLTIGRID 11","[XTK_HMR_Multigrid]")
 }
 
 }
+

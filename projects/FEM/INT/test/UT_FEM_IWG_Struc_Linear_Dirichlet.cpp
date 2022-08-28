@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_FEM_IWG_Struc_Linear_Dirichlet.cpp
+ *
+ */
+
 #include <string>
 #include <catch.hpp>
 #include "assert.hpp"
@@ -1983,3 +1993,4 @@ TEST_CASE( "IWG_Struc_Thermo_Elastic_Dirichlet_Unsymmetric_Nitsche",
         }
     }
 }/* END_TEST_CASE */
+

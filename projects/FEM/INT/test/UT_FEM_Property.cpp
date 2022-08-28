@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_FEM_Property.cpp
+ *
+ */
 
 #include "catch.hpp"
 #include "fn_equal_to.hpp"
@@ -113,10 +122,8 @@ void tDerFunction3_LS2
     aPropMatrix =  aParameters( 2 ) * aFIManager->get_field_interpolators_for_type( moris::PDV_Type::LS2 )->N();
 }
 
-
 using namespace moris;
 using namespace fem;
-
 
 TEST_CASE( "Property", "[moris],[fem],[Property]" )
 {

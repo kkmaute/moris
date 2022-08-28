@@ -1,9 +1,13 @@
 /*
- * cl_Matrix_Vector_Factory.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jun 28, 2018
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * cl_SOL_Matrix_Vector_Factory.cpp
+ *
  */
+
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
 
 #include "cl_Sparse_Matrix_EpetraFECrs.hpp"
@@ -231,3 +235,4 @@ namespace moris
         }
     }
 }
+

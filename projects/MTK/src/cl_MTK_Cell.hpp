@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Cell.hpp
  *
- *  Created on: Jul 23, 2018
- *      Author: messe
  */
 
 #ifndef SRC_MESH_CL_MTK_CELL_HPP_
@@ -408,3 +411,4 @@ namespace moris
 //------------------------------------------------------------------------------
 
 #endif /* SRC_MESH_CL_MTK_CELL_HPP_ */
+

@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_Map_Epetra.cpp
  *
- *  Created on: Apr 10, 2018
- *      Author: schmidt
  */
+
 #include "cl_Map_Epetra.hpp"
 #include "cl_Communication_Tools.hpp" // COM/src
 #include "cl_DLA_Solver_Interface.hpp"
@@ -221,7 +225,6 @@ void Map_Epetra::translate_ids_to_free_point_ids(
         MORIS_ASSERT( mFullToFreePoint->MyLength () > tLocalIndex,
                 "Map_Epetra::translate_ids_to_free_point_ids(), tLocalIndex out of bounds.\n");
 
-
         // FIXME temporary workaround for tLocalIndex < 0
         moris::real tIdOut;
 
@@ -261,3 +264,4 @@ void Map_Epetra::print()
 {
     std::cout<<*mEpetraMap<<std::endl;
 }
+

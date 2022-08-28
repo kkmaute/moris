@@ -1,9 +1,13 @@
 /*
- * ut_MTK_Cell_Info_Hex27.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Aug 7, 2020
- *      Author: kedo3694
+ *------------------------------------------------------------------------------------
+ *
+ * UT_MTK_Cell_Info_Quad9.cpp
+ *
  */
+
 #include "catch.hpp"
 #include "cl_MTK_Cell_Info.hpp"
 #include "cl_MTK_Cell_Info_Quad9.hpp"
@@ -33,7 +37,6 @@ TEST_CASE("MTK Quad9 Cell Info","[Quad_9]")
 
         tCellInfo.eval_N(tCoords,tN);
 
-
         CHECK(std::abs(tN(i)) - 1.0 < tEpsilon);
         CHECK(moris::norm(tN) - 1.0 < tEpsilon);
 
@@ -41,5 +44,5 @@ TEST_CASE("MTK Quad9 Cell Info","[Quad_9]")
 
 }
 
-
 }
+

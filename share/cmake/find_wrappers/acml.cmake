@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # -------------------------------------------------------------------------
 # ACML libraries ----------------------------------------------------------
 # -------------------------------------------------------------------------
@@ -23,3 +30,4 @@ endif()
 add_definitions("-DMORIS_HAVE_ACML")
 #set(MORIS_ACML_LIBS ${LAPACK_LIBRARIES})
 set(MORIS_ACML_LAPACK_MKL_OPENBLAS_LIBS ${ACML_LIBRARIES})
+

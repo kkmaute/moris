@@ -1,9 +1,11 @@
-
 /*
- * cl_Dof_Manager_Test.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jul 14, 2018
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MSI_Dof_Manager_Test.cpp
+ *
  */
 
 #include "catch.hpp"
@@ -116,7 +118,6 @@ namespace moris
         delete tNodeIds_1( 0 )( 0 );
         delete tNodeIds_1( 0 )( 1 );
     }
-
 
     TEST_CASE("Dof_Manager_Pdof_Host_Time_Level","[MSI],[Dof_time_level]")
     {
@@ -769,7 +770,6 @@ namespace moris
             tDofMgn.mModelSolverInterface->mDofMgn = tDofMgn;
             // end hardcoding stuff
 
-
             // Create adofs and build adof lists
             tDofMgn.create_adofs();
 
@@ -795,10 +795,8 @@ namespace moris
         }
     }
 
-
     TEST_CASE("Dof_Mgn_create_adofs_parallell_2","[MSI],[Dof_create_adofs_parallel_2][MSI_parallel]")
     {
-
 
         size_t tSize = par_size();
         if ( tSize == 2 )
@@ -994,5 +992,4 @@ namespace moris
 
     }
 }
-
 

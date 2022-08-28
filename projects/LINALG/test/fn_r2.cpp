@@ -1,4 +1,13 @@
-// Third-party header files.
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * fn_r2.cpp
+ *
+ */
+
 #include <catch.hpp>
 
 #include "typedefs.hpp"
@@ -24,7 +33,6 @@ TEST_CASE(
             {  -0.517977893980116 } ,
             {  -0.024282920100839 } };
 
-
     // funciton values
     moris::Matrix< moris::DDRMat > tSamples = {
             { 0.680456229896494 } ,
@@ -42,3 +50,4 @@ TEST_CASE(
 
     REQUIRE( std::abs( tR2 - 0.94657872920 ) < 1e-9 );
 }
+

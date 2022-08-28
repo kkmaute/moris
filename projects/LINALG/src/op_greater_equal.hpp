@@ -1,13 +1,15 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * op_greater_equal.hpp
  *
- *  Created on: Aug 31, 2018
- *      Author: doble
  */
 
 #ifndef PROJECTS_LINALG_SRC_OP_GREATER_EQUAL_HPP_
 #define PROJECTS_LINALG_SRC_OP_GREATER_EQUAL_HPP_
-
 
 #ifdef MORIS_USE_EIGEN
 #include "Eigen_Impl/op_greater_equal_Eigen.hpp"
@@ -74,5 +76,5 @@ namespace moris
 
 }
 
-
 #endif /* PROJECTS_LINALG_SRC_OP_GREATER_EQUAL_HPP_ */
+

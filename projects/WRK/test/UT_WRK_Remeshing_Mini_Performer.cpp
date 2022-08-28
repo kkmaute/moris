@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_WRK_Remeshing_Mini_Performer.cpp
+ *
+ */
+
 #include "catch.hpp"
 
 #include "cl_Communication_Tools.hpp"
@@ -34,7 +44,6 @@
 
 #include "fn_PRM_HMR_Parameters.hpp"
 #include "fn_PRM_MORIS_GENERAL_Parameters.hpp"
-
 
 using namespace moris;
 
@@ -193,3 +202,4 @@ TEST_CASE("WRK L2 test","[WRK_L2_test]")
         tFields( 0 )->save_field_to_exodus( "Remeshing_Field4.exo");
     }
 }
+

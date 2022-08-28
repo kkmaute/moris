@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_CM_Compressible_Newtonian_Fluid.cpp
  *
- *  Created on: Feb 2, 2021
- *  Author: wunsch
  */
 
 #include "cl_FEM_CM_Compressible_Newtonian_Fluid.hpp"
@@ -28,7 +31,7 @@ namespace moris
             // populate the property map
             mPropertyMap[ "DynamicViscosity" ]      = static_cast< uint >( CM_Property_Type::DYNAMIC_VISCOSITY );       // may be a fnct. of T
             mPropertyMap[ "ThermalConductivity" ]   = static_cast< uint >( CM_Property_Type::THERMAL_CONDUCTIVITY );    // may be a fnct. of T
-            
+
             // set and populate the material model map
             mMaterialModels.resize( static_cast< uint >( MM_Type::MAX_ENUM ), nullptr );
             mMaterialModelMap[ "ThermodynamicMaterialModel" ] = static_cast< uint >( MM_Type::THERMODYNAMIC_MATERIAL_MODEL ); // constant property
@@ -240,7 +243,7 @@ namespace moris
                 else if( tDofString == "Pressure" )
                 {
                     mDofPressure = tDofType;
-                }                
+                }
                 else if( tDofString == "Temperature" )
                 {
                     mDofTemperature = tDofType;
@@ -272,7 +275,7 @@ namespace moris
         {
             // get the material model
             mMaterialModel = get_material_model( "ThermodynamicMaterialModel" );
-        }        
+        }
 
         //--------------------------------------------------------------------------------------------------------------
 
@@ -463,11 +466,9 @@ namespace moris
                     mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->
                     get_number_of_space_time_coefficients(), 0.0 );
 
-
             // compute contribution, dependency of flux on dof type
             mWorkFluxDof( tDofIndex ) +=
                     this->velocityMatrix() * this->dFluxdDOF( aDofTypes, CM_Function_Type::MECHANICAL);
-
 
             // direct dependency on the velocity dof type
             if( aDofTypes( 0 ) == mDofVelocity )
@@ -645,7 +646,7 @@ namespace moris
             const std::shared_ptr< Property > tPropDynamicViscosity = get_property( "DynamicViscosity" );
 
             // compute divflux
-            mMechanicalDivFlux = 2.0 * tPropDynamicViscosity->val()( 0 ) * 
+            mMechanicalDivFlux = 2.0 * tPropDynamicViscosity->val()( 0 ) *
                     ( this->divstrain( CM_Function_Type::MECHANICAL ) - ( 1.0 / 3.0 ) * this->divDivVel()  );
 
             // FIXME assume that viscosity prop does not depend on x
@@ -685,8 +686,8 @@ namespace moris
             // if velocity dof
             if( aDofTypes( 0 ) == mDofVelocity )
             {
-                // fill 
-                mMechanicalDivFluxDof( tDofIndex ) += 2.0 * tPropDynamicViscosity->val()( 0 ) * ( 
+                // fill
+                mMechanicalDivFluxDof( tDofIndex ) += 2.0 * tPropDynamicViscosity->val()( 0 ) * (
                         this->ddivstraindu( aDofTypes, CM_Function_Type::MECHANICAL ) - ( 1.0 / 3.0 ) * this->dDivDivVeldu( aDofTypes ) );
             }
 
@@ -694,7 +695,7 @@ namespace moris
             if( tPropDynamicViscosity->check_dof_dependency( aDofTypes ) )
             {
                 // fill ddivstrain/du
-                mMechanicalDivFluxDof( tDofIndex ) += 2.0 * ( this->divstrain( CM_Function_Type::MECHANICAL ) + this->divDivVel() ) * 
+                mMechanicalDivFluxDof( tDofIndex ) += 2.0 * ( this->divstrain( CM_Function_Type::MECHANICAL ) + this->divDivVel() ) *
                         tPropDynamicViscosity->dPropdDOF( aDofTypes );
             }
         }
@@ -729,7 +730,7 @@ namespace moris
 
         void CM_Compressible_Newtonian_Fluid::eval_thermal_divflux()
         {
-            // get the Thermal Conductivity 
+            // get the Thermal Conductivity
             const std::shared_ptr< Property > tPropThermalConductivity = get_property( "ThermalConductivity" );
 
             // compute divflux
@@ -772,16 +773,16 @@ namespace moris
             // if velocity dof
             if( aDofTypes( 0 ) == mDofTemperature )
             {
-                // fill 
-                mThermalDivFluxDof( tDofIndex ) -= 
+                // fill
+                mThermalDivFluxDof( tDofIndex ) -=
                         tPropThermalConductivity->val()( 0 ) * this->ddivstraindu( aDofTypes, CM_Function_Type::THERMAL );
             }
 
             // dependency of the viscosity
             if( tPropThermalConductivity->check_dof_dependency( aDofTypes ) )
             {
-                // fill 
-                mThermalDivFluxDof( tDofIndex ) -= 
+                // fill
+                mThermalDivFluxDof( tDofIndex ) -=
                         this->divstrain( CM_Function_Type::THERMAL ) * tPropThermalConductivity->dPropdDOF( aDofTypes );
             }
         }
@@ -820,7 +821,7 @@ namespace moris
             Field_Interpolator * tVelFI = mFIManager->get_field_interpolators_for_type( mDofVelocity );
 
             // compute divflux
-            mWorkDivFlux = 
+            mWorkDivFlux =
                     trans( this->flux( CM_Function_Type::MECHANICAL ) ) * this->MultipMat() * this->strain() +
                     tVelFI->val_trans() * this->divflux( CM_Function_Type::MECHANICAL );
         }
@@ -854,17 +855,16 @@ namespace moris
             // set size for ddivflux/du
             mWorkDivFluxDof( tDofIndex ).set_size( 1, tDepFI->get_number_of_space_time_coefficients(),  0.0 );
 
-            // fill 
-            mWorkDivFluxDof( tDofIndex ) += 
+            // fill
+            mWorkDivFluxDof( tDofIndex ) +=
                     trans( this->strain() ) * this->MultipMat() * this->dFluxdDOF( aDofTypes, CM_Function_Type::MECHANICAL ) +
                     tVelFI->val_trans() * this->ddivfluxdu( aDofTypes, CM_Function_Type::MECHANICAL );
-                    
 
             // if velocity dof
             if( aDofTypes( 0 ) == mDofVelocity )
             {
-                // fill 
-                mWorkDivFluxDof( tDofIndex ) += 
+                // fill
+                mWorkDivFluxDof( tDofIndex ) +=
                         trans( this->flux( CM_Function_Type::MECHANICAL ) ) * this->MultipMat() * this->dStraindDOF( aDofTypes ) +
                         trans( this->divflux( CM_Function_Type::MECHANICAL ) ) * tVelFI->N();
             }
@@ -938,10 +938,10 @@ namespace moris
             // direct dependency of internal energy on the dof type
             if ( tMM->check_dof_dependency( aDofTypes ) )
             {
-                mEnergyDof( tDofIndex ) += 
+                mEnergyDof( tDofIndex ) +=
                         tMM->Eint() * tMM->DensityDOF( aDofTypes ) +
                         tMM->density() * tMM->EintDOF( aDofTypes ) +
-                        0.5 * trans( tFIVelocity->val() ) * tFIVelocity->val() * tMM->DensityDOF( aDofTypes );               
+                        0.5 * trans( tFIVelocity->val() ) * tFIVelocity->val() * tMM->DensityDOF( aDofTypes );
             }
 
             // direct dependency on the velocity dof type
@@ -968,8 +968,8 @@ namespace moris
             MORIS_ASSERT( tMM != nullptr, "CM_Compressible_Newtonian_Fluid::eval_... - Material Model not set" );
 
             // compute total energy density
-            mEnergyDot = 
-                tMM->DensityDot()( 0 ) * ( tMM->Eint() + 0.5 * trans( tFIVelocity->val() ) * tFIVelocity->val() ) + 
+            mEnergyDot =
+                tMM->DensityDot()( 0 ) * ( tMM->Eint() + 0.5 * trans( tFIVelocity->val() ) * tFIVelocity->val() ) +
                 tMM->density()( 0 ) * ( tMM->EintDot() + trans( tFIVelocity->val() ) * trans( tFIVelocity->gradt( 1 ) ) );
         }
 
@@ -987,7 +987,7 @@ namespace moris
             const std::shared_ptr< Material_Model > tMM = get_material_model( "ThermodynamicMaterialModel" );
 
             // check material model in debug
-            MORIS_ASSERT( tMM != nullptr, "CM_Compressible_Newtonian_Fluid::eval_... - Material Model not set" );            
+            MORIS_ASSERT( tMM != nullptr, "CM_Compressible_Newtonian_Fluid::eval_... - Material Model not set" );
 
             // get the velocity FI
             Field_Interpolator * tFIVelocity = mFIManager->get_field_interpolators_for_type( mDofVelocity );
@@ -1002,13 +1002,13 @@ namespace moris
             {
                 // compute contribution from Density (dependent) DoF
                 mEnergyDotDof( tDofIndex ) +=
-                    ( tMM->Eint() + 0.5 * trans( tFIVelocity->val() ) * tFIVelocity->val() ) * tMM->DensityDotDOF( aDofTypes ) + 
+                    ( tMM->Eint() + 0.5 * trans( tFIVelocity->val() ) * tFIVelocity->val() ) * tMM->DensityDotDOF( aDofTypes ) +
                     ( tMM->EintDot() + trans( tFIVelocity->val() ) * trans( tFIVelocity->gradt( 1 ) ) ) * tMM->DensityDOF( aDofTypes );
 
                 // contribution from internal energy
                 mEnergyDotDof( tDofIndex ) +=
                     tMM->density()( 0 ) * tMM->EintDotDOF( aDofTypes ) +
-                    tMM->DensityDot()( 0 ) * tMM->EintDOF( aDofTypes ) ;                    
+                    tMM->DensityDot()( 0 ) * tMM->EintDOF( aDofTypes ) ;
             }
 
             // direct dependency on the velocity dof type
@@ -1621,7 +1621,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
         //--------------------------------------------------------------------------------------------------------------
-        
+
         void CM_Compressible_Newtonian_Fluid::eval_divstrainrate_2d()
         {
             // set size for div strain
@@ -1674,7 +1674,7 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        
+
         void CM_Compressible_Newtonian_Fluid::eval_ddivstrainratedu_2d( const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // get the dof type index
@@ -1789,7 +1789,7 @@ namespace moris
             mDivDivVel( 0 ) = td2Veldx2( 0, 0 ) + td2Veldx2( 5, 1 ) + td2Veldx2( 4, 2 );
             mDivDivVel( 1 ) = td2Veldx2( 5, 0 ) + td2Veldx2( 1, 1 ) + td2Veldx2( 3, 2 );
             mDivDivVel( 2 ) = td2Veldx2( 4, 0 ) + td2Veldx2( 3, 1 ) + td2Veldx2( 2, 2 );
-        } 
+        }
 
         const Matrix< DDRMat > & CM_Compressible_Newtonian_Fluid::divDivVel()
         {
@@ -1805,7 +1805,7 @@ namespace moris
 
             // return the test strain value
             return mDivDivVel;
-        }           
+        }
 
         //--------------------------------------------------------------------------------------------------------------
 
@@ -1823,7 +1823,7 @@ namespace moris
             if( aDofTypes( 0 ) == mDofVelocity )
             {
                 // get the 2nd order derivative of the shape functions d2Ndx2
-                Matrix< DDRMat > tVeld2Ndx2 = tFI->dnNdxn( 2 );              
+                Matrix< DDRMat > tVeld2Ndx2 = tFI->dnNdxn( 2 );
 
                 // get number of space time bases
                 uint tNumBases = tFI->get_number_of_space_time_bases();
@@ -1867,7 +1867,7 @@ namespace moris
                 mDivDivVelDof( tDofIndex )( { 2, 2 }, { tNumBases, 2 * tNumBases - 1 } )     = tVeld2Ndx2.get_row( 3 );
                 mDivDivVelDof( tDofIndex )( { 2, 2 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tVeld2Ndx2.get_row( 2 );
             }
-        } 
+        }
 
         const Matrix< DDRMat > & CM_Compressible_Newtonian_Fluid::dDivDivVeldu(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes )
@@ -2035,10 +2035,11 @@ namespace moris
             {
                 return mMultipMat3D;
             }
-        } 
+        }
 
         //--------------------------------------------------------------------------------------------------------------
         //--------------------------------------------------------------------------------------------------------------
 
     } /* namespace fem */
 } /* namespace moris */
+

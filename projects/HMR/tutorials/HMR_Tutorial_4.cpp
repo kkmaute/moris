@@ -1,6 +1,13 @@
-//------------------------------------------------------------------------------
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * HMR_Tutorial_4.cpp
+ *
+ */
 
-// moris core includes
 #include "cl_Communication_Manager.hpp"
 #include "cl_Communication_Tools.hpp"
 #include "typedefs.hpp"
@@ -48,7 +55,6 @@ SphereFunction( const Matrix< DDRMat > & aPoint )
 {
     return norm( aPoint ) - 10;
 }
-
 
 int
 main(
@@ -192,3 +198,4 @@ main(
 //    return 0;
 //
 }
+

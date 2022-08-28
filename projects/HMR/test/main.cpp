@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * main.cpp
+ *
+ */
+
 #define CATCH_CONFIG_RUNNER
 #include <catch.hpp>
 
@@ -18,7 +28,6 @@
 moris::Comm_Manager gMorisComm;
 moris::Logger       gLogger;
 
-
 int
 main(
         int    argc,
@@ -38,3 +47,4 @@ main(
 
     return result;
 }
+

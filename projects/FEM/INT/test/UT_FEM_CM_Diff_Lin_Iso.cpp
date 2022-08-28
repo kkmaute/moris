@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_FEM_CM_Diff_Lin_Iso.cpp
+ *
+ */
 
 #include "catch.hpp"
 #include "fn_equal_to.hpp"
@@ -432,7 +441,6 @@ TEST_CASE( "CM_Diff_Lin_Iso_HEX27", "[moris],[fem],[CM_Diff_Lin_Iso_HEX27]" )
             mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::QUADRATIC );
 
-
     // set coefficients for field interpolators
     Matrix< DDRMat > tUHat0 = {
             {4.1},{4.2},{4.3},{4.4},{4.5},{4.6},{4.7},{4.4},{4.9},{4.1},{4.2},{4.3},{4.4},{4.5},{4.6},{4.7},{4.8},{4.1},{4.3},{4.2},{4.3},{4.4},{4.5},{4.6},{4.7},{4.8},{4.9},
@@ -514,7 +522,6 @@ TEST_CASE( "CM_Diff_Lin_Iso_QUAD16", "[moris],[fem],[CM_Diff_Lin_Iso_QUAD16]" )
             mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::CUBIC );
 
-
     // set coefficients for field interpolators
     Matrix< DDRMat > tUHat0 = {
             {4.1},{4.2},{4.3},{4.4},{4.5},{4.6},{4.7},{4.8},{4.9},{4.1},{4.2},{4.3},{4.4},{4.5},{4.6},{4.7},
@@ -550,3 +557,4 @@ TEST_CASE( "CM_Diff_Lin_Iso_QUAD16", "[moris],[fem],[CM_Diff_Lin_Iso_QUAD16]" )
     REQUIRE( tCheckGradEnergyDot );
     REQUIRE( tCheckGradDivFlux );
 }
+

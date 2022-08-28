@@ -1,14 +1,17 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_TSA_Staggered_Time_Solver.hpp
  *
- *  Created on: Feb 02, 2019
- *      Author: schmidt
  */
+
 #ifndef MORIS_DISTLINALG_CL_TSA_STAGGERED_TIME_SOLVER_HPP_
 #define MORIS_DISTLINALG_CL_TSA_STAGGERED_TIME_SOLVER_HPP_
 
 #include "cl_TSA_Time_Solver_Algorithm.hpp"
-
 
 namespace moris
 {
@@ -61,3 +64,4 @@ namespace tsa
 }
 
 #endif /* MORIS_DISTLINALG_CL_TSA_STAGGERED_TIME_SOLVER_HPP_ */
+

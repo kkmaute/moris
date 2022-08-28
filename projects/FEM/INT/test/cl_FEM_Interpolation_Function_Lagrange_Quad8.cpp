@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_Interpolation_Function_Lagrange_Quad8.cpp
+ *
+ */
+
 #include <catch.hpp>
 
 #include "typedefs.hpp" //MRS/COR/src
@@ -11,7 +21,7 @@
 #include "fn_sum.hpp" //LNA/src
 #include "fn_trans.hpp" //LNA/src
 #include "fn_norm.hpp" //LNA/src
-#include "cl_FEM_Enums.hpp" 
+#include "cl_FEM_Enums.hpp"
 
 #include "cl_MTK_Interpolation_Rule.hpp" //MTK/src
 
@@ -171,3 +181,4 @@ TEST_CASE( "Lagrange QUAD8", "[moris],[fem],[Quad8LagInterpolation]" )
 
     //------------------------------------------------------------------------------
 }
+

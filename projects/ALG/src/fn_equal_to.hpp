@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * fn_equal_to.hpp
+ *
+ */
+
 #ifndef MORIS_ALGORITHMS_FN_EQUAL_TO_HPP_
 #define MORIS_ALGORITHMS_FN_EQUAL_TO_HPP_
 
@@ -61,3 +71,4 @@ equal_to(
 #include "fn_equal_to.tpp"
 
 #endif /* MORIS_ALGORITHMS_FN_EQUAL_TO_HPP_ */
+

@@ -1,8 +1,11 @@
 /*
- * cl_FEM_IWG_Helmoltz_Bulk2.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Feb 26, 2019
- *      Author: noel
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_IWG_Helmholtz_Bulk2.hpp
+ *
  */
 
 #ifndef SRC_FEM_CL_FEM_IWG_HELMHOLTZ_BULK2_HPP_
@@ -80,3 +83,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_FEM_CL_FEM_IWG_HELMHOLTZ_BULK_HPP_ */
+

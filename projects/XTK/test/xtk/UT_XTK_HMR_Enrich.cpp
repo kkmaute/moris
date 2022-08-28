@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * UT_XTK_HMR_Enrich.cpp
  *
- *  Created on: Sep 30, 2019
- *      Author: doble
  */
 
 #include "catch.hpp"
@@ -52,7 +55,6 @@ MultiCircle(const moris::Matrix< moris::DDRMat > & aPoint )
     moris::real mYCenter = 0.3333;
     moris::real mRadius = 0.22;
 
-
     real val1 =   (aPoint(0) - mXCenter) * (aPoint(0) - mXCenter)
                     + (aPoint(1) - mYCenter) * (aPoint(1) - mYCenter)
                     - (mRadius * mRadius);
@@ -63,7 +65,6 @@ MultiCircle(const moris::Matrix< moris::DDRMat > & aPoint )
     real val2 = (aPoint(0) - mXCenter) * (aPoint(0) - mXCenter)
                             + (aPoint(1) - mYCenter) * (aPoint(1) - mYCenter)
                             - (mRadius * mRadius);
-
 
     moris::real mXC =  0.422;
     moris::real mYC = -0.422;
@@ -179,14 +180,12 @@ TEST_CASE("2D XTK WITH HMR No truncation enrichment","[XTK_HMR_ENR_2D]")
     }
 }
 
-
 moris::real
 CircleMultiMat(const moris::Matrix< moris::DDRMat > & aPoint )
 {
     moris::real mXCenter = 0.01;
     moris::real mYCenter = 0.01;
     moris::real mRadius = 0.61;
-
 
     return  (aPoint(0) - mXCenter) * (aPoint(0) - mXCenter)
                     + (aPoint(1) - mYCenter) * (aPoint(1) - mYCenter)
@@ -323,7 +322,6 @@ TEST_CASE("2D XTK WITH HMR Multiple Order Enrichment","[XTK_HMR_ENR_2D_MO]")
         tParameters.set( "use_multigrid", 0 );
         tParameters.set( "severity_level", 2 );
         tParameters.set( "use_number_aura", 1);
-
 
         hmr::HMR tHMR( tParameters );
 

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_FEM_IWG_Struc_Linear_Axisymmetric_Pressure_Dirichlet.cpp
+ *
+ */
+
 #include <string>
 #include <catch.hpp>
 #include "assert.hpp"
@@ -679,3 +689,4 @@ TEST_CASE( "IWG_Struc_Axi_Dirichlet_Mixed_Pressure_Unsymmetric_Nitsche",
         }
     }
 }/* END_TEST_CASE */
+

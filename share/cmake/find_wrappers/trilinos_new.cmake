@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # -------------------------------------------------------------------------
 # Trilinos libraries and includes -----------------------------------------
 # -------------------------------------------------------------------------
@@ -237,3 +244,4 @@ if(NOT TARGET ${MORIS}::trilinos)
 	add_library(${MORIS}::trilinos INTERFACE IMPORTED GLOBAL)
 	target_link_libraries(${MORIS}::trilinos INTERFACE ${TRILINOS_LIBRARY_TARGETS})
 endif()
+

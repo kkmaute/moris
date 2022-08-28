@@ -1,13 +1,15 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_Bspline.hpp
  *
- *  Created on: May 9, 2017
- *      Author: gleim
  */
 
 #ifndef SRC_MODEL_CL_BSPLINE_HPP_
 #define SRC_MODEL_CL_BSPLINE_HPP_
-
 
 // MORIS library header files.
 #include "algorithms.hpp"
@@ -62,7 +64,6 @@ namespace moris
         build_spline_deriv_1d(real const & aXi,
                 Mat<real> & aKnotVector,
                 uint const & aPolynomialDegree);
-
 
         /**
          * Creates two or three-dimensional basis functions for a polynomial degree.
@@ -230,6 +231,5 @@ namespace moris
 
 }   // namespace moris
 
-
-
 #endif /* SRC_MODEL_CL_BSPLINE_HPP_ */
+

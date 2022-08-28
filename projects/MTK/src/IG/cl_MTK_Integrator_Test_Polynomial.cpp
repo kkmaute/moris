@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Integrator_Test_Polynomial.cpp
+ *
+ */
 
 #include "fn_load_matrix_from_binary_file.hpp" //LNA/src
 #include "cl_MTK_Integrator_Test_Polynomial.hpp" //MTK/src

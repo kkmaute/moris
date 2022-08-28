@@ -1,13 +1,11 @@
 /*
- * cl_MTK_Integration_Coeffs_Tet_35.hpp
- * from
- * Symmetric quadrature rules for tetrahedra based on a cubic close-packed lattice arrangement
- * by LeeShunn & FrankHam
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Aug 24, 2020
- *      Author: noel
- *  Created on: Aug 24, 2020
- *      Author: noel
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Integration_Coeffs_Tet_35.hpp
+ *
  */
 
 #ifndef SRC_MTK_CL_MTK_INTEGRATION_COEFFS_TET_35_HPP_

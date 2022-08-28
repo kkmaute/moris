@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * Bedding_Sensitivity_Test.cpp
+ *
+ */
+
 #include <string>
 #include <iostream>
 #include "typedefs.hpp"
@@ -60,7 +70,7 @@ namespace moris
     // FD in adjoint
     real tFEMFdEpsilon =  1.0e-5;
     uint tFEMFdScheme  =  static_cast< uint >( fem::FDScheme_Type::POINT_3_CENTRAL);
- 
+
     // FD step size in sweep
     std::string tFDsweep = "1.0e-5";
 
@@ -76,7 +86,7 @@ namespace moris
     int tRefineBuffer        = 0;
 
     // note: pattern 0 - Levelset field  pattern 1 - displacement field
-    std::string tLagrangeOrder   = "1"; 
+    std::string tLagrangeOrder   = "1";
     std::string tBsplineOrder    = "1";
     std::string tInitialRef      = "3";
     std::string tLagrangePattern = "0";
@@ -143,7 +153,7 @@ namespace moris
         real obj0 = aCriteria( 0 );
         real obj1 = aCriteria( 1 );
         real obj2 = aCriteria( 2 );
- 
+
         tObjectives( 0, 0 ) = obj0 + obj1 + obj2;
 
         std::cout << "% --------------------------------- % \n";
@@ -312,7 +322,7 @@ namespace moris
                 "IQIBulkStrainEnergy,"
                 "IQIBulkStrainEnergyWithBedding,"
                 "IQIBulkVolume") );
-                
+
         tParameterlist(0)(0).set("output_mesh_file", tGENOutputFile );
         tParameterlist(0)(0).set("time_offset"     , 10.0 );
 
@@ -357,7 +367,7 @@ namespace moris
             tParameterlist( 1 )( tGeoCounter ).set("adv_indices", "0");
             tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", "0.5, 0.5" );
             tGeoCounter++;
-            
+
             tParameterlist( 1 ).push_back( prm::create_geometry_parameter_list() );
             tParameterlist( 1 )( tGeoCounter ).set("type", "circle");
             tParameterlist( 1 )( tGeoCounter ).set("field_variable_indices", "2");
@@ -652,3 +662,4 @@ namespace moris
 #ifdef  __cplusplus
 }
 #endif
+

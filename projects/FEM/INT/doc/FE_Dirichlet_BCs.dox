@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 namespace moris {
 namespace fem {
 
@@ -177,3 +184,4 @@ The \f$ \mathcal{I} \f$ tensor is analogously applied to Term 02 and Term 03 in 
 */
 }
 }
+

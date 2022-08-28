@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_XTK_Topology.hpp
  *
- *  Created on: Jul 17, 2017
- *      Author: ktdoble
  */
 
 #ifndef SRC_XTK_CL_XTK_TOPOLOGY_HPP_
@@ -44,3 +47,4 @@ namespace xtk
     };
 }    // namespace xtk
 #endif /* SRC_XTK_CL_XTK_TOPOLOGY_HPP_ */
+

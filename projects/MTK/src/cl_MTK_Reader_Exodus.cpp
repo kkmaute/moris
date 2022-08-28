@@ -1,6 +1,12 @@
-//
-// Created by christopherson on 9/13/19.
-//
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Reader_Exodus.cpp
+ *
+ */
 
 #include <exodusII.h>
 #include "cl_MTK_Reader_Exodus.hpp"
@@ -146,9 +152,6 @@ void Reader_Exodus::read_file(std::string aFileName)
         // Add sets to input data
         mMtkMeshSets.add_block_set(&mBlockSetInfo(tBlockIndex));
 
-
-
-
 //        std::cout << "mBlockSetInfo.mBlockSetName: " << mBlockSetInfo(tBlockIndex).mBlockSetName << std::endl;
 //        std::cout << "mBlockSetInfo.mBlockSetTopo: " << static_cast<int>(mBlockSetInfo(tBlockIndex).mBlockSetTopo) << std::endl;
 //        moris::print(*mBlockSetInfo(tBlockIndex).mCellIdsInSet, "mBlockSetInfo.mCellIdsInSet");
@@ -197,8 +200,6 @@ void Reader_Exodus::read_file(std::string aFileName)
         mMtkMeshSets.add_side_set(&mSideSetInfo(tSideSetIndex));
     }
 
-
-
 //    std::cout << "ElemConn: "               << mMeshDataInput.ElemConn(0)             << std::endl;
 //    std::cout << "LocaltoGlobalElemMap: "   << mMeshDataInput.LocaltoGlobalElemMap(0) << std::endl;
 //    std::cout << "CreateAllEdgesAndFaces: " << mMeshDataInput.CreateAllEdgesAndFaces  << std::endl;
@@ -219,13 +220,6 @@ void Reader_Exodus::read_file(std::string aFileName)
     Reader_Exodus::close_file();
     std::cout << "Close" << std::endl;
 }
-
-
-
-
-
-
-
 
 // ---------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------
@@ -250,3 +244,4 @@ CellTopology Reader_Exodus::get_cell_topology(char* aElementType)
         return CellTopology::INVALID;
     }
 }
+

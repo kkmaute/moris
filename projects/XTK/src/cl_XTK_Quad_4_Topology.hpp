@@ -1,21 +1,21 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_XTK_Quad_4_Topology.hpp
  *
- *  Created on: Jul 17, 2017
- *      Author: ktdoble
  */
 
 #ifndef SRC_TOPOLOGY_CL_XTK_QUAD_4_TOPOLOGY_HPP_
 #define SRC_TOPOLOGY_CL_XTK_QUAD_4_TOPOLOGY_HPP_
-
 
 #include "cl_XTK_Topology.hpp"
 #include "cl_XTK_Basis_Function.hpp"
 
 // Basis Functions
 #include "cl_XTK_Quad_4_Basis_Function.hpp"
-
-
 
 namespace xtk
 {
@@ -74,5 +74,5 @@ private:
 };
 }
 
-
 #endif /* SRC_TOPOLOGY_CL_XTK_QUAD_4_TOPOLOGY_HPP_ */
+

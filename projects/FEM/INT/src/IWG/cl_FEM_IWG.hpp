@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_IWG.hpp
  *
- *  Created on: Aug 13, 2018
- *      Author: messe/noel
  */
+
 #ifndef SRC_FEM_CL_FEM_IWG_HPP_
 #define SRC_FEM_CL_FEM_IWG_HPP_
 // MRS/CON/src
@@ -954,3 +958,4 @@ namespace moris
     } /* namespace fem */
 } /* namespace moris */
 #endif /* SRC_FEM_CL_FEM_IWG_HPP_ */
+

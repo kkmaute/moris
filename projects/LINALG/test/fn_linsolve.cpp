@@ -1,11 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_linsolve.cpp
  *
- *  Created on: Aug 29, 2018
- *      Author: schmidt
  */
 
-// Third-party header files.
 #include <catch.hpp>
 #include "fn_equal_to.hpp" // ALG/src
 #include "cl_Matrix.hpp"
@@ -76,3 +78,4 @@ namespace moris
         //    }
             }
 }
+

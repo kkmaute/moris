@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # STK Dependencies --------------------------------------------------------
 # -------------------------------------------------------------------------
 
@@ -40,3 +47,4 @@ list(APPEND STK_TPL_DEPENDENCIES
 
     ${DLA_TPL_DEPENDENCIES}
     )
+

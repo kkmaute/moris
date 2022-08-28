@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_DLA_Linear_Solver_Amesos.cpp
  *
- *  Created on: May 16, 2018
- *      Author: schmidt
  */
+
 #include "cl_DLA_Linear_Solver_Amesos.hpp"
 #include "cl_DLA_Linear_Problem.hpp"
 #include "cl_SOL_Dist_Vector.hpp"
@@ -21,7 +25,7 @@ using namespace dla;
 //-----------------------------------------------------------------------------
 
 Linear_Solver_Amesos::Linear_Solver_Amesos(
-        const moris::ParameterList aParameterlist ) 
+        const moris::ParameterList aParameterlist )
 : Linear_Solver_Algorithm( aParameterlist )
 {
     // boolean for symbolic factorization after first solve
@@ -242,3 +246,4 @@ void Linear_Solver_Amesos::set_solver_internal_parameters()
     //Set AMESOS solver parameter list
     mAmesosSolver->SetParameters( params );
 }
+

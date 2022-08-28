@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_XTK_Child_Mesh.cpp
  *
- *  Created on: Mar 14, 2019
- *      Author: doble
  */
 
 #include "cl_XTK_Child_Mesh.hpp"
@@ -167,10 +170,9 @@ namespace xtk
 
         Matrix<IndexMat> tVertexIds = aParentCell->get_vertex_ids();
         row_vector_connectivity_check( tVertexIndices );
-        
-        // get the number of cells
-        mtk::Cell_Info  const * tParentCellInfo = aParentCell->get_cell_info(); 
 
+        // get the number of cells
+        mtk::Cell_Info  const * tParentCellInfo = aParentCell->get_cell_info();
 
         Matrix< IndexMat > tElementToEdge = aBackgroundMesh->get_entity_connected_to_entity_loc_inds(aParentCell->get_index(), moris::EntityRank::ELEMENT, moris::EntityRank::EDGE);
         row_vector_connectivity_check( tElementToEdge  );
@@ -195,9 +197,9 @@ namespace xtk
         mElementFaceParentInds  = tFacetoElemConnInd;
         mElementFaceParentRanks = moris::Matrix< moris::DDSTMat >(1,tFacetoElemConnInd.numel(),2);
         mElementInterfaceSides  = moris::Matrix< moris::DDSTMat > (1,aGeometryIndices.size(),std::numeric_limits<moris::size_t>::max() );
-        
+
         tParentCellInfo->get_loc_coords_of_cell(mNodeParametricCoord);
-        
+
         mGeometryIndex = aGeometryIndices;
 
         // add nodes to the
@@ -567,7 +569,6 @@ namespace xtk
     }
 
     // ---------------------------------------------------------------------------------
-
 
     moris::Matrix< moris::IndexMat >
     Child_Mesh::get_face_to_node_local() const
@@ -1611,7 +1612,7 @@ namespace xtk
                 size_t tInterfaceSideOrd = mElementInterfaceSides(aMeshModTemplate.mElemIndToReplace,iG);
                 if(tInterfaceSideOrd != std::numeric_limits<size_t>::max())
                 {
-                    // iterate through the facet ords ods 
+                    // iterate through the facet ords ods
                     for(moris::uint iCell = 0; iCell < tParentFacetOrds->n_rows(); iCell++ )
                     {
                         for(moris::uint iF = 0; iF < tParentFacetOrds->n_cols(); iF++ )
@@ -1673,7 +1674,6 @@ namespace xtk
         replace_row(aRowIndex, aElementFaceParentRanks, aElementIndexToReplace, mElementFaceParentRanks);
         replace_row(aRowIndex, aElementInterfaceFaces , aElementIndexToReplace, mElementInterfaceSides);
     }
-
 
     // ---------------------------------------------------------------------------------
 
@@ -1944,7 +1944,6 @@ namespace xtk
         mElementPhaseIndices = moris::Matrix< moris::IndexMat >(1,get_num_entities(EntityRank::ELEMENT),std::numeric_limits<moris::moris_index>::max());
     }
 
-
     // ---------------------------------------------------------------------------------
 
     void
@@ -2037,7 +2036,7 @@ namespace xtk
     {
         moris_index tLocSubIndex = MORIS_INDEX_MAX;
         for(moris::moris_index i = 0; i < (moris_index)mSubPhaseBinIndices.size(); i++)
-        {   
+        {
             if(mSubPhaseBinIndices(i) == aSubPhaseIndex)
             {
                 tLocSubIndex = i;
@@ -2317,7 +2316,7 @@ namespace xtk
 
         return mSubphaseBasisEnrichmentLevel(aSubphaseBin);
     }
-    
+
     // ---------------------------------------------------------------------------------
 
     void
@@ -2383,7 +2382,7 @@ namespace xtk
     }
 
     // ---------------------------------------------------------------------------------
-    moris::Matrix< moris::DDSTMat  > const & 
+    moris::Matrix< moris::DDSTMat  > const &
     Child_Mesh::get_cell_interface_side_ords()
     {
         return mElementInterfaceSides;
@@ -3101,7 +3100,7 @@ namespace xtk
                             mNodeInds(tNodeL),
                             mNodeInds(tNodeH)}};
                     // Get parent element information
-                    moris::Matrix< moris::IndexMat > tElementsAncestry({{mParentElementIndex}}); 
+                    moris::Matrix< moris::IndexMat > tElementsAncestry({{mParentElementIndex}});
                     moris::Matrix< moris::IndexMat > tParentEdgeInds  = mElementEdgeParentInds.get_row(iE);
                     moris::Matrix< moris::DDSTMat >  tParentEdgeRanks = mElementEdgeParentRanks.get_row(iE);
                     moris::Matrix< moris::IndexMat > tParentFaceInds  = mElementFaceParentInds.get_row(iE);
@@ -3341,7 +3340,7 @@ namespace xtk
                     // Increment the count of number of intersected elements and number of new elements
                     tNumNewElem = tNumNewElem + tTemplatesToAdd(tNumIntersected).mNumNewElem - tTemplatesToAdd(tNumIntersected).mNumElemToReplace;
                     tNumIntersected++;
-                    
+
                 }
                 else if(mIntersectConnectivity(iE,0) == 0)
                 {
@@ -3351,7 +3350,7 @@ namespace xtk
                 {
                     std::cout<<"mIntersectConnectivity(iE,0) = "<<mIntersectConnectivity(iE,0)<<std::endl;
                     std::cout<<"Parent Cell Index = "<<this->get_parent_element_index()<<std::endl;
-                    
+
                     Matrix<IndexMat> tNodeIds = this->get_node_ids();
                     moris::print(tNodeIds,"Node Ids");
                     MORIS_ERROR(0,"Unsupported case in 2D conformal tet template");

@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_NLA_Newton_Solver.hpp
  *
- *  Created on: Sep 21, 2018
- *      Author: schmidt
  */
+
 #ifndef SRC_FEM_CL_NEWTON_SOLVER_HPP_
 #define SRC_FEM_CL_NEWTON_SOLVER_HPP_
 
@@ -70,3 +74,4 @@ namespace moris
 }
 
 #endif /* SRC_FEM_CL_NEWTON_SOLVER_HPP_ */
+

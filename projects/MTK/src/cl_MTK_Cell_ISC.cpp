@@ -1,11 +1,12 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Cell_ISC.cpp
  *
- *  Created on: Jun 19, 2021
- *      Author: momo
  */
-
-
 
 #include "cl_MTK_Cell_ISC.hpp"
 
@@ -49,3 +50,4 @@ namespace moris
         }
     }
 }
+

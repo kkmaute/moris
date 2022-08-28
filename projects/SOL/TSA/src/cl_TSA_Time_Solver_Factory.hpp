@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_TSA_Time_Solver_Factory.hpp
  *
- *  Created on: Mar 28, 2018
- *      Author: schmidt
  */
+
 #ifndef SRC_DISTLINALG_CL_TSA_TIME_SOLVER_FACTORY_HPP_
 #define SRC_DISTLINALG_CL_TSA_TIME_SOLVER_FACTORY_HPP_
 
@@ -12,7 +16,6 @@
 #include "cl_TSA_Time_Solver_Enums.hpp"
 
 #include "cl_Param_List.hpp"
-
 
 namespace moris
 {
@@ -40,3 +43,4 @@ class Solver_Interface;
 }
 
 #endif /* SRC_DISTLINALG_CL_TSA_TIME_SOLVER_FACTORY_HPP_ */
+

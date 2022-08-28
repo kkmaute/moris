@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # -------------------------------------------------------------------------
 # SNOPT libraries ---------------------------------------------------------
 # -------------------------------------------------------------------------
@@ -28,3 +35,4 @@ if(NOT TARGET ${MORIS}::snopt)
 	add_library(${MORIS}::snopt INTERFACE IMPORTED GLOBAL)
 	target_link_libraries(${MORIS}::snopt INTERFACE ${SNOPT_LIBRARY_TARGETS})
 endif()
+

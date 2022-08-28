@@ -1,9 +1,13 @@
 /*
- * cl_DLA_Communicator_Epetra.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: May 16, 2018
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * cl_Communicator_Epetra.hpp
+ *
  */
+
 #ifndef SRC_DISTLINALG_CL_COMMUNICATOR_EPETRA_HPP_
 #define SRC_DISTLINALG_CL_COMMUNICATOR_EPETRA_HPP_
 
@@ -30,10 +34,11 @@ public:
 
     /** Destructor */
      ~Communicator_Epetra();
-    
+
     /** Get the pointer to the Epetra Communicator */
     //Epetra_Comm* get_epetra_comm() { return mEpetraComm; }
     Epetra_Comm* get_epetra_comm() { return mEpetraComm; }
 };
 }
 #endif /* SRC_DISTLINALG_CL_COMMUNUCATOR_EPETRA_HPP_ */
+

@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # ARPACK Find Module ------------------------------------------------------
 # -------------------------------------------------------------------------
 
@@ -27,3 +34,4 @@ mark_as_advanced(ARPACK_LIBRARIES)
 add_library(ARPACK::arpack STATIC IMPORTED)
 set_target_properties(ARPACK::arpack PROPERTIES 
 	IMPORTED_LOCATION ${ARPACK_LIBRARIES} )
+

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * ut_GEN_Property.cpp
+ *
+ */
+
 #include "catch.hpp"
 #include "fn_GEN_create_geometries.hpp"
 #include "fn_GEN_create_properties.hpp"
@@ -224,3 +234,4 @@ namespace moris
 
     }
 }
+

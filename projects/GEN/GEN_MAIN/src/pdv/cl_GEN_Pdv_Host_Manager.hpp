@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_GEN_Pdv_Host_Manager.hpp
+ *
+ */
+
 #ifndef MORIS_CL_GEN_PDV_HOST_MANAGER_HPP_
 #define MORIS_CL_GEN_PDV_HOST_MANAGER_HPP_
 
@@ -279,7 +289,7 @@ namespace moris
 
                 /**
                  * Updates an intersection node with a node ID and node owner.
-                 * 
+                 *
                  * @param aNodeIndex Node index
                  * @param aNodeId Node ID
                  * @param aNodeOwner Node owner
@@ -362,3 +372,4 @@ namespace moris
 }
 
 #endif /* MORIS_CL_GEN_PDV_HOST_MANAGER_HPP_ */
+

@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_bubble_sort.hpp
  *
- *  Created on: Jan 10, 2018
- *      Author: doble
  */
 
 #ifndef SRC_TOOLS_FN_BUBBLE_SORT_HPP_
@@ -12,8 +15,6 @@
 
 #include "xtk_typedefs.hpp"
 #include "cl_Matrix.hpp"
-
-
 
 namespace xtk
 {
@@ -119,5 +120,5 @@ row_bubble_sort_indices(moris::Matrix< Matrix_Type > const & aMatrix,
 }
 }
 
-
 #endif /* SRC_TOOLS_FN_BUBBLE_SORT_HPP_ */
+

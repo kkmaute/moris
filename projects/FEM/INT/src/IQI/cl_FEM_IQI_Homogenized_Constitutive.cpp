@@ -1,8 +1,11 @@
 /*
- * cl_FEM_IQI_Homogebized_Constitutive.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Apr 10, 2021
- *      Author: momo
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_IQI_Homogenized_Constitutive.cpp
+ *
  */
 
 #include "cl_FEM_IQI_Homogenized_Constitutive.hpp"
@@ -78,6 +81,4 @@ namespace moris
         }
     }/* end_namespace_fem */
 }/* end_namespace_moris */
-
-
 

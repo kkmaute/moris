@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Cell_Info_Quad8.cpp
  *
- *  Created on: Sep 26, 2019
- *      Author: doble
  */
 
 #include "cl_MTK_Cell_Info_Quad8.hpp"
@@ -367,7 +370,6 @@ namespace moris
                         { 3, 0, 0, 3, 0, 0, 0, -1, 0 },
                         { 0, 0, 0, 0, 0, 0, 0, 0, -1 }
                     };
-
 
                     moris_index tPathRank  = tVertexToVertexRanks( (uint)aVertexOrdinal, (uint)aOtherEntityOrdinal );
                     moris_index tPathIndex = tVertexToVertexIndices( (uint)aVertexOrdinal, (uint)aOtherEntityOrdinal );
@@ -793,3 +795,4 @@ namespace moris
         }
     }    // namespace mtk
 }    // namespace moris
+

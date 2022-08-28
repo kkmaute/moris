@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * fn_GEN_create_properties.cpp
+ *
+ */
+
 #include "fn_GEN_create_properties.hpp"
 #include "st_GEN_Property_Parameters.hpp"
 #include "fn_Parsing_Tools.hpp"
@@ -41,16 +51,16 @@ namespace moris
             Cell<std::string> tPropertyNames(tNumProperties);
             Cell<Cell<std::string>> tNeededFieldNames(tNumProperties);
             Cell<Cell<std::shared_ptr<Field>>> tNeededFields(tNumProperties);
-            
+
             // Fill names, dependencies
             for (uint tPropertyIndex = 0; tPropertyIndex < tNumProperties; tPropertyIndex++)
             {
                 tPropertyNames(tPropertyIndex) = aPropertyParameterLists(tPropertyIndex).get<std::string>("name");
-                tNeededFieldNames(tPropertyIndex) = 
+                tNeededFieldNames(tPropertyIndex) =
                         string_to_cell<std::string>(aPropertyParameterLists(tPropertyIndex).get<std::string>("dependencies"));
                 tNeededFields(tPropertyIndex).resize(tNeededFieldNames(tPropertyIndex).size());
             }
-            
+
             // Build based on dependencies (this is not optimally efficient, but doesn't need to be)
             bool tBuild;
             uint tNumPropertiesLeft = tNumProperties;
@@ -63,7 +73,7 @@ namespace moris
                     if (tProperties(tBuildPropertyIndex) == nullptr)
                     {
                         tBuild = true;
-                        
+
                         // Check if property dependencies are built
                         if (tNeededFieldNames(tBuildPropertyIndex).size() > 0)
                         {
@@ -111,7 +121,7 @@ namespace moris
 
                             // Build property and decrement remaining properties to build
                             tProperties(tBuildPropertyIndex) = create_property(
-                                    aPropertyParameterLists(tBuildPropertyIndex), 
+                                    aPropertyParameterLists(tBuildPropertyIndex),
                                     aADVs,
                                     tNeededFields(tBuildPropertyIndex),
                                     aLibrary);
@@ -122,10 +132,10 @@ namespace moris
                 tLoopCount++;
                 MORIS_ERROR(tLoopCount <= tNumProperties, "In fn_GEN_create_properties, a circular property dependency was detected. Exiting.");
             }
-            
+
             return tProperties;
         }
-        
+
         //--------------------------------------------------------------------------------------------------------------
 
         template <typename Vector_Type>
@@ -272,8 +282,9 @@ namespace moris
                 sol::Dist_Vector*&              aADVs,
                 Cell<std::shared_ptr<Geometry>> aGeometries,
                 std::shared_ptr<Library_IO>     aLibrary);
-        
+
         //--------------------------------------------------------------------------------------------------------------
 
     }
 }
+

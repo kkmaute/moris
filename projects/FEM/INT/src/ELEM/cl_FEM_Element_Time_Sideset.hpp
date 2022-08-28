@@ -1,8 +1,11 @@
 /*
- * cl_FEM_Element_Time_Continuity.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Mar 19, 2019
- *      Author: noel
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_Element_Time_Sideset.hpp
+ *
  */
 
 #ifndef SRC_FEM_CL_FEM_Element_Time_Sideset_HPP_
@@ -92,7 +95,7 @@ namespace moris
                  * compute dQIdp
                  */
                 void compute_dQIdp_explicit();
-                
+
                 //------------------------------------------------------------------------------
                 /**
                  * compute dQIdp by finite difference
@@ -128,5 +131,5 @@ namespace moris
     } /* namespace fem */
 } /* namespace moris */
 
-
 #endif /* SRC_FEM_CL_FEM_Element_Time_Sideset_HPP_ */
+

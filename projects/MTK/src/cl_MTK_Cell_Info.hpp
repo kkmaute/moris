@@ -1,8 +1,11 @@
 /*
- * cl_MTK_CELL_INFO.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jul 25, 2019
- *      Author: ryan
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Cell_Info.hpp
+ *
  */
 
 #ifndef PROJECTS_MTK_SRC_CL_MTK_CELL_INFO_HPP_
@@ -222,13 +225,13 @@ namespace moris
             get_vertex_loc_coord(moris_index const &aVertexOrdinal) const;
 
             // ---------------------------------------------------------------------------------
-            
+
             // if I draw a straight line from a vertex to another entity on the cell,
             // what is the ordinal and rank of the minimum entity that can describe this path
             virtual
             moris::Cell<moris_index>
             get_vertex_path_to_entity_rank_and_ordinal(
-                moris_index aVertexOrdinal, 
+                moris_index aVertexOrdinal,
                 moris_index aOtherEntityOrdinal,
                 moris_index aOtherEntityRank) const;
 
@@ -236,18 +239,17 @@ namespace moris
             virtual
             moris::Cell<moris_index>
             get_edge_path_to_entity_rank_and_ordinal(
-                moris_index aEdgeOrdinal, 
+                moris_index aEdgeOrdinal,
                 moris_index aOtherEntityOrdinal,
                 moris_index aOtherEntityRank) const;
 
             virtual
-            bool 
-            is_entity_connected_to_facet( 
+            bool
+            is_entity_connected_to_facet(
                 moris_index aFacetOrdinal,
                 moris_index aOtherEntityOrdinal,
                 moris_index aOtherEntityRank) const;
 
-            
             virtual
             moris_index
             get_shared_vertex_ordinal_between_edges(
@@ -314,7 +316,7 @@ namespace moris
              * @param[in] aCell           MTK cell to compute size of.
              * @param[in] aLocalVertexID  Local ID of vertex to use (0, 1, 2, or 3).
              * @param[in] aDirection      Direction to take derivative (0,1, or 2).
-             * 
+             *
              * @return return the cell size.
             */
             virtual moris::real
@@ -328,7 +330,7 @@ namespace moris
              * @param[in] aCell           MTK cell to compute size of.
              * @param[in] aLocalVertexID  Local ID of vertex to use (0, 1, 2, 3 etc.).
              * @param[in] aDirection      Direction to take derivative (0,1, or 2).
-             * 
+             *
              * @return return the cell size.
             */
             virtual moris::real
@@ -374,3 +376,4 @@ namespace moris
 } // namespace moris
 
 #endif /* PROJECTS_MTK_SRC_CL_MTK_CELL_INFO_HPP_ */
+

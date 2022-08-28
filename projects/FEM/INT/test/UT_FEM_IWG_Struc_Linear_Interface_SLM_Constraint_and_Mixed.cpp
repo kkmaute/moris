@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_FEM_IWG_Struc_Linear_Interface_SLM_Constraint_and_Mixed.cpp
+ *
+ */
+
 #include <string>
 #include <catch.hpp>
 #include "assert.hpp"
@@ -230,7 +240,6 @@ TEST_CASE( "IWG_Interface_SLM_Constraint", "[moris],[fem],[IWG_Interface_SLM_Con
 
             tSlaveFIs( 1 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tLMDofTypes( 0 ) );
             tSlaveFIs( 1 )->set_coeff( tSlaveDOFHatLM );
-
 
             // set size and fill the set residual assembly map
             tIWG->mSet->mResDofAssemblyMap.resize( 2 * tAllDofTypes.size() );
@@ -567,7 +576,6 @@ TEST_CASE( "IWG_Interface_SLM_Mixed", "[moris],[fem],[IWG_Interface_SLM_Mixed]" 
             tSlaveFIs( 1 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tLMDofTypes( 0 ) );
             tSlaveFIs( 1 )->set_coeff( tSlaveDOFHatLM );
 
-
             // set size and fill the set residual assembly map
             tIWG->mSet->mResDofAssemblyMap.resize( 2 * tAllDofTypes.size() );
             tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, tNumDofDisp - 1 } };
@@ -683,3 +691,4 @@ TEST_CASE( "IWG_Interface_SLM_Mixed", "[moris],[fem],[IWG_Interface_SLM_Mixed]" 
         }
     }
 }/* END_TEST_CASE */
+

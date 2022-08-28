@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_HMR_Arguments.hpp
+ *
+ */
 
 #ifndef PROJECTS_HMR_SRC_CL_HMR_ARGUMENTS_HPP_
 #define PROJECTS_HMR_SRC_CL_HMR_ARGUMENTS_HPP_
@@ -77,3 +86,4 @@ namespace moris
 }
 
 #endif /* PROJECTS_HMR_SRC_CL_HMR_ARGUMENTS_HPP_ */
+

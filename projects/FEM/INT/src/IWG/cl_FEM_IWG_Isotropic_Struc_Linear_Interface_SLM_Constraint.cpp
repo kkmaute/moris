@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_IWG_Isotropic_Struc_Linear_Interface_SLM_Constraint.cpp
+ *
+ */
 
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Interface_SLM_Constraint.hpp"
@@ -68,7 +77,6 @@ namespace moris
             const auto tWeightedMasterLambda = 0.5 * tFILambdaMaster->val();
             const auto tWeightedSlaveLambda = 0.5 * tFILambdaSlave->val();
 
-
             // compute master residual
             mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex } ) -=
                     aWStar
@@ -78,7 +86,6 @@ namespace moris
             mSet->get_residual()( 0 )( { tSlaveResStartIndex, tSlaveResStopIndex } ) +=
                     aWStar
                     * ( tTestDisplSlave * ( tWeightedMasterLambda + tWeightedSlaveLambda ) );
-
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
@@ -105,7 +112,6 @@ namespace moris
             const uint tSlaveDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::SLAVE );
             const uint tSlaveResStartIndex = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 0 );
             const uint tSlaveResStopIndex  = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 1 );
-
 
             Field_Interpolator* tFIDisplMaster =
                     mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
@@ -147,7 +153,6 @@ namespace moris
                     tJacMM -= aWStar
                             * ( 0.5 * tFIDisplMaster->N_trans() * tFILambdaMaster->N() );
 
-
                     tJacSM += aWStar
                             * ( 0.5 * tFIDisplSlave->N_trans() * tFILambdaMaster->N() );
 
@@ -178,7 +183,6 @@ namespace moris
                 {
                     tJacMS -= aWStar
                     		* ( 0.5 * tFIDisplMaster->N_trans() * tFILambdaSlave->N() );
-
 
                     tJacSS += aWStar
                             * ( 0.5 * tFIDisplSlave->N_trans() * tFILambdaSlave->N() );
@@ -211,3 +215,4 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
+

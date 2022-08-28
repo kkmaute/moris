@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Interpolation_Function_Constant_Bar2.hpp
  *
- *  Created on: Mar 01, 2019
- *      Author: noel
  */
 
 #ifndef SRC_MTK_CL_MTK_INTERPOLATION_FUNCTION_CONSTANT_BAR2_HPP_

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_XTK_Regular_Subdivision_Interface.hpp
+ *
+ */
+
 #ifndef MORIS_CL_XTK_REGULAR_SUBDIVISION_INTERFACE_HPP_
 #define MORIS_CL_XTK_REGULAR_SUBDIVISION_INTERFACE_HPP_
 
@@ -203,7 +213,7 @@ class Regular_Subdivision_4_TRIS : public Regular_Subdivision_Template
     Cell< Cell< moris_index > >
     get_ig_cell_to_vertex_connectivity() const
     {
-        return { 
+        return {
             { { 0, 1, 4 } },
             { { 1, 2, 4 } },
             { { 2, 3, 4 } },
@@ -450,7 +460,6 @@ class Regular_Subdivision_Interface : public Decomposition_Algorithm
     Integration_Mesh_Generator*       mGenerator;
     moris::uint                       mNumTotalCells = 0;
 
-
   public:
 
     Regular_Subdivision_Interface( ParameterList& aParameterList, enum CellTopology aCellTopology );
@@ -474,7 +483,6 @@ class Regular_Subdivision_Interface : public Decomposition_Algorithm
         Cut_Integration_Mesh*             aCutIntegrationMesh,
         moris::mtk::Mesh*                 aBackgroundMesh,
         Integration_Mesh_Generator*       aMeshGenerator );
-
 
     enum Decomposition_Algorithm_Type
     get_algorithm_type() const;
@@ -591,7 +599,6 @@ class Regular_Subdivision_Interface : public Decomposition_Algorithm
         moris::uint                         aNumIgCells,
         Child_Mesh_Experimental*            aChildMesh );
 };
-
 
 }// namespace xtk
 #endif

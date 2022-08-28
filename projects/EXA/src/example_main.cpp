@@ -1,6 +1,12 @@
-//
-// Generic main for examples using catch test environment
-//
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * example_main.cpp
+ *
+ */
 
 #define CATCH_CONFIG_RUNNER
 #include <catch.hpp>
@@ -34,3 +40,4 @@ int main( int argc, char * argv[] )
 
     return tRet;
 }
+

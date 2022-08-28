@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_XTK_External_Mesh_Data.hpp
  *
- *  Created on: Jan 2, 2018
- *      Author: doble
  */
 
 #ifndef SRC_XTK_CL_XTK_EXTERNAL_MESH_DATA_HPP_
@@ -28,7 +31,6 @@
 #include "cl_MPI_Tools.hpp"
 
 using namespace moris;
-
 
 #include "assert.hpp"
 
@@ -197,7 +199,7 @@ namespace xtk
                 //        moris::moris_id tFirstEdge = aMeshData->get_max_entity_id(EntityRank::EDGE);
                 //        moris::moris_id tFirstFace = aMeshData->get_max_entity_id(EntityRank::FACE);
                 moris::moris_id tFirstElem = aMeshData->get_max_entity_id(EntityRank::ELEMENT)+1;
-                
+
                 if(tProcessorRank == 0)
                 {
                     // Processor 1 (rank 0) is responsible for first available Ids
@@ -552,3 +554,4 @@ namespace xtk
 }
 
 #endif /* SRC_XTK_CL_XTK_EXTERNAL_MESH_DATA_HPP_ */
+

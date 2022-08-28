@@ -1,10 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_HMR_BSpline_Element_Quad9.hpp
  *
- *  Created on: December 05, 2018
- *  using MATLAB
  */
- 
+
 #ifndef SRC_HMR_CL_HMR_BSPLINE_ELEMENT_QUAD9_HPP_
 #define SRC_HMR_CL_HMR_BSPLINE_ELEMENT_QUAD9_HPP_
 
@@ -34,7 +37,7 @@ namespace moris
         /**
          * node IDs needed for VTK output
          *
-         * @param[out] Matrix< DDLUMat > 
+         * @param[out] Matrix< DDLUMat >
          *
          * @return void
          *
@@ -64,8 +67,8 @@ namespace moris
         template<>
         void
         BSpline_Element< 2, 9 >::get_ijk_of_basis(
-            const uint & aBasisNumber, 
-            luint      * aIJK ) 
+            const uint & aBasisNumber,
+            luint      * aIJK )
         {
             // get element local coordinate
             switch ( aBasisNumber )
@@ -262,14 +265,14 @@ namespace moris
                  if ( ! mBasis[   0 ]->is_flagged() )
                  {
                      // link neighbors of basis 0
-                     mBasis[   0 ]->insert_neighbor(  0, tBasis[   1 ] ); 
-                     mBasis[   0 ]->insert_neighbor(  1, mBasis[   4 ] ); 
-                     mBasis[   0 ]->insert_neighbor(  2, mBasis[   7 ] ); 
-                     mBasis[   0 ]->insert_neighbor(  3, tBasis[   5 ] ); 
-                     mBasis[   0 ]->insert_neighbor(  4, tBasis[   0 ] ); 
-                     mBasis[   0 ]->insert_neighbor(  5, tBasis[   2 ] ); 
-                     mBasis[   0 ]->insert_neighbor(  6, mBasis[   8 ] ); 
-                     mBasis[   0 ]->insert_neighbor(  7, tBasis[   7 ] ); 
+                     mBasis[   0 ]->insert_neighbor(  0, tBasis[   1 ] );
+                     mBasis[   0 ]->insert_neighbor(  1, mBasis[   4 ] );
+                     mBasis[   0 ]->insert_neighbor(  2, mBasis[   7 ] );
+                     mBasis[   0 ]->insert_neighbor(  3, tBasis[   5 ] );
+                     mBasis[   0 ]->insert_neighbor(  4, tBasis[   0 ] );
+                     mBasis[   0 ]->insert_neighbor(  5, tBasis[   2 ] );
+                     mBasis[   0 ]->insert_neighbor(  6, mBasis[   8 ] );
+                     mBasis[   0 ]->insert_neighbor(  7, tBasis[   7 ] );
 
                      // flag this basis
                      mBasis[   0 ]->flag();
@@ -284,14 +287,14 @@ namespace moris
                  if ( ! mBasis[   1 ]->is_flagged() )
                  {
                      // link neighbors of basis 1
-                     mBasis[   1 ]->insert_neighbor(  0, tBasis[   3 ] ); 
-                     mBasis[   1 ]->insert_neighbor(  1, tBasis[   6 ] ); 
-                     mBasis[   1 ]->insert_neighbor(  2, mBasis[   5 ] ); 
-                     mBasis[   1 ]->insert_neighbor(  3, mBasis[   4 ] ); 
-                     mBasis[   1 ]->insert_neighbor(  4, tBasis[   2 ] ); 
-                     mBasis[   1 ]->insert_neighbor(  5, tBasis[   4 ] ); 
-                     mBasis[   1 ]->insert_neighbor(  6, tBasis[   8 ] ); 
-                     mBasis[   1 ]->insert_neighbor(  7, mBasis[   8 ] ); 
+                     mBasis[   1 ]->insert_neighbor(  0, tBasis[   3 ] );
+                     mBasis[   1 ]->insert_neighbor(  1, tBasis[   6 ] );
+                     mBasis[   1 ]->insert_neighbor(  2, mBasis[   5 ] );
+                     mBasis[   1 ]->insert_neighbor(  3, mBasis[   4 ] );
+                     mBasis[   1 ]->insert_neighbor(  4, tBasis[   2 ] );
+                     mBasis[   1 ]->insert_neighbor(  5, tBasis[   4 ] );
+                     mBasis[   1 ]->insert_neighbor(  6, tBasis[   8 ] );
+                     mBasis[   1 ]->insert_neighbor(  7, mBasis[   8 ] );
 
                      // flag this basis
                      mBasis[   1 ]->flag();
@@ -306,14 +309,14 @@ namespace moris
                  if ( ! mBasis[   2 ]->is_flagged() )
                  {
                      // link neighbors of basis 2
-                     mBasis[   2 ]->insert_neighbor(  0, mBasis[   5 ] ); 
-                     mBasis[   2 ]->insert_neighbor(  1, tBasis[  10 ] ); 
-                     mBasis[   2 ]->insert_neighbor(  2, tBasis[  14 ] ); 
-                     mBasis[   2 ]->insert_neighbor(  3, mBasis[   6 ] ); 
-                     mBasis[   2 ]->insert_neighbor(  4, mBasis[   8 ] ); 
-                     mBasis[   2 ]->insert_neighbor(  5, tBasis[   8 ] ); 
-                     mBasis[   2 ]->insert_neighbor(  6, tBasis[  15 ] ); 
-                     mBasis[   2 ]->insert_neighbor(  7, tBasis[  13 ] ); 
+                     mBasis[   2 ]->insert_neighbor(  0, mBasis[   5 ] );
+                     mBasis[   2 ]->insert_neighbor(  1, tBasis[  10 ] );
+                     mBasis[   2 ]->insert_neighbor(  2, tBasis[  14 ] );
+                     mBasis[   2 ]->insert_neighbor(  3, mBasis[   6 ] );
+                     mBasis[   2 ]->insert_neighbor(  4, mBasis[   8 ] );
+                     mBasis[   2 ]->insert_neighbor(  5, tBasis[   8 ] );
+                     mBasis[   2 ]->insert_neighbor(  6, tBasis[  15 ] );
+                     mBasis[   2 ]->insert_neighbor(  7, tBasis[  13 ] );
 
                      // flag this basis
                      mBasis[   2 ]->flag();
@@ -328,14 +331,14 @@ namespace moris
                  if ( ! mBasis[   3 ]->is_flagged() )
                  {
                      // link neighbors of basis 3
-                     mBasis[   3 ]->insert_neighbor(  0, mBasis[   7 ] ); 
-                     mBasis[   3 ]->insert_neighbor(  1, mBasis[   6 ] ); 
-                     mBasis[   3 ]->insert_neighbor(  2, tBasis[  12 ] ); 
-                     mBasis[   3 ]->insert_neighbor(  3, tBasis[   9 ] ); 
-                     mBasis[   3 ]->insert_neighbor(  4, tBasis[   7 ] ); 
-                     mBasis[   3 ]->insert_neighbor(  5, mBasis[   8 ] ); 
-                     mBasis[   3 ]->insert_neighbor(  6, tBasis[  13 ] ); 
-                     mBasis[   3 ]->insert_neighbor(  7, tBasis[  11 ] ); 
+                     mBasis[   3 ]->insert_neighbor(  0, mBasis[   7 ] );
+                     mBasis[   3 ]->insert_neighbor(  1, mBasis[   6 ] );
+                     mBasis[   3 ]->insert_neighbor(  2, tBasis[  12 ] );
+                     mBasis[   3 ]->insert_neighbor(  3, tBasis[   9 ] );
+                     mBasis[   3 ]->insert_neighbor(  4, tBasis[   7 ] );
+                     mBasis[   3 ]->insert_neighbor(  5, mBasis[   8 ] );
+                     mBasis[   3 ]->insert_neighbor(  6, tBasis[  13 ] );
+                     mBasis[   3 ]->insert_neighbor(  7, tBasis[  11 ] );
 
                      // flag this basis
                      mBasis[   3 ]->flag();
@@ -350,14 +353,14 @@ namespace moris
                  if ( ! mBasis[   4 ]->is_flagged() )
                  {
                      // link neighbors of basis 4
-                     mBasis[   4 ]->insert_neighbor(  0, tBasis[   2 ] ); 
-                     mBasis[   4 ]->insert_neighbor(  1, mBasis[   1 ] ); 
-                     mBasis[   4 ]->insert_neighbor(  2, mBasis[   8 ] ); 
-                     mBasis[   4 ]->insert_neighbor(  3, mBasis[   0 ] ); 
-                     mBasis[   4 ]->insert_neighbor(  4, tBasis[   1 ] ); 
-                     mBasis[   4 ]->insert_neighbor(  5, tBasis[   3 ] ); 
-                     mBasis[   4 ]->insert_neighbor(  6, mBasis[   5 ] ); 
-                     mBasis[   4 ]->insert_neighbor(  7, mBasis[   7 ] ); 
+                     mBasis[   4 ]->insert_neighbor(  0, tBasis[   2 ] );
+                     mBasis[   4 ]->insert_neighbor(  1, mBasis[   1 ] );
+                     mBasis[   4 ]->insert_neighbor(  2, mBasis[   8 ] );
+                     mBasis[   4 ]->insert_neighbor(  3, mBasis[   0 ] );
+                     mBasis[   4 ]->insert_neighbor(  4, tBasis[   1 ] );
+                     mBasis[   4 ]->insert_neighbor(  5, tBasis[   3 ] );
+                     mBasis[   4 ]->insert_neighbor(  6, mBasis[   5 ] );
+                     mBasis[   4 ]->insert_neighbor(  7, mBasis[   7 ] );
 
                      // flag this basis
                      mBasis[   4 ]->flag();
@@ -372,14 +375,14 @@ namespace moris
                  if ( ! mBasis[   5 ]->is_flagged() )
                  {
                      // link neighbors of basis 5
-                     mBasis[   5 ]->insert_neighbor(  0, mBasis[   1 ] ); 
-                     mBasis[   5 ]->insert_neighbor(  1, tBasis[   8 ] ); 
-                     mBasis[   5 ]->insert_neighbor(  2, mBasis[   2 ] ); 
-                     mBasis[   5 ]->insert_neighbor(  3, mBasis[   8 ] ); 
-                     mBasis[   5 ]->insert_neighbor(  4, mBasis[   4 ] ); 
-                     mBasis[   5 ]->insert_neighbor(  5, tBasis[   6 ] ); 
-                     mBasis[   5 ]->insert_neighbor(  6, tBasis[  10 ] ); 
-                     mBasis[   5 ]->insert_neighbor(  7, mBasis[   6 ] ); 
+                     mBasis[   5 ]->insert_neighbor(  0, mBasis[   1 ] );
+                     mBasis[   5 ]->insert_neighbor(  1, tBasis[   8 ] );
+                     mBasis[   5 ]->insert_neighbor(  2, mBasis[   2 ] );
+                     mBasis[   5 ]->insert_neighbor(  3, mBasis[   8 ] );
+                     mBasis[   5 ]->insert_neighbor(  4, mBasis[   4 ] );
+                     mBasis[   5 ]->insert_neighbor(  5, tBasis[   6 ] );
+                     mBasis[   5 ]->insert_neighbor(  6, tBasis[  10 ] );
+                     mBasis[   5 ]->insert_neighbor(  7, mBasis[   6 ] );
 
                      // flag this basis
                      mBasis[   5 ]->flag();
@@ -394,14 +397,14 @@ namespace moris
                  if ( ! mBasis[   6 ]->is_flagged() )
                  {
                      // link neighbors of basis 6
-                     mBasis[   6 ]->insert_neighbor(  0, mBasis[   8 ] ); 
-                     mBasis[   6 ]->insert_neighbor(  1, mBasis[   2 ] ); 
-                     mBasis[   6 ]->insert_neighbor(  2, tBasis[  13 ] ); 
-                     mBasis[   6 ]->insert_neighbor(  3, mBasis[   3 ] ); 
-                     mBasis[   6 ]->insert_neighbor(  4, mBasis[   7 ] ); 
-                     mBasis[   6 ]->insert_neighbor(  5, mBasis[   5 ] ); 
-                     mBasis[   6 ]->insert_neighbor(  6, tBasis[  14 ] ); 
-                     mBasis[   6 ]->insert_neighbor(  7, tBasis[  12 ] ); 
+                     mBasis[   6 ]->insert_neighbor(  0, mBasis[   8 ] );
+                     mBasis[   6 ]->insert_neighbor(  1, mBasis[   2 ] );
+                     mBasis[   6 ]->insert_neighbor(  2, tBasis[  13 ] );
+                     mBasis[   6 ]->insert_neighbor(  3, mBasis[   3 ] );
+                     mBasis[   6 ]->insert_neighbor(  4, mBasis[   7 ] );
+                     mBasis[   6 ]->insert_neighbor(  5, mBasis[   5 ] );
+                     mBasis[   6 ]->insert_neighbor(  6, tBasis[  14 ] );
+                     mBasis[   6 ]->insert_neighbor(  7, tBasis[  12 ] );
 
                      // flag this basis
                      mBasis[   6 ]->flag();
@@ -416,14 +419,14 @@ namespace moris
                  if ( ! mBasis[   7 ]->is_flagged() )
                  {
                      // link neighbors of basis 7
-                     mBasis[   7 ]->insert_neighbor(  0, mBasis[   0 ] ); 
-                     mBasis[   7 ]->insert_neighbor(  1, mBasis[   8 ] ); 
-                     mBasis[   7 ]->insert_neighbor(  2, mBasis[   3 ] ); 
-                     mBasis[   7 ]->insert_neighbor(  3, tBasis[   7 ] ); 
-                     mBasis[   7 ]->insert_neighbor(  4, tBasis[   5 ] ); 
-                     mBasis[   7 ]->insert_neighbor(  5, mBasis[   4 ] ); 
-                     mBasis[   7 ]->insert_neighbor(  6, mBasis[   6 ] ); 
-                     mBasis[   7 ]->insert_neighbor(  7, tBasis[   9 ] ); 
+                     mBasis[   7 ]->insert_neighbor(  0, mBasis[   0 ] );
+                     mBasis[   7 ]->insert_neighbor(  1, mBasis[   8 ] );
+                     mBasis[   7 ]->insert_neighbor(  2, mBasis[   3 ] );
+                     mBasis[   7 ]->insert_neighbor(  3, tBasis[   7 ] );
+                     mBasis[   7 ]->insert_neighbor(  4, tBasis[   5 ] );
+                     mBasis[   7 ]->insert_neighbor(  5, mBasis[   4 ] );
+                     mBasis[   7 ]->insert_neighbor(  6, mBasis[   6 ] );
+                     mBasis[   7 ]->insert_neighbor(  7, tBasis[   9 ] );
 
                      // flag this basis
                      mBasis[   7 ]->flag();
@@ -438,14 +441,14 @@ namespace moris
                  if ( ! mBasis[   8 ]->is_flagged() )
                  {
                      // link neighbors of basis 8
-                     mBasis[   8 ]->insert_neighbor(  0, mBasis[   4 ] ); 
-                     mBasis[   8 ]->insert_neighbor(  1, mBasis[   5 ] ); 
-                     mBasis[   8 ]->insert_neighbor(  2, mBasis[   6 ] ); 
-                     mBasis[   8 ]->insert_neighbor(  3, mBasis[   7 ] ); 
-                     mBasis[   8 ]->insert_neighbor(  4, mBasis[   0 ] ); 
-                     mBasis[   8 ]->insert_neighbor(  5, mBasis[   1 ] ); 
-                     mBasis[   8 ]->insert_neighbor(  6, mBasis[   2 ] ); 
-                     mBasis[   8 ]->insert_neighbor(  7, mBasis[   3 ] ); 
+                     mBasis[   8 ]->insert_neighbor(  0, mBasis[   4 ] );
+                     mBasis[   8 ]->insert_neighbor(  1, mBasis[   5 ] );
+                     mBasis[   8 ]->insert_neighbor(  2, mBasis[   6 ] );
+                     mBasis[   8 ]->insert_neighbor(  3, mBasis[   7 ] );
+                     mBasis[   8 ]->insert_neighbor(  4, mBasis[   0 ] );
+                     mBasis[   8 ]->insert_neighbor(  5, mBasis[   1 ] );
+                     mBasis[   8 ]->insert_neighbor(  6, mBasis[   2 ] );
+                     mBasis[   8 ]->insert_neighbor(  7, mBasis[   3 ] );
 
                      // flag this basis
                      mBasis[   8 ]->flag();
@@ -475,7 +478,7 @@ namespace moris
             if ( tBasis != NULL )
             {
                 // test if basis has been refined already
-                if ( ! tBasis->has_children() ) 
+                if ( ! tBasis->has_children() )
                 {
                    // create temporary container for children
                    tBasis->init_children_container();
@@ -668,7 +671,7 @@ namespace moris
                                luint tIJ[ 2 ] = { i, j };
 
                                // create child
-                               tBasis->insert_child( tCount, 
+                               tBasis->insert_child( tCount,
                                    new BSpline< 2, 16, 8 >( tIJ, tLevel, gNoProcOwner ) );
 
                                // increment basis counter
@@ -1000,7 +1003,6 @@ namespace moris
                 }
             }
 
-
             // initialize child container
             Element * tChildren[ 4 ];
 
@@ -1065,3 +1067,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_HMR_CL_HMR_BSPLINE_ELEMENT_QUAD9_HPP_ */
+

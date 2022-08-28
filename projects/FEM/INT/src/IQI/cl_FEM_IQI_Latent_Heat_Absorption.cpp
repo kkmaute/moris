@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_IQI_Latent_Heat_Absorption.cpp
  *
- *  Created on: Jul 10, 2020
- *      Author: wunsch
  */
 
 #include "cl_FEM_Set.hpp"
@@ -32,7 +35,7 @@ namespace moris
             mPropertyMap[ "PhaseStateFunction" ]  = static_cast< uint >( IQI_Property_Type::PHASE_STATE_FUNCTION );
             mPropertyMap[ "PhaseChangeConst" ]    = static_cast< uint >( IQI_Property_Type::PHASE_CHANGE_CONST );
         }
-        
+
         //------------------------------------------------------------------------------
 
         void IQI_Latent_Heat_Absorption::compute_QI( Matrix< DDRMat > & aQI )
@@ -204,6 +207,4 @@ namespace moris
         //------------------------------------------------------------------------------
     }/* end_namespace_fem */
 }/* end_namespace_moris */
-
-
 

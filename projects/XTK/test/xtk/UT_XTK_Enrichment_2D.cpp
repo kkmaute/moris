@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * UT_XTK_Enrichment_2D.cpp
  *
- *  Created on: Sep 13, 2019
- *      Author: doble
  */
 
 #include <memory>
@@ -46,8 +49,6 @@
 
 namespace xtk
 {
-
-
 
 TEST_CASE("2 Element Enrichment 2D","[ENRICH_1E_2D]")
 {
@@ -124,7 +125,6 @@ TEST_CASE("2 Element Enrichment 2D","[ENRICH_1E_2D]")
         // Perform the enrichment
         tXTKModel.perform_basis_enrichment(EntityRank::NODE);
 
-
         Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
 
         // Declare the fields related to enrichment strategy in output options
@@ -135,7 +135,6 @@ TEST_CASE("2 Element Enrichment 2D","[ENRICH_1E_2D]")
         }
 
         // TODO: run some FEM Temperature problem perturbing an enrichment level and checking whether other disconnected subdomains are heated up.
-
 
         // setup output mesh options with cell enrichment fields
         Output_Options tOutputOptions;
@@ -255,3 +254,4 @@ TEST_CASE("2 Element Enrichment 2D","[ENRICH_1E_2D]")
 
 }
 }
+

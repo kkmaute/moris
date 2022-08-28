@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_FEM_Integration_Rule.cpp
+ *
+ */
+
 #include "catch.hpp"
 #include "cl_FEM_Geometry_Interpolator.hpp" //FEM/INT/sr
 #include "cl_MTK_Integrator.hpp" //MTK/sr

@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # Geometry Engine Tests ---------------------------------------------------
 # -------------------------------------------------------------------------
 
@@ -96,3 +103,4 @@ foreach(TPL ${SO_TPLS})
     string(TOUPPER ${TPL} TPL)
     list(APPEND SO_INCLUDES ${MORIS_${TPL}_INCLUDE_DIRS})
 endforeach()
+

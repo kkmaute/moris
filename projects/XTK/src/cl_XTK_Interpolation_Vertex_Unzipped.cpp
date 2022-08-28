@@ -1,10 +1,12 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_XTK_Interpolation_Vertex_Unzipped.cpp
  *
- *  Created on: Jul 10, 2019
- *      Author: doble
  */
-
 
 #include "cl_XTK_Interpolation_Vertex_Unzipped.hpp"
 
@@ -183,3 +185,4 @@ namespace xtk
     }
 
 }    // namespace xtk
+

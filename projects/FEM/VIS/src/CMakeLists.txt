@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # Visualization -------------------------------------------
 # -------------------------------------------------------------------------
 
@@ -128,3 +135,4 @@ install(TARGETS ${VIS}-lib
 # Export library into *Targets file
 install(EXPORT ${VIS}Targets
     DESTINATION ${${VIS}_CONFIG_INSTALL_DIR} )
+

@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_CM_Struc_Nonlinear_Isotropic_Neo_Hookean.cpp
+ *
+ */
 
 #include "cl_FEM_CM_Struc_Nonlinear_Isotropic_Neo_Hookean.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
@@ -311,7 +320,7 @@ namespace moris
             }
         }
 
-        void 
+        void
         CM_Struc_Nonlinear_Isotropic_Neo_Hookean::eval_d1PKStressdDOF_3d(
                 const Cell< MSI::Dof_Type > & aDofTypes )
         {
@@ -943,7 +952,6 @@ namespace moris
             // return the value of the respective derivative of the traction
             return m2PKTraction_sym(number);
         }
-
 
         // Function to compute the first and second derivative of the traction based on a routine
         // symbolically generated in MATLAB
@@ -4542,3 +4550,4 @@ namespace moris
 
     } /* namespace fem */
 } /* namespace moris */
+

@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_prod.hpp
  *
- *  Created on: Nov 24, 2020
- *      Author: gates
  */
 
 #ifndef PROJECTS_LINALG_SRC_FN_PROD_HPP_
@@ -18,7 +21,6 @@
 #ifdef MORIS_USE_ARMA
 #include "Arma_Impl/fn_prod_Arma.hpp"
 #endif
-
 
 namespace moris
 {
@@ -39,3 +41,4 @@ namespace moris
     }
 }
 #endif /* PROJECTS_LINALG_SRC_FN_PROD_HPP_ */
+

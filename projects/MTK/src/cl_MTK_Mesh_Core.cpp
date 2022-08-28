@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Mesh_Core.cpp
+ *
+ */
+
 #include "cl_MTK_Mesh_Core.hpp"
 
 #include "cl_HMR_Mesh.hpp" //HMR/src
@@ -851,7 +861,6 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-
         uint
         Mesh::get_num_basis_functions(const uint aMeshIndex)
         {
@@ -984,7 +993,6 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
-
 
         void
         Mesh::get_sideset_cells_and_ords(
@@ -1176,8 +1184,8 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Mesh::get_active_bg_element_indices_on_discretization_mesh_index_including_aura( 
-                moris_index const aDiscretizationMeshIndex, 
+        void Mesh::get_active_bg_element_indices_on_discretization_mesh_index_including_aura(
+                moris_index const aDiscretizationMeshIndex,
                 Matrix< DDLUMat > & aElementIDs )
         {
             MORIS_ERROR( false, "Mesh::get_active_bg_element_indices_on_discretization_mesh_index_including_aura() -  not implemented in mtk base class" );
@@ -1218,7 +1226,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void 
+        void
         Mesh::get_elements_in_bspline_element_and_side_ordinal(
                 moris_index const          aBsplineElementIndex,
                 moris_index const          aDiscretizationMeshIndex,
@@ -1238,8 +1246,6 @@ namespace moris
         {
             MORIS_ERROR( false, "Mesh::get_elements_in_interpolation_cluster_and_side_ordinal() -  not implemented in mtk base class" );
         }
-
-
 
 #ifdef DEBUG
 
@@ -1277,7 +1283,7 @@ namespace moris
         }
         //--------------------------------------------------------------------------------------------------------------
 
-        moris_id 
+        moris_id
         Mesh::get_entity_owner( enum EntityRank aEntityRank, moris_index aEntityIndex ) const
         {
             MORIS_ERROR( 0, "get_entity_owner not implemented" );
@@ -1293,8 +1299,8 @@ namespace moris
             return 0;
         }
 
-        //--------------------------------------------------------------------------------------------------------------    
-        moris_id* 
+        //--------------------------------------------------------------------------------------------------------------
+        moris_id*
         Mesh::get_basis_ids( moris_index aVertexIndex, moris_index aOrder )
         {
             MORIS_ERROR( 0, "get_basis_ids not implemented" );
@@ -1302,7 +1308,7 @@ namespace moris
         }
         //--------------------------------------------------------------------------------------------------------------
 
-        moris_index* 
+        moris_index*
         Mesh::get_basis_indicies( moris_index aVertexIndex, moris_index aOrder )
         {
             MORIS_ERROR( 0, "get_basis_indicies not implemented" );
@@ -1310,7 +1316,7 @@ namespace moris
         }
         //--------------------------------------------------------------------------------------------------------------
 
-        real* 
+        real*
         Mesh::get_basis_weights( moris_index aVertexIndex, moris_index aOrder )
         {
             MORIS_ERROR( 0, "get_basis_weights not implemented" );
@@ -1318,15 +1324,15 @@ namespace moris
         }
         //--------------------------------------------------------------------------------------------------------------
 
-        moris_id* 
-        Mesh::get_basis_owners( moris_index aVertexIndex, moris_index aOrder ) 
+        moris_id*
+        Mesh::get_basis_owners( moris_index aVertexIndex, moris_index aOrder )
         {
             MORIS_ERROR( 0, "get_basis_owners not implemented" );
             return nullptr;
         }
         //--------------------------------------------------------------------------------------------------------------
 
-        moris_index 
+        moris_index
         Mesh::get_basis_length( moris_index aVertexIndex, moris_index aOrder )
         {
             MORIS_ERROR( 0, "get_basis_length not implemented" );
@@ -1335,8 +1341,8 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        moris::real* 
-        Mesh::get_vertex_coords_ptr( moris_index aVertexIndex ) 
+        moris::real*
+        Mesh::get_vertex_coords_ptr( moris_index aVertexIndex )
         {
             MORIS_ERROR( 0, "get_vertex_coords_ptr not implemented" );
             return nullptr;
@@ -1358,8 +1364,7 @@ namespace moris
             return nullptr;
         }
 
-
-        mtk::Cell* 
+        mtk::Cell*
         Mesh::get_ip_cell_in_cluster( enum ClusterType aClusterType , moris_index aClusterIndex) const
         {
             MORIS_ERROR( 0, "get_vertex_interpolation not implemented" );
@@ -1386,7 +1391,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        moris_index* 
+        moris_index*
         Mesh::get_side_ordinals_in_cluster( enum ClusterType aClusterType, moris_index aClusterIndex ) const
         {
             MORIS_ERROR( 0, "get_vertex_interpolation not implemented" );
@@ -1395,7 +1400,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        bool 
+        bool
         Mesh::cluster_is_trivial( enum ClusterType aClusterType , moris_index aClusterIndex) const
         {
             MORIS_ERROR( 0, "get_vertex_interpolation not implemented" );
@@ -1404,7 +1409,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Vertex*const * 
+        Vertex*const *
         Mesh::get_vertices_in_cluster( enum ClusterType aClusterType, moris_index aClusterIndex ) const
         {
             MORIS_ERROR( 0, "get_vertex_interpolation not implemented" );
@@ -1413,7 +1418,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        uint 
+        uint
         Mesh::get_num_vertices_in_cluster( enum ClusterType aClusterType, moris_index aClusterIndex ) const
         {
             MORIS_ERROR( 0, "get_vertex_interpolation not implemented" );
@@ -1439,7 +1444,7 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        mtk::Cell_Cluster const * 
+        mtk::Cell_Cluster const *
         Mesh::get_associated_cell_cluster(moris_index aClusterIndex ) const
         {
             MORIS_ERROR( 0, "get_vertex_interpolation not implemented" );
@@ -1472,3 +1477,4 @@ namespace moris
         }
     }
 }
+

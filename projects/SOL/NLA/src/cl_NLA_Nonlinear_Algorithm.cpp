@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_NLA_Nonlinear_Algorithm.cpp
  *
- *  Created on: Sep 21, 2018
- *      Author: schmidt
  */
+
 #include <ctime>
 
 #include "cl_NLA_Nonlinear_Algorithm.hpp"
@@ -83,3 +87,4 @@ Nonlinear_Solver* Nonlinear_Algorithm::get_my_nonlin_solver()
 
     return mMyNonLinSolverManager;
 }
+

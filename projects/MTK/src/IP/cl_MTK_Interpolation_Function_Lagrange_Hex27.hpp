@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Interpolation_Function_Lagrange_Hex27.hpp
  *
- *  Created on: Jul 9, 2018
- *      Author: messe
  */
 
 #ifndef SRC_MTK_CL_MTK_INTERPOLATION_FUNCTION_LAGRANGE_HEX27_HPP_
@@ -197,7 +200,6 @@ namespace moris
         adNdXi( 1,  9 ) = d * ( xi + 1.0 ) * ( zeta - 1.0 );
         adNdXi( 2,  9 ) = - ( xi * ( eta2 - 1.0 ) * ( 2.0 * zeta - 1.0 ) * ( xi + 1.0 ) ) * 0.25;
 
-
         adNdXi( 0, 10 ) = d * ( eta + 1.0 ) * ( zeta - 1.0 );
         adNdXi( 1, 10 ) =  - ( zeta * ( 2.0 * eta + 1.0 ) * ( xi2 - 1.0 ) * ( zeta - 1.0 ) ) * 0.25;
         adNdXi( 2, 10 ) = - ( eta * ( xi2 - 1.0 ) * ( 2.0 * zeta - 1.0 ) * ( eta + 1.0 ) ) * 0.25;
@@ -225,7 +227,6 @@ namespace moris
         adNdXi( 0, 16 ) = d * ( eta - 1.0 ) * ( zeta + 1.0 );
         adNdXi( 1, 16 ) = - ( zeta * ( 2.0 * eta - 1.0 ) * ( xi2 - 1.0 ) * ( zeta + 1.0 ) ) * 0.25;
         adNdXi( 2, 16 ) = - ( eta * ( xi2 - 1.0 ) * ( 2.0 * zeta + 1.0 ) * ( eta - 1.0 ) ) * 0.25;
-
 
         adNdXi( 0, 17 ) = - ( zeta * ( eta2 - 1.0 ) * ( 2.0 * xi + 1.0 ) * ( zeta + 1.0 ) ) * 0.25;
         adNdXi( 1, 17 ) = d * ( xi + 1.0 ) * ( zeta + 1.0 );
@@ -788,10 +789,7 @@ namespace moris
         }
 //------------------------------------------------------------------------------
 
-
     } /* namespace mtk */
 } /* namespace moris */
-
-
 
 #endif /* SRC_MTK_CL_MTK_INTERPOLATION_FUNCTION_LAGRANGE_HEX27_HPP_ */

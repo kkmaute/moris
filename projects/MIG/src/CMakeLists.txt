@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # MIG Source --------------------------------------------------------------
 # -------------------------------------------------------------------------
 
@@ -142,3 +149,4 @@ install(TARGETS ${MIG}-lib
 # Export library into *Targets file
 install(EXPORT ${MIG}Targets
     DESTINATION ${${MIG}_CONFIG_INSTALL_DIR} )
+

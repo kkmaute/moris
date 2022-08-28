@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # BUILD_ALL Utility -------------------------------------------------------
 # -------------------------------------------------------------------------
 
@@ -65,3 +72,4 @@ set(BUILD_MAIN ON CACHE BOOL "Build main executable." FORCE)
 # Turn off BUILD_ALL
 
 set(BUILD_ALL OFF CACHE BOOL "Build all executables." FORCE)
+

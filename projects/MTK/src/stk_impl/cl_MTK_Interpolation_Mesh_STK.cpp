@@ -1,10 +1,12 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Interpolation_Mesh_STK.cpp
  *
- *  Created on: Dec 6, 2019
- *      Author: sonne
  */
-
 
 #include "cl_MTK_Interpolation_Mesh_STK.hpp"
 #include "cl_MTK_Mesh_Data_STK.hpp"
@@ -47,3 +49,4 @@ namespace moris
 
     }    // namespace mtk
 }    // namespace moris
+

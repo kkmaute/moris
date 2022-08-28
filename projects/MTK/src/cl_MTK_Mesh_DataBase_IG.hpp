@@ -1,12 +1,15 @@
 /*
- * cl_MTK_Integration_Mesh_DataBase_IG.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Dec  18, 2021
- *      Author: momo
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Mesh_DataBase_IG.hpp
+ *
  */
+
 #ifndef SRC_cl_MTK_Mesh_DataBase_IG
 #define SRC_cl_MTK_Mesh_DataBase_IG
-
 
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_TOL_Memory_Map.hpp"
@@ -27,7 +30,6 @@ namespace moris
         class Interpolation_Mesh_DataBase_IP;
         class Integration_Mesh_Info;
 
-
         class Integration_Mesh_DataBase_IG : public mtk::Integration_Mesh
         {
           private:
@@ -36,16 +38,13 @@ namespace moris
             // mtk::Integration_Mesh&            mIGMesh;
             mtk::Interpolation_Mesh_DataBase_IP* mIPMesh;
 
-
             // Vertex Information
             moris::Cell< Vertex_DataBase > mVertices;
             Matrix< moris::DDRMat >        mVertexCoordinates;
 
-
             // Cell to vertex connectivity
             moris::Cell< mtk::Vertex* > mCellToVertices;
             moris::Cell< moris_index >  mCellToVertexOffSet;
-
 
             // Cell cluster to primary IG cell connectivity
             moris::Cell< mtk::Cell* >   mCellClusterToPrimaryIGCell;
@@ -78,7 +77,6 @@ namespace moris
             // side cluster to IP cell
             moris::Cell< moris_index > mSideClusterToIPCell;
 
-
             moris::Cell< mtk::Side_Cluster_DataBase > mSideClusters;
 
             moris::Cell< mtk::Double_Side_Cluster > mDblSideClusters;
@@ -86,7 +84,6 @@ namespace moris
             moris::Cell< mtk::Side_Cluster_DataBase > mGhostMaster;
             moris::Cell< mtk::Side_Cluster_DataBase > mGhostSlave;
             moris::Cell< mtk::Double_Side_Cluster >   mGhostDblSidedSet;
-
 
             moris::Cell< moris_index > mGhostMasterSlaveIPCellList;
             moris::Cell< mtk::Cell* >  mGhostMasterSlaveIGCellList;
@@ -106,7 +103,6 @@ namespace moris
             // vertex map ( used in GEN)
             std::unordered_map< moris_id, moris_index > mVertexGlobalIdToLocalIndex;
 
-
             moris::Cell< moris_id >                                 mVertexIdList;
             moris::Cell< moris_id >                                 mCellIdList;
             moris::Cell< moris_id >                                 mVertexOwnerList;
@@ -124,7 +120,7 @@ namespace moris
           public:
             // ----------------------------------------------------------------------------
 
-             Integration_Mesh_DataBase_IG() = default; 
+             Integration_Mesh_DataBase_IG() = default;
 
             /**
              * @brief Construct a new Integration_Mesh_DataBase_IG object
@@ -159,7 +155,6 @@ namespace moris
              */
 
             virtual uint get_spatial_dim() const override;
-
 
             // ----------------------------------------------------------------------------
 
@@ -228,7 +223,6 @@ namespace moris
 
             virtual Matrix< IdMat >
             get_communication_table() const override;
-
 
             // ---------------------------------------------------------------------------
 
@@ -340,7 +334,6 @@ namespace moris
 
             virtual std::string
             get_double_sided_set_label( moris_index aSideSetOrdinal ) const override;
-
 
             // ----------------------------------------------------------------------------
 
@@ -531,7 +524,7 @@ namespace moris
              * @return moris_index* const a pointer to the moris_indices which are side ordinals
              */
 
-            virtual moris_index* 
+            virtual moris_index*
             get_side_ordinals_in_cluster( enum ClusterType aClusterType,
                 moris_index                                aClusterIndex ) const override;
 
@@ -630,7 +623,6 @@ namespace moris
             virtual std::shared_ptr< mtk::Cell_Info >
             get_cell_info_sp( moris_index aEntityIndex ) const override;
 
-
             // ----------------------------------------------------------------------------
 
             /**
@@ -667,14 +659,11 @@ namespace moris
             moris::Memory_Map
             get_memory_usage();
 
-
             friend class Periodic2D_Analysis;
             friend class Integration_Mesh_Editor;
         };
 
-
     }// namespace mtk
 }// namespace moris
-
 
 #endif /* cl_MTK_Integration_Mesh_DataBase_IG.hpp */

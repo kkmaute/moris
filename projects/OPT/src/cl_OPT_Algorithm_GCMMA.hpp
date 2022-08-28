@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_OPT_Algorithm_GCMMA.hpp
+ *
+ */
+
 #ifndef MORIS_CL_OPT_ALGORITHM_GCMMA_HPP_
 #define MORIS_CL_OPT_ALGORITHM_GCMMA_HPP_
 
@@ -82,3 +92,4 @@ public:
 };
 
 #endif /* MORIS_CL_OPT_ALGORITHM_GCMMA_HPP_ */
+

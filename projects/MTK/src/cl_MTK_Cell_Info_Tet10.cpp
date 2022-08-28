@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Cell_Info_Tet10.cpp
  *
- *  Created on: Oct 19, 2021
- *      Author: wunsch
  */
 
 #include "cl_MTK_Cell_Info_Tet10.hpp"
@@ -105,8 +108,8 @@ namespace moris
         Cell_Info_Tet10::get_node_to_face_map() const
         {
             return {
-                { 0, 1, 3, 4, 8, 7 }, 
-                { 1, 2, 3, 5, 9, 8 }, 
+                { 0, 1, 3, 4, 8, 7 },
+                { 1, 2, 3, 5, 9, 8 },
                 { 0, 3, 2, 7, 9, 6 },
                 { 0, 2, 1, 6, 5, 4 } };
         }
@@ -132,11 +135,11 @@ namespace moris
         Cell_Info_Tet10::get_node_to_edge_map() const
         {
             return {
-                { 0, 1, 4 }, 
-                { 1, 2, 5 }, 
-                { 0, 2, 6 }, 
-                { 0, 3, 7 }, 
-                { 1, 3, 8 }, 
+                { 0, 1, 4 },
+                { 1, 2, 5 },
+                { 0, 2, 6 },
+                { 0, 3, 7 },
+                { 1, 3, 8 },
                 { 2, 3, 9 }};
         }
 
@@ -146,7 +149,7 @@ namespace moris
         Cell_Info_Tet10::get_node_to_edge_map(moris::uint aEdgeOrdinal) const
         {
             switch (aEdgeOrdinal)
-            { 
+            {
                 case 0: { return {{ 0, 1, 4 }}; break; }
                 case 1: { return {{ 1, 2, 5 }}; break; }
                 case 2: { return {{ 0, 2, 6 }}; break; }
@@ -239,11 +242,11 @@ namespace moris
         Cell_Info_Tet10::get_edge_to_face_map() const
         {
             return {
-                {0, 3}, 
-                {1, 3}, 
-                {2, 3}, 
-                {0, 2}, 
-                {0, 1}, 
+                {0, 3},
+                {1, 3},
+                {2, 3},
+                {0, 2},
+                {0, 1},
                 {1, 2} };
         }
 
@@ -263,12 +266,12 @@ namespace moris
                         case 2:  return 0;
                         case 3:  return 0;
                         case 4:  return 1;
-                        default: 
+                        default:
                         {
-                            // if the edges do not share a vertex return a MORIS_INDEX_MAX 
+                            // if the edges do not share a vertex return a MORIS_INDEX_MAX
                             return MORIS_INDEX_MAX;
                         }
-                    } 
+                    }
                 }
                 case 1:
                 {
@@ -278,13 +281,13 @@ namespace moris
                         case 2:  return 2;
                         case 4:  return 1;
                         case 5:  return 2;
-                        default: 
+                        default:
                         {
-                            // if the edges do not share a vertex return a MORIS_INDEX_MAX 
+                            // if the edges do not share a vertex return a MORIS_INDEX_MAX
                             return MORIS_INDEX_MAX;
                         }
-                    } 
-                } 
+                    }
+                }
                 case 2:
                 {
                     switch (aEdgeOrdinal2)
@@ -293,13 +296,13 @@ namespace moris
                         case 1:  return 2;
                         case 3:  return 0;
                         case 5:  return 2;
-                        default: 
+                        default:
                         {
-                            // if the edges do not share a vertex return a MORIS_INDEX_MAX 
+                            // if the edges do not share a vertex return a MORIS_INDEX_MAX
                             return MORIS_INDEX_MAX;
                         }
-                    } 
-                }   
+                    }
+                }
                 case 3:
                 {
                     switch (aEdgeOrdinal2)
@@ -308,13 +311,13 @@ namespace moris
                         case 2:  return 0;
                         case 4:  return 3;
                         case 5:  return 3;
-                        default: 
+                        default:
                         {
-                            // if the edges do not share a vertex return a MORIS_INDEX_MAX 
+                            // if the edges do not share a vertex return a MORIS_INDEX_MAX
                             return MORIS_INDEX_MAX;
                         }
-                    } 
-                } 
+                    }
+                }
                 case 4:
                 {
 
@@ -324,13 +327,13 @@ namespace moris
                         case 1:  return 1;
                         case 3:  return 3;
                         case 5:  return 3;
-                        default: 
+                        default:
                         {
-                            // if the edges do not share a vertex return a MORIS_INDEX_MAX 
+                            // if the edges do not share a vertex return a MORIS_INDEX_MAX
                             return MORIS_INDEX_MAX;
                         }
-                    } 
-                }   
+                    }
+                }
                 case 5:
                 {
                     switch (aEdgeOrdinal2)
@@ -339,16 +342,16 @@ namespace moris
                         case 2:  return 2;
                         case 3:  return 3;
                         case 4:  return 3;
-                        default: 
+                        default:
                         {
-                            // if the edges do not share a vertex return a MORIS_INDEX_MAX 
+                            // if the edges do not share a vertex return a MORIS_INDEX_MAX
                             return MORIS_INDEX_MAX;
                         }
-                    } 
-                }                                                                             
+                    }
+                }
                 default:
                 {
-                    MORIS_ERROR(0,"Invalid aEdgeOrdinal1 for tet4"); 
+                    MORIS_ERROR(0,"Invalid aEdgeOrdinal1 for tet4");
                     return MORIS_INDEX_MAX;
                 }
             }
@@ -400,7 +403,7 @@ namespace moris
             MORIS_ASSERT( aLocalVertexID < 4,"Cell_Info_Tet10::compute_cell_size_deriv vertex IDs must be 0, 1, 2, or 3.\n");
 
             // calculating volume
-            return 1.0/6.0 * std::pow(-1.0,aLocalVertexID) * 
+            return 1.0/6.0 * std::pow(-1.0,aLocalVertexID) *
                         ( tNodeCoords20( tDirIndexMap(aDirection) ) * tNodeCoords30( tDirIndexMap(aDirection + 1) ) -
                           tNodeCoords20( tDirIndexMap(aDirection + 1) ) * tNodeCoords30( tDirIndexMap(aDirection) ) );
 
@@ -468,3 +471,4 @@ namespace moris
         // ----------------------------------------------------------------------------------
     } // namespace mtk
 } // namespace moris
+

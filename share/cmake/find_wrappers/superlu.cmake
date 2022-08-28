@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # -----------------------------------------------------------------------------
 # SuperLU libraries and includes ----------------------------------------------
 # -----------------------------------------------------------------------------
@@ -44,3 +51,4 @@ list(APPEND MORIS_SUPERLU_LIBS ${SUPERLU_DIST_LIBRARIES})
 
 # *variable only gets set for one or the other for some reason... 
 # Using the librairies variable as a workaround
+

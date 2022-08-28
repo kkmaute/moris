@@ -1,9 +1,11 @@
-
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_HMR_Factory.hpp
  *
- *  Created on: May 7, 2018
- *      Author: messe
  */
 
 #ifndef SRC_HMR_CL_HMR_FACTORY_HPP_
@@ -92,3 +94,4 @@ namespace moris
     } /* namespace hmr */
 } /* namespace moris */
 #endif /* SRC_HMR_CL_HMR_FACTORY_HPP_ */
+

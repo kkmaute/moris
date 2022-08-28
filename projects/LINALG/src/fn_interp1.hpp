@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_interp1.hpp
  *
- *  Created on: Sept 21, 2020
- *      Author: gates
  */
 
 #ifndef PROJECTS_LINALG_SRC_FN_INTERP1_HPP_
@@ -17,11 +20,10 @@
 #include "Arma_Impl/fn_interp1_Arma.hpp"
 #endif
 
-
 namespace moris
 {
     /**
-     * @brief 1D data interpolation. Given a 1D function specified in vectors X and Y (where X specifies locations and Y 
+     * @brief 1D data interpolation. Given a 1D function specified in vectors X and Y (where X specifies locations and Y
      * specifies the corresponding values), generate vector YI which contains interpolated values at locations XI
      *
      * @param[in] aX A vector of 1D locations
@@ -42,3 +44,4 @@ namespace moris
     }
 }
 #endif /* PROJECTS_LINALG_SRC_FN_INTERP1_HPP_ */
+

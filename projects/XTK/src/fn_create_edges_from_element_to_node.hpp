@@ -1,14 +1,15 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_create_edges_from_element_to_node.hpp
  *
- *  Created on: Jun 21, 2018
- *      Author: ktdoble
  */
 
 #ifndef SRC_XTK_FN_CREATE_EDGES_FROM_ELEMENT_TO_NODE_HPP_
 #define SRC_XTK_FN_CREATE_EDGES_FROM_ELEMENT_TO_NODE_HPP_
-
-
 
 #include "cl_Mesh_Enums.hpp"
 #include "cl_Matrix.hpp"
@@ -215,3 +216,4 @@ namespace xtk
 }
 
 #endif /* SRC_XTK_FN_CREATE_EDGES_FROM_ELEMENT_TO_NODE_HPP_ */
+

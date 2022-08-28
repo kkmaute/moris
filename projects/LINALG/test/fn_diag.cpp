@@ -1,10 +1,12 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_diag.cpp
  *
- *  Created on: Sep 12, 2018
- *      Author: doble
  */
-
 
 #include "catch.hpp"
 
@@ -40,7 +42,6 @@ TEST_CASE(
         REQUIRE( v( 2, 0 ) == 9.0 );
     }
 
-
     // Testing the functionality of diag(v) to interpret
     // the vector v as a diagonal matrix.
     SECTION("moris::diagmat" )
@@ -66,3 +67,4 @@ TEST_CASE(
 
 }
 }
+

@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Mesh_DataBase_IP.hpp
  *
- *  Created on: Jan  24, 2022
- *      Author: momo
  */
+
 #ifndef SRC_cl_MTK_Mesh_DataBase_IP
 #define SRC_cl_MTK_Mesh_DataBase_IP
 
@@ -22,7 +26,6 @@ namespace moris
         class Vertex_Interpolation;
         class Vertex;
         class Cell_DataBase;
-
 
         class Interpolation_Mesh_DataBase_IP : public mtk::Interpolation_Mesh
         {
@@ -73,7 +76,7 @@ namespace moris
             moris::Cell< moris_id > mCellOwnerList;
 
             Matrix< IndexMat > mMeshIndices;
-            std::unordered_map<moris_index, moris_index > mGlobalMeshIndexToLocalMeshIndex; 
+            std::unordered_map<moris_index, moris_index > mGlobalMeshIndexToLocalMeshIndex;
 
           public:
             // ----------------------------------------------------------------------------
@@ -162,7 +165,6 @@ namespace moris
 
             virtual mtk::Cell& get_mtk_cell( moris_index aCellIndex ) override;
 
-
             // moris::Cell<mtk::Cell_DataBase> const & get_mtk_cells() const;
 
             // ----------------------------------------------------------------------------
@@ -175,7 +177,6 @@ namespace moris
              */
 
             virtual mtk::Cell const& get_mtk_cell( moris_index aCellIndex ) const override;
-
 
             // ----------------------------------------------------------------------------
 
@@ -219,7 +220,6 @@ namespace moris
              */
             virtual uint
             get_max_num_coeffs_on_proc( uint aDiscretizationIndex ) const override;
-
 
             // /////////////////------------------------------------------------------------
             // Non Used Mesh Function (so far)
@@ -404,7 +404,7 @@ namespace moris
              * @return moris_id* const
              */
 
-            virtual moris_id* 
+            virtual moris_id*
             get_basis_ids( moris_index aVertexIndex, moris_index aOrder ) override;
 
             // -------------------------------------------------------------------------------
@@ -430,7 +430,7 @@ namespace moris
              * @return real* const
              */
 
-            virtual real* 
+            virtual real*
             get_basis_weights( moris_index aVertexIndex, moris_index aOrder ) override;
 
             // -------------------------------------------------------------------------------
@@ -499,12 +499,12 @@ namespace moris
 
             /**
              * @brief Get the local mesh index of a bspline mesh
-             * 
+             *
              * @param aBsplineMeshIndex  global bspline mesh index
              * @return uint local mesh index in the data-base
              */
 
-            virtual uint 
+            virtual uint
             get_local_mesh_index( const uint aBsplineMeshIndex ) override;
 
             // -------------------------------------------------------------------------------
@@ -533,6 +533,5 @@ namespace moris
         };
     }// namespace mtk
 }// namespace moris
-
 
 #endif /* cl_MTK_Mesh_DataBase_IP.hpp */

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * Voxel_Grain_Structure.cpp
+ *
+ */
+
 #include <string>
 #include <iostream>
 
@@ -42,7 +52,6 @@ namespace moris
     moris::real tMinLSvalue = 1.0e-6;
 
     //-----------------------------------------------------------------------------------------------------------------------------------------------------------------
-
 
     std::string tBulk_1       = "";
     std::string tBulk_2       = "";
@@ -146,7 +155,6 @@ namespace moris
     }
 
     //--------------------------------------------------------------------------------------------------------
-
 
     // Constant function for properties
     void
@@ -396,7 +404,6 @@ namespace moris
         // init SP counter
         uint tSPCounter = 0;
 
-
         // create parameter list for stabilization parameter 2
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name", "SPDirichletNitscheT_1" );
@@ -503,7 +510,6 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters", "SPDirichletNitscheT_2,DirichletNitsche" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", tRightBC_2 );
         tIWGCounter++;
-
 
         // create parameter list for IWG 11
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
@@ -612,7 +618,6 @@ namespace moris
             tParameterlist( Ik ).resize( 1 );
         }
 
-
         tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
 
         // tParameterlist( 0 )( 0 ).set("Solver Type", "MINRES" );
@@ -623,7 +628,6 @@ namespace moris
         // tParameterlist( 0 )( 0 ).set("ifpack_prec_type", "ILUT" );
         // tParameterlist( 0 )( 0 ).set("fact: drop tolerance",  1e-10 );
         // tParameterlist( 0 )( 0 ).set("fact: ilut level-of-fill",  25.0 );
-
 
         tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
 
@@ -712,3 +716,4 @@ tParameterlist( 5 )(0).set("TSA_Output_Crteria" , std::string("Output_Criterion"
 #ifdef __cplusplus
 }
 #endif
+

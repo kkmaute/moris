@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # Containers Source --------------------------------------------------------------
 # -------------------------------------------------------------------------
 
@@ -92,3 +99,4 @@ install(TARGETS ${CON}-lib
 # Export library in to *Targets file
 install(EXPORT ${CON}Targets
     DESTINATION ${${CON}_CONFIG_INSTALL_DIR} )
+

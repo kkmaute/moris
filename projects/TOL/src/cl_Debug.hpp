@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_Debug.hpp
  *
- *  Created on: Apr 10, 2017
- *      Author: gleim
  */
 
 #ifndef SRC_TOOLS_CL_DEBUG_HPP_
@@ -67,6 +70,5 @@ namespace moris
 
 }
 
-
-
 #endif /* SRC_TOOLS_CL_DEBUG_HPP_ */
+

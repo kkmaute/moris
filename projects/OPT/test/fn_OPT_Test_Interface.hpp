@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * fn_OPT_Test_Interface.hpp
+ *
+ */
+
 #ifndef MORIS_FN_OPT_TEST_INTERFACE_HPP
 #define MORIS_FN_OPT_TEST_INTERFACE_HPP
 
@@ -116,3 +126,4 @@ namespace moris
 }
 
 #endif //MORIS_FN_OPT_TEST_INTERFACE_HPP
+

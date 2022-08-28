@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Mapper.hpp
  *
- *  Created on: Oct 30, 2018
- *      Author: messe
  */
 
 #ifndef PROJECTS_MTK_MAP_SRC_CL_MTK_MAPPER_HPP_
@@ -57,7 +60,6 @@ namespace moris
                 mdl::Model   * mModel = nullptr;
 
                 bool mHaveIwgAndModel = false;
-
 
                 //------------------------------------------------------------------------------
             public:
@@ -163,5 +165,5 @@ namespace moris
     } /* namespace mtk */
 } /* namespace moris */
 
-
 #endif /* PROJECTS_MTK_MAP_SRC_CL_MTK_MAPPER_HPP_ */
+

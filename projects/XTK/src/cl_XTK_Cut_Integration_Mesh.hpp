@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_XTK_Cut_Integration_Mesh.hpp
+ *
+ */
+
 #ifndef MORIS_cl_XTK_Cut_Integration_Mesh_HPP_
 #define MORIS_cl_XTK_Cut_Integration_Mesh_HPP_
 
@@ -170,7 +180,7 @@ namespace xtk
     {
             // in: index of facet || out: list of vertices (pointers) living on facet with the inputted index
             moris::Cell< moris::Cell< moris::mtk::Vertex* > > mFacetVertices;            // over allocated
-            
+
             // in: index of facet || out: list of mtk::Cells (pointers) attached to facet with the inputted index
             moris::Cell< moris::Cell< moris::mtk::Cell* > >   mFacetToCell;              // over allocated
 
@@ -179,7 +189,7 @@ namespace xtk
 
             // in: index of mtk::Cell in List || out: list of facet-indices attached to it (facet indices as defined within this Facet_Based_Connectivity-object)
             moris::Cell< moris::Cell< moris_index > >         mCellToFacet;              // over allocated
-            
+
             // map relating Cell index in List to Cell index in Mesh
             std::unordered_map< moris_index, moris_index >    mCellIndexToCellOrdinal;   // over allocated
 
@@ -208,7 +218,7 @@ namespace xtk
             // second index is List of mtk::Cells connected to mtk::Cell with first index (connection through a facet)
 
             // pointers to connected mtk::Cells
-            moris::Cell< std::shared_ptr< moris::Cell< moris::mtk::Cell* > > > mNeighborCells; 
+            moris::Cell< std::shared_ptr< moris::Cell< moris::mtk::Cell* > > > mNeighborCells;
 
             // indices of side ordinals through which the mtk::Cell of first index connects to the mtk::Cells of second indices
             moris::Cell< std::shared_ptr< moris::Cell< moris_index > > >       mMySideOrdinal;
@@ -310,16 +320,16 @@ namespace xtk
     struct Subphase_Neighborhood_Connectivity
     {
         // input: sub-phase index || output: list of sub-phases connected to it
-        moris::Cell< std::shared_ptr< moris::Cell< moris_index > > > mSubphaseToSubPhase;        
+        moris::Cell< std::shared_ptr< moris::Cell< moris_index > > > mSubphaseToSubPhase;
 
         // input: sub-phase index || output: list of facet ordinals belonging to parent cell through which the sub-phases are connected
-        moris::Cell< std::shared_ptr< moris::Cell< moris_index > > > mSubphaseToSubPhaseMySideOrds;      
-        
+        moris::Cell< std::shared_ptr< moris::Cell< moris_index > > > mSubphaseToSubPhaseMySideOrds;
+
         // input: sub-phase index || output: list of facet ordinals belonging to parent cell of the neighboring sub-phase through which the sub-phases are connected
         moris::Cell< std::shared_ptr< moris::Cell< moris_index > > > mSubphaseToSubPhaseNeighborSideOrds;
-        
+
         // input: sub-phase index || output: // TODO: some info needed when having a refinement boundary
-        moris::Cell< std::shared_ptr< moris::Cell< moris_index > > > mTransitionNeighborCellLocation;    
+        moris::Cell< std::shared_ptr< moris::Cell< moris_index > > > mTransitionNeighborCellLocation;
 
         void
         print_subphase_neighborhood()
@@ -435,7 +445,7 @@ namespace xtk
             // Lagrange Mesh B-Spline Mesh relation
             moris::Cell< Bspline_Mesh_Info * > mBsplineMeshInfos;
 
-            // subphase groupings 
+            // subphase groupings
             moris::Cell< moris_index >                      mSubPhaseIds;           // input: sub-phase index || output: global sub-phase ID
             moris::Cell< std::shared_ptr< IG_Cell_Group > > mSubPhaseCellGroups;    // input: sub-phase index || output: pointer to IG-Cell group on which subphase lives
             moris::Cell< moris::moris_index >               mSubPhaseBulkPhase;     // input: sub-phase index || output: index of bulk-phase (i.e. material phase)
@@ -760,7 +770,7 @@ namespace xtk
 
             /**
              * @brief allocate new IDs for Subphases globally across all procs
-             * 
+             *
              * @param aNumIdstoAllocate number of Subphase IDs the current processor would like to allocate
              * @return moris_id first ID of the range of IDs that gets assigned to the current processor's Subphases
              */
@@ -794,7 +804,7 @@ namespace xtk
 
             // ----------------------------------------------------------------------------------
 
-            enum CellTopology 
+            enum CellTopology
             get_child_element_topology();
             void
 
@@ -842,8 +852,8 @@ namespace xtk
             // ----------------------------------------------------------------------------------
 
             const moris::Cell< moris_index > &
-            get_ig_cells_in_SPG( 
-                    moris_index aMeshIndexInList, 
+            get_ig_cells_in_SPG(
+                    moris_index aMeshIndexInList,
                     moris_index aSubphaseGroupIndex );
 
             // ----------------------------------------------------------------------------------
@@ -1192,3 +1202,4 @@ namespace xtk
 }// namespace xtk
 
 #endif
+

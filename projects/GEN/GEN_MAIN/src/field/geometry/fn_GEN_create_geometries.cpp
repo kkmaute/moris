@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * fn_GEN_create_geometries.cpp
+ *
+ */
+
 #include "fn_GEN_create_geometries.hpp"
 #include "st_GEN_Geometry_Parameters.hpp"
 #include "fn_Parsing_Tools.hpp"
@@ -431,3 +441,4 @@ namespace moris
 
     }    // namespace ge
 }    // namespace moris
+

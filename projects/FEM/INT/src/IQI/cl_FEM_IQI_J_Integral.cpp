@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_IQI_J_Integral.cpp
  *
- *  Created on: Feb 11, 2020
- *      Author: sonne
  */
+
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IQI_J_Integral.hpp"
@@ -22,7 +26,7 @@ namespace moris
             // populate the constitutive map
             mConstitutiveMap[ "ElastLinIso" ] = static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO );
         }
-        
+
         //------------------------------------------------------------------------------
 
         void IQI_J_Integral::compute_QI( Matrix< DDRMat > & aQI )

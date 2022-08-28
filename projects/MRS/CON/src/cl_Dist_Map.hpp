@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_Dist_Map.hpp
+ *
+ */
+
 //#ifndef SRC_CONTAINERS_CL_DIST_MAP_HPP_
 //#define SRC_CONTAINERS_CL_DIST_MAP_HPP_
 //
@@ -186,3 +196,4 @@
 //}// namespace moris
 //
 //#endif /* SRC_CONTAINERS_CL_DIST_MAP_HPP_ */
+

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_OPT_Problem_User_Defined.cpp
+ *
+ */
+
 #include "cl_OPT_Problem_User_Defined.hpp"
 
 namespace moris

@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_TOL_Memory_Map.cpp
+ *
+ */
 
 #include "cl_TOL_Memory_Map.hpp"
 #include <iostream>
@@ -10,9 +19,9 @@ namespace moris
     Memory_Map::Memory_Map()
     {
     }
-    
+
     // ----------------------------------------------------------------------------------
- 
+
     Memory_Map::Memory_Map(Cell<std::string> const & aKeys,
                            Matrix<DDSTMat>   const & aVals)
     {
@@ -25,7 +34,7 @@ namespace moris
     }
 
     // ----------------------------------------------------------------------------------
- 
+
     Memory_Map::~Memory_Map()
     {
     }
@@ -73,7 +82,7 @@ namespace moris
                       << " | "
                       << std::right
                       << std::setw(15)
-                      << tTotal/ (1000) 
+                      << tTotal/ (1000)
                       << " KiB | "
                       << std::setw(12)
                       << tTotalPercent
@@ -106,7 +115,7 @@ namespace moris
                 tFullMM = tFullMM + tGatheredMM(i);
             }
             moris::real tTotalPercent = 0.0;
-        
+
             // print the full map
             tFullMM.print(aTitle);
 
@@ -153,7 +162,6 @@ namespace moris
         Memory_Map tCombinedMap;
         tCombinedMap.mMemoryMapData = mMemoryMapData;
 
-
         for (auto it = aMemMapB.mMemoryMapData.begin(); it != aMemMapB.mMemoryMapData.end(); it++)
         {
             if(tCombinedMap.mMemoryMapData.find(it->first) == tCombinedMap.mMemoryMapData.end())
@@ -167,7 +175,7 @@ namespace moris
     }
 
     // ----------------------------------------------------------------------------------
- 
+
     size_t
     Memory_Map::sum( )
     {
@@ -184,7 +192,7 @@ namespace moris
 
     void
     Memory_Map::gather_all(Cell<Memory_Map> & aGatheredMemMap)
-    {   
+    {
         // serialize my map as a cell of keys (str) and a cell of size_t (mem)
         Cell<std::string> tKeyCell;
         Matrix<DDSTMat>   tVals;
@@ -241,3 +249,4 @@ namespace moris
     }
 
 } // namespace moris
+

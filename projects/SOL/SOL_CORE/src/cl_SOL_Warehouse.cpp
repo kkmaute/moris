@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_SOL_Warehouse.cpp
  *
- *  Created on: Jan 21, 2019
- *      Author: schmidt
  */
 
 #include <functional>
@@ -595,3 +598,4 @@ SOL_Warehouse::get_default_secundary_dof_types(
 // }
 
 //---------------------------------------------------------------------------------------------------------------------
+

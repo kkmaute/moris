@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # -------------------------------------------------------------------------
 # Linear algebra library fixing -------------------------------------------
 # -------------------------------------------------------------------------
@@ -50,3 +57,4 @@ if(MORIS_USE_MKL)
         MORIS_T_LIBS
         "${MORIS_T_LIBS}" )
 endif()
+

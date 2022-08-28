@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_HMR_Background_Edge.cpp
+ *
+ */
+
 #include "cl_HMR_Background_Edge.hpp"
 
 #include "cl_HMR_Background_Element_Base.hpp"
@@ -70,3 +80,4 @@ namespace moris
 //-------------------------------------------------------------------------------
     } /* namespace hmr */
 } /* namespace moris */
+

@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_Stabilization_Parameter.cpp
  *
- *  Created on: Dec 5, 2019
- *      Author: noel
  */
 
 #include "cl_FEM_Stabilization_Parameter.hpp"
@@ -1213,7 +1216,6 @@ namespace moris
                 mGlobalDvBuild = false;
             }
 
-
             // switch on master/slave
             switch( aIsMaster )
             {
@@ -1915,5 +1917,4 @@ namespace moris
         //------------------------------------------------------------------------------
     }/*end_fem_namespace */
 }/*end_moris_namespace */
-
 

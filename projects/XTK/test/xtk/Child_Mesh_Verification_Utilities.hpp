@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * Child_Mesh_Verification_Utilities.hpp
  *
- *  Created on: Mar 20, 2019
- *      Author: doble
  */
 
 #ifndef PROJECTS_XTK_TEST_XTK_CHILD_MESH_VERIFICATION_UTILITIES_HPP_
@@ -32,7 +35,6 @@ node_is_on_face(Matrix<DDRMat> const & aFaceCoords,
     moris::real tYLow  = tFaceYCoords.min();
    moris:: real tZHigh = tFaceZCoords.max();
     moris::real tZLow  = tFaceZCoords.min();
-
 
     // check x coordinate of node is within bounding box
     bool tXInBox = false;
@@ -71,7 +73,6 @@ node_is_on_face(Matrix<DDRMat> const & aFaceCoords,
     return (tXInBox && tYInBox && tZInBox);
 }
 
-
 void
 verify_child_mesh_ancestry(Background_Mesh const & aBackgroundMeshData,
                            Cut_Mesh const &  tCutMesh)
@@ -106,7 +107,6 @@ verify_child_mesh_ancestry(Background_Mesh const & aBackgroundMeshData,
                 Row_View_Real const & tEdgeNodeCoord0 = tNodeCoordinates.get_row(tEdgeToNode(i,0));
                 Row_View_Real const & tEdgeNodeCoord1 = tNodeCoordinates.get_row(tEdgeToNode(i,1));
 
-
                 CHECK((node_is_on_face(tFaceNodeCoords,tEdgeNodeCoord0) && node_is_on_face(tFaceNodeCoords,tEdgeNodeCoord1)));
 
             }
@@ -115,5 +115,5 @@ verify_child_mesh_ancestry(Background_Mesh const & aBackgroundMeshData,
 }
 }
 
-
 #endif /* PROJECTS_XTK_TEST_XTK_CHILD_MESH_VERIFICATION_UTILITIES_HPP_ */
+

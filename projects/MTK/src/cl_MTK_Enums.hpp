@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Enums.hpp
  *
- *  Created on: Jul 25, 2018
- *      Author: messe
  */
 
 #ifndef SRC_MESH_CL_MTK_ENUMS_HPP_
@@ -181,3 +184,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_MESH_CL_MTK_ENUMS_HPP_ */
+

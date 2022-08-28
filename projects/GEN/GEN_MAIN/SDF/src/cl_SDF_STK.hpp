@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_SDF_STK.hpp
  *
- *  Created on: Oct 16, 2018
- *      Author: messe
  */
 
 #ifndef PROJECTS_GEN_SDF_SRC_CL_SDF_STK_HPP_
@@ -91,6 +94,5 @@ namespace moris
     }
 }
 
-
-
 #endif /* PROJECTS_GEN_SDF_SRC_CL_SDF_STK_HPP_ */
+

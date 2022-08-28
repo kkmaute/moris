@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_FEM_IWG_Diffusion_Robin_Nitsche.cpp
+ *
+ */
+
 #include <string>
 #include <catch.hpp>
 #include "assert.hpp"
@@ -427,7 +437,6 @@ TEST_CASE( "IWG_Diff_Robin_Geo_Prop", "[moris],[fem],[IWG_Diff_Robin_Geo_Prop]" 
     tIWG->set_property( tPropMasterDirichlet, "Dirichlet" );
     tIWG->set_property( tPropMasterNemannPen, "NeumannPenalty" );
 
-
     // set the normal
     //------------------------------------------------------------------------------
     Matrix< DDRMat > tNormal = { { 1.0 }, { 0.0 }, { 0.0 } };
@@ -557,3 +566,4 @@ TEST_CASE( "IWG_Diff_Robin_Geo_Prop", "[moris],[fem],[IWG_Diff_Robin_Geo_Prop]" 
     tFIs.clear();
 
 } /* END_TEST_CASE */
+

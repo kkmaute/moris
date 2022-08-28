@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 ### algorithms Library Config File ###
 
 # CMake configuration
@@ -8,3 +15,4 @@ set_and_check(@ALGORITHMS@_INCLUDE_DIR @PACKAGE_LIB_INSTALL_DIR@)
 
 # Create library target
 include(@ALGORITHMS@Targets.cmake)
+

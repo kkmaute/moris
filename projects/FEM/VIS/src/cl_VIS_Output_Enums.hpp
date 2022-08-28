@@ -1,9 +1,13 @@
 /*
- * cl_VIS_Enums.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Dec 10, 2019
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * cl_VIS_Output_Enums.hpp
+ *
  */
+
 #ifndef SRC_CL_VIS_ENUMS_HPP_
 #define SRC_CL_VIS_ENUMS_HPP_
 
@@ -50,3 +54,4 @@ namespace vis
 }
 
 #endif /* SRC_CL_VIS_ENUMS_HPP_ */
+

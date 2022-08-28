@@ -1,8 +1,11 @@
 /*
- * cl_Equation_Object_Pdv.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jul 14, 2018
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * UT_Equation_Object_Pdv.cpp
+ *
  */
 
 #include "catch.hpp"
@@ -426,5 +429,4 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
 
 }/* end_namespace_msi */
 }/* end_namespace_moris */
-
 

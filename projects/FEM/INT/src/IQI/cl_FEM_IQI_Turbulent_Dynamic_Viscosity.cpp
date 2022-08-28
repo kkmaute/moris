@@ -1,9 +1,13 @@
 /*
- * cl_FEM_IQI_Turbulent_Kinematic_Viscosity.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jul 20, 2020
- *      Author: noel
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_IQI_Turbulent_Dynamic_Viscosity.cpp
+ *
  */
+
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IQI_Turbulent_Dynamic_Viscosity.hpp"
@@ -27,7 +31,7 @@ namespace moris
             mConstitutiveMap[ "Fluid_Turbulence" ] =
                     static_cast< uint >( IQI_Constitutive_Type::FLUID_TURBULENCE );
         }
-        
+
         //------------------------------------------------------------------------------
 
         void IQI_Turbulent_Dynamic_Viscosity::compute_QI( Matrix< DDRMat > & aQI )
@@ -39,7 +43,7 @@ namespace moris
             // compute turbulent dynamic viscosity
             aQI = tCMFluidTurbulence->turbulent_dynamic_viscosity();
         }
-        
+
         //------------------------------------------------------------------------------
 
         void IQI_Turbulent_Dynamic_Viscosity::compute_QI( real aWStar )
@@ -57,6 +61,4 @@ namespace moris
         //------------------------------------------------------------------------------
     }/* end_namespace_fem */
 }/* end_namespace_moris */
-
-
 

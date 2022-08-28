@@ -1,9 +1,13 @@
 /*
- * cl_TSA_Time_Solver_Test.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jan 21, 2018
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * cl_TSA_Time_Solver_Staggered_Tests.cpp
+ *
  */
+
 #include "catch.hpp"
 #include "fn_equal_to.hpp"
 #include "typedefs.hpp"

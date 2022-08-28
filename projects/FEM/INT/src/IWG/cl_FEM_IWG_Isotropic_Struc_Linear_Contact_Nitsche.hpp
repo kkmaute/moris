@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Nitsche.hpp
  *
- *  Created on: Feb 18, 2020
- *      Author: ritzert
  */
 
 #ifndef PROJECTS_FEM_INT_SRC_CL_FEM_IWG_ISOTROPIC_STRUC_LINEAR_CONTACT_NITSCHE_HPP_
@@ -100,3 +103,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* PROJECTS_FEM_INT_SRC_CL_FEM_IWG_ISOTROPIC_STRUC_LINEAR_CONTACT_NITSCHE_HPP_ */
+

@@ -1,13 +1,14 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Side_Cluster_ISC_Impl.cpp
  *
- *  Created on: Jun 22, 2021
- *      Author: momo
  */
 
-
 #include "cl_MTK_Side_Cluster_ISC_Impl.hpp"
-
 
 namespace moris
 {
@@ -140,8 +141,6 @@ namespace moris
             return this->get_vertex_cluster_local_index(aVertex->get_id());
         }
 
-
-
         //----------------------------------------------------------------
 
         moris_index
@@ -208,8 +207,6 @@ namespace moris
             MORIS_ERROR(mVertexIdToLocalIndex.find(aVertexId) == mVertexIdToLocalIndex.end(),"Trying to add vertex already found in side cluster");
             mVertexIdToLocalIndex[aVertexId] = aVertexLocalIndex;
         }
-
-
 
     } /*namespace mtk */
 } /*namespace moris */

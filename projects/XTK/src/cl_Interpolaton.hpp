@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_Interpolaton.hpp
  *
- *  Created on: Jun 21, 2017
- *      Author: ktdoble
  */
 
 #ifndef SRC_TOOLS_CL_INTERPOLATON_HPP_
@@ -57,8 +60,6 @@ public:
 
         return tInterpolationResult;
     }
-
-
 
     /**
      *Find a location given a value
@@ -140,10 +141,8 @@ public:
         }
     }
 
-
-
 };
 }
 
-
 #endif /* SRC_TOOLS_CL_INTERPOLATON_HPP_ */
+

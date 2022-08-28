@@ -1,8 +1,11 @@
 /*
- * cl_Element.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: May 24, 2018
- *      Author: messe
+ *------------------------------------------------------------------------------------
+ *
+ * cl_HMR_Element.hpp
+ *
  */
 
 #ifndef SRC_HMR_CL_HMR_ELEMENT_HPP_
@@ -84,7 +87,6 @@ namespace moris
             {
                 return mElement->get_owner();
             }
-
 
 //------------------------------------------------------------------------------
 
@@ -273,7 +275,6 @@ namespace moris
                 return mElement->is_padding();
             }
 
-
             /**
              * for debugging
              *
@@ -282,7 +283,6 @@ namespace moris
             virtual void print_connectivity() = 0;
 
 //------------------------------------------------------------------------------
-
 
             /**
              * get pointer to node
@@ -430,7 +430,6 @@ namespace moris
             virtual void get_ijk_of_basis( const uint  & aBasisNumber,
                                                  luint * aIJK ) = 0;
 
-
 //------------------------------------------------------------------------------
 
             /**
@@ -444,7 +443,6 @@ namespace moris
             {
                 MORIS_ERROR( false, "Link basis with neighbors not available for this element.");
             }
-
 
 //------------------------------------------------------------------------------
 
@@ -475,8 +473,6 @@ namespace moris
                 MORIS_ERROR( false, "get_vertex_pointers() not available for this element.");
                 return moris::Cell< mtk::Vertex* >( 0 );
             }
-
-
 
 //------------------------------------------------------------------------------
 
@@ -609,3 +605,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_HMR_CL_HMR_ELEMENT_HPP_ */
+

@@ -1,16 +1,19 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_reshape.cpp
  *
- *  Created on: Sep 6, 2018
- *      Author: sonne
  */
+
 #include <catch.hpp>
 #include "fn_equal_to.hpp" // ALG/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "typedefs.hpp"
 #include "fn_reshape.hpp"
-
 
 namespace moris
 {

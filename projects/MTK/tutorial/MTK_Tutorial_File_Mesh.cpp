@@ -1,10 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * MTK_Tutorial_File_Mesh.cpp
  *
- *  Created on: Oct 23, 2018
- *      Author: doble
  */
-// MORIS header files.
+
 #include "cl_Communication_Manager.hpp" // COM/src
 #include "cl_Communication_Tools.hpp"
 #include "cl_Logger.hpp" // MRS/IOS/src
@@ -19,7 +22,6 @@ moris::Logger       gLogger;
 #include "cl_MTK_Mesh.hpp" // MTK/src
 #include "cl_MTK_Mesh_Data_Input.hpp"
 #include "cl_MTK_Mesh_Factory.hpp"
-
 
 // Set namespaces to use
 using namespace moris;
@@ -43,7 +45,6 @@ main( int    argc,
 
     // Assert this is a serial tutorial
     MORIS_ASSERT(par_size() == 1,"MTK_Tutorial_Data_Mesh.cpp is only a serial test");
-
 
     /* @brief
      * The goal of this tutorial is to load an exodus file with all field
@@ -83,9 +84,5 @@ main( int    argc,
      */
     moris::mtk::Mesh* tBackgroundMesh = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName, NULL );
 
-
-
 }
-
-
 

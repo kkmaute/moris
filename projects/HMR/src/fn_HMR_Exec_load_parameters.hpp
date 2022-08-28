@@ -1,8 +1,11 @@
 /*
- * fm_HMR_EXEC_load_parameters.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Nov 12, 2018
- *      Author: messe
+ *------------------------------------------------------------------------------------
+ *
+ * fn_HMR_Exec_load_parameters.hpp
+ *
  */
 
 #ifndef PROJECTS_HMR_SRC_FN_HMR_EXEC_LOAD_PARAMETERS_HPP_
@@ -161,7 +164,6 @@ namespace moris
             // get number of fields from parser
             uint tNumberOfFields = tParser.count_keys_in_subtree( "moris.hmr", "field" );
 
-
             aFieldParams.resize( tNumberOfFields, tParams );
 
             // loop over all fields
@@ -228,5 +230,5 @@ namespace moris
     } /* namespace hmr */
 } /* namespace moris */
 
-
 #endif /* PROJECTS_HMR_SRC_FN_HMR_EXEC_LOAD_PARAMETERS_HPP_ */
+

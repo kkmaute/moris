@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * UT_MDL_XTK_DiffusionElement.cpp
  *
- *  Created on: Jun 18, 2019
- *      Author: doble
  */
 
 #include "catch.hpp"
@@ -75,7 +78,6 @@
 
 #include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Plane.hpp"
-
 
 namespace moris
 {
@@ -344,3 +346,4 @@ namespace moris
         }
     }
 }
+

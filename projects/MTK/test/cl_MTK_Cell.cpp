@@ -1,10 +1,12 @@
-        /*
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Cell.cpp
  *
- *  Created on: Sep 17, 2018
- *      Author: doble
  */
-
 
 #include "catch.hpp"
 #include "cl_Communication_Tools.hpp"
@@ -101,7 +103,6 @@ TEST_CASE("MTK Cell","[MTK],[MTK_CELL]")
             REQUIRE(all_true(tGoldVertCoords == tCell.get_vertex_coords()));
         }
 
-
         // Gold Normals
         moris::Cell<moris::Matrix<moris::DDRMat>> tGoldNormals(6);
         tGoldNormals(0) = {{+0.000000000000000e+00},
@@ -147,7 +148,6 @@ TEST_CASE("MTK Cell","[MTK],[MTK_CELL]")
         std::string tFileOutput = "./mtk_hex_cell_ut.exo";
         tMesh1.create_output_mesh(tFileOutput);
 
-
         // Delete because vertices were created with new call
         for (auto iT : tElementVertices)
         {
@@ -185,8 +185,6 @@ TEST_CASE("MTK Cell Tet","[MTK],[MTK_CELL_TET]")
         aMeshData.LocaltoGlobalElemMap(0) = &aElemLocaltoGlobal;
 
         Mesh* tMesh1  = create_interpolation_mesh( MeshType::STK, aMeshData );
-
-
 
         // Setup Node Vertices (note: this data structure will be in the STK_Implementation
         moris::Cell<Vertex*> tElementVertices;
@@ -240,7 +238,6 @@ TEST_CASE("MTK Cell Tet","[MTK],[MTK_CELL_TET]")
                            {+0.000000000000000e+00},
                            {-1.000000000000000e+00}};
 
-
         // Check normals
         // iterate through sides and verify normal
         for(moris::uint i = 0; i < tNumSides ; i ++)
@@ -254,14 +251,12 @@ TEST_CASE("MTK Cell Tet","[MTK],[MTK_CELL_TET]")
         std::string tFileOutput = "./mtk_tet_cell_ut.exo";
         tMesh1->create_output_mesh(tFileOutput);
 
-
         // Delete because vertices were created with new call
         for (auto iT : tElementVertices)
         {
           delete iT;
         }
         tElementVertices.clear();
-
 
         delete tMesh1;
 
@@ -270,3 +265,4 @@ TEST_CASE("MTK Cell Tet","[MTK],[MTK_CELL_TET]")
 
 }
 }
+

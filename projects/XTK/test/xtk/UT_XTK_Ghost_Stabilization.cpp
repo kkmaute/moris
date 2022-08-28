@@ -1,10 +1,13 @@
-///*
-// * UT_XTK_Ghost_Stabilization.cpp
-// *
-// *  Created on: Mar 26, 2019
-// *      Author: doble
-// */
-//
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_XTK_Ghost_Stabilization.cpp
+ *
+ */
+
 //#include "catch.hpp"
 //
 //#include "cl_XTK_Model.hpp"
@@ -68,3 +71,4 @@
 //
 //}
 //}
+

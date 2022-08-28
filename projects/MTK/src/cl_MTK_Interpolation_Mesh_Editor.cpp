@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Interpolation_Mesh_Editor.cpp
+ *
+ */
+
 #include "cl_MTK_Interpolation_Mesh_Editor.hpp"
 #include "cl_MTK_Mesh_DataBase_IP.hpp"
 #include "cl_Tracer.hpp"
@@ -215,14 +225,12 @@ namespace moris::mtk
 
     // ----------------------------------------------------------------------------
 
-
     // ----------------------------------------------------------------------------
 
     moris::Memory_Map
     Interpolation_Mesh_Editor::get_memory_usage()
     {
         moris::Memory_Map tMemoryMap;
-
 
         return tMemoryMap;
     }
@@ -338,7 +346,6 @@ namespace moris::mtk
         mtk::Cell_Info_Factory tFactory;
         mOutputMesh->mCellInfo = tFactory.create_cell_info_sp( tCell.get_geometry_type(), tCell.get_interpolation_order() );
 
-
         // reserve enough space for cells
         mOutputMesh->mCells.reserve( mIPMeshInfo->mNumCells );
         mOutputMesh->mCellIdList.reserve( mIPMeshInfo->mNumCells );
@@ -357,7 +364,6 @@ namespace moris::mtk
             mOutputMesh->mCellOwnerList.push_back( mInputMesh.get_mtk_cell( iCell ).get_owner() );
         }
     }
-
 
     void
     Interpolation_Mesh_Editor::create_communication_table()
@@ -454,7 +460,6 @@ namespace moris::mtk
             mIPMeshInfo->mVertices.begin(),
             []( Vertex_DataBase a, mtk::Vertex const* b ) -> bool { return a.get_id() == b->get_id() and a.get_index() == b->get_index(); } );
 
-
         // check if old vertices and new vertices have the same coords
         bool tEqualCoords = std::equal( mOutputMesh->mVertices.begin(),
             mOutputMesh->mVertices.end(),
@@ -465,7 +470,6 @@ namespace moris::mtk
 
         return ( tEqualCoords and tVertexIdAndIndexEqual );
     }
-
 
     //--------------------------------------------------------------------------------------------------------------
 
@@ -575,3 +579,4 @@ namespace moris::mtk
         MORIS_ASSERT( this->check_cells(), " Cells are not matching" );
     }
 }// namespace moris::mtk
+

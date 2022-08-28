@@ -1,11 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_IWG_Compressible_NS_Bulk.hpp
  *
- *  Created on: Feb 10, 2021
- *      Author: wunsch
- *
- * IWG for unified NS equations using flux matrices
- * operating on all residual DoF types simultaneously
  */
 
 #ifndef SRC_FEM_CL_FEM_IWG_COMPRESSIBLE_NS_BULK_HPP_
@@ -41,7 +41,7 @@ namespace moris
                 // evaluation flag for the variable mapping operator
                 bool mA0invEval = true;
                 bool mdA0invdYEval = true;
-                
+
                 // evaluation flag for G-operator
                 bool mGEval = true;
 
@@ -52,7 +52,7 @@ namespace moris
                 bool mdMdYEval = true;
 
                 // evaluation flag for GLS stabilization operator
-                bool mTauEval = true; 
+                bool mTauEval = true;
 
                 // storage for L-operators
                 Matrix< DDRMat > mLY;
@@ -77,7 +77,7 @@ namespace moris
 
                 // storage for the GLS stabiliation operator
                 Matrix< DDRMat > mTau;
-                Matrix< DDRMat > mdTaudY; 
+                Matrix< DDRMat > mdTaudY;
 
                 //------------------------------------------------------------------------------
 
@@ -141,7 +141,7 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * compute the L-operator (Navier-Stokes-Operator) 
+                 * compute the L-operator (Navier-Stokes-Operator)
                  * applied to the state variable vector Y
                  * @param[ out ] mLY  L-operator applied to Y-vector
                  */
@@ -149,7 +149,7 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * compute the dof derivative of the L-operator (Navier-Stokes-Operator) 
+                 * compute the dof derivative of the L-operator (Navier-Stokes-Operator)
                  * applied to the state variable vector Y
                  * @param[ out ] mdLdDofY  dof deriv of L-operator applied to Y-vector
                  */
@@ -157,7 +157,7 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * compute the L-operator (Navier-Stokes-Operator) 
+                 * compute the L-operator (Navier-Stokes-Operator)
                  * applied to the test functions (matrix W)
                  * @param[ out ] mLW  L-operator applied to W-matrix
                  */
@@ -165,7 +165,7 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * compute the dof derivative of the L-operator (Navier-Stokes-Operator) 
+                 * compute the dof derivative of the L-operator (Navier-Stokes-Operator)
                  * applied to the test functions (matrix W)
                  * @param[ in ]  aVL       pre-multiplication vector applied from the left
                  * @param[ out ] mdLdDofW  dof deriv of L-operator applied to W-matrix
@@ -174,7 +174,7 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * compute the transpose of the L-operator (Navier-Stokes-Operator) 
+                 * compute the transpose of the L-operator (Navier-Stokes-Operator)
                  * applied to the test functions (matrix W)
                  * @param[ out ] mGLSTestFunc  transpose of ( the transpose of the L-operator applied to the W-matrix )
                  */
@@ -182,7 +182,7 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * compute the dof derivative of the L-operator (Navier-Stokes-Operator) 
+                 * compute the dof derivative of the L-operator (Navier-Stokes-Operator)
                  * applied to the test functions (matrix W)
                  * @param[ in ]  aVR                pre-multiplication vector applied from the right
                  * @param[ out ] mdGLSTestFuncdDof  dof deriv of transpose of ( the transpose of the L-operator applied to the W-matrix )
@@ -223,7 +223,7 @@ namespace moris
                  * @param[ out ] mSqrtMinv  square root of the inverse of the M operator
                  */
                 const Matrix< DDRMat > & SqrtMinv();
-                
+
                 //------------------------------------------------------------------------------
                 /**
                  * get the stabilization operator
@@ -269,3 +269,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_FEM_CL_FEM_IWG_COMPRESSIBLE_NS_VELOCITY_BULK_HPP_ */
+

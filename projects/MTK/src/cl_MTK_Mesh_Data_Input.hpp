@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Mesh_Data_Input.hpp
  *
- *  Created on: Sep 17, 2018
- *      Author: doble
  */
 
 #ifndef PROJECTS_MTK_SRC_CL_MTK_MESH_DATA_INPUT_HPP_
@@ -17,7 +20,6 @@
 #include "cl_MTK_Double_Side_Cluster_Input.hpp"
 
 #include <iomanip>      // std::setw
-
 
 namespace moris
 {
@@ -123,8 +125,6 @@ namespace mtk
             }
             return tNumElements;
         }
-
-
 
         /*
          * Get the number of nodes
@@ -336,3 +336,4 @@ namespace mtk
 }
 
 #endif /* PROJECTS_MTK_SRC_CL_MTK_MESH_DATA_INPUT_HPP_ */
+

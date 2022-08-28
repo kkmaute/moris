@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 set(EXAMPLE_MAIN Main_Level_Set_Beam_SIMP_Hole_Seeding)
 set(EXAMPLE_FILES Level_Set_Beam_SIMP_Hole_Seeding )
 set(EXAMPLE_PROCS 1 4)
@@ -94,3 +101,4 @@ if(MORIS_HAVE_PARALLEL_TESTS)
         WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
     endforeach()
 endif()
+

@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_DLA_Preconditioner_Trilinos.cpp
  *
- *  Created on: Feb 06, 2020
- *      Author: schmidt
  */
+
 #include "cl_DLA_Preconditioner_Trilinos.hpp"
 #include "cl_DLA_Linear_Problem.hpp"
 #include "cl_SOL_Dist_Vector.hpp"
@@ -474,3 +478,4 @@ moris::sint Preconditioner_Trilinos::compute_ml_preconditioner( bool tRecompute 
 }
 
 //-------------------------------------------------------------------------------
+

@@ -1,8 +1,11 @@
 /*
- * cl_HMR_Base.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: May 7, 2018
- *      Author: messe
+ *------------------------------------------------------------------------------------
+ *
+ * cl_HMR_Background_Mesh_Base.hpp
+ *
  */
 
 #ifndef SRC_HMR_CL_HMR_BACKGROUND_MESH_BASE_HPP_
@@ -15,8 +18,6 @@
 #include "typedefs.hpp" //COR/src
 #include "cl_Matrix.hpp" //LINALG/src
 #include "linalg_typedefs.hpp" //LINALG/src
-
-
 
 namespace moris
 {
@@ -794,7 +795,6 @@ namespace moris
                  */
                 virtual Matrix< DDRMat > get_domain_offset() = 0;
 
-
                 //--------------------------------------------------------------------------------
 
                 /**
@@ -1327,3 +1327,4 @@ namespace moris
     } /* namespace hmr */
 } /* namespace moris */
 #endif /* SRC_HMR_CL_HMR_BACKGROUND_MESH_BASE_HPP_ */
+

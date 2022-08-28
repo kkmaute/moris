@@ -1,8 +1,11 @@
 /*
- * cl_XTK_Hexahedron_8.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jul 17, 2017
- *      Author: ktdoble
+ *------------------------------------------------------------------------------------
+ *
+ * cl_GEN_Hexahedron_8_Topology.hpp
+ *
  */
 
 #ifndef PROJECTS_GEN_SRC_NEW_ADDITIONAL_CL_GEN_HEXAHEDRON_8_TOPOLOGY_HPP_
@@ -64,7 +67,6 @@ public:
         mNodeIndices(7) = aNodeIndices(7);
     }
 
-
     std::shared_ptr<Topology> copy() const
     {
         std::shared_ptr<Topology> tTopologyCopy;
@@ -75,10 +77,9 @@ private:
     moris::Matrix< moris::IndexMat > mNodeIndices;
     Hexahedron_8_Basis_Function mBasisFunction;
 
-
 };
 }
 }
 
-
 #endif /* PROJECTS_GEN_SRC_NEW_ADDITIONAL_CL_GEN_HEXAHEDRON_8_TOPOLOGY_HPP_ */
+

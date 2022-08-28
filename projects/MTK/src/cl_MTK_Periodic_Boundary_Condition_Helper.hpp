@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Periodic_Boundary_Condition_Helper.hpp
  *
- *  Created on: Mar 24, 2021
- *      Author: Mohammad
  */
 
 #ifndef PROJECTS_MTK_SRC_CL_MTK_PERIODIC_BOUNDARY_CONDITION_HELPER_HPP_

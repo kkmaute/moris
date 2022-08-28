@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_prune_element_to_element.hpp
  *
- *  Created on: May 16, 2018
- *      Author: doble
  */
 
 #ifndef SRC_XTK_FN_PRUNE_ELEMENT_TO_ELEMENT_HPP_
@@ -17,7 +20,6 @@
 
 // Unordered Map Include
 #include <unordered_map>
-
 
 namespace xtk
 {
@@ -77,7 +79,5 @@ prune_element_to_element(moris::Matrix< moris::IndexMat > const & aElementToElem
 
 }
 
-
-
-
 #endif /* SRC_XTK_FN_PRUNE_ELEMENT_TO_ELEMENT_HPP_ */
+

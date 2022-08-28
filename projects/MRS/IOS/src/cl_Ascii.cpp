@@ -1,6 +1,15 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_Ascii.cpp
+ *
+ */
+
 #include <fstream>
 #include <iostream>
-
 
 #include "cl_Ascii.hpp"
 #include "assert.hpp"
@@ -185,3 +194,4 @@ namespace moris
     //------------------------------------------------------------------------------
 
 }
+

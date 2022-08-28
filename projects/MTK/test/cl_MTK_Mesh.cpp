@@ -1,8 +1,11 @@
 /*
- * cl_Mesh.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Sep 17, 2018
- *      Author: doble
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Mesh.cpp
+ *
  */
 
 #include "catch.hpp"
@@ -91,7 +94,6 @@ TEST_CASE("Reading 3D mesh from ExodusII file", "[moris],[mesh],[cl_Mesh],[Mesh]
 
             delete Mesh1;
 
-
     }
 }
 TEST_CASE( "Creating 8x8x8 3D mesh generated from a string","[MTK_MESH_1]")
@@ -168,7 +170,6 @@ TEST_CASE( "Creating 8x8x8 3D mesh generated from a string","[MTK_MESH_1]")
         moris_id edgeID = 25;
         moris_id edgeIND = tMesh3D_HEXs->get_loc_entity_ind_from_entity_glb_id(edgeID,EntityRank::EDGE);
 
-
         // Initialize and fill cells to store IDs of elements and faces connected to current edge (edgeID = 25)
         Matrix< IdMat > elementsConnectedToEdge = tMesh3D_HEXs->get_elements_connected_to_edge_glob_ids(edgeID);
         Matrix< IdMat > facesConnectedToEdge    = tMesh3D_HEXs->get_faces_connected_to_edge_glob_ids(edgeID);
@@ -228,7 +229,6 @@ TEST_CASE( "Creating 8x8x8 3D mesh generated from a string","[MTK_MESH_1]")
         moris_id elementID = 100;
         moris_index elementInd = tMesh3D_HEXs->get_loc_entity_ind_from_entity_glb_id(elementID,EntityRank::ELEMENT);
 
-
         // Initialize and fill cells to store IDs of faces, edges and nodes connected to current element (elementID = 1)
         Matrix< IdMat > elemsConnectedToElement = tMesh3D_HEXs->get_element_connected_to_element_glob_ids(elementID);
         Matrix< IndexMat > tElemsConnectedToElementInd = tMesh3D_HEXs->get_elements_connected_to_element_and_face_ord_loc_inds(elementInd);
@@ -248,7 +248,6 @@ TEST_CASE( "Creating 8x8x8 3D mesh generated from a string","[MTK_MESH_1]")
         Matrix< IndexMat > tFacesConnectedToElementInds = tMesh3D_HEXs->get_faces_connected_to_element_loc_inds(elementInd);
         Matrix< IndexMat > tEdgesConnectedToElementInds = tMesh3D_HEXs->get_edges_connected_to_element_loc_inds(elementInd);
         Matrix< IndexMat > tNodesConnectedToElementInds = tMesh3D_HEXs->get_nodes_connected_to_element_loc_inds(elementInd);
-
 
         tFaceIdsMatch = all_true(facesConnectedToElement == convert_entity_indices_to_ids(tFacesConnectedToElementInds,EntityRank::FACE,tMesh3D_HEXs));
         tEdgeIdsMatch = all_true(edgesConnectedToElement == convert_entity_indices_to_ids(tEdgesConnectedToElementInds,EntityRank::EDGE,tMesh3D_HEXs));
@@ -333,7 +332,6 @@ TEST_CASE( "Creating 8x8x8 3D mesh generated from a string","[MTK_MESH_1]")
         CHECK(all_true(tCellVertexIds == nodesConnectedToElement));
         CHECK(all_true(tCellVertexInds == tNodesConnectedToElementInds));
 
-
         // Check vertex functions
         mtk::Vertex const & tVertex  = tMesh3D_HEXs->get_mtk_vertex(nodeIndex);
         Matrix< DDRMat > tNodeCoords = tMesh3D_HEXs->get_node_coordinate(nodeIndex);
@@ -343,13 +341,11 @@ TEST_CASE( "Creating 8x8x8 3D mesh generated from a string","[MTK_MESH_1]")
         CHECK(equal_to(tVertex.get_id(),nodeID));
         CHECK(equal_to(tVertex.get_index(),nodeIndex));
 
-
         // ===================================================
         // Dump to file
         // ===================================================
         std::string tFileOutput = "./mtk_generated_ut.exo";
         tMesh3D_HEXs->create_output_mesh(tFileOutput);
-
 
         delete tMesh3D_HEXs;
 
@@ -424,7 +420,6 @@ TEST_CASE( "Testing a side set on an 8x8x8 generated mesh","[MTK_MESH_1_SIDE_SET
             CHECK(all_true(tCellIndsInSideSet2 == tCellIndsInSideSet1 ));
         }
 
-
         // ===================================================
         // Dump to file
         // ===================================================
@@ -434,7 +429,6 @@ TEST_CASE( "Testing a side set on an 8x8x8 generated mesh","[MTK_MESH_1_SIDE_SET
         delete tMeshWithSideSets;
     }
 }
-
 
 TEST_CASE("Parallel Generated Mesh","[MTK_2PROC]")
 {
@@ -459,7 +453,6 @@ TEST_CASE("Parallel Generated Mesh","[MTK_2PROC]")
             CHECK(tParMesh->get_num_entities(EntityRank::NODE) == 12);
         }
         tParMesh->create_output_mesh(tFileOutput);
-
 
         delete tParMesh;
 
@@ -522,7 +515,6 @@ TEST_CASE("MTK Mesh from file via STK, with a fields not on the file declared","
 
     Mesh1->add_mesh_field_real_scalar_data_loc_inds(tFieldName3, EntityRank::ELEMENT,tFieldData3);
 
-
     CHECK(Mesh1->get_entity_field_value_real_scalar({{0}},tFieldName1,EntityRank::NODE)(0)==10.0);
     CHECK(Mesh1->get_entity_field_value_real_scalar({{0}},tFieldName2,EntityRank::NODE)(0)==-10.0);
     CHECK(Mesh1->get_entity_field_value_real_scalar({{0}},tFieldName3,EntityRank::ELEMENT)(0)==-11.0);
@@ -536,7 +528,6 @@ TEST_CASE("MTK Mesh from file via STK, with a fields not on the file declared","
     CHECK(Mesh1->get_field_ind(tFieldName2,EntityRank::NODE) == 2);
     CHECK(Mesh1->get_field_ind(tFieldName3,EntityRank::ELEMENT) == 0);
 
-
     // output mesh
     std::string tMeshOutputFile = "./MTK_Mesh_File_Data.e";
     Mesh1->create_output_mesh(tMeshOutputFile);
@@ -544,9 +535,6 @@ TEST_CASE("MTK Mesh from file via STK, with a fields not on the file declared","
     delete Mesh1;
 }
 
-
-
-
-
 }
 }
+

@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Integration_Coeffs_Quad_5x5.hpp
  *
- *  Created on: Jul 19, 2018
- *      Author: messe
  */
 
 #ifndef SRC_MTK_CL_MTK_INTEGRATION_COEFFS_QUAD_5X5_HPP_

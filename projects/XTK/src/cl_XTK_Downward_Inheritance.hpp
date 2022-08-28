@@ -1,13 +1,15 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_XTK_Downward_Inheritance.hpp
  *
- *  Created on: Jul 21, 2017
- *      Author: ktdoble
  */
 
 #ifndef SRC_XTK_CL_XTK_DOWNWARD_INHERITANCE_HPP_
 #define SRC_XTK_CL_XTK_DOWNWARD_INHERITANCE_HPP_
-
 
 #include <utility>
 #include <limits>
@@ -15,7 +17,6 @@
 
 #include "cl_Cell.hpp"
 #include "assert.hpp"
-
 
 namespace xtk
 {
@@ -27,7 +28,6 @@ public:
 
     Downward_Inheritance()
     {}
-
 
     Downward_Inheritance(size_t aNumEntities):
         mInheritance(aNumEntities)
@@ -47,7 +47,6 @@ public:
         }
         return tHasInheritance;
     }
-
 
     /*
      * Returns the Value associated with a Key (i.e. XTK Element)
@@ -88,3 +87,4 @@ private:
 }
 
 #endif /* SRC_XTK_CL_XTK_DOWNWARD_INHERITANCE_HPP_ */
+

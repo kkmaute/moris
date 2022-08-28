@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_Git_info.cpp.in
+ *
+ */
+
 #define MORIS_GIT_BRANCH "@MORIS_GIT_BRANCH@"
 #define MORIS_GIT_HASH   "@MORIS_GIT_HASH@"
 

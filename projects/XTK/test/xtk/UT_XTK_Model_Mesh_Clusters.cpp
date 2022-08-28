@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * UT_XTK_Model_Mesh_Clusters.cpp
  *
- *  Created on: May 24, 2019
- *      Author: doble
  */
 
 #include "catch.hpp"
@@ -54,3 +57,4 @@ TEST_CASE("Mesh Cluster Output","[XTK] [XTK_CLUSTER]")
         }
     }
 }
+

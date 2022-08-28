@@ -1,8 +1,11 @@
- /*
- * cl_Equation_Object.cpp
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jul 14, 2018
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MSI_Equation_Object.cpp
+ *
  */
 
 #include "cl_MSI_Pdof_Host.hpp"
@@ -656,7 +659,7 @@ namespace moris
                 this->compute_my_previous_adjoint_values();
 
                 const Cell< enum MSI::Dof_Type > & tRequestedDofTypes = mEquationSet->get_requested_dof_types();
-            
+
                 // get master dof type list from set
                 Cell< Cell< MSI::Dof_Type > > & tMasterDofTypeList =
                                 mEquationSet->get_dof_type_list( mtk::Master_Slave::MASTER );
@@ -689,7 +692,6 @@ namespace moris
                     tCoeff( Ik ).set_size( tCounter, 1, MORIS_REAL_MAX );
                 }
 
-
                 for( uint Ik = 0; Ik < tMasterDofTypeList.size(); Ik++ )
                 {
                     // get the set index for the requested master dof type
@@ -697,12 +699,12 @@ namespace moris
                                 tMasterDofTypeList( Ik )( 0 ),
                                 mtk::Master_Slave::MASTER );
 
-                    if( tIdentifierMat( tDofIndex ) == 1 ) 
+                    if( tIdentifierMat( tDofIndex ) == 1 )
                     {
                         // get the pdof values for the ith dof type group
                         Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
-                    
-                        this->get_my_pdof_values( 
+
+                        this->get_my_pdof_values(
                                 mEquationSet->mPreviousAdjointPdofValues,
                             tMasterDofTypeList( Ik ),
                             tCoeff_Original,
@@ -848,7 +850,7 @@ namespace moris
                             uint tEndCol   = mEquationSet->mJacDofAssemblyMap( tDofIndex )( tSecDofIndex, 1 );
 
                             // build transpose of Jacobian
-                            Matrix< DDRMat > tJacTrans = 
+                            Matrix< DDRMat > tJacTrans =
                                     trans( mEquationSet->get_jacobian()(
                                             { tStartRow, tEndRow },
                                             { tStartCol, tEndCol } ) );
@@ -1067,8 +1069,6 @@ namespace moris
                 }
             }
         }
-
-
 
         //-------------------------------------------------------------------------------------------------
 
@@ -1441,3 +1441,4 @@ namespace moris
         }
     }
 }
+

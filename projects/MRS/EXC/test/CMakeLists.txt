@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # Exceptions Tests --------------------------------------------------------
 # -------------------------------------------------------------------------
 
@@ -33,3 +40,4 @@ if(MORIS_HAVE_PARALLEL_TESTS)
 			COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS} $<TARGET_FILE:${EXC_TEST}>)
 	endforeach()
 endif()
+

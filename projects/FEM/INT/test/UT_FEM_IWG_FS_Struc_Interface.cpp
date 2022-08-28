@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_FEM_IWG_FS_Struc_Interface.cpp
+ *
+ */
+
 #include <string>
 #include <catch.hpp>
 #include "assert.hpp"
@@ -398,3 +408,4 @@ TEST_CASE( "IWG_FS_Struc_Interface", "[moris],[fem],[IWG_FS_Struc_Interface]" )
     }
 
 }/* END_TEST_CASE */
+

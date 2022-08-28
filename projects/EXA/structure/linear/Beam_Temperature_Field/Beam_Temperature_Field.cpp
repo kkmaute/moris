@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * Beam_Temperature_Field.cpp
+ *
+ */
+
 #include <string>
 #include <iostream>
 
@@ -30,7 +40,6 @@
 
 #include "AztecOO.h"
 
-
 #ifdef  __cplusplus
 extern "C"
 {
@@ -45,7 +54,7 @@ namespace moris
     std::string tOutputFileName = "Beam_Temperature_Field_Problem.exo";
 
     std::string tFieldRefPath = tPrefix + "/projects/EXA/structure/linear/Beam_Temperature_Field/beam_temperature_quadratic.e";
-    
+
     /* ------------------------------------------------------------------------ */
     // material parameters
 
@@ -56,7 +65,7 @@ namespace moris
     std::string tRefTemp = "0.0";
 
     //------------------------------------------------------------------------------
-    
+
     // FUNCTIONS
 
     // Constant function for properties
@@ -333,3 +342,4 @@ namespace moris
 #ifdef  __cplusplus
 }
 #endif
+

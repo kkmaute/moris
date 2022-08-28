@@ -1,13 +1,15 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Cell_ISC.hpp
  *
- *  Created on: Jun 19, 2021
- *      Author: momo
  */
 
 #ifndef PROJECTS_MTK_SRC_CL_MTK_CELL_ISC_HPP_
 #define PROJECTS_MTK_SRC_CL_MTK_CELL_ISC_HPP_
-
 
 #include "cl_MTK_Cell.hpp"
 
@@ -88,5 +90,5 @@ namespace moris
     } /* end namespace mtk */
 } /* end namespace moris */
 
-
 #endif /* PROJECTS_MTK_SRC_CL_MTK_CELL_ISC_HPP_ */
+

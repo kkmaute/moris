@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Mesh_Tools.hpp
  *
- *  Created on: Sep 19, 2018
- *      Author: doble
  */
 
 #ifndef PROJECTS_MTK_SRC_CL_MTK_MESH_TOOLS_HPP_
@@ -42,12 +45,8 @@ namespace mtk
         return tEntityIds;
     }
 
-
-
 }
 }
-
-
-
 
 #endif /* PROJECTS_MTK_SRC_CL_MTK_MESH_TOOLS_HPP_ */
+

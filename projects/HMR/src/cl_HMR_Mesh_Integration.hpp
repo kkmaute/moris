@@ -1,8 +1,11 @@
 /*
- * cl_HMR_Mesh_Interpolation.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Apr 19, 2019
- *      Author: doble
+ *------------------------------------------------------------------------------------
+ *
+ * cl_HMR_Mesh_Integration.hpp
+ *
  */
 
 #ifndef PROJECTS_HMR_SRC_CL_HMR_MESH_INTEGRATION_HPP_
@@ -219,7 +222,7 @@ namespace moris
 
                     // size member data
                     mCellClusters.resize( tNumInterpCells );
-                    
+
                     moris::mtk::Cell_Info_Factory tCIFactory;
 
                     for(moris::uint i = 0; i < tNumInterpCells; i++)
@@ -232,7 +235,6 @@ namespace moris
                         //            moris_index tIntegCellIndex    = this->get_loc_entity_ind_from_entity_glb_id(tCellId,tCellRank);
                         mtk::Cell const * tPrimaryCell = &this->get_mtk_cell( i );
                         mCellClusters(i).add_primary_integration_cell( tPrimaryCell );
-
 
                         moris::Cell<moris::mtk::Vertex *> tVertexIds  = tPrimaryCell->get_vertex_pointers();
                         moris::Cell<moris::mtk::Vertex const *> tConstVertexPtrs(tVertexIds.size());
@@ -372,7 +374,6 @@ namespace moris
                     enum CellTopology tCellTopo = this->get_blockset_topology( "" );
                     mtk::Cell_Info_Factory tFactory;
                     std::shared_ptr<moris::mtk::Cell_Info> tCellInfo = tFactory.create_cell_info_sp(tCellTopo);
-                    
 
                     // add to map
                     for(moris::uint i = 0; i < aSideSetNames.size(); i++)
@@ -413,11 +414,11 @@ namespace moris
                             Matrix<DDRMat> tXi;
                             tCellInfo->get_loc_coord_on_side_ordinal(tSideOrdsInSet(iIGCell), tXi);
 
-                            mSideSets(i).push_back(Side_Cluster_HMR(true, 
+                            mSideSets(i).push_back(Side_Cluster_HMR(true,
                                                         tInterpCell,
                                                         {tCellsInSet(iIGCell)},
-                                                        {{tSideOrdsInSet(iIGCell)}}, 
-                                                        tCellsInSet(iIGCell)->get_vertices_on_side_ordinal(tSideOrdsInSet(iIGCell)),    
+                                                        {{tSideOrdsInSet(iIGCell)}},
+                                                        tCellsInSet(iIGCell)->get_vertices_on_side_ordinal(tSideOrdsInSet(iIGCell)),
                                                         tXi));
                         }
                     }
@@ -457,3 +458,4 @@ namespace moris
 }
 
 #endif /* PROJECTS_HMR_SRC_CL_HMR_MESH_INTEGRATION_HPP_ */
+

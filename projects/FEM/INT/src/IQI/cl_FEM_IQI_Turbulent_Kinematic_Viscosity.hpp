@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_IQI_Turbulent_Kinematic_Viscosity.hpp
  *
- *  Created on: Jul 20, 2020
- *      Author: noel
  */
 
 #ifndef PROJECTS_FEM_INT_SRC_CL_FEM_IQI_TURBULENT_KINMATIC_VISCOSITY_HPP_
@@ -112,3 +115,4 @@ namespace moris
 } /* end namespace moris */
 
 #endif /* PROJECTS_FEM_INT_SRC_CL_FEM_IQI_TURBULENT_KINEMATIC_VISCOSITY_HPP_ */
+

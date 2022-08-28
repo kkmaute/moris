@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * UT_MDL_FEM_Benchmark.cpp
  *
- *  Created on: Jan 28, 2020
- *      Author: noel
  */
 
 #include "catch.hpp"
@@ -336,7 +339,6 @@ namespace moris
             delete tIPMesh;
             delete tIGMesh;
         }
-
 
     } /* END_TEST_CASE */
 
@@ -1928,3 +1930,4 @@ namespace moris
     } /* END_TEST_CASE */
 
 }    // namespace moris
+

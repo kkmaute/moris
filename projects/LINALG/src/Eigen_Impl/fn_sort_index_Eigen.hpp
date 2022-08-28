@@ -1,8 +1,11 @@
 /*
- * fn_sort_Eigen.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Aug 29, 2018
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * fn_sort_index_Eigen.hpp
+ *
  */
 
 #ifndef PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_SORT_INDEX_EIGEN_HPP_
@@ -13,7 +16,6 @@
 #include "assert.hpp"
 #include "typedefs.hpp"
 #include "cl_Matrix.hpp"
-
 
 namespace moris
 {
@@ -40,3 +42,4 @@ namespace moris
 }
 
 #endif /* PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_SORT_INDEX_EIGEN_HPP_ */
+

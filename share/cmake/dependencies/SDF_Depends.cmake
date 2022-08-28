@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # SDF Dependencies ------------------------------
 # -------------------------------------------------------------------------
 
@@ -20,3 +27,4 @@ set(SDF_TPL_DEPENDENCIES
 include(${MORIS_DEPENDS_DIR}/LINALG_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/COM_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/MTK_Depends.cmake)
+

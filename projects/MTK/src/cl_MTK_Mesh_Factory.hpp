@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Mesh_Factory.hpp
+ *
+ */
+
 #ifndef PROJECTS_MTK_SRC_CL_MESH_FACTORY_HPP_
 #define PROJECTS_MTK_SRC_CL_MESH_FACTORY_HPP_
 
@@ -14,7 +24,7 @@ namespace moris
     {
         /**
          * Create an interpolation from an Exodus file.
-         * 
+         *
          * @param aMeshType Mesh type to create
          * @param aFileName Exodus file name
          * @param aSuppMeshData Supplementary mesh data to add to the mesh
@@ -26,10 +36,10 @@ namespace moris
                 std::string aFileName,
                 MtkMeshData *aSuppMeshData = nullptr,
                 const bool aCreateFacesAndEdges = true);
-        
+
         /**
          * Create an interpolation mesh from mesh data.
-         * 
+         *
          * @param aMeshType Mesh type to create
          * @param aMeshData Mesh data for creating the mesh
          * @return Created interpolation mesh
@@ -40,7 +50,7 @@ namespace moris
 
         /**
          * Create an integration mesh from an Exodus file.
-         * 
+         *
          * @param aMeshType Mesh type to create
          * @param aFileName Exodus file name
          * @param aSuppMeshData Supplementary mesh data to add to the mesh
@@ -55,7 +65,7 @@ namespace moris
 
         /**
          * Create an integration mesh from mesh data.
-         * 
+         *
          * @param aMeshType Mesh type to create
          * @param aMeshData Mesh data for creating the mesh
          * @return Created integration mesh
@@ -66,7 +76,7 @@ namespace moris
 
         /**
          * Create an integration mesh from mesh data with a link to an interpolation mesh.
-         * 
+         *
          * @param aMeshType Mesh type to create
          * @param aMeshData Mesh data for creating the mesh
          * @param aInterpMesh Interpolation mesh to link
@@ -95,3 +105,4 @@ namespace moris
 }
 
 #endif /* PROJECTS_MTK_SRC_CL_MESH_FACTORY_HPP_ */
+

@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_NLA_Solver_Interface_Proxy.hpp
  *
- *  Created on: Jun 18, 2018
- *      Author: schmidt
  */
+
 #ifndef SRC_DISTLINALG_CL_NLA_SOLVER_INPUT_TEST_HPP_
 #define SRC_DISTLINALG_CL_NLA_SOLVER_INPUT_TEST_HPP_
 
@@ -267,3 +271,4 @@ namespace moris
     }
 }
 #endif /* SRC_DISTLINALG_CL_NLA_SOLVER_INPUT_TEST_HPP_ */
+

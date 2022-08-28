@@ -1,13 +1,12 @@
 /*
- * cl_GE_Element.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jan 2, 2019
- *      Author: sonne
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MDL_Element_Proxy.hpp
+ *
  */
-#include "cl_Cell.hpp" //MRS/CON/src
-#include "cl_MDL_Node_Proxy.hpp"
-#include "cl_MTK_Cell.hpp"
-#include "cl_MTK_Vertex.hpp"
 
 #ifndef PROJECTS_GEN_SRC_CL_ELEMENT_HPP_
 #define PROJECTS_GEN_SRC_CL_ELEMENT_HPP_
@@ -129,6 +128,5 @@ namespace moris{
 	}/* namespace gen */
 } /* namespace moris */
 
-
-
 #endif /* PROJECTS_GEN_SRC_CL_ELEMENT_HPP_ */
+

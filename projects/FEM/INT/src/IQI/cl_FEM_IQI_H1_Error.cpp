@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_IQI_H1_Error.cpp
  *
- *  Created on: Feb 2, 2020
- *      Author: noel
  */
+
 #include "cl_FEM_IQI_H1_Error.hpp"
 
 #include "cl_FEM_Set.hpp"
@@ -294,3 +298,4 @@ namespace moris
 
     }/* end_namespace_fem */
 }/* end_namespace_moris */
+

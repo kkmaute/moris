@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_FEM_IWG_Spalart_Allmaras_Turbulence_Bulk.cpp
+ *
+ */
+
 #include <string>
 #include <catch.hpp>
 #include <memory>
@@ -53,7 +63,6 @@ tWallDistanceDerFunc(
 
     aPropMatrix = aParameters( 0 ) * tFIWallDist->N();
 }
-
 
 TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbulence_Bulk]" )
 {
@@ -1598,3 +1607,4 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Negative",
         }
     }
 } /*END_TEST_CASE*/
+

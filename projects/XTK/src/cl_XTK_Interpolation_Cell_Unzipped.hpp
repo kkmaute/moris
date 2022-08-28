@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_XTK_Interpolation_Cell_Unzipped.hpp
  *
- *  Created on: Jul 10, 2019
- *      Author: doble
  */
 
 #ifndef PROJECTS_XTK_SRC_XTK_CL_XTK_INTERPOLATION_CELL_UNZIPPED_HPP_
@@ -23,7 +26,6 @@ class Vertex;
 }
 }
 
-
 namespace xtk
 {
 
@@ -43,7 +45,7 @@ protected:
 
 public:
     Interpolation_Cell_Unzipped(){};
-    
+
     // constructor for SPG based initialization
     Interpolation_Cell_Unzipped(
             moris::mtk::Cell*      aBaseCell,
@@ -129,10 +131,10 @@ public:
 
     /**
      * @brief Set the SPG and BP indices for a given DM list index
-     * 
-     * @param aMeshListIndex 
-     * @param aSpgIndex 
-     * @param aBulkPhaseIndex 
+     *
+     * @param aMeshListIndex
+     * @param aSpgIndex
+     * @param aBulkPhaseIndex
      */
     void
     set_SPG_and_BP_indices_for_DM_list_index(
@@ -144,9 +146,9 @@ public:
 
     /**
      * @brief Retrieve the SPG index for the primary phase for a given DM list index from the Enr. IP cell
-     * 
-     * @param aMeshListIndex 
-     * @return moris_index 
+     *
+     * @param aMeshListIndex
+     * @return moris_index
      */
     moris_index
     get_SPG_index_for_DM_list_index( const moris_index aMeshListIndex ) const;
@@ -155,9 +157,9 @@ public:
 
     /**
      * @brief Retrieve the bulk-phase index for the primary phase for a given DM list index from the Enr. IP cell
-     * 
-     * @param aMeshListIndex 
-     * @return moris_index 
+     *
+     * @param aMeshListIndex
+     * @return moris_index
      */
     moris_index
     get_bulkphase_index_for_DM_list_index( const moris_index aMeshListIndex ) const;
@@ -233,9 +235,7 @@ operator<<(std::ostream & os, xtk::Interpolation_Cell_Unzipped const * const & d
 
 //------------------------------------------------------------------------------
 
-
 }
 
-
-
 #endif /* PROJECTS_XTK_SRC_XTK_CL_XTK_INTERPOLATION_CELL_UNZIPPED_HPP_ */
+

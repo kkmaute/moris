@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * fn_equal_to.cpp
+ *
+ */
+
 #include "fn_equal_to.hpp"
 
 // ----------------------------------------------------------------------------
@@ -17,3 +27,4 @@ moris::equal_to<moris::cplx>(
             std::abs( a_t - b_t ) < std::abs( std::min( a_t, b_t ) ) *
             std::numeric_limits< moris::real >::epsilon() * error_factor );
 }
+

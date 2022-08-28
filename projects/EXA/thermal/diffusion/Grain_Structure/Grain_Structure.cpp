@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * Grain_Structure.cpp
+ *
+ */
+
 #include <string>
 #include <iostream>
 #include "typedefs.hpp"
@@ -30,7 +40,7 @@ extern "C"
 namespace moris
 {
     bool isGhost = false;
-    
+
     std::string tBulk = "HMR_dummy_n_p0,HMR_dummy_n_p1,HMR_dummy_n_p2,HMR_dummy_n_p4,HMR_dummy_n_p8,HMR_dummy_c_p0,HMR_dummy_c_p1,HMR_dummy_c_p2,HMR_dummy_c_p4,HMR_dummy_c_p8";
     std::string tRightBC = "SideSet_2_c_p0,SideSet_2_c_p4,SideSet_2_c_p8,SideSet_2_n_p0,SideSet_2_n_p4,SideSet_2_n_p8";
     std::string tLeftBC = "SideSet_4_c_p1,SideSet_4_c_p2,SideSet_4_n_p1,SideSet_4_n_p2";
@@ -210,7 +220,6 @@ namespace moris
         tParameterlist( 1 )( 3 ).set( "discretization_mesh_index", -1);
         tParameterlist( 1 )( 3 ).set( "multilinear_intersections", false);
 
-
     }
 
     void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterList )
@@ -293,7 +302,6 @@ namespace moris
         // init SP counter
         uint tSPCounter = 0;
 
-
         // create parameter list for stabilization parameter 2
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      "SPDirichletNitscheT") ;
@@ -347,7 +355,6 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tRightBC) ;
         tIWGCounter++;
 
-
         // create parameter list for IWG 11
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGCylinderFluxTemp") ;
@@ -357,7 +364,6 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "master_properties",          "PropSideFlux,Neumann") ;
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tLeftBC) ;
         tIWGCounter++;
-
 
         // Temperature - Shell - Shell
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
@@ -372,8 +378,6 @@ namespace moris
                 std::string("SPInterfaceNitsche     ,NitscheInterface") );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tInterface );
         tIWGCounter++;
-
-
 
         if (isGhost)
         {
@@ -479,3 +483,4 @@ namespace moris
 #ifdef  __cplusplus
 }
 #endif
+

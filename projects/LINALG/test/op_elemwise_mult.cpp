@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * op_elemwise_mult.cpp
+ *
+ */
+
 #include <catch.hpp>
 #include <op_elemwise_mult.hpp>
 #include "fn_equal_to.hpp" //ALG
@@ -45,3 +55,4 @@ namespace moris
         REQUIRE( tF( 3 ) == 13090 );
     }
 }
+

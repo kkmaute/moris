@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # -------------------------------------------------------------------------
 # HDF5 libraries ----------------------------------------------------------
 # -------------------------------------------------------------------------
@@ -43,3 +50,4 @@ if(NOT TARGET ${MORIS}::hdf5)
 	add_library(${MORIS}::hdf5 INTERFACE IMPORTED GLOBAL)
 	target_link_libraries(${MORIS}::hdf5 INTERFACE ${MORIS_HDF5_LIBRARIES})
 endif()
+

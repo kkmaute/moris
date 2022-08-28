@@ -1,12 +1,14 @@
 /*
- * fn_flood_fill.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Feb 9, 2018
- *      Author: ktdoble
+ *------------------------------------------------------------------------------------
+ *
+ * UT_fn_flood_fill.cpp
+ *
  */
 
 #include "catch.hpp"
-
 
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Cut_Mesh.hpp"
@@ -69,7 +71,6 @@ TEST_CASE("Generic Floodfill Consecutive Subdomain" ,"[GEN_FLOOD_FILL]")
     (tElementPhase)(0,5) = 0;
     (tElementPhase)(0,6) = 0;
 
-
     SECTION("Include all elements")
     {
         // Active Element Indices (all of them in this case)
@@ -85,7 +86,6 @@ TEST_CASE("Generic Floodfill Consecutive Subdomain" ,"[GEN_FLOOD_FILL]")
         moris::Matrix< moris::DDSTMat > tIncludedElementMarker(1,7);
         tIncludedElementMarker.fill(1); // Mark all elements as included
 
-
         // Run flood fill Algorithm
 
         moris::Matrix< moris::DDSTMat > tElementSubphase = flood_fill( tElementToElement,
@@ -100,7 +100,6 @@ TEST_CASE("Generic Floodfill Consecutive Subdomain" ,"[GEN_FLOOD_FILL]")
         (tExpElementSubphase)(0,0) = 0;    (tExpElementSubphase)(0,1) = 1;    (tExpElementSubphase)(0,2) = 2;
         (tExpElementSubphase)(0,3) = 0;    (tExpElementSubphase)(0,4) = 1;    (tExpElementSubphase)(0,5) = 1;
         (tExpElementSubphase)(0,6) = 1;
-
 
         CHECK(equal_to(tElementSubphase,tExpElementSubphase));
 
@@ -120,7 +119,6 @@ TEST_CASE("Generic Floodfill Consecutive Subdomain" ,"[GEN_FLOOD_FILL]")
         tIncludedElementMarker.fill(1); // Mark all elements as included
         (tIncludedElementMarker)(0,6) = 0; // overwrite element 6 and say don't include it
 
-
         // Run flood fill Algorithm
         moris::Matrix< moris::DDSTMat > tElementSubphase = flood_fill( tElementToElement,
                                                                        tElementPhase,
@@ -128,7 +126,6 @@ TEST_CASE("Generic Floodfill Consecutive Subdomain" ,"[GEN_FLOOD_FILL]")
                                                                        tIncludedElementMarker,
                                                                        tNumPhases,
                                                                        tMax);
-
 
         moris::Matrix< moris::DDSTMat >tExpElementSubphase(1,6);
         (tExpElementSubphase)(0,0) = 0;    (tExpElementSubphase)(0,1) = 1;    (tExpElementSubphase)(0,2) = 2;
@@ -138,9 +135,6 @@ TEST_CASE("Generic Floodfill Consecutive Subdomain" ,"[GEN_FLOOD_FILL]")
 
     }
         }
-
-
-
 
 TEST_CASE("Generic Floodfill Nonconsectives Subdomain" ,"[NC_FLOOD_FILL]")
 {
@@ -215,7 +209,4 @@ TEST_CASE("Generic Floodfill Nonconsectives Subdomain" ,"[NC_FLOOD_FILL]")
 }
 
 }
-
-
-
 

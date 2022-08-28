@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # Integration and Interpolation Source ------------------------------------
 # -------------------------------------------------------------------------
 
@@ -573,3 +580,4 @@ install(TARGETS ${INT}-lib
 # Export library into *Targets file
 install(EXPORT ${INT}Targets
     DESTINATION ${${INT}_CONFIG_INSTALL_DIR} )
+

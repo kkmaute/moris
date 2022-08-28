@@ -1,4 +1,13 @@
-//------------------------------------------------------------------------------
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * HMR_Tutorial_5.cpp
+ *
+ */
+
 #include <string>
 
 #include "cl_HMR.hpp"
@@ -46,7 +55,6 @@ SphereFunction( const Matrix< DDRMat > & aPoint )
 {
     return norm( aPoint ) - 1.2;
 }
-
 
 int
 main(
@@ -129,3 +137,4 @@ main(
 //    return 0;
 //
 }
+

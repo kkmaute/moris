@@ -1,11 +1,12 @@
 /*
- * fn_bubble_sort.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jan 10, 2018
- *      Author: doble
+ *------------------------------------------------------------------------------------
+ *
+ * fn_bubble_sort.cpp
+ *
  */
-
-
 
 #include "fn_bubble_sort.hpp"
 
@@ -15,7 +16,6 @@
 #include "cl_Matrix.hpp"
 #include "cl_XTK_Matrix_Base_Utilities.hpp"
 #include "linalg_typedefs.hpp"
-
 
 namespace xtk
 {
@@ -34,3 +34,4 @@ TEST_CASE("Row Bubble Sort","[ROW_BUBBLE]")
     CHECK(xtk::equal_to(tRealMat, tRealExpectedMat));
 }
 }
+

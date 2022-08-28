@@ -1,4 +1,13 @@
-// contains methods for Query class
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_Query_Table.cpp
+ *
+ */
+
 #include "cl_Query.hpp"
 
 #include <iostream>
@@ -25,12 +34,10 @@
 #include "fn_stringify.hpp"
 #include "fn_assert.hpp"
 
-
 namespace moris
 {
 namespace ios
 {
-
 
 //-----------------------------------------------------------------------------------------------------------//
 // TABLE QUERY DEFINITION
@@ -42,7 +49,6 @@ void Query::table_query(std::string aFileNameWrite,
                         enum EntityType aEntityType,
                         enum EntityAction aEntityAction)
 {
-
 
     // Prepare reading file ---------------------------------------------------------- //
 
@@ -61,13 +67,11 @@ void Query::table_query(std::string aFileNameWrite,
 
     copy_header(& tLogFileWrite);
 
-
     // Starting Query ---------------------------------------------------------------- //
 
     // initialize
     std::string tCurrentLine;
     std::string tCurrentEntity = "";
-
 
     /////////////////////////////////
     // Look for function instances //
@@ -83,7 +87,6 @@ void Query::table_query(std::string aFileNameWrite,
                                                  aEntityType,
                                                  aEntityAction);
 
-
     /////////////////////////
     // Write Output Header //
     /////////////////////////
@@ -94,7 +97,6 @@ void Query::table_query(std::string aFileNameWrite,
                                                            << get_enum_str(aEntityAction) << "\n";
     tLogFileWrite << "Number of instances found: " << tNumInstances << ". \n";
 
-
     tLogFileWrite << "Indentation levels of respective instances: [" << tInstanceIndents(0);
     for (uint iInstance = 1; iInstance < tNumInstances; iInstance++)
     {
@@ -102,15 +104,12 @@ void Query::table_query(std::string aFileNameWrite,
     }
     tLogFileWrite << "]\n";
 
-
     tLogFileWrite << "IDs of respective instances: [" << tInstanceIDs(0);
     for (uint iInstance = 1; iInstance < tNumInstances; iInstance++)
     {
         tLogFileWrite << ", " << tInstanceIDs(iInstance);
     }
     tLogFileWrite << "]\n\n";
-
-
 
     ///////////////////////////
     // Record what is inside //
@@ -158,7 +157,6 @@ void Query::table_query(std::string aFileNameWrite,
         // copy list of output values to table
         tFullListOfOutputValues(0) = tRefListOfOutputValues;
 
-
         /////////////////////////////////////
         // Go through subsequent iteration //
         /////////////////////////////////////
@@ -185,7 +183,6 @@ void Query::table_query(std::string aFileNameWrite,
                                        iIter,
                                        tCurrentInstanceID);
 
-
             // merge new list with old lists
             this->merge_iteration_outputs( & tRefListOfEntityBases,
                                            & tRefListOfEntityTypes,
@@ -199,8 +196,6 @@ void Query::table_query(std::string aFileNameWrite,
                                              tNewListOfOutputValues);
 
         } // end for: each iteration
-
-
 
         //////////////////
         // Write Tables //
@@ -239,8 +234,6 @@ void Query::table_query(std::string aFileNameWrite,
     tLogFileWrite.close();
     std::cout << "Success, Done. \n" << std::flush;
 }
-
-
 
 //-----------------------------------------------------------------------------------------------------------//
 //-----------------------------------------------------------------------------------------------------------//
@@ -385,7 +378,6 @@ void Query::merge_iteration_outputs( Cell<enum EntityBase>      * aRefListOfEnti
         }
     }
 
-
     // --- Create New Entity List ---------------------------------------------------- //
 
     // get number of entries in list
@@ -414,7 +406,6 @@ void Query::merge_iteration_outputs( Cell<enum EntityBase>      * aRefListOfEnti
         tResultListOfEntityActions(tNewSortingList(iNewListIndex)) = aNewListOfEntityActions(iNewListIndex);
         tResultListOfOutputSpecs(tNewSortingList(iNewListIndex)) =   aNewListOfOutputSpecs(iNewListIndex);
     }
-
 
     // --- Merge Lists --------------------------------------------------------------- //
 
@@ -464,7 +455,6 @@ void Query::merge_iteration_outputs( Cell<enum EntityBase>      * aRefListOfEnti
     // append new row to full list
     aFullListOfOutputValues->append({tResultListOfOutputValues});
 
-
 }
 
 //-----------------------------------------------------------------------------------------------------------//
@@ -500,7 +490,6 @@ void Query::insert_empty_column( Cell<Cell<std::string>> * aCellMatrix, uint aCo
     }
 }
 
-
 //-----------------------------------------------------------------------------------------------------------//
 
 // goes through instance specified by ID, returns iteration start and end lines in cell matrix
@@ -520,7 +509,6 @@ Cell<Cell<uint>> Query::split_instances_into_iterations(uint aCurrentInstanceID)
     tIterationStartEnd(0).resize(2);
     tIterationStartEnd(0)(0) = tCurrentInstanceStartLine + 1;
     tIterationStartEnd(0)(1) = tCurrentInstanceEndLine - 1;
-
 
     // look through function instance and find iteration markers
     for (uint iLine = tCurrentInstanceStartLine; iLine < tCurrentInstanceEndLine; iLine++)
@@ -762,16 +750,4 @@ void Query::extract_iteration(       Cell<enum EntityBase> * aListOfEntityBases,
 //-----------------------------------------------------------------------------------------------------------//
 } // namespace std
 } // namespace moris
-
-
-
-
-
-
-
-
-
-
-
-
 

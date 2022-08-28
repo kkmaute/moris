@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Side_Set.hpp
  *
- *  Created on: Jul 24, 2018
- *      Author: messe
  */
 
 #ifndef SRC_MESH_CL_MTK_SIDE_SET_HPP_
@@ -325,3 +328,4 @@ namespace moris
 } /* namespace moris */
 //------------------------------------------------------------------------------
 #endif /* SRC_MESH_CL_MTK_SIDE_SET_HPP_ */
+

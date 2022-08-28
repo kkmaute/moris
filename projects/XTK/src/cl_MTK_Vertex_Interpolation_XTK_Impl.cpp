@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Vertex_Interpolation_XTK_Impl.cpp
  *
- *  Created on: Mar 8, 2019
- *      Author: doble
  */
 
 #include "cl_MTK_Vertex_Interpolation_XTK_Impl.hpp"
@@ -34,6 +37,6 @@ Vertex_Interpolation_XTK::get_weights() const
     return &mVertexEnrichment->get_basis_weights();
 }
 
+}
+}
 
-}
-}

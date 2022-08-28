@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_Parsing_Tools.hpp
  *
- *  Created on: Aug 20, 2019
- *      Author: schmidt
  */
 
 #ifndef MORIS_IOS_FN_PARSING_TOOLS_HPP_
@@ -1035,3 +1038,4 @@ namespace moris
 }
 
 #endif	/* MORIS_IOS_FN_PARSING_TOOLS_HPP_ */
+

@@ -1,5 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Cell_Info_Quad9.cpp
+ *
  */
 
 #include "cl_MTK_Cell_Info_Quad9.hpp"
@@ -796,3 +802,4 @@ namespace moris
         }
     }    // namespace mtk
 }    // namespace moris
+

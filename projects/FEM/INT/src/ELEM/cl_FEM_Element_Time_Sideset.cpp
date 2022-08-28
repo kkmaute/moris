@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_Element_Time_Sideset.cpp
+ *
+ */
+
 #include <iostream>
 //FEM/INT/src
 #include "cl_FEM_Element_Time_Sideset.hpp"
@@ -638,7 +648,7 @@ namespace moris
                 }
             }
         }
-        
+
         //------------------------------------------------------------------------------
 
         real Element_Time_Sideset::compute_volume( mtk::Master_Slave aIsMaster )
@@ -674,3 +684,4 @@ namespace moris
 
     } /* namespace fem */
 } /* namespace moris */
+

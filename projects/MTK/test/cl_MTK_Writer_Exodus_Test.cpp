@@ -1,6 +1,13 @@
-//
-// Created by christopherson on 9/19/19.
-//
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Writer_Exodus_Test.cpp
+ *
+ */
+
 #include <MTK/src/cl_MTK_Writer_Exodus.hpp>
 #include <MTK/src/cl_MTK_Reader_Exodus.hpp>
 #include <MTK/src/cl_MTK_Integration_Mesh.hpp>
@@ -9,7 +16,6 @@
 #include "cl_MTK_Mesh_Core.hpp"
 #include "cl_MTK_Writer_Exodus.hpp"
 #include "cl_MTK_Reader_Exodus.hpp"
-
 
 #include "cl_MTK_Mesh.hpp" // MTK/src
 #include "cl_MTK_Mesh_Data_Input.hpp"
@@ -74,7 +80,6 @@ namespace moris
                                                 {0,   0.1, 3.1},
                                                 {0.5, 0.5, 3.1}};
 
-
             Matrix <IndexMat> tLocalToGlobalNodeMap = {{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44}};
 
             Matrix <IndexMat> tInterpElemsAsIntegCellIds = {{1, 2, 3, 4}};
@@ -117,7 +122,6 @@ namespace moris
                                                    {30, 13, 40, 44},
                                                    {13, 15, 40, 44},
                                                    {13, 25, 15, 44}};
-
 
             // Tetrathedral cells in material phase 1
             Matrix <IndexMat> tCellToNodeGhost0 = {{21, 27, 31, 30},
@@ -170,7 +174,6 @@ namespace moris
                                                    {24, 27, 17, 43}};
 
             Matrix <IndexMat> tCellIdsGhost0 = {{5, 7, 9, 11, 13, 15, 19, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 34, 35, 36, 37, 38, 39, 40, 41, 45, 46, 47, 48, 49, 50, 51, 52, 56, 57, 58, 59, 60, 61, 64, 65, 66, 67, 68, 69, 70, 71, 72}};
-
 
             moris::mtk::MtkSetsInfo tMtkMeshSets;
             // Define side sets on the integration mesh (i.e. fixed bc, interface and ghost)
@@ -266,7 +269,6 @@ namespace moris
             tCellsForGhost.mBlockSetName = "Ghost_Cells_0";
             tCellsForGhost.mBlockSetTopo = CellTopology::HEX8;
             tMtkMeshSets.add_block_set(&tCellsForGhost);
-
 
             // Mesh data input structure
             moris::mtk::MtkMeshData tMeshDataInput(3);

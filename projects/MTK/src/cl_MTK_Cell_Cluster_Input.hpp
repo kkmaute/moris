@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Cell_Cluster_Input.hpp
  *
- *  Created on: Apr 29, 2019
- *      Author: doble
  */
 
 #ifndef PROJECTS_MTK_SRC_CL_MTK_CELL_CLUSTER_INPUT_HPP_
@@ -149,7 +152,6 @@ struct Cell_Cluster_Input
 
     }
 
-
 private:
     moris::Cell<mtk::Cell*>               mInterpolationCells;
     moris::Cell<moris::Matrix<IndexMat> const *> mPrimaryCellIds;
@@ -159,13 +161,10 @@ private:
 
     std::unordered_map<moris_index, moris_index> mInterpCellIndexToIndex;
 
-
-
 };
 
 }
 }
 
-
-
 #endif /* PROJECTS_MTK_SRC_CL_MTK_CELL_CLUSTER_INPUT_HPP_ */
+

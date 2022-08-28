@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_DLA_Linear_System_PETSc.cpp
  *
- *  Created on: Dec 6, 2017
- *      Author: schmidt
  */
+
 #include "EpetraExt_CrsMatrixIn.h"
 #include "EpetraExt_BlockMapIn.h"
 #include "EpetraExt_VectorIn.h"
@@ -209,6 +213,4 @@ void Linear_System_PETSc::get_solution( Matrix< DDRMat > & LHSValues )
 }
 
 //------------------------------------------------------------------------------------------
-
-
 

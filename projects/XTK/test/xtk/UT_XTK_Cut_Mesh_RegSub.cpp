@@ -1,9 +1,13 @@
 /*
- * cl_XTK_Cut_Mesh_RegSub.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Feb 23, 2018
- *      Author: ktdoble
+ *------------------------------------------------------------------------------------
+ *
+ * UT_XTK_Cut_Mesh_RegSub.cpp
+ *
  */
+
 #include "catch.hpp"
 
 // XTKL: Linear Algebra Includes
@@ -32,7 +36,6 @@
 
 namespace xtk
 {
-
 
 // note not written to be very efficient
 bool
@@ -105,7 +108,6 @@ TEST_CASE("Direct Testing of the regular subdivision","[NEW_REG_SUB_TEMPLATE]")
     tNodeCoords(13,0) = 0.5; tNodeCoords(13,1) = 0.5; tNodeCoords(13,2) = 1.0;
     tNodeCoords(14,0) = 0.5; tNodeCoords(14,1) = 0.5; tNodeCoords(14,2) = 0.5;
 
-
     // Initialize the Node Indices
     moris::Matrix< moris::IndexMat > tNodeIndex({{0, 1, 3, 2, 4, 5, 7, 6, 8, 9, 10, 11, 12, 13, 14}});
 
@@ -137,12 +139,10 @@ TEST_CASE("Direct Testing of the regular subdivision","[NEW_REG_SUB_TEMPLATE]")
     // Initialize child mesh with template
     Child_Mesh tRegSubChildMesh(tRegSubTemplate);
 
-
     // Check the volume
     moris::Matrix< moris::IndexMat > const & tElemToNode = tRegSubChildMesh.get_element_to_node();
     real tVolume = moris::ge::compute_volume_for_multiple_tets(tNodeCoords,tElemToNode);
     CHECK(approximate(tVolume,1.0));
-
 
     //
     moris::Matrix< moris::IndexMat > tElementPhase(1,24,0);
@@ -162,7 +162,6 @@ TEST_CASE("Direct Testing of the regular subdivision","[NEW_REG_SUB_TEMPLATE]")
                                                                     tMax,
                                                                     tMaxFloodFill,
                                                                     true);
-
 
     moris::Matrix< moris::IndexMat > tExpElementSubphase(1,24,0);
     CHECK(equal_to(tExpElementSubphase,tElementSubphase));
@@ -282,5 +281,4 @@ TEST_CASE("Direct Testing of the regular subdivision","[NEW_REG_SUB_TEMPLATE]")
 }
 
 }
-
 

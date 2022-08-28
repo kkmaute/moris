@@ -1,20 +1,20 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Vertex_ISC_Impl.hpp
  *
- *  Created on: Jun 19, 2021
- *      Author: momo
  */
 
 #ifndef PROJECTS_MTK_SRC_CL_MTK_VERTEX_ISC_IMPL_HPP_
 #define PROJECTS_MTK_SRC_CL_MTK_VERTEX_ISC_IMPL_HPP_
 
-
 #include "cl_MTK_Vertex.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 //#include "cl_MTK_Vertex_Interpolation.hpp"
-
-
 
 //------------------------------------------------------------------------------
 namespace moris
@@ -132,5 +132,5 @@ namespace moris
     } /* namespace mtk */
 } /* namespace moris */
 
-
 #endif /* PROJECTS_MTK_SRC_CL_MTK_VERTEX_ISC_IMPL_HPP_ */
+

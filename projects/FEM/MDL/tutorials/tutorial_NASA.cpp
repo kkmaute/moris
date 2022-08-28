@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * tutorial_NASA.cpp
+ *
+ */
+
 #define CATCH_CONFIG_RUNNER
 #include <catch.hpp>
 
@@ -377,7 +387,6 @@ main( int    argc,
             fem::Element_Type::DOUBLE_SIDESET,
     };
 
-
     // create model
     mdl::Model * tModel = new mdl::Model( tMeshManager, tBSplineMeshIndex, tSetList, tSetTypeList, tIWGUserDefinedInfo, tPropertyUserDefinedInfo, tConstitutiveUserDefinedInfo, 0, false);
 
@@ -398,7 +407,6 @@ main( int    argc,
     tLinearSolverAlgorithm->set_param("AZ_ilut_fill") = 5.0;
     tLinearSolverAlgorithm->set_param("AZ_max_iter") = 100;
     tLinearSolverAlgorithm->set_param("rel_residual") = 1e-8;
-
 
     dla::Linear_Solver tLinSolver;
 
@@ -465,14 +473,12 @@ main( int    argc,
     Matrix<DDRMat> tFullSol;
     tTimeSolver.get_full_solution(tFullSol);
 
-
     delete tModel;
 
     // finalize moris global communication manager
     gMorisComm.finalize();
 
-
-
     return 0;
 
 }
+

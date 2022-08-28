@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * One_Element_Mat_Geo_Pdv_sweep.cpp
+ *
+ */
 
 #include <string>
 #include <iostream>
@@ -28,7 +37,6 @@
 #include "BelosLinearProblem.hpp"
 #include "BelosEpetraAdapter.hpp"
 #include "BelosBlockGmresSolMgr.hpp"
-
 
 #ifdef  __cplusplus
 extern "C"
@@ -79,7 +87,6 @@ namespace moris
     real tBsplineLimitButtom  = 0.0;
 
     real tElementEdgeLength = 1.0;
-
 
     //------------------------------------------------------------------------------
 
@@ -137,14 +144,12 @@ namespace moris
         }
     }
 
-
     real Const_Geometry(
         const Matrix< DDRMat >  & aCoordinates,
         const Cell< real* >     & aGeometryParameters )
     {
         return norm( aCoordinates ) - 3.0;
     }
-
 
 //------------------------------------------------------------------------------
 void tYoungsFunc
@@ -434,7 +439,6 @@ void tYoungsFunc
         tParameterlist(1)(tGeoCounter).set("field_variable_indices", "0, 1, 2, 3");
         tParameterlist(1)(tGeoCounter).set("adv_indices", "0, 1, 2, 3");
 
-
         uint tParamCounter = 0;
         tParameterlist( 2 ).push_back ( moris::prm::create_gen_property_parameter_list() );
         tParameterlist( 2 )( tParamCounter ).set("name", "LvL_Set_Field");
@@ -689,7 +693,6 @@ void tYoungsFunc
         tParameterlist( 0 )( 0 ).set( "Mesh_Type"  , static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
         tParameterlist( 0 )( 0 ).set( "Set_Names"  , tTotalDomain );
 
-
         tParameterlist( 0 )( 0 ).set( "Field_Names", std::string("UX,UY,VOL"));//,PHID,THETA,LVLSET,HEATMETHOD,LEVELSETHEAT") );
         tParameterlist( 0 )( 0 ).set( "Field_Type" , std::string("NODAL,NODAL,NODAL"));//,NODAL,NODAL,NODAL,NODAL,NODAL") );
         tParameterlist( 0 )( 0 ).set( "IQI_Names"  , std::string("IQIBulkUX,IQIBulkUY,IQIBulkVolume"));//,IQIBulkPHID,IQIBulkTHETA,IQILevelSet,IQIHeatMethodPenalty,IQILevelSetHeatMethod") );
@@ -708,8 +711,8 @@ void tYoungsFunc
     //--------------------------------------------------------------------------------------------------------------
 }
 
-
 //--------------------------------------------------------------------------------------------------------------
 #ifdef  __cplusplus
 }
 #endif
+

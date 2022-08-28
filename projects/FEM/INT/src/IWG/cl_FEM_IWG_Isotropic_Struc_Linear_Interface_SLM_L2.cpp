@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_IWG_Isotropic_Struc_Linear_Interface_SLM_L2.cpp
+ *
+ */
 
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Interface_SLM_L2.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
@@ -26,7 +35,6 @@ namespace moris
 
             // populate the constitutive map
             mConstitutiveMap[ "ElastLinIso" ] = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
-
 
         }
 
@@ -61,8 +69,6 @@ namespace moris
 
             // compute the residual
             tRes -= aWStar * tFILambda->N_trans() * ( tFILambda->val() - tCMElasticity->traction( tPropNormal->val() ) );
-
-
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
@@ -112,7 +118,6 @@ namespace moris
                         { tMasterResStartIndex, tMasterResStopIndex },
                         { tMasterDepStartIndex, tMasterDepStopIndex } );
 
-
                 // if constitutive model depends on the dof type
                 if ( tDofType( 0 ) == MSI::Dof_Type::VX )
                 {
@@ -150,3 +155,4 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
+

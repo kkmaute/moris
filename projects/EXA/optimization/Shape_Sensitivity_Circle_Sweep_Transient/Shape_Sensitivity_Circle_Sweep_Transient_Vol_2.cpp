@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * Shape_Sensitivity_Circle_Sweep_Transient_Vol_2.cpp
+ *
+ */
+
 #include <string>
 #include <iostream>
 #include "typedefs.hpp"
@@ -427,7 +437,6 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tBackSurface );
         tIWGCounter++;
 
-
         if (tUseGhost)
         {
 //             create IWG for 2 material - ghost
@@ -455,7 +464,6 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tPhase1 );
         tParameterList( 3 )( tIWGCounter ).set( "time_continuity",            true );
         tIWGCounter++;
-
 
         //------------------------------------------------------------------------------
         // init IQI counter
@@ -545,7 +553,6 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
         tParameterlist( 3 )( 1 ) = moris::prm::create_nonlinear_solver_parameter_list();
         tParameterlist( 3 )( 1 ).set("NLA_DofTypes"      , "TEMP");
         tParameterlist( 3 )( 1 ).set("NLA_Sub_Nonlinear_Solver"      , "1");
-
 
         tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
         tParameterlist( 4 )( 0 ).set("TSA_Num_Time_Steps", tTSA_Num_Time_Steps );

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_FEM_IWG_Struc_Linear_Contact_Nitsche.cpp
+ *
+ */
+
 #include <string>
 #include <catch.hpp>
 #include "assert.hpp"
@@ -411,3 +421,4 @@ TEST_CASE( "IWG_Struc_Linear_Contact_Gap_Nitsche_Unsymmetric", "[moris],[fem],[I
     Test_IWG_Struc_Linear_Contact_Nitsche( fem::IWG_Type::STRUC_LINEAR_CONTACT_GAP_UNSYMMETRIC_NITSCHE, 1.1 );
 }
 /* END_TEST_CASE */
+

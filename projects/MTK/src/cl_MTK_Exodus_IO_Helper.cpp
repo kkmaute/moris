@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Exodus_IO_Helper.cpp
+ *
+ */
+
 #include "cl_Communication_Tools.hpp"
 #include "cl_MTK_Exodus_IO_Helper.hpp"
 #include "cl_Logger.hpp"
@@ -1118,7 +1128,6 @@ namespace moris
                 tZMax = mZ(0);
             }
 
-
             // looping through nodes to find min and max coordinate locations
             for ( uint iNode = 1; iNode < tNumNodes; iNode++ )
             {
@@ -1475,3 +1484,4 @@ namespace moris
 
     }
 }
+

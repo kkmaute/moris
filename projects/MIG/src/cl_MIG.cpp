@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MIG.cpp
+ *
+ */
+
 #include "cl_MIG.hpp"
 #include "cl_GEN_Geometry_Engine.hpp"
 #include "cl_MIG_Mesh_Editor.hpp"
@@ -19,11 +29,11 @@ namespace moris::mig
 
     // ----------------------------------------------------------------------------
 
-    void 
+    void
     MIG::perform()
     {
         Tracer tTracer("MIG", "No Type", "Perform");
-        
+
         // get the integration mesh from mesh manager
          mtk::Integration_Mesh* tEnrIntegMesh = mMeshManager->get_mesh_pair( 0 ).get_integration_mesh();
 
@@ -49,7 +59,7 @@ namespace moris::mig
                 tPeriodic3D.perform();
             }
 
-            // cast the parent pointer to child pointer in order to 
+            // cast the parent pointer to child pointer in order to
             mtk::Integration_Mesh_DataBase_IG* tDataBaseIGMesh = dynamic_cast< mtk::Integration_Mesh_DataBase_IG* >( tEnrIntegMesh );
 
             mig::Periodic_Mesh_Editor tPeriodicMeshEditor;
@@ -63,7 +73,7 @@ namespace moris::mig
                 tPeriodicMeshEditor = mig::Periodic_Mesh_Editor( tDataBaseIGMesh, &tPeriodic3D );
             }
 
-            //set the ge 
+            //set the ge
             tPeriodicMeshEditor.set_geometry_engine( mGeometryEngine );
 
             //perform call adds data generated to the database mesh
@@ -72,3 +82,4 @@ namespace moris::mig
 
     }
 }// namespace moris::mig
+

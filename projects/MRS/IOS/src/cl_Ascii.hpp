@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_Ascii.hpp
  *
- *  Created on: Nov 10, 2020
- *      Author: schmidt
  */
 
 #ifndef PROJECTS_MRS_IOS_SRC_HDF5_TOOLS_HPP_
@@ -92,5 +95,4 @@ namespace moris
 }
 
 #endif /* PROJECTS_MRS_IOS_SRC_HDF5_TOOLS_HPP_ */
-
 

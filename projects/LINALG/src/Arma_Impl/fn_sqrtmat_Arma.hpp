@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_sqrtmat_Arma.hpp
  *
- *  Created on: Feb 01, 2020
- *      Author: maute
  */
 
 #ifndef PROJECTS_LINALG_SRC_ARMA_IMPL_FN_SQRTMAT_ARMA_HPP_
@@ -55,3 +58,4 @@ namespace moris
 }
 
 #endif /* PROJECTS_LINALG_SRC_ARMA_IMPL_FN_SQRTMAT_ARMA_HPP_ */
+

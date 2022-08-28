@@ -1,8 +1,11 @@
 /*
- * op_elemwise_mult.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Sep 6, 2018
- *      Author: messe
+ *------------------------------------------------------------------------------------
+ *
+ * op_elemwise_div.hpp
+ *
  */
 
 #ifndef PROJECTS_LINALG_SRC_OP_ELEMWISE_DIV_HPP_
@@ -43,3 +46,4 @@ operator/(
 }
 
 #endif /* PROJECTS_LINALG_SRC_OP_ELEMWISE_DIV_HPP_ */
+

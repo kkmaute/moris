@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # Distributed Linear Algebra Dependencies ---------------------------------
 # -------------------------------------------------------------------------
 
@@ -25,3 +32,4 @@ include(${MORIS_DEPENDS_DIR}/HMR_Depends.cmake)
 
 # just needed for tests
 include(${MORIS_DEPENDS_DIR}/ALG_Depends.cmake)
+

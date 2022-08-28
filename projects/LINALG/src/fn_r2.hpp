@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_r2.hpp
  *
- *  Created on: Sep 5, 2018
- *      Author: messe
  */
 
 #ifndef PROJECTS_LINALG_SRC_FN_R2_HPP_
@@ -54,3 +57,4 @@ namespace moris
 }
 
 #endif /* PROJECTS_LINALG_SRC_FN_R2_HPP_ */
+

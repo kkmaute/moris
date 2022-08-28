@@ -1,11 +1,12 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Interpolation_Mesh.cpp
  *
- *  Created on: Apr 15, 2019
- *      Author: doble
  */
-
-
 
 #include "catch.hpp"
 
@@ -106,7 +107,6 @@ TEST_CASE( "Interpolation Mesh from File STK","[Interpolation Mesh]")
         moris_id edgeID = 25;
         moris_id edgeIND = tMesh3D_HEXs->get_loc_entity_ind_from_entity_glb_id(edgeID,EntityRank::EDGE);
 
-
         // Initialize and fill cells to store IDs of elements and faces connected to current edge (edgeID = 25)
         Matrix< IdMat > elementsConnectedToEdge = tMesh3D_HEXs->get_elements_connected_to_edge_glob_ids(edgeID);
         Matrix< IdMat > facesConnectedToEdge    = tMesh3D_HEXs->get_faces_connected_to_edge_glob_ids(edgeID);
@@ -166,7 +166,6 @@ TEST_CASE( "Interpolation Mesh from File STK","[Interpolation Mesh]")
         moris_id elementID = 100;
         moris_index elementInd = tMesh3D_HEXs->get_loc_entity_ind_from_entity_glb_id(elementID,EntityRank::ELEMENT);
 
-
         // Initialize and fill cells to store IDs of faces, edges and nodes connected to current element (elementID = 1)
         Matrix< IdMat > elemsConnectedToElement = tMesh3D_HEXs->get_element_connected_to_element_glob_ids(elementID);
         Matrix< IndexMat > tElemsConnectedToElementInd = tMesh3D_HEXs->get_elements_connected_to_element_and_face_ord_loc_inds(elementInd);
@@ -186,7 +185,6 @@ TEST_CASE( "Interpolation Mesh from File STK","[Interpolation Mesh]")
         Matrix< IndexMat > tFacesConnectedToElementInds = tMesh3D_HEXs->get_faces_connected_to_element_loc_inds(elementInd);
         Matrix< IndexMat > tEdgesConnectedToElementInds = tMesh3D_HEXs->get_edges_connected_to_element_loc_inds(elementInd);
         Matrix< IndexMat > tNodesConnectedToElementInds = tMesh3D_HEXs->get_nodes_connected_to_element_loc_inds(elementInd);
-
 
         tFaceIdsMatch = all_true(facesConnectedToElement == convert_entity_indices_to_ids(tFacesConnectedToElementInds,EntityRank::FACE,tMesh3D_HEXs));
         tEdgeIdsMatch = all_true(edgesConnectedToElement == convert_entity_indices_to_ids(tEdgesConnectedToElementInds,EntityRank::EDGE,tMesh3D_HEXs));
@@ -271,7 +269,6 @@ TEST_CASE( "Interpolation Mesh from File STK","[Interpolation Mesh]")
         CHECK(all_true(tCellVertexIds == nodesConnectedToElement));
         CHECK(all_true(tCellVertexInds == tNodesConnectedToElementInds));
 
-
         // Check vertex functions
         mtk::Vertex const & tVertex  = tMesh3D_HEXs->get_mtk_vertex(nodeIndex);
         Matrix< DDRMat > tNodeCoords = tMesh3D_HEXs->get_node_coordinate(nodeIndex);
@@ -281,13 +278,11 @@ TEST_CASE( "Interpolation Mesh from File STK","[Interpolation Mesh]")
         CHECK(equal_to(tVertex.get_id(),nodeID));
         CHECK(equal_to(tVertex.get_index(),nodeIndex));
 
-
         // ===================================================
         // Dump to file
         // ===================================================
         std::string tFileOutput = "./mtk_generated_ut.exo";
         tMesh3D_HEXs->create_output_mesh(tFileOutput);
-
 
         delete tMesh3D_HEXs;
 
@@ -295,3 +290,4 @@ TEST_CASE( "Interpolation Mesh from File STK","[Interpolation Mesh]")
 }
 }
 }
+

@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_FEM_CM_Compressible_Newtonian_Fluid.cpp
+ *
+ */
 
 #include "catch.hpp"
 
@@ -25,7 +34,7 @@
 using namespace moris;
 using namespace fem;
 
-TEST_CASE( "CM_Compressible_Newtonian_Fluid_Density_Primitive", 
+TEST_CASE( "CM_Compressible_Newtonian_Fluid_Density_Primitive",
         "[CM_Compressible_Newtonian_Fluid_Density_Primitive]" )
 {
     // define an epsilon environment
@@ -134,7 +143,7 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Density_Primitive",
     tCMMasterFluid->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tCMMasterFluid->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::RHO ) )   = 0;
     tCMMasterFluid->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )    = 1;
-    tCMMasterFluid->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )  = 2;    
+    tCMMasterFluid->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )  = 2;
 
     // build global dof type list
     tMMFluid->get_global_dof_type_list();
@@ -336,14 +345,14 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Density_Primitive",
             {
                 // reset IWG evaluation flags
                 tMMFluid->reset_eval_flags();
-                tCMMasterFluid->reset_eval_flags();             
+                tCMMasterFluid->reset_eval_flags();
 
                 // create evaluation point xi, tau
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
                 tMMFluid->mSet->mMasterFIManager->set_space_time( tParamPoint );
-                tCMMasterFluid->mSet->mMasterFIManager->set_space_time( tParamPoint );                
+                tCMMasterFluid->mSet->mMasterFIManager->set_space_time( tParamPoint );
 
                 // populate the requested master dof type for CM
                 moris::Cell< moris::Cell< MSI::Dof_Type > > tRequestedMasterGlobalDofTypes =
@@ -351,7 +360,7 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Density_Primitive",
 
                 // populate the test master dof type for CM
                 moris::Cell< moris::Cell< MSI::Dof_Type > > tMasterDofTypes =
-                        tCMMasterFluid->get_dof_type_list();                                              
+                        tCMMasterFluid->get_dof_type_list();
 
                 // loop over requested dof type
                 for( uint jRequestedDof = 0; jRequestedDof < tRequestedMasterGlobalDofTypes.size(); jRequestedDof++ )
@@ -543,7 +552,7 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Density_Primitive",
 
                         // check that analytical and FD match
                         bool tCheckEint = fem::check( tdEintdDof, tdEintdDofFD, tEpsilon );
-                        REQUIRE( tCheckEint );   
+                        REQUIRE( tCheckEint );
 
                         //------------------------------------------------------------------------------
                         // evaluate dEnergyDotdu
@@ -578,7 +587,7 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Density_Primitive",
 
                         // check that analytical and FD match
                         bool tCheckAlphaP = fem::check( tdAlphaPdDof, tdAlphaPdDofFD, tEpsilon );
-                        REQUIRE( tCheckAlphaP );        
+                        REQUIRE( tCheckAlphaP );
 
                         //------------------------------------------------------------------------------
                         // evaluate dBetaTdu
@@ -612,8 +621,8 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Density_Primitive",
 
                         // check that analytical and FD match
                         bool tCheckCp = fem::check( tdCpdDof, tdCpdDofFD, tEpsilon );
-                        REQUIRE( tCheckCp );                                                                   
-                    }                 
+                        REQUIRE( tCheckCp );
+                    }
 
                     //------------------------------------------------------------------------------
                     //  Energy
@@ -759,7 +768,7 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Density_Primitive",
                             tdThermalDivFluxdDofFD,
                             tPerturbation,
                             FDScheme_Type::POINT_5,
-                            CM_Function_Type::THERMAL );                                
+                            CM_Function_Type::THERMAL );
 
                     // check that analytical and FD match
                     bool tCheckThermalDivFlux = fem::check( tdThermalDivFluxdDof, tdThermalDivFluxdDofFD, tEpsilon );
@@ -778,7 +787,7 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Density_Primitive",
                             tdWorkDivFluxdDofFD,
                             tPerturbation,
                             FDScheme_Type::POINT_5,
-                            CM_Function_Type::WORK );                                                     
+                            CM_Function_Type::WORK );
 
                     // check that analytical and FD match
                     bool tCheckWorkDivFlux = fem::check( tdWorkDivFluxdDof, tdWorkDivFluxdDofFD, 10.0 * tEpsilon );
@@ -875,7 +884,7 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Density_Primitive",
 
 //------------------------------------------------------------------------------
 
-TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive", 
+TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive",
         "[CM_Compressible_Newtonian_Fluid_Pressure_Primitive]" )
 {
     // define an epsilon environment
@@ -984,7 +993,7 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive",
     tCMMasterFluid->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tCMMasterFluid->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )   = 0;
     tCMMasterFluid->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )    = 1;
-    tCMMasterFluid->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )  = 2;    
+    tCMMasterFluid->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )  = 2;
 
     // build global dof type list
 //     tMMFluid->get_global_dof_type_list();
@@ -1186,14 +1195,14 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive",
             {
                 // reset IWG evaluation flags
                 tMMFluid->reset_eval_flags();
-                tCMMasterFluid->reset_eval_flags();             
+                tCMMasterFluid->reset_eval_flags();
 
                 // create evaluation point xi, tau
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
                 //tMMFluid->mSet->mMasterFIManager->set_space_time( tParamPoint );
-                tCMMasterFluid->mSet->mMasterFIManager->set_space_time( tParamPoint );                
+                tCMMasterFluid->mSet->mMasterFIManager->set_space_time( tParamPoint );
 
                 // populate the requested master dof type for CM
                 moris::Cell< moris::Cell< MSI::Dof_Type > > tRequestedMasterGlobalDofTypes =
@@ -1201,7 +1210,7 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive",
 
                 // populate the test master dof type for CM
                 moris::Cell< moris::Cell< MSI::Dof_Type > > tMasterDofTypes =
-                        tCMMasterFluid->get_dof_type_list();                                              
+                        tCMMasterFluid->get_dof_type_list();
 
                 // loop over requested dof type
                 for( uint jRequestedDof = 0; jRequestedDof < tRequestedMasterGlobalDofTypes.size(); jRequestedDof++ )
@@ -1286,7 +1295,7 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive",
 
                         // check that analytical and FD match
                         bool tCheckPressure = fem::check( tdPressuredDof, tdPressuredDofFD, tEpsilon );
-                        REQUIRE( tCheckPressure );                        
+                        REQUIRE( tCheckPressure );
 
                         //------------------------------------------------------------------------------
                         // evaluate dof deriv
@@ -1393,7 +1402,7 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive",
 
                         // check that analytical and FD match
                         bool tCheckEint = fem::check( tdEintdDof, tdEintdDofFD, tEpsilon );
-                        REQUIRE( tCheckEint );   
+                        REQUIRE( tCheckEint );
 
                         //------------------------------------------------------------------------------
                         // evaluate dEnergyDotdu
@@ -1428,7 +1437,7 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive",
 
                         // check that analytical and FD match
                         bool tCheckAlphaP = fem::check( tdAlphaPdDof, tdAlphaPdDofFD, tEpsilon );
-                        REQUIRE( tCheckAlphaP );        
+                        REQUIRE( tCheckAlphaP );
 
                         //------------------------------------------------------------------------------
                         // evaluate dBetaTdu
@@ -1462,8 +1471,8 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive",
 
                         // check that analytical and FD match
                         bool tCheckCp = fem::check( tdCpdDof, tdCpdDofFD, tEpsilon );
-                        REQUIRE( tCheckCp );                                                                                          
-                    }                 
+                        REQUIRE( tCheckCp );
+                    }
 
                     //------------------------------------------------------------------------------
                     //  Energy
@@ -1609,7 +1618,7 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive",
                             tdThermalDivFluxdDofFD,
                             tPerturbation,
                             FDScheme_Type::POINT_5,
-                            CM_Function_Type::THERMAL );                                
+                            CM_Function_Type::THERMAL );
 
                     // check that analytical and FD match
                     bool tCheckThermalDivFlux = fem::check( tdThermalDivFluxdDof, tdThermalDivFluxdDofFD, tEpsilon );
@@ -1628,7 +1637,7 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive",
                             tdWorkDivFluxdDofFD,
                             tPerturbation,
                             FDScheme_Type::POINT_5,
-                            CM_Function_Type::WORK );                                                     
+                            CM_Function_Type::WORK );
 
                     // check that analytical and FD match
                     bool tCheckWorkDivFlux = fem::check( tdWorkDivFluxdDof, tdWorkDivFluxdDofFD, 10.0 * tEpsilon );
@@ -1722,3 +1731,4 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive",
         }
     }
 }/*END_TEST_CASE*/
+

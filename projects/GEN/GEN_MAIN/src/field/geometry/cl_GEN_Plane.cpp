@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_GEN_Plane.cpp
+ *
+ */
+
 #include "cl_GEN_Plane.hpp"
 
 namespace moris
@@ -22,7 +32,7 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
-    
+
         Plane::Plane(
                 real                      aXCenter,
                 real                      aYCenter,
@@ -75,7 +85,7 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        
+
         real Plane::eval_field_3d(const Matrix<DDRMat>& aCoordinates)
         {
             // Get variables
@@ -118,6 +128,7 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        
+
     }
 }
+

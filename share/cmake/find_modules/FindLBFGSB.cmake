@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # LBFGSB Find Module -------------------------------------------------------
 # -------------------------------------------------------------------------
 
@@ -31,4 +38,5 @@ find_package_handle_standard_args(LBFGSB DEFAULT_MSG
     LBFGSB_LIBRARIES )
 
 mark_as_advanced(LBFGSB_LIBRARY_DIRS LBFGSB_LIBRARIES)
+
 

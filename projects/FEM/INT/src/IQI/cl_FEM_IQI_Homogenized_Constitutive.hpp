@@ -1,13 +1,15 @@
 /*
- * cl_FEM_IQI_Homogenized_Constituve.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Apr 10, 2021
- *      Author: momo
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_IQI_Homogenized_Constitutive.hpp
+ *
  */
 
 #ifndef PROJECTS_FEM_INT_SRC_IQI_CL_FEM_IQI_HOMOGENIZED_CONSTITUTIVE_HPP_
 #define PROJECTS_FEM_INT_SRC_IQI_CL_FEM_IQI_HOMOGENIZED_CONSTITUTIVE_HPP_
-
 
 #include <map>
 
@@ -97,5 +99,5 @@ namespace moris
     }/* end namespace fem */
 } /* end namespace moris */
 
-
 #endif /* PROJECTS_FEM_INT_SRC_IQI_CL_FEM_IQI_HOMOGENIZED_CONSTITUTIVE_HPP_ */
+

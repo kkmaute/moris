@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_IWG_Helmholtz_Interface.cpp
+ *
+ */
 
 #include "cl_FEM_IWG_Helmholtz_Interface.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
@@ -32,7 +41,6 @@ namespace moris
 
             //FIXME set the interface normal
             Matrix< DDRMat > aInterfaceNormal( vN->gradx( 1 ).n_cols() , 1, 1.0 );
-
 
             uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
 
@@ -70,3 +78,4 @@ namespace moris
 //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
+

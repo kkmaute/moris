@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_HMR_SideSets.cpp
+ *
+ */
+
 #include <catch.hpp>
 
 #include "paths.hpp"
@@ -282,7 +292,6 @@ TEST_CASE("HMR_SideSets", "[moris],[mesh],[hmr],[hmr_side_set]")
 //          // close file
 //          close_hdf5_file( tFileID );
 
-
 //------------------------------------------------------------------------------
 //    open solution
 //------------------------------------------------------------------------------
@@ -565,7 +574,6 @@ TEST_CASE("HMR_SideSets_numbered_aura", "[moris],[mesh],[hmr],[hmr_side_set_numb
 //          // close file
 //          close_hdf5_file( tFileID );
 
-
 //------------------------------------------------------------------------------
 //    open solution
 //------------------------------------------------------------------------------
@@ -604,3 +612,4 @@ TEST_CASE("HMR_SideSets_numbered_aura", "[moris],[mesh],[hmr],[hmr_side_set_numb
 
 //------------------------------------------------------------------------------
 }
+

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * ut_GEN_Intersection.cpp
+ *
+ */
+
 #include "catch.hpp"
 #include "math.h"
 
@@ -905,3 +915,4 @@ namespace moris
 
     }    // namespace ge
 }    // namespace moris
+

@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_XTK_Background_Mesh.hpp
  *
- *  Created on: Aug 10, 2017
- *      Author: ktdoble
  */
 
 #ifndef SRC_XTK_CL_XTK_BACKGROUND_MESH_HPP_
@@ -173,7 +176,6 @@ namespace xtk
             moris::Matrix< moris::IndexMat >
             get_node_child_mesh_assocation( moris::moris_index aNodeIndex ) const;
 
-
             /*!
              * Get the global entity id from local index
              */
@@ -226,7 +228,6 @@ namespace xtk
              */
             moris::Matrix< moris::IdMat >
             get_local_to_global_map(enum EntityRank aEntityRank) const;
-
 
             /*!
              * Return a vector of all non-intersected elements'
@@ -330,7 +331,6 @@ namespace xtk
                     moris::moris_index aNodeIndex,
                     moris::size_t      aGeomIndex) const;
 
-
             /*!
              * get the interface nodes with respect to a given geometry index
              */
@@ -405,8 +405,6 @@ namespace xtk
             moris::Matrix< moris::IndexMat >
             get_element_phase_inds(moris::Matrix<moris::DDSTMat> const & aElementInds );
 
-
-
             moris_index
             get_loc_entity_ind_from_entity_glb_id(
                     moris_id        aEntityId,
@@ -459,7 +457,6 @@ namespace xtk
              */
             moris::mtk::Cell const &
             get_child_element_mtk_cell(moris::moris_index aElementIndex) const;
-
 
             // -------------------------------------------------------------------
             // Access underlying mesh data functions
@@ -519,7 +516,7 @@ namespace xtk
             moris::Cell<moris::mtk::Cell*> mChildMtkCells;
 
             // Vertex constructed by the decomposition process
-            std::unordered_map< moris_id, moris_index> mVertexGlbToLocalMap; 
+            std::unordered_map< moris_id, moris_index> mVertexGlbToLocalMap;
             moris::Cell<moris::mtk::Vertex_XTK> mXtkMtkVertices;
 
             // Associate external node indices to the child meshes they belong to
@@ -552,10 +549,10 @@ namespace xtk
             void
             initialize_background_mesh_vertices();
 
-
             void
             setup_comm_map();
     };
 }
 
 #endif /* SRC_XTK_CL_XTK_BACKGROUND_MESH_HPP_ */
+

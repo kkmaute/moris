@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * Levelset_Boxbeam_Create_File.cpp
+ *
+ */
 
 #include <string>
 #include <iostream>
@@ -23,7 +32,6 @@
 #include "fn_stringify_matrix.hpp"
 
 #include "AztecOO.h"
-
 
 #ifdef __cplusplus
 extern "C" {
@@ -141,7 +149,6 @@ namespace moris
 
     std::string tTotalDomain1 = tFrameSets + "," + tInteriorSets + "," + tVoidSets;
 
-
     /* ------------------------------------------------------------------------ */
     // material parameters
 
@@ -164,7 +171,6 @@ namespace moris
 
     /* ------------------------------------------------------------------------ */
 
-
     /* ------------------------------------------------------------------------ */
 
     void
@@ -176,7 +182,6 @@ namespace moris
         // return absolute value of level set function
         aPropMatrix = aFIManager->get_field_interpolators_for_type( PDV_Type::LS1 )->val();
     }
-
 
     // Level set function defining property in FEM
     void
@@ -264,7 +269,6 @@ namespace moris
 
         aPropMatrix = factor * aFIManager->get_field_interpolators_for_type( PDV_Type::LS1 )->dnNdxn( 1 );
     }
-
 
     //------------------------------------------------------------------------------
 
@@ -518,7 +522,6 @@ namespace moris
         return tDConstraintDCriteria;
     }
 
-
     //--------------------------------------------------------------------------------------------------------------
 
     void
@@ -620,7 +623,6 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "output_mesh_file", tGENOutputFile );
         tParameterlist( 0 )( 0 ).set( "time_offset", 10.0 );
         tParameterlist( 0 )( 0 ).set( "isocontour_tolerance", 10e-14 );
-
 
         Matrix< DDUMat > tPhaseMap( 4, 1, 0 );
         tPhaseMap( 1 ) = 1;
@@ -819,7 +821,6 @@ namespace moris
         tParameterList( 0 )( tPropCounter ).set( "dv_derivative_functions", "tDerLevelSetFunc" );
         tParameterList( 0 )( tPropCounter ).set( "dv_dependencies", "LS1" );
         tPropCounter++;
-
 
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
         tParameterList( 0 )( tPropCounter ) = prm::create_property_parameter_list();
@@ -1031,7 +1032,6 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", tInterfaceVoidSSets4 );
         tIWGCounter++;
 
-
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGBulkU_Frame" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_BULK ) );
@@ -1199,7 +1199,6 @@ namespace moris
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tTotalDomain1 );
         tIQICounter++;
 
-
         // H1 Error if reference is constant
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIH1ErrorConst" );
@@ -1223,7 +1222,6 @@ namespace moris
         tParameterList( 4 )( tIQICounter ).set( "function_parameters", "1.0 / 1.0 / 1.0" );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tTotalDomain1 );
         tIQICounter++;
-
 
         // H1 Error if reference is design dependent
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
@@ -1265,7 +1263,6 @@ namespace moris
 
         tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
 
-
         tParameterlist( 2 ).resize( 4 );
         tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();    // nonlinear algorithm index 0
         tParameterlist( 2 )( 0 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) );
@@ -1278,7 +1275,6 @@ namespace moris
         tParameterlist( 2 )( 1 ).set( "NLA_rel_res_norm_drop", 1.0e-9 );
         tParameterlist( 2 )( 1 ).set( "NLA_relaxation_parameter", 1.0 );
         tParameterlist( 2 )( 1 ).set( "NLA_max_iter", 2 );
-
 
         tParameterlist( 2 )( 2 ) = moris::prm::create_nonlinear_algorithm_parameter_list();    // nonlinear algorithm index 1
         tParameterlist( 2 )( 2 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NLBGS_SOLVER ) );
@@ -1306,7 +1302,6 @@ namespace moris
         tParameterlist( 3 )( 1 ).set( "NLA_DofTypes", "PHID" );
         tParameterlist( 3 )( 1 ).set( "NLA_Secundary_DofTypes", "" );
 
-
         tParameterlist( 3 )( 2 ) = moris::prm::create_nonlinear_solver_parameter_list();
         tParameterlist( 3 )( 2 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) );
         tParameterlist( 3 )( 2 ).set( "NLA_Nonlinear_solver_algorithms", "3" );    // set nonlinear algorithm with index 0
@@ -1317,7 +1312,6 @@ namespace moris
         tParameterlist( 3 )( 3 ).set( "NLA_Nonlinear_solver_algorithms", "2" );    // set nonlinear algorithm with index 1.
         tParameterlist( 3 )( 3 ).set( "NLA_Sub_Nonlinear_Solver", "0,1,2" );       // set sub nonlinear solvers with index 0 and 1
         tParameterlist( 3 )( 3 ).set( "NLA_DofTypes", "THETA;PHID;UX,UY" );
-
 
         tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
         tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_solver", 3 );
@@ -1378,7 +1372,6 @@ namespace moris
             tParameterlist( 0 )( 0 ).set( "Field_Type", std::string( "NODAL,NODAL,NODAL,NODAL,NODAL" ) );
             tParameterlist( 0 )( 0 ).set( "IQI_Names", std::string( "IQIBulkUX,IQIBulkUY,IQIBulkPHID,IQIBulkTHETA,IQILevelSet" ) );
 
-
             // tParameterlist( 0 )( 0 ).set( "Field_Names", std::string("THETA,PHID") );
             // tParameterlist( 0 )( 0 ).set( "Field_Type" , std::string("NODAL,NODAL") );
             // tParameterlist( 0 )( 0 ).set( "IQI_Names"  , std::string("IQIBulkTHETA,IQIBulkPHID") );
@@ -1408,8 +1401,8 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 }    // namespace moris
 
-
 //--------------------------------------------------------------------------------------------------------------
 #ifdef __cplusplus
 }
 #endif
+

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * Comsol.cpp
+ *
+ */
+
 #include <string>
 #include <iostream>
 #include "typedefs.hpp"
@@ -20,7 +30,6 @@
 
 #include "AztecOO.h"
 
-
 #ifdef  __cplusplus
 extern "C"
 {
@@ -38,7 +47,6 @@ namespace moris
     moris::sint tStep = 300;
     moris::real tTmax = 57600.0;
     moris::real tDirichletRampUp = 3.0;
-
 
     // Constant function for properties
     void Func_Const( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
@@ -445,3 +453,4 @@ namespace moris
 #ifdef  __cplusplus
 }
 #endif
+

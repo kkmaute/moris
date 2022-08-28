@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_IQI.hpp
  *
- *  Created on: Oct 08, 2019
- *      Author: noel
  */
+
 #ifndef SRC_FEM_CL_FEM_IQI_HPP_
 #define SRC_FEM_CL_FEM_IQI_HPP_
 
@@ -874,7 +878,6 @@ namespace moris
                     const uint&         aSpatialDirection,
                     fem::FDScheme_Type& aUsedFDScheme );
 
-
             //------------------------------------------------------------------------------
             /**
              * get the matrix dimension of the IQI in order to initialize the size of the mGloblaIQIVal
@@ -890,3 +893,4 @@ namespace moris
     } /* namespace fem */
 } /* namespace moris */
 #endif /* SRC_FEM_CL_FEM_IQI_HPP_ */
+

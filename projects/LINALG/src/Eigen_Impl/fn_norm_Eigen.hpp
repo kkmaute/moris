@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_norm_Eigen.hpp
  *
- *  Created on: Aug 29, 2018
- *      Author: doble
  */
 
 #ifndef PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_NORM_EIGEN_HPP_
@@ -31,5 +34,5 @@ norm( Eigen::MatrixBase<ET> &  A)
 
 }
 
-
 #endif /* PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_NORM_EIGEN_HPP_ */
+

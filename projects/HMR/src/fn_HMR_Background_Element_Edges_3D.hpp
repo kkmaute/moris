@@ -1,10 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_HMR_Background_Element_Edges_3D.hpp
  *
- *  Created on: September 27, 2018
- *  using MATLAB
  */
- 
+
 #ifndef SRC_HMR_FN_HMR_BACKGROUND_ELEMENT_EDGED_3D_HPP_
 #define SRC_HMR_FN_HMR_BACKGROUND_ELEMENT_EDGES_3D_HPP_
 
@@ -35,7 +38,6 @@ namespace moris
             moris_index tE9  = 5;
             moris_index tE10 = 6;
             moris_index tE11 = 7;
-
 
             // test if neighbor 0 exists and is on same level
             if( mNeighbors[ 0 ] != NULL )
@@ -882,3 +884,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_HMR_FN_HMR_BACKGROUND_ELEMENT_EDGES_3D_HPP_ */
+

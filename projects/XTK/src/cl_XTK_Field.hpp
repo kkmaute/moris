@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_XTK_Field.hpp
  *
- *  Created on: Sep 6, 2019
- *      Author: doble
  */
 
 #ifndef PROJECTS_XTK_SRC_XTK_CL_XTK_FIELD_HPP_
@@ -10,7 +13,6 @@
 
 #include "typedefs.hpp"
 #include "cl_Matrix.hpp"
-
 
 using namespace moris;
 namespace xtk
@@ -29,3 +31,4 @@ public:
 }
 
 #endif /* PROJECTS_XTK_SRC_XTK_CL_XTK_FIELD_HPP_ */
+

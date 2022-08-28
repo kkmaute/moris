@@ -1,8 +1,11 @@
 /*
- * op_times.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Aug 24, 2018
- *      Author: doble
+ *------------------------------------------------------------------------------------
+ *
+ * op_times_Eigen.hpp
+ *
  */
 
 #ifndef PROJECTS_LINALG_SRC_EIGEN_IMPL_OP_TIMES_EIGEN_HPP_
@@ -10,7 +13,6 @@
 
 #include "cl_Matrix.hpp"
 #include "Eigen/Dense"
-
 
 namespace moris
 {
@@ -41,7 +43,6 @@ scalar_times( Scalar & aA,
     return  aA * aB;
 }
 
-
 }
 
 /*template< typename Matrix_Type >
@@ -61,3 +62,4 @@ operator*( const typename Matrix< Matrix_Type >::Data_Type & aA,  Matrix< Matrix
 }*/
 
 #endif /* PROJECTS_LINALG_SRC_EIGEN_IMPL_OP_TIMES_EIGEN_HPP_ */
+

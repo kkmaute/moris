@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_Integration_Mesh_Test2.cpp
+ *
+ */
+
 #include "catch.hpp"
 // FEM/INT/src
 #include "cl_FEM_Geometry_Interpolator.hpp"
@@ -57,7 +67,6 @@ TEST_CASE( "Interpolation mesh QUAD4 - Integration mesh QUAD4 ",
         { +1.0, +1.0 },
         { -1.0, +1.0 }
     };
-
 
     // the QUAD4 integration element in space physical coordinates xHat
     Matrix< DDRMat > tXHatIG = { //
@@ -847,3 +856,4 @@ TEST_CASE( "Interpolation mesh HEX8 - Integration mesh HEX8 ",
     // clean up
     delete tSideSpaceInterp;
 }
+

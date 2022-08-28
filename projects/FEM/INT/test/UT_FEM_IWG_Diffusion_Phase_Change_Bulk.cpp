@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_FEM_IWG_Diffusion_Phase_Change_Bulk.cpp
+ *
+ */
+
 #include <string>
 #include <catch.hpp>
 #include <memory>
@@ -53,10 +63,8 @@ void tFIDerFunction_UTIWGDIFFBULK
     aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
 }
 
-
 using namespace moris;
 using namespace fem;
-
 
 moris::Cell<bool> test_IWG_Diffusion_Phase_Change_Bulk(
         Matrix< DDRMat > aXHat,
@@ -147,7 +155,6 @@ moris::Cell<bool> test_IWG_Diffusion_Phase_Change_Bulk(
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
     tIWG->set_constitutive_model( tCMMasterDiffLinIsoPC, "Diffusion", mtk::Master_Slave::MASTER );
     tIWG->set_property( tPropMasterBodyLoad, "Load", mtk::Master_Slave::MASTER );
-
 
     // space and time geometry interpolators
     //------------------------------------------------------------------------------
@@ -331,7 +338,6 @@ TEST_CASE( "IWG_Diffusion_Phase_Change_Bulk_HEX27", "[moris],[fem],[IWG_Diffusio
             { 2.0, 0.0, 3.0}, { 4.0, 0.5, 3.0}, { 2.0, 1.0, 3.0}, { 0.0, 0.5, 3.0},
             { 2.0, 0.5, 1.5}, { 2.0, 0.5, 0.0}, { 2.0, 0.5, 3.0},
             { 2.0, 0.0, 1.5}, { 4.0, 0.5, 1.5}, { 2.0, 1.0, 1.5}, { 0.0, 0.5, 1.5}};
-
 
     //create a line time element
     Matrix< DDRMat > tTHat( 3, 1 );

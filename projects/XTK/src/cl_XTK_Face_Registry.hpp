@@ -1,13 +1,15 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_XTK_Face_Registry.hpp
  *
- *  Created on: Feb 5, 2018
- *      Author: ktdoble
  */
 
 #ifndef XTK_SRC_XTK_CL_XTK_FACE_REGISTRY_HPP_
 #define XTK_SRC_XTK_CL_XTK_FACE_REGISTRY_HPP_
-
 
 // XTKL: Linear Algebra Includes
 #include "cl_Matrix.hpp"
@@ -16,7 +18,6 @@
 
 namespace xtk
 {
-
 
 /*
  * This class tracks the creation of new faces and returns a element to face connectivity
@@ -55,7 +56,6 @@ public:
         conservative_copy(aFaceParentRanks, mFaceAncestryRanks);
         mReplacedInheritanceMarker = moris::Matrix< moris::IndexMat >(1,tMaxSize,0);
 
-
         // Initialize a face replacement marker
         mReplacedFaceMarker  = moris::Matrix< moris::IndexMat >(1,tNumRows,0);
 
@@ -71,7 +71,6 @@ public:
         conservative_copy(aFaceToElementConnectivity, mFaceToElement);
 
     }
-
 
     // Constructor for a face registry used to generate face indices,no ancestry information, also not used for modifying the face connectivity
     Face_Registry(moris::size_t aFacesPerElement,
@@ -193,7 +192,6 @@ public:
                 // Face Index iF of element iE (for clarity later)
                 tFaceIndex = aElementToFaceIndices(iE,iF);
 
-
                 // Loop over the two entries in the
                 for(moris::size_t j = 0; j<tNumCols; j++)
                 {
@@ -219,7 +217,6 @@ public:
                           moris::moris_index aElementToReplace)
     {
 
-
         for(moris::size_t i = 0; i<mFaceToElement.n_cols(); i++)
         {
             if( (mFaceToElement)(aFaceIndexToReset,i) == aElementToReplace)
@@ -231,7 +228,6 @@ public:
         mReplacedFaceMarker(0,aFaceIndexToReset) = 1;
 
     }
-
 
     void set_face_ancestry(moris::moris_index aFaceIndex,
                            moris::moris_index aParentIndex,
@@ -261,7 +257,6 @@ public:
 
         mReplacedInheritanceMarker(0,aFaceIndex) = 1;
     }
-
 
     /*
      * Ask if a face has been replaced, returns true if the face has already been replaced.
@@ -336,7 +331,6 @@ public:
         return mFaceToElement;
     }
 
-
     /*
      * Ends the modification cycle,
      * After this call, no modifications should be made via calling append_face,  or replace face
@@ -350,12 +344,9 @@ public:
         mFaceAncestryRanks.resize(1,mNumRegisteredFaces);
         mFaceToElement.resize(mNumRegisteredFaces,2);
 
-
         // Close the modification cycle (this should only be called here)
         mModificationOpen = false;
     }
-
-
 
 private:
     bool mModificationOpen;
@@ -408,3 +399,4 @@ private:
 
 }
 #endif /* XTK_SRC_XTK_CL_XTK_FACE_REGISTRY_HPP_ */
+

@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * op_elemwise_mult.hpp
  *
- *  Created on: Sep 6, 2018
- *      Author: messe
  */
 
 #ifndef PROJECTS_LINALG_SRC_OP_ELEMWISE_MULT_HPP_
@@ -18,3 +21,4 @@
 
 //FIXME: Christian, All functions need a description and function call with two moris matrix arguments
 #endif /* PROJECTS_LINALG_SRC_OP_ELEMWISE_MULT_HPP_ */
+

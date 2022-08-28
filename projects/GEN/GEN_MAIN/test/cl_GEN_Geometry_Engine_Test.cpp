@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_GEN_Geometry_Engine_Test.cpp
+ *
+ */
+
 #include "cl_GEN_Geometry_Engine_Test.hpp"
 
 namespace moris

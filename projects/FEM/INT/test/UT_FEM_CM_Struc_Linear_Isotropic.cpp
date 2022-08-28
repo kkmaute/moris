@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_FEM_CM_Struc_Linear_Isotropic.cpp
+ *
+ */
 
 #include "catch.hpp"
 
@@ -222,7 +231,6 @@ TEST_CASE( "CM_Struc_Linear_Isotropic", "[CM_Struc_Lin_Iso]" )
             tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
             tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
 
-
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
@@ -336,8 +344,6 @@ TEST_CASE( "CM_Struc_Linear_Isotropic", "[CM_Struc_Lin_Iso]" )
 //                        REQUIRE( tCheckTestTractionFluid );
 //                    }
 
-
-
                 }
             }
             // clean up
@@ -345,3 +351,4 @@ TEST_CASE( "CM_Struc_Linear_Isotropic", "[CM_Struc_Lin_Iso]" )
         }
     }
 }/*END_TEST_CASE*/
+

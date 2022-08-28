@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_XTK_Vertex_Enrichment.hpp
  *
- *  Created on: Jul 11, 2019
- *      Author: doble
  */
 
 #ifndef PROJECTS_XTK_SRC_XTK_CL_XTK_VERTEX_ENRICHMENT_HPP_
@@ -102,7 +105,6 @@ public:
         return mCoefficients;
     }
 
-
     //------------------------------------------------------------------------------
 
     /**
@@ -130,7 +132,6 @@ public:
     void
     set_node_index(moris::moris_index aNodeIndex);
 
-
     mtk::Vertex_Interpolation const *
 	get_base_vertex_interpolation() const;
     /*
@@ -152,8 +153,6 @@ public:
 
     void
     add_base_vertex_interpolation(mtk::Vertex_Interpolation * aBaseVertInterp);
-
-
 
     std::unordered_map<moris::moris_index, moris::moris_index> &
     get_basis_map();
@@ -227,7 +226,6 @@ operator==(const Vertex_Enrichment & aA,
     return true;
 }
 
-
 inline
 std::ostream &
 operator<<(std::ostream & os, const xtk::Vertex_Enrichment & dt)
@@ -235,7 +233,7 @@ operator<<(std::ostream & os, const xtk::Vertex_Enrichment & dt)
     moris::Matrix< moris::IndexMat > const & tBasisIndices = dt.get_basis_indices();
     moris::Matrix< moris::IndexMat > const & tBasisOwner   = dt.get_owners();
     moris::Matrix< moris::DDRMat >   const & tBasisWeights = dt.get_basis_weights();
-    
+
     // base vertex
     mtk::Vertex_Interpolation const * tBaseVertIp = dt.get_base_vertex_interpolation();
     moris::Matrix< moris::IndexMat > tBackBasisIndices = tBaseVertIp->get_indices();
@@ -253,5 +251,5 @@ operator<<(std::ostream & os, const xtk::Vertex_Enrichment & dt)
 
 }
 
-
 #endif /* PROJECTS_XTK_SRC_XTK_CL_XTK_VERTEX_ENRICHMENT_HPP_ */
+

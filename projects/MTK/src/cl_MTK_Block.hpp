@@ -1,8 +1,11 @@
 /*
- * cl_MTK_Element_Block.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jul 24, 2019
- *      Author: Schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Block.hpp
+ *
  */
 
 #ifndef SRC_MESH_CL_MTK_BLOCK_HPP_
@@ -18,7 +21,6 @@
 
 #include "cl_MTK_Cell_Cluster.hpp" //MTK/src
 #include "cl_MTK_Set.hpp"          //MTK/src
-
 
 namespace moris
 {
@@ -223,7 +225,6 @@ namespace moris
                 //                  return mMyBlockSetClusterInds;
                 //              }
 
-
                 //------------------------------------------------------------------------------
 
                 const Cluster  *
@@ -415,3 +416,4 @@ namespace moris
 } /* namespace moris */
 //------------------------------------------------------------------------------
 #endif /* SRC_MESH_CL_MTK_BLOCK_HPP_ */
+

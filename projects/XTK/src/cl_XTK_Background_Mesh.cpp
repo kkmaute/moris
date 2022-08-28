@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_XTK_Background_Mesh.cpp
  *
- *  Created on: Mar 14, 2019
- *      Author: doble
  */
 
 #include "cl_XTK_Background_Mesh.hpp"
@@ -148,7 +151,7 @@ namespace xtk
     {
         MORIS_ASSERT(aVertexIndex <(moris::moris_index) mXtkMtkVertices.size(),
                 "Vertex index is out of bounds");
-                
+
         return mXtkMtkVertices(aVertexIndex);
     }
 
@@ -159,7 +162,7 @@ namespace xtk
     {
         MORIS_ASSERT(aVertexIndex <(moris::moris_index) mXtkMtkVertices.size(),
                 "Vertex index is out of bounds");
-                
+
         return mXtkMtkVertices(aVertexIndex);
     }
 
@@ -721,14 +724,13 @@ namespace xtk
                     aNewElementToChildMeshPairs(i).second);
         }
     }
-    
 
     void
     Background_Mesh::setup_downward_inheritance(Cut_Mesh & aCutMesh)
     {
-        // reset the downward inheritance 
+        // reset the downward inheritance
         mElementDownwardInheritance = Downward_Inheritance<moris::moris_index, moris::moris_index>();
-        
+
         for(moris::size_t i = 0; i<aCutMesh.get_num_child_meshes(); i++)
         {
             moris::uint tParentElementIndex = aCutMesh.get_parent_element_index(i);
@@ -1214,7 +1216,6 @@ namespace xtk
             MORIS_ERROR(0,"Provided parent cell topology not implemented.");
         }
 
-
         return tTopo;
     }
 
@@ -1260,11 +1261,11 @@ namespace xtk
         for(moris::uint iCell = 0; iCell< aCellsToRemove.size(); iCell++)
         {
             MORIS_ASSERT(!this->is_background_cell(aCellsToRemove(iCell)),"Cannot remove background cells");
-            
+
             auto tIter = mChildMtkCellMap.find(aCellsToRemove(iCell));
             MORIS_ASSERT(mChildMtkCellMap.find(aCellsToRemove(iCell)) != mChildMtkCellMap.end(),"Element index is not in the map");
             moris::moris_index tIndex = tIter->second;
-            
+
             delete mChildMtkCells(tIndex);
 
             mChildMtkCells(tIndex) = nullptr;
@@ -1301,7 +1302,6 @@ namespace xtk
         this->setup_local_to_global_maps();
     }
     // ----------------------------------------------------------------------------------
-
 
     moris::Matrix< moris::DDRMat >
     Background_Mesh::get_all_node_coordinates_loc_inds_background_mesh() const
@@ -1386,7 +1386,7 @@ namespace xtk
             // initialize cell and maps for collecting processors to communicate with
             std::unordered_map<moris_id,moris_id> tCommunicationMap;
             Cell<moris_index> tCellOfProcs;
-    
+
             // collect processor that owns node which is shared with this processor
             for(moris::uint i = 0; i < mMeshData->get_num_entities(EntityRank::NODE); i++)
             {
@@ -1423,7 +1423,7 @@ namespace xtk
             {
                 all_gather_vector(mCommunicationMap,tGatheredMats,tTag,0,0);
             }
-        
+
             // initialize matrix to be returned from processor 0
             Cell<Matrix<IndexMat>> tReturnMats(par_size());
 
@@ -1512,3 +1512,4 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 }
+

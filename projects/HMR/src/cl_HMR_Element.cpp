@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_HMR_Element.cpp
+ *
+ */
+
 #include "cl_HMR_Element.hpp" //HMR/src
 
 #include "cl_HMR_Edge.hpp"

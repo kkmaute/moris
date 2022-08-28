@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 set(EXAMPLE_MAIN Main_Two_Channels_with_Separation_Wall_Transient )
 set(EXAMPLE_FILE Two_Channels_with_Separation_Wall_Transient )
 
@@ -88,3 +95,4 @@ if(MORIS_HAVE_PARALLEL_TESTS)
 	COMMAND ${MORIS_EXECUTE_COMMAND} -n 1 ${VALGRIND} ${VALGRIND_OPTIONS_EXA} $<TARGET_FILE:${EXAMPLE_MAIN}>
     WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 endif()
+

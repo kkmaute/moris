@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_TSA_Time_Solver_Algorithm.cpp
  *
- *  Created on: Feb 02, 2019
- *      Author: schmidt
  */
+
 #include <ctime>
 
 #include "cl_SOL_Dist_Vector.hpp"
@@ -90,3 +94,4 @@ void Time_Solver_Algorithm::set_time_solver_parameters()
     // Time Frame
     mParameterListTimeSolver.insert( "TSA_Time_Frame", 1.0 );
 }
+

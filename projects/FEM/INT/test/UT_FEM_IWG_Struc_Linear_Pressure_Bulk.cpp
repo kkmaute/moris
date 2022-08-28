@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_FEM_IWG_Struc_Linear_Pressure_Bulk.cpp
+ *
+ */
+
 #include <string>
 #include <catch.hpp>
 #include <memory>
@@ -318,3 +328,4 @@ TEST_CASE( "IWG_Elasticity_Bulk_Mixed_Pressure", "[IWG_Struc_Bulk_Mixed_Pressure
         }
     }
 }/*END_TEST_CASE*/
+

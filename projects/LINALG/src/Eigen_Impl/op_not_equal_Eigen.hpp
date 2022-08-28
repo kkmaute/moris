@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * op_not_equal_Eigen.hpp
  *
- *  Created on: Sep 6, 2018
- *      Author: doble
  */
 
 #ifndef PROJECTS_LINALG_SRC_EIGEN_IMPL_OP_NOT_EQUAL_EIGEN_HPP_
@@ -61,6 +64,5 @@ operator!=(
 }
 }
 
-
-
 #endif /* PROJECTS_LINALG_SRC_EIGEN_IMPL_OP_NOT_EQUAL_EIGEN_HPP_ */
+

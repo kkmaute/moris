@@ -1,4 +1,13 @@
-// Third-party header files.
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_IOS_Parsing_Tool.cpp
+ *
+ */
+
 #include <catch.hpp>
 
 // MORIS header files.
@@ -24,3 +33,4 @@ namespace moris
         CHECK( tCellMat(3)(0,0) == 8  );        CHECK( tCellMat(3)(1,0) == 10 );
     }
 }
+

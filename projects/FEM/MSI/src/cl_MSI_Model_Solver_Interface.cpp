@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MSI_Model_Solver_Interface.cpp
  *
- *  Created on: Jul 14, 2018
- *      Author: schmidt
  */
+
 #include "cl_MSI_Model_Solver_Interface.hpp"
 
 #include "cl_MTK_Mesh.hpp"
@@ -169,7 +173,7 @@ namespace moris
 
             else if ( aDofType == Dof_Type::VISCOSITY )   { return mMSIParameterList.get< moris::sint >( "VISCOSITY" );  }
             else if ( aDofType == Dof_Type::STRESS_DOF )  { return mMSIParameterList.get< moris::sint >( "STRESS_DOF" ); }
-            
+
             else if ( aDofType == Dof_Type::UNDEFINED )   { return MORIS_INDEX_MAX; }
 
             else
@@ -249,3 +253,4 @@ namespace moris
         }
     }
 }
+

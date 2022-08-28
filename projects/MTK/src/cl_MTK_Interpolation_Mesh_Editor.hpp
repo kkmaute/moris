@@ -1,9 +1,13 @@
 /*
- * cl_MTK_Mesh_Editor.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jan  22, 2022
- *      Author: momo
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Interpolation_Mesh_Editor.hpp
+ *
  */
+
 #ifndef SRC_cl_MTK_Interpolation_Mesh_Editor
 #define SRC_cl_MTK_Interpolation_Mesh_Editor
 
@@ -38,7 +42,6 @@ namespace moris::mtk
     };
 }// namespace moris::mtk
 
-
 namespace moris::mtk
 {
     class Interpolation_Mesh;
@@ -62,11 +65,9 @@ namespace moris::mtk
 
         // ----------------------------------------------------------------------------
 
-
         ~Interpolation_Mesh_Editor();
 
         // ----------------------------------------------------------------------------
-
 
         Interpolation_Mesh_DataBase_IP*
         perform();
@@ -191,7 +192,7 @@ namespace moris::mtk
          * @brief Create the vertex glb id to loc vertex ind map object
          *
          */
-        
+
         void
         create_vertex_glb_id_to_loc_vertex_ind_map();
 

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * fn_GEN_Triangle_Geometry.hpp
+ *
+ */
+
 #ifndef PROJECTS_GEN_SRC_NEW_GEOMENG_FN_GEN_TRIANGLE_GEOMETRY_HPP_
 #define PROJECTS_GEN_SRC_NEW_GEOMENG_FN_GEN_TRIANGLE_GEOMETRY_HPP_
 
@@ -142,3 +152,4 @@ namespace moris
 }    // namespace moris
 
 #endif /* PROJECTS_GEN_SRC_NEW_GEOMENG_FN_GEN_TRIANGLE_GEOMETRY_HPP_ */
+

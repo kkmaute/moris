@@ -1,8 +1,11 @@
 /*
- * fn_diag_Eigen.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Sep 6, 2018
- *      Author: doble
+ *------------------------------------------------------------------------------------
+ *
+ * fn_diag_mat_Eigen.hpp
+ *
  */
 
 #ifndef PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_DIAG_MAT_EIGEN_HPP_
@@ -11,7 +14,6 @@
 #include "cl_Matrix.hpp"
 #include "fn_isvector.hpp"
 #include "Eigen/Dense"
-
 
 namespace moris
 {
@@ -26,6 +28,5 @@ diag_mat( Eigen::MatrixBase<ET> & aA,
 }
 }
 
-
-
 #endif /* PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_DIAG_MAT_EIGEN_HPP_ */
+

@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_FEM_SP_Fluid.cpp
+ *
+ */
 
 #include "catch.hpp"
 
@@ -508,3 +517,4 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
         }
     }
 } /*END_TEST_CASE*/
+

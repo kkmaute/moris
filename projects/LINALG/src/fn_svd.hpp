@@ -1,13 +1,15 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_svd.hpp
  *
- *  Created on: Sep 12, 2018
- *      Author: messe
  */
 
 #ifndef PROJECTS_LINALG_SRC_FN_SVD_HPP_
 #define PROJECTS_LINALG_SRC_FN_SVD_HPP_
-
 
 // MORIS library header files.
 #include "cl_Matrix.hpp"
@@ -48,5 +50,5 @@ namespace moris
 
 }
 
-
 #endif /* PROJECTS_LINALG_SRC_FN_SVD_HPP_ */
+

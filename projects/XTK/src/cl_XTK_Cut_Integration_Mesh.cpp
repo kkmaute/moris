@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_XTK_Cut_Integration_Mesh.cpp
+ *
+ */
+
 #include "cl_XTK_Cut_Integration_Mesh.hpp"
 #include "typedefs.hpp"
 #include "cl_Cell.hpp"
@@ -301,7 +311,7 @@ namespace xtk
     {
         return mIntegrationCells( aElementIndex )->get_owner();
     }
-    
+
     // ----------------------------------------------------------------------------------
 
     Matrix< IdMat >
@@ -816,7 +826,7 @@ namespace xtk
     }
 
     // ----------------------------------------------------------------------------------
-    
+
     moris_id
     Cut_Integration_Mesh::allocate_subphase_ids( moris::size_t aNumIdstoAllocate )
     {
@@ -859,7 +869,7 @@ namespace xtk
         // on all procs: receive the assigned first SP ID as tFirstId
         moris::scatter( tProcFirstID, tFirstId );
 
-        // return the first SP ID assigned 
+        // return the first SP ID assigned
         return tFirstId( 0 );
     }
 
@@ -1025,7 +1035,7 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     moris_index
-    Cut_Integration_Mesh::get_subphase_group_bulk_phase( 
+    Cut_Integration_Mesh::get_subphase_group_bulk_phase(
             moris_index aSubPhaseGroupIndex,
             moris_index aMeshListIndex )
     {
@@ -1985,5 +1995,6 @@ namespace xtk
     }
 
     // ----------------------------------------------------------------------------------
-    
+
 }// namespace xtk
+

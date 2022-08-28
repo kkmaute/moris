@@ -1,7 +1,12 @@
-// FIXME: set_model_type not yet working? -> default set to PLANE_STRAIN
-// FIXME:: Cleaning up the projected jump mess in Neo_Hookean eval_dTestTractiondDOF_second_piola_kirchhoff
-// FIXME:: Testtraction transpose check - consistent with linear case
-// FIXME:: no breaks in different cases in flux()
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_CM_Struc_Nonlinear_Isotropic.cpp
+ *
+ */
 
 #include "cl_FEM_CM_Struc_Nonlinear_Isotropic.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
@@ -1962,3 +1967,4 @@ namespace moris
 
     } /* namespace fem */
 } /* namespace moris */
+

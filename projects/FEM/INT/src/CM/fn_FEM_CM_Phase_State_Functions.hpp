@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_FEM_CM_Phase_State_Functions.hpp
  *
- *  Created on: May 18, 2020
- *      Author: wunsch
  */
 
 #ifndef PROJECTS_FEM_INT_SRC_FN_FEM_CM_PHASE_STATE_FUNCTIONS_HPP_
@@ -242,3 +245,4 @@ namespace moris
 }    // namespace moris
 
 #endif /* PROJECTS_FEM_INT_SRC_FN_FEM_CM_PHASE_STATE_FUNCTIONS_HPP_ */
+

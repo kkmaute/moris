@@ -1,9 +1,18 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MIG_Periodic_2D.cpp
+ *
+ */
+
 #include "cl_MIG_Periodic_2D.hpp"
 
 #include "cl_MTK_Set.hpp"
 #include "cl_MTK_Cluster.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
-
 
 #include "cl_MTK_Side_Cluster.hpp"
 #include "typedefs.hpp"
@@ -142,7 +151,6 @@ namespace moris::mig
                 tSideClusters2.append( tSetClusters );
             }
 
-
             // loop over the background cells in order to cut the matching pairs
             for ( const auto &tIter : mBackgroundCellToSideClusterMap1( tPairCount ) )
             {
@@ -193,7 +201,6 @@ namespace moris::mig
                             // convert 3D coordinates to suraface coordinates
                             moris::Matrix< DDRMat > tSurfaceCoordMatrix( 1, 2 );
                             tSurfaceCoordMatrix.get_row( 0 ) = t3DcoordMatrix.get_row( tPermutationOrder );
-
 
                             // sort the matrix if the order is not ascending
                             if ( tSurfaceCoordMatrix( 1 ) < tSurfaceCoordMatrix( 0 ) )
@@ -477,7 +484,6 @@ namespace moris::mig
             // create master IG cell
             this->create_master_ig_cell( aInterpCell1, aPairCount );
 
-
             // create slave IG cell
             this->create_slave_ig_cell( aInterpCell2, aPairCount );
         }
@@ -520,7 +526,6 @@ namespace moris::mig
         // increase the count of double sided cluster
         mNumDblSideCluster++;
     }
-
 
     //------------------------------------------------------------------------------------------------------------
 
@@ -667,7 +672,6 @@ namespace moris::mig
             tSecondSideClusters.append( tSetClusters );
         }
 
-
         // Second side info
         // get the Integration cell cluster for the side cluster
         moris::Cell< moris::mtk::Cell const * > const &tSecondCells = tSecondSideClusters( 0 )->get_primary_cells_in_cluster();
@@ -679,7 +683,6 @@ namespace moris::mig
         moris::Cell< moris::mtk::Vertex const * > tSecondVertices      = tSecondCells( 0 )->get_vertices_on_side_ordinal( tSecondCellOrds( 0 ) );
         moris::Matrix< moris::DDRMat >            tSecondVertexCoords1 = tSecondVertices( 0 )->get_coords();
         moris::Matrix< moris::DDRMat >            tSecondVertexCoords2 = tSecondVertices( 1 )->get_coords();
-
 
         // calculate the normal of the right segment,  need something better than std::abs to determine the outward
         moris::real                    tMagnitude    = norm( tSecondVertexCoords2 - tSecondVertexCoords1 );
@@ -777,7 +780,6 @@ namespace moris::mig
         std::iota( mSideClusterToVertexIndices( mNumSideClusters + 1 ).begin(),
             mSideClusterToVertexIndices( mNumSideClusters + 1 ).end(),
             mNumVertices );
-
 
         // coordinates of nodes attached to element to interpolate for physical coordinates
         moris::Matrix< moris::DDRMat > tCoordinates = aSlaveInterpCell.get_vertex_coords();
@@ -1071,3 +1073,4 @@ namespace moris::mig
         mVertexParametricCoords.set_size( tNumVertices, 2 );
     }
 }// namespace moris::mig
+

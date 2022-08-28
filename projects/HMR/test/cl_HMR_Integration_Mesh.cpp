@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_HMR_Integration_Mesh.cpp
  *
- *  Created on: May 30, 2019
- *      Author: doble
  */
+
 #include "catch.hpp"
 
 #include "cl_HMR.hpp"
@@ -230,7 +234,6 @@ namespace moris
             tOutputInterpMesh->get_nodes_indices_in_bounding_box( { { 0.1 },{ 1.1 },{ 1.1 } },
                     { { 0.9 },{ 1 } ,{ 1 }},
                     tNodeIndices);
-
 
             moris::Matrix< IndexMat > tReferenceInices = { { 241 }, { 301 }, { 430 }, { 431 }, { 639 }, { 638 }, { 747 }, { 748 }, { 302 }, { 432 }, { 640 }, { 749 }, { 433 }, { 400 },
                     { 750 }, { 751 }, { 434 }, { 752 }, { 610 }, { 645 }, { 753 }, { 754 }, { 646 }, { 755 }, { 756 }, { 738 }, { 757 }, { 309 },

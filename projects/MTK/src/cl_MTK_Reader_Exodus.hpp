@@ -1,6 +1,12 @@
-//
-// Created by christopherson on 9/13/19.
-//
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Reader_Exodus.hpp
+ *
+ */
 
 #ifndef MORIS_CL_MTK_Reader_Exodus_HPP
 #define MORIS_CL_MTK_Reader_Exodus_HPP
@@ -40,7 +46,6 @@ public:
     moris::Cell<moris::mtk::MtkSideSetInfo>     mSideSetInfo;
     moris::Cell<moris::Matrix<moris::IndexMat>> mSideSetElements;
     moris::Cell<std::string>                    mSideSetNames;
-
 
     /**
     * Constructor
@@ -89,3 +94,4 @@ protected:
 };
 
 #endif //MORIS_CL_MTK_Reader_Exodus_HPP
+

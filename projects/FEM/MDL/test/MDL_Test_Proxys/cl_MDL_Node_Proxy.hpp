@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MDL_Node_Proxy.hpp
  *
- *  Created on: Mai 22, 2019
- *      Author: Schmidt
  */
+
 #ifndef PROJECTS_GEN_SRC_CL_MDL_NODE_PROXY_HPP_
 #define PROJECTS_GEN_SRC_CL_MDL_NODE_PROXY_HPP_
 
@@ -41,7 +45,5 @@ namespace moris
 
 } /* namespace moris */
 
-
-
-
 #endif /* PROJECTS_GEN_SRC_CL_MDL_NODE_PROXY_HPP_ */
+

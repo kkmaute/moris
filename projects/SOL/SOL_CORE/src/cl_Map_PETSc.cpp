@@ -1,9 +1,13 @@
 /*
- * MapPETSc.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Dec 5, 2018
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * cl_Map_PETSc.cpp
+ *
  */
+
 #include "cl_Map_PETSc.hpp"
 
 extern moris::Comm_Manager gMorisComm;

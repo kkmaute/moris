@@ -1,8 +1,11 @@
-/**
- * cl_FEM_IWG_Compressible_NS_Velocity_Dirichlet_Nitsche.hpp
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Mar 17, 2021
- *      Author: wunsch
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_IWG_Compressible_NS_Dirichlet_Nitsche.hpp
+ *
  */
 
 #ifndef SRC_FEM_CL_FEM_IWG_COMPRESSIBLE_NS_DIRICHLET_NITSCHE_HPP_
@@ -132,7 +135,7 @@ namespace moris
                 void compute_dRdp( real aWStar );
 
                 //------------------------------------------------------------------------------
-            
+
             private:
 
                 //------------------------------------------------------------------------------
@@ -151,41 +154,41 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * assemble the DoF derivative of the difference between state variables and 
+                 * assemble the DoF derivative of the difference between state variables and
                  * the prescribed values into a matrix
                  */
-                const Matrix< DDRMat > & dJumpdDOF();     
+                const Matrix< DDRMat > & dJumpdDOF();
 
                 //------------------------------------------------------------------------------
                 //------------------------------------------------------------------------------
                 /**
                  * evaluate and get the Traction term ( K_ij * Y_,j * n_i )
                  */
-                const Matrix< DDRMat > & Traction();     
+                const Matrix< DDRMat > & Traction();
 
                 //------------------------------------------------------------------------------
                 /**
                  * evaluate and get the Dof-derivative of the Traction term d( K_ij * Y_,j * n_i ) / dDof
                  */
-                const Matrix< DDRMat > & dTractiondDOF();    
+                const Matrix< DDRMat > & dTractiondDOF();
 
                 //------------------------------------------------------------------------------
                 /**
-                 * evaluate and get the Test Traction term d( K_ij * Y_,j * n_i )^T / dDof 
+                 * evaluate and get the Test Traction term d( K_ij * Y_,j * n_i )^T / dDof
                  */
-                const Matrix< DDRMat > & TestTraction(); 
+                const Matrix< DDRMat > & TestTraction();
 
                 //------------------------------------------------------------------------------
                 /**
                  * evaluate and get the Dof-derivative of the Test Traction term d^2( K_ij * Y_,j * n_i )^T / dDof^2 * VR
                  */
-                const Matrix< DDRMat > & dTestTractiondDOF( const Matrix< DDRMat > aVL );   
+                const Matrix< DDRMat > & dTestTractiondDOF( const Matrix< DDRMat > aVL );
 
                 //------------------------------------------------------------------------------
                 /**
                  * evaluate and get the upwind operator
                  */
-                const Matrix< DDRMat > & UpwindOperator(); 
+                const Matrix< DDRMat > & UpwindOperator();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -201,3 +204,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_FEM_CL_FEM_IWG_COMPRESSIBLE_NS_DIRICHLET_NITSCHE_HPP_ */
+

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_FEM_IWG_Struc_Linear_Interface_SLM_L2.cpp
+ *
+ */
+
 #include <string>
 #include <catch.hpp>
 #include <memory>
@@ -74,7 +84,6 @@ TEST_CASE( "IWG_Interface_SLM_L2", "[moris],[fem],[IWG_Interface_SLM_L2]" )
     Matrix< DDRMat > tNormal = {{ 0.32 },{ 0.71 }};
     tPropDummyNormal->set_parameters( { tNormal } );
     tPropDummyNormal->set_val_function( tConstValFunc_Elast );
-
 
     // define constitutive models
     fem::CM_Factory tCMFactory;

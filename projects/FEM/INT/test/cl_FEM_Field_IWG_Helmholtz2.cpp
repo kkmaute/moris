@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_Field_IWG_Helmholtz2.cpp
+ *
+ */
+
 #include <string>
 #include <catch.hpp>
 
@@ -23,7 +33,6 @@ TEST_CASE( "IWG_Helmholtz2", "[moris],[fem],[IWG_Helmholtz2]" )
                                         mtk::Interpolation_Order::LINEAR,
                                         mtk::Interpolation_Type::LAGRANGE,
                                         mtk::Interpolation_Order::LINEAR );
-
 
     //create a space time geometry interpolator
     Geometry_Interpolator* tGeomInterpolator = new Geometry_Interpolator( tGeomInterpRule );

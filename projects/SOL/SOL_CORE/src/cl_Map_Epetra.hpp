@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_Map_Epetra.hpp
+ *
+ */
+
 #ifndef SRC_DISTLINALG_CL_MAP_EPETRA_HPP_
 #define SRC_DISTLINALG_CL_MAP_EPETRA_HPP_
 
@@ -95,3 +105,4 @@ namespace moris
 }
 
 #endif /* SRC_DISTLINALG_CL_MAP_EPETRA_HPP_ */
+

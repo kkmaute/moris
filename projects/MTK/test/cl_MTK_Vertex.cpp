@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Vertex.cpp
  *
- *  Created on: Sep 17, 2018
- *      Author: doble
  */
 
 #include "catch.hpp"
@@ -46,7 +49,6 @@ TEST_CASE("MTK Vertex","[MTK],[MTK_VERTEX],[STK_VERTEX]")
             Matrix< DDRMat > tVertexCoords = tVertex.get_coords();
             Matrix <DDBMat > tEqualCoords = (tGoldCoords == tVertexCoords);
 
-
             REQUIRE(tEqualCoords(0,0) == 1);
             REQUIRE(tEqualCoords(0,1) == 1);
             REQUIRE(tEqualCoords(0,2) == 1);
@@ -67,3 +69,4 @@ TEST_CASE("MTK Vertex","[MTK],[MTK_VERTEX],[STK_VERTEX]")
 
 }
 }
+

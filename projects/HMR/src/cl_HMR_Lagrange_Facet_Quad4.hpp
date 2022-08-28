@@ -1,10 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_HMR_Lagrange_Facet_Quad4.hpp
  *
- *  Created on: September 25, 2018
- *  using MATLAB
  */
- 
+
 #ifndef SRC_HMR_CL_HMR_LAGRANGE_FACET_QUAD4_HPP_
 #define SRC_HMR_CL_HMR_LAGRANGE_FACET_QUAD4_HPP_
 
@@ -101,3 +104,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_HMR_CL_HMR_LAGRANGE_FACET_QUAD4_HPP_ */
+

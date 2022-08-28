@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * fn_det.hpp
+ *
+ */
+
 #ifndef MORIS_LINALG_FN_DET_HPP_
 #define MORIS_LINALG_FN_DET_HPP_
 
@@ -43,3 +53,4 @@ namespace moris
 }
 
 #endif  /* MORIS_LINALG_FN_DET_HPP_ */
+

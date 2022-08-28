@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_Waitbar.hpp
+ *
+ */
+
 #ifndef MORIS_CHRONOS_CL_WAITBAR_HPP_
 #define MORIS_CHRONOS_CL_WAITBAR_HPP_
 
@@ -26,3 +36,4 @@ namespace chronos
 }	// namespace moris
 
 #endif	/* MORIS_CHRONOS_CL_WAITBAR_HPP_ */
+

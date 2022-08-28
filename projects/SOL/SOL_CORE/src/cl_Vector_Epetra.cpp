@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_Vector_Epetra.cpp
  *
- *  Created on: Jun 28, 2018
- *      Author: schmidt
  */
+
 #include "cl_Vector_Epetra.hpp"
 #include <string>
 #include "fn_print.hpp"
@@ -400,3 +404,4 @@ void Vector_Epetra::check_vector( )
 {
 
 }
+

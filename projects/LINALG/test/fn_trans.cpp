@@ -1,10 +1,12 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_trans.cpp
  *
- *  Created on: Aug 27, 2018
- *      Author: doble
  */
-
 
 #include <catch.hpp>
 #include "fn_equal_to.hpp" //ALG
@@ -29,3 +31,4 @@ TEST_CASE("moris::trans",
     REQUIRE( B( 1,0 ) == 2.0 ); REQUIRE( B( 1,1 ) == 5.0 ); REQUIRE( B( 1,2 ) == 8.0 );
     REQUIRE( B( 2,0 ) == 3.0 ); REQUIRE( B( 2,1 ) == 6.0 ); REQUIRE( B( 2,2 ) == 9.0 );
 }
+

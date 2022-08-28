@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_WRK_GEN_Performer.hpp
+ *
+ */
+
 #ifndef MORIS_CL_WRK_GEN_PERFORMER_HPP
 #define MORIS_CL_WRK_GEN_PERFORMER_HPP
 #include "cl_WRK_Performer.hpp"
@@ -17,11 +27,11 @@ namespace moris
             std::shared_ptr<moris::ge::Geometry_Engine> mGeometryEngine;
 
         public:
-            
+
             Gen_Performer( std::shared_ptr<moris::ge::Geometry_Engine> aGeometryEngine );
             //------------------------------------------------------------------------------------------------------------------
 
-            uint 
+            uint
             get_num_refinement_fields();
             //------------------------------------------------------------------------------------------------------------------
 
@@ -32,7 +42,7 @@ namespace moris
                         const Matrix<DDRMat>& aCoordinates);
             //------------------------------------------------------------------------------------------------------------------
 
-            const Matrix< DDSMat > & 
+            const Matrix< DDSMat > &
             get_num_refinements(uint aFieldIndex );
             //------------------------------------------------------------------------------------------------------------------
 
@@ -40,7 +50,7 @@ namespace moris
             get_refinement_mesh_indices(uint aFieldIndex );
 
             //------------------------------------------------------------------------------------------------------------------
-            
+
             sint
             get_refinement_function_index(
                         uint aFieldIndex,

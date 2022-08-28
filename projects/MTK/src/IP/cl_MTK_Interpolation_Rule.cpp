@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Interpolation_Rule.cpp
+ *
+ */
+
 #include "cl_MTK_Interpolation_Rule.hpp"                //MTK/src
 #include "cl_MTK_Interpolation_Function_Base.hpp"       //MTK/src
 #include "cl_MTK_Interpolation_Function_Factory.hpp"    //MTK/src
@@ -113,3 +123,4 @@ namespace moris
 
     } /* namespace mtk */
 } /* namespace moris */
+

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_XML_Parser.cpp
+ *
+ */
+
 #include "cl_XML_Parser.hpp"
 /*
  * cl_XML_Parser.cpp
@@ -5,7 +15,6 @@
  *  Created on: Sep 10, 2018
  *      Author: messe
  */
-
 
 #include <string>
 #include <set>

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * fn_OPT_create_problem.cpp
+ *
+ */
+
 #include "fn_OPT_create_problem.hpp"
 #include "cl_OPT_Problem_User_Defined.hpp"
 
@@ -28,3 +38,4 @@ namespace moris
         }
     }
 }
+

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_GEN_Image_SDF_Geometry.cpp
+ *
+ */
+
 #include "cl_GEN_Image_SDF_Geometry.hpp"
 
 #include "HDF5_Tools.hpp"
@@ -269,3 +279,4 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
     }    // namespace ge
 }    // namespace moris
+

@@ -1,14 +1,16 @@
 /*
- * UT_MDL_Sensitivity_test.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Oct 4, 2019
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * UT_MDL_Sensitivity_Test.cpp
+ *
  */
 
 #include "catch.hpp"
 
 #include "cl_MDL_Model.hpp"
-
 
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
@@ -432,7 +434,6 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
         }
         tGeometryEngine.create_ip_pdv_hosts(tPdvTypes);
 
-
         Cell< PDV_Type> tRequestedType( 1, PDV_Type::DENSITY );
         reinterpret_cast< ge::Pdv_Host_Manager* >(tGeometryEngine.get_design_variable_interface())->
                 create_ig_pdv_hosts(0,Cell< Matrix< DDSMat >>(100), tIGPdvTypes);
@@ -522,3 +523,4 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
 
     }
 }
+

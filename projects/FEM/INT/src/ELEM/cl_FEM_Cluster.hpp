@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_Cluster.hpp
  *
- *  Created on: Apr 20, 2019
- *      Author: schmidt
  */
 
 #ifndef SRC_FEM_CL_FEM_CLUSTER_HPP_
@@ -361,7 +364,6 @@ namespace moris
                  */
                 moris::real compute_ip_cell_length_measure(
                         const mtk::Master_Slave aIsMaster ) const;
-                        
 
                 //------------------------------------------------------------------------------
                 /**
@@ -418,3 +420,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_FEM_CL_FEM_CLUSTER_HPP_ */
+

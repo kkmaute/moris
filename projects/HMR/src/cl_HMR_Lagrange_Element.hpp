@@ -1,13 +1,15 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_HMR_Lagrange_Element.hpp
  *
- *  Created on: May 24, 2018
- *      Author: messe
  */
 
 #ifndef SRC_HMR_CL_HMR_LAGRANGE_ELEMENT_HPP_
 #define SRC_HMR_CL_HMR_LAGRANGE_ELEMENT_HPP_
-
 
 #include "cl_HMR_Background_Element.hpp" //HMR/src
 #include "cl_HMR_Element.hpp" //HMR/src
@@ -17,7 +19,6 @@
 #include "cl_Cell.hpp"
 #include "cl_Matrix.hpp" //LINALG/src
 #include "cl_MTK_Vertex.hpp" //MTK/src
-
 
 namespace moris
 {
@@ -83,7 +84,7 @@ namespace moris
                 }
 
                 //------------------------------------------------------------------------------
-                
+
                 void
                 set_cell_info();
 
@@ -435,7 +436,7 @@ namespace moris
         template< uint N, uint D >
         inline
         void
-        Lagrange_Element< N, D >::set_cell_info() 
+        Lagrange_Element< N, D >::set_cell_info()
         {
             MORIS_ERROR( false, "set_cell_info() not available for this element.");
         }
@@ -520,7 +521,6 @@ namespace moris
             return aCoords;
         }
 
-
     } /* namespace hmr */
 } /* namespace moris */
 
@@ -532,3 +532,4 @@ namespace moris
 #include "cl_HMR_Lagrange_Element_Hex64.hpp" //HMR/src
 
 #endif /* SRC_HMR_CL_HMR_LAGRANGE_ELEMENT_HPP_ */
+

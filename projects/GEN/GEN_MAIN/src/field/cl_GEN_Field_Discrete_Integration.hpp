@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_GEN_Field_Discrete_Integration.hpp
+ *
+ */
+
 #ifndef MORIS_CL_GEN_FIELD_DISCRETE_INTEGRATION_HPP
 #define MORIS_CL_GEN_FIELD_DISCRETE_INTEGRATION_HPP
 
@@ -112,5 +122,5 @@ namespace moris
     }
 }
 
-
 #endif //MORIS_CL_GEN_FIELD_DISCRETE_INTEGRATION_HPP
+

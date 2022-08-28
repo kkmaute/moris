@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_vectorize_Eigen.hpp
  *
- *  Created on: May 17, 2021
- *      Author: maute
  */
 
 #ifndef PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_VECTORIZE_EIGEN_HPP_
@@ -31,3 +34,4 @@ namespace moris
 }
 
 #endif /* PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_VECTORIZE_EIGEN_HPP_ */
+

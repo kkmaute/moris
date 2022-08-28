@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 namespace moris {
 
 /** \page EXA_Thermal_Diffusion_Channel_with_Four_Cylinders_Static_Temp_Only Channel with Four Cylinders Static Temperature only
@@ -52,3 +59,4 @@ No literature on this example available.
 Use global variables to turn on/off ghost stabilization and to change geometry.
 */
 }
+

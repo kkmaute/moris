@@ -1,8 +1,11 @@
 /*
- * UT_MDL_XTK_HMR_Multi_Material_Bar_Plane.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Oct 4, 2019
- *      Author: doble
+ *------------------------------------------------------------------------------------
+ *
+ * UT_MDL_XTK_HMR_4_Material_Bar_Plane_Hole.cpp
+ *
  */
 
 #include "catch.hpp"
@@ -119,7 +122,6 @@ Circle4MatMDL(const moris::Matrix< moris::DDRMat > & aPoint )
     moris::real mXCenter = 0.01;
     moris::real mYCenter = 0.01;
     moris::real mRadius = 0.47334;
-
 
     return  (aPoint(0) - mXCenter) * (aPoint(0) - mXCenter)
             + (aPoint(1) - mYCenter) * (aPoint(1) - mYCenter)
@@ -268,11 +270,9 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
         tParameters.set_staircase_buffer( 2 );
         tParameters.set_lagrange_to_bspline_mesh( {{ {0} }});
 
-
         hmr::HMR tHMR(tParameters);
         Cell<std::shared_ptr< moris::hmr::Field >> tHMRFields;
         run_hmr_for_multi_mat_model_2d(tHMR, tHMRFields);
-
 
         hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
@@ -588,7 +588,6 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
         tLinearSolverAlgorithm->set_param("AZ_max_iter") = 100;
         tLinearSolverAlgorithm->set_param("rel_residual") = 1e-6;
 
-
         dla::Linear_Solver tLinSolver;
 
         tLinSolver.set_linear_algorithm( 0, tLinearSolverAlgorithm );
@@ -655,12 +654,10 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole","[XTK_HMR_PLANE
         Matrix<DDRMat> tFullSol;
         tTimeSolver.get_full_solution(tFullSol);
 
-
         delete tModel;
         delete tInterpMesh;
     }
 }
-
 
 TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PLANE_BAR_HOLE_3D]")
 {
@@ -690,7 +687,6 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
         tParameters.set_refinement_buffer( 2 );
         tParameters.set_staircase_buffer( 2 );
         tParameters.set_lagrange_to_bspline_mesh( {{ {0} }});
-
 
         hmr::HMR tHMR(tParameters);
         Cell<std::shared_ptr< moris::hmr::Field >> tHMRFields;
@@ -1020,7 +1016,6 @@ TEST_CASE("XTK HMR 4 Material Bar Intersected By Plane and Hole 3D","[XTK_HMR_PL
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // STEP 1: create linear solver and algorithm
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 
         dla::Solver_Factory  tSolFactory;
         std::shared_ptr< dla::Linear_Solver_Algorithm > tLinearSolverAlgorithm = tSolFactory.create_solver( sol::SolverType::AZTEC_IMPL );

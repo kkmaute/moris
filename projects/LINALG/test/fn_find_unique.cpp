@@ -1,18 +1,19 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_find_unique.cpp
  *
- *  Created on: Aug 29, 2018
- *      Author: schmidt
  */
 
-// Third-party header files.
 #include <catch.hpp>
 #include "fn_equal_to.hpp" // ALG/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "typedefs.hpp"
 #include "fn_find_unique.hpp"
-
 
 namespace moris
 {
@@ -90,3 +91,4 @@ TEST_CASE( "moris::find_unique", "[linalgebra],[find_unique]" )
     }
     }
 }
+

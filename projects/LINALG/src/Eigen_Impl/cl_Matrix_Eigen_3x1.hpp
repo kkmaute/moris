@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_Matrix_Eigen_3x1.hpp
  *
- *  Created on: Sep 11, 2018
- *      Author: schmidt
  */
 
 #ifndef PROJECTS_LINALG_SRC_EIGEN_IMPL_CL_MATRIX_EIGEN_3X1_HPP_
@@ -316,3 +319,4 @@ public:
 }
 
 #endif /* PROJECTS_LINALG_SRC_EIGEN_IMPL_CL_MATRIX_EIGEN_3X1_HPP_ */
+

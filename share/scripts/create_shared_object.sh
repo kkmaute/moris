@@ -1,3 +1,8 @@
+#====================================================================================
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#====================================================================================
 #!/bin/sh
 #
 echo ""
@@ -164,3 +169,4 @@ else
 fi
 
 rm -f $MORISROOT/projects/mains/input_file.locked
+

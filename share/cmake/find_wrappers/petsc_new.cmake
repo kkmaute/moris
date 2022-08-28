@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # -----------------------------------------------------------------------------
 # PETSc libraries and includes ------------------------------------------------
 # -----------------------------------------------------------------------------
@@ -64,3 +71,4 @@ if(NOT TARGET ${MORIS}::petsc)
 		IMPORTED_LOCATION "${MORIS_PETSC_LIBRARIES}" )
 	target_link_libraries(${MORIS}::petsc INTERFACE ${MORIS_PETSC_TPLS_TARGETS})
 endif()
+

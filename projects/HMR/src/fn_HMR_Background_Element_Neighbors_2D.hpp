@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_HMR_Background_Element_Neighbors_2D.hpp
  *
- *  Created on: December 05, 2018
- *  using MATLAB
  */
 
 #ifndef SRC_HMR_FN_HMR_BACKGROUND_ELEMENT_NEIGHBORS_2D_HPP_
@@ -1421,3 +1424,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_HMR_FN_HMR_BACKGROUND_ELEMENT_NEIGHBORS_2D_HPP_ */
+

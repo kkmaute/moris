@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_Fields_for_NS_Compressible_UT_for_BD.cpp
+ *
+ */
+
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "fn_trans.hpp"
@@ -45,7 +55,7 @@ void fill_data_Nitsche_element(
         moris::Matrix< moris::DDRMat > & ttHat )
 {
     // set values obtained from 1D Matlab code
-    
+
     // element dimensions in 1D
     real tX1 = 0.0;
     real tX2 = 25.0;
@@ -57,13 +67,13 @@ void fill_data_Nitsche_element(
     real tY3 = 0.5 * ( tY1 + tY2 );
 
     tXHat = {
-            { tX1, tY1 }, 
-            { tX2, tY1 }, 
-            { tX2, tY2 }, 
+            { tX1, tY1 },
+            { tX2, tY1 },
+            { tX2, tY2 },
             { tX1, tY2 },
-            { tX3, tY1 }, 
-            { tX2, tY3 }, 
-            { tX3, tY2 }, 
+            { tX3, tY1 },
+            { tX2, tY3 },
+            { tX3, tY2 },
             { tX1, tY3 },
             { tX3, tY3 } };
 
@@ -73,7 +83,6 @@ void fill_data_Nitsche_element(
 
     ttHat = { { tt1 }, { tt2 } };
 }
-
 
 //------------------------------------------------------------------------------
 

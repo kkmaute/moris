@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_Inputs_for_NS_Compressible_UT.cpp
+ *
+ */
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
@@ -621,7 +630,7 @@ void fill_RhoHat(
                             +5.200648916622891e+01,
                             +9.105008519852706e+01,
                             +7.158927215290831e+01,
-                            +9.678247287159471e+01}};                       
+                            +9.678247287159471e+01}};
                     break;
                 case 2:
                     tRhoHat = {{
@@ -932,7 +941,7 @@ void fill_TempHat(
                             +2.455327506604995e+01,
                             +1.983196862781825e+01,
                             +7.158927215290831e+01,
-                            +9.678247287159471e+01}};                            
+                            +9.678247287159471e+01}};
                     break;
                 case 2:
                     tTempHat = {{

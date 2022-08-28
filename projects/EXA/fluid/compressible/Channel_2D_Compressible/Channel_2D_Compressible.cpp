@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * Channel_2D_Compressible.cpp
+ *
+ */
+
 #include <string>
 #include <iostream>
 #include "typedefs.hpp"
@@ -82,20 +92,20 @@ namespace moris
     moris::real tPrsFac = 1.0e-4;
     moris::real tInletPressure     = (1.0 + tPrsFac) * tOutletPressure;  /* Inlet pressure 1+eps bar() */
 
-    moris::real tInitialDensity  = tOutletPressure/tGasConstant/tInletTemperature;  
+    moris::real tInitialDensity  = tOutletPressure/tGasConstant/tInletTemperature;
     moris::real tInitialXVelocity = std::sqrt(tPrsFac*tOutletPressure/tInitialDensity);
     moris::real tInitialYVelocity = 0.0;
 
     // Nitsche Penalty
     moris::real tNitscheGamma = 1.0e2 * std::sqrt( tElenX*tElenX + tElenY*tElenY );  /* Penalty for Dirichlet BC */
-    
+
     // scale Nitsche penalty factors with material
     bool tAutoScaleNitschePenalty = true;
 
     //------------------------------------------------------------------------------
 
     // convert Nitsche penalty to string
-    std::string sNitscheGammas = 
+    std::string sNitscheGammas =
             ios::stringify( 0.0 ) + ";" +
             ios::stringify( tNitscheGamma ) + ";" +
             ios::stringify( tNitscheGamma ) + ";" +
@@ -429,7 +439,7 @@ namespace moris
         tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      "0.0") ;
         tParameterList( tPropIndex )( tPropCounter ).set( "value_function",           "Func_Const") ;
         tPropCounter++;
-                
+
         // zero property
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
         tParameterList( tPropIndex )( tPropCounter ).set( "property_name",            "PropVectorZero") ;
@@ -448,7 +458,7 @@ namespace moris
         tParameterList( tMMIndex )( tMMCounter ).set( "material_name", "MMFluid" );
         tParameterList( tMMIndex )( tMMCounter ).set( "phase_name",    "PhaseFluid") ;
         tParameterList( tMMIndex )( tMMCounter ).set( "material_type", (uint) fem::Material_Type::PERFECT_GAS );
-        tParameterList( tMMIndex )( tMMCounter ).set( "dof_dependencies",  std::pair< std::string, std::string >( 
+        tParameterList( tMMIndex )( tMMCounter ).set( "dof_dependencies",  std::pair< std::string, std::string >(
                                                                            "P;TEMP", "Pressure,Temperature" ) );
         tParameterList( tMMIndex )( tMMCounter ).set( "properties", "PropHeatCapacity,IsochoricHeatCapacity;"
                                                                     "PropGasConstant,SpecificGasConstant"    );
@@ -465,7 +475,7 @@ namespace moris
         tParameterList( tCMIndex )( tCMCounter ).set( "constitutive_name", "CMFluid" );
         tParameterList( tCMIndex )( tCMCounter ).set( "phase_name",        "PhaseFluid") ;
         tParameterList( tCMIndex )( tCMCounter ).set( "constitutive_type", (uint) fem::Constitutive_Type::FLUID_COMPRESSIBLE_NEWTONIAN );
-        tParameterList( tCMIndex )( tCMCounter ).set( "dof_dependencies",  std::pair< std::string, std::string >( 
+        tParameterList( tCMIndex )( tCMCounter ).set( "dof_dependencies",  std::pair< std::string, std::string >(
                                                                            "P;VX,VY;TEMP", "Pressure,Velocity,Temperature" ) );
         tParameterList( tCMIndex )( tCMCounter ).set( "properties", "PropViscosity,DynamicViscosity;"
                                                                     "PropConductivity,ThermalConductivity"    );
@@ -504,7 +514,6 @@ namespace moris
         tParameterList( tSPIndex )( tSPCounter ).set( "function_parameters",     "1.0" );
         tParameterList( tSPIndex )( tSPCounter ).set( "master_properties",       "PropDummy,Material" );
         tSPCounter++;
-
 
         //------------------------------------------------------------------------------
         // fill the IWG part of the parameter list
@@ -570,7 +579,7 @@ namespace moris
             tParameterList( tIWGIndex )( tIWGCounter ).set( "side_ordinals",              "4" );
             tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   (uint) fem::IWG_Type::COMPRESSIBLE_NS_DIRICHLET_UNSYMMETRIC_NITSCHE );
             tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "P;VX,VY;TEMP" );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropInletPressure,PrescribedDof1;" 
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropInletPressure,PrescribedDof1;"
                                                                                           "PropViscosity,DynamicViscosity;"
                                                                                           "PropConductivity,ThermalConductivity" );
             tParameterList( tIWGIndex )( tIWGCounter ).set( "master_material_model",      "MMFluid,FluidMM" );
@@ -718,16 +727,15 @@ namespace moris
 
         // for pseudo-transient case, have a time step
         if ( tIsPseudoTransient )
-        { 
+        {
             tParameterlist( 4 )( 0 ).set("TSA_Num_Time_Steps", 1 );
             tParameterlist( 4 )( 0 ).set("TSA_Time_Frame",     tPseudoTimeFrame );
         }
 
-        tParameterlist( 5 )( 0 ).set("TSA_Initialize_Sol_Vec",  "P," + ios::stringify( tOutletPressure ) + 
-                                                                ";VX," + ios::stringify( tInitialXVelocity ) + 
-                                                                ";VY," + ios::stringify( tInitialYVelocity ) + 
+        tParameterlist( 5 )( 0 ).set("TSA_Initialize_Sol_Vec",  "P," + ios::stringify( tOutletPressure ) +
+                                                                ";VX," + ios::stringify( tInitialXVelocity ) +
+                                                                ";VY," + ios::stringify( tInitialYVelocity ) +
                                                                 ";TEMP," + ios::stringify( tInletTemperature ) );
-
 
         tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
         if ( tWriteJacAndResToMatlab )
@@ -782,3 +790,4 @@ namespace moris
 #ifdef  __cplusplus
 }
 #endif
+

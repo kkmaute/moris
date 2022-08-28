@@ -1,4 +1,13 @@
-// Third-party header files.
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * fn_equal_to.cpp
+ *
+ */
+
 #include <catch.hpp>
 
 // MORIS header files.
@@ -22,3 +31,4 @@ TEST_CASE(
     REQUIRE_FALSE(pi_not_equal_4digits);
     REQUIRE_FALSE(pi_not_equal_2digits);
 }
+

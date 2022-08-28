@@ -1,18 +1,19 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_HMR_Cell_Cluster.hpp
  *
- *  Created on: May 30, 2019
- *      Author: doble
  */
 
 #ifndef PROJECTS_HMR_SRC_CL_HMR_CELL_CLUSTER_HPP_
 #define PROJECTS_HMR_SRC_CL_HMR_CELL_CLUSTER_HPP_
 
-
 #include "cl_MTK_Cell_Cluster.hpp"
 #include "cl_Matrix.hpp"
 #include <unordered_map>
-
 
 namespace moris
 {
@@ -139,5 +140,5 @@ private:
 }
 }
 
-
 #endif /* PROJECTS_HMR_SRC_CL_HMR_CELL_CLUSTER_HPP_ */
+

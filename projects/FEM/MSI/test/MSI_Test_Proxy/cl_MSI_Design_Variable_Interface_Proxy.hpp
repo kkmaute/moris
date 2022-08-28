@@ -1,9 +1,13 @@
 /*
- * cl_Design_Variable_Interface_Proxy.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jun 18, 2018
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MSI_Design_Variable_Interface_Proxy.hpp
+ *
  */
+
 #ifndef SRC_MSI_CL_DESIGN_VARIABLE_INTERFACE_PROXY_HPP_
 #define SRC_MSI_CL_DESIGN_VARIABLE_INTERFACE_PROXY_HPP_
 
@@ -14,8 +18,6 @@
 #include "cl_Communication_Tools.hpp" // COM/src
 
 #include "cl_MSI_Design_Variable_Interface.hpp" // COM/src
-
-
 
 extern moris::Comm_Manager gMorisComm;
 
@@ -354,3 +356,4 @@ namespace moris
     }
 }
 #endif /* SRC_MSI_CL_DESIGN_VARIABLE_INTERFACE_PROXY_HPP_ */
+

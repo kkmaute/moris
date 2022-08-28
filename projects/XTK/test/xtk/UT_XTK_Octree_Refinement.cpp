@@ -1,9 +1,12 @@
-// /*
-//  * UT_XTK_Octree_Refinement.cpp  
-//  * 
-//  *  Created on: Oct  07, 2021 
-//  *      Author: Keenan Doble
-//  */
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_XTK_Octree_Refinement.cpp
+ *
+ */
 
 // #include "catch.hpp"
 // #include "cl_Communication_Manager.hpp"
@@ -88,7 +91,6 @@
 //     return tVal;
 // }
 
-
 // TEST_CASE( "Octree Refinement One Level", "[XTK_OCTREE]" )
 // {
 //     size_t tModelDimension = 3;
@@ -129,7 +131,6 @@
 //     // one octree refinement
 //     moris::ParameterList tXTKParameterlist = moris::prm::create_xtk_parameter_list();
 //     tXTKParameterlist.set( "octree_refinement_level", "1" );
-
 
 //     xtk::Model tXTKModel( tXTKParameterlist );
 //     tXTKModel.set_geometry_engine( &tGeometryEngine );
@@ -6138,7 +6139,6 @@
 //     moris::ParameterList tXTKParameterlist = moris::prm::create_xtk_parameter_list();
 //     tXTKParameterlist.set( "octree_refinement_level", "2" );
 
-
 //     xtk::Model tXTKModel( tXTKParameterlist );
 //     tXTKModel.set_geometry_engine( &tGeometryEngine );
 //     tXTKModel.set_input_performer( tMeshManager );
@@ -6198,7 +6198,6 @@
 //     // one octree refinement
 //     moris::ParameterList tXTKParameterlist = moris::prm::create_xtk_parameter_list();
 //     tXTKParameterlist.set( "octree_refinement_level", "1" );
-
 
 //     xtk::Model tXTKModel( tXTKParameterlist );
 //     tXTKModel.set_geometry_engine( &tGeometryEngine );
@@ -6260,7 +6259,6 @@
 //     moris::ParameterList tXTKParameterlist = moris::prm::create_xtk_parameter_list();
 //     tXTKParameterlist.set( "octree_refinement_level", "2" );
 
-
 //     xtk::Model tXTKModel( tXTKParameterlist );
 //     tXTKModel.set_geometry_engine( &tGeometryEngine );
 //     tXTKModel.set_input_performer( tMeshManager );
@@ -6321,7 +6319,6 @@
 //     moris::ParameterList tXTKParameterlist = moris::prm::create_xtk_parameter_list();
 //     tXTKParameterlist.set( "octree_refinement_level", "1" );
 
-
 //     xtk::Model tXTKModel( tXTKParameterlist );
 //     tXTKModel.set_geometry_engine( &tGeometryEngine );
 //     tXTKModel.set_input_performer( tMeshManager );
@@ -6380,7 +6377,6 @@
 //     // one octree refinement
 //     moris::ParameterList tXTKParameterlist = moris::prm::create_xtk_parameter_list();
 //     tXTKParameterlist.set( "octree_refinement_level", "2" );
-
 
 //     xtk::Model tXTKModel( tXTKParameterlist );
 //     tXTKModel.set_geometry_engine( &tGeometryEngine );
@@ -6442,7 +6438,6 @@
 //     // one octree refinement
 //     moris::ParameterList tXTKParameterlist = moris::prm::create_xtk_parameter_list();
 //     tXTKParameterlist.set( "octree_refinement_level", "1" );
-
 
 //     xtk::Model tXTKModel( tXTKParameterlist );
 //     tXTKModel.set_geometry_engine( &tGeometryEngine );

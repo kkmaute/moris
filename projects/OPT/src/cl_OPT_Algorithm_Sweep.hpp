@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_OPT_Algorithm_Sweep.hpp
+ *
+ */
+
 #ifndef MORIS_CL_OPT_ALGORITHM_SWEEP_HPP_
 #define MORIS_CL_OPT_ALGORITHM_SWEEP_HPP_
 
@@ -92,3 +102,4 @@ namespace moris
 }
 
 #endif /* MORIS_CL_OPT_ALGORITHM_SWEEP_HPP_ */
+

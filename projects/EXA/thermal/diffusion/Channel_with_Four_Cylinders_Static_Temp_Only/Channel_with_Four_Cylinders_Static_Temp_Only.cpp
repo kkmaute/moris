@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * Channel_with_Four_Cylinders_Static_Temp_Only.cpp
+ *
+ */
+
 #include <string>
 #include <iostream>
 #include "typedefs.hpp"
@@ -335,7 +345,6 @@ namespace moris
         // init SP counter
         uint tSPCounter = 0;
 
-
         // create parameter list for stabilization parameter 2
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      "SPDirichletNitscheT") ;
@@ -493,3 +502,4 @@ namespace moris
 #ifdef  __cplusplus
 }
 #endif
+

@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 /** \page opt_sqp Sequential Quadratic Programming (SQP)
 
 SQP is a class of methods which solves the optimization problem by iterating based on a quadratic model of the objective
@@ -66,3 +73,4 @@ SNOPT. For further reference about SNOPT, please see the <a href="sndoc7.pdf" ta
 \param "Scale tolerance" [0.9]: Affects effectiveness with which constraint matrix is scaled
 
 */
+

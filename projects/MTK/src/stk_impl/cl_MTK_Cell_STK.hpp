@@ -1,5 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Cell_STK.hpp
+ *
  */
 
 #ifndef PROJECTS_MTK_SRC_STK_IMPL_CL_MTK_CELL_STK_HPP_
@@ -67,7 +73,6 @@ namespace moris
              */
             ~Cell_STK(){};
 
-
             //------------------------------------------------------------------------------
 
             /**
@@ -126,3 +131,4 @@ namespace moris
 //------------------------------------------------------------------------------
 
 #endif /* PROJECTS_MTK_SRC_STK_IMPL_CL_MTK_CELL_STK_HPP_ */
+

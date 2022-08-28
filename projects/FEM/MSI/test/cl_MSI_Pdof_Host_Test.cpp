@@ -1,8 +1,11 @@
 /*
- * cl_Pdof_Host_Test.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jul 14, 2018
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MSI_Pdof_Host_Test.cpp
+ *
  */
 
 #include "catch.hpp"
@@ -175,5 +178,4 @@ namespace moris
 
     }
 }
-
 

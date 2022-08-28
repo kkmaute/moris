@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_DLA_Linear_Solver_PETSc.hpp
  *
- *  Created on: Dez 11, 2018
- *      Author: schmidt
  */
+
 #ifndef SRC_DISTLINALG_CL_LINEAR_SOLVER_PETSC_HPP_
 #define SRC_DISTLINALG_CL_LINEAR_SOLVER_PETSC_HPP_
 
@@ -71,3 +75,4 @@ class Linear_Solver_PETSc : public moris::dla::Linear_Solver_Algorithm
 }
 
 #endif /* SRC_DISTLINALG_CL_LINEAR_SOLVER_PETSC_HPP_ */
+

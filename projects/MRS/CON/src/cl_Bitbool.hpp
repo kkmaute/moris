@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_Bitbool.hpp
+ *
+ */
+
 #ifndef SRC_CONTAINERS_CL_BITBOOL_HPP_
 #define SRC_CONTAINERS_CL_BITBOOL_HPP_
 
@@ -8,7 +18,6 @@
 
 namespace moris
 {
-
 
     class Bitbool
     {
@@ -88,7 +97,6 @@ namespace moris
             mBitbool.clear();
         }
 
-
         /**
          * @brief Sets the position index in the Bitbool to 1.
          *
@@ -137,8 +145,5 @@ namespace moris
     };
 }
 
-
 #endif /* SRC_CONTAINERS_CL_BITBOOL_HPP_ */
-
-
 

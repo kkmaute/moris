@@ -1,11 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_prod_Arma.hpp
  *
- *  Created on: Nov 24, 2020
- *      Author: gates
- *
- *  This subroutine performs the armadillo prod function as described in:
- *  http://arma.sourceforge.net/docs.html#prod
  */
 
 #ifndef PROJECTS_LINALG_SRC_ARMA_IMPL_FN_PROD_ARMA_HPP_
@@ -51,3 +51,4 @@ namespace moris
 }
 
 #endif /* PROJECTS_LINALG_SRC_ARMA_IMPL_FN_PROD_ARMA_HPP_ */
+

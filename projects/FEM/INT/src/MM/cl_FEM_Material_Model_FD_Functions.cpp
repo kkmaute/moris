@@ -1,8 +1,11 @@
 /*
- * cl_FEM_Material_Model_FD_functions.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Feb 23, 2021
- *      Author: wunsch
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_Material_Model_FD_Functions.cpp
+ *
  */
 
 #include "cl_FEM_Material_Model.hpp"
@@ -322,21 +325,21 @@ namespace moris
             // evaluate unperturbed variable
             switch ( tTDvarIndex )
             {
-                // Density DoF type 
+                // Density DoF type
                 case static_cast< int >( MSI::Dof_Type::RHO ):
                 {
                     tTDvarVal = this->density();
                     break;
                 }
 
-                // Pressure DoF Type 
+                // Pressure DoF Type
                 case static_cast< int >( MSI::Dof_Type::P ):
                 {
                     tTDvarVal = this->pressure();
-                    break; 
-                } 
+                    break;
+                }
 
-                // Temperature DoF Type 
+                // Temperature DoF Type
                 case static_cast< int >( MSI::Dof_Type::TEMP ):
                 {
                     tTDvarVal = this->temperature();
@@ -346,9 +349,9 @@ namespace moris
                 default:
                 {
                     // throw error
-                    MORIS_ERROR( false, "Material_Model::eval_TDvarDOF_FD - Only thermondynamic state variables (rho,p,T) supported." ); 
-                    break; 
-                }                                          
+                    MORIS_ERROR( false, "Material_Model::eval_TDvarDOF_FD - Only thermondynamic state variables (rho,p,T) supported." );
+                    break;
+                }
             }
 
             // set size for derivative
@@ -410,21 +413,21 @@ namespace moris
                         Matrix< DDRMat > tTDvarValPert;
                         switch ( tTDvarIndex )
                         {
-                            // Density DoF type 
+                            // Density DoF type
                             case static_cast< int >( MSI::Dof_Type::RHO ):
                             {
                                 tTDvarValPert = this->density();
                                 break;
                             }
 
-                            // Pressure DoF Type 
+                            // Pressure DoF Type
                             case static_cast< int >( MSI::Dof_Type::P ):
                             {
                                 tTDvarValPert = this->pressure();
-                                break; 
-                            } 
+                                break;
+                            }
 
-                            // Temperature DoF Type 
+                            // Temperature DoF Type
                             case static_cast< int >( MSI::Dof_Type::TEMP ):
                             {
                                 tTDvarValPert = this->temperature();
@@ -434,10 +437,10 @@ namespace moris
                             default:
                             {
                                 // throw error
-                                MORIS_ERROR( false, "Material_Model::eval_TDvarDOF_FD - Only thermondynamic state variables (rho,p,T) supported." ); 
-                                break; 
-                            }                                          
-                        }                        
+                                MORIS_ERROR( false, "Material_Model::eval_TDvarDOF_FD - Only thermondynamic state variables (rho,p,T) supported." );
+                                break;
+                            }
+                        }
 
                         // assemble the jacobian
                         aTDvarDOF_FD.get_column( tDofCounter ) +=
@@ -801,7 +804,7 @@ namespace moris
             else if ( aQuantityString == "BetaT" )
             {
                 t_get_Quantity = &Material_Model::BetaT;
-            } 
+            }
             else
             {
                 MORIS_ERROR( false, "Material_Model::eval_QuantityDOF_FD - Unknown aQuantityString." );
@@ -895,3 +898,4 @@ namespace moris
 
     }/* end_fem_namespace */
 }/* end_moris_namespace */
+

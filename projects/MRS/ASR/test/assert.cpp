@@ -1,11 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * assert.cpp
  *
- *  Created on: May 8, 2017
- *      Author: doble
  */
 
-// third party
 #include <catch.hpp>
 #include "assert.hpp"
 #include "cl_Communication_Tools.hpp" // COM/src

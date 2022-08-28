@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_IQI_Latent_Heat_Absorption.hpp
  *
- *  Created on: Jul 10, 2020
- *      Author: wunsch
  */
 
 #ifndef PROJECTS_FEM_INT_SRC_CL_FEM_IQI_LATENT_HEAT_ABSORPTION_HPP_
@@ -91,3 +94,4 @@ namespace moris
 } /* end namespace moris */
 
 #endif /* PROJECTS_FEM_INT_SRC_CL_FEM_IQI_LATENT_HEAT_ABSORPTION_HPP_ */
+

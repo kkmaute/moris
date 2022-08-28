@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_FEM_IWG_Diffusion_Ghost.cpp
+ *
+ */
+
 #include <string>
 #include <catch.hpp>
 #include "assert.hpp"
@@ -347,3 +357,4 @@ TEST_CASE( "IWG_Diff_Ghost", "[moris],[fem],[IWG_Diff_Ghost]" )
         }
     }
 }/* END_TEST_CASE */
+

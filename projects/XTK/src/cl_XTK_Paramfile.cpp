@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_XTK_Paramfile.cpp
  *
- *  Created on: Mar 22, 2019
- *      Author: doble
  */
 
 #include "cl_XTK_Paramfile.hpp"
@@ -29,7 +32,6 @@ Paramfile::load_xtk_problems()
     // count number of problems
     uint tNumberXTKProblems
     =  mParser->count_keys_in_subtree( "moris", "xtk_problem" );
-
 
     // make sure that number of problems is at least one
     MORIS_ERROR( tNumberXTKProblems>0,
@@ -293,3 +295,4 @@ Paramfile::parse_xtk_problem_operators(moris::uint aProblemIndex)
   }
 
 }
+

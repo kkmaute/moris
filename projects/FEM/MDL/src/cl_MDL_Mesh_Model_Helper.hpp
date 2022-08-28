@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MDL_Mesh_Model_Helper.hpp
  *
- *  Created on: Mai 22, 2018
- *      Author: Schmidt
  */
 
 #ifndef PROJECTS_FEM_MDL_SRC_CL_MDL_MESH_MODEL_HELPER_HPP_
@@ -113,8 +116,6 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-
-
 //------------------------------------------------------------------------------
 
 //            void create_nodes();
@@ -130,5 +131,5 @@ namespace moris
     } /* namespace mdl */
 } /* namespace moris */
 
-
 #endif /* PROJECTS_FEM_MDL_SRC_CL_MDL_MESH_MODEL_HELPER_HPP_ */
+

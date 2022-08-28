@@ -1,13 +1,15 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_XTK_Topology.hpp
  *
- *  Created on: Jul 17, 2017
- *      Author: ktdoble
  */
 
 #ifndef SRC_XTK_CL_XTK_TOPOLOGY_HPP_
 #define SRC_XTK_CL_XTK_TOPOLOGY_HPP_
-
 
 #include"xtk/cl_XTK_Enums.hpp" // For topology type enums
 
@@ -17,7 +19,6 @@
 namespace xtk
 {
 
-    
     enum class Topology_Type
 {
     EDGE, // Edge with 2 Node
@@ -29,7 +30,7 @@ namespace xtk
     HEXA_8, // hexahedron with 8 nodes topology
 
 };
-    
+
 class Topology
 {
 public:
@@ -37,7 +38,6 @@ public:
     {
 
     }
-
 
     virtual enum Topology_Type get_topology_type() const = 0;
 
@@ -50,6 +50,5 @@ public:
 };
 }
 
-
-
 #endif /* SRC_XTK_CL_XTK_TOPOLOGY_HPP_ */
+

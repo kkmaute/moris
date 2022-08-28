@@ -1,8 +1,11 @@
 /*
- * fn_PRM_FEM_Parameters.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Feb 6, 2020
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * fn_PRM_HMR_Parameters.hpp
+ *
  */
 
 #ifndef PROJECTS_PRM_SRC_FN_PRM_HMR_PARAMETERS_HPP_
@@ -138,3 +141,4 @@ namespace moris
 }    // namespace moris
 
 #endif /* PROJECTS_PRM_SRC_FN_PRM_MSI_PARAMETERS_HPP_ */
+

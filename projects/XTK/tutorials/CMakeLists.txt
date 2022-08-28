@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # List test includes
 set(XTK_TUTORIAL_INCLUDES
@@ -58,4 +65,5 @@ set(TUTORIAL_DEPENDENCIES
 add_executable(XTK_Tutorial_Multi-exe XTK_Tutorial_Multi.cpp )
 target_link_libraries(XTK_Tutorial_Multi-exe ${TUTORIAL_DEPENDENCIES} )
 set_target_properties(XTK_Tutorial_Multi-exe PROPERTIES OUTPUT_NAME XTK_Tutorial_Multi.exe )
+
 

@@ -1,10 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_HMR_get_basis_neighbors_3d.hpp
  *
- *  Created on: December 05, 2018
- *  using MATLAB
  */
- 
+
 #ifndef SRC_HMR_FN_HMR_GET_BASIS_NEIGHBORS_3D_HPP_
 #define SRC_HMR_FN_HMR_GET_BASIS_NEIGHBORS_3D_HPP_
 
@@ -14749,3 +14752,4 @@ namespace moris
     } /* namespace hmr */
 } /* namespace moris */
 #endif /* SRC_HMR_FN_HMR_GET_BASIS_NEIGHBORS_3D_HPP_ */
+

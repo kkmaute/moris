@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 namespace moris {
 
 /** \page EXA_THERMAL_STEFANS_PROBLEM Stefan's Problem for Diffusion with Phase Change
@@ -83,3 +90,4 @@ The material parameters used are scaled, but not changed.
 */
 
 }
+

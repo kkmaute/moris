@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Penalty.cpp
  *
- *  Created on: Jan 27, 2020
- *      Author: ritzert
  */
+
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Penalty.hpp"
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
@@ -201,7 +205,6 @@ namespace moris
 
             // evaluate average traction
             Matrix< DDRMat > tJumpTraction = tCMMasterElasticity->traction( mNormal ) - tCMSlaveElasticity->traction( mNormal );
-
 
             // get number of master dof dependencies
             uint tMasterNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
@@ -435,5 +438,4 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-
 

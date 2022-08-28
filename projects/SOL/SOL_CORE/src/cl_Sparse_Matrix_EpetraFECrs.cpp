@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_Sparse_Matrix_EpetraFECrs.cpp
  *
- *  Created on: Jun 28, 2018
- *      Author: schmidt
  */
+
 #include "cl_Sparse_Matrix_EpetraFECrs.hpp"
 
 extern moris::Comm_Manager gMorisComm;
@@ -30,7 +34,6 @@ Sparse_Matrix_EpetraFECrs::Sparse_Matrix_EpetraFECrs(
 
     // build BC vector
     this->dirichlet_BC_vector( mDirichletBCVec, aInput->get_constrained_Ids() );
-
 
     if( mBuildGraph )
     {

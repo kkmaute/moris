@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # MTK Source --------------------------------------------------------------
 # -------------------------------------------------------------------------
 
@@ -364,3 +371,4 @@ install(TARGETS ${MTK}-lib
 # Export library into *Targets file
 install(EXPORT ${MTK}Targets
     DESTINATION ${${MTK}_CONFIG_INSTALL_DIR} )
+

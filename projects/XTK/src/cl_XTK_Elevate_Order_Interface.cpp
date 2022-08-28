@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_XTK_Elevate_Order_Interface.cpp
+ *
+ */
+
 #include "cl_XTK_Decomposition_Algorithm.hpp"
 #include "cl_XTK_Elevate_Order_Interface.hpp"
 #include "cl_XTK_Integration_Mesh_Generator.hpp"
@@ -16,15 +26,15 @@ Elevate_Order_Interface::Elevate_Order_Interface( ParameterList& aParameterList,
     {
         mElevateOrderTemplate = std::make_shared< TRI3_to_TRI6 >();
     }
-    // else if ( aSubdivisionMethod == Subdivision_Method::P_ELEVATE_ORDER_TRI3_TRI10 ) 
+    // else if ( aSubdivisionMethod == Subdivision_Method::P_ELEVATE_ORDER_TRI3_TRI10 )
     // {
     //     mElevateOrderTemplate = std::make_shared< TRI3_to_TRI10 >();
     // }
-    else if ( aSubdivisionMethod == Subdivision_Method::P_ELEVATE_ORDER_TET4_TET10 ) 
+    else if ( aSubdivisionMethod == Subdivision_Method::P_ELEVATE_ORDER_TET4_TET10 )
     {
         mElevateOrderTemplate = std::make_shared< TET4_to_TET10 >();
     }
-    // else if ( aSubdivisionMethod == Subdivision_Method::P_ELEVATE_ORDER_TET4_TET20 ) 
+    // else if ( aSubdivisionMethod == Subdivision_Method::P_ELEVATE_ORDER_TET4_TET20 )
     // {
     //     mElevateOrderTemplate = std::make_shared< TET4_to_TET20 >();
     // }
@@ -74,7 +84,7 @@ Elevate_Order_Interface::perform(
     // keep track of some useful classes (avoid passing to every function)
     mMeshGenerationData = aMeshGenerationData;
     mDecompositionData  = aDecompositionData;
-    mCutIntegrationMesh = aCutIntegrationMesh;       
+    mCutIntegrationMesh = aCutIntegrationMesh;
     mBackgroundMesh     = aBackgroundMesh;
     mGenerator          = aMeshGenerator;
 
@@ -104,8 +114,8 @@ Elevate_Order_Interface::perform(
     std::shared_ptr< Edge_Based_Ancestry > tIgEdgeAncestry = std::make_shared< Edge_Based_Ancestry >();
     aMeshGenerator->deduce_edge_ancestry( aCutIntegrationMesh, aBackgroundMesh, tIgCellGroupEdgeConnectivity, tBackgroundCellForEdge, tIgEdgeAncestry );
 
-    // request vertices and make sure vertices on edges don't get requested twice, additionally build the local 
-    moris::Cell< moris_index > tEmptyCellVertexList( mElevateOrderTemplate->get_total_ig_verts(), -1 ); 
+    // request vertices and make sure vertices on edges don't get requested twice, additionally build the local
+    moris::Cell< moris_index > tEmptyCellVertexList( mElevateOrderTemplate->get_total_ig_verts(), -1 );
     moris::Cell< moris::Cell< moris_index > > tCellToLocalVertices( tIgCellsInGroups.size(), tEmptyCellVertexList );
     this->make_vertex_requests(
         tIgCellGroupEdgeConnectivity,
@@ -127,16 +137,15 @@ Elevate_Order_Interface::perform(
     aMeshGenerator->commit_new_ig_vertices_to_cut_mesh( aMeshGenerationData, aDecompositionData, aCutIntegrationMesh, aBackgroundMesh, this );
 
     // we are ready to create the new integration cells
-    this->create_higher_order_integration_cells( 
-        tIgCellGroupEdgeConnectivity, 
-        tIgEdgeAncestry, 
+    this->create_higher_order_integration_cells(
+        tIgCellGroupEdgeConnectivity,
+        tIgEdgeAncestry,
         &tIgCellsInGroups,
         &tCellToLocalVertices );
 
     // commit the cells to the mesh
     aMeshGenerator->commit_new_ig_cells_to_cut_mesh( aMeshGenerationData, aDecompositionData, aCutIntegrationMesh, aBackgroundMesh, this );
 }
-
 
 // ----------------------------------------------------------------------------------
 
@@ -181,19 +190,19 @@ Elevate_Order_Interface::make_vertex_requests(
 
         // check if new vertices on faces get created (if true, assume 3D)
         if ( mElevateOrderTemplate->has_new_vertices_on_entity( EntityRank::ELEMENT ) )
-        {  
-            // todo: assuming only one vertex gets created inside of elements 
+        {
+            // todo: assuming only one vertex gets created inside of elements
             // todo: (which is fine for standard quadratic and cubic elements, but maybe not for others)
-            MORIS_ERROR( mElevateOrderTemplate->num_new_vertices_per_entity( EntityRank::ELEMENT ) == 1, 
+            MORIS_ERROR( mElevateOrderTemplate->num_new_vertices_per_entity( EntityRank::ELEMENT ) == 1,
                     "Elevate_Order_Interface::make_vertex_requests() - currently only supports elements with one new vertex inside of each element." );
 
-            // get Cell parent (BG cell) index 
+            // get Cell parent (BG cell) index
             moris_index tCellGroupMembershipIndex = mCutIntegrationMesh->get_ig_cell_group_memberships( tCurrentCellIndex )( 0 );
             moris_index tParentIndex = mCutIntegrationMesh->get_ig_cell_group_parent_cell( tCellGroupMembershipIndex )->get_index();
 
-            // iterate through vertices to be created inside each 
+            // iterate through vertices to be created inside each
             for ( uint iVert = 0; iVert < mElevateOrderTemplate->num_new_vertices_per_entity( EntityRank::ELEMENT ); iCell++ )
-            { 
+            {
                 // initialize variable holding possible new node index
                 moris_index tNewNodeIndexInDecompData = MORIS_INDEX_MAX;
 
@@ -212,23 +221,23 @@ Elevate_Order_Interface::make_vertex_requests(
 
                     // compute global coordinates for new node
                     Matrix< DDRMat > tNewVertexCoords;
-                    if( mElevateOrderTemplate->get_num_spatial_dims() == 2 ) 
+                    if( mElevateOrderTemplate->get_num_spatial_dims() == 2 )
                     {
-                        tNewVertexCoords = this->compute_tri_vertex_global_coordinates( 
-                            (*aIgCells)( iCell )->get_vertex_pointers(), 
+                        tNewVertexCoords = this->compute_tri_vertex_global_coordinates(
+                            (*aIgCells)( iCell )->get_vertex_pointers(),
                             mElevateOrderTemplate->get_new_vertex_parametric_coords_wrt_entity( EntityRank::ELEMENT )( iVert )  );
                     }
                     else if( mElevateOrderTemplate->get_num_spatial_dims() == 3 )
                     {
-                        tNewVertexCoords = this->compute_tet_vertex_global_coordinates( 
-                            (*aIgCells)( iCell )->get_vertex_pointers(), 
+                        tNewVertexCoords = this->compute_tet_vertex_global_coordinates(
+                            (*aIgCells)( iCell )->get_vertex_pointers(),
                             mElevateOrderTemplate->get_new_vertex_parametric_coords_wrt_entity( EntityRank::ELEMENT )( iVert )  );
                     }
                     else
                     {
                         MORIS_ERROR( false, "Elevate_Order_Interface::make_vertex_requests() - num spatial dimensions returned by template must be 2 or 3." );
                     }
-                    
+
                     // Register new node request
                     tNewNodeIndexInDecompData = mDecompositionData->register_new_request(
                         tParentIndex,
@@ -241,14 +250,14 @@ Elevate_Order_Interface::make_vertex_requests(
                     tNewNodeIndex++;
                 }
             } // end: loop over new vertices inside each cell
-        } // end: new vertices inside element 
+        } // end: new vertices inside element
     } // end: loop inside element
 
     // --------------------------------
 
     // check if new vertices on edges get created
     if ( mElevateOrderTemplate->has_new_vertices_on_entity( EntityRank::EDGE ) )
-    {    
+    {
         // get number of new vertices to be created on edge
         uint tNumNewVerticesPerEdge = mElevateOrderTemplate->num_new_vertices_per_entity( EntityRank::EDGE );
 
@@ -258,7 +267,7 @@ Elevate_Order_Interface::make_vertex_requests(
             // get edge parent entity index and rank
             moris_index tParentIndex = aIgEdgeAncestry->mEdgeParentEntityIndex( iEdge );
             moris_index tParentRank  = aIgEdgeAncestry->mEdgeParentEntityRank( iEdge );
-        
+
             // get unique edge id based on two end vertices of edge
             moris_index tSecondaryId = this->hash_edge( aEdgeConnectivity->mEdgeVertices( iEdge ) );
 
@@ -283,13 +292,13 @@ Elevate_Order_Interface::make_vertex_requests(
 
                 // iterate through vertices to be created on each edge
                 for ( uint iVert = 0; iVert < tNumNewVerticesPerEdge; iVert++ )
-                { 
+                {
                     // compute global coordinates for new node
-                    Matrix< DDRMat > tNewVertexCoords = 
-                            this->compute_edge_vertex_global_coordinates( 
-                                aEdgeConnectivity->mEdgeVertices( iEdge ), 
+                    Matrix< DDRMat > tNewVertexCoords =
+                            this->compute_edge_vertex_global_coordinates(
+                                aEdgeConnectivity->mEdgeVertices( iEdge ),
                                 mElevateOrderTemplate->get_new_vertex_parametric_coords_wrt_entity( EntityRank::EDGE )( iVert )  );
-                    
+
                     // fixme: can two nodes be requested with the same secondary ID?
                     // Register new node request
                     tNewNodeIndexInDecompData = mDecompositionData->register_new_request(
@@ -325,7 +334,7 @@ Elevate_Order_Interface::make_vertex_requests(
                     uint tSecondVertLocalIndex = tVertIndicesOnCell( tCellIndex ).find( tSecondVertexIndex )->second;
 
                     // get 1-based edge index and direction
-                    moris_index tSignedEdgeIndex = 
+                    moris_index tSignedEdgeIndex =
                             mElevateOrderTemplate->get_local_edge_index_based_on_vertex_indices( tFirstVertLocalIndex, tSecondVertLocalIndex );
 
                     // iterate through vertices to be created on each edge, and save decomp data index for new edges on each element
@@ -349,13 +358,13 @@ Elevate_Order_Interface::make_vertex_requests(
 
     // check if new vertices on faces get created (if true, assume 3D)
     if ( mElevateOrderTemplate->has_new_vertices_on_entity( EntityRank::FACE ) )
-    {  
+    {
         // get face connectivity from Cut Integration Mesh
         std::shared_ptr< Facet_Based_Connectivity > tFaceConnectivity = mCutIntegrationMesh->get_face_connectivity();
         std::shared_ptr< Facet_Based_Ancestry >     tIgFaceAncestry   = mCutIntegrationMesh->get_face_ancestry();
 
         // todo: assuming only one vertex gets created per face (which is fine for standard quadratic and cubic elements, but maybe not for others)
-        MORIS_ERROR( mElevateOrderTemplate->num_new_vertices_per_entity( EntityRank::FACE ) == 1, 
+        MORIS_ERROR( mElevateOrderTemplate->num_new_vertices_per_entity( EntityRank::FACE ) == 1,
                 "Elevate_Order_Interface::make_vertex_requests() - currently only supports elements with one new vertex per face max." );
 
         // iterate through the faces and create vertices on it
@@ -385,11 +394,11 @@ Elevate_Order_Interface::make_vertex_requests(
                 moris::moris_index tOwningProc = mBackgroundMesh->get_entity_owner( tParentIndex, (enum EntityRank)tParentRank );
 
                 // compute global coordinates for new node
-                Matrix< DDRMat > tNewVertexCoords = 
-                        this->compute_tri_vertex_global_coordinates( 
-                            tFaceConnectivity->mFacetVertices( iFace ), 
+                Matrix< DDRMat > tNewVertexCoords =
+                        this->compute_tri_vertex_global_coordinates(
+                            tFaceConnectivity->mFacetVertices( iFace ),
                             mElevateOrderTemplate->get_new_vertex_parametric_coords_wrt_entity( EntityRank::FACE )( 0 )  );
-                
+
                 // Register new node request
                 tNewNodeIndexInDecompData = mDecompositionData->register_new_request(
                     tParentIndex,
@@ -436,7 +445,7 @@ Elevate_Order_Interface::associate_new_vertices_with_cell_groups(
         tDimParamCoords = ( *aBackgroundCellForEdge )( 0 )->get_cell_info()->get_loc_coord_dim();
     }
 
-    // list of node coords 
+    // list of node coords
     moris::Matrix< moris::DDRMat > tEdgeNodeParamCoordinates( 2, tDimParamCoords );
 
     Cell< moris::uint > tCellGroups;
@@ -483,8 +492,8 @@ Elevate_Order_Interface::associate_new_vertices_with_cell_groups(
 
             // get parametric coords wrt BG element where new vertex sits
             moris::Matrix< moris::DDRMat > tParametricCoordsRelativeToParentElem =
-                Interpolation::linear_interpolation_location( 
-                    tEdgeNodeParamCoordinates, 
+                Interpolation::linear_interpolation_location(
+                    tEdgeNodeParamCoordinates,
                     mElevateOrderTemplate->get_new_vertex_parametric_coords_wrt_entity( EntityRank::EDGE )( 0 ) );
 
             // list of edges and locations to create new nodes on added to decomp. data
@@ -510,14 +519,14 @@ Elevate_Order_Interface::create_higher_order_integration_cells(
 {
     // time/log function
     Tracer tTracer( "XTK", "Elevate_Order_Interface", "Create Higher Order Integration Cells" );
-    
+
     // starting with a clean slate here
     mNumNewCells = 0;
 
     // gather information needed for new cells from order elevation template
     uint tNumIgCellsInMesh  = aIgCells->size();
     moris_index tNodesPerCell = mElevateOrderTemplate->get_total_ig_verts();
-    
+
     // create cell info for new cells
     moris::mtk::Cell_Info_Factory tFactory;
     std::shared_ptr< moris::mtk::Cell_Info > tCellInfo = tFactory.create_cell_info_sp( mElevateOrderTemplate->get_ig_cell_topology() );
@@ -533,12 +542,12 @@ Elevate_Order_Interface::create_higher_order_integration_cells(
     {
         // new cell replaces current cell, hence it has the same index
         mNewCellCellIndexToReplace( iCell ) = (*aIgCells)(iCell)->get_index();
-        
+
         // get cell group membership of current cell and assign it to new cell
         moris_index tCellGroupMembershipIndex = mCutIntegrationMesh->get_ig_cell_group_memberships( (*aIgCells)(iCell)->get_index() )( 0 );
         mNewCellChildMeshIndex( iCell ) = tCellGroupMembershipIndex;
 
-        // get list of vertices belonging to new cell, sorted in  
+        // get list of vertices belonging to new cell, sorted in
         moris::Cell< moris_index > tSortedVerticesForCell( mElevateOrderTemplate->get_total_ig_verts() );
 
         // iterate through old corner vertices on cell, get their indices, and construct the Cell-Vertex-Connectivity map
@@ -546,10 +555,10 @@ Elevate_Order_Interface::create_higher_order_integration_cells(
         {
             // get vertex index of corner vertices from old element
             moris_index tOldVertexIndex = (*aIgCells)( iCell )->get_vertex_inds()( iVert );
-            
+
             // copy value onto IEN
             mNewCellToVertexConnectivity( iCell )( iVert ) = tOldVertexIndex;
-        } 
+        }
 
         // iterate through new vertices on cell, get their indices, and construct the Cell-Vertex-Connectivity map
         for ( uint iVert = mElevateOrderTemplate->get_num_spatial_dims() + 1; iVert < mElevateOrderTemplate->get_total_ig_verts(); iVert++ )
@@ -559,7 +568,7 @@ Elevate_Order_Interface::create_higher_order_integration_cells(
 
             // copy value onto IEN
             mNewCellToVertexConnectivity( iCell )( iVert ) = tNewVertexIndex;
-        }    
+        }
     }
 }
 
@@ -591,7 +600,7 @@ Elevate_Order_Interface::hash_face( moris::Cell< moris::mtk::Vertex* > const& aF
     const moris_id tVertId0 = aFaceVertices( 0 )->get_id();
     const moris_id tVertId1 = aFaceVertices( 1 )->get_id();
     const moris_id tVertId2 = aFaceVertices( 2 )->get_id();
-    
+
     moris_index tMinIdIndex = 0;
     moris_index tMidIdIndex = 1;
     moris_index tMaxIdIndex = 2;
@@ -634,21 +643,21 @@ Elevate_Order_Interface::swap_indices( moris_index & aInd1, moris_index & aInd2 
 // -------------------------------------------------------------------------
 
 Matrix< DDRMat >
-Elevate_Order_Interface::compute_edge_vertex_global_coordinates( 
-        moris::Cell<moris::mtk::Vertex*> const & aEdgeVertices, 
+Elevate_Order_Interface::compute_edge_vertex_global_coordinates(
+        moris::Cell<moris::mtk::Vertex*> const & aEdgeVertices,
         Matrix< DDRMat > aEdgeCoordinate )
 {
     // check inputs
-    MORIS_ASSERT( aEdgeVertices.size() == 2, 
+    MORIS_ASSERT( aEdgeVertices.size() == 2,
             "Elevate_Order_Interface::compute_edge_vertex_global_coordinates() - two corner vertices must be provided." );
     MORIS_ASSERT( ( aEdgeCoordinate( 0 ) > -1.0 - 10.0 * MORIS_REAL_EPS ) && ( aEdgeCoordinate( 0 ) < 1.0 + 10.0 * MORIS_REAL_EPS ),
             "Elevate_Order_Interface::compute_edge_vertex_global_coordinates() - provided edge local coord out of bounds (-1,1)." );
 
     // compute interpolation
     real tXi = aEdgeCoordinate( 0 );
-    Matrix< DDRMat > tIntersectionCoords = 
+    Matrix< DDRMat > tIntersectionCoords =
             0.5 * ( ( 1.0 - tXi ) * aEdgeVertices( 0 )->get_coords() + ( 1.0 + tXi ) * aEdgeVertices( 1 )->get_coords() );
-    
+
     // return vertex coords
     return tIntersectionCoords;
 
@@ -657,8 +666,8 @@ Elevate_Order_Interface::compute_edge_vertex_global_coordinates(
 // -------------------------------------------------------------------------
 
 Matrix< DDRMat >
-Elevate_Order_Interface::compute_tri_vertex_global_coordinates( 
-        moris::Cell<moris::mtk::Vertex*> const & aTriVertices, 
+Elevate_Order_Interface::compute_tri_vertex_global_coordinates(
+        moris::Cell<moris::mtk::Vertex*> const & aTriVertices,
         Matrix< DDRMat > aTriCoords )
 {
     MORIS_ERROR( false, "Elevate_Order_Interface::compute_tri_vertex_global_coordinates() - function not implemented yet." );
@@ -668,8 +677,8 @@ Elevate_Order_Interface::compute_tri_vertex_global_coordinates(
 // -------------------------------------------------------------------------
 
 Matrix< DDRMat >
-Elevate_Order_Interface::compute_tet_vertex_global_coordinates( 
-        moris::Cell<moris::mtk::Vertex*> const & aTriVertices, 
+Elevate_Order_Interface::compute_tet_vertex_global_coordinates(
+        moris::Cell<moris::mtk::Vertex*> const & aTriVertices,
         Matrix< DDRMat > aTriCoords )
 {
     MORIS_ERROR( false, "Elevate_Order_Interface::compute_tet_vertex_global_coordinates() - function not implemented yet." );
@@ -679,3 +688,4 @@ Elevate_Order_Interface::compute_tet_vertex_global_coordinates(
 // ----------------------------------------------------------------------------------
 
 }// namespace xtk
+

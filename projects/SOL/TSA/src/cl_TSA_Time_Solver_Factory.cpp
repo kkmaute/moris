@@ -1,9 +1,13 @@
 /*
- * cl_NLA_Nonlinear_Solver_Factory.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Apr 10, 2018
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * cl_TSA_Time_Solver_Factory.cpp
+ *
  */
+
 #include "cl_TSA_Time_Solver_Factory.hpp"
 
 #include "cl_TSA_Monolithic_Time_Solver.hpp"
@@ -58,5 +62,4 @@ std::shared_ptr< Time_Solver_Algorithm > Time_Solver_Factory::create_time_solver
 
     return tTimeSolver;
 }
-
 

@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 namespace moris {
 
 /** @defgroup XTKEnrich Enrichment Strategy
@@ -45,3 +52,4 @@ For the same conformal integration mesh, the expected results are visualized for
 
  */
  }
+

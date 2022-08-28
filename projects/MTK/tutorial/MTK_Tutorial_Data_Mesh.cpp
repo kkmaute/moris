@@ -1,11 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * MTK_Tutorial_Data_Mesh.cpp
  *
- *  Created on: Oct 18, 2018
- *      Author: doble
  */
 
-// MORIS header files.
 #include "cl_Communication_Manager.hpp" // COM/src
 #include "cl_Communication_Tools.hpp"
 #include "cl_Logger.hpp" // MRS/IOS/src
@@ -20,7 +22,6 @@ moris::Logger       gLogger;
 #include "cl_MTK_Mesh_Data_Input.hpp"
 #include "cl_MTK_Mesh_Factory.hpp"
 #include "cl_MTK_Scalar_Field_Info.hpp"
-
 
 // Set namespaces to use
 using namespace moris;
@@ -42,10 +43,8 @@ main( int    argc,
     // Severity level 0 - all outputs
     gLogger.initialize( 0 );
 
-
     // Assert this is a serial tutorial
     MORIS_ASSERT(par_size() == 1,"MTK_Tutorial_Data_Mesh.cpp is only a serial test");
-
 
     /*!
      * The goal of this tutorial is to generate the mesh shown in the following figures (fields not shown):
@@ -144,7 +143,6 @@ main( int    argc,
 
     // Specify the local to global element map for all tet4s in the mesh
     Matrix< IdMat >  aElemLocaltoGlobalTet4 = {{3}};
-
 
     /*!
      * Setup the MtkSetsInfo data structure, this data structure
@@ -265,7 +263,6 @@ main( int    argc,
      // Add side side set to mesh sets
      tMtkMeshSets.add_side_set(&tSideSetStruc);
 
-
      /*!
       * Next we set up the node sets, each node set
       * has the node ids belonging to the set and a name.
@@ -291,7 +288,6 @@ main( int    argc,
 
      // Add node set to Mtk mesh sets
      tMtkMeshSets.add_node_set(&tNodeSet1);
-
 
      /*
       * Now that we have all the mesh sets setup, adding fields
@@ -380,7 +376,6 @@ main( int    argc,
       *
       */
 
-
      moris::mtk::MtkMeshData aMeshData(aNumElemTypes);
      aMeshData.SpatialDim              = &aNumDim;
      aMeshData.ElemConn(0)             = &aElemConnHex8;
@@ -394,7 +389,6 @@ main( int    argc,
 
      // Create mesh from data with the factory
      moris::mtk::Mesh* tMesh = create_interpolation_mesh( MeshType::STK, aMeshData );
-
 
      /*!
       * To access the entities in a given set, the name of the set and
@@ -424,8 +418,6 @@ main( int    argc,
      tMesh->create_output_mesh(tMeshOutputFile);
      std::cout<<"Mesh outputted to file: " << tMeshOutputFile<<std::endl;
 
-
     gMorisComm.finalize();
 }
-
 

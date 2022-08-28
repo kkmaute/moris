@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_NLA_NLBGS.hpp
  *
- *  Created on: Jan 18, 2018
- *      Author: schmidt
  */
+
 #ifndef SRC_FEM_CL_NLBGS_HPP_
 #define SRC_FEM_CL_NLBGS_HPP_
 
@@ -37,7 +41,6 @@ namespace NLA
                                   bool        & aHardBreak);
 
         void compute_norms( const moris::sint aIter );
-
 
     public:
         /**
@@ -73,3 +76,4 @@ namespace NLA
 }
 
 #endif /* SRC_FEM_CL_NLBGS_HPP_ */
+

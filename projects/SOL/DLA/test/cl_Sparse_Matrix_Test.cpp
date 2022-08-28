@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_Sparse_Matrix_Test.cpp
  *
- *  Created on: Mar 19, 2018
- *      Author: schmidt
  */
+
 #include "catch.hpp"
 #include "fn_equal_to.hpp" // ALG/src
 #include "typedefs.hpp" // COR/src
@@ -280,7 +284,6 @@ namespace moris
 
         }
 
-
         TEST_CASE("Get Matrix Values","[Get_Matrix_Values],[DistLinAlg]")
         {
             // Determine process rank
@@ -301,7 +304,6 @@ namespace moris
                         { 12, 13, 14, 15 } };
 
                 tMat->insert_values(tElementIds, tElementIds, tElementMatrix);
-
 
                 // Call Global Asemby to ship information between processes
                 tMat->matrix_global_assembly();

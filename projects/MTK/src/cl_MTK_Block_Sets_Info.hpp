@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Block_Sets_Info.hpp
  *
- *  Created on: Sep 17, 2018
- *      Author: doble
  */
 
 #ifndef PROJECTS_MTK_SRC_CL_MTK_BLOCK_SETS_INFO_HPP_
@@ -48,7 +51,6 @@ struct MtkBlockSetInfo
         return !mBlockSetName.empty();
     }
 
-
 };
 
 inline
@@ -62,6 +64,5 @@ operator<<(std::ostream & os, mtk::MtkBlockSetInfo const * const & dt)
 }
 }
 
-
-
 #endif /* PROJECTS_MTK_SRC_CL_MTK_BLOCK_SETS_INFO_HPP_ */
+

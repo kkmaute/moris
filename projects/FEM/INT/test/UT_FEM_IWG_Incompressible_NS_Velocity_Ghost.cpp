@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_FEM_IWG_Incompressible_NS_Velocity_Ghost.cpp
+ *
+ */
+
 #include <string>
 #include <catch.hpp>
 #include "assert.hpp"
@@ -373,7 +383,6 @@ TEST_CASE( "IWG_Incompressible_NS_Viscous_Ghost", "[IWG_Incompressible_NS_Viscou
     }
 }/*END_TEST_CASE*/
 
-
 TEST_CASE( "IWG_Incompressible_NS_Convective_Ghost", "[IWG_Incompressible_NS_Convective_Ghost]" )
 {
     // define an epsilon environment
@@ -704,3 +713,4 @@ TEST_CASE( "IWG_Incompressible_NS_Convective_Ghost", "[IWG_Incompressible_NS_Con
         }
     }
 }/*END_TEST_CASE*/
+

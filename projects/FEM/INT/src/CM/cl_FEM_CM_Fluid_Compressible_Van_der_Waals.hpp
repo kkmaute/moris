@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_CM_Fluid_Compressible_Van_der_Waals.hpp
  *
- *  Created on: Jul 25, 2020
- *  Author: wunsch
  */
 
 #ifndef SRC_FEM_CL_FEM_CM_FLUID_COMPRESSIBLE_VAN_DER_WAALS_HPP_
@@ -725,7 +728,6 @@ namespace moris
                         const Matrix< DDRMat >             & aJump,
                         const moris::Cell< MSI::Dof_Type > & aTestDofTypes );
 
-
                 //------------------------------------------------------------------------------
                 //------------------------------------------------------------------------------
                 /**
@@ -931,3 +933,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_FEM_CL_FEM_CM_FLUID_COMPRESSIBLE_VAN_DER_WAALS_HPP_ */
+

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * test_main.cpp
+ *
+ */
+
 #define CATCH_CONFIG_RUNNER
 #include <catch.hpp>
 
@@ -5,7 +15,6 @@
 #ifdef MORIS_HAVE_PARALLEL
 #include <mpi.h>
 #endif
-
 
 // ---------------------------------------------------------------------
 
@@ -35,3 +44,4 @@ main(
 
     return result;
 }
+

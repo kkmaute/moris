@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * Shape_Sensitivity_Circle_Sweep_Thermoelastic_GCMMA.cpp
+ *
+ */
+
 #include <string>
 #include <iostream>
 #include "typedefs.hpp"
@@ -516,7 +526,6 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tBackSurface );
         tIWGCounter++;
 
-
         if (tUseGhost)
         {
 //             create IWG for 2 material - ghost
@@ -530,7 +539,6 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
 //             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tPhase1Ghost );
 //             tIWGCounter++;
         }
-
 
         //------------------------------------------------------------------------------
         // init IQI counter
@@ -580,7 +588,6 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
         tParameterList( 4 )( tIQICounter ).set( "function_parameters",        "1.0/2.0" ) ;
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tPhase1 );
         tIQICounter++;
-
 
         //------------------------------------------------------------------------------
         // fill the computation part of the parameter list

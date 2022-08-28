@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * op_greater.cpp
  *
- *  Created on: Aug 31, 2018
- *      Author: doble
  */
 
 #include <catch.hpp>
@@ -183,3 +186,4 @@ TEST_CASE(
          }
 }
 }
+

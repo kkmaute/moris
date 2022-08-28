@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # -----------------------------------------------------------------------------
 # MPI libraries and includes --------------------------------------------------
 # -----------------------------------------------------------------------------
@@ -41,3 +48,4 @@ if(${MORIS_HAVE_PARALLEL})
 endif()
 
 mark_as_advanced(MPI_LIBRARY MPI_EXTRA_LIBRARY)
+

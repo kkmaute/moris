@@ -1,10 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Mesh_From_Data.cpp
  *
- *  Created on: Sep 28, 2018
- *      Author: barrera/doble
  */
-// Third-party header files.
+
 #include <catch.hpp>
 #include <iostream>
 
@@ -33,14 +36,12 @@
 #include "stk_mesh/base/GetEntities.hpp"    // for coordinates
 #include "stk_mesh/base/FieldParallel.hpp"  // for handling parallel fields
 
-
 // ----------------------------------------------------------------------------
 
 namespace moris
 {
 namespace mtk
 {
-
 
 TEST_CASE( "Creating a 2D mesh from data in serial", "[Mesh_from_data_1]" )
             {
@@ -197,7 +198,6 @@ TEST_CASE( "with 2 block sets, 1 node set, and 1 side set","[Mesh_with_blocks]" 
         Matrix< IdMat >  aNodeLocaltoGlobal = {{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12}};
         Matrix< IdMat >  aElemLocaltoGlobal = {{1},{2}};
 
-
         // Create 2  block sets (one over each element) and a node set that contains only 4 nodes
         // NOTE: A side set requires a two column matrix. The first column contains the ids of the elements to which
         // the faces are associated (for reference), and the second column represents the ordinal of the face,
@@ -225,7 +225,6 @@ TEST_CASE( "with 2 block sets, 1 node set, and 1 side set","[Mesh_with_blocks]" 
         tMtkMeshSets.add_block_set(&tBlockSet1);
         tMtkMeshSets.add_block_set(&tBlockSet2);
 
-
         // Declare side sets
         /////////////////////
         Matrix< IdMat > tElemIdsAndSideOrdsSS1  = { {1, 3},
@@ -251,7 +250,6 @@ TEST_CASE( "with 2 block sets, 1 node set, and 1 side set","[Mesh_with_blocks]" 
 
         // Add node set to Mtk mesh sets
         tMtkMeshSets.add_node_set(&tNodeSet1);
-
 
         MtkMeshData aMeshData;
         aMeshData.ElemConn = moris::Cell<Matrix < IdMat >*>(1);
@@ -289,7 +287,6 @@ TEST_CASE( "with 2 block sets, 1 node set, and 1 side set","[Mesh_with_blocks]" 
 //
         REQUIRE(moris::equal_to(tBlockIndices1(0,0),0));
         REQUIRE(moris::equal_to(tBlockIndices2(0,0),1));
-
 
         Matrix< IdMat > tNodeSetIds1 = moris::mtk::convert_entity_indices_to_ids(tNodeSetIndices1,EntityRank::NODE,tMesh);
         REQUIRE(moris::equal_to(tNodeSetIds1(0),tNodeIdsNS1(0)));
@@ -346,7 +343,6 @@ TEST_CASE( "with 2 block sets, 1 node set, and 1 side set","[Mesh_with_blocks]" 
     }
 }
 
-
 TEST_CASE("parallel 4 element mesh","[PAR_MTK_FROM_DATA]")
 {
     if(par_size() == 4)
@@ -380,7 +376,6 @@ TEST_CASE("parallel 4 element mesh","[PAR_MTK_FROM_DATA]")
             aNodeSharedProcs(5,0) = 1;
             aNodeSharedProcs(6,0) = 1; aNodeSharedProcs(6,1) = 2; aNodeSharedProcs(6,2) = 3;
             aNodeSharedProcs(7,0) = 2;
-
 
             // Create MORIS mesh using MTK database
             moris::mtk::MtkMeshData aMeshData;
@@ -424,7 +419,6 @@ TEST_CASE("parallel 4 element mesh","[PAR_MTK_FROM_DATA]")
             aNodeSharedProcs(6,0) = MORIS_ID_MAX;
             aNodeSharedProcs(7,0) = 3;
 
-
             // Create MORIS mesh using MTK database
             moris::mtk::MtkMeshData aMeshData;
             aMeshData.CreateAllEdgesAndFaces  = tCreateEdgesAndFaces;
@@ -464,7 +458,6 @@ TEST_CASE("parallel 4 element mesh","[PAR_MTK_FROM_DATA]")
             aNodeSharedProcs(5,0) = MORIS_ID_MAX;
             aNodeSharedProcs(6,0) = 3;
             aNodeSharedProcs(7,0) = MORIS_ID_MAX;
-
 
             // Create MORIS mesh using MTK database
             moris::mtk::MtkMeshData aMeshData;
@@ -507,7 +500,6 @@ TEST_CASE("parallel 4 element mesh","[PAR_MTK_FROM_DATA]")
             aNodeSharedProcs(6,0) = MORIS_ID_MAX;
             aNodeSharedProcs(7,0) = 2;
 
-
             // Create MORIS mesh using MTK database
             moris::mtk::MtkMeshData aMeshData;
             aMeshData.CreateAllEdgesAndFaces  = tCreateEdgesAndFaces;
@@ -526,6 +518,6 @@ TEST_CASE("parallel 4 element mesh","[PAR_MTK_FROM_DATA]")
     }
 }
 
+}
+}
 
-}
-}

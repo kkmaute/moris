@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_IWG_Compressible_NS_Velocity_Dirichlet_Nitsche.hpp
  *
- *  Created on: Dec 13, 2020
- *      Author: wunsch
  */
 
 #ifndef SRC_FEM_CL_FEM_IWG_COMPRESSIBLE_NS_VELOCITY_DIRICHLET_NITSCHE_HPP_
@@ -106,3 +109,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_FEM_CL_FEM_IWG_COMPRESSIBLE_NS_VELOCITY_DIRICHLET_NITSCHE_HPP_ */
+

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * Bar_Lin_Disp_Quad_Diff.cpp
+ *
+ */
+
 #include <string>
 #include <iostream>
 #include "typedefs.hpp"
@@ -88,7 +98,6 @@ namespace moris
         return aCoordinates(0)-1.2;
     }
 
-
     /* ------------------------------------------------------------------------ */
 
     // Constant function for properties
@@ -109,7 +118,7 @@ namespace moris
         moris::Matrix< DDRMat >tMat = { {1},{0},{0} };
 
         //moris::real tX = aFIManager->get_IG_geometry_interpolator()->valx()( 0 );
-        //moris::real tValue = 3.0*std::pow(tX, 2)-tX+3;    
+        //moris::real tValue = 3.0*std::pow(tX, 2)-tX+3;
         //aPropMatrix = aParameters( 0 )( 0 ) * tValue * tMat;
 
         aPropMatrix = 1.0* tMat;
@@ -119,7 +128,7 @@ namespace moris
     void Func_Temp_Body_Load( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
             moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
             moris::fem::Field_Interpolator_Manager         * aFIManager )
-    {		
+    {
         aPropMatrix.set_size( 1, 1, 1.0 );
     }
 
@@ -371,7 +380,6 @@ namespace moris
         tParameterList( 2 )( tSPCounter ).set( "slave_properties",    "PropYoungs,Material") ;
         tSPCounter++;
 
-
         //------------------------------------------------------------------------------
         // init IWG counter
         uint tIWGCounter = 0;
@@ -502,7 +510,6 @@ namespace moris
         //tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tRightSurf);
         //tIWGCounter++;
 
-
         //------------------------------------------------------------------------------
         // init IQI counter
         uint tIQICounter = 0;
@@ -621,3 +628,4 @@ namespace moris
 #ifdef  __cplusplus
 }
 #endif
+

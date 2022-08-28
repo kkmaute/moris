@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_SOL_Dist_Matrix.hpp
  *
- *  Created on: Mar 27, 2018
- *      Author: schmidt
  */
+
 #ifndef SRC_DISTLINALG_CL_SPARSE_MATRIX_HPP_
 #define SRC_DISTLINALG_CL_SPARSE_MATRIX_HPP_
 
@@ -139,3 +143,4 @@ namespace moris
 }
 
 #endif /* SRC_DISTLINALG_CL_SPARSE_MATRIX_HPP_ */
+

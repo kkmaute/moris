@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_Tracer.hpp
+ *
+ */
+
 #ifndef MORIS_IOS_CL_TRACER_HPP_
 #define MORIS_IOS_CL_TRACER_HPP_
 
@@ -68,7 +78,6 @@ class Tracer
         {
             if(mSignOut){gLogger.sign_out();}
         };
-
 
     }; // class Tracer
 } // namespace moris

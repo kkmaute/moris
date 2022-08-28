@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Vertex.hpp
  *
- *  Created on: Jul 23, 2018
- *      Author: messe
  */
 
 #ifndef SRC_MESH_CL_MTK_VERTEX_HPP_
@@ -80,18 +83,16 @@ namespace moris
                     return gNoIndex;
                 }
 
-                
                 /**
                  * returns the base vertex of an mtk vertex. For example,
                  * with XTK enriched meshes this returns the vertex index in the background
                  */
-                virtual 
+                virtual
                 mtk::Vertex const *
                 get_base_vertex() const
                 {
                     return this;
                 }
-               
 
                 //------------------------------------------------------------------------------
 
@@ -121,7 +122,6 @@ namespace moris
 
                     return nullptr;
                 }
-
 
                 virtual bool has_interpolation( const uint aBSplineMeshIndex )
                 {
@@ -163,9 +163,9 @@ namespace moris
                     return false;
                 }
 
-                bool operator==(const mtk::Vertex& aVertex) const 
-                { 
-                    return this->get_id() == aVertex.get_id(); 
+                bool operator==(const mtk::Vertex& aVertex) const
+                {
+                    return this->get_id() == aVertex.get_id();
                 }
         };
         //------------------------------------------------------------------------------
@@ -191,15 +191,15 @@ namespace moris
     }
 
     inline
-    bool 
+    bool
     comparePtrToVertexIdBased(
-        moris::mtk::Vertex* a, 
-        moris::mtk::Vertex* b) 
-    { 
-        return (a->get_id() < b->get_id()); 
+        moris::mtk::Vertex* a,
+        moris::mtk::Vertex* b)
+    {
+        return (a->get_id() < b->get_id());
     }
-
 
 } /* namespace moris */
 //------------------------------------------------------------------------------
 #endif /* SRC_MESH_CL_MTK_VERTEX_HPP_ */
+

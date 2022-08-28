@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Vertex_STK.hpp
  *
- *  Created on: Sep 17, 2018
- *      Author: doble
  */
 
 #ifndef PROJECTS_MTK_SRC_STK_IMPL_CL_MTK_VERTEX_STK_HPP_
@@ -29,8 +32,6 @@ namespace moris
             moris_index            mVertexInd;
             Mesh*                  mSTKMeshData;
             Vertex_Interpolation*  mVertexInterpolation = nullptr;
-
-
 
 //------------------------------------------------------------------------------
         public:
@@ -91,7 +92,6 @@ namespace moris
                 return mVertexId;
             }
 
-
 //------------------------------------------------------------------------------
 
             /**
@@ -128,7 +128,6 @@ namespace moris
                 return mVertexInterpolation;
             }
 
-
 //------------------------------------------------------------------------------
         };
 
@@ -140,8 +139,6 @@ namespace moris
             moris_index            mVertexInd;
             Mesh*         mSTKMeshData;
             Vertex_Interpolation*  mVertexInterpolation = nullptr;
-
-
 
 //------------------------------------------------------------------------------
         public:
@@ -202,7 +199,6 @@ namespace moris
                 return mVertexId;
             }
 
-
 //------------------------------------------------------------------------------
 
             /**
@@ -244,7 +240,6 @@ namespace moris
                 return true;
             }
 
-
 //------------------------------------------------------------------------------
         };
 //------------------------------------------------------------------------------
@@ -252,6 +247,5 @@ namespace moris
 } /* namespace moris */
     //------------------------------------------------------------------------------
 
-
-
 #endif /* PROJECTS_MTK_SRC_STK_IMPL_CL_MTK_VERTEX_STK_HPP_ */
+

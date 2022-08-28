@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_CM_Struc_Linear_MoriTanaka.hpp
+ *
+ */
+
 #ifndef SRC_FEM_CL_FEM_CM_STRUC_LINEAR_MoriTanaka_HPP_
 #define SRC_FEM_CL_FEM_CM_STRUC_LINEAR_MoriTanaka_HPP_
 
@@ -112,7 +122,6 @@ namespace moris
             void full_3d(
                     std::initializer_list< const real >&& tParams );
 
-
             //--------------------------------------------------------------------------------------------------------------
 
             /**
@@ -171,7 +180,6 @@ namespace moris
                     const Matrix< DDRMat >&      aJump,
                     const Cell< MSI::Dof_Type >& aTestDofTypes );
 
-
             //--------------------------------------------------------------------------------------------------------------
             /**
              * evaluate the derivative of the rotation tensor wrt in plane and out of plane angeles
@@ -199,3 +207,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_FEM_CL_FEM_CM_STRUC_LINEAR_ISOTROPIC_HPP_ */
+

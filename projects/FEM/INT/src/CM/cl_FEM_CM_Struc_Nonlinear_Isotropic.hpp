@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_CM_Struc_Nonlinear_Isotropic.hpp
+ *
+ */
+
 #ifndef SRC_FEM_CL_FEM_CM_STRUC_NONLINEAR_ISOTROPIC_HPP_
 #define SRC_FEM_CL_FEM_CM_STRUC_NONLINEAR_ISOTROPIC_HPP_
 
@@ -192,7 +202,6 @@ namespace moris
                         Matrix< DDRMat >       & aProjMatrix ) = nullptr;
 
                 void ( CM_Struc_Nonlinear_Isotropic:: * m_eval_defGrad )() = nullptr;
-
 
                 // number of normal stresses and strains in the tensors
                 uint mNumNormalStress;
@@ -988,3 +997,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_FEM_CL_FEM_CM_STRUC_NONLINEAR_ISOTROPIC_HPP_ */
+

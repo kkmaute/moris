@@ -1,13 +1,15 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_SDF_Core.hpp
  *
- *  Created on: Sep 30, 2018
- *      Author: messe
  */
 
 #ifndef PROJECTS_GEN_SDF_SRC_CL_SDF_CORE_HPP_
 #define PROJECTS_GEN_SDF_SRC_CL_SDF_CORE_HPP_
-
 
 #include "typedefs.hpp" // COR/src
 #include "cl_Matrix.hpp"
@@ -105,7 +107,6 @@ namespace moris
         private :
 //-------------------------------------------------------------------------------
 
-
 //-------------------------------------------------------------------------------
 
             void
@@ -132,7 +133,6 @@ namespace moris
             sweep();
 
 //-------------------------------------------------------------------------------
-
 
             void
             fill_sdf_with_values( Matrix< DDRMat > & aSDF );
@@ -210,3 +210,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* PROJECTS_GEN_SDF_SRC_CL_SDF_CORE_HPP_ */
+

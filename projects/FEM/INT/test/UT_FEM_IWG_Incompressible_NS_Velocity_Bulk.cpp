@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_FEM_IWG_Incompressible_NS_Velocity_Bulk.cpp
+ *
+ */
+
 #include <string>
 #include <catch.hpp>
 #include <memory>
@@ -187,7 +197,6 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_No_Turbulence",
             {
                 // set momentum source term
                 tPropBodyLoad->set_parameters( { { { 0.5 }, { 0.35 } } } );
-
 
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::QUAD;
@@ -843,3 +852,4 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_With_Turbulence",
         }
     }
 } /*END_TEST_CASE*/
+

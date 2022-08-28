@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Interpolation_Function_Lagrange_Bar3.hpp
  *
- *  Created on: Jul 13, 2018
- *      Author: messe
  */
 
 #ifndef SRC_MTK_CL_MTK_INTERPOLATION_FUNCTION_LAGRANGE_BAR3_HPP_
@@ -124,3 +127,4 @@ namespace moris
 } /* namespace moris */
 //------------------------------------------------------------------------------
 #endif /* SRC_MTK_CL_MTK_INTERPOLATION_FUNCTION_LAGRANGE_BAR3_HPP_ */
+

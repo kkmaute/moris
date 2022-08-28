@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_trans.hpp
  *
- *  Created on: Aug 27, 2018
- *      Author: doble
  */
 
 #ifndef PROJECTS_LINALG_SRC_FN_TRANS_HPP_
@@ -17,7 +20,6 @@
 #ifdef MORIS_USE_ARMA
 #include "fn_trans_Arma.hpp"
 #endif
-
 
 namespace moris
 {
@@ -52,7 +54,5 @@ trans( Matrix< Matrix_Type > & A )
 
 }
 
-
-
-
 #endif /* PROJECTS_LINALG_SRC_FN_TRANS_HPP_ */
+

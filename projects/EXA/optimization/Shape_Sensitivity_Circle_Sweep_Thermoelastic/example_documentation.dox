@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 namespace moris {
 
 /** \page EXA_OPTIMIZATION_SHAPE_SENS_CIRCLE_SWEEP_THERMOELASTIC Shape Sensitivity of a Thermoelastic Circle Problem
@@ -22,3 +29,4 @@ This example highlights the use of the following features:
 */
 
 }
+

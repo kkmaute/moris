@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Fields_Info.hpp
  *
- *  Created on: Sep 17, 2018
- *      Author: doble
  */
 
 #ifndef PROJECTS_MTK_SRC_CL_MTK_FIELDS_INFO_HPP_
@@ -19,7 +22,6 @@ namespace moris
 {
 namespace mtk
 {
-
 
 struct MtkFieldsInfo
 {
@@ -81,7 +83,6 @@ struct MtkFieldsInfo
         mSintMatrixFields.append(aOtherFields.mSintMatrixFields);
     }
 
-
     moris::Cell<Scalar_Field_Info<DDRMat>*> mRealScalarFields;
     moris::Cell<Matrix_Field_Info<DDRMat>*> mRealMatrixFields;
     moris::Cell<Scalar_Field_Info<DDSMat>*> mSintScalarFields;
@@ -102,9 +103,7 @@ struct MtkFieldsInfo
         }
     }
 
-
 };
-
 
 template<typename Field_Ptr>
 inline
@@ -126,6 +125,5 @@ add_field_for_mesh_input(Scalar_Field_Info<DDRMat>* aField,
 }
 }
 
-
-
 #endif /* PROJECTS_MTK_SRC_CL_MTK_FIELDS_INFO_HPP_ */
+

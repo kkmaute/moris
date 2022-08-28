@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_FEM_IQI_Dof.cpp
+ *
+ */
+
 #include <string>
 #include <catch.hpp>
 #include <memory>
@@ -355,3 +365,4 @@ TEST_CASE( "IQI_Dof_Time_Derivative", "[moris],[fem],[IQI_Dof_Time_Derivative]" 
     UT_FEM_IQI_Dof( 2 );
 }
 /*END_TEST_CASE*/
+

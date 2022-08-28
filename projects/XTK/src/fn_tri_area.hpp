@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_tri_area.hpp
  *
- *  Created on: Mar 21, 2019
- *      Author: doble
  */
 
 #ifndef PROJECTS_XTK_SRC_TOOLS_FN_TRI_AREA_HPP_
@@ -41,5 +44,5 @@ area_tri_2D(moris::Matrix< moris::DDRMat >  & aCoords)
 }
 }
 
-
 #endif /* PROJECTS_XTK_SRC_TOOLS_FN_TRI_AREA_HPP_ */
+

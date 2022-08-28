@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Sets_Info.hpp
  *
- *  Created on: Sep 17, 2018
- *      Author: doble
  */
 
 #ifndef PROJECTS_MTK_SRC_CL_MTK_SETS_INFO_HPP_
@@ -31,7 +34,6 @@ struct MtkSetsInfo
         NodeSetsInfo( 0, nullptr),
         SideSetsInfo( 0, nullptr),
         BlockSetsInfo(0, nullptr){}
-
 
     //------------------------------------------------
     // Add sets to data structure
@@ -75,7 +77,6 @@ struct MtkSetsInfo
     {
         return NodeSetsInfo(aNodeSetIndex);
     }
-
 
     //------------------------------------------------
     // Side set access
@@ -127,11 +128,9 @@ struct MtkSetsInfo
         moris::print(BlockSetsInfo,"Block set Information");
     }
 
-
-
 };
 }
 }
 
-
 #endif /* PROJECTS_MTK_SRC_CL_MTK_SETS_INFO_HPP_ */
+

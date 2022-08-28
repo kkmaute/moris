@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_Element_Creation.cpp
+ *
+ */
 
 #include "catch.hpp"
 
@@ -139,7 +148,6 @@ namespace moris
                                                                  tNodes );
             }
 
-
             //4) Create the model solver interface -----------------------------------------
             std::cout<<" Create the model solver interface "<<std::endl;
             //------------------------------------------------------------------------------
@@ -174,7 +182,6 @@ namespace moris
 
             MSI::MSI_Solver_Interface * tSolverInterface
                 = new moris::MSI::MSI_Solver_Interface( tModelSolverInterface );
-
 
             // 5) Create Nonlinear Problem -------------------------------------------------
             std::cout<<" Create Nonlinear Problem "<<std::endl;
@@ -470,7 +477,7 @@ namespace moris
 //                delete tListOfElements( i );
 //            }
 
-
         }/* TEST_CASE */
     }/* namespace fem */
 }/* namespace moris */
+

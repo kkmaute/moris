@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_Side_Geometry_Interpolation_Test.cpp
+ *
+ */
+
 #include "catch.hpp"
 #include "cl_FEM_Geometry_Interpolator.hpp" //FEM/INT/sr
 #include "cl_MTK_Integrator.hpp" //MTK/sr
@@ -16,7 +26,7 @@ TEST_CASE("Side_Geometry_Interpolation : QUAD4 - QUAD9 - QUAD16", "[moris],[fem]
     tSideSurfaceExact( 1 ) = 3.132491021535417;
     tSideSurfaceExact( 2 ) = 3.579455265819088;
     tSideSurfaceExact( 3 ) = 3.400367627183861;
-    
+
     // get side normals for comparison
     Matrix< DDRMat > tSideNormalsExact( 2, 4 );
     tSideNormalsExact( 0, 0 ) =  0.3846153846153846;
@@ -275,7 +285,6 @@ TEST_CASE("Side_Geometry_Interpolation : QUAD4 - QUAD9 - QUAD16", "[moris],[fem]
     }
 }
 
-
 //------------------------------------------------------------------------------
 TEST_CASE( "Side_Geometry_Interpolation : TRI3 - TRI6 - TRI10", "[moris],[fem],[SideGeoInterp_TRI]" )
 {
@@ -481,7 +490,7 @@ TEST_CASE( "Side_Geometry_Interpolation :  TET4 - TET10 - TET20", "[moris],[fem]
      // Side surface for comparison
      Matrix< DDRMat >   tSideSurfaceExact( 4, 1, 1.0 );
      tSideSurfaceExact( 1 ) = std::sqrt( 3 );
-     
+
      // Side normals for comparison
      Matrix< DDRMat > tSideNormalsExact( 3, 4 );
      tSideNormalsExact( 0, 0 ) = -1.0;
@@ -700,7 +709,7 @@ TEST_CASE( "Side_Geometry_Interpolation : HEX8", "[moris],[fem],[SideGeoInterp_H
 
     // Side surface for comparison
     Matrix< DDRMat > tSideSurfaceExact( 6, 1, 1.0 );
-    
+
     // Side normals for comparison
     Matrix< DDRMat > tSideNormalsExact( 3, 6 );
     tSideNormalsExact( 0, 0 ) =  0.0;
@@ -721,7 +730,6 @@ TEST_CASE( "Side_Geometry_Interpolation : HEX8", "[moris],[fem],[SideGeoInterp_H
     tSideNormalsExact( 0, 5 ) =  0.0;
     tSideNormalsExact( 1, 5 ) =  0.0;
     tSideNormalsExact( 2, 5 ) =  1.0;
-    
 
     // loop over the interpolation order
     for( uint iOrder = 0; iOrder < 1; iOrder++ )

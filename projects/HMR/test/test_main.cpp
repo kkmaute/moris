@@ -1,6 +1,15 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * test_main.cpp
+ *
+ */
+
 #define CATCH_CONFIG_RUNNER
 #include <catch.hpp>
-
 
 // MORIS header files.
 #include "cl_Communication_Manager.hpp" // COM/src
@@ -31,3 +40,4 @@ main(
 
     return result;
 }
+

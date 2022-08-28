@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_Constitutive_Model.hpp
  *
- *  Created on: Sep 17, 2019
- *      Author: noel
  */
+
 #ifndef SRC_FEM_CL_FEM_CONSTITUTIVE_MODEL_HPP_
 #define SRC_FEM_CL_FEM_CONSTITUTIVE_MODEL_HPP_
 
@@ -755,7 +759,6 @@ namespace moris
             flux( int                     aFlatType,
                     enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
-
             // ---------------------------------------------------------------------------------------------------------------------------------
 
             //------------------------------------------------------------------------------
@@ -1316,7 +1319,6 @@ namespace moris
                     const moris::Cell< MSI::Dof_Type >& aDofType,
                     enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
 
-
             //------------------------------------------------------------------------------
             /**
              * evaluate the constitutive model strain derivative wrt to a dof type
@@ -1811,7 +1813,6 @@ namespace moris
                 return mFlux;
             }
 
-
             /**
              * get the derivative of the diffusion coefficient wrt dof type
              * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
@@ -1890,3 +1891,4 @@ namespace moris
     } /* namespace fem */
 } /* namespace moris */
 #endif /* SRC_FEM_CL_FEM_CONSTITUTIVE_MODEL_HPP_ */
+

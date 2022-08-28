@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_Library_IO.hpp
+ *
+ */
+
 #ifndef MORIS_CL_LIBRARY_IO_HPP
 #define MORIS_CL_LIBRARY_IO_HPP
 
@@ -65,3 +75,4 @@ namespace moris
 }
 
 #endif //MORIS_CL_LIBRARY_IO_HPP
+

@@ -1,6 +1,12 @@
-//
-// example specific interface to moris
-//
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * example_test_case.cpp
+ *
+ */
 
 #include <catch.hpp>
 
@@ -254,3 +260,4 @@ TEST_CASE("Cluster_Measure_2Mat_SA",
     // perform check for Test Case 1
     check_results("Cluster_Measure_2Mat_SA3.exo","Cluster_Measure_2Mat_SA3.hdf5",gTestCaseIndex);
 }
+

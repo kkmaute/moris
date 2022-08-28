@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_isfinite_Arma.hpp
  *
- *  Created on: Aug 29, 2018
- *      Author: schmidt
  */
 
 #ifndef PROJECTS_LINALG_SRC_ARMA_IMPL_FN_ISCFINITE_ARMA_HPP_
@@ -22,3 +25,4 @@ namespace moris
 }
 
 #endif /* PROJECTS_LINALG_SRC_ARMA_IMPL_FN_ISFINITE_ARMA_HPP_ */
+

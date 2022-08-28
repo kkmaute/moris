@@ -1,8 +1,11 @@
 /*
- * fn_sort_points_by_coordinates
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jan 17, 2022
- *      Author: Kurt Maute
+ *------------------------------------------------------------------------------------
+ *
+ * fn_sort_points_by_coordinates.hpp
+ *
  */
 
 #ifndef XTK_SRC_XTK_FN_SORT_POINTS_BY_COORDINATES_HPP_
@@ -77,3 +80,4 @@ namespace moris
 }
 
 #endif /* XTK_SRC_XTK_FN_SORT_POINTS_BY_COORDINATES_HPP_ */
+

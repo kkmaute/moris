@@ -1,4 +1,13 @@
-// Third-party header files.
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_Cell.cpp
+ *
+ */
+
 #include <catch.hpp>
 #include <iostream>
 
@@ -70,3 +79,4 @@ TEST_CASE(
     }
 
 }
+

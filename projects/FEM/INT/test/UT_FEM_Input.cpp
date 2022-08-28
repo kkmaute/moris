@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * UT_FEM_Input.cpp
  *
- *  Created on: Feb 07, 2020
- *      Author: noel
  */
 
 #include "catch.hpp"
@@ -169,3 +172,4 @@ namespace moris
 //        }/* END_TEST_CASE */
     }/* end_fem_namespace */
 }/* end_moris_namespace */
+

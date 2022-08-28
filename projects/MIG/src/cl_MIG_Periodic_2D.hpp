@@ -1,9 +1,13 @@
 /*
- * cl_MTK_Periodic_2D.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jan  11, 2022
- *      Author: momo
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MIG_Periodic_2D.hpp
+ *
  */
+
 #ifndef SRC_cl_MIG_Periodic_2D
 #define SRC_cl_MIG_Periodic_2D
 
@@ -12,7 +16,6 @@
 #include "cl_Param_List.hpp"
 #include "cl_MTK_Intersec_Mesh_Data.hpp"
 #include "cl_MTK_Double_Side_Cluster.hpp"
-
 
 namespace moris::mig
 {
@@ -45,11 +48,11 @@ namespace moris::mig
         Matrix< DDRMat > mVerticesCoords;
         Matrix< DDRMat > mVertexParametricCoords;
 
-        uint mNumVertices = 0 ; 
+        uint mNumVertices = 0 ;
         uint mNumCells = 0 ;
         uint mNumSideClusters = 0;
-        uint mNumDblSideCluster = 0; 
-        uint mNumParamCoords = 0 ; 
+        uint mNumDblSideCluster = 0;
+        uint mNumParamCoords = 0 ;
 
         //maps, outer cell is the pair number
         //inside map, key: ijk of the IP cell, value: side clusters within the same background cell
@@ -104,7 +107,7 @@ namespace moris::mig
          * @param [ in ] aMasterInterpCell interpolation cell of the master side cluster
          * @param[in] aPairCount number of the pair in the periodic side set pair
          */
-        void 
+        void
         create_master_ig_cell(
             moris::mtk::Cell const             &aMasterInterpCell,
             uint                                aPairCount );
@@ -116,7 +119,7 @@ namespace moris::mig
          * @param [ in ] aSlaveInterpCell interpolation cell of the master side cluster
          * @param[in] aPairCount number of the pair in the periodic side set pair
          */
-        void 
+        void
         create_slave_ig_cell(
             moris::mtk::Cell const             &aSlaveInterpCell,
             uint                                aPairCount );
@@ -149,7 +152,7 @@ namespace moris::mig
          * @param[ in ] aMasterInterpCell Master interpolation cell
          * @param[ in ] aPairCount Number of the pair in the periodic side set pair
          */
-        void 
+        void
         create_master_vertices( Matrix< DDRMat > tUniqueIntersectedPoints,
             moris::mtk::Cell const             &aSlaveInterpCell,
             uint                                aPairCount);
@@ -239,7 +242,6 @@ namespace moris::mig
         void
         group_cut_cells( moris::Matrix< IndexMat > const                  &aCutCellIndetiferMatrix,
             std::unordered_map< moris_index, moris::Cell< moris_index > > &aCutCellIdentifierToCutCellIndex ) const;
-
 
         // ----------------------------------------------------------------------------
 

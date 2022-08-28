@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_MDL_Mesh_Model_Helper.cpp
+ *
+ */
 
 #include "catch.hpp"
 
@@ -91,3 +100,4 @@ namespace moris
 
     }/* namespace mdl */
 }/* namespace moris */
+

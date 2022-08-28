@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_HMR_Background_Mesh.cpp
+ *
+ */
+
 #include "cl_HMR_Background_Mesh.hpp" //HMR/src
 
 #include <catch.hpp>
@@ -13,7 +23,6 @@
 
 #include "cl_HMR.hpp" //HMR/src
 #include "cl_HMR_Database.hpp" //HMR/src
-
 
 TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr],[Background_Mesh],[Background_Mesh1]")
 {
@@ -294,7 +303,6 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr],[Background_Mesh],[Backgr
 
                     // must be 4
                     REQUIRE( tAuraElements.length() == 4);
-
 
                     tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( tAuraElements( 0 ) );
                     REQUIRE( tElement->get_hmr_id() == 34 );
@@ -927,7 +935,6 @@ TEST_CASE("HMR_Background_Mesh_refinement_buffer", "[moris],[mesh],[hmr],[Backgr
 
         //tHMR.save_background_mesh_to_vtk( "BackgorundMesh_refine.vtk");
 
-
         // list of active elements on proc
         moris::Matrix< moris::DDLUMat > tElementIDs;
 
@@ -951,7 +958,6 @@ TEST_CASE("HMR_Background_Mesh_refinement_buffer", "[moris],[mesh],[hmr],[Backgr
             REQUIRE( tElementIDs(  9 )   == 16 );			REQUIRE( tElementIDs(  17 )  == 129 );
             REQUIRE( tElementIDs(  23 )  == 141 );			REQUIRE( tElementIDs(  25 )  == 153 );
         }
-
 
         tParameters.set_severity_level( 0 );
     }
@@ -1010,7 +1016,6 @@ TEST_CASE("HMR_Background_Mesh_refinement_buffer_2", "[moris],[mesh],[hmr],[Back
 
         //tHMR.save_background_mesh_to_vtk( "BackgorundMesh_refine_4.vtk");
 
-
         // list of active elements on proc
         moris::Matrix< moris::DDLUMat > tElementIDs;
 
@@ -1025,8 +1030,6 @@ TEST_CASE("HMR_Background_Mesh_refinement_buffer_2", "[moris],[mesh],[hmr],[Back
         {
             REQUIRE( tElementIDs.numel()  == 16 );
         }
-
-
 
         tParameters.set_severity_level( 0 );
     }
@@ -1083,7 +1086,6 @@ TEST_CASE("HMR_Background_Mesh_Proc_Decomp_Min_Mesh_Interface", "[moris],[mesh],
                 // ------------------------------------------------------
                 // simple element test
                 // ------------------------------------------------------
-
 
                 //  tBackgroundMesh->print_level_zero();
                 tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( 57 );
@@ -1150,7 +1152,6 @@ TEST_CASE("HMR_Background_Mesh_Proc_Decomp_Min_Mesh_Interface", "[moris],[mesh],
                     // ------------------------------------------------------
                     // simple element test
                     // ------------------------------------------------------
-
 
                     // test element
                     tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( 14 );
@@ -1313,10 +1314,8 @@ TEST_CASE("HMR_Background_Mesh_Proc_Decomp_Min_Mesh_Interface", "[moris],[mesh],
                     moris::Matrix< moris::DDLUMat > tAuraElements
                     = tBackgroundMesh->get_subdomain_ids_of_coarsest_aura( 1 );
 
-
                     // must be 4
                     REQUIRE( tAuraElements.length() == 4);
-
 
                     tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( tAuraElements( 0 ) );
                     REQUIRE( tElement->get_hmr_id() == 26 );
@@ -1427,7 +1426,6 @@ TEST_CASE("HMR_Background_Mesh_Proc_Decomp_Min_Mesh_Interface", "[moris],[mesh],
 
                 REQUIRE( tElementIDs.length()  == 22 );
 
-
                 REQUIRE( tElementIDs(  0 ) == 124 );
                 REQUIRE( tElementIDs(  1 ) == 125 );
                 REQUIRE( tElementIDs(  2 ) == 136 );
@@ -1510,8 +1508,6 @@ TEST_CASE("HMR_Background_Mesh_Proc_Decomp_Min_Mesh_Interface", "[moris],[mesh],
                 REQUIRE( tElementIDs.length() == 21 );
                 //std::cout<<moris::par_rank()<<": "<<tElementIDs.length()<<std::endl;
 
-
-
                 if ( moris::par_rank() == 1 )
                 {
                     REQUIRE( tElementIDs(  0 ) ==  26 );
@@ -1536,7 +1532,6 @@ TEST_CASE("HMR_Background_Mesh_Proc_Decomp_Min_Mesh_Interface", "[moris],[mesh],
                     REQUIRE( tElementIDs( 19 ) ==  56 );
                     REQUIRE( tElementIDs( 20 ) ==  57 );
                 }
-
 
             }
             else if ( moris::par_size() == 4 )
@@ -1656,7 +1651,6 @@ TEST_CASE("HMR_Background_Mesh_Proc_Decomp_Min_Mesh_Interface", "[moris],[mesh],
 
 TEST_CASE("HMR_Background_Mesh_Proc_Nonmultiple_Background", "[moris],[mesh],[hmr],[Background_Nonmultiple],[Background_Mesh]")
 
-
 {
     if( moris::par_size() == 1 ||  moris::par_size() == 2  || moris::par_size() == 4 )
     {
@@ -1738,7 +1732,6 @@ TEST_CASE("HMR_Background_Mesh_Proc_Nonmultiple_Background", "[moris],[mesh],[hm
                 // ------------------------------------------------------
                 // simple element test
                 // ------------------------------------------------------
-
 
                 // test element
                 tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( 15 );
@@ -1861,7 +1854,6 @@ TEST_CASE("HMR_Background_Mesh_Proc_Nonmultiple_Background", "[moris],[mesh],[hm
                 // ------------------------------------------------------
                 // simple element test
                 // ------------------------------------------------------
-
 
                 // test element
                 tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( 27 );
@@ -2018,7 +2010,6 @@ TEST_CASE("HMR_Background_Mesh_Proc_Nonmultiple_Background", "[moris],[mesh],[hm
                 // ------------------------------------------------------
                 // simple element test
                 // ------------------------------------------------------
-
 
                 // test element
                 tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( 7 );
@@ -2212,7 +2203,6 @@ TEST_CASE("HMR_Background_Mesh_Proc_Nonmultiple_Background_3D", "[moris],[mesh],
                 // simple element test
                 // ------------------------------------------------------
 
-
                 // test element
                 tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( 195 );
                 // must be 323
@@ -2320,7 +2310,6 @@ TEST_CASE("HMR_Background_Mesh_Proc_Nonmultiple_Background_3D", "[moris],[mesh],
                 // ------------------------------------------------------
                 // simple element test
                 // ------------------------------------------------------
-
 
                 // test element
                 tElement = tBackgroundMesh->get_coarsest_element_by_subdomain_id( 195 );
@@ -2533,3 +2522,4 @@ TEST_CASE("HMR_Background_Mesh_Proc_Nonmultiple_Background_3D", "[moris],[mesh],
         }
     }
 }
+

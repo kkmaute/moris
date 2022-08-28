@@ -1,6 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_TOL_Memory_Map.hpp
- *      Author: doble
+ *
  */
 
 #ifndef SRC_TOOLS_CL_TOL_MEMORY_MAP_HPP_
@@ -30,28 +35,28 @@ namespace moris
 
         Memory_Map(Cell<std::string> const & aKeys,
                    Matrix<DDSTMat>   const & aVals);
- 
+
         // ----------------------------------------------------------------------------------
- 
+
         ~Memory_Map();
 
         // ----------------------------------------------------------------------------------
-       /*! 
+       /*!
         * @brief Print the memory usage of the map
         */
         void
         print(std::string const & aTitle);
 
         // ----------------------------------------------------------------------------------
- 
-       /*! 
+
+       /*!
         * @brief Parallel print the memory usage of the map
         */
         void
         par_print( std::string const & aTitle );
 
         // ----------------------------------------------------------------------------------
- 
+
         /*
         * @brief Add Memory maps together. Data with same key is combined
         */
@@ -59,7 +64,7 @@ namespace moris
         operator+( const Memory_Map& aMemMapB );
 
         // ----------------------------------------------------------------------------------
- 
+
         /*
         * @brief Sum up the memory in memory map map
         */
@@ -67,19 +72,19 @@ namespace moris
         sum( );
 
         // ----------------------------------------------------------------------------------
- 
+
         std::unordered_map<std::string, size_t> mMemoryMapData;
 
         // ----------------------------------------------------------------------------------
 
         private:
-        
+
         // ----------------------------------------------------------------------------------
 
         /*!
          * @brief Gather all memory maps to root processor.
          * @param[out] aGatheredMemMap Gathered Memory Maps;
-         */ 
+         */
         void
         gather_all(Cell<Memory_Map> & aGatheredMemMap);
 
@@ -96,7 +101,7 @@ namespace moris
 
         /*!
          * @brief Deserialize memory maps on root processor
-         * @param[out] 
+         * @param[out]
          */
         void
         deserialize( Cell<Cell<std::string>> & aGatheredKeyCells,
@@ -107,3 +112,4 @@ namespace moris
 } // namespace moris
 
 #endif /* SRC_TOOLS_CL_TOL_MEMORY_MAP_HPP_ */
+

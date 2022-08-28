@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # ACML Find Module --------------------------------------------------------
 # -------------------------------------------------------------------------
 
@@ -66,4 +73,5 @@ _import_libraries(ACML_LIBRARY_TARGETS ${ACML_LIBRARIES})
 
 add_library(ACML::acml INTERFACE IMPORTED GLOBAL)
 target_link_libraries(ACML::acml INTERFACE ${ACML_LIBRARY_TARGETS})
+
 

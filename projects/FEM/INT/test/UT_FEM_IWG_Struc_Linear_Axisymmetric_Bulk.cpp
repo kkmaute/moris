@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_FEM_IWG_Struc_Linear_Axisymmetric_Bulk.cpp
+ *
+ */
+
 #include <string>
 #include <catch.hpp>
 #include <memory>
@@ -92,7 +102,6 @@ TEST_CASE( "IWG_Elasticity_Axisymmetric_Bulk", "[moris],[fem],[axi],[IWG_Elastic
     tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
     tIWG->set_constitutive_model( tCMMasterStrucLinIso, "ElastLinIso" );
     tIWG->set_property( tRotAxisRadVec, "Thickness" );
-
 
     // init set info
     //------------------------------------------------------------------------------
@@ -597,3 +606,4 @@ TEST_CASE( "IWG_Elasticity_Axi_Bulk_Mixed_Displacement", "[moris],[fem],[axi],[I
         }
     }
 }/*END_TEST_CASE*/
+

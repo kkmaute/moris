@@ -1,9 +1,13 @@
 /*
- * cl_DLA_Linear_System_Manager.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Okt 6, 2018
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * cl_DLA_Linear_Solver.hpp
+ *
  */
+
 #ifndef MORIS_DISTLINALG_CL_DLA_Linear_Solver_MANAGER_HPP_
 #define MORIS_DISTLINALG_CL_DLA_Linear_Solver_MANAGER_HPP_
 
@@ -41,7 +45,6 @@ namespace dla
         Linear_Solver();
 
         Linear_Solver( const moris::ParameterList aParameterlist );
-
 
         //--------------------------------------------------------------------------------------------------
 

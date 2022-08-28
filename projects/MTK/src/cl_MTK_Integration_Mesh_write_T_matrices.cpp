@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Integration_Mesh_write_T_matrices.cpp
+ *
+ */
+
 #include <string>
 #include <iomanip>
 #include "cl_MTK_Integration_Mesh.hpp"
@@ -43,7 +53,7 @@ namespace moris
             for( uint iSet = 0; iSet < tNumSets; iSet++ )
             {
                 // -------------------------------------
-                // get T-Matrices 
+                // get T-Matrices
 
                 // initialize cells containing info for T-matrices mapping (Background-BSp)-(Background-Lag) for each IP vertex
                 moris::Cell< Matrix< IdMat > >  tIPtoBSIds;
@@ -55,7 +65,7 @@ namespace moris
                 // initialize cells containing info for T-matrices mapping (Background-Lag)-(IG-Vertices) for each IG vertex
                 moris::Cell< Matrix< IdMat > >  tIGtoIPIds;
                 moris::Cell< Matrix< DDRMat > > tIGtoIPWeights;
-            
+
                 // get T-matrices mapping from IG nodes to IP nodes
                 this->get_IG_to_IP_nodal_T_matrices( tIGtoIPIds, tIGtoIPWeights, iSet );
 
@@ -63,7 +73,7 @@ namespace moris
                 moris::Cell< Matrix< IdMat > >  tIGtoBSIds;
                 moris::Cell< Matrix< DDRMat > > tIGtoBSWeights;
 
-                // combine T-Matrices to get 
+                // combine T-Matrices to get
                 this->get_IG_to_BS_nodal_T_matrices( tIGtoBSIds, tIGtoBSWeights, tIPtoBSIds, tIPtoBSWeights, tIGtoIPIds, tIGtoIPWeights );
 
                 // -------------------------------------
@@ -79,7 +89,7 @@ namespace moris
                 // -------------------------------------
                 // write to file
 
-                // construct string from output file name 
+                // construct string from output file name
                 std::string tStrOutputFile = aFileName + "." + ios::stringify( iSet ) + ".hdf5";
 
                 // log/print that the extraction operator is output to
@@ -102,7 +112,7 @@ namespace moris
         // ----------------------------------------------------------------------------
 
         void
-        Integration_Mesh::get_IG_to_IP_nodal_T_matrices( 
+        Integration_Mesh::get_IG_to_IP_nodal_T_matrices(
                 moris::Cell< Matrix< IdMat > >   & aIGtoIPIds,
                 moris::Cell< Matrix< DDRMat > >  & aIGtoIPWeights,
                 uint                             aSetIndex )
@@ -177,8 +187,8 @@ namespace moris
                         // look for position of primary vertex in list of all vertices on cluster
                         auto tIter = tIgVertexMap.find( tPrimaryVertexID );
 
-                        // check that the primary vertex is actually in the list of 
-                        MORIS_ERROR( tIter != tIgVertexMap.end(), 
+                        // check that the primary vertex is actually in the list of
+                        MORIS_ERROR( tIter != tIgVertexMap.end(),
                             "Integration_Mesh::get_IG_to_IP_nodal_T_matrices() - Primary vertex ID on cluster not found in list of all vertex IDs on cluster" );
 
                         // get the position of the current primary IG vertex in the list of all IG vertices on the cluster
@@ -224,7 +234,7 @@ namespace moris
         // ----------------------------------------------------------------------------
 
         void
-        Integration_Mesh::get_IP_to_BS_nodal_T_matrices( 
+        Integration_Mesh::get_IP_to_BS_nodal_T_matrices(
                 moris::Cell< Matrix< IdMat > >   & aIPtoBSIds,
                 moris::Cell< Matrix< DDRMat > >  & aIPtoBSWeights,
                 uint                             aSetIndex )
@@ -259,7 +269,7 @@ namespace moris
 
                     // get list of all vertices on IP cell associated with current cluster
                     moris::Cell< Vertex *> tIPVertices = tInterpolationCell.get_vertex_pointers();
-                    
+
                     // go through all IP vertices, build BSp - Lag map
                     for( uint iIpVert = 0; iIpVert < tIPVertices.size(); iIpVert++)
                     {
@@ -282,7 +292,7 @@ namespace moris
                             // get number of B-splines assiciated with current IP vertex
                             uint tNumBspOnIpNode = tBSpIDs.numel();
 
-                            // resize nodal T-matrix to accommodate all B-spline IDs and weights 
+                            // resize nodal T-matrix to accommodate all B-spline IDs and weights
                             aIPtoBSIds( tIP_ID - 1 ).set_size( 1, tNumBspOnIpNode, gNoID );
                             aIPtoBSWeights( tIP_ID - 1 ).set_size( 1, tNumBspOnIpNode, -1 );
 
@@ -303,8 +313,8 @@ namespace moris
 
         // ----------------------------------------------------------------------------
 
-        void 
-        Integration_Mesh::get_IG_to_BS_nodal_T_matrices( 
+        void
+        Integration_Mesh::get_IG_to_BS_nodal_T_matrices(
                         moris::Cell< Matrix< IdMat  > >  & aIGtoBSIds,
                         moris::Cell< Matrix< DDRMat > >  & aIGtoBSWeights,
                         moris::Cell< Matrix< IdMat  > >  & aIPtoBSIds,
@@ -317,7 +327,7 @@ namespace moris
 
             // get number of IG vertices
             uint tNumIgNodes = aIGtoIPIds.size();
-            MORIS_ERROR( tNumIgNodes == aIGtoIPWeights.size(), 
+            MORIS_ERROR( tNumIgNodes == aIGtoIPWeights.size(),
                     "Integration_Mesh::get_IG_to_BS_nodal_T_matrices() - Size of ID/weight maps for IG-IP T-Matrices don't match." );
 
             // initialize size of T-Matrix cells
@@ -329,7 +339,7 @@ namespace moris
             {
                 // initialize temporary vectors containing all
                 Matrix< IdMat > tNodalIGtoBSIds( 0, 0 );
-                Matrix< DDRMat > tNodalIGtoBSWeights( 0, 0 ); 
+                Matrix< DDRMat > tNodalIGtoBSWeights( 0, 0 );
 
                 // number of IP nodes associated with current IG node
                 uint tNumIpBfs = aIGtoIPIds( iIgNode ).numel();
@@ -340,7 +350,7 @@ namespace moris
                     // get current IP ID
                     moris_id tIpId = aIGtoIPIds( iIgNode )( jIpNode );
 
-                    // skip if IP-ID doesn't exist 
+                    // skip if IP-ID doesn't exist
                     if( tIpId > gNoID )
                     {
                         // get what B-spline IDs and Weights are associated with current Node
@@ -353,7 +363,6 @@ namespace moris
                     }
                 } // end: loop over all IP Nodes
 
-                
                 // get unique list of B-Spline IDs associated with each IG node
                 moris::unique( tNodalIGtoBSIds, aIGtoBSIds( iIgNode ) );
 
@@ -379,7 +388,7 @@ namespace moris
 
         // ----------------------------------------------------------------------------
 
-        uint 
+        uint
         Integration_Mesh::get_max_IP_ID_on_set( uint aSetIndex )
         {
             // initialize counter
@@ -420,8 +429,8 @@ namespace moris
 
         // ----------------------------------------------------------------------------
 
-        void 
-        Integration_Mesh::build_sparse_extraction_operator( 
+        void
+        Integration_Mesh::build_sparse_extraction_operator(
                 moris::Cell< Matrix< IdMat > > & aIGtoBSIds,
                 moris::Cell< Matrix< DDRMat > > & aIGtoBSWeights,
                 Matrix< DDUMat > & aSparseIndices,
@@ -456,9 +465,9 @@ namespace moris
                 if( aIGtoBSIds( iG ).numel() > 0 )
                 {
                     // loop over B-splines interpolating into current IG node
-                    for ( uint iBsp = 0; iBsp < aIGtoBSIds( iG ).numel(); iBsp++ ) 
+                    for ( uint iBsp = 0; iBsp < aIGtoBSIds( iG ).numel(); iBsp++ )
                     {
-                        // get 
+                        // get
                         uint tBspId = aIGtoBSIds( iG )( iBsp );
 
                         // write IG/BS indices and weights to list

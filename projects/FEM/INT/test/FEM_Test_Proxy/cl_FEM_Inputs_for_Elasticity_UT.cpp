@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_Inputs_for_Elasticity_UT.cpp
+ *
+ */
+
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "fn_trans.hpp"

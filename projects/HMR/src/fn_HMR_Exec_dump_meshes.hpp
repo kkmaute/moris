@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_HMR_Exec_dump_meshes.hpp
  *
- *  Created on: Nov 13, 2018
- *      Author: messe
  */
 
 #ifndef PROJECTS_HMR_SRC_FN_HMR_EXEC_DUMP_MESHES_HPP_
@@ -79,7 +82,6 @@ namespace moris
                         MORIS_ERROR(false, "HMR::get_mesh_index() this function is not udated yet ");
 //                        tIndex = aHMR->get_mesh_index( tOrder, aHMR->get_parameters()->get_lagrange_input_pattern() );
 
-
                         // dump mesh
                         aHMR->save_to_exodus( tIndex,
                                               tPath,
@@ -94,3 +96,4 @@ namespace moris
 }
 
 #endif /* PROJECTS_HMR_SRC_FN_HMR_EXEC_DUMP_MESHES_HPP_ */
+

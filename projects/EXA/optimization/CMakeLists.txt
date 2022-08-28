@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 add_subdirectory(Shape_Sensitivity_Sweep)
 add_subdirectory(Shape_Sensitivity_Bspline)
 add_subdirectory(Shape_Sensitivity_Circle_Sweep_Transient)
@@ -22,3 +29,4 @@ add_subdirectory(Bedding_Sensitivity_Test)
 add_subdirectory(One_Element_Mat_Geo_Pdv_sweep)
 add_subdirectory(Level_Set_Beam_SIMP_Hole_Seeding)
 add_subdirectory(Zienkiewicz_Zhu_Adaptive_Refinement)
+

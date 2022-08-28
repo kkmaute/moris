@@ -1,9 +1,13 @@
 /*
- * cl_TSA_Solver_Interface_Proxy_.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jun 18, 2018
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * cl_TSA_Solver_Interface_Proxy.cpp
+ *
  */
+
 #include "cl_Communication_Tools.hpp"    // COM/src
 #include "cl_NLA_Newton_Solver.hpp"
 #include "cl_TSA_Solver_Interface_Proxy.hpp"
@@ -139,3 +143,4 @@ TSA_Solver_Interface_Proxy::get_equation_object_operator_and_rhs(
     aElementMatrix.resize( 1, 1 );
     aElementMatrix( 0, 0 ) = ( mk + 1.0 / ( mDeltaT ) );
 }
+

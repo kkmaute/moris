@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_FEM_IQI_Power_Dissipation.cpp
+ *
+ */
+
 #include <string>
 #include <catch.hpp>
 #include <memory>
@@ -340,3 +350,4 @@ TEST_CASE( "IQI_Power_Dissipation","[moris],[fem],[IQI_Power_Dissipation]" )
         }
     }
 }/*END_TEST_CASE*/
+

@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_DLA_Linear_Solver_Belos.cpp
  *
- *  Created on: Feb 06, 2020
- *      Author: schmidt
  */
+
 #include "cl_DLA_Linear_Solver_Belos.hpp"
 #include "cl_DLA_Linear_Problem.hpp"
 #include "cl_SOL_Dist_Vector.hpp"
@@ -192,3 +196,4 @@ void Linear_Solver_Belos::set_solver_internal_parameters()
         mMyPl->set("Output Frequency", mParameterList.get< moris::real >( "Output Frequency" ) );
     }
 }
+

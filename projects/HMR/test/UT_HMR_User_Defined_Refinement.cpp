@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_HMR_User_Defined_Refinement.cpp
+ *
+ */
 
 #include <catch.hpp>
 #include "cl_HMR.hpp"
@@ -19,7 +28,6 @@
 
 #include "fn_PRM_HMR_Parameters.hpp"
 
-
 using namespace moris;
 using namespace hmr;
 
@@ -35,7 +43,7 @@ LevelSetFunction_2( const moris::Matrix< moris::DDRMat > & aPoint )
     return ( norm( aPoint ) - 1.4 )* (-1.0) ;
 }
 
-int user_defined_refinement(       
+int user_defined_refinement(
         Element                * aElement,
         const Matrix< DDRMat > & aElementLocalValues)
 {
@@ -162,7 +170,6 @@ int user_defined_refinement_color(       Element                  * aElement,
 
     return aDoRefine;
 }
-
 
 TEST_CASE("HMR_User_Defined_Refinement", "[moris],[mesh],[hmr],[HMR_User_Defined_Refinement]")
 {
@@ -357,7 +364,7 @@ TEST_CASE("Color refinement", "[moris],[mesh],[hmr],[Color refinement]")
 
             tHMR.perform_refinement_based_on_working_pattern( 0, true );
         }
-        
+
         tField->evaluate_scalar_function( Colors );
 
         // calculate T-Matrices etc
@@ -368,7 +375,7 @@ TEST_CASE("Color refinement", "[moris],[mesh],[hmr],[Color refinement]")
         //uint tNumElements = tMesh->get_num_elems();
 
         //perform test
-        //REQUIRE( tNumElements == 1120 );    
+        //REQUIRE( tNumElements == 1120 );
     }
 }
 

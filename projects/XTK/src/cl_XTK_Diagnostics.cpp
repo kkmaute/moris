@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_XTK_Diagnostics.cpp
+ *
+ */
+
 #include "cl_XTK_Diagnostics.hpp"
 
 #include "cl_XTK_Cut_Integration_Mesh.hpp"
@@ -5,7 +15,6 @@
 #include "cl_GEN_Geometry_Engine.hpp"
 #include "cl_MTK_Vertex.hpp"
 #include "fn_norm.hpp"
-
 
 using namespace moris;
 namespace xtk
@@ -144,7 +153,6 @@ verify_interface_vertices(
 
     return tProblemIgVertices.size() == 0;
 }
-
 
 bool
 check_vertices(

@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Cell_Info_Hex64.hpp
  *
- *  Created on: May 14, 2019
- *      Author: doble
  */
 
 #ifndef PROJECTS_MTK_SRC_CL_MTK_CELL_INFO_HEX64_HPP_
@@ -115,7 +118,7 @@ namespace moris
 
             moris::Cell<moris_index>
             get_vertex_path_to_entity_rank_and_ordinal(
-                moris_index aVertexOrdinal, 
+                moris_index aVertexOrdinal,
                 moris_index aOtherEntityOrdinal,
                 moris_index aOtherEntityRank) const;
 
@@ -123,14 +126,14 @@ namespace moris
 
             moris::Cell<moris_index>
             get_edge_path_to_entity_rank_and_ordinal(
-                moris_index aEdgeOrdinal, 
+                moris_index aEdgeOrdinal,
                 moris_index aOtherEntityOrdinal,
                 moris_index aOtherEntityRank) const;
 
             //-----------------------------------------------------------------------------
-            
-            bool 
-            is_entity_connected_to_facet( 
+
+            bool
+            is_entity_connected_to_facet(
                 moris_index aFacetOrdinal,
                 moris_index aOtherEntityOrdinal,
                 moris_index aOtherEntityRank) const;

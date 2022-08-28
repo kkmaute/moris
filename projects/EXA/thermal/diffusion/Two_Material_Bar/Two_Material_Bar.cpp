@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * Two_Material_Bar.cpp
+ *
+ */
+
 #include <string>
 #include <iostream>
 #include "typedefs.hpp"
@@ -585,7 +595,6 @@ namespace moris
         //        tParameterList( 3 )( tIWGCounter ).set( "time_continuity",            true );
         //        tIWGCounter++;
 
-
         //------------------------------------------------------------------------------
         // init IQI counter
         uint tIQICounter = 0;
@@ -713,3 +722,4 @@ namespace moris
 #ifdef __cplusplus
 }
 #endif
+

@@ -1,4 +1,12 @@
-
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Cell_Cluster_DataBase.cpp
+ *
+ */
 
 #include "cl_MTK_Cell_Cluster_DataBase.hpp"
 #include "cl_MTK_Cell_DataBase.hpp"
@@ -231,5 +239,5 @@ namespace moris::mtk
         return tCapacity;
     }
 
-
 }// namespace moris::mtk
+

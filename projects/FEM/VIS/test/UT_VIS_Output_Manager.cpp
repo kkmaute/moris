@@ -1,9 +1,11 @@
-
 /*
- * UT_VIS_Visualization_Mesh.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Dez 02, 2019
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * UT_VIS_Output_Manager.cpp
+ *
  */
 
 #include "catch.hpp"
@@ -12,7 +14,6 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "fn_equal_to.hpp"
-
 
 #define protected public
 #define private public
@@ -714,3 +715,4 @@ namespace moris
         }
     }    // namespace vis
 }    // namespace moris
+

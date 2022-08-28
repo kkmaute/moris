@@ -1,13 +1,15 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_XTK_Child_Mesh_Modification_Template.hpp
  *
- *  Created on: Jun 21, 2018
- *      Author: ktdoble
  */
 
 #ifndef SRC_XTK_CL_XTK_CHILD_MESH_MODIFICATION_TEMPLATE_HPP_
 #define SRC_XTK_CL_XTK_CHILD_MESH_MODIFICATION_TEMPLATE_HPP_
-
 
 #include "cl_Matrix.hpp"
 #include "cl_XTK_Enums.hpp"
@@ -410,7 +412,6 @@ private:
         }
     }
 
-
     void
     hierarchy_tet4_3N(moris::size_t const & aPermutation)
     {
@@ -446,7 +447,6 @@ private:
 
             break;
         }
-
 
         case(203):
         {
@@ -1481,7 +1481,6 @@ private:
             mNewParentFaceOrdinals = moris::Matrix< moris::IndexMat >({{2, 0, 0, 3}, {0, 0, 0, 3}, {0, 0, 0, 1}, {2, 0, 0, 1}, {2, 0, 0, 3}, {0, 0, 0, 1}});
             mNewElementInterfaceSides = moris::Matrix< moris::DDSTMat >({{2}, {std::numeric_limits<moris::size_t>::max()}, {2}, {std::numeric_limits<moris::size_t>::max()}, {1}, {1}});
 
-
             break;
         }
         case(3214):
@@ -1619,7 +1618,6 @@ private:
             mNewParentFaceRanks = moris::Matrix< moris::DDSTMat >({{2, 3, 3, 2}, {2, 3, 3, 2}, {3, 3, 2, 2}, {2, 2, 3, 2}, {2, 3, 3, 2}, {3, 3, 3, 2}});
             mNewParentFaceOrdinals = moris::Matrix< moris::IndexMat >({{1, 0, 0, 2}, {3, 0, 0, 2}, {0, 0, 3, 0}, {1, 3, 0, 0}, {1, 0, 0, 2}, {0, 0, 0, 0}});
             mNewElementInterfaceSides = moris::Matrix< moris::DDSTMat >({{1}, {std::numeric_limits<moris::size_t>::max()}, {1}, {std::numeric_limits<moris::size_t>::max()}, {2}, {2}});
-
 
             break;
         }
@@ -2099,9 +2097,8 @@ private:
         }
     }
 
-
-
 };
 
 }
 #endif /* SRC_XTK_CL_XTK_CHILD_MESH_MODIFICATION_TEMPLATE_HPP_ */
+

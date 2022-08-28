@@ -1,8 +1,11 @@
 /*
- * cl_XTK_Hexahedron_8_Basis_Functions.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jul 17, 2017
- *      Author: ktdoble
+ *------------------------------------------------------------------------------------
+ *
+ * cl_XTK_Hexahedron_8_Basis_Function.hpp
+ *
  */
 
 #ifndef SRC_TOPOLOGY_CL_XTK_HEXAHEDRON_8_BASIS_FUNCTION_HPP_
@@ -43,3 +46,4 @@ namespace xtk
 }
 
 #endif /* SRC_TOPOLOGY_CL_XTK_HEXAHEDRON_8_BASIS_FUNCTION_HPP_ */
+

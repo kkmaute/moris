@@ -1,3 +1,10 @@
+%
+% Copyright (c) 2022 University of Colorado
+% Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+%
+%------------------------------------------------------------------------------------
+%
+
 
 
 %% #######################   Header Start ################################
@@ -119,6 +126,7 @@ title('Objective Gradients FD Forward')
 saveas(figure(2),'Objective_Difference','png')
 
 % ######################   Plotting Stop  ################################
+
 
 
 

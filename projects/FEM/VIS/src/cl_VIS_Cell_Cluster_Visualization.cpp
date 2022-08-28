@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_VIS_Cell_Cluster_Visualization.cpp
  *
- *  Created on: May 14, 2019
- *      Author: schmidt
  */
+
 #include "cl_VIS_Cell_Cluster_Visualization.hpp"
 #include "cl_MTK_Cell_Cluster.hpp"
 #include "cl_MTK_Cell_Info_Factory.hpp"

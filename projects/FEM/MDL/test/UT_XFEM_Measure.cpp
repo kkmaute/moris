@@ -1,9 +1,13 @@
 /*
- * cl_DLA_Multigrid_Test.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Nov 18, 2018
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * UT_XFEM_Measure.cpp
+ *
  */
+
 #include "catch.hpp"
 
 #include "cl_XTK_Model.hpp"
@@ -452,7 +456,6 @@ TEST_CASE("MDL XFEM Measure","[MDL_XFEM_MEASURE]")
        Matrix<DDRMat> tFullSol;
        tTimeSolver.get_full_solution(tFullSol);
 
-
        moris::Cell< moris::Matrix< IdMat > >  aCriteriaIds;
 
        tSolverInterface->get_adof_ids_based_on_criteria( aCriteriaIds, 0.1 );
@@ -462,7 +465,5 @@ TEST_CASE("MDL XFEM Measure","[MDL_XFEM_MEASURE]")
 
 }/* END_TEST_CASE */
 
-
 }
-
 

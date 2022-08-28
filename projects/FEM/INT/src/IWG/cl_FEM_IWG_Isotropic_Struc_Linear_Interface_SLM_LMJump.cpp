@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_IWG_Isotropic_Struc_Linear_Interface_SLM_LMJump.cpp
+ *
+ */
 
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Interface_SLM_LMJump.hpp"
 
@@ -26,7 +35,6 @@ namespace moris
             // set size for the stabilization parameter pointer cell
             mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
 
-
         }
 
         //------------------------------------------------------------------------------
@@ -39,8 +47,6 @@ namespace moris
             this->check_field_interpolators( mtk::Master_Slave::MASTER );
             this->check_field_interpolators( mtk::Master_Slave::SLAVE );
 #endif
-
-
 
             // get master index for residual dof type, indices for assembly
             const uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
@@ -66,12 +72,10 @@ namespace moris
                     aWStar
                     * ( h * tFILambdaMaster->N_trans() * ( tFILambdaMaster->val() - tFILambdaSlave->val() ) );
 
-
             // compute slave residual
             mSet->get_residual()( 0 )( { tSlaveResStartIndex, tSlaveResStopIndex } ) +=
                     aWStar
                     * ( h * tFILambdaSlave->N_trans() * ( tFILambdaMaster->val() - tFILambdaSlave->val() ) );
-
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
@@ -107,7 +111,6 @@ namespace moris
                     mSlaveFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             real h = mCluster->compute_cluster_cell_side_measure( mtk::Primary_Void::PRIMARY, mtk::Master_Slave::MASTER );
-
 
             // compute the jacobian for indirect dof dependencies through master constitutive models
             uint tMasterNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
@@ -194,3 +197,4 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
+

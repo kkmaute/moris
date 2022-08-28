@@ -1,4 +1,13 @@
-// Third-party header files.
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_Param_List.cpp
+ *
+ */
+
 #include <catch.hpp>
 
 // MORIS project header files.
@@ -36,3 +45,4 @@ TEST_CASE(
         REQUIRE( list.which( "is_true" )   == 0   );
     }
 }
+

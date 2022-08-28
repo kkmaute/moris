@@ -1,8 +1,11 @@
 /*
- * cl_FEM_IQI_ADVECTION_STRONG_RESIDUAL.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Sept 27, 2020
- *      Author: noel
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_IQI_Advection_Strong_Residual.hpp
+ *
  */
 
 #ifndef PROJECTS_FEM_INT_SRC_CL_FEM_IQI_ADVECTION_STRONG_RESIDUAL_HPP_
@@ -96,3 +99,4 @@ namespace moris
 } /* end namespace moris */
 
 #endif /* PROJECTS_FEM_INT_SRC_CL_FEM_IQI_ADVECTION_STRONG_RESIDUAL_HPP_ */
+

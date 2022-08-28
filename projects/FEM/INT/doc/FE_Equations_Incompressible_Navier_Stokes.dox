@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 namespace moris {
 namespace fem {
 
@@ -197,3 +204,4 @@ The stabilization parameter \f$ \gamma_{t}^{GP} \f$ is described in \ref FE_SP_T
 
 }
 }
+

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_Tracer_Enums.cpp
+ *
+ */
+
 #include "cl_Tracer_Enums.hpp"
 
 #include <cstdio>
@@ -201,7 +211,6 @@ namespace moris
             return EntityAction::Unknown;
         }
     }
-
 
     // ------------------------------------------------------------------------------------------ //
     // define Outputs --------------------------------------------------------------------------- //

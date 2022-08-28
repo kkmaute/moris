@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * Vessel_2D.cpp
+ *
+ */
+
 #include <string>
 #include <iostream>
 #include "typedefs.hpp"
@@ -19,7 +29,6 @@
 #include "fn_equal_to.hpp"
 
 #include "AztecOO.h"
-
 
 #ifdef  __cplusplus
 extern "C"
@@ -72,7 +81,6 @@ moris::real tInnerRad        = 0.385; /* y top plane    (m) */
         moris::real aReturnValue = tInnerRad - std::sqrt( std::pow(aCoordinates(0) - tCenterX,2.0) + std::pow(aCoordinates(1) - tCenterY,2.0));
         return std::abs(aReturnValue)<1e-8 ? 1e-8 : aReturnValue;
     }
-
 
     moris::Matrix< DDRMat > Func_Sensitivity(
             const moris::Matrix< DDRMat >     & aCoordinates,
@@ -152,7 +160,7 @@ moris::real tInnerRad        = 0.385; /* y top plane    (m) */
 
         // Main GEN parameter list
         tParameterlist( 0 )( 0 ) = prm::create_gen_parameter_list();
-    tParameterlist( 0 )( 0 ).set( "HMR_refinements", 2 );  
+    tParameterlist( 0 )( 0 ).set( "HMR_refinements", 2 );
 
         // init geometry counter
         uint tGeoCounter = 0;
@@ -215,7 +223,6 @@ moris::real tInnerRad        = 0.385; /* y top plane    (m) */
         tParameterList( 0 )( tPropCounter ).set( "function_parameters",      "1.0" );
         tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;
-
 
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
         tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropConductivity_Inner" );
@@ -430,7 +437,6 @@ moris::real tInnerRad        = 0.385; /* y top plane    (m) */
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "dbl_iside_p0_2_p1_3" );
         tIWGCounter++;
 
-
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGTimeContinuityTemp" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::TIME_CONTINUITY_DOF ) );
@@ -522,3 +528,4 @@ moris::real tInnerRad        = 0.385; /* y top plane    (m) */
 #ifdef  __cplusplus
 }
 #endif
+

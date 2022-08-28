@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 namespace{
 
 // Level 3 module
@@ -78,3 +85,4 @@ For example, suppose we added a library to the optimization package that is opti
 
 */
 }
+

@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # -------------------------------------------------------------------------
 # ARPACK libraries --------------------------------------------------------
 # -------------------------------------------------------------------------
@@ -32,3 +39,4 @@ if(NOT TARGET ${MORIS}::arpack)
 	
 	target_link_libraries(${MORIS}::arpack INTERFACE ${MORIS_ARPACK_LIBRARIES} ${MORIS_ARPACK_TPL_TARGETS})
 endif()
+

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_IWG_Factory.cpp
+ *
+ */
+
 #include <memory>
 #include "assert.hpp"
 
@@ -183,7 +193,6 @@ namespace moris
 
                 case IWG_Type::Struc_Linear_Interface_SLM_LMJump :
                     return std::make_shared< IWG_Isotropic_Struc_Linear_Interface_SLM_LMJump >();
-
 
                 case IWG_Type::STRUC_LINEAR_NEUMANN :
                     return std::make_shared< IWG_Isotropic_Struc_Linear_Neumann >();
@@ -404,3 +413,4 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
+

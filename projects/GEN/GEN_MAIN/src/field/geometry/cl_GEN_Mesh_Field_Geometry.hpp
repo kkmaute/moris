@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_GEN_Mesh_Field_Geometry.hpp
+ *
+ */
+
 #ifndef MORIS_CL_GEN_MESH_FIELD_GEOMETRY_HPP
 #define MORIS_CL_GEN_MESH_FIELD_GEOMETRY_HPP
 
@@ -77,3 +87,4 @@ namespace moris
 }
 
 #endif /* MORIS_CL_GEN_MESH_FIELD_GEOMETRY_HPP */
+

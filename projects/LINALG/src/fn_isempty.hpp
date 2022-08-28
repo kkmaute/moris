@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_isempty.hpp
  *
- *  Created on: Aug 29, 2018
- *      Author: schmidt
  */
 
 #ifndef PROJECTS_LINALG_SRC_FN_ISEMPTY_HPP_
@@ -18,7 +21,6 @@
 #ifdef MORIS_USE_ARMA
 #include "fn_isempty_Arma.hpp"
 #endif
-
 
 namespace moris
 {
@@ -38,6 +40,5 @@ namespace moris
     }
 }
 
-
-
 #endif /* PROJECTS_LINALG_SRC_FN_ISEMPTY_HPP_ */
+

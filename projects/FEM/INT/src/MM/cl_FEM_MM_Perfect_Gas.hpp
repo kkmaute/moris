@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_MM_Perfect_Gas.hpp
  *
- *  Created on: Feb 2, 2021
- *  Author: wunsch
  */
 
 #ifndef SRC_FEM_CL_FEM_MM_PERFECT_GAS_HPP_
@@ -164,7 +167,7 @@ namespace moris
                 void eval_TemperatureDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
                 void eval_TemperatureDotDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
                 void eval_dTemperaturedxDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
-                void eval_d2Temperaturedx2DOF( const moris::Cell< MSI::Dof_Type > & aDofTypes ); 
+                void eval_d2Temperaturedx2DOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
                 //------------------------------------------------------------------------------
                 // THERMODYNAMIC QUANTITIES
@@ -177,7 +180,7 @@ namespace moris
                 void eval_Cv();
                 void eval_Cp();
                 void eval_Gamma();
-            
+
                 //------------------------------------------------------------------------------
                 /**
                  * evaluate the thermodynamic quantity derivatives wrt to the dof types
@@ -186,8 +189,8 @@ namespace moris
                 void eval_VolumeExpansivityDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
                 void eval_IsothermalCompressibilityDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
                 void eval_CvDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
-                void eval_CpDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );   
-                void eval_GammaDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );                                           
+                void eval_CpDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+                void eval_GammaDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
         };
 
         //--------------------------------------------------------------------------------------
@@ -195,3 +198,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_FEM_CL_FEM_MM_PERFECT_GAS_HPP_ */
+

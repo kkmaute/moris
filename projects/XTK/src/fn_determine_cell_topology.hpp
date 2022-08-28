@@ -1,9 +1,13 @@
-/**
- * fn_determine_cell_topology.hpp  
- * 
- *  Created on: Nov 16, 2021 
- *      Author: Nils Wunsch
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * fn_determine_cell_topology.hpp
+ *
  */
+
 #ifndef SRC_fn_determine_cell_topology
 #define SRC_fn_determine_cell_topology
 
@@ -49,7 +53,7 @@ namespace xtk
                         return CellTopology::TRI10;
                         break;
                     }
-                
+
                     default:
                     {
                         MORIS_ERROR( false, "determine_cell_topology() - cell topology can only be determined for polynomial orders 1,2, or 3" );
@@ -79,7 +83,7 @@ namespace xtk
                         return CellTopology::QUAD16;
                         break;
                     }
-                
+
                     default:
                     {
                         MORIS_ERROR( false, "determine_cell_topology() - cell topology can only be determined for polynomial orders 1,2, or 3" );
@@ -122,7 +126,7 @@ namespace xtk
                     //     return CellTopology::TET20;
                     //     break;
                     // }
-                
+
                     default:
                     {
                         MORIS_ERROR( false, "determine_cell_topology() - cell topology can only be determined for polynomial orders 1,2, or 3" );
@@ -152,7 +156,7 @@ namespace xtk
                         return CellTopology::HEX64;
                         break;
                     }
-                
+
                     default:
                     {
                         MORIS_ERROR( false, "determine_cell_topology() - cell topology can only be determined for polynomial orders 1,2, or 3" );
@@ -228,7 +232,7 @@ namespace xtk
                         return 10;
                         break;
                     }
-                
+
                     default:
                     {
                         MORIS_ERROR( false, "determine_num_nodes() - cell topology can only be determined for polynomial orders 1,2, or 3" );
@@ -261,7 +265,7 @@ namespace xtk
                         return 16;
                         break;
                     }
-                
+
                     default:
                     {
                         MORIS_ERROR( false, "determine_num_nodes() - number of nodes can only be determined for polynomial orders 1,2, or 3" );
@@ -307,7 +311,7 @@ namespace xtk
                         return 20;
                         break;
                     }
-                
+
                     default:
                     {
                         MORIS_ERROR( false, "determine_num_nodes() - number of nodes can only be determined for polynomial orders 1,2, or 3" );
@@ -340,7 +344,7 @@ namespace xtk
                         return 64;
                         break;
                     }
-                
+
                     default:
                     {
                         MORIS_ERROR( false, "determine_num_nodes() - number of nodes can only be determined for polynomial orders 1,2, or 3" );
@@ -381,3 +385,4 @@ namespace xtk
 }
 
 #endif /* fn_determine_cell_topology.hpp */
+

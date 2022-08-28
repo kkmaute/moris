@@ -1,11 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_norm.cpp
  *
- *  Created on: Aug 29, 2018
- *      Author: doble
  */
 
-// Third-party header files.
 #include <catch.hpp>
 #include "fn_equal_to.hpp" // ALG/src
 #include "cl_Matrix.hpp"
@@ -33,3 +35,4 @@ TEST_CASE(
     REQUIRE( moris::equal_to( VecNorm,  9.899494, 1.0e+11 ));
     }
 }
+

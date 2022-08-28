@@ -1,7 +1,11 @@
-/* UT_MDL_Fluid_Benchmark.cpp
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Mar 28, 2020
- *      Author: noel
+ *------------------------------------------------------------------------------------
+ *
+ * UT_MDL_Fluid_Benchmark.cpp
+ *
  */
 
 #include "catch.hpp"
@@ -126,7 +130,6 @@ namespace moris
         // set size for aPropMatrix
         aPropMatrix.set_size( 1, 1, aParameters( 0 )( 0 ) );
     }
-
 
     bool
     tSolverOutputCriteria_MDLFluidBench( moris::tsa::Time_Solver* )
@@ -588,7 +591,6 @@ namespace moris
             tOutputOptions.mAddNodeSets = false;
             tOutputOptions.mAddSideSets = true;
             tOutputOptions.mAddClusters = false;
-
 
             // get meshes for FEM
             xtk::Enriched_Interpolation_Mesh& tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
@@ -2543,3 +2545,4 @@ namespace moris
     }
 
 }    // namespace moris
+

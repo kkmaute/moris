@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MDL_DiffusionElement_Mesh_Interaction_Test.cpp
+ *
+ */
 
 #include "catch.hpp"
 
@@ -68,8 +77,6 @@
 #include "cl_SOL_Warehouse.hpp"
 
 #include "fn_norm.hpp"
-
-
 
 moris::real LevelSetFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 {
@@ -904,7 +911,6 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
                                                tBSplineMeshIndex,
                                                tSetInfo );
 
-
         moris::Cell< enum MSI::Dof_Type > tDofTypes1( 1, MSI::Dof_Type::TEMP );
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1033,7 +1039,6 @@ TEST_CASE( "Diffusion_hmr3_10x4x4", "[moris],[mdl],[Diffusion_hmr3_10x4x4]" )
 
         delete tIntegrationMesh;
         delete tInterpolationMesh;
-
 
     }/* if( par_size() */
 }
@@ -1281,3 +1286,4 @@ TEST_CASE( "Diffusion_hmr_cubic_10x4x4", "[moris],[mdl],[Diffusion_hmr_cubic_10x
 
 }/* namespace fem */
 }/* namespace moris */
+

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_Field_Interpolator_Test.cpp
+ *
+ */
+
 #include "catch.hpp"
 
 #define protected public
@@ -267,7 +277,6 @@ TEST_CASE( "Field_Interpolator", "[moris],[fem],[FieldInterpolator]" )
                 mtk::Interpolation_Type::CONSTANT,
                 mtk::Interpolation_Order::CONSTANT );
 
-
         //create a space field interpolator
         Field_Interpolator tCheckFieldInterpolator(
                 tNumberOfFields,
@@ -397,7 +406,6 @@ TEST_CASE( "Field_Interpolator", "[moris],[fem],[FieldInterpolator]" )
         uint tNSpaceTimeBases = tFieldInterpolator.get_number_of_space_time_bases();
         Matrix< DDRMat > tUHat( tNSpaceTimeBases , tNumberOfFields );
 
-
         Matrix< DDRMat > t1, x1;
         real a1 =  1.0, b1 = 2.0, b2 = 3.0, c1 = 4.0;
         for ( moris::uint Ik = 0; Ik < tNTimeBases; Ik++ )
@@ -508,7 +516,6 @@ TEST_CASE( "FI_vectorialField", "[moris],[fem],[FI_vectorialField]" )
 
     //set the evaluation point
     tGeomInterpolator.set_space_time( tParamPoint );
-
 
     // field interpolator
     //------------------------------------------------------------------------------

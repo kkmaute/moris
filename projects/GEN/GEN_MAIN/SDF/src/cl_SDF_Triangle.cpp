@@ -1,5 +1,14 @@
-#include "cl_SDF_Triangle.hpp"
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_SDF_Triangle.cpp
+ *
+ */
 
+#include "cl_SDF_Triangle.hpp"
 
 #include "assert.hpp"
 
@@ -101,8 +110,6 @@ namespace moris
                                      mNodeCoords( i, 2 ) );
             }
 
-
-
             // divide center by three
             for( uint i=0; i<3; ++i )
             {
@@ -124,7 +131,6 @@ namespace moris
                 tDirection02( i ) = mNodeCoords( i, 2 )-mNodeCoords( i, 0 );
             }
 
-
             // norm of this triangle
 
             mNormal = cross( aDirectionOfEdge, tDirection02 );
@@ -145,7 +151,6 @@ namespace moris
         void
         Triangle::calculate_barycectric_data( const Matrix< F31RMat > & aDirectionOfEdge )
         {
-
 
             // calculate direction orthogonal to plane and edge
             Matrix< F31RMat > tDirectionOrtho = cross( mNormal, aDirectionOfEdge );
@@ -532,3 +537,4 @@ namespace moris
 //-------------------------------------------------------------------------------
     } /* namespace sdf */
 } /* namespace moris */
+

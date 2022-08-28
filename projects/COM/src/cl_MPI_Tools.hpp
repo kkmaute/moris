@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MPI_Tools.hpp
  *
- *  Created on: Jun 27, 2017
- *      Author: ktdoble
  */
 
 #ifndef SRC_TOOLS_CL_MPI_TOOLS_HPP_
@@ -277,3 +280,4 @@ namespace moris
 }
 
 #endif /* SRC_TOOLS_CL_MPI_TOOLS_HPP_ */
+

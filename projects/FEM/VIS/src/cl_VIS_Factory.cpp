@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_VIS_Factory.cpp
+ *
+ */
 
 #include "cl_VIS_Output_Manager.hpp"
 
@@ -392,3 +401,4 @@ namespace moris
         //-----------------------------------------------------------------------------------------------------------
     }
 }
+

@@ -1,8 +1,11 @@
 /*
- * cl_MTK_Cell_Cluster_XTK_Impl.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Apr 26, 2019
- *      Author: doble
+ *------------------------------------------------------------------------------------
+ *
+ * UT_MTK_Cell_Cluster_XTK_Impl.cpp
+ *
  */
 
 #include "catch.hpp"
@@ -87,7 +90,6 @@ TEST_CASE("XTK Cell Clusters","[MTK_CLUSTER_XTK]")
         tLevelsetVal(tIndexOfNodeId15) = 1;
         tLevelsetVal(tIndexOfNodeId13) = 1;
 
-
         tMeshData->add_mesh_field_real_scalar_data_loc_inds(tLSFName, moris::EntityRank::NODE, tLevelsetVal);
         tMeshData->mVerbose = false;
         std::string tMeshOutputFile2 = "./xtk_exo/xtk_cell_cluster_bm.e";
@@ -120,3 +122,4 @@ TEST_CASE("XTK Cell Clusters","[MTK_CLUSTER_XTK]")
     }
 }
 }
+

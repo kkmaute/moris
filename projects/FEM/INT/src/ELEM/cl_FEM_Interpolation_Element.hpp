@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_Interpolation_Element.hpp
  *
- *  Created on: Apr 20, 2019
- *      Author: schmidt
  */
 
 #ifndef SRC_FEM_CL_FEM_INTERPOLATION_ELEMENT_HPP_
@@ -235,3 +238,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_FEM_CL_FEM_INTERPOLATION_ELEMENT_HPP_ */
+

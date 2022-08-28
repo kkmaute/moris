@@ -1,18 +1,19 @@
 /*
- * cl_Functon.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jun 21, 2017
- *      Author: ktdoble
+ *------------------------------------------------------------------------------------
+ *
+ * cl_Geometry.hpp
+ *
  */
 
 #ifndef INCLUDE_GEOMETRY_CL_GEOMETRY_HPP_
 #define INCLUDE_GEOMETRY_CL_GEOMETRY_HPP_
 
-
 #include "assert/fn_xtk_assert.hpp"
 #include "linalg/cl_XTK_Matrix.hpp"
 #include "cl_Mesh_Enums.hpp"
-
 
 using namespace moris;
 namespace xtk
@@ -31,7 +32,6 @@ public:
     {
     }
 
-
     /*
      * **************************************************************************************
      *              REQUIRED INTERFACE FOR BOTH ANALYTIC AND DISCRETE GEOMETRY
@@ -48,7 +48,6 @@ public:
      *
      */
     virtual void get_dphi_dp_size(moris::size_t & aNumRows, moris::size_t & aNumCols) const  = 0;
-
 
     /*
      * **************************************************************************************
@@ -77,7 +76,6 @@ public:
         return moris::Matrix< moris::DDRMat >();
     }
 
-
     /*
      * **************************************************************************************
      *                             DISCRETE GEOMETRY INTERFACE
@@ -95,7 +93,6 @@ public:
         XTK_ERROR<<" access_field_value_with_entity_index not implemented. This could be due to a geometry not being based on a mesh.";
         return 0;
     }
-
 
     /*
      * Given a local coordinate, node index and entity rank, the function returns a matrix of relevant node coordinates
@@ -116,12 +113,8 @@ public:
          return moris::Matrix< moris::IndexMat >(1,1,0);
     }
 
-
-
 };
 }
 
-
-
-
 #endif /* INCLUDE_GEOMETRY_CL_GEOMETRY_HPP_ */
+

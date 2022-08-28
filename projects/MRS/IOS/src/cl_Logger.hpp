@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_Logger.hpp
+ *
+ */
+
 #ifndef MORIS_IOS_CL_LOGGER_HPP_
 #define MORIS_IOS_CL_LOGGER_HPP_
 #include <iostream>
@@ -725,3 +735,4 @@ extern moris::Logger gLogger;
     } while ( false )
 
 #endif /* MORIS_IOS_CL_LOGGER_HPP_ */
+

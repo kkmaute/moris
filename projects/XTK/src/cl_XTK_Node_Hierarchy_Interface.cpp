@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_XTK_Node_Hierarchy_Interface.cpp
+ *
+ */
+
 #include "cl_XTK_Node_Hierarchy_Interface.hpp"
 #include "cl_XTK_Decomposition_Algorithm.hpp"
 #include "cl_XTK_Integration_Mesh_Generator.hpp"
@@ -12,7 +22,7 @@
 #include <chrono>
 namespace xtk
 {
-    
+
 // ----------------------------------------------------------------------------------
 
 enum Decomposition_Algorithm_Type
@@ -353,7 +363,6 @@ Node_Hierarchy_Interface::associate_new_vertices_with_cell_groups(
     return true;
 }
 
-
 moris_index
 Node_Hierarchy_Interface::hash_edge( moris::Cell< moris::mtk::Vertex* > const& aEdgeVertices )
 {
@@ -632,7 +641,6 @@ Node_Hierarchy_Interface::select_node_hier_2d_template(
             }
             ( *aNHTemplate )( iCell ) = tLoadedTemplates[tPermutationId];
 
-
             tNumNewIgCells = tNumNewIgCells + ( *aNHTemplate )( iCell )->mNumCells;
             mNumNewCells   = mNumNewCells + ( *aNHTemplate )( iCell )->mNumCells - 1;
         }
@@ -686,7 +694,6 @@ Node_Hierarchy_Interface::select_node_hier_3d_template(
             // std::cout<<"tPermutationId = "<<tPermutationId<<std::endl;
             // moris::print(*(*aNodesForTemplates)(iCell),"(*aNodesForTemplates)(iCell)");
 
-
             // if we haven't used this template yet, load it up
             if ( tLoadedTemplates.find( tPermutationId ) == tLoadedTemplates.end() )
             {
@@ -696,7 +703,6 @@ Node_Hierarchy_Interface::select_node_hier_3d_template(
                 tLoadedTemplates[tPermutationId] = tNewTemplate;
             }
             ( *aNHTemplate )( iCell ) = tLoadedTemplates[tPermutationId];
-
 
             tNumNewIgCells = tNumNewIgCells + ( *aNHTemplate )( iCell )->mNumCells;
             mNumNewCells   = mNumNewCells + ( *aNHTemplate )( iCell )->mNumCells - 1;
@@ -795,16 +801,15 @@ Node_Hierarchy_Interface::sort_nodes_3d(
     std::iota( tIndices.data().begin(), tIndices.data().end(), 0 );
 
     // get ascending order vertices
-    std::stable_sort( 
-        tIndices.data().begin(), 
-        tIndices.data().end(), 
-        [&]( std::size_t i1, std::size_t i2 ) 
-        { 
-            return ( *aCellIndexIntersectedEdgeVertex )( i1 )->get_id() < ( *aCellIndexIntersectedEdgeVertex )( i2 )->get_id(); 
+    std::stable_sort(
+        tIndices.data().begin(),
+        tIndices.data().end(),
+        [&]( std::size_t i1, std::size_t i2 )
+        {
+            return ( *aCellIndexIntersectedEdgeVertex )( i1 )->get_id() < ( *aCellIndexIntersectedEdgeVertex )( i2 )->get_id();
         } );
 
     Cell< moris::mtk::Vertex* > tVertices = aIgCell->get_vertex_pointers();
-
 
     if ( aCellIndexIntersectedEdgeOrdinals->size() == 3 )
     {
@@ -858,7 +863,6 @@ Node_Hierarchy_Interface::sort_nodes_3d(
         //      + 100  * edge ordinal containing the middle highest node ID
         //      + 1000 * edge ordinal containing the highest node ID
         aPermutation = tLowIntersectVertexIdEdgeOrd + 10 * tMidLowIntersectVertexIdEdgeOrd + 100 * tMidHighIntersectVertexIdEdgeOrd + 1000 * tHighIntersectVertexIdEdgeOrd;
-
 
         // determine which intersection node ids are across from eachother (meaning they share only an edge through the starting integration cell)
         moris_index tHLOppVertOrd   = aIgCell->get_cell_info()->get_shared_vertex_ordinal_between_edges( tLowIntersectVertexIdEdgeOrd, tHighIntersectVertexIdEdgeOrd );
@@ -958,3 +962,4 @@ Node_Hierarchy_Interface::sort_nodes_3d(
 // ----------------------------------------------------------------------------------
 
 }// namespace xtk
+

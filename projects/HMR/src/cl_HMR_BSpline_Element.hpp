@@ -1,19 +1,20 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_HMR_BSpline_Element.hpp
  *
- *  Created on: Jun 12, 2018
- *      Author: messe
  */
 
 #ifndef SRC_HMR_CL_HMR_BSPLINE_ELEMENT_HPP_
 #define SRC_HMR_CL_HMR_BSPLINE_ELEMENT_HPP_
 
-
 #include "cl_HMR_Background_Element_Base.hpp" //HMR/src
 #include "cl_HMR_BSpline.hpp" //HMR/src
 #include "cl_HMR_Element.hpp" //HMR/src
 #include "typedefs.hpp" //COR/src
-
 
 namespace moris
 {
@@ -327,7 +328,6 @@ namespace moris
             // do nothing
         }
 
-
 //------------------------------------------------------------------------------
         template< uint N, uint B >
         inline
@@ -348,7 +348,6 @@ namespace moris
         }
 
 //------------------------------------------------------------------------------
-
 
         template< uint N, uint B >
         inline
@@ -450,3 +449,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_HMR_CL_HMR_BSPLINE_ELEMENT_HPP_ */
+

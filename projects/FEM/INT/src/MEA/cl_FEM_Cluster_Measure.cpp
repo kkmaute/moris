@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_Cluster_Measure.cpp
+ *
+ */
+
 #include "cl_FEM_Cluster_Measure.hpp"
 #include "cl_FEM_Cluster.hpp"
 
@@ -131,5 +141,4 @@ namespace moris
         //------------------------------------------------------------------------------
     }/*end_fem_namespace */
 }/*end_moris_namespace */
-
 

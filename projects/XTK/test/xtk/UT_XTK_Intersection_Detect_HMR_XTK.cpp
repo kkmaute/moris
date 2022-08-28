@@ -1,8 +1,11 @@
 /*
- * UT_MTK_Intersection_Detect.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jul 20, 2021
- *      Author: momo
+ *------------------------------------------------------------------------------------
+ *
+ * UT_XTK_Intersection_Detect_HMR_XTK.cpp
+ *
  */
 
 #include "cl_Communication_Tools.hpp"
@@ -134,7 +137,6 @@ namespace xtk
             Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
             tXTKModel.decompose(tDecompositionMethods);
 
-
             tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
 
             tXTKModel.construct_face_oriented_ghost_penalization_cells();
@@ -146,7 +148,6 @@ namespace xtk
             // place the pair in mesh manager
             std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();
             tMeshManager->register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
-
 
             // Apply the intersection algorithm
             tXTKModel.mIntersectionDetect = new moris::mtk::Intersection_Detect( tMeshManager, 0, tXTKParameters, 2 ) ;
@@ -247,6 +248,4 @@ namespace xtk
                 }
 
 }
-
-
 

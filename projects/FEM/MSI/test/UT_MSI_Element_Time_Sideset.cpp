@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_MSI_Element_Time_Sideset.cpp
+ *
+ */
 
 #include "catch.hpp"
 #include "fn_equal_to.hpp"
@@ -318,8 +327,6 @@ TEST_CASE("Element_Time_Sideset","[INT],[Element_Time_Sideset]")
     }
 
 }/* END_TEST_CASE */
-
-
 
 TEST_CASE("Element_Time_Sideset_2","[INT],[Element_Time_Sideset_2]")
 {
@@ -642,5 +649,4 @@ TEST_CASE("Element_Time_Sideset_2","[INT],[Element_Time_Sideset_2]")
 
 }/* end_namespace_msi */
 }/* end_namespace_moris */
-
 

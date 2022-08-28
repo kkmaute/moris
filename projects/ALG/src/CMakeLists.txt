@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # Algorithms Source -------------------------------------------------------
 # -------------------------------------------------------------------------
 
@@ -129,3 +136,4 @@ install(TARGETS ${ALG}-lib
 # Export library into *Targets file
 install(EXPORT ${ALG}Targets
     DESTINATION ${${ALG}_CONFIG_INSTALL_DIR} )
+

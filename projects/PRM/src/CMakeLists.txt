@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # Parameters Source -------------------------------------------------------
 # -------------------------------------------------------------------------
 
@@ -119,3 +126,4 @@ install(TARGETS ${PRM}-lib
 # Export library in to *Targets file
 install(EXPORT ${PRM}Targets
     DESTINATION ${CONFIG_INSTALL_DIR}/${PRM} )
+

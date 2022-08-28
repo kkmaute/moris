@@ -1,8 +1,11 @@
 /*
- * cl_Dof_Manager_Test.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jul 14, 2018
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MSI_Model_Solver_Interface_Test.cpp
+ *
  */
 
 #include "catch.hpp"
@@ -34,7 +37,6 @@
 
 #include "cl_MSI_Element_Proxy.hpp"
 #include "cl_FEM_Set.hpp"
-
 
 namespace moris
 {
@@ -562,5 +564,4 @@ namespace moris
 //    }
     }
 }
-
 

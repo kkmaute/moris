@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_reindex_mat.hpp
  *
- *  Created on: May 22, 2019
- *      Author: doble
  */
 
 #ifndef PROJECTS_LINALG_SRC_FN_REINDEX_MAT_HPP_
@@ -27,7 +30,6 @@
  *
  */
 
-
 template<typename Matrix_Type, typename Integer_Matrix>
 moris::Matrix< Matrix_Type >
 reindex_mat(moris::Matrix<Integer_Matrix> const & aIndexMap,
@@ -49,5 +51,5 @@ reindex_mat(moris::Matrix<Integer_Matrix> const & aIndexMap,
     return tReindexedMat;
 }
 
-
 #endif /* PROJECTS_LINALG_SRC_FN_REINDEX_MAT_HPP_ */
+

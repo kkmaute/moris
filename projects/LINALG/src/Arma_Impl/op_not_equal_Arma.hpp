@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * op_not_equal_Arma.hpp
  *
- *  Created on: Sep 6, 2018
- *      Author: doble
  */
 
 #ifndef PROJECTS_LINALG_SRC_ARMA_IMPL_OP_NOT_EQUAL_ARMA_HPP_
@@ -22,7 +25,6 @@ operator!=( const arma::eOp<T1, ET> &  aA,
     return  aA != aB.matrix_data();
 }
 
-
 template< typename Matrix_Type,
           typename T1,
           typename ET >
@@ -35,6 +37,5 @@ operator!=( Matrix< Matrix_Type > & aA,
 }
 }
 
-
-
 #endif /* PROJECTS_LINALG_SRC_ARMA_IMPL_OP_NOT_EQUAL_ARMA_HPP_ */
+

@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # -------------------------------------------------------------------------
 # GCMMA libraries --------------------------------------------------------
 # -------------------------------------------------------------------------
@@ -33,3 +40,4 @@ if(NOT TARGET ${MORIS}::gcmma)
 	add_library(${MORIS}::gcmma INTERFACE IMPORTED GLOBAL)
 	target_link_libraries(${MORIS}::gcmma INTERFACE ${GCMMA_LIBRARY_TARGETS})
 endif()
+

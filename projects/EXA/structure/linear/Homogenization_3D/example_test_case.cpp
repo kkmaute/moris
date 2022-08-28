@@ -1,6 +1,12 @@
-//
-// example specific interface to moris
-//
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * example_test_case.cpp
+ *
+ */
 
 #include <catch.hpp>
 
@@ -52,7 +58,6 @@ void check_linear_results(moris::mtk::Exodus_IO_Helper & aExoIO,uint aInnerNodeI
     real tRelDiffNormOuter = moris::norm( aExoIO.get_nodal_coordinate( aOuterNodeId ) - tReferenceCoordinateOuter )/ moris::norm(tReferenceCoordinateOuter);
     REQUIRE( tRelDiffNormInner <  tEpsilon );
     REQUIRE( tRelDiffNormOuter <  tEpsilon );
-    
 
     // check reference displacements
     real tReferenceHomogenizedC1111 = 1.069;
@@ -73,7 +78,7 @@ void check_linear_results_serial()
     uint tNumDims  = tExoIO.get_number_of_dimensions();
     uint tNumNodes = tExoIO.get_number_of_nodes();
     uint tNumElems = tExoIO.get_number_of_elements();
-    
+
         std::cout << "Number of dimensions: " << tNumDims  << std::endl;
         std::cout << "Number of nodes     : " << tNumNodes << std::endl;
         std::cout << "Number of elements  : " << tNumElems << std::endl;
@@ -133,4 +138,5 @@ TEST_CASE("Axisymmetric_Problem_Linear",
             MORIS_ERROR(false,"This 2D Example can only be run in serial.",par_size());
         }
     }
-} 
+}
+

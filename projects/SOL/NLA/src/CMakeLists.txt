@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # NonLinear Algebra Source ---------------------------------------
 # -------------------------------------------------------------------------
 
@@ -130,3 +137,4 @@ install(TARGETS ${NLA}-lib
 # Export library into *Targets file
 install(EXPORT ${NLA}Targets
     DESTINATION ${${NLA}_CONFIG_INSTALL_DIR} )
+

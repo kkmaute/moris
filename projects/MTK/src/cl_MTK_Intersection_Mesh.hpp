@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Intersection_Mesh.hpp
  *
- *  Created on: Jul 30, 2021
- *      Author: momo
  */
 
 #ifndef PROJECTS_MTK_SRC_CL_MTK_INTERSECTION_MESH_HPP_
@@ -279,7 +282,6 @@ namespace moris
                     return  MeshType::END_ENUM;
                 }
 
-
                 // ----------------------------------------------------------------------------
                 /*!
                  * Get local indices of the entities connected to a specific entity
@@ -397,5 +399,5 @@ namespace moris
     }
 }
 
-
 #endif /* PROJECTS_MTK_SRC_CL_MTK_INTERSECTION_MESH_HPP_ */
+

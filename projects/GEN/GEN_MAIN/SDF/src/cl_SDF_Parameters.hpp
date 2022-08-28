@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_SDF_Parameters.hpp
  *
- *  Created on: Sep 30, 2018
- *      Author: messe
  */
 
 #ifndef PROJECTS_GEN_SDF_SRC_CL_SDF_PARAMETERS_HPP_
@@ -41,5 +44,5 @@ namespace moris
     }
 }
 
-
 #endif /* PROJECTS_GEN_SDF_SRC_CL_SDF_PARAMETERS_HPP_ */
+

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_Geometry_Interpolator_3rd_Order_Derivs_Test.cpp
+ *
+ */
+
 #include "catch.hpp"
 #include "cl_FEM_Geometry_Interpolator.hpp" //FEM/INT/sr
 
@@ -8,7 +18,6 @@ TEST_CASE( "Geometry_Interpolator_Derivatives", "[moris],[fem],[GeoInterpolator_
 {
     // define an epsilon environment
     double tEpsilon = 1E-12;
-
 
     SECTION( "Geometry Interpolator : 2D space - 3rd derivatives" )
     {
@@ -131,7 +140,6 @@ TEST_CASE( "Geometry_Interpolator_Derivatives", "[moris],[fem],[GeoInterpolator_
         REQUIRE( tJ3cCheck );
     }
 
-
     //___________________________________________________________________________________________________________
     SECTION( "Geometry Interpolator : 3D space - 3rd derivatives" )
     {
@@ -167,7 +175,6 @@ TEST_CASE( "Geometry_Interpolator_Derivatives", "[moris],[fem],[GeoInterpolator_
                 { 6.0,  0.0,  2.0},
                 { 5.0, 10.0,  2.0}
         };
-
 
         //create a line time element
         Matrix< DDRMat > tTHat( 2, 1 );

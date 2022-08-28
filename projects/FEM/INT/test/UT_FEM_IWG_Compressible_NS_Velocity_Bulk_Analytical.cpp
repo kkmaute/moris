@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_FEM_IWG_Compressible_NS_Velocity_Bulk_Analytical.cpp
+ *
+ */
+
 #include <string>
 #include <catch.hpp>
 #include <memory>
@@ -29,7 +39,6 @@
 
 using namespace moris;
 using namespace fem;
-
 
 //------------------------------------------------------------------------------
 
@@ -89,7 +98,6 @@ TEST_CASE( "IWG_Compressible_NS_Velocity_Bulk_Ideal_Analytic",
     tIWG->set_residual_dof_type( tVelocityDof );
     tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
     tIWG->set_constitutive_model( tCMMasterFluid, "Fluid" );
-
 
     //------------------------------------------------------------------------------
     // set a fem set pointer
@@ -672,21 +680,21 @@ TEST_CASE("IWG_Compressible_NS_Velocity_Bulk_VdW_Analytic",
         //print( tJacobian, "tJacobian" );
 
         // Analytical residual from Matlab code // FIXME: factor 4.0 on some entries, where is it coming from?
-        Matrix<DDRMat> tResidualAnalytical = { 
-                { +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, 
+        Matrix<DDRMat> tResidualAnalytical = {
+                { +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0,
                   +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0,
 
                   +733595.8, -802116.8, -802116.8, +733595.8, +68702.02, -802116.8 * 4.0, +68702.02, +733595.8 * 4.0, +68702.02 * 4.0,
                   +750445.1, -835697.6, -835697.6, +750445.1, +85569.41, -835697.6 * 4.0, +85569.41, +750445.1 * 4.0, +85569.41 * 4.0,
 
-                  +2.158e+5, +2.467e+5, -2.467e+5, -2.158e+5, +9.195e+5, +0.000e+0, -9.195e+5, +0.000e+0, +0.000e+0, 
+                  +2.158e+5, +2.467e+5, -2.467e+5, -2.158e+5, +9.195e+5, +0.000e+0, -9.195e+5, +0.000e+0, +0.000e+0,
                   +2.201e+5, +2.585e+5, -2.585e+5, -2.201e+5, +9.488e+5, +0.000e+0, -9.488e+5, +0.000e+0, +0.000e+0,
-                   
-                  +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, 
-                  +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0 } }; 
 
-        // transpose                  
-        tResidualAnalytical = trans(tResidualAnalytical);               
+                  +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0,
+                  +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0 } };
+
+        // transpose
+        tResidualAnalytical = trans(tResidualAnalytical);
 
         // check jacobian against analytical solution
         bool tCheckResidual = fem::check(tResidual, tResidualAnalytical, tEpsilon);
@@ -696,3 +704,4 @@ TEST_CASE("IWG_Compressible_NS_Velocity_Bulk_VdW_Analytic",
         tMasterFIs.clear();
 
 } /*END_TEST_CASE*/
+

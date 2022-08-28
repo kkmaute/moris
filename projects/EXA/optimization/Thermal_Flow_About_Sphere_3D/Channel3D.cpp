@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * Channel3D.cpp
+ *
+ */
+
 #include <string>
 #include <iostream>
 #include <sstream>
@@ -46,9 +56,9 @@ namespace moris
         // Get string from output string stream
         return streamObj.str();
     }
-    
+
     uint gInterpolationOrder = 2;
-    
+
     /* ------------------------------------------------------------------------ */
     // set optimization restart iteration (if 0 no restart)
     sint tRestartId = 0;
@@ -57,7 +67,7 @@ namespace moris
 
     // inlet pressure
     real tInPres   = 0.001 * 101325.0; // N/m2  - 0.6 atm
-    
+
     // reference values
     real presref   = tInPres;          // reference pressure
     real lenref    = 1e-3;             // reference length
@@ -68,10 +78,10 @@ namespace moris
     real velref   = std::sqrt(presref/rhoref);
     real timeref  = lenref/velref;
     real massref  = rhoref*std::pow(lenref,3.0);
-    
+
     // reynolds number based on reference values and fluid properties see below
     real reynolds = lenref*velref*0.3289/43.32e-6;
-  
+
     // scaling parameters: input: m -> used for computation: mm
     real tLengthScale = 1.0/lenref;   // 1 m  = 1.0/lref;
     real tTimeScale   = 1.0/timeref;  // 1 s  = 1.0 s
@@ -156,8 +166,8 @@ namespace moris
     real tInTemp   = 0.0;              // K     - 500 K
     real tHeatFlx  = 250.0e4;          // W/m^2 - 250 W/cm^2
 
-    std::string tInletPressure      = moris_to_string(tInPres  * tPressureScale);  
-    std::string tInletTemperature   = moris_to_string(tInTemp  * tTempScale);      
+    std::string tInletPressure      = moris_to_string(tInPres  * tPressureScale);
+    std::string tInletTemperature   = moris_to_string(tInTemp  * tTempScale);
     std::string tVolumetricHeatLoad = moris_to_string(tHeatFlx * tPowerScale/tLengthScale/tLengthScale/tLengthScale);
 
     /* ------------------------------------------------------------------------ */
@@ -259,7 +269,7 @@ namespace moris
         // derivative of level set function wrt sphere radius
         aFieldSensitivity = {{1.0}};
     }
-    
+
     /* ------------------------------------------------------------------------ */
     // geometry parameters & LS functions
 
@@ -281,7 +291,6 @@ namespace moris
         real tPx = *aGeometryParameters(3);
         real tPy = *aGeometryParameters(4);
         real tPz = *aGeometryParameters(5);
-
 
         real tReturnValue = tNx * (tPx - tX) + tNy * (tPy - tY) + tNz * (tPz - tZ);
 
@@ -483,7 +492,6 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "refinement_buffer",  tRefineBuffer );
         tParameterlist( 0 )( 0 ).set( "staircase_buffer",   tRefineBuffer );
 
-
         tParameterlist( 0 )( 0 ).set( "initial_refinement",         tInitialRef );
         tParameterlist( 0 )( 0 ).set( "initial_refinement_pattern", "0,1" );
 
@@ -665,7 +673,6 @@ namespace moris
 
             std::cout << "Reynolds number     = " << 1.0/std::stod(tFluidViscosity)  << " (" << reynolds << ")\n";
 
-
         }
 
         // create a cell of cell of parameter list for fem
@@ -711,7 +718,6 @@ namespace moris
         tParameterList( tPhaseIndex )( tPhaseCounter ).set( "phase_name",       "PhaseAll" );
         tParameterList( tPhaseIndex )( tPhaseCounter ).set( "phase_indices",    "0,1"  );
         tPhaseCounter++;
-
 
         //------------------------------------------------------------------------------
         // fill the property part of the parameter list
@@ -1338,10 +1344,10 @@ namespace moris
 
         tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
         tParameterlist( 0 )( 0 ).set( "Solver_Type" , "Amesos_Mumps" );
- 
+
         tParameterlist( 0 )( 1 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
         tParameterlist( 0 )( 1 ).set( "Solver_Type" , "Amesos_Mumps" );
- 
+
         /*
         tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::BELOS_IMPL );
         tParameterlist( 0 )( 0 ).set( "ifpack_prec_type", "ILU");
@@ -1351,7 +1357,7 @@ namespace moris
         tParameterlist( 0 )( 1 ).set( "ifpack_prec_type", "ILU");
         tParameterlist( 0 )( 1 ).set( "fact: level-of-fill", 3);
         */
-        
+
         //------------------------------------------------------------------------------
 
         tParameterlist( 1 ).resize( 2 );
@@ -1476,3 +1482,4 @@ namespace moris
 #ifdef  __cplusplus
 }
 #endif
+

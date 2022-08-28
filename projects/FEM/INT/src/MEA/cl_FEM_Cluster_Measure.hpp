@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_Cluster_Measure.hpp
  *
- *  Created on: Mar 20, 2021
- *      Author: noel
  */
+
 #ifndef SRC_FEM_CL_FEM_CLUSTER_MEASURE_HPP_
 #define SRC_FEM_CL_FEM_CLUSTER_MEASURE_HPP_
 
@@ -168,3 +172,4 @@ namespace moris
     } /* namespace fem */
 } /* namespace moris */
 #endif /* SRC_FEM_CL_FEM_CLUSTER_MEASURE_HPP_ */
+

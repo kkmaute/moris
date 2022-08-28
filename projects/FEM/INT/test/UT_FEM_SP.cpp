@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * UT_FEM_SP.cpp
  *
- *  Created on: Nov 19, 2019
- *      Author: noel
  */
 
 #include "catch.hpp"
@@ -21,3 +24,4 @@ namespace moris
     {
 
     }/* END_TEST_CASE
+

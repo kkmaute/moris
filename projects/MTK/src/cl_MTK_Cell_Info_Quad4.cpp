@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Cell_Info_Quad4.cpp
  *
- *  Created on: Sep 26, 2019
- *      Author: doble
  */
 
 #include "cl_MTK_Cell_Info_Quad4.hpp"
@@ -282,7 +285,7 @@ namespace moris
                                     MORIS_ERROR( 0, "No Path between a vertex and itself" );
                                     return 0;
                                 }
-                                
+
                                 case 1: return { 0, 1 };
                                 case 2: return { 0, 3 };
                                 case 3: return { 3, 1 };
@@ -311,7 +314,7 @@ namespace moris
                                 }
                             }
                         }
-                        
+
                         default:
                         {
                             MORIS_ERROR( 0, "Invalid other entity rank for hex8" );
@@ -333,10 +336,10 @@ namespace moris
                                     MORIS_ERROR( 0, "No Path between a vertex and itself" );
                                     return 0;
                                 }
-                                
+
                                 case 0: return { 0, 1 };
                                 case 2: return { 1, 1 };
-                                case 3: return { 0, 3 }; 
+                                case 3: return { 0, 3 };
 
                                 default:
                                 {
@@ -362,7 +365,7 @@ namespace moris
                                 }
                             }
                         }
-                        
+
                         default:
                         {
                             MORIS_ERROR( 0, "Invalid other entity rank for hex8" );
@@ -384,7 +387,7 @@ namespace moris
                                     MORIS_ERROR( 0, "No Path between a vertex and itself" );
                                     return 0;
                                 }
-                                
+
                                 case 0: return { 0, 3 };
                                 case 1: return { 1, 1 };
                                 case 3: return { 2, 1 };
@@ -413,7 +416,7 @@ namespace moris
                                 }
                             }
                         }
-                        
+
                         default:
                         {
                             MORIS_ERROR( 0, "Invalid other entity rank for hex8" );
@@ -435,7 +438,7 @@ namespace moris
                                     MORIS_ERROR( 0, "No Path between a vertex and itself" );
                                     return 0;
                                 }
-                                
+
                                 case 0: return { 3, 1 };
                                 case 1: return { 0, 3 };
                                 case 2: return { 2, 1 };
@@ -464,7 +467,7 @@ namespace moris
                                 }
                             }
                         }
-                        
+
                         default:
                         {
                             MORIS_ERROR( 0, "Invalid other entity rank for hex8" );
@@ -505,12 +508,12 @@ namespace moris
                                 case 1: return { 0, 3 };
                                 case 2: return { 0, 3 };
                                 case 3: return { 0, 3 };
-                                
+
                                 default:
                                 {
                                     MORIS_ERROR( 0, "Invalid other edge ordinal for QUAD4" );
                                     return moris::Cell< moris_index >( 0 );
-                                }   
+                                }
                             }
                         }
 
@@ -521,7 +524,7 @@ namespace moris
                         }
                     } // end: switch: aOtherEntityRank
                 } // end: case: edge ordinal 0
-                
+
                 // edge 1
                 case 1:
                 {
@@ -536,12 +539,12 @@ namespace moris
                                 case 1: return { 0, 1 };
                                 case 2: return { 0, 3 };
                                 case 3: return { 0, 3 };
-                                
+
                                 default:
                                 {
                                     MORIS_ERROR( 0, "Invalid other edge ordinal for QUAD4" );
                                     return moris::Cell< moris_index >( 0 );
-                                }   
+                                }
                             }
                         }
 
@@ -567,12 +570,12 @@ namespace moris
                                 case 1: return { 0, 3 };
                                 case 2: return { 0, 1 };
                                 case 3: return { 0, 3 };
-                                
+
                                 default:
                                 {
                                     MORIS_ERROR( 0, "Invalid other edge ordinal for QUAD4" );
                                     return moris::Cell< moris_index >( 0 );
-                                }   
+                                }
                             }
                         }
 
@@ -598,12 +601,12 @@ namespace moris
                                 case 1: return { 0, 3 };
                                 case 2: return { 0, 3 };
                                 case 3: return { 0, 1 };
-                                
+
                                 default:
                                 {
                                     MORIS_ERROR( 0, "Invalid other edge ordinal for QUAD4" );
                                     return moris::Cell< moris_index >( 0 );
-                                }   
+                                }
                             }
                         }
 
@@ -890,7 +893,7 @@ namespace moris
 
             // computes the cross product of the 2 triangles and adds them. some simplifications made.
             real tArea = 0.5 * ( tNodeCoords0(0) *   tNodeCoords1(1) +
-                                 tNodeCoords1(0) * ( tNodeCoords2(1) - tNodeCoords0(0) ) - 
+                                 tNodeCoords1(0) * ( tNodeCoords2(1) - tNodeCoords0(0) ) -
                                  tNodeCoords2(0) *   tNodeCoords1(1) +
                                  tNodeCoords2(0) *   tNodeCoords3(1) +
                                  tNodeCoords3(0) * ( tNodeCoords0(1) - tNodeCoords2(1) ) -
@@ -974,3 +977,4 @@ namespace moris
         }
     }
 }
+

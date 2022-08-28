@@ -1,3 +1,10 @@
+%
+% Copyright (c) 2022 University of Colorado
+% Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+%
+%------------------------------------------------------------------------------------
+%
+
 %% Read matrices
 
 load matrices_rho.dat
@@ -28,3 +35,4 @@ figure;
 spy(matrices_tmp);
 title('only tmp contribution');
 condA_tmp = cond(matrices_tmp)
+

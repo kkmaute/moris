@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_XTK_Interface_Element.hpp
  *
- *  Created on: Jan 16, 2019
- *      Author: doble
  */
 
 #ifndef PROJECTS_XTK_SRC_XTK_CL_XTK_INTERFACE_ELEMENT_HPP_
@@ -136,7 +139,6 @@ public:
         return mElementSideOrdinals;
     }
 
-
     /*!
      * return the outward facing normal relative to the provided pair index
      * @param[in] - aPairIndex
@@ -202,7 +204,6 @@ public:
         moris::uint tNumVertsPerElem = mElementPairs(0)->get_number_of_vertices();
         moris::mtk::Geometry_Type tGeometryType = mElementPairs(0)->get_geometry_type();
 
-
         if(tNumVertsPerElem == 4 && tGeometryType == moris::mtk::Geometry_Type::TET)
         {
             return CellTopology::PRISM6;
@@ -213,8 +214,6 @@ public:
         }
     }
 
-
-
 private:
     moris::moris_id                      mElementId;
     moris::moris_index                   mElementIndex;
@@ -224,9 +223,7 @@ private:
 
 };
 
-
-
 }
 
-
 #endif /* PROJECTS_XTK_SRC_XTK_CL_XTK_INTERFACE_ELEMENT_HPP_ */
+

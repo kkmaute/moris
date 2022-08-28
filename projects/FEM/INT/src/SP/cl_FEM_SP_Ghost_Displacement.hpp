@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_SP_Ghost_Displacement.hpp
  *
- *  Created on: Nov 15, 2019
- *  Author: noel
  */
 
 #ifndef SRC_FEM_CL_FEM_SP_GHOST_DISPLACEMENT_HPP_
@@ -39,10 +42,10 @@ namespace moris
                                 fem::Measure_Type::CELL_LENGTH_MEASURE,
                                 mtk::Primary_Void::PRIMARY,
                                 mtk::Master_Slave::MASTER );
-                                
+
                 // order of weak form of governing questions
                 real mWeakFormOrder;
-                
+
                 // property type for the SP
                 enum class SP_Property_Type
                 {
@@ -146,3 +149,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_FEM_CL_FEM_SP_GHOST_DISPLACEMENT_HPP_ */
+

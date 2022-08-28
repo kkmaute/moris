@@ -1,16 +1,19 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_dot.cpp
  *
- *  Created on: Aug 31, 2018
- *      Author: sonne
  */
+
 #include <catch.hpp>
 #include "fn_equal_to.hpp" // ALG/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "typedefs.hpp"
 #include "fn_dot.hpp"
-
 
 //calculates the dot product of two vectors
 
@@ -33,5 +36,5 @@ TEST_CASE("moris::dot",
 
     REQUIRE( moris::equal_to( C, 3 ) );
 
-
 }
+

@@ -1,9 +1,13 @@
 /*
- * cl_VectorPETSc.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Dec 5, 2018
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * cl_Vector_PETSc.cpp
+ *
  */
+
 #include "cl_Vector_PETSc.hpp"
 
 #include <petscviewerhdf5.h>
@@ -310,3 +314,4 @@ void Vector_PETSc::save_vector_to_matlab_file( const char* aFilename )
 
     PetscViewerDestroy( &tViewer );
 }
+

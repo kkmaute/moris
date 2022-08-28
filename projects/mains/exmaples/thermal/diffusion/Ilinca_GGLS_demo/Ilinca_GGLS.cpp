@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * Ilinca_GGLS.cpp
+ *
+ */
+
 #include <string>
 #include <iostream>
 #include "typedefs.hpp"
@@ -20,7 +30,6 @@
 
 #include "AztecOO.h"
 
-
 #ifdef  __cplusplus
 extern "C"
 {
@@ -37,7 +46,6 @@ namespace moris
 
     moris::sint tStep = 1000;
     moris::real tTmax = 1.0;
-
 
     // Constant function for properties
     void Func_Const( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
@@ -220,7 +228,6 @@ namespace moris
         tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;
 
-
         // create parameter list for property 5
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
         tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropImposedFlux" );
@@ -268,7 +275,6 @@ namespace moris
                 "PropDensity     , Density;"
                 "PropHeatCapacity, Heat_Capacity"        );
         tCMCounter++;
-
 
         //------------------------------------------------------------------------------
         // init SP counter
@@ -327,7 +333,6 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",  "SPNitscheTemp,DirichletNitsche" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",		 "SideSet_4_n_p0" );
         tIWGCounter++;
-
 
         // create parameter list for IWG 5
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
@@ -419,3 +424,4 @@ namespace moris
 #ifdef  __cplusplus
 }
 #endif
+

@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * banner.hpp
  *
- *  Created on: May 5, 2018
- *      Author: messe
  */
 
 #ifndef SRC_CORE_BANNER_HPP_
@@ -167,3 +170,4 @@ namespace moris
 }    // namespace moris
 
 #endif /* SRC_CORE_BANNER_HPP_ */
+

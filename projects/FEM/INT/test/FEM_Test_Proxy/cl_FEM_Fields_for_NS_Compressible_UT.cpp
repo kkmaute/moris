@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_Fields_for_NS_Compressible_UT.cpp
+ *
+ */
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
@@ -22,7 +31,7 @@ void fill_data_rectangle_element(
         moris::Matrix< moris::DDRMat > & ttHat )
 {
     // set values obtained from 1D Matlab code
-    
+
     // element dimensions in 1D
     real tX1 = 0.0;
     real tX2 = 3.1;
@@ -34,13 +43,13 @@ void fill_data_rectangle_element(
     real tY3 = 0.5 * ( tY1 + tY2 );
 
     tXHat = {
-            { tX1, tY1 }, 
-            { tX2, tY1 }, 
-            { tX2, tY2 }, 
+            { tX1, tY1 },
+            { tX2, tY1 },
+            { tX2, tY2 },
             { tX1, tY2 },
-            { tX3, tY1 }, 
-            { tX2, tY3 }, 
-            { tX3, tY2 }, 
+            { tX3, tY1 },
+            { tX2, tY3 },
+            { tX3, tY2 },
             { tX1, tY3 },
             { tX3, tY3 } };
 
@@ -223,7 +232,7 @@ void fill_smooth_PHat(
                             {+9.903289600e+01},
                             {+8.549344000e+01},
                             {+9.095968000e+01},
-                            {+9.095968000e+01} };                      
+                            {+9.095968000e+01} };
                     break;
                 case 2:
                     tPHat = {
@@ -374,7 +383,7 @@ void fill_smooth_TempHat(
                             {+1.154692216e+02},
                             {+1.287285544e+02},
                             {+1.195636168e+02},
-                            {+1.195636168e+02} };                         
+                            {+1.195636168e+02} };
                     break;
                 case 2:
                     tTempHat = {

@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 ################################################################################
 #                                                                              #
 #    MORIS First Time Use README                                               #
@@ -73,3 +80,4 @@ LBFGSB_DIR
 # ARPACK
 # # path to the ARPACK directory; must be also have LBFGSB
 ARPACK_DIR
+

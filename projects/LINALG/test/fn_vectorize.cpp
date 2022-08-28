@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_vectorize.cpp
  *
- *  Created on: May 17, 2021
- *      Author: maute
  */
 
 #include <catch.hpp>

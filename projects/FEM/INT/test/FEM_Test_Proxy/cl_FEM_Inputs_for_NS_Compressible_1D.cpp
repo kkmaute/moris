@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_Inputs_for_NS_Compressible_1D.cpp
+ *
+ */
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
@@ -34,7 +43,7 @@ void Func_Heat_Load_Distribution(
     real tHx = 1.0;
 
     // get element number in x-direction
-    real tElemNumber = std::floor( tX / tHx ) + 1.0; 
+    real tElemNumber = std::floor( tX / tHx ) + 1.0;
 
     // get element left and right node positions
     real tLeftNodePos = ( tElemNumber - 1.0 ) * tHx;
@@ -61,7 +70,7 @@ void fill_data(
         moris::Matrix< moris::DDRMat > & tTHat )
 {
     // set values obtained from 1D Matlab code
-    
+
     // element dimensions in 1D
     real tX1 = 5.000000e+01;
     real tX2 = 5.100000e+01;
@@ -77,13 +86,13 @@ void fill_data(
     real tY3 = 0.5 * ( tY1 + tY2 );
 
     tXHat = {
-            { tX1, tY1 }, 
-            { tX2, tY1 }, 
-            { tX2, tY2 }, 
+            { tX1, tY1 },
+            { tX2, tY1 },
+            { tX2, tY2 },
             { tX1, tY2 },
-            { tX3, tY1 }, 
-            { tX2, tY3 }, 
-            { tX3, tY2 }, 
+            { tX3, tY1 },
+            { tX2, tY3 },
+            { tX3, tY2 },
             { tX1, tY3 },
             { tX3, tY3 } };
 
@@ -115,7 +124,7 @@ void fill_data(
     tPHat = fem::convert_DoF_vector_1D_to_2D_quadratic( tPhat1D );
 
     // Velocity DoF values in 1D
-    Matrix< DDRMat > tUXhat1D = { 
+    Matrix< DDRMat > tUXhat1D = {
             { -1.298297133102633e-06 },
             { +3.792832711608647e-06 },
             { +7.482483137997108e-06 },

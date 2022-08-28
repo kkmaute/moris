@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Periodic_Boundary_Condition_Helper.cpp
+ *
+ */
+
 #include "cl_MTK_Periodic_Boundary_Condition_Helper.hpp"
 #include "cl_MTK_Set.hpp"
 #include "cl_MTK_Cluster.hpp"
@@ -17,7 +27,7 @@ namespace moris
     namespace mtk
     {
 
-        Periodic_Boundary_Condition_Helper::Periodic_Boundary_Condition_Helper( 
+        Periodic_Boundary_Condition_Helper::Periodic_Boundary_Condition_Helper(
                 std::shared_ptr<Mesh_Manager> aMeshManager,
                 moris_index                   aMeshIndex,
                 moris::ParameterList &        aParameterList):
@@ -161,7 +171,6 @@ namespace moris
                         {
                             MORIS_ERROR( false, "This version of the boundary condition is not implemented, the surfaces should be in x-y-z direction and parallel to each other");
                         }
-
 
                         // Iterate through 1st set of clusters
                         for( uint tFirstClusterIndex=0 ; tFirstClusterIndex < tSetClusters.size(); tFirstClusterIndex++ )
@@ -554,3 +563,4 @@ namespace moris
         }
     }
 }
+

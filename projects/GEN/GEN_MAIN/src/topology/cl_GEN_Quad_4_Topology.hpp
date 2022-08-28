@@ -1,18 +1,19 @@
 /*
- * cl_XTK_Quad_4_Topology.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jul 17, 2017
- *      Author: ktdoble
+ *------------------------------------------------------------------------------------
+ *
+ * cl_GEN_Quad_4_Topology.hpp
+ *
  */
 
 #ifndef PROJECTS_GEN_SRC_NEW_ADDITIONAL_CL_GEN_QUAD_4_TOPOLOGY_HPP_
 #define PROJECTS_GEN_SRC_NEW_ADDITIONAL_CL_GEN_QUAD_4_TOPOLOGY_HPP_
 
-
 #include "../../new/additional/cl_GEN_Basis_Function.hpp"
 #include "../../new/additional/cl_GEN_Quad_4_Basis_Function.hpp"
 #include "../../new/additional/cl_GEN_Topology.hpp"
-
 
 namespace moris
 {
@@ -75,3 +76,4 @@ private:
 }
 
 #endif /* PROJECTS_GEN_SRC_NEW_ADDITIONAL_CL_GEN_QUAD_4_TOPOLOGY_HPP_ */
+

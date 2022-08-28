@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_IQI.cpp
  *
- *  Created on: Dec 4, 2019
- *      Author: noel
  */
 
 #include "cl_FEM_IQI.hpp"

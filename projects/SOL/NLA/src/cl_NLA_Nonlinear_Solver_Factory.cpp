@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_NLA_Nonlinear_Solver_Factory.cpp
  *
- *  Created on: Apr 10, 2018
- *      Author: schmidt
  */
+
 #include "cl_NLA_Nonlinear_Solver_Factory.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
 
@@ -20,7 +24,6 @@ Nonlinear_Solver_Factory::Nonlinear_Solver_Factory()
 
 Nonlinear_Solver_Factory::~Nonlinear_Solver_Factory()
 {}
-
 
 std::shared_ptr< Nonlinear_Algorithm > Nonlinear_Solver_Factory::create_nonlinear_solver( const enum NonlinearSolverType aNonLinSolverType )
 {

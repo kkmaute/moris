@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 namespace moris {
 
 /** @defgroup XTKGhost Face Oriented Ghost Stabilization
@@ -62,3 +69,4 @@ There are a couple rules used to that decide whether or not a ghost facet needs 
 
  */
  }
+

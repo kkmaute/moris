@@ -1,4 +1,13 @@
-// Third-party header files.
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * fn_linspace.cpp
+ *
+ */
+
 #include <catch.hpp>
 #include <cmath>
 
@@ -55,3 +64,4 @@ TEST_CASE("moris::linspace", "[linalgebra],[linspace]" )
     }
 }
 }
+

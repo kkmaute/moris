@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_IQI_Volume.cpp
  *
- *  Created on: Nov 20, 2019
- *      Author: noel
  */
 
 #include "cl_FEM_IQI_Volume.hpp"
@@ -43,7 +46,7 @@ namespace moris
                 aQI = {{ 1.0 }};
             }
         }
-        
+
         //------------------------------------------------------------------------------
 
         void IQI_Volume::compute_QI( real aWStar )
@@ -125,3 +128,4 @@ namespace moris
         //------------------------------------------------------------------------------
     }/* end namespace fem */
 }/* end namespace moris */
+

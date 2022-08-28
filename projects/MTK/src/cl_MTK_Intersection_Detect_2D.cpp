@@ -1,14 +1,17 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Intersection_Detect_2D.cpp
  *
- *  Created on: Jun 7, 2021
- *      Author: momo
  */
+
 #include "cl_MTK_Intersection_Detect_2D.hpp"
 #include "cl_MTK_Set.hpp"
 #include "cl_MTK_Cluster.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
-
 
 #include "cl_MTK_Side_Cluster.hpp"
 #include "typedefs.hpp"
@@ -187,7 +190,6 @@ namespace moris
                 this->generate_identifier( tSideClusters1, tPairCount, tBackgroundCellToSideClusterMap1) ;
                 this->generate_identifier( tSideClusters2, tPairCount, tBackgroundCellToSideClusterMap2) ;
 
-
                 //loop over the background cells in order to cut the matching pairs
                 for ( const auto & tIter : tBackgroundCellToSideClusterMap1)
                 {
@@ -242,7 +244,6 @@ namespace moris
                                 //convert 3D coordinates to suraface coordinates
                                 moris::Matrix <DDRMat> tSurfaceCoordMatrix(1,2);
                                 tSurfaceCoordMatrix.get_row( 0 ) = t3DcoordMatrix.get_row( tPermutationOrder  );
-
 
                                 //sort the matrix if the order is not ascending
                                 if ( tSurfaceCoordMatrix (1) < tSurfaceCoordMatrix (0) )
@@ -555,8 +556,6 @@ namespace moris
                 tSlaveParamCoords.get_row( i )  = tSlaveParamCoord.get_row( 0 );
             }
 
-
-
             //create constant version of the vertices on cluster
             moris::Cell<moris::mtk::Vertex const *> tMasterVerticesConst;
             moris::Cell<moris::mtk::Vertex const *> tSlaveVerticesConst;
@@ -603,7 +602,6 @@ namespace moris
             mMasterSideCells.append(tMasterIntegCells);
             mSlaveSideCells.append(tSlaveIntegCells);
         }
-
 
         //------------------------------------------------------------------------------------------------------------
 
@@ -802,7 +800,6 @@ namespace moris
                 tSecondSideClusters.append(tSetClusters);
             }
 
-
             //Second side info
             //get the Integration cell cluster for the side cluster
             moris::Cell<moris::mtk::Cell const *> const & tSecondCells = tSecondSideClusters( 0 )->get_primary_cells_in_cluster();
@@ -814,7 +811,6 @@ namespace moris
             moris::Cell<moris::mtk::Vertex const *> tSecondVertices = tSecondCells( 0 )->get_vertices_on_side_ordinal( tSecondCellOrds( 0 ) );
             moris::Matrix< moris::DDRMat > tSecondVertexCoords1 = tSecondVertices(0)->get_coords();
             moris::Matrix< moris::DDRMat > tSecondVertexCoords2 = tSecondVertices(1)->get_coords();
-
 
             //calculate the normal of the right segment,  need something better than std::abs to determine the outward
             moris::real tMagnitude = norm( tSecondVertexCoords2 - tSecondVertexCoords1  );
@@ -903,7 +899,6 @@ namespace moris
             Matrix <DDRMat > tParamCoordsRelativeToElem = {{0.0, 0.0}};
             moris::mtk::Interpolation::bilinear_interpolation(tCoordinates, tParamCoordsRelativeToElem, tNewNodeCoordinates);
 
-
             moris_index tVertexIndex = mIntersectedMeshData.get_first_available_index_external_data( EntityRank::NODE) ;
             mIntersectedMeshData.update_first_available_index_external_data( tVertexIndex+1, EntityRank::NODE );
 
@@ -922,7 +917,6 @@ namespace moris
             moris::Matrix<DDRMat >     tRotation;
             moris::Matrix<DDRMat >     tInverseRotation;
             this->rotation_matrix( tRotation, tInverseRotation, aPairCount );
-
 
             uint tNumSurfaceNodes = tUniqueIntersectedPoints.n_cols();
 
@@ -1139,7 +1133,7 @@ namespace moris
 
           // ----------------------------------------------------------------------------
 
-
     } /* end namespace mtk */
 
 } /* end namespace moris */
+

@@ -1,4 +1,9 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_FEM_Side_Coordinate_Map.hpp
  *
  */
@@ -136,3 +141,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_FEM_FN_FEM_SIDE_COORDINATE_MAP_HPP_ */
+

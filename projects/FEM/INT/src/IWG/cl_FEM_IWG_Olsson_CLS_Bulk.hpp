@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_IWG_Olsson_CLS_Bulk.hpp
  *
- *  Created on: Feb 13, 2019
- *      Author: noel
  */
 
 #ifndef SRC_FEM_CL_FEM_IWG_OLSSON_CLS_BULK_HPP_
@@ -79,3 +82,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_FEM_CL_FEM_IWG_OLSSON_CLS_BULK_HPP_ */
+

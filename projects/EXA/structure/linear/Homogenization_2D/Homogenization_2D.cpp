@@ -1,4 +1,13 @@
-    
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * Homogenization_2D.cpp
+ *
+ */
+
     #include <string>
     #include <iostream>
     #include "typedefs.hpp"
@@ -48,22 +57,22 @@
         std::string tTotalDomain       = tInnerPhase + "," + tOuterPhase;
 
         std::string  tPeriodicSidePairs = "4,2;1,3";
-        
+
         std::string tDBC = "SideSet_1_n_p0,SideSet_4_n_p0";
-        
+
         real tDirichletLength    =  0.1;
-        /* ------------------------------------------------------------------------ */    
+        /* ------------------------------------------------------------------------ */
         // geometry parameters
-        
+
         moris::real tCenterX1 = 0.5;
         moris::real tCenterY1= 0.5;
         moris::real tRadius  = 0.25;
 
-        /* ------------------------------------------------------------------------ */    
+        /* ------------------------------------------------------------------------ */
         // material parameters
 
         // Density, YoungsModulus, PoissonRatio
-        std::string tDensityInner = "0.0"; 
+        std::string tDensityInner = "0.0";
         std::string tDensityOuter = "0.0";
         std::string tEmodInner    = "2.0";
         std::string tEmodOuter    = "1.0";
@@ -84,12 +93,12 @@
 
         /* ------------------------------------------------------------------------ */
         // Minimum level set value
-        
+
         moris::real tMinLevs = 1.0e-8;
 
         /* ------------------------------------------------------------------------ */
         // Minimum level set value
-        
+
         bool tUseGhost = true;
 
         /* ------------------------------------------------------------------------ */
@@ -103,21 +112,21 @@
         moris::real Inclusion(
                 const moris::Matrix< DDRMat >     & aCoordinates,
                 const moris::Cell< moris::real* > & aGeometryParameters )
-        {        
+        {
             // distance from sphere center
             moris::real tDx1 = aCoordinates(0) - tCenterX1;
             moris::real tDy1 = aCoordinates(1) - tCenterY1;
 
-            // Compute Signed-Distance field 
+            // Compute Signed-Distance field
             moris::real tVal = tRadius - std::sqrt( tDx1*tDx1 + tDy1*tDy1  );
 
             return ( std::abs(tVal) < tMinLevs )  ? tMinLevs : tVal;
 
         }
-        
+
         /* ------------------------------------------------------------------------ */
         // Constant function for properties
-        
+
         void Func_Const( moris::Matrix<
                 moris::DDRMat >                                & aPropMatrix,
                 moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
@@ -138,7 +147,7 @@
             moris::Matrix < moris::DDRMat > tXp = aFIManager->get_IP_geometry_interpolator()->valx();
 
             aPropMatrix.set_size( 2, 2, 0.0 );
-            
+
             if ( ( tXp(0) < tDirichletLength ) and ( tXp(1) < tDirichletLength )  )
             {
                 aPropMatrix( 0, 0 ) = 1.0;
@@ -195,7 +204,7 @@
 
             tParameterlist( 0 )( 0 ).set( "use_multigrid",  0 );
             tParameterlist( 0 )( 0 ).set( "severity_level", 0 );
- 
+
         }
 
         void XTKParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
@@ -214,7 +223,7 @@
             tParameterlist( 0 )( 0 ).set( "verbose",                   true );
             tParameterlist( 0 )( 0 ).set( "print_enriched_ig_mesh",    false );
             tParameterlist( 0 )( 0 ).set( "exodus_output_XTK_ig_mesh", true );
-            tParameterlist( 0 )( 0 ).set( "high_to_low_dbl_side_sets", true );  
+            tParameterlist( 0 )( 0 ).set( "high_to_low_dbl_side_sets", true );
         }
 
         void GENParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
@@ -242,7 +251,7 @@
             // Main GEN parameter list
             tParameterlist( 0 )( 0 ) = prm::create_mig_parameter_list();
 
-            tParameterlist( 0 )( 0 ).set("periodic_side_set_pair", tPeriodicSidePairs); 
+            tParameterlist( 0 )( 0 ).set("periodic_side_set_pair", tPeriodicSidePairs);
 
         }
 
@@ -260,7 +269,7 @@
             tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
             tParameterList( 0 )( tPropCounter ) = prm::create_property_parameter_list();
             tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropDensityInner") ;
-            tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tDensityInner );               
+            tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tDensityInner );
             tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const") ;
             tPropCounter++;
 
@@ -287,7 +296,7 @@
             tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
             tParameterList( 0 )( tPropCounter ) = prm::create_property_parameter_list();
             tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropDensityOuter") ;
-            tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tDensityOuter );               
+            tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tDensityOuter );
             tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const") ;
             tPropCounter++;
 
@@ -302,7 +311,6 @@
             tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tPoisOuter );
             tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const") ;
             tPropCounter++;
-
 
             tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
             tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropEigenStrain") ;
@@ -349,7 +357,7 @@
             tParameterList( 1 )( tCMCounter ).set( "dof_dependencies",  std::pair< std::string, std::string >( "UX,UY", "Displacement" ) );
             tParameterList( 1 )( tCMCounter ).set( "properties",        "PropYoungOuter,YoungsModulus;PropPoisOuter,PoissonRatio;PropEigenStrain,EigenStrain");
             tCMCounter++;
-            
+
             // create parameter list for constitutive model 1
             tParameterList( 1 ).push_back( prm::create_constitutive_model_parameter_list() );
             tParameterList( 1 )( tCMCounter ).set( "constitutive_name", "CMStrucLinIsoPeriodicInner");
@@ -387,7 +395,6 @@
             tParameterList( 2 )( tSPCounter ).set( "master_properties",   "PropYoungOuter,Material") ;
             tSPCounter++;
 
-
             // create parameter list for Nitsche stabilization parameter for inclusion-outer material interface
             tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
             tParameterList( 2 )( tSPCounter ).set( "stabilization_name",  "SPInterfaceNitsche") ;
@@ -397,7 +404,6 @@
             tParameterList( 2 )( tSPCounter ).set( "slave_properties",    "PropYoungOuter,Material") ;
             tSPCounter++;
 
-
             // create parameter list for Nitsche stabilization parameter for inclusion-outer material interface
             tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
             tParameterList( 2 )( tSPCounter ).set( "stabilization_name",  "SPPeriodicNitscheP00") ;
@@ -406,7 +412,7 @@
             tParameterList( 2 )( tSPCounter ).set( "master_properties",   "PropYoungOuter,Material") ;
             tParameterList( 2 )( tSPCounter ).set( "slave_properties",    "PropYoungOuter,Material") ;
             tSPCounter++;
-            
+
                     // create parameter list for Nitsche stabilization parameter for inclusion-outer material interface
             tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
             tParameterList( 2 )( tSPCounter ).set( "stabilization_name",  "SPPeriodicNitscheP11") ;
@@ -415,8 +421,6 @@
             tParameterList( 2 )( tSPCounter ).set( "master_properties",   "PropYoungInner,Material") ;
             tParameterList( 2 )( tSPCounter ).set( "slave_properties",    "PropYoungInner,Material") ;
             tSPCounter++;
-
-
 
             //------------------------------------------------------------------------------
             // init IWG counter
@@ -430,7 +434,7 @@
             tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "UX,UY");
             tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMStrucLinIsoInner,ElastLinIso");
             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tInnerPhase );
-            tIWGCounter++;   
+            tIWGCounter++;
 
             // create IWG for inclusion - bulk diffusion
             tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
@@ -440,7 +444,7 @@
             tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "UX,UY");
             tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMStrucLinIsoOuter,ElastLinIso");
             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tOuterPhase );
-            tIWGCounter++;   
+            tIWGCounter++;
 
             // create parameter list for IWG 2
             tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
@@ -453,7 +457,6 @@
             tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPNitsche,DirichletNitsche");
             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             tDBC);
             tIWGCounter++;
-
 
             // create parameter list for interface conditions
             tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
@@ -534,7 +537,6 @@
             tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tOuterPhase);
             tIQICounter++;
 
-
             tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
             tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIYoungsModulus2");
             tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::PROPERTY ) );
@@ -550,7 +552,6 @@
             tParameterList( 4 )( tIQICounter ).set( "master_constitutive_models", "CMStrucLinIsoInner,Elast");
             tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             tInnerPhase);
             tIQICounter++;
-
 
             tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
             tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIHomOuter");
@@ -620,7 +621,7 @@
         }
 
         /* ------------------------------------------------------------------------ */
-        
+
                 void MORISGENERALParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
         {
 
@@ -632,5 +633,3 @@
     }
     #endif
 
-    
-    

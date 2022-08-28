@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_HMR_Lagrange_Element_Quad16.hpp
  *
- *  Created on: December 05, 2018
- *  using MATLAB
  */
 
 #ifndef SRC_HMR_CL_HMR_LAGRANGE_ELEMENT_QUAD16_HPP_
@@ -14,13 +17,13 @@ namespace moris
 {
     namespace hmr
     {
-        
+
         // ----------------------------------------------------------------------------
 
         template<>
         inline
         void
-        Lagrange_Element< 2, 16 >::set_cell_info() 
+        Lagrange_Element< 2, 16 >::set_cell_info()
         {
             std::shared_ptr<moris::mtk::Cell_Info> tCellInfo = std::make_shared<moris::mtk::Cell_Info_Quad16 >();
 
@@ -401,7 +404,7 @@ namespace moris
             auto tLevel = mElement->get_level() + 1;
 
             // owner of element
-            auto tOwner = mElement->get_owner(); 
+            auto tOwner = mElement->get_owner();
 
             // get position of element
             const luint * tElIJ = mElement->get_ijk();
@@ -904,3 +907,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_HMR_CL_HMR_LAGRANGE_ELEMENT_QUAD16_HPP_ */
+

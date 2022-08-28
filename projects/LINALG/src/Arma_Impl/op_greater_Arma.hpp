@@ -1,13 +1,15 @@
 /*
- * op_greater.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Aug 31, 2018
- *      Author: doble
+ *------------------------------------------------------------------------------------
+ *
+ * op_greater_Arma.hpp
+ *
  */
 
 #ifndef PROJECTS_LINALG_SRC_ARMA_IMPL_OP_GREATER_ARMA_HPP_
 #define PROJECTS_LINALG_SRC_ARMA_IMPL_OP_GREATER_ARMA_HPP_
-
 
 namespace moris
 {
@@ -30,5 +32,5 @@ operator>( Matrix< Matrix_Type > & aA,
 }
 }
 
-
 #endif /* PROJECTS_LINALG_SRC_ARMA_IMPL_OP_GREATER_ARMA_HPP_ */
+

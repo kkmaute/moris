@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_SP_Penalty_Contact.cpp
  *
- *  Created on: Feb 13, 2020
- *      Author: ritzert
  */
 
 #include "cl_FEM_SP_Penalty_Contact.hpp"   //FEM/INT/src
@@ -13,7 +16,6 @@
 #include "fn_eye.hpp"
 #include "fn_dot.hpp"
 #include "op_div.hpp"
-
 
 namespace moris
 {
@@ -45,7 +47,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        
+
         void SP_Penalty_Contact::eval_SP()
         {
             moris::real tEMaster = mMasterProp( static_cast< uint >( SP_Property_Type::MATERIAL ) )->val()( 0 );
@@ -58,5 +60,4 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-
 

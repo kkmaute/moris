@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_DLA_Preconditioner_PETSc.hpp
  *
- *  Created on: Dez 11, 2018
- *      Author: schmidt
  */
+
 #ifndef SRC_DISTLINALG_CL_PRECONDITIONER_PETSC_HPP_
 #define SRC_DISTLINALG_CL_PRECONDITIONER_PETSC_HPP_
 
@@ -69,3 +73,4 @@ class Preconditioner_PETSc
 }
 
 #endif /* SRC_DISTLINALG_CL_PRECONDITIONER_PETSC_HPP_ */
+

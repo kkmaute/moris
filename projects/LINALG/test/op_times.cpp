@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * op_times.cpp
  *
- *  Created on: Aug 27, 2018
- *      Author: doble
  */
 
 #include <catch.hpp>
@@ -46,6 +49,4 @@ TEST_CASE(
         REQUIRE( Cm( 2, 2 ) == 6.0 );
     }
 }
-
-
 

@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MIG.hpp
  *
- *  Created on: Jan  31, 2022
- *      Author: momo
  */
+
 #ifndef SRC_cl_MIG
 #define SRC_cl_MIG
 
@@ -39,10 +43,10 @@ namespace moris::mig
 
         /**
          * @brief Construct a new MIG object
-         * 
-         * @param aMeshManager 
-         * @param aParameterList 
-         * @param aGeometryEngine 
+         *
+         * @param aMeshManager
+         * @param aParameterList
+         * @param aGeometryEngine
          */
 
         MIG( std::shared_ptr< moris::mtk::Mesh_Manager > aMeshManager,
@@ -59,6 +63,5 @@ namespace moris::mig
         perform();
     };
 }// namespace moris::mig
-
 
 #endif /* cl_MIG.hpp */

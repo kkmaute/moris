@@ -1,9 +1,13 @@
 /*
- * cl_MTK_Field_Proxy.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jan 20, 2021
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Field_Analytic.hpp
+ *
  */
+
 #ifndef SRC_MTK_FIELD_ANALYTIC_HPP_
 #define SRC_MTK_FIELD_ANALYTIC_HPP_
 
@@ -91,3 +95,4 @@ namespace moris
     }
 }
 #endif /* SRC_MTK_FIELD_ANALYTIC_HPP_ */
+

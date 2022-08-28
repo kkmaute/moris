@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Cell_Info_Tet4.hpp
  *
- *  Created on: Jan 16, 2019
- *      Author: doble
  */
 
 #ifndef PROJECTS_MTK_SRC_MTK_CL_MTK_CELL_INFO_TET4_HPP_
@@ -129,7 +132,7 @@ namespace moris
             /**
              * Computes the cell size if this isn't a rectangular cell
              * @param[in] aCell          MTK cell to compute size of.
-             * 
+             *
              * @return return the cell size.
             */
             moris::real
@@ -142,7 +145,7 @@ namespace moris
              * @param[in] aCell           MTK cell to compute size of.
              * @param[in] aLocalVertexID  Local ID of vertex to use (0, 1, 2, or 3).
              * @param[in] aDirection      Direction to take derivative (0,1, or 2).
-             * 
+             *
              * @return return the cell size.
             */
             moris::real
@@ -170,3 +173,4 @@ namespace moris
 } // namespace moris
 
 #endif /* PROJECTS_MTK_SRC_MTK_CL_MTK_CELL_INFO_TET4_HPP_ */
+

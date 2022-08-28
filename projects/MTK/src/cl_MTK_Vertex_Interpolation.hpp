@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Vertex_Interpolation.hpp
  *
- *  Created on: Sep 17, 2018
- *      Author: messe
  */
 
 #ifndef PROJECTS_MTK_SRC_CL_MTK_VERTEX_INTERPOLATION_HPP_
@@ -80,7 +83,6 @@ namespace moris
             virtual const Matrix< DDRMat > *
             get_weights() const = 0;
 
-
 //------------------------------------------------------------------------------
             /**
              * set the coefficient objects
@@ -117,7 +119,7 @@ namespace moris
             /**
              * returns the ijk id for hm meshes
              */
-            virtual 
+            virtual
             Matrix< IdMat > get_ijkl_id() const
             {
                 MORIS_ERROR(false,"Vertex_Interpolation::get_ijkl_id() not implemented for this mesh type.");
@@ -126,11 +128,9 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-
         };
     }
 }
 
-
-
 #endif /* PROJECTS_MTK_SRC_CL_MTK_VERTEX_INTERPOLATION_HPP_ */
+

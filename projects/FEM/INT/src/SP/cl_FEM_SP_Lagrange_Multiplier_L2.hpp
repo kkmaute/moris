@@ -1,8 +1,11 @@
 /*
- * cl_FEM_SP_Dirichlet_Nitsche.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Oct 21, 2019
- *  Author: noel
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_SP_Lagrange_Multiplier_L2.hpp
+ *
  */
 
 #ifndef SRC_FEM_CL_FEM_SP_LAGRANGE_MULTIPLIER_L2_HPP_
@@ -136,3 +139,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_FEM_CL_FEM_SP_DIRICHLET_NITSCHE_HPP_ */
+

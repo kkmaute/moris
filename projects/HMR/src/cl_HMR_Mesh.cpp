@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_HMR_Mesh.cpp
+ *
+ */
+
 #include "cl_HMR_Mesh.hpp" //HMR/src
 
 #include <string>
@@ -212,7 +222,6 @@ namespace moris
                 mDatabase->get_background_mesh()->set_activation_pattern( tActivePattern );
             }
         }
-
 
         //-----------------------------------------------------------------------------
 
@@ -1035,7 +1044,7 @@ namespace moris
 
         //-----------------------------------------------------------------------------
 
-        void 
+        void
         Mesh::get_elements_in_bspline_element_and_side_ordinal(
                 moris_index const          aBsplineElementIndex,
                 moris_index const          aDiscretizationMeshIndex,
@@ -1066,7 +1075,7 @@ namespace moris
 
         //-----------------------------------------------------------------------------
 
-        Matrix< IndexMat > 
+        Matrix< IndexMat >
         Mesh::get_elements_connected_to_element_and_face_ind_loc_inds( moris_index aElementIndex ) const
         {
             // collect memory indices of active neighbors
@@ -1118,7 +1127,7 @@ namespace moris
 
         //-----------------------------------------------------------------------------
 
-        Matrix< IndexMat > 
+        Matrix< IndexMat >
         Mesh::get_elements_connected_to_element_and_face_ord_loc_inds( moris_index aElementIndex ) const
         {
             // collect memory indices of active neighbors
@@ -1161,10 +1170,10 @@ namespace moris
         //-----------------------------------------------------------------------------
 
         bool
-        Mesh::get_elements_connected_to_element_through_face_ord( 
+        Mesh::get_elements_connected_to_element_through_face_ord(
                 moris_index aElementIndex,
                 moris_index aSideOrdinal,
-                moris_index& aMyRefineLevel, 
+                moris_index& aMyRefineLevel,
                 moris::Cell< moris_index >& aNeighborElements,
                 moris::Cell< moris_index >& aNeighborSideOrdinals,
                 moris::Cell< moris_index >& aTransitionLocations,
@@ -1173,7 +1182,7 @@ namespace moris
             // get the current element's refinement level
             Element * tElement = mMesh->get_element( aElementIndex );
             aMyRefineLevel = tElement->get_level();
-            
+
             // initialize output list for active neighbor search
             Matrix< DDLUMat> tMemoryIndices;
             Matrix< DDLUMat> tThisCellFacetsOrds;
@@ -1181,8 +1190,8 @@ namespace moris
             Matrix< DDLUMat> tTransitionNeighborCellLocation;
             luint tNumberOfNeighbors;
 
-            // collect memory indices of active neighbors 
-            this->collect_memory_indices_of_active_element_neighbors( 
+            // collect memory indices of active neighbors
+            this->collect_memory_indices_of_active_element_neighbors(
                     aElementIndex,
                     tMemoryIndices,
                     tThisCellFacetsOrds,
@@ -1190,9 +1199,9 @@ namespace moris
                     tTransitionNeighborCellLocation,
                     tNumberOfNeighbors );
 
-            // initialize counter 
+            // initialize counter
             uint tNumNeighborsOnSideOrd = 0;
-            moris::Cell< uint > tValidNeighbors( 0 ); 
+            moris::Cell< uint > tValidNeighbors( 0 );
 
             // find the number of neighbors on the given side ordinal
             for( uint iNeighbor = 0; iNeighbor < tNumberOfNeighbors; iNeighbor++ )
@@ -1205,7 +1214,7 @@ namespace moris
             }
 
             // check that there are actually any neighbors
-            MORIS_ASSERT( tNumNeighborsOnSideOrd > 0, 
+            MORIS_ASSERT( tNumNeighborsOnSideOrd > 0,
                 "Mesh::get_elements_connected_to_element_through_face_ord() - No neighbors found on side ordinal." );
 
             // mark transition as trivial or non-trivial (non-trivial case 1: transition from big to small)
@@ -1227,7 +1236,7 @@ namespace moris
                 Element * tOtherCell = mMesh->get_element_by_memory_index( tMemoryIndices( tLocalNeighborIndex ) );
 
                 // check validity of neighbor element
-                MORIS_ASSERT( tOtherCell->get_index() != MORIS_INDEX_MAX, 
+                MORIS_ASSERT( tOtherCell->get_index() != MORIS_INDEX_MAX,
                     "Mesh::get_elements_connected_to_element_through_face_ord() - A Neighbor Cell with max index is about to be outputted.");
 
                 aNeighborElements( iNeighbor ) = tOtherCell->get_index();
@@ -1240,7 +1249,7 @@ namespace moris
             if( aMyRefineLevel > aNeighborRefinementLevels( 0 ) )
             {
                 // run some checks that the data makes sense
-                MORIS_ASSERT( aTransitionLocations.size() == 1, 
+                MORIS_ASSERT( aTransitionLocations.size() == 1,
                     "hmr::Mesh::get_elements_connected_to_element_through_face_ord() - "
                     "Neighbor element coarser, but multiple neighbor elements listed. This does not make sense." );
 
@@ -1256,14 +1265,14 @@ namespace moris
 
                 // get the number of spatial dimensions
                 uint tNumSpatialDims = tBackElement->get_number_of_facets() / 2;
-                MORIS_ASSERT( tNumSpatialDims == 2 || tNumSpatialDims == 3, 
+                MORIS_ASSERT( tNumSpatialDims == 2 || tNumSpatialDims == 3,
                     "hmr::Mesh::get_elements_connected_to_element_through_face_ord() - "
                     "Number of spatial dimensions not 2 or 3." );
 
                 // get the transition location from the coarser neighbor element's point of view
                 aTransitionLocations( 0 ) = get_refinement_transition_location_for_neighbor_child_ordinal(
-                    tBigElementsSideOrdinal, 
-                    tMyOctreePosition, 
+                    tBigElementsSideOrdinal,
+                    tMyOctreePosition,
                     tNumSpatialDims );
             }
 
@@ -1395,7 +1404,7 @@ namespace moris
 
                             tStart = aCounter;
 
-                            tNeighbor->collect_active_descendants_by_memory_index( 
+                            tNeighbor->collect_active_descendants_by_memory_index(
                                     tPattern,
                                     aMemoryIndices,
                                     aCounter,
@@ -1411,7 +1420,6 @@ namespace moris
                                 aNeighborCellFacetOrds(i) = tNeighborSideOrd;
                                 aTransitionNeighborCellLocation(i) = tMyChildOrds(tZeroStart++);
                             }
-
 
                         }
                         // if there's only one neighbor on this facet
@@ -2347,3 +2355,4 @@ namespace moris
 
     } /* namespace hmr */
 } /* namespace moris */
+

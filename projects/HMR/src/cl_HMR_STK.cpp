@@ -1,8 +1,11 @@
 /*
- * cl_HMR_MTK.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: May 16, 2018
- *      Author: messe
+ *------------------------------------------------------------------------------------
+ *
+ * cl_HMR_STK.cpp
+ *
  */
 
 #include "cl_HMR_STK.hpp" //HMR/src
@@ -133,7 +136,7 @@ namespace moris
 
             // copy node Owner
             mNodeOwner( k ) = tNode->get_owner();
-	
+
             // Add node sharing
            if(tNode->has_node_sharing())
            {
@@ -251,7 +254,6 @@ namespace moris
                 ( double ) tElapsedTime / 1000);
         MORIS_LOG_INFO( " " );
 
-
     }
 
 // ----------------------------------------------------------------------------
@@ -333,3 +335,4 @@ namespace moris
 // ----------------------------------------------------------------------------
     } /* namespace hmr */
 } /* namespace moris */
+

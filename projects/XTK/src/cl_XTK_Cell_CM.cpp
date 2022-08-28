@@ -1,8 +1,11 @@
 /*
- * cl_MTK_Cell_XTK_CM_Impl.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Feb 19, 2019
- *      Author: doble
+ *------------------------------------------------------------------------------------
+ *
+ * cl_XTK_Cell_CM.cpp
+ *
  */
 
 #include "cl_XTK_Cell_CM.hpp"
@@ -15,13 +18,12 @@ namespace xtk
     // ----------------------------------------------------------------------------------
     Cell_XTK_CM::Cell_XTK_CM(){}
 
-
     Cell_XTK_CM::Cell_XTK_CM(moris::moris_id aElementId,
                              moris::moris_index aElementIndex,
                              moris::moris_index aElementOwner,
                              moris::moris_index aCMElementIndex,
                              xtk::Child_Mesh *aChildMeshPtr,
-                             xtk::Background_Mesh *aBackgroundMeshPtr) 
+                             xtk::Background_Mesh *aBackgroundMeshPtr)
                              : Cell(aElementId,aElementIndex,aElementOwner, aChildMeshPtr->get_cell_info_sp()),
                                mCMElementIndex(aCMElementIndex),
                                mChildMeshPtr(aChildMeshPtr),
@@ -51,7 +53,6 @@ namespace xtk
     {
         return mChildMeshPtr->get_element_to_node().n_cols();
     }
-
 
     // ----------------------------------------------------------------------------------
 
@@ -88,3 +89,4 @@ namespace xtk
     }
 
 } // namespace xtk
+

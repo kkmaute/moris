@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 ### EXC Library Config File ###
 
 if(@EXC@_CONFIGURED)
@@ -35,3 +42,4 @@ include("@PACKAGE_EXC_CONFIG_INSTALL_DIR@/@EXC@Targets.cmake")
 # Library target list
 set(@EXC@_LIBRARIES @EXC@-lib)
 set(ALL_MRS_LIBS "${ALL_MRS_LIBS};@EXC@-lib")
+

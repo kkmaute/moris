@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_GEN_Pdv_Enums.hpp
+ *
+ */
+
 #ifndef MORIS_CL_PDV_Type_ENUMS_HPP_
 #define MORIS_CL_PDV_Type_ENUMS_HPP_
 
@@ -31,3 +41,4 @@ namespace moris
 }
 
 #endif /* MORIS_CL_PDV_ENUMS_HPP_ */
+

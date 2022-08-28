@@ -1,10 +1,12 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_XTK_Intersection_Detect.cpp
  *
- *  Created on: Jun 7, 2021
- *      Author: momo
  */
-
 
 #include "cl_XTK_Intersection_Detect.hpp"
 #include "cl_MTK_Set.hpp"
@@ -46,7 +48,6 @@ namespace xtk
         moris::mtk::Integration_Mesh* tIntegrationMesh = mMeshManager->get_integration_mesh( mMeshIndex );
 
         moris::mtk::Set* tSet1 = tIntegrationMesh->get_set_by_name( "SideSet_2_c_p1" );
-
 
         // get clusters in the the first set
         moris::Cell< moris::mtk::Cluster const* > tSetClusters = tSet1->get_clusters_on_set();
@@ -129,7 +130,6 @@ namespace xtk
 //            tLocalElemToNode ( i ) = tGlobaltoLocalmap.at( ElementToNode( i ) );
 //        }
 
-
         for( uint tRowNum = 0 ; tRowNum < ElementToNode.n_rows() ; tRowNum++ )
         {
             for( uint tColNum = 0 ; tColNum < ElementToNode.n_cols() ; tColNum++ )
@@ -157,7 +157,6 @@ namespace xtk
         print(aNodeToEdge,"aNodeToEdge");
         print(aEdgeToElement, "aEdgeToElement");
         print(aElementToEdge, "aElementToEdge");
-
 
         moris::Matrix< moris::IndexMat > tElemToElemLocal = generate_face_to_face(aElementToEdge,ElementToNode.n_rows(),ElementToNode.n_cols(), std::numeric_limits<moris::moris_index>::max()) ;
 
@@ -196,6 +195,6 @@ namespace xtk
 //            print( tvertices(i)->get_coords(), "MatrixCoord");
 //        }
 
-
     }
 }
+

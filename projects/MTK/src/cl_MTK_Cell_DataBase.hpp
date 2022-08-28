@@ -1,15 +1,17 @@
-
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Cell_DataBase.hpp
  *
- *  Created on: Dec  13, 2021
- *      Author: momo
  */
+
 #ifndef SRC_cl_MTK_Cell_DataBase_HPP_
 #define SRC_cl_MTK_Cell_DataBase_HPP_
 
 #include "cl_MTK_Cell.hpp"
-
 
 namespace moris::mtk
 {
@@ -59,7 +61,6 @@ namespace moris::mtk
             moris_index           aCellIndex2,
             mtk::Mesh*            aMesh );
 
-
         //------------------------------------------------------------------------------
 
         /**
@@ -71,7 +72,6 @@ namespace moris::mtk
         Cell_DataBase( moris_index aCellIndex2,
             mtk::Mesh*             aMesh );
 
-
         //------------------------------------------------------------------------------
 
         /**
@@ -80,7 +80,6 @@ namespace moris::mtk
          */
 
         ~Cell_DataBase() = default;
-
 
         //------------------------------------------------------------------------------
 
@@ -135,7 +134,6 @@ namespace moris::mtk
         virtual mtk::Cell*
         get_base_cell() override;
 
-
         //------------------------------------------------------------------------------
 
         /**
@@ -162,19 +160,19 @@ namespace moris::mtk
 
         /**
          * @brief Get the cell info object
-         * 
-         * @return mtk::Cell_Info const* 
+         *
+         * @return mtk::Cell_Info const*
          */
 
         virtual mtk::Cell_Info const*
         get_cell_info() const override;
 
         //------------------------------------------------------------------------------
-        
+
         /**
          * @brief Get the cell info sp object
-         * 
-         * @return std::shared_ptr< mtk::Cell_Info > 
+         *
+         * @return std::shared_ptr< mtk::Cell_Info >
          */
 
         virtual std::shared_ptr< mtk::Cell_Info >
@@ -184,8 +182,8 @@ namespace moris::mtk
 
         /**
          * @brief Get the id object
-         * 
-         * @return moris_id 
+         *
+         * @return moris_id
          */
 
         virtual moris_id
@@ -195,10 +193,10 @@ namespace moris::mtk
 
         /**
          * @brief Get the index object
-         * 
-         * @return moris_index 
+         *
+         * @return moris_index
          */
-        
+
         virtual moris_index
         get_index() const;
 
@@ -212,6 +210,5 @@ namespace moris::mtk
         get_owner() const;
     };
 }// namespace moris::mtk
-
 
 #endif /* cl_MTK_Cell_DataBase.hpp */

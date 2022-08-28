@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_IWG_Compressible_NS_Mass_Flux_Neumann.cpp
  *
- *  Created on: Aug 26, 2020
- *      Author: wunsch
  */
 
 #include "cl_FEM_IWG_Compressible_NS_Mass_Flux_Neumann.hpp"
@@ -125,3 +128,4 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
+

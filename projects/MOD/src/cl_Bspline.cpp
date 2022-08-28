@@ -1,14 +1,15 @@
-///*
-// * cl_Bspline.cpp
-// *
-// *  Created on: May 9, 2017
-// *      Author: gleim
-// */
-//
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_Bspline.cpp
+ *
+ */
 
 #include "cl_Bspline.hpp" // MOD/src
 using namespace moris;
-
 
 Mat<real>
 Bspline::build_spline_1d(real const & aXi,
@@ -721,7 +722,6 @@ Bspline::build_spline_deriv_uniform_nd(
     return tBsplineDeriv;
 }
 
-
 Mat<real>
 Bspline::build_spline_deriv_uniform_nd(Mat<real> const & aXi,
         Mat<real> & aKnotVector,
@@ -793,3 +793,4 @@ Bspline::build_spline_deriv_uniform_nd(Mat<real> const & aXi,
     }
     return bspline_uniform_deriv;
 }
+

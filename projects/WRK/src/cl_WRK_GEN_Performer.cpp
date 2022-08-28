@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_WRK_GEN_Performer.cpp
+ *
+ */
 
 #include "cl_WRK_GEN_Performer.hpp"
 #include "cl_GEN_Geometry_Engine.hpp"
@@ -14,11 +23,11 @@ namespace moris
 
         }
 
-        uint 
+        uint
         Gen_Performer::get_num_refinement_fields()
         {
             return mGeometryEngine->get_num_refinement_fields();
-        } 
+        }
 
         real
         Gen_Performer::get_field_value(
@@ -29,7 +38,7 @@ namespace moris
             return mGeometryEngine->get_field_value(aFieldIndex,aNodeIndex,aCoordinates);
         }
 
-        const Matrix< DDSMat > & 
+        const Matrix< DDSMat > &
         Gen_Performer::get_num_refinements( uint aFieldIndex )
         {
             return mGeometryEngine->get_num_refinements(aFieldIndex);

@@ -1,5 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_IWG_Compressible_NS_Dirichlet_Nitsche_Flux_Matrices.cpp
+ *
+ */
 
-//FEM/INT/src
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IWG_Compressible_NS_Dirichlet_Nitsche.hpp"
@@ -21,15 +29,15 @@ namespace moris
         {
             // check if the variable vectors have already been assembled
             if( !mJumpEval )
-            {      
+            {
                 return mJump;
-            }         
+            }
 
             // set the eval flag
             mJumpEval = false;
 
             // check residual DoF types
-            MORIS_ASSERT( check_residual_dof_types( mResidualDofType  ), 
+            MORIS_ASSERT( check_residual_dof_types( mResidualDofType  ),
                     "IWG_Compressible_NS_Dirichlet_Nitsche::eval_jump() - check for residual DoF types failed." );
 
             // get number of space dimensions
@@ -56,7 +64,7 @@ namespace moris
                 tSelectVelMat = tPropSelectVel->val();
             }
 
-            // for each variable check if something is prescribed 
+            // for each variable check if something is prescribed
             // first dof type
             if ( tPropPrescDof1 != nullptr )
             {
@@ -95,17 +103,17 @@ namespace moris
         {
             // check if the variable vectors have already been assembled
             if( !mJumpDofEval )
-            {      
+            {
                 return mdJumpdDOF;
-            }         
-            
+            }
+
             // set the eval flag
             mJumpDofEval = false;
 
             //FIXME: only density and pressure primitive variable sets supported in this function
 
             // check residual DoF types
-            MORIS_ASSERT( check_residual_dof_types( mResidualDofType  ), 
+            MORIS_ASSERT( check_residual_dof_types( mResidualDofType  ),
                     "IWG_Compressible_NS_Dirichlet_Nitsche::mJumpDofEval() - check for residual DoF types failed." );
 
             // check Dof dependencies
@@ -147,7 +155,7 @@ namespace moris
                 Field_Interpolator * tFIFirstVar =  mMasterFIManager->get_field_interpolators_for_type( this->get_primary_state_var( 0 ) );
 
                 // direct dependency of the state variable
-                mdJumpdDOF( { 0, 0 }, { 0, tNumBases - 1 } ) = 
+                mdJumpdDOF( { 0, 0 }, { 0, tNumBases - 1 } ) =
                         tFIFirstVar->N().matrix_data();
             }
 
@@ -158,7 +166,7 @@ namespace moris
                 Field_Interpolator * tFIVelocity =  mMasterFIManager->get_field_interpolators_for_type( this->get_primary_state_var( 1 ) );
 
                 // direct dependency of the state variable
-                mdJumpdDOF( { 1, tNumSpaceDims }, { tNumBases, ( tNumSpaceDims + 1 ) * tNumBases - 1 } ) = 
+                mdJumpdDOF( { 1, tNumSpaceDims }, { tNumBases, ( tNumSpaceDims + 1 ) * tNumBases - 1 } ) =
                         tSelectVelMat * tFIVelocity->N().matrix_data();
             }
 
@@ -169,13 +177,13 @@ namespace moris
                 Field_Interpolator * tFIThirdVar =  mMasterFIManager->get_field_interpolators_for_type( this->get_primary_state_var( 2 ) );
 
                 // direct dependency of the state variable
-                mdJumpdDOF( { tNumSpaceDims + 1, tNumSpaceDims + 1 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) = 
+                mdJumpdDOF( { tNumSpaceDims + 1, tNumSpaceDims + 1 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) =
                         tFIThirdVar->N().matrix_data();
             }
 
             // loop over dof dependencies and add contributions from property derivatives
             for (uint iDof = 0; iDof < mRequestedMasterGlobalDofTypes.size(); iDof++)
-            {   
+            {
                 // get the treated dof type
                 Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDof );
 
@@ -191,7 +199,7 @@ namespace moris
                     if ( tPropPrescDof1->check_dof_dependency( tDofType ) )
                     {
                         // add contribution
-                        mdJumpdDOF( { 0, 0 }, { tMasterDepStartIndex, tMasterDepStopIndex } ) -= 
+                        mdJumpdDOF( { 0, 0 }, { tMasterDepStartIndex, tMasterDepStopIndex } ) -=
                                 tPropPrescDof1->dPropdDOF( tDofType ).matrix_data();
                     }
                 }
@@ -202,7 +210,7 @@ namespace moris
                     if ( tPropPrescVel->check_dof_dependency( tDofType ) )
                     {
                         // direct dependency of the state variable
-                        mdJumpdDOF( { 1, tNumSpaceDims }, { tMasterDepStartIndex, tMasterDepStopIndex } ) -= 
+                        mdJumpdDOF( { 1, tNumSpaceDims }, { tMasterDepStartIndex, tMasterDepStopIndex } ) -=
                                 tPropPrescVel->dPropdDOF( tDofType ).matrix_data();
                     }
                 }
@@ -213,7 +221,7 @@ namespace moris
                     if ( tPropPrescDof3->check_dof_dependency( tDofType ) )
                     {
                         // add contribution
-                        mdJumpdDOF( { tNumSpaceDims + 1, tNumSpaceDims + 1 }, { tMasterDepStartIndex, tMasterDepStopIndex } ) -= 
+                        mdJumpdDOF( { tNumSpaceDims + 1, tNumSpaceDims + 1 }, { tMasterDepStartIndex, tMasterDepStopIndex } ) -=
                                 tPropPrescDof3->dPropdDOF( tDofType ).matrix_data();
                     }
                 }
@@ -248,7 +256,7 @@ namespace moris
             // initialize Selection matrix
             mSelectMat.set_size( tNumSpaceDims + 2, tNumSpaceDims + 2, 0.0 );
 
-            // check if 
+            // check if
             if ( tPropPrescDof1 != nullptr )
             {
                 // set selection to active
@@ -263,7 +271,7 @@ namespace moris
                     // check selection matrix set by user
                     MORIS_ASSERT( ( tPropSelectVel->val().n_cols() == tNumSpaceDims ) and ( tPropSelectVel->val().n_rows() == tNumSpaceDims ),
                             "IWG_Compressible_NS_Dirichlet_Nitsche::select_matrix() - size of select matrix wrong." );
-                    
+
                     // set selection matrix as identity
                     mSelectMat( { 1, tNumSpaceDims }, { 1, tNumSpaceDims } ) = tPropSelectVel->val().matrix_data();
                 }
@@ -276,7 +284,7 @@ namespace moris
                     // set select matrix to identity
                     mSelectMat( { 1, tNumSpaceDims }, { 1, tNumSpaceDims } ) = tIdentity.matrix_data();
                 }
-            } 
+            }
 
             if ( tPropPrescDof3 != nullptr )
             {
@@ -297,13 +305,13 @@ namespace moris
             if( !mTractionEval )
             {
                 return mTraction;
-            }  
-            
+            }
+
             // set the eval flag
-            mTractionEval = false;  
+            mTractionEval = false;
 
             // number of state variables and total bases
-            uint tNumStateVars = this->num_space_dims() + 2; 
+            uint tNumStateVars = this->num_space_dims() + 2;
 
             // initialize traction
             mTraction.set_size( tNumStateVars, 1, 0.0 );
@@ -319,7 +327,7 @@ namespace moris
                 }
             }
 
-            // return 
+            // return
             return mTraction;
         }
 
@@ -331,10 +339,10 @@ namespace moris
             if( !mTractionDofEval )
             {
                 return mTractionDOF;
-            }  
-            
+            }
+
             // set the eval flag
-            mTractionDofEval = false;  
+            mTractionDofEval = false;
 
             // get the properties
             std::shared_ptr< Property > tPropMu = mMasterProp( static_cast< uint >( IWG_Property_Type::DYNAMIC_VISCOSITY ) );
@@ -364,7 +372,7 @@ namespace moris
                 }
             }
 
-            // return 
+            // return
             return mTractionDOF;
         }
 
@@ -376,10 +384,10 @@ namespace moris
             if( !mTestTractionEval )
             {
                 return mTestTraction;
-            }  
-            
+            }
+
             // set the eval flag
-            mTestTractionEval = false;  
+            mTestTractionEval = false;
 
             // get test traction
             mTestTraction = trans( this->dTractiondDOF() );
@@ -389,17 +397,17 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        
+
         const Matrix< DDRMat > & IWG_Compressible_NS_Dirichlet_Nitsche::dTestTractiondDOF( const Matrix< DDRMat > aVL )
         {
             // check if matrix has already been assembled
             if( !mTestTractionDofEval )
             {
                 return mTestTractionDOF;
-            }  
-            
+            }
+
             // set the eval flag
-            mTestTractionDofEval = false;  
+            mTestTractionDofEval = false;
 
             // get number of basis functions for complete variable set
             uint tTotNumBases = ( this->num_space_dims() + 2 ) * this->num_bases();
@@ -441,20 +449,20 @@ namespace moris
             if( !mUpwindOperatorEval )
             {
                 return mUpwindOperator;
-            }  
-            
+            }
+
             // set the eval flag
-            mTestTractionEval = false; 
+            mTestTractionEval = false;
 
             // get number of space dimensions
-            uint tNumSpaceDims = this->num_space_dims(); 
+            uint tNumSpaceDims = this->num_space_dims();
 
             // initialize the operator
             mUpwindOperator.set_size( tNumSpaceDims + 2, tNumSpaceDims + 2, 0.0 );
 
             // place normal such that it gets multiplied with the pressure difference in the velocity residual
             mUpwindOperator( { 1, tNumSpaceDims }, { 0, 0 } ) = mNormal.matrix_data();
-            
+
             // for temperature residual place normal dotted against velocity such that it gets multiplied with the pressure difference
             Matrix< DDRMat > tVelVec = this->Y()( { 1, tNumSpaceDims } );
             mUpwindOperator( tNumSpaceDims + 1, 0 ) = dot( mNormal, tVelVec );
@@ -481,6 +489,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        
+
     } /* namespace fem */
 } /* namespace moris */
+

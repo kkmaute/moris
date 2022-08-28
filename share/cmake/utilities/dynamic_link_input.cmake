@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 ## This CMake function is used to dynamically link the input file
 ## Name : dynamic_link_input
 ## Params: path to input file
@@ -37,6 +44,7 @@ set_target_properties(${target_name} PROPERTIES OUTPUT_NAME ${base_name}
                                                 PREFIX      ""          )
 
 endfunction()
+
 
 
 

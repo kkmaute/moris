@@ -1,8 +1,11 @@
 /*
- * cl_XTK_Downward_Inheritance.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jul 21, 2017
- *      Author: ktdoble
+ *------------------------------------------------------------------------------------
+ *
+ * UT_XTK_Downward_Inheritance.cpp
+ *
  */
 
 #include <utility>
@@ -26,3 +29,4 @@ TEST_CASE("Downward Inheritance",
     CHECK(tInheritance.get_inheritance(1)==6); // Make sure 7 did not overwrite 6
 
         }
+

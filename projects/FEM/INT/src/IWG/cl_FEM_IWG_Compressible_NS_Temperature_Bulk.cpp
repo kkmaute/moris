@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_IWG_Compressible_NS_Temperature_Bulk.cpp
  *
- *  Created on: Jul 28, 2020
- *      Author: wunsch
  */
 
 #include "cl_FEM_Set.hpp"
@@ -126,7 +129,6 @@ namespace moris
             // get the properties
             std::shared_ptr< Property > tPropBodyForce = mMasterProp( static_cast< uint >( IWG_Property_Type::BODY_FORCE ) );
             std::shared_ptr< Property > tPropBodyHeatLoad = mMasterProp( static_cast< uint >( IWG_Property_Type::BODY_HEAT_LOAD ) );
-
 
             // compute the jacobian for dof dependencies
             uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
@@ -255,3 +257,4 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
+

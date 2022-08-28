@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_OPT_Algorithm_SQP.cpp
+ *
+ */
+
 #include "cl_OPT_Algorithm_SQP.hpp"
 #include "cl_Communication_Tools.hpp"
 
@@ -423,3 +433,4 @@ namespace moris
 
     }
 }
+

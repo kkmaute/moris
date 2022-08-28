@@ -1,5 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_SP_GGLS_Diffusion.cpp
+ *
+ */
 
-//FEM/INT/src
 #include "cl_FEM_SP_GGLS_Diffusion.hpp"
 #include "cl_FEM_Cluster.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
@@ -322,7 +330,6 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-
 
 // BACKUP -----------------------------------------------
 // -1.0 * (4.0 * std::cosh(std::sqrt(6.0*tAlpha)) -

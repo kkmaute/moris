@@ -1,5 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Side_Cluster_Input.hpp
+ *
  */
 
 #ifndef PROJECTS_MTK_SRC_CL_MTK_SIDE_CLUSTER_INPUT_HPP_
@@ -206,3 +212,4 @@ namespace moris
     }    // namespace mtk
 }    // namespace moris
 #endif /* PROJECTS_MTK_SRC_CL_MTK_SIDE_CLUSTER_INPUT_HPP_ */
+

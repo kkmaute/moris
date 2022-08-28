@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # Algorithms --------------------------------------------------------------
 # -------------------------------------------------------------------------
 
@@ -17,3 +24,4 @@ if(MORIS_USE_TESTS AND BUILD_ALG)
 endif()
 
 # Not sure yet what else should be here
+

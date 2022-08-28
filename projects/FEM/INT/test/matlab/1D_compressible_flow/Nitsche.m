@@ -1,3 +1,10 @@
+%
+% Copyright (c) 2022 University of Colorado
+% Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+%
+%------------------------------------------------------------------------------------
+%
+
 %% generate Nitsche contributions for 1D compressible flow model
 
 close all;
@@ -123,6 +130,7 @@ matlabFunction(Resvec,Jacmat,'File','nitsche_func.m','Optimize',false, ...
 % matlabFunction(Resvec,Jacmat,JacmatAna,'File','nitsche_func.m','Optimize',false, ...
 %         'Vars',{dofvec,xA,xB,t1,t2,normal,beta,gam});
     
+
 
 
 

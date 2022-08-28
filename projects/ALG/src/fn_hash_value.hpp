@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * fn_hash_value.hpp
+ *
+ */
+
 #ifndef SRC_ALGORITHMS_FN_HASH_VALUE_HPP_
 #define SRC_ALGORITHMS_FN_HASH_VALUE_HPP_
 
@@ -40,3 +50,4 @@ namespace moris
 }
 
 #endif /* SRC_ALGORITHMS_FN_HASH_VALUE_HPP_ */
+

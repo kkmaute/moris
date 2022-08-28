@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Vertex_Interpolation_DataBase.cpp
  *
- *  Created on: Dec  13, 2021
- *      Author: momo
  */
 
 #include "cl_MTK_Vertex_Interpolation_DataBase.hpp"
@@ -78,7 +81,6 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-
         const Matrix< DDRMat >*
         Vertex_Interpolation_DataBase::get_weights() const
         {
@@ -144,7 +146,6 @@ namespace moris
             tCapacity += sizeof( mMesh );
 
             tCapacity += sizeof( mWeights ) + mWeights.capacity();
-
 
             return tCapacity;
         }

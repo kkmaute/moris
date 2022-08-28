@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * UT_FEM_Geometry_Interpolator.cpp
  *
- *  Created on: May 18, 2020
- *      Author: noel
  */
 
 #include "catch.hpp"

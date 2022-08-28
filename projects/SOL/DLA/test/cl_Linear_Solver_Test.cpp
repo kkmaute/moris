@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_Linear_Solver_Test.cpp
  *
- *  Created on: Mar 20, 2018
- *      Author: schmidt
  */
+
 #include "catch.hpp"
 #include "fn_equal_to.hpp" // ALG/src
 #include "typedefs.hpp" // COR/src
@@ -185,7 +189,6 @@ namespace moris
             if ( par_size() == 1)
             {
                 Solver_Interface * tSolverInterface = new Solver_Interface_Proxy( 2 );
-
 
                 Solver_Factory  tSolFactory;
 

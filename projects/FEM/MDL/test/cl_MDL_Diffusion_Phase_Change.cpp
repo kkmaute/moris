@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MDL_Diffusion_Phase_Change.cpp
+ *
+ */
 
 #include "catch.hpp"
 
@@ -71,12 +80,10 @@
 
 #include "fn_norm.hpp"
 
-
 namespace moris
 {
 namespace mdl
 {
-
 
 void tConstantValueFunction( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
                            moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
@@ -94,15 +101,11 @@ void tSelectValueFunction( moris::Matrix< moris::DDRMat >                 & aPro
                   {                    0.0,                      0.0,    aParameters( 0 )( 2 )}};
 }
 
-
-
 void function_TEST_Diffusion_Phase_Change()
 {
     /* %%%%%%%%%%%%%%%%%%%%%%%%%% CREATE MESH FOR PROBLEM %%%%%%%%%%%%%%%%%%%%%%%%%% */
 
-
     /* %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% SET UP MODEL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% */
-
 
     /* %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% SET UP SOLVER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% */
 
@@ -173,7 +176,6 @@ void function_TEST_Diffusion_Phase_Change()
 
 } //End main_function
 
-
 //--------------------------------------------------------------------------------------------------------------------//
 TEST_CASE( "DiffusionPhaseChange", "[moris],[mdl],[DiffusionPhaseChange]" )
 {
@@ -185,26 +187,7 @@ TEST_CASE( "DiffusionPhaseChange", "[moris],[mdl],[DiffusionPhaseChange]" )
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------------------------//
 }/* namespace mdl */
 }/* namespace moris */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

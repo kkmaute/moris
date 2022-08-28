@@ -1,5 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_SP_Compressible_Dirichlet_Nitsche.cpp
+ *
+ */
 
-//FEM/INT/src
 #include "cl_FEM_SP_Compressible_Dirichlet_Nitsche.hpp"
 #include "cl_FEM_Cluster.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
@@ -10,7 +18,7 @@ namespace moris
     {
 
         //------------------------------------------------------------------------------
-        
+
         SP_Compressible_Dirichlet_Nitsche::SP_Compressible_Dirichlet_Nitsche()
         {
             // set the property pointer cell size
@@ -99,7 +107,7 @@ namespace moris
             mPPVal.set_size( mSpaceDim + 2, 1, 0.0 );
 
             // check size of input paramters
-            MORIS_ASSERT( mParameters( 0 ).length() == mSpaceDim + 2, 
+            MORIS_ASSERT( mParameters( 0 ).length() == mSpaceDim + 2,
                     "SP_Compressible_Dirichlet_Nitsche::eval_SP() - number of input parameters incorrect, relative to number of spatial dimensions" );
 
             // compute the contribution to the first equation
@@ -156,5 +164,4 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-
 

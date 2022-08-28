@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_CM_Diffusion_Linear_Isotropic_Phase_Change.cpp
+ *
+ */
+
 #include "cl_FEM_CM_Diffusion_Linear_Isotropic_Phase_Change.hpp"
 #include "cl_FEM_CM_Diffusion_Linear_Isotropic.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
@@ -129,7 +139,7 @@ namespace moris
 
             // compute derivative of enthalpy
             mEnergyDot = mPropDensity->val()( 0 ) * (
-                    + mPropHeatCapacity->val()( 0 ) 
+                    + mPropHeatCapacity->val()( 0 )
                     + mPropLatentHeat->val()( 0 ) * tdfdT ) *
                     tFITemp->gradt( 1 );
         }
@@ -487,3 +497,4 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
+

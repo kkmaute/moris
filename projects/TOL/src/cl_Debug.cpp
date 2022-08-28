@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_Debug.cpp
  *
- *  Created on: Apr 10, 2017
- *      Author: gleim
  */
 
 #include "cl_Debug.hpp"
@@ -58,7 +61,6 @@ namespace moris
         return duplicate_list;
     }
 
-
     Matrix< DDUMat >
     Debug::duplicate_row_check(Matrix< DDUMat >  & aId)
     {
@@ -91,8 +93,6 @@ namespace moris
         duplicate_list.resize(tz,2);
         return duplicate_list;
     }
-
-
 
     Matrix< DDUMat >
     Debug::duplicate_col_check(Matrix< DDUMat >  & aId)
@@ -172,7 +172,6 @@ namespace moris
         return duplicate_list;
     }
 
-
     Matrix< DDUMat >
     Debug::duplicate_row_check_problems(Matrix< DDUMat >  & aId1,
             Matrix< DDUMat >  & aId2)
@@ -225,3 +224,4 @@ namespace moris
         return problem_list;
     }
 }
+

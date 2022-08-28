@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_Interpolation_Function_Lagrange_Hex20.cpp
+ *
+ */
+
 #include <catch.hpp>
 
 #include <fstream>
@@ -33,12 +43,10 @@ TEST_CASE( "Lagrange HEX20", "[moris],[fem],[Hex20LagInterpolation]" )
         load_matrix_from_binary_file( tXi,
                 tPrefix + "points_3d.bin" );
 
-
         // load values from nodes from file
         Matrix< DDRMat > tPhiHat;
         load_matrix_from_binary_file( tPhiHat,
                 tPrefix + "lagrange_hex20_phihat.bin" );
-
 
         // load solutions for N*tPhiHat
         Matrix< DDRMat > tPhi;
@@ -113,7 +121,6 @@ TEST_CASE( "Lagrange HEX20", "[moris],[fem],[Hex20LagInterpolation]" )
                 // evaluate shape function at point k
                 tFunction->eval_N( tXi.get_column(k ),tN );
 
-
                 Matrix< DDRMat > tError  = tN * tPhiHat ;
                 tError( 0 ) -= tPhi( k );
 
@@ -175,3 +182,4 @@ TEST_CASE( "Lagrange HEX20", "[moris],[fem],[Hex20LagInterpolation]" )
 
 //------------------------------------------------------------------------------
 }
+

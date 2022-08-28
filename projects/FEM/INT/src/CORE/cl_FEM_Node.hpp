@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_Node.hpp
  *
- *  Created on: Aug 22, 2018
- *      Author: messe
  */
 
 #ifndef PROJECTS_FEM_SRC_CL_FEM_NODE_HPP_
@@ -145,6 +148,5 @@ namespace moris
     } /* namespace MSI */
 } /* namespace moris */
 
-
-
 #endif /* PROJECTS_FEM_SRC_CL_NODE_HPP_ */
+

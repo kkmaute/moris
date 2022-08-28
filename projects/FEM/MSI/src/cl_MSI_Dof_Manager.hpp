@@ -1,9 +1,13 @@
 /*
- * cl_Dof_Manager.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jul 14, 2018
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MSI_Dof_Manager.hpp
+ *
  */
+
 #ifndef SRC_FEM_CL_DOF_MANAGER_HPP_
 #define SRC_FEM_CL_DOF_MANAGER_HPP_
 
@@ -305,7 +309,6 @@ namespace moris
                     return tDofTypeIndex;
                 };
 
-
                 //-----------------------------------------------------------------------------------------------------------
 
                 moris::Matrix< DDSMat > get_unique_adof_mesh_indices();
@@ -362,3 +365,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_FEM_CL_DOF_MANAGER_HPP_ */
+

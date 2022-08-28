@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_TSA_Time_Solver_Algorithm.hpp
  *
- *  Created on: Feb 02, 2019
- *      Author: schmidt
  */
+
 #ifndef MORIS_DISTLINALG_CL_TSA_TIME_SOLVER_ALGORITHM_HPP_
 #define MORIS_DISTLINALG_CL_TSA_TIME_SOLVER_ALGORITHM_HPP_
 
@@ -65,7 +69,7 @@ namespace moris
 
                 sol::Dist_Map*  mFullMap = nullptr;
 
-                //! name for output file for solution vector if set by user 
+                //! name for output file for solution vector if set by user
                 std::string mOutputSolVecFileName = "";
 
                 //! Parameter list for this nonlinear solver
@@ -202,3 +206,4 @@ namespace moris
     }
 }
 #endif /* MORIS_DISTLINALG_CL_TSA_TIME_SOLVER_ALGORITHM_HPP_ */
+

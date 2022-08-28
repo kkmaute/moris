@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * UT_MTK_Cell_Shape_Interpolation.cpp
  *
- *  Created on: Apr. 8, 2021
- *      Author: gates
  */
 
 #include "catch.hpp"
@@ -190,3 +193,4 @@ namespace moris
 
     } // namespace mtk
 } // namespace moris
+

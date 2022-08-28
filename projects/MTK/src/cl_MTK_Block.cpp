@@ -1,8 +1,15 @@
-
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Block.cpp
+ *
+ */
 
 #include "assert.hpp"
 #include "cl_MTK_Block.hpp"
-
 
 namespace moris
 {
@@ -131,3 +138,4 @@ namespace moris
 //------------------------------------------------------------------------------
     } /* namespace mtk */
 } /* namespace moris */
+

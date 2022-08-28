@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # Time Solver Dependencies ---------------------------------
 # -------------------------------------------------------------------------
 
@@ -19,3 +26,4 @@ set(SOL_CORE_TPL_DEPENDENCIES
 # Make sure needed moris libraries are built
 include(${MORIS_DEPENDS_DIR}/DLA_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/MSI_Depends.cmake)
+

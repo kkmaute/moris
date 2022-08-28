@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_Debug.cpp
  *
- *  Created on: Apr 17, 2017
- *      Author: gleim
  */
 
 #include <catch.hpp>
@@ -22,3 +25,4 @@ TEST_CASE("moris::tools::Debug",
     Matrix< DDUMat > duplicate_list = moris::Debug::duplicate_row_check(tCoord);
 }
 }
+

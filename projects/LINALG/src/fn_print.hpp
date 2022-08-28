@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_print.hpp
  *
- *  Created on: Aug 27, 2018
- *      Author: doble
  */
 
 #ifndef PROJECTS_LINALG_SRC_FN_PRINT_HPP_
@@ -195,5 +198,5 @@ namespace moris
 
 } /* namespace moris */
 
-
 #endif /* PROJECTS_LINALG_SRC_FN_PRINT_HPP_ */
+

@@ -1,9 +1,13 @@
 /*
- * cl_Equation_Object.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jul 14, 2018
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MSI_Equation_Set.cpp
+ *
  */
+
 #include "cl_MSI_Model_Solver_Interface.hpp"
 #include "cl_MSI_Dof_Manager.hpp"
 #include "cl_MSI_Design_Variable_Interface.hpp"
@@ -520,3 +524,4 @@ namespace moris
 
     }/* end_namespace_msi */
 }/* end_namespace_moris */
+

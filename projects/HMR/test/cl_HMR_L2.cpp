@@ -1,4 +1,12 @@
-
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_HMR_L2.cpp
+ *
+ */
 
 #include <catch.hpp>
 #include "cl_HMR.hpp"
@@ -24,7 +32,6 @@
 #include "fn_equal_to.hpp"
 
 #include "fn_PRM_HMR_Parameters.hpp"
-
 
 using namespace moris;
 
@@ -351,7 +358,6 @@ TEST_CASE("HMR_CommTable2", "[moris],[mesh],[hmr],[HMR_CommTable2]")
         tParameters.set( "number_of_elements_per_dimension", "6, 6, 6" );
         tParameters.set( "domain_dimensions", "6, 6, 6" );
         tParameters.set( "domain_offset", "-3.0, -3.0, -3.0" );
-
 
         tParameters.set( "truncate_bsplines", 1 );
         tParameters.set( "lagrange_orders", "1" );
@@ -1450,9 +1456,7 @@ TEST_CASE("HMR_L2_Test_Pattern8", "[moris],[mesh],[hmr],[hmr_L2_pattern8]")
         print( tField->get_coefficients(),"bs");
         print( tField->get_node_values(),"ns");
 
-
         tHMR.save_to_exodus( 0, "LevelSetPresi.exo" );
-
 
     }
 

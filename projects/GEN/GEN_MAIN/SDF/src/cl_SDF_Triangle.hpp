@@ -1,13 +1,15 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_SDF_Triangle.hpp
  *
- *  Created on: Sep 30, 2018
- *      Author: messe
  */
 
 #ifndef PROJECTS_GEN_SDF_SRC_CL_SDF_TRIANGLE_HPP_
 #define PROJECTS_GEN_SDF_SRC_CL_SDF_TRIANGLE_HPP_
-
 
 #include "typedefs.hpp"
 #include "cl_Matrix.hpp"
@@ -87,7 +89,6 @@ namespace moris
             Triangle(
                     moris_index aIndex,
                     moris::Cell< Triangle_Vertex * > & aVertices );
-
 
 //-------------------------------------------------------------------------------
 
@@ -358,7 +359,6 @@ namespace moris
                 return mFlag;
             }
 
-
 //-------------------------------------------------------------------------------
         private :
 //-------------------------------------------------------------------------------
@@ -388,5 +388,5 @@ namespace moris
     } /* namespace sdf */
 } /* namespace moris */
 
-
 #endif /* PROJECTS_GEN_SDF_SRC_CL_SDF_TRIANGLE_HPP_ */
+

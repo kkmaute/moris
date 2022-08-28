@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_FEM_IWG_Diffusion_Dirichlet.cpp
+ *
+ */
+
 #include <string>
 #include <catch.hpp>
 #include "assert.hpp"
@@ -543,3 +553,4 @@ TEST_CASE( "IWG_Diff_Dirichlet_Geo_Prop", "[moris],[fem],[IWG_Diff_Dirichlet_Geo
     tFIs.clear();
 
 }/* END_TEST_CASE */
+

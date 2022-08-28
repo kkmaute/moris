@@ -1,4 +1,13 @@
-// C++ header files.
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_invalid_size.cpp
+ *
+ */
+
 #include <sstream>
 
 // Third-party header files.
@@ -18,3 +27,4 @@ TEST_CASE(
 	REQUIRE_THROWS_AS(throw error, moris::exceptions::invalid_size);
 	REQUIRE(error_msg.str() == std::string(error.what()));
 }
+

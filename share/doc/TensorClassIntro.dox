@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 namespace moris {
 
 /** \defgroup TensorClass The Tensor class and Related Functions
@@ -110,3 +117,4 @@ Note that the * operator returns a 2nd order tensor instead of scalar like in
 the double inner product.
 */
 }
+

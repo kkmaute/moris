@@ -1,13 +1,15 @@
 /*
- * LINALG_typedefs.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Aug 24, 2018
- *      Author: doble
+ *------------------------------------------------------------------------------------
+ *
+ * linalg_typedefs.hpp
+ *
  */
 
 #ifndef PROJECTS_LINALG_SRC_LINALG_TYPEDEFS_HPP_
 #define PROJECTS_LINALG_SRC_LINALG_TYPEDEFS_HPP_
-
 
 #include "typedefs.hpp"
 namespace moris
@@ -27,7 +29,6 @@ namespace moris
 
     struct
     MDynamic {};
-
 
 #ifdef MORIS_USE_EIGEN
 #include "Eigen/Dense"
@@ -111,3 +112,4 @@ namespace moris
 }
 
 #endif /* PROJECTS_LINALG_SRC_LINALG_TYPEDEFS_HPP_ */
+

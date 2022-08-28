@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_HMR_Lagrange_Node.hpp
  *
- *  Created on: May 24, 2018
- *      Author: messe
  */
 
 #ifndef SRC_HMR_CL_HMR_LAGRANGE_NODE_HPP_
@@ -81,7 +84,6 @@ namespace moris
 
                 // delete facet container
                 this->delete_facet_container();
-
 
                 // delete edge container
                 if( N == 3 )
@@ -353,3 +355,4 @@ namespace moris
     } /* namespace hmr */
 } /* namespace moris */
 #endif /* SRC_HMR_CL_HMR_LAGRANGE_NODE_HPP_ */
+

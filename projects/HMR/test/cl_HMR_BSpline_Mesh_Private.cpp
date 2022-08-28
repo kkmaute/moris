@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_HMR_BSpline_Mesh_Private.cpp
+ *
+ */
+
 #include <catch.hpp>
 
 #include "cl_Communication_Manager.hpp" //COM/src
@@ -21,7 +31,6 @@
 #include "cl_HMR.hpp" //HMR/src
 #undef protected
 #undef private
-
 
 TEST_CASE("HMR_Bspline_Mesh_Private", "[moris],[mesh],[hmr],[BSplineMesh_private],[BsplineMesh]")
 {
@@ -151,3 +160,4 @@ TEST_CASE("HMR_Bspline_Mesh_Private", "[moris],[mesh],[hmr],[BSplineMesh_private
         }
     }
 }
+

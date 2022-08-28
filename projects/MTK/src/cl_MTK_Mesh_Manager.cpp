@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Mesh_Manager.cpp
+ *
+ */
+
 #include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_MTK_Mesh_Pair.hpp"
 #include "cl_MTK_Field.hpp"

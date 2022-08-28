@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * fn_chol_u.cpp
+ *
+ */
+
 #include <catch.hpp>
 
 #include "typedefs.hpp"
@@ -23,3 +33,4 @@ TEST_CASE("moris::chol_u",
     REQUIRE( tU( 2, 2 ) ==  3 );
 
 }
+

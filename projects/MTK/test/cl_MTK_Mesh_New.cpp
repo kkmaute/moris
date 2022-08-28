@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Mesh_New.cpp
  *
- *  Created on: Apr 12, 2019
- *      Author: doble
  */
 
 #include "catch.hpp"
@@ -28,7 +31,6 @@ namespace moris
 {
 namespace mtk
 {
-
 
 TEST_CASE("Surrogate XTK Mesh","[MTK_Surrogate]")
         {
@@ -82,7 +84,6 @@ TEST_CASE("Surrogate XTK Mesh","[MTK_Surrogate]")
                                     {0, 0.1, 3.1},
                                     {0.5, 0.5, 3.1}};
 
-
     Matrix<IndexMat> tLocalToGlobalNodeMap = {{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44}};
 
     Matrix<IndexMat> tInterpElemsAsIntegCellIds     = {{1,2,3,4}};
@@ -125,7 +126,6 @@ TEST_CASE("Surrogate XTK Mesh","[MTK_Surrogate]")
                                           {30, 13, 40, 44},
                                           {13, 15, 40, 44},
                                           {13, 25, 15, 44}};
-
 
     // Tetrathedral cells in material phase 1
     Matrix<IndexMat> tCellToNodeGhost0 = {{21, 27, 31, 30},
@@ -178,7 +178,6 @@ TEST_CASE("Surrogate XTK Mesh","[MTK_Surrogate]")
                                                 {24, 27, 17, 43}};
 
     Matrix<IndexMat> tCellIdsGhost0 = {{5, 7, 9, 11, 13, 15, 19, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 34, 35, 36, 37, 38, 39, 40, 41, 45, 46, 47, 48, 49, 50, 51, 52, 56, 57, 58, 59, 60, 61, 64, 65, 66, 67, 68, 69, 70, 71, 72}};
-
 
     moris::mtk::MtkSetsInfo tMtkMeshSets;
     // Define side sets on the integration mesh (i.e. fixed bc, interface and ghost)
@@ -273,7 +272,6 @@ TEST_CASE("Surrogate XTK Mesh","[MTK_Surrogate]")
     tCellsForGhost.mBlockSetName = "Ghost_Cells_0";
     tCellsForGhost.mBlockSetTopo = CellTopology::HEX8;
     tMtkMeshSets.add_block_set(&tCellsForGhost);
-
 
     // Mesh data input structure
     moris::mtk::MtkMeshData tMeshDataInput(3);
@@ -462,7 +460,6 @@ TEST_CASE( "Integration Mesh from File","[Integration Mesh]")
         moris_id edgeID = 25;
         moris_id edgeIND = tMesh3D_HEXs->get_loc_entity_ind_from_entity_glb_id(edgeID,EntityRank::EDGE);
 
-
         // Initialize and fill cells to store IDs of elements and faces connected to current edge (edgeID = 25)
         Matrix< IdMat > elementsConnectedToEdge = tMesh3D_HEXs->get_elements_connected_to_edge_glob_ids(edgeID);
         Matrix< IdMat > facesConnectedToEdge    = tMesh3D_HEXs->get_faces_connected_to_edge_glob_ids(edgeID);
@@ -522,7 +519,6 @@ TEST_CASE( "Integration Mesh from File","[Integration Mesh]")
         moris_id elementID = 100;
         moris_index elementInd = tMesh3D_HEXs->get_loc_entity_ind_from_entity_glb_id(elementID,EntityRank::ELEMENT);
 
-
         // Initialize and fill cells to store IDs of faces, edges and nodes connected to current element (elementID = 1)
         Matrix< IdMat > elemsConnectedToElement = tMesh3D_HEXs->get_element_connected_to_element_glob_ids(elementID);
         Matrix< IndexMat > tElemsConnectedToElementInd = tMesh3D_HEXs->get_elements_connected_to_element_and_face_ord_loc_inds(elementInd);
@@ -542,7 +538,6 @@ TEST_CASE( "Integration Mesh from File","[Integration Mesh]")
         Matrix< IndexMat > tFacesConnectedToElementInds = tMesh3D_HEXs->get_faces_connected_to_element_loc_inds(elementInd);
         Matrix< IndexMat > tEdgesConnectedToElementInds = tMesh3D_HEXs->get_edges_connected_to_element_loc_inds(elementInd);
         Matrix< IndexMat > tNodesConnectedToElementInds = tMesh3D_HEXs->get_nodes_connected_to_element_loc_inds(elementInd);
-
 
         tFaceIdsMatch = all_true(facesConnectedToElement == convert_entity_indices_to_ids(tFacesConnectedToElementInds,EntityRank::FACE,tMesh3D_HEXs));
         tEdgeIdsMatch = all_true(edgesConnectedToElement == convert_entity_indices_to_ids(tEdgesConnectedToElementInds,EntityRank::EDGE,tMesh3D_HEXs));
@@ -627,7 +622,6 @@ TEST_CASE( "Integration Mesh from File","[Integration Mesh]")
         CHECK(all_true(tCellVertexIds == nodesConnectedToElement));
         CHECK(all_true(tCellVertexInds == tNodesConnectedToElementInds));
 
-
         // Check vertex functions
         mtk::Vertex const & tVertex  = tMesh3D_HEXs->get_mtk_vertex(nodeIndex);
         Matrix< DDRMat > tNodeCoords = tMesh3D_HEXs->get_node_coordinate(nodeIndex);
@@ -637,13 +631,11 @@ TEST_CASE( "Integration Mesh from File","[Integration Mesh]")
         CHECK(equal_to(tVertex.get_id(),nodeID));
         CHECK(equal_to(tVertex.get_index(),nodeIndex));
 
-
         // ===================================================
         // Dump to file
         // ===================================================
         std::string tFileOutput = "./mtk_generated_ut.exo";
         tMesh3D_HEXs->create_output_mesh(tFileOutput);
-
 
         delete tMesh3D_HEXs;
 
@@ -652,3 +644,4 @@ TEST_CASE( "Integration Mesh from File","[Integration Mesh]")
 
 }
 }
+

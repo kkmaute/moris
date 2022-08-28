@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_WRK_perform_refinement.hpp
+ *
+ */
+
 #ifndef MORIS_FN_WRK_PERFORM_REMESCHING_HPP
 #define MORIS_FN_WRK_PERFORM_REMESCHING_HPP
 
@@ -24,8 +34,6 @@ namespace moris
     namespace wrk
     {
         class Performer;
-
-
 
         struct Refinement_Parameters
         {
@@ -154,8 +162,8 @@ namespace moris
                         moris::uint                              & aNumPattern );
         };
 
-
     }
 }
 
 #endif //MORIS_FN_WRK_PERFORM_REMESCHING_HPP
+

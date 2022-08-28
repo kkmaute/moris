@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # Non Linear Algebra Tests ----------------------------------------
 # -------------------------------------------------------------------------
     include_directories(${MORIS_PACKAGE_DIR}/SOL/NLA/test/NLA_Test_Proxy)   
@@ -43,4 +50,5 @@ if(MORIS_HAVE_PARALLEL_TESTS)
 			COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS} $<TARGET_FILE:${NLA_TEST}>)
 	endforeach()
 endif()
+
 

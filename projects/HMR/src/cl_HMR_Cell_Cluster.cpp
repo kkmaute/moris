@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_HMR_Cell_Cluster.cpp
  *
- *  Created on: May 30, 2019
- *      Author: doble
  */
 
 #include "cl_HMR_Cell_Cluster.hpp"
@@ -136,7 +139,6 @@ Cell_Cluster_HMR::get_vertices_in_cluster(const mtk::Master_Slave aIsMaster ) co
     }
 }
 
-
 //----------------------------------------------------------------
 
 moris::Matrix<moris::DDRMat>
@@ -195,8 +197,4 @@ Cell_Cluster_HMR::add_vertex_to_map(moris_id aVertexId,
 
 }
 }
-
-
-
-
 

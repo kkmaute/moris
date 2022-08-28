@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_Query.hpp
+ *
+ */
+
 #ifndef MORIS_IOS_CL_QUERY_HPP_
 #define MORIS_IOS_CL_QUERY_HPP_
 
@@ -9,7 +19,6 @@
 #include <cstring>
 #include <sstream>
 
-
 // Define Cells
 #include "cl_Cell.hpp"
 
@@ -18,7 +27,6 @@
 
 // Define enums used
 #include "cl_Tracer_Enums.hpp"
-
 
 namespace moris
 {
@@ -33,7 +41,6 @@ class Query
     //-----------------------------------------------------------------------------------------------------------//
     // PRIVATE MEMBERS
     //-----------------------------------------------------------------------------------------------------------//
-
 
     // files for reading and writing
     std::string mFileNameRead;
@@ -52,8 +59,6 @@ class Query
     Cell<std::string> mOutputValues;
 
     Cell<Cell<uint>> mInstanceStartEnd;
-
-
 
     //-----------------------------------------------------------------------------------------------------------//
     // PRIVATE METHODS
@@ -147,17 +152,5 @@ class Query
 } // namespace std
 } // namespace moris
 
-
 #endif    /* MORIS_IOS_CL_QUERY_HPP_ */
-
-
-
-
-
-
-
-
-
-
-
 

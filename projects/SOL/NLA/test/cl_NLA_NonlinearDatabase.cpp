@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_NLA_NonlinearDatabase.cpp
  *
- *  Created on: Jan 21, 2018
- *      Author: schmidt
  */
 
 #include "catch.hpp"
@@ -117,7 +120,6 @@ TEST_CASE("NonlinearDatabase3","[NLA],[NLA_Database3]")
         CHECK( equal_to( static_cast< int >( tNonlinearSolverManager.get_dof_type_list()( 1 )( 0 ) ), static_cast< int >( MSI::Dof_Type::TEMP ) ) );
         }
     }
-
 
 //    TEST_CASE("NonlinearDatabase4","[NLA],[NLA_Database4]")
 //    {

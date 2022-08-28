@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_NLA_Arc_Length.hpp
  *
- *  Created on: Mar 26, 2019
- *      Author: sonne
  */
+
 #ifndef PROJECTS_SOL_NLA_SRC_CL_NLA_ARC_LENGTH_HPP_
 #define PROJECTS_SOL_NLA_SRC_CL_NLA_ARC_LENGTH_HPP_
 
@@ -64,7 +68,6 @@ namespace NLA
         void initialize_variables( Nonlinear_Problem *  aNonlinearProblem );
 
         void set_my_time_solver_algorithm( std::shared_ptr< tsa::Time_Solver_Algorithm > aMyTimeSolverAlgorithm );
-
 
     private:
         /**
@@ -144,6 +147,5 @@ namespace NLA
 }
 }
 
-
-
 #endif /* PROJECTS_SOL_NLA_SRC_CL_NLA_ARC_LENGTH_HPP_ */
+

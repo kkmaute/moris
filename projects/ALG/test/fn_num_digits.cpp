@@ -1,4 +1,13 @@
-// Third-party header files.
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * fn_num_digits.cpp
+ *
+ */
+
 #include <catch.hpp>
 
 // MORIS header files.
@@ -24,3 +33,4 @@ TEST_CASE(
 
     REQUIRE(neg_num_digits_is_3 == 3);
 }
+

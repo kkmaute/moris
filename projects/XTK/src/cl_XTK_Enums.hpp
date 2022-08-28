@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_XTK_Enums.hpp
  *
- *  Created on: Jun 23, 2017
- *      Author: ktdoble
  */
 
 #ifndef SRC_XTK_CL_XTK_ENUMS_HPP_
@@ -37,7 +40,7 @@ enum class Subdivision_Method
     // P  - Postprocessing algorithm
     // T  - specifies a Test method
     NC_REGULAR_SUBDIVISION_QUAD4, // Nonconformal and a regular subdivision template will be used
-    NC_REGULAR_SUBDIVISION_HEX8, 
+    NC_REGULAR_SUBDIVISION_HEX8,
     C_HIERARCHY_TRI3,             // Conformal and a hierarchy template will be used
     C_HIERARCHY_TET4,
     C_TRI3,                       // Conformal tri 3 mesh  will be constructed
@@ -79,3 +82,4 @@ enum class Topology_Type
 };
 
 #endif /* SRC_XTK_CL_XTK_ENUMS_HPP_ */
+

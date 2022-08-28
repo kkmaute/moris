@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_HMR_Lagrange_Node_Interpolation.cpp
+ *
+ */
+
 #include "cl_HMR_Lagrange_Node_Interpolation.hpp"
 
 namespace moris
@@ -113,7 +123,7 @@ namespace moris
         // get number of basis
         uint tNumberOfBasis = this->get_number_of_coefficients();
 
-        // allocate output matrix 
+        // allocate output matrix
         // for big problems it might be better to have a luint here as these ids are not consecutive
         Matrix< IdMat > aIJKId( tNumberOfBasis, 1 );
 
@@ -130,3 +140,4 @@ namespace moris
 // ----------------------------------------------------------------------------
     } /* namespace hmr */
 } /* namespace moris */
+

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_HMR_Lagrange_Mesh.cpp
+ *
+ */
+
 #include <catch.hpp>
 #include "paths.hpp"
 #include "cl_HMR.hpp"
@@ -24,8 +34,6 @@
 using namespace moris;
 using namespace hmr;
 
-
-
 TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr],[hmr_lagrange_mesh],[lagrange_mesh]")
 {
     //-------------------------------------------------------------------------------
@@ -34,10 +42,8 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr],[hmr_lagrange_mesh],[lagran
     {
         //-------------------------------------------------------------------------------
 
-
         // empty container for B-Spline meshes
         moris::Cell< moris::hmr::BSpline_Mesh_Base* > tBSplineMeshes;
-
 
         SECTION("Lagrange Mesh 2D: test node uniqueness")
         {
@@ -401,7 +407,6 @@ TEST_CASE("HMR_T_Matrix_Perturb_quad", "[moris],[mesh],[hmr],[hmr_t_matrix_pertu
         }
         //tHMR.flag_volume_and_surface_elements( tField );
 
-
         //tHMR.save_to_exodus( tLagrangeMeshInex, "Mesh1.exo" );
         //tHMR.save_bsplines_to_vtk("Basis.vtk");
         //tHMR.save_last_step_to_exodus( 0, "LastStep.exo" );
@@ -690,7 +695,6 @@ TEST_CASE("Lagrange_Mesh_Pattern_2","[moris],[hmr],[Lagrange_Mesh_Pattern_2],[la
         tBackgroundMesh->get_element( 0 )->put_on_refinement_queue();
         tBackgroundMesh->perform_refinement( 0 );
 
-
         // element 0 is the element with ID 18
         tBackgroundMesh->get_element( 0 )->put_on_refinement_queue();
         tBackgroundMesh->perform_refinement( 1);
@@ -737,7 +741,6 @@ TEST_CASE("Lagrange_Mesh_Pattern_2","[moris],[hmr],[Lagrange_Mesh_Pattern_2],[la
         //        REQUIRE( tXYZ_7[0]  == 0.25 );    REQUIRE( tXYZ_7[1]  == 0.75 );
         //        const moris::real* tXYZ_8 = tLagrangeMesh_2->get_node_by_index( 36 )->get_xyz( );
         //        REQUIRE( tXYZ_8[0]  == 0.875 );    REQUIRE( tXYZ_8[1]  == 1.0 );
-
 
         // delete mesh
         delete tLagrangeMesh_1;
@@ -924,7 +927,6 @@ TEST_CASE("Lagrange_Mesh_Bounding_Box","[moris],[hmr],[lagrange_mesh_bounding_bo
     }
 }
 
-
 // this test checks if t-matrices with weights of 1 as a trivial case are created
 TEST_CASE("Lagrange_Mesh_trivial","[moris],[hmr],[Lagrange_Mesh_trivial],[lagrange_mesh]")
 {
@@ -1091,7 +1093,6 @@ TEST_CASE("Lagrange_Mesh_initial_refinement","[moris],[hmr],[Lagrange_Mesh_Initi
         REQUIRE( tMesh01->get_max_num_coeffs_on_proc( 1 )  == 45 );
     }
 }
-
 
 TEST_CASE("HMR_T_Matrix_2_refinements", "[moris],[mesh],[hmr],[hmr_t_matrix_2_refinements],[lagrange_mesh]")
 {
@@ -1444,8 +1445,6 @@ TEST_CASE("Lagrange_Mesh_BSpline_Element_support","[moris],[hmr],[Elements in B-
 
         tParameterlist_test.set( "write_lagrange_output_mesh", "HMRLagrangeMesh.vtk" );
 
-
-
         // create the HMR object by passing the settings to the constructor
         moris::hmr::HMR tHMR( tParameterlist_test );
 
@@ -1535,8 +1534,6 @@ TEST_CASE("Lagrange_Mesh_BSpline_Element_and_side_ordinal","[moris],[hmr],[Eleme
 
         tParameterlist_test.set( "write_lagrange_output_mesh", "HMRLagrangeMesh.vtk" );
 
-
-
         // create the HMR object by passing the settings to the constructor
         moris::hmr::HMR tHMR( tParameterlist_test );
 
@@ -1597,7 +1594,4 @@ TEST_CASE("Lagrange_Mesh_BSpline_Element_and_side_ordinal","[moris],[hmr],[Eleme
         }
     }
 }
-
-
-
 

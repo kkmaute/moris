@@ -1,9 +1,13 @@
 /*
- * ut_MTK_Cell_Info_Hex27.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Aug 7, 2020
- *      Author: kedo3694
+ *------------------------------------------------------------------------------------
+ *
+ * UT_MTK_Cell_Info_Hex64.cpp
+ *
  */
+
 #include "catch.hpp"
 #include "cl_MTK_Cell_Info.hpp"
 #include "cl_MTK_Cell_Info_Hex64.hpp"
@@ -39,5 +43,5 @@ TEST_CASE("MTK Hex64 Cell Info","[HEX_64]")
 
 }
 
-
 }
+

@@ -1,8 +1,11 @@
 /*
- * cl_MTK_Integration_Coeffs_Bar_2.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jul 19, 2018
- *      Author: messe
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Integration_Coeffs_Bar_3.hpp
+ *
  */
 
 #ifndef SRC_MTK_CL_MTK_INTEGRATION_COEFFS_BAR_3_HPP_

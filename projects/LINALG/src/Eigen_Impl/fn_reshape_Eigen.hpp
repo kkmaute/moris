@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_reshape_Eigen.hpp
  *
- *  Created on: Sep 6, 2018
- *      Author: sonne
  */
 
 #ifndef PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_RESHAPE_EIGEN_HPP_
@@ -13,7 +16,6 @@
 
 namespace moris
 {
-
 
 template<  typename TYPE, typename INT >
 Eigen::Map<Eigen::Matrix<TYPE,   Eigen::Dynamic, Eigen::Dynamic>>
@@ -26,11 +28,7 @@ reshape(
     return tM2;
         }
 
-
-
 }
 
-
-
-
 #endif /* PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_RESHAPE_EIGEN_HPP_ */
+

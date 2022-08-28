@@ -1,9 +1,13 @@
-/**
- * cl_XTK_Elevate_Order_Interface.hpp  
- * 
- *  Created on: Nov  03, 2021 
- *      Author: Nils Wunsch
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_XTK_Elevate_Order_Interface.hpp
+ *
  */
+
 #ifndef SRC_cl_XTK_Elevate_Order_Interface
 #define SRC_cl_XTK_Elevate_Order_Interface
 
@@ -39,7 +43,7 @@ class Elevate_Order_Template
 
     /**
      * @brief Get number of nodes to be added per element
-     * 
+     *
      * @return moris_index number of nodes to be added per element
      */
     virtual uint
@@ -47,7 +51,7 @@ class Elevate_Order_Template
 
     /**
      * @brief Get total number of IG vertices on new elements for Template
-     * 
+     *
      * @return moris_index total number of IG vertices on new elements
      */
     virtual uint
@@ -55,7 +59,7 @@ class Elevate_Order_Template
 
     /**
      * @brief gives back whether new vertices will be created on the requested entity rank
-     * 
+     *
      * @param aEntityRank Entity Rank for which new vertices should be created
      * @return whether new vertices will be created or not
      */
@@ -64,7 +68,7 @@ class Elevate_Order_Template
 
     /**
      * @brief gives back the number of new vertices that will be created on the requested entity rank
-     * 
+     *
      * @param aEntityRank Entity Rank for which new vertices should be created
      * @return number of new vertices on that entity rank
      */
@@ -73,7 +77,7 @@ class Elevate_Order_Template
 
     /**
      * @brief Get parametric coords for new vertices wrt entity they are created on
-     * 
+     *
      * @param aEntityRank Entity Rank for which new vertices should be created
      * @return Cell< Matrix< DDRMat > > list of parametric coords for vertices to be created per entity
      */
@@ -82,7 +86,7 @@ class Elevate_Order_Template
 
     /**
      * @brief Get the new ig cell's topology
-     * 
+     *
      * @return enum CellTopology new ig cell topology
      */
     virtual enum CellTopology
@@ -90,7 +94,7 @@ class Elevate_Order_Template
 
     /**
      * @brief Get number of spatial dimensions current template assumes
-     * 
+     *
      * @return uint number of spatial dimensions
      */
     virtual uint
@@ -98,7 +102,7 @@ class Elevate_Order_Template
 
     /**
      * @brief Get local vertex index wrt to the cell based on where the vertex sits
-     * 
+     *
      * @param aEntityRank entity rank where the vertex sits
      * @param aSignedLocalEntityIndex 1-based index of the entity the vertex sits on with a sign to indicate directionality
      * @param aVertexIndexOnEntity index position of the vertex on that entity
@@ -110,7 +114,7 @@ class Elevate_Order_Template
     /**
      * @brief Get the element local edge index and direction (sign) based on vertex indices attached to it
      * @note The return value is 1-BASED!
-     * 
+     *
      * @param aFirstLocalVertexIndex local index of the vertex where edge starts
      * @param aSecondLocalVertexIndex local index of the vertex where edge ends
      * @return moris_index 1-Based index of the edge. The sign indicates the direction.
@@ -258,7 +262,7 @@ class TRI3_to_TRI6 : public Elevate_Order_Template
     }
 
     moris_index
-    get_local_vertex_index( enum EntityRank aEntityRank, moris_index aSignedLocalEntityIndex, moris_index aVertexIndexOnEntity ) const 
+    get_local_vertex_index( enum EntityRank aEntityRank, moris_index aSignedLocalEntityIndex, moris_index aVertexIndexOnEntity ) const
     {
         switch ( aEntityRank )
         {
@@ -271,21 +275,21 @@ class TRI3_to_TRI6 : public Elevate_Order_Template
             case EntityRank::EDGE:
             {
                 // check if requested vertex location makes sense
-                MORIS_ASSERT( aSignedLocalEntityIndex != 0, 
+                MORIS_ASSERT( aSignedLocalEntityIndex != 0,
                         "TRI3_to_TRI6::get_cell_local_vertex_index() - aSignedLocalEntityIndex is 1-based and must not be 0." );
 
-                MORIS_ASSERT( std::abs( aSignedLocalEntityIndex ) <= 3 && aVertexIndexOnEntity < 1, 
+                MORIS_ASSERT( std::abs( aSignedLocalEntityIndex ) <= 3 && aVertexIndexOnEntity < 1,
                         "TRI3_to_TRI6::get_cell_local_vertex_index() - Index out of bounds. Only 3 edges with 1 new node per edge." );
 
                 // convert Signed 1-based index to unsigned 0-based index
                 uint tLocalEntityIndex = std::abs( aSignedLocalEntityIndex ) - 1;
-                
+
                 // create look-up table for local vertex position
                 Matrix< IndexMat > tLookUp = {
-                    { 3 }, 
+                    { 3 },
                     { 4 },
                     { 5 } };
-                
+
                 return tLookUp( tLocalEntityIndex, aVertexIndexOnEntity );
                 break;
             }
@@ -314,12 +318,12 @@ class TRI3_to_TRI6 : public Elevate_Order_Template
     get_local_edge_index_based_on_vertex_indices( moris_index aFirstLocalVertexIndex, moris_index aSecondLocalVertexIndex ) const
     {
         // check if input makes sense
-        MORIS_ASSERT( aFirstLocalVertexIndex != aSecondLocalVertexIndex, 
+        MORIS_ASSERT( aFirstLocalVertexIndex != aSecondLocalVertexIndex,
                 "TRI3_to_TRI6::get_local_edge_index_based_on_vertex_indices() - Vertices must have different indices" );
-        
+
         // create LookUp
         Matrix< IndexMat > tLookUp = {
-            {  0,  1, -3 }, 
+            {  0,  1, -3 },
             { -1,  0,  2 },
             {  3, -2,  0 } };
 
@@ -467,7 +471,7 @@ class TET4_to_TET10 : public Elevate_Order_Template
     }
 
     moris_index
-    get_local_vertex_index( enum EntityRank aEntityRank, moris_index aSignedLocalEntityIndex, moris_index aVertexIndexOnEntity ) const 
+    get_local_vertex_index( enum EntityRank aEntityRank, moris_index aSignedLocalEntityIndex, moris_index aVertexIndexOnEntity ) const
     {
         switch ( aEntityRank )
         {
@@ -480,24 +484,24 @@ class TET4_to_TET10 : public Elevate_Order_Template
             case EntityRank::EDGE:
             {
                 // check if requested vertex location makes sense
-                MORIS_ASSERT( aSignedLocalEntityIndex != 0, 
+                MORIS_ASSERT( aSignedLocalEntityIndex != 0,
                         "TET4_to_TET10::get_cell_local_vertex_index() - aSignedLocalEntityIndex is 1-based and must not be 0." );
-                        
-                MORIS_ASSERT( std::abs( aSignedLocalEntityIndex ) <= 6 && aVertexIndexOnEntity < 1, 
+
+                MORIS_ASSERT( std::abs( aSignedLocalEntityIndex ) <= 6 && aVertexIndexOnEntity < 1,
                         "TET4_to_TET10::get_cell_local_vertex_index() - Index out of bounds. Only 3 edges with 1 new node per edge." );
 
                 // convert Signed 1-based index to unsigned 0-based index
                 uint tLocalEntityIndex = std::abs( aSignedLocalEntityIndex ) - 1;
-                
+
                 // create look-up table for local vertex position
                 Matrix< IndexMat > tLookUp = {
-                    { 4 }, 
+                    { 4 },
                     { 5 },
-                    { 6 }, 
+                    { 6 },
                     { 7 },
-                    { 8 }, 
+                    { 8 },
                     { 9 } };
-                
+
                 return tLookUp( tLocalEntityIndex, aVertexIndexOnEntity );
                 break;
             }
@@ -526,9 +530,9 @@ class TET4_to_TET10 : public Elevate_Order_Template
     get_local_edge_index_based_on_vertex_indices( moris_index aFirstLocalVertexIndex, moris_index aSecondLocalVertexIndex ) const
     {
         // check if input makes sense
-        MORIS_ASSERT( aFirstLocalVertexIndex != aSecondLocalVertexIndex, 
+        MORIS_ASSERT( aFirstLocalVertexIndex != aSecondLocalVertexIndex,
                 "TET4_to_TET10::get_local_edge_index_based_on_vertex_indices() - Vertices must have different indices" );
-        
+
         // create LookUp
         Matrix< IndexMat > tLookUp = {
             {  0,  1, -3,  4 },
@@ -747,7 +751,7 @@ class Elevate_Order_Interface : public Decomposition_Algorithm
     // -------------------------------------------------------------------------
 
   private:
-    
+
     bool
     make_vertex_requests(
         std::shared_ptr< Edge_Based_Connectivity >         aEdgeConnectivity,
@@ -774,7 +778,7 @@ class Elevate_Order_Interface : public Decomposition_Algorithm
     /**
      * @brief Creates unique id for an edge based on the IDs of its two end vertices
      * using the Cantor pairing function
-     * 
+     *
      * @param aEdgeVertices list of mtk::vertices on edge
      * @return moris_index unique id for edge
      */
@@ -784,7 +788,7 @@ class Elevate_Order_Interface : public Decomposition_Algorithm
     /**
      * @brief Creates unique id for a face based on the IDs of its three end corner vertices
      * by recursively applying the Cantor pairing function
-     * 
+     *
      * @param aFaceVertices list of mtk::vertices at face corners
      * @return moris_index unique id for face
      */
@@ -793,7 +797,7 @@ class Elevate_Order_Interface : public Decomposition_Algorithm
 
     /**
      * @brief swaps the values of two inidices
-     * 
+     *
      * @param aInd1 first index, value to be swaped with ...
      * @param aInd2 the second index
      */
@@ -811,7 +815,6 @@ class Elevate_Order_Interface : public Decomposition_Algorithm
     Matrix< DDRMat >
     compute_tet_vertex_global_coordinates( moris::Cell< moris::mtk::Vertex* > const& aTetVertices, Matrix< DDRMat > aTetCoords );
 };
-
 
 }// namespace xtk
 #endif /* cl_XTK_Elevate_Order_Interface.hpp */

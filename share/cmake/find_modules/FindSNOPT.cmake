@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # SNOPT Find Module -------------------------------------------------------
 # -------------------------------------------------------------------------
 
@@ -31,3 +38,4 @@ find_package_handle_standard_args(SNOPT DEFAULT_MSG
     SNOPT_LIBRARIES )
 
 mark_as_advanced(SNOPT_LIBRARY_DIRS SNOPT_LIBRARIES)
+

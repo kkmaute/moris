@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_IQI_J_Integral.hpp
  *
- *  Created on: Feb 11, 2020
- *      Author: sonne
  */
 
 #ifndef PROJECTS_FEM_INT_SRC_CL_FEM_IQI_J_INTEGRAL_HPP_
@@ -14,7 +17,6 @@
 #include "linalg_typedefs.hpp"
 
 #include "cl_FEM_IQI.hpp"
-
 
 namespace moris
 {
@@ -89,7 +91,5 @@ namespace moris
     }   // end fem namespace
 }       // end moris namespace
 
-
-
-
 #endif /* PROJECTS_FEM_INT_SRC_CL_FEM_IQI_J_INTEGRAL_HPP_ */
+

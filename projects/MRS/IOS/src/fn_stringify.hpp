@@ -1,10 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_stringify.hpp
  *
- *  Created on: Apr 8, 2020
- *      Author: wunsch
- *
- *  Function that converts various number types to strings, formated as needed by the logging and query functions
  */
 
 #ifndef PROJECTS_MRS_IOS_SRC_FN_STRINGIFY_HPP_
@@ -68,3 +69,4 @@ namespace moris
 } // end namespace moris
 
 #endif /* PROJECTS_MRS_IOS_SRC_FN_STRINGIFY_HPP_ */
+

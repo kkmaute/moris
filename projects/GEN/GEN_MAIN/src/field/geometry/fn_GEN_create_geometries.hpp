@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * fn_GEN_create_geometries.hpp
+ *
+ */
+
 #ifndef MORIS_FN_CREATE_GEOMETRY_HPP
 #define MORIS_FN_CREATE_GEOMETRY_HPP
 
@@ -47,3 +57,4 @@ namespace moris
 }
 
 #endif //MORIS_FN_CREATE_GEOMETRY_HPP
+

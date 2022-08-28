@@ -1,4 +1,13 @@
-//// Third-party header files.
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_Dist_Map.cpp
+ *
+ */
+
 //#include <catch.hpp>
 //#include<iostream>
 //
@@ -94,3 +103,4 @@
 //    }
 //
 //}
+

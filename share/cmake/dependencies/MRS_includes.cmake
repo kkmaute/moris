@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # MRS includes ------------------------------------------------------------
 # -------------------------------------------------------------------------
 
@@ -44,3 +51,4 @@ set(IOS_TPL_DEPENDENCIES
 	list(APPEND EXC_TPL_DEPENDENCIES "gperftools")
 	list(APPEND IOS_TPL_DEPENDENCIES "gperftools")
 endif()
+

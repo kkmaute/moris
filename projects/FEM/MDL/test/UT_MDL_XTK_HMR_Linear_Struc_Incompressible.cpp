@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_MDL_XTK_HMR_Linear_Struc_Incompressible.cpp
+ *
+ */
 
 #include "catch.hpp"
 #include "paths.hpp"
@@ -441,7 +450,6 @@ TEST_CASE("2D XTK HMR Incompressible","[XTK_HMR_I_2D]")
         NLA::Nonlinear_Solver tNonlinearSolverMain;
         tNonlinearSolverMain.set_nonlinear_algorithm( tNonlinearSolverAlgorithm, 0 );
 
-
         tNonlinearSolverMain       .set_dof_type_list( tDofTypes );
 
         // Create solver database
@@ -527,3 +535,4 @@ TEST_CASE("2D XTK HMR Incompressible","[XTK_HMR_I_2D]")
     }
 }
 }
+

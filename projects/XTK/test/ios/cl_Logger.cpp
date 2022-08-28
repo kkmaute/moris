@@ -1,17 +1,18 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_Logger.cpp
  *
- *  Created on: Jun 19, 2017
- *      Author: ktdoble
  */
 
-// Test suite
 #include <mpi.h>
 #include <iostream>
 
 #include "cl_Logger.hpp"
 #include "catch.hpp"
-
 
 TEST_CASE("Test the logger","[LOGGER][!throws]")
 {
@@ -36,3 +37,4 @@ TEST_CASE("Test the logger","[LOGGER][!throws]")
     }
 
 }
+

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_XTK_Mesh_Cleanup.cpp
+ *
+ */
+
 #include "cl_XTK_Mesh_Cleanup.hpp"
 #include "cl_XTK_Model.hpp"
 #include "cl_Param_List.hpp"
@@ -11,7 +21,7 @@ namespace xtk
     mModel(aModel)
     {
         mMeshCleanupParameters.mDeactivateOneBPChildMeshes = aParamList->get<bool>("cleanup_cut_mesh");
-        
+
     }
 
     void
@@ -26,7 +36,7 @@ namespace xtk
 
     void
     Mesh_Cleanup::cleanup_cut_mesh()
-    {   
+    {
         Tracer tTracer( "XTK", "Mesh Cleanup", "Remove Inactive Child Mesh" );
 
         // Using a map here so that I can remove some from the removal process.
@@ -46,8 +56,6 @@ namespace xtk
         // remove child meshes that have an interface between two bulk phases from the candidates
 
         // tell the cut integration mesh to remove some of the child meshes
-
-        
 
         // for(moris::uint iCM = 0; iCM < tNumCutMeshes; iCM++)
         // {
@@ -76,7 +84,7 @@ namespace xtk
 
         MORIS_LOG_SPEC("Num Child Meshes Removed",tChildMeshesToDelete.size());
         MORIS_LOG_SPEC("Num Child Meshes Kept", mModel->get_cut_integration_mesh()->get_num_child_meshes() - tChildMeshesToDelete.size());
-        
+
         MORIS_ERROR(0,"Intentional Bail");
     }
 
@@ -84,7 +92,7 @@ namespace xtk
     Mesh_Cleanup::select_candidate_child_meshes_for_cleanup(
         std::unordered_map<moris_index,moris_index> & aRemoveChildMeshes)
     {
-        
+
         // cut integration mesh
         Cut_Integration_Mesh * tCutIgMesh = mModel->get_cut_integration_mesh();
 

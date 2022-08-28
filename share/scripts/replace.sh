@@ -1,3 +1,9 @@
+#!/bin/sh
+#====================================================================================
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#====================================================================================
 if [ ! "$1" ];then
   echo ""
   echo "=============================================================="
@@ -51,3 +57,4 @@ ed -s $file <<..EOFF
 done
 
 exit
+

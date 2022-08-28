@@ -1,8 +1,11 @@
 /*
- * cl_WRK_Workflow.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Feb 19, 2020
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * cl_WRK_Workflow_STK_XTK.hpp
+ *
  */
 
 #ifndef PROJECTS_FEM_MDL_SRC_CL_WRK_WORKFLOW_STK_XTK_HPP_
@@ -10,11 +13,10 @@
 
 #include "cl_WRK_Workflow.hpp"
 #include "typedefs.hpp"                       //MRS/COR/src
-#include "cl_Cell.hpp"    
+#include "cl_Cell.hpp"
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-
 
 namespace moris
 {
@@ -72,18 +74,17 @@ namespace moris
                  * @return matrix d(criteria)_i/d(adv)_j
                  */
                 Matrix<DDRMat> compute_dcriteria_dadv();
-                
 
                 void
                 create_xtk();
 
                 void
                 create_stk(Cell< Cell<ParameterList> > & aParameterLists);
-            
+
         };
         //------------------------------------------------------------------------------
     } /* namespace mdl */
 } /* namespace moris */
 
-
 #endif /* PROJECTS_FEM_MDL_SRC_CL_WRK_WORKFLOW_STK_XTK_HPP_ */
+

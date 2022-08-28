@@ -1,8 +1,11 @@
 /*
- * cl_HMR_Mesh.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: May 15, 2018
- *      Author: messe
+ *------------------------------------------------------------------------------------
+ *
+ * cl_HMR_Lagrange_Mesh_Base.hpp
+ *
  */
 
 #ifndef SRC_HMR_CL_HMR_LAGRANGE_MESH_BASE_HPP_
@@ -436,7 +439,7 @@ namespace moris
                         const uint & aBasisIndex )                      //FIXME
                 {
                     // check that the requested BSpline-Mesh exists
-                    MORIS_ASSERT( mBSplineMeshes( aMeshIndex ) != nullptr, 
+                    MORIS_ASSERT( mBSplineMeshes( aMeshIndex ) != nullptr,
                             "Lagrange_Mesh_Base::get_bspline() - no B-Spline mesh paired with requested mesh index" );
 
                     //                return mBSplineMeshes( aMeshIndex )->get_active_basis( aBasisIndex );
@@ -712,7 +715,7 @@ namespace moris
 
                 /**
                  * @brief Get the number of active background elements on b-spline mesh with a given mesh index
-                 * 
+                 *
                  * @param aDiscretizationMeshIndex b-spline background mesh index
                  * @return luint number of active elements on that b-spline mesh
                  */
@@ -725,12 +728,12 @@ namespace moris
 
                 /**
                  * @brief Get a list of indices of active background elements on b-spline mesh with a given mesh index
-                 * 
+                 *
                  * @param aDiscretizationMeshIndex b-spline background mesh index
                  * @param aElementIDs Matrix< DDLUMat > to fill with list of active BG element indices
                  */
-                void get_active_bg_element_indices_on_discretization_mesh_index_including_aura( 
-                        moris_index const aDiscretizationMeshIndex, 
+                void get_active_bg_element_indices_on_discretization_mesh_index_including_aura(
+                        moris_index const aDiscretizationMeshIndex,
                         Matrix< DDLUMat > & aElementIDs )
                 {
                     mBSplineMeshes( aDiscretizationMeshIndex )->get_background_mesh()->get_active_elements_on_proc_including_aura( aElementIDs );
@@ -883,7 +886,7 @@ namespace moris
 
                 /**
                  * @brief Get the lagrange elements within one bspline element
-                 * 
+                 *
                  * @param aBspElementIndex index of the b-spline element
                  * @param aDiscretizationMeshIndex discretization mesh index
                  * @param aCells output: list of Lagrange elements as mtk::cells that sit inside the B-spline element
@@ -897,7 +900,7 @@ namespace moris
 
                 /**
                  * @brief Get the lagrange elements inside the bspline elements for the whole mesh including the aura
-                 * 
+                 *
                  * @param aDiscretizationMeshIndex discretization mesh index
                  * @param aCells list of lists of Lagrange elements (mtk::cells) inside each B-spline element
                  * @param aCellIndices list of lists of Lagrange elements (indices) inside each B-spline element
@@ -915,7 +918,7 @@ namespace moris
                 /**
                  * collect Lagrange elements on an BSpline interpolation element
                  */
-                void 
+                void
                 get_elements_in_interpolation_cluster(
                         moris_index const aElementIndex,
                         moris_index const aDiscretizationMeshIndex,
@@ -925,13 +928,13 @@ namespace moris
 
                 /**
                  * @brief collect Lagrange elements on an BSpline interpolation element and side ordinal
-                 * 
-                 * @param aBsplineElementIndex 
-                 * @param aDiscretizationMeshIndex 
-                 * @param aSideOrdinal 
-                 * @param aCells 
+                 *
+                 * @param aBsplineElementIndex
+                 * @param aDiscretizationMeshIndex
+                 * @param aSideOrdinal
+                 * @param aCells
                  */
-                void 
+                void
                 get_elements_in_bspline_element_and_side_ordinal(
                         moris_index const            aBsplineElementIndex,
                         moris_index const            aDiscretizationMeshIndex,
@@ -941,7 +944,7 @@ namespace moris
                 /**
                   * collect Lagrange elements on an BSpline interpolation element and side ordinal
                   */
-                void 
+                void
                 get_elements_in_interpolation_cluster_and_side_ordinal(
                         moris_index const          aElementIndex,
                         moris_index const          aDiscretizationMeshIndex,
@@ -988,7 +991,6 @@ namespace moris
                  */
                 Element * get_child(       Element * aElement,
                         const uint    & aChildIndex );
-
 
                 // ----------------------------------------------------------------------------
 
@@ -1159,3 +1161,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_HMR_CL_HMR_LAGRANGE_MESH_BASE_HPP_ */
+

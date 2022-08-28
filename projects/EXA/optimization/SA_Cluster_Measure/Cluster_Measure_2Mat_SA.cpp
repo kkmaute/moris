@@ -1,4 +1,13 @@
- 
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * Cluster_Measure_2Mat_SA.cpp
+ *
+ */
+
 #include <string>
 #include <iostream>
 #include "typedefs.hpp"
@@ -41,34 +50,34 @@ namespace moris
 {
     // ghost
     bool tUseGhost = true;
-    
+
     // ghost penalty value
     std::string tGhostPenalty = "0.001";
-    
+
     /* ------------------------------------------------------------------------ */
     // Output Config
 
-    std::string tOutputFileName    = "Cluster_Measure_2Mat_SA" + std::to_string(gDim) 
+    std::string tOutputFileName    = "Cluster_Measure_2Mat_SA" + std::to_string(gDim)
                                    + ".exo";
-    std::string tGENOutputFileName = "Cluster_Measure_2Mat_SA" + std::to_string(gDim) 
+    std::string tGENOutputFileName = "Cluster_Measure_2Mat_SA" + std::to_string(gDim)
                                    + "_GEN.exo";
     std::string tSoFileName        = "Cluster_Measure_2Mat_SA.so";
-    std::string tHdf5FileName      = "Cluster_Measure_2Mat_SA" + std::to_string(gDim) 
+    std::string tHdf5FileName      = "Cluster_Measure_2Mat_SA" + std::to_string(gDim)
                                    + ".hdf5";
-                                   
+
     /* ------------------------------------------------------------------------ */
     // Mesh Set Information
     std::string tPhase1        = "HMR_dummy_n_p1,HMR_dummy_c_p1";
     std::string tPhase0        = "HMR_dummy_n_p0,HMR_dummy_c_p0";
     std::string tTotalDomain   = tPhase0 + "," + tPhase1;
-    
-    // FD 
+
+    // FD
     std::string tFDEpsilon = "1e-6";
     std::string tWhichFD   = "all";
     uint        tFEMWhichFDForSA = static_cast< uint >( fem::FDScheme_Type::POINT_3_CENTRAL );
     uint        tFEMWhichFDForFA = static_cast< uint >( fem::FDScheme_Type::POINT_3_CENTRAL );
     uint        tFEMWhichPerturbation = static_cast< uint >( fem::Perturbation_Type::ABSOLUTE );
-   
+
     /* ------------------------------------------------------------------------ */
     // boundary condition
 
@@ -78,17 +87,17 @@ namespace moris
     // flux at tip fac
     moris::real sP2 = 5.0;
 
-    /* ------------------------------------------------------------------------ */    
+    /* ------------------------------------------------------------------------ */
     // material parameters
 
     // capacity
-    std::string sCap1 = "0.0"; 
+    std::string sCap1 = "0.0";
 
     // density
-    std::string tDens1 = "0.0"; 
+    std::string tDens1 = "0.0";
 
     // conductivity
-    moris::real sK1 = 1.0; 
+    moris::real sK1 = 1.0;
 
     // body flux
     moris::real  sQ1 = 1.0;
@@ -102,37 +111,37 @@ namespace moris
     std::string tDomainSidesets     = gDim == 2 ? "1,2,3,4"  : "1,2,3,4,5,6";
 
     int tRefineBuffer      = 1;
-    
+
     /* ------------------------------------------------------------------------ */
     // Phase assignment
-    
+
     std::string tGetPhaseIndex = gDim == 2 ? "get_phase_index_2d" : "get_phase_index_3d";
 
     uint get_phase_index_2d( const Bitset<1>& aGeometrySigns )
     {
         // by default in void
         uint tPhaseIndex = 0;
-        
+
         // Phase solid 1
-        if(  !aGeometrySigns.test( 0 ) )  
+        if(  !aGeometrySigns.test( 0 ) )
         {
             tPhaseIndex = 1;
         }
-        
+
         return tPhaseIndex;
     }
-    
+
     uint get_phase_index_3d( const Bitset<1>& aGeometrySigns )
     {
         // by default in void
         uint tPhaseIndex = 0;
-        
+
         // Phase solid 1
-        if(  !aGeometrySigns.test( 0 ) )  
+        if(  !aGeometrySigns.test( 0 ) )
         {
             tPhaseIndex = 1;
         }
-        
+
         return tPhaseIndex;
     }
 
@@ -152,26 +161,26 @@ namespace moris
 
     /* ------------------------------------------------------------------------ */
     // Function for plane
-    
+
      moris::real Plane(
             const moris::Matrix< DDRMat >     & aCoordinates,
             const moris::Cell< moris::real* > & aGeometryParameters )
-    {        
+    {
         // coordinates in x and y directions
         moris::real tX = aCoordinates(0);
         moris::real tY = aCoordinates(1);
-        
+
         // get interface position
         moris::real tXInterface = *(aGeometryParameters(0));
         moris::real tYInterface = *(aGeometryParameters(1));
 
-        // compute signed-distance field 
+        // compute signed-distance field
         moris::real tVal = ( tX - tXInterface ) + ( tY - tYInterface );
 
         // clean return value to return non-zero value
         return std::abs(tVal) < tMinLevs ? tMinLevs : tVal;
     }
-    
+
     /* ------------------------------------------------------------------------ */
      // Derivative function for plane
 
@@ -191,7 +200,7 @@ namespace moris
 
         // initialize adv counter
         uint iv=0;
-      
+
         // loop over all advs
         for (uint ip=0;ip<2;++ip)
         {
@@ -226,7 +235,7 @@ namespace moris
     {
         return true;
     }
-    
+
    /* ------------------------------------------------------------------------ */
 
    uint tNumConstraints = 8;
@@ -309,7 +318,7 @@ namespace moris
     }
 
     /* ------------------------------------------------------------------------ */
-    
+
     void OPTParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
     {
         tParameterlist.resize( 3 );
@@ -388,13 +397,13 @@ namespace moris
 
         // main gen parameter list
         tParameterList( 0 ).push_back( prm::create_gen_parameter_list() );
-        tParameterList( 0 )( 0 ).set("isocontour_tolerance", 1e-12 );   
+        tParameterList( 0 )( 0 ).set("isocontour_tolerance", 1e-12 );
         tParameterList( 0 )( 0 ).set("number_of_phases"    , 2 );
         tParameterList( 0 )( 0 ).set("phase_function_name" , tGetPhaseIndex );
         tParameterList( 0 )( 0 ).set("initial_advs", "0.35,1.0" );
         tParameterList( 0 )( 0 ).set("lower_bounds", "0.35,1.0" );
         tParameterList( 0 )( 0 ).set("upper_bounds", "0.35,1.0" );
-        tParameterList( 0 )( 0 ).set("IQI_types"   , 
+        tParameterList( 0 )( 0 ).set("IQI_types"   ,
                                      "IQIVolumeInterface1,"
                                      "IQIVolumeMat0,IQIVolumeMat1,"
                                      "IQISidesetMeasure,"
@@ -403,10 +412,10 @@ namespace moris
                                      "IQIBulkLengthMeasure,"
                                      "IQIBulkStrainEnergy0,IQIBulkStrainEnergy1" );
         //tParameterlist( 0 )( 0 ).set("output_mesh_file", tGENOutputFile );
-        
+
         // init geometry counter
         uint tGeoCounter = 0;
-        
+
         // interface plane
         tParameterList( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
         tParameterList( 1 )( tGeoCounter ).set( "field_function_name",       "Plane" );
@@ -427,9 +436,9 @@ namespace moris
         uint tIQIIndex   = 4;
         uint tFEMIndex   = 5;
         uint tPhaseIndex = 7;
-        
+
         //------------------------------------------------------------------------------
-        // phase info 
+        // phase info
         uint tPhaseCounter = 0;
 
         tParameterList( tPhaseIndex ).push_back( prm::create_phase_parameter_list() );
@@ -450,49 +459,49 @@ namespace moris
         //------------------------------------------------------------------------------
         // init property counter
         uint tPropCounter = 0;
-        
+
         // properties for material 0
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
         tParameterList( tPropIndex )( tPropCounter ) = prm::create_property_parameter_list();
         tParameterList( tPropIndex )( tPropCounter ).set( "property_name",            "PropDensity0") ;
-        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      tDens1 );               
+        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      tDens1 );
         tPropCounter++;
 
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
         tParameterList( tPropIndex )( tPropCounter ).set( "property_name",            "PropCapacity0") ;
-        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      sCap1 );                 
+        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      sCap1 );
         tPropCounter++;
 
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
         tParameterList( tPropIndex )( tPropCounter ).set( "property_name",            "PropConductivity0") ;
-        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      std::to_string(sK1) );              
+        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      std::to_string(sK1) );
         tPropCounter++;
 
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
         tParameterList( tPropIndex )( tPropCounter ).set( "property_name",            "PropHeatLoad0") ;
-        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      std::to_string(sQ1) );              
+        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      std::to_string(sQ1) );
         tPropCounter++;
 
         // properties for material 1
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
         tParameterList( tPropIndex )( tPropCounter ) = prm::create_property_parameter_list();
         tParameterList( tPropIndex )( tPropCounter ).set( "property_name",            "PropDensity1") ;
-        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      tDens1 );               
+        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      tDens1 );
         tPropCounter++;
 
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
         tParameterList( tPropIndex )( tPropCounter ).set( "property_name",            "PropCapacity1") ;
-        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      sCap1 );                 
+        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      sCap1 );
         tPropCounter++;
 
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
         tParameterList( tPropIndex )( tPropCounter ).set( "property_name",            "PropConductivity1") ;
-        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      std::to_string(sK1) );              
+        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      std::to_string(sK1) );
         tPropCounter++;
 
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
         tParameterList( tPropIndex )( tPropCounter ).set( "property_name",            "PropHeatLoad1") ;
-        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      std::to_string(sQ1) );              
+        tParameterList( tPropIndex )( tPropCounter ).set( "function_parameters",      std::to_string(sQ1) );
         tPropCounter++;
 
         // surface flux
@@ -522,7 +531,7 @@ namespace moris
                 "PropDensity0      , Density;"
                 "PropCapacity0     , HeatCapacity") ;
         tCMCounter++;
-        
+
         // create diffusion CM for material 1
         tParameterList( tCMIndex ).push_back( prm::create_constitutive_model_parameter_list() );
         tParameterList( tCMIndex )( tCMCounter ).set( "constitutive_name", "CMDiffusion1") ;
@@ -547,7 +556,7 @@ namespace moris
         tParameterList( tSPIndex )( tSPCounter ).set( "function_parameters", "100.0") ;
         tParameterList( tSPIndex )( tSPCounter ).set( "master_properties",   "PropConductivity0,Material") ;
         tSPCounter++;
-        
+
         // Nitsche for Dirichlet on material 1
         tParameterList( tSPIndex ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_name",  "SPNitscheTemp1") ;
@@ -556,7 +565,7 @@ namespace moris
         tParameterList( tSPIndex )( tSPCounter ).set( "function_parameters", "100.0") ;
         tParameterList( tSPIndex )( tSPCounter ).set( "master_properties",   "PropConductivity1,Material") ;
         tSPCounter++;
-        
+
         // Nitsche stabilization parameter for mat0 - mat1
         tParameterList( tSPIndex ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_name",  "SPInterfaceNitsche01") ;
@@ -567,7 +576,7 @@ namespace moris
         tParameterList( tSPIndex )( tSPCounter ).set( "master_properties",   "PropConductivity0,Material") ;
         tParameterList( tSPIndex )( tSPCounter ).set( "slave_properties",    "PropConductivity1,Material") ;
         tSPCounter++;
-        
+
         // cluster measure for sideset
         tParameterList( tSPIndex ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_name",  "SPSidesetMeasure") ;
@@ -575,7 +584,7 @@ namespace moris
         tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type",  static_cast< uint >( fem::Stabilization_Type::MEASURE ) );
         tParameterList( tSPIndex )( tSPCounter ).set( "cluster_measures",    std::pair< std::string, std::string >( "CELL_SIDE_MEASURE,PRIMARY,MASTER", "ElementSize" ) );
         tSPCounter++;
-        
+
         // cluster measure for sideset length
         tParameterList( tSPIndex ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_name",  "SPSidesetLengthMeasure") ;
@@ -583,7 +592,7 @@ namespace moris
         tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type",  static_cast< uint >( fem::Stabilization_Type::MEASURE ) );
         tParameterList( tSPIndex )( tSPCounter ).set( "cluster_measures",    std::pair< std::string, std::string >( "CELL_LENGTH_MEASURE,PRIMARY,MASTER", "ElementSize" ) );
         tSPCounter++;
-        
+
         // cluster measure for bulk
         tParameterList( tSPIndex ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_name",  "SPBulkMeasure") ;
@@ -591,7 +600,7 @@ namespace moris
         tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type",  static_cast< uint >( fem::Stabilization_Type::MEASURE ) );
         tParameterList( tSPIndex )( tSPCounter ).set( "cluster_measures",    std::pair< std::string, std::string >( "CELL_MEASURE,PRIMARY,MASTER", "ElementSize" ) );
         tSPCounter++;
-        
+
         // cluster measure for bulk length
         tParameterList( tSPIndex ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_name",  "SPBulkLengthMeasure") ;
@@ -612,7 +621,7 @@ namespace moris
             tParameterList( tSPIndex )( tSPCounter ).set( "master_properties",   "PropConductivity0,Material") ;
             tParameterList( tSPIndex )( tSPCounter ).set( "slave_properties",   "PropConductivity0,Material") ;
             tSPCounter++;
-            
+
             // ghost penalty for material 1
             tParameterList( tSPIndex ).push_back( prm::create_stabilization_parameter_parameter_list() );
             tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_name",  "SPGPTemp1") ;
@@ -628,7 +637,7 @@ namespace moris
         //------------------------------------------------------------------------------
         // init IWG counter
         uint tIWGCounter = 0;
-        
+
         // create IWG for material 0 - bulk diffusion
         tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name",                   "IWGDiffusion0Bulk") ;
@@ -637,8 +646,8 @@ namespace moris
         tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "TEMP") ;
         tParameterList( tIWGIndex )( tIWGCounter ).set( "master_constitutive_models", "CMDiffusion0,Diffusion") ;
         tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropHeatLoad0,Load") ;
-        tIWGCounter++; 
-        
+        tIWGCounter++;
+
         // create IWG for material 1 - bulk diffusion
         tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name",                   "IWGDiffusion1Bulk") ;
@@ -647,8 +656,8 @@ namespace moris
         tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "TEMP") ;
         tParameterList( tIWGIndex )( tIWGCounter ).set( "master_constitutive_models", "CMDiffusion1,Diffusion") ;
         tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropHeatLoad1,Load") ;
-        tIWGCounter++;   
-        
+        tIWGCounter++;
+
         // create IWG for interface conditions mat0 - mat1
         tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name",                   "IWGInterface01") ;
@@ -672,12 +681,12 @@ namespace moris
         tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual",               "TEMP") ;
         tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties",          "PropSurfaceFlux,Neumann") ;
         tIWGCounter++;
-        
+
         // create IWG for Dirichlet boundary conditions on mat 0
         tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name",                   "IWGOutletTemp0") ;
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type",              static_cast< uint >( fem::Element_Type::SIDESET ) );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",
                                                         static_cast< uint >( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE ) );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name",          "PhaseMaterial0" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "side_ordinals",              "4" );
@@ -686,12 +695,12 @@ namespace moris
         tParameterList( tIWGIndex )( tIWGCounter ).set( "master_constitutive_models", "CMDiffusion0,Diffusion") ;
         tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters",   "SPNitscheTemp0,DirichletNitsche") ;
         tIWGCounter++;
-        
+
         // create IWG for Dirichlet boundary conditions on mat 1
         tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name",                   "IWGOutletTemp1") ;
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type",              static_cast< uint >( fem::Element_Type::SIDESET ) );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",
                                                         static_cast< uint >( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE ) );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name",          "PhaseMaterial1" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "side_ordinals",              "4" );
@@ -702,13 +711,13 @@ namespace moris
         tIWGCounter++;
 
         if (tUseGhost)
-        { 
+        {
             // create IWG for ghost on material 0
             tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
             tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name",                   "IWGGP0Temp") ;
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type",              
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type",
                                                             static_cast< uint >( fem::Element_Type::DOUBLE_SIDESET ) );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",
                                                             static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
             tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name",          "PhaseMaterial0" );
             tParameterList( tIWGIndex )( tIWGCounter ).set( "slave_phase_name",           "PhaseMaterial0" );
@@ -718,9 +727,9 @@ namespace moris
             // create IWG for ghost on material 1
             tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
             tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name",                   "IWGGP1Temp") ;
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type",              
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type",
                                                             static_cast< uint >( fem::Element_Type::DOUBLE_SIDESET ) );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",                   
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type",
                                                             static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
             tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name",          "PhaseMaterial1" );
             tParameterList( tIWGIndex )( tIWGCounter ).set( "slave_phase_name",           "PhaseMaterial1" );
@@ -740,22 +749,22 @@ namespace moris
         tParameterList( tIQIIndex )( tIQICounter ).set( "master_phase_name",          "PhaseAll" );
         tParameterList( tIQIIndex )( tIQICounter ).set( "dof_quantity",               "TEMP");
         tParameterList( tIQIIndex )( tIQICounter ).set( "vectorial_field_index",      0 );
-        tIQICounter++; 
-        
+        tIQICounter++;
+
         // Volume mat0
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name",                   "IQIVolumeMat0") ;
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::VOLUME ) );
         tParameterList( tIQIIndex )( tIQICounter ).set( "master_phase_name",          "PhaseMaterial0" );
         tIQICounter++;
-        
+
         // Volume mat1
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name",                   "IQIVolumeMat1") ;
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::VOLUME ) );
         tParameterList( tIQIIndex )( tIQICounter ).set( "master_phase_name",          "PhaseMaterial1" );
         tIQICounter++;
-        
+
         // Interface length
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name",                   "IQIVolumeInterface1") ;
@@ -764,7 +773,7 @@ namespace moris
         tParameterList( tIQIIndex )( tIQICounter ).set( "master_phase_name",          "PhaseMaterial1" );
         tParameterList( tIQIIndex )( tIQICounter ).set( "neighbor_phases",            "PhaseMaterial0" );
         tIQICounter++;
-        
+
         // strain energy mat0
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name",                   "IQIBulkStrainEnergy0");
@@ -772,7 +781,7 @@ namespace moris
         tParameterList( tIQIIndex )( tIQICounter ).set( "master_phase_name",          "PhaseMaterial0" );
         tParameterList( tIQIIndex )( tIQICounter ).set( "master_constitutive_models", "CMDiffusion0,Elast");
         tIQICounter++;
-        
+
         // strain energy mat1
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name",                   "IQIBulkStrainEnergy1");
@@ -780,7 +789,7 @@ namespace moris
         tParameterList( tIQIIndex )( tIQICounter ).set( "master_phase_name",          "PhaseMaterial1" );
         tParameterList( tIQIIndex )( tIQICounter ).set( "master_constitutive_models", "CMDiffusion1,Elast");
         tIQICounter++;
-        
+
         // IQI with sideset measure
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name",                   "IQISidesetMeasure");
@@ -790,7 +799,7 @@ namespace moris
         tParameterList( tIQIIndex )( tIQICounter ).set( "neighbor_phases",            "PhaseMaterial0" );
         tParameterList( tIQIIndex )( tIQICounter ).set( "stabilization_parameters",   "SPSidesetMeasure,Stabilization");
         tIQICounter++;
-        
+
         // IQI with sideset length measure
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name",                   "IQISidesetLengthMeasure");
@@ -800,7 +809,7 @@ namespace moris
         tParameterList( tIQIIndex )( tIQICounter ).set( "neighbor_phases",            "PhaseMaterial0" );
         tParameterList( tIQIIndex )( tIQICounter ).set( "stabilization_parameters",   "SPSidesetLengthMeasure,Stabilization");
         tIQICounter++;
-        
+
         // IQI with bulk measure
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name",                   "IQIBulkMeasure");
@@ -808,7 +817,7 @@ namespace moris
         tParameterList( tIQIIndex )( tIQICounter ).set( "master_phase_name",          "PhaseMaterial1" );
         tParameterList( tIQIIndex )( tIQICounter ).set( "stabilization_parameters",   "SPBulkMeasure,Stabilization");
         tIQICounter++;
-        
+
          // IQI with bulk length measure
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name",                   "IQIBulkLengthMeasure");
@@ -884,10 +893,10 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "File_Name"  , std::pair< std::string, std::string >( "./", tOutputFileName ) );
         tParameterlist( 0 )( 0 ).set( "Mesh_Type"  , static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
         tParameterlist( 0 )( 0 ).set( "Set_Names"  , tTotalDomain );
-        tParameterlist( 0 )( 0 ).set( "Field_Names", 
+        tParameterlist( 0 )( 0 ).set( "Field_Names",
                                       "TEMP,VOLUME_MAT1,VOLUME_MAT0,VOLUME_INT1") ;
         tParameterlist( 0 )( 0 ).set( "Field_Type" , "NODAL,GLOBAL,GLOBAL,GLOBAL") ;
-        tParameterlist( 0 )( 0 ).set( "IQI_Names"  , 
+        tParameterlist( 0 )( 0 ).set( "IQI_Names"  ,
                                       "IQIBulkTEMP,IQIVolumeMat1,IQIVolumeMat0,IQIVolumeInterface1") ;
         tParameterlist( 0 )( 0 ).set( "Save_Frequency", 1 );
     }

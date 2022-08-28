@@ -1,10 +1,12 @@
 /*
- * cl_MTK_Face_Cluster.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Nov 5, 2018
- *      Author: doble
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Side_Cluster.cpp
+ *
  */
-
 
 #include <catch.hpp>
 #include <iostream>
@@ -54,8 +56,6 @@ TEST_CASE( "MTK Single Side Cluster", "[MTK_Side_Cluster]" )
         // Tetrathedral cells in material phase 1
         Matrix<IndexMat> tCellToNodeGhost0 = {{21, 27, 31, 30},{17, 18, 21, 27},{31, 27, 34, 36},{18, 20, 22, 27},{36, 27, 38, 40},{20, 19, 23, 27},{17, 24, 19, 27},{30, 27, 31, 44},{31, 27, 36, 44},{36, 27, 40, 44},{27, 30, 40, 44},{17, 26, 18, 27},{18, 26, 20, 27},{20, 26, 19, 27},{17, 19, 26, 27},{21, 28, 30, 31},{21, 28, 31, 29},{21, 29, 31, 32},{27, 21, 31, 32},{18, 21, 27, 32},{28, 21, 30, 33},{21, 27, 30, 33},{21, 17, 27, 33},{27, 22, 34, 36},{34, 22, 35, 36},{22, 35, 36, 37},{27, 22, 36, 37},{20, 22, 27, 37},{31, 27, 32, 34},{27, 18, 32, 34},{27, 22, 18, 34},{27, 23, 38, 40},{38, 23, 39, 40},{36, 27, 37, 38},{27, 20, 37, 38},{27, 23, 20, 38},{23, 39, 40, 41},{27, 23, 40, 41},{19, 23, 27, 41},{27, 24, 42, 43},{30, 27, 40, 43},{40, 27, 42, 43},{40, 27, 41, 42},{27, 19, 41, 42},{27, 24, 19, 42},{27, 30, 33, 43},{17, 27, 33, 43},{24, 27, 17, 43}};        Matrix<IndexMat> tCellIdsGhost0 = {{5, 7, 9, 11, 13, 15, 19, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 34, 35, 36, 37, 38, 39, 40, 41, 45, 46, 47, 48, 49, 50, 51, 52, 56, 57, 58, 59, 60, 61, 64, 65, 66, 67, 68, 69, 70, 71, 72}};
 
-
-
         moris::mtk::MtkSetsInfo tMtkMeshSets;
         // Define side sets on the integration mesh (i.e. fixed bc, interface and ghost)
 
@@ -80,8 +80,6 @@ TEST_CASE( "MTK Single Side Cluster", "[MTK_Side_Cluster]" )
         tGhost.mElemIdsAndSideOrds = &tGhostCellAndOrds;
         tGhost.mSideSetName        = "ghost_facets" ;
         tMtkMeshSets.add_side_set(&tGhost);
-
-
 
         // add block sets (Still in the mesh but not tested here)
         // Tet Cells in Omega 0
@@ -113,7 +111,6 @@ TEST_CASE( "MTK Single Side Cluster", "[MTK_Side_Cluster]" )
         tCellsForGhost.mBlockSetName = "Ghost_Cells_0";
         tCellsForGhost.mBlockSetTopo = CellTopology::HEX8;
         tMtkMeshSets.add_block_set(&tCellsForGhost);
-
 
         // Mesh data input structure
         moris::mtk::MtkMeshData tMeshDataInput(3);
@@ -163,7 +160,6 @@ TEST_CASE( "MTK Single Side Cluster", "[MTK_Side_Cluster]" )
         // add cluster to input data
         tMeshDataInput.CellClusterInput = &tCellClusterInput;
 
-
         // ---------------------------------------
         // SIDE CLUSTERING
         // NOTE: Only add non-trivial side clusters to this data structure
@@ -183,7 +179,6 @@ TEST_CASE( "MTK Single Side Cluster", "[MTK_Side_Cluster]" )
         tMeshDataInput.SideClusterInput = & tSideClusterInput;
 
         Integration_Mesh* tIntegMesh1  = create_integration_mesh(MeshType::STK,tMeshDataInput,tInterpMesh1);
-
 
         // ---------------------------------------
         // TEST SIDE CLUSTERING
@@ -212,7 +207,6 @@ TEST_CASE( "MTK Single Side Cluster", "[MTK_Side_Cluster]" )
         moris::Matrix<moris::DDRMat> tInterfaceParamCoords = tInterfaceSideClusters(0)->get_vertices_local_coordinates_wrt_interp_cell();
         CHECK(all_true(tInterfaceParamCoords == tInterfaceLocalCoordinatesWrtInterpCell));
 
-
         // verify local coords one by one
         moris::Cell<moris::mtk::Vertex const *> tVerticesInCluster = tInterfaceSideClusters(0)->get_vertices_in_cluster();
 
@@ -223,7 +217,6 @@ TEST_CASE( "MTK Single Side Cluster", "[MTK_Side_Cluster]" )
             moris::Matrix<moris::DDRMat> tVertexLocalCoord     =  tInterfaceSideClusters(0)->get_vertex_local_coordinate_wrt_interp_cell(tVerticesInCluster(i));
             moris::Matrix<moris::DDRMat> tGoldVertexLocalCoord =  tInterfaceLocalCoordinatesWrtInterpCell.get_row(i);
             CHECK(all_true(tVertexLocalCoord == tGoldVertexLocalCoord));
-
 
         }
 
@@ -253,10 +246,8 @@ TEST_CASE( "MTK Single Side Cluster", "[MTK_Side_Cluster]" )
         CHECK(tFixedSideClusters.size() == 1);
         CHECK(tFixedSideClusters(0)->is_trivial() == true);
 
-
         // check side set labels, index
         CHECK(tIntegMesh1->get_num_side_sets() == 3);
-
 
         tSideSetOrd = tIntegMesh1->get_side_set_index("iside");
         CHECK(tSideSetOrd == 0);
@@ -268,7 +259,6 @@ TEST_CASE( "MTK Single Side Cluster", "[MTK_Side_Cluster]" )
         delete tInterpMesh1;
         delete tIntegMesh1;
     }
-
 
 }
 }

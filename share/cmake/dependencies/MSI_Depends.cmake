@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # MSI Dependencies --------------------------------------------------------
 # -------------------------------------------------------------------------
 
@@ -24,3 +31,4 @@ include(${MORIS_DEPENDS_DIR}/DLA_Depends.cmake)
 # needed includes for test
 include(${MORIS_DEPENDS_DIR}/ALG_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/NLA_Depends.cmake)
+

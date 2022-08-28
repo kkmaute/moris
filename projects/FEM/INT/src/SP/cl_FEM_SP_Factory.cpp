@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_SP_Factory.cpp
+ *
+ */
+
 #include "assert.hpp"
 //FEM/INT/src
 #include "cl_FEM_SP_Factory.hpp"
@@ -26,7 +36,6 @@
 #include "cl_FEM_SP_Spalart_Allmaras_Nitsche_Interface.hpp"
 #include "cl_FEM_SP_Measure.hpp"
 #include "cl_FEM_SP_Lagrange_Multiplier_L2.hpp"
-
 
 namespace moris
 {
@@ -122,3 +131,4 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
+

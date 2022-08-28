@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_SDF_Object.cpp
+ *
+ */
 
 #include <cl_SDF_Object.hpp>
 #include <fstream>
@@ -102,7 +111,6 @@ namespace moris
                             &tX[ 1 ],
                             &tX[ 2 ] );
 
-
                     // test coordinates for highpass
                     for( uint i=0; i<3; ++i )
                     {
@@ -135,7 +143,6 @@ namespace moris
             mTriangles.resize( tNumberOfTriangles, nullptr );
 
             // temporary one-based Ids for triangle nodes 1, 2 and 3
-
 
             // loop over all lines
             for ( uint k=0; k<tBufferLength; ++k )
@@ -341,3 +348,4 @@ namespace moris
 //-------------------------------------------------------------------------------
     } /* namespace sdf */
 } /* namespace moris */
+

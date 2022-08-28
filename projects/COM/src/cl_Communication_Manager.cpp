@@ -1,8 +1,11 @@
 /*
- * cl_MPI_Comm_Manager.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Mar 21, 2018
- *      Author: doble
+ *------------------------------------------------------------------------------------
+ *
+ * cl_Communication_Manager.cpp
+ *
  */
 
 #include "cl_Communication_Manager.hpp"
@@ -136,3 +139,4 @@ namespace moris
         return mMorisExec;
     }
 }
+

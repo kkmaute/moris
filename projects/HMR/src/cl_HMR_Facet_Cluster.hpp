@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_HMR_Facet_Cluster.hpp
  *
- *  Created on: Sep 4, 2019
- *      Author: doble
  */
 
 #ifndef PROJECTS_HMR_SRC_CL_HMR_FACET_CLUSTER_HPP_
@@ -67,8 +70,5 @@ public:
 }
 }
 
-
-
-
-
 #endif /* PROJECTS_HMR_SRC_CL_HMR_FACET_CLUSTER_HPP_ */
+

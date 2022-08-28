@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_HMR_Mesh_Base.hpp
  *
- *  Created on: Jun 12, 2018
- *      Author: messe
  */
 
 #ifndef SRC_HMR_CL_HMR_MESH_BASE_HPP_
@@ -327,7 +330,6 @@ namespace moris
                     }
                 }
 
-
                 // ----------------------------------------------------------------------------
 
                 /**
@@ -339,7 +341,6 @@ namespace moris
                 void get_basis_coords_of_element(
                         Matrix< DDRMat >   & aBasisCoords,
                         const luint & aElementIndex );
-
 
                 // ----------------------------------------------------------------------------
 
@@ -505,7 +506,6 @@ namespace moris
 
                 //------------------------------------------------------------------------------
 
-
                 void encode_foreign_basis_path(       Cell< Basis* >    & aBasis,
                         const moris_id          & aOwner,
                         Matrix< DDLUMat > & aElementAncestors,
@@ -519,3 +519,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_HMR_CL_HMR_MESH_BASE_HPP_ */
+

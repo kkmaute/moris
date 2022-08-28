@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Field_Proxy.cpp
+ *
+ */
 
 #include "../MTK_Test_Proxy/cl_MTK_Field_Proxy.hpp"
 

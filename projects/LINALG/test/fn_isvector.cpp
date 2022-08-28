@@ -1,11 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_isvector.cpp
  *
- *  Created on: Aug 29, 2018
- *      Author: schmidt
  */
 
-// Third-party header files.
 #include <catch.hpp>
 #include "fn_equal_to.hpp" // ALG/src
 #include "cl_Matrix.hpp"
@@ -33,3 +35,4 @@ TEST_CASE( "moris::isvector", "[linalgebra],[isvector]" )
     CHECK( equal_to( tIsVector_4, false ) );
     }
 }
+

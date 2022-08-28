@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # -------------------------------------------------------------------------
 # Armadillo libraries -----------------------------------------------------
 # -------------------------------------------------------------------------
@@ -66,3 +73,4 @@ endif()
 #link_directories(${MORIS_ARMADILLO_LIBRARY_DIRS})
 #list(APPEND MORIS_ARMADILLO_EIGEN_LIBS "-larmadillo")
 set(ARMADILLO_FOUND_ONCE TRUE)
+

@@ -1,9 +1,12 @@
-// /*
-//  * UT_XTK_HMR_2D.cpp
-//  *
-//  *  Created on: Sep 10, 2019
-//  *      Author: doble
-//  */
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_XTK_HMR_2D.cpp
+ *
+ */
 
 // #include "catch.hpp"
 
@@ -28,8 +31,6 @@
 // #include "cl_Matrix.hpp"        //LINALG
 // #include "linalg_typedefs.hpp"
 // #include "fn_equal_to.hpp" // ALG/src
-
-
 
 // #include "cl_HMR_Mesh_Interpolation.hpp"
 // #include "cl_HMR.hpp"
@@ -136,7 +137,6 @@
 
 //             hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-
 //             moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
 //             tGeometryVector(0) = std::make_shared<moris::ge::Circle>(0.0, 0.0, 1.1);
 
@@ -154,7 +154,6 @@
 //             tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
 
 //             tXTKModel.construct_face_oriented_ghost_penalization_cells();
-
 
 //             delete tInterpMesh;
 //         }
@@ -244,7 +243,7 @@
 
 // TEST_CASE("2D Conformal Coincident Subdivision","[CM_2D_LIN_COIN]")
 // {
-    
+
 //     if(par_size()<=1)
 //     {
 //         std::string tFieldName = "Cylinder";
@@ -327,6 +326,5 @@
 //     }
 // }
 
-
-
 // }
+

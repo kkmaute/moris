@@ -1,9 +1,13 @@
 /*
- * cl_FEM_IWG_Compressible_NS_Flux_Matrices_Var_Derivs.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Mar 31, 2021
- *      Author: wunsch
+ *------------------------------------------------------------------------------------
+ *
+ * fn_FEM_IWG_Compressible_NS_Flux_Matrices_Var_Derivs.cpp
+ *
  */
+
 #include "fn_FEM_IWG_Compressible_NS.hpp"
 
 #include "fn_trans.hpp"
@@ -16,22 +20,22 @@ namespace moris
     {
         //------------------------------------------------------------------------------
 
-        void eval_VL_dAdY( 
-                std::shared_ptr< Material_Model >                   aMM,  
+        void eval_VL_dAdY(
+                std::shared_ptr< Material_Model >                   aMM,
                 std::shared_ptr< Constitutive_Model >               aCM,
                 Field_Interpolator_Manager                        * aMasterFIManager,
-                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes, 
+                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes,
                 const Matrix< DDRMat >                            & aVL,
                 const uint                                          aI,
                 Matrix< DDRMat >                                  & aVLdAdY )
         {
             // check inputs
-            MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ), 
+            MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ),
                     "fn_FEM_IWG_Compressible_NS::eval_VL_dAdY - list of aResidualDofTypes not supported, see messages above." );
 
             // get the velocity FI
             Field_Interpolator * tFIVelocity =  aMasterFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
-            
+
             // get number of Space dimensions
             uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
 
@@ -40,11 +44,11 @@ namespace moris
             real tT   = aMM->temperature()( 0 );
             real tRho = aMM->density()( 0 );
             real tR   = tP / tRho / tT;
-            real tCv  = aMM->Cv()( 0 ); 
+            real tCv  = aMM->Cv()( 0 );
             real tU1  = tFIVelocity->val()( 0 );
             real tU2  = tFIVelocity->val()( 1 );
 
-            // help values   
+            // help values
             real tU1sq = tU1*tU1;
             real tU2sq = tU2*tU2;
             real tC1 = 1.0/(tR*tT);
@@ -53,17 +57,17 @@ namespace moris
             real tC4 = tP/(tR*tT*tT);
 
             // check the pre-multiplication vector
-            MORIS_ASSERT( aVL.length() == tNumSpaceDims + 2, 
-                    "fn_FEM_IWG_Compressible_NS::eval_VL_dAdY - length of pre-multiplication vector incorrect." );  
+            MORIS_ASSERT( aVL.length() == tNumSpaceDims + 2,
+                    "fn_FEM_IWG_Compressible_NS::eval_VL_dAdY - length of pre-multiplication vector incorrect." );
 
             // get values form pre-multiplication vector
             real tVL1 = aVL( 0 );
             real tVL2 = aVL( 1 );
             real tVL3 = aVL( 2 );
-            real tVL4 = aVL( 3 );      
+            real tVL4 = aVL( 3 );
 
             // clang-format off
-            // assemble matrices based on 
+            // assemble matrices based on
             switch ( tNumSpaceDims )
             {
                 // for 2D
@@ -82,8 +86,8 @@ namespace moris
                                 {                       tC1*(tVL2 + tU1*tVL4),               tC2*tVL4,                    0.0,                                          -tC4*(tVL2 + tU1*tVL4) },
                                 {                       tC1*(tVL3 + tU2*tVL4),                    0.0,               tC2*tVL4,                                          -tC4*(tVL3 + tU2*tVL4) },
                                 { -tC3*(tVL1 + tQ*tVL4 + tU1*tVL2 + tU2*tVL3), -tC4*(tVL2 + tU1*tVL4), -tC4*(tVL3 + tU2*tVL4), (tC4*(2.0*tVL1 + 2.0*tQ*tVL4 + 2.0*tU1*tVL2 + 2.0*tU2*tVL3))/tT } };
- 
-                            break; 
+
+                            break;
                         }
 
                         case 1 :
@@ -93,8 +97,8 @@ namespace moris
                                 { tC1*(tVL4*tU1sq + 2.0*tVL2*tU1 + tVL1 + tQ*tVL4 + tU2*tVL3 + tVL4/tC1 + tCv*tT*tVL4),                                                        tC2*(2.0*tVL2 + 3.0*tU1*tVL4),      tC2*(tVL3 + tU2*tVL4),        -tC4*(tVL4*tU1sq + 2.0*tVL2*tU1 + tVL1 + tQ*tVL4 + tU2*tVL3) },
                                 {                                                            tC1*tU1*(tVL3 + tU2*tVL4),                                                                tC2*(tVL3 + tU2*tVL4),               tC2*tU1*tVL4,                                          -tC4*tU1*(tVL3 + tU2*tVL4) },
                                 {                                      -tC3*tU1*(tVL1 + tQ*tVL4 + tU1*tVL2 + tU2*tVL3),                         -tC4*(tVL4*tU1sq + 2.0*tVL2*tU1 + tVL1 + tQ*tVL4 + tU2*tVL3), -tC4*tU1*(tVL3 + tU2*tVL4), (tC4*tU1*(2.0*tVL1 + 2.0*tQ*tVL4 + 2.0*tU1*tVL2 + 2.0*tU2*tVL3))/tT } };
- 
-                            break; 
+
+                            break;
                         }
 
                         case 2 :
@@ -104,10 +108,10 @@ namespace moris
                                 {                                                            tC1*tU2*(tVL2 + tU1*tVL4),               tC2*tU2*tVL4,                                                                tC2*(tVL2 + tU1*tVL4),                                          -tC4*tU2*(tVL2 + tU1*tVL4) },
                                 { tC1*(tVL4*tU2sq + 2.0*tVL3*tU2 + tVL1 + tQ*tVL4 + tU1*tVL2 + tVL4/tC1 + tCv*tT*tVL4),      tC2*(tVL2 + tU1*tVL4),                                                        tC2*(2.0*tVL3 + 3.0*tU2*tVL4),        -tC4*(tVL4*tU2sq + 2.0*tVL3*tU2 + tVL1 + tQ*tVL4 + tU1*tVL2) },
                                 {                                      -tC3*tU2*(tVL1 + tQ*tVL4 + tU1*tVL2 + tU2*tVL3), -tC4*tU2*(tVL2 + tU1*tVL4),                         -tC4*(tVL4*tU2sq + 2.0*tVL3*tU2 + tVL1 + tQ*tVL4 + tU1*tVL2), (tC4*tU2*(2.0*tVL1 + 2.0*tQ*tVL4 + 2.0*tU1*tVL2 + 2.0*tU2*tVL3))/tT } };
- 
-                            break; 
+
+                            break;
                         }
-                    
+
                         default:
                         {
                             // error, A-matrix index unknown
@@ -125,10 +129,10 @@ namespace moris
                 {
                     // get the z-velocity
                     real tU3 = tFIVelocity->val()( 2 );
-                    real tU3sq = tU3*tU3; 
+                    real tU3sq = tU3*tU3;
 
                     // get last value from pre-multiplication vector
-                    real tVL5 = aVL( 4 ); 
+                    real tVL5 = aVL( 4 );
 
                     // velocity magintude
                     real tQ  = ( tU1sq + tU2sq + tU3sq ) / 2.0;
@@ -145,7 +149,7 @@ namespace moris
                                 {                                  tC1*(tVL4 + tU3*tVL5),                    0.0,                    0.0,               tC2*tVL5,                                           -tC4*(tVL4 + tU3*tVL5) },
                                 { -tC3*(tVL1 + tQ*tVL5 + tU1*tVL2 + tU2*tVL3 + tU3*tVL4), -tC4*(tVL2 + tU1*tVL5), -tC4*(tVL3 + tU2*tVL5), -tC4*(tVL4 + tU3*tVL5), (tC4*2.0*(tVL1 + tQ*tVL5 + tU1*tVL2 + tU2*tVL3 + tU3*tVL4))/tT } };
 
-                            break; 
+                            break;
                         }
 
                         case 1 :
@@ -157,7 +161,7 @@ namespace moris
                                 {                                                                       tC1*tU1*(tVL4 + tU3*tVL5),                                                                           tC2*(tVL4 + tU3*tVL5),                        0.0,               tC2*tU1*tVL5,                                              -tC4*tU1*(tVL4 + tU3*tVL5) },
                                 {                                      -tC3*tU1*(tVL1 + tQ*tVL5 + tU1*tVL2 + tU2*tVL3 + tU3*tVL4),                         -tC4*(tVL5*tU1sq + 2.0*tVL2*tU1 + tVL1 + tQ*tVL5 + tU2*tVL3 + tU3*tVL4), -tC4*tU1*(tVL3 + tU2*tVL5), -tC4*tU1*(tVL4 + tU3*tVL5),      (tC4*tU1*2.0*(tVL1 + tQ*tVL5 + tU1*tVL2 + tU2*tVL3 + tU3*tVL4))/tT } };
 
-                            break; 
+                            break;
                         }
 
                         case 2 :
@@ -169,12 +173,12 @@ namespace moris
                                 {                                                                       tC1*tU2*(tVL4 + tU3*tVL5),                        0.0,                                                                           tC2*(tVL4 + tU3*tVL5),               tC2*tU2*tVL5,                                              -tC4*tU2*(tVL4 + tU3*tVL5) },
                                 {                                      -tC3*tU2*(tVL1 + tQ*tVL5 + tU1*tVL2 + tU2*tVL3 + tU3*tVL4), -tC4*tU2*(tVL2 + tU1*tVL5),                         -tC4*(tVL5*tU2sq + 2.0*tVL3*tU2 + tVL1 + tQ*tVL5 + tU1*tVL2 + tU3*tVL4), -tC4*tU2*(tVL4 + tU3*tVL5),      (tC4*tU2*2.0*(tVL1 + tQ*tVL5 + tU1*tVL2 + tU2*tVL3 + tU3*tVL4))/tT } };
 
-                            break; 
+                            break;
                         }
 
                         case 3 :
                         {
-                            aVLdAdY = { 
+                            aVLdAdY = {
                                 {                                                                                             0.0,  tC1*tU3*(tVL2 + tU1*tVL5),  tC1*tU3*(tVL3 + tU2*tVL5), tC1*(tVL5*tU3sq + 2.0*tVL4*tU3 + tVL1 + tQ*tVL5 + tU1*tVL2 + tU2*tVL3 + tVL5/tC1 + tCv*tT*tVL5),              -tC3*tU3*(tVL1 + tQ*tVL5 + tU1*tVL2 + tU2*tVL3 + tU3*tVL4) },
                                 {                                                                       tC1*tU3*(tVL2 + tU1*tVL5),               tC2*tU3*tVL5,                        0.0,                                                                           tC2*(tVL2 + tU1*tVL5),                                              -tC4*tU3*(tVL2 + tU1*tVL5) },
                                 {                                                                       tC1*tU3*(tVL3 + tU2*tVL5),                        0.0,               tC2*tU3*tVL5,                                                                           tC2*(tVL3 + tU2*tVL5),                                              -tC4*tU3*(tVL3 + tU2*tVL5) },
@@ -183,7 +187,7 @@ namespace moris
 
                             break;
                         }
-                    
+
                         default:
                         {
                             // error, A-matrix index unknown
@@ -194,8 +198,8 @@ namespace moris
 
                     // break for 3D case
                     break;
-                }              
-            
+                }
+
                 // unknown number of spatial dimensions
                 default:
                 {
@@ -207,22 +211,22 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void eval_dAdY( 
-                std::shared_ptr< Material_Model >                   aMM,  
+        void eval_dAdY(
+                std::shared_ptr< Material_Model >                   aMM,
                 std::shared_ptr< Constitutive_Model >               aCM,
                 Field_Interpolator_Manager                        * aMasterFIManager,
-                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes, 
+                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes,
                 const uint                                          aAind,
                 const uint                                          aYind,
                 Matrix< DDRMat >                                  & adAdY )
         {
             // check inputs
-            MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ), 
+            MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ),
                     "fn_FEM_IWG_Compressible_NS::eval_dAdY - list of aResidualDofTypes not supported, see messages above." );
 
             // get the velocity FI
             Field_Interpolator * tFIVelocity =  aMasterFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
-            
+
             // get number of Space dimensions
             uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
 
@@ -231,11 +235,11 @@ namespace moris
             real tT   = aMM->temperature()( 0 );
             real tRho = aMM->density()( 0 );
             real tR   = tP / tRho / tT;
-            real tCv  = aMM->Cv()( 0 ); 
+            real tCv  = aMM->Cv()( 0 );
             real tU1  = tFIVelocity->val()( 0 );
             real tU2  = tFIVelocity->val()( 1 );
 
-            // help values   
+            // help values
             real tU1sq = tU1*tU1;
             real tU2sq = tU2*tU2;
             real tC1 = 1.0/(tR*tT);
@@ -353,7 +357,7 @@ namespace moris
                                     break;
                                 }
                             }
-                                    
+
                             // break for VX case
                             break;
                         }
@@ -382,7 +386,7 @@ namespace moris
                                         {         0.0,     0.0,     0.0,          0.0 },
                                         {         0.0,     0.0,     0.0,          0.0 },
                                         {     tC1*tU1,     tC2,     0.0,     -tC4*tU1 },
-                                        { tC1*tU1*tU2, tC2*tU2, tC2*tU1, -tC4*tU1*tU2 } };  
+                                        { tC1*tU1*tU2, tC2*tU2, tC2*tU1, -tC4*tU1*tU2 } };
                                     break;
                                 }
 
@@ -404,7 +408,7 @@ namespace moris
                                     break;
                                 }
                             }
-                                    
+
                             // break for VY case
                             break;
                         }
@@ -454,12 +458,12 @@ namespace moris
                                     MORIS_ASSERT( false, "fn_FEM_IWG_Compressible_NS::eval_dAdY - index for A-matrix out of bounds." );
                                     break;
                                 }
-                            }        
-                            
+                            }
+
                             // break for TEMP case
                             break;
                         }
-                    
+
                         default:
                         {
                             MORIS_ASSERT( false, "fn_FEM_IWG_Compressible_NS::eval_dAdY - index for Y derivative out of bounds." );
@@ -475,7 +479,7 @@ namespace moris
                 case 3 :
                 {
                     // get Z-velocity
-                    real tU3  = tFIVelocity->val()( 2 );  
+                    real tU3  = tFIVelocity->val()( 2 );
                     real tU3sq = tU3*tU3;
 
                     // get the 1/2 * v^2 term
@@ -544,7 +548,7 @@ namespace moris
                                     MORIS_ASSERT( false, "fn_FEM_IWG_Compressible_NS::eval_dAdY - index for A-matrix out of bounds." );
                                     break;
                                 }
-                            }                                    
+                            }
 
                             // break for PRESSURE case
                             break;
@@ -611,7 +615,7 @@ namespace moris
                                     break;
                                 }
                             }
-                            
+
                             // break for VX case
                             break;
                         }
@@ -677,7 +681,7 @@ namespace moris
                                     break;
                                 }
                             }
-                            
+
                             // break for VY case
                             break;
                         }
@@ -808,23 +812,23 @@ namespace moris
                                     MORIS_ASSERT( false, "fn_FEM_IWG_Compressible_NS::eval_dAdY - index for A-matrix out of bounds." );
                                     break;
                                 }
-                            }                                    
+                            }
 
                             // break for TEMP case
                             break;
                         }
-                    
+
                         default:
                         {
                             MORIS_ASSERT( false, "fn_FEM_IWG_Compressible_NS::eval_dAdY - index for Y derivative out of bounds." );
                             break;
                         }
                     }
-                    
+
                     // break for 3D case
                     break;
                 }
-            
+
                 default:
                 {
                     MORIS_ERROR( false, "fn_FEM_IWG_Compressible_NS::eval_dAdY() - Number of space dimensions must be 2 or 3" );
@@ -836,22 +840,22 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void eval_dAdY_VR( 
-                std::shared_ptr< Material_Model >                   aMM,  
+        void eval_dAdY_VR(
+                std::shared_ptr< Material_Model >                   aMM,
                 std::shared_ptr< Constitutive_Model >               aCM,
                 Field_Interpolator_Manager                        * aMasterFIManager,
-                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes, 
+                const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes,
                 const Matrix< DDRMat >                            & aVR,
                 const uint                                          aI,
                 Matrix< DDRMat >                                  & adAdYVR )
         {
             // check inputs
-            MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ), 
+            MORIS_ASSERT( check_residual_dof_types( aResidualDofTypes ),
                     "fn_FEM_IWG_Compressible_NS::eval_dAdY_VR - list of aResidualDofTypes not supported, see messages above." );
 
             // get the velocity FI
             Field_Interpolator * tFIVelocity =  aMasterFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
-            
+
             // get number of Space dimensions
             uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
 
@@ -860,11 +864,11 @@ namespace moris
             real tT   = aMM->temperature()( 0 );
             real tRho = aMM->density()( 0 );
             real tR   = tP / tRho / tT;
-            real tCv  = aMM->Cv()( 0 ); 
+            real tCv  = aMM->Cv()( 0 );
             real tU1  = tFIVelocity->val()( 0 );
             real tU2  = tFIVelocity->val()( 1 );
 
-            // help values   
+            // help values
             real tU1sq = tU1*tU1;
             real tU2sq = tU2*tU2;
             real tTsq = tT*tT;
@@ -872,17 +876,17 @@ namespace moris
             //real tC4 = tP/(tR*tT*tT);
 
             // check the pre-multiplication vector
-            MORIS_ASSERT( aVR.length() == tNumSpaceDims + 2, 
-                    "fn_FEM_IWG_Compressible_NS::eval_dAdY_VR - length of pre-multiplication vector incorrect." );  
+            MORIS_ASSERT( aVR.length() == tNumSpaceDims + 2,
+                    "fn_FEM_IWG_Compressible_NS::eval_dAdY_VR - length of pre-multiplication vector incorrect." );
 
             // get values form pre-multiplication vector
             real tVR1 = aVR( 0 );
             real tVR2 = aVR( 1 );
             real tVR3 = aVR( 2 );
-            real tVR4 = aVR( 3 );      
+            real tVR4 = aVR( 3 );
 
             // clang-format off
-            // assemble matrices based on 
+            // assemble matrices based on
             switch ( tNumSpaceDims )
             {
                 // for 2D
@@ -901,8 +905,8 @@ namespace moris
                                 {                  tC3*(tT*tVR2 - tU1*tVR4),                     -tC3*(tP*tVR4 - tT*tVR1),                                          0.0,                    -(tC3*(tP*tT*tVR2 - 2.0*tP*tU1*tVR4 + tT*tU1*tVR1))/tT },
                                 {                  tC3*(tT*tVR3 - tU2*tVR4),                                          0.0,                     -tC3*(tP*tVR4 - tT*tVR1),                    -(tC3*(tP*tT*tVR3 - 2.0*tP*tU2*tVR4 + tT*tU2*tVR1))/tT },
                                 { tC3*(tT*tU1*tVR2 - tQ*tVR4 + tT*tU2*tVR3), tC3*(tP*tT*tVR2 - tP*tU1*tVR4 + tT*tU1*tVR1), tC3*(tP*tT*tVR3 - tP*tU2*tVR4 + tT*tU2*tVR1), -(tC3*(tQ*tT*tVR1 - 2.0*tP*tQ*tVR4 + tP*tT*tU1*tVR2 + tP*tT*tU2*tVR3))/tT } };
-                                                     
-                            break; 
+
+                            break;
                         }
 
                         case 1 :
@@ -913,7 +917,7 @@ namespace moris
                                 {                                                        tC3*(tT*tU1*tVR3 + tT*tU2*tVR2 - tU1*tU2*tVR4),                                                                                                               tC3*(tP*tT*tVR3 - tP*tU2*tVR4 + tT*tU2*tVR1),                              tC3*(tP*tT*tVR2 - tP*tU1*tVR4 + tT*tU1*tVR1),                     -(tC3*(tP*tT*tU1*tVR3 + tP*tT*tU2*tVR2 - 2.0*tP*tU1*tU2*tVR4 + tT*tU1*tU2*tVR1))/tT },
                                 { tVR2 + tC3*tQ*tT*tVR2 - tC3*tQ*tU1*tVR4 + tC3*tT*tU1sq*tVR2 + tC3*tCv*tTsq*tVR2 + tC3*tT*tU1*tU2*tVR3, (tC3*((2.0*tVR1)/tC3+2.0*tCv*tTsq*tVR1 - 2.0*tP*tQ*tVR4+2.0*tQ*tT*tVR1 - 2.0*tP*tU1sq*tVR4+2.0*tT*tU1sq*tVR1 + 6.0*tP*tT*tU1*tVR2+2.0*tP*tT*tU2*tVR3))/2.0, tC3*(tP*tT*tU1*tVR3 + tP*tT*tU2*tVR2 - tP*tU1*tU2*tVR4 + tT*tU1*tU2*tVR1), -(tC3*(tP*tQ*tT*tVR2 - 2.0*tP*tQ*tU1*tVR4 + tP*tT*tU1sq*tVR2 + tQ*tT*tU1*tVR1 + tP*tT*tU1*tU2*tVR3))/tT } };
 
-                            break; 
+                            break;
                         }
 
                         case 2 :
@@ -923,10 +927,10 @@ namespace moris
                                 {                                                        tC3*(tT*tU1*tVR3 + tT*tU2*tVR2 - tU1*tU2*tVR4),                              tC3*(tP*tT*tVR3 - tP*tU2*tVR4 + tT*tU2*tVR1),                                                                                                               tC3*(tP*tT*tVR2 - tP*tU1*tVR4 + tT*tU1*tVR1),                     -(tC3*(tP*tT*tU1*tVR3 + tP*tT*tU2*tVR2 - 2.0*tP*tU1*tU2*tVR4 + tT*tU1*tU2*tVR1))/tT },
                                 {                                                                      tC3*tU2*(2.0*tT*tVR3 - tU2*tVR4),                                                                       0.0,                                                                                                           2.0*tC3*(tP*tT*tVR3 - tP*tU2*tVR4 + tT*tU2*tVR1),                                          -(tC3*tU2*(2.0*tP*tT*tVR3 - 2.0*tP*tU2*tVR4 + tT*tU2*tVR1))/tT },
                                 { tVR3 + tC3*tQ*tT*tVR3 - tC3*tQ*tU2*tVR4 + tC3*tT*tU2sq*tVR3 + tC3*tCv*tTsq*tVR3 + tC3*tT*tU1*tU2*tVR2, tC3*(tP*tT*tU1*tVR3 + tP*tT*tU2*tVR2 - tP*tU1*tU2*tVR4 + tT*tU1*tU2*tVR1), (tC3*((2.0*tVR1)/tC3+2.0*tCv*tTsq*tVR1 - 2.0*tP*tQ*tVR4+2.0*tQ*tT*tVR1 - 2.0*tP*tU2sq*tVR4+2.0*tT*tU2sq*tVR1+2.0*tP*tT*tU1*tVR2 + 6.0*tP*tT*tU2*tVR3))/2.0, -(tC3*(tP*tQ*tT*tVR3 - 2.0*tP*tQ*tU2*tVR4 + tP*tT*tU2sq*tVR3 + tQ*tT*tU2*tVR1 + tP*tT*tU1*tU2*tVR2))/tT } };
- 
-                            break; 
+
+                            break;
                         }
-                    
+
                         default:
                         {
                             // error, A-matrix index unknown
@@ -944,10 +948,10 @@ namespace moris
                 {
                     // get the z-velocity
                     real tU3 = tFIVelocity->val()( 2 );
-                    real tU3sq = tU3*tU3; 
+                    real tU3sq = tU3*tU3;
 
                     // get last value from pre-multiplication vector
-                    real tVR5 = aVR( 4 ); 
+                    real tVR5 = aVR( 4 );
 
                     // velocity magintude
                     real tQ  = ( tU1sq + tU2sq + tU3sq ) / 2.0;
@@ -964,7 +968,7 @@ namespace moris
                                 {                                tC3*(tT*tVR4 - tU3*tVR5),                                          0.0,                                          0.0,                     -tC3*(tP*tVR5 - tT*tVR1),                                     -(tC3*(tP*tT*tVR4 - 2.0*tP*tU3*tVR5 + tT*tU3*tVR1))/tT },
                                 { tC3*(tT*tU1*tVR2 - tQ*tVR5 + tT*tU2*tVR3 + tT*tU3*tVR4), tC3*(tP*tT*tVR2 - tP*tU1*tVR5 + tT*tU1*tVR1), tC3*(tP*tT*tVR3 - tP*tU2*tVR5 + tT*tU2*tVR1), tC3*(tP*tT*tVR4 - tP*tU3*tVR5 + tT*tU3*tVR1), -(tC3*(tQ*tT*tVR1 - 2.0*tP*tQ*tVR5 + tP*tT*tU1*tVR2 + tP*tT*tU2*tVR3 + tP*tT*tU3*tVR4))/tT } };
 
-                            break; 
+                            break;
                         }
 
                         case 1 :
@@ -976,7 +980,7 @@ namespace moris
                                 {                                                                                          tC3*(tT*tU1*tVR4 + tT*tU3*tVR2 - tU1*tU3*tVR5),                                                                                                                        tC3*(tP*tT*tVR4 - tP*tU3*tVR5 + tT*tU3*tVR1),                                                                                 0.0,                              tC3*(tP*tT*tVR2 - tP*tU1*tVR5 + tT*tU1*tVR1),                                          -(tC3*(tP*tT*tU1*tVR4 + tP*tT*tU3*tVR2 - 2.0*tP*tU1*tU3*tVR5 + tT*tU1*tU3*tVR1))/tT },
                                 { (tC3*((2.0*tVR2)/tC3+2.0*tCv*tTsq*tVR2+2.0*tQ*tT*tVR2 - 2.0*tQ*tU1*tVR5+2.0*tT*tU1sq*tVR2+2.0*tT*tU1*tU2*tVR3+2.0*tT*tU1*tU3*tVR4))/2.0, (tC3*((2.0*tVR1)/tC3+2.0*tCv*tTsq*tVR1 - 2.0*tP*tQ*tVR5+2.0*tQ*tT*tVR1 - 2.0*tP*tU1sq*tVR5+2.0*tT*tU1sq*tVR1 + 6.0*tP*tT*tU1*tVR2+2.0*tP*tT*tU2*tVR3+2.0*tP*tT*tU3*tVR4))/2.0, tC3*(tP*tT*tU1*tVR3 + tP*tT*tU2*tVR2 - tP*tU1*tU2*tVR5 + tT*tU1*tU2*tVR1), tC3*(tP*tT*tU1*tVR4 + tP*tT*tU3*tVR2 - tP*tU1*tU3*tVR5 + tT*tU1*tU3*tVR1), -(tC3*(tP*tQ*tT*tVR2 - 2.0*tP*tQ*tU1*tVR5 + tP*tT*tU1sq*tVR2 + tQ*tT*tU1*tVR1 + tP*tT*tU1*tU2*tVR3 + tP*tT*tU1*tU3*tVR4))/tT } };
 
-                            break; 
+                            break;
                         }
 
                         case 2 :
@@ -986,8 +990,8 @@ namespace moris
                                 {                                                                                        tC3*(tT*tU1*tVR3 + tT*tU2*tVR2 - tU1*tU2*tVR5),                              tC3*(tP*tT*tVR3 - tP*tU2*tVR5 + tT*tU2*tVR1),                                                                                                                            tC3*(tP*tT*tVR2 - tP*tU1*tVR5 + tT*tU1*tVR1),                                                                       0.0,                                          -(tC3*(tP*tT*tU1*tVR3 + tP*tT*tU2*tVR2-2.0*tP*tU1*tU2*tVR5 + tT*tU1*tU2*tVR1))/tT },
                                 {                                                                                                      tC3*tU2*(2.0*tT*tVR3 - tU2*tVR5),                                                                       0.0,                                                                                                                        2.0*tC3*(tP*tT*tVR3 - tP*tU2*tVR5 + tT*tU2*tVR1),                                                                       0.0,                                                               -(tC3*tU2*(2.0*tP*tT*tVR3-2.0*tP*tU2*tVR5 + tT*tU2*tVR1))/tT },
                                 {                                                                                        tC3*(tT*tU2*tVR4 + tT*tU3*tVR3 - tU2*tU3*tVR5),                                                                       0.0,                                                                                                                            tC3*(tP*tT*tVR4 - tP*tU3*tVR5 + tT*tU3*tVR1),                              tC3*(tP*tT*tVR3 - tP*tU2*tVR5 + tT*tU2*tVR1),                                          -(tC3*(tP*tT*tU2*tVR4 + tP*tT*tU3*tVR3-2.0*tP*tU2*tU3*tVR5 + tT*tU2*tU3*tVR1))/tT },
-                                { (tC3*((2.0*tVR3)/tC3+2.0*tCv*tTsq*tVR3+2.0*tQ*tT*tVR3-2.0*tQ*tU2*tVR5+2.0*tT*tU2sq*tVR3+2.0*tT*tU1*tU2*tVR2+2.0*tT*tU2*tU3*tVR4))/2.0, tC3*(tP*tT*tU1*tVR3 + tP*tT*tU2*tVR2 - tP*tU1*tU2*tVR5 + tT*tU1*tU2*tVR1), (tC3*((2.0*tVR1)/tC3+2.0*tCv*tTsq*tVR1-2.0*tP*tQ*tVR5+2.0*tQ*tT*tVR1-2.0*tP*tU2sq*tVR5+2.0*tT*tU2sq*tVR1+2.0*tP*tT*tU1*tVR2+6.0*tP*tT*tU2*tVR3+2.0*tP*tT*tU3*tVR4))/2.0, tC3*(tP*tT*tU2*tVR4 + tP*tT*tU3*tVR3 - tP*tU2*tU3*tVR5 + tT*tU2*tU3*tVR1), -(tC3*(tP*tQ*tT*tVR3-2.0*tP*tQ*tU2*tVR5 + tP*tT*tU2sq*tVR3 + tQ*tT*tU2*tVR1 + tP*tT*tU1*tU2*tVR2 + tP*tT*tU2*tU3*tVR4))/tT } }; 
-                            break; 
+                                { (tC3*((2.0*tVR3)/tC3+2.0*tCv*tTsq*tVR3+2.0*tQ*tT*tVR3-2.0*tQ*tU2*tVR5+2.0*tT*tU2sq*tVR3+2.0*tT*tU1*tU2*tVR2+2.0*tT*tU2*tU3*tVR4))/2.0, tC3*(tP*tT*tU1*tVR3 + tP*tT*tU2*tVR2 - tP*tU1*tU2*tVR5 + tT*tU1*tU2*tVR1), (tC3*((2.0*tVR1)/tC3+2.0*tCv*tTsq*tVR1-2.0*tP*tQ*tVR5+2.0*tQ*tT*tVR1-2.0*tP*tU2sq*tVR5+2.0*tT*tU2sq*tVR1+2.0*tP*tT*tU1*tVR2+6.0*tP*tT*tU2*tVR3+2.0*tP*tT*tU3*tVR4))/2.0, tC3*(tP*tT*tU2*tVR4 + tP*tT*tU3*tVR3 - tP*tU2*tU3*tVR5 + tT*tU2*tU3*tVR1), -(tC3*(tP*tQ*tT*tVR3-2.0*tP*tQ*tU2*tVR5 + tP*tT*tU2sq*tVR3 + tQ*tT*tU2*tVR1 + tP*tT*tU1*tU2*tVR2 + tP*tT*tU2*tU3*tVR4))/tT } };
+                            break;
                         }
 
                         case 3 :
@@ -999,9 +1003,9 @@ namespace moris
                                 {                                                                                                        tC3*tU3*(2.0*tT*tVR4 - tU3*tVR5),                                                                       0.0,                                                                       0.0,                                                                                                                              2.0*tC3*(tP*tT*tVR4 - tP*tU3*tVR5 + tT*tU3*tVR1),                                                               -(tC3*tU3*(2.0*tP*tT*tVR4 - 2.0*tP*tU3*tVR5 + tT*tU3*tVR1))/tT },
                                 { (tC3*((2.0*tVR4)/tC3+2.0*tCv*tTsq*tVR4+2.0*tQ*tT*tVR4 - 2.0*tQ*tU3*tVR5+2.0*tT*tU3sq*tVR4+2.0*tT*tU1*tU3*tVR2+2.0*tT*tU2*tU3*tVR3))/2.0, tC3*(tP*tT*tU1*tVR4 + tP*tT*tU3*tVR2 - tP*tU1*tU3*tVR5 + tT*tU1*tU3*tVR1), tC3*(tP*tT*tU2*tVR4 + tP*tT*tU3*tVR3 - tP*tU2*tU3*tVR5 + tT*tU2*tU3*tVR1), (tC3*((2.0*tVR1)/tC3+2.0*tCv*tTsq*tVR1 - 2.0*tP*tQ*tVR5+2.0*tQ*tT*tVR1 - 2.0*tP*tU3sq*tVR5+2.0*tT*tU3sq*tVR1+2.0*tP*tT*tU1*tVR2+2.0*tP*tT*tU2*tVR3 + 6.0*tP*tT*tU3*tVR4))/2.0, -(tC3*(tP*tQ*tT*tVR4 - 2.0*tP*tQ*tU3*tVR5 + tP*tT*tU3sq*tVR4 + tQ*tT*tU3*tVR1 + tP*tT*tU1*tU3*tVR2 + tP*tT*tU2*tU3*tVR3))/tT } };
 
-                            break; 
+                            break;
                         }
-                    
+
                         default:
                         {
                             // error, A-matrix index unknown
@@ -1012,8 +1016,8 @@ namespace moris
 
                     // break for 3D case
                     break;
-                }                
-            
+                }
+
                 // unknown number of spatial dimensions
                 default:
                 {
@@ -1026,8 +1030,8 @@ namespace moris
         //------------------------------------------------------------------------------
         //------------------------------------------------------------------------------
 
-        void eval_dKdY( 
-                std::shared_ptr< Property >                       aPropDynamicViscosity,  
+        void eval_dKdY(
+                std::shared_ptr< Property >                       aPropDynamicViscosity,
                 std::shared_ptr< Property >                       aPropThermalConductivity,
                 Field_Interpolator_Manager                      * aMasterFIManager,
                 const uint                                        aYind,
@@ -1035,7 +1039,7 @@ namespace moris
         {
             // get the velocity FI
             Field_Interpolator * tFIVelocity =  aMasterFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
-            
+
             // get number of Space dimensions
             uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
 
@@ -1043,16 +1047,16 @@ namespace moris
             //real tKa   =  aPropThermalConductivity->val()( 0 );
             real tMu =  aPropDynamicViscosity->val()( 0 );
             real tLa = -2.0 * tMu / 3.0;
-            real tCh = tLa + 2.0 * tMu; 
+            real tCh = tLa + 2.0 * tMu;
 
             // set size of cells
             Matrix< DDRMat > tZeroMat( tNumSpaceDims + 2, tNumSpaceDims + 2, 0.0 );
             adKdY.resize( tNumSpaceDims );
-            for( uint iDim = 0; iDim < tNumSpaceDims; iDim++ ) 
+            for( uint iDim = 0; iDim < tNumSpaceDims; iDim++ )
             {
                 adKdY( iDim ).assign( tNumSpaceDims, tZeroMat );
             }
-            
+
             // clang-format off
             // assemble matrices based on number of spatial dimensions
             switch ( tNumSpaceDims )
@@ -1080,7 +1084,7 @@ namespace moris
 
                             adKdY( 1 )( 0 )( 3, 2 ) = tMu;
                             adKdY( 1 )( 1 )( 3, 1 ) = tMu;
-                            
+
                             // break for VX case
                             break;
                         }
@@ -1093,7 +1097,7 @@ namespace moris
 
                             adKdY( 1 )( 0 )( 3, 1 ) = tLa;
                             adKdY( 1 )( 1 )( 3, 2 ) = tCh;
-                            
+
                             // break for VY case
                             break;
                         }
@@ -1102,11 +1106,11 @@ namespace moris
                         case 3 :
                         {
                             // do nothing, derivatives are zero
-                            
+
                             // break for TEMP case
                             break;
                         }
-                    
+
                         default:
                         {
                             MORIS_ASSERT( false, "fn_FEM_IWG_Compressible_NS::eval_dKdY - index for Y derivative out of bounds." );
@@ -1147,7 +1151,7 @@ namespace moris
                             adKdY( 2 )( 0 )( 4, 3 ) = tMu;
                             //adKdY( 2 )( 1 )( 4, 2 ) = tMu;
                             adKdY( 2 )( 2 )( 4, 1 ) = tMu;
-                            
+
                             // break for VX case
                             break;
                         }
@@ -1166,7 +1170,7 @@ namespace moris
                             //adKdY( 2 )( 0 )( 4, 1 ) = tMu;
                             adKdY( 2 )( 1 )( 4, 3 ) = tMu;
                             adKdY( 2 )( 2 )( 4, 2 ) = tMu;
-                            
+
                             // break for VY case
                             break;
                         }
@@ -1185,7 +1189,7 @@ namespace moris
                             adKdY( 2 )( 0 )( 4, 1 ) = tLa;
                             adKdY( 2 )( 1 )( 4, 2 ) = tLa;
                             adKdY( 2 )( 2 )( 4, 3 ) = tCh;
-                            
+
                             // break for VZ case
                             break;
                         }
@@ -1194,22 +1198,22 @@ namespace moris
                         case 4 :
                         {
                             // do nothing, derivatives are zero
-                            
+
                             // break for TEMP case
                             break;
                         }
-                    
+
                         default:
                         {
                             MORIS_ASSERT( false, "fn_FEM_IWG_Compressible_NS::eval_dKdY - index for Y derivative out of bounds." );
                             break;
                         }
                     }
-                    
+
                     // break for 3D case
                     break;
                 }
-            
+
                 default:
                 {
                     MORIS_ERROR( false, "fn_FEM_IWG_Compressible_NS::eval_dKdY() - Number of space dimensions must be 2 or 3" );
@@ -1221,8 +1225,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void eval_VL_dKdY( 
-                std::shared_ptr< Property >   aPropDynamicViscosity,  
+        void eval_VL_dKdY(
+                std::shared_ptr< Property >   aPropDynamicViscosity,
                 std::shared_ptr< Property >   aPropThermalConductivity,
                 Field_Interpolator_Manager  * aMasterFIManager,
                 const Matrix< DDRMat >      & aVL,
@@ -1232,7 +1236,7 @@ namespace moris
         {
             // get the velocity FI
             Field_Interpolator * tFIVelocity =  aMasterFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
-            
+
             // get number of Space dimensions
             uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
 
@@ -1242,18 +1246,18 @@ namespace moris
             real tLa   = -2.0 * tMu / 3.0;
 
             // check the pre-multiplication vector
-            MORIS_ASSERT( aVL.length() == tNumSpaceDims + 2, 
-                    "fn_FEM_IWG_Compressible_NS::eval_VL_dKdY - length of pre-multiplication vector incorrect." );      
+            MORIS_ASSERT( aVL.length() == tNumSpaceDims + 2,
+                    "fn_FEM_IWG_Compressible_NS::eval_VL_dKdY - length of pre-multiplication vector incorrect." );
 
             // clang-format off
-            // assemble matrices based on 
+            // assemble matrices based on
             switch ( tNumSpaceDims )
             {
                 // for 2D
                 case 2 :
                 {
                     // get last value from pre-multiplication vector
-                    real tVL4 = aVL( 3 ); 
+                    real tVL4 = aVL( 3 );
 
                     // compute pre-multiplied Kij-matrix deriv for requested i-index
                     switch ( aI )
@@ -1271,7 +1275,7 @@ namespace moris
                                         { 0.0,                  0.0, tMu*tVL4, 0.0 },
                                         { 0.0,                  0.0,      0.0, 0.0 } };
 
-                                    break; 
+                                    break;
                                 }
 
                                 case 1 :
@@ -1282,9 +1286,9 @@ namespace moris
                                         { 0.0, tLa*tVL4,      0.0, 0.0 },
                                         { 0.0,      0.0,      0.0, 0.0 } };
 
-                                    break; 
+                                    break;
                                 }
-                            
+
                                 default:
                                 {
                                     // error, Kiji-matrix j-index unknown
@@ -1292,9 +1296,9 @@ namespace moris
                                     break;
                                 }
                             } // end: switch for different Kij-matrices -> j-index
-                            
+
                             // break for i = 0
-                            break; 
+                            break;
                         }
 
                         case 1 :
@@ -1310,7 +1314,7 @@ namespace moris
                                         { 0.0, tMu*tVL4,      0.0, 0.0 },
                                         { 0.0,      0.0,      0.0, 0.0 } };
 
-                                    break; 
+                                    break;
                                 }
 
                                 case 1 :
@@ -1321,9 +1325,9 @@ namespace moris
                                         { 0.0,      0.0, tVL4*(tLa + 2.0*tMu), 0.0 },
                                         { 0.0,      0.0,                  0.0, 0.0 } };
 
-                                    break; 
+                                    break;
                                 }
-                            
+
                                 default:
                                 {
                                     // error, Kiji-matrix j-index unknown
@@ -1331,11 +1335,11 @@ namespace moris
                                     break;
                                 }
                             } // end: switch for different Kij-matrices -> j-index
-                            
+
                             // break for i = 1
-                            break; 
+                            break;
                         }
-                    
+
                         default:
                         {
                             // error, Kiji-matrix j-index unknown
@@ -1352,7 +1356,7 @@ namespace moris
                 case 3 :
                 {
                     // get last value from pre-multiplication vector
-                    real tVL5 = aVL( 4 ); 
+                    real tVL5 = aVL( 4 );
 
                     // compute pre-multiplied Kij-matrix deriv for requested i-index
                     switch ( aI )
@@ -1365,43 +1369,42 @@ namespace moris
                                 case 0 :
                                 {
                                     // evaluate K11
-                                    aVLdKdY = { 
+                                    aVLdKdY = {
 										{ 0.0,                  0.0,      0.0,      0.0, 0.0 },
 										{ 0.0, tVL5*(tLa + 2.0*tMu),      0.0,      0.0, 0.0 },
 										{ 0.0,                  0.0, tMu*tVL5,      0.0, 0.0 },
 										{ 0.0,                  0.0,      0.0, tMu*tVL5, 0.0 },
 										{ 0.0,                  0.0,      0.0,      0.0, 0.0 } };
 
-                                    break; 
+                                    break;
                                 }
 
                                 case 1 :
                                 {
                                     // evaluate K12
-                                    aVLdKdY = { 
+                                    aVLdKdY = {
 										{ 0.0,      0.0,      0.0, 0, 0.0 },
 										{ 0.0,      0.0, tMu*tVL5, 0, 0.0 },
 										{ 0.0, tLa*tVL5,      0.0, 0, 0.0 },
 										{ 0.0,      0.0,      0.0, 0, 0.0 },
 										{ 0.0,      0.0,      0.0, 0, 0.0 } };
-                                        
 
-                                    break; 
+                                    break;
                                 }
 
                                 case 2 :
                                 {
                                     // evaluate K13
-                                    aVLdKdY = { 
+                                    aVLdKdY = {
 										{ 0.0,      0.0, 0.0,      0.0, 0.0 },
 										{ 0.0,      0.0, 0.0, tMu*tVL5, 0.0 },
 										{ 0.0,      0.0, 0.0,      0.0, 0.0 },
 										{ 0.0, tLa*tVL5, 0.0,      0.0, 0.0 },
 										{ 0.0,      0.0, 0.0,      0.0, 0.0 } };
 
-                                    break; 
+                                    break;
                                 }
-                            
+
                                 default:
                                 {
                                     // error, Kiji-matrix j-index unknown
@@ -1409,9 +1412,9 @@ namespace moris
                                     break;
                                 }
                             } // end: switch for different Kij-matrices -> j-index
-                            
+
                             // break for i = 0
-                            break; 
+                            break;
                         }
 
                         case 1 :
@@ -1422,42 +1425,42 @@ namespace moris
                                 case 0 :
                                 {
                                     // evaluate K21
-                                    aVLdKdY = { 
+                                    aVLdKdY = {
 										{ 0.0,      0.0,      0.0, 0.0, 0.0 },
 										{ 0.0,      0.0, tLa*tVL5, 0.0, 0.0 },
 										{ 0.0, tMu*tVL5,      0.0, 0.0, 0.0 },
 										{ 0.0,      0.0,      0.0, 0.0, 0.0 },
 										{ 0.0,      0.0,      0.0, 0.0, 0.0 } };
 
-                                    break; 
+                                    break;
                                 }
 
                                 case 1 :
                                 {
                                     // evaluate K22
-                                    aVLdKdY = { 
+                                    aVLdKdY = {
 										{ 0.0,      0.0,                  0.0,      0.0, 0.0 },
 										{ 0.0, tMu*tVL5,                  0.0,      0.0, 0.0 },
 										{ 0.0,      0.0, tVL5*(tLa + 2.0*tMu),      0.0, 0.0 },
 										{ 0.0,      0.0,                  0.0, tMu*tVL5, 0.0 },
 										{ 0.0,      0.0,                  0.0,      0.0, 0.0 } };
- 
-                                    break; 
+
+                                    break;
                                 }
 
                                 case 2 :
                                 {
                                     // evaluate K23
-                                    aVLdKdY = { 
+                                    aVLdKdY = {
 										{ 0.0, 0.0,      0.0,      0.0, 0.0 },
 										{ 0.0, 0.0,      0.0,      0.0, 0.0 },
 										{ 0.0, 0.0,      0.0, tMu*tVL5, 0.0 },
 										{ 0.0, 0.0, tLa*tVL5,      0.0, 0.0 },
 										{ 0.0, 0.0,      0.0,      0.0, 0.0 } };
 
-                                    break; 
+                                    break;
                                 }
-                            
+
                                 default:
                                 {
                                     // error, Kiji-matrix j-index unknown
@@ -1465,9 +1468,9 @@ namespace moris
                                     break;
                                 }
                             } // end: switch for different Kij-matrices -> j-index
-                            
+
                             // break for i = 1
-                            break; 
+                            break;
                         }
 
                         case 2 :
@@ -1478,42 +1481,42 @@ namespace moris
                                 case 0 :
                                 {
                                     // evaluate K31
-                                    aVLdKdY = { 
+                                    aVLdKdY = {
 										{ 0.0,      0.0, 0.0,      0.0, 0.0 },
 										{ 0.0,      0.0, 0.0, tLa*tVL5, 0.0 },
 										{ 0.0,      0.0, 0.0,      0.0, 0.0 },
 										{ 0.0, tMu*tVL5, 0.0,      0.0, 0.0 },
 										{ 0.0,      0.0, 0.0,      0.0, 0.0 } };
 
-                                    break; 
+                                    break;
                                 }
 
                                 case 1 :
                                 {
                                     // evaluate K32
-                                    aVLdKdY = { 
+                                    aVLdKdY = {
 										{ 0.0, 0.0,      0.0,      0.0, 0.0 },
 										{ 0.0, 0.0,      0.0,      0.0, 0.0 },
 										{ 0.0, 0.0,      0.0, tLa*tVL5, 0.0 },
 										{ 0.0, 0.0, tMu*tVL5,      0.0, 0.0 },
 										{ 0.0, 0.0,      0.0,      0.0, 0.0 } };
- 
-                                    break; 
+
+                                    break;
                                 }
 
                                 case 2 :
                                 {
                                     // evaluate K33
-                                    aVLdKdY = { 
+                                    aVLdKdY = {
 										{ 0.0,      0.0,      0.0,                  0.0, 0.0 },
 										{ 0.0, tMu*tVL5,      0.0,                  0.0, 0.0 },
 										{ 0.0,      0.0, tMu*tVL5,                  0.0, 0.0 },
 										{ 0.0,      0.0,      0.0, tVL5*(tLa + 2.0*tMu), 0.0 },
 										{ 0.0,      0.0,      0.0,                  0.0, 0.0 } };
 
-                                    break; 
+                                    break;
                                 }
-                            
+
                                 default:
                                 {
                                     // error, Kiji-matrix j-index unknown
@@ -1521,11 +1524,11 @@ namespace moris
                                     break;
                                 }
                             } // end: switch for different Kij-matrices -> j-index
-                            
+
                             // break for i = 2
-                            break; 
+                            break;
                         }
-                    
+
                         default:
                         {
                             // error, Kiji-matrix j-index unknown
@@ -1536,8 +1539,8 @@ namespace moris
 
                     // break for 3D case
                     break;
-                }                
-            
+                }
+
                 // unknown number of spatial dimensions
                 default:
                 {
@@ -1549,8 +1552,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void eval_dKdY_VR( 
-                std::shared_ptr< Property >   aPropDynamicViscosity,  
+        void eval_dKdY_VR(
+                std::shared_ptr< Property >   aPropDynamicViscosity,
                 std::shared_ptr< Property >   aPropThermalConductivity,
                 Field_Interpolator_Manager  * aMasterFIManager,
                 const Matrix< DDRMat >      & aVR,
@@ -1560,7 +1563,7 @@ namespace moris
         {
             // get the velocity FI
             Field_Interpolator * tFIVelocity =  aMasterFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
-            
+
             // get number of Space dimensions
             uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
 
@@ -1570,16 +1573,16 @@ namespace moris
             real tLa   = -2.0 * tMu / 3.0;
 
             // check the pre-multiplication vector
-            MORIS_ASSERT( aVR.length() == tNumSpaceDims + 2, 
-                    "fn_FEM_IWG_Compressible_NS::eval_dKdY_VR - length of pre-multiplication vector incorrect." );      
+            MORIS_ASSERT( aVR.length() == tNumSpaceDims + 2,
+                    "fn_FEM_IWG_Compressible_NS::eval_dKdY_VR - length of pre-multiplication vector incorrect." );
 
             // get values form pre-multiplication vector
             real tVR2 = aVR( 1 );
             real tVR3 = aVR( 2 );
-            real tVR4 = aVR( 3 );    
+            real tVR4 = aVR( 3 );
 
             // clang-format off
-            // assemble matrices based on 
+            // assemble matrices based on
             switch ( tNumSpaceDims )
             {
                 // for 2D
@@ -1602,7 +1605,7 @@ namespace moris
                                         { 0.0,                0.0,      0.0, 0.0 },
                                         { 0.0, tVR2*(tLa+2.0*tMu), tMu*tVR3, 0.0 } };
 
-                                    break; 
+                                    break;
                                 }
 
                                 case 1 :
@@ -1614,9 +1617,9 @@ namespace moris
                                         { 0.0,      0.0,      0.0, 0.0 },
                                         { 0.0, tLa*tVR3, tMu*tVR2, 0.0 } };
 
-                                    break; 
+                                    break;
                                 }
-                            
+
                                 default:
                                 {
                                     // error, Kiji-matrix j-index unknown
@@ -1624,9 +1627,9 @@ namespace moris
                                     break;
                                 }
                             } // end: switch for different Kij-matrices -> j-index
-                            
+
                             // break for i = 0
-                            break; 
+                            break;
                         }
 
                         case 1 :
@@ -1643,7 +1646,7 @@ namespace moris
                                         { 0.0,      0.0,      0.0, 0.0 },
                                         { 0.0, tMu*tVR3, tLa*tVR2, 0.0 } };
 
-                                    break; 
+                                    break;
                                 }
 
                                 case 1 :
@@ -1655,9 +1658,9 @@ namespace moris
                                         { 0.0,      0.0,                0.0, 0.0 },
                                         { 0.0, tMu*tVR2, tVR3*(tLa+2.0*tMu), 0.0 } };
 
-                                    break; 
+                                    break;
                                 }
-                            
+
                                 default:
                                 {
                                     // error, Kiji-matrix j-index unknown
@@ -1665,11 +1668,11 @@ namespace moris
                                     break;
                                 }
                             } // end: switch for different Kij-matrices -> j-index
-                            
+
                             // break for i = 1
-                            break; 
+                            break;
                         }
-                    
+
                         default:
                         {
                             // error, Kiji-matrix j-index unknown
@@ -1685,7 +1688,6 @@ namespace moris
                 // for 3D
                 case 3 :
                 {
-
 
                     // compute pre-multiplied Kij-matrix deriv for requested i-index
                     switch ( aI )
@@ -1705,7 +1707,7 @@ namespace moris
                                         { 0.0,                0.0,      0.0,      0.0, 0.0 },
                                         { 0.0, tVR2*(tLa+2.0*tMu), tMu*tVR3, tMu*tVR4, 0.0 } };
 
-                                    break; 
+                                    break;
                                 }
 
                                 case 1 :
@@ -1718,7 +1720,7 @@ namespace moris
                                         { 0.0,      0.0,      0.0, 0.0, 0.0 },
                                         { 0.0, tLa*tVR3, tMu*tVR2, 0.0, 0.0 } };
 
-                                    break; 
+                                    break;
                                 }
 
                                 case 2 :
@@ -1731,9 +1733,9 @@ namespace moris
                                         { 0.0,      0.0, 0.0,      0.0, 0.0 },
                                         { 0.0, tLa*tVR4, 0.0, tMu*tVR2, 0.0 } };
 
-                                    break; 
+                                    break;
                                 }
-                            
+
                                 default:
                                 {
                                     // error, Kiji-matrix j-index unknown
@@ -1741,9 +1743,9 @@ namespace moris
                                     break;
                                 }
                             } // end: switch for different Kij-matrices -> j-index
-                            
+
                             // break for i = 0
-                            break; 
+                            break;
                         }
 
                         case 1 :
@@ -1761,7 +1763,7 @@ namespace moris
                                         { 0.0,      0.0,      0.0, 0.0, 0.0 },
                                         { 0.0, tMu*tVR3, tLa*tVR2, 0.0, 0.0 } };
 
-                                    break; 
+                                    break;
                                 }
 
                                 case 1 :
@@ -1774,7 +1776,7 @@ namespace moris
                                         { 0.0,      0.0,                0.0,      0.0, 0.0 },
                                         { 0.0, tMu*tVR2, tVR3*(tLa+2.0*tMu), tMu*tVR4, 0.0 } };
 
-                                    break; 
+                                    break;
                                 }
 
                                 case 2 :
@@ -1787,9 +1789,9 @@ namespace moris
                                         { 0.0, 0.0,      0.0,      0.0, 0.0 },
                                         { 0.0, 0.0, tLa*tVR4, tMu*tVR3, 0.0 } };
 
-                                    break; 
+                                    break;
                                 }
-                            
+
                                 default:
                                 {
                                     // error, Kiji-matrix j-index unknown
@@ -1797,9 +1799,9 @@ namespace moris
                                     break;
                                 }
                             } // end: switch for different Kij-matrices -> j-index
-                            
+
                             // break for i = 1
-                            break; 
+                            break;
                         }
 
                         case 2 :
@@ -1817,7 +1819,7 @@ namespace moris
                                         { 0.0,      0.0, 0.0,      0.0, 0.0 },
                                         { 0.0, tMu*tVR4, 0.0, tLa*tVR2, 0.0 } };
 
-                                    break; 
+                                    break;
                                 }
 
                                 case 1 :
@@ -1830,7 +1832,7 @@ namespace moris
                                         { 0.0, 0.0,      0.0,      0.0, 0.0 },
                                         { 0.0, 0.0, tMu*tVR4, tLa*tVR3, 0.0 } };
 
-                                    break; 
+                                    break;
                                 }
 
                                 case 2 :
@@ -1843,9 +1845,9 @@ namespace moris
                                         { 0.0,      0.0,      0.0,                0.0, 0.0 },
                                         { 0.0, tMu*tVR2, tMu*tVR3, tVR4*(tLa+2.0*tMu), 0.0 } };
 
-                                    break; 
+                                    break;
                                 }
-                            
+
                                 default:
                                 {
                                     // error, Kiji-matrix j-index unknown
@@ -1853,11 +1855,11 @@ namespace moris
                                     break;
                                 }
                             } // end: switch for different Kij-matrices -> j-index
-                            
+
                             // break for i = 2
-                            break; 
+                            break;
                         }
-                    
+
                         default:
                         {
                             // error, Kiji-matrix j-index unknown
@@ -1868,8 +1870,8 @@ namespace moris
 
                     // break for 3D
                     break;
-                }                
-            
+                }
+
                 // unknown number of spatial dimensions
                 default:
                 {
@@ -1882,8 +1884,8 @@ namespace moris
         //------------------------------------------------------------------------------
         //------------------------------------------------------------------------------
 
-        void eval_VL_dKijidY( 
-                std::shared_ptr< Property >       aPropDynamicViscosity,  
+        void eval_VL_dKijidY(
+                std::shared_ptr< Property >       aPropDynamicViscosity,
                 std::shared_ptr< Property >       aPropThermalConductivity,
                 Field_Interpolator_Manager      * aMasterFIManager,
                 const Matrix< DDRMat >          & aVL,
@@ -1892,7 +1894,7 @@ namespace moris
         {
             // get the velocity FI
             Field_Interpolator * tFIVelocity =  aMasterFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
-            
+
             // get number of Space dimensions
             uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
 
@@ -1905,18 +1907,18 @@ namespace moris
             aVLdKijidY.resize( tNumSpaceDims + 1 );
 
             // check the pre-multiplication vector
-            MORIS_ASSERT( aVL.length() == tNumSpaceDims + 2, 
-                    "fn_FEM_IWG_Compressible_NS::eval_VL_dKijidY - length of pre-multiplication vector incorrect." );      
+            MORIS_ASSERT( aVL.length() == tNumSpaceDims + 2,
+                    "fn_FEM_IWG_Compressible_NS::eval_VL_dKijidY - length of pre-multiplication vector incorrect." );
 
             // clang-format off
-            // assemble matrices based on 
+            // assemble matrices based on
             switch ( tNumSpaceDims )
             {
                 // for 2D
                 case 2 :
                 {
                     // get last value from pre-multiplication vector
-                    real tVL4 = aVL( 3 ); 
+                    real tVL4 = aVL( 3 );
 
                     // compute pre-multiplied Kiji-matrix deriv for requested index
                     switch ( aJ )
@@ -1924,41 +1926,41 @@ namespace moris
                         case 0 :
                         {
                             // evaluate Ki1,i - for Y,x
-                            aVLdKijidY( 1 ) = { 
+                            aVLdKijidY( 1 ) = {
                                 { 0.0,                  0.0,      0.0, 0.0 },
                                 { 0.0, tVL4*(tLa + 2.0*tMu),      0.0, 0.0 },
                                 { 0.0,                  0.0, tMu*tVL4, 0.0 },
                                 { 0.0,                  0.0,      0.0, 0.0 } };
 
                             // evaluate Ki1,i - for Y,y
-                            aVLdKijidY( 2 ) = { 
+                            aVLdKijidY( 2 ) = {
                                 { 0.0,      0.0,      0.0, 0.0 },
                                 { 0.0,      0.0, tLa*tVL4, 0.0 },
                                 { 0.0, tMu*tVL4,      0.0, 0.0 },
                                 { 0.0,      0.0,      0.0, 0.0 } };
 
-                            break; 
+                            break;
                         }
 
                         case 1 :
                         {
                             // evaluate Ki2,i - for Y,x
-                            aVLdKijidY( 1 ) = { 
+                            aVLdKijidY( 1 ) = {
                                 { 0.0,      0.0,      0.0, 0.0 },
                                 { 0.0,      0.0, tMu*tVL4, 0.0 },
                                 { 0.0, tLa*tVL4,      0.0, 0.0 },
                                 { 0.0,      0.0,      0.0, 0.0 } };
 
                             // evaluate Ki2,i - for Y,x
-                            aVLdKijidY( 2 ) = { 
+                            aVLdKijidY( 2 ) = {
                                 { 0.0,      0.0,                  0.0, 0.0 },
                                 { 0.0, tMu*tVL4,                  0.0, 0.0 },
                                 { 0.0,      0.0, tVL4*(tLa + 2.0*tMu), 0.0 },
                                 { 0.0,      0.0,                  0.0, 0.0 } };
 
-                            break; 
+                            break;
                         }
-                    
+
                         default:
                         {
                             // error, Kiji-matrix j-index unknown
@@ -1966,7 +1968,7 @@ namespace moris
                             break;
                         }
                     } // end: switch for different A-matrices
-                    
+
                     // break for 2D case
                     break;
                 }
@@ -1975,7 +1977,7 @@ namespace moris
                 case 3 :
                 {
                     // get last value from pre-multiplication vector
-                    real tVL5 = aVL( 4 ); 
+                    real tVL5 = aVL( 4 );
 
                     // compute pre-multiplied Kiji-matrix deriv for requested index
                     switch ( aJ )
@@ -1983,7 +1985,7 @@ namespace moris
                         case 0 :
                         {
                             // evaluate Ki1,i - for Y,x
-                            aVLdKijidY( 1 ) = { 
+                            aVLdKijidY( 1 ) = {
 								{ 0.0,                  0.0,      0.0,      0.0, 0.0 },
 								{ 0.0, tVL5*(tLa + 2.0*tMu),      0.0,      0.0, 0.0 },
 								{ 0.0,                  0.0, tMu*tVL5,      0.0, 0.0 },
@@ -1991,28 +1993,28 @@ namespace moris
 								{ 0.0,                  0.0,      0.0,      0.0, 0.0 } };
 
                             // evaluate Ki1,i - for Y,y
-                            aVLdKijidY( 2 ) = { 
+                            aVLdKijidY( 2 ) = {
 								{ 0.0,      0.0,      0.0, 0.0, 0.0 },
 								{ 0.0,      0.0, tLa*tVL5, 0.0, 0.0 },
 								{ 0.0, tMu*tVL5,      0.0, 0.0, 0.0 },
 								{ 0.0,      0.0,      0.0, 0.0, 0.0 },
 								{ 0.0,      0.0,      0.0, 0.0, 0.0 } };
-        
+
                             // evaluate Ki1,i - for Y,z
-                            aVLdKijidY( 3 ) = { 
+                            aVLdKijidY( 3 ) = {
 								{ 0.0,      0.0, 0.0,      0.0, 0.0 },
 								{ 0.0,      0.0, 0.0, tLa*tVL5, 0.0 },
 								{ 0.0,      0.0, 0.0,      0.0, 0.0 },
 								{ 0.0, tMu*tVL5, 0.0,      0.0, 0.0 },
 								{ 0.0,      0.0, 0.0,      0.0, 0.0 } };
 
-                            break; 
+                            break;
                         }
 
                         case 1 :
                         {
                             // evaluate Ki2,i - for Y,x
-                            aVLdKijidY( 1 ) = { 
+                            aVLdKijidY( 1 ) = {
 								{ 0.0,      0.0,      0.0, 0.0, 0.0 },
 								{ 0.0,      0.0, tMu*tVL5, 0.0, 0.0 },
 								{ 0.0, tLa*tVL5,      0.0, 0.0, 0.0 },
@@ -2020,28 +2022,28 @@ namespace moris
 								{ 0.0,      0.0,      0.0, 0.0, 0.0 } };
 
                             // evaluate Ki2,i - for Y,y
-                            aVLdKijidY( 2 ) = { 
+                            aVLdKijidY( 2 ) = {
 								{ 0.0,      0.0,                  0.0,      0.0, 0.0 },
 								{ 0.0, tMu*tVL5,                  0.0,      0.0, 0.0 },
 								{ 0.0,      0.0, tVL5*(tLa + 2.0*tMu),      0.0, 0.0 },
 								{ 0.0,      0.0,                  0.0, tMu*tVL5, 0.0 },
 								{ 0.0,      0.0,                  0.0,      0.0, 0.0 } };
-        
+
                             // evaluate Ki2,i - for Y,z
-                            aVLdKijidY( 3 ) = { 
+                            aVLdKijidY( 3 ) = {
 								{ 0.0, 0.0,      0.0,      0.0, 0.0 },
 								{ 0.0, 0.0,      0.0,      0.0, 0.0 },
 								{ 0.0, 0.0,      0.0, tLa*tVL5, 0.0 },
 								{ 0.0, 0.0, tMu*tVL5,      0.0, 0.0 },
 								{ 0.0, 0.0,      0.0,      0.0, 0.0 } };
 
-                            break; 
+                            break;
                         }
 
                         case 2 :
                         {
                             // evaluate Ki3,i - for Y,x
-                            aVLdKijidY( 1 ) = { 
+                            aVLdKijidY( 1 ) = {
 								{ 0.0,      0.0, 0.0,      0.0, 0.0 },
 								{ 0.0,      0.0, 0.0, tMu*tVL5, 0.0 },
 								{ 0.0,      0.0, 0.0,      0.0, 0.0 },
@@ -2049,24 +2051,24 @@ namespace moris
 								{ 0.0,      0.0, 0.0,      0.0, 0.0 } };
 
                             // evaluate Ki3,i - for Y,y
-                            aVLdKijidY( 2 ) = { 
+                            aVLdKijidY( 2 ) = {
 								{ 0.0, 0.0,      0.0,      0.0, 0.0 },
 								{ 0.0, 0.0,      0.0,      0.0, 0.0 },
 								{ 0.0, 0.0,      0.0, tMu*tVL5, 0.0 },
 								{ 0.0, 0.0, tLa*tVL5,      0.0, 0.0 },
 								{ 0.0, 0.0,      0.0,      0.0, 0.0 } };
-        
+
                             // evaluate Ki3,i - for Y,z
-                            aVLdKijidY( 3 ) = { 
+                            aVLdKijidY( 3 ) = {
 								{ 0.0,      0.0,      0.0,                  0.0, 0.0 },
 								{ 0.0, tMu*tVL5,      0.0,                  0.0, 0.0 },
 								{ 0.0,      0.0, tMu*tVL5,                  0.0, 0.0 },
 								{ 0.0,      0.0,      0.0, tVL5*(tLa + 2.0*tMu), 0.0 },
 								{ 0.0,      0.0,      0.0,                  0.0, 0.0 } };
 
-                            break; 
+                            break;
                         }
-                    
+
                         default:
                         {
                             // error, A-matrix index unknown
@@ -2077,8 +2079,8 @@ namespace moris
 
                     // break for 3D case
                     break;
-                }                
-            
+                }
+
                 // unknown number of spatial dimensions
                 default:
                 {
@@ -2090,8 +2092,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void eval_dKijidY_VR( 
-                std::shared_ptr< Property >       aPropDynamicViscosity,  
+        void eval_dKijidY_VR(
+                std::shared_ptr< Property >       aPropDynamicViscosity,
                 std::shared_ptr< Property >       aPropThermalConductivity,
                 Field_Interpolator_Manager      * aMasterFIManager,
                 const Matrix< DDRMat >          & aVR,
@@ -2100,7 +2102,7 @@ namespace moris
         {
             // get the velocity FI
             Field_Interpolator * tFIVelocity =  aMasterFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
-            
+
             // get number of Space dimensions
             uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
 
@@ -2113,16 +2115,16 @@ namespace moris
             adKijidYVR.resize( tNumSpaceDims + 1 );
 
             // check the pre-multiplication vector
-            MORIS_ASSERT( aVR.length() == tNumSpaceDims + 2, 
-                    "fn_FEM_IWG_Compressible_NS::eval_dKijidY_VR - length of pre-multiplication vector incorrect." );      
+            MORIS_ASSERT( aVR.length() == tNumSpaceDims + 2,
+                    "fn_FEM_IWG_Compressible_NS::eval_dKijidY_VR - length of pre-multiplication vector incorrect." );
 
             // get values form pre-multiplication vector
             real tVR2 = aVR( 1 );
             real tVR3 = aVR( 2 );
-            real tVR4 = aVR( 3 );   
+            real tVR4 = aVR( 3 );
 
             // clang-format off
-            // assemble matrices based on 
+            // assemble matrices based on
             switch ( tNumSpaceDims )
             {
                 // for 2D
@@ -2134,41 +2136,41 @@ namespace moris
                         case 0 :
                         {
                             // evaluate Ki1,i - for Y,x
-                            adKijidYVR( 1 ) = { 
+                            adKijidYVR( 1 ) = {
                                 { 0.0,                0.0,      0.0, 0.0 },
                                 { 0.0,                0.0,      0.0, 0.0 },
                                 { 0.0,                0.0,      0.0, 0.0 },
                                 { 0.0, tVR2*(tLa+2.0*tMu), tMu*tVR3, 0.0 } };
 
                             // evaluate Ki1,i - for Y,y
-                            adKijidYVR( 2 ) = { 
+                            adKijidYVR( 2 ) = {
                                 { 0.0,      0.0,      0.0, 0.0 },
                                 { 0.0,      0.0,      0.0, 0.0 },
                                 { 0.0,      0.0,      0.0, 0.0 },
                                 { 0.0, tMu*tVR3, tLa*tVR2, 0.0 } };
 
-                            break; 
+                            break;
                         }
 
                         case 1 :
                         {
                             // evaluate Ki2,i - for Y,x
-                            adKijidYVR( 1 ) = { 
+                            adKijidYVR( 1 ) = {
                                 { 0.0,      0.0,      0.0, 0.0 },
                                 { 0.0,      0.0,      0.0, 0.0 },
                                 { 0.0,      0.0,      0.0, 0.0 },
                                 { 0.0, tLa*tVR3, tMu*tVR2, 0.0 } };
 
                             // evaluate Ki2,i - for Y,y
-                            adKijidYVR( 2 ) = { 
+                            adKijidYVR( 2 ) = {
                                 { 0.0,      0.0,                0.0, 0.0 },
                                 { 0.0,      0.0,                0.0, 0.0 },
                                 { 0.0,      0.0,                0.0, 0.0 },
                                 { 0.0, tMu*tVR2, tVR3*(tLa+2.0*tMu), 0.0 } };
 
-                            break; 
+                            break;
                         }
-                    
+
                         default:
                         {
                             // error, Kiji-matrix j-index unknown
@@ -2176,7 +2178,7 @@ namespace moris
                             break;
                         }
                     } // end: switch for different A-matrices
-                    
+
                     // break for 2D case
                     break;
                 }
@@ -2190,7 +2192,7 @@ namespace moris
                         case 0 :
                         {
                             // evaluate Ki1,i - for Y,x
-                            adKijidYVR( 1 ) = { 
+                            adKijidYVR( 1 ) = {
                                 { 0.0,                0.0,      0.0,      0.0, 0.0 },
                                 { 0.0,                0.0,      0.0,      0.0, 0.0 },
                                 { 0.0,                0.0,      0.0,      0.0, 0.0 },
@@ -2198,28 +2200,28 @@ namespace moris
                                 { 0.0, tVR2*(tLa+2.0*tMu), tMu*tVR3, tMu*tVR4, 0.0 } };
 
                             // evaluate Ki1,i - for Y,y
-                            adKijidYVR( 2 ) = { 
+                            adKijidYVR( 2 ) = {
                                 { 0.0,      0.0,      0.0, 0.0, 0.0 },
                                 { 0.0,      0.0,      0.0, 0.0, 0.0 },
                                 { 0.0,      0.0,      0.0, 0.0, 0.0 },
                                 { 0.0,      0.0,      0.0, 0.0, 0.0 },
                                 { 0.0, tMu*tVR3, tLa*tVR2, 0.0, 0.0 } };
-        
+
                             // evaluate Ki1,i - for Y,z
-                            adKijidYVR( 3 ) = { 
+                            adKijidYVR( 3 ) = {
                                 { 0.0,      0.0, 0.0,      0.0, 0.0 },
                                 { 0.0,      0.0, 0.0,      0.0, 0.0 },
                                 { 0.0,      0.0, 0.0,      0.0, 0.0 },
                                 { 0.0,      0.0, 0.0,      0.0, 0.0 },
                                 { 0.0, tMu*tVR4, 0.0, tLa*tVR2, 0.0 } };
 
-                            break; 
+                            break;
                         }
 
                         case 1 :
                         {
                             // evaluate Ki2,i - for Y,x
-                            adKijidYVR( 1 ) = { 
+                            adKijidYVR( 1 ) = {
                                 { 0.0,      0.0,      0.0, 0.0, 0.0 },
                                 { 0.0,      0.0,      0.0, 0.0, 0.0 },
                                 { 0.0,      0.0,      0.0, 0.0, 0.0 },
@@ -2227,28 +2229,28 @@ namespace moris
                                 { 0.0, tLa*tVR3, tMu*tVR2, 0.0, 0.0 } };
 
                             // evaluate Ki2,i - for Y,y
-                            adKijidYVR( 2 ) = { 
+                            adKijidYVR( 2 ) = {
                                 { 0.0,      0.0,                0.0,      0.0, 0.0 },
                                 { 0.0,      0.0,                0.0,      0.0, 0.0 },
                                 { 0.0,      0.0,                0.0,      0.0, 0.0 },
                                 { 0.0,      0.0,                0.0,      0.0, 0.0 },
                                 { 0.0, tMu*tVR2, tVR3*(tLa+2.0*tMu), tMu*tVR4, 0.0 } };
-        
+
                             // evaluate Ki2,i - for Y,z
-                            adKijidYVR( 3 ) = { 
+                            adKijidYVR( 3 ) = {
                                 { 0.0, 0.0,      0.0,      0.0, 0.0 },
                                 { 0.0, 0.0,      0.0,      0.0, 0.0 },
                                 { 0.0, 0.0,      0.0,      0.0, 0.0 },
                                 { 0.0, 0.0,      0.0,      0.0, 0.0 },
                                 { 0.0, 0.0, tMu*tVR4, tLa*tVR3, 0.0 } };
 
-                            break; 
+                            break;
                         }
 
                         case 2 :
                         {
                             // evaluate Ki3,i - for Y,x
-                            adKijidYVR( 1 ) = { 
+                            adKijidYVR( 1 ) = {
                                 { 0.0,      0.0, 0.0,      0.0, 0.0 },
                                 { 0.0,      0.0, 0.0,      0.0, 0.0 },
                                 { 0.0,      0.0, 0.0,      0.0, 0.0 },
@@ -2256,24 +2258,24 @@ namespace moris
                                 { 0.0, tLa*tVR4, 0.0, tMu*tVR2, 0.0 } };
 
                             // evaluate Ki3,i - for Y,y
-                            adKijidYVR( 2 ) = { 
+                            adKijidYVR( 2 ) = {
                                 { 0.0, 0.0,      0.0,      0.0, 0.0 },
                                 { 0.0, 0.0,      0.0,      0.0, 0.0 },
                                 { 0.0, 0.0,      0.0,      0.0, 0.0 },
                                 { 0.0, 0.0,      0.0,      0.0, 0.0 },
                                 { 0.0, 0.0, tLa*tVR4, tMu*tVR3, 0.0 } };
-        
+
                             // evaluate Ki3,i - for Y,z
-                            adKijidYVR( 3 ) = { 
+                            adKijidYVR( 3 ) = {
                                 { 0.0,      0.0,      0.0,                0.0, 0.0 },
                                 { 0.0,      0.0,      0.0,                0.0, 0.0 },
                                 { 0.0,      0.0,      0.0,                0.0, 0.0 },
                                 { 0.0,      0.0,      0.0,                0.0, 0.0 },
                                 { 0.0, tMu*tVR2, tMu*tVR3, tVR4*(tLa+2.0*tMu), 0.0 } };
 
-                            break; 
+                            break;
                         }
-                    
+
                         default:
                         {
                             // error, Kiji-matrix j-index unknown
@@ -2284,8 +2286,8 @@ namespace moris
 
                     // break for 3D case
                     break;
-                }                
-            
+                }
+
                 // unknown number of spatial dimensions
                 default:
                 {
@@ -2299,3 +2301,4 @@ namespace moris
 
     } /* namespace fem */
 } /* namespace moris */
+

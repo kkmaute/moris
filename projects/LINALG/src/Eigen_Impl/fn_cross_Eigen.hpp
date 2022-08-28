@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_cross_Eigen.hpp
  *
- *  Created on: Jan 16, 2019
- *      Author: doble
  */
 
 #ifndef PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_CROSS_EIGEN_HPP_
@@ -41,6 +44,5 @@ cross( const Eigen::MatrixBase<ET1> & aA,
 }
 }
 
-
-
 #endif /* PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_CROSS_EIGEN_HPP_ */
+

@@ -1,8 +1,11 @@
 /*
- * UT_MDL_XTK_HMR_2D.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Sep 18, 2019
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * UT_MDL_XTK_HMR_ThermoElastic_2D.cpp
+ *
  */
 
 #include "catch.hpp"
@@ -97,7 +100,6 @@
 #include "fn_PRM_SOL_Parameters.hpp"
 
 #include "fn_PRM_HMR_Parameters.hpp"
-
 
 namespace moris
 {
@@ -1485,6 +1487,4 @@ namespace moris
     //    }
     //}
 }
-
-
 

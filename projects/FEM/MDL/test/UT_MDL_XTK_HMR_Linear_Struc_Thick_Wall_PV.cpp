@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * UT_MDL_XTK_HMR_Linear_Struc_Thick_Wall_PV.cpp
  *
- *  Created on: Jan 25, 2020
- *      Author: doble
  */
 
 #include "catch.hpp"
@@ -13,7 +16,6 @@
 #include "cl_XTK_Ghost_Stabilization.hpp"
 #include "cl_Geom_Field.hpp"
 #include "typedefs.hpp"
-
 
 #include "cl_MTK_Vertex.hpp"    //MTK
 #include "cl_MTK_Cell.hpp"
@@ -92,7 +94,6 @@ void ConstFunctionVal
     aPropMatrix = aParameters( 0 );
 }
 
-
 void tMValFunctionContact2( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
                             moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
                             moris::fem::Field_Interpolator_Manager         * aFIManager )
@@ -162,7 +163,6 @@ AnalyticSigTh( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
      return {{(tASq * tPi) / (tBSq - tASq) * ( 1 + tBSq/tRSq)}};
 }
 
-
 void AnalyticUr( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
                  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
                  moris::fem::Field_Interpolator_Manager         * aFIManager )
@@ -193,7 +193,6 @@ void AnalyticUr( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
 
     aPropMatrix = { { tUr } };
 }
-
 
 bool fOutputVizMesh( moris::tsa::Time_Solver * )
 {
@@ -263,7 +262,6 @@ TEST_CASE("2D Linear Stuct Thick Walled Pressure Vessel","[XTK_HMR_LS_PV]")
 //                std::string tPath = "/home/doble/Documents/Comps/exofiles_gf_" + std::to_string(tGhostInModel) + "_ar_"+ std::to_string(tAdaptiveOrUniform) + "/";
                 std::string tPath = "";
 
-
                 std::string tFileBase = "thick_wall_pv_ig_o_" + std::to_string(tOrder) + "_nr_" + std::to_string(iRef) ;
                 std::string tVizMeshFileName =tFileBase + ".e";
 
@@ -271,10 +269,8 @@ TEST_CASE("2D Linear Stuct Thick Walled Pressure Vessel","[XTK_HMR_LS_PV]")
                 std::string tInnerCircleFieldName = "InnerCircle";
                 std::string tOuterCircleFieldName = "OuterCircle";
 
-
                 // Dof Types
                 Cell< MSI::Dof_Type > tDofTypes = { MSI::Dof_Type::UX, MSI::Dof_Type::UY };
-
 
                 // Construct inner circle Plane
                 ge::Circle tInnerCircle(tA,tCenterPoint(0),tCenterPoint(1));
@@ -282,7 +278,6 @@ TEST_CASE("2D Linear Stuct Thick Walled Pressure Vessel","[XTK_HMR_LS_PV]")
 
                 ge::Circle tOuterCircle(tB,tCenterPoint(0),tCenterPoint(1));
                 auto tOuterCircleFP = [&tOuterCircle] (moris::Matrix< moris::DDRMat > const & aCoordinates) { return tOuterCircle.evaluate_field_value_with_single_coordinate(aCoordinates); }; /*Lambda pointer for class */
-
 
                 if(tVerboseGeometry)
                 {
@@ -349,7 +344,6 @@ TEST_CASE("2D Linear Stuct Thick Walled Pressure Vessel","[XTK_HMR_LS_PV]")
 
                 tHMR.finalize();
 
-
 //                std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh
 //                = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
                 moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh
@@ -402,7 +396,6 @@ TEST_CASE("2D Linear Stuct Thick Walled Pressure Vessel","[XTK_HMR_LS_PV]")
 //                    writer.set_time(0.0);
 //                    writer.close_file();
 //                }
-
 
                 // place the pair in mesh manager
                 std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();
@@ -546,7 +539,6 @@ TEST_CASE("2D Linear Stuct Thick Walled Pressure Vessel","[XTK_HMR_LS_PV]")
                 tSetNeumann1.set_mesh_index( tEnrIntegMesh.get_set_index_by_name(tEnrIntegMesh.get_interface_side_set_name(0,2,0)) );
                 tSetNeumann1.set_IWGs( { tIWGNeumann } );
 
-
                 // create a cell of set info
                 moris::Cell< fem::Set_User_Info > tSetInfo( 7 );
                 tSetInfo( 0 )  = tSetBulk1;
@@ -632,7 +624,6 @@ TEST_CASE("2D Linear Stuct Thick Walled Pressure Vessel","[XTK_HMR_LS_PV]")
                 NLA::Nonlinear_Solver tNonlinearSolverMain;
                 tNonlinearSolverMain.set_nonlinear_algorithm( tNonlinearSolverAlgorithm, 0 );
 
-
                 tNonlinearSolverMain.set_dof_type_list( tDofTypesU );
 
                 // Create solver database
@@ -671,3 +662,4 @@ TEST_CASE("2D Linear Stuct Thick Walled Pressure Vessel","[XTK_HMR_LS_PV]")
 
 }
 }
+

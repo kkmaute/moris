@@ -1,8 +1,11 @@
 /*
- * HMR_Tooms.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: May 14, 2018
- *      Author: messe
+ *------------------------------------------------------------------------------------
+ *
+ * HMR_Tools.hpp
+ *
  */
 
 #ifndef SRC_HMR_HMR_TOOLS_HPP_
@@ -152,3 +155,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_HMR_HMR_TOOLS_HPP_ */
+

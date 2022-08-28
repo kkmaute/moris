@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_FEM_IWG_Struc_Linear_Axisymmetric_Dirichlet.cpp
+ *
+ */
+
 #include <string>
 #include <catch.hpp>
 #include "assert.hpp"
@@ -78,7 +88,6 @@ TEST_CASE( "IWG_Struc_Axi_Dirichlet_Symmetric_Nitsche",
     std::shared_ptr< fem::Property > tRotAxisRadVec = std::make_shared< fem::Property >();
     tRotAxisRadVec->set_parameters( { {{ -4.0, 0}, {0, -4.0}} } );
     tRotAxisRadVec->set_val_function( tAxisymRotAxisFunc_Elast );
-
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
@@ -1975,3 +1984,4 @@ TEST_CASE( "IWG_Struc_Axi_Thermo_Elastic_Dirichlet_Unsymmetric_Nitsche",
         }
     }
 }/* END_TEST_CASE */
+

@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # MORIS main -------------------------------------------------------------
 # -------------------------------------------------------------------------
 
@@ -134,4 +141,5 @@ foreach(TPL ${SO_TPLS})
 endforeach()
 
 dynamic_link_input("shared_object_file" ${HARDCODED_INPUT_FILE} ${HARDCODED_INPUT_FILE}.cpp  ${SO_INCLUDES})
+
 

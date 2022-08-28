@@ -1,13 +1,15 @@
 /*
- * cl_XTK_Topology.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jul 17, 2017
- *      Author: ktdoble
+ *------------------------------------------------------------------------------------
+ *
+ * cl_GEN_Topology.hpp
+ *
  */
 
 #ifndef PROJECTS_GEN_SRC_NEW_ADDITIONAL_CL_GEN_TOPOLOGY_HPP_
 #define PROJECTS_GEN_SRC_NEW_ADDITIONAL_CL_GEN_TOPOLOGY_HPP_
-
 
 #include "linalg_typedefs.hpp"
 #include "../additional/cl_GEN_Basis_Function.hpp"
@@ -18,7 +20,6 @@ namespace moris
 namespace ge
 {
 
-    
     enum class GEN_Topology_Type
 {
     EDGE, // Edge with 2 Node
@@ -30,7 +31,7 @@ namespace ge
     HEXA_8, // hexahedron with 8 nodes topology
 
 };
-    
+
 class GEN_Topology
 {
 public:
@@ -39,7 +40,6 @@ public:
     {
 
     }
-
 
     virtual enum GEN_Topology_Type get_topology_type() const = 0;
 
@@ -53,5 +53,5 @@ public:
 }
 }
 
-
 #endif /* PROJECTS_GEN_SRC_NEW_ADDITIONAL_CL_GEN_TOPOLOGY_HPP_ */
+

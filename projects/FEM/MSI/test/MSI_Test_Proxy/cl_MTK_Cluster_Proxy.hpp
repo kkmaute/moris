@@ -1,8 +1,11 @@
 /*
- * cl_MTK_Cell_Cluster_STK.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Apr 29, 2019
- *      Author: doble
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Cluster_Proxy.hpp
+ *
  */
 
 #ifndef PROJECTS_MTK_SRC_STK_IMPL_CL_MTK_CELL_CLUSTER_STK_HPP_
@@ -11,7 +14,6 @@
 #include "cl_MTK_Cell_Cluster.hpp"
 #include "cl_Matrix.hpp"
 #include <unordered_map>
-
 
 namespace moris
 {
@@ -30,7 +32,6 @@ private:
 
     // map from vertex id to local index
     std::unordered_map<moris_index,moris_index> mVertexIdToLocalIndex;   // FIXME should be ordered map. about 1000 times faster
-
 
 public:
     Cluster_Proxy( moris::Cell<moris::mtk::Cell const *> aPrimaryCells,
@@ -137,5 +138,5 @@ public:
 }
 }
 
-
 #endif /* PROJECTS_MTK_SRC_STK_IMPL_CL_MTK_CELL_CLUSTER_STK_HPP_ */
+

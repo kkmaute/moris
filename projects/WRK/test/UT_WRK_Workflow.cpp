@@ -1,4 +1,12 @@
-
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_WRK_Workflow.cpp
+ *
+ */
 
 #include "catch.hpp"
 
@@ -14,7 +22,6 @@
 #include "cl_Communication_Tools.hpp"
 
 using namespace moris;
-
 
 TEST_CASE( "WRK_sensitivity_test ", "[moris],[WRK_sensitivity_test]" )
 {
@@ -35,3 +42,4 @@ TEST_CASE( "WRK_sensitivity_test ", "[moris],[WRK_sensitivity_test]" )
 //        tWorkflow.get_criteria(tADVs);
     }
 }
+

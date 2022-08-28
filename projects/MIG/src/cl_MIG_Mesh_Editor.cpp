@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MIG_Mesh_Editor.cpp
+ *
+ */
 
 #include "cl_Matrix.hpp"
 #include <numeric>
@@ -18,7 +27,6 @@ namespace moris::mig
         mOutputMesh = aIGMesh;
     }
 
-
     Periodic_Mesh_Editor::Periodic_Mesh_Editor( mtk::Integration_Mesh_DataBase_IG* aIGMesh, mig::Periodic_3D* aPeriodicData3D ) :
         mPeriodicData3D( aPeriodicData3D )
     {
@@ -36,7 +44,7 @@ namespace moris::mig
     Periodic_Mesh_Editor::perform()
     {
         Tracer tTracer("MIG", "Editor", "Merging Meshes");
-        
+
         // link the newly created nodes to the geomtry engine
         this->link_nodes_to_geomtry_engine();
 
@@ -143,3 +151,4 @@ namespace moris::mig
             aNumGeometry );
     }
 }// namespace moris::mig
+

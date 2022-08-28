@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_NLA_Solver_Interface_Proxy.cpp
  *
- *  Created on: Jun 18, 2018
- *      Author: schmidt
  */
+
 #include "cl_NLA_Solver_Interface_Proxy.hpp"
 #include "cl_Communication_Tools.hpp" // COM/src
 #include "cl_SOL_Dist_Vector.hpp"
@@ -161,3 +165,4 @@ void NLA_Solver_Interface_Proxy::get_equation_object_operator_and_rhs(
 
     aElementMatrix = mFunctionJac( mNX, mNY, mMySolVec, aMyElementInd );
 }
+

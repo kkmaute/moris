@@ -1,8 +1,11 @@
 /*
- * cl_MTK_Cell_XTK_Impl.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Feb 11, 2019
- *      Author: doble
+ *------------------------------------------------------------------------------------
+ *
+ * cl_XTK_Cell_CM.hpp
+ *
  */
 
 #ifndef PROJECTS_XTK_SRC_XTK_CL_MTK_CELL_XTK_IMPL_HPP_
@@ -122,3 +125,4 @@ namespace xtk
 } // namespace xtk
 
 #endif /* PROJECTS_XTK_SRC_XTK_CL_MTK_CELL_XTK_IMPL_HPP_ */
+

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_GEN_Single_Grain.hpp
+ *
+ */
+
 #ifndef MORIS_CL_GEN_GRAIN_HPP
 #define MORIS_CL_GEN_GRAIN_HPP
 
@@ -93,3 +103,4 @@ namespace moris
 }
 
 #endif //MORIS_CL_GEN_VOXEL_HPP
+

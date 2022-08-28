@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_GEN_Geometric_Query_Interface.hpp
+ *
+ */
+
 #ifndef MORIS_CL_GEN_Geometric_Query_Interface_HPP_
 #define MORIS_CL_GEN_Geometric_Query_Interface_HPP_
 
@@ -47,7 +57,6 @@ namespace moris
             virtual moris_index max_query_entity_intersection() const = 0;
         };
 
-
         Geometric_Query_Interface::Geometric_Query_Interface( /* args */ )
         {
         }
@@ -61,3 +70,4 @@ namespace moris
 }    // namespace moris
 
 #endif
+

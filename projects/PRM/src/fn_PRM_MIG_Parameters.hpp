@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_PRM_MIG_Parameters.hpp
  *
- *  Created on: Jan  31, 2022
- *      Author: momo
  */
+
 #ifndef SRC_fn_PRM_MIG_Parameters
 #define SRC_fn_PRM_MIG_Parameters
 

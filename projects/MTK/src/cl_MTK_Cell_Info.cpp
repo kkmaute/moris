@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Cell_Info.cpp
+ *
+ */
+
 #include "cl_MTK_Cell_Info.hpp"
 #include "cl_Cell.hpp"
 #include "cl_Matrix.hpp"
@@ -80,7 +90,6 @@ namespace moris
             return false;
         }
 
-
         // ---------------------------------------------------------------------------------
         moris_index
         Cell_Info::get_shared_vertex_ordinal_between_edges(
@@ -90,7 +99,6 @@ namespace moris
             MORIS_ERROR( 0, "No default implementation." );
             return MORIS_INDEX_MAX;
         }
-
 
         // ---------------------------------------------------------------------------------
 
@@ -335,3 +343,4 @@ namespace moris
 
     }    // namespace mtk
 }    // namespace moris
+

@@ -1,9 +1,13 @@
 /*
- * cl_Pdof_Host.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jul 14, 2018
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MSI_Pdof_Host.hpp
+ *
  */
+
 #ifndef SRC_FEM_CL_PDOF_HOST_HPP_
 #define SRC_FEM_CL_PDOF_HOST_HPP_
 
@@ -173,3 +177,4 @@ namespace moris
 }
 
 #endif /* SRC_FEM_CL_PDOF_HOST_HPP_ */
+

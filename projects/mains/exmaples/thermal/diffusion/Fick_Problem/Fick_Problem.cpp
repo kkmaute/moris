@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * Fick_Problem.cpp
+ *
+ */
+
 #include <string>
 #include <iostream>
 #include "typedefs.hpp"
@@ -20,7 +30,6 @@
 
 #include "AztecOO.h"
 
-
 #ifdef  __cplusplus
 extern "C"
 {
@@ -32,7 +41,6 @@ namespace moris
     moris::sint tStep = 100;
     moris::real tTmax = 19200.0;
     moris::real tDirichletRampUp = 2.0;
-
 
     // Constant function for properties
     void Func_Const( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
@@ -367,3 +375,4 @@ namespace moris
 #ifdef  __cplusplus
 }
 #endif
+

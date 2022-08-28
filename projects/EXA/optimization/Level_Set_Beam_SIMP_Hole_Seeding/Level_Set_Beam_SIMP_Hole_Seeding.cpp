@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * Level_Set_Beam_SIMP_Hole_Seeding.cpp
+ *
+ */
 
 #include <string>
 #include <iostream>
@@ -28,7 +37,6 @@
 #include "BelosLinearProblem.hpp"
 #include "BelosEpetraAdapter.hpp"
 #include "BelosBlockGmresSolMgr.hpp"
-
 
 #ifdef __cplusplus
 extern "C" {
@@ -73,7 +81,6 @@ namespace moris
     uint        tDensityShiftIntervall = 100;
 
     static uint tItarationCounter = 0;
-
 
     //-------------------------------
     // Opt constant_parameters
@@ -129,7 +136,6 @@ namespace moris
 
     // prescribed phi on interface
     std::string tPrescPhi = "0.0";
-
 
     //------------------------------------------------------------------------------
 
@@ -188,7 +194,6 @@ namespace moris
             }
         }
     }
-
 
     real
     Const_Geometry(
@@ -410,7 +415,6 @@ namespace moris
 
         aPropMatrix = factor * aFIManager->get_field_interpolators_for_type( PDV_Type::LS1 )->dnNdxn( 1 );
     }
-
 
     //--------------------------------------------------------------------------------------------------------------
 
@@ -637,7 +641,6 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "isocontour_tolerance", 10e-14 );
         tParameterlist( 0 )( 0 ).set( "isocontour_threshold", 0.5 );    // FIXME     this has to change
                                                                         // tParameterlist( 0 )( 0 ).set("PDV_types"         , "LS1");
-
 
         // init geometry counter
         uint tGeoCounter = 0;
@@ -895,7 +898,6 @@ namespace moris
         //------------------------------------------------------------------------------
         // init SP counter
         uint tSPCounter = 0;
-
 
         //------------------------------------------------------------------------------------------------------------------------
 
@@ -1164,7 +1166,6 @@ namespace moris
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tTotalDomain );
         tIQICounter++;
 
-
         // H1 Error if reference is design dependent
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIHeatMethodPenalty" );
@@ -1176,7 +1177,6 @@ namespace moris
         tParameterList( 4 )( tIQICounter ).set( "function_parameters", moris_to_string( tBSplineLimit ) + " / " + moris_to_string( tPhiGradient ) + " / " + moris_to_string( tPhiGamma ) + " / 0.1 / 1.0 / 1.0 / 1.0 " );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tVoidSets );
         tIQICounter++;
-
 
         // create computation  parameter list
         tParameterList( 5 ).resize( 1 );
@@ -1230,9 +1230,7 @@ namespace moris
         //tParameterlist( 0 )( 0 ).set( "fact: drop tolerance", 1e-12 );
         */
 
-
         tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
-
 
         tParameterlist( 2 ).resize( 4 );
         tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();    // nonlinear algorithm index 0
@@ -1246,7 +1244,6 @@ namespace moris
         tParameterlist( 2 )( 1 ).set( "NLA_rel_res_norm_drop", 1.0e-7 );
         tParameterlist( 2 )( 1 ).set( "NLA_relaxation_parameter", 1.0 );
         tParameterlist( 2 )( 1 ).set( "NLA_max_iter", 5 );
-
 
         tParameterlist( 2 )( 2 ) = moris::prm::create_nonlinear_algorithm_parameter_list();    // nonlinear algorithm index 1
         tParameterlist( 2 )( 2 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NLBGS_SOLVER ) );
@@ -1274,7 +1271,6 @@ namespace moris
         tParameterlist( 3 )( 1 ).set( "NLA_DofTypes", "PHID" );
         tParameterlist( 3 )( 1 ).set( "NLA_Secundary_DofTypes", "" );
 
-
         tParameterlist( 3 )( 2 ) = moris::prm::create_nonlinear_solver_parameter_list();
         tParameterlist( 3 )( 2 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) );
         tParameterlist( 3 )( 2 ).set( "NLA_Nonlinear_solver_algorithms", "3" );    // set nonlinear algorithm with index 0
@@ -1286,7 +1282,6 @@ namespace moris
         tParameterlist( 3 )( 3 ).set( "NLA_Nonlinear_solver_algorithms", "2" );    // set nonlinear algorithm with index 1.
         tParameterlist( 3 )( 3 ).set( "NLA_Sub_Nonlinear_Solver", "0,1,2" );       // set sub nonlinear solvers with index 0 and 1
         tParameterlist( 3 )( 3 ).set( "NLA_DofTypes", "THETA;PHID;UX,UY" );
-
 
         tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
         tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_solver", 3 );
@@ -1326,7 +1321,6 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "Mesh_Type", static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
         tParameterlist( 0 )( 0 ).set( "Set_Names", tTotalDomain );
 
-
         tParameterlist( 0 )( 0 ).set( "Field_Names", std::string( "UX,UY,VOL,PHID,THETA,LVLSET,HEATMETHOD,LEVELSETHEAT" ) );
         tParameterlist( 0 )( 0 ).set( "Field_Type", std::string( "NODAL,NODAL,NODAL,NODAL,NODAL,NODAL,NODAL,NODAL" ) );
         tParameterlist( 0 )( 0 ).set( "IQI_Names", std::string( "IQIBulkUX,IQIBulkUY,IQIBulkVolume,IQIBulkPHID,IQIBulkTHETA,IQILevelSet,IQIHeatMethodPenalty,IQILevelSetHeatMethod" ) );
@@ -1343,7 +1337,6 @@ namespace moris
         tParameterlist.resize( 3 );
         tParameterlist( 0 ).resize( 1 );
 
-
         prm::create_remeshing_parameterlist( tParameterlist( 0 )( 0 ) );
         tParameterlist( 0 )( 0 ).set( "mode", "ab_initio" );
         tParameterlist( 0 )( 0 ).set( "remeshing_field_names", "Box,Level_Set_Field" );
@@ -1354,8 +1347,8 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 }    // namespace moris
 
-
 //--------------------------------------------------------------------------------------------------------------
 #ifdef __cplusplus
 }
 #endif
+

@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_SP_Measure.hpp
  *
- *  Created on: Mar 01, 2021
- *  Author: noel
  */
 
 #ifndef SRC_FEM_CL_FEM_SP_MEASURE_HPP_
@@ -146,3 +149,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_FEM_CL_FEM_SP_MEASURE_HPP_ */
+

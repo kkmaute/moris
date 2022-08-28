@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Cell_Cluster_STK.cpp
  *
- *  Created on: May 14, 2019
- *      Author: doble
  */
+
 #include "cl_MTK_Cell_Cluster_STK.hpp"
 
 namespace moris
@@ -119,7 +123,6 @@ namespace moris
             return mVerticesInCluster;
         }
 
-
         //----------------------------------------------------------------
 
         moris::Matrix< moris::DDRMat >
@@ -177,3 +180,4 @@ namespace moris
 
     }    // namespace mtk
 }    // namespace moris
+

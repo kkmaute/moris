@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 /** \page opt_gcmma Globally Convergent Method of Moving Asymptotes (GCMMA)
 
 GCMMA (Svanberg, 2002) is a variant of the original method of moving asymptotes MMA - Method of Moving Asymptotes algorithm (Svanberg, 1987). 

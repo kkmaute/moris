@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * Levelset_Boxbeam_Lin_Quad_LevelSet.cpp
+ *
+ */
+
 #include <string>
 #include <iostream>
 #include "typedefs.hpp"
@@ -21,7 +31,6 @@
 #include "fn_stringify_matrix.hpp"
 
 #include "AztecOO.h"
-
 
 #ifdef  __cplusplus
 extern "C"
@@ -63,7 +72,7 @@ namespace moris
     std::string tBsplineOrder    = std::to_string(tLevelsetOrder)      + "," + std::to_string(tDispOrder);
     std::string tInitialRef      = std::to_string(tLevelsetInitialRef) + "," + std::to_string(tDispInitialRef);
     std::string tLagrangePattern = tLevelsetInitialRef > tDispInitialRef ? "0" : "1";
-    
+
     // Hole Seeding parameters
     sint tNumHolesY = 3;
     sint tNumHolesZ = 1*tNumHolesY;
@@ -128,7 +137,6 @@ namespace moris
     std::string tDofStrg = tIs3D ? "UX,UY,UZ" : "UX,UY";
 
     std::string tDirichletStr = tIs3D ? "0.0;0.0;0.0" : "0.0;0.0";
-
 
     //------------------------------------------------------------------------------
 
@@ -361,7 +369,6 @@ namespace moris
 
         return tDConstraintDCriteria;
     }
-
 
     //--------------------------------------------------------------------------------------------------------------
 
@@ -685,7 +692,7 @@ namespace moris
 
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkUX");
-        tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::DOF ) );      
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::DOF ) );
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity",               tDofStrg);
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    tDofStrg);
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",       0 );
@@ -844,8 +851,8 @@ namespace moris
     //--------------------------------------------------------------------------------------------------------------
 }
 
-
 //--------------------------------------------------------------------------------------------------------------
 #ifdef  __cplusplus
 }
 #endif
+

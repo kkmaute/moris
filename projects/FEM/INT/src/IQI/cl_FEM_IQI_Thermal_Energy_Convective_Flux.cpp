@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_IQI_Thermal_Energy_Convective_Flux.cpp
  *
- *  Created on: Sep 27, 2020
- *      Author: noel
  */
+
 #include "cl_FEM_IQI_Thermal_Energy_Convective_Flux.hpp"
 
 #include "cl_FEM_Set.hpp"
@@ -27,7 +31,7 @@ namespace moris
             // populate the constitutive map
             mConstitutiveMap[ "Diffusion" ] = static_cast< uint >( IQI_Constitutive_Type::DIFFUSION );
         }
-        
+
         //------------------------------------------------------------------------------
 
         void IQI_Thermal_Energy_Convective_Flux::compute_QI( Matrix< DDRMat > & aQI )

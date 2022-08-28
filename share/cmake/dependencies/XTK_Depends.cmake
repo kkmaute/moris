@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # XTK Dependencies --------------------------------------------------------
 # -------------------------------------------------------------------------
 
@@ -25,3 +32,4 @@ include(${MORIS_DEPENDS_DIR}/COM_Depends.cmake)
 set(XTK_TPL_DEPENDENCIES
     # ADd back with arborx"arborx"
     )
+

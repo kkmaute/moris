@@ -1,6 +1,12 @@
-//
-// example specific interface to moris
-//
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * example_test_case.cpp
+ *
+ */
 
 #include <catch.hpp>
 
@@ -185,7 +191,6 @@ void check_linear_results_serial()
     check_linear_results( tExoIO, tNodeId );
 }
 
-
 //---------------------------------------------------------------
 
 extern "C"
@@ -258,3 +263,4 @@ TEST_CASE("Thermo_Elastic_Element",
     }
 
 }
+

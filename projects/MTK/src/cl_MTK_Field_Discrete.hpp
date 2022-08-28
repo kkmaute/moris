@@ -1,6 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Field_Discrete.hpp
+ *
  */
+
 #ifndef SRC_MTK_FIELD_DISCRETE_HPP_
 #define SRC_MTK_FIELD_DISCRETE_HPP_
 
@@ -27,8 +34,6 @@ namespace moris
          * the derivatives of a nodal value with respect of coefficients returns 0 if the node does not have access to the underlying
          * discretization.
          */
-
-
 
         class Field_Discrete : public Field
         {
@@ -132,3 +137,4 @@ namespace moris
     }
 }
 #endif /* SRC_MTK_FIELD_ANALYTIC_HPP_ */
+

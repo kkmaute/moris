@@ -1,5 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_SP_Time_Velocity_Ghost.cpp
+ *
+ */
 
-//FEM/INT/src
 #include "cl_FEM_SP_Time_Velocity_Ghost.hpp"
 #include "cl_FEM_Cluster.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
@@ -97,5 +105,4 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-
 

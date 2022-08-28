@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_GEN_Field.hpp
+ *
+ */
+
 #ifndef MORIS_CL_GEN_Field_HPP
 #define MORIS_CL_GEN_Field_HPP
 
@@ -269,7 +279,7 @@ namespace moris
             void assign_adv_dependencies(
                     Matrix<DDUMat> aFieldVariableIndices,
                     Matrix<DDUMat> aADVIndices);
-            
+
             /**
              * Fills the remaining field variables with constant parameters.
              */
@@ -279,5 +289,5 @@ namespace moris
     }
 }
 
-
 #endif //MORIS_CL_GEN_Field_HPP
+

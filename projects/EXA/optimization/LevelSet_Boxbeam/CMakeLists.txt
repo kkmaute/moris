@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 set(EXAMPLE_MAIN Main_Levelset_Boxbeam)
 #set(EXAMPLE_FILE Levelset_Boxbeam Levelset_Boxbeam_Lin_Quad_LevelSet)
 set(EXAMPLE_FILE Levelset_Boxbeam )
@@ -92,3 +99,4 @@ if(MORIS_HAVE_PARALLEL_TESTS)
         WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
     endforeach()
 endif()
+

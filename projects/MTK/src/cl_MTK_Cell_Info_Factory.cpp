@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Cell_Info_Factory.cpp
  *
- *  Created on: Sep 11, 2019
- *      Author: doble
  */
 
 #include "cl_MTK_Cell_Info_Factory.hpp"
@@ -305,7 +308,6 @@ namespace moris
             return tConn;
         }
 
-
         std::shared_ptr< moris::mtk::Cell_Info >
         Cell_Info_Factory::create_cell_info_sp( enum Geometry_Type aCellGeom,
                 enum Interpolation_Order                           aInterpOrder )
@@ -435,3 +437,4 @@ namespace moris
 
     }    // namespace mtk
 }    // namespace moris
+

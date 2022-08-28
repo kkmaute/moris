@@ -1,9 +1,11 @@
-
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_Mesh_Builder.hpp
  *
- *  Created on: Jun 20, 2017
- *      Author: ktdoble
  */
 
 #ifndef INCLUDE_MESH_CL_MESH_BUILDER_HPP_
@@ -58,8 +60,8 @@ public:
                          Sensitivity<Real, Integer, Real_Matrix, Integer_Matrix> &                aSensitivityData,
                          bool const & aSetupDataForInternalUse = false) const = 0;
 
-
 };
 }
 
 #endif /* INCLUDE_MESH_CL_MESH_BUILDER_HPP_ */
+

@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * UT_MTK_Field.cpp
  *
- *  Created on: Jan 21, 2021
- *      Author: schmidt
  */
 
 #include "catch.hpp"
@@ -48,7 +51,6 @@
 #include "cl_MTK_Mapper.hpp"
 #undef protected
 #undef private
-
 
 namespace moris
 {
@@ -655,6 +657,6 @@ namespace moris
             }
         }
 
-
     }
 }
+

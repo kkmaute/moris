@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_DLA_Preconditioner_Trilinos.hpp
  *
- *  Created on: Jan 06, 2020
- *      Author: schmidt
  */
+
 #ifndef SRC_DISTLINALG_CL_PRECONDITIONER_TRILINOS_HPP_
 #define SRC_DISTLINALG_CL_PRECONDITIONER_TRILINOS_HPP_
 
@@ -112,3 +116,4 @@ namespace moris
 }
 
 #endif /* SRC_DISTLINALG_CL_PRECONDITIONER_TRILINOS_HPP_ */
+

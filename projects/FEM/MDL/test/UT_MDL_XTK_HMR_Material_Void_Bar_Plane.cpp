@@ -1,8 +1,11 @@
 /*
- * UT_MDL_XTK_HMR_Multi_Material_Bar_Plane.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Oct 4, 2019
- *      Author: doble
+ *------------------------------------------------------------------------------------
+ *
+ * UT_MDL_XTK_HMR_Material_Void_Bar_Plane.cpp
+ *
  */
 
 #include "catch.hpp"
@@ -186,7 +189,6 @@ TEST_CASE("XTK HMR Material Void Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_M
         writer.set_time(0.0);
         writer.close_file();
 
-
         // place the pair in mesh manager
         std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();
         tMeshManager->register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
@@ -196,7 +198,6 @@ TEST_CASE("XTK HMR Material Void Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_M
         std::shared_ptr< fem::Property > tPropConductivity1 = std::make_shared< fem::Property >();
         tPropConductivity1->set_parameters( { {{ 1.0 }} } );
         tPropConductivity1->set_val_function( tConstValFunctionMatVoidMDL );
-
 
         std::shared_ptr< fem::Property > tPropDirichlet = std::make_shared< fem::Property >();
         tPropDirichlet->set_parameters( { {{ 5.0 }} } );
@@ -379,3 +380,4 @@ TEST_CASE("XTK HMR Material Void Bar Intersected By Plane","[XTK_HMR_PLANE_BAR_M
         delete tInterpMesh;
     }
 }
+

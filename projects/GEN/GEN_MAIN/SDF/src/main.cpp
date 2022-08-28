@@ -1,12 +1,12 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * main.cpp
  *
- *  Created on: Sep 30, 2018
- *      Author: messe
  */
-
-// MORIS header files.
-
 
 #include "cl_Stopwatch.hpp"
 #include "cl_Communication_Manager.hpp" // COM/src
@@ -14,7 +14,6 @@
 #include "typedefs.hpp" // COR/src
 
 #include "cl_Cell.hpp"
-
 
 #include "banner.hpp" // COR/src
 
@@ -36,7 +35,6 @@
 #include "cl_SDF_STK.hpp"
 #include "cl_SDF_Field.hpp"
 #include "cl_Logger.hpp" // MRS/IOS/src
-
 
 moris::Comm_Manager gMorisComm;
 moris::Logger       gLogger;
@@ -217,7 +215,6 @@ perform_calculation(
 
     // step 3: create output data
 
-
     uint tNumberOfObjects = tObjectParameters.size();
 
     // get number of nodes on mesh
@@ -343,7 +340,6 @@ perform_calculation(
     // create output mesh
     std::string tOutputPath = aArguments.get_output_mesh_path();
 
-
     if( tOutputPath.size() > 0 )
     {
         sdf::STK tSTK( tMesh );
@@ -421,3 +417,4 @@ main(
     return 0;
 
 }
+

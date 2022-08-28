@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # Time Solver Algebra ----------------------------------------------
 # -------------------------------------------------------------------------
 
@@ -18,3 +25,4 @@ if(MORIS_USE_TESTS AND BUILD_TSA)
 endif()
 
 # Not sure yet what else should be here
+

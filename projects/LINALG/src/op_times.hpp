@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * op_times.hpp
  *
- *  Created on: Aug 24, 2018
- *      Author: doble
  */
 
 #ifndef PROJECTS_LINALG_OP_TIMES_HPP_
@@ -17,7 +20,6 @@
 #ifdef MORIS_USE_ARMA
 #include "op_times_Arma.hpp"
 #endif
-
 
 namespace moris
 {
@@ -76,3 +78,4 @@ namespace moris
 }    // namespace moris
 
 #endif /* PROJECTS_LINALG_OP_TIMES_HPP_ */
+

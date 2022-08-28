@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * Zienkiewicz_Zhu_Adaptive_Refinement.cpp
+ *
+ */
 
 #include <string>
 #include <iostream>
@@ -29,7 +38,6 @@
 #include "BelosLinearProblem.hpp"
 #include "BelosEpetraAdapter.hpp"
 #include "BelosBlockGmresSolMgr.hpp"
-
 
 #ifdef __cplusplus
 extern "C" {
@@ -75,7 +83,6 @@ namespace moris
 
     static uint tItarationCounter = 0;
 
-
     //-------------------------------
     // Opt constant_parameters
 
@@ -106,7 +113,6 @@ namespace moris
 
     moris::real tRadiusHolesInner = 0.517;
     moris::real tRadiusHolesOuter = 0.7173;
-
 
     //-------------------------------
 
@@ -153,7 +159,6 @@ namespace moris
     real tVMShift        = 1.0;
 
     real tStressGhost = 0.001;
-
 
     //------------------------------------------------------------------------------
 
@@ -216,7 +221,6 @@ namespace moris
         real lsbwabs = 0.2;
 
         Matrix< IndexMat > tVertexInds = aElement->get_vertex_inds();
-
 
         Matrix< DDRMat >   tValues;
         Matrix< IndexMat > tFieldIndex( 1, 1, 0 );
@@ -497,7 +501,6 @@ namespace moris
         if ( tDensity < 0 ) { tDensity = 0.0001; }
         if ( tDensity > 1 ) { tDensity = 1; }
 
-
         aPropMatrix = tHCT * std::pow( tDensity, tBeta );
     }
 
@@ -669,7 +672,6 @@ namespace moris
 
         aPropMatrix = factor * aFIManager->get_field_interpolators_for_type( PDV_Type::LS1 )->dnNdxn( 1 );
     }
-
 
     //--------------------------------------------------------------------------------------------------------------
 
@@ -957,7 +959,6 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterlist( 0 )( 0 ).set( "phase_table", moris::ios::stringify( tPhaseMap ) );
         tParameterlist( 0 )( 0 ).set( "print_phase_table", true );
 
-
         // init geometry counter
         uint tGeoCounter = 0;
 
@@ -1018,7 +1019,6 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         {
             tParameterlist( 2 )( tParamCounter ).set( "pdv_mesh_set_names", tTotalDomain );
         }
-
 
         tParamCounter++;
     }
@@ -1279,7 +1279,6 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         // init SP counter
         uint tSPCounter = 0;
 
-
         //------------------------------------------------------------------------------------------------------------------------
 
         // create parameter list for stabilization parameter 1
@@ -1500,7 +1499,6 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", tBulkSets );
         tIWGCounter++;
 
-
         if ( tUseGhost )
         {
             tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
@@ -1608,7 +1606,6 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tFrameSets );
         tIQICounter++;
 
-
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkVolume" );
         tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::VOLUME ) );
@@ -1637,7 +1634,6 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterList( 4 )( tIQICounter ).set( "master_properties", "PropTruncPHID,Property" );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tTotalDomain );
         tIQICounter++;
-
 
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQILevelSetHeatMethod" );
@@ -1689,7 +1685,6 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tTotalDomain );
         tIQICounter++;
 
-
         // H1 Error if reference is design dependent
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIHeatMethodPenalty" );
@@ -1734,7 +1729,6 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
     tParameterList( tIQIIndex )( tIQICounter ).set( "function_parameters",
         std::to_stri
          */
-
 
         // create computation  parameter list
         tParameterList( 5 ).resize( 1 );
@@ -1799,9 +1793,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
     //tParameterlist( 0 )( 0 ).set( "fact: drop tolerance", 1e-12 );
          */
 
-
         tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
-
 
         tParameterlist( 2 ).resize( 6 );
         tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();    // nonlinear algorithm index 0
@@ -1815,7 +1807,6 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterlist( 2 )( 1 ).set( "NLA_rel_res_norm_drop", 1.0e-7 );
         tParameterlist( 2 )( 1 ).set( "NLA_relaxation_parameter", 1.0 );
         tParameterlist( 2 )( 1 ).set( "NLA_max_iter", 1 );
-
 
         tParameterlist( 2 )( 2 ) = moris::prm::create_nonlinear_algorithm_parameter_list();    // nonlinear algorithm index 1
         tParameterlist( 2 )( 2 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NLBGS_SOLVER ) );
@@ -1879,11 +1870,9 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterlist( 3 )( 5 ).set( "NLA_Sub_Nonlinear_Solver", "2,3" );         // set sub nonlinear solvers with index 0 and 1
         tParameterlist( 3 )( 5 ).set( "NLA_DofTypes", "UX,UY;STRESS_DOF" );
 
-
         tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
         tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_solver", 4 );
         // tParameterlist( 4 )( 0 ).set("TSA_nonlinear_solver_for_adjoint_solve", 5 );
-
 
         tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
         tParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "THETA;PHID;UX,UY;STRESS_DOF" );
@@ -1922,7 +1911,6 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterlist( 0 )( 0 ).set( "Mesh_Type", static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
         tParameterlist( 0 )( 0 ).set( "Set_Names", tTotalDomain + "," + tFrameSets );
 
-
         tParameterlist( 0 )( 0 ).set( "Field_Names", std::string( "UX,UY,VOL,PHID,THETA,LVLSET,HEATMETHOD,LEVELSETHEAT,TRUNCPHID,STRESS,ZienKiewiczZhu" ) );
         tParameterlist( 0 )( 0 ).set( "Field_Type", std::string( "NODAL,NODAL,NODAL,NODAL,NODAL,NODAL,NODAL,NODAL,NODAL,NODAL,ELEMENTAL" ) );
         tParameterlist( 0 )( 0 ).set( "IQI_Names", std::string( "IQIBulkUX,IQIBulkUY,IQIBulkVolume,IQIBulkPHID,IQIBulkTHETA,IQILevelSet,IQIHeatMethodPenalty,IQILevelSetHeatMethod,IQITruncPHID,IQIBulkStress,IQIBulkZienkiewiczZhu" ) );
@@ -1947,7 +1935,6 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterlist( 0 )( 0 ).set( "remeshing_copy_old_pattern_to_pattern", "0, 3; 1, 4; 2, 5" );
         tParameterlist( 0 )( 0 ).set( "remeshing_refinement_pattern", "0;0;0;0;0,1" );
 
-
         tParameterlist( 0 )( 0 ).set( "minimum_refinement_level", "0, 0, 30, 10, 100, 0, 500; 1, 0, 30, 0, 500;2, 0, 500" );
 
         tParameterlist( 0 )( 0 ).set( "output_meshes", true );
@@ -1956,8 +1943,8 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
     //--------------------------------------------------------------------------------------------------------------
 }    // namespace moris
 
-
 //--------------------------------------------------------------------------------------------------------------
 #ifdef __cplusplus
 }
 #endif
+

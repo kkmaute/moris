@@ -1,6 +1,14 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 /** \page opt_lbfgs Limited-Memory Broyden-Fletcher-Goldfarb-Shanno (LBFGS)
 
 \warning MORIS will eventually be capable of handling LBFGS as a possible optimization algorithm. However, there are
 issues with the current implementation due to discrepancies with respect to a previous version of the external package.
 
 */
+

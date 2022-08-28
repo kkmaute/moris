@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # Distributed Linear Algebra Source ---------------------------------------
 # -------------------------------------------------------------------------
 
@@ -134,3 +141,4 @@ install(TARGETS ${DLA}-lib
 # Export library into *Targets file
 install(EXPORT ${DLA}Targets
     DESTINATION ${${DLA}_CONFIG_INSTALL_DIR} )
+

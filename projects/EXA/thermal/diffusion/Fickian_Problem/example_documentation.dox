@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 namespace moris {
 
 /** \page EXA_THERMAL_FICKIAN_PROBLEM Fickian Problem for Linear Diffusion
@@ -59,3 +66,4 @@ Since imposing the Dirichlet BC from the first timestep onwards leads to instabi
 */
 
 }
+

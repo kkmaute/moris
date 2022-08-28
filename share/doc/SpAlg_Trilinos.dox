@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 namespace moris {
 
 /** \defgroup SpAlgTrilinos Outline of Trilinos Solver
@@ -49,4 +56,5 @@ it is necessary to destroy Epetra vectors, matrices and the solver environment t
 */
 
 }
+
 

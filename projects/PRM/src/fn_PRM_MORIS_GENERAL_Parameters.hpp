@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_PRM_MORIS_GENERAL_Parameters.hpp
  *
- *  Created on: Feb 6, 2020
- *      Author: schmidt
  */
 
 #ifndef PROJECTS_PRM_SRC_FN_PRM_MORIS_GENERAL_PARAMETERS_HPP_
@@ -96,3 +99,4 @@ namespace moris
 }    // namespace moris
 
 #endif /* PROJECTS_PRM_SRC_FN_PRM_MORIS_GENERAL_PARAMETERS_HPP_ */
+

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * Axisymmetric_Problem_ConstantThermalField.cpp
+ *
+ */
+
 #include <string>
 #include <iostream>
 
@@ -27,7 +37,6 @@
 
 #include "AztecOO.h"
 
-
 #ifdef  __cplusplus
 extern "C"
 {
@@ -56,7 +65,7 @@ namespace moris
     std::string tPropTemp = "100.0";
 
     //------------------------------------------------------------------------------
-    
+
     // FUNCTIONS
 
     // Constant function for properties
@@ -447,3 +456,4 @@ namespace moris
 #ifdef  __cplusplus
 }
 #endif
+

@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_WRK_Performer_Manager.hpp
  *
- *  Created on: Feb 19, 2020
- *      Author: schmidt
  */
 
 #ifndef PROJECTS_FEM_MDL_SRC_CL_WRK_PERFORMER_MANAGER_HPP_
@@ -95,5 +98,5 @@ namespace moris
     } /* namespace mdl */
 } /* namespace moris */
 
-
 #endif /* PROJECTS_FEM_MDL_SRC_CL_WRK_PERFORMER_MANAGER_HPP_ */
+

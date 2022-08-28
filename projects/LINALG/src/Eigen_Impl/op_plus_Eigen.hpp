@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * op_plus_Eigen.hpp
  *
- *  Created on: Aug 27, 2018
- *      Author: doble
  */
 
 #ifndef PROJECTS_LINALG_SRC_EIGEN_IMPL_OP_PLUS_EIGEN_HPP_
@@ -31,8 +34,7 @@ namespace moris
         return  aA.matrix_data() + aB;
     }
 
-
-
 }
 
 #endif /* PROJECTS_LINALG_SRC_EIGEN_IMPL_OP_PLUS_EIGEN_HPP_ */
+

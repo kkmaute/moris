@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_IQI_2D_Drag_Lift_Coefficient.cpp
  *
- *  Created on: Nov 20, 2019
- *      Author: noel
  */
+
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IQI_2D_Drag_Lift_Coefficient.hpp"
@@ -20,7 +24,7 @@ namespace moris
             mMasterProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
 
             // populate the map
-            // NOTE: the user can either directly give a reference pressure value, 
+            // NOTE: the user can either directly give a reference pressure value,
             // NOTE: or give the density, velocity, and a reference lengthscale to normalize against the dynamic pressure
             mPropertyMap[ "RefDensity" ]     = static_cast< uint >( Property_Type::REF_DENSITY );
             mPropertyMap[ "RefVelocity" ]    = static_cast< uint >( Property_Type::REF_VELOCITY );
@@ -75,7 +79,7 @@ namespace moris
             }
 
             // check for zero in denominator
-            MORIS_ERROR( std::abs( tRefPressure ) > MORIS_REAL_EPS, 
+            MORIS_ERROR( std::abs( tRefPressure ) > MORIS_REAL_EPS,
                 "IQI_Drag_Lift_Coefficient::compute_QI() - Zero reference pressure detected. Check properties. (must not be zero)" );
 
             // get the diffusion CM
@@ -134,7 +138,7 @@ namespace moris
             }
 
             // check for zero in denominator
-            MORIS_ERROR( std::abs( tRefPressure ) > MORIS_REAL_EPS, 
+            MORIS_ERROR( std::abs( tRefPressure ) > MORIS_REAL_EPS,
                 "IQI_Drag_Lift_Coefficient::compute_QI() - Zero reference pressure detected. Check properties. (must not be zero)" );
 
             // get the diffusion CM
@@ -161,5 +165,4 @@ namespace moris
         //------------------------------------------------------------------------------
     }/* end namespace fem */
 }/* end namespace moris */
-
 

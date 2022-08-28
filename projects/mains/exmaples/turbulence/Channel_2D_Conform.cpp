@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * Channel_2D_Conform.cpp
+ *
+ */
+
 #include <string>
 #include <iostream>
 #include "typedefs.hpp"
@@ -20,7 +30,6 @@
 
 #include "AztecOO.h"
 
-
 #ifdef  __cplusplus
 extern "C"
 {
@@ -28,8 +37,8 @@ extern "C"
 //------------------------------------------------------------------------------
 namespace moris
 {
-    
-// Constant function for properties    
+
+// Constant function for properties
 void Func_Const( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
                  moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
                  moris::fem::Field_Interpolator_Manager         * aFIManager )
@@ -58,29 +67,29 @@ void Func_Inlet_V( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
 }
 
 // Wall distance function
-void Func_Wall_Distance( 
+void Func_Wall_Distance(
     moris::Matrix< moris::DDRMat >                 & aPropMatrix,
     moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
     moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
     aPropMatrix.set_size( 1, 1, 0.0 );
     real tY = aFIManager->get_IP_geometry_interpolator()->valx()( 1 );
-            
+
     // dist top
     real tDist = tY;
-    
+
     // dist top
     real tDistTop = 2.0 - tY;
     if( tDist > tDistTop )
     {
         tDist = tDistTop;
     }
-    
+
     if( tDist < 1E-6 )
     {
         tDist = 1E-6;
     }
-    
+
     aPropMatrix( 0 ) = tDist;
 }
 
@@ -89,7 +98,7 @@ bool Output_Criterion( moris::tsa::Time_Solver * aTimeSolver )
     return true;
 }
 
-moris::real Func_Plane( 
+moris::real Func_Plane(
     const moris::Matrix< DDRMat >     & aCoordinates,
     const moris::Cell< moris::real* > & aGeometryParameters )
 {
@@ -97,7 +106,7 @@ moris::real Func_Plane(
     return aReturnValue;
 }
 
-moris::Matrix< DDRMat > Func_Sensitivity( 
+moris::Matrix< DDRMat > Func_Sensitivity(
     const moris::Matrix< DDRMat >     & aCoordinates,
     const moris::Cell< moris::real* > & aGeometryParameters )
 {
@@ -116,10 +125,10 @@ void OPTParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterl
 }
 
 void HMRParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
-{       
+{
     tParameterlist.resize( 1 );
     tParameterlist( 0 ).resize( 1 );
-            
+
     tParameterlist( 0 )( 0 ) = prm::create_hmr_parameter_list();
 
     tParameterlist( 0 )( 0 ).set( "number_of_elements_per_dimension", "20,10");
@@ -142,16 +151,16 @@ void HMRParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterl
     tParameterlist( 0 )( 0 ).set( "initial_refinement_pattern", "0" );
 
     tParameterlist( 0 )( 0 ).set( "use_multigrid",  0 );
-    tParameterlist( 0 )( 0 ).set( "severity_level", 0 );    
-    
-    tParameterlist( 0 )( 0 ).set( "adaptive_refinement_level", 0 );    
+    tParameterlist( 0 )( 0 ).set( "severity_level", 0 );
+
+    tParameterlist( 0 )( 0 ).set( "adaptive_refinement_level", 0 );
 }
 
 void XTKParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
-{       
+{
     tParameterlist.resize( 1 );
     tParameterlist( 0 ).resize( 1 );
-            
+
     tParameterlist( 0 )( 0 ) = prm::create_xtk_parameter_list();
     tParameterlist( 0 )( 0 ).set( "decompose",           true );
     tParameterlist( 0 )( 0 ).set( "decomposition_type",  "conformal" );
@@ -172,7 +181,7 @@ void GENParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterl
     // Main GEN parameter list
     tParameterlist( 0 )( 0 ) = prm::create_gen_parameter_list();
     tParameterlist( 0 )( 0 ).set( "HMR_refinements", 0 );
-    
+
      // init geometry counter
     uint tGeoCounter = 0;
 
@@ -191,7 +200,7 @@ void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterL
 
     //------------------------------------------------------------------------------
     // fill the property part of the parameter list
-    
+
     // init property counter
     uint tPropCounter = 0;
 
@@ -201,58 +210,58 @@ void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterL
     tParameterList( 0 )( tPropCounter ).set( "function_parameters",      "0.0018" );
     tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
     tPropCounter++;
-    
+
     // create density property
     tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
     tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropDensity" );
     tParameterList( 0 )( tPropCounter ).set( "function_parameters",      "1.0" );
     tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
     tPropCounter++;
-    
+
     // create wall distance property
     tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
     tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropWallDistance" );
     tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Wall_Distance" );
     tPropCounter++;
-    
+
     // create inlet velocity property
     tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
     tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropInletU" );
     tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Inlet_U" );
     tPropCounter++;
-    
+
     // create zero velocity property
     tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
     tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropZeroU" );
     tParameterList( 0 )( tPropCounter ).set( "function_parameters",      "0.0;0.0" );
     tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
     tPropCounter++;
-    
+
     // create init velocity property
     tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
     tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropInitialConditionU" );
     tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Inlet_U" );
     tPropCounter++;
-    
+
     // create inlet viscosity property
     tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
     tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropInletV" );
     tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Inlet_V" );
     tPropCounter++;
-    
+
     // create zero viscosity property
     tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
     tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropZeroV" );
     tParameterList( 0 )( tPropCounter ).set( "function_parameters",      "0.0" );
     tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
     tPropCounter++;
-    
+
     // create init viscosity property
     tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
     tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropInitialConditionV" );
     tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Inlet_V" );
     tPropCounter++;
-    
+
     // create weight for time continuity property
     tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
     tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropWeight" );
@@ -262,7 +271,7 @@ void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterL
 
     //------------------------------------------------------------------------------
     // fill the constitutive model part of the parameter list
-    
+
     // init CM counter
     uint tCMCounter = 0;
 
@@ -273,7 +282,7 @@ void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterL
     tParameterList( 1 )( tCMCounter ).set( "dof_dependencies",  std::pair< std::string, std::string >( "VX,VY;P", "Velocity,Pressure" ) );
     tParameterList( 1 )( tCMCounter ).set( "properties",        "PropViscosity,Viscosity;PropDensity,Density" );
     tCMCounter++;
-    
+
     // create turbulence constitutive model
     tParameterList( 1 ).push_back( prm::create_constitutive_model_parameter_list() );
     tParameterList( 1 )( tCMCounter ).set( "constitutive_name", "CMTurbulence" );
@@ -281,10 +290,10 @@ void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterL
     tParameterList( 1 )( tCMCounter ).set( "dof_dependencies",  std::pair< std::string, std::string >( "VX,VY;VISCOSITY", "Velocity,Viscosity" ) );
     tParameterList( 1 )( tCMCounter ).set( "properties",        "PropViscosity,Viscosity;PropDensity,Density" );
     tCMCounter++;
-    
+
     //------------------------------------------------------------------------------
     // fill the stabilization parameter part of the parameter list
-    
+
     // init SP counter
     uint tSPCounter = 0;
 
@@ -296,7 +305,7 @@ void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterL
     tParameterList( 2 )( tSPCounter ).set( "master_properties",       "PropViscosity,Viscosity;PropDensity,Density" );
     tParameterList( 2 )( tSPCounter ).set( "master_dof_dependencies", std::pair< std::string, std::string >( "VX,VY;P", "Velocity,Pressure" ) );
     tSPCounter++;
-    
+
     // create SUPG stabilization parameter for Spalart-Allmaras
     tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
     tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      "SPSUPGSA" );
@@ -304,7 +313,7 @@ void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterL
     tParameterList( 2 )( tSPCounter ).set( "master_properties",       "PropViscosity,Viscosity;PropWallDistance,WallDistance" );
     tParameterList( 2 )( tSPCounter ).set( "master_dof_dependencies", std::pair< std::string, std::string >( "VX,VY;VISCOSITY", "Velocity,Viscosity" ) );
     tSPCounter++;
-    
+
     // create Nitsche stabilization parameter for velocity
     tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
     tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      "SPNitscheU" );
@@ -313,7 +322,7 @@ void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterL
     tParameterList( 2 )( tSPCounter ).set( "master_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
     tParameterList( 2 )( tSPCounter ).set( "master_properties",       "PropViscosity,Viscosity;PropDensity,Density" );
     tSPCounter++;
-    
+
     // create Nitsche stabilization parameter for viscosity
     tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
     tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      "SPNitscheV" );
@@ -322,13 +331,13 @@ void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterL
     tParameterList( 2 )( tSPCounter ).set( "master_dof_dependencies", std::pair< std::string, std::string >( "VISCOSITY", "Viscosity" ) );
     tParameterList( 2 )( tSPCounter ).set( "master_properties",       "PropViscosity,Viscosity" );
     tSPCounter++;
-    
+
     //------------------------------------------------------------------------------
     // fill the IWG part of the parameter list
-    
+
     // init IWG counter
     uint tIWGCounter = 0;
-    
+
     // create incompressible NS velocity bulk IWG
     tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
     tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGVelocityBulk" );
@@ -340,7 +349,7 @@ void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterL
     tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPSUPGNS,IncompressibleFlow" );
     tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "HMR_dummy_n_p0" );
     tIWGCounter++;
-    
+
     // create incompressible NS pressure bulk IWG
     tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
     tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGPressureBulk" );
@@ -352,7 +361,7 @@ void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterL
     tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPSUPGNS,IncompressibleFlow" );
     tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "HMR_dummy_n_p0" );
     tIWGCounter++;
-    
+
     // create SA turbulence bulk IWG
     tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
     tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGTurbulenceBulk" );
@@ -363,7 +372,7 @@ void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterL
     tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPSUPGSA,SUPG" );
     tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "HMR_dummy_n_p0" );
     tIWGCounter++;
-    
+
     // create incompressible NS velocity Dirichlet IWG for inlet
     tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
     tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGInletVelocity" );
@@ -375,7 +384,7 @@ void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterL
     tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPNitscheU,DirichletNitsche" );
     tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "SideSet_4_n_p0" );
     tIWGCounter++;
-    
+
     // create incompressible NS pressure Dirichlet IWG for inlet
     tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
     tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGInletPressure" );
@@ -386,7 +395,7 @@ void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterL
     tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,IncompressibleFluid" );
     tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "SideSet_4_n_p0" );
     tIWGCounter++;
-    
+
     // create incompressible NS velocity Dirichlet IWG for walls
     tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
     tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGZeroVelocity" );
@@ -398,7 +407,7 @@ void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterL
     tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPNitscheU,DirichletNitsche" );
     tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "SideSet_1_n_p0,SideSet_3_n_p0" );
     tIWGCounter++;
-    
+
     // create incompressible NS pressure Dirichlet IWG for walls
     tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
     tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGZeroPressure" );
@@ -409,7 +418,7 @@ void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterL
     tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,IncompressibleFluid" );
     tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "SideSet_1_n_p0,SideSet_3_n_p0" );
     tIWGCounter++;
-    
+
     // create viscosity Dirichlet IWG for inlet
     tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
     tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGInletViscosity" );
@@ -420,7 +429,7 @@ void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterL
     tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPNitscheV,Nitsche" );
     tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "SideSet_4_n_p0" );
     tIWGCounter++;
-    
+
     // create viscosity Dirichlet IWG for walls
     tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
     tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGZeroViscosity" );
@@ -431,7 +440,7 @@ void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterL
     tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPNitscheV,Nitsche" );
     tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "SideSet_1_n_p0,SideSet_3_n_p0" );
     tIWGCounter++;
-    
+
     // create velocity time continuity IWG
     tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
     tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGVelocityTimeContinuity" );
@@ -442,7 +451,7 @@ void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterL
     tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "HMR_dummy_n_p0" );
     tParameterList( 3 )( tIWGCounter ).set( "time_continuity",            true );
     tIWGCounter++;
-    
+
     // create viscosity time continuity IWG
     tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
     tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGViscosityTimeContinuity" );
@@ -453,13 +462,13 @@ void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterL
     tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "HMR_dummy_n_p0" );
     tParameterList( 3 )( tIWGCounter ).set( "time_continuity",            true );
     tIWGCounter++;
-    
+
     //------------------------------------------------------------------------------
     // fill the IQI part of the parameter list
-    
+
     // init IQI counter
     uint tIQICounter = 0;
-    
+
     // create parameter list for IQI 1
     tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
     tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkVX" );
@@ -469,7 +478,7 @@ void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterL
     tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      0 );
     tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             "HMR_dummy_n_p0" );
     tIQICounter++;
-    
+
     // create parameter list for IQI 2
     tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
     tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkVY" );
@@ -479,7 +488,7 @@ void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterL
     tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      1 );
     tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             "HMR_dummy_n_p0" );
     tIQICounter++;
-    
+
     // create parameter list for IQI 3
     tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
     tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkP" );
@@ -489,7 +498,7 @@ void FEMParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterL
     tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      0 );
     tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             "HMR_dummy_n_p0" );
     tIQICounter++;
-    
+
     // create parameter list for IQI 3
     tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
     tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkVISCOSITY" );
@@ -512,7 +521,7 @@ void SOLParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterl
     tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
 
     tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
-    
+
     tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
     tParameterlist( 2 )( 0 ).set("NLA_rel_res_norm_drop", 1e-05 );
     tParameterlist( 2 )( 0 ).set("NLA_relaxation_parameter" , 0.9 );
@@ -524,7 +533,7 @@ void SOLParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterl
     tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
     tParameterlist( 4 )( 0 ).set("TSA_Num_Time_Steps",     20 );
     tParameterlist( 4 )( 0 ).set("TSA_Time_Frame",         0.2 );
-    
+
     tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
     tParameterlist( 5 )( 0 ).set("TSA_DofTypes",            "VX,VY;P;VISCOSITY" );
     tParameterlist( 5 )( 0 ).set("TSA_Initialize_Sol_Vec",  "VX,12.5;VY,0.0;P,0.0;VISCOSITY,0.1" );
@@ -532,22 +541,22 @@ void SOLParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterl
     tParameterlist( 5 )( 0 ).set("TSA_Output_Crteria",      "Output_Criterion" );
     tParameterlist( 5 )( 0 ).set("TSA_time_level_per_type", "VX,2;VY,2;P,2;VISCOSITY,2" );
 
-    tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();    
+    tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
 }
 
 void MSIParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
-{       
+{
     tParameterlist.resize( 1 );
     tParameterlist( 0 ).resize( 1 );
-            
-    tParameterlist( 0 )( 0 ) = prm::create_msi_parameter_list();    
+
+    tParameterlist( 0 )( 0 ) = prm::create_msi_parameter_list();
 }
 
 void VISParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
-{       
+{
     tParameterlist.resize( 1 );
     tParameterlist( 0 ).resize( 1 );
-            
+
     tParameterlist( 0 )( 0 ) = prm::create_vis_parameter_list();
     tParameterlist( 0 )( 0 ).set( "File_Name"  , std::pair< std::string, std::string >( "./", "Fluid_Benchmark_2D_Channel_Turbulent_Conform.exo" ) );
     tParameterlist( 0 )( 0 ).set( "Mesh_Type"  , static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
@@ -555,7 +564,7 @@ void VISParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterl
     tParameterlist( 0 )( 0 ).set( "Field_Names", std::string( "VX,VY,P,VISCOSITY" ) );
     tParameterlist( 0 )( 0 ).set( "Field_Type" , std::string( "NODAL,NODAL,NODAL,NODAL" ) );
     tParameterlist( 0 )( 0 ).set( "Output_Type", std::string( "VX,VY,P,VISCOSITY" ) );
-} 
+}
 
 //------------------------------------------------------------------------------
 }
@@ -564,3 +573,4 @@ void VISParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterl
 #ifdef  __cplusplus
 }
 #endif
+

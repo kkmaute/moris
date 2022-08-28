@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Vertex_Interpolation_DataBase.hpp
  *
- *  Created on: Dec  11, 2021
- *      Author: momo
  */
+
 #ifndef SRC_cl_MTK_Vertex_Interpolation_DataBase_HPP_
 #define SRC_cl_MTK_Vertex_Interpolation_DataBase_HPP_
 
@@ -40,7 +44,7 @@ namespace moris
             /**
              * returns the IDs of the interpolation coefficients
              */
-            virtual 
+            virtual
             Matrix< IdMat >
             get_ids() const override;
 
@@ -58,7 +62,7 @@ namespace moris
             /**
              * returns the proc owners of the IDs of this vertex
              */
-            virtual 
+            virtual
             Matrix< IdMat >
             get_owners() const override;
 
@@ -66,7 +70,7 @@ namespace moris
             /**
              * set the interpolation weights
              */
-            virtual 
+            virtual
             void
             set_weights( const moris::Matrix< DDRMat >& aWeights ) override;
 
@@ -75,10 +79,9 @@ namespace moris
             /**
              * returns the interpolation weights
              */
-            virtual 
+            virtual
             const Matrix< DDRMat >*
             get_weights() const override;
-
 
             //------------------------------------------------------------------------------
             /**
@@ -92,7 +95,7 @@ namespace moris
             /**
              * returns the pointers to the coefficient objects
              */
-            virtual 
+            virtual
             moris::Cell< Vertex* >&
             get_coefficients() override;
 
@@ -101,7 +104,7 @@ namespace moris
             /**
              * returns the pointers to the coefficient objects (const version)
              */
-            virtual 
+            virtual
             const moris::Cell< Vertex* >&
             get_coefficients() const override;
 
@@ -110,7 +113,7 @@ namespace moris
             /**
              * returns the number of coefficients attributed to this basis
              */
-            virtual 
+            virtual
             uint
             get_number_of_coefficients() const override;
 
@@ -118,7 +121,7 @@ namespace moris
 
             /**
              * @brief populate the data that is being passed as a refernce
-             * 
+             *
              */
 
             void
@@ -128,8 +131,8 @@ namespace moris
 
             /**
              * @brief memory usage of the vertex interpolations
-             * 
-             * @return size_t 
+             *
+             * @return size_t
              */
 
             size_t
@@ -137,6 +140,5 @@ namespace moris
         };
     }// namespace mtk
 }// namespace moris
-
 
 #endif /* cl_MTK_Vertex_Interpolation_DataBase.hpp */

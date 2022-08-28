@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # Parameters Tests ----------------------------------------------------
 # -------------------------------------------------------------------------
 
@@ -98,3 +105,4 @@ endforeach()
 foreach(base_name ${GEN_TEST_INPUT_FILE_BASE})
     dynamic_link_input(${base_name} ${base_name} ${base_name}.cpp ${SO_INCLUDES})
 endforeach()
+

@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_XTK_Hole_Seeder.cpp
  *
- *  Created on: Apr 23, 2019
- *      Author: doble
  */
 
 #include "cl_XTK_Hole_Seeder.hpp"
@@ -96,7 +99,6 @@ Hole_Seeder::seed_field()
     moris::real tMaxZ = moris::max_all(tLocMaxZ);
     moris::real tMinZ = moris::min_all(tLocMinZ);
 
-
     moris::real lx = tMaxX-tMinX;
     moris::real ly = tMaxY-tMinY;
     moris::real lz = tMaxZ-tMinZ;
@@ -124,7 +126,6 @@ Hole_Seeder::seed_field()
         zOffset = (tMaxZ+tMinZ)/2.0;
         tMinZ = zOffset;
     }
-
 
     moris::uint tNumSpheres = mNumSpheresInX*mNumSpheresInY*mNumSpheresInZ;
 
@@ -196,6 +197,4 @@ Hole_Seeder::get_seeded_geometies()
 }
 
 }
-
-
 

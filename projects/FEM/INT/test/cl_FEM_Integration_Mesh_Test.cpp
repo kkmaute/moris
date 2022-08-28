@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_Integration_Mesh_Test.cpp
+ *
+ */
+
 #include "catch.hpp"
 #include "cl_FEM_Geometry_Interpolator.hpp"    //FEM/INT/src
 #include "cl_MTK_Integrator.hpp"               //MTK/src
@@ -946,3 +956,4 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
         delete tIntegSpaceInterpolation;
     }
 }
+

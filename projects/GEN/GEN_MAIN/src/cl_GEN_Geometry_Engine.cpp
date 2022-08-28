@@ -1,4 +1,13 @@
-// MRS
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_GEN_Geometry_Engine.cpp
+ *
+ */
+
 #include "fn_Parsing_Tools.hpp"
 #include "cl_Tracer.hpp"
 
@@ -1490,7 +1499,6 @@ namespace moris
             // Get primitive ADVs from owned vector
             mPrimitiveADVs->import_local_to_global( *tNewOwnedADVs );
 
-
             // Set field ADVs using distributed vector
             if ( mInitialPrimitiveADVs.length() > 0 )
             {
@@ -2646,3 +2654,4 @@ namespace moris
 
     }    // namespace ge
 }    // namespace moris
+

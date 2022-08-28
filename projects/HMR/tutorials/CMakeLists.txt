@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # List test includes
 set(EXE_INCLUDES
@@ -118,3 +125,4 @@ foreach(HMR_EXE ${HMR_TUTORIAL_LIST})
 	    	PRIVATE ${MORIS_${TPL}_DEFINITIONS})
 	endforeach()
 endforeach()
+

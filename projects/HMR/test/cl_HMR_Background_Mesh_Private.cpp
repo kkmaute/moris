@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_HMR_Background_Mesh_Private.cpp
+ *
+ */
 
 #include <catch.hpp>
 
@@ -370,7 +379,6 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
             delete tParameters;
         }
 
-
 //-------------------------------------------------------------------------------
 
        SECTION( "Background mesh 3D: test neighborhood calculation")
@@ -638,7 +646,6 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
             moris::luint tNumberOfActiveElements
                 = tBackgroundMesh->get_number_of_active_elements_on_proc();
 
-
             // refine all elements on first level
             for( moris::luint k=0; k<tNumberOfActiveElements; ++k )
             {
@@ -719,7 +726,6 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
             delete tParameters;
         }
 //-------------------------------------------------------------------------------
-
 
        SECTION( "Background mesh 3D: test get_neighbors_from_same_level() function")
         {
@@ -832,3 +838,4 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
     } // end serial case
 //-------------------------------------------------------------------------------
 } // end test
+

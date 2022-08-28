@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_DLA_Multigrid_Test.cpp
  *
- *  Created on: Nov 18, 2018
- *      Author: schmidt
  */
 
 #include "catch.hpp"
@@ -58,7 +61,6 @@
 #include "fn_PRM_SOL_Parameters.hpp"
 #include "cl_SOL_Warehouse.hpp"
 #include "cl_TSA_Time_Solver.hpp"
-
 
 #include "fn_norm.hpp"
 
@@ -289,7 +291,6 @@ TEST_CASE("DLA_Multigrid","[DLA],[DLA_multigrid]")
          moris::Matrix< DDRMat > tSolution;
          tTimeSolver->get_full_solution( tSolution );
 
-
          CHECK( equal_to( tSolution( 0, 0 ), -0.9010796, 1.0e+08 ) );
          CHECK( equal_to( tSolution( 1, 0 ), -0.7713064956, 1.0e+08 ) );
          CHECK( equal_to( tSolution( 2, 0 ), -0.7713064956, 1.0e+08 ) );
@@ -502,7 +503,6 @@ TEST_CASE("DLA_Multigrid_Circle","[DLA],[DLA_multigrid_sphere]")
     if( moris::par_size() == 1 )
     {
         moris::uint tLagrangeMeshIndex = 0;
-    
 
         // create parameter object
         moris::hmr::Parameters tParameters;
@@ -903,5 +903,4 @@ TEST_CASE("DLA_Multigrid_SDF","[DLA],[DLA_multigrid_sdf]")
 */
 
 }
-
 

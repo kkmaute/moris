@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_tic_toc_error.hpp
+ *
+ */
+
 #ifndef MORIS_EXCEPTIONS_CL_TIC_TOC_ERROR_HPP_
 #define MORIS_EXCEPTIONS_CL_TIC_TOC_ERROR_HPP_
 
@@ -50,3 +60,4 @@ namespace exceptions
 }    // namespace moris
 
 #endif    /* MORIS_EXCEPTIONS_CL_TIC_TOC_ERROR_HPP_ */
+

@@ -1,8 +1,11 @@
 /*
- * class Matrix<arma::Mat<Type>>
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Aug 24, 2018
- *      Author: doble
+ *------------------------------------------------------------------------------------
+ *
+ * cl_Matrix_Arma_Dynamic.hpp
+ *
  */
 
 #ifndef PROJECTS_LINALG_SRC_ARMA_IMPL_CL_MATRIX_ARMA_DYNAMIC_HPP_
@@ -837,7 +840,6 @@ namespace moris
          * @param[in] moris matrix.
          */
 
-
         void
         operator-=( const Matrix< arma::Mat< Type > >& aMatrix )
         {
@@ -904,7 +906,6 @@ namespace moris
 
         // -------------------------------------------------------------------------
 
-
         /*!
          * const iterator returning the first element of the
          * matrix.
@@ -941,7 +942,6 @@ namespace moris
          *
          * @param[out] Matrix Iterator of First element in Matrix
          */
-
 
         auto
         cend() const -> decltype( mMatrix.cend() )
@@ -983,3 +983,4 @@ namespace moris
 }    // namespace moris
 
 #endif /* PROJECTS_LINALG_SRC_ARMA_IMPL_CL_MATRIX_ARMA_DYNAMIC_HPP_ */
+

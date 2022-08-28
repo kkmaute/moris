@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * Shape_Sensitivity_Two_Material_Sweep_Thermoelastic_Staggered.cpp
+ *
+ */
+
 #include <string>
 #include <iostream>
 #include "typedefs.hpp"
@@ -735,7 +745,7 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
         // fill the computation part of the parameter list
         tParameterList( 5 ).resize( 1 );
         tParameterList( 5 )( 0 ) = prm::create_computation_parameter_list();
-        
+
         tParameterList( 5 )( 0 ).set( "finite_difference_scheme",             (uint)( fem::FDScheme_Type::POINT_3_CENTRAL) );
         tParameterList( 5 )( 0 ).set( "finite_difference_perturbation_size",  1.0e-4  );
     }

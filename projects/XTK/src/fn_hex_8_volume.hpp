@@ -1,15 +1,17 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_hex_8_volume.hpp
  *
- *  Created on: Oct 5, 2018
- *      Author: doble
  */
 
 #ifndef PROJECTS_XTK_SRC_TOOLS_FN_HEX_8_VOLUME_HPP_
 #define PROJECTS_XTK_SRC_TOOLS_FN_HEX_8_VOLUME_HPP_
 
 #include "cl_Matrix.hpp"
-
 
 namespace xtk
 {
@@ -33,6 +35,5 @@ compute_hex_8_volume( moris::Matrix<Real_Matrix> const & aNodeCoordinates,
 }
 }
 
-
-
 #endif /* PROJECTS_XTK_SRC_TOOLS_FN_HEX_8_VOLUME_HPP_ */
+

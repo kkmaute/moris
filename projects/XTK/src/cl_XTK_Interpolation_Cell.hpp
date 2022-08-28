@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_XTK_Interpolation_Cell.hpp
  *
- *  Created on: Jul 10, 2019
- *      Author: doble
  */
 
 #ifndef PROJECTS_XTK_SRC_XTK_CL_XTK_INTERPOLATION_CELL_HPP_
@@ -20,7 +23,6 @@ namespace moris
     class Vertex;
     }
 }
-
 
 namespace xtk
 {
@@ -48,6 +50,5 @@ public:
 
 }
 
-
-
 #endif /* PROJECTS_XTK_SRC_XTK_CL_XTK_INTERPOLATION_CELL_HPP_ */
+

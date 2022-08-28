@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_WRK_Workflow_STK_FEM.cpp
+ *
+ */
+
 #include "cl_WRK_Performer_Manager.hpp"
 #include "cl_WRK_Workflow_STK_FEM.hpp"
 #include "cl_Param_List.hpp"
@@ -15,7 +25,6 @@
 
 #include "cl_MTK_Writer_Exodus.hpp"
 #include "cl_MTK_Periodic_Boundary_Condition_Helper.hpp"
-
 
 #include "cl_Logger.hpp"
 #include "cl_Tracer.hpp"
@@ -152,3 +161,4 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
     }    // namespace wrk
 } /* namespace moris */
+

@@ -1,13 +1,15 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_SDF_Data.hpp
  *
- *  Created on: Sep 30, 2018
- *      Author: messe
  */
 
 #ifndef PROJECTS_GEN_SDF_SRC_CL_SDF_DATA_HPP_
 #define PROJECTS_GEN_SDF_SRC_CL_SDF_DATA_HPP_
-
 
 #include "typedefs.hpp"
 
@@ -66,7 +68,6 @@ namespace moris
             // counter for surface elements
             uint mSurfaceElements = 0;
 
-
 //-------------------------------------------------------------------------------
         public :
 //-------------------------------------------------------------------------------
@@ -89,5 +90,5 @@ namespace moris
     } /* namespace sdf */
 } /* namespace moris */
 
-
 #endif /* PROJECTS_GEN_SDF_SRC_CL_SDF_DATA_HPP_ */
+

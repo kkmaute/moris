@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_Mesh_Data.hpp
  *
- *  Created on: Jun 20, 2017
- *      Author: ktdoble
  */
 
 #ifndef INCLUDE_MESH_CL_MESH_DATA_HPP_
@@ -34,7 +37,6 @@ public:
                                             enum EntityRank aInputEntityRank,
                                             enum EntityRank aOutputEntityRank) const = 0;
 
-
     // Since some mesh implementations do not support connectivities aInputEntityRank == aOutputEntityRank, XTK only needs Element to element
     // connectivity therefore this is implemented here
 
@@ -55,8 +57,6 @@ public:
     get_entity_connected_to_entity_glb_ids(Integer aEntityIndex,
                                            enum EntityRank aInputEntityRank,
                                            enum EntityRank aOutputEntityRank) const = 0;
-
-
 
     virtual Integer get_element_face_ordinal_loc_inds(Integer const & aElementIndex,
                                                       Integer const & aFaceIndex) const  = 0;
@@ -109,8 +109,6 @@ public:
                                    xtk::Cell<std::string> const & aRealVectorNodeFieldsToOutput  = {},
                                    Integer aTime = 0) const  = 0;
 
-
-
     /*
      * EVERYTHING BELOW THIS POINT IS RELATED TO PACKAGING MESH DATA FOR OUTPUTTING OF THE CONFORMAL MESH WHICH HAS THE SAME BLOCKS AS THE PREVIOUS MESH
      */
@@ -132,12 +130,10 @@ public:
      */
     virtual void get_entity_part_membership_ordinals(Integer const & aEntityIndex, enum EntityRank aEntityRank, xtk::Cell<Integer> & aPartOrdinal, bool const & aInduced = false) const  = 0;
 
-
     /*
      * This function returns the string associated with a part which are accessed using part ordinal
      */
     virtual void get_part_name_from_part_ordinals(xtk::Cell<Integer> const & aPartOrdinals, xtk::Cell<std::string> & aPartNames) const = 0;
-
 
     // Basis function accessing functions --------------------------------------------
     // For Lagrangian type meshes where nodes and basis functions coincide these are the same as the accessing node functions above
@@ -152,8 +148,6 @@ public:
      */
     virtual moris::Matrix< Integer_Matrix > get_elements_in_basis_support(Integer aBasisIndex) const = 0;
 
-
-
     //TODO: Figure out a clean way to access this information
     /*
      * DO NOT USE THESE IN CODE THEY ARE HERE RIGHT NOW PROVIDE EASY ACCESS TO WORK ON RAW STK DATA IN TEST CASES
@@ -167,3 +161,4 @@ public:
 }
 
 #endif /* INCLUDE_MESH_CL_MESH_DATA_HPP_ */
+

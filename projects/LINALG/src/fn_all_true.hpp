@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_all_true.hpp
  *
- *  Created on: Sep 19, 2018
- *      Author: doble
  */
 
 #ifndef PROJECTS_LINALG_SRC_FN_ALL_TRUE_HPP_
@@ -44,6 +47,5 @@ namespace moris
 
 }
 
-
-
 #endif /* PROJECTS_LINALG_SRC_FN_ALL_TRUE_HPP_ */
+

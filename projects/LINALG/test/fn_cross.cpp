@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_cross.cpp
  *
- *  Created on: Jan 16, 2019
- *      Author: doble
  */
 
 #include <catch.hpp>
@@ -39,3 +42,4 @@ TEST_CASE(
 
         }
 }
+

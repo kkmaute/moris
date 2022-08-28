@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_SDF_Arguments.cpp
+ *
+ */
+
 #include "cl_Communication_Manager.hpp" // COM/src
 #include "cl_Communication_Tools.hpp" // COM/src
 
@@ -178,3 +188,4 @@ namespace moris
         //--------------------------------------------------------------------------------
     }
 }
+

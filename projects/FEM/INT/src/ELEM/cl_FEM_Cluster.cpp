@@ -1,9 +1,13 @@
 /*
- * cl_FEM_Cluster.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Apr 11, 2019
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_Cluster.cpp
+ *
  */
+
 #include <iostream>
 
 #include "cl_FEM_Element.hpp"                       //FEM/INT/src
@@ -1224,3 +1228,4 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
+

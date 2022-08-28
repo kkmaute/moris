@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_mesh_flood_fill.hpp
  *
- *  Created on: Feb 9, 2018
- *      Author: ktdoble
  */
 
 #ifndef XTK_SRC_XTK_FN_MESH_FLOOD_FILL_HPP_
@@ -252,3 +255,4 @@ namespace xtk
 }
 
 #endif /* XTK_SRC_XTK_FN_MESH_FLOOD_FILL_HPP_ */
+

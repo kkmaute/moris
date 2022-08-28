@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_Interpolation_Integration_Lagrange_Tri_Tet.cpp
+ *
+ */
+
 #include <catch.hpp>
 // MRS/COR/src
 #include "typedefs.hpp"
@@ -1231,7 +1241,6 @@ TEST_CASE( "Lagrange TET10", "[moris],[fem],[Tet10LagInterp]" )
     //------------------------------------------------------------------------------
 }
 
-
 TEST_CASE( "Lagrange TET20", "[moris],[fem],[Tet20LagInterp]" )
 {
 
@@ -1784,7 +1793,6 @@ TEST_CASE( "Lagrange TRI3 integration", "[moris],[fem],[Tri3LagInteg]" )
     REQUIRE( std::abs( tVolume - tExpectedVolume ) < tEpsilon );
 }
 
-
 TEST_CASE( "Lagrange TRI6 integration", "[moris],[fem],[Tri6LagInteg]" )
 {
     //------------------------------------------------------------------------------
@@ -1937,3 +1945,4 @@ TEST_CASE( "Lagrange TRI10 integration", "[moris],[fem],[Tri10LagInteg]" )
     }
     REQUIRE( std::abs( tVolume - tExpectedVolume ) < tEpsilon );
 }
+

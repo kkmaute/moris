@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * fn_WRK_Workflow_Main_Interface.cpp
+ *
+ */
+
 #include<iostream>
 #include<vector>
 #include<string>
@@ -44,7 +54,7 @@ using namespace moris;
 typedef void ( *Parameter_Function ) ( moris::Cell< moris::Cell< moris::ParameterList > > & aParameterList );
 
 int fn_WRK_Workflow_Main_Interface( int argc, char * argv[] )
-{    
+{
     if (argc < 2)
     {
         std::cout << "\n Error: input file required\n" << "\n";
@@ -96,3 +106,4 @@ int fn_WRK_Workflow_Main_Interface( int argc, char * argv[] )
 
     return 0;
 }
+

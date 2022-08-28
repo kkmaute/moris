@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_Time_Side_Geometry_Interpolation_Test.cpp
+ *
+ */
+
 #include "catch.hpp"
 #include "cl_FEM_Geometry_Interpolator.hpp" //FEM/INT/sr
 #include "cl_MTK_Integrator.hpp" //MTK/sr
@@ -166,7 +176,6 @@ TEST_CASE("Time_Side_Geometry_Interpolation : QUAD4 - QUAD9 - QUAD16", "[moris],
         REQUIRE( tTimeSurfaceCheck );
     }
 }
-
 
 //------------------------------------------------------------------------------
 TEST_CASE( "Time_Side_Geometry_Interpolation : TRI3 - TRI6 - TRI10", "[moris],[fem],[TimeSideGeoInterp_TRI]" )

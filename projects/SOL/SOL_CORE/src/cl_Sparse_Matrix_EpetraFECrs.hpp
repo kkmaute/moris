@@ -1,9 +1,13 @@
 /*
- * SparseMatrixEpetra.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Dec 6, 2017
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * cl_Sparse_Matrix_EpetraFECrs.hpp
+ *
  */
+
 #ifndef SRC_DISTLINALG_SPARSEMATRIXEPETRAFECRS_HPP_
 #define SRC_DISTLINALG_SPARSEMATRIXEPETRAFECRS_HPP_
 
@@ -17,7 +21,6 @@
 
 // C system files
 #include <cstdio>
-
 
 namespace moris
 {
@@ -120,3 +123,4 @@ public:
 }
 
 #endif /* SRC_DISTLINALG_SPARSEMATRIXEPETRAFECRS_HPP_ */
+

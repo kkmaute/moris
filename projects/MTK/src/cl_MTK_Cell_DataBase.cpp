@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Cell_DataBase.cpp
  *
- *  Created on: Dec  13, 2021
- *      Author: momo
  */
+
 #include "cl_MTK_Cell_DataBase.hpp"
 //#include "cl_MTK_Cell_Info.hpp"
 
@@ -37,7 +41,6 @@ namespace moris::mtk
     }
 
     //------------------------------------------------------------------------------
-
 
     Cell_DataBase::Cell_DataBase( moris_index aCellIndex2,
         mtk::Mesh*                            aMesh ) :
@@ -91,7 +94,6 @@ namespace moris::mtk
         return tVertexCoords;
     }
 
-
     //------------------------------------------------------------------------------
     uint
     Cell_DataBase::get_level() const
@@ -116,7 +118,6 @@ namespace moris::mtk
     }
 
     //------------------------------------------------------------------------------
-
 
     const luint*
     Cell_DataBase::get_ijk() const

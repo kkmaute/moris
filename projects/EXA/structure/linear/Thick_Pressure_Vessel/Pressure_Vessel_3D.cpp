@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * Pressure_Vessel_3D.cpp
+ *
+ */
+
 #include <string>
 #include <iostream>
 #include "typedefs.hpp"
@@ -152,7 +162,6 @@ namespace moris
         aPropMatrix.set_size( 3, 3, 0.0 );
         aPropMatrix( 1, 1 ) = 1.0;
     }
-
 
     /* ------------------------------------------------------------------------ */
 
@@ -358,7 +367,7 @@ namespace moris
         tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tInnerPressure);
         tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const");
         tPropCounter++;
-        
+
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
         tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropOuterPressureLoad");
         tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tOuterPressure);
@@ -370,7 +379,7 @@ namespace moris
         tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tInnerTemperature);
         tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const");
         tPropCounter++;
-        
+
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
         tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropOuterTemperature");
         tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tOuterTemperature);
@@ -694,3 +703,4 @@ namespace moris
 #ifdef  __cplusplus
 }
 #endif
+

@@ -1,10 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_HMR_Lagrange_Edge2.hpp
  *
- *  Created on: September 27, 2018
- *  using MATLAB
  */
- 
+
 #ifndef SRC_HMR_CL_HMR_LAGRANGE_EDGE2_HPP_
 #define SRC_HMR_CL_HMR_LAGRANGE_EDGE2_HPP_
 
@@ -119,3 +122,4 @@ namespace moris
     } /* namespace hmr */
 } /* namespace moris */
 #endif /* SRC_HMR_CL_HMR_LAGRANGE_EDGE2_HPP_ */
+

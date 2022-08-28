@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 namespace moris {
 namespace fem {
 
@@ -26,3 +33,4 @@ SP_Incompressible_Flow, corresponding to the enum SP_Type::INCOMPRESSIBLE_FLOW.
 
 }
 }
+

@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_Phase_User_Info.hpp
  *
- *  Created on: Oct 01, 2020
- *      Author: noel
  */
+
 #ifndef SRC_FEM_CL_FEM_PHASE_USER_INFO_HPP_
 #define SRC_FEM_CL_FEM_PHASE_USER_INFO_HPP_
 
@@ -373,7 +377,7 @@ namespace moris
                 moris::Cell< std::shared_ptr< fem::Material_Model > > & get_MMs() const
                 {
                     return mMMs;
-                }                
+                }
 
                 //------------------------------------------------------------------------------
         };
@@ -382,3 +386,4 @@ namespace moris
     } /* namespace fem */
 } /* namespace moris */
 #endif /* SRC_FEM_CL_FEM_PHASE_USER_INFO_HPP_ */
+

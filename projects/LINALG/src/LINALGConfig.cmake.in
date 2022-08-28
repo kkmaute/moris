@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 ### Linear Algebra Library Config File ###
 
 if(@LINALG@_CONFIGURED)
@@ -37,3 +44,4 @@ include("@PACKAGE_LINALG_CONFIG_INSTALL_DIR@/@LINALG@Targets.cmake")
 # Library target list
 set(@LINALG@_LIBRARIES @LINALG@-lib)
 set(ALL_MRS_LIBS "${ALL_MRS_LIBS};@LINALG@-lib")
+

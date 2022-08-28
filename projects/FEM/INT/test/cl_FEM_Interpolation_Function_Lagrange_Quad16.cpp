@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_Interpolation_Function_Lagrange_Quad16.cpp
+ *
+ */
+
 #include <catch.hpp>
 //MRS/COR/src
 #include "typedefs.hpp"
@@ -33,12 +43,10 @@ TEST_CASE( "Lagrange QUAD16", "[moris],[fem],[Quad16LagInterpolation]" )
     load_matrix_from_binary_file( tXi,
             tPrefix + "points_2d.bin" );
 
-
     // load values from nodes from file
     Matrix< DDRMat > tPhiHat;
     load_matrix_from_binary_file( tPhiHat,
             tPrefix + "lagrange_quad16_phihat.bin" );
-
 
     // load solutions for N*tPhiHat
     Matrix< DDRMat > tPhi;
@@ -236,3 +244,4 @@ TEST_CASE( "Lagrange QUAD16", "[moris],[fem],[Quad16LagInterpolation]" )
 
     //------------------------------------------------------------------------------
 }
+

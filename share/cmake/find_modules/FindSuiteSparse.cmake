@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # SuiteSparse Find Module ------------------------------------------------------
 # -------------------------------------------------------------------------
 
@@ -41,3 +48,4 @@ mark_as_advanced(SUITESPARSE_DIR
     SUITESPARSE_LIBRARIES
     SUITESPARSE_INCLUDE_DIRS
     )
+

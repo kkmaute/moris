@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * ut_GEN_Pdv.cpp
+ *
+ */
+
 #include "catch.hpp"
 #include "math.h"
 #include "cl_Matrix.hpp"
@@ -474,7 +484,7 @@ namespace moris
             tIpPdvTypes(0).resize(1);
             tIpPdvTypes(0)(0).resize(1);
             tIpPdvTypes(0)(0)(0) = PDV_Type::DENSITY;
-            
+
             // Communication table
             Matrix<DDSMat> tCommunicationTable(par_size(), 1, 0);
             for (uint tProcessorIndex = 1; tProcessorIndex < (uint)par_size(); tProcessorIndex++)
@@ -549,3 +559,4 @@ namespace moris
 
     }
 }
+

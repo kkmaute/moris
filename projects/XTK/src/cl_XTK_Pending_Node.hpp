@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_XTK_Pending_Node.hpp
  *
- *  Created on: Jun 23, 2017
- *      Author: ktdoble
  */
 
 #ifndef SRC_XTK_CL_XTK_PENDING_NODE_HPP_
@@ -13,7 +16,6 @@
 #include "cl_Matrix.hpp"
 // XTKL: Linear Algebra Includes
 #include "cl_XTK_Topology.hpp"
-
 
 #include "cl_Mesh_Enums.hpp"
 #include "cl_Cell.hpp"
@@ -35,7 +37,6 @@ public:
     {
     }
 
-
     void set_pending_node_info(moris::moris_index* aNodeIndLocation,
                                moris::moris_index* aNodeIdLocation,
                                moris::Matrix< moris::DDRMat > const & aCoordinates,
@@ -50,7 +51,6 @@ public:
         mLocalCoordinates = aLocalCoordinates.copy();
         mParentTopology = aParentTopology.copy();
     }
-
 
     // Node itself Functions
     moris::Matrix< moris::DDRMat > const &
@@ -108,7 +108,6 @@ public:
         return mFieldValues;
     }
 
-
     /**
      * Sensitivity with respect to design variables
      */
@@ -141,7 +140,6 @@ public:
         return mNodeADVIndices;
     }
 
-
 private:
     moris::moris_index* mNodeId;
     moris::moris_index* mNodeInd;
@@ -165,3 +163,4 @@ private:
 }
 
 #endif /* SRC_XTK_CL_XTK_PENDING_NODE_HPP_ */
+

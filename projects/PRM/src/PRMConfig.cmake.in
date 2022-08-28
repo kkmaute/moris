@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 ### Parameters Library Config File ###
 
 if(@PRM@_CONFIGURED)
@@ -37,3 +44,4 @@ include("@PACKAGE_PRM_CONFIG_INSTALL_DIR@/@PRM@Targets.cmake")
 # Library target list
 set(@PRM@_LIBRARIES @PRM@-lib)
 set(ALL_MRS_LIBS "${ALL_MRS_LIBS};@PRM@-lib")
+

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * Channel_with_Four_Cylinders_Transient.cpp
+ *
+ */
+
 #include <string>
 #include <iostream>
 #include "typedefs.hpp"
@@ -75,7 +85,7 @@ namespace moris
             moris::fem::Field_Interpolator_Manager         * aFIManager )
     {
         aPropMatrix.set_size( 2, 1, 0.0 );
-        aPropMatrix( 0 ) = 1e-5;	
+        aPropMatrix( 0 ) = 1e-5;
     }
 
     bool Output_Criterion( moris::tsa::Time_Solver * aTimeSolver )
@@ -355,7 +365,6 @@ namespace moris
         tParameterList( 0 )( tPropCounter ).set( "function_parameters",      "0.0" );
         tParameterList( 0 )( tPropCounter ).set( "value_function",           "Func_Const" );
         tPropCounter++;
-
 
         //------------------------------------------------------------------------------
         // fill the constitutive model part of the parameter list
@@ -740,7 +749,7 @@ namespace moris
         tParameterlist( 2 )( 0 ).set("NLA_relaxation_parameter", 1.0  );
         tParameterlist( 2 )( 0 ).set("NLA_max_iter", 10 );
 
-        tParameterlist( 2 )( 1 ) = moris::prm::create_nonlinear_algorithm_parameter_list();                                            // nonlinear algorithm index 1 
+        tParameterlist( 2 )( 1 ) = moris::prm::create_nonlinear_algorithm_parameter_list();                                            // nonlinear algorithm index 1
         tParameterlist( 2 )( 1 )("NLA_Solver_Implementation") = static_cast< uint >( moris::NLA::NonlinearSolverType::NLBGS_SOLVER );
         tParameterlist( 2 )( 1 ).set("NLA_rel_res_norm_drop",    1.0 );
         tParameterlist( 2 )( 1 ).set("NLA_max_iter", 1 );
@@ -806,3 +815,4 @@ namespace moris
 #ifdef  __cplusplus
 }
 #endif
+

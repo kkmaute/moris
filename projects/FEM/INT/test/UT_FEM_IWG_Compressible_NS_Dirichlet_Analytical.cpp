@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_FEM_IWG_Compressible_NS_Dirichlet_Analytical.cpp
+ *
+ */
+
 #include <string>
 #include <catch.hpp>
 #include <memory>
@@ -37,7 +47,6 @@
 #include "fn_FEM_Check.hpp"
 #include "fn_sqrtmat.hpp"
 
-
 using namespace moris;
 using namespace fem;
 
@@ -50,7 +59,7 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Analytical",
     // define absolute tolerance accepted as numerical error
     real tAbsTol = 1.0E-12;
 
-    // weight for the GLS term, use 0 for turning GLS off, use 1 for weak form + regular GLS formulation 
+    // weight for the GLS term, use 0 for turning GLS off, use 1 for weak form + regular GLS formulation
     real tUpwindFactor = 0.0;
 
     // penalty factors
@@ -139,7 +148,6 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Analytical",
     // empty property
     std::shared_ptr< fem::Property > tPropEmpty = nullptr;
 
-
     // define material model and assign properties
     fem::MM_Factory tMMFactory;
 
@@ -147,7 +155,7 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Analytical",
             tMMFactory.create_MM( fem::Material_Type::PERFECT_GAS );
     tMMFluid->set_dof_type_list( {tPressureDof, tTempDof } );
     tMMFluid->set_property( tPropHeatCapacity, "IsochoricHeatCapacity" );
-    tMMFluid->set_property( tPropGasConstant,  "SpecificGasConstant" );    
+    tMMFluid->set_property( tPropGasConstant,  "SpecificGasConstant" );
 
     // define constitutive model and assign properties
     fem::CM_Factory tCMFactory;
@@ -168,7 +176,6 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Analytical",
     tSPNitsche->set_property( tPropConductivity, "ThermalConductivity", mtk::Master_Slave::MASTER );
     Cell< Matrix< DDRMat > > tNitscheParams = { {{tPpenatly},{tUXpenatly/tMu},{tUYpenatly/tMu},{tTpenatly}} };
     tSPNitsche->set_parameters( tNitscheParams );
-
 
     // create a dummy fem cluster and set it to SP
     fem::Cluster * tCluster = new fem::Cluster();
@@ -270,7 +277,7 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Analytical",
     //tMasterDOFHatP = trans( tMasterDOFHatP );
     fill_Nitsche_UHat( tMasterDOFHatVel );
     fill_Nitsche_THat( tMasterDOFHatTemp );
-    //tMasterDOFHatTemp = trans( tMasterDOFHatTemp ); 
+    //tMasterDOFHatTemp = trans( tMasterDOFHatTemp );
 
     //------------------------------------------------------------------------------
     // space and time geometry interpolators
@@ -311,7 +318,6 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Analytical",
     // get integration weights
     Matrix< DDRMat > tIntegWeights;
     tIntegrator.get_weights( tIntegWeights );
-
 
     //------------------------------------------------------------------------------
     // field interpolators
@@ -409,7 +415,7 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Analytical",
     Matrix< DDRMat > tParamPoint = {
             { -1.0 },
             { +0.57735026918962 },
-            { +0.57735026918962 } };  
+            { +0.57735026918962 } };
 
     // set integration point
     tCMMasterFluid->mSet->mMasterFIManager->set_space_time( tParamPoint );
@@ -418,8 +424,8 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Analytical",
     // check evaluation of the residual for IWG
     //------------------------------------------------------------------------------
     // reset residual & jacobian
-    tIWG->mSet->mResidual( 0 ).fill( 0.0 );      
-    tIWG->mSet->mJacobian.fill( 0.0 );    
+    tIWG->mSet->mResidual( 0 ).fill( 0.0 );
+    tIWG->mSet->mJacobian.fill( 0.0 );
 
     // get the child
     fem::IWG_Compressible_NS_Dirichlet_Nitsche * tChildIWG = dynamic_cast< fem::IWG_Compressible_NS_Dirichlet_Nitsche * > ( tIWG.get() );
@@ -430,7 +436,7 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Analytical",
     // Set properties
     tIWG->set_property( tPropPrescPres, "PrescribedDof1" );
     tIWG->set_property( tPropUpwind,    "PressureUpwind" );
-    
+
     // reset IWG
     tIWG->reset_eval_flags();
     tIWG->set_field_interpolator_manager( &tFIManager );
@@ -448,7 +454,7 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Analytical",
     tParamPoint = {
             { +0.57735026918962 },
             { -1.0 },
-            { +0.57735026918962 } };  
+            { +0.57735026918962 } };
     tCMMasterFluid->mSet->mMasterFIManager->set_space_time( tParamPoint );
     tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
 
@@ -544,3 +550,4 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Analytical",
     tMasterFIs.clear();
 
 }/*END_TEST_CASE*/
+

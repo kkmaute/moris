@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_DLA_Linear_Solver_Amesos.hpp
  *
- *  Created on: May 16, 2018
- *      Author: schmidt
  */
+
 #ifndef SRC_DISTLINALG_CL_LINEAR_SOLVER_AMESOS_HPP_
 #define SRC_DISTLINALG_CL_LINEAR_SOLVER_AMESOS_HPP_
 
@@ -56,3 +60,4 @@ namespace moris
 }
 
 #endif /* SRC_DISTLINALG_CL_LINEAR_SOLVER_AMESOS_HPP_ */
+

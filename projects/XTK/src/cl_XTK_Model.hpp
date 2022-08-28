@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_XTK_Model.hpp
  *
- *  Created on: Jul 2, 2017
- *      Author: ktdoble
  */
 
 #ifndef SRC_XTK_CL_XTK_MODEL_HPP_
@@ -870,11 +873,11 @@ namespace xtk
 
             //------------------------------------------------------------------------------
             /**
-             * @brief perform unenrichment on an already enriched mesh by overrding the t-matrices id and index 
+             * @brief perform unenrichment on an already enriched mesh by overrding the t-matrices id and index
              *
              * @param aUnenrichedBsplineMeshIndices
              */
-            
+
             void
             perform_unenrichment( Matrix< IndexMat > const & aUnenrichedBsplineMeshIndices );
 
@@ -895,3 +898,4 @@ namespace xtk
 }// namespace xtk
 
 #endif /* SRC_XTK_CL_XTK_MODEL_HPP_ */
+

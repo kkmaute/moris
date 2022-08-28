@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_FEM_IWG_Compressible_NS_Temperature_Bulk_Analytical.cpp
+ *
+ */
+
 #include <string>
 #include <catch.hpp>
 #include <memory>
@@ -88,7 +98,6 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal_Analytic",
     tIWG->set_residual_dof_type( tTempDof );
     tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
     tIWG->set_constitutive_model( tCMMasterFluid, "Fluid" );
-
 
     //------------------------------------------------------------------------------
     // set a fem set pointer
@@ -345,7 +354,6 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal_Analytic",
     tMasterFIs.clear();
 
 }/*END_TEST_CASE*/
-
 
 //------------------------------------------------------------------------------
 
@@ -672,21 +680,21 @@ TEST_CASE("IWG_Compressible_NS_Temperature_Bulk_VdW_Analytic",
         //print( tJacobian, "tJacobian" );
 
         // Analytical residual from Matlab code // FIXME: factor 4.0 on some entries, where is it coming from?
-        Matrix<DDRMat> tResidualAnalytical = { 
-                { +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, 
+        Matrix<DDRMat> tResidualAnalytical = {
+                { +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0,
                   +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0,
 
-                  +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, 
+                  +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0,
                   +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0,
 
-                  +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, 
                   +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0,
-                   
-                  +60669.55, +277921.9, +277921.9, +60669.55, -570823.0, +277921.9 * 4.0, -570823.0, +60669.55 * 4.0, -570823.0 * 4.0,  
-                  +39181.54, +770629.1, +770629.1, +39181.54,  -1055798, +770629.1 * 4.0,  -1055798, +39181.54 * 4.0,  -1055798 * 4.0 } }; 
+                  +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0, +0.000e+0,
 
-        // transpose                  
-        tResidualAnalytical = trans(tResidualAnalytical);               
+                  +60669.55, +277921.9, +277921.9, +60669.55, -570823.0, +277921.9 * 4.0, -570823.0, +60669.55 * 4.0, -570823.0 * 4.0,
+                  +39181.54, +770629.1, +770629.1, +39181.54,  -1055798, +770629.1 * 4.0,  -1055798, +39181.54 * 4.0,  -1055798 * 4.0 } };
+
+        // transpose
+        tResidualAnalytical = trans(tResidualAnalytical);
 
         // check jacobian against analytical solution
         bool tCheckResidual = fem::check(tResidual, tResidualAnalytical, tEpsilon);
@@ -696,3 +704,4 @@ TEST_CASE("IWG_Compressible_NS_Temperature_Bulk_VdW_Analytic",
         tMasterFIs.clear();
 
 } /*END_TEST_CASE*/
+

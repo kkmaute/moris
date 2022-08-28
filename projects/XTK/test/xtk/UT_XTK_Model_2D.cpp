@@ -1,9 +1,12 @@
-// /*
-//  * UT_XTK_Model_2D.cpp
-//  *
-//  *  Created on: Aug 7, 2019
-//  *      Author: ryan
-//  */
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_XTK_Model_2D.cpp
+ *
+ */
 
 // #include "catch.hpp"
 // #include "cl_Communication_Tools.hpp"
@@ -152,7 +155,6 @@
 //         tGeometryEngineParameters.mGeometries = tGeometry;
 //         moris::ge::Geometry_Engine tGeometryEngine(tMeshData, tGeometryEngineParameters);
 
-
 // // Setup XTK Model ----------------------------------------------------------------
 //         size_t tModelDimension = 2;
 //         Model tXTKModel(tModelDimension,tMeshData,&tGeometryEngine);
@@ -172,7 +174,6 @@
 //         delete tMeshData;
 //     }
 // }
-
 
 // TEST_CASE("2D Regular Subdivision Method Quadratic Lagrange Cells","[RSM_2D_Quad]")
 //                 {
@@ -208,7 +209,6 @@
 //         aCoords(12,0) = 2.0, aCoords(12,1) = 0.5;
 //         aCoords(13,0) = 1.5, aCoords(13,1) = 1.0;
 //         aCoords(14,0) = 1.5, aCoords(14,1) = 0.5;
-
 
 //         // 0D to 3D connectivity (node to element)
 //         Matrix< IdMat >     aElemConn( 2, 9 );
@@ -260,7 +260,6 @@
 
 //         moris::Matrix< moris::DDRMat > tNodeCoordinates = tXTKModel.get_background_mesh().get_all_node_coordinates_loc_inds();
 
-
 //         moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh();
 //         std::string tMeshOutputFile    = "./xtk_exo/xtk_test_output_regular_subdivision_2d.e";
 //         tCutMeshData->create_output_mesh(tMeshOutputFile);
@@ -304,7 +303,6 @@
 //         aCoords(12,0) = 2.0, aCoords(12,1) = 0.5;
 //         aCoords(13,0) = 1.5, aCoords(13,1) = 1.0;
 //         aCoords(14,0) = 1.5, aCoords(14,1) = 0.5;
-
 
 //         // 0D to 3D connectivity (node to element)
 //         Matrix< IdMat >     aElemConn( 2, 9 );
@@ -356,7 +354,6 @@
 
 //         moris::Matrix< moris::DDRMat > tNodeCoordinates = tXTKModel.get_background_mesh().get_all_node_coordinates_loc_inds();
 
-
 //         moris::mtk::Mesh* tCutMeshData = tXTKModel.get_output_mesh();
 //         std::string tMeshOutputFile    = "./xtk_exo/xtk_test_output_conformal_quad_2d.e";
 //         tCutMeshData->create_output_mesh(tMeshOutputFile);
@@ -366,3 +363,4 @@
 //     }
 //                 }
 // }
+

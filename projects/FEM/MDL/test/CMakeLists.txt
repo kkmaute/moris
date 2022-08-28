@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # Integration and Interpolation Tests -------------------------------------
 # -------------------------------------------------------------------------
 include_directories(DLA_Test_Proxys)
@@ -81,4 +88,5 @@ if(MORIS_HAVE_PARALLEL_TESTS)
             COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS} $<TARGET_FILE:${MDL_TEST}>)
     endforeach()
 endif()
+
 

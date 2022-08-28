@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_XTK_Decomposition_Algorithm_Factory.cpp
+ *
+ */
+
 #include "cl_XTK_Decomposition_Algorithm_Factory.hpp"
 #include "cl_XTK_Decomposition_Algorithm.hpp"
 #include "cl_XTK_Regular_Subdivision_Interface.hpp"
@@ -57,3 +67,4 @@ xtk::create_decomposition_algorithm(
     break;
   }
 }
+

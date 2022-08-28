@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_FEM_CM_Diff_PC.cpp
+ *
+ */
+
 #include "catch.hpp"
 #include "fn_equal_to.hpp"
 //FEM/INT/src
@@ -241,7 +251,6 @@ moris::Cell<bool> test_phase_change_constitutive_model(
     //moris::print(tdGradEnergydDOF, "tdGradEnergydDOF");
     //moris::print(tdGradEnergydDOF_FD, "tdGradEnergydDOF_FD");
 
-
     // check gradEnergyDot --------------------------------------------------------------
     //------------------------------------------------------------------------------
 
@@ -262,7 +271,6 @@ moris::Cell<bool> test_phase_change_constitutive_model(
     // debug
     //moris::print(tdGradEnergyDotdDOF, "tdGradEnergyDotdDOF");
     //moris::print(tdGradEnergyDotdDOF_FD, "tdGradEnergyDotdDOF_FD");
-
 
     // check graddivflux -----------------------------------------------------------
     //------------------------------------------------------------------------------
@@ -422,7 +430,6 @@ TEST_CASE( "CM_Diff_Lin_Iso_PC_HEX8", "[moris],[fem],[CM_Diff_Lin_Iso_PC_HEX8]" 
      REQUIRE( tCheckGradDivFlux );
 }
 
-
 // ------------------------------------------------------------------------------------- //
 // ------------------------------------------------------------------------------------- //
 TEST_CASE( "CM_Diff_Lin_Iso_PC_HEX27", "[moris],[fem],[CM_Diff_Lin_Iso_PC_HEX27]" )
@@ -461,7 +468,6 @@ TEST_CASE( "CM_Diff_Lin_Iso_PC_HEX27", "[moris],[fem],[CM_Diff_Lin_Iso_PC_HEX27]
             mtk::Interpolation_Order::QUADRATIC,
             mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::QUADRATIC );
-
 
     // set coefficients for field interpolators
     // set coefficients for field interpolators
@@ -541,7 +547,6 @@ TEST_CASE( "CM_Diff_Lin_Iso_PC_QUAD16", "[moris],[fem],[CM_Diff_Lin_Iso_PC_QUAD1
             mtk::Interpolation_Type::LAGRANGE,
             mtk::Interpolation_Order::CUBIC );
 
-
     // set coefficients for field interpolators
     Matrix< DDRMat > tUHat0 = {
             {5.2},{5.3},{5.3},{5.3},{4.8},{4.9},{5.3},{5.5},{4.8},{4.9},{5.3},{4.8},{4.7},{5.3},{5.5},{5.1},
@@ -574,3 +579,4 @@ TEST_CASE( "CM_Diff_Lin_Iso_PC_QUAD16", "[moris],[fem],[CM_Diff_Lin_Iso_PC_QUAD1
      REQUIRE( tCheckGradEnergyDot );
      REQUIRE( tCheckGradDivFlux );
 }
+

@@ -1,3 +1,10 @@
+%
+% Copyright (c) 2022 University of Colorado
+% Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+%
+%------------------------------------------------------------------------------------
+%
+
 function [T] = solve_stefans_problem_1D(x, t, Tw, MatParams)
 %SOLVE_STEFANS_PROBLEM_1D Solves for the temperatur the 1D phase change 
 %Stefan's problem at a point x at time t with wall temperature Tw for a 
@@ -39,4 +46,5 @@ if (T < MatParams.Tm)
 end  
 
 end
+
 

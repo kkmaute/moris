@@ -1,9 +1,13 @@
 /*
- * cl_MTK_Periodic_3D.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jan  11, 2022
- *      Author: momo
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MIG_Periodic_3D.hpp
+ *
  */
+
 #ifndef SRC_cl_MIG_Periodic_3D
 #define SRC_cl_MIG_Periodic_3D
 
@@ -12,7 +16,6 @@
 #include "cl_Param_List.hpp"
 #include "cl_MTK_Intersec_Mesh_Data.hpp"
 #include "cl_MTK_Double_Side_Cluster.hpp"
-
 
 namespace moris::mig
 {
@@ -280,7 +283,6 @@ namespace moris::mig
         void
         group_cut_cells( moris::Matrix< IndexMat > const                  &aCutCellIndetiferMatrix,
             std::unordered_map< moris_index, moris::Cell< moris_index > > &aCutCellIdentifierToCutCellIndex ) const;
-
 
         // ----------------------------------------------------------------------------
 

@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # GCMMA Find Module ------------------------------------------------------
 # -------------------------------------------------------------------------
 
@@ -55,3 +62,4 @@ mark_as_advanced(GCMMA_DIR
     GCMMA_INCLUDE_DIRS
     GCMMA_LIBRARY_DIRS
     GCMMA_LIBRARIES )
+

@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * test_main.cpp
  *
- *  Created on: Aug 27, 2018
- *      Author: doble
  */
+
 #define CATCH_CONFIG_RUNNER
 #include <catch.hpp>
 
@@ -20,8 +24,6 @@
 
 moris::Comm_Manager gMorisComm;
 moris::Logger       gLogger;
-
-
 
 int
 main(
@@ -42,3 +44,4 @@ main(
 
     return result;
 }
+

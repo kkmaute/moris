@@ -1,8 +1,11 @@
 /*
- * fn_hmr_load_user_library.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Nov 13, 2018
- *      Author: messe
+ *------------------------------------------------------------------------------------
+ *
+ * fn_HMR_Exec_load_user_library.hpp
+ *
  */
 
 #ifndef PROJECTS_HMR_SRC_FN_HMR_EXEC_LOAD_USER_LIBRARY_HPP_
@@ -115,6 +118,5 @@ namespace moris
     } /* namespace hmr */
 } /* namespace moris */
 
-
-
 #endif /* PROJECTS_HMR_SRC_FN_HMR_EXEC_LOAD_USER_LIBRARY_HPP_ */
+

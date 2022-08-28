@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * containers.hpp
+ *
+ */
+
 #ifndef MORIS_CONTAINERS_HPP_
 #define MORIS_CONTAINERS_HPP_
 
@@ -13,3 +23,4 @@
 #include "fn_zip.hpp" // CON/src
 
 #endif /* MORIS_CONTAINERS_HPP_ */
+

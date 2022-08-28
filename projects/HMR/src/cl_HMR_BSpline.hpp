@@ -1,8 +1,11 @@
 /*
- * cl_HMR_Lagrange_Node.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: June 12, 2018
- *      Author: messe
+ *------------------------------------------------------------------------------------
+ *
+ * cl_HMR_BSpline.hpp
+ *
  */
 
 #ifndef SRC_HMR_CL_HMR_BSPLINE_HPP_
@@ -70,7 +73,6 @@ namespace moris
 
             //! container for connected basis
             Basis** mConnectedBasis;
-
 
 //------------------------------------------------------------------------------
         public:
@@ -683,8 +685,8 @@ namespace moris
         };
 //------------------------------------------------------------------------------
 
-
     } /* namespace hmr */
 } /* namespace moris */
 
 #endif /* SRC_HMR_CL_HMR_BSPLINE_HPP_ */
+

@@ -1,13 +1,15 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_load_matrix_from_binary_file.hpp
  *
- *  Created on: Sep 6, 2018
- *      Author: messe
  */
 
 #ifndef PROJECTS_LINALG_SRC_FN_LOAD_MATRIX_FROM_BINARY_FILE_HPP_
 #define PROJECTS_LINALG_SRC_FN_LOAD_MATRIX_FROM_BINARY_FILE_HPP_
-
 
 #include <fstream>
 #include <iostream>
@@ -122,3 +124,4 @@ namespace moris
 //--------------------------------------------------------------------------------
 }
 #endif /* PROJECTS_LINALG_SRC_FN_LOAD_MATRIX_FROM_BINARY_FILE_HPP_ */
+

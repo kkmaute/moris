@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_FEM_IWG_Diffusion_Bulk.cpp
+ *
+ */
+
 #include <string>
 #include <catch.hpp>
 #include <memory>
@@ -72,7 +82,6 @@ void tFIDerDvFunction_UTIWGDIFFBULK
 using namespace moris;
 using namespace fem;
 
-
 moris::Cell<bool> test_IWG_Diffusion_Bulk(
         Matrix< DDRMat > aXHat,
         Matrix< DDRMat > aTHat,
@@ -142,8 +151,6 @@ moris::Cell<bool> test_IWG_Diffusion_Bulk(
     tIWG->set_constitutive_model( tCMMasterDiffLinIso, "Diffusion", mtk::Master_Slave::MASTER );
     tIWG->set_property( tPropMasterTempLoad, "Load", mtk::Master_Slave::MASTER );
 
-
-
     // space and time geometry interpolators
     //------------------------------------------------------------------------------
 
@@ -158,7 +165,6 @@ moris::Cell<bool> test_IWG_Diffusion_Bulk(
 
     // set the evaluation point
     tGI.set_space_time( aParamPoint );
-
 
     // field interpolators
     //------------------------------------------------------------------------------

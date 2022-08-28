@@ -1,8 +1,11 @@
 /*
- * cl_MTK_Cell_XTK_CM_Impl.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Feb 19, 2019
- *      Author: doble
+ *------------------------------------------------------------------------------------
+ *
+ * cl_XTK_Cell_No_CM.cpp
+ *
  */
 
 #include "cl_XTK_Cell_No_CM.hpp"

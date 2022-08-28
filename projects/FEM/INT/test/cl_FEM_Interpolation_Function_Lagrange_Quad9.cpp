@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_Interpolation_Function_Lagrange_Quad9.cpp
+ *
+ */
+
 #include <catch.hpp>
 
 #include "typedefs.hpp" //MRS/COR/src
@@ -233,3 +243,4 @@ TEST_CASE( "Lagrange QUAD9", "[moris],[fem],[Quad9LagInterpolation]" )
 
     //------------------------------------------------------------------------------
 }
+

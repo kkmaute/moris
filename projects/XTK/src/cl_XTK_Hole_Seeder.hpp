@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_XTK_Hole_Seeder.hpp
  *
- *  Created on: Apr 23, 2019
- *      Author: doble
  */
 
 #ifndef PROJECTS_XTK_SRC_XTK_CL_XTK_HOLE_SEEDER_HPP_
@@ -51,7 +54,6 @@ public:
 
     // box constructors
 
-
     void
     set_mesh( moris::mtk::Mesh* aMTKMesh);
 
@@ -80,5 +82,5 @@ private:
 
 }
 
-
 #endif /* PROJECTS_XTK_SRC_XTK_CL_XTK_HOLE_SEEDER_HPP_ */
+

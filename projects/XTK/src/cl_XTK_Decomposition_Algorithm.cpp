@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_XTK_Decomposition_Algorithm.cpp
+ *
+ */
+
 #include "cl_XTK_Decomposition_Algorithm.hpp"
 #include "cl_XTK_Integration_Mesh_Generator.hpp"
 #include "cl_Tracer.hpp"
@@ -30,3 +40,4 @@ Decomposition_Algorithm::perform(
     aMeshGenerator->commit_new_ig_cells_to_cut_mesh( aMeshGenerationData, aDecompositionData, aCutIntegrationMesh, aBackgroundMesh, this );
 }
 }// namespace xtk
+

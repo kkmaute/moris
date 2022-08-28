@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_HMR_Edge.cpp
+ *
+ */
+
 #include "cl_HMR_Edge.hpp"
 
 #include "fn_trans.hpp"
@@ -284,3 +294,4 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace hmr */
 } /* namespace moris */
+

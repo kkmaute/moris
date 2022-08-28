@@ -1,7 +1,12 @@
-// /*
-//  * UT_XTK_HMR_Enrich_Inclusion.cpp
-//  *      Author: doble
-//  */
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_XTK_HMR_Enrich_Inclusion.cpp
+ *
+ */
 
 // #include "catch.hpp"
 

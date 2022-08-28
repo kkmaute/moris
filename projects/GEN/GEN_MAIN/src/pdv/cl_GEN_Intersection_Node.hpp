@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_GEN_Intersection_Node.hpp
+ *
+ */
+
 #ifndef MORIS_CL_GEN_INTERSECTION_NODE_HPP
 #define MORIS_CL_GEN_INTERSECTION_NODE_HPP
 
@@ -184,7 +194,6 @@ namespace moris
              */
             moris_index get_owner();
 
-
             moris_index
             get_first_parent_node_index()
             {
@@ -241,3 +250,4 @@ namespace moris
 }    // namespace moris
 
 #endif    // MORIS_CL_GEN_INTERSECTION_NODE_HPP
+

@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_XTK_Mesh_Cleanup.hpp
  *
- *  Created on: Mar 25, 2021
- *      Author: ktdoble
  */
 
 #ifndef SRC_XTK_CL_XTK_MESH_CLEANUP_HPP_
@@ -30,7 +33,6 @@ namespace xtk
         bool        mDeactivateOneBPChildMeshes;
     };
 
-
     class Mesh_Cleanup
     {
         public:
@@ -40,7 +42,6 @@ namespace xtk
         void
         perform();
 
-        
         private:
         Model*                  mModel;
         Mesh_Cleanup_Parameters mMeshCleanupParameters;
@@ -61,6 +62,5 @@ namespace xtk
 
     };
 }
-
 
 #endif

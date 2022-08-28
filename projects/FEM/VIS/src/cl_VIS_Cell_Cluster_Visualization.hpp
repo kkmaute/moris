@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_VIS_Cell_Cluster_Visualization.hpp
  *
- *  Created on: Dec 03, 2019
- *      Author: schmidt
  */
 
 #ifndef PROJECTS_VIS_SRC_CL_VIS_CELL_CLUSTER_VISUALIZATION_HPP_
@@ -144,3 +147,4 @@ namespace moris
 }
 
 #endif /* PROJECTS_VIS_SRC_CL_VIS_CELL_CLUSTER_VISUALIZATION_HPP_ */
+

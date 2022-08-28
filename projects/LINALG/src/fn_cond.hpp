@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_cond.hpp
  *
- *  Created on: Sep 12, 2018
- *      Author: doble
  */
 
 #ifndef PROJECTS_LINALG_SRC_FN_COND_HPP_
@@ -17,7 +20,6 @@
 #ifdef MORIS_USE_ARMA
 #include "fn_cond_Arma.hpp"
 #endif
-
 
 namespace moris
 {
@@ -43,3 +45,4 @@ namespace moris
 }
 
 #endif /* PROJECTS_LINALG_SRC_FN_COND_HPP_ */
+

@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MPI_Tools.cpp
  *
- *  Created on: Jun 27, 2017
- *      Author: ktdoble
  */
 
 #include <mpi.h>
@@ -18,10 +21,8 @@
 
 #include "linalg_typedefs.hpp"
 
-
 namespace xtk
 {
-
 
 TEST_CASE("Gather","[MPI][GATHER][n2]")
 {
@@ -126,7 +127,6 @@ TEST_CASE("Scatter","[MPI][SCATTER]")
     REQUIRE(tResultOfScatter(0) == (xtk::uint)tProcRank+tVal0);
 }
 
-
 TEST_CASE("Send and Receive of XTK Matrix Class","[MPI][SEND][RECEIVE][n2]")
 {
     int tProcRank = 0;
@@ -175,3 +175,4 @@ TEST_CASE("Send and Receive of XTK Matrix Class","[MPI][SEND][RECEIVE][n2]")
 }
 
 }
+

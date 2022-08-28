@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_XTK_Cut_Mesh.cpp
  *
- *  Created on: Jul 4, 2019
- *      Author: doble
  */
 
 #include "cl_XTK_Cut_Mesh.hpp"
@@ -55,7 +58,6 @@ namespace xtk
             delete mChildrenMeshes(i);
         }
     }
-    
 
     // ----------------------------------------------------------------------------------
     void
@@ -118,7 +120,7 @@ namespace xtk
     }
     // ----------------------------------------------------------------------------------
     void
-    Cut_Mesh::set_child_mesh( moris_index aCMIndex, 
+    Cut_Mesh::set_child_mesh( moris_index aCMIndex,
                               Child_Mesh* aChildMesh)
     {
         MORIS_ASSERT(aCMIndex < (moris_index)mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
@@ -156,7 +158,6 @@ namespace xtk
             tParentEdgeRanks.fill(1);
         }
 
-
         // Set all node parent ranks to EntityRank::FACE which = 2;
         moris::Matrix< moris::DDSTMat > tParentFaceRanks(1,aParentEntities(2).numel());
         tParentFaceRanks.fill(2);
@@ -164,7 +165,6 @@ namespace xtk
         // No interface sides
         moris::Matrix< moris::DDSTMat > tInterfaceSides(1,1);
         tInterfaceSides.fill(std::numeric_limits<moris::size_t>::max());
-
 
         // Note for this: child mesh node indices, parent node indices, and element to node connectivity are
         // the same thing. This is why aNodeIndices appears 3 times in this call.
@@ -204,7 +204,6 @@ namespace xtk
                 // Add hex 8 parametric coordinates
                 mChildrenMeshes(aChildMeshIndex)->allocate_parametric_coordinates(8,3);
                 mChildrenMeshes(aChildMeshIndex)->add_node_parametric_coordinate(aNodeIndices,tParamCoords);
-
 
                 break;
             }
@@ -837,7 +836,7 @@ namespace xtk
         {
             tMemoryMapCMs = tMemoryMapCMs + mChildrenMeshes(i)->get_memory_usage();
         }
-    
+
         tMemoryMap.mMemoryMapData["Child Meshes"] = tMemoryMapCMs.sum();
         tMemoryMap.mMemoryMapData["mSpatialDim"]  = sizeof(mSpatialDim);
         tMemoryMap.mMemoryMapData["mOwnedChildrenMeshes"] = mOwnedChildrenMeshes.capacity();
@@ -850,8 +849,6 @@ namespace xtk
         tMemoryMap.mMemoryMapData["mNumSubPhases"] = sizeof(mNumSubPhases);
         tMemoryMap.mMemoryMapData["mSubPhaseIndexToChildMesh"] = mSubPhaseIndexToChildMesh.capacity();
         tMemoryMap.mMemoryMapData["mSubPhaseIndexToChildMeshSubphaseIndex"] = mSubPhaseIndexToChildMeshSubphaseIndex.capacity();
-
-
 
         return tMemoryMap;
     }
@@ -904,7 +901,7 @@ namespace xtk
     void
     Cut_Mesh::remove_all_child_meshes_but_selected(Cell<moris::uint> const & aMeshesToKeep,
                                                    Cell<moris::uint> const & aMeshesToDelete,
-                                                   Cell<moris_index> & aCellsToRemoveFromMesh) 
+                                                   Cell<moris_index> & aCellsToRemoveFromMesh)
     {
         uint tNumCells = 0;
         // count the cells to delete
@@ -947,7 +944,6 @@ namespace xtk
         // recount the mesh
         mConsistentCounts = false;
         this->get_entity_counts();
-
 
         this->setup_subphase_to_child_mesh_connectivity();
 
@@ -997,5 +993,4 @@ namespace xtk
     }
     // ----------------------------------------------------------------------------------
 }
-
 

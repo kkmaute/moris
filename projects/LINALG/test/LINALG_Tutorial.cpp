@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * LINALG_Tutorial.cpp
  *
- *  Created on: Sep 12, 2018
- *      Author: doble
  */
 
 #include "catch.hpp"
@@ -35,7 +38,6 @@
 #include "op_times.hpp"
 #include "fn_eye.hpp"
 #include "fn_trans.hpp"
-
 
 /*
  * These includes are for using the std timing
@@ -108,8 +110,6 @@ TEST_CASE("Basics of Linear Algebra Tutorial",
         Matrix<DDRMat> tMat3({{1.0,2.0,3.0},{4.0,5.0,6.0},{7.0,8.0,9.0}});
         print(tMat3,"tMat3");
 
-
-
         /*!
          * \section Free Functions and Operators
          * The linear algebra class features a suite free functions and operators.
@@ -141,7 +141,6 @@ TEST_CASE("Basics of Linear Algebra Tutorial",
         Matrix<DDRMat> tMat4 = tMat2*tMat3;
         print(tMat4, "tMat4");
 
-
         /*!
          * For a list of all operators and free functions, the reader is referred
          * to the LINALG directory where all headers starting with fn_ are free functions
@@ -149,7 +148,6 @@ TEST_CASE("Basics of Linear Algebra Tutorial",
          * test cases in LINALG/test show each of the operators/free functions in use
          * and their expected outputs.
          */
-
 
         /*!
          * \section On Expression Templating
@@ -189,7 +187,7 @@ TEST_CASE("Basics of Linear Algebra Tutorial",
         }
         std::cout << "Time w/ expression templating: " << (std::clock() - tStart) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << std::endl;
 
-
     }
 }
 }
+

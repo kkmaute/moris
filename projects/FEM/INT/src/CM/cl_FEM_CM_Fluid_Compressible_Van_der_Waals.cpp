@@ -1,8 +1,11 @@
 /*
- * cl_CM_Fluid_Compressible_Van_der_Waals.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jul 25, 2020
- *  Author: wunsch
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_CM_Fluid_Compressible_Van_der_Waals.cpp
+ *
  */
 
 #include "cl_FEM_CM_Fluid_Compressible_Van_der_Waals.hpp"
@@ -1824,3 +1827,4 @@ namespace moris
 
     } /* namespace fem */
 } /* namespace moris */
+

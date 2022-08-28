@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_HMR_BSpline_Mesh.cpp
+ *
+ */
+
 #include <catch.hpp>
 #include "cl_HMR_Background_Mesh.hpp" //HMR/src
 #include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
@@ -293,3 +303,4 @@ TEST_CASE("HMR_Bspline_Mesh_Pattern", "[moris],[mesh],[hmr],[Bspline_mesh_patter
             delete tParameters;
     }
 }
+

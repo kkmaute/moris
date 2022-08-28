@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Mesh_Checker.hpp
  *
- *  Created on: Jan 15, 2020
- *      Author: doble
  */
 
 #ifndef PROJECTS_MTK_SRC_CL_MTK_MESH_CHECKER_HPP_
@@ -82,7 +85,6 @@ namespace mtk
             const moris_index& aProcIndex ) const;
     };
 
-
     class Mesh_Checker
     {
       public:
@@ -98,7 +100,6 @@ namespace mtk
         bool verify_double_side_sets( Integration_Mesh const* aIgMesh );
         bool verify_side_cluster( Cluster const* aCluster, enum Master_Slave aMasterSlave = Master_Slave::MASTER );
         bool verify_basis_indexing( Interpolation_Mesh const* aIPMesh );
-
 
       private:
         moris_index         mMeshIndex;
@@ -196,7 +197,6 @@ namespace mtk
         bool
         verify_cell_ownership( Serialized_Mesh_Data* aSerializedMesh );
 
-
         template< typename MatrixType >
         Matrix< MatrixType >
         concatenate_cell_of_mats( moris::Cell< Matrix< MatrixType > > aMat,
@@ -242,7 +242,6 @@ namespace mtk
                 {
                     tEnd = tStart + aMat( i ).n_cols() - 1;
 
-
                     tConcatenatedMat( { 0, tFixedDimSize - 1 }, { tStart, tEnd } ) = aMat( i ).matrix_data();
                     tStart                                                         = tEnd + 1;
                 }
@@ -262,7 +261,6 @@ namespace mtk
             return tConcatenatedMat;
         }
 
-
         template< typename MatrixType >
         void
         cell_of_mats_to_flattened_mat(
@@ -278,7 +276,6 @@ namespace mtk
             moris_index tCurrentIndex = 0;
             moris_index tDataSize     = 0;
 
-
             for ( moris::uint i = 0; i < aCellOfMats.size(); i++ )
             {
 
@@ -287,7 +284,6 @@ namespace mtk
             }
 
             aData.resize( 1, tDataSize );
-
 
             for ( moris::uint i = 0; i < aCellOfMats.size(); i++ )
             {
@@ -336,3 +332,4 @@ namespace mtk
 }// namespace moris
 
 #endif /* PROJECTS_MTK_SRC_CL_MTK_MESH_CHECKER_HPP_ */
+

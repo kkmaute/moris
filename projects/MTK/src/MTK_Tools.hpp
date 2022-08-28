@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * MTK_Tools.hpp
  *
- *  Created on: Nov 13, 2018
- *      Author: messe
  */
 
 #ifndef PROJECTS_MTK_SRC_MTK_TOOLS_HPP_
@@ -260,6 +263,5 @@ namespace moris
     } /* namespace mtk */
 } /* namespace moris */
 
-
-
 #endif /* PROJECTS_MTK_SRC_MTK_TOOLS_HPP_ */
+

@@ -1,11 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_interp1_Arma.hpp
  *
- *  Created on: Sep. 21, 2021
- *      Author: gates
- *
- * This subroutine performs the armadillo interp1 function as described in:
- * http://arma.sourceforge.net/docs.html#interp1
  */
 
 #ifndef PROJECTS_LINALG_SRC_ARMA_IMPL_FN_INTERP1_ARMA_HPP_
@@ -39,3 +39,4 @@ namespace moris
 }
 
 #endif /* PROJECTS_LINALG_SRC_ARMA_IMPL_FN_INTERP1_ARMA_HPP_ */
+

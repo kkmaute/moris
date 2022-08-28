@@ -1,8 +1,11 @@
 /*
- * cl_FEM_IWG_Isotropic_Struc_Linear_Interface.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Oct 10, 2019
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_IWG_Isotropic_Struc_Linear_Interface_SLM_Constraint.hpp
+ *
  */
 
 #ifndef SRC_FEM_CL_FEM_IWG_ISOTROPIC_STRUC_LINEAR_INTERFACE_SLM_CONSTRAINT_HPP_
@@ -93,3 +96,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_FEM_CL_FEM_IWG_ISOTROPIC_STRUC_LINEAR_INTERFACE_HPP_ */
+

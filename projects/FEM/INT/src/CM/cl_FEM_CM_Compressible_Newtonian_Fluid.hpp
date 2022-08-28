@@ -1,9 +1,11 @@
-
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_CM_Compressible_Newtonian_Fluid.hpp
  *
- *  Created on: Feb 2, 2021
- *  Author: wunsch
  */
 
 #ifndef SRC_FEM_CL_FEM_CM_COMPRESSIBLE_NEWTONIAN_FLUID_HPP_
@@ -34,7 +36,7 @@ namespace moris
             protected:
                 // default local properties
                 std::shared_ptr< Property > mPropDynamicViscosity       = nullptr;
-                std::shared_ptr< Property > mPropThermalConductivity    = nullptr;              
+                std::shared_ptr< Property > mPropThermalConductivity    = nullptr;
 
                 // default thermodynamic material model
                 std::shared_ptr< Material_Model > mMaterialModel  = nullptr;
@@ -149,18 +151,18 @@ namespace moris
                 Matrix< DDRMat > mFlatIdentity;
 
                 // multiplication matrices for condensed tensors
-                const Matrix< DDRMat > mMultipMat2D = { 
+                const Matrix< DDRMat > mMultipMat2D = {
                         { 1.0, 0.0, 0.0 },
                         { 0.0, 1.0, 0.0 },
-                        { 0.0, 0.0, 2.0 } };  
+                        { 0.0, 0.0, 2.0 } };
 
-                const Matrix< DDRMat > mMultipMat3D = { 
+                const Matrix< DDRMat > mMultipMat3D = {
                         { 1.0, 0.0, 0.0, 0.0, 0.0, 0.0 },
                         { 0.0, 1.0, 0.0, 0.0, 0.0, 0.0 },
                         { 0.0, 0.0, 1.0, 0.0, 0.0, 0.0 },
                         { 0.0, 0.0, 0.0, 2.0, 0.0, 0.0 },
                         { 0.0, 0.0, 0.0, 0.0, 2.0, 0.0 },
-                        { 0.0, 0.0, 0.0, 0.0, 0.0, 2.0 } };     
+                        { 0.0, 0.0, 0.0, 0.0, 0.0, 2.0 } };
 
                 // default dof types
                 MSI::Dof_Type mDofDensity     = MSI::Dof_Type::RHO;
@@ -212,7 +214,7 @@ namespace moris
                 /**
                  * trivial destructor
                  */
-                ~CM_Compressible_Newtonian_Fluid(){}; 
+                ~CM_Compressible_Newtonian_Fluid(){};
 
                 //------------------------------------------------------------------------------
                 /**
@@ -276,7 +278,7 @@ namespace moris
                 /**
                  * set thermodynamic material model
                  */
-                void set_local_material_model();                
+                void set_local_material_model();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -956,7 +958,7 @@ namespace moris
                 void eval_thermal_ddivstraindu( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
                 /**
-                 * get the divergence of the thermal strain 
+                 * get the divergence of the thermal strain
                  * @param[ in ]  aDofTypes  DoF type wrt with the derivative are computed
                  * @param[ out ] mThermalDivStrainDof constitutive model div(grad(T)) wrt to the dofs
                  */
@@ -1125,3 +1127,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_FEM_CL_FEM_CM_COMPRESSIBLE_NEWTONIAN_FLUID_HPP_ */
+

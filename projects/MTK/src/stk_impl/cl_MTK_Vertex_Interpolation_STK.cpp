@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Vertex_Interpolation_STK.cpp
+ *
+ */
+
 #include "cl_MTK_Vertex.hpp"
 #include "cl_MTK_Vertex_Interpolation_STK.hpp"
 
@@ -116,3 +126,4 @@ namespace moris
     }
     } /* namespace hmr */
 } /* namespace moris */
+

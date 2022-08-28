@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_GEN_BSpline_Field.hpp
+ *
+ */
+
 #ifndef MORIS_CL_GEN_BSPLINE_FIELD_HPP
 #define MORIS_CL_GEN_BSPLINE_FIELD_HPP
 
@@ -46,8 +56,6 @@ namespace moris
                     std::shared_ptr<Field> aField,
                     std::shared_ptr<mtk::Field> aMTKField);
 
-
-
             /**
              * Destructor
              */
@@ -95,7 +103,6 @@ namespace moris
 
             void get_coefficient_vector();
 
-
         protected:
 
             /**
@@ -119,3 +126,4 @@ namespace moris
 }
 
 #endif //MORIS_CL_GEN_BSPLINE_FIELD_HPP
+

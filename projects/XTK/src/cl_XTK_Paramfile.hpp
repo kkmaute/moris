@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_XTK_Paramfile.hpp
  *
- *  Created on: Mar 22, 2019
- *      Author: doble
  */
 
 #ifndef PROJECTS_XTK_SRC_XTK_CL_XTK_PARAMFILE_HPP_
@@ -75,7 +78,6 @@ public:
     moris_index mPhaseForobj;
     std::string mobjOutputFile;
 
-
     // dump data to hdf5
     bool mOutputData;
     std::string mDataFile; /*HDF5*/
@@ -121,7 +123,6 @@ public:
       }
     }
 };
-
 
 class Paramfile
 {
@@ -250,7 +251,7 @@ private:
       return result;
     }
 
-
 };
 }
 #endif /* PROJECTS_XTK_SRC_XTK_CL_XTK_PARAMFILE_HPP_ */
+

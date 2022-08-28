@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_Integrator.cpp
+ *
+ */
+
 #include <string>
 
 #include <catch.hpp>
@@ -30,7 +40,6 @@ TEST_CASE( "Integrator", "[moris],[fem]" )
 
     SECTION( "GAUSS QUAD_2x2" )
     {
-
 
         // initialize polynomial
         mtk::Integrator_Test_Polynomial tPoly(

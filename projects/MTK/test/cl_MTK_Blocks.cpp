@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Blocks.cpp
  *
- *  Created on: May 28, 2019
- *      Author: schmidt
  */
 
 #include "catch.hpp"
@@ -76,7 +79,6 @@ TEST_CASE("MTK Blocks","[MTK],[MTK_BLOCK]")
 //        REQUIRE(tBlock1->get_list_of_block_cell_clusters()(0,0) == 0);
 //        REQUIRE(tBlock2->get_list_of_block_cell_clusters()(0,0) == 1);
 
-
         Matrix< IndexMat > tVertexId1= tBlock1->get_clusters_by_index( 0 )
                                               ->get_primary_cells_in_cluster()(0)
                                               ->get_vertex_ids();
@@ -99,7 +101,6 @@ TEST_CASE("MTK Blocks","[MTK],[MTK_BLOCK]")
         REQUIRE(tBlock1->get_interpolation_cell_interpolation_order() == mtk::Interpolation_Order::LINEAR );
         REQUIRE(tBlock1->get_integration_cell_interpolation_order()   == mtk::Interpolation_Order::LINEAR);
 
-
         //delete tInterpMesh;
         delete tIntegMesh;
     }
@@ -107,3 +108,4 @@ TEST_CASE("MTK Blocks","[MTK],[MTK_BLOCK]")
 
 }
 }
+

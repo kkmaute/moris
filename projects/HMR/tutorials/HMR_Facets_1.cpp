@@ -1,6 +1,13 @@
-//------------------------------------------------------------------------------
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * HMR_Facets_1.cpp
+ *
+ */
 
-// moris core includes
 #include "cl_Communication_Manager.hpp"
 #include "cl_Communication_Tools.hpp"
 #include "typedefs.hpp"
@@ -192,3 +199,4 @@ main(
 //    return 0;
 //
 }
+

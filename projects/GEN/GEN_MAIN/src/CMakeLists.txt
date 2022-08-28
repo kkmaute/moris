@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # Geometry Engine Source --------------------------------------------------
 # -------------------------------------------------------------------------
 
@@ -235,3 +242,4 @@ install(TARGETS ${GEN_MAIN}-lib
 # Export library into *Targets file
 install(EXPORT ${GEN_MAIN}Targets
     DESTINATION ${${GEN_MAIN}_CONFIG_INSTALL_DIR} )
+

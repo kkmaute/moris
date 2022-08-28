@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Integration_Coeffs_Quad_4x4.hpp
  *
- *  Created on: Jul 19, 2018
- *      Author: messe
  */
 
 #ifndef SRC_MTK_CL_MTK_INTEGRATION_COEFFS_QUAD_4X4_HPP_
@@ -13,7 +16,6 @@
 #include "cl_Matrix.hpp" //LNA/src
 #include "linalg_typedefs.hpp" //LNA/src
 #include "cl_MTK_Enums.hpp" //MTK/src
-
 
 namespace moris
 {

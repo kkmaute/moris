@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * UT_MTK_Cell_Area.cpp
  *
- *  Created on: Jan. 20, 2021
- *      Author: gates
  */
 
 #include "catch.hpp"
@@ -311,7 +314,7 @@ namespace moris
                 }
 
                 // Setup cell associated with element index 0
-               
+
                 std::shared_ptr<Cell_Info> tTri3 = std::make_shared<Cell_Info_Tri3>();
 
                 Cell_STK tCell(tTri3, 1, 0, tElementVertices, tMesh);

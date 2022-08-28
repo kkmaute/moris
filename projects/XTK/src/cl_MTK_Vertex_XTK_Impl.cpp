@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Vertex_XTK_Impl.cpp
  *
- *  Created on: Mar 8, 2019
- *      Author: doble
  */
 
 #include "cl_MTK_Vertex_XTK_Impl.hpp"
@@ -16,7 +19,6 @@ namespace moris
 
         Vertex_XTK::Vertex_XTK(){}
 
-
         Vertex_XTK::Vertex_XTK(
             moris::moris_id           aVertexId,
             moris::moris_index        aVertexIndex,
@@ -29,7 +31,6 @@ namespace moris
         mCoordinates(aCoordinates)
         {
         }
-
 
         //------------------------------------------------------------------------------
 
@@ -58,7 +59,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        
+
         moris_index
         Vertex_XTK::get_index() const
         {
@@ -106,6 +107,6 @@ namespace moris
         }
         //------------------------------------------------------------------------------
 
-
     } // namespace mtk
 } // namespace moris
+

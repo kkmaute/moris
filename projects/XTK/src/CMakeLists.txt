@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # XTK Source --------------------------------------------------------------                                                                                                                                                                                                    
 # -------------------------------------------------------------------------                                                                                                                                                                                                    
 
@@ -266,3 +273,4 @@ install(TARGETS ${XTK}-lib
 # Export executable in to *Targets file
 install(EXPORT ${XTK}Targets
     DESTINATION ${CONFIG_INSTALL_DIR}/${XTK} )
+

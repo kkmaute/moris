@@ -1,13 +1,15 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Side_Cluster_ISC_Impl.hpp
  *
- *  Created on: Jun 22, 2021
- *      Author: momo
  */
 
 #ifndef PROJECTS_MTK_SRC_CL_MTK_SIDE_CLUSTER_ISC_IMPL_HPP_
 #define PROJECTS_MTK_SRC_CL_MTK_SIDE_CLUSTER_ISC_IMPL_HPP_
-
 
 #include <unordered_map>
 
@@ -31,7 +33,6 @@ namespace moris
 
                 // map from vertex id to local index
                 std::unordered_map<moris_index,moris_index> mVertexIdToLocalIndex;
-
 
             public:
                 //----------------------------------------------------------------
@@ -181,7 +182,5 @@ namespace moris
     }
 }
 
-
-
-
 #endif /* PROJECTS_MTK_SRC_CL_MTK_SIDE_CLUSTER_ISC_IMPL_HPP_ */
+

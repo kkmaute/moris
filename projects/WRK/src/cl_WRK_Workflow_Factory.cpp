@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_WRK_Workflow_Factory.cpp
+ *
+ */
 
 #include "cl_WRK_Workflow_Factory.hpp"
 #include "cl_WRK_Workflow_HMR_XTK.hpp"
@@ -6,7 +15,7 @@
 namespace moris
 {
     namespace wrk
-    {   
+    {
         std::shared_ptr<wrk::Workflow>
         create_workflow(std::string const      & aWRKFlowType,
                         wrk::Performer_Manager * aPerformerManager)
@@ -31,3 +40,4 @@ namespace moris
         }
     }
 }
+

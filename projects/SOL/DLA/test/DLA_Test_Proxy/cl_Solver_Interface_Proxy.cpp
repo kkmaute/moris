@@ -1,9 +1,13 @@
 /*
- * cl_Solver_Input_Test.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jun 18, 2018
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * cl_Solver_Interface_Proxy.cpp
+ *
  */
+
 #include "cl_Solver_Interface_Proxy.hpp"
 #include "cl_Communication_Tools.hpp" // COM/src
 
@@ -38,27 +42,27 @@ Solver_Interface_Proxy::Solver_Interface_Proxy()
 
           mNumElements = 1;
           mMyConstraintDofs = { {0},{1} };
-          
+
           mEleDofConectivity = { {0},{1},{8},{9},{16},{17},{14},{15} };
 
           mMyRHSValues(0).fill( 0.0 );
           break;
         case 1:
           mNumMyDofs = 4;
-          
+
           mMyGlobalElements = { {2},{3},{10},{11} };
           mMyGlobalElementsOverlapping = { {8},{9},{2},{3},{10},{11},{16},{17} };
 
           mNumElements = 1;
           mMyConstraintDofs = { {3} };
-          
+
           mEleDofConectivity = { {8},{9},{2},{3},{10},{11},{16},{17} };
 
           mMyRHSValues(0).fill( 0.0 );
           break;
         case 2:
           mNumMyDofs = 2;
-          
+
           mMyGlobalElements = { {4},{5} };
           mMyGlobalElementsOverlapping = { {16},{17},{10},{11},{4},{5},{12},{13} };
 
@@ -91,7 +95,6 @@ Solver_Interface_Proxy::Solver_Interface_Proxy()
     mElementMatrixValues( 56, 0 ) = 3;    mElementMatrixValues( 57, 0 ) = -6;   mElementMatrixValues( 58, 0 ) = 3;    mElementMatrixValues( 59, 0 ) = -6;   mElementMatrixValues( 60, 0 ) = -3;   mElementMatrixValues( 61, 0 ) = 0;    mElementMatrixValues( 62, 0 ) = -3;   mElementMatrixValues( 63, 0 ) = 12;
 }
 }
-
 
 Solver_Interface_Proxy::Solver_Interface_Proxy( uint aNumRHS )
 {

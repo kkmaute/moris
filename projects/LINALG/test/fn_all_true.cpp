@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_all_true.cpp
  *
- *  Created on: Sep 19, 2018
- *      Author: doble
  */
 
 #include <catch.hpp>
@@ -41,3 +44,4 @@ TEST_CASE("moris::all_true",
 
 }
 }
+

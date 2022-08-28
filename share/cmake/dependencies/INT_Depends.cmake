@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # Integration and Interpolation Dependencies ------------------------------
 # -------------------------------------------------------------------------
 
@@ -24,3 +31,4 @@ include(${MORIS_DEPENDS_DIR}/MTK_Depends.cmake)
 # included for tests
 include(${MORIS_DEPENDS_DIR}/COM_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/ALG_Depends.cmake)
+

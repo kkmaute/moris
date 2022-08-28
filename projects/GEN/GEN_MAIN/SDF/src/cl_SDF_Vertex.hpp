@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_SDF_Vertex.hpp
  *
- *  Created on: Oct 1, 2018
- *      Author: messe
  */
 
 #ifndef PROJECTS_GEN_SDF_SRC_CL_SDF_VERTEX_HPP_
@@ -324,6 +327,5 @@ namespace moris
     } /* namespace sdf */
 } /* namespace moris */
 
-
-
 #endif /* PROJECTS_GEN_SDF_SRC_CL_SDF_VERTEX_HPP_ */
+

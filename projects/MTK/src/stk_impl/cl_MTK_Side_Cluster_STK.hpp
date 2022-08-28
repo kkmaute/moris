@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Side_Cluster_STK.hpp
  *
- *  Created on: May 13, 2019
- *      Author: doble
  */
 
 #ifndef PROJECTS_MTK_SRC_STK_IMPL_CL_MTK_SIDE_CLUSTER_STK_HPP_
@@ -12,7 +15,6 @@
 
 #include "cl_MTK_Side_Cluster.hpp"
 #include "cl_Matrix.hpp"
-
 
 namespace moris
 {
@@ -136,3 +138,4 @@ namespace moris
 }    // namespace moris
 
 #endif /* PROJECTS_MTK_SRC_STK_IMPL_CL_MTK_SIDE_CLUSTER_STK_HPP_ */
+

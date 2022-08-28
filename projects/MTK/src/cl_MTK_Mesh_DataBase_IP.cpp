@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Mesh_DataBase_IP.cpp
+ *
+ */
+
 #include "cl_MTK_Mesh_DataBase_IP.hpp"
 #include "cl_MTK_Vertex_DataBase.hpp"
 #include "cl_MTK_Vertex_Interpolation_DataBase.hpp"
@@ -5,7 +15,6 @@
 #include "cl_MTK_Cell_Info_Factory.hpp"
 #include "cl_MTK_Cell_Info.hpp"
 #include "cl_Tracer.hpp"
-
 
 namespace moris::mtk
 {
@@ -111,7 +120,6 @@ namespace moris::mtk
         // return mIPMesh.get_node_owner( aNodeIndex );
     }
 
-
     // ----------------------------------------------------------------------------
 
     Matrix< IdMat >
@@ -202,14 +210,12 @@ namespace moris::mtk
         aAdofMap = mAdofMap( aBSplineIndex );
     }
 
-
     //--------------------------------------------------------------------------------------------------------------
     uint
     Interpolation_Mesh_DataBase_IP::get_num_interpolations()
     {
         return mMeshIndices.max() + 1;
     }
-
 
     //--------------------------------------------------------------------------------------------------------------
 
@@ -238,7 +244,6 @@ namespace moris::mtk
     }
 
     //--------------------------------------------------------------------------------------------------------------
-
 
     moris_id
     Interpolation_Mesh_DataBase_IP::get_entity_id( enum EntityRank aEntityRank, moris_index aEntityIndex ) const
@@ -303,7 +308,6 @@ namespace moris::mtk
     }
 
     //--------------------------------------------------------------------------------------------------------------
-
 
     Vertex**
     Interpolation_Mesh_DataBase_IP::get_cell_vertices( moris_index aCellIndex )
@@ -391,7 +395,6 @@ namespace moris::mtk
 
         // tMemoryMap.mMemoryMapData["misc"] = sizeof( mSpatilDim ) + sizeof( mIPDataBase ) + sizeof( mCellInfo );
 
-
         // tMemoryMap.mMemoryMapData["vertices"] = moris::internal_capacity( mVertices )
         //                                         + moris::internal_capacity( mVertexInterpoltions )
         //                                         + mVertexInterpoltionsPtrs.capacity() * ( 1 + sizeof( void* ) );
@@ -399,12 +402,10 @@ namespace moris::mtk
         // tMemoryMap.mMemoryMapData["cells"] = mCellToVertices.capacity() * ( 1 + sizeof( moris_index ) )
         //                                      + moris::internal_capacity( mCells );
 
-
         // tMemoryMap.mMemoryMapData["id-owner-list"] = mVertexIdList.capacity() * ( 1 + sizeof( moris_id ) )
         //                                              + mCellIdList.capacity() * ( 1 + sizeof( moris_id ) )
         //                                              + mVertexOwnerList.capacity() * ( 1 + sizeof( moris_id ) )
         //                                              + mCellOwnerList.capacity() * ( 1 + sizeof( moris_id ) );
-
 
         // // Determine the map size for the
         // size_t tVertexGlbToLocalMapSize = 0;
@@ -419,7 +420,6 @@ namespace moris::mtk
         // {
         //     tVertexGlbToLocalMapSize = (size_t)tBucketCount;
         // }
-
 
         // size_t tDofMapSize = 0;
         // for ( const auto& iMap : mAdofMap )
@@ -447,7 +447,7 @@ namespace moris::mtk
     Interpolation_Mesh_DataBase_IP::free_memory()
     {
     }
-    
+
     //--------------------------------------------------------------------------------------------------------------
 
     Matrix< IndexMat >
@@ -458,3 +458,4 @@ namespace moris::mtk
     }
 
 }// namespace moris::mtk
+

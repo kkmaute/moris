@@ -1,8 +1,11 @@
 /*
- * cl_MTK_Vertes_Interpolation_STK.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Mar 06, 2019
- *      Author: noel
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Vertex_Interpolation_STK.hpp
+ *
  */
 
 #ifndef PROJECTS_HMR_SRC_CL_MTK_VERTEX_INTERPOLATION_STK_HPP_
@@ -25,7 +28,6 @@ namespace moris
         public:
             // ----------------------------------------------------------------------------
             Vertex_Interpolation_STK(){};
-
 
             Vertex_Interpolation_STK( mtk::Vertex * aVertex ) : mVertex(aVertex)
             {
@@ -66,7 +68,6 @@ namespace moris
              */
             moris::Cell< mtk::Vertex* > &
             get_coefficients();
-
 
             // ----------------------------------------------------------------------------
 
@@ -118,6 +119,5 @@ namespace moris
     }
 }
 
-
-
 #endif /* PROJECTS_HMR_SRC_CL_MTK_NODE_INTERPOLATION_STK_HPP_ */
+

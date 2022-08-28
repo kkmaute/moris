@@ -1,12 +1,12 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_det.cpp
  *
- *  Created on: Aug 27, 2018
- *      Author: doble
  */
-
-#ifndef PROJECTS_LINALG_TEST_FN_DET_CPP_
-#define PROJECTS_LINALG_TEST_FN_DET_CPP_
 
 #include <catch.hpp>
 #include "fn_equal_to.hpp" //ALG
@@ -14,7 +14,6 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "fn_det.hpp"
-
 
 TEST_CASE("moris::det",
           "[linalgebra],[det]")
@@ -33,5 +32,3 @@ TEST_CASE("moris::det",
 
 }
 
-
-#endif /* PROJECTS_LINALG_TEST_FN_DET_CPP_ */

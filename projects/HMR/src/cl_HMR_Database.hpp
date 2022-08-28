@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_HMR_Database.hpp
  *
- *  Created on: Oct 1, 2018
- *      Author: schmidt
  */
 
 #ifndef PROJECTS_HMR_SRC_CL_HMR_DATABASE_HPP_
@@ -20,7 +23,6 @@
 #include "cl_Map.hpp"
 
 #include "cl_MTK_Side_Sets_Info.hpp"
-
 
 namespace moris
 {
@@ -254,7 +256,6 @@ namespace moris
                     return mBackgroundMesh->get_number_of_padding_elements_on_proc();
                 }
 
-
                 // -----------------------------------------------------------------------------
 
                 /**
@@ -401,7 +402,6 @@ namespace moris
 
                 // -----------------------------------------------------------------------------
 
-
                 /**
                  * resets Lagrange and B-Spline meshes and the refinement pattern of the background mesh
                  * Does not delete Background mesh elements. Resets teh finalize flag.
@@ -414,7 +414,6 @@ namespace moris
                  * needed for exodus output of cubic meshes, called by finalize
                  */
                 //            void add_extra_refinement_step_for_exodus();
-
 
                 // -----------------------------------------------------------------------------
 
@@ -547,7 +546,6 @@ namespace moris
 
                 void create_working_pattern_for_bspline_refinement();
 
-
                 // -----------------------------------------------------------------------------
 
                 /**
@@ -561,5 +559,5 @@ namespace moris
     } /* namespace hmr */
 } /* namespace moris */
 
-
 #endif /* PROJECTS_HMR_SRC_CL_HMR_DATABASE_HPP_ */
+

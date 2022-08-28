@@ -1,8 +1,11 @@
 /*
- * fn_diag_Arma.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Sep 6, 2018
- *      Author: doble
+ *------------------------------------------------------------------------------------
+ *
+ * fn_diag_mat_Arma.hpp
+ *
  */
 
 #ifndef PROJECTS_LINALG_SRC_ARMA_IMPL_FN_DIAG_MAT_ARMA_HPP_
@@ -24,3 +27,4 @@ namespace moris
 }
 
 #endif /* PROJECTS_LINALG_SRC_ARMA_IMPL_FN_DIAG_MAT_ARMA_HPP_ */
+

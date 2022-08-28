@@ -1,8 +1,11 @@
 /*
- * cl_MTK_Element_Set.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jun 24, 2019
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Set.hpp
+ *
  */
 
 #ifndef SRC_MESH_CL_MTK_SET_HPP_
@@ -58,7 +61,6 @@ namespace moris
             moris::uint mSpatialDim;
 
             Matrix<IndexMat> mSetColors;
-
 
             //------------------------------------------------------------------------------
 
@@ -166,7 +168,6 @@ namespace moris
                 return mCellTopology;
             }
 
-            
             //------------------------------------------------------------------------------
 
             void set_IG_cell_shape( enum CellShape aCellShape )
@@ -565,3 +566,4 @@ namespace moris
 //------------------------------------------------------------------------------
 
 #endif /* SRC_MESH_CL_MTK_SET_HPP_ */
+

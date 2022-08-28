@@ -1,8 +1,11 @@
 /*
- * cl_Pairing.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jun 26, 2017
- *      Author: ktdoble
+ *------------------------------------------------------------------------------------
+ *
+ * fn_Pairing.hpp
+ *
  */
 
 #ifndef SRC_TOOLS_FN_PAIRING_HPP_
@@ -23,5 +26,5 @@ cantor_pairing(Integer  const aPt1,
 }
 }
 
-
 #endif /* SRC_TOOLS_FN_PAIRING_HPP_ */
+

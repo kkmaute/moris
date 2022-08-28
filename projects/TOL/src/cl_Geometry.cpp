@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_Geometry.cpp
  *
- *  Created on: Apr 10, 2017
- *      Author: gleim
  */
 
 #include "cl_Geometry.hpp"
@@ -36,3 +39,4 @@ namespace moris
         return volume;
     }
 }    // namespace moris
+

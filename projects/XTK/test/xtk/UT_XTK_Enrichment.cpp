@@ -1,10 +1,12 @@
 /*
- * cl_XTK_Enrichment.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Dec 1, 2017
- *      Author: doble
+ *------------------------------------------------------------------------------------
+ *
+ * UT_XTK_Enrichment.cpp
+ *
  */
-
 
 #include <memory>
 #include <mpi.h>
@@ -42,7 +44,6 @@
 namespace xtk
 {
 
-
 TEST_CASE( "Enrichment Example 1", "[ENRICH_1]" )
 {
     if ( par_size() == 1 || par_size() == 1 )
@@ -71,7 +72,6 @@ TEST_CASE( "Enrichment Example 1", "[ENRICH_1]" )
         // Create mesh with supplementary data
         moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName, &tSuppMeshData );
 
-
         xtk::size_t tNumNodes = tMeshData->get_num_entities( moris::EntityRank::NODE );
 
         moris::Matrix< moris::DDRMat > tLevelsetVal( tNumNodes, 1, -1.3 );
@@ -82,7 +82,6 @@ TEST_CASE( "Enrichment Example 1", "[ENRICH_1]" )
         // Bottom face
         tLevelsetVal( tIndexOfNodeId3 ) = 1;
         tLevelsetVal( tIndexOfNodeId6 ) = 1;
-
 
         tMeshData->add_mesh_field_real_scalar_data_loc_inds( tLSFName, moris::EntityRank::NODE, tLevelsetVal );
         tMeshData->mVerbose          = false;
@@ -120,7 +119,6 @@ TEST_CASE( "Enrichment Example 1", "[ENRICH_1]" )
             tEnrichmentFieldNames = tEnrichment.get_cell_enrichment_field_names();
         }
 
-
         delete tMeshData;
     }
 }
@@ -152,7 +150,6 @@ TEST_CASE( "8 Element 10 enrichment Levels", "[ENRICH_10_EL_CLUSTER]" )
 
         // Create mesh with supplementary data
         moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName, &tSuppMeshData );
-
 
         xtk::size_t tNumNodes = tMeshData->get_num_entities( moris::EntityRank::NODE );
 
@@ -222,7 +219,6 @@ TEST_CASE( "8 Element 10 enrichment Levels", "[ENRICH_10_EL_CLUSTER]" )
 
         Enrichment const& tEnrichment = tXTKModel.get_basis_enrichment();
 
-
         // declare cell enrichment fields in output mesh
         Cell< std::string > tEnrichmentFieldNames;
         if ( tOutputEnrichmentFields )
@@ -267,5 +263,5 @@ TEST_CASE( "8 Element 10 enrichment Levels", "[ENRICH_10_EL_CLUSTER]" )
     }
 }
 
-
 }// namespace xtk
+

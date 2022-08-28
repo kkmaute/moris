@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_cond_Eigen.hpp
  *
- *  Created on: Sep 12, 2018
- *      Author: doble
  */
 
 #ifndef PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_COND_EIGEN_HPP_
@@ -28,3 +31,4 @@ namespace moris
 }
 
 #endif /* PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_COND_EIGEN_HPP_ */
+

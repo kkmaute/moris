@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_PRM_FEM_Parameters.hpp
  *
- *  Created on: Feb 6, 2020
- *      Author: noel
  */
 
 #ifndef PROJECTS_PRM_SRC_FN_PRM_FEM_PARAMETERS_HPP_
@@ -21,7 +24,6 @@
 #include "cl_FEM_Enums.hpp"
 //FEM/VIS/src
 #include "cl_VIS_Output_Enums.hpp"
-
 
 namespace moris
 {
@@ -312,3 +314,4 @@ namespace moris
 }/* end_namespace_moris */
 
 #endif /* PROJECTS_PRM_SRC_FN_PRM_FEM_PARAMETERS_HPP_ */
+

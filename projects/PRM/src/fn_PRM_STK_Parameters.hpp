@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_PRM_STK_Parameters.hpp
  *
- *  Created on: March 10, 2020
- *      Author: doble
  */
 
 #ifndef PROJECTS_PRM_SRC_FN_PRM_STK_PARAMETERS_HPP_
@@ -46,3 +49,4 @@ namespace moris
 }/* end_namespace_moris */
 
 #endif /*  */
+

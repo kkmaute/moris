@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_IQI_Advection_Strong_Residual.cpp
  *
- *  Created on: Sep 27, 2020
- *      Author: noel
  */
+
 #include "cl_FEM_IQI_Advection_Strong_Residual.hpp"
 
 #include "cl_FEM_Set.hpp"
@@ -33,7 +37,7 @@ namespace moris
             // populate the constitutive map
             mConstitutiveMap[ "Diffusion" ] = static_cast< uint >( IQI_Constitutive_Type::DIFFUSION );
         }
-        
+
         //------------------------------------------------------------------------------
 
         void IQI_Advection_Strong_Residual::compute_QI( Matrix< DDRMat > & aQI )
@@ -100,3 +104,4 @@ namespace moris
         //------------------------------------------------------------------------------
     }/* end_namespace_fem */
 }/* end_namespace_moris */
+

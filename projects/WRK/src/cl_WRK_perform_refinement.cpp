@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_WRK_perform_refinement.cpp
+ *
+ */
+
 #include "cl_WRK_Performer.hpp"
 #include "cl_HMR.hpp"
 #include "cl_HMR_Mesh.hpp"
@@ -380,7 +390,6 @@ namespace moris
                 // get pattern
                 uint tActivationPattern = tPattern( Ik );
 
-
                 for ( uint Ia = 0; Ia < tFieldNames( Ik ).size(); Ia++ )
                 {
                     std::shared_ptr< mtk::Field > tField = aFields( tFieldNameToIndexMap.find( tFieldNames( Ik )( Ia ) ) );
@@ -470,7 +479,6 @@ namespace moris
                 }
             }
         }
-
 
         //--------------------------------------------------------------------------------------------------------------
 
@@ -716,3 +724,4 @@ namespace moris
         }
     }    // namespace wrk
 }    // namespace moris
+

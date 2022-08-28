@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # MAP Source --------------------------------------------------------------
 # -------------------------------------------------------------------------
 
@@ -110,3 +117,4 @@ install(TARGETS ${MAP}-lib
 # Export library into *Targets file
 install(EXPORT ${MAP}Targets
     DESTINATION ${${MAP}_CONFIG_INSTALL_DIR} )
+

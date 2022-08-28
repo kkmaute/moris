@@ -1,4 +1,13 @@
-//FEM/INT/src
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_SP_Spalart_Allmaras_Nitsche_Interface.cpp
+ *
+ */
+
 #include "cl_FEM_SP_Spalart_Allmaras_Nitsche_Interface.hpp"
 #include "cl_FEM_Cluster.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"

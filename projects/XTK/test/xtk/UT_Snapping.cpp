@@ -1,8 +1,11 @@
 /*
- * ut_Snapping.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Feb 2, 2021
- *      Author: doble
+ *------------------------------------------------------------------------------------
+ *
+ * UT_Snapping.cpp
+ *
  */
 
 #include "catch.hpp"
@@ -15,15 +18,11 @@
 #include "cl_HMR.hpp"
 #include "cl_GEN_Geometry_Engine.hpp"
 
-
 #include "fn_PRM_FEM_Parameters.hpp"
 #include "fn_PRM_HMR_Parameters.hpp"
 #include "fn_PRM_GEN_Parameters.hpp"
 #include "fn_PRM_XTK_Parameters.hpp"
 #include "cl_Param_List.hpp"
-
-
-
 
 namespace xtk
 {
@@ -38,7 +37,7 @@ TEST_CASE("Plane Aligned with Background 2d","[Snapping_2d]")
     //bool tSnapFromRight = true;
     //bool tSnapBoth = false;
     bool tBilinear = false;
-    
+
     // XTK parameter list
     moris::Cell< moris::Cell< moris::ParameterList > > tXTKParams(1);
     tXTKParams( 0 ).resize( 1 );
@@ -55,13 +54,13 @@ TEST_CASE("Plane Aligned with Background 2d","[Snapping_2d]")
     tXTKParams( 0 )( 0 ).set( "exodus_output_XTK_ig_mesh", true );
     tXTKParams( 0 )( 0 ).set( "high_to_low_dbl_side_sets", true );
     tXTKParams( 0 )( 0 ).set( "probe_bg_cells", "1,2" );
-    
+
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // GEN Parameters
     moris::Cell< moris::Cell< moris::ParameterList > > tGENParams(3);
     tGENParams( 0 ).resize( 1 );
     tGENParams( 1 ).resize( 3 );
-        
+
     // Calculations
     real tOffset = 0.5 * (1 + tIntersectionLocalCoordinate);
     real tXNormal = sin(-tPlaneAngle * M_PI / 180);
@@ -72,7 +71,6 @@ TEST_CASE("Plane Aligned with Background 2d","[Snapping_2d]")
     tGENParams( 0 )( 0 ).set("isocontour_tolerance", 1e-12);
     tGENParams( 0 )( 0 ).set("intersection_tolerance", 1e-12);
     tGENParams( 0 )( 0 ).set("output_mesh_file", "GEN_Snapping.exo");
-
 
     // Geometry parameter lists
     moris::uint tGeoCounter = 0;
@@ -142,10 +140,10 @@ TEST_CASE("Plane Aligned with Background 2d","[Snapping_2d]")
 
     // XTK initialize
     std::shared_ptr< xtk::Model > pXTK = std::make_shared< xtk::Model >( tXTKParams( 0 )( 0 ) );
-    
+
     // Set performer to HMR
     pHMR->set_performer( pBGMTK );
-    
+
     // Set XTK Cooperations
     pXTK->set_geometry_engine( pGEN.get() );
     pXTK->set_input_performer( pBGMTK );
@@ -168,5 +166,5 @@ TEST_CASE("Plane Aligned with Background 2d","[Snapping_2d]")
     }
 }
 
-
 }
+

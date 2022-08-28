@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * UT_MDL_XTK_HMR_Symm_BCs.cpp
  *
- *  Created on: Dec 10, 2019
- *      Author: sonne
  */
+
 #include "catch.hpp"
 
 #include "cl_XTK_Model.hpp"
@@ -83,7 +87,6 @@
 #include "cl_GEN_Circle.hpp"
 
 #include "fn_PRM_HMR_Parameters.hpp"
-
 
 namespace moris
 {
@@ -350,7 +353,6 @@ TEST_CASE("2D XTK WITH HMR SYMM BCs","[XTK_HMR_2D_Symm_BCs]")
         NLA::Nonlinear_Solver tNonlinearSolverMain;
         tNonlinearSolverMain.set_nonlinear_algorithm( tNonlinearSolverAlgorithm, 0 );
 
-
         tNonlinearSolverMain       .set_dof_type_list( tDofTypesU );
 
         // Create solver database
@@ -384,3 +386,4 @@ TEST_CASE("2D XTK WITH HMR SYMM BCs","[XTK_HMR_2D_Symm_BCs]")
     }
 }
 }   // end moris namespace
+

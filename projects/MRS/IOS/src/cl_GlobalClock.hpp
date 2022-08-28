@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_GlobalClock.hpp
+ *
+ */
+
 #ifndef MORIS_IOS_CL_GLOBALCLOCK_HPP_
 #define MORIS_IOS_CL_GLOBALCLOCK_HPP_
 
@@ -96,3 +106,4 @@ namespace moris
 }    // namespace moris
 
 #endif /* MORIS_IOS_CL_GLOBALCLOCK_HPP_ */
+

@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_HMR_Background_Element_Neighbors_3D.hpp
  *
- *  Created on: December 05, 2018
- *  using MATLAB
  */
 
 #ifndef SRC_HMR_FN_HMR_BACKGROUND_ELEMENT_NEIGHBORS_3D_HPP_
@@ -24,7 +27,7 @@ namespace moris
                 Cell< Background_Element_Base * > & aNeighbors )
         {
             // make sure order is not too big
-            MORIS_ERROR( 0 < aOrder && aOrder <= 3, 
+            MORIS_ERROR( 0 < aOrder && aOrder <= 3,
                     "Invalid refinement buffer size specified; valid refinement buffer sizes are 1, 2, and 3.");
 
             // array that contains max size
@@ -22484,3 +22487,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_HMR_FN_HMR_BACKGROUND_ELEMENT_NEIGHBORS_3D_HPP_ */
+

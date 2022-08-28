@@ -1,9 +1,13 @@
 /*
- * cl_Equation_Object.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jul 14, 2018
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MSI_Equation_Object.hpp
+ *
  */
+
 #ifndef SRC_FEM_CL_EQUATION_OBJECT_HPP_
 #define SRC_FEM_CL_EQUATION_OBJECT_HPP_
 
@@ -506,7 +510,7 @@ namespace moris
              * @param[ in ] aMeshIndex mesh index to specify on which visualization mesh to compute QI
              * @param[ in ] aFieldType enum for computation type (GLOBAL,NODAL,ELEMENTAL,...)
              */
-            virtual void compute_quantity_of_interest( 
+            virtual void compute_quantity_of_interest(
                     const uint           aMeshIndex,
                     enum vis::Field_Type aFieldType )
             {
@@ -528,3 +532,4 @@ namespace moris
 }
 
 #endif /* SRC_FEM_CL_EQUATION_OBJECT_HPP_ */
+

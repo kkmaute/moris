@@ -1,8 +1,11 @@
 /*
- * cl_Interpolaton.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jun 21, 2017
- *      Author: ktdoble
+ *------------------------------------------------------------------------------------
+ *
+ * cl_GEN_Interpolation.hpp
+ *
  */
 
 #ifndef PROJECTS_GEN_SRC_RIPPED_ADDITIONAL_CL_INTERPOLATON_HPP_
@@ -257,3 +260,4 @@ namespace moris
 }
 
 #endif /* PROJECTS_GEN_SRC_RIPPED_ADDITIONAL_CL_INTERPOLATON_HPP_ */
+

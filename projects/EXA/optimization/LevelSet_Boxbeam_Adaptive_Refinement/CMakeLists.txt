@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 set(EXAMPLE_MAIN Main_Levelset_Boxbeam_Adaptive_Refinement)
 #set(EXAMPLE_FILE Levelset_Boxbeam Levelset_Boxbeam_Lin_Quad_LevelSet)
 set(EXAMPLE_FILES Levelset_Boxbeam_Adaptive_Refinement Levelset_Boxbeam_Adaptive_Refinement_Quadratic )
@@ -95,3 +102,4 @@ if(MORIS_HAVE_PARALLEL_TESTS)
         WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
     endforeach()
 endif()
+

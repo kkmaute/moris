@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * fn_GEN_create_simple_mesh.hpp
+ *
+ */
+
 #ifndef MORIS_FN_GEN_CREATE_SIMPLE_MESH_HPP
 #define MORIS_FN_GEN_CREATE_SIMPLE_MESH_HPP
 
@@ -27,3 +37,4 @@ namespace moris
 }
 
 #endif //MORIS_FN_GEN_CREATE_SIMPLE_MESH_HPP
+

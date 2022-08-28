@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Side_Cluster.cpp
+ *
+ */
 
 #include "cl_MTK_Side_Cluster.hpp"
 #include "typedefs.hpp"
@@ -478,3 +487,4 @@ namespace moris
         // ----------------------------------------------------------------------------------
     }
 }
+

@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_FEM_CM_Spalart_Allmaras_Turbulence.cpp
+ *
+ */
 
 #include "catch.hpp"
 
@@ -278,7 +287,6 @@ TEST_CASE( "CM_Spalart_Allmaras_Turbulence", "[CM_Spalart_Allmaras_Turbulence]" 
                     //------------------------------------------------------------------------------
                     // evaluate dproductioncoeffdu
                     Matrix< DDRMat > tdproductioncoeffdu = tCMMasterSATurbulence->dproductioncoeffdu( tDofDerivative );
-
 
                     // traction
                     //------------------------------------------------------------------------------

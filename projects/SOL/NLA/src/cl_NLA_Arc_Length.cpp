@@ -1,10 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_NLA_Arc_Length.cpp
  *
- *  Created on: Mar 26, 2019
- *      Author: sonne
  */
-// moris includes
+
 #include "cl_Communication_Tools.hpp"
 //------------------------------------------------------------------------------
 // nla includes
@@ -488,3 +491,4 @@ void Arc_Length_Solver::set_my_time_solver_algorithm( std::shared_ptr< tsa::Time
 {
     mMyTimeSolverAlgorithm = aMyTimeSolverAlgorithm;
 }
+

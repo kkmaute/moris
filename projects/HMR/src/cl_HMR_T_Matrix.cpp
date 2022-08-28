@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_HMR_T_Matrix.cpp
  *
- *  Created on: Jun 23, 2019
- *      Author: schmidt
  */
+
 #include "cl_HMR_T_Matrix.hpp" //HMR/src
 
 #include <limits>
@@ -1333,7 +1337,6 @@ namespace moris
                     // epsilon for moris::real
                     long double tEpsilon = std::numeric_limits<real>::epsilon();
 
-
                     // loop over all points
                     for( uint k=1; k<=tN; ++k )
                     {
@@ -1418,7 +1421,6 @@ namespace moris
                     // values of polynomials
                     long double f1 = aX;               // P1
                     long double f0 = 0.5*( 3*tX2-1 );  // P2
-
 
                     if ( aIndex > 2 )
                     {
@@ -2477,3 +2479,4 @@ namespace moris
 
     } /* namespace hmr */
 } /* namespace moris */
+

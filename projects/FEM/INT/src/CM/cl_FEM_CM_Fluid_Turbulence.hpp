@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_CM_Fluid_Turbulence.hpp
+ *
+ */
+
 #ifndef SRC_FEM_CL_FEM_CM_FLUID_TURBULENCE_HPP_
 #define SRC_FEM_CL_FEM_CM_FLUID_TURBULENCE_HPP_
 
@@ -485,3 +495,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_FEM_CL_FEM_CM_FLUID_TURBULENCE_HPP_ */
+

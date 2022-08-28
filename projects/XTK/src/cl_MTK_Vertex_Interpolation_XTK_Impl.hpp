@@ -1,13 +1,15 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Vertex_Interpolation_XTK_Impl.hpp
  *
- *  Created on: Mar 8, 2019
- *      Author: doble
  */
 
 #ifndef PROJECTS_XTK_SRC_XTK_CL_MTK_VERTEX_INTERPOLATION_XTK_IMPL_HPP_
 #define PROJECTS_XTK_SRC_XTK_CL_MTK_VERTEX_INTERPOLATION_XTK_IMPL_HPP_
-
 
 #include "cl_Matrix.hpp"
 
@@ -22,7 +24,6 @@ namespace moris
 {
 namespace mtk
 {
-
 
 class Vertex_Interpolation_XTK: public Vertex_Interpolation
 {
@@ -110,7 +111,6 @@ public:
         return mCoefficients;
     }
 
-
     //------------------------------------------------------------------------------
 
     /**
@@ -142,5 +142,5 @@ private:
 }
 }
 
-
 #endif /* PROJECTS_XTK_SRC_XTK_CL_MTK_VERTEX_INTERPOLATION_XTK_IMPL_HPP_ */
+

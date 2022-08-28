@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_Matrix_Eigen_Dynamic.hpp
  *
- *  Created on: Aug 24, 2018
- *      Author: doble
  */
 
 #ifndef PROJECTS_LINALG_SRC_EIGEN_IMPL_CL_MATRIX_EIGEN_DYNAMIC_HPP_
@@ -56,7 +59,6 @@ namespace moris
             {
 
             }
-
 
             Matrix( size_t const & aNumEl):
                 mMatrix(aNumEl,1)
@@ -167,7 +169,6 @@ namespace moris
                 mMatrix.fill( aFillValue );
             }
 
-
             /**
              * Get the number of columns in a data set, similar to Matlab cols().
              *
@@ -252,7 +253,6 @@ namespace moris
                 size_t tCOLUMN_INDEX = 0;
                 mMatrix.col(aColumnIndex) = aColumn.matrix_data().col(tCOLUMN_INDEX);
             }
-
 
             void
             get_column(size_t aColumnIndex,
@@ -354,7 +354,6 @@ namespace moris
                 return val;
             }
 
-
             /**
              * @brief Overloaded moris::Matrix_Base::operator()
              *
@@ -431,7 +430,6 @@ namespace moris
                 return *this;
             }
 
-
             /**
              * Returns the length of a vector. Thows error neither rows nor cols are equal 1.
              */
@@ -462,5 +460,5 @@ namespace moris
     };
 }
 
-
 #endif /* PROJECTS_LINALG_SRC_EIGEN_IMPL_CL_MATRIX_EIGEN_DYNAMIC_HPP_ */
+

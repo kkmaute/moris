@@ -1,8 +1,11 @@
 /*
- * cl_FEM_SP_Spalart_Allmaras_Turbulence.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: May 19, 2020
- *  Author: noel
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_SP_SUPG_Spalart_Allmaras_Turbulence.hpp
+ *
  */
 
 #ifndef SRC_FEM_CL_FEM_SP_SUPG_SPALART_ALLMARAS_TURBULENCE_HPP_
@@ -190,3 +193,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_FEM_CL_FEM_SP_SPALART_ALLMARAS_TURBULENCE_HPP_ */
+

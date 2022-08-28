@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Mesh_Core.hpp
+ *
+ */
+
 #ifndef MORIS_CL_MTK_MESH_CORE_HPP_
 #define MORIS_CL_MTK_MESH_CORE_HPP_
 
@@ -99,15 +109,15 @@ namespace moris
             // ----------------------------------------------------------------------------
 
             virtual
-            void get_active_bg_element_indices_on_discretization_mesh_index_including_aura( 
-                    moris_index const aDiscretizationMeshIndex, 
+            void get_active_bg_element_indices_on_discretization_mesh_index_including_aura(
+                    moris_index const aDiscretizationMeshIndex,
                     Matrix< DDLUMat > & aElementIDs );
 
             // -----------------------------------------------------------------------------
 
             /**
              * @brief Get the lagrange elements within one bspline element
-             * 
+             *
              * @param aBspElementIndex index of the b-spline element
              * @param aDiscretizationMeshIndex discretization mesh index
              * @param aCells output: list of Lagrange elements as mtk::cells that sit inside the B-spline element
@@ -122,7 +132,7 @@ namespace moris
 
             /**
              * @brief Get the lagrange elements in the bspline elements for the whole mesh
-             * 
+             *
              * @param aDiscretizationMeshIndex discretization mesh index
              * @param aCells list of lists of Lagrange elements (mtk::cells) inside each B-spline element
              * @param aCellIndices list of lists of Lagrange elements (indices) inside each B-spline element
@@ -162,7 +172,7 @@ namespace moris
              *
              * @return Lagrange elements
              */
-            virtual void 
+            virtual void
             get_elements_in_bspline_element_and_side_ordinal(
                     moris_index const          aBsplineElementIndex,
                     moris_index const          aDiscretizationMeshIndex,
@@ -191,21 +201,21 @@ namespace moris
 
             /**
              * @brief Get the neighboring elements connected to a given element through a given side ordinal
-             * 
+             *
              * @param aElementIndex element wrt. which the neighbors are to be determined
              * @param aSideOrdinal index of side ordinal relative to the given element
-             * @param aMyRefineLevel 
-             * @param aMyOctreePosition 
+             * @param aMyRefineLevel
+             * @param aMyOctreePosition
              * @param aNeighborElements output: list of neighboring elements connected through the side ordinal
              * @param aNeighborSideOrdinals output: list of neighboring element's side ordinals
              * @param aTransitionLocations output: list of the transition locations for the facet connectivity
-             * @param aNeighborRefinementLevels 
+             * @param aNeighborRefinementLevels
              */
             virtual bool
             get_elements_connected_to_element_through_face_ord(
                     moris_index                 aBaseElementIndex,
                     moris_index                 aMySideOrdinal,
-                    moris_index&                aMyRefineLevel, 
+                    moris_index&                aMyRefineLevel,
                     moris::Cell< moris_index >& aNeighborElements,
                     moris::Cell< moris_index >& aNeighborElementSideOrdinals,
                     moris::Cell< moris_index >& aTransitionLocations,
@@ -214,7 +224,7 @@ namespace moris
                 MORIS_ERROR( false,
                     "mtk::Mesh::get_elements_connected_to_element_through_face_ord() - "
                     "Entered virtual function in Mesh base class; function is not implemented." );
-                
+
                 return false;
             }
 
@@ -237,7 +247,7 @@ namespace moris
              *
              * @return Number of sets
              */
-            virtual moris::uint get_num_sets() const; 
+            virtual moris::uint get_num_sets() const;
 
             virtual moris::mtk::Set * get_set_by_index( moris::uint aSetIndex ) const;
 
@@ -319,12 +329,12 @@ namespace moris
             virtual
             Matrix< IndexMat >
             get_elements_connected_to_element_and_face_ord_loc_inds(moris_index aElementIndex) const;
-            
+
             /**
              * @brief Since the connectivity between entities of the same rank are considered
              *        invalid by STK standards, we need a separate function for element to element
              *        specifically
-             * 
+             *
              * @param aElementIndex - index of Bg-cell for which connectivity is to be retrieved
              * @return Matrix< IndexMat > matrix containing connected elements and corresponding facets
              *         Format:  1st row are indices of other connected elements/cells
@@ -1319,61 +1329,60 @@ namespace moris
                         const moris_index aBasisIndex );
 #endif
 
-
                 /////////////////////////
                 // Accessor functions for the data base entities
                 /////////////////////////
 
                 //--------------------------------------------------------------------------------------------------------------
 
-                virtual moris_id 
+                virtual moris_id
                 get_entity_id( enum EntityRank aEntityRank,
                     moris_index                aEntityIndex ) const;
 
                 //--------------------------------------------------------------------------------------------------------------
 
-                virtual moris_id 
+                virtual moris_id
                 get_entity_owner( enum EntityRank aEntityRank,
                     moris_index                   aEntityIndex ) const;
 
                  //--------------------------------------------------------------------------------------------------------------
-                 
-                virtual uint 
+
+                virtual uint
                 get_local_mesh_index( const uint aBsplineMeshIndex );
 
                 //--------------------------------------------------------------------------------------------------------------
 
-                virtual moris_id* 
+                virtual moris_id*
                 get_basis_ids( moris_index aVertexIndex,
                     moris_index            aOrder );
 
                 //--------------------------------------------------------------------------------------------------------------
 
-                virtual moris_index* 
+                virtual moris_index*
                 get_basis_indicies( moris_index aVertexIndex,
                     moris_index                 aOrder );
 
                 //--------------------------------------------------------------------------------------------------------------
 
-                virtual real* 
+                virtual real*
                 get_basis_weights( moris_index aVertexIndex,
                     moris_index                aOrder ) ;
 
                 //--------------------------------------------------------------------------------------------------------------
 
-                virtual moris_id* 
+                virtual moris_id*
                 get_basis_owners( moris_index aVertexIndex,
                     moris_index               aOrder );
 
                 //--------------------------------------------------------------------------------------------------------------
 
-                virtual moris_index 
+                virtual moris_index
                 get_basis_length( moris_index aVertexIndex,
                     moris_index               aOrder ) ;
 
                 //--------------------------------------------------------------------------------------------------------------
 
-                virtual moris::real* 
+                virtual moris::real*
                 get_vertex_coords_ptr( moris_index aVertexIndex );
 
                 //--------------------------------------------------------------------------------------------------------------
@@ -1388,7 +1397,7 @@ namespace moris
 
                 //--------------------------------------------------------------------------------------------------------------
 
-                virtual mtk::Cell* 
+                virtual mtk::Cell*
                 get_ip_cell_in_cluster( enum ClusterType aClusterType,
                     moris_index                          aClusterIndex ) const;
 
@@ -1401,20 +1410,20 @@ namespace moris
 
                 //--------------------------------------------------------------------------------------------------------------
 
-                virtual uint 
+                virtual uint
                 get_num_cells_in_cluster( enum ClusterType aClusterType,
                     enum mtk::Primary_Void                 aPrimaryOrVoid,
                     moris_index                            aClusterIndex ) const;
 
                 //--------------------------------------------------------------------------------------------------------------
 
-                virtual moris_index* 
+                virtual moris_index*
                 get_side_ordinals_in_cluster( enum ClusterType aClusterType,
                     moris_index                                aClusterIndex ) const;
 
                 //--------------------------------------------------------------------------------------------------------------
 
-                virtual bool 
+                virtual bool
                 cluster_is_trivial( enum ClusterType aClusterType,
                     moris_index                      aClusterIndex ) const;
 
@@ -1459,7 +1468,6 @@ namespace moris
 
                 //--------------------------------------------------------------------------------------------------------------
 
-
                 virtual std::shared_ptr< mtk::Cell_Info >
                 get_cell_info_sp( moris_index aEntityIndex ) const;
         };
@@ -1467,3 +1475,4 @@ namespace moris
 }
 
 #endif /* MORIS_CL_MTK_MESH_CORE_HPP_ */
+

@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_ctrans.cpp
  *
- *  Created on: Aug 29, 2018
- *      Author: sonne
  */
+
 #include <catch.hpp>
 #include "fn_equal_to.hpp" // ALG/src
 #include "cl_Matrix.hpp"
@@ -36,7 +40,6 @@ TEST_CASE("moris::ctrans",
         REQUIRE( moris::equal_to( B( 2, 1 ),  4.0 ) );
         REQUIRE( moris::equal_to( B( 2, 2 ),  0.0 ) );
          }
-
 
     SECTION("ctrans on a complex mat")
         {

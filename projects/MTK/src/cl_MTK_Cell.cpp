@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Cell.cpp
  *
- *  Created on: Aug 17, 2020
- *      Author: kedo3694
  */
+
 #include "cl_MTK_Cell.hpp"
 #include "cl_MTK_Cell_Info.hpp"
 #include "cl_Matrix.hpp"
@@ -57,7 +61,7 @@ namespace moris
         {
             return mCellId;
         }
-        
+
         void
         Cell::set_id( const moris_id aId )
         {
@@ -83,7 +87,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         moris_index
-        Cell::get_index() const 
+        Cell::get_index() const
         {
             return mCellIndex;
         }
@@ -97,7 +101,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        
+
         moris_id
         Cell::get_owner() const
         {
@@ -444,3 +448,4 @@ namespace moris
        }
     }
 }
+

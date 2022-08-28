@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Integration_Coeffs_Tet_4.hpp
  *
- *  Created on: Apr 05, 2019
- *      Author: noel
  */
 
 #ifndef SRC_MTK_CL_MTK_INTEGRATION_COEFFS_TET_4_HPP_

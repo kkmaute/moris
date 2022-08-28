@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_XTK_Linear_Basis_Functions.hpp
  *
- *  Created on: Jul 17, 2017
- *      Author: ktdoble
  */
 
 #ifndef SRC_TOPOLOGY_CL_XTK_LINEAR_BASIS_FUNCTIONS_HPP_
@@ -32,3 +35,4 @@ namespace xtk
 }
 
 #endif /* SRC_TOPOLOGY_CL_XTK_LINEAR_BASIS_FUNCTIONS_HPP_ */
+

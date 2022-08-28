@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_generate_element_to_element_2D.hpp
  *
- *  Created on: Aug 6, 2019
- *      Author: ryan
  */
 
 #ifndef XTK_SRC_XTK_FN_GENERATE_ELEMENT_TO_ELEMENT_2D_HPP_
@@ -10,10 +13,8 @@
 
 #include "cl_Matrix.hpp"
 
-
 // Unordered Map Include
 #include <unordered_map>
-
 
 namespace xtk
 {
@@ -45,7 +46,6 @@ generate_element_to_element_2D(moris::Matrix< moris::IndexMat > const & aEdgeToE
 
     // Initialize a Counter to count how many neighbors a given element has which allows for easy input of information in element to element
     moris::Matrix< moris::IndexMat > tElementToElementCount(1,aNumElements,0);
-
 
     // Loop over all edges
     for(Integer i = 0; i < tNumEdges; i++)
@@ -94,8 +94,6 @@ generate_element_to_element_2D(moris::Matrix< moris::IndexMat > const & aEdgeToE
     return tElementToElement;
 }
 
-
-
 /*
  * Generates element to element connectivity from face to element connectivity for non sequential element indices in the face
  * to element connectivity. A dummy value is needed because not all faces have the same number of elements attached to them
@@ -126,7 +124,6 @@ generate_element_to_element_nonsequential(moris::Matrix< Integer_Matrix > const 
 
     // Initialize a Counter to count how many neighbors a given element has which allows for easy input of information in element to element
     moris::Matrix< Integer_Matrix > tElementToElementCount(1,aNumElements,0);
-
 
     // Loop over all faces
     for(Integer i = 0; i < tNumFaces; i++)
@@ -177,9 +174,6 @@ generate_element_to_element_nonsequential(moris::Matrix< Integer_Matrix > const 
 }
 */
 
-
-
 }
 #endif /* XTK_SRC_XTK_FN_GENERATE_ELEMENT_TO_ELEMENT_2D_HPP_ */
-
 

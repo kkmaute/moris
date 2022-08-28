@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_FEM_IWG_Compressible_NS_Bulk.cpp
+ *
+ */
+
 #include <string>
 #include <catch.hpp>
 #include <memory>
@@ -35,7 +45,7 @@ using namespace fem;
 TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
         "[IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive]" )
 {
-    
+
     // FD configuration
     //------------------------------------------------------------------------------
 
@@ -119,7 +129,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
             tMMFactory.create_MM( fem::Material_Type::PERFECT_GAS );
     tMMFluid->set_dof_type_list( {tPressureDof, tTempDof } );
     tMMFluid->set_property( tPropHeatCapacity, "IsochoricHeatCapacity" );
-    tMMFluid->set_property( tPropGasConstant,  "SpecificGasConstant" );    
+    tMMFluid->set_property( tPropGasConstant,  "SpecificGasConstant" );
 
     // define constitutive model and assign properties
     fem::CM_Factory tCMFactory;
@@ -228,7 +238,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
         tMMFluid->set_space_dim( iSpaceDim );
         tCMMasterFluid->set_space_dim( iSpaceDim );
 
-        // loop on the interpolation order //FIXME: ingnore cubic case for now 
+        // loop on the interpolation order //FIXME: ingnore cubic case for now
         for( uint iInterpOrder = 1; iInterpOrder < 3; iInterpOrder++ )
         {
             // output for debugging
@@ -254,32 +264,31 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
 
             // create time coeff tHat
             Matrix< DDRMat > tTHat = {{ 7.9 }, { 9.3 }};
-            
+
             Matrix< DDRMat > tXHat;
 
             // clang-format off
             if ( iSpaceDim == 2 )
             {
-                tXHat = { 
-                    { -0.4, -3.9 }, 
-                    {  2.4, -3.9 }, 
-                    {  2.4, -1.3 }, 
+                tXHat = {
+                    { -0.4, -3.9 },
+                    {  2.4, -3.9 },
+                    {  2.4, -1.3 },
                     { -0.4, -1.3 } };
             }
             else
             {
-                tXHat = { 
-                    { -0.4, -3.9, 1.2 }, 
-                    {  2.4, -3.9, 1.2 }, 
-                    {  2.4, -1.3, 1.2 }, 
+                tXHat = {
+                    { -0.4, -3.9, 1.2 },
+                    {  2.4, -3.9, 1.2 },
+                    {  2.4, -1.3, 1.2 },
                     { -0.4, -1.3, 1.2 },
-                    { -0.4, -3.9, 3.4 }, 
-                    {  2.4, -3.9, 3.4 }, 
-                    {  2.4, -1.3, 3.4 }, 
+                    { -0.4, -3.9, 3.4 },
+                    {  2.4, -3.9, 3.4 },
+                    {  2.4, -1.3, 3.4 },
                     { -0.4, -1.3, 3.4 } };
             }
             // clang-format on
-
 
             // set the coefficients xHat, tHat
             tGI.set_coeff( tXHat, tTHat );
@@ -335,7 +344,7 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
             fill_smooth_UHat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
             Matrix< DDRMat > tMasterDOFHatTemp;
             fill_smooth_TempHat( tMasterDOFHatTemp, iSpaceDim, iInterpOrder );
-            tMasterDOFHatTemp = trans( tMasterDOFHatTemp );                 
+            tMasterDOFHatTemp = trans( tMasterDOFHatTemp );
 
             // create a cell of field interpolators for IWG
             Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
@@ -430,13 +439,13 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
 
                 // for debug
                 // print( tIWG->mSet->mMasterFIManager->get_IP_geometry_interpolator()->valx(), "x-pos" );
-                // print( tIWG->mSet->mMasterFIManager->get_IP_geometry_interpolator()->valt(), "t-pos" ); 
+                // print( tIWG->mSet->mMasterFIManager->get_IP_geometry_interpolator()->valt(), "t-pos" );
 
                 // check evaluation of the residual for IWG
                 //------------------------------------------------------------------------------
                 // reset residual & jacobian
-                tIWG->mSet->mResidual( 0 ).fill( 0.0 );      
-                tIWG->mSet->mJacobian.fill( 0.0 );                  
+                tIWG->mSet->mResidual( 0 ).fill( 0.0 );
+                tIWG->mSet->mJacobian.fill( 0.0 );
 
                 // check evaluation of the jacobian by FD
                 //------------------------------------------------------------------------------
@@ -473,3 +482,4 @@ TEST_CASE( "IWG_Compressible_NS_Bulk_Perfect_Gas_Pressure_Primitive",
         }
     }
 }/*END_TEST_CASE*/
+

@@ -1,8 +1,11 @@
 /*
- * op_elemwise_div.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Sep 6, 2018
- *      Author: messe
+ *------------------------------------------------------------------------------------
+ *
+ * op_elemwise_div_Eigen.hpp
+ *
  */
 
 #ifndef PROJECTS_LINALG_SRC_EIGEN_IMPL_OP_ELEMWISE_DIV_EIGEN_HPP_
@@ -13,7 +16,6 @@
 
 namespace moris
 {
-
 
 //--------------------------------------------------------------------------------
 
@@ -52,3 +54,4 @@ namespace moris
 }
 
 #endif /* PROJECTS_LINALG_SRC_EIGEN_IMPL_OP_ELEMWISE_DIV_EIGEN_HPP_ */
+

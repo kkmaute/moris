@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_HMR_Mesh_Base.cpp
  *
- *  Created on: Jun 12, 2018
- *      Author: messe
  */
 
 #include "cl_HMR_Mesh_Base.hpp" //HMR/src
@@ -906,3 +909,4 @@ namespace moris
 
     } /* namespace hmr */
 } /* namespace moris */
+

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_SDF_Field.cpp
+ *
+ */
+
 #include "HDF5_Tools.hpp"
 #include "cl_SDF_Field.hpp"
 #include "SDF_Tools.hpp"
@@ -79,3 +89,4 @@ namespace moris
 //-------------------------------------------------------------------------------
     }
 }
+

@@ -1,8 +1,11 @@
 /*
- * cl_MTK_Integration_Coeffs_Tri_1.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jul 19, 2018
- *      Author: messe
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Integration_Coeffs_Tri_6.hpp
+ *
  */
 
 #ifndef SRC_MTK_CL_MTK_INTEGRATION_COEFFS_TRI_6_HPP_
@@ -88,3 +91,4 @@ namespace moris
     } /* namespace mtk */
 } /* namespace moris */
 #endif /* SRC_MTK_CL_MTK_INTEGRATION_COEFFS_TRI_6_HPP_ */
+

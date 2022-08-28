@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MDL_Model.hpp
  *
- *  Created on: Aug 22, 2018
- *      Author: messe
  */
 
 #ifndef PROJECTS_FEM_MDL_SRC_CL_MDL_MODEL_HPP_
@@ -12,7 +15,6 @@
 #include "cl_Cell.hpp"                        //MRS/CON/src
 
 #include "cl_Map.hpp"                        //MRS/CON/src
-
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
@@ -214,7 +216,6 @@ namespace moris
                  */
                 void initialize();
 
-
                 //------------------------------------------------------------------------------
                 /**
                  * set dof order
@@ -311,5 +312,5 @@ namespace moris
     } /* namespace mdl */
 } /* namespace moris */
 
-
 #endif /* PROJECTS_FEM_MDL_SRC_CL_MDL_MODEL_HPP_ */
+

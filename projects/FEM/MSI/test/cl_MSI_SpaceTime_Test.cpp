@@ -1,8 +1,11 @@
 /*
- * cl_MSI_Multigrid.cpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jul 14, 2018
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MSI_SpaceTime_Test.cpp
+ *
  */
 
 #include "catch.hpp"
@@ -179,5 +182,4 @@ TEST_CASE( "MSI_SPace_Time", "[moris],[MSI],[MSI_Space_Time]" )
 }/* TEST_CASE */
 }
 }
-
 

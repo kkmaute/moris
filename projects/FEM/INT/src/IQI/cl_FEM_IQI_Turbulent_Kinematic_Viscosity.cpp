@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_IQI_Turbulent_Kinematic_Viscosity.cpp
  *
- *  Created on: Jul 20, 2020
- *      Author: noel
  */
+
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IQI_Turbulent_Kinematic_Viscosity.hpp"
@@ -80,7 +84,7 @@ namespace moris
                     MORIS_ERROR( false, "IQI_Turbulent_Kinematic_Viscosity::set_dof_type_list - unknown master slave type." );
             }
         }
-        
+
         //------------------------------------------------------------------------------
 
         void IQI_Turbulent_Kinematic_Viscosity::compute_QI( Matrix< DDRMat > & aQI )
@@ -106,7 +110,6 @@ namespace moris
             // compute turbulent kinematic viscosity
             aQI = tPropDensity->val() * tFIModViscosity->val() * tFv1;
         }
-        
 
         //------------------------------------------------------------------------------
 
@@ -139,6 +142,4 @@ namespace moris
         //------------------------------------------------------------------------------
     }/* end_namespace_fem */
 }/* end_namespace_moris */
-
-
 

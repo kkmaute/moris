@@ -1,8 +1,11 @@
 /*
- * paths.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Apr 16, 2020
- *      Author: doble
+ *------------------------------------------------------------------------------------
+ *
+ * paths.hpp.in
+ *
  */
 
 #ifndef PROJECTS_MRS_COR_SRC_PATHS_HPP_
@@ -44,3 +47,4 @@ namespace moris
     }
 }
 #endif /* PROJECTS_MRS_COR_SRC_PATHS_HPP_ */
+

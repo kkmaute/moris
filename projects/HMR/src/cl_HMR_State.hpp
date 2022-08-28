@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_HMR_State.hpp
  *
- *  Created on: Sep 12, 2018
- *      Author: messe
  */
 
 #ifndef PROJECTS_HMR_SRC_CL_HMR_STATE_HPP_
@@ -27,5 +30,5 @@ namespace moris
     } /* namespace hmr */
 } /* namespace moris */
 
-
 #endif /* PROJECTS_HMR_SRC_CL_HMR_STATE_HPP_ */
+

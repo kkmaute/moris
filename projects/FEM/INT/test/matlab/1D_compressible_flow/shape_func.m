@@ -1,3 +1,10 @@
+%
+% Copyright (c) 2022 University of Colorado
+% Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+%
+%------------------------------------------------------------------------------------
+%
+
 %clear;
 %clc;
 
@@ -49,6 +56,7 @@ symvec = [ x y t xA xB yA yB t1 t2 ];
 numvec = [ a a a 0  1  0  1  0  1  ];
 
 BT_eval = double( subs( B', symvec, numvec ) )
+
 
 
 

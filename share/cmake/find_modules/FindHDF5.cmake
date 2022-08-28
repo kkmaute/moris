@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # HDF5 Find Module --------------------------------------------------------
 # -------------------------------------------------------------------------
 # NOTE: There is a FindHDF5.cmake file provided by the people at CMake, but
@@ -73,3 +80,4 @@ mark_as_advanced(HDF5_INCLUDE_DIRS
 	HDF5_hdf5 HDF5_fortran
 	HDF5_hl HDF5_hl_fortran
 	HDF5_LIBRARIES )
+

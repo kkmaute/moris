@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Integration_Mesh.hpp
  *
- *  Created on: Apr 15, 2019
- *      Author: doble
  */
 
 #ifndef PROJECTS_MTK_SRC_CL_MTK_INTEGRATION_MESH_HPP_
@@ -77,7 +80,7 @@ namespace moris
                 // ----------------------------------------------------------------------------
 
                 virtual
-                moris::uint 
+                moris::uint
                 get_num_sets() const;
 
                 // ----------------------------------------------------------------------------
@@ -85,7 +88,7 @@ namespace moris
                  * @brief Get mesh set by name
                  * @param[in] aSetLabel Set label
                  */
-                moris::mtk::Set * 
+                moris::mtk::Set *
                 get_set_by_name( std::string aSetLabel ) const;
 
                 // ----------------------------------------------------------------------------
@@ -93,7 +96,7 @@ namespace moris
                  * @brief Get set name by set index
                  * @param[in] aIndex Set index
                  */
-                moris::mtk::Set * 
+                moris::mtk::Set *
                 get_set_by_index( moris_index aIndex ) const;
 
                 // ----------------------------------------------------------------------------
@@ -102,7 +105,7 @@ namespace moris
                  * @param[in] aSetLabel Set label
                  * @return Set index
                  */
-                moris_index 
+                moris_index
                 get_set_index_by_name( std::string aSetLabel );
 
                 // ----------------------------------------------------------------------------
@@ -334,19 +337,19 @@ namespace moris
                 save_IG_node_TMatrices_to_file( std::string tFileName );
 
                 void
-                get_IG_to_IP_nodal_T_matrices( 
+                get_IG_to_IP_nodal_T_matrices(
                         moris::Cell< Matrix< IdMat  > > & aIGtoIPIds,
                         moris::Cell< Matrix< DDRMat > > & aIGtoIPWeights,
                         uint                             aSetIndex );
 
                 void
-                get_IP_to_BS_nodal_T_matrices( 
+                get_IP_to_BS_nodal_T_matrices(
                         moris::Cell< Matrix< IdMat  > > & aIPtoBSIds,
                         moris::Cell< Matrix< DDRMat > > & aIPtoBSWeights,
                         uint                             aSetIndex );
 
                 void
-                get_IG_to_BS_nodal_T_matrices( 
+                get_IG_to_BS_nodal_T_matrices(
                         moris::Cell< Matrix< IdMat  > > & aIGtoBSIds,
                         moris::Cell< Matrix< DDRMat > > & aIGtoBSWeights,
                         moris::Cell< Matrix< IdMat  > > & aIPtoBSIds,
@@ -356,8 +359,8 @@ namespace moris
 
                 uint get_max_IP_ID_on_set( uint aSetIndex );
 
-                void 
-                build_sparse_extraction_operator( 
+                void
+                build_sparse_extraction_operator(
                         moris::Cell< Matrix< IdMat > > & aIGtoBSIds,
                         moris::Cell< Matrix< DDRMat > > & aIGtoBSWeights,
                         Matrix< DDUMat > & aSparseIndices,
@@ -377,7 +380,6 @@ namespace moris
                 moris::Cell< moris::mtk::Set * > const &
                 get_list_of_sets( SetType aSetType = SetType::END_ENUM ) const;
 
-
                 // ----------------------------------------------------------------------------
                 /*!
                  * Returns the list of sets to colors based on the a set type specified
@@ -387,30 +389,28 @@ namespace moris
                 moris::Cell<moris::Cell<moris::mtk::Set *>> const &
                 get_list_of_set_to_color( SetType aSetType = SetType::END_ENUM ) const;
 
-
                 // ----------------------------------------------------------------------------
                 /*!
                  * Returns set name to index map
                  */
                 map< std::string, moris_index > const &
-                get_set_name_to_index_map() const ; 
-
+                get_set_name_to_index_map() const ;
 
                 // ----------------------------------------------------------------------------
                 /*!
                  * Returns max color
                  */
                 moris_index const &
-                get_max_color() const; 
+                get_max_color() const;
 
                 // ----------------------------------------------------------------------------
 
                 /**
                  * @brief deletes the ghost visualization sets including ghost block sets and side sets
-                 * 
+                 *
                  */
                 void
-                delete_visualization_sets(); 
+                delete_visualization_sets();
 
                 // ----------------------------------------------------------------------------
 
@@ -427,5 +427,5 @@ namespace moris
     }
 }
 
-
 #endif /* PROJECTS_MTK_SRC_CL_MTK_INTEGRATION_MESH_HPP_ */
+

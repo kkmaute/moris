@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_GEN_BSpline_Property.hpp
+ *
+ */
+
 #ifndef MORIS_CL_GEN_BSPLINE_PROPERTY_HPP
 #define MORIS_CL_GEN_BSPLINE_PROPERTY_HPP
 
@@ -39,7 +49,7 @@ namespace moris
              * @param aADVOffsetID Offset in the owned ADV IDs for pulling ADV IDs
              * @param aMeshPair The mesh pair where the discretization information can be obtained
              * @param aProperty Property for initializing the B-spline level set discretization
-             * @param aFiled Field that will be used to obtain the coefficients directly 
+             * @param aFiled Field that will be used to obtain the coefficients directly
              */
             BSpline_Property(
                     sol::Dist_Vector*           aOwnedADVs,
@@ -54,3 +64,4 @@ namespace moris
 }
 
 #endif //MORIS_CL_GEN_BSPLINE_PROPERTY_HPP
+

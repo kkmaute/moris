@@ -1,9 +1,18 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MIG_Periodic_3D.cpp
+ *
+ */
+
 #include "cl_MIG_Periodic_3D.hpp"
 
 #include "cl_MTK_Set.hpp"
 #include "cl_MTK_Cluster.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
-
 
 #include "cl_MTK_Side_Cluster.hpp"
 #include "typedefs.hpp"
@@ -144,7 +153,6 @@ namespace moris::mig
                 tSideClusters2.append( tSetClusters );
             }
 
-
             // loop over the background cells in order to cut the matching pairs
             for ( const auto &tIter : mBackgroundCellToSideClusterMap1( tPairCount ) )
             {
@@ -200,7 +208,6 @@ namespace moris::mig
 
                             tSurfaceCoordMatrix.get_row( 0 ) = t3DcoordMatrix.get_row( tPermutationOrder.first );
                             tSurfaceCoordMatrix.get_row( 1 ) = t3DcoordMatrix.get_row( tPermutationOrder.second );
-
 
                             // sort them counter clock wise in order to be treated the same as other coordinates
                             this->SortandRemove( tSurfaceCoordMatrix );
@@ -551,9 +558,7 @@ namespace moris::mig
         // generate the slave vertex data
         this->create_slave_vertices( tPhysicalCoordinates3D, aInterpCell2, aPairCount, tCoordinatesTop );
 
-
         tic tTimerCell;
-
 
         //////loop to determine number of the cells created
         uint tNumCellsOnOneSide = 0;
@@ -577,7 +582,6 @@ namespace moris::mig
         mSideClusterToCells( mNumSideClusters ).resize( tNumCellsOnOneSide );
         mSideClusterToCells( mNumSideClusters + 1 ).resize( tNumCellsOnOneSide );
 
-
         std::iota( mSideClusterToCells( mNumSideClusters ).begin(),
             mSideClusterToCells( mNumSideClusters ).end(),
             mNumCells );
@@ -588,7 +592,6 @@ namespace moris::mig
 
         mCellToVertexIndices( mNumSideClusters ).reserve( tNumCellsOnOneSide * 4 );
         mCellToVertexIndices( mNumSideClusters + 1 ).reserve( tNumCellsOnOneSide * 4 );
-
 
         // initialize master,slave side IG cells
         // moris::Cell< moris::mtk::Cell const * > tMasterIntegCells;
@@ -619,7 +622,6 @@ namespace moris::mig
                     // master IG cell
                     this->create_master_ig_cell( tTmpVertexIndex, aInterpCell1, aPairCount );
 
-
                     // slave IG cell
                     this->create_slave_ig_cell( tTmpVertexIndex, aInterpCell2, aPairCount );
                 }
@@ -629,12 +631,10 @@ namespace moris::mig
                 // master IG cells
                 this->create_master_ig_cell( tPVertexIndex( tClusterNum ), aInterpCell1, aPairCount );
 
-
                 // slave IG cells
                 this->create_slave_ig_cell( tPVertexIndex( tClusterNum ), aInterpCell2, aPairCount );
             }
         }
-
 
         mVertexParametricCoords( { mNumParamCoords, mNumParamCoords + tUniqueIntersectedPoints.n_cols() - 1 }, { 0, 2 } )                                         = tParametricCoordinates3D.matrix_data();
         mVertexParametricCoords( { mNumParamCoords + tUniqueIntersectedPoints.n_cols(), mNumParamCoords + 2 * tUniqueIntersectedPoints.n_cols() - 1 }, { 0, 2 } ) = tSlaveParametricCoordinates3D.matrix_data();
@@ -656,7 +656,6 @@ namespace moris::mig
         // increase the count of double sided cluster
         mNumDblSideCluster++;
     }
-
 
     //------------------------------------------------------------------------------------------------------------
 
@@ -899,7 +898,6 @@ namespace moris::mig
         std::iota( mSideClusterToVertexIndices( mNumSideClusters + 1 ).begin(),
             mSideClusterToVertexIndices( mNumSideClusters + 1 ).end(),
             mNumVertices );
-
 
         for ( uint i = 0; i < tNumSurfaceNodes; i++ )
         {
@@ -1158,10 +1156,10 @@ namespace moris::mig
             this->generate_identifier( tSideClusters2, tPairCount, mBackgroundCellToSideClusterMap2( tPairCount ) );
 
             for ( const auto & tKeyValue : mBackgroundCellToSideClusterMap1( iCounter ) )
-            {   
+            {
                 auto iIJK = tKeyValue.first;
                 auto iClusterIndices = tKeyValue.second;
-            
+
                 tNumDoubleSidedClusters += iClusterIndices.size() * mBackgroundCellToSideClusterMap2( iCounter )[iIJK].size();
             }
 
@@ -1171,7 +1169,6 @@ namespace moris::mig
             {
                 tNumVertices1 += iCluster->get_num_vertices_in_cluster() + 1;
             }
-                
 
             //number of vertices on the left side
             uint tNumVertices2 = 0;
@@ -1179,7 +1176,7 @@ namespace moris::mig
             {
                 tNumVertices2 += iCluster->get_num_vertices_in_cluster() + 1;
             }
-            
+
             //accumulate the vertices size
             tNumVertices += ( 2 * std::max( tNumVertices2, tNumVertices1 ) );
         }
@@ -1198,7 +1195,6 @@ namespace moris::mig
         mVerticesCoords.set_size( 3, tNumVertices );
         mVertexParametricCoords.set_size( tNumVertices, 3 );
     }
-
 
     void
     Periodic_3D::EdgeIntersect(
@@ -1386,7 +1382,6 @@ namespace moris::mig
 
         this->PointsXInY( aFirstTRICoords, aSecondTRICoords, P1 );
 
-
         if ( P1.n_cols() > 1 )
         {
             aIntersectVec.set_size( 1, 3, 1 );
@@ -1402,3 +1397,4 @@ namespace moris::mig
     }
 
 }// namespace moris::mig
+

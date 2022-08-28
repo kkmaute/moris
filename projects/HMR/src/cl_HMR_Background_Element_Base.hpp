@@ -1,8 +1,11 @@
 /*
- * clHMRElement.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: May 8, 2018
- *      Author: messe
+ *------------------------------------------------------------------------------------
+ *
+ * cl_HMR_Background_Element_Base.hpp
+ *
  */
 
 #ifndef SRC_HMR_CL_HMR_BACKGROUND_ELEMENT_BASE_HPP_
@@ -74,7 +77,6 @@ namespace moris
             //! Tells if an element is flagged for refinement
             bool                        mRefinementQueueFlag = false;
 
-
             //! global index in whole domain ( all procs), depends on pattern ( only active elements )
             //! access using get_hmr_index( const uint aPattern )
             //! same as get_id() - 1
@@ -133,7 +135,6 @@ namespace moris
             {
                 return mDomainID;
             }
-
 
 //--------------------------------------------------------------------------------
             /**
@@ -1006,7 +1007,6 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-
             /**
              * explicitly sets the minumum refinement level.
              */
@@ -1050,3 +1050,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_MESH_CL_HMR_ELEMENT_HPP_ */
+

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * WRK_Input_1.cpp
+ *
+ */
+
 #include <string>
 #include <iostream>
 #include "typedefs.hpp"
@@ -17,10 +27,8 @@
 #include "fn_PRM_XTK_Parameters.hpp"
 #include "fn_PRM_OPT_Parameters.hpp"
 
-
 #include "cl_DLA_Linear_Solver_Aztec.hpp"
 #include "AztecOO.h"
-
 
 #ifdef  __cplusplus
 extern "C"
@@ -298,7 +306,6 @@ extern "C"
             tParameterlist( 0 )( 0 ).set( "multigrid", false );
         }
 
-
         void MSIParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
         {
             tParameterlist.resize( 1 );
@@ -387,8 +394,6 @@ extern "C"
 
         }
 
-
-
         //------------------------------------------------------------------------------
     }
 
@@ -396,3 +401,4 @@ extern "C"
 #ifdef  __cplusplus
 }
 #endif
+

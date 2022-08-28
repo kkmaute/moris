@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # MRS ---------------------------------------------------------------------
 # -------------------------------------------------------------------------
 
@@ -8,3 +15,4 @@ add_subdirectory(${CON})
 add_subdirectory(${COR})
 add_subdirectory(${EXC})
 add_subdirectory(${IOS})
+

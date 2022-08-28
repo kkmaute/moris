@@ -1,9 +1,13 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_IQI_L2_Error_Analytic.cpp
  *
- *  Created on: Feb 2, 2020
- *      Author: noel
  */
+
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IQI_L2_Error_Analytic.hpp"
@@ -93,3 +97,4 @@ namespace moris
         //------------------------------------------------------------------------------
     }    // namespace fem
 }    // namespace moris
+

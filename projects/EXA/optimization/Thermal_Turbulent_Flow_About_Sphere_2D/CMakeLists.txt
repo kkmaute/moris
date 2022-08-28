@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 set(EXAMPLE_MAIN Main_Thermal_Turbulent_Flow_About_Sphere_2D)
 set(EXAMPLE_FILE ChannelTurbulent2D)
 set(EXAMPLE_PROCS 1 3)
@@ -91,3 +98,4 @@ if(MORIS_HAVE_PARALLEL_TESTS)
                  COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS_EXA} $<TARGET_FILE:${EXAMPLE_MAIN}>)
     endforeach()
 endif()
+

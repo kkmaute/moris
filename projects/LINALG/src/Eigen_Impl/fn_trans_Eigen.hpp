@@ -1,8 +1,11 @@
 /*
- * op_trans_Eigen.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Aug 27, 2018
- *      Author: doble
+ *------------------------------------------------------------------------------------
+ *
+ * fn_trans_Eigen.hpp
+ *
  */
 
 #ifndef PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_TRANS_EIGEN_HPP_
@@ -33,5 +36,5 @@ trans( Eigen::MatrixBase<ET> &  A)
 
 }}
 
-
 #endif /* PROJECTS_LINALG_SRC_EIGEN_IMPL_FN_TRANS_EIGEN_HPP_ */
+

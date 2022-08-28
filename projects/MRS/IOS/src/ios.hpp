@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * ios.hpp
+ *
+ */
+
 #ifndef MORIS_IOS_HPP_
 #define MORIS_IOS_HPP_
 
@@ -22,3 +32,4 @@ const moris::size_t MORIS_LINE_MAX     = 255;
 #include "fn_to_stdio.hpp"
 
 #endif /* MORIS_IOS_HPP_ */
+

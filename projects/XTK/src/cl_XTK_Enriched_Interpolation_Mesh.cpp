@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_XTK_Enriched_Interpolation_Mesh.cpp
  *
- *  Created on: Jul 10, 2019
- *      Author: doble
  */
 
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
@@ -3074,7 +3077,6 @@ namespace xtk
 
     // ----------------------------------------------------------------------------
 
-
     void
     Enriched_Interpolation_Mesh::override_maps()
     {
@@ -3163,3 +3165,4 @@ namespace xtk
     }
 
 }    // namespace xtk
+

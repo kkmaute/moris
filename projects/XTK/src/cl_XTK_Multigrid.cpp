@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_XTK_Multigrid.cpp
  *
- *  Created on: Feb 18, 2019
- *      Author: Schmidt
  */
 
 #include "cl_XTK_Multigrid.hpp"
@@ -407,3 +410,4 @@ namespace xtk
         //        print( mEnrichedBasisCoords,"mEnrichedBasisCoords");
     }
 }    // namespace xtk
+

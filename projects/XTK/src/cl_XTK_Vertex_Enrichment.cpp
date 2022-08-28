@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_XTK_Vertex_Enrichment.cpp
  *
- *  Created on: Jul 11, 2019
- *      Author: doble
  */
 
 #include "cl_XTK_Vertex_Enrichment.hpp"
@@ -59,7 +62,6 @@ Vertex_Enrichment::add_basis_information( moris::Matrix<moris::IndexMat> const &
 
     MORIS_ASSERT(tUniqueBasis.numel() == aBasisIndices.numel(), "duplicate basis indices detected" );
 #endif
-
 
     // num basis
     moris::uint tNumBasis = aBasisIndices.numel();
@@ -221,5 +223,4 @@ Vertex_Enrichment::capacity()
 //------------------------------------------------------------------------------
 
 }
-
 

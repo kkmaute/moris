@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_SDF_Vertex.cpp
+ *
+ */
+
 #include "cl_SDF_Vertex.hpp"
 #include "cl_SDF_Cell.hpp"
 #include "cl_SDF_Triangle.hpp"
@@ -47,7 +57,6 @@ namespace moris
         }
 
 //-------------------------------------------------------------------------------
-
 
         void
         Vertex::insert_cell( Cell * aCell )
@@ -113,3 +122,4 @@ namespace moris
 
     } /* namespace sdf */
 } /* namespace moris */
+

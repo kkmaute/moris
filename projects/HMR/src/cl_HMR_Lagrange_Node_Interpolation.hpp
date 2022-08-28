@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_HMR_Lagrange_Node_Interpolation.hpp
  *
- *  Created on: Sep 17, 2018
- *      Author: messe
  */
 
 #ifndef PROJECTS_HMR_SRC_CL_HMR_LAGRANGE_NODE_INTERPOLATION_HPP_
@@ -59,7 +62,6 @@ namespace moris
              */
             moris::Cell< mtk::Vertex* > & get_coefficients();
 
-
 // ----------------------------------------------------------------------------
 
             /**
@@ -107,6 +109,5 @@ namespace moris
     }
 }
 
-
-
 #endif /* PROJECTS_HMR_SRC_CL_HMR_LAGRANGE_NODE_INTERPOLATION_HPP_ */
+

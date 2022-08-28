@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_XTK_Integration_Mesh_Generator.hpp
+ *
+ */
+
 #ifndef MORIS_CL_XTK_Integration_Mesh_Generator_HPP_
 #define MORIS_CL_XTK_Integration_Mesh_Generator_HPP_
 
@@ -1001,3 +1011,4 @@ namespace xtk
 }    // namespace xtk
 
 #endif
+

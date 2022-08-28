@@ -1,13 +1,15 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * op_less.hpp
  *
- *  Created on: Aug 29, 2018
- *      Author: doble
  */
 
 #ifndef PROJECTS_LINALG_SRC_OP_LESS_HPP_
 #define PROJECTS_LINALG_SRC_OP_LESS_HPP_
-
 
 #ifdef MORIS_USE_EIGEN
 #include "Eigen_Impl/op_less_Eigen.hpp"
@@ -71,6 +73,5 @@ namespace moris
 
 }
 
-
-
 #endif /* PROJECTS_LINALG_SRC_OP_LESS_HPP_ */
+

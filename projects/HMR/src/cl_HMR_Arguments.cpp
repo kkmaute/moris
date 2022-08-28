@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_HMR_Arguments.cpp
+ *
+ */
+
 #include "cl_HMR_Arguments.hpp"
 
 #include <cstdlib>
@@ -170,3 +180,4 @@ namespace moris
 //---------------------------------------------------------------------------------
     }
 }
+

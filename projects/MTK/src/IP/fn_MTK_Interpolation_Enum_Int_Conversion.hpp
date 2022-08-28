@@ -1,9 +1,13 @@
-/**
- * fn_MTK_Interpolation_Enum_Int_Conversion.hpp  
- * 
- *  Created on: Nov  18, 2021 
- *      Author: Nils Wunsch
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * fn_MTK_Interpolation_Enum_Int_Conversion.hpp
+ *
  */
+
 #ifndef SRC_fn_MTK_Interpolation_Enum_Int_Conversion
 #define SRC_fn_MTK_Interpolation_Enum_Int_Conversion
 
@@ -98,6 +102,5 @@ namespace mtk
     //------------------------------------------------------------------------------
 }// namespace mtk
 }// namespace moris
-
 
 #endif /* fn_MTK_Interpolation_Enum_Int_Conversion.hpp */

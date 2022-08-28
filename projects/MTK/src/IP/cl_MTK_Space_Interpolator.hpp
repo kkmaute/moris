@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Space_Interpolator.hpp
  *
- *  Created on: Jan 11, 2019
- *      Author: gates
  */
 
 #ifndef SRC_MTK_CL_MTK_SPACE_INTERPOLATOR_HPP_
@@ -527,7 +530,6 @@ namespace moris
                  * @param[ out ] aX   location in space
                  */
                 const Matrix< DDRMat > & valx();
-
 
                 //------------------------------------------------------------------------------
                 /**

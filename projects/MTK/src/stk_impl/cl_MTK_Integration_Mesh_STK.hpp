@@ -1,7 +1,11 @@
-/* cl_MTK_Integration_Mesh_STK.hpp
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Apr 15, 2019
- *      Author: doble
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Integration_Mesh_STK.hpp
+ *
  */
 
 #ifndef PROJECTS_MTK_SRC_STK_IMPL_CL_MTK_INTEGRATION_MESH_STK_HPP_
@@ -256,3 +260,4 @@ namespace moris
 }    // namespace moris
 
 #endif /* PROJECTS_MTK_SRC_STK_IMPL_CL_MTK_INTEGRATION_MESH_STK_HPP_ */
+

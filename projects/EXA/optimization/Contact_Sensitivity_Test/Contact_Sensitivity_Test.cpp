@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * Contact_Sensitivity_Test.cpp
+ *
+ */
+
 #include <string>
 #include <iostream>
 #include "typedefs.hpp"
@@ -34,7 +44,7 @@ extern moris::uint gLagrMeshInterpolationOrder;
 // problem dimension: 2D or 3D
 extern moris::uint gDim;
 
-// use Bspline parameterization or primitives 
+// use Bspline parameterization or primitives
 extern bool gUseBspline;
 
 // test case index
@@ -695,7 +705,7 @@ namespace moris
         }
 
         if ( tUseContact )
-        {        
+        {
             tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   std::string("IWGMaterial12Interface") );
             tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_CONTACT_UNSYMMETRIC_NITSCHE ) );
@@ -856,7 +866,7 @@ namespace moris
         tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::BELOS_IMPL );
 
         // Solver type: GMRES, Flexible GMRES, Block CG , PseudoBlockCG, Stochastic CG, Recycling GMRES, Recycling CG, MINRES, LSQR, TFQMR
-        //              Pseudoblock TFQMR, Seed GMRES, Seed CG    
+        //              Pseudoblock TFQMR, Seed GMRES, Seed CG
         tParameterlist( 0 )( 0 ).set( "Solver Type" ,  "GMRES" );
 
         // Diagnostics: Belos::Errors + Belos::Warnings + Belos::TimingDetails + Belos::StatusTestDetails
@@ -939,7 +949,7 @@ namespace moris
         //--------------------------GMRES specific solver parameters--------------------------------------------------------------------------
         // Set AZ_kspace
         // Krylov subspace size for restarted GMRES
-        // Setting mKrylovSpace larger improves the robustness, decreases iteration count, but increases memory consumption. 
+        // Setting mKrylovSpace larger improves the robustness, decreases iteration count, but increases memory consumption.
         // For very difficult problems, set it equal to the maximum number of iterations.
         tParameterlist( 0 )( 0 ).set( "AZ_kspace" ,500 );
 
@@ -948,12 +958,12 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "AZ_orthog" , AZ_classic );
 
         // Set AZ_rthresh
-        // Parameter used to modify the relative magnitude of the diagonal entries of the matrix that is used to compute 
+        // Parameter used to modify the relative magnitude of the diagonal entries of the matrix that is used to compute
         // any of the incomplete factorization preconditioners
         tParameterlist( 0 )( 0 ).set( "AZ_rthresh" ,  0.0 );
 
         // Set AZ_athresh
-        // Parameter used to modify the absolute magnitude of the diagonal entries of the matrix that is used to compute 
+        // Parameter used to modify the absolute magnitude of the diagonal entries of the matrix that is used to compute
         // any of the incomplete factorization preconditioners
         tParameterlist( 0 )( 0 ).set( "AZ_athresh" ,  0.0 );
 
@@ -985,7 +995,7 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "ifpack_prec_type",  "ILU");
         tParameterlist( 0 )( 0 ).set( "fact: level-of-fill",  3 );
 
-        tParameterlist( 0 )( 0 ).set( "prec_reuse" ,     false );        
+        tParameterlist( 0 )( 0 ).set( "prec_reuse" ,     false );
          */
 
         tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
@@ -1069,3 +1079,4 @@ namespace moris
 #ifdef  __cplusplus
 }
 #endif
+

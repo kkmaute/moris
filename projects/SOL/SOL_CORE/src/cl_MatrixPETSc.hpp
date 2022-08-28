@@ -1,9 +1,13 @@
 /*
- * MatrixPETSc.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Dec 5, 2018
- *      Author: schmidt
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MatrixPETSc.hpp
+ *
  */
+
 #ifndef SRC_DISTLINALG_CL_MATRIXPETSC_HPP_
 #define SRC_DISTLINALG_CL_MATRIXPETSC_HPP_
 
@@ -123,3 +127,4 @@ public:
 }
 
 #endif /* SRC_DISTLINALG_CL_MATRIXPETSC_HPP_ */
+

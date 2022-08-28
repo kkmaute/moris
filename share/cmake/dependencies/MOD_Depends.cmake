@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # Model Dependencies ------------------------------------------------------
 # -------------------------------------------------------------------------
 
@@ -15,4 +22,5 @@ list(APPEND MORIS_SOURCE_DIRS ${MOD})
 set(MOD_TPL_DEPENDENCIES
     ""
     )
+
 

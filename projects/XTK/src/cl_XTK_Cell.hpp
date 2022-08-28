@@ -1,10 +1,13 @@
-///*
-// * cl_XTK_Cell.hpp
-// *
-// *  Created on: Jun 12, 2017
-// *      Author: ktdoble
-// */
-//
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_XTK_Cell.hpp
+ *
+ */
+
 //#ifndef SRC_CONTAINERS_CL_XTK_CELL_HPP_
 //#define SRC_CONTAINERS_CL_XTK_CELL_HPP_
 //
@@ -323,3 +326,4 @@
 //
 //
 //#endif /* SRC_CONTAINERS_CL_XTK_CELL_HPP_ */
+

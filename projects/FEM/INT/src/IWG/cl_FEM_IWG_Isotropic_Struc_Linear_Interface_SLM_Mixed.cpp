@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_IWG_Isotropic_Struc_Linear_Interface_SLM_Mixed.cpp
+ *
+ */
 
 #include "cl_FEM_IWG_Isotropic_Struc_Linear_Interface_SLM_Mixed.hpp"
 
@@ -67,7 +76,6 @@ namespace moris
             Field_Interpolator* tFIDisplSlave =
                     mSlaveFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX );
 
-
             // get the property youngsmodulus Master
             const std::shared_ptr< Property > & tPropYoungsMaster =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::YOUNGS_MODULUS_MASTER ) );
@@ -75,7 +83,6 @@ namespace moris
             // get the property youngsmodulus Slave
             const std::shared_ptr< Property > & tPropYoungsSlave =
             		mMasterProp( static_cast< uint >( IWG_Property_Type::YOUNGS_MODULUS_SLAVE ) );
-
 
             // evaluate displacement jump
             const auto tDisplJump = tFIDisplMaster->val() - tFIDisplSlave->val();
@@ -224,3 +231,4 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
+

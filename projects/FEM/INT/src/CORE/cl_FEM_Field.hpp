@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_FEM_Field.hpp
  *
- *  Created on: Jan 19, 2021
- *      Author: schmidt
  */
 
 #ifndef PROJECTS_HMR_SRC_CL_FEM_FIELD_HPP_
@@ -45,7 +48,6 @@ namespace moris
 
                 // ! bool indicating if field shall be populated with the help of an IQI
                 bool                 mPopulateFieldWithIQI = false;
-
 
                 //------------------------------------------------------------------------------
             public :
@@ -140,3 +142,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* PROJECTS_HMR_SRC_CL_FEM_FIELD_HPP_ */
+

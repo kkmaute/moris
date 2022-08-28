@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # MKL Find Module ---------------------------------------------------------
 # -------------------------------------------------------------------------
 
@@ -89,3 +96,4 @@ _import_libraries(MKL_LIBRARY_TARGETS "${MKL_LIBRARIES}")
 
 add_library(MKL::mkl INTERFACE IMPORTED GLOBAL)
 target_link_libraries(MKL::mkl INTERFACE ${MKL_LIBRARY_TARGETS})
+

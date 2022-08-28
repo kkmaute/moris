@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 // This file is used to define the module structure.
 // Except for developer modules, this file should include the definition of all 
 top-level modules
@@ -603,3 +610,4 @@ The highest level time solver has a global time. A map between the global and lo
 
 
 }
+

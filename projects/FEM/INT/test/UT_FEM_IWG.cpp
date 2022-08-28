@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_FEM_IWG.cpp
+ *
+ */
+
 #include <memory>
 #include "catch.hpp"
 #include "fn_equal_to.hpp"
@@ -226,3 +236,4 @@ namespace moris
 
     }/* namespace fem */
 }/* namespace moris */
+

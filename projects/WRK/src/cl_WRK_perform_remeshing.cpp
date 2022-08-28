@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_WRK_perform_remeshing.cpp
+ *
+ */
 
 #include "cl_HMR.hpp"
 #include "cl_HMR_Mesh.hpp"
@@ -990,3 +999,4 @@ namespace moris
 
     }    // namespace wrk
 }    // namespace moris
+

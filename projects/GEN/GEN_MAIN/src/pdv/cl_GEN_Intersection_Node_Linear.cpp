@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_GEN_Intersection_Node_Linear.cpp
+ *
+ */
+
 #include "cl_GEN_Intersection_Node_Linear.hpp"
 #include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Interpolation.hpp"
@@ -139,3 +149,4 @@ namespace moris
 
     }    // namespace ge
 }    // namespace moris
+

@@ -1,8 +1,11 @@
 /*
- * cl_MPI_Comm_Manager.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Mar 21, 2018
- *      Author: doble
+ *------------------------------------------------------------------------------------
+ *
+ * cl_Communication_Manager.hpp
+ *
  */
 
 #ifndef SRC_MPI_CL_COMMUNICATION_MANAGER_HPP_
@@ -38,12 +41,10 @@ namespace moris
         */
         Comm_Manager(MPI_Comm & aComm);
 
-
         /**
          * Default Destructor
          */
         ~Comm_Manager();
-
 
         /**
          * Initialize the communicator
@@ -99,7 +100,6 @@ namespace moris
         void
         finalize();
 
-
         /**
          * return the path of the running executable
          */
@@ -118,5 +118,5 @@ namespace moris
 
 }
 
-
 #endif /* SRC_MPI_CL_COMMUNICATION_MANAGER_HPP_ */
+

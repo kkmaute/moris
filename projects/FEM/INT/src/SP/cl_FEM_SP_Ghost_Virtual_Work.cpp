@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_FEM_SP_Ghost_Virtual_Work.cpp
+ *
+ */
 
 #include "cl_FEM_SP_Ghost_Virtual_Work.hpp" //FEM/INT/src
 #include "cl_FEM_Cluster.hpp"              //FEM/INT/src
@@ -56,5 +65,4 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-
 

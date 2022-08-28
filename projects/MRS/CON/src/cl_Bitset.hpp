@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_Bitset.hpp
+ *
+ */
+
 #ifndef SRC_CONTAINERS_CL_BITSET_HPP_
 #define SRC_CONTAINERS_CL_BITSET_HPP_
 
@@ -207,5 +217,5 @@ namespace moris
     };
 }
 
-
 #endif /* SRC_CONTAINERS_CL_BITSET_HPP_ */
+

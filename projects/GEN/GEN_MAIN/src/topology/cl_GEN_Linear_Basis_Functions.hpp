@@ -1,8 +1,11 @@
 /*
- * cl_XTK_Linear_Basis_Functions.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jul 17, 2017
- *      Author: ktdoble
+ *------------------------------------------------------------------------------------
+ *
+ * cl_GEN_Linear_Basis_Functions.hpp
+ *
  */
 
 #ifndef PROJECTS_GEN_SRC_NEW_ADDITIONAL_CL_GEN_LINEAR_BASIS_FUNCTIONS_HPP_
@@ -31,10 +34,9 @@ public:
         aBasisFunctionValues(0,1) = 0.5*(1+tXi);
     }
 
-
 };
 }
 }
 
-
 #endif /* PROJECTS_GEN_SRC_NEW_ADDITIONAL_CL_GEN_LINEAR_BASIS_FUNCTIONS_HPP_ */
+

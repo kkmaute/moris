@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # -----------------------------------------------------------------------------
 # MPI libraries and includes --------------------------------------------------
 # -----------------------------------------------------------------------------
@@ -60,4 +67,5 @@ if(NOT TARGET ${MORIS}::mpi)
 	add_library(${MORIS}::mpi INTERFACE IMPORTED GLOBAL)
 	target_link_libraries(${MORIS}::mpi INTERFACE ${MPI_LIBRARY_TARGETS})
 endif()
+
 

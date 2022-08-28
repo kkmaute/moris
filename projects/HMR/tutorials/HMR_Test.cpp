@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * HMR_Test.cpp
+ *
+ */
 
 #define CATCH_CONFIG_RUNNER
 #include "catch.hpp"
@@ -13,7 +22,6 @@
 #include "op_times.hpp" //LINALG/src
 #include "fn_norm.hpp"
 
-
 #include "cl_HMR_Parameters.hpp" //HMR/src
 #include "cl_HMR_Element.hpp" //HMR/src
 #include "cl_HMR_Background_Mesh_Base.hpp" //HMR/src
@@ -26,12 +34,9 @@
 #undef protected
 #undef private
 
-
 // select namespaces
 using namespace moris;
 using namespace hmr;
-
-
 
 //------------------------------------------------------------------------------
 // create communicator
@@ -162,3 +167,4 @@ main(
 //
 //    return 0;
 }
+

@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Intersec_Mesh_Data.hpp
  *
- *  Created on: Jun 19, 2021
- *      Author: momo
  */
 
 #ifndef PROJECTS_MTK_SRC_CL_MTK_INTERSEC_MESH_DATA_HPP_
@@ -18,11 +21,8 @@
 // XTKL: Containers
 #include "cl_Cell.hpp"
 
-
 // XTKL: Linear Algebra Includes
 #include "cl_MPI_Tools.hpp"
-
-
 
 #include "assert.hpp"
 namespace moris
@@ -362,6 +362,5 @@ namespace moris
     }
 }
 
-
-
 #endif /* PROJECTS_MTK_SRC_CL_MTK_INTERSEC_MESH_DATA_HPP_ */
+

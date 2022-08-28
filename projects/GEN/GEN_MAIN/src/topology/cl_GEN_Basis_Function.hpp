@@ -1,8 +1,11 @@
 /*
- * cl_XTK_Basis_Function.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jul 17, 2017
- *      Author: ktdoble
+ *------------------------------------------------------------------------------------
+ *
+ * cl_GEN_Basis_Function.hpp
+ *
  */
 
 #ifndef PROJECTS_GEN_SRC_RIPPED_ADDITIONAL_CL_GE_ANALYTIC_HPP_
@@ -33,3 +36,4 @@ public:
 }
 
 #endif /* PROJECTS_GEN_SRC_RIPPED_ADDITIONAL_CL_GE_ANALYTIC_HPP_ */
+

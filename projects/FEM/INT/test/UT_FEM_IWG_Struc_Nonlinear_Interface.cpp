@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_FEM_IWG_Struc_Nonlinear_Interface.cpp
+ *
+ */
+
 #include <string>
 #include <catch.hpp>
 #include "assert.hpp"
@@ -361,7 +371,6 @@ TEST_CASE( "IWG_Struc_Nonlinear_Interface_Unsymmetric_Saint_Venant_Kirchhoff", "
                         tJacobianFD,
                         true );
 
-
                 //                // print for debug
                 //                if ( !tCheckJacobian )
                 //                {
@@ -378,7 +387,6 @@ TEST_CASE( "IWG_Struc_Nonlinear_Interface_Unsymmetric_Saint_Venant_Kirchhoff", "
         }
     }
 } /* END_TEST_CASE */
-
 
 TEST_CASE( "IWG_Struc_Nonlinear_Interface_Symmetric_Saint_Venant_Kirchhoff", "[moris],[fem],[IWG_Struc_Nonlinear_Interface_Symmetric_Saint_Venant_Kirchhoff]" )
 {
@@ -715,7 +723,6 @@ TEST_CASE( "IWG_Struc_Nonlinear_Interface_Symmetric_Saint_Venant_Kirchhoff", "[m
                         tJacobianFD,
                         true );
 
-
                 //                // print for debug
                 //                if ( !tCheckJacobian )
                 //                {
@@ -732,7 +739,6 @@ TEST_CASE( "IWG_Struc_Nonlinear_Interface_Symmetric_Saint_Venant_Kirchhoff", "[m
         }
     }
 } /* END_TEST_CASE */
-
 
 TEST_CASE( "IWG_Struc_Nonlinear_Interface_Unsymmetric_Neo_Hookean", "[moris],[fem],[IWG_Struc_Nonlinear_Interface_Unsymmetric_Neo_Hookean]" )
 {
@@ -1068,7 +1074,6 @@ TEST_CASE( "IWG_Struc_Nonlinear_Interface_Unsymmetric_Neo_Hookean", "[moris],[fe
                         tJacobian,
                         tJacobianFD,
                         true );
-
 
                 //                // print for debug
                 //                if ( !tCheckJacobian )
@@ -1422,7 +1427,6 @@ TEST_CASE( "IWG_Struc_Nonlinear_Interface_Symmetric_Neo_Hookean", "[moris],[fem]
                         tJacobianFD,
                         true );
 
-
                 //                // print for debug
                 //                if ( !tCheckJacobian )
                 //                {
@@ -1439,3 +1443,4 @@ TEST_CASE( "IWG_Struc_Nonlinear_Interface_Symmetric_Neo_Hookean", "[moris],[fem]
         }
     }
 } /* END_TEST_CASE */
+

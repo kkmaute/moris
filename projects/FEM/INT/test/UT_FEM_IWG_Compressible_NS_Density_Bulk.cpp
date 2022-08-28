@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_FEM_IWG_Compressible_NS_Density_Bulk.cpp
+ *
+ */
+
 #include <string>
 #include <catch.hpp>
 #include <memory>
@@ -110,7 +120,6 @@ TEST_CASE( "IWG_Compressible_NS_Density_Bulk_Ideal",
     tIWG->set_residual_dof_type( tDensityDof );
     tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
     tIWG->set_constitutive_model( tCMMasterFluid, "Fluid" );
-
 
     //------------------------------------------------------------------------------
     // set a fem set pointer
@@ -498,7 +507,6 @@ TEST_CASE( "IWG_Compressible_NS_Density_Bulk_VdW",
     tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
     tIWG->set_constitutive_model( tCMMasterFluid, "Fluid" );
 
-
     //------------------------------------------------------------------------------
     // set a fem set pointer
 
@@ -783,3 +791,4 @@ TEST_CASE( "IWG_Compressible_NS_Density_Bulk_VdW",
         }
     }
 }/*END_TEST_CASE*/
+

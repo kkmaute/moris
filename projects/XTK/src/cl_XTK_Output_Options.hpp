@@ -1,8 +1,11 @@
 /*
- * cl__XTK_Output_Options.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Oct 12, 2017
- *      Author: ktdoble
+ *------------------------------------------------------------------------------------
+ *
+ * cl_XTK_Output_Options.hpp
+ *
  */
 
 #ifndef UNIT_TEST_SRC_XTK_CL_XTK_OUTPUT_OPTIONS_HPP_
@@ -95,7 +98,6 @@ Output_Options():
 
 }
 
-
 // Ask whether I should output a given phase
 bool output_phase(size_t const & aPhaseIndex) const
 {
@@ -151,7 +153,5 @@ moris::Cell<size_t> mPhasesToOutput;
 };
 }
 
-
-
-
 #endif /* UNIT_TEST_SRC_XTK_CL_XTK_OUTPUT_OPTIONS_HPP_ */
+

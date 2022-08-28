@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_VIS_Output_Manager.cpp
+ *
+ */
 
 #include "cl_VIS_Output_Manager.hpp"
 
@@ -712,7 +721,7 @@ namespace moris
                 tTotalGlobalValue = sum_all( tGlobalValues( iGlobalField ) );
 
                 tGlobalVariableValues( iGlobalField ) = tTotalGlobalValue;
-                
+
                 MORIS_LOG_SPEC(tFieldName, tGlobalVariableValues( iGlobalField ));
                 // MORIS_LOG_INFO ("Global Variable: %s = %e",tFieldName.c_str(), tGlobalVariableValues( iGlobalField ) );
             }
@@ -736,3 +745,4 @@ namespace moris
         //-----------------------------------------------------------------------------------------------------------
     }
 }
+

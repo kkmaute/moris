@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # -----------------------------------------------------------------------------
 # PETSc libraries and includes ------------------------------------------------
 # -----------------------------------------------------------------------------
@@ -48,3 +55,4 @@ add_definitions("-DMORIS_HAVE_PETSC")
 #set(MORIS_PETSC_LIBS ${PETSC_LIBRARY_RELEASE})
 include_directories(${MORIS_PETSC_INCLUDE_DIRS})
 set(MORIS_PETSC_LIBS ${MORIS_PETSC_LIBRARIES})
+

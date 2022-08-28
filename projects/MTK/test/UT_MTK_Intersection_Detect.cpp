@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * UT_MTK_Intersection_Detect.cpp
  *
- *  Created on: Jul 20, 2021
- *      Author: momo
  */
 
 #include "cl_Communication_Tools.hpp"
@@ -73,7 +76,6 @@ namespace moris
                 moris::Matrix < DDRMat >   tFirstTriCoordsSame = { { 0.0, 1.0, 1.0 }, { 0.0, 0.0, 1.0 } };
                 moris::Matrix < DDRMat >   tSecondTriCoordsSame = { { 0.0, 1.0, 1.0 }, { 0.0, 0.0, 1.0 } };
 
-
                 // Initialize the outputs
                 moris::Matrix < DDRMat >  tIntersectedPoints;
                 moris::Matrix < DDUMat >  tIntersectVec;
@@ -84,7 +86,6 @@ namespace moris
                 moris::Matrix < DDRMat > tExpectedTriCoords = { { 1.0, 0.0, 1.0, 1.0, 0.0, 1.0 }, { 0.0, 0.0,0.0, 1.0,0.0, 1.0 } };
 
                 REQUIRE( norm( tIntersectedPoints - tExpectedTriCoords ) < 0.00000001 );
-
 
                 // Test different coordinates
 
@@ -100,7 +101,6 @@ namespace moris
 
                 // Check if the expected result is the same as the output
                 REQUIRE( norm( tIntersectedPoints - tExpectedTriCoords ) < 0.00000001 );
-
 
                 // Test "PointsXInY"
 
@@ -121,7 +121,6 @@ namespace moris
 
                 // Check if the expected result is the same as the output
                 REQUIRE( norm( tPointsYInX - tExpectedTriCoords ) < 0.00000001 );
-
 
                 // Test "SortandRemove"
 
@@ -148,7 +147,6 @@ namespace moris
                 delete tIntegMesh;
             }
                                                                             }
-
 
         TEST_CASE("MTK Intersection Intersection","[MTK],[MTK_Interface]")
         {
@@ -188,7 +186,6 @@ namespace moris
                 Matrix<IndexMat> tFirstMeshIdentifier = { {0,1} };
                 Matrix<IndexMat> tSecondMeshIdentifier = { {0,1} };
 
-
                 moris::Cell < moris::Matrix <DDRMat> >          tCutTriangles;
                 moris::Matrix< moris::IndexMat>                tCutTrianglesIdentifier;
 
@@ -212,25 +209,18 @@ namespace moris
 
                 moris::Matrix < DDRMat > tIntsersectionArea11 = { {-1.0, +1.0 , 0.0}, {+1.0, +1.0 ,0.0 } };
 
-
                 REQUIRE( norm( tCutTriangles( 0 ) ) - norm( tIntsersectionArea00 ) < 0.00000001);
                 REQUIRE( norm( tCutTriangles( 1 ) ) - norm( tIntsersectionArea01 ) < 0.00000001);
                 REQUIRE( norm( tCutTriangles( 2 ) ) - norm( tIntsersectionArea10 ) < 0.00000001);
                 REQUIRE( norm( tCutTriangles( 3 ) ) - norm( tIntsersectionArea11 ) < 0.00000001);
 
-
                 //
-
-
 
                 delete tInterpMesh;
                 delete tIntegMesh;
             }
         }
 
-
     }
 }
-
-
 

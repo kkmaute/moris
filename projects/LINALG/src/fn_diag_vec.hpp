@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_diag_vec.hpp
  *
- *  Created on: Sep 12, 2018
- *      Author: doble
  */
 
 #ifndef PROJECTS_LINALG_SRC_FN_DIAG_VEC_HPP_
@@ -57,10 +60,7 @@ diag_vec(   Matrix< Matrix_Type>  & aA,
     return diag_vec( aA.matrix_data(), ak );
 }
 
-
 }
 
-
-
-
 #endif /* PROJECTS_LINALG_SRC_FN_DIAG_VEC_HPP_ */
+

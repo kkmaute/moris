@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_write_element_ownership_as_field.hpp
  *
- *  Created on: May 24, 2018
- *      Author: ktdoble
  */
 
 #ifndef SRC_MESH_FN_WRITE_ELEMENT_OWNERSHIP_AS_FIELD_HPP_
@@ -87,7 +90,5 @@ write_element_ownership_as_field(std::string aOwnerFieldName,
 
 }
 
-
-
-
 #endif /* SRC_MESH_FN_WRITE_ELEMENT_OWNERSHIP_AS_FIELD_HPP_ */
+

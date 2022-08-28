@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_Interpolation.hpp
  *
- *  Created on: Jun 21, 2021
- *      Author: momo
  */
 
 #ifndef PROJECTS_MTK_SRC_CL_INTERPOLATION_HPP_
@@ -187,3 +190,4 @@ namespace moris
 }    // namespace moris
 
 #endif /* PROJECTS_MTK_SRC_CL_INTERPOLATION_HPP_ */
+

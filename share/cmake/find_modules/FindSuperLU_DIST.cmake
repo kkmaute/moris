@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # Umfpack lib usually requires linking to a blas library.
 # It is up to the user of this module to find a BLAS and link to it.
 
@@ -29,3 +36,4 @@ include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(SUPERLU_DIST DEFAULT_MSG SUPERLU_DIST_LIBRARIES)
 
 mark_as_advanced(SUPERLU_DIST_LIBRARIES)
+

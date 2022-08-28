@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Side_Sets_Info.hpp
  *
- *  Created on: Sep 17, 2018
- *      Author: doble
  */
 
 #ifndef PROJECTS_MTK_SRC_CL_MTK_SIDE_SETS_INFO_HPP_
@@ -65,6 +68,5 @@ operator<<(std::ostream & os, mtk::MtkSideSetInfo const * const & dt)
 }
 }
 
-
-
 #endif /* PROJECTS_MTK_SRC_CL_MTK_SIDE_SETS_INFO_HPP_ */
+

@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * UT_FEM_CM_Compressible_Fluid_VdW.cpp
+ *
+ */
 
 #include "catch.hpp"
 
@@ -100,7 +109,6 @@ TEST_CASE( "CM_Fluid_Compressible_VdW", "[CM_Fluid_Compressible_VdW]" )
     std::shared_ptr< fem::Property > tPropSecondVdWconst = std::make_shared< fem::Property >();
     tPropSecondVdWconst->set_parameters( { {{ 6.9 }} } );
     tPropSecondVdWconst->set_val_function( tConstValFunc );
-
 
     // define constitutive model and assign properties
     fem::CM_Factory tCMFactory;
@@ -575,3 +583,4 @@ TEST_CASE( "CM_Fluid_Compressible_VdW", "[CM_Fluid_Compressible_VdW]" )
         }
     }
 }/*END_TEST_CASE*/
+

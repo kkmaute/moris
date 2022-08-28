@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_MTK_Intersection_Mesh.cpp
  *
- *  Created on: Aug 20, 2021
- *      Author: momo
  */
 
 #include "cl_MTK_Intersection_Mesh.hpp"
@@ -215,7 +218,6 @@ namespace moris
 
         }
 
-
         // ----------------------------------------------------------------------------
 
         Matrix<IndexMat>
@@ -282,7 +284,7 @@ namespace moris
                 const moris_index aMeshIndex ) const
         {
             if( mIntersectionDetect->mIntersectedMeshData.is_external_entity( aEntityIndex, aEntityRank) )
-            {   
+            {
                 moris::size_t tNumBackgroundEntities = mBackGroundMesh->get_num_entities((moris::EntityRank)aEntityRank);
                 return mIntersectionDetect->mEntityLocaltoGlobalMap((uint)aEntityRank)(aEntityIndex-tNumBackgroundEntities);
             }

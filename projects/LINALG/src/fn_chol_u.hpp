@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * fn_chol_u.hpp
  *
- *  Created on: Sep 6, 2018
- *      Author: messe
  */
 
 #ifndef PROJECTS_LINALG_SRC_FN_CHOL_U_HPP_
@@ -43,3 +46,4 @@ namespace moris
 }
 
 #endif /* PROJECTS_LINALG_SRC_FN_CHOL_U_HPP_ */
+

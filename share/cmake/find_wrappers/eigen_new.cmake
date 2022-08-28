@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 # -------------------------------------------------------------------------
 # Eigen libraries ---------------------------------------------------------
 # -------------------------------------------------------------------------
@@ -52,3 +59,4 @@ endif()
 #add_definitions("-DMORIS_USE_EIGEN")
 #include_directories("${MORIS_EIGEN_INCLUDE_DIRS}")
 #list(APPEND MORIS_ARMADILLO_EIGEN_LIBS "Eigen3::Eigen")
+

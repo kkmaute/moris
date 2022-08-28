@@ -1,8 +1,11 @@
 /*
- * cl_MTK__VISUALIZATION_STK.hpp
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
  *
- *  Created on: Jun 6, 2019
- *      Author: doble
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Visualization_STK.hpp
+ *
  */
 
 #ifndef PROJECTS_MTK_SRC_STK_IMPL_CL_MTK__VISUALIZATION_STK_HPP_
@@ -12,7 +15,6 @@
 #include "cl_Cell.hpp"
 #include "cl_MTK_Scalar_Field_Info.hpp"
 #include "typedefs.hpp"
-
 
 namespace moris
 {
@@ -99,7 +101,6 @@ public:
         aMesh->add_mesh_field_real_scalar_data_loc_inds(mCellOwnersFields.get_field_name(),EntityRank::ELEMENT,tCellOwnerField);
     }
 
-
 private:
     moris::mtk::MtkFieldsInfo mFieldMtkFieldsInfo;
     Scalar_Field_Info<DDRMat> mCellOwnersFields;
@@ -110,3 +111,4 @@ private:
 }
 
 #endif /* PROJECTS_MTK_SRC_STK_IMPL_CL_MTK__VISUALIZATION_STK_HPP_ */
+

@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * cl_HMR_Parameters.hpp
  *
- *  Created on: May 5, 2018
- *      Author: messe
  */
 
 #ifndef SRC_HMR_CL_HMR_PARAMETERS_HPP_
@@ -152,7 +155,6 @@ namespace moris
 
             Matrix< DDUMat > mInitialRefinementLevel   = { {} };
             Matrix< DDUMat > mInitialRefinementPattern = { {} };
-
 
             uint mAdditionalLagrangeRefinementLevel = 0;
             //! defines which SideSets are to be generated
@@ -664,7 +666,6 @@ namespace moris
 
             //--------------------------------------------------------------------------------
 
-
             /**
              * sets the maximum polynomial degree to given value
              *
@@ -908,7 +909,6 @@ namespace moris
             {
                 mBSplineTruncationFlag = aSwitch;
             }
-
 
             //-------------------------------------------------------------------------------
 
@@ -1195,7 +1195,6 @@ namespace moris
                 mNumberAura = aSwitch;
             }
 
-
             //-------------------------------------------------------------------------------
 
             void
@@ -1424,3 +1423,4 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_HMR_CL_HMR_PARAMETERS_HPP_ */
+

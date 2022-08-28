@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * UT_MDL_FEM_DQ_Dp.cpp
  *
- *  Created on: Jan 28, 2020
- *      Author: schmidt
  */
 
 #include "catch.hpp"
@@ -84,7 +87,6 @@
 #include "cl_TSA_Time_Solver.hpp"
 
 #include "fn_norm.hpp"
-
 
 namespace moris
 {
@@ -436,9 +438,5 @@ TEST_CASE("MDL FEM Elastic DQ/Dp","[MDL_FEM_DQ_DP]")
 
 }/* END_TEST_CASE */
 
-
 }/* END_MORIS_NAMESPACE */
-
-
-
 

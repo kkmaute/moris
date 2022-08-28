@@ -1,8 +1,11 @@
 /*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
  * op_less_Eigen.hpp
  *
- *  Created on: Aug 29, 2018
- *      Author: doble
  */
 
 #ifndef PROJECTS_LINALG_SRC_EIGEN_IMPL_OP_LESS_EIGEN_HPP_
@@ -69,8 +72,7 @@ operator<(
     return aA<aB.array();
 }
 
-
 }
 
-
 #endif /* PROJECTS_LINALG_SRC_EIGEN_IMPL_OP_LESS_EIGEN_HPP_ */
+

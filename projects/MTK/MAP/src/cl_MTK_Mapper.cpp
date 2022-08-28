@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ *------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Mapper.cpp
+ *
+ */
+
 #include "assert.hpp"
 #include "MTK_Tools.hpp"
 #include "cl_MTK_Mapper.hpp"
@@ -699,7 +709,7 @@ namespace moris
             tsa::Time_Solver * tTimeSolver = tSolverWarehouse.get_main_time_solver();
 
             tTimeSolver->solve();
-            
+
             Matrix<DDRMat> tSolution;
             tTimeSolver->get_full_solution( tSolution );
 
@@ -1054,3 +1064,4 @@ namespace moris
         //        }
     } /* namespace mtk */
 } /* namespace moris */
+
