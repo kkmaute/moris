@@ -207,11 +207,9 @@ option(MORIS_USE_TESTS
 option(MORIS_USE_PERF_TESTS 
     " Build the performance tests" OFF)
     
-    
 option(MORIS_USE_EXAMPLES
      "Build the examples." ON)
     
-
 option(MORIS_HAVE_PARALLEL_TESTS
     "Run unit tests in parallel. MORIS_USE_TESTS must be ON." ON)
 
