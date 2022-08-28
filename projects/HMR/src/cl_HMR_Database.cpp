@@ -617,10 +617,11 @@ namespace moris
                 const std::string tBasisFunctionVtkFileName = mParameters->get_basis_fuction_vtk_file_name();
 
                 if ( tBasisFunctionVtkFileName.size() > 0 )
-
+                {
                     MORIS_LOG_INFO( "Save basis function to vtk file: %s", tBasisFunctionVtkFileName.c_str() );
 
-                tMesh->save_to_vtk( tBasisFunctionVtkFileName );
+                    tMesh->save_to_vtk( tBasisFunctionVtkFileName );
+                }
 #endif
             }
 
