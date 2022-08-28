@@ -170,6 +170,8 @@ namespace moris
             std::string mWriteOutputLagrangeMesh         = "";
             std::string mWriteOutputLagrangeMeshToExodus = "";
 
+            std::string mBasisFunctionVtkFileName = "";
+
             bool mWriteRefinementPatternFileFlag = false;
 
             std::string mRestartfromRefinedPattern = "";
@@ -1327,6 +1329,22 @@ namespace moris
             get_renumber_lagrange_nodes() const
             {
                 return mRenumberLagrangeNodes;
+            }
+
+            //-------------------------------------------------------------------------------
+
+            void
+            set_basis_fuction_vtk_file_name( const std::string aFileName )
+            {
+                mBasisFunctionVtkFileName = aFileName;
+            }
+
+            //-------------------------------------------------------------------------------
+
+            std::string
+            get_basis_fuction_vtk_file_name() const
+            {
+                return mBasisFunctionVtkFileName;
             }
 
             //-------------------------------------------------------------------------------

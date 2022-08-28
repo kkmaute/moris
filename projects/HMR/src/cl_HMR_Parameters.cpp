@@ -213,7 +213,6 @@ namespace moris
                 }
             }
 
-
             string_to_mat( aParameterList.get< std::string >( "lagrange_input_meshes" ), mLagrangeInputMeshes );
             string_to_mat( aParameterList.get< std::string >( "lagrange_orders" ), mLagrangeOrders );
             string_to_mat( aParameterList.get< std::string >( "lagrange_pattern" ), mLagrangePatterns );
@@ -267,6 +266,8 @@ namespace moris
             this->set_write_refinement_pattern_file_flag( aParameterList.get< bool >( "write_refinement_pattern_file" ) );
 
             this->set_restart_refinement_pattern_file( aParameterList.get< std::string >( "restart_refinement_pattern_file" ) );
+
+            this->set_basis_fuction_vtk_file_name( aParameterList.get< std::string >( "basis_function_vtk_file" ) );
 
             // get user-defined refinement functions
             Cell< std::string > tFunctionNames = string_to_cell< std::string >( aParameterList.get< std::string >( "refinement_function_names" ) );
@@ -433,7 +434,7 @@ namespace moris
                             (long unsigned int)mNumberOfElementsPerDimension( 1 ),
                             (long unsigned int)mNumberOfElementsPerDimension( 2 ) );
                 }
-                
+
                 MORIS_LOG_INFO( "refinement buffer............. : %lu", (long unsigned int)mRefinementBuffer );
                 MORIS_LOG_INFO( "staircase buffer.............. : %lu", (long unsigned int)mStaircaseBuffer );
                 MORIS_LOG_INFO( "max polynomial ............... : %lu", (long unsigned int)mMaxPolynomial );

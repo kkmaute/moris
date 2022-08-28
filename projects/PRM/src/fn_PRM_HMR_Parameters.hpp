@@ -111,6 +111,9 @@ namespace moris
             //! name of restart file - load
             tParameterList.insert( "restart_refinement_pattern_file", std::string( "" ) );
 
+            //! name of vtk file for writing basis function locations
+            tParameterList.insert( "basis_function_vtk_file", std::string( "" ) );
+
             //! add comment by the person who implemented this
             tParameterList.insert( "max_refinement_level", -1 );
 
