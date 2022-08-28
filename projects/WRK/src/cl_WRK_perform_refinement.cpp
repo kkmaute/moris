@@ -490,7 +490,6 @@ namespace moris
                     tMeshIndices,
                     tNumMeshes );
 
-            // sint tRefinementNumber = 0;
             sint tNumPerformers = aPerformers.size();
 
             for ( uint Ii = 0; Ii < tNumMeshes; Ii++ )
@@ -507,28 +506,27 @@ namespace moris
                     for ( sint Ik = 0; Ik < tNumPerformers; Ik++ )
                     {
                         // Queue refinement
-                        queue_single_refinement( aHMR, tMesh, aPerformers( Ik ), Ij, tMeshIndex );
+                        queue_single_refinement(
+                                aHMR,
+                                tMesh,
+                                aPerformers( Ik ),
+                                Ij,
+                                tMeshIndex );
                     }
 
                     // refine
                     //  Perform refinement and update index
-                    if ( true )
-                    {
-                        aHMR->perform_refinement( tLagrangeMeshPattern );
-                        aHMR->update_refinement_pattern( tLagrangeMeshPattern );
-                    }
-
-                    // if (tPerformRefinement)
-                    //{
-                    //     aHMR->perform_refinement_based_on_working_pattern( 0, false );
-                    // }
+                    aHMR->perform_refinement( tLagrangeMeshPattern );
+                    aHMR->update_refinement_pattern( tLagrangeMeshPattern );
                 }
             }
 
+            // refinement loop to ensure that all intersected elements are on same refinement level
             for ( uint Ii = 0; Ii < tNumMeshes; Ii++ )
             {
                 sint tMeshIndex = tMeshIndices( Ii );
 
+                // set to true for using low level element refinement
                 while ( false )
                 {
                     // Create mesh //FIXME
@@ -541,7 +539,11 @@ namespace moris
                     for ( sint Ik = 0; Ik < tNumPerformers; Ik++ )
                     {
                         // Queue refinement
-                        tNumQueuedElements += queue_low_level_elements_for_refinement( aHMR, tMesh, aPerformers( Ik ), tMeshIndex );
+                        tNumQueuedElements += queue_low_level_elements_for_refinement(
+                                aHMR,
+                                tMesh,
+                                aPerformers( Ik ),
+                                tMeshIndex );
                     }
 
                     if ( tNumQueuedElements == 0 )
@@ -557,10 +559,7 @@ namespace moris
                         aHMR->update_refinement_pattern( tLagrangeMeshPattern );
                     }
 
-                    // if (tPerformRefinement)
-                    //{
-                    //     aHMR->perform_refinement_based_on_working_pattern( 0, false );
-                    // }
+                    // FIXME should be removed such that loop is continued until all elements are refined
                     break;
                 }
             }
