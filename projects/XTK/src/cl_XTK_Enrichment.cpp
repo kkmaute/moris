@@ -365,7 +365,8 @@ namespace xtk
                     tMeshIndex,
                     tMaxEnrichmentLevel );
 
-            MORIS_LOG_SPEC( "Num Enriched Basis", mEnrichmentData( tMeshIndex ).mNumEnrichmentLevels );
+            MORIS_LOG_SPEC( "Num Non-enriched Bases", mEnrichmentData( tMeshIndex ).mElementIndsInBasis.size() );
+            MORIS_LOG_SPEC( "Num Enriched Bases", mEnrichmentData( tMeshIndex ).mNumEnrichmentLevels );
         }
 
         // create the enriched interpolation mesh
