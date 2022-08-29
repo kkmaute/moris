@@ -2057,7 +2057,7 @@ namespace moris
                 const real& aPerturbation,
                 const real& aCoefficientToPerturb,
                 const real& aMaxPerturbation,
-                const real  aTolerance )
+                const real& aTolerance )
         {
             return ( this->*m_build_perturbation_size )(
                     aPerturbation,
@@ -2141,7 +2141,11 @@ namespace moris
             real tMaxPerturb = ( tMaxIP - tMinIP ) / 3.0;
 
             // compute the perturbation value
-            real tDeltaH = build_perturbation_size( aPerturbation, aCoefficientToPerturb, tMaxPerturb );
+            real tDeltaH = build_perturbation_size(
+                    aPerturbation,
+                    aCoefficientToPerturb,
+                    tMaxPerturb,
+                    mToleranceFD );
 
             // check that IG node coordinate is consistent with minimum and maximum IP coordinates
             MORIS_ASSERT(
@@ -2309,9 +2313,12 @@ namespace moris
                             // update local coordinates
                             Matrix< DDRMat > tXCoords  = tCoeffPert.get_row( iCoeffRow );
                             Matrix< DDRMat > tXiCoords = tParamCoeff.get_row( iCoeffRow );
+
                             tIPGI->update_local_coordinates( tXCoords, tXiCoords );
+
                             Matrix< DDRMat > tParamCoeffPert     = tParamCoeff;
                             tParamCoeffPert.get_row( iCoeffRow ) = tXiCoords.matrix_data();
+
                             tIGGI->set_space_param_coeff( tParamCoeffPert );
 
                             // set evaluation point for interpolators (FIs and GIs)
@@ -2472,9 +2479,13 @@ namespace moris
                             // update local coordinates
                             Matrix< DDRMat > tXCoords  = tCoeffPert.get_row( iCoeffRow );
                             Matrix< DDRMat > tXiCoords = tParamCoeff.get_row( iCoeffRow );
+
                             tIPGI->update_local_coordinates( tXCoords, tXiCoords );
-                            Matrix< DDRMat > tParamCoeffPert     = tParamCoeff;
+
+                            Matrix< DDRMat > tParamCoeffPert = tParamCoeff;
+
                             tParamCoeffPert.get_row( iCoeffRow ) = tXiCoords.matrix_data();
+
                             tIGGI->set_space_param_coeff( tParamCoeffPert );
 
                             // set evaluation point for interpolators (FIs and GIs)
@@ -2498,7 +2509,8 @@ namespace moris
 
                             // evaluate dQIdpGeo
                             mSet->get_dqidpgeo()( tIQIAssemblyIndex )( tPdvAssemblyIndex ) +=
-                                    tFDScheme( 1 )( iPoint ) * mSet->get_QI()( tIQIAssemblyIndex )( 0 ) / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                    tFDScheme( 1 )( iPoint ) * mSet->get_QI()( tIQIAssemblyIndex )( 0 ) /    //
+                                    ( tFDScheme( 2 )( 0 ) * tDeltaH );
                         }
                     }
                 }
@@ -2559,8 +2571,8 @@ namespace moris
             // init FD scheme
             moris::Cell< moris::Cell< real > > tFDScheme;
 
-            // FIXME init perturbation
-            real tDeltaH = aPerturbation;
+            // initialize perturbation of cluster measure
+            real tDeltaCM = 0.0;
 
             // loop over the cluster measures
             for ( uint iCMEA = 0; iCMEA < mCluster->get_cluster_measures().size(); iCMEA++ )
@@ -2568,6 +2580,13 @@ namespace moris
                 // get treated cluster measure
                 std::shared_ptr< Cluster_Measure >& tClusterMeasure =
                         mCluster->get_cluster_measures()( iCMEA );
+
+                // evaluate the perturbation of cluster measure
+                tDeltaCM = this->build_perturbation_size(
+                        aPerturbation,
+                        tClusterMeasure->val()( 0 ),
+                        std::max( tClusterMeasure->val()( 0 ), mToleranceFD ),
+                        mToleranceFD );
 
                 // create FD scheme
                 fd_scheme( aFDSchemeType, tFDScheme );
@@ -2582,8 +2601,8 @@ namespace moris
                 {
                     // add unperturbed QI contribution to dQIdp
                     mSet->get_dqidpgeo()( tIQIAssemblyIndex ) +=
-                            tFDScheme( 1 )( 0 ) * tQI( 0 ) * tClusterMeasure->dMEAdPDV() /    //
-                            ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                            tFDScheme( 1 )( 0 ) * tQI( 0 ) *    //
+                            tClusterMeasure->dMEAdPDV() / ( tFDScheme( 2 )( 0 ) * tDeltaCM );
 
                     // skip first point in FD
                     tStartPoint = 1;
@@ -2593,7 +2612,7 @@ namespace moris
                 for ( uint iPoint = tStartPoint; iPoint < tNumFDPoints; iPoint++ )
                 {
                     // perturb the cluster measure
-                    tClusterMeasure->perturb_cluster_measure( tFDScheme( 0 )( iPoint ) * tDeltaH );
+                    tClusterMeasure->perturb_cluster_measure( tFDScheme( 0 )( iPoint ) * tDeltaCM );
 
                     // reset properties, CM and SP for IWG
                     this->reset_eval_flags();
@@ -2608,7 +2627,7 @@ namespace moris
                     mSet->get_dqidpgeo()( tIQIAssemblyIndex ) +=
                             tFDScheme( 1 )( iPoint ) *                                                  //
                             mSet->get_QI()( tIQIAssemblyIndex )( 0 ) * tClusterMeasure->dMEAdPDV() /    //
-                            ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                            ( tFDScheme( 2 )( 0 ) * tDeltaCM );
 
                     // reset cluster measures
                     mCluster->reset_cluster_measure();

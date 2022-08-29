@@ -62,6 +62,9 @@ namespace moris
             // normal
             Matrix< DDRMat > mNormal;
 
+            // tolerance for FD perturbation
+            const real mToleranceFD = 1e-12;
+
             // quantity dof type for IQI dof, max dof
             moris::Cell< MSI::Dof_Type > mQuantityDofType;
 
@@ -836,7 +839,7 @@ namespace moris
                     const real& aPerturbation,
                     const real& aCoefficientToPerturb,
                     const real& aMaxPerturbation,
-                    const real  aTolerance = 1e-12 );
+                    const real& aTolerance );
 
             /**
              * build relative perturbation size for finite difference
@@ -893,4 +896,3 @@ namespace moris
     } /* namespace fem */
 } /* namespace moris */
 #endif /* SRC_FEM_CL_FEM_IQI_HPP_ */
-

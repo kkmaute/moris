@@ -133,6 +133,9 @@ namespace moris
             // interpolation order for IWG
             uint mOrder = MORIS_UINT_MAX;
 
+            // tolerance for FD perturbation
+            const real mToleranceFD = 1e-12;
+
             // bulk type
             fem::Element_Type mBulkType = fem::Element_Type::BULK;
 
@@ -892,7 +895,7 @@ namespace moris
                     const real& aPerturbation,
                     const real& aCoefficientToPerturb,
                     const real& aMaxPerturbation,
-                    const real  aTolerance = 1e-12 );
+                    const real& aTolerance );
 
             /**
              * build relative perturbation size for finite difference
@@ -958,4 +961,3 @@ namespace moris
     } /* namespace fem */
 } /* namespace moris */
 #endif /* SRC_FEM_CL_FEM_IWG_HPP_ */
-

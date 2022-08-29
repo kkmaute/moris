@@ -772,7 +772,8 @@ namespace moris
             this->get_stabilization_parameters()( mStabilizationMap[ aStabilizationString ] ) = aStabilizationParameter;
 
             // set active cluster measure on IWG flag on/off
-            mActiveCMEAFlag = mActiveCMEAFlag || ( aStabilizationParameter->get_cluster_measure_tuple_list().size() > 0 );
+            mActiveCMEAFlag =
+                    mActiveCMEAFlag || ( aStabilizationParameter->get_cluster_measure_tuple_list().size() > 0 );
         }
 
         //------------------------------------------------------------------------------
@@ -1188,7 +1189,8 @@ namespace moris
             for ( uint iDof = 0; iDof < mMasterDofTypes.size(); iDof++ )
             {
                 // get set index for dof type
-                sint tDofTypeIndex = mSet->get_index_from_unique_dof_type_map( mMasterDofTypes( iDof )( 0 ) );    // FIXME'
+                sint tDofTypeIndex =
+                        mSet->get_index_from_unique_dof_type_map( mMasterDofTypes( iDof )( 0 ) );    // FIXME'
 
                 // put the dof type in the checklist
                 tDofCheckList( tDofTypeIndex ) = 1;
@@ -1201,7 +1203,8 @@ namespace moris
             for ( uint iDv = 0; iDv < mMasterDvTypes.size(); iDv++ )
             {
                 // get set index for dv type
-                sint tDvTypeIndex = mSet->get_index_from_unique_dv_type_map( mMasterDvTypes( iDv )( 0 ) );    // FIXME'
+                sint tDvTypeIndex =
+                        mSet->get_index_from_unique_dv_type_map( mMasterDvTypes( iDv )( 0 ) );    // FIXME'
 
                 // put the dv type in the checklist
                 tDvCheckList( tDvTypeIndex ) = 1;
@@ -1214,7 +1217,8 @@ namespace moris
             for ( uint iFi = 0; iFi < mMasterFieldTypes.size(); iFi++ )
             {
                 // get set index for field type
-                sint tFieldTypeIndex = mSet->get_index_from_unique_field_type_map( mMasterFieldTypes( iFi )( 0 ) );    // FIXME'
+                sint tFieldTypeIndex =
+                        mSet->get_index_from_unique_field_type_map( mMasterFieldTypes( iFi )( 0 ) );    // FIXME'
 
                 // put the field type in the checklist
                 tFieldCheckList( tFieldTypeIndex ) = 1;
@@ -1236,7 +1240,8 @@ namespace moris
                     for ( uint iDof = 0; iDof < tActiveDofTypes.size(); iDof++ )
                     {
                         // get set index for dof type
-                        sint tDofTypeIndex = mSet->get_index_from_unique_dof_type_map( tActiveDofTypes( iDof )( 0 ) );
+                        sint tDofTypeIndex =
+                                mSet->get_index_from_unique_dof_type_map( tActiveDofTypes( iDof )( 0 ) );
 
                         // if dof enum not in the list
                         if ( tDofCheckList( tDofTypeIndex ) != 1 )
@@ -1257,7 +1262,8 @@ namespace moris
                     for ( uint iDv = 0; iDv < tActiveDvTypes.size(); iDv++ )
                     {
                         // get set index for dv type
-                        sint tDvTypeIndex = mSet->get_index_from_unique_dv_type_map( tActiveDvTypes( iDv )( 0 ) );
+                        sint tDvTypeIndex =
+                                mSet->get_index_from_unique_dv_type_map( tActiveDvTypes( iDv )( 0 ) );
 
                         // if dof enum not in the list
                         if ( tDvCheckList( tDvTypeIndex ) != 1 )
@@ -1278,7 +1284,8 @@ namespace moris
                     for ( uint iFi = 0; iFi < tActiveFieldTypes.size(); iFi++ )
                     {
                         // get set index for field type
-                        sint tFieldTypeIndex = mSet->get_index_from_unique_field_type_map( tActiveFieldTypes( iFi )( 0 ) );
+                        sint tFieldTypeIndex =
+                                mSet->get_index_from_unique_field_type_map( tActiveFieldTypes( iFi )( 0 ) );
 
                         // if field enum not in the list
                         if ( tFieldCheckList( tFieldTypeIndex ) != 1 )
@@ -1306,7 +1313,8 @@ namespace moris
                     for ( uint iDof = 0; iDof < tActiveDofTypes.size(); iDof++ )
                     {
                         // get set index for dof type
-                        sint tDofTypeIndex = mSet->get_index_from_unique_dof_type_map( tActiveDofTypes( iDof )( 0 ) );
+                        sint tDofTypeIndex =
+                                mSet->get_index_from_unique_dof_type_map( tActiveDofTypes( iDof )( 0 ) );
 
                         // if dof enum not in the list
                         if ( tDofCheckList( tDofTypeIndex ) != 1 )
@@ -1335,7 +1343,8 @@ namespace moris
                     for ( uint iDof = 0; iDof < tActiveDofTypes.size(); iDof++ )
                     {
                         // get set index for dof type
-                        sint tDofTypeIndex = mSet->get_index_from_unique_dof_type_map( tActiveDofTypes( iDof )( 0 ) );
+                        sint tDofTypeIndex =
+                                mSet->get_index_from_unique_dof_type_map( tActiveDofTypes( iDof )( 0 ) );
 
                         // if dof enum not in the list
                         if ( tDofCheckList( tDofTypeIndex ) != 1 )
@@ -1356,7 +1365,8 @@ namespace moris
                     for ( uint iDv = 0; iDv < tActiveDvTypes.size(); iDv++ )
                     {
                         // get set index for dv type
-                        sint tDvTypeIndex = mSet->get_index_from_unique_dv_type_map( tActiveDvTypes( iDv )( 0 ) );
+                        sint tDvTypeIndex =
+                                mSet->get_index_from_unique_dv_type_map( tActiveDvTypes( iDv )( 0 ) );
 
                         // if dv enum not in the list
                         if ( tDvCheckList( tDvTypeIndex ) != 1 )
@@ -1377,7 +1387,8 @@ namespace moris
                     for ( uint iFi = 0; iFi < tActiveFieldTypes.size(); iFi++ )
                     {
                         // get set index for field type
-                        sint tFieldTypeIndex = mSet->get_index_from_unique_field_type_map( tActiveFieldTypes( iFi )( 0 ) );
+                        sint tFieldTypeIndex =
+                                mSet->get_index_from_unique_field_type_map( tActiveFieldTypes( iFi )( 0 ) );
 
                         // if field enum not in the list
                         if ( tFieldCheckList( tFieldTypeIndex ) != 1 )
@@ -1405,7 +1416,8 @@ namespace moris
                     for ( uint iDof = 0; iDof < tActiveDofTypes.size(); iDof++ )
                     {
                         // get set index for dof type
-                        sint tDofTypeIndex = mSet->get_index_from_unique_dof_type_map( tActiveDofTypes( iDof )( 0 ) );
+                        sint tDofTypeIndex =
+                                mSet->get_index_from_unique_dof_type_map( tActiveDofTypes( iDof )( 0 ) );
 
                         // if dof enum not in the list
                         if ( tDofCheckList( tDofTypeIndex ) != 1 )
@@ -1426,7 +1438,8 @@ namespace moris
                     for ( uint iDv = 0; iDv < tActiveDvTypes.size(); iDv++ )
                     {
                         // get set index for dv type
-                        sint tDvTypeIndex = mSet->get_index_from_unique_dv_type_map( tActiveDvTypes( iDv )( 0 ) );
+                        sint tDvTypeIndex =
+                                mSet->get_index_from_unique_dv_type_map( tActiveDvTypes( iDv )( 0 ) );
 
                         // if dv enum not in the list
                         if ( tDvCheckList( tDvTypeIndex ) != 1 )
@@ -1462,7 +1475,8 @@ namespace moris
             for ( uint iDof = 0; iDof < mSlaveDofTypes.size(); iDof++ )
             {
                 // get set index for dof type
-                sint tDofTypeIndex = mSet->get_index_from_unique_dof_type_map( mSlaveDofTypes( iDof )( 0 ) );
+                sint tDofTypeIndex =
+                        mSet->get_index_from_unique_dof_type_map( mSlaveDofTypes( iDof )( 0 ) );
 
                 // put the dof type in the check list
                 tDofCheckList( tDofTypeIndex ) = 1;
@@ -1475,7 +1489,8 @@ namespace moris
             for ( uint iDv = 0; iDv < mSlaveDvTypes.size(); iDv++ )
             {
                 // get set index for dv type
-                sint tDvTypeIndex = mSet->get_index_from_unique_dv_type_map( mSlaveDvTypes( iDv )( 0 ) );
+                sint tDvTypeIndex =
+                        mSet->get_index_from_unique_dv_type_map( mSlaveDvTypes( iDv )( 0 ) );
 
                 // put the dv type in the check list
                 tDvCheckList( tDvTypeIndex ) = 1;
@@ -1488,7 +1503,8 @@ namespace moris
             for ( uint iFi = 0; iFi < mSlaveFieldTypes.size(); iFi++ )
             {
                 // get set index for field type
-                sint tFieldTypeIndex = mSet->get_index_from_unique_field_type_map( mSlaveFieldTypes( iFi )( 0 ) );
+                sint tFieldTypeIndex =
+                        mSet->get_index_from_unique_field_type_map( mSlaveFieldTypes( iFi )( 0 ) );
 
                 // put the field type in the check list
                 tFieldCheckList( tFieldTypeIndex ) = 1;
@@ -1510,7 +1526,8 @@ namespace moris
                     for ( uint iDof = 0; iDof < tActiveDofTypes.size(); iDof++ )
                     {
                         // get set index for dof type
-                        sint tDofTypeIndex = mSet->get_index_from_unique_dof_type_map( tActiveDofTypes( iDof )( 0 ) );
+                        sint tDofTypeIndex =
+                                mSet->get_index_from_unique_dof_type_map( tActiveDofTypes( iDof )( 0 ) );
 
                         // if dof enum not in the list
                         if ( tDofCheckList( tDofTypeIndex ) != 1 )
@@ -1531,7 +1548,8 @@ namespace moris
                     for ( uint iDv = 0; iDv < tActiveDvTypes.size(); iDv++ )
                     {
                         // get set index for dv type
-                        sint tDvTypeIndex = mSet->get_index_from_unique_dv_type_map( tActiveDvTypes( iDv )( 0 ) );
+                        sint tDvTypeIndex =
+                                mSet->get_index_from_unique_dv_type_map( tActiveDvTypes( iDv )( 0 ) );
 
                         // if dv enum not in the list
                         if ( tDvCheckList( tDvTypeIndex ) != 1 )
@@ -1552,7 +1570,8 @@ namespace moris
                     for ( uint iFi = 0; iFi < tActiveFieldTypes.size(); iFi++ )
                     {
                         // get set index for field type
-                        sint tFieldTypeIndex = mSet->get_index_from_unique_field_type_map( tActiveFieldTypes( iFi )( 0 ) );
+                        sint tFieldTypeIndex =
+                                mSet->get_index_from_unique_field_type_map( tActiveFieldTypes( iFi )( 0 ) );
 
                         // if field enum not in the list
                         if ( tFieldCheckList( tFieldTypeIndex ) != 1 )
@@ -1580,7 +1599,8 @@ namespace moris
                     for ( uint iDof = 0; iDof < tActiveDofTypes.size(); iDof++ )
                     {
                         // get set index for dof type
-                        sint tDofTypeIndex = mSet->get_index_from_unique_dof_type_map( tActiveDofTypes( iDof )( 0 ) );
+                        sint tDofTypeIndex =
+                                mSet->get_index_from_unique_dof_type_map( tActiveDofTypes( iDof )( 0 ) );
 
                         // if dof enum not in the list
                         if ( tDofCheckList( tDofTypeIndex ) != 1 )
@@ -1651,7 +1671,8 @@ namespace moris
                     for ( uint iFi = 0; iFi < tActiveFieldTypes.size(); iFi++ )
                     {
                         // get set index for field type
-                        sint tFieldTypeIndex = mSet->get_index_from_unique_field_type_map( tActiveFieldTypes( iFi )( 0 ) );
+                        sint tFieldTypeIndex =
+                                mSet->get_index_from_unique_field_type_map( tActiveFieldTypes( iFi )( 0 ) );
 
                         // if field enum not in the list
                         if ( tFieldCheckList( tFieldTypeIndex ) != 1 )
@@ -1679,7 +1700,8 @@ namespace moris
                     for ( uint iDof = 0; iDof < tActiveDofTypes.size(); iDof++ )
                     {
                         // get set index for dof type
-                        sint tDofTypeIndex = mSet->get_index_from_unique_dof_type_map( tActiveDofTypes( iDof )( 0 ) );
+                        sint tDofTypeIndex =
+                                mSet->get_index_from_unique_dof_type_map( tActiveDofTypes( iDof )( 0 ) );
 
                         // if dof enum not in the list
                         if ( tDofCheckList( tDofTypeIndex ) != 1 )
@@ -1796,7 +1818,9 @@ namespace moris
                     {
                         // check that the field interpolator was set
                         MORIS_ASSERT(
-                                this->get_field_interpolator_manager( aIsMaster )->get_field_interpolators_for_type( mRequestedMasterGlobalDofTypes( iDofFI )( 0 ) ) != nullptr,
+                                this->get_field_interpolator_manager( aIsMaster )->    //
+                                        get_field_interpolators_for_type( mRequestedMasterGlobalDofTypes( iDofFI )( 0 ) )
+                                        != nullptr,
                                 "IWG::check_field_interpolators - Master dof FI missing. " );
                     }
 
@@ -1805,7 +1829,9 @@ namespace moris
                     {
                         // check that the field interpolator was set
                         MORIS_ASSERT(
-                                this->get_field_interpolator_manager( aIsMaster )->get_field_interpolators_for_type( mMasterGlobalDvTypes( iDvFI )( 0 ) ) != nullptr,
+                                this->get_field_interpolator_manager( aIsMaster )->    //
+                                        get_field_interpolators_for_type( mMasterGlobalDvTypes( iDvFI )( 0 ) )
+                                        != nullptr,
                                 "IWG::check_field_interpolators - Master dv FI missing. " );
                     }
                     break;
@@ -1817,7 +1843,9 @@ namespace moris
                     {
                         // check that the field interpolator was set
                         MORIS_ASSERT(
-                                this->get_field_interpolator_manager( aIsMaster )->get_field_interpolators_for_type( mRequestedSlaveGlobalDofTypes( iDofFI )( 0 ) ) != nullptr,
+                                this->get_field_interpolator_manager( aIsMaster )->    //
+                                        get_field_interpolators_for_type( mRequestedSlaveGlobalDofTypes( iDofFI )( 0 ) )
+                                        != nullptr,
                                 "IWG::check_dof_field_interpolators - Slave dof FI missing. " );
                     }
 
@@ -1826,7 +1854,9 @@ namespace moris
                     {
                         // check that the field interpolator was set
                         MORIS_ASSERT(
-                                this->get_field_interpolator_manager( aIsMaster )->get_field_interpolators_for_type( mSlaveGlobalDvTypes( iDvFI )( 0 ) ) != nullptr,
+                                this->get_field_interpolator_manager( aIsMaster )->    //
+                                        get_field_interpolators_for_type( mSlaveGlobalDvTypes( iDvFI )( 0 ) )
+                                        != nullptr,
                                 "IWG::check_field_interpolators - Slave dv FI missing. " );
                     }
                     break;
@@ -2045,7 +2075,8 @@ namespace moris
                         uint tStartPoint = 0;
 
                         // if backward or forward add unperturbed contribution
-                        if ( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) || ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                        if ( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||    //
+                                ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
                         {
                             // add unperturbed residual contribution to dRdp
                             mSet->get_jacobian()(
@@ -2083,7 +2114,9 @@ namespace moris
                             mSet->get_jacobian()(
                                     { tMasterResStartIndex, tMasterResStopIndex },
                                     { tMasterDepStartIndex + tDofCounter, tMasterDepStartIndex + tDofCounter } ) +=
-                                    tFDScheme( 1 )( iPoint ) * mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                    tFDScheme( 1 )( iPoint ) *                                                                //
+                                    mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) /    //
+                                    ( tFDScheme( 2 )( 0 ) * tDeltaH );
                         }
                         // update dof counter
                         tDofCounter++;
@@ -2186,7 +2219,8 @@ namespace moris
                         uint tStartPoint = 0;
 
                         // if backward or forward add unperturbed contribution
-                        if ( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) || ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                        if ( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||    //
+                                ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
                         {
                             // add unperturbed master residual contribution to dRdp
                             mSet->get_jacobian()(
@@ -2229,13 +2263,17 @@ namespace moris
                             mSet->get_jacobian()(
                                     { tMasterResStartIndex, tMasterResStopIndex },
                                     { tMasterDepStartIndex + tDofCounter, tMasterDepStartIndex + tDofCounter } ) +=
-                                    tFDScheme( 1 )( iPoint ) * mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                    tFDScheme( 1 )( iPoint ) *                                                                //
+                                    mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) /    //
+                                    ( tFDScheme( 2 )( 0 ) * tDeltaH );
 
                             // assemble slave part of the jacobian
                             mSet->get_jacobian()(
                                     { tSlaveResStartIndex, tSlaveResStopIndex },
                                     { tMasterDepStartIndex + tDofCounter, tMasterDepStartIndex + tDofCounter } ) +=
-                                    tFDScheme( 1 )( iPoint ) * mSet->get_residual()( 0 )( { tSlaveResStartIndex, tSlaveResStopIndex }, { 0, 0 } ) / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                    tFDScheme( 1 )( iPoint ) *                                                              //
+                                    mSet->get_residual()( 0 )( { tSlaveResStartIndex, tSlaveResStopIndex }, { 0, 0 } ) /    //
+                                    ( tFDScheme( 2 )( 0 ) * tDeltaH );
                         }
                         // update dof counter
                         tDofCounter++;
@@ -2295,7 +2333,8 @@ namespace moris
                         uint tStartPoint = 0;
 
                         // if backward or forward add unperturbed contribution
-                        if ( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) || ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                        if ( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||    //
+                                ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
                         {
                             // add unperturbed master residual contribution to dRdp
                             mSet->get_jacobian()(
@@ -2338,13 +2377,17 @@ namespace moris
                             mSet->get_jacobian()(
                                     { tMasterResStartIndex, tMasterResStopIndex },
                                     { tSlaveDepStartIndex + tDofCounter, tSlaveDepStartIndex + tDofCounter } ) +=
-                                    tFDScheme( 1 )( iPoint ) * mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                    tFDScheme( 1 )( iPoint ) *                                                                //
+                                    mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) /    //
+                                    ( tFDScheme( 2 )( 0 ) * tDeltaH );
 
                             // assemble the jacobian
                             mSet->get_jacobian()(
                                     { tSlaveResStartIndex, tSlaveResStopIndex },
                                     { tSlaveDepStartIndex + tDofCounter, tSlaveDepStartIndex + tDofCounter } ) +=
-                                    tFDScheme( 1 )( iPoint ) * mSet->get_residual()( 0 )( { tSlaveResStartIndex, tSlaveResStopIndex }, { 0, 0 } ) / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                    tFDScheme( 1 )( iPoint ) *                                                              //
+                                    mSet->get_residual()( 0 )( { tSlaveResStartIndex, tSlaveResStopIndex }, { 0, 0 } ) /    //
+                                    ( tFDScheme( 2 )( 0 ) * tDeltaH );
                         }
                         // update dof counter
                         tDofCounter++;
@@ -2704,7 +2747,7 @@ namespace moris
                 const real& aPerturbation,
                 const real& aCoefficientToPerturb,
                 const real& aMaxPerturbation,
-                const real  aTolerance )
+                const real& aTolerance )
         {
             return ( this->*m_build_perturbation_size )(
                     aPerturbation,
@@ -2788,7 +2831,11 @@ namespace moris
             real tMaxPerturb = ( tMaxIP - tMinIP ) / 3.0;
 
             // compute the perturbation value
-            real tDeltaH = build_perturbation_size( aPerturbation, aCoefficientToPerturb, tMaxPerturb );
+            real tDeltaH = build_perturbation_size(
+                    aPerturbation,
+                    aCoefficientToPerturb,
+                    tMaxPerturb,
+                    mToleranceFD );
 
             // check that IG node coordinate is consistent with minimum and maximum IP coordinates
             MORIS_ASSERT(
@@ -2918,7 +2965,8 @@ namespace moris
                     {
                         // provide adapted perturbation and FD scheme considering ip element boundaries
                         fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
-                        tDeltaH                          = this->check_ig_coordinates_inside_ip_element(
+
+                        tDeltaH = this->check_ig_coordinates_inside_ip_element(
                                 aPerturbation,
                                 tCoeff( iCoeffRow, iCoeffCol ),
                                 iCoeffCol,
@@ -2932,7 +2980,8 @@ namespace moris
                         uint tStartPoint = 0;
 
                         // if backward or forward add unperturbed contribution
-                        if ( ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_BACKWARD ) || ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                        if ( ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_BACKWARD ) ||    //
+                                ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_FORWARD ) )
                         {
                             // add unperturbed residual contribution to dRdp
                             mSet->get_drdpgeo()(
@@ -2981,7 +3030,9 @@ namespace moris
                             mSet->get_drdpgeo()(
                                     { tResDofAssemblyStart, tResDofAssemblyStop },
                                     { tPdvAssemblyIndex, tPdvAssemblyIndex } ) +=
-                                    tFDScheme( 1 )( iPoint ) * mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } ) / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                    tFDScheme( 1 )( iPoint ) *                                                                //
+                                    mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } ) /    //
+                                    ( tFDScheme( 2 )( 0 ) * tDeltaH );
                         }
                     }
                 }
@@ -3082,7 +3133,8 @@ namespace moris
                     {
                         // provide adapted perturbation and FD scheme considering ip element boundaries
                         fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
-                        tDeltaH                          = this->check_ig_coordinates_inside_ip_element(
+
+                        tDeltaH = this->check_ig_coordinates_inside_ip_element(
                                 aPerturbation,
                                 tCoeff( iCoeffRow, iCoeffCol ),
                                 iCoeffCol,
@@ -3096,7 +3148,8 @@ namespace moris
                         uint tStartPoint = 0;
 
                         // if backward or forward add unperturbed contribution
-                        if ( ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_BACKWARD ) || ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                        if ( ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_BACKWARD ) ||    //
+                                ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_FORWARD ) )
                         {
                             // add unperturbed residual contribution to dRdp
                             mSet->get_drdpgeo()(
@@ -3148,7 +3201,9 @@ namespace moris
                             mSet->get_drdpgeo()(
                                     { tResDofAssemblyStart, tResDofAssemblyStop },
                                     { tPdvAssemblyIndex, tPdvAssemblyIndex } ) +=
-                                    tFDScheme( 1 )( iPoint ) * mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } ) / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                    tFDScheme( 1 )( iPoint ) *                                                                //
+                                    mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } ) /    //
+                                    ( tFDScheme( 2 )( 0 ) * tDeltaH );
                         }
                     }
                 }
@@ -3254,7 +3309,8 @@ namespace moris
                     {
                         // provide adapted perturbation and FD scheme considering ip element boundaries
                         fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
-                        tDeltaH                          = this->check_ig_coordinates_inside_ip_element(
+
+                        tDeltaH = this->check_ig_coordinates_inside_ip_element(
                                 aPerturbation,
                                 tCoeff( iCoeffRow, iCoeffCol ),
                                 iCoeffCol,
@@ -3268,7 +3324,8 @@ namespace moris
                         uint tStartPoint = 0;
 
                         // if backward or forward add unperturbed contribution
-                        if ( ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_BACKWARD ) || ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                        if ( ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_BACKWARD ) ||    //
+                                ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_FORWARD ) )
                         {
                             // add unperturbed residual contribution to dRdp
                             mSet->get_drdpgeo()(
@@ -3296,15 +3353,22 @@ namespace moris
                             // update local coordinates
                             Matrix< DDRMat > tXCoords  = tCoeffPert.get_row( iCoeffRow );
                             Matrix< DDRMat > tXiCoords = tParamCoeff.get_row( iCoeffRow );
+
                             tIPGI->update_local_coordinates( tXCoords, tXiCoords );
+
                             Matrix< DDRMat > tParamCoeffPert     = tParamCoeff;
                             tParamCoeffPert.get_row( iCoeffRow ) = tXiCoords.matrix_data();
+
                             tIGGI->set_space_param_coeff( tParamCoeffPert );
+
                             tIGGIPrevious->set_space_param_coeff( tParamCoeffPert );
 
                             // set evaluation point for interpolators (FIs and GIs)
-                            mSet->get_field_interpolator_manager()->set_space_time_from_local_IG_point( tEvaluationPoint );
-                            mSet->get_field_interpolator_manager_previous_time()->set_space_time_from_local_IG_point( tEvaluationPoint );
+                            mSet->get_field_interpolator_manager()->    //
+                                    set_space_time_from_local_IG_point( tEvaluationPoint );
+
+                            mSet->get_field_interpolator_manager_previous_time()->    //
+                                    set_space_time_from_local_IG_point( tEvaluationPoint );
 
                             // reset properties, CM and SP for IWG
                             this->reset_eval_flags();
@@ -3318,7 +3382,9 @@ namespace moris
                             mSet->get_drdpgeo()(
                                     { tResDofAssemblyStart, tResDofAssemblyStop },
                                     { tPdvAssemblyIndex, tPdvAssemblyIndex } ) +=
-                                    tFDScheme( 1 )( iPoint ) * mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } ) / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                    tFDScheme( 1 )( iPoint ) *                                                                //
+                                    mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } ) /    //
+                                    ( tFDScheme( 2 )( 0 ) * tDeltaH );
                         }
                     }
                 }
@@ -3482,7 +3548,8 @@ namespace moris
                     {
                         // provide adapted perturbation and FD scheme considering ip element boundaries
                         fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
-                        tDeltaH                          = this->check_ig_coordinates_inside_ip_element(
+
+                        tDeltaH = this->check_ig_coordinates_inside_ip_element(
                                 aPerturbation,
                                 tMasterCoeff( iCoeffRow, iCoeffCol ),
                                 iCoeffCol,
@@ -3496,7 +3563,8 @@ namespace moris
                         uint tStartPoint = 0;
 
                         // if backward or forward add unperturbed contribution
-                        if ( ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_BACKWARD ) || ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                        if ( ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_BACKWARD ) ||    //
+                                ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_FORWARD ) )
                         {
                             // add unperturbed master residual contribution to dRdp
                             mSet->get_drdpgeo()(
@@ -3547,8 +3615,11 @@ namespace moris
                             tSlaveIGGI->set_space_param_coeff( tSlaveParamCoeffPert );
 
                             // set evaluation point for interpolators (FIs and GIs)
-                            mSet->get_field_interpolator_manager( mtk::Master_Slave::MASTER )->set_space_time_from_local_IG_point( tMasterEvaluationPoint );
-                            mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->set_space_time_from_local_IG_point( tSlaveEvaluationPoint );
+                            mSet->get_field_interpolator_manager( mtk::Master_Slave::MASTER )->    //
+                                    set_space_time_from_local_IG_point( tMasterEvaluationPoint );
+
+                            mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->    //
+                                    set_space_time_from_local_IG_point( tSlaveEvaluationPoint );
 
                             // reset the normal
                             Matrix< DDRMat > tNormalPert;
@@ -3567,7 +3638,9 @@ namespace moris
                             mSet->get_drdpgeo()(
                                     { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop },
                                     { tPdvAssemblyIndex, tPdvAssemblyIndex } ) +=
-                                    tFDScheme( 1 )( iPoint ) * mSet->get_residual()( 0 )( { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop }, { 0, 0 } ) / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                    tFDScheme( 1 )( iPoint ) *                                                                            //
+                                    mSet->get_residual()( 0 )( { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop }, { 0, 0 } ) /    //
+                                    ( tFDScheme( 2 )( 0 ) * tDeltaH );
 
                             // evaluate dSlaveRdpGeo
                             if ( tSlaveResDofIndex != -1 )
@@ -3575,7 +3648,9 @@ namespace moris
                                 mSet->get_drdpgeo()(
                                         { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop },
                                         { tPdvAssemblyIndex, tPdvAssemblyIndex } ) +=
-                                        tFDScheme( 1 )( iPoint ) * mSet->get_residual()( 0 )( { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop }, { 0, 0 } ) / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                        tFDScheme( 1 )( iPoint ) *                                                                          //
+                                        mSet->get_residual()( 0 )( { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop }, { 0, 0 } ) /    //
+                                        ( tFDScheme( 2 )( 0 ) * tDeltaH );
                             }
                         }
                     }
@@ -3586,8 +3661,12 @@ namespace moris
             tMasterIGGI->set_space_param_coeff( tMasterParamCoeff );
             tSlaveIGGI->set_space_coeff( tSlaveCoeff );
             tSlaveIGGI->set_space_param_coeff( tSlaveParamCoeff );
-            mSet->get_field_interpolator_manager( mtk::Master_Slave::MASTER )->set_space_time_from_local_IG_point( tMasterEvaluationPoint );
-            mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->set_space_time_from_local_IG_point( tSlaveEvaluationPoint );
+            mSet->get_field_interpolator_manager( mtk::Master_Slave::MASTER )->    //
+                    set_space_time_from_local_IG_point( tMasterEvaluationPoint );
+
+            mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->    //
+                    set_space_time_from_local_IG_point( tSlaveEvaluationPoint );
+
             this->set_normal( tMasterNormal );
 
             // reset the value of the residual
@@ -3632,8 +3711,8 @@ namespace moris
                             { tResDofAssemblyStart, tResDofAssemblyStop },
                             { 0, 0 } );
 
-            // init perturbation
-            real tDeltaH = 0.0;
+            // initialize perturbation of cluster measure
+            real tDeltaCM = 0.0;
 
             // init FD scheme
             moris::Cell< moris::Cell< real > > tFDScheme;
@@ -3647,11 +3726,12 @@ namespace moris
                 std::shared_ptr< Cluster_Measure >& tClusterMeasure =
                         mCluster->get_cluster_measures()( iCMEA );
 
-                // evaluate the perturbation
-                tDeltaH = this->build_perturbation_size(
+                // evaluate the perturbation of cluster measure
+                tDeltaCM = this->build_perturbation_size(
                         aPerturbation,
                         tClusterMeasure->val()( 0 ),
-                        tClusterMeasure->val()( 0 ) );
+                        std::max( tClusterMeasure->val()( 0 ), mToleranceFD ),
+                        mToleranceFD );
 
                 // number of pdv to assemble
                 uint tNumPdvToAssemble = tClusterMeasure->dMEAdPDV().numel() - 1;
@@ -3660,13 +3740,15 @@ namespace moris
                 uint tStartPoint = 0;
 
                 // if backward or forward add unperturbed contribution
-                if ( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) || ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                if ( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||    //
+                        ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
                 {
                     // add unperturbed residual contribution to dRdp
                     mSet->get_drdpgeo()(
                             { tResDofAssemblyStart, tResDofAssemblyStop },
                             { 0, tNumPdvToAssemble } ) +=
-                            tFDScheme( 1 )( 0 ) * tResidual * tClusterMeasure->dMEAdPDV() / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                            tFDScheme( 1 )( 0 ) * tResidual *    //
+                            tClusterMeasure->dMEAdPDV() / ( tFDScheme( 2 )( 0 ) * tDeltaCM );
 
                     // skip first point in FD
                     tStartPoint = 1;
@@ -3676,7 +3758,7 @@ namespace moris
                 for ( uint iPoint = tStartPoint; iPoint < tNumFDPoints; iPoint++ )
                 {
                     // perturb the cluster measure
-                    tClusterMeasure->perturb_cluster_measure( tFDScheme( 0 )( iPoint ) * tDeltaH );
+                    tClusterMeasure->perturb_cluster_measure( tFDScheme( 0 )( iPoint ) * tDeltaCM );
 
                     // reset properties, CM and SP for IWG
                     this->reset_eval_flags();
@@ -3689,7 +3771,9 @@ namespace moris
                     mSet->get_drdpgeo()(
                             { tResDofAssemblyStart, tResDofAssemblyStop },
                             { 0, tNumPdvToAssemble } ) +=
-                            tFDScheme( 1 )( iPoint ) * mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } ) * tClusterMeasure->dMEAdPDV() / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                            tFDScheme( 1 )( iPoint ) *                                                                //
+                            mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } ) *    //
+                            tClusterMeasure->dMEAdPDV() / ( tFDScheme( 2 )( 0 ) * tDeltaCM );
 
                     // reset cluster measures
                     mCluster->reset_cluster_measure();
@@ -3733,10 +3817,10 @@ namespace moris
             Matrix< DDRMat > tSlaveResidual =
                     mSet->get_residual()( 0 )( { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop }, { 0, 0 } );
 
-            // init perturbation
-            real tDeltaH = 0.0;
+            // initialize perturbation on cluster measure
+            real tDeltaCM = 0.0;
 
-            // init FD scheme
+            // initialize FD scheme
             moris::Cell< moris::Cell< real > > tFDScheme;
             fd_scheme( aFDSchemeType, tFDScheme );
             uint tNumFDPoints = tFDScheme( 0 ).size();
@@ -3748,11 +3832,12 @@ namespace moris
                 std::shared_ptr< Cluster_Measure >& tClusterMeasure =
                         mCluster->get_cluster_measures()( iCMEA );
 
-                // evaluate the perturbation
-                tDeltaH = this->build_perturbation_size(
+                // evaluate the perturbation of cluster measure
+                tDeltaCM = this->build_perturbation_size(
                         aPerturbation,
                         tClusterMeasure->val()( 0 ),
-                        tClusterMeasure->val()( 0 ) );
+                        std::max( tClusterMeasure->val()( 0 ), mToleranceFD ),
+                        mToleranceFD );
 
                 // get end pdv index
                 uint tEndPdvIndex = tClusterMeasure->dMEAdPDV().numel() - 1;
@@ -3761,19 +3846,22 @@ namespace moris
                 uint tStartPoint = 0;
 
                 // if backward or forward add unperturbed contribution
-                if ( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) || ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                if ( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||    //
+                        ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
                 {
                     // add unperturbed master residual contribution to dRdp
                     mSet->get_drdpgeo()(
                             { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop },
                             { 0, tEndPdvIndex } ) +=
-                            tFDScheme( 1 )( 0 ) * tMasterResidual * tClusterMeasure->dMEAdPDV() / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                            tFDScheme( 1 )( 0 ) * tMasterResidual * tClusterMeasure->dMEAdPDV() /    //
+                            ( tFDScheme( 2 )( 0 ) * tDeltaCM );
 
                     // add unperturbed slave residual contribution to dRdp
                     mSet->get_drdpgeo()(
                             { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop },
                             { 0, tEndPdvIndex } ) +=
-                            tFDScheme( 1 )( 0 ) * tSlaveResidual * tClusterMeasure->dMEAdPDV() / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                            tFDScheme( 1 )( 0 ) * tSlaveResidual * tClusterMeasure->dMEAdPDV() /    //
+                            ( tFDScheme( 2 )( 0 ) * tDeltaCM );
 
                     // skip first point in FD
                     tStartPoint = 1;
@@ -3783,7 +3871,7 @@ namespace moris
                 for ( uint iPoint = tStartPoint; iPoint < tNumFDPoints; iPoint++ )
                 {
                     // perturb the cluster measure
-                    tClusterMeasure->perturb_cluster_measure( tFDScheme( 0 )( iPoint ) * tDeltaH );
+                    tClusterMeasure->perturb_cluster_measure( tFDScheme( 0 )( iPoint ) * tDeltaCM );
 
                     // reset properties, CM and SP for IWG
                     this->reset_eval_flags();
@@ -3796,13 +3884,17 @@ namespace moris
                     mSet->get_drdpgeo()(
                             { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop },
                             { 0, tEndPdvIndex } ) +=
-                            tFDScheme( 1 )( iPoint ) * mSet->get_residual()( 0 )( { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop }, { 0, 0 } ) * tClusterMeasure->dMEAdPDV() / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                            tFDScheme( 1 )( iPoint ) *                                                                          //
+                            mSet->get_residual()( 0 )( { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop }, { 0, 0 } )    //
+                            * tClusterMeasure->dMEAdPDV() / ( tFDScheme( 2 )( 0 ) * tDeltaCM );
 
                     // evaluate dSlaveRdpGeo
                     mSet->get_drdpgeo()(
                             { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop },
                             { 0, tEndPdvIndex } ) +=
-                            tFDScheme( 1 )( iPoint ) * mSet->get_residual()( 0 )( { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop }, { 0, 0 } ) * tClusterMeasure->dMEAdPDV() / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                            tFDScheme( 1 )( iPoint ) *                                                                          //
+                            mSet->get_residual()( 0 )( { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop }, { 0, 0 } ) *    //
+                            tClusterMeasure->dMEAdPDV() / ( tFDScheme( 2 )( 0 ) * tDeltaCM );
 
                     // reset cluster measures
                     mCluster->reset_cluster_measure();
@@ -3900,7 +3992,8 @@ namespace moris
                         uint tStartPoint = 0;
 
                         // if backward or forward FD, add unperturbed residual contribution
-                        if ( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) || ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                        if ( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||    //
+                                ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
                         {
                             // add unperturbed master residual contribution to dRdp
                             mSet->get_drdpmat()(
@@ -3937,7 +4030,9 @@ namespace moris
                             mSet->get_drdpmat()(
                                     { tResDofAssemblyStart, tResDofAssemblyStop },
                                     { tPdvIndex, tPdvIndex } ) +=
-                                    tFDScheme( 1 )( iPoint ) * mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } ) / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                    tFDScheme( 1 )( iPoint ) *                                                                //
+                                    mSet->get_residual()( 0 )( { tResDofAssemblyStart, tResDofAssemblyStop }, { 0, 0 } ) /    //
+                                    ( tFDScheme( 2 )( 0 ) * tDeltaH );
                         }
                         // update coefficient counter
                         tCoeffCounter++;
@@ -4060,7 +4155,8 @@ namespace moris
                         uint tStartPoint = 0;
 
                         // if backward or forward FD, add unperturbed residual contribution
-                        if ( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) || ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                        if ( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||    //
+                                ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
                         {
                             // add unperturbed master residual contribution to dRdp
                             mSet->get_drdpmat()(
@@ -4106,7 +4202,9 @@ namespace moris
                             mSet->get_drdpmat()(
                                     { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop },
                                     { tPdvIndex, tPdvIndex } ) +=
-                                    tFDScheme( 1 )( iPoint ) * mSet->get_residual()( 0 )( { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop }, { 0, 0 } ) / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                    tFDScheme( 1 )( iPoint ) *                                                                            //
+                                    mSet->get_residual()( 0 )( { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop }, { 0, 0 } ) /    //
+                                    ( tFDScheme( 2 )( 0 ) * tDeltaH );
 
                             // assemble dRSlavedpMat
                             if ( tSlaveResDofIndex != -1 )
@@ -4114,7 +4212,9 @@ namespace moris
                                 mSet->get_drdpmat()(
                                         { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop },
                                         { tPdvIndex, tPdvIndex } ) +=
-                                        tFDScheme( 1 )( iPoint ) * mSet->get_residual()( 0 )( { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop }, { 0, 0 } ) / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                        tFDScheme( 1 )( iPoint ) *                                                                          //
+                                        mSet->get_residual()( 0 )( { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop }, { 0, 0 } ) /    //
+                                        ( tFDScheme( 2 )( 0 ) * tDeltaH );
                             }
                         }
                         // update coefficient counter
@@ -4191,7 +4291,8 @@ namespace moris
                         uint tStartPoint = 0;
 
                         // if backward or forward FD, add unperturbed residual contribution
-                        if ( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) || ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                        if ( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||    //
+                                ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
                         {
                             // add unperturbed master residual contribution to dRdp
                             mSet->get_drdpmat()(
@@ -4237,7 +4338,9 @@ namespace moris
                             mSet->get_drdpmat()(
                                     { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop },
                                     { tPdvIndex, tPdvIndex } ) +=
-                                    tFDScheme( 1 )( iPoint ) * mSet->get_residual()( 0 )( { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop }, { 0, 0 } ) / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                    tFDScheme( 1 )( iPoint ) *                                                                            //
+                                    mSet->get_residual()( 0 )( { tMasterResDofAssemblyStart, tMasterResDofAssemblyStop }, { 0, 0 } ) /    //
+                                    ( tFDScheme( 2 )( 0 ) * tDeltaH );
 
                             // assemble dRSlavedpMat
                             if ( tSlaveResDofIndex != -1 )
@@ -4245,7 +4348,9 @@ namespace moris
                                 mSet->get_drdpmat()(
                                         { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop },
                                         { tPdvIndex, tPdvIndex } ) +=
-                                        tFDScheme( 1 )( iPoint ) * mSet->get_residual()( 0 )( { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop }, { 0, 0 } ) / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                                        tFDScheme( 1 )( iPoint ) *                                                                          //
+                                        mSet->get_residual()( 0 )( { tSlaveResDofAssemblyStart, tSlaveResDofAssemblyStop }, { 0, 0 } ) /    //
+                                        ( tFDScheme( 2 )( 0 ) * tDeltaH );
                             }
                         }
                         // update coefficient counter
