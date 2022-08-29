@@ -1,10 +1,11 @@
-#!/bin/sh
+#! /usr/bin/gawk -f
+
 #====================================================================================
 # Copyright (c) 2022 University of Colorado
 # Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
 #
 #====================================================================================
-#! /usr/bin/gawk -f
+
 # A script to extract the actual suppression info from the output of (for example) valgrind --leak-check=full --show-reachable=yes --error-limit=no --gen-suppressions=all ./minimal
 # The desired bits are between ^{ and ^} (including the braces themselves).
 # The combined output should either be appended to /usr/lib/valgrind/default.supp, or placed in a .supp of its own

@@ -1,9 +1,11 @@
+#!/bin/sh
+
 #====================================================================================
 # Copyright (c) 2022 University of Colorado
 # Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
 #
 #====================================================================================
-#!/bin/sh
+
 #
 # script to run moris in either debug or optimized mode
 #
