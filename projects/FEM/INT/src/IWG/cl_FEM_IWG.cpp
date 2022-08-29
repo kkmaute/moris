@@ -2722,15 +2722,17 @@ namespace moris
                 const real& aMaxPerturbation,
                 const real& aTolerance )
         {
-            // compute the perturbation value using fraction of maximum allowable perturbation
-            real tDeltaH = std::abs( aPerturbation * aMaxPerturbation );
-
             // check that maximum perturbation size is larger than tolerance
             MORIS_ASSERT( aMaxPerturbation >= aTolerance,
-                    "Error: maximum perturbation size is smaller than tolerance.\n" );
+                    "IWG::build_perturbation_size_relative - maximum perturbation size is smaller than tolerance: max = %e  tol = %e\n",
+                    aMaxPerturbation,
+                    aTolerance );
 
             // determine actual tolerance (only useful when above assert inactive)
             const real tActualTol = std::min( aMaxPerturbation, aTolerance );
+
+            // compute the perturbation value using fraction of maximum allowable perturbation
+            real tDeltaH = std::abs( aPerturbation * aMaxPerturbation );
 
             // compute perturbation such that it is not smaller than tolerance
             // and not larger than maximum value
@@ -2750,7 +2752,9 @@ namespace moris
         {
             // check that maximum perturbation size is larger than tolerance
             MORIS_ASSERT( aMaxPerturbation >= aTolerance,
-                    "Error: maximum perturbation size is smaller than tolerance.\n" );
+                    "IWG::build_perturbation_size_absolute - maximum perturbation size is smaller than tolerance: max = %e  tol = %e\n",
+                    aMaxPerturbation,
+                    aTolerance );
 
             // determine actual tolerance (only useful when above assert inactive)
             const real tActualTol = std::min( aMaxPerturbation, aTolerance );
@@ -4264,4 +4268,3 @@ namespace moris
 
     }    // namespace fem
 }    // namespace moris
-
