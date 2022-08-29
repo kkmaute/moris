@@ -432,7 +432,7 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "use_multigrid", 0 );
         tParameterlist( 0 )( 0 ).set( "severity_level", 0 );
 
-        tParameterlist( 0 )( 0 ).set( "write_lagrange_output_mesh", "HMRLagrangeMesh.vtk" );
+        tParameterlist( 0 )( 0 ).set( "write_lagrange_output_mesh_to_exodus", "HMRLagrangeMesh_Quadratic.exo" );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -800,7 +800,7 @@ namespace moris
         tParameterlist( 2 )( 0 ).set( "NLA_combined_res_jac_assembly", true );
         tParameterlist( 2 )( 0 ).set( "NLA_rel_res_norm_drop", 1.00 );
         tParameterlist( 2 )( 0 ).set( "NLA_relaxation_parameter", 1.00 );
-        tParameterlist( 2 )( 0 ).set( "NLA_max_iter", 2 );
+        tParameterlist( 2 )( 0 ).set( "NLA_max_iter", 1 );
 
         tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
         tParameterlist( 3 )( 0 ).set( "NLA_DofTypes", tDofStrg );
@@ -877,8 +877,6 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "remeshing_field_names", "Box,Level_Set_Field" );
         tParameterlist( 0 )( 0 ).set( "remeshing_levels_of_refinement", "1" );
         tParameterlist( 0 )( 0 ).set( "remeshing_refinement_pattern", "0" );
-
-        tParameterlist( 0 )( 0 ).set( "output_meshes", true );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -888,4 +886,3 @@ namespace moris
 #ifdef __cplusplus
 }
 #endif
-

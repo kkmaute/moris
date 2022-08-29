@@ -537,7 +537,7 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "problem", "user_defined" );
         tParameterlist( 0 )( 0 ).set( "library", tLibraryName );
         tParameterlist( 0 )( 0 ).set( "restart_file", "" );
-        tParameterlist( 0 )( 0 ).set( "reinitialize_interface_iter", 50 );
+        tParameterlist( 0 )( 0 ).set( "reinitialize_interface_iter", 10 );
 
         tParameterlist( 2 )( 0 ) = moris::prm::create_gcmma_parameter_list();
         tParameterlist( 2 )( 0 ).set( "step_size", tMMAStepSize );
@@ -582,9 +582,9 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "use_multigrid", 0 );
         tParameterlist( 0 )( 0 ).set( "severity_level", 0 );
 
-        // tParameterlist( 0 )( 0 ).set( "write_lagrange_output_mesh", "HMRLagrangeMesh.vtk" );
-
         tParameterlist( 0 )( 0 ).set( "use_refine_low_level_elements", true );
+
+        tParameterlist( 0 )( 0 ).set( "write_refinement_pattern_file", true );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -1268,24 +1268,24 @@ namespace moris
         tParameterlist( 2 )( 0 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) );
         tParameterlist( 2 )( 0 ).set( "NLA_rel_res_norm_drop", 1.0e-9 );
         tParameterlist( 2 )( 0 ).set( "NLA_relaxation_parameter", 1.0 );
-        tParameterlist( 2 )( 0 ).set( "NLA_max_iter", 2 );
+        tParameterlist( 2 )( 0 ).set( "NLA_max_iter", 1 );
 
         tParameterlist( 2 )( 1 ) = moris::prm::create_nonlinear_algorithm_parameter_list();    // nonlinear algorithm index 0
         tParameterlist( 2 )( 1 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) );
         tParameterlist( 2 )( 1 ).set( "NLA_rel_res_norm_drop", 1.0e-9 );
         tParameterlist( 2 )( 1 ).set( "NLA_relaxation_parameter", 1.0 );
-        tParameterlist( 2 )( 1 ).set( "NLA_max_iter", 2 );
+        tParameterlist( 2 )( 1 ).set( "NLA_max_iter", 1 );
 
         tParameterlist( 2 )( 2 ) = moris::prm::create_nonlinear_algorithm_parameter_list();    // nonlinear algorithm index 1
         tParameterlist( 2 )( 2 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NLBGS_SOLVER ) );
         tParameterlist( 2 )( 2 ).set( "NLA_rel_res_norm_drop", 1.0e-9 );
-        tParameterlist( 2 )( 2 ).set( "NLA_max_iter", 2 );
+        tParameterlist( 2 )( 2 ).set( "NLA_max_iter", 1 );
 
         tParameterlist( 2 )( 3 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
         tParameterlist( 2 )( 3 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) );
         tParameterlist( 2 )( 3 ).set( "NLA_rel_res_norm_drop", 1.0e-9 );
         tParameterlist( 2 )( 3 ).set( "NLA_relaxation_parameter", 1.0 );
-        tParameterlist( 2 )( 3 ).set( "NLA_max_iter", 2 );
+        tParameterlist( 2 )( 3 ).set( "NLA_max_iter", 1 );
 
         //------------------------------------------------------------------------------
 
@@ -1394,8 +1394,6 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "remeshing_field_names", "Box,Level_Set_Field" );
         tParameterlist( 0 )( 0 ).set( "remeshing_levels_of_refinement", "2,1;2,1" );
         tParameterlist( 0 )( 0 ).set( "remeshing_refinement_pattern", "0,1;0,1" );
-
-        tParameterlist( 0 )( 0 ).set( "output_meshes", true );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -1405,4 +1403,3 @@ namespace moris
 #ifdef __cplusplus
 }
 #endif
-
