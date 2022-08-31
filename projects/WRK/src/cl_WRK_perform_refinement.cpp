@@ -568,7 +568,6 @@ namespace moris
                     }
 
                     // FIXME should be removed such that loop is continued until all elements are refined
-                    break;
                 }
             }
 
