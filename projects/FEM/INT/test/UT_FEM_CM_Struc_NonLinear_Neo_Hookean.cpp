@@ -11,18 +11,18 @@
 #include "catch.hpp"
 
 #define protected public
-#define private   public
-//FEM/INT/src
+#define private public
+// FEM/INT/src
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_Constitutive_Model.hpp"
 #include "cl_FEM_Set.hpp"
 #undef protected
 #undef private
 
-//LINALG/src
+// LINALG/src
 #include "fn_equal_to.hpp"
 #include "fn_norm.hpp"
-//FEM/INT/src
+// FEM/INT/src
 #include "cl_FEM_Field_Interpolator.hpp"
 #include "cl_MTK_Integrator.hpp"
 #include "cl_FEM_Property.hpp"
@@ -52,43 +52,45 @@ TEST_CASE( "CM_Struc_NonLinear_Neo_Hookean",
 
     // create list of interpolation orders
     moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
-            mtk::Interpolation_Order::LINEAR,
-            mtk::Interpolation_Order::QUADRATIC,
-            mtk::Interpolation_Order::CUBIC };
+        mtk::Interpolation_Order::LINEAR,
+        mtk::Interpolation_Order::QUADRATIC,
+        mtk::Interpolation_Order::CUBIC
+    };
 
     // create list of integration orders
     moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
-            mtk::Integration_Order::QUAD_2x2,
-            mtk::Integration_Order::HEX_2x2x2 };
+        mtk::Integration_Order::QUAD_2x2,
+        mtk::Integration_Order::HEX_2x2x2
+    };
 
     // create list with number of coeffs
-    Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
+    Matrix< DDRMat > tNumCoeffs = { { 8, 18, 32 }, { 16, 54, 128 } };
 
     // dof type list
     moris::Cell< moris::Cell< MSI::Dof_Type > > tDispDofTypes = { { MSI::Dof_Type::UX } };
-    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = tDispDofTypes;
+    moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes     = tDispDofTypes;
 
     // create the properties
     std::shared_ptr< fem::Property > tPropEMod = std::make_shared< fem::Property >();
-    tPropEMod->set_parameters( { {{ 1.0 }} } );
+    tPropEMod->set_parameters( { { { 1.0 } } } );
     tPropEMod->set_val_function( tConstValFunc_Elast );
 
     std::shared_ptr< fem::Property > tPropNu = std::make_shared< fem::Property >();
-    tPropNu->set_parameters( { {{ 0.3 }} } );
+    tPropNu->set_parameters( { { { 0.3 } } } );
     tPropNu->set_val_function( tConstValFunc_Elast );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
     std::shared_ptr< fem::Constitutive_Model > tCMMasterStrucLinIso =
-            tCMFactory.create_CM( fem::Constitutive_Type::STRUC_NON_LIN_ISO_NEO_HOOKEAN);
+            tCMFactory.create_CM( fem::Constitutive_Type::STRUC_NON_LIN_ISO_NEO_HOOKEAN );
     tCMMasterStrucLinIso->set_dof_type_list( { tDispDofTypes } );
     tCMMasterStrucLinIso->set_property( tPropEMod, "YoungsModulus" );
     tCMMasterStrucLinIso->set_property( tPropNu, "PoissonRatio" );
     tCMMasterStrucLinIso->set_local_properties();
 
     // set a fem set pointer
-    MSI::Equation_Set * tSet = new fem::Set();
+    MSI::Equation_Set* tSet = new fem::Set();
     tCMMasterStrucLinIso->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
@@ -96,17 +98,17 @@ TEST_CASE( "CM_Struc_NonLinear_Neo_Hookean",
 
     // set size and populate the set dof type map
     tCMMasterStrucLinIso->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tCMMasterStrucLinIso->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )        = 0;
+    tCMMasterStrucLinIso->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
 
     // set size and populate the set master dof type map
     tCMMasterStrucLinIso->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tCMMasterStrucLinIso->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )        = 0;
+    tCMMasterStrucLinIso->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
 
     // build global dof type list
     tCMMasterStrucLinIso->get_global_dof_type_list();
 
     // loop on the space dimension
-    for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
+    for ( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
     {
         // create and set normal
         Matrix< DDRMat > tNormal( iSpaceDim, 1, 0.5 );
@@ -116,41 +118,41 @@ TEST_CASE( "CM_Struc_NonLinear_Neo_Hookean",
         Matrix< DDRMat > tJump( iSpaceDim, 1, 10.0 );
 
         // switch on space dimension
-        switch( iSpaceDim )
+        switch ( iSpaceDim )
         {
-            case 2 :
+            case 2:
             {
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::QUAD;
 
                 // fill space coeff xHat
-                tXHat = {{ 0.0, 0.0 },
-                        { 1.0, 0.0 },
-                        { 1.0, 1.0 },
-                        { 0.0, 1.0 }};
+                tXHat = { { 0.0, 0.0 },
+                    { 1.0, 0.0 },
+                    { 1.0, 1.0 },
+                    { 0.0, 1.0 } };
 
                 // set velocity dof types
                 tDispDofTypes = { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } };
 
                 break;
             }
-            case 3 :
+            case 3:
             {
                 // set geometry type
                 tGeometryType = mtk::Geometry_Type::HEX;
 
                 // fill space coeff xHat
-                tXHat = {{ 0.0, 0.0, 0.0 },
-                        { 1.0, 0.0, 0.0 },
-                        { 1.0, 1.0, 0.0 },
-                        { 0.0, 1.0, 0.0 },
-                        { 0.0, 0.0, 1.0 },
-                        { 1.0, 0.0, 1.0 },
-                        { 1.0, 1.0, 1.0 },
-                        { 0.0, 1.0, 1.0 }};
+                tXHat = { { 0.0, 0.0, 0.0 },
+                    { 1.0, 0.0, 0.0 },
+                    { 1.0, 1.0, 0.0 },
+                    { 0.0, 1.0, 0.0 },
+                    { 0.0, 0.0, 1.0 },
+                    { 1.0, 0.0, 1.0 },
+                    { 1.0, 1.0, 1.0 },
+                    { 0.0, 1.0, 1.0 } };
 
                 // set velocity dof types
-                tDispDofTypes = { { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ  } };
+                tDispDofTypes = { { MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ } };
 
                 break;
             }
@@ -175,7 +177,7 @@ TEST_CASE( "CM_Struc_NonLinear_Neo_Hookean",
         Geometry_Interpolator tGI = Geometry_Interpolator( tGIRule );
 
         // create time coeff tHat
-        Matrix< DDRMat > tTHat = {{ 0.0 }, { 1.0 }};
+        Matrix< DDRMat > tTHat = { { 0.0 }, { 1.0 } };
 
         // set the coefficients xHat, tHat
         tGI.set_coeff( tXHat, tTHat );
@@ -185,7 +187,7 @@ TEST_CASE( "CM_Struc_NonLinear_Neo_Hookean",
         tCMMasterStrucLinIso->set_model_type( fem::Model_Type::PLANE_STRAIN );
 
         // loop on the interpolation order
-        for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
+        for ( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
         {
             // integration points
             //------------------------------------------------------------------------------
@@ -213,8 +215,8 @@ TEST_CASE( "CM_Struc_NonLinear_Neo_Hookean",
             // create an interpolation order
             mtk::Interpolation_Order tInterpolationOrder = tInterpolationOrders( iInterpOrder - 1 );
 
-            //create a space time interpolation rule
-            mtk::Interpolation_Rule tFIRule (
+            // create a space time interpolation rule
+            mtk::Interpolation_Rule tFIRule(
                     tGeometryType,
                     mtk::Interpolation_Type::LAGRANGE,
                     tInterpolationOrder,
@@ -235,12 +237,12 @@ TEST_CASE( "CM_Struc_NonLinear_Neo_Hookean",
             tMasterFIs( 0 )->set_coeff( 0.1 * tMasterDOFHatVel );
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
+            moris::Cell< moris::Cell< enum PDV_Type > >        tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
-            Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tFIManager.mFI = tMasterFIs;
+            tFIManager.mFI                     = tMasterFIs;
             tFIManager.mIPGeometryInterpolator = &tGI;
             tFIManager.mIGGeometryInterpolator = &tGI;
 
@@ -251,7 +253,7 @@ TEST_CASE( "CM_Struc_NonLinear_Neo_Hookean",
             tCMMasterStrucLinIso->set_field_interpolator_manager( &tFIManager );
 
             uint tNumGPs = tIntegPoints.n_cols();
-            for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
+            for ( uint iGP = 0; iGP < tNumGPs; iGP++ )
             {
                 // reset CM evaluation flags
                 tCMMasterStrucLinIso->reset_eval_flags();
@@ -271,7 +273,7 @@ TEST_CASE( "CM_Struc_NonLinear_Neo_Hookean",
                         tCMMasterStrucLinIso->get_dof_type_list();
 
                 // loop over requested dof type
-                for( uint iRequestedDof = 0; iRequestedDof < tRequestedMasterGlobalDofTypes.size(); iRequestedDof++ )
+                for ( uint iRequestedDof = 0; iRequestedDof < tRequestedMasterGlobalDofTypes.size(); iRequestedDof++ )
                 {
                     // derivative dof type
                     Cell< MSI::Dof_Type > tDofDerivative = tRequestedMasterGlobalDofTypes( iRequestedDof );
@@ -279,12 +281,12 @@ TEST_CASE( "CM_Struc_NonLinear_Neo_Hookean",
                     // strain
                     //------------------------------------------------------------------------------
                     // evaluate Lagrange Green strain
-                    const Matrix< DDRMat > & tLGStrain =
-                            tCMMasterStrucLinIso->strain( CM_Function_Type::LAGRANGIAN );
+                    //                    const Matrix< DDRMat > & tLGStrain =
+                    //                            tCMMasterStrucLinIso->strain( CM_Function_Type::LAGRANGIAN );
 
-                    const Matrix< DDRMat > & tLGTestStrain =
-                            tCMMasterStrucLinIso->testStrain( CM_Function_Type::LAGRANGIAN );
-//                    print(tLGTestStrain,"tLGTestStrain");
+                    //                    const Matrix< DDRMat > & tLGTestStrain =
+                    //                            tCMMasterStrucLinIso->testStrain( CM_Function_Type::LAGRANGIAN );
+                    //                    print(tLGTestStrain,"tLGTestStrain");
 
                     // evaluate dLGStraindu
                     Matrix< DDRMat > tdLGStraindu =
@@ -308,26 +310,26 @@ TEST_CASE( "CM_Struc_NonLinear_Neo_Hookean",
                     // flux
                     //------------------------------------------------------------------------------
                     // evaluate PK1
-                    const Matrix< DDRMat > & tPK1Stress =
-                            tCMMasterStrucLinIso->flux( CM_Function_Type::PK1 );
-//                    print( tPK1Stress, "tPK1Stress" );
+                    //                    const Matrix< DDRMat > & tPK1Stress =
+                    //                            tCMMasterStrucLinIso->flux( CM_Function_Type::PK1 );
+                    //                    print( tPK1Stress, "tPK1Stress" );
 
                     // evaluate PK2
-                    const Matrix< DDRMat > & tPK2Stress =
-                            tCMMasterStrucLinIso->flux( CM_Function_Type::PK2 );
-//                    print( tPK2Stress, "tPK2Stress" );
+                    //                    const Matrix< DDRMat > & tPK2Stress =
+                    //                            tCMMasterStrucLinIso->flux( CM_Function_Type::PK2 );
+                    //                    print( tPK2Stress, "tPK2Stress" );
 
                     // evaluate Cauchy
-                    const Matrix< DDRMat > & tCauchyStress =
-                            tCMMasterStrucLinIso->flux( CM_Function_Type::CAUCHY );
-//                    print( tCauchyStress, "tCauchyStress" );
+                    //                    const Matrix< DDRMat > & tCauchyStress =
+                    //                            tCMMasterStrucLinIso->flux( CM_Function_Type::CAUCHY );
+                    //                    print( tCauchyStress, "tCauchyStress" );
 
                     // evaluate dPK2du
                     Matrix< DDRMat > tdPK2Stressdu =
                             tCMMasterStrucLinIso->dFluxdDOF(
                                     tDofDerivative,
                                     CM_Function_Type::PK2 );
-//                    print(tdPK2Stressdu,"tdPK2Stressdu");
+                    //                    print(tdPK2Stressdu,"tdPK2Stressdu");
 
                     // evaluate dfluxdu by FD
                     Matrix< DDRMat > tdPK2StressduFD;
@@ -337,7 +339,7 @@ TEST_CASE( "CM_Struc_NonLinear_Neo_Hookean",
                             tPerturbation,
                             fem::FDScheme_Type::POINT_5,
                             CM_Function_Type::PK2 );
-//                    print(tdPK2StressduFD,"tdPK2StressduFD");
+                    //                    print(tdPK2StressduFD,"tdPK2StressduFD");
 
                     // check that analytical and FD match
                     bool tCheckPK2 = fem::check( tdPK2Stressdu, tdPK2StressduFD, tEpsilon );
@@ -348,7 +350,7 @@ TEST_CASE( "CM_Struc_NonLinear_Neo_Hookean",
                             tCMMasterStrucLinIso->dFluxdDOF(
                                     tDofDerivative,
                                     CM_Function_Type::PK1 );
-//                    print(tdPK1Stressdu,"tdPK1Stressdu");
+                    //                    print(tdPK1Stressdu,"tdPK1Stressdu");
 
                     // evaluate dfluxdu by FD
                     Matrix< DDRMat > tdPK1StressduFD;
@@ -358,7 +360,7 @@ TEST_CASE( "CM_Struc_NonLinear_Neo_Hookean",
                             tPerturbation,
                             fem::FDScheme_Type::POINT_5,
                             CM_Function_Type::PK1 );
-//                    print(tdPK1StressduFD,"tdPK1StressduFD");
+                    //                    print(tdPK1StressduFD,"tdPK1StressduFD");
 
                     // check that analytical and FD match
                     bool tCheckPK1 = fem::check( tdPK1Stressdu, tdPK1StressduFD, tEpsilon );
@@ -367,21 +369,21 @@ TEST_CASE( "CM_Struc_NonLinear_Neo_Hookean",
                     // traction
                     //------------------------------------------------------------------------------
                     // evaluate PK1 traction
-                    const Matrix< DDRMat > & tPK1Traction =
-                            tCMMasterStrucLinIso->traction( tNormal, CM_Function_Type::PK1 );
-//                    print( tPK1Traction, "tPK1Traction" );
+                    //                    const Matrix< DDRMat > & tPK1Traction =
+                    //                            tCMMasterStrucLinIso->traction( tNormal, CM_Function_Type::PK1 );
+                    //                    print( tPK1Traction, "tPK1Traction" );
 
                     // evaluate PK2 traction
-                    const Matrix< DDRMat > & tPK2Traction =
-                            tCMMasterStrucLinIso->traction( tNormal, CM_Function_Type::PK2 );
-//                    print( tPK2Traction, "tPK2Traction" );
+                    //                    const Matrix< DDRMat > & tPK2Traction =
+                    //                            tCMMasterStrucLinIso->traction( tNormal, CM_Function_Type::PK2 );
+                    //                    print( tPK2Traction, "tPK2Traction" );
 
-//                    // evaluate Cauchy
-//                    const Matrix< DDRMat > & tCauchyTraction =
-//                            tCMMasterStrucLinIso->traction( tNormal, CM_Function_Type::CAUCHY );
-////                    print( tCauchyTraction, "tCauchyTraction" );
+                    //                    // evaluate Cauchy
+                    //                    const Matrix< DDRMat > & tCauchyTraction =
+                    //                            tCMMasterStrucLinIso->traction( tNormal, CM_Function_Type::CAUCHY );
+                    ////                    print( tCauchyTraction, "tCauchyTraction" );
 
-//                    // evaluate dPK2Tractiondu
+                    //                    // evaluate dPK2Tractiondu
                     Matrix< DDRMat > tdPK2Tractiondu =
                             tCMMasterStrucLinIso->dTractiondDOF( tDofDerivative, tNormal, CM_Function_Type::PK2 );
 
@@ -407,7 +409,7 @@ TEST_CASE( "CM_Struc_NonLinear_Neo_Hookean",
                     Matrix< DDRMat > tdPK1TractionduFD;
                     tCMMasterStrucLinIso->eval_dtractiondu_FD(
                             tDofDerivative,
-							tdPK1TractionduFD,
+                            tdPK1TractionduFD,
                             tPerturbation,
                             tNormal,
                             fem::FDScheme_Type::POINT_5,
@@ -417,48 +419,48 @@ TEST_CASE( "CM_Struc_NonLinear_Neo_Hookean",
                     bool tCheckPK1Traction = fem::check( tdPK1Tractiondu, tdPK1TractionduFD, tEpsilon );
                     REQUIRE( tCheckPK1Traction );
 
-//                    // test traction
-//                    //------------------------------------------------------------------------------
-//
-//                    // loop over test dof type
-                    for( uint iTestDof = 0; iTestDof < tMasterDofTypes.size(); iTestDof++ )
+                    //                    // test traction
+                    //                    //------------------------------------------------------------------------------
+                    //
+                    //                    // loop over test dof type
+                    for ( uint iTestDof = 0; iTestDof < tMasterDofTypes.size(); iTestDof++ )
                     {
 
-//                        const Matrix< DDRMat > & tLGdTestStraindDOF =
-//                                tCMMasterStrucLinIso->dTestStraindDOF( iTestDof, CM_Function_Type::LAGRANGIAN );
+                        //                        const Matrix< DDRMat > & tLGdTestStraindDOF =
+                        //                                tCMMasterStrucLinIso->dTestStraindDOF( iTestDof, CM_Function_Type::LAGRANGIAN );
 
-//                        // get the test dof type
+                        //                        // get the test dof type
                         Cell< MSI::Dof_Type > tDofTest = tMasterDofTypes( iTestDof );
-//
-//                        // evaluate PK1 test traction
-                        const Matrix< DDRMat > & tPK1TestTraction =
+                        //
+                        //                        // evaluate PK1 test traction
+                        const Matrix< DDRMat >& tPK1TestTraction =
                                 tCMMasterStrucLinIso->testTraction( tNormal, tDofTest, CM_Function_Type::PK1 );
-//                        print( tPK1TestTraction, "tPK1TestTraction" );
-//
-//                        // evaluate PK2 test traction
-                        const Matrix< DDRMat > & tPK2TestTraction =
+                        //                        print( tPK1TestTraction, "tPK1TestTraction" );
+                        //
+                        //                        // evaluate PK2 test traction
+                        const Matrix< DDRMat >& tPK2TestTraction =
                                 tCMMasterStrucLinIso->testTraction( tNormal, tDofTest, CM_Function_Type::PK2 );
-//                        print( tPK2TestTraction, "tPK2TestTraction" );
-//
-////                        // evaluate Cauchy test traction
-////                        const Matrix< DDRMat > & tCauchyTestTraction =
-////                                tCMMasterStrucLinIso->testTraction( tDofTest, tNormal, CM_Function_Type::CAUCHY );
-////                        print( tCauchyTestTraction, "tCauchyTestTraction" );
-//
+                        //                        print( tPK2TestTraction, "tPK2TestTraction" );
+                        //
+                        ////                        // evaluate Cauchy test traction
+                        ////                        const Matrix< DDRMat > & tCauchyTestTraction =
+                        ////                                tCMMasterStrucLinIso->testTraction( tDofTest, tNormal, CM_Function_Type::CAUCHY );
+                        ////                        print( tCauchyTestTraction, "tCauchyTestTraction" );
+                        //
                         // evaluate dPK2testtractiondu
                         Matrix< DDRMat > tdPK2testtractiondu =
                                 tCMMasterStrucLinIso->dTestTractiondDOF(
                                         tDofDerivative,
                                         tNormal,
                                         tJump,
-										tDofTest,
+                                        tDofTest,
                                         CM_Function_Type::PK2 );
-//
-//                        // evaluate dPK2testtractiondu by FD
+                        //
+                        //                        // evaluate dPK2testtractiondu by FD
                         Matrix< DDRMat > dPK2testtractionduFD;
                         tCMMasterStrucLinIso->eval_dtesttractiondu_FD(
                                 tDofDerivative,
-								tDofTest,
+                                tDofTest,
                                 dPK2testtractionduFD,
                                 tPerturbation,
                                 tNormal,
@@ -466,23 +468,23 @@ TEST_CASE( "CM_Struc_NonLinear_Neo_Hookean",
                                 fem::FDScheme_Type::POINT_5,
                                 CM_Function_Type::PK2 );
 
-//                        print(tdPK2testtractiondu-dPK2testtractionduFD,"dif");
-//
-//                        // check that analytical and FD match
+                        //                        print(tdPK2testtractiondu-dPK2testtractionduFD,"dif");
+                        //
+                        //                        // check that analytical and FD match
                         bool tCheckPK2TestTraction = fem::check( tdPK2testtractiondu, dPK2testtractionduFD, tEpsilon );
                         REQUIRE( tCheckPK2TestTraction );
-//
-//                        // evaluate dPK1testtractiondu
-//                        Matrix< DDRMat > tdPK1testtractiondu =
-//                                tCMMasterStrucLinIso->dTestTractiondDOF(
-//                                tDofDerivative,
-//                                tNormal,
-//                                tJump,
-//                                tDofTest,
-//                                CM_Function_Type::PK1 );
-//                        print(tdPK1testtractiondu,"tdPK1testtractiondu");
-//
-//                        // evaluate dPK1testtractiondu by FD
+                        //
+                        //                        // evaluate dPK1testtractiondu
+                        //                        Matrix< DDRMat > tdPK1testtractiondu =
+                        //                                tCMMasterStrucLinIso->dTestTractiondDOF(
+                        //                                tDofDerivative,
+                        //                                tNormal,
+                        //                                tJump,
+                        //                                tDofTest,
+                        //                                CM_Function_Type::PK1 );
+                        //                        print(tdPK1testtractiondu,"tdPK1testtractiondu");
+                        //
+                        //                        // evaluate dPK1testtractiondu by FD
                         Matrix< DDRMat > dPK1testtractionduFD;
                         tCMMasterStrucLinIso->eval_dtesttractiondu_FD(
                                 tDofDerivative,
@@ -493,13 +495,13 @@ TEST_CASE( "CM_Struc_NonLinear_Neo_Hookean",
                                 tJump,
                                 fem::FDScheme_Type::POINT_5,
                                 CM_Function_Type::PK1 );
-//                        print(dPK1testtractionduFD,"dPK1testtractionduFD");
+                        //                        print(dPK1testtractionduFD,"dPK1testtractionduFD");
 
-//                        print(tdPK1testtractiondu-dPK1testtractionduFD,"dif");
-//
-//                        // check that analytical and FD match
-//                        bool tCheckPK1TestTraction = fem::check( tdPK1testtractiondu, dPK1testtractionduFD, tEpsilon );
-//                        REQUIRE( tCheckPK1TestTraction );
+                        //                        print(tdPK1testtractiondu-dPK1testtractionduFD,"dif");
+                        //
+                        //                        // check that analytical and FD match
+                        //                        bool tCheckPK1TestTraction = fem::check( tdPK1testtractiondu, dPK1testtractionduFD, tEpsilon );
+                        //                        REQUIRE( tCheckPK1TestTraction );
                     }
                 }
             }
@@ -507,5 +509,4 @@ TEST_CASE( "CM_Struc_NonLinear_Neo_Hookean",
             tMasterFIs.clear();
         }
     }
-}/*END_TEST_CASE*/
-
+} /*END_TEST_CASE*/
