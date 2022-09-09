@@ -534,8 +534,12 @@ namespace moris
             {
                 sint tMeshIndex = tMeshIndices( Ii );
 
+                // bool tRefinedAllLowLevelElements = false;
+
+                const uint tMaxLowLevelRefinementSteps = 1;
+
                 // set to true for using low level element refinement
-                while ( false )
+                for ( uint iI = 0; iI < tMaxLowLevelRefinementSteps; ++iI )
                 {
                     // Create mesh //FIXME
                     std::shared_ptr< hmr::Mesh > tMesh = aHMR->create_mesh( tMeshIndex );
@@ -554,22 +558,23 @@ namespace moris
                                 tMeshIndex );
                     }
 
+                    MORIS_LOG_INFO( "Found %d elements for low level refinement.", tNumQueuedElements );
+
                     if ( tNumQueuedElements == 0 )
                     {
+                        // tRefinedAllLowLevelElements = true;
                         break;
                     }
 
                     // refine
                     //  Perform refinement and update index
-                    if ( true )
-                    {
-                        aHMR->perform_refinement( tLagrangeMeshPattern );
-                        aHMR->update_refinement_pattern( tLagrangeMeshPattern );
-                    }
-
-                    // FIXME should be removed such that loop is continued until all elements are refined
-                    break;
+                    aHMR->perform_refinement( tLagrangeMeshPattern );
+                    aHMR->update_refinement_pattern( tLagrangeMeshPattern );
                 }
+
+                // check that all low level elements were refined
+                // MORIS_ERROR( tRefinedAllLowLevelElements,
+                //        "Refinement_Mini_Performer::perform_refinement_old - could not refine all low level elements." );
             }
 
             aHMR->get_database()->update_bspline_meshes();
@@ -724,4 +729,3 @@ namespace moris
         }
     }    // namespace wrk
 }    // namespace moris
-
