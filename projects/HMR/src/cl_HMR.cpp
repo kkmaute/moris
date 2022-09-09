@@ -1714,7 +1714,7 @@ namespace moris
                 // element must be active or refined
                 for ( Background_Element_Base* tElement : tBackgroundElements )
                 {
-                    if (  tElement->is_active( tPattern )  && !tElement->is_padding() )
+                    if ( tElement->is_active( tPattern ) && !tElement->is_padding() )
                     {
                         aCandidates( tCount++ ) = tMesh->get_element_by_memory_index( tElement->get_memory_index() );
                     }
@@ -2682,8 +2682,11 @@ namespace moris
                 // loop over all vertices and extract scalar field
                 for ( uint k = 0; k < tNumberOfVertices; ++k )
                 {
+                    // get vertex index
+                    uint tVertexIndex = tVertices( k )->get_index();
+
                     // copy value from field into element local matrix
-                    tCellValues( k ) = aVertexValues( tVertices( k )->get_index() );
+                    tCellValues( k ) = aVertexValues( tVertexIndex );
                 }
 
                 // test if cell is inside
@@ -2750,4 +2753,3 @@ namespace moris
         // ----------------------------------------------------------------------------
     } /* namespace hmr */
 } /* namespace moris */
-
