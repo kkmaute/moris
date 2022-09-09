@@ -433,13 +433,13 @@ TEST_CASE( "CM_Struc_NonLinear_Neo_Hookean",
                         Cell< MSI::Dof_Type > tDofTest = tMasterDofTypes( iTestDof );
                         //
                         //                        // evaluate PK1 test traction
-                        const Matrix< DDRMat >& tPK1TestTraction =
-                                tCMMasterStrucLinIso->testTraction( tNormal, tDofTest, CM_Function_Type::PK1 );
+                        //                        const Matrix< DDRMat >& tPK1TestTraction =
+                        //                                tCMMasterStrucLinIso->testTraction( tNormal, tDofTest, CM_Function_Type::PK1 );
                         //                        print( tPK1TestTraction, "tPK1TestTraction" );
                         //
                         //                        // evaluate PK2 test traction
-                        const Matrix< DDRMat >& tPK2TestTraction =
-                                tCMMasterStrucLinIso->testTraction( tNormal, tDofTest, CM_Function_Type::PK2 );
+                        //                        const Matrix< DDRMat >& tPK2TestTraction =
+                        //                                tCMMasterStrucLinIso->testTraction( tNormal, tDofTest, CM_Function_Type::PK2 );
                         //                        print( tPK2TestTraction, "tPK2TestTraction" );
                         //
                         ////                        // evaluate Cauchy test traction
