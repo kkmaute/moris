@@ -583,7 +583,7 @@ namespace moris
 
         tParameterlist( 0 )( 0 ).set( "write_lagrange_output_mesh_to_exodus", "HMRLagrangeMesh.exo" );
 
-        tParameterlist( 0 )( 0 ).set( "use_refine_low_level_elements", true );    // not active in code yet
+        tParameterlist( 0 )( 0 ).set( "use_refine_low_level_elements", false );
 
         tParameterlist( 0 )( 0 ).set( "restart_refinement_pattern_file", "HMR_Background_Refinement_Iter_11.hdf5" );
     }
