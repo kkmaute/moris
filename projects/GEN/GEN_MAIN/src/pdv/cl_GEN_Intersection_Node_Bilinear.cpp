@@ -364,8 +364,13 @@ namespace moris
             }
 
             // check that difference between first and second parent is not smaller than MORIS_REAL_EPS
-            MORIS_ERROR( std::abs( tFirstParentPhi - tSecondParentPhi ) > MORIS_REAL_EPS,
-                    "Intersection_Node_Bilinear::compute_intersection - level set values of edge end points identical" );
+            if ( std::abs( tFirstParentPhi - tSecondParentPhi ) < MORIS_REAL_EPS )
+            {
+                delete tInterpolation;
+
+                // return that intersection node is at center of edge
+                return 0.0;
+            }
 
             // set Newton parameters
             const uint tNewMaxIter  = 20;    // maximum number of iterations in Newton
@@ -641,4 +646,3 @@ namespace moris
 
     }    // namespace ge
 }    // namespace moris
-
