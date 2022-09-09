@@ -391,6 +391,10 @@ namespace moris
 
                 void get_active_candidates_for_refinement(
                         Cell< hmr::Element* > & aCandidates,
+                        const uint              aLagrangeMeshIndex);
+
+                void get_active_candidates_for_refinement(
+                        Cell< hmr::Element* > & aCandidates,
                         Lagrange_Mesh_Base    * aMesh );
 
                 // -----------------------------------------------------------------------------

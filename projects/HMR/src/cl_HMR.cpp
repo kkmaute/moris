@@ -1655,6 +1655,73 @@ namespace moris
             }
         }
 
+        void
+        HMR::get_active_candidates_for_refinement(
+                Cell< hmr::Element* >& aCandidates,
+                const uint             aLagrangeMeshIndex )
+        {
+            // reset candidate list
+            aCandidates.clear();
+
+            // Get Lagrange mesh pattern
+            uint tPattern = mDatabase->get_lagrange_mesh_by_index( aLagrangeMeshIndex )->get_activation_pattern();
+
+            // make sure that input pattern is active
+            mDatabase->set_activation_pattern( tPattern );
+
+            // get pointer to background mesh
+            Background_Mesh_Base* tBackgroundMesh = mDatabase->get_background_mesh();
+
+            uint tMaxLevel = tBackgroundMesh->get_max_level();
+
+            // pick first Lagrange mesh on input pattern
+            // fixme: add option to pick another one
+            Lagrange_Mesh_Base* tMesh = mDatabase->get_lagrange_mesh_by_index( aLagrangeMeshIndex );
+
+            // counter for elements
+            uint tCount = 0;
+
+            // loop over all levels and determine size of Cell
+            for ( uint l = 0; l <= tMaxLevel; ++l )
+            {
+                Cell< Background_Element_Base* > tBackgroundElements;
+
+                tBackgroundMesh->collect_elements_on_level_within_proc_domain( l, tBackgroundElements );
+
+                // element must be active or refined
+                for ( Background_Element_Base* tElement : tBackgroundElements )
+                {
+                    // if element  is active or refined but not padding
+                    if ( tElement->is_active( tPattern ) && !tElement->is_padding() )
+                    {
+                        // increment counter
+                        ++tCount;
+                    }
+                }
+            }
+
+            // allocate memory for output
+            aCandidates.resize( tCount, nullptr );
+
+            // reset counter
+            tCount = 0;
+            // loop over all levels
+            for ( uint l = 0; l <= tMaxLevel; ++l )
+            {
+                Cell< Background_Element_Base* > tBackgroundElements;
+                tBackgroundMesh->collect_elements_on_level_within_proc_domain( l, tBackgroundElements );
+
+                // element must be active or refined
+                for ( Background_Element_Base* tElement : tBackgroundElements )
+                {
+                    if (  tElement->is_active( tPattern )  && !tElement->is_padding() )
+                    {
+                        aCandidates( tCount++ ) = tMesh->get_element_by_memory_index( tElement->get_memory_index() );
+                    }
+                }
+            }
+        }
+
         // ----------------------------------------------------------------------------
 
         void
@@ -1990,7 +2057,7 @@ namespace moris
                 Cell< hmr::Element* > tRefinementList;
 
                 // get candidates for surface
-                this->get_candidates_for_refinement(
+                this->get_active_candidates_for_refinement(
                         tCandidates,
                         aLagrangeMeshIndex );
 

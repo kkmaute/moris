@@ -570,6 +570,8 @@ namespace moris
                     //  Perform refinement and update index
                     aHMR->perform_refinement( tLagrangeMeshPattern );
                     aHMR->update_refinement_pattern( tLagrangeMeshPattern );
+
+                    // FIXME should be removed such that loop is continued until all elements are refined
                 }
 
                 // check that all low level elements were refined

@@ -1180,7 +1180,7 @@ namespace moris
                 moris::Cell< moris_index >& aNeighborRefinementLevels ) const
         {
             // get the current element's refinement level
-            Element * tElement = mMesh->get_element( aElementIndex );
+            Element * tElement = mMesh->get_element_including_aura( aElementIndex );
             aMyRefineLevel = tElement->get_level();
 
             // initialize output list for active neighbor search

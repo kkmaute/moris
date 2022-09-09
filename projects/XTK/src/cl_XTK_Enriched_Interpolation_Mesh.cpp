@@ -1784,7 +1784,7 @@ namespace xtk
         mEnrichCoeffBulkPhase.resize( mMeshIndices.max() + 1 );
 
         // TODO: this check needs to be re-written without the assumption one IP cell == one particular bulk phase
-        MORIS_ASSERT( this->verify_basis_support(), "Issue detected in basis support." );
+        // MORIS_ASSERT( this->verify_basis_support(), "Issue detected in basis support." );
     }
 
     // ----------------------------------------------------------------------------
