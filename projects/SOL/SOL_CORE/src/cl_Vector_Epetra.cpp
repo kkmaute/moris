@@ -17,17 +17,17 @@ using namespace moris;
 //----------------------------------------------------------------------------------------------
 
 Vector_Epetra::Vector_Epetra(
-        sol::Dist_Map*  aMapClass,
-        const sint      aNumVectors,
-        bool            aPointMap,
-        bool            aManageMap)
-: sol::Dist_Vector( aMapClass, aManageMap ),
-  mVecBuildWithPointMap( aPointMap )
+        sol::Dist_Map* aMapClass,
+        const sint     aNumVectors,
+        bool           aPointMap,
+        bool           aManageMap )
+        : sol::Dist_Vector( aMapClass, aManageMap )
+        , mVecBuildWithPointMap( aPointMap )
 {
     mNumVectors = aNumVectors;
 
     // Build Epetra Vector
-    if( aPointMap )
+    if ( aPointMap )
     {
         mEpetraVector = new Epetra_FEVector( *aMapClass->get_epetra_point_map(), aNumVectors );
     }
@@ -51,13 +51,14 @@ Vector_Epetra::~Vector_Epetra()
 
 //-----------------------------------------------------------------------------
 
-real& Vector_Epetra::operator()( sint aGlobalId, uint aVectorIndex )
+real&
+Vector_Epetra::operator()( sint aGlobalId, uint aVectorIndex )
 {
     // Get offset for this vector
     uint tOffset = this->vec_local_length() * aVectorIndex;
 
     // Get local index
-    uint tLocIndex =  mMap->return_local_ind_of_global_Id( aGlobalId );
+    uint tLocIndex = mMap->return_local_ind_of_global_Id( aGlobalId );
 
     // Return value
     return mValuesPtr[ tLocIndex + tOffset ];
@@ -65,74 +66,94 @@ real& Vector_Epetra::operator()( sint aGlobalId, uint aVectorIndex )
 
 //----------------------------------------------------------------------------------------------
 
-void Vector_Epetra::replace_global_values(
-        const moris::Matrix< DDSMat > & aGlobalIds,
-        const moris::Matrix< DDRMat > & aValues,
-        const uint                    & aVectorIndex )
+void
+Vector_Epetra::replace_global_values(
+        const moris::Matrix< DDSMat >& aGlobalIds,
+        const moris::Matrix< DDRMat >& aValues,
+        const uint&                    aVectorIndex )
 {
-    reinterpret_cast< Epetra_FEVector* >( mEpetraVector )->ReplaceGlobalValues( aGlobalIds.numel(),
-            aGlobalIds.data(),
-            aValues.data(),
-            aVectorIndex );
+    int error = reinterpret_cast< Epetra_FEVector* >( mEpetraVector )->    //
+                ReplaceGlobalValues(                                       //
+                        aGlobalIds.numel(),
+                        aGlobalIds.data(),
+                        aValues.data(),
+                        aVectorIndex );
+
+    MORIS_ERROR( error == 0,
+            "Vector_Epetra::replace_global_values - failed" );
 }
 
 //----------------------------------------------------------------------------------------------
 
-void Vector_Epetra::sum_into_global_values(
-        const moris::Matrix< DDSMat > & aGlobalIds,
-        const moris::Matrix< DDRMat > & aValues,
-        const uint                    & aVectorIndex )
+void
+Vector_Epetra::sum_into_global_values(
+        const moris::Matrix< DDSMat >& aGlobalIds,
+        const moris::Matrix< DDRMat >& aValues,
+        const uint&                    aVectorIndex )
 {
-    if( mVecBuildWithPointMap )
+    if ( mVecBuildWithPointMap )
     {
         Matrix< IdMat > tPointFreeIds;
         mMap->translate_ids_to_free_point_ids( aGlobalIds, tPointFreeIds, false );
 
         // sum a number (aNumMyDofs) of values (mem_pointer( aRHSVal )) into given positions (mem_pointer( aElementTopology )) of the vector
-        reinterpret_cast< Epetra_FEVector* >( mEpetraVector )->SumIntoGlobalValues(
-                tPointFreeIds.numel(),
-                tPointFreeIds.data(),
-                aValues.data(),
-                aVectorIndex );
+        int error = reinterpret_cast< Epetra_FEVector* >( mEpetraVector )->    //
+                    SumIntoGlobalValues(                                       //
+                            tPointFreeIds.numel(),
+                            tPointFreeIds.data(),
+                            aValues.data(),
+                            aVectorIndex );
+
+        MORIS_ERROR( error == 0,
+                "Vector_Epetra::sum_into_global_values - failed" );
     }
     else
     {
         // sum a number (aNumMyDofs) of values (mem_pointer( aRHSVal )) into given positions (mem_pointer( aElementTopology )) of the vector
-        reinterpret_cast< Epetra_FEVector* >( mEpetraVector )->SumIntoGlobalValues(
-                aGlobalIds.numel(),
-                aGlobalIds.data(),
-                aValues.data(),
-                aVectorIndex );
+        int error = reinterpret_cast< Epetra_FEVector* >( mEpetraVector )->    //
+                    SumIntoGlobalValues(                                       //
+                            aGlobalIds.numel(),
+                            aGlobalIds.data(),
+                            aValues.data(),
+                            aVectorIndex );
+
+        MORIS_ERROR( error == 0,
+                "Vector_Epetra::sum_into_global_values - failed" );
     }
 }
 
 //----------------------------------------------------------------------------------------------
 
-void Vector_Epetra::vector_global_assembly()
+void
+Vector_Epetra::vector_global_assembly()
 {
     // Gather any overlapping/shared data into the non-overlapping partitioning defined by the Map.
-    reinterpret_cast< Epetra_FEVector* >( mEpetraVector )->GlobalAssemble();
+    int error = reinterpret_cast< Epetra_FEVector* >( mEpetraVector )->GlobalAssemble();
+
+    MORIS_ERROR( error == 0,
+            "Vector_Epetra::vector_global_assembly - failed" );
 }
 
 //----------------------------------------------------------------------------------------------
 
-void Vector_Epetra::vec_plus_vec(
-        const moris::real   & aScaleA,
-        sol::Dist_Vector    & aVecA,
-        const moris::real   & aScaleThis )
+void
+Vector_Epetra::vec_plus_vec(
+        const moris::real& aScaleA,
+        sol::Dist_Vector&  aVecA,
+        const moris::real& aScaleThis )
 {
     // check if both vectors are build with the same map
     const Epetra_BlockMap* tMap = aVecA.get_map()->get_epetra_map();
 
     if ( mMap->get_epetra_map()->PointSameAs( *tMap ) )
     {
-        //currently guessing Epetra update is smart enough to switch to replace if aScaleThis is 0.0
-        mEpetraVector->Update( aScaleA, *dynamic_cast<Vector_Epetra&>(aVecA).get_epetra_vector(), aScaleThis );
+        // currently guessing Epetra update is smart enough to switch to replace if aScaleThis is 0.0
+        mEpetraVector->Update( aScaleA, *dynamic_cast< Vector_Epetra& >( aVecA ).get_epetra_vector(), aScaleThis );
         return;
     }
     else
     {
-        if( ! mVecBuildWithPointMap )
+        if ( !mVecBuildWithPointMap )
         {
             mEpetraVector->Scale( aScaleThis );
 
@@ -140,12 +161,12 @@ void Vector_Epetra::vec_plus_vec(
 
             Matrix< IdMat > tIdMat( tNumElements, 1, MORIS_ID_MAX );
 
-            for( sint Ik = 0; Ik < tNumElements; Ik++)
+            for ( sint Ik = 0; Ik < tNumElements; Ik++ )
             {
                 tIdMat( Ik ) = mMap->get_epetra_map()->GID( Ik );
             }
 
-            //FIXME adjust for multivector
+            // FIXME adjust for multivector
             Matrix< DDRMat > tValues;
             aVecA.extract_copy( tValues );
 
@@ -162,7 +183,7 @@ void Vector_Epetra::vec_plus_vec(
 
             Matrix< IdMat > tIdMat( tNumElements, 1, MORIS_ID_MAX );
 
-            for( sint Ik = 0; Ik < tNumElements; Ik++)
+            for ( sint Ik = 0; Ik < tNumElements; Ik++ )
             {
                 tIdMat( Ik ) = mMap->get_epetra_map()->GID( Ik );
             }
@@ -170,7 +191,7 @@ void Vector_Epetra::vec_plus_vec(
             Matrix< IdMat > tPointIds;
             mMap->translate_ids_to_free_point_ids( tIdMat, tPointIds, false );
 
-            //FIXME adjust for multivector
+            // FIXME adjust for multivector
             Matrix< DDRMat > tValues;
             aVecA.extract_copy( tValues );
 
@@ -184,12 +205,13 @@ void Vector_Epetra::vec_plus_vec(
 
 //----------------------------------------------------------------------------------------------
 
-void Vector_Epetra::scale_vector(
-        const moris::real & aValue,
-        const moris::uint & aVecIndex )
+void
+Vector_Epetra::scale_vector(
+        const moris::real& aValue,
+        const moris::uint& aVecIndex )
 {
     // check if index of vector is 0. might not be zero for a multivector
-    if ( aVecIndex==0 )
+    if ( aVecIndex == 0 )
     {
         // scale this vector with the aValue
         mEpetraVector->Scale( aValue );
@@ -197,29 +219,30 @@ void Vector_Epetra::scale_vector(
     }
 
     // if multivector and aVecIndex != 0 than get the pointer to all these vectors.
-    double **pointers = mEpetraVector->Pointers();
+    double** pointers = mEpetraVector->Pointers();
 
     // get local length of these vectors
     moris::uint length = this->vec_local_length();
-    for ( moris::uint i=0; i < length; ++i )
+    for ( moris::uint i = 0; i < length; ++i )
     {
         // scale all values of vector number aVecIndex
-        pointers[ aVecIndex ][i] *= aValue;
+        pointers[ aVecIndex ][ i ] *= aValue;
     }
 }
 
 //----------------------------------------------------------------------------------------------
 
 // Import the local vector into the global vector object mEpetraVec
-void Vector_Epetra::import_local_to_global( sol::Dist_Vector & aSourceVec )
+void
+Vector_Epetra::import_local_to_global( sol::Dist_Vector& aSourceVec )
 {
     // check if both vectores have the same map
     const Epetra_BlockMap* tMap = aSourceVec.get_map()->get_epetra_map();
 
     if ( mMap->get_epetra_map()->PointSameAs( *tMap ) )
     {
-        mEpetraVector->Update( 1.0, *dynamic_cast<Vector_Epetra&>(aSourceVec).get_epetra_vector(), 0.0 );
-        //MORIS_ERROR( false, "Both vectors have the same map. Use vec_plus_vec() instead" );
+        mEpetraVector->Update( 1.0, *dynamic_cast< Vector_Epetra& >( aSourceVec ).get_epetra_vector(), 0.0 );
+        // MORIS_ERROR( false, "Both vectors have the same map. Use vec_plus_vec() instead" );
     }
     else
     {
@@ -229,9 +252,9 @@ void Vector_Epetra::import_local_to_global( sol::Dist_Vector & aSourceVec )
             mImporter = new Epetra_Import( *mMap->get_epetra_map(), *aSourceVec.get_map()->get_epetra_map() );
         }
 
-        int status = mEpetraVector->Import( *dynamic_cast<Vector_Epetra&>(aSourceVec).get_epetra_vector(), *mImporter, Insert );
+        int status = mEpetraVector->Import( *dynamic_cast< Vector_Epetra& >( aSourceVec ).get_epetra_vector(), *mImporter, Insert );
 
-        if ( status!=0 )
+        if ( status != 0 )
         {
             MORIS_ERROR( false, "failed to import local to global vector" );
         }
@@ -240,7 +263,8 @@ void Vector_Epetra::import_local_to_global( sol::Dist_Vector & aSourceVec )
 
 //----------------------------------------------------------------------------------------------
 
-void Vector_Epetra::vec_put_scalar( const moris::real & aValue )
+void
+Vector_Epetra::vec_put_scalar( const moris::real& aValue )
 {
     // set all entries of this vector to aValue
     mEpetraVector->PutScalar( aValue );
@@ -248,7 +272,8 @@ void Vector_Epetra::vec_put_scalar( const moris::real & aValue )
 
 //----------------------------------------------------------------------------------------------
 
-void Vector_Epetra::random()
+void
+Vector_Epetra::random()
 {
     // set all entries to random values
     mEpetraVector->Random();
@@ -256,25 +281,28 @@ void Vector_Epetra::random()
 
 //----------------------------------------------------------------------------------------------
 
-moris::sint Vector_Epetra::vec_local_length() const
+moris::sint
+Vector_Epetra::vec_local_length() const
 {
     // get local length
-    return ( moris::sint ) mEpetraVector->MyLength();
+    return (moris::sint)mEpetraVector->MyLength();
 }
 
 //----------------------------------------------------------------------------------------------
 
-moris::sint Vector_Epetra::vec_global_length() const
+moris::sint
+Vector_Epetra::vec_global_length() const
 {
     // get global lengt of this vector
-    return ( moris::sint ) mEpetraVector->GlobalLength();
+    return (moris::sint)mEpetraVector->GlobalLength();
 }
 
 //----------------------------------------------------------------------------------------------
 
-Cell< moris::real > Vector_Epetra::vec_norm2()
+Cell< moris::real >
+Vector_Epetra::vec_norm2()
 {
-    Cell< moris::real > tNorm( mNumVectors, 0.0);
+    Cell< moris::real > tNorm( mNumVectors, 0.0 );
 
     // get the norm2 of this vector
     mEpetraVector->Norm2( tNorm.data().data() );
@@ -284,9 +312,10 @@ Cell< moris::real > Vector_Epetra::vec_norm2()
 
 //----------------------------------------------------------------------------------------------
 
-void Vector_Epetra::extract_copy( moris::Matrix< DDRMat > & LHSValues )
+void
+Vector_Epetra::extract_copy( moris::Matrix< DDRMat >& LHSValues )
 {
-    //std::cout<<*mEpetraVector<<std::endl;
+    // std::cout<<*mEpetraVector<<std::endl;
 
     moris::sint tVectorLenght = this->vec_local_length();
 
@@ -301,11 +330,12 @@ void Vector_Epetra::extract_copy( moris::Matrix< DDRMat > & LHSValues )
 
 //----------------------------------------------------------------------------------------------
 
-void Vector_Epetra::extract_my_values(
-        const moris::uint                      & aNumIndices,
-        const moris::Matrix< DDSMat >          & aGlobalRows,
-        const moris::uint                      & aRowOffsets,
-        moris::Cell< moris::Matrix< DDRMat > > & ExtractedValues )
+void
+Vector_Epetra::extract_my_values(
+        const moris::uint&                      aNumIndices,
+        const moris::Matrix< DDSMat >&          aGlobalRows,
+        const moris::uint&                      aRowOffsets,
+        moris::Cell< moris::Matrix< DDRMat > >& ExtractedValues )
 {
     ExtractedValues.resize( mNumVectors );
 
@@ -322,9 +352,9 @@ void Vector_Epetra::extract_my_values(
 
         for ( moris::uint Ii = 0; Ii < aNumIndices; ++Ii )
         {
-            const int tLocIndex =  mMap->return_local_ind_of_global_Id( aGlobalRows( Ii ) );
+            const int tLocIndex = mMap->return_local_ind_of_global_Id( aGlobalRows( Ii ) );
 
-            MORIS_ASSERT( !( tLocIndex < 0 ), "Vector_Epetra::extract_my_values: local index < 0. this is not allowed");
+            MORIS_ASSERT( !( tLocIndex < 0 ), "Vector_Epetra::extract_my_values: local index < 0. this is not allowed" );
 
             //            if (!offsets)
             //            {
@@ -332,7 +362,7 @@ void Vector_Epetra::extract_my_values(
             //                continue;
             //            }
 
-            MORIS_ASSERT( !( aRowOffsets < 0 ), "Vector_Epetra::extract_my_values: offset < 0. this is not allowed");
+            MORIS_ASSERT( !( aRowOffsets < 0 ), "Vector_Epetra::extract_my_values: offset < 0. this is not allowed" );
 
             ExtractedValues( Ik )( Ii ) = mValuesPtr[ tLocIndex + tOffset ];
         }
@@ -341,67 +371,71 @@ void Vector_Epetra::extract_my_values(
 
 //----------------------------------------------------------------------------------------------
 
-void Vector_Epetra::print() const
+void
+Vector_Epetra::print() const
 {
-    std::cout << *mEpetraVector <<std::endl;
+    std::cout << *mEpetraVector << std::endl;
 }
 
 //----------------------------------------------------------------------------------------------
 
-void Vector_Epetra::save_vector_to_matrix_market_file( const char* aFilename )
+void
+Vector_Epetra::save_vector_to_matrix_market_file( const char* aFilename )
 {
     EpetraExt::MultiVectorToMatrixMarketFile( aFilename, *mEpetraVector );
 }
 
 //----------------------------------------------------------------------------------------------
 
-void Vector_Epetra::save_vector_to_matlab_file( const char* aFilename )
+void
+Vector_Epetra::save_vector_to_matlab_file( const char* aFilename )
 {
     EpetraExt::MultiVectorToMatlabFile( aFilename, *mEpetraVector );
 }
 
 //----------------------------------------------------------------------------------------------
 
-void Vector_Epetra::save_vector_to_HDF5( const char* aFilename )
+void
+Vector_Epetra::save_vector_to_HDF5( const char* aFilename )
 {
     EpetraExt::HDF5 HDF5( mMap->get_epetra_map()->Comm() );
     HDF5.Create( aFilename );
 
-    HDF5.Write("map-" + std::to_string( mMap->get_epetra_map()->Comm().NumProc() ), *mMap->get_epetra_map());
+    HDF5.Write( "map-" + std::to_string( mMap->get_epetra_map()->Comm().NumProc() ), *mMap->get_epetra_map() );
     HDF5.Write( "LHS", *mEpetraVector );
 
-    HDF5.Close( );
+    HDF5.Close();
 }
 
 //-----------------------------------------------------------------------------
 
-void Vector_Epetra::read_vector_from_HDF5( const char* aFilename )
+void
+Vector_Epetra::read_vector_from_HDF5( const char* aFilename )
 {
-    Communicator_Epetra   mEpetraComm;
+    Communicator_Epetra mEpetraComm;
 
     EpetraExt::HDF5 HDF5( *mEpetraComm.get_epetra_comm() );
     HDF5.Open( aFilename );
 
-    Epetra_Map * NewMap;
-    HDF5.Read("map-" + std::to_string( (mEpetraComm.get_epetra_comm())->NumProc() ), NewMap );
+    Epetra_Map* NewMap;
+    HDF5.Read( "map-" + std::to_string( ( mEpetraComm.get_epetra_comm() )->NumProc() ), NewMap );
 
-    Epetra_MultiVector * NewVector = NULL;
+    Epetra_MultiVector* NewVector = NULL;
 
-    HDF5.Read( "LHS", *NewMap ,NewVector );
-    HDF5.Close( );
+    HDF5.Read( "LHS", *NewMap, NewVector );
+    HDF5.Close();
 
     mEpetraVector = NewVector;
 
     mValuesPtr = mEpetraVector->Values();
-    //FIXME
-    //    mMap->get_epetra_map() = NewMap;
-    //mMap->get_epetra_full_overlapping_map() = NewMap;
+    // FIXME
+    //     mMap->get_epetra_map() = NewMap;
+    // mMap->get_epetra_full_overlapping_map() = NewMap;
 }
 
 //----------------------------------------------------------------------------------------------
 
-void Vector_Epetra::check_vector( )
+void
+Vector_Epetra::check_vector()
 {
-
 }
-

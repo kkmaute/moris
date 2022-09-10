@@ -274,8 +274,10 @@ namespace moris
 
             // get user-defined refinement functions
             Cell< std::string > tFunctionNames = string_to_cell< std::string >( aParameterList.get< std::string >( "refinement_function_names" ) );
+
             MORIS_ERROR( ( aLibrary != nullptr ) or ( tFunctionNames.size() == 0 ),
                     "User-defined refinement function names were provided without a library to load them from." );
+
             for ( uint tFunctionIndex = 0; tFunctionIndex < tFunctionNames.size(); tFunctionIndex++ )
             {
                 mRefinementFunctions.push_back( aLibrary->load_function< Refinement_Function >( tFunctionNames( tFunctionIndex ) ) );
@@ -892,7 +894,13 @@ namespace moris
         Parameters::get_refinement_function( uint aFunctionIndex )
         {
             MORIS_ASSERT( aFunctionIndex < mRefinementFunctions.size(),
-                    ( "A user-defined refinement function with index " + std::to_string( aFunctionIndex ) + " was requested for use, but only " + std::to_string( mRefinementFunctions.size() ) + " user-defined refinement functions were provided to HMR." ).c_str() );
+                    ( "A user-defined refinement function with index " +       //
+                            std::to_string( aFunctionIndex ) +                 //
+                            " was requested for use, but only " +              //
+                            std::to_string( mRefinementFunctions.size() ) +    //
+                            " user-defined refinement functions were provided to HMR." )
+                            .c_str() );
+
             return mRefinementFunctions( aFunctionIndex );
         }
 
@@ -921,4 +929,3 @@ namespace moris
 
     } /* namespace hmr */
 } /* namespace moris */
-

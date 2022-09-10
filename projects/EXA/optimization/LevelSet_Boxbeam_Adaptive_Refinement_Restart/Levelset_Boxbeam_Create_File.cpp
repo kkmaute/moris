@@ -582,7 +582,7 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "use_multigrid", 0 );
         tParameterlist( 0 )( 0 ).set( "severity_level", 0 );
 
-        tParameterlist( 0 )( 0 ).set( "use_refine_low_level_elements", true );
+        tParameterlist( 0 )( 0 ).set( "use_refine_low_level_elements", false );
 
         tParameterlist( 0 )( 0 ).set( "write_refinement_pattern_file", true );
     }

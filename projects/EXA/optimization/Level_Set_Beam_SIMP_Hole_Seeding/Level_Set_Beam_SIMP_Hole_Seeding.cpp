@@ -601,7 +601,7 @@ namespace moris
 
         // tParameterlist( 0 )( 0 ).set( "write_lagrange_output_mesh", "HMRLagrangeMesh.vtk" );
 
-        tParameterlist( 0 )( 0 ).set( "use_refine_low_level_elements", true );
+        tParameterlist( 0 )( 0 ).set( "use_refine_low_level_elements", false );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -1351,4 +1351,3 @@ namespace moris
 #ifdef __cplusplus
 }
 #endif
-
