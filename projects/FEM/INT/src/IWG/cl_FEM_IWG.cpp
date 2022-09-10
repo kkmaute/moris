@@ -4225,8 +4225,11 @@ namespace moris
                 tFI->set_coeff( tCoeff );
             }
 
+            // get the requested ip pdv types for the slave side
+            mSet->get_ip_dv_types_for_set( tRequestedPdvTypes, mtk::Master_Slave::SLAVE );
+
             // loop over the slave dv types associated with a FI
-            for ( uint iFI = 0; iFI < tNumDvType; iFI++ )
+            for ( uint iFI = 0; iFI < tRequestedPdvTypes.size(); iFI++ )
             {
                 // get dv index
                 sint tDvDepIndex = mSet->get_dv_index_for_type(

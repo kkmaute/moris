@@ -380,6 +380,9 @@ namespace fem
             Matrix< IndexMat > tSlaveVerticesInds =
                 mSlaveInterpolationCell->get_base_cell()->get_vertex_inds();
 
+            // get the list of requested dv types by the opt solver for the slave side
+            mSet->get_ip_dv_types_for_set( tRequestedDvTypes, mtk::Master_Slave::SLAVE );
+
             // loop over the dv types
             for ( uint Ik = 0; Ik < tRequestedDvTypes.size(); Ik++ )
             {
