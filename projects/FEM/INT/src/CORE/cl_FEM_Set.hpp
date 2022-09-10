@@ -1039,11 +1039,14 @@ namespace moris
             void get_ig_unique_dv_types_for_set( moris::Cell< enum PDV_Type >& aGeoPdvType );
 
             //------------------------------------------------------------------------------
+            
             /**
              * get ip dv types for set from design variable interface
              * @param[ in ] aMatPdvType list of group of ip pdv types on set
+             * @param[ in ] aIsMaster determine the master / slave side, only for dbl sided set, is master by default
              */
-            void get_ip_dv_types_for_set( moris::Cell< moris::Cell< enum PDV_Type > >& aMatPdvType );
+
+            void get_ip_dv_types_for_set( moris::Cell< moris::Cell< enum PDV_Type > >& aMatPdvType, mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
 
             //------------------------------------------------------------------------------
 

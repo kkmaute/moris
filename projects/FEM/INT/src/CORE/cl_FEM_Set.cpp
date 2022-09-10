@@ -1923,8 +1923,7 @@ namespace moris
         Set::create_mat_pdv_assembly_map()
         {
             // get the list of requested dv types by the opt solver
-            moris::Cell< moris::Cell< enum PDV_Type > > tRequestedDvTypes;
-            this->get_ip_dv_types_for_set( tRequestedDvTypes );
+            moris::Cell< enum PDV_Type >  tRequestedDvTypes = mUniqueDvTypeList;
 
             // init the max index for dv types
             sint tMaxDvIndex = -1;
@@ -1934,7 +1933,7 @@ namespace moris
             {
                 // get the set index for the requested master dof type
                 sint tDvIndex = this->get_dv_index_for_type(
-                        tRequestedDvTypes( Ik )( 0 ),
+                        tRequestedDvTypes( Ik ),
                         mtk::Master_Slave::MASTER );
 
                 // if the index was set (and is different from -1)
@@ -1946,7 +1945,7 @@ namespace moris
 
                 // get the set index for the requested slave slave type
                 tDvIndex = this->get_dv_index_for_type(
-                        tRequestedDvTypes( Ik )( 0 ),
+                        tRequestedDvTypes( Ik ),
                         mtk::Master_Slave::SLAVE );
 
                 // if the index was set (and is different -1)
@@ -1976,14 +1975,14 @@ namespace moris
             {
                 // get the set index for the requested master dv type
                 sint tDvIndex = this->get_dv_index_for_type(
-                        tRequestedDvTypes( Ik )( 0 ),
+                        tRequestedDvTypes( Ik ),
                         mtk::Master_Slave::MASTER );
 
                 // if the index was set (and is different from -1)
                 if ( tDvIndex != -1 )
                 {
                     // get the FI related to the master pdv type
-                    Field_Interpolator* tFI = mMasterFIManager->get_field_interpolators_for_type( tRequestedDvTypes( Ik )( 0 ) );
+                    Field_Interpolator* tFI = mMasterFIManager->get_field_interpolators_for_type( tRequestedDvTypes( Ik ) );
 
                     // get the number of coefficients related to the master dv type
                     uint tNumCoeff = tFI->get_number_of_space_time_coefficients();
@@ -2003,14 +2002,14 @@ namespace moris
             {
                 // get the set index for the slave dv type
                 sint tDvIndex = this->get_dv_index_for_type(
-                        tRequestedDvTypes( Ik )( 0 ),
+                        tRequestedDvTypes( Ik ),
                         mtk::Master_Slave::SLAVE );
 
                 // if the dv type was set (its set index is different from -1)
                 if ( tDvIndex != -1 )
                 {
                     // get the FI related to the master pdv type
-                    Field_Interpolator* tFI = mSlaveFIManager->get_field_interpolators_for_type( tRequestedDvTypes( Ik )( 0 ) );
+                    Field_Interpolator* tFI = mSlaveFIManager->get_field_interpolators_for_type( tRequestedDvTypes( Ik ) );
 
                     // get the number of coefficients for the slave dv type
                     uint tNumCoeff = tFI->get_number_of_space_time_coefficients();
@@ -2567,14 +2566,11 @@ namespace moris
                 moris::Cell< moris::Cell< enum PDV_Type > > tRequestedDvTypes;
                 this->get_ip_dv_types_for_set( tRequestedDvTypes );
 
-                // get the number of requested pdv types
-                uint tNumRequestedPdvTypes = tRequestedDvTypes.size();
-
                 // init pdv coefficient counter
                 uint tNumPdvCoefficients = 0;
 
                 // loop over the requested dv types
-                for ( uint Ik = 0; Ik < tNumRequestedPdvTypes; Ik++ )
+                for ( uint Ik = 0; Ik < tRequestedDvTypes.size() ; Ik++ )
                 {
                     // get the set index for the master dof type
                     sint tDvIndex = this->get_dv_index_for_type(
@@ -2587,9 +2583,15 @@ namespace moris
                         // update number of dof coefficients
                         tNumPdvCoefficients += mMasterFIManager->get_field_interpolators_for_type( tRequestedDvTypes( Ik )( 0 ) )->get_number_of_space_time_coefficients();
                     }
+                }
+                // get the requested pdv types for the slave side
+                this->get_ip_dv_types_for_set( tRequestedDvTypes, mtk::Master_Slave::SLAVE );
 
+                // loop over the requested dv types
+                for ( uint Ik = 0; Ik < tRequestedDvTypes.size(); Ik++ )
+                {
                     // get the set index for the slave dv type
-                    tDvIndex = this->get_dv_index_for_type(
+                    sint tDvIndex = this->get_dv_index_for_type(
                             tRequestedDvTypes( Ik )( 0 ),
                             mtk::Master_Slave::SLAVE );
 
@@ -2707,9 +2709,16 @@ namespace moris
                         // update number of dof coefficients
                         tNumCols += mMasterFIManager->get_field_interpolators_for_type( tRequestedDvTypes( Ik )( 0 ) )->get_number_of_space_time_coefficients();
                     }
+                }
 
-                    // get the set index for the slave dv type
-                    tDvIndex = this->get_dv_index_for_type(
+                // get the slave side dv types
+                this->get_ip_dv_types_for_set( tRequestedDvTypes, mtk::Master_Slave::SLAVE );
+
+                // loop over the requested dv types
+                for ( uint Ik = 0; Ik < tRequestedDvTypes.size(); Ik++ )
+                {
+                    // get the set index for the master dof type
+                    sint tDvIndex = this->get_dv_index_for_type(
                             tRequestedDvTypes( Ik )( 0 ),
                             mtk::Master_Slave::SLAVE );
 
@@ -3439,10 +3448,28 @@ namespace moris
 
         void
         Set::get_ip_dv_types_for_set(
-                moris::Cell< moris::Cell< enum PDV_Type > >& aMatPdvType )
+                moris::Cell< moris::Cell< enum PDV_Type > >& aMatPdvType,
+                mtk::Master_Slave aIsMaster )
         {
-            //
-            aMatPdvType = mMasterDvTypes;
+            // choose based on the master, slave type
+            // the output here is gather from fem
+            switch ( aIsMaster )
+            {
+                case mtk::Master_Slave::MASTER:
+                {
+                    aMatPdvType = mMasterDvTypes;
+                    break;
+                }
+
+                case mtk::Master_Slave::SLAVE:
+                {
+                    aMatPdvType = mSlaveDvTypes;
+                    break;
+                }
+
+                default:
+                    MORIS_ERROR( false, "Set::get_ip_dv_types_for_set - can only be master or slave." );
+            }
 
             // FIXME
             //            // get design variable interface
