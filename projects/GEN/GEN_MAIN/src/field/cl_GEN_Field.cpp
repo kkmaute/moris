@@ -47,7 +47,7 @@ namespace moris
                 , mSensitivities( 1, aFieldVariableIndices.length() + aConstants.length() )
                 , mConstants( aConstants )
                 , mParameters( aParameters )
-                , mDeterminingADVIds( aFieldVariableIndices.length() + aConstants.length(), 1, -1 )
+                , mDeterminingADVIds( aFieldVariableIndices.length() + aConstants.length(), 1, MORIS_ID_MAX )
                 , mDependsOnADVs( aADVIndices.length() )
         {
             // Check that refinement information is correct
@@ -152,7 +152,7 @@ namespace moris
         {
             for ( uint tVariableIndex = 0; tVariableIndex < mDeterminingADVIds.length(); tVariableIndex++ )
             {
-                if ( mDeterminingADVIds( tVariableIndex ) > -1 )
+                if ( mDeterminingADVIds( tVariableIndex ) < MORIS_ID_MAX )
                 {
                     mFieldVariables( tVariableIndex ) = get_address( aADVs, mDeterminingADVIds( tVariableIndex ) );
                 }
