@@ -78,7 +78,7 @@ namespace moris
     uint tNumConstraints = 3;
 
     // background mesh parameters
-    std::string tNumElementsPerDir = tIs3D ? "1,1,1"       : "1,1";
+    std::string tNumElementsPerDir = tIs3D ? "4,4,4"       : "4,4";
     std::string tDimensions        = tIs3D ? "1,1,1"       : "1,1";
     std::string tOffSet            = tIs3D ? "0.0,0.0,0.0" : "0.0,0.0";
     std::string tSideSets          = tIs3D ? "1,2,3,4,5,6" : "1,2,3,4";
@@ -88,7 +88,7 @@ namespace moris
     // note: pattern 0 - Levelset field  pattern 1 - displacement field
     std::string tLagrangeOrder   = "1";
     std::string tBsplineOrder    = "1";
-    std::string tInitialRef      = "3";
+    std::string tInitialRef      = "1";
     std::string tLagrangePattern = "0";
 
     int tDispOrder           = 1;
