@@ -221,30 +221,6 @@ foreach(TPL ${LINALG_TPL_DEPENDENCIES})
 endforeach()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Linear Algebra Executable
-
-if(BUILD_LINALG)
-	# LINALG Executable
-	# List source files
-	set(EXE_SOURCES
-	        main.cpp)
-	
-	# List library dependencies
-	set(EXE_DEPENDENCIES 
-		${LINALG}-lib
-		${MORIS_BASE_LIBS}
-		${COM}-lib
-	    )
-		
-	# Set the output path for library
-	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${bin})
-	
-	# Create library
-	add_executable(${LINALG} ${EXE_SOURCES})
-	target_link_libraries(${LINALG} PRIVATE ${EXE_DEPENDENCIES})
-endif()
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Linear Algebra Config Files
 
 # Makes sure all tpl dependencies are searched for in the config file
@@ -302,13 +278,6 @@ install(FILES ${HEADERS}
 install(TARGETS ${LINALG}-lib
 	EXPORT ${LINALG}Targets
     DESTINATION ${${LINALG}_LIB_INSTALL_DIR} )
-
-# Install executable
-if(BUILD_LINALG)
-	install(TARGETS ${LINALG}
-		EXPORT ${LINALG}Targets
-	    DESTINATION ${${LINALG}_EXE_INSTALL_DIR} )
-endif()
 
 # Export library into *Targets file
 install(EXPORT ${LINALG}Targets
