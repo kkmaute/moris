@@ -85,7 +85,6 @@ if(NOT BOOST_FOUND_ONCE)
 	    set(MORIS_BOOST_INCLUDE_DIRS ${Boost_INCLUDE_DIRS})
 	    set(MORIS_BOOST_LIBRARY_DIRS ${Boost_LIBRARY_DIRS})
 	    set(MORIS_BOOST_LIBRARIES 
-	    	Boost::filesystem 
 	    	Boost::system 
 	    	Boost::log 
 	    	Boost::log_setup 
