@@ -23,9 +23,6 @@ if(NOT BOOST_FOUND_ONCE)
 	    message(STATUS "Boost_LIBRARY_DIRS: ${Boost_LIBRARY_DIRS}")
 	    message(STATUS "Boost_LIBRARIES: ${Boost_LIBRARIES}")
 	
-	    message(STATUS "Boost_FILESYSTEM_FOUND: ${Boost_FILESYSTEM_FOUND}")
-	    message(STATUS "Boost_FILESYSTEM_LIBRARY: ${Boost_FILESYSTEM_LIBRARY}")
-	
 	    message(STATUS "Boost_SYSTEM_FOUND: ${Boost_SYSTEM_FOUND}")
 	    message(STATUS "Boost_SYSTEM_LIBRARY: ${Boost_SYSTEM_LIBRARY}")
 	
