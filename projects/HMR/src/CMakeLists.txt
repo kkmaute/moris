@@ -85,7 +85,6 @@ set(HEADERS
     fn_HMR_Background_Element_Neighbors_3D.hpp
     fn_HMR_Exec_dump_fields.hpp
     fn_HMR_Exec_dump_meshes.hpp
-    fn_HMR_Exec_dump_meshes.hpp.backup
     fn_HMR_Exec_initialize_fields.hpp
     fn_HMR_Exec_load_parameters.hpp
     fn_HMR_Exec_load_user_library.hpp

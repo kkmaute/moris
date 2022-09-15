@@ -62,7 +62,6 @@ set(HEADERS
 	field/geometry/cl_GEN_Multigeometry.hpp
 	field/geometry/cl_GEN_Swiss_Cheese_Slice.hpp
 	field/geometry/fn_GEN_create_geometries.hpp
-	field/geometry/cl_GEN_Child_Node.hpp
     field/geometry/st_GEN_Geometry_Parameters.hpp
     
 
@@ -76,6 +75,8 @@ set(HEADERS
     field/st_GEN_Field_Parameters.hpp
 
 	pdv/cl_GEN_Pdv_Host_Manager.hpp
+	pdv/cl_GEN_Child_Node.hpp
+	
 	pdv/cl_GEN_Interpolation_Pdv_Host.hpp
 	pdv/cl_GEN_Pdv.hpp
 	pdv/cl_GEN_Pdv_Value.hpp

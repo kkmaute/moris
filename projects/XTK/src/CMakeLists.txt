@@ -13,14 +13,12 @@ set(${XTK}_VERSION ${MORIS_VERSION})
 
 # List header files                                                                                                                                                                                                                                                            
 set(HEADERS
-    fn_num_digits.hpp
     cl_XTK_Matrix_Base_Utilities.hpp
     fn_verify_tet_topology.hpp
     cl_Interpolaton.hpp
     fn_approximate.hpp
     fn_bubble_sort.hpp
     fn_hex_8_volume.hpp
-    fn_matrix_to_offset.hpp
     fn_Pairing.hpp
     fn_tet_volume.hpp
     cl_XTK_Basis_Function.hpp
@@ -80,9 +78,7 @@ set(HEADERS
     fn_compute_xtk_model_volumes.hpp
     fn_create_edges_from_element_to_node.hpp
     fn_create_faces_from_element_to_node.hpp
-    fn_generate_cross_boundary_pairs.hpp
     fn_generate_element_to_element.hpp
-    fn_generate_shared_face_element_graph.hpp
     fn_local_child_mesh_flood_fill.hpp
     fn_mesh_flood_fill.hpp
     fn_prune_element_to_element.hpp
