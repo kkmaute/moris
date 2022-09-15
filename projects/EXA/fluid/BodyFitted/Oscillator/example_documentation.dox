@@ -1,0 +1,112 @@
+namespace moris {
+
+/** \page EXA_Oscillator Oscillator
+
+# Problem Description
+This example demonstrates transient analysis of fluid flow in fluidic Oscillator under prescribed dirichlet boundary conditions.
+Key features of the problem formulation are:
+
+- Mesh: BodyFitted Mesh
+- Transient Simulation
+
+The other basic features of the example are summarized in the \ref Oscillator_features "Main Features of Problem".
+
+<table>
+<caption id="Oscillator_features">Main Features of Problem</caption>
+<tr><th>Feature</th>                        <th> Value</th>                     <th> Comment</th></tr>
+<tr><td>Dimensionality</td>                 <td> 2D</td>                        <td> </td></tr>
+<tr><td>Mesh type</td>                      <td> BodyFitted</td>                <td> </td></tr>
+<tr><td>Optimization Scheme</td>            <td> None </td>                     <td> </td></tr>
+<tr><td>Material/Phases</td>                <td> One</td>                       <td> Fluid</td> </tr>
+<tr><td>Physics</td>                        <td> Water Flow in Oscillator</td>  <td> Transient</td></tr>
+<tr><td>Dirichlet boundary conditions</td>  <td> Nitsche Penalty</td>           <td> V = 0.5 at inlet</tr>
+<tr><td>Neumann boundary conditions</td>    <td> none</td>                      <td> </td></tr>
+<tr><td>Interface conditions</td>           <td> none</td>                      <td> </td></tr>
+<tr><td>Discretization</td>                 <td> Per mesh definition</td>       <td> </td> </tr>
+<tr><td>Refinement</td>                     <td> none </td>                     <td> </td></tr>
+<tr><td>Parallel</td>                       <td> none</td>                      <td> </td></tr>
+</table>
+
+# WorkFlow
+
+See the image below to see workflow of Bodyfitted Mesh problem.
+
+\image html Oscillator_image_workflow.png "Bodyfitted Mesh WorkFlow" width=50%
+
+Refer to developer's notes for detailed description of various files used in the workflow.
+
+# Problem Setup
+The computational domain is defined as a geometry of fluidic oscillator. Inlet velocity is defined as a dirichlet boundary conditions. Current transient analysis is done based on transient parameters defined per Oscillator.cpp file. Analysis results show oscillating fluid flow in the outlet tank.
+
+\image html Oscillator_image-1.jpeg "Problem Domain" width=50%
+
+Cubit allows to add sidesets to exodus mesh file at the boundary of oscillator. Sidesets are divided into inlet, outlet and wall sidesets at the edge of triangular or quadrilateral elements. Graphical Representation of sidesets is shown per below image. Sideset 1 and 2 represent inlet sidesets. Sidesets 3 and 4 represent outlet sidesets. Sideset 5 and 6
+represent wall sidesets.
+
+\image html Oscillator_image_sideset.png "Sidesets" width=50%
+
+Material properties used can be found in Table \ref Oscillator_properties "Material Properties"
+
+<table>
+<caption id="Oscillator_Flow_properties">Material Properties</caption>
+<tr><th>Property</th>                        <th> Value </th></tr>
+<tr><td>Thickness of Domain</td>             <td>  3e-3  </td></tr>
+<tr><td>Viscosity</td>                       <td>  1.12e-3  </td></tr>
+<tr><td>Density</td>                         <td>  999     </td></tr>
+</table>
+
+
+<table>
+<caption id="Transient_Analysis_Parameters">Transient Parameters</caption>
+<tr><th>Parameter</th>                       <th> Value </th></tr>
+<tr><td>Time End </td>                       <td>  0.010  </td></tr>
+<tr><td> Time Step </td>                     <td>  0.005  </td></tr>
+<tr><td> Time Ramp </td>                     <td>  0.25  </td></tr>
+</table>
+
+# Finite Element Solution
+
+Velocity field in the domain of oscillator are shown per below figure.
+
+
+\image html Oscillator_image-2.jpeg "Velocity Field Vx at t=0.01s" width=50%
+
+\image html Oscillator_image-3.jpeg "Velocity Field Vy at t=0.01s" width=50%
+
+Pressure field in the domain of oscillator is shown per below figure.
+\image html Oscillator_image-4.jpeg "Pressure Field in Domain at t=0.01s" width=50%
+
+
+# Reference Solution
+
+
+# Literature
+
+
+# Developer Notes
+
+Please see below table to understand different files and their use in formulating this problem.
+
+<table>
+<caption id="Files">File Utility Table</caption>
+<tr><th>File Type</th>        <th> File Name </th>            <th> Function of File</th></tr>
+<tr><td>Input Data File</td>  <td> *.nas File </td>           <td> This file includes nodal coordinates and element connectivity \n data generated as a standard COMSOL output.</td></tr>
+<tr><td> MATLAB Function</td> <td> DataExtractor.m </td>      <td> This matlab function extracts required nodal coordinates and element connectivity data from *.nas file. This file is \n
+                                                                   located at moris/projects/EXA/fluid/BodyFitted/Oscillator/DataExtractor.m \n </td></tr>
+<tr><td> MATLAB Script </td>  <td> ProcessMesh.m </td>        <td> This matlab script calls DataExtractor.m functions and uses data from it to generate *.exo file (Exodus Mesh). This \n
+                                                                   file is located at moris/projects/EXA/fluid/BodyFitted/Oscillator/ProcessMesh.m </td></tr>
+<tr><td> Cubit File   </td>   <td> *.g file </td>             <td> This file is a Bodyfitted mesh file generated in cubit after adding sidesets to *.exo file. Sidesets are added at the \n
+                                                                   domain boundary to quad and triangular elements. Sidesets are further divided into 3 subcategory, namely inlet \n
+                                                                   sidesets, outlet sidesets and wall sidesets. </td></tr>
+<tr><td> Input File </td>     <td> Oscillator.cpp </td>       <td> This is a standard C++ input file for the problem that goes into input in MORIS. Provide, full path of *.g file for \n
+                                                                   MeshFile variable. </td></tr>
+</table>
+
+
+<b> MORIS  </b>              : Run MORIS into the directory of the problem using following command. \n
+                       $ <b>   moris.sh dbg 1 Oscillator </b>
+
+
+
+*/
+}
