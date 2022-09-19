@@ -129,7 +129,7 @@ namespace moris
     std::string tExoFile = tName + ".exo";
     std::string tSoFile  = tName + ".so";
 
-    std::string tMeshFileName = "/home/bhavsar/codes/moris/projects/EXA/fluid/BodyFitted/Oscillator/Oscillator.g";
+    std::string tMeshFileName = "$MORISROOT/projects/EXA/fluid/BodyFitted/Oscillator/Oscillator.g";
 
     /* ------------------------------------------------------------------------ */
     // Output Config
