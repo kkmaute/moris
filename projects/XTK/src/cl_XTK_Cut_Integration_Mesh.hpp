@@ -859,7 +859,7 @@ namespace xtk
             // ----------------------------------------------------------------------------------
 
             moris_index
-            get_subphase_id( moris_index aSubPhaseIndex );
+            get_subphase_id( moris_index aSubphaseIndex );
 
             // ----------------------------------------------------------------------------------
 
@@ -869,14 +869,28 @@ namespace xtk
             // ----------------------------------------------------------------------------------
 
             moris_index
-            get_subphase_bulk_phase( moris_index aSubPhaseIndex );
+            get_subphase_bulk_phase( moris_index aSubphaseIndex );
+
+            // ----------------------------------------------------------------------------------
+
+            moris_index
+            get_subphase_group_id( 
+                    moris_index aSubphaseGroupIndex, 
+                    moris_index aBsplineMeshListIndex );
+
+            // ----------------------------------------------------------------------------------
+
+            moris_index
+            get_subphase_group_index( 
+                    moris_id aSubphaseGroupId, 
+                    moris_index aBsplineMeshListIndex );
 
             // ----------------------------------------------------------------------------------
 
             moris_index
             get_subphase_group_bulk_phase(
-                    moris_index aSubPhaseGroupIndex,
-                    moris_index aMeshListIndex );
+                    moris_index aSubphaseGroupIndex,
+                    moris_index aBsplineMeshListIndex );
 
             // ----------------------------------------------------------------------------------
 
@@ -991,6 +1005,11 @@ namespace xtk
 
             void
             setup_glob_to_loc_subphase_map();
+
+            // ----------------------------------------------------------------------------------
+
+            void
+            construct_spg_id_to_index_map( moris_index aBsplineMeshListIndex );
 
             // ----------------------------------------------------------------------------------
 
