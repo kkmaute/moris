@@ -3355,7 +3355,7 @@ namespace xtk
                 moris::Cell< moris_index > const &tIgCellsInSPG = tBsplineMeshInfo->mSubphaseGroups( iSPG )->get_ig_cell_indices_in_group();
 
                 // get the SPG's index
-                moris_id tSpgId = tBsplineMeshInfo->mSubphaseGroupIds( iSPG );
+                moris_id tSpgId = tBsplineMeshInfo->get_id_for_spg_index( iSPG );
 
                 // assign current SPG index to all IG cells in SPG
                 for ( uint iIgCell = 0; iIgCell < tIgCellsInSPG.size(); iIgCell++ )

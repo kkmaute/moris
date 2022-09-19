@@ -217,8 +217,8 @@ namespace xtk
         moris::Cell< Subphase_Group* > mSubphaseGroups;
         moris::Cell< moris_index > mOwnedSubphaseGroupIndices; // list of SPG indices owned by the current proc
         moris::Cell< moris_index > mNotOwnedSubphaseGroupIndices; // list of SPG indices NOT owned by the current proc
-        moris::Cell< moris_id > mSubphaseGroupIds; // IDs corresponding to SPGs in first list
         moris_id mAllocatedSpgIds = 1; // tracker for which IDs have already been taken (NOTE: this information only gets updated on proc 0)
+        std::unordered_map< moris::moris_id, moris::moris_index > mSpgIdtoIndexMap; // to get the SPG index for a given SPG ID
 
         // SP to SPG map
         // input: SP index || output: index of SPG the SP belongs to
@@ -274,6 +274,30 @@ namespace xtk
             
             // return value
             return (uint) mMaxSpgIndex + 1;
+        }
+
+        // ----------------------------------------------------------------------------------
+
+        moris_id
+        get_id_for_spg_index( moris_index aSubphaseGroupIndex ) const
+        {
+            return mSubphaseGroups( aSubphaseGroupIndex )->get_id();
+        }
+
+        // ----------------------------------------------------------------------------------
+
+        moris_id
+        get_index_for_spg_id( moris_id aSubphaseGroupId ) const
+        {
+            // find ID in map
+            auto tIter = mSpgIdtoIndexMap.find( aSubphaseGroupId );
+
+            // make sure the map entry makes sense
+            MORIS_ASSERT( tIter != mSpgIdtoIndexMap.end(), 
+                    "Bspline_Mesh_Info::get_index_for_spg_id() - Subphase Group ID not in map: %i.", aSubphaseGroupId );
+
+            // return index associated with SPG ID
+            return tIter->second;
         }
 
         // ----------------------------------------------------------------------------------
@@ -542,9 +566,6 @@ namespace xtk
         void
         assign_owned_subphase_group_ids( moris_id aFirstSpgId )
         {
-            // set size of array storing SPG IDs
-            mSubphaseGroupIds.resize( this->get_num_SPGs(), MORIS_ID_MAX );
-
             // get the number of owned 
             uint tNumOwnedSPGs = mOwnedSubphaseGroupIndices.size();
 
@@ -559,7 +580,6 @@ namespace xtk
                 moris_index mOwnedSpgIndex = mOwnedSubphaseGroupIndices( iOwnedSPG );
 
                 // assign ID to SPG
-                mSubphaseGroupIds( mOwnedSpgIndex ) = aFirstSpgId;
                 mSubphaseGroups( mOwnedSpgIndex )->set_id( aFirstSpgId );
 
                 // increment the ID for the next SPG

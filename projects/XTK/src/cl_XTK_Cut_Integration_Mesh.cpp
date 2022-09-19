@@ -1004,9 +1004,9 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     moris_index
-    Cut_Integration_Mesh::get_subphase_id( moris_index aSubPhaseIndex )
+    Cut_Integration_Mesh::get_subphase_id( moris_index aSubphaseIndex )
     {
-        return mSubPhaseIds( aSubPhaseIndex );
+        return mSubPhaseIds( aSubphaseIndex );
     }
 
     // ----------------------------------------------------------------------------------
@@ -1027,23 +1027,44 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     moris_index
-    Cut_Integration_Mesh::get_subphase_bulk_phase( moris_index aSubPhaseIndex )
+    Cut_Integration_Mesh::get_subphase_bulk_phase( moris_index aSubphaseIndex )
     {
-        return mSubPhaseBulkPhase( aSubPhaseIndex );
+        return mSubPhaseBulkPhase( aSubphaseIndex );
+    }
+
+    // ----------------------------------------------------------------------------------
+
+    moris_index
+    Cut_Integration_Mesh::get_subphase_group_id( 
+            moris_index aSubphaseGroupIndex,
+            moris_index aBsplineMeshListIndex )
+    {
+        return mBsplineMeshInfos( aBsplineMeshListIndex )->mSubphaseGroups( aSubphaseGroupIndex )->get_id();
+    }
+
+    // ----------------------------------------------------------------------------------
+
+    moris_index
+    Cut_Integration_Mesh::get_subphase_group_index(
+            moris_index aSubphaseGroupId,
+            moris_index aBsplineMeshListIndex )
+    {
+        // get the index for the SPG ID
+        return mBsplineMeshInfos( aBsplineMeshListIndex )->get_index_for_spg_id( aSubphaseGroupId );
     }
 
     // ----------------------------------------------------------------------------------
 
     moris_index
     Cut_Integration_Mesh::get_subphase_group_bulk_phase(
-            moris_index aSubPhaseGroupIndex,
-            moris_index aMeshListIndex )
+            moris_index aSubphaseGroupIndex,
+            moris_index aBsplineMeshListIndex )
     {
         // get representative SP from SPG
-        moris_index tSubPhaseIndex = mBsplineMeshInfos( aMeshListIndex )->mSubphaseGroups( aSubPhaseGroupIndex )->get_SP_indices_in_group()( 0 );
+        moris_index tSubphaseIndex = mBsplineMeshInfos( aBsplineMeshListIndex )->mSubphaseGroups( aSubphaseGroupIndex )->get_SP_indices_in_group()( 0 );
 
         // get and return Bulk phase index of SPG through SP
-        return mSubPhaseBulkPhase( tSubPhaseIndex );
+        return mSubPhaseBulkPhase( tSubphaseIndex );
     }
 
     // ----------------------------------------------------------------------------------
@@ -1253,6 +1274,43 @@ namespace xtk
             MORIS_ASSERT( tSubphaseId != MORIS_INDEX_MAX, "Subphase id set to max" );
             MORIS_ASSERT( mGlobalToLocalSubphaseMap.find( tSubphaseId ) == mGlobalToLocalSubphaseMap.end(), "Subphase id already in map" );
             mGlobalToLocalSubphaseMap[tSubphaseId] = i;
+        }
+    }
+
+    // ----------------------------------------------------------------------------------
+
+    void
+    Cut_Integration_Mesh::construct_spg_id_to_index_map( moris_index aBsplineMeshListIndex )
+    {
+        // quickly get access to the B-spline mesh info for the current B-spline mesh
+        Bspline_Mesh_Info* tBsplineMeshInfo = mBsplineMeshInfos( aBsplineMeshListIndex );
+
+        // get access to the map stored in the B-spline mesh info
+        std::unordered_map< moris::moris_id, moris::moris_index >& tSpgIdtoIndexMap = tBsplineMeshInfo->mSpgIdtoIndexMap;
+
+        // clear any information that may already be in it
+        tSpgIdtoIndexMap.clear();
+
+        // get the number of SPGs on the current B-spline mesh and processor
+        uint tNumSpgs = tBsplineMeshInfo->get_num_SPGs();
+
+        // loop over all SPGs and put their IDs in the map
+        for ( moris::uint iSPG = 0; iSPG < tNumSpgs; iSPG++ )
+        {
+            // get the ID of the currently treated SPG
+            moris_id tSpgId = tBsplineMeshInfo->get_id_for_spg_index( iSPG );
+
+            // check validity of SPG ID
+            MORIS_ERROR( tSpgId != MORIS_ID_MAX, 
+                    "Cut_Integration_Mesh::construct_spg_id_to_index_map() - "
+                    "Subphase Group ID not set. Should be set when this function is called." );
+
+            MORIS_ASSERT( tSpgIdtoIndexMap.find( tSpgId ) == tSpgIdtoIndexMap.end(), 
+                    "Cut_Integration_Mesh::construct_spg_id_to_index_map() - "
+                    "Subphase id already in map" );
+
+            // fill map
+            tSpgIdtoIndexMap[ tSpgId ] = iSPG;
         }
     }
 
