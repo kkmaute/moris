@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
 set(EXAMPLE_MAIN Main_Oscillator)
 set(EXAMPLE_FILE Oscillator)
 set(EXAMPLE_PROCS 1)
@@ -7,6 +14,9 @@ set(EXAMPLE_SOURCES
     ../../../src/example_main.cpp
     example_test_case.cpp
 )
+
+# Include functionality of paths
+include_directories( ${CMAKE_BINARY_DIR}/generated/ )
 
 # List include directories
 set(EXAMPLE_INCLUDES

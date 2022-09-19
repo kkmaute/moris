@@ -20,6 +20,7 @@
 #include "fn_PRM_XTK_Parameters.hpp"
 #include "fn_PRM_OPT_Parameters.hpp"
 #include "fn_PRM_STK_Parameters.hpp"
+#include "paths.hpp"
 
 #include "fn_equal_to.hpp"
 
@@ -129,8 +130,6 @@ namespace moris
     std::string tExoFile = tName + ".exo";
     std::string tSoFile  = tName + ".so";
 
-    std::string tMeshFileName = "./Oscillator.g";
-
     /* ------------------------------------------------------------------------ */
     // Output Config
 
@@ -211,6 +210,9 @@ namespace moris
     {
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
+
+        std::string tPrefix = moris::get_base_moris_dir();
+        std::string tMeshFileName = tPrefix + "/projects/EXA/fluid/laminar/Oscillator/Oscillator.g";
 
         tParameterlist( 0 )( 0 ) = prm::create_stk_parameter_list();
         tParameterlist( 0 )( 0 ).set( "input_file", tMeshFileName );
