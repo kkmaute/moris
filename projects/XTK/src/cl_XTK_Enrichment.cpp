@@ -478,7 +478,6 @@ namespace xtk
             // this->establish_IP_SPG_SP_relationship( tMeshIndex );
         }
 
-        // FIXME: enriched IP cells not parallel consistent yet
         // create the enriched interpolation mesh
         this->construct_enriched_interpolation_mesh_new();
 
