@@ -107,12 +107,12 @@ namespace moris
                             {
                                 case 0 :
                                 {
-                                    return 2;
+                                    return 3;
                                     break;
                                 }
                                 case 1 :
                                 {
-                                    return 3;
+                                    return 2;
                                     break;
                                 }
                                 default:
@@ -135,12 +135,12 @@ namespace moris
                             {
                                 case 1 :
                                 {
-                                    return 0;
+                                    return 2;
                                     break;
                                 }
                                 case 3 :
                                 {
-                                    return 2;
+                                    return 0;
                                     break;
                                 }
                                 default:
@@ -194,12 +194,12 @@ namespace moris
                                 }
                                 case 6 :
                                 {
-                                    return 4;
+                                    return 5;
                                     break;
                                 }
                                 case 7 :
                                 {
-                                    return 5;
+                                    return 4;
                                     break;
                                 }
                                 default:
@@ -232,12 +232,12 @@ namespace moris
                                 }
                                 case 4 :
                                 {
-                                    return 5;
+                                    return 7;
                                     break;
                                 }
                                 case 6 :
                                 {
-                                    return 7;
+                                    return 5;
                                     break;
                                 }
                                 default:
@@ -260,12 +260,12 @@ namespace moris
                             {
                                 case 0 :
                                 {
-                                    return 2;
+                                    return 3;
                                     break;
                                 }
                                 case 1 :
                                 {
-                                    return 3;
+                                    return 2;
                                     break;
                                 }
                                 case 4 :
@@ -298,12 +298,12 @@ namespace moris
                             {
                                 case 1 :
                                 {
-                                    return 0;
+                                    return 2;
                                     break;
                                 }
                                 case 3 :
                                 {
-                                    return 2;
+                                    return 0;
                                     break;
                                 }
                                 case 5 :
@@ -336,22 +336,22 @@ namespace moris
                             {
                                 case 4 :
                                 {
-                                    return 0;
+                                    return 2;
                                     break;
                                 }
                                 case 5 :
                                 {
-                                    return 1;
+                                    return 3;
                                     break;
                                 }
                                 case 6 :
                                 {
-                                    return 2;
+                                    return 1;
                                     break;
                                 }
                                 case 7 :
                                 {
-                                    return 3;
+                                    return 0;
                                     break;
                                 }
                                 default:
@@ -384,12 +384,12 @@ namespace moris
                                 }
                                 case 2 :
                                 {
-                                    return 6;
+                                    return 7;
                                     break;
                                 }
                                 case 3 :
                                 {
-                                    return 7;
+                                    return 6;
                                     break;
                                 }
                                 default:
