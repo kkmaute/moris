@@ -81,7 +81,6 @@ check_results(
     // check dimension, number of nodes and number of elements
     uint tNumDims  = tExoIO.get_number_of_dimensions();
     uint tNumNodes = tExoIO.get_number_of_nodes();
-    std::cout << tNumNodes << std::endl;
     uint tNumElems = tExoIO.get_number_of_elements();
 
     MORIS_LOG_INFO( "Check number of dimensions: reference %12d, actual %12d, percent error %12.5e.",
@@ -158,10 +157,10 @@ check_results(
         { tExoIO.get_nodal_field_value( tReferenceNodeId( aTestCaseIndex ), 2, 0 ) },
         { tExoIO.get_nodal_field_value( tReferenceNodeId( aTestCaseIndex ), 3, 0 ) }
     };
+
     //{ tExoIO.get_nodal_field_value( tReferenceNodeId(aTestCaseIndex), 4, 0 ) } };
-    std::cout << tExoIO.get_nodal_field_value( tReferenceNodeId( aTestCaseIndex ), 2, 0 ) << std::endl;
-    std::cout << tExoIO.get_nodal_field_value( tReferenceNodeId( aTestCaseIndex ), 3, 0 ) << std::endl;
-    // std::cout<<tExoIO.get_nodal_field_value( tReferenceNodeId(aTestCaseIndex), 4, 0 )<<std::endl;
+    //std::cout << tExoIO.get_nodal_field_value( tReferenceNodeId( aTestCaseIndex ), 2, 0 ) << std::endl;
+    //std::cout << tExoIO.get_nodal_field_value( tReferenceNodeId( aTestCaseIndex ), 3, 0 ) << std::endl;
 
     real tRelVelDifference = norm( tActualVelocity - tReferenceVelocity( aTestCaseIndex ) ) / norm( tReferenceVelocity( aTestCaseIndex ) );
 
@@ -196,7 +195,6 @@ check_results(
     tReferenceIQI.push_back( 0.151972186085483 );
     tReferenceIQI.push_back( 0.745731048974504 );
     tReferenceIQI.push_back( 0.766439736246741 );
-
 
     // real tActualIQI = tExoIO.get_global_variable(0, 4 );
     // std::cout<<tActualIQI<<std::endl;
