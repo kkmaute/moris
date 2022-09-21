@@ -43,11 +43,6 @@ find_library(HDF5_hdf5
 	HINTS
 	${HDF5_LIBRARY_DIRS} )
 
-find_library(HDF5_fortran
-	NAMES
-	hdf5_fortran
-	HINTS
-	${HDF5_LIBRARY_DIRS} )
 
 find_library(HDF5_hl
 	NAMES
@@ -55,11 +50,6 @@ find_library(HDF5_hl
 	HINTS
 	${HDF5_LIBRARY_DIRS} )
 
-find_library(HDF5_hl_fortran
-	NAMES
-	hdf5hl_fortran
-	HINTS
-	${HDF5_LIBRARY_DIRS} )
 
 set(HDF5_LIBRARIES
     ${HDF5_hdf5}
