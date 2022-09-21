@@ -24,6 +24,17 @@
 using namespace moris;
 using namespace dla;
 
+//----------------------------------------------------------------------------------------
+
+PetscErrorCode
+fn_KSPMonitorResidual( KSP ksp, PetscInt n, PetscReal rnorm, void *dummy )
+{
+    MORIS_LOG_INFO( "KSP Iteration %d: Residual norm = %e\n", n, rnorm );
+    return 0;
+}
+
+//----------------------------------------------------------------------------------------
+
 Linear_Solver_PETSc::Linear_Solver_PETSc()
 {
 
@@ -31,29 +42,29 @@ Linear_Solver_PETSc::Linear_Solver_PETSc()
 }
 
 Linear_Solver_PETSc::Linear_Solver_PETSc( const moris::ParameterList aParameterlist )
-: Linear_Solver_Algorithm( aParameterlist )
+        : Linear_Solver_Algorithm( aParameterlist )
 {
-
 }
 
 //----------------------------------------------------------------------------------------
-Linear_Solver_PETSc::Linear_Solver_PETSc( Linear_Problem * aLinearSystem )
+Linear_Solver_PETSc::Linear_Solver_PETSc( Linear_Problem *aLinearSystem )
 {
     mLinearSystem = aLinearSystem;
 
-    //FIXME add rest
+    // FIXME add rest
     this->set_solver_parameters();
 }
 
 //----------------------------------------------------------------------------------------
 Linear_Solver_PETSc::~Linear_Solver_PETSc()
 {
-    //KSPDestroy(&mPetscKSPProblem);
-//    PCDestroy(&mpc);
+    // KSPDestroy(&mPetscKSPProblem);
+    //    PCDestroy(&mpc);
 }
 
 //----------------------------------------------------------------------------------------
-void Linear_Solver_PETSc::set_solver_parameters()
+void
+Linear_Solver_PETSc::set_solver_parameters()
 {
     // Create parameter list and set default values fo solver parameters
 
@@ -86,15 +97,17 @@ void Linear_Solver_PETSc::set_solver_parameters()
 }
 
 //----------------------------------------------------------------------------------------
-moris::sint Linear_Solver_PETSc::solve_linear_system( )
+moris::sint
+Linear_Solver_PETSc::solve_linear_system()
 {
     return 0;
 }
 
 //----------------------------------------------------------------------------------------
-moris::sint Linear_Solver_PETSc::solve_linear_system(
-        Linear_Problem * aLinearSystem,
-        const moris::sint       aIter )
+moris::sint
+Linear_Solver_PETSc::solve_linear_system(
+        Linear_Problem   *aLinearSystem,
+        const moris::sint aIter )
 {
     Tracer tTracer( "LinearAlgorithm", "PETSc", "Solve" );
 
@@ -104,42 +117,42 @@ moris::sint Linear_Solver_PETSc::solve_linear_system(
     KSPCreate( PETSC_COMM_WORLD, &mPetscKSPProblem );
     KSPGetPC( mPetscKSPProblem, &mpc );
     KSPSetOperators( mPetscKSPProblem,
-                     aLinearSystem->get_matrix()->get_petsc_matrix(),
-                     aLinearSystem->get_matrix()->get_petsc_matrix() );
+            aLinearSystem->get_matrix()->get_petsc_matrix(),
+            aLinearSystem->get_matrix()->get_petsc_matrix() );
     KSPGMRESSetOrthogonalization( mPetscKSPProblem, KSPGMRESModifiedGramSchmidtOrthogonalization );
-//    KSPSetFromOptions( mPetscKSPProblem );
+    //    KSPSetFromOptions( mPetscKSPProblem );
 
-//    KSPSetUp( mPetscKSPProblem );
+    //    KSPSetUp( mPetscKSPProblem );
 
-    this->set_solver_internal_parameters( );
+    this->set_solver_internal_parameters();
 
     // build preconditiner class
     dla::Preconditioner_PETSc tPreconditioner( this );
 
-    if ( ! strcmp(mParameterList.get< std::string >( "PCType" ).c_str(), "mg") )
+    if ( !strcmp( mParameterList.get< std::string >( "PCType" ).c_str(), "mg" ) )
     {
         tPreconditioner.build_multigrid_preconditioner( aLinearSystem );
     }
-    else if ( ! strcmp(mParameterList.get< std::string >( "PCType" ).c_str(), "asm") )
+    else if ( !strcmp( mParameterList.get< std::string >( "PCType" ).c_str(), "asm" ) )
     {
         // build schwarz preconditioner
         tPreconditioner.build_schwarz_preconditioner_petsc();
     }
-    else if ( ! strcmp(mParameterList.get< std::string >( "PCType" ).c_str(), "mat") )
+    else if ( !strcmp( mParameterList.get< std::string >( "PCType" ).c_str(), "mat" ) )
     {
         // build schwarz preconditioner
         tPreconditioner.build_schwarz_preconditioner( aLinearSystem );
 
         KSPSetOperators( mPetscKSPProblem,
-                         aLinearSystem->get_matrix()->get_petsc_matrix(),
-                         tPreconditioner.get_preconditioner_matrix()->get_petsc_matrix() );
+                aLinearSystem->get_matrix()->get_petsc_matrix(),
+                tPreconditioner.get_preconditioner_matrix()->get_petsc_matrix() );
     }
 
-//    aLinearSystem->get_free_solver_LHS()->read_vector_from_HDF5( "Exact_Sol_petsc.h5" );
-//    aLinearSystem->get_free_solver_LHS()->print();
+    //    aLinearSystem->get_free_solver_LHS()->read_vector_from_HDF5( "Exact_Sol_petsc.h5" );
+    //    aLinearSystem->get_free_solver_LHS()->print();
 
-//    aLinearSystem->get_solver_RHS()->save_vector_to_HDF5( "Res_vec.h5" );
-//    aLinearSystem->get_solver_RHS()->print();
+    //    aLinearSystem->get_solver_RHS()->save_vector_to_HDF5( "Res_vec.h5" );
+    //    aLinearSystem->get_solver_RHS()->print();
 
     this->set_solver_analysis_options();
 
@@ -149,14 +162,14 @@ moris::sint Linear_Solver_PETSc::solve_linear_system(
     // Solve System
     KSPSolve(
             mPetscKSPProblem,
-            static_cast<Vector_PETSc*>(aLinearSystem->get_solver_RHS())->get_petsc_vector(),
-            static_cast<Vector_PETSc*>(aLinearSystem->get_free_solver_LHS())->get_petsc_vector() );
+            static_cast< Vector_PETSc * >( aLinearSystem->get_solver_RHS() )->get_petsc_vector(),
+            static_cast< Vector_PETSc * >( aLinearSystem->get_free_solver_LHS() )->get_petsc_vector() );
 
     // Output
-//    KSPView( mPetscKSPProblem, PETSC_VIEWER_STDOUT_WORLD );
+    //    KSPView( mPetscKSPProblem, PETSC_VIEWER_STDOUT_WORLD );
     moris::sint Iter;
-    KSPGetIterationNumber(mPetscKSPProblem, &Iter );
-    std::cout<<Iter<<" Iterations"<<std::endl;
+    KSPGetIterationNumber( mPetscKSPProblem, &Iter );
+    std::cout << Iter << " Iterations" << std::endl;
 
     mSolverInterface = nullptr;
 
@@ -164,76 +177,44 @@ moris::sint Linear_Solver_PETSc::solve_linear_system(
 }
 
 //----------------------------------------------------------------------------------------
-void Linear_Solver_PETSc::set_solver_analysis_options()
+
+void
+Linear_Solver_PETSc::set_solver_analysis_options()
 {
-    if(true)
-    {
-        PetscViewer tViewerRes;
-        PetscViewerCreate( PETSC_COMM_WORLD, &tViewerRes );
-        PetscViewerSetType( tViewerRes, PETSCVIEWERASCII );
-        PetscViewerFileSetName( tViewerRes, "Residual_Norms.txt" );
-
-        PetscViewerAndFormat *tViewerAndFormatRes;
-        PetscViewerAndFormatCreate( tViewerRes, PETSC_VIEWER_DEFAULT, &tViewerAndFormatRes );
-
-        KSPMonitorSet( mPetscKSPProblem,
-                       reinterpret_cast< int(*)( KSP, sint, real, void* ) >( KSPMonitorTrueResidualNorm ),
-                       tViewerAndFormatRes,
-                       NULL );
-    }
-
-    if(false)
-    {
-        KSPSetComputeSingularValues( mPetscKSPProblem, PETSC_TRUE );
-
-        PetscViewer tViewerSV;
-        PetscViewerCreate( PETSC_COMM_WORLD, &tViewerSV );
-        PetscViewerSetType( tViewerSV, PETSCVIEWERASCII );
-        PetscViewerFileSetName( tViewerSV, "Singular_Values.txt" );
-
-        PetscViewerAndFormat *tViewerAndFormatSV;
-        PetscViewerAndFormatCreate( tViewerSV, PETSC_VIEWER_DEFAULT, &tViewerAndFormatSV );
-
-        //KSPMonitorSet(KSP ksp,PetscErrorCode (*monitor)(KSP,PetscInt,PetscReal,void*),void *mctx,PetscErrorCode (*monitordestroy)(void**))
-        // e.g. KSPMonitorSet(ksp1,MyKSPMonitor,NULL,0);
-        // with      MyKSPMonitor(KSP,PetscInt,PetscReal,void*);
-
-        KSPMonitorSet( mPetscKSPProblem,
-                       reinterpret_cast< int(*)( KSP, sint, real, void* ) >( KSPMonitorSingularValue ),
-                       tViewerAndFormatSV,
-                       NULL );
-    }
-
+    KSPMonitorSet( mPetscKSPProblem,
+            fn_KSPMonitorResidual,
+            NULL,
+            0 );
 }
 
 //----------------------------------------------------------------------------------------
 
-void Linear_Solver_PETSc::set_solver_internal_parameters( )
+void
+Linear_Solver_PETSc::set_solver_internal_parameters()
 {
-        // Set KSP type
-        KSPSetType( mPetscKSPProblem, mParameterList.get< std::string >( "KSPType" ).c_str() );
-//        KSPSetInitialGuessNonzero( mPetscKSPProblem, PETSC_TRUE );
+    // Set KSP type
+    KSPSetType( mPetscKSPProblem, mParameterList.get< std::string >( "KSPType" ).c_str() );
+    //        KSPSetInitialGuessNonzero( mPetscKSPProblem, PETSC_TRUE );
 
-        // Set maxits and tolerance for ksp
-        KSPSetTolerances( mPetscKSPProblem, mParameterList.get< moris::real >( "KSPTol" ), PETSC_DEFAULT, PETSC_DEFAULT, mParameterList.get< moris::sint >( "KSPMaxits" ) );
+    // Set maxits and tolerance for ksp
+    KSPSetTolerances( mPetscKSPProblem, mParameterList.get< moris::real >( "KSPTol" ), PETSC_DEFAULT, PETSC_DEFAULT, mParameterList.get< moris::sint >( "KSPMaxits" ) );
 
-        // Set Gmres restart
-        KSPGMRESSetRestart( mPetscKSPProblem, mParameterList.get< moris::sint >( "KSPMGMRESRestart" ) );
+    // Set Gmres restart
+    KSPGMRESSetRestart( mPetscKSPProblem, mParameterList.get< moris::sint >( "KSPMGMRESRestart" ) );
 
-        // Sets tolerance for determining happy breakdown in GMRES, FGMRES and LGMRES.
-        KSPGMRESSetHapTol( mPetscKSPProblem, mParameterList.get< moris::real >( "KSPGMRESHapTol" ) );
+    // Sets tolerance for determining happy breakdown in GMRES, FGMRES and LGMRES.
+    KSPGMRESSetHapTol( mPetscKSPProblem, mParameterList.get< moris::real >( "KSPGMRESHapTol" ) );
 
-        // Set PC type
-        PCSetType( mpc, mParameterList.get< std::string >( "PCType" ).c_str() );
+    // Set PC type
+    PCSetType( mpc, mParameterList.get< std::string >( "PCType" ).c_str() );
 
-        // Set levels of fill for ILU
-        PCFactorSetLevels( mpc, mParameterList.get< moris::sint >( "ILUFill" ) );
+    // Set levels of fill for ILU
+    PCFactorSetLevels( mpc, mParameterList.get< moris::sint >( "ILUFill" ) );
 
-        // Set drop tolerance for Ilu
-        PCFactorSetDropTolerance( mpc, mParameterList.get< moris::real >( "ILUTol" ), PETSC_DEFAULT, PETSC_DEFAULT );
+    // Set drop tolerance for Ilu
+    PCFactorSetDropTolerance( mpc, mParameterList.get< moris::real >( "ILUTol" ), PETSC_DEFAULT, PETSC_DEFAULT );
 
-        PCSORSetOmega( mpc, 1 );
+    PCSORSetOmega( mpc, 1 );
 
-        PCSORSetIterations( mpc, 1 , 1 );
+    PCSORSetIterations( mpc, 1, 1 );
 }
-
