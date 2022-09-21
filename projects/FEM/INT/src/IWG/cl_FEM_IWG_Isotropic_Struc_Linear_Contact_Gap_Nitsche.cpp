@@ -54,7 +54,7 @@ namespace moris
         void
         IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche::compute_residual( real aWStar )
         {
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
             // check master and slave field interpolators
             this->check_field_interpolators( mtk::Master_Slave::MASTER );
             this->check_field_interpolators( mtk::Master_Slave::SLAVE );
@@ -188,7 +188,7 @@ namespace moris
         void
         IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche::compute_jacobian( real aWStar )
         {
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
             // check master and slave field interpolators
             this->check_field_interpolators( mtk::Master_Slave::MASTER );
             this->check_field_interpolators( mtk::Master_Slave::SLAVE );

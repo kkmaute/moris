@@ -176,14 +176,14 @@ namespace moris
         operator()(
                 moris::size_t const i_index )
                 -> decltype(
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
                         ( mCell.at( i_index ) )
 #else
                         ( mCell[ i_index ] )
 #endif
                 )
         {
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
             return ( mCell.at( i_index ) );
 #else
             return ( mCell[ i_index ] );
@@ -200,14 +200,14 @@ namespace moris
         operator()(
                 moris::size_t const i_index ) const
                 -> decltype(
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
                         ( mCell.at( i_index ) )
 #else
                         ( mCell[ i_index ] )
 #endif
                 )
         {
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
             return ( mCell.at( i_index ) );
 #else
             return ( mCell[ i_index ] );

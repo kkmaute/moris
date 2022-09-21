@@ -1319,7 +1319,7 @@ namespace moris
                     const moris_index aInterpolationIndex,
                     const moris_index aBasisIndex );
 
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
             virtual Matrix< DDRMat > get_basis_coords(
                         const moris_index aInterpolationIndex,
                         const moris_index aBasisIndex );

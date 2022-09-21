@@ -733,7 +733,7 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
             Matrix< DDRMat > get_basis_coords( const moris_index aInterpolationIndex,
                         const moris_index aBasisIndex )
                 {

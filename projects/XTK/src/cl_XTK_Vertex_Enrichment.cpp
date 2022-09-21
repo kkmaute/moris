@@ -55,7 +55,7 @@ void
 Vertex_Enrichment::add_basis_information( moris::Matrix<moris::IndexMat> const & aBasisIndices,
                                           moris::Matrix<moris::IndexMat> const & aBasisId)
 {
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
     // since I can't write these functions in one line, need to have ifdef
     moris::Matrix<moris::IndexMat> tUniqueBasis;
     moris::unique(aBasisIndices,tUniqueBasis);

@@ -435,7 +435,7 @@ endif()
 # Compile with -O compiler optimizations.
 # Debug flags.
 if (MORIS_HAVE_DEBUG)
-    list(APPEND MORIS_DEFINITIONS "-DDEBUG")
+    list(APPEND MORIS_DEFINITIONS "-DMORIS_HAVE_DEBUG")
 endif()
 
 if (MORIS_HAVE_SYMBOLIC)

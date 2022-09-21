@@ -1175,7 +1175,7 @@ namespace xtk
                 {
                     mEnrichmentData( aEnrichmentDataIndex ).mBulkPhaseInEnrichedBasis( tEnrBfIndex ) = tBulkPhaseIndex;
                 }
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
                 else    // if the bulk phase has already been set for this enr. BF  ...
                 {
                     // ... check if the newly found one is still the same as the one previously found

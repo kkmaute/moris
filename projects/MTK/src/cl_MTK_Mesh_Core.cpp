@@ -1247,7 +1247,7 @@ namespace moris
             MORIS_ERROR( false, "Mesh::get_elements_in_interpolation_cluster_and_side_ordinal() -  not implemented in mtk base class" );
         }
 
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
 
         Matrix< DDRMat > Mesh::get_basis_coords(
                 const moris_index aInterpolationIndex,

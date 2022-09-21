@@ -45,7 +45,7 @@ namespace moris
         IWG_Struc_Stress::compute_residual( real aWStar )
         {
             // check master field interpolators
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
             this->check_field_interpolators();
 #endif
 
@@ -90,7 +90,7 @@ namespace moris
         void
         IWG_Struc_Stress::compute_jacobian( real aWStar )
         {
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
             // check master field interpolators
             this->check_field_interpolators();
 #endif
@@ -174,7 +174,7 @@ namespace moris
         void
         IWG_Struc_Stress::compute_dRdp( real aWStar )
         {
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
             // check master field interpolators, properties and constitutive models
             this->check_field_interpolators();
 #endif

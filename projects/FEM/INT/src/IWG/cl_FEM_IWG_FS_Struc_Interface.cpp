@@ -28,7 +28,7 @@ namespace moris
 
         void IWG_FS_Struc_Interface::compute_residual( real aWStar )
         {
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
             // check master and slave field interpolators
             this->check_field_interpolators( mtk::Master_Slave::MASTER );
             this->check_field_interpolators( mtk::Master_Slave::SLAVE );
@@ -63,7 +63,7 @@ namespace moris
 
         void IWG_FS_Struc_Interface::compute_jacobian( real aWStar )
         {
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
             // check master and slave field interpolators
             this->check_field_interpolators( mtk::Master_Slave::MASTER );
             this->check_field_interpolators( mtk::Master_Slave::SLAVE );

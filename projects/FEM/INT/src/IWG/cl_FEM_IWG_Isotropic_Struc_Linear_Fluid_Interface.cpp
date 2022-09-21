@@ -45,7 +45,7 @@ namespace moris
 
         void IWG_Isotropic_Struc_Linear_Fluid_Interface::compute_residual( real aWStar )
         {
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
             // check master field interpolators, properties and constitutive models
             this->check_field_interpolators();
 #endif
@@ -83,7 +83,7 @@ namespace moris
         //------------------------------------------------------------------------------
         void IWG_Isotropic_Struc_Linear_Fluid_Interface::compute_jacobian( real aWStar )
         {
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
             // check master field interpolators, properties and constitutive models
             this->check_field_interpolators();
 #endif

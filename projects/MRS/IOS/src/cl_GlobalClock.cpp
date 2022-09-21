@@ -100,7 +100,7 @@ namespace moris
         if ( PRINT_WALL_TIME )
             mWallTimeStamps.push_back( std::chrono::system_clock::now() );
 
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
         // check that indentation level and array size match
         if ( mIndentationLevel != mCurrentFunctionID.size() - 1 )
         {
@@ -146,7 +146,7 @@ namespace moris
         if ( PRINT_WALL_TIME )
             mWallTimeStamps.pop_back();
 
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
         // check that indentation level and array size match
         if ( mIndentationLevel != mCurrentFunctionID.size() - 1 )
         {

@@ -27,7 +27,7 @@ namespace moris
            const std::string & aSolver = "default" )
     -> decltype( arma::solve( aA, aB ) )
     {
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
         return arma::solve( aA, aB );
 #else
         return arma::solve( aA, aB, arma::solve_opts::fast );

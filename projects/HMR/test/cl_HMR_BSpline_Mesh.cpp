@@ -276,7 +276,7 @@ TEST_CASE("HMR_Bspline_Mesh_Pattern", "[moris],[mesh],[hmr],[Bspline_mesh_patter
             REQUIRE( tBSplineMesh_1->get_number_of_active_basis_on_proc()  == 37 );
             REQUIRE( tBSplineMesh_2->get_number_of_active_basis_on_proc()  == 37 );
 
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
             // Check some basis coordinates of B-Spline mesh 1
             const moris::real* tXYZ_1 = tBSplineMesh_1->get_active_basis( 3 )->get_xyz( );
             REQUIRE( tXYZ_1[0]  == 0.0625 );    REQUIRE( tXYZ_1[1]  == 0.0625 );

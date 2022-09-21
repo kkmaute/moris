@@ -38,7 +38,7 @@ namespace moris
 
         void IWG_Diffusion_Radiation::compute_residual( real aWStar )
         {
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
             // check master field interpolators, properties, constitutive models
             this->check_field_interpolators();
 #endif
@@ -87,7 +87,7 @@ namespace moris
 
         void IWG_Diffusion_Radiation::compute_jacobian( real aWStar )
         {
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
             // check master field interpolators, properties, constitutive models
             this->check_field_interpolators();
 #endif

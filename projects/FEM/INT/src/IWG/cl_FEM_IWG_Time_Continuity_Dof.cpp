@@ -46,7 +46,7 @@ namespace moris
         IWG_Time_Continuity_Dof::compute_residual( real aWStar )
         {
             // check master field interpolators
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
             this->check_field_interpolators();
 #endif
 
@@ -122,7 +122,7 @@ namespace moris
         void
         IWG_Time_Continuity_Dof::compute_jacobian( real aWStar )
         {
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
             // check master field interpolators
             this->check_field_interpolators();
 #endif
@@ -240,7 +240,7 @@ namespace moris
         void
         IWG_Time_Continuity_Dof::compute_jacobian_previous( real aWStar )
         {
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
             // check master field interpolators
             this->check_field_interpolators();
 #endif

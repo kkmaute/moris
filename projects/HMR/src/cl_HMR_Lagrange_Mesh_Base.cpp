@@ -237,7 +237,7 @@ namespace moris
                 this->communicate_missed_node_indices();
             }
 
-            //#ifdef DEBUG
+            //#ifdef MORIS_HAVE_DEBUG
             //            MORIS_LOG_WARNING("Sanity check for vertex basis Ids and ownership will be performed. This might slow down the execution significantly. \n");
             //            this->sanity_check_for_ids_and_ownership();
             //#endif

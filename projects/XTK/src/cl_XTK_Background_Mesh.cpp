@@ -1117,7 +1117,7 @@ namespace xtk
             Matrix<IndexMat> const & aCellIndices,
             Matrix<IdMat>    const & aCellIds)
     {
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
 
         if(aCellIndices.numel()> 0 )
         {
@@ -1139,7 +1139,7 @@ namespace xtk
             mEntityLocaltoGlobalMap(3)(aCellIndices(i)) = aCellIds(i);
         }
 
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
         // since I can't write these functions in one line, need to have ifdef
         moris::Cell<moris::moris_index> tUniqueCellIds = moris::unique_index(mEntityLocaltoGlobalMap(3));
 
