@@ -61,9 +61,9 @@ namespace moris
             }
 
             // STK specific Member variables
-            stk::io::StkMeshIoBroker* mMeshReader;
-            stk::mesh::MetaData*      mMtkMeshMetaData;
-            stk::mesh::BulkData*      mMtkMeshBulkData;
+            stk::io::StkMeshIoBroker* mMeshReader      = nullptr;
+            stk::mesh::MetaData*      mMtkMeshMetaData = nullptr;
+            stk::mesh::BulkData*      mMtkMeshBulkData = nullptr;
 
             // General mesh trait member variables
             bool mDataGeneratedMesh = false;
@@ -146,4 +146,3 @@ namespace moris
 }    // namespace moris
 
 #endif /* PROJECTS_MTK_SRC_STK_IMPL_CL_MTK_MESH_DATA_STK_HPP_ */
-
