@@ -46,7 +46,13 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Writer_Exodus::~Writer_Exodus() = default;
+        Writer_Exodus::~Writer_Exodus()
+        {
+            if ( mExoid >= 0 )
+            {
+                ex_close( mExoid );
+            }
+        }
 
         //--------------------------------------------------------------------------------------------------------------
 
@@ -1174,4 +1180,3 @@ namespace moris
         }
     }    // namespace mtk
 }    // namespace moris
-
