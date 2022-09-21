@@ -20,6 +20,7 @@ if(NOT ARMADILLO_FOUND_ONCE)
         $ENV{Armadillo_PATH} )
 
     find_package(Armadillo REQUIRED HINTS ${ARMADILLO_ENV_VARS})
+    find_library(ARMADILLO_LIBRARIES NAMES libarmadillo HINTS ${ARMADILLO_LIBRARY_DIRS} )
     
     #set(MORIS_ARMADILLO_INCLUDE_DIRS ${ARMADILLO_INCLUDE_DIRS}
     #    CACHE PATH "Armadillo include directories." )
@@ -33,7 +34,7 @@ if(NOT ARMADILLO_FOUND_ONCE)
     #	CACHE INTERNAL "Moris preprocessor definitions for Armadillo.")
     set(MORIS_ARMADILLO_INCLUDE_DIRS ${ARMADILLO_INCLUDE_DIRS})
     set(MORIS_ARMADILLO_DEFINITIONS "-DMORIS_USE_ARMA")
-    set(MORIS_ARMADILLO_LIBRARIES "${ARMADILLO_LIBRARY_DIRS}/libarmadillo.a")
+    set(MORIS_ARMADILLO_LIBRARIES "${ARMADILLO_LIBRARIES}")
     
     mark_as_advanced(Armadillo_DIR
         MORIS_ARMADILLO_INCLUDE_DIRS
