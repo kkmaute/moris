@@ -553,10 +553,10 @@ TEST_CASE( "Double sided side-set TET ", "[moris],[fem],[DoubleSidedTET]" )
 
     // tet param coords
     Matrix< DDRMat > tParamCoords = {
-        { 1.0, 0.0, 0.0, 0.0 },    //
-        { 0.0, 1.0, 0.0, 0.0 },    //
-        { 0.0, 0.0, 1.0, 0.0 },    //
-        { 0.0, 0.0, 0.0, 1.0 }     //
+        { 1.0, 0.0, 0.0 },    //
+        { 0.0, 1.0, 0.0 },    //
+        { 0.0, 0.0, 0.0 },    //
+        { 0.0, 0.0, 1.0 }     //
     };
 
     // interpolation rule for the volume
@@ -674,7 +674,7 @@ TEST_CASE( "Double sided side-set TET ", "[moris],[fem],[DoubleSidedTET]" )
         uint tNumSideNodes = tMasterSideNodes.numel();
 
         Matrix< DDRMat > tMasterSidePhysCoords( tNumSideNodes, 3 );
-        Matrix< DDRMat > tMasterSideParamCoords( tNumSideNodes, 4 );
+        Matrix< DDRMat > tMasterSideParamCoords( tNumSideNodes, 3 );
 
         for ( uint iNode = 0; iNode < tNumSideNodes; iNode++ )
         {
@@ -780,7 +780,7 @@ TEST_CASE( "Double sided side-set TET ", "[moris],[fem],[DoubleSidedTET]" )
 
                 // phys coords amd parm coords in IP param space for the side
                 Matrix< DDRMat > tSlaveSidePhysCoords( tNumSideNodes, 3 );
-                Matrix< DDRMat > tSlaveSideParamCoords( tNumSideNodes, 4 );    // 3 space param + 1 time param
+                Matrix< DDRMat > tSlaveSideParamCoords( tNumSideNodes, 3 );
 
                 for ( uint iNode = 0; iNode < tNumSideNodes; iNode++ )
                 {
@@ -1229,4 +1229,3 @@ TEST_CASE( "Double sided side-set HEX ", "[moris],[fem],[DoubleSidedHEX]" )
     delete tSpaceInterp;
     delete tSideSpaceInterp;
 }
-
