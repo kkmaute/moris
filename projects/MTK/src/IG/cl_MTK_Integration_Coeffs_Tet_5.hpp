@@ -78,18 +78,19 @@ namespace moris
         void
         Integration_Coeffs<
                 Integration_Type::GAUSS,
-                Integration_Order::TET_5 >::get_weights( Matrix< DDRMat >& aIntegrationWeights ){
+                Integration_Order::TET_5 >::get_weights( Matrix< DDRMat >& aIntegrationWeights )
+        {
             aIntegrationWeights = {
-                    { //
-                            0.450000000000000,
-                            0.450000000000000,
-                            0.450000000000000,
-                            0.450000000000000,
-                            -0.800000000000000 } }
-        };
-    }
+                { //
+                        0.450000000000000,
+                        0.450000000000000,
+                        0.450000000000000,
+                        0.450000000000000,
+                        -0.800000000000000 }
+            };
+        }
 
-    //------------------------------------------------------------------------------
-} /* namespace mtk */
+        //------------------------------------------------------------------------------
+    } /* namespace mtk */
 } /* namespace moris */
 #endif /* SRC_MTK_CL_MTK_INTEGRATION_COEFFS_TET_5_HPP_ */
