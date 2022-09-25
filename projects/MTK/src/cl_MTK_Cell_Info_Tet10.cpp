@@ -41,7 +41,7 @@ namespace moris
         enum Interpolation_Order
         Cell_Info_Tet10::get_cell_interpolation_order() const
         {
-            return Interpolation_Order::LINEAR;
+            return Interpolation_Order::QUADRATIC;
         }
 
         // ----------------------------------------------------------------------------------
