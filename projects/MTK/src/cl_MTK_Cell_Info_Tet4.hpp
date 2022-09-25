@@ -154,13 +154,17 @@ namespace moris
              * @return return the cell size.
              */
             moris::real
-            compute_cell_size_deriv( moris::mtk::Cell const *aCell, uint aLocalVertexID, uint aDirection ) const;
+            compute_cell_size_deriv(
+                    moris::mtk::Cell const *aCell,
+                    uint                    aLocalVertexID,
+                    uint                    aDirection ) const;
 
             // ----------------------------------------------------------------------------------
 
             moris::real
-            compute_cell_side_size( moris::mtk::Cell const *aCell,
-                    moris_index const                      &aSideOrd ) const;
+            compute_cell_side_size(
+                    moris::mtk::Cell const *aCell,
+                    moris_index const      &aSideOrd ) const;
 
             // ----------------------------------------------------------------------------------
 
@@ -170,6 +174,13 @@ namespace moris
                     moris_index const      &aSideOrd,
                     uint                    aLocalVertexID,
                     uint                    aDirection ) const;
+
+            // ----------------------------------------------------------------------------------
+
+            void
+            eval_N(
+                    const Matrix< DDRMat > &aXi,
+                    Matrix< DDRMat >       &aNXi ) const;
 
             // ----------------------------------------------------------------------------------
         };

@@ -346,6 +346,27 @@ namespace moris
 
         // ----------------------------------------------------------------------------------
 
+        void
+        Cell_Info_Tri3::eval_N(
+                const Matrix< DDRMat > &aXi,
+                Matrix< DDRMat >       &aNXi ) const
+        {
+            // make sure that input is correct
+            MORIS_ASSERT( aXi.numel() >= 2, "TRI3 - eval_N: aXi not allocated or hat wrong size." );
+
+            // get the triangular coordinates
+            const real zeta1 = aXi( 0 );
+            const real zeta2 = aXi( 1 );
+            const real zeta3 = 1.0 - aXi( 0 ) - aXi( 1 );
+
+            // populate matrix with values
+            aNXi.set_size( 1, 3 );
+            aNXi( 0 ) = zeta1;
+            aNXi( 1 ) = zeta2;
+            aNXi( 2 ) = zeta3;
+        }
+
+        // ----------------------------------------------------------------------------------
+
     }    // namespace mtk
 }    // namespace moris
-

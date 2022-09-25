@@ -590,5 +590,35 @@ namespace moris
         }
 
         // ----------------------------------------------------------------------------------
+
+        void
+        Cell_Info_Tet10::eval_N(
+                const Matrix< DDRMat > &aXi,
+                Matrix< DDRMat >       &aNXi ) const
+        {
+            // make sure that input is correct
+            MORIS_ASSERT( aXi.length() >= 3, "TET10 - eval_N: aXi not allocated or hat wrong size." );
+
+            // unpack zeta1, zeta2, zeta3, zeta4 from input vector
+            real zeta1 = aXi( 0 );
+            real zeta2 = aXi( 1 );
+            real zeta3 = 1.0 - aXi( 0 ) - aXi( 1 ) - aXi( 2 );
+            real zeta4 = aXi( 2 );
+
+            // populate matrix with values
+            aNXi.set_size( 1, 10 );
+            aNXi( 0 ) = zeta1 * ( 2.0 * zeta1 - 1.0 );
+            aNXi( 1 ) = zeta2 * ( 2.0 * zeta2 - 1.0 );
+            aNXi( 2 ) = zeta3 * ( 2.0 * zeta3 - 1.0 );
+            aNXi( 3 ) = zeta4 * ( 2.0 * zeta4 - 1.0 );
+            aNXi( 4 ) = 4.0 * zeta1 * zeta2;
+            aNXi( 5 ) = 4.0 * zeta2 * zeta3;
+            aNXi( 6 ) = 4.0 * zeta1 * zeta3;
+            aNXi( 7 ) = 4.0 * zeta1 * zeta4;
+            aNXi( 8 ) = 4.0 * zeta2 * zeta4;
+            aNXi( 9 ) = 4.0 * zeta3 * zeta4;
+        }
+
+        // ----------------------------------------------------------------------------------
     }    // namespace mtk
 }    // namespace moris
