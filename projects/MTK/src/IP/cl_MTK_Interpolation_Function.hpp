@@ -79,11 +79,23 @@ namespace moris
              * calculates the second derivative of the shape function
              * in parameter space
              *
-             * @param[ in ] ad2NdXi2 ( <number of dimensions> x <number of nodes> )
+             * @param[ in ] ad2NdXi2 ( <number of 2nd order derivatives> x <number of nodes> )
              *
              * @param[ in ] aXi    point where function is evaluated
              *                     ( <number of dimensions>  x 1 )
              *
+             * @param[ in ] ad2NdXi2 ( 3 or 6 x <number of nodes> )
+             *                     matrix is ordered as follows:
+             *             2D      1. row: d2N over dXi_1 dXi_1
+             *                     2. row: d2N over dXi_2 dXi_2
+             *                     3. row: d2N over dXi_1 dXi_2
+             *
+             *             3D      1. row: d2N over dXi_1 dXi_1
+             *                     2. row: d2N over dXi_2 dXi_2
+             *                     3. row: d2N over dXi_3 dXi_3
+             *                     4. row: d2N over dXi_2 dXi_3
+             *                     5. row: d2N over dXi_1 dXi_3
+             *                     6. row: d2N over dXi_1 dXi_2
              */
             void eval_d2NdXi2(
                     const Matrix< DDRMat >& aXi,
@@ -95,7 +107,7 @@ namespace moris
              * calculates the third derivatives of the shape function
              * in parameter space
              *
-             * @param[ in ] ad3NdXi3 ( <number of dimensions> x <number of nodes> )
+             * @param[ in ] ad3NdXi3 ( <number of 3rd order derivatives> x <number of nodes> )
              *
              * @param[ in ] aXi    point where function is evaluated
              *                     ( <number of dimensions>  x 1 )
@@ -241,4 +253,3 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_MTK_CL_MTK_INTERPOLATION_FUNCTION_HPP_ */
-
