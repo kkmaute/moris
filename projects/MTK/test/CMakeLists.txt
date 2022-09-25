@@ -31,7 +31,11 @@ set(TEST_SOURCES
 	UT_MTK_Cell_Info_Hex8.cpp
 	UT_MTK_Cell_Info_Quad4.cpp
 	UT_MTK_Cell_Info_Quad9.cpp
-	UT_MTK_Cell_Info_Quad16.cpp
+    UT_MTK_Cell_Info_Quad16.cpp
+    UT_MTK_Cell_Info_Tet4.cpp
+    UT_MTK_Cell_Info_Tet10.cpp
+    UT_MTK_Cell_Info_Tri3.cpp
+    UT_MTK_Cell_Info_Tri6.cpp
 	UT_MTK_Connectivity.cpp
 	UT_MTK_Mesh_Comm_Maps.cpp
 	UT_MTK_Field.cpp
