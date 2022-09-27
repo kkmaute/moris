@@ -87,6 +87,7 @@ cl_MTK_Cell_Info_Quad16.hpp
 cl_MTK_Cell_Info_Tet4.hpp
 cl_MTK_Cell_Info_Tet10.hpp
 cl_MTK_Cell_Info_Hex8.hpp
+cl_MTK_Cell_Info_Hex20.hpp
 cl_MTK_Cell_Info_Hex27.hpp
 cl_MTK_Cell_Info_Hex64.hpp
 
@@ -228,6 +229,7 @@ cl_MTK_Cell_Info_Quad16.cpp
 cl_MTK_Cell_Info_Tet4.cpp
 cl_MTK_Cell_Info_Tet10.cpp
 cl_MTK_Cell_Info_Hex8.cpp
+cl_MTK_Cell_Info_Hex20.cpp
 cl_MTK_Cell_Info_Hex27.cpp
 cl_MTK_Cell_Info_Hex64.cpp
 
