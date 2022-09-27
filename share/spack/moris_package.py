@@ -36,6 +36,7 @@ class Moris(CMakePackage):
     variant( 'default',     default=True,    description='Compile with default setting'          )
 
     depends_on('armadillo@9.800.3')
+    depends_on('armadillo+hdf5')
 
     depends_on('arpack-ng@3.8.0')
 
