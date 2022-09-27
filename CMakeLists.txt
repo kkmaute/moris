@@ -309,6 +309,7 @@ include(${MORIS_CMAKE_DIR}/utilities/dynamic_link_input.cmake)
 if (NOT MORIS_C_COMPILER )
     set(MORIS_C_COMPILER "mpicc" )
 endif()
+
 set(MORIS_C_LINK_EXECUTABLE ${MORIS_C_COMPILER} )
 
 # Set default C++ compiler
