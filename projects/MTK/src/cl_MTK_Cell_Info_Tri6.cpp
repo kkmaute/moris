@@ -368,6 +368,29 @@ namespace moris
         }
 
         // ----------------------------------------------------------------------------------
+
+        void
+        Cell_Info_Tri6::eval_N(
+                const Matrix< DDRMat > &aXi,
+                Matrix< DDRMat >       &aNXi ) const
+        {    // make sure that input is correct
+            MORIS_ASSERT( aXi.length() >= 2, "TRI6 - eval_N: aXi not allocated or hat wrong size." );
+
+            // unpack  the triangular coordinates input vector
+            const real zeta1 = aXi( 0 );
+            const real zeta2 = aXi( 1 );
+            const real zeta3 = 1.0 - aXi( 0 ) - aXi( 1 );
+
+            // populate matrix with values
+            aNXi.set_size( 1, 6 );
+            aNXi( 0 ) = zeta1 * ( 2.0 * zeta1 - 1.0 );
+            aNXi( 1 ) = zeta2 * ( 2.0 * zeta2 - 1.0 );
+            aNXi( 2 ) = zeta3 * ( 2.0 * zeta3 - 1.0 );
+            aNXi( 3 ) = 4.0 * zeta1 * zeta2;
+            aNXi( 4 ) = 4.0 * zeta2 * zeta3;
+            aNXi( 5 ) = 4.0 * zeta3 * zeta1;
+        }
+
+        // ----------------------------------------------------------------------------------
     }    // namespace mtk
 }    // namespace moris
-

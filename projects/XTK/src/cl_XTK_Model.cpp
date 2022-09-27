@@ -1581,6 +1581,7 @@ namespace xtk
     }
 
     //------------------------------------------------------------------------------
+
     moris::Matrix< moris::IndexMat >
     Model::get_num_subphase_neighbors()
     {
@@ -1592,6 +1593,7 @@ namespace xtk
         }
         return tSubphaseNumNeighbors;
     }
+
     //------------------------------------------------------------------------------
 
     moris_id
@@ -1607,6 +1609,26 @@ namespace xtk
     Model::get_subphase_index( moris_id aSubphaseId )
     {
         return mCutIntegrationMesh->get_subphase_index( aSubphaseId );
+    }
+
+    //------------------------------------------------------------------------------
+
+    moris_id
+    Model::get_subphase_group_id( 
+            moris_id aSubphaseGroupIndex, 
+            moris_index aBsplineMeshIndex )
+    {
+        return mCutIntegrationMesh->get_subphase_group_id( aSubphaseGroupIndex, aBsplineMeshIndex );
+    }
+
+    // -----------------------------------------------------------------------------
+
+    moris_index
+    Model::get_subphase_group_index( 
+            moris_id aSubphaseGroupId, 
+            moris_index aBsplineMeshIndex )
+    {
+        return mCutIntegrationMesh->get_subphase_group_index( aSubphaseGroupId, aBsplineMeshIndex );
     }
 
     // -----------------------------------------------------------------------------

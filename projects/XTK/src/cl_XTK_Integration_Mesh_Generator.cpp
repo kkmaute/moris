@@ -2198,7 +2198,6 @@ namespace xtk
 
                 // store the received SPG ID
                 aBsplineMeshInfo->mSubphaseGroups( tSubphaseGroupIndex )->set_id( tSubphaseGroupId );
-                aBsplineMeshInfo->mSubphaseGroupIds( tSubphaseGroupIndex ) = tSubphaseGroupId;
             }
         }
     }
@@ -4373,6 +4372,9 @@ namespace xtk
 
         // give all sub-phases a global ID (across all procs)
         this->assign_subphase_group_glob_ids( aCutIntegrationMesh, aLagrangeMesh, aBsplineMeshInfo );
+
+        // construct reverse map from SPG IDs to indices on each proc
+        aCutIntegrationMesh->construct_spg_id_to_index_map( aBsplineMeshListIndex );
     }
 
     // ----------------------------------------------------------------------------------

@@ -635,6 +635,39 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
+        Space_Interpolator::eval_inverse_space_jacobian_3d_tri()
+        {
+            // get the space Jacobian
+            const Matrix< DDRMat >& tSpacJac = this->space_jacobian();
+
+            MORIS_ASSERT( this->space_det_J() > sDetJInvJacLowerLimit,
+                    "Space determinate (3D) close to zero or negative: %e\n",
+                    this->space_det_J() );
+
+            // compute inverse of 3x3 matrix
+            real tInvDet = 1.0 / ( this->space_det_J() ) / 6.0;
+
+            // compute inverse
+            mInvSpaceJac.set_size( 3, 3 );
+
+            mInvSpaceJac( 0, 0 ) = ( tSpacJac( 1, 1 ) * tSpacJac( 2, 2 ) - tSpacJac( 2, 1 ) * tSpacJac( 1, 2 ) ) * tInvDet;
+            mInvSpaceJac( 0, 1 ) = ( tSpacJac( 0, 2 ) * tSpacJac( 2, 1 ) - tSpacJac( 0, 1 ) * tSpacJac( 2, 2 ) ) * tInvDet;
+            mInvSpaceJac( 0, 2 ) = ( tSpacJac( 0, 1 ) * tSpacJac( 1, 2 ) - tSpacJac( 0, 2 ) * tSpacJac( 1, 1 ) ) * tInvDet;
+            mInvSpaceJac( 1, 0 ) = ( tSpacJac( 1, 2 ) * tSpacJac( 2, 0 ) - tSpacJac( 1, 0 ) * tSpacJac( 2, 2 ) ) * tInvDet;
+            mInvSpaceJac( 1, 1 ) = ( tSpacJac( 0, 0 ) * tSpacJac( 2, 2 ) - tSpacJac( 0, 2 ) * tSpacJac( 2, 0 ) ) * tInvDet;
+            mInvSpaceJac( 1, 2 ) = ( tSpacJac( 1, 0 ) * tSpacJac( 0, 2 ) - tSpacJac( 0, 0 ) * tSpacJac( 1, 2 ) ) * tInvDet;
+            mInvSpaceJac( 2, 0 ) = ( tSpacJac( 1, 0 ) * tSpacJac( 2, 1 ) - tSpacJac( 2, 0 ) * tSpacJac( 1, 1 ) ) * tInvDet;
+            mInvSpaceJac( 2, 1 ) = ( tSpacJac( 2, 0 ) * tSpacJac( 0, 1 ) - tSpacJac( 0, 0 ) * tSpacJac( 2, 1 ) ) * tInvDet;
+            mInvSpaceJac( 2, 2 ) = ( tSpacJac( 0, 0 ) * tSpacJac( 1, 1 ) - tSpacJac( 1, 0 ) * tSpacJac( 0, 1 ) ) * tInvDet;
+
+            // check results against generic inverse operator
+            MORIS_ASSERT( norm( mInvSpaceJac - inv( tSpacJac ) ) < 1e-8 * norm( mInvSpaceJac ),
+                    "Inconsistent space Jacobian (3D)" );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void
         Space_Interpolator::eval_inverse_space_jacobian_3d_rect()
         {
             // get the space Jacobian
@@ -1091,7 +1124,7 @@ namespace moris
                     "Space determinant (Tet-P3) close to zero or negative: %e\n",
                     tDetJ );
 
-            MORIS_ASSERT( std::abs( det( aSpaceJt ) - tDetJ ) < 1e-8 * tDetJ,
+            MORIS_ASSERT( std::abs( det( aSpaceJt ) / 6.0 - tDetJ ) < 1e-8 * tDetJ,
                     "Inconsistent space determinant (Tet-P3): %e vs %e\n",
                     tDetJ,
                     det( aSpaceJt ) );
@@ -1965,7 +1998,24 @@ namespace moris
 
                         case 3:
                         {
-                            mInvSpaceJacFunc               = &Space_Interpolator::eval_inverse_space_jacobian_3d;
+                            switch ( mGeometryType )
+                            {
+                                case Geometry_Type::HEX:
+                                {
+                                    mInvSpaceJacFunc = &Space_Interpolator::eval_inverse_space_jacobian_3d;
+                                    break;
+                                }
+                                case Geometry_Type::TET:
+                                {
+                                    mInvSpaceJacFunc = &Space_Interpolator::eval_inverse_space_jacobian_3d_tri;
+                                    break;
+                                }
+                                default:
+                                {
+                                    MORIS_ERROR( false,
+                                            " Space_Interpolator::set_function_pointers - only hex, tet allowed for 3D." );
+                                }
+                            }
                             mSecondDerivativeMatricesSpace = this->eval_matrices_for_second_derivative_3d;
                             mThirdDerivativeMatricesSpace  = this->eval_matrices_for_third_derivative_3d;
                             break;
@@ -2367,7 +2417,24 @@ namespace moris
 
                         case 3:
                         {
-                            mInvSpaceJacFunc               = &Space_Interpolator::eval_inverse_space_jacobian_3d_rect;
+                            switch ( mGeometryType )
+                            {
+                                case Geometry_Type::HEX:
+                                {
+                                    mInvSpaceJacFunc = &Space_Interpolator::eval_inverse_space_jacobian_3d_rect;
+                                    break;
+                                }
+                                case Geometry_Type::TET:
+                                {
+                                    mInvSpaceJacFunc = &Space_Interpolator::eval_inverse_space_jacobian_3d_tri;
+                                    break;
+                                }
+                                default:
+                                {
+                                    MORIS_ERROR( false,
+                                            " Space_Interpolator::set_function_pointers - only hex, tett allowed for 3D." );
+                                }
+                            }
                             mSecondDerivativeMatricesSpace = this->eval_matrices_for_second_derivative_3d;
                             mThirdDerivativeMatricesSpace  = this->eval_matrices_for_third_derivative_3d;
                             break;
@@ -2737,4 +2804,3 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace mtk */
 } /* namespace moris */
-

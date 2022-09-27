@@ -19,6 +19,7 @@
 #include "cl_MTK_Cell_Info_Tet4.hpp"
 #include "cl_MTK_Cell_Info_Tet10.hpp"
 #include "cl_MTK_Cell_Info_Hex8.hpp"
+#include "cl_MTK_Cell_Info_Hex20.hpp"
 #include "cl_MTK_Cell_Info_Hex27.hpp"
 #include "cl_MTK_Cell_Info_Hex64.hpp"
 #include "cl_Mesh_Enums.hpp"
@@ -81,6 +82,11 @@ namespace moris
                 case ( CellTopology::HEX8 ):
                 {
                     tConn = new Cell_Info_Hex8();
+                    break;
+                }
+                case ( CellTopology::HEX20 ):
+                {
+                    tConn = new Cell_Info_Hex20();
                     break;
                 }
                 case ( CellTopology::HEX27 ):
@@ -160,6 +166,11 @@ namespace moris
                     tConn = std::make_shared< Cell_Info_Hex8 >();
                     break;
                 }
+                case ( CellTopology::HEX20 ):
+                {
+                    tConn = std::make_shared< Cell_Info_Hex20 >();
+                    break;
+                }
                 case ( CellTopology::HEX27 ):
                 {
                     tConn = std::make_shared< Cell_Info_Hex27 >();
@@ -195,6 +206,11 @@ namespace moris
                         case ( Interpolation_Order::LINEAR ):
                         {
                             tConn = new Cell_Info_Hex8();
+                            break;
+                        }
+                        case ( Interpolation_Order::SERENDIPITY ):
+                        {
+                            tConn = new Cell_Info_Hex20();
                             break;
                         }
                         case ( Interpolation_Order::QUADRATIC ):
@@ -324,6 +340,11 @@ namespace moris
                             tConn = std::make_shared< Cell_Info_Hex8 >();
                             break;
                         }
+                        case ( Interpolation_Order::SERENDIPITY ):
+                        {
+                            tConn = std::make_shared< Cell_Info_Hex20 >();
+                            break;
+                        }
                         case ( Interpolation_Order::QUADRATIC ):
                         {
                             tConn = std::make_shared< Cell_Info_Hex27 >();
@@ -437,4 +458,3 @@ namespace moris
 
     }    // namespace mtk
 }    // namespace moris
-

@@ -494,6 +494,20 @@ namespace xtk
 
             //-----------------------------------------------------------------------------------
 
+            moris_id
+            get_subphase_group_id( 
+                    moris_id aSubphaseGroupIndex, 
+                    moris_index aBsplineMeshIndex );
+
+            //-----------------------------------------------------------------------------------
+
+            moris_index
+            get_subphase_group_index( 
+                    moris_id aSubphaseGroupId, 
+                    moris_index aBsplineMeshIndex );
+
+            //-----------------------------------------------------------------------------------
+
             std::string
             get_T_matrix_output_file_name();
 

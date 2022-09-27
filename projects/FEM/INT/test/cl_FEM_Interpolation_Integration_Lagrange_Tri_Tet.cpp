@@ -939,33 +939,28 @@ TEST_CASE( "Lagrange TET4", "[moris],[fem],[Tet4LagInterp]" )
                 // compute the second order derivatives by finite difference
                 Matrix< DDRMat > td2NdXi2FDTemp = ( tdNdXiPlus - tdNdXiMinus ) / ( 2.0 * tPerturbation );
 
+                // consider the following structure of td2NdXi2:
+                // 1. row: d2N over dXi_1 dXi_1
+                // 2. row: d2N over dXi_2 dXi_2
+                // 3. row: d2N over dXi_3 dXi_3
+                // 4. row: d2N over dXi_2 dXi_3
+                // 5. row: d2N over dXi_1 dXi_3
+                // 6. row: d2N over dXi_1 dXi_2
+
                 if ( iDim == 0 )
                 {
                     td2NdXi2FD.get_row( 0 ) = td2NdXi2FDTemp.get_row( 0 );
-                    td2NdXi2FD.get_row( 9 ) = td2NdXi2FDTemp.get_row( 1 );
-                    td2NdXi2FD.get_row( 8 ) = td2NdXi2FDTemp.get_row( 2 );
-                    td2NdXi2FD.get_row( 6 ) = td2NdXi2FDTemp.get_row( 3 );
+                    td2NdXi2FD.get_row( 5 ) = td2NdXi2FDTemp.get_row( 1 );
+                    td2NdXi2FD.get_row( 4 ) = td2NdXi2FDTemp.get_row( 2 );
                 }
                 else if ( iDim == 1 )
                 {
-                    td2NdXi2FD.get_row( 9 ) = td2NdXi2FDTemp.get_row( 0 );
                     td2NdXi2FD.get_row( 1 ) = td2NdXi2FDTemp.get_row( 1 );
-                    td2NdXi2FD.get_row( 7 ) = td2NdXi2FDTemp.get_row( 2 );
-                    td2NdXi2FD.get_row( 5 ) = td2NdXi2FDTemp.get_row( 3 );
+                    td2NdXi2FD.get_row( 3 ) = td2NdXi2FDTemp.get_row( 2 );
                 }
                 else if ( iDim == 2 )
                 {
-                    td2NdXi2FD.get_row( 8 ) = td2NdXi2FDTemp.get_row( 0 );
-                    td2NdXi2FD.get_row( 7 ) = td2NdXi2FDTemp.get_row( 1 );
                     td2NdXi2FD.get_row( 2 ) = td2NdXi2FDTemp.get_row( 2 );
-                    td2NdXi2FD.get_row( 4 ) = td2NdXi2FDTemp.get_row( 3 );
-                }
-                else if ( iDim == 3 )
-                {
-                    td2NdXi2FD.get_row( 6 ) = td2NdXi2FDTemp.get_row( 0 );
-                    td2NdXi2FD.get_row( 5 ) = td2NdXi2FDTemp.get_row( 1 );
-                    td2NdXi2FD.get_row( 4 ) = td2NdXi2FDTemp.get_row( 2 );
-                    td2NdXi2FD.get_row( 3 ) = td2NdXi2FDTemp.get_row( 3 );
                 }
             }
             // check
@@ -1119,6 +1114,7 @@ TEST_CASE( "Lagrange TET10", "[moris],[fem],[Tet10LagInterp]" )
                 // compute the first order derivatives wrt param coords by finite difference
                 tdNdXiFD.get_row( iDim ) = ( tNPlus - tNMinus ) / ( 2.0 * tPerturbation );
             }
+
             // check evaluated derivatives against FD
             tCheckdNdXi = tCheckdNdXi && fem::check( tdNdXi, tdNdXiFD, tEpsilon );
         }
@@ -1167,33 +1163,28 @@ TEST_CASE( "Lagrange TET10", "[moris],[fem],[Tet10LagInterp]" )
                 // compute the second order derivatives by finite difference
                 Matrix< DDRMat > td2NdXi2FDTemp = ( tdNdXiPlus - tdNdXiMinus ) / ( 2.0 * tPerturbation );
 
+                // consider the following structure of td2NdXi2:
+                // 1. row: d2N over dXi_1 dXi_1
+                // 2. row: d2N over dXi_2 dXi_2
+                // 3. row: d2N over dXi_3 dXi_3
+                // 4. row: d2N over dXi_2 dXi_3
+                // 5. row: d2N over dXi_1 dXi_3
+                // 6. row: d2N over dXi_1 dXi_2
+
                 if ( iDim == 0 )
                 {
                     td2NdXi2FD.get_row( 0 ) = td2NdXi2FDTemp.get_row( 0 );
-                    td2NdXi2FD.get_row( 9 ) = td2NdXi2FDTemp.get_row( 1 );
-                    td2NdXi2FD.get_row( 8 ) = td2NdXi2FDTemp.get_row( 2 );
-                    td2NdXi2FD.get_row( 6 ) = td2NdXi2FDTemp.get_row( 3 );
+                    td2NdXi2FD.get_row( 5 ) = td2NdXi2FDTemp.get_row( 1 );
+                    td2NdXi2FD.get_row( 4 ) = td2NdXi2FDTemp.get_row( 2 );
                 }
                 else if ( iDim == 1 )
                 {
-                    td2NdXi2FD.get_row( 9 ) = td2NdXi2FDTemp.get_row( 0 );
                     td2NdXi2FD.get_row( 1 ) = td2NdXi2FDTemp.get_row( 1 );
-                    td2NdXi2FD.get_row( 7 ) = td2NdXi2FDTemp.get_row( 2 );
-                    td2NdXi2FD.get_row( 5 ) = td2NdXi2FDTemp.get_row( 3 );
+                    td2NdXi2FD.get_row( 3 ) = td2NdXi2FDTemp.get_row( 2 );
                 }
                 else if ( iDim == 2 )
                 {
-                    td2NdXi2FD.get_row( 8 ) = td2NdXi2FDTemp.get_row( 0 );
-                    td2NdXi2FD.get_row( 7 ) = td2NdXi2FDTemp.get_row( 1 );
                     td2NdXi2FD.get_row( 2 ) = td2NdXi2FDTemp.get_row( 2 );
-                    td2NdXi2FD.get_row( 4 ) = td2NdXi2FDTemp.get_row( 3 );
-                }
-                else if ( iDim == 3 )
-                {
-                    td2NdXi2FD.get_row( 6 ) = td2NdXi2FDTemp.get_row( 0 );
-                    td2NdXi2FD.get_row( 5 ) = td2NdXi2FDTemp.get_row( 1 );
-                    td2NdXi2FD.get_row( 4 ) = td2NdXi2FDTemp.get_row( 2 );
-                    td2NdXi2FD.get_row( 3 ) = td2NdXi2FDTemp.get_row( 3 );
                 }
             }
             // check
@@ -1398,33 +1389,28 @@ TEST_CASE( "Lagrange TET20", "[moris],[fem],[Tet20LagInterp]" )
                 // compute the second order derivatives by finite difference
                 Matrix< DDRMat > td2NdXi2FDTemp = ( tdNdXiPlus - tdNdXiMinus ) / ( 2.0 * tPerturbation );
 
+                // consider the following structure of td2NdXi2:
+                // 1. row: d2N over dXi_1 dXi_1
+                // 2. row: d2N over dXi_2 dXi_2
+                // 3. row: d2N over dXi_3 dXi_3
+                // 4. row: d2N over dXi_2 dXi_3
+                // 5. row: d2N over dXi_1 dXi_3
+                // 6. row: d2N over dXi_1 dXi_2
+
                 if ( iDim == 0 )
                 {
                     td2NdXi2FD.get_row( 0 ) = td2NdXi2FDTemp.get_row( 0 );
-                    td2NdXi2FD.get_row( 9 ) = td2NdXi2FDTemp.get_row( 1 );
-                    td2NdXi2FD.get_row( 8 ) = td2NdXi2FDTemp.get_row( 2 );
-                    td2NdXi2FD.get_row( 6 ) = td2NdXi2FDTemp.get_row( 3 );
+                    td2NdXi2FD.get_row( 5 ) = td2NdXi2FDTemp.get_row( 1 );
+                    td2NdXi2FD.get_row( 4 ) = td2NdXi2FDTemp.get_row( 2 );
                 }
                 else if ( iDim == 1 )
                 {
-                    td2NdXi2FD.get_row( 9 ) = td2NdXi2FDTemp.get_row( 0 );
                     td2NdXi2FD.get_row( 1 ) = td2NdXi2FDTemp.get_row( 1 );
-                    td2NdXi2FD.get_row( 7 ) = td2NdXi2FDTemp.get_row( 2 );
-                    td2NdXi2FD.get_row( 5 ) = td2NdXi2FDTemp.get_row( 3 );
+                    td2NdXi2FD.get_row( 3 ) = td2NdXi2FDTemp.get_row( 2 );
                 }
                 else if ( iDim == 2 )
                 {
-                    td2NdXi2FD.get_row( 8 ) = td2NdXi2FDTemp.get_row( 0 );
-                    td2NdXi2FD.get_row( 7 ) = td2NdXi2FDTemp.get_row( 1 );
                     td2NdXi2FD.get_row( 2 ) = td2NdXi2FDTemp.get_row( 2 );
-                    td2NdXi2FD.get_row( 4 ) = td2NdXi2FDTemp.get_row( 3 );
-                }
-                else if ( iDim == 3 )
-                {
-                    td2NdXi2FD.get_row( 6 ) = td2NdXi2FDTemp.get_row( 0 );
-                    td2NdXi2FD.get_row( 5 ) = td2NdXi2FDTemp.get_row( 1 );
-                    td2NdXi2FD.get_row( 4 ) = td2NdXi2FDTemp.get_row( 2 );
-                    td2NdXi2FD.get_row( 3 ) = td2NdXi2FDTemp.get_row( 3 );
                 }
             }
             // check
@@ -1945,4 +1931,3 @@ TEST_CASE( "Lagrange TRI10 integration", "[moris],[fem],[Tri10LagInteg]" )
     }
     REQUIRE( std::abs( tVolume - tExpectedVolume ) < tEpsilon );
 }
-

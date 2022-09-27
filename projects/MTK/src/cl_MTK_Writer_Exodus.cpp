@@ -1130,6 +1130,8 @@ namespace moris
                     return "TET10";
                 case CellTopology::HEX8:
                     return "HEX8";
+                case CellTopology::HEX20:
+                    return "HEX20";
                 case CellTopology::HEX27:
                     return "HEX27";
                 case CellTopology::HEX64:
@@ -1167,6 +1169,8 @@ namespace moris
                     return 10;
                 case CellTopology::HEX8:
                     return 8;
+                case CellTopology::HEX20:
+                    return 20;
                 case CellTopology::HEX27:
                     return 27;
                 case CellTopology::HEX64:

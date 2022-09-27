@@ -7,4 +7,4 @@
 
 add_subdirectory(Channel_2D_Static)
 add_subdirectory(Couette_Flow_Static)
-
+add_subdirectory(Oscillator)
