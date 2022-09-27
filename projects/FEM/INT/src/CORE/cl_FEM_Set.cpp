@@ -2970,13 +2970,13 @@ namespace moris
                                     return mtk::Integration_Order::HEX_2x2x2;
 
                                 case mtk::Interpolation_Order::SERENDIPITY:
-                                    return mtk::Integration_Order::HEX_4x4x4;
+                                    return mtk::Integration_Order::HEX_3x3x3;
 
                                 case mtk::Interpolation_Order::QUADRATIC:
-                                    return mtk::Integration_Order::HEX_4x4x4;
+                                    return mtk::Integration_Order::HEX_3x3x3;
 
                                 case mtk::Interpolation_Order::CUBIC:
-                                    return mtk::Integration_Order::HEX_5x5x5;
+                                    return mtk::Integration_Order::HEX_4x4x4;
 
                                 default:
                                     MORIS_ERROR( false, "Set::get_auto_integration_order - Unknown or unsupported interpolation order." );
