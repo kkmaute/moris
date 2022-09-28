@@ -140,49 +140,6 @@ namespace moris
         {
             // just call the designated function and pass the MSI parameter list
             return get_mesh_index_for_dof_type( aDofType, mMSIParameterList );
-
-//             if      ( aDofType == Dof_Type::TEMP )        { return mMSIParameterList.get< moris::sint >( "TEMP" ); }
-//             else if ( aDofType == Dof_Type::P )           { return mMSIParameterList.get< moris::sint >( "P" );    }
-//             else if ( aDofType == Dof_Type::RHO )         { return mMSIParameterList.get< moris::sint >( "RHO" );  }
-//             else if ( aDofType == Dof_Type::E )           { return mMSIParameterList.get< moris::sint >( "E" );    }
-//             else if ( aDofType == Dof_Type::EVP )         { return mMSIParameterList.get< moris::sint >( "EVP" );  }
-//             else if ( aDofType == Dof_Type::EVT )         { return mMSIParameterList.get< moris::sint >( "EVT" );  }
-// 
-//             else if ( aDofType == Dof_Type::UX )          { return mMSIParameterList.get< moris::sint >( "UX" );   }
-//             else if ( aDofType == Dof_Type::UY )          { return mMSIParameterList.get< moris::sint >( "UY" );   }
-//             else if ( aDofType == Dof_Type::UZ )          { return mMSIParameterList.get< moris::sint >( "UZ" );   }
-//             else if ( aDofType == Dof_Type::VX )          { return mMSIParameterList.get< moris::sint >( "VX" );   }
-//             else if ( aDofType == Dof_Type::VY )          { return mMSIParameterList.get< moris::sint >( "VY" );   }
-//             else if ( aDofType == Dof_Type::VZ )          { return mMSIParameterList.get< moris::sint >( "VZ" );   }
-//             else if ( aDofType == Dof_Type::MX )          { return mMSIParameterList.get< moris::sint >( "MX" );   }
-//             else if ( aDofType == Dof_Type::MY )          { return mMSIParameterList.get< moris::sint >( "MY" );   }
-//             else if ( aDofType == Dof_Type::MZ )          { return mMSIParameterList.get< moris::sint >( "MZ" );   }
-//             else if ( aDofType == Dof_Type::EVX )         { return mMSIParameterList.get< moris::sint >( "EVX" );  }
-//             else if ( aDofType == Dof_Type::EVY )         { return mMSIParameterList.get< moris::sint >( "EVY" );  }
-//             else if ( aDofType == Dof_Type::EVZ )         { return mMSIParameterList.get< moris::sint >( "EVZ" );  }
-//             else if ( aDofType == Dof_Type::NLSX )        { return mMSIParameterList.get< moris::sint >( "NLSX" ); }
-//             else if ( aDofType == Dof_Type::NLSY )        { return mMSIParameterList.get< moris::sint >( "NLSY" ); }
-//             else if ( aDofType == Dof_Type::NLSZ )        { return mMSIParameterList.get< moris::sint >( "NLSZ" ); }
-// 
-//             else if ( aDofType == Dof_Type::L2 )          { return mMSIParameterList.get< moris::sint >( "L2" );  }
-//             else if ( aDofType == Dof_Type::MAPPING_DOF ) { return mMSIParameterList.get< moris::sint >( "MAPPING_DOF" ); }
-//             else if ( aDofType == Dof_Type::LS1 )         { return mMSIParameterList.get< moris::sint >( "LS1" ); }
-//             else if ( aDofType == Dof_Type::LS2 )         { return mMSIParameterList.get< moris::sint >( "LS2" ); }
-// 
-//             else if ( aDofType == Dof_Type::THETA )       { return mMSIParameterList.get< moris::sint >( "THETA" ); }
-//             else if ( aDofType == Dof_Type::PHID )        { return mMSIParameterList.get< moris::sint >( "PHID" );  }
-//             else if ( aDofType == Dof_Type::PHISD )       { return mMSIParameterList.get< moris::sint >( "PHISD" ); }
-// 
-//             else if ( aDofType == Dof_Type::VISCOSITY )   { return mMSIParameterList.get< moris::sint >( "VISCOSITY" );  }
-//             else if ( aDofType == Dof_Type::STRESS_DOF )  { return mMSIParameterList.get< moris::sint >( "STRESS_DOF" ); }
-// 
-//             else if ( aDofType == Dof_Type::UNDEFINED )   { return MORIS_INDEX_MAX; }
-// 
-//             else
-//             {
-//                 MORIS_ERROR( false, "Model_Solver_Interface::get_adof_index_for_type(): Dof type does not exist. Check dof type enums");
-//                 return 0;
-//             }
         }
 
         //------------------------------------------------------------------------------
