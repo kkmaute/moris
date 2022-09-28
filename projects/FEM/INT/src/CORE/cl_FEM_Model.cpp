@@ -38,6 +38,7 @@
 #include "cl_FEM_IWG_Factory.hpp"
 #include "cl_FEM_IQI_Factory.hpp"
 #include "cl_FEM_Field.hpp"
+#include "cl_FEM_Field_Interpolator_Manager.hpp"
 // FEM/MSI/src
 #include "cl_MSI_Equation_Object.hpp"
 #include "cl_MSI_Dof_Type_Enums.hpp"
@@ -184,15 +185,14 @@ namespace fem
 
     FEM_Model::FEM_Model(
         std::shared_ptr< mtk::Mesh_Manager >        aMeshManager,
-        const moris_index                          &aMeshPairIndex,
+        const moris_index&                          aMeshPairIndex,
         moris::Cell< moris::Cell< ParameterList > > aParameterList,
-        std::shared_ptr< Library_IO >               aLibrary,
-        MSI::Design_Variable_Interface             *aDesignVariableInterface ) :
+        MSI::Design_Variable_Interface*             aDesignVariableInterface ):
         mMeshManager( aMeshManager ),
         mMeshPairIndex( aMeshPairIndex ),
         mParameterList( aParameterList )
     {
-        Tracer tTracer( "FEM", "FemModel", "Create" );
+//         Tracer tTracer( "FEM", "FemModel", "Create" );
 
         this->set_design_variable_interface( aDesignVariableInterface );
 
@@ -202,36 +202,6 @@ namespace fem
             mFEMOnly = true;
             MORIS_LOG( "Skipping GEN, FEM Only" );
         }
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        // STEP 0: unpack fem input and mesh
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        // get pointers to interpolation and integration meshes
-        mtk::Interpolation_Mesh *tIPMesh = nullptr;
-        mtk::Integration_Mesh   *tIGMesh = nullptr;
-        mMeshManager->get_mesh_pair( mMeshPairIndex, tIPMesh, tIGMesh );
-
-        // set the space dimension
-        mSpaceDim = tIPMesh->get_spatial_dim();
-
-        // unpack the FEM inputs
-        this->initialize( aLibrary );
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        // STEP 1: create interpolation nodes
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        this->create_interpolation_nodes( tIPMesh );
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        // STEP 2: create integration nodes
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        this->create_integration_nodes( tIGMesh );
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        // STEP 3: create fem sets
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        this->create_fem_sets( tIPMesh, tIGMesh );
     }
 
     //------------------------------------------------------------------------------
@@ -646,6 +616,42 @@ namespace fem
         moris_index   aXYZPdvAssemblyIndex )
     {
         mXYZLocalAssemblyIndices( mIGNodes( aNodeIndex )->get_index(), static_cast< uint >( aPdvType ) ) = aXYZPdvAssemblyIndex;
+    }
+
+    //------------------------------------------------------------------------------
+
+    void 
+    FEM_Model::initialize_from_inputfile( std::shared_ptr< Library_IO > aLibrary )
+    {
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // STEP 0: unpack fem input and mesh
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        // get pointers to interpolation and integration meshes
+        mtk::Interpolation_Mesh *tIPMesh = nullptr;
+        mtk::Integration_Mesh   *tIGMesh = nullptr;
+        mMeshManager->get_mesh_pair( mMeshPairIndex, tIPMesh, tIGMesh );
+
+        // set the space dimension
+        mSpaceDim = tIPMesh->get_spatial_dim();
+
+        // unpack the FEM inputs
+        this->initialize( aLibrary );
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // STEP 1: create interpolation nodes
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        this->create_interpolation_nodes( tIPMesh );
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // STEP 2: create integration nodes
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        this->create_integration_nodes( tIGMesh );
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // STEP 3: create fem sets
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        this->create_fem_sets( tIPMesh, tIGMesh );
     }
 
     //------------------------------------------------------------------------------
@@ -2109,19 +2115,28 @@ namespace fem
                 tIsGhost,
                 tMeshSetNames );
 
+            // get a representative DoF type
+            MSI::Dof_Type tFirstResidualDofType = mIWGs( iIWG )->get_residual_dof_type()( 0 )( 0 );
+
             // loop over the mesh set names
             for ( uint iSetName = 0; iSetName < tMeshSetNames.size(); iSetName++ )
             {
+                // get the name of the set currently treated
+                std::string tMeshSetName = tMeshSetNames( iSetName );
+
+                // check for ghost set names and select correct B-spline mesh automatically when new ghost sets need to be used
+                this->check_and_set_ghost_set_names( tMeshSetName, tFirstResidualDofType );
+
                 // check if the mesh set name already in map
                 if ( tMeshtoFemSet.find( std::make_tuple(
-                         tMeshSetNames( iSetName ),
+                         tMeshSetName,
                          tTimeContinuity,
                          tTimeBoundary ) )
                      == tMeshtoFemSet.end() )
                 {
                     // add the mesh set name map
                     tMeshtoFemSet[std::make_tuple(
-                        tMeshSetNames( iSetName ),
+                        tMeshSetName,
                         tTimeContinuity,
                         tTimeBoundary )] = tNumFEMSets++;
 
@@ -2129,7 +2144,7 @@ namespace fem
                     Set_User_Info aSetUserInfo;
 
                     // set its mesh set name
-                    aSetUserInfo.set_mesh_set_name( tMeshSetNames( iSetName ) );
+                    aSetUserInfo.set_mesh_set_name( tMeshSetName );
 
                     // set its time continuity flag
                     aSetUserInfo.set_time_continuity( tTimeContinuity );
@@ -2168,7 +2183,7 @@ namespace fem
                 {
                     // set the IWG
                     mSetInfo( tMeshtoFemSet[std::make_tuple(
-                                  tMeshSetNames( iSetName ),
+                                  tMeshSetName,
                                   tTimeContinuity,
                                   tTimeBoundary )] )
                         .set_IWG( mIWGs( iIWG ) );
@@ -2220,17 +2235,20 @@ namespace fem
 
             // loop over the mesh set names
             for ( uint iSetName = 0; iSetName < tMeshSetNames.size(); iSetName++ )
-            {
+            {                
+                // get the name of the set currently treated
+                std::string tMeshSetName = tMeshSetNames( iSetName );
+
                 // if the mesh set name not in map
                 if ( tMeshtoFemSet.find( std::make_tuple(
-                         tMeshSetNames( iSetName ),
+                         tMeshSetName,
                          tTimeContinuity,
                          tTimeBoundary ) )
                      == tMeshtoFemSet.end() )
                 {
                     // add the mesh set name map
                     tMeshtoFemSet[std::make_tuple(
-                        tMeshSetNames( iSetName ),
+                        tMeshSetName,
                         tTimeContinuity,
                         tTimeBoundary )] = tNumFEMSets++;
 
@@ -2238,7 +2256,7 @@ namespace fem
                     Set_User_Info aSetUserInfo;
 
                     // set its mesh set name
-                    aSetUserInfo.set_mesh_set_name( tMeshSetNames( iSetName ) );
+                    aSetUserInfo.set_mesh_set_name( tMeshSetName );
 
                     // set its time continuity flag
                     aSetUserInfo.set_time_continuity( tTimeContinuity );
@@ -2277,7 +2295,7 @@ namespace fem
                 {
                     // set the IQI
                     mSetInfo( tMeshtoFemSet[std::make_tuple(
-                                  tMeshSetNames( iSetName ),
+                                  tMeshSetName,
                                   tTimeContinuity,
                                   tTimeBoundary )] )
                         .set_IQI( mIQIs( iIQI ) );
@@ -3328,19 +3346,28 @@ namespace fem
             // get the time boundary flag from the IQI parameter list
             bool tTimeBoundary = tIWGParameterList( iIWG ).get< bool >( "time_boundary" );
 
+            // get a representative DoF type
+            MSI::Dof_Type tFirstResidualDofType = mIWGs( iIWG )->get_residual_dof_type()( 0 )( 0 );
+
             // loop over the mesh set names
             for ( uint iSetName = 0; iSetName < tMeshSetNames.size(); iSetName++ )
             {
+                // get the name of the set currently treated
+                std::string tMeshSetName = tMeshSetNames( iSetName );
+
+                // check for ghost set names and select correct B-spline mesh automatically when new ghost sets need to be used
+                this->check_and_set_ghost_set_names( tMeshSetName, tFirstResidualDofType );
+
                 // check if the mesh set name already in map
                 if ( tMeshtoFemSet.find( std::make_tuple(
-                         tMeshSetNames( iSetName ),
+                         tMeshSetName,
                          tTimeContinuity,
                          tTimeBoundary ) )
                      == tMeshtoFemSet.end() )
                 {
                     // add the mesh set name map
                     tMeshtoFemSet[std::make_tuple(
-                        tMeshSetNames( iSetName ),
+                        tMeshSetName,
                         tTimeContinuity,
                         tTimeBoundary )] = tNumFEMSets++;
 
@@ -3348,7 +3375,7 @@ namespace fem
                     Set_User_Info aSetUserInfo;
 
                     // set its mesh set name
-                    aSetUserInfo.set_mesh_set_name( tMeshSetNames( iSetName ) );
+                    aSetUserInfo.set_mesh_set_name( tMeshSetName );
 
                     // set its time continuity flag
                     aSetUserInfo.set_time_continuity( tTimeContinuity );
@@ -3375,7 +3402,7 @@ namespace fem
                 {
                     // set the IWG
                     mSetInfo( tMeshtoFemSet[std::make_tuple(
-                                  tMeshSetNames( iSetName ),
+                                  tMeshSetName,
                                   tTimeContinuity,
                                   tTimeBoundary )] )
                         .set_IWG( mIWGs( iIWG ) );
@@ -3399,16 +3426,19 @@ namespace fem
             // loop over the mesh set names
             for ( uint iSetName = 0; iSetName < tMeshSetNames.size(); iSetName++ )
             {
+                // get the mesh set name to be treated
+                std::string tMeshSetName = tMeshSetNames( iSetName );
+
                 // if the mesh set name not in map
                 if ( tMeshtoFemSet.find( std::make_tuple(
-                         tMeshSetNames( iSetName ),
+                         tMeshSetName,
                          tTimeContinuity,
                          tTimeBoundary ) )
                      == tMeshtoFemSet.end() )
                 {
                     // add the mesh set name map
                     tMeshtoFemSet[std::make_tuple(
-                        tMeshSetNames( iSetName ),
+                        tMeshSetName,
                         tTimeContinuity,
                         tTimeBoundary )] = tNumFEMSets++;
 
@@ -3416,7 +3446,7 @@ namespace fem
                     Set_User_Info aSetUserInfo;
 
                     // set its mesh set name
-                    aSetUserInfo.set_mesh_set_name( tMeshSetNames( iSetName ) );
+                    aSetUserInfo.set_mesh_set_name( tMeshSetName );
 
                     // set its time continuity flag
                     aSetUserInfo.set_time_continuity( tTimeContinuity );
@@ -3443,7 +3473,7 @@ namespace fem
                 {
                     // set the IQI
                     mSetInfo( tMeshtoFemSet[std::make_tuple(
-                                  tMeshSetNames( iSetName ),
+                                  tMeshSetName,
                                   tTimeContinuity,
                                   tTimeBoundary )] )
                         .set_IQI( mIQIs( iIQI ) );
@@ -3679,6 +3709,56 @@ namespace fem
             aXYZLocalAssemblyIndices( iPdvType ) = mXYZLocalAssemblyIndices( aVertexIndex, tXYZIndex );
         }
     }
+
+    //------------------------------------------------------------------------------
+    
+    /**
+     * @brief Set the dof type to Bspline mesh index map
+        * 
+        * @param aDofTypeToBsplineMeshIndex 
+        */
+    void
+    FEM_Model::set_dof_type_to_Bspline_mesh_index( std::unordered_map< MSI::Dof_Type, moris_index > aDofTypeToBsplineMeshIndex )
+    {
+        mDofTypeToBsplineMeshIndex = aDofTypeToBsplineMeshIndex;
+    }
+
+    //------------------------------------------------------------------------------
+    
+    /**
+     * @brief set flag whether to use new ghost sets
+        * 
+        * @param aUseNewGhostSets 
+        */
+    void
+    FEM_Model::set_use_new_ghost_sets( bool aUseNewGhostSets )
+    {
+        mUseNewGhostSets = aUseNewGhostSets;
+    }
+
+    //------------------------------------------------------------------------------
+
+    void
+    FEM_Model::check_and_set_ghost_set_names( std::string& aMeshSetName, enum MSI::Dof_Type aDofType )
+    {
+        // check whether new ghost sets should be used
+        if( mUseNewGhostSets )
+        {
+            if( aMeshSetName.find("ghost_p") != std::string::npos )
+            {
+                // find the phase index
+                size_t tPos = aMeshSetName.find("p");
+                MORIS_ERROR( tPos != std::string::npos, "FEM_Model::check_and_set_ghost_set_names() - Phase index not found in ghost set name." );
+                aMeshSetName.erase( 0, tPos + 1 );
+
+                moris_index tBsplineMeshIndex = mDofTypeToBsplineMeshIndex.find( aDofType )->second;
+
+                aMeshSetName = "ghost_B" + std::to_string( tBsplineMeshIndex ) + "_p" + aMeshSetName;
+            }
+        }
+    }
+
+    //------------------------------------------------------------------------------
 
 }// namespace fem
 } /* namespace moris */

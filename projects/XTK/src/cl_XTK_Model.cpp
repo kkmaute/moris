@@ -272,11 +272,8 @@ namespace xtk
             // get flag whether basis enrichments need to be sorted
             bool tSortBasisEnrichmentLevels = mParameterList.get< bool >( "sort_basis_enrichment_levels" );
 
-            // get flag whether enrichment should be performed based on SPGs
-            bool tUseSpgBasedEnrichment = mParameterList.get< bool >( "use_SPG_based_enrichment" );
-
             // perform the enrichment
-            this->perform_basis_enrichment( tBasisRank, tBsplineMeshIndices, tSortBasisEnrichmentLevels, tUseSpgBasedEnrichment );
+            this->perform_basis_enrichment( tBasisRank, tBsplineMeshIndices, tSortBasisEnrichmentLevels, this->uses_SPG_based_enrichment() );
 
             // if high to low double side sets need to be created
             if ( mParameterList.get< bool >( "high_to_low_dbl_side_sets" ) )
@@ -312,7 +309,7 @@ namespace xtk
         {
             
             // construct ghost using the new procedure if specifically requested by user
-            if ( mParameterList.get< bool >( "use_SPG_based_enrichment" ) )
+            if ( this->uses_SPG_based_enrichment() )
             {
                 this->construct_face_oriented_ghost_penalization_cells_new();
             }
@@ -327,7 +324,7 @@ namespace xtk
                 Tracer tTracer( "XTK", "GhostStabilization", "Visualize" );
 
                 // visualize ghost using the new procedure if specifically requested by user
-                if ( mParameterList.get< bool >( "use_SPG_based_enrichment" ) )
+                if ( this->uses_SPG_based_enrichment() )
                 {
                     // get the B-spline mesh indices
                     Matrix< IndexMat > tBsplineMeshIndices;
@@ -432,7 +429,7 @@ namespace xtk
         if ( mEnriched )
         {            
             // if SPG based enrichment is used, construct the cluster groups here
-            if ( mParameterList.get< bool >( "use_SPG_based_enrichment" ) )
+            if ( this->uses_SPG_based_enrichment() )
             {
                 mEnrichedIntegMesh( 0 )->setup_cluster_groups();
             }
@@ -510,10 +507,10 @@ namespace xtk
             {
                 Tracer tTracer( "XTK", "Overall", "Visualize" );
 
-                if ( mParameterList.get< bool >( "use_SPG_based_enrichment" ) )
+                if ( this->uses_SPG_based_enrichment() )
                 {
                     mEnrichedIntegMesh( 0 )->visualize_cluster_measures(); 
-                    mEnrichedIntegMesh( 0 )->visualize_cluster_group_measures();
+                    // mEnrichedIntegMesh( 0 )->visualize_cluster_group_measures();
                 }
 
                 tEnrIntegMesh.write_mesh( &mParameterList );
@@ -1732,7 +1729,22 @@ namespace xtk
             mEnrichedInterpMesh( 0 )->override_maps();
         }
     }
+    
     //------------------------------------------------------------------------------
+
+    bool
+    Model::uses_SPG_based_enrichment()
+    {
+        if( mParameterList.get< bool >( "has_parameter_list" ) )
+        {            
+            if ( mParameterList.get< bool >( "use_SPG_based_enrichment" ) )
+            {
+                return true;
+            }
+        }
+
+        return false; 
+    }
 
     //------------------------------------------------------------------------------
 

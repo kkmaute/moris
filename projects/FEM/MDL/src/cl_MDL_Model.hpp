@@ -107,6 +107,9 @@ namespace moris
                 // bool for multigrid use
                 bool mUseMultigrid = false;
 
+                // bool whether new Ghost sets are being used
+                bool mUseNewGhostSets = false;
+
                 // pointer to library for input reading
                 std::shared_ptr< Library_IO > mLibrary = nullptr;
 
@@ -306,7 +309,32 @@ namespace moris
                  * return fields
                  */
                 Cell< std::shared_ptr< mtk::Field > > get_mtk_fields();
+
                 //------------------------------------------------------------------------------
+
+                /**
+                 * @brief builds an unordered map from the MSI parameter list relating which dof types correspond to which B-spline mesh indices
+                 * 
+                 * @return std::unordered_map< MSI::Dof_Type, moris_index > 
+                 */
+                std::unordered_map< enum MSI::Dof_Type, moris_index >
+                build_dof_type_to_mesh_index();
+
+                //------------------------------------------------------------------------------
+
+                /**
+                 * @brief Turn on usage of new ghost sets. Needed to trigger the FEM model to use the correct sets
+                 * 
+                 * @param aUseNewGhost 
+                 */
+                void
+                set_use_new_ghost_mesh_sets( bool aUseNewGhost )
+                {
+                    mUseNewGhostSets = aUseNewGhost;
+                }
+
+                //------------------------------------------------------------------------------
+
         };
         //------------------------------------------------------------------------------
     } /* namespace mdl */

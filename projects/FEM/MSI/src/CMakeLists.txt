@@ -26,6 +26,7 @@ set(HEADERS
     cl_MSI_Element_Proxy.hpp
     cl_MSI_Multigrid.hpp
     cl_MSI_Design_Variable_Interface.hpp
+    fn_MSI_get_mesh_index_for_dof_type.hpp
     )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

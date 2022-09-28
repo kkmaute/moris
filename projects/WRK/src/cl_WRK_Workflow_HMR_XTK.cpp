@@ -353,6 +353,9 @@ namespace moris
                 return tMat;
             }
 
+            // store whether the new ghost has been used
+            bool tUseNewGhostSets = tXTKPerformer->uses_SPG_based_enrichment();
+
             // XTK perform - enrich - ghost - multigrid
             tXTKPerformer->perform_enrichment();
 
@@ -432,6 +435,9 @@ namespace moris
 
             mPerformerManager->mMDLPerformer( 0 )->set_design_variable_interface(
                     mPerformerManager->mGENPerformer( 0 )->get_design_variable_interface() );
+
+            // store whether the new ghost sets are being used
+            mPerformerManager->mMDLPerformer( 0 )->set_use_new_ghost_mesh_sets( tUseNewGhostSets );
 
             mPerformerManager->mMDLPerformer( 0 )->initialize();
 
