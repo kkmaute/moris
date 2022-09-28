@@ -2694,8 +2694,8 @@ namespace xtk
                             tNewVertFlag );
 
                     // create this vertex on the first go around
-                    // Note: the Interpolation_Vertex_Unzipped (IVU) carries a list of vertex enrichments, each VE corresponds to one mesh index
-                    // note though, that the IVU is still created for every subphase (i.e. for every material sub-domain within the IP element)
+                    // Note: the Interpolation_Vertex_Unzipped (UIPV) carries a list of vertex enrichments, each VE corresponds to one mesh index
+                    // note though, that the UIPV is still created for every subphase (i.e. for every material sub-domain within the IP element)
                     if ( iBspMesh == 0 )
                     {
                         // Create interpolation vertex with only the first Vertex enrichment
@@ -2732,9 +2732,9 @@ namespace xtk
                 }
 
                 // create the unzipped interpolation cell on first go
-                /* Note: the Interpolation_Cell_Unzipped carries a list of Interpolation_Vertex_Unzipped (IVU) which themselves get updated for every DMI
+                /* Note: the Interpolation_Cell_Unzipped carries a list of Interpolation_Vertex_Unzipped (UIPV) which themselves get updated for every DMI
                  * Hence, the Interpolation_Cell_Unzipped can be left alone after initial creation.
-                 * Access to the right IVUs is given once they're all constructed (see code section with double for-loop just below) */
+                 * Access to the right UIPVs is given once they're all constructed (see code section with double for-loop just below) */
                 if ( iBspMesh == 0 )
                 {
                     // create new enriched interpolation cell and put it in list associating it with the underlying parent IP cell
@@ -2837,11 +2837,21 @@ namespace xtk
                 // vertices of IP cell
                 moris::Cell< mtk::Vertex* > tVertices = tIpCell->get_vertex_pointers();
 
-                // get the T-matrix of the current IP node wrt the current B-spline mesh
+                // get the non-enriched T-matrices of the current IP cell's nodes wrt the current B-spline mesh
                 moris::Cell< mtk::Vertex_Interpolation* > tVertexInterpolations = this->get_vertex_interpolations( *tIpCell, tMeshIndex );
+
+                // sanity check that number of T-matrices matches number of nodes
+                MORIS_ASSERT( tVertexInterpolations.size() == tNumVertices,
+                        "Enrichment::construct_enriched_interpolation_vertices_and_cells_new() - "
+                        "Number of T-matrices on cell and number of nodes don't match up." );
 
                 // get max number of enr IP cells associated with the current IP cell
                 uint tMaxNumUnzippings = mNumUnzippingsOnIpCell( iIpCell );
+
+                // get the number of clusters with and without material in them
+                uint tNumMaterialClusters = mMaterialSpgsUnzippedOnIpCell( iBspMesh )( iIpCell ).size();
+                uint tNumVoidClusters     = mVoidSpgsUnzippedOnIpCell( iBspMesh )( iIpCell ).size();
+                uint tNumValidClusters    = tNumMaterialClusters + tNumVoidClusters;
 
                 // iterate through the enriched IP cells that are to be constructed on the current base IP cell
                 for ( moris::uint iEnrIpCell = 0; iEnrIpCell < tMaxNumUnzippings; iEnrIpCell++ )
@@ -2849,22 +2859,9 @@ namespace xtk
                     // get the enr. IP cell's index
                     moris_index tUipcIndex = mEnrIpCellIndices( iIpCell )( iEnrIpCell );
 
-                    // get the T-matrix of the current IP node wrt the current B-spline mesh
-                    moris::Cell< mtk::Vertex_Interpolation* > tVertexInterpolations = this->get_vertex_interpolations( *tIpCell, tMeshIndex );
-
-                    // sanity check that number of T-matrices matches number of nodes
-                    MORIS_ASSERT( tVertexInterpolations.size() == tNumVertices,
-                            "Enrichment::construct_enriched_interpolation_vertices_and_cells_new() -  number of T-matrices on cell and number of Nodes don't match up." );
-
                     // initialize variables that are only used when constructiong valid enr. IP cell
-                    std::unordered_map< moris_id, moris_id > tCellBasisMap;
-                    moris_index                              tSpgIndex        = -1;
-                    moris_index                              tVertEnrichIndex = -1;
-
-                    // get the number of clusters with and without material in them
-                    uint tNumMaterialClusters = mMaterialSpgsUnzippedOnIpCell( iBspMesh )( iIpCell ).size();
-                    uint tNumVoidClusters     = mVoidSpgsUnzippedOnIpCell( iBspMesh )( iIpCell ).size();
-                    uint tNumValidClusters    = tNumMaterialClusters + tNumVoidClusters;
+                    moris_index tSpgIndex        = -1;
+                    moris_index tVertEnrichIndex = -1;
 
                     // get the index of the SPG belonging to the current enr. IP cell = cluster
                     // note: logic is: first come the SPGs correspoinding to each of the SPs, then the void clusters needed, then the invalid clusters
@@ -2885,25 +2882,25 @@ namespace xtk
                     // make sure a valid SPG index gets assigned
                     MORIS_ASSERT( tSpgIndex > -1, "Enrichment::construct_enriched_interpolation_vertices_and_cells_new() - SPG index not assigned." );
 
-                    // get list of non-enriched basis indices interpolating into the current subphase
+                    // get list of non-enriched basis indices interpolating into the current subphase group
                     Cell< moris_index > const & tBasisInSpg = mEnrichmentData( tMeshIndex ).mSubphaseGroupBGBasisIndices( tSpgIndex );
 
                     // store the UIPCs to SPG relationship
                     mSpgToUipcIndex( iBspMesh )( tSpgIndex ).push_back( tUipcIndex );
                     mUipcToSpgIndex( iBspMesh )( tUipcIndex ) = tSpgIndex;
 
-                    // construct a map between non-enriched BF index and index relative to the subphase cluster
-                    // NOTE: the function is indifferent to whether it's operating on SPs or SPGs
-                    tCellBasisMap = construct_subphase_basis_to_basis_map( tBasisInSpg );
+                    // construct a map between non-enriched BF index and index relative to the list of basis interpolating into the current SPG
+                    // NOTE: the function is indifferent to whether it's operating on SPs or SPGs since it only converts a moris::cell to a std::unordered_map
+                    std::unordered_map< moris_id, moris_id > tCellBasisMap = construct_subphase_basis_to_basis_map( tBasisInSpg );
 
                     // construction of unzipped enriched IP vertices
                     // i.e. only construct T-matrices if underlying enriched IP cell is valid
                     for ( uint iIpCellVertex = 0; iIpCellVertex < tNumVertices; iIpCellVertex++ )
                     {
-                        // initialize vertex enrichment object
+                        // initialize the enriched T-matrix
                         Vertex_Enrichment tVertEnrichment;
 
-                        // compute T-matrix (aka. Vertex Enrichment)
+                        // compute the enriched T-matrix (aka. Vertex Enrichment)
                         this->construct_enriched_vertex_interpolation(
                                 tMeshIndex,
                                 tVertexInterpolations( iIpCellVertex ),
@@ -2920,8 +2917,8 @@ namespace xtk
                                 tNewVertFlag );
 
                         // create this vertex on the first go around
-                        // Note: the Interpolation_Vertex_Unzipped (IVU) carries a list of vertex enrichments, each VE corresponds to one mesh index
-                        // note though, that the IVU is still created for all subphase groups associdated with every IP cell
+                        // Note: the Interpolation_Vertex_Unzipped (UIPV) carries a list of vertex enrichments, each VE corresponds to one mesh index
+                        // note though, that the UIPV is still created for all subphase groups associdated with every IP cell
                         if ( iBspMesh == 0 )
                         {
                             // Create interpolation vertex with only the first Vertex enrichment
@@ -2961,9 +2958,9 @@ namespace xtk
                     moris_index tBulkPhaseIndex = mBsplineMeshInfos( iBspMesh )->get_bulk_phase_for_subphase_group( tSpgIndex );
 
                     // create the unzipped interpolation cell on first go
-                    /* Note: the Interpolation_Cell_Unzipped carries a list of Interpolation_Vertex_Unzipped (IVU) which themselves get updated for every DMI
+                    /* Note: the Interpolation_Cell_Unzipped carries a list of Interpolation_Vertex_Unzipped (UIPV) which themselves get updated for every DMI
                      * Hence, the Interpolation_Cell_Unzipped can be left alone after initial creation.
-                     * Access to the right IVUs is given once they're all constructed (see code section with double for-loop just below) */
+                     * Access to the right UIPVs is given once they're all constructed (see code section with double for-loop just below) */
                     if ( iBspMesh == 0 )
                     {
                         // get the bulk- and sub-phase indices for the primary phase
@@ -2975,6 +2972,10 @@ namespace xtk
                             tPrimaryBulkPhase = tBulkPhaseIndex;
                             tPrimarySubPhase  = mCutIgMesh->get_parent_cell_subphases( tIpCellIndex )( iEnrIpCell );
                         }
+                        // else if ( iEnrIpCell < tNumValidClusters ) // if UIPC is void but valid it still has a bulk-phase associated with it
+                        // {
+                        //     tPrimaryBulkPhase = tBulkPhaseIndex;
+                        // }
 
                         // create new enriched interpolation cell and put it in list associating it with the underlying parent IP cell
                         tEnrInterpMesh->mEnrichedInterpCells( tUipcIndex ) =
@@ -3346,7 +3347,8 @@ namespace xtk
                 // find the coefficients index within this subphase cluster
                 auto tIter = aMapBasisIndexToLocInSubPhase.find( tCoeffIndex );
 
-                MORIS_ASSERT( tIter != aMapBasisIndexToLocInSubPhase.end(), "Basis not found in vertex map" );
+                MORIS_ASSERT( tIter != aMapBasisIndexToLocInSubPhase.end(), 
+                        "Enrichment::construct_enriched_vertex_interpolation() - Basis not found in vertex map" );
 
                 // The basis local index relative to the subphase
                 moris_index tSubphaseBasisIndex = tIter->second;

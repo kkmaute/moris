@@ -679,7 +679,7 @@ namespace xtk
                 // get the index of the enriched vertex
                 moris_index tVertEnrIndex = mBaseInterpVertToVertEnrichmentIndex( tLocalMeshIndex )( tBaseVertIndex )( iVertEnrLvl );
 
-                // check if the Vertex-Enrichment (VE) passed into this fnct. is the same as the VE already associated with this particular enr. vertex
+                // check if the Vertex-Enrichment (VE) (i.e. enriched T-matrix) passed into this fnct. is the same as the VE already associated with this particular enr. vertex
                 if ( mInterpVertEnrichment( tLocalMeshIndex )( tVertEnrIndex ) != nullptr )
                 {
                     if ( aVertexEnrichment == *mInterpVertEnrichment( tLocalMeshIndex )( tVertEnrIndex ) )
@@ -701,7 +701,7 @@ namespace xtk
         mInterpVertEnrichment( tLocalMeshIndex ).push_back( new Vertex_Enrichment( aVertexEnrichment ) );
 
         // add a dummy value to the parent vertex index of a vertex interpolation
-        mVertexEnrichmentParentVertexIndex( tLocalMeshIndex ).push_back( tVertexEnrichmentIndex );
+        mVertexEnrichmentParentVertexIndex( tLocalMeshIndex ).push_back( aBaseInterpVertex->get_index() );
 
         // update list of VEs living on current base vertex associated with the current DMI
         mBaseInterpVertToVertEnrichmentIndex( tLocalMeshIndex )( tBaseVertIndex ).push_back( tVertexEnrichmentIndex );
@@ -1970,38 +1970,38 @@ namespace xtk
             MORIS_ASSERT( tNumCells == (moris_index)tEnrIpCells.size(), "Inconsistent num cells information." );
 
             // create the enriched interpolation basis to interpolation cell interpolation
-            for ( moris::sint i = 0; i < tNumCells; i++ )
+            for ( moris::sint iUIPC = 0; iUIPC < tNumCells; iUIPC++ )
             {
-                moris::Cell< xtk::Interpolation_Vertex_Unzipped* > const & tVertices = tEnrIpCells( i )->get_xtk_interpolation_vertices();
+                moris::Cell< xtk::Interpolation_Vertex_Unzipped* > const & tVertices = tEnrIpCells( iUIPC )->get_xtk_interpolation_vertices();
 
-                for ( moris::size_t iV = 0; iV < tVertices.size(); iV++ )
+                for ( moris::size_t iVert = 0; iVert < tVertices.size(); iVert++ )
                 {
-                    if ( tVertices( iV )->has_interpolation( tMeshIndex ) )
+                    if ( tVertices( iVert )->has_interpolation( tMeshIndex ) )
                     {
-                        Vertex_Enrichment* tVertInterp = tVertices( iV )->get_xtk_interpolation( tMeshIndex );
+                        Vertex_Enrichment* tVertInterp = tVertices( iVert )->get_xtk_interpolation( tMeshIndex );
 
                         Matrix< IndexMat > tBasisIndices = tVertInterp->get_indices();
 
                         // iterate through vertices and add the ip cell to the support
-                        for ( moris::uint iB = 0; iB < tBasisIndices.numel(); iB++ )
+                        for ( moris::uint iBF = 0; iBF < tBasisIndices.numel(); iBF++ )
                         {
-                            tCellsInEnrSupports( tBasisIndices( iB ) ).push_back( tEnrIpCells( i ) );
+                            tCellsInEnrSupports( tBasisIndices( iBF ) ).push_back( tEnrIpCells( iUIPC ) );
                         }
                     }
                 }
             }
 
             // iterate through enriched basis functions
-            for ( moris::size_t i = 0; i < tNumEnrBasis; i++ )
+            for ( moris::size_t iBF = 0; iBF < tNumEnrBasis; iBF++ )
             {
                 // iterate through enriched interpolation cells in the support
-                moris_index tNumSubphaseInSupport = tCellsInEnrSupports( i ).size();
+                moris_index tNumSubphaseInSupport = tCellsInEnrSupports( iBF ).size();
 
                 moris_index tExpectedBulkPhase = MORIS_INDEX_MAX;
 
                 for ( moris::moris_index iSP = 0; iSP < tNumSubphaseInSupport; iSP++ )
                 {
-                    Interpolation_Cell_Unzipped* tIpCell = tCellsInEnrSupports( i )( iSP );
+                    Interpolation_Cell_Unzipped* tIpCell = tCellsInEnrSupports( iBF )( iSP );
 
                     moris_index tBulkPhase = tIpCell->get_bulkphase_index();
 
@@ -2014,7 +2014,14 @@ namespace xtk
 
                     if ( tBulkPhase != tExpectedBulkPhase )
                     {
-                        std::cout << "tExpectedBulkPhase=  " << tExpectedBulkPhase << " | tBulkPhase = " << tBulkPhase << std::endl;
+                        std::string tWarning = 
+                                "Enr. BF index = " + std::to_string( iBF ) + 
+                                " | SP index = " + std::to_string( tCellsInEnrSupports( iBF )( iSP )->get_index() ) + 
+                                " | tExpectedBulkPhase = " + std::to_string( tExpectedBulkPhase ) + 
+                                " | tBulkPhase = " + std::to_string( tBulkPhase );
+
+                        MORIS_LOG_WARNING( tWarning.c_str() );
+
                         tSubphaseBulkPhasesInSupportDiag = false;
                     }
                 }
@@ -2023,7 +2030,9 @@ namespace xtk
 
         // print error message if check fails
         MORIS_ERROR( tSubphaseBulkPhasesInSupportDiag,
-                "Enriched_Interpolation_Mesh::verify_basis_support() - Not all bulk phases in support of enriched basis  function do not match" );
+                "Enriched_Interpolation_Mesh::verify_basis_support() - "
+                "Bulk phases of IG cells in enriched basis support do not match" );
+
 
         // return true if check does not fail before
         return true;

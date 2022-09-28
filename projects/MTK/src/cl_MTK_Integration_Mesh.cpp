@@ -245,7 +245,7 @@ namespace moris
             mListOfAllSets.clear();
             mSetNameToIndexMap.clear();
 
-            //resrve enough space 
+            // reserve enough space 
             mListOfAllSets.reserve( mListofBlocks.size() + mListofSideSets.size() + mListofDoubleSideSets.size() );
 
             uint tCounter = 0;
