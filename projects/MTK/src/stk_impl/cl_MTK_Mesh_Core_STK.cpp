@@ -2052,6 +2052,9 @@ namespace moris
                 case ( stk::topology::HEX_8 ):
                     return CellTopology::HEX8;
                     break;
+                case ( stk::topology::HEX_20 ):
+                    return CellTopology::HEX20;
+                    break;
                 case ( stk::topology::HEX_27 ):
                     return CellTopology::HEX27;
                     break;
@@ -3951,4 +3954,3 @@ namespace moris
 
     }    // namespace mtk
 }    // namespace moris
-

@@ -4,15 +4,17 @@
  *
  *------------------------------------------------------------------------------------
  *
- * cl_MTK_Cell_Info_Hex64.hpp
+ * cl_MTK_Cell_Info_Hex20.hpp
  *
  */
 
-#ifndef PROJECTS_MTK_SRC_CL_MTK_CELL_INFO_HEX64_HPP_
-#define PROJECTS_MTK_SRC_CL_MTK_CELL_INFO_HEX64_HPP_
+#ifndef PROJECTS_MTK_SRC_CL_MTK_CELL_INFO_HEX20_HPP_
+#define PROJECTS_MTK_SRC_CL_MTK_CELL_INFO_HEX20_HPP_
 
+#include "cl_Cell.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
+
 #include "cl_MTK_Cell_Info.hpp"
 
 namespace moris
@@ -21,18 +23,11 @@ namespace moris
     {
         class Cell;
 
-        class Cell_Info_Hex64 : public mtk::Cell_Info
+        class Cell_Info_Hex20 : public mtk::Cell_Info
         {
           public:
-            //-----------------------------------------------------------------------------
-
             enum Geometry_Type
             get_cell_geometry() const;
-
-            //-----------------------------------------------------------------------------
-
-            enum CellTopology
-            get_cell_topology() const;
 
             //-----------------------------------------------------------------------------
 
@@ -43,6 +38,11 @@ namespace moris
 
             enum Integration_Order
             get_cell_integration_order() const;
+
+            //-----------------------------------------------------------------------------
+
+            enum CellTopology
+            get_cell_topology() const;
 
             //-----------------------------------------------------------------------------
 
@@ -69,7 +69,7 @@ namespace moris
             uint
             get_num_verts_per_facet() const;
 
-            //-----------------------------------------------------------------------------
+            //----------------------------------------------------------------------------
 
             uint
             get_loc_coord_dim() const;
@@ -82,12 +82,12 @@ namespace moris
             //-----------------------------------------------------------------------------
 
             moris::Matrix< moris::IndexMat >
-            get_node_to_face_map( moris::uint aSideOrdinal ) const;
+            get_node_to_edge_map() const;
 
             //-----------------------------------------------------------------------------
 
             moris::Matrix< moris::IndexMat >
-            get_node_to_edge_map() const;
+            get_node_to_face_map( moris::uint aSideOrdinal ) const;
 
             //-----------------------------------------------------------------------------
 
@@ -164,8 +164,8 @@ namespace moris
             compute_cell_side_size(
                     moris::mtk::Cell const *aCell,
                     moris_index const      &aSideOrd ) const;
-
             // ----------------------------------------------------------------------------------
+
             void
             eval_N(
                     const Matrix< DDRMat > &aXi,
@@ -173,4 +173,4 @@ namespace moris
         };
     }    // namespace mtk
 }    // namespace moris
-#endif /* PROJECTS_MTK_SRC_CL_MTK_CELL_INFO_HEX64_HPP_ */
+#endif /* PROJECTS_MTK_SRC_CL_MTK_Hex20_CELL_INFO_HPP_ */

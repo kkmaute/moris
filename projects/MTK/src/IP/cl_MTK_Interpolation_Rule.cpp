@@ -108,7 +108,7 @@ namespace moris
                 }
                 case Geometry_Type::TET:
                 {
-                    return 4;
+                    return 3;
                 }
                 default:
                 {
@@ -123,4 +123,3 @@ namespace moris
 
     } /* namespace mtk */
 } /* namespace moris */
-

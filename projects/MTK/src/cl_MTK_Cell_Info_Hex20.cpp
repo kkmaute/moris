@@ -4,11 +4,11 @@
  *
  *------------------------------------------------------------------------------------
  *
- * cl_MTK_Cell_Info_Hex27.cpp
+ * cl_MTK_Cell_Info_Hex20.cpp
  *
  */
 
-#include "cl_MTK_Cell_Info_Hex27.hpp"
+#include "cl_MTK_Cell_Info_Hex20.hpp"
 #include "cl_MTK_Cell_Info_Hex8.hpp"
 #include "cl_MTK_Cell.hpp"
 #include "cl_MTK_Vertex.hpp"
@@ -22,38 +22,38 @@ namespace moris
     {
         // ----------------------------------------------------------------------------------
         enum Geometry_Type
-        Cell_Info_Hex27::get_cell_geometry() const
+        Cell_Info_Hex20::get_cell_geometry() const
         {
             return Geometry_Type::HEX;
         }
 
         // ----------------------------------------------------------------------------------
         enum CellTopology
-        Cell_Info_Hex27::get_cell_topology() const
+        Cell_Info_Hex20::get_cell_topology() const
         {
-            return CellTopology::HEX27;
+            return CellTopology::HEX20;
         }
 
         // ----------------------------------------------------------------------------------
 
         enum Interpolation_Order
-        Cell_Info_Hex27::get_cell_interpolation_order() const
+        Cell_Info_Hex20::get_cell_interpolation_order() const
         {
-            return Interpolation_Order::QUADRATIC;
+            return Interpolation_Order::SERENDIPITY;
         }
 
         // ----------------------------------------------------------------------------------
 
         enum Integration_Order
-        Cell_Info_Hex27::get_cell_integration_order() const
+        Cell_Info_Hex20::get_cell_integration_order() const
         {
-            return Integration_Order::HEX_4x4x4;
+            return Integration_Order::HEX_3x3x3;
         }
 
         //-----------------------------------------------------------------------------
 
         enum CellShape
-        Cell_Info_Hex27::compute_cell_shape( moris::mtk::Cell const * aCell ) const
+        Cell_Info_Hex20::compute_cell_shape( moris::mtk::Cell const * aCell ) const
         {
             // getting vertices and storing them in a local matrix, since each node will be used a few times
             moris::Cell< Vertex* > tVertices = aCell->get_vertex_pointers();
@@ -82,7 +82,6 @@ namespace moris
                 moris::Matrix< DDRMat > tVertex5 = tVertices( tFaceNodes( 5 ) )->get_coords();
                 moris::Matrix< DDRMat > tVertex6 = tVertices( tFaceNodes( 6 ) )->get_coords();
                 moris::Matrix< DDRMat > tVertex7 = tVertices( tFaceNodes( 7 ) )->get_coords();
-                moris::Matrix< DDRMat > tVertex8 = tVertices( tFaceNodes( 8 ) )->get_coords();
 
                 // get edges to define check plane
                 auto tEdge0           = tVertex1 - tVertex0;
@@ -100,7 +99,7 @@ namespace moris
                 auto tFaceVec45 = cross( tEdge4, tEdge5 );
 
                 auto tEdge6     = tVertex7 - tVertex0;
-                auto tEdge7     = tVertex8 - tVertex7;
+                auto tEdge7     = tVertex4 - tVertex7;
                 auto tFaceVec67 = cross( tEdge6, tEdge7 );
 
                 // All three of the plane normals must be parallel in order to be considered straight shape
@@ -160,15 +159,15 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         uint
-        Cell_Info_Hex27::get_num_verts() const
+        Cell_Info_Hex20::get_num_verts() const
         {
-            return 27;
+            return 20;
         }
 
         // ----------------------------------------------------------------------------------
 
         uint
-        Cell_Info_Hex27::get_num_facets() const
+        Cell_Info_Hex20::get_num_facets() const
         {
             return 6;
         }
@@ -176,7 +175,7 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         uint
-        Cell_Info_Hex27::get_num_edges() const
+        Cell_Info_Hex20::get_num_edges() const
         {
             return 12;
         }
@@ -184,15 +183,15 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         uint
-        Cell_Info_Hex27::get_num_verts_per_facet() const
+        Cell_Info_Hex20::get_num_verts_per_facet() const
         {
-            return 9;
+            return 8;
         }
 
         // ----------------------------------------------------------------------------------
 
         uint
-        Cell_Info_Hex27::get_loc_coord_dim() const
+        Cell_Info_Hex20::get_loc_coord_dim() const
         {
             return 3;
         }
@@ -200,20 +199,20 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         inline moris::Matrix< moris::IndexMat >
-        Cell_Info_Hex27::get_node_to_face_map() const
+        Cell_Info_Hex20::get_node_to_face_map() const
         {
-            return { { 0, 1, 5, 4, 8, 13, 16, 12, 25 },
-                { 1, 2, 6, 5, 9, 14, 17, 13, 24 },
-                { 2, 3, 7, 6, 10, 15, 18, 14, 26 },
-                { 0, 4, 7, 3, 12, 19, 15, 11, 23 },
-                { 0, 3, 2, 1, 11, 10, 9, 8, 21 },
-                { 4, 5, 6, 7, 16, 17, 18, 19, 22 } };
+            return { { 0, 1, 5, 4, 8, 13, 16, 12 },
+                { 1, 2, 6, 5, 9, 14, 17, 13 },
+                { 2, 3, 7, 6, 10, 15, 18, 14 },
+                { 0, 4, 7, 3, 12, 19, 15, 11 },
+                { 0, 3, 2, 1, 11, 10, 9, 8 },
+                { 4, 5, 6, 7, 16, 17, 18, 19 } };
         }
 
         // ----------------------------------------------------------------------------------
 
         moris::Matrix< moris::IndexMat >
-        Cell_Info_Hex27::get_node_to_edge_map() const
+        Cell_Info_Hex20::get_node_to_edge_map() const
         {
             return { { 0, 1 }, { 1, 2 }, { 2, 3 }, { 3, 0 }, { 4, 5 }, { 5, 6 }, { 6, 7 }, { 7, 4 }, { 0, 4 }, { 1, 5 }, { 2, 6 }, { 3, 7 } };
         }
@@ -221,38 +220,38 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         inline moris::Matrix< moris::IndexMat >
-        Cell_Info_Hex27::get_node_to_face_map( moris::uint aSideOrdinal ) const
+        Cell_Info_Hex20::get_node_to_face_map( moris::uint aSideOrdinal ) const
         {
             switch ( aSideOrdinal )
             {
                 case ( 0 ):
                 {
-                    return { { 0, 1, 5, 4, 8, 13, 16, 12, 25 } };
+                    return { { 0, 1, 5, 4, 8, 13, 16, 12 } };
                     break;
                 }
                 case ( 1 ):
                 {
-                    return { { 1, 2, 6, 5, 9, 14, 17, 13, 24 } };
+                    return { { 1, 2, 6, 5, 9, 14, 17, 13 } };
                     break;
                 }
                 case ( 2 ):
                 {
-                    return { { 2, 3, 7, 6, 10, 15, 18, 14, 26 } };
+                    return { { 2, 3, 7, 6, 10, 15, 18, 14 } };
                     break;
                 }
                 case ( 3 ):
                 {
-                    return { { 0, 4, 7, 3, 12, 19, 15, 11, 23 } };
+                    return { { 0, 4, 7, 3, 12, 19, 15, 11 } };
                     break;
                 }
                 case ( 4 ):
                 {
-                    return { { 0, 3, 2, 1, 11, 10, 9, 8, 21 } };
+                    return { { 0, 3, 2, 1, 11, 10, 9, 8 } };
                     break;
                 }
                 case ( 5 ):
                 {
-                    return { { 4, 5, 6, 7, 16, 17, 18, 19, 22 } };
+                    return { { 4, 5, 6, 7, 16, 17, 18, 19 } };
                     break;
                 }
                 default:
@@ -264,7 +263,7 @@ namespace moris
 
         // ----------------------------------------------------------------------------------
         moris::Matrix< moris::IndexMat >
-        Cell_Info_Hex27::get_node_to_edge_map( moris::uint aEdgeOrdinal ) const
+        Cell_Info_Hex20::get_node_to_edge_map( moris::uint aEdgeOrdinal ) const
         {
             switch ( aEdgeOrdinal )
             {
@@ -338,7 +337,7 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         moris::Matrix< moris::IndexMat >
-        Cell_Info_Hex27::get_node_to_facet_map() const
+        Cell_Info_Hex20::get_node_to_facet_map() const
         {
             return this->get_node_to_face_map();
         }
@@ -346,7 +345,7 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         moris::Matrix< moris::IndexMat >
-        Cell_Info_Hex27::get_node_to_facet_map( moris::uint aSideOrdinal ) const
+        Cell_Info_Hex20::get_node_to_facet_map( moris::uint aSideOrdinal ) const
         {
             return this->get_node_to_face_map( aSideOrdinal );
         }
@@ -354,7 +353,7 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         moris::Matrix< moris::IndexMat >
-        Cell_Info_Hex27::get_geometric_node_to_facet_map() const
+        Cell_Info_Hex20::get_geometric_node_to_facet_map() const
         {
             Cell_Info_Hex8 tHex8;
             return tHex8.get_node_to_face_map();
@@ -363,7 +362,7 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         moris::Matrix< moris::IndexMat >
-        Cell_Info_Hex27::get_geometric_node_to_facet_map( moris::uint aSideOrdinal ) const
+        Cell_Info_Hex20::get_geometric_node_to_facet_map( moris::uint aSideOrdinal ) const
         {
             Cell_Info_Hex8 tHex8;
             return tHex8.get_node_to_face_map( aSideOrdinal );
@@ -372,7 +371,7 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         moris::uint
-        Cell_Info_Hex27::get_adjacent_side_ordinal( moris::uint aSideOrdinal ) const
+        Cell_Info_Hex20::get_adjacent_side_ordinal( moris::uint aSideOrdinal ) const
         {
             switch ( aSideOrdinal )
             {
@@ -418,7 +417,7 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         moris::Cell< moris_index >
-        Cell_Info_Hex27::get_vertex_path_to_entity_rank_and_ordinal(
+        Cell_Info_Hex20::get_vertex_path_to_entity_rank_and_ordinal(
                 moris_index aVertexOrdinal,
                 moris_index aOtherEntityOrdinal,
                 moris_index aOtherEntityRank ) const
@@ -429,70 +428,56 @@ namespace moris
                 case 0:
                 {
                     Matrix< IndexMat > tVertexToVertexRanks = {
-                        { -1, +1, +2, +1, +1, +2, +3, +2, +1, +2, +2, +1, +1, +2, +3, +2, +2, +3, +3, +2, +3, +2, +3, +2, +3, +2, +3 },
-                        { +1, -1, +1, +2, +2, +1, +2, +3, +1, +1, +2, +2, +2, +1, +2, +3, +2, +2, +3, +3, +3, +2, +3, +3, +2, +2, +3 },
-                        { +2, +1, -1, +1, +3, +2, +1, +2, +2, +1, +1, +2, +3, +2, +1, +2, +3, +2, +2, +3, +3, +2, +3, +3, +2, +3, +2 },
-                        { +1, +2, +1, -1, +2, +3, +2, +1, +2, +2, +1, +1, +2, +3, +2, +1, +3, +3, +2, +2, +3, +2, +3, +2, +3, +3, +2 },
-                        { +1, +2, +3, +2, -1, +1, +2, +1, +2, +3, +3, +2, +1, +2, +3, +2, +1, +2, +2, +1, +3, +3, +2, +2, +3, +2, +3 },
-                        { +2, +1, +2, +3, +1, -1, +1, +2, +2, +2, +3, +3, +2, +1, +2, +3, +1, +1, +2, +2, +3, +3, +2, +3, +2, +2, +3 },
-                        { +3, +2, +1, +2, +2, +1, -1, +1, +3, +2, +2, +3, +3, +2, +1, +2, +2, +1, +1, +2, +3, +3, +2, +3, +2, +3, +2 },
-                        { +2, +3, +2, +1, +1, +2, +1, -1, +3, +3, +2, +2, +2, +3, +2, +1, +2, +2, +1, +1, +3, +3, +2, +2, +3, +3, +2 },
-                        { +1, +1, +2, +2, +2, +2, +3, +3, -1, +2, +2, +2, +2, +2, +3, +3, +2, +3, +3, +3, +3, +2, +3, +3, +3, +2, +3 },
-                        { +2, +1, +1, +2, +3, +2, +2, +3, +2, -1, +2, +2, +3, +2, +2, +3, +3, +2, +3, +3, +3, +2, +3, +3, +2, +3, +3 },
-                        { +2, +2, +1, +1, +3, +3, +2, +2, +2, +2, -1, +2, +3, +3, +2, +2, +3, +3, +2, +3, +3, +2, +3, +3, +3, +3, +2 },
-                        { +1, +2, +2, +1, +2, +3, +3, +2, +2, +2, +2, -1, +2, +3, +3, +2, +3, +3, +3, +2, +3, +2, +3, +2, +3, +3, +3 },
-                        { +1, +2, +3, +2, +1, +2, +3, +2, +2, +3, +3, +2, -1, +2, +3, +2, +2, +3, +3, +2, +3, +3, +3, +2, +3, +2, +3 },
-                        { +2, +1, +2, +3, +2, +1, +2, +3, +2, +2, +3, +3, +2, -1, +2, +3, +2, +2, +3, +3, +3, +3, +3, +3, +2, +2, +3 },
-                        { +3, +2, +1, +2, +3, +2, +1, +2, +3, +2, +2, +3, +3, +2, -1, +2, +3, +2, +2, +3, +3, +3, +3, +3, +2, +3, +2 },
-                        { +2, +3, +2, +1, +2, +3, +2, +1, +3, +3, +2, +2, +2, +3, +2, -1, +3, +3, +2, +2, +3, +3, +3, +2, +3, +3, +2 },
-                        { +2, +2, +3, +3, +1, +1, +2, +2, +2, +3, +3, +3, +2, +2, +3, +3, -1, +2, +2, +2, +3, +3, +2, +3, +3, +2, +3 },
-                        { +3, +2, +2, +3, +2, +1, +1, +2, +3, +2, +3, +3, +3, +2, +2, +3, +2, -1, +2, +2, +3, +3, +2, +3, +2, +3, +3 },
-                        { +3, +3, +2, +2, +2, +2, +1, +1, +3, +3, +2, +3, +3, +3, +2, +2, +2, +2, -1, +2, +3, +3, +2, +3, +3, +3, +2 },
-                        { +2, +3, +3, +2, +1, +2, +2, +1, +3, +3, +3, +2, +2, +3, +3, +2, +2, +2, +2, -1, +3, +3, +2, +2, +3, +3, +3 },
-                        { +3, +3, +3, +3, +3, +3, +3, +3, +3, +3, +3, +3, +3, +3, +3, +3, +3, +3, +3, +3, -1, +3, +3, +3, +3, +3, +3 },
-                        { +2, +2, +2, +2, +3, +3, +3, +3, +2, +2, +2, +2, +3, +3, +3, +3, +3, +3, +3, +3, +3, -1, +3, +3, +3, +3, +3 },
-                        { +3, +3, +3, +3, +2, +2, +2, +2, +3, +3, +3, +3, +3, +3, +3, +3, +2, +2, +2, +2, +3, +3, -1, +3, +3, +3, +3 },
-                        { +2, +3, +3, +2, +2, +3, +3, +2, +3, +3, +3, +2, +2, +3, +3, +2, +3, +3, +3, +2, +3, +3, +3, -1, +3, +3, +3 },
-                        { +3, +2, +2, +3, +3, +2, +2, +3, +3, +2, +3, +3, +3, +2, +2, +3, +3, +2, +3, +3, +3, +3, +3, +3, -1, +3, +3 },
-                        { +2, +2, +3, +3, +2, +2, +3, +3, +2, +3, +3, +3, +2, +2, +3, +3, +2, +3, +3, +3, +3, +3, +3, +3, +3, -1, +3 },
-                        { +3, +3, +2, +2, +3, +3, +2, +2, +3, +3, +2, +3, +3, +3, +2, +2, +3, +3, +2, +3, +3, +3, +3, +3, +3, +3, -1 }
+                        { -1, +1, +2, +1, +1, +2, +3, +2, +1, +2, +2, +1, +1, +2, +3, +2, +2, +3, +3, +2 },
+                        { +1, -1, +1, +2, +2, +1, +2, +3, +1, +1, +2, +2, +2, +1, +2, +3, +2, +2, +3, +3 },
+                        { +2, +1, -1, +1, +3, +2, +1, +2, +2, +1, +1, +2, +3, +2, +1, +2, +3, +2, +2, +3 },
+                        { +1, +2, +1, -1, +2, +3, +2, +1, +2, +2, +1, +1, +2, +3, +2, +1, +3, +3, +2, +2 },
+                        { +1, +2, +3, +2, -1, +1, +2, +1, +2, +3, +3, +2, +1, +2, +3, +2, +1, +2, +2, +1 },
+                        { +2, +1, +2, +3, +1, -1, +1, +2, +2, +2, +3, +3, +2, +1, +2, +3, +1, +1, +2, +2 },
+                        { +3, +2, +1, +2, +2, +1, -1, +1, +3, +2, +2, +3, +3, +2, +1, +2, +2, +1, +1, +2 },
+                        { +2, +3, +2, +1, +1, +2, +1, -1, +3, +3, +2, +2, +2, +3, +2, +1, +2, +2, +1, +1 },
+                        { +1, +1, +2, +2, +2, +2, +3, +3, -1, +2, +2, +2, +2, +2, +3, +3, +2, +3, +3, +3 },
+                        { +2, +1, +1, +2, +3, +2, +2, +3, +2, -1, +2, +2, +3, +2, +2, +3, +3, +2, +3, +3 },
+                        { +2, +2, +1, +1, +3, +3, +2, +2, +2, +2, -1, +2, +3, +3, +2, +2, +3, +3, +2, +3 },
+                        { +1, +2, +2, +1, +2, +3, +3, +2, +2, +2, +2, -1, +2, +3, +3, +2, +3, +3, +3, +2 },
+                        { +1, +2, +3, +2, +1, +2, +3, +2, +2, +3, +3, +2, -1, +2, +3, +2, +2, +3, +3, +2 },
+                        { +2, +1, +2, +3, +2, +1, +2, +3, +2, +2, +3, +3, +2, -1, +2, +3, +2, +2, +3, +3 },
+                        { +3, +2, +1, +2, +3, +2, +1, +2, +3, +2, +2, +3, +3, +2, -1, +2, +3, +2, +2, +3 },
+                        { +2, +3, +2, +1, +2, +3, +2, +1, +3, +3, +2, +2, +2, +3, +2, -1, +3, +3, +2, +2 },
+                        { +2, +2, +3, +3, +1, +1, +2, +2, +2, +3, +3, +3, +2, +2, +3, +3, -1, +2, +2, +2 },
+                        { +3, +2, +2, +3, +2, +1, +1, +2, +3, +2, +3, +3, +3, +2, +2, +3, +2, -1, +2, +2 },
+                        { +3, +3, +2, +2, +2, +2, +1, +1, +3, +3, +2, +3, +3, +3, +2, +2, +2, +2, -1, +2 },
+                        { +2, +3, +3, +2, +1, +2, +2, +1, +3, +3, +3, +2, +2, +3, +3, +2, +2, +2, +2, -1 }
                     };
 
                     Matrix< IndexMat > tVertexToVertexIndices = {
-                        { -1, +0, +4, +3, +8, +0, +0, +3, +0, +4, +4, +3, +8, +0, +0, +3, +0, +0, +0, +3, +0, +4, +0, +3, +0, +0, +0 },
-                        { +0, -1, +1, +4, +0, +9, +1, +0, +0, +1, +4, +4, +0, +9, +1, +0, +0, +1, +0, +0, +0, +4, +0, +0, +1, +0, +0 },
-                        { +4, +1, -1, +2, +0, +1, +10, +2, +4, +1, +2, +4, +0, +1, +10, +2, +0, +1, +2, +0, +0, +4, +0, +0, +1, +0, +2 },
-                        { +3, +4, +2, -1, +3, +0, +2, +11, +4, +4, +2, +3, +3, +0, +2, +11, +0, +0, +2, +3, +0, +4, +0, +3, +0, +0, +2 },
-                        { +8, +0, +0, +3, -1, +4, +5, +7, +0, +0, +0, +3, +8, +0, +0, +3, +4, +5, +5, +7, +0, +0, +5, +3, +0, +0, +0 },
-                        { +0, +9, +1, +0, +4, -1, +5, +5, +0, +1, +0, +0, +0, +9, +1, +0, +4, +5, +5, +5, +0, +0, +5, +0, +1, +0, +0 },
-                        { +0, +1, +10, +2, +5, +5, -1, +6, +0, +1, +2, +0, +0, +1, +10, +2, +5, +5, +6, +5, +0, +0, +5, +0, +1, +0, +2 },
-                        { +3, +0, +2, +11, +7, +5, +6, -1, +0, +0, +2, +3, +3, +0, +2, +11, +5, +5, +6, +7, +0, +0, +5, +3, +0, +0, +2 },
-                        { +0, +0, +4, +4, +0, +0, +0, +0, -1, +4, +4, +4, +0, +0, +0, +0, +0, +0, +0, +0, +0, +4, +0, +0, +0, +0, +0 },
-                        { +4, +1, +1, +4, +0, +1, +1, +0, +4, -1, +4, +4, +0, +1, +1, +0, +0, +1, +0, +0, +0, +4, +0, +0, +1, +0, +0 },
-                        { +4, +4, +2, +2, +0, +0, +2, +2, +4, +4, -1, +4, +0, +0, +2, +2, +0, +0, +2, +0, +0, +4, +0, +0, +0, +0, +2 },
-                        { +3, +4, +4, +3, +3, +0, +0, +3, +4, +4, +4, -1, +3, +0, +0, +3, +0, +0, +0, +3, +0, +4, +0, +3, +0, +0, +0 },
-                        { +8, +0, +0, +3, +8, +0, +0, +3, +0, +0, +0, +3, -1, +0, +0, +3, +0, +0, +0, +3, +0, +0, +0, +3, +0, +0, +0 },
-                        { +0, +9, +1, +0, +0, +9, +1, +0, +0, +1, +0, +0, +0, -1, +1, +0, +0, +1, +0, +0, +0, +0, +0, +0, +1, +0, +0 },
-                        { +0, +1, +10, +2, +0, +1, +10, +2, +0, +1, +2, +0, +0, +1, -1, +2, +0, +1, +2, +0, +0, +0, +0, +0, +1, +0, +2 },
-                        { +3, +0, +2, +11, +3, +0, +2, +11, +0, +0, +2, +3, +3, +0, +2, -1, +0, +0, +2, +3, +0, +0, +0, +3, +0, +0, +2 },
-                        { +0, +0, +0, +0, +4, +4, +5, +5, +0, +0, +0, +0, +0, +0, +0, +0, -1, +5, +5, +5, +0, +0, +5, +0, +0, +0, +0 },
-                        { +0, +1, +1, +0, +5, +5, +5, +5, +0, +1, +0, +0, +0, +1, +1, +0, +5, -1, +5, +5, +0, +0, +5, +0, +1, +0, +0 },
-                        { +0, +0, +2, +2, +5, +5, +6, +6, +0, +0, +2, +0, +0, +0, +2, +2, +5, +5, -1, +5, +0, +0, +5, +0, +0, +0, +2 },
-                        { +3, +0, +0, +3, +7, +5, +5, +7, +0, +0, +0, +3, +3, +0, +0, +3, +5, +5, +5, -1, +0, +0, +5, +3, +0, +0, +0 },
-                        { +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, -1, +0, +0, +0, +0, +0, +0 },
-                        { +4, +4, +4, +4, +0, +0, +0, +0, +4, +4, +4, +4, +0, +0, +0, +0, +0, +0, +0, +0, +0, -1, +0, +0, +0, +0, +0 },
-                        { +0, +0, +0, +0, +5, +5, +5, +5, +0, +0, +0, +0, +0, +0, +0, +0, +5, +5, +5, +5, +0, +0, -1, +0, +0, +0, +0 },
-                        { +3, +0, +0, +3, +3, +0, +0, +3, +0, +0, +0, +3, +3, +0, +0, +3, +0, +0, +0, +3, +0, +0, +0, -1, +0, +0, +0 },
-                        { +0, +1, +1, +0, +0, +1, +1, +0, +0, +1, +0, +0, +0, +1, +1, +0, +0, +1, +0, +0, +0, +0, +0, +0, -1, +0, +0 },
-                        { +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, -1, +0 },
-                        { +0, +0, +2, +2, +0, +0, +2, +2, +0, +0, +2, +0, +0, +0, +2, +2, +0, +0, +2, +0, +0, +0, +0, +0, +0, +0, -1 }
+                        { -1, +0, +4, +3, +8, +0, +0, +3, +0, +4, +4, +3, +8, +0, +0, +3, +0, +0, +0, +3 },
+                        { +0, -1, +1, +4, +0, +9, +1, +0, +0, +1, +4, +4, +0, +9, +1, +0, +0, +1, +0, +0 },
+                        { +4, +1, -1, +2, +0, +1, +10, +2, +4, +1, +2, +4, +0, +1, +10, +2, +0, +1, +2, +0 },
+                        { +3, +4, +2, -1, +3, +0, +2, +11, +4, +4, +2, +3, +3, +0, +2, +11, +0, +0, +2, +3 },
+                        { +8, +0, +0, +3, -1, +4, +5, +7, +0, +0, +0, +3, +8, +0, +0, +3, +4, +5, +5, +7 },
+                        { +0, +9, +1, +0, +4, -1, +5, +5, +0, +1, +0, +0, +0, +9, +1, +0, +4, +5, +5, +5 },
+                        { +0, +1, +10, +2, +5, +5, -1, +6, +0, +1, +2, +0, +0, +1, +10, +2, +5, +5, +6, +5 },
+                        { +3, +0, +2, +11, +7, +5, +6, -1, +0, +0, +2, +3, +3, +0, +2, +11, +5, +5, +6, +7 },
+                        { +0, +0, +4, +4, +0, +0, +0, +0, -1, +4, +4, +4, +0, +0, +0, +0, +0, +0, +0, +0 },
+                        { +4, +1, +1, +4, +0, +1, +1, +0, +4, -1, +4, +4, +0, +1, +1, +0, +0, +1, +0, +0 },
+                        { +4, +4, +2, +2, +0, +0, +2, +2, +4, +4, -1, +4, +0, +0, +2, +2, +0, +0, +2, +0 },
+                        { +3, +4, +4, +3, +3, +0, +0, +3, +4, +4, +4, -1, +3, +0, +0, +3, +0, +0, +0, +3 },
+                        { +8, +0, +0, +3, +8, +0, +0, +3, +0, +0, +0, +3, -1, +0, +0, +3, +0, +0, +0, +3 },
+                        { +0, +9, +1, +0, +0, +9, +1, +0, +0, +1, +0, +0, +0, -1, +1, +0, +0, +1, +0, +0 },
+                        { +0, +1, +10, +2, +0, +1, +10, +2, +0, +1, +2, +0, +0, +1, -1, +2, +0, +1, +2, +0 },
+                        { +3, +0, +2, +11, +3, +0, +2, +11, +0, +0, +2, +3, +3, +0, +2, -1, +0, +0, +2, +3 },
+                        { +0, +0, +0, +0, +4, +4, +5, +5, +0, +0, +0, +0, +0, +0, +0, +0, -1, +5, +5, +5 },
+                        { +0, +1, +1, +0, +5, +5, +5, +5, +0, +1, +0, +0, +0, +1, +1, +0, +5, -1, +5, +5 },
+                        { +0, +0, +2, +2, +5, +5, +6, +6, +0, +0, +2, +0, +0, +0, +2, +2, +5, +5, -1, +5 },
+                        { +3, +0, +0, +3, +7, +5, +5, +7, +0, +0, +0, +3, +3, +0, +0, +3, +5, +5, +5, -1 }
                     };
 
                     moris_index tPathRank  = tVertexToVertexRanks( (uint)aVertexOrdinal, (uint)aOtherEntityOrdinal );
                     moris_index tPathIndex = tVertexToVertexIndices( (uint)aVertexOrdinal, (uint)aOtherEntityOrdinal );
 
                     MORIS_ASSERT( tPathRank != -1 && tPathIndex != -1,
-                            "Cell_Info_Hex27::get_vertex_path_to_entity_rank_and_ordinal() - Vertex doesn't have path to itself." );
+                            "Cell_Info_Hex20::get_vertex_path_to_entity_rank_and_ordinal() - Vertex doesn't have path to itself." );
 
                     return { tPathIndex, tPathRank };
                     break;
@@ -521,14 +506,7 @@ namespace moris
                         { +2, +3, +3, +3, +1, +2, +2, +2, +2, +2, +3, +3 },
                         { +3, +2, +3, +3, +2, +1, +2, +2, +3, +2, +2, +3 },
                         { +3, +3, +2, +3, +2, +2, +1, +2, +3, +3, +2, +2 },
-                        { +3, +3, +3, +2, +2, +2, +2, +1, +2, +3, +3, +2 },
-                        { +3, +3, +3, +3, +3, +3, +3, +3, +3, +3, +3, +3 },
-                        { +2, +2, +2, +2, +3, +3, +3, +3, +3, +3, +3, +3 },
-                        { +3, +3, +3, +3, +2, +2, +2, +2, +3, +3, +3, +3 },
-                        { +3, +3, +3, +2, +3, +3, +3, +2, +2, +3, +3, +2 },
-                        { +3, +2, +3, +3, +3, +2, +3, +3, +3, +2, +2, +3 },
-                        { +2, +3, +3, +3, +2, +3, +3, +3, +2, +2, +3, +3 },
-                        { +3, +3, +2, +3, +3, +3, +2, +3, +3, +3, +2, +2 }
+                        { +3, +3, +3, +2, +2, +2, +2, +1, +2, +3, +3, +2 }
                     };
 
                     Matrix< IndexMat > tVertexToEdgeIndices = {
@@ -551,21 +529,14 @@ namespace moris
                         { +0, +0, +0, +0, +4, +5, +5, +5, +0, +0, +0, +0 },
                         { +0, +1, +0, +0, +5, +5, +5, +5, +0, +1, +1, +0 },
                         { +0, +0, +2, +0, +5, +5, +6, +5, +0, +0, +2, +2 },
-                        { +0, +0, +0, +3, +5, +5, +5, +7, +3, +0, +0, +3 },
-                        { +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0 },
-                        { +4, +4, +4, +4, +0, +0, +0, +0, +0, +0, +0, +0 },
-                        { +0, +0, +0, +0, +5, +5, +5, +5, +0, +0, +0, +0 },
-                        { +0, +0, +0, +3, +0, +0, +0, +3, +3, +0, +0, +3 },
-                        { +0, +1, +0, +0, +0, +1, +0, +0, +0, +1, +1, +0 },
-                        { +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0, +0 },
-                        { +0, +0, +2, +0, +0, +0, +2, +0, +0, +0, +2, +2 }
+                        { +0, +0, +0, +3, +5, +5, +5, +7, +3, +0, +0, +3 }
                     };
 
                     moris_index tPathRank  = tVertexToEdgeRanks( (uint)aVertexOrdinal, (uint)aOtherEntityOrdinal );
                     moris_index tPathIndex = tVertexToEdgeIndices( (uint)aVertexOrdinal, (uint)aOtherEntityOrdinal );
 
                     MORIS_ASSERT( tPathRank != -1 && tPathIndex != -1,
-                            "Cell_Info_Hex27::get_vertex_path_to_entity_rank_and_ordinal() - Vertex doesn't have path to itself." );
+                            "Cell_Info_Hex20::get_vertex_path_to_entity_rank_and_ordinal() - Vertex doesn't have path to itself." );
 
                     return { tPathIndex, tPathRank };
                     break;
@@ -594,14 +565,7 @@ namespace moris
                         { +2, +3, +3, +3, +3, +2 },
                         { +3, +2, +3, +3, +3, +2 },
                         { +3, +3, +2, +3, +3, +2 },
-                        { +3, +3, +3, +2, +3, +2 },
-                        { +3, +3, +3, +3, +3, +3 },
-                        { +3, +3, +3, +3, +2, +3 },
-                        { +3, +3, +3, +3, +3, +2 },
-                        { +3, +3, +3, +2, +3, +3 },
-                        { +3, +2, +3, +3, +3, +3 },
-                        { +2, +3, +3, +3, +3, +3 },
-                        { +3, +3, +2, +3, +3, +3 }
+                        { +3, +3, +3, +2, +3, +2 }
                     };
 
                     Matrix< IndexMat > tVertexToFaceIndices = {
@@ -624,21 +588,14 @@ namespace moris
                         { +0, +0, +0, +0, +0, +5 },
                         { +0, +1, +0, +0, +0, +5 },
                         { +0, +0, +2, +0, +0, +5 },
-                        { +0, +0, +0, +3, +0, +5 },
-                        { +0, +0, +0, +0, +0, +0 },
-                        { +0, +0, +0, +0, +4, +0 },
-                        { +0, +0, +0, +0, +0, +5 },
-                        { +0, +0, +0, +3, +0, +0 },
-                        { +0, +1, +0, +0, +0, +0 },
-                        { +0, +0, +0, +0, +0, +0 },
-                        { +0, +0, +2, +0, +0, +0 }
+                        { +0, +0, +0, +3, +0, +5 }
                     };
 
                     moris_index tPathRank  = tVertexToFaceRanks( (uint)aVertexOrdinal, (uint)aOtherEntityOrdinal );
                     moris_index tPathIndex = tVertexToFaceIndices( (uint)aVertexOrdinal, (uint)aOtherEntityOrdinal );
 
                     MORIS_ASSERT( tPathRank != -1 && tPathIndex != -1,
-                            "Cell_Info_Hex27::get_vertex_path_to_entity_rank_and_ordinal() - Vertex doesn't have path to itself." );
+                            "Cell_Info_Hex20::get_vertex_path_to_entity_rank_and_ordinal() - Vertex doesn't have path to itself." );
 
                     return { tPathIndex, tPathRank };
                     break;
@@ -646,7 +603,7 @@ namespace moris
 
                 default:
                 {
-                    MORIS_ERROR( 0, "Invalid other entity rank for hex8" );
+                    MORIS_ERROR( 0, "Invalid other entity rank for hex20" );
                     return moris::Cell< moris_index >( 0 );
                 }
             }    // end: switch aOtherEntityRank
@@ -655,7 +612,7 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         moris::Cell< moris_index >
-        Cell_Info_Hex27::get_edge_path_to_entity_rank_and_ordinal(
+        Cell_Info_Hex20::get_edge_path_to_entity_rank_and_ordinal(
                 moris_index aEdgeOrdinal,
                 moris_index aOtherEntityOrdinal,
                 moris_index aOtherEntityRank ) const
@@ -1525,7 +1482,7 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         bool
-        Cell_Info_Hex27::is_entity_connected_to_facet(
+        Cell_Info_Hex20::is_entity_connected_to_facet(
                 moris_index aFacetOrdinal,
                 moris_index aOtherEntityOrdinal,
                 moris_index aOtherEntityRank ) const
@@ -1558,7 +1515,7 @@ namespace moris
                                     return false;
                                 default:
                                 {
-                                    MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
+                                    MORIS_ERROR( 0, "Invalid other edge ordinal for hex20" );
                                     return false;
                                 }
                             }
@@ -1593,7 +1550,7 @@ namespace moris
                                     return false;
                                 default:
                                 {
-                                    MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
+                                    MORIS_ERROR( 0, "Invalid other edge ordinal for hex20" );
                                     return false;
                                 }
                             }
@@ -1610,7 +1567,7 @@ namespace moris
                         }
                         default:
                         {
-                            MORIS_ERROR( 0, "Invalid other entity rank for hex8" );
+                            MORIS_ERROR( 0, "Invalid other entity rank for hex20" );
                             return false;
                         }
                     }
@@ -1676,7 +1633,7 @@ namespace moris
                                     return false;
                                 default:
                                 {
-                                    MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
+                                    MORIS_ERROR( 0, "Invalid other edge ordinal for hex20" );
                                     return false;
                                 }
                             }
@@ -1693,7 +1650,7 @@ namespace moris
                         }
                         default:
                         {
-                            MORIS_ERROR( 0, "Invalid other entity rank for hex8" );
+                            MORIS_ERROR( 0, "Invalid other entity rank for hex20" );
                             return false;
                         }
                     }
@@ -1724,7 +1681,7 @@ namespace moris
                                     return true;
                                 default:
                                 {
-                                    MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
+                                    MORIS_ERROR( 0, "Invalid other edge ordinal for hex20" );
                                     return false;
                                 }
                             }
@@ -1759,7 +1716,7 @@ namespace moris
                                     return true;
                                 default:
                                 {
-                                    MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
+                                    MORIS_ERROR( 0, "Invalid other edge ordinal for hex20" );
                                     return false;
                                 }
                             }
@@ -1807,7 +1764,7 @@ namespace moris
                                     return true;
                                 default:
                                 {
-                                    MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
+                                    MORIS_ERROR( 0, "Invalid other edge ordinal for hex20" );
                                     return false;
                                 }
                             }
@@ -1842,7 +1799,7 @@ namespace moris
                                     return true;
                                 default:
                                 {
-                                    MORIS_ERROR( 0, "Invalid other edge ordinal for hex8" );
+                                    MORIS_ERROR( 0, "Invalid other edge ordinal for hex20" );
                                     return false;
                                 }
                             }
@@ -1859,7 +1816,7 @@ namespace moris
                         }
                         default:
                         {
-                            MORIS_ERROR( 0, "Invalid other entity rank for hex8" );
+                            MORIS_ERROR( 0, "Invalid other entity rank for hex20" );
                             return false;
                         }
                     }
@@ -2041,7 +1998,7 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         Matrix< DDRMat >
-        Cell_Info_Hex27::get_vertex_loc_coord( moris_index const & aVertexOrdinal ) const
+        Cell_Info_Hex20::get_vertex_loc_coord( moris_index const & aVertexOrdinal ) const
         {
             switch ( aVertexOrdinal )
             {
@@ -2145,41 +2102,6 @@ namespace moris
                     return { { -1.0, 0.0, +1.0 } };
                     break;
                 }
-                case 20:
-                {
-                    return { { 0.0, 0.0, 0.0 } };
-                    break;
-                }
-                case 21:
-                {
-                    return { { 0.0, 0.0, -1.0 } };
-                    break;
-                }
-                case 22:
-                {
-                    return { { 0.0, 0.0, +1.0 } };
-                    break;
-                }
-                case 23:
-                {
-                    return { { -1.0, 0.0, 0.0 } };
-                    break;
-                }
-                case 24:
-                {
-                    return { { +1.0, 0.0, 0.0 } };
-                    break;
-                }
-                case 25:
-                {
-                    return { { 0.0, -1.0, 0.0 } };
-                    break;
-                }
-                case 26:
-                {
-                    return { { 0.0, +1.0, 0.0 } };
-                    break;
-                }
                 default:
                 {
                     MORIS_ERROR( 0, "Invalid vertex ordinal specified" );
@@ -2191,7 +2113,7 @@ namespace moris
 
         // ----------------------------------------------------------------------------------
         inline moris::Matrix< moris::IndexMat >
-        Cell_Info_Hex27::get_node_map_outward_normal( moris::uint aSideOrdinal ) const
+        Cell_Info_Hex20::get_node_map_outward_normal( moris::uint aSideOrdinal ) const
         {
             switch ( aSideOrdinal )
             {
@@ -2235,7 +2157,7 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         moris::real
-        Cell_Info_Hex27::compute_cell_size_special( moris::mtk::Cell const * aCell ) const
+        Cell_Info_Hex20::compute_cell_size_special( moris::mtk::Cell const * aCell ) const
         {
             moris::Cell< Vertex* > tVertices = aCell->get_vertex_pointers();
 
@@ -2253,8 +2175,9 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         moris::real
-        Cell_Info_Hex27::compute_cell_side_size( moris::mtk::Cell const * aCell,
-                moris_index const &                                       aSideOrd ) const
+        Cell_Info_Hex20::compute_cell_side_size(
+                moris::mtk::Cell const * aCell,
+                moris_index const &      aSideOrd ) const
         {
             moris::Cell< Vertex const * > tVertices = aCell->get_vertices_on_side_ordinal( aSideOrd );
 
@@ -2269,57 +2192,46 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         void
-        Cell_Info_Hex27::eval_N(
+        Cell_Info_Hex20::eval_N(
                 const Matrix< DDRMat >& aXi,
                 Matrix< DDRMat >&       aNXi ) const
         {
             // make sure that input is correct
-            MORIS_ASSERT( aXi.length() >= 3, "HEX27 - eval_N: aXi not allocated or hat wrong size." );
+            MORIS_ASSERT( aXi.length() >= 3, "HEX20 - eval_N: aXi not allocated or hat wrong size." );
 
             // unpack xi and eta from input vector
-            auto xi   = aXi( 0 );
-            auto eta  = aXi( 1 );
-            auto zeta = aXi( 2 );
+            real xi   = aXi( 0 );
+            real eta  = aXi( 1 );
+            real zeta = aXi( 2 );
 
             // often used constants
-            auto xi2   = std::pow( xi, 2 );
-            auto eta2  = std::pow( eta, 2 );
-            auto zeta2 = std::pow( zeta, 2 );
-
-            auto a = -0.25 * eta * zeta;
-            auto b = -0.25 * xi * zeta;
-            auto c = -0.25 * xi * eta;
-            auto d = 0.125 * xi * eta * zeta;
+            real xi2   = std::pow( xi, 2 );
+            real eta2  = std::pow( eta, 2 );
+            real zeta2 = std::pow( zeta, 2 );
 
             // populate output matrix
-            aNXi.set_size( 1, 27 );
-            aNXi( 0 )  = d * ( eta - 1.0 ) * ( xi - 1.0 ) * ( zeta - 1.0 );
-            aNXi( 1 )  = d * ( eta - 1.0 ) * ( xi + 1.0 ) * ( zeta - 1.0 );
-            aNXi( 2 )  = d * ( eta + 1.0 ) * ( xi + 1.0 ) * ( zeta - 1.0 );
-            aNXi( 3 )  = d * ( eta + 1.0 ) * ( xi - 1.0 ) * ( zeta - 1.0 );
-            aNXi( 4 )  = d * ( eta - 1.0 ) * ( xi - 1.0 ) * ( zeta + 1.0 );
-            aNXi( 5 )  = d * ( eta - 1.0 ) * ( xi + 1.0 ) * ( zeta + 1.0 );
-            aNXi( 6 )  = d * ( eta + 1.0 ) * ( xi + 1.0 ) * ( zeta + 1.0 );
-            aNXi( 7 )  = d * ( eta + 1.0 ) * ( xi - 1.0 ) * ( zeta + 1.0 );
-            aNXi( 8 )  = a * ( xi2 - 1.0 ) * ( eta - 1.0 ) * ( zeta - 1.0 );
-            aNXi( 9 )  = b * ( eta2 - 1.0 ) * ( xi + 1.0 ) * ( zeta - 1.0 );
-            aNXi( 10 ) = a * ( xi2 - 1.0 ) * ( eta + 1.0 ) * ( zeta - 1.0 );
-            aNXi( 11 ) = b * ( eta2 - 1.0 ) * ( xi - 1.0 ) * ( zeta - 1.0 );
-            aNXi( 12 ) = c * ( zeta2 - 1.0 ) * ( eta - 1.0 ) * ( xi - 1.0 );
-            aNXi( 13 ) = c * ( zeta2 - 1.0 ) * ( eta - 1.0 ) * ( xi + 1.0 );
-            aNXi( 14 ) = c * ( zeta2 - 1.0 ) * ( eta + 1.0 ) * ( xi + 1.0 );
-            aNXi( 15 ) = c * ( zeta2 - 1.0 ) * ( eta + 1.0 ) * ( xi - 1.0 );
-            aNXi( 16 ) = a * ( xi2 - 1.0 ) * ( eta - 1.0 ) * ( zeta + 1.0 );
-            aNXi( 17 ) = b * ( eta2 - 1.0 ) * ( xi + 1.0 ) * ( zeta + 1.0 );
-            aNXi( 18 ) = a * ( xi2 - 1.0 ) * ( eta + 1.0 ) * ( zeta + 1.0 );
-            aNXi( 19 ) = b * ( eta2 - 1.0 ) * ( xi - 1.0 ) * ( zeta + 1.0 );
-            aNXi( 20 ) = -( eta2 - 1.0 ) * ( xi2 - 1.0 ) * ( zeta2 - 1.0 );
-            aNXi( 21 ) = ( zeta * ( eta2 - 1.0 ) * ( xi2 - 1.0 ) * ( zeta - 1.0 ) ) * 0.5;
-            aNXi( 22 ) = ( zeta * ( eta2 - 1.0 ) * ( xi2 - 1.0 ) * ( zeta + 1.0 ) ) * 0.5;
-            aNXi( 23 ) = ( xi * ( eta2 - 1.0 ) * ( zeta2 - 1.0 ) * ( xi - 1.0 ) ) * 0.5;
-            aNXi( 24 ) = ( xi * ( eta2 - 1.0 ) * ( zeta2 - 1.0 ) * ( xi + 1.0 ) ) * 0.5;
-            aNXi( 25 ) = ( eta * ( xi2 - 1.0 ) * ( zeta2 - 1.0 ) * ( eta - 1.0 ) ) * 0.5;
-            aNXi( 26 ) = ( eta * ( xi2 - 1.0 ) * ( zeta2 - 1.0 ) * ( eta + 1.0 ) ) * 0.5;
+            aNXi.set_size( 1, 20 );
+            aNXi( 0 )  = ( eta - 1.0 ) * ( xi - 1.0 ) * ( zeta - 1.0 ) * ( eta + xi + zeta + 2.0 ) * 0.125;
+            aNXi( 1 )  = -( eta - 1.0 ) * ( xi + 1.0 ) * ( zeta - 1.0 ) * ( eta - xi + zeta + 2.0 ) * 0.125;
+            aNXi( 2 )  = -( eta + 1.0 ) * ( xi + 1.0 ) * ( zeta - 1.0 ) * ( eta + xi - zeta - 2.0 ) * 0.125;
+            aNXi( 3 )  = -( eta + 1.0 ) * ( xi - 1.0 ) * ( zeta - 1.0 ) * ( -eta + xi + zeta + 2.0 ) * 0.125;
+            aNXi( 4 )  = -( eta - 1.0 ) * ( xi - 1.0 ) * ( zeta + 1.0 ) * ( eta + xi - zeta + 2.0 ) * 0.125;
+            aNXi( 5 )  = ( eta - 1.0 ) * ( xi + 1.0 ) * ( zeta + 1.0 ) * ( eta - xi - zeta + 2.0 ) * 0.125;
+            aNXi( 6 )  = ( eta + 1.0 ) * ( xi + 1.0 ) * ( zeta + 1.0 ) * ( eta + xi + zeta - 2.0 ) * 0.125;
+            aNXi( 7 )  = -( eta + 1.0 ) * ( xi - 1.0 ) * ( zeta + 1.0 ) * ( eta - xi + zeta - 2.0 ) * 0.125;
+            aNXi( 8 )  = -( xi2 - 1.0 ) * ( eta - 1.0 ) * ( zeta - 1.0 ) * 0.25;
+            aNXi( 9 )  = ( eta2 - 1.0 ) * ( xi + 1.0 ) * ( zeta - 1.0 ) * 0.25;
+            aNXi( 10 ) = ( xi2 - 1.0 ) * ( eta + 1.0 ) * ( zeta - 1.0 ) * 0.25;
+            aNXi( 11 ) = -( eta2 - 1.0 ) * ( xi - 1.0 ) * ( zeta - 1.0 ) * 0.25;
+            aNXi( 12 ) = -( zeta2 - 1.0 ) * ( eta - 1.0 ) * ( xi - 1.0 ) * 0.25;
+            aNXi( 13 ) = ( zeta2 - 1.0 ) * ( eta - 1.0 ) * ( xi + 1.0 ) * 0.25;
+            aNXi( 14 ) = -( zeta2 - 1.0 ) * ( eta + 1.0 ) * ( xi + 1.0 ) * 0.25;
+            aNXi( 15 ) = ( zeta2 - 1.0 ) * ( eta + 1.0 ) * ( xi - 1.0 ) * 0.25;
+            aNXi( 16 ) = ( xi2 - 1.0 ) * ( eta - 1.0 ) * ( zeta + 1.0 ) * 0.25;
+            aNXi( 17 ) = -( eta2 - 1.0 ) * ( xi + 1.0 ) * ( zeta + 1.0 ) * 0.25;
+            aNXi( 18 ) = -( xi2 - 1.0 ) * ( eta + 1.0 ) * ( zeta + 1.0 ) * 0.25;
+            aNXi( 19 ) = ( eta2 - 1.0 ) * ( xi - 1.0 ) * ( zeta + 1.0 ) * 0.25;
         }
+
     }    // namespace mtk
 }    // namespace moris

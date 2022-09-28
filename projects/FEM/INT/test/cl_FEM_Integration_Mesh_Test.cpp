@@ -922,7 +922,7 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
 
             Matrix< DDRMat > tSpaceJt2( tIntegNumParamSpaceDim, tIntegNumParamSpaceDim, 1.0 );
             tSpaceJt2(
-                    { 1, tIntegNumParamSpaceDim - 1 }, { 0, tIntegNumParamSpaceDim - 1 } ) =    //
+                    { 0, tIntegNumParamSpaceDim - 1 }, { 0, tIntegNumParamSpaceDim - 1 } ) =    //
                     trans( tSpaceJt );
 
             real detJSpace = det( tSpaceJt2 ) / 6.0;
@@ -956,4 +956,3 @@ TEST_CASE( "Intergration_Mesh", "[moris],[fem],[IntegMesh]" )
         delete tIntegSpaceInterpolation;
     }
 }
-
