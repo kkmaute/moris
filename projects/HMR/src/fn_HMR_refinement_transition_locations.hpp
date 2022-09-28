@@ -18,6 +18,21 @@ namespace moris
     {
 
         //-----------------------------------------------------------------------------
+        // Ordering of child element ordinals in the function below
+        // 
+        //            6 ------ 7
+        //           /|       /|
+        //          / |      / |
+        //         4 ------ 5  |
+        //         |  |     |  |
+        //         |  2 ----|- 3
+        //         | /      | /
+        //  z      |/       |/
+        //  |  y   0 ------ 1
+        //  | /
+        //  |/____ x
+        //       
+        //-----------------------------------------------------------------------------
         
         /**
          * @brief Get the refinement transition location from a big to a small element knowing only the small element's child ordinal

@@ -27,6 +27,8 @@ namespace moris
     {
         class Integration_Mesh : public virtual Mesh
         {
+            // class Cluster_Group;
+
             protected:
                 moris::Cell< moris::mtk::Set * > mListofBlocks;
                 moris::Cell< moris::mtk::Set * > mListofSideSets;
@@ -206,7 +208,9 @@ namespace moris
                 moris::uint
                 get_num_double_side_set() const;
 
-                // ----------------------------------------------------------------------------
+                //##############################################
+                // Cell Cluster Access
+                //##############################################
 
                 /*
                  * Get cell clusters within a block set
@@ -215,8 +219,32 @@ namespace moris
                 moris::Cell<Cluster const *>
                 get_cell_clusters_in_set(moris_index aBlockSetOrdinal) const = 0;
 
+                virtual
+                uint
+                get_num_cell_cluster_groups( const moris_index aDiscretizationMeshIndex ) const
+                {
+                    MORIS_ERROR( false, "mtk::Integration_Mesh::get_num_cell_cluster_groups() - Not implemented in base class." );
+                    return 0;
+                }
+
+                virtual
+                uint
+                get_num_side_cluster_groups( const moris_index aDiscretizationMeshIndex ) const
+                {
+                    MORIS_ERROR( false, "mtk::Integration_Mesh::get_num_side_cluster_groups() - Not implemented in base class." );
+                    return 0;
+                }
+
+                virtual
+                uint
+                get_num_dbl_side_single_side_cluster_groups( const moris_index aDiscretizationMeshIndex ) const
+                {
+                    MORIS_ERROR( false, "mtk::Integration_Mesh::get_num_dbl_side_cluster_groups() - Not implemented in base class." );
+                    return 0;
+                }
+
                 //##############################################
-                // Side Set Cluster Access
+                // Side Cluster Access
                 //##############################################
                 /*!
                  * Get side clusters within a side set

@@ -526,12 +526,16 @@ namespace xtk
             //--------------------------------------------------------------------------------
             // Printing Functions
             //--------------------------------------------------------------------------------
+
             void
             print_cells();
+            
             //------------------------------------------------------------------------------
 
             moris::ParameterList&
             get_parameter_list();
+
+            //------------------------------------------------------------------------------
 
             void
             setup_diagnostics(
@@ -539,8 +543,12 @@ namespace xtk
                     std::string const& aDiagnosticPath,
                     std::string const& aDiagnosticLabel );
 
+            //------------------------------------------------------------------------------
+
             std::string
             get_diagnostic_file_name( std::string const& aLabel ) const;
+
+            //------------------------------------------------------------------------------
 
             /**
              * @brief Tells the integration mesh to either decompose all background cells or not
@@ -551,6 +559,8 @@ namespace xtk
             bool
             triangulate_all();
 
+            //------------------------------------------------------------------------------
+
             /**
              * @brief Get the polynomial order of the TRI/TET elements
              *
@@ -559,12 +569,16 @@ namespace xtk
             uint
             ig_element_order();
 
+            //------------------------------------------------------------------------------
+
             enum CellTopology
             get_parent_cell_topology() const
             {
                 mtk::Cell&                     tCell     = mBackgroundMesh->get_mtk_cell( 0 );
                 return tCell.get_cell_info()->get_cell_topology();
             }
+
+            //------------------------------------------------------------------------------
 
             enum mtk::Geometry_Type
             get_parent_cell_geometry() const
@@ -573,11 +587,23 @@ namespace xtk
                 return tCell.get_cell_info()->get_cell_geometry();
             }
 
+            //------------------------------------------------------------------------------
+
             Matrix< IdMat >
             get_communication_table() const
             {
                 return mCutIntegrationMesh->get_communication_table();
             }
+
+            //------------------------------------------------------------------------------
+
+            /**
+             * @brief returns whether SPG based enrichment is used or not
+             */
+            bool
+            uses_SPG_based_enrichment();
+
+            //------------------------------------------------------------------------------
 
             // Private Functions
         private:
@@ -886,6 +912,7 @@ namespace xtk
                     Cell< Matrix< DDRMat > >& aReceivedData );
 
             //------------------------------------------------------------------------------
+
             /**
              * @brief perform unenrichment on an already enriched mesh by overrding the t-matrices id and index
              *

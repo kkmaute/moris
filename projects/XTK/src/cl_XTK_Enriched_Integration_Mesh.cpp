@@ -1505,14 +1505,34 @@ namespace xtk
         // init cell shape
         CellShape tCellShape = CellShape::EMPTY;
 
-        // if the set isn't empty exist
-        if ( tSetClusters.size() > 0 )
-        {
-            // get the cells in the first cluster
-            moris::Cell< moris::mtk::Cell const * > tClusterCells = tSetClusters( 0 )->get_primary_cells_in_cluster();
+        // get the number of clusters on the set
+        uint tNumClustersInSet = tSetClusters.size();
 
-            // compute the cell shape of the first cell
-            tCellShape = tClusterCells( 0 )->get_cell_info()->compute_cell_shape( tClusterCells( 0 ) );
+        // if the set isn't empty, it exist
+        if( tNumClustersInSet > 0 )
+        {
+            // initialize variables for the while-loop below
+            bool tIsVoidCluster = true;
+
+            for( uint iTestCluster = 0; iTestCluster < tNumClustersInSet; iTestCluster++ )
+            {
+                // get the cells in the current cluster
+                moris::Cell< moris::mtk::Cell const * > tClusterCells = tSetClusters( iTestCluster )->get_primary_cells_in_cluster();
+
+                // check if it is a void cluster
+                tIsVoidCluster = ( tClusterCells.size() == 0 );
+
+                // if it is not a void cluster, use cluster for reference for cell shape
+                if( !tIsVoidCluster )
+                {
+                    tCellShape = tClusterCells( 0 )->get_cell_info()->compute_cell_shape( tClusterCells( 0 ) );
+                    break;
+                }
+            }
+
+            // if it made it here without finding a non-empty cluster, something's weird
+            MORIS_ERROR( tCellShape != CellShape::EMPTY, 
+                    "Enriched_Integration_Mesh::get_IG_blockset_shape() - No non-void clusters found on Set: %s", aSetName.c_str() );
         }
 
         // within debug, checking all cells to make sure that they are the same Cell Shape

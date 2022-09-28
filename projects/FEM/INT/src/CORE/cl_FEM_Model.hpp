@@ -77,6 +77,12 @@ namespace moris
             std::shared_ptr<mtk::Mesh_Manager> mMeshManager = nullptr;
             moris_index mMeshPairIndex;
 
+            // information about B-spline mesh indices (only for naming purposes, this information is otherwise entity of MSI)
+            std::unordered_map< MSI::Dof_Type, moris_index > mDofTypeToBsplineMeshIndex;
+
+            // flag whether to use the new ghost sets or not
+            bool mUseNewGhostSets = false;
+
             // list of IP node pointers
             moris::Cell<fem::Node_Base *> mIPNodes;
 
@@ -176,10 +182,10 @@ namespace moris
              * @param[ in ] aLibrary       a file path for property functions
              */
             FEM_Model(
-                std::shared_ptr<mtk::Mesh_Manager> aMeshManager,
-                const moris_index &aMeshPairIndex,
-                moris::Cell<moris::Cell<ParameterList>> aParameterList,
-                std::shared_ptr<Library_IO> aLibrary);
+                    std::shared_ptr< mtk::Mesh_Manager >        aMeshManager,
+                    const moris_index&                          aMeshPairIndex,
+                    moris::Cell< moris::Cell< ParameterList > > aParameterList,
+                    std::shared_ptr< Library_IO >               aLibrary );
 
             //------------------------------------------------------------------------------
             /**
@@ -191,11 +197,10 @@ namespace moris
              * @param[ in ] aDesignVariableInterface a design variable interface pointer
              */
             FEM_Model(
-                std::shared_ptr<mtk::Mesh_Manager> aMeshManager,
-                const moris_index &aMeshPairIndex,
-                moris::Cell<moris::Cell<ParameterList>> aParameterList,
-                std::shared_ptr<Library_IO> aLibrary,
-                MSI::Design_Variable_Interface *aDesignVariableInterface);
+                    std::shared_ptr< mtk::Mesh_Manager >             aMeshManager,
+                    const moris_index&                               aMeshPairIndex,
+                    moris::Cell< moris::Cell< ParameterList > >      aParameterList,
+                    MSI::Design_Variable_Interface*                  aDesignVariableInterface );
 
             //------------------------------------------------------------------------------
             /**
@@ -214,6 +219,15 @@ namespace moris
             void free_memory();
 
             //------------------------------------------------------------------------------
+            
+            /**
+             * initialize the FEM model from parameter lists + create the interpolation nodes & FEM sets
+             * @param[ in ] aLibrary       a file path for property functions
+             */
+            void initialize_from_inputfile( std::shared_ptr< Library_IO > aLibrary );
+
+            //------------------------------------------------------------------------------
+
             /**
              * initialize the FEM model from parameter lists
              * @param[ in ] aLibrary       a file path for property functions
@@ -744,6 +758,42 @@ namespace moris
             void get_local_xyz_pdv_assembly_indices(moris_index aVeretxIndex,
                                                     Matrix<DDSMat> &aXYZLocalAssemblyIndices,
                                                     const moris::Cell<enum PDV_Type> &aPdvTypes);
+
+
+            //------------------------------------------------------------------------------
+            
+            /**
+             * @brief Set the dof type to Bspline mesh index map
+             * 
+             * @param aDofTypeToBsplineMeshIndex 
+             */
+            void
+            set_dof_type_to_Bspline_mesh_index( std::unordered_map< MSI::Dof_Type, moris_index > aDofTypeToBsplineMeshIndex );
+
+            //------------------------------------------------------------------------------
+            
+            /**
+             * @brief set flag whether to use new ghost sets
+             * 
+             * @param aUseNewGhostSets 
+             */
+            void
+            set_use_new_ghost_sets( bool aUseNewGhostSets );
+
+            //------------------------------------------------------------------------------
+
+            /**
+             * @brief check the ghost set names and conrrect them to automatically include 
+             * the correct B-spline mesh index when the new ghost sets are used
+             * 
+             * @param aMeshSetName 
+             * @param aDofType 
+             */
+            void
+            check_and_set_ghost_set_names( std::string& aMeshSetName, enum MSI::Dof_Type aDofType );
+
+            //------------------------------------------------------------------------------
+
         };
         //------------------------------------------------------------------------------
     } // namespace fem

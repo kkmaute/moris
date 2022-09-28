@@ -33,6 +33,7 @@
 #include "cl_MSI_Equation_Object.hpp"
 #include "cl_MSI_Model_Solver_Interface.hpp"
 #include "cl_MSI_Design_Variable_Interface.hpp"
+#include "fn_MSI_get_mesh_index_for_dof_type.hpp"
 
 #include "cl_TSA_Time_Solver.hpp"
 #include "cl_SOL_Warehouse.hpp"
@@ -288,7 +289,7 @@ namespace moris
 
         void Model::initialize()
         {
-            Tracer tTracer( "FEM", "Model", "Initialize" );
+            Tracer tTracer( "FEM", "MDL", "Initialize" );
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 0: delete model and interface
@@ -317,8 +318,18 @@ namespace moris
                         mMeshManager,
                         mMeshPairIndex,
                         mFEMParameterList,
-                        mLibrary,
                         mDesignVariableInterface );
+                        // tDofTypeToBsplineMeshIndex );
+
+                // build a map relating the dof types to their respective B-spline mesh indices and pass it to the FEM model
+                std::unordered_map< MSI::Dof_Type, moris_index > tDofTypeToBsplineMeshIndex = this->build_dof_type_to_mesh_index();                
+                mEquationModel->set_dof_type_to_Bspline_mesh_index( tDofTypeToBsplineMeshIndex );
+
+                // pass whether the new ghost sets are used
+                mEquationModel->set_use_new_ghost_sets( mUseNewGhostSets );
+
+                // initialize the Equation Model
+                mEquationModel->initialize_from_inputfile( mLibrary );
 
                 // set the equation model if using design variables
                 if (mDesignVariableInterface != nullptr)
@@ -532,6 +543,46 @@ namespace moris
         {
             return mEquationModel->get_fields();
         }
+
+        //------------------------------------------------------------------------------
+
+        std::unordered_map< enum MSI::Dof_Type, moris_index >
+        Model::build_dof_type_to_mesh_index()
+        {
+            // get the number of DoF-types there are
+            uint tNumDofTypes = (uint) MSI::Dof_Type::END_ENUM;
+
+            // get the enum to string map for the dof types
+            map< enum MSI::Dof_Type, std::string > tDofEnumToStringMap = MSI::get_dof_type_name_map();
+
+            // initialize map relating the MSI Dof Type to the mesh index
+            std::unordered_map< MSI::Dof_Type, moris_index > tDofTypeToMeshIndex;
+
+            // loop over list of dof types and retrieve the mesh index for each one
+            for( uint iDofType = 0; iDofType < tNumDofTypes; iDofType++ )
+            {
+                // get the Enum for the current DoF type
+                enum MSI::Dof_Type tDofTypeEnum = (MSI::Dof_Type) iDofType;
+
+                // making sure the DoF type exists in the list
+                if( tDofEnumToStringMap.key_exists( tDofTypeEnum ) )
+                {
+                    // get the DoF type name
+                    std::string tDofTypeName = tDofEnumToStringMap.find( tDofTypeEnum );
+
+                    // get the mesh index from the parameter list
+                    moris_index tMeshIndex = MSI::get_mesh_index_for_dof_type( tDofTypeEnum, mMSIParameterList( 0 )( 0 ) );
+
+                    // store mesh index for DoT type in map
+                    tDofTypeToMeshIndex[ tDofTypeEnum ] = tMeshIndex;
+                }
+            }
+
+            // return the map built
+            return tDofTypeToMeshIndex;
+        }
+
+        //------------------------------------------------------------------------------
 
     } /* namespace mdl */
 } /* namespace moris */

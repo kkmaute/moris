@@ -18,6 +18,8 @@
 #include "linalg_typedefs.hpp"
 #include "cl_GEN_Pdv_Enums.hpp"
 
+#include "cl_Library_IO.hpp"
+
 namespace moris
 {
     namespace sol
@@ -611,6 +613,37 @@ namespace moris
              * return fields
              */
             virtual moris::Cell< std::shared_ptr< mtk::Field > > get_fields() = 0;
+
+            //------------------------------------------------------------------------------
+            
+            /**
+             * initialize the FEM model from parameter lists + create the interpolation nodes & FEM sets
+             * @param[ in ] aLibrary       a file path for property functions
+             */
+            virtual void 
+            initialize_from_inputfile( std::shared_ptr< Library_IO > aLibrary ) = 0;
+
+            //------------------------------------------------------------------------------
+            
+            /**
+             * @brief Set the dof type to Bspline mesh index map
+             * 
+             * @param aDofTypeToBsplineMeshIndex 
+             */
+            virtual void
+            set_dof_type_to_Bspline_mesh_index( std::unordered_map< MSI::Dof_Type, moris_index > aDofTypeToBsplineMeshIndex ) = 0;
+            //------------------------------------------------------------------------------
+            
+            /**
+             * @brief set flag whether to use new ghost sets
+             * 
+             * @param aUseNewGhostSets 
+             */
+            virtual void
+            set_use_new_ghost_sets( bool aUseNewGhostSets ) = 0;
+
+            //------------------------------------------------------------------------------
+
         };
         //------------------------------------------------------------------------------
     } /* namespace MSI */
