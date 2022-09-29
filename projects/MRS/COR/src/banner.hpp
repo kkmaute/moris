@@ -118,15 +118,16 @@ namespace moris
 #endif
 
             // Who?
-
-            std::string tOsType   = std::getenv( "OSTYPE" ) == nullptr ? "NA" : std::getenv( "UOSTYPESER" );
+            std::string tUser     = std::getenv( "USER" ) == nullptr ? "NA" : std::getenv( "USER" );
+            std::string tHostName = std::getenv( "HOSTNAME" ) == nullptr ? "NA" : std::getenv( "HOSTNAME" );
+            std::string tOsType   = std::getenv( "OSTYPE" ) == nullptr ? "NA" : std::getenv( "OSTYPE" );
             std::string tHostType = std::getenv( "HOSTTYPE" ) == nullptr ? "NA" : std::getenv( "HOSTTYPE" );
 
             std::fprintf( stdout, "     User/Host   : %s at %s ( %s / %s )\n",    //
-                    std::getenv( "USER" ),
-                    std::getenv( "HOSTNAME" ),
-                    tOsType,
-                    tHostType );
+                    tUser.c_str(),
+                    tHostName.c_str(),
+                    tOsType.c_str(),
+                    tHostType.c_str() );
 
             std::string tCpuInfo = get_cpu_info();
 
