@@ -390,7 +390,11 @@ namespace xtk
         // Create writer/file
         moris::mtk::Writer_Exodus tWriter;
         std::string               tMorisRoot = std::getenv( "MORISOUTPUT" );
-        std::string               tTempName  = "multigrid_basis_temp.exo";
+
+        MORIS_ERROR( tMorisRoot.size() > 0,
+                "Environment variable MORISOUTPUT not set." );
+
+        std::string tTempName = "multigrid_basis_temp.exo";
         tWriter.write_points( tMorisRoot, aName, tMorisRoot, tTempName, mEnrichedBasisCoords );
 
         // Create fields
@@ -410,4 +414,3 @@ namespace xtk
         //        print( mEnrichedBasisCoords,"mEnrichedBasisCoords");
     }
 }    // namespace xtk
-

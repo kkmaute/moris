@@ -118,11 +118,15 @@ namespace moris
 #endif
 
             // Who?
-            std::fprintf( stdout, "     User/Host   : %s at %s ( %s / %s )\n", //
+
+            std::string tOsType   = std::getenv( "OSTYPE" ) == nullptr ? "NA" : std::getenv( "UOSTYPESER" );
+            std::string tHostType = std::getenv( "HOSTTYPE" ) == nullptr ? "NA" : std::getenv( "HOSTTYPE" );
+
+            std::fprintf( stdout, "     User/Host   : %s at %s ( %s / %s )\n",    //
                     std::getenv( "USER" ),
                     std::getenv( "HOSTNAME" ),
-                    std::getenv( "OSTYPE" ),
-                    std::getenv( "HOSTTYPE" ) );
+                    tOsType,
+                    tHostType );
 
             std::string tCpuInfo = get_cpu_info();
 
@@ -170,4 +174,3 @@ namespace moris
 }    // namespace moris
 
 #endif /* SRC_CORE_BANNER_HPP_ */
-
