@@ -20,7 +20,7 @@ namespace moris
     //------------------------------------------------------------------------------
 
     bool
-    file_exists( const std::string & aPath )
+    file_exists( const std::string& aPath )
     {
         // test if file exists
         std::ifstream tFile( aPath );
@@ -28,7 +28,7 @@ namespace moris
         // save result into output variable
         bool aFileExists;
 
-        if( tFile )
+        if ( tFile )
         {
             // close file
             tFile.close();
@@ -44,33 +44,32 @@ namespace moris
 
     //------------------------------------------------------------------------------
 
-    Ascii::Ascii( const std::string & aPath, const FileMode & aMode ) :
-                mMode( aMode )
+    Ascii::Ascii( const std::string& aPath, const FileMode& aMode )
+            : mMode( aMode )
     {
         // test if path is absolute
-        if( aPath.substr( 0,1 ) == "/" )
+        if ( aPath.substr( 0, 1 ) == "/" )
         {
             mPath = aPath;
         }
         // test if path is relative
-        else if( aPath.substr( 0,2 ) == "./" )
+        else if ( aPath.substr( 0, 2 ) == "./" )
         {
             mPath = aPath;
         }
         else
         {
-            MORIS_ERROR( false, " correct Ascii file path");
-            //mPath = std::sprint( "%s/%s", std::getenv( "PWD" ), aPath.c_str() );
+            MORIS_ERROR( false, " correct Ascii file path" );
         }
 
         switch ( aMode )
         {
-            case( FileMode::OPEN_RDONLY ) :
+            case ( FileMode::OPEN_RDONLY ):
             {
                 this->load_buffer();
                 break;
             }
-            case( FileMode::NEW ) :
+            case ( FileMode::NEW ):
             {
                 mBuffer.clear();
                 break;
@@ -86,7 +85,7 @@ namespace moris
 
     Ascii::~Ascii()
     {
-        MORIS_ERROR( ! mChangedSinceLastSave,
+        MORIS_ERROR( !mChangedSinceLastSave,
                 "File %s was changed but never saved.",
                 mPath.c_str() );
 
@@ -94,19 +93,20 @@ namespace moris
     }
     //------------------------------------------------------------------------------
 
-    bool Ascii::save()
+    bool
+    Ascii::save()
     {
         MORIS_ERROR( mMode != FileMode::OPEN_RDONLY,
                 "File %s can't be saved since it is opened in write protected mode.",
                 mPath.c_str() );
 
         // open file
-        std::ofstream tFile( mPath.c_str(),  std::ofstream::trunc );
+        std::ofstream tFile( mPath.c_str(), std::ofstream::trunc );
 
-        if( tFile )
+        if ( tFile )
         {
             // save buffer to file
-            for( std::string & tLine : mBuffer )
+            for ( std::string& tLine : mBuffer )
             {
                 tFile << tLine << std::endl;
             }
@@ -127,28 +127,32 @@ namespace moris
 
     //------------------------------------------------------------------------------
 
-    moris::uint Ascii::length() const
+    moris::uint
+    Ascii::length() const
     {
         return mBuffer.size();
     }
 
     //------------------------------------------------------------------------------
 
-    std::string & Ascii::line( const moris::uint aLineNumber )
+    std::string&
+    Ascii::line( const moris::uint aLineNumber )
     {
         return mBuffer( aLineNumber );
     }
 
     //------------------------------------------------------------------------------
 
-    const std::string & Ascii::line( const moris::uint aLineNumber ) const
+    const std::string&
+    Ascii::line( const moris::uint aLineNumber ) const
     {
         return mBuffer( aLineNumber );
     }
 
     //------------------------------------------------------------------------------
 
-    void Ascii::print( const std::string & aLine )
+    void
+    Ascii::print( const std::string& aLine )
     {
         mBuffer.push_back( aLine );
 
@@ -157,7 +161,8 @@ namespace moris
 
     //------------------------------------------------------------------------------
 
-    void Ascii::load_buffer()
+    void
+    Ascii::load_buffer()
     {
         // tidy up buffer
         mBuffer.clear();
@@ -171,7 +176,7 @@ namespace moris
         std::ifstream tFile( mPath );
 
         // test if file can be opened
-        if( tFile )
+        if ( tFile )
         {
             // temporary container for string
             std::string tLine;
@@ -186,12 +191,10 @@ namespace moris
         }
         else
         {
-            MORIS_ERROR( false, "Someting went wrong while opening file\n %s",
-                    mPath.c_str() );
+            MORIS_ERROR( false, "Someting went wrong while opening file\n %s", mPath.c_str() );
         }
     }
 
     //------------------------------------------------------------------------------
 
-}
-
+}    // namespace moris
