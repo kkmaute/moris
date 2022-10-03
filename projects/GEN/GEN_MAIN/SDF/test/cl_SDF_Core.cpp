@@ -104,6 +104,9 @@ TEST_CASE(
                         tElementsAtSurface,
                         tElementsInVolume );
 
+                // print statement needed to put matrix on heap
+                print(tElementsInVolumeExpect,"tElementsInVolumeExpect");
+
                 REQUIRE( all_true( tElementsAtSurface == tElementsAtSurfaceExpect ) );
                 REQUIRE( all_true( tElementsInVolume == tElementsInVolumeExpect ) );
             }
