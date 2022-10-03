@@ -243,9 +243,9 @@ namespace moris
 
             Matrix< DDRMat > tMatrix7( { { 1, 2, 3 }, { 4, 5, 6 }, { 7, 8, 9 } } );
 
-            REQUIRE( tMatrix7( 0, 0 ) = 1 );
-            REQUIRE( tMatrix7( 1, 1 ) = 5 );
-            REQUIRE( tMatrix7( 2, 2 ) = 9 );
+            REQUIRE( tMatrix7( 0, 0 ) == 1 );
+            REQUIRE( tMatrix7( 1, 1 ) == 5 );
+            REQUIRE( tMatrix7( 2, 2 ) == 9 );
 
             // Check Data function
             const real* tMatrix7Data = tMatrix7.data();
