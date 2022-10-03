@@ -119,7 +119,7 @@ namespace moris
                 Matrix< DDRMat >&       ad2NdXi2 ) const
         {
             // make sure that input is correct
-            MORIS_ASSERT( aXi.length() >= 3, "TRI6 - eval_d2NdXi2: aXi not allocated or hat wrong size." );
+            MORIS_ASSERT( aXi.length() >= 2, "TRI6 - eval_d2NdXi2: aXi not allocated or hat wrong size." );
 
             // populate output matrix
             ad2NdXi2.set_size( 3, 6, 0.0 );
@@ -150,7 +150,7 @@ namespace moris
                 Matrix< DDRMat >&       ad3NdXi3 ) const
         {
             // make sure that input is correct
-            MORIS_ASSERT( aXi.length() >= 3, "TRI6 - eval_d2NdXi2: aXi not allocated or hat wrong size." );
+            MORIS_ASSERT( aXi.length() >= 2, "TRI6 - eval_d2NdXi2: aXi not allocated or hat wrong size." );
 
             ad3NdXi3.set_size( 4, 6, 0.0 );
         }
@@ -159,4 +159,3 @@ namespace moris
     } /* namespace mtk */
 } /* namespace moris */
 #endif /* SRC_MTK_CL_MTK_INTERPOLATION_FUNCTION_LAGRANGE_TRI6_HPP_ */
-
