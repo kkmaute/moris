@@ -181,7 +181,7 @@ namespace moris
                                 if ( not isnan( tLocalCoordinate ) )
                                 {
                                     // Check local coordinate
-                                    CHECK( tLocalCoordinate == Approx( tIntersectionLocalCoordinates( tIntersectionCount ) ) );
+                                    CHECK( tLocalCoordinate == Approx( tIntersectionLocalCoordinates( tIntersectionCount ) ).margin( MORIS_REAL_EPS ) );
 
                                     // Check global coordinates
                                     check_equal(
@@ -845,11 +845,15 @@ namespace moris
                             CHECK( tGeometryEngine.queued_intersection_second_parent_on_interface() == tSecondParentOnInterface );
 
                             // Check local coordinates
-                            CHECK( tGeometryEngine.get_queued_intersection_local_coordinate() == Approx( tIntersectionLocalCoordinates( tIntersectionCount ) ) );
+                            CHECK( tGeometryEngine.get_queued_intersection_local_coordinate() ==    //
+                                    Approx( tIntersectionLocalCoordinates( tIntersectionCount ) ).margin( MORIS_REAL_EPS ) );
 
                             // Check global coordinates
-                            CHECK( tGeometryEngine.get_queued_intersection_global_coordinates()( 0 ) == Approx( tIntersectionGlobalCoordinates( tIntersectionCount )( 0 ) ) );
-                            CHECK( tGeometryEngine.get_queued_intersection_global_coordinates()( 1 ) == Approx( tIntersectionGlobalCoordinates( tIntersectionCount )( 1 ) ) );
+                            CHECK( tGeometryEngine.get_queued_intersection_global_coordinates()( 0 ) ==    //
+                                    Approx( tIntersectionGlobalCoordinates( tIntersectionCount )( 0 ) ).margin( MORIS_REAL_EPS ) );
+
+                            CHECK( tGeometryEngine.get_queued_intersection_global_coordinates()( 1 ) ==    //
+                                    Approx( tIntersectionGlobalCoordinates( tIntersectionCount )( 1 ) ).margin( MORIS_REAL_EPS ) );
 
                             // Admit intersection
                             tGeometryEngine.admit_queued_intersection( 9 + tIntersectionCount );
@@ -864,14 +868,14 @@ namespace moris
                 CHECK( tIntersectionCount == 8 );
 
                 // Test the new child nodes on the level set field
-                CHECK( tGeometryEngine.get_field_value( 0, 9, { {} } ) == Approx( 0.0 ) );
-                CHECK( tGeometryEngine.get_field_value( 0, 10, { {} } ) == Approx( 0.0 ) );
-                CHECK( tGeometryEngine.get_field_value( 0, 11, { {} } ) == Approx( 0.0 ) );
-                CHECK( tGeometryEngine.get_field_value( 0, 12, { {} } ) == Approx( 0.0 ) );
-                CHECK( tGeometryEngine.get_field_value( 0, 13, { {} } ) == Approx( 0.0 ) );
-                CHECK( tGeometryEngine.get_field_value( 0, 14, { {} } ) == Approx( 0.0 ) );
-                CHECK( tGeometryEngine.get_field_value( 0, 15, { {} } ) == Approx( 0.0 ) );
-                CHECK( tGeometryEngine.get_field_value( 0, 16, { {} } ) == Approx( 0.0 ) );
+                CHECK( tGeometryEngine.get_field_value( 0, 9, { {} } ) == Approx( 0.0 ).margin( MORIS_REAL_EPS ) );
+                CHECK( tGeometryEngine.get_field_value( 0, 10, { {} } ) == Approx( 0.0 ).margin( MORIS_REAL_EPS ) );
+                CHECK( tGeometryEngine.get_field_value( 0, 11, { {} } ) == Approx( 0.0 ).margin( MORIS_REAL_EPS ) );
+                CHECK( tGeometryEngine.get_field_value( 0, 12, { {} } ) == Approx( 0.0 ).margin( MORIS_REAL_EPS ) );
+                CHECK( tGeometryEngine.get_field_value( 0, 13, { {} } ) == Approx( 0.0 ).margin( MORIS_REAL_EPS ) );
+                CHECK( tGeometryEngine.get_field_value( 0, 14, { {} } ) == Approx( 0.0 ).margin( MORIS_REAL_EPS ) );
+                CHECK( tGeometryEngine.get_field_value( 0, 15, { {} } ) == Approx( 0.0 ).margin( MORIS_REAL_EPS ) );
+                CHECK( tGeometryEngine.get_field_value( 0, 16, { {} } ) == Approx( 0.0 ).margin( MORIS_REAL_EPS ) );
 
                 // Get full element info for element 0
                 Matrix< IndexMat > tSignedNodeIndices = tMesh->get_nodes_connected_to_element_loc_inds( 0 );
@@ -915,4 +919,3 @@ namespace moris
 
     }    // namespace ge
 }    // namespace moris
-
