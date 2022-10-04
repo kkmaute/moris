@@ -100,7 +100,11 @@ check_results(
     // Read analytical sensitivities
     load_matrix_from_hdf5_file( tFileID, "objective_gradients eval_1-1 analytical", tObjectiveAnalytical, tStatus );
     load_matrix_from_hdf5_file( tFileID, "constraint_gradients eval_1-1 analytical", tConstraintsAnalytical, tStatus );
+
     REQUIRE( tObjectiveAnalytical.length() == tConstraintsAnalytical.length() );    // one objective and one constraint for this problem only
+
+    // perturbation of denominator when building relative error
+    real tDeltaEps = 1.0e-14;
 
     // Read FD sensitivities and compare
     Cell< std::string > tFDTypes = { "fd_forward", "fd_backward", "fd_central" };
@@ -114,22 +118,43 @@ check_results(
 
         for ( uint tADVIndex = 0; tADVIndex < tObjectiveAnalytical.length(); tADVIndex++ )
         {
+            real tRelObectiveDifference = std::abs( ( tObjectiveAnalytical( tADVIndex ) - tObjectiveFD( tADVIndex ) ) /    //
+                                                    ( tObjectiveFD( tADVIndex ) + tDeltaEps ) );
+
+            real tRelConstraintDifference = std::abs( ( tConstraintsAnalytical( tADVIndex ) - tConstraintsFD( tADVIndex ) ) /    //
+                                                      ( tConstraintsFD( tADVIndex ) + tDeltaEps ) );
+
             MORIS_LOG_INFO( "Check derivative of objective  wrt. ADV(%i):  analytical  %12.5e, finite difference (%s) %12.5e, percent error %12.5e.",
                     tADVIndex,
                     tObjectiveAnalytical( tADVIndex ),
                     tFDTypes( tFDIndex ).c_str(),
                     tObjectiveFD( tADVIndex ),
-                    100 * std::abs( ( tObjectiveAnalytical( tADVIndex ) - tObjectiveFD( tADVIndex ) ) / tObjectiveFD( tADVIndex ) ) );
+                    100 * tRelObectiveDifference );
 
             MORIS_LOG_INFO( "Check derivative of constraint wrt. ADV(%i):  analytical  %12.5e, finite difference (%s) %12.5e, percent error %12.5e.",
                     tADVIndex,
                     tConstraintsAnalytical( tADVIndex ),
                     tFDTypes( tFDIndex ).c_str(),
-                    tConstraintsAnalytical( tADVIndex ),
-                    100 * std::abs( ( tConstraintsAnalytical( tADVIndex ) - tConstraintsAnalytical( tADVIndex ) ) / tConstraintsAnalytical( tADVIndex ) ) );
+                    tConstraintsFD( tADVIndex ),
+                    100 * tRelConstraintDifference );
 
-            CHECK( tObjectiveAnalytical( tADVIndex ) == Approx( tObjectiveFD( tADVIndex ) ) );
-            CHECK( tConstraintsAnalytical( tADVIndex ) == Approx( tConstraintsFD( tADVIndex ) ) );
+            if ( std::abs( tObjectiveFD( tADVIndex ) ) > 1e-6 )
+            {
+                CHECK( tRelObectiveDifference < 1e-4 );
+            }
+            else
+            {
+                CHECK( tObjectiveAnalytical( tADVIndex ) == Approx( tObjectiveFD( tADVIndex ) ).margin( 1e-6 ) );
+            }
+
+            if ( std::abs( tConstraintsFD( tADVIndex ) ) > 1e-6 )
+            {
+                CHECK( tRelConstraintDifference < 1e-4 );
+            }
+            else
+            {
+                CHECK( tConstraintsAnalytical( tADVIndex ) == Approx( tConstraintsFD( tADVIndex ) ).margin( 1e-6 ) );
+            }
         }
     }
 

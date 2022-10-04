@@ -34,7 +34,6 @@ check_results(
         std::string aExoFileName,
         uint        aTestCaseIndex )
 {
-
     // perturbation of denominator when building relative error
     real tDeltaEps = 1.0e-14;
 
