@@ -27,7 +27,7 @@ namespace moris
          */
         template< typename Matrix_Type >
         void
-        check_equal( Matrix< Matrix_Type > aMatrix1, Matrix< Matrix_Type > aMatrix2 )
+        check_equal( Matrix< Matrix_Type > aMatrix1, Matrix< Matrix_Type > aMatrix2, real aMargin = MORIS_REAL_EPS )
         {
             REQUIRE( aMatrix1.n_rows() == aMatrix2.n_rows() );
             REQUIRE( aMatrix1.n_cols() == aMatrix2.n_cols() );
@@ -35,9 +35,9 @@ namespace moris
             {
                 for ( uint tColumnIndex = 0; tColumnIndex < aMatrix1.n_cols(); tColumnIndex++ )
                 {
-                    CHECK( aMatrix1( tRowIndex, tColumnIndex ) == Approx( aMatrix2( tRowIndex, tColumnIndex ) ).margin( MORIS_REAL_EPS ) );
+                    CHECK( aMatrix1( tRowIndex, tColumnIndex ) == Approx( aMatrix2( tRowIndex, tColumnIndex ) ).margin( aMargin ) );
 
-                    if ( aMatrix1( tRowIndex, tColumnIndex ) != Approx( aMatrix2( tRowIndex, tColumnIndex ) ).margin( MORIS_REAL_EPS ) )
+                    if ( aMatrix1( tRowIndex, tColumnIndex ) != Approx( aMatrix2( tRowIndex, tColumnIndex ) ).margin( aMargin ) )
                     {
                         std::cout << aMatrix1( tRowIndex, tColumnIndex ) << " =/= " << aMatrix2( tRowIndex, tColumnIndex ) << std::endl;
                     }
