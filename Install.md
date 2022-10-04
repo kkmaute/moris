@@ -34,7 +34,7 @@
 
 * set workspace; change directory name as needed
 
-setenv WORKSPACE $HOME/codes
+setenv WORKSPACE $HOME/tmp
 
 *------------------------------------------------------------
 
@@ -148,7 +148,7 @@ rm spack-build*txt
 
 rm $HOME/.cshrc_moris
 
-sh moris/share/space/make_moris_cshrc.sh
+sh moris/share/spack/make_moris_cshrc.sh
         
 *------------------------------------------------------------
 *
