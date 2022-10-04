@@ -236,7 +236,6 @@ namespace moris
         tParameterlist( 2 )( 0 ).set( "hdf5_path", "shape_opt_test.hdf5" );
         tParameterlist( 2 )( 0 ).set( "num_evaluations_per_adv", "1" );
         tParameterlist( 2 )( 0 ).set( "finite_difference_type", "all" );
-        tParameterlist( 2 )( 0 ).set( "finite_difference_epsilons", "1e-5" );
     }
 
     void
@@ -625,7 +624,6 @@ namespace moris
         tParameterList( 5 ).resize( 1 );
         tParameterList( 5 )( 0 ) = prm::create_computation_parameter_list();
         tParameterList( 5 )( 0 ).set( "finite_difference_scheme", static_cast< uint >( fem::FDScheme_Type::POINT_3_CENTRAL ) );
-        tParameterList( 5 )( 0 ).set( "finite_difference_perturbation_size", "1e-5" );
     }
 
     void
