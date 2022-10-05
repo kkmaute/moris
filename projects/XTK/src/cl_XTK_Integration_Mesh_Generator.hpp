@@ -1006,6 +1006,40 @@ namespace xtk
                 const moris_index     aMeshIndex );
 
         // ----------------------------------------------------------------------------------
+
+        /**
+         * @brief setup the material connectivity of the subphase groups wrt. to the coarsest 
+         * B-spline element related to a given base IP cell. creates lists of material sub-
+         * domains wrt which basis extensions will be needed in the enrichment
+         * 
+         * @param aCutIntegrationMesh pointer to the cut integration mesh
+         */
+        void
+        construct_SPG_material_connectivity_information( Cut_Integration_Mesh* aCutIntegrationMesh );
+
+        // ----------------------------------------------------------------------------------
+
+        /**
+         * @brief 
+         * 
+         * @param aCutIntegrationMesh 
+         * @param aLagrangeElementIndex 
+         * @param aBsplineMeshListIndex 
+         * @param aMaterialSpgIndices 
+         * @param aVoidSpgIndices 
+         */
+        void
+        find_material_SPGs_on_Lagrange_Cell(
+                Cut_Integration_Mesh*       aCutIntegrationMesh,
+                const moris_index           aLagrangeElementIndex,
+                const moris_index           aBsplineMeshListIndex,
+                moris::Cell< moris_index >& aMaterialSpgIndices,
+                moris::Cell< moris_index >& aVoidSpgIndices );
+
+        // ----------------------------------------------------------------------------------
+
+
+
     };
 
 }    // namespace xtk

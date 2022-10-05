@@ -15,6 +15,8 @@
 #include "fn_determine_cell_topology.hpp"
 #include "fn_mesh_flood_fill.hpp"
 #include "fn_XTK_find_most_frequent_int_in_cell.hpp"
+#include "fn_XTK_convert_index_cell_to_index_map.hpp"
+#include "fn_XTK_Multiset_Operations.hpp"
 
 using namespace moris;
 namespace xtk
@@ -219,8 +221,7 @@ namespace xtk
         if ( this->check_construct_subphase_groups() )
         {
             // get the discretization mesh indices
-            Matrix< IndexMat > tDiscretizationMeshIndices;
-            moris::string_to_mat( mXTKModel->mParameterList.get< std::string >( "enrich_mesh_indices" ), tDiscretizationMeshIndices );
+            Matrix< IndexMat > tDiscretizationMeshIndices = mXTKModel->get_Bspline_mesh_indices();
 
             // get number of B-spline discretization meshes
             uint tNumBspMeshes = tDiscretizationMeshIndices.numel();
@@ -260,7 +261,12 @@ namespace xtk
                         this->construct_subphase_group_neighborhood( tCutIntegrationMesh.get(), tBsplineMeshInfo, tMeshIndex );
                 tCutIntegrationMesh->mSubphaseGroupNeighborhood( iBspMesh ) = tSpgNeighborhoodConnectivity;
             }
-        }    // end: SPG construction
+
+            // costruct information about which SPGs are present on which base IP cells and their material connectivity wrt. to the various B-spline meshes
+            // Note: this information is needed later in the enrichment
+            this->construct_SPG_material_connectivity_information( tCutIntegrationMesh.get() );
+
+        }    // end: if SPGs are constructed
 
         // output cut IG mesh for debugging
         if ( mOutputCutIgMesh )
@@ -4205,7 +4211,7 @@ namespace xtk
             {
                 // check that the mesh indices for enrichment are defined
                 MORIS_ERROR( !mXTKModel->mParameterList.get< std::string >( "enrich_mesh_indices" ).empty(),
-                        "Integration_Mesh_Generator::perform() - No B-spline mesh indices provided for enrichment. Unable to construct Subphase-groups." );
+                        "Integration_Mesh_Generator::check_construct_subphase_groups() - No B-spline mesh indices provided for enrichment. Unable to construct Subphase-groups." );
 
                 // if all checks have past, set flag for constructing SPGs
                 tConstructSPGs = true;
@@ -4768,7 +4774,335 @@ namespace xtk
     }
 
     // ----------------------------------------------------------------------------------
+
+    void
+    Integration_Mesh_Generator::construct_SPG_material_connectivity_information( Cut_Integration_Mesh* aCutIntegrationMesh )
+    {
+        // log/trace the enrichment for specific B-spline mesh
+        Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Construct SPG material connectivity information" );  
+
+        // get the number of base IP cells on the mesh
+        uint tNumBaseIpCells = aCutIntegrationMesh->mBsplineMeshInfos( 0 )->mExtractionCellToBsplineCell.size();
+
+        // debug - temporary test to make sure the right function is called
+        MORIS_ASSERT( tNumBaseIpCells == aCutIntegrationMesh->get_num_base_ip_cells(), 
+            "Integration_Mesh_Generator::construct_SPG_material_connectivity_information() - "
+            "Number of Lagrange elements reported by the xtk background mesh and the B-spline mesh info do not match" );
+
+        // initialize list needed later
+        aCutIntegrationMesh->mUnionMsdInidices.resize( tNumBaseIpCells );
+
+        // number of B-spline meshes
+        Matrix< IndexMat > tBspMeshIndices = mXTKModel->get_Bspline_mesh_indices();
+        uint tNumBspMeshes = tBspMeshIndices.numel();
+
+        // initialize storage for generated data
+        for( uint iBspMesh = 0; iBspMesh < tNumBspMeshes; iBspMesh++ )
+        {
+            // get the current B-spline mesh info
+            Bspline_Mesh_Info* tBsplineMeshInfo = aCutIntegrationMesh->mBsplineMeshInfos( iBspMesh );
+
+            // initialize lists holding which SPGs are material and void on the base IP cells/Lagrange elements
+            tBsplineMeshInfo->mExtractionCellMaterialSpgs.resize( tNumBaseIpCells );
+            tBsplineMeshInfo->mExtractionCellVoidSpgs.resize( tNumBaseIpCells );
+            tBsplineMeshInfo->mExtractionCellVoidMsdIndices.resize( tNumBaseIpCells );
+            tBsplineMeshInfo->mExtractionCellFreeVoidMsdIndices.resize( tNumBaseIpCells );
+        }
+
+        // initialize the list storing which B-spline mesh index is the coarsest wrt. to a given Lagrange element
+        Cell< moris_index >& tCoarsestBsplineMesh = aCutIntegrationMesh->mCoarsestBsplineMesh;
+        tCoarsestBsplineMesh.resize( tNumBaseIpCells );
+
+        // initialize list ticking off for which Lagrange elements the material indices have been constructed 
+        // (since there's a loop of Lag elems in the loop of Lag elems and we want to avoid unnecessarily treating elements twice)
+        Cell< bool > tLagElemHasNotBeenTreated( tNumBaseIpCells, true );
+
+        // all subsequent operations are per Lagrange element (= base IP cell)
+        for( uint iLagElem = 0; iLagElem < tNumBaseIpCells; iLagElem++ )
+        {
+            // --------------------------------
+            // STEP 1: find the coarsest B-spline elements associated with each Lagrange element
+            
+            // initialize the coarsest level
+            uint tCoarsestRefineLevel = MORIS_UINT_MAX;
+
+            // find the mesh index of the B-spline element that contains a given Lagrange element
+            for( uint iBspMesh = 0; iBspMesh < tNumBspMeshes; iBspMesh++ )
+            {
+                // get the current B-spline mesh's discretization mesh index
+                // moris_index tBspMeshIndex = tBspMeshIndices( iBspMesh );
+                
+                // get the B-spline mesh info for access
+                Bspline_Mesh_Info* tBsplineMeshInfo = aCutIntegrationMesh->mBsplineMeshInfos( iBspMesh );
+
+                // get the B-spline element index corresponding to the current Lagrange element
+                uint tRefineLevel = tBsplineMeshInfo->get_B_spline_refinement_level_for_extraction_cell( iLagElem );
+
+                // check whether the current B-spline mesh has a coarser B-spline element associated with 
+                // the current Lagrange element than any of the previous meshes
+                if( tRefineLevel < tCoarsestRefineLevel )
+                {
+                    // if so, safe the mesh as being the coarsest related mesh
+                    tCoarsestRefineLevel = tRefineLevel;
+                    tCoarsestBsplineMesh( iLagElem ) = iBspMesh;
+                }
+            }
+
+            // --------------------------------
+            // STEP 2: relate the SPs on every Lagrange element to a material sub-domain (MSD) index relative to the coarsest mesh
+            // Note: The below procedures are only valid as HMR imposes so-called "strong conditions"
+            // Note: on the nested hierarchical domain bounaries, i.e. refined domain boundaries 
+            // Note: run along mesh lines that already exist on coarser levels
+
+            // this step is done in batches of Lagrange elements belonging to the same coarsest B-spline element to save on re-computation of things
+            // hence, skip elements that have already been treated in another batch
+            if( tLagElemHasNotBeenTreated( iLagElem ) )
+            {
+                // get the coarsest B-spline mesh
+                moris_index tCoarsestBsplineMeshIndex = tCoarsestBsplineMesh( iLagElem );
+
+                // get pointer to the B-spline mesh info for the coarsest element
+                Bspline_Mesh_Info* tCoarsestBsplineMeshInfo = 
+                        aCutIntegrationMesh->mBsplineMeshInfos( tCoarsestBsplineMeshIndex );
+
+                // get this coarsest B-spline element index
+                const moris_index tCoarsestBsplineElemIndex = 
+                        tCoarsestBsplineMeshInfo->get_bspline_cell_index_for_extraction_cell( iLagElem );
+
+                // get the list of Lagrange elements in this coarsest B-spline element
+                const Cell< moris_index >& tLagElemsInBspElem = 
+                        tCoarsestBsplineMeshInfo->get_extraction_cell_indices_in_Bspline_cell( tCoarsestBsplineElemIndex );
+
+                // get the subphase groups for the corresponding B-spline element
+                const Cell< const Subphase_Group* > tSpgsOnBspElem = 
+                        tCoarsestBsplineMeshInfo->get_SPGs_in_Bspline_cell( tCoarsestBsplineElemIndex );
+
+                // collect SPs inside those SPGs and build map associating the SPs with MSD indices
+                IndexMap tSpToMsdIndex;
+                for( uint iSPG = 0; iSPG < tSpgsOnBspElem.size(); iSPG++ )
+                {
+                    // get the list of SPs in the current SPG
+                    const moris::Cell< moris_index >& tSpIndicesInGroup = 
+                            tSpgsOnBspElem( iSPG )->get_SP_indices_in_group();
+                    
+                    // associate all SPs in the current SPG with their MSD index
+                    for( uint iSpInSpg = 0; iSpInSpg < tSpIndicesInGroup.size(); iSpInSpg++ )
+                    {
+                        tSpToMsdIndex[ tSpIndicesInGroup( iSpInSpg ) ] = iSPG;
+                    }
+                }
+
+                // --------------------------------
+                // STEP 3: split the SPGs from every B-spline mesh related to a given Lag elem into void and material SPGs
+
+                // treat all Lagrange elements in the B-spline element at the same time
+                for( uint iLagElemInBspElem = 0; iLagElemInBspElem < tLagElemsInBspElem.size(); iLagElemInBspElem++ )
+                {
+                    // get the Lagrange element index to be treated
+                    moris_index tLagElemIndex = tLagElemsInBspElem( iLagElemInBspElem );
+
+                    // check that the Lag elems in the current B-spline elem have not been treated yet
+                    MORIS_ERROR( tLagElemHasNotBeenTreated( tLagElemIndex ), 
+                            "Integration_Mesh_Generator::construct_SPG_material_connectivity_information() - "
+                            "Lagrange element in B-spline element marked as treated even though B-spline element has not been treated. "
+                            "There must be a bug." );
+
+                    // mark current Lagrange element as being treated
+                    tLagElemHasNotBeenTreated( tLagElemIndex ) = false;
+
+                    // the following information must be constructed wrt. each B-spline mesh
+                    for( uint iBspMesh = 0; iBspMesh < tNumBspMeshes; iBspMesh++ )
+                    {
+                        // get the current B-spline mesh info
+                        Bspline_Mesh_Info* tBsplineMeshInfo = aCutIntegrationMesh->mBsplineMeshInfos( iBspMesh );
+
+                        // access the lists storing which SPGs are material and void wrt. to the respective Lagrange element
+                        moris::Cell< moris_index >& tMaterialSpgIndices = tBsplineMeshInfo->mExtractionCellMaterialSpgs( tLagElemIndex );
+                        moris::Cell< moris_index >& tVoidSpgIndices     = tBsplineMeshInfo->mExtractionCellVoidSpgs( tLagElemIndex );
+
+                        // fill these lists
+                        this->find_material_SPGs_on_Lagrange_Cell( aCutIntegrationMesh, tLagElemIndex, iBspMesh, tMaterialSpgIndices, tVoidSpgIndices );
+
+                        // --------------------------------
+                        // STEP 4: derive the void MSD indices wrt. to each B-spline mesh from the void SPGs
+
+                        // get the number of void SPGs and MSD indices
+                        uint tNumVoidSpgs = tVoidSpgIndices.size();
+                        
+                        // access the lists storing void MSD indices for each Lagrange element
+                        moris::Cell< moris_index >& tVoidMsdIndices = tBsplineMeshInfo->mExtractionCellVoidMsdIndices( tLagElemIndex );
+
+                        // resize this list to correct size
+                        tVoidMsdIndices.resize( tNumVoidSpgs );
+
+                        // go over void SPGs and store the corresponding MSD Indices
+                        for( uint iVoidSpg = 0; iVoidSpg < tNumVoidSpgs; iVoidSpg++ )
+                        {
+                            // get the current SPG's index 
+                            moris_index tSpgIndex = tVoidSpgIndices( iVoidSpg );
+
+                            // get the list of SPs in the current SPG
+                            const moris::Cell< moris_index >& tSpsInGroup = tBsplineMeshInfo->mSubphaseGroups( tSpgIndex )->get_SP_indices_in_group();
+
+                            // get an SP representing the current SPG 
+                            moris_index tSpIndex = tSpsInGroup( 0 );
+
+                            // get the MSD index corresponding to the current void SPG
+                            auto tIter = tSpToMsdIndex.find( tSpIndex );
+                            MORIS_ERROR( tIter != tSpToMsdIndex.end(),
+                                    "Integration_Mesh_Generator::construct_SPG_material_connectivity_information() - "
+                                    "Subphase index not found in subphase to MSD index map. Something must have gone wrong." );
+                            moris_index tMsdIndex = tIter->second;
+
+                            // store the void MSD index
+                            tVoidMsdIndices( iVoidSpg ) = tMsdIndex;
+                        }
+
+                    } // end: loop over B-spline meshes for the current Lagrange element
+
+                    // --------------------------------
+                    // STEP 5: form a non-unique universal set of void void MSD indices across all B-spline meshes
+                   
+                    // initialize union set
+                    aCutIntegrationMesh->mUnionMsdInidices( tLagElemIndex ) = 
+                            aCutIntegrationMesh->mBsplineMeshInfos( 0 )->mExtractionCellVoidMsdIndices( tLagElemIndex );
+
+                    // get the address to where the union multiset of MSD indices will be stored
+                    moris::Cell< moris_index >* tUnionVoidMsdIndices = &( aCutIntegrationMesh->mUnionMsdInidices( tLagElemIndex ) );
+
+// debug
+std::cout << "\n\n=========================================================" << std::endl;
+std::cout << "Lagrange Element: " << tLagElemIndex << std::endl;
+moris::print_as_row_vector( *tUnionVoidMsdIndices, "Void Msd Indices on Mesh 0" );
+std::cout << std::endl;
+
+                    // form the union multiset of the void MSD indices across all B-spline meshes
+                    for( uint iBspMesh = 1; iBspMesh < tNumBspMeshes; iBspMesh++ )
+                    {
+                        moris::Cell< moris_index > tPreviousUnionVoidMsdIndices = *tUnionVoidMsdIndices;
+
+                        // get the current B-spline mesh info
+                        Bspline_Mesh_Info* tBsplineMeshInfo = aCutIntegrationMesh->mBsplineMeshInfos( iBspMesh );
+
+                        // get the void MSD indices for the current B-spline mesh
+                        moris::Cell< moris_index > tCurrentVoidMsdIndices = 
+                            tBsplineMeshInfo->mExtractionCellVoidMsdIndices( tLagElemIndex );
+
+// debug
+moris::print_as_row_vector( tPreviousUnionVoidMsdIndices, "Previous union MSD indices, b=" + std::to_string( iBspMesh ) );
+moris::print_as_row_vector( tCurrentVoidMsdIndices, "Void Msd Indices on Mesh " + std::to_string( iBspMesh ) );
+
+                        // form the union
+                        xtk::multiset_union( tPreviousUnionVoidMsdIndices, tCurrentVoidMsdIndices, *tUnionVoidMsdIndices );
+
+// debug
+moris::print_as_row_vector( tPreviousUnionVoidMsdIndices, "Previous union MSD indices (should not have changed compared to previous print)" );
+moris::print_as_row_vector( *tUnionVoidMsdIndices, "New Union Msd Indices on Mesh " + std::to_string( iBspMesh ) );
+std::cout << std::endl;
+
+                    }
+
+                    // --------------------------------
+                    // STEP 6: deduce the free void MSD indices wrt. each B-spline mesh
+
+                    // form the union multiset of the void MSD indices across all B-spline meshes
+                    for( uint iBspMesh = 0; iBspMesh < tNumBspMeshes; iBspMesh++ )
+                    {
+                        // get the current B-spline mesh info
+                        Bspline_Mesh_Info* tBsplineMeshInfo = aCutIntegrationMesh->mBsplineMeshInfos( iBspMesh );
+
+                        // get access to the list of void MSD indices
+                        moris::Cell< moris_index >& tVoidMsdIndices = tBsplineMeshInfo->mExtractionCellVoidMsdIndices( tLagElemIndex );
+
+                        // get access to the list of free void MSD indices
+                        moris::Cell< moris_index >& tFreeVoidMsdIndices = tBsplineMeshInfo->mExtractionCellFreeVoidMsdIndices( tLagElemIndex );
+
+                        // get the differnce between the union and the void MSD indices to form the free void MSD indices
+                        xtk::multiset_difference( *tUnionVoidMsdIndices, tVoidMsdIndices, tFreeVoidMsdIndices );
+
+// debug
+moris::print_as_row_vector( tFreeVoidMsdIndices, "Free void MSD indices b=" + std::to_string( iBspMesh) );
+
+                    }
+
+                } // end: loop over the Lagrange elements inside the current coarsest B-spline element
+
+            } // end: only treat elements whose void MSD Inidices have not been found yet
+
+        } // end: loop over all lagrange elements
+
+    } // end function: Integration_Mesh_Generator::construct_SPG_material_connectivity_information(...)
+
     // ----------------------------------------------------------------------------------
+
+    void
+    Integration_Mesh_Generator::find_material_SPGs_on_Lagrange_Cell(
+            Cut_Integration_Mesh*       aCutIntegrationMesh,
+            const moris_index           aLagrangeElementIndex,
+            const moris_index           aBsplineMeshListIndex,
+            moris::Cell< moris_index >& aMaterialSpgIndices,
+            moris::Cell< moris_index >& aVoidSpgIndices )
+    {
+        // get the number of SPs on the current IP cell
+        const moris::Cell< moris_index >& tSPsOnCell = aCutIntegrationMesh->get_parent_cell_subphases( aLagrangeElementIndex );
+        const uint                        tNumSPs    = tSPsOnCell.size();
+
+        // initialize the list of material SPGs
+        aMaterialSpgIndices.resize( tNumSPs );
+
+        // get the pointer to the current B-spline mesh info
+        Bspline_Mesh_Info* tBsplineMeshInfo = aCutIntegrationMesh->mBsplineMeshInfos( aBsplineMeshListIndex );
+
+        // get the SPGs that are associated with the current IP cell
+        moris::Cell< moris_index > const & tSPGsOnCell =
+                tBsplineMeshInfo->get_SPG_indices_associated_with_extraction_cell( aLagrangeElementIndex );
+        uint tNumSPGsOnCell = tSPGsOnCell.size();
+
+        // initialize punchcard logging which SPGs have material on the current IP cell
+        moris::Cell< bool > tVoidSPGs( tNumSPGsOnCell, true );
+
+        // over the subphases on the current IP cell and mark the corresponding SPGs to have material
+        for ( uint iSP = 0; iSP < tNumSPs; iSP++ )
+        {
+            // get the index of the current subphase
+            moris_index tSpIndex = tSPsOnCell( iSP );
+
+            // get the index of SPG the currently treated SP belongs to
+            moris_index tSpgIndex = tBsplineMeshInfo->mSpToSpgMap( tSpIndex );
+
+            // store SPG index containing material
+            aMaterialSpgIndices( iSP ) = tSpgIndex;
+
+            // find where the SPG is in the list of SPGs on the respective B-spline or Lagrange element
+            moris_index tLocalSpgIndex = tBsplineMeshInfo->mSubphaseGroups( tSpgIndex )->get_local_index();
+
+            // mark the SPG as having material in the punch card
+            tVoidSPGs( tLocalSpgIndex ) = false;
+        }
+
+        // count the number of void IP cells that need to be constructed
+        uint tNumVoidClusters = 0;
+        for ( uint iSPG = 0; iSPG < tNumSPGsOnCell; iSPG++ )
+        {
+            tNumVoidClusters += tVoidSPGs( iSPG );
+        }
+
+        // set size of list of SPGs without material associated with current IP cell for the current B-spline mesh
+        aVoidSpgIndices.resize( tNumVoidClusters );
+
+        // store SPG indices for void clusters
+        uint tVoidSpgCounter = 0;
+        for ( uint iSPG = 0; iSPG < tNumSPGsOnCell; iSPG++ )
+        {
+            // if SPG has noted to not have material in it
+            if ( tVoidSPGs( iSPG ) )
+            {
+                aVoidSpgIndices( tVoidSpgCounter ) = tSPGsOnCell( iSPG );
+                tVoidSpgCounter++;
+            }
+        }
+    }
+
     // ----------------------------------------------------------------------------------
 
 }    // namespace xtk

@@ -1148,6 +1148,14 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
+    uint
+    Cut_Integration_Mesh::get_num_base_ip_cells() const
+    {
+        return mBackgroundMesh->get_num_elems();
+    }
+
+    // ----------------------------------------------------------------------------------
+
     std::shared_ptr< Facet_Based_Connectivity >
     Cut_Integration_Mesh::get_face_connectivity()
     {
@@ -1428,6 +1436,20 @@ namespace xtk
         {
             return Cell_Connectivity();
         }
+    }
+
+    // ----------------------------------------------------------------------------------
+
+    moris_index
+    Cut_Integration_Mesh::get_coarsest_bspline_mesh_index_on_base_ip_cell( moris_index aBaseIpCellIndex ) const
+    {
+        // check that the input makes sense
+        MORIS_ASSERT( (uint) aBaseIpCellIndex < mCoarsestBsplineMesh.size(), 
+                "Cut_Integration_Mesh::get_coarsest_bspline_mesh_index_on_base_ip_cell() - "
+                "Map has not been constructed yet, or base IP cell index out of bounds." );
+
+        // return the B-spline mesh index
+        return mCoarsestBsplineMesh( aBaseIpCellIndex );
     }
 
     // ----------------------------------------------------------------------------------

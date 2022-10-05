@@ -445,6 +445,13 @@ namespace xtk
             // Lagrange Mesh B-Spline Mesh relation
             moris::Cell< Bspline_Mesh_Info * > mBsplineMeshInfos;
 
+            // B-spline mesh index with the coarsest B-spline element containing a given base IP cell
+            moris::Cell< moris_index > mCoarsestBsplineMesh; // input: base IP cell index || output: coarsest B-spline mesh
+            
+            // union multisets of void MSD indices for each Lagrange element
+            // input: Lagrange/ base IP cell index || ouptput: Union multiset of MSD indices for that base IP cell
+            moris::Cell< moris::Cell< moris_index > > mUnionMsdInidices;
+
             // subphase groupings
             moris::Cell< moris_index >                      mSubPhaseIds;           // input: sub-phase index || output: global sub-phase ID
             moris::Cell< std::shared_ptr< IG_Cell_Group > > mSubPhaseCellGroups;    // input: sub-phase index || output: pointer to IG-Cell group on which subphase lives
@@ -551,6 +558,11 @@ namespace xtk
             get_num_entities(
                     enum EntityRank   aEntityRank,
                     const moris_index aIndex ) const;
+
+            // ----------------------------------------------------------------------------------
+
+            uint
+            get_num_base_ip_cells() const;
 
             // ----------------------------------------------------------------------------------
 
@@ -1037,6 +1049,18 @@ namespace xtk
 
             Cell_Connectivity
             get_background_cell_connectivity( moris_index aBGCellIndex ) const;
+
+            // ----------------------------------------------------------------------------------
+
+            /**
+             * @brief Get the B-spline mesh index with the coarsest B-spline element 
+             * which contains the requested base IP cell
+             * 
+             * @param aBaseIpCellIndex 
+             * @return moris_index 
+             */
+            moris_index
+            get_coarsest_bspline_mesh_index_on_base_ip_cell( moris_index aBaseIpCellIndex ) const;
 
             // ----------------------------------------------------------------------------------
 

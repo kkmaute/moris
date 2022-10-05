@@ -223,6 +223,22 @@ namespace xtk
         // SP to SPG map
         // input: SP index || output: index of SPG the SP belongs to
         moris::Cell< moris_index > mSpToSpgMap;
+        
+        // store which Subphase groups are material and void wrt. to each extraction Cell
+        // input: extraction cell index || output: list of material/void SPGs associated with the extraction cell
+        moris::Cell< moris::Cell< moris_index > > mExtractionCellMaterialSpgs;
+        moris::Cell< moris::Cell< moris_index > > mExtractionCellVoidSpgs;
+
+        // Note: Definition: MSD index 
+        // Note: index of the material sub-domain wrt. to the coarsest B-spline element containing a given extraction cell
+
+        // input: extraction cell index || output: MSD indcices of the void SPGs associated with the extraction cell
+        moris::Cell< moris::Cell< moris_index > > mExtractionCellVoidMsdIndices;
+        moris::Cell< moris::Cell< moris_index > > mExtractionCellFreeVoidMsdIndices;
+
+        // material sub-domain indices associated with the SPGs on this B-spline mesh
+        moris::Cell< moris_index > mSpgSubdomainIndex; // input: SPG index || output: B-spline element local SPG index of the SPG on the coarsest B-spline mesh which contains the SPG index input
+
 
         // ----------------------------------------------------------------------------------
 
@@ -262,6 +278,14 @@ namespace xtk
         get_num_Bspline_cells() const
         {
             return mExtractionCellsInBsplineCells.size();
+        }
+
+        // ----------------------------------------------------------------------------------
+
+        const moris::Cell< moris_index >&
+        get_extraction_cell_indices_in_Bspline_cell( const moris_index aBsplineCellIndex ) const
+        {
+            return mExtractionCellsIndicesInBsplineCells( aBsplineCellIndex );
         }
 
         // ----------------------------------------------------------------------------------
@@ -320,6 +344,30 @@ namespace xtk
 
         // ----------------------------------------------------------------------------------
 
+        moris::Cell< const Subphase_Group* > const
+        get_SPGs_in_Bspline_cell( moris_index aBsplineCellIndex ) const
+        {
+            // check input
+            MORIS_ASSERT( (uint) aBsplineCellIndex < mExtractionCellsIndicesInBsplineCells.size(), 
+                "Bspline_Mesh_Info::get_SPGs_in_Bspline_cell() - aBsplineCellIndex out of bounds" );
+
+            // initialize list of SPGs on the requested B-spline cell
+            moris::Cell< moris_index > const& tSpgsIndicesInBspCell = this->get_SPG_indices_in_bspline_cell( aBsplineCellIndex );
+            uint tNumSpgsInBspCell = tSpgsIndicesInBspCell.size();
+            moris::Cell< const Subphase_Group* > tSpgsInBspCell( tNumSpgsInBspCell );
+
+            // fill the list
+            for( uint iSPG = 0; iSPG < tNumSpgsInBspCell; iSPG++ )
+            {
+                moris_index tSpgIndex = tSpgsIndicesInBspCell( iSPG );
+                tSpgsInBspCell( iSPG ) = mSubphaseGroups( tSpgIndex );
+            }
+
+            return tSpgsInBspCell;
+        }
+
+        // ----------------------------------------------------------------------------------
+
         moris_index
         get_local_SPG_index( moris_index aSpgIndex ) const
         {
@@ -348,6 +396,30 @@ namespace xtk
 
             // get and return the number of SPGs in the B-spline cell
             return mSpgIndicesInBsplineCells( tBsplineCellIndex );
+        }
+
+        // ----------------------------------------------------------------------------------
+
+        const uint
+        get_B_spline_refinement_level_for_SPG( const moris_index aSpgIndex ) const
+        {
+            // get the B-spline element corresponding to the SPG
+            moris_index tBsplineElementIndex = mSubphaseGroups( aSpgIndex )->get_bspline_cell_index();
+
+            // return the B-spline element's refinement level
+            return mBsplineCellLevels( tBsplineElementIndex );
+        }
+
+        // ----------------------------------------------------------------------------------
+
+        const uint
+        get_B_spline_refinement_level_for_extraction_cell( moris_index aExtractionCellIndex ) const
+        {
+            // get the underlying B-spline cell's index
+            moris_index tBsplineElementIndex = mExtractionCellToBsplineCell( aExtractionCellIndex );
+
+            // return the B-spline element's refinement level
+            return mBsplineCellLevels( tBsplineElementIndex );
         }
 
         // ----------------------------------------------------------------------------------
