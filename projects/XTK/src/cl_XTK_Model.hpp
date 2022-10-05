@@ -99,6 +99,7 @@ namespace xtk
         Cell< Enriched_Interpolation_Mesh* >    mEnrichedInterpMesh;
         Cell< Enriched_Integration_Mesh* >      mEnrichedIntegMesh;
         std::shared_ptr< xtk::Multigrid >       mMultigrid;
+        Matrix< IndexMat >                      mBsplineMeshIndices;
 
         //--------------------------------------------------------------------------------
 
@@ -393,6 +394,11 @@ namespace xtk
              */
             moris::ge::Geometry_Engine*
             get_geom_engine();
+
+            // ----------------------------------------------------------------------------------
+
+            moris::Matrix< IndexMat > 
+            get_Bspline_mesh_indices() const;
 
             // ----------------------------------------------------------------------------------
             // Outputting functions

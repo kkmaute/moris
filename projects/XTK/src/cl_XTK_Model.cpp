@@ -221,6 +221,9 @@ namespace xtk
             mTriangulateAllInPost = mParameterList.get< bool >( "triangulate_all_in_post" );
             mIgElementOrder = mParameterList.get< moris::uint >( "ig_element_order" );
 
+            // get and store indices of B-spline meshes wrt. which information needs to be constructed
+            moris::string_to_mat( mParameterList.get< std::string >( "enrich_mesh_indices" ), mBsplineMeshIndices );
+
             // if ( mParameterList.get< bool >( "cleanup_cut_mesh" ) )
             // {
             //     mCleanupMesh = true;
@@ -265,15 +268,11 @@ namespace xtk
             // determines which basis functions to perform enrichment on 
             enum EntityRank tBasisRank = get_entity_rank_from_str( mParameterList.get< std::string >( "basis_rank" ) );
 
-            // get index of B-spline meshes to be enriched from parameter list
-            Matrix< IndexMat > tBsplineMeshIndices;
-            moris::string_to_mat( mParameterList.get< std::string >( "enrich_mesh_indices" ), tBsplineMeshIndices );
-
             // get flag whether basis enrichments need to be sorted
             bool tSortBasisEnrichmentLevels = mParameterList.get< bool >( "sort_basis_enrichment_levels" );
 
             // perform the enrichment
-            this->perform_basis_enrichment( tBasisRank, tBsplineMeshIndices, tSortBasisEnrichmentLevels, this->uses_SPG_based_enrichment() );
+            this->perform_basis_enrichment( tBasisRank, mBsplineMeshIndices, tSortBasisEnrichmentLevels, this->uses_SPG_based_enrichment() );
 
             // if high to low double side sets need to be created
             if ( mParameterList.get< bool >( "high_to_low_dbl_side_sets" ) )
@@ -1245,13 +1244,11 @@ namespace xtk
             mtk::Cell                   &tCell       = mBackgroundMesh->get_mtk_cell( tIndex );
             Matrix< IndexMat >           tVertexIds  = tCell.get_vertex_ids();
             moris::Cell< mtk::Vertex * > tVertexPtrs = tCell.get_vertex_pointers();
-            Matrix< IndexMat >           tVertexOwner( 1, tVertexPtrs.size() );
 
             MORIS_LOG_SPEC( "Cell Id", tBGCellIds( i ) );
             MORIS_LOG_SPEC( "Cell Index", tIndex );
             MORIS_LOG_SPEC( "Cell Owner", tCell.get_owner() );
             MORIS_LOG_SPEC( "Vertex Ids", ios::stringify_log( tVertexIds ) );
-            MORIS_LOG_SPEC( "Vertex Owners", ios::stringify_log( tVertexOwner ) );
 
             // collect geometric info
             uint                     tNumGeom = mGeometryEngine->get_num_geometries();
@@ -1449,6 +1446,16 @@ namespace xtk
         return mGeometryEngine;
     }
 
+    // ----------------------------------------------------------------------------------
+
+    moris::Matrix< IndexMat > 
+    Model::get_Bspline_mesh_indices() const
+    {
+        return mBsplineMeshIndices;
+    }
+
+    // ----------------------------------------------------------------------------------
+    
     bool
     Model::subphase_is_in_child_mesh( moris_index aSubphaseIndex )
     {
