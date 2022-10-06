@@ -45,12 +45,6 @@ namespace moris
 
         // ----------------------------------------------------------------------------
 
-        Mesh_Core_STK::~Mesh_Core_STK()
-        {
-        }
-
-        // ----------------------------------------------------------------------------
-
         Mesh_Core_STK::Mesh_Core_STK(
                 std::string  aFileName,
                 MtkMeshData* aSupMeshData,
@@ -65,6 +59,12 @@ namespace moris
         Mesh_Core_STK::Mesh_Core_STK(
                 std::shared_ptr< Mesh_Data_STK > aSTKMeshData )
                 : mSTKMeshData( aSTKMeshData )
+        {
+        }
+
+        // ----------------------------------------------------------------------------
+
+        Mesh_Core_STK::~Mesh_Core_STK()
         {
         }
 

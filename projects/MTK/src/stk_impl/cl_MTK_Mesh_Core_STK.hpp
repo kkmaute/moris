@@ -67,10 +67,6 @@ namespace moris
             //##############################################
             // Build mesh functionality
             //##############################################
-            /**
-             * STK destructor.
-             */
-            ~Mesh_Core_STK();
 
             //------------------------------------------------------------------------------
 
@@ -99,20 +95,6 @@ namespace moris
             //------------------------------------------------------------------------------
 
             /**
-             * Create stk mesh with information given by the user.
-             *
-             * @param[in] aFileName   .................   String with mesh file name.
-             *
-             */
-            void
-            build_mesh(
-                    std::string  aFileName,
-                    MtkMeshData* aSuppMeshData,
-                    const bool   aCreateFacesAndEdges = true );
-
-            //------------------------------------------------------------------------------
-
-            /**
              * Create a MORIS mesh with information given by the user.
              *
              * @param[in] aMeshData   .................   struct with the following mesh information
@@ -129,6 +111,27 @@ namespace moris
              *
              */
             Mesh_Core_STK( MtkMeshData& aMeshData );
+
+            //------------------------------------------------------------------------------
+
+            /**
+             * destructor.
+             */
+            virtual ~Mesh_Core_STK();
+
+            //------------------------------------------------------------------------------
+
+            /**
+             * Create stk mesh with information given by the user.
+             *
+             * @param[in] aFileName   .................   String with mesh file name.
+             *
+             */
+            void
+            build_mesh(
+                    std::string  aFileName,
+                    MtkMeshData* aSuppMeshData,
+                    const bool   aCreateFacesAndEdges = true );
 
             //------------------------------------------------------------------------------
 
@@ -1130,4 +1133,3 @@ namespace moris
 }    // namespace moris
 
 #endif /* PROJECTS_MTK_SRC_STK_IMPL_CL_MTK_MESH_CORE_STK_HPP_ */
-
