@@ -34,7 +34,7 @@
 
 * set workspace; change directory name as needed
 
-setenv WORKSPACE $HOME/tmp
+setenv WORKSPACE $HOME/codes
 
 *------------------------------------------------------------
 
@@ -122,33 +122,23 @@ spack add moris
 
 spack develop --path $WORKSPACE/moris moris@main
 
+spack add openblas
+
 spack concretize -f
 
 *------------------------------------------------------------
 
-* install moris - by default in debug version
+* install moris dependencies - by default in debug version
 
-spack install moris
+spack install --only dependencies moris
 
-*------------------------------------------------------------
-
-* if build was successful, remove build directory and spack build log files
-
-cd moris 
-rm -r `find . -type d -name "spack-build*"`
-rm spack-build*txt
-
-*------------------------------------------------------------
-*
-* for moris developers
+spack install openblas
 *
 *------------------------------------------------------------
 
 * create the following resource file and source it as part of your .cshrc
 
-rm $HOME/.cshrc_moris
-
-sh moris/share/spack/make_moris_cshrc.sh
+tcsh $WORKSPACE/moris/share/spack/make_moris_cshrc.sh
         
 *------------------------------------------------------------
 *
@@ -163,6 +153,7 @@ source $HOME/.cshrc_moris
 *------------------------------------------------------------
 
 * build moris optimized version and run tests
+* you may have to set the compilers manually (CC,CXX,F77,FC)
 
 cd $WORKSPACE/moris
 
