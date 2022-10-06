@@ -79,10 +79,15 @@ namespace moris
                  * @param[ in ] adQIdu   derivative of quantity of interest matrix to fill
                  */
                 void compute_dQIdu(
-                        moris::Cell< MSI::Dof_Type > & aDofType,
-                        Matrix< DDRMat >             & adQIdu );
+                        moris::Cell< MSI::Dof_Type >& aDofType,
+                        Matrix< DDRMat >&             adQIdu );
 
                 //------------------------------------------------------------------------------
+                /**
+                 * @brief checks if the gauss point location lies with the box bounds specified in input(mParameters)
+                 *
+                 */
+                bool is_within_box_bounds();
         };
     }/* end namespace fem */
 } /* end namespace moris */
