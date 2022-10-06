@@ -93,6 +93,12 @@ namespace moris
                         Matrix< DDRMat >             & adQIdu );
 
                 //------------------------------------------------------------------------------
+
+                /**
+                 * @brief checks if the gauss point location lies with the box bounds specified in input(mParameters)
+                 * 
+                 */
+                bool is_within_box_bounds();
         };
     }/* end namespace fem */
 } /* end namespace moris */
