@@ -23,6 +23,12 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        Field_Analytic::~Field_Analytic()
+        {
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         real
         Field_Analytic::get_field_value(
                 uint                    aNodeIndex,
@@ -56,4 +62,3 @@ namespace moris
 
     }    // namespace ge
 }    // namespace moris
-

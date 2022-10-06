@@ -24,21 +24,20 @@ namespace moris
         class Field : public mtk::Field
         {
 
-        protected:
-            Cell<real*>    mFieldVariables;
-            Matrix<DDRMat> mSensitivities;
+          protected:
+            Cell< real* >    mFieldVariables;
+            Matrix< DDRMat > mSensitivities;
 
             uint mNumOriginalNodes;
 
-        private:
-            Matrix<DDRMat>    mConstants;
+          private:
+            Matrix< DDRMat >  mConstants;
             Field_Parameters  mParameters;
-            Matrix<DDSMat>    mDeterminingADVIds;
+            Matrix< DDSMat >  mDeterminingADVIds;
             bool              mDependsOnADVs;
             sol::Dist_Vector* mSharedADVs = nullptr;
 
-        protected:
-
+          protected:
             /**
              * Constructor, sets the field variable pointers to ADVs and constant parameters for evaluations.
              *
@@ -49,12 +48,12 @@ namespace moris
              * @param aConstants The constant field variables not filled by ADVs
              * @param aParameters Additional parameters
              */
-            template <typename Vector_Type>
-            Field(Vector_Type&     aADVs,
-                  Matrix<DDUMat>   aFieldVariableIndices,
-                  Matrix<DDUMat>   aADVIndices,
-                  Matrix<DDRMat>   aConstants,
-                  Field_Parameters aParameters);
+            template< typename Vector_Type >
+            Field( Vector_Type&      aADVs,
+                    Matrix< DDUMat > aFieldVariableIndices,
+                    Matrix< DDUMat > aADVIndices,
+                    Matrix< DDRMat > aConstants,
+                    Field_Parameters aParameters );
 
             /**
              * Constructor, sets all field variables as consecutive ADVs. A reference field is given for parameters.
@@ -63,10 +62,10 @@ namespace moris
              * @param aSharedADVIds Shared ADV IDs needed for this field
              * @param aField Reference field
              */
-            Field(const Matrix<DDUMat>&  aFieldVariableIndices,
-                  const Matrix<DDSMat>&  aSharedADVIds,
-                  mtk::Mesh_Pair         aMeshPair,
-                  std::shared_ptr<Field> aField);
+            Field( const Matrix< DDUMat >&   aFieldVariableIndices,
+                    const Matrix< DDSMat >&  aSharedADVIds,
+                    mtk::Mesh_Pair           aMeshPair,
+                    std::shared_ptr< Field > aField );
 
             /**
              * Constructor using only constants (no ADVs).
@@ -74,15 +73,15 @@ namespace moris
              * @param aConstants The parameters that define this field
              * @param aParameters Additional parameters
              */
-            Field(Matrix<DDRMat>   aConstants,
-                  Field_Parameters aParameters);
+            Field( Matrix< DDRMat >  aConstants,
+                    Field_Parameters aParameters );
 
             /**
              * Copy constructor from a shared pointer.
              *
              * @param aField Field being copied
              */
-            Field(std::shared_ptr<Field> aField);
+            Field( std::shared_ptr< Field > aField );
 
             /**
              * Default constructor
@@ -91,12 +90,11 @@ namespace moris
              */
             Field();
 
-        public:
-
+          public:
             /**
              * Destructor
              */
-            ~Field();
+            virtual ~Field();
 
             /**
              * Given a node index or coordinate, returns the field value.
@@ -106,8 +104,8 @@ namespace moris
              * @return Field value
              */
             virtual real get_field_value(
-                    uint                  aNodeIndex,
-                    const Matrix<DDRMat>& aCoordinates) = 0;
+                    uint                    aNodeIndex,
+                    const Matrix< DDRMat >& aCoordinates ) = 0;
 
             /**
              * Given a node index or coordinates, returns a vector of the field derivatives with respect to its ADVs.
@@ -116,9 +114,9 @@ namespace moris
              * @param aCoordinates Vector of coordinate values
              * @return d(field value)/d(ADV_j)
              */
-            virtual const Matrix<DDRMat>& get_dfield_dadvs(
-                    uint                  aNodeIndex,
-                    const Matrix<DDRMat>& aCoordinates) = 0;
+            virtual const Matrix< DDRMat >& get_dfield_dadvs(
+                    uint                    aNodeIndex,
+                    const Matrix< DDRMat >& aCoordinates ) = 0;
 
             /**
              * Given a node index or coordinates, returns a vector of the field derivatives with respect to the nodal
@@ -129,9 +127,9 @@ namespace moris
              * @param aSensitivities Sensitivities to be filled with d(field value)/d(coordinate_j)
              */
             virtual void get_dfield_dcoordinates(
-                    uint                  aNodeIndex,
-                    const Matrix<DDRMat>& aCoordinates,
-                    Matrix<DDRMat>&       aSensitivities) = 0;
+                    uint                    aNodeIndex,
+                    const Matrix< DDRMat >& aCoordinates,
+                    Matrix< DDRMat >&       aSensitivities ) = 0;
 
             /**
              * Sets the ADVs and grabs the field variables needed from the ADV vector
@@ -139,15 +137,15 @@ namespace moris
              * @tparam Vector_Type Type of vector where ADVs are stored
              * @param aADVs ADVs
              */
-            template <typename Vector_Type>
-            void set_advs(Vector_Type& aADVs);
+            template< typename Vector_Type >
+            void set_advs( Vector_Type& aADVs );
 
             /**
              * Imports the local ADVs required from the full owned ADV distributed vector.
              *
              * @param aOwnedADVs Full owned distributed ADV vector
              */
-            virtual void import_advs(sol::Dist_Vector* aOwnedADVs);
+            virtual void import_advs( sol::Dist_Vector* aOwnedADVs );
 
             /**
              * Add a new child node for evaluation, implemented for discrete integration fields.
@@ -156,8 +154,8 @@ namespace moris
              * @param aChildNode Contains information about how the child node was created
              */
             virtual void add_child_node(
-                    uint                        aNodeIndex,
-                    std::shared_ptr<Child_Node> aChildNode);
+                    uint                          aNodeIndex,
+                    std::shared_ptr< Child_Node > aChildNode );
 
             /**
              * In relevant derived classes, uses additional information from the given interpolation mesh to define
@@ -165,7 +163,7 @@ namespace moris
              *
              * @param aMesh Interpolation mesh with additional nodes
              */
-            virtual void add_nodal_data(mtk::Interpolation_Mesh* aMesh);
+            virtual void add_nodal_data( mtk::Interpolation_Mesh* aMesh );
 
             /**
              * Resets all nodal information, including child nodes. This should be called when a new XTK mesh is being
@@ -194,9 +192,9 @@ namespace moris
              * @param aCoordinates Node coordinates
              * @return Determining ADV IDs at this node
              */
-            virtual Matrix<DDSMat> get_determining_adv_ids(
-                    uint                  aNodeIndex,
-                    const Matrix<DDRMat>& aCoordinates);
+            virtual Matrix< DDSMat > get_determining_adv_ids(
+                    uint                    aNodeIndex,
+                    const Matrix< DDRMat >& aCoordinates );
 
             /**
              * If this field depends on ADVs
@@ -218,9 +216,9 @@ namespace moris
              *
              * @return if to perform an additional refinement with this field
              */
-            const Matrix< DDSMat > & get_num_refinements();
+            const Matrix< DDSMat >& get_num_refinements();
 
-            const Matrix< DDSMat > & get_refinement_mesh_indices();
+            const Matrix< DDSMat >& get_refinement_mesh_indices();
 
             /**
              * Gets the index of a user-defined refinement function used within HMR.
@@ -268,8 +266,7 @@ namespace moris
 
             void set_num_original_nodes( uint aNumOriginalNodes );
 
-        private:
-
+          private:
             /**
              * Checks variable inputs and resizes the internal field variables based these inputs.
              *
@@ -277,17 +274,15 @@ namespace moris
              * @param aADVIndices The indices of the ADV vector to fill in the Field variables
              */
             void assign_adv_dependencies(
-                    Matrix<DDUMat> aFieldVariableIndices,
-                    Matrix<DDUMat> aADVIndices);
+                    Matrix< DDUMat > aFieldVariableIndices,
+                    Matrix< DDUMat > aADVIndices );
 
             /**
              * Fills the remaining field variables with constant parameters.
              */
             void fill_constant_parameters();
-
         };
-    }
-}
+    }    // namespace ge
+}    // namespace moris
 
-#endif //MORIS_CL_GEN_Field_HPP
-
+#endif    // MORIS_CL_GEN_Field_HPP

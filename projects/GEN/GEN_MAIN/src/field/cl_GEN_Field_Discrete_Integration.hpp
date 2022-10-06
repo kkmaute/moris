@@ -20,20 +20,23 @@ namespace moris
         class Field_Discrete_Integration : virtual public Field
         {
 
-        private:
-            Cell<std::shared_ptr<Child_Node>> mChildNodes;
+          private:
+            Cell< std::shared_ptr< Child_Node > > mChildNodes;
 
-        public:
-
+          public:
             /**
              * Constructor
              *
              * @param aNumOriginalNodes Number of original nodes on the base integration mesh
              */
-            Field_Discrete_Integration(uint aNumOriginalNodes);
+            Field_Discrete_Integration( uint aNumOriginalNodes );
 
-            Field_Discrete_Integration()
-            {};
+            Field_Discrete_Integration(){};
+
+            /**
+             * Destructor
+             */
+            virtual ~Field_Discrete_Integration(){};
 
             /**
              * Given a node index or coordinate, returns the field value.
@@ -43,8 +46,8 @@ namespace moris
              * @return Field value
              */
             real get_field_value(
-                    uint                  aNodeIndex,
-                    const Matrix<DDRMat>& aCoordinates);
+                    uint                    aNodeIndex,
+                    const Matrix< DDRMat >& aCoordinates );
 
             /**
              * Given a node index, returns the field value
@@ -52,7 +55,7 @@ namespace moris
              * @param aNodeIndex Node index
              * @return Field value
              */
-            virtual real get_field_value(uint aNodeIndex) = 0;
+            virtual real get_field_value( uint aNodeIndex ) = 0;
 
             /**
              * Given a node index or coordinate, returns a matrix all sensitivities.
@@ -61,9 +64,9 @@ namespace moris
              * @param aCoordinates Vector of coordinate values
              * @return Vector of sensitivities
              */
-            const Matrix<DDRMat>& get_dfield_dadvs(
-                    uint                  aNodeIndex,
-                    const Matrix<DDRMat>& aCoordinates);
+            const Matrix< DDRMat >& get_dfield_dadvs(
+                    uint                    aNodeIndex,
+                    const Matrix< DDRMat >& aCoordinates );
 
             /**
              * Given a node index, returns a vector of the field derivatives with respect to its ADVs.
@@ -71,7 +74,7 @@ namespace moris
              * @param aNodeIndex Node index
              * @return Vector of sensitivities
              */
-            virtual const Matrix<DDRMat>& get_dfield_dadvs(uint aNodeIndex) = 0;
+            virtual const Matrix< DDRMat >& get_dfield_dadvs( uint aNodeIndex ) = 0;
 
             /**
              * Gets the IDs of ADVs which this field depends on for evaluations, including child nodes.
@@ -80,9 +83,9 @@ namespace moris
              * @param aCoordinates Node coordinates
              * @return Determining ADV IDs at this node
              */
-            Matrix<DDSMat> get_determining_adv_ids(
-                    uint                  aNodeIndex,
-                    const Matrix<DDRMat>& aCoordinates);
+            Matrix< DDSMat > get_determining_adv_ids(
+                    uint                    aNodeIndex,
+                    const Matrix< DDRMat >& aCoordinates );
 
             /**
              * Gets the IDs of ADVs which this field depends on for evaluations for non-child nodes.
@@ -90,7 +93,7 @@ namespace moris
              * @param aNodeIndex Node index
              * @return Determining ADV IDs at this node
              */
-            virtual Matrix<DDSMat> get_determining_adv_ids(uint aNodeIndex);
+            virtual Matrix< DDSMat > get_determining_adv_ids( uint aNodeIndex );
 
             /**
              * Given a node index or coordinates, returns a vector of the field derivatives with respect to the nodal
@@ -101,9 +104,9 @@ namespace moris
              * @param aSensitivities Sensitivities to be filled with d(field value)/d(coordinate_j)
              */
             void get_dfield_dcoordinates(
-                    uint                  aNodeIndex,
-                    const Matrix<DDRMat>& aCoordinates,
-                    Matrix<DDRMat>&       aSensitivities);
+                    uint                    aNodeIndex,
+                    const Matrix< DDRMat >& aCoordinates,
+                    Matrix< DDRMat >&       aSensitivities );
 
             /**
              * Add a new child node for evaluation.
@@ -111,16 +114,14 @@ namespace moris
              * @param aNodeIndex Index of the child node
              * @param aChildNode Contains information about how the child node was created
              */
-            void add_child_node(uint aNodeIndex, std::shared_ptr<Child_Node> aChildNode);
+            void add_child_node( uint aNodeIndex, std::shared_ptr< Child_Node > aChildNode );
 
             /**
              * Resets all child nodes, called when a new XTK mesh is being created.
              */
             void reset_nodal_data();
-
         };
-    }
-}
+    }    // namespace ge
+}    // namespace moris
 
-#endif //MORIS_CL_GEN_FIELD_DISCRETE_INTEGRATION_HPP
-
+#endif    // MORIS_CL_GEN_FIELD_DISCRETE_INTEGRATION_HPP
