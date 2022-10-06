@@ -981,9 +981,6 @@ namespace moris::mig
         uint tNumVertices            = 0;
         uint tNumDoubleSidedClusters = 0;
 
-        // initialize the counter
-        uint iCounter = 0;
-
         // loop over the pairs to detmine the sizes
         for ( uint tPairCount = 0; tPairCount < mMeshSideSetPairs.size(); tPairCount++ )
         {
@@ -1039,12 +1036,12 @@ namespace moris::mig
             this->generate_identifier( tSideClusters1, tPairCount, mBackgroundCellToSideClusterMap1( tPairCount ) );
             this->generate_identifier( tSideClusters2, tPairCount, mBackgroundCellToSideClusterMap2( tPairCount ) );
 
-            for ( const auto & tKeyValue : mBackgroundCellToSideClusterMap1( iCounter ) )
+            for ( const auto & tKeyValue : mBackgroundCellToSideClusterMap1( tPairCount ) )
             {
                 auto iIJK = tKeyValue.first;
                 auto iClusterIndices = tKeyValue.second;
 
-                tNumDoubleSidedClusters += iClusterIndices.size() * mBackgroundCellToSideClusterMap2( iCounter )[iIJK].size();
+                tNumDoubleSidedClusters += iClusterIndices.size() * mBackgroundCellToSideClusterMap2( tPairCount )[iIJK].size();
             }
 
             uint tNumVertices1 = 0;
