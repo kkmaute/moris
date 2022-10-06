@@ -469,211 +469,78 @@ namespace moris
             Cell< Matrix< T > > & aCellMat )
     {
         // if non-empty string
-        if( aString.size() > 0 )
+        if ( aString.size() > 0 )
         {
+            // get the string to stream over
+            std::istringstream tStringStream( aString );
+
             // get number of cells
-            uint tCellCount = std::count( aString.begin(), aString.end(), '/') + 1;
+            uint tCellCount = std::count( aString.begin(), aString.end(), '/' ) + 1;
 
-            // set size for the list
+            // set size for the list and initialize a counter
             aCellMat.resize( tCellCount );
+            uint iCellCounter = 0;
 
-            // get the string
-            std::string tString( aString );
+            // initialize a string for individual matrices
+            std::string tMatrixString;
 
-            // init cell count
-            uint tCount = 0;
+            // initialize the value that will be inserted as the entries of the matrix
+            real tValue;
 
-            // set global reading position
-            size_t tPos = 0;
-
-            // not last cell
-            bool tBool = true;
-
-            // while not last cell
-            while( tBool )
+            // loop ove the individual cells
+            while ( std::getline( tStringStream, tMatrixString, '/' ) )
             {
-                // find end of first matrix
-                tPos = tString.find( "/" );
+                // get the matrix string to stream over
+                std::istringstream tMatrixStringStream( tMatrixString );
 
-                // if end of string
-                if( tPos == std::string::npos )
+
+                // set the size of the matrix
+                uint tNumRows = std::count( tMatrixString.begin(), tMatrixString.end(), ';' ) + 1;
+                uint tNumCols = std::count( tMatrixString.begin(), tMatrixString.end(), ',' ) + 1;
+                aCellMat( iCellCounter ).set_size( tNumRows, tNumCols );
+
+                // row  and column counter
+                uint iRow = 0;
+                uint iCol = 0;
+
+                // string to traverse through each row
+                std::string tRowString;
+
+                // loop over the rows of the matrix
+                while ( std::getline( tMatrixStringStream, tRowString, ';' ) )
                 {
-                    // last cell
-                    tBool = false;
-                }
+                    // convert row string to streamable string
+                    std::istringstream tRowStringStream( tRowString );
 
-                // set local reading position
-                size_t tPosSubString = 0;
+                    // initialize a rwo string to store the values
+                    std::string tColString;
 
-                // set row counter
-                uint tCount1 = 0;
+                    //reset the column counter
+                    iCol = 0 ;
 
-                // if not last cell
-                if( tBool )
-                {
-                    // get string for matrix
-                    std::string tStringMat =  tString.substr( 0, tPos );
-
-                    // get number of row
-                    uint tCountRow = std::count( tStringMat.begin(), tStringMat.end(), ';') + 1;
-
-                    // get first row
-                    std::string tStringFirstRow = tString.substr( 0, tStringMat.find( ";" ) );
-
-                    // get number of cols
-                    uint tCountCol = std::count( tStringFirstRow.begin(), tStringFirstRow.end(), ',') + 1;
-
-                    // set matrix size
-                    aCellMat( tCount ).set_size( tCountRow, tCountCol );
-
-                    // not last row
-                    bool tBoolMat = true;
-
-                    while( tBoolMat )
-                    {
-                        // find end of first row
-                        tPosSubString = tStringMat.find( ";" );
-
-                        // if end of mat string
-                        if( tPosSubString == std::string::npos )
+                    // loop over the columns of each row
+                    while ( std::getline( tRowStringStream, tColString, ',' ) )
+                    {   
+                        //stream the value into a real value
+                        std::istringstream tColStringStream ( tColString );
+                        if (  tColStringStream >> tValue )
                         {
-                            // last row
-                            tBoolMat = false;
+                            //store the value
+                            aCellMat( iCellCounter )( iRow , iCol++ ) = tValue;
                         }
-
-                        // set local reading position
-                        size_t tPosSubSubString = 0;
-
-                        // set col counter
-                        uint tCount2 = 0;
-
-                        if( tBoolMat )
-                        {
-                            // get string for row
-                            std::string tStringRow =  tStringMat.substr( 0, tPosSubString );
-
-                            while( tPosSubSubString < tStringRow.size() )
-                            {
-                                // find string
-                                tPosSubSubString = tStringRow.find( "," );
-
-                                // copy value into output matrix
-                                if( tPosSubSubString < tStringRow.size() )
-                                {
-                                    aCellMat( tCount )( tCount1, tCount2++ ) = stod( tStringRow.substr( 0, tPosSubSubString ) );
-                                    tStringRow =  tStringRow.substr( tPosSubSubString+1, tStringRow.size() );
-                                }
-                            }
-                            // copy value into output matrix
-                            aCellMat( tCount )( tCount1, tCount2++ ) = stod( tStringRow );
-                            tStringMat =  tStringMat.substr( tPosSubString+1, tStringMat.size() );
-                        }
-                        else
-                        {
-                            while( tPosSubSubString < tStringMat.size() )
-                            {
-                                // find string
-                                tPosSubSubString = tStringMat.find( "," );
-
-                                // copy value into output matrix
-                                if( tPosSubSubString < tStringMat.size() )
-                                {
-                                    aCellMat( tCount )( tCount1, tCount2++ ) = stod( tStringMat.substr( 0, tPosSubSubString ) );
-                                    tStringMat =  tStringMat.substr( tPosSubSubString+1, tStringMat.size() );
-                                }
-                            }
-                            // copy value into output matrix
-                            aCellMat( tCount )( tCount1, tCount2++ ) = stod( tStringMat );
-                            tStringMat = tStringMat.substr( tPosSubString+1, tStringMat.size() );
-                        }
-                        tCount1++;
                     }
-                    tString =  tString.substr( tPos+1, tString.size() );
+                    
+                    //increment the row
+                    iRow++;
                 }
-                else
-                {
-                    // get number of row in last matrix
-                    uint tCountRow = std::count( tString.begin(), tString.end(), ';') + 1;
 
-                    // get first row
-                    std::string tStringFirstRow = tString.substr( 0, tString.find( ";" ) );
+                //resize the matrix to correct size
+                aCellMat( iCellCounter ).resize( iRow, iCol );
 
-                    // get number of cols
-                    uint tCountCol = std::count( tStringFirstRow.begin(), tStringFirstRow.end(), ',') + 1;
-
-                    // set matrix size
-                    aCellMat( tCount ).set_size( tCountRow, tCountCol );
-
-                    // not last row
-                    bool tBoolMat = true;
-
-                    while( tBoolMat )
-                    {
-                        // find end of first row
-                        tPosSubString = tString.find( ";" );
-
-                        // if end of mat string
-                        if( tPosSubString == std::string::npos )
-                        {
-                            // last row
-                            tBoolMat = false;
-                        }
-
-                        // set local reading position
-                        size_t tPosSubSubString = 0;
-
-                        // set col counter
-                        uint tCount2 = 0;
-
-                        if( tBoolMat )
-                        {
-                            // get string for row
-                            std::string tStringRow =  tString.substr( 0, tPosSubString );
-
-                            while( tPosSubSubString < tStringRow.size() )
-                            {
-                                // find string
-                                tPosSubSubString = tStringRow.find( "," );
-
-                                // copy value into output matrix
-                                if( tPosSubSubString < tStringRow.size() )
-                                {
-                                    aCellMat( tCount )( tCount1, tCount2++ ) = stod( tStringRow.substr( 0, tPosSubSubString ) );
-                                    tStringRow =  tStringRow.substr( tPosSubSubString+1, tStringRow.size() );
-                                }
-                            }
-                            // copy value into output matrix
-                            aCellMat( tCount )( tCount1, tCount2++ ) = stod( tStringRow );
-                            tString =  tString.substr( tPosSubString+1, tString.size() );
-                        }
-                        else
-                        {
-                            while( tPosSubSubString < tString.size() )
-                            {
-                                // find string
-                                tPosSubSubString = tString.find( "," );
-
-                                // copy value into output matrix
-                                if( tPosSubSubString < tString.size() )
-                                {
-                                    aCellMat( tCount )( tCount1, tCount2++ ) = stod( tString.substr( 0, tPosSubSubString ) );
-                                    tString =  tString.substr( tPosSubSubString+1, tString.size() );
-                                }
-                            }
-                            // copy value into output matrix
-                            aCellMat( tCount )( tCount1, tCount2++ ) = stod( tString );
-                        }
-                        tCount1++;
-                    }
-                }
-                tCount++;
+                //increment the cell counter
+                iCellCounter++;
             }
         }
-        //    // if empty string
-        //    else
-        //    {
-        //        aCellMat( 0 );
-        //    }
     }
 
     // -----------------------------------------------------------------------------
