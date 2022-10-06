@@ -380,7 +380,7 @@ if (MORIS_USE_INTEL)
    
 else(MORIS_USE_INTEL)
       
-   find_library(MORIS_LIB_GFortran NAMES libgfortran.so.5 libgfortran.so.4 HINTS${LIB_SEARCH_PATH} )
+   find_library(MORIS_LIB_GFortran NAMES libgfortran.so.5 HINTS${LIB_SEARCH_PATH} )
    message(STATUS "MORIS_LIB_GFortran = ${MORIS_LIB_GFortran}")
    link_libraries(${MORIS_LIB_GFortran})
    #list(APPEND MORIS_BASE_LIBS ${MORIS_LIB_GFortran})
