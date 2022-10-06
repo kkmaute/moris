@@ -21,20 +21,21 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Interpolation_Mesh* create_interpolation_mesh(
+        Interpolation_Mesh*
+        create_interpolation_mesh(
                 enum MeshType aMeshType,
-                std::string aFileName,
-                MtkMeshData *aSuppMeshData,
-                const bool aCreateFacesAndEdges)
+                std::string   aFileName,
+                MtkMeshData*  aSuppMeshData,
+                const bool    aCreateFacesAndEdges )
         {
             // Mark mesh data as being supplementary to an input file
-            if(aSuppMeshData != nullptr)
+            if ( aSuppMeshData != nullptr )
             {
                 aSuppMeshData->SupplementaryToFile = true;
             }
 
             // Create interpolation mesh
-            switch (aMeshType)
+            switch ( aMeshType )
             {
                 case MeshType::STK:
                 {
@@ -42,7 +43,7 @@ namespace moris
                 }
                 default:
                 {
-                    MORIS_ERROR(false, "Cannot create specified integration mesh type from file.");
+                    MORIS_ERROR( false, "Cannot create specified integration mesh type from file." );
                     return nullptr;
                 }
             }
@@ -50,11 +51,12 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Interpolation_Mesh* create_interpolation_mesh(
+        Interpolation_Mesh*
+        create_interpolation_mesh(
                 enum MeshType aMeshType,
-                MtkMeshData aMeshData)
+                MtkMeshData   aMeshData )
         {
-            switch (aMeshType)
+            switch ( aMeshType )
             {
                 case MeshType::STK:
                 {
@@ -62,7 +64,7 @@ namespace moris
                 }
                 default:
                 {
-                    MORIS_ERROR(false, "Cannot create specified interpolation mesh type with mesh data.");
+                    MORIS_ERROR( false, "Cannot create specified interpolation mesh type with mesh data." );
                     return nullptr;
                 }
             }
@@ -70,20 +72,21 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Integration_Mesh* create_integration_mesh(
+        Integration_Mesh*
+        create_integration_mesh(
                 enum MeshType aMeshType,
-                std::string aFileName,
-                MtkMeshData *aSuppMeshData,
-                const bool aCreateFacesAndEdges)
+                std::string   aFileName,
+                MtkMeshData*  aSuppMeshData,
+                const bool    aCreateFacesAndEdges )
         {
             // Mark mesh data as being supplementary to an input file
-            if (aSuppMeshData != nullptr)
+            if ( aSuppMeshData != nullptr )
             {
                 aSuppMeshData->SupplementaryToFile = true;
             }
 
             // Create integration mesh
-            switch (aMeshType)
+            switch ( aMeshType )
             {
                 case MeshType::STK:
                 {
@@ -91,7 +94,7 @@ namespace moris
                 }
                 default:
                 {
-                    MORIS_ERROR(false, "Cannot create specified integration mesh type from file.");
+                    MORIS_ERROR( false, "Cannot create specified integration mesh type from file." );
                     return nullptr;
                 }
             }
@@ -99,11 +102,12 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Integration_Mesh* create_integration_mesh(
+        Integration_Mesh*
+        create_integration_mesh(
                 enum MeshType aMeshType,
-                MtkMeshData aMeshData)
+                MtkMeshData   aMeshData )
         {
-            switch (aMeshType)
+            switch ( aMeshType )
             {
                 case MeshType::STK:
                 {
@@ -111,7 +115,7 @@ namespace moris
                 }
                 default:
                 {
-                    MORIS_ERROR(false, "Cannot create specified integration mesh type with mesh data.");
+                    MORIS_ERROR( false, "Cannot create specified integration mesh type with mesh data." );
                     return nullptr;
                 }
             }
@@ -119,12 +123,13 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Integration_Mesh* create_integration_mesh(
-                enum MeshType aMeshType,
-                MtkMeshData aMeshData,
-                Interpolation_Mesh *aInterpMesh)
+        Integration_Mesh*
+        create_integration_mesh(
+                enum MeshType       aMeshType,
+                MtkMeshData         aMeshData,
+                Interpolation_Mesh* aInterpMesh )
         {
-            switch (aMeshType)
+            switch ( aMeshType )
             {
                 case MeshType::STK:
                 {
@@ -132,7 +137,7 @@ namespace moris
                 }
                 default:
                 {
-                    MORIS_ERROR(false, "Cannot create specified integration mesh type with mesh data plus an interpolation mesh." );
+                    MORIS_ERROR( false, "Cannot create specified integration mesh type with mesh data plus an interpolation mesh." );
                     return nullptr;
                 }
             }
@@ -140,25 +145,26 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Integration_Mesh* create_integration_mesh_from_interpolation_mesh(
-                enum MeshType aMeshType,
+        Integration_Mesh*
+        create_integration_mesh_from_interpolation_mesh(
+                enum MeshType       aMeshType,
                 Interpolation_Mesh* aInterpMesh,
                 uint                aMeshIndex,
-                Cell_Cluster_Input* aCellClusterData)
+                Cell_Cluster_Input* aCellClusterData )
         {
-            switch (aMeshType)
+            switch ( aMeshType )
             {
                 case MeshType::STK:
                 {
-                    return new Integration_Mesh_STK(*aInterpMesh, aCellClusterData);
+                    return new Integration_Mesh_STK( *aInterpMesh, aCellClusterData );
                 }
                 case MeshType::HMR:
                 {
-                    return new hmr::Integration_Mesh_HMR(aMeshIndex, static_cast<hmr::Interpolation_Mesh_HMR*>(aInterpMesh));
+                    return new hmr::Integration_Mesh_HMR( aMeshIndex, static_cast< hmr::Interpolation_Mesh_HMR* >( aInterpMesh ) );
                 }
                 default:
                 {
-                    MORIS_ERROR(false, "Cannot create specified integration mesh type from an interpolation mesh.");
+                    MORIS_ERROR( false, "Cannot create specified integration mesh type from an interpolation mesh." );
                     return nullptr;
                 }
             }
@@ -166,6 +172,5 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-    }
-}
-
+    }    // namespace mtk
+}    // namespace moris
