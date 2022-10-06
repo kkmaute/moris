@@ -30,7 +30,7 @@ class Trilinos(CMakePackage, CudaPackage, ROCmPackage):
     """
 
     homepage = "https://trilinos.org/"
-    url = "https://github.com/trilinos/Trilinos/archive/trilinos-release-12-12-1.tar.gz"
+    url = "https://github.com/trilinos/Trilinos/archive/refs/tags/trilinos-release-12-12-1.tar.gz"
     git = "https://github.com/trilinos/Trilinos.git"
 
     maintainers = ["keitat", "sethrj", "kuberry"]
@@ -104,12 +104,12 @@ class Trilinos(CMakePackage, CudaPackage, ROCmPackage):
     variant("hypre", default=False, description="Compile with Hypre preconditioner")
     variant("mpi", default=True, description="Compile with MPI parallelism")
     variant("mumps", default=False, description="Compile with support for MUMPS solvers")
-    variant("pardiso", default=True, description="Compile with support for pardiso-mkl solver")
     variant("suite-sparse", default=False, description="Compile with SuiteSparse solvers")
     variant("superlu-dist", default=False, description="Compile with SuperluDist solvers")
     variant("superlu", default=False, description="Compile with SuperLU solvers")
     variant("strumpack", default=False, description="Compile with STRUMPACK solvers")
     variant("x11", default=False, description="Compile with X11 when +exodus")
+    variant("pardiso", default=True, description="Compile with support for pardiso-mkl solver")
 
     # Package options (alphabet order)
     variant("adelus", default=False, description="Compile with Adelus")
@@ -392,7 +392,6 @@ class Trilinos(CMakePackage, CudaPackage, ROCmPackage):
     depends_on("python", when="@13.2: +ifpack +hypre", type="build")
     depends_on("python", when="@13.2: +ifpack2 +hypre", type="build")
     depends_on("scalapack", when="+mumps")
-    depends_on("mkl", when="+pardiso")
     depends_on("scalapack", when="+strumpack+mpi")
     depends_on("strumpack+shared", when="+strumpack")
     depends_on("suite-sparse", when="+suite-sparse")
@@ -400,7 +399,8 @@ class Trilinos(CMakePackage, CudaPackage, ROCmPackage):
     depends_on("superlu@4.3 +pic", when="+superlu")
     depends_on("swig", when="+python")
     depends_on("zlib", when="+zoltan")
-
+    depends_on("intel-mkl", when="+pardiso")
+    
     # Trilinos' Tribits config system is limited which makes it very tricky to
     # link Amesos with static MUMPS, see
     # https://trilinos.org/docs/dev/packages/amesos2/doc/html/classAmesos2_1_1MUMPS.html
@@ -420,10 +420,10 @@ class Trilinos(CMakePackage, CudaPackage, ROCmPackage):
     depends_on("hwloc+cuda", when="@13: +kokkos+cuda")
     depends_on("hypre@develop", when="@master: +hypre")
     depends_on("netcdf-c+mpi+parallel-netcdf", when="+exodus+mpi@12.12.1:")
+    depends_on("superlu-dist@:4.3", when="@11.14.1:12.6.1+superlu-dist")
     depends_on("superlu-dist@4.4:5.3", when="@12.6.2:12.12.1+superlu-dist")
     depends_on("superlu-dist@5.4:6.2.0", when="@12.12.2:13.0.0+superlu-dist")
-    depends_on("superlu-dist@6.3.0:", when="@13.0.1:99 +superlu-dist")
-    depends_on("superlu-dist@:4.3", when="@11.14.1:12.6.1+superlu-dist")
+    depends_on("superlu-dist@6.3.0:7", when="@13.0.1:13 +superlu-dist")
     depends_on("superlu-dist@develop", when="@master: +superlu-dist")
 
     # ###################### Patches ##########################
@@ -483,7 +483,7 @@ class Trilinos(CMakePackage, CudaPackage, ROCmPackage):
         return (flags, None, None)
 
     def url_for_version(self, version):
-        url = "https://github.com/trilinos/Trilinos/archive/trilinos-release-{0}.tar.gz"
+        url = "https://github.com/trilinos/Trilinos/archive/refs/tags/trilinos-release-{0}.tar.gz"
         return url.format(version.dashed)
 
     def setup_dependent_run_environment(self, env, dependent_spec):
@@ -524,7 +524,7 @@ class Trilinos(CMakePackage, CudaPackage, ROCmPackage):
         options = []
 
         spec = self.spec
-        define = CMakePackage.define
+        define = self.define
         define_from_variant = self.define_from_variant
 
         def _make_definer(prefix):
