@@ -15,8 +15,8 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
-#include "cl_MTK_Enums.hpp"                 //FEM/INT/src
-#include "cl_MTK_Vertex.hpp"      //MTK/src
+#include "cl_MTK_Enums.hpp"     //FEM/INT/src
+#include "cl_MTK_Vertex.hpp"    //MTK/src
 
 #include "fn_trans.hpp"
 #include "op_times.hpp"
@@ -30,13 +30,13 @@ namespace moris
         class Set;
         class Cluster;
         class Field;
-    }
+    }    // namespace mtk
     namespace fem
     {
         class Node_Base;
         class Element;
         class Field;
-    }
+    }    // namespace fem
     namespace fem
     {
         class Cluster;
@@ -45,7 +45,7 @@ namespace moris
     {
         enum class Output_Type;
         enum class Field_Type;
-    }
+    }    // namespace vis
     namespace MSI
     {
         class Pdof;
@@ -57,26 +57,27 @@ namespace moris
         class Equation_Object
         {
             //-------------------------------------------------------------------------------------------------
-        protected:
+
+          protected:
             //-------------------------------------------------------------------------------------------------
-            moris::Cell< moris::Cell< fem::Node_Base * > >     mNodeObj;
-            moris::Cell< moris::Cell< Pdof_Host * > >          mMyPdofHosts;       // Pointer to the pdof hosts of this equation object
+            moris::Cell< moris::Cell< fem::Node_Base* > > mNodeObj;
+            moris::Cell< moris::Cell< Pdof_Host* > >      mMyPdofHosts;    // Pointer to the pdof hosts of this equation object
 
-            moris::Cell< Pdof* >                               mFreePdofs;         // List of the pdof pointers of this equation obj
-            moris::Cell< moris::Cell< moris::Cell< Pdof* > > > mFreePdofList;      // FIXME list of free pdofs ordered after their dof type . mFreePdofs or mFreePdofList should be deleted
+            moris::Cell< Pdof* >                               mFreePdofs;       // List of the pdof pointers of this equation obj
+            moris::Cell< moris::Cell< moris::Cell< Pdof* > > > mFreePdofList;    // FIXME list of free pdofs ordered after their dof type . mFreePdofs or mFreePdofList should be deleted
 
-            Matrix< DDSMat >                                   mUniqueAdofList;    // Unique adof list for this equation object
-            moris::Cell< moris::Cell< Matrix< DDSMat > > >     mUniqueAdofTypeList;
-            moris::map < moris::uint, moris::uint >            mUniqueAdofMap;     // Map to
+            Matrix< DDSMat >                               mUniqueAdofList;    // Unique adof list for this equation object
+            moris::Cell< moris::Cell< Matrix< DDSMat > > > mUniqueAdofTypeList;
+            moris::map< moris::uint, moris::uint >         mUniqueAdofMap;    // Map to
 
-            moris::Cell< moris::Cell< moris::map < moris::uint, moris::uint > > > mUniqueAdofMapList;     // Map to
+            moris::Cell< moris::Cell< moris::map< moris::uint, moris::uint > > > mUniqueAdofMapList;    // Map to
 
             //! weak BCs of element FIXME
             Matrix< DDRMat > mNodalWeakBCs;
 
             moris::uint mEqnObjInd;
 
-            Equation_Set * mEquationSet;
+            Equation_Set* mEquationSet = nullptr;
 
             moris::uint mNumPdofSystems = 0;
 
@@ -88,7 +89,8 @@ namespace moris
             friend class fem::Cluster;
 
             //------------------------------------------------------------------------------
-        public:
+
+          public:
             //------------------------------------------------------------------------------
             /**
              * trivial constructor
@@ -100,18 +102,18 @@ namespace moris
              * constructor
              * @param[ in ] aElementBlock equation set pointer
              */
-            Equation_Object( Equation_Set * aEquationSet )
-            : mEquationSet( aEquationSet )
-            {};
+            Equation_Object( Equation_Set* aEquationSet )
+                    : mEquationSet( aEquationSet ){};
 
             //------------------------------------------------------------------------------
             /**
              * constructor
              * @param[ in ] aNodeObjs master/slave list of fem nodes
              */
-            Equation_Object( const moris::Cell < moris::Cell< fem::Node_Base * > > & aNodeObjs )
-            : mNodeObj( aNodeObjs )
-            {}
+            Equation_Object( const moris::Cell< moris::Cell< fem::Node_Base* > >& aNodeObjs )
+                    : mNodeObj( aNodeObjs )
+            {
+            }
 
             //------------------------------------------------------------------------------
             /**
@@ -124,21 +126,21 @@ namespace moris
              * set time for equation object
              * @param[ in ] aTime matrix with time values to set
              */
-            void set_time( Matrix< DDRMat > & aTime );
+            void set_time( Matrix< DDRMat >& aTime );
 
             //------------------------------------------------------------------------------
             /**
              * get time for equation object (from Equation model)
              * @param[ in ] mTime matrix with time values
              */
-            Matrix< DDRMat > & get_time();
+            Matrix< DDRMat >& get_time();
 
             //------------------------------------------------------------------------------
             /**
              * get previous time for equation object (from Equation model)
              * @param[ in ] mPreviousTime matrix with previous time values
              */
-            Matrix< DDRMat > & get_previous_time();
+            Matrix< DDRMat >& get_previous_time();
 
             //------------------------------------------------------------------------------
             /**
@@ -146,10 +148,11 @@ namespace moris
              * This function is only for unit test purposes.
              */
             // Number of potential pdof hosts based on the number of nodes // Fixme add elements and ghosts
-            moris::uint get_num_pdof_hosts()
+            moris::uint
+            get_num_pdof_hosts()
             {
                 moris::uint tNumPdofHosts = 0;
-                for( uint Ik = 0; Ik < mNodeObj.size(); Ik++ )
+                for ( uint Ik = 0; Ik < mNodeObj.size(); Ik++ )
                 {
                     tNumPdofHosts = tNumPdofHosts + mNodeObj( Ik ).size();
                 }
@@ -174,14 +177,15 @@ namespace moris
              *
              */
             void create_my_pdof_hosts(
-                    const moris::uint            aNumUsedDofTypes,
-                    const Matrix< DDSMat >     & aPdofTypeMap,
-                    const Matrix< DDUMat >     & aTimePerDofType,
-                    moris::Cell< Pdof_Host * > & aPdofHostList );
+                    const moris::uint          aNumUsedDofTypes,
+                    const Matrix< DDSMat >&    aPdofTypeMap,
+                    const Matrix< DDUMat >&    aTimePerDofType,
+                    moris::Cell< Pdof_Host* >& aPdofHostList );
 
             //------------------------------------------------------------------------------
 
-            const moris::Cell< moris::Cell< Pdof_Host * > > & get_pdof_hosts() const
+            const moris::Cell< moris::Cell< Pdof_Host* > >&
+            get_pdof_hosts() const
             {
                 return mMyPdofHosts;
             }
@@ -213,13 +217,13 @@ namespace moris
              * @brief create a PADofMap witch can be used to for a calculation from pdofs to adofs
              * This function is tested by the test [Eqn_Obj_PADofMap]
              */
-            void build_PADofMap( Matrix< DDRMat > & aPADofMap );
+            void build_PADofMap( Matrix< DDRMat >& aPADofMap );
 
             //------------------------------------------------------------------------------
 
-            void build_PADofMap_list( Cell< Cell< Matrix< DDRMat > > > & aPADofMap );
+            void build_PADofMap_list( Cell< Cell< Matrix< DDRMat > > >& aPADofMap );
 
-            void build_PADofMap_1( Matrix< DDRMat > & aPADofMap );
+            void build_PADofMap_1( Matrix< DDRMat >& aPADofMap );
 
             //------------------------------------------------------------------------------
             /**
@@ -255,10 +259,10 @@ namespace moris
              * @param[ in ] aIsMaster             enum for master or slave
              */
             void get_my_pdof_values(
-                    const moris::Cell< Matrix< DDRMat > > & aPdofValues,
-                    const moris::Cell< enum Dof_Type >    & aRequestedDofTypes,
-                    Cell< Cell< Matrix< DDRMat > > >      & aRequestedPdofValues,
-                    const mtk::Master_Slave                 aIsMaster = mtk::Master_Slave::MASTER );
+                    const moris::Cell< Matrix< DDRMat > >& aPdofValues,
+                    const moris::Cell< enum Dof_Type >&    aRequestedDofTypes,
+                    Cell< Cell< Matrix< DDRMat > > >&      aRequestedPdofValues,
+                    const mtk::Master_Slave                aIsMaster = mtk::Master_Slave::MASTER );
 
             //------------------------------------------------------------------------------
             /**
@@ -269,8 +273,8 @@ namespace moris
              *                                    (one column per dof type)
              */
             void reshape_pdof_values(
-                    const Cell< Matrix< DDRMat > > & aPdofValues,
-                    Matrix< DDRMat >               & aReshapedPdofValues );
+                    const Cell< Matrix< DDRMat > >& aPdofValues,
+                    Matrix< DDRMat >&               aReshapedPdofValues );
 
             //------------------------------------------------------------------------------
             /**
@@ -280,8 +284,8 @@ namespace moris
              * @param[ in ] aReshapedPdofValues   vector with pdof values
              */
             void reshape_pdof_values_vector(
-                    const Cell< Matrix< DDRMat > > & aPdofValues,
-                    Matrix< DDRMat >               & aReshapedPdofValues );
+                    const Cell< Matrix< DDRMat > >& aPdofValues,
+                    Matrix< DDRMat >&               aReshapedPdofValues );
 
             //------------------------------------------------------------------------------
             /**
@@ -294,28 +298,28 @@ namespace moris
              * get jacobian for equation object
              * @param[ in ] aEqnObjMatrix matrix to fill with jacobian on equation object
              */
-            void get_egn_obj_jacobian( Matrix< DDRMat > & aEqnObjMatrix );
+            void get_egn_obj_jacobian( Matrix< DDRMat >& aEqnObjMatrix );
 
             //------------------------------------------------------------------------------
             /**
              * get residual on equation object
              * @param[ in ] aEqnObjRHS list of matrices to fill with RHS on equation object
              */
-            void get_equation_obj_residual( Cell< Matrix< DDRMat > > & aEqnObjRHS );
+            void get_equation_obj_residual( Cell< Matrix< DDRMat > >& aEqnObjRHS );
 
             //------------------------------------------------------------------------------
             /**
              * get additional residual for staggered case on equation object
              * @param[ in ] aEqnObjRHS list of matrices to fill with RHS on equation object
              */
-            void get_staggered_equation_obj_residual( Cell< Matrix< DDRMat > > & aEqnObjRHS );
+            void get_staggered_equation_obj_residual( Cell< Matrix< DDRMat > >& aEqnObjRHS );
 
             //------------------------------------------------------------------------------
             /**
              * get off-diagonal residual on equation object
              * @param[ in ] aEqnObjRHS list of matrices to fill with off-diagonal RHS on equation object
              */
-            void get_equation_obj_off_diagonal_residual( Cell< Matrix< DDRMat > > & aEqnObjRHS );
+            void get_equation_obj_off_diagonal_residual( Cell< Matrix< DDRMat > >& aEqnObjRHS );
 
             //-------------------------------------------------------------------------------------------------
             /**
@@ -324,38 +328,40 @@ namespace moris
              * @param[ in ] aEqnObjRHS list of matrices to fill with RHS on equation object
              */
             void get_egn_obj_jacobian_and_residual(
-                    Matrix< DDRMat >         & aEqnObjMatrix,
-                    Cell< Matrix< DDRMat > > & aEqnObjRHS );
+                    Matrix< DDRMat >&         aEqnObjMatrix,
+                    Cell< Matrix< DDRMat > >& aEqnObjRHS );
 
             //-------------------------------------------------------------------------------------------------
             /**
              * add staggered contribution to residual
              * @param[ in ] aElementResidual ???
              */
-            void add_staggered_contribution_to_residual( Cell< Matrix< DDRMat > > & aElementResidual );
+            void add_staggered_contribution_to_residual( Cell< Matrix< DDRMat > >& aElementResidual );
 
             //-------------------------------------------------------------------------------------------------
-            void get_equation_obj_dof_ids( Matrix< DDSMat > & aEqnObjAdofId );
+            void get_equation_obj_dof_ids( Matrix< DDSMat >& aEqnObjAdofId );
 
             //-------------------------------------------------------------------------------------------------
             /**
              * returns a moris::Mat with indices of vertices that are connected to this element
              */
-            moris_index get_node_index( const moris_index aElementLocalNodeIndex ) const ;
+            moris_index get_node_index( const moris_index aElementLocalNodeIndex ) const;
 
             //-------------------------------------------------------------------------------------------------
 
-            virtual Matrix< DDSMat > get_adof_indices()
+            virtual Matrix< DDSMat >
+            get_adof_indices()
             {
-                MORIS_ERROR( false, "this function does nothing");
-                return Matrix< DDSMat >(0,0);
+                MORIS_ERROR( false, "this function does nothing" );
+                return Matrix< DDSMat >( 0, 0 );
             }
 
             //-------------------------------------------------------------------------------------------------
             /**
              * compute jacobian on equation object
              */
-            virtual void compute_jacobian()
+            virtual void
+            compute_jacobian()
             {
                 MORIS_ERROR( false, "Equation_Object::compute_jacobian - not implemented in msi." );
             }
@@ -364,7 +370,8 @@ namespace moris
             /**
              * compute residual on equation object
              */
-            virtual void compute_residual()
+            virtual void
+            compute_residual()
             {
                 MORIS_ERROR( false, "Equation_Object::compute_residual - not implemented in msi." );
             }
@@ -373,7 +380,8 @@ namespace moris
             /**
              * compute jacobian and residual on equation object
              */
-            virtual void compute_jacobian_and_residual()
+            virtual void
+            compute_jacobian_and_residual()
             {
                 MORIS_ERROR( false, "Equation_Object::compute_jacobian_and_residual - not implemented in msi." );
             }
@@ -382,7 +390,8 @@ namespace moris
             /**
              * compute dRdp on equation object
              */
-            virtual void compute_dRdp()
+            virtual void
+            compute_dRdp()
             {
                 MORIS_ERROR( false, "Equation_Object::compute_dRdp - not implemented in msi." );
             }
@@ -391,7 +400,8 @@ namespace moris
             /**
              * compute dQIdp explicit on equation object
              */
-            virtual void compute_dQIdp_explicit()
+            virtual void
+            compute_dQIdp_explicit()
             {
                 MORIS_ERROR( false, "Equation_Object::compute_dQIdp_explicit - not implemented in msi." );
             }
@@ -400,7 +410,8 @@ namespace moris
             /**
              * compute dQIdp implicit on equation object
              */
-            virtual void compute_dQIdp_implicit()
+            virtual void
+            compute_dQIdp_implicit()
             {
                 MORIS_ERROR( false, "Equation_Object::compute_dQIdp - not implemented in msi." );
             }
@@ -409,7 +420,8 @@ namespace moris
             /**
              * compute dQIdp explicit and implicit on equation object
              */
-            virtual void compute_dQIdp_explicit_implicit()
+            virtual void
+            compute_dQIdp_explicit_implicit()
             {
                 MORIS_ERROR( false, "Equation_Object::compute_dQIdp_explicit_implicit - not implemented in msi." );
             }
@@ -418,7 +430,8 @@ namespace moris
             /**
              * compute dQIdu on equation object
              */
-            virtual void compute_dQIdu()
+            virtual void
+            compute_dQIdu()
             {
                 MORIS_ERROR( false, "Equation_Object::compute_dQIdu - not implemented in msi." );
             }
@@ -427,7 +440,8 @@ namespace moris
             /**
              * compute QI on equation object
              */
-            virtual void compute_QI()
+            virtual void
+            compute_QI()
             {
                 MORIS_ERROR( false, "Equation_Object::compute_QI - not implemented in msi." );
             };
@@ -436,8 +450,9 @@ namespace moris
             /**
              * compute integration error
              */
-            virtual moris::real compute_integration_error(
-                    moris::real (*aFunction)( const Matrix< DDRMat > & aPoint ) )
+            virtual moris::real
+            compute_integration_error(
+                    moris::real ( *aFunction )( const Matrix< DDRMat >& aPoint ) )
             {
                 MORIS_ERROR( false, "Equation_Object::compute_integration_error - not implemented in msi." );
                 return 0.0;
@@ -447,7 +462,8 @@ namespace moris
             /**
              * compute element average of scalar field
              */
-            virtual moris::real compute_element_average_of_scalar_field()
+            virtual moris::real
+            compute_element_average_of_scalar_field()
             {
                 MORIS_ERROR( false, "Equation_Object::compute_element_average_of_scalar_field - not implemented in msi." );
                 return 0.0;
@@ -457,7 +473,8 @@ namespace moris
             /**
              * return Neumann boundary conditions, writable version
              */
-            virtual Matrix< DDRMat > & get_weak_bcs()
+            virtual Matrix< DDRMat >&
+            get_weak_bcs()
             {
                 return mNodalWeakBCs;
             }
@@ -466,7 +483,8 @@ namespace moris
             /**
              * return Neumann boundary conditions, const version
              */
-            const Matrix< DDRMat > & get_weak_bcs() const
+            const Matrix< DDRMat >&
+            get_weak_bcs() const
             {
                 return mNodalWeakBCs;
             }
@@ -475,7 +493,8 @@ namespace moris
             /**
              * return how many nodes are connected to this element
              */
-            uint get_num_nodes() const
+            uint
+            get_num_nodes() const
             {
                 return mNodeObj( 0 ).size();
             }
@@ -486,7 +505,8 @@ namespace moris
              * @param[ in ] aVertexIndex index for nodal value to get
              * @param[ in ] aDofType     list of dof type to get
              */
-            virtual moris::real get_element_nodal_pdof_value(
+            virtual moris::real
+            get_element_nodal_pdof_value(
                     moris_index                  aVertexIndex,
                     moris::Cell< MSI::Dof_Type > aDofType )
             {
@@ -499,7 +519,8 @@ namespace moris
              * set visualization cluster
              * @param[ in ] aVisMeshCluster mesh cluster pointer to set
              */
-            virtual void set_visualization_cluster( const mtk::Cluster * aVisMeshCluster )
+            virtual void
+            set_visualization_cluster( const mtk::Cluster* aVisMeshCluster )
             {
                 MORIS_ASSERT( false, "Equation_Object::set_visualization_cluster() - not implemented for base class." );
             }
@@ -510,7 +531,8 @@ namespace moris
              * @param[ in ] aMeshIndex mesh index to specify on which visualization mesh to compute QI
              * @param[ in ] aFieldType enum for computation type (GLOBAL,NODAL,ELEMENTAL,...)
              */
-            virtual void compute_quantity_of_interest(
+            virtual void
+            compute_quantity_of_interest(
                     const uint           aMeshIndex,
                     enum vis::Field_Type aFieldType )
             {
@@ -519,17 +541,17 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            virtual void populate_fields(
-                    moris::Cell< std::shared_ptr< fem::Field > > & aFields,
-                    moris::Cell< std::string > const             & aFieldIQINames)
+            virtual void
+            populate_fields(
+                    moris::Cell< std::shared_ptr< fem::Field > >& aFields,
+                    moris::Cell< std::string > const &            aFieldIQINames )
             {
                 MORIS_ASSERT( false, "Equation_Set::create_fields - not implemented for base class." );
             }
 
             //------------------------------------------------------------------------------
         };
-    }
-}
+    }    // namespace MSI
+}    // namespace moris
 
 #endif /* SRC_FEM_CL_EQUATION_OBJECT_HPP_ */
-
