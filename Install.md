@@ -5,7 +5,7 @@
 * is based on spack.
 *
 * For installation of MORIS on a standard workstation under Linux, follow the
-* instructions below.
+* instructions below. These instructions have been tested for OPENSuse 15.x.
 *
 * For installation of MORIS on a cluster system, see Install_Cluter.md
 *
@@ -15,14 +15,24 @@
 *------------------------------------------------------------
 * Prerequisites on OS installation:
 *
-* The following packages should be installed; if not spack will do it
+* The following packages should be installed; 
+* if install them with space (see option below)
 *
-* Modules 
 * patch 
-* makeinfo
 * pkgconf
+* makeinfo (part of texinfo package)
 *
-* sudo: zypper in Modules patch makeinfo
+* To check whether the above packages are installed, excute 
+* the command:  which patch; which pkgconf; which makeinfo
+*------------------------------------------------------------
+
+*------------------------------------------------------------
+* For users with an existing MORIS installation, it is 
+* strongly recommended to remove all environment variables
+* related to MORIS from their environment source files (i.e.,
+* .cshrc) before performing the MORIS installation described 
+* below.
+*
 *------------------------------------------------------------
 
 *------------------------------------------------------------
@@ -80,10 +90,14 @@ spack compiler rm <unwanted compiler>
 *------------------------------------------------------------
 
 * let spack find installed external package
-* if you do not have root access, enter <ctrl>+d when asked for root password
 * after commend has been exectued, see $HOME/.spack/packages.yaml
 
-spack external find --all
+spack external find
+
+*------------------------------------------------------------
+
+* if texinfo is installed through your OS but makeinfo is not found
+* remove texinfo from $HOME/.spack/packages.yaml
 
 *------------------------------------------------------------
 
@@ -124,7 +138,27 @@ spack develop --path $WORKSPACE/moris moris@main
 
 spack add openblas
 
-spack concretize -f
+*------------------------------------------------------------
+
+* if patch, pkgconf, and/or texinfo are not installed on your OS
+
+spack add patch
+spack add pkgconf
+spack add texinfo
+
+*------------------------------------------------------------
+
+* finalize installation configuration
+
+spack concretize -f -U
+
+*------------------------------------------------------------
+
+* if patch, pkgconf, and/or texinfo are not installed on your OS
+
+spack install patch
+spack install pkgconf
+spack install texinfo
 
 *------------------------------------------------------------
 
@@ -133,7 +167,13 @@ spack concretize -f
 spack install --only dependencies moris
 
 spack install openblas
-*
+
+*------------------------------------------------------------
+
+* remove left over build directories
+
+spack clean
+
 *------------------------------------------------------------
 
 * create the following resource file and source it as part of your .cshrc
