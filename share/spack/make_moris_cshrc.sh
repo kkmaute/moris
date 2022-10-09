@@ -1,6 +1,11 @@
-#!\bin\tcsh
+#!/bin/tcsh
 
 rm -f $HOME/.cshrc_moris
+
+cd $WORKSPACE
+setenv SPACK_ROOT $WORKSPACE/spack
+setenv PATH $PATH/:$SPACK_ROOT/bin
+source $SPACK_ROOT/share/spack/setup-env.csh
 
 setenv SPACKCOMP `spack compiler list | tail -1`
 setenv CC        `spack compiler info $SPACKCOMP | grep cc  | awk -F = '{print $2}' | xargs ls`
@@ -68,4 +73,7 @@ echo "setenv CC  $CC"                                                          >
 echo "setenv CXX $CXX"                                                         >> $HOME/.cshrc_moris
 echo "setenv FC  $FC"                                                          >> $HOME/.cshrc_moris
 echo "setenv F77 $F77"                                                         >> $HOME/.cshrc_moris
-                                                                               
+
+setenv GFORTLIB `ldd $OPENBLAS_DIR/libopenblas.so | grep gfortran | awk '{print $1}'`
+
+echo "setenv GFORTLIB $GFORTLIB"                                               >> $HOME/.cshrc_moris
