@@ -1,0 +1,99 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
+namespace moris {
+
+// Level 3 module
+
+/** \defgroup HMR_XTK_GEN_FEM_Workflow  HMR_XTK_GEN_FEM_Workflow
+This section details functioning of HMR-XTK-GEN-FEM workflow in MORIS. It shows functional utility of each module as a part of workflow and how each module\n
+interacts/communicates with each other starting from generating background mesh till creating a global assembly of system of equations for IQIs in FEM Module.\n
+This workflow is particularly suited for multi-phase problem where boundary interface between two material phase requires mesh decomposition through XTK module.\n
+
+<BR>
+
+@section WorkFlow-Network
+See below figure for graphical network representation of the workflow.
+\image html "HMR_XTK_Wrkl.png" "MORIS Workflow: HMR-XTK-GEN-FEM" width=50%
+
+<BR>
+
+@section Header-Call
+
+See the table below to see the function call of each module within input.cpp file through header files.
+<table>
+<caption id = "Function call of Workflow Module"> Function call in Workflow</caption>
+<tr><th> Module </th>               <th> Header Calls</th></tr>
+<tr><td> HMR_Parameter_List </td>   <td> fn_PRM_HMR_Parameters.hpp</td></tr>
+<tr><td> XTK_Parameter_List </td>   <td> fn_PRM_XTK_Parameters.hpp</td></tr>
+<tr><td> GEN_Parameter_List </td>   <td> fn_PRM_GEN_Parameters.hpp</td></tr>
+<tr><td> FEM_Parameter_List </td>   <td> fn_PRM_FEM_Parameters.hpp</td></tr>
+</table>
+
+
+<BR>
+
+@section Workflow-Performance
+Each workflow, including the current workflow, performs in 3 stages. First stage sets up various performers (i.e, HMR_Performer, XTK_Performer etc.,). Second stage
+initialize the ADVs and third stage actually performs. Various performers are called through performer_manager.
+
+<b>Initializer: </b>
+
+Initialize module initializes ADVs bounded by upper and lower bounds from GEN. As shown in the figure above, initialize module consists of three performers, HMR,\n
+MTK and GEN. HMR creates a background mesh and pass it to MTK Performer which stores MTK mesh. MTK Performer will pass this mesh to GEN and XTK. GEN takes MTK mesh and \n
+evaluates level set field and other geometry parameters which will be used later by XTK and other modules. \n
+
+In summary, for any FEM problem, HMR mesh and design variables (ADVs) are created once in the initialize module. \n
+\n
+
+Call to HMR Mesh: mPerformerManager->mHMRPerformer( 0 )->perform(); \n
+\n
+Call to Design variables using GEN: mPerformerManager->mGENPerformer( 0 )->distribute_advs(mPerformerManager->mMTKPerformer( 0 )->get_mesh_pair( 0 ),tFieldsOut ); \n
+
+
+<b>Performer: </b>
+
+Performer module begins from taking HMR Mesh stored in MTK as MTK Mesh. Then, XTK Performer is set to GEN Performer and MTK performer and build a new MTK mesh. \n
+After this, XTK performs decomposition and enrichment and stores the mesh as MTK Mesh. Here, if decomposition performer can be performed, it deletes older XTK mesh \n
+to free memory. At the decomposition stage, it computes intersection and if intersection exists it calls GEN to register intersection points. \n
+Then, it constructs a database performer which stores MTK mesh and pass it to MDL. \n
+
+See figure below to understand XTK performer.
+\image html "XTK_Performer.png" "Working of XTK Performer" width=50%
+
+\n
+
+MDL performer consists of MSI and SOL. It analyse the model as a part of forward analysis and solvess the physics problem. Then, a design variable interface is \n
+set-up between GEN and MDL to pass IQIs from MDL to GEN. \n
+
+\n
+
+Two mini performers are called in for remeshing and refinement depending on the criteria set. \n
+* <b> 1. Refinement Mini-performer:</b>     Refinement mini-performer takes GEN as criteria and HMR mesh as input to perform mesh refinement. Although it operates through \n
+                                            HMR-MTK-GEN workflow.
+
+* <b> 2. Remeshing Mini-performer:</b>      Remeshing is done based on certain requirements.\n
+                                            * (1) If a criteria for number of iterations is met, or, \n
+                                            * (2) If XTK or MDL asks to Remeshing. \n
+        If remeshing is done for analysis mesh, it is done at MTK-XTK stage. Here, the design mesh stays the same.\n
+        If remeshing is done for design mesh, it is done on HMR mesh since it requires new ADVs to be generated in GEN.\n
+\n
+<b>Constraints: </b> Constraints refer to the criterias that trigger inter-calling between HMR, XTK, and GEN. \n
+                     *(1). XTK --> GEN : XTK calls GEN at the decomposition stage to get computed geometry at each level-set field. \n
+                     *(2). HMR --> GEN : HMR interacts with GEN through MTK. While performing refinement, refinement mini-performer takes HMR with GEN as critieria. \n
+
+
+
+<BR>
+
+@section Example
+
+Example Problem: Heat Conduction in 2D Domain \n
+                 @ref HeatConduction.cpp
+
+*/
+}

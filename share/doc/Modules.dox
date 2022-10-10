@@ -287,6 +287,22 @@ FEM Module description.
         @ingroup FE_Physics_Equations */
 
 //------------------------------------------------------------------------------
+/** @defgroup Wrk Different MORIS Workflows
+Workflow is a module showcasing workings of different workflows for various problems.
+It lists functional utility of HMR, XTK, GEN, MTK, STK, FEM modules within a given workflow. Type of workflow associated to a particular problem
+is mentioned in OPTParameterList. For any problem, default workflow is HMR-XTK_Workflow.
+*/
+
+/** @addtogroup HMR_XTK_GEN_FEM_Workflow
+    @ingroup Wrk */
+
+/** @addtogroup STK_FEM_Workflow
+    @ingroup Wrk */
+
+/** @addtogroup STK_XTK_Workflow
+    @ingroup Wrk */
+
+//------------------------------------------------------------------------------
 /** @defgroup EXA_Module Examples and Benchmarks
 EXA is a library of example and benchmark problems used for the validatation of various implementation aspects, 
 such as physics models, stabilization methods, meshing methods, etc.
