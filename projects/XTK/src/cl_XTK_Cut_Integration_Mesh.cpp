@@ -1454,6 +1454,66 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
+    moris::Cell< moris_index > const&
+    Cut_Integration_Mesh::get_union_MSD_indices_for_base_IP_cell( const moris_index aBaseIpCellIndex ) const
+    {
+        MORIS_ASSERT( mUnionMsdInidices.size() > 0, 
+                "Cut_Integration_Mesh::get_union_MSD_indices_for_base_IP_cell() - information not constructed yet" );
+        MORIS_ASSERT( mUnionMsdInidices.size() > (uint) aBaseIpCellIndex, 
+                "Cut_Integration_Mesh::get_union_MSD_indices_for_base_IP_cell() - IP cell index out of bounds" );
+        return mUnionMsdInidices( aBaseIpCellIndex );
+    }
+
+    // ----------------------------------------------------------------------------------
+
+    moris::Cell< moris_index > const&
+    Cut_Integration_Mesh::get_material_SPG_indices_for_base_IP_cell( 
+            const moris_index aBsplineMeshListIndex,
+            const moris_index aBaseIpCellIndex ) const
+    {
+        MORIS_ASSERT( mBsplineMeshInfos( aBsplineMeshListIndex )->mExtractionCellMaterialSpgs.size() > 0, 
+                "Cut_Integration_Mesh::get_material_SPG_indices_for_base_IP_cell() - information not constructed yet" );
+        return mBsplineMeshInfos( aBsplineMeshListIndex )->mExtractionCellMaterialSpgs( aBaseIpCellIndex );
+    }
+
+    // ----------------------------------------------------------------------------------
+
+    moris::Cell< moris_index > const&
+    Cut_Integration_Mesh::get_void_SPG_indices_for_base_IP_cell( 
+            const moris_index aBsplineMeshListIndex,
+            const moris_index aBaseIpCellIndex ) const
+    {
+        MORIS_ASSERT( mBsplineMeshInfos( aBsplineMeshListIndex )->mExtractionCellVoidSpgs.size() > 0, 
+                "Cut_Integration_Mesh::get_void_SPG_indices_for_base_IP_cell() - information not constructed yet" );
+        return mBsplineMeshInfos( aBsplineMeshListIndex )->mExtractionCellVoidSpgs( aBaseIpCellIndex );
+    }
+
+    // ----------------------------------------------------------------------------------
+
+    moris::Cell< moris_index > const&
+    Cut_Integration_Mesh::get_void_MSD_indices_for_base_IP_cell( 
+            const moris_index aBsplineMeshListIndex,
+            const moris_index aBaseIpCellIndex ) const
+    {
+        MORIS_ASSERT( mBsplineMeshInfos( aBsplineMeshListIndex )->mExtractionCellVoidMsdIndices.size() > 0, 
+                "Cut_Integration_Mesh::get_void_MSD_indices_for_base_IP_cell() - information not constructed yet" );
+        return mBsplineMeshInfos( aBsplineMeshListIndex )->mExtractionCellVoidMsdIndices( aBaseIpCellIndex );
+    }
+
+    // ----------------------------------------------------------------------------------
+
+    moris::Cell< moris_index > const&
+    Cut_Integration_Mesh::get_free_void_MSD_indices_for_base_IP_cell( 
+            const moris_index aBsplineMeshListIndex,
+            const moris_index aBaseIpCellIndex ) const
+    {
+        MORIS_ASSERT( mBsplineMeshInfos( aBsplineMeshListIndex )->mExtractionCellFreeVoidMsdIndices.size() > 0, 
+                "Cut_Integration_Mesh::get_free_void_MSD_indices_for_base_IP_cell() - information not constructed yet" );
+        return mBsplineMeshInfos( aBsplineMeshListIndex )->mExtractionCellFreeVoidMsdIndices( aBaseIpCellIndex );
+    }
+
+    // ----------------------------------------------------------------------------------
+
     void
     Cut_Integration_Mesh::print_cells(
             bool        aOmitIndex,

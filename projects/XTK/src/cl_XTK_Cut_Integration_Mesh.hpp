@@ -1064,6 +1064,73 @@ namespace xtk
 
             // ----------------------------------------------------------------------------------
 
+            /**
+             * @brief Get the union MSD indices for base IP cell
+             * 
+             * @param aBaseIpCellIndex index of the base IP cell / Lagrange element
+             * @return moris::Cell< moris_index > const& list of Union MSD indices on this IP cell
+             */
+            moris::Cell< moris_index > const&
+            get_union_MSD_indices_for_base_IP_cell( const moris_index aBaseIpCellIndex ) const;
+
+            // ----------------------------------------------------------------------------------
+
+            /**
+             * @brief Get the material SPG indices for base IP cell
+             * 
+             * @param aBsplineMeshListIndex index of the B-spline mesh in the list of B-spline meshes to be enriched
+             * @param aBaseIpCellIndex index of the base IP cell / Lagrange element
+             * @return moris::Cell< moris_index > const& SPGs wrt. which material clusters will be constructed
+             */
+            moris::Cell< moris_index > const&
+            get_material_SPG_indices_for_base_IP_cell( 
+                    const moris_index aBsplineMeshListIndex,
+                    const moris_index aBaseIpCellIndex ) const;
+
+            // ----------------------------------------------------------------------------------
+
+            /**
+             * @brief Get the void SPG indices for base IP cell
+             * 
+             * @param aBsplineMeshListIndex index of the B-spline mesh in the list of B-spline meshes to be enriched
+             * @param aBaseIpCellIndex index of the base IP cell / Lagrange element
+             * @return moris::Cell< moris_index > const& SPGs wrt. which void clusters need to be constructed
+             */
+            moris::Cell< moris_index > const&
+            get_void_SPG_indices_for_base_IP_cell( 
+                    const moris_index aBsplineMeshListIndex,
+                    const moris_index aBaseIpCellIndex ) const;
+
+            // ----------------------------------------------------------------------------------
+
+            /**
+             * @brief Get the void MSD indices for base IP cell
+             * 
+             * @param aBsplineMeshListIndex index of the B-spline mesh in the list of B-spline meshes to be enriched
+             * @param aBaseIpCellIndex index of the base IP cell / Lagrange element
+             * @return moris::Cell< moris_index > const& MSD indices corresponding to SPGs wrt. which void clusters need to be constructed
+             */
+            moris::Cell< moris_index > const&
+            get_void_MSD_indices_for_base_IP_cell( 
+                    const moris_index aBsplineMeshListIndex,
+                    const moris_index aBaseIpCellIndex ) const;
+
+            // ----------------------------------------------------------------------------------
+
+            /**
+             * @brief Get the free void MSD indices for base IP cell
+             * 
+             * @param aBsplineMeshListIndex index of the B-spline mesh in the list of B-spline meshes to be enriched
+             * @param aBaseIpCellIndex index of the base IP cell / Lagrange element
+             * @return moris::Cell< moris_index > const& MSD indices without associated SPGs for which void clusters need to be constructed
+             */
+            moris::Cell< moris_index > const&
+            get_free_void_MSD_indices_for_base_IP_cell( 
+                    const moris_index aBsplineMeshListIndex,
+                    const moris_index aBaseIpCellIndex ) const;
+
+            // ----------------------------------------------------------------------------------
+
             void
             print()
             {
