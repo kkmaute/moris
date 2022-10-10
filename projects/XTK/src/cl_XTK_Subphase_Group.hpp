@@ -237,7 +237,8 @@ namespace xtk
         moris::Cell< moris::Cell< moris_index > > mExtractionCellFreeVoidMsdIndices;
 
         // material sub-domain indices associated with the SPGs on this B-spline mesh
-        moris::Cell< moris_index > mSpgSubdomainIndex; // input: SPG index || output: B-spline element local SPG index of the SPG on the coarsest B-spline mesh which contains the SPG index input
+        // input: SPG index || output: B-spline element local SPG index of the SPG on the coarsest B-spline mesh which contains the SPG index input
+        // moris::Cell< moris_index > mSpgSubdomainIndex; 
 
 
         // ----------------------------------------------------------------------------------

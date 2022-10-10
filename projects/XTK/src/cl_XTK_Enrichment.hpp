@@ -97,7 +97,8 @@ namespace xtk
             Cell< moris::Matrix< moris::IndexMat > > mElementEnrichmentLevel; // input: non-enriched BF index || output: which enrichment level of current basis is active on the IG cell
 
             // For each enriched basis function, the subphase indices in support
-            Cell< moris::Matrix< moris::IndexMat > > mSubphaseIndsInEnrichedBasis; // input: enriched BF index || output: list of subphase indices in which enriched BF is active
+            // input: enriched BF index || output: list of subphase indices in which enriched BF is active
+            Cell< moris::Matrix< moris::IndexMat > > mSubphaseIndsInEnrichedBasis;
             
             // FIXME: for SPG based enrichment, the above needs to go eventually
             Cell< moris::Matrix< moris::IndexMat > > mSubphaseGroupIndsInEnrichedBasis; // input: enriched BF index || output: list of SPG indices in which enriched BF is active
@@ -182,19 +183,23 @@ namespace xtk
             moris::Cell< moris::Cell< moris_index > > mEnrIpCellIndices; // input: base IP cell index, index of unzipping || output: index of enr. IP cell
             moris::Cell< moris_index > mUipcUnzippingIndices; // input: UIPC index || output: unzipping index
 
-            // map allowing correct UIPC to be grabbed base on base IP cell and SPG index (for Ghost)
+            // map allowing correct UIPC to be grabbed based on base IP cell and SPG index (for Ghost)
             // input: B-spline mesh index, base IP cell index, SPG index local to corresponding B-spline element || output: Enr. IP cell index
-            moris::Cell< moris::Cell< moris::Cell< moris_index > > > mBaseIpCellAndSpgToUnzipping;
+            Cell< Cell< Cell< moris_index > > > mBaseIpCellAndSpgToUnzipping;
 
             // map allowing to enr. IP cell / non-void cluster associated with a given subphase
-            Cell< moris_index > mSubphaseIndexToEnrIpCellIndex; // input: subphase index || output: enriched interpolation cell index
+            // input: subphase index || output: enriched interpolation cell index
+            Cell< moris_index > mSubphaseIndexToEnrIpCellIndex; 
 
             // Experimental: maps associating UIPCs / Cell clusters with SPGs
-            // input: B-spline mesh list index, SPG index || output: List of Cell clusters on SPG
+            // input: B-spline mesh list index, SPG index || output: List of enr. IP cells / cell clusters on SPG
             Cell< Cell< Cell< moris_index > > > mSpgToUipcIndex;
 
             // input: B-spline mesh list index, Cluster/UIPC index || output: SPG index this Cluster/UIPC is in
             Cell< Cell< moris_index > > mUipcToSpgIndex;
+
+            // input: B-spline mesh index, base IP cell index, index of unzipping || output: SPG index the UIPC belongs to
+            Cell< Cell< Cell< moris_index > > > mUnzippingToSpgIndex;
 
             // ----------------------------------------------------------------------------------
 
@@ -338,7 +343,7 @@ namespace xtk
             uint
             get_num_unzippings_of_base_ip_cell( moris_index aBaseIpCellIndex ) const
             {
-                return mNumUnzippingsOnIpCell( aBaseIpCellIndex );
+                return mEnrIpCellIndices( aBaseIpCellIndex ).size();
             }
 
             // ----------------------------------------------------------------------------------
@@ -733,7 +738,10 @@ namespace xtk
             allocate_interpolation_cells();
 
             void
-            allocate_interpolation_cells_new();
+            allocate_interpolation_cells_based_on_SPGs();
+
+            void
+            allocate_interpolation_cells_based_on_SPGs_new();
 
             // ----------------------------------------------------------------------------------
 
@@ -741,7 +749,13 @@ namespace xtk
             construct_enriched_interpolation_vertices_and_cells();
 
             void
-            construct_enriched_interpolation_vertices_and_cells_new();
+            construct_enriched_interpolation_vertices_and_cells_based_on_SPGs();
+
+            void
+            construct_enriched_interpolation_vertices_and_cells_based_on_SPGs_new()
+            {
+                MORIS_ERROR( false, "Enrichment::construct_enriched_interpolation_vertices_and_cells_based_on_SPGs_new() - not implemented yet" );
+            }
 
             // ----------------------------------------------------------------------------------
 

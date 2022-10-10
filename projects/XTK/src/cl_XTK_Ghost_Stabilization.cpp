@@ -1391,11 +1391,7 @@ Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh_new( Ghost_Setup_D
 
         // get the relationship between the unzipped IP cells, the base IP cells and SPGs from the enrichment
         moris::Cell< moris::Cell< moris_index > > const& tBaseIpCellAndSpgToUnzipping = 
-            mXTKModel->mEnrichment->get_unzipped_IP_cell_to_base_IP_cell_and_SPG( iBspMesh );
-
-// // initialize a list that notes whether a ghost facet has already been constructed on a given facet of an SPG
-// moris::Cell < bool > tInitializeDummy( 2 * mXTKModel->get_spatial_dim(), false ); // 4 side ordinals per element for 2D, 6 for 3D
-// moris::Cell< moris::Cell < bool > > tGhostFacetHasBeenConstructed( tNumSPGs, tInitializeDummy ); // input: index of the SPG, side ordinal || output: whether a facet has been constructed or not
+                mXTKModel->mEnrichment->get_unzipped_IP_cell_to_base_IP_cell_and_SPG( iBspMesh );
 
         // go through all SPG - neighbor pairs
         for( uint iSPG = 0; iSPG < tNumSPGs; iSPG++ )
@@ -2035,13 +2031,6 @@ Ghost_Stabilization::create_master_side_cluster(
             aGhostSetupData.mMasterSideIgCellSideOrds( aBulkIndex )( aCellIndex ),
             aGhostSetupData.mTransitionLocation( aBulkIndex )( aCellIndex ),
             tLocCoords );
-
-// debug
-// for( uint iVert = 0; iVert < tLocCoords.size(); iVert++ )
-// {
-//     std::cout << "iVert = " << iVert << std::endl;
-//     print( tLocCoords( iVert ), "tLocCoords( iVert )" );
-// }
 
         // add integration cell
         tMasterSideCluster->mIntegrationCells.push_back( tNewIgCell.get() );

@@ -16,6 +16,8 @@ using namespace moris;
 
 namespace xtk
 {
+    //-------------------------------------------------------------------------------------
+
     /**
      * @brief finds the most occuring index in a cell of indices
      * 
@@ -55,8 +57,11 @@ namespace xtk
 
         // return the array element that occurs the most often
         aCount = (moris_index) tMaxCount;
-        return tResult;        
+        return tResult;
     }
-}
+
+    //-------------------------------------------------------------------------------------
+    
+} // namespace xtk
 
 #endif /* fn_XTK_find_most_frequent_int_in_cell.hpp */

@@ -4942,10 +4942,10 @@ namespace xtk
                             moris_index tSpgIndex = tVoidSpgIndices( iVoidSpg );
 
                             // get the list of SPs in the current SPG
-                            const moris::Cell< moris_index >& tSpsInGroup = tBsplineMeshInfo->mSubphaseGroups( tSpgIndex )->get_SP_indices_in_group();
+                            const moris::Cell< moris_index >& tSpgsInGroup = tBsplineMeshInfo->mSubphaseGroups( tSpgIndex )->get_SP_indices_in_group();
 
                             // get an SP representing the current SPG 
-                            moris_index tSpIndex = tSpsInGroup( 0 );
+                            moris_index tSpIndex = tSpgsInGroup( 0 );
 
                             // get the MSD index corresponding to the current void SPG
                             auto tIter = tSpToMsdIndex.find( tSpIndex );
@@ -4970,12 +4970,6 @@ namespace xtk
                     // get the address to where the union multiset of MSD indices will be stored
                     moris::Cell< moris_index >* tUnionVoidMsdIndices = &( aCutIntegrationMesh->mUnionMsdInidices( tLagElemIndex ) );
 
-// debug
-std::cout << "\n\n=========================================================" << std::endl;
-std::cout << "Lagrange Element: " << tLagElemIndex << std::endl;
-moris::print_as_row_vector( *tUnionVoidMsdIndices, "Void Msd Indices on Mesh 0" );
-std::cout << std::endl;
-
                     // form the union multiset of the void MSD indices across all B-spline meshes
                     for( uint iBspMesh = 1; iBspMesh < tNumBspMeshes; iBspMesh++ )
                     {
@@ -4988,18 +4982,8 @@ std::cout << std::endl;
                         moris::Cell< moris_index > tCurrentVoidMsdIndices = 
                             tBsplineMeshInfo->mExtractionCellVoidMsdIndices( tLagElemIndex );
 
-// debug
-moris::print_as_row_vector( tPreviousUnionVoidMsdIndices, "Previous union MSD indices, b=" + std::to_string( iBspMesh ) );
-moris::print_as_row_vector( tCurrentVoidMsdIndices, "Void Msd Indices on Mesh " + std::to_string( iBspMesh ) );
-
                         // form the union
                         xtk::multiset_union( tPreviousUnionVoidMsdIndices, tCurrentVoidMsdIndices, *tUnionVoidMsdIndices );
-
-// debug
-moris::print_as_row_vector( tPreviousUnionVoidMsdIndices, "Previous union MSD indices (should not have changed compared to previous print)" );
-moris::print_as_row_vector( *tUnionVoidMsdIndices, "New Union Msd Indices on Mesh " + std::to_string( iBspMesh ) );
-std::cout << std::endl;
-
                     }
 
                     // --------------------------------
