@@ -185,7 +185,7 @@ namespace moris
                 {
                     for ( uint j = 0; j <= 1; j++ )
                     {
-                        CHECK( tInvJac( i, j ) == Approx( tInvJac_Rect( i, j ) ) );
+                        CHECK( tInvJac( i, j ) == Approx( tInvJac_Rect( i, j ) ).margin( MORIS_REAL_EPS ) );
                     }
                 }
             }
