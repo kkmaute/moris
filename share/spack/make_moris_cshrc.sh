@@ -25,7 +25,7 @@ echo 'setenv MORISOUTPUT    $MORISROOT/$MORISBUILDDBG/'                        >
 echo ""                                                                        >> $HOME/.cshrc_moris
 echo "setenv MPI_HOME"         `spack location --install-dir openmpi`          >> $HOME/.cshrc_moris
 echo ""                                                                        >> $HOME/.cshrc_moris
-echo "setenv OPENBLAS_DIR"     $OPENBLAS_DIR"                                  >> $HOME/.cshrc_moris
+echo "setenv OPENBLAS_DIR"     $OPENBLAS_DIR                                   >> $HOME/.cshrc_moris
 echo "setenv Armadillo_DIR"    `spack location --install-dir armadillo`        >> $HOME/.cshrc_moris
 echo "setenv Eigen3_DIR"       `spack location --install-dir eigen`            >> $HOME/.cshrc_moris
 echo "setenv BOOST_DIR"        `spack location --install-dir boost`            >> $HOME/.cshrc_moris
