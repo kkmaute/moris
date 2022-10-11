@@ -134,7 +134,7 @@ check_results(
                     tConstraintsFD( tADVIndex ),
                     100 * tRelConstraintDifference );
 
-            if ( std::abs( tObjectiveFD( tADVIndex ) ) > 1e6 )
+            if ( std::abs( tObjectiveFD( tADVIndex ) ) > 1e-6 )
             {
                 CHECK( tRelObectiveDifference < 1e-4 );
             }
@@ -143,7 +143,7 @@ check_results(
                 CHECK( tObjectiveAnalytical( tADVIndex ) == Approx( tObjectiveFD( tADVIndex ) ).margin( 1e-8 ) );
             }
 
-            if ( std::abs( tConstraintsFD( tADVIndex ) ) > 1e6 )
+            if ( std::abs( tConstraintsFD( tADVIndex ) ) > 1e-6 )
             {
                 CHECK( tRelConstraintDifference < 1e-4 );
             }
