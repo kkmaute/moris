@@ -135,7 +135,7 @@ check_results(
                     tConstraintsAnalytical( tADVIndex ),
                     100 * tRelObectiveDifference );
 
-            if ( std::abs( tObjectiveFD( tADVIndex ) ) > MORIS_REAL_EPS )
+            if ( std::abs( tObjectiveFD( tADVIndex ) ) > 1e-6 )
             {
                 CHECK( tRelObectiveDifference < 1e-4 );
             }
@@ -144,7 +144,7 @@ check_results(
                 CHECK( tObjectiveAnalytical( tADVIndex ) == Approx( tObjectiveFD( tADVIndex ) ).margin( 1e-8 ) );
             }
 
-            if ( std::abs( tConstraintsFD( tADVIndex ) ) > MORIS_REAL_EPS )
+            if ( std::abs( tConstraintsFD( tADVIndex ) ) > 1e-6 )
             {
                 CHECK( tRelConstraintDifference < 1e-4 );
             }
