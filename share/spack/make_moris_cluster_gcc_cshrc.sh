@@ -16,6 +16,9 @@ setenv F77       `spack compiler info $SPACKCOMP | grep 'f77 =' | awk -F = '{pri
 
 setenv GCCLIB    `spack compiler info $SPACKCOMP | grep 'cc ='  | awk -F = '{split($2,a,"/bin/");print a[1]}'`
 
+echo $LOADEDMODULES | awk '{n=split($0,a,":"); for (i = 1; i <= n; i++) print "module load " a[i]  }' >> $HOME/.cshrc_moris
+echo ""                                                                        >> $HOME/.cshrc_moris
+
 echo "setenv MORISROOT      $WORKSPACE/moris"                                  >> $HOME/.cshrc_moris
 echo 'setenv MORISBUILDDBG  build_dbg'                                         >> $HOME/.cshrc_moris
 echo 'setenv MORISBUILDOPT  build_opt'                                         >> $HOME/.cshrc_moris
@@ -51,7 +54,7 @@ echo 'setenv PATH $NETCDF_DIR/bin/:$PATH'                                      >
 echo 'setenv PATH $Trilinos_DIR/bin/:$PATH'                                    >> $HOME/.cshrc_moris 
 echo 'setenv PATH $CMAKE_DIR/bin/:$PATH'                                       >> $HOME/.cshrc_moris 
 echo ""                                                                        >> $HOME/.cshrc_moris
-echo "setenv LD_LIBRARY_PATH $GCCLIB/lib64"                                    >> $HOME/.cshrc_moris 
+echo 'setenv LD_LIBRARY_PATH $GCCLIB/lib64'                                    >> $HOME/.cshrc_moris 
 echo 'setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH/:$MPI_HOME/lib64'                >> $HOME/.cshrc_moris 
 echo ""                                                                        >> $HOME/.cshrc_moris
 echo 'setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH/:$OPENBLAS_DIR/lib'              >> $HOME/.cshrc_moris 
@@ -69,15 +72,10 @@ echo 'setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH/:$HDF5_DIR/lib'                  >
 echo 'setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH/:$MKL_DIR/lib'                   >> $HOME/.cshrc_moris 
 echo 'setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH/:$NETCDF_DIR/lib64'              >> $HOME/.cshrc_moris 
 echo ""                                                                        >> $HOME/.cshrc_moris
-echo "setenv OMPI_MCA_rmaps_base_oversubscribe 1"                              >> $HOME/.cshrc_moris
-echo "setenv OMP_NUM_THREADS 1"                                                >> $HOME/.cshrc_moris
-echo "setenv OMPI_MCA_btl vader,self"                                          >> $HOME/.cshrc_moris
-echo ""                                                                        >> $HOME/.cshrc_moris
 echo "setenv CC  $CC"                                                          >> $HOME/.cshrc_moris
 echo "setenv CXX $CXX"                                                         >> $HOME/.cshrc_moris
 echo "setenv FC  $FC"                                                          >> $HOME/.cshrc_moris
 echo "setenv F77 $F77"                                                         >> $HOME/.cshrc_moris
 
-setenv GFORTLIB `ldd $OPENBLAS_DIR/libopenblas.so | grep gfortran | awk '{print $1}'`
-
+setenv GFORTLIB libgfortran.so
 echo "setenv GFORTLIB $GFORTLIB"                                               >> $HOME/.cshrc_moris

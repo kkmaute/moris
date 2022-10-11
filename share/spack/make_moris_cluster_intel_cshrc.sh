@@ -9,12 +9,10 @@ source $SPACK_ROOT/share/spack/setup-env.csh
 spack env activate .
 
 setenv SPACKCOMP `spack compiler list | tail -1`
-setenv CC        `spack compiler info $SPACKCOMP | grep 'cc ='  | awk -F = '{print $2}' | xargs ls`
-setenv CXX       `spack compiler info $SPACKCOMP | grep 'cxx =' | awk -F = '{print $2}' | xargs ls`
-setenv FC        `spack compiler info $SPACKCOMP | grep 'fc ='  | awk -F = '{print $2}' | xargs ls`
-setenv F77       `spack compiler info $SPACKCOMP | grep 'f77 =' | awk -F = '{print $2}' | xargs ls`
-
-setenv GCCLIB    `spack compiler info $SPACKCOMP | grep 'cc ='  | awk -F = '{split($2,a,"/bin/");print a[1]}'`
+setenv CC        `spack compiler info $SPACKCOMP | grep cc  | awk -F = '{print $2}' | xargs ls`
+setenv CXX       `spack compiler info $SPACKCOMP | grep cxx | awk -F = '{print $2}' | xargs ls`
+setenv FC        `spack compiler info $SPACKCOMP | grep fc  | awk -F = '{print $2}' | xargs ls`
+setenv F77       `spack compiler info $SPACKCOMP | grep f77 | awk -F = '{print $2}' | xargs ls`
 
 echo "setenv MORISROOT      $WORKSPACE/moris"                                  >> $HOME/.cshrc_moris
 echo 'setenv MORISBUILDDBG  build_dbg'                                         >> $HOME/.cshrc_moris
@@ -51,8 +49,7 @@ echo 'setenv PATH $NETCDF_DIR/bin/:$PATH'                                      >
 echo 'setenv PATH $Trilinos_DIR/bin/:$PATH'                                    >> $HOME/.cshrc_moris 
 echo 'setenv PATH $CMAKE_DIR/bin/:$PATH'                                       >> $HOME/.cshrc_moris 
 echo ""                                                                        >> $HOME/.cshrc_moris
-echo "setenv LD_LIBRARY_PATH $GCCLIB/lib64"                                    >> $HOME/.cshrc_moris 
-echo 'setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH/:$MPI_HOME/lib64'                >> $HOME/.cshrc_moris 
+echo 'setenv LD_LIBRARY_PATH $MPI_HOME/lib64'                                  >> $HOME/.cshrc_moris 
 echo ""                                                                        >> $HOME/.cshrc_moris
 echo 'setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH/:$OPENBLAS_DIR/lib'              >> $HOME/.cshrc_moris 
 echo 'setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH/:$Armadillo_DIR/lib64'           >> $HOME/.cshrc_moris 
