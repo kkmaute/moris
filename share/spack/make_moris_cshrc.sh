@@ -16,6 +16,8 @@ setenv F77       `spack compiler info $SPACKCOMP | grep 'f77 =' | awk -F = '{pri
 
 setenv GCCLIB    `spack compiler info $SPACKCOMP | grep 'cc ='  | awk -F = '{split($2,a,"/bin/");print a[1]}'`
 
+setenv OPENBLAS_DIR `spack location --install-dir openblas`"/lib"
+
 echo "setenv MORISROOT      $WORKSPACE/moris"                                  >> $HOME/.cshrc_moris
 echo 'setenv MORISBUILDDBG  build_dbg'                                         >> $HOME/.cshrc_moris
 echo 'setenv MORISBUILDOPT  build_opt'                                         >> $HOME/.cshrc_moris
@@ -23,7 +25,7 @@ echo 'setenv MORISOUTPUT    $MORISROOT/$MORISBUILDDBG/'                        >
 echo ""                                                                        >> $HOME/.cshrc_moris
 echo "setenv MPI_HOME"         `spack location --install-dir openmpi`          >> $HOME/.cshrc_moris
 echo ""                                                                        >> $HOME/.cshrc_moris
-echo "setenv OPENBLAS_DIR"     `spack location --install-dir openblas`"/lib"   >> $HOME/.cshrc_moris
+echo "setenv OPENBLAS_DIR"     $OPENBLAS_DIR"                                  >> $HOME/.cshrc_moris
 echo "setenv Armadillo_DIR"    `spack location --install-dir armadillo`        >> $HOME/.cshrc_moris
 echo "setenv Eigen3_DIR"       `spack location --install-dir eigen`            >> $HOME/.cshrc_moris
 echo "setenv BOOST_DIR"        `spack location --install-dir boost`            >> $HOME/.cshrc_moris
