@@ -15,7 +15,6 @@
 #include "fn_determine_cell_topology.hpp"
 #include "fn_mesh_flood_fill.hpp"
 #include "fn_XTK_find_most_frequent_int_in_cell.hpp"
-#include "fn_XTK_convert_index_cell_to_index_map.hpp"
 #include "fn_XTK_Multiset_Operations.hpp"
 
 using namespace moris;
@@ -5003,17 +5002,13 @@ namespace xtk
 
                         // get the differnce between the union and the void MSD indices to form the free void MSD indices
                         xtk::multiset_difference( *tUnionVoidMsdIndices, tVoidMsdIndices, tFreeVoidMsdIndices );
-
-// debug
-moris::print_as_row_vector( tFreeVoidMsdIndices, "Free void MSD indices b=" + std::to_string( iBspMesh) );
-
                     }
 
-                } // end: loop over the Lagrange elements inside the current coarsest B-spline element
+                } // end for: loop over the Lagrange elements inside the current coarsest B-spline element
 
-            } // end: only treat elements whose void MSD Inidices have not been found yet
+            } // end if: only treat elements whose void MSD Inidices have not been found yet
 
-        } // end: loop over all lagrange elements
+        } // end for: loop over all lagrange elements
 
     } // end function: Integration_Mesh_Generator::construct_SPG_material_connectivity_information(...)
 

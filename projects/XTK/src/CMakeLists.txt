@@ -90,10 +90,12 @@ set(HEADERS
     cl_XTK_Decomposition_Algorithm_Factory.hpp
     cl_XTK_Diagnostics.hpp
     cl_XTK_Subphase_Group.hpp
-    fn_XTK_convert_index_cell_to_index_map.hpp 
+    fn_XTK_convert_cell_to_map.hpp 
+    fn_XTK_convert_cell_to_multiset.hpp  
     fn_XTK_find_most_frequent_int_in_cell.hpp
     fn_XTK_Multiset_Operations.hpp
     fn_XTK_punch_card_sum.hpp
+    fn_XTK_find_in_cell.hpp
     )                                                                                                                                                                                                                                                                   
 
 

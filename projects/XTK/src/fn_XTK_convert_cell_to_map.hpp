@@ -4,27 +4,31 @@
  *
  *------------------------------------------------------------------------------------
  *
- * fn_XTK_convert_index_cell_to_index_map.hpp
+ * fn_XTK_convert_cell_to_map.hpp
  *
  */
 
-#ifndef SRC_fn_XTK_convert_index_cell_to_index_map
-#define SRC_fn_XTK_convert_index_cell_to_index_map
+#ifndef SRC_fn_XTK_convert_cell_to_map
+#define SRC_fn_XTK_convert_cell_to_map
 
 #include "cl_Cell.hpp"
 
 using namespace moris;
 namespace xtk
 {
+    //-------------------------------------------------------------------------------------
+    
     // define an Index-map
     typedef std::unordered_map< moris::moris_index, moris::moris_index > IndexMap;
+    typedef std::unordered_map< moris::moris_id, moris::moris_id > IdMap;
 
     //-------------------------------------------------------------------------------------
 
+    template< class T >
     void
-    convert_index_cell_to_index_map(
-        moris::Cell< moris_index > const& aCellToConvert,
-        IndexMap&                         aIndexMapToFill )
+    convert_cell_to_map(
+            moris::Cell< T > const &               aCellToConvert,
+            std::unordered_map< T, moris_index > & aIndexMapToFill )
     {
         for( uint i = 0; i < aCellToConvert.size(); i++ )
         {
@@ -33,6 +37,7 @@ namespace xtk
     }
 
     //-------------------------------------------------------------------------------------
-}
 
-#endif /* fn_XTK_convert_index_cell_to_index_map.hpp */
+} // namespace xtk
+
+#endif /* fn_XTK_convert_cell_to_map.hpp */

@@ -13,6 +13,7 @@
 #include <set>
 #include <algorithm>
 #include "cl_Cell.hpp"
+#include "fn_XTK_convert_cell_to_multiset.hpp"
 
 using namespace moris;
 
@@ -32,22 +33,14 @@ namespace xtk
     {        
         // convert the first multiset into std::multisets
         std::multiset< moris_index > tFirstMultiSet;
-        uint tFirstMultisetSize = aMultiSet1.size();
-        for( uint i = 0; i < tFirstMultisetSize; i++ )
-        {
-            tFirstMultiSet.insert( aMultiSet1( i ) );
-        }
+        xtk::convert_index_cell_to_index_multiset( aMultiSet1, tFirstMultiSet );
 
         // convert the second multiset into std::multisets
         std::multiset< moris_index > tSecondMultiSet;
-        uint tSecondMultiSetSize = aMultiSet2.size();
-        for( uint i = 0; i < tSecondMultiSetSize; i++ )
-        {
-            tSecondMultiSet.insert( aMultiSet2( i ) );
-        }
+        xtk::convert_index_cell_to_index_multiset( aMultiSet2, tSecondMultiSet );
 
         // resize
-        aMultiSetUnion.resize( tFirstMultisetSize + tSecondMultiSetSize );
+        aMultiSetUnion.resize( aMultiSet1.size() + aMultiSet2.size() );
 
         // get access to the data of the underlying vector
         std::vector< moris_index >& tVector = aMultiSetUnion.data();
@@ -73,28 +66,20 @@ namespace xtk
     {        
         // convert the first multiset into std::multisets
         std::multiset< moris_index > tMultiSet;
-        uint tMultiSetSize = aMultiSet.size();
-        for( uint i = 0; i < tMultiSetSize; i++ )
-        {
-            tMultiSet.insert( aMultiSet( i ) );
-        }
+        xtk::convert_index_cell_to_index_multiset( aMultiSet, tMultiSet );
 
         // convert the second multiset into std::multisets
         std::multiset< moris_index > tMultiSetToSubtract;
-        uint tMultiSetToSubtractSize = aMultiSetToSubtract.size();
-        for( uint i = 0; i < tMultiSetToSubtractSize; i++ )
-        {
-            tMultiSetToSubtract.insert( aMultiSetToSubtract( i ) );
-        }
+        xtk::convert_index_cell_to_index_multiset( aMultiSetToSubtract, tMultiSetToSubtract );
 
         // resize
-        aMultiSetDifference.resize( tMultiSetSize );
+        aMultiSetDifference.resize( aMultiSet.size() );
 
         // get access to the data of the underlying vector
         std::vector< moris_index >& tVector = aMultiSetDifference.data();
         std::vector< moris_index >::iterator tIter;
 
-        // perform union operation
+        // perform difference operation on the two sets
         tIter = std::set_difference( tMultiSet.begin(), tMultiSet.end(), tMultiSetToSubtract.begin(), tMultiSetToSubtract.end(), tVector.begin() );
 
         // get the used length
