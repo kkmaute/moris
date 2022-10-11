@@ -33,8 +33,9 @@
 #include "cl_XTK_Integration_Mesh_Generator.hpp"
 
 #include "fn_sort_points_by_coordinates.hpp"
-#include "fn_XTK_convert_index_cell_to_index_map.hpp"
+#include "fn_XTK_convert_cell_to_map.hpp"
 #include "fn_XTK_punch_card_sum.hpp"
+#include "fn_XTK_find_in_cell.hpp"
 
 #include "cl_Tracer.hpp"
 
@@ -2548,16 +2549,12 @@ namespace xtk
 
                 // get the list of void MSD indices and convert it to a map
                 const Cell< moris_index >& tVoidMsdIndices = mCutIgMesh->get_void_MSD_indices_for_base_IP_cell( iBspMesh, iIpCell );
-                IndexMap tVoidMsdIndexMap;
-                convert_index_cell_to_index_map( tVoidMsdIndices, tVoidMsdIndexMap );
 
                 // get the list of corresponding SPGs
                 const Cell< moris_index >& tVoidSpgIndices = mCutIgMesh->get_void_SPG_indices_for_base_IP_cell( iBspMesh, iIpCell );
 
                 // get the list of free void MSD indices
                 const Cell< moris_index >& tFreeVoidMsdIndices = mCutIgMesh->get_free_void_MSD_indices_for_base_IP_cell( iBspMesh, iIpCell );
-                IndexMap tFreeVoidMsdIndexMap;
-                convert_index_cell_to_index_map( tFreeVoidMsdIndices, tFreeVoidMsdIndexMap );
 
                 // initialize punchcards indicating which elements of the above lists have been found
                 Cell< bool > tVoidMsdIndicesFound( tVoidMsdIndices.size(), false );
@@ -2573,17 +2570,11 @@ namespace xtk
                     moris_index tUnionMsdIndex = tUnionMsdIndices( iUnionMSDI );
 
                     // find the index in the list of void MSD indices
-                    auto tIterVoidMSDI = tVoidMsdIndexMap.find( tUnionMsdIndex );
+                    moris_index tPositionInListOfVoidMSDIs = xtk::find_in_cell( tVoidMsdIndices, tUnionMsdIndex, tVoidMsdIndicesFound );
 
                     // if the MSD index is found among the void MSD indices, note this down
-                    if( tIterVoidMSDI != tVoidMsdIndexMap.end() )
+                    if( tPositionInListOfVoidMSDIs != -1 )
                     {
-                        // get the position of the Union MSD index in the list of void MSD indices
-                        moris_index tPositionInListOfVoidMSDIs = tIterVoidMSDI->second; 
-
-                        // mark as found
-                        tVoidMsdIndicesFound( tPositionInListOfVoidMSDIs ) = true;
-
                         // get the corresponding SPG
                         moris_index tSpgIndex = tVoidSpgIndices( tPositionInListOfVoidMSDIs );
 
@@ -2603,22 +2594,16 @@ namespace xtk
                     else // if the MSD index doesn't correspond to one of the SPGs related to the current IP cell
                     {
                         // find the MSD index in the free void MSD indices for the current IP cell
-                        auto tIterFreeVoidMSDI = tFreeVoidMsdIndexMap.find( tUnionMsdIndex );
+                        moris_index tPositionInListOfFreeVoidMSDIs = xtk::find_in_cell( tFreeVoidMsdIndices, tUnionMsdIndex, tFreeVoidMsdIndicesFound );
 
                         // check that the index is found, if not something must be wrong
-                        MORIS_ERROR( tIterFreeVoidMSDI != tFreeVoidMsdIndexMap.end(), 
+                        MORIS_ERROR( tPositionInListOfFreeVoidMSDIs != -1, 
                                 "Enrichment::allocate_interpolation_cells_based_on_SPGs_new() - "
                                 "Union MSD index #%i for IP cell #%i on B-spline mesh #%i neither found "
                                 "in void or free void MSD indices for this cell. There must be a bug.",
                                 tUnionMsdIndex, 
                                 iIpCell,
                                 mMeshIndices( iBspMesh ) );
-
-                        // get the position of the Union MSD index in the list of free void MSD indices
-                        moris_index tPositionInListOfFreeVoidMSDIs = tIterFreeVoidMSDI->second; 
-
-                        // mark as found
-                        tFreeVoidMsdIndicesFound( tPositionInListOfFreeVoidMSDIs ) = true;
 
                         // assign SPG -1 to mark need for basis extension
                         mUnzippingToSpgIndex( iBspMesh )( iIpCell )( tUnzipping ) = -1;
@@ -2719,7 +2704,7 @@ namespace xtk
 
             // convert List of SPGs to map
             IndexMap tSpgIndexToLocalMap;
-            convert_index_cell_to_index_map( tSPGsOnCell, tSpgIndexToLocalMap );
+            convert_cell_to_map( tSPGsOnCell, tSpgIndexToLocalMap );
 
             for ( uint iSP = 0; iSP < tNumSPs; iSP++ )
             {
@@ -3288,6 +3273,14 @@ namespace xtk
         // make sure list is only as big as it needs to be
         // FIXME: shouldn't this be a shrink-to-fit?
         tEnrInterpMesh->mEnrichedInterpVerts.resize( tVertexCount );
+    }
+
+    //-------------------------------------------------------------------------------------
+
+    void
+    Enrichment::construct_enriched_interpolation_vertices_and_cells_based_on_SPGs_new()
+    {
+        // PLACEHOLDER
     }
 
     //-------------------------------------------------------------------------------------
