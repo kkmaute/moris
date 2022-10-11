@@ -14,7 +14,7 @@ setenv CXX       `spack compiler info $SPACKCOMP | grep cxx | awk -F = '{print $
 setenv FC        `spack compiler info $SPACKCOMP | grep fc  | awk -F = '{print $2}' | xargs ls`
 setenv F77       `spack compiler info $SPACKCOMP | grep f77 | awk -F = '{print $2}' | xargs ls`
 
-setenv OPENBLAS_DIR"     `spack location --install-dir openblas`"/lib
+setenv OPENBLAS_DIR     `spack location --install-dir openblas`"/lib"
 
 echo "setenv MORISROOT      $WORKSPACE/moris"                                  >> $HOME/.cshrc_moris
 echo 'setenv MORISBUILDDBG  build_dbg'                                         >> $HOME/.cshrc_moris
