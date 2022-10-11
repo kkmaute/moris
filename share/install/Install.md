@@ -19,11 +19,16 @@
 * if install them with space (see option below)
 *
 * patch 
-* pkgconf
+* pkgconf (or pkg-config)
 * makeinfo (part of texinfo package)
 *
 * To check whether the above packages are installed, excute 
-* the command:  which patch; which pkgconf; which makeinfo
+* the command:  
+
+which patch
+which pkgconf
+which pkg-config
+which makeinfo
 *------------------------------------------------------------
 
 *------------------------------------------------------------
