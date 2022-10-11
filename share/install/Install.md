@@ -193,11 +193,9 @@ tcsh $WORKSPACE/moris/share/spack/make_moris_cshrc.sh
 *
 *------------------------------------------------------------
 
-source $HOME/.cshrc_moris
-
-*------------------------------------------------------------
-
 * build moris optimized version and run tests
+
+source $HOME/.cshrc_moris
 
 cd $MORISROOT
 
