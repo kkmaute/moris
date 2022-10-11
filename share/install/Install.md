@@ -199,7 +199,7 @@ source $HOME/.cshrc_moris
 
 * build moris optimized version and run tests
 
-cd $WORKSPACE/moris
+cd $MORISROOT
 
 mkdir build_opt
 
@@ -218,7 +218,7 @@ ctest
 
 source $HOME/.cshrc_moris
 
-cd $WORKSPACE/moris
+cd $MORISROOT
 
 mkdir build_dbg
 
