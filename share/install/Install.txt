@@ -21,7 +21,8 @@
 * patch 
 * pkgconf (or pkg-config)
 * makeinfo (part of texinfo package)
-*
+*------------------------------------------------------------
+
 * To check whether the above packages are installed, excute 
 * the command:  
 
@@ -29,7 +30,6 @@ which patch
 which pkgconf
 which pkg-config
 which makeinfo
-*------------------------------------------------------------
 
 *------------------------------------------------------------
 * For users with an existing MORIS installation, it is 
@@ -145,7 +145,8 @@ spack add openblas
 
 *------------------------------------------------------------
 
-* if patch, pkgconf, and/or texinfo are not installed on your OS
+* if patch, pkgconf, and/or texinfo are not installed 
+* on your OS add one or multiple of the following packages
 
 spack add patch
 spack add pkgconf
@@ -159,7 +160,8 @@ spack concretize -f -U
 
 *------------------------------------------------------------
 
-* if patch, pkgconf, and/or texinfo are not installed on your OS
+* if patch, pkgconf, and/or texinfo are not installed 
+* on your OS install one or multiple of the following packages
 
 spack install patch
 spack install pkgconf
@@ -167,7 +169,8 @@ spack install texinfo
 
 *------------------------------------------------------------
 
-* install moris dependencies - by default in debug version
+* install moris dependencies; 
+* add -j <num procs> to limit the number of processors
 
 spack install --only dependencies moris
 
