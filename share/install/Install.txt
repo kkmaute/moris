@@ -16,10 +16,10 @@
 * Prerequisites on OS installation:
 *
 * The following packages should be installed; 
-* if install them with space (see option below)
+* if not, install them with spack (see option below)
 *
 * patch 
-* pkgconf (or pkg-config)
+* pkg-config
 * makeinfo (part of texinfo package)
 *------------------------------------------------------------
 
@@ -27,7 +27,6 @@
 * the command:  
 
 which patch
-which pkgconf
 which pkg-config
 which makeinfo
 
@@ -97,6 +96,9 @@ spack compiler rm <unwanted compiler>
 * let spack find installed external package
 * after commend has been exectued, see $HOME/.spack/packages.yaml
 
+* IMPORTANT: in case your OS is outdated, do not excute this step;
+* in this case all packages needed will be installed by spack
+
 spack external find
 
 *------------------------------------------------------------
@@ -151,6 +153,14 @@ spack add openblas
 spack add patch
 spack add pkgconf
 spack add texinfo
+
+*------------------------------------------------------------
+
+* make sure that all packages use the same dependent packages
+
+spack config edit
+
+* and set: concretizer: unify: when_possible
 
 *------------------------------------------------------------
 
@@ -209,13 +219,19 @@ cd build_opt
 cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON ..
 cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON ..
 
+* Using an intel processor, use MKL instead of OPENBLAS
+
+cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_USE_MKL=ON -DMORIS_USE_OPENBLAS=OFF ..
+cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_USE_MKL=ON -DMORIS_USE_OPENBLAS=OFF ..
+
+
 make -j 16
 
 ctest
-                                                                           
+
 *------------------------------------------------------------
 
-* build opt version and run test
+* build debug version and run test
 
 source $HOME/.cshrc_moris
 
@@ -227,6 +243,11 @@ cd build_dbg
 
 cmake -DBUILD_ALL=ON -DMORIS_HAVE_DEBUG=ON -DMORIS_HAVE_SYMBOLIC=ON -DMORIS_HAVE_SYMBOLIC_STRONG=ON -DMORIS_USE_EXAMPLES=ON ..
 cmake -DBUILD_ALL=ON -DMORIS_HAVE_DEBUG=ON -DMORIS_HAVE_SYMBOLIC=ON -DMORIS_HAVE_SYMBOLIC_STRONG=ON -DMORIS_USE_EXAMPLES=ON ..
+
+* Using an intel processor, use MKL instead of OPENBLAS
+
+cmake -DBUILD_ALL=ON -DMORIS_HAVE_DEBUG=ON -DMORIS_HAVE_SYMBOLIC=ON -DMORIS_HAVE_SYMBOLIC_STRONG=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_USE_MKL=ON -DMORIS_USE_OPENBLAS=OFF ..
+cmake -DBUILD_ALL=ON -DMORIS_HAVE_DEBUG=ON -DMORIS_HAVE_SYMBOLIC=ON -DMORIS_HAVE_SYMBOLIC_STRONG=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_USE_MKL=ON -DMORIS_USE_OPENBLAS=OFF ..
 
 make -j 16
 
