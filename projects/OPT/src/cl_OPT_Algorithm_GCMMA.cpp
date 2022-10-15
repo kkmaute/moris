@@ -87,7 +87,6 @@ uint OptAlgGCMMA::solve(
 
     this->printresult(); // print the result of the optimization algorithm
 
-    aOptProb = mProblem; // update aOptProb
 
     uint tOptIter = gLogger.get_opt_iteration();
 
