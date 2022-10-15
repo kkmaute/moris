@@ -22,6 +22,7 @@ list(APPEND MORIS_SOURCE_DIRS ${OPT})
 set(OPT_TPL_DEPENDENCIES
     "gcmma"
     "snopt"
+    "lbfgsb"
     )
 
 # Make sure needed moris libraries are built
