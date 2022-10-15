@@ -97,6 +97,7 @@ namespace moris
             tParameterList.insert( "num_corr" , 5      ); // number of limited memory corrections used in the BFGS update
             tParameterList.insert( "norm_drop", 1.0e+7 ); // LBFGS convergence criteria (this is internally multiplied with machine precision)
             tParameterList.insert( "grad_tol" , 0.0    ); // LBFGS convergence criteria based on projected gradients
+            tParameterList.insert( "internal_lbfgs_print_severity" , -1    ); // -1 supresses all printing
 
             return tParameterList;
         }
