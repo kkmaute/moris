@@ -10,8 +10,8 @@
 
 #include "fn_OPT_create_algorithm.hpp"
 #include "cl_OPT_Algorithm_GCMMA.hpp"
-#include "cl_OPT_Algorithm_LBFGS.hpp"
 #include "cl_OPT_Algorithm_SQP.hpp"
+#include "cl_OPT_Algorithm_LBFGS.hpp"
 #include "cl_OPT_Algorithm_Sweep.hpp"
 
 namespace moris
@@ -31,8 +31,7 @@ namespace moris
             }
             else if (tAlgorithmName == "lbfgs")
             {
-                MORIS_ERROR(false, "LBFGS currently is not working.");
-                return nullptr;
+                return std::make_shared<Algorithm_LBFGS>(aAlgorithmParameterList);
             }
             else if (tAlgorithmName == "sweep")
             {

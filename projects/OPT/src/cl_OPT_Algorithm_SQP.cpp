@@ -184,9 +184,6 @@ namespace moris
                 // Run sqp algorithm
                 this->sqp_solve();
 
-                // update aOptProb FIXME: Why is this needed
-                aOptProb = mProblem;
-
                 // Communicate that optimization has finished
                 mRunning = opt::Task::exit;
 
