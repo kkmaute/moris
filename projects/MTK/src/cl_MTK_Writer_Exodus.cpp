@@ -100,7 +100,10 @@ namespace moris
 
             if ( aRename )
             {
-                MORIS_ERROR( std::rename( mTempFileName.c_str(), mPermFileName.c_str() ) == 0, "Cannot save exodus file" );
+                MORIS_ERROR( std::rename( mTempFileName.c_str(), mPermFileName.c_str() ) == 0,
+                        "Cannot save exodus file: %s as %s",
+                        mTempFileName.c_str(),
+                        mPermFileName.c_str() );
             }
         }
 
@@ -559,7 +562,6 @@ namespace moris
             // Make file name parallel, if necessary
             if ( par_size() > 1 )
             {
-
                 // Get par size and rank as strings
                 std::string tParSizeStr     = std::to_string( par_size() );
                 std::string tParRankBaseStr = std::to_string( par_rank() );
@@ -568,7 +570,7 @@ namespace moris
                 std::string tParRankStr =
                         std::string( tParSizeStr.length() - tParRankBaseStr.length(), '0' ).append( tParRankBaseStr );
 
-                // Append to temporary and permament file names
+                // Append to temporary and permanent file names
                 mTempFileName += "." + tParSizeStr + "." + tParRankStr;
                 mPermFileName += "." + tParSizeStr + "." + tParRankStr;
             }
