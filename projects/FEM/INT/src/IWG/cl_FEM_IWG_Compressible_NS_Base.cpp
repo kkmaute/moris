@@ -29,28 +29,29 @@ namespace moris
         //------------------------------------------------------------------------------
         //------------------------------------------------------------------------------
 
-        void IWG_Compressible_NS_Base::reset_spec_eval_flags()
+        void
+        IWG_Compressible_NS_Base::reset_spec_eval_flags()
         {
             // reset eval flags
-            mYEval = true;
-            mdYdtEval = true;
-            mdYdxEval = true;
+            mYEval      = true;
+            mdYdtEval   = true;
+            mdYdxEval   = true;
             md2Ydx2Eval = true;
 
-            mWEval = true;
-            mdWdtEval = true;
-            mdWdxEval = true;
+            mWEval      = true;
+            mdWdtEval   = true;
+            mdWdxEval   = true;
             md2Wdx2Eval = true;
 
-            mWtransEval = true;
+            mWtransEval    = true;
             mdWtransdtEval = true;
             mdWtransdxEval = true;
 
-            mAEval = true;
-            mKEval = true;
+            mAEval    = true;
+            mKEval    = true;
             mKijiEval = true;
 
-            mCEval = true;
+            mCEval    = true;
             mdCdYEval = true;
 
             // reset flags for child
@@ -60,14 +61,15 @@ namespace moris
         //------------------------------------------------------------------------------
         //------------------------------------------------------------------------------
 
-        void IWG_Compressible_NS_Base::assemble_residual( const Matrix< DDRMat > & aStdRes )
+        void
+        IWG_Compressible_NS_Base::assemble_residual( const Matrix< DDRMat >& aStdRes )
         {
             // check that the size of the passed in residual makes sense
             MORIS_ASSERT( aStdRes.n_rows() == ( ( this->num_space_dims() + 2 ) * this->num_bases() ) and ( aStdRes.n_cols() == 1 ),
                     "IWG_Compressible_NS_Base::assemble_residual() - Size of residual vector passed in is incorrect." );
 
             // check residual dof types
-            MORIS_ASSERT( check_residual_dof_types( mResidualDofType  ),
+            MORIS_ASSERT( check_residual_dof_types( mResidualDofType ),
                     "IWG_Compressible_NS_Base::assemble_residual() - Only pressure or density primitive variables supported for residual assembly." );
 
             // loop over residual dof types
@@ -92,15 +94,15 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IWG_Compressible_NS_Base::assemble_jacobian( const Matrix< DDRMat > & aStdJac )
+        void
+        IWG_Compressible_NS_Base::assemble_jacobian( const Matrix< DDRMat >& aStdJac )
         {
             // check that the size of the passed in residual makes sense
-            MORIS_ASSERT( ( aStdJac.n_rows() == ( this->num_space_dims() + 2 ) * this->num_bases() ) and
-                    ( aStdJac.n_cols() == ( this->num_space_dims() + 2 ) * this->num_bases() ),
+            MORIS_ASSERT( ( aStdJac.n_rows() == ( this->num_space_dims() + 2 ) * this->num_bases() ) and ( aStdJac.n_cols() == ( this->num_space_dims() + 2 ) * this->num_bases() ),
                     "IWG_Compressible_NS_Base::assemble_jacobian() - Size of Jacobian passed in is incorrect." );
 
             // check residual dof types
-            MORIS_ASSERT( check_residual_dof_types( mResidualDofType  ),
+            MORIS_ASSERT( check_residual_dof_types( mResidualDofType ),
                     "IWG_Compressible_NS_Base::assemble_jacobian() - Only pressure or density primitive variables supported for jacobian assembly." );
 
             // check DoF dependencies
@@ -145,7 +147,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        Matrix< DDSMat > & IWG_Compressible_NS_Base::get_assembly_indices( const MSI::Dof_Type aDofType )
+        Matrix< DDSMat >&
+        IWG_Compressible_NS_Base::get_assembly_indices( const MSI::Dof_Type aDofType )
         {
             // initialize index vector
             mAssemblyIndices = { { -1 }, { -1 } };
@@ -157,17 +160,17 @@ namespace moris
             uint tNumSpaceDims = this->num_space_dims();
 
             // check which Dof Type it is, and get corresponding indices
-            if ( aDofType == mFirstDof ) // P
+            if ( aDofType == mFirstDof )    // P
             {
                 mAssemblyIndices( 0 ) = 0;
                 mAssemblyIndices( 1 ) = tNumBases - 1;
             }
-            else if ( aDofType == mVectorDof ) // VX
+            else if ( aDofType == mVectorDof )    // VX
             {
                 mAssemblyIndices( 0 ) = tNumBases;
                 mAssemblyIndices( 1 ) = ( tNumSpaceDims + 1 ) * tNumBases - 1;
             }
-            else if ( aDofType == mLastDof ) // TEMP
+            else if ( aDofType == mLastDof )    // TEMP
             {
                 mAssemblyIndices( 0 ) = ( tNumSpaceDims + 1 ) * tNumBases;
                 mAssemblyIndices( 1 ) = ( tNumSpaceDims + 2 ) * tNumBases - 1;
@@ -185,7 +188,8 @@ namespace moris
         //------------------------------------------------------------------------------
         //------------------------------------------------------------------------------
 
-        uint IWG_Compressible_NS_Base::num_space_dims()
+        uint
+        IWG_Compressible_NS_Base::num_space_dims()
         {
             // get number of spatial dimensions from velocity, momentum, etc. field interpolator
             return mMasterFIManager->get_field_interpolators_for_type( mVectorDof )->get_number_of_fields();
@@ -193,7 +197,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        uint IWG_Compressible_NS_Base::num_bases()
+        uint
+        IWG_Compressible_NS_Base::num_bases()
         {
             // get number of bases from first state var FI
             return mMasterFIManager->get_field_interpolators_for_type( mFirstDof )->get_number_of_space_time_bases();
@@ -202,10 +207,11 @@ namespace moris
         //------------------------------------------------------------------------------
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & IWG_Compressible_NS_Base::Y()
+        const Matrix< DDRMat >&
+        IWG_Compressible_NS_Base::Y()
         {
             // check if the variable vectors have already been assembled
-            if( !mYEval )
+            if ( !mYEval )
             {
                 return mY;
             }
@@ -216,9 +222,9 @@ namespace moris
                     "IWG_Compressible_NS_Base::Y() - check for residual DoF types failed. See Error message above for more info." );
 
             // get field interpolators
-            Field_Interpolator * tFI1 =  mMasterFIManager->get_field_interpolators_for_type( mFirstDof  );
-            Field_Interpolator * tFI2 =  mMasterFIManager->get_field_interpolators_for_type( mVectorDof );
-            Field_Interpolator * tFI3 =  mMasterFIManager->get_field_interpolators_for_type( mLastDof   );
+            Field_Interpolator* tFI1 = mMasterFIManager->get_field_interpolators_for_type( mFirstDof );
+            Field_Interpolator* tFI2 = mMasterFIManager->get_field_interpolators_for_type( mVectorDof );
+            Field_Interpolator* tFI3 = mMasterFIManager->get_field_interpolators_for_type( mLastDof );
 
             // clang-format off
             // construct Y - vector based on the number of space dims
@@ -264,10 +270,11 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & IWG_Compressible_NS_Base::dYdt()
+        const Matrix< DDRMat >&
+        IWG_Compressible_NS_Base::dYdt()
         {
             // check if the variable vectors have already been assembled
-            if( !mdYdtEval )
+            if ( !mdYdtEval )
             {
                 return mdYdt;
             }
@@ -278,9 +285,9 @@ namespace moris
                     "IWG_Compressible_NS_Base::dYdt() - check for residual DoF types failed. See Error message above for more info." );
 
             // get field interpolators
-            Field_Interpolator * tFI1 =  mMasterFIManager->get_field_interpolators_for_type( mFirstDof  );
-            Field_Interpolator * tFI2 =  mMasterFIManager->get_field_interpolators_for_type( mVectorDof );
-            Field_Interpolator * tFI3 =  mMasterFIManager->get_field_interpolators_for_type( mLastDof   );
+            Field_Interpolator* tFI1 = mMasterFIManager->get_field_interpolators_for_type( mFirstDof );
+            Field_Interpolator* tFI2 = mMasterFIManager->get_field_interpolators_for_type( mVectorDof );
+            Field_Interpolator* tFI3 = mMasterFIManager->get_field_interpolators_for_type( mLastDof );
 
             // clang-format off
             // construct Y - vector based on the number of space dims
@@ -324,10 +331,11 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & IWG_Compressible_NS_Base::dYdx( const uint aSpatialDirection )
+        const Matrix< DDRMat >&
+        IWG_Compressible_NS_Base::dYdx( const uint aSpatialDirection )
         {
             // check if the variable vector has already been assembled
-            if( !mdYdxEval )
+            if ( !mdYdxEval )
             {
                 return mdYdx( aSpatialDirection );
             }
@@ -338,9 +346,9 @@ namespace moris
                     "IWG_Compressible_NS_Base::dYdx() - check for residual DoF types failed. See Error message above for more info." );
 
             // get field interpolators
-            Field_Interpolator * tFI1 =  mMasterFIManager->get_field_interpolators_for_type( mFirstDof  );
-            Field_Interpolator * tFI2 =  mMasterFIManager->get_field_interpolators_for_type( mVectorDof );
-            Field_Interpolator * tFI3 =  mMasterFIManager->get_field_interpolators_for_type( mLastDof   );
+            Field_Interpolator* tFI1 = mMasterFIManager->get_field_interpolators_for_type( mFirstDof );
+            Field_Interpolator* tFI2 = mMasterFIManager->get_field_interpolators_for_type( mVectorDof );
+            Field_Interpolator* tFI3 = mMasterFIManager->get_field_interpolators_for_type( mLastDof );
 
             // clang-format off
             // construct Y - vector based on the number of space dims
@@ -417,13 +425,14 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & IWG_Compressible_NS_Base::d2Ydx2( const uint aI, const uint aJ )
+        const Matrix< DDRMat >&
+        IWG_Compressible_NS_Base::d2Ydx2( const uint aI, const uint aJ )
         {
             // convert the two indices into one for condensed tensor
             uint tFlatIndex = convert_index_pair_to_flat( aI, aJ, this->num_space_dims() );
 
             // check if the variable vectors have already been assembled
-            if( !md2Ydx2Eval )
+            if ( !md2Ydx2Eval )
             {
                 return md2Ydx2( tFlatIndex );
             }
@@ -434,9 +443,9 @@ namespace moris
                     "IWG_Compressible_NS_Base::d2Ydx2() - check for residual DoF types failed. See Error message above for more info." );
 
             // get field interpolators
-            Field_Interpolator * tFI1 =  mMasterFIManager->get_field_interpolators_for_type( mFirstDof  );
-            Field_Interpolator * tFI2 =  mMasterFIManager->get_field_interpolators_for_type( mVectorDof );
-            Field_Interpolator * tFI3 =  mMasterFIManager->get_field_interpolators_for_type( mLastDof   );
+            Field_Interpolator* tFI1 = mMasterFIManager->get_field_interpolators_for_type( mFirstDof );
+            Field_Interpolator* tFI2 = mMasterFIManager->get_field_interpolators_for_type( mVectorDof );
+            Field_Interpolator* tFI3 = mMasterFIManager->get_field_interpolators_for_type( mLastDof );
 
             // clang-format off
             // construct Y - vector based on the number of space dims
@@ -735,8 +744,8 @@ namespace moris
         const Matrix< DDRMat > & IWG_Compressible_NS_Base::A( const uint aK )
         {
             // check that indices are not out of bounds
-            MORIS_ASSERT( ( aK >= 0 ) and ( aK <= this->num_space_dims() ),
-                    "IWG_Compressible_NS_Base::A() - index out of bounds." );
+            MORIS_ASSERT( aK <= this->num_space_dims(),
+                    "IWG_Compressible_NS_Base::A() - index  out of bounds." );
 
             // check if the variable vectors have already been assembled
             if( !mAEval )
@@ -760,10 +769,12 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & IWG_Compressible_NS_Base::K( const uint aI, const uint aJ )
+        const Matrix< DDRMat > & IWG_Compressible_NS_Base::K(
+                const uint aI,
+                const uint aJ )
         {
             // check that indices are not out of bounds
-            MORIS_ASSERT( ( aI >= 0 ) and ( aI < this->num_space_dims() ) and ( aJ >= 0 ) and ( aJ < this->num_space_dims() ),
+            MORIS_ASSERT( ( aI < this->num_space_dims() ) and ( aJ < this->num_space_dims() ),
                     "IWG_Compressible_NS_Base::K() - indices out of bounds." );
 
             // check if K matrices have already been evaluated
@@ -791,7 +802,7 @@ namespace moris
         const Matrix< DDRMat > & IWG_Compressible_NS_Base::Kiji( const uint aJ )
         {
             // check that indices are not out of bounds
-            MORIS_ASSERT( ( aJ >= 0 ) and ( aJ < this->num_space_dims() ),
+            MORIS_ASSERT( aJ < this->num_space_dims(),
                     "IWG_Compressible_NS_Base::Kiji() - index out of bounds." );
 
             // check if Kiji matrices have already been evaluated
@@ -891,7 +902,7 @@ namespace moris
         const Matrix< DDRMat > & IWG_Compressible_NS_Base::dCdY( const uint aYind )
         {
             // check that index are not out of bounds
-            MORIS_ASSERT( ( aYind >= 0 ) and ( aYind < this->num_space_dims() + 2 ),
+            MORIS_ASSERT( aYind < this->num_space_dims() + 2,
                     "IWG_Compressible_NS_Base::dCdY() - state variable index out of bounds." );
 
             // check if matrix is already evaluated
