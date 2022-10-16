@@ -15,16 +15,15 @@
 
 namespace moris
 {
-    template< typename ET>
+    template< typename ET >
     auto
     diag_mat(
-            ET & aA,
-            size_t     const & ak = 0 )
-    ->decltype(arma::diagmat( aA ))
+            ET&            aA,
+            size_t const & ak = 0 )
+            -> decltype( arma::diagmat( aA ) )
     {
         return arma::diagmat( aA );
     }
-}
+}    // namespace moris
 
 #endif /* PROJECTS_LINALG_SRC_ARMA_IMPL_FN_DIAG_MAT_ARMA_HPP_ */
-

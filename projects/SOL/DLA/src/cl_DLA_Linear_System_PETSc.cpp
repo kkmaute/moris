@@ -30,12 +30,14 @@
 using namespace moris;
 using namespace dla;
 
-Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
-                                          const bool               aNotCreatedByNonLinSolver) : moris::dla::Linear_Problem( aInput ),
-                                                                                                mNotCreatedByNonLinearSolver( aNotCreatedByNonLinSolver)
+Linear_System_PETSc::Linear_System_PETSc(
+        Solver_Interface* aInput,
+        const bool        aNotCreatedByNonLinSolver )
+        : moris::dla::Linear_Problem( aInput )
+        , mNotCreatedByNonLinearSolver( aNotCreatedByNonLinSolver )
 {
     mTplType = sol::MapType::Petsc;
-    if( mNotCreatedByNonLinearSolver )
+    if ( mNotCreatedByNonLinearSolver )
     {
         // Initialize petsc solvers
         PetscInitializeNoArguments();
@@ -47,10 +49,10 @@ Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
 
         // create map object
         mMap = tMatFactory.create_map( aInput->get_my_local_global_map(),
-                                       aInput->get_constrained_Ids() );      //FIXME
+                aInput->get_constrained_Ids() );    // FIXME
 
         mMapFree = tMatFactory.create_map( aInput->get_my_local_global_map(),
-                                       aInput->get_constrained_Ids() );      //FIXME
+                aInput->get_constrained_Ids() );    // FIXME
 
         // Build matrix
         mMat = tMatFactory.create_matrix( aInput, mMapFree );
@@ -68,23 +70,25 @@ Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
 
     else
     {
-        //MORIS_ERROR{ false, "Linear_System_PETSc::Linear_System_PETSc: Matrix market options not implemented in PETSc"};
+        // MORIS_ERROR{ false, "Linear_System_PETSc::Linear_System_PETSc: Matrix market options not implemented in PETSc"};
     }
 }
 
-//----------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
-Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
-                                                sol::SOL_Warehouse       * aSolverWarehouse,
-                                                sol::Dist_Map*  aFreeMap,
-                                                sol::Dist_Map*  aFullMap,
-                                          const bool               aNotCreatedByNonLinSolver) : moris::dla::Linear_Problem( aInput ),
-                                                                                                mNotCreatedByNonLinearSolver( aNotCreatedByNonLinSolver)
+Linear_System_PETSc::Linear_System_PETSc(
+        Solver_Interface*   aInput,
+        sol::SOL_Warehouse* aSolverWarehouse,
+        sol::Dist_Map*      aFreeMap,
+        sol::Dist_Map*      aFullMap,
+        const bool          aNotCreatedByNonLinSolver )
+        : moris::dla::Linear_Problem( aInput )
+        , mNotCreatedByNonLinearSolver( aNotCreatedByNonLinSolver )
 {
-    mTplType = sol::MapType::Petsc;
+    mTplType         = sol::MapType::Petsc;
     mSolverWarehouse = aSolverWarehouse;
 
-    if( mNotCreatedByNonLinearSolver )
+    if ( mNotCreatedByNonLinearSolver )
     {
         // Initialize petsc solvers
         PetscInitializeNoArguments();
@@ -104,30 +108,30 @@ Linear_System_PETSc::Linear_System_PETSc(       Solver_Interface * aInput,
     mFullVectorLHS = tMatFactory.create_vector( aInput, aFullMap );
 
     mSolverInterface->build_graph( mMat );
-
 }
-//----------------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
 
 Linear_System_PETSc::~Linear_System_PETSc()
 {
     delete mMat;
-    mMat=nullptr;
+    mMat = nullptr;
 
     delete mFreeVectorLHS;
-    mFreeVectorLHS=nullptr;
+    mFreeVectorLHS = nullptr;
 
     delete mFullVectorLHS;
-    mFullVectorLHS=nullptr;
+    mFullVectorLHS = nullptr;
 
     delete mPointVectorLHS;
-    mPointVectorLHS=nullptr;
+    mPointVectorLHS = nullptr;
 
     delete mPointVectorRHS;
-    mPointVectorRHS=nullptr;
+    mPointVectorRHS = nullptr;
 
-//    mSolverInterface->delete_multigrid();
+    //    mSolverInterface->delete_multigrid();
 
-    //KSPDestroy( &mPetscProblem );
+    // KSPDestroy( &mPetscProblem );
     //( &mpc );
 
     if ( mNotCreatedByNonLinearSolver == true )
@@ -140,16 +144,18 @@ Linear_System_PETSc::~Linear_System_PETSc()
     }
 }
 
-//------------------------------------------------------------------------------------------
-moris::sint Linear_System_PETSc::solve_linear_system()
+//------------------------------------------------------------------------------
+
+moris::sint
+Linear_System_PETSc::solve_linear_system()
 {
-    //PetscInitializeNoArguments();
+    // PetscInitializeNoArguments();
     KSP tPetscKSPProblem;
-    PC mpc;
+    PC  mpc;
 
     KSPCreate( PETSC_COMM_WORLD, &tPetscKSPProblem );
     KSPSetOperators( tPetscKSPProblem, mMat->get_petsc_matrix(), mMat->get_petsc_matrix() );
-    //KSPView ( tPetscKSPProblem, PETSC_VIEWER_STDOUT_WORLD);
+    // KSPView ( tPetscKSPProblem, PETSC_VIEWER_STDOUT_WORLD);
     KSPGetPC( tPetscKSPProblem, &mpc );
 
     // Build Preconditioner
@@ -159,10 +165,10 @@ moris::sint Linear_System_PETSc::solve_linear_system()
     PCFactorSetDropTolerance( mpc, 1e-6, PETSC_DEFAULT, PETSC_DEFAULT );
     PCFactorSetLevels( mpc, 0 );
 
-    PetscInt maxits=1000;
+    PetscInt maxits = 1000;
     KSPSetTolerances( tPetscKSPProblem, 1.e-10, PETSC_DEFAULT, PETSC_DEFAULT, maxits );
     KSPSetType( tPetscKSPProblem, KSPFGMRES );
-    //KSPSetType(mPetscProblem,KSPPREONLY);
+    // KSPSetType(mPetscProblem,KSPPREONLY);
     KSPGMRESSetOrthogonalization( tPetscKSPProblem, KSPGMRESModifiedGramSchmidtOrthogonalization );
     KSPGMRESSetHapTol( tPetscKSPProblem, 1e-10 );
     KSPGMRESSetRestart( tPetscKSPProblem, 500 );
@@ -170,24 +176,26 @@ moris::sint Linear_System_PETSc::solve_linear_system()
     KSPSetFromOptions( tPetscKSPProblem );
 
     KSPSolve( tPetscKSPProblem,
-            static_cast<Vector_PETSc*>(mPointVectorRHS)->get_petsc_vector(),
-            static_cast<Vector_PETSc*>(mPointVectorLHS)->get_petsc_vector() );
+            static_cast< Vector_PETSc* >( mPointVectorRHS )->get_petsc_vector(),
+            static_cast< Vector_PETSc* >( mPointVectorLHS )->get_petsc_vector() );
 
     KSPDestroy( &tPetscKSPProblem );
 
     return 0;
 }
 
-//------------------------------------------------------------------------------------------
-void Linear_System_PETSc::get_solution( Matrix< DDRMat > & LHSValues )
+//------------------------------------------------------------------------------
+
+void
+Linear_System_PETSc::get_solution( Matrix< DDRMat >& LHSValues )
 {
-    //VecGetArray (tSolution, &  LHSValues.data());
+    // VecGetArray (tSolution, &  LHSValues.data());
 
     moris::sint tVecLocSize;
-    VecGetLocalSize( static_cast<Vector_PETSc*>(mPointVectorLHS)->get_petsc_vector(), &tVecLocSize );
+    VecGetLocalSize( static_cast< Vector_PETSc* >( mPointVectorLHS )->get_petsc_vector(), &tVecLocSize );
 
     // FIXME replace with VecGetArray()
-    moris::Matrix< DDSMat > tVal ( tVecLocSize, 1 , 0 );
+    moris::Matrix< DDSMat > tVal( tVecLocSize, 1, 0 );
     LHSValues.set_size( tVecLocSize, 1 );
 
     //----------------------------------------------------------------------------------------
@@ -201,16 +209,19 @@ void Linear_System_PETSc::get_solution( Matrix< DDRMat > & LHSValues )
     for ( moris::uint Ij = 1; Ij < tOwnedOffsetList.length(); Ij++ )
     {
         // Add the number of owned adofs of the previous processor to the offset of the previous processor
-        tOwnedOffsetList( Ij, 0 ) = tOwnedOffsetList( Ij-1, 0 ) + tNumOwnedList( Ij-1, 0 );
+        tOwnedOffsetList( Ij, 0 ) = tOwnedOffsetList( Ij - 1, 0 ) + tNumOwnedList( Ij - 1, 0 );
     }
     //-------------------------------------------------------------------------------------
-    for ( moris::sint Ik=0; Ik< tVecLocSize; Ik++ )
+    for ( moris::sint Ik = 0; Ik < tVecLocSize; Ik++ )
     {
-        tVal( Ik, 0 ) = tOwnedOffsetList( par_rank(), 0)+Ik;
+        tVal( Ik, 0 ) = tOwnedOffsetList( par_rank(), 0 ) + Ik;
     }
 
-    VecGetValues( static_cast<Vector_PETSc*>(mPointVectorLHS)->get_petsc_vector(), tVecLocSize, tVal.data(), LHSValues.data() );
+    VecGetValues( static_cast< Vector_PETSc* >( mPointVectorLHS )->    //
+                  get_petsc_vector(),
+            tVecLocSize,
+            tVal.data(),
+            LHSValues.data() );
 }
 
 //------------------------------------------------------------------------------------------
-

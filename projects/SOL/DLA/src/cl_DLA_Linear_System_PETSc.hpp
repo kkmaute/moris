@@ -36,39 +36,40 @@
 #include "cl_DLA_Linear_Problem.hpp"
 #include "cl_SOL_Dist_Map.hpp"
 
-#include "cl_Param_List.hpp" // CON/src
+#include "cl_Param_List.hpp"    // CON/src
 
 namespace moris
 {
-namespace dla
-{
-    class Linear_System_PETSc : public Linear_Problem
+    namespace dla
     {
-    private:
-        // Flag for deconstructor. If PetscFinalaize should be called in linear solver or in nonliear
-        bool mNotCreatedByNonLinearSolver = false;
+        class Linear_System_PETSc : public Linear_Problem
+        {
+          private:
+            // Flag for deconstructor. If PetscFinalaize should be called in linear solver or in nonliear
+            bool mNotCreatedByNonLinearSolver = false;
 
-    protected:
+          protected:
 
-    public:
-        Linear_System_PETSc(       Solver_Interface * aInput,
-                             const bool               aNotCreatedByNonLinSolver = false);
+          public:
+            Linear_System_PETSc(
+                    Solver_Interface* aInput,
+                    const bool        aNotCreatedByNonLinSolver = false );
 
-        Linear_System_PETSc(       Solver_Interface * aInput,
-                                   sol::SOL_Warehouse       * aSolverWarehouse,
-                                   sol::Dist_Map*  aFreeMap,
-                                   sol::Dist_Map*  aFullMap,
-                             const bool               aNotCreatedByNonLinSolver = false);
+            Linear_System_PETSc(
+                    Solver_Interface*   aInput,
+                    sol::SOL_Warehouse* aSolverWarehouse,
+                    sol::Dist_Map*      aFreeMap,
+                    sol::Dist_Map*      aFullMap,
+                    const bool          aNotCreatedByNonLinSolver = false );
 
-        Linear_System_PETSc( const char* aString );
+            Linear_System_PETSc( const char* aString );
 
-        ~Linear_System_PETSc();
+            ~Linear_System_PETSc();
 
-        moris::sint solve_linear_system();
+            moris::sint solve_linear_system();
 
-        void get_solution( Matrix< DDRMat > & LHSValues );
-    };
-}
-}
+            void get_solution( Matrix< DDRMat >& LHSValues );
+        };
+    }    // namespace dla
+}    // namespace moris
 #endif /* SRC_DISTLINALG_CL_DLA_LINEAR_SYSTEM_PETSC_HPP_ */
-
