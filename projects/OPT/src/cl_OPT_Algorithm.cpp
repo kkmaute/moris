@@ -23,13 +23,13 @@ namespace moris
         Algorithm::Algorithm()
         {
             // set size of FD epsilons to zero to indicate that no values have been set
-            mFiniteDifferenceEpsilons.set_size(0,0);
+            mFiniteDifferenceEpsilons.set_size( 0, 0 );
 
             // set size of ADVS for FD to zero to indicate that no valuves have been set
-            mFiniteDifferenceADVs.set_size(0,0);
+            mFiniteDifferenceADVs.set_size( 0, 0 );
 
             // set sensitivity analysis type
-            set_sensitivity_analysis_type(mSAType);
+            set_sensitivity_analysis_type( mSAType );
         }
 
         // -------------------------------------------------------------------------------------------------------------
@@ -45,14 +45,14 @@ namespace moris
         {
             // check that only processor with rank 0 enters this routine
             MORIS_ERROR( par_rank() == 0,
-                    "Algorithm::compute_design_criteria - processor with rank > 0 detected.\n");
+                    "Algorithm::compute_design_criteria - processor with rank > 0 detected.\n" );
 
             // Coordinate computation of design criteria
             mRunning = opt::Task::compute_criteria_forward_analysis;
             this->communicate_running_status();
 
             // Compute design criteria
-            this->mProblem->compute_design_criteria(aADVs);
+            this->mProblem->compute_design_criteria( aADVs );
 
             // Set flag that for this design gradients have not been computed yet
             mGradientsHaveBeenComputed = false;
@@ -60,7 +60,8 @@ namespace moris
 
         //----------------------------------------------------------------------------------------------------------------------
 
-        const Matrix<DDRMat> & Algorithm::get_objectives()
+        const Matrix< DDRMat >&
+        Algorithm::get_objectives()
         {
             // Get objective value(s) from problem
             return mProblem->get_objectives();
@@ -68,7 +69,8 @@ namespace moris
 
         //----------------------------------------------------------------------------------------------------------------------
 
-        const Matrix<DDRMat> & Algorithm::get_constraints()
+        const Matrix< DDRMat >&
+        Algorithm::get_constraints()
         {
             // Get objective value(s) from problem
             return mProblem->get_constraints();
@@ -76,239 +78,246 @@ namespace moris
 
         //----------------------------------------------------------------------------------------------------------------------
 
-        void Algorithm::compute_design_criteria_gradients(const Matrix<DDRMat> & aADVs)
+        void
+        Algorithm::compute_design_criteria_gradients( const Matrix< DDRMat >& aADVs )
         {
             // Compute gradients of design criteria
-            (this->*compute_design_criteria_gradients_by_type)(aADVs);
+            ( this->*compute_design_criteria_gradients_by_type )( aADVs );
 
             // Set flag that for this design gradients have been computed yet
-             mGradientsHaveBeenComputed = true;
+            mGradientsHaveBeenComputed = true;
         }
 
         //----------------------------------------------------------------------------------------------------------------------
 
-        void Algorithm::compute_design_criteria_gradients_analytically(const Matrix<DDRMat> & aADVs)
+        void
+        Algorithm::compute_design_criteria_gradients_analytically( const Matrix< DDRMat >& aADVs )
         {
             // check that only processor with rank 0 enters this routine
             MORIS_ERROR( par_rank() == 0,
-                    "Algorithm::compute_design_criteria_gradients_analytically - processor with rank > 0 detected.\n");
+                    "Algorithm::compute_design_criteria_gradients_analytically - processor with rank > 0 detected.\n" );
 
             // Coordinate computation of design criteria
             mRunning = opt::Task::compute_criteria_gradients_analytically;
             this->communicate_running_status();
 
             // Compute design criteria gradients
-            mProblem->compute_design_criteria_gradients(aADVs);
+            mProblem->compute_design_criteria_gradients( aADVs );
         }
 
         //----------------------------------------------------------------------------------------------------------------------
 
-        void Algorithm::compute_design_criteria_gradients_fd_fwbw(const Matrix<DDRMat> & aADVs)
+        void
+        Algorithm::compute_design_criteria_gradients_fd_fwbw( const Matrix< DDRMat >& aADVs )
         {
             // Copy ADV vector such that it can be altered
-            Matrix<DDRMat> tADVs = aADVs;
+            Matrix< DDRMat > tADVs = aADVs;
 
             // number of ADVs with respect to which sensitivities are computed by FD
             uint tNumFDadvs = mFiniteDifferenceADVs.numel();
 
             // save objective and constraints of unperturbed ADV vector
             // note: need to make a copy as vector in problem will change
-            const Matrix<DDRMat> tObjectiveOrg   = this->get_objectives();
-            const Matrix<DDRMat> tConstraintsOrg = this->get_constraints();
+            const Matrix< DDRMat > tObjectiveOrg   = this->get_objectives();
+            const Matrix< DDRMat > tConstraintsOrg = this->get_constraints();
 
             // number of objectives
-            uint tNumberOfObjectives =tObjectiveOrg.numel();
+            uint tNumberOfObjectives = tObjectiveOrg.numel();
 
             // number of constraints
             uint tNumberOfConstraints = tConstraintsOrg.numel();
 
             // set size of gradient vectors for objective and constraints
-            mFDObjectiveGradients.set_size(tNumberOfObjectives,tNumFDadvs);
-            mFDObjectiveConstraints.set_size(tNumberOfConstraints,tNumFDadvs);
+            mFDObjectiveGradients.set_size( tNumberOfObjectives, tNumFDadvs );
+            mFDObjectiveConstraints.set_size( tNumberOfConstraints, tNumFDadvs );
 
             // FD each ADV
-            for (uint tIndex = 0; tIndex < tNumFDadvs; tIndex++)
+            for ( uint tIndex = 0; tIndex < tNumFDadvs; tIndex++ )
             {
                 // get ADV index
-                uint tADVIndex = mFiniteDifferenceADVs(tIndex);
+                uint tADVIndex = mFiniteDifferenceADVs( tIndex );
 
                 // Perturb
-                tADVs(tADVIndex) += mFiniteDifferenceEpsilons(tADVIndex,mPerturbationSizeIndex);
+                tADVs( tADVIndex ) += mFiniteDifferenceEpsilons( tADVIndex, mPerturbationSizeIndex );
 
                 // Coordinate computation of design criteria
                 mRunning = opt::Task::compute_criteria_finite_difference_analysis;
                 this->communicate_running_status();
 
                 // Compute design criteria
-                this->mProblem->compute_design_criteria(tADVs);
+                this->mProblem->compute_design_criteria( tADVs );
 
                 // get objective and constraints
-                const Matrix<DDRMat> & tObjectivePerturbed   = this->get_objectives();
-                const Matrix<DDRMat> & tConstraintsPerturbed = this->get_constraints();
+                const Matrix< DDRMat >& tObjectivePerturbed   = this->get_objectives();
+                const Matrix< DDRMat >& tConstraintsPerturbed = this->get_constraints();
 
                 // fw/bw finite difference
-                for ( uint tObjIndex=0;tObjIndex<tNumberOfObjectives;++tObjIndex)
+                for ( uint tObjIndex = 0; tObjIndex < tNumberOfObjectives; ++tObjIndex )
                 {
-                    mFDObjectiveGradients(tObjIndex, tIndex) =
-                            (tObjectivePerturbed(tObjIndex) - tObjectiveOrg(tObjIndex)) /
-                            mFiniteDifferenceEpsilons(tADVIndex,mPerturbationSizeIndex);
+                    mFDObjectiveGradients( tObjIndex, tIndex ) =
+                            ( tObjectivePerturbed( tObjIndex ) - tObjectiveOrg( tObjIndex ) ) / mFiniteDifferenceEpsilons( tADVIndex, mPerturbationSizeIndex );
                 }
 
-                for ( uint tConIndex=0;tConIndex<tNumberOfConstraints;++tConIndex)
+                for ( uint tConIndex = 0; tConIndex < tNumberOfConstraints; ++tConIndex )
                 {
-                    mFDObjectiveConstraints(tConIndex, tIndex) =
-                            (tConstraintsPerturbed(tConIndex) - tConstraintsOrg(tConIndex)) /
-                            mFiniteDifferenceEpsilons(tADVIndex,mPerturbationSizeIndex);
+                    mFDObjectiveConstraints( tConIndex, tIndex ) =
+                            ( tConstraintsPerturbed( tConIndex ) - tConstraintsOrg( tConIndex ) ) / mFiniteDifferenceEpsilons( tADVIndex, mPerturbationSizeIndex );
                 }
 
                 // Restore ADV
-                tADVs(tADVIndex) = aADVs(tADVIndex);
+                tADVs( tADVIndex ) = aADVs( tADVIndex );
             }
 
-            //Restore objective and gradients
-            mProblem->set_objectives_and_constraints(tObjectiveOrg,tConstraintsOrg);
+            // Restore objective and gradients
+            mProblem->set_objectives_and_constraints( tObjectiveOrg, tConstraintsOrg );
         }
 
         //----------------------------------------------------------------------------------------------------------------------
 
-        void Algorithm::compute_design_criteria_gradients_fd_central(const Matrix<DDRMat> & aADVs)
+        void
+        Algorithm::compute_design_criteria_gradients_fd_central( const Matrix< DDRMat >& aADVs )
         {
             // Copy ADV vector such that it can be altered
-            Matrix<DDRMat> tADVs = aADVs;
+            Matrix< DDRMat > tADVs = aADVs;
 
             // number of ADVs with respect to which sensitivities are computed by FD
             uint tNumFDadvs = mFiniteDifferenceADVs.numel();
 
             // get a copy of objective and constraints of unperturbed ADV vector
-            const Matrix<DDRMat> tObjectiveOrg   = this->get_objectives();
-            const Matrix<DDRMat> tConstraintsOrg = this->get_constraints();
+            const Matrix< DDRMat > tObjectiveOrg   = this->get_objectives();
+            const Matrix< DDRMat > tConstraintsOrg = this->get_constraints();
 
             // number of objectives
-            uint tNumberOfObjectives   =tObjectiveOrg.numel();
+            uint tNumberOfObjectives = tObjectiveOrg.numel();
 
             // number of constraints
             uint tNumberOfConstraints = tConstraintsOrg.numel();
 
             // set size of gradient vectors for objective and constraints
-            mFDObjectiveGradients.set_size(tNumberOfObjectives,tNumFDadvs);
-            mFDObjectiveConstraints.set_size(tNumberOfConstraints,tNumFDadvs);
+            mFDObjectiveGradients.set_size( tNumberOfObjectives, tNumFDadvs );
+            mFDObjectiveConstraints.set_size( tNumberOfConstraints, tNumFDadvs );
 
             // FD each ADV
-            for (uint tIndex = 0; tIndex < tNumFDadvs; tIndex++)
+            for ( uint tIndex = 0; tIndex < tNumFDadvs; tIndex++ )
             {
                 // get ADV index
-                uint tADVIndex = mFiniteDifferenceADVs(tIndex);
+                uint tADVIndex = mFiniteDifferenceADVs( tIndex );
 
                 // Perturb
-                tADVs(tADVIndex) += mFiniteDifferenceEpsilons(tADVIndex,mPerturbationSizeIndex);
+                tADVs( tADVIndex ) += mFiniteDifferenceEpsilons( tADVIndex, mPerturbationSizeIndex );
 
                 // Coordinate computation of design criteria
                 mRunning = opt::Task::compute_criteria_finite_difference_analysis;
                 this->communicate_running_status();
 
                 // Compute design criteria
-                this->mProblem->compute_design_criteria(tADVs);
+                this->mProblem->compute_design_criteria( tADVs );
 
                 // get objective and constraints
                 // note: need to make a copy as vector in problem will change
-                const Matrix<DDRMat> tObjectivePerturbedPlus   = this->get_objectives();
-                const Matrix<DDRMat> tConstraintsPerturbedPlus = this->get_constraints();
+                const Matrix< DDRMat > tObjectivePerturbedPlus   = this->get_objectives();
+                const Matrix< DDRMat > tConstraintsPerturbedPlus = this->get_constraints();
 
                 // Perturb
-                tADVs(tADVIndex) -= 2.0 * mFiniteDifferenceEpsilons(tADVIndex,mPerturbationSizeIndex);
+                tADVs( tADVIndex ) -= 2.0 * mFiniteDifferenceEpsilons( tADVIndex, mPerturbationSizeIndex );
 
                 // Coordinate computation of design criteria
                 mRunning = opt::Task::compute_criteria_finite_difference_analysis;
                 this->communicate_running_status();
 
                 // Compute design criteria
-                this->mProblem->compute_design_criteria(tADVs);
+                this->mProblem->compute_design_criteria( tADVs );
 
                 // get objective and constraints; note: do not need to make a copy
-                const Matrix<DDRMat> & tObjectivePerturbedMinus   = this->get_objectives();
-                const Matrix<DDRMat> & tConstraintsPerturbedMinus = this->get_constraints();
+                const Matrix< DDRMat >& tObjectivePerturbedMinus   = this->get_objectives();
+                const Matrix< DDRMat >& tConstraintsPerturbedMinus = this->get_constraints();
 
                 // central finite difference
-                for ( uint tObjIndex=0;tObjIndex<tNumberOfObjectives;++tObjIndex)
+                for ( uint tObjIndex = 0; tObjIndex < tNumberOfObjectives; ++tObjIndex )
                 {
-                    mFDObjectiveGradients(tObjIndex, tIndex) =
-                            (tObjectivePerturbedPlus(tObjIndex) - tObjectivePerturbedMinus(tObjIndex)) /
-                            (2.0*mFiniteDifferenceEpsilons(tADVIndex,mPerturbationSizeIndex));
+                    mFDObjectiveGradients( tObjIndex, tIndex ) =
+                            ( tObjectivePerturbedPlus( tObjIndex ) - tObjectivePerturbedMinus( tObjIndex ) ) / ( 2.0 * mFiniteDifferenceEpsilons( tADVIndex, mPerturbationSizeIndex ) );
                 }
 
-                for ( uint tConIndex=0;tConIndex<tNumberOfConstraints;++tConIndex)
+                for ( uint tConIndex = 0; tConIndex < tNumberOfConstraints; ++tConIndex )
                 {
-                    mFDObjectiveConstraints(tConIndex, tIndex) =
-                            (tConstraintsPerturbedPlus(tConIndex) - tConstraintsPerturbedMinus(tConIndex)) /
-                            (2.0*mFiniteDifferenceEpsilons(tADVIndex,mPerturbationSizeIndex));
+                    mFDObjectiveConstraints( tConIndex, tIndex ) =
+                            ( tConstraintsPerturbedPlus( tConIndex ) - tConstraintsPerturbedMinus( tConIndex ) ) / ( 2.0 * mFiniteDifferenceEpsilons( tADVIndex, mPerturbationSizeIndex ) );
                 }
 
                 // Restore ADV
-                tADVs(tADVIndex) = aADVs(tADVIndex);
+                tADVs( tADVIndex ) = aADVs( tADVIndex );
             }
 
-            //Restore objective and gradients
-            mProblem->set_objectives_and_constraints(tObjectiveOrg,tConstraintsOrg);
+            // Restore objective and gradients
+            mProblem->set_objectives_and_constraints( tObjectiveOrg, tConstraintsOrg );
         }
 
         //----------------------------------------------------------------------------------------------------------------------
 
-        const Matrix<DDRMat> & Algorithm::get_objective_gradients()
+        const Matrix< DDRMat >&
+        Algorithm::get_objective_gradients()
         {
             // Check that gradients have been computed
             MORIS_ERROR( mGradientsHaveBeenComputed,
-                    "Algorithm::get_objective_gradients - objective gradients not available for current advs.\n");
+                    "Algorithm::get_objective_gradients - objective gradients not available for current advs.\n" );
 
             // return gradients
-            return (this->*get_objective_gradients_by_type)();
+            return ( this->*get_objective_gradients_by_type )();
         }
 
         //----------------------------------------------------------------------------------------------------------------------
 
-        const Matrix<DDRMat> & Algorithm::get_objective_gradients_analytically()
+        const Matrix< DDRMat >&
+        Algorithm::get_objective_gradients_analytically()
         {
             return mProblem->get_objective_gradients();
         }
 
         //----------------------------------------------------------------------------------------------------------------------
 
-        const Matrix<DDRMat> & Algorithm::get_objective_gradients_by_fd()
+        const Matrix< DDRMat >&
+        Algorithm::get_objective_gradients_by_fd()
         {
             return mFDObjectiveGradients;
         }
 
         //----------------------------------------------------------------------------------------------------------------------
 
-        const Matrix<DDRMat> & Algorithm::get_constraint_gradients()
+        const Matrix< DDRMat >&
+        Algorithm::get_constraint_gradients()
         {
             // Check that gradients have been computed
             MORIS_ERROR( mGradientsHaveBeenComputed,
-                    "AAlgorithm::get_constraint_gradients - constraint gradients not available for current advs.\n");
+                    "AAlgorithm::get_constraint_gradients - constraint gradients not available for current advs.\n" );
 
             // return gradients
-            return (this->*get_constraint_gradients_by_type)();
+            return ( this->*get_constraint_gradients_by_type )();
         }
 
         //----------------------------------------------------------------------------------------------------------------------
 
-        const Matrix<DDRMat> & Algorithm::get_constraint_gradients_analytically()
+        const Matrix< DDRMat >&
+        Algorithm::get_constraint_gradients_analytically()
         {
             return mProblem->get_constraint_gradients();
         }
 
         //----------------------------------------------------------------------------------------------------------------------
 
-        const Matrix<DDRMat> & Algorithm::get_constraint_gradients_by_fd()
+        const Matrix< DDRMat >&
+        Algorithm::get_constraint_gradients_by_fd()
         {
             return mFDObjectiveConstraints;
         }
 
         //----------------------------------------------------------------------------------------------------------------------
 
-        void Algorithm::set_sensitivity_analysis_type(SA_Type aType)
+        void
+        Algorithm::set_sensitivity_analysis_type( SA_Type aType )
         {
             // Set gradient function pointers
-            switch (aType)
+            switch ( aType )
             {
                 case opt::SA_Type::analytical:
                 {
@@ -321,6 +330,7 @@ namespace moris
                 case opt::SA_Type::backward:
                 {
                     mFiniteDifferenceEpsilons = -1.0 * mFiniteDifferenceEpsilons;
+                    [[fallthrough]];
                 }
                 case opt::SA_Type::forward:
                 {
@@ -338,7 +348,7 @@ namespace moris
                 }
                 default:
                 {
-                    MORIS_ERROR(false,"Algorithm::set_finite_differencing - Sensitivity analysis type not implemented.\n");
+                    MORIS_ERROR( false, "Algorithm::set_finite_differencing - Sensitivity analysis type not implemented.\n" );
                 }
             }
 
@@ -348,34 +358,37 @@ namespace moris
 
         //----------------------------------------------------------------------------------------------------------------------
 
-        void Algorithm::set_finite_difference_perturbation_size_index(uint aPerturbationSizeIndex)
+        void
+        Algorithm::set_finite_difference_perturbation_size_index( uint aPerturbationSizeIndex )
         {
             mPerturbationSizeIndex = aPerturbationSizeIndex;
         }
 
         // -------------------------------------------------------------------------------------------------------------
 
-        void Algorithm::set_finite_difference_advs( const Matrix<DDUMat> & aFiniteDifferenceADVs)
+        void
+        Algorithm::set_finite_difference_advs( const Matrix< DDUMat >& aFiniteDifferenceADVs )
         {
             mFiniteDifferenceADVs = aFiniteDifferenceADVs;
         }
 
         //----------------------------------------------------------------------------------------------------------------------
 
-        void Algorithm::communicate_running_status()
+        void
+        Algorithm::communicate_running_status()
         {
             // check that incoming status of processors with rank larger 1 is "wait"
             MORIS_ERROR( par_rank() > 0 ? mRunning == Task::wait : true,
-                    "Algorithm::communicate_running_status - incoming status of processors with rank larger 1 should be wait\n");
+                    "Algorithm::communicate_running_status - incoming status of processors with rank larger 1 should be wait\n" );
 
             // convert enum into uint for MPI communication
-            uint tMsg = (uint) mRunning;
+            uint tMsg = (uint)mRunning;
 
             // procesor 0 sends running status to all other processors
-            broadcast(tMsg);
+            broadcast( tMsg );
 
             // update running status
-            mRunning = (Task) tMsg;
+            mRunning = (Task)tMsg;
 
             // Increase optimization iteration counter if forward analysis
             if ( mRunning == Task::compute_criteria_forward_analysis )
@@ -386,46 +399,47 @@ namespace moris
 
         //----------------------------------------------------------------------------------------------------------------------
 
-        void Algorithm::dummy_solve()
+        void
+        Algorithm::dummy_solve()
         {
             // Communicate that these procs need to start running
             this->communicate_running_status();
 
             // Create dummy ADVs
-            Matrix<DDRMat> tDummyADVs(0,0);
+            Matrix< DDRMat > tDummyADVs( 0, 0 );
 
             // Perform requested analysis type until exit status received
-            while (mRunning != Task::exit)
+            while ( mRunning != Task::exit )
             {
                 switch ( mRunning )
                 {
                     case Task::exit:
-                     {
-                         // Do nothing on exit
-                         break;
-                     }
+                    {
+                        // Do nothing on exit
+                        break;
+                    }
                     case Task::wait:
-                     {
-                         // Do nothing on exit
-                         break;
-                     }
+                    {
+                        // Do nothing on exit
+                        break;
+                    }
                     case Task::compute_criteria_forward_analysis:
                     case Task::compute_criteria_finite_difference_analysis:
                     {
                         // Compute design criteria
-                        this->mProblem->compute_design_criteria(tDummyADVs);
+                        this->mProblem->compute_design_criteria( tDummyADVs );
                         break;
                     }
                     case Task::compute_criteria_gradients_analytically:
                     {
                         // Compute analytically derivatives of design criteria
-                        this->mProblem->compute_design_criteria_gradients(tDummyADVs);
+                        this->mProblem->compute_design_criteria_gradients( tDummyADVs );
                         break;
                     }
                     default:
                     {
-                        MORIS_ERROR(false,
-                                "Algorithm::dummy_solve - undefined running status.\n");
+                        MORIS_ERROR( false,
+                                "Algorithm::dummy_solve - undefined running status.\n" );
                     }
                 }
 
@@ -439,18 +453,15 @@ namespace moris
 
         // -------------------------------------------------------------------------------------------------------------
 
-        void Algorithm::write_advs_to_file( const Matrix<DDRMat> aADVs )
+        void
+        Algorithm::write_advs_to_file( const Matrix< DDRMat > aADVs )
         {
             // Get iteration from global clock
             uint tOptIter = gLogger.get_opt_iteration();
 
             // Create file name
             std::string tRestartFileName =
-                    "ADV_Alg_" +
-                    std::to_string(mCurrentOptAlgInd) +
-                    "_Iter_" +
-                    std::to_string(tOptIter) +
-                    ".hdf5";
+                    "ADV_Alg_" + std::to_string( mCurrentOptAlgInd ) + "_Iter_" + std::to_string( tOptIter ) + ".hdf5";
 
             // Create file
             // Note: only processor 0 creates this file; therefore no parallel name extension is used
@@ -459,24 +470,25 @@ namespace moris
             // Write advs and upper/lower bounds to file
             herr_t tStatus = 0;
 
-            save_matrix_to_hdf5_file(tFileID, "ADVs", aADVs, tStatus);
-            save_matrix_to_hdf5_file(tFileID, "UpperBounds", mProblem->get_upper_bounds(), tStatus);
-            save_matrix_to_hdf5_file(tFileID, "LowerBounds", mProblem->get_lower_bounds(), tStatus);
+            save_matrix_to_hdf5_file( tFileID, "ADVs", aADVs, tStatus );
+            save_matrix_to_hdf5_file( tFileID, "UpperBounds", mProblem->get_upper_bounds(), tStatus );
+            save_matrix_to_hdf5_file( tFileID, "LowerBounds", mProblem->get_lower_bounds(), tStatus );
 
-            if( mProblem->get_ijklIDs().numel() == aADVs.numel() )
+            if ( mProblem->get_ijklIDs().numel() == aADVs.numel() )
             {
-                save_matrix_to_hdf5_file(tFileID, "IjklIds", mProblem->get_ijklIDs(), tStatus);
+                save_matrix_to_hdf5_file( tFileID, "IjklIds", mProblem->get_ijklIDs(), tStatus );
             }
 
-            save_scalar_to_hdf5_file(tFileID, "NumProcs", par_size(), tStatus);
+            save_scalar_to_hdf5_file( tFileID, "NumProcs", par_size(), tStatus );
 
             // Close file
-            close_hdf5_file(tFileID);
+            close_hdf5_file( tFileID );
         }
 
         // -------------------------------------------------------------------------------------------------------------
 
-        void Algorithm::initialize_finite_difference_schemes()
+        void
+        Algorithm::initialize_finite_difference_schemes()
         {
             // get number of advs
             uint tNumberOfAdvs = mProblem->get_num_advs();
@@ -491,52 +503,53 @@ namespace moris
                 tNumFDadvs = tNumberOfAdvs;
 
                 // fill adv list with all advs
-                mFiniteDifferenceADVs=linspace<uint>(0,tNumberOfAdvs-1,tNumberOfAdvs);
+                mFiniteDifferenceADVs = linspace< uint >( 0, tNumberOfAdvs - 1, tNumberOfAdvs );
             }
             else
             {
                 // check that requested adv indices exists
-                for (uint tIndex =0; tIndex<tNumFDadvs; ++tIndex)
+                for ( uint tIndex = 0; tIndex < tNumFDadvs; ++tIndex )
                 {
-                    MORIS_ERROR( mFiniteDifferenceADVs(tIndex) < tNumberOfAdvs,
+                    MORIS_ERROR( mFiniteDifferenceADVs( tIndex ) < tNumberOfAdvs,
                             "Algorithm::initialize_finite_difference_schemes - %s",
-                            "Requested Adv index for FD too large.\n");
+                            "Requested Adv index for FD too large.\n" );
                 }
             }
 
             // Finite differencing perturbation size
-            if (mFiniteDifferenceEpsilons.numel() != 0)
+            if ( mFiniteDifferenceEpsilons.numel() != 0 )
             {
                 // check if only one vector of perturbation sizes is provided
-                if (mFiniteDifferenceEpsilons.n_rows() == 1)
+                if ( mFiniteDifferenceEpsilons.n_rows() == 1 )
                 {
                     uint tNumEvals = mFiniteDifferenceEpsilons.n_cols();
-                    mFiniteDifferenceEpsilons.resize(tNumberOfAdvs, tNumEvals);
+                    mFiniteDifferenceEpsilons.resize( tNumberOfAdvs, tNumEvals );
 
                     // assign same perturbation values to all ADVs
-                    for (uint tIndex = 1; tIndex < tNumberOfAdvs; tIndex++)
+                    for ( uint tIndex = 1; tIndex < tNumberOfAdvs; tIndex++ )
                     {
-                        mFiniteDifferenceEpsilons({tIndex, tIndex}, {0, tNumEvals - 1}) =
-                                mFiniteDifferenceEpsilons({0, 0}, {0, tNumEvals - 1});
+                        mFiniteDifferenceEpsilons( { tIndex, tIndex }, { 0, tNumEvals - 1 } ) =
+                                mFiniteDifferenceEpsilons( { 0, 0 }, { 0, tNumEvals - 1 } );
                     }
                 }
 
                 // check that matrix of perturbation sizes has correct size
-                MORIS_ERROR(mFiniteDifferenceEpsilons.n_rows() == tNumberOfAdvs,
+                MORIS_ERROR( mFiniteDifferenceEpsilons.n_rows() == tNumberOfAdvs,
                         "Algorithm::initialize_finite_difference_schemes - %s",
-                        "Number of rows in finite_difference_epsilons must match the number of ADVs.");
+                        "Number of rows in finite_difference_epsilons must match the number of ADVs." );
             }
             else
             {
-                MORIS_ERROR(false,
+                MORIS_ERROR( false,
                         "Algorithm::initialize_finite_difference_schemes - %s",
-                        "At least one value for the FD perturbation size needs to be set.\n");
+                        "At least one value for the FD perturbation size needs to be set.\n" );
             }
         }
 
         // -------------------------------------------------------------------------------------------------------------
 
-        void Algorithm::set_restart_index( uint aRestartIndex )
+        void
+        Algorithm::set_restart_index( uint aRestartIndex )
         {
             mRestartIndex = aRestartIndex;
 
@@ -546,6 +559,5 @@ namespace moris
 
         // -------------------------------------------------------------------------------------------------------------
 
-    }
-}
-
+    }    // namespace opt
+}    // namespace moris
