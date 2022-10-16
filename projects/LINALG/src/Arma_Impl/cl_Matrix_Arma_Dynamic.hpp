@@ -103,11 +103,15 @@ namespace moris
         // -----------------------------------------------------------------
 
         // template constructor
-        Matrix( arma::Mat< Type > const & X )
+        Matrix( const arma::Mat< Type >& X )
                 : mMatrix( X )
         {
         }
 
+        Matrix( const Matrix< arma::Mat< Type > >& X )
+                : mMatrix( X.matrix_data() )
+        {
+        }
         // -----------------------------------------------------------------
 
         // template constructor
@@ -983,4 +987,3 @@ namespace moris
 }    // namespace moris
 
 #endif /* PROJECTS_LINALG_SRC_ARMA_IMPL_CL_MATRIX_ARMA_DYNAMIC_HPP_ */
-
