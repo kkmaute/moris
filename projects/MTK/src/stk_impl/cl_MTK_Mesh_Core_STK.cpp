@@ -2126,7 +2126,7 @@ namespace moris
                 MORIS_ASSERT( 0, "Invalid rank provided in get_entities_owned_and_shared_by_current_proc." );
             }
 
-            Matrix< IdMat > tDummyConn( 1, 1 );
+            Matrix< IdMat > tDummyConn( 1, 1, 0 );
             return tDummyConn;
         }
 
@@ -2880,10 +2880,9 @@ namespace moris
                 stk::mesh::Selector aFieldPart,
                 uint                aNumRows,
                 uint                aNumCols )
-
         {
-
             uint tNumFieldComp = aNumCols * aNumRows;
+
             switch ( tNumFieldComp )
             {
                 case 1:    // Scalar Field
