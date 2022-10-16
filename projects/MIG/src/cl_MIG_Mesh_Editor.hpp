@@ -23,7 +23,7 @@ namespace moris::ge
 namespace moris::mtk
 {
     class Integration_Mesh_DataBase_IG;
-}// namespace moris::mtk
+}    // namespace moris::mtk
 
 namespace moris::mig
 {
@@ -37,7 +37,7 @@ namespace moris::mig
 
         mig::Periodic_3D* mPeriodicData3D = nullptr;
 
-        moris::ge::Geometry_Engine* mGeometryEngine;
+        moris::ge::Geometry_Engine* mGeometryEngine = nullptr;
 
       public:
         //------------------------------------------------------------------------------------------------------------
@@ -78,7 +78,7 @@ namespace moris::mig
          *
          */
 
-        ~Periodic_Mesh_Editor();
+        virtual ~Periodic_Mesh_Editor();
         //------------------------------------------------------------------------------------------------------------
 
         /**
@@ -97,15 +97,15 @@ namespace moris::mig
 
         virtual void
         construct_periodic_data_base(
-            moris::Cell< moris::Cell< moris_index > >& aSideClusterToVertexIndices,
-            Matrix< DDRMat >                           aVerticesCoords,
-            moris::Cell< moris::Cell< moris_index > >& aSideClusterToCells,
-            moris::Cell< moris::Cell< moris_index > >& aCellToVertexIndices,
-            moris::Cell< moris_index >&                aSideClusterToIPCell,
-            Matrix< DDRMat >&                          aVertexParametricCoords,
-            moris::Cell< moris_index >&                aDoubleSidedClustersIndex,
-            uint                                       mNumDblSideCluster,
-            uint                                       aNumGeometry ) override;
+                moris::Cell< moris::Cell< moris_index > >& aSideClusterToVertexIndices,
+                Matrix< DDRMat >                           aVerticesCoords,
+                moris::Cell< moris::Cell< moris_index > >& aSideClusterToCells,
+                moris::Cell< moris::Cell< moris_index > >& aCellToVertexIndices,
+                moris::Cell< moris_index >&                aSideClusterToIPCell,
+                Matrix< DDRMat >&                          aVertexParametricCoords,
+                moris::Cell< moris_index >&                aDoubleSidedClustersIndex,
+                uint                                       mNumDblSideCluster,
+                uint                                       aNumGeometry ) override;
 
         //------------------------------------------------------------------------------------------------------------
 
@@ -141,7 +141,7 @@ namespace moris::mig
         //------------------------------------------------------------------------------------------------------------
 
         //############################################################################################################/
-        //These function are not used, added here for later development
+        // These function are not used, added here for later development
         //############################################################################################################/
 
         void
@@ -187,6 +187,6 @@ namespace moris::mig
         void
         merge_meshes();
     };
-}// namespace moris::mig
+}    // namespace moris::mig
 
 #endif /* cl_mig_Mesh_Editor.hpp */
