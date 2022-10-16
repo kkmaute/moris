@@ -453,10 +453,14 @@ namespace moris
                 case EntityRank::NODE:
                 {
                     tEntityOwner = this->get_node_owner( aEntityIndex );
+
+                    break;
                 }
                 case EntityRank::ELEMENT:
                 {
                     tEntityOwner = this->get_element_owner( aEntityIndex );
+
+                    break;
                 }
                 default:
                 {
