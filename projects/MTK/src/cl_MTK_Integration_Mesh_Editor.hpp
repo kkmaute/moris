@@ -108,11 +108,11 @@ namespace moris::mtk
         bool mCheckMesh = true;
 
         // counters in order to add data later
-        uint mNumPreviousVertices;
-        uint mNumPreviousCells;
-        uint mNumPreviousSideCluster;
-        uint mNumPreviousDblSideCluster;
-        uint mNumPreviousDoubleSideSet;
+        uint mNumPreviousVertices       = 0;
+        uint mNumPreviousCells          = 0;
+        uint mNumPreviousSideCluster    = 0;
+        uint mNumPreviousDblSideCluster = 0;
+        uint mNumPreviousDoubleSideSet  = 0;
 
       public:
         // ----------------------------------------------------------------------------
@@ -457,7 +457,9 @@ namespace moris::mtk
          */
 
         void
-        add_vertices( moris::Cell< moris::Cell< moris_index > >& aSideClusterToVertexIndices, Matrix< DDRMat > aVerticesCoords );
+        add_vertices(
+                moris::Cell< moris::Cell< moris_index > >& aSideClusterToVertexIndices,
+                Matrix< DDRMat >                           aVerticesCoords );
 
         // ----------------------------------------------------------------------------
 
@@ -501,12 +503,16 @@ namespace moris::mtk
         // ----------------------------------------------------------------------------
 
         void
-        add_double_sided_clusters( uint mNumDblSideCluster, moris::Cell< moris::Cell< moris_index > >& aSideClusterToVertexIndices );
+        add_double_sided_clusters(
+                uint                                       mNumDblSideCluster,
+                moris::Cell< moris::Cell< moris_index > >& aSideClusterToVertexIndices );
 
         // ----------------------------------------------------------------------------
 
         void
-        add_double_sided_set( moris::Cell< moris_index >& aDoubleSidedClustersIndex, uint aNumGeometry );
+        add_double_sided_set(
+                moris::Cell< moris_index >& aDoubleSidedClustersIndex,
+                uint                        aNumGeometry );
 
         // ----------------------------------------------------------------------------
 
