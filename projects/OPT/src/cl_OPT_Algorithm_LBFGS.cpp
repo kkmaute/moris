@@ -23,45 +23,28 @@
 #define _FORTRAN( a ) a##__
 #endif
 
-extern "C" 
-{
-    // L-BFGS-B (a Fortran implementation of BFGS) function declaration
-    void setulb_(
-            int*    n,
-            int*    m,
-            double* x,
-            double* l,
-            double* u,
-            int*    nbd,
-            double* f,
-            double* g,
-            double* mNormDrop,
-            double* mGradTolerance,
-            double* wa,
-            int*    iwa,
-            char*   task,
-            int*    iprint,
-            char*   csave,
-            bool*   lsave,
-            int*    isave,
-            double* dsave );
+extern "C" {
+// L-BFGS-B (a Fortran implementation of BFGS) function declaration
+void setulb_(
+        int*    n,
+        int*    m,
+        double* x,
+        double* l,
+        double* u,
+        int*    nbd,
+        double* f,
+        double* g,
+        double* mNormDrop,
+        double* mGradTolerance,
+        double* wa,
+        int*    iwa,
+        char*   task,
+        int*    iprint,
+        char*   csave,
+        bool*   lsave,
+        int*    isave,
+        double* dsave );
 }
-
-void ConvertToFortran(char* fstring, std::size_t fstring_len,
-                      const char* cstring)
-{
-    std::size_t inlen = std::strlen(cstring);
-    std::size_t cpylen = std::min(inlen, fstring_len);
-
-    if (inlen > fstring_len)
-    {
-        // TODO: truncation error or warning
-    }
-
-    std::copy(cstring, cstring + cpylen, fstring);
-    std::fill(fstring + cpylen, fstring + fstring_len, ' ');
-}
-
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -78,7 +61,6 @@ namespace moris
                 , mNormDrop( aParameterList.get< real >( "norm_drop" ) )
                 , mGradTolerance( aParameterList.get< real >( "grad_tol" ) )
                 , mLBFGSprint( aParameterList.get< sint >( "internal_lbfgs_print_severity" ) )
-
         {
         }
 
@@ -91,9 +73,10 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         uint
-        Algorithm_LBFGS::solve( uint aCurrentOptAlgInd, std::shared_ptr< Problem > aOptProb )
+        Algorithm_LBFGS::solve(
+                uint                       aCurrentOptAlgInd,
+                std::shared_ptr< Problem > aOptProb )
         {
-
             // Trace optimization
             Tracer tTracer( "OptimizationAlgorithm", "LBFGS", "Solve" );
 
@@ -147,9 +130,8 @@ namespace moris
             auto l = mProblem->get_lower_bounds().data();
             auto u = mProblem->get_upper_bounds().data();
 
-
-            // NOTE:  this is done in order to be able to use native functions on the input data that will be passed on to Foretran
-            // algorthim inputs in terms of cell
+            // NOTE:  this is done in order to be able to use native functions on the input data that will be passed on to Fortran
+            // algorithm inputs in terms of cell
             moris::Cell< int >    nbdCell( n, 2 );    // This algorithm parameter is hard-coded to assume that the variables are bounded
             moris::Cell< double > gCell( n );
             moris::Cell< double > waCell( ( 2 * mNumCorrections + 5 ) * n + 11 * mNumCorrections * mNumCorrections + 8 * mNumCorrections );
@@ -158,33 +140,53 @@ namespace moris
             moris::Cell< double > dsaveCell( 29 );
 
             // initialize and allocate memory for algorithm inputs/outputs
-            int*    nbd        = nbdCell.memptr();
-            double  f          = 0;
-            double* g          = gCell.memptr();
-            double* wa         = waCell.memptr();
-            int*    iwa        = iwaCell.memptr();
-            int     iprint     = mLBFGSprint;    // Prevents the algorithm from printing anything
-            char*    task = new char[ 61 ]  {'S', 'T', 'A','R', 'T', '\0'};    // starts the algorthim , if initailized static it must be of size 61
-            char    csave[ 61 ];
-            bool    lsave[ 4 ] = { false };
-            int*    isave      = isaveCell.memptr();
-            double* dsave      = dsaveCell.memptr();
-            
-            // pad the string with the spaces as it is the convention in fortran
-            std::fill( &task[ 0 ] + std::strlen( &task[ 0 ] ) , &task[ 0 ] + 61, ' ' );
+            int*    nbd = nbdCell.memptr();
+            double  f   = 0;
+            double* g   = gCell.memptr();
+            double* wa  = waCell.memptr();
+            int*    iwa = iwaCell.memptr();
 
-            // run the algorthim until converges
-            while ( ( strncmp( task, "FG", 2 ) == 0 ) || ( strncmp( task, "NEW_X", 5 ) == 0 ) || ( strncmp( task, "START", 5 ) == 0 ) )
+            int iprint = mLBFGSprint;    // Prevents the algorithm from printing anything
+
+            char csave[ 61 ];
+            bool lsave[ 4 ] = { false };
+
+            int*    isave = isaveCell.memptr();
+            double* dsave = dsaveCell.memptr();
+
+            // starts the algorithm , if initialized static it must  be of size 61
+            char* task = new char[ 61 ]{ 'S', 'T', 'A', 'R', 'T', '\0' };
+
+            // pad the string with the spaces as it is the convention in fortran
+            std::fill( &task[ 0 ] + std::strlen( &task[ 0 ] ), &task[ 0 ] + 61, ' ' );
+
+            // run the algorithm until converges
+            while ( ( strncmp( task, "FG", 2 ) == 0 ) ||       //
+                    ( strncmp( task, "NEW_X", 5 ) == 0 ) ||    //
+                    ( strncmp( task, "START", 5 ) == 0 ) )
             {
-                // call the fortran subroutine
-                setulb_( &n, &mNumCorrections, x, l, u, nbd,  //
-                 &f, g, &mNormDrop, &mGradTolerance, //
-                  wa, iwa, task, &iprint, csave,  //
-                  lsave, isave, dsave );
+                // call the Fortran subroutine
+                setulb_( &n,
+                        &mNumCorrections,
+                        x,
+                        l,
+                        u,
+                        nbd,
+                        &f,
+                        g,
+                        &mNormDrop,
+                        &mGradTolerance,
+                        wa,
+                        iwa,
+                        task,
+                        &iprint,
+                        csave,
+                        lsave,
+                        isave,
+                        dsave );
 
                 if ( strncmp( task, "FG", 2 ) == 0 )
                 {
-                    std::cout<<"Here2\n";
                     // call to compute objective
                     this->func( mOptIter, x, f );
 
@@ -195,16 +197,13 @@ namespace moris
                 // one iteration of algorithm has concluded
                 if ( strncmp( task, "NEW_X", 5 ) == 0 )
                 {
-                    std::cout<<"Here3\n";
-
-                    mOptIter = isave[ 29 ];    // update optimization iteration counter
+                    // set optimization iteration counter
+                    mOptIter = isave[ 29 ];
                 }
 
                 // exit loop if maximum iterations have been achieved
                 if ( isave[ 29 ] == mMaxIt )
                 {
-                    std::cout<<"Here4\n";
-
                     break;
                 }
             }
@@ -231,7 +230,9 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        Algorithm_LBFGS::grad( double* aAdv, double* aD_Obj )
+        Algorithm_LBFGS::grad(
+                double* aAdv,
+                double* aD_Obj )
         {
             // Update the ADV matrix
             Matrix< DDRMat > tADVs( aAdv, mProblem->get_num_advs(), 1 );
