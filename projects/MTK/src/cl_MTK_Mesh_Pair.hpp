@@ -73,8 +73,8 @@ namespace moris
             const Mesh_Pair&
             operator=( const Mesh_Pair& aMeshPair )
             {
-                mInterpolationMesh = aMeshPair.get_interpolation_mesh();
-                mIntegrationMesh   = aMeshPair.get_integration_mesh();
+                mInterpolationMesh = aMeshPair.mInterpolationMesh;
+                mIntegrationMesh   = aMeshPair.mIntegrationMesh;
                 mIsOwned           = aMeshPair.mIsOwned;
 
                 return *this;
