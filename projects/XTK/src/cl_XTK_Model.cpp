@@ -224,6 +224,15 @@ namespace xtk
             // get and store indices of B-spline meshes wrt. which information needs to be constructed
             moris::string_to_mat( mParameterList.get< std::string >( "enrich_mesh_indices" ), mBsplineMeshIndices );
 
+            // check the enriched B-spline mesh indices
+            for( uint iBspMesh = 0; iBspMesh < mBsplineMeshIndices.numel(); iBspMesh++ )
+            {
+                MORIS_ERROR( mBsplineMeshIndices( iBspMesh ) == (moris_index)iBspMesh,
+                        "xtk::Model::perform_decomposition() - B-spline mesh indices marked for "
+                        "enrichment should be in the same order as B-spline meshes associated with "
+                        "the Lagrange mesh in HMR. They should also start with the first one." );
+            }
+
             // if ( mParameterList.get< bool >( "cleanup_cut_mesh" ) )
             // {
             //     mCleanupMesh = true;
