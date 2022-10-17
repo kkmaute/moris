@@ -3432,9 +3432,10 @@ namespace xtk
                                     tBasisInCellMap,
                                     tVertEnrichment );
                         }
-                        else 
+                        else // else: the T-matrix to be copied is already filled with the average
                         {
-                            // else: do nothing, the T-matrix to be copied is already filled with the average
+                            // only set the related base vertex to the already constructed T-matrix
+                            tVertEnrichment.add_base_vertex_interpolation( tVertexInterpolations( iIpCellVertex ) );
                         }
 
                         // add vertex enrichment to enriched interpolation mesh
