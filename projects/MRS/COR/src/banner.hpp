@@ -113,7 +113,7 @@ namespace moris
         {
             print_logo();
 
-#if defined( DEBUG )
+#if defined( MORIS_HAVE_DEBUG )
             std::fprintf( stdout, "     DEBUG flags are on.\n\n" );
 #endif
 

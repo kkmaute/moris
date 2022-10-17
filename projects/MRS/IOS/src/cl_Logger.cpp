@@ -667,10 +667,10 @@ namespace moris
         mStream << "Git hash: " << tGitInfo.get_git_hash() << "\n";
         mStream << "DEBUG: ";
 
-#if defined( DEBUG )
+#if defined( MORIS_HAVE_DEBUG )
         mStream << "ON\n";
 #endif
-#if !defined( DEBUG )
+#if !defined( MORIS_HAVE_DEBUG )
         mStream << "OFF\n";
 #endif
 
