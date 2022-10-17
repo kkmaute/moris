@@ -885,7 +885,7 @@ namespace xtk
         moris::Cell< std::string > tFieldNames;
 
 // DEBUG because basis coordinates is only defined on debug mode
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
         MORIS_ASSERT( aProbeSpheres.n_cols() == 4, "Probe sphere should be r, xc, yc, zc" );
         moris_index tNumSpheres = aProbeSpheres.n_rows();
 
@@ -3189,7 +3189,7 @@ namespace xtk
                             // check whether a side cluster group has already been established for the single side clusters
                             bool tSideClusterGroupAlreadyEstablished = tMasterSideClustersInSpgs( 0 )->has_cluster_group( tDMI );
 
-    #ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
 
                             // in debug check that all single side clusters in group belong to the same side cluster group
                             for ( uint iClusterInGroup = 0; iClusterInGroup < tNumClustersInGroup; iClusterInGroup++ )

@@ -28,6 +28,8 @@ namespace moris
             int mNumCorrections;       // Number of limited memory corrections
             double mNormDrop;          // Convergence criteria based on norm
             double mGradTolerance;      // Convergence criteria based on projected gradients
+            sint mLBFGSprint;
+
 
         public:
 
@@ -84,6 +86,14 @@ namespace moris
              *@brief Prints result of the L-BFGS algorithm based on mStopFlag
              */
             void printresult();
+
+            //--------------------------------------------------------------------------------------------------------------
+
+            /**
+             * @brief specific solve implemenattion for this algorthim 
+             * 
+             */
+            void lbfgs_solve();
         };
     }
 }

@@ -31,7 +31,7 @@ set(OPT_TEST ${OPT}-test)
 # Create executable
 add_executable(${OPT_TEST} ${TEST_SOURCES})
 target_link_libraries(${OPT_TEST} ${TEST_DEPENDENCIES})
-set_target_properties(${MOPT_TEST} PROPERTIES OUTPUT_NAME ${OPT_TEST}${EXE_EXT})
+set_target_properties(${OPT_TEST} PROPERTIES OUTPUT_NAME ${OPT_TEST}${EXE_EXT})
 
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)

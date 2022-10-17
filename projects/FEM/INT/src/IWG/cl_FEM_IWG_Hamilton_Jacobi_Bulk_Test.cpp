@@ -26,7 +26,7 @@ namespace moris
 
         void IWG_Hamilton_Jacobi_Bulk_Test::compute_residual( real aWStar )
         {
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
             this->check_field_interpolators();
 #endif
 
@@ -51,7 +51,7 @@ namespace moris
 
         void IWG_Hamilton_Jacobi_Bulk_Test::compute_jacobian( real aWStar )
         {
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
             this->check_field_interpolators();
 #endif
 

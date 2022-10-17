@@ -123,7 +123,7 @@
 //    T & operator()(size_t const i_index)
 //
 //    {
-//#ifdef DEBUG
+//#ifdef MORIS_HAVE_DEBUG
 //        return (mCell.at(i_index));
 //#else
 //        return( mCell[ i_index ] );
@@ -135,7 +135,7 @@
 //     */
 //    T const & operator()(size_t const i_index) const
 //    {
-//#ifdef DEBUG
+//#ifdef MORIS_HAVE_DEBUG
 //        return (mCell.at(i_index));
 //#else
 //        return( mCell[ i_index ] );

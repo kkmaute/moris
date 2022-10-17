@@ -21,12 +21,12 @@
 #include "cl_MTK_Mapper.hpp"
 #include "cl_MTK_Mesh_Manager.hpp"
 
-#include "cl_Communication_Manager.hpp" // COM/src
-#include "cl_Communication_Tools.hpp" // COM/src
-#include "typedefs.hpp" // COR/src
-#include "banner.hpp" // COR/src
-#include "cl_Matrix.hpp" // LINALG/src
-#include "linalg_typedefs.hpp" // LINALG/src
+#include "cl_Communication_Manager.hpp"    // COM/src
+#include "cl_Communication_Tools.hpp"      // COM/src
+#include "typedefs.hpp"                    // COR/src
+#include "banner.hpp"                      // COR/src
+#include "cl_Matrix.hpp"                   // LINALG/src
+#include "linalg_typedefs.hpp"             // LINALG/src
 #include "fn_r2.hpp"
 #include "fn_norm.hpp"
 #include "fn_equal_to.hpp"
@@ -36,23 +36,23 @@
 using namespace moris;
 
 moris::real
-LevelSetFunction( const moris::Matrix< moris::DDRMat > & aPoint )
+LevelSetFunction( const moris::Matrix< moris::DDRMat >& aPoint )
 {
     return norm( aPoint ) - 1.2;
 }
 
-//TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr],[hmr_L2]")
+// TEST_CASE("HMR_L2_Test", "[moris],[mesh],[hmr],[hmr_L2]")
 //{
-//    // can only perform test for 1, 2 or 4 procs
-//    if( moris::par_size() == 1 || moris::par_size() == 2 || moris::par_size() == 4 )
-//    {
-//        // do this test for 2 and 3 dimensions
-//        for( moris::uint tDimension=2; tDimension<=3; ++tDimension )
-//        {
-//            // do this for first, second and third order
-//            //fixme: Needs to do order 3 but there are issue in hmr
-//            for( moris::uint tOrder=1; tOrder<=3; tOrder++ )
-//            {
+//     // can only perform test for 1, 2 or 4 procs
+//     if( moris::par_size() == 1 || moris::par_size() == 2 || moris::par_size() == 4 )
+//     {
+//         // do this test for 2 and 3 dimensions
+//         for( moris::uint tDimension=2; tDimension<=3; ++tDimension )
+//         {
+//             // do this for first, second and third order
+//             //fixme: Needs to do order 3 but there are issue in hmr
+//             for( moris::uint tOrder=1; tOrder<=3; tOrder++ )
+//             {
 //
 ////------------------------------------------------------------------------------
 ////  HMR Parameters setup
@@ -202,12 +202,12 @@ LevelSetFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //    } // end parallel
 //}
 
-TEST_CASE("HMR_Comm_Table", "[moris],[mesh],[hmr],[hmr_Comm_Table]")
+TEST_CASE( "HMR_Comm_Table", "[moris],[mesh],[hmr],[hmr_Comm_Table]" )
 {
-    if( moris::par_size() == 4 )
+    if ( moris::par_size() == 4 )
     {
         moris::uint tDimension = 3;
-        moris::uint tOrder = 1;
+        moris::uint tOrder     = 1;
 
         //------------------------------------------------------------------------------
         //  HMR Parameters setup
@@ -219,7 +219,7 @@ TEST_CASE("HMR_Comm_Table", "[moris],[mesh],[hmr],[hmr_Comm_Table]")
         moris::Matrix< moris::DDLUMat > tNumberOfElements;
 
         // set element size
-        if( moris::par_size() == 1 )
+        if ( moris::par_size() == 1 )
         {
             tNumberOfElements.set_size( tDimension, 1, 2 );
         }
@@ -239,11 +239,11 @@ TEST_CASE("HMR_Comm_Table", "[moris],[mesh],[hmr],[hmr_Comm_Table]")
         // It is recommended to leave this setting as is.
         tParameters.set_bspline_truncation( true );
 
-        tParameters.set_lagrange_orders  ( { {1}, {1}  });
-        tParameters.set_lagrange_patterns({ {0}, {1} });
+        tParameters.set_lagrange_orders( { { 1 }, { 1 } } );
+        tParameters.set_lagrange_patterns( { { 0 }, { 1 } } );
 
-        tParameters.set_bspline_orders   ( { {1}, {1} } );
-        tParameters.set_bspline_patterns ( { {0}, {1} } );
+        tParameters.set_bspline_orders( { { 1 }, { 1 } } );
+        tParameters.set_bspline_patterns( { { 0 }, { 1 } } );
 
         tParameters.set_refinement_buffer( 1 );
         tParameters.set_staircase_buffer( 1 );
@@ -251,12 +251,12 @@ TEST_CASE("HMR_Comm_Table", "[moris],[mesh],[hmr],[hmr_Comm_Table]")
         tParameters.set_union_pattern( 2 );
 
         Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
-        tLagrangeToBSplineMesh( 0 ) = { {0} };
-        tLagrangeToBSplineMesh( 1 ) = { {1} };
+        tLagrangeToBSplineMesh( 0 ) = { { 0 } };
+        tLagrangeToBSplineMesh( 1 ) = { { 1 } };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
-        tParameters.set_number_aura(false);
+        tParameters.set_number_aura( false );
 
         //------------------------------------------------------------------------------
         //  HMR Initialization
@@ -273,7 +273,7 @@ TEST_CASE("HMR_Comm_Table", "[moris],[mesh],[hmr],[hmr_Comm_Table]")
 
         // refine the first element three times
         // fixme: change this to 3
-        for( uint tLevel = 3; tLevel < 1; ++tLevel )
+        for ( uint tLevel = 3; tLevel < 1; ++tLevel )
         {
             tDatabase->flag_element( 0 );
 
@@ -289,9 +289,9 @@ TEST_CASE("HMR_Comm_Table", "[moris],[mesh],[hmr],[hmr_Comm_Table]")
 
         // refine the last element three times
         // fixme: change this to 3
-        for( uint tLevel = 0; tLevel < 1; ++tLevel )
+        for ( uint tLevel = 0; tLevel < 1; ++tLevel )
         {
-            tDatabase->flag_element( tDatabase->get_number_of_elements_on_proc()-1 );
+            tDatabase->flag_element( tDatabase->get_number_of_elements_on_proc() - 1 );
 
             // manually refine, do not reset pattern
             tDatabase->get_background_mesh()->perform_refinement( 1 );
@@ -324,13 +324,11 @@ TEST_CASE("HMR_Comm_Table", "[moris],[mesh],[hmr],[hmr_Comm_Table]")
         {
             CHECK( equal_to( tCommTable( 0 ), 0 ) );
             CHECK( equal_to( tCommTable( 1 ), 3 ) );
-
         }
         if ( par_rank() == 2 )
         {
             CHECK( equal_to( tCommTable( 0 ), 0 ) );
             CHECK( equal_to( tCommTable( 1 ), 3 ) );
-
         }
         if ( par_rank() == 3 )
         {
@@ -341,11 +339,11 @@ TEST_CASE("HMR_Comm_Table", "[moris],[mesh],[hmr],[hmr_Comm_Table]")
     }
 }
 
-TEST_CASE("HMR_CommTable2", "[moris],[mesh],[hmr],[HMR_CommTable2]")
+TEST_CASE( "HMR_CommTable2", "[moris],[mesh],[hmr],[HMR_CommTable2]" )
 {
     //    gLogger.set_severity_level( 0 );
     // can only perform test for 1, 2 or 4 procs
-    if( moris::par_size() == 4  )
+    if ( moris::par_size() == 4 )
     {
 
         //------------------------------------------------------------------------------
@@ -384,23 +382,22 @@ TEST_CASE("HMR_CommTable2", "[moris],[mesh],[hmr],[HMR_CommTable2]")
         // std::shared_ptr< Database >
         auto tDatabase = tHMR.get_database();
 
-        //tDatabase->get_background_mesh()->save_to_vtk("Background555.vtk");
+        // tDatabase->get_background_mesh()->save_to_vtk("Background555.vtk");
 
         tDatabase->update_bspline_meshes();
         tDatabase->update_lagrange_meshes();
         // calculate T-Matrices etc
         tDatabase->finalize();
 
-        //print(tDatabase->get_proc_neighbors(), "ProcNeighbors");
-
+        // print(tDatabase->get_proc_neighbors(), "ProcNeighbors");
     }
 }
 
-TEST_CASE("HMR_L2_Test_Pattern", "[moris],[mesh],[hmr],[hmr_L2_pattern]")
+TEST_CASE( "HMR_L2_Test_Pattern", "[moris],[mesh],[hmr],[hmr_L2_pattern]" )
 {
     //    gLogger.set_severity_level( 0 );
     // can only perform test for 1, 2 or 4 procs
-    if( moris::par_size() == 1  )
+    if ( moris::par_size() == 1 )
     {
 
         //------------------------------------------------------------------------------
@@ -442,7 +439,7 @@ TEST_CASE("HMR_L2_Test_Pattern", "[moris],[mesh],[hmr],[hmr_L2_pattern]")
 
         // refine the first element three times
         // fixme: change this to 3
-        for( uint tLevel = 0; tLevel < 2; ++tLevel )
+        for ( uint tLevel = 0; tLevel < 2; ++tLevel )
         {
             //            tDatabase->flag_element( 0 );
             tDatabase->get_background_mesh()->get_element( 0 )->put_on_refinement_queue();
@@ -451,17 +448,17 @@ TEST_CASE("HMR_L2_Test_Pattern", "[moris],[mesh],[hmr],[hmr_L2_pattern]")
             tDatabase->get_background_mesh()->perform_refinement( 0 );
         }
 
-        tDatabase->get_background_mesh()->save_to_vtk("Background444.vtk");
+        tDatabase->get_background_mesh()->save_to_vtk( "Background444.vtk" );
 
         // manually select output pattern
         tDatabase->set_activation_pattern( 1 );
 
         // refine the last element three times
         // fixme: change this to 2
-        for( uint tLevel = 0; tLevel < 2; ++tLevel )
+        for ( uint tLevel = 0; tLevel < 2; ++tLevel )
         {
             //            tDatabase->flag_element( tDatabase->get_number_of_elements_on_proc()-1 );
-            tDatabase->get_background_mesh()->get_element( tDatabase->get_number_of_elements_on_proc()-1 )->put_on_refinement_queue();
+            tDatabase->get_background_mesh()->get_element( tDatabase->get_number_of_elements_on_proc() - 1 )->put_on_refinement_queue();
 
             // manually refine, do not reset pattern
             tDatabase->get_background_mesh()->perform_refinement( 1 );
@@ -470,8 +467,8 @@ TEST_CASE("HMR_L2_Test_Pattern", "[moris],[mesh],[hmr],[hmr_L2_pattern]")
         // manually create union
         tDatabase->unite_patterns( 0, 1, 2 );
 
-        tDatabase->get_background_mesh()->save_to_vtk("Background555.vtk");
-        //tHMR.mBSplineMeshes( 1 )->save_to_vtk("BSpline.vtk");
+        tDatabase->get_background_mesh()->save_to_vtk( "Background555.vtk" );
+        // tHMR.mBSplineMeshes( 1 )->save_to_vtk("BSpline.vtk");
 
         tDatabase->update_bspline_meshes();
         tDatabase->update_lagrange_meshes();
@@ -493,7 +490,7 @@ TEST_CASE("HMR_L2_Test_Pattern", "[moris],[mesh],[hmr],[hmr_L2_pattern]")
         // map input to output
         tHMR.map_field_to_output_union( tField, tOutputOrder );
 
-        auto tOutputMesh = tHMR.create_mesh( tOutputOrder, 2 );        // order , pattern
+        auto tOutputMesh = tHMR.create_mesh( tOutputOrder, 2 );    // order , pattern
 
         // calculate exact value
         auto tExact = tOutputMesh->create_field( "Exact", 0 );
@@ -511,11 +508,11 @@ TEST_CASE("HMR_L2_Test_Pattern", "[moris],[mesh],[hmr],[hmr_L2_pattern]")
     }
 }
 
-TEST_CASE("HMR_L2_Test_Pattern3", "[moris],[mesh],[hmr],[hmr_L2_pattern3]")
+TEST_CASE( "HMR_L2_Test_Pattern3", "[moris],[mesh],[hmr],[hmr_L2_pattern3]" )
 {
     //    gLogger.set_severity_level( 0 );
     // can only perform test for 1, 2 or 4 procs
-    if( moris::par_size() == 1  )
+    if ( moris::par_size() == 1 )
     {
 
         //------------------------------------------------------------------------------
@@ -528,29 +525,29 @@ TEST_CASE("HMR_L2_Test_Pattern3", "[moris],[mesh],[hmr],[hmr_L2_pattern3]")
         moris::Matrix< moris::DDLUMat > tNumberOfElements;
 
         // set values to parameters
-        tParameters.set_number_of_elements_per_dimension( { {2}, {2} } );
+        tParameters.set_number_of_elements_per_dimension( { { 2 }, { 2 } } );
 
         // B-Spline truncation is turned on by default.
         // It is recommended to leave this setting as is.
         tParameters.set_bspline_truncation( true );
 
-        tParameters.set_lagrange_orders  ( { {2}, {1} });
-        tParameters.set_lagrange_patterns({ {0}, {1} });
+        tParameters.set_lagrange_orders( { { 2 }, { 1 } } );
+        tParameters.set_lagrange_patterns( { { 0 }, { 1 } } );
 
-        tParameters.set_bspline_orders   ( { {1}, {1}, {1}, {2} } );
-        tParameters.set_bspline_patterns ( { {0}, {0}, {1}, {1} } );
+        tParameters.set_bspline_orders( { { 1 }, { 1 }, { 1 }, { 2 } } );
+        tParameters.set_bspline_patterns( { { 0 }, { 0 }, { 1 }, { 1 } } );
 
         tParameters.set_union_pattern( 2 );
 
         Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
-        tLagrangeToBSplineMesh( 0 ) = { {0}, {1} };
-        tLagrangeToBSplineMesh( 1 ) = { {2}, {3} };
+        tLagrangeToBSplineMesh( 0 ) = { { 0 }, { 1 } };
+        tLagrangeToBSplineMesh( 1 ) = { { 2 }, { 3 } };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
-        tParameters.set_number_aura(false);
+        tParameters.set_number_aura( false );
 
-        //FIXME assign bspline to lagrange mesh
+        // FIXME assign bspline to lagrange mesh
 
         //------------------------------------------------------------------------------
         //  HMR Initialization
@@ -567,7 +564,7 @@ TEST_CASE("HMR_L2_Test_Pattern3", "[moris],[mesh],[hmr],[hmr_L2_pattern3]")
 
         // refine the first element three times
         // fixme: change this to 3
-        for( uint tLevel = 0; tLevel < 2; ++tLevel )
+        for ( uint tLevel = 0; tLevel < 2; ++tLevel )
         {
             //            tDatabase->flag_element( 0 );
             tDatabase->get_background_mesh()->get_element( 0 )->put_on_refinement_queue();
@@ -576,17 +573,17 @@ TEST_CASE("HMR_L2_Test_Pattern3", "[moris],[mesh],[hmr],[hmr_L2_pattern3]")
             tDatabase->get_background_mesh()->perform_refinement( 0 );
         }
 
-        tDatabase->get_background_mesh()->save_to_vtk("Background444.vtk");
+        tDatabase->get_background_mesh()->save_to_vtk( "Background444.vtk" );
 
         // manually select output pattern
         tDatabase->set_activation_pattern( 1 );
 
         // refine the last element three times
         // fixme: change this to 2
-        for( uint tLevel = 0; tLevel < 2; ++tLevel )
+        for ( uint tLevel = 0; tLevel < 2; ++tLevel )
         {
             //            tDatabase->flag_element( tDatabase->get_number_of_elements_on_proc()-1 );
-            tDatabase->get_background_mesh()->get_element( tDatabase->get_number_of_elements_on_proc()-1 )->put_on_refinement_queue();
+            tDatabase->get_background_mesh()->get_element( tDatabase->get_number_of_elements_on_proc() - 1 )->put_on_refinement_queue();
 
             // manually refine, do not reset pattern
             tDatabase->get_background_mesh()->perform_refinement( 1 );
@@ -595,8 +592,8 @@ TEST_CASE("HMR_L2_Test_Pattern3", "[moris],[mesh],[hmr],[hmr_L2_pattern3]")
         // manually create union
         tDatabase->unite_patterns( 0, 1, tParameters.get_union_pattern() );
 
-        tDatabase->get_background_mesh()->save_to_vtk("Background555.vtk");
-        //tHMR.mBSplineMeshes( 1 )->save_to_vtk("BSpline.vtk");
+        tDatabase->get_background_mesh()->save_to_vtk( "Background555.vtk" );
+        // tHMR.mBSplineMeshes( 1 )->save_to_vtk("BSpline.vtk");
 
         tDatabase->update_bspline_meshes();
         tDatabase->update_lagrange_meshes();
@@ -618,7 +615,7 @@ TEST_CASE("HMR_L2_Test_Pattern3", "[moris],[mesh],[hmr],[hmr_L2_pattern3]")
         // map input to output
         tHMR.map_field_to_output_union( tField, tOutputOrder );
 
-        auto tOutputMesh = tHMR.create_mesh( tOutputOrder, tParameters.get_union_pattern() );        // order , pattern
+        auto tOutputMesh = tHMR.create_mesh( tOutputOrder, tParameters.get_union_pattern() );    // order , pattern
 
         // calculate exact value
         auto tExact = tOutputMesh->create_field( "Exact", 0 );
@@ -633,15 +630,14 @@ TEST_CASE("HMR_L2_Test_Pattern3", "[moris],[mesh],[hmr],[hmr_L2_pattern3]")
 
         // perform test
         REQUIRE( tR2 > 0.99 );
-
     }
 }
 
-TEST_CASE("HMR_L2_Test_Pattern4", "[moris],[mesh],[hmr],[hmr_L2_pattern4]")
+TEST_CASE( "HMR_L2_Test_Pattern4", "[moris],[mesh],[hmr],[hmr_L2_pattern4]" )
 {
     //    gLogger.set_severity_level( 0 );
     // can only perform test for 1, 2 or 4 procs
-    if( moris::par_size() == 1  )
+    if ( moris::par_size() == 1 )
     {
 
         //------------------------------------------------------------------------------
@@ -654,31 +650,31 @@ TEST_CASE("HMR_L2_Test_Pattern4", "[moris],[mesh],[hmr],[hmr_L2_pattern4]")
         moris::Matrix< moris::DDLUMat > tNumberOfElements;
 
         // set values to parameters
-        tParameters.set_number_of_elements_per_dimension( { {2}, {2} } );
+        tParameters.set_number_of_elements_per_dimension( { { 2 }, { 2 } } );
 
         // B-Spline truncation is turned on by default.
         // It is recommended to leave this setting as is.
         tParameters.set_bspline_truncation( true );
 
-        tParameters.set_lagrange_orders  ( { {1}, {1} });
-        tParameters.set_lagrange_patterns({ {0}, {1} });
+        tParameters.set_lagrange_orders( { { 1 }, { 1 } } );
+        tParameters.set_lagrange_patterns( { { 0 }, { 1 } } );
 
-        tParameters.set_bspline_orders   ( { {1}, {1}, {1}, {2} } );
-        tParameters.set_bspline_patterns ( { {0}, {0}, {1}, {1} } );
+        tParameters.set_bspline_orders( { { 1 }, { 1 }, { 1 }, { 2 } } );
+        tParameters.set_bspline_patterns( { { 0 }, { 0 }, { 1 }, { 1 } } );
 
         tParameters.set_union_pattern( 2 );
 
         tParameters.set_staircase_buffer( 2 );
 
         Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
-        tLagrangeToBSplineMesh( 0 ) = { {0}, {1} };
-        tLagrangeToBSplineMesh( 1 ) = { {2}, {3} };
+        tLagrangeToBSplineMesh( 0 ) = { { 0 }, { 1 } };
+        tLagrangeToBSplineMesh( 1 ) = { { 2 }, { 3 } };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
-        tParameters.set_number_aura(false);
+        tParameters.set_number_aura( false );
 
-        //FIXME assign bspline to lagrange mesh
+        // FIXME assign bspline to lagrange mesh
 
         //------------------------------------------------------------------------------
         //  HMR Initialization
@@ -695,7 +691,7 @@ TEST_CASE("HMR_L2_Test_Pattern4", "[moris],[mesh],[hmr],[hmr_L2_pattern4]")
 
         // refine the first element three times
         // fixme: change this to 3
-        for( uint tLevel = 0; tLevel < 2; ++tLevel )
+        for ( uint tLevel = 0; tLevel < 2; ++tLevel )
         {
             //            tDatabase->flag_element( 0 );
             tDatabase->get_background_mesh()->get_element( 0 )->put_on_refinement_queue();
@@ -704,17 +700,17 @@ TEST_CASE("HMR_L2_Test_Pattern4", "[moris],[mesh],[hmr],[hmr_L2_pattern4]")
             tDatabase->get_background_mesh()->perform_refinement( 0 );
         }
 
-        tDatabase->get_background_mesh()->save_to_vtk("Background444.vtk");
+        tDatabase->get_background_mesh()->save_to_vtk( "Background444.vtk" );
 
         // manually select output pattern
         tDatabase->set_activation_pattern( 1 );
 
         // refine the last element three times
         // fixme: change this to 2
-        for( uint tLevel = 0; tLevel < 2; ++tLevel )
+        for ( uint tLevel = 0; tLevel < 2; ++tLevel )
         {
             //            tDatabase->flag_element( tDatabase->get_number_of_elements_on_proc()-1 );
-            tDatabase->get_background_mesh()->get_element( tDatabase->get_number_of_elements_on_proc()-1 )->put_on_refinement_queue();
+            tDatabase->get_background_mesh()->get_element( tDatabase->get_number_of_elements_on_proc() - 1 )->put_on_refinement_queue();
 
             // manually refine, do not reset pattern
             tDatabase->get_background_mesh()->perform_refinement( 1 );
@@ -723,8 +719,8 @@ TEST_CASE("HMR_L2_Test_Pattern4", "[moris],[mesh],[hmr],[hmr_L2_pattern4]")
         // manually create union
         tDatabase->unite_patterns( 0, 1, tParameters.get_union_pattern() );
 
-        tDatabase->get_background_mesh()->save_to_vtk("Background555.vtk");
-        //tHMR.mBSplineMeshes( 1 )->save_to_vtk("BSpline.vtk");
+        tDatabase->get_background_mesh()->save_to_vtk( "Background555.vtk" );
+        // tHMR.mBSplineMeshes( 1 )->save_to_vtk("BSpline.vtk");
 
         tDatabase->update_bspline_meshes();
         tDatabase->update_lagrange_meshes();
@@ -746,7 +742,7 @@ TEST_CASE("HMR_L2_Test_Pattern4", "[moris],[mesh],[hmr],[hmr_L2_pattern4]")
         // map input to output
         tHMR.map_field_to_output_union( tField, tOutputOrder );
 
-        auto tOutputMesh = tHMR.create_mesh( tOutputOrder, tParameters.get_union_pattern() );        // order , pattern
+        auto tOutputMesh = tHMR.create_mesh( tOutputOrder, tParameters.get_union_pattern() );    // order , pattern
 
         // calculate exact value
         auto tExact = tOutputMesh->create_field( "Exact", 0 );
@@ -769,15 +765,14 @@ TEST_CASE("HMR_L2_Test_Pattern4", "[moris],[mesh],[hmr],[hmr_L2_pattern4]")
 
         // perform test
         REQUIRE( tR2 > 0.99 );
-
     }
 }
 
-TEST_CASE("HMR_L2_Test_Pattern2", "[moris],[mesh],[hmr],[hmr_L2_pattern2]")
+TEST_CASE( "HMR_L2_Test_Pattern2", "[moris],[mesh],[hmr],[hmr_L2_pattern2]" )
 {
     //    gLogger.set_severity_level( 0 );
     // can only perform test for 1, 2 or 4 procs
-    if( moris::par_size() == 1  )
+    if ( moris::par_size() == 1 )
     {
         //------------------------------------------------------------------------------
         //  HMR Parameters setup
@@ -789,30 +784,30 @@ TEST_CASE("HMR_L2_Test_Pattern2", "[moris],[mesh],[hmr],[hmr_L2_pattern2]")
         moris::Matrix< moris::DDLUMat > tNumberOfElements;
 
         // set values to parameters
-        tParameters.set_number_of_elements_per_dimension( { {2}, {2} } );
+        tParameters.set_number_of_elements_per_dimension( { { 2 }, { 2 } } );
 
         // B-Spline truncation is turned on by default.
         // It is recommended to leave this setting as is.
         tParameters.set_bspline_truncation( true );
 
-        tParameters.set_lagrange_orders  ( { {2}, {1} });
-        tParameters.set_lagrange_patterns({ {0}, {1} });
+        tParameters.set_lagrange_orders( { { 2 }, { 1 } } );
+        tParameters.set_lagrange_patterns( { { 0 }, { 1 } } );
 
-        tParameters.set_bspline_orders   ( { {1}, {1}, {1}, {2} } );
-        tParameters.set_bspline_patterns ( { {0}, {0}, {1}, {1} } );
+        tParameters.set_bspline_orders( { { 1 }, { 1 }, { 1 }, { 2 } } );
+        tParameters.set_bspline_patterns( { { 0 }, { 0 }, { 1 }, { 1 } } );
 
         tParameters.set_union_pattern( 2 );
 
         tParameters.set_staircase_buffer( 2 );
 
         Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
-        tLagrangeToBSplineMesh( 0 ) = { {0}, {1} };
-        tLagrangeToBSplineMesh( 1 ) = { {2}, {3} };
+        tLagrangeToBSplineMesh( 0 ) = { { 0 }, { 1 } };
+        tLagrangeToBSplineMesh( 1 ) = { { 2 }, { 3 } };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
-        tParameters.set_number_aura(false);
-        //FIXME assign bspline to lagrange mesh
+        tParameters.set_number_aura( false );
+        // FIXME assign bspline to lagrange mesh
 
         //------------------------------------------------------------------------------
         //  HMR Initialization
@@ -829,7 +824,7 @@ TEST_CASE("HMR_L2_Test_Pattern2", "[moris],[mesh],[hmr],[hmr_L2_pattern2]")
 
         // refine the first element three times
         // fixme: change this to 3
-        for( uint tLevel = 0; tLevel < 2; ++tLevel )
+        for ( uint tLevel = 0; tLevel < 2; ++tLevel )
         {
             //            tDatabase->flag_element( 0 );
             tDatabase->get_background_mesh()->get_element( 0 )->put_on_refinement_queue();
@@ -838,17 +833,17 @@ TEST_CASE("HMR_L2_Test_Pattern2", "[moris],[mesh],[hmr],[hmr_L2_pattern2]")
             tDatabase->get_background_mesh()->perform_refinement( 0 );
         }
 
-        tDatabase->get_background_mesh()->save_to_vtk("Background444.vtk");
+        tDatabase->get_background_mesh()->save_to_vtk( "Background444.vtk" );
 
         // manually select output pattern
         tDatabase->set_activation_pattern( 1 );
 
         // refine the last element three times
         // fixme: change this to 2
-        for( uint tLevel = 0; tLevel < 2; ++tLevel )
+        for ( uint tLevel = 0; tLevel < 2; ++tLevel )
         {
             //            tDatabase->flag_element( tDatabase->get_number_of_elements_on_proc()-1 );
-            tDatabase->get_background_mesh()->get_element( tDatabase->get_number_of_elements_on_proc()-1 )->put_on_refinement_queue();
+            tDatabase->get_background_mesh()->get_element( tDatabase->get_number_of_elements_on_proc() - 1 )->put_on_refinement_queue();
 
             // manually refine, do not reset pattern
             tDatabase->get_background_mesh()->perform_refinement( 1 );
@@ -857,8 +852,8 @@ TEST_CASE("HMR_L2_Test_Pattern2", "[moris],[mesh],[hmr],[hmr_L2_pattern2]")
         // manually create union
         tDatabase->unite_patterns( 0, 1, tParameters.get_union_pattern() );
 
-        tDatabase->get_background_mesh()->save_to_vtk("Background555.vtk");
-        //tHMR.mBSplineMeshes( 1 )->save_to_vtk("BSpline.vtk");
+        tDatabase->get_background_mesh()->save_to_vtk( "Background555.vtk" );
+        // tHMR.mBSplineMeshes( 1 )->save_to_vtk("BSpline.vtk");
 
         tDatabase->update_bspline_meshes();
         tDatabase->update_lagrange_meshes();
@@ -880,7 +875,7 @@ TEST_CASE("HMR_L2_Test_Pattern2", "[moris],[mesh],[hmr],[hmr_L2_pattern2]")
         // map input to output
         tHMR.map_field_to_output_union( tField, tOutputOrder );
 
-        auto tOutputMesh = tHMR.create_mesh( tOutputOrder, tParameters.get_union_pattern() );        // order , pattern
+        auto tOutputMesh = tHMR.create_mesh( tOutputOrder, tParameters.get_union_pattern() );    // order , pattern
 
         // calculate exact value
         auto tExact = tOutputMesh->create_field( "Exact", 0 );
@@ -898,16 +893,16 @@ TEST_CASE("HMR_L2_Test_Pattern2", "[moris],[mesh],[hmr],[hmr_L2_pattern2]")
     }
 }
 
-TEST_CASE("HMR_L2_Test_Pattern5", "[moris],[mesh],[hmr],[hmr_L2_pattern5]")
+TEST_CASE( "HMR_L2_Test_Pattern5", "[moris],[mesh],[hmr],[hmr_L2_pattern5]" )
 {
     //    gLogger.set_severity_level( 0 );
     // can only perform test for 1, 2 or 4 procs
     // do this test for 2 and 3 dimensions
-    if( moris::par_size() == 1 || moris::par_size() == 2 || moris::par_size() == 4 )
+    if ( moris::par_size() == 1 || moris::par_size() == 2 || moris::par_size() == 4 )
     {
-        for( moris::uint tDimension=2; tDimension<=3; ++tDimension )
+        for ( moris::uint tDimension = 2; tDimension <= 3; ++tDimension )
         {
-            for( moris::uint tOrder=1; tOrder<=3; tOrder++ )
+            for ( moris::uint tOrder = 1; tOrder <= 3; tOrder++ )
             {
                 //------------------------------------------------------------------------------
                 //  HMR Parameters setup
@@ -920,7 +915,7 @@ TEST_CASE("HMR_L2_Test_Pattern5", "[moris],[mesh],[hmr],[hmr_L2_pattern5]")
                 moris::Matrix< moris::DDLUMat > tNumberOfElements;
 
                 // set element size
-                if( moris::par_size() == 1 )
+                if ( moris::par_size() == 1 )
                 {
                     tNumberOfElements.set_size( tDimension, 1, 2 );
                 }
@@ -939,23 +934,23 @@ TEST_CASE("HMR_L2_Test_Pattern5", "[moris],[mesh],[hmr],[hmr_L2_pattern5]")
                 // It is recommended to leave this setting as is.
                 tParameters.set_bspline_truncation( true );
 
-                tParameters.set_lagrange_orders  ( { {tOrder}, {tOrder} });
-                tParameters.set_lagrange_patterns({ {0}, {1} });
+                tParameters.set_lagrange_orders( { { tOrder }, { tOrder } } );
+                tParameters.set_lagrange_patterns( { { 0 }, { 1 } } );
 
-                tParameters.set_bspline_orders   ( { {tOrder}, {2}, {tOrder}, {2} } );
-                tParameters.set_bspline_patterns ( { {0}, {0}, {1}, {1} } );
+                tParameters.set_bspline_orders( { { tOrder }, { 2 }, { tOrder }, { 2 } } );
+                tParameters.set_bspline_patterns( { { 0 }, { 0 }, { 1 }, { 1 } } );
 
                 tParameters.set_union_pattern( 2 );
 
                 tParameters.set_staircase_buffer( tOrder );
 
                 Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
-                tLagrangeToBSplineMesh( 0 ) = { {0}, {1} };
-                tLagrangeToBSplineMesh( 1 ) = { {2}, {3} };
+                tLagrangeToBSplineMesh( 0 ) = { { 0 }, { 1 } };
+                tLagrangeToBSplineMesh( 1 ) = { { 2 }, { 3 } };
 
                 tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
-                tParameters.set_number_aura(false);
+                tParameters.set_number_aura( false );
 
                 //------------------------------------------------------------------------------
                 //  HMR Initialization
@@ -972,13 +967,13 @@ TEST_CASE("HMR_L2_Test_Pattern5", "[moris],[mesh],[hmr],[hmr_L2_pattern5]")
 
                 // refine the first element three times
                 // fixme: change this to 3
-                for( uint tLevel = 0; tLevel < 2; ++tLevel )
+                for ( uint tLevel = 0; tLevel < 2; ++tLevel )
                 {
                     //            tDatabase->flag_element( 0 );
                     tDatabase->get_background_mesh()->get_element( 0 )->put_on_refinement_queue();
 
                     // manually refine, do not reset pattern
-                    tDatabase->get_background_mesh()->perform_refinement(0 );
+                    tDatabase->get_background_mesh()->perform_refinement( 0 );
                 }
 
                 //           tDatabase->get_background_mesh()->save_to_vtk("Background444.vtk");
@@ -988,19 +983,19 @@ TEST_CASE("HMR_L2_Test_Pattern5", "[moris],[mesh],[hmr],[hmr_L2_pattern5]")
 
                 // refine the last element three times
                 // fixme: change this to 2
-                for( uint tLevel = 0; tLevel < 2; ++tLevel )
+                for ( uint tLevel = 0; tLevel < 2; ++tLevel )
                 {
-                    tDatabase->get_background_mesh()->get_element( tDatabase->get_number_of_elements_on_proc()-1 )->put_on_refinement_queue();
+                    tDatabase->get_background_mesh()->get_element( tDatabase->get_number_of_elements_on_proc() - 1 )->put_on_refinement_queue();
 
                     // manually refine, do not reset pattern
-                    tDatabase->get_background_mesh()->perform_refinement(1);
+                    tDatabase->get_background_mesh()->perform_refinement( 1 );
                 }
 
                 // manually create union
-                //tDatabase->unite_patterns( 0, 1, tParameters.get_union_pattern() );
+                // tDatabase->unite_patterns( 0, 1, tParameters.get_union_pattern() );
 
-                //tDatabase->get_background_mesh()->save_to_vtk("Background555.vtk");
-                //tHMR.mBSplineMeshes( 1 )->save_to_vtk("BSpline.vtk");
+                // tDatabase->get_background_mesh()->save_to_vtk("Background555.vtk");
+                // tHMR.mBSplineMeshes( 1 )->save_to_vtk("BSpline.vtk");
 
                 tDatabase->update_bspline_meshes();
                 tDatabase->update_lagrange_meshes();
@@ -1017,16 +1012,16 @@ TEST_CASE("HMR_L2_Test_Pattern5", "[moris],[mesh],[hmr],[hmr_L2_pattern5]")
                 // evaluate function at nodes
                 tField->evaluate_scalar_function( LevelSetFunction );
 
-                uint tOutputMeshIndex = 1;
+                uint tOutputMeshIndex  = 1;
                 uint tBsplineMeshIndex = 0;
                 // map input to output
                 tHMR.map_field_to_output( tField,
                         tOutputMeshIndex,
-                        tBsplineMeshIndex);
+                        tBsplineMeshIndex );
 
-                //tHMR.save_to_exodus( tOutputMeshIndex, "LevelSet2111.exo" );
+                // tHMR.save_to_exodus( tOutputMeshIndex, "LevelSet2111.exo" );
 
-                auto tOutputMesh = tHMR.create_mesh( 1 );        // Mesh index
+                auto tOutputMesh = tHMR.create_mesh( 1 );    // Mesh index
 
                 // calculate exact value
                 auto tExact = tOutputMesh->create_field( "Exact", 0 );
@@ -1046,16 +1041,16 @@ TEST_CASE("HMR_L2_Test_Pattern5", "[moris],[mesh],[hmr],[hmr_L2_pattern5]")
     }
 }
 
-TEST_CASE("HMR_L2_Test_Pattern6", "[moris],[mesh],[hmr],[hmr_L2_pattern6]")
+TEST_CASE( "HMR_L2_Test_Pattern6", "[moris],[mesh],[hmr],[hmr_L2_pattern6]" )
 {
     //    gLogger.set_severity_level( 0 );
     // can only perform test for 1, 2 or 4 procs
     // do this test for 2 and 3 dimensions
-    if( moris::par_size() == 1 || moris::par_size() == 2 || moris::par_size() == 4 )
+    if ( moris::par_size() == 1 || moris::par_size() == 2 || moris::par_size() == 4 )
     {
-        for( moris::uint tDimension=2; tDimension<=3; ++tDimension )
+        for ( moris::uint tDimension = 2; tDimension <= 3; ++tDimension )
         {
-            for( moris::uint tOrder=1; tOrder<=3; tOrder++ )
+            for ( moris::uint tOrder = 1; tOrder <= 3; tOrder++ )
             {
                 //------------------------------------------------------------------------------
                 //  HMR Parameters setup
@@ -1068,7 +1063,7 @@ TEST_CASE("HMR_L2_Test_Pattern6", "[moris],[mesh],[hmr],[hmr_L2_pattern6]")
                 moris::Matrix< moris::DDLUMat > tNumberOfElements;
 
                 // set element size
-                if( moris::par_size() == 1 )
+                if ( moris::par_size() == 1 )
                 {
                     tNumberOfElements.set_size( tDimension, 1, 2 );
                 }
@@ -1087,23 +1082,23 @@ TEST_CASE("HMR_L2_Test_Pattern6", "[moris],[mesh],[hmr],[hmr_L2_pattern6]")
                 // It is recommended to leave this setting as is.
                 tParameters.set_bspline_truncation( true );
 
-                tParameters.set_lagrange_orders  ( { {tOrder}, {tOrder} });
-                tParameters.set_lagrange_patterns({ {0}, {1} });
+                tParameters.set_lagrange_orders( { { tOrder }, { tOrder } } );
+                tParameters.set_lagrange_patterns( { { 0 }, { 1 } } );
 
-                tParameters.set_bspline_orders   ( { {1}, {tOrder}, {1}, {tOrder} } );
-                tParameters.set_bspline_patterns ( { {0}, {0}, {1}, {1} } );
+                tParameters.set_bspline_orders( { { 1 }, { tOrder }, { 1 }, { tOrder } } );
+                tParameters.set_bspline_patterns( { { 0 }, { 0 }, { 1 }, { 1 } } );
 
                 tParameters.set_union_pattern( 2 );
 
                 tParameters.set_staircase_buffer( tOrder );
 
                 Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
-                tLagrangeToBSplineMesh( 0 ) = { {0}, {1} };
-                tLagrangeToBSplineMesh( 1 ) = { {2}, {3} };
+                tLagrangeToBSplineMesh( 0 ) = { { 0 }, { 1 } };
+                tLagrangeToBSplineMesh( 1 ) = { { 2 }, { 3 } };
 
                 tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
-                tParameters.set_number_aura(false);
+                tParameters.set_number_aura( false );
 
                 //------------------------------------------------------------------------------
                 //  HMR Initialization
@@ -1120,35 +1115,35 @@ TEST_CASE("HMR_L2_Test_Pattern6", "[moris],[mesh],[hmr],[hmr_L2_pattern6]")
 
                 // refine the first element three times
                 // fixme: change this to 3
-                for( uint tLevel = 0; tLevel < 2; ++tLevel )
+                for ( uint tLevel = 0; tLevel < 2; ++tLevel )
                 {
                     //            tDatabase->flag_element( 0 );
                     tDatabase->get_background_mesh()->get_element( 0 )->put_on_refinement_queue();
 
                     // manually refine, do not reset pattern
-                    tDatabase->get_background_mesh()->perform_refinement(0);
+                    tDatabase->get_background_mesh()->perform_refinement( 0 );
                 }
 
-                tDatabase->get_background_mesh()->save_to_vtk("Background444.vtk");
+                tDatabase->get_background_mesh()->save_to_vtk( "Background444.vtk" );
 
                 // manually select output pattern
                 tDatabase->set_activation_pattern( 1 );
 
                 // refine the last element three times
                 // fixme: change this to 2
-                for( uint tLevel = 0; tLevel < 2; ++tLevel )
+                for ( uint tLevel = 0; tLevel < 2; ++tLevel )
                 {
-                    tDatabase->get_background_mesh()->get_element( tDatabase->get_number_of_elements_on_proc()-1 )->put_on_refinement_queue();
+                    tDatabase->get_background_mesh()->get_element( tDatabase->get_number_of_elements_on_proc() - 1 )->put_on_refinement_queue();
 
                     // manually refine, do not reset pattern
-                    tDatabase->get_background_mesh()->perform_refinement(1);
+                    tDatabase->get_background_mesh()->perform_refinement( 1 );
                 }
 
                 // manually create union
-                //tDatabase->unite_patterns( 0, 1, tParameters.get_union_pattern() );
+                // tDatabase->unite_patterns( 0, 1, tParameters.get_union_pattern() );
 
-                //tDatabase->get_background_mesh()->save_to_vtk("Background555.vtk");
-                //tHMR.mBSplineMeshes( 1 )->save_to_vtk("BSpline.vtk");
+                // tDatabase->get_background_mesh()->save_to_vtk("Background555.vtk");
+                // tHMR.mBSplineMeshes( 1 )->save_to_vtk("BSpline.vtk");
 
                 tDatabase->update_bspline_meshes();
                 tDatabase->update_lagrange_meshes();
@@ -1165,17 +1160,17 @@ TEST_CASE("HMR_L2_Test_Pattern6", "[moris],[mesh],[hmr],[hmr_L2_pattern6]")
                 // evaluate function at nodes
                 tField->evaluate_scalar_function( LevelSetFunction );
 
-                uint tOutputMeshIndex = 1;
+                uint tOutputMeshIndex  = 1;
                 uint tBsplineMeshIndex = 1;
 
                 // map input to output
                 tHMR.map_field_to_output( tField,
                         tOutputMeshIndex,
-                        tBsplineMeshIndex);
+                        tBsplineMeshIndex );
 
-                //tHMR.save_to_exodus( tOutputMeshIndex, "LevelSet2111.exo" );
+                // tHMR.save_to_exodus( tOutputMeshIndex, "LevelSet2111.exo" );
 
-                auto tOutputMesh = tHMR.create_mesh( 1 );        // mesh index
+                auto tOutputMesh = tHMR.create_mesh( 1 );    // mesh index
 
                 // calculate exact value
                 auto tExact = tOutputMesh->create_field( "Exact", 1 );
@@ -1195,16 +1190,16 @@ TEST_CASE("HMR_L2_Test_Pattern6", "[moris],[mesh],[hmr],[hmr_L2_pattern6]")
     }
 }
 
-TEST_CASE("HMR_L2_Test_Pattern7", "[moris],[mesh],[hmr],[hmr_L2_pattern7]")
+TEST_CASE( "HMR_L2_Test_Pattern7", "[moris],[mesh],[hmr],[hmr_L2_pattern7]" )
 {
     //    gLogger.set_severity_level( 0 );
     // can only perform test for 1, 2 or 4 procs
     // do this test for 2 and 3 dimensions
-    if( moris::par_size() == 1 || moris::par_size() == 2 || moris::par_size() == 4 )
+    if ( moris::par_size() == 1 || moris::par_size() == 2 || moris::par_size() == 4 )
     {
-        for( moris::uint tDimension=2; tDimension<=3; ++tDimension )
+        for ( moris::uint tDimension = 2; tDimension <= 3; ++tDimension )
         {
-            for( moris::uint tOrder=1; tOrder<=3; tOrder++ )
+            for ( moris::uint tOrder = 1; tOrder <= 3; tOrder++ )
             {
                 //------------------------------------------------------------------------------
                 //  HMR Parameters setup
@@ -1217,7 +1212,7 @@ TEST_CASE("HMR_L2_Test_Pattern7", "[moris],[mesh],[hmr],[hmr_L2_pattern7]")
                 moris::Matrix< moris::DDLUMat > tNumberOfElements;
 
                 // set element size
-                if( moris::par_size() == 1 )
+                if ( moris::par_size() == 1 )
                 {
                     tNumberOfElements.set_size( tDimension, 1, 2 );
                 }
@@ -1236,23 +1231,23 @@ TEST_CASE("HMR_L2_Test_Pattern7", "[moris],[mesh],[hmr],[hmr_L2_pattern7]")
                 // It is recommended to leave this setting as is.
                 tParameters.set_bspline_truncation( true );
 
-                tParameters.set_lagrange_orders  ( { {1}, {tOrder} });
-                tParameters.set_lagrange_patterns({ {0}, {1} });
+                tParameters.set_lagrange_orders( { { 1 }, { tOrder } } );
+                tParameters.set_lagrange_patterns( { { 0 }, { 1 } } );
 
-                tParameters.set_bspline_orders   ( { {1}, {1}, {1}, {tOrder} } );
-                tParameters.set_bspline_patterns ( { {0}, {0}, {1}, {1} } );
+                tParameters.set_bspline_orders( { { 1 }, { 1 }, { 1 }, { tOrder } } );
+                tParameters.set_bspline_patterns( { { 0 }, { 0 }, { 1 }, { 1 } } );
 
                 tParameters.set_union_pattern( 2 );
 
                 tParameters.set_staircase_buffer( tOrder );
 
                 Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 2 );
-                tLagrangeToBSplineMesh( 0 ) = { {0}, {1} };
-                tLagrangeToBSplineMesh( 1 ) = { {2}, {3} };
+                tLagrangeToBSplineMesh( 0 ) = { { 0 }, { 1 } };
+                tLagrangeToBSplineMesh( 1 ) = { { 2 }, { 3 } };
 
                 tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
-                tParameters.set_number_aura(false);
+                tParameters.set_number_aura( false );
 
                 //------------------------------------------------------------------------------
                 //  HMR Initialization
@@ -1269,36 +1264,36 @@ TEST_CASE("HMR_L2_Test_Pattern7", "[moris],[mesh],[hmr],[hmr_L2_pattern7]")
 
                 // refine the first element three times
                 // fixme: change this to 3
-                for( uint tLevel = 0; tLevel < 2; ++tLevel )
+                for ( uint tLevel = 0; tLevel < 2; ++tLevel )
                 {
                     //            tDatabase->flag_element( 0 );
                     tDatabase->get_background_mesh()->get_element( 0 )->put_on_refinement_queue();
 
                     // manually refine, do not reset pattern
-                    tDatabase->get_background_mesh()->perform_refinement(0);
+                    tDatabase->get_background_mesh()->perform_refinement( 0 );
                 }
 
-                //tDatabase->get_background_mesh()->save_to_vtk("BackgroundPresi1.vtk");
+                // tDatabase->get_background_mesh()->save_to_vtk("BackgroundPresi1.vtk");
 
                 // manually select output pattern
                 tDatabase->set_activation_pattern( 1 );
 
                 // refine the last element three times
                 // fixme: change this to 2
-                for( uint tLevel = 0; tLevel < 2; ++tLevel )
+                for ( uint tLevel = 0; tLevel < 2; ++tLevel )
                 {
                     //            tDatabase->flag_element( tDatabase->get_number_of_elements_on_proc()-1 );
-                    tDatabase->get_background_mesh()->get_element( tDatabase->get_number_of_elements_on_proc()-1 )->put_on_refinement_queue();
+                    tDatabase->get_background_mesh()->get_element( tDatabase->get_number_of_elements_on_proc() - 1 )->put_on_refinement_queue();
 
                     // manually refine, do not reset pattern
-                    tDatabase->get_background_mesh()->perform_refinement(1);
+                    tDatabase->get_background_mesh()->perform_refinement( 1 );
                 }
 
                 // manually create union
-                //tDatabase->unite_patterns( 0, 1, tParameters.get_union_pattern() );
+                // tDatabase->unite_patterns( 0, 1, tParameters.get_union_pattern() );
 
-                //tDatabase->get_background_mesh()->save_to_vtk("BackgroundPresi2.vtk");
-                //tHMR.mBSplineMeshes( 1 )->save_to_vtk("BSpline.vtk");
+                // tDatabase->get_background_mesh()->save_to_vtk("BackgroundPresi2.vtk");
+                // tHMR.mBSplineMeshes( 1 )->save_to_vtk("BSpline.vtk");
 
                 tDatabase->update_bspline_meshes();
                 tDatabase->update_lagrange_meshes();
@@ -1315,18 +1310,18 @@ TEST_CASE("HMR_L2_Test_Pattern7", "[moris],[mesh],[hmr],[hmr_L2_pattern7]")
                 // evaluate function at nodes
                 tField->evaluate_scalar_function( LevelSetFunction );
 
-                uint tOutputMeshIndex = 1;
+                uint tOutputMeshIndex  = 1;
                 uint tBsplineMeshIndex = 1;
 
                 // map input to output
                 tHMR.map_field_to_output(
                         tField,
                         tOutputMeshIndex,
-                        tBsplineMeshIndex);
+                        tBsplineMeshIndex );
 
-                //tHMR.save_to_exodus( tOutputMeshIndex, "LevelSetPresi.exo" );
+                // tHMR.save_to_exodus( tOutputMeshIndex, "LevelSetPresi.exo" );
 
-                auto tOutputMesh = tHMR.create_mesh( 1 );        // mesh index
+                auto tOutputMesh = tHMR.create_mesh( 1 );    // mesh index
 
                 // calculate exact value
                 auto tExact = tOutputMesh->create_field( "Exact", 1 );
@@ -1340,15 +1335,15 @@ TEST_CASE("HMR_L2_Test_Pattern7", "[moris],[mesh],[hmr],[hmr_L2_pattern7]")
                 moris::real tR2 = moris::r2( tExact->get_node_values(), tField->get_node_values() );
 
                 // perform test
-                if( moris::par_size() == 1 )
+                if ( moris::par_size() == 1 )
                 {
                     REQUIRE( tR2 > 0.95 );
                 }
-                else if( moris::par_size() == 2 )
+                else if ( moris::par_size() == 2 )
                 {
                     REQUIRE( tR2 > 0.96 );
                 }
-                else if( moris::par_size() == 4 )
+                else if ( moris::par_size() == 4 )
                 {
                     REQUIRE( tR2 > 0.94 );
                 }
@@ -1357,14 +1352,14 @@ TEST_CASE("HMR_L2_Test_Pattern7", "[moris],[mesh],[hmr],[hmr_L2_pattern7]")
     }
 }
 
-TEST_CASE("HMR_L2_Test_Pattern8", "[moris],[mesh],[hmr],[hmr_L2_pattern8]")
+TEST_CASE( "HMR_L2_Test_Pattern8", "[moris],[mesh],[hmr],[hmr_L2_pattern8]" )
 {
     //    gLogger.set_severity_level( 0 );
     // can only perform test for 1, 2 or 4 procs
     // do this test for 2 and 3 dimensions
-    if( moris::par_size() == 1 )
+    if ( moris::par_size() == 1 )
     {
-        moris::uint tDimension=2;
+        moris::uint tDimension = 2;
 
         //------------------------------------------------------------------------------
         //  HMR Parameters setup
@@ -1385,25 +1380,25 @@ TEST_CASE("HMR_L2_Test_Pattern8", "[moris],[mesh],[hmr],[hmr_L2_pattern8]")
         // It is recommended to leave this setting as is.
         tParameters.set_bspline_truncation( true );
 
-        tParameters.set_lagrange_orders  ( { {1} });
-        tParameters.set_lagrange_patterns({ {0} });
+        tParameters.set_lagrange_orders( { { 1 } } );
+        tParameters.set_lagrange_patterns( { { 0 } } );
 
-        tParameters.set_bspline_orders   ( { {2} } );
-        tParameters.set_bspline_patterns ( { {1} } );
+        tParameters.set_bspline_orders( { { 2 } } );
+        tParameters.set_bspline_patterns( { { 1 } } );
 
         tParameters.set_union_pattern( 2 );
 
         tParameters.set_staircase_buffer( 2 );
 
-        tParameters.set_initial_refinement( { {1} } );
-        tParameters.set_initial_refinement_patterns( { {0} } );
+        tParameters.set_initial_refinement( { { 1 } } );
+        tParameters.set_initial_refinement_patterns( { { 0 } } );
 
         Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
-        tLagrangeToBSplineMesh( 0 ) = { {0} };
+        tLagrangeToBSplineMesh( 0 ) = { { 0 } };
 
         tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
-        tParameters.set_number_aura(false);
+        tParameters.set_number_aura( false );
 
         //------------------------------------------------------------------------------
         //  HMR Initialization
@@ -1429,13 +1424,13 @@ TEST_CASE("HMR_L2_Test_Pattern8", "[moris],[mesh],[hmr],[hmr_L2_pattern8]")
         // evaluate function at nodes
         tField->evaluate_scalar_function( LevelSetFunction );
 
-        moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh( 0 );
+        moris::hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR.create_interpolation_mesh( 0 );
 
         // Create integration mesh
         mtk::Integration_Mesh* tIntegrationMesh =
                 tHMR.create_integration_mesh( 0, tInterpolationMesh );
 
-        mtk::Mesh_Pair tMeshPair(tInterpolationMesh, tIntegrationMesh);
+        mtk::Mesh_Pair tMeshPair( tInterpolationMesh, tIntegrationMesh );
 
         mtk::Field_Discrete tField_proxy( tMeshPair, 0 );
 
@@ -1447,18 +1442,12 @@ TEST_CASE("HMR_L2_Test_Pattern8", "[moris],[mesh],[hmr],[hmr_L2_pattern8]")
         tMapper.perform_mapping(
                 &tField_proxy,
                 EntityRank::NODE,
-                EntityRank::BSPLINE);
+                EntityRank::BSPLINE );
 
         tField->get_coefficients() = tField_proxy.get_coefficients();
 
         tField->evaluate_nodal_values( tField->get_coefficients() );
 
-        print( tField->get_coefficients(),"bs");
-        print( tField->get_node_values(),"ns");
-
         tHMR.save_to_exodus( 0, "LevelSetPresi.exo" );
-
     }
-
 }
-

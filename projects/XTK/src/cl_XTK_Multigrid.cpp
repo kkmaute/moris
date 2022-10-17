@@ -214,7 +214,7 @@ namespace xtk
     }
 
     //------------------------------------------------------------------------------
-    //#ifdef DEBUG
+    //#ifdef MORIS_HAVE_DEBUG
     //    void Multigrid::save_to_vtk( const std::string & aFilePath )
     //    {
     //        // start timer
@@ -369,7 +369,7 @@ namespace xtk
         // get num enriched basis
         uint tNumEnrichedBasis = mXTKModelPtr->mEnrichedInterpMesh( 0 )->get_max_num_coeffs_on_proc( 0 );
 
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
         mEnrichedBasisCoords.set_size( tNumEnrichedBasis, mXTKModelPtr->get_spatial_dim() );
         mEnrichedBasisStatus.set_size( tNumEnrichedBasis, 1 );
 #endif
@@ -380,17 +380,21 @@ namespace xtk
             moris_index tBackgroundIndex = mEnrichedBasisToBackgroundBasis( Ik );
 
             mEnrichedBasisLevel( Ik ) = tInterpolationMesh.get_basis_level( 0, tBackgroundIndex );
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
             mEnrichedBasisStatus( Ik )                                                     = tInterpolationMesh.get_basis_status( 0, tBackgroundIndex );
             mEnrichedBasisCoords( { Ik, Ik }, { 0, mXTKModelPtr->get_spatial_dim() - 1 } ) = tInterpolationMesh.get_basis_coords( 0, tBackgroundIndex ).matrix_data();
 #endif
         }
 
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
         // Create writer/file
         moris::mtk::Writer_Exodus tWriter;
         std::string               tMorisRoot = std::getenv( "MORISOUTPUT" );
-        std::string               tTempName  = "multigrid_basis_temp.exo";
+
+        MORIS_ERROR( tMorisRoot.size() > 0,
+                "Environment variable MORISOUTPUT not set." );
+
+        std::string tTempName = "multigrid_basis_temp.exo";
         tWriter.write_points( tMorisRoot, aName, tMorisRoot, tTempName, mEnrichedBasisCoords );
 
         // Create fields
@@ -410,4 +414,3 @@ namespace xtk
         //        print( mEnrichedBasisCoords,"mEnrichedBasisCoords");
     }
 }    // namespace xtk
-

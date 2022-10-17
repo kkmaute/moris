@@ -8,19 +8,19 @@
  *
  */
 
-#include "cl_HMR_T_Matrix.hpp" //HMR/src
+#include "cl_HMR_T_Matrix.hpp"    //HMR/src
 
 #include <limits>
 
-#include "HMR_Globals.hpp"     //HMR/src
+#include "HMR_Globals.hpp"    //HMR/src
 #include "HMR_Tools.hpp"
 #include "fn_eye.hpp"
-#include "fn_norm.hpp"         //LINALG/src
-#include "fn_sum.hpp"          //LINALG/src
-#include "fn_trans.hpp"        //LINALG/src
-#include "fn_inv.hpp"          //LINALG/src
-#include "op_plus.hpp"         //LINALG/src
-#include "op_times.hpp"        //LINALG/src
+#include "fn_norm.hpp"     //LINALG/src
+#include "fn_sum.hpp"      //LINALG/src
+#include "fn_trans.hpp"    //LINALG/src
+#include "fn_inv.hpp"      //LINALG/src
+#include "op_plus.hpp"     //LINALG/src
+#include "op_times.hpp"    //LINALG/src
 
 namespace moris
 {
@@ -30,12 +30,12 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         T_Matrix::T_Matrix(
-                const Parameters   * aParameters,
-                BSpline_Mesh_Base  * aBSplineMesh,
-                Lagrange_Mesh_Base * aLagrangeMesh )
-        : mParameters ( aParameters ),
-          mBSplineMesh( aBSplineMesh ),
-          mLagrangeMesh( aLagrangeMesh )
+                const Parameters*   aParameters,
+                BSpline_Mesh_Base*  aBSplineMesh,
+                Lagrange_Mesh_Base* aLagrangeMesh )
+                : mParameters( aParameters )
+                , mBSplineMesh( aBSplineMesh )
+                , mLagrangeMesh( aLagrangeMesh )
         {
             this->init_basis_index();
             this->init_unity_matrix();
@@ -45,26 +45,26 @@ namespace moris
             this->init_lagrange_matrix();
             this->init_lagrange_coefficients();
 
-            switch( mParameters->get_number_of_dimensions() )
+            switch ( mParameters->get_number_of_dimensions() )
             {
                 case 2:
                 {
-                    mEvalNGeo   = & this->N_quad4;
-                    mEvalN      = & T_Matrix :: lagrange_shape_2d;
-                    mGetCorners = & this->get_child_corner_nodes_2d;
+                    mEvalNGeo   = &this->N_quad4;
+                    mEvalN      = &T_Matrix ::lagrange_shape_2d;
+                    mGetCorners = &this->get_child_corner_nodes_2d;
 
                     break;
                 }
                 case 3:
                 {
-                    mEvalNGeo   = & this->N_hex8;
-                    mEvalN      = & T_Matrix :: lagrange_shape_3d;
-                    mGetCorners = & this->get_child_corner_nodes_3d;
+                    mEvalNGeo   = &this->N_hex8;
+                    mEvalN      = &T_Matrix ::lagrange_shape_3d;
+                    mGetCorners = &this->get_child_corner_nodes_3d;
                     break;
                 }
-                default :
+                default:
                 {
-                    MORIS_ERROR( false, "unknown number of dimensions");
+                    MORIS_ERROR( false, "unknown number of dimensions" );
                     break;
                 }
             }
@@ -72,51 +72,51 @@ namespace moris
             this->init_lagrange_refinement_matrices();
             this->init_lagrange_change_order_matrices();
 
-            //this->init_gauss_points();
-            //this->init_mass_matrices();
+            // this->init_gauss_points();
+            // this->init_mass_matrices();
 
             // set function pointer
             if ( aParameters->truncate_bsplines() )
             {
-                mTMatrixFunction = & T_Matrix::calculate_truncated_t_matrix;
+                mTMatrixFunction = &T_Matrix::calculate_truncated_t_matrix;
             }
             else
             {
-                mTMatrixFunction = & T_Matrix::calculate_untruncated_t_matrix;
+                mTMatrixFunction = &T_Matrix::calculate_untruncated_t_matrix;
             }
         }
 
         //-------------------------------------------------------------------------------
 
         T_Matrix::T_Matrix(
-                const Parameters   * aParameters,
-                Lagrange_Mesh_Base * aLagrangeMesh )
-        : mParameters ( aParameters ),
-          mLagrangeMesh( aLagrangeMesh )
+                const Parameters*   aParameters,
+                Lagrange_Mesh_Base* aLagrangeMesh )
+                : mParameters( aParameters )
+                , mLagrangeMesh( aLagrangeMesh )
         {
             this->init_lagrange_parameter_coordinates();
             this->init_lagrange_coefficients();
 
-            switch( mParameters->get_number_of_dimensions() )
+            switch ( mParameters->get_number_of_dimensions() )
             {
                 case 2:
                 {
-                    mEvalNGeo   = & this->N_quad4;
-                    mEvalN      = & T_Matrix :: lagrange_shape_2d;
-                    mGetCorners = & this->get_child_corner_nodes_2d;
+                    mEvalNGeo   = &this->N_quad4;
+                    mEvalN      = &T_Matrix ::lagrange_shape_2d;
+                    mGetCorners = &this->get_child_corner_nodes_2d;
 
                     break;
                 }
                 case 3:
                 {
-                    mEvalNGeo   = & this->N_hex8;
-                    mEvalN      = & T_Matrix :: lagrange_shape_3d;
-                    mGetCorners = & this->get_child_corner_nodes_3d;
+                    mEvalNGeo   = &this->N_hex8;
+                    mEvalN      = &T_Matrix ::lagrange_shape_3d;
+                    mGetCorners = &this->get_child_corner_nodes_3d;
                     break;
                 }
-                default :
+                default:
                 {
-                    MORIS_ERROR( false, "unknown number of dimensions");
+                    MORIS_ERROR( false, "unknown number of dimensions" );
                     break;
                 }
             }
@@ -133,22 +133,24 @@ namespace moris
 
         //-------------------------------------------------------------------------------
 
-        void T_Matrix::calculate_t_matrix(
-                const luint      & aMemoryIndex,
-                Matrix< DDRMat > & aTMatrixTransposed,
-                Cell< Basis* >   & aDOFs  )
+        void
+        T_Matrix::calculate_t_matrix(
+                const luint&      aMemoryIndex,
+                Matrix< DDRMat >& aTMatrixTransposed,
+                Cell< Basis* >&   aDOFs )
         {
             ( this->*mTMatrixFunction )( aMemoryIndex,
                     aTMatrixTransposed,
-                    aDOFs  );
+                    aDOFs );
         }
 
         //-------------------------------------------------------------------------------
 
-        void T_Matrix::calculate_untruncated_t_matrix(
-                const luint      & aMemoryIndex,
-                Matrix< DDRMat > & aTMatrixTransposed,
-                Cell< Basis* >   & aDOFs  )
+        void
+        T_Matrix::calculate_untruncated_t_matrix(
+                const luint&      aMemoryIndex,
+                Matrix< DDRMat >& aTMatrixTransposed,
+                Cell< Basis* >&   aDOFs )
         {
             aDOFs.clear();
 
@@ -161,7 +163,7 @@ namespace moris
             auto tNumberOfBasisPerElement = mBSplineMesh->get_number_of_basis_per_element();
 
             // help index for total number of basis
-            uint tMaxNumberOfBasis = ( tLevel+1 ) * tNumberOfBasisPerElement;
+            uint tMaxNumberOfBasis = ( tLevel + 1 ) * tNumberOfBasisPerElement;
 
             // allocate max memory for matrix
             aTMatrixTransposed.set_size( tNumberOfBasisPerElement, tMaxNumberOfBasis, 0 );
@@ -179,13 +181,13 @@ namespace moris
             Element* tParent = tElement;
 
             // loop over all levels and assemble transposed T-Matrix
-            for( int l = tLevel; l >= 0; --l )
+            for ( int l = tLevel; l >= 0; --l )
             {
                 // copy basis indices
-                for( uint k = 0; k < tNumberOfBasisPerElement; ++k )
+                for ( uint k = 0; k < tNumberOfBasisPerElement; ++k )
                 {
                     // get pointer to basis
-                    Basis * tBasis = tParent->get_basis( k );
+                    Basis* tBasis = tParent->get_basis( k );
 
                     // test if basis is active
                     if ( tBasis->is_active() )
@@ -199,7 +201,7 @@ namespace moris
                 }
 
                 // left-multiply T-Matrix with child matrix
-                tT = tT *mChild( tParent->get_background_element()->get_child_index() );
+                tT = tT * mChild( tParent->get_background_element()->get_child_index() );
 
                 // jump to next
                 tParent = mBSplineMesh->get_parent_of_element( tParent );
@@ -214,10 +216,11 @@ namespace moris
 
         //-------------------------------------------------------------------------------
 
-        void T_Matrix::calculate_truncated_t_matrix(
-                const luint      & aMemoryIndex,
-                Matrix< DDRMat > & aTMatrixTransposed,
-                Cell< Basis* >   & aDOFs  )
+        void
+        T_Matrix::calculate_truncated_t_matrix(
+                const luint&      aMemoryIndex,
+                Matrix< DDRMat >& aTMatrixTransposed,
+                Cell< Basis* >&   aDOFs )
         {
             aDOFs.clear();
 
@@ -230,10 +233,10 @@ namespace moris
             auto tNumberOfBasisPerElement = mBSplineMesh->get_number_of_basis_per_element();
 
             // help index for total number of basis
-            uint tNumberOfBasis = ( tLevel+1 ) * tNumberOfBasisPerElement;
+            uint tNumberOfBasis = ( tLevel + 1 ) * tNumberOfBasisPerElement;
 
             // initialize counter
-            uint tCount = 0;
+            uint tCount   = 0;
             uint tCount_1 = 0;
 
             // container for basis levels
@@ -247,13 +250,13 @@ namespace moris
             aDOFs.resize( tNumberOfBasis, nullptr );
 
             // copy basis on lowest level into output
-            for( uint k=0; k<tNumberOfBasisPerElement; ++k )
+            for ( uint k = 0; k < tNumberOfBasisPerElement; ++k )
             {
-                Basis * tBasis = tElement->get_basis( k );
+                Basis* tBasis = tElement->get_basis( k );
 
                 tAllBasis( tCount_1++ ) = tBasis;
 
-                if (  tBasis->is_active() )
+                if ( tBasis->is_active() )
                 {
                     aTMatrixTransposed.set_column( tCount, mEye.get_column( k ) );
 
@@ -263,24 +266,24 @@ namespace moris
 
             uint tK0 = 0;
             uint tK1 = tNumberOfBasisPerElement;
-            uint tK2 = 2* tNumberOfBasisPerElement;
+            uint tK2 = 2 * tNumberOfBasisPerElement;
 
             // ask B-Spline mesh for number of children per basis
             auto tNumberOfChildrenPerBasis = mBSplineMesh->get_number_of_children_per_basis();
 
             Cell< moris::uint > tChildIndices;
-            uint tSizeCounter = 1;
+            uint                tSizeCounter = 1;
 
             // jump to next parent
-            if ( tLevel > 0)
+            if ( tLevel > 0 )
             {
                 //                bool tBreaker = false;
-                Element * tParent_1 = mBSplineMesh->get_parent_of_element( tElement );
+                Element* tParent_1 = mBSplineMesh->get_parent_of_element( tElement );
 
                 // loop over higher levels
-                for( int l = tLevel-1; l >= (int)tLevel-2; --l )
+                for ( int l = tLevel - 1; l >= (int)tLevel - 2; --l )
                 {
-                    //check if all basis are refined
+                    // check if all basis are refined
                     bool tAllBasisRefined = true;
 
                     tChildIndices.resize( tSizeCounter++, tParent_1->get_background_element()->get_child_index() );
@@ -288,10 +291,10 @@ namespace moris
                     Matrix< DDRMat > const & tChildMatrix = this->get_child_matrix_1( tChildIndices );
 
                     // loop over all basis of this level
-                    for( uint k = 0; k < tNumberOfBasisPerElement; ++k )
+                    for ( uint k = 0; k < tNumberOfBasisPerElement; ++k )
                     {
                         // get pointer to basis
-                        Basis * tBasis = tParent_1->get_basis( k );
+                        Basis* tBasis = tParent_1->get_basis( k );
 
                         // test if basis is active
                         if ( tBasis->is_active() )
@@ -299,23 +302,23 @@ namespace moris
                             tAllBasisRefined = false;
 
                             // loop over all children of this basis
-                            for( uint j = 0; j < tNumberOfChildrenPerBasis; ++j )
+                            for ( uint j = 0; j < tNumberOfChildrenPerBasis; ++j )
                             {
                                 // get pointer to child of basis
-                                Basis * tChild = tBasis->get_child( j );
+                                Basis* tChild = tBasis->get_child( j );
 
                                 // test if child exists
                                 if ( tChild != NULL )
                                 {
                                     // test if child is deactive
-                                    if ( !tChild->is_active( ) && !tChild->is_refined() )
+                                    if ( !tChild->is_active() && !tChild->is_refined() )
                                     {
                                         // get memory index of child
                                         luint tIndex = tChild->get_memory_index();
 
                                         uint tCounter_2 = 0;
                                         // search for child in element
-                                        for( uint i = tK0; i < tK1; ++i )
+                                        for ( uint i = tK0; i < tK1; ++i )
                                         {
                                             if ( tAllBasis( i )->get_memory_index() == tIndex )
                                             {
@@ -329,7 +332,7 @@ namespace moris
                                                 //         + mTruncationWeights( j ) * tTmatrixTransposed.get_column( i ).matrix_data() );
                                                 aTMatrixTransposed.set_column( tCount,
                                                         aTMatrixTransposed.get_column( tCount ).matrix_data()
-                                                        + mTruncationWeights( j ) * tChildMatrix.get_column( tCounter_2 ).matrix_data() );
+                                                                + mTruncationWeights( j ) * tChildMatrix.get_column( tCounter_2 ).matrix_data() );
 #else
                                                 /*                                                tTMatrixTruncatedTransposed.set_column( tCount,
                                                         tTMatrixTruncatedTransposed.get_column( tCount )
@@ -338,7 +341,7 @@ namespace moris
                                                 //                                                aTMatrixTransposed.matrix_data().col( tCount ) = aTMatrixTransposed.matrix_data().col( tCount )
                                                 //                                                          + mTruncationWeights( j ) * tTmatrixTransposed.matrix_data().col( i );
                                                 aTMatrixTransposed.matrix_data().col( tCount ) = aTMatrixTransposed.matrix_data().col( tCount )
-                                                                  + mTruncationWeights( j ) * tChildMatrix.matrix_data().col( tCounter_2 );
+                                                                                               + mTruncationWeights( j ) * tChildMatrix.matrix_data().col( tCounter_2 );
 #endif
                                                 break;
                                             }
@@ -385,7 +388,8 @@ namespace moris
 
         //-------------------------------------------------------------------------------
 
-        void T_Matrix::init_basis_index()
+        void
+        T_Matrix::init_basis_index()
         {
             // get dimensions
             uint tNumberOfDimensions = mParameters->get_number_of_dimensions();
@@ -402,7 +406,7 @@ namespace moris
             uint tNodesPerDirection = mBSplineOrder + 1;
 
             // calculate number of basis per element
-            uint tNumberOfBasis = std::pow( tNodesPerDirection , tNumberOfDimensions );
+            uint tNumberOfBasis = std::pow( tNodesPerDirection, tNumberOfDimensions );
 
             // initialize index matrix
             mBasisIndex.set_size( tNumberOfBasis, 1 );
@@ -410,11 +414,11 @@ namespace moris
             mBSplineIJK.set_size( tNumberOfDimensions, tNumberOfBasis );
 
             // loop over all basis
-            if ( tNumberOfDimensions == 2)
+            if ( tNumberOfDimensions == 2 )
             {
                 // container for ijk position of basis
                 luint tIJ[ 2 ];
-                for( uint k = 0; k < tNumberOfBasis; ++k )
+                for ( uint k = 0; k < tNumberOfBasis; ++k )
                 {
                     // get position from element
                     tElement->get_ijk_of_basis( k, tIJ );
@@ -423,22 +427,22 @@ namespace moris
                     uint tIndex = tIJ[ 0 ] + tIJ[ 1 ] * tNodesPerDirection;
 
                     mBasisIndex( tIndex ) = k;
-                    mBSplineIJK( 0, k ) = tIJ[ 0 ];
-                    mBSplineIJK( 1, k ) = tIJ[ 1 ];
+                    mBSplineIJK( 0, k )   = tIJ[ 0 ];
+                    mBSplineIJK( 1, k )   = tIJ[ 1 ];
                 }
             }
             else if ( tNumberOfDimensions == 3 )
             {
                 // container for ijk position of basis
                 luint tIJK[ 3 ];
-                for( uint k = 0; k < tNumberOfBasis; ++k )
+                for ( uint k = 0; k < tNumberOfBasis; ++k )
                 {
                     // get position from element
                     tElement->get_ijk_of_basis( k, tIJK );
 
                     // calculate index in matrix
-                    uint tIndex =  tIJK[ 0 ] + tNodesPerDirection *
-                            ( tIJK[ 1 ] + tIJK[ 2 ]*tNodesPerDirection );
+                    uint tIndex =
+                            tIJK[ 0 ] + tNodesPerDirection * ( tIJK[ 1 ] + tIJK[ 2 ] * tNodesPerDirection );
 
                     mBasisIndex( tIndex ) = k;
 
@@ -455,38 +459,39 @@ namespace moris
 
         //-------------------------------------------------------------------------------
 
-        Background_Element_Base * T_Matrix::create_background_element()
+        Background_Element_Base*
+        T_Matrix::create_background_element()
         {
             Background_Element_Base* aBackElement = nullptr;
 
             // create a prototype for a background element
             switch ( mParameters->get_number_of_dimensions() )
             {
-                case( 2 ) :
-                    {
+                case ( 2 ):
+                {
                     luint tIJ[ 2 ] = { 0, 0 };
-                    aBackElement = new Background_Element< 2, 4, 8, 4, 0 >( ( Background_Element_Base* ) nullptr,
+                    aBackElement   = new Background_Element< 2, 4, 8, 4, 0 >( (Background_Element_Base*)nullptr,
                             0,
                             tIJ,
-                            0 ,
-                            ( uint ) 0,
-                            ( uint ) 0,
-                            ( uint ) gNoProcOwner );
+                            0,
+                            (uint)0,
+                            (uint)0,
+                            (uint)gNoProcOwner );
                     break;
-                    }
-                case( 3 ) :
-                    {
+                }
+                case ( 3 ):
+                {
                     luint tIJK[ 3 ] = { 0, 0, 0 };
-                    aBackElement = new Background_Element< 3, 8, 26, 6, 12 >( ( Background_Element_Base* ) nullptr,
+                    aBackElement    = new Background_Element< 3, 8, 26, 6, 12 >( (Background_Element_Base*)nullptr,
                             0,
                             tIJK,
-                            0 ,
-                            ( uint ) 0,
-                            ( uint ) 0,
-                            ( uint ) gNoProcOwner );
+                            0,
+                            (uint)0,
+                            (uint)0,
+                            (uint)gNoProcOwner );
                     break;
-                    }
-                default :
+                }
+                default:
                 {
                     MORIS_ERROR( false, "unknown number of dimensions." );
                 }
@@ -497,7 +502,8 @@ namespace moris
 
         //-------------------------------------------------------------------------------
 
-        void T_Matrix::init_unity_matrix()
+        void
+        T_Matrix::init_unity_matrix()
         {
             // get number of basis per element
             uint tNumberOfBasis = std::pow( mBSplineMesh->get_order() + 1,
@@ -505,12 +511,13 @@ namespace moris
 
             eye( tNumberOfBasis, tNumberOfBasis, mEye );
 
-            mZero.set_size( tNumberOfBasis, 1 , 0.0 );
+            mZero.set_size( tNumberOfBasis, 1, 0.0 );
         }
 
         //-------------------------------------------------------------------------------
 
-        void T_Matrix::init_child_matrices()
+        void
+        T_Matrix::init_child_matrices()
         {
             // get order of mesh
             uint tOrder = mBSplineMesh->get_order();
@@ -524,14 +531,14 @@ namespace moris
             // weight factor
             real tWeight = 1.0 / std::pow( 2, tOrder );
 
-            for( uint j = 0; j <= n; ++j )
+            for ( uint j = 0; j <= n; ++j )
             {
-                for( uint i = 0; i <= tOrder; ++i )
+                for ( uint i = 0; i <= tOrder; ++i )
                 {
-                    uint k = tOrder - 2 * i + j ;
+                    uint k = tOrder - 2 * i + j;
                     if ( k <= n )
                     {
-                        tFactors( i, j ) =  tWeight * nchoosek( n, k );
+                        tFactors( i, j ) = tWeight * nchoosek( n, k );
                     }
                 }
             }
@@ -539,8 +546,8 @@ namespace moris
             // left matrix
             Matrix< DDRMat > TL( n, n, 0.0 );
 
-            //TL.cols( 0, tOrder ) = tFactors.cols( 0, tOrder );
-            for( uint k = 0; k <= tOrder; ++k )
+            // TL.cols( 0, tOrder ) = tFactors.cols( 0, tOrder );
+            for ( uint k = 0; k <= tOrder; ++k )
             {
                 TL.set_column( k, tFactors.get_column( k ) );
             }
@@ -548,8 +555,8 @@ namespace moris
             // right matrix
             Matrix< DDRMat > TR( n, n, 0.0 );
 
-            //TR.cols( 0, tOrder ) = tFactors.cols( 1, n );
-            for( uint k = 0; k <= tOrder; ++k )
+            // TR.cols( 0, tOrder ) = tFactors.cols( 1, n );
+            for ( uint k = 0; k <= tOrder; ++k )
             {
                 TR.set_column( k, tFactors.get_column( k + 1 ) );
             }
@@ -561,10 +568,10 @@ namespace moris
             uint tNumberOfChildren = std::pow( 2, tNumberOfDimensions );
 
             // determine number of basis per element
-            uint tNumberOfBasis = std::pow( tOrder+1, tNumberOfDimensions );
+            uint tNumberOfBasis = std::pow( tOrder + 1, tNumberOfDimensions );
 
             // empty matrix
-            Matrix< DDRMat > tEmpty ( tNumberOfBasis, tNumberOfBasis, 0.0 );
+            Matrix< DDRMat > tEmpty( tNumberOfBasis, tNumberOfBasis, 0.0 );
 
             // container for child relation matrices ( transposed! )
             mChild.resize( tNumberOfChildren, tEmpty );
@@ -572,15 +579,15 @@ namespace moris
             // populate child matrices. Tensor product
             if ( tNumberOfDimensions == 2 )
             {
-                uint b=0;
-                for( uint l = 0; l < n; ++l )
+                uint b = 0;
+                for ( uint l = 0; l < n; ++l )
                 {
-                    for( uint k = 0; k < n; ++k )
+                    for ( uint k = 0; k < n; ++k )
                     {
-                        uint a=0;
-                        for( uint j = 0; j < n; ++j )
+                        uint a = 0;
+                        for ( uint j = 0; j < n; ++j )
                         {
-                            for( uint i = 0; i < n; ++i )
+                            for ( uint i = 0; i < n; ++i )
                             {
                                 mChild( 0 )( mBasisIndex( a ), mBasisIndex( b ) ) = TL( k, i ) * TL( l, j );
                                 mChild( 1 )( mBasisIndex( a ), mBasisIndex( b ) ) = TR( k, i ) * TL( l, j );
@@ -595,19 +602,19 @@ namespace moris
             }
             else if ( tNumberOfDimensions == 3 )
             {
-                uint b=0;
-                for( uint p = 0; p < n; ++p )
+                uint b = 0;
+                for ( uint p = 0; p < n; ++p )
                 {
-                    for( uint q = 0; q < n; ++q )
+                    for ( uint q = 0; q < n; ++q )
                     {
-                        for( uint l = 0; l < n; ++l )
+                        for ( uint l = 0; l < n; ++l )
                         {
-                            uint a=0;
-                            for( uint k = 0; k < n; ++k )
+                            uint a = 0;
+                            for ( uint k = 0; k < n; ++k )
                             {
-                                for( uint j = 0; j < n; ++j )
+                                for ( uint j = 0; j < n; ++j )
                                 {
-                                    for( uint i = 0; i < n; ++i )
+                                    for ( uint i = 0; i < n; ++i )
                                     {
                                         mChild( 0 )( mBasisIndex( a ), mBasisIndex( b ) ) = TL( l, i ) * TL( q, j ) * TL( p, k );
                                         mChild( 1 )( mBasisIndex( a ), mBasisIndex( b ) ) = TR( l, i ) * TL( q, j ) * TL( p, k );
@@ -632,7 +639,8 @@ namespace moris
 
         //-------------------------------------------------------------------------------
 
-        void T_Matrix::child_multiplication()
+        void
+        T_Matrix::child_multiplication()
         {
             // get number of dimensions from settings
             uint tNumberOfDimensions = mParameters->get_number_of_dimensions();
@@ -642,15 +650,15 @@ namespace moris
 
             mChild_2.resize( tNumberOfChildren );
 
-            for( uint Ik = 0; Ik < tNumberOfChildren; ++Ik )
+            for ( uint Ik = 0; Ik < tNumberOfChildren; ++Ik )
             {
                 mChild_2( Ik ).resize( tNumberOfChildren );
             }
 
             // multiply child matrices
-            for( uint Ik = 0; Ik < tNumberOfChildren; ++Ik )
+            for ( uint Ik = 0; Ik < tNumberOfChildren; ++Ik )
             {
-                for( uint Ij = 0; Ij < tNumberOfChildren; ++Ij )
+                for ( uint Ij = 0; Ij < tNumberOfChildren; ++Ij )
                 {
                     mChild_2( Ik )( Ij ) = mChild( Ik ) * mChild( Ij );
                 }
@@ -659,31 +667,33 @@ namespace moris
 
         //-------------------------------------------------------------------------------
 
-        const Matrix< DDRMat> & T_Matrix::get_child_matrix_1( const Cell< uint > & aChildIndices )
+        const Matrix< DDRMat >&
+        T_Matrix::get_child_matrix_1( const Cell< uint >& aChildIndices )
         {
             uint tSize = aChildIndices.size();
-            if( tSize == 1 )
+            if ( tSize == 1 )
             {
                 return mEye;
             }
-            else if( tSize == 2 )
+            else if ( tSize == 2 )
             {
-                return mChild( aChildIndices(0) );
+                return mChild( aChildIndices( 0 ) );
             }
-            else if( tSize == 3 )
+            else if ( tSize == 3 )
             {
-                return mChild_2( aChildIndices(0) )( aChildIndices(1) );
+                return mChild_2( aChildIndices( 0 ) )( aChildIndices( 1 ) );
             }
             else
             {
-                MORIS_ERROR(false, "only child matrices for level 1 and 2 implemented yet.");
-                return mChild(0);
+                MORIS_ERROR( false, "only child matrices for level 1 and 2 implemented yet." );
+                return mChild( 0 );
             }
         }
 
         //-------------------------------------------------------------------------------
 
-        void T_Matrix::init_truncation_weights()
+        void
+        T_Matrix::init_truncation_weights()
         {
             // get order of mesh
             uint tOrder = mBSplineMesh->get_order();
@@ -695,19 +705,19 @@ namespace moris
             Matrix< DDRMat > tWeights( tNumberOfChildren, 1 );
 
             // scale factor for 1D weights
-            real tScale = 1.0 / ( (real) std::pow( 2, tOrder ) );
+            real tScale = 1.0 / ( (real)std::pow( 2, tOrder ) );
 
             // calculate 1D weights
-            for( uint k=0; k<tNumberOfChildren; ++k )
+            for ( uint k = 0; k < tNumberOfChildren; ++k )
             {
-                tWeights( k ) = tScale * nchoosek( tOrder+1, k );
+                tWeights( k ) = tScale * nchoosek( tOrder + 1, k );
             }
 
             // get number of dimensions from settings
             uint tNumberOfDimensions = mParameters->get_number_of_dimensions();
 
             // allocate weights
-            mTruncationWeights.set_size( std::pow( tNumberOfChildren, tNumberOfDimensions), 1 );
+            mTruncationWeights.set_size( std::pow( tNumberOfChildren, tNumberOfDimensions ), 1 );
 
             if ( tNumberOfDimensions == 2 )
             {
@@ -715,9 +725,9 @@ namespace moris
                 uint tCount = 0;
 
                 // loop over all positions
-                for( uint j = 0; j < tNumberOfChildren; ++j )
+                for ( uint j = 0; j < tNumberOfChildren; ++j )
                 {
-                    for( uint i = 0; i < tNumberOfChildren; ++i )
+                    for ( uint i = 0; i < tNumberOfChildren; ++i )
                     {
                         mTruncationWeights( tCount++ ) = tWeights( i ) * tWeights( j );
                     }
@@ -729,11 +739,11 @@ namespace moris
                 uint tCount = 0;
 
                 // loop over all positions
-                for( uint k = 0; k < tNumberOfChildren; ++k )
+                for ( uint k = 0; k < tNumberOfChildren; ++k )
                 {
-                    for( uint j = 0; j < tNumberOfChildren; ++j )
+                    for ( uint j = 0; j < tNumberOfChildren; ++j )
                     {
-                        for( uint i = 0; i < tNumberOfChildren; ++i )
+                        for ( uint i = 0; i < tNumberOfChildren; ++i )
                         {
                             mTruncationWeights( tCount++ ) = tWeights( i ) * tWeights( j ) * tWeights( k );
                         }
@@ -743,7 +753,8 @@ namespace moris
         }
 
         //-------------------------------------------------------------------------------
-        void T_Matrix::init_lagrange_parameter_coordinates()
+        void
+        T_Matrix::init_lagrange_parameter_coordinates()
         {
             // get dimensions from settings
             uint tNumberOfDimensions = mParameters->get_number_of_dimensions();
@@ -758,33 +769,33 @@ namespace moris
             mNumberOfNodes = std::pow( tNodesPerDirection, tNumberOfDimensions );
 
             // create a Lagrange element
-            Element * tElement = mLagrangeMesh->create_element( tBackElement );
+            Element* tElement = mLagrangeMesh->create_element( tBackElement );
 
             // assign memory for parameter coordinates
             mLagrangeParam.set_size( tNumberOfDimensions, mNumberOfNodes );
 
             // scaling factor
-            real tScale = 1.0/( ( real ) mLagrangeMesh->get_order() );
+            real tScale = 1.0 / ( (real)mLagrangeMesh->get_order() );
 
             // container for ijk position of basis
             luint tIJK[ 3 ];
 
             // ijk positions for reference Lagrange element
-            mLagrangeIJK.set_size(  tNumberOfDimensions, mNumberOfNodes );
+            mLagrangeIJK.set_size( tNumberOfDimensions, mNumberOfNodes );
 
-            for( uint k = 0; k < mNumberOfNodes; ++k )
+            for ( uint k = 0; k < mNumberOfNodes; ++k )
             {
                 // get position from element
                 tElement->get_ijk_of_basis( k, tIJK );
 
                 // save coordinate into memory
-                for( uint i = 0; i < tNumberOfDimensions; ++i )
+                for ( uint i = 0; i < tNumberOfDimensions; ++i )
                 {
                     // fill in node ijk positions in element
                     mLagrangeParam( i, k ) = 2 * tScale * tIJK[ i ] - 1.0;
 
                     // fill in nodal natural coordinates for this element
-                    mLagrangeIJK( i, k )   = tIJK[ i ];
+                    mLagrangeIJK( i, k ) = tIJK[ i ];
                 }
             }
 
@@ -795,7 +806,8 @@ namespace moris
 
         //-------------------------------------------------------------------------------
 
-        void T_Matrix::init_lagrange_matrix()
+        void
+        T_Matrix::init_lagrange_matrix()
         {
             // get number of dimensions from settings
             uint tNumberOfDimensions = mParameters->get_number_of_dimensions();
@@ -813,13 +825,13 @@ namespace moris
             uint tOrder = mBSplineMesh->get_order();
 
             // loop over all Lagrange nodes
-            for( uint k = 0; k < tNumberOfNodes; ++k)
+            for ( uint k = 0; k < tNumberOfNodes; ++k )
             {
                 // loop over all B-Spline Basis
-                for( uint j = 0; j < tNumberOfBasis; ++j )
+                for ( uint j = 0; j < tNumberOfBasis; ++j )
                 {
                     // loop over all dimensions
-                    for( uint i = 0; i < tNumberOfDimensions; ++i )
+                    for ( uint i = 0; i < tNumberOfDimensions; ++i )
                     {
                         mTMatrixLagrange( k, j ) *= this->b_spline_shape_1d( tOrder,
                                 mBSplineIJK( i, j ),
@@ -834,25 +846,26 @@ namespace moris
         /**
          * 1D shape function
          */
-        real T_Matrix::b_spline_shape_1d( const uint & aOrder,
-                const uint & aK,
-                const real & aXi ) const
+        real
+        T_Matrix::b_spline_shape_1d( const uint& aOrder,
+                const uint&                      aK,
+                const real&                      aXi ) const
         {
             // max number of entries in lookup table
-            uint tSteps = 2 * (aOrder + 1 );
+            uint tSteps = 2 * ( aOrder + 1 );
 
             // temporary matrix that contains B-Spline segments
             Matrix< DDRMat > tDeltaXi( tSteps, 1, 0 );
-            for( uint i = 0; i < tSteps; ++i )
+            for ( uint i = 0; i < tSteps; ++i )
             {
-                tDeltaXi( i ) = ( ( ( real ) i ) - ( ( real ) aOrder ) ) * 2.0 - 1.0;
+                tDeltaXi( i ) = ( ( (real)i ) - ( (real)aOrder ) ) * 2.0 - 1.0;
             }
 
             // temporary matrix that contains evaluated values
             Matrix< DDRMat > tN( aOrder + 1, 1, 0 );
 
             // initialize zero order values
-            for( uint i = 0; i <= aOrder; ++i )
+            for ( uint i = 0; i <= aOrder; ++i )
             {
                 if ( tDeltaXi( i + aK ) <= aXi && aXi < tDeltaXi( i + aK + 1 ) )
                 {
@@ -861,19 +874,19 @@ namespace moris
             }
 
             // loop over all orders
-            for( uint r = 1; r <= aOrder; ++r )
+            for ( uint r = 1; r <= aOrder; ++r )
             {
                 // copy values of tN into old matrix
                 Matrix< DDRMat > tNold( tN );
 
                 // loop over all contributions
-                for( uint i=0; i<=aOrder-r; ++i )
+                for ( uint i = 0; i <= aOrder - r; ++i )
                 {
                     // help values
-                    real tA = aXi - tDeltaXi( i+aK );
-                    real tB = tDeltaXi( i+aK + r + 1 ) - aXi;
+                    real tA = aXi - tDeltaXi( i + aK );
+                    real tB = tDeltaXi( i + aK + r + 1 ) - aXi;
 
-                    tN( i ) = 0.5*( tA * tNold( i ) + tB * ( tNold( i + 1 ) ) ) / ( ( real ) r );
+                    tN( i ) = 0.5 * ( tA * tNold( i ) + tB * ( tNold( i + 1 ) ) ) / ( (real)r );
                 }
             }
 
@@ -883,50 +896,51 @@ namespace moris
 
         //-------------------------------------------------------------------------------
 
-        void T_Matrix::b_spline_shape(
-                const real       & aXi,
-                const real       & aEta,
-                Matrix< DDRMat > & aN ) const
+        void
+        T_Matrix::b_spline_shape(
+                const real&       aXi,
+                const real&       aEta,
+                Matrix< DDRMat >& aN ) const
         {
             // evaluate contributions for xi and eta
-            Matrix< DDRMat >  tNxi( mBSplineOrder+1, 1 );
-            Matrix< DDRMat > tNeta( mBSplineOrder+1, 1 );
+            Matrix< DDRMat > tNxi( mBSplineOrder + 1, 1 );
+            Matrix< DDRMat > tNeta( mBSplineOrder + 1, 1 );
 
-            for( uint i = 0; i <= mBSplineOrder; ++i )
+            for ( uint i = 0; i <= mBSplineOrder; ++i )
             {
                 tNxi( i ) = this->b_spline_shape_1d( mBSplineOrder,
                         i,
                         aXi );
             }
-            for( uint j = 0; j <= mBSplineOrder; ++j )
+            for ( uint j = 0; j <= mBSplineOrder; ++j )
             {
-                tNeta( j )  = this->b_spline_shape_1d( mBSplineOrder,
+                tNeta( j ) = this->b_spline_shape_1d( mBSplineOrder,
                         j,
                         aEta );
             }
 
             // create shape vector in correct order
-            for( uint k = 0; k < mNumberOfNodes; ++k )
+            for ( uint k = 0; k < mNumberOfNodes; ++k )
             {
                 aN( k ) = tNxi( mBSplineIJK( 0, k ) ) * tNeta( mBSplineIJK( 1, k ) );
             }
-
         }
 
         //-------------------------------------------------------------------------------
 
-        void T_Matrix::b_spline_shape(
-                const real             & aXi,
-                const real             & aEta,
-                const real             & aZeta,
-                Matrix< DDRMat > & aN ) const
+        void
+        T_Matrix::b_spline_shape(
+                const real&       aXi,
+                const real&       aEta,
+                const real&       aZeta,
+                Matrix< DDRMat >& aN ) const
         {
             // evaluate contributions for xi and eta
-            Matrix< DDRMat >  tNxi( mBSplineOrder+1, 1 );
-            Matrix< DDRMat > tNeta( mBSplineOrder+1, 1 );
-            Matrix< DDRMat > tNzeta( mBSplineOrder+1, 1 );
+            Matrix< DDRMat > tNxi( mBSplineOrder + 1, 1 );
+            Matrix< DDRMat > tNeta( mBSplineOrder + 1, 1 );
+            Matrix< DDRMat > tNzeta( mBSplineOrder + 1, 1 );
 
-            for( uint i = 0; i <= mBSplineOrder; ++i )
+            for ( uint i = 0; i <= mBSplineOrder; ++i )
             {
                 tNxi( i ) = this->b_spline_shape_1d(
                         mBSplineOrder,
@@ -934,34 +948,35 @@ namespace moris
                         aXi );
             }
 
-            for( uint j = 0; j <= mBSplineOrder; ++j )
+            for ( uint j = 0; j <= mBSplineOrder; ++j )
             {
-                tNeta( j )  = this->b_spline_shape_1d(
+                tNeta( j ) = this->b_spline_shape_1d(
                         mBSplineOrder,
                         j,
                         aEta );
             }
 
-            for( uint k = 0; k <= mBSplineOrder; ++k )
+            for ( uint k = 0; k <= mBSplineOrder; ++k )
             {
-                tNzeta( k )  = this->b_spline_shape_1d(
+                tNzeta( k ) = this->b_spline_shape_1d(
                         mBSplineOrder,
                         k,
                         aZeta );
             }
 
             // create shape vector in correct order
-            for( uint k = 0; k < mNumberOfNodes; ++k )
+            for ( uint k = 0; k < mNumberOfNodes; ++k )
             {
                 aN( k ) =
                         tNxi( mBSplineIJK( 0, k ) )
-                        *  tNeta( mBSplineIJK( 1, k ) )
+                        * tNeta( mBSplineIJK( 1, k ) )
                         * tNzeta( mBSplineIJK( 2, k ) );
             }
         }
         //-------------------------------------------------------------------------------
 
-        void T_Matrix::init_lagrange_coefficients()
+        void
+        T_Matrix::init_lagrange_coefficients()
         {
             // number of Lagrange nodes per direction
             mLagrangeOrder = mLagrangeMesh->get_order();
@@ -980,9 +995,9 @@ namespace moris
             tXi( 0 ) = -1.0;
 
             // intermediate values
-            for( uint k=1; k<mLagrangeOrder; ++k )
+            for ( uint k = 1; k < mLagrangeOrder; ++k )
             {
-                tXi( k ) = tXi( k-1 ) + tDeltaXi;
+                tXi( k ) = tXi( k - 1 ) + tDeltaXi;
             }
 
             // last value
@@ -991,9 +1006,9 @@ namespace moris
             // Step 3: we build a Vandermonde matrix
             Matrix< DDRMat > tVandermonde( tNumberOfNodes, tNumberOfNodes, 0.0 );
 
-            for( uint k = 0; k < tNumberOfNodes; ++k )
+            for ( uint k = 0; k < tNumberOfNodes; ++k )
             {
-                for( uint i = 0; i < tNumberOfNodes; ++i )
+                for ( uint i = 0; i < tNumberOfNodes; ++i )
                 {
                     tVandermonde( k, i ) = std::pow( tXi( k ), tNumberOfNodes - i - 1 );
                 }
@@ -1005,13 +1020,14 @@ namespace moris
 
         //-------------------------------------------------------------------------------
 
-        real T_Matrix::lagrange_shape_1d(
-                const uint & aBasisNumber,
-                const real & aXi ) const
+        real
+        T_Matrix::lagrange_shape_1d(
+                const uint& aBasisNumber,
+                const real& aXi ) const
         {
             // use horner scheme to evaluate 1D Lagrange function
             real aResult = 0.0;
-            for( uint i = 0; i < mLagrangeOrder; ++i )
+            for ( uint i = 0; i < mLagrangeOrder; ++i )
             {
                 aResult = ( aResult + mLagrangeCoefficients( i, aBasisNumber ) ) * aXi;
             }
@@ -1021,25 +1037,26 @@ namespace moris
 
         //-------------------------------------------------------------------------------
 
-        void T_Matrix::lagrange_shape_2d(
-                const Matrix< DDRMat > & aXi,
-                Matrix< DDRMat >       & aN ) const
+        void
+        T_Matrix::lagrange_shape_2d(
+                const Matrix< DDRMat >& aXi,
+                Matrix< DDRMat >&       aN ) const
         {
             // evaluate contributions for xi and eta
-            Matrix< DDRMat >  tNxi( mLagrangeOrder+1, 1 );
-            Matrix< DDRMat > tNeta( mLagrangeOrder+1, 1 );
+            Matrix< DDRMat > tNxi( mLagrangeOrder + 1, 1 );
+            Matrix< DDRMat > tNeta( mLagrangeOrder + 1, 1 );
 
-            for( uint i = 0; i <= mLagrangeOrder; ++i )
+            for ( uint i = 0; i <= mLagrangeOrder; ++i )
             {
                 tNxi( i ) = this->lagrange_shape_1d( i, aXi( 0 ) );
             }
-            for( uint j = 0; j <= mLagrangeOrder; ++j )
+            for ( uint j = 0; j <= mLagrangeOrder; ++j )
             {
                 tNeta( j ) = this->lagrange_shape_1d( j, aXi( 1 ) );
             }
 
             // create shape vector in correct order
-            for( uint k = 0; k < mNumberOfNodes; ++k )
+            for ( uint k = 0; k < mNumberOfNodes; ++k )
             {
                 aN( k ) = tNxi( mLagrangeIJK( 0, k ) ) * tNeta( mLagrangeIJK( 1, k ) );
             }
@@ -1047,44 +1064,47 @@ namespace moris
 
         //-------------------------------------------------------------------------------
 
-        void T_Matrix::lagrange_shape_3d(
-                const Matrix< DDRMat > & aXi,
-                Matrix< DDRMat >       & aN ) const
+        void
+        T_Matrix::lagrange_shape_3d(
+                const Matrix< DDRMat >& aXi,
+                Matrix< DDRMat >&       aN ) const
         {
             // evaluate contributions for xi and eta and zeta
-            Matrix< DDRMat >   tNxi( mLagrangeOrder+1, 1 );
-            Matrix< DDRMat >  tNeta( mLagrangeOrder+1, 1 );
-            Matrix< DDRMat > tNzeta( mLagrangeOrder+1, 1 );
+            Matrix< DDRMat > tNxi( mLagrangeOrder + 1, 1 );
+            Matrix< DDRMat > tNeta( mLagrangeOrder + 1, 1 );
+            Matrix< DDRMat > tNzeta( mLagrangeOrder + 1, 1 );
 
-            for( uint i = 0; i <= mLagrangeOrder; ++i )
+            for ( uint i = 0; i <= mLagrangeOrder; ++i )
             {
                 tNxi( i ) = this->lagrange_shape_1d( i, aXi( 0 ) );
             }
 
-            for( uint j = 0; j <= mLagrangeOrder; ++j )
+            for ( uint j = 0; j <= mLagrangeOrder; ++j )
             {
                 tNeta( j ) = this->lagrange_shape_1d( j, aXi( 1 ) );
             }
 
-            for( uint k = 0; k <= mLagrangeOrder; ++k )
+            for ( uint k = 0; k <= mLagrangeOrder; ++k )
             {
                 tNzeta( k ) = this->lagrange_shape_1d( k, aXi( 2 ) );
             }
 
             // create shape vector in correct order
-            for( uint k = 0; k < mNumberOfNodes; ++k )
+            for ( uint k = 0; k < mNumberOfNodes; ++k )
             {
                 aN( k ) =
                         tNxi( mLagrangeIJK( 0, k ) )
-                        *  tNeta( mLagrangeIJK( 1, k ) )
+                        * tNeta( mLagrangeIJK( 1, k ) )
                         * tNzeta( mLagrangeIJK( 2, k ) );
             }
         }
 
         //-------------------------------------------------------------------------------
 
-        void T_Matrix::evaluate( const uint aBSplineMeshIndex,
-                const bool aBool  )
+        void
+        T_Matrix::evaluate(
+                const uint aBSplineMeshIndex,
+                const bool aBool )
         {
             // get B-Spline pattern of this mesh
             auto tBSplinePattern = mBSplineMesh->get_activation_pattern();
@@ -1117,13 +1137,13 @@ namespace moris
             }*/
 
             // loop over all elements
-            for( luint e = 0; e < tNumberOfElements; ++e )
+            for ( luint e = 0; e < tNumberOfElements; ++e )
             {
                 // get pointer to element
                 auto tLagrangeElement = mLagrangeMesh->get_element( e );
 
                 // FIXME : activate this flag
-                //if ( tLagrangeElement->get_t_matrix_flag() )
+                // if ( tLagrangeElement->get_t_matrix_flag() )
                 {
                     // get pointer to background element
                     auto tBackgroundElement = tLagrangeElement->get_background_element();
@@ -1131,21 +1151,21 @@ namespace moris
                     // initialize refinement Matrix
                     Matrix< DDRMat > tR;
 
-                    bool tLagrangeEqualBspline = false;
+                    bool tLagrangeEqualBspline    = false;
                     bool tFirstLagrangeRefinement = true;
 
-                    while( ! tBackgroundElement->is_active( tBSplinePattern ) )
+                    while ( !tBackgroundElement->is_active( tBSplinePattern ) )
                     {
-                        if( tFirstLagrangeRefinement )
+                        if ( tFirstLagrangeRefinement )
                         {
                             // right multiply refinement matrix
-                            tR = this->get_refinement_matrix( tBackgroundElement->get_child_index() );
+                            tR                       = this->get_refinement_matrix( tBackgroundElement->get_child_index() );
                             tFirstLagrangeRefinement = false;
-                            tLagrangeEqualBspline = true;
+                            tLagrangeEqualBspline    = true;
                         }
                         else
                         {
-                            tR = tR* this->get_refinement_matrix( tBackgroundElement->get_child_index() );
+                            tR = tR * this->get_refinement_matrix( tBackgroundElement->get_child_index() );
                         }
 
                         // jump to parent
@@ -1154,7 +1174,7 @@ namespace moris
 
                     // calculate the B-Spline T-Matrix
                     Matrix< DDRMat > tB;
-                    Cell< Basis* > tDOFs;
+                    Cell< Basis* >   tDOFs;
 
                     this->calculate_t_matrix(
                             tBackgroundElement->get_memory_index(),
@@ -1163,7 +1183,7 @@ namespace moris
 
                     Matrix< DDRMat > tT;
 
-                    if(tLagrangeEqualBspline)
+                    if ( tLagrangeEqualBspline )
                     {
                         // transposed T-Matrix
                         tT = tR * tL * tB;
@@ -1180,13 +1200,13 @@ namespace moris
                     real tEpsilon = 1e-12;
 
                     // loop over all nodes of this element
-                    for( uint k = 0; k<tNumberOfNodesPerElement; ++k  )
+                    for ( uint k = 0; k < tNumberOfNodesPerElement; ++k )
                     {
                         // pointer to node
                         auto tNode = tLagrangeElement->get_basis( k );
 
                         // test if node is flagged
-                        if ( ! tNode->is_flagged() )
+                        if ( !tNode->is_flagged() )
                         {
                             // initialize counter
                             uint tCount = 0;
@@ -1198,7 +1218,7 @@ namespace moris
                             Matrix< DDRMat > tCoefficients( tNCols, 1 );
 
                             // loop over all nonzero entries
-                            for( uint i=0; i<tNCols; ++i )
+                            for ( uint i = 0; i < tNCols; ++i )
                             {
                                 if ( std::abs( tT( k, i ) ) > tEpsilon )
                                 {
@@ -1233,16 +1253,17 @@ namespace moris
                             // flag this node as processed
                             tNode->flag();
                         }
-                    } // end loop over all nodes of this element
-                } // end if element is flagged
-            } // end loop over all elements
+                    }    // end loop over all nodes of this element
+                }        // end if element is flagged
+            }            // end loop over all elements
         }
 
         //-------------------------------------------------------------------------------
 
-        void T_Matrix::evaluate_trivial(
+        void
+        T_Matrix::evaluate_trivial(
                 const uint aBSplineMeshIndex,
-                const bool aBool  )
+                const bool aBool )
         {
             // select pattern
             mLagrangeMesh->select_activation_pattern();
@@ -1257,19 +1278,19 @@ namespace moris
             uint tNumberOfNodesPerElement = mLagrangeMesh->get_number_of_basis_per_element();
 
             // loop over all elements
-            for( luint e = 0; e < tNumberOfElements; ++e )
+            for ( luint e = 0; e < tNumberOfElements; ++e )
             {
                 // get pointer to element
                 auto tLagrangeElement = mLagrangeMesh->get_element( e );
 
                 // loop over all nodes of this element
-                for( uint k = 0; k<tNumberOfNodesPerElement; ++k  )
+                for ( uint k = 0; k < tNumberOfNodesPerElement; ++k )
                 {
                     // pointer to node
                     auto tNode = tLagrangeElement->get_basis( k );
 
                     // test if node is flagged
-                    if ( ! tNode->is_flagged() )
+                    if ( !tNode->is_flagged() )
                     {
                         // reserve matrix with coefficients
                         Matrix< DDRMat > tCoefficients( 1, 1, 1.0 );
@@ -1291,8 +1312,8 @@ namespace moris
                         // flag this node as processed
                         tNode->flag();
                     }
-                } // end loop over all nodes of this element
-            } // end loop over all elements
+                }    // end loop over all nodes of this element
+            }        // end loop over all elements
         }
 
         //-------------------------------------------------------------------------------
@@ -1549,7 +1570,8 @@ namespace moris
 
         //-------------------------------------------------------------------------------
 
-        void T_Matrix::init_lagrange_refinement_matrices()
+        void
+        T_Matrix::init_lagrange_refinement_matrices()
         {
             // tidy up memory
             mLagrangeRefinementMatrix.clear();
@@ -1558,14 +1580,14 @@ namespace moris
             uint tNumberOfDimensions = mLagrangeParam.n_rows();
 
             // get number of nodes
-            uint tNumberOfNodes      = mLagrangeParam.n_cols();
+            uint tNumberOfNodes = mLagrangeParam.n_cols();
 
             // number of children
             uint tNumberOfChildren = std::pow( 2, tNumberOfDimensions );
 
             // initialize container
             Matrix< DDRMat > tEmpty( tNumberOfNodes, tNumberOfNodes, 0.0 );
-            mLagrangeRefinementMatrix.resize( tNumberOfChildren,tEmpty );
+            mLagrangeRefinementMatrix.resize( tNumberOfChildren, tEmpty );
 
             // matrix containing corner nodes
             Matrix< DDRMat > tCorners( tNumberOfChildren, tNumberOfDimensions );
@@ -1579,15 +1601,15 @@ namespace moris
             // step 1: get parameter coordinates of child
 
             // matrix with parameter coordinates
-            //Matrix< DDRMat > tXi( tNumberOfNodes, tNumberOfDimensions );
+            // Matrix< DDRMat > tXi( tNumberOfNodes, tNumberOfDimensions );
 
             // loop over all children
-            for( uint c = 0; c < tNumberOfChildren; ++c )
+            for ( uint c = 0; c < tNumberOfChildren; ++c )
             {
                 // get matrix with  corner nodes
                 mGetCorners( c, tCorners );
 
-                for( uint k = 0; k < tNumberOfNodes; ++k )
+                for ( uint k = 0; k < tNumberOfNodes; ++k )
                 {
                     // evaluate shape function for "geometry"
                     mEvalNGeo( mLagrangeParam.get_column( k ), tNGeo );
@@ -1600,14 +1622,15 @@ namespace moris
                             tN );
 
                     // copy result into matrix
-                    mLagrangeRefinementMatrix( c ).set_row( k , tN.get_row( 0 ) );
+                    mLagrangeRefinementMatrix( c ).set_row( k, tN.get_row( 0 ) );
                 }
             }
         }
 
         //------------------------------------------------------------------------------
 
-        void T_Matrix::init_lagrange_change_order_matrices()
+        void
+        T_Matrix::init_lagrange_change_order_matrices()
         {
             // empty matrix
             Matrix< DDRMat > tEmpty;
@@ -1620,9 +1643,9 @@ namespace moris
             uint tNumberOfDimensions = mLagrangeParam.n_rows();
 
             // get number of nodes
-            uint tNumberOfNodes      = mLagrangeParam.n_cols();
+            uint tNumberOfNodes = mLagrangeParam.n_cols();
 
-            for( uint tOrder = 1; tOrder <= 3; ++tOrder )
+            for ( uint tOrder = 1; tOrder <= 3; ++tOrder )
             {
                 // grab the parameter coordinates
                 Matrix< DDRMat > tXi = get_supporting_points( tNumberOfDimensions, tOrder );
@@ -1638,10 +1661,10 @@ namespace moris
 
                 Matrix< DDRMat > tPoint( tNumberOfDimensions, 1 );
                 // populate matrix
-                for( uint j = 0; j < tNumberOfOtherNodes; ++j )
+                for ( uint j = 0; j < tNumberOfOtherNodes; ++j )
                 {
                     // copy coordinates into point
-                    for( uint i = 0; i < tNumberOfDimensions; ++i )
+                    for ( uint i = 0; i < tNumberOfDimensions; ++i )
                     {
                         tPoint( i ) = tXi( i, j );
                     }
@@ -1650,7 +1673,7 @@ namespace moris
                     ( this->*mEvalN )( tPoint,
                             tN );
 
-                    for( uint i = 0; i < tNumberOfNodes; ++i )
+                    for ( uint i = 0; i < tNumberOfNodes; ++i )
                     {
                         tT( j, i ) = tN( i );
                     }
@@ -1665,69 +1688,72 @@ namespace moris
         /**
          * returns the corner nodes of a child and dimension
          */
-        void T_Matrix::get_child_corner_nodes_2d( const uint & aChildIndex, Matrix< DDRMat > & aXi )
+        void
+        T_Matrix::get_child_corner_nodes_2d(
+                const uint&       aChildIndex,
+                Matrix< DDRMat >& aXi )
         {
             switch ( aChildIndex )
             {
-                case( 0 ) :
-                    {
+                case ( 0 ):
+                {
                     aXi( 0, 0 ) = -1.0;
-                    aXi( 1, 0 ) =  0.0;
-                    aXi( 2, 0 ) =  0.0;
+                    aXi( 1, 0 ) = 0.0;
+                    aXi( 2, 0 ) = 0.0;
                     aXi( 3, 0 ) = -1.0;
 
                     aXi( 0, 1 ) = -1.0;
                     aXi( 1, 1 ) = -1.0;
-                    aXi( 2, 1 ) =  0.0;
-                    aXi( 3, 1 ) =  0.0;
+                    aXi( 2, 1 ) = 0.0;
+                    aXi( 3, 1 ) = 0.0;
 
                     break;
-                    }
-                case( 1 ) :
-                    {
-                    aXi( 0, 0 ) =  0.0;
-                    aXi( 1, 0 ) =  1.0;
-                    aXi( 2, 0 ) =  1.0;
-                    aXi( 3, 0 ) =  0.0;
+                }
+                case ( 1 ):
+                {
+                    aXi( 0, 0 ) = 0.0;
+                    aXi( 1, 0 ) = 1.0;
+                    aXi( 2, 0 ) = 1.0;
+                    aXi( 3, 0 ) = 0.0;
 
                     aXi( 0, 1 ) = -1.0;
                     aXi( 1, 1 ) = -1.0;
-                    aXi( 2, 1 ) =  0.0;
-                    aXi( 3, 1 ) =  0.0;
+                    aXi( 2, 1 ) = 0.0;
+                    aXi( 3, 1 ) = 0.0;
 
                     break;
-                    }
+                }
 
-                case( 2 ) :
-                    {
+                case ( 2 ):
+                {
                     aXi( 0, 0 ) = -1.0;
-                    aXi( 1, 0 ) =  0.0;
-                    aXi( 2, 0 ) =  0.0;
+                    aXi( 1, 0 ) = 0.0;
+                    aXi( 2, 0 ) = 0.0;
                     aXi( 3, 0 ) = -1.0;
 
-                    aXi( 0, 1 ) =  0.0;
-                    aXi( 1, 1 ) =  0.0;
-                    aXi( 2, 1 ) =  1.0;
-                    aXi( 3, 1 ) =  1.0;
+                    aXi( 0, 1 ) = 0.0;
+                    aXi( 1, 1 ) = 0.0;
+                    aXi( 2, 1 ) = 1.0;
+                    aXi( 3, 1 ) = 1.0;
 
                     break;
-                    }
+                }
 
-                case( 3 ) :
-                    {
-                    aXi( 0, 0 ) =  0.0;
-                    aXi( 1, 0 ) =  1.0;
-                    aXi( 2, 0 ) =  1.0;
-                    aXi( 3, 0 ) =  0.0;
+                case ( 3 ):
+                {
+                    aXi( 0, 0 ) = 0.0;
+                    aXi( 1, 0 ) = 1.0;
+                    aXi( 2, 0 ) = 1.0;
+                    aXi( 3, 0 ) = 0.0;
 
-                    aXi( 0, 1 ) =  0.0;
-                    aXi( 1, 1 ) =  0.0;
-                    aXi( 2, 1 ) =  1.0;
-                    aXi( 3, 1 ) =  1.0;
+                    aXi( 0, 1 ) = 0.0;
+                    aXi( 1, 1 ) = 0.0;
+                    aXi( 2, 1 ) = 1.0;
+                    aXi( 3, 1 ) = 1.0;
 
                     break;
-                    }
-                default :
+                }
+                default:
                 {
                     MORIS_ERROR( false, "invalid child index" );
                 }
@@ -1739,259 +1765,262 @@ namespace moris
         /**
          * returns the corner nodes of a child and dimension
          */
-        void T_Matrix::get_child_corner_nodes_3d( const uint & aChildIndex, Matrix< DDRMat > & aXi )
+        void
+        T_Matrix::get_child_corner_nodes_3d(
+                const uint&       aChildIndex,
+                Matrix< DDRMat >& aXi )
         {
             switch ( aChildIndex )
             {
-                case( 0 ) :
-                    {
+                case ( 0 ):
+                {
                     aXi( 0, 0 ) = -1.0;
-                    aXi( 1, 0 ) =  0.0;
-                    aXi( 2, 0 ) =  0.0;
+                    aXi( 1, 0 ) = 0.0;
+                    aXi( 2, 0 ) = 0.0;
                     aXi( 3, 0 ) = -1.0;
                     aXi( 4, 0 ) = -1.0;
-                    aXi( 5, 0 ) =  0.0;
-                    aXi( 6, 0 ) =  0.0;
+                    aXi( 5, 0 ) = 0.0;
+                    aXi( 6, 0 ) = 0.0;
                     aXi( 7, 0 ) = -1.0;
 
                     aXi( 0, 1 ) = -1.0;
                     aXi( 1, 1 ) = -1.0;
-                    aXi( 2, 1 ) =  0.0;
-                    aXi( 3, 1 ) =  0.0;
+                    aXi( 2, 1 ) = 0.0;
+                    aXi( 3, 1 ) = 0.0;
                     aXi( 4, 1 ) = -1.0;
                     aXi( 5, 1 ) = -1.0;
-                    aXi( 6, 1 ) =  0.0;
-                    aXi( 7, 1 ) =  0.0;
+                    aXi( 6, 1 ) = 0.0;
+                    aXi( 7, 1 ) = 0.0;
 
                     aXi( 0, 2 ) = -1.0;
                     aXi( 1, 2 ) = -1.0;
                     aXi( 2, 2 ) = -1.0;
                     aXi( 3, 2 ) = -1.0;
-                    aXi( 4, 2 ) =  0.0;
-                    aXi( 5, 2 ) =  0.0;
-                    aXi( 6, 2 ) =  0.0;
-                    aXi( 7, 2 ) =  0.0;
+                    aXi( 4, 2 ) = 0.0;
+                    aXi( 5, 2 ) = 0.0;
+                    aXi( 6, 2 ) = 0.0;
+                    aXi( 7, 2 ) = 0.0;
 
                     break;
-                    }
-                case( 1 ) :
-                    {
-                    aXi( 0, 0 ) =  0.0;
-                    aXi( 1, 0 ) =  1.0;
-                    aXi( 2, 0 ) =  1.0;
-                    aXi( 3, 0 ) =  0.0;
-                    aXi( 4, 0 ) =  0.0;
-                    aXi( 5, 0 ) =  1.0;
-                    aXi( 6, 0 ) =  1.0;
-                    aXi( 7, 0 ) =  0.0;
+                }
+                case ( 1 ):
+                {
+                    aXi( 0, 0 ) = 0.0;
+                    aXi( 1, 0 ) = 1.0;
+                    aXi( 2, 0 ) = 1.0;
+                    aXi( 3, 0 ) = 0.0;
+                    aXi( 4, 0 ) = 0.0;
+                    aXi( 5, 0 ) = 1.0;
+                    aXi( 6, 0 ) = 1.0;
+                    aXi( 7, 0 ) = 0.0;
 
                     aXi( 0, 1 ) = -1.0;
                     aXi( 1, 1 ) = -1.0;
-                    aXi( 2, 1 ) =  0.0;
-                    aXi( 3, 1 ) =  0.0;
+                    aXi( 2, 1 ) = 0.0;
+                    aXi( 3, 1 ) = 0.0;
                     aXi( 4, 1 ) = -1.0;
                     aXi( 5, 1 ) = -1.0;
-                    aXi( 6, 1 ) =  0.0;
-                    aXi( 7, 1 ) =  0.0;
+                    aXi( 6, 1 ) = 0.0;
+                    aXi( 7, 1 ) = 0.0;
 
                     aXi( 0, 2 ) = -1.0;
                     aXi( 1, 2 ) = -1.0;
                     aXi( 2, 2 ) = -1.0;
                     aXi( 3, 2 ) = -1.0;
-                    aXi( 4, 2 ) =  0.0;
-                    aXi( 5, 2 ) =  0.0;
-                    aXi( 6, 2 ) =  0.0;
-                    aXi( 7, 2 ) =  0.0;
+                    aXi( 4, 2 ) = 0.0;
+                    aXi( 5, 2 ) = 0.0;
+                    aXi( 6, 2 ) = 0.0;
+                    aXi( 7, 2 ) = 0.0;
 
                     break;
-                    }
-                case( 2 ) :
-                    {
+                }
+                case ( 2 ):
+                {
                     aXi( 0, 0 ) = -1.0;
-                    aXi( 1, 0 ) =  0.0;
-                    aXi( 2, 0 ) =  0.0;
+                    aXi( 1, 0 ) = 0.0;
+                    aXi( 2, 0 ) = 0.0;
                     aXi( 3, 0 ) = -1.0;
                     aXi( 4, 0 ) = -1.0;
-                    aXi( 5, 0 ) =  0.0;
-                    aXi( 6, 0 ) =  0.0;
+                    aXi( 5, 0 ) = 0.0;
+                    aXi( 6, 0 ) = 0.0;
                     aXi( 7, 0 ) = -1.0;
 
-                    aXi( 0, 1 ) =  0.0;
-                    aXi( 1, 1 ) =  0.0;
-                    aXi( 2, 1 ) =  1.0;
-                    aXi( 3, 1 ) =  1.0;
-                    aXi( 4, 1 ) =  0.0;
-                    aXi( 5, 1 ) =  0.0;
-                    aXi( 6, 1 ) =  1.0;
-                    aXi( 7, 1 ) =  1.0;
+                    aXi( 0, 1 ) = 0.0;
+                    aXi( 1, 1 ) = 0.0;
+                    aXi( 2, 1 ) = 1.0;
+                    aXi( 3, 1 ) = 1.0;
+                    aXi( 4, 1 ) = 0.0;
+                    aXi( 5, 1 ) = 0.0;
+                    aXi( 6, 1 ) = 1.0;
+                    aXi( 7, 1 ) = 1.0;
 
                     aXi( 0, 2 ) = -1.0;
                     aXi( 1, 2 ) = -1.0;
                     aXi( 2, 2 ) = -1.0;
                     aXi( 3, 2 ) = -1.0;
-                    aXi( 4, 2 ) =  0.0;
-                    aXi( 5, 2 ) =  0.0;
-                    aXi( 6, 2 ) =  0.0;
-                    aXi( 7, 2 ) =  0.0;
+                    aXi( 4, 2 ) = 0.0;
+                    aXi( 5, 2 ) = 0.0;
+                    aXi( 6, 2 ) = 0.0;
+                    aXi( 7, 2 ) = 0.0;
 
                     break;
-                    }
-                case( 3 ) :
-                    {
-                    aXi( 0, 0 ) =  0.0;
-                    aXi( 1, 0 ) =  1.0;
-                    aXi( 2, 0 ) =  1.0;
-                    aXi( 3, 0 ) =  0.0;
-                    aXi( 4, 0 ) =  0.0;
-                    aXi( 5, 0 ) =  1.0;
-                    aXi( 6, 0 ) =  1.0;
-                    aXi( 7, 0 ) =  0.0;
+                }
+                case ( 3 ):
+                {
+                    aXi( 0, 0 ) = 0.0;
+                    aXi( 1, 0 ) = 1.0;
+                    aXi( 2, 0 ) = 1.0;
+                    aXi( 3, 0 ) = 0.0;
+                    aXi( 4, 0 ) = 0.0;
+                    aXi( 5, 0 ) = 1.0;
+                    aXi( 6, 0 ) = 1.0;
+                    aXi( 7, 0 ) = 0.0;
 
-                    aXi( 0, 1 ) =  0.0;
-                    aXi( 1, 1 ) =  0.0;
-                    aXi( 2, 1 ) =  1.0;
-                    aXi( 3, 1 ) =  1.0;
-                    aXi( 4, 1 ) =  0.0;
-                    aXi( 5, 1 ) =  0.0;
-                    aXi( 6, 1 ) =  1.0;
-                    aXi( 7, 1 ) =  1.0;
+                    aXi( 0, 1 ) = 0.0;
+                    aXi( 1, 1 ) = 0.0;
+                    aXi( 2, 1 ) = 1.0;
+                    aXi( 3, 1 ) = 1.0;
+                    aXi( 4, 1 ) = 0.0;
+                    aXi( 5, 1 ) = 0.0;
+                    aXi( 6, 1 ) = 1.0;
+                    aXi( 7, 1 ) = 1.0;
 
                     aXi( 0, 2 ) = -1.0;
                     aXi( 1, 2 ) = -1.0;
                     aXi( 2, 2 ) = -1.0;
                     aXi( 3, 2 ) = -1.0;
-                    aXi( 4, 2 ) =  0.0;
-                    aXi( 5, 2 ) =  0.0;
-                    aXi( 6, 2 ) =  0.0;
-                    aXi( 7, 2 ) =  0.0;
+                    aXi( 4, 2 ) = 0.0;
+                    aXi( 5, 2 ) = 0.0;
+                    aXi( 6, 2 ) = 0.0;
+                    aXi( 7, 2 ) = 0.0;
 
                     break;
-                    }
-                case( 4 ) :
-                    {
+                }
+                case ( 4 ):
+                {
                     aXi( 0, 0 ) = -1.0;
-                    aXi( 1, 0 ) =  0.0;
-                    aXi( 2, 0 ) =  0.0;
+                    aXi( 1, 0 ) = 0.0;
+                    aXi( 2, 0 ) = 0.0;
                     aXi( 3, 0 ) = -1.0;
                     aXi( 4, 0 ) = -1.0;
-                    aXi( 5, 0 ) =  0.0;
-                    aXi( 6, 0 ) =  0.0;
+                    aXi( 5, 0 ) = 0.0;
+                    aXi( 6, 0 ) = 0.0;
                     aXi( 7, 0 ) = -1.0;
 
                     aXi( 0, 1 ) = -1.0;
                     aXi( 1, 1 ) = -1.0;
-                    aXi( 2, 1 ) =  0.0;
-                    aXi( 3, 1 ) =  0.0;
+                    aXi( 2, 1 ) = 0.0;
+                    aXi( 3, 1 ) = 0.0;
                     aXi( 4, 1 ) = -1.0;
                     aXi( 5, 1 ) = -1.0;
-                    aXi( 6, 1 ) =  0.0;
-                    aXi( 7, 1 ) =  0.0;
+                    aXi( 6, 1 ) = 0.0;
+                    aXi( 7, 1 ) = 0.0;
 
-                    aXi( 0, 2 ) =  0.0;
-                    aXi( 1, 2 ) =  0.0;
-                    aXi( 2, 2 ) =  0.0;
-                    aXi( 3, 2 ) =  0.0;
-                    aXi( 4, 2 ) =  1.0;
-                    aXi( 5, 2 ) =  1.0;
-                    aXi( 6, 2 ) =  1.0;
-                    aXi( 7, 2 ) =  1.0;
+                    aXi( 0, 2 ) = 0.0;
+                    aXi( 1, 2 ) = 0.0;
+                    aXi( 2, 2 ) = 0.0;
+                    aXi( 3, 2 ) = 0.0;
+                    aXi( 4, 2 ) = 1.0;
+                    aXi( 5, 2 ) = 1.0;
+                    aXi( 6, 2 ) = 1.0;
+                    aXi( 7, 2 ) = 1.0;
 
                     break;
-                    }
-                case( 5 ) :
-                    {
-                    aXi( 0, 0 ) =  0.0;
-                    aXi( 1, 0 ) =  1.0;
-                    aXi( 2, 0 ) =  1.0;
-                    aXi( 3, 0 ) =  0.0;
-                    aXi( 4, 0 ) =  0.0;
-                    aXi( 5, 0 ) =  1.0;
-                    aXi( 6, 0 ) =  1.0;
-                    aXi( 7, 0 ) =  0.0;
+                }
+                case ( 5 ):
+                {
+                    aXi( 0, 0 ) = 0.0;
+                    aXi( 1, 0 ) = 1.0;
+                    aXi( 2, 0 ) = 1.0;
+                    aXi( 3, 0 ) = 0.0;
+                    aXi( 4, 0 ) = 0.0;
+                    aXi( 5, 0 ) = 1.0;
+                    aXi( 6, 0 ) = 1.0;
+                    aXi( 7, 0 ) = 0.0;
 
                     aXi( 0, 1 ) = -1.0;
                     aXi( 1, 1 ) = -1.0;
-                    aXi( 2, 1 ) =  0.0;
-                    aXi( 3, 1 ) =  0.0;
+                    aXi( 2, 1 ) = 0.0;
+                    aXi( 3, 1 ) = 0.0;
                     aXi( 4, 1 ) = -1.0;
                     aXi( 5, 1 ) = -1.0;
-                    aXi( 6, 1 ) =  0.0;
-                    aXi( 7, 1 ) =  0.0;
+                    aXi( 6, 1 ) = 0.0;
+                    aXi( 7, 1 ) = 0.0;
 
-                    aXi( 0, 2 ) =  0.0;
-                    aXi( 1, 2 ) =  0.0;
-                    aXi( 2, 2 ) =  0.0;
-                    aXi( 3, 2 ) =  0.0;
-                    aXi( 4, 2 ) =  1.0;
-                    aXi( 5, 2 ) =  1.0;
-                    aXi( 6, 2 ) =  1.0;
-                    aXi( 7, 2 ) =  1.0;
+                    aXi( 0, 2 ) = 0.0;
+                    aXi( 1, 2 ) = 0.0;
+                    aXi( 2, 2 ) = 0.0;
+                    aXi( 3, 2 ) = 0.0;
+                    aXi( 4, 2 ) = 1.0;
+                    aXi( 5, 2 ) = 1.0;
+                    aXi( 6, 2 ) = 1.0;
+                    aXi( 7, 2 ) = 1.0;
 
                     break;
-                    }
-                case( 6 ) :
-                    {
+                }
+                case ( 6 ):
+                {
                     aXi( 0, 0 ) = -1.0;
-                    aXi( 1, 0 ) =  0.0;
-                    aXi( 2, 0 ) =  0.0;
+                    aXi( 1, 0 ) = 0.0;
+                    aXi( 2, 0 ) = 0.0;
                     aXi( 3, 0 ) = -1.0;
                     aXi( 4, 0 ) = -1.0;
-                    aXi( 5, 0 ) =  0.0;
-                    aXi( 6, 0 ) =  0.0;
+                    aXi( 5, 0 ) = 0.0;
+                    aXi( 6, 0 ) = 0.0;
                     aXi( 7, 0 ) = -1.0;
 
-                    aXi( 0, 1 ) =  0.0;
-                    aXi( 1, 1 ) =  0.0;
-                    aXi( 2, 1 ) =  1.0;
-                    aXi( 3, 1 ) =  1.0;
-                    aXi( 4, 1 ) =  0.0;
-                    aXi( 5, 1 ) =  0.0;
-                    aXi( 6, 1 ) =  1.0;
-                    aXi( 7, 1 ) =  1.0;
+                    aXi( 0, 1 ) = 0.0;
+                    aXi( 1, 1 ) = 0.0;
+                    aXi( 2, 1 ) = 1.0;
+                    aXi( 3, 1 ) = 1.0;
+                    aXi( 4, 1 ) = 0.0;
+                    aXi( 5, 1 ) = 0.0;
+                    aXi( 6, 1 ) = 1.0;
+                    aXi( 7, 1 ) = 1.0;
 
-                    aXi( 0, 2 ) =  0.0;
-                    aXi( 1, 2 ) =  0.0;
-                    aXi( 2, 2 ) =  0.0;
-                    aXi( 3, 2 ) =  0.0;
-                    aXi( 4, 2 ) =  1.0;
-                    aXi( 5, 2 ) =  1.0;
-                    aXi( 6, 2 ) =  1.0;
-                    aXi( 7, 2 ) =  1.0;
-
-                    break;
-                    }
-                case( 7 ) :
-                    {
-                    aXi( 0, 0 ) =  0.0;
-                    aXi( 1, 0 ) =  1.0;
-                    aXi( 2, 0 ) =  1.0;
-                    aXi( 3, 0 ) =  0.0;
-                    aXi( 4, 0 ) =  0.0;
-                    aXi( 5, 0 ) =  1.0;
-                    aXi( 6, 0 ) =  1.0;
-                    aXi( 7, 0 ) =  0.0;
-
-                    aXi( 0, 1 ) =  0.0;
-                    aXi( 1, 1 ) =  0.0;
-                    aXi( 2, 1 ) =  1.0;
-                    aXi( 3, 1 ) =  1.0;
-                    aXi( 4, 1 ) =  0.0;
-                    aXi( 5, 1 ) =  0.0;
-                    aXi( 6, 1 ) =  1.0;
-                    aXi( 7, 1 ) =  1.0;
-
-                    aXi( 0, 2 ) =  0.0;
-                    aXi( 1, 2 ) =  0.0;
-                    aXi( 2, 2 ) =  0.0;
-                    aXi( 3, 2 ) =  0.0;
-                    aXi( 4, 2 ) =  1.0;
-                    aXi( 5, 2 ) =  1.0;
-                    aXi( 6, 2 ) =  1.0;
-                    aXi( 7, 2 ) =  1.0;
+                    aXi( 0, 2 ) = 0.0;
+                    aXi( 1, 2 ) = 0.0;
+                    aXi( 2, 2 ) = 0.0;
+                    aXi( 3, 2 ) = 0.0;
+                    aXi( 4, 2 ) = 1.0;
+                    aXi( 5, 2 ) = 1.0;
+                    aXi( 6, 2 ) = 1.0;
+                    aXi( 7, 2 ) = 1.0;
 
                     break;
-                    }
-                default :
+                }
+                case ( 7 ):
+                {
+                    aXi( 0, 0 ) = 0.0;
+                    aXi( 1, 0 ) = 1.0;
+                    aXi( 2, 0 ) = 1.0;
+                    aXi( 3, 0 ) = 0.0;
+                    aXi( 4, 0 ) = 0.0;
+                    aXi( 5, 0 ) = 1.0;
+                    aXi( 6, 0 ) = 1.0;
+                    aXi( 7, 0 ) = 0.0;
+
+                    aXi( 0, 1 ) = 0.0;
+                    aXi( 1, 1 ) = 0.0;
+                    aXi( 2, 1 ) = 1.0;
+                    aXi( 3, 1 ) = 1.0;
+                    aXi( 4, 1 ) = 0.0;
+                    aXi( 5, 1 ) = 0.0;
+                    aXi( 6, 1 ) = 1.0;
+                    aXi( 7, 1 ) = 1.0;
+
+                    aXi( 0, 2 ) = 0.0;
+                    aXi( 1, 2 ) = 0.0;
+                    aXi( 2, 2 ) = 0.0;
+                    aXi( 3, 2 ) = 0.0;
+                    aXi( 4, 2 ) = 1.0;
+                    aXi( 5, 2 ) = 1.0;
+                    aXi( 6, 2 ) = 1.0;
+                    aXi( 7, 2 ) = 1.0;
+
+                    break;
+                }
+                default:
                 {
                     MORIS_ERROR( false, "invalid child index" );
                 }
@@ -2000,10 +2029,13 @@ namespace moris
 
         //-------------------------------------------------------------------------------
 
-        void T_Matrix::N_quad4( const Matrix< DDRMat > & aXi, Matrix< DDRMat > & aN )
+        void
+        T_Matrix::N_quad4(
+                const Matrix< DDRMat >& aXi,
+                Matrix< DDRMat >&       aN )
         {
             // unpack xi and eta from input vector
-            auto  xi = aXi( 0 );
+            auto xi  = aXi( 0 );
             auto eta = aXi( 1 );
 
             // populate matrix with values
@@ -2015,460 +2047,467 @@ namespace moris
 
         //-------------------------------------------------------------------------------
 
-        void T_Matrix::N_hex8( const Matrix< DDRMat > & aXi, Matrix< DDRMat > & aN )
+        void
+        T_Matrix::N_hex8(
+                const Matrix< DDRMat >& aXi,
+                Matrix< DDRMat >&       aN )
         {
             // unpack xi and eta from input vector
-            auto    xi = aXi( 0 );
-            auto   eta = aXi( 1 );
-            auto  zeta = aXi( 2 );
+            auto xi   = aXi( 0 );
+            auto eta  = aXi( 1 );
+            auto zeta = aXi( 2 );
 
             // populate output matrix
-            aN( 0 ) =  - ( eta - 1.0 ) * ( xi - 1.0 ) * ( zeta - 1.0 ) * 0.125;
-            aN( 1 ) =    ( eta - 1.0 ) * ( xi + 1.0 ) * ( zeta - 1.0 ) * 0.125;
-            aN( 2 ) =  - ( eta + 1.0 ) * ( xi + 1.0 ) * ( zeta - 1.0 ) * 0.125;
-            aN( 3 ) =    ( eta + 1.0 ) * ( xi - 1.0 ) * ( zeta - 1.0 ) * 0.125;
-            aN( 4 ) =    ( eta - 1.0 ) * ( xi - 1.0 ) * ( zeta + 1.0 ) * 0.125;
-            aN( 5 ) =  - ( eta - 1.0 ) * ( xi + 1.0 ) * ( zeta + 1.0 ) * 0.125;
-            aN( 6 ) =    ( eta + 1.0 ) * ( xi + 1.0 ) * ( zeta + 1.0 ) * 0.125;
-            aN( 7 ) =  - ( eta + 1.0 ) * ( xi - 1.0 ) * ( zeta + 1.0 ) * 0.125;
+            aN( 0 ) = -( eta - 1.0 ) * ( xi - 1.0 ) * ( zeta - 1.0 ) * 0.125;
+            aN( 1 ) = ( eta - 1.0 ) * ( xi + 1.0 ) * ( zeta - 1.0 ) * 0.125;
+            aN( 2 ) = -( eta + 1.0 ) * ( xi + 1.0 ) * ( zeta - 1.0 ) * 0.125;
+            aN( 3 ) = ( eta + 1.0 ) * ( xi - 1.0 ) * ( zeta - 1.0 ) * 0.125;
+            aN( 4 ) = ( eta - 1.0 ) * ( xi - 1.0 ) * ( zeta + 1.0 ) * 0.125;
+            aN( 5 ) = -( eta - 1.0 ) * ( xi + 1.0 ) * ( zeta + 1.0 ) * 0.125;
+            aN( 6 ) = ( eta + 1.0 ) * ( xi + 1.0 ) * ( zeta + 1.0 ) * 0.125;
+            aN( 7 ) = -( eta + 1.0 ) * ( xi - 1.0 ) * ( zeta + 1.0 ) * 0.125;
         }
 
         //-------------------------------------------------------------------------------
 
-        Matrix< DDRMat > T_Matrix::get_supporting_points( const uint aDimension, const uint aOrder )
+        Matrix< DDRMat >
+        T_Matrix::get_supporting_points(
+                const uint aDimension,
+                const uint aOrder )
         {
             // the following lines are needed to get the interpolation points
             Matrix< DDRMat > aXihat;
 
-            switch( aDimension )
+            switch ( aDimension )
             {
-                case( 2 ) :
+                case 2:
+                {
+                    switch ( aOrder )
                     {
-                    switch( aOrder )
-                    {
-                        case( 1 ) :
-                            {
+                        case 1:
+                        {
                             // quad 4
                             aXihat.set_size( 2, 4 );
 
                             aXihat( 0, 0 ) = -1.000000;
                             aXihat( 1, 0 ) = -1.000000;
-                            aXihat( 0, 1 ) =  1.000000;
+                            aXihat( 0, 1 ) = 1.000000;
                             aXihat( 1, 1 ) = -1.000000;
-                            aXihat( 0, 2 ) =  1.000000;
-                            aXihat( 1, 2 ) =  1.000000;
+                            aXihat( 0, 2 ) = 1.000000;
+                            aXihat( 1, 2 ) = 1.000000;
                             aXihat( 0, 3 ) = -1.000000;
-                            aXihat( 1, 3 ) =  1.000000;
+                            aXihat( 1, 3 ) = 1.000000;
                             break;
-                            }
-                        case( 2 ) :
-                            {
+                        }
+                        case 2:
+                        {
                             // quad 9
                             aXihat.set_size( 2, 9 );
 
                             aXihat( 0, 0 ) = -1.000000;
                             aXihat( 1, 0 ) = -1.000000;
-                            aXihat( 0, 1 ) =  1.000000;
+                            aXihat( 0, 1 ) = 1.000000;
                             aXihat( 1, 1 ) = -1.000000;
-                            aXihat( 0, 2 ) =  1.000000;
-                            aXihat( 1, 2 ) =  1.000000;
+                            aXihat( 0, 2 ) = 1.000000;
+                            aXihat( 1, 2 ) = 1.000000;
                             aXihat( 0, 3 ) = -1.000000;
-                            aXihat( 1, 3 ) =  1.000000;
-                            aXihat( 0, 4 ) =  0.000000;
+                            aXihat( 1, 3 ) = 1.000000;
+                            aXihat( 0, 4 ) = 0.000000;
                             aXihat( 1, 4 ) = -1.000000;
-                            aXihat( 0, 5 ) =  1.000000;
-                            aXihat( 1, 5 ) =  0.000000;
-                            aXihat( 0, 6 ) =  0.000000;
-                            aXihat( 1, 6 ) =  1.000000;
+                            aXihat( 0, 5 ) = 1.000000;
+                            aXihat( 1, 5 ) = 0.000000;
+                            aXihat( 0, 6 ) = 0.000000;
+                            aXihat( 1, 6 ) = 1.000000;
                             aXihat( 0, 7 ) = -1.000000;
-                            aXihat( 1, 7 ) =  0.000000;
-                            aXihat( 0, 8 ) =  0.000000;
-                            aXihat( 1, 8 ) =  0.000000;
+                            aXihat( 1, 7 ) = 0.000000;
+                            aXihat( 0, 8 ) = 0.000000;
+                            aXihat( 1, 8 ) = 0.000000;
                             break;
-                            }
-                        case( 3 ) :
-                            {
+                        }
+                        case 3:
+                        {
                             // quad 16
                             aXihat.set_size( 2, 16 );
 
-                            real c = 1.0/3.0;
+                            real c = 1.0 / 3.0;
 
-                            aXihat( 0,  0 ) = -1.000000;
-                            aXihat( 1,  0 ) = -1.000000;
-                            aXihat( 0,  1 ) =  1.000000;
-                            aXihat( 1,  1 ) = -1.000000;
-                            aXihat( 0,  2 ) =  1.000000;
-                            aXihat( 1,  2 ) =  1.000000;
-                            aXihat( 0,  3 ) = -1.000000;
-                            aXihat( 1,  3 ) =  1.000000;
-                            aXihat( 0,  4 ) = -c;
-                            aXihat( 1,  4 ) = -1.000000;
-                            aXihat( 0,  5 ) =  c;
-                            aXihat( 1,  5 ) = -1.000000;
-                            aXihat( 0,  6 ) =  1.000000;
-                            aXihat( 1,  6 ) = -c;
-                            aXihat( 0,  7 ) =  1.000000;
-                            aXihat( 1,  7 ) =  c;
-                            aXihat( 0,  8 ) =  c;
-                            aXihat( 1,  8 ) =  1.000000;
-                            aXihat( 0,  9 ) = -c;
-                            aXihat( 1,  9 ) =  1.000000;
+                            aXihat( 0, 0 )  = -1.000000;
+                            aXihat( 1, 0 )  = -1.000000;
+                            aXihat( 0, 1 )  = 1.000000;
+                            aXihat( 1, 1 )  = -1.000000;
+                            aXihat( 0, 2 )  = 1.000000;
+                            aXihat( 1, 2 )  = 1.000000;
+                            aXihat( 0, 3 )  = -1.000000;
+                            aXihat( 1, 3 )  = 1.000000;
+                            aXihat( 0, 4 )  = -c;
+                            aXihat( 1, 4 )  = -1.000000;
+                            aXihat( 0, 5 )  = c;
+                            aXihat( 1, 5 )  = -1.000000;
+                            aXihat( 0, 6 )  = 1.000000;
+                            aXihat( 1, 6 )  = -c;
+                            aXihat( 0, 7 )  = 1.000000;
+                            aXihat( 1, 7 )  = c;
+                            aXihat( 0, 8 )  = c;
+                            aXihat( 1, 8 )  = 1.000000;
+                            aXihat( 0, 9 )  = -c;
+                            aXihat( 1, 9 )  = 1.000000;
                             aXihat( 0, 10 ) = -1.000000;
-                            aXihat( 1, 10 ) =  c;
+                            aXihat( 1, 10 ) = c;
                             aXihat( 0, 11 ) = -1.000000;
                             aXihat( 1, 11 ) = -c;
                             aXihat( 0, 12 ) = -c;
                             aXihat( 1, 12 ) = -c;
-                            aXihat( 0, 13 ) =  c;
+                            aXihat( 0, 13 ) = c;
                             aXihat( 1, 13 ) = -c;
-                            aXihat( 0, 14 ) =  c;
-                            aXihat( 1, 14 ) =  c;
+                            aXihat( 0, 14 ) = c;
+                            aXihat( 1, 14 ) = c;
                             aXihat( 0, 15 ) = -c;
-                            aXihat( 1, 15 ) =  c;
+                            aXihat( 1, 15 ) = c;
                             break;
-                            }
-                        default :
+                        }
+                        default:
                         {
-                            MORIS_ERROR( false, "something went wrong while creating T-Matrices.");
+                            MORIS_ERROR( false, "something went wrong while creating T-Matrices." );
                             break;
                         }
                     }
                     break;
-                    }
-                case( 3 ) :
+                }
+                case 3:
+                {
+                    switch ( aOrder )
                     {
-                    switch( aOrder )
-                    {
-                        case( 1 ) :
-                            {
+                        case 1:
+                        {
                             // hex 8
                             aXihat.set_size( 3, 8 );
 
                             aXihat( 0, 0 ) = -1.000000;
                             aXihat( 1, 0 ) = -1.000000;
                             aXihat( 2, 0 ) = -1.000000;
-                            aXihat( 0, 1 ) =  1.000000;
+                            aXihat( 0, 1 ) = 1.000000;
                             aXihat( 1, 1 ) = -1.000000;
                             aXihat( 2, 1 ) = -1.000000;
-                            aXihat( 0, 2 ) =  1.000000;
-                            aXihat( 1, 2 ) =  1.000000;
+                            aXihat( 0, 2 ) = 1.000000;
+                            aXihat( 1, 2 ) = 1.000000;
                             aXihat( 2, 2 ) = -1.000000;
                             aXihat( 0, 3 ) = -1.000000;
-                            aXihat( 1, 3 ) =  1.000000;
+                            aXihat( 1, 3 ) = 1.000000;
                             aXihat( 2, 3 ) = -1.000000;
                             aXihat( 0, 4 ) = -1.000000;
                             aXihat( 1, 4 ) = -1.000000;
-                            aXihat( 2, 4 ) =  1.000000;
-                            aXihat( 0, 5 ) =  1.000000;
+                            aXihat( 2, 4 ) = 1.000000;
+                            aXihat( 0, 5 ) = 1.000000;
                             aXihat( 1, 5 ) = -1.000000;
-                            aXihat( 2, 5 ) =  1.000000;
-                            aXihat( 0, 6 ) =  1.000000;
-                            aXihat( 1, 6 ) =  1.000000;
-                            aXihat( 2, 6 ) =  1.000000;
+                            aXihat( 2, 5 ) = 1.000000;
+                            aXihat( 0, 6 ) = 1.000000;
+                            aXihat( 1, 6 ) = 1.000000;
+                            aXihat( 2, 6 ) = 1.000000;
                             aXihat( 0, 7 ) = -1.000000;
-                            aXihat( 1, 7 ) =  1.000000;
-                            aXihat( 2, 7 ) =  1.000000;
+                            aXihat( 1, 7 ) = 1.000000;
+                            aXihat( 2, 7 ) = 1.000000;
                             break;
-                            }
-                        case( 2 ) :
-                            {
+                        }
+                        case 2:
+                        {
                             // hex 27
                             aXihat.set_size( 3, 27 );
 
-                            aXihat( 0,  0 ) = -1.000000;
-                            aXihat( 1,  0 ) = -1.000000;
-                            aXihat( 2,  0 ) = -1.000000;
-                            aXihat( 0,  1 ) =  1.000000;
-                            aXihat( 1,  1 ) = -1.000000;
-                            aXihat( 2,  1 ) = -1.000000;
-                            aXihat( 0,  2 ) =  1.000000;
-                            aXihat( 1,  2 ) =  1.000000;
-                            aXihat( 2,  2 ) = -1.000000;
-                            aXihat( 0,  3 ) = -1.000000;
-                            aXihat( 1,  3 ) =  1.000000;
-                            aXihat( 2,  3 ) = -1.000000;
-                            aXihat( 0,  4 ) = -1.000000;
-                            aXihat( 1,  4 ) = -1.000000;
-                            aXihat( 2,  4 ) =  1.000000;
-                            aXihat( 0,  5 ) =  1.000000;
-                            aXihat( 1,  5 ) = -1.000000;
-                            aXihat( 2,  5 ) =  1.000000;
-                            aXihat( 0,  6 ) =  1.000000;
-                            aXihat( 1,  6 ) =  1.000000;
-                            aXihat( 2,  6 ) =  1.000000;
-                            aXihat( 0,  7 ) = -1.000000;
-                            aXihat( 1,  7 ) =  1.000000;
-                            aXihat( 2,  7 ) =  1.000000;
-                            aXihat( 0,  8 ) =  0.000000;
-                            aXihat( 1,  8 ) = -1.000000;
-                            aXihat( 2,  8 ) = -1.000000;
-                            aXihat( 0,  9 ) =  1.000000;
-                            aXihat( 1,  9 ) =  0.000000;
-                            aXihat( 2,  9 ) = -1.000000;
-                            aXihat( 0, 10 ) =  0.000000;
-                            aXihat( 1, 10 ) =  1.000000;
+                            aXihat( 0, 0 )  = -1.000000;
+                            aXihat( 1, 0 )  = -1.000000;
+                            aXihat( 2, 0 )  = -1.000000;
+                            aXihat( 0, 1 )  = 1.000000;
+                            aXihat( 1, 1 )  = -1.000000;
+                            aXihat( 2, 1 )  = -1.000000;
+                            aXihat( 0, 2 )  = 1.000000;
+                            aXihat( 1, 2 )  = 1.000000;
+                            aXihat( 2, 2 )  = -1.000000;
+                            aXihat( 0, 3 )  = -1.000000;
+                            aXihat( 1, 3 )  = 1.000000;
+                            aXihat( 2, 3 )  = -1.000000;
+                            aXihat( 0, 4 )  = -1.000000;
+                            aXihat( 1, 4 )  = -1.000000;
+                            aXihat( 2, 4 )  = 1.000000;
+                            aXihat( 0, 5 )  = 1.000000;
+                            aXihat( 1, 5 )  = -1.000000;
+                            aXihat( 2, 5 )  = 1.000000;
+                            aXihat( 0, 6 )  = 1.000000;
+                            aXihat( 1, 6 )  = 1.000000;
+                            aXihat( 2, 6 )  = 1.000000;
+                            aXihat( 0, 7 )  = -1.000000;
+                            aXihat( 1, 7 )  = 1.000000;
+                            aXihat( 2, 7 )  = 1.000000;
+                            aXihat( 0, 8 )  = 0.000000;
+                            aXihat( 1, 8 )  = -1.000000;
+                            aXihat( 2, 8 )  = -1.000000;
+                            aXihat( 0, 9 )  = 1.000000;
+                            aXihat( 1, 9 )  = 0.000000;
+                            aXihat( 2, 9 )  = -1.000000;
+                            aXihat( 0, 10 ) = 0.000000;
+                            aXihat( 1, 10 ) = 1.000000;
                             aXihat( 2, 10 ) = -1.000000;
                             aXihat( 0, 11 ) = -1.000000;
-                            aXihat( 1, 11 ) =  0.000000;
+                            aXihat( 1, 11 ) = 0.000000;
                             aXihat( 2, 11 ) = -1.000000;
                             aXihat( 0, 12 ) = -1.000000;
                             aXihat( 1, 12 ) = -1.000000;
-                            aXihat( 2, 12 ) =  0.000000;
-                            aXihat( 0, 13 ) =  1.000000;
+                            aXihat( 2, 12 ) = 0.000000;
+                            aXihat( 0, 13 ) = 1.000000;
                             aXihat( 1, 13 ) = -1.000000;
-                            aXihat( 2, 13 ) =  0.000000;
-                            aXihat( 0, 14 ) =  1.000000;
-                            aXihat( 1, 14 ) =  1.000000;
-                            aXihat( 2, 14 ) =  0.000000;
+                            aXihat( 2, 13 ) = 0.000000;
+                            aXihat( 0, 14 ) = 1.000000;
+                            aXihat( 1, 14 ) = 1.000000;
+                            aXihat( 2, 14 ) = 0.000000;
                             aXihat( 0, 15 ) = -1.000000;
-                            aXihat( 1, 15 ) =  1.000000;
-                            aXihat( 2, 15 ) =  0.000000;
-                            aXihat( 0, 16 ) =  0.000000;
+                            aXihat( 1, 15 ) = 1.000000;
+                            aXihat( 2, 15 ) = 0.000000;
+                            aXihat( 0, 16 ) = 0.000000;
                             aXihat( 1, 16 ) = -1.000000;
-                            aXihat( 2, 16 ) =  1.000000;
-                            aXihat( 0, 17 ) =  1.000000;
-                            aXihat( 1, 17 ) =  0.000000;
-                            aXihat( 2, 17 ) =  1.000000;
-                            aXihat( 0, 18 ) =  0.000000;
-                            aXihat( 1, 18 ) =  1.000000;
-                            aXihat( 2, 18 ) =  1.000000;
+                            aXihat( 2, 16 ) = 1.000000;
+                            aXihat( 0, 17 ) = 1.000000;
+                            aXihat( 1, 17 ) = 0.000000;
+                            aXihat( 2, 17 ) = 1.000000;
+                            aXihat( 0, 18 ) = 0.000000;
+                            aXihat( 1, 18 ) = 1.000000;
+                            aXihat( 2, 18 ) = 1.000000;
                             aXihat( 0, 19 ) = -1.000000;
-                            aXihat( 1, 19 ) =  0.000000;
-                            aXihat( 2, 19 ) =  1.000000;
-                            aXihat( 0, 20 ) =  0.000000;
-                            aXihat( 1, 20 ) =  0.000000;
-                            aXihat( 2, 20 ) =  0.000000;
-                            aXihat( 0, 21 ) =  0.000000;
-                            aXihat( 1, 21 ) =  0.000000;
+                            aXihat( 1, 19 ) = 0.000000;
+                            aXihat( 2, 19 ) = 1.000000;
+                            aXihat( 0, 20 ) = 0.000000;
+                            aXihat( 1, 20 ) = 0.000000;
+                            aXihat( 2, 20 ) = 0.000000;
+                            aXihat( 0, 21 ) = 0.000000;
+                            aXihat( 1, 21 ) = 0.000000;
                             aXihat( 2, 21 ) = -1.000000;
-                            aXihat( 0, 22 ) =  0.000000;
-                            aXihat( 1, 22 ) =  0.000000;
-                            aXihat( 2, 22 ) =  1.000000;
+                            aXihat( 0, 22 ) = 0.000000;
+                            aXihat( 1, 22 ) = 0.000000;
+                            aXihat( 2, 22 ) = 1.000000;
                             aXihat( 0, 23 ) = -1.000000;
-                            aXihat( 1, 23 ) =  0.000000;
-                            aXihat( 2, 23 ) =  0.000000;
-                            aXihat( 0, 24 ) =  1.000000;
-                            aXihat( 1, 24 ) =  0.000000;
-                            aXihat( 2, 24 ) =  0.000000;
-                            aXihat( 0, 25 ) =  0.000000;
+                            aXihat( 1, 23 ) = 0.000000;
+                            aXihat( 2, 23 ) = 0.000000;
+                            aXihat( 0, 24 ) = 1.000000;
+                            aXihat( 1, 24 ) = 0.000000;
+                            aXihat( 2, 24 ) = 0.000000;
+                            aXihat( 0, 25 ) = 0.000000;
                             aXihat( 1, 25 ) = -1.000000;
-                            aXihat( 2, 25 ) =  0.000000;
-                            aXihat( 0, 26 ) =  0.000000;
-                            aXihat( 1, 26 ) =  1.000000;
-                            aXihat( 2, 26 ) =  0.000000;
-                            }
-                        case( 3 ) :
-                            {
+                            aXihat( 2, 25 ) = 0.000000;
+                            aXihat( 0, 26 ) = 0.000000;
+                            aXihat( 1, 26 ) = 1.000000;
+                            aXihat( 2, 26 ) = 0.000000;
+                            break;
+                        }
+                        case 3:
+                        {
                             // hex 64
                             aXihat.set_size( 3, 64 );
 
-                            real c = 1.0/3.0;
+                            real c = 1.0 / 3.0;
 
-                            aXihat( 0,  0 ) = -1.0;
-                            aXihat( 1,  0 ) = -1.0;
-                            aXihat( 2,  0 ) = -1.0;
-                            aXihat( 0,  1 ) =  1.0;
-                            aXihat( 1,  1 ) = -1.0;
-                            aXihat( 2,  1 ) = -1.0;
-                            aXihat( 0,  2 ) =  1.0;
-                            aXihat( 1,  2 ) =  1.0;
-                            aXihat( 2,  2 ) = -1.0;
-                            aXihat( 0,  3 ) = -1.0;
-                            aXihat( 1,  3 ) =  1.0;
-                            aXihat( 2,  3 ) = -1.0;
-                            aXihat( 0,  4 ) = -1.0;
-                            aXihat( 1,  4 ) = -1.0;
-                            aXihat( 2,  4 ) =  1.0;
-                            aXihat( 0,  5 ) =  1.0;
-                            aXihat( 1,  5 ) = -1.0;
-                            aXihat( 2,  5 ) =  1.0;
-                            aXihat( 0,  6 ) =  1.0;
-                            aXihat( 1,  6 ) =  1.0;
-                            aXihat( 2,  6 ) =  1.0;
-                            aXihat( 0,  7 ) = -1.0;
-                            aXihat( 1,  7 ) =  1.0;
-                            aXihat( 2,  7 ) =  1.0;
-                            aXihat( 0,  8 ) = -c;
-                            aXihat( 1,  8 ) = -1.0;
-                            aXihat( 2,  8 ) = -1.0;
-                            aXihat( 0,  9 ) =  c;
-                            aXihat( 1,  9 ) = -1.0;
-                            aXihat( 2,  9 ) = -1.0;
+                            aXihat( 0, 0 )  = -1.0;
+                            aXihat( 1, 0 )  = -1.0;
+                            aXihat( 2, 0 )  = -1.0;
+                            aXihat( 0, 1 )  = 1.0;
+                            aXihat( 1, 1 )  = -1.0;
+                            aXihat( 2, 1 )  = -1.0;
+                            aXihat( 0, 2 )  = 1.0;
+                            aXihat( 1, 2 )  = 1.0;
+                            aXihat( 2, 2 )  = -1.0;
+                            aXihat( 0, 3 )  = -1.0;
+                            aXihat( 1, 3 )  = 1.0;
+                            aXihat( 2, 3 )  = -1.0;
+                            aXihat( 0, 4 )  = -1.0;
+                            aXihat( 1, 4 )  = -1.0;
+                            aXihat( 2, 4 )  = 1.0;
+                            aXihat( 0, 5 )  = 1.0;
+                            aXihat( 1, 5 )  = -1.0;
+                            aXihat( 2, 5 )  = 1.0;
+                            aXihat( 0, 6 )  = 1.0;
+                            aXihat( 1, 6 )  = 1.0;
+                            aXihat( 2, 6 )  = 1.0;
+                            aXihat( 0, 7 )  = -1.0;
+                            aXihat( 1, 7 )  = 1.0;
+                            aXihat( 2, 7 )  = 1.0;
+                            aXihat( 0, 8 )  = -c;
+                            aXihat( 1, 8 )  = -1.0;
+                            aXihat( 2, 8 )  = -1.0;
+                            aXihat( 0, 9 )  = c;
+                            aXihat( 1, 9 )  = -1.0;
+                            aXihat( 2, 9 )  = -1.0;
                             aXihat( 0, 10 ) = -1.0;
                             aXihat( 1, 10 ) = -c;
                             aXihat( 2, 10 ) = -1.0;
                             aXihat( 0, 11 ) = -1.0;
-                            aXihat( 1, 11 ) =  c;
+                            aXihat( 1, 11 ) = c;
                             aXihat( 2, 11 ) = -1.0;
                             aXihat( 0, 12 ) = -1.0;
                             aXihat( 1, 12 ) = -1.0;
                             aXihat( 2, 12 ) = -c;
                             aXihat( 0, 13 ) = -1.0;
                             aXihat( 1, 13 ) = -1.0;
-                            aXihat( 2, 13 ) =  c;
-                            aXihat( 0, 14 ) =  1.0;
+                            aXihat( 2, 13 ) = c;
+                            aXihat( 0, 14 ) = 1.0;
                             aXihat( 1, 14 ) = -c;
                             aXihat( 2, 14 ) = -1.0;
-                            aXihat( 0, 15 ) =  1.0;
-                            aXihat( 1, 15 ) =  c;
+                            aXihat( 0, 15 ) = 1.0;
+                            aXihat( 1, 15 ) = c;
                             aXihat( 2, 15 ) = -1.0;
-                            aXihat( 0, 16 ) =  1.0;
+                            aXihat( 0, 16 ) = 1.0;
                             aXihat( 1, 16 ) = -1.0;
                             aXihat( 2, 16 ) = -c;
-                            aXihat( 0, 17 ) =  1.0;
+                            aXihat( 0, 17 ) = 1.0;
                             aXihat( 1, 17 ) = -1.0;
-                            aXihat( 2, 17 ) =  c;
-                            aXihat( 0, 18 ) =  c;
-                            aXihat( 1, 18 ) =  1.0;
+                            aXihat( 2, 17 ) = c;
+                            aXihat( 0, 18 ) = c;
+                            aXihat( 1, 18 ) = 1.0;
                             aXihat( 2, 18 ) = -1.0;
                             aXihat( 0, 19 ) = -c;
-                            aXihat( 1, 19 ) =  1.0;
+                            aXihat( 1, 19 ) = 1.0;
                             aXihat( 2, 19 ) = -1.0;
-                            aXihat( 0, 20 ) =  1.0;
-                            aXihat( 1, 20 ) =  1.0;
+                            aXihat( 0, 20 ) = 1.0;
+                            aXihat( 1, 20 ) = 1.0;
                             aXihat( 2, 20 ) = -c;
-                            aXihat( 0, 21 ) =  1.0;
-                            aXihat( 1, 21 ) =  1.0;
-                            aXihat( 2, 21 ) =  c;
+                            aXihat( 0, 21 ) = 1.0;
+                            aXihat( 1, 21 ) = 1.0;
+                            aXihat( 2, 21 ) = c;
                             aXihat( 0, 22 ) = -1.0;
-                            aXihat( 1, 22 ) =  1.0;
+                            aXihat( 1, 22 ) = 1.0;
                             aXihat( 2, 22 ) = -c;
                             aXihat( 0, 23 ) = -1.0;
-                            aXihat( 1, 23 ) =  1.0;
-                            aXihat( 2, 23 ) =  c;
+                            aXihat( 1, 23 ) = 1.0;
+                            aXihat( 2, 23 ) = c;
                             aXihat( 0, 24 ) = -c;
                             aXihat( 1, 24 ) = -1.0;
-                            aXihat( 2, 24 ) =  1.0;
-                            aXihat( 0, 25 ) =  c;
+                            aXihat( 2, 24 ) = 1.0;
+                            aXihat( 0, 25 ) = c;
                             aXihat( 1, 25 ) = -1.0;
-                            aXihat( 2, 25 ) =  1.0;
+                            aXihat( 2, 25 ) = 1.0;
                             aXihat( 0, 26 ) = -1.0;
                             aXihat( 1, 26 ) = -c;
-                            aXihat( 2, 26 ) =  1.0;
+                            aXihat( 2, 26 ) = 1.0;
                             aXihat( 0, 27 ) = -1.0;
-                            aXihat( 1, 27 ) =  c;
-                            aXihat( 2, 27 ) =  1.0;
-                            aXihat( 0, 28 ) =  1.0;
+                            aXihat( 1, 27 ) = c;
+                            aXihat( 2, 27 ) = 1.0;
+                            aXihat( 0, 28 ) = 1.0;
                             aXihat( 1, 28 ) = -c;
-                            aXihat( 2, 28 ) =  1.0;
-                            aXihat( 0, 29 ) =  1.0;
-                            aXihat( 1, 29 ) =  c;
-                            aXihat( 2, 29 ) =  1.0;
-                            aXihat( 0, 30 ) =  c;
-                            aXihat( 1, 30 ) =  1.0;
-                            aXihat( 2, 30 ) =  1.0;
+                            aXihat( 2, 28 ) = 1.0;
+                            aXihat( 0, 29 ) = 1.0;
+                            aXihat( 1, 29 ) = c;
+                            aXihat( 2, 29 ) = 1.0;
+                            aXihat( 0, 30 ) = c;
+                            aXihat( 1, 30 ) = 1.0;
+                            aXihat( 2, 30 ) = 1.0;
                             aXihat( 0, 31 ) = -c;
-                            aXihat( 1, 31 ) =  1.0;
-                            aXihat( 2, 31 ) =  1.0;
+                            aXihat( 1, 31 ) = 1.0;
+                            aXihat( 2, 31 ) = 1.0;
                             aXihat( 0, 32 ) = -c;
                             aXihat( 1, 32 ) = -c;
                             aXihat( 2, 32 ) = -1.0;
                             aXihat( 0, 33 ) = -c;
-                            aXihat( 1, 33 ) =  c;
+                            aXihat( 1, 33 ) = c;
                             aXihat( 2, 33 ) = -1.0;
-                            aXihat( 0, 34 ) =  c;
-                            aXihat( 1, 34 ) =  c;
+                            aXihat( 0, 34 ) = c;
+                            aXihat( 1, 34 ) = c;
                             aXihat( 2, 34 ) = -1.0;
-                            aXihat( 0, 35 ) =  c;
+                            aXihat( 0, 35 ) = c;
                             aXihat( 1, 35 ) = -c;
                             aXihat( 2, 35 ) = -1.0;
                             aXihat( 0, 36 ) = -c;
                             aXihat( 1, 36 ) = -1.0;
                             aXihat( 2, 36 ) = -c;
-                            aXihat( 0, 37 ) =  c;
+                            aXihat( 0, 37 ) = c;
                             aXihat( 1, 37 ) = -1.0;
                             aXihat( 2, 37 ) = -c;
-                            aXihat( 0, 38 ) =  c;
+                            aXihat( 0, 38 ) = c;
                             aXihat( 1, 38 ) = -1.0;
-                            aXihat( 2, 38 ) =  c;
+                            aXihat( 2, 38 ) = c;
                             aXihat( 0, 39 ) = -c;
                             aXihat( 1, 39 ) = -1.0;
-                            aXihat( 2, 39 ) =  c;
+                            aXihat( 2, 39 ) = c;
                             aXihat( 0, 40 ) = -1.0;
                             aXihat( 1, 40 ) = -c;
                             aXihat( 2, 40 ) = -c;
                             aXihat( 0, 41 ) = -1.0;
                             aXihat( 1, 41 ) = -c;
-                            aXihat( 2, 41 ) =  c;
+                            aXihat( 2, 41 ) = c;
                             aXihat( 0, 42 ) = -1.0;
-                            aXihat( 1, 42 ) =  c;
-                            aXihat( 2, 42 ) =  c;
+                            aXihat( 1, 42 ) = c;
+                            aXihat( 2, 42 ) = c;
                             aXihat( 0, 43 ) = -1.0;
-                            aXihat( 1, 43 ) =  c;
+                            aXihat( 1, 43 ) = c;
                             aXihat( 2, 43 ) = -c;
-                            aXihat( 0, 44 ) =  1.0;
+                            aXihat( 0, 44 ) = 1.0;
                             aXihat( 1, 44 ) = -c;
                             aXihat( 2, 44 ) = -c;
-                            aXihat( 0, 45 ) =  1.0;
-                            aXihat( 1, 45 ) =  c;
+                            aXihat( 0, 45 ) = 1.0;
+                            aXihat( 1, 45 ) = c;
                             aXihat( 2, 45 ) = -c;
-                            aXihat( 0, 46 ) =  1.0;
-                            aXihat( 1, 46 ) =  c;
-                            aXihat( 2, 46 ) =  c;
-                            aXihat( 0, 47 ) =  1.0;
+                            aXihat( 0, 46 ) = 1.0;
+                            aXihat( 1, 46 ) = c;
+                            aXihat( 2, 46 ) = c;
+                            aXihat( 0, 47 ) = 1.0;
                             aXihat( 1, 47 ) = -c;
-                            aXihat( 2, 47 ) =  c;
-                            aXihat( 0, 48 ) =  c;
-                            aXihat( 1, 48 ) =  1.0;
+                            aXihat( 2, 47 ) = c;
+                            aXihat( 0, 48 ) = c;
+                            aXihat( 1, 48 ) = 1.0;
                             aXihat( 2, 48 ) = -c;
                             aXihat( 0, 49 ) = -c;
-                            aXihat( 1, 49 ) =  1.0;
+                            aXihat( 1, 49 ) = 1.0;
                             aXihat( 2, 49 ) = -c;
                             aXihat( 0, 50 ) = -c;
-                            aXihat( 1, 50 ) =  1.0;
-                            aXihat( 2, 50 ) =  c;
-                            aXihat( 0, 51 ) =  c;
-                            aXihat( 1, 51 ) =  1.0;
-                            aXihat( 2, 51 ) =  c;
+                            aXihat( 1, 50 ) = 1.0;
+                            aXihat( 2, 50 ) = c;
+                            aXihat( 0, 51 ) = c;
+                            aXihat( 1, 51 ) = 1.0;
+                            aXihat( 2, 51 ) = c;
                             aXihat( 0, 52 ) = -c;
                             aXihat( 1, 52 ) = -c;
-                            aXihat( 2, 52 ) =  1.0;
-                            aXihat( 0, 53 ) =  c;
+                            aXihat( 2, 52 ) = 1.0;
+                            aXihat( 0, 53 ) = c;
                             aXihat( 1, 53 ) = -c;
-                            aXihat( 2, 53 ) =  1.0;
-                            aXihat( 0, 54 ) =  c;
-                            aXihat( 1, 54 ) =  c;
-                            aXihat( 2, 54 ) =  1.0;
+                            aXihat( 2, 53 ) = 1.0;
+                            aXihat( 0, 54 ) = c;
+                            aXihat( 1, 54 ) = c;
+                            aXihat( 2, 54 ) = 1.0;
                             aXihat( 0, 55 ) = -c;
-                            aXihat( 1, 55 ) =  c;
-                            aXihat( 2, 55 ) =  1.0;
+                            aXihat( 1, 55 ) = c;
+                            aXihat( 2, 55 ) = 1.0;
                             aXihat( 0, 56 ) = -c;
                             aXihat( 1, 56 ) = -c;
                             aXihat( 2, 56 ) = -c;
-                            aXihat( 0, 57 ) =  c;
+                            aXihat( 0, 57 ) = c;
                             aXihat( 1, 57 ) = -c;
                             aXihat( 2, 57 ) = -c;
-                            aXihat( 0, 58 ) =  c;
-                            aXihat( 1, 58 ) =  c;
+                            aXihat( 0, 58 ) = c;
+                            aXihat( 1, 58 ) = c;
                             aXihat( 2, 58 ) = -c;
                             aXihat( 0, 59 ) = -c;
-                            aXihat( 1, 59 ) =  c;
+                            aXihat( 1, 59 ) = c;
                             aXihat( 2, 59 ) = -c;
                             aXihat( 0, 60 ) = -c;
                             aXihat( 1, 60 ) = -c;
-                            aXihat( 2, 60 ) =  c;
-                            aXihat( 0, 61 ) =  c;
+                            aXihat( 2, 60 ) = c;
+                            aXihat( 0, 61 ) = c;
                             aXihat( 1, 61 ) = -c;
-                            aXihat( 2, 61 ) =  c;
-                            aXihat( 0, 62 ) =  c;
-                            aXihat( 1, 62 ) =  c;
-                            aXihat( 2, 62 ) =  c;
+                            aXihat( 2, 61 ) = c;
+                            aXihat( 0, 62 ) = c;
+                            aXihat( 1, 62 ) = c;
+                            aXihat( 2, 62 ) = c;
                             aXihat( 0, 63 ) = -c;
-                            aXihat( 1, 63 ) =  c;
-                            aXihat( 2, 63 ) =  c;
+                            aXihat( 1, 63 ) = c;
+                            aXihat( 2, 63 ) = c;
                             break;
-                            }
-                        default :
+                        }
+                        default:
                         {
-                            MORIS_ERROR( false, "something went wrong while creating T-Matrices.");
+                            MORIS_ERROR( false, "something went wrong while creating T-Matrices." );
                             break;
                         }
                     }
                     break;
-                    }
-                default :
+                }
+                default:
                 {
-                    MORIS_ERROR( false, "something went wrong while creating T-Matrices.");
+                    MORIS_ERROR( false, "something went wrong while creating T-Matrices." );
                 }
             }
 
@@ -2479,4 +2518,3 @@ namespace moris
 
     } /* namespace hmr */
 } /* namespace moris */
-

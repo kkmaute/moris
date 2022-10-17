@@ -276,7 +276,7 @@ TEST_CASE("IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]")
     // evaluate the quantity of interest
     tModel.initialize_IQIs();
     tModel.compute_IQIs();
-    CHECK(tModel.get_IQI_values()(0)(0) = 1.0);
+    CHECK(tModel.get_IQI_values()(0)(0) == 1.0);
 
     Matrix< DDRMat > tdQIdu;
     Matrix< DDRMat > tdQIduFD;

@@ -19,30 +19,36 @@ namespace moris
     {
         class Pdv
         {
-        public:
-            bool mIsActive = true;
-            moris_id mId = gNoID;
+          public:
+            bool     mIsActive = true;
+            moris_id mId       = gNoID;
 
-        protected:
-
+          protected:
             /**
              * constructor
              */
             Pdv();
 
-        public:
-
+          public:
             /**
              * trivial destructor
              */
-            ~Pdv();
+            virtual ~Pdv();
 
-            void set_id( const moris_id & tId)
+            /**
+             * set Pdv IDr
+             */
+            void
+            set_id( const moris_id& tId )
             {
                 mId = tId;
             };
 
-            moris_id get_id()
+            /**
+             * get Pdv IDr
+             */
+            moris_id
+            get_id()
             {
                 return mId;
             };
@@ -54,9 +60,10 @@ namespace moris
              * @param aCoordinates Coordinate values
              * @return Current value of this PDV
              */
-            virtual real get_value(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates) = 0;
+            virtual real get_value( uint aNodeIndex, const Matrix< DDRMat >& aCoordinates ) = 0;
 
-            virtual void set_value(const moris::real & aValue )
+            virtual void
+            set_value( const moris::real& aValue )
             {
                 MORIS_ERROR( false, "Pdv::set_value(), not implemented for this pdv type" );
             }
@@ -68,18 +75,16 @@ namespace moris
              * @param aCoordinates Coordinate values
              * @return Vector of sensitivities to be returned
              */
-            virtual Matrix<DDRMat> get_sensitivities(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates) = 0;
+            virtual Matrix< DDRMat > get_sensitivities( uint aNodeIndex, const Matrix< DDRMat >& aCoordinates ) = 0;
 
             /**
              * Gets the IDs of ADVs which this PDV depends on.
              *
              * @return ADV IDs
              */
-            virtual Matrix<DDSMat> get_determining_adv_ids(uint aNodeIndex, const Matrix<DDRMat>& aCoordinates) = 0;
-
+            virtual Matrix< DDSMat > get_determining_adv_ids( uint aNodeIndex, const Matrix< DDRMat >& aCoordinates ) = 0;
         };
-    }
-}
+    }    // namespace ge
+}    // namespace moris
 
 #endif /* MORIS_CL_GEN_PDV_HPP_ */
-

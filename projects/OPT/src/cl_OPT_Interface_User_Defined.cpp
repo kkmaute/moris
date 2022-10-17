@@ -18,23 +18,23 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         Interface_User_Defined::Interface_User_Defined(
-                ParameterList aParameterList)
+                ParameterList aParameterList )
         {
             // set library with user defined functions
-            mLibrary = std::make_shared<Library_IO>(aParameterList.get<std::string>("library"));
+            mLibrary = std::make_shared< Library_IO >( aParameterList.get< std::string >( "library" ) );
 
             // Set user-defined functions
-            initialize_user_defined             = mLibrary->load_function<Criteria_Initialize_Function>("initialize");
-            get_criteria_user_defined           = mLibrary->load_function<Criteria_Function>("get_criteria");
-            compute_dcriteria_dadv_user_defined = mLibrary->load_function<Criteria_Function>("get_dcriteria_dadv");
+            initialize_user_defined             = mLibrary->load_function< Criteria_Initialize_Function >( "initialize" );
+            get_criteria_user_defined           = mLibrary->load_function< Criteria_Function >( "get_criteria" );
+            compute_dcriteria_dadv_user_defined = mLibrary->load_function< Criteria_Function >( "get_dcriteria_dadv" );
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         Interface_User_Defined::Interface_User_Defined(
                 Criteria_Initialize_Function aInitializationFunction,
-                Criteria_Function aCriteriaEvaluationFunction,
-                Criteria_Function aCriteriaGradientFunction)
+                Criteria_Function            aCriteriaEvaluationFunction,
+                Criteria_Function            aCriteriaGradientFunction )
         {
             // Set user-defined functions
             initialize_user_defined             = aInitializationFunction;
@@ -44,13 +44,14 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Interface_User_Defined::initialize(
-                Matrix<DDRMat>& aADVs,
-                Matrix<DDRMat>& aLowerBounds,
-                Matrix<DDRMat>& aUpperBounds,
-                Matrix<IdMat >& aIjklIds)
+        void
+        Interface_User_Defined::initialize(
+                Matrix< DDRMat >& aADVs,
+                Matrix< DDRMat >& aLowerBounds,
+                Matrix< DDRMat >& aUpperBounds,
+                Matrix< IdMat >& )
         {
-            initialize_user_defined(aADVs, aLowerBounds, aUpperBounds);
+            initialize_user_defined( aADVs, aLowerBounds, aUpperBounds );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -60,18 +61,18 @@ namespace moris
         {
             mADVs = aNewADVs;
 
-            return this->get_criteria_user_defined(mADVs);
+            return this->get_criteria_user_defined( mADVs );
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Interface_User_Defined::compute_dcriteria_dadv()
+        Matrix< DDRMat >
+        Interface_User_Defined::compute_dcriteria_dadv()
         {
-            return this->compute_dcriteria_dadv_user_defined(mADVs);
+            return this->compute_dcriteria_dadv_user_defined( mADVs );
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-    }
-}
-
+    }    // namespace opt
+}    // namespace moris

@@ -57,7 +57,7 @@ namespace moris
         IWG_Incompressible_NS_Velocity_Bulk::compute_residual( real aWStar )
         {
             // check master field interpolators
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
             this->check_field_interpolators();
 #endif
 
@@ -187,7 +187,7 @@ namespace moris
         void
         IWG_Incompressible_NS_Velocity_Bulk::compute_jacobian( real aWStar )
         {
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
             // check master field interpolators
             this->check_field_interpolators();
 #endif
@@ -454,7 +454,7 @@ namespace moris
         void
         IWG_Incompressible_NS_Velocity_Bulk::compute_jacobian_and_residual( real aWStar )
         {
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
             // check master field interpolators
             this->check_field_interpolators();
 #endif
@@ -468,7 +468,7 @@ namespace moris
         void
         IWG_Incompressible_NS_Velocity_Bulk::compute_dRdp( real aWStar )
         {
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
             // check master field interpolators, properties and constitutive models
             this->check_field_interpolators();
 #endif

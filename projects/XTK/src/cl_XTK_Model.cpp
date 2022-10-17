@@ -217,9 +217,9 @@ namespace xtk
         if ( mParameterList.get< bool >( "decompose" ) )
         {
             // get parameters specifying the integration mesh from the parameterlist
-            mTriangulateAll = mParameterList.get< bool >( "triangulate_all" );
+            mTriangulateAll       = mParameterList.get< bool >( "triangulate_all" );
             mTriangulateAllInPost = mParameterList.get< bool >( "triangulate_all_in_post" );
-            mIgElementOrder = mParameterList.get< moris::uint >( "ig_element_order" );
+            mIgElementOrder       = mParameterList.get< moris::uint >( "ig_element_order" );
 
             // get and store indices of B-spline meshes wrt. which information needs to be constructed
             moris::string_to_mat( mParameterList.get< std::string >( "enrich_mesh_indices" ), mBsplineMeshIndices );
@@ -274,7 +274,7 @@ namespace xtk
         if ( mParameterList.get< bool >( "enrich" ) )
         {
             // get rank of the interpolation basis (B-spline or Lagrange Element)
-            // determines which basis functions to perform enrichment on 
+            // determines which basis functions to perform enrichment on
             enum EntityRank tBasisRank = get_entity_rank_from_str( mParameterList.get< std::string >( "basis_rank" ) );
 
             // get flag whether basis enrichments need to be sorted
@@ -315,13 +315,13 @@ namespace xtk
 
         if ( mParameterList.get< bool >( "ghost_stab" ) )
         {
-            
+
             // construct ghost using the new procedure if specifically requested by user
             if ( this->uses_SPG_based_enrichment() )
             {
                 this->construct_face_oriented_ghost_penalization_cells_new();
             }
-            else // otherwise, just use old way
+            else    // otherwise, just use old way
             {
                 this->construct_face_oriented_ghost_penalization_cells();
             }
@@ -339,23 +339,22 @@ namespace xtk
                     moris::string_to_mat( mParameterList.get< std::string >( "enrich_mesh_indices" ), tBsplineMeshIndices );
 
                     // visualize ghost mesh sets for all B-spline meshes and bulk-phases
-                    for ( moris::moris_index iBM = 0; iBM < (moris_index) tBsplineMeshIndices.numel(); iBM++ )
+                    for ( moris::moris_index iBM = 0; iBM < (moris_index)tBsplineMeshIndices.numel(); iBM++ )
                     {
-                        for ( moris::moris_index iBP = 0; iBP < (moris_index) mGeometryEngine->get_num_bulk_phase(); iBP++ )
+                        for ( moris::moris_index iBP = 0; iBP < (moris_index)mGeometryEngine->get_num_bulk_phase(); iBP++ )
                         {
                             mGhostStabilization->visualize_ghost_on_mesh_new( iBM, iBP );
                         }
                     }
                 }
-                else // otherwise, just use the old way
+                else    // otherwise, just use the old way
                 {
                     // visualize ghost mesh sets for every bulk-phase
-                    for ( moris::moris_index i = 0; i < (moris_index) mGeometryEngine->get_num_bulk_phase(); i++ )
+                    for ( moris::moris_index i = 0; i < (moris_index)mGeometryEngine->get_num_bulk_phase(); i++ )
                     {
                         mGhostStabilization->visualize_ghost_on_mesh( i );
                     }
                 }
-
             }
         }
 
@@ -435,7 +434,7 @@ namespace xtk
         }
 
         if ( mEnriched )
-        {            
+        {
             // if SPG based enrichment is used, construct the cluster groups here
             if ( this->uses_SPG_based_enrichment() )
             {
@@ -443,10 +442,10 @@ namespace xtk
             }
 
             // get the reference to the enriched IP mesh
-            xtk::Enriched_Interpolation_Mesh& tEnrInterpMesh = this->get_enriched_interp_mesh();
+            xtk::Enriched_Interpolation_Mesh &tEnrInterpMesh = this->get_enriched_interp_mesh();
 
             // get the reference to the enriched IG mesh
-            xtk::Enriched_Integration_Mesh& tEnrIntegMesh = this->get_enriched_integ_mesh();
+            xtk::Enriched_Integration_Mesh &tEnrIntegMesh = this->get_enriched_integ_mesh();
 
             // set a mesh name for the XTK-mesh in the MTK output performer
             std::string tXTKMeshName = "XTKMesh";
@@ -517,7 +516,7 @@ namespace xtk
 
                 if ( this->uses_SPG_based_enrichment() )
                 {
-                    mEnrichedIntegMesh( 0 )->visualize_cluster_measures(); 
+                    mEnrichedIntegMesh( 0 )->visualize_cluster_measures();
                     // mEnrichedIntegMesh( 0 )->visualize_cluster_group_measures();
                 }
 
@@ -683,7 +682,7 @@ namespace xtk
         // perform decomposition
         mCutIntegrationMesh = tIntegrationGenerator.perform();
 
-        // check that only Lagrange elements on the lowest refinement-level are cut / got decomposed 
+        // check that only Lagrange elements on the lowest refinement-level are cut / got decomposed
         mDecomposed = mCutIntegrationMesh->mSameLevelChildMeshes;
         if ( !mDecomposed )
         {
@@ -1147,8 +1146,8 @@ namespace xtk
 
     void
     Model::perform_basis_enrichment(
-            enum EntityRank const& aBasisRank,
-            moris_index const&     tBsplineMeshIndex,
+            enum EntityRank const &aBasisRank,
+            moris_index const     &tBsplineMeshIndex,
             bool                   aSortBasisEnrichmentLevels,
             bool                   aUseSpgBasedEnrichment )
     {
@@ -1177,8 +1176,8 @@ namespace xtk
 
     void
     Model::perform_basis_enrichment(
-            enum EntityRank const&    aBasisRank,
-            Matrix< IndexMat > const& aBsplineMeshIndices,
+            enum EntityRank const    &aBasisRank,
+            Matrix< IndexMat > const &aBsplineMeshIndices,
             bool                      aSortBasisEnrichmentLevels,
             bool                      aUseSpgBasedEnrichment )
     {
@@ -1318,8 +1317,8 @@ namespace xtk
 
     void
     Model::perform_basis_enrichment_internal(
-            enum EntityRank const&    aBasisRank,
-            Matrix< IndexMat > const& aBsplineMeshIndices,
+            enum EntityRank const    &aBasisRank,
+            Matrix< IndexMat > const &aBsplineMeshIndices,
             bool                      aSortBasisEnrichmentLevels,
             bool                      aUseSpgBasedEnrichment )
     {
@@ -1338,7 +1337,7 @@ namespace xtk
         mEnrichment->mVerbose = mVerbose;
 
         // perform the enrichment
-        if( aUseSpgBasedEnrichment )
+        if ( aUseSpgBasedEnrichment )
         {
             // FIXME: this needs to go once the SPG based enrichment is validated
             mEnrichment->perform_enrichment_new();
@@ -1627,8 +1626,8 @@ namespace xtk
     //------------------------------------------------------------------------------
 
     moris_id
-    Model::get_subphase_group_id( 
-            moris_id aSubphaseGroupIndex, 
+    Model::get_subphase_group_id(
+            moris_id    aSubphaseGroupIndex,
             moris_index aBsplineMeshIndex )
     {
         return mCutIntegrationMesh->get_subphase_group_id( aSubphaseGroupIndex, aBsplineMeshIndex );
@@ -1637,8 +1636,8 @@ namespace xtk
     // -----------------------------------------------------------------------------
 
     moris_index
-    Model::get_subphase_group_index( 
-            moris_id aSubphaseGroupId, 
+    Model::get_subphase_group_index(
+            moris_id    aSubphaseGroupId,
             moris_index aBsplineMeshIndex )
     {
         return mCutIntegrationMesh->get_subphase_group_index( aSubphaseGroupId, aBsplineMeshIndex );
@@ -1666,11 +1665,11 @@ namespace xtk
     Model::kill_workflow_flag()
     {
         // indicate to kill workflow if T-matrix output of full triangulation in post-processing of the cut IG mesh has been requested
-        if( this->get_T_matrix_output_file_name() != "" || mTriangulateAllInPost )
+        if ( this->get_T_matrix_output_file_name() != "" || mTriangulateAllInPost )
         {
             return true;
         }
-        else // otherwise don't kill the workflow
+        else    // otherwise don't kill the workflow
         {
             return false;
         }
@@ -1710,17 +1709,17 @@ namespace xtk
         }
 
         // make the sum of the cut mesh memory map the cut mesh memory
-        tXTKModelMM.mMemoryMapData["Cut Mesh"]                            = tCutMeshMM.sum();
-        tXTKModelMM.mMemoryMapData["Enrichment"]                          = tEnrichmentMM.sum();
-        tXTKModelMM.mMemoryMapData["Enriched Ig Mesh"]                    = tIgMeshMM.sum();
-        tXTKModelMM.mMemoryMapData["Enriched Ip Mesh"]                    = tIpMeshMM.sum();
-        tXTKModelMM.mMemoryMapData["Ghost"]                               = tGhostMM.sum();
-        tXTKModelMM.mMemoryMapData["Background Mesh"]                     = tBGMeshMM.sum();
-        tXTKModelMM.mMemoryMapData["mElementToElement ptrs"]              = moris::internal_capacity( mElementToElement );
-        tXTKModelMM.mMemoryMapData["mElementToElement ptrs"]              = moris::internal_capacity( mElementToElement );
-        tXTKModelMM.mMemoryMapData["mSubphaseToSubPhase"]                 = moris::internal_capacity( mSubphaseToSubPhase );
-        tXTKModelMM.mMemoryMapData["mSubphaseToSubPhaseMySideOrds"]       = moris::internal_capacity( mSubphaseToSubPhaseMySideOrds );
-        tXTKModelMM.mMemoryMapData["mSubphaseToSubPhaseNeighborSideOrds"] = moris::internal_capacity( mSubphaseToSubPhaseNeighborSideOrds );
+        tXTKModelMM.mMemoryMapData[ "Cut Mesh" ]                            = tCutMeshMM.sum();
+        tXTKModelMM.mMemoryMapData[ "Enrichment" ]                          = tEnrichmentMM.sum();
+        tXTKModelMM.mMemoryMapData[ "Enriched Ig Mesh" ]                    = tIgMeshMM.sum();
+        tXTKModelMM.mMemoryMapData[ "Enriched Ip Mesh" ]                    = tIpMeshMM.sum();
+        tXTKModelMM.mMemoryMapData[ "Ghost" ]                               = tGhostMM.sum();
+        tXTKModelMM.mMemoryMapData[ "Background Mesh" ]                     = tBGMeshMM.sum();
+        tXTKModelMM.mMemoryMapData[ "mElementToElement ptrs" ]              = moris::internal_capacity( mElementToElement );
+        tXTKModelMM.mMemoryMapData[ "mElementToElement ptrs" ]              = moris::internal_capacity( mElementToElement );
+        tXTKModelMM.mMemoryMapData[ "mSubphaseToSubPhase" ]                 = moris::internal_capacity( mSubphaseToSubPhase );
+        tXTKModelMM.mMemoryMapData[ "mSubphaseToSubPhaseMySideOrds" ]       = moris::internal_capacity( mSubphaseToSubPhaseMySideOrds );
+        tXTKModelMM.mMemoryMapData[ "mSubphaseToSubPhaseNeighborSideOrds" ] = moris::internal_capacity( mSubphaseToSubPhaseNeighborSideOrds );
 
         tIgMeshMM.par_print( "Ig Mesh" );
         return tXTKModelMM;
@@ -1745,21 +1744,21 @@ namespace xtk
             mEnrichedInterpMesh( 0 )->override_maps();
         }
     }
-    
+
     //------------------------------------------------------------------------------
 
     bool
     Model::uses_SPG_based_enrichment()
     {
-        if( mParameterList.get< bool >( "has_parameter_list" ) )
-        {            
+        if ( mParameterList.get< bool >( "has_parameter_list" ) )
+        {
             if ( mParameterList.get< bool >( "use_SPG_based_enrichment" ) )
             {
                 return true;
             }
         }
 
-        return false; 
+        return false;
     }
 
     //------------------------------------------------------------------------------

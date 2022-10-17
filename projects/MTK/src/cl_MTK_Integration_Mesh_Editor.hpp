@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2022 University of Colorado 
- * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details. 
- * 
- * ------------------------------------------------------------------------------------ 
- * 
- * cl_MTK_Integration_Mesh_Editor.hpp  
- * 
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ * ------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Integration_Mesh_Editor.hpp
+ *
  */
 
 #ifndef SRC_cl_MTK_Integration_Mesh_Editor_HPP_
@@ -25,7 +25,7 @@ namespace moris::mtk
     {
         uint mSpatialDim;
 
-        moris::Cell< mtk::Vertex const* > mVertices;
+        moris::Cell< mtk::Vertex const * > mVertices;
 
         // cell to vertex connectivity
         moris::Cell< moris_index > mCellToVertexIndicies;
@@ -62,7 +62,7 @@ namespace moris::mtk
         moris::Cell< moris_index > mDobleSideSetToDoubleSidedClusterOffset;
 
         // the map used in constrcution of the double sided clusters
-        std::unordered_map< Cluster const*, moris_index > mPreviousSideClusterToNewSideCluster;
+        std::unordered_map< Cluster const *, moris_index > mPreviousSideClusterToNewSideCluster;
 
         // Double sided cluster connectivity
         moris::Cell< moris_index >                           mDoubleSidedClusterToVertexOffSet;
@@ -84,7 +84,7 @@ namespace moris::mtk
 
         moris::Cell< moris_index > mGhostMasterSlaveVertexIndices;
     };
-}// namespace moris::mtk
+}    // namespace moris::mtk
 
 namespace moris::mtk
 {
@@ -97,22 +97,22 @@ namespace moris::mtk
     class Integration_Mesh_Editor
     {
       protected:
-        moris::mtk::Integration_Mesh* mInputMesh; /*!< the IG mesh we will use*/
+        moris::mtk::Integration_Mesh* mInputMesh = nullptr; /*!< the IG mesh we will use*/
 
-        moris::mtk::Interpolation_Mesh_DataBase_IP* mIPMeshDataBase; /*!< Detailed description after the member */
+        moris::mtk::Interpolation_Mesh_DataBase_IP* mIPMeshDataBase = nullptr; /*!< Detailed description after the member */
 
-        moris::mtk::Integration_Mesh_DataBase_IG* mOutputMesh;
+        moris::mtk::Integration_Mesh_DataBase_IG* mOutputMesh = nullptr;
 
-        Integration_Mesh_Info* mIGMeshInfo;
+        Integration_Mesh_Info* mIGMeshInfo = nullptr;
 
-        bool mCheckMesh;
+        bool mCheckMesh = true;
 
-        //counters in order to add data later
-        uint mNumPreviousVertices;
-        uint mNumPreviousCells;
-        uint mNumPreviousSideCluster;
-        uint mNumPreviousDblSideCluster;
-        uint mNumPreviousDoubleSideSet;
+        // counters in order to add data later
+        uint mNumPreviousVertices       = 0;
+        uint mNumPreviousCells          = 0;
+        uint mNumPreviousSideCluster    = 0;
+        uint mNumPreviousDblSideCluster = 0;
+        uint mNumPreviousDoubleSideSet  = 0;
 
       public:
         // ----------------------------------------------------------------------------
@@ -135,8 +135,8 @@ namespace moris::mtk
          * @param aIPMeshDataBase
          */
 
-        Integration_Mesh_Editor( 
-                moris::mtk::Integration_Mesh*               aMTKMesh, 
+        Integration_Mesh_Editor(
+                moris::mtk::Integration_Mesh*               aMTKMesh,
                 moris::mtk::Interpolation_Mesh_DataBase_IP* aIPMeshDataBase,
                 bool                                        aCheckMesh = true );
 
@@ -148,7 +148,6 @@ namespace moris::mtk
          */
 
         virtual ~Integration_Mesh_Editor();
-
 
         // ----------------------------------------------------------------------------
         /**
@@ -422,7 +421,6 @@ namespace moris::mtk
         void
         create_ghost_sets();
 
-
         // ----------------------------------------------------------------------------
 
         /**
@@ -459,7 +457,9 @@ namespace moris::mtk
          */
 
         void
-        add_vertices( moris::Cell< moris::Cell< moris_index > >& aSideClusterToVertexIndices, Matrix< DDRMat > aVerticesCoords );
+        add_vertices(
+                moris::Cell< moris::Cell< moris_index > >& aSideClusterToVertexIndices,
+                Matrix< DDRMat >                           aVerticesCoords );
 
         // ----------------------------------------------------------------------------
 
@@ -470,21 +470,21 @@ namespace moris::mtk
 
         void
         add_cells( moris::Cell< moris::Cell< moris_index > >& aSideClusterToCells,
-            moris::Cell< moris::Cell< moris_index > >&        aCellToVertexIndices );
+                moris::Cell< moris::Cell< moris_index > >&    aCellToVertexIndices );
 
         // ----------------------------------------------------------------------------
-        
+
         virtual void
         construct_periodic_data_base(
-            moris::Cell< moris::Cell< moris_index > >& aSideClusterToVertexIndices,
-            Matrix< DDRMat >                           aVerticesCoords,
-            moris::Cell< moris::Cell< moris_index > >& aSideClusterToCells,
-            moris::Cell< moris::Cell< moris_index > >& aCellToVertexIndices,
-            moris::Cell< moris_index >&                aSideClusterToIPCell,
-            Matrix< DDRMat >&                          aVertexParametricCoords,
-            moris::Cell< moris_index >&                aDoubleSidedClustersIndex,
-            uint                                       mNumDblSideCluster,
-            uint                                       aNumGeometry );
+                moris::Cell< moris::Cell< moris_index > >& aSideClusterToVertexIndices,
+                Matrix< DDRMat >                           aVerticesCoords,
+                moris::Cell< moris::Cell< moris_index > >& aSideClusterToCells,
+                moris::Cell< moris::Cell< moris_index > >& aCellToVertexIndices,
+                moris::Cell< moris_index >&                aSideClusterToIPCell,
+                Matrix< DDRMat >&                          aVertexParametricCoords,
+                moris::Cell< moris_index >&                aDoubleSidedClustersIndex,
+                uint                                       mNumDblSideCluster,
+                uint                                       aNumGeometry );
 
         // ----------------------------------------------------------------------------
 
@@ -494,43 +494,47 @@ namespace moris::mtk
         // ----------------------------------------------------------------------------
 
         void
-        add_side_clusters( moris::Cell< moris::Cell< moris_index > >& aSideClusterToCells,
-            moris::Cell< moris_index >&                               aSideClusterToIPCell,
-            Matrix< DDRMat >&                                         aVertexParametricCoords,
-            moris::Cell< moris::Cell< moris_index > >&                aSideClusterToVertexIndices );
+        add_side_clusters(
+                moris::Cell< moris::Cell< moris_index > >& aSideClusterToCells,
+                moris::Cell< moris_index >&                aSideClusterToIPCell,
+                Matrix< DDRMat >&                          aVertexParametricCoords,
+                moris::Cell< moris::Cell< moris_index > >& aSideClusterToVertexIndices );
 
-
-          // ----------------------------------------------------------------------------
-
-        void
-        add_double_sided_clusters( uint mNumDblSideCluster, moris::Cell< moris::Cell< moris_index > >& aSideClusterToVertexIndices );
-
-          // ----------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------
 
         void
-        add_double_sided_set( moris::Cell< moris_index >& aDoubleSidedClustersIndex, uint aNumGeometry );
+        add_double_sided_clusters(
+                uint                                       mNumDblSideCluster,
+                moris::Cell< moris::Cell< moris_index > >& aSideClusterToVertexIndices );
 
-      // ----------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------
+
+        void
+        add_double_sided_set(
+                moris::Cell< moris_index >& aDoubleSidedClustersIndex,
+                uint                        aNumGeometry );
+
+        // ----------------------------------------------------------------------------
 
         void
         reconstrcut_connectivity();
 
-          // ----------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------
 
         void
         merge_meshes();
 
-          // ----------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------
 
         void
         recreate_side_sets();
 
-          // ----------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------
 
         void
         create_parallel_consistnet_cell_ids( moris_index aNumNewCells );
 
-          // ----------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------
 
         void
         generate_mesh_data();
@@ -606,8 +610,7 @@ namespace moris::mtk
         ///@}
     };
 
-
-}// namespace moris::mtk
+}    // namespace moris::mtk
 
 
 #endif /* cl_MTK_Integration_Mesh_Editor.hpp */

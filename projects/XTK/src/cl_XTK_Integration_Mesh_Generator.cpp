@@ -1302,7 +1302,7 @@ namespace xtk
         }
 
         // in debug check that all BG cells have been marked to have children
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
         for ( uint iBgCell = 0; iBgCell < aCutIntegrationMesh->mParentCellHasChildren.size(); iBgCell++ )
         {
             MORIS_ASSERT( aCutIntegrationMesh->mParentCellHasChildren( iBgCell ) == ( moris_index ) true,

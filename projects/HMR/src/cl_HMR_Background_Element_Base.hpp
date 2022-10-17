@@ -13,12 +13,12 @@
 
 #include <string>
 
-#include "HMR_Globals.hpp" //HMR/src
-#include "typedefs.hpp" //COR/src
-#include "cl_Cell.hpp" //CON/src
-#include "cl_Bitset.hpp" //CON/src
-#include "cl_Matrix.hpp" //LINALG/src
-#include "linalg_typedefs.hpp" //LINALG/src
+#include "HMR_Globals.hpp"        //HMR/src
+#include "typedefs.hpp"           //COR/src
+#include "cl_Cell.hpp"            //CON/src
+#include "cl_Bitset.hpp"          //CON/src
+#include "cl_Matrix.hpp"          //LINALG/src
+#include "linalg_typedefs.hpp"    //LINALG/src
 
 namespace moris
 {
@@ -28,7 +28,7 @@ namespace moris
         class Background_Edge;
         class Background_Facet;
 
-//--------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------
         /**
          * \brief Base class for templated Element
          *
@@ -39,27 +39,28 @@ namespace moris
          */
         class Background_Element_Base
         {
-//--------------------------------------------------------------------------------
-        protected:
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
+
+          protected:
+            //--------------------------------------------------------------------------------
 
             //! Pointer to parent of an element. Points to null for elements
             //! on coarsest level.
-            Background_Element_Base*    mParent;
+            Background_Element_Base* mParent;
 
             //! Global ID of an element. Unique and not to be changed after
             //! element is created.
             //! Domain: all possible elements over all procs
             //! acces using get_hmr_id()  //FIXME change to HMR_ID
-            const luint                 mDomainID;
+            const luint mDomainID;
 
             //! Level on which element is defined. Can not be changed after element is created.
-            const uint                  mLevel;
+            const uint mLevel;
 
             //! Contains the ID of the proc that owns the element.
             //! For Aura elements, this value is updated by
             //! Background_Mesh_Base::synchronize_coarsest_aura
-            moris_id                    mOwner;
+            moris_id mOwner;
 
             //! Tells if an element is active
             Bitset< gNumberOfPatterns > mActiveFlags;
@@ -68,41 +69,43 @@ namespace moris
             Bitset< gNumberOfPatterns > mRefinedFlags;
 
             //! Special flag for padding elements
-            bool                        mPaddingFlag  = false;
+            bool mPaddingFlag = false;
 
             //! Tells if the element has children.
             //! Not necessarily identical to mRefinedFlag.
-            bool                        mChildrenFlag = false;
+            bool mChildrenFlag = false;
 
             //! Tells if an element is flagged for refinement
-            bool                        mRefinementQueueFlag = false;
+            bool mRefinementQueueFlag = false;
 
             //! global index in whole domain ( all procs), depends on pattern ( only active elements )
             //! access using get_hmr_index( const uint aPattern )
             //! same as get_id() - 1
-            Cell<luint>                 mDomainIndex;
+            Cell< luint > mDomainIndex;
 
             //! index in memory, set by collect_all_elements from background mesh
-            luint                       mMemoryIndex;
+            luint mMemoryIndex;
 
             //! minimum refinement level, special feature
-            uint                        mMinRefinementLevel = 0;
+            uint mMinRefinementLevel = 0;
 
-//--------------------------------------------------------------------------------
-        public:
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
+
+          public:
+            //--------------------------------------------------------------------------------
 
             /**
              * Default constuctor for element base class
              */
-            Background_Element_Base(       Background_Element_Base * aParent,
-                                     const uint                    & aActivePattern,
-                                     const luint                   & aID,
-                                     const uint                    & aLevel,
-                                     const uint                    & aOwner ) : mParent   ( aParent ),
-                                                                                mDomainID ( aID ),
-                                                                                mLevel    ( aLevel ),
-                                                                                mOwner    ( aOwner )
+            Background_Element_Base( Background_Element_Base* aParent,
+                    const uint&                               aActivePattern,
+                    const luint&                              aID,
+                    const uint&                               aLevel,
+                    const uint&                               aOwner )
+                    : mParent( aParent )
+                    , mDomainID( aID )
+                    , mLevel( aLevel )
+                    , mOwner( aOwner )
             {
                 // Set this element to active on pattern 0
                 mActiveFlags.set( aActivePattern );
@@ -111,50 +114,52 @@ namespace moris
                 mRefinedFlags.reset( aActivePattern );
 
                 // initialize mDomainIndex with max values to catch errors
-                mDomainIndex.assign(gNumberOfPatterns, std::numeric_limits<luint>::max());
+                mDomainIndex.assign( gNumberOfPatterns, std::numeric_limits< luint >::max() );
             }
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
             /**
              * Default destructor for element base class. Virtual, does nothing.
              */
             virtual ~Background_Element_Base()
             {
-
             }
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
             /**
              * returns a unique system wide ID of the element
              *
              * @return    luint global ID of element
              */
-            auto get_hmr_id() const -> decltype( mDomainID )
+            luint
+            get_hmr_id()
             {
                 return mDomainID;
             }
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
             /**
              * returns the level of an element
              *
              * @return   uint level of element
              */
-            auto get_level() const -> decltype( mLevel )
+            uint
+            get_level() const
             {
                 return mLevel;
             }
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
-            virtual uint get_num_children() const
+            virtual uint
+            get_num_children() const
             {
-                MORIS_ERROR( false, "get_num_children(); not implemented");
+                MORIS_ERROR( false, "get_num_children(); not implemented" );
                 return 0;
             };
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
             /**
              * Needed for the initialization process of the coarsest elements.
              * If the element is set as active, it can't be refined or be
@@ -163,7 +168,8 @@ namespace moris
              *
              * @return void
              */
-            void set_active_flag( const uint & aPattern )
+            void
+            set_active_flag( const uint& aPattern )
             {
                 // set active flag on
                 mActiveFlags.set( aPattern );
@@ -175,16 +181,16 @@ namespace moris
                 mPaddingFlag = false;
 
                 // refine parents ( this is safe but not necessary )    FIXME
-                if( mLevel > 0 )
+                if ( mLevel > 0 )
                 {
-                    if( ! mParent->is_refined( aPattern ) )
+                    if ( !mParent->is_refined( aPattern ) )
                     {
                         mParent->set_refined_flag( aPattern );
                     }
                 }
             }
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
             /**
              * Needed for the initialization process of the coarsest elements.
@@ -193,7 +199,8 @@ namespace moris
              *
              * @return void
              */
-            void set_refined_flag( const uint & aPattern )
+            void
+            set_refined_flag( const uint& aPattern )
             {
                 // a refined element is not active
                 mActiveFlags.reset( aPattern );
@@ -205,16 +212,16 @@ namespace moris
                 mRefinementQueueFlag = false;
 
                 // refine parents ( this is safe but not necessary ) FIXME total overkill but its NEEDED right now
-                if( mLevel > 0 )
+                if ( mLevel > 0 )
                 {
-                    if( ! mParent->is_refined( aPattern ) )
+                    if ( !mParent->is_refined( aPattern ) )
                     {
                         mParent->set_refined_flag( aPattern );
                     }
                 }
             }
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
             /**
              * Needed for the initialization process of the coarsest elements.
@@ -224,13 +231,14 @@ namespace moris
              *
              * @return void
              */
-            void set_padding_flag()
+            void
+            set_padding_flag()
             {
                 // padding elements are never active
                 mActiveFlags.reset();
 
                 // padding elements are always refined
-                for( uint k=0; k<gNumberOfPatterns; ++k )
+                for ( uint k = 0; k < gNumberOfPatterns; ++k )
                 {
                     mRefinedFlags.set( k );
                 }
@@ -239,10 +247,10 @@ namespace moris
                 mPaddingFlag = true;
 
                 // padding elements are not owned by any proc
-                mOwner       = gNoProcOwner;
+                mOwner = gNoProcOwner;
             }
 
- //--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
             /**
              * Tells which processor the element belongs to.
@@ -251,35 +259,38 @@ namespace moris
              *
              * @return uint  ID of proc owing this element
              */
-            auto get_owner() const -> decltype ( mOwner )
+            auto
+            get_owner() const -> decltype( mOwner )
             {
                 return mOwner;
             }
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
             /**
              * sets the owner of an element
              *
              * @return void
              */
-            void set_owner( const moris_id & aOwner)
+            void
+            set_owner( const moris_id& aOwner )
             {
                 mOwner = aOwner;
             }
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
             /**
              * ID of ancestor at coarsest level
              *
              * @return luint ID of parent on top level
              */
-            luint get_ancestor_id()
+            luint
+            get_ancestor_id()
             {
                 // get parent of element
                 Background_Element_Base* tParent = this;
 
-                for( uint k=mLevel; k>0; --k )
+                for ( uint k = mLevel; k > 0; --k )
                 {
                     tParent = tParent->get_parent();
                 }
@@ -287,56 +298,60 @@ namespace moris
                 return tParent->get_hmr_id();
             }
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
             /**
              * tells if an element is refined
              *
              * @return bool   true if refined
              */
-            bool is_refined( const uint & aPattern ) const
+            bool
+            is_refined( const uint& aPattern ) const
             {
-                MORIS_ASSERT( aPattern < gNumberOfPatterns,"is_refined(); Only %-2i pattern are created. Requested pattern is %-2i", gNumberOfPatterns,  aPattern );
+                MORIS_ASSERT( aPattern < gNumberOfPatterns, "is_refined(); Only %-2i pattern are created. Requested pattern is %-2i", gNumberOfPatterns, aPattern );
                 return mRefinedFlags.test( aPattern );
             }
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
             /**
              * tells if an element is active
              *
              * @return bool   true if active
              */
-            bool is_active( const uint & aPattern ) const
+            bool
+            is_active( const uint& aPattern ) const
             {
-                MORIS_ASSERT( aPattern < gNumberOfPatterns,"is_active(); Only %-2i pattern are created. Requested pattern is %-2i", gNumberOfPatterns,  aPattern );
+                MORIS_ASSERT( aPattern < gNumberOfPatterns, "is_active(); Only %-2i pattern are created. Requested pattern is %-2i", gNumberOfPatterns, aPattern );
                 return mActiveFlags.test( aPattern );
             }
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
             /**
              * tells if an element is deactive
              */
-            bool is_deactive ( const uint & aPattern )
+            bool
+            is_deactive( const uint& aPattern )
             {
-                MORIS_ASSERT( aPattern < gNumberOfPatterns,"is_deactive(); Only %-2i pattern are created. Requested pattern is %-2i", gNumberOfPatterns,  aPattern );
-                return ! ( mActiveFlags.test( aPattern )|| mRefinedFlags.test( aPattern ) );
+                MORIS_ASSERT( aPattern < gNumberOfPatterns, "is_deactive(); Only %-2i pattern are created. Requested pattern is %-2i", gNumberOfPatterns, aPattern );
+                return !( mActiveFlags.test( aPattern ) || mRefinedFlags.test( aPattern ) );
             }
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
             /**
              * tells if an element is a padding element
              *
              * @return bool   true if padding
              */
-            bool is_padding() const
+            bool
+            is_padding() const
             {
                 return mPaddingFlag;
             }
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
             /**
              * tells if an element has children. In a consistent mesh,
@@ -345,11 +360,12 @@ namespace moris
              *
              * @return bool   true if children exist
              */
-            bool has_children() const
+            bool
+            has_children() const
             {
                 return mChildrenFlag;
             }
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
             /**
              * tells if an element has children. Special variant needed for
@@ -359,7 +375,8 @@ namespace moris
              *
              * @return bool   true if children exist on the current pattern
              */
-            bool has_children( const uint & aPattern ) const
+            bool
+            has_children( const uint& aPattern ) const
             {
                 if ( mPaddingFlag )
                 {
@@ -371,47 +388,51 @@ namespace moris
                 }
             }
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
             /**
              * tells if an element is on the refinement queue
              *
              * @return bool   true if flagged for refinement
              */
-            bool is_queued_for_refinement() const
+            bool
+            is_queued_for_refinement() const
             {
                 return mRefinementQueueFlag;
             }
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
             /**
              * flags an element for refinement
              *
              * @return void
              */
-            void put_on_refinement_queue()
+            void
+            put_on_refinement_queue()
             {
                 mRefinementQueueFlag = true;
             }
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
             /**
              * unflags an element for refinement
              *
              * @return void
              */
-            void remove_from_refinement_queue()
+            void
+            remove_from_refinement_queue()
             {
                 mRefinementQueueFlag = false;
             }
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
-            void check_refinement_queue_for_pattern( const uint aPattern )
+            void
+            check_refinement_queue_for_pattern( const uint aPattern )
             {
-                if( this->is_deactive( aPattern ) )
+                if ( this->is_deactive( aPattern ) )
                 {
                     mRefinementQueueFlag = false;
 
@@ -423,7 +444,7 @@ namespace moris
                 }
             }
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
             /**
              * Returns a pointer to the parent of an element. If the element
@@ -431,13 +452,14 @@ namespace moris
              *
              * @return Element_Base* pointer to parent
              */
-            Background_Element_Base * get_parent()
+            Background_Element_Base*
+            get_parent()
             {
-                MORIS_ASSERT( mParent != nullptr, "Background_Element_Base::get_parent(), Background element on level %-5i returns nullptr parent background element", mLevel);
+                MORIS_ASSERT( mParent != nullptr, "Background_Element_Base::get_parent(), Background element on level %-5i returns nullptr parent background element", mLevel );
 
                 return mParent;
             }
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
             /**
              * Returns a pointer to the parent of an element. If the element
@@ -445,14 +467,15 @@ namespace moris
              *
              * @return Element_Base* pointer to parent
              */
-            const Background_Element_Base * get_parent() const
+            const Background_Element_Base*
+            get_parent() const
             {
-                MORIS_ASSERT( mParent != nullptr, "Background_Element_Base::get_parent(), Background element on level %-5i returns nullptr parent background element", mLevel);
+                MORIS_ASSERT( mParent != nullptr, "Background_Element_Base::get_parent(), Background element on level %-5i returns nullptr parent background element", mLevel );
 
                 return mParent;
             }
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
             /**
              * Returns a pointer to a child of an element. If the element
@@ -461,13 +484,13 @@ namespace moris
              * @param[in] aIndex                  Index of requested child
              * @return Background_Element_Base *  pointer to selected child
              */
-            virtual Background_Element_Base * get_child( const uint& aIndex ) = 0;
+            virtual Background_Element_Base* get_child( const uint& aIndex ) = 0;
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
-            virtual Background_Element_Base * get_child( const uint& aIndex ) const = 0;
+            virtual Background_Element_Base* get_child( const uint& aIndex ) const = 0;
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
             /**
              * Returns an array of size [N] telling the proc local ijk-position
@@ -476,9 +499,9 @@ namespace moris
              * @return luint pointer to array containing ijk-position
              *               careful: element must not go out of scope.
              */
-            virtual const luint * get_ijk( ) const = 0;
+            virtual const luint* get_ijk() const = 0;
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
             /**
              * This function is called by the background mesh during refinement.
@@ -488,9 +511,9 @@ namespace moris
              *
              * @return void
              */
-            virtual void insert_child( Background_Element_Base* aChild ) = 0 ;
+            virtual void insert_child( Background_Element_Base* aChild ) = 0;
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
             /**
              * Tells which child number an element is. This information is needed
@@ -500,7 +523,7 @@ namespace moris
              */
             virtual uint get_child_index() const = 0;
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
             /**
              * Test a bit in the child index bitset
              *
@@ -508,9 +531,9 @@ namespace moris
              *
              * @return bool
              */
-            virtual bool test_child_index_bit( const uint & aBit ) const = 0;
+            virtual bool test_child_index_bit( const uint& aBit ) const = 0;
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
             /**
              * This function is called by the background mesh.
@@ -522,10 +545,10 @@ namespace moris
              * @return void
              */
             virtual void insert_neighbor(
-                    const uint              & aIndex,
-                    Background_Element_Base * aNeighbor ) = 0 ;
+                    const uint&              aIndex,
+                    Background_Element_Base* aNeighbor ) = 0;
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
             /**
              * Returns a pointer to a neighbor of an element.
@@ -534,8 +557,8 @@ namespace moris
              *
              * @return Background_Element_Base* pointer to requested neighbor
              */
-            virtual Background_Element_Base * get_neighbor( const uint & aIndex ) = 0;
-//--------------------------------------------------------------------------------
+            virtual Background_Element_Base* get_neighbor( const uint& aIndex ) = 0;
+            //--------------------------------------------------------------------------------
 
             /**
              * Returns a pointer to a neighbor of an element ( const version )
@@ -544,9 +567,9 @@ namespace moris
              *
              * @return Background_Element_Base* pointer to requested neighbor
              */
-            virtual const Background_Element_Base * get_neighbor( const uint & aIndex ) const = 0;
+            virtual const Background_Element_Base* get_neighbor( const uint& aIndex ) const = 0;
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
             /**
              * This function is needed by the background mesh during refinement.
@@ -557,9 +580,9 @@ namespace moris
              *                                *< number of children >
              * @return void
              */
-            virtual void get_ijk_of_children( Matrix< DDLUMat > & aIJK ) const = 0 ;
+            virtual void get_ijk_of_children( Matrix< DDLUMat >& aIJK ) const = 0;
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
             /**
              * Recursive function that counts all active descendants of an element.
              * If the element is not refined, the function returns one, not zero.
@@ -570,9 +593,9 @@ namespace moris
              *
              * @return void
              */
-            virtual void get_number_of_active_descendants( const uint & aPattern, luint & aCount ) const = 0 ;
+            virtual void get_number_of_active_descendants( const uint& aPattern, luint& aCount ) const = 0;
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
             /**
              * Recursive function that counts all descendants of an element plus
@@ -582,9 +605,9 @@ namespace moris
              *
              * @return void
              */
-            virtual void get_number_of_descendants( luint & aCount ) const = 0 ;
+            virtual void get_number_of_descendants( luint& aCount ) const = 0;
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
             /**
              * To be called after the cell aElementList has been allocated
@@ -598,10 +621,10 @@ namespace moris
              * @return void
              */
             virtual void collect_descendants(
-                    Cell< Background_Element_Base* > & aElementList,
-                    luint                            & aElementCount )= 0;
+                    Cell< Background_Element_Base* >& aElementList,
+                    luint&                            aElementCount ) = 0;
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
             /**
              * To be called after the cell aElementList has been allocated
@@ -615,15 +638,15 @@ namespace moris
              * @return void
              *
              */
-            virtual void collect_active_descendants( const uint                             & aPattern,
-                                                           Cell< Background_Element_Base* > & aElementList,
-                                                           luint                            & aElementCount ) = 0;
+            virtual void collect_active_descendants( const uint& aPattern,
+                    Cell< Background_Element_Base* >&            aElementList,
+                    luint&                                       aElementCount ) = 0;
 
-            virtual void collect_active_descendants( const uint                                   & aPattern,
-                                                           Cell< const Background_Element_Base* > & aElementList,
-                                                           luint                                  & aElementCount ) const = 0;
+            virtual void collect_active_descendants( const uint& aPattern,
+                    Cell< const Background_Element_Base* >&      aElementList,
+                    luint&                                       aElementCount ) const = 0;
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
             /**
              * To be called after the cell aElementList has been allocated
@@ -638,12 +661,12 @@ namespace moris
              *
              */
             virtual void collect_active_descendants_by_memory_index(
-                    const uint                       & aPattern,
-                    Matrix< DDLUMat >                & aElementList,
-                    luint                            & aElementCount,
-                    const  int                         aNeighborIndex=-1 ) const = 0;
+                    const uint&        aPattern,
+                    Matrix< DDLUMat >& aElementList,
+                    luint&             aElementCount,
+                    const int          aNeighborIndex = -1 ) const = 0;
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
             /**
              * Provided my background cell side ordinal, return the neighbor's background cell
@@ -652,7 +675,7 @@ namespace moris
              * @return int neighbor side ordinal
              *
              */
-            virtual int get_neighbor_side_ordinal( const  int aNeighborIndex) const = 0;
+            virtual int get_neighbor_side_ordinal( const int aNeighborIndex ) const = 0;
 
             /**
              * Provided my background cell side ordinal, return the child cell ordinals
@@ -661,119 +684,119 @@ namespace moris
              * @return int neighbor child cell ordinal
              *
              */
-            virtual void get_child_cell_ordinals_on_side( const  int        aSideOrdinal,
-                                                         Matrix<IndexMat> & aChildCellOrdinals) const = 0;
+            virtual void get_child_cell_ordinals_on_side( const int aSideOrdinal,
+                    Matrix< IndexMat >&                             aChildCellOrdinals ) const = 0;
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
             /**
              * tells how many active descendants live on side 1
              */
             virtual void get_number_of_active_descendants_on_side_1(
-                    const  uint & aPattern,
-                          luint & aCount ) = 0;
+                    const uint& aPattern,
+                    luint&      aCount ) = 0;
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
             /**
              * tells how many active descendants live on side 2
              */
             virtual void get_number_of_active_descendants_on_side_2(
-                    const  uint & aPattern,
-                          luint & aCount ) = 0;
-//--------------------------------------------------------------------------------
+                    const uint& aPattern,
+                    luint&      aCount ) = 0;
+            //--------------------------------------------------------------------------------
 
             /**
              * tells how many active descendants live on side 3
              */
             virtual void get_number_of_active_descendants_on_side_3(
-                    const  uint & aPattern,
-                          luint & aCount ) = 0;
+                    const uint& aPattern,
+                    luint&      aCount ) = 0;
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
             /**
              * tells how many active descendants live on side 4
              */
             virtual void get_number_of_active_descendants_on_side_4(
-                    const  uint & aPattern,
-                          luint & aCount ) = 0;
+                    const uint& aPattern,
+                    luint&      aCount ) = 0;
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
             /**
              * tells how many active descendants live on side 5
              */
             virtual void get_number_of_active_descendants_on_side_5(
-                    const  uint & aPattern,
-                          luint & aCount ) = 0;
+                    const uint& aPattern,
+                    luint&      aCount ) = 0;
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
             /**
              * tells how many active descendants live on side 6
              */
             virtual void get_number_of_active_descendants_on_side_6(
-                    const  uint & aPattern,
-                          luint & aCount ) = 0;
+                    const uint& aPattern,
+                    luint&      aCount ) = 0;
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
             virtual void collect_active_descendants_on_side_1(
-                    const uint                       & aPattern,
-                    Cell< Background_Element_Base* > & aElementList,
-                    luint                            & aElementCount ) = 0;
+                    const uint&                       aPattern,
+                    Cell< Background_Element_Base* >& aElementList,
+                    luint&                            aElementCount ) = 0;
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
             virtual void collect_active_descendants_on_side_2(
-                    const uint                       & aPattern,
-                    Cell< Background_Element_Base* > & aElementList,
-                    luint                            & aElementCount ) = 0;
+                    const uint&                       aPattern,
+                    Cell< Background_Element_Base* >& aElementList,
+                    luint&                            aElementCount ) = 0;
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
             virtual void collect_active_descendants_on_side_3(
-                    const uint                       & aPattern,
-                    Cell< Background_Element_Base* > & aElementList,
-                    luint                            & aElementCount ) = 0;
+                    const uint&                       aPattern,
+                    Cell< Background_Element_Base* >& aElementList,
+                    luint&                            aElementCount ) = 0;
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
             virtual void collect_active_descendants_on_side_4(
-                    const uint                       & aPattern,
-                    Cell< Background_Element_Base* > & aElementList,
-                    luint                            & aElementCount ) = 0;
+                    const uint&                       aPattern,
+                    Cell< Background_Element_Base* >& aElementList,
+                    luint&                            aElementCount ) = 0;
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
             virtual void collect_active_descendants_on_side_5(
-                    const uint                       & aPattern,
-                    Cell< Background_Element_Base* > & aElementList,
-                    luint                            & aElementCount ) = 0;
+                    const uint&                       aPattern,
+                    Cell< Background_Element_Base* >& aElementList,
+                    luint&                            aElementCount ) = 0;
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
             virtual void collect_active_descendants_on_side_6(
-                    const uint                       & aPattern,
-                    Cell< Background_Element_Base* > & aElementList,
-                    luint                            & aElementCount ) = 0;
+                    const uint&                       aPattern,
+                    Cell< Background_Element_Base* >& aElementList,
+                    luint&                            aElementCount ) = 0;
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
             /**
              * returns the number of facets: 2D: 4, 3D: 6
              */
             virtual uint get_number_of_facets() const = 0;
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
             /**
              * returns the number of edges: 2D: 0, 3D: 12
              */
             virtual uint get_number_of_edges() const = 0;
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
             /**
              * Function for debugging that prints all neighbors of the element
@@ -781,9 +804,9 @@ namespace moris
              *
              * @return void
              */
-            virtual void print_neighbors( const uint & aPattern ) = 0;
+            virtual void print_neighbors( const uint& aPattern ) = 0;
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
             /**
              * Recursive function that loops up to a specified level and counts
@@ -792,10 +815,10 @@ namespace moris
              * @param[in]     aLevel    level to be considered
              * @param[inout]  aCount    counter for elements
              */
-            virtual void count_elements_on_level( const uint  & aLevel,
-                                                        luint & aElementCount ) = 0;
+            virtual void count_elements_on_level( const uint& aLevel,
+                    luint&                                    aElementCount ) = 0;
 
-//--------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------
 
             /**
              * Recursive function that loops up to a specified level and collects
@@ -806,19 +829,19 @@ namespace moris
              * @param[inout]  aElementCount   counter for elements
              */
             virtual void collect_elements_on_level(
-                    const uint                       & aLevel,
-                    Cell< Background_Element_Base* > & aElementList,
-                    luint                            & aElementCount ) = 0;
+                    const uint&                       aLevel,
+                    Cell< Background_Element_Base* >& aElementList,
+                    luint&                            aElementCount ) = 0;
 
-//-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
             /**
              * called by BackgroundMesh->update_database()
              * depends on selected activation pattern
              */
-            virtual void collect_neighbors( const uint & aPattern ) = 0;
+            virtual void collect_neighbors( const uint& aPattern ) = 0;
 
-//-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
             /**
              * Returns a cell with pointers to elements on the same level,
@@ -827,10 +850,10 @@ namespace moris
              * @param[ in  ] aOrder       degree of neighborship
              * @param[ out ] aNeighbors   cell containing found neighbors
              */
-            virtual void get_neighbors_from_same_level( const uint                              & aOrder,
-                                                              Cell< Background_Element_Base * > & aNeighbors ) = 0;
+            virtual void get_neighbors_from_same_level( const uint& aOrder,
+                    Cell< Background_Element_Base* >&               aNeighbors ) = 0;
 
-//-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
             /**
              * set global index on proc domain
@@ -839,24 +862,26 @@ namespace moris
              *
              * @return void
              */
-            void set_domain_index( const uint& aPattern, const luint & aIndex )
+            void
+            set_domain_index( const uint& aPattern, const luint& aIndex )
             {
-                mDomainIndex(aPattern) = aIndex;
+                mDomainIndex( aPattern ) = aIndex;
             }
 
-//-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
             /**
              * get global index on proc domain
              *
              * @return luint global index of element
              */
-            luint get_hmr_index( const uint & aPattern )
+            luint
+            get_hmr_index( const uint& aPattern )
             {
-               return mDomainIndex( aPattern );
+                return mDomainIndex( aPattern );
             }
 
-//-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
             /**
              * sets memory index to specified value
@@ -865,29 +890,32 @@ namespace moris
              *
              * @return void
              */
-            void set_memory_index( const luint& aIndex )
+            void
+            set_memory_index( const luint& aIndex )
             {
                 mMemoryIndex = aIndex;
             }
 
-//-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
             /**
              * returns the memory index of this element
              *
              * @return luint   memory index of this element
              */
-            auto get_memory_index() const -> decltype( mMemoryIndex )
+            auto
+            get_memory_index() const -> decltype( mMemoryIndex )
             {
                 return mMemoryIndex;
             }
 
-//-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
             /**
              * coarsen this element
              */
-            void coarsen( const uint & aPattern )
+            void
+            coarsen( const uint& aPattern )
             {
                 MORIS_ASSERT( mActiveFlags.test( aPattern ), "Can only coarsen active elements." );
 
@@ -898,156 +926,159 @@ namespace moris
                 mParent->set_active_flag( aPattern );
             }
 
-//-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
             /**
              * deactivate this element
              */
-            void deactivate( const uint & aPattern )
+            void
+            deactivate( const uint& aPattern )
             {
                 // deactivate self
                 mActiveFlags.reset( aPattern );
                 mRefinedFlags.reset( aPattern );
             }
 
-//-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
             /**
              * creates a bitset that describes the pedigree path
              *
              */
             virtual void endcode_pedigree_path(
-                    luint        & aAncestorID,
-                    Matrix< DDUMat >  & aPedigreeList,
-                    luint        & aCounter ) = 0;
+                    luint&            aAncestorID,
+                    Matrix< DDUMat >& aPedigreeList,
+                    luint&            aCounter ) = 0;
 
-//-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
             virtual luint get_length_of_pedigree_path() = 0;
 
-//-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
             /**
              * create the faces of this element
              */
             virtual void create_facets() = 0;
 
-//-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
             /**
              * delete the faces of this element
              */
             virtual void delete_facets() = 0;
 
-//-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
             /**
              * returns a face of the background element
              */
-            virtual Background_Facet * get_facet( const uint & aIndex ) = 0;
+            virtual Background_Facet* get_facet( const uint& aIndex ) = 0;
 
-//-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
             /**
              * inserts a face of the backgound element
              */
-            virtual void insert_facet( Background_Facet * aFace, const uint & aIndex ) = 0;
+            virtual void insert_facet( Background_Facet* aFace, const uint& aIndex ) = 0;
 
-//-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
             /**
              * resets the face flags
              */
             virtual void reset_flags_of_facets() = 0;
 
-//-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
             /**
              * resets the face flags
              */
             virtual void reset_flags_of_edges() = 0;
 
-//-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
             /**
              * create the edges of this element
              */
             virtual void create_edges() = 0;
 
-//-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
             /**
              * delete the edges of this element
              */
             virtual void delete_edges() = 0;
 
-//-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
             virtual void init_edge_container() = 0;
 
-//-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
             /**
              * reset all neigbors to nullptr
              */
             virtual void reset_neigbors() = 0;
 
-//-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
             /**
              * get pointer to background edge
              */
-            virtual Background_Edge * get_edge( const uint & aIndex ) = 0;
+            virtual Background_Edge* get_edge( const uint& aIndex ) = 0;
 
-//-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
             /**
              * insert pointer to background edge
              */
-            virtual void insert_edge( Background_Edge * aEdge, const uint & aIndex ) = 0;
+            virtual void insert_edge( Background_Edge* aEdge, const uint& aIndex ) = 0;
 
-//-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
             /**
              * explicitly sets the minumum refinement level.
              */
-            void set_min_refimenent_level( const uint & aMinRefinementLevel )
+            void
+            set_min_refimenent_level( const uint& aMinRefinementLevel )
             {
                 mMinRefinementLevel = aMinRefinementLevel;
             }
 
-//-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
             /**
              * updates sets the minumum refinement level.
              */
-            void update_min_refimenent_level( const uint & aMinRefinementLevel )
+            void
+            update_min_refimenent_level( const uint& aMinRefinementLevel )
             {
-                if( mMinRefinementLevel < aMinRefinementLevel )
+                if ( mMinRefinementLevel < aMinRefinementLevel )
                 {
                     mMinRefinementLevel = aMinRefinementLevel;
                 }
             }
 
-//-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
             /**
              * returns the minimum refinement level.
              */
-            uint get_min_refimenent_level() const
+            uint
+            get_min_refimenent_level() const
             {
                 return mMinRefinementLevel;
             }
 
-//-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
             /**
              * resets the edge flags
              */
-            //virtual void
-            //reset_flags_of_edges() = 0;
+            // virtual void
+            // reset_flags_of_edges() = 0;
 
         }; /* Background_Element_Base */
-    } /* namespace hmr */
+    }      /* namespace hmr */
 } /* namespace moris */
 
 #endif /* SRC_MESH_CL_HMR_ELEMENT_HPP_ */
-

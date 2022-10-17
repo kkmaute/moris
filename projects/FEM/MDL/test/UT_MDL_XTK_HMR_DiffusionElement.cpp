@@ -223,12 +223,16 @@ namespace moris
 
             tField->evaluate_scalar_function( LevelSetPlaneFunction );
 
-            for ( uint k = 0; k < 0; ++k )
+            // FIXME what is the following test about
+            if ( false )
             {
-                tHMR.flag_surface_elements_on_working_pattern( tField );
-                tHMR.perform_refinement_based_on_working_pattern( 0 );
+                for ( uint k = 0; k < 1; ++k )
+                {
+                    tHMR.flag_surface_elements_on_working_pattern( tField );
+                    tHMR.perform_refinement_based_on_working_pattern( 0 );
 
-                tField->evaluate_scalar_function( LevelSetPlaneFunction );
+                    tField->evaluate_scalar_function( LevelSetPlaneFunction );
+                }
             }
 
             tHMR.finalize();
@@ -1265,4 +1269,3 @@ namespace moris
     }
 
 }    // namespace moris
-

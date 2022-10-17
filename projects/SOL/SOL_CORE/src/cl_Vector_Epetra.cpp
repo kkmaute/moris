@@ -356,14 +356,6 @@ Vector_Epetra::extract_my_values(
 
             MORIS_ASSERT( !( tLocIndex < 0 ), "Vector_Epetra::extract_my_values: local index < 0. this is not allowed" );
 
-            //            if (!offsets)
-            //            {
-            //                LHSValues[i] = mValuesPtr[locIndex];
-            //                continue;
-            //            }
-
-            MORIS_ASSERT( !( aRowOffsets < 0 ), "Vector_Epetra::extract_my_values: offset < 0. this is not allowed" );
-
             ExtractedValues( Ik )( Ii ) = mValuesPtr[ tLocIndex + tOffset ];
         }
     }

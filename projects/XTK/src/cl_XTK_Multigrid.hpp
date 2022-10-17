@@ -158,7 +158,7 @@ namespace xtk
 
         //-------------------------------------------------------------------------------
 
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
         void save_to_vtk( const std::string& aFilePath );
 #endif
         //------------------------------------------------------------------------------
@@ -167,7 +167,7 @@ namespace xtk
 
         //------------------------------------------------------------------------------
 
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
 
       private:
         moris::Matrix< DDRMat > mEnrichedBasisCoords;

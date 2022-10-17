@@ -12,12 +12,26 @@
 #define MORIS_TYPEDEFS_HPP_
 
 // C++ header files.
+#ifdef private
+#if (private == public)
+#undef private
+#undef protected
+#define RESETPRIVATE
+#endif
+#endif
+
 #include <cstddef>
 #include <vector>
 #include <complex>
 #include <limits>
 #include <cfloat>
 #include <climits>
+
+#ifdef RESETPRIVATE
+#define private public
+#define protected public
+#endif
+
 /**
  * @morisdescription
  */

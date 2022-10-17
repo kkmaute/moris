@@ -309,7 +309,6 @@ include(${MORIS_CMAKE_DIR}/utilities/dynamic_link_input.cmake)
 if (NOT MORIS_C_COMPILER )
     set(MORIS_C_COMPILER "mpicc" )
 endif()
-set(MORIS_C_LINK_EXECUTABLE ${MORIS_C_COMPILER} )
 
 # Set default C++ compiler
 if (NOT MORIS_CXX_COMPILER )
@@ -320,8 +319,11 @@ if (NOT MORIS_CXX_COMPILER )
         endif()
     else()
         set(MORIS_CXX_COMPILER "mpic++")
+        message(STATUS "MORIS_CXX_COMPILER is set to ${MORIS_CXX_COMPILER}")
     endif()
 endif()
+
+set(MORIS_C_LINK_EXECUTABLE ${MORIS_C_COMPILER} )
 set(MORIS_CXX_LINK_EXECUTABLE ${MORIS_CXX_COMPILER})
 
 message(STATUS "MORIS recognized the C compiler type MORIS_C_COMPILER=${MORIS_C_COMPILER}.")
@@ -342,17 +344,17 @@ list(REMOVE_DUPLICATES LIB_SEARCH_PATH)
 message(STATUS "Library search path: ${LIB_SEARCH_PATH}")
 
 if (MORIS_USE_INTEL)
-   find_library(MORIS_LIB_Ifcore NAMES ifcore HINTS ${LIB_SEARCH_PATH})
+   find_library(MORIS_LIB_Ifcore NAMES libifcore.so HINTS ${LIB_SEARCH_PATH})
    message(STATUS "MORIS_LIB_Ifcore = ${MORIS_LIB_Ifcore}")
    link_libraries(${MORIS_LIB_Ifcore})
    #list(APPEND MORIS_BASE_LIBS ${MORIS_LIB_Ifcore})
    
-   find_library(MORIS_LIB_Ifcoremt NAMES ifcoremt HINTS ${LIB_SEARCH_PATH})
+   find_library(MORIS_LIB_Ifcoremt NAMES libifcoremt.so HINTS ${LIB_SEARCH_PATH})
    message(STATUS "MORIS_LIB_Ifcoremt = ${MORIS_LIB_Ifcoremt}")
    link_libraries(${MORIS_LIB_Ifcoremt})
    #list(APPEND MORIS_BASE_LIBS ${MORIS_LIB_Ifcoremt})
    
-   find_library(MORIS_LIB_GFortran NAMES libgfortran.so.3 HINTS ${LIB_SEARCH_PATH})
+   find_library(MORIS_LIB_GFortran NAMES $ENV{GFORTLIB} HINTS ${LIB_SEARCH_PATH})
    message(STATUS "MORIS_LIB_GFortran = ${MORIS_LIB_GFortran}")
    link_libraries(${MORIS_LIB_GFortran})
    #list(APPEND MORIS_BASE_LIBS ${MORIS_LIB_GFortran})
@@ -378,13 +380,8 @@ if (MORIS_USE_INTEL)
    #list(APPEND MORIS_BASE_LIBS ${MORIS_LIB_Crypto})
    
 else(MORIS_USE_INTEL)
-   
-   find_library(MORIS_LIB_Mpi NAMES mpi_mpifh HINTS ${LIB_SEARCH_PATH} )
-   message(STATUS "MORIS_LIB_Mpi = ${MORIS_LIB_Mpi}")
-   link_libraries(${MORIS_LIB_Mpi})
-   #list(APPEND MORIS_BASE_LIBS "${MORIS_LIB_Mpi}")
-   
-   find_library(MORIS_LIB_GFortran NAMES libgfortran.so.5 libgfortran.so.4 HINTS${LIB_SEARCH_PATH} )
+      
+   find_library(MORIS_LIB_GFortran NAMES $ENV{GFORTLIB} HINTS ${LIB_SEARCH_PATH} )
    message(STATUS "MORIS_LIB_GFortran = ${MORIS_LIB_GFortran}")
    link_libraries(${MORIS_LIB_GFortran})
    #list(APPEND MORIS_BASE_LIBS ${MORIS_LIB_GFortran})
@@ -394,25 +391,20 @@ else(MORIS_USE_INTEL)
    link_libraries(${MORIS_LIB_Dl})
    #list(APPEND MORIS_BASE_LIBS ${MORIS_LIB_Dl})
 
-   find_library(MORIS_LIB_Ssl NAMES ssl HINTS  ${LIB_SEARCH_PATH} )
+   find_library(MORIS_LIB_Ssl NAMES ssl HINTS $ENV{SSL_LIBRARY_DIR} ${LIB_SEARCH_PATH} )
    message(STATUS "MORIS_LIB_Ssl = ${MORIS_LIB_Ssl}")
    link_libraries(${MORIS_LIB_Ssl})
    #list(APPEND MORIS_BASE_LIBS ${MORIS_LIB_Ssl})
 
-   find_library(MORIS_Lib_Crypto NAMES crypto HINTS${LIB_SEARCH_PATH} )
+   find_library(MORIS_Lib_Crypto NAMES crypto HINTS $ENV{SSL_LIBRARY_DIR} ${LIB_SEARCH_PATH} )
    message(STATUS "MORIS_Lib_Crypto = ${MORIS_Lib_Crypto}")
    link_libraries(${MORIS_Lib_Crypto})
    #list(APPEND MORIS_BASE_LIBS ${MORIS_Lib_Crypto})
 
-   find_library(MORIS_LIB_Z NAMES z HINTS  ${LIB_SEARCH_PATH} )
+   find_library(MORIS_LIB_Z NAMES z HINTS $ENV{ZLIB_LIBRARY_DIR} ${LIB_SEARCH_PATH} )
    message(STATUS "MORIS_LIB_Z = ${MORIS_LIB_Z}")
    link_libraries(${MORIS_LIB_Z})
    #list(APPEND MORIS_BASE_LIBS ${MORIS_LIB_Z})
-
-   find_library(MORIS_LIB_Sz NAMES sz HINTS  ${LIB_SEARCH_PATH})
-   message(STATUS "MORIS_LIB_Sz = ${MORIS_LIB_Sz}")
-   link_libraries(${MORIS_LIB_Sz})
-   #list(APPEND MORIS_BASE_LIBS ${MORIS_LIB_Sz})
 endif(MORIS_USE_INTEL)
 
 list(APPEND MORIS_DEFINITIONS "-DF77ADD_")
@@ -435,7 +427,7 @@ endif()
 # Compile with -O compiler optimizations.
 # Debug flags.
 if (MORIS_HAVE_DEBUG)
-    list(APPEND MORIS_DEFINITIONS "-DDEBUG")
+    list(APPEND MORIS_DEFINITIONS "-DMORIS_HAVE_DEBUG")
 endif()
 
 if (MORIS_HAVE_SYMBOLIC)
@@ -464,6 +456,11 @@ if (MORIS_HAVE_SYMBOLIC)
     if (HAVE_DEBUG_DBG)
         set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -ggdb")
     endif()
+    
+    #check_cxx_compiler_flag(-fanalyzer HAVE_ANALYZER_DBG)
+    #if (HAVE_ANALYZER_DBG)
+    #    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -fanalyzer")
+    #endif()
 else()    
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type Release" FORCE)
     check_cxx_compiler_flag(-O3 HAVE_O3_OPTIMISATION)
@@ -473,6 +470,17 @@ else()
         else()
             set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -O3 -m64")
         endif()
+    endif()
+    
+#    check_cxx_compiler_flag(-ffast-math HAVE_FASTMATH_OPTIMISATION)
+#    if (HAVE_FASTMATH_OPTIMISATION)
+#        set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -ffast-math")
+#    endif()
+    
+    check_cxx_compiler_flag(-flto HAVE_LTO_OPTIMISATION)
+    if (HAVE_LTO_OPTIMISATION)
+        set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -flto=auto")
+        # -ffat-lto-objects
     endif()
 endif()
 
@@ -523,21 +531,41 @@ endif()
 #                      Strict aliasing means that pointer arguments in a function are assumed to not alias.
 #                      For example, the following code would not compile: foo * a; bar * b; b = (foo *) a;
 #                      Because the pointers point to fundamentally different types.
-check_cxx_compiler_flag("-Wall -Werror -Wno-unknown-pragmas" HAVE_PEDANTIC )
+check_cxx_compiler_flag("-pedantic" HAVE_PEDANTIC )
 if (HAVE_PEDANTIC)
-    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wall -Werror -Wno-unknown-pragmas" )
-endif()
-check_cxx_compiler_flag("-Wno-long-long" HAVE_PEDANTIC )
-if (HAVE_PEDANTIC)
-    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wno-long-long -Wno-unknown-pragmas" )
+    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -pedantic" )
 endif()
 check_cxx_compiler_flag("-pedantic-errors" HAVE_PEDANTIC )
 if (HAVE_PEDANTIC)
-    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -pedantic-errors -Wno-unknown-pragmas" )
+    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -pedantic-errors" )
+endif()
+check_cxx_compiler_flag("-Wall" HAVE_PEDANTIC )
+if (HAVE_PEDANTIC)
+    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wall" )
+endif()
+check_cxx_compiler_flag("-Wextra" HAVE_PEDANTIC )
+if (HAVE_PEDANTIC)
+    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wextra" )
+endif()
+check_cxx_compiler_flag("-Werror" HAVE_PEDANTIC )
+if (HAVE_PEDANTIC)
+    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Werror" )
+endif()
+check_cxx_compiler_flag("-Wno-unknown-pragmas" HAVE_PEDANTIC )
+if (HAVE_PEDANTIC)
+# set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wno-unknown-pragmas" )
+endif()
+check_cxx_compiler_flag("-Wno-unused-parameter" HAVE_PEDANTIC )
+if (HAVE_PEDANTIC)
+    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wno-unused-parameter" )
+endif()
+check_cxx_compiler_flag("-Wno-long-long" HAVE_PEDANTIC )
+if (HAVE_PEDANTIC)
+#    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wno-long-long" )
 endif()
 check_cxx_compiler_flag("-Wno-error=maybe-uninitialized" HAVE_PEDANTIC )
 if (HAVE_PEDANTIC)
-    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wno-error=maybe-uninitialized -Wno-unknown-pragmas" )
+#    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wno-error=maybe-uninitialized" )
 endif()
 
 # Check for C++17 and lower version support.
@@ -729,6 +757,33 @@ endif()
 # -------------------------------------------------------------------------
 # MORIS variable handling ------------------------------------------------------
 # -------------------------------------------------------------------------
+IF(CMAKE_CXX_COMPILER_ID MATCHES "^GNU$")
+    message(STATUS "CMAKE_CXX_COMPILER_ID = ${CMAKE_CXX_COMPILER_ID}")
+    message(STATUS "GCC_VERSION = ${CMAKE_CXX_COMPILER_VERSION}")
+    
+    if( CMAKE_CXX_COMPILER_VERSION MATCHES "^([0-9]+).*")
+        message(STATUS "Major version = ${CMAKE_MATCH_1}")
+        set(MORIS_GCC_MAJOR_VERSION "${CMAKE_MATCH_1}")
+
+        set(CMAKE_AR      "/usr/bin/gcc-ar-${MORIS_GCC_MAJOR_VERSION}")
+        set(CMAKE_RANLIB  "/usr/bin/gcc-ranlib-${MORIS_GCC_MAJOR_VERSION}")
+        
+        message(STATUS "CMAKE_AR     = ${CMAKE_AR}")
+        message(STATUS "CMAKE_RANLIB = ${CMAKE_RANLIB}")
+         
+        set (CMAKE_C_COMPILER_AR      "/usr/bin/gcc-ar-${MORIS_GCC_MAJOR_VERSION}")
+        set (CMAKE_C_COMPILER_RANLIB  "/usr/bin/gcc-ranlib-${MORIS_GCC_MAJOR_VERSION}")
+   
+        message(STATUS "CMAKE_C_COMPILER_AR     = ${CMAKE_C_COMPILER_AR}")
+        message(STATUS "CMAKE_C_COMPILER_RANLIB = ${CMAKE_C_COMPILER_RANLIB}")
+ 
+        set (CMAKE_CXX_COMPILER_AR      "/usr/bin/gcc-ar-${MORIS_GCC_MAJOR_VERSION}")
+        set (CMAKE_CXX_COMPILER_RANLIB  "/usr/bin/gcc-ranlib-${MORIS_GCC_MAJOR_VERSION}")
+    
+        message(STATUS "CMAKE_CXX_COMPILER_AR     = ${CMAKE_CXX_COMPILER_AR}")
+        message(STATUS "CMAKE_CXX_COMPILER_RANLIB = ${CMAKE_CXX_COMPILER_RANLIB}")
+    endif()
+endif()
 
 # C++ compiler flags.
 set(CMAKE_C_COMPILER ${MORIS_C_COMPILER})
@@ -1000,3 +1055,4 @@ install(EXPORT ${MORIS}Targets
 
 install(FILES "include/catch.hpp"
     DESTINATION ${HEADER_INSTALL_DIR}/${MORIS} )
+

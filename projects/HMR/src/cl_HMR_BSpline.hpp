@@ -33,7 +33,7 @@ namespace moris
             //! local ijk position on proc
             luint   mIJK[ N ];
 
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
             //! global coordinates
             real    mXYZ[ N ] = { 0 };
 #endif
@@ -233,7 +233,7 @@ namespace moris
              */
             void set_xyz( const real * aXYZ )
             {
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
                 // save ijk position in memory.
                 for( uint k=0; k<N; ++k )
                 {
@@ -253,10 +253,10 @@ namespace moris
              */
             const real * get_xyz() const
             {
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
                 return mXYZ;
 #else
-                MORIS_ERROR(false, "get_xyz() If you wish this function to work for B-Splines and non DEBUG, delete the #ifdef DEBUG around mXYZ in the class BSplin");
+                MORIS_ERROR(false, "get_xyz() If you wish this function to work for B-Splines and non DEBUG, delete the #ifdef MORIS_HAVE_DEBUG around mXYZ in the class BSplin");
                 return nullptr;
 #endif
             }
@@ -266,7 +266,7 @@ namespace moris
             /**
              * MTK Interface: return the coords of this node as Moris::Mat
              */
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
             Matrix< DDRMat > get_coords() const
             {
                 Matrix< DDRMat > aCoords( 1, N );

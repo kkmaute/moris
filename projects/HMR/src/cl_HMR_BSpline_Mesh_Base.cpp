@@ -78,7 +78,7 @@ namespace moris
             // write all active basis into a container
             this->collect_active_and_refined_basis();
 
-//#ifdef DEBUG
+//#ifdef MORIS_HAVE_DEBUG
 //            MORIS_LOG_WARNING("Sanity check for Bspline basis Ids and ownership will be performed. This might slow down the execution significantly. \n");
 //            this->sanity_check_for_ids_and_ownership();
 //#endif

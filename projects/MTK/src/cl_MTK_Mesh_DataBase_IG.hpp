@@ -33,10 +33,9 @@ namespace moris
         class Integration_Mesh_DataBase_IG : public mtk::Integration_Mesh
         {
           private:
-            Integration_Mesh_Info* mIGMeshInfo;
-            //Integration_Mesh_DataBase*        mIGDataBase;
-            // mtk::Integration_Mesh&            mIGMesh;
-            mtk::Interpolation_Mesh_DataBase_IP* mIPMesh;
+            Integration_Mesh_Info* mIGMeshInfo = nullptr;
+
+            mtk::Interpolation_Mesh_DataBase_IP* mIPMesh = nullptr;
 
             // Vertex Information
             moris::Cell< Vertex_DataBase > mVertices;
@@ -57,7 +56,8 @@ namespace moris
             moris::Cell< moris_index > mCellClusterToVertexOffset;
 
             // local coordinates of the cell cluster
-            moris::Matrix< moris::DDRMat >*                              mCellClusterVertexCoords;
+            moris::Matrix< moris::DDRMat >* mCellClusterVertexCoords = nullptr;
+
             std::unordered_map< moris::moris_index, moris::moris_index > mCellClusterIndexToRowNumber;
 
             moris::Cell< mtk::Cell_Cluster_DataBase > mCellClusters;
@@ -103,24 +103,25 @@ namespace moris
             // vertex map ( used in GEN)
             std::unordered_map< moris_id, moris_index > mVertexGlobalIdToLocalIndex;
 
-            moris::Cell< moris_id >                                 mVertexIdList;
-            moris::Cell< moris_id >                                 mCellIdList;
-            moris::Cell< moris_id >                                 mVertexOwnerList;
-            moris::Cell< moris_id >                                 mCellOwnerList;
-            moris::Cell< bool >                                     mCellClusterIsTrivial;
-            moris::Cell< bool >                                     mSideClusterIsTrivial;
+            moris::Cell< moris_id > mVertexIdList;
+            moris::Cell< moris_id > mCellIdList;
+            moris::Cell< moris_id > mVertexOwnerList;
+            moris::Cell< moris_id > mCellOwnerList;
+            moris::Cell< bool >     mCellClusterIsTrivial;
+            moris::Cell< bool >     mSideClusterIsTrivial;
+
             moris::Cell< std::shared_ptr< moris::mtk::Cell_Info > > mCellInfoList;
 
             std::unordered_map< moris::moris_index, moris::moris_index > mSideClusterIndexToRowNumber;
 
             // coordinate of the ghost when they are not trivial
-            moris::Matrix< moris::DDRMat >*                              mSecondaryClusterVertexCoords;
+            moris::Matrix< moris::DDRMat >*                              mSecondaryClusterVertexCoords = nullptr;
             std::unordered_map< moris::moris_index, moris::moris_index > mSecondaryClusterIndexToRowNumber;
 
           public:
             // ----------------------------------------------------------------------------
 
-             Integration_Mesh_DataBase_IG() = default;
+            Integration_Mesh_DataBase_IG() = default;
 
             /**
              * @brief Construct a new Integration_Mesh_DataBase_IG object
@@ -128,7 +129,10 @@ namespace moris
              * @param aIPDataBase an IP mesh data based containing the raw data
              * @param aIPMesh an already existing IP mesh
              */
-            Integration_Mesh_DataBase_IG( Integration_Mesh_DataBase* aIGDataBase, Integration_Mesh& aIGMesh, Interpolation_Mesh_Analysis& aIPMesh );
+            Integration_Mesh_DataBase_IG(
+                    Integration_Mesh_DataBase*   aIGDataBase,
+                    Integration_Mesh&            aIGMesh,
+                    Interpolation_Mesh_Analysis& aIPMesh );
 
             // ----------------------------------------------------------------------------
 
@@ -136,14 +140,13 @@ namespace moris
              * @brief Destroy the Integration_Mesh_DataBase_IG object
              *
              */
-
-            ~Integration_Mesh_DataBase_IG();
+            virtual ~Integration_Mesh_DataBase_IG();
 
             // ----------------------------------------------------------------------------
 
             /**
              * @name Get Functions for the FEM to work with
-             *  These group of functions are impelmenetd in the base class and some are unnecessary
+             *  These group of functions are implemented in the base class and some are unnecessary
              */
 
             ///@{
@@ -167,8 +170,8 @@ namespace moris
              */
 
             virtual uint get_num_entities(
-                enum EntityRank   aEntityRank,
-                const moris_index aIndex = 0 ) const override;
+                    enum EntityRank   aEntityRank,
+                    const moris_index aIndex = 0 ) const override;
             // ----------------------------------------------------------------------------
 
             /**
@@ -178,7 +181,7 @@ namespace moris
              * @return Vertex const&
              */
 
-            virtual Vertex const& get_mtk_vertex( moris_index aVertexIndex ) const override;
+            virtual Vertex const & get_mtk_vertex( moris_index aVertexIndex ) const override;
 
             // ----------------------------------------------------------------------------
 
@@ -211,7 +214,7 @@ namespace moris
              * @return Vertex& a constant vertex object
              */
 
-            virtual mtk::Cell const& get_mtk_cell( moris_index aCellIndex ) const override;
+            virtual mtk::Cell const & get_mtk_cell( moris_index aCellIndex ) const override;
 
             // ----------------------------------------------------------------------------
 
@@ -242,8 +245,8 @@ namespace moris
              * cell
              */
 
-            virtual Cell_Cluster const&
-            get_cell_cluster( Cell const& aInterpCell ) const override;
+            virtual Cell_Cluster const &
+            get_cell_cluster( Cell const & aInterpCell ) const override;
 
             // ----------------------------------------------------------------------------
 
@@ -252,7 +255,7 @@ namespace moris
              * cell
              */
 
-            virtual Cell_Cluster const&
+            virtual Cell_Cluster const &
             get_cell_cluster( moris_index aInterpCellIndex ) const override;
 
             // ----------------------------------------------------------------------------
@@ -275,7 +278,7 @@ namespace moris
              * @return moris::Cell< Cluster const* > cell clusters
              */
 
-            virtual moris::Cell< Cluster const* >
+            virtual moris::Cell< Cluster const * >
             get_cell_clusters_in_set( moris_index aBlockSetOrdinal ) const override;
 
             // ----------------------------------------------------------------------------
@@ -287,7 +290,7 @@ namespace moris
              * @return moris::Cell< Cluster const* > side clusters
              */
 
-            virtual moris::Cell< Cluster const* >
+            virtual moris::Cell< Cluster const * >
             get_side_set_cluster( moris_index aSideSetOrdinal ) const override;
 
             // ----------------------------------------------------------------------------
@@ -341,7 +344,7 @@ namespace moris
              * Returns the double side clusters in the side set
              */
 
-            virtual moris::Cell< Cluster const* >
+            virtual moris::Cell< Cluster const * >
             get_double_side_set_cluster( moris_index aSideSetOrdinal ) const override;
 
             // ----------------------------------------------------------------------------
@@ -354,10 +357,10 @@ namespace moris
 
             virtual Matrix< IndexMat >
             get_entity_connected_to_entity_loc_inds(
-                moris_index       aEntityIndex,
-                enum EntityRank   aInputEntityRank,
-                enum EntityRank   aOutputEntityRank,
-                const moris_index aDiscretizationIndex = 0 ) const override;
+                    moris_index       aEntityIndex,
+                    enum EntityRank   aInputEntityRank,
+                    enum EntityRank   aOutputEntityRank,
+                    const moris_index aDiscretizationIndex = 0 ) const override;
 
             // ----------------------------------------------------------------------------
 
@@ -368,9 +371,9 @@ namespace moris
 
             virtual moris_id
             get_glb_entity_id_from_entity_loc_index(
-                moris_index       aEntityIndex,
-                enum EntityRank   aEntityRank,
-                const moris_index aDiscretizationIndex = 0 ) const override;
+                    moris_index       aEntityIndex,
+                    enum EntityRank   aEntityRank,
+                    const moris_index aDiscretizationIndex = 0 ) const override;
 
             // ----------------------------------------------------------------------------
 
@@ -427,8 +430,9 @@ namespace moris
              */
 
             virtual moris_id
-            get_entity_id( enum EntityRank aEntityRank,
-                moris_index                aEntityIndex ) const override;
+            get_entity_id(
+                    enum EntityRank aEntityRank,
+                    moris_index     aEntityIndex ) const override;
 
             // ----------------------------------------------------------------------------
 
@@ -441,8 +445,9 @@ namespace moris
              */
 
             virtual moris_id
-            get_entity_owner( enum EntityRank aEntityRank,
-                moris_index                   aEntityIndex ) const override;
+            get_entity_owner(
+                    enum EntityRank aEntityRank,
+                    moris_index     aEntityIndex ) const override;
 
             // ----------------------------------------------------------------------------
 
@@ -454,7 +459,7 @@ namespace moris
              */
 
             virtual moris::real*
-            get_vertex_coords_ptr( moris_index aVertexIndex ) ;
+            get_vertex_coords_ptr( moris_index aVertexIndex );
 
             // ----------------------------------------------------------------------------
 
@@ -479,8 +484,9 @@ namespace moris
              */
 
             virtual mtk::Cell*
-            get_ip_cell_in_cluster( enum ClusterType aClusterType,
-                moris_index                          aClusterIndex ) const override;
+            get_ip_cell_in_cluster(
+                    enum ClusterType aClusterType,
+                    moris_index      aClusterIndex ) const override;
 
             // ----------------------------------------------------------------------------
 
@@ -493,10 +499,11 @@ namespace moris
              * @return mtk::Cell* const*  it is a pointer (location) to the ig cells
              */
 
-            virtual mtk::Cell* const*
-            get_ig_cells_in_cluster( enum ClusterType aClusterType,
-                enum mtk::Primary_Void                aPrimaryOrVoid,
-                moris_index                           aClusterIndex ) const override;
+            virtual mtk::Cell* const *
+            get_ig_cells_in_cluster(
+                    enum ClusterType       aClusterType,
+                    enum mtk::Primary_Void aPrimaryOrVoid,
+                    moris_index            aClusterIndex ) const override;
 
             // ----------------------------------------------------------------------------
 
@@ -510,9 +517,10 @@ namespace moris
              */
 
             virtual uint
-            get_num_cells_in_cluster( enum ClusterType aClusterType,
-                enum mtk::Primary_Void                 aPrimaryOrVoid,
-                moris_index                            aClusterIndex ) const override;
+            get_num_cells_in_cluster(
+                    enum ClusterType       aClusterType,
+                    enum mtk::Primary_Void aPrimaryOrVoid,
+                    moris_index            aClusterIndex ) const override;
 
             // ----------------------------------------------------------------------------
 
@@ -525,8 +533,9 @@ namespace moris
              */
 
             virtual moris_index*
-            get_side_ordinals_in_cluster( enum ClusterType aClusterType,
-                moris_index                                aClusterIndex ) const override;
+            get_side_ordinals_in_cluster(
+                    enum ClusterType aClusterType,
+                    moris_index      aClusterIndex ) const override;
 
             // ----------------------------------------------------------------------------
 
@@ -540,8 +549,9 @@ namespace moris
              */
 
             virtual bool
-            cluster_is_trivial( enum ClusterType aClusterType,
-                moris_index                      aClusterIndex ) const override;
+            cluster_is_trivial(
+                    enum ClusterType aClusterType,
+                    moris_index      aClusterIndex ) const override;
 
             // ----------------------------------------------------------------------------
 
@@ -553,9 +563,10 @@ namespace moris
              * @return Vertex* const*
              */
 
-            virtual Vertex* const*
-            get_vertices_in_cluster( enum ClusterType aClusterType,
-                moris_index                           aClusterIndex ) const override;
+            virtual Vertex* const *
+            get_vertices_in_cluster(
+                    enum ClusterType aClusterType,
+                    moris_index      aClusterIndex ) const override;
 
             // ----------------------------------------------------------------------------
 
@@ -568,8 +579,9 @@ namespace moris
              */
 
             virtual uint
-            get_num_vertices_in_cluster( enum ClusterType aClusterType,
-                moris_index                               aClusterIndex ) const override;
+            get_num_vertices_in_cluster(
+                    enum ClusterType aClusterType,
+                    moris_index      aClusterIndex ) const override;
 
             // ----------------------------------------------------------------------------
 
@@ -582,8 +594,9 @@ namespace moris
              */
 
             virtual Matrix< DDRMat >*
-            get_local_coord_matrix_ptr( enum ClusterType aClusterType,
-                moris_index                              aClusterIndex ) const override;
+            get_local_coord_matrix_ptr(
+                    enum ClusterType aClusterType,
+                    moris_index      aClusterIndex ) const override;
 
             // ----------------------------------------------------------------------------
 
@@ -596,8 +609,9 @@ namespace moris
              */
 
             virtual uint
-            get_row_number_local_coords_matrix( enum ClusterType aClusterType,
-                moris_index                                      aClusterIndex ) const override;
+            get_row_number_local_coords_matrix(
+                    enum ClusterType aClusterType,
+                    moris_index      aClusterIndex ) const override;
 
             // ----------------------------------------------------------------------------
 
@@ -608,7 +622,7 @@ namespace moris
              * @return mtk::Cell_Cluster const*
              */
 
-            virtual mtk::Cell_Cluster const*
+            virtual mtk::Cell_Cluster const *
             get_associated_cell_cluster( moris_index aClusterIndex ) const override;
 
             // ----------------------------------------------------------------------------
@@ -663,7 +677,7 @@ namespace moris
             friend class Integration_Mesh_Editor;
         };
 
-    }// namespace mtk
-}// namespace moris
+    }    // namespace mtk
+}    // namespace moris
 
 #endif /* cl_MTK_Integration_Mesh_DataBase_IG.hpp */

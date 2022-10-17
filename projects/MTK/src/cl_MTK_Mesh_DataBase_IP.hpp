@@ -32,7 +32,7 @@ namespace moris
           private:
             // Interpolation_Mesh_DataBase* mIPDataBase;
             // mtk::Interpolation_Mesh&     mIPMesh;
-            uint                         mSpatilDim;
+            uint mSpatilDim;
 
             // Vertex Information
             moris::Cell< Vertex_DataBase > mVertices;
@@ -75,8 +75,8 @@ namespace moris
             moris::Cell< moris_id > mVertexOwnerList;
             moris::Cell< moris_id > mCellOwnerList;
 
-            Matrix< IndexMat > mMeshIndices;
-            std::unordered_map<moris_index, moris_index > mGlobalMeshIndexToLocalMeshIndex;
+            Matrix< IndexMat >                             mMeshIndices;
+            std::unordered_map< moris_index, moris_index > mGlobalMeshIndexToLocalMeshIndex;
 
           public:
             // ----------------------------------------------------------------------------
@@ -96,9 +96,9 @@ namespace moris
              *
              */
 
-            ~Interpolation_Mesh_DataBase_IP();
+            virtual ~Interpolation_Mesh_DataBase_IP();
 
-             // ----------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------
 
             /**
              * @brief Get the communication table object
@@ -130,8 +130,8 @@ namespace moris
              */
 
             virtual uint get_num_entities(
-                enum EntityRank   aEntityRank,
-                const moris_index aIndex = 0 ) const override;
+                    enum EntityRank   aEntityRank,
+                    const moris_index aIndex = 0 ) const override;
             // ----------------------------------------------------------------------------
 
             /**
@@ -141,7 +141,7 @@ namespace moris
              * @return Vertex const&
              */
 
-            virtual Vertex const& get_mtk_vertex( moris_index aVertexIndex ) const override;
+            virtual Vertex const & get_mtk_vertex( moris_index aVertexIndex ) const override;
 
             // ----------------------------------------------------------------------------
 
@@ -176,7 +176,7 @@ namespace moris
              * @return Vertex const&
              */
 
-            virtual mtk::Cell const& get_mtk_cell( moris_index aCellIndex ) const override;
+            virtual mtk::Cell const & get_mtk_cell( moris_index aCellIndex ) const override;
 
             // ----------------------------------------------------------------------------
 
@@ -187,8 +187,8 @@ namespace moris
              * @param aAdofMap the global to local adof map
              */
             void virtual get_adof_map(
-                const uint                    aBSplineIndex,
-                map< moris_id, moris_index >& aAdofMap ) const override;
+                    const uint                    aBSplineIndex,
+                    map< moris_id, moris_index >& aAdofMap ) const override;
 
             // ----------------------------------------------------------------------------
 
@@ -247,10 +247,10 @@ namespace moris
 
             Matrix< IndexMat >
             get_entity_connected_to_entity_loc_inds(
-                moris_index       aEntityIndex,
-                enum EntityRank   aInputEntityRank,
-                enum EntityRank   aOutputEntityRank,
-                const moris_index aDiscretizationIndex = 0 ) const override;
+                    moris_index       aEntityIndex,
+                    enum EntityRank   aInputEntityRank,
+                    enum EntityRank   aOutputEntityRank,
+                    const moris_index aDiscretizationIndex = 0 ) const override;
 
             // ----------------------------------------------------------------------------
 
@@ -277,9 +277,9 @@ namespace moris
 
             virtual moris_id
             get_glb_entity_id_from_entity_loc_index(
-                moris_index       aEntityIndex,
-                enum EntityRank   aEntityRank,
-                const moris_index aDiscretizationIndex = 0 ) const override;
+                    moris_index       aEntityIndex,
+                    enum EntityRank   aEntityRank,
+                    const moris_index aDiscretizationIndex = 0 ) const override;
 
             // ----------------------------------------------------------------------------
 
@@ -444,7 +444,7 @@ namespace moris
              */
 
             virtual moris_id*
-            get_basis_owners( moris_index aVertexIndex, moris_index aOrder )  override;
+            get_basis_owners( moris_index aVertexIndex, moris_index aOrder ) override;
 
             // -------------------------------------------------------------------------------
 
@@ -531,7 +531,7 @@ namespace moris
 
             friend class Interpolation_Mesh_Editor;
         };
-    }// namespace mtk
-}// namespace moris
+    }    // namespace mtk
+}    // namespace moris
 
 #endif /* cl_MTK_Mesh_DataBase_IP.hpp */

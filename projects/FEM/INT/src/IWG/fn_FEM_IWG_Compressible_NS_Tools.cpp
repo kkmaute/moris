@@ -21,7 +21,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        Matrix< DDRMat > unfold_flat_tensor( const Matrix< DDRMat > & aFlattenedTensor )
+        Matrix< DDRMat >
+        unfold_flat_tensor( const Matrix< DDRMat >& aFlattenedTensor )
         {
             // get length of the flattened tensor
             uint tLength = aFlattenedTensor.length();
@@ -61,10 +62,14 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        uint convert_index_pair_to_flat( const uint aI, const uint aJ, const uint aNumSpaceDims )
+        uint
+        convert_index_pair_to_flat(
+                const uint aI,
+                const uint aJ,
+                const uint aNumSpaceDims )
         {
             // check that indices are not out of bounds
-            MORIS_ASSERT( ( aI >= 0 ) and ( aI < aNumSpaceDims ) and ( aJ >= 0 ) and ( aJ < aNumSpaceDims ),
+            MORIS_ASSERT( ( aI < aNumSpaceDims ) and ( aJ < aNumSpaceDims ),
                     "fn_FEM_IWG_Compressible_NS::convert_index_pair_to_flat() - indices out of bounds." );
 
             // initialize return value
@@ -142,4 +147,3 @@ namespace moris
 
     } /* namespace fem */
 } /* namespace moris */
-

@@ -34,7 +34,7 @@ bool
 equal_to(
                 int         const & a,
                 int         const & b,
-                moris::real const & error_factor )
+                moris::real const &  )
 {
     return ( a == b  );
 }
@@ -47,7 +47,7 @@ bool
 equal_to(
                 uint        const & a,
                 uint        const & b,
-                moris::real const & error_factor )
+                moris::real const &  )
 {
     return ( a == b  );
 }
@@ -60,7 +60,7 @@ bool
 equal_to(
                 luint       const & a,
                 luint       const & b,
-                moris::real const & error_factor )
+                moris::real const &  )
 {
     return ( a == b  );
 }
@@ -73,7 +73,7 @@ bool
 equal_to(
                 long long unsigned int const & a,
                 long long unsigned int const & b,
-                moris::real            const & error_factor )
+                moris::real            const &  )
 {
     return ( a == b  );
 }
@@ -86,7 +86,7 @@ bool
 equal_to(
                 long long int const & a,
                 long long int const & b,
-                moris::real   const & error_factor )
+                moris::real   const &  )
 {
     return ( a == b  );
 }
@@ -116,7 +116,7 @@ bool
 equal_to(
                 uint        const & a,
                 int         const & b,
-                moris::real const & error_factor )
+                moris::real const &  )
 {
      return ( (int) a == b );
 }
@@ -129,7 +129,7 @@ bool
 equal_to(
                 uint        const & a,
                 luint       const & b,
-                moris::real const & error_factor )
+                moris::real const &  )
 {
      return ( a == b );
 }
@@ -142,7 +142,7 @@ bool
 equal_to(
                 luint       const & a,
                 uint        const & b,
-                moris::real const & error_factor )
+                moris::real const &  )
 {
      return ( a == b );
 }
@@ -155,7 +155,7 @@ bool
 equal_to(
                 uint                   const & a,
                 long long unsigned int const & b,
-                moris::real            const & error_factor )
+                moris::real            const &  )
 {
      return ( a == b );
 }
@@ -168,7 +168,7 @@ bool
 equal_to(
                 long long unsigned int const & a,
                 uint                   const & b,
-                moris::real            const & error_factor )
+                moris::real            const &  )
 {
      return ( a == b );
 }
@@ -181,7 +181,7 @@ bool
 equal_to(
                 long long unsigned int const & a,
                 int                    const & b,
-                moris::real            const & error_factor )
+                moris::real            const &  )
 {
      return ( (lint) a == (lint) b );
 }
@@ -194,7 +194,7 @@ bool
 equal_to(
                 luint       const & a,
                 int         const & b,
-                moris::real const & error_factor )
+                moris::real const &  )
 {
      return ( (lint) a == (lint) b );
 }
@@ -207,7 +207,7 @@ bool
 equal_to(
                 uint        const & a,
                 real        const & b,
-                moris::real const & error_factor )
+                moris::real const &  )
 {
      return ( (real) a == b );
 }
@@ -220,7 +220,7 @@ bool
 equal_to(
                 luint       const & a,
                 real        const & b,
-                moris::real const & error_factor )
+                moris::real const &  )
 {
      return ( (real) a == b );
 }

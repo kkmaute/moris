@@ -21,7 +21,8 @@ namespace moris
         class Interpolation_Mesh_STK : public Mesh_Core_STK
                 , public Interpolation_Mesh
         {
-            // Functions only valid for interpolation mIntegrationMeshes
+            /// dummy variable need to avoid segfault when compiling gcc-8 and higher
+            uint tDummy = 0;
 
           public:
             Interpolation_Mesh_STK( std::shared_ptr< Mesh_Data_STK > aSTKMeshData );
@@ -33,7 +34,7 @@ namespace moris
 
             Interpolation_Mesh_STK( MtkMeshData& aMeshData );
 
-            ~Interpolation_Mesh_STK();
+            virtual ~Interpolation_Mesh_STK();
 
             std::shared_ptr< Mesh_Data_STK >
             get_stk_data_shared_pointer();
@@ -41,4 +42,3 @@ namespace moris
     }    // namespace mtk
 }    // namespace moris
 #endif /* PROJECTS_MTK_SRC_STK_IMPL_CL_MTK_INTERPOLATION_MESH_STK_HPP_ */
-

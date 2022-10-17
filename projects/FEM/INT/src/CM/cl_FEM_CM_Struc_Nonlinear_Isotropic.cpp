@@ -23,33 +23,34 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        CM_Struc_Nonlinear_Isotropic::CM_Struc_Nonlinear_Isotropic(enum Constitutive_Type aConstType)
-                {
+        CM_Struc_Nonlinear_Isotropic::CM_Struc_Nonlinear_Isotropic( enum Constitutive_Type aConstType )
+        {
             // set the property pointer cell size
             mProperties.resize( static_cast< uint >( CM_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the map
-            mPropertyMap[ "YoungsModulus" ]        = static_cast< uint >( CM_Property_Type::EMOD );
-            mPropertyMap[ "PoissonRatio" ]         = static_cast< uint >( CM_Property_Type::NU );
-                }
+            mPropertyMap[ "YoungsModulus" ] = static_cast< uint >( CM_Property_Type::EMOD );
+            mPropertyMap[ "PoissonRatio" ]  = static_cast< uint >( CM_Property_Type::NU );
+        }
 
         //------------------------------------------------------------------------------
 
-        void CM_Struc_Nonlinear_Isotropic::reset_eval_flags()
+        void
+        CM_Struc_Nonlinear_Isotropic::reset_eval_flags()
         {
             // reset flag from parent class
             Constitutive_Model::reset_eval_flags();
 
             // reset the deformation related flags
-            mDefGradEval  = true;
-            mRCGDefEval   = true;
-            mInvRCGDefEval   = true;
-            mLGStrainEval = true;
-            mEAStrainEval = true;
-            mDGStrainEval = true;
+            mDefGradEval   = true;
+            mRCGDefEval    = true;
+            mInvRCGDefEval = true;
+            mLGStrainEval  = true;
+            mEAStrainEval  = true;
+            mDGStrainEval  = true;
 
-            mTestDefGradEval     = true;
-            mdDefGradduEval.fill(  true );
+            mTestDefGradEval = true;
+            mdDefGradduEval.fill( true );
             mdLGStrainduEval.fill( true );
             mdEAStrainduEval.fill( true );
             mdDGStrainduEval.fill( true );
@@ -71,30 +72,31 @@ namespace moris
 
             mFluxProjEval = true;
 
-            md1PKStressduEval.fill(    true );
-            md2PKStressduEval.fill(    true );
+            md1PKStressduEval.fill( true );
+            md2PKStressduEval.fill( true );
             mdCauchyStressduEval.fill( true );
 
             m1PKTractionEval    = true;
             m2PKTractionEval    = true;
             mCauchyTractionEval = true;
 
-            md1PKTractionduEval.fill(    true );
-            md2PKTractionduEval.fill(    true );
+            md1PKTractionduEval.fill( true );
+            md2PKTractionduEval.fill( true );
             mdCauchyTractionduEval.fill( true );
 
-            m1PKTestTractionEval.fill(    true );
-            m2PKTestTractionEval.fill(    true );
+            m1PKTestTractionEval.fill( true );
+            m2PKTestTractionEval.fill( true );
             mCauchyTestTractionEval.fill( true );
 
-            md1PKTestTractionduEval.fill(    true );
-            md2PKTestTractionduEval.fill(    true );
+            md1PKTestTractionduEval.fill( true );
+            md2PKTestTractionduEval.fill( true );
             mdCauchyTestTractionduEval.fill( true );
         }
 
         //------------------------------------------------------------------------------
 
-        void CM_Struc_Nonlinear_Isotropic::build_global_dof_type_list()
+        void
+        CM_Struc_Nonlinear_Isotropic::build_global_dof_type_list()
         {
             // build list from parent class
             Constitutive_Model::build_global_dof_type_list();
@@ -104,7 +106,7 @@ namespace moris
             uint tNumDirectDofTypes = mDofTypes.size();
 
             // init deformation related flags
-            mdDefGradduEval.set_size( tNumGlobalDofTypes, 1,  true );
+            mdDefGradduEval.set_size( tNumGlobalDofTypes, 1, true );
             mdLGStrainduEval.set_size( tNumGlobalDofTypes, 1, true );
             mdEAStrainduEval.set_size( tNumGlobalDofTypes, 1, true );
             mdDGStrainduEval.set_size( tNumGlobalDofTypes, 1, true );
@@ -114,20 +116,20 @@ namespace moris
             mdDGTestStrainduEval.set_size( tNumGlobalDofTypes, 1, true );
 
             // init stress related flags
-            md1PKStressduEval.set_size( tNumGlobalDofTypes, 1,    true );
-            md2PKStressduEval.set_size( tNumGlobalDofTypes, 1,    true );
+            md1PKStressduEval.set_size( tNumGlobalDofTypes, 1, true );
+            md2PKStressduEval.set_size( tNumGlobalDofTypes, 1, true );
             mdCauchyStressduEval.set_size( tNumGlobalDofTypes, 1, true );
 
-            md1PKTractionduEval.set_size( tNumGlobalDofTypes, 1,    true );
-            md2PKTractionduEval.set_size( tNumGlobalDofTypes, 1,    true );
+            md1PKTractionduEval.set_size( tNumGlobalDofTypes, 1, true );
+            md2PKTractionduEval.set_size( tNumGlobalDofTypes, 1, true );
             mdCauchyTractionduEval.set_size( tNumGlobalDofTypes, 1, true );
 
-            m1PKTestTractionEval.set_size( tNumGlobalDofTypes, 1,    true );
-            m2PKTestTractionEval.set_size( tNumGlobalDofTypes, 1,    true );
+            m1PKTestTractionEval.set_size( tNumGlobalDofTypes, 1, true );
+            m2PKTestTractionEval.set_size( tNumGlobalDofTypes, 1, true );
             mCauchyTestTractionEval.set_size( tNumGlobalDofTypes, 1, true );
 
-            md1PKTestTractionduEval.set_size( tNumDirectDofTypes, tNumGlobalDofTypes,    true );
-            md2PKTestTractionduEval.set_size( tNumDirectDofTypes, tNumGlobalDofTypes,    true );
+            md1PKTestTractionduEval.set_size( tNumDirectDofTypes, tNumGlobalDofTypes, true );
+            md2PKTestTractionduEval.set_size( tNumDirectDofTypes, tNumGlobalDofTypes, true );
             mdCauchyTestTractionduEval.set_size( tNumDirectDofTypes, tNumGlobalDofTypes, true );
 
             // init deformation related storage
@@ -157,7 +159,7 @@ namespace moris
             md2PKTestTractiondu.resize( tNumDirectDofTypes );
             mdCauchyTestTractiondu.resize( tNumDirectDofTypes );
 
-            for( uint iDirectDof = 0; iDirectDof < tNumDirectDofTypes; iDirectDof++ )
+            for ( uint iDirectDof = 0; iDirectDof < tNumDirectDofTypes; iDirectDof++ )
             {
                 md1PKTestTractiondu( iDirectDof ).resize( tNumGlobalDofTypes );
                 md2PKTestTractiondu( iDirectDof ).resize( tNumGlobalDofTypes );
@@ -167,7 +169,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void CM_Struc_Nonlinear_Isotropic::set_dof_type_list(
+        void
+        CM_Struc_Nonlinear_Isotropic::set_dof_type_list(
                 Cell< Cell< MSI::Dof_Type > > aDofTypes,
                 Cell< std::string >           aDofStrings )
         {
@@ -175,7 +178,7 @@ namespace moris
             Constitutive_Model::set_dof_type_list( aDofTypes );
 
             // loop over the provided dof type
-            for( uint iDof = 0; iDof < aDofTypes.size(); iDof++ )
+            for ( uint iDof = 0; iDof < aDofTypes.size(); iDof++ )
             {
                 // get dof type string
                 std::string tDofString = aDofStrings( iDof );
@@ -184,7 +187,7 @@ namespace moris
                 MSI::Dof_Type tDofType = aDofTypes( iDof )( 0 );
 
                 // if displacement dof type string
-                if( tDofString == "Displacement" )
+                if ( tDofString == "Displacement" )
                 {
                     mDofDispl = tDofType;
                 }
@@ -200,7 +203,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void CM_Struc_Nonlinear_Isotropic::set_local_properties()
+        void
+        CM_Struc_Nonlinear_Isotropic::set_local_properties()
         {
             // set the Young's modulus property
             mPropEMod = get_property( "YoungsModulus" );
@@ -210,23 +214,24 @@ namespace moris
 
             // check that essential properties exist
             MORIS_ASSERT( mPropEMod,
-                    "CM_Struc_Linear_Isotropic::set_local_properties - Young's modulus property does not exist.\n");
+                    "CM_Struc_Linear_Isotropic::set_local_properties - Young's modulus property does not exist.\n" );
 
             MORIS_ASSERT( mPropPoisson,
-                    "CM_Struc_Linear_Isotropic::set_local_properties - Poisson ratio property does not exist.\n");
+                    "CM_Struc_Linear_Isotropic::set_local_properties - Poisson ratio property does not exist.\n" );
         }
 
         //------------------------------------------------------------------------------
 
-        void CM_Struc_Nonlinear_Isotropic::set_function_pointers()
+        void
+        CM_Struc_Nonlinear_Isotropic::set_function_pointers()
         {
-            switch( mSpaceDim )
+            switch ( mSpaceDim )
             {
-                case 2 :
+                case 2:
                 {
                     // set Voigt notation map
-                    mVoigtNonSymMap = {{ 0, 1 }, { 2, 3 }};
-                    mVoigtSymMap    = {{ 0, 2 }, { 2, 1 }};
+                    mVoigtNonSymMap = { { 0, 1 }, { 2, 3 } };
+                    mVoigtSymMap    = { { 0, 2 }, { 2, 1 } };
 
                     m_eval_test_deformation_gradient = &CM_Struc_Nonlinear_Isotropic::eval_test_deformation_gradient_2d;
 
@@ -240,19 +245,19 @@ namespace moris
                     m_flatten_normal_nonsym = &CM_Struc_Nonlinear_Isotropic::flatten_normal_nonsym_2d;
 
                     m_proj_sym  = &CM_Struc_Nonlinear_Isotropic::proj_sym_2d;
-                    m_proj_nsym  = &CM_Struc_Nonlinear_Isotropic::proj_nsym_2d;
+                    m_proj_nsym = &CM_Struc_Nonlinear_Isotropic::proj_nsym_2d;
 
                     //                    mFluxHead.set_size( 4, 4, 0.0 ); // FIXME
                     //                    mCauchy.set_size( 3, 1, 0.0 );    // FIXME
-                    mFluxProj.set_size( 4, 4, 0.0);
+                    mFluxProj.set_size( 4, 4, 0.0 );
 
                     break;
                 }
-                case 3 :
+                case 3:
                 {
                     // set Voigt notation map
-                    mVoigtNonSymMap = {{ 0, 1, 2 }, { 3, 4, 5 }, { 6, 7, 8 }};
-                    mVoigtSymMap    = {{ 0, 5, 4 }, { 5, 1, 3 }, { 4, 3, 2 }};
+                    mVoigtNonSymMap = { { 0, 1, 2 }, { 3, 4, 5 }, { 6, 7, 8 } };
+                    mVoigtSymMap    = { { 0, 5, 4 }, { 5, 1, 3 }, { 4, 3, 2 } };
 
                     m_eval_test_deformation_gradient = &CM_Struc_Nonlinear_Isotropic::eval_test_deformation_gradient_3d;
 
@@ -266,13 +271,13 @@ namespace moris
                     m_flatten_normal_nonsym = &CM_Struc_Nonlinear_Isotropic::flatten_normal_nonsym_3d;
 
                     m_proj_sym  = &CM_Struc_Nonlinear_Isotropic::proj_sym_3d;
-                    m_proj_nsym  = &CM_Struc_Nonlinear_Isotropic::proj_nsym_3d;
+                    m_proj_nsym = &CM_Struc_Nonlinear_Isotropic::proj_nsym_3d;
 
                     // FIXME
                     //                    mFluxHead.set_size( 9, 9, 0.0 );
                     //                    mStrain.set_size( 6, 1, 0.0 );
 
-                    mFluxProj.set_size( 9, 9, 0.0);
+                    mFluxProj.set_size( 9, 9, 0.0 );
 
                     // list number of normal stresses and strains
                     mNumNormalStress = 3;
@@ -289,11 +294,11 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > &
+        const Matrix< DDRMat >&
         CM_Struc_Nonlinear_Isotropic::deformation_gradient()
         {
             // if the deformation gradient was not evaluated
-            if( mDefGradEval )
+            if ( mDefGradEval )
             {
                 // evaluate the deformation gradient
                 this->eval_deformation_gradient();
@@ -306,10 +311,11 @@ namespace moris
             return mDefGrad;
         }
 
-        void CM_Struc_Nonlinear_Isotropic::eval_deformation_gradient()
+        void
+        CM_Struc_Nonlinear_Isotropic::eval_deformation_gradient()
         {
             // get the displacement gradient
-            const Matrix< DDRMat > & tDisplGradx =
+            const Matrix< DDRMat >& tDisplGradx =
                     mFIManager->get_field_interpolators_for_type( mDofDispl )->gradx( 1 );
 
             // evaluate the deformation gradient as F = I + du/dX
@@ -318,12 +324,12 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > &
+        const Matrix< DDRMat >&
         CM_Struc_Nonlinear_Isotropic::test_deformation_gradient(
-                const Cell< MSI::Dof_Type > & aTestDofTypes )
+                const Cell< MSI::Dof_Type >& aTestDofTypes )
         {
             // if the deformation gradient was not evaluated
-            if( mTestDefGradEval )
+            if ( mTestDefGradEval )
             {
                 // evaluate the deformation gradient
                 this->eval_test_deformation_gradient( aTestDofTypes );
@@ -338,13 +344,13 @@ namespace moris
 
         void
         CM_Struc_Nonlinear_Isotropic::eval_test_deformation_gradient_2d(
-                const Cell< MSI::Dof_Type > & aTestDofTypes )
+                const Cell< MSI::Dof_Type >& aTestDofTypes )
         {
             // if test dof type is displacement
-            if( aTestDofTypes( 0 ) == mDofDispl )
+            if ( aTestDofTypes( 0 ) == mDofDispl )
             {
                 // get the derivative of the displacement shape functions
-                const Matrix< DDRMat > & tdnNdxn =
+                const Matrix< DDRMat >& tdnNdxn =
                         mFIManager->get_field_interpolators_for_type( mDofDispl )->dnNdxn( 1 );
 
                 // get number of bases for displacement
@@ -354,8 +360,8 @@ namespace moris
                 mTestDefGrad.set_size( 4, 2 * tNumBases, 0.0 );
 
                 // evaluate the test deformation gradient
-                mTestDefGrad( { 0, 0 }, { 0, tNumBases - 1 } ) = tdnNdxn.get_row( 0 );
-                mTestDefGrad( { 1, 1 }, { 0, tNumBases - 1 } ) = tdnNdxn.get_row( 1 );
+                mTestDefGrad( { 0, 0 }, { 0, tNumBases - 1 } )             = tdnNdxn.get_row( 0 );
+                mTestDefGrad( { 1, 1 }, { 0, tNumBases - 1 } )             = tdnNdxn.get_row( 1 );
                 mTestDefGrad( { 2, 2 }, { tNumBases, 2 * tNumBases - 1 } ) = tdnNdxn.get_row( 0 );
                 mTestDefGrad( { 3, 3 }, { tNumBases, 2 * tNumBases - 1 } ) = tdnNdxn.get_row( 1 );
             }
@@ -369,13 +375,13 @@ namespace moris
 
         void
         CM_Struc_Nonlinear_Isotropic::eval_test_deformation_gradient_3d(
-                const Cell< MSI::Dof_Type > & aTestDofTypes )
+                const Cell< MSI::Dof_Type >& aTestDofTypes )
         {
             // if test dof type is displacement
-            if( aTestDofTypes( 0 ) == mDofDispl )
+            if ( aTestDofTypes( 0 ) == mDofDispl )
             {
                 // get the derivative of the displacement shape functions
-                const Matrix< DDRMat > & tdnNdxn =
+                const Matrix< DDRMat >& tdnNdxn =
                         mFIManager->get_field_interpolators_for_type( mDofDispl )->dnNdxn( 1 );
 
                 // get number of bases for displacement
@@ -385,12 +391,12 @@ namespace moris
                 mTestDefGrad.set_size( 9, 3 * tNumBases, 0.0 );
 
                 // evaluate the test deformation gradient
-                mTestDefGrad( { 0, 0 }, { 0, tNumBases - 1 } ) = tdnNdxn.get_row( 0 );
-                mTestDefGrad( { 1, 1 }, { 0, tNumBases - 1 } ) = tdnNdxn.get_row( 1 );
-                mTestDefGrad( { 2, 2 }, { 0, tNumBases - 1 } ) = tdnNdxn.get_row( 2 );
-                mTestDefGrad( { 3, 3 }, { tNumBases, 2 * tNumBases - 1 } ) = tdnNdxn.get_row( 0 );
-                mTestDefGrad( { 4, 4 }, { tNumBases, 2 * tNumBases - 1 } ) = tdnNdxn.get_row( 1 );
-                mTestDefGrad( { 5, 5 }, { tNumBases, 2 * tNumBases - 1 } ) = tdnNdxn.get_row( 2 );
+                mTestDefGrad( { 0, 0 }, { 0, tNumBases - 1 } )                 = tdnNdxn.get_row( 0 );
+                mTestDefGrad( { 1, 1 }, { 0, tNumBases - 1 } )                 = tdnNdxn.get_row( 1 );
+                mTestDefGrad( { 2, 2 }, { 0, tNumBases - 1 } )                 = tdnNdxn.get_row( 2 );
+                mTestDefGrad( { 3, 3 }, { tNumBases, 2 * tNumBases - 1 } )     = tdnNdxn.get_row( 0 );
+                mTestDefGrad( { 4, 4 }, { tNumBases, 2 * tNumBases - 1 } )     = tdnNdxn.get_row( 1 );
+                mTestDefGrad( { 5, 5 }, { tNumBases, 2 * tNumBases - 1 } )     = tdnNdxn.get_row( 2 );
                 mTestDefGrad( { 6, 6 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tdnNdxn.get_row( 0 );
                 mTestDefGrad( { 7, 7 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tdnNdxn.get_row( 1 );
                 mTestDefGrad( { 8, 8 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tdnNdxn.get_row( 2 );
@@ -405,7 +411,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        const real &
+        const real&
         CM_Struc_Nonlinear_Isotropic::volume_change_jacobian(
                 enum CM_Function_Type aCMFunctionType )
         {
@@ -414,7 +420,7 @@ namespace moris
                     "CM_Struc_Nonlinear_Isotropic::volume_change_jacobian - Only DEFAULT CM function type known in base class." );
 
             // if the Jacobian was not evaluated
-            if( mVolumeChangeJEval )
+            if ( mVolumeChangeJEval )
             {
                 // evaluate the Jacobian
                 this->eval_volume_change_jacobian();
@@ -426,7 +432,8 @@ namespace moris
             return mVolumeChangeJ;
         }
 
-        void CM_Struc_Nonlinear_Isotropic::eval_volume_change_jacobian()
+        void
+        CM_Struc_Nonlinear_Isotropic::eval_volume_change_jacobian()
         {
             // evaluate the volume change Jacobian
             // FIXME better to use a self implemented version of det
@@ -439,7 +446,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > &
+        const Matrix< DDRMat >&
         CM_Struc_Nonlinear_Isotropic::right_cauchy_green_deformation_tensor(
                 enum CM_Function_Type aCMFunctionType )
         {
@@ -448,7 +455,7 @@ namespace moris
                     "CM_Struc_Nonlinear_Isotropic::right_cauchy_green_deformation_tensor - Only DEFAULT CM function type known in base class." );
 
             // if the right cauchy green deformation tensor was not evaluated
-            if( mRCGDefEval )
+            if ( mRCGDefEval )
             {
                 // evaluate the right cauchy green deformation tensor
                 this->eval_right_cauchy_green_deformation_tensor();
@@ -460,7 +467,8 @@ namespace moris
             return mRCGDef;
         }
 
-        void CM_Struc_Nonlinear_Isotropic::eval_right_cauchy_green_deformation_tensor()
+        void
+        CM_Struc_Nonlinear_Isotropic::eval_right_cauchy_green_deformation_tensor()
         {
             // evaluate the right cauchy green deformation tensor (full)
             Matrix< DDRMat > tRCGDefFull = trans( this->deformation_gradient() ) * this->deformation_gradient();
@@ -469,7 +477,7 @@ namespace moris
             this->full_to_voigt_sym_strain( tRCGDefFull, mRCGDef );
         }
 
-        const Matrix< DDRMat > &
+        const Matrix< DDRMat >&
         CM_Struc_Nonlinear_Isotropic::inv_right_cauchy_green_deformation_tensor(
                 enum CM_Function_Type aCMFunctionType )
         {
@@ -478,7 +486,7 @@ namespace moris
                     "CM_Struc_Nonlinear_Isotropic::inv_right_cauchy_green_deformation_tensor - Only DEFAULT CM function type known in base class." );
 
             // if the inverse of the right cauchy green deformation tensor was not evaluated
-            if( mInvRCGDefEval )
+            if ( mInvRCGDefEval )
             {
                 // evaluate the inverse of the right cauchy green deformation tensor
                 this->eval_inv_right_cauchy_green_deformation_tensor();
@@ -490,7 +498,8 @@ namespace moris
             return mInvRCGDef;
         }
 
-        void CM_Struc_Nonlinear_Isotropic::eval_inv_right_cauchy_green_deformation_tensor()
+        void
+        CM_Struc_Nonlinear_Isotropic::eval_inv_right_cauchy_green_deformation_tensor()
         {
             // evaluate the right cauchy green deformation tensor (full)
             Matrix< DDRMat > tRCGDefFull;
@@ -499,23 +508,23 @@ namespace moris
             this->voigt_to_full_sym_strain( this->right_cauchy_green_deformation_tensor(), tRCGDefFull );
 
             // Calculate the inverse of the right cauchy green deformation tensor (full)
-            mInvRCGDef = inv(tRCGDefFull);
+            mInvRCGDef = inv( tRCGDefFull );
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         const Matrix< DDRMat >&
         CM_Struc_Nonlinear_Isotropic::strain(
-                enum CM_Function_Type aCMFunctionType  )
+                enum CM_Function_Type aCMFunctionType )
         {
             // switch on CM function type
-            switch( aCMFunctionType )
+            switch ( aCMFunctionType )
             {
                 // lagrangian/Green strain
-                case CM_Function_Type::LAGRANGIAN :
+                case CM_Function_Type::LAGRANGIAN:
                 {
                     // if the  lagrangian/Green strain was not evaluated
-                    if( mLGStrainEval )
+                    if ( mLGStrainEval )
                     {
                         // evaluate the  lagrangian/Green strain
                         this->eval_lagrangian_green_strain_tensor();
@@ -527,10 +536,10 @@ namespace moris
                     return mLGStrain;
                 }
                 // eulerian/Almansi strain
-                case CM_Function_Type::EULERIAN :
+                case CM_Function_Type::EULERIAN:
                 {
                     // if the eulerian/Almansi strain was not evaluated
-                    if( mEAStrainEval )
+                    if ( mEAStrainEval )
                     {
                         // evaluate the eulerian/Almansi strain
                         this->eval_eulerian_almansi_strain_tensor();
@@ -544,7 +553,7 @@ namespace moris
                 case CM_Function_Type::DEFORMATION_GRADIENT:
                 {
                     // if the eulerian/Almansi strain was not evaluated
-                    if( mDGStrainEval )
+                    if ( mDGStrainEval )
                     {
                         // evaluate the eulerian/Almansi strain
                         this->eval_deformation_gradient_strain_tensor();
@@ -557,7 +566,7 @@ namespace moris
                 }
                 default:
                 {
-                    MORIS_ERROR(false, "CM_Struc_Nonlinear_Isotropic::strain - Unknown strain type.");
+                    MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::strain - Unknown strain type." );
                     return mStrain;
                 }
             }
@@ -571,7 +580,7 @@ namespace moris
 
             // substract identity matrix
             Matrix< DDRMat > tI( mSpaceDim, 1, 1.0 );
-            mLGStrain({0, mSpaceDim - 1}, { 0, 0 }) -= tI.matrix_data();
+            mLGStrain( { 0, mSpaceDim - 1 }, { 0, 0 } ) -= tI.matrix_data();
 
             // apply factor 0.5
             mLGStrain = 0.5 * mLGStrain;
@@ -580,7 +589,7 @@ namespace moris
         void
         CM_Struc_Nonlinear_Isotropic::eval_eulerian_almansi_strain_tensor()
         {
-            MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::eval_eulerian_almansi_strain_tensor - Not implemented yet.");
+            MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::eval_eulerian_almansi_strain_tensor - Not implemented yet." );
         }
 
         // FIXME: storage for deformation gradient is set twice:
@@ -597,16 +606,16 @@ namespace moris
 
         const Matrix< DDRMat >&
         CM_Struc_Nonlinear_Isotropic::testStrain(
-                enum CM_Function_Type aCMFunctionType  )
+                enum CM_Function_Type aCMFunctionType )
         {
             // switch on CM function type
-            switch( aCMFunctionType )
+            switch ( aCMFunctionType )
             {
                 // lagrangian/Green strain
-                case CM_Function_Type::LAGRANGIAN :
+                case CM_Function_Type::LAGRANGIAN:
                 {
                     // if the  lagrangian/Green strain was not evaluated
-                    if( mLGTestStrainEval )
+                    if ( mLGTestStrainEval )
                     {
                         // evaluate the  lagrangian/Green strain
                         this->eval_testStrain_lagrangian_green_strain();
@@ -618,10 +627,10 @@ namespace moris
                     return mLGTestStrain;
                 }
                 // eulerian/Almansi strain
-                case CM_Function_Type::EULERIAN :
+                case CM_Function_Type::EULERIAN:
                 {
                     // if the eulerian/Almansi strain was not evaluated
-                    if( mEATestStrainEval )
+                    if ( mEATestStrainEval )
                     {
                         // evaluate the eulerian/Almansi strain
                         this->eval_testStrain_eulerian_almansi_strain();
@@ -636,7 +645,7 @@ namespace moris
                 case CM_Function_Type::DEFORMATION_GRADIENT:
                 {
                     // if the eulerian/Almansi strain was not evaluated
-                    if( mDGTestStrainEval )
+                    if ( mDGTestStrainEval )
                     {
                         // evaluate the eulerian/Almansi strain
                         this->eval_testStrain_deformation_gradient_strain();
@@ -649,7 +658,7 @@ namespace moris
                 }
                 default:
                 {
-                    MORIS_ERROR(false, "CM_Struc_Nonlinear_Isotropic::testStrain - Unknown strain type.");
+                    MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::testStrain - Unknown strain type." );
                     return mTestStrain;
                 }
             }
@@ -659,16 +668,16 @@ namespace moris
         CM_Struc_Nonlinear_Isotropic::eval_testStrain_lagrangian_green_strain()
         {
             Cell< MSI::Dof_Type > tDofTypes;
-            tDofTypes.resize(1);
+            tDofTypes.resize( 1 );
             tDofTypes( 0 ) = mDofDispl;
 
-            mLGTestStrain = this->dStraindDOF( tDofTypes , CM_Function_Type::LAGRANGIAN );
+            mLGTestStrain = this->dStraindDOF( tDofTypes, CM_Function_Type::LAGRANGIAN );
         }
 
         void
         CM_Struc_Nonlinear_Isotropic::eval_testStrain_eulerian_almansi_strain()
         {
-            MORIS_ERROR(false, "CM_Struc_Nonlinear_Isotropic::eval_testStrain_eulerian_almansi_strain - Unknown strain type.");
+            MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::eval_testStrain_eulerian_almansi_strain - Unknown strain type." );
         }
 
         // FIXME: storage of teststrain based on displacement gradient is set twice to be consistent with general formulation
@@ -676,7 +685,7 @@ namespace moris
         CM_Struc_Nonlinear_Isotropic::eval_testStrain_deformation_gradient_strain()
         {
             Cell< MSI::Dof_Type > tDofTypes;
-            tDofTypes.resize(1);
+            tDofTypes.resize( 1 );
             tDofTypes( 0 ) = mDofDispl;
 
             mDGTestStrain = this->dStraindDOF( tDofTypes, CM_Function_Type::DEFORMATION_GRADIENT );
@@ -697,13 +706,13 @@ namespace moris
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
 
             // switch on CM function type
-            switch( aCMFunctionType )
+            switch ( aCMFunctionType )
             {
                 // lagrangian/Green strain
-                case CM_Function_Type::LAGRANGIAN :
+                case CM_Function_Type::LAGRANGIAN:
                 {
                     // if the derivative has not been evaluated yet
-                    if( mdLGStrainduEval( tDofIndex ) )
+                    if ( mdLGStrainduEval( tDofIndex ) )
                     {
                         // evaluate the derivative
                         this->eval_dLGStraindDOF( aDofType );
@@ -716,10 +725,10 @@ namespace moris
                     return mdLGStraindu( tDofIndex );
                 }
                 // eulerian/Almansi strain
-                case CM_Function_Type::EULERIAN :
+                case CM_Function_Type::EULERIAN:
                 {
                     // if the derivative has not been evaluated yet
-                    if( mdEAStrainduEval( tDofIndex ) )
+                    if ( mdEAStrainduEval( tDofIndex ) )
                     {
                         // evaluate the derivative
                         this->eval_dEAStraindDOF( aDofType );
@@ -735,7 +744,7 @@ namespace moris
                 case CM_Function_Type::DEFORMATION_GRADIENT:
                 {
                     // if the derivative has not been evaluated yet
-                    if( mdDGStrainduEval( tDofIndex ) )
+                    if ( mdDGStrainduEval( tDofIndex ) )
                     {
                         // evaluate the derivative
                         this->eval_dDGStraindDOF( aDofType );
@@ -749,7 +758,7 @@ namespace moris
                 }
                 default:
                 {
-                    MORIS_ERROR(false, "CM_Struc_Nonlinear_Isotropic::dStraindDOF - Unknown strain type.");
+                    MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::dStraindDOF - Unknown strain type." );
                     return mdStraindDof( tDofIndex );
                 }
             }
@@ -757,7 +766,7 @@ namespace moris
 
         void
         CM_Struc_Nonlinear_Isotropic::eval_dLGStraindDOF_2d(
-                const Cell< MSI::Dof_Type > & aDofTypes )
+                const Cell< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             const uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -766,25 +775,26 @@ namespace moris
             const uint tDofIndex = mGlobalDofTypeMap( tDofType );
 
             // get the dof FI
-            Field_Interpolator * tFI =
+            Field_Interpolator* tFI =
                     mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // init mdLGstraindDof
-            mdLGStraindu( tDofIndex ).set_size(
-                    3,
-                    tFI->get_number_of_space_time_coefficients(), 0.0 );
+            mdLGStraindu( tDofIndex ).set_size(                      //
+                    3,                                               //
+                    tFI->get_number_of_space_time_coefficients(),    //
+                    0.0 );
 
             // if derivative dof is displacements dof
-            if( aDofTypes( 0 ) == mDofDispl )
+            if ( aDofTypes( 0 ) == mDofDispl )
             {
                 // compute displacement gradient
-                const Matrix< DDRMat > & tdnNdxn = tFI->dnNdxn( 1 );
+                const Matrix< DDRMat >& tdnNdxn = tFI->dnNdxn( 1 );
 
                 // get number of bases for displacement
                 uint tNumBases = tFI->get_number_of_space_time_bases();
 
                 // get the deformation gradient
-                const Matrix< DDRMat > & tF = this->deformation_gradient();
+                const Matrix< DDRMat >& tF = this->deformation_gradient();
 
                 // populate the derivative of the lagrangian/green strain
                 mdLGStraindu( tDofIndex )( { 0, 0 }, { 0, tNumBases - 1 } ) = tF( 0, 0 ) * tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } );
@@ -799,7 +809,7 @@ namespace moris
 
         void
         CM_Struc_Nonlinear_Isotropic::eval_dLGStraindDOF_3d(
-                const Cell< MSI::Dof_Type > & aDofTypes )
+                const Cell< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             const uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -808,81 +818,81 @@ namespace moris
             const uint tDofIndex = mGlobalDofTypeMap( tDofType );
 
             // get the dof FI
-            Field_Interpolator * tFI =
+            Field_Interpolator* tFI =
                     mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // init mdLGstraindDof
-            mdLGStraindu( tDofIndex ).set_size(
-                    6,
-                    tFI->get_number_of_space_time_coefficients(), 0.0 );
+            mdLGStraindu( tDofIndex ).set_size(                      //
+                    6,                                               //
+                    tFI->get_number_of_space_time_coefficients(),    //
+                    0.0 );
 
             // if derivative dof is displacements dof
-            if( aDofTypes( 0 ) == mDofDispl )
+            if ( aDofTypes( 0 ) == mDofDispl )
             {
                 // compute displacement gradient
-                const Matrix< DDRMat > & tdnNdxn = tFI->dnNdxn( 1 );
+                const Matrix< DDRMat >& tdnNdxn = tFI->dnNdxn( 1 );
 
                 // get number of bases for displacement
                 uint tNumBases = tFI->get_number_of_space_time_bases();
 
                 // get the deformation gradient
-                const Matrix< DDRMat > & tF = this->deformation_gradient();
+                const Matrix< DDRMat >& tF = this->deformation_gradient();
 
                 // FIXME not checked
                 // populate the derivative of the lagrangian/green strain
-                mdLGStraindu( tDofIndex )( { 0, 0 }, { 0, tNumBases - 1 } ) = tF( 0, 0 )*tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } );
-                mdLGStraindu( tDofIndex )( { 1, 1 }, { 0, tNumBases - 1 } ) = tF( 0, 1 )*tdnNdxn( { 1, 1 }, { 0, tNumBases - 1 } );
-                mdLGStraindu( tDofIndex )( { 2, 2 }, { 0, tNumBases - 1 } ) = tF( 0, 2 )*tdnNdxn( { 2, 2 }, { 0, tNumBases - 1 } );
-                mdLGStraindu( tDofIndex )( { 3, 3 }, { 0, tNumBases - 1 } ) = tF( 0, 1 )*tdnNdxn( { 2, 2 }, { 0, tNumBases - 1 } ) + tF( 0, 2 )*tdnNdxn( { 1, 1 }, { 0, tNumBases - 1 } );
-                mdLGStraindu( tDofIndex )( { 4, 4 }, { 0, tNumBases - 1 } ) = tF( 0, 0 )*tdnNdxn( { 2, 2 }, { 0, tNumBases - 1 } ) + tF( 0, 2 )*tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } );
-                mdLGStraindu( tDofIndex )( { 5, 5 }, { 0, tNumBases - 1 } ) = tF( 0, 0 )*tdnNdxn( { 1, 1 }, { 0, tNumBases - 1 } ) + tF( 0, 1 )*tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } );
+                mdLGStraindu( tDofIndex )( { 0, 0 }, { 0, tNumBases - 1 } ) = tF( 0, 0 ) * tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } );
+                mdLGStraindu( tDofIndex )( { 1, 1 }, { 0, tNumBases - 1 } ) = tF( 0, 1 ) * tdnNdxn( { 1, 1 }, { 0, tNumBases - 1 } );
+                mdLGStraindu( tDofIndex )( { 2, 2 }, { 0, tNumBases - 1 } ) = tF( 0, 2 ) * tdnNdxn( { 2, 2 }, { 0, tNumBases - 1 } );
+                mdLGStraindu( tDofIndex )( { 3, 3 }, { 0, tNumBases - 1 } ) = tF( 0, 1 ) * tdnNdxn( { 2, 2 }, { 0, tNumBases - 1 } ) + tF( 0, 2 ) * tdnNdxn( { 1, 1 }, { 0, tNumBases - 1 } );
+                mdLGStraindu( tDofIndex )( { 4, 4 }, { 0, tNumBases - 1 } ) = tF( 0, 0 ) * tdnNdxn( { 2, 2 }, { 0, tNumBases - 1 } ) + tF( 0, 2 ) * tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } );
+                mdLGStraindu( tDofIndex )( { 5, 5 }, { 0, tNumBases - 1 } ) = tF( 0, 0 ) * tdnNdxn( { 1, 1 }, { 0, tNumBases - 1 } ) + tF( 0, 1 ) * tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } );
 
-                mdLGStraindu( tDofIndex )( { 0, 0 }, { tNumBases, 2 * tNumBases - 1 } ) = tF( 1, 0 )*tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } );
-                mdLGStraindu( tDofIndex )( { 1, 1 }, { tNumBases, 2 * tNumBases - 1 } ) = tF( 1, 1 )*tdnNdxn( { 1, 1 }, { 0, tNumBases - 1 } );
-                mdLGStraindu( tDofIndex )( { 2, 2 }, { tNumBases, 2 * tNumBases - 1 } ) = tF( 1, 2 )*tdnNdxn( { 2, 2 }, { 0, tNumBases - 1 } );
-                mdLGStraindu( tDofIndex )( { 3, 3 }, { tNumBases, 2 * tNumBases - 1 } ) = tF( 1, 1 )*tdnNdxn( { 2, 2 }, { 0, tNumBases - 1 } ) + tF( 1, 2 )*tdnNdxn( { 1, 1 }, { 0, tNumBases - 1 } );
-                mdLGStraindu( tDofIndex )( { 4, 4 }, { tNumBases, 2 * tNumBases - 1 } ) = tF( 1, 0 )*tdnNdxn( { 2, 2 }, { 0, tNumBases - 1 } ) + tF( 1, 2 )*tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } );
-                mdLGStraindu( tDofIndex )( { 5, 5 }, { tNumBases, 2 * tNumBases - 1 } ) = tF( 1, 1 )*tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } ) + tF( 1, 0 )*tdnNdxn( { 1, 1 }, { 0, tNumBases - 1 } );;
+                mdLGStraindu( tDofIndex )( { 0, 0 }, { tNumBases, 2 * tNumBases - 1 } ) = tF( 1, 0 ) * tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } );
+                mdLGStraindu( tDofIndex )( { 1, 1 }, { tNumBases, 2 * tNumBases - 1 } ) = tF( 1, 1 ) * tdnNdxn( { 1, 1 }, { 0, tNumBases - 1 } );
+                mdLGStraindu( tDofIndex )( { 2, 2 }, { tNumBases, 2 * tNumBases - 1 } ) = tF( 1, 2 ) * tdnNdxn( { 2, 2 }, { 0, tNumBases - 1 } );
+                mdLGStraindu( tDofIndex )( { 3, 3 }, { tNumBases, 2 * tNumBases - 1 } ) = tF( 1, 1 ) * tdnNdxn( { 2, 2 }, { 0, tNumBases - 1 } ) + tF( 1, 2 ) * tdnNdxn( { 1, 1 }, { 0, tNumBases - 1 } );
+                mdLGStraindu( tDofIndex )( { 4, 4 }, { tNumBases, 2 * tNumBases - 1 } ) = tF( 1, 0 ) * tdnNdxn( { 2, 2 }, { 0, tNumBases - 1 } ) + tF( 1, 2 ) * tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } );
+                mdLGStraindu( tDofIndex )( { 5, 5 }, { tNumBases, 2 * tNumBases - 1 } ) = tF( 1, 1 ) * tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } ) + tF( 1, 0 ) * tdnNdxn( { 1, 1 }, { 0, tNumBases - 1 } );
 
-                mdLGStraindu( tDofIndex )( { 0, 0 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tF( 2, 0 )*tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } );
-                mdLGStraindu( tDofIndex )( { 1, 1 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tF( 2, 1 )*tdnNdxn( { 1, 1 }, { 0, tNumBases - 1 } );
-                mdLGStraindu( tDofIndex )( { 2, 2 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tF( 2, 2 )*tdnNdxn( { 2, 2 }, { 0, tNumBases - 1 } );
-                mdLGStraindu( tDofIndex )( { 3, 3 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tF( 2, 2 )*tdnNdxn( { 1, 1 }, { 0, tNumBases - 1 } ) + tF( 2, 1 )*tdnNdxn( { 2, 2 }, { 0, tNumBases - 1 } );
-                mdLGStraindu( tDofIndex )( { 4, 4 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tF( 2, 2 )*tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } ) + tF( 2, 0 )*tdnNdxn( { 2, 2 }, { 0, tNumBases - 1 } );
-                mdLGStraindu( tDofIndex )( { 5, 5 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tF( 2, 1 )*tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } ) + tF( 2, 0 )*tdnNdxn( { 1, 1 }, { 0, tNumBases - 1 } );
+                mdLGStraindu( tDofIndex )( { 0, 0 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tF( 2, 0 ) * tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } );
+                mdLGStraindu( tDofIndex )( { 1, 1 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tF( 2, 1 ) * tdnNdxn( { 1, 1 }, { 0, tNumBases - 1 } );
+                mdLGStraindu( tDofIndex )( { 2, 2 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tF( 2, 2 ) * tdnNdxn( { 2, 2 }, { 0, tNumBases - 1 } );
+                mdLGStraindu( tDofIndex )( { 3, 3 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tF( 2, 2 ) * tdnNdxn( { 1, 1 }, { 0, tNumBases - 1 } ) + tF( 2, 1 ) * tdnNdxn( { 2, 2 }, { 0, tNumBases - 1 } );
+                mdLGStraindu( tDofIndex )( { 4, 4 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tF( 2, 2 ) * tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } ) + tF( 2, 0 ) * tdnNdxn( { 2, 2 }, { 0, tNumBases - 1 } );
+                mdLGStraindu( tDofIndex )( { 5, 5 }, { 2 * tNumBases, 3 * tNumBases - 1 } ) = tF( 2, 1 ) * tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } ) + tF( 2, 0 ) * tdnNdxn( { 1, 1 }, { 0, tNumBases - 1 } );
             }
         }
 
         void
         CM_Struc_Nonlinear_Isotropic::eval_dEAStraindDOF_2d(
-                const Cell< MSI::Dof_Type > & aDofTypes )
+                const Cell< MSI::Dof_Type >& aDofTypes )
         {
 
             // if derivative dof is displacements dof
-            if( aDofTypes( 0 ) == mDofDispl )
+            if ( aDofTypes( 0 ) == mDofDispl )
             {
-                MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::eval_dEAStraindDOF_2d - Not implemented yet.");
+                MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::eval_dEAStraindDOF_2d - Not implemented yet." );
             }
         }
 
         void
         CM_Struc_Nonlinear_Isotropic::eval_dEAStraindDOF_3d(
-                const Cell< MSI::Dof_Type > & aDofTypes )
+                const Cell< MSI::Dof_Type >& aDofTypes )
         {
 
             // if derivative dof is displacements dof
-            if( aDofTypes( 0 ) == mDofDispl )
+            if ( aDofTypes( 0 ) == mDofDispl )
             {
-                MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::eval_dEAStraindDOF_3d - Not implemented yet.");
+                MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::eval_dEAStraindDOF_3d - Not implemented yet." );
             }
-
         }
 
         // FIXME:: Storage for derivative of deformation gradient wrt displacement is set twice to include the possibility of
         //    taking the derivative wrt. to dof
         void
         CM_Struc_Nonlinear_Isotropic::eval_dDGStraindDOF(
-                const Cell< MSI::Dof_Type > & aDofTypes )
+                const Cell< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             const uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -891,27 +901,28 @@ namespace moris
             const uint tDofIndex = mGlobalDofTypeMap( tDofType );
 
             // get the dof FI
-            Field_Interpolator * tFI =
+            Field_Interpolator* tFI =
                     mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // init mdDGStraindu
-            mdDGStraindu( tDofIndex ).set_size(
-                    6,
-                    tFI->get_number_of_space_time_coefficients(), 0.0 );
-            //
-            // if derivative dof is displacements dof
-            if( aDofTypes( 0 ) == mDofDispl )
-            {
-                mdDGStraindu( tDofIndex ) = this->test_deformation_gradient(aDofTypes) ;
-            }
+            mdDGStraindu( tDofIndex ).set_size(                      //
+                    6,                                               //
+                    tFI->get_number_of_space_time_coefficients(),    //
+                    0.0 );
 
+            // if derivative dof is displacements dof
+            if ( aDofTypes( 0 ) == mDofDispl )
+            {
+                mdDGStraindu( tDofIndex ) = this->test_deformation_gradient( aDofTypes );
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & CM_Struc_Nonlinear_Isotropic::dTestStraindDOF(
-                const moris::Cell< MSI::Dof_Type > & aDofType,
-                enum CM_Function_Type aCMFunctionType )
+        const Matrix< DDRMat >&
+        CM_Struc_Nonlinear_Isotropic::dTestStraindDOF(
+                const moris::Cell< MSI::Dof_Type >& aDofType,
+                enum CM_Function_Type               aCMFunctionType )
         {
             // if aDofType is not an active dof type for the CM
             MORIS_ERROR(
@@ -922,13 +933,13 @@ namespace moris
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
 
             // switch on CM function type
-            switch( aCMFunctionType )
+            switch ( aCMFunctionType )
             {
                 // lagrangian/Green strain
-                case CM_Function_Type::LAGRANGIAN :
+                case CM_Function_Type::LAGRANGIAN:
                 {
                     // if the derivative has not been evaluated yet
-                    if( mdLGTestStrainduEval( tDofIndex ) )
+                    if ( mdLGTestStrainduEval( tDofIndex ) )
                     {
                         // evaluate the derivative
                         this->eval_dLGTestStraindDOF( aDofType );
@@ -941,10 +952,10 @@ namespace moris
                     return mdLGTestStraindu( tDofIndex );
                 }
                 // eulerian/Almansi strain
-                case CM_Function_Type::EULERIAN :
+                case CM_Function_Type::EULERIAN:
                 {
                     // if the derivative has not been evaluated yet
-                    if( mdEATestStrainduEval( tDofIndex ) )
+                    if ( mdEATestStrainduEval( tDofIndex ) )
                     {
                         // evaluate the derivative
                         this->eval_dEATestStraindDOF( aDofType );
@@ -960,7 +971,7 @@ namespace moris
                 case CM_Function_Type::DEFORMATION_GRADIENT:
                 {
                     // if the derivative has not been evaluated yet
-                    if( mdDGTestStrainduEval( tDofIndex ) )
+                    if ( mdDGTestStrainduEval( tDofIndex ) )
                     {
                         // evaluate the derivative
                         this->eval_dDGTestStraindDOF( aDofType );
@@ -974,15 +985,16 @@ namespace moris
                 }
                 default:
                 {
-                    MORIS_ERROR(false, "CM_Struc_Nonlinear_Isotropic::dTestStraindDOF - Unknown strain type.");
+                    MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::dTestStraindDOF - Unknown strain type." );
                     return mdTestStraindDof( tDofIndex );
                 }
             }
         }
 
         // FIXME consider an implementation similar to the testTraction with jump ?
-        void CM_Struc_Nonlinear_Isotropic::eval_dLGTestStraindDOF_2d(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        void
+        CM_Struc_Nonlinear_Isotropic::eval_dLGTestStraindDOF_2d(
+                const moris::Cell< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             const uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -991,10 +1003,10 @@ namespace moris
             const uint tDofIndex = mGlobalDofTypeMap( tDofType );
 
             // get displacement field interpolator
-            Field_Interpolator * tFIDispl = mFIManager->get_field_interpolators_for_type( mDofDispl );
+            Field_Interpolator* tFIDispl = mFIManager->get_field_interpolators_for_type( mDofDispl );
 
             // get the derivative of the displacement shape functions
-            const Matrix< DDRMat > & tdnNdxn =
+            const Matrix< DDRMat >& tdnNdxn =
                     mFIManager->get_field_interpolators_for_type( mDofDispl )->dnNdxn( 1 );
 
             // get number of bases for displacement
@@ -1004,7 +1016,7 @@ namespace moris
             mdLGTestStraindu( tDofIndex ).set_size( 4, tNumBases * 2, 0.0 );
 
             // if derivative dof is displacements dof
-            if( aDofTypes( 0 ) == mDofDispl )
+            if ( aDofTypes( 0 ) == mDofDispl )
             {
                 // populate the derivative of the teststrain
                 mdLGTestStraindu( tDofIndex )( { 0, 0 }, { 0, tNumBases - 1 } ) = tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } );
@@ -1016,8 +1028,9 @@ namespace moris
         }
 
         // FIXME consider an implementation similar to the testTraction with jump ?
-        void CM_Struc_Nonlinear_Isotropic::eval_dLGTestStraindDOF_3d(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        void
+        CM_Struc_Nonlinear_Isotropic::eval_dLGTestStraindDOF_3d(
+                const moris::Cell< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             const uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -1026,10 +1039,10 @@ namespace moris
             const uint tDofIndex = mGlobalDofTypeMap( tDofType );
 
             // get displacement field interpolator
-            Field_Interpolator * tFIDispl = mFIManager->get_field_interpolators_for_type( mDofDispl );
+            Field_Interpolator* tFIDispl = mFIManager->get_field_interpolators_for_type( mDofDispl );
 
             // get the derivative of the displacement shape functions
-            const Matrix< DDRMat > & tdnNdxn =
+            const Matrix< DDRMat >& tdnNdxn =
                     mFIManager->get_field_interpolators_for_type( mDofDispl )->dnNdxn( 1 );
 
             // get number of bases for displacement
@@ -1039,7 +1052,7 @@ namespace moris
             mdLGTestStraindu( tDofIndex ).set_size( 9, tNumBases * 3, 0.0 );
 
             // if derivative dof is displacements dof
-            if( aDofTypes( 0 ) == mDofDispl )
+            if ( aDofTypes( 0 ) == mDofDispl )
             {
                 // populate the derivative of the teststrain
                 mdLGTestStraindu( tDofIndex )( { 0, 0 }, { 0, tNumBases - 1 } ) = tdnNdxn( { 0, 0 }, { 0, tNumBases - 1 } );
@@ -1056,21 +1069,24 @@ namespace moris
             }
         }
 
-        void CM_Struc_Nonlinear_Isotropic::eval_dEATestStraindDOF_2d(
-                const moris::Cell< MSI::Dof_Type > & aDofType )
+        void
+        CM_Struc_Nonlinear_Isotropic::eval_dEATestStraindDOF_2d(
+                const moris::Cell< MSI::Dof_Type >& aDofType )
         {
             MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::eval_dEATestStraindDOF_2d - Not implemented yet." );
         }
 
-        void CM_Struc_Nonlinear_Isotropic::eval_dEATestStraindDOF_3d(
-                const moris::Cell< MSI::Dof_Type > & aDofType )
+        void
+        CM_Struc_Nonlinear_Isotropic::eval_dEATestStraindDOF_3d(
+                const moris::Cell< MSI::Dof_Type >& aDofType )
         {
             MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::eval_dEATestStraindDOF_3d - Not implemented yet." );
         }
 
         // FIXME: set mdDGTestStraindu as an empty matrix of the right size to be consistent with general formulation
-        void CM_Struc_Nonlinear_Isotropic::eval_dDGTestStraindDOF(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        void
+        CM_Struc_Nonlinear_Isotropic::eval_dDGTestStraindDOF(
+                const moris::Cell< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type as a uint
             const uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
@@ -1079,7 +1095,7 @@ namespace moris
             const uint tDofIndex = mGlobalDofTypeMap( tDofType );
 
             // get displacement field interpolator
-            Field_Interpolator * tFIDispl = mFIManager->get_field_interpolators_for_type( mDofDispl );
+            Field_Interpolator* tFIDispl = mFIManager->get_field_interpolators_for_type( mDofDispl );
 
             // get number of bases for displacement
             uint tNumBases = tFIDispl->get_number_of_space_time_bases();
@@ -1090,19 +1106,18 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > &
+        const Matrix< DDRMat >&
         CM_Struc_Nonlinear_Isotropic::flux(
-                enum CM_Function_Type aCMFunctionType)
+                enum CM_Function_Type aCMFunctionType )
         {
             // switch on CM function type
-            switch( aCMFunctionType )
+            switch ( aCMFunctionType )
             {
                 // first Piola-Kirchhoff stress
-                case CM_Function_Type::PK1 :
+                case CM_Function_Type::PK1:
                 {
-
                     // if the first Piola_Kirchhoff stress tensor was not evaluated
-                    if( m1PKStressEval )
+                    if ( m1PKStressEval )
                     {
                         // evaluate the first Piola_Kirchhoff stress tensor
                         this->eval_flux_first_piola_kirchhoff();
@@ -1113,13 +1128,13 @@ namespace moris
                     // return the first Piola_Kirchhoff stress tensor
                     return m1PKStress;
 
+                    break;
                 }
                 // second Piola-Kirchhoff stress
-                case CM_Function_Type::PK2 :
+                case CM_Function_Type::PK2:
                 {
-
                     // if the second Piola_Kirchhoff stress tensor was not evaluated
-                    if( m2PKStressEval )
+                    if ( m2PKStressEval )
                     {
                         // evaluate the second Piola_Kirchhoff stress tensor
                         this->eval_flux_second_piola_kirchhoff();
@@ -1130,13 +1145,13 @@ namespace moris
                     // return the second Piola_Kirchhoff stress tensor
                     return m2PKStress;
 
+                    break;
                 }
                 // cauchy stress
-                case CM_Function_Type::CAUCHY :
+                case CM_Function_Type::CAUCHY:
                 {
-
                     // if the Cauchy stress tensor was not evaluated
-                    if( mCauchyStressEval )
+                    if ( mCauchyStressEval )
                     {
                         // evaluate the Cauchy stress tensor
                         this->eval_flux_cauchy();
@@ -1147,46 +1162,49 @@ namespace moris
                     // return the Cauchy stress tensor
                     return mCauchyStress;
 
+                    break;
                 }
                 default:
                 {
-                    MORIS_ERROR(false, "CM_Struc_Nonlinear_Isotropic::flux - Unknown stress type.");
+                    MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::flux - Unknown stress type." );
                     return mFlux;
                 }
             }
         }
 
-        const Matrix< DDRMat > &
+        const Matrix< DDRMat >&
         CM_Struc_Nonlinear_Isotropic::flux(
-                int aFlatType,
-                enum CM_Function_Type aCMFunctionType)
+                int                   aFlatType,
+                enum CM_Function_Type aCMFunctionType )
         {
             // switch on CM function type
-            switch( aCMFunctionType )
+            switch ( aCMFunctionType )
             {
                 // first Piola-Kirchhoff stress
-                case CM_Function_Type::PK1 :
+                case CM_Function_Type::PK1:
                 {
-                    switch( aFlatType )
+                    switch ( aFlatType )
                     {
                         // first Piola-Kirchhoff stress
-                        case 1 :
+                        case 1:
                         {
-                            if( mFluxProjEval )
+                            if ( mFluxProjEval )
                             {
                                 // second Piola_Kirchhoff stress tensor
-                                this->eval_flux_proj_nsym(CM_Function_Type::PK1);
+                                this->eval_flux_proj_nsym( CM_Function_Type::PK1 );
 
                                 // set bool for evaluation
                                 mFluxProjEval = false;
                             }
                             // return the projected second Piola_Kirchhoff stress tensor
                             return mFluxProj;
+
+                            break;
                         }
                         case 0:
                         {
                             // if the first Piola_Kirchhoff stress tensor was not evaluated
-                            if( m1PKStressEval )
+                            if ( m1PKStressEval )
                             {
                                 // evaluate the first Piola_Kirchhoff stress tensor
                                 this->eval_flux_first_piola_kirchhoff();
@@ -1196,35 +1214,40 @@ namespace moris
                             }
                             // return the first Piola_Kirchhoff stress tensor
                             return m1PKStress;
+
+                            break;
                         }
                         default:
                         {
-                            MORIS_ERROR(false, "CM_Struc_Nonlinear_Isotropic::flux - aFlatType unequal to 0 (no projection) or 1 (projection) .");
+                            MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::flux - aFlatType unequal to 0 (no projection) or 1 (projection) ." );
                         }
                     }
+                    break;
                 }
                 // second Piola-Kirchhoff stress
-                case CM_Function_Type::PK2 :
+                case CM_Function_Type::PK2:
                 {
-                    switch( aFlatType )
+                    switch ( aFlatType )
                     {
                         case 1:
                         {
-                            if( mFluxProjEval )
+                            if ( mFluxProjEval )
                             {
                                 // projected second Piola_Kirchhoff stress tensor
-                                this->eval_flux_proj_sym(CM_Function_Type::PK2);
+                                this->eval_flux_proj_sym( CM_Function_Type::PK2 );
 
                                 // set bool for evaluation
                                 mFluxProjEval = false;
                             }
                             // return the projected second Piola_Kirchhoff stress tensor
                             return mFluxProj;
+
+                            break;
                         }
                         case 0:
                         {
                             // if the second Piola_Kirchhoff stress tensor was not evaluated
-                            if( m2PKStressEval )
+                            if ( m2PKStressEval )
                             {
                                 // evaluate the second Piola_Kirchhoff stress tensor
                                 this->eval_flux_second_piola_kirchhoff();
@@ -1234,35 +1257,40 @@ namespace moris
                             }
                             // return the second Piola_Kirchhoff stress tensor
                             return m2PKStress;
+
+                            break;
                         }
                         default:
                         {
-                            MORIS_ERROR(false, "CM_Struc_Nonlinear_Isotropic::flux - aFlatType unequal to 0 (no projection) or 1 (projection) .");
+                            MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::flux - aFlatType unequal to 0 (no projection) or 1 (projection) ." );
                         }
                     }
+                    break;
                 }
                 // cauchy stress
-                case CM_Function_Type::CAUCHY :
+                case CM_Function_Type::CAUCHY:
                 {
-                    switch( aFlatType )
+                    switch ( aFlatType )
                     {
-                        case 1 :
+                        case 1:
                         {
-                            if( mFluxProjEval )
+                            if ( mFluxProjEval )
                             {
                                 // projected cauchy stress tensor
-                                this->eval_flux_proj_sym(CM_Function_Type::CAUCHY);
+                                this->eval_flux_proj_sym( CM_Function_Type::CAUCHY );
 
                                 // set bool for evaluation
                                 mFluxProjEval = false;
                             }
                             // return the projected cauchy stress tensor
                             return mFluxProj;
+
+                            break;
                         }
                         case 0:
                         {
                             // if the Cauchy stress tensor was not evaluated
-                            if( mCauchyStressEval )
+                            if ( mCauchyStressEval )
                             {
                                 // evaluate the Cauchy stress tensor
                                 this->eval_flux_cauchy();
@@ -1272,39 +1300,43 @@ namespace moris
                             }
                             // return the Cauchy stress tensor
                             return mCauchyStress;
+
+                            break;
                         }
                         default:
                         {
-                            MORIS_ERROR(false, "CM_Struc_Nonlinear_Isotropic::flux - aFlatType unequal to 0 (no projection) or 1 (projection) .");
+                            MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::flux - aFlatType unequal to 0 (no projection) or 1 (projection) ." );
                         }
                     }
+                    break;
                 }
                 default:
                 {
-                    MORIS_ERROR(false, "CM_Struc_Nonlinear_Isotropic::flux - Unknown stress type.");
+                    MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::flux - Unknown stress type." );
                     return mFlux;
                 }
             }
+            return mFlux;
         }
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > &
+        const Matrix< DDRMat >&
         CM_Struc_Nonlinear_Isotropic::dFluxdDOF(
-                const moris::Cell< MSI::Dof_Type > & aDofType,
-                enum CM_Function_Type aCMFunctionType )
+                const moris::Cell< MSI::Dof_Type >& aDofType,
+                enum CM_Function_Type               aCMFunctionType )
         {
             // get the dof index
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
 
             // switch on CM function type
-            switch( aCMFunctionType )
+            switch ( aCMFunctionType )
             {
                 // first Piola-Kirchhoff stress
-                case CM_Function_Type::PK1 :
+                case CM_Function_Type::PK1:
                 {
                     // if the derivative of first Piola_Kirchhoff stress has not been evaluated yet
-                    if( md1PKStressduEval( tDofIndex ) )
+                    if ( md1PKStressduEval( tDofIndex ) )
                     {
                         // evaluate the derivative
                         this->eval_d1PKStressdDOF( aDofType );
@@ -1317,10 +1349,10 @@ namespace moris
                     return md1PKStressdu( tDofIndex );
                 }
                 // second Piola-Kirchhoff stress
-                case CM_Function_Type::PK2 :
+                case CM_Function_Type::PK2:
                 {
                     // if the derivative of second Piola_Kirchhoff stress has not been evaluated yet
-                    if( md2PKStressduEval( tDofIndex ) )
+                    if ( md2PKStressduEval( tDofIndex ) )
                     {
                         // evaluate the derivative
                         this->eval_d2PKStressdDOF( aDofType );
@@ -1333,10 +1365,10 @@ namespace moris
                     return md2PKStressdu( tDofIndex );
                 }
                 // cauchy stress
-                case CM_Function_Type::CAUCHY :
+                case CM_Function_Type::CAUCHY:
                 {
                     // if the derivative of cauchy stress has not been evaluated yet
-                    if( mdCauchyStressduEval( tDofIndex ) )
+                    if ( mdCauchyStressduEval( tDofIndex ) )
                     {
                         // evaluate the derivative
                         this->eval_dCauchyStressdDOF( aDofType );
@@ -1350,7 +1382,7 @@ namespace moris
                 }
                 default:
                 {
-                    MORIS_ERROR(false, "CM_Struc_Nonlinear_Isotropic::dfluxdDOF - Unknown stress type.");
+                    MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::dfluxdDOF - Unknown stress type." );
                     return mdFluxdDof( tDofIndex );
                 }
             }
@@ -1358,19 +1390,19 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > &
+        const Matrix< DDRMat >&
         CM_Struc_Nonlinear_Isotropic::traction(
-                const Matrix< DDRMat > & aNormal,
-                enum CM_Function_Type aCMFunctionType )
+                const Matrix< DDRMat >& aNormal,
+                enum CM_Function_Type   aCMFunctionType )
         {
             // switch on CM function type
-            switch( aCMFunctionType )
+            switch ( aCMFunctionType )
             {
                 // first Piola-Kirchhoff stress
-                case CM_Function_Type::PK1 :
+                case CM_Function_Type::PK1:
                 {
                     // if the traction based on first Piola_Kirchhoff stress was not evaluated
-                    if( m1PKTractionEval )
+                    if ( m1PKTractionEval )
                     {
                         // evaluate the traction based on first Piola_Kirchhoff stress
                         this->eval_traction_first_piola_kirchhoff( aNormal );
@@ -1382,10 +1414,10 @@ namespace moris
                     return m1PKTraction;
                 }
                 // second Piola-Kirchhoff stress
-                case CM_Function_Type::PK2 :
+                case CM_Function_Type::PK2:
                 {
                     // if the traction based on second Piola_Kirchhoff stress was not evaluated
-                    if( m2PKTractionEval )
+                    if ( m2PKTractionEval )
                     {
                         // evaluate the traction based on second Piola_Kirchhoff stress
                         this->eval_traction_second_piola_kirchhoff( aNormal );
@@ -1397,10 +1429,10 @@ namespace moris
                     return m2PKTraction;
                 }
                 // cauchy stress
-                case CM_Function_Type::CAUCHY :
+                case CM_Function_Type::CAUCHY:
                 {
                     // if the traction based on Cauchy stress was not evaluated
-                    if( mCauchyTractionEval )
+                    if ( mCauchyTractionEval )
                     {
                         // evaluate the traction based on Cauchy stress
                         this->eval_traction_cauchy( aNormal );
@@ -1413,7 +1445,7 @@ namespace moris
                 }
                 default:
                 {
-                    MORIS_ERROR(false, "CM_Struc_Nonlinear_Isotropic::traction - Unknown stress type.");
+                    MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::traction - Unknown stress type." );
                     return mTraction;
                 }
             }
@@ -1423,21 +1455,21 @@ namespace moris
 
         const Matrix< DDRMat >&
         CM_Struc_Nonlinear_Isotropic::dTractiondDOF(
-                const moris::Cell< MSI::Dof_Type > & aDofType,
-                const Matrix< DDRMat >             & aNormal,
+                const moris::Cell< MSI::Dof_Type >& aDofType,
+                const Matrix< DDRMat >&             aNormal,
                 enum CM_Function_Type               aCMFunctionType )
         {
             // get the dof index
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
 
             // switch on CM function type
-            switch( aCMFunctionType )
+            switch ( aCMFunctionType )
             {
                 // first Piola-Kirchhoff stress
-                case CM_Function_Type::PK1 :
+                case CM_Function_Type::PK1:
                 {
                     // if the derivative of traction based on first Piola_Kirchhoff stress was not evaluated
-                    if( md1PKTractionduEval( tDofIndex ) )
+                    if ( md1PKTractionduEval( tDofIndex ) )
                     {
                         // evaluate the derivative of traction based on first Piola_Kirchhoff stress
                         this->eval_dTractiondDOF_first_piola_kirchhoff( aNormal, aDofType );
@@ -1449,10 +1481,10 @@ namespace moris
                     return md1PKTractiondu( tDofIndex );
                 }
                 // second Piola-Kirchhoff stress
-                case CM_Function_Type::PK2 :
+                case CM_Function_Type::PK2:
                 {
                     // if the derivative of traction based on second Piola_Kirchhoff stress was not evaluated
-                    if( md2PKTractionduEval( tDofIndex ) )
+                    if ( md2PKTractionduEval( tDofIndex ) )
                     {
                         // evaluate the derivative of traction based on second Piola_Kirchhoff stress
                         this->eval_dTractiondDOF_second_piola_kirchhoff( aNormal, aDofType );
@@ -1464,10 +1496,10 @@ namespace moris
                     return md2PKTractiondu( tDofIndex );
                 }
                 // cauchy stress
-                case CM_Function_Type::CAUCHY :
+                case CM_Function_Type::CAUCHY:
                 {
                     // if the derivative of traction based on Cauchy stress was not evaluated
-                    if( mdCauchyTractionduEval( tDofIndex ) )
+                    if ( mdCauchyTractionduEval( tDofIndex ) )
                     {
                         // evaluate the derivative of traction based on Cauchy stress
                         this->eval_dTractiondDOF_cauchy( aNormal, aDofType );
@@ -1480,7 +1512,7 @@ namespace moris
                 }
                 default:
                 {
-                    MORIS_ERROR(false, "CM_Struc_Nonlinear_Isotropic::dTractiondDOF - Unknown stress type.");
+                    MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::dTractiondDOF - Unknown stress type." );
                     return mdTractiondDof( tDofIndex );
                 }
             }
@@ -1498,13 +1530,13 @@ namespace moris
             uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
 
             // switch on CM function type
-            switch( aCMFunctionType )
+            switch ( aCMFunctionType )
             {
                 // first Piola-Kirchhoff stress
-                case CM_Function_Type::PK1 :
+                case CM_Function_Type::PK1:
                 {
                     // if the test traction based on first Piola_Kirchhoff stress was not evaluated
-                    if( m1PKTestTractionEval( tTestDofIndex ) )
+                    if ( m1PKTestTractionEval( tTestDofIndex ) )
                     {
                         // evaluate the test traction based on first Piola_Kirchhoff stress
                         this->eval_testTraction_first_piola_kirchhoff( aNormal, aTestDofTypes );
@@ -1516,10 +1548,10 @@ namespace moris
                     return m1PKTestTraction( tTestDofIndex );
                 }
                 // second Piola-Kirchhoff stress
-                case CM_Function_Type::PK2 :
+                case CM_Function_Type::PK2:
                 {
                     // if the traction based on second Piola_Kirchhoff stress was not evaluated
-                    if( m2PKTestTractionEval( tTestDofIndex ) )
+                    if ( m2PKTestTractionEval( tTestDofIndex ) )
                     {
                         // evaluate the traction based on second Piola_Kirchhoff stress
                         this->eval_testTraction_second_piola_kirchhoff( aNormal, aTestDofTypes );
@@ -1531,10 +1563,10 @@ namespace moris
                     return m2PKTestTraction( tTestDofIndex );
                 }
                 // cauchy stress
-                case CM_Function_Type::CAUCHY :
+                case CM_Function_Type::CAUCHY:
                 {
                     // if the test traction based on Cauchy stress was not evaluated
-                    if( mCauchyTestTractionEval( tTestDofIndex ) )
+                    if ( mCauchyTestTractionEval( tTestDofIndex ) )
                     {
                         // evaluate the test traction based on Cauchy stress
                         this->eval_testTraction_cauchy( aNormal, aTestDofTypes );
@@ -1547,7 +1579,7 @@ namespace moris
                 }
                 default:
                 {
-                    MORIS_ERROR(false, "CM_Struc_Nonlinear_Isotropic::testTraction - Unknown stress type.");
+                    MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::testTraction - Unknown stress type." );
                     return mTestTraction( tTestDofIndex );
                 }
             }
@@ -1570,13 +1602,13 @@ namespace moris
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
 
             // switch on CM function type
-            switch( aCMFunctionType )
+            switch ( aCMFunctionType )
             {
                 // first Piola-Kirchhoff stress
-                case CM_Function_Type::PK1 :
+                case CM_Function_Type::PK1:
                 {
                     // if the derivative of the test traction based on first Piola_Kirchhoff stress was not evaluated
-                    if( md1PKTestTractionduEval( tTestDofIndex, tDofIndex ) )
+                    if ( md1PKTestTractionduEval( tTestDofIndex, tDofIndex ) )
                     {
                         // evaluate the test traction based on first Piola_Kirchhoff stress
                         this->eval_dTestTractiondDOF_first_piola_kirchhoff( aDofTypes, aNormal, aJump, aTestDofTypes );
@@ -1588,10 +1620,10 @@ namespace moris
                     return md1PKTestTractiondu( tTestDofIndex )( tDofIndex );
                 }
                 // second Piola-Kirchhoff stress
-                case CM_Function_Type::PK2 :
+                case CM_Function_Type::PK2:
                 {
                     // if the derivative of the test traction based on second Piola_Kirchhoff stress was not evaluated
-                    if( md2PKTestTractionduEval( tTestDofIndex, tDofIndex ) )
+                    if ( md2PKTestTractionduEval( tTestDofIndex, tDofIndex ) )
                     {
                         // evaluate the traction based on second Piola_Kirchhoff stress
                         this->eval_dTestTractiondDOF_second_piola_kirchhoff( aDofTypes, aNormal, aJump, aTestDofTypes );
@@ -1603,23 +1635,23 @@ namespace moris
                     return md2PKTestTractiondu( tTestDofIndex )( tDofIndex );
                 }
                 // cauchy stress
-                case CM_Function_Type::CAUCHY :
+                case CM_Function_Type::CAUCHY:
                 {
                     // if the test traction based on Cauchy stress was not evaluated
-                    if( mdCauchyTestTractionduEval( tTestDofIndex,tDofIndex ) )
+                    if ( mdCauchyTestTractionduEval( tTestDofIndex, tDofIndex ) )
                     {
                         // evaluate the test traction based on Cauchy stress
                         this->eval_dTestTractiondDOF_cauchy( aDofTypes, aNormal, aJump, aTestDofTypes );
 
                         // set bool for evaluation
-                        mdCauchyTestTractionduEval( tTestDofIndex,tDofIndex ) = false;
+                        mdCauchyTestTractionduEval( tTestDofIndex, tDofIndex ) = false;
                     }
                     // return the test Cauchy stress tensor
                     return mdCauchyTestTractiondu( tTestDofIndex )( tDofIndex );
                 }
                 default:
                 {
-                    MORIS_ERROR(false, "CM_Struc_Nonlinear_Isotropic::dTestTractiondDOF - Unknown stress type.");
+                    MORIS_ERROR( false, "CM_Struc_Nonlinear_Isotropic::dTestTractiondDOF - Unknown stress type." );
                     return mdTestTractiondDof( tTestDofIndex )( tDofIndex );
                 }
             }
@@ -1627,47 +1659,51 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void CM_Struc_Nonlinear_Isotropic::eval_flux_proj_sym(
-                enum CM_Function_Type aCMFunctionType)
+        void
+        CM_Struc_Nonlinear_Isotropic::eval_flux_proj_sym(
+                enum CM_Function_Type aCMFunctionType )
         {
             // get the 2nd PK stress in voigt notation
             Matrix< DDRMat > tSymStressVoigt;
             tSymStressVoigt = this->flux( aCMFunctionType );
 
             // Project the flux
-            this->proj_sym(tSymStressVoigt,mFluxProj);
+            this->proj_sym( tSymStressVoigt, mFluxProj );
         }
 
-        void CM_Struc_Nonlinear_Isotropic::eval_flux_proj_nsym(
-                enum CM_Function_Type aCMFunctionType)
+        void
+        CM_Struc_Nonlinear_Isotropic::eval_flux_proj_nsym(
+                enum CM_Function_Type aCMFunctionType )
         {
             // get the 2nd PK stress in voigt notation
             Matrix< DDRMat > tNSymStressVoigt;
             tNSymStressVoigt = this->flux( aCMFunctionType );
 
             // Project the flux
-            this->proj_nsym(tNSymStressVoigt,mFluxProj);
+            this->proj_nsym( tNSymStressVoigt, mFluxProj );
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void CM_Struc_Nonlinear_Isotropic::flatten_normal_2d(
-                const Matrix< DDRMat > & aNormal,
-                Matrix< DDRMat >       & aFlatNormal )
+        void
+        CM_Struc_Nonlinear_Isotropic::flatten_normal_2d(
+                const Matrix< DDRMat >& aNormal,
+                Matrix< DDRMat >&       aFlatNormal )
         {
             // num cols based on number of flux terms
             aFlatNormal.set_size( 2, mConst.n_rows(), 0.0 );
-            aFlatNormal( 0, 0 ) = aNormal( 0, 0 );
+            aFlatNormal( 0, 0 )                   = aNormal( 0, 0 );
             aFlatNormal( 0, mConst.n_rows() - 1 ) = aNormal( 1, 0 );
-            aFlatNormal( 1, 1 ) = aNormal( 1, 0 );
+            aFlatNormal( 1, 1 )                   = aNormal( 1, 0 );
             aFlatNormal( 1, mConst.n_rows() - 1 ) = aNormal( 0, 0 );
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void CM_Struc_Nonlinear_Isotropic::flatten_normal_3d(
-                const Matrix< DDRMat > & aNormal,
-                Matrix< DDRMat >       & aFlatNormal )
+        void
+        CM_Struc_Nonlinear_Isotropic::flatten_normal_3d(
+                const Matrix< DDRMat >& aNormal,
+                Matrix< DDRMat >&       aFlatNormal )
         {
             aFlatNormal.set_size( 3, 6, 0.0 );
             aFlatNormal( 0, 0 ) = aNormal( 0, 0 );
@@ -1685,99 +1721,104 @@ namespace moris
 
         void
         CM_Struc_Nonlinear_Isotropic ::flatten_normal_nonsym_2d(
-                const Matrix< DDRMat > & aNormal,
-                Matrix< DDRMat >       & aFlatNormal )
+                const Matrix< DDRMat >& aNormal,
+                Matrix< DDRMat >&       aFlatNormal )
         {
             // set size based on dimensions
             aFlatNormal.set_size( mSpaceDim, 4 );
 
             // populate flattened normal
             aFlatNormal = {
-                    { aNormal(0,0), aNormal(1,0), 0, 0 },
-                    { 0, 0, aNormal(0,0), aNormal(1,0) }
+                { aNormal( 0, 0 ), aNormal( 1, 0 ), 0, 0 },
+                { 0, 0, aNormal( 0, 0 ), aNormal( 1, 0 ) }
             };
         }
 
         void
         CM_Struc_Nonlinear_Isotropic ::flatten_normal_nonsym_3d(
-                const Matrix< DDRMat > & aNormal,
-                Matrix< DDRMat >       & aFlatNormal )
+                const Matrix< DDRMat >& aNormal,
+                Matrix< DDRMat >&       aFlatNormal )
         {
             // set size based on dimensions
             aFlatNormal.set_size( mSpaceDim, 9, 0.0 );
 
             aFlatNormal = {
-                    { aNormal(0,0), aNormal(1,0), aNormal(2,0), 0, 0, 0, 0, 0, 0 },
-                    { 0, 0, 0, aNormal(0,0), aNormal(1,0), aNormal(2,0), 0, 0, 0 },
-                    { 0, 0, 0, 0, 0, 0, aNormal(0,0), aNormal(1,0), aNormal(2,0) }
+                { aNormal( 0, 0 ), aNormal( 1, 0 ), aNormal( 2, 0 ), 0, 0, 0, 0, 0, 0 },
+                { 0, 0, 0, aNormal( 0, 0 ), aNormal( 1, 0 ), aNormal( 2, 0 ), 0, 0, 0 },
+                { 0, 0, 0, 0, 0, 0, aNormal( 0, 0 ), aNormal( 1, 0 ), aNormal( 2, 0 ) }
             };
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void CM_Struc_Nonlinear_Isotropic::proj_sym_2d(
-                const Matrix< DDRMat > & aVector,
-                Matrix< DDRMat >       & aProjMatrix )
+        void
+        CM_Struc_Nonlinear_Isotropic::proj_sym_2d(
+                const Matrix< DDRMat >& aVector,
+                Matrix< DDRMat >&       aProjMatrix )
         {
             // representing in voigt notation vector->matrix
             Matrix< DDRMat > tMatrix;
             this->voigt_to_full_sym_stress( aVector, tMatrix );
 
             // projecting the matrix as ProjMatrix = [aMatrix 0 ; 0 aMatrix]
-            aProjMatrix( { 0, mSpaceDim - 1 }, { 0, mSpaceDim - 1 } ) = tMatrix( { 0, mSpaceDim - 1 }, { 0, mSpaceDim - 1 } );
+            aProjMatrix( { 0, mSpaceDim - 1 }, { 0, mSpaceDim - 1 } )                         = tMatrix( { 0, mSpaceDim - 1 }, { 0, mSpaceDim - 1 } );
             aProjMatrix( { mSpaceDim, 2 * mSpaceDim - 1 }, { mSpaceDim, 2 * mSpaceDim - 1 } ) = tMatrix( { 0, mSpaceDim - 1 }, { 0, mSpaceDim - 1 } );
         }
 
-        void CM_Struc_Nonlinear_Isotropic::proj_sym_3d(
-                const Matrix< DDRMat > & aVector,
-                Matrix< DDRMat >       & aProjMatrix )
+        void
+        CM_Struc_Nonlinear_Isotropic::proj_sym_3d(
+                const Matrix< DDRMat >& aVector,
+                Matrix< DDRMat >&       aProjMatrix )
         {
             // representing in voigt notation vector->matrix
             Matrix< DDRMat > tMatrix;
             this->voigt_to_full_sym_stress( aVector, tMatrix );
 
             // projecting the matrix as ProjMatrix = [aMatrix 0 0 ; 0 aMatrix 0 ; 0 0 aMatrix]
-            aProjMatrix( { 0, mSpaceDim - 1 }, { 0, mSpaceDim - 1 } ) = tMatrix( { 0, mSpaceDim - 1 }, { 0, mSpaceDim - 1 } );
-            aProjMatrix( { mSpaceDim, 2 * mSpaceDim - 1 }, { mSpaceDim, 2 * mSpaceDim - 1 } ) = tMatrix( { 0, mSpaceDim - 1 }, { 0, mSpaceDim - 1 } );
-            aProjMatrix( {2*mSpaceDim, 3*mSpaceDim-1}, {2*mSpaceDim, 3*mSpaceDim-1}) = tMatrix({0, mSpaceDim-1},{0, mSpaceDim-1});
+            aProjMatrix( { 0, mSpaceDim - 1 }, { 0, mSpaceDim - 1 } )                                 = tMatrix( { 0, mSpaceDim - 1 }, { 0, mSpaceDim - 1 } );
+            aProjMatrix( { mSpaceDim, 2 * mSpaceDim - 1 }, { mSpaceDim, 2 * mSpaceDim - 1 } )         = tMatrix( { 0, mSpaceDim - 1 }, { 0, mSpaceDim - 1 } );
+            aProjMatrix( { 2 * mSpaceDim, 3 * mSpaceDim - 1 }, { 2 * mSpaceDim, 3 * mSpaceDim - 1 } ) = tMatrix( { 0, mSpaceDim - 1 }, { 0, mSpaceDim - 1 } );
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void CM_Struc_Nonlinear_Isotropic::proj_nsym_2d(
-                const Matrix< DDRMat > & aVector,
-                Matrix< DDRMat >       & aProjMatrix )
+        void
+        CM_Struc_Nonlinear_Isotropic::proj_nsym_2d(
+                const Matrix< DDRMat >& aVector,
+                Matrix< DDRMat >&       aProjMatrix )
         {
             // representing in voigt notation vector->matrix
             Matrix< DDRMat > tMatrix;
             this->voigt_to_full_nonsym( aVector, tMatrix );
 
             // projecting the matrix as ProjMatrix = [aMatrix 0 ; 0 aMatrix]
-            aProjMatrix( { 0, mSpaceDim - 1 }, { 0, mSpaceDim - 1 } ) = tMatrix( { 0, mSpaceDim - 1 }, { 0, mSpaceDim - 1 } );
+            aProjMatrix( { 0, mSpaceDim - 1 }, { 0, mSpaceDim - 1 } )                         = tMatrix( { 0, mSpaceDim - 1 }, { 0, mSpaceDim - 1 } );
             aProjMatrix( { mSpaceDim, 2 * mSpaceDim - 1 }, { mSpaceDim, 2 * mSpaceDim - 1 } ) = tMatrix( { 0, mSpaceDim - 1 }, { 0, mSpaceDim - 1 } );
         }
 
-        void CM_Struc_Nonlinear_Isotropic::proj_nsym_3d(
-                const Matrix< DDRMat > & aVector,
-                Matrix< DDRMat >       & aProjMatrix )
+        void
+        CM_Struc_Nonlinear_Isotropic::proj_nsym_3d(
+                const Matrix< DDRMat >& aVector,
+                Matrix< DDRMat >&       aProjMatrix )
         {
             // representing in voigt notation vector->matrix
             Matrix< DDRMat > tMatrix;
             this->voigt_to_full_nonsym( aVector, tMatrix );
 
             // projecting the matrix as ProjMatrix = [aMatrix 0 0 ; 0 aMatrix 0 ; 0 0 aMatrix]
-            aProjMatrix( { 0, mSpaceDim - 1 }, { 0, mSpaceDim - 1 } ) = tMatrix( { 0, mSpaceDim - 1 }, { 0, mSpaceDim - 1 } );
-            aProjMatrix( { mSpaceDim, 2 * mSpaceDim - 1 }, { mSpaceDim, 2 * mSpaceDim - 1 } ) = tMatrix( { 0, mSpaceDim - 1 }, { 0, mSpaceDim - 1 } );
-            aProjMatrix( {2*mSpaceDim, 3*mSpaceDim-1}, {2*mSpaceDim, 3*mSpaceDim-1}) = tMatrix({0, mSpaceDim-1},{0, mSpaceDim-1});
+            aProjMatrix( { 0, mSpaceDim - 1 }, { 0, mSpaceDim - 1 } )                                 = tMatrix( { 0, mSpaceDim - 1 }, { 0, mSpaceDim - 1 } );
+            aProjMatrix( { mSpaceDim, 2 * mSpaceDim - 1 }, { mSpaceDim, 2 * mSpaceDim - 1 } )         = tMatrix( { 0, mSpaceDim - 1 }, { 0, mSpaceDim - 1 } );
+            aProjMatrix( { 2 * mSpaceDim, 3 * mSpaceDim - 1 }, { 2 * mSpaceDim, 3 * mSpaceDim - 1 } ) = tMatrix( { 0, mSpaceDim - 1 }, { 0, mSpaceDim - 1 } );
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void CM_Struc_Nonlinear_Isotropic::set_space_dim( uint aSpaceDim )
+        void
+        CM_Struc_Nonlinear_Isotropic::set_space_dim( uint aSpaceDim )
         {
             // check that space dimension is 1, 2, 3
             MORIS_ERROR( aSpaceDim > 0 && aSpaceDim < 4,
-                    "Constitutive_Model::set_space_dim - wrong space dimension.");
+                    "Constitutive_Model::set_space_dim - wrong space dimension." );
 
             // set space dimension
             mSpaceDim = aSpaceDim;
@@ -1788,7 +1829,8 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void CM_Struc_Nonlinear_Isotropic::set_model_type( Model_Type aModelType )
+        void
+        CM_Struc_Nonlinear_Isotropic::set_model_type( Model_Type aModelType )
         {
             // fixme: currently cannot set plane type and a tensor type at the same time from an input file
             // store model type based on input
@@ -1796,7 +1838,7 @@ namespace moris
             {
                 mPlaneType = aModelType;
             }
-            else if ( aModelType == Model_Type::FULL or aModelType == Model_Type::HYDROSTATIC or aModelType == Model_Type::DEVIATORIC)
+            else if ( aModelType == Model_Type::FULL or aModelType == Model_Type::HYDROSTATIC or aModelType == Model_Type::DEVIATORIC )
             {
                 mTensorType = aModelType;
             }
@@ -1809,9 +1851,10 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void CM_Struc_Nonlinear_Isotropic::voigt_to_full_nonsym(
-                const Matrix< DDRMat > & aVoigtVector,
-                Matrix< DDRMat >       & aFullMatrix )
+        void
+        CM_Struc_Nonlinear_Isotropic::voigt_to_full_nonsym(
+                const Matrix< DDRMat >& aVoigtVector,
+                Matrix< DDRMat >&       aFullMatrix )
         {
             // get the matrix dimensions
             uint tNumRow = mVoigtNonSymMap.n_rows();
@@ -1832,9 +1875,10 @@ namespace moris
             }
         }
 
-        void CM_Struc_Nonlinear_Isotropic::voigt_to_full_sym_strain(
-                const Matrix< DDRMat > & aVoigtVector,
-                Matrix< DDRMat >       & aFullMatrix )
+        void
+        CM_Struc_Nonlinear_Isotropic::voigt_to_full_sym_strain(
+                const Matrix< DDRMat >& aVoigtVector,
+                Matrix< DDRMat >&       aFullMatrix )
         {
             // get the matrix dimensions
             uint tNumRow = mVoigtSymMap.n_rows();
@@ -1849,7 +1893,7 @@ namespace moris
                 // loop over the columns
                 for ( uint jCol = 0; jCol < tNumCol; jCol++ )
                 {
-                    if( iRow == jCol )
+                    if ( iRow == jCol )
                     {
                         // fill the full matrix
                         aFullMatrix( iRow, jCol ) = aVoigtVector( mVoigtSymMap( iRow, jCol ) );
@@ -1863,9 +1907,10 @@ namespace moris
             }
         }
 
-        void CM_Struc_Nonlinear_Isotropic::voigt_to_full_sym_stress(
-                const Matrix< DDRMat > & aVoigtVector,
-                Matrix< DDRMat >       & aFullMatrix )
+        void
+        CM_Struc_Nonlinear_Isotropic::voigt_to_full_sym_stress(
+                const Matrix< DDRMat >& aVoigtVector,
+                Matrix< DDRMat >&       aFullMatrix )
         {
             // get the matrix dimensions
             uint tNumRow = mVoigtSymMap.n_rows();
@@ -1886,9 +1931,10 @@ namespace moris
             }
         }
 
-        void CM_Struc_Nonlinear_Isotropic::full_to_voigt_nonsym(
-                const Matrix< DDRMat > & aFullMatrix,
-                Matrix< DDRMat > & aVoigtVector )
+        void
+        CM_Struc_Nonlinear_Isotropic::full_to_voigt_nonsym(
+                const Matrix< DDRMat >& aFullMatrix,
+                Matrix< DDRMat >&       aVoigtVector )
         {
             // get the matrix dimensions
             uint tNumRow = mVoigtNonSymMap.n_rows();
@@ -1909,9 +1955,10 @@ namespace moris
             }
         }
 
-        void CM_Struc_Nonlinear_Isotropic::full_to_voigt_sym_strain(
-                const Matrix< DDRMat > & aFullMatrix,
-                Matrix< DDRMat > & aVoigtVector )
+        void
+        CM_Struc_Nonlinear_Isotropic::full_to_voigt_sym_strain(
+                const Matrix< DDRMat >& aFullMatrix,
+                Matrix< DDRMat >&       aVoigtVector )
         {
             // get the matrix dimensions
             uint tNumRow = mVoigtSymMap.n_rows();
@@ -1926,7 +1973,7 @@ namespace moris
                 // loop over the columns
                 for ( uint jCol = iRow; jCol < tNumCol; jCol++ )
                 {
-                    if( iRow == jCol )
+                    if ( iRow == jCol )
                     {
                         // fill the Voigt vector
                         aVoigtVector( mVoigtSymMap( iRow, jCol ) ) = aFullMatrix( iRow, jCol );
@@ -1940,9 +1987,10 @@ namespace moris
             }
         }
 
-        void CM_Struc_Nonlinear_Isotropic::full_to_voigt_sym_stress(
-                const Matrix< DDRMat > & aFullMatrix,
-                Matrix< DDRMat > & aVoigtVector )
+        void
+        CM_Struc_Nonlinear_Isotropic::full_to_voigt_sym_stress(
+                const Matrix< DDRMat >& aFullMatrix,
+                Matrix< DDRMat >&       aVoigtVector )
         {
             // get the matrix dimensions
             uint tNumRow = mVoigtSymMap.n_rows();
@@ -1967,4 +2015,3 @@ namespace moris
 
     } /* namespace fem */
 } /* namespace moris */
-

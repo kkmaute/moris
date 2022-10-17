@@ -49,14 +49,16 @@ Linear_Solver::Linear_Solver()
 
 //--------------------------------------------------------------------------------------------------
 
-Linear_Solver::Linear_Solver( const moris::ParameterList aParameterlist )
+Linear_Solver::Linear_Solver(
+        const moris::ParameterList aParameterlist )
         : mParameterListLinearSolver( aParameterlist )
 {
     // create solver factory
     Solver_Factory tSolFactory;
 
     // create solver object
-    std::shared_ptr< Linear_Solver_Algorithm > tLinSolver = tSolFactory.create_solver( sol::SolverType::AMESOS_IMPL );
+    std::shared_ptr< Linear_Solver_Algorithm > tLinSolver =
+            tSolFactory.create_solver( sol::SolverType::AMESOS_IMPL );
 
     //    tLinSolver->set_param("AZ_diagnostics") = AZ_none;
     //    tLinSolver->set_param("AZ_output") = AZ_none;
@@ -122,8 +124,10 @@ Linear_Solver::solver_linear_system(
     Tracer tTracer( "LinearSolver", LOGGER_NON_SPECIFIC_ENTITY_TYPE, "Solve" );
 
     moris::sint tErrorStatus        = 0;
-    moris::sint tMaxNumLinRestarts  = mParameterListLinearSolver.get< moris::sint >( "DLA_max_lin_solver_restarts" );
     moris::sint tTryRestartOnFailIt = 1;
+
+    moris::sint tMaxNumLinRestarts =
+            mParameterListLinearSolver.get< moris::sint >( "DLA_max_lin_solver_restarts" );
 
     // if printing of LHS requested through input file, initialize hdf5 files here
     // and save LHS before and after solve

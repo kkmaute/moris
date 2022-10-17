@@ -57,6 +57,16 @@ namespace moris
         }
 
         //------------------------------------------------------------------
+        /**
+         *
+         * moris::Cell copy constructor
+         */
+        Cell( const moris::Cell< T >& aCell )
+        {
+            mCell = aCell.data();
+        }
+
+        //------------------------------------------------------------------
 
         /**
          * moris::Cell constructor
@@ -115,9 +125,9 @@ namespace moris
          */
 
         const moris::Cell< T >&
-        operator=( moris::Cell< T > const & val )
+        operator=( moris::Cell< T > const & aCell )
         {
-            mCell = val.data();
+            mCell = aCell.data();
 
             return *this;
         }
@@ -176,14 +186,14 @@ namespace moris
         operator()(
                 moris::size_t const i_index )
                 -> decltype(
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
                         ( mCell.at( i_index ) )
 #else
                         ( mCell[ i_index ] )
 #endif
                 )
         {
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
             return ( mCell.at( i_index ) );
 #else
             return ( mCell[ i_index ] );
@@ -200,14 +210,14 @@ namespace moris
         operator()(
                 moris::size_t const i_index ) const
                 -> decltype(
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
                         ( mCell.at( i_index ) )
 #else
                         ( mCell[ i_index ] )
 #endif
                 )
         {
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
             return ( mCell.at( i_index ) );
 #else
             return ( mCell[ i_index ] );
@@ -626,7 +636,7 @@ namespace moris
             return mCell.end();
         }
 
-        
+
         //------------------------------------------------------------------
 
         /**
@@ -805,7 +815,7 @@ namespace moris
         std::cout << aStr << " = [ " << std::flush;
         for ( moris::uint i = 0; i < aCell.size(); i++ )
         {
-            if( i == aCell.size() - 1 )
+            if ( i == aCell.size() - 1 )
             {
                 std::cout << aCell( i ) << std::flush;
             }

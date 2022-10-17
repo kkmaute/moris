@@ -45,12 +45,6 @@ namespace moris
 
         // ----------------------------------------------------------------------------
 
-        Mesh_Core_STK::~Mesh_Core_STK()
-        {
-        }
-
-        // ----------------------------------------------------------------------------
-
         Mesh_Core_STK::Mesh_Core_STK(
                 std::string  aFileName,
                 MtkMeshData* aSupMeshData,
@@ -62,8 +56,15 @@ namespace moris
 
         // ----------------------------------------------------------------------------
 
-        Mesh_Core_STK::Mesh_Core_STK( std::shared_ptr< Mesh_Data_STK > aSTKMeshData )
+        Mesh_Core_STK::Mesh_Core_STK(
+                std::shared_ptr< Mesh_Data_STK > aSTKMeshData )
                 : mSTKMeshData( aSTKMeshData )
+        {
+        }
+
+        // ----------------------------------------------------------------------------
+
+        Mesh_Core_STK::~Mesh_Core_STK()
         {
         }
 
@@ -210,7 +211,7 @@ namespace moris
 
             if ( mVerbose )
             {
-                std::cout << "MTK: Load mesh from file completed in " << ( std::clock() - start ) / (double)( CLOCKS_PER_SEC ) << " s." << std::endl;
+                MORIS_LOG_INFO( "MTK: Load mesh from file completed in %f s", ( std::clock() - start ) / (double)( CLOCKS_PER_SEC ) );
             }
         }
 
@@ -241,7 +242,7 @@ namespace moris
 
             if ( mVerbose )
             {
-                std::cout << "MTK: Create mesh from data completed in " << ( std::clock() - start ) / (double)( CLOCKS_PER_SEC ) << " s." << std::endl;
+                MORIS_LOG_INFO( "MTK: Create mesh from data completed in %f s", ( std::clock() - start ) / (double)( CLOCKS_PER_SEC ) );
             }
         }
 
@@ -278,7 +279,8 @@ namespace moris
                 enum EntityRank   aOutputEntityRank,
                 const moris_index aIndex ) const
         {
-            MORIS_ERROR( aInputEntityRank != aOutputEntityRank, " Input and output entity rank cannot be the same (this is an invalid connectivity inside STK). Use get_element_to_element_loc_inds for element to element connectivity." );
+            MORIS_ERROR( aInputEntityRank != aOutputEntityRank,
+                    " Input and output entity rank cannot be the same (this is an invalid connectivity inside STK). Use get_element_to_element_loc_inds for element to element connectivity." );
 
             // Get Stk entity Id from local to global map
             moris_id            tId          = (moris_id)this->get_glb_entity_id_from_entity_loc_index( aEntityIndex, aInputEntityRank );
@@ -341,8 +343,10 @@ namespace moris
 
             for ( uint faceIt = 0; faceIt < tNumFaces; ++faceIt )
             {
-                std::vector< stk::mesh::Entity > tDummyConnectivity = this->entities_connected_to_entity_stk( &tFacesInElem[ faceIt ], stk::topology::FACE_RANK, stk::topology::ELEMENT_RANK );
-                moris_index                      tFacetId           = (moris_index)mSTKMeshData->mMtkMeshBulkData->local_id( tFacesInElem[ faceIt ] );
+                std::vector< stk::mesh::Entity > tDummyConnectivity =
+                        this->entities_connected_to_entity_stk( &tFacesInElem[ faceIt ], stk::topology::FACE_RANK, stk::topology::ELEMENT_RANK );
+
+                moris_index tFacetId = (moris_index)mSTKMeshData->mMtkMeshBulkData->local_id( tFacesInElem[ faceIt ] );
 
                 // Faces in mesh boundaries do not have more than one element
                 if ( tDummyConnectivity.size() > 0 )
@@ -415,7 +419,8 @@ namespace moris
 
             for ( uint faceIt = 0; faceIt < tNumFaces; ++faceIt )
             {
-                std::vector< stk::mesh::Entity > tDummyConnectivity = this->entities_connected_to_entity_stk( &tFacetsInElem[ faceIt ], tStkOutputRank, stk::topology::ELEMENT_RANK );
+                std::vector< stk::mesh::Entity > tDummyConnectivity =
+                        this->entities_connected_to_entity_stk( &tFacetsInElem[ faceIt ], tStkOutputRank, stk::topology::ELEMENT_RANK );
 
                 // Faces in mesh boundaries do not have more than one element
                 if ( tDummyConnectivity.size() > 0 )
@@ -478,7 +483,8 @@ namespace moris
             moris::Cell< moris::mtk::Vertex const * > tOutputVertices( tNumEntities );
             for ( uint iEntity = 0; iEntity < tNumEntities; ++iEntity )
             {
-                moris::moris_index tVertexIndex = this->get_loc_entity_ind_from_entity_glb_id( (moris_id)mSTKMeshData->mMtkMeshBulkData->identifier( aEntities[ iEntity ] ), tEntityRank );
+                moris::moris_index tVertexIndex =
+                        this->get_loc_entity_ind_from_entity_glb_id( (moris_id)mSTKMeshData->mMtkMeshBulkData->identifier( aEntities[ iEntity ] ), tEntityRank );
 
                 tOutputVertices( tVertexIndex ) = &this->get_mtk_vertex( tVertexIndex );
             }
@@ -535,7 +541,8 @@ namespace moris
             stk::mesh::EntityRank tStkOutputRank = this->get_stk_entity_rank( aOutputEntityRank );
             stk::mesh::Entity     tStkEntity     = mSTKMeshData->mMtkMeshBulkData->get_entity( tStkInputRank, (stk::mesh::EntityId)aEntityId );
 
-            std::vector< stk::mesh::Entity > tSTKEntitiesConnectedGlobIds = this->entities_connected_to_entity_stk( &tStkEntity, tStkInputRank, tStkOutputRank );
+            std::vector< stk::mesh::Entity > tSTKEntitiesConnectedGlobIds =
+                    this->entities_connected_to_entity_stk( &tStkEntity, tStkInputRank, tStkOutputRank );
 
             // Get the number of entities
             uint tNumOutputEntities = tSTKEntitiesConnectedGlobIds.size();
@@ -588,7 +595,8 @@ namespace moris
 
             for ( uint faceIt = 0; faceIt < tNumFaces; ++faceIt )
             {
-                std::vector< stk::mesh::Entity > tDummyConnectivity = this->entities_connected_to_entity_stk( &tFacesInElem[ faceIt ], stk::topology::FACE_RANK, stk::topology::ELEMENT_RANK );
+                std::vector< stk::mesh::Entity > tDummyConnectivity =
+                        this->entities_connected_to_entity_stk( &tFacesInElem[ faceIt ], stk::topology::FACE_RANK, stk::topology::ELEMENT_RANK );
 
                 // Faces in mesh boundaries do not have more than one element
                 if ( tDummyConnectivity.size() > 0 )
@@ -780,7 +788,7 @@ namespace moris
             std::vector< int > tSharedProcs;
 
             // get shared processor IDs
-            mSTKMeshData->mMtkMeshBulkData->comm_procs( mSTKMeshData->mMtkMeshBulkData->entity_key( tEntity ), tSharedProcs );
+            mSTKMeshData->mMtkMeshBulkData->comm_procs( tEntity, tSharedProcs );
 
             if ( tSharedProcs.size() == 0 )
             {
@@ -1043,13 +1051,17 @@ namespace moris
 
             for ( moris::uint i = 0; i < tSidesInSideSetInds.numel(); i++ )
             {
-                Matrix< IndexMat > tElementConnectedToFace = this->get_entity_connected_to_entity_loc_inds( tSidesInSideSetInds( i ), tFacetRank, EntityRank::ELEMENT );
+                Matrix< IndexMat > tElementConnectedToFace =
+                        this->get_entity_connected_to_entity_loc_inds( tSidesInSideSetInds( i ), tFacetRank, EntityRank::ELEMENT );
 
                 // iterate through the cells
                 for ( moris::uint j = 0; j < tElementConnectedToFace.numel(); j++ )
                 {
-                    aElemIndices( tCount )     = tElementConnectedToFace( j );
-                    aSidesetOrdinals( tCount ) = this->get_facet_ordinal_from_cell_and_facet_loc_inds( tSidesInSideSetInds( i ), tElementConnectedToFace( j ) );
+                    aElemIndices( tCount ) = tElementConnectedToFace( j );
+
+                    aSidesetOrdinals( tCount ) =
+                            this->get_facet_ordinal_from_cell_and_facet_loc_inds( tSidesInSideSetInds( i ), tElementConnectedToFace( j ) );
+
                     tCount++;
                 }
             }
@@ -1108,7 +1120,8 @@ namespace moris
             moris::Cell< moris::mtk::Vertex const * > tOutputEntityIds( tNumEntities );
             for ( uint iEntity = 0; iEntity < tNumEntities; ++iEntity )
             {
-                moris::moris_index tVertexIndex = this->get_loc_entity_ind_from_entity_glb_id( (moris_id)mSTKMeshData->mMtkMeshBulkData->identifier( aEntities[ iEntity ] ), tEntityRank );
+                moris::moris_index tVertexIndex =
+                        this->get_loc_entity_ind_from_entity_glb_id( (moris_id)mSTKMeshData->mMtkMeshBulkData->identifier( aEntities[ iEntity ] ), tEntityRank );
 
                 tOutputEntityIds( iEntity ) = &this->get_mtk_vertex( tVertexIndex );
             }
@@ -1167,8 +1180,10 @@ namespace moris
             Matrix< DDRMat > tFieldValues( 1, tNumEntities );
 
             // Get field by name and entity rank
-            stk::mesh::EntityRank     tEntityRank = this->get_stk_entity_rank( aFieldEntityRank );
-            stk::mesh::Field< real >* tField      = mSTKMeshData->mMtkMeshMetaData->get_field< stk::mesh::Field< real > >( tEntityRank, aFieldName );
+            stk::mesh::EntityRank tEntityRank = this->get_stk_entity_rank( aFieldEntityRank );
+
+            stk::mesh::Field< real >* tField =
+                    mSTKMeshData->mMtkMeshMetaData->get_field< stk::mesh::Field< real > >( tEntityRank, aFieldName );
 
             // make sure that field actually exists
             if ( tField == NULL )
@@ -1224,7 +1239,8 @@ namespace moris
                 Matrix< DDRMat > const & aFieldData )
         {
 
-            MORIS_ASSERT( aFieldEntityRank == EntityRank::NODE || aFieldEntityRank == EntityRank::ELEMENT, "Only tested for nodal and element scalar field" );
+            MORIS_ASSERT( aFieldEntityRank == EntityRank::NODE || aFieldEntityRank == EntityRank::ELEMENT,
+                    "Only tested for nodal and element scalar field" );
 
             // Write Data to Field
             size_t tNumEntities = get_num_entities( aFieldEntityRank );
@@ -1255,7 +1271,11 @@ namespace moris
         mtk::Cell&
         Mesh_Core_STK::get_mtk_cell( moris_index aCellIndex )
         {
-            MORIS_ASSERT( aCellIndex < (moris_index)mSTKMeshData->mMtkCells.size(), "Provided cell index out of bounds: aCellIndex = %u , mSTKMeshData->mMtkCells.size() = %u ", aCellIndex, mSTKMeshData->mMtkCells.size() );
+            MORIS_ASSERT( aCellIndex < (moris_index)mSTKMeshData->mMtkCells.size(),
+                    "Provided cell index out of bounds: aCellIndex = %u , mSTKMeshData->mMtkCells.size() = %u ",
+                    aCellIndex,
+                    mSTKMeshData->mMtkCells.size() );
+
             return mSTKMeshData->mMtkCells( aCellIndex );
         }
 
@@ -1264,7 +1284,11 @@ namespace moris
         mtk::Cell const &
         Mesh_Core_STK::get_mtk_cell( moris_index aCellIndex ) const
         {
-            MORIS_ASSERT( aCellIndex < (moris_index)mSTKMeshData->mMtkCells.size(), "Provided cell index out of bounds: aCellIndex = %u , mSTKMeshData->mMtkCells.size() = %u ", aCellIndex, mSTKMeshData->mMtkCells.size() );
+            MORIS_ASSERT( aCellIndex < (moris_index)mSTKMeshData->mMtkCells.size(),
+                    "Provided cell index out of bounds: aCellIndex = %u , mSTKMeshData->mMtkCells.size() = %u ",
+                    aCellIndex,
+                    mSTKMeshData->mMtkCells.size() );
+
             return mSTKMeshData->mMtkCells( aCellIndex );
         }
 
@@ -1312,9 +1336,11 @@ namespace moris
                 const std::vector< stk::mesh::FieldBase* >& fields = mSTKMeshData->mMtkMeshMetaData->get_fields();
 
                 // Add fields to output mesh
-                std::string                                          tFieldNoData  = "dummyField";
-                std::string                                          tCoordField   = "coordinates";
+                std::string tFieldNoData = "dummyField";
+                std::string tCoordField  = "coordinates";
+
                 std::vector< stk::mesh::FieldBase* >::const_iterator fieldIterator = fields.begin();
+
                 for ( ; fieldIterator != fields.end(); ++fieldIterator )
                 {
                     // Get field name
@@ -1322,7 +1348,11 @@ namespace moris
                     // Do not add dummy or coordinate fields to the output mesh
                     if ( ( tIterFieldName.compare( tFieldNoData ) != 0 ) && ( tIterFieldName.compare( tCoordField ) != 0 ) )
                     {
-                        mSTKMeshData->mMeshReader->add_field( outputFileIdx, *( stk::mesh::get_field_by_name( ( *fieldIterator )->name(), *mSTKMeshData->mMtkMeshMetaData ) ) );
+                        mSTKMeshData->mMeshReader->add_field(
+                                outputFileIdx,
+                                *( stk::mesh::get_field_by_name(
+                                        ( *fieldIterator )->name(),
+                                        *mSTKMeshData->mMtkMeshMetaData ) ) );
                     }
                 }
 
@@ -1358,8 +1388,8 @@ namespace moris
 
             if ( mVerbose )
             {
-                std::cout << "MTK: Exodus output completed in " << ( std::clock() - start ) / (double)( CLOCKS_PER_SEC ) << " s." << std::endl;
-                std::cout << "MTK: Exodus file: " << aFileName << std::endl;
+                MORIS_LOG_INFO( "MTK: Exodus output completed in %f s", ( std::clock() - start ) / (double)( CLOCKS_PER_SEC ) );
+                MORIS_LOG_INFO( "MTK: Exodus file: %s", aFileName.c_str() );
             }
         }
 
@@ -1500,7 +1530,7 @@ namespace moris
                     std::vector< int > sharedProcs;
 
                     // Get shared procs Ids
-                    mSTKMeshData->mMtkMeshBulkData->comm_procs( mSTKMeshData->mMtkMeshBulkData->entity_key( bucket[ j ] ), sharedProcs );
+                    mSTKMeshData->mMtkMeshBulkData->comm_procs( bucket[ j ], sharedProcs );
 
                     if ( sharedProcs.size() != 0 )
                     {
@@ -1793,11 +1823,11 @@ namespace moris
                 // Get entity
                 stk::mesh::Entity tEntity = mSTKMeshData->mMtkMeshBulkData->get_entity( get_stk_entity_rank( tEntityRank ), tEntityId );
 
-                // Intialize shared procs
+                // Initialize shared procs
                 std::vector< int > tSharedProcs;
 
                 // get shared processor IDs
-                mSTKMeshData->mMtkMeshBulkData->comm_procs( mSTKMeshData->mMtkMeshBulkData->entity_key( tEntity ), tSharedProcs );
+                mSTKMeshData->mMtkMeshBulkData->comm_procs( tEntity, tSharedProcs );
 
                 if ( tSharedProcs.size() > 0 )
                 {
@@ -1850,7 +1880,8 @@ namespace moris
                     // add owner in first spot
                     tCellSharing( 0, 0 ) = tOwner;
 
-                    MORIS_ASSERT( tOwner != tMyProcRank, "Current processor should not be informed about aura, it should be the one telling other processors about sharing " );
+                    MORIS_ASSERT( tOwner != tMyProcRank,
+                            "Current processor should not be informed about aura, it should be the one telling other processors about sharing " );
 
                     // iterate through and construct
                     uint tCount = 1;
@@ -2095,7 +2126,7 @@ namespace moris
                 MORIS_ASSERT( 0, "Invalid rank provided in get_entities_owned_and_shared_by_current_proc." );
             }
 
-            Matrix< IdMat > tDummyConn( 1, 1 );
+            Matrix< IdMat > tDummyConn( 1, 1, 0 );
             return tDummyConn;
         }
 
@@ -2219,7 +2250,7 @@ namespace moris
                 std::vector< int > tSharedProcs;
 
                 // get shared processor IDs
-                mSTKMeshData->mMtkMeshBulkData->comm_procs( mSTKMeshData->mMtkMeshBulkData->entity_key( tEntity ), tSharedProcs );
+                // mSTKMeshData->mMtkMeshBulkData->comm_procs( mSTKMeshData->mMtkMeshBulkData->entity_key( tEntity ), tSharedProcs );
 
                 if ( tSharedProcs.size() == 0 )
                 {
@@ -2357,7 +2388,7 @@ namespace moris
             }
             else
             {
-                // Create a block set tha contains the entire mesh by default
+                // Create a block set that contains the entire mesh by default
                 mSTKMeshData->mSetNames[ 2 ].resize( 1, "block_1" );
             }
         }
@@ -2542,7 +2573,7 @@ namespace moris
             stk::mesh::MetaData* meshMeta = new stk::mesh::MetaData( mSTKMeshData->mNumDims );
 
             // Set member variable as pointer to meta_data
-            mSTKMeshData->mMtkMeshMetaData = ( meshMeta );
+            mSTKMeshData->mMtkMeshMetaData = meshMeta;
 
             // set aura option
             mAutoAuraOption = aMeshData.AutoAuraOptionInSTK;
@@ -2745,8 +2776,16 @@ namespace moris
             // the exodus file.
             if ( !aMeshData.SupplementaryToFile )
             {
-                Field3CompReal* tCoord_field = &mSTKMeshData->mMtkMeshMetaData->declare_field< Field3CompReal >( stk::topology::NODE_RANK, "coordinates" );
-                stk::mesh::put_field_on_mesh( *tCoord_field, mSTKMeshData->mMtkMeshMetaData->universal_part(), (stk::mesh::FieldTraits< stk::mesh::Field< real > >::data_type*)nullptr );
+                if ( aMeshData.SpatialDim[ 0 ] == 2 )
+                {
+                    Field2CompReal* tCoord_field = &mSTKMeshData->mMtkMeshMetaData->declare_field< Field2CompReal >( stk::topology::NODE_RANK, "coordinates" );
+                    stk::mesh::put_field_on_mesh( *tCoord_field, mSTKMeshData->mMtkMeshMetaData->universal_part(), (stk::mesh::FieldTraits< stk::mesh::Field< real > >::data_type*)nullptr );
+                }
+                else
+                {
+                    Field3CompReal* tCoord_field = &mSTKMeshData->mMtkMeshMetaData->declare_field< Field3CompReal >( stk::topology::NODE_RANK, "coordinates" );
+                    stk::mesh::put_field_on_mesh( *tCoord_field, mSTKMeshData->mMtkMeshMetaData->universal_part(), (stk::mesh::FieldTraits< stk::mesh::Field< real > >::data_type*)nullptr );
+                }
             }
 
             // Declare all additional fields provided by the user
@@ -2841,10 +2880,9 @@ namespace moris
                 stk::mesh::Selector aFieldPart,
                 uint                aNumRows,
                 uint                aNumCols )
-
         {
-
             uint tNumFieldComp = aNumCols * aNumRows;
+
             switch ( tNumFieldComp )
             {
                 case 1:    // Scalar Field

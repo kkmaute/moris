@@ -186,7 +186,7 @@ namespace moris::mtk
         }
 
 // within debug, check all cells to make sure that they are the same Cell Shape
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
 
         // skip check for sets only used for visualization purposes
         if( !std::strstr( aSetName.c_str(), "Vis" ) )

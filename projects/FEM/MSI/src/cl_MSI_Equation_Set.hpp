@@ -132,9 +132,9 @@ namespace moris
 
             bool mIsEmptySet = false;    // FIXME this flag is a hack. find better solution
 
-            Matrix< DDRMat >* mSetElementalValues;
-            Matrix< DDRMat >* mSetNodalValues;
-            Matrix< DDRMat >* mSetGlobalValues;
+            Matrix< DDRMat >* mSetElementalValues = nullptr;
+            Matrix< DDRMat >* mSetNodalValues     = nullptr;
+            Matrix< DDRMat >* mSetGlobalValues    = nullptr;
 
             uint tNumRHS = 1;
 

@@ -18,10 +18,11 @@ namespace moris
 {
     namespace ge
     {
-        class Constant_Property : public Property, public Field_Analytic
+        class Constant_Property : public Property
+                , public Field_Analytic
         {
 
-        public:
+          public:
             /**
              * Constructor
              *
@@ -33,19 +34,24 @@ namespace moris
              * @param aFieldDependencies Other created fields that this property depends on
              * @param aParameters Additional parameters
              */
-            template <typename Vector_Type>
+            template< typename Vector_Type >
             Constant_Property(
                     Vector_Type&              aADVs,
-                    Matrix<DDUMat>            aPropertyVariableIndices,
-                    Matrix<DDUMat>            aADVIndices,
-                    Matrix<DDRMat>            aConstants,
-                    Property_Field_Parameters aParameters = {})
-                    : Field(aADVs, aPropertyVariableIndices, aADVIndices, aConstants, aParameters)
-                    , Property(aParameters)
+                    Matrix< DDUMat >          aPropertyVariableIndices,
+                    Matrix< DDUMat >          aADVIndices,
+                    Matrix< DDRMat >          aConstants,
+                    Property_Field_Parameters aParameters = {} )
+                    : Field( aADVs, aPropertyVariableIndices, aADVIndices, aConstants, aParameters )
+                    , Property( aParameters )
             {
-                MORIS_ERROR(mFieldVariables.size() == 1, "A constant property has only one variable.");
-                mSensitivities = {{1.0}};
+                MORIS_ERROR( mFieldVariables.size() == 1, "A constant property has only one variable." );
+                mSensitivities = { { 1.0 } };
             }
+
+            /**
+             * default constructor
+             */
+            ~Constant_Property() {}
 
             /**
              * Given a node index, returns the field value.
@@ -54,7 +60,7 @@ namespace moris
              * @param aCoordinates Node coordinates
              * @return Property value
              */
-            real get_field_value(const Matrix<DDRMat>& aCoordinates);
+            real get_field_value( const Matrix< DDRMat >& aCoordinates );
 
             /**
              * Given a node index, evaluates the sensitivity of the property field with respect to all of the
@@ -64,7 +70,7 @@ namespace moris
              * @param aCoordinates Node coordinates
              * @return Vector of sensitivities
              */
-            const Matrix<DDRMat>& get_dfield_dadvs(const Matrix<DDRMat>& aCoordinates);
+            const Matrix< DDRMat >& get_dfield_dadvs( const Matrix< DDRMat >& aCoordinates );
 
             /**
              * Given nodal coordinates, returns a vector of the field derivatives with respect to the nodal
@@ -74,11 +80,10 @@ namespace moris
              * @param aSensitivities Sensitivities to be filled with d(field value)/d(coordinate_j)
              */
             void get_dfield_dcoordinates(
-                    const Matrix<DDRMat>& aCoordinates,
-                    Matrix<DDRMat>&       aSensitivities);
+                    const Matrix< DDRMat >& aCoordinates,
+                    Matrix< DDRMat >&       aSensitivities );
         };
-    }
-}
+    }    // namespace ge
+}    // namespace moris
 
-#endif //MORIS_CL_GEN_SCALED_FIELD_HPP
-
+#endif    // MORIS_CL_GEN_SCALED_FIELD_HPP

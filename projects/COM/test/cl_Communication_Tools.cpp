@@ -203,7 +203,7 @@ namespace moris
                         tProcNeighbors );
 
                 tError = tProcDims - tProcDimsCompare;
-                REQUIRE( tError.max() == 0 && tError.min() == 0 );
+                REQUIRE( ( tError.max() == 0 && tError.min() == 0 ) );
 
             }
         }

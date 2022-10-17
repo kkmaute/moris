@@ -64,9 +64,9 @@ namespace moris
 
             // Create a matrix using a standard initializer list
             Matrix< F31RMat > tMatrix4( {{1},{2},{3}} );
-            REQUIRE( tMatrix4( 0,0 ) = 1 );
-            REQUIRE( tMatrix4( 1,0 ) = 2 );
-            REQUIRE( tMatrix4( 2,0 ) = 3 );
+            REQUIRE( tMatrix4( 0,0 ) == 1 );
+            REQUIRE( tMatrix4( 1,0 ) == 2 );
+            REQUIRE( tMatrix4( 2,0 ) == 3 );
 
             // Check Data function
             const real* tMatrix4Data = tMatrix4.data();

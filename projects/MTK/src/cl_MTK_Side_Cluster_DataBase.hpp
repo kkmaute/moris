@@ -28,7 +28,7 @@ namespace moris
 
 
             moris_index mSideClusterIndex;
-            mtk::Mesh*  mMesh;
+            mtk::Mesh*  mMesh = nullptr;
 
           public:
             // ----------------------------------------------------------------------------------
@@ -59,7 +59,7 @@ namespace moris
              *
              */
 
-            ~Side_Cluster_DataBase() = default;
+            virtual ~Side_Cluster_DataBase() = default;
 
             // ----------------------------------------------------------------------------------
 
@@ -68,8 +68,7 @@ namespace moris
              * integration cell and interpolation cells in this cluster
              */
 
-            virtual 
-            bool
+            virtual bool
             is_trivial( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const override;
 
             // ----------------------------------------------------------------------------------
@@ -80,8 +79,7 @@ namespace moris
              * @return Interpolation cell related to cluster
              */
 
-            virtual 
-            moris::mtk::Cell const&
+            virtual moris::mtk::Cell const &
             get_interpolation_cell( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const override;
 
             // ----------------------------------------------------------------------------------
@@ -90,8 +88,7 @@ namespace moris
              * Get all integration cells in this side cluster
              */
 
-            virtual 
-            moris::Cell< mtk::Cell const* > const&
+            virtual moris::Cell< mtk::Cell const * > const &
             get_cells_in_side_cluster() const override;
 
             // ----------------------------------------------------------------------------------
@@ -101,8 +98,7 @@ namespace moris
              * @return all integration cell side ordinals
              */
 
-            virtual 
-            moris::Matrix< moris::IndexMat >
+            virtual moris::Matrix< moris::IndexMat >
             get_cell_side_ordinals( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const override;
 
             // ----------------------------------------------------------------------------------
@@ -113,8 +109,7 @@ namespace moris
              * @return single integration cell side ordinal
              *
              */
-            virtual 
-            moris_index
+            virtual moris_index
             get_cell_side_ordinal( moris::moris_index aCellIndexInCluster,
                     const mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER ) const override;
 
@@ -124,8 +119,7 @@ namespace moris
              * @return all the vertices in this cluster
              */
 
-            virtual 
-            moris::Cell< moris::mtk::Vertex const* >
+            virtual moris::Cell< moris::mtk::Vertex const * >
             get_vertices_in_cluster( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const override;
 
 
@@ -139,8 +133,7 @@ namespace moris
              * @return All vertex local coordinates
              */
 
-            virtual 
-            moris::Matrix< moris::DDRMat >
+            virtual moris::Matrix< moris::DDRMat >
             get_vertices_local_coordinates_wrt_interp_cell( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const override;
 
             // ----------------------------------------------------------------------------------
@@ -150,11 +143,10 @@ namespace moris
              * @param[in] aIsMaster - Master or Slave Selector Enum (for Double side clusters only)
              * @return Single vertex local coordinates
              */
-            virtual 
-            moris::Matrix< moris::DDRMat >
+            virtual moris::Matrix< moris::DDRMat >
             get_vertex_local_coordinate_wrt_interp_cell(
-                    moris::mtk::Vertex const* aVertex,
-                    const mtk::Master_Slave   aIsMaster = mtk::Master_Slave::MASTER ) const override;
+                    moris::mtk::Vertex const * aVertex,
+                    const mtk::Master_Slave    aIsMaster = mtk::Master_Slave::MASTER ) const override;
 
             // ----------------------------------------------------------------------------------
 
@@ -162,8 +154,7 @@ namespace moris
              * @return Size of the xsi vector in this side cluster
              */
 
-            virtual 
-            moris_index
+            virtual moris_index
             get_dim_of_param_coord( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const override;
 
 
@@ -187,8 +178,7 @@ namespace moris
              * @return moris_index
              */
 
-            virtual 
-            moris_index
+            virtual moris_index
             get_vertex_cluster_index( const Vertex* aVertex,
                     const mtk::Master_Slave         aIsMaster = mtk::Master_Slave::MASTER ) const override;
 
@@ -202,8 +192,7 @@ namespace moris
              * @return moris_index
              */
 
-            virtual 
-            moris_index
+            virtual moris_index
             get_vertex_ordinal_on_facet(
                     moris_index                aCellIndexInCluster,
                     moris::mtk::Vertex const * aVertex ) const override;
@@ -219,8 +208,7 @@ namespace moris
              * @return moris::real
              */
 
-            virtual 
-            moris::real 
+            virtual moris::real
             compute_cluster_cell_measure(
                     const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                     const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const override;
@@ -235,8 +223,7 @@ namespace moris
              * @return Matrix< DDRMat >
              */
 
-            virtual 
-            Matrix< DDRMat > 
+            virtual Matrix< DDRMat >
             compute_cluster_ig_cell_measures(
                     const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                     const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const override;
@@ -253,8 +240,7 @@ namespace moris
              * @return moris::real
              */
 
-            virtual 
-            moris::real 
+            virtual moris::real
             compute_cluster_cell_measure_derivative(
                     const Matrix< DDRMat >& aPerturbedVertexCoords,
                     uint                    aDirection,
@@ -263,8 +249,7 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            virtual 
-            moris::real
+            virtual moris::real
             compute_cluster_group_cell_measure(
                     const moris_index       aDiscretizationMeshIndex,
                     const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
@@ -276,8 +261,7 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            virtual 
-            moris::real
+            virtual moris::real
             compute_cluster_group_cell_measure_derivative(
                     const moris_index       aDiscretizationMeshIndex,
                     const Matrix< DDRMat >& aPerturbedVertexCoords,
@@ -291,8 +275,7 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            virtual 
-            moris::real
+            virtual moris::real
             compute_cluster_group_cell_side_measure(
                     const moris_index       aDiscretizationMeshIndex,
                     const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
@@ -304,8 +287,7 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            virtual 
-            moris::real
+            virtual moris::real
             compute_cluster_group_cell_side_measure_derivative(
                     const moris_index       aDiscretizationMeshIndex,
                     const Matrix< DDRMat >& aPerturbedVertexCoords,

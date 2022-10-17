@@ -76,7 +76,7 @@ namespace moris
                     }
 
                     //FIXME: Maybe add this to linalg. Armadillo throws if min is called on an empty matrix
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
                     if(tVerticesOnBlock.numel()!=0)
                     {
                         MORIS_ASSERT( tVerticesOnBlock.min() != -1, "calculate_vertices_on_blocks(): negative vertex index");
@@ -136,7 +136,7 @@ namespace moris
                     }
 
                     //FIXME: Maybe add this to linalg. Armadillo throws if min is called on an empty matrix
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
                     if(tCellsOnBlock.numel()!=0)
                     {
                         MORIS_ASSERT( tCellsOnBlock.min() != -1, "calculate_cells_on_blocks(): negative Cell index");

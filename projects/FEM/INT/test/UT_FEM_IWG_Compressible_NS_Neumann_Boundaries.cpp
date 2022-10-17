@@ -14,18 +14,18 @@
 #include "assert.hpp"
 
 #define protected public
-#define private   public
-//FEM//INT//src
+#define private public
+// FEM//INT//src
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IWG.hpp"
 #include "cl_FEM_Set.hpp"
 #undef protected
 #undef private
-//LINALG/src
+// LINALG/src
 #include "op_equal_equal.hpp"
-//MTK/src
+// MTK/src
 #include "cl_MTK_Enums.hpp"
-//FEM//INT//src
+// FEM//INT//src
 #include "cl_FEM_Enums.hpp"
 #include "cl_FEM_Field_Interpolator.hpp"
 #include "cl_FEM_Property.hpp"
@@ -45,11 +45,11 @@ TEST_CASE( "IWG_Compressible_NS_Neumann_Boundaries",
         "[IWG_Compressible_NS_Neumann_Boundaries]" )
 {
     // define an epsilon environment
-    real tEpsilon = 1.0E-6;
+    real tEpsilon      = 1.0E-6;
     real tEpsilonCubic = 3.0E-6;
 
     // define a perturbation relative size
-    real tPerturbation = 2.0E-4;
+    real tPerturbation      = 2.0E-4;
     real tPerturbationCubic = 5.0E-4;
 
     // init geometry inputs
@@ -59,17 +59,19 @@ TEST_CASE( "IWG_Compressible_NS_Neumann_Boundaries",
 
     // create list of interpolation orders
     moris::Cell< mtk::Interpolation_Order > tInterpolationOrders = {
-            mtk::Interpolation_Order::LINEAR,
-            mtk::Interpolation_Order::QUADRATIC,
-            mtk::Interpolation_Order::CUBIC };
+        mtk::Interpolation_Order::LINEAR,
+        mtk::Interpolation_Order::QUADRATIC,
+        mtk::Interpolation_Order::CUBIC
+    };
 
     // create list of integration orders
     moris::Cell< mtk::Integration_Order > tIntegrationOrders = {
-            mtk::Integration_Order::QUAD_2x2,
-            mtk::Integration_Order::HEX_2x2x2 };
+        mtk::Integration_Order::QUAD_2x2,
+        mtk::Integration_Order::HEX_2x2x2
+    };
 
     // create list with number of coeffs
-    Matrix< DDRMat > tNumCoeffs = {{ 8, 18, 32 },{ 16, 54, 128 }};
+    Matrix< DDRMat > tNumCoeffs = { { 8, 18, 32 }, { 16, 54, 128 } };
 
     // dof type list
     moris::Cell< moris::Cell< MSI::Dof_Type > > tDensityDof  = { { MSI::Dof_Type::RHO } };
@@ -83,7 +85,7 @@ TEST_CASE( "IWG_Compressible_NS_Neumann_Boundaries",
 
     // prescribed mass flux
     std::shared_ptr< fem::Property > tPropMassFlux = std::make_shared< fem::Property >();
-    tPropMassFlux->set_parameters( { {{ 2.7 }} } );
+    tPropMassFlux->set_parameters( { { { 2.7 } } } );
     tPropMassFlux->set_val_function( tConstValFunc );
 
     // prescribed traction
@@ -92,41 +94,47 @@ TEST_CASE( "IWG_Compressible_NS_Neumann_Boundaries",
 
     // prescribed heat flux
     std::shared_ptr< fem::Property > tPropHeatFlux = std::make_shared< fem::Property >();
-    tPropHeatFlux->set_parameters( { {{ 2.7 }} } );
+    tPropHeatFlux->set_parameters( { { { 2.7 } } } );
     tPropHeatFlux->set_val_function( tConstValFunc );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
     // loop on the space dimension
-    for( uint iIWG = 0; iIWG < 3; iIWG++ )
+    for ( uint iIWG = 0; iIWG < 3; iIWG++ )
     {
         // output for debugging
-//        std::cout << "----------------------------------------------------------------------------------\n" << std::flush;
-//        std::cout << "Performing Tests for IWG (0:Mass Flux, 1:Mechanical Traction, 2:Heat Flux) : " << iIWG << "\n" << std::flush;
+        //        std::cout << "----------------------------------------------------------------------------------\n" << std::flush;
+        //        std::cout << "Performing Tests for IWG (0:Mass Flux, 1:Mechanical Traction, 2:Heat Flux) : " << iIWG << "\n" << std::flush;
 
         // create IWG pointer
         std::shared_ptr< fem::IWG > tIWG;
 
         switch ( iIWG )
         {
-            case 0 :
+            case 0:
             {
                 tIWG = tIWGFactory.create_IWG( fem::IWG_Type::COMPRESSIBLE_NS_MASS_FLUX_NEUMANN );
                 tIWG->set_residual_dof_type( tDensityDof );
                 tIWG->set_property( tPropMassFlux, "MassFlux" );
+
+                break;
             }
-            case 1 :
+            case 1:
             {
                 tIWG = tIWGFactory.create_IWG( fem::IWG_Type::COMPRESSIBLE_NS_TRACTION_NEUMANN );
                 tIWG->set_residual_dof_type( tVelocityDof );
                 tIWG->set_property( tPropTraction, "Traction" );
+
+                break;
             }
-            case 2 :
+            case 2:
             {
                 tIWG = tIWGFactory.create_IWG( fem::IWG_Type::COMPRESSIBLE_NS_HEAT_FLUX_NEUMANN );
                 tIWG->set_residual_dof_type( tTempDof );
                 tIWG->set_property( tPropHeatFlux, "HeatFlux" );
+
+                break;
             }
         }
 
@@ -135,8 +143,8 @@ TEST_CASE( "IWG_Compressible_NS_Neumann_Boundaries",
         //------------------------------------------------------------------------------
         // set a fem set pointer
 
-        MSI::Equation_Set * tSet = new fem::Set();
-        static_cast<fem::Set*>(tSet)->set_set_type( fem::Element_Type::SIDESET );
+        MSI::Equation_Set* tSet = new fem::Set();
+        static_cast< fem::Set* >( tSet )->set_set_type( fem::Element_Type::SIDESET );
         tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
         // set size for the set EqnObjDofTypeList
@@ -144,31 +152,31 @@ TEST_CASE( "IWG_Compressible_NS_Neumann_Boundaries",
 
         // set size and populate the set dof type map
         tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-        tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::RHO ) )   = 0;
-        tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )    = 1;
-        tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )  = 2;
+        tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::RHO ) )  = 0;
+        tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )   = 1;
+        tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 2;
 
         // set size and populate the set master dof type map
         tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-        tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::RHO ) )   = 0;
-        tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )    = 1;
-        tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )  = 2;
+        tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::RHO ) )  = 0;
+        tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )   = 1;
+        tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 2;
 
         // loop on the space dimension
-        for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
+        for ( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
         {
-//            // output for debugging
-//            std::cout << "-------------------------------------------------------------------\n" << std::flush;
-//            std::cout << "Performing Tests For Number of Spatial dimensions: " << iSpaceDim << "\n" << std::flush;
-//            std::cout << "-------------------------------------------------------------------\n\n" << std::flush;
+            //            // output for debugging
+            //            std::cout << "-------------------------------------------------------------------\n" << std::flush;
+            //            std::cout << "Performing Tests For Number of Spatial dimensions: " << iSpaceDim << "\n" << std::flush;
+            //            std::cout << "-------------------------------------------------------------------\n\n" << std::flush;
 
             // prescribed velocity
             Matrix< DDRMat > tTraction( iSpaceDim, 1, 2.7 );
 
             // switch on space dimension
-            switch( iSpaceDim )
+            switch ( iSpaceDim )
             {
-                case 2 :
+                case 2:
                 {
                     // set geometry type
                     tGeometryType = mtk::Geometry_Type::QUAD;
@@ -181,7 +189,7 @@ TEST_CASE( "IWG_Compressible_NS_Neumann_Boundaries",
 
                     break;
                 }
-                case 3 :
+                case 3:
                 {
                     // set geometry type
                     tGeometryType = mtk::Geometry_Type::HEX;
@@ -206,19 +214,19 @@ TEST_CASE( "IWG_Compressible_NS_Neumann_Boundaries",
             tPropTraction->set_parameters( { tTraction } );
 
             // loop on the interpolation order
-            for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
+            for ( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
             {
                 // tune finite differencing for cubic shape functions
                 if ( iInterpOrder == 3 )
                 {
-                    tEpsilon = tEpsilonCubic;
+                    tEpsilon      = tEpsilonCubic;
                     tPerturbation = tPerturbationCubic;
                 }
 
                 // output for debugging
-//                std::cout << "-------------------------------------------------------------------\n" << std::flush;
-//                std::cout << "-------------------------------------------------------------------\n" << std::flush;
-//                std::cout << "Performing Tests For Interpolation Order:" << iInterpOrder << "\n\n" << std::flush;
+                //                std::cout << "-------------------------------------------------------------------\n" << std::flush;
+                //                std::cout << "-------------------------------------------------------------------\n" << std::flush;
+                //                std::cout << "Performing Tests For Interpolation Order:" << iInterpOrder << "\n\n" << std::flush;
 
                 // create an interpolation order
                 mtk::Interpolation_Order tGIInterpolationOrder = tInterpolationOrders( iInterpOrder - 1 );
@@ -236,7 +244,7 @@ TEST_CASE( "IWG_Compressible_NS_Neumann_Boundaries",
                 Geometry_Interpolator tGI = Geometry_Interpolator( tGIRule );
 
                 // create time coeff tHat
-                Matrix< DDRMat > tTHat = {{ 0.26 }, { 0.87 }};
+                Matrix< DDRMat > tTHat = { { 0.26 }, { 0.87 } };
 
                 Matrix< DDRMat > tXHat;
                 fill_xhat( tXHat, iSpaceDim, iInterpOrder );
@@ -274,13 +282,13 @@ TEST_CASE( "IWG_Compressible_NS_Neumann_Boundaries",
                 uint tNumCoeff = tNumCoeffs( iSpaceDim - 2, iInterpOrder - 1 );
 
                 // get number of dof per type
-                int tNumDofRho  = tNumCoeff;
-                int tNumDofVel  = tNumCoeff * iSpaceDim;
-                int tNumDofTemp = tNumCoeff;
+                int tNumDofRho   = tNumCoeff;
+                int tNumDofVel   = tNumCoeff * iSpaceDim;
+                int tNumDofTemp  = tNumCoeff;
                 int tTotalNumDof = tNumDofRho + tNumDofVel + tNumDofTemp;
 
-                //create a space time interpolation rule
-                mtk::Interpolation_Rule tFIRule (
+                // create a space time interpolation rule
+                mtk::Interpolation_Rule tFIRule(
                         tGeometryType,
                         mtk::Interpolation_Type::LAGRANGE,
                         tInterpolationOrder,
@@ -318,9 +326,10 @@ TEST_CASE( "IWG_Compressible_NS_Neumann_Boundaries",
 
                 // set size and fill the set jacobian assembly map
                 Matrix< DDSMat > tJacAssembly = {
-                        { 0, tNumDofRho - 1 },
-                        { tNumDofRho, tNumDofRho + tNumDofVel - 1 },
-                        { tNumDofRho + tNumDofVel, tTotalNumDof - 1 } };
+                    { 0, tNumDofRho - 1 },
+                    { tNumDofRho, tNumDofRho + tNumDofVel - 1 },
+                    { tNumDofRho + tNumDofVel, tTotalNumDof - 1 }
+                };
                 tIWG->mSet->mJacDofAssemblyMap.resize( tDofTypes.size() );
                 tIWG->mSet->mJacDofAssemblyMap( 0 ) = tJacAssembly;
                 tIWG->mSet->mJacDofAssemblyMap( 1 ) = tJacAssembly;
@@ -344,12 +353,12 @@ TEST_CASE( "IWG_Compressible_NS_Neumann_Boundaries",
                 tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
 
                 // create a field interpolator manager
-                moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
+                moris::Cell< moris::Cell< enum PDV_Type > >        tDummyDv;
                 moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
-                Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
+                Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
                 // populate the field interpolator manager
-                tFIManager.mFI = tMasterFIs;
+                tFIManager.mFI                     = tMasterFIs;
                 tFIManager.mIPGeometryInterpolator = &tGI;
                 tFIManager.mIGGeometryInterpolator = &tGI;
 
@@ -361,11 +370,11 @@ TEST_CASE( "IWG_Compressible_NS_Neumann_Boundaries",
 
                 // loop over integration points
                 uint tNumGPs = tIntegPoints.n_cols();
-                for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
+                for ( uint iGP = 0; iGP < tNumGPs; iGP++ )
                 {
                     // output for debugging
-//                    std::cout << "-------------------------------------------------------------------\n" << std::flush;
-//                    std::cout << "Looping over Gauss points. Current GP-#: " << iGP << "\n\n" << std::flush;
+                    //                    std::cout << "-------------------------------------------------------------------\n" << std::flush;
+                    //                    std::cout << "Looping over Gauss points. Current GP-#: " << iGP << "\n\n" << std::flush;
 
                     // reset IWG evaluation flags
                     tIWG->reset_eval_flags();
@@ -403,9 +412,9 @@ TEST_CASE( "IWG_Compressible_NS_Neumann_Boundaries",
                             true );
 
                     // print for debug
-                    if( !tCheckJacobian )
+                    if ( !tCheckJacobian )
                     {
-                        std::cout<<"Case: Geometry "<<iSpaceDim<<" Order "<<iInterpOrder<<"iGP "<<iGP<<std::endl;
+                        std::cout << "Case: Geometry " << iSpaceDim << " Order " << iInterpOrder << "iGP " << iGP << std::endl;
                     }
 
                     // require check is true
@@ -417,5 +426,4 @@ TEST_CASE( "IWG_Compressible_NS_Neumann_Boundaries",
             }
         }
     }
-}/*END_TEST_CASE*/
-
+} /*END_TEST_CASE*/

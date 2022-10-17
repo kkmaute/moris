@@ -621,7 +621,7 @@ namespace moris
             for ( auto tMesh : mBSplineMeshes )
             {
                 tMesh->calculate_basis_indices( mCommunicationTable );
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
                 tMesh->calculate_basis_coordinates();
 
                 const std::string tBasisFunctionVtkFileName = mParameters->get_basis_fuction_vtk_file_name();
@@ -641,7 +641,7 @@ namespace moris
                 mBackgroundMesh->set_activation_pattern( tActivePattern );
             }
 
-#ifdef DEBUG
+#ifdef MORIS_HAVE_DEBUG
             this->check_entity_ids();
 #endif
 

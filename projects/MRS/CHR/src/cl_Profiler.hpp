@@ -18,8 +18,8 @@
 #include "gperftools/profiler.h"
 #endif
 
-#include "cl_Communication_Manager.hpp" // COM/src
-#include "cl_Communication_Tools.hpp" // COM/src
+#include "cl_Communication_Manager.hpp"    // COM/src
+#include "cl_Communication_Tools.hpp"      // COM/src
 
 /*
  * Instruction :
@@ -54,20 +54,21 @@ namespace moris
     {
         std::string mLogFile;
         std::string mCallgrindFile;
-//------------------------------------------------------------------------------
-    public :
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
-        Profiler( const std::string & aLogFile )
+      public:
+        //------------------------------------------------------------------------------
+
+        Profiler( const std::string& aLogFile )
         {
 #ifdef WITHGPERFTOOLS
             // fixme: replace this line with moris logger
             std::cout << "Starting MORIS Profiler ..." << std::endl;
 
             // grab path without file extension
-            std::string tBasepath = aLogFile.substr( 0, aLogFile.find_last_of(".") );
+            std::string tBasepath = aLogFile.substr( 0, aLogFile.find_last_of( "." ) );
 
-            if( par_size() == 1 )
+            if ( par_size() == 1 )
             {
                 mLogFile       = aLogFile;
                 mCallgrindFile = tBasepath + ".callgrind";
@@ -78,11 +79,11 @@ namespace moris
                 std::string tSuffix = "." + std::to_string( par_size() ) + "." + std::to_string( par_rank() );
 
                 // path for parallel logfile
-                mLogFile       = tBasepath
-                        + tSuffix + aLogFile.substr( aLogFile.find_last_of("."), aLogFile.length() );
+                mLogFile = tBasepath
+                         + tSuffix + aLogFile.substr( aLogFile.find_last_of( "." ), aLogFile.length() );
 
                 // path for callgrind file
-                mCallgrindFile =  tBasepath + tSuffix + ".callgrind";
+                mCallgrindFile = tBasepath + tSuffix + ".callgrind";
             }
 
             // start google profiler
@@ -90,14 +91,14 @@ namespace moris
 #endif
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
-        Profiler() : Profiler( "/tmp/gprofmoris.log" )
+        Profiler()
+                : Profiler( "/tmp/gprofmoris.log" )
         {
-
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         void
         stop()
@@ -108,17 +109,20 @@ namespace moris
             ProfilerStop();
 
             // get path to moris executable
-            const std::string & tExec = gMorisComm.get_exec_path();
+            const std::string& tExec = gMorisComm.get_exec_path();
 
             // get app path
-            std::string tApps = getenv("APPS");
+            std::string tApps = getenv( "APPS" );
+
+            MORIS_ERROR( tApps.size() > 0,
+                    "Environment variable APPS not set." );
 
             // assemble command line
             std::string tCommand = tApps + "/gperftools/bin/pprof --callgrind "
-                    + tExec + " " + mLogFile + " > " + mCallgrindFile;
+                                 + tExec + " " + mLogFile + " > " + mCallgrindFile;
 
             // fixme: replace this line with moris logger
-            std::cout << "Creating callgrind file " <<  mCallgrindFile << " ..." << std::endl;
+            std::cout << "Creating callgrind file " << mCallgrindFile << " ..." << std::endl;
 
             // convert logfile to callgrind
             system( tCommand.c_str() );
@@ -128,10 +132,9 @@ namespace moris
 #endif
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
     };
 
-}
+}    // namespace moris
 
 #endif /* PROJECTS_MRS_CHR_SRC_CL_PROFILER_HPP_ */
-

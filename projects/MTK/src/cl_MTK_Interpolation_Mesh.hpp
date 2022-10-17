@@ -20,18 +20,16 @@ namespace moris
 {
     namespace mtk
     {
-        class Interpolation_Mesh: public virtual Mesh
-        {
-                // Functions only valid for interpolation mIntegrationMeshes
-            public:
-                Interpolation_Mesh(){};
+        // Functions only valid for interpolation mIntegrationMeshes
 
-                ~Interpolation_Mesh()
-                {
-                };
+        class Interpolation_Mesh : public virtual Mesh
+        {
+          public:
+            Interpolation_Mesh(){};
+
+            virtual ~Interpolation_Mesh(){};
         };
-    }
-}
+    }    // namespace mtk
+}    // namespace moris
 
 #endif /* PROJECTS_MTK_SRC_CL_MTK_INTERPOLATION_MESH_HPP_ */
-

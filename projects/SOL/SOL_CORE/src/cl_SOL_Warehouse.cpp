@@ -120,7 +120,8 @@ SOL_Warehouse::create_linear_solver_algorithms()
 
     for ( uint Ik = 0; Ik < tNumLinAlgorithms; Ik++ )
     {
-        mLinearSolverAlgorithms( Ik ) = tSolFactory.create_solver( static_cast< moris::sol::SolverType >( mParameterlist( 0 )( Ik ).get< moris::uint >( "Solver_Implementation" ) ),
+        mLinearSolverAlgorithms( Ik ) = tSolFactory.create_solver(
+                static_cast< moris::sol::SolverType >( mParameterlist( 0 )( Ik ).get< moris::uint >( "Solver_Implementation" ) ),
                 mParameterlist( 0 )( Ik ) );
     }
 }
@@ -165,18 +166,22 @@ SOL_Warehouse::create_nonlinear_solver_algorithms()
 
     for ( uint Ik = 0; Ik < tNumNonLinAlgorithms; Ik++ )
     {
-        mNonlinearSolverAlgoriths( Ik ) = tNonlinFactory.create_nonlinear_solver( static_cast< moris::NLA::NonlinearSolverType >( mParameterlist( 2 )( Ik ).get< moris::uint >( "NLA_Solver_Implementation" ) ),
-                mParameterlist( 2 )( Ik ) );
+        mNonlinearSolverAlgoriths( Ik ) =
+                tNonlinFactory.create_nonlinear_solver(    //
+                        static_cast< moris::NLA::NonlinearSolverType >( mParameterlist( 2 )( Ik ).get< moris::uint >( "NLA_Solver_Implementation" ) ),
+                        mParameterlist( 2 )( Ik ) );
 
         mNonlinearSolverAlgoriths( Ik )->set_linear_solver( mLinearSolvers( mParameterlist( 2 )( Ik ).get< moris::sint >( "NLA_Linear_solver" ) ) );
 
         if ( mParameterlist( 2 )( Ik ).get< moris::sint >( "NLA_linear_solver_for_adjoint_solve" ) == -1 )
         {
-            mNonlinearSolverAlgoriths( Ik )->set_linear_solver_for_adjoint_solve( mLinearSolvers( mParameterlist( 2 )( Ik ).get< moris::sint >( "NLA_Linear_solver" ) ) );
+            mNonlinearSolverAlgoriths( Ik )    //
+                    ->set_linear_solver_for_adjoint_solve( mLinearSolvers( mParameterlist( 2 )( Ik ).get< moris::sint >( "NLA_Linear_solver" ) ) );
         }
         else
         {
-            mNonlinearSolverAlgoriths( Ik )->set_linear_solver_for_adjoint_solve( mLinearSolvers( mParameterlist( 2 )( Ik ).get< moris::sint >( "NLA_linear_solver_for_adjoint_solve" ) ) );
+            mNonlinearSolverAlgoriths( Ik )    //
+                    ->set_linear_solver_for_adjoint_solve( mLinearSolvers( mParameterlist( 2 )( Ik ).get< moris::sint >( "NLA_linear_solver_for_adjoint_solve" ) ) );
         }
     }
 }
@@ -279,8 +284,9 @@ SOL_Warehouse::create_time_solver_algorithms()
 
     for ( uint Ik = 0; Ik < tNumTimeAlgorithms; Ik++ )
     {
-        mTimeSolverAlgorithms( Ik ) = tTimeSolverFactory.create_time_solver( static_cast< moris::tsa::TimeSolverType >( mParameterlist( 4 )( Ik ).get< moris::uint >( "TSA_Solver_Implementation" ) ),
-                mParameterlist( 4 )( Ik ) );
+        mTimeSolverAlgorithms( Ik ) =
+                tTimeSolverFactory.create_time_solver( static_cast< moris::tsa::TimeSolverType >( mParameterlist( 4 )( Ik ).get< moris::uint >( "TSA_Solver_Implementation" ) ),
+                        mParameterlist( 4 )( Ik ) );
 
         mTimeSolverAlgorithms( Ik )->set_nonlinear_solver( mNonlinearSolvers( mParameterlist( 4 )( Ik ).get< moris::sint >( "TSA_Nonlinear_solver" ) ) );
 
@@ -327,8 +333,10 @@ SOL_Warehouse::create_time_solvers()
         }
 
         // get requested dof types for this time solver
-        Cell< Cell< MSI::Dof_Type > >          tCellOfCells;
+        Cell< Cell< MSI::Dof_Type > > tCellOfCells;
+
         map< std::string, enum MSI::Dof_Type > tMap = MSI::get_msi_dof_type_map();
+
         string_to_cell_of_cell( mParameterlist( 5 )( Ik ).get< std::string >( "TSA_DofTypes" ),
                 tCellOfCells,
                 tMap );
@@ -355,7 +363,8 @@ SOL_Warehouse::create_time_solvers()
             moris::Cell< std::string > tOutputCriterias;
             string_to_cell( tStringOutputCriteria, tOutputCriteria );
 
-            MORIS_ERROR( tOutputIndices.numel() == tOutputCriteria.size(), "SOL_Warehouse::create_time_solvers(), Number of output indices and criteria must be the same" );
+            MORIS_ERROR( tOutputIndices.numel() == tOutputCriteria.size(),
+                    "SOL_Warehouse::create_time_solvers(), Number of output indices and criteria must be the same" );
 
             for ( uint Ia = 0; Ia < tOutputCriteria.size(); Ia++ )
             {
@@ -390,8 +399,10 @@ SOL_Warehouse::get_default_secundary_dof_types(
     // get all possible used dof types from the time solver parameter list
     for ( uint Ik = 0; Ik < mParameterlist( 5 ).size(); Ik++ )
     {
-        Cell< Cell< MSI::Dof_Type > >          tCellOfCells;
+        Cell< Cell< MSI::Dof_Type > > tCellOfCells;
+
         map< std::string, enum MSI::Dof_Type > tMap = MSI::get_msi_dof_type_map();
+
         string_to_cell_of_cell( mParameterlist( 5 )( Ik ).get< std::string >( "TSA_DofTypes" ),
                 tCellOfCells,
                 tMap );
@@ -406,9 +417,12 @@ SOL_Warehouse::get_default_secundary_dof_types(
     // make list of dof types unique
     std::sort( ( tListOfAllPossibleDofTypes.data() ).data(),
             ( tListOfAllPossibleDofTypes.data() ).data() + tListOfAllPossibleDofTypes.size() );
+
     auto last = std::unique( ( tListOfAllPossibleDofTypes.data() ).data(),
             ( tListOfAllPossibleDofTypes.data() ).data() + tListOfAllPossibleDofTypes.size() );
-    auto pos  = std::distance( ( tListOfAllPossibleDofTypes.data() ).data(), last );
+
+    auto pos = std::distance( ( tListOfAllPossibleDofTypes.data() ).data(), last );
+
     tListOfAllPossibleDofTypes.resize( pos );
 
     // make list of residual dof types
@@ -598,4 +612,3 @@ SOL_Warehouse::get_default_secundary_dof_types(
 // }
 
 //---------------------------------------------------------------------------------------------------------------------
-

@@ -398,13 +398,18 @@ namespace moris
 
             moris::Cell< std::shared_ptr< moris::hmr::Field > > tFields( 1, tField );
 
-            for ( uint k = 0; k < 0; ++k )
+            // FIXME what is the following test about
+            if ( false )
             {
-                tHMR.flag_surface_elements_on_working_pattern( tField );
-                //            tHMR.user_defined_flagging( user_defined_refinement_MDLFEMBench, tFields, tParam, 0 );
-                tHMR.perform_refinement_based_on_working_pattern( 0, true );
-                tField->evaluate_scalar_function( tPlane_MDLFEMBench );
+                for ( uint k = 0; k < 1; ++k )
+                {
+                    tHMR.flag_surface_elements_on_working_pattern( tField );
+                    //            tHMR.user_defined_flagging( user_defined_refinement_MDLFEMBench, tFields, tParam, 0 );
+                    tHMR.perform_refinement_based_on_working_pattern( 0, true );
+                    tField->evaluate_scalar_function( tPlane_MDLFEMBench );
+                }
             }
+
             tHMR.finalize();
 
             //==============================
@@ -715,13 +720,18 @@ namespace moris
 
             moris::Cell< std::shared_ptr< moris::hmr::Field > > tFields( 1, tField );
 
-            for ( uint k = 0; k < 0; ++k )
+            // FIXME what is the following test about
+            if ( false )
             {
-                tHMR.flag_surface_elements_on_working_pattern( tField );
-                //            tHMR.user_defined_flagging( user_defined_refinement_MDLFEMBench, tFields, tParam, 0 );
-                tHMR.perform_refinement_based_on_working_pattern( 0, true );
-                tField->evaluate_scalar_function( tPlane_MDLFEMBench );
+                for ( uint k = 0; k < 1; ++k )
+                {
+                    tHMR.flag_surface_elements_on_working_pattern( tField );
+                    //            tHMR.user_defined_flagging( user_defined_refinement_MDLFEMBench, tFields, tParam, 0 );
+                    tHMR.perform_refinement_based_on_working_pattern( 0, true );
+                    tField->evaluate_scalar_function( tPlane_MDLFEMBench );
+                }
             }
+
             tHMR.finalize();
 
             //==============================
@@ -1292,13 +1302,18 @@ namespace moris
 
             moris::Cell< std::shared_ptr< moris::hmr::Field > > tFields( 1, tField );
 
-            for ( uint k = 0; k < 0; ++k )
+            // FIXME what is the following test about
+            if ( false )
             {
-                tHMR.flag_surface_elements_on_working_pattern( tField );
-                //            tHMR.user_defined_flagging( user_defined_refinement_MDLFEMBench, tFields, tParam, 0 );
-                tHMR.perform_refinement_based_on_working_pattern( 0, true );
-                tField->evaluate_scalar_function( tPlane_MDLFEMBench );
+                for ( uint k = 0; k < 1; ++k )
+                {
+                    tHMR.flag_surface_elements_on_working_pattern( tField );
+                    //            tHMR.user_defined_flagging( user_defined_refinement_MDLFEMBench, tFields, tParam, 0 );
+                    tHMR.perform_refinement_based_on_working_pattern( 0, true );
+                    tField->evaluate_scalar_function( tPlane_MDLFEMBench );
+                }
             }
+
             tHMR.finalize();
 
             //==============================
@@ -1623,13 +1638,18 @@ namespace moris
 
             moris::Cell< std::shared_ptr< moris::hmr::Field > > tFields( 1, tField );
 
-            for ( uint k = 0; k < 0; ++k )
+            // FIXME what is the following test about
+            if ( false )
             {
-                tHMR.flag_surface_elements_on_working_pattern( tField );
-                //            tHMR.user_defined_flagging( user_defined_refinement_MDLFEMBench, tFields, tParam, 0 );
-                tHMR.perform_refinement_based_on_working_pattern( 0, true );
-                tField->evaluate_scalar_function( tPlane_MDLFEMBench );
+                for ( uint k = 0; k < 1; ++k )
+                {
+                    tHMR.flag_surface_elements_on_working_pattern( tField );
+                    //            tHMR.user_defined_flagging( user_defined_refinement_MDLFEMBench, tFields, tParam, 0 );
+                    tHMR.perform_refinement_based_on_working_pattern( 0, true );
+                    tField->evaluate_scalar_function( tPlane_MDLFEMBench );
+                }
             }
+
             tHMR.finalize();
 
             //==============================
@@ -1930,4 +1950,3 @@ namespace moris
     } /* END_TEST_CASE */
 
 }    // namespace moris
-

@@ -304,7 +304,7 @@ TEST_CASE( "CM_Struc_Linear_MT", "[CM_Struc_Lin_MT]" )
             // set CM field interpolator manager
             tCMMasterStrucLinIso->set_field_interpolator_manager( &tFIManager );
 
-            uint tNumGPs = tIntegPoints.n_cols();
+            // uint tNumGPs = tIntegPoints.n_cols();
             for ( uint iGP = 0; iGP < 1; iGP++ )
             {
                 // reset CM evaluation flags
