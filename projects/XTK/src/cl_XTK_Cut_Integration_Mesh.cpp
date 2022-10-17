@@ -980,7 +980,7 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     moris::mtk::Cell*
-    Cut_Integration_Mesh::get_subphase_parent_cell( moris_index aSubPhaseIndex )
+    Cut_Integration_Mesh::get_subphase_parent_cell( const moris_index aSubPhaseIndex )
     {
         return mSubPhaseParentCell( aSubPhaseIndex );
     }
@@ -1476,6 +1476,18 @@ namespace xtk
         return mBsplineMeshInfos( aBsplineMeshListIndex )->mExtractionCellMaterialSpgs( aBaseIpCellIndex );
     }
 
+    // ----------------------------------------------------------------------------------
+
+    moris::Cell< moris_index > const&
+    Cut_Integration_Mesh::get_material_MSD_indices_for_base_IP_cell( 
+            const moris_index aBsplineMeshListIndex,
+            const moris_index aBaseIpCellIndex ) const
+    {
+        MORIS_ASSERT( mBsplineMeshInfos( aBsplineMeshListIndex )->mExtractionCellMaterialMsdIndices.size() > 0, 
+                "Cut_Integration_Mesh::get_material_MSD_indices_for_base_IP_cell() - information not constructed yet" );
+        return mBsplineMeshInfos( aBsplineMeshListIndex )->mExtractionCellMaterialMsdIndices( aBaseIpCellIndex );
+    }
+    
     // ----------------------------------------------------------------------------------
 
     moris::Cell< moris_index > const&

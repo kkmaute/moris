@@ -232,13 +232,18 @@ namespace xtk
         // Note: Definition: MSD index 
         // Note: index of the material sub-domain wrt. to the coarsest B-spline element containing a given extraction cell
 
-        // input: extraction cell index || output: MSD indcices of the void SPGs associated with the extraction cell
+        // input: extraction cell index || output: MSD indices of the void SPGs associated with the extraction cell
+        moris::Cell< moris::Cell< moris_index > > mExtractionCellMaterialMsdIndices;
+
+        // input: extraction cell index || output: MSD indices of the void SPGs associated with the extraction cell
         moris::Cell< moris::Cell< moris_index > > mExtractionCellVoidMsdIndices;
+
+        // input: extraction cell index || output: MSD indices for which a basis extension needs to be constructed
         moris::Cell< moris::Cell< moris_index > > mExtractionCellFreeVoidMsdIndices;
 
         // material sub-domain indices associated with the SPGs on this B-spline mesh
         // input: SPG index || output: B-spline element local SPG index of the SPG on the coarsest B-spline mesh which contains the SPG index input
-        // moris::Cell< moris_index > mSpgSubdomainIndex; 
+        moris::Cell< moris_index > mSpgToMsdIndex; 
 
 
         // ----------------------------------------------------------------------------------

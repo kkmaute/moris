@@ -1090,6 +1090,20 @@ namespace xtk
             // ----------------------------------------------------------------------------------
 
             /**
+             * @brief Get the material MSD indices for base IP cell
+             * 
+             * @param aBsplineMeshListIndex index of the B-spline mesh in the list of B-spline meshes to be enriched
+             * @param aBaseIpCellIndex index of the base IP cell / Lagrange element
+             * @return moris::Cell< moris_index > const& MSD indices corresponding to SPGs wrt. which material clusters will be constructed
+             */
+            moris::Cell< moris_index > const&
+            get_material_MSD_indices_for_base_IP_cell( 
+                    const moris_index aBsplineMeshListIndex,
+                    const moris_index aBaseIpCellIndex ) const;
+
+            // ----------------------------------------------------------------------------------
+
+            /**
              * @brief Get the void SPG indices for base IP cell
              * 
              * @param aBsplineMeshListIndex index of the B-spline mesh in the list of B-spline meshes to be enriched

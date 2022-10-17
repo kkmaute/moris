@@ -4804,8 +4804,12 @@ namespace xtk
             // initialize lists holding which SPGs are material and void on the base IP cells/Lagrange elements
             tBsplineMeshInfo->mExtractionCellMaterialSpgs.resize( tNumBaseIpCells );
             tBsplineMeshInfo->mExtractionCellVoidSpgs.resize( tNumBaseIpCells );
+            tBsplineMeshInfo->mExtractionCellMaterialMsdIndices.resize( tNumBaseIpCells );
             tBsplineMeshInfo->mExtractionCellVoidMsdIndices.resize( tNumBaseIpCells );
             tBsplineMeshInfo->mExtractionCellFreeVoidMsdIndices.resize( tNumBaseIpCells );
+
+            // initialize map assigning MSD indices to the SPGs
+            tBsplineMeshInfo->mSpgToMsdIndex.resize( tBsplineMeshInfo->get_num_SPGs(), -1 );
         }
 
         // initialize the list storing which B-spline mesh index is the coarsest wrt. to a given Lagrange element
@@ -4873,21 +4877,56 @@ namespace xtk
                         tCoarsestBsplineMeshInfo->get_extraction_cell_indices_in_Bspline_cell( tCoarsestBsplineElemIndex );
 
                 // get the subphase groups for the corresponding B-spline element
-                const Cell< const Subphase_Group* > tSpgsOnBspElem = 
+                const Cell< const Subphase_Group* > tSpgsOnCoarsestBspElem = 
                         tCoarsestBsplineMeshInfo->get_SPGs_in_Bspline_cell( tCoarsestBsplineElemIndex );
 
                 // collect SPs inside those SPGs and build map associating the SPs with MSD indices
+                // Note: the local indices of the SPGs on the coarsest element correspond to the MSD indices
                 IndexMap tSpToMsdIndex;
-                for( uint iSPG = 0; iSPG < tSpgsOnBspElem.size(); iSPG++ )
+                Cell< moris_index > tSpsInBspElem( 0 );
+                tSpsInBspElem.reserve( tSpgsOnCoarsestBspElem.size() * tSpgsOnCoarsestBspElem( 0 )->get_SP_indices_in_group().size() );
+
+                for( uint iSPG = 0; iSPG < tSpgsOnCoarsestBspElem.size(); iSPG++ )
                 {
                     // get the list of SPs in the current SPG
                     const moris::Cell< moris_index >& tSpIndicesInGroup = 
-                            tSpgsOnBspElem( iSPG )->get_SP_indices_in_group();
+                            tSpgsOnCoarsestBspElem( iSPG )->get_SP_indices_in_group();
                     
                     // associate all SPs in the current SPG with their MSD index
                     for( uint iSpInSpg = 0; iSpInSpg < tSpIndicesInGroup.size(); iSpInSpg++ )
                     {
                         tSpToMsdIndex[ tSpIndicesInGroup( iSpInSpg ) ] = iSPG;
+                        tSpsInBspElem.push_back( tSpIndicesInGroup( iSpInSpg ) );
+                    }
+                }
+
+                // get the size of the map
+                uint tNumSpsInCoarsestBspElem = tSpsInBspElem.size();
+
+                // use the constructed information to associate the SPGs on each B-spline mesh with the MSD indices
+                for( uint iBspMesh = 0; iBspMesh < tNumBspMeshes; iBspMesh++ )
+                {
+                    // get the current B-spline mesh info
+                    Bspline_Mesh_Info* tBsplineMeshInfo = aCutIntegrationMesh->mBsplineMeshInfos( iBspMesh );
+
+                    // go over the previously constructed map/list
+                    for( uint iSP = 0; iSP < tNumSpsInCoarsestBspElem; iSP++ )
+                    {
+                        // get the SP's index
+                        moris_index tSpIndex = tSpsInBspElem( iSP );
+                        
+                        // get the SPG corresponding to the current SP on the current mesh
+                        moris_index tSpgIndex = tBsplineMeshInfo->mSpToSpgMap( tSpIndex );
+
+                        // get the associated MSD index
+                        auto tIter = tSpToMsdIndex.find( tSpIndex );
+                        MORIS_ASSERT( tIter != tSpToMsdIndex.end(), 
+                                "Integration_Mesh_Generator::construct_SPG_material_connectivity_information() -"
+                                "Something went wrong in the SP to MSD index map construction." );
+                        moris_index tMsdIndex = tIter->second;
+
+                        // add information to the SPG to MSD index map
+                        tBsplineMeshInfo->mSpgToMsdIndex( tSpgIndex ) = tMsdIndex;
                     }
                 }
 
@@ -4923,7 +4962,35 @@ namespace xtk
                         this->find_material_SPGs_on_Lagrange_Cell( aCutIntegrationMesh, tLagElemIndex, iBspMesh, tMaterialSpgIndices, tVoidSpgIndices );
 
                         // --------------------------------
-                        // STEP 4: derive the void MSD indices wrt. to each B-spline mesh from the void SPGs
+                        // STEP 4.1: derive the material MSD indices wrt. to each B-spline mesh from the void SPGs
+
+                        // get the number of material SPGs and MSD indices
+                        uint tNumMaterialSpgs = tMaterialSpgIndices.size();
+
+                        // access the lists storing material MSD indices for each Lagrange element
+                        moris::Cell< moris_index >& tMaterialMsdIndices = tBsplineMeshInfo->mExtractionCellMaterialMsdIndices( tLagElemIndex );
+
+                        // resize this list to correct size
+                        tMaterialMsdIndices.resize( tNumMaterialSpgs );
+
+                        // go over material SPGs and store the corresponding MSD Indices
+                        for( uint iMaterialSpg = 0; iMaterialSpg < tNumMaterialSpgs; iMaterialSpg++ )
+                        {
+                            // get the current SPG's index 
+                            moris_index tSpgIndex = tMaterialSpgIndices( iMaterialSpg );
+
+                            // get the corresponding MSD index
+                            moris_index tMsdIndex = tBsplineMeshInfo->mSpgToMsdIndex( tSpgIndex );
+                            MORIS_ASSERT( tMsdIndex > -1, 
+                                    "Integration_Mesh_Generator::construct_SPG_material_connectivity_information() - "
+                                    "Subphase index not found in the SPG to MSD index map. Something must have gone wrong." );
+
+                            // store the void MSD index
+                            tMaterialMsdIndices( iMaterialSpg ) = tMsdIndex;
+                        }
+
+                        // --------------------------------
+                        // STEP 4.2: derive the void MSD indices wrt. to each B-spline mesh from the void SPGs
 
                         // get the number of void SPGs and MSD indices
                         uint tNumVoidSpgs = tVoidSpgIndices.size();
@@ -4940,18 +5007,11 @@ namespace xtk
                             // get the current SPG's index 
                             moris_index tSpgIndex = tVoidSpgIndices( iVoidSpg );
 
-                            // get the list of SPs in the current SPG
-                            const moris::Cell< moris_index >& tSpgsInGroup = tBsplineMeshInfo->mSubphaseGroups( tSpgIndex )->get_SP_indices_in_group();
-
-                            // get an SP representing the current SPG 
-                            moris_index tSpIndex = tSpgsInGroup( 0 );
-
-                            // get the MSD index corresponding to the current void SPG
-                            auto tIter = tSpToMsdIndex.find( tSpIndex );
-                            MORIS_ERROR( tIter != tSpToMsdIndex.end(),
+                            // get the corresponding MSD index
+                            moris_index tMsdIndex = tBsplineMeshInfo->mSpgToMsdIndex( tSpgIndex );
+                            MORIS_ASSERT( tMsdIndex > -1, 
                                     "Integration_Mesh_Generator::construct_SPG_material_connectivity_information() - "
-                                    "Subphase index not found in subphase to MSD index map. Something must have gone wrong." );
-                            moris_index tMsdIndex = tIter->second;
+                                    "Subphase index not found in the SPG to MSD index map. Something must have gone wrong." );
 
                             // store the void MSD index
                             tVoidMsdIndices( iVoidSpg ) = tMsdIndex;

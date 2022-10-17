@@ -17,6 +17,7 @@
 
 // Std includes
 #include <limits>
+#include <unordered_set>
 
 // XTKL: XTK Includes
 #include "cl_Cell.hpp"
@@ -743,6 +744,80 @@ namespace xtk
 
             void
             allocate_interpolation_cells_based_on_SPGs_new();
+
+            // ----------------------------------------------------------------------------------
+
+            /**
+             * @brief figure out if the basis associated with an existing SPG can be used for an enriched IP cell wrt. to a certain B-spline mesh
+             * 
+             * @param aIpCellIndex index of the base IP cell / Lagrange element
+             * @param aUnzippingOnIpCell index of the unzipping (i.e. position of the enr. IP cell (UIPC) in the stack of UIPCs on this base IP cell)
+             * @param aBsplineMeshIndex list index of the B-spline mesh whose basis is considered
+             * @return moris_index index of the SPG whose basis will be used, return -1 if there is no SPG from which the basis can be used
+             */
+            
+            moris_index
+            get_SPG_for_basis_extension( 
+                    const moris_index aIpCellIndex, 
+                    const moris_index aUnzippingOnIpCell, 
+                    const moris_index aBsplineMeshIndex ) const;
+
+            // ----------------------------------------------------------------------------------
+
+            /**
+             * @brief Construct an averaged T-matrix from all material enr. IP cells for a given 
+             * material sub-domain on the coarsest B-spline element containing a certain Lagrange 
+             * element wrt. to a given B-spline mesh index.
+             * 
+             * @param aIpCellIndex index of the base IP cell / Lagrange element
+             * @param aUnzippingOnIpCell index of the unzipping (i.e. position of the enr. IP cell (UIPC) in the stack of UIPCs on this base IP cell)
+             * @param aBsplineMeshIndex list index of the B-spline mesh whose basis is considered
+             * @param aAverageEnrichedTmatrix average T-matrix 
+             */
+            void
+            construct_averaged_T_matrix_for_extension_on_enriched_IP_cell(
+                    const moris_index  aIpCellIndex,
+                    const moris_index  aUnzippingIndex,
+                    const moris_index  aBsplineMeshIndex,
+                    Vertex_Enrichment& aAverageEnrichedTmatrix ) const;
+
+            // ----------------------------------------------------------------------------------
+            
+            /**
+             * @brief computes a weighted average from multiple T-matrices
+             * 
+             * @param aAverageTmatrices list of T-matrices to average
+             * @param aRelativeIpCellVolumes corresponding weights
+             * @param aAverageEnrichedTmatrix output the averaged T-matrix
+             */
+            void
+            average_T_matrices(
+                    Cell< Vertex_Enrichment* > const & aAverageTmatrices,
+                    Cell< real > const &               aWeights,
+                    Vertex_Enrichment&                 aAverageEnrichedTmatrix ) const;
+
+            // ----------------------------------------------------------------------------------
+
+            /**
+             * @brief find and collect the Subphases in the coarsest B-spline mesh that are associated 
+             * with the same material sub-domain as the enriched IP cell specified by the inputs
+             * 
+             * @param aIpCellIndex index of the base IP cell / Lagrange element
+             * @param aUnzippingOnIpCell index of the unzipping (i.e. position of the enr. IP cell (UIPC) in the stack of UIPCs on this base IP cell)
+             * @return Cell< moris_index > const& list of subphases
+             */
+            Cell< moris_index > const&
+            collect_SPs_in_coarsest_element_in_same_material_subdomain_as_unzipped_cell(
+                    const moris_index    aIpCellIndex,
+                    const moris_index    aUnzippingIndex ) const;
+
+            // ----------------------------------------------------------------------------------
+
+            void
+            get_averaged_vertex_enrichment_for_subphase(
+                    const moris_index  aSubphaseIndex,
+                    const moris_index  aBsplineMeshIndex,
+                    Vertex_Enrichment* aAveragedTmatrix ) const;
 
             // ----------------------------------------------------------------------------------
 

@@ -39,6 +39,32 @@ namespace xtk
     }
 
     //-------------------------------------------------------------------------------------
+
+    /**
+     * @brief generalized sum over all entries of a moris::Cell
+     * 
+     * @tparam T type of the Cell entries
+     * @param aCell moris::Cell to sum up
+     * @return T sum over all entries
+     */
+    template< class T >
+    T
+    sum_over_cell( Cell< T > const & aCell )
+    {
+        // initialize sum with 0
+        T tSum = (T)0;
+
+        // sum up entries of cell
+        for( uint i = 0; i < aCell.size(); i++ )
+        {
+            tSum += aCell( i );
+        }
+
+        // return sum
+        return tSum;
+    }
+
+    //-------------------------------------------------------------------------------------
     
 } // namespace xtk
 
