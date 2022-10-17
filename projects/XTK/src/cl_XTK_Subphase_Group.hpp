@@ -406,7 +406,7 @@ namespace xtk
 
         // ----------------------------------------------------------------------------------
 
-        const uint
+        uint
         get_B_spline_refinement_level_for_SPG( const moris_index aSpgIndex ) const
         {
             // get the B-spline element corresponding to the SPG
@@ -418,7 +418,7 @@ namespace xtk
 
         // ----------------------------------------------------------------------------------
 
-        const uint
+        uint
         get_B_spline_refinement_level_for_extraction_cell( moris_index aExtractionCellIndex ) const
         {
             // get the underlying B-spline cell's index
