@@ -191,14 +191,17 @@ option(MORIS_HAVE_SNOPT
     
 option(MORIS_HAVE_LBFGS
     "Build MORIS with support for LBFGS." ON )
+
+option(MORIS_HAVE_TRILINOS_OLD
+    "Build MORIS with support for old Trilinos version." OFF )
     
-# option(HAVE_PERF_MAT
+# option(MORIS_HAVE_PERF_MAT
 #     "Run matrix performance tests." OFF )
 #     
-# option(HAVE_PERF_SP_MAT
+# option(MORIS_HAVE_PERF_SP_MAT
 #     "Run sparse matrix performance tests." OFF )
 #     
-# option(HAVE_PERF_LIN_SOLVE
+# option(MORIS_HAVE_PERF_LIN_SOLVE
 #     "Run linear solver performance tests." OFF )
 
 option(MORIS_USE_TESTS
@@ -209,7 +212,7 @@ option(MORIS_USE_PERF_TESTS
     
 option(MORIS_USE_EXAMPLES
      "Build the examples." ON)
-    
+
 option(MORIS_HAVE_PARALLEL_TESTS
     "Run unit tests in parallel. MORIS_USE_TESTS must be ON." ON)
 
@@ -381,9 +384,20 @@ if (MORIS_USE_INTEL)
    
 else(MORIS_USE_INTEL)
       
-   find_library(MORIS_LIB_GFortran NAMES $ENV{GFORTLIB} HINTS ${LIB_SEARCH_PATH} )
-   message(STATUS "MORIS_LIB_GFortran = ${MORIS_LIB_GFortran}")
-   link_libraries(${MORIS_LIB_GFortran})
+   if ( DEFINED ENV{GFORTLIB} )
+       find_library(MORIS_LIB_GFortran NAMES $ENV{GFORTLIB} HINTS ${LIB_SEARCH_PATH} )
+       message(STATUS "MORIS_LIB_GFortran = ${MORIS_LIB_GFortran}")
+       link_libraries(${MORIS_LIB_GFortran})
+   else()
+       foreach(ver RANGE 3 6)
+          find_library(MORIS_LIB_GFortran NAMES libgfortran.so.${ver} HINTS ${LIB_SEARCH_PATH} )
+          if ( MORIS_LIB_GFortran )
+             message(STATUS "MORIS_LIB_GFortran = ${MORIS_LIB_GFortran}")
+             link_libraries(${MORIS_LIB_GFortran})
+             break()
+          endif()
+       endforeach()
+   endif()
    #list(APPEND MORIS_BASE_LIBS ${MORIS_LIB_GFortran})
 
    find_library(MORIS_LIB_Dl NAMES dl HINTS  ${LIB_SEARCH_PATH} )
@@ -497,15 +511,15 @@ if (MORIS_HAVE_PARALLEL)
 endif()
 
 # # Performace test flags
-# if (HAVE_PERF_MAT)
+# if (MORIS_HAVE_PERF_MAT)
 #     list(APPEND MORIS_DEFINITIONS "-DPERF_MAT")
 # endif()
 # 
-# if (HAVE_PERF_SP_MAT)
+# if (MORIS_HAVE_PERF_SP_MAT)
 #     list(APPEND MORIS_DEFINITIONS "-DPERF_SP_MAT")
 # endif()
 # 
-# if (HAVE_PERF_LIN_SOLVE)
+# if (MORIS_HAVE_PERF_LIN_SOLVE)
 #     list(APPEND MORIS_DEFINITIONS "-DPERF_LIN_SOLVE")
 # endif()
 
@@ -513,6 +527,11 @@ endif()
 if(MORIS_PERFORM_CHECK)
         list(APPEND MORIS_DEFINITIONS "-DMORIS_PERFORM_CHECK")
 endif()
+
+if (MORIS_HAVE_TRILINOS_OLD)
+    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -DMORIS_HAVE_TRILINOS_OLD ")
+endif()
+
 
 # Add some strict compiler checks.
 # -pedantic-errors     Make all pedantic warnings into errors. -pedantic issues 
