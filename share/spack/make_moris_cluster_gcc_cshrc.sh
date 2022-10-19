@@ -70,12 +70,16 @@ echo 'setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH/:$Trilinos_DIR/lib'              >
 echo 'setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH/:$PETSC_DIR/lib'                 >> $HOME/.cshrc_moris 
 echo 'setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH/:$HDF5_DIR/lib'                  >> $HOME/.cshrc_moris 
 echo 'setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH/:$MKL_DIR/lib'                   >> $HOME/.cshrc_moris 
-echo 'setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH/:$NETCDF_DIR/lib64'              >> $HOME/.cshrc_moris 
+echo 'setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH/:$NETCDF_DIR/lib64'              >> $HOME/.cshrc_moris
+echo 'setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH/:/usr/lib64/psm2-compat'         >> $HOME/.cshrc_moris
 echo ""                                                                        >> $HOME/.cshrc_moris
 echo "setenv CC  $CC"                                                          >> $HOME/.cshrc_moris
 echo "setenv CXX $CXX"                                                         >> $HOME/.cshrc_moris
 echo "setenv FC  $FC"                                                          >> $HOME/.cshrc_moris
 echo "setenv F77 $F77"                                                         >> $HOME/.cshrc_moris
 
-setenv GFORTLIB libgfortran.so
+setenv GFORTLIB      `ldd $PETSC_DIR/lib/libpetsc.so | grep libgfortran | awk '{print $3}' | awk -F "/" '{print $NF}'`
+setenv GFORTLIB_PATH `ldd $PETSC_DIR/lib/libpetsc.so | grep libgfortran | awk '{print $3}' | awk -F libgfortran '{print $1}'`
+
 echo "setenv GFORTLIB $GFORTLIB"                                               >> $HOME/.cshrc_moris
+echo "setenv GFORTLIB_PATH $GFORTLIB_PATH"                                     >> $HOME/.cshrc_moris
