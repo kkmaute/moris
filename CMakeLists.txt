@@ -784,23 +784,36 @@ IF(CMAKE_CXX_COMPILER_ID MATCHES "^GNU$")
         message(STATUS "Major version = ${CMAKE_MATCH_1}")
         set(MORIS_GCC_MAJOR_VERSION "${CMAKE_MATCH_1}")
 
-        set(CMAKE_AR      "/usr/bin/gcc-ar-${MORIS_GCC_MAJOR_VERSION}")
-        set(CMAKE_RANLIB  "/usr/bin/gcc-ranlib-${MORIS_GCC_MAJOR_VERSION}")
+        if (EXISTS "/usr/bin/gcc-ar-${MORIS_GCC_MAJOR_VERSION}" )
+            set(CMAKE_AR      "/usr/bin/gcc-ar-${MORIS_GCC_MAJOR_VERSION}")
+            set(CMAKE_RANLIB  "/usr/bin/gcc-ranlib-${MORIS_GCC_MAJOR_VERSION}")
+
+            set (CMAKE_C_COMPILER_AR      "/usr/bin/gcc-ar-${MORIS_GCC_MAJOR_VERSION}")
+            set (CMAKE_C_COMPILER_RANLIB  "/usr/bin/gcc-ranlib-${MORIS_GCC_MAJOR_VERSION}")
         
+            set (CMAKE_CXX_COMPILER_AR      "/usr/bin/gcc-ar-${MORIS_GCC_MAJOR_VERSION}")
+            set (CMAKE_CXX_COMPILER_RANLIB  "/usr/bin/gcc-ranlib-${MORIS_GCC_MAJOR_VERSION}")
+        else()
+           set(CMAKE_AR      "${CMAKE_C_COMPILER_AR}")
+           set(CMAKE_RANLIB  "${CMAKE_C_COMPILER_RANLIB}")
+        endif()
+
         message(STATUS "CMAKE_AR     = ${CMAKE_AR}")
         message(STATUS "CMAKE_RANLIB = ${CMAKE_RANLIB}")
          
-        set (CMAKE_C_COMPILER_AR      "/usr/bin/gcc-ar-${MORIS_GCC_MAJOR_VERSION}")
-        set (CMAKE_C_COMPILER_RANLIB  "/usr/bin/gcc-ranlib-${MORIS_GCC_MAJOR_VERSION}")
-   
         message(STATUS "CMAKE_C_COMPILER_AR     = ${CMAKE_C_COMPILER_AR}")
         message(STATUS "CMAKE_C_COMPILER_RANLIB = ${CMAKE_C_COMPILER_RANLIB}")
  
-        set (CMAKE_CXX_COMPILER_AR      "/usr/bin/gcc-ar-${MORIS_GCC_MAJOR_VERSION}")
-        set (CMAKE_CXX_COMPILER_RANLIB  "/usr/bin/gcc-ranlib-${MORIS_GCC_MAJOR_VERSION}")
-    
         message(STATUS "CMAKE_CXX_COMPILER_AR     = ${CMAKE_CXX_COMPILER_AR}")
         message(STATUS "CMAKE_CXX_COMPILER_RANLIB = ${CMAKE_CXX_COMPILER_RANLIB}")
+    endif()
+
+    # special case for gcc-10.2
+    if( CMAKE_CXX_COMPILER_VERSION MATCHES "10.2.*")
+        check_cxx_compiler_flag("-Wno-type-limits" HAVE_PEDANTIC )
+        if (HAVE_PEDANTIC)
+            set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wno-type-limits" )
+        endif()
     endif()
 endif()
 
