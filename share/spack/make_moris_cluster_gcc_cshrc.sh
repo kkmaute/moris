@@ -77,5 +77,8 @@ echo "setenv CXX $CXX"                                                         >
 echo "setenv FC  $FC"                                                          >> $HOME/.cshrc_moris
 echo "setenv F77 $F77"                                                         >> $HOME/.cshrc_moris
 
-setenv GFORTLIB libgfortran.so
+setenv GFORTLIB      `ldd $PETSC_DIR/lib/libpetsc.so | grep libgfortran | awk '{print $3}' | awk -F "/" '{print $NF}'`
+setenv GFORTLIB_PATH `ldd $PETSC_DIR/lib/libpetsc.so | grep libgfortran | awk '{print $3}' | awk -F libgfortran '{print $1}'`
+
 echo "setenv GFORTLIB $GFORTLIB"                                               >> $HOME/.cshrc_moris
+echo "setenv GFORTLIB_PATH $GFORTLIB_PATH"                                     >> $HOME/.cshrc_moris
