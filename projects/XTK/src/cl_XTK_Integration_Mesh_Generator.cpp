@@ -4456,25 +4456,37 @@ namespace xtk
         // get pointer to Subphase Neighborhood Connectivity of mesh
         std::shared_ptr< Subphase_Neighborhood_Connectivity > tSubphaseNeighborhood = aCutIntegrationMesh->get_subphase_neighborhood();
 
-        // initialize matrix storing pruned subphase connectivity
-        aPrunedBsplineSubphaseToSubphase.resize( aSubphasesInBsplineCell.numel(), 4 * mXTKModel->get_spatial_dim() );
-        aPrunedBsplineSubphaseToSubphase.fill( MORIS_INDEX_MAX );
+        // get the number of SPs in the current B-spline cell
+        uint tNumSpsInBspCell = aSubphasesInBsplineCell.numel();
 
         // get subphase neighborhood information form Subphase_Neighborhood_Connectivity and store in variable for easy handling
         moris::Cell< std::shared_ptr< moris::Cell< moris_index > > > const & tSubphasetoSubphase = tSubphaseNeighborhood->mSubphaseToSubPhase;
 
+        // determine the maximum number of neighbors needed in graph
+        uint tMaxNumNeighbors = 0;
+        for ( moris::size_t iSP = 0; iSP < tNumSpsInBspCell; iSP++ )
+        {
+            moris::Cell< moris_index > const & tSingleSubphaseNeighbors = *tSubphasetoSubphase( aSubphasesInBsplineCell( iSP ) );
+            uint tNumNeighbors = tSingleSubphaseNeighbors.size();
+            tMaxNumNeighbors = std::max( tMaxNumNeighbors, tNumNeighbors );
+        }
+
+        // initialize matrix storing pruned subphase connectivity
+        aPrunedBsplineSubphaseToSubphase.resize( tNumSpsInBspCell, tMaxNumNeighbors );
+        aPrunedBsplineSubphaseToSubphase.fill( MORIS_INDEX_MAX );
+
         // go over subphases in B-spline Cell
-        for ( moris::size_t i = 0; i < aSubphasesInBsplineCell.numel(); i++ )
+        for ( moris::size_t iSP = 0; iSP < tNumSpsInBspCell; iSP++ )
         {
             // get list of current subphase's neighbors
-            moris::Cell< moris_index > const & tSingleSubphaseNeighbors = *tSubphasetoSubphase( aSubphasesInBsplineCell( i ) );
+            moris::Cell< moris_index > const & tSingleSubphaseNeighbors = *tSubphasetoSubphase( aSubphasesInBsplineCell( iSP ) );
 
             // iterate through neighbors and check if neighbors and prune if not in B-spline cell
             moris::uint tCount = 0;
-            for ( moris::size_t j = 0; j < tSingleSubphaseNeighbors.size(); j++ )
+            for ( moris::size_t jSpNeighbor = 0; jSpNeighbor < tSingleSubphaseNeighbors.size(); jSpNeighbor++ )
             {
                 // get current neighbor subphase's index
-                moris_index tNeighborSubphaseIndex = tSingleSubphaseNeighbors( j );
+                moris_index tNeighborSubphaseIndex = tSingleSubphaseNeighbors( jSpNeighbor );
 
                 // find subphase index in list of subphases inside B-spline cell, and ...
                 auto tNeighborIter = aSubphaseIndicesToBspline.find( tNeighborSubphaseIndex );
@@ -4482,7 +4494,7 @@ namespace xtk
                 // ... only add neighboring subphase, if it is found
                 if ( tNeighborIter != aSubphaseIndicesToBspline.end() )
                 {
-                    aPrunedBsplineSubphaseToSubphase( i, tCount ) = tNeighborIter->second;
+                    aPrunedBsplineSubphaseToSubphase( iSP, tCount ) = tNeighborIter->second;
                     tCount++;
                 }
             }
