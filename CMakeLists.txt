@@ -336,7 +336,7 @@ message(STATUS "MORIS recognized the C++ compiler type MORIS_CXX_COMPILER=${MORI
 include(CheckCXXCompilerFlag)
 
 # Allow for mutliple defintions for the same routine
-set(CMAKE_EXE_LINKER_FLAGS "-Wl,--allow-multiple-definition")
+#set(CMAKE_EXE_LINKER_FLAGS "-Wl,--allow-multiple-definition")
 
 # set libaries to be linked for all targets
 # note: should be done similar to find_modules find_library
