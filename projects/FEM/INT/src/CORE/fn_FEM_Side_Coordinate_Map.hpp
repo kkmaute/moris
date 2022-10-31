@@ -27,7 +27,7 @@ namespace moris
         // function overwrites only spatial coordinates assuming that spatial coordinates
         // are first entries of vector
 
-        void
+        inline void
         side_coordinate_map(
                 const mtk::Geometry_Type       aGeometryType,
                 const moris_index              aSlaveNode,
@@ -116,7 +116,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        moris::Matrix< DDRMat >
+        inline moris::Matrix< DDRMat >
         side_coordinate_map(
                 const mtk::Geometry_Type       aGeometryType,
                 const moris_index              aSlaveNode,
@@ -141,4 +141,3 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_FEM_FN_FEM_SIDE_COORDINATE_MAP_HPP_ */
-

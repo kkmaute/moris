@@ -16,139 +16,530 @@
 
 using namespace moris;
 
-void tConstValFunc(
-        moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-        moris::fem::Field_Interpolator_Manager         * aFIManager )
+inline void
+tConstValFunc(
+        moris::Matrix< moris::DDRMat >&                aPropMatrix,
+        moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+        moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
     aPropMatrix = aParameters( 0 );
 }
 
-void tVXFIValFunc(
-        moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-        moris::fem::Field_Interpolator_Manager         * aFIManager )
+inline void
+tVXFIValFunc(
+        moris::Matrix< moris::DDRMat >&                aPropMatrix,
+        moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+        moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
-    moris::fem::Field_Interpolator * tFIVelocity =
+    moris::fem::Field_Interpolator* tFIVelocity =
             aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::VX );
 
     aPropMatrix = aParameters( 0 ) * sum( tFIVelocity->val() );
 }
 
-void tVXFIDerFunc(
-        moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-        moris::fem::Field_Interpolator_Manager         * aFIManager )
+inline void
+tVXFIDerFunc(
+        moris::Matrix< moris::DDRMat >&                aPropMatrix,
+        moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+        moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
-    moris::fem::Field_Interpolator * tFIVelocity =
+    moris::fem::Field_Interpolator* tFIVelocity =
             aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::VX );
 
     moris::Matrix< moris::DDRMat > tReturn( 1, tFIVelocity->get_number_of_space_time_coefficients(), 0.0 );
-    for( uint i = 0; i < tFIVelocity->N().n_rows(); i++ )
+    for ( uint i = 0; i < tFIVelocity->N().n_rows(); i++ )
     {
         tReturn += tFIVelocity->N().get_row( i );
     }
     aPropMatrix = aParameters( 0 ) * tReturn;
 }
 
-void tPFIValFunc(
-        moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-        moris::fem::Field_Interpolator_Manager         * aFIManager )
+inline void
+tPFIValFunc(
+        moris::Matrix< moris::DDRMat >&                aPropMatrix,
+        moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+        moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
     aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::P )->val();
 }
 
-void tPFIDerFunc(
-        moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-        moris::fem::Field_Interpolator_Manager         * aFIManager )
+inline void
+tPFIDerFunc(
+        moris::Matrix< moris::DDRMat >&                aPropMatrix,
+        moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+        moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
     aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::P )->N();
 }
 
-void tTEMPFIValFunc(
-        moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-        moris::fem::Field_Interpolator_Manager         * aFIManager )
+inline void
+tTEMPFIValFunc(
+        moris::Matrix< moris::DDRMat >&                aPropMatrix,
+        moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+        moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
     aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val();
 }
 
-void tTEMPFIDerFunc(
-        moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-        moris::fem::Field_Interpolator_Manager         * aFIManager )
+inline void
+tTEMPFIDerFunc(
+        moris::Matrix< moris::DDRMat >&                aPropMatrix,
+        moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+        moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
     aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
 }
 
-void tVISCOSITYFIValFunc(
-        moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-        moris::fem::Field_Interpolator_Manager         * aFIManager )
+inline void
+tVISCOSITYFIValFunc(
+        moris::Matrix< moris::DDRMat >&                aPropMatrix,
+        moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+        moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
     aPropMatrix =
-            aParameters( 0 ) *
+            aParameters( 0 ) *    //
             aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::VISCOSITY )->val();
 }
 
-void tVISCOSITYFIDerFunc(
-        moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-        moris::fem::Field_Interpolator_Manager         * aFIManager )
+inline void
+tVISCOSITYFIDerFunc(
+        moris::Matrix< moris::DDRMat >&                aPropMatrix,
+        moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+        moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
     aPropMatrix =
-            aParameters( 0 ) *
+            aParameters( 0 ) *    //
             aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::VISCOSITY )->N();
 }
 
-void tValFunc_BodyForce_3D
-( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-        moris::fem::Field_Interpolator_Manager         * aFIManager )
+inline void
+tValFunc_BodyForce_3D( moris::Matrix< moris::DDRMat >& aPropMatrix,
+        moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+        moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
     aPropMatrix = { { -3.5 }, { 2.7 }, { 8.9 } };
 }
 
-void tValFunc_BodyForce_2D
-( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-        moris::fem::Field_Interpolator_Manager         * aFIManager )
+inline void
+tValFunc_BodyForce_2D( moris::Matrix< moris::DDRMat >& aPropMatrix,
+        moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+        moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
     aPropMatrix = { { -3.5 }, { 2.7 } };
 }
 
 //------------------------------------------------------------------------------
 
-void fill_xhat(
-        moris::Matrix< moris::DDRMat > & tXHat,
-        moris::uint aSpaceDim,
-        moris::uint aInterpOrder )
+inline void
+fill_xhat(
+        moris::Matrix< moris::DDRMat >& tXHat,
+        moris::uint                     aSpaceDim,
+        moris::uint                     aInterpOrder )
 {
     switch ( aSpaceDim )
     {
         case 2:
         {
-            switch( aInterpOrder )
+            switch ( aInterpOrder )
             {
                 case 1:
-                    tXHat = { { 0.0, 0.0 }, { 3.0, 1.25 }, { 4.5, 4.0 }, { 1.0, 3.25} };
+                    tXHat = { //
+                        { 0.0, 0.0 },
+                        { 3.0, 1.25 },
+                        { 4.5, 4.0 },
+                        { 1.0, 3.25 }
+                    };
+            };
+            break;
+            case 2:
+                tXHat = { //
+                    { 0.0, 0.0 },
+                    { 3.0, 1.25 },
+                    { 4.5, 4.0 },
+                    { 1.0, 3.25 },
+                    { 1.5, 0.625 },
+                    { 3.75, 2.625 },
+                    { 2.75, 3.625 },
+                    { 0.5, 1.625 },
+                    { 2.125, 2.125 }
+                };
+                break;
+            case 3:
+                tXHat = { //
+                    { 0.000000000000000, 0.000000000000000 },
+                    { 3.000000000000000, 1.250000000000000 },
+                    { 4.500000000000000, 4.000000000000000 },
+                    { 1.000000000000000, 3.250000000000000 },
+                    { 1.000000000000000, 0.416666666666666 },
+                    { 2.000000000000000, 0.833333333333333 },
+                    { 3.500000000000000, 2.166666666666667 },
+                    { 4.000000000000000, 3.083333333333333 },
+                    { 3.333333333333333, 3.750000000000000 },
+                    { 2.166666666666667, 3.500000000000000 },
+                    { 0.666666666666666, 2.166666666666667 },
+                    { 0.333333333333333, 1.083333333333333 },
+                    { 1.388888888888889, 1.444444444444445 },
+                    { 2.444444444444445, 1.805555555555556 },
+                    { 2.888888888888889, 2.777777777777778 },
+                    { 1.777777777777778, 2.472222222222222 }
+                };
+                break;
+            default:
+                MORIS_ERROR( false, "can only be 1, 2, 3" );
+                break;
+        }
+        break;
+    }
+    case 3:
+    {
+        switch ( aInterpOrder )
+        {
+            case 1:
+                tXHat = {
+                    { 0.0, 0.0, 0.0 },
+                    { 1.0, 0.0, 0.0 },
+                    { 1.0, 1.0, 0.0 },
+                    { 0.0, 1.0, 0.0 },
+                    { 0.0, 0.0, 1.0 },
+                    { 1.0, 0.0, 1.0 },
+                    { 1.0, 1.0, 1.0 },
+                    { 0.0, 1.0, 1.0 }
+                };
+                break;
+            case 2:
+                tXHat = {
+                    { -1.0, -1.0, -1.0 },
+                    { +1.0, -1.0, -1.0 },
+                    { +1.0, +1.0, -1.0 },
+                    { -1.0, +1.0, -1.0 },
+                    { -1.0, -1.0, +1.0 },
+                    { +1.0, -1.0, +1.0 },
+                    { +1.0, +1.0, +1.0 },
+                    { -1.0, +1.0, +1.0 },
+                    { +0.0, -1.0, -1.0 },
+                    { +1.0, 0.0, -1.0 },
+                    { 0.0, +1.0, -1.0 },
+                    { -1.0, 0.0, -1.0 },
+                    { -1.0, -1.0, 0.0 },
+                    { +1.0, -1.0, 0.0 },
+                    { +1.0, +1.0, 0.0 },
+                    { -1.0, +1.0, 0.0 },
+                    { 0.0, -1.0, +1.0 },
+                    { +1.0, 0.0, +1.0 },
+                    { 0.0, +1.0, +1.0 },
+                    { -1.0, 0.0, +1.0 },
+                    { 0.0, 0.0, 0.0 },
+                    { 0.0, 0.0, -1.0 },
+                    { 0.0, 0.0, +1.0 },
+                    { -1.0, 0.0, 0.0 },
+                    { +1.0, 0.0, 0.0 },
+                    { 0.0, -1.0, 0.0 },
+                    { 0.0, +1.0, 0.0 }
+                };
+                break;
+            case 3:
+            {
+                tXHat.set_size( 3, 64, 0.0 );
+                moris::real c = 1.0 / 3.0;
+                tXHat( 0, 0 ) = -1.0;
+                tXHat( 1, 0 ) = -1.0;
+                tXHat( 2, 0 ) = -1.0;
+                tXHat( 0, 1 ) = 1.0;
+                tXHat( 1, 1 ) = -1.0;
+                tXHat( 2, 1 ) = -1.0;
+                tXHat( 0, 2 ) = 1.0;
+                tXHat( 1, 2 ) = 1.0;
+                tXHat( 2, 2 ) = -1.0;
+                tXHat( 0, 3 ) = -1.0;
+                tXHat( 1, 3 ) = 1.0;
+                tXHat( 2, 3 ) = -1.0;
+                tXHat( 0, 4 ) = -1.0;
+                tXHat( 1, 4 ) = -1.0;
+                tXHat( 2, 4 ) = 1.0;
+                tXHat( 0, 5 ) = 1.0;
+                tXHat( 1, 5 ) = -1.0;
+                tXHat( 2, 5 ) = 1.0;
+                tXHat( 0, 6 ) = 1.0;
+                tXHat( 1, 6 ) = 1.0;
+                tXHat( 2, 6 ) = 1.0;
+                tXHat( 0, 7 ) = -1.0;
+                tXHat( 1, 7 ) = 1.0;
+                tXHat( 2, 7 ) = 1.0;
+
+                tXHat( 0, 8 )  = -c;
+                tXHat( 1, 8 )  = -1.0;
+                tXHat( 2, 8 )  = -1.0;
+                tXHat( 0, 9 )  = c;
+                tXHat( 1, 9 )  = -1.0;
+                tXHat( 2, 9 )  = -1.0;
+                tXHat( 0, 10 ) = -1.0;
+                tXHat( 1, 10 ) = -c;
+                tXHat( 2, 10 ) = -1.0;
+                tXHat( 0, 11 ) = -1.0;
+                tXHat( 1, 11 ) = c;
+                tXHat( 2, 11 ) = -1.0;
+                tXHat( 0, 12 ) = -1.0;
+                tXHat( 1, 12 ) = -1.0;
+                tXHat( 2, 12 ) = -c;
+                tXHat( 0, 13 ) = -1.0;
+                tXHat( 1, 13 ) = -1.0;
+                tXHat( 2, 13 ) = c;
+                tXHat( 0, 14 ) = 1.0;
+                tXHat( 1, 14 ) = -c;
+                tXHat( 2, 14 ) = -1.0;
+                tXHat( 0, 15 ) = 1.0;
+                tXHat( 1, 15 ) = c;
+                tXHat( 2, 15 ) = -1.0;
+                tXHat( 0, 16 ) = 1.0;
+                tXHat( 1, 16 ) = -1.0;
+                tXHat( 2, 16 ) = -c;
+                tXHat( 0, 17 ) = 1.0;
+                tXHat( 1, 17 ) = -1.0;
+                tXHat( 2, 17 ) = c;
+                tXHat( 0, 18 ) = c;
+                tXHat( 1, 18 ) = 1.0;
+                tXHat( 2, 18 ) = -1.0;
+                tXHat( 0, 19 ) = -c;
+                tXHat( 1, 19 ) = 1.0;
+                tXHat( 2, 19 ) = -1.0;
+                tXHat( 0, 20 ) = 1.0;
+                tXHat( 1, 20 ) = 1.0;
+                tXHat( 2, 20 ) = -c;
+                tXHat( 0, 21 ) = 1.0;
+                tXHat( 1, 21 ) = 1.0;
+                tXHat( 2, 21 ) = c;
+                tXHat( 0, 22 ) = -1.0;
+                tXHat( 1, 22 ) = 1.0;
+                tXHat( 2, 22 ) = -c;
+                tXHat( 0, 23 ) = -1.0;
+                tXHat( 1, 23 ) = 1.0;
+                tXHat( 2, 23 ) = c;
+                tXHat( 0, 24 ) = -c;
+                tXHat( 1, 24 ) = -1.0;
+                tXHat( 2, 24 ) = 1.0;
+                tXHat( 0, 25 ) = c;
+                tXHat( 1, 25 ) = -1.0;
+                tXHat( 2, 25 ) = 1.0;
+                tXHat( 0, 26 ) = -1.0;
+                tXHat( 1, 26 ) = -c;
+                tXHat( 2, 26 ) = 1.0;
+                tXHat( 0, 27 ) = -1.0;
+                tXHat( 1, 27 ) = c;
+                tXHat( 2, 27 ) = 1.0;
+                tXHat( 0, 28 ) = 1.0;
+                tXHat( 1, 28 ) = -c;
+                tXHat( 2, 28 ) = 1.0;
+                tXHat( 0, 29 ) = 1.0;
+                tXHat( 1, 29 ) = c;
+                tXHat( 2, 29 ) = 1.0;
+                tXHat( 0, 30 ) = c;
+                tXHat( 1, 30 ) = 1.0;
+                tXHat( 2, 30 ) = 1.0;
+                tXHat( 0, 31 ) = -c;
+                tXHat( 1, 31 ) = 1.0;
+                tXHat( 2, 31 ) = 1.0;
+
+                tXHat( 0, 32 ) = -c;
+                tXHat( 1, 32 ) = -c;
+                tXHat( 2, 32 ) = -1.0;
+                tXHat( 0, 33 ) = -c;
+                tXHat( 1, 33 ) = c;
+                tXHat( 2, 33 ) = -1.0;
+                tXHat( 0, 34 ) = c;
+                tXHat( 1, 34 ) = c;
+                tXHat( 2, 34 ) = -1.0;
+                tXHat( 0, 35 ) = c;
+                tXHat( 1, 35 ) = -c;
+                tXHat( 2, 35 ) = -1.0;
+
+                tXHat( 0, 36 ) = -c;
+                tXHat( 1, 36 ) = -1.0;
+                tXHat( 2, 36 ) = -c;
+                tXHat( 0, 37 ) = c;
+                tXHat( 1, 37 ) = -1.0;
+                tXHat( 2, 37 ) = -c;
+                tXHat( 0, 38 ) = c;
+                tXHat( 1, 38 ) = -1.0;
+                tXHat( 2, 38 ) = c;
+                tXHat( 0, 39 ) = -c;
+                tXHat( 1, 39 ) = -1.0;
+                tXHat( 2, 39 ) = c;
+
+                tXHat( 0, 40 ) = -1.0;
+                tXHat( 1, 40 ) = -c;
+                tXHat( 2, 40 ) = -c;
+                tXHat( 0, 41 ) = -1.0;
+                tXHat( 1, 41 ) = -c;
+                tXHat( 2, 41 ) = c;
+                tXHat( 0, 42 ) = -1.0;
+                tXHat( 1, 42 ) = c;
+                tXHat( 2, 42 ) = c;
+                tXHat( 0, 43 ) = -1.0;
+                tXHat( 1, 43 ) = c;
+                tXHat( 2, 43 ) = -c;
+
+                tXHat( 0, 44 ) = 1.0;
+                tXHat( 1, 44 ) = -c;
+                tXHat( 2, 44 ) = -c;
+                tXHat( 0, 45 ) = 1.0;
+                tXHat( 1, 45 ) = c;
+                tXHat( 2, 45 ) = -c;
+                tXHat( 0, 46 ) = 1.0;
+                tXHat( 1, 46 ) = c;
+                tXHat( 2, 46 ) = c;
+                tXHat( 0, 47 ) = 1.0;
+                tXHat( 1, 47 ) = -c;
+                tXHat( 2, 47 ) = c;
+
+                tXHat( 0, 48 ) = c;
+                tXHat( 1, 48 ) = 1.0;
+                tXHat( 2, 48 ) = -c;
+                tXHat( 0, 49 ) = -c;
+                tXHat( 1, 49 ) = 1.0;
+                tXHat( 2, 49 ) = -c;
+                tXHat( 0, 50 ) = -c;
+                tXHat( 1, 50 ) = 1.0;
+                tXHat( 2, 50 ) = c;
+                tXHat( 0, 51 ) = c;
+                tXHat( 1, 51 ) = 1.0;
+                tXHat( 2, 51 ) = c;
+
+                tXHat( 0, 52 ) = -c;
+                tXHat( 1, 52 ) = -c;
+                tXHat( 2, 52 ) = 1.0;
+                tXHat( 0, 53 ) = c;
+                tXHat( 1, 53 ) = -c;
+                tXHat( 2, 53 ) = 1.0;
+                tXHat( 0, 54 ) = c;
+                tXHat( 1, 54 ) = c;
+                tXHat( 2, 54 ) = 1.0;
+                tXHat( 0, 55 ) = -c;
+                tXHat( 1, 55 ) = c;
+                tXHat( 2, 55 ) = 1.0;
+
+                tXHat( 0, 56 ) = -c;
+                tXHat( 1, 56 ) = -c;
+                tXHat( 2, 56 ) = -c;
+                tXHat( 0, 57 ) = c;
+                tXHat( 1, 57 ) = -c;
+                tXHat( 2, 57 ) = -c;
+                tXHat( 0, 58 ) = c;
+                tXHat( 1, 58 ) = c;
+                tXHat( 2, 58 ) = -c;
+                tXHat( 0, 59 ) = -c;
+                tXHat( 1, 59 ) = c;
+                tXHat( 2, 59 ) = -c;
+                tXHat( 0, 60 ) = -c;
+                tXHat( 1, 60 ) = -c;
+                tXHat( 2, 60 ) = c;
+                tXHat( 0, 61 ) = c;
+                tXHat( 1, 61 ) = -c;
+                tXHat( 2, 61 ) = c;
+                tXHat( 0, 62 ) = c;
+                tXHat( 1, 62 ) = c;
+                tXHat( 2, 62 ) = c;
+                tXHat( 0, 63 ) = -c;
+                tXHat( 1, 63 ) = c;
+                tXHat( 2, 63 ) = c;
+
+                tXHat = trans( tXHat );
+                break;
+            }
+            default:
+                MORIS_ERROR( false, "can only be 1, 2, 3" );
+                break;
+        }
+        break;
+    }
+    default:
+        MORIS_ERROR( false, "can only be 2 or 3D" );
+        break;
+}
+}
+
+//------------------------------------------------------------------------------
+
+inline void
+fill_UHat(
+        moris::Matrix< moris::DDRMat >& tUHat,
+        moris::uint                     aSpaceDim,
+        moris::uint                     aInterpOrder )
+{
+    switch ( aSpaceDim )
+    {
+        case 2:
+        {
+            switch ( aInterpOrder )
+            {
+                case 1:
+                    tUHat = {
+                        { +1.927105819581377e+01, +1.400394565333748e+01 },
+                        { +4.049021448161677e+01, +5.438560675050177e+01 },
+                        { +2.513178179280375e+01, +5.219157100717673e+01 },
+                        { +2.271243862792676e+01, +8.570772835528213e+01 },
+                        { +5.206431525734917e+01, +4.997743600050384e+01 },
+                        { +3.446703060791877e+01, +4.193700240544483e+01 },
+                        { +2.741956036028625e+01, +7.442805199715539e+01 },
+                        { +5.610321001763931e+01, +2.491681295785826e+01 }
+                    };
                     break;
                 case 2:
-                    tXHat = {{ 0.0,   0.0   }, { 3.0,  1.25  }, { 4.5, 4.0 }, { 1.0, 3.25},
-                            { 1.5,   0.625 }, { 3.75, 2.625 }, { 2.75,  3.625 }, { 0.5,  1.625 },
-                            { 2.125, 2.125 }};
+                    tUHat = {
+                        { +3.995610264181325e+01, +2.773080739760742e+01 },
+                        { +8.340377004023134e+01, +7.819253786588412e+01 },
+                        { +4.713666220777080e+01, +1.650503026387066e+01 },
+                        { +2.164156370356820e+01, +1.515549020994851e+01 },
+                        { +6.195541826584927e+01, +1.999133757120385e+01 },
+                        { +3.439716930645509e+01, +6.358727580684143e+01 },
+                        { +5.767607822799486e+01, +7.600145737666692e+01 },
+                        { +8.029151455432991e+01, +6.648124130580112e+01 },
+                        { +3.302858566228578e+01, +4.242897535629808e+01 },
+                        { +6.890458770716786e+01, +3.488425193457477e+01 },
+                        { +8.933028054305959e+01, +3.405748647621408e+01 },
+                        { +3.030170935525880e+01, +4.436414398783769e+01 },
+                        { +9.294537152622038e+01, +9.666671202050132e+01 },
+                        { +7.583689337957199e+01, +8.616424298815170e+01 },
+                        { +2.254492900849905e+01, +9.917153564877722e+01 },
+                        { +4.749995849906887e+01, +3.704795467620366e+01 },
+                        { +4.921432420730572e+01, +4.281427740865176e+01 },
+                        { +4.057948513112792e+01, +9.890517088262273e+01 }
+                    };
                     break;
                 case 3:
-                    tXHat = {{0.000000000000000,  0.000000000000000}, {3.000000000000000,  1.250000000000000},
-                            {4.500000000000000,  4.000000000000000}, {1.000000000000000,  3.250000000000000},
-                            {1.000000000000000,  0.416666666666666}, {2.000000000000000,  0.833333333333333},
-                            {3.500000000000000,  2.166666666666667}, {4.000000000000000,  3.083333333333333},
-                            {3.333333333333333,  3.750000000000000}, {2.166666666666667,  3.500000000000000},
-                            {0.666666666666666,  2.166666666666667}, {0.333333333333333,  1.083333333333333},
-                            {1.388888888888889,  1.444444444444445}, {2.444444444444445,  1.805555555555556},
-                            {2.888888888888889,  2.777777777777778}, {1.777777777777778,  2.472222222222222}};
+                    tUHat = {
+                        { +8.216214600653994e+01, +7.888159785586499e+01 },
+                        { +8.798341449543881e+01, +1.062551369112028e+01 },
+                        { +6.347201224504391e+01, +6.123447220115570e+01 },
+                        { +2.019123606222057e+01, +6.412196761194215e+01 },
+                        { +9.498970177101299e+01, +6.088241165042380e+01 },
+                        { +6.107978761222763e+01, +9.420146961245763e+01 },
+                        { +9.581119663936302e+01, +4.284762888428765e+01 },
+                        { +9.447012521175864e+01, +6.667276100444468e+01 },
+                        { +9.232158940475918e+01, +6.813855605315594e+01 },
+                        { +7.249700963760617e+01, +8.524656355791191e+01 },
+                        { +4.786809548730693e+01, +3.080244588052041e+01 },
+                        { +4.632314544588287e+01, +2.007812431992778e+01 },
+                        { +3.924219190481256e+01, +6.200263700412759e+01 },
+                        { +2.441243208167988e+01, +9.103673707290648e+01 },
+                        { +7.076379798127245e+01, +5.015580409154130e+01 },
+                        { +3.440949165317166e+01, +5.222022353484045e+01 },
+                        { +9.013553386828326e+01, +7.058183441844528e+01 },
+                        { +4.751712450844995e+01, +3.814136321570714e+01 },
+                        { +6.014559080365349e+01, +2.100290518663563e+01 },
+                        { +2.958983234766366e+01, +4.415012492911634e+01 },
+                        { +4.944900776017085e+01, +8.723731010430546e+01 },
+                        { +5.785167432518622e+01, +6.645456127677262e+01 },
+                        { +7.069591363843719e+01, +2.381200819084181e+01 },
+                        { +4.900158035610657e+01, +4.634400190292347e+01 },
+                        { +2.144609200202489e+01, +5.315465133134669e+01 },
+                        { +4.971553393947299e+01, +9.743393523031456e+01 },
+                        { +3.536716409675295e+01, +8.702622785716713e+01 },
+                        { +1.261494646375015e+01, +4.471592905776939e+01 },
+                        { +9.803968801633273e+01, +2.902099432744338e+01 },
+                        { +1.196573676437140e+01, +6.280493687512067e+01 },
+                        { +9.097250173017750e+01, +4.299952477320462e+01 },
+                        { +4.935392899331647e+01, +5.940352379680394e+01 }
+                    };
                     break;
                 default:
                     MORIS_ERROR( false, "can only be 1, 2, 3" );
@@ -158,442 +549,216 @@ void fill_xhat(
         }
         case 3:
         {
-            switch( aInterpOrder )
-            {
-                case 1:
-                    tXHat = {
-                            { 0.0, 0.0, 0.0 },
-                            { 1.0, 0.0, 0.0 },
-                            { 1.0, 1.0, 0.0 },
-                            { 0.0, 1.0, 0.0 },
-                            { 0.0, 0.0, 1.0 },
-                            { 1.0, 0.0, 1.0 },
-                            { 1.0, 1.0, 1.0 },
-                            { 0.0, 1.0, 1.0 }};
-                    break;
-                case 2:
-                    tXHat = {
-                            { -1.0, -1.0, -1.0 },
-                            { +1.0, -1.0, -1.0 },
-                            { +1.0, +1.0, -1.0 },
-                            { -1.0, +1.0, -1.0 },
-                            { -1.0, -1.0, +1.0 },
-                            { +1.0, -1.0, +1.0 },
-                            { +1.0, +1.0, +1.0 },
-                            { -1.0, +1.0, +1.0 },
-                            { +0.0, -1.0, -1.0 },
-                            { +1.0,  0.0, -1.0 },
-                            {  0.0, +1.0, -1.0 },
-                            { -1.0,  0.0, -1.0 },
-                            { -1.0, -1.0,  0.0 },
-                            { +1.0, -1.0,  0.0 },
-                            { +1.0, +1.0,  0.0 },
-                            { -1.0, +1.0,  0.0 },
-                            {  0.0, -1.0, +1.0 },
-                            { +1.0,  0.0, +1.0 },
-                            {  0.0, +1.0, +1.0 },
-                            { -1.0,  0.0, +1.0 },
-                            {  0.0,  0.0,  0.0 },
-                            {  0.0,  0.0, -1.0 },
-                            {  0.0,  0.0, +1.0 },
-                            { -1.0,  0.0,  0.0 },
-                            { +1.0,  0.0,  0.0 },
-                            {  0.0, -1.0,  0.0 },
-                            {  0.0, +1.0,  0.0 }};
-                    break;
-                case 3:
-                {
-                    tXHat.set_size( 3, 64, 0.0 );
-                    moris::real c = 1.0/3.0;
-                    tXHat( 0,  0 ) = -1.0; tXHat( 1,  0 ) = -1.0; tXHat( 2,  0 ) = -1.0;
-                    tXHat( 0,  1 ) =  1.0; tXHat( 1,  1 ) = -1.0; tXHat( 2,  1 ) = -1.0;
-                    tXHat( 0,  2 ) =  1.0; tXHat( 1,  2 ) =  1.0; tXHat( 2,  2 ) = -1.0;
-                    tXHat( 0,  3 ) = -1.0; tXHat( 1,  3 ) =  1.0; tXHat( 2,  3 ) = -1.0;
-                    tXHat( 0,  4 ) = -1.0; tXHat( 1,  4 ) = -1.0; tXHat( 2,  4 ) =  1.0;
-                    tXHat( 0,  5 ) =  1.0; tXHat( 1,  5 ) = -1.0; tXHat( 2,  5 ) =  1.0;
-                    tXHat( 0,  6 ) =  1.0; tXHat( 1,  6 ) =  1.0; tXHat( 2,  6 ) =  1.0;
-                    tXHat( 0,  7 ) = -1.0; tXHat( 1,  7 ) =  1.0; tXHat( 2,  7 ) =  1.0;
-
-                    tXHat( 0,  8 ) = -c;   tXHat( 1,  8 ) = -1.0; tXHat( 2,  8 ) = -1.0;
-                    tXHat( 0,  9 ) =  c;   tXHat( 1,  9 ) = -1.0; tXHat( 2,  9 ) = -1.0;
-                    tXHat( 0, 10 ) = -1.0; tXHat( 1, 10 ) = -c;   tXHat( 2, 10 ) = -1.0;
-                    tXHat( 0, 11 ) = -1.0; tXHat( 1, 11 ) =  c;   tXHat( 2, 11 ) = -1.0;
-                    tXHat( 0, 12 ) = -1.0; tXHat( 1, 12 ) = -1.0; tXHat( 2, 12 ) = -c;
-                    tXHat( 0, 13 ) = -1.0; tXHat( 1, 13 ) = -1.0; tXHat( 2, 13 ) =  c;
-                    tXHat( 0, 14 ) =  1.0; tXHat( 1, 14 ) = -c;   tXHat( 2, 14 ) = -1.0;
-                    tXHat( 0, 15 ) =  1.0; tXHat( 1, 15 ) =  c;   tXHat( 2, 15 ) = -1.0;
-                    tXHat( 0, 16 ) =  1.0; tXHat( 1, 16 ) = -1.0; tXHat( 2, 16 ) = -c;
-                    tXHat( 0, 17 ) =  1.0; tXHat( 1, 17 ) = -1.0; tXHat( 2, 17 ) =  c;
-                    tXHat( 0, 18 ) =  c;   tXHat( 1, 18 ) =  1.0; tXHat( 2, 18 ) = -1.0;
-                    tXHat( 0, 19 ) = -c;   tXHat( 1, 19 ) =  1.0; tXHat( 2, 19 ) = -1.0;
-                    tXHat( 0, 20 ) =  1.0; tXHat( 1, 20 ) =  1.0; tXHat( 2, 20 ) = -c;
-                    tXHat( 0, 21 ) =  1.0; tXHat( 1, 21 ) =  1.0; tXHat( 2, 21 ) =  c;
-                    tXHat( 0, 22 ) = -1.0; tXHat( 1, 22 ) =  1.0; tXHat( 2, 22 ) = -c;
-                    tXHat( 0, 23 ) = -1.0; tXHat( 1, 23 ) =  1.0; tXHat( 2, 23 ) =  c;
-                    tXHat( 0, 24 ) = -c;   tXHat( 1, 24 ) = -1.0; tXHat( 2, 24 ) =  1.0;
-                    tXHat( 0, 25 ) =  c;   tXHat( 1, 25 ) = -1.0; tXHat( 2, 25 ) =  1.0;
-                    tXHat( 0, 26 ) = -1.0; tXHat( 1, 26 ) = -c;   tXHat( 2, 26 ) =  1.0;
-                    tXHat( 0, 27 ) = -1.0; tXHat( 1, 27 ) =  c;   tXHat( 2, 27 ) =  1.0;
-                    tXHat( 0, 28 ) =  1.0; tXHat( 1, 28 ) = -c;   tXHat( 2, 28 ) =  1.0;
-                    tXHat( 0, 29 ) =  1.0; tXHat( 1, 29 ) =  c;   tXHat( 2, 29 ) =  1.0;
-                    tXHat( 0, 30 ) =  c;   tXHat( 1, 30 ) =  1.0; tXHat( 2, 30 ) =  1.0;
-                    tXHat( 0, 31 ) = -c;   tXHat( 1, 31 ) =  1.0; tXHat( 2, 31 ) =  1.0;
-
-                    tXHat( 0, 32 ) = -c;   tXHat( 1, 32 ) = -c;   tXHat( 2, 32 ) = -1.0;
-                    tXHat( 0, 33 ) = -c;   tXHat( 1, 33 ) =  c;   tXHat( 2, 33 ) = -1.0;
-                    tXHat( 0, 34 ) =  c;   tXHat( 1, 34 ) =  c;   tXHat( 2, 34 ) = -1.0;
-                    tXHat( 0, 35 ) =  c;   tXHat( 1, 35 ) = -c;   tXHat( 2, 35 ) = -1.0;
-
-                    tXHat( 0, 36 ) = -c;   tXHat( 1, 36 ) = -1.0; tXHat( 2, 36 ) = -c;
-                    tXHat( 0, 37 ) =  c;   tXHat( 1, 37 ) = -1.0; tXHat( 2, 37 ) = -c;
-                    tXHat( 0, 38 ) =  c;   tXHat( 1, 38 ) = -1.0; tXHat( 2, 38 ) =  c;
-                    tXHat( 0, 39 ) = -c;   tXHat( 1, 39 ) = -1.0; tXHat( 2, 39 ) =  c;
-
-                    tXHat( 0, 40 ) = -1.0; tXHat( 1, 40 ) = -c;   tXHat( 2, 40 ) = -c;
-                    tXHat( 0, 41 ) = -1.0; tXHat( 1, 41 ) = -c;   tXHat( 2, 41 ) =  c;
-                    tXHat( 0, 42 ) = -1.0; tXHat( 1, 42 ) =  c;   tXHat( 2, 42 ) =  c;
-                    tXHat( 0, 43 ) = -1.0; tXHat( 1, 43 ) =  c;   tXHat( 2, 43 ) = -c;
-
-                    tXHat( 0, 44 ) =  1.0; tXHat( 1, 44 ) = -c;   tXHat( 2, 44 ) = -c;
-                    tXHat( 0, 45 ) =  1.0; tXHat( 1, 45 ) =  c;   tXHat( 2, 45 ) = -c;
-                    tXHat( 0, 46 ) =  1.0; tXHat( 1, 46 ) =  c;   tXHat( 2, 46 ) =  c;
-                    tXHat( 0, 47 ) =  1.0; tXHat( 1, 47 ) = -c;   tXHat( 2, 47 ) =  c;
-
-                    tXHat( 0, 48 ) =  c;   tXHat( 1, 48 ) =  1.0; tXHat( 2, 48 ) = -c;
-                    tXHat( 0, 49 ) = -c;   tXHat( 1, 49 ) =  1.0; tXHat( 2, 49 ) = -c;
-                    tXHat( 0, 50 ) = -c;   tXHat( 1, 50 ) =  1.0; tXHat( 2, 50 ) =  c;
-                    tXHat( 0, 51 ) =  c;   tXHat( 1, 51 ) =  1.0; tXHat( 2, 51 ) =  c;
-
-                    tXHat( 0, 52 ) = -c;   tXHat( 1, 52 ) = -c;   tXHat( 2, 52 ) =  1.0;
-                    tXHat( 0, 53 ) =  c;   tXHat( 1, 53 ) = -c;   tXHat( 2, 53 ) =  1.0;
-                    tXHat( 0, 54 ) =  c;   tXHat( 1, 54 ) =  c;   tXHat( 2, 54 ) =  1.0;
-                    tXHat( 0, 55 ) = -c;   tXHat( 1, 55 ) =  c;   tXHat( 2, 55 ) =  1.0;
-
-                    tXHat( 0, 56 ) = -c;   tXHat( 1, 56 ) = -c;   tXHat( 2, 56 ) = -c;
-                    tXHat( 0, 57 ) =  c;   tXHat( 1, 57 ) = -c;   tXHat( 2, 57 ) = -c;
-                    tXHat( 0, 58 ) =  c;   tXHat( 1, 58 ) =  c;   tXHat( 2, 58 ) = -c;
-                    tXHat( 0, 59 ) = -c;   tXHat( 1, 59 ) =  c;   tXHat( 2, 59 ) = -c;
-                    tXHat( 0, 60 ) = -c;   tXHat( 1, 60 ) = -c;   tXHat( 2, 60 ) =  c;
-                    tXHat( 0, 61 ) =  c;   tXHat( 1, 61 ) = -c;   tXHat( 2, 61 ) =  c;
-                    tXHat( 0, 62 ) =  c;   tXHat( 1, 62 ) =  c;   tXHat( 2, 62 ) =  c;
-                    tXHat( 0, 63 ) = -c;   tXHat( 1, 63 ) =  c;   tXHat( 2, 63 ) =  c;
-
-                    tXHat = trans( tXHat );
-                    break;
-                }
-                default:
-                    MORIS_ERROR( false, "can only be 1, 2, 3" );
-                    break;
-            }
-            break;
-        }
-        default:
-            MORIS_ERROR( false, "can only be 2 or 3D");
-            break;
-    }
-}
-
-//------------------------------------------------------------------------------
-
-void fill_UHat(
-        moris::Matrix< moris::DDRMat > & tUHat,
-        moris::uint aSpaceDim,
-        moris::uint aInterpOrder )
-{
-    switch ( aSpaceDim )
-    {
-        case 2:
-        {
-            switch( aInterpOrder )
+            switch ( aInterpOrder )
             {
                 case 1:
                     tUHat = {
-                            {+1.927105819581377e+01,  +1.400394565333748e+01},
-                            {+4.049021448161677e+01,  +5.438560675050177e+01},
-                            {+2.513178179280375e+01,  +5.219157100717673e+01},
-                            {+2.271243862792676e+01,  +8.570772835528213e+01},
-                            {+5.206431525734917e+01,  +4.997743600050384e+01},
-                            {+3.446703060791877e+01,  +4.193700240544483e+01},
-                            {+2.741956036028625e+01,  +7.442805199715539e+01},
-                            {+5.610321001763931e+01,  +2.491681295785826e+01}
+                        { +8.401362142542331e+01, +5.976816737265604e+01, +2.985094522911007e+01 },
+                        { +7.874576155994764e+01, +5.542168072604456e+01, +1.424536301449081e+01 },
+                        { +4.687848628871085e+01, +8.857568945098109e+01, +5.787849792550064e+01 },
+                        { +8.677537041154204e+01, +8.545413641572557e+01, +5.841424917957526e+01 },
+                        { +4.284882306226943e+01, +9.496103539386442e+01, +1.658681384541984e+01 },
+                        { +5.570543094982982e+01, +8.604680150945730e+01, +1.703521976746176e+01 },
+                        { +7.902051208548112e+01, +7.745934563480712e+01, +4.930708327501581e+01 },
+                        { +2.655881630511319e+01, +3.538728720285966e+01, +8.100395716030364e+01 },
+                        { +2.828823041478708e+01, +8.015887027453775e+01, +1.034809851897376e+01 },
+                        { +3.358721412083126e+01, +6.397665594637964e+01, +1.375826195938047e+01 },
+                        { +6.805466517594215e+01, +4.266932257338804e+01, +9.225125255482210e+01 },
+                        { +6.155991964257237e+01, +4.943042473645058e+01, +6.961028523228762e+01 },
+                        { +1.002079054048293e+01, +3.208859839043867e+01, +7.131842940813567e+01 },
+                        { +2.603706321961671e+01, +3.881147261349435e+01, +6.773742763538858e+01 },
+                        { +3.204531753493324e+01, +8.926594260995189e+01, +7.616909812052232e+01 },
+                        { +2.302648088501151e+01, +3.335353495620781e+01, +7.073134001574775e+01 }
                     };
                     break;
                 case 2:
                     tUHat = {
-                            {+3.995610264181325e+01,  +2.773080739760742e+01},
-                            {+8.340377004023134e+01,  +7.819253786588412e+01},
-                            {+4.713666220777080e+01,  +1.650503026387066e+01},
-                            {+2.164156370356820e+01,  +1.515549020994851e+01},
-                            {+6.195541826584927e+01,  +1.999133757120385e+01},
-                            {+3.439716930645509e+01,  +6.358727580684143e+01},
-                            {+5.767607822799486e+01,  +7.600145737666692e+01},
-                            {+8.029151455432991e+01,  +6.648124130580112e+01},
-                            {+3.302858566228578e+01,  +4.242897535629808e+01},
-                            {+6.890458770716786e+01,  +3.488425193457477e+01},
-                            {+8.933028054305959e+01,  +3.405748647621408e+01},
-                            {+3.030170935525880e+01,  +4.436414398783769e+01},
-                            {+9.294537152622038e+01,  +9.666671202050132e+01},
-                            {+7.583689337957199e+01,  +8.616424298815170e+01},
-                            {+2.254492900849905e+01,  +9.917153564877722e+01},
-                            {+4.749995849906887e+01,  +3.704795467620366e+01},
-                            {+4.921432420730572e+01,  +4.281427740865176e+01},
-                            {+4.057948513112792e+01,  +9.890517088262273e+01}
+                        { +6.036281088404306e+01, +3.574989825515152e+01, +3.959035842155539e+01 },
+                        { +4.018906386539264e+01, +3.164841625049596e+01, +2.710726216294474e+01 },
+                        { +1.308634061736292e+01, +1.290144133725892e+01, +1.984025513741881e+01 },
+                        { +6.635591555413194e+01, +4.591354757383952e+01, +8.037891611696000e+01 },
+                        { +9.746175078143963e+01, +2.279017687082272e+01, +8.913853358999833e+01 },
+                        { +3.252262163262440e+01, +4.289020346871446e+01, +9.305325607839397e+01 },
+                        { +3.097350123032071e+01, +9.791840995826979e+01, +2.629167196915722e+01 },
+                        { +9.300166735748793e+01, +3.020601935357872e+01, +4.293579721398878e+01 },
+                        { +4.164285057863253e+01, +8.099827396595536e+01, +5.247366127594103e+01 },
+                        { +9.815726000785648e+01, +8.219576009624579e+01, +7.081847173654045e+01 },
+                        { +9.650901361431688e+01, +6.681545008481552e+01, +2.746975669170754e+01 },
+                        { +6.792105659629311e+01, +6.163894941756826e+01, +4.613756648499076e+01 },
+                        { +7.537855443968749e+01, +4.478058239667384e+01, +4.143987480765045e+01 },
+                        { +1.687316786116564e+01, +7.727875373858841e+01, +5.124054391697317e+01 },
+                        { +6.536905064902916e+01, +9.858690273843102e+01, +4.646433373388821e+01 },
+                        { +3.295690650991498e+01, +1.892759751498538e+01, +1.025620578542405e+01 },
+                        { +1.622113009030418e+01, +5.223807969116836e+01, +1.678732652877997e+01 },
+                        { +6.585788372069719e+01, +8.403441785350741e+01, +9.329002844290923e+01 },
+                        { +1.493802996123939e+01, +8.924383256462316e+01, +4.188609579299409e+01 },
+                        { +4.968080082637856e+01, +5.424654738427317e+01, +2.799419541272351e+01 },
+                        { +1.740389961120868e+01, +8.053639388012240e+01, +7.255887295040476e+01 },
+                        { +2.957431721287765e+01, +3.748747145194857e+01, +6.950442655707687e+01 },
+                        { +6.650206095640968e+01, +8.897170799893905e+01, +5.285597512738030e+01 },
+                        { +3.758520172534849e+01, +2.857495830921248e+01, +7.336309778263086e+01 },
+                        { +7.379834151661167e+01, +7.904676669477557e+01, +4.208729418816289e+01 },
+                        { +3.655576756384964e+01, +4.838405948014913e+01, +7.949000817881301e+01 },
+                        { +6.805154346885963e+01, +4.071513121424659e+01, +9.355843257932344e+01 },
+                        { +4.619320816818278e+01, +4.892966546002386e+01, +8.546953161126451e+01 },
+                        { +2.995095348126974e+01, +6.462899321463104e+01, +3.143615959996019e+01 },
+                        { +9.324504941464239e+01, +4.714297946877533e+01, +6.171414899431961e+01 },
+                        { +8.294923713440387e+01, +4.029604899896618e+01, +3.260037011713709e+01 },
+                        { +1.935845941020296e+01, +9.875524276294547e+01, +6.143769099523811e+01 },
+                        { +1.145707533321526e+01, +8.330371710219117e+01, +3.680528544103054e+01 },
+                        { +9.283653057522143e+01, +7.822540598749956e+01, +3.854897401967416e+01 },
+                        { +7.146716467788931e+01, +3.421781670720700e+01, +7.581147555429537e+01 },
+                        { +1.880566879866887e+01, +4.832584315867060e+01, +1.028749642379839e+01 },
+                        { +6.867579262864587e+01, +8.296445274840171e+01, +7.271209314529450e+01 },
+                        { +6.547328914086931e+01, +3.942642456343366e+01, +5.463603020509379e+01 },
+                        { +5.218918989001300e+01, +3.419674149340729e+01, +1.654061125479991e+01 },
+                        { +5.575117065535915e+01, +1.646176027586890e+01, +7.367299714308934e+01 },
+                        { +5.874891601465920e+01, +3.615898260233156e+01, +2.426073004416562e+01 },
+                        { +7.797163736084208e+01, +3.356617755316315e+01, +4.716672539630819e+01 },
+                        { +5.302552637068732e+01, +6.629152522796090e+01, +2.245306382297537e+01 },
+                        { +5.373093339734907e+01, +5.695621063517248e+01, +2.066340671170892e+01 },
+                        { +3.990229343653026e+01, +7.423076768270820e+01, +9.624488252364236e+01 },
+                        { +3.455072515443691e+01, +9.495603156775529e+01, +5.713435214203131e+01 },
+                        { +6.117646337067919e+01, +2.814652429772623e+01, +6.791746343140316e+01 },
+                        { +5.424109726417598e+01, +4.677183193752450e+01, +5.124395818004274e+01 },
+                        { +3.021154137954316e+01, +6.628004887927433e+01, +4.454238776532061e+01 },
+                        { +9.746045009555313e+01, +4.966186668195001e+01, +1.644059284874060e+01 },
+                        { +3.427615701129282e+01, +4.990020777849262e+01, +1.791235029614444e+01 },
+                        { +7.840539414171955e+01, +5.803297862488685e+01, +5.518752343616542e+01 },
+                        { +8.862300622607859e+01, +4.408505373725388e+01, +5.426507481270566e+01 },
+                        { +4.130290804857182e+01, +2.510496670671954e+01, +2.360169658680686e+01 }
                     };
                     break;
                 case 3:
                     tUHat = {
-                            {+8.216214600653994e+01,  +7.888159785586499e+01},
-                            {+8.798341449543881e+01,  +1.062551369112028e+01},
-                            {+6.347201224504391e+01,  +6.123447220115570e+01},
-                            {+2.019123606222057e+01,  +6.412196761194215e+01},
-                            {+9.498970177101299e+01,  +6.088241165042380e+01},
-                            {+6.107978761222763e+01,  +9.420146961245763e+01},
-                            {+9.581119663936302e+01,  +4.284762888428765e+01},
-                            {+9.447012521175864e+01,  +6.667276100444468e+01},
-                            {+9.232158940475918e+01,  +6.813855605315594e+01},
-                            {+7.249700963760617e+01,  +8.524656355791191e+01},
-                            {+4.786809548730693e+01,  +3.080244588052041e+01},
-                            {+4.632314544588287e+01,  +2.007812431992778e+01},
-                            {+3.924219190481256e+01,  +6.200263700412759e+01},
-                            {+2.441243208167988e+01,  +9.103673707290648e+01},
-                            {+7.076379798127245e+01,  +5.015580409154130e+01},
-                            {+3.440949165317166e+01,  +5.222022353484045e+01},
-                            {+9.013553386828326e+01,  +7.058183441844528e+01},
-                            {+4.751712450844995e+01,  +3.814136321570714e+01},
-                            {+6.014559080365349e+01,  +2.100290518663563e+01},
-                            {+2.958983234766366e+01,  +4.415012492911634e+01},
-                            {+4.944900776017085e+01,  +8.723731010430546e+01},
-                            {+5.785167432518622e+01,  +6.645456127677262e+01},
-                            {+7.069591363843719e+01,  +2.381200819084181e+01},
-                            {+4.900158035610657e+01,  +4.634400190292347e+01},
-                            {+2.144609200202489e+01,  +5.315465133134669e+01},
-                            {+4.971553393947299e+01,  +9.743393523031456e+01},
-                            {+3.536716409675295e+01,  +8.702622785716713e+01},
-                            {+1.261494646375015e+01,  +4.471592905776939e+01},
-                            {+9.803968801633273e+01,  +2.902099432744338e+01},
-                            {+1.196573676437140e+01,  +6.280493687512067e+01},
-                            {+9.097250173017750e+01,  +4.299952477320462e+01},
-                            {+4.935392899331647e+01,  +5.940352379680394e+01}
-                    };
-                    break;
-                default:
-                    MORIS_ERROR( false, "can only be 1, 2, 3" );
-                    break;
-            }
-            break;
-        }
-        case 3:
-        {
-            switch( aInterpOrder )
-            {
-                case 1:
-                    tUHat = {
-                            {+8.401362142542331e+01,  +5.976816737265604e+01,  +2.985094522911007e+01},
-                            {+7.874576155994764e+01,  +5.542168072604456e+01,  +1.424536301449081e+01},
-                            {+4.687848628871085e+01,  +8.857568945098109e+01,  +5.787849792550064e+01},
-                            {+8.677537041154204e+01,  +8.545413641572557e+01,  +5.841424917957526e+01},
-                            {+4.284882306226943e+01,  +9.496103539386442e+01,  +1.658681384541984e+01},
-                            {+5.570543094982982e+01,  +8.604680150945730e+01,  +1.703521976746176e+01},
-                            {+7.902051208548112e+01,  +7.745934563480712e+01,  +4.930708327501581e+01},
-                            {+2.655881630511319e+01,  +3.538728720285966e+01,  +8.100395716030364e+01},
-                            {+2.828823041478708e+01,  +8.015887027453775e+01,  +1.034809851897376e+01},
-                            {+3.358721412083126e+01,  +6.397665594637964e+01,  +1.375826195938047e+01},
-                            {+6.805466517594215e+01,  +4.266932257338804e+01,  +9.225125255482210e+01},
-                            {+6.155991964257237e+01,  +4.943042473645058e+01,  +6.961028523228762e+01},
-                            {+1.002079054048293e+01,  +3.208859839043867e+01,  +7.131842940813567e+01},
-                            {+2.603706321961671e+01,  +3.881147261349435e+01,  +6.773742763538858e+01},
-                            {+3.204531753493324e+01,  +8.926594260995189e+01,  +7.616909812052232e+01},
-                            {+2.302648088501151e+01,  +3.335353495620781e+01,  +7.073134001574775e+01}
-                    };
-                    break;
-                case 2:
-                    tUHat = {
-                            {+6.036281088404306e+01,  +3.574989825515152e+01,  +3.959035842155539e+01},
-                            {+4.018906386539264e+01,  +3.164841625049596e+01,  +2.710726216294474e+01},
-                            {+1.308634061736292e+01,  +1.290144133725892e+01,  +1.984025513741881e+01},
-                            {+6.635591555413194e+01,  +4.591354757383952e+01,  +8.037891611696000e+01},
-                            {+9.746175078143963e+01,  +2.279017687082272e+01,  +8.913853358999833e+01},
-                            {+3.252262163262440e+01,  +4.289020346871446e+01,  +9.305325607839397e+01},
-                            {+3.097350123032071e+01,  +9.791840995826979e+01,  +2.629167196915722e+01},
-                            {+9.300166735748793e+01,  +3.020601935357872e+01,  +4.293579721398878e+01},
-                            {+4.164285057863253e+01,  +8.099827396595536e+01,  +5.247366127594103e+01},
-                            {+9.815726000785648e+01,  +8.219576009624579e+01,  +7.081847173654045e+01},
-                            {+9.650901361431688e+01,  +6.681545008481552e+01,  +2.746975669170754e+01},
-                            {+6.792105659629311e+01,  +6.163894941756826e+01,  +4.613756648499076e+01},
-                            {+7.537855443968749e+01,  +4.478058239667384e+01,  +4.143987480765045e+01},
-                            {+1.687316786116564e+01,  +7.727875373858841e+01,  +5.124054391697317e+01},
-                            {+6.536905064902916e+01,  +9.858690273843102e+01,  +4.646433373388821e+01},
-                            {+3.295690650991498e+01,  +1.892759751498538e+01,  +1.025620578542405e+01},
-                            {+1.622113009030418e+01,  +5.223807969116836e+01,  +1.678732652877997e+01},
-                            {+6.585788372069719e+01,  +8.403441785350741e+01,  +9.329002844290923e+01},
-                            {+1.493802996123939e+01,  +8.924383256462316e+01,  +4.188609579299409e+01},
-                            {+4.968080082637856e+01,  +5.424654738427317e+01,  +2.799419541272351e+01},
-                            {+1.740389961120868e+01,  +8.053639388012240e+01,  +7.255887295040476e+01},
-                            {+2.957431721287765e+01,  +3.748747145194857e+01,  +6.950442655707687e+01},
-                            {+6.650206095640968e+01,  +8.897170799893905e+01,  +5.285597512738030e+01},
-                            {+3.758520172534849e+01,  +2.857495830921248e+01,  +7.336309778263086e+01},
-                            {+7.379834151661167e+01,  +7.904676669477557e+01,  +4.208729418816289e+01},
-                            {+3.655576756384964e+01,  +4.838405948014913e+01,  +7.949000817881301e+01},
-                            {+6.805154346885963e+01,  +4.071513121424659e+01,  +9.355843257932344e+01},
-                            {+4.619320816818278e+01,  +4.892966546002386e+01,  +8.546953161126451e+01},
-                            {+2.995095348126974e+01,  +6.462899321463104e+01,  +3.143615959996019e+01},
-                            {+9.324504941464239e+01,  +4.714297946877533e+01,  +6.171414899431961e+01},
-                            {+8.294923713440387e+01,  +4.029604899896618e+01,  +3.260037011713709e+01},
-                            {+1.935845941020296e+01,  +9.875524276294547e+01,  +6.143769099523811e+01},
-                            {+1.145707533321526e+01,  +8.330371710219117e+01,  +3.680528544103054e+01},
-                            {+9.283653057522143e+01,  +7.822540598749956e+01,  +3.854897401967416e+01},
-                            {+7.146716467788931e+01,  +3.421781670720700e+01,  +7.581147555429537e+01},
-                            {+1.880566879866887e+01,  +4.832584315867060e+01,  +1.028749642379839e+01},
-                            {+6.867579262864587e+01,  +8.296445274840171e+01,  +7.271209314529450e+01},
-                            {+6.547328914086931e+01,  +3.942642456343366e+01,  +5.463603020509379e+01},
-                            {+5.218918989001300e+01,  +3.419674149340729e+01,  +1.654061125479991e+01},
-                            {+5.575117065535915e+01,  +1.646176027586890e+01,  +7.367299714308934e+01},
-                            {+5.874891601465920e+01,  +3.615898260233156e+01,  +2.426073004416562e+01},
-                            {+7.797163736084208e+01,  +3.356617755316315e+01,  +4.716672539630819e+01},
-                            {+5.302552637068732e+01,  +6.629152522796090e+01,  +2.245306382297537e+01},
-                            {+5.373093339734907e+01,  +5.695621063517248e+01,  +2.066340671170892e+01},
-                            {+3.990229343653026e+01,  +7.423076768270820e+01,  +9.624488252364236e+01},
-                            {+3.455072515443691e+01,  +9.495603156775529e+01,  +5.713435214203131e+01},
-                            {+6.117646337067919e+01,  +2.814652429772623e+01,  +6.791746343140316e+01},
-                            {+5.424109726417598e+01,  +4.677183193752450e+01,  +5.124395818004274e+01},
-                            {+3.021154137954316e+01,  +6.628004887927433e+01,  +4.454238776532061e+01},
-                            {+9.746045009555313e+01,  +4.966186668195001e+01,  +1.644059284874060e+01},
-                            {+3.427615701129282e+01,  +4.990020777849262e+01,  +1.791235029614444e+01},
-                            {+7.840539414171955e+01,  +5.803297862488685e+01,  +5.518752343616542e+01},
-                            {+8.862300622607859e+01,  +4.408505373725388e+01,  +5.426507481270566e+01},
-                            {+4.130290804857182e+01,  +2.510496670671954e+01,  +2.360169658680686e+01}
-                    };
-                    break;
-                case 3:
-                    tUHat = {
-                            {+1.327836300649107e+01,  +5.140157021048699e+01,  +7.708928205278053e+01},
-                            {+4.397166652688668e+01,  +1.173763524478044e+01,  +8.886291853681232e+01},
-                            {+1.627040831318302e+01,  +4.230029938475862e+01,  +5.917202036337954e+01},
-                            {+2.370712335869762e+01,  +7.188646930371360e+01,  +7.576473093619181e+01},
-                            {+3.464068607033915e+01,  +5.914390137245405e+01,  +5.894969648495459e+01},
-                            {+5.304669549679191e+01,  +8.099721984320952e+01,  +3.802935829076146e+01},
-                            {+1.302460218134254e+01,  +7.510676395799366e+01,  +3.710554565726488e+01},
-                            {+1.558713301398150e+01,  +2.444759225882800e+01,  +1.225292087741130e+01},
-                            {+4.580074863709360e+01,  +2.838341011351352e+01,  +3.437894143321727e+01},
-                            {+4.813857746831254e+01,  +4.789255908008683e+01,  +1.484160411096993e+01},
-                            {+2.036663645561014e+01,  +2.155020426590533e+01,  +2.638391948480517e+01},
-                            {+1.529082135165558e+01,  +8.827430900216032e+01,  +3.223970539080538e+01},
-                            {+9.303579284195300e+01,  +3.099475292538963e+01,  +6.139483182049307e+01},
-                            {+6.830529020508601e+01,  +4.478813579652173e+01,  +8.727547194925668e+01},
-                            {+6.965618451342267e+01,  +3.078544762051379e+01,  +7.734611449395744e+01},
-                            {+1.352183973361672e+01,  +6.418694129655852e+01,  +2.376216792593751e+01},
-                            {+9.652931633502708e+01,  +5.833944447709309e+01,  +6.056512990656414e+01},
-                            {+7.129630968596722e+01,  +2.116237831351904e+01,  +4.779426636401877e+01},
-                            {+1.537379719470730e+01,  +7.319599096979759e+01,  +9.362953051837893e+01},
-                            {+5.571047120516812e+01,  +4.317746029093779e+01,  +7.758399561011979e+01},
-                            {+2.241438346395901e+01,  +3.507265588016592e+01,  +8.682806216045552e+01},
-                            {+9.519909326792160e+01,  +6.429855597431084e+01,  +5.987374629814325e+01},
-                            {+6.715261831031116e+01,  +8.343521894445382e+01,  +9.368106449866751e+01},
-                            {+1.168533512131456e+01,  +4.112739906436536e+01,  +4.276008942143731e+01},
-                            {+4.046462959591110e+01,  +6.048977227016427e+01,  +9.818793334179556e+01},
-                            {+1.145206409476372e+01,  +6.986780763072348e+01,  +6.884000807292419e+01},
-                            {+9.852428354497781e+01,  +4.428329629982583e+01,  +2.528847887553600e+01},
-                            {+9.052196336865779e+01,  +7.396378501786019e+01,  +3.583301118848242e+01},
-                            {+8.166184457795954e+01,  +4.284187324926862e+01,  +4.154685616910695e+01},
-                            {+1.911688982047304e+01,  +6.188521894314649e+01,  +4.562121112402416e+01},
-                            {+5.704057794347892e+01,  +8.600463035690893e+01,  +3.130135472469054e+01},
-                            {+7.863155417178874e+01,  +8.963516575746456e+01,  +3.562495365060044e+01},
-                            {+6.365792944752404e+01,  +7.387282493439093e+01,  +6.861270045922614e+01},
-                            {+4.254858794886850e+01,  +6.881561972262313e+01,  +7.386702023601847e+01},
-                            {+3.216592529212223e+01,  +6.972100991796236e+01,  +1.293054597887187e+01},
-                            {+5.337799344418559e+01,  +5.615132880332344e+01,  +2.632315789923450e+01},
-                            {+5.370635985211936e+01,  +8.072977174625645e+01,  +6.646096811576669e+01},
-                            {+9.754408852884526e+01,  +7.826098758344894e+01,  +1.911910760019432e+01},
-                            {+5.263055621059037e+01,  +2.736826412412772e+01,  +7.000801158167521e+01},
-                            {+6.673128866071750e+01,  +7.465960993468065e+01,  +7.525628890005899e+01},
-                            {+2.465028860712776e+01,  +3.970554507943576e+01,  +9.896463657608187e+01},
-                            {+8.523803770273202e+01,  +5.070436745638494e+01,  +4.724405602984117e+01},
-                            {+7.892281329360496e+01,  +4.683873298275603e+01,  +4.734349295894811e+01},
-                            {+4.608565744524304e+01,  +1.207012171855915e+01,  +8.223817094639712e+01},
-                            {+7.811406683506445e+01,  +6.357944938801637e+01,  +8.148354593918408e+01},
-                            {+8.561061796468135e+01,  +2.845793585617178e+01,  +5.754466481052987e+01},
-                            {+6.705800594237166e+01,  +8.636154373981927e+01,  +5.387221427791694e+01},
-                            {+7.439698440575356e+01,  +4.115562100190076e+01,  +2.538649167080579e+01},
-                            {+5.136607146646647e+01,  +3.174780579813714e+01,  +8.520166640710995e+01},
-                            {+6.410821065087498e+01,  +1.206900280242091e+01,  +5.912233237926196e+01},
-                            {+6.311215873599271e+01,  +7.023597757853355e+01,  +6.826830064594017e+01},
-                            {+3.590371472236858e+01,  +7.895597902187837e+01,  +6.970676550083434e+01},
-                            {+5.114916040417423e+01,  +6.339143775409367e+01,  +6.539452926647338e+01},
-                            {+4.961204324354105e+01,  +4.910767248708905e+01,  +5.614370557826569e+01},
-                            {+1.716501114376747e+01,  +4.248125824712700e+01,  +3.051062928083428e+01},
-                            {+4.627931086816176e+01,  +3.936066879050470e+01,  +7.056694669949499e+01},
-                            {+5.845951842497931e+01,  +9.377692297223986e+01,  +9.886359299635539e+01},
-                            {+7.709640180665933e+01,  +3.358495423159381e+01,  +1.718536206468126e+01},
-                            {+9.584339496195166e+01,  +6.491340882801721e+01,  +6.607946943185678e+01},
-                            {+7.564447113672941e+01,  +8.870323686839424e+01,  +9.980176633715156e+01},
-                            {+5.551345720954519e+01,  +5.018560958320880e+01,  +6.723371151809533e+01},
-                            {+1.705451084789431e+01,  +6.244581341955202e+01,  +9.669401970877797e+01},
-                            {+6.619261614993380e+01,  +7.117373046202381e+01,  +8.738100611158191e+01},
-                            {+5.750168111950786e+01,  +7.232098216141404e+01,  +6.328885012147187e+01},
-                            {+4.987262760199560e+01,  +2.910669305361889e+01,  +7.002012169503247e+01},
-                            {+4.766805255639174e+01,  +5.286408137906137e+01,  +8.658184951382971e+01},
-                            {+6.370933158599548e+01,  +8.907906306339656e+01,  +8.640718997450321e+01},
-                            {+5.679571866635635e+01,  +9.510582485042043e+01,  +9.510233264612722e+01},
-                            {+4.593945069931284e+01,  +9.842633766992454e+01,  +6.818551917072028e+01},
-                            {+8.604685122819753e+01,  +2.227336208146938e+01,  +8.064996567564701e+01},
-                            {+7.368510934191916e+01,  +8.761863387378153e+01,  +5.842600388100981e+01},
-                            {+5.304542719421880e+01,  +1.166359572261315e+01,  +3.469720448161775e+01},
-                            {+9.859123638319436e+01,  +3.553220826009969e+01,  +2.971176047726698e+01},
-                            {+7.472296133119805e+01,  +8.290045236154019e+01,  +5.403321610016368e+01},
-                            {+6.226649082835164e+01,  +1.013416681567561e+01,  +8.958037865517877e+01},
-                            {+6.712644168281827e+01,  +2.434459520535099e+01,  +9.134439354329264e+01},
-                            {+2.798931352927612e+01,  +6.465390443307622e+01,  +3.182615851063933e+01},
-                            {+9.731890547455771e+01,  +2.456870020307257e+01,  +4.070082673006688e+01},
-                            {+5.246288763506954e+01,  +8.194764609641871e+01,  +6.005290197032340e+01},
-                            {+6.499250742765969e+01,  +6.753924884403109e+01,  +1.485540063828763e+01},
-                            {+8.043986980291992e+01,  +2.910756992322245e+01,  +5.502883936947504e+01},
-                            {+2.637242037503724e+01,  +8.395070023517216e+01,  +7.788911226580247e+01},
-                            {+6.984002007273254e+01,  +2.908905539260996e+01,  +8.343886413229872e+01},
-                            {+6.954633984293469e+01,  +4.950531294076645e+01,  +6.251846678732919e+01},
-                            {+8.730432964357597e+01,  +9.370562237482061e+01,  +8.515974797863291e+01},
-                            {+8.370524510968170e+01,  +2.195865942644046e+01,  +4.841421282824241e+01},
-                            {+9.856170597224786e+01,  +8.232786775553490e+01,  +2.563045750741845e+01},
-                            {+2.558859669378873e+01,  +2.248201719911547e+01,  +5.771761432277073e+01},
-                            {+9.947680417253832e+01,  +6.133491877071831e+01,  +7.673975429199727e+01},
-                            {+8.243628452080156e+01,  +6.752772007361652e+01,  +6.596737210249287e+01},
-                            {+8.487270896081297e+01,  +3.536194490419856e+01,  +9.024147947859771e+01},
-                            {+7.269917956695380e+01,  +5.741289515255929e+01,  +5.524050590502326e+01},
-                            {+5.649250740308620e+01,  +7.787136946786094e+01,  +9.305632215646288e+01},
-                            {+4.017974594301215e+01,  +2.115369449981575e+01,  +7.402838830198873e+01},
-                            {+5.027167869646652e+01,  +4.067049218478110e+01,  +2.593933239979198e+01},
-                            {+2.917316028084339e+01,  +2.910911929232943e+01,  +9.794885856968048e+01},
-                            {+6.778859976941769e+01,  +4.823765270294746e+01,  +1.201138532231496e+01},
-                            {+9.759478281262490e+01,  +7.968236332147708e+01,  +2.409981547851465e+01},
-                            {+1.544235579258775e+01,  +1.148172372135691e+01,  +2.206464467890278e+01},
-                            {+2.651661213120456e+01,  +3.169580792847717e+01,  +4.619356611765794e+01},
-                            {+9.355873792635634e+01,  +7.546689403532196e+01,  +1.711207458683441e+01},
-                            {+9.476274473858760e+01,  +8.635419497562383e+01,  +4.125044307183765e+01},
-                            {+9.258256492259508e+01,  +7.349434716171119e+01,  +3.898910766785338e+01},
-                            {+5.749252168064037e+01,  +3.294415568068255e+01,  +2.962315781879705e+01},
-                            {+9.763747680712387e+01,  +8.329882727688805e+01,  +8.840372539862322e+01},
-                            {+2.797421578304262e+01,  +8.483360175980310e+01,  +5.196234412886864e+01},
-                            {+5.005661539061540e+01,  +8.045229656536749e+01,  +6.400952465064114e+01},
-                            {+7.987643906559018e+01,  +3.952775751328749e+01,  +4.650042929976261e+01},
-                            {+3.946012184915593e+01,  +8.921964737503116e+01,  +8.220856315115958e+01},
-                            {+6.563313004512814e+01,  +6.182910732844786e+01,  +3.422261192565959e+01},
-                            {+7.317483832589889e+01,  +4.402819234428643e+01,  +7.925412066823756e+01},
-                            {+2.707605432238980e+01,  +6.436400431540450e+01,  +3.046775083230247e+01},
-                            {+8.372451640990728e+01,  +9.510346916273541e+01,  +4.730768828864847e+01},
-                            {+7.644032678120367e+01,  +4.043728015191942e+01,  +1.867711924153505e+01},
-                            {+7.901454683022624e+01,  +6.798510985645657e+01,  +2.743139542006763e+01},
-                            {+4.728257445985390e+01,  +8.193415456745760e+01,  +7.632958891030940e+01},
-                            {+2.010572148271300e+01,  +8.683244832123361e+01,  +7.226948250466488e+01},
-                            {+6.031229161604434e+01,  +2.465176967120429e+01,  +3.210062938237907e+01},
-                            {+8.452019883890365e+01,  +5.860625419891142e+01,  +7.314709455113470e+01},
-                            {+9.275690625850380e+01,  +3.685975440242429e+01,  +8.120111751741510e+01},
-                            {+8.305385690424872e+01,  +6.076323239238766e+01,  +6.107202603798780e+01},
-                            {+2.386363485906779e+01,  +7.560213087848950e+01,  +2.686185071431809e+01},
-                            {+9.467820793531814e+01,  +7.265643634837441e+01,  +8.145174010140776e+01},
-                            {+4.522871746210485e+01,  +4.452271962638518e+01,  +8.354620932582073e+01},
-                            {+5.892624753311687e+01,  +2.584937361509191e+01,  +1.310100998343783e+01},
-                            {+7.349006919580016e+01,  +9.948905775812413e+01,  +8.306064071590933e+01},
-                            {+8.403350352674788e+01,  +8.939902778863062e+01,  +8.148471526574717e+01},
-                            {+2.684291641553435e+01,  +6.635468231027232e+01,  +6.386681907829582e+01}
+                        { +1.327836300649107e+01, +5.140157021048699e+01, +7.708928205278053e+01 },
+                        { +4.397166652688668e+01, +1.173763524478044e+01, +8.886291853681232e+01 },
+                        { +1.627040831318302e+01, +4.230029938475862e+01, +5.917202036337954e+01 },
+                        { +2.370712335869762e+01, +7.188646930371360e+01, +7.576473093619181e+01 },
+                        { +3.464068607033915e+01, +5.914390137245405e+01, +5.894969648495459e+01 },
+                        { +5.304669549679191e+01, +8.099721984320952e+01, +3.802935829076146e+01 },
+                        { +1.302460218134254e+01, +7.510676395799366e+01, +3.710554565726488e+01 },
+                        { +1.558713301398150e+01, +2.444759225882800e+01, +1.225292087741130e+01 },
+                        { +4.580074863709360e+01, +2.838341011351352e+01, +3.437894143321727e+01 },
+                        { +4.813857746831254e+01, +4.789255908008683e+01, +1.484160411096993e+01 },
+                        { +2.036663645561014e+01, +2.155020426590533e+01, +2.638391948480517e+01 },
+                        { +1.529082135165558e+01, +8.827430900216032e+01, +3.223970539080538e+01 },
+                        { +9.303579284195300e+01, +3.099475292538963e+01, +6.139483182049307e+01 },
+                        { +6.830529020508601e+01, +4.478813579652173e+01, +8.727547194925668e+01 },
+                        { +6.965618451342267e+01, +3.078544762051379e+01, +7.734611449395744e+01 },
+                        { +1.352183973361672e+01, +6.418694129655852e+01, +2.376216792593751e+01 },
+                        { +9.652931633502708e+01, +5.833944447709309e+01, +6.056512990656414e+01 },
+                        { +7.129630968596722e+01, +2.116237831351904e+01, +4.779426636401877e+01 },
+                        { +1.537379719470730e+01, +7.319599096979759e+01, +9.362953051837893e+01 },
+                        { +5.571047120516812e+01, +4.317746029093779e+01, +7.758399561011979e+01 },
+                        { +2.241438346395901e+01, +3.507265588016592e+01, +8.682806216045552e+01 },
+                        { +9.519909326792160e+01, +6.429855597431084e+01, +5.987374629814325e+01 },
+                        { +6.715261831031116e+01, +8.343521894445382e+01, +9.368106449866751e+01 },
+                        { +1.168533512131456e+01, +4.112739906436536e+01, +4.276008942143731e+01 },
+                        { +4.046462959591110e+01, +6.048977227016427e+01, +9.818793334179556e+01 },
+                        { +1.145206409476372e+01, +6.986780763072348e+01, +6.884000807292419e+01 },
+                        { +9.852428354497781e+01, +4.428329629982583e+01, +2.528847887553600e+01 },
+                        { +9.052196336865779e+01, +7.396378501786019e+01, +3.583301118848242e+01 },
+                        { +8.166184457795954e+01, +4.284187324926862e+01, +4.154685616910695e+01 },
+                        { +1.911688982047304e+01, +6.188521894314649e+01, +4.562121112402416e+01 },
+                        { +5.704057794347892e+01, +8.600463035690893e+01, +3.130135472469054e+01 },
+                        { +7.863155417178874e+01, +8.963516575746456e+01, +3.562495365060044e+01 },
+                        { +6.365792944752404e+01, +7.387282493439093e+01, +6.861270045922614e+01 },
+                        { +4.254858794886850e+01, +6.881561972262313e+01, +7.386702023601847e+01 },
+                        { +3.216592529212223e+01, +6.972100991796236e+01, +1.293054597887187e+01 },
+                        { +5.337799344418559e+01, +5.615132880332344e+01, +2.632315789923450e+01 },
+                        { +5.370635985211936e+01, +8.072977174625645e+01, +6.646096811576669e+01 },
+                        { +9.754408852884526e+01, +7.826098758344894e+01, +1.911910760019432e+01 },
+                        { +5.263055621059037e+01, +2.736826412412772e+01, +7.000801158167521e+01 },
+                        { +6.673128866071750e+01, +7.465960993468065e+01, +7.525628890005899e+01 },
+                        { +2.465028860712776e+01, +3.970554507943576e+01, +9.896463657608187e+01 },
+                        { +8.523803770273202e+01, +5.070436745638494e+01, +4.724405602984117e+01 },
+                        { +7.892281329360496e+01, +4.683873298275603e+01, +4.734349295894811e+01 },
+                        { +4.608565744524304e+01, +1.207012171855915e+01, +8.223817094639712e+01 },
+                        { +7.811406683506445e+01, +6.357944938801637e+01, +8.148354593918408e+01 },
+                        { +8.561061796468135e+01, +2.845793585617178e+01, +5.754466481052987e+01 },
+                        { +6.705800594237166e+01, +8.636154373981927e+01, +5.387221427791694e+01 },
+                        { +7.439698440575356e+01, +4.115562100190076e+01, +2.538649167080579e+01 },
+                        { +5.136607146646647e+01, +3.174780579813714e+01, +8.520166640710995e+01 },
+                        { +6.410821065087498e+01, +1.206900280242091e+01, +5.912233237926196e+01 },
+                        { +6.311215873599271e+01, +7.023597757853355e+01, +6.826830064594017e+01 },
+                        { +3.590371472236858e+01, +7.895597902187837e+01, +6.970676550083434e+01 },
+                        { +5.114916040417423e+01, +6.339143775409367e+01, +6.539452926647338e+01 },
+                        { +4.961204324354105e+01, +4.910767248708905e+01, +5.614370557826569e+01 },
+                        { +1.716501114376747e+01, +4.248125824712700e+01, +3.051062928083428e+01 },
+                        { +4.627931086816176e+01, +3.936066879050470e+01, +7.056694669949499e+01 },
+                        { +5.845951842497931e+01, +9.377692297223986e+01, +9.886359299635539e+01 },
+                        { +7.709640180665933e+01, +3.358495423159381e+01, +1.718536206468126e+01 },
+                        { +9.584339496195166e+01, +6.491340882801721e+01, +6.607946943185678e+01 },
+                        { +7.564447113672941e+01, +8.870323686839424e+01, +9.980176633715156e+01 },
+                        { +5.551345720954519e+01, +5.018560958320880e+01, +6.723371151809533e+01 },
+                        { +1.705451084789431e+01, +6.244581341955202e+01, +9.669401970877797e+01 },
+                        { +6.619261614993380e+01, +7.117373046202381e+01, +8.738100611158191e+01 },
+                        { +5.750168111950786e+01, +7.232098216141404e+01, +6.328885012147187e+01 },
+                        { +4.987262760199560e+01, +2.910669305361889e+01, +7.002012169503247e+01 },
+                        { +4.766805255639174e+01, +5.286408137906137e+01, +8.658184951382971e+01 },
+                        { +6.370933158599548e+01, +8.907906306339656e+01, +8.640718997450321e+01 },
+                        { +5.679571866635635e+01, +9.510582485042043e+01, +9.510233264612722e+01 },
+                        { +4.593945069931284e+01, +9.842633766992454e+01, +6.818551917072028e+01 },
+                        { +8.604685122819753e+01, +2.227336208146938e+01, +8.064996567564701e+01 },
+                        { +7.368510934191916e+01, +8.761863387378153e+01, +5.842600388100981e+01 },
+                        { +5.304542719421880e+01, +1.166359572261315e+01, +3.469720448161775e+01 },
+                        { +9.859123638319436e+01, +3.553220826009969e+01, +2.971176047726698e+01 },
+                        { +7.472296133119805e+01, +8.290045236154019e+01, +5.403321610016368e+01 },
+                        { +6.226649082835164e+01, +1.013416681567561e+01, +8.958037865517877e+01 },
+                        { +6.712644168281827e+01, +2.434459520535099e+01, +9.134439354329264e+01 },
+                        { +2.798931352927612e+01, +6.465390443307622e+01, +3.182615851063933e+01 },
+                        { +9.731890547455771e+01, +2.456870020307257e+01, +4.070082673006688e+01 },
+                        { +5.246288763506954e+01, +8.194764609641871e+01, +6.005290197032340e+01 },
+                        { +6.499250742765969e+01, +6.753924884403109e+01, +1.485540063828763e+01 },
+                        { +8.043986980291992e+01, +2.910756992322245e+01, +5.502883936947504e+01 },
+                        { +2.637242037503724e+01, +8.395070023517216e+01, +7.788911226580247e+01 },
+                        { +6.984002007273254e+01, +2.908905539260996e+01, +8.343886413229872e+01 },
+                        { +6.954633984293469e+01, +4.950531294076645e+01, +6.251846678732919e+01 },
+                        { +8.730432964357597e+01, +9.370562237482061e+01, +8.515974797863291e+01 },
+                        { +8.370524510968170e+01, +2.195865942644046e+01, +4.841421282824241e+01 },
+                        { +9.856170597224786e+01, +8.232786775553490e+01, +2.563045750741845e+01 },
+                        { +2.558859669378873e+01, +2.248201719911547e+01, +5.771761432277073e+01 },
+                        { +9.947680417253832e+01, +6.133491877071831e+01, +7.673975429199727e+01 },
+                        { +8.243628452080156e+01, +6.752772007361652e+01, +6.596737210249287e+01 },
+                        { +8.487270896081297e+01, +3.536194490419856e+01, +9.024147947859771e+01 },
+                        { +7.269917956695380e+01, +5.741289515255929e+01, +5.524050590502326e+01 },
+                        { +5.649250740308620e+01, +7.787136946786094e+01, +9.305632215646288e+01 },
+                        { +4.017974594301215e+01, +2.115369449981575e+01, +7.402838830198873e+01 },
+                        { +5.027167869646652e+01, +4.067049218478110e+01, +2.593933239979198e+01 },
+                        { +2.917316028084339e+01, +2.910911929232943e+01, +9.794885856968048e+01 },
+                        { +6.778859976941769e+01, +4.823765270294746e+01, +1.201138532231496e+01 },
+                        { +9.759478281262490e+01, +7.968236332147708e+01, +2.409981547851465e+01 },
+                        { +1.544235579258775e+01, +1.148172372135691e+01, +2.206464467890278e+01 },
+                        { +2.651661213120456e+01, +3.169580792847717e+01, +4.619356611765794e+01 },
+                        { +9.355873792635634e+01, +7.546689403532196e+01, +1.711207458683441e+01 },
+                        { +9.476274473858760e+01, +8.635419497562383e+01, +4.125044307183765e+01 },
+                        { +9.258256492259508e+01, +7.349434716171119e+01, +3.898910766785338e+01 },
+                        { +5.749252168064037e+01, +3.294415568068255e+01, +2.962315781879705e+01 },
+                        { +9.763747680712387e+01, +8.329882727688805e+01, +8.840372539862322e+01 },
+                        { +2.797421578304262e+01, +8.483360175980310e+01, +5.196234412886864e+01 },
+                        { +5.005661539061540e+01, +8.045229656536749e+01, +6.400952465064114e+01 },
+                        { +7.987643906559018e+01, +3.952775751328749e+01, +4.650042929976261e+01 },
+                        { +3.946012184915593e+01, +8.921964737503116e+01, +8.220856315115958e+01 },
+                        { +6.563313004512814e+01, +6.182910732844786e+01, +3.422261192565959e+01 },
+                        { +7.317483832589889e+01, +4.402819234428643e+01, +7.925412066823756e+01 },
+                        { +2.707605432238980e+01, +6.436400431540450e+01, +3.046775083230247e+01 },
+                        { +8.372451640990728e+01, +9.510346916273541e+01, +4.730768828864847e+01 },
+                        { +7.644032678120367e+01, +4.043728015191942e+01, +1.867711924153505e+01 },
+                        { +7.901454683022624e+01, +6.798510985645657e+01, +2.743139542006763e+01 },
+                        { +4.728257445985390e+01, +8.193415456745760e+01, +7.632958891030940e+01 },
+                        { +2.010572148271300e+01, +8.683244832123361e+01, +7.226948250466488e+01 },
+                        { +6.031229161604434e+01, +2.465176967120429e+01, +3.210062938237907e+01 },
+                        { +8.452019883890365e+01, +5.860625419891142e+01, +7.314709455113470e+01 },
+                        { +9.275690625850380e+01, +3.685975440242429e+01, +8.120111751741510e+01 },
+                        { +8.305385690424872e+01, +6.076323239238766e+01, +6.107202603798780e+01 },
+                        { +2.386363485906779e+01, +7.560213087848950e+01, +2.686185071431809e+01 },
+                        { +9.467820793531814e+01, +7.265643634837441e+01, +8.145174010140776e+01 },
+                        { +4.522871746210485e+01, +4.452271962638518e+01, +8.354620932582073e+01 },
+                        { +5.892624753311687e+01, +2.584937361509191e+01, +1.310100998343783e+01 },
+                        { +7.349006919580016e+01, +9.948905775812413e+01, +8.306064071590933e+01 },
+                        { +8.403350352674788e+01, +8.939902778863062e+01, +8.148471526574717e+01 },
+                        { +2.684291641553435e+01, +6.635468231027232e+01, +6.386681907829582e+01 }
                     };
                     break;
                 default:
@@ -603,38 +768,37 @@ void fill_UHat(
             break;
         }
         default:
-            MORIS_ERROR( false, "can only be 2 or 3D");
+            MORIS_ERROR( false, "can only be 2 or 3D" );
             break;
     }
 }
 
 //------------------------------------------------------------------------------
 
-void fill_RhoHat(
-        moris::Matrix< moris::DDRMat > & tRhoHat,
-        moris::uint aSpaceDim,
-        moris::uint aInterpOrder )
+inline void
+fill_RhoHat(
+        moris::Matrix< moris::DDRMat >& tRhoHat,
+        moris::uint                     aSpaceDim,
+        moris::uint                     aInterpOrder )
 {
     switch ( aSpaceDim )
     {
         case 2:
         {
-            switch( aInterpOrder )
+            switch ( aInterpOrder )
             {
                 case 1:
-                    tRhoHat = {{
-                            +3.648329829858856e+01,
+                    tRhoHat = { { +3.648329829858856e+01,
                             +2.455327506604995e+01,
                             +1.983196862781825e+01,
                             +2.392766208083287e+01,
                             +5.200648916622891e+01,
                             +9.105008519852706e+01,
                             +7.158927215290831e+01,
-                            +9.678247287159471e+01}};
+                            +9.678247287159471e+01 } };
                     break;
                 case 2:
-                    tRhoHat = {{
-                            +2.389180106638707e+01,
+                    tRhoHat = { { +2.389180106638707e+01,
                             +4.320292602460271e+01,
                             +6.113033620136942e+01,
                             +5.731190556302565e+01,
@@ -651,11 +815,10 @@ void fill_RhoHat(
                             +1.352846459763928e+01,
                             +6.402068200838963e+01,
                             +4.208421679434274e+01,
-                            +2.321488639358367e+01}};
+                            +2.321488639358367e+01 } };
                     break;
                 case 3:
-                    tRhoHat = {{
-                            +4.886557465927394e+01,
+                    tRhoHat = { { +4.886557465927394e+01,
                             +9.767283326074985e+01,
                             +3.019826798687895e+01,
                             +5.504882274916299e+01,
@@ -686,7 +849,7 @@ void fill_RhoHat(
                             +7.341617675930220e+01,
                             +5.953472534664772e+01,
                             +4.725400054046189e+01,
-                            +7.670202352336537e+01}};
+                            +7.670202352336537e+01 } };
                     break;
                 default:
                     MORIS_ERROR( false, "can only be 1, 2, 3" );
@@ -696,11 +859,10 @@ void fill_RhoHat(
         }
         case 3:
         {
-            switch( aInterpOrder )
+            switch ( aInterpOrder )
             {
                 case 1:
-                    tRhoHat = {{
-                            +3.263254682362039e+01,
+                    tRhoHat = { { +3.263254682362039e+01,
                             +1.845748801737600e+01,
                             +2.812599184626938e+01,
                             +1.706048697221760e+01,
@@ -715,11 +877,10 @@ void fill_RhoHat(
                             +6.115121464610250e+01,
                             +1.610448449109448e+01,
                             +9.478239312249293e+01,
-                            +3.336125423168365e+01}};
+                            +3.336125423168365e+01 } };
                     break;
                 case 2:
-                    tRhoHat = {{
-                            +2.580400845919633e+01,
+                    tRhoHat = { { +2.580400845919633e+01,
                             +3.367208380757102e+01,
                             +7.180100571244287e+01,
                             +3.357844968910215e+01,
@@ -772,12 +933,11 @@ void fill_RhoHat(
                             +3.217859717150998e+01,
                             +7.146042054303592e+01,
                             +4.408784900316332e+01,
-                            +7.221025769338628e+01}};
+                            +7.221025769338628e+01 } };
                     break;
 
                 case 3:
-                    tRhoHat = {{
-                            +9.475173109376192e+01,
+                    tRhoHat = { { +9.475173109376192e+01,
                             +1.188436400898940e+01,
                             +9.437408085161705e+01,
                             +2.573316932960386e+01,
@@ -904,7 +1064,7 @@ void fill_RhoHat(
                             +4.115460053882457e+01,
                             +8.399655641925612e+01,
                             +7.614042434371412e+01,
-                            +6.564338328517056e+01}};
+                            +6.564338328517056e+01 } };
                     break;
                 default:
                     MORIS_ERROR( false, "can only be 1, 2, 3" );
@@ -913,7 +1073,7 @@ void fill_RhoHat(
             break;
         }
         default:
-            MORIS_ERROR( false, "can only be 2 or 3D");
+            MORIS_ERROR( false, "can only be 2 or 3D" );
             break;
     }
     tRhoHat = trans( tRhoHat );
@@ -921,31 +1081,30 @@ void fill_RhoHat(
 
 //------------------------------------------------------------------------------
 
-void fill_TempHat(
-        moris::Matrix< moris::DDRMat > & tTempHat,
-        moris::uint aSpaceDim,
-        moris::uint aInterpOrder )
+inline void
+fill_TempHat(
+        moris::Matrix< moris::DDRMat >& tTempHat,
+        moris::uint                     aSpaceDim,
+        moris::uint                     aInterpOrder )
 {
     switch ( aSpaceDim )
     {
         case 2:
         {
-            switch( aInterpOrder )
+            switch ( aInterpOrder )
             {
                 case 1:
-                    tTempHat = {{
-                            +2.392766208083287e+01,
+                    tTempHat = { { +2.392766208083287e+01,
                             +3.200648916622891e+01,
                             +9.105008519852706e+01,
                             +1.648329829858856e+01,
                             +2.455327506604995e+01,
                             +1.983196862781825e+01,
                             +7.158927215290831e+01,
-                            +9.678247287159471e+01}};
+                            +9.678247287159471e+01 } };
                     break;
                 case 2:
-                    tTempHat = {{
-                            +6.113033620136942e+01,
+                    tTempHat = { { +6.113033620136942e+01,
                             +5.731190556302565e+01,
                             +7.737546164794847e+01,
                             +1.796579506535230e+01,
@@ -962,11 +1121,10 @@ void fill_TempHat(
                             +3.776395757074206e+01,
                             +5.840220908877829e+01,
                             +4.344529780636583e+01,
-                            +2.321488639358367e+01}};
+                            +2.321488639358367e+01 } };
                     break;
                 case 3:
-                    tTempHat = {{
-                            +5.807241361757317e+01,
+                    tTempHat = { { +5.807241361757317e+01,
                             +6.396931150151166e+01,
                             +4.922624553701569e+01,
                             +3.019826798687895e+01,
@@ -997,7 +1155,7 @@ void fill_TempHat(
                             +7.341617675930220e+01,
                             +5.953472534664772e+01,
                             +4.725400054046189e+01,
-                            +7.670202352336537e+01}};
+                            +7.670202352336537e+01 } };
                     break;
                 default:
                     MORIS_ERROR( false, "can only be 1, 2, 3" );
@@ -1007,11 +1165,10 @@ void fill_TempHat(
         }
         case 3:
         {
-            switch( aInterpOrder )
+            switch ( aInterpOrder )
             {
                 case 1:
-                    tTempHat = {{
-                            +3.390147774129654e+01,
+                    tTempHat = { { +3.390147774129654e+01,
                             +7.659911796378445e+01,
                             +4.184863726186082e+01,
                             +8.263254682362039e+01,
@@ -1026,11 +1183,10 @@ void fill_TempHat(
                             +4.171497570599884e+01,
                             +6.610448449109448e+01,
                             +5.478239312249293e+01,
-                            +6.336125423168365e+01}};
+                            +6.336125423168365e+01 } };
                     break;
                 case 2:
-                    tTempHat = {{
-                            +3.580400845919633e+01,
+                    tTempHat = { { +3.580400845919633e+01,
                             +7.367208380757102e+01,
                             +4.180100571244287e+01,
                             +8.357844968910215e+01,
@@ -1083,12 +1239,11 @@ void fill_TempHat(
                             +0.562197326897250e+01,
                             +4.604640365364759e+01,
                             +6.408784900316332e+01,
-                            +5.221025769338628e+01}};
+                            +5.221025769338628e+01 } };
                     break;
 
                 case 3:
-                    tTempHat = {{
-                            +3.544762481617121e+01,
+                    tTempHat = { { +3.544762481617121e+01,
                             +7.916334726859210e+01,
                             +4.350554928855513e+01,
                             +8.280046810151149e+01,
@@ -1215,7 +1370,7 @@ void fill_TempHat(
                             +7.551995332914466e+01,
                             +9.147945636979877e+01,
                             +0.614042434371412e+01,
-                            +4.564338328517056e+01}};
+                            +4.564338328517056e+01 } };
                     break;
                 default:
                     MORIS_ERROR( false, "can only be 1, 2, 3" );
@@ -1224,7 +1379,7 @@ void fill_TempHat(
             break;
         }
         default:
-            MORIS_ERROR( false, "can only be 2 or 3D");
+            MORIS_ERROR( false, "can only be 2 or 3D" );
             break;
     }
     tTempHat = trans( tTempHat );

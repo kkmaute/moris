@@ -86,7 +86,7 @@
 #include "cl_GEN_User_Defined_Geometry.hpp"
 #include "fn_norm.hpp"
 
-moris::real
+inline moris::real
 Plane4MatMDL1( const moris::Matrix< moris::DDRMat >& aPoint )
 {
     moris::real mXC = 0.1;
@@ -96,7 +96,7 @@ Plane4MatMDL1( const moris::Matrix< moris::DDRMat >& aPoint )
     return ( mNx * ( aPoint( 0 ) - mXC ) + mNy * ( aPoint( 1 ) - mYC ) );
 }
 
-moris::real
+inline moris::real
 Plane4MatMDL2( const moris::Matrix< moris::DDRMat >& aPoint )
 {
     moris::real mXC = 1.4;
@@ -106,7 +106,7 @@ Plane4MatMDL2( const moris::Matrix< moris::DDRMat >& aPoint )
     return ( mNx * ( aPoint( 0 ) - mXC ) + mNy * ( aPoint( 1 ) - mYC ) );
 }
 
-moris::real
+inline moris::real
 Plane4MatMDL3( const moris::Matrix< moris::DDRMat >& aPoint )
 {
     moris::real mXC = -1.4;
@@ -116,7 +116,7 @@ Plane4MatMDL3( const moris::Matrix< moris::DDRMat >& aPoint )
     return ( mNx * ( aPoint( 0 ) - mXC ) + mNy * ( aPoint( 1 ) - mYC ) );
 }
 
-moris::real
+inline moris::real
 Circle4MatMDL( const moris::Matrix< moris::DDRMat >& aPoint )
 {
     moris::real mXCenter = 0.01;
@@ -128,7 +128,7 @@ Circle4MatMDL( const moris::Matrix< moris::DDRMat >& aPoint )
          - ( mRadius * mRadius );
 }
 
-void
+inline void
 tConstValFunction2MatMDL( moris::Matrix< moris::DDRMat >& aPropMatrix,
         moris::Cell< moris::Matrix< moris::DDRMat > >&    aParameters,
         moris::fem::Field_Interpolator_Manager*           aFIManager )
@@ -136,14 +136,15 @@ tConstValFunction2MatMDL( moris::Matrix< moris::DDRMat >& aPropMatrix,
     aPropMatrix = aParameters( 0 );
 }
 
-bool
+inline bool
 tSolverOutputCriteria_4MatMDL( moris::tsa::Time_Solver* )
 {
     return true;
 }
 
-void
-run_hmr_for_multi_mat_model_2d( hmr::HMR&             aHMR,
+inline void
+run_hmr_for_multi_mat_model_2d(
+        hmr::HMR&                                     aHMR,
         Cell< std::shared_ptr< moris::hmr::Field > >& aFields )
 {
     moris_index tLagrangeMeshIndex = 0;
@@ -175,7 +176,7 @@ run_hmr_for_multi_mat_model_2d( hmr::HMR&             aHMR,
     aHMR.finalize();
 }
 
-moris::real
+inline moris::real
 MultiMat3dPlane( const moris::Matrix< moris::DDRMat >& aPoint )
 {
 
@@ -189,7 +190,7 @@ MultiMat3dPlane( const moris::Matrix< moris::DDRMat >& aPoint )
     return mXn * ( aPoint( 0 ) - mXc ) + mYn * ( aPoint( 1 ) - mYc ) + mZn * ( aPoint( 2 ) - mZc );
 }
 
-moris::real
+inline moris::real
 MultiMat3dCyl( const moris::Matrix< moris::DDRMat >& aPoint )
 {
     moris::Matrix< moris::DDRMat > aCenter = { { 0.01 }, { 0.01 }, { 0.0 } };
@@ -212,14 +213,17 @@ MultiMat3dCyl( const moris::Matrix< moris::DDRMat >& aPoint )
     return std::max( std::max( lsFromLeft, lsFromRight ), lsFromRad );
 }
 
-real
-MultiMat3dCylGeometry( const Matrix< DDRMat >& aCoordinates, const Cell< real* >& aParameters )
+inline real
+MultiMat3dCylGeometry(
+        const Matrix< DDRMat >& aCoordinates,
+        const Cell< real* >&    aParameters )
 {
     return MultiMat3dCyl( aCoordinates );
 }
 
-void
-run_hmr_for_multi_mat_model_3d( hmr::HMR&             aHMR,
+inline void
+run_hmr_for_multi_mat_model_3d(
+        hmr::HMR&                                     aHMR,
         Cell< std::shared_ptr< moris::hmr::Field > >& aFields )
 {
     moris_index tLagrangeMeshIndex = 0;

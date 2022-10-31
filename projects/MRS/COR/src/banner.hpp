@@ -25,7 +25,7 @@ namespace moris
     /*
      * prints a logo. Created using figlet.
      */
-    void
+    inline void
     print_logo()
     {
         std::fprintf( stdout, "\n" );
@@ -46,7 +46,7 @@ namespace moris
     /*
      * tries to get the cpu type, returns unknown if it fails
      */
-    std::string
+    inline std::string
     get_cpu_info()
     {
         // test if proc/cpuinfo exists
@@ -103,7 +103,7 @@ namespace moris
     /*
      * Prints a welcome banner similar to FEMDOC.
      */
-    void
+    inline void
     print_banner(
             int&  argc,
             char* argv[] )

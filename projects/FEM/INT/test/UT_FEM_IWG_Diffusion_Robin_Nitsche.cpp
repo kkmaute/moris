@@ -35,10 +35,11 @@
 #include "op_equal_equal.hpp"
 #include "fn_norm.hpp"
 
-void
-tGeoValFunction_UTIWGDIFFDIR( moris::Matrix< moris::DDRMat >& aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >&        aParameters,
-        moris::fem::Field_Interpolator_Manager*               aFIManager )
+inline void
+tGeoValFunction_UTIWGDIFFDIR(
+        moris::Matrix< moris::DDRMat >&                aPropMatrix,
+        moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+        moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
     aPropMatrix = aParameters( 0 ) * aFIManager->get_IP_geometry_interpolator()->valx()( 0 );
 }
@@ -46,7 +47,7 @@ tGeoValFunction_UTIWGDIFFDIR( moris::Matrix< moris::DDRMat >& aPropMatrix,
 using namespace moris;
 using namespace fem;
 
-void
+inline void
 UT_FEM_IWG_Diffusion_Robin_Nitsche_Core( enum fem::IWG_Type tIWGType )
 {
     // define an epsilon environment
@@ -566,4 +567,3 @@ TEST_CASE( "IWG_Diff_Robin_Geo_Prop", "[moris],[fem],[IWG_Diff_Robin_Geo_Prop]" 
     tFIs.clear();
 
 } /* END_TEST_CASE */
-

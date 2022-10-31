@@ -34,8 +34,7 @@ namespace xtk
      * @param[out] Element Subphase Indices
      *
      */
-    inline
-    moris::Matrix< moris::IndexMat >
+    inline moris::Matrix< moris::IndexMat >
     flood_fill(
             moris::Matrix< moris::IndexMat > const & aElementToElement,
             moris::Matrix< moris::IndexMat > const & aElementPhaseIndex,
@@ -43,11 +42,11 @@ namespace xtk
             moris::Matrix< moris::IndexMat > const & aElementsToInclude,
             moris::size_t                            aNumPhases,
             moris::moris_index                       aDummyValue,
-            moris::moris_index                     & aMaxValueAssigned,
-            bool aIncludeAllElements = false)
+            moris::moris_index&                      aMaxValueAssigned,
+            bool                                     aIncludeAllElements = false )
     {
         // Active phase index
-        moris::size_t tPhaseIndex  = 0;
+        moris::size_t tPhaseIndex = 0;
 
         // Number of elements in the flood fill
         moris::size_t tNumElements = aActiveElements.n_cols();
@@ -71,88 +70,88 @@ namespace xtk
         moris::size_t tCurrentSubphase = 0;
 
         // Track which elements have their phase set
-        moris::Matrix< moris::DDBMat > tPhaseSet(1,tNumElements,0);
+        moris::Matrix< moris::DDBMat > tPhaseSet( 1, tNumElements, 0 );
 
         // Initialize element sub-phases
-        moris::Matrix< moris::IndexMat > tElementSubphase(1,tNumElements,aDummyValue);
+        moris::Matrix< moris::IndexMat > tElementSubphase( 1, tNumElements, aDummyValue );
 
         // Initialize Active Front
-        moris::size_t tActiveFrontCount = 0;
-        moris::size_t tActiveFrontElement = 0;
-        moris::Matrix< moris::IndexMat > tActiveFront(1,10*tNumElements + 1,0);
+        moris::size_t                    tActiveFrontCount   = 0;
+        moris::size_t                    tActiveFrontElement = 0;
+        moris::Matrix< moris::IndexMat > tActiveFront( 1, 10 * tNumElements + 1, 0 );
 
         // Map between the active element indexes provided and their corresponding iE (Only needed if all elements are not included)
         // key   - Element Index
         // value - flood fill local index
-        std::unordered_map<moris::moris_index,moris::moris_index> tElementToLocalIndex;
-        if(!aIncludeAllElements)
+        std::unordered_map< moris::moris_index, moris::moris_index > tElementToLocalIndex;
+        if ( !aIncludeAllElements )
         {
-            for(moris::size_t iE = 0; iE<tNumElements; iE++)
+            for ( moris::size_t iE = 0; iE < tNumElements; iE++ )
             {
-                tElementToLocalIndex[aActiveElements(0,iE)] = iE;
+                tElementToLocalIndex[ aActiveElements( 0, iE ) ] = iE;
             }
         }
 
         // Loop over all elements
-        for(moris::size_t iE = 0; iE<tNumElements; iE ++)
+        for ( moris::size_t iE = 0; iE < tNumElements; iE++ )
         {
-            tElementIndex = aActiveElements(0,iE);
+            tElementIndex = aActiveElements( 0, iE );
 
             // If this element phase has not been set
-            if(!tPhaseSet(0,iE))
+            if ( !tPhaseSet( 0, iE ) )
             {
                 // Phase Index of the element
-                tPhaseIndex = aElementPhaseIndex(0,aActiveElements(0,iE));
+                tPhaseIndex = aElementPhaseIndex( 0, aActiveElements( 0, iE ) );
 
                 // Set the elements subphase value
-                tElementSubphase(0,iE) = tCurrentSubphase;
+                tElementSubphase( 0, iE ) = tCurrentSubphase;
 
                 // Mark this element as set
-                tPhaseSet(0,iE) = 1;
+                tPhaseSet( 0, iE ) = 1;
                 // Update active front
-                for(moris::size_t iN = 0; iN<tMaxNumNeighbors; iN++)
+                for ( moris::size_t iN = 0; iN < tMaxNumNeighbors; iN++ )
                 {
                     // Move on if we see a dummy value
-                    if(aElementToElement(tElementIndex,iN) ==  aDummyValue)
+                    if ( aElementToElement( tElementIndex, iN ) == aDummyValue )
                     {
                         break;
                     }
 
-                    tNeighborPhase = aElementPhaseIndex(0,aElementToElement(tElementIndex,iN));
+                    tNeighborPhase = aElementPhaseIndex( 0, aElementToElement( tElementIndex, iN ) );
 
-                    if(!aIncludeAllElements)
+                    if ( !aIncludeAllElements )
                     {
-                        tNeighborIndex = tElementToLocalIndex[aElementToElement(tElementIndex,iN)];
+                        tNeighborIndex = tElementToLocalIndex[ aElementToElement( tElementIndex, iN ) ];
                     }
 
                     // Otherwise the neighbor element index is located easily without a map
                     else
                     {
-                        tNeighborIndex = aElementToElement(tElementIndex,iN);
+                        tNeighborIndex = aElementToElement( tElementIndex, iN );
                     }
 
                     // If this is an neighbor element to include in the subdomain, has not already
                     // been set and its phase matches the current elements phase then
                     // add it to the active front and increment the count
-                    if(aElementsToInclude(0,aElementToElement(tElementIndex,iN)) == 1 &&
-                            tPhaseSet(0,tNeighborIndex)!=1 &&
-                            tNeighborPhase == tPhaseIndex)
+                    if ( aElementsToInclude( 0, aElementToElement( tElementIndex, iN ) ) == 1 &&    //
+                            tPhaseSet( 0, tNeighborIndex ) != 1 &&                                  //
+                            tNeighborPhase == tPhaseIndex )
                     {
-                        tActiveFront(0,tActiveFrontCount) = aElementToElement(tElementIndex,iN);
+                        tActiveFront( 0, tActiveFrontCount ) = aElementToElement( tElementIndex, iN );
                         tActiveFrontCount++;
                     }
                 }
 
                 // Iterate through active front until there are no more elements in the active front
                 // We start at the end of the front and work backwards
-                while(tActiveFrontCount!=0)
+                while ( tActiveFrontCount != 0 )
                 {
                     // Current Element Index in the Active Front
-                    tActiveFrontElement = tActiveFront(0,tActiveFrontCount-1);
+                    tActiveFrontElement = tActiveFront( 0, tActiveFrontCount - 1 );
                     // Get Neighbor index from map if we're not considering the full domain
-                    if(!aIncludeAllElements)
+                    if ( !aIncludeAllElements )
                     {
-                        tNeighborIndex = tElementToLocalIndex[tActiveFront(0,tActiveFrontCount-1)];
+                        tNeighborIndex = tElementToLocalIndex[ tActiveFront( 0, tActiveFrontCount - 1 ) ];
                     }
 
                     // Otherwise the neighbor element index is located easily without a map
@@ -162,32 +161,31 @@ namespace xtk
                     }
 
                     // Get the neighbors phase
-                    tNeighborPhase = aElementPhaseIndex(0,tActiveFrontElement);
+                    tNeighborPhase = aElementPhaseIndex( 0, tActiveFrontElement );
 
                     // If the neighbor phase matches our phase, then we add it's neighbor to the active front
                     // Unless it has already been set
-                    if(tNeighborPhase == tPhaseIndex &&
-                            tPhaseSet(0,tNeighborIndex)!=1)
+                    if ( tNeighborPhase == tPhaseIndex && tPhaseSet( 0, tNeighborIndex ) != 1 )
                     {
                         // Set the neighbor elements subphase value
-                        tElementSubphase(0,tNeighborIndex) = tCurrentSubphase;
+                        tElementSubphase( 0, tNeighborIndex ) = tCurrentSubphase;
 
                         // Mark element as set
-                        tPhaseSet(0,tNeighborIndex) = 1;
+                        tPhaseSet( 0, tNeighborIndex ) = 1;
 
                         // Increase the number of phases set
                         tNumPhasesSet++;
 
                         // Add the elements other neighbors to the active front
                         bool tReplaced = false;
-                        for(moris::size_t i = 0; i<tMaxNumNeighbors; i++)
+                        for ( moris::size_t i = 0; i < tMaxNumNeighbors; i++ )
                         {
-                            tElementIndex = aElementToElement(tActiveFrontElement,i);
+                            tElementIndex = aElementToElement( tActiveFrontElement, i );
 
                             // Get Neighbor index from map if we're not considering the full domain
-                            if(!aIncludeAllElements)
+                            if ( !aIncludeAllElements )
                             {
-                                tNeighborIndex = tElementToLocalIndex[tElementIndex];
+                                tNeighborIndex = tElementToLocalIndex[ tElementIndex ];
                             }
 
                             // Otherwise the neighbor element index is located easily without a map
@@ -197,9 +195,9 @@ namespace xtk
                             }
 
                             // If the elements neighbor is a dummy value
-                            if(tElementIndex == aDummyValue)
+                            if ( tElementIndex == aDummyValue )
                             {
-                                if(!tReplaced)
+                                if ( !tReplaced )
                                 {
                                     tActiveFrontCount--;
                                 }
@@ -207,14 +205,15 @@ namespace xtk
                             }
 
                             // If this element is active and its phase hasn't been set
-                            if(   aElementsToInclude(0,tElementIndex) == 1 &&
-                                    tPhaseSet(0,tNeighborIndex) != 1 )
+                            if ( aElementsToInclude( 0, tElementIndex ) == 1 &&    //
+                                    tPhaseSet( 0, tNeighborIndex ) != 1 )
                             {
                                 // and the previous element hasn't been replaced, then replace it
                                 // don't add to active front count
-                                if(!tReplaced)
+                                if ( !tReplaced )
                                 {
-                                    tActiveFront(0,tActiveFrontCount-1) = tElementIndex;
+                                    tActiveFront( 0, tActiveFrontCount - 1 ) = tElementIndex;
+
                                     tReplaced = true;
                                 }
 
@@ -222,16 +221,18 @@ namespace xtk
                                 else
                                 {
 
-                                    MORIS_ASSERT(tActiveFrontCount<tActiveFront.numel()," Active front in flood fill not big enough");
-                                    tActiveFront(0,tActiveFrontCount) = tElementIndex;
+                                    MORIS_ASSERT( tActiveFrontCount < tActiveFront.numel(),
+                                            " Active front in flood fill not big enough" );
+
+                                    tActiveFront( 0, tActiveFrontCount ) = tElementIndex;
                                     tActiveFrontCount++;
                                 }
                             }
 
                             // If we reached the end and haven't replaced the element from before, then remove it.
-                            if( i == tMaxNumNeighbors-1 && !tReplaced)
+                            if ( i == tMaxNumNeighbors - 1 && !tReplaced )
                             {
-                                tActiveFront(0,tActiveFrontCount-1) = aDummyValue;
+                                tActiveFront( 0, tActiveFrontCount - 1 ) = aDummyValue;
                                 tActiveFrontCount--;
                             }
                         }
@@ -239,7 +240,7 @@ namespace xtk
                     // Else if the phase doesn't match we remove that element from the active front
                     else
                     {
-                        tActiveFront(0,tActiveFrontCount-1) = aDummyValue;
+                        tActiveFront( 0, tActiveFrontCount - 1 ) = aDummyValue;
                         tActiveFrontCount--;
                     }
                 }
@@ -252,7 +253,6 @@ namespace xtk
 
         return tElementSubphase;
     }
-}
+}    // namespace xtk
 
 #endif /* XTK_SRC_XTK_FN_MESH_FLOOD_FILL_HPP_ */
-
