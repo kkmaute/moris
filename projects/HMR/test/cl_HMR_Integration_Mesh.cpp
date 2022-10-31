@@ -311,7 +311,6 @@ namespace moris
                 { 778 },
                 { 744 }
             };
-        };
 
         bool tCheck = true;
         for ( uint Ik = 0; Ik < tReferenceInices.numel(); Ik++ )

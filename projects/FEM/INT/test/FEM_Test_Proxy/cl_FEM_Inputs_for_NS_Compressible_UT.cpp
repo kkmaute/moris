@@ -149,7 +149,6 @@ fill_xhat(
                         { 4.5, 4.0 },
                         { 1.0, 3.25 }
                     };
-            };
             break;
             case 2:
                 tXHat = { //
