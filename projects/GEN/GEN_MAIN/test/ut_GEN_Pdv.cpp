@@ -473,128 +473,128 @@ namespace moris
 
         // test is disabled as it uses invalid Design_Variable_Interface construct
 
-        TEST_CASE( "PDV Sensitivities", "[gen], [pdv], [sensitivity], [pdv sensitivity]" )
-        {
-            // Create PDV_Type host manager
-            Pdv_Host_Manager tPDVHostManager;
-            tPDVHostManager.mPdvTypeList = { PDV_Type::DENSITY };
-            tPDVHostManager.mPdvTypeMap.set_size( 10, 1, -1 );
-            tPDVHostManager.mPdvTypeMap( 3 ) = 0;
-
-            // Constant property parameter list
-            ParameterList tParameterList = moris::prm::create_gen_property_parameter_list();
-            ;
-            tParameterList.set( "type", "constant" );
-            tParameterList.set( "field_variable_indices", "0" );
-            tParameterList.set( "pdv_type", "DENSITY" );
-
-            // Create ADVs
-            uint             tNumADVs = 2 * par_size();
-            Matrix< DDRMat > tADVs( tNumADVs, 1 );
-
-            // Create constant properties
-            Cell< std::shared_ptr< Property > > tProperties( tNumADVs );
-            for ( uint tPropertyIndex = 0; tPropertyIndex < tNumADVs; tPropertyIndex++ )
-            {
-                tParameterList.set( "adv_indices", std::to_string( tPropertyIndex ) );
-                tProperties( tPropertyIndex ) = create_property( tParameterList, tADVs );
-            }
-
-            // Node indices, IDs, ownership and coordinates per set
-            Cell< Matrix< DDSMat > > tIpNodeIndicesPerSet( 1 );
-            Cell< Matrix< DDSMat > > tIpNodeIdsPerSet( 1 );
-            Cell< Matrix< DDSMat > > tIpNodeOWnersPerSet( 1 );
-            Cell< Matrix< DDRMat > > tNodeCoordinatesPerSet( 1 );
-
-            tIpNodeIndicesPerSet( 0 ).set_size( gNumPDVs, 1 );
-            tIpNodeIdsPerSet( 0 ).set_size( gNumPDVs, 1 );
-            tIpNodeOWnersPerSet( 0 ).set_size( gNumPDVs, 1, par_rank() );
-            tNodeCoordinatesPerSet( 0 ).resize( gNumPDVs, 3 );
-
-            for ( uint tNodeIndex = 0; tNodeIndex < gNumPDVs; tNodeIndex++ )
-            {
-                tIpNodeIndicesPerSet( 0 )( tNodeIndex ) = tNodeIndex;
-                tIpNodeIdsPerSet( 0 )( tNodeIndex )     = tNodeIndex * ( par_rank() + 1 );
-            }
-
-            // fill coordinates for all nodes with zeros
-            tNodeCoordinatesPerSet( 0 ).fill( 0.0 );
-
-            // PDV_Type types per set
-            Cell< Cell< Cell< PDV_Type > > > tIpPdvTypes( 1 );
-            tIpPdvTypes( 0 ).resize( 1 );
-            tIpPdvTypes( 0 )( 0 ).resize( 1 );
-            tIpPdvTypes( 0 )( 0 )( 0 ) = PDV_Type::DENSITY;
-
-            // Communication table
-            Matrix< DDSMat > tCommunicationTable( par_size(), 1, 0 );
-            for ( uint tProcessorIndex = 1; tProcessorIndex < (uint)par_size(); tProcessorIndex++ )
-            {
-                tCommunicationTable( tProcessorIndex ) = tProcessorIndex;
-            }
-            tPDVHostManager.set_communication_table( tCommunicationTable );
-
-            // Create PDV_Type hosts
-            tPDVHostManager.create_interpolation_pdv_hosts(
-                    tIpNodeIndicesPerSet,
-                    tIpNodeIdsPerSet,
-                    tIpNodeOWnersPerSet,
-                    tNodeCoordinatesPerSet,
-                    tIpPdvTypes );
-
-            // Set PDVs
-            for ( uint tNodeIndex = 0; tNodeIndex < gNumPDVs; tNodeIndex++ )
-            {
-                tPDVHostManager.create_interpolation_pdv(
-                        (uint)tIpNodeIndicesPerSet( 0 )( tNodeIndex ),
-                        tIpPdvTypes( 0 )( 0 )( 0 ),
-                        tProperties( tNodeIndex % tNumADVs ) );
-            }
-            tPDVHostManager.create_pdv_ids();
-
-            // Owned ADV IDs
-            tPDVHostManager.set_owned_adv_ids( { { 2 * par_rank() }, { 2 * par_rank() + 1 } } );
-
-            // Full ADV IDs
-            Matrix< DDSMat > tFullADVIds( 0, 0 );
-            if ( par_rank() == 0 )
-            {
-                tFullADVIds.resize( tNumADVs, 1 );
-                for ( uint tADVIndex = 0; tADVIndex < tNumADVs; tADVIndex++ )
-                {
-                    tFullADVIds( tADVIndex ) = tADVIndex;
-                }
-            }
-
-            // Compute sensitivities
-            Matrix< DDRMat > tdIQIdADV = tPDVHostManager.compute_diqi_dadv( tFullADVIds );
-
-            // Check sensitivities
-            REQUIRE( tdIQIdADV.n_rows() == 2 );
-            if ( par_rank() == 0 )
-            {
-                REQUIRE( tdIQIdADV.n_cols() == tNumADVs );
-                for ( uint tADVIndex = 0; tADVIndex < tNumADVs; tADVIndex++ )
-                {
-                    // First IQI
-                    CHECK( tdIQIdADV( 0, tADVIndex ) == Approx( ( gNumPDVs / tNumADVs ) + ( tADVIndex < gNumPDVs % tNumADVs ) ) );
-
-                    // Second IQI
-                    real tdIQI2dADV = 0.0;
-                    uint tPDV       = tADVIndex;
-                    while ( tPDV < gNumPDVs )
-                    {
-                        tdIQI2dADV += tPDV;
-                        tPDV += tNumADVs;
-                    }
-                    CHECK( tdIQIdADV( 1, tADVIndex ) == Approx( tdIQI2dADV ) );
-                }
-            }
-            else
-            {
-                REQUIRE( tdIQIdADV.n_cols() == 0 );
-            }
-        }
+        //        TEST_CASE( "PDV Sensitivities", "[gen], [pdv], [sensitivity], [pdv sensitivity]" )
+        //        {
+        //            // Create PDV_Type host manager
+        //            Pdv_Host_Manager tPDVHostManager;
+        //            tPDVHostManager.mPdvTypeList = { PDV_Type::DENSITY };
+        //            tPDVHostManager.mPdvTypeMap.set_size( 10, 1, -1 );
+        //            tPDVHostManager.mPdvTypeMap( 3 ) = 0;
+        //
+        //            // Constant property parameter list
+        //            ParameterList tParameterList = moris::prm::create_gen_property_parameter_list();
+        //            ;
+        //            tParameterList.set( "type", "constant" );
+        //            tParameterList.set( "field_variable_indices", "0" );
+        //            tParameterList.set( "pdv_type", "DENSITY" );
+        //
+        //            // Create ADVs
+        //            uint             tNumADVs = 2 * par_size();
+        //            Matrix< DDRMat > tADVs( tNumADVs, 1 );
+        //
+        //            // Create constant properties
+        //            Cell< std::shared_ptr< Property > > tProperties( tNumADVs );
+        //            for ( uint tPropertyIndex = 0; tPropertyIndex < tNumADVs; tPropertyIndex++ )
+        //            {
+        //                tParameterList.set( "adv_indices", std::to_string( tPropertyIndex ) );
+        //                tProperties( tPropertyIndex ) = create_property( tParameterList, tADVs );
+        //            }
+        //
+        //            // Node indices, IDs, ownership and coordinates per set
+        //            Cell< Matrix< DDSMat > > tIpNodeIndicesPerSet( 1 );
+        //            Cell< Matrix< DDSMat > > tIpNodeIdsPerSet( 1 );
+        //            Cell< Matrix< DDSMat > > tIpNodeOWnersPerSet( 1 );
+        //            Cell< Matrix< DDRMat > > tNodeCoordinatesPerSet( 1 );
+        //
+        //            tIpNodeIndicesPerSet( 0 ).set_size( gNumPDVs, 1 );
+        //            tIpNodeIdsPerSet( 0 ).set_size( gNumPDVs, 1 );
+        //            tIpNodeOWnersPerSet( 0 ).set_size( gNumPDVs, 1, par_rank() );
+        //            tNodeCoordinatesPerSet( 0 ).resize( gNumPDVs, 3 );
+        //
+        //            for ( uint tNodeIndex = 0; tNodeIndex < gNumPDVs; tNodeIndex++ )
+        //            {
+        //                tIpNodeIndicesPerSet( 0 )( tNodeIndex ) = tNodeIndex;
+        //                tIpNodeIdsPerSet( 0 )( tNodeIndex )     = tNodeIndex * ( par_rank() + 1 );
+        //            }
+        //
+        //            // fill coordinates for all nodes with zeros
+        //            tNodeCoordinatesPerSet( 0 ).fill( 0.0 );
+        //
+        //            // PDV_Type types per set
+        //            Cell< Cell< Cell< PDV_Type > > > tIpPdvTypes( 1 );
+        //            tIpPdvTypes( 0 ).resize( 1 );
+        //            tIpPdvTypes( 0 )( 0 ).resize( 1 );
+        //            tIpPdvTypes( 0 )( 0 )( 0 ) = PDV_Type::DENSITY;
+        //
+        //            // Communication table
+        //            Matrix< DDSMat > tCommunicationTable( par_size(), 1, 0 );
+        //            for ( uint tProcessorIndex = 1; tProcessorIndex < (uint)par_size(); tProcessorIndex++ )
+        //            {
+        //                tCommunicationTable( tProcessorIndex ) = tProcessorIndex;
+        //            }
+        //            tPDVHostManager.set_communication_table( tCommunicationTable );
+        //
+        //            // Create PDV_Type hosts
+        //            tPDVHostManager.create_interpolation_pdv_hosts(
+        //                    tIpNodeIndicesPerSet,
+        //                    tIpNodeIdsPerSet,
+        //                    tIpNodeOWnersPerSet,
+        //                    tNodeCoordinatesPerSet,
+        //                    tIpPdvTypes );
+        //
+        //            // Set PDVs
+        //            for ( uint tNodeIndex = 0; tNodeIndex < gNumPDVs; tNodeIndex++ )
+        //            {
+        //                tPDVHostManager.create_interpolation_pdv(
+        //                        (uint)tIpNodeIndicesPerSet( 0 )( tNodeIndex ),
+        //                        tIpPdvTypes( 0 )( 0 )( 0 ),
+        //                        tProperties( tNodeIndex % tNumADVs ) );
+        //            }
+        //            tPDVHostManager.create_pdv_ids();
+        //
+        //            // Owned ADV IDs
+        //            tPDVHostManager.set_owned_adv_ids( { { 2 * par_rank() }, { 2 * par_rank() + 1 } } );
+        //
+        //            // Full ADV IDs
+        //            Matrix< DDSMat > tFullADVIds( 0, 0 );
+        //            if ( par_rank() == 0 )
+        //            {
+        //                tFullADVIds.resize( tNumADVs, 1 );
+        //                for ( uint tADVIndex = 0; tADVIndex < tNumADVs; tADVIndex++ )
+        //                {
+        //                    tFullADVIds( tADVIndex ) = tADVIndex;
+        //                }
+        //            }
+        //
+        //            // Compute sensitivities
+        //            Matrix< DDRMat > tdIQIdADV = tPDVHostManager.compute_diqi_dadv( tFullADVIds );
+        //
+        //            // Check sensitivities
+        //            REQUIRE( tdIQIdADV.n_rows() == 2 );
+        //            if ( par_rank() == 0 )
+        //            {
+        //                REQUIRE( tdIQIdADV.n_cols() == tNumADVs );
+        //                for ( uint tADVIndex = 0; tADVIndex < tNumADVs; tADVIndex++ )
+        //                {
+        //                    // First IQI
+        //                    CHECK( tdIQIdADV( 0, tADVIndex ) == Approx( ( gNumPDVs / tNumADVs ) + ( tADVIndex < gNumPDVs % tNumADVs ) ) );
+        //
+        //                    // Second IQI
+        //                    real tdIQI2dADV = 0.0;
+        //                    uint tPDV       = tADVIndex;
+        //                    while ( tPDV < gNumPDVs )
+        //                    {
+        //                        tdIQI2dADV += tPDV;
+        //                        tPDV += tNumADVs;
+        //                    }
+        //                    CHECK( tdIQIdADV( 1, tADVIndex ) == Approx( tdIQI2dADV ) );
+        //                }
+        //            }
+        //            else
+        //            {
+        //                REQUIRE( tdIQIdADV.n_cols() == 0 );
+        //            }
+        //        }
 
         //--------------------------------------------------------------------------------------------------------------
 
