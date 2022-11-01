@@ -37,8 +37,11 @@ namespace xtk
         J( 3, 3 ) = aCoord( 3, 2 );
 
         typename moris::Matrix< moris::DDRMat >::Data_Type volume = det( J ) / 6.0;    // Volume = 1/6*det(J)
+
         return volume;
     }
+
+    //------------------------------------------------------------------------------
 
     inline moris::real
     vol_tetrahedron( moris::Matrix< moris::DDRMat > const & aCoord,
@@ -62,10 +65,10 @@ namespace xtk
         J( 3, 3 ) = aCoord( aNodeToElement( 3 ), 2 );
 
         typename moris::Matrix< moris::DDRMat >::Data_Type volume = det( J ) / 6.0;    // Volume = 1/6*det(J)
+
         return volume;
     }
 
 }    // namespace xtk
 
 #endif /* SRC_TOOLS_FN_TET_VOLUME_HPP_ */
-

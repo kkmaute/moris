@@ -90,31 +90,33 @@
 #include "cl_FEM_Model.hpp"
 
 // define free function for properties
-void
-tPropValConstFunc_MDLFEMBench( moris::Matrix< moris::DDRMat >& aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >&         aParameters,
-        moris::fem::Field_Interpolator_Manager*                aFIManager )
+inline void
+tPropValConstFunc_MDLFEMBench(
+        moris::Matrix< moris::DDRMat >&                aPropMatrix,
+        moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+        moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
     aPropMatrix = aParameters( 0 );
 }
 
-void
-tPropValFuncL2_MDLFEMBench( moris::Matrix< moris::DDRMat >& aPropMatrix,
-        moris::Cell< moris::Matrix< moris::DDRMat > >&      aParameters,
-        moris::fem::Field_Interpolator_Manager*             aFIManager )
+inline void
+tPropValFuncL2_MDLFEMBench(
+        moris::Matrix< moris::DDRMat >&                aPropMatrix,
+        moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+        moris::fem::Field_Interpolator_Manager*        aFIManager )
 {
     aPropMatrix = { { 20 * aFIManager->get_IP_geometry_interpolator()->valx()( 0 ) } };
 }
 
 // define function for cutting plane
-moris::real
+inline moris::real
 tPlane_MDLFEMBench( const moris::Matrix< moris::DDRMat >& aPoint )
 {
     moris::real tOffset = 2.6;
     return aPoint( 0 ) - tOffset;
 }
 
-bool
+inline bool
 tSolverOutputCriteria_MDLFEMBench( moris::tsa::Time_Solver* )
 {
     return false;

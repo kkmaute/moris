@@ -25,7 +25,7 @@ namespace moris
          * Compute the surface normal of a triangle (Note this hasn't been fully optimized)
          * @param[in] aTriangleNodes - Nodes of the triangle
          */
-        void
+        inline void
         compute_tri_surface_normal(
                 moris::Matrix< moris::IndexMat > const & aTriangleNodes,
                 moris::Matrix< moris::DDRMat > const &   aNodeCoordinates,
@@ -72,7 +72,7 @@ namespace moris
 
         //-----------------------------------------------------------------------
 
-        moris::real
+        inline moris::real
         compute_volume_for_multiple_tets(
                 moris::Matrix< moris::DDRMat > const &   aAllNodeCoords,
                 moris::Matrix< moris::IndexMat > const & aElementToNodeConnectivity )
@@ -106,7 +106,7 @@ namespace moris
         //-----------------------------------------------------------------------
 
         template< typename Real_Matrix >
-        moris::Matrix< Real_Matrix >
+        inline moris::Matrix< Real_Matrix >
         compute_val_at_tet_centroid( moris::Matrix< Real_Matrix > const & aNodeVals )
         {
             Real_Matrix tVal = 0.25 * ( aNodeVals );
@@ -119,7 +119,7 @@ namespace moris
 
     //-----------------------------------------------------------------------
 
-    moris::real
+    inline moris::real
     compute_area_for_multiple_triangles(
             moris::Matrix< moris::DDRMat > const &   aAllNodeCoords,
             moris::Matrix< moris::IndexMat > const & aElementToNodeConnectivity )
@@ -152,4 +152,3 @@ namespace moris
 }    // namespace moris
 
 #endif /* PROJECTS_GEN_SRC_NEW_GEOMENG_FN_GEN_TRIANGLE_GEOMETRY_HPP_ */
-

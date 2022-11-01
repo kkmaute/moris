@@ -84,7 +84,7 @@
 
 #include "fn_PRM_VIS_Parameters.hpp"
 
-moris::real
+inline moris::real
 PlaneVisTest( const moris::Matrix< moris::DDRMat >& aPoint )
 {
     moris::real mXC = 0.11;
@@ -94,7 +94,7 @@ PlaneVisTest( const moris::Matrix< moris::DDRMat >& aPoint )
     return ( mNx * ( aPoint( 0 ) - mXC ) + mNy * ( aPoint( 1 ) - mYC ) );
 }
 
-void
+inline void
 tConstValFunction_VISOutputManager( moris::Matrix< moris::DDRMat >& aPropMatrix,
         moris::Cell< moris::Matrix< moris::DDRMat > >&              aParameters,
         moris::fem::Field_Interpolator_Manager*                     aFIManager )
@@ -102,7 +102,7 @@ tConstValFunction_VISOutputManager( moris::Matrix< moris::DDRMat >& aPropMatrix,
     aPropMatrix = aParameters( 0 );
 }
 
-bool
+inline bool
 tSolverOutputCriteria( moris::tsa::Time_Solver* )
 {
     return true;

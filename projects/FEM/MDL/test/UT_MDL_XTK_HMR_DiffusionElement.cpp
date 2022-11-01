@@ -98,7 +98,7 @@
 
 namespace moris
 {
-    moris::real
+    inline moris::real
     LevelSetPlaneFunction( const moris::Matrix< moris::DDRMat >& aPoint )
     {
 
@@ -111,7 +111,7 @@ namespace moris
         return mXn * ( aPoint( 0 ) - mXc ) + mYn * ( aPoint( 1 ) - mYc ) + mZn * ( aPoint( 2 ) - mZc );
     }
 
-    moris::real
+    inline moris::real
     LevelSetSphereFunction( const moris::Matrix< moris::DDRMat >& aPoint )
     {
 
@@ -125,7 +125,7 @@ namespace moris
              - ( mR * mR );
     }
 
-    moris::real
+    inline moris::real
     LevelSetSphereCylinder( const moris::Matrix< moris::DDRMat >& aPoint )
     {
         moris::Matrix< moris::DDRMat > aCenter = { { 0.0 }, { 0.0 }, { 0.0 } };
@@ -148,13 +148,13 @@ namespace moris
         return -std::max( std::max( lsFromLeft, lsFromRight ), lsFromRad );
     }
 
-    moris::real
+    inline moris::real
     LevelSetSphereCylinderGeometry( const moris::Matrix< moris::DDRMat >& aCoordinates, const moris::Cell< moris::real* >& aParameters )
     {
         return LevelSetSphereCylinder( aCoordinates );
     }
 
-    moris::real
+    inline moris::real
     LevelSetFunction_star( const moris::Matrix< moris::DDRMat >& aPoint )
     {
         moris::real tPhi = std::atan2( aPoint( 0 ), aPoint( 2 ) );
@@ -164,15 +164,16 @@ namespace moris
         return tLevelSetVaue;
     }
 
-    void
-    tConstValFunction_MDL_XTK_HMR( moris::Matrix< moris::DDRMat >& aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >&         aParameters,
-            moris::fem::Field_Interpolator_Manager*                aFIManager )
+    inline void
+    tConstValFunction_MDL_XTK_HMR(
+            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         aPropMatrix = aParameters( 0 );
     }
 
-    bool
+    inline bool
     tSolverOutputCriteria( moris::tsa::Time_Solver* )
     {
         return true;

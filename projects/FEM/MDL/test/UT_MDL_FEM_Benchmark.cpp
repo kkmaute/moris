@@ -92,7 +92,7 @@ namespace moris
 {
 
     // define free function for properties
-    void
+    inline void
     tPropValConstFunc_MDLFEMBench( moris::Matrix< moris::DDRMat >& aPropMatrix,
             moris::Cell< moris::Matrix< moris::DDRMat > >&         aParameters,
             moris::fem::Field_Interpolator_Manager*                aFIManager )
@@ -100,7 +100,7 @@ namespace moris
         aPropMatrix = aParameters( 0 );
     }
 
-    void
+    inline void
     tPropValFuncL2_MDLFEMBench( moris::Matrix< moris::DDRMat >& aPropMatrix,
             moris::Cell< moris::Matrix< moris::DDRMat > >&      aParameters,
             moris::fem::Field_Interpolator_Manager*             aFIManager )
@@ -109,14 +109,14 @@ namespace moris
     }
 
     // define function for cutting plane
-    moris::real
+    inline moris::real
     tPlane_MDLFEMBench( const moris::Matrix< moris::DDRMat >& aPoint )
     {
         moris::real tOffset = 2.6;
         return aPoint( 0 ) - tOffset;
     }
 
-    bool
+    inline bool
     tSolverOutputCriteria_MDLFEMBench( moris::tsa::Time_Solver* )
     {
         return true;

@@ -32,17 +32,18 @@ namespace moris
      * @param[in] aFunctionValues   values of evaluated function
      * @param[in] aSamples          data samples or exact solution
      */
-    real r2(
-            const Matrix< DDRMat > & aFunctionValues,
-            const Matrix< DDRMat > & aSamples )
+    inline real
+    r2(
+            const Matrix< DDRMat >& aFunctionValues,
+            const Matrix< DDRMat >& aSamples )
     {
 
         // calculate average of samples
 
         double tValue = moris::sum( aSamples );
-        //real tAverage = 1.0;
+        // real tAverage = 1.0;
 
-        double  tAverage = tValue / (double) aSamples.length();
+        double tAverage = tValue / (double)aSamples.length();
 
         // sum of square residuals
         real tRootOfSSres = norm( aSamples - aFunctionValues );
@@ -51,10 +52,9 @@ namespace moris
         real tRootOfSStot = norm( aSamples - tAverage );
 
         // return R2
-        return 1.0 - std::pow( tRootOfSSres / tRootOfSStot , 2 );
+        return 1.0 - std::pow( tRootOfSSres / tRootOfSStot, 2 );
     }
 
-}
+}    // namespace moris
 
 #endif /* PROJECTS_LINALG_SRC_FN_R2_HPP_ */
-
