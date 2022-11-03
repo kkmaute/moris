@@ -35,35 +35,35 @@
 #include "cl_DLA_Linear_Problem.hpp"
 #include "cl_SOL_Dist_Map.hpp"
 
-#include "cl_Param_List.hpp" // CON/src
+#include "cl_Param_List.hpp"    // CON/src
 
 namespace moris
 {
-namespace dla
-{
-    class Linear_System_Trilinos : public Linear_Problem
+    namespace dla
     {
-    private:
+        class Linear_System_Trilinos : public Linear_Problem
+        {
+          private:
 
-    protected:
+          protected:
 
-    public:
-        Linear_System_Trilinos( Solver_Interface * aInput );
+          public:
+            Linear_System_Trilinos( Solver_Interface* aInput );
 
-        Linear_System_Trilinos( Solver_Interface * aInput,
-                                sol::SOL_Warehouse       * aSolverWarehouse,
-                                sol::Dist_Map*  aMap,
-                                sol::Dist_Map*  aFullMap );
+            Linear_System_Trilinos(
+                    Solver_Interface*   aInput,
+                    sol::SOL_Warehouse* aSolverWarehouse,
+                    sol::Dist_Map*      aMap,
+                    sol::Dist_Map*      aFullMap );
 
-        Linear_System_Trilinos( const char* aString );
+            Linear_System_Trilinos( const char* aString );
 
-        ~Linear_System_Trilinos();
+            ~Linear_System_Trilinos();
 
-        moris::sint solve_linear_system();
+            moris::sint solve_linear_system();
 
-        void get_solution( Matrix< DDRMat > & LHSValues );
-    };
-}
-}
+            void get_solution( Matrix< DDRMat >& LHSValues );
+        };
+    }    // namespace dla
+}    // namespace moris
 #endif /* SRC_DISTLINALG_CL_DLA_LINEAR_SYSTEM_TRILISOS_HPP_ */
-
