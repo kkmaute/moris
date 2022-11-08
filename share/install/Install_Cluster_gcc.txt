@@ -19,13 +19,13 @@
 * that you want to use for your installation, e.g.
 * 
 * gcc/10.2.0
-* openmpi/4.0.5
 * perl/5.24.0
 * zlib/1.2.11 
 * szip/2.1.1
 * lmod/6.3.7 
 * autotools/2.71 
-* cmake/3.20.2   
+* cmake/3.20.2
+
 *------------------------------------------------------------
 
 * Check that the following software is installed; if it is not
@@ -36,7 +36,12 @@
 * makeinfo (part of texinfo package)
 *
 * To check whether the above packages are installed, excute 
-* the command:  which patch; which pkgconf; which makeinfo
+* the command:  
+
+which patch
+which pkgconf
+which makeinfo
+
 *------------------------------------------------------------
 
 *------------------------------------------------------------
@@ -70,14 +75,13 @@ cd $WORKSPACE
 
 * optional: set tmp directory
 
-setenv TMP /home/maute/work/tmp
+setenv TMP $HOME/work/tmp
 rm -r -f $TMP
 mkdir $TMP
 
 *------------------------------------------------------------
 
 module load gcc/10.2.0
-module load openmpi/4.0.5
 module load perl/5.24.0
 module load zlib/1.2.11 
 module load szip/2.1.1
@@ -168,7 +172,7 @@ cp $WORKSPACE/moris/share/spack/moris_package.py     $WORKSPACE/spack/var/spack/
 
 *------------------------------------------------------------
 
-*add the lines below to 
+*add the lines below to (watch the indentation)
 
   spack/var/spack/repos/builtin/packages/gmp/package.py
   spack/var/spack/repos/builtin/packages/mpfr/package.py
@@ -185,6 +189,7 @@ spack env create -d .
 
 spack env activate .
 
+spack add openmpi fabrics=ofi,psm2
 spack add moris
 
 spack develop --path $WORKSPACE/moris moris@main
@@ -196,6 +201,20 @@ spack develop --path $WORKSPACE/moris moris@main
 spack add patch
 spack add pkgconf
 spack add texinfo
+
+*------------------------------------------------------------
+
+* make sure that all packages use the same dependent packages
+
+spack config edit
+
+* and set: concretizer: 
+
+unify: true
+
+or
+
+unify: when_possible
 
 *------------------------------------------------------------
 
@@ -213,6 +232,12 @@ spack install texinfo
 
 *------------------------------------------------------------
 
+* install openmpi
+
+spack install openmpi
+
+*------------------------------------------------------------
+
 * install moris dependencies - by default in debug version
 
 spack install --only dependencies moris
@@ -225,24 +250,40 @@ spack clean
 
 *------------------------------------------------------------
 
-* create the following resource file and source it as part of your .cshrc
+* create the following resource file
+
+* if you use a tcsh: create ~/.cshrc_moris and source it as part of your .cshrc
 
 tcsh $WORKSPACE/moris/share/spack/make_moris_cluster_gcc_cshrc.sh
+
+* if you use a bash: create ~/.bashrc_moris and source it as part of your .bashrc
+
+tcsh $WORKSPACE/moris/share/spack/make_moris_cluster_gcc_bashrc.sh
         
 *------------------------------------------------------------
 *
-* Important: .cshrc_moris needs to be sourced when working with moris
+* Important: .cshrc_moris or .bashrc_moris needs to be sourced when working with moris
 *
-* Recommendation: include it in your .cshrc file
+* Include .cshrc_moris or .bashrc_moris in your .cshrc or .bashrc file
 *
 *------------------------------------------------------------
 
 source $HOME/.cshrc_moris
 
+or
+
+source $HOME/.bashrc_moris
+
 *------------------------------------------------------------
 
 * build moris optimized version and run tests
 * you may have to set the compilers manually (CC,CXX,F77,FC)
+
+* optional: set tmp directory
+
+export TMP=$HOME/work/tmp
+rm -r -f $TMP
+mkdir $TMP
 
 cd $WORKSPACE/moris
 
@@ -250,8 +291,8 @@ mkdir build_opt
 
 cd build_opt
 
-cmake -DMORIS_USE_MKL=ON -DMORIS_USE_OPENBLAS=OFF  -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON ..
-cmake -DMORIS_USE_MKL=ON -DMORIS_USE_OPENBLAS=OFF  -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON ..
+cmake -DMORIS_USE_MKL=ON -DMORIS_USE_OPENBLAS=OFF -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON ..
+cmake -DMORIS_USE_MKL=ON -DMORIS_USE_OPENBLAS=OFF -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON ..
 
 make -j 16
 
