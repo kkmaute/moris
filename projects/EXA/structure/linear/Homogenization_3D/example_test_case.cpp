@@ -20,7 +20,7 @@
 using namespace moris;
 
 // flag to print reference values
-bool gPrintReferenceValues = true;
+bool gPrintReferenceValues = false;
 
 //---------------------------------------------------------------
 
@@ -34,9 +34,6 @@ check_linear_results(
         uint                          aInnerNodeId,
         uint                          aOuterNodeId )
 {
-    std::cout << "E_Inner " << aExoIO.get_nodal_field_value( aInnerNodeId, 5, 0 ) << std::endl;
-    std::cout << "E_Outer " << aExoIO.get_nodal_field_value( aOuterNodeId, 4, 0 ) << std::endl;
-
     if ( gPrintReferenceValues )
     {
         // coordinates of reference point
@@ -58,6 +55,7 @@ check_linear_results(
     // check nodal coordinates
     real tRelDiffNormInner = moris::norm( aExoIO.get_nodal_coordinate( aInnerNodeId ) - tReferenceCoordinateInner ) / moris::norm( tReferenceCoordinateInner );
     real tRelDiffNormOuter = moris::norm( aExoIO.get_nodal_coordinate( aOuterNodeId ) - tReferenceCoordinateOuter ) / moris::norm( tReferenceCoordinateOuter );
+
     REQUIRE( tRelDiffNormInner < tEpsilon );
     REQUIRE( tRelDiffNormOuter < tEpsilon );
 
