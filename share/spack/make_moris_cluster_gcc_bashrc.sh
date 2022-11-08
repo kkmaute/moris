@@ -80,6 +80,11 @@ echo "export F77=$F77"                                                         >
 setenv GFORTLIB      `ldd $PETSC_DIR/lib/libpetsc.so | grep libgfortran | awk '{print $3}' | awk -F "/" '{print $NF}'`
 setenv GFORTLIB_PATH `ldd $PETSC_DIR/lib/libpetsc.so | grep libgfortran | awk '{print $3}' | awk -F libgfortran '{print $1}'`
 
-echo ""   
+echo ""
 echo "export GFORTLIB=$GFORTLIB"                                               >> $HOME/.bashrc_moris
 echo "export GFORTLIB_PATH=$GFORTLIB_PATH"                                     >> $HOME/.bashrc_moris
+echo ""
+echo "export OMPI_MCA_rmaps_base_oversubscribe=1"                              >> $HOME/.bashrc_moris
+echo "export OMP_NUM_THREADS=1"                                                >> $HOME/.bashrc_moris
+echo "export OMPI_MCA_mtl=psm2"                                                >> $HOME/.bashrc_moris
+
