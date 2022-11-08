@@ -15,33 +15,37 @@ setenv FC        `spack compiler info $SPACKCOMP | grep 'fc ='  | awk -F = '{pri
 setenv F77       `spack compiler info $SPACKCOMP | grep 'f77 =' | awk -F = '{print $2}' | xargs ls`
 
 setenv GCCLIB    `spack compiler info $SPACKCOMP | grep 'cc ='  | awk -F = '{split($2,a,"/bin/");print a[1]}'`
+setenv PETSC_DIR `spack location --install-dir petsc`
+
+echo $LOADEDMODULES | awk '{n=split($0,a,":"); for (i = 1; i <= n; i++) print "module load " a[i]  }' >> $HOME/.bashrc_moris
+echo ""                                                                        >> $HOME/.bashrc_moris
 
 echo "export MORISROOT=$WORKSPACE/moris"                                       >> $HOME/.bashrc_moris
 echo 'export MORISBUILDDBG=build_dbg'                                          >> $HOME/.bashrc_moris
 echo 'export MORISBUILDOPT=build_opt'                                          >> $HOME/.bashrc_moris
 echo 'export MORISOUTPUT=$MORISROOT/$MORISBUILDDBG/'                           >> $HOME/.bashrc_moris
 echo ""                                                                        >> $HOME/.bashrc_moris
-echo "export MPI_HOME="        `spack location --install-dir openmpi`          >> $HOME/.bashrc_moris
+echo "export MPI_HOME=`spack location --install-dir openmpi`"                  >> $HOME/.bashrc_moris
 echo ""                                                                        >> $HOME/.bashrc_moris
-echo "export OPENBLAS_DIR="     `spack location --install-dir openblas`"/lib"  >> $HOME/.bashrc_moris
-echo "export Armadillo_DIR="    `spack location --install-dir armadillo`       >> $HOME/.bashrc_moris
-echo "export Eigen3_DIR="       `spack location --install-dir eigen`           >> $HOME/.bashrc_moris
-echo "export BOOST_DIR="        `spack location --install-dir boost`           >> $HOME/.bashrc_moris
-echo "export BOOST_ROOT="       `spack location --install-dir boost`           >> $HOME/.bashrc_moris
-echo "export GCMMA_DIR="        `spack location --install-dir gcmma`           >> $HOME/.bashrc_moris
-echo "export SNOPT_DIR="        `spack location --install-dir snopt`           >> $HOME/.bashrc_moris
-echo "export LBFGSB_DIR="       `spack location --install-dir lbfgs`           >> $HOME/.bashrc_moris
-echo "export ARPACK_DIR="       `spack location --install-dir arpack-ng`       >> $HOME/.bashrc_moris
-echo "export SUPERLU_DIR="      `spack location --install-dir superlu`         >> $HOME/.bashrc_moris
-echo "export SuperLU_DIST_DIR=" `spack location --install-dir superlu-dist`    >> $HOME/.bashrc_moris
-echo "export Trilinos_DIR="     `spack location --install-dir trilinos`        >> $HOME/.bashrc_moris
-echo "export PETSC_DIR="        `spack location --install-dir petsc`           >> $HOME/.bashrc_moris
-echo "export HDF5_DIR="         `spack location --install-dir hdf5`            >> $HOME/.bashrc_moris
-echo "export MKL_DIR="          `spack location --install-dir intel-mkl`"/mkl" >> $HOME/.bashrc_moris
-echo "export NETCDF_DIR="       `spack location --install-dir netcdf-c`        >> $HOME/.bashrc_moris
-echo "export ZLIB_DIR="         `spack location --install-dir zlib`            >> $HOME/.bashrc_moris
-echo "export SSL_DIR="          `spack location --install-dir openssl`         >> $HOME/.bashrc_moris
-echo "export CMAKE_DIR="        `spack location --install-dir cmake`           >> $HOME/.bashrc_moris
+echo "export PETSC_DIR=$PETSC_DIR"                                             >> $HOME/.bashrc_moris
+echo ""                                                                        >> $HOME/.bashrc_moris
+echo "export Armadillo_DIR=`spack location --install-dir armadillo`"           >> $HOME/.bashrc_moris
+echo "export Eigen3_DIR=`spack location --install-dir eigen`"                  >> $HOME/.bashrc_moris
+echo "export BOOST_DIR=`spack location --install-dir boost`"                   >> $HOME/.bashrc_moris
+echo "export BOOST_ROOT=`spack location --install-dir boost`"                  >> $HOME/.bashrc_moris
+echo "export GCMMA_DIR=`spack location --install-dir gcmma`"                   >> $HOME/.bashrc_moris
+echo "export SNOPT_DIR=`spack location --install-dir snopt`"                   >> $HOME/.bashrc_moris
+echo "export LBFGSB_DIR=`spack location --install-dir lbfgs`"                  >> $HOME/.bashrc_moris
+echo "export ARPACK_DIR=`spack location --install-dir arpack-ng`"              >> $HOME/.bashrc_moris
+echo "export SUPERLU_DIR=`spack location --install-dir superlu`"               >> $HOME/.bashrc_moris
+echo "export SuperLU_DIST_DIR=`spack location --install-dir superlu-dist`"     >> $HOME/.bashrc_moris
+echo "export Trilinos_DIR=`spack location --install-dir trilinos`"             >> $HOME/.bashrc_moris
+echo "export HDF5_DIR=`spack location --install-dir hdf5`"                     >> $HOME/.bashrc_moris
+echo "export MKL_DIR=`spack location --install-dir intel-mkl`/mkl"             >> $HOME/.bashrc_moris
+echo "export NETCDF_DIR=`spack location --install-dir netcdf-c`"               >> $HOME/.bashrc_moris
+echo "export ZLIB_DIR=`spack location --install-dir zlib`"                     >> $HOME/.bashrc_moris
+echo "export SSL_DIR=`spack location --install-dir openssl`"                   >> $HOME/.bashrc_moris
+echo "export CMAKE_DIR=`spack location --install-dir cmake`"                   >> $HOME/.bashrc_moris
 echo ""                                                                        >> $HOME/.bashrc_moris
 echo 'export ZLIB_LIBRARY_DIR=$ZLIB_DIR/lib'                                   >> $HOME/.bashrc_moris 
 echo 'export SSL_LIBRARY_DIR=$SSL_DIR/lib'                                     >> $HOME/.bashrc_moris 
@@ -78,5 +82,6 @@ echo "export F77=$F77"                                                         >
 setenv GFORTLIB      `ldd $PETSC_DIR/lib/libpetsc.so | grep libgfortran | awk '{print $3}' | awk -F "/" '{print $NF}'`
 setenv GFORTLIB_PATH `ldd $PETSC_DIR/lib/libpetsc.so | grep libgfortran | awk '{print $3}' | awk -F libgfortran '{print $1}'`
 
+echo ""   
 echo "export GFORTLIB=$GFORTLIB"                                               >> $HOME/.bashrc_moris
 echo "export GFORTLIB_PATH=$GFORTLIB_PATH"                                     >> $HOME/.bashrc_moris
