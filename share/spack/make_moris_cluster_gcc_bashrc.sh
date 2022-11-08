@@ -17,9 +17,6 @@ setenv F77       `spack compiler info $SPACKCOMP | grep 'f77 =' | awk -F = '{pri
 setenv GCCLIB    `spack compiler info $SPACKCOMP | grep 'cc ='  | awk -F = '{split($2,a,"/bin/");print a[1]}'`
 setenv PETSC_DIR `spack location --install-dir petsc`
 
-echo $LOADEDMODULES | awk '{n=split($0,a,":"); for (i = 1; i <= n; i++) print "module load " a[i]  }' >> $HOME/.bashrc_moris
-echo ""                                                                        >> $HOME/.bashrc_moris
-
 echo "export MORISROOT=$WORKSPACE/moris"                                       >> $HOME/.bashrc_moris
 echo 'export MORISBUILDDBG=build_dbg'                                          >> $HOME/.bashrc_moris
 echo 'export MORISBUILDOPT=build_opt'                                          >> $HOME/.bashrc_moris
@@ -50,6 +47,7 @@ echo ""                                                                        >
 echo 'export ZLIB_LIBRARY_DIR=$ZLIB_DIR/lib'                                   >> $HOME/.bashrc_moris 
 echo 'export SSL_LIBRARY_DIR=$SSL_DIR/lib'                                     >> $HOME/.bashrc_moris 
 echo ""                                                                        >> $HOME/.bashrc_moris
+echo 'export PATH=$PATH/:$MORISROOT/share/scripts/'                            >> $HOME/.bashrc_moris 
 echo 'export PATH=$MPI_HOME/bin/:$PATH'                                        >> $HOME/.bashrc_moris 
 echo 'export PATH=$NETCDF_DIR/bin/:$PATH'                                      >> $HOME/.bashrc_moris 
 echo 'export PATH=$Trilinos_DIR/bin/:$PATH'                                    >> $HOME/.bashrc_moris 
