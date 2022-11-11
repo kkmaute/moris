@@ -558,6 +558,9 @@ namespace moris
                                 tMeshIndex );
                     }
 
+                    // compute number of queued elements across all processors
+                    tNumQueuedElements = sum_all( tNumQueuedElements );
+
                     MORIS_LOG_INFO( "Found %d elements for low level refinement.", tNumQueuedElements );
 
                     if ( tNumQueuedElements == 0 )
@@ -573,7 +576,6 @@ namespace moris
 
                     // FIXME should be removed such that loop is continued until all elements are refined
                 }
-
                 // check that all low level elements were refined
                 // MORIS_ERROR( tRefinedAllLowLevelElements,
                 //        "Refinement_Mini_Performer::perform_refinement_old - could not refine all low level elements." );
@@ -632,25 +634,34 @@ namespace moris
                 sint                         aMeshIndex )
         {
             uint tNumElements = 0;
+            
             // Loop over fields
             for ( uint Ik = 0; Ik < aPerformer->get_num_refinement_fields(); Ik++ )
             {
                 const moris::Matrix< DDSMat >& tLagrangeMeshIndices = aPerformer->get_refinement_mesh_indices( Ik );
 
-                // loop over tLagrangeMeshIndices // if aMeshIndex put in queue
+                // loop over tLagrangeMesh indices // if aMeshIndex put in queue
                 for ( uint Ii = 0; Ii < tLagrangeMeshIndices.numel(); Ii++ )
                 {
                     if ( tLagrangeMeshIndices( Ii ) == aMeshIndex )
                     {
                         // Loop over nodes and get field values
                         Matrix< DDRMat > tFieldValues( aMesh->get_num_nodes(), 1 );
+
                         for ( uint tNodeIndex = 0; tNodeIndex < aMesh->get_num_nodes(); tNodeIndex++ )
                         {
-                            tFieldValues( tNodeIndex ) = aPerformer->get_field_value( Ik, tNodeIndex, aMesh->get_node_coordinate( tNodeIndex ) );
+                            tFieldValues( tNodeIndex ) =
+                                    aPerformer->get_field_value(
+                                            Ik,
+                                            tNodeIndex,
+                                            aMesh->get_node_coordinate( tNodeIndex ) );
                         }
 
                         // Put elements on queue and set flag for refinement //FIXME this is untested for a refinement function,
-                        tNumElements += aHMR->based_on_field_put_low_level_elements_on_queue( tFieldValues, aMeshIndex, aPerformer->get_refinement_function_index( Ik, 0 ) );
+                        tNumElements += aHMR->based_on_field_put_low_level_elements_on_queue(
+                                tFieldValues,
+                                aMeshIndex,
+                                aPerformer->get_refinement_function_index( Ik, 0 ) );
                     }
                 }
             }
