@@ -601,77 +601,76 @@ namespace moris
                 tHMRDatabase->update_bspline_meshes();
                 tHMRDatabase->update_lagrange_meshes();
 
+                uint tCounter = 0;
+                while ( true )
                 {
-                    uint tCounter = 0;
-                    while ( true )
+                    sint tFirstDiscreteFieldIndex = 0;
+                    for ( uint Ikk = 0; Ikk < aSourceFields.size(); Ikk++ )
                     {
-                        sint tFirstDiscreteFieldIndex = 0;
-                        for ( uint Ikk = 0; Ikk < aSourceFields.size(); Ikk++ )
+                        if ( aSourceFields( Ikk )->get_field_is_discrete() )
                         {
-                            if ( aSourceFields( Ikk )->get_field_is_discrete() )
-                            {
-                                tFirstDiscreteFieldIndex = Ikk;
-                                break;
-                            }
-                        }
-
-                        uint tLagrangeOrder       = aSourceFields( tFirstDiscreteFieldIndex )->get_lagrange_order();
-                        uint tDiscretizationOrder = aSourceFields( tFirstDiscreteFieldIndex )->get_discretization_order();
-
-                        uint tPattern = mParameters.mRefinementPatternMode_1( Ik );
-
-                        // create mesh for this pattern
-                        hmr::Interpolation_Mesh_HMR* tInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
-                                tHMRDatabase,
-                                tLagrangeOrder,
-                                tPattern,
-                                tDiscretizationOrder,
-                                tPattern );
-
-                        mtk::Mesh_Pair tMeshPair( tInterpolationMesh, nullptr, true );
-
-                        Cell< std::shared_ptr< mtk::Field > > aTargetFields;
-
-                        this->map_fields(
-                                aSourceFields,
-                                aTargetFields,
-                                tMeshPair,
-                                tPattern,
-                                true );    // FIXME tPattern = DiscretizationMeshiondex
-
-                        // create refinement parameterlist
-                        moris::ParameterList tRefinementParameterlist;
-                        prm::create_refinement_parameterlist( tRefinementParameterlist );
-                        std::string tFieldNames = "";
-                        std::string tPatterns   = "";
-                        for ( uint Ii = 0; Ii < mParameters.mRefinementsFieldNames_1( Ik ).size(); Ii++ )
-                        {
-                            tFieldNames = tFieldNames + mParameters.mRefinementsFieldNames_1( Ik )( Ii ) + ",";
-                            tPatterns   = tPatterns + ios::stringify( tPattern ) + ";";
-                        }
-                        tFieldNames.pop_back();
-                        tPatterns.pop_back();
-                        tRefinementParameterlist.set( "field_names", tFieldNames );
-                        tRefinementParameterlist.set( "refinement_pattern", tPatterns );
-                        tRefinementParameterlist.set( "levels_of_refinement", "1" );
-                        tRefinementParameterlist.set( "refinement_function_name", mParameters.mRefinementFunction );
-
-                        // create refinement mini performer and perform refinement
-                        wrk::Refinement_Mini_Performer tRefinementMiniPerformer( tRefinementParameterlist, mLibrary );
-                        uint                           tRefinedElements = tRefinementMiniPerformer.perform_refinement_low_level_elements( aTargetFields, aHMRPerformer );
-
-                        uint tSumRefEle = sum_all( tRefinedElements );
-
-                        if ( tSumRefEle == 0 )
-                        {
+                            tFirstDiscreteFieldIndex = Ikk;
                             break;
                         }
-                        tHMRDatabase->get_background_mesh()->update_database();
-                        tHMRDatabase->update_bspline_meshes();
-                        tHMRDatabase->update_lagrange_meshes();
-
-                        tCounter++;
                     }
+
+                    uint tLagrangeOrder       = aSourceFields( tFirstDiscreteFieldIndex )->get_lagrange_order();
+                    uint tDiscretizationOrder = aSourceFields( tFirstDiscreteFieldIndex )->get_discretization_order();
+
+                    uint tPattern = mParameters.mRefinementPatternMode_1( Ik );
+
+                    // create mesh for this pattern
+                    hmr::Interpolation_Mesh_HMR* tInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
+                            tHMRDatabase,
+                            tLagrangeOrder,
+                            tPattern,
+                            tDiscretizationOrder,
+                            tPattern );
+
+                    mtk::Mesh_Pair tMeshPair( tInterpolationMesh, nullptr, true );
+
+                    Cell< std::shared_ptr< mtk::Field > > aTargetFields;
+
+                    this->map_fields(
+                            aSourceFields,
+                            aTargetFields,
+                            tMeshPair,
+                            tPattern,
+                            true );    // FIXME tPattern = DiscretizationMeshiondex
+
+                    // create refinement parameterlist
+                    moris::ParameterList tRefinementParameterlist;
+                    prm::create_refinement_parameterlist( tRefinementParameterlist );
+                    std::string tFieldNames = "";
+                    std::string tPatterns   = "";
+                    for ( uint Ii = 0; Ii < mParameters.mRefinementsFieldNames_1( Ik ).size(); Ii++ )
+                    {
+                        tFieldNames = tFieldNames + mParameters.mRefinementsFieldNames_1( Ik )( Ii ) + ",";
+                        tPatterns   = tPatterns + ios::stringify( tPattern ) + ";";
+                    }
+                    tFieldNames.pop_back();
+                    tPatterns.pop_back();
+                    tRefinementParameterlist.set( "field_names", tFieldNames );
+                    tRefinementParameterlist.set( "refinement_pattern", tPatterns );
+                    tRefinementParameterlist.set( "levels_of_refinement", "1" );
+                    tRefinementParameterlist.set( "refinement_function_name", mParameters.mRefinementFunction );
+
+                    // create refinement mini performer and perform refinement
+                    wrk::Refinement_Mini_Performer tRefinementMiniPerformer( tRefinementParameterlist, mLibrary );
+
+                    uint tRefinedElements = tRefinementMiniPerformer.perform_refinement_low_level_elements( aTargetFields, aHMRPerformer );
+
+                    uint tSumRefEle = sum_all( tRefinedElements );
+
+                    if ( tSumRefEle == 0 )
+                    {
+                        break;
+                    }
+                    tHMRDatabase->get_background_mesh()->update_database();
+                    tHMRDatabase->update_bspline_meshes();
+                    tHMRDatabase->update_lagrange_meshes();
+
+                    tCounter++;
                 }
             }
         }
@@ -999,4 +998,3 @@ namespace moris
 
     }    // namespace wrk
 }    // namespace moris
-
