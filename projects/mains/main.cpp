@@ -5,7 +5,7 @@
  *------------------------------------------------------------------------------------
  *
  * main.cpp
- * 
+ *
  */
 
 #include <iostream>
@@ -37,8 +37,20 @@ moris_pause( int& argc, char* argv[] )
         // user requests delayed start
         if ( std::string( argv[ k ] ) == "--pause" || std::string( argv[ k ] ) == "-p" )
         {
+            // communicate process ids
+            pid_t tPId = getpid();
+
+            Matrix< DDSMat > tPIdVec;
+            comm_gather_and_broadcast( tPId, tPIdVec );
+
             if ( par_rank() == 0 )
             {
+                // print process Ids
+                for ( int i = 0; i < par_size(); ++i )
+                {
+                    fprintf( stderr, "Process Rank %d ID: %d\n", i, tPIdVec( i ) );
+                }
+
                 std::string dummy;
 
                 std::cout << "Press enter to continue . . .\n"
