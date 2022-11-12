@@ -41,12 +41,17 @@ namespace moris
         bool mWriteToAscii = false;
 
         /**
-         * @brief Variable to control with processor write logger information to screen
+         * @brief Variable to control which processor writes logger information to screen
          */
         int mOutputRank = 0;
 
         // decide which outputs get written
-        moris::sint mSeverityLevel = LOGGER_DEFAULT_SEVERITY_LEVEL;
+        sint mSeverityLevel = LOGGER_DEFAULT_SEVERITY_LEVEL;
+
+        /**
+         * @brief Variable to control level of memory reporting
+         */
+        sint mMemoryOutput = 1;
 
         /**
          * Output formating mode for console output:
@@ -67,6 +72,14 @@ namespace moris
             int tProcRank;
             MPI_Comm_rank( MPI_COMM_WORLD, &tProcRank );
             return tProcRank;
+        }
+
+        inline real
+        logger_sum_all( real& aLocalInput )
+        {
+            real aGlobalMax;
+            MPI_Allreduce( &aLocalInput, &aGlobalMax, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD );
+            return aGlobalMax;
         }
 
         inline real
@@ -151,11 +164,20 @@ namespace moris
         {
             mSeverityLevel = aSeverityLevel;
 
+            // determine memory usage
+            std::string tMemUsage = this->memory_usage();
+
             // log start of Global Clock to console - only processor mOutputRank prints message
             if ( logger_par_rank() == mOutputRank )
             {
                 std::cout << "Global Clock Initialized ... \n"
                           << std::flush;
+
+                if ( mMemoryOutput > 0 )
+                {
+                    std::cout << tMemUsage << std::endl
+                              << std::flush;
+                }
             }
         };
 
@@ -188,11 +210,20 @@ namespace moris
                 this->log_to_file( "SignIn", 1.0 );
             }
 
+            // determine memory usage
+            std::string tMemUsage = this->memory_usage();
+
             // log start of Global Clock to console - only processor mOutputRank prints message
             if ( logger_par_rank() == mOutputRank )
             {
                 std::cout << "Global Clock Initialized ... \n"
                           << std::flush;
+
+                if ( mMemoryOutput > 0 )
+                {
+                    std::cout << tMemUsage << std::endl
+                              << std::flush;
+                }
             }
         };
 
@@ -265,7 +296,7 @@ namespace moris
                 // switch based on OutputFormat provided
                 if ( mDirectOutputFormat == 3 )
                 {
-                    std::cout << print_empty_line( mGlobalClock.mIndentationLevel ) << "_"
+                    std::cout << print_empty_line( mGlobalClock.mIndentationLevel ) << "_"    //
                               << "Log: " << tString << " \n";
                 }
                 else if ( mDirectOutputFormat == 1 )
@@ -297,12 +328,16 @@ namespace moris
                     // check if Entity Type has been specified, if not use entity base for printing
                     if ( mGlobalClock.mCurrentType[ mGlobalClock.mIndentationLevel ] == LOGGER_NON_SPECIFIC_ENTITY_TYPE )
                     {
-                        std::cout << print_empty_line( mGlobalClock.mIndentationLevel ) << "_" << mGlobalClock.mCurrentEntity[ mGlobalClock.mIndentationLevel ] << " - " << tString << " \n"
+                        std::cout << print_empty_line( mGlobalClock.mIndentationLevel ) << "_"                 //
+                                  << mGlobalClock.mCurrentEntity[ mGlobalClock.mIndentationLevel ] << " - "    //
+                                  << tString << " \n"
                                   << std::flush;
                     }
                     else    // if yes use use entity type for printing
                     {
-                        std::cout << print_empty_line( mGlobalClock.mIndentationLevel ) << "_" << mGlobalClock.mCurrentType[ mGlobalClock.mIndentationLevel ] << " - " << tString << " \n"
+                        std::cout << print_empty_line( mGlobalClock.mIndentationLevel ) << "_"               //
+                                  << mGlobalClock.mCurrentType[ mGlobalClock.mIndentationLevel ] << " - "    //
+                                  << tString << " \n"
                                   << std::flush;
                     }
                 }
@@ -545,6 +580,11 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        // for logging memory usage
+        std::string memory_usage();
+
+        //------------------------------------------------------------------------------
+
         // write logged info to formated file
         template< class T >
         void
@@ -735,4 +775,3 @@ extern moris::Logger gLogger;
     } while ( false )
 
 #endif /* MORIS_IOS_CL_LOGGER_HPP_ */
-
