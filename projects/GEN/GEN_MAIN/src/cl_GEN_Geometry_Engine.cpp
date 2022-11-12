@@ -133,14 +133,18 @@ namespace moris
                     mLibrary );
 
             // Get intersection mode
-            std::string                           tIntersectionModeString = aParameterLists( 0 )( 0 ).get< std::string >( "intersection_mode" );
-            map< std::string, Intersection_Mode > tIntersectionModeMap    = get_intersection_mode_map();
-            mIntersectionMode                                             = tIntersectionModeMap[ tIntersectionModeString ];
+            std::string tIntersectionModeString = aParameterLists( 0 )( 0 ).get< std::string >( "intersection_mode" );
+
+            map< std::string, Intersection_Mode > tIntersectionModeMap = get_intersection_mode_map();
+
+            mIntersectionMode = tIntersectionModeMap[ tIntersectionModeString ];
 
             // Set requested PDVs
-            Cell< std::string >          tRequestedPdvNames = string_to_cell< std::string >( aParameterLists( 0 )( 0 ).get< std::string >( "PDV_types" ) );
-            Cell< PDV_Type >             tRequestedPdvTypes( tRequestedPdvNames.size() );
+            Cell< std::string > tRequestedPdvNames = string_to_cell< std::string >( aParameterLists( 0 )( 0 ).get< std::string >( "PDV_types" ) );
+            Cell< PDV_Type >    tRequestedPdvTypes( tRequestedPdvNames.size() );
+
             map< std::string, PDV_Type > tPdvTypeMap = get_pdv_type_map();
+
             for ( uint tPdvTypeIndex = 0; tPdvTypeIndex < tRequestedPdvTypes.size(); tPdvTypeIndex++ )
             {
                 tRequestedPdvTypes( tPdvTypeIndex ) = tPdvTypeMap[ tRequestedPdvNames( tPdvTypeIndex ) ];
@@ -2654,4 +2658,3 @@ namespace moris
 
     }    // namespace ge
 }    // namespace moris
-
