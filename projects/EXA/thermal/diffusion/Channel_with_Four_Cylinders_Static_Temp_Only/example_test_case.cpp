@@ -258,7 +258,7 @@ void check_linear_results_parallel()
     }
 
     // check results
-    uint tNodeId = 1117;
+    uint tNodeId = 3519;
 
     check_linear_results(tExoIO,tNodeId);
 }
@@ -338,7 +338,7 @@ void check_quadratic_results_parallel()
     }
 
     // check results
-    uint tNodeId = 5332;
+    uint tNodeId = 12034;
 
     check_quadratic_results(tExoIO,tNodeId);
 }

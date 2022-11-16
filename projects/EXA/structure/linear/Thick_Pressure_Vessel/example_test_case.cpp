@@ -46,7 +46,7 @@ void check_results(
     moris::mtk::Exodus_IO_Helper tExoIO(aExoFileName.c_str(),0,false,false);
 
     // define reference node IDs
-    Cell<uint> tReferenceNodeId  = {11319,4070,1658,584,584};
+    Cell< uint > tReferenceNodeId = { 11319, 8550, 1658, 3250, 3250 };
 
     if (gPrintReferenceValues)
     {
