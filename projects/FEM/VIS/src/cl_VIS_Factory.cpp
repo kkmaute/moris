@@ -84,6 +84,19 @@ namespace moris
             moris_index tVertexIndexCounter = 0;
             moris_id tVertexIdCounter = 0;
 
+            // sum up number of  vertices on every processor
+            tVertexIdCounter = std::accumulate( tRequestedSetNames.begin(), tRequestedSetNames.end(), tVertexIdCounter,    //
+                    [ & ]( moris_id const & aVertexIdCounter, std::string const & aSetName ) -> moris_id {
+                        
+                        // add number of the vertices of the set to the current one
+                        return aVertexIdCounter
+                             + tIntegrationMesh->get_set_by_name( aSetName )->get_num_vertices_on_set( mOnlyPrimaryCells );
+                    } );
+
+            // update the id for each processor
+            tVertexIdCounter = get_processor_offset( tVertexIdCounter );
+
+            // get the max number of vertices 
             uint tMaxVertexInd = tIntegrationMesh->get_num_entities( EntityRank::NODE );
 
             // loop over all requested sets
@@ -140,6 +153,18 @@ namespace moris
             // define cell id and index counter
             moris_index tCellIndexCounter = 0;
             moris_id    tCellIdCounter    = 0;
+
+            // sum up number of  vertices on every processor
+            tCellIdCounter = std::accumulate( tRequestedSetNames.begin(), tRequestedSetNames.end(), tCellIdCounter,    //
+                    [ & ]( moris_id const & aCellIdCounter, std::string const & aSetName ) -> moris_id {
+                        
+                        // add number of the vertices of the set to the current one
+                        return aCellIdCounter
+                             + tIntegrationMesh->get_set_by_name( aSetName )->get_num_cells_on_set( mOnlyPrimaryCells );
+                    } );
+
+            // update the id for each processor
+            tCellIdCounter = get_processor_offset( tCellIdCounter );
 
             // loop over all requested sets
             for( uint Ij = 0; Ij <mNumRequestedSets; Ij++ )
