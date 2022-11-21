@@ -20,9 +20,13 @@ list(APPEND MORIS_SOURCE_DIRS ${SOL}/${DLA})
 
 # Include libraries needed by DLA
 set(DLA_TPL_DEPENDENCIES
-	"PETSc"
     "mpi"
     )
+
+# Include petsc if used
+if(${MORIS_HAVE_PETSC})
+    list(APPEND DLA_TPL_DEPENDENCIES "PETSc")
+endif()
 
 # Make sure needed moris libraries are built
 include(${MORIS_DEPENDS_DIR}/LINALG_Depends.cmake)

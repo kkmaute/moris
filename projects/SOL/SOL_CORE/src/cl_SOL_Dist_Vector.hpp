@@ -29,10 +29,12 @@
 #include "EpetraExt_MultiVectorOut.h"
 #include <EpetraExt_HDF5.h>
 
+#ifdef MORIS_HAVE_PETSC
 #include <petsc.h>
 #include <petscis.h>
 #include <petscao.h>
 #include <petscsys.h>
+#endif
 
 #include "cl_SOL_Enums.hpp"
 
@@ -239,4 +241,3 @@ namespace moris
     }    // namespace sol
 }    // namespace moris
 #endif /* SRC_DISTLINALG_CL_VECTOR_HPP_ */
-

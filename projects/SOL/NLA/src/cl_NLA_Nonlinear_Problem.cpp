@@ -100,8 +100,12 @@ Nonlinear_Problem::Nonlinear_Problem(
 
     if ( mMapType == sol::MapType::Petsc )
     {
+#ifdef MORIS_HAVE_PETSC
         // Initialize petsc solvers
         PetscInitializeNoArguments();
+#else
+        MORIS_ERROR( false, "MORIS is configured with out PETSC support." );
+#endif
     }
 
     // Build Matrix vector factory
@@ -167,7 +171,11 @@ Nonlinear_Problem::~Nonlinear_Problem()
     {
         if ( mMapType == sol::MapType::Petsc )
         {
+#ifdef MORIS_HAVE_PETSC
             PetscFinalize();
+#else
+            MORIS_ERROR( false, "MORIS is configured with out PETSC support." );
+#endif
         }
     }
 }

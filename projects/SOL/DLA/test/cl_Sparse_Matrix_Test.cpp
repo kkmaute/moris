@@ -19,7 +19,10 @@
 #include "cl_Solver_Interface_Proxy.hpp"       // DLA/src/
 #include "cl_SOL_Dist_Vector.hpp"              // DLA/src/
 #include "cl_SOL_Dist_Matrix.hpp"              // DLA/src/
-#include "cl_MatrixPETSc.hpp"                  // DLA/src/
+
+#ifdef MORIS_HAVE_PETSC
+#include "cl_MatrixPETSc.hpp"    // DLA/src/
+#endif
 
 namespace moris
 {
@@ -291,6 +294,7 @@ namespace moris
             }
         }
 
+#ifdef MORIS_HAVE_PETSC
         TEST_CASE( "Get Matrix Values", "[Get_Matrix_Values],[DistLinAlg]" )
         {
             // Determine process rank
@@ -336,6 +340,7 @@ namespace moris
                 PetscFinalize();
             }
         }
+#endif
 
         TEST_CASE( "Non-square matrix", "[Non-square matrix],[DistLinAlg]" )
         {
