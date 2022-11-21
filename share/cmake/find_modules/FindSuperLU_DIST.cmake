@@ -33,7 +33,8 @@ find_library(SUPERLU_DIST_LIBRARIES
     lib64 )
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(SUPERLU_DIST DEFAULT_MSG SUPERLU_DIST_LIBRARIES)
+find_package_handle_standard_args(SuperLU_DIST DEFAULT_MSG 
+                                  SUPERLU_DIST_LIBRARIES)
 
 mark_as_advanced(SUPERLU_DIST_LIBRARIES)
 
