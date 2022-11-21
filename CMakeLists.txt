@@ -177,11 +177,20 @@ option(MORIS_USE_ACML
 option(MORIS_USE_OPENBLAS
     "Use the open blas library as the linear algebra package." ON )
 
+option(MORIS_USE_LAPACK
+    "Use the lapack library as the linear algebra package." OFF )
+
 option(MORIS_USE_MKL
     "Use the Inel Math kernel library as the linear algebra package." OFF )
 
-option(MORIS_USE_LAPACK
-    "Use the LAPACK and LAPACK as the linear algebra packages." OFF )
+option(MORIS_USE_PARDISO
+    "Build MORIS with PARDISO used in Trilinos." ON )
+
+option(MORIS_HAVE_TRILINOS_OLD
+    "Build MORIS with support for old Trilinos version." OFF )
+    
+option(MORIS_HAVE_PETSC
+    "Build MORIS with support for PETSC." ON )
 
 option(MORIS_HAVE_GCMMA
     "Build MORIS with support for GCMMA." ON )
@@ -192,9 +201,6 @@ option(MORIS_HAVE_SNOPT
 option(MORIS_HAVE_LBFGS
     "Build MORIS with support for LBFGS." ON )
 
-option(MORIS_HAVE_TRILINOS_OLD
-    "Build MORIS with support for old Trilinos version." OFF )
-    
 # option(MORIS_HAVE_PERF_MAT
 #     "Run matrix performance tests." OFF )
 #     
@@ -548,22 +554,6 @@ endif()
 
 
 # Add some strict compiler checks.
-# -pedantic-errors     Make all pedantic warnings into errors. -pedantic issues 
-#                      all the warnings demanded by strict ISO C and ISO C++.
-# -Wall                This enables all the warnings about constructions 
-#                      that some users consider questionable, and
-#                      that are easy to avoid (or modify to prevent the warning),
-#                      even in conjunction with macros.
-#                      However, it does not enable all warnings available.
-# -Werror              Make all warnings into errors.
-# -Wconversion         Give warning if conversion between data types occurs.
-# -Wno-long-long       Do not issue a warning if a long long variable type is used.
-# -Wno-error=maybe-uninitialized
-#                      Do not issue an error if a maybe-uninitialized warning is thrown
-# -fno-strict-aliasing Do not enforce strict aliasing.
-#                      Strict aliasing means that pointer arguments in a function are assumed to not alias.
-#                      For example, the following code would not compile: foo * a; bar * b; b = (foo *) a;
-#                      Because the pointers point to fundamentally different types.
 check_cxx_compiler_flag("-pedantic" HAVE_PEDANTIC )
 if (HAVE_PEDANTIC)
     set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -pedantic" )
@@ -584,21 +574,11 @@ check_cxx_compiler_flag("-Werror" HAVE_PEDANTIC )
 if (HAVE_PEDANTIC)
     set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Werror" )
 endif()
-check_cxx_compiler_flag("-Wno-unknown-pragmas" HAVE_PEDANTIC )
-if (HAVE_PEDANTIC)
-# set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wno-unknown-pragmas" )
-endif()
+
+# Define exceptions to strict error checking
 check_cxx_compiler_flag("-Wno-unused-parameter" HAVE_PEDANTIC )
 if (HAVE_PEDANTIC)
     set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wno-unused-parameter" )
-endif()
-check_cxx_compiler_flag("-Wno-long-long" HAVE_PEDANTIC )
-if (HAVE_PEDANTIC)
-#    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wno-long-long" )
-endif()
-check_cxx_compiler_flag("-Wno-error=maybe-uninitialized" HAVE_PEDANTIC )
-if (HAVE_PEDANTIC)
-#    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wno-error=maybe-uninitialized" )
 endif()
 
 # Check for C++17 and lower version support.
@@ -716,13 +696,13 @@ endif()
 
 if (MORIS_USE_OPENBLAS)
     IF (MORIS_USE_MKL OR MORIS_USE_ACML OR MORIS_USE_LAPACK)
-        message(FATAL_ERROR "Use either MKL or ACML")
+        message(FATAL_ERROR "Use either MKL or ACML, OPENBLAS, LAPACK")
     endif()
 endif()
 
 if (MORIS_USE_LAPACK)
     IF (MORIS_USE_MKL OR MORIS_USE_ACML OR MORIS_USE_OPENBLAS)
-        message(FATAL_ERROR "Use either LAPACK or ACML")
+        message(FATAL_ERROR "Use either MKL or ACML, OPENBLAS, LAPACK")
     endif()
 endif()
 
@@ -746,15 +726,24 @@ if (MORIS_USE_32BIT)
     list(APPEND MORIS_DEFINITIONS "-DMORIS_USE_32BIT")
 endif()
 
+# -------------------------------------------------------------------------
+# PETSC -----------=-------------------------------------------------------
+# -------------------------------------------------------------------------
+
+if (MORIS_HAVE_PETSC)
+    list(APPEND MORIS_DEFINITIONS "-DMORIS_HAVE_PETSC")
+endif()
 
 # -------------------------------------------------------------------------
-# Armadillo ---------------------------------------------------------------
+# Armadillo / Eigen -------------------------------------------------------
 # -------------------------------------------------------------------------
 
 if (MORIS_USE_ARMA AND MORIS_USE_EIGEN)
     message(FATAL_ERROR "Can only set MORIS_USE_EIGEN or MORIS_USE_ARMA; not both" )
 endif()
+
 set(ARMADILLO_EIGEN)
+
 if (MORIS_USE_ARMA)
     list(APPEND ARMADILLO_EIGEN "armadillo")
     list(APPEND MORIS_DEFINITIONS "-DMORIS_USE_ARMA")
