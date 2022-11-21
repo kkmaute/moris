@@ -83,6 +83,9 @@ namespace moris
             else
             {
                 tM = tPropSelect->val();
+
+                // skip computing residual if projection matrix is zero
+                if ( norm( tM ) < MORIS_REAL_EPS ) return;
             }
 
             // get the imposed displacement property
@@ -155,6 +158,9 @@ namespace moris
             else
             {
                 tM = tPropSelect->val();
+
+                // skip computing Jacobian if projection matrix is null
+                if ( norm( tM ) < MORIS_REAL_EPS ) return;
             }
 
             // get the imposed displacement property
