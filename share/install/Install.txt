@@ -115,6 +115,7 @@ git clone git@github.com:kkmaute/moris
 *------------------------------------------------------------
 
 * add moris specific packages to spack; ignore warnings
+* note: you may have to add "dummy" after "--skip-editor"
 
 spack create --name gcmma --skip-editor
 spack create --name lbfgs --skip-editor
