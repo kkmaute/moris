@@ -32,6 +32,7 @@ fn_find_unique.hpp
 fn_find.hpp
 fn_histc.hpp
 fn_interp1.hpp
+fn_intersect.hpp
 fn_inv.hpp
 fn_iscol.hpp
 fn_isempty.hpp
@@ -153,6 +154,7 @@ Arma_Impl/fn_find_Arma.hpp
 Arma_Impl/fn_find_unique_Arma.hpp
 Arma_Impl/fn_histc_Arma.hpp
 Arma_Impl/fn_interp1_Arma.hpp
+Arma_Impl/fn_intersect_Arma.hpp
 Arma_Impl/fn_inv_Arma.hpp
 Arma_Impl/fn_iscol_Arma.hpp
 Arma_Impl/fn_isempty_Arma.hpp
@@ -282,4 +284,3 @@ install(TARGETS ${LINALG}-lib
 # Export library into *Targets file
 install(EXPORT ${LINALG}Targets
     DESTINATION ${${LINALG}_CONFIG_INSTALL_DIR} )
-

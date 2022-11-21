@@ -28,6 +28,7 @@ set(TEST_SOURCES
     fn_find_unique.cpp
     fn_find.cpp
     fn_histc.cpp
+    fn_intersect.cpp
     fn_inv.cpp
     fn_iscol.cpp
     fn_isempty.cpp
