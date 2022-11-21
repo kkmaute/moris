@@ -20,12 +20,17 @@ set(HEADERS
     cl_SOL_Dist_Map.hpp
     cl_Communicator_Epetra.hpp
 	cl_Map_Epetra.hpp
-    cl_Map_PETSc.hpp
-    cl_MatrixPETSc.hpp
     cl_Sparse_Matrix_EpetraFECrs.hpp
     cl_Vector_Epetra.hpp
-        cl_Vector_PETSc.hpp
-        cl_SOL_Enums.hpp)
+    cl_SOL_Enums.hpp)
+
+if (${MORIS_HAVE_PETSC})
+list( APPEND HEADERS
+    "cl_Map_PETSc.hpp"
+    "cl_MatrixPETSc.hpp"
+    "cl_Vector_PETSc.hpp"
+    )
+endif()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Sol Core Library
@@ -37,12 +42,17 @@ set(LIB_SOURCES
 	cl_SOL_Dist_Vector.cpp
     cl_Communicator_Epetra.cpp
     cl_Map_Epetra.cpp
-    cl_Map_PETSc.cpp
-    cl_MatrixPETSc.cpp
     cl_Sparse_Matrix_EpetraFECrs.cpp
     cl_Vector_Epetra.cpp
-        cl_Vector_PETSc.cpp
- )
+)
+
+if (${MORIS_HAVE_PETSC})
+list( APPEND LIB_SOURCES
+    "cl_Map_PETSc.cpp"
+    "cl_MatrixPETSc.cpp"
+    "cl_Vector_PETSc.cpp"
+    )
+endif()
 
 # List library dependencies
 set(LIB_DEPENDENCIES
