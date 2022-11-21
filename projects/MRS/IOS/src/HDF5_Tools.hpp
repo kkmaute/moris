@@ -475,6 +475,174 @@ namespace moris
         // check for error
         MORIS_ASSERT( aStatus == 0, "Error in HDF5 load_matrix_from_hdf5_file()" );
     }
+
+    //------------------------------------------------------------------------------
+
+    /**
+     * unpacks a std::vector and stores it into the file
+     * file must be open - used for plato integration do not remove
+     *
+     * @param[ inout ] aFileID  handler to hdf5 file
+     * @param[ in ]    aLabel   label of vector to save
+     * @param[ in ]    aVector  vector that is to be stored
+     * @param[ in ]    aStatus  error handler
+     *
+     * see also
+     * https://support.hdfgroup.org/ftp/HDF5/examples/misc-examples/
+     */
+    template < typename T >
+    void
+    save_vector_to_hdf5_file(
+            hid_t               & aFileID,
+            const std::string   & aLabel,
+            const std::vector< T >   & aVector,
+            herr_t              & aStatus )
+    {
+        // check datatype
+        MORIS_ASSERT(  test_size_of_datatype( ( T ) 0 ), "Sizes of MORIS data type and HDF5 data type do not match." );
+
+        // test if dataset exists
+        if ( dataset_exists( aFileID, aLabel ) )
+        {
+            // create message
+            std::string tMessage = "The dataset " + aLabel + " can not be created because it already exist.";
+
+            //MORIS_ERROR( false, tMessage.c_str() );
+        }
+
+        // get dimensions from vector
+        hsize_t tSize = aVector.size();
+
+        // create data space
+        hid_t  tDataSpace = H5Screate_simple( 1, &tSize, NULL);
+
+        // select data type for vector to save
+        hid_t tDataType = H5Tcopy( get_hdf5_datatype( ( T ) 0 ) );
+
+        // set data type to little endian
+        aStatus = H5Tset_order( tDataType, H5T_ORDER_LE );
+        hid_t tDataSet = 0;
+
+        // create new dataset
+        tDataSet = H5Dcreate(
+                aFileID,
+                aLabel.c_str(),
+                tDataType,
+                tDataSpace,
+                H5P_DEFAULT,
+                H5P_DEFAULT,
+                H5P_DEFAULT );
+
+        // test if vector is not empty
+        if( tSize > 0 )
+        {
+            // write data into dataset
+            aStatus = H5Dwrite(
+                    tDataSet,
+                    tDataType,
+                    H5S_ALL,
+                    H5S_ALL,
+                    H5P_DEFAULT,
+                    aVector.data());
+        }
+
+        // close open hids
+        H5Sclose( tDataSpace );
+        H5Tclose( tDataType );
+        H5Dclose( tDataSet );
+
+        // check for error
+        MORIS_ASSERT( aStatus == 0, "Error in HDF5 save_vector_to_hdf5_file()" );
+    }
+
+    //------------------------------------------------------------------------------
+
+    /**
+     * unpacks a std::vector and stores it into the file
+     * file must be open
+     *
+     * @param[ inout ] aFileID  handler to hdf5 file
+     * @param[ in ]    aLabel   label of vector to save
+     * @param[ out ]    aVector   vector that is to be loaded
+     * @param[ in ]    aStatus  error handler
+     *
+     * see also
+     * https://support.hdfgroup.org/ftp/HDF5/examples/misc-examples/
+     */
+    template < typename T >
+    void
+    load_vector_from_hdf5_file(
+            hid_t               & aFileID,
+            const std::string   & aLabel,
+            std::vector< T >    & aVector,
+            herr_t              & aStatus )
+    {
+        // check datatype
+        MORIS_ASSERT(  test_size_of_datatype( (T) 0 ), "Sizes of MORIS data type and HDF5 data type do not match." );
+
+        // test if dataset exists
+        if ( ! dataset_exists( aFileID, aLabel ) )
+        {
+            std::ostringstream tErrorMessage;
+            tErrorMessage << "\n\n************** ERROR IN FILE: " << __FILE__ << ", FUNCTION: " << __PRETTY_FUNCTION__
+                    << ", LINE: " << __LINE__
+                    << ", MESSAGE: The dataset " + aLabel + " can not be opened because it does not exist.";
+            throw std::runtime_error(tErrorMessage.str().c_str());
+        }
+
+        // open the data set
+        hid_t tDataSet = H5Dopen1( aFileID, aLabel.c_str() );
+
+        // get the data type of the set
+        hid_t tDataType = H5Dget_type( tDataSet );
+
+        // make sure that datatype fits to type of vector
+        if ( H5Tget_class( tDataType ) !=  H5Tget_class( get_hdf5_datatype( ( T ) 0 ) ) )
+        {
+            std::string tMessage = "ERROR in reading from file: vector "
+                    + aLabel + " has the wrong datatype.\n";
+
+            MORIS_ERROR( false, tMessage.c_str() );
+        }
+
+        // get handler to dataspace
+        hid_t tDataSpace = H5Dget_space( tDataSet );
+
+        // vector dimensions
+        hsize_t tDims[ 1 ];
+
+        // ask hdf for dimensions
+        aStatus  = H5Sget_simple_extent_dims( tDataSpace, tDims, NULL);
+
+        // allocate memory for output
+        aVector.resize( tDims[0] );
+
+        // test if vector is not empty
+        if( tDims[ 0 ] > 0 )
+        {
+            // read data from file
+            aStatus = H5Dread(
+                    tDataSet,
+                    tDataType,
+                    H5S_ALL,
+                    H5S_ALL,
+                    H5P_DEFAULT,
+                    aVector.data() );
+        }
+        else if( aStatus == 2 )
+        {
+            // all good, reset status
+            aStatus = 0;
+        }
+        // Close/release resources
+        H5Tclose( tDataType );
+        H5Dclose( tDataSet );
+        H5Sclose( tDataSpace );
+
+        // check for error
+        MORIS_ASSERT( aStatus == 0, "Error in HDF5 load_vector_from_hdf5_file()" );
+    }
+
     //------------------------------------------------------------------------------
 
     /**
