@@ -233,6 +233,7 @@ namespace moris
             }
         }
 
+#ifdef MORIS_HAVE_PETSC
         TEST_CASE( "Linear System PETSc", "[Linear Solver],[DistLinAlg][Linear_System_Petsc]" )
         {
             if ( par_size() == 4 )
@@ -312,5 +313,6 @@ namespace moris
                 delete ( tSolverInterface );
             }
         }
+#endif
     }    // namespace dla
 }    // namespace moris
