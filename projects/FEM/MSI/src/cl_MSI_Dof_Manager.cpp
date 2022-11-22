@@ -1042,7 +1042,6 @@ namespace moris
             }
 
             Matrix< DDSMat > tLocalAdofIds( tCounter, 1, -1 );
-            // Matrix< DDSMat > tLocalAdofIds ( mNumOwnedAdofs, 1, -1 );
 
             tCounter = 0;
 
@@ -1085,7 +1084,8 @@ namespace moris
                     tLocalAdofIds( Ij, 0 ) = mAdofList( Ij )->get_adof_id();
                 }
 
-                MORIS_ASSERT( tLocalAdofIds.min() != -1, "Dof_Manager::get_local_overlapping_adof_ids(): Overlapping Adof Id list not initialized correctly " );
+                MORIS_ASSERT( tLocalAdofIds.min() != -1,
+                        "Dof_Manager::get_local_overlapping_adof_ids(): Overlapping Adof Id list not initialized correctly " );
             }
             return tLocalAdofIds;
         }
@@ -1112,7 +1112,6 @@ namespace moris
             }
 
             Matrix< DDSMat > tLocalAdofIds( tCounter, 1, -1 );
-            // Matrix< DDSMat > tLocalAdofIds ( mNumOwnedAdofs, 1, -1 );
 
             tCounter = 0;
 
@@ -1132,9 +1131,6 @@ namespace moris
                     }
                 }
             }
-
-            // Matrix< DDSMat > tLocalAdofIdsSorted;
-            // sort( tLocalAdofIds, tLocalAdofIdsSorted);
 
             return tLocalAdofIds;
         }
@@ -1194,4 +1190,3 @@ namespace moris
         }
     }    // namespace MSI
 }    // namespace moris
-
