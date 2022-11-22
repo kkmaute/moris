@@ -37,13 +37,27 @@ namespace moris
         sol::Dist_Vector*
         Design_Variable_Interface::get_dQIdp()
         {
-            MORIS_ASSERT( mModel != nullptr,
-                    "Design_Variable_Interface::get_dQIdp - mModel has not been set." );
+            if ( !mdQIdpImported )
+            {
+                MORIS_ASSERT( mModel != nullptr,
+                        "Design_Variable_Interface::get_dQIdp - mModel has not been set." );
 
-            return mModel->get_dQIdp();
+                return mModel->get_dQIdp();
+            }
+            else
+            {
+                return mdQIdp;
+            }
         }
 
         //------------------------------------------------------------------------------
+
+        void
+        Design_Variable_Interface::set_dQIdp_dist_vect( sol::Dist_Vector* adQIdp )
+        {
+            mdQIdpImported = true;
+            mdQIdp         = adQIdp;
+        }
 
     }    // namespace MSI
 }    // namespace moris

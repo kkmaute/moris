@@ -34,6 +34,7 @@ include_directories(${MORIS_PACKAGE_DIR}/WRK/src)
 set(HEADERS
 
 	cl_GEN_Geometry_Engine.hpp
+	cl_GEN_Geometric_Query_Interface.hpp
 	cl_GEN_Phase_Table.hpp
 	cl_GEN_Geometric_Proximity.hpp
     st_GEN_Geometry_Engine_Parameters.hpp
@@ -63,7 +64,7 @@ set(HEADERS
 	field/geometry/cl_GEN_Swiss_Cheese_Slice.hpp
 	field/geometry/fn_GEN_create_geometries.hpp
     field/geometry/st_GEN_Geometry_Parameters.hpp
-    
+
 
 	field/property/cl_GEN_Property.hpp
 	field/property/cl_GEN_Constant_Property.hpp

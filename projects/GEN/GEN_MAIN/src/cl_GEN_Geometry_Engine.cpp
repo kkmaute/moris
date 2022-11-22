@@ -248,6 +248,27 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        void
+        Geometry_Engine::set_phase_function(
+                PHASE_FUNCTION      aPhaseFunction,
+                uint                aNumPhases,
+                Cell< std::string > aPhaseNames )
+        {
+            mPhaseTable.set_phase_function( aPhaseFunction, aNumPhases, aPhaseNames );
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void
+        Geometry_Engine::set_dQIdp(
+                moris::Cell< moris::Matrix< DDRMat >* > adQIdp,
+                moris::Matrix< moris::DDSMat >*         aMap )
+        {
+            mPDVHostManager.set_dQIdp( adQIdp, aMap );
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         Matrix< IdMat >&
         Geometry_Engine::get_IjklIDs()
         {
@@ -1229,7 +1250,8 @@ namespace moris
         void
         Geometry_Engine::distribute_advs(
                 mtk::Mesh_Pair                               aMeshPair,
-                moris::Cell< std::shared_ptr< mtk::Field > > aFields )
+                moris::Cell< std::shared_ptr< mtk::Field > > aFields,
+                enum EntityRank                              aADVEntityRank )
         {
             // Tracer
             Tracer tTracer( "GEN", "Distribute ADVs" );
@@ -1430,7 +1452,7 @@ namespace moris
                         sint tADVId = tOffsetID
                                     + tMesh->get_glb_entity_id_from_entity_loc_index(
                                             tOwnedCoefficients( tOwnedCoefficient ),
-                                            EntityRank::BSPLINE,
+                                            aADVEntityRank,
                                             tDiscretizationMeshIndex );
 
                         MORIS_ASSERT( tADVId - tOffsetID == tAllCoefIds( tOwnedCoefficients( tOwnedCoefficient ) ), "check if this is a problem" );
@@ -1455,7 +1477,7 @@ namespace moris
                         sint tADVId = tOffsetID
                                     + tMesh->get_glb_entity_id_from_entity_loc_index(
                                             tSharedCoefficients( tSharedCoefficient ),
-                                            EntityRank::BSPLINE,
+                                            aADVEntityRank,
                                             tDiscretizationMeshIndex );
 
                         MORIS_ASSERT( tADVId - tOffsetID == tAllCoefIds( tSharedCoefficients( tSharedCoefficient ) ), "check if this is a problem" );
@@ -1466,7 +1488,7 @@ namespace moris
 
                     // Update offset based on maximum ID
                     tAllOffsetIDs( tFieldIndex ) = tOffsetID;
-                    tOffsetID += tMesh->get_max_entity_id( EntityRank::BSPLINE, tDiscretizationMeshIndex );
+                    tOffsetID += tMesh->get_max_entity_id( aADVEntityRank, tDiscretizationMeshIndex );
                 }
             }
 

@@ -25,89 +25,93 @@ namespace moris
         class Phase_Table
         {
 
-            private:
-                uint mNumGeometries = 0;           // Total number of geometries
-                uint mNumPhases     = 0;           // Number of bulk phases
+          private:
+            uint mNumGeometries = 0;    // Total number of geometries
+            uint mNumPhases     = 0;    // Number of bulk phases
 
-                Matrix<DDUMat> mBulkPhases;        // Geometric sign to bulk phase
-                Cell<std::string> mPhaseNames;     // Phase names
+            Matrix< DDUMat >    mBulkPhases;    // Geometric sign to bulk phase
+            Cell< std::string > mPhaseNames;    // Phase names
 
-                PHASE_FUNCTION mPhaseFunction = nullptr;
+            PHASE_FUNCTION mPhaseFunction = nullptr;
 
-            public:
+          public:
+            /**
+             * Constructor for using a given phase table with the standard 2^n structure.
+             *
+             * @param aNumGeometries Number of geometries
+             * @param aBulkPhases Geometric index to bulk phase map
+             * @param aPhaseNames (optional) Phase names
+             */
+            Phase_Table(
+                    uint                aNumGeometries,
+                    Matrix< DDUMat >    aBulkPhases,
+                    Cell< std::string > aPhaseNames = {} );
 
-                /**
-                 * Constructor for using a given phase table with the standard 2^n structure.
-                 *
-                 * @param aNumGeometries Number of geometries
-                 * @param aBulkPhases Geometric index to bulk phase map
-                 * @param aPhaseNames (optional) Phase names
-                 */
-                Phase_Table(
-                        uint              aNumGeometries,
-                        Matrix<DDUMat>    aBulkPhases,
-                        Cell<std::string> aPhaseNames = {});
+            /**
+             * Create a phase table with 2^n structure using a number of bulk phases. Delegating constructor.
+             *
+             * @param aNumGeometries Number of geometries
+             * @param aPhaseNames (optional) Phase names
+             */
+            Phase_Table(
+                    uint                aNumGeometries,
+                    Cell< std::string > aPhaseNames = {} );
 
-                /**
-                 * Create a phase table with 2^n structure using a number of bulk phases. Delegating constructor.
-                 *
-                 * @param aNumGeometries Number of geometries
-                 * @param aPhaseNames (optional) Phase names
-                 */
-                Phase_Table(
-                        uint              aNumGeometries,
-                        Cell<std::string> aPhaseNames = {});
+            /**
+             * Create a phase table where the phase indices are decided by a user-defined function.
+             *
+             * @param aPhaseFunction User-defined phase function
+             * @param aNumPhases Number of different bulk phases that the phase function can return
+             * @param aPhaseNames (optional) Phase names
+             */
+            Phase_Table(
+                    PHASE_FUNCTION      aPhaseFunction,
+                    uint                aNumPhases,
+                    Cell< std::string > aPhaseNames = {} );
 
-                /**
-                 * Create a phase table where the phase indices are decided by a user-defined function.
-                 *
-                 * @param aPhaseFunction User-defined phase function
-                 * @param aNumPhases Number of different bulk phases that the phase function can return
-                 * @param aPhaseNames (optional) Phase names
-                 */
-                Phase_Table(
-                        PHASE_FUNCTION    aPhaseFunction,
-                        uint              aNumPhases,
-                        Cell<std::string> aPhaseNames = {});
+            /**
+             * Get the number of phases
+             *
+             * @return Number of phases
+             */
+            uint get_num_phases();
 
-                /**
-                 * Get the number of phases
-                 *
-                 * @return Number of phases
-                 */
-                uint get_num_phases();
+            /**
+             * Get phase index based on entity phase info
+             *
+             * @param aGeometrySigns Geometry sign info
+             * @return Phase index
+             */
+            uint get_phase_index( const Geometry_Bitset& aGeometrySigns );
 
-                /**
-                 * Get phase index based on entity phase info
-                 *
-                 * @param aGeometrySigns Geometry sign info
-                 * @return Phase index
-                 */
-                uint get_phase_index(const Geometry_Bitset& aGeometrySigns);
+            /**
+             * Gets the name of a requested phase
+             *
+             * @param aPhaseIndex The index of the requested phase
+             * @return Phase name
+             */
+            std::string get_phase_name( uint aPhaseIndex );
 
-                /**
-                 * Gets the name of a requested phase
-                 *
-                 * @param aPhaseIndex The index of the requested phase
-                 * @return Phase name
-                 */
-                std::string get_phase_name(uint aPhaseIndex);
+            /*!
+             * Set the phase table without a library
+             */
+            void
+            set_phase_function( PHASE_FUNCTION aPhaseFunction,
+                    uint                       aNumPhases,
+                    Cell< std::string >        aPhaseNames = {} );
 
-                /*!
-                 * Print information for setting up phase table
-                 */
-                void print();
+            /*!
+             * Print information for setting up phase table
+             */
+            void print();
 
-            private:
-
-                /**
-                 * Set all of the phases to have default names (p_i)
-                 */
-                void set_default_phase_names();
-
+          private:
+            /**
+             * Set all of the phases to have default names (p_i)
+             */
+            void set_default_phase_names();
         };
-    }
-}
+    }    // namespace ge
+}    // namespace moris
 
 #endif /* MORIS_CL_GEN_PHASE_TABLE_HPP_ */
-

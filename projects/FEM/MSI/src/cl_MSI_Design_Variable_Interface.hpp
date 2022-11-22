@@ -37,8 +37,12 @@ namespace moris
         class Design_Variable_Interface
         {
           private:
-            Matrix< DDRMat >                       mTime;
+            Matrix< DDRMat > mTime;
+
             std::shared_ptr< MSI::Equation_Model > mModel = nullptr;
+
+            bool              mdQIdpImported = false;
+            sol::Dist_Vector* mdQIdp         = nullptr;
 
           public:
             //------------------------------------------------------------------------------
@@ -223,6 +227,11 @@ namespace moris
             virtual sol::Dist_Vector* get_dQIdp();
 
             //------------------------------------------------------------------------------
+            /**
+             * returns the dQIdp
+             * @param[ out ] dQIdp matrix filled with dQIdp
+             */
+            void set_dQIdp_dist_vect( sol::Dist_Vector* adQIdp );
         };
     }    // namespace MSI
 }    // namespace moris
