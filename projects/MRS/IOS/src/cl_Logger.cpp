@@ -808,6 +808,20 @@ namespace moris
                                 " | max " + std::to_string( tMaxUsage ) +                         //
                                 " | min " + std::to_string( tMinUsage );
 
+        std::ifstream statm( "/proc/self/statm" );
+        unsigned int  vmem_size, phys_size;
+        statm >> vmem_size >> phys_size;
+
+        tLocalUsage = phys_size * (size_t)sysconf( _SC_PAGESIZE ) / 1024;
+
+        tTotalUsage = std::round( this->logger_sum_all( tLocalUsage ) );
+        tMaxUsage   = std::round( this->logger_max_all( tLocalUsage ) );
+        tMinUsage   = std::round( this->logger_min_all( tLocalUsage ) );
+
+        tMemUsage += " || current " + std::to_string( tTotalUsage ) +    //
+                     " | max " + std::to_string( tMaxUsage ) +           //
+                     " | min " + std::to_string( tMinUsage );
+
         return tMemUsage;
     }
 }    // end namespace moris
