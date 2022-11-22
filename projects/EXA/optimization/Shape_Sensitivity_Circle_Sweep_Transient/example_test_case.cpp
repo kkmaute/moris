@@ -114,11 +114,13 @@ check_results(
 
         for ( uint tADVIndex = 0; tADVIndex < tObjectiveAnalytical.length(); tADVIndex++ )
         {
-            real tRelObectiveDifference = std::abs( ( tObjectiveAnalytical( tADVIndex ) - tObjectiveFD( tADVIndex ) ) /    //
-                                                    ( tObjectiveFD( tADVIndex ) + tDeltaEps ) );
+            real tRelObectiveDifference =
+                    std::abs( tObjectiveAnalytical( tADVIndex ) - tObjectiveFD( tADVIndex ) ) /    //
+                    ( std::abs( tObjectiveFD( tADVIndex ) ) + tDeltaEps );
 
-            real tRelConstraintDifference = std::abs( ( tConstraintsAnalytical( tADVIndex ) - tConstraintsFD( tADVIndex ) ) /    //
-                                                      ( tConstraintsFD( tADVIndex ) + tDeltaEps ) );
+            real tRelConstraintDifference =
+                    std::abs( tConstraintsAnalytical( tADVIndex ) - tConstraintsFD( tADVIndex ) ) /    //
+                    ( std::abs( tConstraintsFD( tADVIndex ) ) + tDeltaEps );
 
             MORIS_LOG_INFO( "Check derivative of objective  wrt. ADV(%i):  analytical  %12.5e, finite difference (%s) %12.5e, percent error %12.5e.",
                     tADVIndex,
