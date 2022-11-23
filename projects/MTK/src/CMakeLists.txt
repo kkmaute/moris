@@ -127,6 +127,8 @@ stk_impl/cl_MTK_Mesh_Core_STK.hpp
 stk_impl/cl_MTK_Mesh_Data_STK.hpp
 stk_impl/cl_MTK_Vertex_Interpolation_STK.hpp
 stk_impl/cl_MTK_Vertex_STK.hpp
+stk_impl/cl_MTK_Cell_Cluster_STK.hpp
+stk_impl/cl_MTK_Side_Cluster_STK.hpp
 
 IP/cl_MTK_Interpolation_Function_Base.hpp
 IP/cl_MTK_Interpolation_Function_Factory.hpp
@@ -198,12 +200,6 @@ IG/cl_MTK_Integration_Coeffs_Tet_56.hpp)
 # List library source files
 set( LIB_SOURCES
 cl_MTK_Mesh_Factory.cpp
-stk_impl/cl_MTK_Mesh_Core_STK.cpp
-stk_impl/cl_MTK_Integration_Mesh_STK.cpp
-stk_impl/cl_MTK_Interpolation_Mesh_STK.cpp
-stk_impl/cl_MTK_Vertex_Interpolation_STK.cpp
-stk_impl/cl_MTK_Cell_Cluster_STK.cpp
-stk_impl/cl_MTK_Side_Cluster_STK.cpp
 cl_MTK_Integration_Mesh.cpp
 cl_MTK_Integration_Mesh_write_T_matrices.cpp
 cl_MTK_Block.cpp
@@ -263,6 +259,13 @@ cl_MTK_Interpolation_Mesh_Editor.cpp
 
 cl_MTK_Mesh_DataBase_IG.cpp
 cl_MTK_Integration_Mesh_Editor.cpp
+
+stk_impl/cl_MTK_Mesh_Core_STK.cpp
+stk_impl/cl_MTK_Integration_Mesh_STK.cpp
+stk_impl/cl_MTK_Interpolation_Mesh_STK.cpp
+stk_impl/cl_MTK_Vertex_Interpolation_STK.cpp
+stk_impl/cl_MTK_Cell_Cluster_STK.cpp
+stk_impl/cl_MTK_Side_Cluster_STK.cpp
 
 IP/cl_MTK_Interpolation_Function_Factory.cpp
 IP/cl_MTK_Interpolation_Rule.cpp
