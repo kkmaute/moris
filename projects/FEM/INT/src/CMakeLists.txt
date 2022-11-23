@@ -65,18 +65,15 @@ set(HEADERS
     ELEM/cl_FEM_Element_Time_Sideset.hpp
     ELEM/cl_FEM_Element_Time_Boundary.hpp
 
-
     IP/cl_FEM_Geometry_Interpolator.hpp
     IP/cl_FEM_Field_Interpolator.hpp
     IP/cl_FEM_Field_Interpolator_Manager.hpp
-
 
     MM/cl_FEM_Material_Model.hpp
     MM/cl_FEM_MM_Factory.hpp
 
     MM/cl_FEM_MM_Perfect_Gas.hpp
     #MM/cl_FEM_MM_Van_Der_Waals_Fluid.hpp
-
 
     CM/cl_FEM_Constitutive_Model.hpp
     CM/cl_FEM_CM_Factory.hpp
@@ -100,7 +97,6 @@ set(HEADERS
     CM/cl_FEM_CM_Fluid_Compressible_Ideal.hpp
     CM/cl_FEM_CM_Fluid_Compressible_Van_der_Waals.hpp
     CM/cl_FEM_CM_Compressible_Newtonian_Fluid.hpp
-
 
     SP/cl_FEM_Stabilization_Parameter.hpp
     SP/cl_FEM_SP_Factory.hpp
@@ -130,7 +126,6 @@ set(HEADERS
     SP/cl_FEM_SP_Penalty_Contact.hpp 
     SP/cl_FEM_SP_Measure.hpp
     SP/cl_FEM_SP_Lagrange_Multiplier_L2.hpp
-
 
     IWG/cl_FEM_IWG_Factory.hpp
     IWG/cl_FEM_IWG.hpp
@@ -213,7 +208,6 @@ set(HEADERS
     #IWG/cl_FEM_IWG_Hamilton_Jacobi_Bulk.hpp
     #IWG/cl_FEM_IWG_Hamilton_Jacobi_Bulk2.hpp
     IWG/cl_FEM_IWG_Hamilton_Jacobi_Bulk_Test.hpp
-
 
     IQI/cl_FEM_IQI.hpp
     IQI/cl_FEM_IQI_Factory.hpp
@@ -343,7 +337,6 @@ set(LIB_SOURCES
     SP/cl_FEM_SP_Penalty_Contact.cpp  
     SP/cl_FEM_SP_Measure.cpp
     SP/cl_FEM_SP_Lagrange_Multiplier_L2.cpp
-
 
     IWG/cl_FEM_IWG.cpp
     IWG/cl_FEM_IWG_Factory.cpp
