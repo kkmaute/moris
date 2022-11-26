@@ -68,7 +68,9 @@ Nonlinear_Problem::Nonlinear_Problem(
     mMap = tMatFactory.create_map( aSolverInterface->get_my_local_global_map( tRequesedDofTypes ) );
 
     // create map object FIXME ask linear problem for map
-    mMapFull = tMatFactory.create_map( aSolverInterface->get_my_local_global_overlapping_map() );
+    mMapFull = tMatFactory.create_map(
+            aSolverInterface->get_my_local_global_map(),
+            aSolverInterface->get_my_local_global_overlapping_map() );
 
     // create solver object
     if ( mBuildLinerSystemFlag )

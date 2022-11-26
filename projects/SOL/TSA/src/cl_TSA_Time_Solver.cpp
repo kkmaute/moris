@@ -335,7 +335,9 @@ Time_Solver::solve()
     sol::Matrix_Vector_Factory tMatFactory( mSolverWarehouse->get_tpl_type() );
 
     // build full overlapping map
-    mFullMap = tMatFactory.create_map( mSolverInterface->get_my_local_global_overlapping_map() );
+    mFullMap = tMatFactory.create_map(
+            mSolverInterface->get_my_local_global_map(),
+            mSolverInterface->get_my_local_global_overlapping_map() );
 
     // get number of RHS
     uint tNumRHMS = mSolverInterface->get_num_rhs();

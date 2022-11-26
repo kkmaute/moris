@@ -39,10 +39,11 @@ Time_Solver_Algorithm::Time_Solver_Algorithm( const enum sol::MapType aMapType )
 //-------------------------------------------------------------------------------
 
 Time_Solver_Algorithm::Time_Solver_Algorithm(
-        const ParameterList aParameterlist,
+        const ParameterList     aParameterlist,
         const enum sol::MapType aMapType )
-: mParameterListTimeSolver( aParameterlist )
-{}
+        : mParameterListTimeSolver( aParameterlist )
+{
+}
 
 //-------------------------------------------------------------------------------
 
@@ -53,7 +54,8 @@ Time_Solver_Algorithm::~Time_Solver_Algorithm()
 
 //-------------------------------------------------------------------------------
 
-void Time_Solver_Algorithm::delete_pointers()
+void
+Time_Solver_Algorithm::delete_pointers()
 {
     delete mFullMap;
     mFullMap = nullptr;
@@ -61,9 +63,10 @@ void Time_Solver_Algorithm::delete_pointers()
 
 //-------------------------------------------------------------------------------
 
-moris::real Time_Solver_Algorithm::calculate_time_needed( const clock_t aTime )
+moris::real
+Time_Solver_Algorithm::calculate_time_needed( const clock_t aTime )
 {
-    moris::real tDeltaTime = (moris::real) ( clock() - aTime ) / CLOCKS_PER_SEC;
+    moris::real tDeltaTime = ( moris::real )( clock() - aTime ) / CLOCKS_PER_SEC;
 
     moris::real tDeltaTimeMax = max_all( tDeltaTime );
 
@@ -72,7 +75,8 @@ moris::real Time_Solver_Algorithm::calculate_time_needed( const clock_t aTime )
 
 //-------------------------------------------------------------------------------
 
-void Time_Solver_Algorithm::finalize()
+void
+Time_Solver_Algorithm::finalize()
 {
     this->delete_pointers();
 
@@ -81,12 +85,15 @@ void Time_Solver_Algorithm::finalize()
 
     mSolverInterface = mMyTimeSolver->get_solver_interface();
 
-    mFullMap = tMatFactory.create_map( mSolverInterface->get_my_local_global_overlapping_map() );
+    mFullMap = tMatFactory.create_map(
+            mSolverInterface->get_my_local_global_map(),
+            mSolverInterface->get_my_local_global_overlapping_map() );
 }
 
 //-------------------------------------------------------------------------------
 
-void Time_Solver_Algorithm::set_time_solver_parameters()
+void
+Time_Solver_Algorithm::set_time_solver_parameters()
 {
     // Number of time steps
     mParameterListTimeSolver.insert( "TSA_Num_Time_Steps", 1 );
@@ -94,4 +101,3 @@ void Time_Solver_Algorithm::set_time_solver_parameters()
     // Time Frame
     mParameterListTimeSolver.insert( "TSA_Time_Frame", 1.0 );
 }
-
