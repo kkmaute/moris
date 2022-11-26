@@ -32,6 +32,40 @@ Preconditioner_PETSc::Preconditioner_PETSc( Linear_Solver_PETSc *aLinearSolverAl
 //----------------------------------------------------------------------------------------
 
 void
+Preconditioner_PETSc::build_ilu_preconditioner( Linear_Problem *aLinearSystem )
+{
+    // check for serail run; this preconditioner does not work in parallel
+    MORIS_ERROR( par_size() == 0,
+            "Preconditioner_PETSc::build_ilu_preconditioner - PETSc ILU preconditioner can only be used in serial." )
+
+    // get preconditioner
+    KSPGetPC( mLinearSolverAlgoritm->mPetscKSPProblem, &( mLinearSolverAlgoritm->mpc ) );
+
+    // Set PC type
+    PCSetType( mLinearSolverAlgoritm->mpc, PCILU );
+
+    // Set operators
+    PCSetOperators(
+            mLinearSolverAlgoritm->mpc,
+            aLinearSystem->get_matrix()->get_petsc_matrix(),
+            aLinearSystem->get_matrix()->get_petsc_matrix() );
+
+    // Set levels of fill for ILU
+    PCFactorSetLevels( mLinearSolverAlgoritm->mpc, mLinearSolverAlgoritm->mParameterList.get< moris::sint >( "ILUFill" ) );
+
+    // Set drop tolerance for Ilu
+    PCFactorSetDropTolerance( mLinearSolverAlgoritm->mpc, mLinearSolverAlgoritm->mParameterList.get< moris::real >( "ILUTol" ), PETSC_DEFAULT, PETSC_DEFAULT );
+
+    // Set preconditioner options from the options database
+    PCSetFromOptions( mLinearSolverAlgoritm->mpc );
+
+    // Finalize setup of preconditioner
+    PCSetUp( mLinearSolverAlgoritm->mpc );
+}
+
+//----------------------------------------------------------------------------------------
+
+void
 Preconditioner_PETSc::build_multigrid_preconditioner( Linear_Problem *aLinearSystem )
 {
     //----------------------------------------------------------------
@@ -268,6 +302,8 @@ Preconditioner_PETSc::build_multigrid_preconditioner( Linear_Problem *aLinearSys
     }
 }
 
+//----------------------------------------------------------------------------------------
+
 void
 Preconditioner_PETSc::build_schwarz_preconditioner_petsc()
 {
@@ -356,6 +392,8 @@ Preconditioner_PETSc::build_schwarz_preconditioner_petsc()
     //     PCView( mpc, PETSC_VIEWER_STDOUT_SELF );
 }
 
+//----------------------------------------------------------------------------------------
+
 void
 Preconditioner_PETSc::build_schwarz_preconditioner( Linear_Problem *aLinearSystem )
 {
@@ -440,4 +478,3 @@ Preconditioner_PETSc::build_schwarz_preconditioner( Linear_Problem *aLinearSyste
 
     mPreconMat->matrix_global_assembly();
 }
-
