@@ -19,30 +19,63 @@
 
 namespace moris
 {
-//------------------------------------------------------------------------------
-    template<typename Matrix_Type>
+
+    //------------------------------------------------------------------------------
+
+    template< typename Matrix_Type >
     inline void
-    print(Matrix< Matrix_Type > aMat,
-          std::string aTitle)
+    print( 
+            Matrix< Matrix_Type > aMat,
+            std::string           aTitle )
     {
-        size_t tNumRows = aMat.n_rows();
+        size_t tNumRows    = aMat.n_rows();
         size_t tNumColumns = aMat.n_cols();
         std::cout << "\n-------------------------------------------------\n";
         std::cout << aTitle + ": \n";
         std::cout << "Num Rows: " << tNumRows << " | Num Cols: " << tNumColumns << "\n";
-        for(size_t r = 0; r < tNumRows; r++)
+        for ( size_t r = 0; r < tNumRows; r++ )
         {
-            for(size_t c = 0; c < tNumColumns; c++)
+            for ( size_t c = 0; c < tNumColumns; c++ )
             {
-                std::cout<< std::setw(22) << aMat(r, c);
+                std::cout << std::setw( 22 ) << aMat( r, c );
             }
 
             std::cout << "\n";
         }
-        std::cout << "\n-------------------------------------------------\n"<<std::endl;
+        std::cout << "\n-------------------------------------------------\n" << std::endl;
     }
 
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
+
+    template< typename Matrix_Type >
+    inline void
+    print_as_row_vector( 
+            Matrix< Matrix_Type > aMat,
+            std::string           aTitle )
+    {
+        size_t tNumRows    = aMat.n_rows();
+        size_t tNumColumns = aMat.n_cols();
+
+        MORIS_ERROR( tNumRows == 1 || tNumColumns == 1, 
+                "print_as_row_vector() - Function should only be called on matrices with size 1 x n or n x 1." );
+
+        std::cout << aTitle << " = [ " << std::flush;
+        for ( moris::uint i = 0; i < aMat.numel(); i++ )
+        {
+            if ( i == aMat.numel() - 1 )
+            {
+                std::cout << aMat( i ) << std::flush;
+            }
+            else
+            {
+                std::cout << aMat( i ) << ", " << std::flush;
+            }
+        }
+
+        std::cout << " ]" << std::endl;
+    }
+
+    //------------------------------------------------------------------------------
 
     /*
      * prints the col and row index as well as the data
@@ -126,7 +159,7 @@ namespace moris
         fprintf( outFile,"%s-------------------------------------------------\n\n", "%") ;
     }
 
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
     template<typename Matrix_Type>
     inline void print_std_initializer_list(Matrix< Matrix_Type > const & aMatrix,
