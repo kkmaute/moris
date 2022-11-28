@@ -798,6 +798,9 @@ namespace moris
             Matrix< DDRMat > tTMatrix;
             this->build_PADofMap_1( tTMatrix );
 
+            // get the transpose of the T-matrix (compute once use twice)
+            Matrix< DDRMat > tTMatrixTrans = trans( tTMatrix );
+
             // project pdof residual to adof residual
             aEqnObjMatrix = tTMatrixTrans * mEquationSet->get_jacobian() * tTMatrix;
 
