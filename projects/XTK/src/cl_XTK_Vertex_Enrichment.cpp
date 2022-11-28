@@ -150,7 +150,15 @@ namespace xtk
     //------------------------------------------------------------------------------
 
     uint
-    Vertex_Enrichment::local_basis_index( uint aBasisIndex )
+    Vertex_Enrichment::get_num_bases_in_map() const
+    {
+        return mBasisMap.size();
+    }
+
+    //------------------------------------------------------------------------------
+
+    uint
+    Vertex_Enrichment::local_basis_index( uint aBasisIndex ) const
     {
         auto tIter = mBasisMap.find( aBasisIndex );
         
@@ -262,6 +270,24 @@ namespace xtk
     }
 
     //------------------------------------------------------------------------------
+
+    void
+    Vertex_Enrichment::print() const
+    {
+        // get number of entries
+        uint tNumEntries = mBasisIndices.numel();
+
+        // print header
+        std::cout << "\nVertex Enrichment #" << mNodeIndex << " ( Enr. Basis Index | Weight ) = " << std::endl;
+        for( uint iEntry = 0; iEntry < tNumEntries; iEntry++ )
+        {
+            std::cout << mBasisIndices( iEntry ) << " | " << mBasisWeights( iEntry ) << std::endl; 
+        }
+        
+        // std::cout << "\n" << std::endl;
+        std::cout << "" << std::endl;
+    }
+
     //------------------------------------------------------------------------------
     //------------------------------------------------------------------------------
 
