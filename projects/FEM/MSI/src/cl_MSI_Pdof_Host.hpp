@@ -35,14 +35,14 @@ namespace moris
     {
         struct Pdof
         {
-            moris::uint      mDofTypeIndex;
-            moris::uint      mTimeStepIndex;
+            uint             mDofTypeIndex;
+            uint             mTimeStepIndex;
             Matrix< DDSMat > mAdofIds;
             Matrix< DDRMat > mTmatrix;
 
-            moris::uint mElementalSolVecEntry;
+            uint mElementalSolVecEntry;
 
-            moris::Cell< Adof* > mAdofPtrList;    // FIXME delete this list after call to get adof ids or replace it
+            moris::Cell< Adof* > mAdofPtrList;    // FIXME: delete this list after call to get adof ids or replace it
         };
 
         //-------------------------------------------------------------------------------------------------
@@ -50,7 +50,7 @@ namespace moris
         class Pdof_Host
         {
           private:
-            Matrix< DDUMat >                    mPdofTypeExist;            // Vector indicates if dof type exists. FIXME make this a global matrix in dof manager and delete after costruction
+            Matrix< DDUMat >                    mPdofTypeExist;            // Vector indicates if dof type exists. // FIXME make this a global matrix in dof manager and delete after costruction
             moris::Cell< moris::Cell< Pdof* > > mListOfPdofTimePerType;    // List of all pdofs per time per dof type. outer cell is type, inner cell is time
 
             void create_adofs_based_on_Tmatrix(
@@ -71,8 +71,8 @@ namespace moris
             Pdof_Host(){};
 
             Pdof_Host(
-                    const moris::uint aNumUsedDofTypes,
-                    fem::Node_Base*   aNodeObj );
+                    const uint      aNumUsedDofTypes,
+                    fem::Node_Base* aNodeObj );
 
             ~Pdof_Host();
 
@@ -88,7 +88,7 @@ namespace moris
             void set_pdof_type(
                     const enum Dof_Type     aDof_Type,
                     const Matrix< DDUMat >& aTimePerDofType,
-                    const moris::uint       aNumUsedDofTypes,
+                    const uint              aNumUsedDofTypes,
                     const Matrix< DDSMat >& aPdofTypeMap );
 
             /**
@@ -119,7 +119,8 @@ namespace moris
              * @brief Set the t-matrix values for all the pdofs. This function is tested by the test [Pdof_Host_Get_Adofs]
              *
              */
-            void set_t_matrix( const bool&  aUseHMR,
+            void set_t_matrix(
+                    const bool&             aUseHMR,
                     Model_Solver_Interface* aModelSolverInterface );
 
             /**
@@ -152,16 +153,16 @@ namespace moris
             {
             }
 
-            moris::uint get_num_pdofs();
+            uint get_num_pdofs();
 
             moris::Cell< Pdof* >&
-            get_pdof_time_list( const moris::sint& aDofTypeIndex )
+            get_pdof_time_list( const sint& aDofTypeIndex )
             {
                 return mListOfPdofTimePerType( aDofTypeIndex );
             }
 
-            moris::uint
-            get_num_time_levels_of_type( const moris::uint& aDofTypeInd )
+            uint
+            get_num_time_levels_of_type( const uint& aDofTypeInd )
             {
                 return mListOfPdofTimePerType( aDofTypeInd ).size();
             }
@@ -173,7 +174,7 @@ namespace moris
             }
 
             //-------------------------------------------------------------------------------------------------
-            // FIXME member function not used
+            // FIXME: member function not used
             // void create_unique_adof_list();
 
             //-------------------------------------------------------------------------------------------------

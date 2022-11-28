@@ -68,18 +68,18 @@ namespace moris
 
             Matrix< DDSMat >                               mUniqueAdofList;    // Unique adof list for this equation object
             moris::Cell< moris::Cell< Matrix< DDSMat > > > mUniqueAdofTypeList;
-            moris::map< moris::uint, moris::uint >         mUniqueAdofMap;    // Map to
+            moris::map< uint, uint >                       mUniqueAdofMap;    // Map to
 
-            moris::Cell< moris::Cell< moris::map< moris::uint, moris::uint > > > mUniqueAdofMapList;    // Map to
+            moris::Cell< moris::Cell< moris::map< uint, uint > > > mUniqueAdofMapList;    // Map to
 
             //! weak BCs of element FIXME
             Matrix< DDRMat > mNodalWeakBCs;
 
-            moris::uint mEqnObjInd;
+            uint mEqnObjInd;
 
             Equation_Set* mEquationSet = nullptr;
 
-            moris::uint mNumPdofSystems = 0;
+            uint mNumPdofSystems = 0;
 
             // bool
             bool mUniqueAdofTypeListFlag = false;
@@ -119,14 +119,16 @@ namespace moris
             /**
              * trivial destructor
              */
-            virtual ~Equation_Object(){};
+            virtual 
+            ~Equation_Object(){};
 
             //------------------------------------------------------------------------------
             /**
              * set time for equation object
              * @param[ in ] aTime matrix with time values to set
              */
-            void set_time( Matrix< DDRMat >& aTime );
+            void 
+            set_time( Matrix< DDRMat >& aTime );
 
             //------------------------------------------------------------------------------
             /**
@@ -148,10 +150,9 @@ namespace moris
              * This function is only for unit test purposes.
              */
             // Number of potential pdof hosts based on the number of nodes // Fixme add elements and ghosts
-            moris::uint
-            get_num_pdof_hosts()
+            uint get_num_pdof_hosts()
             {
-                moris::uint tNumPdofHosts = 0;
+                uint tNumPdofHosts = 0;
                 for ( uint Ik = 0; Ik < mNodeObj.size(); Ik++ )
                 {
                     tNumPdofHosts = tNumPdofHosts + mNodeObj( Ik ).size();
@@ -163,7 +164,7 @@ namespace moris
             /**
              * @brief Returns the maximal pdof host (node) index of this equation object
              */
-            moris::uint get_max_pdof_hosts_ind();
+            uint get_max_pdof_hosts_ind();
 
             //------------------------------------------------------------------------------
             /**
@@ -177,7 +178,7 @@ namespace moris
              *
              */
             void create_my_pdof_hosts(
-                    const moris::uint          aNumUsedDofTypes,
+                    const uint                 aNumUsedDofTypes,
                     const Matrix< DDSMat >&    aPdofTypeMap,
                     const Matrix< DDUMat >&    aTimePerDofType,
                     moris::Cell< Pdof_Host* >& aPdofHostList );

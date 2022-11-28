@@ -7,7 +7,6 @@
  * cl_XTK_Ghost_Stabilization.cpp
  *
  */
-
 #include "cl_XTK_Ghost_Stabilization.hpp"
 #include "cl_XTK_Enriched_Integration_Mesh.hpp"
 #include "cl_XTK_Enriched_Interpolation_Mesh.hpp"
@@ -214,7 +213,7 @@ Ghost_Stabilization::construct_ip_ig_cells_for_ghost_side_clusters( Ghost_Setup_
     tEnrIpMesh.get_owned_and_not_owned_enriched_interpolation_cells( tOwnedInterpCells, tNotOwnedInterpCells, tProcRanks );
 
     // get new index for new ghost interpolation cell, start where the enriched Ip mesh stops
-    moris::uint tCurrentNewInterpCellIndex = tEnrIpMesh.get_num_entities( EntityRank::ELEMENT );
+    uint tCurrentNewInterpCellIndex = tEnrIpMesh.get_num_entities( EntityRank::ELEMENT );
 
     // allocate data in ghost setup data
     Cut_Integration_Mesh*                                 tCutIgMesh            = mXTKModel->get_cut_integration_mesh();
@@ -224,8 +223,8 @@ Ghost_Stabilization::construct_ip_ig_cells_for_ghost_side_clusters( Ghost_Setup_
     // figure out how many of the interpolation cells are not trivial (this value is the number of new interpolation cells)
     // iterate through owned interpolation cells and give them an id if they are not trivial clusters
     // Also, we're only interested in the nontrivial cell clusters so keep track of those.
-    moris::uint tNumNewInterpCellsNotOwned = 0;
-    moris::uint tNumNewInterpCellsOwned    = 0;
+    uint tNumNewInterpCellsNotOwned = 0;
+    uint tNumNewInterpCellsOwned    = 0;
 
     Cell< Interpolation_Cell_Unzipped* > tNonTrivialOwnedInterpCells;
 
@@ -302,14 +301,14 @@ Ghost_Stabilization::prepare_ip_cell_id_answers(
 {
     aEnrCellIds.resize( aReceivedEnrCellIds.size() );
 
-    for ( moris::uint iP = 0; iP < aReceivedEnrCellIds.size(); iP++ )
+    for ( uint iP = 0; iP < aReceivedEnrCellIds.size(); iP++ )
     {
         aEnrCellIds( iP ).resize( 1, aReceivedEnrCellIds( iP ).numel() );
 
         if ( aReceivedEnrCellIds( iP )( 0, 0 ) != MORIS_INDEX_MAX )
         {
 
-            for ( moris::uint iC = 0; iC < aReceivedEnrCellIds( iP ).numel(); iC++ )
+            for ( uint iC = 0; iC < aReceivedEnrCellIds( iP ).numel(); iC++ )
             {
                 auto tIter = aBaseEnrIdToIndexInNonTrivialOwned.find( aReceivedEnrCellIds( iP )( iC ) );
 
@@ -348,7 +347,7 @@ Ghost_Stabilization::identify_and_setup_aura_vertices_in_ghost( Ghost_Setup_Data
         tGhostVerticesWithoutInterpolation, 
         tGhostIpCellConnectedToVertex );
 
-    for ( moris::uint iMeshIndex = 0; iMeshIndex < tEnrInterpMesh.mMeshIndices.numel(); iMeshIndex++ )
+    for ( uint iMeshIndex = 0; iMeshIndex < tEnrInterpMesh.mMeshIndices.numel(); iMeshIndex++ )
     {
         // current mesh index
         moris_index tMeshIndex = tEnrInterpMesh.mMeshIndices( iMeshIndex );
@@ -371,7 +370,7 @@ Ghost_Stabilization::identify_and_setup_aura_vertices_in_ghost( Ghost_Setup_Data
             tProcRankToDataIndex );
 
         // send requests
-        moris::uint tMPITag = 3001;
+        uint tMPITag = 3001;
 
         // send the background vertex id
         mXTKModel->send_outward_requests( tMPITag, tProcRanks, tNotOwnedBGIPVertsIdsToProcs );
@@ -457,21 +456,21 @@ Ghost_Stabilization::get_ip_vertices_in_ghost_sets(
     moris::Cell< mtk::Vertex* >&     aGhostVerticesWithoutInterpolation,
     moris::Cell< mtk::Cell const* >& aGhostIpCellConnectedToVertex )
 {
-    moris::uint tNumGhostSets = aGhostSetupData.mDblSideSetIndexInMesh.size();
+    uint tNumGhostSets = aGhostSetupData.mDblSideSetIndexInMesh.size();
 
     std::unordered_map< moris_index, bool > tGhostVerticesWithInterpolationMap;
     std::unordered_map< moris_index, bool > tGhostVerticesWithOutInterpolationMap;
 
 
     // iterate through vertices and gather the
-    for ( moris::uint iS = 0; iS < tNumGhostSets; iS++ )
+    for ( uint iS = 0; iS < tNumGhostSets; iS++ )
     {
         // get the clusters
         moris::Cell< mtk::Cluster const* > tDblSideSetClusters =
             mXTKModel->get_enriched_integ_mesh( 0 ).get_double_side_set_cluster( aGhostSetupData.mDblSideSetIndexInMesh( iS ) );
 
         // iterate through clusters
-        for ( moris::uint iC = 0; iC < tDblSideSetClusters.size(); iC++ )
+        for ( uint iC = 0; iC < tDblSideSetClusters.size(); iC++ )
         {
             // get the master ip cell
             moris::mtk::Cell const& tMasterIpCell = tDblSideSetClusters( iC )->get_interpolation_cell( mtk::Master_Slave::MASTER );
@@ -484,7 +483,7 @@ Ghost_Stabilization::get_ip_vertices_in_ghost_sets(
             moris::Cell< mtk::Vertex* > tSlaveVertices  = tSlaveIpCell.get_vertex_pointers();
 
             //iterate through master vertices and place them in the correct list
-            for ( moris::uint iV = 0; iV < tMasterVertices.size(); iV++ )
+            for ( uint iV = 0; iV < tMasterVertices.size(); iV++ )
             {
                 moris_index tVertexInd        = tMasterVertices( iV )->get_id();
                 bool        tHasInterpolation = tMasterVertices( iV )->has_interpolation( mMinMeshIndex );
@@ -512,7 +511,7 @@ Ghost_Stabilization::get_ip_vertices_in_ghost_sets(
             }
 
             //iterate through slave vertices and place them in the correct list
-            for ( moris::uint iV = 0; iV < tSlaveVertices.size(); iV++ )
+            for ( uint iV = 0; iV < tSlaveVertices.size(); iV++ )
             {
                 moris_index tVertexInd        = tSlaveVertices( iV )->get_id();
                 bool        tHasInterpolation = tSlaveVertices( iV )->has_interpolation( mMinMeshIndex );
@@ -575,7 +574,7 @@ Ghost_Stabilization::prepare_interpolation_vertex_t_matrix_requests(
     // size
     aProcRanks.resize( tCommTable.numel() );
 
-    for ( moris::uint i = 0; i < tCommTable.numel(); i++ )
+    for ( uint i = 0; i < tCommTable.numel(); i++ )
     {
         aProcRankToDataIndex[tCommTable( i )] = i;
         aProcRanks( i )                       = ( tCommTable( i ) );
@@ -587,7 +586,7 @@ Ghost_Stabilization::prepare_interpolation_vertex_t_matrix_requests(
         tNotOwnedIpCellBulkPhase.push_back( Cell< moris_id >( 0 ) );
     }
 
-    for ( moris::uint iV = 0; iV < aGhostVerticesWithoutInterpolation.size(); iV++ )
+    for ( uint iV = 0; iV < aGhostVerticesWithoutInterpolation.size(); iV++ )
     {
 
         // vertex owner
@@ -618,14 +617,14 @@ Ghost_Stabilization::prepare_interpolation_vertex_t_matrix_requests(
     aNotOwnedIpCellIdToProcs.resize( tNotOwnedIpCellIdToProcs.size() );
     aNotOwnedEnrichedCellBulkPhaseToProcs.resize( tNotOwnedIpCellBulkPhase.size() );
 
-    for ( moris::uint iD = 0; iD < tNotOwnedIPVertIndsToProcs.size(); iD++ )
+    for ( uint iD = 0; iD < tNotOwnedIPVertIndsToProcs.size(); iD++ )
     {
         aNotOwnedIPVertIndsToProcs( iD ).resize( 1, tNotOwnedIPVertIndsToProcs( iD ).size() );
         aNotOwnedBGIPVertsIdsToProcs( iD ).resize( 1, tNotOwnedBGIPVertsIdsToProcs( iD ).size() );
         aNotOwnedIpCellIdToProcs( iD ).resize( 1, tNotOwnedIpCellIdToProcs( iD ).size() );
         aNotOwnedEnrichedCellBulkPhaseToProcs( iD ).resize( 1, tNotOwnedIpCellBulkPhase( iD ).size() );
 
-        for ( moris::uint jD = 0; jD < tNotOwnedIPVertIndsToProcs( iD ).size(); jD++ )
+        for ( uint jD = 0; jD < tNotOwnedIPVertIndsToProcs( iD ).size(); jD++ )
         {
             aNotOwnedIPVertIndsToProcs( iD )( jD )            = tNotOwnedIPVertIndsToProcs( iD )( jD );
             aNotOwnedBGIPVertsIdsToProcs( iD )( jD )          = tNotOwnedBGIPVertsIdsToProcs( iD )( jD );
@@ -682,7 +681,7 @@ Ghost_Stabilization::prepare_t_matrix_request_answers(
 
     // iterate through and figure out how big to make the weights and indices mats
     // also collect vertex interpolations
-    for ( moris::uint iP = 0; iP < aRequestedBgVertexIds.size(); iP++ )
+    for ( uint iP = 0; iP < aRequestedBgVertexIds.size(); iP++ )
     {
         // no information requested
         if ( aRequestedBgVertexIds( iP ).numel() == 1 and aRequestedBgVertexIds( iP )( 0 ) == MORIS_INDEX_MAX )
@@ -705,7 +704,7 @@ Ghost_Stabilization::prepare_t_matrix_request_answers(
 
         // iterate through the vertices and get their interpolations and figure out
         // how big it is
-        for ( moris::uint iV = 0; iV < aRequestedBgVertexIds( iP ).numel(); iV++ )
+        for ( uint iV = 0; iV < aRequestedBgVertexIds( iP ).numel(); iV++ )
         {
             // check that the bulk phases are consistent
             moris_index tCellIndex = tEnrInterpMesh.get_loc_entity_ind_from_entity_glb_id( aRequestedIpCellIds( iP )( iV ), EntityRank::ELEMENT, 0 );
@@ -741,7 +740,7 @@ Ghost_Stabilization::prepare_t_matrix_request_answers(
     }
 
     //  iterate through and size data
-    for ( moris::uint iP = 0; iP < aRequestedBgVertexIds.size(); iP++ )
+    for ( uint iP = 0; iP < aRequestedBgVertexIds.size(); iP++ )
     {
         if ( aRequestedBgVertexIds( iP ).numel() == 1 and aRequestedBgVertexIds( iP )( 0 ) == MORIS_INDEX_MAX )
         {
@@ -754,7 +753,7 @@ Ghost_Stabilization::prepare_t_matrix_request_answers(
     }
 
     // populate the data
-    for ( moris::uint iP = 0; iP < aRequestedBgVertexIds.size(); iP++ )
+    for ( uint iP = 0; iP < aRequestedBgVertexIds.size(); iP++ )
     {
 
         if ( aRequestedBgVertexIds( iP ).numel() == 1 and aRequestedBgVertexIds( iP )( 0 ) == MORIS_INDEX_MAX )
@@ -764,9 +763,9 @@ Ghost_Stabilization::prepare_t_matrix_request_answers(
             continue;
         }
 
-        moris::uint tCount = 0;
+        uint tCount = 0;
 
-        for ( moris::uint iV = 0; iV < tVertexInterpolations( iP ).size(); iV++ )
+        for ( uint iV = 0; iV < tVertexInterpolations( iP ).size(); iV++ )
         {
             this->add_vertex_interpolation_to_communication_data(
                 tCount,
@@ -798,16 +797,16 @@ Ghost_Stabilization::handle_received_interpolation_data(
 
     std::unordered_map< moris_id, moris_id > tProcRankToIndexInData;
 
-    moris::uint tCount = tCommTable.numel();
+    uint tCount = tCommTable.numel();
 
     // resize proc ranks and setup map to comm table
-    for ( moris::uint i = 0; i < tCommTable.numel(); i++ )
+    for ( uint i = 0; i < tCommTable.numel(); i++ )
     {
         tProcRankToIndexInData[tCommTable( i )] = i;
     }
 
     // iterate through returned information
-    for ( moris::uint iP = 0; iP < aNotOwnedIPVertIndsToProcs.size(); iP++ )
+    for ( uint iP = 0; iP < aNotOwnedIPVertIndsToProcs.size(); iP++ )
     {
 
         if ( aNotOwnedIPVertIndsToProcs( iP ).numel() == 1 and aNotOwnedIPVertIndsToProcs( iP )( 0 ) == MORIS_INDEX_MAX )
@@ -841,7 +840,7 @@ Ghost_Stabilization::handle_received_interpolation_data(
             MORIS_ASSERT( aNotOwnedIPVertIndsToProcs( iP ).numel() == aNotOwnedEnrichedCellBulkPhaseToProcs( iP ).numel(), "Size mismatch in bulk phases." );
 
             // iterate through vertices and set their interpolation weights and basis ids
-            for ( moris::uint iV = 0; iV < aNotOwnedIPVertIndsToProcs( iP ).numel(); iV++ )
+            for ( uint iV = 0; iV < aNotOwnedIPVertIndsToProcs( iP ).numel(); iV++ )
             {
                 // get the vertex
                 moris_index tVertexIndex = aNotOwnedIPVertIndsToProcs( iP )( iV );
@@ -854,7 +853,7 @@ Ghost_Stabilization::handle_received_interpolation_data(
                 // iterate through basis functions and find local indices
                 moris::Matrix< IndexMat > tBasisIndices( tExtractedTMatrixIds( iV ).n_rows(), tExtractedTMatrixIds( iV ).n_cols() );
 
-                for ( moris::uint iBs = 0; iBs < tExtractedTMatrixIds( iV ).numel(); iBs++ )
+                for ( uint iBs = 0; iBs < tExtractedTMatrixIds( iV ).numel(); iBs++ )
                 {
                     // basis id
                     moris_id tId = tExtractedTMatrixIds( iV )( iBs );
@@ -886,12 +885,12 @@ Ghost_Stabilization::handle_received_interpolation_data(
                 }
 
                 // iterate through basis in the base vertex interpolation
-                moris::uint tNumCoeffs = tExtractedTMatrixIds( iV ).numel();
+                uint tNumCoeffs = tExtractedTMatrixIds( iV ).numel();
 
                 // Setup the map in the basis function
                 std::unordered_map< moris::moris_index, moris::moris_index >& tVertEnrichMap = tVertexInterp->get_basis_map();
 
-                for ( moris::uint iB = 0; iB < tNumCoeffs; iB++ )
+                for ( uint iB = 0; iB < tNumCoeffs; iB++ )
                 {
                     moris::moris_index tBasisIndex = tBasisIndices( iB );
 
@@ -929,7 +928,7 @@ Ghost_Stabilization::get_enriched_interpolation_vertex(
     moris_index tVertexPointerInd = 0;
     uint        tCount            = 0;
 
-    for ( moris::uint i = 0; i < tVertexPointers.size(); i++ )
+    for ( uint i = 0; i < tVertexPointers.size(); i++ )
     {
         if ( tVertexPointers( i )->get_base_vertex()->get_id() == aBGVertId )
         {
@@ -1015,7 +1014,7 @@ Ghost_Stabilization::declare_ghost_double_side_sets_in_mesh_new( Ghost_Setup_Dat
 
 void
 Ghost_Stabilization::add_vertex_interpolation_to_communication_data(
-    moris::uint&        aCount,
+    uint&        aCount,
     Vertex_Enrichment*  aInterpolation,
     Matrix< DDRMat >&   aTMatrixWeights,
     Matrix< IndexMat >& aTMatrixIndices,
@@ -1027,7 +1026,7 @@ Ghost_Stabilization::add_vertex_interpolation_to_communication_data(
     moris::Matrix< moris::DDRMat > const&   tBasisWeights = aInterpolation->get_basis_weights();
     moris::Matrix< moris::IndexMat >        tBasisOwners  = aInterpolation->get_owners();
 
-    for ( moris::uint i = 0; i < tBasisIndices.numel(); i++ )
+    for ( uint i = 0; i < tBasisIndices.numel(); i++ )
     {
         aTMatrixIndices( aCount ) = tBasisIndices( i );
         aTMatrixWeights( aCount ) = tBasisWeights( i );
@@ -1043,7 +1042,7 @@ Ghost_Stabilization::add_vertex_interpolation_to_communication_data(
 
 void
 Ghost_Stabilization::extract_vertex_interpolation_from_communication_data(
-    moris::uint const&          aNumVerts,
+    uint const&          aNumVerts,
     Matrix< DDRMat > const&     aTMatrixWeights,
     Matrix< IndexMat > const&   aTMatrixIndices,
     Matrix< IndexMat > const&   aTMatrixOwners,
@@ -1062,7 +1061,7 @@ Ghost_Stabilization::extract_vertex_interpolation_from_communication_data(
     moris_index tStart = 0;
 
     // extract the data into the cells
-    for ( moris::uint iV = 0; iV < aNumVerts; iV++ )
+    for ( uint iV = 0; iV < aNumVerts; iV++ )
     {
         // number of basis interpolating into the vertex
         moris::moris_index tNumBasis = aTMatrixOffsets( iV + 1 ) - tStart;
@@ -1107,16 +1106,16 @@ Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh( Ghost_Setup_Data&
     moris::Cell< std::shared_ptr< moris::Cell< moris_index > > > const& tTransitionLocation                 = tSubphaseNeighborhood->mTransitionNeighborCellLocation;
 
     // get number of bulk phases in the mesh
-    moris::uint tNumBulkPhases = mXTKModel->get_geom_engine()->get_num_bulk_phase();
+    uint tNumBulkPhases = mXTKModel->get_geom_engine()->get_num_bulk_phase();
 
     // number of subphases in mesh
-    moris::uint tNumSubphases = tSubphaseToSubphase.size();
+    uint tNumSubphases = tSubphaseToSubphase.size();
 
     // reserve space in data
-    const moris::uint tReserveDim = 10;
+    const uint tReserveDim = 10;
 
     // estimate: number of ghost facets is in the same order of magnitude as the number of subphases
-    moris::uint tReserveSize = tNumBulkPhases * std::min( tReserveDim, tNumSubphases );
+    uint tReserveSize = tNumBulkPhases * std::min( tReserveDim, tNumSubphases );
 
     // reserve memory in ghost setup data according to estimate
     aGhostSetupData.mMasterSideIpCells.reserve( tReserveSize );
@@ -1140,11 +1139,13 @@ Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh( Ghost_Setup_Data&
     moris_index tTrivial         = 0;
     moris_index tNonTrivialCount = 0;
 
+    // ----------------------------------------------------------------------------------
+    // loop collecting ghost side sets to be constructed
     // iterate through subphases
-    for ( moris::uint iSP = 0; iSP < tNumSubphases; iSP++ )
+    for ( uint iSP = 0; iSP < tNumSubphases; iSP++ )
     {
         // iterate through subphase neighbors
-        for ( moris::uint jSpNeighbor = 0; jSpNeighbor < tSubphaseToSubphase( iSP )->size(); jSpNeighbor++ )
+        for ( uint jSpNeighbor = 0; jSpNeighbor < tSubphaseToSubphase( iSP )->size(); jSpNeighbor++ )
         {
             // if I am the one constructing this subphase then add it to ghost setup data
             if ( this->create_ghost( aGhostSetupData, (moris_index)iSP, (*tSubphaseToSubphase( iSP ))( jSpNeighbor ), tTrivial ) )
@@ -1239,7 +1240,7 @@ Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh( Ghost_Setup_Data&
 
     // get total number of ghost facets for each bulk phase on current processor
     Matrix< DDUMat > tLocalNumberOfGhostFacets( aGhostSetupData.mMasterSideIpCells.size(), 1 );
-    for ( moris::uint iBulkPhase = 0; iBulkPhase < aGhostSetupData.mMasterSideIpCells.size(); iBulkPhase++ )
+    for ( uint iBulkPhase = 0; iBulkPhase < aGhostSetupData.mMasterSideIpCells.size(); iBulkPhase++ )
     {
         tLocalNumberOfGhostFacets( iBulkPhase ) = aGhostSetupData.mMasterSideIpCells( iBulkPhase ).size();
     }
@@ -1251,8 +1252,10 @@ Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh( Ghost_Setup_Data&
     moris::Cell< moris_index > tDoubleSideSetIndexList;
     tDoubleSideSetIndexList.reserve( aGhostSetupData.mMasterSideIpCells.size() );
 
+    // ----------------------------------------------------------------------------------
+    // loop constructing the actual ghost facets
     // iterate through bulk phases
-    for ( moris::uint iBulkPhase = 0; iBulkPhase < aGhostSetupData.mMasterSideIpCells.size(); iBulkPhase++ )
+    for ( uint iBulkPhase = 0; iBulkPhase < aGhostSetupData.mMasterSideIpCells.size(); iBulkPhase++ )
     {
         // allocate space in the integration mesh double side sets
         tEnrIntegMesh.mDoubleSideSets( aGhostSetupData.mDblSideSetIndexInMesh( iBulkPhase ) ).resize( aGhostSetupData.mMasterSideIpCells( iBulkPhase ).size() );
@@ -1260,7 +1263,7 @@ Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh( Ghost_Setup_Data&
         MORIS_LOG_SPEC( "Total Ghost Facets for Bulk Phase " + std::to_string( iBulkPhase ), tTotalNumberOfGhostFacets( iBulkPhase ) );
 
         // iterate through double sides in this bulk phase
-        for ( moris::uint iGhostFacet = 0; iGhostFacet < aGhostSetupData.mMasterSideIpCells( iBulkPhase ).size(); iGhostFacet++ )
+        for ( uint iGhostFacet = 0; iGhostFacet < aGhostSetupData.mMasterSideIpCells( iBulkPhase ).size(); iGhostFacet++ )
         {
             // create a new side cluster for each of the pairs
             std::shared_ptr< Side_Cluster > tSlaveSideCluster =
@@ -1333,14 +1336,14 @@ Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh_new( Ghost_Setup_D
     Cut_Integration_Mesh*                 tCutIgMesh  = mXTKModel->get_cut_integration_mesh();
 
     // get number of bulk phases in the mesh
-    moris::uint tNumBulkPhases = mXTKModel->get_geom_engine()->get_num_bulk_phase();
+    uint tNumBulkPhases = mXTKModel->get_geom_engine()->get_num_bulk_phase();
 
     // estimate: number of ghost facets is in the same order of magnitude as the number of subphases
     // FIXME: estimate base on SPs, should be based on SPGs for better accuracy
-    moris::uint tReserveSize = tNumBulkPhases * std::min( (uint) 10, tCutIgMesh->get_num_subphases() );
+    uint tReserveSize = tNumBulkPhases * std::min( (uint) 10, tCutIgMesh->get_num_subphases() );
 
     // get number of B-spline meshes
-    moris::uint tNumBspMeshes = mMeshIndices.numel();
+    uint tNumBspMeshes = mMeshIndices.numel();
 
     // size lists in Ghost setup data 
     aGhostSetupData.mMasterSideIpCellsNew.resize( tNumBspMeshes );
@@ -1353,6 +1356,8 @@ Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh_new( Ghost_Setup_D
     // initialize counter keeping track of the number of non-trivial Lagrange element transitions
     uint tNonTrivialCount = 0;
 
+    // ----------------------------------------------------------------------------------
+    // loops collecting ghost facets to be constructed
     for( uint iBspMesh = 0; iBspMesh < tNumBspMeshes; iBspMesh++ )
     {
         // get the mesh index
@@ -1393,6 +1398,7 @@ Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh_new( Ghost_Setup_D
         moris::Cell< moris::Cell< moris_index > > const& tBaseIpCellAndSpgToUnzipping = 
                 mXTKModel->mEnrichment->get_unzipped_IP_cell_to_base_IP_cell_and_SPG( iBspMesh );
 
+        // loop collecting ghost side sets to be constructed for the current mesh
         // go through all SPG - neighbor pairs
         for( uint iSPG = 0; iSPG < tNumSPGs; iSPG++ )
         {
@@ -1595,15 +1601,17 @@ Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh_new( Ghost_Setup_D
     // initialize Ghost-Dbl.-SS. index
     moris_index tGhostDblSsIndex = 0;
 
+    // ----------------------------------------------------------------------------------
+    // loops constructing the actual ghost facets
     // iterate through B-spline meshes ...
     for ( uint iBspMesh = 0; iBspMesh < tNumBspMeshes; iBspMesh++ )
     {
         // ... and bulk phases
-        for ( moris::uint iBulkPhase = 0; iBulkPhase < tNumBulkPhases; iBulkPhase++ )
+        for ( uint iBulkPhase = 0; iBulkPhase < tNumBulkPhases; iBulkPhase++ )
         {
             // get the index of the current Double-Side-Set in the enriched integration mesh
             moris_index tCurrentDblSsIndexInEnrIgMesh = aGhostSetupData.mDblSideSetIndexInMesh( tGhostDblSsIndex );
-            
+
             // store index in list of all Ghost Dbl.-SS.'s
             tDoubleSideSetIndexList.push_back( tCurrentDblSsIndexInEnrIgMesh );
 
@@ -1620,7 +1628,7 @@ Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh_new( Ghost_Setup_D
                 tLocalNumberOfGhostFacets( iBspMesh, iBulkPhase ) );
 
             // iterate through double sides in this bulk phase
-            for ( moris::uint iGhostFacet = 0; iGhostFacet < tNumGhostFacetsInDblSS; iGhostFacet++ )
+            for ( uint iGhostFacet = 0; iGhostFacet < tNumGhostFacetsInDblSS; iGhostFacet++ )
             {
                 // create a new single side cluster - slave side
                 std::shared_ptr< Side_Cluster > tSlaveSideCluster =
@@ -2047,7 +2055,7 @@ Ghost_Stabilization::create_master_side_cluster(
                 aSlaveSideCluster->mIntegrationCells( 0 )->get_geometric_vertices_on_side_ordinal( aSlaveSideCluster->mIntegrationCellSideOrdinals( 0 ) );
         
         // iterate through vertices
-        for( moris::uint iV = 0; iV < tSlaveVertices.size(); iV++ )
+        for( uint iV = 0; iV < tSlaveVertices.size(); iV++ )
         {
             if( !tVertexGroup->vertex_is_in_group( tSlaveVertices( iV )->get_index() ) )
             {
@@ -2181,7 +2189,7 @@ Ghost_Stabilization::create_master_side_cluster_new(
                 aSlaveSideCluster->mIntegrationCells( 0 )->get_geometric_vertices_on_side_ordinal( aSlaveSideCluster->mIntegrationCellSideOrdinals( 0 ) );
 
         // iterate through vertices
-        for( moris::uint iV = 0; iV < tSlaveVertices.size(); iV++ )
+        for( uint iV = 0; iV < tSlaveVertices.size(); iV++ )
         {
             if( !tVertexGroup->vertex_is_in_group( tSlaveVertices( iV )->get_index() ) )
             {
@@ -2301,7 +2309,7 @@ Ghost_Stabilization::create_non_trivial_master_ig_cell(
     // collect all vertices on the ghost facet
     moris::Cell< moris::mtk::Vertex* > tCellVertices( tPermutedAdjVertices.size() + tPermutedSlaveVertices.size() );
 
-    moris::uint tCount = 0;
+    uint tCount = 0;
     for ( auto iV : tPermutedAdjVertices )
     {
         tCellVertices( tCount++ ) = &mXTKModel->get_background_mesh().get_mtk_vertex( iV->get_index() );
@@ -2382,7 +2390,7 @@ Ghost_Stabilization::create_non_trivial_master_ig_cell_new(
     // collect all vertices on the ghost facet
     moris::Cell< moris::mtk::Vertex* > tCellVertices( tPermutedAdjVertices.size() + tPermutedSlaveVertices.size() );
 
-    moris::uint tCount = 0;
+    uint tCount = 0;
     for ( auto iV : tPermutedAdjVertices )
     {
         tCellVertices( tCount++ ) = &mXTKModel->get_background_mesh().get_mtk_vertex( iV->get_index() );
@@ -2457,7 +2465,7 @@ Ghost_Stabilization::create_linear_ig_cell( Ghost_Setup_Data& aGhostSetupData,
 
     moris::Cell< moris::mtk::Vertex* > tLinearVertices;
 
-    moris::uint tSpatialDim = mXTKModel->get_spatial_dim();
+    uint tSpatialDim = mXTKModel->get_spatial_dim();
 
     MORIS_ERROR( tBaseCell->get_geometry_type() == mtk::Geometry_Type::HEX || tBaseCell->get_geometry_type() == mtk::Geometry_Type::QUAD,
         "Ghost only tested on quads and hex" );
@@ -2527,7 +2535,7 @@ Ghost_Stabilization::permute_slave_vertices(
     moris::Cell< moris::mtk::Vertex const* >&       aPermutedSlaveVertices,
     moris::Cell< moris::mtk::Vertex const* >&       aPermutedAdjMastVertices )
 {
-    moris::uint tSpatialDim = mXTKModel->get_spatial_dim();
+    uint tSpatialDim = mXTKModel->get_spatial_dim();
 
     switch ( tSpatialDim )
     {
@@ -2551,7 +2559,7 @@ Ghost_Stabilization::get_local_coords_on_transition_side(
     moris_index const&        aTransitionLoc,
     Cell< Matrix< DDRMat > >& aLocCoord )
 {
-    moris::uint tTag = 100 * mXTKModel->get_spatial_dim() + 10 * aMySideOrdinal + aTransitionLoc;
+    uint tTag = 100 * mXTKModel->get_spatial_dim() + 10 * aMySideOrdinal + aTransitionLoc;
 
     switch ( tTag )
     {

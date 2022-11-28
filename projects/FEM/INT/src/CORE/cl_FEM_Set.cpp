@@ -187,7 +187,7 @@ namespace moris
         {
             if ( !mIsEmptySet )    // FIXME this flag is a hack. find better solution
             {
-                // std::cout << "MeshSetName: " << mMeshSet->get_set_name() << std::endl;
+                // std::cout << "Initialize FEM Set with Name: " << mMeshSet->get_set_name() << std::endl;
 
                 mIsStaggered = aIsStaggered;
 

@@ -2674,7 +2674,7 @@ namespace xtk
                 moris_index tBulkPhaseIndex = tEnrichedCellsInBlock( iEnrIpCell )->get_bulkphase_index();
 
                 // get cluster associated with enriched cell
-                xtk::Cell_Cluster const &tCluster = this->get_xtk_cell_cluster( tEnrichedCellsInBlock( iEnrIpCell )->get_index() );
+                xtk::Cell_Cluster const & tCluster = this->get_xtk_cell_cluster( tEnrichedCellsInBlock( iEnrIpCell )->get_index() );
 
                 if ( tEnrichedCellsInBlock( iEnrIpCell )->get_owner() == tProcRank )
                 {
