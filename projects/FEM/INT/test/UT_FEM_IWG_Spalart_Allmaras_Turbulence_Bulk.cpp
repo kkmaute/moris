@@ -40,7 +40,7 @@
 using namespace moris;
 using namespace fem;
 
-void
+inline void
 tWallDistanceValFunc(
         moris::Matrix< moris::DDRMat >&                aPropMatrix,
         moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
@@ -52,7 +52,7 @@ tWallDistanceValFunc(
     aPropMatrix = aParameters( 0 ) * tFIWallDist->val();
 }
 
-void
+inline void
 tWallDistanceDerFunc(
         moris::Matrix< moris::DDRMat >&                aPropMatrix,
         moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
@@ -1607,4 +1607,3 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Negative",
         }
     }
 } /*END_TEST_CASE*/
-

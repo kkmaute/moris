@@ -32,10 +32,10 @@ namespace moris
      */
     template< typename Matrix_Type >
     auto
-    find( const Matrix< Matrix_Type > & aA)
-    -> decltype( find( aA.matrix_data()) )
+    find( const Matrix< Matrix_Type >& aA )
+            -> decltype( find( aA.matrix_data() ) )
     {
-    	return find( aA.matrix_data() );
+        return find( aA.matrix_data() );
     }
 
     /**
@@ -48,15 +48,15 @@ namespace moris
      */
     template< typename Matrix_Type >
     auto
-    find( const Matrix< Matrix_Type > & aA,
-          const moris::uint                 & aB )
-    -> decltype( find( aA.matrix_data(), aB ) )
+    find(
+            const Matrix< Matrix_Type >& aA,
+            const moris::uint&           aB )
+            -> decltype( find( aA.matrix_data(), aB ) )
     {
 
         return find( aA.matrix_data(), aB );
     }
 
-}
+}    // namespace moris
 
 #endif /* PROJECTS_LINALG_SRC_FN_FIND_HPP_ */
-

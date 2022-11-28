@@ -11,12 +11,15 @@
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
 
 #include "cl_Sparse_Matrix_EpetraFECrs.hpp"
-#include "cl_MatrixPETSc.hpp"
 #include "cl_Vector_Epetra.hpp"
-#include "cl_Vector_PETSc.hpp"
 #include "cl_Map_Epetra.hpp"
-#include "cl_Map_PETSc.hpp"
 #include "cl_SOL_Dist_Map.hpp"
+
+#ifdef MORIS_HAVE_PETSC
+#include "cl_MatrixPETSc.hpp"
+#include "cl_Vector_PETSc.hpp"
+#include "cl_Map_PETSc.hpp"
+#endif
 
 namespace moris
 {
@@ -31,15 +34,16 @@ namespace moris
 
         //-------------------------------------------------------------------------------------------
 
-        Dist_Matrix * sol::Matrix_Vector_Factory::create_matrix(
-                Solver_Interface * aInput,
-                Dist_Map         * aMap,
-                bool               aPointMap,
-                bool               aBuildGraph)
+        Dist_Matrix*
+        sol::Matrix_Vector_Factory::create_matrix(
+                Solver_Interface* aInput,
+                Dist_Map*         aMap,
+                bool              aPointMap,
+                bool              aBuildGraph )
         {
-            Dist_Matrix * tSparseMatrix = nullptr;
+            Dist_Matrix* tSparseMatrix = nullptr;
 
-            switch( mMapType )
+            switch ( mMapType )
             {
                 case MapType::Epetra:
                 {
@@ -48,7 +52,11 @@ namespace moris
                 }
                 case MapType::Petsc:
                 {
+#ifdef MORIS_HAVE_PETSC
                     tSparseMatrix = new Matrix_PETSc( aInput, aMap );
+#else
+                    MORIS_ERROR( false, "MORIS is configured with out PETSC support." );
+#endif
                     break;
                 }
                 default:
@@ -62,22 +70,23 @@ namespace moris
 
         //-------------------------------------------------------------------------------------------
 
-        Dist_Matrix * sol::Matrix_Vector_Factory::create_matrix(
+        Dist_Matrix*
+        sol::Matrix_Vector_Factory::create_matrix(
                 Dist_Map* aRowMap,
                 Dist_Map* aColMap )
         {
-            Dist_Matrix * tSparseMatrix = nullptr;
+            Dist_Matrix* tSparseMatrix = nullptr;
 
-            switch( mMapType )
+            switch ( mMapType )
             {
                 case MapType::Epetra:
                 {
                     tSparseMatrix = new Sparse_Matrix_EpetraFECrs( aRowMap, aColMap );
                     break;
                 }
-                //case (MapType::Petsc):
-                //    tSparseMatrix = new Matrix_PETSc( aInput, aMap );
-                //    break;
+                // case (MapType::Petsc):
+                //     tSparseMatrix = new Matrix_PETSc( aInput, aMap );
+                //     break;
                 default:
                 {
                     MORIS_ERROR( false, "No matrix type specified." );
@@ -89,13 +98,14 @@ namespace moris
 
         //-------------------------------------------------------------------------------------------
 
-        Dist_Matrix * sol::Matrix_Vector_Factory::create_matrix(
+        Dist_Matrix*
+        sol::Matrix_Vector_Factory::create_matrix(
                 const uint aRows,
                 const uint aCols )
         {
-            Dist_Matrix * tSparseMatrix = nullptr;
+            Dist_Matrix* tSparseMatrix = nullptr;
 
-            switch( mMapType )
+            switch ( mMapType )
             {
                 case MapType::Epetra:
                 {
@@ -104,7 +114,11 @@ namespace moris
                 }
                 case MapType::Petsc:
                 {
+#ifdef MORIS_HAVE_PETSC
                     tSparseMatrix = new Matrix_PETSc( aRows, aCols );
+#else
+                    MORIS_ERROR( false, "MORIS is configured with out PETSC support." );
+#endif
                     break;
                 }
                 default:
@@ -118,26 +132,32 @@ namespace moris
 
         //-------------------------------------------------------------------------------------------------
 
-        Dist_Vector * sol::Matrix_Vector_Factory::create_vector(
-                Solver_Interface * aInput,
-                Dist_Map         * aMap,
-                const sint         aNumVectors,
-                bool               aPointMap,
-                bool               aManageMap )
+        Dist_Vector*
+        sol::Matrix_Vector_Factory::create_vector(
+                Solver_Interface* aInput,
+                Dist_Map*         aMap,
+                const sint        aNumVectors,
+                bool              aPointMap,
+                bool              aManageMap )
         {
-            Dist_Vector * tDistVector = nullptr;
+            Dist_Vector* tDistVector = nullptr;
 
-            switch( mMapType )
+            switch ( mMapType )
             {
                 case MapType::Epetra:
                 {
-                    tDistVector = new Vector_Epetra( aMap, aNumVectors, aPointMap,  aManageMap );
+                    tDistVector = new Vector_Epetra( aMap, aNumVectors, aPointMap, aManageMap );
                     break;
                 }
                 case MapType::Petsc:
                 {
-                    MORIS_ERROR( aNumVectors == 1, "Multivector not implemented for petsc");
+#ifdef MORIS_HAVE_PETSC
+                    MORIS_ERROR( aNumVectors == 1, "Multivector not implemented for petsc" );
+
                     tDistVector = new Vector_PETSc( aInput, aMap, aNumVectors, aManageMap );
+#else
+                    MORIS_ERROR( false, "MORIS is configured with out PETSC support." );
+#endif
                     break;
                 }
                 default:
@@ -151,15 +171,16 @@ namespace moris
 
         //-------------------------------------------------------------------------------------------------
 
-        Dist_Vector * sol::Matrix_Vector_Factory::create_vector(
-                Dist_Map   * aMap,
-                const sint   aNumVectors,
-                bool         aPointMap,
-                bool         aManageMap)
+        Dist_Vector*
+        sol::Matrix_Vector_Factory::create_vector(
+                Dist_Map*  aMap,
+                const sint aNumVectors,
+                bool       aPointMap,
+                bool       aManageMap )
         {
-            Dist_Vector * tDistVector = nullptr;
+            Dist_Vector* tDistVector = nullptr;
 
-            switch( mMapType )
+            switch ( mMapType )
             {
                 case MapType::Epetra:
                 {
@@ -180,13 +201,14 @@ namespace moris
         }
 
         //-------------------------------------------------------------------------------------------------
-        Dist_Map* sol::Matrix_Vector_Factory::create_map(
-                const Matrix< DDSMat > & aMyGlobalIds,
-                const Matrix< DDUMat > & aMyConstraintIds )
+        Dist_Map*
+        sol::Matrix_Vector_Factory::create_map(
+                const Matrix< DDSMat >& aMyGlobalIds,
+                const Matrix< DDUMat >& aMyConstraintIds )
         {
             Dist_Map* tMap = nullptr;
 
-            switch( mMapType )
+            switch ( mMapType )
             {
                 case MapType::Epetra:
                 {
@@ -195,7 +217,11 @@ namespace moris
                 }
                 case MapType::Petsc:
                 {
+#ifdef MORIS_HAVE_PETSC
                     tMap = new Map_PETSc( aMyGlobalIds, aMyConstraintIds );
+#else
+                    MORIS_ERROR( false, "MORIS is configured with out PETSC support." );
+#endif
                     break;
                 }
                 default:
@@ -209,11 +235,12 @@ namespace moris
 
         //-------------------------------------------------------------------------------------------------
 
-        Dist_Map* sol::Matrix_Vector_Factory::create_map( const Matrix< DDSMat > & aMyGlobalIds )
+        Dist_Map*
+        sol::Matrix_Vector_Factory::create_map( const Matrix< DDSMat >& aMyGlobalIds )
         {
             Dist_Map* tMap = nullptr;
 
-            switch( mMapType )
+            switch ( mMapType )
             {
                 case MapType::Epetra:
                 {
@@ -222,7 +249,11 @@ namespace moris
                 }
                 case MapType::Petsc:
                 {
+#ifdef MORIS_HAVE_PETSC
                     tMap = new Map_PETSc( aMyGlobalIds );
+#else
+                    MORIS_ERROR( false, "MORIS is configured with out PETSC support." );
+#endif
                     break;
                 }
                 default:
@@ -233,6 +264,5 @@ namespace moris
             }
             return tMap;
         }
-    }
-}
-
+    }    // namespace sol
+}    // namespace moris

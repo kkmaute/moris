@@ -1682,6 +1682,48 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
+        void
+        Pdv_Host_Manager::set_dQIdp( Cell< Matrix< DDRMat >* > adQIdp,
+                Matrix< DDSMat >*                              aMap )
+        {
+            // Number
+            sint tNumIQIs = adQIdp.size();
 
+            // Create factory for resulting distributed vector
+            sol::Matrix_Vector_Factory tDistributedFactory;
+
+            // node map from
+            sol::Dist_Map* tMap = tDistributedFactory.create_map( this->get_my_local_global_map() );
+
+            // allocate dist vector
+            sol::Dist_Vector* tdQIDp = tDistributedFactory.create_vector( tMap, tNumIQIs, false, true );
+
+            for ( uint iIQI = 0; iIQI < (uint)tNumIQIs; iIQI++ )
+            {
+                MORIS_ASSERT( mIntersectionNodes.size() == adQIdp( iIQI )->n_rows(), "Dimension mismatch, rows nodes" );
+
+                // iterate through intersection vertices
+                for ( uint iNodes = 0; iNodes < mIntersectionNodes.size(); iNodes++ )
+                {
+                    if ( mIntersectionNodes( iNodes ) != nullptr )
+                    {
+                        moris_id tStartingPDVId = mIntersectionNodes( iNodes )->get_starting_pdv_id();
+
+                        moris::Matrix< DDSMat > tPDVIds( 1, mIntersectionNodes( iNodes )->get_num_pdvs() );
+
+                        for ( moris::uint iPdv = 0; iPdv < mIntersectionNodes( iNodes )->get_num_pdvs(); iPdv++ )
+                        {
+                            tPDVIds( iPdv ) = tStartingPDVId + iPdv;
+                        }
+
+                        Matrix< DDRMat > tIndividualSensitivity = adQIdp( iIQI )->get_row( iNodes );
+
+                        tdQIDp->sum_into_global_values( tPDVIds, tIndividualSensitivity, iIQI );
+                    }
+                }
+            }
+
+            this->set_dQIdp_dist_vect( tdQIDp );
+        }
     }    // namespace ge
 }    // namespace moris

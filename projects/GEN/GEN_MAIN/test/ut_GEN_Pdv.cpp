@@ -37,41 +37,47 @@ namespace moris
     Matrix< DDRMat > gdIQIdPDV1( 1, gNumPDVs );
     Matrix< DDRMat > gdIQIdPDV2( 1, gNumPDVs );
 
-    sol::Dist_Vector*
-    MSI::Design_Variable_Interface::get_dQIdp()
+    namespace ge
     {
-        // Factory
-        sol::Matrix_Vector_Factory tDistributedFactory;
-
-        // IQI/PDV sensitivities
-        Matrix< DDSMat > tFullPDVIds( gNumPDVs, 1 );
-        if ( par_rank() == 0 )
+        class Pdv_Host_Manager_Test : public ge::Pdv_Host_Manager
         {
-            for ( uint tPDVIndex = 0; tPDVIndex < gNumPDVs; tPDVIndex++ )
+            sol::Dist_Vector*
+            get_dQIdp()
             {
-                tFullPDVIds( tPDVIndex ) = tPDVIndex;
-                gdIQIdPDV1( tPDVIndex )  = 1.0;
-                gdIQIdPDV2( tPDVIndex )  = (real)tPDVIndex;
+                // Factory
+                sol::Matrix_Vector_Factory tDistributedFactory;
+
+                // IQI/PDV sensitivities
+                Matrix< DDSMat > tFullPDVIds( gNumPDVs, 1 );
+                if ( par_rank() == 0 )
+                {
+                    for ( uint tPDVIndex = 0; tPDVIndex < gNumPDVs; tPDVIndex++ )
+                    {
+                        tFullPDVIds( tPDVIndex ) = tPDVIndex;
+                        gdIQIdPDV1( tPDVIndex )  = 1.0;
+                        gdIQIdPDV2( tPDVIndex )  = (real)tPDVIndex;
+                    }
+                }
+
+                // PDV IDs
+                Matrix< DDSMat > tOwnedPDVIds = this->get_my_local_global_map();
+
+                // IQI sensitivity vector
+                sol::Dist_Map*    tPDVMap   = tDistributedFactory.create_map( tOwnedPDVIds );
+                sol::Dist_Vector* tdIQIdPDV = tDistributedFactory.create_vector( tPDVMap, 2, false, true );
+
+                // Fill values
+                if ( par_rank() == 0 )
+                {
+                    tdIQIdPDV->replace_global_values( tFullPDVIds, gdIQIdPDV1, 0 );
+                    tdIQIdPDV->replace_global_values( tFullPDVIds, gdIQIdPDV2, 1 );
+                }
+                tdIQIdPDV->vector_global_assembly();
+
+                return tdIQIdPDV;
             }
-        }
-
-        // PDV IDs
-        Matrix< DDSMat > tOwnedPDVIds = this->get_my_local_global_map();
-
-        // IQI sensitivity vector
-        sol::Dist_Map*    tPDVMap   = tDistributedFactory.create_map( tOwnedPDVIds );
-        sol::Dist_Vector* tdIQIdPDV = tDistributedFactory.create_vector( tPDVMap, 2, false, true );
-
-        // Fill values
-        if ( par_rank() == 0 )
-        {
-            tdIQIdPDV->replace_global_values( tFullPDVIds, gdIQIdPDV1, 0 );
-            tdIQIdPDV->replace_global_values( tFullPDVIds, gdIQIdPDV2, 1 );
-        }
-        tdIQIdPDV->vector_global_assembly();
-
-        return tdIQIdPDV;
-    }
+        };
+    }    // namespace ge
 
     //--------------------------------------------------------------------------------------------------------------
 
@@ -331,8 +337,9 @@ namespace moris
                         Matrix< DDUMat >( { { 0, 1, 2 } } ),
                         Matrix< DDRMat >( { {} } ) );
 
-                // Create PDV_Type host manager
-                Pdv_Host_Manager tPDVHostManager;
+                // Create PDV_Type host manager (here: test version defined above)
+                Pdv_Host_Manager_Test tPDVHostManager;
+
                 tPDVHostManager.set_num_background_nodes( 0 );
 
                 // Node IDs/owners per set
@@ -471,8 +478,9 @@ namespace moris
 
         TEST_CASE( "PDV Sensitivities", "[gen], [pdv], [sensitivity], [pdv sensitivity]" )
         {
-            // Create PDV_Type host manager
-            Pdv_Host_Manager tPDVHostManager;
+            // Create PDV_Type host manager (here: test version defined above)
+            Pdv_Host_Manager_Test tPDVHostManager;
+
             tPDVHostManager.mPdvTypeList = { PDV_Type::DENSITY };
             tPDVHostManager.mPdvTypeMap.set_size( 10, 1, -1 );
             tPDVHostManager.mPdvTypeMap( 3 ) = 0;

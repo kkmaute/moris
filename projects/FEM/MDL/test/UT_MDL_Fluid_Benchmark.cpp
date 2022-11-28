@@ -82,18 +82,20 @@ namespace moris
 {
 
     //-------------------------------------------------------------------------------------
-    void
-    ConstFuncVal_MDLFluidBench( moris::Matrix< moris::DDRMat >& aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >&      aParameters,
-            moris::fem::Field_Interpolator_Manager*             aFIManager )
+    inline void
+    ConstFuncVal_MDLFluidBench(
+            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         aPropMatrix = aParameters( 0 );
     }
 
-    void
-    InletVelocityFunc_MDLFluidBench( moris::Matrix< moris::DDRMat >& aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >&           aParameters,
-            moris::fem::Field_Interpolator_Manager*                  aFIManager )
+    inline void
+    InletVelocityFunc_MDLFluidBench(
+            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         // unpack parameters
         real tRadiusChannel = aParameters( 0 )( 0 );
@@ -110,10 +112,11 @@ namespace moris
                          * ( tY - ( tYChannel - tRadiusChannel ) ) / ( 2.0 * std::pow( tRadiusChannel, 2.0 ) );
     }
 
-    void
-    FSVelocityFunc_MDLFluidBench( moris::Matrix< moris::DDRMat >& aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >&        aParameters,
-            moris::fem::Field_Interpolator_Manager*               aFIManager )
+    inline void
+    FSVelocityFunc_MDLFluidBench(
+            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         // get space dim
         uint tSpaceDim = aFIManager->get_IP_geometry_interpolator()->get_number_of_space_dimensions();
@@ -122,16 +125,17 @@ namespace moris
         aPropMatrix.set_size( tSpaceDim, 1, 0.0 );
     }
 
-    void
-    InletPressureFunc_MDLFluidBench( moris::Matrix< moris::DDRMat >& aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >&           aParameters,
-            moris::fem::Field_Interpolator_Manager*                  aFIManager )
+    inline void
+    InletPressureFunc_MDLFluidBench(
+            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         // set size for aPropMatrix
         aPropMatrix.set_size( 1, 1, aParameters( 0 )( 0 ) );
     }
 
-    bool
+    inline bool
     tSolverOutputCriteria_MDLFluidBench( moris::tsa::Time_Solver* )
     {
         return true;
@@ -2545,4 +2549,3 @@ namespace moris
     }
 
 }    // namespace moris
-

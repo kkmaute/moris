@@ -158,7 +158,7 @@ namespace moris
             char* task = new char[ 61 ]{ 'S', 'T', 'A', 'R', 'T', '\0' };
 
             // pad the string with the spaces as it is the convention in fortran
-            std::fill( &task[ 0 ] + std::strlen( &task[ 0 ] ), &task[ 0 ] + 61, ' ' );
+            std::fill( &task[ 0 ] + std::strlen( &task[ 0 ] ), &task[ 0 ] + 60, ' ' );
 
             // run the algorithm until converges
             while ( ( strncmp( task, "FG", 2 ) == 0 ) ||       //
@@ -207,6 +207,8 @@ namespace moris
                     break;
                 }
             }
+
+            delete[] task;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -215,7 +217,7 @@ namespace moris
         Algorithm_LBFGS::func( int aIter, double* aAdv, double& aObjval )
         {
             // Update the ADV matrix
-            Matrix< DDRMat > tADVs( aAdv, mProblem->get_num_advs(), 1 );
+            Matrix< DDRMat > tADVs( aAdv, mProblem->get_num_advs(), 1, false, true );
 
             // Write restart file
             this->write_advs_to_file( tADVs );
@@ -235,7 +237,7 @@ namespace moris
                 double* aD_Obj )
         {
             // Update the ADV matrix
-            Matrix< DDRMat > tADVs( aAdv, mProblem->get_num_advs(), 1 );
+            Matrix< DDRMat > tADVs( aAdv, mProblem->get_num_advs(), 1, false, true );
 
             // Compute design criteria gradients
             this->compute_design_criteria_gradients( tADVs );

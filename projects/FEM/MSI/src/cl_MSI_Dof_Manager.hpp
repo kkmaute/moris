@@ -31,8 +31,7 @@ namespace moris
             moris::Cell< Pdof_Host* >           mPdofHostList;              // List of all pdof hosts
             moris::Cell< Adof* >                mAdofList;                  // List of all adofs
             moris::Cell< moris::Cell< Adof* > > mAdofListOwned;             // List of all owned adofs
-            moris::Cell< moris::Cell< Adof* > > mAdofListOwnedAndShared;    // List of all owned adofs
-            // moris::Cell < Adof * >       mAdofListShared;
+            moris::Cell< moris::Cell< Adof* > > mAdofListOwnedAndShared;    // List of all owned and shared adofs
 
             moris::Cell< enum Dof_Type > mPdofTypeList;    // List containing all used unique dof types.
             Matrix< DDSMat >             mPdofTypeMap;     // Map which maps the unique dof types onto consecutive values.
@@ -156,8 +155,9 @@ namespace moris
              * @param[in] aAdofOffsets     Adof offsets for this processor.
              *
              */
-            void set_owned_adofs_ids( const moris::Cell< moris::Cell< Adof* > >& aAdofListofTypes,
-                    const uint&                                                  aAdofOffsets );
+            void set_owned_adofs_ids(
+                    const moris::Cell< moris::Cell< Adof* > >& aAdofListofTypes,
+                    const uint&                                aAdofOffsets );
 
             //------------------------------------------------------------------------------
             /**
@@ -167,8 +167,9 @@ namespace moris
              * @param[in] aAdofOffsets     Adof offsets for this processor.
              *
              */
-            void set_owned_adofs_ids_by_type( const moris::Cell< moris::Cell< Adof* > >& aAdofListofTypes,
-                    const uint&                                                          aAdofOffsets );
+            void set_owned_adofs_ids_by_type(
+                    const moris::Cell< moris::Cell< Adof* > >& aAdofListofTypes,
+                    const uint&                                aAdofOffsets );
 
             //------------------------------------------------------------------------------
             /**
@@ -179,8 +180,9 @@ namespace moris
              * @param[in] aAdofOffsets     Adof offsets for this processor.
              *
              */
-            void set_owned_adofs_ids_by_host( const moris::Cell< moris::Cell< Adof* > >& aAdofListofTypes,
-                    const uint&                                                          aAdofOffsets );
+            void set_owned_adofs_ids_by_host(
+                    const moris::Cell< moris::Cell< Adof* > >& aAdofListofTypes,
+                    const uint&                                aAdofOffsets );
 
             //------------------------------------------------------------------------------
 
@@ -352,6 +354,7 @@ namespace moris
             Matrix< DDSMat > get_local_overlapping_adof_ids( const moris::Cell< enum Dof_Type >& aListOfDofTypes );
 
             //-----------------------------------------------------------------------------------------------------------
+
             Matrix< DDSMat > get_local_overlapping_adof_ids();
 
             //-----------------------------------------------------------------------------------------------------------

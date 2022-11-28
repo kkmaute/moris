@@ -82,18 +82,20 @@ namespace moris
 
     //-------------------------------------------------------------------------------------
 
-    void
-    ConstFunctionVal_MDLFEMBench2( moris::Matrix< moris::DDRMat >& aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >&         aParameters,
-            moris::fem::Field_Interpolator_Manager*                aFIManager )
+    inline void
+    ConstFunctionVal_MDLFEMBench2(
+            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         aPropMatrix = aParameters( 0 );
     }
 
-    void
-    AnalyticalTempFunc_MDLFEMBench2( moris::Matrix< moris::DDRMat >& aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >&           aParameters,
-            moris::fem::Field_Interpolator_Manager*                  aFIManager )
+    inline void
+    AnalyticalTempFunc_MDLFEMBench2(
+            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         // get parameters
         real RInner  = aParameters( 0 )( 0 );                        // inner radius
@@ -114,10 +116,11 @@ namespace moris
         aPropMatrix = { { TInner + ( Q * std::log( R / RInner ) ) / ( kappa * 2 * M_PI ) } };
     }
 
-    void
-    AnalyticalTemp2MatFunc_MDLFEMBench2( moris::Matrix< moris::DDRMat >& aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >&               aParameters,
-            moris::fem::Field_Interpolator_Manager*                      aFIManager )
+    inline void
+    AnalyticalTemp2MatFunc_MDLFEMBench2(
+            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         // get parameters
         real RInner  = aParameters( 0 )( 0 );                        // inner radius
@@ -150,7 +153,7 @@ namespace moris
         aPropMatrix = tT;
     }
 
-    bool
+    inline bool
     tSolverOutputCriteria_MDLFEMBench2( moris::tsa::Time_Solver* )
     {
         return true;
@@ -1510,4 +1513,3 @@ namespace moris
         }
     }
 }    // namespace moris
-

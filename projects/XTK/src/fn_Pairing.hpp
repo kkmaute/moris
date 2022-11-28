@@ -15,16 +15,14 @@
 
 namespace xtk
 {
-
-template<typename Integer>
-static Integer
-cantor_pairing(Integer  const aPt1,
-               Integer  const aPt2)
-{
-    Integer tID = ((aPt1*aPt1+3*aPt1+2*aPt1*aPt2+aPt2+aPt2*aPt2)/2);
-    return tID;
-}
-}
+    template< typename Integer >
+    inline static Integer
+    cantor_pairing( Integer const aPt1,
+            Integer const         aPt2 )
+    {
+        Integer tID = ( ( aPt1 * aPt1 + 3 * aPt1 + 2 * aPt1 * aPt2 + aPt2 + aPt2 * aPt2 ) / 2 );
+        return tID;
+    }
+}    // namespace xtk
 
 #endif /* SRC_TOOLS_FN_PAIRING_HPP_ */
-

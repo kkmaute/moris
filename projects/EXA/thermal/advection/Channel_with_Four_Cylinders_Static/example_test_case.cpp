@@ -170,7 +170,7 @@ void check_linear_results_parallel()
     }
 
     // check results at reference node (watch: node Id depends on processor)
-    uint tNodeId = 68;
+    uint tNodeId = 2628;
 
     check_linear_results(tExoIO,tNodeId);
 }

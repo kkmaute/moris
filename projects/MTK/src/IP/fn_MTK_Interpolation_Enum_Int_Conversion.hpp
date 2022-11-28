@@ -17,90 +17,90 @@
 
 namespace moris
 {
-namespace mtk
-{
-    //------------------------------------------------------------------------------
-
-    uint
-    ip_order_enum_to_uint( enum Interpolation_Order aIpOrder )
+    namespace mtk
     {
-        switch ( aIpOrder )
+        //------------------------------------------------------------------------------
+
+        inline uint
+        ip_order_enum_to_uint( enum Interpolation_Order aIpOrder )
         {
-            case Interpolation_Order::CONSTANT:
+            switch ( aIpOrder )
             {
-                return 0;
-                break;
-            }
+                case Interpolation_Order::CONSTANT:
+                {
+                    return 0;
+                    break;
+                }
 
-            case Interpolation_Order::LINEAR:
-            {
-                return 1;
-                break;
-            }
+                case Interpolation_Order::LINEAR:
+                {
+                    return 1;
+                    break;
+                }
 
-            case Interpolation_Order::QUADRATIC:
-            {
-                return 2;
-                break;
-            }
+                case Interpolation_Order::QUADRATIC:
+                {
+                    return 2;
+                    break;
+                }
 
-            case Interpolation_Order::CUBIC:
-            {
-                return 3;
-                break;
-            }
+                case Interpolation_Order::CUBIC:
+                {
+                    return 3;
+                    break;
+                }
 
-            default:
-            {
-                MORIS_ERROR( false, "ip_order_enum_to_uint() - aIpOrder doesn't define polynomial order / unknown." );
-                return 0;
-                break;
+                default:
+                {
+                    MORIS_ERROR( false, "ip_order_enum_to_uint() - aIpOrder doesn't define polynomial order / unknown." );
+                    return 0;
+                    break;
+                }
             }
         }
-    }
 
-    //------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
-    enum Interpolation_Order
-    ip_order_uint_to_enum( uint aIpOrder )
-    {
-        switch ( aIpOrder )
+        inline enum Interpolation_Order
+        ip_order_uint_to_enum( uint aIpOrder )
         {
-            case 0:
+            switch ( aIpOrder )
             {
-                return Interpolation_Order::CONSTANT;
-                break;
-            }
+                case 0:
+                {
+                    return Interpolation_Order::CONSTANT;
+                    break;
+                }
 
-            case 1:
-            {
-                return Interpolation_Order::LINEAR;
-                break;
-            }
+                case 1:
+                {
+                    return Interpolation_Order::LINEAR;
+                    break;
+                }
 
-            case 2:
-            {
-                return Interpolation_Order::QUADRATIC;
-                break;
-            }
+                case 2:
+                {
+                    return Interpolation_Order::QUADRATIC;
+                    break;
+                }
 
-            case 3:
-            {
-                return Interpolation_Order::CUBIC;
-                break;
-            }
+                case 3:
+                {
+                    return Interpolation_Order::CUBIC;
+                    break;
+                }
 
-            default:
-            {
-                MORIS_ERROR( false, "ip_order_uint_to_enum() - Only interpolation orders 0-3 supported." );
-                return Interpolation_Order::UNDEFINED;
-                break;
+                default:
+                {
+                    MORIS_ERROR( false, "ip_order_uint_to_enum() - Only interpolation orders 0-3 supported." );
+                    return Interpolation_Order::UNDEFINED;
+                    break;
+                }
             }
         }
-    }
 
-    //------------------------------------------------------------------------------
-}// namespace mtk
-}// namespace moris
+        //------------------------------------------------------------------------------
+    }    // namespace mtk
+}    // namespace moris
 
 #endif /* fn_MTK_Interpolation_Enum_Int_Conversion.hpp */

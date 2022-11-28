@@ -58,7 +58,7 @@ Second stage, MDL performer then analyze the model and solves the physics proble
 
 @section Example
 
-<b>Example:</b>
+<b>Example:</b> STK_XTK_HeatConduction.cpp
 
 */
 }

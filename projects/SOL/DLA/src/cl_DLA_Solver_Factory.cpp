@@ -15,10 +15,13 @@
 #include "cl_DLA_Linear_Solver_Amesos.hpp"
 #include "cl_DLA_Linear_Solver_Amesos2.hpp"
 #include "cl_DLA_Linear_Solver_Belos.hpp"
-#include "cl_DLA_Linear_Solver_PETSc.hpp"
 
 #include "cl_DLA_Linear_System_Trilinos.hpp"
+
+#ifdef MORIS_HAVE_PETSC
 #include "cl_DLA_Linear_System_PETSc.hpp"
+#include "cl_DLA_Linear_Solver_PETSc.hpp"
+#endif
 
 #include "cl_DLA_Linear_Solver_Algorithm.hpp"
 
@@ -59,7 +62,11 @@ Solver_Factory::create_solver( const enum sol::SolverType aSolverType )
             tLinSol = std::make_shared< Linear_Solver_Amesos2 >();
             break;
         case ( sol::SolverType::PETSC ):
+#ifdef MORIS_HAVE_PETSC
             tLinSol = std::make_shared< Linear_Solver_PETSc >();
+#else
+            MORIS_ERROR( false, "MORIS is configured with out PETSC support." );
+#endif
             break;
         default:
             MORIS_ERROR( false, "No solver type specified" );
@@ -92,7 +99,11 @@ Solver_Factory::create_solver(
             //        tLinSol = std::make_shared< Linear_Solver_Amesos2 >( aParameterlist );
             //        break;
         case ( sol::SolverType::PETSC ):
+#ifdef MORIS_HAVE_PETSC
             tLinSol = std::make_shared< Linear_Solver_PETSc >( aParameterlist );
+#else
+            MORIS_ERROR( false, "MORIS is configured with out PETSC support." );
+#endif
             break;
         default:
             MORIS_ERROR( false, "No solver type specified" );
@@ -120,12 +131,16 @@ Solver_Factory::create_linear_system(
             tLinSys = new Linear_System_Trilinos( aSolverInterface, aSolverWarehouse, aMap, aFullMap );
             break;
         case ( sol::MapType::Petsc ):
+#ifdef MORIS_HAVE_PETSC
             tLinSys = new Linear_System_PETSc(
                     aSolverInterface,
                     aSolverWarehouse,
                     aMap,
                     aFullMap,
                     aNotCreatedByNonLinSolver );
+#else
+            MORIS_ERROR( false, "MORIS is configured with out PETSC support." );
+#endif
             break;
         default:
             MORIS_ERROR( false, "Solver_Factory::create_linear_system: No solver type specified" );
@@ -151,7 +166,11 @@ Solver_Factory::create_linear_system(
             tLinSys = new Linear_System_Trilinos( aSolverInterface );
             break;
         case ( sol::MapType::Petsc ):
+#ifdef MORIS_HAVE_PETSC
             tLinSys = new Linear_System_PETSc( aSolverInterface, aNotCreatedByNonLinSolver );
+#else
+            MORIS_ERROR( false, "MORIS is configured with out PETSC support." );
+#endif
             break;
         default:
             MORIS_ERROR( false, "Solver_Factory::create_linear_system: No solver type specified" );

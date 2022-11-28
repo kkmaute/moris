@@ -15,6 +15,7 @@
 #include <cstdio>
 #include <string>
 #include <cstring>
+#include <sys/resource.h>
 
 #include <sstream>
 #include <iomanip>
@@ -35,7 +36,6 @@
 
 namespace moris
 {
-
     int
     logger_par_rank()
     {
@@ -57,6 +57,14 @@ namespace moris
     {
         real aGlobalMin;
         MPI_Allreduce( &aLocalInput, &aGlobalMin, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD );
+        return aGlobalMin;
+    }
+
+    real
+    logger_sum_all( real& aLocalInput )
+    {
+        real aGlobalMin;
+        MPI_Allreduce( &aLocalInput, &aGlobalMin, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD );
         return aGlobalMin;
     }
     // -----------------------------------------------------------------------------
@@ -122,11 +130,20 @@ namespace moris
             this->log_to_file( "SignIn", 1.0 );
         }
 
+        // determine memory usage
+        std::string tMemUsage = this->memory_usage();
+
         // log start of Global Clock to console - only processor mOutputRank prints message
         if ( logger_par_rank() == mOutputRank )
         {
             std::cout << "Global Clock Initialized ... \n"
                       << std::flush;
+
+            if ( mMemoryOutput > 0 )
+            {
+                std::cout << tMemUsage << std::endl
+                          << std::flush;
+            }
         }
     }
 
@@ -150,6 +167,9 @@ namespace moris
             this->log_to_file( "SignIn", 1.0 );
         }
 
+        // add memory consumption information to log output
+        std::string tMemoryUsage = this->memory_usage();
+
         // log to console - only processor mOutputRank prints message
         if ( logger_par_rank() == mOutputRank )
         {
@@ -163,14 +183,30 @@ namespace moris
                               << "__" << aEntityBase
                               << " - " << aEntityType
                               << " - " << aEntityAction
-                              << " \n";
+                              << " \n"
+                              << std::flush;
+
+                    if ( mMemoryOutput )
+                    {
+                        std::cout << print_empty_line( mGlobalClock.mIndentationLevel - 1 )
+                                  << "__"
+                                  << tMemoryUsage << std::endl
+                                  << std::flush;
+                    }
                 }
                 else
                 {
                     std::cout << "Signing in: " << aEntityBase
                               << " - " << aEntityType
                               << " - " << aEntityAction
-                              << " \n";
+                              << " \n"
+                              << std::flush;
+
+                    if ( mMemoryOutput )
+                    {
+                        std::cout << tMemoryUsage << std::endl
+                                  << std::flush;
+                    }
                 }
             }
         }
@@ -194,8 +230,11 @@ namespace moris
         real tElapsedWallTimeMin = 0.0;
         if ( PRINT_WALL_TIME )
         {
-            std::chrono::duration< double > tChronoElapsedWallTime = ( std::chrono::system_clock::now() - mGlobalClock.mWallTimeStamps[ mGlobalClock.mIndentationLevel ] );
-            real                            tElapsedWallTime       = tChronoElapsedWallTime.count();
+            std::chrono::duration< double > tChronoElapsedWallTime =
+                    ( std::chrono::system_clock::now() - mGlobalClock.mWallTimeStamps[ mGlobalClock.mIndentationLevel ] );
+
+            real tElapsedWallTime = tChronoElapsedWallTime.count();
+
             // std::cout << "Proc #" << logger_par_rank() << ": Wall clock time at sign out: " << tElapsedWallTime << " seconds. \n" << std::endl;
             tElapsedWallTimeMax = logger_max_all( tElapsedWallTime );
             tElapsedWallTimeMin = logger_min_all( tElapsedWallTime );
@@ -208,7 +247,8 @@ namespace moris
             if ( mGlobalClock.mCurrentIteration[ mGlobalClock.mIndentationLevel ] > 0 )
             {
                 // compute iteration time on each proc
-                real tIndividualIterationTime = ( (moris::real)std::clock() - mGlobalClock.mIterationTimeStamps[ mGlobalClock.mIndentationLevel ] ) / CLOCKS_PER_SEC;
+                real tIndividualIterationTime =
+                        ( (moris::real)std::clock() - mGlobalClock.mIterationTimeStamps[ mGlobalClock.mIndentationLevel ] ) / CLOCKS_PER_SEC;
 
                 // log iteration time to file
                 this->log_to_file( "IterationTime", tIndividualIterationTime );
@@ -217,6 +257,9 @@ namespace moris
             // log current position in code
             this->log_to_file( "ElapsedTime", tElapsedTime );
         }
+
+        // add memory consumption information to log output
+        std::string tMemoryUsage = this->memory_usage();
 
         // log to console - only processor mOutputRank prints message
         if ( logger_par_rank() == mOutputRank )
@@ -254,12 +297,25 @@ namespace moris
                                   << "ElapsedWallTime (max/min) = " << tElapsedWallTimeMax << " / " << tElapsedWallTimeMin << " \n"
                                   << std::flush;
 
+                    if ( mMemoryOutput )
+                    {
+                        std::cout << print_empty_line( mGlobalClock.mIndentationLevel ) << "_"
+                                  << tMemoryUsage << std::endl
+                                  << std::flush;
+                    }
+
                     std::cout << print_empty_line( mGlobalClock.mIndentationLevel - 1 ) << " \n";
                 }
                 else
                 {
                     std::cout << "Signing out " << tEntityDescriptor << ". Elapsed time (max/min) = " << tElapsedTimeMax << " / " << tElapsedTimeMin << " \n"
                               << std::flush;
+
+                    if ( mMemoryOutput )
+                    {
+                        std::cout << tMemoryUsage << std::endl
+                                  << std::flush;
+                    }
                 }
             }
         }
@@ -710,5 +766,62 @@ namespace moris
         return tEmptyLine;
         // mStream << tEmptyLine;
     }
-}    // end namespace moris
 
+    // -----------------------------------------------------------------------------
+
+    // prints memory usage
+    std::string
+    Logger::memory_usage()
+    {
+        // return empty string if memory output is suppressed
+        if ( mMemoryOutput == 0 )
+        {
+            return "";
+        }
+
+        // determine memory consumption by current process
+
+        //  KEEP THE FOLLOWING LINES IN CASE RUSAGE DOES NOT WORK
+        //        unsigned long vsize;
+        //        long          rss;
+        //        long          page_size_kb = sysconf( _SC_PAGE_SIZE ) / 1024;
+        //
+        //        std::string   ignore;
+        //        std::ifstream ifs( "/proc/self/stat", std::ios_base::in );
+        //        ifs >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore
+        //                >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore
+        //                >> ignore >> ignore >> vsize >> rss;
+        //
+        //        real vm_usage   = vsize / 1024.0;
+        //        real real_usage = rss * page_size_kb;
+
+        struct rusage r_usage;
+        getrusage( RUSAGE_SELF, &r_usage );
+
+        // get statistics on memory usage across allprocs
+        real tLocalUsage = r_usage.ru_maxrss;
+        uint tTotalUsage = std::round( this->logger_sum_all( tLocalUsage ) );
+        uint tMaxUsage   = std::round( this->logger_max_all( tLocalUsage ) );
+        uint tMinUsage   = std::round( this->logger_min_all( tLocalUsage ) );
+
+        std::string tMemUsage = "Memory usage in kB: total " + std::to_string( tTotalUsage ) +    //
+                                " | max " + std::to_string( tMaxUsage ) +                         //
+                                " | min " + std::to_string( tMinUsage );
+
+        std::ifstream statm( "/proc/self/statm" );
+        unsigned int  vmem_size, phys_size;
+        statm >> vmem_size >> phys_size;
+
+        tLocalUsage = phys_size * (size_t)sysconf( _SC_PAGESIZE ) / 1024;
+
+        tTotalUsage = std::round( this->logger_sum_all( tLocalUsage ) );
+        tMaxUsage   = std::round( this->logger_max_all( tLocalUsage ) );
+        tMinUsage   = std::round( this->logger_min_all( tLocalUsage ) );
+
+        tMemUsage += " || current " + std::to_string( tTotalUsage ) +    //
+                     " | max " + std::to_string( tMaxUsage ) +           //
+                     " | min " + std::to_string( tMinUsage );
+
+        return tMemUsage;
+    }
+}    // end namespace moris

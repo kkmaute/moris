@@ -43,22 +43,22 @@
 #include "cl_MTK_Side_Cluster.hpp"
 #include "cl_MTK_Side_Cluster_Input.hpp"
 
-#include "cl_Matrix.hpp"        //LINALG
+#include "cl_Matrix.hpp"    //LINALG
 #include "linalg_typedefs.hpp"
-#include "fn_equal_to.hpp" // ALG/src
+#include "fn_equal_to.hpp"    // ALG/src
 
-#include "cl_FEM_NodeProxy.hpp"                //FEM/INT/src
-#include "cl_FEM_ElementProxy.hpp"             //FEM/INT/src
-#include "cl_FEM_Node_Base.hpp"                //FEM/INT/src
-#include "cl_FEM_Element_Factory.hpp"          //FEM/INT/src
-#include "cl_FEM_IWG_Factory.hpp"              //FEM/INT/src
-#include "cl_FEM_IQI_Factory.hpp"              //FEM/INT/src
-#include "cl_FEM_SP_Factory.hpp"              //FEM/INT/src
-#include "cl_FEM_CM_Factory.hpp"              //FEM/INT/src
-#include "cl_FEM_Set_User_Info.hpp"              //FEM/INT/src
-#include "cl_FEM_Property.hpp"              //FEM/INT/src
-#include "cl_FEM_Field_Interpolator_Manager.hpp"              //FEM/INT/src
-//FEM/VIS/src
+#include "cl_FEM_NodeProxy.hpp"                     //FEM/INT/src
+#include "cl_FEM_ElementProxy.hpp"                  //FEM/INT/src
+#include "cl_FEM_Node_Base.hpp"                     //FEM/INT/src
+#include "cl_FEM_Element_Factory.hpp"               //FEM/INT/src
+#include "cl_FEM_IWG_Factory.hpp"                   //FEM/INT/src
+#include "cl_FEM_IQI_Factory.hpp"                   //FEM/INT/src
+#include "cl_FEM_SP_Factory.hpp"                    //FEM/INT/src
+#include "cl_FEM_CM_Factory.hpp"                    //FEM/INT/src
+#include "cl_FEM_Set_User_Info.hpp"                 //FEM/INT/src
+#include "cl_FEM_Property.hpp"                      //FEM/INT/src
+#include "cl_FEM_Field_Interpolator_Manager.hpp"    //FEM/INT/src
+// FEM/VIS/src
 #include "cl_VIS_Factory.hpp"
 #include "cl_VIS_Visualization_Mesh.hpp"
 #include "cl_VIS_Output_Manager.hpp"
@@ -67,13 +67,13 @@
 
 #include "cl_HMR_Mesh_Interpolation.hpp"
 #include "cl_HMR.hpp"
-#include "cl_HMR_Background_Mesh.hpp" //HMR/src
-#include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_Element.hpp" //HMR/src
-#include "cl_HMR_Factory.hpp" //HMR/src
+#include "cl_HMR_Background_Mesh.hpp"      //HMR/src
+#include "cl_HMR_BSpline_Mesh_Base.hpp"    //HMR/src
+#include "cl_HMR_Element.hpp"              //HMR/src
+#include "cl_HMR_Factory.hpp"              //HMR/src
 #include "cl_HMR_Field.hpp"
-#include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_Parameters.hpp" //HMR/src
+#include "cl_HMR_Lagrange_Mesh_Base.hpp"    //HMR/src
+#include "cl_HMR_Parameters.hpp"            //HMR/src
 
 #include "cl_DLA_Solver_Factory.hpp"
 #include "cl_DLA_Solver_Interface.hpp"
@@ -104,75 +104,82 @@
 namespace moris
 {
 
-    moris::real LvlSetCircle_2D(const moris::Matrix< moris::DDRMat > & aPoint )
+    inline moris::real
+    LvlSetCircle_2D( const moris::Matrix< moris::DDRMat >& aPoint )
     {
         return std::sqrt( aPoint( 0 ) * aPoint( 0 ) + aPoint( 1 ) * aPoint( 1 ) ) - 0.2505;
     }
 
-    moris::real LvlSetPlane(const moris::Matrix< moris::DDRMat > & aPoint )
+    inline moris::real
+    LvlSetPlane( const moris::Matrix< moris::DDRMat >& aPoint )
     {
-        return aPoint( 0 )  + 500;
+        return aPoint( 0 ) + 500;
     }
 
-    moris::real LevelSetFunction_star1( const moris::Matrix< moris::DDRMat > & aPoint )
+    inline moris::real
+    LevelSetFunction_star1( const moris::Matrix< moris::DDRMat >& aPoint )
     {
-        moris::real tPhi = std::atan2( aPoint( 0 ), aPoint( 1 ) );
+        moris::real tPhi          = std::atan2( aPoint( 0 ), aPoint( 1 ) );
         moris::real tLevelSetVaue = 0.501 + 0.1 * std::sin( 5 * tPhi ) - std::sqrt( std::pow( aPoint( 0 ), 2 ) + std::pow( aPoint( 1 ), 2 ) );
         return -tLevelSetVaue;
     }
 
-    moris::real Plane4MatMDL1(const moris::Matrix< moris::DDRMat > & aPoint )
+    inline moris::real
+    Plane4MatMDL1( const moris::Matrix< moris::DDRMat >& aPoint )
     {
         moris::real mXC = 0.1;
         moris::real mYC = 0.1;
         moris::real mNx = 1.0;
         moris::real mNy = 0.0;
-        return ( mNx*( aPoint(0)-mXC ) + mNy*( aPoint(1)-mYC ) );
+        return ( mNx * ( aPoint( 0 ) - mXC ) + mNy * ( aPoint( 1 ) - mYC ) );
     }
 
-    moris::real Circle4MatMDL(const moris::Matrix< moris::DDRMat > & aPoint )
+    inline moris::real
+    Circle4MatMDL( const moris::Matrix< moris::DDRMat >& aPoint )
     {
         moris::real mXCenter = 0.01;
         moris::real mYCenter = 0.01;
-        moris::real mRadius = 0.47334;
+        moris::real mRadius  = 0.47334;
 
-        return  (aPoint(0) - mXCenter) * (aPoint(0) - mXCenter)
-                + (aPoint(1) - mYCenter) * (aPoint(1) - mYCenter)
-                - (mRadius * mRadius);
+        return ( aPoint( 0 ) - mXCenter ) * ( aPoint( 0 ) - mXCenter )
+             + ( aPoint( 1 ) - mYCenter ) * ( aPoint( 1 ) - mYCenter )
+             - ( mRadius * mRadius );
     }
 
-    void tConstValFunction
-    ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
-            moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
-            moris::fem::Field_Interpolator_Manager         * aFIManager )
+    inline void
+    tConstValFunction(
+            moris::Matrix< moris::DDRMat >&                aPropMatrix,
+            moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
+            moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         aPropMatrix = aParameters( 0 );
     }
 
-    bool tSolverOutputCriteria_thermolast( moris::tsa::Time_Solver * )
+    inline bool
+    tSolverOutputCriteria_thermolast( moris::tsa::Time_Solver* )
     {
         return true;
     }
 
-    TEST_CASE("2D XTK WITH HMR ThermoElastic 2D","[XTK_HMR_thermoelastic_2D]")
+    TEST_CASE( "2D XTK WITH HMR ThermoElastic 2D", "[XTK_HMR_thermoelastic_2D]" )
     {
-        if(par_size()<=1)
+        if ( par_size() <= 1 )
         {
-            uint tLagrangeMeshIndex = 0;
-            std::string tFieldName = "Cylinder";
+            uint        tLagrangeMeshIndex = 0;
+            std::string tFieldName         = "Cylinder";
 
             ParameterList tParameters = prm::create_hmr_parameter_list();
 
-            tParameters.set( "number_of_elements_per_dimension", std::string( "2, 1"));
+            tParameters.set( "number_of_elements_per_dimension", std::string( "2, 1" ) );
             tParameters.set( "domain_dimensions", "2, 2" );
             tParameters.set( "domain_offset", "-1.0, -1.0" );
             tParameters.set( "domain_sidesets", "1,2,3,4" );
-            tParameters.set( "lagrange_output_meshes",std::string( "0") );
+            tParameters.set( "lagrange_output_meshes", std::string( "0" ) );
 
-            tParameters.set( "lagrange_orders", std::string("1" ));
-            tParameters.set( "lagrange_pattern", std::string("0" ));
-            tParameters.set( "bspline_orders", std::string("1" ));
-            tParameters.set( "bspline_pattern", std::string("0" ));
+            tParameters.set( "lagrange_orders", std::string( "1" ) );
+            tParameters.set( "lagrange_pattern", std::string( "0" ) );
+            tParameters.set( "bspline_orders", std::string( "1" ) );
+            tParameters.set( "bspline_pattern", std::string( "0" ) );
 
             tParameters.set( "lagrange_to_bspline", "0" );
 
@@ -209,51 +216,51 @@ namespace moris
 
             tHMR.save_to_exodus( 0, "./xtk_exo/mdl_xtk_hmr_2d.e" );
 
-            moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
+            moris::hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-            moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
-            tGeometryVector(0) = std::make_shared<moris::ge::Plane>(-500.0, 0.0, 1.0, 0.0);
+            moris::Cell< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
+            tGeometryVector( 0 ) = std::make_shared< moris::ge::Plane >( -500.0, 0.0, 1.0, 0.0 );
 
             size_t tModelDimension = 2;
             //------------------------------------------------------------------------------
             moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
             tGeometryEngineParameters.mGeometries = tGeometryVector;
-            moris::ge::Geometry_Engine tGeometryEngine(tInterpolationMesh, tGeometryEngineParameters);
+            moris::ge::Geometry_Engine tGeometryEngine( tInterpolationMesh, tGeometryEngineParameters );
 
-            xtk::Model tXTKModel(tModelDimension, tInterpolationMesh, &tGeometryEngine);
+            xtk::Model tXTKModel( tModelDimension, tInterpolationMesh, &tGeometryEngine );
 
             tXTKModel.mVerbose = false;
 
-            //Specify decomposition Method and Cut Mesh ---------------------------------------
-            Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
-            tXTKModel.decompose(tDecompositionMethods);
+            // Specify decomposition Method and Cut Mesh ---------------------------------------
+            Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
+            tXTKModel.decompose( tDecompositionMethods );
 
-            tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
+            tXTKModel.perform_basis_enrichment( EntityRank::BSPLINE, 0 );
 
             // get meshes
-            xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
-            xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
+            xtk::Enriched_Interpolation_Mesh& tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
+            xtk::Enriched_Integration_Mesh&   tEnrIntegMesh  = tXTKModel.get_enriched_integ_mesh();
 
             // place the pair in mesh manager
             std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();
-            tMeshManager->register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
+            tMeshManager->register_mesh_pair( &tEnrInterpMesh, &tEnrIntegMesh );
 
             //------------------------------------------------------------------------------
             // create the properties
             std::shared_ptr< fem::Property > tPropConductivity1 = std::make_shared< fem::Property >();
-            tPropConductivity1->set_parameters( { {{ 1.0 }} } );
+            tPropConductivity1->set_parameters( { { { 1.0 } } } );
             tPropConductivity1->set_val_function( tConstValFunction );
 
             std::shared_ptr< fem::Property > tPropConductivity2 = std::make_shared< fem::Property >();
-            tPropConductivity2->set_parameters( { {{ 5.0 }} } );
+            tPropConductivity2->set_parameters( { { { 5.0 } } } );
             tPropConductivity2->set_val_function( tConstValFunction );
 
             std::shared_ptr< fem::Property > tPropDirichletU = std::make_shared< fem::Property >();
-            tPropDirichletU->set_parameters( { {{ 0.0 }, { 0.0 }} } );
+            tPropDirichletU->set_parameters( { { { 0.0 }, { 0.0 } } } );
             tPropDirichletU->set_val_function( tConstValFunction );
 
             std::shared_ptr< fem::Property > tPropDirichletTEMP = std::make_shared< fem::Property >();
-            tPropDirichletTEMP->set_parameters( { {{ 3.0 }} } );
+            tPropDirichletTEMP->set_parameters( { { { 3.0 } } } );
             tPropDirichletTEMP->set_val_function( tConstValFunction );
 
             //        std::shared_ptr< fem::Property > tPropNeumannTEMP = std::make_shared< fem::Property >();
@@ -261,71 +268,71 @@ namespace moris
             //        tPropNeumann->set_val_function( tConstValFunction2MatMDL );
 
             std::shared_ptr< fem::Property > tPropEMod1 = std::make_shared< fem::Property >();
-            tPropEMod1->set_parameters( { {{ 1.0 }} } );
+            tPropEMod1->set_parameters( { { { 1.0 } } } );
             tPropEMod1->set_val_function( tConstValFunction );
 
             std::shared_ptr< fem::Property > tPropEMod2 = std::make_shared< fem::Property >();
-            tPropEMod2->set_parameters( { {{ 1.0 }} } );
+            tPropEMod2->set_parameters( { { { 1.0 } } } );
             tPropEMod2->set_val_function( tConstValFunction );
 
             std::shared_ptr< fem::Property > tPropPoisson = std::make_shared< fem::Property >();
-            tPropPoisson->set_parameters( { {{ 0.0 }} } );
+            tPropPoisson->set_parameters( { { { 0.0 } } } );
             tPropPoisson->set_val_function( tConstValFunction );
 
             std::shared_ptr< fem::Property > tCTE = std::make_shared< fem::Property >();
-            tCTE->set_parameters( { {{ 1.0 }} } );
+            tCTE->set_parameters( { { { 1.0 } } } );
             tCTE->set_val_function( tConstValFunction );
 
             std::shared_ptr< fem::Property > tTRef = std::make_shared< fem::Property >();
-            tTRef->set_parameters( { {{ 1.0 }} } );
+            tTRef->set_parameters( { { { 1.0 } } } );
             tTRef->set_val_function( tConstValFunction );
 
             // define constitutive models
             fem::CM_Factory tCMFactory;
 
             std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso1 = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
-            tCMStrucLinIso1->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY },{ MSI::Dof_Type::TEMP }},
-                    { "Displacement",                           "Temperature" } );
+            tCMStrucLinIso1->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY }, { MSI::Dof_Type::TEMP } },
+                    { "Displacement", "Temperature" } );
             tCMStrucLinIso1->set_property( tPropEMod1, "YoungsModulus" );
             tCMStrucLinIso1->set_property( tPropPoisson, "PoissonRatio" );
             tCMStrucLinIso1->set_property( tCTE, "CTE" );
             tCMStrucLinIso1->set_property( tTRef, "ReferenceTemperature" );
-            tCMStrucLinIso1->set_model_type(fem::Model_Type::PLANE_STRESS);
+            tCMStrucLinIso1->set_model_type( fem::Model_Type::PLANE_STRESS );
             tCMStrucLinIso1->set_space_dim( 2 );
             tCMStrucLinIso1->set_local_properties();
 
             std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso2 = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
-            tCMStrucLinIso2->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY },{ MSI::Dof_Type::TEMP }},
-                    {  "Displacement",                          "Temperature" } );
+            tCMStrucLinIso2->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY }, { MSI::Dof_Type::TEMP } },
+                    { "Displacement", "Temperature" } );
             tCMStrucLinIso2->set_property( tPropEMod2, "YoungsModulus" );
             tCMStrucLinIso2->set_property( tPropPoisson, "PoissonRatio" );
             tCMStrucLinIso2->set_property( tCTE, "CTE" );
             tCMStrucLinIso2->set_property( tTRef, "ReferenceTemperature" );
-            tCMStrucLinIso2->set_model_type(fem::Model_Type::PLANE_STRESS);
+            tCMStrucLinIso2->set_model_type( fem::Model_Type::PLANE_STRESS );
             tCMStrucLinIso2->set_space_dim( 2 );
             tCMStrucLinIso2->set_local_properties();
 
             std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso1 = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
-            tCMDiffLinIso1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+            tCMDiffLinIso1->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
             tCMDiffLinIso1->set_property( tPropConductivity1, "Conductivity" );
             tCMDiffLinIso1->set_space_dim( 2 );
             tCMDiffLinIso1->set_local_properties();
 
             std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso2 = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
-            tCMDiffLinIso2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+            tCMDiffLinIso2->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
             tCMDiffLinIso2->set_property( tPropConductivity2, "Conductivity" );
             tCMDiffLinIso2->set_space_dim( 2 );
             tCMDiffLinIso2->set_local_properties();
 
             //----------------------------------------------------------------------------------------------------------
             // define stabilization parameters
-            fem::SP_Factory tSPFactory;
+            fem::SP_Factory                                 tSPFactory;
             std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitscheU = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
-            tSPDirichletNitscheU->set_parameters( { {{ 100.0 }} } );
+            tSPDirichletNitscheU->set_parameters( { { { 100.0 } } } );
             tSPDirichletNitscheU->set_property( tPropEMod1, "Material", mtk::Master_Slave::MASTER );
 
             std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitscheTEMP = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
-            tSPDirichletNitscheTEMP->set_parameters( { {{ 1.0 }} } );
+            tSPDirichletNitscheTEMP->set_parameters( { { { 1.0 } } } );
             tSPDirichletNitscheTEMP->set_property( tPropConductivity1, "Material", mtk::Master_Slave::MASTER );
 
             //----------------------------------------------------------------------------------------------------------
@@ -334,17 +341,17 @@ namespace moris
 
             std::shared_ptr< fem::IWG > tIWGBulkU_1 = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_BULK );
             tIWGBulkU_1->set_residual_dof_type( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
-            tIWGBulkU_1->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
+            tIWGBulkU_1->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
             tIWGBulkU_1->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Master_Slave::MASTER );
 
             std::shared_ptr< fem::IWG > tIWGBulkU_2 = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_BULK );
             tIWGBulkU_2->set_residual_dof_type( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
-            tIWGBulkU_2->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
+            tIWGBulkU_2->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
             tIWGBulkU_2->set_constitutive_model( tCMStrucLinIso2, "ElastLinIso", mtk::Master_Slave::MASTER );
 
             std::shared_ptr< fem::IWG > tIWGDirichletU = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE );
             tIWGDirichletU->set_residual_dof_type( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
-            tIWGDirichletU->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
+            tIWGDirichletU->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
             tIWGDirichletU->set_stabilization_parameter( tSPDirichletNitscheU, "DirichletNitsche" );
             tIWGDirichletU->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Master_Slave::MASTER );
             tIWGDirichletU->set_property( tPropDirichletU, "Dirichlet", mtk::Master_Slave::MASTER );
@@ -356,19 +363,19 @@ namespace moris
 
             std::shared_ptr< fem::IWG > tIWGBulkTEMP_1 = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
             tIWGBulkTEMP_1->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
-            tIWGBulkTEMP_1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+            tIWGBulkTEMP_1->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
             tIWGBulkTEMP_1->set_constitutive_model( tCMDiffLinIso1, "Diffusion", mtk::Master_Slave::MASTER );
             //        tIWGBulkTEMP_1->set_property( tPropTempLoad1, "Load", mtk::Master_Slave::MASTER );
 
             std::shared_ptr< fem::IWG > tIWGBulkTEMP_2 = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
             tIWGBulkTEMP_2->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
-            tIWGBulkTEMP_2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+            tIWGBulkTEMP_2->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
             tIWGBulkTEMP_2->set_constitutive_model( tCMDiffLinIso2, "Diffusion", mtk::Master_Slave::MASTER );
             //        tIWGBulkTEMP_2->set_property( tPropTempLoad2, "Load", mtk::Master_Slave::MASTER );
 
             std::shared_ptr< fem::IWG > tIWGDirichletTEMP = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
             tIWGDirichletTEMP->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
-            tIWGDirichletTEMP->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+            tIWGDirichletTEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
             tIWGDirichletTEMP->set_stabilization_parameter( tSPDirichletNitscheTEMP, "DirichletNitsche" );
             tIWGDirichletTEMP->set_constitutive_model( tCMDiffLinIso2, "Diffusion", mtk::Master_Slave::MASTER );
             tIWGDirichletTEMP->set_property( tPropDirichletTEMP, "Dirichlet", mtk::Master_Slave::MASTER );
@@ -411,16 +418,17 @@ namespace moris
             tSetInfo( 1 ) = tSetDirichlet;
 
             // create model
-            mdl::Model * tModel = new mdl::Model( tMeshManager,
+            mdl::Model* tModel = new mdl::Model( tMeshManager,
                     0,
                     tSetInfo,
-                    0, false );
+                    0,
+                    false );
 
             // define outputs
             // --------------------------------------------------------------------------------------
             vis::Output_Manager tOutputData;
             tOutputData.set_outputs( 0,
-                    vis::VIS_Mesh_Type::STANDARD, //OVERLAPPING_INTERFACE
+                    vis::VIS_Mesh_Type::STANDARD,    // OVERLAPPING_INTERFACE
                     "./",
                     "MDL_Thermoelastic_Coupled_Test_2D_Output.exo",
                     "./",
@@ -428,51 +436,51 @@ namespace moris
                     { "HMR_dummy_n_p1" },
                     { "UX", "UY", "TEMP" },
                     { vis::Field_Type::NODAL, vis::Field_Type::NODAL, vis::Field_Type::NODAL },
-                    { "IQI_UX","IQI_UY","IQI_TEMP" } );
+                    { "IQI_UX", "IQI_UY", "IQI_TEMP" } );
             tModel->set_output_manager( &tOutputData );
 
             sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 
             moris::Cell< moris::Cell< moris::ParameterList > > tParameterlist( 7 );
-            for( uint Ik = 0; Ik < 7; Ik ++)
+            for ( uint Ik = 0; Ik < 7; Ik++ )
             {
-                tParameterlist( Ik ).resize(1);
+                tParameterlist( Ik ).resize( 1 );
             }
 
-            tParameterlist( 0 )(0) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AZTEC_IMPL );
-            tParameterlist( 0 )(0).set("AZ_diagnostics"    , AZ_none  );
-            tParameterlist( 0 )(0).set("AZ_output"         , AZ_none  );
-            tParameterlist( 0 )(0).set("AZ_max_iter"       , 10000    );
-            tParameterlist( 0 )(0).set("AZ_solver"         , AZ_gmres );
-            tParameterlist( 0 )(0).set("AZ_subdomain_solve", AZ_ilu   );
-            tParameterlist( 0 )(0).set("AZ_graph_fill"     , 10       );
-            tParameterlist( 0 )(0).set("ml_prec_type"      , "SA"     );
+            tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AZTEC_IMPL );
+            tParameterlist( 0 )( 0 ).set( "AZ_diagnostics", AZ_none );
+            tParameterlist( 0 )( 0 ).set( "AZ_output", AZ_none );
+            tParameterlist( 0 )( 0 ).set( "AZ_max_iter", 10000 );
+            tParameterlist( 0 )( 0 ).set( "AZ_solver", AZ_gmres );
+            tParameterlist( 0 )( 0 ).set( "AZ_subdomain_solve", AZ_ilu );
+            tParameterlist( 0 )( 0 ).set( "AZ_graph_fill", 10 );
+            tParameterlist( 0 )( 0 ).set( "ml_prec_type", "SA" );
 
-            tParameterlist( 1 )(0) = moris::prm::create_linear_solver_parameter_list();
-            tParameterlist( 2 )(0) = moris::prm::create_nonlinear_algorithm_parameter_list();
-            tParameterlist( 3 )(0) = moris::prm::create_nonlinear_solver_parameter_list();
-            tParameterlist( 3 )(0).set("NLA_DofTypes"      , "UX,UY;TEMP" );
+            tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
+            tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
+            tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
+            tParameterlist( 3 )( 0 ).set( "NLA_DofTypes", "UX,UY;TEMP" );
 
-            tParameterlist( 4 )(0) = moris::prm::create_time_solver_algorithm_parameter_list();
-            tParameterlist( 5 )(0) = moris::prm::create_time_solver_parameter_list();
-            tParameterlist( 5 )(0).set("TSA_DofTypes"      , "UX,UY;TEMP" );
+            tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
+            tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
+            tParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "UX,UY;TEMP" );
 
-            tParameterlist( 6 )(0) = moris::prm::create_solver_warehouse_parameterlist();
+            tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
 
             tSolverWarehouse.set_parameterlist( tParameterlist );
 
             tSolverWarehouse.initialize();
 
-            tsa::Time_Solver * tTimeSolver = tSolverWarehouse.get_main_time_solver();
+            tsa::Time_Solver* tTimeSolver = tSolverWarehouse.get_main_time_solver();
 
             tTimeSolver->set_output( 0, tSolverOutputCriteria_thermolast );
             tTimeSolver->solve();
 
-            Matrix<DDRMat> tFullSolution;
-            Matrix<DDRMat> tGoldSolution;
-            tTimeSolver->get_full_solution(tFullSolution);
+            Matrix< DDRMat > tFullSolution;
+            Matrix< DDRMat > tGoldSolution;
+            tTimeSolver->get_full_solution( tFullSolution );
 
-            std::string tMorisRoot = moris::get_base_moris_dir();
+            std::string tMorisRoot    = moris::get_base_moris_dir();
             std::string tHdf5FilePath = tMorisRoot + "/projects/FEM/MDL/test/data/Thermoelastic_test_2d.hdf5";
 
             //        //------------------------------------------------------------------------------
@@ -509,131 +517,131 @@ namespace moris
 
             // verify solution
             bool tSolutionCheck = true;
-            for( uint i = 0; i < tFullSolution.numel(); i++ )
+            for ( uint i = 0; i < tFullSolution.numel(); i++ )
             {
                 tSolutionCheck = tSolutionCheck && ( tFullSolution( i ) - tGoldSolution( i ) < 1e-03 );
-                if( !tSolutionCheck )
+                if ( !tSolutionCheck )
                 {
-                    std::cout<<"tFullSolution( i ) "<<tFullSolution( i )<<" tGoldSolution( i ) "<<tGoldSolution( i )<<std::endl;
+                    std::cout << "tFullSolution( i ) " << tFullSolution( i ) << " tGoldSolution( i ) " << tGoldSolution( i ) << std::endl;
                 }
             }
-            CHECK(tSolutionCheck);
+            CHECK( tSolutionCheck );
 
             delete tModel;
             delete tInterpolationMesh;
         }
     }
 
-    //TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Input","[XTK_HMR_thermoelastic_2D_Input]")
+    // TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Input","[XTK_HMR_thermoelastic_2D_Input]")
     //{
-    //    if(par_size()<=1)
-    //    {
-    //        uint tLagrangeMeshIndex = 0;
-    //        std::string tFieldName = "Cylinder";
+    //     if(par_size()<=1)
+    //     {
+    //         uint tLagrangeMeshIndex = 0;
+    //         std::string tFieldName = "Cylinder";
     //
-    //        ParameterList tParameters = prm::create_hmr_parameter_list();
+    //         ParameterList tParameters = prm::create_hmr_parameter_list();
     //
-    //        tParameters.set( "number_of_elements_per_dimension", std::string( "2, 1"));
-    //        tParameters.set( "domain_dimensions", "2, 2" );
-    //        tParameters.set( "domain_offset", "-1.0, -1.0" );
-    //        tParameters.set( "domain_sidesets", "1,2,3,4" );
-    //        tParameters.set( "lagrange_output_meshes",std::string( "0") );
+    //         tParameters.set( "number_of_elements_per_dimension", std::string( "2, 1"));
+    //         tParameters.set( "domain_dimensions", "2, 2" );
+    //         tParameters.set( "domain_offset", "-1.0, -1.0" );
+    //         tParameters.set( "domain_sidesets", "1,2,3,4" );
+    //         tParameters.set( "lagrange_output_meshes",std::string( "0") );
     //
-    //        tParameters.set( "lagrange_orders", std::string("1" ));
-    //        tParameters.set( "lagrange_pattern", std::string("0" ));
-    //        tParameters.set( "bspline_orders", std::string("1" ));
-    //        tParameters.set( "bspline_pattern", std::string("0" ));
+    //         tParameters.set( "lagrange_orders", std::string("1" ));
+    //         tParameters.set( "lagrange_pattern", std::string("0" ));
+    //         tParameters.set( "bspline_orders", std::string("1" ));
+    //         tParameters.set( "bspline_pattern", std::string("0" ));
     //
-    //        tParameters.set( "lagrange_to_bspline", "0" );
+    //         tParameters.set( "lagrange_to_bspline", "0" );
     //
-    //        tParameters.set( "truncate_bsplines", 1 );
-    //        tParameters.set( "refinement_buffer", 3 );
-    //        tParameters.set( "staircase_buffer", 3 );
-    //        tParameters.set( "initial_refinement", 0 );
+    //         tParameters.set( "truncate_bsplines", 1 );
+    //         tParameters.set( "refinement_buffer", 3 );
+    //         tParameters.set( "staircase_buffer", 3 );
+    //         tParameters.set( "initial_refinement", 0 );
     //
-    //        tParameters.set( "use_multigrid", 0 );
-    //        tParameters.set( "severity_level", 2 );
+    //         tParameters.set( "use_multigrid", 0 );
+    //         tParameters.set( "severity_level", 2 );
     //
-    //        hmr::HMR tHMR( tParameters );
+    //         hmr::HMR tHMR( tParameters );
     //
-    //        // initial refinement
-    //        tHMR.perform_initial_refinement( 0 );
+    //         // initial refinement
+    //         tHMR.perform_initial_refinement( 0 );
     //
-    //        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
+    //         std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
     //
-    //        //// create field
-    //        std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
-    //        tField->evaluate_scalar_function( LvlSetPlane );
-    //        //
-    //        // for( uint k=0; k<2; ++k )
-    //        // {
-    //            // tHMR.flag_surface_elements_on_working_pattern( tField );
-    //            // tHMR.perform_refinement_based_on_working_pattern( 0 );
+    //         //// create field
+    //         std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( tFieldName, tLagrangeMeshIndex );
+    //         tField->evaluate_scalar_function( LvlSetPlane );
+    //         //
+    //         // for( uint k=0; k<2; ++k )
+    //         // {
+    //             // tHMR.flag_surface_elements_on_working_pattern( tField );
+    //             // tHMR.perform_refinement_based_on_working_pattern( 0 );
     //
-    //            // tField->evaluate_scalar_function( LvlSetCircle_2D );
-    //        // }
+    //             // tField->evaluate_scalar_function( LvlSetCircle_2D );
+    //         // }
     //
-    //        tHMR.finalize();
+    //         tHMR.finalize();
     //
-    //         tHMR.save_to_exodus( 0, "./xtk_exo/mdl_xtk_hmr_2d.e" );
+    //          tHMR.save_to_exodus( 0, "./xtk_exo/mdl_xtk_hmr_2d.e" );
     //
-    //        std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
+    //         std::shared_ptr< moris::hmr::Interpolation_Mesh_HMR > tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
     //
-    //        moris::ge::Geometry_Field_HMR tPlaneFieldAsGeom(tField);
+    //         moris::ge::Geometry_Field_HMR tPlaneFieldAsGeom(tField);
     //
-    //        moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tPlaneFieldAsGeom};
+    //         moris::Cell<moris::ge::GEN_Geometry*> tGeometryVector = {&tPlaneFieldAsGeom};
     //
-    //        size_t tModelDimension = 2;
-    //        moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
-    //        moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
+    //         size_t tModelDimension = 2;
+    //         moris::ge::GEN_Phase_Table tPhaseTable (1,  Phase_Table_Structure::EXP_BASE_2);
+    //         moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector,tPhaseTable,tModelDimension);
     //
-    //        xtk::Model tXTKModel(tModelDimension, tInterpolationMesh.get(), &tGeometryEngine);
+    //         xtk::Model tXTKModel(tModelDimension, tInterpolationMesh.get(), &tGeometryEngine);
     //
-    //        tXTKModel.mVerbose = false;
+    //         tXTKModel.mVerbose = false;
     //
-    //        //Specify decomposition Method and Cut Mesh ---------------------------------------
-    //        Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
-    //        tXTKModel.decompose(tDecompositionMethods);
+    //         //Specify decomposition Method and Cut Mesh ---------------------------------------
+    //         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
+    //         tXTKModel.decompose(tDecompositionMethods);
     //
-    //        tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
+    //         tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
     //
-    //        // get meshes
-    //        xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
-    //        xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
+    //         // get meshes
+    //         xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
+    //         xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
     //
-    //        // place the pair in mesh manager
-    //        mtk::Mesh_Manager tMeshManager;
-    //        tMeshManager.register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
+    //         // place the pair in mesh manager
+    //         mtk::Mesh_Manager tMeshManager;
+    //         tMeshManager.register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
     //
-    //        std::string tInputFilePath = moris::get_base_moris_dir();
-    //        tInputFilePath = tInputFilePath + "projects/FEM/MDL/test/data/Input_test.so";
+    //         std::string tInputFilePath = moris::get_base_moris_dir();
+    //         tInputFilePath = tInputFilePath + "projects/FEM/MDL/test/data/Input_test.so";
     //
-    //        // create a pointer to library for input reading
-    //        std::shared_ptr< Library_IO > tLibrary = std::make_shared< Library_IO >( tInputFilePath );
+    //         // create a pointer to library for input reading
+    //         std::shared_ptr< Library_IO > tLibrary = std::make_shared< Library_IO >( tInputFilePath );
     //
-    //        // create model
-    //        mdl::Model * tModel = new mdl::Model( tLibrary,
-    //                                              &tMeshManager,
-    //                                              0 );
+    //         // create model
+    //         mdl::Model * tModel = new mdl::Model( tLibrary,
+    //                                               &tMeshManager,
+    //                                               0 );
     //
-    //        // solve
-    //        tModel->solve();
+    //         // solve
+    //         tModel->solve();
     //
-    //        // clean up
-    //        delete tModel;
-    //    }
-    //}
+    //         // clean up
+    //         delete tModel;
+    //     }
+    // }
 
-    TEST_CASE("2D XTK WITH HMR ThermoElastic 2D Staggered","[XTK_HMR_thermoelastic_2D_staggered]")
+    TEST_CASE( "2D XTK WITH HMR ThermoElastic 2D Staggered", "[XTK_HMR_thermoelastic_2D_staggered]" )
     {
-        if(par_size()<=1)
+        if ( par_size() <= 1 )
         {
-            uint tLagrangeMeshIndex = 0;
-            std::string tFieldName = "Cylinder";
+            uint        tLagrangeMeshIndex = 0;
+            std::string tFieldName         = "Cylinder";
 
             ParameterList tParameters = prm::create_hmr_parameter_list();
 
-            tParameters.set( "number_of_elements_per_dimension", "2, 1");
+            tParameters.set( "number_of_elements_per_dimension", "2, 1" );
             tParameters.set( "domain_dimensions", "2, 2" );
             tParameters.set( "domain_offset", "-1.0, -1.0" );
             tParameters.set( "domain_sidesets", "1,2,3,4" );
@@ -679,51 +687,51 @@ namespace moris
 
             tHMR.save_to_exodus( 0, "./xtk_exo/mdl_xtk_hmr_2d.e" );
 
-            moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
+            moris::hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-            moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
-            tGeometryVector(0) = std::make_shared<moris::ge::Plane>(-500.0, 0.0, 1.0, 0.0);
+            moris::Cell< std::shared_ptr< moris::ge::Geometry > > tGeometryVector( 1 );
+            tGeometryVector( 0 ) = std::make_shared< moris::ge::Plane >( -500.0, 0.0, 1.0, 0.0 );
 
             size_t tModelDimension = 2;
 
             moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
             tGeometryEngineParameters.mGeometries = tGeometryVector;
-            moris::ge::Geometry_Engine tGeometryEngine(tInterpolationMesh, tGeometryEngineParameters);
+            moris::ge::Geometry_Engine tGeometryEngine( tInterpolationMesh, tGeometryEngineParameters );
 
-            xtk::Model tXTKModel(tModelDimension, tInterpolationMesh, &tGeometryEngine);
+            xtk::Model tXTKModel( tModelDimension, tInterpolationMesh, &tGeometryEngine );
 
             tXTKModel.mVerbose = false;
 
-            //Specify decomposition Method and Cut Mesh ---------------------------------------
-            Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
-            tXTKModel.decompose(tDecompositionMethods);
+            // Specify decomposition Method and Cut Mesh ---------------------------------------
+            Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
+            tXTKModel.decompose( tDecompositionMethods );
 
-            tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
+            tXTKModel.perform_basis_enrichment( EntityRank::BSPLINE, 0 );
 
             // get meshes
-            xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
-            xtk::Enriched_Integration_Mesh   & tEnrIntegMesh = tXTKModel.get_enriched_integ_mesh();
+            xtk::Enriched_Interpolation_Mesh& tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
+            xtk::Enriched_Integration_Mesh&   tEnrIntegMesh  = tXTKModel.get_enriched_integ_mesh();
 
             // place the pair in mesh manager
             std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();
-            tMeshManager->register_mesh_pair(&tEnrInterpMesh, &tEnrIntegMesh);
+            tMeshManager->register_mesh_pair( &tEnrInterpMesh, &tEnrIntegMesh );
 
             //------------------------------------------------------------------------------
             // create the properties
             std::shared_ptr< fem::Property > tPropConductivity1 = std::make_shared< fem::Property >();
-            tPropConductivity1->set_parameters( { {{ 1.0 }} } );
+            tPropConductivity1->set_parameters( { { { 1.0 } } } );
             tPropConductivity1->set_val_function( tConstValFunction );
 
             std::shared_ptr< fem::Property > tPropConductivity2 = std::make_shared< fem::Property >();
-            tPropConductivity2->set_parameters( { {{ 5.0 }} } );
+            tPropConductivity2->set_parameters( { { { 5.0 } } } );
             tPropConductivity2->set_val_function( tConstValFunction );
 
             std::shared_ptr< fem::Property > tPropDirichletU = std::make_shared< fem::Property >();
-            tPropDirichletU->set_parameters( { {{ 0.0 }, { 0.0 }} } );
+            tPropDirichletU->set_parameters( { { { 0.0 }, { 0.0 } } } );
             tPropDirichletU->set_val_function( tConstValFunction );
 
             std::shared_ptr< fem::Property > tPropDirichletTEMP = std::make_shared< fem::Property >();
-            tPropDirichletTEMP->set_parameters( { {{ 3.0 }} } );
+            tPropDirichletTEMP->set_parameters( { { { 3.0 } } } );
             tPropDirichletTEMP->set_val_function( tConstValFunction );
 
             //        std::shared_ptr< fem::Property > tPropNeumannTEMP = std::make_shared< fem::Property >();
@@ -731,58 +739,58 @@ namespace moris
             //        tPropNeumann->set_val_function( tConstValFunction2MatMDL );
 
             std::shared_ptr< fem::Property > tPropEMod1 = std::make_shared< fem::Property >();
-            tPropEMod1->set_parameters( { {{ 1.0 }} } );
+            tPropEMod1->set_parameters( { { { 1.0 } } } );
             tPropEMod1->set_val_function( tConstValFunction );
 
             std::shared_ptr< fem::Property > tPropEMod2 = std::make_shared< fem::Property >();
-            tPropEMod2->set_parameters( { {{ 1.0 }} } );
+            tPropEMod2->set_parameters( { { { 1.0 } } } );
             tPropEMod2->set_val_function( tConstValFunction );
 
             std::shared_ptr< fem::Property > tPropPoisson = std::make_shared< fem::Property >();
-            tPropPoisson->set_parameters( { {{ 0.0 }} } );
+            tPropPoisson->set_parameters( { { { 0.0 } } } );
             tPropPoisson->set_val_function( tConstValFunction );
 
             std::shared_ptr< fem::Property > tCTE = std::make_shared< fem::Property >();
-            tCTE->set_parameters( { {{ 1.0 }} } );
+            tCTE->set_parameters( { { { 1.0 } } } );
             tCTE->set_val_function( tConstValFunction );
 
             std::shared_ptr< fem::Property > tTRef = std::make_shared< fem::Property >();
-            tTRef->set_parameters( { {{ 1.0 }} } );
+            tTRef->set_parameters( { { { 1.0 } } } );
             tTRef->set_val_function( tConstValFunction );
 
             // define constitutive models
             fem::CM_Factory tCMFactory;
 
             std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso1 = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
-            tCMStrucLinIso1->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY },{ MSI::Dof_Type::TEMP }},
+            tCMStrucLinIso1->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY }, { MSI::Dof_Type::TEMP } },
                     { "Displacement", "Temperature" } );
             tCMStrucLinIso1->set_property( tPropEMod1, "YoungsModulus" );
             tCMStrucLinIso1->set_property( tPropPoisson, "PoissonRatio" );
             tCMStrucLinIso1->set_property( tCTE, "CTE" );
             tCMStrucLinIso1->set_property( tTRef, "ReferenceTemperature" );
-            tCMStrucLinIso1->set_model_type(fem::Model_Type::PLANE_STRESS);
+            tCMStrucLinIso1->set_model_type( fem::Model_Type::PLANE_STRESS );
             tCMStrucLinIso1->set_space_dim( 2 );
             tCMStrucLinIso1->set_local_properties();
 
             std::shared_ptr< fem::Constitutive_Model > tCMStrucLinIso2 = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
-            tCMStrucLinIso2->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY },{ MSI::Dof_Type::TEMP }},
+            tCMStrucLinIso2->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY }, { MSI::Dof_Type::TEMP } },
                     { "Displacement", "Temperature" } );
             tCMStrucLinIso2->set_property( tPropEMod2, "YoungsModulus" );
             tCMStrucLinIso2->set_property( tPropPoisson, "PoissonRatio" );
             tCMStrucLinIso2->set_property( tCTE, "CTE" );
             tCMStrucLinIso2->set_property( tTRef, "ReferenceTemperature" );
-            tCMStrucLinIso2->set_model_type(fem::Model_Type::PLANE_STRESS);
+            tCMStrucLinIso2->set_model_type( fem::Model_Type::PLANE_STRESS );
             tCMStrucLinIso2->set_space_dim( 2 );
             tCMStrucLinIso2->set_local_properties();
 
             std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso1 = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
-            tCMDiffLinIso1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+            tCMDiffLinIso1->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
             tCMDiffLinIso1->set_property( tPropConductivity1, "Conductivity" );
             tCMDiffLinIso1->set_space_dim( 2 );
             tCMDiffLinIso1->set_local_properties();
 
             std::shared_ptr< fem::Constitutive_Model > tCMDiffLinIso2 = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
-            tCMDiffLinIso2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+            tCMDiffLinIso2->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
             tCMDiffLinIso2->set_property( tPropConductivity2, "Conductivity" );
             tCMDiffLinIso2->set_space_dim( 2 );
             tCMDiffLinIso2->set_local_properties();
@@ -790,13 +798,13 @@ namespace moris
             //----------------------------------------------------------------------------------------------------------
 
             // define stabilization parameters
-            fem::SP_Factory tSPFactory;
+            fem::SP_Factory                                 tSPFactory;
             std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitscheU = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
-            tSPDirichletNitscheU->set_parameters( { {{ 100.0 }} } );
+            tSPDirichletNitscheU->set_parameters( { { { 100.0 } } } );
             tSPDirichletNitscheU->set_property( tPropEMod1, "Material", mtk::Master_Slave::MASTER );
 
             std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitscheTEMP = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
-            tSPDirichletNitscheTEMP->set_parameters( { {{ 1.0 }} } );
+            tSPDirichletNitscheTEMP->set_parameters( { { { 1.0 } } } );
             tSPDirichletNitscheTEMP->set_property( tPropConductivity1, "Material", mtk::Master_Slave::MASTER );
 
             //----------------------------------------------------------------------------------------------------------
@@ -805,17 +813,17 @@ namespace moris
 
             std::shared_ptr< fem::IWG > tIWGBulkU_1 = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_BULK );
             tIWGBulkU_1->set_residual_dof_type( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
-            tIWGBulkU_1->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
+            tIWGBulkU_1->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
             tIWGBulkU_1->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Master_Slave::MASTER );
 
             std::shared_ptr< fem::IWG > tIWGBulkU_2 = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_BULK );
             tIWGBulkU_2->set_residual_dof_type( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
-            tIWGBulkU_2->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
+            tIWGBulkU_2->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
             tIWGBulkU_2->set_constitutive_model( tCMStrucLinIso2, "ElastLinIso", mtk::Master_Slave::MASTER );
 
             std::shared_ptr< fem::IWG > tIWGDirichletU = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE );
             tIWGDirichletU->set_residual_dof_type( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
-            tIWGDirichletU->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
+            tIWGDirichletU->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
             tIWGDirichletU->set_stabilization_parameter( tSPDirichletNitscheU, "DirichletNitsche" );
             tIWGDirichletU->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Master_Slave::MASTER );
             tIWGDirichletU->set_property( tPropDirichletU, "Dirichlet", mtk::Master_Slave::MASTER );
@@ -827,19 +835,19 @@ namespace moris
 
             std::shared_ptr< fem::IWG > tIWGBulkTEMP_1 = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
             tIWGBulkTEMP_1->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
-            tIWGBulkTEMP_1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+            tIWGBulkTEMP_1->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
             tIWGBulkTEMP_1->set_constitutive_model( tCMDiffLinIso1, "Diffusion", mtk::Master_Slave::MASTER );
             //         tIWGBulkTEMP_1->set_property( tPropTempLoad1, "Load", mtk::Master_Slave::MASTER );
 
             std::shared_ptr< fem::IWG > tIWGBulkTEMP_2 = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
             tIWGBulkTEMP_2->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
-            tIWGBulkTEMP_2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+            tIWGBulkTEMP_2->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
             tIWGBulkTEMP_2->set_constitutive_model( tCMDiffLinIso2, "Diffusion", mtk::Master_Slave::MASTER );
             //         tIWGBulkTEMP_2->set_property( tPropTempLoad2, "Load", mtk::Master_Slave::MASTER );
 
             std::shared_ptr< fem::IWG > tIWGDirichletTEMP = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
             tIWGDirichletTEMP->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
-            tIWGDirichletTEMP->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+            tIWGDirichletTEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
             tIWGDirichletTEMP->set_stabilization_parameter( tSPDirichletNitscheTEMP, "DirichletNitsche" );
             tIWGDirichletTEMP->set_constitutive_model( tCMDiffLinIso2, "Diffusion", mtk::Master_Slave::MASTER );
             tIWGDirichletTEMP->set_property( tPropDirichletTEMP, "Dirichlet", mtk::Master_Slave::MASTER );
@@ -883,17 +891,18 @@ namespace moris
             tSetInfo( 1 ) = tSetDirichlet;
 
             // create model
-            mdl::Model * tModel = new mdl::Model(
+            mdl::Model* tModel = new mdl::Model(
                     tMeshManager,
                     0,
                     tSetInfo,
-                    0, false );
+                    0,
+                    false );
 
             // define outputs
             // --------------------------------------------------------------------------------------
             vis::Output_Manager tOutputData;
             tOutputData.set_outputs( 0,
-                    vis::VIS_Mesh_Type::STANDARD, //OVERLAPPING_INTERFACE
+                    vis::VIS_Mesh_Type::STANDARD,    // OVERLAPPING_INTERFACE
                     "./",
                     "MDL_Thermoelastic_Staggered_Test_2D_Output.exo",
                     "./",
@@ -901,7 +910,7 @@ namespace moris
                     { "HMR_dummy_n_p1" },
                     { "UX", "UY", "TEMP" },
                     { vis::Field_Type::NODAL, vis::Field_Type::NODAL, vis::Field_Type::NODAL },
-                    { "IQI_UX","IQI_UY","IQI_TEMP" } );
+                    { "IQI_UX", "IQI_UY", "IQI_TEMP" } );
             tModel->set_output_manager( &tOutputData );
 
             sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
@@ -910,71 +919,71 @@ namespace moris
 
             tParameterlist( 0 ).resize( 3 );
             tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AZTEC_IMPL );
-            tParameterlist( 0 )( 0 ).set("AZ_diagnostics", AZ_none);
-            tParameterlist( 0 )( 0 ).set("AZ_output", AZ_none);
-            tParameterlist( 0 )( 0 ).set("AZ_max_iter", 10000);
-            tParameterlist( 0 )( 0 ).set("AZ_solver", AZ_gmres);
-            tParameterlist( 0 )( 0 ).set("AZ_subdomain_solve", AZ_ilu);
-            tParameterlist( 0 )( 0 ).set("AZ_graph_fill", 10);
-            tParameterlist( 0 )( 0 ).set("ml_prec_type", "SA");
+            tParameterlist( 0 )( 0 ).set( "AZ_diagnostics", AZ_none );
+            tParameterlist( 0 )( 0 ).set( "AZ_output", AZ_none );
+            tParameterlist( 0 )( 0 ).set( "AZ_max_iter", 10000 );
+            tParameterlist( 0 )( 0 ).set( "AZ_solver", AZ_gmres );
+            tParameterlist( 0 )( 0 ).set( "AZ_subdomain_solve", AZ_ilu );
+            tParameterlist( 0 )( 0 ).set( "AZ_graph_fill", 10 );
+            tParameterlist( 0 )( 0 ).set( "ml_prec_type", "SA" );
 
             tParameterlist( 0 )( 1 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AZTEC_IMPL );
-            tParameterlist( 0 )( 1 ).set("ifpack_prec_type", "ILU");
+            tParameterlist( 0 )( 1 ).set( "ifpack_prec_type", "ILU" );
 
             tParameterlist( 0 )( 2 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
 
             tParameterlist( 1 ).resize( 3 );
             tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
-            tParameterlist( 1 )( 0 ).set("DLA_Linear_solver_algorithms", "0" );
+            tParameterlist( 1 )( 0 ).set( "DLA_Linear_solver_algorithms", "0" );
             tParameterlist( 1 )( 1 ) = moris::prm::create_linear_solver_parameter_list();
-            tParameterlist( 1 )( 1 ).set("DLA_Linear_solver_algorithms", "1" );
+            tParameterlist( 1 )( 1 ).set( "DLA_Linear_solver_algorithms", "1" );
             tParameterlist( 1 )( 2 ) = moris::prm::create_linear_solver_parameter_list();
-            tParameterlist( 1 )( 2 ).set("DLA_Linear_solver_algorithms", "2" );
+            tParameterlist( 1 )( 2 ).set( "DLA_Linear_solver_algorithms", "2" );
 
             tParameterlist( 2 ).resize( 3 );
             tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
-            tParameterlist( 2 )( 0 ).set("NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ));
-            tParameterlist( 2 )( 0 ).set("NLA_combined_res_jac_assembly", false );
-            tParameterlist( 2 )( 0 ).set("NLA_Linear_solver" , 0 );
+            tParameterlist( 2 )( 0 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) );
+            tParameterlist( 2 )( 0 ).set( "NLA_combined_res_jac_assembly", false );
+            tParameterlist( 2 )( 0 ).set( "NLA_Linear_solver", 0 );
             tParameterlist( 2 )( 1 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
-            tParameterlist( 2 )( 1 ).set("NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ));
-            tParameterlist( 2 )( 1 ).set("NLA_combined_res_jac_assembly", false );
-            tParameterlist( 2 )( 1 ).set("NLA_Linear_solver" , 1 );
+            tParameterlist( 2 )( 1 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) );
+            tParameterlist( 2 )( 1 ).set( "NLA_combined_res_jac_assembly", false );
+            tParameterlist( 2 )( 1 ).set( "NLA_Linear_solver", 1 );
             tParameterlist( 2 )( 2 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
-            tParameterlist( 2 )( 2 ).set("NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NLBGS_SOLVER ));
-            tParameterlist( 2 )( 2 ).set("NLA_combined_res_jac_assembly", false );
-            tParameterlist( 2 )( 2 ).set("NLA_Linear_solver" , 2 );
+            tParameterlist( 2 )( 2 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NLBGS_SOLVER ) );
+            tParameterlist( 2 )( 2 ).set( "NLA_combined_res_jac_assembly", false );
+            tParameterlist( 2 )( 2 ).set( "NLA_Linear_solver", 2 );
 
             tParameterlist( 3 ).resize( 3 );
             tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
-            tParameterlist( 3 )( 0 ).set("NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ));
-            tParameterlist( 3 )( 0 ).set("NLA_DofTypes", "UX,UY");
-            tParameterlist( 3 )( 0 ).set("NLA_Nonlinear_solver_algorithms", "0");
+            tParameterlist( 3 )( 0 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) );
+            tParameterlist( 3 )( 0 ).set( "NLA_DofTypes", "UX,UY" );
+            tParameterlist( 3 )( 0 ).set( "NLA_Nonlinear_solver_algorithms", "0" );
             tParameterlist( 3 )( 1 ) = moris::prm::create_nonlinear_solver_parameter_list();
-            tParameterlist( 3 )( 1 ).set("NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ));
-            tParameterlist( 3 )( 1 ).set("NLA_DofTypes", "TEMP");
-            tParameterlist( 3 )( 1 ).set("NLA_Nonlinear_solver_algorithms", "1");
+            tParameterlist( 3 )( 1 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) );
+            tParameterlist( 3 )( 1 ).set( "NLA_DofTypes", "TEMP" );
+            tParameterlist( 3 )( 1 ).set( "NLA_Nonlinear_solver_algorithms", "1" );
             tParameterlist( 3 )( 2 ) = moris::prm::create_nonlinear_solver_parameter_list();
-            tParameterlist( 3 )( 2 ).set("NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NLBGS_SOLVER ));
-            tParameterlist( 3 )( 2 ).set("NLA_Sub_Nonlinear_Solver", "1,0");
-            tParameterlist( 3 )( 2 ).set("NLA_DofTypes", "UX,UY;TEMP");
-            tParameterlist( 3 )( 2 ).set("NLA_Nonlinear_solver_algorithms", "2");
+            tParameterlist( 3 )( 2 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NLBGS_SOLVER ) );
+            tParameterlist( 3 )( 2 ).set( "NLA_Sub_Nonlinear_Solver", "1,0" );
+            tParameterlist( 3 )( 2 ).set( "NLA_DofTypes", "UX,UY;TEMP" );
+            tParameterlist( 3 )( 2 ).set( "NLA_Nonlinear_solver_algorithms", "2" );
 
             tParameterlist( 4 ).resize( 1 );
             tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
-            tParameterlist( 4 )( 0 ).set("TSA_Nonlinear_solver", 2);
+            tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_solver", 2 );
 
             tParameterlist( 5 ).resize( 1 );
             tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
-            tParameterlist( 5 )( 0 ).set("TSA_DofTypes", "UX,UY;TEMP");
+            tParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "UX,UY;TEMP" );
 
             tParameterlist( 6 ).resize( 1 );
-            tParameterlist( 6 )(0) = moris::prm::create_solver_warehouse_parameterlist();
+            tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
 
             tSolverWarehouse.set_parameterlist( tParameterlist );
             tSolverWarehouse.initialize();
 
-            tsa::Time_Solver * tTimeSolver = tSolverWarehouse.get_main_time_solver();
+            tsa::Time_Solver* tTimeSolver = tSolverWarehouse.get_main_time_solver();
             tTimeSolver->set_output( 0, tSolverOutputCriteria_thermolast );
             tTimeSolver->solve();
 
@@ -1057,11 +1066,11 @@ namespace moris
             //        //------------------------------------------------------------------------------
             //        tTimeSolver.solve();
 
-            Matrix<DDRMat> tFullSolution;
-            Matrix<DDRMat> tGoldSolution;
-            tTimeSolver->get_full_solution(tFullSolution);
+            Matrix< DDRMat > tFullSolution;
+            Matrix< DDRMat > tGoldSolution;
+            tTimeSolver->get_full_solution( tFullSolution );
 
-            std::string tMorisRoot = moris::get_base_moris_dir();
+            std::string tMorisRoot    = moris::get_base_moris_dir();
             std::string tHdf5FilePath = tMorisRoot + "/projects/FEM/MDL/test/data/Thermoelastic_test_2d.hdf5";
 
             //------------------------------------------------------------------------------
@@ -1083,84 +1092,84 @@ namespace moris
             // verify solution
 
             bool tSolutionCheck = true;
-            for( uint i = 0; i < tFullSolution.numel(); i++ )
+            for ( uint i = 0; i < tFullSolution.numel(); i++ )
             {
                 tSolutionCheck = tSolutionCheck && ( tFullSolution( i ) - tGoldSolution( i ) < 1e-03 );
-                if( !tSolutionCheck )
+                if ( !tSolutionCheck )
                 {
-                    std::cout<<"tFullSolution( i ) "<<tFullSolution( i )<<" tGoldSolution( i ) "<<tGoldSolution( i )<<std::endl;
+                    std::cout << "tFullSolution( i ) " << tFullSolution( i ) << " tGoldSolution( i ) " << tGoldSolution( i ) << std::endl;
                 }
             }
 
-            CHECK(tSolutionCheck);
+            CHECK( tSolutionCheck );
 
             delete tModel;
             delete tInterpolationMesh;
         }
     }
 
-    //TEST_CASE("2D XTK WITH HMR Struc Interface 3D","[XTK_HMR_Struc_Interface_3D]")
+    // TEST_CASE("2D XTK WITH HMR Struc Interface 3D","[XTK_HMR_Struc_Interface_3D]")
     //{
-    //    if(par_size()<=1)
-    //    {
-    //        uint tLagrangeMeshIndex = 0;
-    //        std::string tFieldName = "Cylinder";
+    //     if(par_size()<=1)
+    //     {
+    //         uint tLagrangeMeshIndex = 0;
+    //         std::string tFieldName = "Cylinder";
     //
-    //        uint tSpatialDimension = 3;
+    //         uint tSpatialDimension = 3;
     //
-    //         hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
+    //          hmr::ParameterList tParameters = hmr::create_hmr_parameter_list();
     //
-    //         tParameters.set( "number_of_elements_per_dimension", "22, 8, 2");
-    //         tParameters.set( "domain_dimensions", "6, 2, 1" );
-    //         tParameters.set( "domain_offset", "-3.0, -1.0, -0.5" );
-    //         tParameters.set( "domain_sidesets", "1,2,3,4,5,6" );
-    //         tParameters.set( "lagrange_output_meshes", "0" );
+    //          tParameters.set( "number_of_elements_per_dimension", "22, 8, 2");
+    //          tParameters.set( "domain_dimensions", "6, 2, 1" );
+    //          tParameters.set( "domain_offset", "-3.0, -1.0, -0.5" );
+    //          tParameters.set( "domain_sidesets", "1,2,3,4,5,6" );
+    //          tParameters.set( "lagrange_output_meshes", "0" );
     //
-    //         tParameters.set( "lagrange_orders", "1" );
-    //         tParameters.set( "lagrange_pattern", "0" );
-    //         tParameters.set( "bspline_orders", "1" );
-    //         tParameters.set( "bspline_pattern", "0" );
+    //          tParameters.set( "lagrange_orders", "1" );
+    //          tParameters.set( "lagrange_pattern", "0" );
+    //          tParameters.set( "bspline_orders", "1" );
+    //          tParameters.set( "bspline_pattern", "0" );
     //
-    //         tParameters.set( "lagrange_to_bspline", "0" );
+    //          tParameters.set( "lagrange_to_bspline", "0" );
     //
-    //         tParameters.set( "truncate_bsplines", 1 );
-    //         tParameters.set( "refinement_buffer", 3 );
-    //         tParameters.set( "staircase_buffer", 3 );
-    //         tParameters.set( "initial_refinement", 0 );
+    //          tParameters.set( "truncate_bsplines", 1 );
+    //          tParameters.set( "refinement_buffer", 3 );
+    //          tParameters.set( "staircase_buffer", 3 );
+    //          tParameters.set( "initial_refinement", 0 );
     //
-    //         tParameters.set( "use_multigrid", 0 );
-    //         tParameters.set( "severity_level", 2 );
+    //          tParameters.set( "use_multigrid", 0 );
+    //          tParameters.set( "severity_level", 2 );
     //
-    //         hmr::HMR tHMR( tParameters );
+    //          hmr::HMR tHMR( tParameters );
     //
-    //        //initial refinement
-    //         tHMR.perform_initial_refinement( 0 );
+    //         //initial refinement
+    //          tHMR.perform_initial_refinement( 0 );
     //
-    //         std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
+    //          std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
     //
-    //       //  create field
-    //       Cell<std::shared_ptr< moris::hmr::Field > > tHMRFields;
-    //       tHMRFields.resize(2);
+    //        //  create field
+    //        Cell<std::shared_ptr< moris::hmr::Field > > tHMRFields;
+    //        tHMRFields.resize(2);
     //
-    //       // create field
-    //       tHMRFields(0) = tMesh->create_field( "Geom", tLagrangeMeshIndex );
-    //       tHMRFields(1) = tMesh->create_field( "Geom", tLagrangeMeshIndex );
+    //        // create field
+    //        tHMRFields(0) = tMesh->create_field( "Geom", tLagrangeMeshIndex );
+    //        tHMRFields(1) = tMesh->create_field( "Geom", tLagrangeMeshIndex );
     //
-    //       tHMRFields(0)->evaluate_scalar_function( LevelSetFunction_star1 );
-    //       tHMRFields(1)->evaluate_scalar_function( Plane4MatMDL1 );
+    //        tHMRFields(0)->evaluate_scalar_function( LevelSetFunction_star1 );
+    //        tHMRFields(1)->evaluate_scalar_function( Plane4MatMDL1 );
     //
-    //       for( uint k=0; k<2; ++k )
-    //       {
-    //           tHMR.flag_surface_elements_on_working_pattern( tHMRFields(0) );
-    //           tHMR.flag_surface_elements_on_working_pattern( tHMRFields(1) );
+    //        for( uint k=0; k<2; ++k )
+    //        {
+    //            tHMR.flag_surface_elements_on_working_pattern( tHMRFields(0) );
+    //            tHMR.flag_surface_elements_on_working_pattern( tHMRFields(1) );
     //
-    //           tHMR.perform_refinement_based_on_working_pattern( 0 );
+    //            tHMR.perform_refinement_based_on_working_pattern( 0 );
     //
-    //           tHMRFields(0)->evaluate_scalar_function( LevelSetFunction_star1 );
-    //           tHMRFields(1)->evaluate_scalar_function( Plane4MatMDL1 );
-    //       }
+    //            tHMRFields(0)->evaluate_scalar_function( LevelSetFunction_star1 );
+    //            tHMRFields(1)->evaluate_scalar_function( Plane4MatMDL1 );
+    //        }
     //
-    //      tHMR.finalize();
+    //       tHMR.finalize();
     //
     ////      tHMR.save_to_exodus( 0, "./xtk_exo/mdl_xtk_hmr_3d.e" );
     //
@@ -1486,5 +1495,4 @@ namespace moris
     //        delete tModel;
     //    }
     //}
-}
-
+}    // namespace moris

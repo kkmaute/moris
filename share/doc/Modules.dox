@@ -321,9 +321,13 @@ The following table shows a list of features that can be found in these examples
 <caption id="features_in_examples">Main Features Found in Different Examples</caption>
 <tr><th>Feature</th>                          <th> Examples </th></tr>
 <tr><td>Axisymmetric formulation</td>         <td> \ref EXA_Structure_Linear_Axisymmetric </td></tr>
+<tr><td>Thermo-Elastic Problem </td>          <td> \ref EXA_Structure_Thermo_Elastic_MOPAR </td></tr>
+<tr><td>Heat Conduction</td>                  <td> \ref EXA_Structure_Linear_HeatConduction_2D </td></tr>
 <tr><td>STK background mesh</td>              <td> \ref EXA_Structure_Linear_Axisymmetric \n
                                                    \ref EXA_Structure_Linear_Beam_Temperature_Field \n
                                                    \ref EXA_Structure_Linear_Plane_Strain </td></tr>
+<tr><td>STK_XTK_HeatConduction</td>           <td> \ref EXA_Structure_Linear_STK_XTK_HeatConduction </td></tr>
+<tr><td>Fluid Oscillator</td>                 <td> \ref EXA_Oscillator </td></tr>
 <tr><td>Imported nodal field values</td>      <td> \ref EXA_Structure_Linear_Beam_Temperature_Field </td></tr>
 <tr><td>Plane strain formulation</td>         <td> \ref EXA_Structure_Linear_Plane_Strain </td></tr>
 <tr><td>Homogenization</td>                   <td> \ref EXA_Structure_Linear_Homogenization_2D </td></tr>

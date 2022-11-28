@@ -286,13 +286,6 @@ namespace moris
                 // add contribution to the flux
                 mFlux -= tP;
             }
-
-            // if eigen-strain is defined
-            if ( mPropEigenStrain != nullptr )
-            {
-                // add eigen strain contribution; note the sign
-                mFlux += this->constitutive() * mPropEigenStrain->val();
-            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -414,6 +407,13 @@ namespace moris
                     mStrain += tThermalExpansionVector * ( mPropTRef->val() - tFITemp->val() );
                 }
             }
+
+            // if eigen-strain is defined
+            if ( mPropEigenStrain != nullptr )
+            {
+                // add eigen strain contribution; note the sign
+                mStrain += mPropEigenStrain->val();
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -465,6 +465,13 @@ namespace moris
                     // add thermal contribution to the strain
                     mStrain += tThermalExpansionVector * ( mPropTRef->val() - tFITemp->val() );
                 }
+            }
+
+            // if eigen-strain is defined
+            if ( mPropEigenStrain != nullptr )
+            {
+                // add eigen strain contribution; note the sign
+                mStrain += mPropEigenStrain->val();
             }
         }
 
@@ -780,6 +787,17 @@ namespace moris
                             "dof dependency of reference temperature not implemented.\n" );
                 }
             }
+
+            // if eigen-strain is defined
+            if ( mPropEigenStrain != nullptr )
+            {
+                if ( mPropEigenStrain->check_dof_dependency( aDofTypes ) )
+                {
+                    MORIS_ERROR( false,
+                            "CM_Struc_Linear::eval_dStraindDOF - %s",
+                            "dof dependency of eigen strain not implemented.\n" );
+                }
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -928,4 +946,3 @@ namespace moris
 
     } /* namespace fem */
 } /* namespace moris */
-

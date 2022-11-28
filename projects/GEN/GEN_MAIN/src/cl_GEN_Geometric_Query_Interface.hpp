@@ -30,9 +30,13 @@ namespace moris
           private:
 
           public:
-            Geometric_Query_Interface( /* args */ );
+            Geometric_Query_Interface()
+            {
+            }
 
-            ~Geometric_Query_Interface();
+            virtual ~Geometric_Query_Interface()
+            {
+            }
 
             virtual enum Query_Type get_query_type() const = 0;
 
@@ -57,17 +61,8 @@ namespace moris
             virtual moris_index max_query_entity_intersection() const = 0;
         };
 
-        Geometric_Query_Interface::Geometric_Query_Interface( /* args */ )
-        {
-        }
-
-        Geometric_Query_Interface::~Geometric_Query_Interface()
-        {
-        }
-
     }    // namespace ge
 
 }    // namespace moris
 
 #endif
-

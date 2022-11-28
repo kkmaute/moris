@@ -20,25 +20,26 @@ namespace moris
     {
 
         /* The below functions assume the 2D element to be a QUAD9 - TIME2 element
-        * with 18 Nodes and the 1D element to be a LINE3 - TIME2 element with 6 DoFs
-        *
-        * Ordering Scheme:
-        *
-        * Timelevels:      t_1            t_2
-        *
-        *        1D:   1 -- 3 -- 2    4 --  6 -- 5
-        *
-        *              4 -- 7 -- 3   13 -- 16 -- 12
-        *              |         |    |          |
-        *        2D:   8    9    6   17    18    15
-        *              |         |    |          |
-        *              1 -- 5 -- 2   10 -- 14 -- 11
-        */
+         * with 18 Nodes and the 1D element to be a LINE3 - TIME2 element with 6 DoFs
+         *
+         * Ordering Scheme:
+         *
+         * Timelevels:      t_1            t_2
+         *
+         *        1D:   1 -- 3 -- 2    4 --  6 -- 5
+         *
+         *              4 -- 7 -- 3   13 -- 16 -- 12
+         *              |         |    |          |
+         *        2D:   8    9    6   17    18    15
+         *              |         |    |          |
+         *              1 -- 5 -- 2   10 -- 14 -- 11
+         */
 
         //------------------------------------------------------------------------------
 
-        Matrix< DDRMat > convert_residual_2D_to_1D_quadratic(
-                const Matrix< DDRMat > & aRes2D )
+        inline Matrix< DDRMat >
+        convert_residual_2D_to_1D_quadratic(
+                const Matrix< DDRMat >& aRes2D )
         {
             // check size of the residual inputed
             MORIS_ERROR( ( aRes2D.n_rows() == 18 ) and ( aRes2D.n_cols() == 1 ),
@@ -46,13 +47,13 @@ namespace moris
 
             // convert the 2D residual to 1D
             Matrix< DDRMat > tRes1D = {
-                    { aRes2D(  0 ) + aRes2D(  3 ) + aRes2D(  7 ) },
-                    { aRes2D(  1 ) + aRes2D(  2 ) + aRes2D(  5 ) },
-                    { aRes2D(  4 ) + aRes2D(  6 ) + aRes2D(  8 ) },
-                    { aRes2D(  9 ) + aRes2D( 12 ) + aRes2D( 16 ) },
-                    { aRes2D( 10 ) + aRes2D( 11 ) + aRes2D( 14 ) },
-                    { aRes2D( 13 ) + aRes2D( 15 ) + aRes2D( 17 ) }
-                    };
+                { aRes2D( 0 ) + aRes2D( 3 ) + aRes2D( 7 ) },
+                { aRes2D( 1 ) + aRes2D( 2 ) + aRes2D( 5 ) },
+                { aRes2D( 4 ) + aRes2D( 6 ) + aRes2D( 8 ) },
+                { aRes2D( 9 ) + aRes2D( 12 ) + aRes2D( 16 ) },
+                { aRes2D( 10 ) + aRes2D( 11 ) + aRes2D( 14 ) },
+                { aRes2D( 13 ) + aRes2D( 15 ) + aRes2D( 17 ) }
+            };
 
             // return converted residual vector
             return tRes1D;
@@ -60,9 +61,10 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        Matrix< DDRMat > convert_multi_residual_2D_to_1D_quadratic(
-                const Matrix< DDRMat > & aMultiRes2D,
-                const uint               aNumStateVars )
+        inline Matrix< DDRMat >
+        convert_multi_residual_2D_to_1D_quadratic(
+                const Matrix< DDRMat >& aMultiRes2D,
+                const uint              aNumStateVars )
         {
             // check size of the residual inputed
             MORIS_ERROR( ( aMultiRes2D.n_rows() == 18 * aNumStateVars ) and ( aMultiRes2D.n_cols() == 1 ) and ( aNumStateVars > 0 ),
@@ -90,8 +92,9 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        Matrix< DDRMat > convert_comp_flow_residual_2D_to_1D_quadratic(
-                const Matrix< DDRMat > & aCFRes2D )
+        inline Matrix< DDRMat >
+        convert_comp_flow_residual_2D_to_1D_quadratic(
+                const Matrix< DDRMat >& aCFRes2D )
         {
             // check size of the residual inputed
             MORIS_ERROR( ( aCFRes2D.n_rows() == 18 * 4 ) and ( aCFRes2D.n_cols() == 1 ),
@@ -102,7 +105,7 @@ namespace moris
 
             // cut out UY part
             tCFRes1D( { 12, 17 } ) = tCFRes1D( { 18, 23 } );
-            tCFRes1D = tCFRes1D( { 0, 17 } );
+            tCFRes1D               = tCFRes1D( { 0, 17 } );
 
             // return
             return tCFRes1D;
@@ -110,8 +113,9 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        Matrix< DDRMat > convert_Jacobian_2D_to_1D_quadratic (
-                const Matrix< DDRMat > & aJac2D )
+        inline Matrix< DDRMat >
+        convert_Jacobian_2D_to_1D_quadratic(
+                const Matrix< DDRMat >& aJac2D )
         {
             // check size of the Jacobian inputed
             MORIS_ERROR( ( aJac2D.n_rows() == 18 ) and ( aJac2D.n_cols() == 18 ),
@@ -155,9 +159,10 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        Matrix< DDRMat > convert_multi_Jacobian_2D_to_1D_quadratic (
-                const Matrix< DDRMat > & aJac2D,
-                const uint               aNumStateVars )
+        inline Matrix< DDRMat >
+        convert_multi_Jacobian_2D_to_1D_quadratic(
+                const Matrix< DDRMat >& aJac2D,
+                const uint              aNumStateVars )
         {
             // check size of the Jacobian inputed
             MORIS_ERROR( ( aJac2D.n_rows() == 18 * aNumStateVars ) and ( aJac2D.n_cols() == 18 * aNumStateVars ) and ( aNumStateVars > 0 ),
@@ -192,8 +197,9 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        Matrix< DDRMat > convert_comp_flow_jacobian_2D_to_1D_quadratic(
-                const Matrix< DDRMat > & aCFJac2D )
+        inline Matrix< DDRMat >
+        convert_comp_flow_jacobian_2D_to_1D_quadratic(
+                const Matrix< DDRMat >& aCFJac2D )
         {
             // check size of the Jacobian inputed
             MORIS_ERROR( ( aCFJac2D.n_rows() == 18 * 4 ) and ( aCFJac2D.n_cols() == 18 * 4 ),
@@ -203,10 +209,10 @@ namespace moris
             Matrix< DDRMat > tCFJac1D = convert_multi_Jacobian_2D_to_1D_quadratic( aCFJac2D, 4 );
 
             // cut out UY part
-            tCFJac1D( {  0, 11 }, { 12, 17 } ) = tCFJac1D( {  0, 11 }, { 18, 23 } );
-            tCFJac1D( { 12, 17 }, {  0, 11 } ) = tCFJac1D( { 18, 23 }, {  0, 11 } );
+            tCFJac1D( { 0, 11 }, { 12, 17 } )  = tCFJac1D( { 0, 11 }, { 18, 23 } );
+            tCFJac1D( { 12, 17 }, { 0, 11 } )  = tCFJac1D( { 18, 23 }, { 0, 11 } );
             tCFJac1D( { 12, 17 }, { 12, 17 } ) = tCFJac1D( { 18, 23 }, { 18, 23 } );
-            tCFJac1D = tCFJac1D( { 0, 17 }, { 0, 17 } );
+            tCFJac1D                           = tCFJac1D( { 0, 17 }, { 0, 17 } );
 
             // return
             return tCFJac1D;
@@ -214,8 +220,9 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        Matrix< DDRMat > convert_DoF_vector_1D_to_2D_quadratic (
-                const Matrix< DDRMat > & aDofVec1D )
+        inline Matrix< DDRMat >
+        convert_DoF_vector_1D_to_2D_quadratic(
+                const Matrix< DDRMat >& aDofVec1D )
         {
             // check size of the DoF vector inputed
             MORIS_ERROR( aDofVec1D.n_rows() == 6 && aDofVec1D.n_cols() == 1,
@@ -223,25 +230,25 @@ namespace moris
 
             // DoFs into 2D DoF vector
             Matrix< DDRMat > tDofVec2D = {
-                    { aDofVec1D( 0 ) },
-                    { aDofVec1D( 1 ) },
-                    { aDofVec1D( 1 ) },
-                    { aDofVec1D( 0 ) },
-                    { aDofVec1D( 2 ) },
-                    { aDofVec1D( 1 ) },
-                    { aDofVec1D( 2 ) },
-                    { aDofVec1D( 0 ) },
-                    { aDofVec1D( 2 ) },
-                    { aDofVec1D( 0 + 3 ) },
-                    { aDofVec1D( 1 + 3 ) },
-                    { aDofVec1D( 1 + 3 ) },
-                    { aDofVec1D( 0 + 3 ) },
-                    { aDofVec1D( 2 + 3 ) },
-                    { aDofVec1D( 1 + 3 ) },
-                    { aDofVec1D( 2 + 3 ) },
-                    { aDofVec1D( 0 + 3 ) },
-                    { aDofVec1D( 2 + 3 ) }
-                    };
+                { aDofVec1D( 0 ) },
+                { aDofVec1D( 1 ) },
+                { aDofVec1D( 1 ) },
+                { aDofVec1D( 0 ) },
+                { aDofVec1D( 2 ) },
+                { aDofVec1D( 1 ) },
+                { aDofVec1D( 2 ) },
+                { aDofVec1D( 0 ) },
+                { aDofVec1D( 2 ) },
+                { aDofVec1D( 0 + 3 ) },
+                { aDofVec1D( 1 + 3 ) },
+                { aDofVec1D( 1 + 3 ) },
+                { aDofVec1D( 0 + 3 ) },
+                { aDofVec1D( 2 + 3 ) },
+                { aDofVec1D( 1 + 3 ) },
+                { aDofVec1D( 2 + 3 ) },
+                { aDofVec1D( 0 + 3 ) },
+                { aDofVec1D( 2 + 3 ) }
+            };
 
             // return converted DoF vector
             return tDofVec2D;
@@ -249,9 +256,10 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        Matrix< DDRMat > convert_multi_DoF_vector_1D_to_2D_quadratic (
-                const Matrix< DDRMat > & aDofVec1D,
-                const uint               aNumStateVars )
+        inline Matrix< DDRMat >
+        convert_multi_DoF_vector_1D_to_2D_quadratic(
+                const Matrix< DDRMat >& aDofVec1D,
+                const uint              aNumStateVars )
         {
             // check size of the DoF vector inputed
             MORIS_ERROR( ( aDofVec1D.n_rows() == 6 * aNumStateVars ) and ( aDofVec1D.n_cols() == 1 ),
@@ -279,8 +287,9 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        Matrix< DDRMat > convert_comp_flow_DoF_vector_1D_to_2D_quadratic (
-                const Matrix< DDRMat > & aCFDofVec1D )
+        inline Matrix< DDRMat >
+        convert_comp_flow_DoF_vector_1D_to_2D_quadratic(
+                const Matrix< DDRMat >& aCFDofVec1D )
         {
             // check size of the DoF vector inputed
             MORIS_ERROR( ( aCFDofVec1D.n_rows() == 6 * 3 ) and ( aCFDofVec1D.n_cols() == 1 ),
@@ -293,7 +302,7 @@ namespace moris
             Matrix< DDRMat > tCFDofVec2Dtemp = convert_multi_DoF_vector_1D_to_2D_quadratic( aCFDofVec1D, 3 );
 
             // add zeros for UY to converted Dof vector
-            tCFDofVec2D( {  0, 35 } ) = tCFDofVec2Dtemp( {  0, 35 } );
+            tCFDofVec2D( { 0, 35 } )  = tCFDofVec2Dtemp( { 0, 35 } );
             tCFDofVec2D( { 54, 71 } ) = tCFDofVec2Dtemp( { 36, 53 } );
 
             // return converted DoF vector
@@ -302,5 +311,5 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-    } // end namespace fem
-} // end namespace moris
+    }    // end namespace fem
+}    // end namespace moris

@@ -17,6 +17,7 @@ setenv F77       `spack compiler info $SPACKCOMP | grep 'f77 =' | awk -F = '{pri
 setenv GCCLIB    `spack compiler info $SPACKCOMP | grep 'cc ='  | awk -F = '{split($2,a,"/bin/");print a[1]}'`
 
 setenv OPENBLAS_DIR `spack location --install-dir openblas`"/lib"
+setenv PETSC_DIR    `spack location --install-dir petsc`
 
 echo "setenv MORISROOT      $WORKSPACE/moris"                                  >> $HOME/.cshrc_moris
 echo 'setenv MORISBUILDDBG  build_dbg'                                         >> $HOME/.cshrc_moris
@@ -26,6 +27,8 @@ echo ""                                                                        >
 echo "setenv MPI_HOME"         `spack location --install-dir openmpi`          >> $HOME/.cshrc_moris
 echo ""                                                                        >> $HOME/.cshrc_moris
 echo "setenv OPENBLAS_DIR"     $OPENBLAS_DIR                                   >> $HOME/.cshrc_moris
+echo "setenv PETSC_DIR"        $PETSC_DIR                                      >> $HOME/.cshrc_moris
+echo ""                                                                        >> $HOME/.cshrc_moris
 echo "setenv Armadillo_DIR"    `spack location --install-dir armadillo`        >> $HOME/.cshrc_moris
 echo "setenv Eigen3_DIR"       `spack location --install-dir eigen`            >> $HOME/.cshrc_moris
 echo "setenv BOOST_DIR"        `spack location --install-dir boost`            >> $HOME/.cshrc_moris
@@ -37,7 +40,6 @@ echo "setenv ARPACK_DIR"       `spack location --install-dir arpack-ng`        >
 echo "setenv SUPERLU_DIR"      `spack location --install-dir superlu`          >> $HOME/.cshrc_moris
 echo "setenv SuperLU_DIST_DIR" `spack location --install-dir superlu-dist`     >> $HOME/.cshrc_moris
 echo "setenv Trilinos_DIR"     `spack location --install-dir trilinos`         >> $HOME/.cshrc_moris
-echo "setenv PETSC_DIR"        `spack location --install-dir petsc`            >> $HOME/.cshrc_moris
 echo "setenv HDF5_DIR"         `spack location --install-dir hdf5`             >> $HOME/.cshrc_moris
 echo "setenv MKL_DIR "         `spack location --install-dir intel-mkl`"/mkl"  >> $HOME/.cshrc_moris
 echo "setenv NETCDF_DIR "      `spack location --install-dir netcdf-c`         >> $HOME/.cshrc_moris
@@ -79,7 +81,8 @@ echo "setenv CC  $CC"                                                          >
 echo "setenv CXX $CXX"                                                         >> $HOME/.cshrc_moris
 echo "setenv FC  $FC"                                                          >> $HOME/.cshrc_moris
 echo "setenv F77 $F77"                                                         >> $HOME/.cshrc_moris
+echo ""                                                                        >> $HOME/.cshrc_moris
 
-setenv GFORTLIB `ldd $OPENBLAS_DIR/libopenblas.so | grep gfortran | awk '{print $1}'`
+setenv GFORTLIB `ldd $PETSC_DIR/lib/libpetsc.so | grep gfortran | awk '{print $1}'`
 
 echo "setenv GFORTLIB $GFORTLIB"                                               >> $HOME/.cshrc_moris

@@ -246,13 +246,18 @@ Vector_Epetra::import_local_to_global( sol::Dist_Vector& aSourceVec )
     }
     else
     {
-        // Build importer oject
+        // Build importer object
         if ( !mImporter )
         {
-            mImporter = new Epetra_Import( *mMap->get_epetra_map(), *aSourceVec.get_map()->get_epetra_map() );
+            mImporter = new Epetra_Import(
+                    *mMap->get_epetra_map(),
+                    *aSourceVec.get_map()->get_epetra_map() );
         }
 
-        int status = mEpetraVector->Import( *dynamic_cast< Vector_Epetra& >( aSourceVec ).get_epetra_vector(), *mImporter, Insert );
+        int status = mEpetraVector->Import(
+                *dynamic_cast< Vector_Epetra& >( aSourceVec ).get_epetra_vector(),
+                *mImporter,
+                Insert );
 
         if ( status != 0 )
         {

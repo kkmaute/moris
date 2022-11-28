@@ -26,7 +26,7 @@ namespace xtk
      * @return moris_index index at which the value is first found
      */
     template< class T >
-    moris_index
+    inline moris_index
     find_in_cell(
             Cell< T > const & aList,
             T                 aKeyToFind )
@@ -60,7 +60,7 @@ namespace xtk
      * @return moris_index index at which the value is first found and has not been found before
      */
     template< class T >
-    moris_index
+    inline moris_index
     find_in_cell(
             Cell< T > const & aList,
             T                 aKeyToFind,
@@ -70,7 +70,7 @@ namespace xtk
         moris_index tSize = (moris_index)aList.size();
 
         // check that the Punchcard makes sense
-        MORIS_ASSERT( aPunchCard.size() == (uint) tSize,
+        MORIS_ASSERT( aPunchCard.size() == (uint)tSize,
                 "xtk::find_in_cell() - The cell and punch card provided have different sizes" );
 
         // go over elements and find

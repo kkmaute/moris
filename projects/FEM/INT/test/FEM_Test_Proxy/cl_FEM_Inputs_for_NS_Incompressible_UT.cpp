@@ -16,7 +16,7 @@
 
 using namespace moris;
 
-void
+inline void
 tConstValFunc(
         moris::Matrix< moris::DDRMat >&                aPropMatrix,
         moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
@@ -25,7 +25,7 @@ tConstValFunc(
     aPropMatrix = aParameters( 0 );
 }
 
-void
+inline void
 tVXFIValFunc(
         moris::Matrix< moris::DDRMat >&                aPropMatrix,
         moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
@@ -37,7 +37,7 @@ tVXFIValFunc(
     aPropMatrix = aParameters( 0 ) * sum( tFIVelocity->val() );
 }
 
-void
+inline void
 tVXFIDerFunc(
         moris::Matrix< moris::DDRMat >&                aPropMatrix,
         moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
@@ -54,7 +54,7 @@ tVXFIDerFunc(
     aPropMatrix = aParameters( 0 ) * tReturn;
 }
 
-void
+inline void
 tPFIValFunc(
         moris::Matrix< moris::DDRMat >&                aPropMatrix,
         moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
@@ -63,7 +63,7 @@ tPFIValFunc(
     aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::P )->val();
 }
 
-void
+inline void
 tPFIDerFunc(
         moris::Matrix< moris::DDRMat >&                aPropMatrix,
         moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
@@ -72,7 +72,7 @@ tPFIDerFunc(
     aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::P )->N();
 }
 
-void
+inline void
 tTEMPFIValFunc(
         moris::Matrix< moris::DDRMat >&                aPropMatrix,
         moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
@@ -81,7 +81,7 @@ tTEMPFIValFunc(
     aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val();
 }
 
-void
+inline void
 tTEMPFIDerFunc(
         moris::Matrix< moris::DDRMat >&                aPropMatrix,
         moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
@@ -90,7 +90,7 @@ tTEMPFIDerFunc(
     aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->N();
 }
 
-void
+inline void
 tVISCOSITYFIValFunc(
         moris::Matrix< moris::DDRMat >&                aPropMatrix,
         moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
@@ -100,7 +100,7 @@ tVISCOSITYFIValFunc(
             aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::VISCOSITY )->val();
 }
 
-void
+inline void
 tVISCOSITYFISpaceDerFunc(
         moris::Matrix< moris::DDRMat >&                aPropMatrix,
         moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
@@ -109,7 +109,7 @@ tVISCOSITYFISpaceDerFunc(
     aPropMatrix = aParameters( 1 );
 }
 
-void
+inline void
 tVISCOSITYFIDerFunc(
         moris::Matrix< moris::DDRMat >&                aPropMatrix,
         moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
@@ -119,7 +119,7 @@ tVISCOSITYFIDerFunc(
             aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::VISCOSITY )->N();
 }
 
-void
+inline void
 fill_xhat(
         moris::Matrix< moris::DDRMat >& tXHat,
         moris::uint                     aSpaceDim,
@@ -413,7 +413,7 @@ fill_xhat(
     }
 }
 
-void
+inline void
 fill_uhat(
         moris::Matrix< moris::DDRMat >& tUHat,
         moris::uint                     aSpaceDim,
@@ -752,7 +752,7 @@ fill_uhat(
     }
 }
 
-void
+inline void
 fill_phat(
         moris::Matrix< moris::DDRMat >& tPHat,
         moris::uint                     aSpaceDim,
@@ -1077,4 +1077,3 @@ fill_phat(
 
     tPHat = trans( tPHat );
 }
-

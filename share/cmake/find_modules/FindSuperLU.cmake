@@ -45,7 +45,7 @@ find_library(SUPERLU_LIBRARIES
     lib64 )
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(SUPERLU DEFAULT_MSG
+find_package_handle_standard_args(SuperLU DEFAULT_MSG
                                   SUPERLU_INCLUDES SUPERLU_LIBRARIES )
 
 mark_as_advanced(SUPERLU_INCLUDES SUPERLU_LIBRARIES)

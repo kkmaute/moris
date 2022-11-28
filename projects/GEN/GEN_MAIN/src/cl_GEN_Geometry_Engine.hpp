@@ -89,7 +89,7 @@ namespace moris
             // Bounds
             Matrix< DDRMat > mLowerBounds;
             Matrix< DDRMat > mUpperBounds;
-            Matrix< IdMat > mOwnedijklIds;
+            Matrix< IdMat >  mOwnedijklIds;
 
             // IQIs
             Cell< std::string > mRequestedIQIs;
@@ -189,6 +189,25 @@ namespace moris
             void communicate_requested_IQIs( Cell< std::string > aIQINames );
 
             /**
+             * Import a phase function pointer
+             * used in plato workflow where platoanalyze does the forward analysis and no library is present
+             */
+            void
+            set_phase_function(
+                    PHASE_FUNCTION      aPhaseFunction,
+                    uint                aNumPhases,
+                    Cell< std::string > aPhaseNames = {} );
+
+            /**
+             * Import dcriteria/dx from file
+             * used in plato workflow where platoanalyze does the forward analysis
+             */
+            void
+            set_dQIdp(
+                    Cell< Matrix< DDRMat >* > adQIdp,
+                    Matrix< DDSMat >*         aMap );
+
+            /**
              * Gets the sensitivities of the criteria with respect to the advs
              *
              * @return Vector of sensitivities
@@ -214,8 +233,8 @@ namespace moris
                     const Matrix< DDRMat >&   aNodeCoordinates );
 
             bool is_intersected(
-                    const Matrix< IndexMat >&                                         aNodeIndices,
-                    moris::Cell< std::shared_ptr< moris::Matrix< moris::DDRMat > > >* aNodeCoordinates );
+                    const Matrix< IndexMat >&                    aNodeIndices,
+                    Cell< std::shared_ptr< Matrix< DDRMat > > >* aNodeCoordinates );
 
             bool geometric_query( Geometric_Query_Interface* aGeometricQuery );
 
@@ -301,7 +320,7 @@ namespace moris
 
             void create_new_child_nodes(
                     const Cell< moris_index >*                   aNewNodeIndices,
-                    Cell< moris::mtk::Cell* >*                   aNewNodeParentCell,
+                    Cell< mtk::Cell* >*                          aNewNodeParentCell,
                     Cell< std::shared_ptr< Matrix< DDRMat > > >* aParamCoordRelativeToParent,
                     Cell< Matrix< DDRMat > >*                    aNodeCoordinates );
 
@@ -403,8 +422,9 @@ namespace moris
              * @param aMeshPair Mesh for discretizing fields
              */
             void distribute_advs(
-                    mtk::Mesh_Pair                               aMeshPair,
-                    moris::Cell< std::shared_ptr< mtk::Field > > aFields );
+                    mtk::Mesh_Pair                        aMeshPair,
+                    Cell< std::shared_ptr< mtk::Field > > aFields,
+                    enum EntityRank                       aADVEntityRank = EntityRank::BSPLINE );
 
             /**
              * Resets the information that the geometry engine stores about a mesh.
@@ -522,7 +542,7 @@ namespace moris
              *   Return the geometric proximity index. Converts from a double value to a index
              */
             moris_index
-            get_geometric_proximity_index( moris::real const & aGeometricVal );
+            get_geometric_proximity_index( real const & aGeometricVal );
 
             /*
              * Check whether the proximity index of a node is consistent with that of its parent
@@ -572,4 +592,3 @@ namespace moris
 }    // namespace moris
 
 #endif /* MORIS_CL_Geometry_Engine_HPP_ */
-

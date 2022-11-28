@@ -20,14 +20,19 @@ set(HEADERS
     cl_DLA_Linear_Solver.hpp
     cl_DLA_Linear_Problem.hpp
     cl_DLA_Linear_System_Trilinos.hpp
-    cl_DLA_Linear_System_PETSc.hpp
-    cl_DLA_Linear_Solver_PETSc.hpp
-    cl_DLA_Preconditioner_PETSc.hpp
     cl_DLA_Solver_Factory.hpp
     cl_DLA_Solver_Interface.hpp
     cl_DLA_Linear_Solver_Algorithm.hpp
     cl_DLA_Preconditioner_Trilinos.hpp
     cl_DLA_Geometric_Multigrid.hpp)
+
+if(${MORIS_HAVE_PETSC})
+list( APPEND HEADERS
+    cl_DLA_Linear_System_PETSc.hpp
+    cl_DLA_Linear_Solver_PETSc.hpp
+    cl_DLA_Preconditioner_PETSc.hpp
+    )
+endif()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # distlinalg Library
@@ -38,16 +43,21 @@ set(LIB_SOURCES
     cl_DLA_Linear_Solver_Amesos.cpp
     cl_DLA_Linear_Solver_Aztec.cpp
     cl_DLA_Linear_Solver_Belos.cpp
-    cl_DLA_Linear_Solver_PETSc.cpp
-    cl_DLA_Preconditioner_PETSc.cpp
     cl_DLA_Linear_System_Trilinos.cpp
-    cl_DLA_Linear_System_PETSc.cpp
     cl_DLA_Linear_Solver.cpp
     cl_DLA_Linear_Problem.cpp
     cl_DLA_Geometric_Multigrid.cpp
     cl_DLA_Solver_Interface.cpp
     cl_DLA_Preconditioner_Trilinos.cpp
     cl_DLA_Solver_Factory.cpp)
+
+if(${MORIS_HAVE_PETSC})
+list( APPEND LIB_SOURCES
+    cl_DLA_Linear_System_PETSc.cpp
+    cl_DLA_Linear_Solver_PETSc.cpp
+    cl_DLA_Preconditioner_PETSc.cpp
+    )
+endif()
 
 # List library dependencies
 set(LIB_DEPENDENCIES

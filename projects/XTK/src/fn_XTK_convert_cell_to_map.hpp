@@ -17,20 +17,20 @@ using namespace moris;
 namespace xtk
 {
     //-------------------------------------------------------------------------------------
-    
+
     // define an Index-map
     typedef std::unordered_map< moris::moris_index, moris::moris_index > IndexMap;
-    typedef std::unordered_map< moris::moris_id, moris::moris_id > IdMap;
+    typedef std::unordered_map< moris::moris_id, moris::moris_id >       IdMap;
 
     //-------------------------------------------------------------------------------------
 
     template< class T >
-    void
+    inline void
     convert_cell_to_map(
-            moris::Cell< T > const &               aCellToConvert,
-            std::unordered_map< T, moris_index > & aIndexMapToFill )
+            moris::Cell< T > const &              aCellToConvert,
+            std::unordered_map< T, moris_index >& aIndexMapToFill )
     {
-        for( uint i = 0; i < aCellToConvert.size(); i++ )
+        for ( uint i = 0; i < aCellToConvert.size(); i++ )
         {
             aIndexMapToFill[ aCellToConvert( i ) ] = i;
         }
@@ -38,6 +38,6 @@ namespace xtk
 
     //-------------------------------------------------------------------------------------
 
-} // namespace xtk
+}    // namespace xtk
 
 #endif /* fn_XTK_convert_cell_to_map.hpp */

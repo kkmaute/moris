@@ -98,11 +98,13 @@ if(NOT TRILINOS_FOUND_ONCE)
     IF(Trilinos_FOUND)
         # message("\nFound Trilinos! Details can be found in a config file somewhere...")
         
-        # If Trilinos is included, it needs the MKL libraries for Pardiso.
-        if(NOT ${MORIS_USE_MKL})
-            include(${MORIS_CMAKE_DIR}/find_modules/FindMKL.cmake)
-            set(PARDISO_LIBS ${MKL_LIBRARIES})
-            set(PARDISO_INCLUDE_DIRS ${MKL_INCLUDE_DIRS})
+        # If Trilinos is included, it may use Pardiso.
+        if (${MORIS_USE_PARDISO})
+            if(NOT ${MORIS_USE_MKL})
+                include(${MORIS_CMAKE_DIR}/find_modules/FindMKL.cmake)
+                set(PARDISO_LIBS ${MKL_LIBRARIES})
+                set(PARDISO_INCLUDE_DIRS ${MKL_INCLUDE_DIRS})
+            endif()
         endif()
 
         # MESSAGE("\nFound Trilinos!  Here are the details: ")

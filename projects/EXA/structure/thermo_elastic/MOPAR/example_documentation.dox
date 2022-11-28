@@ -1,0 +1,139 @@
+namespace moris {
+
+/** \page EXA_Structure_Thermo_Elastic_MOPAR AxisymmetricProblem
+
+# Problem Description
+This example demonstrates thermal-elastic analysis of multi-material aeroshell element. Aeroshell element consists of aluminum core and ablator on the exterior
+surface of the structure. The problem is setup to compute displacement field and stress field solutions for an applied thermal loading on aeroshell.
+Key features of the problem formulation are:
+
+- Mesh: BodyFitted Mesh
+- Workflow: STK-FEM Workflow
+
+The other basic features of the example are summarized in the \ref AxisymmetricProblem_features "Main Features of Problem".
+
+<table>
+<caption id="AxisymmetricProblem_features">Main Features of Problem</caption>
+<tr><th>Feature</th>                        <th> Value</th>                     <th> Comment</th></tr>
+<tr><td>Dimensionality</td>                 <td> 2D</td>                        <td> </td></tr>
+<tr><td>Mesh type</td>                      <td> BodyFitted</td>                <td> </td></tr>
+<tr><td>Optimization Scheme</td>            <td> None </td>                     <td> </td></tr>
+<tr><td>Material/Phases</td>                <td> Two</td>                       <td> Al and Ablator</td> </tr>
+<tr><td>Physics</td>                        <td> Thermal-elastic analysis</td>  <td> static</td></tr>
+<tr><td>Dirichlet boundary conditions</td>  <td> Nitsche Penalty</td>           <td> V = 0.5 at inlet</tr>
+<tr><td>Neumann boundary conditions</td>    <td> none</td>                      <td> </td></tr>
+<tr><td>Discretization</td>                 <td> Per STK mesh</td>              <td> </td> </tr>
+</table>
+
+# WorkFlow
+
+Thermo-elastic analysis of aeroshell element is done using STK-FEM workflow. For more details about working of STK-FEM workflow, refer to Workflow
+module. \ref STK_FEM_Workflow.
+
+# Problem Setup
+The computational domain is defined as a geometry a multi-material aeroshell element consists of aluminum core and ablator material with their respective thermal-elastic
+properties. In the current workflow, mesh is defined as a bodyfitted mesh generated in cubit.
+
+\image html "Comp_Domain.png" "Computational Domain Aeroshell Element" width=50%
+
+Cubit allows to add sidesets to exodus mesh file at the boundary and interface of aeroshell element. Graphical Representation of sidesets is shown per below image. \n
+Dirichlet boundary condition is prescribed at sideset-1 in the form of heat flux. Neumann boundary condition in terms of displacement solution is prescribed at \n
+sideset-2. \n
+
+\image html "Sideset.png" "Sidesets" width=50%
+
+Material properties used can be found in Table \ref Oscillator_properties "Material Properties"
+
+<table>
+<caption id="Aluminum_Properties">Aluminum Properties</caption>
+<tr><th>Property</th>                        <th> Value </th></tr>
+<tr><td>Poisson's ratio</td>                 <td>  0.33 </td></tr>
+<tr><td>Density</td>                         <td>  2.700*1e3 </td></tr>
+<tr><td>CTE</td>                             <td>  23.6*1e-6 </td></tr>
+</table>
+
+
+<table>
+<caption id="Ablator_Properties">Ablator Parameters</caption>
+<tr><th>Property</th>                        <th> Value </th></tr>
+<tr><td> Poisson's ratio </td>               <td>  0.10  </td></tr>
+<tr><td> Density </td>                       <td>  1.879*1e3  </td></tr>
+<tr><td> CTE </td>                           <td>  2.0*1e-6  </td></tr>
+</table>
+
+# Finite Element Solution
+
+Finite element solutions for temperature field, displacement field, and stress field are computed per below.
+
+Temperature Field solution is computed on the bulk (both block-1 and block-2). Maximum temperature is of order 3000 units.\n
+\image html Temperature_Axisymmetric.png "Temperature field" width=50%
+
+Displacement profile is computed on the bulk with maximum displacement occuring at the region of maximum temperature in alumnium core. \n
+\image html Displacement_Axisymmetric.png "Displacement field" width=50%
+
+Stress field solutions are computed for aluminum and ablator material separately as von-misses stress. As seen from the figure below, maximum stress occurs \n
+at the interface of two materials. \n
+\image html Stress_Aluminum.png "Stress field in Aluminum core" width=50%
+
+\image html Stress_Ablator.png "Stress field in Ablator" width=50%
+
+
+# Reference Solution
+
+
+# Literature
+
+
+# Developer Notes
+
+Please see below steps to perform the thermo-elastic analysis of aeroshell element using bodyfitted mesh. \n
+\n
+<b> Editor and Paraview Module </b> \n
+1. edit techplot file and change name of variables to x and y \n
+2. load techplot file in paraview and write a exodus files (both materials): allmat.e \n
+3. load both materials exodus file into paraview \n
+  - threshold by matNum [2,2] and write mat2.e \n
+  - invert thresold and write mat1.e \n
+4. load mat1.e and mat2.e into cubit \n
+
+<b> Cubit Module: List of Commands </b> \n
+- import mesh geometry "/data/home/maute/work/Sam/MOPAR/2021-11-18/45km_2mat_abl_new/mat1.e" feature_angle 135.00 merge \n
+- import mesh geometry "/data/home/maute/work/Sam/MOPAR/2021-11-18/45km_2mat_abl_new/mat2.e" feature_angle 135.00 merge \n
+- set duplicate block elements off \n
+- reset block \n
+- set duplicate block elements off \n
+- block 1 add surface 5  \n
+- set duplicate block elements off \n
+- block 2 add surface 1 \n
+- block 1 2 element type tri3 \n
+- Sideset 1 add curve 2 \n
+- Sideset 2 add curve 3 5 \n
+- block 1 name "block 1" \n
+- block 2 name "block 2" \n
+- Sideset 1 name "side 1" \n
+- Sideset 2 name "side 2" \n
+- set exodus netcdf4 off \n
+- set large exodus on \n
+- export mesh "/data/home/maute/work/Sam/MOPAR/2021-11-18/45km_2mat_abl_new/exomesh.e" dimension 2 overwrite \n
+- reset \n
+- import mesh geometry "/data/home/maute/work/Sam/MOPAR/2021-11-18/45km_2mat_abl_new/exomesh.e" feature_angle 135.00 merge merge_nodes  \n
+- topology check coincident node surface 2 1  tolerance 1.0e-6 draw brief result group \n
+- set exodus netcdf4 off \n
+- set large exodus on \n
+- export mesh "/data/home/maute/work/Sam/MOPAR/2021-11-18/45km_2mat_abl_new/exomesh.e" dimension 2 overwrite \n
+
+<b> MATLAB and Console Commands </b> \n
+- rm history* cubit*  \n
+- pwd \n
+- cp exomesh.e ../Mapper/. \n
+- cp allmat.e ../Mapper/. \n
+- cd ../Mapper/ \n
+- /home/MATLAB/R2020b/bin/matlab \n
+- cd back to working directory (see above) \n
+- cp ../Mapper/exomesh.e . \n
+- moris.sh opt 1 MOPAR_Problem \n
+
+
+
+*/
+}

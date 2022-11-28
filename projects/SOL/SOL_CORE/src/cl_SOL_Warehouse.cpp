@@ -28,7 +28,9 @@
 
 #include "cl_MSI_Dof_Type_Enums.hpp"
 
+#ifdef MORIS_HAVE_PETSC
 #include <petsc.h>
+#endif
 
 #include "cl_Library_IO.hpp"
 
@@ -66,10 +68,12 @@ SOL_Warehouse::~SOL_Warehouse()
         mTimeSolverAlgorithms( Ik ).reset();
     }
 
+#ifdef MORIS_HAVE_PETSC
     if ( mTPLType == moris::sol::MapType::Petsc )
     {
         PetscFinalize();
     }
+#endif
 }
 
 //---------------------------------------------------------------------------------------------------------------------
@@ -88,10 +92,12 @@ SOL_Warehouse::initialize()
 
     mSaveFinalAdjointVecToFile = mParameterlist( 6 )( 0 ).get< std::string >( "SOL_save_final_adjoint_vec_to_file" );
 
+#ifdef MORIS_HAVE_PETSC
     if ( mTPLType == moris::sol::MapType::Petsc )
     {
         PetscInitializeNoArguments();
     }
+#endif
 
     // build solvers and solver algorithms
     this->create_linear_solver_algorithms();

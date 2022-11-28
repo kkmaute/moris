@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2022 University of Colorado 
- * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details. 
- * 
- * ------------------------------------------------------------------------------------ 
- * 
- * fn_XTK_Multiset_Operations.hpp  
- * 
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ * ------------------------------------------------------------------------------------
+ *
+ * fn_XTK_Multiset_Operations.hpp
+ *
  */
 #ifndef SRC_fn_XTK_Multiset_Operations
 #define SRC_fn_XTK_Multiset_Operations
@@ -25,12 +25,12 @@ namespace xtk
 
     //-------------------------------------------------------------------------------------
 
-    void
-    multiset_union( 
-            const Cell< moris_index >& aMultiSet1, 
-            const Cell< moris_index >& aMultiSet2, 
-                  Cell< moris_index >& aMultiSetUnion )
-    {        
+    inline void
+    multiset_union(
+            const Cell< moris_index >& aMultiSet1,
+            const Cell< moris_index >& aMultiSet2,
+            Cell< moris_index >&       aMultiSetUnion )
+    {
         // convert the first multiset into std::multisets
         std::multiset< moris_index > tFirstMultiSet;
         xtk::convert_index_cell_to_index_multiset( aMultiSet1, tFirstMultiSet );
@@ -43,14 +43,14 @@ namespace xtk
         aMultiSetUnion.resize( aMultiSet1.size() + aMultiSet2.size() );
 
         // get access to the data of the underlying vector
-        std::vector< moris_index >& tVector = aMultiSetUnion.data();
+        std::vector< moris_index >&          tVector = aMultiSetUnion.data();
         std::vector< moris_index >::iterator tIter;
 
         // perform union operation
         tIter = std::set_union( tFirstMultiSet.begin(), tFirstMultiSet.end(), tSecondMultiSet.begin(), tSecondMultiSet.end(), tVector.begin() );
 
         // get the used length
-        uint tNumElems = ( uint )( tIter - tVector.begin() );
+        uint tNumElems = (uint)( tIter - tVector.begin() );
 
         // resize out unused space
         aMultiSetUnion.resize( tNumElems );
@@ -59,11 +59,11 @@ namespace xtk
     //-------------------------------------------------------------------------------------
 
     void
-    multiset_difference( 
-            const Cell< moris_index >& aMultiSet, 
-            const Cell< moris_index >& aMultiSetToSubtract, 
-                  Cell< moris_index >& aMultiSetDifference )
-    {        
+    multiset_difference(
+            const Cell< moris_index >& aMultiSet,
+            const Cell< moris_index >& aMultiSetToSubtract,
+            Cell< moris_index >&       aMultiSetDifference )
+    {
         // convert the first multiset into std::multisets
         std::multiset< moris_index > tMultiSet;
         xtk::convert_index_cell_to_index_multiset( aMultiSet, tMultiSet );
@@ -76,14 +76,14 @@ namespace xtk
         aMultiSetDifference.resize( aMultiSet.size() );
 
         // get access to the data of the underlying vector
-        std::vector< moris_index >& tVector = aMultiSetDifference.data();
+        std::vector< moris_index >&          tVector = aMultiSetDifference.data();
         std::vector< moris_index >::iterator tIter;
 
         // perform difference operation on the two sets
         tIter = std::set_difference( tMultiSet.begin(), tMultiSet.end(), tMultiSetToSubtract.begin(), tMultiSetToSubtract.end(), tVector.begin() );
 
         // get the used length
-        uint tNumElems = ( uint )( tIter - tVector.begin() );
+        uint tNumElems = (uint)( tIter - tVector.begin() );
 
         // resize out unused space
         aMultiSetDifference.resize( tNumElems );
@@ -91,6 +91,6 @@ namespace xtk
 
     //-------------------------------------------------------------------------------------
 
-} // namespace xtk
+}    // namespace xtk
 
 #endif /* fn_XTK_Multiset_Operations.hpp */
