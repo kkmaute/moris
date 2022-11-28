@@ -111,7 +111,7 @@ namespace moris
 
             uint tOptIter = gLogger.get_opt_iteration();
 
-            gLogger.set_iteration( "OptimizationManager", LOGGER_NON_SPECIFIC_ENTITY_TYPE, "Perform", tOptIter );
+            gLogger.set_iteration( "OPT", "Manager", "Perform", tOptIter );
 
             return tOptIter;
         }

@@ -68,7 +68,7 @@ namespace fem
         mMeshManager( aMeshManager ),
         mMeshPairIndex( aMeshPairIndex )
     {
-        Tracer tTracer( "FEM", "FemModel", "Create" );
+        Tracer tTracer( "FEM", "Model", "Create" );
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // STEP 0: unpack mesh
@@ -103,7 +103,7 @@ namespace fem
         mMeshManager( aMeshManager ),
         mMeshPairIndex( aMeshPairIndex )
     {
-        Tracer tTracer( "FEM", "FemModel", "Create" );
+        Tracer tTracer( "FEM", "Model", "Create" );
 
         this->set_design_variable_interface( aDesignVariableInterface );
 
@@ -153,7 +153,7 @@ namespace fem
         mMeshPairIndex( aMeshPairIndex ),
         mParameterList( aParameterList )
     {
-        Tracer tTracer( "FEM", "FemModel", "Create" );
+        Tracer tTracer( "FEM", "Model", "Create" );
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // STEP 0: unpack fem input and mesh
@@ -192,7 +192,7 @@ namespace fem
         mMeshPairIndex( aMeshPairIndex ),
         mParameterList( aParameterList )
     {
-//         Tracer tTracer( "FEM", "FemModel", "Create" );
+        Tracer tTracer( "FEM", "Model", "Create" );
 
         this->set_design_variable_interface( aDesignVariableInterface );
 
@@ -221,7 +221,7 @@ namespace fem
         }
 
         // print output
-        MORIS_LOG_SPEC( "IP nodes", sum_all( tNumIPNodes ) );
+        MORIS_LOG_SPEC( "Number of IP Nodes", sum_all( tNumIPNodes ) );
     }
 
     //------------------------------------------------------------------------------
@@ -312,7 +312,7 @@ namespace fem
         }
 
         // print output
-        MORIS_LOG_SPEC( "IG nodes", sum_all( tNumIGNodes ) );
+        MORIS_LOG_SPEC( "Number of IG Nodes", sum_all( tNumIGNodes ) );
     }
 
     //------------------------------------------------------------------------------
@@ -426,25 +426,30 @@ namespace fem
             // get the mesh set pointer
             moris::mtk::Set *tMeshSet = aIGMesh->get_set_by_index( tMeshSetIndex );
 
-            // if non-empty mesh set
-            if ( tMeshSet->get_num_clusters_on_set() != 0 )
+            // get the number of clusters on the set
+            uint tNumClustersOnSet = tMeshSet->get_num_clusters_on_set();
+
+            // if clusters exist on the set, create a non-empty set
+            if( tNumClustersOnSet != 0 )
             {
                 // create new fem set
                 mFemSets( iSet ) = new fem::Set( this, tMeshSet, mSetInfo( iSet ), mIPNodes );
-
-                mFemSets( iSet )->set_equation_model( this );
             }
-            // if empty mesh set
+            // if clusters don't exist on the set, create an empty set
             else
             {
                 // create an empty fem set
                 mFemSets( iSet ) = new fem::Set();
-
-                mFemSets( iSet )->set_equation_model( this );
             }
 
+            // add pointer back to this equation model to the FEM set
+            mFemSets( iSet )->set_equation_model( this );
+
             // collect equation objects associated with the set
-            mFemClusters.append( mFemSets( iSet )->get_equation_object_list() );
+            Cell< MSI::Equation_Object* >& tEquationObjectList = mFemSets( iSet )->get_equation_object_list();
+
+            // add equation objects collected to the current set
+            mFemClusters.append( tEquationObjectList );
         }
 
         // shrink to fit
@@ -454,7 +459,7 @@ namespace fem
         uint tGlobalNumElements = sum_all( tNumElements );
 
         // print output
-        MORIS_LOG_SPEC( "IP elements", tGlobalNumElements );
+        MORIS_LOG_SPEC( "Number of Clusters", tGlobalNumElements );
     }
 
     //------------------------------------------------------------------------------
@@ -623,6 +628,8 @@ namespace fem
     void 
     FEM_Model::initialize_from_inputfile( std::shared_ptr< Library_IO > aLibrary )
     {
+        Tracer tTracer( "FEM", "Model", "Initialize from Input File" );
+
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // STEP 0: unpack fem input and mesh
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -659,6 +666,8 @@ namespace fem
     void
     FEM_Model::initialize( std::shared_ptr< Library_IO > aLibrary )
     {
+        Tracer tTracer( "FEM", "Model", "Load and Initialize Parameters" );
+
         // get msi string to dof type map
         moris::map< std::string, MSI::Dof_Type > tMSIDofTypeMap =
             moris::MSI::get_msi_dof_type_map();
@@ -3521,7 +3530,7 @@ namespace fem
     void
     FEM_Model::populate_fields()
     {
-        Tracer tTracer( "FEM", "FemModel", "Populate fields" );
+        Tracer tTracer( "FEM", "Model", "Populate fields" );
 
         Cell< std::shared_ptr< fem::Field > > tFieldToPopulate;
         Cell< std::string >                   tFieldIQINames;

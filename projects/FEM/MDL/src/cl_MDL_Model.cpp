@@ -79,7 +79,7 @@ namespace moris
             // STEP 1: create the FEM model
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             {
-                Tracer tTracer( "FEM", "Model", "CreateEquationModel" );
+                Tracer tTracer( "MDL", "Model", "Creat eEquation Model" );
 
                 // build the FEM model from FEM parameter list
                 mEquationModel = std::make_shared< fem::FEM_Model >(
@@ -92,7 +92,7 @@ namespace moris
             // STEP 2: create the model solver interface
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             {
-                Tracer tTracer( "FEM", "Model", "CreateMSI" );
+                Tracer tTracer( "MDL", "Model", "Create MSI" );
 
                 // create the MSI parameter list
                 moris::ParameterList tMSIParameters = prm::create_msi_parameter_list();
@@ -124,7 +124,7 @@ namespace moris
             // STEP 4: create the solver interface
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             {
-                Tracer tTracer( "FEM", "Model", "CreateSolverInterface" );
+                Tracer tTracer( "MDL", "Model", "Create Solver Interface" );
 
                 mSolverInterface = new moris::MSI::MSI_Solver_Interface( mModelSolverInterface );
 
@@ -140,7 +140,7 @@ namespace moris
           mBSplineIndex( aBSplineIndex ),
           mLibrary( aLibrary )
         {
-            Tracer tTracer( "FEM", "Model", "Create" );
+            Tracer tTracer( "MDL", "Model", "Create" );
 
             // load the MSI parameter list
             std::string tMSIString = "MSIParameterList";
@@ -176,13 +176,13 @@ namespace moris
           mBSplineIndex( aBSplineIndex ),
           mUseMultigrid( aUseMultigrid )
         {
-            Tracer tTracer( "FEM", "Model", "Create" );
+            Tracer tTracer( "MDL", "Model", "Create" );
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 1: create the FEM model
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             {
-                Tracer tTracer( "FEM", "Model", "CreateEquationModel" );
+                Tracer tTracer( "MDL", "Model", "Create Equation Model" );
 
                 // build the FEM model from FEM parameter list
                 mEquationModel = std::make_shared< fem::FEM_Model >(
@@ -197,7 +197,7 @@ namespace moris
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // start timer
             {
-                Tracer tTracer( "FEM", "Model", "CreateMSI" );
+                Tracer tTracer( "MDL", "Model", "Create MSI" );
 
                 // Get pointers to interpolation and integration mesh
                 mtk::Interpolation_Mesh* tInterpolationMesh = mMeshManager->get_interpolation_mesh( mMeshPairIndex );
@@ -228,7 +228,7 @@ namespace moris
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // create the solver interface
             {
-                Tracer tTracer( "FEM", "Model", "CreateSolverInterface" );
+                Tracer tTracer( "MDL", "Model", "Create Solver Interface" );
 
                 mSolverInterface =  new moris::MSI::MSI_Solver_Interface( mModelSolverInterface );
 
@@ -289,7 +289,7 @@ namespace moris
 
         void Model::initialize()
         {
-            Tracer tTracer( "FEM", "MDL", "Initialize" );
+            Tracer tTracer( "MDL", "Model", "Initialize" );
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 0: delete model and interface
@@ -311,7 +311,7 @@ namespace moris
             // STEP 1: create the FEM model
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             {
-                Tracer tTracer( "FEM", "Model", "CreateEquationModel" );
+                Tracer tTracer( "MDL", "Model", "CreateEquationModel" );
 
                 // build the FEM model from FEM parameter list
                 mEquationModel = std::make_shared< fem::FEM_Model >(
@@ -342,7 +342,7 @@ namespace moris
             // STEP 2: create the model solver interface
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             {
-                Tracer tTracer( "FEM", "Model", "CreateMSI" );
+                Tracer tTracer( "MDL", "Model", "CreateMSI" );
 
                 // get pointers to interpolation and integration mesh
                 mtk::Interpolation_Mesh* tInterpolationMesh = mMeshManager->get_interpolation_mesh( mMeshPairIndex );
@@ -362,9 +362,9 @@ namespace moris
             // STEP 3: create the solver interface
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             {
-                Tracer tTracer( "FEM", "Model", "CreateSolverInterface" );
+                Tracer tTracer( "MDL", "Model", "Create Solver Interface" );
 
-                mSolverInterface =  new moris::MSI::MSI_Solver_Interface( mModelSolverInterface );
+                mSolverInterface = new moris::MSI::MSI_Solver_Interface( mModelSolverInterface );
 
                 mSolverInterface->set_model( this );
 
@@ -373,7 +373,7 @@ namespace moris
                 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
                 // start timer
                 {
-                    Tracer tTracer( "FEM", "Model", "CreateSolver" );
+                    Tracer tTracer( "MDL", "Model", "Create Solver" );
 
                     mSolverWarehouse = std::make_shared< sol::SOL_Warehouse >( mSolverInterface, mLibrary );
 
@@ -409,13 +409,13 @@ namespace moris
         {
             if( aIndex == 0 )
             {
-                Tracer tTracer( "FEM", "Model", "PerformForwardAnalysis" );
+                Tracer tTracer( "MDL", "Model", "Perform Forward Analysis" );
 
                 this->perform_forward_analysis();
             }
             else if( aIndex == 1 )
             {
-                Tracer tTracer( "FEM", "Model", "PerformSensitivityAnalysis" );
+                Tracer tTracer( "FEM", "Model", "Perform Sensitivity Analysis" );
 
                 this->perform_sensitivity_analysis();
             }
@@ -513,7 +513,7 @@ namespace moris
                 const real aTime,
                 const bool aCloseFile )
         {
-            Tracer tTracer( "FemModel", "PostProcessing", "OutputSolution" );
+            Tracer tTracer( "MDL", "Model", "Post-Process and Output Solution" );
 
             // create vis mesh and setup output
             mOutputManager->setup_vis_mesh_for_output(

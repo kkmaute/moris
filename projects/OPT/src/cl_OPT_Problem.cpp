@@ -53,7 +53,7 @@ namespace moris
         void Problem::initialize()
         {
             // Trace optimization problem
-            Tracer tTracer( "OPT", "OptProblem", "Initialize" );
+            Tracer tTracer( "OPT", "Problem", "Initialize" );
 
             // Initialize ADVs
             mInterface->initialize(mADVs, mLowerBounds, mUpperBounds, mIjklIds );
