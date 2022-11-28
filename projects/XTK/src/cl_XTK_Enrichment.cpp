@@ -2442,7 +2442,7 @@ namespace xtk
         // initialize counter tracking the number of enriched IP cells that need to be created
         uint tEnrIpCellCounter = 0;
 
-        // get number of IP cells
+        // get number of base IP cells
         uint tNumIpElems = mBackgroundMeshPtr->get_num_elems();
 
         // initialize list storing number each IP cell needs to be unzipped
@@ -2857,6 +2857,9 @@ namespace xtk
     void
     Enrichment::construct_enriched_interpolation_vertices_and_cells()
     {
+        // log trace this function
+        Tracer tTracer( "XTK", "Enrichment", "Construct Enriched Interpolation Vertices and Cells" );
+
         // get the enriched interpolation mesh pointer, this one is constructed here
         Enriched_Interpolation_Mesh* tEnrInterpMesh = mXTKModelPtr->mEnrichedInterpMesh( 0 );
 
@@ -3042,6 +3045,9 @@ namespace xtk
     void
     Enrichment::construct_enriched_interpolation_vertices_and_cells_based_on_SPGs()
     {
+        // log trace this function
+        Tracer tTracer( "XTK", "Enrichment", "Construct Enriched Interpolation Vertices and Cells" );
+
         // get the enriched interpolation mesh pointer, this one is constructed here
         Enriched_Interpolation_Mesh* tEnrInterpMesh = mXTKModelPtr->mEnrichedInterpMesh( 0 );
 
@@ -3286,6 +3292,9 @@ namespace xtk
     void
     Enrichment::construct_enriched_interpolation_vertices_and_cells_based_on_SPGs_new()
     {
+        // log trace this function
+        Tracer tTracer( "XTK", "Enrichment", "Construct Enriched Interpolation Vertices and Cells" );
+
         // get the enriched interpolation mesh pointer, this one is constructed here
         Enriched_Interpolation_Mesh* tEnrInterpMesh = mXTKModelPtr->mEnrichedInterpMesh( 0 );
 
@@ -3364,7 +3373,7 @@ namespace xtk
                     bool tNeedsBasisExtension = ( tAssociatedSpgIndex == -1 );
 
                     // get the SPG whose B-spline basis coefficients will be used
-                    moris_index tBasisSpgIndex;
+                    moris_index tBasisSpgIndex = -1;
                     if( !tNeedsBasisExtension )
                     {
                         // for clusters with associated SPGs the assignement is trivial
@@ -3440,24 +3449,26 @@ namespace xtk
 
                         // add vertex enrichment to enriched interpolation mesh
                         bool tNewVertFlag = false;
-                        moris_index tVertEnrichIndex  = tEnrInterpMesh->add_vertex_enrichment(
+                        mtk::Vertex* tBaseVertexPtr = tVertices( iIpCellVertex );
+                        moris_index tVertEnrichIndex = tEnrInterpMesh->add_vertex_enrichment(
                                 tMeshIndex,
-                                tVertices( iIpCellVertex ),    // feed non-enriched Vertex
+                                tBaseVertexPtr,    // feed non-enriched Vertex
                                 tVertEnrichment,
                                 tNewVertFlag );
 
                         // create this vertex on the first go around
-                        // Note: the Interpolation_Vertex_Unzipped (UIPV) carries a list of vertex enrichments, each VE corresponds to one mesh index
+                        // NOTE: the Interpolation_Vertex_Unzipped (UIPV) carries a list of vertex enrichments, each VE corresponds to one mesh index
                         // note though, that the UIPV is still created for all subphase groups associdated with every IP cell
                         if ( iBspMesh == 0 )
                         {
                             // Create interpolation vertex with only the first Vertex enrichment
                             tEnrInterpMesh->mEnrichedInterpVerts( tVertexCount ) =
                                     new Interpolation_Vertex_Unzipped(
-                                            tVertices( iIpCellVertex ),                                               // non-enriched IP vertices
+                                            tBaseVertexPtr,                                                           // non-enriched IP vertices
                                             tVertId,                                                                  // current IP vertex' ID
                                             tVertexCount,                                                             // index for enriched IP vertex
-                                            tVertices( iIpCellVertex )->get_owner(),                                  // owning proc                // NOTE: the two inputs below are only for initialization, not final information
+                                            tBaseVertexPtr->get_owner(),                                              // owning proc
+                                            // NOTE: the two inputs below are only for initialization, not final information
                                             tMeshIndex,                                                               // current DMI
                                             tEnrInterpMesh->get_vertex_enrichment( tMeshIndex, tVertEnrichIndex ),    // T-matrix
                                             tMaxMeshIndex );                                                          // maximum DMI
@@ -3476,11 +3487,12 @@ namespace xtk
                             // the unzipped interpolation vertex' index
                             moris_index tVertexIndexInIp = tEnrInterpCellToVertex( tUipcIndex, iIpCellVertex );
 
+                            // get the vertex interpolation to be added
+                            Vertex_Enrichment* tVertEnrichmentToAddToUipv = tEnrInterpMesh->get_vertex_enrichment( tMeshIndex, tVertEnrichIndex );
+
                             // add the vertex interpolation for new mesh index
                             tEnrInterpMesh->mEnrichedInterpVerts( tVertexIndexInIp )    //
-                                    ->add_vertex_interpolation(
-                                            tMeshIndex,
-                                            tEnrInterpMesh->get_vertex_enrichment( tMeshIndex, tVertEnrichIndex ) );
+                                    ->add_vertex_interpolation( tMeshIndex, tVertEnrichmentToAddToUipv );
                         }
                     }    // end for: loop over IP vertices
 
@@ -3671,6 +3683,28 @@ namespace xtk
     //-------------------------------------------------------------------------------------
 
     void
+    Enrichment::fill_T_matrix_dummy( Vertex_Enrichment& aDummyEnrichedTmatrix ) const
+    {
+        // create dummy information
+        Matrix< IndexMat > tBasisIndices( 1, 1, MORIS_INDEX_MAX - 1 );
+        Matrix< IdMat >    tBasisIds(     1, 1, MORIS_ID_MAX - 1 );
+        Matrix< IndexMat > tBasisOwners(  1, 1, 0 );
+        Matrix< DDRMat >   tBasisWeights( 1, 1, std::numeric_limits< real >::signaling_NaN() );
+
+        // create map storing relationship between proc-local basis index and the position in the map
+        IndexMap& tBasisIndexToPositionMap = aDummyEnrichedTmatrix.get_basis_map();
+        tBasisIndexToPositionMap[ MORIS_INDEX_MAX - 1 ] = 0;
+
+        // add the dummy information to the T-matrix
+        aDummyEnrichedTmatrix.add_basis_information( tBasisIndices, tBasisIds );
+        aDummyEnrichedTmatrix.add_basis_owners( tBasisIndices, tBasisOwners );
+        aDummyEnrichedTmatrix.add_basis_weights( tBasisIndices, tBasisWeights );
+        aDummyEnrichedTmatrix.add_base_vertex_interpolation( nullptr );
+    }
+
+    //-------------------------------------------------------------------------------------
+
+    void
     Enrichment::average_T_matrices(
             Cell< Vertex_Enrichment* > const & aAverageTmatrices,
             Cell< real > const &               aWeights,
@@ -3711,8 +3745,6 @@ namespace xtk
                 }
             }
         }
-
-// TODO: orientation of matrices correct?
 
         // initialize T-matrix data
         Matrix< IndexMat > tAvgBasisIndices( tNumBfIndices, 1, MORIS_INDEX_MAX );
