@@ -192,7 +192,7 @@ namespace xtk
             // input: subphase index || output: enriched interpolation cell index
             Cell< moris_index > mSubphaseIndexToEnrIpCellIndex; 
 
-            // Experimental: maps associating UIPCs / Cell clusters with SPGs
+            // maps associating UIPCs / Cell clusters with SPGs
             // input: B-spline mesh list index, SPG index || output: List of enr. IP cells / cell clusters on SPG
             Cell< Cell< Cell< moris_index > > > mSpgToUipcIndex;
 
@@ -795,6 +795,16 @@ namespace xtk
                     Cell< Vertex_Enrichment* > const & aAverageTmatrices,
                     Cell< real > const &               aWeights,
                     Vertex_Enrichment&                 aAverageEnrichedTmatrix ) const;
+
+            // ----------------------------------------------------------------------------------
+            
+            /**
+             * @brief fill a enriched T-matrix with NANs to mark it as a dummy object
+             * 
+             * @param aDummyEnrichedTmatrix T-matrix to fill with dummy information
+             */
+            void
+            fill_T_matrix_dummy( Vertex_Enrichment& aDummyEnrichedTmatrix ) const;
 
             // ----------------------------------------------------------------------------------
 

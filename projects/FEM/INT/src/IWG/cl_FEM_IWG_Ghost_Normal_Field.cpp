@@ -68,6 +68,10 @@ namespace moris
             std::shared_ptr< Stabilization_Parameter > & tSP =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GHOST_SP ) );
 
+            // get the part of the matrix to assemble into
+            auto tMasterRes = mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } );
+            auto tSlaveRes  = mSet->get_residual()( 0 )( { tSlaveResStartIndex,  tSlaveResStopIndex  }, { 0, 0 } );
+
             // loop over the interpolation order
             for ( uint iOrder = 1; iOrder <= mOrder; iOrder++ )
             {
@@ -89,14 +93,10 @@ namespace moris
                 this->compute_flat_dnNdxn( tSlavedNdxFlat, iOrder, mtk::Master_Slave::SLAVE );
 
                 // compute master residual
-                mSet->get_residual()( 0 )(
-                        { tMasterResStartIndex, tMasterResStopIndex },
-                        { 0, 0 } ) += aWStar * ( tMasterdNdxFlat * tPreMultiply );
+                tMasterRes += aWStar * ( tMasterdNdxFlat * tPreMultiply );
 
                 // compute slave residual
-                mSet->get_residual()( 0 )(
-                        { tSlaveResStartIndex, tSlaveResStopIndex },
-                        { 0, 0 } ) -= aWStar * ( tSlavedNdxFlat * tPreMultiply );
+                tSlaveRes -= aWStar * ( tSlavedNdxFlat * tPreMultiply );
             }
 
             // check for nan, infinity
@@ -170,20 +170,18 @@ namespace moris
                     uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
                     uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
 
+                    // get the part of the Jacobian to assemble into
+                    auto tJacMasterMaster = mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },  { tMasterDepStartIndex, tMasterDepStopIndex } );
+                    auto tJacSlaveMaster  = mSet->get_jacobian()( { tSlaveResStartIndex,  tSlaveResStopIndex  },  { tMasterDepStartIndex, tMasterDepStopIndex } );
+
                     // compute jacobian direct dependencies
                     if ( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                     {
                         // dRM/dM
-                        mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                        tMasterdNdxFlat * tSP->val()( 0 ) * trans( tMasterdNdxFlat ) );
+                        tJacMasterMaster += aWStar * ( tMasterdNdxFlat * tSP->val()( 0 ) * trans( tMasterdNdxFlat ) );
 
                         // dRS/dM
-                        mSet->get_jacobian()(
-                                { tSlaveResStartIndex,  tSlaveResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                        tSlavedNdxFlat * tSP->val()( 0 ) * trans( tMasterdNdxFlat ) );
+                        tJacSlaveMaster -= aWStar * ( tSlavedNdxFlat * tSP->val()( 0 ) * trans( tMasterdNdxFlat ) );
                     }
 
                     // if stabilization parameter dependency on the dof type
@@ -196,15 +194,9 @@ namespace moris
                         tPreMultiply = tPreMultiply * tSP->dSPdMasterDOF( tDofType );
 
                         // add contribution to jacobian
-                        mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                        tMasterdNdxFlat * tPreMultiply );
+                        tJacMasterMaster += aWStar * ( tMasterdNdxFlat * tPreMultiply );
 
-                        mSet->get_jacobian()(
-                                { tSlaveResStartIndex,  tSlaveResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                        tSlavedNdxFlat  * tPreMultiply );
+                        tJacSlaveMaster -= aWStar * ( tSlavedNdxFlat  * tPreMultiply );
                     }
                 }
 
@@ -219,20 +211,18 @@ namespace moris
                     uint tSlaveDepStartIndex = mSet->get_jac_dof_assembly_map()( tSlaveDofIndex )( tDofDepIndex, 0 );
                     uint tSlaveDepStopIndex  = mSet->get_jac_dof_assembly_map()( tSlaveDofIndex )( tDofDepIndex, 1 );
 
+                    // get the part of the Jacobian to assemble into
+                    auto tJacMasterSlave = mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },  { tSlaveDepStartIndex,  tSlaveDepStopIndex } );
+                    auto tJacSlaveSlave  = mSet->get_jacobian()( { tSlaveResStartIndex,  tSlaveResStopIndex  },  { tSlaveDepStartIndex,  tSlaveDepStopIndex } );
+
                     // compute jacobian direct dependencies
                     if ( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                     {
                         // dRM/dS
-                        mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tSlaveDepStartIndex,  tSlaveDepStopIndex } ) -= aWStar * (
-                                        tMasterdNdxFlat * tSP->val()( 0 ) * trans( tSlavedNdxFlat ) );
+                        tJacMasterSlave -= aWStar * ( tMasterdNdxFlat * tSP->val()( 0 ) * trans( tSlavedNdxFlat ) );
 
                         // dRS/dS
-                        mSet->get_jacobian()(
-                                { tSlaveResStartIndex, tSlaveResStopIndex },
-                                { tSlaveDepStartIndex, tSlaveDepStopIndex } ) += aWStar * (
-                                        tSlavedNdxFlat * tSP->val()( 0 ) * trans( tSlavedNdxFlat ) );
+                        tJacSlaveSlave += aWStar * ( tSlavedNdxFlat * tSP->val()( 0 ) * trans( tSlavedNdxFlat ) );
                     }
                 }
             }

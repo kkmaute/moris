@@ -82,7 +82,7 @@ namespace moris
             tParameterList.insert( "lagrange_to_bspline", std::string( "0" ) );
 
             //! output severity level for moris
-            tParameterList.insert( "severity_level", 1 );
+            tParameterList.insert( "severity_level", 0 );
 
             //! boolean for truncated B-Splines
             tParameterList.insert( "truncate_bsplines", 1 );

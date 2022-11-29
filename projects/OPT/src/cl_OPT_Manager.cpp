@@ -63,7 +63,7 @@ namespace moris
         void Manager::perform()
         {
             // Trace optimization
-            Tracer tTracer( "OptimizationManager", "Perform" );
+            Tracer tTracer( "OPT", "Manager", "Perform" );
 
             // initialize the problem
             mProblem->initialize();

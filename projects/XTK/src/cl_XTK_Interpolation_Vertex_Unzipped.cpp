@@ -172,6 +172,28 @@ namespace xtk
 
     //------------------------------------------------------------------------------
 
+    void
+    Interpolation_Vertex_Unzipped::print() const
+    {
+        std::cout << "\n-------------------------------------------------------------" << std::endl;
+        std::cout << "Unzipped IP vertex #" << mVertexIndex << " (ID = " << mVertexId <<  ")" << std::endl;
+        std::cout << "Number of enriched T-matrices (reserved): " << mInterpolation.size() << std::endl;
+        for( uint iTMat = 0; iTMat < mInterpolation.size(); iTMat++ )
+        {
+            if( mInterpolation( iTMat ) != nullptr )
+            {
+                mInterpolation( iTMat )->print();
+            }
+            else
+            {
+                std::cout << "Enriched T-matrix #" << iTMat << " is nullptr." << std::endl;
+            }
+        }
+        std::cout << "-------------------------------------------------------------\n" << std::endl;
+    }
+
+    //------------------------------------------------------------------------------
+
     size_t
     Interpolation_Vertex_Unzipped::capacity()
     {
