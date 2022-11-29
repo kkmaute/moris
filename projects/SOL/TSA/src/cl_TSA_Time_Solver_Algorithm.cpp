@@ -85,7 +85,8 @@ Time_Solver_Algorithm::finalize()
 
     mSolverInterface = mMyTimeSolver->get_solver_interface();
 
-    mFullMap = tMatFactory.create_map(
+    // build map for full vector
+    mFullMap = tMatFactory.create_full_map(
             mSolverInterface->get_my_local_global_map(),
             mSolverInterface->get_my_local_global_overlapping_map() );
 }

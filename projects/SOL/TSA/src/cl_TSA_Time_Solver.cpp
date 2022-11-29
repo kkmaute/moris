@@ -334,15 +334,15 @@ Time_Solver::solve()
     // create map object
     sol::Matrix_Vector_Factory tMatFactory( mSolverWarehouse->get_tpl_type() );
 
-    // build full overlapping map
-    mFullMap = tMatFactory.create_map(
+    // build map for full vector
+    mFullMap = tMatFactory.create_full_map(
             mSolverInterface->get_my_local_global_map(),
             mSolverInterface->get_my_local_global_overlapping_map() );
 
     // get number of RHS
     uint tNumRHMS = mSolverInterface->get_num_rhs();
 
-    // set size for full solution vector on timestep 0 and previous solution vector on timestep -1.
+    // set size for full solution vector on time step 0 and previous solution vector on timestep -1.
     mFullVector.resize( 2, nullptr );
 
     // full vector and prev full vector
