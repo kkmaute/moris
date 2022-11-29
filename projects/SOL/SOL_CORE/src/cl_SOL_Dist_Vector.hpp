@@ -48,7 +48,6 @@ namespace moris
         {
           protected:
             Epetra_Import* mImporter = nullptr;
-            Dist_Map*      mMap;
             bool           mManageMap;
             moris::sint    mNumVectors = 1;
 
@@ -58,7 +57,7 @@ namespace moris
              *
              * @param aMapClass Distributed vector map
              */
-            Dist_Vector( sol::Dist_Map* aMapClass, bool aManageMap );
+            Dist_Vector( bool aManageMap );
 
             /**
              * Destructor (deletes map if desired)
@@ -70,7 +69,7 @@ namespace moris
              *
              * @return Map
              */
-            sol::Dist_Map* get_map();
+            virtual sol::Dist_Map* get_map() = 0;
 
             /**
              * Gets a value in the distributed vector based on a given ID.
