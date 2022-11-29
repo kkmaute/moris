@@ -203,42 +203,29 @@ namespace moris
 
                 tLinSolver->solve_linear_system( tLinProblem );
 
-                tLinProblem->get_free_solver_LHS()->print();
-
+                // get solution vector (here: solution vector has only unconstrained dofs)
                 moris::Matrix< DDRMat > tSol;
                 tLinProblem->get_solution( tSol );
 
-                print( tSol, "tSol" );
-
-                moris::Cell< moris::Matrix< DDRMat > > tSol1;
-                tLinProblem->get_free_solver_LHS()->extract_my_values( 2,
-                        { { 2 }, { 4 } },
-                        0,
-                        tSol1 );
-
-                //        print(tSol1,"tSol1");
-
                 // Check if solution corresponds to given solution
-                if ( par_rank() == 0 )
-                {
-                    CHECK( equal_to( tSol( 5, 0 ), -0.0138889, 1.0e+08 ) );
-                    CHECK( equal_to( tSol( 12, 0 ), -0.00694444, 1.0e+08 ) );
-                    CHECK( equal_to( tSol( 5, 1 ), -0.0138889, 1.0e+08 ) );
-                    CHECK( equal_to( tSol( 12, 1 ), -0.00694444, 1.0e+08 ) );
-                }
+                CHECK( equal_to( tSol( 5, 0 ), -0.0138889, 1.0e+08 ) );
+                CHECK( equal_to( tSol( 12, 0 ), -0.00694444, 1.0e+08 ) );
 
-                // delete tEpetraComm;
+                CHECK( equal_to( tSol( 5, 1 ), -0.0138889, 1.0e+08 ) );
+                CHECK( equal_to( tSol( 12, 1 ), -0.00694444, 1.0e+08 ) );
+
+                // delete local variables
                 delete ( tSolverInterface );
                 delete ( tLinProblem );
             }
         }
 
 #ifdef MORIS_HAVE_PETSC
-        TEST_CASE( "Linear System PETSc", "[Linear Solver],[DistLinAlg][Linear_System_Petsc]" )
+        TEST_CASE( "Linear System PETSc single RHS", "[Linear Solver single RHS],[Linear Solver],[DistLinAlg]" )
         {
-            if ( par_size() == 4 )
+            if ( par_size() == 1 )
             {
-                Solver_Interface* tSolverInterface = new Solver_Interface_Proxy();
+                Solver_Interface* tSolverInterface = new Solver_Interface_Proxy( 1 );
 
                 Solver_Factory tSolFactory;
 
@@ -250,26 +237,16 @@ namespace moris
                 // call solve
                 tLinProblem->solve_linear_system();
 
-                // Set solution vector
+                // get solution vector (here: solution vector includes the 3 constrained dofs)
                 moris::Matrix< DDRMat > tSol;
                 tLinProblem->get_solution( tSol );
 
-                print( tSol, " Output" );
+                CHECK( equal_to( tSol( 5 + 3, 0 ), -0.0138889, 1.0e+08 ) );
+                CHECK( equal_to( tSol( 12 + 3, 0 ), -0.00694444, 1.0e+08 ) );
 
-                // Check if solution corresponds to given solution
-                if ( par_rank() == 0 )
-                {
-                    CHECK( equal_to( tSol( 2, 0 ), -0.0138889, 1.0e+08 ) );
-                    CHECK( equal_to( tSol( 7, 0 ), -0.00694444, 1.0e+08 ) );
-                }
-                if ( par_rank() == 3 )
-                {
-                    // print( tSol, " Output" );
-                    CHECK( equal_to( tSol( 3, 0 ), -0.0138889, 1.0e+8 ) );
-                }
-
-                delete ( tLinProblem );
+                // delete local variables
                 delete ( tSolverInterface );
+                delete ( tLinProblem );
             }
         }
 
@@ -287,8 +264,8 @@ namespace moris
 
                 tLinProblem->assemble_residual_and_jacobian();
 
-                tLinSolver->set_param( "KSPType" ) = std::string( KSPFGMRES );
-                tLinSolver->set_param( "PCType" )  = std::string( PCNONE );
+                tLinSolver->set_param( "KSPType" ) = std::string( "fgmres" );
+                tLinSolver->set_param( "PCType" )  = std::string( "none" );
                 tLinSolver->set_param( "ILUFill" ) = 3;
 
                 tLinSolver->solve_linear_system( tLinProblem );
@@ -314,5 +291,6 @@ namespace moris
             }
         }
 #endif
+
     }    // namespace dla
 }    // namespace moris
