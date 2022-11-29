@@ -23,13 +23,16 @@
 // Project header files
 #include "cl_Map_Epetra.hpp"
 #include "cl_SOL_Dist_Vector.hpp"
+#include "cl_SOL_Dist_Map.hpp"
 
 namespace moris
 {
     class Vector_Epetra : public sol::Dist_Vector
     {
       private:
-        Epetra_MultiVector* mEpetraVector;
+        Map_Epetra* mMap = nullptr;
+
+        Epetra_MultiVector* mEpetraVector = nullptr;
 
         // Pointer to MultiVector values
         moris::real* mValuesPtr;
@@ -55,6 +58,12 @@ namespace moris
          * @return Value
          */
         real& operator()( sint aGlobalId, uint aVectorIndex = 0 );
+
+        sol::Dist_Map*
+        get_map()
+        {
+            return dynamic_cast< sol::Dist_Map* >( mMap );
+        }
 
         Epetra_MultiVector*
         get_epetra_vector()
@@ -130,4 +139,3 @@ namespace moris
     };
 }    // namespace moris
 #endif /* SRC_DISTLINALG_VECTOREPETRA_HPP_ */
-

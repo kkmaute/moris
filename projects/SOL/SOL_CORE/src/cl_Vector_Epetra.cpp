@@ -21,9 +21,13 @@ Vector_Epetra::Vector_Epetra(
         const sint     aNumVectors,
         bool           aPointMap,
         bool           aManageMap )
-        : sol::Dist_Vector( aMapClass, aManageMap )
+        : sol::Dist_Vector( aManageMap )
         , mVecBuildWithPointMap( aPointMap )
 {
+    // store map as Epetra map
+    mMap = dynamic_cast< Map_Epetra* >( aMapClass );
+
+    // store number of columns for multi-column vectors
     mNumVectors = aNumVectors;
 
     // Build Epetra Vector
