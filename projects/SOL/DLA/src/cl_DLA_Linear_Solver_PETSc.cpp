@@ -29,7 +29,7 @@ using namespace dla;
 PetscErrorCode
 fn_KSPMonitorResidual( KSP ksp, PetscInt n, PetscReal rnorm, void *dummy )
 {
-    MORIS_LOG_INFO( "KSP Iteration %d: Residual norm = %e\n", n, rnorm );
+    MORIS_LOG_INFO( "KSP Iteration %d: Residual norm = %e", n, rnorm );
     return 0;
 }
 
@@ -37,9 +37,10 @@ fn_KSPMonitorResidual( KSP ksp, PetscInt n, PetscReal rnorm, void *dummy )
 
 Linear_Solver_PETSc::Linear_Solver_PETSc()
 {
-
     this->set_solver_parameters();
 }
+
+//----------------------------------------------------------------------------------------
 
 Linear_Solver_PETSc::Linear_Solver_PETSc( const moris::ParameterList aParameterlist )
         : Linear_Solver_Algorithm( aParameterlist )
@@ -66,13 +67,13 @@ Linear_Solver_PETSc::~Linear_Solver_PETSc()
 void
 Linear_Solver_PETSc::set_solver_parameters()
 {
-    // Create parameter list and set default values fo solver parameters
+    // Create parameter list and set default values for solver parameters
 
     // Set KSP type
-    mParameterList.insert( "KSPType", std::string( KSPGMRES ) );
+    mParameterList.insert( "KSPType", std::string( "gmres" ) );
 
     // Set default preconditioner
-    mParameterList.insert( "PCType", std::string( PCILU ) );
+    mParameterList.insert( "PCType", std::string( "ilu" ) );
 
     // Sets maximal iters for KSP
     mParameterList.insert( "KSPMaxits", 1000 );
@@ -100,6 +101,8 @@ Linear_Solver_PETSc::set_solver_parameters()
 moris::sint
 Linear_Solver_PETSc::solve_linear_system()
 {
+    MORIS_ERROR( false, "Linear_Solver_PETSc::solve_linear_system - function not implemented." );
+
     return 0;
 }
 
@@ -109,55 +112,26 @@ Linear_Solver_PETSc::solve_linear_system(
         Linear_Problem   *aLinearSystem,
         const moris::sint aIter )
 {
-    Tracer tTracer( "LinearAlgorithm", "PETSc", "Solve" );
+    Tracer tTracer( "LinearSolver", "PETSc", "Solve" );
 
-    mSolverInterface = aLinearSystem->get_solver_input();
-
-    // Create KSP and PC
+    // Create KSP
     KSPCreate( PETSC_COMM_WORLD, &mPetscKSPProblem );
-    KSPGetPC( mPetscKSPProblem, &mpc );
+
+    // Set matrices for linear system and for preconditioner
     KSPSetOperators( mPetscKSPProblem,
             aLinearSystem->get_matrix()->get_petsc_matrix(),
             aLinearSystem->get_matrix()->get_petsc_matrix() );
-    KSPGMRESSetOrthogonalization( mPetscKSPProblem, KSPGMRESModifiedGramSchmidtOrthogonalization );
-    //    KSPSetFromOptions( mPetscKSPProblem );
 
-    //    KSPSetUp( mPetscKSPProblem );
+    // set solver interface (used by preconditioners)
+    mSolverInterface = aLinearSystem->get_solver_input();
 
-    this->set_solver_internal_parameters();
+    // construct solver and preconditioner
+    this->construct_solver_and_preconditioner( aLinearSystem );
 
-    // build preconditiner class
-    dla::Preconditioner_PETSc tPreconditioner( this );
-
-    if ( !strcmp( mParameterList.get< std::string >( "PCType" ).c_str(), "mg" ) )
-    {
-        tPreconditioner.build_multigrid_preconditioner( aLinearSystem );
-    }
-    else if ( !strcmp( mParameterList.get< std::string >( "PCType" ).c_str(), "asm" ) )
-    {
-        // build schwarz preconditioner
-        tPreconditioner.build_schwarz_preconditioner_petsc();
-    }
-    else if ( !strcmp( mParameterList.get< std::string >( "PCType" ).c_str(), "mat" ) )
-    {
-        // build schwarz preconditioner
-        tPreconditioner.build_schwarz_preconditioner( aLinearSystem );
-
-        KSPSetOperators( mPetscKSPProblem,
-                aLinearSystem->get_matrix()->get_petsc_matrix(),
-                tPreconditioner.get_preconditioner_matrix()->get_petsc_matrix() );
-    }
-
-    //    aLinearSystem->get_free_solver_LHS()->read_vector_from_HDF5( "Exact_Sol_petsc.h5" );
-    //    aLinearSystem->get_free_solver_LHS()->print();
-
-    //    aLinearSystem->get_solver_RHS()->save_vector_to_HDF5( "Res_vec.h5" );
-    //    aLinearSystem->get_solver_RHS()->print();
-
-    this->set_solver_analysis_options();
-
-    KSPSetFromOptions( mPetscKSPProblem );
-    KSPSetUp( mPetscKSPProblem );
+    // for debugging: print matrix, rhs, and lhs
+    // MatView( aLinearSystem->get_matrix()->get_petsc_matrix(), PETSC_VIEWER_STDOUT_WORLD );
+    // VecView( static_cast< Vector_PETSc * >( aLinearSystem->get_solver_RHS() )->get_petsc_vector(), PETSC_VIEWER_STDOUT_WORLD );
+    // VecView( static_cast< Vector_PETSc * >( aLinearSystem->get_free_solver_LHS() )->get_petsc_vector(), PETSC_VIEWER_STDOUT_WORLD );
 
     // Solve System
     KSPSolve(
@@ -165,11 +139,8 @@ Linear_Solver_PETSc::solve_linear_system(
             static_cast< Vector_PETSc * >( aLinearSystem->get_solver_RHS() )->get_petsc_vector(),
             static_cast< Vector_PETSc * >( aLinearSystem->get_free_solver_LHS() )->get_petsc_vector() );
 
-    // Output
-    //    KSPView( mPetscKSPProblem, PETSC_VIEWER_STDOUT_WORLD );
-    moris::sint Iter;
-    KSPGetIterationNumber( mPetscKSPProblem, &Iter );
-    std::cout << Iter << " Iterations" << std::endl;
+    // for debugging: print lhs after solve
+    // VecView( static_cast< Vector_PETSc * >( aLinearSystem->get_free_solver_LHS() )->get_petsc_vector(), PETSC_VIEWER_STDOUT_WORLD );
 
     mSolverInterface = nullptr;
 
@@ -190,31 +161,166 @@ Linear_Solver_PETSc::set_solver_analysis_options()
 //----------------------------------------------------------------------------------------
 
 void
-Linear_Solver_PETSc::set_solver_internal_parameters()
+Linear_Solver_PETSc::construct_solver_and_preconditioner( Linear_Problem *aLinearSystem )
 {
-    // Set KSP type
-    KSPSetType( mPetscKSPProblem, mParameterList.get< std::string >( "KSPType" ).c_str() );
-    //        KSPSetInitialGuessNonzero( mPetscKSPProblem, PETSC_TRUE );
+    // set flag whether solver is defined
+    bool tIsSolverDefined = false;
 
-    // Set maxits and tolerance for ksp
-    KSPSetTolerances( mPetscKSPProblem, mParameterList.get< moris::real >( "KSPTol" ), PETSC_DEFAULT, PETSC_DEFAULT, mParameterList.get< moris::sint >( "KSPMaxits" ) );
+    // set direct solver: superlu-dist
+    if ( !strcmp( mParameterList.get< std::string >( "KSPType" ).c_str(), "superlu-dist" ) )
+    {
+        // set solver is defined flag
+        tIsSolverDefined = true;
 
-    // Set Gmres restart
-    KSPGMRESSetRestart( mPetscKSPProblem, mParameterList.get< moris::sint >( "KSPMGMRESRestart" ) );
+        // write solver to log file
+        MORIS_LOG_INFO( "KSP Solver: superlu-dist" );
 
-    // Sets tolerance for determining happy breakdown in GMRES, FGMRES and LGMRES.
-    KSPGMRESSetHapTol( mPetscKSPProblem, mParameterList.get< moris::real >( "KSPGMRESHapTol" ) );
+        // set solver
+        KSPSetType( mPetscKSPProblem, KSPPREONLY );
 
-    // Set PC type
-    PCSetType( mpc, mParameterList.get< std::string >( "PCType" ).c_str() );
+        // get preconditioner
+        KSPGetPC( mPetscKSPProblem, &mpc );
 
-    // Set levels of fill for ILU
-    PCFactorSetLevels( mpc, mParameterList.get< moris::sint >( "ILUFill" ) );
+        // set LU preconditioner
+        PCSetType( mpc, PCLU );
 
-    // Set drop tolerance for Ilu
-    PCFactorSetDropTolerance( mpc, mParameterList.get< moris::real >( "ILUTol" ), PETSC_DEFAULT, PETSC_DEFAULT );
+        // set factorization method in preconditioner
+        PCFactorSetMatSolverType( mpc, MATSOLVERSUPERLU_DIST );
 
-    PCSORSetOmega( mpc, 1 );
+        // set up the package to call for the factorization
+        PCFactorSetUpMatSolverType( mpc );
+    }
 
-    PCSORSetIterations( mpc, 1, 1 );
+    // set direct solver: mumps
+    if ( !strcmp( mParameterList.get< std::string >( "KSPType" ).c_str(), "mumps" ) )
+    {
+        // set solver is defined flag
+        tIsSolverDefined = true;
+
+        // write solver to log file
+        MORIS_LOG_INFO( "KSP Solver: mumps" );
+
+        // set solver
+        KSPSetType( mPetscKSPProblem, KSPPREONLY );
+
+        // get preconditioner
+        KSPGetPC( mPetscKSPProblem, &mpc );
+
+        // set LU preconditioner assuming that system is non-symmetric
+        PCSetType( mpc, PCLU );
+
+        // set factorization method in preconditioner
+        PCFactorSetMatSolverType( mpc, MATSOLVERMUMPS );
+
+        // set up the package to call for the factorization
+        PCFactorSetUpMatSolverType( mpc );
+
+        // get the factored matrix F from the preconditioner context
+        Mat F;
+        PCFactorGetMatrix( mpc, &F );
+
+        // set MUMPS integer control parameters ICNTL to be passed to
+        // MUMPS.  Setting entry 7 of MUMPS ICNTL array (of size 40) to a value
+        // of 2. This sets use of Approximate Minimum Fill (AMF)
+        PetscInt ival = 2, icntl = 7;
+
+        // pass control parameters to MUMPS
+        MatMumpsSetIcntl( F, icntl, ival );
+    }
+
+    // set iterative solver: kspgmres
+    if (                                                                                     //
+            !strcmp( mParameterList.get< std::string >( "KSPType" ).c_str(), "gmres" ) ||    //
+            !strcmp( mParameterList.get< std::string >( "KSPType" ).c_str(), "fgmres" ) )
+    {
+        // set solver is defined flag
+        tIsSolverDefined = true;
+
+        // write solver to log file
+        MORIS_LOG_INFO( "KSP Solver: %s", mParameterList.get< std::string >( "KSPType" ).c_str() );
+
+        // set solver type
+        KSPSetType( mPetscKSPProblem, mParameterList.get< std::string >( "KSPType" ).c_str() );
+
+        // use initial guess
+        // KSPSetInitialGuessNonzero( mPetscKSPProblem, PETSC_TRUE );
+
+        // set orthogonalization method for gmres
+        KSPGMRESSetOrthogonalization( mPetscKSPProblem, KSPGMRESModifiedGramSchmidtOrthogonalization );
+
+        // Set maxits and tolerance for ksp
+        KSPSetTolerances(
+                mPetscKSPProblem,
+                mParameterList.get< moris::real >( "KSPTol" ),
+                PETSC_DEFAULT,
+                PETSC_DEFAULT,
+                mParameterList.get< moris::sint >( "KSPMaxits" ) );
+
+        // Set Gmres restart
+        KSPGMRESSetRestart( mPetscKSPProblem, mParameterList.get< moris::sint >( "KSPMGMRESRestart" ) );
+
+        // Sets tolerance for determining happy breakdown in GMRES, FGMRES and LGMRES.
+        KSPGMRESSetHapTol( mPetscKSPProblem, mParameterList.get< moris::real >( "KSPGMRESHapTol" ) );
+
+        // initialize preconditioner
+        KSPGetPC( mPetscKSPProblem, &mpc );
+
+        // set SOR relaxation coefficient
+        PCSORSetOmega( mpc, 1 );
+
+        // set number of inner iterations to be used by the SOR preconditioner
+        PCSORSetIterations( mpc, 1, 1 );
+
+        // build preconditioner
+        dla::Preconditioner_PETSc tPreconditioner( this );
+
+        if ( !strcmp( mParameterList.get< std::string >( "PCType" ).c_str(), "ilu" ) )
+        {
+            tPreconditioner.build_ilu_preconditioner( aLinearSystem );
+        }
+        else if ( !strcmp( mParameterList.get< std::string >( "PCType" ).c_str(), "mg" ) )
+        {
+            tPreconditioner.build_multigrid_preconditioner( aLinearSystem );
+        }
+        else if ( !strcmp( mParameterList.get< std::string >( "PCType" ).c_str(), "asm" ) )
+        {
+            // build schwarz preconditioner
+            tPreconditioner.build_schwarz_preconditioner_petsc();
+        }
+        else if ( !strcmp( mParameterList.get< std::string >( "PCType" ).c_str(), "mat" ) )
+        {
+            // build schwarz preconditioner
+            tPreconditioner.build_schwarz_preconditioner( aLinearSystem );
+
+            KSPSetOperators( mPetscKSPProblem,
+                    aLinearSystem->get_matrix()->get_petsc_matrix(),
+                    tPreconditioner.get_preconditioner_matrix()->get_petsc_matrix() );
+        }
+        else if ( !strcmp( mParameterList.get< std::string >( "PCType" ).c_str(), "none" ) )
+        {
+            // Set PC type to none
+            PCSetType( mpc, "none" );
+        }
+        else
+        {
+            MORIS_ERROR( false,
+                    "Linear_Solver_PETSc::construct_solver_and_preconditioner - no valid preconditioner was found." );
+        }
+    }
+
+    // check that solver was defined
+    MORIS_ERROR( tIsSolverDefined,
+            "Linear_Solver_PETSc::construct_solver_and_preconditioner - no valid solver was found." );
+
+    // set convergence options
+    this->set_solver_analysis_options();
+
+    // finalize solver setup
+    KSPSetFromOptions( mPetscKSPProblem );
+
+    // finalize solver setup
+    KSPSetUp( mPetscKSPProblem );
+
+    // for debugging: print solver setup
+    // KSPView( mPetscKSPProblem, PETSC_VIEWER_STDOUT_WORLD );
 }

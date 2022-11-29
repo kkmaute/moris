@@ -48,10 +48,12 @@ Linear_System_PETSc::Linear_System_PETSc(
         sol::Matrix_Vector_Factory tMatFactory( sol::MapType::Petsc );
 
         // create map object
-        mMap = tMatFactory.create_map( aInput->get_my_local_global_map(),
-                aInput->get_constrained_Ids() );    // FIXME
+        mMap = tMatFactory.create_map(
+                aInput->get_my_local_global_map(),
+                aInput->get_constrained_Ids() );    // FIXME: should be full map?
 
-        mMapFree = tMatFactory.create_map( aInput->get_my_local_global_map(),
+        mMapFree = tMatFactory.create_map(
+                aInput->get_my_local_global_map(),
                 aInput->get_constrained_Ids() );    // FIXME
 
         // Build matrix
@@ -60,11 +62,13 @@ Linear_System_PETSc::Linear_System_PETSc(
         // Build RHS/LHS vector
         mFreeVectorLHS = tMatFactory.create_vector( aInput, mMapFree, 1 );
 
+
         mPointVectorRHS = tMatFactory.create_vector( aInput, mMapFree, 1 );
         mPointVectorLHS = tMatFactory.create_vector( aInput, mMapFree, 1 );
 
-        mFullVectorLHS = tMatFactory.create_vector( aInput, mMap, 1 );
+        mFullVectorLHS = tMatFactory.create_vector( aInput, mMap, 1 );    // FIXME: should be full map?
 
+        // FIXME: graph not useful for petsc; needs to be done differently
         mSolverInterface->build_graph( mMat );
     }
 
@@ -155,7 +159,6 @@ Linear_System_PETSc::solve_linear_system()
 
     KSPCreate( PETSC_COMM_WORLD, &tPetscKSPProblem );
     KSPSetOperators( tPetscKSPProblem, mMat->get_petsc_matrix(), mMat->get_petsc_matrix() );
-    // KSPView ( tPetscKSPProblem, PETSC_VIEWER_STDOUT_WORLD);
     KSPGetPC( tPetscKSPProblem, &mpc );
 
     // Build Preconditioner
@@ -175,10 +178,19 @@ Linear_System_PETSc::solve_linear_system()
 
     KSPSetFromOptions( tPetscKSPProblem );
 
+    // for debugging: print linear problem
+    // KSPView( tPetscKSPProblem, PETSC_VIEWER_STDOUT_WORLD );
+
+    // for debugging: print matrix and vectors
+    // MatView( mMat->get_petsc_matrix(), PETSC_VIEWER_STDOUT_WORLD );
+    // VecView( static_cast< Vector_PETSc* >( mPointVectorRHS )->get_petsc_vector(), PETSC_VIEWER_STDOUT_WORLD );
+    // VecView( static_cast< Vector_PETSc* >( mPointVectorLHS )->get_petsc_vector(), PETSC_VIEWER_STDOUT_WORLD );
+
     KSPSolve( tPetscKSPProblem,
             static_cast< Vector_PETSc* >( mPointVectorRHS )->get_petsc_vector(),
             static_cast< Vector_PETSc* >( mPointVectorLHS )->get_petsc_vector() );
 
+    // VecView( static_cast< Vector_PETSc* >( mPointVectorLHS )->get_petsc_vector(), PETSC_VIEWER_STDOUT_WORLD );
     KSPDestroy( &tPetscKSPProblem );
 
     return 0;
@@ -198,7 +210,6 @@ Linear_System_PETSc::get_solution( Matrix< DDRMat >& LHSValues )
     moris::Matrix< DDSMat > tVal( tVecLocSize, 1, 0 );
     LHSValues.set_size( tVecLocSize, 1 );
 
-    //----------------------------------------------------------------------------------------
     // Get list containing the number of owned adofs of each processor
     Matrix< DDUMat > tNumOwnedList;
     comm_gather_and_broadcast( tVecLocSize, tNumOwnedList );
@@ -211,14 +222,14 @@ Linear_System_PETSc::get_solution( Matrix< DDRMat >& LHSValues )
         // Add the number of owned adofs of the previous processor to the offset of the previous processor
         tOwnedOffsetList( Ij, 0 ) = tOwnedOffsetList( Ij - 1, 0 ) + tNumOwnedList( Ij - 1, 0 );
     }
-    //-------------------------------------------------------------------------------------
+
     for ( moris::sint Ik = 0; Ik < tVecLocSize; Ik++ )
     {
         tVal( Ik, 0 ) = tOwnedOffsetList( par_rank(), 0 ) + Ik;
     }
 
-    VecGetValues( static_cast< Vector_PETSc* >( mPointVectorLHS )->    //
-                  get_petsc_vector(),
+    VecGetValues(
+            static_cast< Vector_PETSc* >( mPointVectorLHS )->get_petsc_vector(),
             tVecLocSize,
             tVal.data(),
             LHSValues.data() );

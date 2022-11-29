@@ -35,9 +35,20 @@ namespace moris
     class Map_PETSc : public moris::sol::Dist_Map
     {
       private:
+        // flag for full vector maps
+        bool mIsFullMap = false;
+
+        // map between moris IDs and Petsc IDs
         AO mPETScMap = nullptr;
 
-        void translator( const moris::uint&    aNumMaxDofs,
+        // map from moris IDs to local indices (used by full maps only)
+        ISLocalToGlobalMapping mMorisIDtoIndexMap = nullptr;
+
+        // list of Petsc IDs corresponding to moris ids (used by full maps only)
+        IS mPETScIDs = nullptr;
+
+        void translator(
+                const moris::uint&             aNumMaxDofs,
                 const moris::uint&             aNumMyDofs,
                 const moris::Matrix< DDSMat >& aMyLocaltoGlobalMap,
                 moris::Matrix< DDSMat >&       aMyGlobalConstraintDofs,
@@ -46,16 +57,47 @@ namespace moris
       protected:
 
       public:
-        Map_PETSc( const Matrix< DDSMat >& aMyGlobalIds,
-                const Matrix< DDUMat >&    aMyConstraintDofs );
+        // constructor for map of owned dofs
+        Map_PETSc( const Matrix< DDSMat >& aMyGlobalOwnedIds );
 
-        Map_PETSc( const Matrix< DDSMat >& aMyGlobalIds );
+        // constructor for map of owned dofs with constrained dofs
+        Map_PETSc(
+                const Matrix< DDSMat >& aMyGlobalOwnedIds,
+                const Matrix< DDUMat >& aMyConstraintDofs );
+
+        // constructor for map of owned and shared dofs
+        Map_PETSc(
+                const Matrix< DDSMat >& aMyGlobalOwnedIds,
+                const Matrix< DDSMat >& aMyGlobalOwnedAndSharedIds,
+                bool                    aIsFullMap );
 
         // ---------------------------------------------------------------------------------------------------------------
 
         ~Map_PETSc();
 
+        Matrix< DDSMat >
+        map_from_moris_ids_to_indices( const Matrix< DDSMat >& aGlobalIds );
+
         // ---------------------------------------------------------------------------------------------------------------
+
+        // check whehter map is constructed for full vector
+        bool
+        is_full_map()
+        {
+            return mIsFullMap;
+        }
+
+        // ---------------------------------------------------------------------------------------------------------------
+
+        // get petsc index list of petsc IDs
+        IS
+        get_petsc_ids()
+        {
+            return mPETScIDs;
+        }
+
+        // ---------------------------------------------------------------------------------------------------------------
+
         moris::sint
         return_local_ind_of_global_Id( moris::uint aGlobalId ) const
         {
@@ -86,6 +128,7 @@ namespace moris
         };
 
         // ---------------------------------------------------------------------------------------------------------------
+
         void
         print()
         {
@@ -97,7 +140,7 @@ namespace moris
         {
             return mPETScMap;
         }
-        
+
         AO
         get_petsc_map() const
         {
