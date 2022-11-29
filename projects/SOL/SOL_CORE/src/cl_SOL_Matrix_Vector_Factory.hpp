@@ -28,49 +28,49 @@ namespace moris
 
         class Matrix_Vector_Factory
         {
-        private:
+          private:
             enum MapType mMapType = MapType::Epetra;
 
-        public:
-            Matrix_Vector_Factory(const enum MapType aMapType = MapType::Epetra);
+          public:
+            Matrix_Vector_Factory( const enum MapType aMapType = MapType::Epetra );
 
             Dist_Matrix *create_matrix(
                     Solver_Interface *aInput,
-                    Dist_Map* aMap,
-                    bool aPointMap = false,
-                    bool aBuildGraph = false);
+                    Dist_Map         *aMap,
+                    bool              aPointMap   = false,
+                    bool              aBuildGraph = false );
 
             Dist_Matrix *create_matrix(
-                    Dist_Map* aRowMap,
-                    Dist_Map* aColMap);
+                    Dist_Map *aRowMap,
+                    Dist_Map *aColMap );
 
             Dist_Matrix *create_matrix(
                     const moris::uint aRows,
-                    const moris::uint aCols);
+                    const moris::uint aCols );
 
             Dist_Vector *create_vector(
                     moris::Solver_Interface *aInput,
-                    Dist_Map* aMap,
-                    const sint aNumVectors = 1,
-                    bool aPointMap = false,
-                    bool aManageMap = false);
+                    Dist_Map                *aMap,
+                    const sint               aNumVectors = 1,
+                    bool                     aPointMap   = false,
+                    bool                     aManageMap  = false );
 
             Dist_Vector *create_vector(
-                    Dist_Map* aMap,
+                    Dist_Map  *aMap,
                     const sint aNumVectors = 1,
-                    bool aPointMap = false,
-                    bool aManageMap = false);
+                    bool       aPointMap   = false,
+                    bool       aManageMap  = false );
 
             /**
              * Creates a distributed vector/matrix map
              *
-             * @param aMyGlobalIds Owned global IDs
+             * @param aMyGlobalIds     Owned global IDs
              * @param aMyConstraintIds Constraint IDs
              * @return Distributed map
              */
-            Dist_Map* create_map(
-                    const moris::Matrix<DDSMat> &aMyGlobalIds,
-                    const moris::Matrix<DDUMat> &aMyConstraintIds);
+            Dist_Map *create_map(
+                    const moris::Matrix< DDSMat > &aMyGlobalIds,
+                    const moris::Matrix< DDUMat > &aMyConstraintIds );
 
             /**
              * Creates a distributed vector/matrix map
@@ -78,9 +78,19 @@ namespace moris
              * @param aMyGlobalIds Owned global IDs
              * @return Distributed map
              */
-            Dist_Map* create_map(const moris::Matrix<DDSMat> &aMyGlobalIds);
-        };
-    }
-}
-#endif /* SRC_DISTLINALG_SPARSE_MATRIX_FACTORY_HPP_ */
+            Dist_Map *create_map( const moris::Matrix< DDSMat > &aMyGlobalIds );
 
+            /**
+             * Creates a distributed vector map specifically for full vector
+             *
+             * @param aMyGlobalIds Owned global IDs
+             * @param aMyGlobalIds Owned and Shared global IDs
+             * @return Distributed map
+             */
+            Dist_Map *create_full_map(
+                    const moris::Matrix< DDSMat > &aMyGlobalOwnedIds,
+                    const moris::Matrix< DDSMat > &aMyGlobalOwnedAndSharedIds );
+        };
+    }    // namespace sol
+}    // namespace moris
+#endif /* SRC_DISTLINALG_SPARSE_MATRIX_FACTORY_HPP_ */

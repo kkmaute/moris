@@ -68,7 +68,7 @@ Nonlinear_Problem::Nonlinear_Problem(
     mMap = tMatFactory.create_map( aSolverInterface->get_my_local_global_map( tRequesedDofTypes ) );
 
     // create map object FIXME ask linear problem for map
-    mMapFull = tMatFactory.create_map(
+    mMapFull = tMatFactory.create_full_map(
             aSolverInterface->get_my_local_global_map(),
             aSolverInterface->get_my_local_global_overlapping_map() );
 
@@ -113,7 +113,9 @@ Nonlinear_Problem::Nonlinear_Problem(
     // Build Matrix vector factory
     sol::Matrix_Vector_Factory tMatFactory( mMapType );
 
-    mMap = tMatFactory.create_map( aSolverInterface->get_my_local_global_overlapping_map() );
+    mMap = tMatFactory.create_full_map(
+            aSolverInterface->get_my_local_global_map(),
+            aSolverInterface->get_my_local_global_overlapping_map() );
 
     uint tNumRHMS = aSolverInterface->get_num_rhs();
 

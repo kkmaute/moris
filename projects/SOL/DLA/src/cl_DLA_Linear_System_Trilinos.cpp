@@ -36,10 +36,13 @@ Linear_System_Trilinos::Linear_System_Trilinos( Solver_Interface* aInput )
         sol::Matrix_Vector_Factory tMatFactory( sol::MapType::Epetra );
 
         // create map object
-        mMapFree = tMatFactory.create_map( aInput->get_my_local_global_map(),
+        mMapFree = tMatFactory.create_map(
+                aInput->get_my_local_global_map(),
                 aInput->get_constrained_Ids() );    // FIXME
 
-        mMap = tMatFactory.create_map( aInput->get_my_local_global_overlapping_map() );    // FIXME
+        mMap = tMatFactory.create_full_map(
+                aInput->get_my_local_global_map(),
+                aInput->get_my_local_global_overlapping_map() );    // FIXME
 
         mMapFree->build_dof_translator( aInput->get_my_local_global_overlapping_map(), false );
 

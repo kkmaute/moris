@@ -264,5 +264,42 @@ namespace moris
             }
             return tMap;
         }
+
+        //-------------------------------------------------------------------------------------------------
+
+        Dist_Map*
+        sol::Matrix_Vector_Factory::create_full_map(
+                const moris::Matrix< DDSMat >& aMyGlobalOwnedIds,
+                const moris::Matrix< DDSMat >& aMyGlobalOwnedAndSharedIds )
+        {
+            Dist_Map* tMap = nullptr;
+
+            switch ( mMapType )
+            {
+                case MapType::Epetra:
+                {
+                    tMap = new Map_Epetra( aMyGlobalOwnedAndSharedIds );
+                    break;
+                }
+                case MapType::Petsc:
+                {
+#ifdef MORIS_HAVE_PETSC
+                    tMap = new Map_PETSc(
+                            aMyGlobalOwnedIds,
+                            aMyGlobalOwnedAndSharedIds,
+                            true );
+#else
+                    MORIS_ERROR( false, "MORIS is configured with out PETSC support." );
+#endif
+                    break;
+                }
+                default:
+                {
+                    MORIS_ERROR( false, "No map type specified" );
+                    break;
+                }
+            }
+            return tMap;
+        }
     }    // namespace sol
 }    // namespace moris
