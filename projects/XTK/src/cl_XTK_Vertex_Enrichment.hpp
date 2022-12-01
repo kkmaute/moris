@@ -290,7 +290,7 @@ namespace xtk
             real tWeightB = tWeightsB( tBasisIndexPositionInB );
 
             // check if the two weights are equal
-            if( tWeightA != tWeightB )
+            if( std::abs( tWeightA - tWeightB ) > 10.0 * MORIS_REAL_EPS )
             {
                 return false;
             }
