@@ -165,6 +165,14 @@ check_results_parallel(
 TEST_CASE( "Leveset Boxbeam Adaptive Refinement",
         "[moris],[example],[optimization],[levelset_boxbeam_adaptive_refinement]" )
 {
+    // remove files from previous test runs
+    // FIXME: should be made independent of OS; note std::remove does not take wild cards
+    if ( par_rank() == 0 )
+    {
+        std::system( "rm -f *exo*" );
+        std::system( "rm -f *hdf5*" );
+    }
+
     // define command line call
     int argc = 2;
 
