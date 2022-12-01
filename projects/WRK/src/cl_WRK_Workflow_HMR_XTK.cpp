@@ -230,10 +230,7 @@ namespace moris
         Workflow_HMR_XTK::perform( Matrix< DDRMat >& aNewADVs )
         {
             // get optimization iteration
-            sint tOptIter = gLogger.get_iteration(
-                    "OptimizationManager",
-                    LOGGER_ARBITRARY_DESCRIPTOR,
-                    LOGGER_ARBITRARY_DESCRIPTOR );
+            sint tOptIter = gLogger.get_iteration( "OPT", "Manager", "Perform" );
 
             // compute total optimization iteration accounting for iterations performed //
             // in previous instances of optimization algorithm

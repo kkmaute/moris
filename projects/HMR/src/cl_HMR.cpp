@@ -274,10 +274,7 @@ namespace moris
             }
 
             // Get iteration from global clock
-            uint tOptIter = gLogger.get_iteration(
-                    "OptimizationManager",
-                    LOGGER_ARBITRARY_DESCRIPTOR,
-                    LOGGER_ARBITRARY_DESCRIPTOR );
+            uint tOptIter = gLogger.get_iteration( "OPT", "Manager", "Perform" );
 
             hmr::File tHDF5;
 

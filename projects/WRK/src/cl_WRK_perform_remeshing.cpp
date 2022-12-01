@@ -161,10 +161,7 @@ namespace moris
 
             // find first discrete field. // assumption: all fields are based on the same interpolation mesh
             // If no discrete field is found use first with index 0 TODO
-            sint tOptIter = gLogger.get_iteration(
-                    "OptimizationManager",
-                    LOGGER_ARBITRARY_DESCRIPTOR,
-                    LOGGER_ARBITRARY_DESCRIPTOR );
+            sint tOptIter = gLogger.get_iteration( "OPT", "Manager", "Perform" );
 
             sint tFirstDiscreteFieldIndex = 0;
             bool tIsAnalyticField         = true;
@@ -902,10 +899,7 @@ namespace moris
         Remeshing_Mini_Performer::output_meshes(
                 std::shared_ptr< hmr::HMR > aHMRPerformer )
         {
-            sint tOptIter = gLogger.get_iteration(
-                    "OptimizationManager",
-                    LOGGER_ARBITRARY_DESCRIPTOR,
-                    LOGGER_ARBITRARY_DESCRIPTOR );
+            sint tOptIter = gLogger.get_iteration( "OPT", "Manager", "Perform" );
 
             uint tActivePattern = aHMRPerformer->get_database()->get_background_mesh()->get_activation_pattern();
 
