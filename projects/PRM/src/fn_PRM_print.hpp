@@ -11,13 +11,14 @@
 #ifndef MORIS_FN_PRM_PRINT_HPP
 #define MORIS_FN_PRM_PRINT_HPP
 
-#include "typedefs.hpp"
 #include "cl_Param_List.hpp"
 
 namespace moris
 {
     namespace prm
     {
+        //------------------------------------------------------------------------------
+
         // types in parameter list
         // bool, sint, real, const char*, std::string, uint, std::pair< std::string, std::string >
         inline void
@@ -64,7 +65,10 @@ namespace moris
                 }
             }
         }
+
+        //------------------------------------------------------------------------------
+
     }    // namespace prm
 }    // namespace moris
 
-#endif
+#endif    // MORIS_FN_PRM_PRINT_HPP

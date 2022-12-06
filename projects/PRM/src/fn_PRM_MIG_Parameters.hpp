@@ -11,35 +11,28 @@
 #ifndef SRC_fn_PRM_MIG_Parameters
 #define SRC_fn_PRM_MIG_Parameters
 
-#include <string>
-#include <cstdio>
-
-#include "assert.hpp"
-//#include "cl_Communication_Tools.hpp"
-#include "typedefs.hpp"
-#include "cl_Matrix.hpp"
-#include "linalg_typedefs.hpp"
-#include "cl_XML_Parser.hpp"
-
 #include "cl_Param_List.hpp"
 
-namespace moris::prm
+namespace moris
 {
-
-    //------------------------------------------------------------------------------
-
-    // creates a parameter list with default inputs
-    inline ParameterList
-    create_mig_parameter_list()
+    namespace prm
     {
-        ParameterList tParameterList;
+        //------------------------------------------------------------------------------
 
-        tParameterList.insert( "periodic_side_set_pair", "" );
+        // creates a parameter list with default inputs
+        inline ParameterList
+        create_mig_parameter_list()
+        {
+            ParameterList tParameterList;
 
-        return tParameterList;
-    }
-    //------------------------------------------------------------------------------
+            tParameterList.insert( "periodic_side_set_pair", "" );
 
-}// namespace moris::prm
+            return tParameterList;
+        }
 
-#endif
+        //------------------------------------------------------------------------------
+
+    }    // namespace prm
+}    // namespace moris
+
+#endif    // SRC_fn_PRM_MIG_Parameters

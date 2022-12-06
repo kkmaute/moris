@@ -11,16 +11,6 @@
 #ifndef PROJECTS_PRM_SRC_FN_PRM_MORIS_GENERAL_PARAMETERS_HPP_
 #define PROJECTS_PRM_SRC_FN_PRM_MORIS_GENERAL_PARAMETERS_HPP_
 
-#include <string>
-#include <cstdio>
-
-#include "assert.hpp"
-//#include "cl_Communication_Tools.hpp"
-#include "typedefs.hpp"
-#include "cl_Matrix.hpp"
-#include "linalg_typedefs.hpp"
-#include "cl_XML_Parser.hpp"
-
 #include "cl_Param_List.hpp"
 
 namespace moris
@@ -40,6 +30,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         inline void
         create_refinement_parameterlist( ParameterList& aParameterlist )
         {
@@ -53,6 +44,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         inline void
         create_remeshing_parameterlist( ParameterList& aParameterlist )
         {
@@ -84,6 +76,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         inline void
         create_mapping_parameterlist( ParameterList& aParameterlist )
         {
@@ -95,8 +88,8 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
     }    // namespace prm
 }    // namespace moris
 
 #endif /* PROJECTS_PRM_SRC_FN_PRM_MORIS_GENERAL_PARAMETERS_HPP_ */
-

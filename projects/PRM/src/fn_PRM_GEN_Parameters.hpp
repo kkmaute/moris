@@ -17,6 +17,7 @@ namespace moris
 {
     namespace prm
     {
+        //------------------------------------------------------------------------------
         // Local to this translation unit, can't be used outside
         namespace
         {
@@ -45,6 +46,8 @@ namespace moris
                 return tParameterList;
             }
         }    // namespace
+
+        //------------------------------------------------------------------------------
 
         /**
          * Creates a parameter list used for the construction of the geometry engine. One of these parameter lists is
@@ -92,6 +95,8 @@ namespace moris
             return tParameterList;
         }
 
+        //------------------------------------------------------------------------------
+
         /**
          * Creates a parameter list that can be used to construct a geometry field. Any number of these can be added to
          * the second cell (index 1) of then parameter lists for GEN.
@@ -106,6 +111,8 @@ namespace moris
 
             return tParameterList;
         }
+
+        //------------------------------------------------------------------------------
 
         /**
          * Same as a geometry parameter list, but forces the user to specify two more parameters which name the
@@ -124,6 +131,8 @@ namespace moris
 
             return tParameterList;
         }
+
+        //------------------------------------------------------------------------------
 
         /**
          * Same as a geometry parameter list, but forces the user to specify the path to the voxel file
@@ -144,6 +153,8 @@ namespace moris
             return tParameterList;
         }
 
+        //------------------------------------------------------------------------------
+
         /**
          * Same as a geometry parameter list, but forces the user to specify the path to the sdf file
          *
@@ -162,6 +173,8 @@ namespace moris
             return tParameterList;
         }
 
+        //------------------------------------------------------------------------------
+
         /**
          * Same as a geometry parameter list, but forces the user to specify the path to the image-based sdf file
          *
@@ -172,17 +185,19 @@ namespace moris
         {
             ParameterList tParameterList = create_geometry_parameter_list();
 
-            tParameterList.set( "type", "image_sdf" );             // sdf field generated from image
-            tParameterList.insert( "image_file", "" );             // image file (hdf5 format)
-            tParameterList.insert( "image_dimensions", "" );       // domain size
-            tParameterList.insert( "image_offset", "" );           // domain offset
-            tParameterList.insert( "image_sdf_scaling", 0.0 );     // sdf scaling factor (0: automatic scaling)
-            tParameterList.insert( "image_sdf_shift", 0.0 );       // sdf shift value
-            tParameterList.insert( "image_sdf_default", -1.0 );    // sdf value outside image
-            tParameterList.insert( "image_sdf_interpolate", false );   // whether sdf value is interpolated
+            tParameterList.set( "type", "image_sdf" );                  // sdf field generated from image
+            tParameterList.insert( "image_file", "" );                  // image file (hdf5 format)
+            tParameterList.insert( "image_dimensions", "" );            // domain size
+            tParameterList.insert( "image_offset", "" );                // domain offset
+            tParameterList.insert( "image_sdf_scaling", 0.0 );          // sdf scaling factor (0: automatic scaling)
+            tParameterList.insert( "image_sdf_shift", 0.0 );            // sdf shift value
+            tParameterList.insert( "image_sdf_default", -1.0 );         // sdf value outside image
+            tParameterList.insert( "image_sdf_interpolate", false );    // whether sdf value is interpolated
 
             return tParameterList;
         }
+
+        //------------------------------------------------------------------------------
 
         /**
          * Same as a geometry parameter list, but forces the user to specify the path to the level set file
@@ -202,6 +217,8 @@ namespace moris
 
             return tParameterList;
         }
+
+        //------------------------------------------------------------------------------
 
         /**
          * Creates a parameter list that will be used to create a swiss cheese slice. The parameters here are different
@@ -250,6 +267,8 @@ namespace moris
             return tParameterList;
         }
 
+        //------------------------------------------------------------------------------
+
         /**
          * Creates a parameter list that can be used to construct a property field. Any number of these can be added to
          * the third cell (index 2) of the parameter lists for GEN.
@@ -270,6 +289,8 @@ namespace moris
             return tParameterList;
         }
 
+        //------------------------------------------------------------------------------
+
         /**
          * Same as a property parameter list, but forces the user to specify two more parameters which name the
          * user-defined functions used to evaluate a property field and to evaluate sensitivities.
@@ -288,8 +309,9 @@ namespace moris
             return tParameterList;
         }
 
+        //------------------------------------------------------------------------------
+
     }    // namespace prm
 }    // namespace moris
 
-#endif /* MORIS_FN_PRM_GEN_PARAMETERS_HPP_ */
-
+#endif    // MORIS_FN_PRM_GEN_PARAMETERS_HPP_

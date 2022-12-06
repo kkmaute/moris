@@ -11,18 +11,9 @@
 #ifndef PROJECTS_PRM_SRC_FN_PRM_VIS_PARAMETERS_HPP_
 #define PROJECTS_PRM_SRC_FN_PRM_VIS_PARAMETERS_HPP_
 
-#include <string>
-#include <cstdio>
-
-#include "assert.hpp"
-#include "typedefs.hpp"
-#include "cl_Matrix.hpp"
-#include "linalg_typedefs.hpp"
-#include "cl_XML_Parser.hpp"
-
 #include "cl_Param_List.hpp"
 
-#include "cl_VIS_Output_Enums.hpp"
+#include "cl_VIS_Output_Enums.hpp" // TODO
 
 namespace moris
 {

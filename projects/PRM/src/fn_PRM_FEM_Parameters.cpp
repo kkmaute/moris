@@ -12,11 +12,9 @@
 
 namespace moris
 {
-    namespace vis
+    namespace prm
     {
-
-// Keep this file. CMake needs at least one cpp file
-
+        // Keep this file. CMake needs at least one cpp file
     }
 }
 
