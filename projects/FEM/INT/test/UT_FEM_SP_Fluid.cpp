@@ -44,12 +44,13 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
     real tPerturbation = 1E-6;
 
     // material parameter
-    real tFluidDensity   = 1.0;
-    real tFluidViscosity = 1.0;
-    real tGammaNitsche   = 1.0;
-    real tGammaGPmu      = 1.0;
-    real tGammaGPu       = 1.0;
-    real tGammaGPp       = 1.0;
+    real tFluidDensity        = 1.0;
+    real tFluidViscosity      = 1.0;
+    real tFluidImpermeability = 1e-3;
+    real tGammaNitsche        = 1.0;
+    real tGammaGPmu           = 1.0;
+    real tGammaGPu            = 1.0;
+    real tGammaGPp            = 1.0;
 
     // set geometry inputs
     //------------------------------------------------------------------------------
@@ -91,6 +92,10 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
     tPropFluidViscosity->set_parameters( { { { tFluidViscosity } } } );
     tPropFluidViscosity->set_val_function( tConstValFunc );
 
+    std::shared_ptr< fem::Property > tPropFluidInvPermeability = std::make_shared< fem::Property >();
+    tPropFluidInvPermeability->set_parameters( { { { tFluidImpermeability } } } );
+    tPropFluidInvPermeability->set_val_function( tConstValFunc );
+
     std::shared_ptr< fem::Property > tPropWallDistance = std::make_shared< fem::Property >();
     tPropWallDistance->set_parameters( { { { 1.0 } } } );
     tPropWallDistance->set_val_function( tConstValFunc );
@@ -113,6 +118,7 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
     tSPIncFlow->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
     tSPIncFlow->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
     tSPIncFlow->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
+    tSPIncFlow->set_property( tPropFluidInvPermeability, "InvPermeability", mtk::Master_Slave::MASTER );
     tSPIncFlow->set_parameters( { { { 36.0 } } } );
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche =
@@ -120,12 +126,14 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
     tSPNitsche->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Master_Slave::MASTER );
     tSPNitsche->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
     tSPNitsche->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
+    tSPNitsche->set_property( tPropFluidInvPermeability, "InvPermeability", mtk::Master_Slave::MASTER );
     tSPNitsche->set_parameters( { { { tGammaNitsche } }, { { 1.0 } } } );
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPViscousGhost =
             tSPFactory.create_SP( fem::Stabilization_Type::VISCOUS_GHOST );
     tSPViscousGhost->set_parameters( { { { tGammaGPmu } } } );
     tSPViscousGhost->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
+    tSPViscousGhost->set_property( tPropFluidInvPermeability, "InvPermeability", mtk::Master_Slave::MASTER );
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPConvectiveGhost =
             tSPFactory.create_SP( fem::Stabilization_Type::CONVECTIVE_GHOST );
@@ -139,6 +147,7 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
     tSPPressureGhost->set_parameters( { { { tGammaGPp } }, { { 1.0 } } } );
     tSPPressureGhost->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
     tSPPressureGhost->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
+    tSPPressureGhost->set_property( tPropFluidInvPermeability, "InvPermeability", mtk::Master_Slave::MASTER );
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPSUPGSA =
             tSPFactory.create_SP( fem::Stabilization_Type::SUPG_SPALART_ALLMARAS_TURBULENCE );
@@ -517,4 +526,3 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
         }
     }
 } /*END_TEST_CASE*/
-
