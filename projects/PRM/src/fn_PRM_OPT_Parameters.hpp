@@ -102,6 +102,10 @@ namespace moris
             tParameterList.insert( "norm_drop", 1.0e+7 );                    // LBFGS convergence criteria (this is internally multiplied with machine precision)
             tParameterList.insert( "grad_tol", 0.0 );                        // LBFGS convergence criteria based on projected gradients
             tParameterList.insert( "internal_lbfgs_print_severity", -1 );    // -1 supresses all printing
+            
+            tParameterList.insert( "step_size" , "1.0"   );                  // default step size, 1.0 is for no modification
+            tParameterList.insert( "step_size_index" , "0"   );              // iterations to start the lbfgs
+            tParameterList.insert( "number_inner_iterations" , "1"   );      // number of inner iterations
 
             return tParameterList;
         }

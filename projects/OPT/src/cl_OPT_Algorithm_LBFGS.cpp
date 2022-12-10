@@ -14,6 +14,8 @@
 // Logger package
 #include "cl_Logger.hpp"
 #include "cl_Tracer.hpp"
+#include "fn_Parsing_Tools.hpp"
+#include "fn_norm.hpp"
 
 #ifdef FORT_NO_
 #define _FORTRAN( a ) a
@@ -62,6 +64,14 @@ namespace moris
                 , mGradTolerance( aParameterList.get< real >( "grad_tol" ) )
                 , mLBFGSprint( aParameterList.get< sint >( "internal_lbfgs_print_severity" ) )
         {
+            // convert input parameters ti matrix
+            string_to_mat< DDRMat >( aParameterList.get< std::string >( "step_size" ), mStepSize );
+            string_to_mat< DDUMat >( aParameterList.get< std::string >( "step_size_index" ), mStepSizeIndex );
+            string_to_mat< DDUMat >( aParameterList.get< std::string >( "number_inner_iterations" ), mNumberOfInnerIterations );
+
+            // check if the input matrices have the same size
+            MORIS_ASSERT( mStepSize.numel() == mStepSizeIndex.numel() and mStepSizeIndex.numel() == mNumberOfInnerIterations.numel(),
+                    "Algorithm_LBFGS::Algorithm_LBFGS failed, three inputs step_size,step_size_index and number_inner_iterations must have the same size" );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -160,54 +170,143 @@ namespace moris
             // pad the string with the spaces as it is the convention in fortran
             std::fill( &task[ 0 ] + std::strlen( &task[ 0 ] ), &task[ 0 ] + 60, ' ' );
 
-            // run the algorithm until converges
-            while ( ( strncmp( task, "FG", 2 ) == 0 ) ||       //
-                    ( strncmp( task, "NEW_X", 5 ) == 0 ) ||    //
-                    ( strncmp( task, "START", 5 ) == 0 ) )
+            // upper and lower bounds user defined will be overwritten later
+            Matrix< DDRMat > tLowerBoundsUserDefined = mProblem->get_lower_bounds();
+            Matrix< DDRMat > tUpperBoundsUserDefined = mProblem->get_upper_bounds();
+
+            // upper and lower bounds fixed and prescribed
+            Matrix< DDRMat > tLowerBounds = mProblem->get_lower_bounds();
+            Matrix< DDRMat > tUpperBounds = mProblem->get_upper_bounds();
+
+            // step size adjustment and counter to determine the which step size to use
+            uint        iCounter                 = 0;
+            moris::real tStep                    = mStepSize( iCounter );
+            moris::uint tNumberOfInnerIterations = mNumberOfInnerIterations( iCounter );
+
+            // indicator that problem has converged
+            bool tIsConverged = false;
+
+            // outer iteration for lbfgs
+            for ( size_t iOuterIteration = 0; iOuterIteration < (uint)mMaxIt; iOuterIteration++ )
             {
-                // call the Fortran subroutine
-                setulb_( &n,
-                        &mNumCorrections,
-                        x,
-                        l,
-                        u,
-                        nbd,
-                        &f,
-                        g,
-                        &mNormDrop,
-                        &mGradTolerance,
-                        wa,
-                        iwa,
-                        task,
-                        &iprint,
-                        csave,
-                        lsave,
-                        isave,
-                        dsave );
-
-                if ( strncmp( task, "FG", 2 ) == 0 )
+                // adjust the step size if there is more than 1 step size through optimization
+                // NOTE: step size only should be adjusted in outer iterations
+                if ( iCounter + 1 < mStepSize.numel() )
                 {
-                    // call to compute objective
-                    this->func( mOptIter, x, f );
-
-                    // call to compute gradients
-                    this->grad( x, g );
+                    if ( mOptIter == mStepSizeIndex( iCounter + 1 ) )
+                    {
+                        // adjust the step size
+                        tStep                    = mStepSize( iCounter + 1 );
+                        tNumberOfInnerIterations = mNumberOfInnerIterations( iCounter + 1 );
+                        iCounter++;
+                    }
                 }
 
-                // one iteration of algorithm has concluded
-                if ( strncmp( task, "NEW_X", 5 ) == 0 )
+                // determine user defined upper and lower bounds
+                for ( size_t iADV = 0; iADV < tUpperBoundsUserDefined.numel(); iADV++ )
                 {
-                    // set optimization iteration counter
-                    mOptIter = isave[ 29 ];
+                    tLowerBoundsUserDefined( iADV ) = std::max( tLowerBounds( iADV ), x[ iADV ] - tStep * ( tUpperBounds( iADV ) - tLowerBounds( iADV ) ) );
+                    tUpperBoundsUserDefined( iADV ) = std::min( tUpperBounds( iADV ), x[ iADV ] + tStep * ( tUpperBounds( iADV ) - tLowerBounds( iADV ) ) );
                 }
 
-                // exit loop if maximum iterations have been achieved
-                if ( isave[ 29 ] == mMaxIt )
+                // extract pointers
+                l = tLowerBoundsUserDefined.data();
+                u = tUpperBoundsUserDefined.data();
+
+                // value to store previous optimization iteration
+                double f_previous = 0.0;
+
+                // inner loop to go through internal iterations
+                for ( size_t iInnerIteration = 0; iInnerIteration < tNumberOfInnerIterations; iInnerIteration++ )
                 {
-                    break;
+                    // call the Fortran subroutine
+                    setulb_( &n,
+                            &mNumCorrections,
+                            x,
+                            l,
+                            u,
+                            nbd,
+                            &f,
+                            g,
+                            &mNormDrop,
+                            &mGradTolerance,
+                            wa,
+                            iwa,
+                            task,
+                            &iprint,
+                            csave,
+                            lsave,
+                            isave,
+                            dsave );
+
+                    // only assign f_previous at iteration 1
+                    f_previous = iInnerIteration == 1 ? f : f_previous;
+
+                    if ( strncmp( task, "FG", 2 ) == 0 || strncmp( task, "NEW_X", 5 ) == 0 )
+                    {
+                        // call to compute objective
+                        this->func( mOptIter, x, f );
+
+                        // call to compute gradients
+                        this->grad( x, g );
+                    }
+
+                    // increment the iteration
+                    mOptIter++;
+                }
+
+                // check if the LBFGS is converging through objective values
+                if ( std::abs( f - f_previous ) / std::max( { f, f_previous, 1.0 } ) < mNormDrop * MORIS_REAL_EPS )
+                {
+                    // check if the bounds are satisfied
+                    for ( size_t iADV = 0; iADV < tUpperBounds.numel(); iADV++ )
+                    {
+                        // option 1: the design variables are within the user defined bounds
+                        if ( x[ iADV ] > tLowerBoundsUserDefined( iADV ) and x[ iADV ] < tUpperBoundsUserDefined( iADV ) )
+                        {
+                            tIsConverged = true;
+                            continue;
+                        }
+
+                        // the design variable hits the the user defined upper bound then the use defined bound and problem bound should be the same
+                        else if ( std::abs( x[ iADV ] - tUpperBoundsUserDefined( iADV ) ) < MORIS_REAL_EPS )
+                        {
+                            if ( std::abs( tUpperBounds( iADV ) - tUpperBoundsUserDefined( iADV ) ) < MORIS_REAL_EPS )
+                            {
+                                tIsConverged = true;
+                                continue;
+                            }
+
+                            // break if this is the case
+                            tIsConverged = false;
+                            break;
+                        }
+
+                        // the design variable hits the the user defined lower bound then the use defined bound and problem bound should be the same
+                        else if ( std::abs( x[ iADV ] - tLowerBoundsUserDefined( iADV ) ) < MORIS_REAL_EPS )
+                        {
+                            if ( std::abs( tLowerBounds( iADV ) - tLowerBoundsUserDefined( iADV ) ) < MORIS_REAL_EPS )
+                            {
+                                tIsConverged = true;
+                                continue;
+                            }
+
+                            // break if this is the case
+                            tIsConverged = false;
+                            break;
+                        }
+                    }
+                    
+                    // if all the adv satisfy the bounds then we have converged and outer loop breaks
+                    if ( tIsConverged == true )
+                    {
+                        MORIS_LOG_INFO( "LBFGS has converged" );
+                        break;
+                    }
                 }
             }
 
+            // delete the pointer
             delete[] task;
         }
 

@@ -792,19 +792,19 @@ namespace moris
         //                >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore >> ignore
         //                >> ignore >> ignore >> vsize >> rss;
         //
-        //        real vm_usage   = vsize / 1024.0;
-        //        real real_usage = rss * page_size_kb;
+        //        real vm_usage   = vsize / 1024.0 / 1024.0;
+        //        real real_usage = rss * page_size_kb / 1024.0;
 
         struct rusage r_usage;
         getrusage( RUSAGE_SELF, &r_usage );
 
         // get statistics on memory usage across allprocs
-        real tLocalUsage = r_usage.ru_maxrss;
+        real tLocalUsage = r_usage.ru_maxrss / 1024.0;
         uint tTotalUsage = std::round( this->logger_sum_all( tLocalUsage ) );
         uint tMaxUsage   = std::round( this->logger_max_all( tLocalUsage ) );
         uint tMinUsage   = std::round( this->logger_min_all( tLocalUsage ) );
 
-        std::string tMemUsage = "Memory usage in kB: total " + std::to_string( tTotalUsage ) +    //
+        std::string tMemUsage = "Memory usage in MB: total " + std::to_string( tTotalUsage ) +    //
                                 " | max " + std::to_string( tMaxUsage ) +                         //
                                 " | min " + std::to_string( tMinUsage );
 
@@ -812,7 +812,7 @@ namespace moris
         unsigned int  vmem_size, phys_size;
         statm >> vmem_size >> phys_size;
 
-        tLocalUsage = phys_size * (size_t)sysconf( _SC_PAGESIZE ) / 1024;
+        tLocalUsage = phys_size * (size_t)sysconf( _SC_PAGESIZE ) / 1024.0 / 1024.0;
 
         tTotalUsage = std::round( this->logger_sum_all( tLocalUsage ) );
         tMaxUsage   = std::round( this->logger_max_all( tLocalUsage ) );

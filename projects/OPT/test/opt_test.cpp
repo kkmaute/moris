@@ -166,6 +166,12 @@ namespace moris
                 ParameterList tProblemParameterList   = moris::prm::create_opt_problem_parameter_list();
                 ParameterList tAlgorithmParameterList = moris::prm::create_lbfgs_parameter_list();
 
+                tAlgorithmParameterList.set( "step_size", "0.1" );
+                tAlgorithmParameterList.set( "step_size_index", "5" );
+                tAlgorithmParameterList.set( "number_inner_iterations", "10" );
+                tAlgorithmParameterList.set( "norm_drop", 1.0e+2  );
+
+
                 // Create interface
                 std::shared_ptr< Criteria_Interface > tInterface = std::make_shared< Interface_User_Defined >(
                         &initialize_rosenbrock,

@@ -25,13 +25,15 @@ namespace moris
             mMasterProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
 
             // populate the map
-            mPropertyMap[ "Viscosity" ] = static_cast< uint >( Property_Type::VISCOSITY );
-            mPropertyMap[ "Density" ]   = static_cast< uint >( Property_Type::DENSITY );
+            mPropertyMap[ "Viscosity" ]       = static_cast< uint >( Property_Type::VISCOSITY );
+            mPropertyMap[ "Density" ]         = static_cast< uint >( Property_Type::DENSITY );
+            mPropertyMap[ "InvPermeability" ] = static_cast< uint >( Property_Type::INV_PERMEABILITY );
         }
 
         //------------------------------------------------------------------------------
 
-        void SP_Pressure_Ghost::set_parameters( moris::Cell< Matrix< DDRMat > > aParameters )
+        void
+        SP_Pressure_Ghost::set_parameters( moris::Cell< Matrix< DDRMat > > aParameters )
         {
             // FIXME not necessary
             // set mParameters
@@ -51,7 +53,7 @@ namespace moris
             mSetAlphaP = true;
 
             // if time term
-            if( tParamSize > 1 )
+            if ( tParamSize > 1 )
             {
                 // set theta
                 mTheta = aParameters( 1 )( 0 );
@@ -63,21 +65,22 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void SP_Pressure_Ghost::set_dof_type_list(
-                moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
-                moris::Cell< std::string >                  & aDofStrings,
-                mtk::Master_Slave                             aIsMaster )
+        void
+        SP_Pressure_Ghost::set_dof_type_list(
+                moris::Cell< moris::Cell< MSI::Dof_Type > >& aDofTypes,
+                moris::Cell< std::string >&                  aDofStrings,
+                mtk::Master_Slave                            aIsMaster )
         {
             // switch on master slave
             switch ( aIsMaster )
             {
-                case mtk::Master_Slave::MASTER :
+                case mtk::Master_Slave::MASTER:
                 {
                     // set dof type list
                     mMasterDofTypes = aDofTypes;
 
                     // loop on dof type
-                    for( uint iDof = 0; iDof < aDofTypes.size(); iDof++ )
+                    for ( uint iDof = 0; iDof < aDofTypes.size(); iDof++ )
                     {
                         // get dof string
                         std::string tDofString = aDofStrings( iDof );
@@ -86,14 +89,14 @@ namespace moris
                         MSI::Dof_Type tDofType = aDofTypes( iDof )( 0 );
 
                         // if velocity
-                        if( tDofString == "Velocity" )
+                        if ( tDofString == "Velocity" )
                         {
                             mMasterDofVelocity = tDofType;
                         }
                         else
                         {
                             // error unknown dof string
-                            MORIS_ERROR( false ,
+                            MORIS_ERROR( false,
                                     "SP_Pressure_Ghost::set_dof_type_list - Unknown aDofString : %s \n",
                                     tDofString.c_str() );
                         }
@@ -101,7 +104,7 @@ namespace moris
                     break;
                 }
 
-                case mtk::Master_Slave::SLAVE :
+                case mtk::Master_Slave::SLAVE:
                 {
                     // set dof type list
                     mSlaveDofTypes = aDofTypes;
@@ -116,36 +119,44 @@ namespace moris
         //------------------------------------------------------------------------------
 
         moris::Cell< std::tuple<
-        fem::Measure_Type,
-        mtk::Primary_Void,
-        mtk::Master_Slave > > SP_Pressure_Ghost::get_cluster_measure_tuple_list()
+                fem::Measure_Type,
+                mtk::Primary_Void,
+                mtk::Master_Slave > >
+        SP_Pressure_Ghost::get_cluster_measure_tuple_list()
         {
             return { mElementSizeTuple };
         }
 
         //------------------------------------------------------------------------------
 
-        void SP_Pressure_Ghost::eval_SP()
+        void
+        SP_Pressure_Ghost::eval_SP()
         {
             // get element size cluster measure value
             real tElementSize = mCluster->get_cluster_measure(
-                    std::get<0>( mElementSizeTuple ),
-                    std::get<1>( mElementSizeTuple ),
-                    std::get<2>( mElementSizeTuple ) )->val()( 0 );
+                                                std::get< 0 >( mElementSizeTuple ),
+                                                std::get< 1 >( mElementSizeTuple ),
+                                                std::get< 2 >( mElementSizeTuple ) )
+                                        ->val()( 0 );
 
             // get the viscosity and density property
-            const std::shared_ptr< Property > & tViscosityProp =
+            const std::shared_ptr< Property >& tViscosityProp =
                     mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
-            const std::shared_ptr< Property > & tDensityProp   =
+
+            const std::shared_ptr< Property >& tDensityProp =
                     mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
 
+            // get the inverse permeability property (Brinkman coefficient)
+            const std::shared_ptr< Property >& tInvPermeabProp =
+                    mMasterProp( static_cast< uint >( Property_Type::INV_PERMEABILITY ) );
+
             // get the velocity FI
-            Field_Interpolator * tVelocityFI =
+            Field_Interpolator* tVelocityFI =
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
 
             // compute infinity norm of u
             real tInfinityNorm = std::abs( tVelocityFI->val()( 0 ) );
-            for( uint iDim = 0; iDim < tVelocityFI->val().numel(); iDim++ )
+            for ( uint iDim = 0; iDim < tVelocityFI->val().numel(); iDim++ )
             {
                 real tAbsVelocity = std::abs( tVelocityFI->val()( iDim ) );
                 if ( tInfinityNorm < tAbsVelocity )
@@ -155,12 +166,17 @@ namespace moris
             }
 
             // compute deltaP
-            real tDeltaP =
-                    tViscosityProp->val()( 0 ) / tElementSize +
-                    tDensityProp->val()( 0 ) * tInfinityNorm / 6.0;
+            real tDeltaP = tViscosityProp->val()( 0 ) / tElementSize    //
+                         + tDensityProp->val()( 0 ) * tInfinityNorm / 6.0;
 
-            // if time step contribution
-            if( mSetTheta )
+            // add contribution from inverse permeability
+            if ( tInvPermeabProp )
+            {
+                tDeltaP += tInvPermeabProp->val()( 0 ) * tElementSize / 12.0;
+            }
+
+            // add time step contribution
+            if ( mSetTheta )
             {
                 // compute deltaT
                 real tDeltaT = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
@@ -175,56 +191,68 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void SP_Pressure_Ghost::eval_dSPdMasterDOF(
-                const moris::Cell< MSI::Dof_Type > & aDofTypes )
+        void
+        SP_Pressure_Ghost::eval_dSPdMasterDOF(
+                const moris::Cell< MSI::Dof_Type >& aDofTypes )
         {
             // get element size cluster measure value
             real tElementSize = mCluster->get_cluster_measure(
-                    std::get<0>( mElementSizeTuple ),
-                    std::get<1>( mElementSizeTuple ),
-                    std::get<2>( mElementSizeTuple ) )->val()( 0 );
+                                                std::get< 0 >( mElementSizeTuple ),
+                                                std::get< 1 >( mElementSizeTuple ),
+                                                std::get< 2 >( mElementSizeTuple ) )
+                                        ->val()( 0 );
 
             // get the dof type index
             uint tDofIndex = mMasterGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
 
             // get the dof type FI
-            Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+            Field_Interpolator* tFI = mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // set size for dSPdMasterDof
             mdPPdMasterDof( tDofIndex ).set_size( 1, tFI->get_number_of_space_time_coefficients() );
 
             // get velocity field interpolator
-            Field_Interpolator * tVelocityFI =
+            Field_Interpolator* tVelocityFI =
                     mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
 
             // get the viscosity property
-            const std::shared_ptr< Property > & tViscosityProp =
+            const std::shared_ptr< Property >& tViscosityProp =
                     mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
 
             // get the density property
-            const std::shared_ptr< Property > & tDensityProp =
+            const std::shared_ptr< Property >& tDensityProp =
                     mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
+
+            // get the inverse permeability property (Brinkman coefficient)
+            const std::shared_ptr< Property >& tInvPermeabProp =
+                    mMasterProp( static_cast< uint >( Property_Type::INV_PERMEABILITY ) );
 
             // compute infinity norm
             uint tInfinityNormIndex = 0;
-            real tInfinityNorm = std::abs( tVelocityFI->val()( 0 ) );
-            for( uint iDim = 0; iDim < tVelocityFI->val().numel(); iDim++ )
+            real tInfinityNorm      = std::abs( tVelocityFI->val()( 0 ) );
+
+            for ( uint iDim = 0; iDim < tVelocityFI->val().numel(); iDim++ )
             {
                 real tAbsVelocity = std::abs( tVelocityFI->val()( iDim ) );
                 if ( tInfinityNorm < tAbsVelocity )
                 {
                     tInfinityNormIndex = iDim;
-                    tInfinityNorm = tAbsVelocity;
+                    tInfinityNorm      = tAbsVelocity;
                 }
             }
 
             // compute deltaP
-            real tDeltaP =
-                    tViscosityProp->val()( 0 ) / tElementSize +
-                    tDensityProp->val()( 0 ) * tInfinityNorm / 6.0;
+            real tDeltaP = tViscosityProp->val()( 0 ) / tElementSize    //
+                         + tDensityProp->val()( 0 ) * tInfinityNorm / 6.0;
+
+            // add contribution from inverse permeability
+            if ( tInvPermeabProp )
+            {
+                tDeltaP += tInvPermeabProp->val()( 0 ) * tElementSize / 12.0;
+            }
 
             // if time step contribution
-            if( mSetTheta )
+            if ( mSetTheta )
             {
                 // compute deltaT
                 real tDeltaT = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
@@ -234,20 +262,19 @@ namespace moris
             }
 
             // if dof type == velocity
-            if( aDofTypes( 0 ) == mMasterDofVelocity )
+            if ( aDofTypes( 0 ) == mMasterDofVelocity )
             {
                 // compute derivative of the infinity norm
                 Matrix< DDRMat > tdInfinityNormdu = tVelocityFI->N().get_row( tInfinityNormIndex );
-                if( tVelocityFI->val()( tInfinityNormIndex ) < 0.0 )
+                if ( tVelocityFI->val()( tInfinityNormIndex ) < 0.0 )
                 {
                     tdInfinityNormdu = -1.0 * tdInfinityNormdu;
                 }
 
                 // compute contribution from velocity
                 mdPPdMasterDof( tDofIndex ) =
-                        - mAlphaP * std::pow( tElementSize, 2 * mOrder ) *
-                        tDensityProp->val()( 0 ) * tdInfinityNormdu /
-                        ( 6.0 * std::pow( tDeltaP, 2.0 ) );
+                        -mAlphaP * std::pow( tElementSize, 2 * mOrder ) * tDensityProp->val()( 0 )    //
+                        * tdInfinityNormdu / ( 6.0 * std::pow( tDeltaP, 2.0 ) );
             }
             else
             {
@@ -255,37 +282,41 @@ namespace moris
             }
 
             // if viscosity depends on dof type
-            if( tViscosityProp->check_dof_dependency( aDofTypes ) )
+            if ( tViscosityProp->check_dof_dependency( aDofTypes ) )
             {
                 // compute contribution from viscosity
                 mdPPdMasterDof( tDofIndex ) -=
-                        mAlphaP * std::pow( tElementSize, 2 * mOrder ) *
-                        tViscosityProp->dPropdDOF( aDofTypes ) /
-                        ( tElementSize * std::pow( tDeltaP, 2.0 ) );
+                        mAlphaP * std::pow( tElementSize, 2 * mOrder ) * tViscosityProp->dPropdDOF( aDofTypes )    //
+                        / ( tElementSize * std::pow( tDeltaP, 2.0 ) );
             }
 
             // if density depends on dof type
-            if( tDensityProp->check_dof_dependency( aDofTypes ) )
+            if ( tDensityProp->check_dof_dependency( aDofTypes ) )
             {
                 // compute contribution from density
                 mdPPdMasterDof( tDofIndex ) -=
-                        mAlphaP * std::pow( tElementSize, 2 * mOrder ) *
-                        tDensityProp->dPropdDOF( aDofTypes ) *
-                        ( tInfinityNorm / 6.0 ) /
-                        std::pow( tDeltaP, 2.0 );
+                        mAlphaP * std::pow( tElementSize, 2 * mOrder ) * tDensityProp->dPropdDOF( aDofTypes )    //
+                        * ( tInfinityNorm / 6.0 ) / std::pow( tDeltaP, 2.0 );
 
                 // if time step contribution
-                if( mSetTheta )
+                if ( mSetTheta )
                 {
                     // compute deltaT
                     real tDeltaT = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
 
                     // add time step contribution
                     mdPPdMasterDof( tDofIndex ) -=
-                            mAlphaP * std::pow( tElementSize, 2 * mOrder ) *
-                            tDensityProp->dPropdDOF( aDofTypes ) *
-                            ( tElementSize / ( 12.0 * mTheta * tDeltaT ) ) /
-                            std::pow( tDeltaP, 2.0 );
+                            mAlphaP * std::pow( tElementSize, 2 * mOrder ) * tDensityProp->dPropdDOF( aDofTypes )    //
+                            * ( tElementSize / ( 12.0 * mTheta * tDeltaT ) ) / std::pow( tDeltaP, 2.0 );
+                }
+            }
+
+            // if inverse permeability depends on dof type
+            if ( tInvPermeabProp )
+            {
+                if ( tInvPermeabProp->check_dof_dependency( aDofTypes ) )
+                {
+                    MORIS_ERROR( false, "dof dependence of inverse permeability not implemented." );
                 }
             }
         }
@@ -293,4 +324,3 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-

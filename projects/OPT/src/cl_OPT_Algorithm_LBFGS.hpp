@@ -30,6 +30,11 @@ namespace moris
             double mGradTolerance;      // Convergence criteria based on projected gradients
             sint mLBFGSprint;
 
+            // these 3 data sets are a pair
+            Matrix<DDUMat> mNumberOfInnerIterations;  //  number of inner iterations in each interval
+            Matrix<DDUMat> mStepSizeIndex; // index which the step size correction will be applied
+            Matrix<DDRMat> mStepSize;  // setp size fraction that will be adjusted
+
 
         public:
 
