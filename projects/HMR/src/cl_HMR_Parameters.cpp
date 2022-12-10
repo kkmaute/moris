@@ -280,7 +280,8 @@ namespace moris
 
             for ( uint tFunctionIndex = 0; tFunctionIndex < tFunctionNames.size(); tFunctionIndex++ )
             {
-                mRefinementFunctions.push_back( aLibrary->load_function< Refinement_Function >( tFunctionNames( tFunctionIndex ) ) );
+                Refinement_Function tRefineFunc = aLibrary->load_function< Refinement_Function >( tFunctionNames( tFunctionIndex ) );
+                mRefinementFunctions.push_back( tRefineFunc );
             }
 
             this->update_max_polynomial_and_truncated_buffer();

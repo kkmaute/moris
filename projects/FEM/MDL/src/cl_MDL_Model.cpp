@@ -14,18 +14,18 @@
 
 #include "cl_Map.hpp"
 #include "fn_unique.hpp"
-#include "fn_sum.hpp" // for check
+#include "fn_sum.hpp"    // for check
 #include "fn_iscol.hpp"
 #include "fn_trans.hpp"
 #include "op_equal_equal.hpp"
 
 #include "MTK_Tools.hpp"
-#include "cl_MTK_Enums.hpp"              //MTK/src
-#include "cl_MTK_Mesh_Manager.hpp"       //MTK/src
+#include "cl_MTK_Enums.hpp"           //MTK/src
+#include "cl_MTK_Mesh_Manager.hpp"    //MTK/src
 
 #include "cl_MDL_Model.hpp"
 
-#include "cl_FEM_Enums.hpp"              //FEM/INT/src
+#include "cl_FEM_Enums.hpp"    //FEM/INT/src
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_Model.hpp"
 
@@ -51,21 +51,21 @@
 namespace moris
 {
     // Parameter function
-    typedef void ( *Parameter_Function ) ( moris::Cell< moris::Cell< moris::ParameterList > > & aParameterList );
+    // typedef void ( *Parameter_Function ) ( moris::Cell< moris::Cell< moris::ParameterList > > & aParameterList );
 
     namespace mdl
     {
         //------------------------------------------------------------------------------
         Model::Model(
                 std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
-                const uint                          aBSplineIndex,
-                moris::Cell< fem::Set_User_Info > & aSetInfo,
-                const moris_index                   aMeshPairIndex,
-                const bool                          aUseMultigrid )
-        : mMeshManager( aMeshManager ),
-          mMeshPairIndex( aMeshPairIndex ),
-          mBSplineIndex ( aBSplineIndex ),
-          mUseMultigrid( aUseMultigrid )
+                const uint                           aBSplineIndex,
+                moris::Cell< fem::Set_User_Info >&   aSetInfo,
+                const moris_index                    aMeshPairIndex,
+                const bool                           aUseMultigrid )
+                : mMeshManager( aMeshManager )
+                , mMeshPairIndex( aMeshPairIndex )
+                , mBSplineIndex( aBSplineIndex )
+                , mUseMultigrid( aUseMultigrid )
         {
             Tracer tTracer( "FEM", "Model", "Create" );
 
@@ -133,48 +133,41 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        Model::Model(std::shared_ptr< Library_IO > aLibrary,
-                const uint                         aBSplineIndex,
-                const moris_index                  aMeshPairIndex )
-        : mMeshPairIndex( aMeshPairIndex ),
-          mBSplineIndex( aBSplineIndex ),
-          mLibrary( aLibrary )
+        Model::Model(
+                std::shared_ptr< Library_IO > aLibrary,
+                const uint                    aBSplineIndex,
+                const moris_index             aMeshPairIndex )
+                : mMeshPairIndex( aMeshPairIndex )
+                , mBSplineIndex( aBSplineIndex )
+                , mLibrary( aLibrary )
         {
             Tracer tTracer( "MDL", "Model", "Create" );
 
             // load the MSI parameter list
-            std::string tMSIString = "MSIParameterList";
-            Parameter_Function tMSIParameterListFunc = mLibrary->load_function<Parameter_Function>( tMSIString );
-            tMSIParameterListFunc( mMSIParameterList );
+            mMSIParameterList = mLibrary->get_parameters_for_module( Parameter_List_Type::MSI );
 
             // load the SOL parameter list
-            std::string tSOLString = "SOLParameterList";
-            Parameter_Function tSOLParameterListFunc = mLibrary->load_function<Parameter_Function>( tSOLString );
-            tSOLParameterListFunc( mSOLParameterList );
+            mSOLParameterList = mLibrary->get_parameters_for_module( Parameter_List_Type::SOL );
 
             // load the FEM parameter list
-            std::string tFEMString = "FEMParameterList";
-            Parameter_Function tFEMParameterListFunc = mLibrary->load_function<Parameter_Function>( tFEMString );
-            tFEMParameterListFunc( mFEMParameterList );
+            mFEMParameterList = mLibrary->get_parameters_for_module( Parameter_List_Type::FEM );
 
             // load the VIS parameter list
-            std::string tVISString = "VISParameterList";
-            Parameter_Function tVISParameterListFunc = mLibrary->load_function<Parameter_Function>( tVISString );
-            tVISParameterListFunc( mVISParameterList );
+            mVISParameterList = mLibrary->get_parameters_for_module( Parameter_List_Type::VIS );
         }
 
         //------------------------------------------------------------------------------
         Model::Model(
-                std::shared_ptr< mtk::Mesh_Manager >aMeshManager,
-                const uint                          aBSplineIndex,
-                moris::Cell< fem::Set_User_Info > & aSetInfo,
-                MSI::Design_Variable_Interface    * aDesignVariableInterface,
-                const moris_index                   aMeshPairIndex,
-                const bool                          aUseMultigrid )
-        : mMeshManager( aMeshManager ),
-          mMeshPairIndex( aMeshPairIndex ),
-          mBSplineIndex( aBSplineIndex ),
-          mUseMultigrid( aUseMultigrid )
+                std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
+                const uint                           aBSplineIndex,
+                moris::Cell< fem::Set_User_Info >&   aSetInfo,
+                MSI::Design_Variable_Interface*      aDesignVariableInterface,
+                const moris_index                    aMeshPairIndex,
+                const bool                           aUseMultigrid )
+                : mMeshManager( aMeshManager )
+                , mMeshPairIndex( aMeshPairIndex )
+                , mBSplineIndex( aBSplineIndex )
+                , mUseMultigrid( aUseMultigrid )
         {
             Tracer tTracer( "MDL", "Model", "Create" );
 
@@ -230,7 +223,7 @@ namespace moris
             {
                 Tracer tTracer( "MDL", "Model", "Create Solver Interface" );
 
-                mSolverInterface =  new moris::MSI::MSI_Solver_Interface( mModelSolverInterface );
+                mSolverInterface = new moris::MSI::MSI_Solver_Interface( mModelSolverInterface );
 
                 mSolverInterface->set_model( this );
             }
@@ -247,7 +240,7 @@ namespace moris
             delete mModelSolverInterface;
 
             // delete MSI
-            if( mOutputManager != nullptr && mOutputManagerOwned == true )
+            if ( mOutputManager != nullptr && mOutputManagerOwned == true )
             {
                 delete mOutputManager;
 
@@ -257,21 +250,22 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Model::free_memory()
+        void
+        Model::free_memory()
         {
             // delete SI
             delete mSolverInterface;
-			mSolverInterface = nullptr;
+            mSolverInterface = nullptr;
 
             // delete MSI
             delete mModelSolverInterface;
-			mModelSolverInterface = nullptr;
+            mModelSolverInterface = nullptr;
 
             // delete MSI
-            if( mOutputManager != nullptr && mOutputManagerOwned == true )
+            if ( mOutputManager != nullptr && mOutputManagerOwned == true )
             {
                 delete mOutputManager;
-				mOutputManager = nullptr;
+                mOutputManager = nullptr;
 
                 mOutputManagerOwned = false;
             }
@@ -280,32 +274,34 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        void Model::set_performer( std::shared_ptr< mtk::Mesh_Manager > aMTKPerformer )
+        void
+        Model::set_performer( std::shared_ptr< mtk::Mesh_Manager > aMTKPerformer )
         {
             mMeshManager = aMTKPerformer;
         }
 
         //------------------------------------------------------------------------------
 
-        void Model::initialize()
+        void
+        Model::initialize()
         {
             Tracer tTracer( "MDL", "Model", "Initialize" );
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 0: delete model and interface
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-			if( mModelSolverInterface != nullptr)
-			{
-				delete mModelSolverInterface;
-			}
-			if( mSolverInterface != nullptr)
-			{
-				delete mSolverInterface;
-			}
-			if( mOutputManager != nullptr)
-			{
-				delete mOutputManager;
-			}
+            if ( mModelSolverInterface != nullptr )
+            {
+                delete mModelSolverInterface;
+            }
+            if ( mSolverInterface != nullptr )
+            {
+                delete mSolverInterface;
+            }
+            if ( mOutputManager != nullptr )
+            {
+                delete mOutputManager;
+            }
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // STEP 1: create the FEM model
@@ -319,10 +315,10 @@ namespace moris
                         mMeshPairIndex,
                         mFEMParameterList,
                         mDesignVariableInterface );
-                        // tDofTypeToBsplineMeshIndex );
+                // tDofTypeToBsplineMeshIndex );
 
                 // build a map relating the dof types to their respective B-spline mesh indices and pass it to the FEM model
-                std::unordered_map< MSI::Dof_Type, moris_index > tDofTypeToBsplineMeshIndex = this->build_dof_type_to_mesh_index();                
+                std::unordered_map< MSI::Dof_Type, moris_index > tDofTypeToBsplineMeshIndex = this->build_dof_type_to_mesh_index();
                 mEquationModel->set_dof_type_to_Bspline_mesh_index( tDofTypeToBsplineMeshIndex );
 
                 // pass whether the new ghost sets are used
@@ -332,7 +328,7 @@ namespace moris
                 mEquationModel->initialize_from_inputfile( mLibrary );
 
                 // set the equation model if using design variables
-                if (mDesignVariableInterface != nullptr)
+                if ( mDesignVariableInterface != nullptr )
                 {
                     mDesignVariableInterface->set_equation_model( mEquationModel );
                 }
@@ -382,8 +378,8 @@ namespace moris
                     mSolverWarehouse->initialize();
                 }
 
-                //set the solver warehouse pointer
-                mSolverInterface->set_solver_warehouse(mSolverWarehouse);
+                // set the solver warehouse pointer
+                mSolverInterface->set_solver_warehouse( mSolverWarehouse );
 
                 // finalize the model solver interface
                 mModelSolverInterface->finalize();
@@ -405,15 +401,16 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        void Model::perform( uint aIndex )
+        void
+        Model::perform( uint aIndex )
         {
-            if( aIndex == 0 )
+            if ( aIndex == 0 )
             {
                 Tracer tTracer( "MDL", "Model", "Perform Forward Analysis" );
 
                 this->perform_forward_analysis();
             }
-            else if( aIndex == 1 )
+            else if ( aIndex == 1 )
             {
                 Tracer tTracer( "FEM", "Model", "Perform Sensitivity Analysis" );
 
@@ -422,7 +419,8 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        void Model::perform_forward_analysis()
+        void
+        Model::perform_forward_analysis()
         {
             mEquationModel->set_is_forward_analysis();
 
@@ -433,13 +431,15 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        moris::Cell< moris::Matrix< DDRMat > > Model::get_IQI_values()
+        moris::Cell< moris::Matrix< DDRMat > >
+        Model::get_IQI_values()
         {
             return mEquationModel->get_IQI_values();
         }
 
         //------------------------------------------------------------------------------
-        void Model::perform_sensitivity_analysis()
+        void
+        Model::perform_sensitivity_analysis()
         {
             mEquationModel->set_is_sensitivity_analysis();
 
@@ -449,28 +449,30 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        void Model::set_design_variable_interface( MSI::Design_Variable_Interface * aDesignVariableInterface )
+        void
+        Model::set_design_variable_interface( MSI::Design_Variable_Interface* aDesignVariableInterface )
         {
             mDesignVariableInterface = aDesignVariableInterface;
 
-//            mEquationModel->set_design_variable_interface( mDesignVariableInterface );
-//
-//            mDesignVariableInterface->set_equation_model( mEquationModel );
+            //            mEquationModel->set_design_variable_interface( mDesignVariableInterface );
+            //
+            //            mDesignVariableInterface->set_equation_model( mEquationModel );
         }
 
         //------------------------------------------------------------------------------
-        void Model::set_weak_bcs( const Matrix<DDRMat> & aWeakBCs )
+        void
+        Model::set_weak_bcs( const Matrix< DDRMat >& aWeakBCs )
         {
-            moris::Cell< MSI::Equation_Object * > tFemClusters = mEquationModel->get_equation_objects();
+            moris::Cell< MSI::Equation_Object* > tFemClusters = mEquationModel->get_equation_objects();
 
             // set weak BCs
-            for( auto tElement : tFemClusters )
+            for ( auto tElement : tFemClusters )
             {
-                Matrix< DDRMat > & tNodalWeakBCs = tElement->get_weak_bcs();
-                uint tNumberOfNodes = tElement->get_num_nodes();
+                Matrix< DDRMat >& tNodalWeakBCs  = tElement->get_weak_bcs();
+                uint              tNumberOfNodes = tElement->get_num_nodes();
                 tNodalWeakBCs.set_size( tNumberOfNodes, 1 );
 
-                for( uint k=0; k < tNumberOfNodes; ++k )
+                for ( uint k = 0; k < tNumberOfNodes; ++k )
                 {
                     // copy weak bc into element
                     tNodalWeakBCs( k ) = aWeakBCs( tElement->get_node_index( k ) );
@@ -479,36 +481,35 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        void Model::set_weak_bcs_from_nodal_field( moris_index aFieldIndex )
+        void
+        Model::set_weak_bcs_from_nodal_field( moris_index aFieldIndex )
         {
-            moris::Cell< MSI::Equation_Object * > tFemClusters = mEquationModel->get_equation_objects();
+            moris::Cell< MSI::Equation_Object* > tFemClusters = mEquationModel->get_equation_objects();
 
-            for( auto tElement : tFemClusters )
+            for ( auto tElement : tFemClusters )
             {
-                Matrix< DDRMat > & tNodalWeakBCs = tElement->get_weak_bcs();
-                uint tNumberOfNodes = tElement->get_num_nodes();
+                Matrix< DDRMat >& tNodalWeakBCs  = tElement->get_weak_bcs();
+                uint              tNumberOfNodes = tElement->get_num_nodes();
                 tNodalWeakBCs.set_size( tNumberOfNodes, 1 );
 
-                for( uint k=0; k<tNumberOfNodes; ++k )
+                for ( uint k = 0; k < tNumberOfNodes; ++k )
                 {
                     // copy weak bc into element
-                    tNodalWeakBCs( k ) = mMeshManager->get_interpolation_mesh( mMeshPairIndex ) ->
-                            get_value_of_scalar_field(
-                                    aFieldIndex,
-                                    EntityRank::NODE,
-                                    tElement->get_node_index( k ) );
+                    tNodalWeakBCs( k ) = mMeshManager->get_interpolation_mesh( mMeshPairIndex )->get_value_of_scalar_field( aFieldIndex, EntityRank::NODE, tElement->get_node_index( k ) );
                 }
             }
         }
 
         //------------------------------------------------------------------------------
-        void Model::set_dof_order( const uint aBSplineIndex )
+        void
+        Model::set_dof_order( const uint aBSplineIndex )
         {
             mBSplineIndex = aBSplineIndex;
         }
 
         //------------------------------------------------------------------------------
-        void Model::output_solution(
+        void
+        Model::output_solution(
                 const uint aVisMeshIndex,
                 const real aTime,
                 const bool aCloseFile )
@@ -528,7 +529,7 @@ namespace moris
                     aTime,
                     mEquationModel );
 
-            if( aCloseFile )
+            if ( aCloseFile )
             {
                 // end writing and delete vis mesh
                 mOutputManager->end_writing( aVisMeshIndex );
@@ -539,7 +540,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        moris::Cell< std::shared_ptr< mtk::Field > > Model::get_mtk_fields()
+        moris::Cell< std::shared_ptr< mtk::Field > >
+        Model::get_mtk_fields()
         {
             return mEquationModel->get_fields();
         }
@@ -550,7 +552,7 @@ namespace moris
         Model::build_dof_type_to_mesh_index()
         {
             // get the number of DoF-types there are
-            uint tNumDofTypes = (uint) MSI::Dof_Type::END_ENUM;
+            uint tNumDofTypes = (uint)MSI::Dof_Type::END_ENUM;
 
             // get the enum to string map for the dof types
             map< enum MSI::Dof_Type, std::string > tDofEnumToStringMap = MSI::get_dof_type_name_map();
@@ -559,13 +561,13 @@ namespace moris
             std::unordered_map< MSI::Dof_Type, moris_index > tDofTypeToMeshIndex;
 
             // loop over list of dof types and retrieve the mesh index for each one
-            for( uint iDofType = 0; iDofType < tNumDofTypes; iDofType++ )
+            for ( uint iDofType = 0; iDofType < tNumDofTypes; iDofType++ )
             {
                 // get the Enum for the current DoF type
-                enum MSI::Dof_Type tDofTypeEnum = (MSI::Dof_Type) iDofType;
+                enum MSI::Dof_Type tDofTypeEnum = (MSI::Dof_Type)iDofType;
 
                 // making sure the DoF type exists in the list
-                if( tDofEnumToStringMap.key_exists( tDofTypeEnum ) )
+                if ( tDofEnumToStringMap.key_exists( tDofTypeEnum ) )
                 {
                     // get the DoF type name
                     std::string tDofTypeName = tDofEnumToStringMap.find( tDofTypeEnum );
@@ -586,4 +588,3 @@ namespace moris
 
     } /* namespace mdl */
 } /* namespace moris */
-
