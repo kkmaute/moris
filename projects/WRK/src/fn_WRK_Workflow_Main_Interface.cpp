@@ -44,43 +44,129 @@
 #include "cl_WRK_Workflow.hpp"
 #include "cl_OPT_Manager.hpp"
 
-#include "cl_Library_IO.hpp"
+#include "cl_Library_Factory.hpp"
 
 #include "fn_stringify_matrix.hpp"
 
 using namespace moris;
 
-// Parameter function
-typedef void ( *Parameter_Function ) ( moris::Cell< moris::Cell< moris::ParameterList > > & aParameterList );
-
 int fn_WRK_Workflow_Main_Interface( int argc, char * argv[] )
 {
+    // --------------------------------------------- //
+    // check arguments provided
+    
+    // first, check if there are any arguments provided ...
     if (argc < 2)
     {
+        // ... print an error if not
         std::cout << "\n Error: input file required\n" << "\n";
         return -1;
     }
 
-    // last input argument is assumed to be shared object file
-    // FIXME: shared object file name should be identified with together with other command line options
-    std::string tInputArg = std::string(argv[ argc - 1 ]);
-    std::string tString = "Reading dynamically linked shared object " + tInputArg + ".";
-    MORIS_LOG( tString.c_str() );
+    // initialize file names and flags that could be provided
+    std::string tSoFileName = "";
+    std::string tXmlFileName = "";
+    bool tIsOnlyMeshing = false;
+    bool tSoFileSpecified = false;
+    bool tXmlFileSpecified = false;
 
-    //dynamically linked file
-    std::shared_ptr< Library_IO >tLibrary = std::make_shared< Library_IO >( argv[ 1 ] );
+    // go through user arguments and look for flags
+    for ( int k = 1; k < argc; ++k )
+    {
+        // get the current argument
+        std::string tArgString = std::string( argv[ k ] );
 
+        // check if user requests to just generate foreground and background meshes (for EXHUME project)
+        if ( tArgString == "--meshgen" || tArgString == "-mg" )
+        {
+            tIsOnlyMeshing = true;
+            MORIS_LOG( "Only mesh generation and output requested." );
+            continue;
+        }
+
+        // check if an .so file is provided
+        if ( tArgString.substr( tArgString.length() - 3 ) == ".so" )
+        {
+            MORIS_ERROR( !tSoFileSpecified, "Multiple .so files specified. Specify no more than one!" );
+            tSoFileSpecified = true;
+            tSoFileName = tArgString;
+            MORIS_LOG( "Reading dynamically linked input file: %s", tArgString.c_str() );
+            continue;
+        }
+
+        // check if an .xml file is provided
+        if ( tArgString.substr( tArgString.length() -4 ) == ".xml" || tArgString.substr( tArgString.length() -4 ) == ".XML" )
+        {
+            MORIS_ERROR( !tXmlFileSpecified, "Multiple .xml files specified. Specify no more than one!" );
+            tXmlFileSpecified = true;
+            tXmlFileName = tArgString;
+            MORIS_LOG( "Reading parameters from static input file: %s", tArgString.c_str() );
+            continue;
+        }
+
+        // check whether the input argument is a flag
+        if ( tArgString[ 0 ] == '-' )
+        {
+            MORIS_LOG( "Flag provided: %s", tArgString.c_str() );
+            continue;
+        }
+
+        // if the argument is neither a known file type nor a flag, throw an error
+        MORIS_ERROR( false, "Argument provided is neither a known file-type nor a flag: %s", tArgString.c_str() );
+    }
+
+    // check that the arguments provided by user are complete and make sense
+    if( tIsOnlyMeshing )
+    {
+        // FIXME: uncomment once complete
+        // MORIS_ERROR( tXmlFileSpecified, "An .xml input file must be specified for mesh generation." );
+    }
+    else
+    {
+        MORIS_ERROR( tSoFileSpecified || tXmlFileSpecified, "Neither an .so nor an .xml file has been provided. Provide at least one input file." );
+    }
+
+
+    // --------------------------------------------- //
+    // create library according to inputs
+
+    // prepare library to be generated
+    moris::Library_Factory tLibraryFactory;
+    std::shared_ptr< Library_IO > tLibrary = nullptr;
+
+    // create the library based on the kind of workflow requested
+    if( tIsOnlyMeshing )
+    {
+        tLibrary = tLibraryFactory.create_Library( Library_Type::MESHGEN );
+    }
+    else // no meshing workflow
+    {
+        tLibrary = tLibraryFactory.create_Library( Library_Type::STANDARD );
+    }
+
+    // load input parameters specified
+    if( tSoFileSpecified )
+    {
+        tLibrary->load_parameter_list( tSoFileName, File_Type::SO_FILE );
+    }
+    if( tXmlFileSpecified )
+    {
+        tLibrary->load_parameter_list( tXmlFileName, File_Type::XML_FILE );
+    }
+
+    // finish initializing the library and lock it from modification
+    tLibrary->finalize();
+
+    // --------------------------------------------- //
+    // start workflow
     {
         // load the OPT parameter list
-        std::string tOPTString = "OPTParameterList";
-        Parameter_Function tOPTParameterListFunc = tLibrary->load_function<Parameter_Function>( tOPTString );
-        moris::Cell< moris::Cell< ParameterList > > tOPTParameterList;
-        tOPTParameterListFunc( tOPTParameterList );
+        ModuleParameterList tOPTParameterList = tLibrary->get_parameters_for_module( Parameter_List_Type::OPT );
 
         // Create performer manager
         wrk::Performer_Manager tPerformerManager( tLibrary );
 
-        // FIXME: get this from parameter list"workflow"
+        // FIXME: get this from parameter list "workflow"
         std::string tWRKFlowStr = tOPTParameterList( 0 )( 0 ).get< std::string >("workflow");
 
         moris::Cell<std::shared_ptr<moris::opt::Criteria_Interface>> tWorkflows = {
@@ -104,6 +190,7 @@ int fn_WRK_Workflow_Main_Interface( int argc, char * argv[] )
         }
     }
 
+    // return success
     return 0;
 }
 

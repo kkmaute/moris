@@ -9,7 +9,7 @@
  */
 
 #include "cl_OPT_Interface_User_Defined.hpp"
-#include "cl_Library_IO.hpp"
+#include "cl_Library_Factory.hpp"
 
 namespace moris
 {
@@ -17,11 +17,14 @@ namespace moris
     {
         //--------------------------------------------------------------------------------------------------------------
 
-        Interface_User_Defined::Interface_User_Defined(
-                ParameterList aParameterList )
+        Interface_User_Defined::Interface_User_Defined( ParameterList aParameterList )
         {
-            // set library with user defined functions
-            mLibrary = std::make_shared< Library_IO >( aParameterList.get< std::string >( "library" ) );
+            // Load library
+            moris::Library_Factory tLibraryFactory;
+            mLibrary = tLibraryFactory.create_Library( Library_Type::STANDARD );
+            std::string tLibraryName = aParameterList.get< std::string >( "library" );
+            mLibrary->load_parameter_list( tLibraryName, File_Type::SO_FILE );
+            mLibrary->finalize();
 
             // Set user-defined functions
             initialize_user_defined             = mLibrary->load_function< Criteria_Initialize_Function >( "initialize" );

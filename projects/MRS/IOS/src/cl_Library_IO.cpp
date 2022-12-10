@@ -9,46 +9,381 @@
  */
 
 #include "cl_Library_IO.hpp"
+#include "cl_XML_Parser.hpp"
 
 namespace moris
 {
     //------------------------------------------------------------------------------------------------------------------
 
-    Library_IO::Library_IO( const std::string & aPath ) : mPath( std::getenv( "PWD" ) )
+    Library_IO::Library_IO() 
+            : mSoFilePath( "" )
+            , mLibraryHandle( nullptr )
+            , mSoLibIsInitialized( false )
+            , mXmlFilePath( "" )
+            , mXmlParser( std::make_unique< XML_Parser >() )
+            , mXmlParserIsInitialized( false )
+            , mLibraryIsFinalized( false )
+            , mLibraryType( Library_Type::UNDEFINED ) // base class library-type is undefined
+            , mParameterLists( (uint)( Parameter_List_Type::END_ENUM ) ) // list of module parameter lists sized to the number of modules that exist
+            , mXmlWriter( std::make_unique< XML_Parser >() )
     {
-        // get first letter of aPath
-        if( aPath.at( 0 ) == '/' )
-        {
-            // this is an absolute path
-            mPath = aPath;
-        }
-        else
-        {
-            // this is a relative path
-            mPath = mPath + "/" + aPath;
-        }
-
-        // try to open library file
-        mLibraryHandle = dlopen( mPath.c_str(), RTLD_NOW );
-
-        // test if loading succeeded
-        if( ! mLibraryHandle )
-        {
-            // get error string
-            std::string tError = dlerror();
-
-            // throw error
-            MORIS_ERROR( mLibraryHandle, tError.c_str() );
-        }
+        // do nothing else
     }
 
     //------------------------------------------------------------------------------------------------------------------
 
     Library_IO::~Library_IO()
     {
-        // close handle to library
-        dlclose( mLibraryHandle );
+        // close handle to shared object library if it has been opened
+        if ( mSoLibIsInitialized )
+        {
+            dlclose( mLibraryHandle );
+        }
     }
 
     //------------------------------------------------------------------------------------------------------------------
-}
+
+    void*
+    Library_IO::get_shared_object_library_handle()
+    {
+        MORIS_ASSERT( mSoLibIsInitialized, "Library_IO::get_shared_object_library_handle() - "
+                "A shared object library has not been initialized." );
+        return mLibraryHandle;
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    std::string
+    Library_IO::convert_to_absolute_file_path( const std::string aFilePath )
+    {
+        // check the first letter of file path
+        if( aFilePath.at( 0 ) == '/' ) // this is already an absolute path
+        {
+            // just return the same file path
+            return aFilePath;
+        }
+        else // this is a relative path
+        {
+            // get the current absolute working directory path
+            std::string tCurrentDir = std::string( std::getenv( "PWD" ) );
+
+            // add the direchtory to the file path
+            return tCurrentDir + "/" + aFilePath;
+        }
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    bool
+    Library_IO::check_if_parameter_list_function_name( const std::string& aFunctionName )
+    {
+        std::string tParamListEnding = "ParameterList";
+        size_t tNumCharsInEnding = tParamListEnding.length();
+
+        bool tIsParameterFunction = false;
+
+        if( aFunctionName.length() > tNumCharsInEnding )
+        {
+            size_t tPos = aFunctionName.length() - tNumCharsInEnding;
+            int tCompare = aFunctionName.compare( tPos, tNumCharsInEnding, tParamListEnding );
+            tIsParameterFunction = ( tCompare == 0 );
+        }
+
+        return tIsParameterFunction;
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    void
+    Library_IO::overwrite_and_add_parameters(
+            ModuleParameterList & aParamListToModify,
+            ModuleParameterList & aParamListToAdd )
+    {
+        // get the sizes of the different parameter lists
+        uint tOuterSizeToMod = aParamListToModify.size();
+        uint tOuterSizeToAdd = aParamListToAdd.size();
+
+        // resize the outer cell, if the parameter list to add is longer
+        if( tOuterSizeToAdd > tOuterSizeToMod )
+        {
+            aParamListToModify.resize( tOuterSizeToAdd );
+        }
+
+        // resize the inner cells, if the parameter lists to add are longer than the original ones
+        for( uint iOuterCell = 0; iOuterCell < tOuterSizeToAdd; iOuterCell++ )
+        {
+            uint tInnerSizeToMod = aParamListToModify( iOuterCell ).size();
+            uint tInnerSizeToAdd = aParamListToAdd( iOuterCell ).size();
+
+            if( tInnerSizeToAdd > tInnerSizeToMod )
+            {
+                aParamListToModify( iOuterCell ).resize( tInnerSizeToAdd );
+            }
+        }
+
+        // go over the various pieces of the parameter list and add non-existing parameters, 
+        // or overwrite them with the parameters provided
+        for( uint iOuterCell = 0; iOuterCell < tOuterSizeToAdd; iOuterCell++ )
+        {
+            uint tInnerSizeToAdd = aParamListToAdd( iOuterCell ).size();
+
+            for( uint iInnerCell = 0; iInnerCell < tInnerSizeToAdd; iInnerCell++ )
+            {
+                // get access to the current parameter lists
+                ParameterList & tParamsToMod = aParamListToModify( iOuterCell )( iInnerCell );
+                ParameterList & tParamsToAdd = aParamListToAdd( iOuterCell )( iInnerCell );
+
+                // if the existing parameter list is empty, just replace it with whatever is in the one to add
+                if( tParamsToMod.isempty() ) // FIXME, potentially
+                {
+                    tParamsToMod = tParamsToAdd;
+                }
+                else // otherwise compare and add/overwrite values
+                {
+                    // go over the entries of the parameter list ...
+                    for ( auto iParamToAdd : tParamsToAdd )
+                    {
+                        // ... and add or modify them
+                        tParamsToMod.set_or_insert( iParamToAdd.first, iParamToAdd.second );
+                    }
+                }
+            } // end for: inner cells
+        } // end for: outer cells
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    std::string
+    Library_IO::get_path( File_Type aFileType ) const
+    {
+        // switch between the file types that could be requested
+        switch( aFileType )
+        {
+            // shared object library file
+            case File_Type::SO_FILE :
+            
+                MORIS_ASSERT( mSoLibIsInitialized, "Library_IO::get_path() - "
+                        "Trying to get the path to the .so file used, but no shared object library has been initialized." );
+                return mSoFilePath;
+
+            // xml input file
+            case File_Type::XML_FILE :
+
+                MORIS_ASSERT( mXmlParserIsInitialized, "Library_IO::get_path() - "
+                        "Trying to get the path to the .xml file used, but no XML parser has been initialized." );
+                return mXmlFilePath;
+
+            // unknown file type to the base class
+            default :
+                MORIS_ERROR( false, "Library_IO_MeshGen::get_path() - File type unknown." );
+                return "";
+        }
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    void
+    Library_IO::load_parameter_list( std::string aFileName, File_Type aFileType )
+    {
+        // check that this library has not been fully initialized yet and isn't lockec
+        MORIS_ERROR( !mLibraryIsFinalized, "Library_IO::load_parameter_list() - "
+                "This Library has already been finalized and cannot load any additional parameters." );
+
+        // initialization procedure for various input file types
+        switch( aFileType )
+        {
+            /* -------------------------- */
+            case File_Type::SO_FILE :
+
+                // check that no shared object library has been initialized yet
+                MORIS_ASSERT( !mSoLibIsInitialized, "Library_IO::load_parameter_list() - "
+                        "Trying to intialize a shared object library, but one has already been initialized." );
+
+                // get and store the absolute file path to the .so input file
+                mSoFilePath = this->convert_to_absolute_file_path( aFileName );
+
+                // try to open library file
+                mLibraryHandle = dlopen( mSoFilePath.c_str(), RTLD_NOW );
+
+                // test if loading succeeded
+                if( !mLibraryHandle )
+                {
+                    // get error string
+                    std::string tError = dlerror();
+
+                    // throw error
+                    MORIS_ERROR( mLibraryHandle, tError.c_str() );
+                }
+                
+                // if loading succeded set the shared object library to initialized
+                mSoLibIsInitialized = true;
+
+                // stop switch case here
+                break;
+
+            /* -------------------------- */
+            case File_Type::XML_FILE :
+
+                // check that no shared object library has been initialized yet
+                MORIS_ASSERT( !mSoLibIsInitialized, "Library_IO::load_parameter_list() - "
+                        "Trying to intialize a shared object library, but one has already been initialized." );
+
+                // get and store the absolute file path to the .xml input file
+                mXmlFilePath = this->convert_to_absolute_file_path( aFileName );
+
+                // load the xml file in the parser
+                mXmlParser->initialize_read( mXmlFilePath );
+
+                // mark the xml-parser as initialized
+                mXmlParserIsInitialized = true;
+
+                // stop switch case here
+                break;
+
+            /* -------------------------- */
+            default :
+                MORIS_ERROR( false, "Library_IO::load_parameter_list() - File type unknown." );
+                break;
+
+        } // end: switch( aFileType )
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    void
+    Library_IO::print_parameter_receipt( const std::string aOutputFileName )
+    {
+        // initialize the xml writer by defining the root
+        mXmlWriter->initialize_write( aOutputFileName );
+
+        // write root of the tree
+        // mXmlWriter->flush_buffer_to_tree( XML_PARAMETER_FILE_ROOT );
+
+        // go through the modules and print their parameters to file
+        for( uint iModule = 0; iModule < (uint)( Parameter_List_Type::END_ENUM ); iModule++ )
+        {
+            // get the enum and name of the current module
+            Parameter_List_Type tModule = (Parameter_List_Type)( iModule );
+
+            // write this module to the xml tree
+            this->write_module_parameter_list_to_xml_tree( tModule );
+        }
+
+        // write the xml file
+        mXmlWriter->save();
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    void
+    Library_IO::write_module_parameter_list_to_xml_tree( const Parameter_List_Type aModule )
+    {
+        // get the location of the current 
+        uint tModuleIndex = (uint)( aModule );
+
+        // get this module's parameter list
+        ModuleParameterList & tModuleParamList = mParameterLists( tModuleIndex );
+        uint tOuterParamListSize = tModuleParamList.size();
+
+        // go through the individual sub-parameter lists and write them to the file
+        for( uint iOuterSubParamList = 0; iOuterSubParamList < tOuterParamListSize; iOuterSubParamList++ )
+        {
+            // get the number of inner parameter sub lists
+            uint tInnerParamListSize = tModuleParamList( iOuterSubParamList ).size();
+
+            for( uint iInnerSubParamList = 0; iInnerSubParamList < tInnerParamListSize; iInnerSubParamList++ )
+            {
+                // add an index if there are multiple
+                if( tInnerParamListSize > 1 )
+                {
+                    mXmlWriter->set_attribute_in_buffer( "ind", iInnerSubParamList );
+                }
+
+                // store the current parameter list in xml writer buffer
+                this->write_parameter_list_to_xml_buffer( tModuleParamList( iOuterSubParamList )( iInnerSubParamList ) );
+
+                // get the path where the buffered parameter list should be stored
+                std::string tParamListLocation = this->get_sub_parameter_list_location_in_xml_tree( aModule, iOuterSubParamList, true );
+
+                // store the parameter list to the xml tree
+                mXmlWriter->flush_buffer_to_tree( tParamListLocation );
+            }
+        }
+    }
+
+    // -----------------------------------------------------------------------------
+
+    void
+    Library_IO::write_parameter_list_to_xml_buffer( ParameterList & aParameterList )
+    {
+        // go over the entries of the parameter list ...
+        // for ( auto iParamToAdd : aParameterList )
+        for ( auto iParamToAdd = aParameterList.begin(); iParamToAdd != aParameterList.end(); ++iParamToAdd )
+        {
+            // ... and add or modify them
+            mXmlWriter->set_in_buffer( iParamToAdd->first, convert_param_value_to_string( iParamToAdd->second ) );
+        }
+    }
+
+    // -----------------------------------------------------------------------------
+
+    std::string
+    Library_IO::get_sub_parameter_list_location_in_xml_tree( 
+            const Parameter_List_Type aModule,
+            const uint                aSubParamListIndex,
+            const bool                aIsInnerParamList )
+    {
+        // initialize the location with the root of the xml tree
+        std::string tLocation = XML_PARAMETER_FILE_ROOT;
+
+        // get the name of the module and add it to the location
+        std::string tModuleName = convert_parameter_list_enum_to_string( aModule );
+        tLocation = tLocation + "." + tModuleName;
+
+        // if a sub-parameter list index has been provided
+        if( aSubParamListIndex < MORIS_UINT_MAX )
+        {
+            // get the name of the sub-parameter list
+            std::string tSubParamListName = get_outer_sub_parameter_list_name( aModule, aSubParamListIndex );
+
+            // add it to the location if not empty, otherwise don't add anything
+            if( tSubParamListName != "" )
+            {
+                tLocation = tLocation + "." + tSubParamListName;
+            }
+        }
+
+        if( aIsInnerParamList )
+        {
+            // get the name of the sub-parameter list
+            std::string tInnerSubParamListName = get_inner_sub_parameter_list_name( aModule, aSubParamListIndex );
+
+            // add it to the location if not empty, otherwise don't add anything
+            if( tInnerSubParamListName != "" )
+            {
+                tLocation = tLocation + "." + tInnerSubParamListName;
+            }
+        }
+
+        // return the location path
+        return tLocation;
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    ModuleParameterList
+    Library_IO::get_parameters_for_module( Parameter_List_Type aParamListType ) const
+    {
+        // check that the parameter lists are complete
+        MORIS_ERROR( mLibraryIsFinalized, "Library_IO::get_parameters_for_module() - "
+                "Library has not been fully initialized. "
+                "The Library needs to be finalized before parameters can be loaded." );
+
+        // get the parameter list for the module and return it
+        uint tParamListIndex = (uint)( aParamListType );
+        return mParameterLists( tParamListIndex );
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
+} // namespace moris

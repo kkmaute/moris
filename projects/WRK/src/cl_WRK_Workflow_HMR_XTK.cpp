@@ -36,11 +36,6 @@ namespace moris
     namespace wrk
     {
 
-        //------------------------------------------------------------------------------
-
-        // Parameter function
-        typedef void ( *Parameter_Function )( moris::Cell< moris::Cell< moris::ParameterList > >& aParameterList );
-
         //--------------------------------------------------------------------------------------------------------------
 
         Workflow_HMR_XTK::Workflow_HMR_XTK( wrk::Performer_Manager* aPerformerManager )
@@ -54,36 +49,13 @@ namespace moris
             mPerformerManager->mMDLPerformer.resize( 1 );
             mPerformerManager->mRemeshingMiniPerformer.resize( 1 );
 
-            // load the HMR parameter list
-            std::string tHMRString = "HMRParameterList";
-
-            Parameter_Function tHMRParameterListFunc =    //
-                    mPerformerManager->mLibrary->load_function< Parameter_Function >( tHMRString );
-
-            moris::Cell< moris::Cell< ParameterList > > tHMRParameterList;
-            tHMRParameterListFunc( tHMRParameterList );
-
-            // load the GEN parameter list
-            std::string tGENString = "GENParameterList";
-
-            Parameter_Function tGENParameterListFunc =    //
-                    mPerformerManager->mLibrary->load_function< Parameter_Function >( tGENString );
-
-            moris::Cell< moris::Cell< ParameterList > > tGENParameterList;
-            tGENParameterListFunc( tGENParameterList );
-
-            // load the MORIS General parameter list
-            std::string tMORISString = "MORISGENERALParameterList";
-
-            Parameter_Function tMORISParameterListFunc =    //
-                    mPerformerManager->mLibrary->load_function< Parameter_Function >( tMORISString );
-
-            moris::Cell< moris::Cell< ParameterList > > tMORISParameterList;
-            tMORISParameterListFunc( tMORISParameterList );
+            // load parameter lists
+            ModuleParameterList tHMRParameterList   = aPerformerManager->mLibrary->get_parameters_for_module( Parameter_List_Type::HMR );
+            ModuleParameterList tGENParameterList   = aPerformerManager->mLibrary->get_parameters_for_module( Parameter_List_Type::GEN );
+            ModuleParameterList tMORISParameterList = aPerformerManager->mLibrary->get_parameters_for_module( Parameter_List_Type::MORISGENERAL );
 
             // create HMR performer
-            mPerformerManager->mHMRPerformer( 0 ) =    //
-                    std::make_shared< hmr::HMR >( tHMRParameterList( 0 )( 0 ), mPerformerManager->mLibrary );
+            mPerformerManager->mHMRPerformer( 0 ) = std::make_shared< hmr::HMR >( tHMRParameterList( 0 )( 0 ), mPerformerManager->mLibrary );
 
             // create MTK performer - will be used for HMR mesh
             mPerformerManager->mMTKPerformer( 0 ) = std::make_shared< mtk::Mesh_Manager >();
@@ -195,14 +167,7 @@ namespace moris
                         tFieldsOut );
 
                 // create new GE performer
-                std::string tGENString = "GENParameterList";
-
-                Parameter_Function tGENParameterListFunc =    //
-                        mPerformerManager->mLibrary->load_function< Parameter_Function >( tGENString );
-
-                moris::Cell< moris::Cell< ParameterList > > tGENParameterList;
-                tGENParameterListFunc( tGENParameterList );
-
+                ModuleParameterList tGENParameterList = mPerformerManager->mLibrary->get_parameters_for_module( Parameter_List_Type::GEN );
                 mPerformerManager->mGENPerformer( 0 ) =
                         std::make_shared< ge::Geometry_Engine >( tGENParameterList, mPerformerManager->mLibrary );
             }
@@ -298,12 +263,9 @@ namespace moris
             }
 
             // Stage 2: XTK -----------------------------------------------------------------------------
-            // Read parameter list from shared object
-            Parameter_Function tXTKParameterListFunc =    //
-                    mPerformerManager->mLibrary->load_function< Parameter_Function >( "XTKParameterList" );
 
-            moris::Cell< moris::Cell< ParameterList > > tXTKParameterList;
-            tXTKParameterListFunc( tXTKParameterList );
+            // Read parameter list from shared object
+            ModuleParameterList tXTKParameterList = mPerformerManager->mLibrary->get_parameters_for_module( Parameter_List_Type::XTK );
 
             // Create XTK
             xtk::Model* tXTKPerformer = new xtk::Model( tXTKParameterList( 0 )( 0 ) );
@@ -404,14 +366,12 @@ namespace moris
             // mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair(0).get_integration_mesh()->save_IG_node_TMatrices_to_file();
 
 
-            Parameter_Function tMIGParameterListFunc =
-                    mPerformerManager->mLibrary->load_function< Parameter_Function >( "MIGParameterList", false );
+            // get the MIG parameter list
+            ModuleParameterList tMIGParameterList = mPerformerManager->mLibrary->get_parameters_for_module( Parameter_List_Type::MIG );
 
-            if ( tMIGParameterListFunc )
+            // check if there are MIG parameters specified
+            if ( tMIGParameterList.size() > 0 )
             {
-                moris::Cell< moris::Cell< ParameterList > > tMIGParameterList;
-                tMIGParameterListFunc( tMIGParameterList );
-
                 moris::mig::MIG tMIGPerformer = moris::mig::MIG(
                         mPerformerManager->mMTKPerformer( 1 ),
                         tMIGParameterList( 0 )( 0 ),

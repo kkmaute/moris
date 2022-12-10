@@ -9,12 +9,6 @@
  */
 
 #include "cl_XML_Parser.hpp"
-/*
- * cl_XML_Parser.cpp
- *
- *  Created on: Sep 10, 2018
- *      Author: messe
- */
 
 #include <string>
 #include <set>
@@ -34,95 +28,194 @@
 namespace moris
 {
 
-// -----------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------
 
-        /**
-         * counts number of entries in a subtree
-         */
-        moris::size_t XML_Parser::count_keys_in_subtree( const std::string & aSubTree,
-                                                         const std::string & aLabel )
+    XML_Parser::XML_Parser( const std::string& aFilePath, XML_Mode aMode )
+    {
+        // initialize the parser
+        if( aMode == XML_Mode::READ )
         {
-            // initialize counter
-            moris::size_t aCount = 0;
+            this->initialize_read( aFilePath );
+        }
+        else if( aMode == XML_Mode::WRITE )
+        {
+            this->initialize_write( aFilePath );
+        }
+        else
+        {
+            MORIS_ERROR( false, "XML_Parser::XML_Parser() - Initializing an XML parser with in unknown mode." );
+        }
+    }
 
-            // loop over all entries in this tag
-            BOOST_FOREACH( boost::property_tree::ptree::value_type &v,
-                           mTree.get_child( aSubTree ) )
-            {
-                if( v.first.data() == aLabel )
-                {
-                    // increment counter
-                    ++aCount;
-                }
-            }
+    // -----------------------------------------------------------------------------
 
-            // return counter
-            return aCount;
+    void
+    XML_Parser::initialize_read( const std::string& aFilePath )
+    {
+        // check that this parser has not been initialized before
+        if( mMode != XML_Mode::UNINITIALIZED )
+        {
+            std::cerr << "XML_Parser::initialize_read() - " <<
+                    "Trying to initialize an XML-parser that has already been initialized." << aFilePath << std::endl;
+            throw;
         }
 
-// -----------------------------------------------------------------------------
-
-        /**
-         * returns entries from a subtree, assuming that the subtree is flat
-         */
-        void XML_Parser::get_keys_from_subtree( const std::string         & aSubTree,
-                                                const std::string         & aLabel,
-                                                const moris::size_t       & aIndex,
-                                                      Cell< std::string > & aFirst,
-                                                      Cell< std::string > & aSecond )
+        // test if the file specified exists
+        if ( boost::filesystem::exists( aFilePath ) )
         {
-            // tidy up output data
-            aFirst.clear();
-            aSecond.clear();
+            mFilePath = aFilePath;
+            boost::property_tree::read_xml( mFilePath, mTree );
+        }
+        else
+        {
+            std::cerr << "XML_Parser::initialize_read() - " << 
+                    "Something went wrong while trying to load from XML file: " << aFilePath << std::endl;
+            throw;
+        }
 
-            // initialize counter
-            moris::size_t tCount = 0;
+        // mark the parser as initialized
+        mMode = XML_Mode::READ;
+    }
 
-            // loop over all entries in this tag
-            BOOST_FOREACH( boost::property_tree::ptree::value_type &v,
-                           mTree.get_child( aSubTree ) )
+    // -----------------------------------------------------------------------------
+
+    void
+    XML_Parser::initialize_write( const std::string& aFilePath )
+    {
+        // check that this parser has not been initialized before
+        if( mMode != XML_Mode::UNINITIALIZED )
+        {
+            std::cerr << "XML_Parser::initialize_write() - " <<
+                    "Trying to initialize an XML-parser that has already been initialized." << aFilePath << std::endl;
+            throw;
+        }
+
+        // test if the file specified exists
+        if ( boost::filesystem::exists( aFilePath ) )
+        {
+            MORIS_LOG( "An XML writer is initialized with path '%s'." , aFilePath.c_str() ); 
+            MORIS_LOG( "This file already exists and will be overwritten." ); 
+        }
+        
+        // set the file path
+        mFilePath = aFilePath;
+
+        // mark the parser as initialized
+        mMode = XML_Mode::WRITE;
+    }
+
+    // -----------------------------------------------------------------------------
+
+    void
+    XML_Parser::flush_buffer_to_tree( const std::string& aLocation )
+    {
+        // check that the xml-parser is in writing mode
+        MORIS_ASSERT( mMode == XML_Mode::WRITE, "XML_Parser::flush_buffer_to_tree() - xml-parser must be in write mode to use this function." );
+
+        // add the subtree stored in the buffer to the desired location in the main tree
+        mTree.add_child( aLocation, mBuffer );
+
+        // clear the buffer
+        mBuffer.clear();
+    }
+
+    // -----------------------------------------------------------------------------
+
+    /**
+     * counts number of entries in a subtree
+     */
+    moris::size_t
+    XML_Parser::count_keys_in_subtree( 
+            const std::string& aSubTree,
+            const std::string& aLabel )
+    {
+        // initialize counter
+        moris::size_t aCount = 0;
+
+        // loop over all entries in this tag
+        BOOST_FOREACH ( boost::property_tree::ptree::value_type &v, mTree.get_child( aSubTree ) )
+        {
+            if ( v.first.data() == aLabel )
             {
-                if( v.first.data() == aLabel )
+                // increment counter
+                ++aCount;
+            }
+        }
+
+        // return counter
+        return aCount;
+    }
+
+    // -----------------------------------------------------------------------------
+
+    /**
+     * returns entries from a subtree, assuming that the subtree is flat
+     */
+    void
+    XML_Parser::get_keys_from_subtree( 
+            const std::string&   aSubTree,
+            const std::string&   aLabel,
+            const moris::size_t& aIndex,
+            Cell< std::string >& aFirst,
+            Cell< std::string >& aSecond )
+    {
+        // tidy up output data
+        aFirst.clear();
+        aSecond.clear();
+
+        // initialize counter
+        moris::size_t tCount = 0;
+
+        // loop over all entries in this tag
+        BOOST_FOREACH ( boost::property_tree::ptree::value_type &v,
+                mTree.get_child( aSubTree ) )
+        {
+            if ( v.first.data() == aLabel )
+            {
+                if ( tCount == aIndex )
                 {
-                    if ( tCount == aIndex )
+                    if ( !v.second.empty() )
                     {
-                        if( ! v.second.empty() )
+                        BOOST_FOREACH ( boost::property_tree::ptree::value_type &w,
+                                v.second )
                         {
-                            BOOST_FOREACH( boost::property_tree::ptree::value_type &w,
-                                    v.second )
+                            if ( w.second.empty() )
                             {
-                                if( w.second.empty() )
-                                {
-                                    aFirst.push_back( w.first.data() );
-                                    aSecond.push_back( w.second.data() );
-                                }
+                                aFirst.push_back( w.first.data() );
+                                aSecond.push_back( w.second.data() );
                             }
                         }
-                        break;
                     }
-                    ++tCount;
+                    break;
                 }
+                ++tCount;
             }
         }
+    }
 
-// -----------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------
 
-        bool XML_Parser::to_bool(std::string const & aStr)
+    bool
+    XML_Parser::to_bool( std::string const &aStr )
+    {
+        if ( aStr == "true" || aStr == "1" )
         {
-            if(aStr == "true" || aStr == "1")
-            {
-                return true;
-            }
-            else if(aStr == "false" || aStr == "0")
-            {
-                 return false;
-            }
-            else
-            {
-                MORIS_ERROR(0,"Unrecognized string passed into to_bool. Needs to be true or 1 for bool = true or false or 0 for bool = false, be sure to check for extraneous spaces");
-                return false;
-            };
+            return true;
         }
+        else if ( aStr == "false" || aStr == "0" )
+        {
+            return false;
+        }
+        else
+        {
+            MORIS_ERROR( false, 
+                    "XML_Parser::to_bool() - Unrecognized string passed into to_bool. "
+                    "Needs to be true or 1 for bool = true or false or 0 for bool = false, "
+                    "be sure to check for extraneous spaces" );
+            return false;
+        };
+    }
 
-}
+    // -----------------------------------------------------------------------------
 
+}    // namespace moris

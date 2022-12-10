@@ -48,29 +48,14 @@ namespace moris
 {
     namespace wrk
     {
-        // Parameter function
-        typedef void ( *Parameter_Function )( moris::Cell< moris::Cell< moris::ParameterList > >& aParameterList );
+        //------------------------------------------------------------------------------
 
         Reinitialize_Performer::Reinitialize_Performer( std::shared_ptr< Library_IO > aLibrary )
                 : mLibrary( aLibrary )
         {
-
-            // call the work flow parameter list and see if it is empty
-            std::string        tMORISString            = "MORISGENERALParameterList";
-            Parameter_Function tMORISParameterListFunc = aLibrary->load_function< Parameter_Function >( tMORISString, true );
-
-            // extract the PRM list
-            moris::Cell< moris::Cell< ParameterList > > tMORISParameterList;
-            tMORISParameterListFunc( tMORISParameterList );
-
-            // call the msi paramater list;
-            std::string        tMSIString = "MSIParameterList";
-            Parameter_Function tMSIParameterListFunc =
-                    aLibrary->load_function< Parameter_Function >( tMSIString, true );
-
-            // extract the PRM list
-            moris::Cell< moris::Cell< ParameterList > > tMSIParameterList;
-            tMSIParameterListFunc( tMSIParameterList );
+            // get the parameter lists
+            ModuleParameterList tMORISParameterList = aLibrary->get_parameters_for_module( Parameter_List_Type::MORISGENERAL );
+            ModuleParameterList tMSIParameterList = aLibrary->get_parameters_for_module( Parameter_List_Type::MSI );
 
             mAdofMeshIndex = tMSIParameterList( 0 )( 0 ).get< moris::sint >( tMORISParameterList( 2 )( 0 ).get< std::string >( "dof_type" ) );
 
