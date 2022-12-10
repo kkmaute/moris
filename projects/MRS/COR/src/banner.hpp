@@ -113,8 +113,10 @@ namespace moris
         {
             print_logo();
 
-#if defined( MORIS_HAVE_DEBUG )
-            std::fprintf( stdout, "     DEBUG flags are on.\n\n" );
+#ifdef MORIS_HAVE_DEBUG
+            std::fprintf( stdout, "     DEBUG flags are ON.\n\n" );
+#else
+            std::fprintf( stdout, "     DEBUG flags are OFF.\n\n" );
 #endif
 
             // Who?
@@ -123,7 +125,7 @@ namespace moris
             std::string tOsType   = std::getenv( "OSTYPE" ) == nullptr ? "NA" : std::getenv( "OSTYPE" );
             std::string tHostType = std::getenv( "HOSTTYPE" ) == nullptr ? "NA" : std::getenv( "HOSTTYPE" );
 
-            std::fprintf( stdout, "     User/Host   : %s at %s ( %s / %s )\n",    //
+            std::fprintf( stdout, "     User/Host    : %s at %s ( %s / %s )\n",    //
                     tUser.c_str(),
                     tHostName.c_str(),
                     tOsType.c_str(),
@@ -131,33 +133,33 @@ namespace moris
 
             std::string tCpuInfo = get_cpu_info();
 
-            std::fprintf( stdout, "     CPU Info    : %s \n", tCpuInfo.c_str() );
-            std::fprintf( stdout, "     Procs Used  : %i \n", (int)par_size() );
+            std::fprintf( stdout, "     CPU Info     : %s \n", tCpuInfo.c_str() );
+            std::fprintf( stdout, "     Procs Used   : %i \n", (int)par_size() );
 
             // insert blank line
             std::fprintf( stdout, "\n" );
 
             // When built?
-            std::fprintf( stdout, "     Build Date  : %s at %s\n", __DATE__, __TIME__ );
+            std::fprintf( stdout, "     Build Date   : %s at %s\n", __DATE__, __TIME__ );
 
             // When run
             time_t tTimeStamp = time( NULL );
-            std::fprintf( stdout, "     Date of Run : %s \n", ctime( &tTimeStamp ) );
+            std::fprintf( stdout, "     Date of Run  : %s \n", ctime( &tTimeStamp ) );
 
             // What Matrix lib?
 #ifdef MORIS_USE_ARMA
-            std::fprintf( stdout, "     Matrix Lib  : Armadillo\n" );
+            std::fprintf( stdout, "     Matrix Lib   : Armadillo\n" );
 #else
-            std::fprintf( stdout, "     Matrix Lib  : Eigen\n" );
+            std::fprintf( stdout, "     Matrix Lib   : Eigen\n" );
 #endif
 
             // insert blank line
             std::fprintf( stdout, "\n" );
 
             // What?
-            std::fprintf( stdout, "     Executable  : %s\n", argv[ 0 ] );
+            std::fprintf( stdout, "     Executable   : %s\n", argv[ 0 ] );
 
-            std::fprintf( stdout, "     Arguments   :" );
+            std::fprintf( stdout, "     Arguments    :" );
 
             for ( int ia = 1; ia < argc; ++ia )
             {
@@ -166,7 +168,7 @@ namespace moris
             std::fprintf( stdout, "\n" );
 
             // Where?
-            std::fprintf( stdout, "     Run Dir     : %s\n", std::getenv( "PWD" ) );
+            std::fprintf( stdout, "     Run Dir      : %s\n", std::getenv( "PWD" ) );
             std::fprintf( stdout, "\n" );
         }
     }

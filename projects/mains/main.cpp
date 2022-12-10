@@ -89,8 +89,8 @@ main( int argc, char* argv[] )
     {
         git_info tGitInfo;
 
-        std::fprintf( stdout, "\n     GIT branch    : %s\n", tGitInfo.get_git_branch().c_str() );
-        std::fprintf( stdout, "     GIT revision  : %s\n\n", tGitInfo.get_git_hash().c_str() );
+        std::fprintf( stdout, "     GIT branch   : %s\n", tGitInfo.get_git_branch().c_str() );
+        std::fprintf( stdout, "     GIT revision : %s\n\n", tGitInfo.get_git_hash().c_str() );
 
         MORIS_LOG_SPEC( "Par Rank", par_rank() );
         MORIS_LOG_SPEC( "Par Size", par_size() );
