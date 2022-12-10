@@ -18,7 +18,7 @@
 
 #include "cl_WRK_Performer_Manager.hpp"
 #include "cl_WRK_Workflow_HMR_XTK.hpp"
-#include "cl_Library_IO.hpp"
+#include "cl_Library_Factory.hpp"
 #include "cl_Communication_Tools.hpp"
 
 using namespace moris;
@@ -29,7 +29,11 @@ TEST_CASE( "WRK_sensitivity_test ", "[moris],[WRK_sensitivity_test]" )
     {
         std::string tInputFilePath = moris::get_moris_bin_dir() + "/lib/WRK_Input_1.so";
 
-        std::shared_ptr< Library_IO > tLibrary = std::make_shared< Library_IO >( tInputFilePath );
+        // Load library
+        moris::Library_Factory tLibraryFactory;
+        std::shared_ptr< Library_IO > tLibrary = tLibraryFactory.create_Library( Library_Type::STANDARD );
+        tLibrary->load_parameter_list( tInputFilePath, File_Type::SO_FILE );
+        tLibrary->finalize();
 
         wrk::Performer_Manager tPerformerManager( tLibrary );
         wrk::Workflow_HMR_XTK tWorkflow( &tPerformerManager );
