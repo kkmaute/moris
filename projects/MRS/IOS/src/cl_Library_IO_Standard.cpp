@@ -66,7 +66,7 @@ namespace moris
                     // throw out a warning if unknown parameter list types are used
                     if( mSupportedParamListTypes.find( tParamListType ) == mSupportedParamListTypes.end() )
                     {
-                        MORIS_LOG( "These parameters are irrelevant for mesh generation and will be ignored." );
+                        MORIS_LOG( "These parameters are irrelevant for the standard workflow and will be ignored." );
                     }
                     else // otherwise, if parameter list is supported, overwrite and add parameters to standard parameters
                     {

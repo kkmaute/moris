@@ -20,6 +20,7 @@ namespace moris
     // Static constants
     const std::string PARAM_LIST_FUNC_NAME_ENDING = "ParameterList";
     const std::string XML_PARAMETER_FILE_ROOT = "ParameterLists";
+    const std::string PRINT_ERROR = "print_error";
 
     // -----------------------------------------------------------------------------
 

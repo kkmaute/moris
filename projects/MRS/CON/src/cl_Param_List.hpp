@@ -27,6 +27,7 @@
 #include "core.hpp"
 #include "ios.hpp"
 #include "fn_Parsing_Tools.hpp"
+#include "cl_Library_Enums.hpp"
 
 namespace moris
 {
@@ -438,7 +439,7 @@ namespace moris
     //------------------------------------------------------------------------------
 
     template< typename Variant >
-    std::string
+    inline std::string
     convert_param_value_to_string( Variant aParameterValue )
     {
         std::stringstream tStringStream;
@@ -473,9 +474,15 @@ namespace moris
             tStringStream << boost::get< uint >( aParameterValue );
         }
 
+        else if ( boost::get< std::pair< std::string, std::string > >( & aParameterValue ) != nullptr )
+        {
+            std::pair< std::string, std::string > tPair = boost::get< std::pair< std::string, std::string > >( aParameterValue );
+            tStringStream << tPair.first << "," << tPair.second;
+        }
+
         else
         {
-            tStringStream << "<print_error>" << std::endl;
+            tStringStream << PRINT_ERROR << std::endl;
         }
 
         return tStringStream.str();
